@@ -1083,6 +1083,73 @@ CHANGES_V21.append("2 Oct, v2.4: status on main 8dd506a (staging walk 008 green)
                    "scopes (ADM-05, ADM-06, DEA-02 stay PARTIAL until fixed). ADM-21 regressed in the latest run, under diagnosis. "
                    "The checklist stays engineering detail since D-084; readiness is the journey status.")
 
+META["version"] = "v2.5 — 2 October 2026 (status on main 38944b5, batch 7; v2 of 24 Sep kept as the baseline)"
+NOW.update({
+    "sha": "38944b5",
+    "date": "2 Oct 2026",
+    "label": "main after batch 7 (M3 read-again, C1, J6.13, X.6, D-006, J6.14)",
+    "evidence": ("main 38944b5 carries batch 7 and is on staging with 145 migrations (staging.yml run 36959297570: migrations equal the "
+                 "repository, sign-in boundary and email asserted). Its CI is green (run 36957342031) and its browser audit green: "
+                 "crawl A with the 320 px gate and job B 52 PASS, 1 NOTE, 0 FAIL from an empty production-like database (run "
+                 "36957344279). Production is unchanged (5b5b68d, 111 migrations)."),
+})
+CURRENT.update({
+    "STU-07": ("PASS: answers are counted exactly (staging J08, J11, J13); an unsaved last answer is kept at «Kumpulkan» (W3); a "
+               "student changes a saved post-test answer and reloads mid-test: the test reopens at the next unsaved question and "
+               "the result counts the changed answer (S21, student 2; runs 36954714221 and 36957344279)."),
+    "STU-19": ("PASS: on one computer, «Keluar», then Back and refresh land on /masuk with nothing of the first student; the next "
+               "student signs in and finds only their own home and the lesson at its first page (S21c, W2); a card session ends "
+               "after 60 minutes idle (BOB-05)."),
+    "STU-20": ("PASS: «EN» switches the home, the lesson's page counter and buttons, and the test's controls; the lesson's text "
+               "is unchanged; «ID» switches back (S21g, run 36957344279). The first walk found the lesson and test players "
+               "Indonesian whatever the reader chose (fixed in batch 7: J614-K01)."),
+    "HOD-02": ("PASS: /pimpinan shows the department, its roster lists every learner (S23, W10); the school's root and the other "
+               "school, typed as addresses, refuse the head of department (S23, HOD-02)."),
+    "HOD-03": ("PASS: the head of department reaches Studio → «Antrean Tinjauan» by clicking; before Bab 1 is sent it says «Tidak "
+               "ada yang menunggu tinjauan Anda.» exactly when nothing of the school waits; once sent it lists Bab 1, which opens "
+               "on its package page with «Setujui isi» offered (S17t, run 36957344279)."),
+    "HOD-04": ("PASS: the head of department is Bab 1's reviewer: reads every question, key and reason (28 of 28, 112 of 112 "
+               "options, 28 keys), approves, makes and locks the release; the author is never offered the second person's step "
+               "(S17, D-088(h), HOD-05, GS-09)."),
+    "X-05": ("PASS: the class is assigned and the eligible learners see it (S18, S19); a learner moved out of the class before a "
+             "chapter was given to it finds no such chapter on her home and its address is refused to her (S26d2)."),
+    "DEA-02": ("PASS: a dean onboarded by the school admin's screens (Pendataan, Aktivasi, «Dekan» at the school) signs in by the "
+               "email link, reads the school on /pimpinan, opens «Buka ringkasan sekolah» by clicking (no raw decimal), and "
+               "Konfigurasi, Aktivasi, Studio and Pendataan refuse the dean (S23d, runs 36954714221 and 36957344279)."),
+    "ADM-05": ("PASS: people are created by the screens: the first school admin through «Orang baru» by clicking (S3, J1.4), staff "
+               "by Pendataan, Aktivasi and Peran & akses (S12, S16, S23d, S26b). Peran & akses offers the school first by its own "
+               "name, then its Bagian, Tingkat and Kelas, never a hidden level (D-006, D006-K01)."),
+    "ADM-06": ("PASS: the school admin grants (S12, S23d), revokes (S24) and replaces a teacher (S26b) by the screens, choosing "
+               "only D-006's scopes."),
+    "ADM-21": ("PASS: next year's Tingkat and Kelas are made and the whole class carried forward, one not yet signed in too (S27, "
+               "runs 36954714221 and 36957344279). One earlier failure (run 36952453693) was not seen again; its cause was not "
+               "established."),
+    "SYS-02": ("PARTIAL: Konfigurasi shows the environment and, on «Jalankan pemeriksaan», «Semua pemeriksaan lolos» (S2, walked). "
+               "Whether each school's administrator has signed in needs a new cross-school read of sign-in facts: waiting for "
+               "Yazid."),
+})
+FINDINGS[:] = [(f[0], f[1], f[2], "FIXED in batch 7 (D006-K01; walked green in S23d)") if f[0] == "D-006 scopes (2 Oct)" else f
+               for f in FINDINGS]
+FINDINGS.append(("J6.14 players (2 Oct)",
+                 "After «EN» the lesson still read «Halaman 1/3» and the test «Simpan jawaban ini»: the lesson and question "
+                 "players asked for their words with no language (audit S21g).",
+                 "Every learner screen switches between ID and EN; the school's content is never translated (J6.14, STU-20).",
+                 "FIXED in batch 7 (J614-K01; walked green in S21g)"))
+VERDICT_NOW = ("NO-GO. main 38944b5 (batch 7) is on staging with 145 migrations; production still runs 5b5b68d (111). "
+               "What stands between main and go-live, by owner: "
+               "Yazid — the production Supabase SMTP password; the readiness tier wording (D-082(e)); the card and certificate "
+               "physical proofs; the forwarding key at staging acceptance (D-062(c), needed before CAP-01 means anything); REL-09's "
+               "recovery copies (D-066); the D-029 question for PINTAR's own chapters (M6); the production read permission for the "
+               "restore rehearsal; production's compute tier (CAP-08); a cross-school read of whether each school's admin has "
+               "signed in (SYS-02). "
+               "Held for the joint landing (Gate 3) — BOB-26 with DAISY-20 and BOB-50: X-09's certificates, EDU-10, U-RECOVER. "
+               "Coordinator — staging walk 009 (EDU-09's J14); the first Golden School on staging (C1, then its first "
+               "administrator by the screens: SYS-03, GS-01 to GS-03); the load harness (CAP-02, CAP-07; CAP-01 after the "
+               "forwarding key).")
+CHANGES_V21.append("2 Oct, v2.5: status on main 38944b5 (batch 7). P0 PASS 67 → 75: ADM-05 (D-006 fixed), DEA-02, HOD-02, HOD-03, "
+                   "HOD-04, STU-07, STU-19, X-05. P1/P2 to PASS: ADM-06, STU-20 (after the J6.14 player fix), ADM-21. Findings: "
+                   "D-006 scopes fixed; a new one, the players' language (J6.14), found and fixed in the same batch.")
+
 def as_dict():
     g = globals()
     return {

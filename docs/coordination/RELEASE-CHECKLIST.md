@@ -2,7 +2,7 @@
 
 > **RETIRED AS THE READINESS MEASURE, 1 Oct 2026 (D-084). The rows below stay as engineering detail. Their PASS counts are not a readiness measure. PINTAR's status is the journey status in docs/recovery/PHASE-1-STATUS.md under docs/recovery/EVIDENCE-MODEL.md; go-live is Phase 8 of docs/recovery/RECOVERY-CHARTER.md.**
 
-**v2.4 — 2 October 2026 (status on main 8dd506a, with the branch's walks of 2 Oct; v2 of 24 Sep kept as the baseline).** Rendered from `docs/coordination/checklist/checklist_data.py`; edit there and re-render. The Word copy for Yazid comes from the same data.
+**v2.5 — 2 October 2026 (status on main 38944b5, batch 7; v2 of 24 Sep kept as the baseline).** Rendered from `docs/coordination/checklist/checklist_data.py`; edit there and re-render. The Word copy for Yazid comes from the same data.
 
 | | |
 |---|---|
@@ -14,29 +14,29 @@
 
 > Calm on the surface. Rigorous underneath. One meaningful next action is obvious, while authorization, evidence and state transitions stay correct.
 
-## Row counts (engineering detail, not a readiness measure) (main after batch 6 (T2, M10) `8dd506a`, 2 Oct 2026)
+## Row counts (engineering detail, not a readiness measure) (main after batch 7 (M3 read-again, C1, J6.13, X.6, D-006, J6.14) `38944b5`, 2 Oct 2026)
 
 P0 checks only; each must be PASS on the release candidate before any push to live. The baseline of 24 Sep 2026 (main `78b0f55`) is kept beside each row.
 
-**Evidence now:** main 8dd506a is on staging with 143 migrations (environment facts run 36949805301 GREEN). Staging walk 008 on it: 20 PASS, 1 NOTE, 1 NOT RUN, no 5xx, no page error (run 36951544367); the Uji Cepat as T2 rules it is green there (Q3–Q5). The branch carries batch 7 (migrations 144–145: M3's «Minta membaca lagi» and C1's school founding; J6.13; X.6) and new walks: CI 36952451202 on 39806c7 is 30/30 green; its browser audit (run 36952453693) has crawl A green with the new 320 px gate, and job B 47 PASS, 1 NOTE, 3 FAIL (S17t a walk defect, fixed; S23d a D-006 defect in Peran & akses, see the findings; S27 under diagnosis). The previous head cdfa12a: 47 PASS, 1 NOTE, 1 FAIL (S21d, a walk defect, fixed; run 36950730580). Production is unchanged (5b5b68d, 111 migrations).
+**Evidence now:** main 38944b5 carries batch 7 and is on staging with 145 migrations (staging.yml run 36959297570: migrations equal the repository, sign-in boundary and email asserted). Its CI is green (run 36957342031) and its browser audit green: crawl A with the 320 px gate and job B 52 PASS, 1 NOTE, 0 FAIL from an empty production-like database (run 36957344279). Production is unchanged (5b5b68d, 111 migrations).
 
 | Section | P0 checks | PASS | PARTIAL | FAIL | BLOCKED | N-I | N-T | PASS at baseline |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Student / Murid | 15 | 12 | 3 | 0 | 0 | 0 | 0 | 1 |
+| Student / Murid | 15 | 14 | 1 | 0 | 0 | 0 | 0 | 1 |
 | Educator / Guru | 8 | 7 | 1 | 0 | 0 | 0 | 0 | 1 |
-| Head of department / Kepala departemen | 8 | 5 | 2 | 0 | 0 | 0 | 1 | 1 |
-| Dean / Dekan | 5 | 4 | 1 | 0 | 0 | 0 | 0 | 1 |
-| School admin / Admin sekolah | 14 | 12 | 2 | 0 | 0 | 0 | 0 | 1 |
+| Head of department / Kepala departemen | 8 | 8 | 0 | 0 | 0 | 0 | 0 | 1 |
+| Dean / Dekan | 5 | 5 | 0 | 0 | 0 | 0 | 0 | 1 |
+| School admin / Admin sekolah | 14 | 13 | 1 | 0 | 0 | 0 | 0 | 1 |
 | System admin / Admin platform | 3 | 3 | 0 | 0 | 0 | 0 | 0 | 2 |
 | Anonymous visitor and certificate verifier | 5 | 5 | 0 | 0 | 0 | 0 | 0 | 4 |
-| The cross-role scenario | 12 | 9 | 3 | 0 | 0 | 0 | 0 | 0 |
+| The cross-role scenario | 12 | 10 | 2 | 0 | 0 | 0 | 0 | 0 |
 | Capacity | 4 | 0 | 1 | 0 | 0 | 0 | 3 | 0 |
 | Universal checks | 10 | 10 | 0 | 0 | 0 | 0 | 0 | 2 |
-| **Total** | **84** | **67** | **13** | **0** | **0** | **0** | **4** | **13** |
+| **Total** | **84** | **75** | **6** | **0** | **0** | **0** | **3** | **13** |
 
 **Baseline, for comparison:** 13 PASS · 11 PARTIAL · 33 FAIL · 22 BLOCKED · 1 N-I · 3 N-T. **Evidence at baseline:** Audit journeys run 35952344955 (harness 39ad60e, app main 78b0f55): Gladys's path from an empty production-like database, 15 PASS · 5 FAIL · 1 BLOCKED · 1 note, with one operator (SQL) step (W1); the seeded-world crawl of 14 personas; the public probes P1–P3. Plus CI, selftests and read-only production checks, as cited per row.
 
-**Verdict now:** 67 of 84 P0 checks pass (baseline 13). NO-GO. main 8dd506a is on staging (143 migrations; staging walk 008 green); production still runs 5b5b68d (111). Batch 7 (migrations 144–145, J6.13, X.6) waits on the D-006 scope fix and S27's diagnosis. What stands between main and go-live, by owner: Yazid — the production Supabase SMTP password; the readiness tier wording (D-082(e)); the card and certificate physical proofs; the forwarding key at staging acceptance (D-062(c)); REL-09's recovery copies (D-066); the D-029 question for PINTAR's own chapters (M6); the production read permission for the restore rehearsal; production's compute tier (CAP-08); a cross-school read of whether each school's admin has signed in (SYS-02). Held for the joint landing (Gate 3) — BOB-26 with DAISY-20 and BOB-50: X-09's certificates, EDU-10, U-RECOVER, ADM-05's name confirmation. Coordinator — the D-006 scope fix (ADM-05, ADM-06, DEA-02); S27; batch 7 to main, staging and walk 009; the walks written and not yet run (STU-07, STU-19, STU-20, HOD-02, HOD-03, HOD-04, X-05, SYS-02, EDU-09 on staging); the first Golden School on staging (C1, then its first administrator by the screens); the load runs (CAP-01, CAP-02, CAP-07).
+**Verdict now:** 75 of 84 P0 checks pass (baseline 13). NO-GO. main 38944b5 (batch 7) is on staging with 145 migrations; production still runs 5b5b68d (111). What stands between main and go-live, by owner: Yazid — the production Supabase SMTP password; the readiness tier wording (D-082(e)); the card and certificate physical proofs; the forwarding key at staging acceptance (D-062(c), needed before CAP-01 means anything); REL-09's recovery copies (D-066); the D-029 question for PINTAR's own chapters (M6); the production read permission for the restore rehearsal; production's compute tier (CAP-08); a cross-school read of whether each school's admin has signed in (SYS-02). Held for the joint landing (Gate 3) — BOB-26 with DAISY-20 and BOB-50: X-09's certificates, EDU-10, U-RECOVER. Coordinator — staging walk 009 (EDU-09's J14); the first Golden School on staging (C1, then its first administrator by the screens: SYS-03, GS-01 to GS-03); the load harness (CAP-02, CAP-07; CAP-01 after the forwarding key).
 
 ## 1. How to use this checklist
 
@@ -74,7 +74,7 @@ Landings follow D-010 as built. The older specification's three-door routes (/ke
 
 From sign-in to result and certificate state, on a shared tablet.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (8dd506a) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (38944b5) |
 |---|---|---|---|---|---|---|
 | STU-01 | Sign in by email link or class card. | The intended account gets in. A wrong or expired link gives a clear, localized way back, which names the same-device rule. | AUTO · RUN | P0 | **PASS**: email link and class card both sign in (journey S1, S11); the expired-link screen names the same-device rule (DAISY-01). Cross-device links fail by design (M1, P1). | **PASS**: the email link and the class card sign in on every audit (S1, S11), the card through BOB-12's route since DAISY-13 (audit #52: S11 and five more in S21); staging J07 and J13. The route's staging acceptance waits for the forwarding key (D-062(c)). |
 | STU-02 | Arrive after sign-in. | Lands on /belajar (D-010), not a generic page. | AUTO | P0 | **FAIL**: lands on / (journey S11). BOB-06, DAISY-03. | **PASS**: lands on /belajar (S11, BOB-06). |
@@ -82,7 +82,7 @@ From sign-in to result and certificate state, on a shared tablet.
 | STU-04 | Open an assigned lesson. | Shows the trail and context without starting any assessment. | RUN | P0 | **BLOCKED**: nothing can be assigned (B3, B4). | **PASS**: on staging: the assignment page shows the trail and the chapter (run 7, J08); opening it and its orientation starts nothing ("session before pressing: none", read from the database). |
 | STU-05 | Open the pre-test orientation. | Explains what is about to happen, truthfully; looking is not committing. | RUN · AUTO | P0 | **BLOCKED** by B4. The orientation renders in the seeded world. | **PASS**: the pre-test orientation opens from /belajar (S19); the window opens at the school's midnight, which S18 checks at any hour (DAISY-14). |
 | STU-06 | Explicitly start the pre-test. | Only the explicit press creates the session, exactly once; refusals are understandable. | AUTO · RUN | P0 | **BLOCKED** by B4. The engine is covered by the release's selftests. | **PASS**: only the press on "Mulai Pemetaan Awal" creates the session (staging J08: none before the press, FINALIZED after); exactly once and the offline outbox are selftests (R1); a pre-test not prepared is refused in words (audit A). |
-| STU-07 | Answer items; change answers; reload. | One player; no keys before review; answers sync correctly. | AUTO · RUN | P0 | **BLOCKED** by B4. The engine is covered by selftests (the R1 outbox family). | **PARTIAL**: answers are counted exactly (staging J08, J11, J13), and an unsaved last answer is kept at «Kumpulkan» (W3: audit S21; staging J13 reads 8 of 8). Changing a saved answer and reloading mid-test is now in the walk (S21, student 2), not yet run. |
+| STU-07 | Answer items; change answers; reload. | One player; no keys before review; answers sync correctly. | AUTO · RUN | P0 | **BLOCKED** by B4. The engine is covered by selftests (the R1 outbox family). | **PASS**: answers are counted exactly (staging J08, J11, J13); an unsaved last answer is kept at «Kumpulkan» (W3); a student changes a saved post-test answer and reloads mid-test: the test reopens at the next unsaved question and the result counts the changed answer (S21, student 2; runs 36954714221 and 36957344279). |
 | STU-08 | Pause and resume where allowed. | Only where the assessment rules permit. | RUN | P1 | **N-T** | **N-T** (unchanged) |
 | STU-09 | Lose and regain the network. | Answers are kept; offline is shown apart from refused. | AUTO · RUN | P0 | **BLOCKED** by B4. The outbox is covered by selftests. | **PASS**: on the audit stack: in S21 a student loses the network at a post-test question; the page says «Sedang luring…» (never «sudah ditutup»), the answer stays on the device and is not called saved, and when the network returns it goes through and reads «Tersimpan»; the result equals the plan (run 36952453693, branch 39806c7, on its way to main). |
 | STU-10 | Finish the pre-test. | Finalizes only when every answer has synced; nothing is silently lost. | AUTO | P0 | **BLOCKED** by B4. Covered by selftests (R1). | **PASS**: on the online path: 4 of 4 answered and finalized, the score equal to the plan (staging J08, J13); offline is STU-09. |
@@ -94,14 +94,14 @@ From sign-in to result and certificate state, on a shared tablet.
 | STU-16 | Review feedback. | Permitted review only; no internals. | RUN | P1 | **BLOCKED** by B4. | **N-T**: unblocked; not yet walked. |
 | STU-17 | Certificate state. | Not eligible → no certificate; eligible → 'being prepared'; issued → actions. Rendering never issues one. | AUTO · RUN | P1 | **BLOCKED** by B4. The lifecycle is covered by selftests (F04). Real certificates now, since the schools are real (D-003). | **N-T**: unblocked; not yet walked. The lifecycle is covered by selftests (F04). |
 | STU-18 | Finish all work. | An honest 'nothing more to do', or the next expectation. | RUN | P0 | **BLOCKED** | **PASS**: on staging: "Apa berikutnya" after the result lists what is open next (run 12, J12). Since v2.3 (J6.13): with every chapter finished and nothing waiting, the home says «Tidak ada lagi yang menunggu» and where new work will appear, instead of «Ini yang sedang berjalan hari ini.» (S21f, runs 36950730580 and 36952453693; J613-K01). |
-| STU-19 | Sign out on a shared tablet. | Keluar on every screen; ends this device's session only; Back and refresh do not resume. Class-card sessions end after 60 minutes idle (D-009). | AUTO · RUN | P0 | **FAIL**: no Keluar on /belajar (S11). DAISY-02, BOB-05. | **PARTIAL**: the shared-computer walk passes: «Keluar», then the next student signs in on the same browser and finds only their own home, the lesson at its first page (S21c, W2); a card session ends after 60 minutes idle (BOB-05). Pressing Back and refreshing after «Keluar» is now in the walk, not yet run. |
-| STU-20 | Switch language. | Every learner screen switches ID ↔ EN; content is not translated. | AUTO | P1 | **PARTIAL**: the ID/EN switch is on every learner screen (crawl); the English rendering has not been walked. | **PARTIAL**: the ID/EN switch is on every learner screen (crawl). The walk (S21g: «EN» on the home and a lesson, the lesson's text unchanged, «ID» back) is written, not yet run. |
+| STU-19 | Sign out on a shared tablet. | Keluar on every screen; ends this device's session only; Back and refresh do not resume. Class-card sessions end after 60 minutes idle (D-009). | AUTO · RUN | P0 | **FAIL**: no Keluar on /belajar (S11). DAISY-02, BOB-05. | **PASS**: on one computer, «Keluar», then Back and refresh land on /masuk with nothing of the first student; the next student signs in and finds only their own home and the lesson at its first page (S21c, W2); a card session ends after 60 minutes idle (BOB-05). |
+| STU-20 | Switch language. | Every learner screen switches ID ↔ EN; content is not translated. | AUTO | P1 | **PARTIAL**: the ID/EN switch is on every learner screen (crawl); the English rendering has not been walked. | **PASS**: «EN» switches the home, the lesson's page counter and buttons, and the test's controls; the lesson's text is unchanged; «ID» switches back (S21g, run 36957344279). The first walk found the lesson and test players Indonesian whatever the reader chose (fixed in batch 7: J614-K01). |
 
 ## 4. Educator / Guru — the teaching journey
 
 Prepare, assign, run Uji Cepat and read class evidence.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (8dd506a) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (38944b5) |
 |---|---|---|---|---|---|---|
 | EDU-01 | Sign in. | Lands on /mengajar (D-010), with no management or admin leakage. | AUTO | P0 | **FAIL**: lands on / (S13). BOB-06, DAISY-03. | **PASS**: lands on /mengajar (S13, BOB-06). |
 | EDU-02 | Educator home. | One meaningful next action; honest empty states. | RUN | P1 | **PARTIAL**: the empty state is clear; not walked with live work. | **PASS**: walked with live work: «Keadaan hari ini», «Lihat bukti», «Lihat nama murid» (S21b, S22; staging J14). |
@@ -122,12 +122,12 @@ Prepare, assign, run Uji Cepat and read class evidence.
 
 Review and freeze sound work; read department evidence.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (8dd506a) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (38944b5) |
 |---|---|---|---|---|---|---|
 | HOD-01 | Sign in and land. | Lands on /pimpinan; /studio/tinjau is one click away. | AUTO | P0 | **FAIL**: lands on /; /pimpinan is not linked (M15). DAISY-03, BOB-06. | **PASS**: lands on /pimpinan (S16, BOB-06); Studio is a tab on it (DAISY-11). |
-| HOD-02 | See their scope. | The Bagian is shown; outside it is refused. | AUTO · RUN | P0 | **PARTIAL**: /pimpinan shows 'Kelas Rendah' (S16); the cross-scope address is not re-walked. | **PARTIAL**: /pimpinan shows the department, its roster lists every learner (S23, W10). A head of department typing the school's root or the other school is now in the walk (S23), not yet run. |
-| HOD-03 | See work waiting for review. | The queue is understandable, with an honest empty state. | RUN | P0 | **BLOCKED**: no content (B2). | **N-T**: the walk (S17t) reached Studio → «Antrean Tinjauan» by clicking but read it while it still said «Memuat halaman…» (a walk defect, fixed). Locally the page says «Tidak ada yang menunggu tinjauan Anda.» when nothing waits. Re-run pending. |
-| HOD-04 | Review content. | Records the review; never publishes by itself; the author cannot approve their own work. | AUTO · RUN | P0 | **BLOCKED** by B2. The four-eyes rule is enforced in the database (selftests). | **PARTIAL**: the four-eyes rule holds in the browser; the reviewer sees every question, key and reason before approving (D-088(h), S17). From the next run the head of department is Bab 1's reviewer: approves, makes and locks the release (S17, HOD-04, HOD-05, GS-09). |
+| HOD-02 | See their scope. | The Bagian is shown; outside it is refused. | AUTO · RUN | P0 | **PARTIAL**: /pimpinan shows 'Kelas Rendah' (S16); the cross-scope address is not re-walked. | **PASS**: /pimpinan shows the department, its roster lists every learner (S23, W10); the school's root and the other school, typed as addresses, refuse the head of department (S23, HOD-02). |
+| HOD-03 | See work waiting for review. | The queue is understandable, with an honest empty state. | RUN | P0 | **BLOCKED**: no content (B2). | **PASS**: the head of department reaches Studio → «Antrean Tinjauan» by clicking; before Bab 1 is sent it says «Tidak ada yang menunggu tinjauan Anda.» exactly when nothing of the school waits; once sent it lists Bab 1, which opens on its package page with «Setujui isi» offered (S17t, run 36957344279). |
+| HOD-04 | Review content. | Records the review; never publishes by itself; the author cannot approve their own work. | AUTO · RUN | P0 | **BLOCKED** by B2. The four-eyes rule is enforced in the database (selftests). | **PASS**: the head of department is Bab 1's reviewer: reads every question, key and reason (28 of 28, 112 of 112 options, 28 keys), approves, makes and locks the release; the author is never offered the second person's step (S17, D-088(h), HOD-05, GS-09). |
 | HOD-05 | Freeze approved content. | An explicit, labelled step with its status visible. | RUN | P0 | **FAIL**: three identical 'Konfirmasi' buttons (M11). DAISY-06, BOB-03. | **PASS**: 'Kunci terbitan' is its own named step with the current status shown; the lock succeeds for the second person (S17, DAISY-06). |
 | HOD-06 | Question Health. | Signals as observations, with human review recorded. | RUN | P2 | **BLOCKED**: needs 30 answers per question. | **BLOCKED** (unchanged) |
 | HOD-07 | Integrity signals. | Reviewed by a human; never changes a score; learners cannot see them. | RUN · AUTO | P1 | **N-T**: in a live flow. The boundary is covered by selftests. | **N-T** (unchanged) |
@@ -140,10 +140,10 @@ Review and freeze sound work; read department evidence.
 
 Read school evidence and reports; seniority grants no capability.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (8dd506a) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (38944b5) |
 |---|---|---|---|---|---|---|
 | DEA-01 | Sign in and land. | Lands on /pimpinan (D-010). | AUTO | P0 | **FAIL**: lands on /; /pimpinan is not linked (M15, crawl). | **PASS**: lands on /pimpinan (BOB06-R01, every role redirected home; CI #191). |
-| DEA-02 | School summary. | A few numbers, each with its standing. | RUN | P0 | **BLOCKED**: no evidence yet. | **PARTIAL**: a dean at the school reads «Ringkasan Sekolah» by clicking from Pimpinan, with no raw decimal, and Konfigurasi, Aktivasi, Studio and Pendataan refuse the dean (seeded dean, local, 2 Oct). The first audit walk (S23d) found a defect upstream: the dean was given «Dekan» at a hidden level (see the findings, D-006). Fix in progress. |
+| DEA-02 | School summary. | A few numbers, each with its standing. | RUN | P0 | **BLOCKED**: no evidence yet. | **PASS**: a dean onboarded by the school admin's screens (Pendataan, Aktivasi, «Dekan» at the school) signs in by the email link, reads the school on /pimpinan, opens «Buka ringkasan sekolah» by clicking (no raw decimal), and Konfigurasi, Aktivasi, Studio and Pendataan refuse the dean (S23d, runs 36954714221 and 36957344279). |
 | DEA-03 | Open a report. | Reachable by clicking, at the right scope. | RUN | P0 | **FAIL**: the summary pages are not linked and need a typed ID (B6b). BOB-06, DAISY-07. | **PASS**: from Pimpinan the dean opens the school summary and each class summary by clicking, at their own scope (DAISY-07-LAPORAN-02, against the seeded school, CI #197 and #199 (26/26)). |
 | DEA-04 | Decision queue and briefing. | Honest states. | RUN | P2 | **PARTIAL**: the queue exists but no screen feeds it. | **PARTIAL** (unchanged) |
 | DEA-05 | Certificate aggregates. | Aggregate and verification information only. | RUN | P2 | **N-T** | **N-T** (unchanged) |
@@ -154,14 +154,14 @@ Read school evidence and reports; seniority grants no capability.
 
 The journey Gladys and each school admin make first. Every step must work without SQL.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (8dd506a) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (38944b5) |
 |---|---|---|---|---|---|---|
 | ADM-01 | Receive the role; sign in. | Given by Gladys; lands on /konfigurasi. | AUTO | P0 | **PARTIAL**: the grant works (S4) and the admin signs in (S5), but lands on /. BOB-06. | **PASS**: the grant works (S4) and the school admin lands on /konfigurasi (S5, BOB-06). |
 | ADM-02 | What needs doing. | Home shows the remaining setup. | RUN | P1 | **N-I**: Konfigurasi is a set of sections, with no readiness list. | **PASS**: «Persiapan sekolah» on Konfigurasi says what is done and what remains: Kelas, students placed, every Kelas with a teacher (S7, S12b). |
 | ADM-03 | Build the school structure. | Create Bagian, Tingkat and Kelas on a screen; the hidden nodes are automatic; confirm before deactivating. | AUTO · RUN | P0 | **FAIL**: no screen. The backend is merged (BOB-01); the screen is DAISY-05. | **PASS**: Bagian, Tingkat and Kelas built on the Struktur sekolah screen, no SQL (S7, DAISY-05). |
 | ADM-04 | The academic year. | The current year exists and structure is tied to it. | CODE | P1 | **PARTIAL**: 2026/2027 exists for both schools; no screen for years (P2 for next year). | **PARTIAL** (unchanged) |
-| ADM-05 | Add staff. | Create the person and account, then give the role, with no later unexplained failure. | AUTO | P0 | **PARTIAL**: Gladys can (S3, S4). A school admin cannot give staff roles (M2, P1). No email is sent, and the copy now says so (DAISY-01). | **PARTIAL**: people are created by the screens: the first school admin through «Orang baru» by clicking (S3, J1.4), staff by Pendataan, Aktivasi and Peran & akses (S12, S16, S26b). Giving a role at the school is error-prone: Peran & akses offers the hidden levels as scopes and lists the school last (the findings, D-006). Fix in progress. |
-| ADM-06 | Give and revoke staff roles. | Allowed roles only; no self-grant; no escalation. | AUTO · CODE | P1 | **FAIL** for the school admin (M2); PASS for Gladys. | **PARTIAL**: the school admin grants (S12), revokes (S24) and replaces a teacher (S26b) by the screens. The scope list offers hidden levels (the findings, D-006). Fix in progress. |
+| ADM-05 | Add staff. | Create the person and account, then give the role, with no later unexplained failure. | AUTO | P0 | **PARTIAL**: Gladys can (S3, S4). A school admin cannot give staff roles (M2, P1). No email is sent, and the copy now says so (DAISY-01). | **PASS**: people are created by the screens: the first school admin through «Orang baru» by clicking (S3, J1.4), staff by Pendataan, Aktivasi and Peran & akses (S12, S16, S23d, S26b). Peran & akses offers the school first by its own name, then its Bagian, Tingkat and Kelas, never a hidden level (D-006, D006-K01). |
+| ADM-06 | Give and revoke staff roles. | Allowed roles only; no self-grant; no escalation. | AUTO · CODE | P1 | **FAIL** for the school admin (M2); PASS for Gladys. | **PASS**: the school admin grants (S12, S23d), revokes (S24) and replaces a teacher (S26b) by the screens, choosing only D-006's scopes. |
 | ADM-07 | Add students. | Intake into a Kelas; places that are not a Kelas are refused with a reason; staff are never turned into students. | AUTO | P0 | **PARTIAL**: intake into a Kelas works (S9); a school-level place is now refused at validation, with the reason in Indonesian (BOB-01; S8 on this baseline). Staff rows are still a trap (BOB-10). Pickers show hidden nodes (BOB-09). | **PASS**: intake into a Kelas works (S9); a place that is not a Kelas or Tingkat is refused at validation with a reason (BOB-01); staff rows are refused at validation with a reason and never become students (BOB-10: F10-M01, CI #210; audit #30 S8 shows both refusals and nobody recorded); pickers offer only Bagian, Tingkat and Kelas by path (BOB-09). |
 | ADM-08 | Correct account mistakes. | Fix a wrong email; re-issue a lost card or PIN. | RUN | P1 | **N-I** (M6). | **N-I** (unchanged) |
 | ADM-09 | Import a lesson. | A file picker and template; a workbook saved by Microsoft Excel and one saved by Google Sheets both import (D-030); problems per row, in Indonesian; never into the canonical library (D-029). | AUTO · RUN | P0 | **FAIL**: text boxes only; both paths fail (S14, S15). BOB-02, DAISY-06. | **PASS**: file picker, template, problems per row in Indonesian, media, save; never into the national library (S14, S15b, DAISY-06). A workbook saved by Microsoft Excel and one saved by Google Sheets both import, in CI (BOB02-X01 counts 2 real applications; K01; BOB-16 reads Google Sheets' N.0 as N). The template keeps typed text as text in Excel and LibreOffice (DAISY-15, DAISY-06-TEMPLAT-01) and in Google Sheets (Yazid's round trip on 27 Sep: 78.145 and 007 come back as text with the Text format). |
@@ -176,17 +176,17 @@ The journey Gladys and each school admin make first. Every step must work withou
 | ADM-18 | Certificates. | Template and revocation; numbers never collide. | RUN · CODE | P1 | **N-T**: collision risk (N8). | **N-T** (unchanged) |
 | ADM-19 | Transfer a student. | Governed request → authorize → execute. | RUN | P2 | **N-T** | **PASS**: «Pindah kelas» moves a learner; what they did stays with the old class (M9, S25). |
 | ADM-20 | Audit trail. | Consequential actions leave a trace. | CODE | P0 | **PASS**: audit rows written for every production action so far (live database). | **PASS** (unchanged) |
-| ADM-21 | Year rollover. | Correct, and history preserved. | RUN | P2 | **N-T**: needs two years. | **PARTIAL**: next year's Tingkat and Kelas are made and the whole class carried forward (S27, run 36950730580); the latest run (36952453693) failed S27; diagnosis in progress. |
+| ADM-21 | Year rollover. | Correct, and history preserved. | RUN | P2 | **N-T**: needs two years. | **PASS**: next year's Tingkat and Kelas are made and the whole class carried forward, one not yet signed in too (S27, runs 36954714221 and 36957344279). One earlier failure (run 36952453693) was not seen again; its cause was not established. |
 | ADM-22 | Sign out. | Keluar on every admin screen. | AUTO | P0 | **PARTIAL**: Konfigurasi has it; Pendataan, Aktivasi and Studio do not. DAISY-02. | **PASS**: Keluar on Konfigurasi, Pendataan, Aktivasi and Studio (DAISY-02). |
 
 ## 8. System admin / Admin platform
 
 Operate the platform. Today this is Gladys alone (D-001).
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (8dd506a) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (38944b5) |
 |---|---|---|---|---|---|---|
 | SYS-01 | Sign in and land. | Lands on /konfigurasi. | AUTO | P0 | **PARTIAL**: signs in (S1) but lands on /. BOB-06. | **PASS**: lands on /konfigurasi (S1, BOB-06). |
-| SYS-02 | Platform state. | Health, environment and schools, within platform scope. | RUN | P1 | **PARTIAL**: Konfigurasi shows system health and environment. | **PARTIAL**: Konfigurasi shows the environment and, on «Jalankan pemeriksaan», «Semua pemeriksaan lolos» (local, 2 Oct; the walk S2 is written, not yet run). Whether each school's administrator has signed in needs a new cross-school read of sign-in facts: waiting for Yazid. |
+| SYS-02 | Platform state. | Health, environment and schools, within platform scope. | RUN | P1 | **PARTIAL**: Konfigurasi shows system health and environment. | **PARTIAL**: Konfigurasi shows the environment and, on «Jalankan pemeriksaan», «Semua pemeriksaan lolos» (S2, walked). Whether each school's administrator has signed in needs a new cross-school read of sign-in facts: waiting for Yazid. |
 | SYS-03 | Create a school. | A product flow, or an explicitly recorded operator path. | CODE | P2 | **N-I**: operator path only, recorded under D-013 (both schools exist). | **N-T**: LT, not yet run: one versioned, audited operator step founds a school (C1: migration 20261108100000, found-school.yml, dispatch and staging only; C1-S01, C1-K01). It founds the first Golden School on staging once main carries it. A school's birth on production stays Yazid's approval (M1). |
 | SYS-04 | Grant SYSTEM_ADMIN. | Only an active SYSTEM_ADMIN; explicit and audited. | AUTO | P0 | **PASS**: enforced in the database (INV-16 selftests). | **PASS** (unchanged) |
 | SYS-05 | Distribute canonical content. | Grant or withdraw; a school sees only what it may use. | RUN | P2 | **PARTIAL**: the form exists; no canonical content exists. | **PARTIAL**: PINTAR's standard chapters distributed to a school show on «Siapkan materi» as «Materi sekolah» (M6, S26d). A PINTAR chapter end to end waits on the D-029 question. |
@@ -199,7 +199,7 @@ Operate the platform. Today this is Gladys alone (D-001).
 
 What a stranger can see and do, and what they must never learn.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (8dd506a) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (38944b5) |
 |---|---|---|---|---|---|---|
 | PUB-01 | Open /masuk as a stranger. | The page, logo and fonts load. | AUTO · PROD | P0 | **PASS**: F01-R08; front-door check this morning (run 35935767367). | **PASS** (unchanged) |
 | PUB-02 | Try to sign up. | Refused; no alternate path. | AUTO · PROD | P0 | **PASS**: disable_signup verified at deploy; harness probe P2. | **PASS** (unchanged) |
@@ -213,13 +213,13 @@ What a stranger can see and do, and what they must never learn.
 
 One lesson, end to end, through the app (D-005). Run it last, after the role journeys.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (8dd506a) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (38944b5) |
 |---|---|---|---|---|---|---|
 | X-01 | The admin prepares the school. | Structure, staff, students and roles, with no SQL or typed addresses. | AUTO · RUN | P0 | **FAIL**: structure needs SQL (B1). | **PASS**: structure, staff roles, cards and intake without SQL (S3-S12); a place that is not a Kelas or Tingkat and a staff row are refused at intake with reasons (BOB-01, BOB-10); a school admin sees and names their own staff and finds a newly recorded teacher in their own waiting list (BOB-20, D-048), and grants only to a person with a relationship with that school (BOB-21, D-049: F10-G01, G02). A teacher moving from another school waits for the staff-link workflow (backlog, D-049); the platform admin's grant covers it meanwhile. |
 | X-02 | Get a lesson into PINTAR. | The import succeeds, with problems per row. | AUTO · RUN | P0 | **FAIL** (B2). | **PASS**: the workbook upload (S14) and the real SD 5 Bab 1 whole (S15c). |
 | X-03 | Review and freeze. | The four-eyes rule holds; the lifecycle is truthful. | AUTO · RUN | P0 | **BLOCKED** | **PASS**: review and lock by a second person, the author never offered them (S17). |
 | X-04 | Publish. | Admin publishes ready content only. | AUTO · RUN | P0 | **FAIL** (B3). | **PASS**: refused until the content check's findings were reviewed, then published (S17). |
-| X-05 | Assign. | The right class; the eligible learner sees it and the ineligible one does not. | AUTO · RUN | P0 | **BLOCKED** | **PARTIAL**: the class is assigned and the eligible learners see it (S18, S19). The ineligible learner (moved out of the class before a chapter was given to it) is now in the walk (S26d2), not yet run. |
+| X-05 | Assign. | The right class; the eligible learner sees it and the ineligible one does not. | AUTO · RUN | P0 | **BLOCKED** | **PASS**: the class is assigned and the eligible learners see it (S18, S19); a learner moved out of the class before a chapter was given to it finds no such chapter on her home and its address is refused to her (S26d2). |
 | X-06 | Pre-test. | Orientation → start → answers → truthful finish. | AUTO · RUN | P0 | **FAIL** (B4). | **PASS**: on staging: orientation → the press → 4 answers → FINALIZED at the planned score (run 12, J08; J13 for four more). |
 | X-07 | Lesson. | The material loads and progress persists. | RUN | P0 | **BLOCKED** | **PARTIAL**: the text material loads and progress persists (runs 14-16, J09), and the save loop is gone (BOB-23); media out of scope for the first testing phases (D-050). |
 | X-08 | Post-test. | Exists and completes. | AUTO · RUN | P0 | **FAIL** (B4). | **PASS**: on staging: the post-test is offered by a link and completes for five students (run 12, J10, J11, J13). |
@@ -233,7 +233,7 @@ One lesson, end to end, through the app (D-005). Run it last, after the role jou
 
 Run on the staging project (D-036) with production's compute tier, never on production. Rows marked Onboarding block registrations beyond that point until they pass: 1,000 students by 1 Nov, 5,000 by 1 Dec.
 
-| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (8dd506a) |
+| ID | Checkpoint | Expected | How | Gate | Baseline (main 78b0f55) | Now (38944b5) |
 |---|---|---|---|---|---|---|
 | CAP-01 | The 1 Nov morning: 1,000 students sign in with class cards within 10 minutes (L1, D-035). | Every valid card gets in; a refusal for load says so plainly, never 'wrong card or PIN'; no student is locked out by another school's traffic. | LOAD | P0 | **N-T**: no load harness or staging project yet (C-06). Risk found at review: sign-in and session refresh reach Supabase Auth from PINTAR's server, so all students share that address's limit (bursts of 30), and the card screen reports a 429 as a wrong PIN. BOB-12. | **N-T** (unchanged) |
 | CAP-02 | The 1 Nov cohort (1,000 students) sits a synchronized assessment (L1): start, answer, change answers, sync, lose and regain the network, submit, results, teachers open reports. | No answer lost or duplicated; server errors < 0.1%; answer save p95 < 1 s, p99 < 3 s; no pool exhaustion. | LOAD | P0 | **N-T**: needs BOB-04 (the assessment exists) and C-06. | **N-T** (unchanged) |
@@ -248,7 +248,7 @@ Run on the staging project (D-036) with production's compute tier, never on prod
 
 ## 12. Universal checks (every flow)
 
-| ID | Check | Gate | Baseline | Now (8dd506a) |
+| ID | Check | Gate | Baseline | Now (38944b5) |
 |---|---|---|---|---|
 | U-NAV | Navigation: every intended screen is reachable by clicking. | P0 | **FAIL**: Aktivasi, Studio and Pimpinan are unlinked (M3, M15). | **PASS**: Aktivasi, Studio, Pimpinan (S2, DAISY-03, DAISY-11) and now the report pages (DAISY-07) are reached by clicking. |
 | U-AUTH | Authorization: a direct address outside role or scope fails closed; navigation is never the security boundary. | P0 | **PASS**: every destination refuses server-side (gate review of DAISY-02/03); RLS everywhere. | **PASS** (unchanged) |
@@ -267,7 +267,7 @@ Run on the staging project (D-036) with production's compute tier, never on prod
 
 Run after the migrations and the deploy of the release candidate. None of them writes to production.
 
-| ID | Check | Gate | At baseline | Now (8dd506a) |
+| ID | Check | Gate | At baseline | Now (38944b5) |
 |---|---|---|---|---|
 | REL-01 | CI is green on the exact release commit, strict selftest included. | P0 | **PASS** for the live release 5b5b68d (run 35850275026). | **PASS** for main 8dd506a's code: each batch reached main only after CI and the browser walk were green on its head (batch 6: CI 36947657438, walk 36947660368). |
 | REL-02 | The audit journeys pass on the release candidate with zero operator (SQL) steps, and every P0 flow check above is PASS. | P0 | **FAIL**: on main 78b0f55 (this baseline). | **FAIL**: not every P0 check passes yet (see the summary). |
@@ -303,7 +303,8 @@ Run after the migrations and the deploy of the release candidate. None of them w
 | GS-1 | A number typed in a text column (an option like 78.145) becomes a number in Excel or Google Sheets; Google Sheets also stores whole numbers as N.0 | BOB-16 (reader); DAISY-15 (template columns as Text) | FIXED (BOB-16 reader; DAISY-15 template; Google Sheets round trip, 27 Sep) |
 | Capacity | Card sign-in shares the server's Auth limit; a 429 reads as a wrong PIN | BOB-12 (contract published 25 Sep); DAISY-13 | OPEN, before 1 Nov |
 | M1–M15, N2–N15 | The rest of the audit report | BOARD backlog and tickets | OPEN unless listed above |
-| D-006 scopes (2 Oct) | Peran & akses offers every place as a role scope, the hidden «Jenjang» and «Reguler» levels included, labelled "School · place" in alphabetical order, so the school itself comes last. Given «Dekan» at the first "SD Zayd…" entry, the dean was scoped to «Jenjang» and Pimpinan named it (audit S23d). | The scope list shows the school first by its own name, then Bagian, Tingkat and Kelas; no hidden level (D-006). | OPEN, fix in progress (coordinator) |
+| D-006 scopes (2 Oct) | Peran & akses offers every place as a role scope, the hidden «Jenjang» and «Reguler» levels included, labelled "School · place" in alphabetical order, so the school itself comes last. Given «Dekan» at the first "SD Zayd…" entry, the dean was scoped to «Jenjang» and Pimpinan named it (audit S23d). | The scope list shows the school first by its own name, then Bagian, Tingkat and Kelas; no hidden level (D-006). | FIXED in batch 7 (D006-K01; walked green in S23d) |
+| J6.14 players (2 Oct) | After «EN» the lesson still read «Halaman 1/3» and the test «Simpan jawaban ini»: the lesson and question players asked for their words with no language (audit S21g). | Every learner screen switches between ID and EN; the school's content is never translated (J6.14, STU-20). | FIXED in batch 7 (J614-K01; walked green in S21g) |
 
 ## 15. Run record (kept for every run, in RELEASES.md)
 
@@ -371,3 +372,4 @@ The acceptance scenario, in order: set up a school → add classes and people �
 - 30 Sep, v2.2: re-marked on main daa5721. EDU-12 and X-10 PASS on the audit stack (D-064, audit #52); U-PERF PASS again (BOB-23); EDU-07 FAIL (P1) on the Uji Cepat that never ends (BOB-42, D-067); EDU-08 PASS (run 15).
 - 1 Oct, v2.3: status on main 28d3015 (BOB-25, DAISY-19, BOB-42). No P0 status changes. EDU-07 FAIL → PARTIAL (P1), fixed by BOB-42 and awaiting the staging walk; REL-01, REL-03 and REL-08 updated; notes on X-09, ADM-05 and U-RECOVER for D-076 to D-082 and the gated BOB-26, BOB-50 and DAISY-20.
 - 2 Oct, v2.4: status on main 8dd506a (staging walk 008 green) with the branch's walks. P0 PASS 63 → 67: EDU-04, STU-09, X-13 and U-DEVICE (320 px now a crawl gate); DEA-02 N-T → PARTIAL. P1/P2 to PASS: ADM-02, EDU-02, EDU-07 (T2 on staging), ADM-19; SYS-03 built (C1). New finding: Peran & akses offers D-006's hidden levels as role scopes (ADM-05, ADM-06, DEA-02 stay PARTIAL until fixed). ADM-21 regressed in the latest run, under diagnosis. The checklist stays engineering detail since D-084; readiness is the journey status.
+- 2 Oct, v2.5: status on main 38944b5 (batch 7). P0 PASS 67 → 75: ADM-05 (D-006 fixed), DEA-02, HOD-02, HOD-03, HOD-04, STU-07, STU-19, X-05. P1/P2 to PASS: ADM-06, STU-20 (after the J6.14 player fix), ADM-21. Findings: D-006 scopes fixed; a new one, the players' language (J6.14), found and fixed in the same batch.
