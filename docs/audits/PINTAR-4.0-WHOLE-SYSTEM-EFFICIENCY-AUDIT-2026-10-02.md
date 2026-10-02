@@ -252,7 +252,17 @@ Ranked by total system cost: frequency × concurrency × unit cost × growth.
 - **Regression:**
   - EFF-K02, red → green with the change planted out;
   - typecheck and lint;
-  - ⟨CI and the staging walk⟩.
+  - CI 36988707807 green on `24b71d9`;
+  - on staging as `13055b9` (environment facts 36991150849: staging's app commit `13055b9`, 146 migrations, GREEN);
+  - **the regression walk as gs-001's administrator (run 36991207590): green**: signed in by the email link and landed on Konfigurasi, the structure and roles on Konfigurasi, every role audited, «Persiapan sekolah» all done.
+- **In the app afterwards** (`pg_stat_statements`, the walk's 4 views):
+
+  | Read | Named (new) | Unnamed (all earlier views) |
+  |---|---|---|
+  | Audit trail | mean 64 ms, max 93 ms, 800 buffers per call | mean 161 ms, max 3,173 ms, 5,185 buffers per call |
+  | Enrolments | mean 16 ms, max 29 ms, 235 buffers per call | mean 51 ms, max 1,159 ms, 1,248 buffers per call |
+
+  The earlier means mix the platform administrator's cheaper views with the school administrators'. The worst cases (3.2 s and 1.2 s) were school administrators'.
 
 **C2. The daily spend check** (`.github/workflows/actions-spend.yml`, `audit/ci/actions-spend.mjs`, `24b71d9`).
 
