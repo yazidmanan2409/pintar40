@@ -15,6 +15,12 @@
 //       set of cards (J3.7, M7) is issued in the run that signs the students in (GS-12), and read from the
 //       printable set there: card numbers and PINs are never kept between runs.
 //   A5  read back, read only: the tree, the four staff roles, the five students; «Persiapan sekolah» done.
+//   A6  GS-08 (J4.1, J4.2): content in. Konfigurasi → Studio → Buat Paket: the school, the real workbook (SD 5
+//       Matematika Bab 1, docs/onboarding/konten, as on main), «Periksa buku kerja», the media it names (it names
+//       none), «Simpan ke Studio»; it is a draft of the school's, whole, and its package page opens by its link.
+//   A7  GS-05 (J3.8): back to Konfigurasi by Studio's own link; on Batas ketuntasan the chapter reads «Batas
+//       ketuntasan belum ditetapkan» (no default, D-081); the admin sets 70% with a reason; the page reads it back,
+//       the database holds it, by them, audited.
 //
 // GS-05 (the lesson's minimum passing mark) is set per lesson, so it follows GS-08, when the school has the
 // chapter. Every page is reached by clicking from the previous one; a reload of the same page is allowed. A step
@@ -23,8 +29,9 @@
 // buttons); a server-made session as a person's act; any change to the product, its sign-in or its settings.
 import { chromium } from "playwright";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, appendFileSync } from "node:fs";
+import { mkdirSync, appendFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { APP, SLOW, closeTour } from "../perf/lib.mjs";
 
 const env = (k) => { const v = process.env[k]; if (!v) throw new Error(`${k} is not set`); return v; };
@@ -49,6 +56,10 @@ const STAF = [
   { kunci: "dekan", nama: `Dekan ${SLUG.toUpperCase()}`, peran: "DEAN", tempat: null },
 ];
 const MURID = ["Utama", "Bunga", "Citra", "Dimas", "Eka"].map((n) => `${n} Murid ${SLUG.toUpperCase()}`);
+// the chapter (§4): the real workbook on main; its Kursus, Pelajaran and Soal sheets give these (read 2 Oct, 0a81e5b)
+const BUKU = fileURLToPath(new URL("../../docs/onboarding/konten/SD5-Matematika-Bab1.xlsx", import.meta.url));
+const BAB = { judul: "Matematika Kelas 5 · Bab 1: Bilangan Cacah sampai 100.000", pelajaran: 5, soal: 31 };
+const BATAS = { persen: "70", alasan: "Keputusan rapat guru Golden School" };
 
 const sql = (q) => execFileSync("psql", [DB, "-qAt", "-v", "ON_ERROR_STOP=1",
   "-c", "begin transaction read only", "-c", q, "-c", "commit"], { encoding: "utf8" }).trim();
@@ -96,6 +107,11 @@ async function klikTautan(page, href) {
   await page.waitForURL((u) => u.pathname === href, { timeout: SLOW });
   await page.waitForLoadState("networkidle");
   await closeTour(page);
+}
+// Konfigurasi from wherever the admin is: by a link to it, or a reload when already there (the page has no link to itself)
+async function keKonfigurasi(page) {
+  if (new URL(page.url()).pathname === "/konfigurasi") { await page.reload({ waitUntil: "networkidle" }); await closeTour(page); }
+  else await klikTautan(page, "/konfigurasi");
 }
 async function bacaPersiapan(page) {
   await page.reload({ waitUntil: "networkidle" });
@@ -321,6 +337,115 @@ await step("A5", "read back, read only: the tree; the four staff roles; the five
   if (siap.kelas !== true || siap.murid !== true || siap.guru !== true || murid !== String(MURID.length) || !benar(diaudit)) rec.verdict = "FAIL";
   return `tree: ${pohon}; roles: ${peran}; every role audited: ${benar(diaudit)}; students in «${KELAS}»: ${murid}; ` +
     `«Persiapan sekolah»: Kelas ${siap.kelas}, students ${siap.murid}, teacher ${siap.guru} ("${siap.teks.slice(0, 200)}")`;
+});
+
+// the chapter in the school: its course, lessons and questions, read only
+const bab = () => {
+  const id = sql(`select id from public.courses where institution_id = '${S.id}' and title = ${lit(BAB.judul)} order by created_at limit 1`);
+  if (!id) return null;
+  const [status, pelajaran, soal, jejak] = sql(`select c.status::text || '|' ||
+      (select count(*) from public.lessons l join public.modules m on m.id = l.module_id where m.course_id = c.id) || '|' ||
+      (select count(*) from public.items i join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id = c.id) || '|' ||
+      (select count(*) from public.audit_log a where a.institution_id = c.institution_id and a.target_id = c.id::text)
+    from public.courses c where c.id = '${id}'`).split("|");
+  return { id, status, pelajaran: Number(pelajaran), soal: Number(soal), jejak: Number(jejak) };
+};
+
+let kursus = null;
+await step("A6", `GS-08 (J4.1, J4.2): content in: Konfigurasi → Studio → Buat Paket; «${BAB.judul}» from the real workbook, checked, the media it names, saved to Studio as the school's draft; its package page opens by its link`, async (rec) => {
+  if (!existsSync(BUKU)) { rec.verdict = "FAIL"; return `no workbook at ${BUKU}`; }
+  const ada = bab();
+  if (ada) {
+    rec.verdict = "NOTE";
+    kursus = ada.id;
+    return `already in the school, nothing uploaded: status ${ada.status}, lessons ${ada.pelajaran}, questions ${ada.soal}`;
+  }
+  const jejak = [];
+  await keKonfigurasi(A);
+  await klikTautan(A, "/studio");
+  await klikTautan(A, "/studio/unggah");
+  const sel = A.locator("#ung-sekolah");
+  const tawaran = (await sel.locator("option").allTextContents()).map(norm);
+  const v = await sel.locator("option").filter({ hasText: S.nama }).first().getAttribute("value").catch(() => null);
+  jejak.push(`schools offered: ${tawaran.map((x) => `«${x}»`).join(", ")}`);
+  if (!v) { rec.verdict = "FAIL"; return `${jejak.join("; ")}; «${S.nama}» is not offered`; }
+  await sel.selectOption(v);
+  await A.locator("#ung-berkas").setInputFiles(BUKU);
+  await A.getByRole("button", { name: "Periksa buku kerja", exact: true }).click();
+  const lolos = await A.getByText("Buku kerja lolos pemeriksaan.").waitFor({ timeout: SLOW }).then(() => true).catch(() => false);
+  await shot(A, "a6-periksa");
+  jejak.push(`«Periksa buku kerja»: passed ${lolos}`);
+  if (!lolos) {
+    rec.verdict = "FAIL";
+    return `${jejak.join("; ")}; the panel says "${norm(await A.locator(".pin-ung").innerText().catch(() => "")).slice(0, 300)}"`;
+  }
+  // the media the workbook names: this chapter's Pelajaran sheet names none, so the panel asks for none
+  const media = await A.locator("#ung-media").count();
+  jejak.push(`media asked for: ${media ? norm(await A.locator("ul.pin-ung-media").innerText().catch(() => "")) : "none (the workbook names none)"}`);
+  if (media) { rec.verdict = "FAIL"; return `${jejak.join("; ")}; this walk carries no media`; }
+  await A.getByRole("button", { name: "Simpan ke Studio", exact: true }).click();
+  const simpan = await A.getByText("Tersimpan di Studio sebagai draf.").waitFor({ timeout: SLOW }).then(() => true).catch(() => false);
+  const hitung = norm(await A.locator(".pin-ung-hitung").last().innerText().catch(() => ""));
+  await shot(A, "a6-tersimpan");
+  jejak.push(`«Simpan ke Studio»: «Tersimpan di Studio sebagai draf.» ${simpan}; the panel counts "${hitung}"`);
+  const b = bab();
+  if (b) {
+    kursus = b.id;
+    jejak.push(`in the database: status ${b.status}, lessons ${b.pelajaran}/${BAB.pelajaran}, questions ${b.soal}/${BAB.soal}, audit rows on the course ${b.jejak}`);
+  }
+  // the package page, by the panel's own link
+  const buka = A.getByRole("link", { name: "Buka kursus", exact: true });
+  if (simpan && b && await buka.count()) {
+    await buka.click();
+    await A.waitForURL((u) => u.pathname === `/studio/paket/${b.id}`, { timeout: SLOW });
+    await A.waitForLoadState("networkidle");
+    await closeTour(A);
+    const halaman = norm(await A.locator("main").innerText().catch(() => ""));
+    await shot(A, "a6-paket");
+    jejak.push(`«Buka kursus» → ${new URL(A.url()).pathname}, the title on the page ${halaman.includes(BAB.judul)}`);
+    if (!halaman.includes(BAB.judul)) rec.verdict = "FAIL";
+  } else rec.verdict = "FAIL";
+  if (!simpan || !b || b.pelajaran !== BAB.pelajaran || b.soal !== BAB.soal) rec.verdict = "FAIL";
+  return jejak.join("; ");
+});
+
+await step("A7", `GS-05 (J3.8): back to Konfigurasi by Studio's own link; on Batas ketuntasan the chapter reads «Batas ketuntasan belum ditetapkan»; the admin sets ${BATAS.persen}% with a reason; the page and the database read it back, by them, audited`, async (rec) => {
+  if (!kursus) { rec.verdict = "FAIL"; return "no chapter in the school (A6)"; }
+  const sekarang = () => sql(`select m.percent || '|' || p.display_name || '|' || m.reason || '|' ||
+      (select count(*) from public.audit_log l where l.action = 'school_pass_mark.set' and l.target_id = m.id::text)
+    from public.school_pass_marks m join public.persons p on p.id = m.set_by_person_id
+   where m.institution_id = '${S.id}' and m.course_id = public.course_lineage_root('${kursus}')
+     and not exists (select 1 from public.school_pass_marks n where n.supersedes_id = m.id)`);
+  const sudah = sekarang();
+  if (sudah) { rec.verdict = "NOTE"; return `already set, nothing changed: ${sudah}`; }
+  await keKonfigurasi(A);
+  const baris = A.locator(`#ketuntasan li[data-pelajaran="${kursus}"]`);
+  await A.locator("#ketuntasan").scrollIntoViewIfNeeded().catch(() => {});
+  if (!(await baris.count())) {
+    rec.verdict = "FAIL";
+    await shot(A, "a7-ketuntasan");
+    return `Batas ketuntasan lists no such chapter: "${norm(await A.locator("#ketuntasan").innerText().catch(() => "")).slice(0, 300)}"`;
+  }
+  const sebelum = norm(await baris.innerText());
+  await baris.locator('input[name="persen"]').fill(BATAS.persen);
+  await baris.locator('input[name="alasan"]').fill(BATAS.alasan);
+  await baris.getByRole("button", { name: "Tetapkan", exact: true }).click();
+  await A.waitForURL((u) => u.searchParams.get("bagian") === "ketuntasan", { timeout: SLOW });
+  await A.waitForLoadState("networkidle");
+  await closeTour(A);
+  await shot(A, "a7-ketuntasan");
+  const bagian = norm(await A.locator("#ketuntasan").innerText());
+  const sesudah = norm(await A.locator(`#ketuntasan li[data-pelajaran="${kursus}"]`).innerText().catch(() => ""));
+  const [persen, oleh, alasan, audit] = sekarang().split("|");
+  const adminNama = sql(`select p.display_name from public.persons p join public.accounts a on a.person_id = p.id
+    join auth.users u on u.id = a.auth_user_id where lower(u.email) = lower(${lit(ADMIN_EMAIL)}) limit 1`);
+  const ok = /Batas ketuntasan belum ditetapkan/.test(sebelum) && /Batas ketuntasan ditetapkan/.test(bagian)
+    && new RegExp(`Batas ketuntasan: ${BATAS.persen}\\s?%`).test(sesudah)
+    && persen === BATAS.persen && alasan === BATAS.alasan && oleh === adminNama && audit === "1";
+  if (!ok) rec.verdict = "FAIL";
+  return `the row before: "${sebelum.slice(0, 140)}"; «Tetapkan» ${BATAS.persen} → the section says «Batas ketuntasan ditetapkan» ` +
+    `${/Batas ketuntasan ditetapkan/.test(bagian)}; the row after: "${sesudah.slice(0, 140)}"; in the database ${persen}% set by «${oleh}» ` +
+    `(the admin is «${adminNama}»), reason "${alasan}", audited ${audit}`;
 });
 
 await browser.close();

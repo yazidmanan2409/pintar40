@@ -1,15 +1,16 @@
 # STAGING ONLY. The Golden School's spine past its first administrator (docs/recovery/GOLDEN-SCHOOL-CONTRACT.md §5,
 # before Gate 3): the school admin signs in like a person (the real email link from the staging test mailbox: ONE
 # sign-in email; staging allows 2 an hour, shared) and, by their own screens, builds the structure (GS-04), adds the
-# teacher, the head of department and the dean with their roles (GS-06), and records the five students (GS-07's
-# first half). Runs audit/staging/golden-school-admin.mjs once per edit of
+# teacher, the head of department and the dean with their roles (GS-06), records the five students (GS-07's
+# first half), uploads the chapter in Studio (GS-08) and sets its pass mark (GS-05). Runs
+# audit/staging/golden-school-admin.mjs once per edit of
 # .github/staging-golden-school-admin-request.txt on the coordinator's branch; the request's last line names the
 # school's slug ("slug: <slug>"), a school that has passed GS-01 to GS-03 (staging-golden-school.yml).
 #
 # NEVER: production (staging's ref and database URL are checked first; production's keys are never read); any direct
 # write to the database (it is read in read-only transactions); any change to the product, its sign-in or settings.
 
-name: staging · Golden School, the school admin's setup (GS-04, GS-06, GS-07)
+name: staging · Golden School, the school admin's setup (GS-04 to GS-08)
 
 on:
   push:

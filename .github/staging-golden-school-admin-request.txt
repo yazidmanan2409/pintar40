@@ -1,3 +1,4 @@
 # Golden School: the school admin sets the school up by their own screens (GS-04, GS-06, GS-07 first half)
 # 2 Oct, third walk: the regression walk of Konfigurasi after its school-named reads (7fb8e3d, on staging as 13055b9)
+# 2 Oct, fourth walk: GS-08 (the chapter into the school by Studio's workbook panel) and GS-05 (its pass mark on Konfigurasi)
 slug: gs-001
