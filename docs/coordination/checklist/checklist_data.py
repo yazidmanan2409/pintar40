@@ -1160,6 +1160,33 @@ CHANGES_V21.append("2 Oct, v2.5: status on main 38944b5 (batch 7). P0 PASS 67 �
                    "HOD-04, STU-07, STU-19, X-05, EDU-09 (staging walk 009). P1/P2 to PASS: ADM-06, STU-20 (after the J6.14 player fix), ADM-21, SYS-03 (the first Golden School). Findings: "
                    "D-006 scopes fixed; a new one, the players' language (J6.14), found and fixed in the same batch.")
 
+# --- 2 Oct, later: the L1 load on staging (CAP-02, CAP-07), authorised by Yazid for staging and the synthetic school ---
+CURRENT.update({
+    "CAP-02": ("FAIL on staging: L1 NOT MET (perf-l1.yml run 36964437916, 1,000 synthetic learners in 16 shards, sessions made "
+               "ahead). 0 answers lost, 0 duplicated, every finished sitting has its result; but answer save p95 11,664 ms "
+               "(limit 1 s) and p99 29,660 ms (limit 3 s); server errors 73 of 54,812 calls = 0.133% (limit 0.1%), 504s while "
+               "waiting for a database connection (PostgREST PGRST003: the pool was exhausted); 996 of 1,000 finished (4 "
+               "refused PR006 after a failed save the harness does not resend). The database's CPU reached 98%; the "
+               "assistance poll is 36% of calls. The 10-learner trial before it was clean (run 36963146820). Staging is not "
+               "production's tier (CAP-08); the card sign-in wave (CAP-01) and teachers' reports during the wave were not "
+               "part of this run."),
+    "CAP-07": ("PARTIAL: after the 1,000-learner wave the database was back at its baseline in 194 s (limit 10 minutes; CPU 98% "
+               "→ about 1%, backends 34 → 24; run 36964437916). Queued answers syncing after the spike and nobody being signed "
+               "out were not measured: the harness does not run the player's outbox, and sessions were made ahead."),
+})
+VERDICT_NOW = VERDICT_NOW.replace(
+    "production's compute tier (CAP-08); ",
+    "production's compute tier (CAP-08); what changes before the L1 load is run again (it failed on staging: answer save "
+    "p95 11.7 s, server errors 0.133%, the database's CPU at 98%): staging's tier, the assistance poll, or both; ", 1)
+VERDICT_NOW = VERDICT_NOW.replace(
+    "; the L1 load run with the harness now built (CAP-02, CAP-07; CAP-01 after the forwarding key).",
+    "; the L1 harness made faithful to the player (resend a failed save as the outbox does; judge pool exhaustion on its "
+    "own) before the rerun (CAP-01 after the forwarding key).", 1)
+CHANGES_V21.append("2 Oct, v2.5, later: the L1 load on staging (run 36964437916, 1,000 synthetic learners). CAP-02 N-T → FAIL "
+                   "(no answer lost or duplicated, but answer save p95 11.7 s, p99 29.7 s, server errors 0.133%, the "
+                   "connection pool exhausted); CAP-07 N-T → PARTIAL (the database back at baseline in 194 s). P0 PASS "
+                   "stays 76.")
+
 def as_dict():
     g = globals()
     return {
