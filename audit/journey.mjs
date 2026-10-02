@@ -213,14 +213,29 @@ await step("S1b", "the same link opened in a different browser", async (rec) => 
   return `ended at ${new URL(p.url()).pathname}; screen says: ${t.slice(0, 200)}`;
 });
 
-await step("S2", "Gladys finds her way to account activation from Konfigurasi", async (rec) => {
+await step("S2", "Gladys finds her way to account activation from Konfigurasi, and reads the platform's state there: its environment and, on «Jalankan pemeriksaan», its health (J1.3, SYS-01, SYS-02)", async (rec) => {
   await g.goto(`${APP}/konfigurasi`, { waitUntil: "networkidle" });
   rec.shots.push(await shot(g, "konfigurasi-gladys"));
   const links = await g.$$eval("a[href]", (as) => as.map((a) => a.getAttribute("href")));
   const toAktivasi = links.some((h) => h?.startsWith("/aktivasi"));
   const toStudio = links.some((h) => h?.startsWith("/studio"));
-  if (!toAktivasi || !toStudio) rec.verdict = "FAIL";
-  return `link to /aktivasi: ${toAktivasi}; link to /studio: ${toStudio}; sign-out control: ${await hasSignOut(g)}`;
+  // J1.3 (SYS-01, SYS-02): the platform's state where the platform admin lands: the environment, and the system's
+  // health by pressing «Jalankan pemeriksaan» (the check runs only when asked); a fully migrated database passes
+  const teks = norm(await g.locator("main").innerText().catch(() => ""));
+  const lingkungan = /Lingkungan\s+production/i.test(teks);
+  let sehat = "no «Jalankan pemeriksaan»";
+  const periksa = g.getByRole("link", { name: "Jalankan pemeriksaan", exact: true });
+  if (await periksa.count()) {
+    await periksa.first().click();
+    await g.waitForURL((u) => u.searchParams.get("periksa") === "skema", { timeout: SLOW });
+    await g.waitForLoadState("networkidle");
+    sehat = norm(await g.locator(".pin-sehat").first().innerText().catch(() => ""));
+    rec.shots.push(await shot(g, "j1-3-kesehatan"));
+  }
+  const lolos = /Semua pemeriksaan lolos/.test(sehat);
+  if (!toAktivasi || !toStudio || !lingkungan || !lolos) rec.verdict = "FAIL";
+  return `link to /aktivasi: ${toAktivasi}; link to /studio: ${toStudio}; sign-out control: ${await hasSignOut(g)}; ` +
+    `J1.3: environment production shown ${lingkungan}; health after «Jalankan pemeriksaan»: "${sehat}"`;
 });
 
 await step("S3", "Gladys creates the school admin on Aktivasi by the screen: «Orang baru di luar pendataan», name and address, «Buat dan aktifkan» (J1.4, ADM-01)", async (rec) => {
@@ -1437,8 +1452,13 @@ await step("S21c", "one computer, two students: the first reads a lesson to its 
     await s.waitForURL((u) => !u.pathname.startsWith("/belajar"), { timeout: SLOW });
     await s.waitForLoadState("networkidle");
     const sesudahKeluar = new URL(s.url()).pathname;
+    // STU-19: the browser's Back after «Keluar» does not resume Ani's page
+    await s.goBack({ waitUntil: "networkidle" }).catch(() => null);
+    await s.reload({ waitUntil: "networkidle" }).catch(() => null);
+    const kembali = new URL(s.url()).pathname;
+    const kembaliTerkunci = !kembali.startsWith("/belajar") || !(await bodyText(s)).includes("Ani");
     await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
-    const terkunci = !new URL(s.url()).pathname.startsWith("/belajar") || !(await bodyText(s)).includes("Ani");
+    const terkunci = kembaliTerkunci && (!new URL(s.url()).pathname.startsWith("/belajar") || !(await bodyText(s)).includes("Ani"));
     // Budi, on the same browser
     await masukKartu(kartuKelas[1]);
     await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
@@ -1452,7 +1472,7 @@ await step("S21c", "one computer, two students: the first reads a lesson to its 
     rec.shots.push(await shot(s, "stu-j18-budi-pelajaran"));
     if (ani === awal || !terkunci || !sapa || budi !== awal) rec.verdict = "FAIL";
     await sc.close();
-    return `Ani turned the first lesson from "${awal}" to "${ani}"; «Keluar» → ${sesudahKeluar}; /belajar afterwards no longer Ani's: ${terkunci}; ` +
+    return `Ani turned the first lesson from "${awal}" to "${ani}"; «Keluar» → ${sesudahKeluar}; Back and refresh → ${kembali} (not Ani's: ${kembaliTerkunci}); /belajar afterwards no longer Ani's: ${terkunci}; ` +
       `Budi signed in on the same browser: greeted as Budi with no Ani on the page: ${sapa}; the same lesson opens for Budi at "${budi}" (expected "${awal}")`;
   } catch (e) {
     rec.verdict = "FAIL";
@@ -1570,6 +1590,56 @@ await step("S21f", "a student with every chapter finished and nothing else waiti
   } catch (e) {
     rec.verdict = "FAIL";
     rec.shots.push(await shot(s, "j6-13-berhenti"));
+    await sc.close();
+    return `stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`;
+  }
+});
+
+// D-084 J6.14 (STU-20): every learner screen switches between ID and EN with the control in the header; the content
+// itself is never translated. Citra presses «EN» on her home, reads it in English, opens Bab 1's first lesson (its
+// chrome in English, its text exactly as written), and presses «ID» to come back.
+await step("S21g", "a student switches the screens to English with «EN» and back with «ID»; the home and the lesson's chrome change, the lesson's text does not (J6.14, STU-20)", async (rec) => {
+  if (!lintasPerangkat || !kartuKelas[2]) { rec.verdict = "BLOCKED"; return "S21c left no lesson to open, or no class card (S20)"; }
+  const k = kartuKelas[2];
+  const sc = await ctx();
+  const s = await sc.newPage();
+  try {
+    await s.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+    await s.getByRole("button", { name: "Gunakan kartu kelas" }).click();
+    await s.locator("#kartu").fill(k.number);
+    await s.locator("#pin").fill(k.pin);
+    await s.getByRole("button", { name: "Masuk dengan kartu" }).click();
+    await s.waitForURL((u) => u.pathname !== "/masuk", { timeout: SLOW });
+    await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+    await tutupTur(s);
+    const bacaPelajaran = async () => {
+      await s.goto(`${APP}${lintasPerangkat.pelajaran}`, { waitUntil: "networkidle" });
+      await tutupTur(s);
+      return {
+        posisi: norm(await s.locator("p.pin-lpos span").first().innerText().catch(() => "")),
+        isi: norm(await s.locator("article.pin-prose").first().innerText().catch(() => "")).slice(0, 200),
+      };
+    };
+    const id1 = await bacaPelajaran();
+    await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+    await s.locator(".pin-lang").getByRole("button", { name: "EN", exact: true }).first().click();
+    await s.getByRole("heading", { name: /Your learning/i }).first().waitFor({ timeout: SLOW });
+    const rumahEn = norm(await s.locator("main").innerText().catch(() => "")).slice(0, 200);
+    rec.shots.push(await shot(s, "j6-14-beranda-en"));
+    const en = await bacaPelajaran();
+    rec.shots.push(await shot(s, "j6-14-pelajaran-en"));
+    await s.locator(".pin-lang").getByRole("button", { name: "ID", exact: true }).first().click();
+    await s.locator("p.pin-lpos span", { hasText: "Halaman" }).first().waitFor({ timeout: SLOW });
+    const id2 = norm(await s.locator("p.pin-lpos span").first().innerText().catch(() => ""));
+    const ok = /^Halaman /.test(id1.posisi) && /^Page /.test(en.posisi) && /^Halaman /.test(id2)
+      && !!id1.isi && en.isi === id1.isi;
+    if (!ok) rec.verdict = "FAIL";
+    await sc.close();
+    return `${k.nama}: the lesson in Indonesian reads "${id1.posisi}"; after «EN» the home reads "${rumahEn.slice(0, 120)}", ` +
+      `the lesson's chrome "${en.posisi}" and its text unchanged ${en.isi === id1.isi} ("${en.isi.slice(0, 80)}"); after «ID» "${id2}"`;
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(s, "j6-14-berhenti"));
     await sc.close();
     return `stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`;
   }
