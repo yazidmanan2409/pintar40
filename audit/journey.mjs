@@ -51,7 +51,7 @@ async function step(id, title, fn) {
     rec.observed = (rec.observed ? rec.observed + " | " : "") + String(e.message ?? e).slice(0, 600);
   }
   steps.push(rec);
-  console.log(`${rec.verdict.padEnd(8)} ${id.padEnd(5)} ${title} :: ${String(rec.observed ?? "").slice(0, 300)}`);
+  console.log(`${rec.verdict.padEnd(8)} ${id.padEnd(5)} ${title} :: ${String(rec.observed ?? "").slice(0, rec.verdict === "PASS" ? 300 : 2000)}`);
   return rec;
 }
 const bodyText = async (page) => ((await page.locator("body").innerText().catch(() => "")) ?? "").replace(/\s+/g, " ");
@@ -876,6 +876,8 @@ async function lihatAntreanKaprodi(course) {
     await h.goto(`${APP}/studio`, { waitUntil: "networkidle" });
     await h.getByRole("link", { name: /Antrean Tinjauan/ }).first().click();
     await h.waitForURL((u) => u.pathname === "/studio/tinjau", { timeout: SLOW });
+    // the page's own heading, not the nav link of the same name: until it shows, the page still says «Memuat halaman…»
+    await h.getByRole("heading", { name: "Antrean Tinjauan", exact: true }).waitFor({ timeout: SLOW });
     await h.waitForLoadState("networkidle");
     return norm(await h.locator("main").innerText().catch(() => ""));
   };

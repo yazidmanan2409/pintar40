@@ -26,6 +26,7 @@ import { sekolahPendataan } from "@/lib/pendataan";
 import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
 import { asalPindah, muridDiKelas, namaKelas, tujuanPindah } from "@/lib/pindah-kelas";
 import { persiapanSekolah, type PeranTerbaca } from "@/lib/persiapan-sekolah";
+import { lingkupPeran } from "@/lib/lingkup-peran";
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -708,7 +709,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <label className={label}>{s("config.label.scope")}
                 <select name="scope" className={field} defaultValue="">
                   <option value="">—</option>
-                  {(nodes ?? []).map((n) => <option key={n.id} value={n.id}>{institutionName.get(n.institution_id) ?? ""} · {n.name}</option>)}
+                  {lingkupPeran(nodes ?? [], institutionName).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
                 </select>
               </label>
               <label className={label}>{s("config.label.valid_until")}<input type="date" name="valid_until" className={field} required /></label>

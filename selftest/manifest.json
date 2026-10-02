@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 163,
+  "version": 164,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2767,6 +2767,11 @@
       "id": "J613-K01",
       "runner": "static",
       "proves": "D-084 J6.13 (STU-18): reads the learner's home's source (src/app/belajar/page.tsx): «Ini yang sedang berjalan hari ini.» is said only while something waits (the next step, an open assessment, a lesson a teacher asked to be read again, feedback still owed); with assignments and nothing waiting, «Tidak ada lagi yang menunggu» and where new work will appear stand in the next step's place"
+    },
+    {
+      "id": "D006-K01",
+      "runner": "static",
+      "proves": "D-006: executes lingkupPeran (src/lib/lingkup-peran.ts) on two schools' trees with their hidden Jenjang and Reguler: no hidden level is offered as a role scope; each school comes first by its own name, then its Bagian, Tingkat and Kelas named after it; reads Peran & akses (src/app/konfigurasi/page.tsx): its scope select is exactly that list"
     }
   ]
 }
