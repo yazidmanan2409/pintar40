@@ -1,0 +1,3 @@
+# Golden School: the students, in one run (GS-07 cards, GS-12 to GS-16)
+# 2 Oct, first walk
+slug: gs-001
