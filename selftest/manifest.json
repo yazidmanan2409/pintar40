@@ -2711,7 +2711,7 @@
     {
       "id": "COLGRANT-S01",
       "runner": "static",
-      "proves": "What the app selects, a signed-in user may read: reads the live grants, and for every table that grants authenticated per column (assessment_sessions among them) every plain column a .from(table).select(...) in src/ names is granted, so no read fails whole under the user's session (the defect M3's assessment_sessions.pass_mark read caused, found by walk S22)"
+      "proves": "What the app selects, a signed-in user may read: reads the live grants in the schema (information_schema.column_privileges) and the source of src/, and for every table that grants authenticated per column (assessment_sessions among them) every plain column a .from(table).select(...) in src/ names is granted, so no read fails whole under the user's session (the defect M3's assessment_sessions.pass_mark read caused, found by walk S22)"
     }
   ]
 }
