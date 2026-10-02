@@ -21,6 +21,13 @@
 //   A7  GS-05 (J3.8): back to Konfigurasi by Studio's own link; on Batas ketuntasan the chapter reads «Batas
 //       ketuntasan belum ditetapkan» (no default, D-081); the admin sets 70% with a reason; the page reads it back,
 //       the database holds it, by them, audited.
+//   A8  GS-09, the reviewer: the head of department signs in by the real email link, in their own browser (a second
+//       sign-in email).
+//   A9  GS-09 (J4.3–J4.5): the package page's seven steps by two people. The admin, who uploaded the chapter, composes,
+//       checks and submits it; the head of department finds it in «Antrean Tinjauan», reads every question with its key
+//       and reasons (D-088(h)), approves, makes and locks the release, and reviews any WARNING finding; the author is
+//       never offered the second person's steps; the admin publishes. Read back: PUBLISHED, sealed, reviewed by the
+//       head of department, its three release steps in the audit log.
 //
 // GS-05 (the lesson's minimum passing mark) is set per lesson, so it follows GS-08, when the school has the
 // chapter. Every page is reached by clicking from the previous one; a reload of the same page is allowed. A step
@@ -107,6 +114,21 @@ async function klikTautan(page, href) {
   await page.waitForURL((u) => u.pathname === href, { timeout: SLOW });
   await page.waitForLoadState("networkidle");
   await closeTour(page);
+}
+// /masuk by the real email link from the staging test mailbox, in this page's own browser; where it lands
+async function masukSurel(page, email) {
+  const t0 = Date.now() / 1000 - 60;
+  await page.goto(`${APP}/masuk`, { timeout: SLOW, waitUntil: "networkidle" });
+  await page.locator("#email").fill(email);
+  await page.getByRole("button", { name: "Kirim tautan masuk" }).click();
+  await page.getByRole("heading", { name: "Periksa email Anda" }).waitFor({ timeout: SLOW });
+  const link = execFileSync("python3", ["mailbox_link.py", email, String(t0), "180"], { encoding: "utf8" }).trim();
+  console.log(`::add-mask::${link}`);
+  await page.goto(link, { timeout: SLOW, waitUntil: "networkidle" });
+  await page.waitForURL((u) => !u.pathname.startsWith("/auth/"), { timeout: SLOW }).catch(() => {});
+  await page.waitForLoadState("networkidle");
+  await closeTour(page);
+  return new URL(page.url()).pathname;
 }
 // Konfigurasi from wherever the admin is: by a link to it, or a reload when already there (the page has no link to itself)
 async function keKonfigurasi(page) {
@@ -214,18 +236,7 @@ if (!S) { await browser.close(); log("RED: A0"); process.exit(1); }
 
 let masuk = false;
 await step("A1", "GS-03, as a person: the school admin signs in by the real email link (/masuk, the staging test mailbox, the same browser) and lands on Konfigurasi", async (rec) => {
-  const t0 = Date.now() / 1000 - 60;
-  await A.goto(`${APP}/masuk`, { timeout: SLOW, waitUntil: "networkidle" });
-  await A.locator("#email").fill(ADMIN_EMAIL);
-  await A.getByRole("button", { name: "Kirim tautan masuk" }).click();
-  await A.getByRole("heading", { name: "Periksa email Anda" }).waitFor({ timeout: SLOW });
-  const link = execFileSync("python3", ["mailbox_link.py", ADMIN_EMAIL, String(t0), "180"], { encoding: "utf8" }).trim();
-  console.log(`::add-mask::${link}`);
-  await A.goto(link, { timeout: SLOW, waitUntil: "networkidle" });
-  await A.waitForURL((u) => !u.pathname.startsWith("/auth/"), { timeout: SLOW }).catch(() => {});
-  await A.waitForLoadState("networkidle");
-  await closeTour(A);
-  const di = new URL(A.url()).pathname;
+  const di = await masukSurel(A, ADMIN_EMAIL);
   await shot(A, "a1-konfigurasi");
   masuk = di === "/konfigurasi" && norm(await A.locator("main").innerText().catch(() => "")).includes(S.nama);
   if (!masuk) rec.verdict = "FAIL";
@@ -446,6 +457,143 @@ await step("A7", `GS-05 (J3.8): back to Konfigurasi by Studio's own link; on Bat
   return `the row before: "${sebelum.slice(0, 140)}"; «Tetapkan» ${BATAS.persen} → the section says «Batas ketuntasan ditetapkan» ` +
     `${/Batas ketuntasan ditetapkan/.test(bagian)}; the row after: "${sesudah.slice(0, 140)}"; in the database ${persen}% set by «${oleh}» ` +
     `(the admin is «${adminNama}»), reason "${alasan}", audited ${audit}`;
+});
+
+// ── GS-09: the head of department reviews and locks; the school admin, who uploaded it, publishes
+const KABAG = STAF.find((p) => p.kunci === "kabag");
+// the course's status and its latest release's, as the package page reads them (langkah.ts posisiPaket)
+const keadaan = () => {
+  const [kursus_, terbitan] = sql(`select c.status::text || '|' || coalesce((select r.status::text from public.plp_releases r
+    where r.course_id = c.id order by r.created_at desc limit 1), '-') from public.courses c where c.id = '${kursus}'`).split("|");
+  return { kursus: kursus_, terbitan };
+};
+const teksKeadaan = () => { const k = keadaan(); return `${k.kursus}/${k.terbitan}`; };
+// the step the package page offers next, and whose it is (langkah.ts: the author composes, checks and submits; a second
+// person approves and locks; the head of department may also make the release; only the school admin publishes)
+const langkahKini = () => {
+  const k = keadaan();
+  if (k.terbitan === "PUBLISHED") return null;
+  if (k.terbitan === "FROZEN") return { kunci: "terbitkan", tombol: "Terbitkan", siapa: "admin" };
+  if (k.terbitan !== "-") return { kunci: "kunci", tombol: "Kunci terbitan", siapa: "kabag" };
+  return {
+    INGESTED: { kunci: "susun", tombol: "Tandai sudah tersusun", siapa: "admin" },
+    VALIDATION_FAILED: { kunci: "susun", tombol: "Tandai sudah tersusun", siapa: "admin" },
+    STRUCTURED: { kunci: "periksa", tombol: "Tandai lolos pemeriksaan", siapa: "admin" },
+    VALIDATED: { kunci: "ajukan", tombol: "Ajukan untuk ditinjau", siapa: "admin" },
+    IN_REVIEW: { kunci: "setujui", tombol: "Setujui isi", siapa: "kabag" },
+    APPROVED: { kunci: "buat", tombol: "Buat terbitan", siapa: "kabag" },
+  }[k.kursus] ?? null;
+};
+// the package page, reached by clicking from Studio's home (the admin) or the review queue (the head of department)
+async function kePaket(page, lewat) {
+  if (!new URL(page.url()).pathname.startsWith("/studio")) await klikTautan(page, "/studio");
+  if (lewat === "antrean") {
+    await klikTautan(page, "/studio/tinjau");
+    await page.getByRole("heading", { name: "Antrean Tinjauan", exact: true }).waitFor({ timeout: SLOW }).catch(() => {});
+  } else if (new URL(page.url()).pathname !== "/studio") await klikTautan(page, "/studio");
+  await klikTautan(page, `/studio/paket/${kursus}`);
+  await page.getByRole("heading", { name: "Langkah menuju terbit", exact: true }).waitFor({ timeout: SLOW }).catch(() => {});
+}
+// press a step's button on the package page; the state it moved to, or null when nothing moved
+async function tekan(page, tombol) {
+  await page.reload({ waitUntil: "networkidle" });
+  await closeTour(page);
+  const b = page.getByRole("button", { name: tombol, exact: true });
+  if (!(await b.count())) return { tidakAda: true };
+  const sebelum = teksKeadaan();
+  await b.first().click();
+  let sesudah = sebelum;
+  for (let i = 0; i < 40 && sesudah === sebelum; i++) { await page.waitForTimeout(500); sesudah = teksKeadaan(); }
+  await page.waitForLoadState("networkidle");
+  return { sesudah: sesudah === sebelum ? null : sesudah };
+}
+const langkahPage = async (page) => { const t = norm(await page.locator("main").innerText().catch(() => "")); const i = t.indexOf("Langkah menuju terbit"); return (i >= 0 ? t.slice(i) : t).slice(0, 260); };
+
+const H = await (await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "id-ID", timezoneId: "Asia/Jakarta" })).newPage();
+let kabagMasuk = false;
+await step("A8", `GS-09, the reviewer: the head of department «${KABAG.nama}» signs in by the real email link (/masuk, the staging test mailbox, their own browser)`, async (rec) => {
+  if (!kursus) { rec.verdict = "FAIL"; return "no chapter in the school (A6)"; }
+  if (keadaan().terbitan === "PUBLISHED") { rec.verdict = "NOTE"; return "the chapter is already published; no review to do"; }
+  const di = await masukSurel(H, mail(KABAG.kunci));
+  await shot(H, "a8-kabag-masuk");
+  kabagMasuk = di !== "/masuk" && !di.startsWith("/auth/");
+  if (!kabagMasuk) rec.verdict = "FAIL";
+  return `signed in by the email link, landed on ${di}`;
+});
+
+await step("A9", "GS-09 (J4.3–J4.5): the seven steps by two people. The admin, its author, composes, checks and submits it; the head of department finds it in «Antrean Tinjauan», reads every question with its key and reasons, approves, makes and locks the release and reviews any finding; the admin is never offered the second person's steps; the admin publishes", async (rec) => {
+  if (!kursus) { rec.verdict = "FAIL"; return "no chapter in the school (A6)"; }
+  if (keadaan().terbitan === "PUBLISHED") { rec.verdict = "NOTE"; return `already published (${teksKeadaan()})`; }
+  if (!kabagMasuk) { rec.verdict = "FAIL"; return "the head of department is not signed in (A8)"; }
+  const jejak = [`from ${teksKeadaan()}`];
+  const halaman = { admin: A, kabag: H };
+  const sudahDiPaket = { admin: false, kabag: false };
+  for (let n = 0; n < 9; n++) {
+    const l = langkahKini();
+    if (!l) break;
+    const page = halaman[l.siapa];
+    if (!sudahDiPaket[l.siapa]) { await kePaket(page, l.siapa === "kabag" ? "antrean" : "beranda"); sudahDiPaket[l.siapa] = true; }
+    // a second person's step: the author (the admin) must not be offered it
+    if (["setujui", "kunci"].includes(l.kunci)) {
+      if (!sudahDiPaket.admin) { await kePaket(A, "beranda"); sudahDiPaket.admin = true; } else await A.reload({ waitUntil: "networkidle" });
+      if (await A.getByRole("button", { name: l.tombol, exact: true }).count()) { jejak.push(`!! the author is offered «${l.tombol}»`); rec.verdict = "FAIL"; }
+    }
+    // D-088(h): before approving, the reviewer reads every question, its key and every option's reason
+    if (l.kunci === "setujui") {
+      await H.reload({ waitUntil: "networkidle" });
+      const diLayar = await H.locator("#soal li.pin-soal").count();
+      const kunciLayar = await H.locator("#soal li.pin-opsi-kunci").count();
+      const opsiLayar = await H.locator("#soal li.pin-opsi").count();
+      const [soal, opsi, kunciDb] = sql(`select (select count(*) from public.items i join public.lessons x on x.id = i.lesson_id join public.modules m on m.id = x.module_id where m.course_id = '${kursus}')
+        || '|' || (select count(*) from public.item_options o join public.items i on i.id = o.item_id join public.lessons x on x.id = i.lesson_id join public.modules m on m.id = x.module_id where m.course_id = '${kursus}')
+        || '|' || (select count(*) from public.item_options o join public.items i on i.id = o.item_id join public.lessons x on x.id = i.lesson_id join public.modules m on m.id = x.module_id where m.course_id = '${kursus}' and o.is_correct)`).split("|").map(Number);
+      await shot(H, "a9-soal-ditinjau");
+      jejak.push(`the head of department reads ${diLayar}/${soal} questions, ${opsiLayar}/${opsi} options with their reason, ${kunciLayar}/${kunciDb} keys`);
+      if (!soal || diLayar !== soal || opsiLayar !== opsi || kunciLayar !== kunciDb) rec.verdict = "FAIL";
+    }
+    // publishing wants every WARNING finding reviewed by a second person (publish_readiness; never the author)
+    if (l.kunci === "terbitkan") {
+      const siap = () => sql(`select status || ' | ' || coalesce(blockers::text, '') from public.publish_readiness('${kursus}')`);
+      const r0 = siap();
+      jejak.push(`readiness: ${r0.slice(0, 160)}`);
+      if (r0.startsWith("BLOCKED")) { rec.verdict = "FAIL"; jejak.push("ERROR findings: the content must be corrected before it can be published"); break; }
+      if (!r0.startsWith("READY")) {
+        // the head of department is on the package page since approving; a release no longer waits in the queue
+        if (!sudahDiPaket.kabag) { await kePaket(H, "beranda"); sudahDiPaket.kabag = true; }
+        let ditinjau = 0;
+        for (let i = 0; i < 80; i++) {
+          await H.reload({ waitUntil: "networkidle" });
+          const ack = H.getByRole("button", { name: "Sudah saya tinjau", exact: true });
+          if (!(await ack.count())) break;
+          const terbuka = () => Number(sql(`select (select count(*) from public.mcq_quality_findings where course_id = '${kursus}' and acknowledged_at is null)
+            + (select count(*) from public.coaching_findings where course_id = '${kursus}' and acknowledged_at is null)`));
+          const n0 = terbuka();
+          await ack.first().click();
+          for (let k = 0; k < 20 && terbuka() === n0; k++) await H.waitForTimeout(300);
+          ditinjau += 1;
+        }
+        await shot(H, "a9-temuan-ditinjau");
+        jejak.push(`the head of department reviewed ${ditinjau} finding(s); readiness now ${siap().slice(0, 120)}`);
+      }
+    }
+    const t = await tekan(page, l.tombol);
+    const siapa = l.siapa === "admin" ? "the admin" : "the head of department";
+    await shot(page, `a9-${l.kunci}`);
+    if (t.tidakAda) { jejak.push(`${l.kunci}: no «${l.tombol}» for ${siapa} (${teksKeadaan()}); the page says "${await langkahPage(page)}"`); rec.verdict = "FAIL"; break; }
+    if (!t.sesudah) { jejak.push(`${l.kunci}: «${l.tombol}» pressed by ${siapa}, nothing moved (${teksKeadaan()}); the page says "${await langkahPage(page)}"`); rec.verdict = "FAIL"; break; }
+    jejak.push(`«${l.tombol}» by ${siapa} → ${t.sesudah}`);
+  }
+  // read back: the release, who wrote and reviewed it, its seal, and the audit trail of its three steps
+  const r = sql(`select r.status::text || '|' || coalesce(r.version_label, '-') || '|' || (r.content_sha256 is not null)::text || '|' ||
+      coalesce(a.display_name, '-') || '|' || coalesce(v.display_name, '-') || '|' ||
+      coalesce((select string_agg(l.action || ' by ' || coalesce(p.display_name, '-'), ', ' order by l.at) from public.audit_log l
+        left join public.persons p on p.id = l.actor_person_id where l.target_id = r.id::text), '-')
+    from public.plp_releases r left join public.persons a on a.id = r.author_person_id left join public.persons v on v.id = r.reviewed_by_person_id
+   where r.course_id = '${kursus}' order by r.created_at desc limit 1`);
+  const [status, versi, segel, penulis, peninjau, audit] = (r || "-|-|-|-|-|-").split("|");
+  jejak.push(`the release: ${status} ${versi}, sealed ${segel}; author «${penulis}», reviewed by «${peninjau}»; audit: ${audit}`);
+  if (status !== "PUBLISHED" || segel !== "true" || peninjau !== KABAG.nama || !/RELEASE_PUBLISHED/.test(audit)) rec.verdict = "FAIL";
+  return jejak.join("; ");
 });
 
 await browser.close();

@@ -2,4 +2,5 @@
 # 2 Oct, third walk: the regression walk of Konfigurasi after its school-named reads (7fb8e3d, on staging as 13055b9)
 # 2 Oct, fourth walk: GS-08 (the chapter into the school by Studio's workbook panel) and GS-05 (its pass mark on Konfigurasi)
 # 2 Oct, fifth walk: the fourth was refused its sign-in email (429; 2 an hour then); staging now allows 30 an hour (D-092)
+# 2 Oct, sixth walk: GS-09 (the head of department reviews, makes and locks the release; the school admin publishes)
 slug: gs-001
