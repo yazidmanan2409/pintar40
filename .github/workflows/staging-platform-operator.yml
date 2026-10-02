@@ -6,7 +6,7 @@
 # The grant is made by staging's one recorded platform admin through PINTAR's own screens (Aktivasi → «Orang baru di
 # luar pendataan», then Konfigurasi → Peran & akses), in a server-made session: SETUP on Yazid's authorisation,
 # reported as such, never as a person's act. It ends by itself on OPERATOR_UNTIL. The operator then signs in like a
-# person, with the real email link (ONE sign-in email; staging allows 2 an hour, shared with Yazid's own).
+# person, with the real email link (ONE sign-in email; staging allows 30 an hour, D-092, shared with Yazid's own).
 #
 # NEVER: production (staging's ref and database URL are checked first; production's keys are never read); any direct
 # write to the database (it is read in read-only transactions); any change to the product, its sign-in or settings.

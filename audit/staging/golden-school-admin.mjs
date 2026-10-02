@@ -4,7 +4,7 @@
 //   A0  read only: the school GS_SLUG exists, real, founded by C1, and its first administrator holds «Admin sekolah»
 //       at its root (GS-01 to GS-03, staging-golden-school.yml).
 //   A1  GS-03 again, as a person: the school admin signs in by the real email link from the staging test mailbox
-//       (/masuk, the same browser) and lands on Konfigurasi. ONE sign-in email (staging allows 2 an hour, shared).
+//       (/masuk, the same browser) and lands on Konfigurasi. ONE sign-in email (staging allows 30 an hour, D-092, shared).
 //   A2  GS-04 (J3.3): on Konfigurasi → Struktur sekolah, the same page, the admin builds the recipe's structure:
 //       Bagian «Kelas Tinggi» → Tingkat «Kelas 5» (this school year) → Kelas «Kelas 5A». No hidden level shows;
 //       «Persiapan sekolah» then says the Kelas is there and students and a teacher remain.

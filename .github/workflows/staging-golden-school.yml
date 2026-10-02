@@ -2,7 +2,7 @@
 # Gate 3): the staging Platform Operator records the school's first administrator and gives «Admin sekolah» at its
 # root through PINTAR's own screens (in a server-made session: SETUP, reported as such, never as a person's act), and
 # the administrator then signs in like a person, with the real email link from the staging test mailbox (ONE sign-in
-# email; staging allows 2 an hour, shared). Runs audit/staging/golden-school.mjs once per edit of
+# email; staging allows 30 an hour, D-092, shared). Runs audit/staging/golden-school.mjs once per edit of
 # .github/staging-golden-school-request.txt on the coordinator's branch; the request's last line names the school's
 # slug ("slug: <slug>"), a school founded first by found-school.yml (C1, GS-01).
 #

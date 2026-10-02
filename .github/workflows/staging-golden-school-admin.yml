@@ -1,6 +1,6 @@
 # STAGING ONLY. The Golden School's spine past its first administrator (docs/recovery/GOLDEN-SCHOOL-CONTRACT.md §5,
 # before Gate 3): the school admin signs in like a person (the real email link from the staging test mailbox: ONE
-# sign-in email; staging allows 2 an hour, shared) and, by their own screens, builds the structure (GS-04), adds the
+# sign-in email; staging allows 30 an hour, D-092, shared) and, by their own screens, builds the structure (GS-04), adds the
 # teacher, the head of department and the dean with their roles (GS-06), records the five students (GS-07's
 # first half), uploads the chapter in Studio (GS-08) and sets its pass mark (GS-05). Runs
 # audit/staging/golden-school-admin.mjs once per edit of

@@ -9,7 +9,7 @@
 # Setup first (audit/staging/human-setup.mjs): the goldenschool teacher exists in the synthetic school with Guru
 # at its class, made through PINTAR's own operations by the school's synthetic admin. Reused on later runs.
 #
-# Sends ONE sign-in email per run (staging allows 2 an hour, shared with Yazid's own sign-ins).
+# Sends ONE sign-in email per run (staging allows 30 an hour, D-092, shared with Yazid's own sign-ins).
 # Runs once per edit of .github/staging-journey-human-request.txt on the coordinator's branch.
 
 name: staging · teacher → student journey (real teacher sign-in)
