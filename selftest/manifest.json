@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 161,
+  "version": 162,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2752,6 +2752,16 @@
       "id": "M3R-K01",
       "runner": "static",
       "proves": "D-085 M3 (J5.12): reads the source: the teacher's screen lists the class's learners with those under the sealed target marked and first, lets the teacher choose learners and lessons, and sends them to request_lesson_review; the learner's home shows «Diminta gurumu» after the next-step panel; a lesson opened from a request marks it read on its last page"
+    },
+    {
+      "id": "C1-S01",
+      "runner": "static",
+      "proves": "D-084 C1, D-085 M1 (J1.1): a school is founded by one versioned, audited step. In the database, rolled back, in production posture as staging runs (supabase/migrations/20261108100000): operator_found_school founds a real school with its root place and one school year and nothing more, audited as institution.created and school.founded with the operator run; a taken slug, a malformed slug, a year that ends before it starts and a founding without its operator run are refused by code; a signed-in session cannot run it; in development posture the evidence rule (INV-21) still refuses a real school"
+    },
+    {
+      "id": "C1-K01",
+      "runner": "static",
+      "proves": "D-084 C1: reads the founding workflow's source (.github/workflows/found-school.yml): dispatch only, staging's database only (its project ref pinned, a URL naming production refused), the inputs passed to operator_found_school as psql variables and never spliced into the SQL, and no other write"
     }
   ]
 }
