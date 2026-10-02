@@ -38,6 +38,9 @@ on:
       start_in_min:
         description: "wave: minutes from now to T0 (sessions are made before it)"
         default: "18"
+      sample_min:
+        description: "wave: minutes after T0 the database is sampled (the recovery needs the wave plus 10)"
+        default: "25"
 
 permissions:
   contents: read
@@ -64,10 +67,12 @@ jobs:
         env:
           SHARDS: ${{ inputs.shards }}
           START_IN: ${{ inputs.start_in_min }}
+          SAMPLE: ${{ inputs.sample_min }}
         run: |
           set -euo pipefail
           [[ "$SHARDS" =~ ^[0-9]+$ ]] && [ "$SHARDS" -ge 1 ] && [ "$SHARDS" -le 40 ] || { echo "::error::shards 1..40"; exit 1; }
           [[ "$START_IN" =~ ^[0-9]+$ ]] && [ "$START_IN" -ge 5 ] && [ "$START_IN" -le 60 ] || { echo "::error::start_in_min 5..60"; exit 1; }
+          [[ "$SAMPLE" =~ ^[0-9]+$ ]] && [ "$SAMPLE" -ge 5 ] && [ "$SAMPLE" -le 60 ] || { echo "::error::sample_min 5..60"; exit 1; }
           echo "t0=$(date -u -d "+${START_IN} minutes" +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
           echo "shards=$(python3 -c "import json,sys; print(json.dumps(list(range(int(sys.argv[1])))))" "$SHARDS")" >> "$GITHUB_OUTPUT"
 
@@ -154,7 +159,7 @@ jobs:
         working-directory: audit/perf
         env:
           T0: ${{ needs.plan.outputs.t0 }}
-          SAMPLE_MIN: "25"
+          SAMPLE_MIN: ${{ inputs.sample_min }}
           OUT_DIR: ${{ github.workspace }}/out
         run: node l1-metrics.mjs
       - uses: actions/upload-artifact@v4
