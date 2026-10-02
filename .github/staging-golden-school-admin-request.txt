@@ -1,0 +1,2 @@
+# Golden School: the school admin sets the school up by their own screens (GS-04, GS-06, GS-07 first half)
+slug: gs-001
