@@ -85,7 +85,7 @@ const peranAktif = (nama, peran, tempat) => sql(`select count(*) from public.rol
   where r.institution_id = '${S.id}' and p.display_name = ${lit(nama)} and r.role = '${peran}' and r.scope_node_id = '${tempat}'
     and r.revoked_at is null and now() < r.valid_until`) !== "0";
 const diKelas = (kelas) => sql(`select count(distinct e.person_id) from public.memberships m join public.enrollments e on e.id = m.enrollment_id
-  join public.persons p on p.id = e.person_id where m.node_id = '${kelas}' and m.valid_to is null and e.status = 'ACTIVE'
+  join public.persons p on p.id = e.person_id where m.node_id = '${kelas}' and m.valid_to is null and e.status in ('PENDING', 'ACTIVE')
     and p.display_name in (${MURID.map(lit).join(",")})`);
 
 // ── the admin's screens, reached by clicking
@@ -165,10 +165,16 @@ async function beriPeran(page, nama, peran, tempatNama) {
   if (!nilai) throw new Error(`no place «${tempatNama}» offered; offered: ${tempat.map(norm).join(" / ")}`);
   await form.locator('select[name="scope"]').selectOption(nilai);
   await form.locator('input[name="valid_until"]').fill(S.akhir);
-  await form.getByRole("button", { name: "Berikan peran" }).click();
-  await page.waitForURL(/hasil=/, { timeout: SLOW }).catch(() => {});
+  // the answer is this grant's own: the server action's redirect (run 36972520894 read the address the previous
+  // grant had left, «hasil=ok», while the dean's grant never reached the server)
+  const [jawab] = await Promise.all([
+    page.waitForResponse((r) => r.request().method() === "POST" && Boolean(r.request().headers()["next-action"]), { timeout: SLOW }),
+    form.getByRole("button", { name: "Berikan peran" }).click(),
+  ]);
+  const ke = String(jawab.headers()["x-action-redirect"] ?? "").split(";")[0];
   await page.waitForLoadState("networkidle");
-  const u = new URL(page.url());
+  if (!ke) return { hasil: null, kode: `no redirect (HTTP ${jawab.status()})`, tawaran: tempat.map(norm) };
+  const u = new URL(ke, APP);
   return { hasil: u.searchParams.get("hasil"), kode: u.searchParams.get("kode"), tawaran: tempat.map(norm) };
 }
 
@@ -298,7 +304,7 @@ await step("A4", `GS-07, first half (J3.6): the five students recorded on Pendat
   const jejak = belum.length ? await catat(A, belum, { kelas: KELAS, peran: "STUDENT" }) : "nobody new to record";
   const sesudah = Number(diKelas(kl));
   if (sesudah !== MURID.length) rec.verdict = "FAIL";
-  return `${jejak}; in «${KELAS}» with an ACTIVE enrolment: ${sesudah}/${MURID.length}`;
+  return `${jejak}; placed in «${KELAS}» (a current placement: PENDING or ACTIVE, as the product counts it): ${sesudah}/${MURID.length}`;
 });
 
 await step("A5", "read back, read only: the tree; the four staff roles; the five students; «Persiapan sekolah» done", async (rec) => {

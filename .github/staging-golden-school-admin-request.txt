@@ -1,2 +1,3 @@
 # Golden School: the school admin sets the school up by their own screens (GS-04, GS-06, GS-07 first half)
+# 2 Oct, second walk: after the walk's two fixes (each grant's own answer; a placement as the product counts it)
 slug: gs-001
