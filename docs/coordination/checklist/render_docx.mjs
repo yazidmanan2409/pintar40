@@ -93,8 +93,15 @@ const add = (...xs) => children.push(...xs);
 add(
   para([run(d.META.title.toUpperCase(), { bold: true, color: ACCENT, size: 20 })], { after: 40 }),
   para([run(d.META.subtitle, { bold: true, size: 40 })], { after: 60 }),
-  para([run(d.META.version, { color: MUTED, size: 18 })], { after: 200 }),
+  para([run(d.META.version, { color: MUTED, size: 18 })], { after: d.RETIRED_NOTICE ? 120 : 200 }),
 );
+// D-084: the checklist is engineering detail, not the readiness measure; said before anything else is read
+if (d.RETIRED_NOTICE) {
+  add(para([run(d.RETIRED_NOTICE, { bold: true, size: 18, color: "B42318" })], {
+    after: 200, shading: { fill: "FEF3F2", type: ShadingType.CLEAR, color: "auto" },
+    border: { left: { style: BorderStyle.SINGLE, size: 18, color: "B42318", space: 8 } }, indent: { left: 200 },
+  }));
+}
 add(new Table({
   width: { size: USABLE, type: WidthType.DXA }, columnWidths: [2200, USABLE - 2200],
   rows: d.META.rows.map(([k, v]) => new TableRow({
@@ -199,7 +206,7 @@ add(h1("Appendix A — sources"));
 d.SOURCES.forEach((t) => add(para(t, { numbering: { reference: "bullets", level: 0 }, size: 18 })));
 add(h1("Appendix B — what changed from the 24 September draft"));
 d.CHANGES_FROM_DRAFT.forEach((t) => add(para(t, { numbering: { reference: "bullets", level: 0 }, size: 18 })));
-add(h1("Appendix C — what changed in v2.1 and v2.2"));
+add(h1(`Appendix C — what changed after v2 (v2.1 to ${d.META.version.split(" — ")[0]})`));
 d.CHANGES_V21.forEach((t) => add(para(t, { numbering: { reference: "bullets", level: 0 }, size: 18 })));
 
 const doc = new Document({
@@ -225,7 +232,7 @@ const doc = new Document({
       default: new Footer({ children: [new Paragraph({
         alignment: AlignmentType.RIGHT,
         children: [
-          new TextRun({ text: "PINTAR 4.0 · End-to-end user flow & release checklist v2.2 · page ", font: FONT, size: 15, color: MUTED }),
+          new TextRun({ text: `PINTAR 4.0 · End-to-end user flow & release checklist ${d.META.version.split(" — ")[0]} · page `, font: FONT, size: 15, color: MUTED }),
           new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 15, color: MUTED }),
           new TextRun({ text: " of ", font: FONT, size: 15, color: MUTED }),
           new TextRun({ children: [PageNumber.TOTAL_PAGES], font: FONT, size: 15, color: MUTED }),

@@ -979,6 +979,110 @@ CHANGES_V21.append("1 Oct, v2.3: status on main 28d3015 (BOB-25, DAISY-19, BOB-4
                    "fixed by BOB-42 and awaiting the staging walk; REL-01, REL-03 and REL-08 updated; notes on X-09, ADM-05 and U-RECOVER for "
                    "D-076 to D-082 and the gated BOB-26, BOB-50 and DAISY-20.")
 
+META["version"] = "v2.4 — 2 October 2026 (status on main 8dd506a, with the branch's walks of 2 Oct; v2 of 24 Sep kept as the baseline)"
+NOW.update({
+    "sha": "8dd506a",
+    "date": "2 Oct 2026",
+    "label": "main after batch 6 (T2, M10)",
+    "evidence": ("main 8dd506a is on staging with 143 migrations (environment facts run 36949805301 GREEN). Staging walk 008 on it: "
+                 "20 PASS, 1 NOTE, 1 NOT RUN, no 5xx, no page error (run 36951544367); the Uji Cepat as T2 rules it is green there "
+                 "(Q3–Q5). The branch carries batch 7 (migrations 144–145: M3's «Minta membaca lagi» and C1's school founding; J6.13; "
+                 "X.6) and new walks: CI 36952451202 on 39806c7 is 30/30 green; its browser audit (run 36952453693) has crawl A green "
+                 "with the new 320 px gate, and job B 47 PASS, 1 NOTE, 3 FAIL (S17t a walk defect, fixed; S23d a D-006 defect in "
+                 "Peran & akses, see the findings; S27 under diagnosis). The previous head cdfa12a: 47 PASS, 1 NOTE, 1 FAIL (S21d, a "
+                 "walk defect, fixed; run 36950730580). Production is unchanged (5b5b68d, 111 migrations)."),
+})
+CURRENT.update({
+    "STU-07": ("PARTIAL: answers are counted exactly (staging J08, J11, J13), and an unsaved last answer is kept at «Kumpulkan» "
+               "(W3: audit S21; staging J13 reads 8 of 8). Changing a saved answer and reloading mid-test is now in the walk "
+               "(S21, student 2), not yet run."),
+    "STU-09": ("PASS on the audit stack: in S21 a student loses the network at a post-test question; the page says «Sedang luring…» "
+               "(never «sudah ditutup»), the answer stays on the device and is not called saved, and when the network returns it "
+               "goes through and reads «Tersimpan»; the result equals the plan (run 36952453693, branch 39806c7, on its way to main)."),
+    "STU-18": ("PASS on staging: \"Apa berikutnya\" after the result lists what is open next (run 12, J12). Since v2.3 (J6.13): with every "
+               "chapter finished and nothing waiting, the home says «Tidak ada lagi yang menunggu» and where new work will appear, "
+               "instead of «Ini yang sedang berjalan hari ini.» (S21f, runs 36950730580 and 36952453693; J613-K01)."),
+    "STU-19": ("PARTIAL: the shared-computer walk passes: «Keluar», then the next student signs in on the same browser and finds only "
+               "their own home, the lesson at its first page (S21c, W2); a card session ends after 60 minutes idle (BOB-05). "
+               "Pressing Back and refreshing after «Keluar» is now in the walk, not yet run."),
+    "STU-20": ("PARTIAL: the ID/EN switch is on every learner screen (crawl). The walk (S21g: «EN» on the home and a lesson, the "
+               "lesson's text unchanged, «ID» back) is written, not yet run."),
+    "EDU-02": "PASS: walked with live work: «Keadaan hari ini», «Lihat bukti», «Lihat nama murid» (S21b, S22; staging J14).",
+    "EDU-04": ("PASS: the roster is read by clicking and a learner's record opened from it (S22); a teacher whose class was taken "
+               "away is refused it (S26b); a learner who moved class is no longer the old teacher's (S25, D-088(i))."),
+    "EDU-07": ("PASS on staging: the teacher chooses the chapter, ticks 5 questions, reviews and launches (T2); the student's paper "
+               "is exactly the 5; the teacher reads the hand-in (staging walk 008, Q3–Q5, run 36951544367; audit S26e). BOB-42's "
+               "window end is checked on staging by EDU-09's new J14 line."),
+    "EDU-09": ("PARTIAL: «Lihat nama murid» (S21b), «Lihat per soal» with the questions the class found hard (S22, M5) and the Uji "
+               "Cepat count (staging Q5). Still to see: an ended Uji Cepat leaving «Keadaan hari ini»; the staging walk checks it "
+               "from its next run (J14)."),
+    "HOD-02": ("PARTIAL: /pimpinan shows the department, its roster lists every learner (S23, W10). A head of department typing "
+               "the school's root or the other school is now in the walk (S23), not yet run."),
+    "HOD-03": ("N-T: the walk (S17t) reached Studio → «Antrean Tinjauan» by clicking but read it while it still said «Memuat "
+               "halaman…» (a walk defect, fixed). Locally the page says «Tidak ada yang menunggu tinjauan Anda.» when nothing waits. "
+               "Re-run pending."),
+    "HOD-04": ("PARTIAL: the four-eyes rule holds in the browser; the reviewer sees every question, key and reason before approving "
+               "(D-088(h), S17). From the next run the head of department is Bab 1's reviewer: approves, makes and locks the "
+               "release (S17, HOD-04, HOD-05, GS-09)."),
+    "DEA-02": ("PARTIAL: a dean at the school reads «Ringkasan Sekolah» by clicking from Pimpinan, with no raw decimal, and "
+               "Konfigurasi, Aktivasi, Studio and Pendataan refuse the dean (seeded dean, local, 2 Oct). The first audit walk (S23d) "
+               "found a defect upstream: the dean was given «Dekan» at a hidden level (see the findings, D-006). Fix in progress."),
+    "ADM-02": "PASS: «Persiapan sekolah» on Konfigurasi says what is done and what remains: Kelas, students placed, every Kelas with a teacher (S7, S12b).",
+    "ADM-05": ("PARTIAL: people are created by the screens: the first school admin through «Orang baru» by clicking (S3, J1.4), staff by "
+               "Pendataan, Aktivasi and Peran & akses (S12, S16, S26b). Giving a role at the school is error-prone: Peran & akses "
+               "offers the hidden levels as scopes and lists the school last (the findings, D-006). Fix in progress."),
+    "ADM-06": ("PARTIAL: the school admin grants (S12), revokes (S24) and replaces a teacher (S26b) by the screens. The scope list "
+               "offers hidden levels (the findings, D-006). Fix in progress."),
+    "ADM-19": "PASS: «Pindah kelas» moves a learner; what they did stays with the old class (M9, S25).",
+    "ADM-21": ("PARTIAL: next year's Tingkat and Kelas are made and the whole class carried forward (S27, run 36950730580); the "
+               "latest run (36952453693) failed S27; diagnosis in progress."),
+    "SYS-02": ("PARTIAL: Konfigurasi shows the environment and, on «Jalankan pemeriksaan», «Semua pemeriksaan lolos» (local, 2 Oct; "
+               "the walk S2 is written, not yet run). Whether each school's administrator has signed in needs a new cross-school "
+               "read of sign-in facts: waiting for Yazid."),
+    "SYS-03": ("BUILT, not yet run: one versioned, audited operator step founds a school (C1: migration 20261108100000, "
+               "found-school.yml, dispatch and staging only; C1-S01, C1-K01). It founds the first Golden School on staging once main "
+               "carries it. A school's birth on production stays Yazid's approval (M1)."),
+    "SYS-05": ("PARTIAL: PINTAR's standard chapters distributed to a school show on «Siapkan materi» as «Materi sekolah» (M6, S26d). "
+               "A PINTAR chapter end to end waits on the D-029 question."),
+    "X-05": ("PARTIAL: the class is assigned and the eligible learners see it (S18, S19). The ineligible learner (moved out of the "
+             "class before a chapter was given to it) is now in the walk (S26d2), not yet run."),
+    "X-09": ("PARTIAL: the result is clear and honest, and says «Target tercapai» or «Belum mencapai target» against the school's "
+             "sealed mark (M3, W4: S21, S21d; staging J12). The certificate state needs official evidence from a real school and "
+             "BOB-50, held for the joint landing (D-082(d))."),
+    "X-13": ("PASS: one computer, two students: after «Keluar» the next student finds only their own home and the lesson at its "
+             "first page (S21c, W2); the card idle limit (BOB-05)."),
+    "U-DEVICE": ("PASS: crawl A opens every page it reaches for 14 roles at 320 px and fails on any page wider than the window. 34 "
+                 "pages failed first (Konfigurasi, three Studio forms, the report pages); after the fix none (0 of 269 locally; the CI "
+                 "crawl green, run 36952453693). Keluar everywhere (DAISY-02); the card idle limit (BOB-05)."),
+    "REL-01": ("PASS for main 8dd506a's code: each batch reached main only after CI and the browser walk were green on its head "
+               "(batch 6: CI 36947657438, walk 36947660368)."),
+    "REL-03": ("PASS for the live release (production 111 = 5b5b68d). main and staging carry 143 (environment facts run "
+               "36949805301); the branch carries 145."),
+})
+FINDINGS.append(("D-006 scopes (2 Oct)",
+                 "Peran & akses offers every place as a role scope, the hidden «Jenjang» and «Reguler» levels included, labelled "
+                 "\"School · place\" in alphabetical order, so the school itself comes last. Given «Dekan» at the first \"SD Zayd…\" "
+                 "entry, the dean was scoped to «Jenjang» and Pimpinan named it (audit S23d).",
+                 "The scope list shows the school first by its own name, then Bagian, Tingkat and Kelas; no hidden level (D-006).",
+                 "OPEN, fix in progress (coordinator)"))
+VERDICT_NOW = ("NO-GO. main 8dd506a is on staging (143 migrations; staging walk 008 green); production still runs 5b5b68d (111). "
+               "Batch 7 (migrations 144–145, J6.13, X.6) waits on the D-006 scope fix and S27's diagnosis. "
+               "What stands between main and go-live, by owner: "
+               "Yazid — the production Supabase SMTP password; the readiness tier wording (D-082(e)); the card and certificate "
+               "physical proofs; the forwarding key at staging acceptance (D-062(c)); REL-09's recovery copies (D-066); the D-029 "
+               "question for PINTAR's own chapters (M6); the production read permission for the restore rehearsal; production's "
+               "compute tier (CAP-08); a cross-school read of whether each school's admin has signed in (SYS-02). "
+               "Held for the joint landing (Gate 3) — BOB-26 with DAISY-20 and BOB-50: X-09's certificates, EDU-10, U-RECOVER, ADM-05's "
+               "name confirmation. "
+               "Coordinator — the D-006 scope fix (ADM-05, ADM-06, DEA-02); S27; batch 7 to main, staging and walk 009; the walks "
+               "written and not yet run (STU-07, STU-19, STU-20, HOD-02, HOD-03, HOD-04, X-05, SYS-02, EDU-09 on staging); the first "
+               "Golden School on staging (C1, then its first administrator by the screens); the load runs (CAP-01, CAP-02, CAP-07).")
+CHANGES_V21.append("2 Oct, v2.4: status on main 8dd506a (staging walk 008 green) with the branch's walks. P0 PASS 63 → 67: EDU-04, "
+                   "STU-09, X-13 and U-DEVICE (320 px now a crawl gate); DEA-02 N-T → PARTIAL. P1/P2 to PASS: ADM-02, EDU-02, EDU-07 "
+                   "(T2 on staging), ADM-19; SYS-03 built (C1). New finding: Peran & akses offers D-006's hidden levels as role "
+                   "scopes (ADM-05, ADM-06, DEA-02 stay PARTIAL until fixed). ADM-21 regressed in the latest run, under diagnosis. "
+                   "The checklist stays engineering detail since D-084; readiness is the journey status.")
+
 def as_dict():
     g = globals()
     return {
@@ -987,6 +1091,7 @@ def as_dict():
         "UNIVERSAL": UNIVERSAL, "RELEASE": RELEASE, "FINDINGS": FINDINGS, "RUN_RECORD": RUN_RECORD,
         "COMPLETION": COMPLETION, "SOURCES": SOURCES, "CHANGES_FROM_DRAFT": CHANGES_FROM_DRAFT,
         "NOW": NOW, "CURRENT": CURRENT, "VERDICT_NOW": VERDICT_NOW, "CHANGES_V21": CHANGES_V21,
+        "RETIRED_NOTICE": RETIRED_NOTICE,
     }
 
 
