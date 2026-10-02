@@ -91,9 +91,14 @@ const checks = [
 say(""); say("| D-031 criterion | Met |"); say("|---|---|");
 for (const [k, ok] of checks) say(`| ${k} | ${ok ? "yes" : "**no**"} |`);
 const met = checks.every(([, ok]) => ok);
+// the run's own validity, apart from D-031: this scenario expects no refusal at all (one start per learner, valid
+// answers, a complete manifest), so any refusal is a defect of the harness or of PINTAR and the run is not a measure
+const refused = calls.filter(isRefusal).length + sums.reduce((n, s) => n + (s.refusals?.length ?? 0), 0);
+say(""); say(refused ? `**RUN INVALID as a measure:** ${refused} refusal(s) in a scenario that expects none (above); diagnose before reading the figures.`
+  : "Run valid: no refusal in a scenario that expects none.");
 say(""); say(`**L1 ${met ? "MET" : "NOT MET"} on staging.** Staging is not yet on production's compute tier (CAP-08): this measures staging. ` +
   "Sessions were made ahead by Auth's admin link (SETUP); the card sign-in wave is CAP-01, run after the forwarding key (D-062(c)). " +
   "Learners called PINTAR's learner RPCs with their own tokens, plus Auth's /user check per request as the app's proxy does; the " +
   "Next.js server's own time is not in these figures.");
 if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
-if (!met) process.exit(1);
+if (!met || refused) process.exit(1);

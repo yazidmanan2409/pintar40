@@ -68,7 +68,8 @@ const node = (kind, name, parent) => sql(`select id from public.org_nodes where 
 // 1. structure
 const bagian = node("DEPARTMENT", BAGIAN);
 if (!bagian) throw new Error(`no «${BAGIAN}» in the synthetic school (staging-perf-seed.yml makes it)`);
-const tingkat = node("COHORT", TINGKAT, bagian) || await rpc("create_tingkat", { p_bagian_node: bagian, p_name: TINGKAT, p_academic_year: YEAR });
+// a Tingkat's parent is the Bagian's hidden «Reguler» (D-006), so it is found by its name in the school
+const tingkat = node("COHORT", TINGKAT) || await rpc("create_tingkat", { p_bagian_node: bagian, p_name: TINGKAT, p_academic_year: YEAR });
 const kelas = [];
 for (let i = 1; i <= KELAS; i++) {
   const nama = `Kelas Beban ${pad(i, 2)}`;

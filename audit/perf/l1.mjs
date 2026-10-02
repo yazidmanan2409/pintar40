@@ -41,9 +41,11 @@ if (!DB.includes(REF) || DB.includes(PRODUCTION_REF) || SB.includes(PRODUCTION_R
 if (!Number.isFinite(T0)) throw new Error("T0 is not a time");
 mkdirSync(OUT, { recursive: true });
 
-const sql = (q) => execFileSync("psql", [DB, "-qAt", "-v", "ON_ERROR_STOP=1",
+// fields are separated by the unit separator, which no name, address or option text holds
+const FS = "\x1f";
+const sql = (q) => execFileSync("psql", [DB, "-qAt", "-F", FS, "-v", "ON_ERROR_STOP=1",
   "-c", "begin transaction read only", "-c", q, "-c", "commit"], { encoding: "utf8", maxBuffer: 256 << 20 }).trim();
-const rows = (q) => { const t = sql(q); return t ? t.split("\n").map((l) => l.split("|")) : []; };
+const rows = (q) => { const t = sql(q); return t ? t.split("\n").map((l) => l.split(FS)) : []; };
 const uuid = (s) => { if (!/^[0-9a-f-]{36}$/.test(s ?? "")) throw new Error(`not a uuid: ${s}`); return `'${s}'`; };
 const pause = (ms) => new Promise((r) => setTimeout(r, Math.max(0, ms)));
 const acak = (a, b) => a + Math.random() * (b - a);
@@ -78,7 +80,7 @@ const mine = semua.filter((_, i) => i % SHARDS === SHARD).slice(0, LIMIT)
 const courses = [...new Set(mine.map((m) => m.course))];
 const KUNCI = new Map(); // item_id -> { right: Set(body), wrong: Set(body) }
 for (const c of courses) {
-  for (const [item, body, ok] of rows(`select o.item_id, replace(replace(o.body, E'\\n', ' '), '|', '/'), o.is_correct
+  for (const [item, body, ok] of rows(`select o.item_id, regexp_replace(o.body, '\\s+', ' ', 'g'), o.is_correct
       from public.item_options o join public.items i on i.id = o.item_id join public.lessons l on l.id = i.lesson_id
       join public.modules md on md.id = l.module_id where md.course_id = ${uuid(c)}`)) {
     const k = KUNCI.get(item) ?? { right: new Set(), wrong: new Set() };

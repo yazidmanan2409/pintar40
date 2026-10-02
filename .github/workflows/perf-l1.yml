@@ -37,7 +37,7 @@ on:
         default: "63"
       start_in_min:
         description: "wave: minutes from now to T0 (sessions are made before it)"
-        default: "14"
+        default: "18"
 
 permissions:
   contents: read
@@ -154,7 +154,7 @@ jobs:
         working-directory: audit/perf
         env:
           T0: ${{ needs.plan.outputs.t0 }}
-          SAMPLE_MIN: "35"
+          SAMPLE_MIN: "25"
           OUT_DIR: ${{ github.workspace }}/out
         run: node l1-metrics.mjs
       - uses: actions/upload-artifact@v4
