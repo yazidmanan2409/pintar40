@@ -67,10 +67,10 @@ export const effTests: SelfTest[] = [
       c.expect(!/setInterval\(ask/.test(pemain), "a bare timer still drives the question player's assistance check");
 
       return c.verdict(
-        `tanyaBerkala with a slow ask (130 ms against a 40 ms tick) had at most ${lambat.puncak} check in flight and asked ` +
+        `executes tanyaBerkala (src/lib/tanya-berkala.ts): with a slow ask (130 ms against a 40 ms tick) it had at most ${lambat.puncak} check in flight and asked ` +
           `${lambat.tanya} times in 700 ms where a bare timer asked ${lambatLama.tanya} with ${lambatLama.puncak} in flight; ` +
-          `with a fast ask it asked ${cepat.tanya} times against ${cepatLama.tanya}; stopped, it asked no more; the question ` +
-          "player's assistance check goes through it every 5 s",
+          `with a fast ask it asked ${cepat.tanya} times against ${cepatLama.tanya}; stopped, it asked no more; reads the question ` +
+          "player (src/app/belajar/_components/ItemPlayer.tsx): its assistance check goes through it every 5 s",
       );
     },
   },

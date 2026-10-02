@@ -35,7 +35,7 @@ revoke all on function public.definition_follows_cycle_roles(uuid) from public, 
 -- Verification: the new body gives the old body's answer for every definition there is, and the function keeps
 -- its shape (stable SQL, the pinned search_path, not executable by a client role).
 -- ---------------------------------------------------------------------------
-do $v$
+do $$
 declare n_diff integer; n_all integer; v_cfg text[]; v_vol "char";
 begin
   select count(*), count(*) filter (where public.definition_follows_cycle_roles(d.id) is distinct from (
@@ -61,4 +61,4 @@ begin
     raise exception 'definition_follows_cycle_roles is executable by a client role';
   end if;
   raise notice 'definition_follows_cycle_roles: % definition(s) compared, all identical', n_all;
-end $v$;
+end $$;
