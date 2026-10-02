@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 167,
+  "version": 168,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2781,7 +2781,7 @@
     {
       "id": "EFF-K01",
       "runner": "static",
-      "proves": "efficiency audit (2 Oct): executes tanyaBerkala (src/lib/tanya-berkala.ts): with a slow ask it never has two checks in flight and asks fewer times than a bare timer; with a fast ask it asks once per tick, as a bare timer does; stopped, it asks no more; reads the question player (src/app/belajar/_components/ItemPlayer.tsx): its assistance check goes through tanyaBerkala every 5 s and no bare timer is left there"
+      "proves": "owner ruling on the assistance check (2 Oct): executes jedaBantuan, jedaAwal and periksaSaatLuring (src/lib/bantuan-terjadwal.ts): the next ask comes from the server's window and dwell, none where no help is configured, the question is answered or help is on offer; the probe runs only offline and stops at the first recovery; reads the source of the question player (src/app/belajar/_components/ItemPlayer.tsx), the assessment surface and the noteView action: no timer of its own asks about help (a planted 5 s poll is caught), a refusal does not turn on the offline notice, «Tutup» keeps the offer closed, the probe is a static file outside the proxy"
     },
     {
       "id": "EFF-K02",

@@ -32,7 +32,7 @@ import { t, type HleEvent, type Locale } from "@/lib/hle";
 import type { PaperEntry, AssistanceState, AssistanceLevel } from "@/lib/assessment-engine";
 import { TeksBaris } from "@/components/teks/Teks";
 import { belumDisimpan, sameAnswer, soalAwal, type Answer, type Entry } from "@/lib/kumpulkan";
-import { tanyaBerkala } from "@/lib/tanya-berkala";
+import { ALAMAT_PERIKSA, jedaAwal, jedaBantuan, periksaSaatLuring } from "@/lib/bantuan-terjadwal";
 
 export type ItemPlayerProps = {
   sessionId: string;
@@ -45,6 +45,8 @@ export type ItemPlayerProps = {
   stage: string | null;
   allowsPause: boolean;
   startedAt: string | null;
+  /** The assessment's hesitation window in seconds, from the server (session_state); null: it offers no help. */
+  assistanceWindow: number | null;
   finishHref: string;
   /** J6.14 (STU-20): the reader's language for the player's own words; questions and options are never translated. */
   locale: Locale;
@@ -52,7 +54,7 @@ export type ItemPlayerProps = {
     submitAnswer: (presentedItemId: string, clientSeq: number, value: Answer,
                    receiptMode?: "LIVE" | "REPLAYED" | "LATE_SYNC") =>
       Promise<{ ok: true; outcome: string } | { ok: false; message: string; code: string | null; detail: string | null }>;
-    noteView: (presentedItemId: string) => Promise<{ ok: boolean }>;
+    noteView: (presentedItemId: string) => Promise<{ ok: true; dwellSeconds: number | null } | { ok: false }>;
     assistance: (presentedItemId: string) =>
       Promise<{ ok: true; state: AssistanceState } | { ok: false; message: string }>;
     openAssistance: (presentedItemId: string, level: number) =>
@@ -378,21 +380,78 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   }, [observe]);
 
   // -------------------------------------------------- the server's own clock
+  /*
+   * HELP IS ASKED FOR WHEN IT COULD BE DUE (owner ruling, 2 Oct). The server decides whether help is due
+   * (assistance_state: the window against the time since the first view, and never once answered). The player asks
+   * at the point the server's own figures say help could become due (bantuan-terjadwal.ts), never on a timer of its
+   * own, and not at all where the assessment offers no help. It asks again only when the server's answer could have
+   * changed: after the learner opens a level, or when an answer is taken while help is on screen. «Tutup» closes the
+   * offer on this question for this page: nothing reopens it (dismiss_assistance records the close and changes no
+   * eligibility). The offline notice no longer rides on this: a refusal is not the network (option A, below).
+   */
+  const jendelaBantuan = props.assistanceWindow;
+  const ditutup = useRef<Set<string>>(new Set());
+  const tanyaBantuan = useRef<(() => void) | null>(null);
+  const diterima = useRef(accepted);
+  useEffect(() => { diterima.current = accepted; }, [accepted]);
   useEffect(() => {
     if (!current) return;
     let alive = true;
+    let timer: number | undefined;
     const itemId = current.presentedItemId;
-    void actions.noteView(current.presentedItemId);
-    // every 5 s, but never a second check while one is still waiting: they would only queue, and the learner's
-    // saves with them (tanyaBerkala)
-    const stop = tanyaBerkala(async () => {
-      const r = await actions.assistance(itemId);
-      if (!alive) return;
-      if (r.ok) { setAssist({ itemId, state: r.state }); setOnline(true); }
-      else { setAssist(null); setOnline(false); }
-    }, 5000);
-    return () => { alive = false; stop(); };
-  }, [actions, current]);
+    const jadwalkan = (ms: number | null) => {
+      if (timer !== undefined) window.clearTimeout(timer);
+      timer = ms === null ? undefined : window.setTimeout(() => { void tanya(); }, ms);
+    };
+    const tanya = async () => {
+      if (!alive || ditutup.current.has(itemId)) return;
+      let r: Awaited<ReturnType<typeof actions.assistance>>;
+      try {
+        r = await actions.assistance(itemId);
+      } catch {
+        // the request never arrived: offline mode, and the probe below looks for the network
+        if (alive) setOnline(false);
+        return;
+      }
+      if (!alive || ditutup.current.has(itemId)) return;
+      // a refusal (the session closed under the page, say) is not the network: the notice stays as it was
+      if (!r.ok) { setAssist(null); return; }
+      setAssist({ itemId, state: r.state });
+      jadwalkan(jedaBantuan(r.state));
+    };
+    tanyaBantuan.current = () => { void tanya(); };
+    // the first view, on the server's clock; the action says how long the question has been on screen
+    const terjawab = diterima.current[itemId] !== undefined;
+    void actions.noteView(itemId).then(
+      (v) => { if (alive) jadwalkan(jedaAwal(jendelaBantuan, v.ok ? v.dwellSeconds : null, terjawab)); },
+      () => { if (alive) jadwalkan(jedaAwal(jendelaBantuan, null, terjawab)); },
+    );
+    return () => {
+      alive = false;
+      tanyaBantuan.current = null;
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, [actions, current, jendelaBantuan]);
+
+  // an answer the server holds ends the hesitation: while help is on screen, ask once so the offer follows the server
+  const terimaKini = current ? accepted[current.presentedItemId] : undefined;
+  const bantuanTampil = Boolean(current && assist?.itemId === current.presentedItemId && assist.state.due);
+  useEffect(() => {
+    if (bantuanTampil && terimaKini !== undefined) tanyaBantuan.current?.();
+  }, [bantuanTampil, terimaKini]);
+
+  // OFFLINE ONLY (owner ruling, option A): while the page believes the learner is offline (a browser `offline`
+  // event, or a request that never arrived), a light probe asks whether the network is back; on the first yes the
+  // notice clears and the probe stops. Nothing runs while online. The probe is a static file the proxy does not
+  // see: no session check, no database, no decision but the notice.
+  useEffect(() => {
+    if (online) return;
+    return periksaSaatLuring(
+      () => fetch(`${ALAMAT_PERIKSA}?periksa=${Date.now()}`, { method: "HEAD", cache: "no-store" }).then((r) => r.ok),
+      () => setOnline(true),
+      5000,
+    );
+  }, [online]);
 
   // counting up, never down (§4). The server owns the deadline; this is display.
   useEffect(() => {
@@ -474,6 +533,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       setLevels((l) => (l.itemId === itemId
         ? { itemId, opened: [...l.opened, r.level] }
         : { itemId, opened: [r.level] }));
+      // the server's next level follows the one just opened: ask once
+      tanyaBantuan.current?.();
     }
   };
 
@@ -612,7 +673,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
                   </button>
                 )}
                 <button type="button"
-                  onClick={() => { void actions.dismissAssistance(itemId); setAssist(null); }}
+                  onClick={() => { ditutup.current.add(itemId); void actions.dismissAssistance(itemId); setAssist(null); }}
                   className="pin-btn pin-quiet">
                   {kata("assist.close")}
                 </button>

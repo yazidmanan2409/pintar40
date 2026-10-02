@@ -39,7 +39,11 @@ function refusal(e: unknown): { message: string; code: string | null; detail: st
 
 export async function noteView(presentedItemId: string) {
   try {
-    return { ok: true as const, at: await engine.noteItemView(await db(), presentedItemId) };
+    const at = await engine.noteItemView(await db(), presentedItemId);
+    // how long the question has been on screen since its first view (the database's clock), measured here on the
+    // server rather than by the learner's clock, so the player can ask about help when it could become due
+    const sejak = Date.parse(at);
+    return { ok: true as const, at, dwellSeconds: Number.isFinite(sejak) ? Math.max(0, (Date.now() - sejak) / 1000) : null };
   } catch (e) {
     return { ok: false as const, message: (e as Error).message };
   }
