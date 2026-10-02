@@ -11,3 +11,4 @@ attempt:  005   (main d08f1b1 on staging: ADM-J06/J07 intake copy; the same jour
           001   the setup's server-made teacher check started the 60 s window; the real request was refused 429 and the screen said "Periksa email Anda" by D2
 attempt 006: main 89c1d2d on staging (batches 3+4: M9, rollover fix, setup panel; 134 migrations, environment facts run 36933136726 GREEN), re-walked after the push
 attempt 007: main 17add37 on staging (batch 5: M5, MC-4, BOB-49 school pass mark, M3, M6, M3 grant fix; 140 migrations, environment facts run 36946153615 GREEN), re-walked after the push
+attempt 008: main 8dd506a on staging (batch 6: T2 Uji Cepat question choice, M10 corrections in their line; 143 migrations, environment facts run 36949805301 GREEN), re-walked after the push; Q3 now takes this walk's own chapter
