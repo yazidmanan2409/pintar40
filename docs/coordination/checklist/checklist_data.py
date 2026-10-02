@@ -1091,7 +1091,10 @@ NOW.update({
     "evidence": ("main 38944b5 carries batch 7 and is on staging with 145 migrations (staging.yml run 36959297570: migrations equal the "
                  "repository, sign-in boundary and email asserted). Its CI is green (run 36957342031) and its browser audit green: "
                  "crawl A with the 320 px gate and job B 52 PASS, 1 NOTE, 0 FAIL from an empty production-like database (run "
-                 "36957344279). Production is unchanged (5b5b68d, 111 migrations)."),
+                 "36957344279). On staging after the push: environment facts GREEN (run 36959373374); staging walk 009 20 PASS, "
+                 "1 NOTE, 1 NOT RUN, no 5xx, no page error (run 36959504927); the first Golden School founded by the C1 step "
+                 "(found-school.yml run 36959472214) and its first administrator appointed by the screens and signed in by the "
+                 "real email link (run 36959505012, G0-G5 PASS). Production is unchanged (5b5b68d, 111 migrations)."),
 })
 CURRENT.update({
     "STU-07": ("PASS: answers are counted exactly (staging J08, J11, J13); an unsaved last answer is kept at «Kumpulkan» (W3); a "
@@ -1124,6 +1127,13 @@ CURRENT.update({
     "ADM-21": ("PASS: next year's Tingkat and Kelas are made and the whole class carried forward, one not yet signed in too (S27, "
                "runs 36954714221 and 36957344279). One earlier failure (run 36952453693) was not seen again; its cause was not "
                "established."),
+    "EDU-09": ("PASS: «Lihat nama murid» (S21b), «Lihat per soal» with the questions the class found hard (S22, M5), the Uji "
+               "Cepat hand-in counted (staging Q5); «Keadaan hari ini» lists no Uji Cepat whose window has ended (staging J14, walk "
+               "009, run 36959504927: 0 rows while every earlier walk's had ended; BOB-42)."),
+    "SYS-03": ("PASS on staging: a school is founded by one versioned, audited operator step (C1: found-school.yml run 36959472214, "
+               "«SD Golden School GS-001», audited school.founded with the run); its first administrator is then appointed by the "
+               "platform operator's screens and signs in by the real email link (run 36959505012). A school's birth on production "
+               "stays Yazid's approval (M1)."),
     "SYS-02": ("PARTIAL: Konfigurasi shows the environment and, on «Jalankan pemeriksaan», «Semua pemeriksaan lolos» (S2, walked). "
                "Whether each school's administrator has signed in needs a new cross-school read of sign-in facts: waiting for "
                "Yazid."),
@@ -1143,11 +1153,11 @@ VERDICT_NOW = ("NO-GO. main 38944b5 (batch 7) is on staging with 145 migrations;
                "restore rehearsal; production's compute tier (CAP-08); a cross-school read of whether each school's admin has "
                "signed in (SYS-02). "
                "Held for the joint landing (Gate 3) — BOB-26 with DAISY-20 and BOB-50: X-09's certificates, EDU-10, U-RECOVER. "
-               "Coordinator — staging walk 009 (EDU-09's J14); the first Golden School on staging (C1, then its first "
-               "administrator by the screens: SYS-03, GS-01 to GS-03); the load harness (CAP-02, CAP-07; CAP-01 after the "
-               "forwarding key).")
-CHANGES_V21.append("2 Oct, v2.5: status on main 38944b5 (batch 7). P0 PASS 67 → 75: ADM-05 (D-006 fixed), DEA-02, HOD-02, HOD-03, "
-                   "HOD-04, STU-07, STU-19, X-05. P1/P2 to PASS: ADM-06, STU-20 (after the J6.14 player fix), ADM-21. Findings: "
+               "Coordinator — the Golden School's spine past GS-03 (structure, pass mark, staff, students and cards, content, "
+               "review: GS-04 to GS-09); the L1 load run with the harness now built (CAP-02, CAP-07; CAP-01 after the forwarding "
+               "key).")
+CHANGES_V21.append("2 Oct, v2.5: status on main 38944b5 (batch 7). P0 PASS 67 → 76: ADM-05 (D-006 fixed), DEA-02, HOD-02, HOD-03, "
+                   "HOD-04, STU-07, STU-19, X-05, EDU-09 (staging walk 009). P1/P2 to PASS: ADM-06, STU-20 (after the J6.14 player fix), ADM-21, SYS-03 (the first Golden School). Findings: "
                    "D-006 scopes fixed; a new one, the players' language (J6.14), found and fixed in the same batch.")
 
 def as_dict():
