@@ -64,13 +64,17 @@ export default async function Siapkan({
     return <HalamanPenolakan locale={locale} persona="educator" backHref="/mengajar" backKey="mengajar.kembali" />;
   }
 
-  const [semua, tugas, fakta] = await Promise.all([
+  const [semua, tugas, fakta, akar] = await Promise.all([
     ajar.terbitan(ctx.ini.institusi),
     ajar.penugasan(id),
     ajar.faktaKelas(id),
+    ajar.garisSekolah(ctx.ini.institusi),
   ]);
   const punya = new Set(tugas.map((x) => x.releaseId));
-  const calon = semua.filter((r) => !punya.has(r.id));
+  // D-085 M10: a class already given a release of a chapter's line is not offered that line again; a corrected release
+  // reaches it through «Koreksi» (before anyone starts), or stays with the release it was given
+  const garisPunya = new Set(tugas.filter((x) => x.status === "ACTIVE").map((x) => akar.get(x.courseId) ?? x.courseId));
+  const calon = semua.filter((r) => !punya.has(r.id) && !garisPunya.has(akar.get(r.courseId) ?? r.courseId));
   const dipilih = pilihan ? calon.find((r) => r.id === pilihan) ?? null : null;
 
   const lingkup = (

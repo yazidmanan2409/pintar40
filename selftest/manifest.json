@@ -2727,6 +2727,11 @@
       "id": "M10-S01",
       "runner": "static",
       "proves": "D-085 M10: a sealed chapter keeps its tests' questions, and so does its correction. In the database, rolled back (supabase/migrations/20261105100000): a published chapter's question cannot be moved in or out of its Pemetaan Awal or Uji Penguasaan; a revision keeps every mark; reviewed, released as 1.1.0 superseding 1.0.0, frozen and published, the corrected chapter is given to a class and each test draws exactly its own marked questions"
+    },
+    {
+      "id": "M10-K01",
+      "runner": "static",
+      "proves": "D-085 M10: new learning uses the current release. Executes akarGaris and terbaruPerGaris (src/lib/pengajar.ts): a line of corrections maps to its first course, and only each line's newest published release is offered. Reads the source: «Siapkan materi» offers each line once and never one the class already has; the Studio package page's «Koreksi» reads the whole line's releases and classes, and a corrected course links forward to its correction"
     }
   ]
 }

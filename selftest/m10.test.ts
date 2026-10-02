@@ -14,8 +14,15 @@
  *            frozen and published by the screens' own functions, the corrected
  *            chapter is given to a class whose pre-test and post-test draw the
  *            marked questions and never the same ones
+ *   M10-K01  executes akarGaris and terbaruPerGaris (src/lib/pengajar.ts): a line of
+ *            corrections is one chapter, and of it only the newest published
+ *            release is offered for new learning; reads the source: «Siapkan
+ *            materi» offers each line once and not one the class already has;
+ *            the Studio package page's «Koreksi» reads the whole line, and a
+ *            corrected course links forward to its correction
  */
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 
@@ -130,6 +137,49 @@ export const m10Tests: SelfTest[] = [
           "school; its teacher's change to a question's cycle_role is refused; a revision keeps every Pemetaan Awal and Uji " +
           "Penguasaan mark; reviewed, released as 1.1.0 superseding 1.0.0, frozen and published, the corrected chapter is " +
           "given to a class and each of its tests draws exactly its own marked questions",
+      );
+    },
+  },
+  {
+    id: "M10-K01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const { akarGaris, terbaruPerGaris } = await import("../src/lib/pengajar");
+      const akar = akarGaris([
+        { id: "b1", supersedes_course_id: null }, { id: "b1v2", supersedes_course_id: "b1" }, { id: "b1v3", supersedes_course_id: "b1v2" },
+        { id: "b2", supersedes_course_id: null }, { id: "putus", supersedes_course_id: "hilang" },
+        { id: "x", supersedes_course_id: "y" }, { id: "y", supersedes_course_id: "x" },
+      ]);
+      c.expect(akar.get("b1v3") === "b1" && akar.get("b1v2") === "b1" && akar.get("b1") === "b1" && akar.get("b2") === "b2",
+        `a line of corrections reads ${JSON.stringify([...akar])}; expected every revision under its first course`);
+      c.expect(akar.get("putus") === "hilang" && ["x", "y"].includes(akar.get("x") ?? ""), "a broken or cyclic pointer is not survived");
+      const daftar = [
+        { id: "r3", courseId: "b1v3", terbitPada: "2026-10-03T00:00:00Z" },
+        { id: "r2b", courseId: "b2", terbitPada: "2026-10-02T00:00:00Z" },
+        { id: "r1", courseId: "b1", terbitPada: "2026-09-01T00:00:00Z" },
+        { id: "r2", courseId: "b1v2", terbitPada: "2026-09-15T00:00:00Z" },
+      ];
+      const kini = terbaruPerGaris(daftar, akar).map((x) => x.id);
+      c.expect(JSON.stringify(kini) === JSON.stringify(["r3", "r2b"]),
+        `the releases offered for new learning read ${JSON.stringify(kini)}; expected the newest of Bab 1's line (r3) and Bab 2 (r2b), in the list's order`);
+
+      const buang = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+      const ajar = buang(readFileSync(join(repoRoot, "src", "lib", "pengajar.ts"), "utf8"));
+      c.expect(/const out = terbaruPerGaris\(sekolah, await garisSekolah\(institusi\)\)/.test(ajar),
+        "«Siapkan materi» still offers a corrected release beside its correction");
+      const siap = buang(readFileSync(join(repoRoot, "src", "app", "mengajar", "[kelas]", "siapkan", "page.tsx"), "utf8"));
+      c.expect(/const garisPunya = new Set\(/.test(siap) && /!garisPunya\.has\(akar\.get\(r\.courseId\) \?\? r\.courseId\)/.test(siap),
+        "a class already given a chapter is offered its correction as a second chapter");
+      const paket = buang(readFileSync(join(repoRoot, "src", "app", "studio", "paket", "[course]", "page.tsx"), "utf8"));
+      c.expect(/\.in\("course_id", garis\.length > 0 \? garis : \[courseId\]\)\.eq\("status", "ACTIVE"\)/.test(paket)
+        && /const published = \(rilisGaris \?\? \[\]\)\.filter/.test(paket) && /data-penerus=\{penerus\}/.test(paket),
+        "«Koreksi» reads one course rather than its line, or a corrected course does not lead to its correction");
+      return c.verdict(
+        "executes akarGaris and terbaruPerGaris (src/lib/pengajar.ts): a line of corrections maps to its first course " +
+          "(a broken or cyclic pointer survived), and only each line's newest published release is offered for new learning, " +
+          "in the list's order. Reads the source: «Siapkan materi» offers each line once and never one the class already " +
+          "has; the Studio package page's «Koreksi» reads the line's releases and classes, and a corrected course links forward",
       );
     },
   },

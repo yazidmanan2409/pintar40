@@ -252,7 +252,7 @@ export async function terbitan(institusi: string): Promise<Terbitan[]> {
     id: string; course_id: string; version_label: string; published_at: string | null;
     course: { title: string; subject: string } | null;
   };
-  const out: Terbitan[] = rows<Baris>(data).map((r) => ({
+  const sekolah: Terbitan[] = rows<Baris>(data).map((r) => ({
     id: r.id,
     courseId: r.course_id,
     kursus: r.course?.title ?? "",
@@ -261,11 +261,51 @@ export async function terbitan(institusi: string): Promise<Terbitan[]> {
     pelajaran: 0,
     asal: "SEKOLAH",
   }));
+  // D-085 M10: new learning uses the current release -- of each line of corrections, the newest published one
+  const out = terbaruPerGaris(sekolah, await garisSekolah(institusi));
   // D-085 M6: PINTAR's standard material is prepared once and distributed to the school; the teacher sees it beside
   // the school's own, its origin said. `distributed_releases` answers the school's staff only (CAN_ASSIGN_LEARNING or
   // CAN_DRAFT where it is distributed), and assign_release decides again whether it may be given.
   const { data: dist } = await c.rpc("distributed_releases");
   return [...out, ...pintarDariDistribusi(rows<Distribusi>(dist), institusi)];
+}
+
+/**
+ * D-085 M10: each of the school's courses mapped to the first course of its line (the one that supersedes nothing).
+ * A correction is a new course superseding the one it corrects (ADR-0016), so the line is what a teacher means by
+ * "this chapter". Read under the reader's own row security (CAN_DRAFT in the school).
+ */
+export async function garisSekolah(institusi: string): Promise<Map<string, string>> {
+  const c = await db();
+  const { data } = await c.from("courses").select("id, supersedes_course_id").eq("institution_id", institusi);
+  return akarGaris(rows<{ id: string; supersedes_course_id: string | null }>(data));
+}
+
+/** Pure: each course's line root, following supersedes_course_id upwards (a broken or cyclic pointer stops the walk). */
+export function akarGaris(kursus: ReadonlyArray<{ id: string; supersedes_course_id: string | null }>): Map<string, string> {
+  const induk = new Map(kursus.map((k) => [k.id, k.supersedes_course_id]));
+  const akar = new Map<string, string>();
+  for (const k of kursus) {
+    let kini = k.id;
+    const lewat = new Set<string>([kini]);
+    for (let atas = induk.get(kini); atas && !lewat.has(atas); atas = induk.get(kini)) {
+      kini = atas;
+      lewat.add(kini);
+    }
+    akar.set(k.id, kini);
+  }
+  return akar;
+}
+
+/** Pure: of each line, only its newest published release, in the list's own order (M10: new learning uses the current). */
+export function terbaruPerGaris<T extends { courseId: string; terbitPada: string | null }>(daftar: readonly T[], akar: ReadonlyMap<string, string>): T[] {
+  const garis = (t: T) => akar.get(t.courseId) ?? t.courseId;
+  const terbaru = new Map<string, T>();
+  for (const t of daftar) {
+    const kini = terbaru.get(garis(t));
+    if (!kini || String(t.terbitPada ?? "") > String(kini.terbitPada ?? "")) terbaru.set(garis(t), t);
+  }
+  return daftar.filter((t) => terbaru.get(garis(t)) === t);
 }
 
 type Distribusi = {

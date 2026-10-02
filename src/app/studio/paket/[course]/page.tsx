@@ -13,6 +13,7 @@ import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
 import { TeksBaris } from "@/components/teks/Teks";
 import { soalPaket } from "@/lib/soal-tinjauan";
+import { akarGaris } from "@/lib/pengajar";
 
 /**
  * Package detail — Publish Readiness (§5), freeze & publish (§6), release
@@ -88,7 +89,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   ]);
   const inst = institutions.find((i) => i.id === course.institution_id);
 
-  const [{ data: stateRows }, { data: releases }, { data: mcq }, { data: coach }, { data: assignments }] =
+  const [{ data: stateRows }, { data: releases }, { data: mcq }, { data: coach }, { data: garisRows }] =
     await Promise.all([
       supabase.rpc("studio_package_state", { p_course: courseId }),
       supabase.from("plp_releases").select("id, version_label, status, published_at, frozen_at, supersedes_release_id")
@@ -99,9 +100,31 @@ export default async function Paket({ params, searchParams }: { params: Params; 
       supabase.from("coaching_findings")
         .select("id, severity, lokasi, masalah, mengapa_penting, cara_memperbaiki, acknowledged_at")
         .eq("course_id", courseId).order("created_at", { ascending: true }),
-      supabase.from("learning_assignments").select("id, plp_release_id, status, node_id")
-        .eq("course_id", courseId).eq("status", "ACTIVE"),
+      supabase.from("courses").select("id, supersedes_course_id").eq("institution_id", course.institution_id),
     ]);
+
+  // D-085 M10: a correction is a new course superseding the one it corrects, so «Koreksi» reads the whole line --
+  // every published release of it, and every class given one -- not this course alone (one course has one release,
+  // so read alone it never had two to choose between)
+  const akar = akarGaris((garisRows ?? []) as Array<{ id: string; supersedes_course_id: string | null }>);
+  const garis = [...akar.entries()].filter(([, r]) => r === (akar.get(courseId) ?? courseId)).map(([id]) => id);
+  const [{ data: rilisGaris }, { data: assignments }] = await Promise.all([
+    supabase.from("plp_releases").select("id, course_id, version_label, status, published_at")
+      .in("course_id", garis.length > 0 ? garis : [courseId]).order("published_at", { ascending: true }),
+    supabase.from("learning_assignments").select("id, plp_release_id, status, node_id")
+      .in("course_id", garis.length > 0 ? garis : [courseId]).eq("status", "ACTIVE"),
+  ]);
+  // a course this one has been corrected by: the newest of the line after it, when there is one
+  const sesudah = ((garisRows ?? []) as Array<{ id: string; supersedes_course_id: string | null }>);
+  const penerus = (() => {
+    let kini = courseId;
+    for (let n = 0; n < 64; n++) {
+      const anak = sesudah.find((k) => k.supersedes_course_id === kini);
+      if (!anak) break;
+      kini = anak.id;
+    }
+    return kini === courseId ? null : kini;
+  })();
 
   // D-088(h): the package's questions with their key and rationale, read under the reader's own row security
   // (CAN_DRAFT in the school, which every reviewer holds), so the person who approves sees what they approve
@@ -119,7 +142,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   // the reasons speak the reader's language, as the Terbit step below them does
   const sl = (k: HleEvent) => t(k, "staff", { locale });
   if (refAlasan) console.error(`[studio ${refAlasan}] studio_package_state returned blocker code(s) the catalogue does not know`, asing.map((r) => r?.code));
-  const published = (releases ?? []).filter((r) => r.status === "PUBLISHED");
+  const published = (rilisGaris ?? []).filter((r) => r.status === "PUBLISHED");
   const terakhir = (releases ?? []).at(-1) ?? null;
   const tersegel = terakhir !== null && !["INGESTED", "STRUCTURED", "VALIDATED", "IN_REVIEW", "APPROVED"].includes(terakhir.status);
   const findings = ((mcq ?? []) as Finding[]).filter((f) => f.acknowledged_at === null);
@@ -133,7 +156,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
     ? await supabase.from("org_nodes").select("id, name").in("id", kelasIds)
     : { data: [] as Array<{ id: string; name: string }> };
   const namaKelas = new Map(((kelasRows ?? []) as Array<{ id: string; name: string }>).map((k) => [k.id, k.name]));
-  const sekarangDi = (rilis: string) => (releases ?? []).find((r) => r.id === rilis)?.published_at as string | null | undefined;
+  const sekarangDi = (rilis: string) => (rilisGaris ?? []).find((r) => r.id === rilis)?.published_at as string | null | undefined;
 
   return (
     <div className="grid gap-6">
@@ -144,6 +167,14 @@ export default async function Paket({ params, searchParams }: { params: Params; 
           <p className="mt-2 text-sm text-ink-2">
             <Link href={`/studio/paket/${course.supersedes_course_id}`} className="underline underline-offset-4">
               ← {s("studio.paket.revisi_penjelasan")}
+            </Link>
+          </p>
+        ) : null}
+        {/* D-085 M10: forward too -- this course has been corrected; new learning uses the correction */}
+        {penerus ? (
+          <p className="mt-2 text-sm text-ink-2" data-penerus={penerus}>
+            <Link href={`/studio/paket/${penerus}`} className="underline underline-offset-4">
+              {s("studio.paket.revisi_terbaru")} →
             </Link>
           </p>
         ) : null}

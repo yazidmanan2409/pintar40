@@ -773,6 +773,7 @@ export type HleEvent =
   | "studio.paket.tarik"
   | "studio.paket.terbit_bukan_tugas"
   | "studio.paket.revisi"
+  | "studio.paket.revisi_terbaru"
   | "studio.paket.revisi_penjelasan"
   | "studio.paket.kosong"
   | "studio.temuan.judul"
@@ -2645,6 +2646,7 @@ const table: Table = {
   "studio.paket.tarik": { default: "Tarik dari peredaran", en: "Withdraw from circulation" },
   "studio.paket.terbit_bukan_tugas": { default: "Menerbitkan belum menugaskan. Siswa baru melihatnya setelah Anda menugaskannya ke kelas.", en: "Publishing is not assigning. Students see it only once you have assigned it to a class." },
   "studio.paket.revisi": { default: "Buat salinan untuk diperbaiki", en: "Make a copy to correct" },
+  "studio.paket.revisi_terbaru": { default: "Kursus ini sudah diperbaiki. Buka perbaikannya; materi baru untuk kelas memakai perbaikan itu", en: "This course has been corrected. Open the correction; new learning for classes uses it" },
   "studio.paket.revisi_penjelasan": { default: "Paket asli tetap utuh beserta seluruh catatan pengerjaan siswa. Salinan baru bisa Anda sunting bebas.", en: "The original package stays whole, with every record of student work. The new copy is yours to edit freely." },
   "studio.paket.kosong": { default: "Belum ada paket di sini.", en: "There is nothing here yet." },
   // polish batch 2 (UX-14): the section is named what both steps call it
