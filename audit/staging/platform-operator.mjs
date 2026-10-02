@@ -19,7 +19,7 @@
 import { chromium } from "playwright";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, appendFileSync } from "node:fs";
+import { mkdirSync, appendFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { APP, SLOW, closeTour, signIn } from "../perf/lib.mjs";
 
@@ -122,7 +122,17 @@ await step("O3", `the platform admin grants the operator «Admin platform» on K
 await A.context().close();
 
 const O = await newPage();
+// A later run re-proves the sign-in only when its request asks («masuk lagi»): run 1 proved it (run 36948198799),
+// and each sign-in spends one of staging's two emails an hour, shared with the walks.
+const PERMINTAAN = (() => { try { return readFileSync(join("..", "..", ".github", "staging-platform-operator-request.txt"), "utf8"); } catch { return ""; } })();
+const masukLagi = /masuk lagi/i.test(PERMINTAAN.trim().split("\n").pop() ?? "");
+const sudahMasuk = sql(`select count(*) from auth.users u where lower(u.email) = lower(${lit(OPERATOR_EMAIL)}) and u.last_sign_in_at is not null`) !== "0";
+
 await step("O4", "the operator signs in like a person: /masuk, the real email in the staging test mailbox, the same browser", async (rec) => {
+  if (sudahMasuk && !masukLagi) {
+    rec.verdict = "NOTE";
+    return "already signed in by the email link before (run 36948198799); not spending another of staging's two emails an hour";
+  }
   const t0 = Date.now() / 1000 - 60;
   await O.goto(`${APP}/masuk`, { timeout: SLOW, waitUntil: "networkidle" });
   await O.locator("#email").fill(OPERATOR_EMAIL);
@@ -154,12 +164,22 @@ await step("O5", "read back: one active platform-admin grant for the operator, b
     left join public.accounts ga on ga.person_id = r.granted_by left join auth.users gu on gu.id = ga.auth_user_id
     where r.role = 'SYSTEM_ADMIN' and r.revoked_at is null and now() < r.valid_until and lower(u.email) = lower(${lit(OPERATOR_EMAIL)})`);
   const [n, until, byAdmin, audited] = r.split("|");
+  // why, when it does not hold: who the grant names as its grantor, and the audit rows that name it or the operator
+  const sebab = byAdmin === "t" && audited === "t" ? "" : sql(`select string_agg(
+      'grantor ' || coalesce(case when r.granted_by is null then 'none' when r.granted_by = (select a2.person_id from public.accounts a2
+        join auth.users u2 on u2.id = a2.auth_user_id where lower(u2.email) = lower(${lit(ADMIN_EMAIL)}) limit 1) then 'the recorded admin'
+        else 'another person' end, '?') ||
+      ', grantor accounts ' || (select count(*) from public.accounts ga where ga.person_id = r.granted_by) ||
+      ', audit rows by id ' || (select count(*) from public.audit_log l where l.target_id = r.id::text) ||
+      ', audit rows naming the operator ' || (select count(*) from public.audit_log l where l.action = 'role.granted' and l.summary ->> 'person_id' = r.person_id::text), '; ')
+    from public.role_assignments r join public.accounts a on a.person_id = r.person_id join auth.users u on u.id = a.auth_user_id
+    where r.role = 'SYSTEM_ADMIN' and r.revoked_at is null and now() < r.valid_until and lower(u.email) = lower(${lit(OPERATOR_EMAIL)})`);
   const after = sql(`select u.email ${ACTIVE_SYS}`).split("\n").filter(Boolean);
   const adminKept = after.some((e) => [sha(e), sha(e.trim().toLowerCase())].includes(ADMIN_SHA256));
   const ok = n === "1" && until === OPERATOR_UNTIL && byAdmin === "t" && audited === "t" && adminKept && after.length === 2;
   if (!ok) rec.verdict = "FAIL";
   return `operator's active platform-admin grants: ${n}, ending ${until}; granted by the recorded admin: ${byAdmin === "t"}; audit row: ${audited === "t"}; ` +
-    `active platform admins now: ${after.length} (the recorded admin still one of them: ${adminKept})`;
+    `active platform admins now: ${after.length} (the recorded admin still one of them: ${adminKept})${sebab ? `; why: ${sebab}` : ""}`;
 });
 
 await browser.close();
