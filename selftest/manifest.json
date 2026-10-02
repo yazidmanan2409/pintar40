@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 165,
+  "version": 166,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2777,6 +2777,11 @@
       "id": "J614-K01",
       "runner": "static",
       "proves": "D-084 J6.14 (STU-20): renders the lesson player (src/app/belajar/_components/LessonPlayer.tsx) in English and in Indonesian: its page counter and next-page button follow the reader's language and the lesson's text does not change; reads every client component under src/ that uses the copy table: no call of t() leaves out the reader's language; the lesson page and the assessment surface hand the players the page's locale"
+    },
+    {
+      "id": "EFF-K01",
+      "runner": "static",
+      "proves": "efficiency audit (2 Oct): tanyaBerkala with a slow ask never has two checks in flight and asks fewer times than a bare timer; with a fast ask it asks once per tick, as a bare timer does; stopped, it asks no more; the question player's assistance check goes through it every 5 s and no bare timer is left there"
     }
   ]
 }

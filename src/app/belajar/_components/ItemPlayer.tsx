@@ -32,6 +32,7 @@ import { t, type HleEvent, type Locale } from "@/lib/hle";
 import type { PaperEntry, AssistanceState, AssistanceLevel } from "@/lib/assessment-engine";
 import { TeksBaris } from "@/components/teks/Teks";
 import { belumDisimpan, sameAnswer, soalAwal, type Answer, type Entry } from "@/lib/kumpulkan";
+import { tanyaBerkala } from "@/lib/tanya-berkala";
 
 export type ItemPlayerProps = {
   sessionId: string;
@@ -382,15 +383,15 @@ export default function ItemPlayer(props: ItemPlayerProps) {
     let alive = true;
     const itemId = current.presentedItemId;
     void actions.noteView(current.presentedItemId);
-    const ask = async () => {
+    // every 5 s, but never a second check while one is still waiting: they would only queue, and the learner's
+    // saves with them (tanyaBerkala)
+    const stop = tanyaBerkala(async () => {
       const r = await actions.assistance(itemId);
       if (!alive) return;
       if (r.ok) { setAssist({ itemId, state: r.state }); setOnline(true); }
       else { setAssist(null); setOnline(false); }
-    };
-    void ask();
-    const timer = window.setInterval(ask, 5000);
-    return () => { alive = false; window.clearInterval(timer); };
+    }, 5000);
+    return () => { alive = false; stop(); };
   }, [actions, current]);
 
   // counting up, never down (§4). The server owns the deadline; this is display.
