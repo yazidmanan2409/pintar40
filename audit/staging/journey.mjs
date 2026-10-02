@@ -747,6 +747,12 @@ await step("J14", "the teacher reads the class evidence (Lihat bukti) and who ha
   const n = names.length;
   // earlier runs' students stay in the class (their cards were never kept), so the roster can be larger than n
   const full = kumpul.filter((k) => k.startsWith(`${n}/`)).length;
+  // EDU-09 (BOB-42, D-067): an Uji Cepat leaves «Keadaan hari ini» when its window ends. Earlier walks' Uji Cepat
+  // (10 to 30 minutes each, an hour or more ago) are all over, so the rows listed are exactly the ones still open.
+  const cepatDiLayar = (await G.locator(".pin-keadaan-judul").allInnerTexts().catch(() => [])).filter((j) => /^Uji Cepat\b/.test(j.trim())).length;
+  const cepatTerbuka = Number(sql(`select count(*) from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
+     where aa.node_id = ${uuid(KID)} and d.mode = 'QUICK' and (aa.closes_at is null or aa.closes_at > now())`));
+  const cepatJujur = cepatDiLayar === cepatTerbuka;
   rec.findings = [`class figures: ${kosong} card(s) say "Belum ada bukti yang memenuhi syarat"; this assignment's sessions are ${kelas}: a synthetic school's evidence is never official, so the figures cannot appear here (by design; NOT PROVEN on staging)`];
   // "who has handed in" is linked from Langkah (only while someone is still pending) and from a running Uji Cepat
   await lihat(G, `/mengajar/${KID}`);
@@ -757,8 +763,8 @@ await step("J14", "the teacher reads the class evidence (Lihat bukti) and who ha
   rec.shots.push(await shot(G, "guru-langkah"));
   const langkah = await text(G);
   const siapa = `Langkah: "${langkah.slice(0, 300)}"; a link to Siapa there: ${await G.locator(`a[href^="/mengajar/${KID}/siapa"]`).count()}`;
-  if (full < 1) rec.verdict = "FAIL";
-  return `Mengumpulkan: ${JSON.stringify(kumpul)} (${n} handed in expected); figures: ${rec.findings[0]}; ${siapa}; the evidence page says: "${bukti.slice(0, 900)}"; the class page: "${kelasPage.slice(0, 200)}"`;
+  if (full < 1 || !cepatJujur) rec.verdict = "FAIL";
+  return `Mengumpulkan: ${JSON.stringify(kumpul)} (${n} handed in expected); EDU-09: Uji Cepat rows in «Keadaan hari ini» ${cepatDiLayar}, still open ${cepatTerbuka}; figures: ${rec.findings[0]}; ${siapa}; the evidence page says: "${bukti.slice(0, 900)}"; the class page: "${kelasPage.slice(0, 200)}"`;
 });
 
 // ---------------------------------------------------------------- the Question Bank (D-050), apart from the journey
