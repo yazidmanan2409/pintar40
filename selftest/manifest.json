@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 158,
+  "version": 159,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2722,6 +2722,11 @@
       "id": "COLGRANT-S01",
       "runner": "static",
       "proves": "What the app selects, a signed-in user may read: reads the live grants in the schema (information_schema.column_privileges) and the source of src/, and for every table that grants authenticated per column (assessment_sessions among them) every plain column a .from(table).select(...) in src/ names is granted, so no read fails whole under the user's session (the defect M3's assessment_sessions.pass_mark read caused, found by walk S22)"
+    },
+    {
+      "id": "M10-S01",
+      "runner": "static",
+      "proves": "D-085 M10: a sealed chapter keeps its tests' questions, and so does its correction. In the database, rolled back (supabase/migrations/20261105100000): a published chapter's question cannot be moved in or out of its Pemetaan Awal or Uji Penguasaan; a revision keeps every mark; reviewed, released as 1.1.0 superseding 1.0.0, frozen and published, the corrected chapter is given to a class and each test draws exactly its own marked questions"
     }
   ]
 }

@@ -1325,6 +1325,10 @@ export const experienceTests: SelfTest[] = [
       // bodies and the academic source guard; no table, no column, no colour,
       // mark or brand surface.
       //
+      // MOVED 141 -> 142 for D-085 M10: a sealed chapter keeps its tests' questions.
+      // 20261105100000 freezes items.cycle_role with the sealed question and makes
+      // a revision copy it; no colour, mark or brand surface.
+      //
       // MOVED 140 -> 141 for D-085 T2: a teacher chooses the Uji Cepat's questions.
       // 20261104100000 adds the stored choice, one line in the draw, the choices
       // read and the chosen launch; no colour, mark or brand surface.
@@ -1542,7 +1546,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 141, `${migrations.length} migrations; the frozen baseline has 141`);
+      c.expect(migrations.length === 142, `${migrations.length} migrations; the frozen baseline has 142`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3199,7 +3203,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 140 -> 141 for D-085 T2's chosen Uji Cepat
+      // from, not a claim about the tour. MOVED 141 -> 142 for D-085 M10's sealed test marks
+      // (20261105100000), not a tour RPC (D-024). MOVED 140 -> 141 for D-085 T2's chosen Uji Cepat
       // (20261104100000), not a tour RPC (D-024). MOVED 139 -> 140 for D-085 M6's PINTAR chapter read
       // (20261103100000), not a tour RPC (D-024). MOVED 138 -> 139 for D-088(b)'s school pass mark
       // (20261102100000), not a tour RPC (D-024). MOVED 137 -> 138 for D-088(k)'s teacher read
@@ -3272,7 +3277,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 141, `${migs.length} migrations; the baseline has 141`);
+      c.expect(migs.length === 142, `${migs.length} migrations; the baseline has 142`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
