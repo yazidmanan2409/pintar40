@@ -8,6 +8,10 @@ import { readdirSync, readFileSync, statSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 
 const IN = process.env.IN_DIR ?? "in";
+// the answer save D-031 times: record_answer for the RPC wave (perf/l1.mjs), the press-to-«Tersimpan» for the
+// real app's (perf/l1-browser.mjs, L1_MODE=browser)
+const BROWSER = process.env.L1_MODE === "browser";
+const SAVE = BROWSER ? "simpan" : "record_answer";
 const files = (d) => readdirSync(d).flatMap((n) => { const p = join(d, n); return statSync(p).isDirectory() ? files(p) : [p]; });
 const all = files(IN);
 const calls = all.filter((f) => /calls-\d+\.json$/.test(f)).flatMap((f) => JSON.parse(readFileSync(f, "utf8")));
@@ -74,7 +78,9 @@ else say(`The database: CPU busy ${(baseCpu * 100).toFixed(0)}% before, peak ${(
   `peak ${peakBe.toFixed(0)}; back at its baseline ${recoveryS == null ? "NOT within the sampled window" : `${recoveryS} s after the wave`}.`);
 
 // verdict (D-031)
-const saves = (by.get("record_answer") ?? []).map((c) => c.ms);
+// failed saves stay in, as in every run; the browser's save through a planned network loss (simpan_luring) is not a
+// save's latency and is reported in the call table only
+const saves = (by.get(SAVE) ?? []).map((c) => c.ms);
 const p95 = q(saves, 0.95), p99 = q(saves, 0.99);
 const serverErr = calls.filter(isServerError).length;
 const errRate = calls.length ? serverErr / calls.length : 1;
@@ -96,9 +102,12 @@ const met = checks.every(([, ok]) => ok);
 const refused = calls.filter(isRefusal).length + sums.reduce((n, s) => n + (s.refusals?.length ?? 0), 0);
 say(""); say(refused ? `**RUN INVALID as a measure:** ${refused} refusal(s) in a scenario that expects none (above); diagnose before reading the figures.`
   : "Run valid: no refusal in a scenario that expects none.");
-say(""); say(`**L1 ${met ? "MET" : "NOT MET"} on staging.** Staging is not yet on production's compute tier (CAP-08): this measures staging. ` +
+say(""); say(`**${tot("learners")} learners ${met ? "MET" : "NOT MET"} D-031 on staging.** Staging is not yet on production's compute tier (CAP-08): this measures staging. ` +
   "Sessions were made ahead by Auth's admin link (SETUP); the card sign-in wave is CAP-01, run after the forwarding key (D-062(c)). " +
-  "Learners called PINTAR's learner RPCs with their own tokens, plus Auth's /user check per request as the app's proxy does; the " +
-  "Next.js server's own time is not in these figures.");
+  (BROWSER
+    ? "Learners used the real app in Chromium (pages, server actions, the player's own timer and outbox); an answer save is timed " +
+      "from the press to «Tersimpan», including the Next.js server; each Pemetaan Awal was sat beforehand (SETUP)."
+    : "Learners called PINTAR's learner RPCs with their own tokens, plus Auth's /user check per request as the app's proxy does; the " +
+      "Next.js server's own time is not in these figures."));
 if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
 if (!met || refused) process.exit(1);

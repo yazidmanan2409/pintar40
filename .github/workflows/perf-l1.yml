@@ -8,6 +8,8 @@
 #   mode=wave  SHARDS jobs run perf/l1.mjs together at T0 (now + start_in_min); one job samples the database's
 #              figures (perf/l1-metrics.mjs); perf/l1-merge.mjs judges the run against D-031 and is red when L1 is
 #              not met.
+#   mode=browser  the same, through the REAL app: SHARDS jobs run perf/l1-browser.mjs, one Chromium context per
+#              learner (pages, server actions, the player's own timer and outbox); each Pemetaan Awal is sat in setup.
 #
 # Staging is not yet on production's compute tier (CAP-08, Yazid's), and the card sign-in wave (CAP-01) waits for the
 # forwarding key (D-062(c)): the result says what it measured.
@@ -18,11 +20,11 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "seed (classes, learners, cards, the chapter) or wave (the synchronized test)"
+        description: "seed (classes, learners, cards, the chapter), wave (the synchronized test by RPC) or browser (the same through the real app)"
         required: true
         default: wave
         type: choice
-        options: [seed, wave]
+        options: [seed, wave, browser]
       total:
         description: "seed: learners in all (L1 = 1000)"
         default: "1000"
@@ -140,8 +142,50 @@ jobs:
           path: out/
           if-no-files-found: ignore
 
+  browser:
+    if: ${{ inputs.mode == 'browser' }}
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Playwright and Chromium (the audit harness's version)
+        working-directory: audit/perf
+        run: |
+          npm init -y >/dev/null
+          npm i --no-save --no-audit --no-fund playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+      - name: Staging's keys (masked) and database URL (checked, never printed)
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: bash audit/perf/staging-keys.sh
+      - name: One shard of the wave, in the real app
+        working-directory: audit/perf
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          SHARD: ${{ matrix.shard }}
+          SHARDS: ${{ inputs.shards }}
+          PER_SHARD: ${{ inputs.per_shard }}
+          T0: ${{ needs.plan.outputs.t0 }}
+          OUT_DIR: ${{ github.workspace }}/out
+        run: node l1-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: l1-shard-${{ matrix.shard }}
+          path: out/
+          if-no-files-found: ignore
+
   metrics:
-    if: ${{ inputs.mode == 'wave' }}
+    if: ${{ inputs.mode == 'wave' || inputs.mode == 'browser' }}
     needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 80
@@ -170,8 +214,8 @@ jobs:
           if-no-files-found: ignore
 
   verdict:
-    if: ${{ always() && inputs.mode == 'wave' }}
-    needs: [wave, metrics]
+    if: ${{ always() && (inputs.mode == 'wave' || inputs.mode == 'browser') }}
+    needs: [wave, browser, metrics]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -186,4 +230,5 @@ jobs:
         working-directory: audit/perf
         env:
           IN_DIR: ${{ github.workspace }}/in
+          L1_MODE: ${{ inputs.mode }}
         run: node l1-merge.mjs
