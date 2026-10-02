@@ -127,6 +127,7 @@ begin
   end loop;
   return new;
 end $$;
+revoke all on function public.enforce_taught_content_immutable() from public, anon, authenticated;
 
 create or replace function public.create_course_revision(p_course uuid)
 returns uuid

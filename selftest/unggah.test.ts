@@ -358,7 +358,8 @@ baris</t></si><si><t>6.0</t></si></sst>`;
     run: async (ctx) => {
       const c = new Checks();
       // BOB-04 (D-040) replaced lesson_package_check, adding one code: both sources are read
-      const sql = [MIGRASI, "20261010100000_a_lesson_is_assigned_whole.sql"]
+      // D-085 M10 added a correction's own problems (package_revision_problems): read too
+      const sql = [MIGRASI, "20261010100000_a_lesson_is_assigned_whole.sql", "20261106100000_a_correction_arrives_in_its_line.sql"]
         .map((f) => readFileSync(join(ctx.repoRoot, "supabase", "migrations", f), "utf8")).join("\n").replace(/--[^\n]*/g, "");
       const dariDb = new Set<string>();
       for (const m of sql.matchAll(/package_problem\('([A-Z_]+)'/g)) dariDb.add(m[1]);

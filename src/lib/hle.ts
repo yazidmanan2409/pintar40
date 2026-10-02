@@ -456,6 +456,11 @@ export type HleEvent =
   | "studio.paket.masalah.option_misconception_unknown"
   | "studio.paket.masalah.text_too_long"
   | "studio.paket.masalah.package_could_not_be_saved"
+  | "studio.paket.masalah.revision_course_unknown"
+  | "studio.paket.masalah.revision_not_released"
+  | "studio.paket.masalah.revision_not_latest"
+  | "studio.paket.masalah.revision_one_course"
+  | "studio.paket.masalah.revision_summary_missing"
   | "studio.paket.masalah.lain"
   | "studio.paket.kode.package_not_allowed"
   | "studio.paket.kode.package_state_invalid"
@@ -775,6 +780,14 @@ export type HleEvent =
   | "studio.paket.revisi"
   | "studio.paket.revisi_terbaru"
   | "studio.paket.revisi_penjelasan"
+  | "studio.paket.revisi_sebelum"
+  | "studio.paket.revisi_unggah"
+  | "studio.paket.riwayat.judul"
+  | "studio.paket.riwayat.asli"
+  | "studio.paket.riwayat.belum_terbit"
+  | "studio.paket.riwayat.oleh"
+  | "studio.paket.riwayat.ini"
+  | "studio.paket.riwayat.buka"
   | "studio.paket.kosong"
   | "studio.temuan.judul"
   | "studio.temuan.lokasi"
@@ -833,6 +846,11 @@ export type HleEvent =
   | "studio.unggah.tanpa_sekolah"
   | "studio.unggah.berkas"
   | "studio.unggah.berkas_batas"
+  | "studio.unggah.revisi"
+  | "studio.unggah.revisi_bukan"
+  | "studio.unggah.revisi_arti"
+  | "studio.unggah.ringkasan"
+  | "studio.unggah.ringkasan_arti"
   | "studio.unggah.langkah.periksa"
   | "studio.unggah.langkah.media"
   | "studio.unggah.langkah.simpan"
@@ -2285,6 +2303,11 @@ const table: Table = {
   "studio.paket.masalah.option_misconception_unknown": { default: "Kode miskonsepsi ini belum terdaftar.", en: "This misconception code is not registered." },
   "studio.paket.masalah.text_too_long": { default: "Teks di kolom ini terlalu panjang.", en: "The text in this column is too long." },
   "studio.paket.masalah.package_could_not_be_saved": { default: "Paket ini belum bisa disimpan. Coba lagi, atau hubungi admin platform.", en: "This package could not be saved. Try again, or contact the platform administrator." },
+  "studio.paket.masalah.revision_course_unknown": { default: "Kursus yang mau diperbaiki tidak ada di sekolah ini.", en: "The course being corrected is not in this school." },
+  "studio.paket.masalah.revision_not_released": { default: "Kursus yang mau diperbaiki belum dikunci. Hanya kursus yang sudah dikunci yang diperbaiki dengan cara ini.", en: "The course being corrected has not been locked. Only a locked course is corrected this way." },
+  "studio.paket.masalah.revision_not_latest": { default: "Kursus ini sudah pernah diperbaiki. Pilih versi terbarunya.", en: "This course has already been corrected. Choose its newest version." },
+  "studio.paket.masalah.revision_one_course": { default: "Buku kerja perbaikan berisi tepat satu kursus.", en: "A corrected workbook holds exactly one course." },
+  "studio.paket.masalah.revision_summary_missing": { default: "Tulis apa yang diperbaiki dan mengapa, 10 sampai 1.000 huruf.", en: "Say what was corrected and why, in 10 to 1,000 characters." },
   "studio.paket.masalah.lain": { default: "Ada bagian paket yang belum bisa diterima.", en: "Part of the package cannot be accepted yet." },
   "studio.paket.kode.package_not_allowed": { default: "Anda tidak berwenang menyusun kursus di sekolah ini.", en: "You are not allowed to author courses in this school." },
   "studio.paket.kode.package_state_invalid": { default: "Unggahan ini sudah dikonfirmasi atau ditolak.", en: "This upload has already been confirmed or rejected." },
@@ -2645,9 +2668,17 @@ const table: Table = {
   "studio.paket.terbitkan": { default: "Terbitkan", en: "Publish" },
   "studio.paket.tarik": { default: "Tarik dari peredaran", en: "Withdraw from circulation" },
   "studio.paket.terbit_bukan_tugas": { default: "Menerbitkan belum menugaskan. Siswa baru melihatnya setelah Anda menugaskannya ke kelas.", en: "Publishing is not assigning. Students see it only once you have assigned it to a class." },
-  "studio.paket.revisi": { default: "Buat salinan untuk diperbaiki", en: "Make a copy to correct" },
+  "studio.paket.revisi": { default: "Perbaiki kursus ini", en: "Correct this course" },
   "studio.paket.revisi_terbaru": { default: "Kursus ini sudah diperbaiki. Buka perbaikannya; materi baru untuk kelas memakai perbaikan itu", en: "This course has been corrected. Open the correction; new learning for classes uses it" },
-  "studio.paket.revisi_penjelasan": { default: "Paket asli tetap utuh beserta seluruh catatan pengerjaan siswa. Salinan baru bisa Anda sunting bebas.", en: "The original package stays whole, with every record of student work. The new copy is yours to edit freely." },
+  "studio.paket.revisi_penjelasan": { default: "Perbaiki buku kerjanya, lalu unggah sebagai perbaikan kursus ini. Kursus asli tetap utuh beserta seluruh catatan pengerjaan siswa; perbaikan menjadi versi berikutnya, ditinjau dan diterbitkan seperti biasa.", en: "Correct the workbook, then upload it as a correction of this course. The original stays whole, with every record of student work; the correction becomes the next version, reviewed and published as usual." },
+  "studio.paket.revisi_sebelum": { default: "Perbaikan dari versi sebelumnya", en: "A correction of the previous version" },
+  "studio.paket.revisi_unggah": { default: "Unggah buku kerja perbaikan", en: "Upload the corrected workbook" },
+  "studio.paket.riwayat.judul": { default: "Riwayat perbaikan", en: "Correction history" },
+  "studio.paket.riwayat.asli": { default: "Versi pertama", en: "First version" },
+  "studio.paket.riwayat.belum_terbit": { default: "belum terbit", en: "not yet published" },
+  "studio.paket.riwayat.oleh": { default: "oleh", en: "by" },
+  "studio.paket.riwayat.ini": { default: "halaman ini", en: "this page" },
+  "studio.paket.riwayat.buka": { default: "Buka", en: "Open" },
   "studio.paket.kosong": { default: "Belum ada paket di sini.", en: "There is nothing here yet." },
   // polish batch 2 (UX-14): the section is named what both steps call it
   "studio.temuan.judul": { default: "Temuan", en: "Findings" },
@@ -2709,6 +2740,11 @@ const table: Table = {
   "studio.unggah.tanpa_sekolah": { default: "Anda belum dapat menyusun materi di sekolah mana pun.", en: "You cannot prepare material for any school yet." },
   "studio.unggah.berkas": { default: "Buku kerja (.xlsx)", en: "Workbook (.xlsx)" },
   "studio.unggah.berkas_batas": { default: "Paling besar", en: "At most" },
+  "studio.unggah.revisi": { default: "Perbaikan dari kursus yang sudah ada?", en: "A correction of an existing course?" },
+  "studio.unggah.revisi_bukan": { default: "Bukan, ini kursus baru", en: "No, this is a new course" },
+  "studio.unggah.revisi_arti": { default: "Kursus asli dan semua catatan siswa tetap utuh. Perbaikan menjadi versi berikutnya, ditinjau dan diterbitkan seperti biasa; setelah terbit, materi baru untuk kelas memakai versi itu.", en: "The original course and every student record stay whole. The correction becomes the next version, reviewed and published as usual; once published, new learning for classes uses it." },
+  "studio.unggah.ringkasan": { default: "Apa yang diperbaiki, dan mengapa", en: "What was corrected, and why" },
+  "studio.unggah.ringkasan_arti": { default: "Dicatat di riwayat perbaikan kursus, dengan nama Anda dan tanggalnya.", en: "Kept in the course's correction history, with your name and the date." },
   "studio.unggah.langkah.periksa": { default: "Periksa buku kerja", en: "Check the workbook" },
   "studio.unggah.langkah.media": { default: "Unggah media", en: "Upload the media" },
   "studio.unggah.langkah.simpan": { default: "Simpan ke Studio", en: "Save to Studio" },

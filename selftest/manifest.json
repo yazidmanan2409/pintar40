@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 159,
+  "version": 160,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2732,6 +2732,16 @@
       "id": "M10-K01",
       "runner": "static",
       "proves": "D-085 M10: new learning uses the current release. Executes akarGaris and terbaruPerGaris (src/lib/pengajar.ts): a line of corrections maps to its first course, and only each line's newest published release is offered. Reads the source: «Siapkan materi» offers each line once and never one the class already has; the Studio package page's «Koreksi» reads the whole line's releases and classes, and a corrected course links forward to its correction"
+    },
+    {
+      "id": "M10-S02",
+      "runner": "static",
+      "proves": "D-085 M10: a correction arrives in its line and says what changed and why. In the database, rolled back (supabase/migrations/20261106100000): a published chapter's corrected package naming it is saved as a course in its line with its summary, author and time, audited; released as 1.1.0 superseding 1.0.0, published, given to a class under the line's pass mark; no summary, a course already corrected, one never released, another school's, and two courses in one correction are each reported before confirmation; a summary never changes and no client writes one"
+    },
+    {
+      "id": "M10-K02",
+      "runner": "static",
+      "proves": "D-085 M10: a teacher corrects a locked course by uploading its corrected workbook. Executes bisaDikoreksi (src/lib/pengajar.ts): a correction is offered only for the newest locked course of a line, never a corrected one or a draft; the five correction problems are contract codes with sentences of their own. Reads the source: the workbook panel asks which course and what changed and sends both, the action refuses a reference that is not a course, the upload page honours ?revisi=, and the package page links a locked course to the upload instead of making a copy no screen edits, and lists the line's correction history"
     }
   ]
 }

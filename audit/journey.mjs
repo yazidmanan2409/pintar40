@@ -2140,6 +2140,119 @@ await step("S26e", "Uji Cepat as T2 rules it: the teacher chooses Bab 1, sees it
   return notes.join("; ");
 });
 
+// D-085 M10: a correction is a new release of the same chapter. Gladys publishes S14's «Pecahan untuk Kelas 4» by the
+// screens, then corrects it as a school would: from the course's page «Unggah buku kerja perbaikan» opens the upload
+// on that course; without saying what changed the check asks for it; with a summary the corrected workbook (one
+// lesson's summary reworded) is saved as the next version of the same course. Its page lists the line's history,
+// the old page leads to it, it is published as 1.1.0 superseding 1.0.0, and «Siapkan materi» offers Kelas 1A the
+// correction only.
+await step("S26f", "a correction by the screens: from a published course's page to the upload of its corrected workbook, with what changed and why; the correction is the next version of the same course, published as 1.1.0, and the class is offered only it (D-085 M10)", async (rec) => {
+  const asal = sql(`select id from public.courses where institution_id='${ids.sd}' and title='Pecahan untuk Kelas 4' and supersedes_course_id is null order by created_at limit 1`).trim();
+  const buku = join(process.env.APP_DIR, "audit/fixtures/contoh-pelajaran-perbaikan.xlsx");
+  const paketBuku = join(process.env.APP_DIR, "selftest/fixtures/bob02/contoh-pelajaran.paket.json");
+  if (!asal || !existsSync(buku) || !existsSync(paketBuku)) { rec.verdict = "BLOCKED"; return !asal ? "S14 left no «Pecahan untuk Kelas 4» course" : "no corrected workbook in this candidate"; }
+  const notes = [`start ${keadaanBab(asal)}`];
+  if (!keadaanBab(asal).endsWith("|PUBLISHED")) {
+    if (!(await terbitkanLewatLayar(asal, rec, notes, { nama: "Pecahan", awalan: "m10-asal-" }))) return notes.join("; ");
+  }
+  const rilisAsal = sql(`select id || '|' || version_label from public.plp_releases where course_id='${asal}' and status='PUBLISHED' order by created_at desc limit 1`).trim();
+  notes.push(`published: ${rilisAsal.split("|")[1] ?? "-"}`);
+
+  // 1. from the course's own page to the upload, on that course
+  await g.goto(`${APP}/studio/paket/${asal}`, { waitUntil: "networkidle" });
+  const ke = g.locator(`#revisi a[href^="/studio/unggah?revisi=${asal}"]`);
+  if (!(await ke.count())) {
+    const salinan = await g.getByRole("button", { name: "Buat salinan untuk diperbaiki", exact: true }).count();
+    rec.verdict = salinan ? "NOTE" : "FAIL";
+    notes.push(salinan ? "this candidate corrects by a copy (before D-085 M10's correction upload)" : `no way to correct the published course: ${(await bodyText(g)).slice(0, 200)}`);
+    return notes.join("; ");
+  }
+  rec.shots.push(await shot(g, "m10-perbaiki"));
+  await ke.first().click();
+  await g.waitForURL((u) => u.pathname === "/studio/unggah", { timeout: SLOW });
+  await g.waitForLoadState("networkidle");
+  const dipilih = await g.locator("#ung-revisi").inputValue().catch(() => "");
+  const sekolah = norm(await g.locator("#ung-sekolah option:checked").textContent().catch(() => ""));
+  notes.push(`the upload opens on the course: ${dipilih === asal} (school ${sekolah})`);
+  if (dipilih !== asal) { rec.verdict = "FAIL"; return notes.join("; "); }
+
+  // 2. the corrected workbook without saying what changed: the check asks for it
+  await g.locator("#ung-berkas").setInputFiles(buku);
+  await g.getByRole("button", { name: "Periksa buku kerja" }).click();
+  const minta = await g.getByText("Tulis apa yang diperbaiki dan mengapa").waitFor({ timeout: SLOW }).then(() => true).catch(() => false);
+  rec.shots.push(await shot(g, "m10-tanpa-ringkasan"));
+  notes.push(`without a summary the check asks what changed and why: ${minta}`);
+  if (!minta) rec.verdict = "FAIL";
+
+  // 3. with the summary: checked, its media, saved
+  const RINGKASAN = "Ringkasan pelajaran 1 diperjelas: pecahan adalah bagian dari keseluruhan yang dibagi sama besar.";
+  await g.locator("#ung-ringkasan").fill(RINGKASAN);
+  await g.getByRole("button", { name: "Periksa buku kerja" }).click();
+  const lolos = await g.getByText("Buku kerja lolos pemeriksaan.").waitFor({ timeout: SLOW }).then(() => true).catch(() => false);
+  if (!lolos) { rec.verdict = "FAIL"; notes.push(`the check did not pass: ${(await bodyText(g)).slice(0, 240)}`); return notes.join("; "); }
+  const dir = join(OUT, "media-s26f");
+  mkdirSync(dir, { recursive: true });
+  const names = JSON.parse(readFileSync(paketBuku, "utf8")).courses
+    .flatMap((c) => c.modules.flatMap((m) => m.lessons.flatMap((l) => (l.media ?? []).map((x) => x.file))));
+  const files = names.map((n) => { const f = join(dir, n); writeFileSync(f, `audit stand-in for ${n}`); return f; });
+  if (files.length) {
+    await g.locator("#ung-media").setInputFiles(files);
+    await g.getByRole("button", { name: "Unggah media" }).click();
+    await g.getByText(new RegExp(`^${files.length}\\s/\\s${files.length}`)).waitFor({ timeout: 60000 }).catch(() => {});
+  }
+  await g.getByRole("button", { name: "Simpan ke Studio" }).click();
+  const saved = await g.getByText("Tersimpan di Studio sebagai draf.").waitFor({ timeout: SLOW }).then(() => true).catch(() => false);
+  rec.shots.push(await shot(g, "m10-tersimpan"));
+  const baru = sql(`select id from public.courses where supersedes_course_id='${asal}' order by created_at desc limit 1`).trim();
+  if (!saved || !baru) { rec.verdict = "FAIL"; notes.push(`saved: ${saved}; correction in the line: ${!!baru}`); return notes.join("; "); }
+  const ringkasanDb = sql(`select n.summary || '|' || coalesce(p.display_name, '-') from public.course_revision_notes n
+    left join public.persons p on p.id = n.written_by_person_id where n.course_id='${baru}'`).trim();
+  const diaudit = Number(sql(`select count(*) from public.audit_log where action='COURSE_CORRECTION_UPLOADED' and target_id='${baru}'`).trim());
+  const isi = sql(`select l.summary from public.lessons l join public.modules m on m.id = l.module_id where m.course_id='${baru}' order by m.ordinal, l.ordinal limit 1`).trim();
+  notes.push(`saved in the line; note "${ringkasanDb}"; audited ${diaudit}; lesson 1 now reads "${isi}"`);
+  if (!ringkasanDb.startsWith(`${RINGKASAN}|`) || ringkasanDb.endsWith("|-") || diaudit !== 1 || !/dibagi sama besar/.test(isi)) rec.verdict = "FAIL";
+
+  // 4. the new course's page: the history, from «Buka kursus»; the old page leads forward
+  await g.getByRole("link", { name: "Buka kursus", exact: true }).click();
+  await g.waitForURL((u) => u.pathname === `/studio/paket/${baru}`, { timeout: SLOW });
+  await g.waitForLoadState("networkidle");
+  const versi = await g.locator("#riwayat li.pin-riwayat").count();
+  const riwayat = norm(await g.locator("#riwayat").innerText().catch(() => ""));
+  rec.shots.push(await shot(g, "m10-riwayat"));
+  await g.goto(`${APP}/studio/paket/${asal}`, { waitUntil: "networkidle" });
+  const maju = await g.locator(`[data-penerus="${baru}"]`).count();
+  const tawarLagi = await g.locator("#revisi a").count();
+  notes.push(`history lists ${versi} version(s), with the summary: ${riwayat.includes(RINGKASAN)}; the old page leads to the correction: ${maju > 0}, and no longer offers to correct it: ${tawarLagi === 0}`);
+  if (versi !== 2 || !riwayat.includes(RINGKASAN) || !maju || tawarLagi) rec.verdict = "FAIL";
+
+  // 5. reviewed and published like any course: the next version of the same chapter
+  if (!(await terbitkanLewatLayar(baru, rec, notes, { nama: "Pecahan (perbaikan)", awalan: "m10-baru-" }))) return notes.join("; ");
+  const rilisBaru = sql(`select r.id || '|' || r.version_label || '|' || coalesce((select x.version_label from public.plp_releases x where x.id = r.supersedes_release_id), '-')
+    from public.plp_releases r where r.course_id='${baru}' order by r.created_at desc limit 1`).trim();
+  const [idBaru, labelBaru, labelLama] = rilisBaru.split("|");
+  notes.push(`released ${labelBaru} superseding ${labelLama}`);
+  if (labelBaru !== "1.1.0" || labelLama !== (rilisAsal.split("|")[1] ?? "?")) rec.verdict = "FAIL";
+
+  // 6. the class is offered the correction, once
+  const kelas = kelasSatuA();
+  const tc = await ctx();
+  const t = await tc.newPage();
+  try {
+    await magicSignIn(t, people.guru2.email);
+    await t.goto(`${APP}/mengajar/${kelas}/siapkan`, { waitUntil: "networkidle" });
+    await tutupTur(t);
+    const baris = t.locator("a.pin-row").filter({ hasText: "Pecahan untuk Kelas 4" });
+    const n = await baris.count();
+    const href = n ? await baris.first().getAttribute("href") : "";
+    rec.shots.push(await shot(t, "m10-siapkan"));
+    notes.push(`«Siapkan materi» offers «Pecahan untuk Kelas 4» ${n} time(s), the correction: ${!!href && href.endsWith(`terbitan=${idBaru}`)}`);
+    if (n !== 1 || !href?.endsWith(`terbitan=${idBaru}`)) rec.verdict = "FAIL";
+  } finally {
+    await tc.close();
+  }
+  return notes.join("; ");
+});
+
 // ADM-J19: a new school year, by the screens, never run before. The school admin records Fajar in Kelas 1A
 // (no card yet, so his enrolment waits: PENDING), makes next year's Tingkat «Kelas 2» and its Kelas 2A on
 // Struktur sekolah, then on «Pergantian tahun ajaran» carries Kelas 1A into Kelas 2A. Everyone in 1A,

@@ -7,7 +7,7 @@ import { KODE_HAMBATAN, kalimatHambatan, type Hambatan } from "@/lib/terbitan-ko
 import { rujukan } from "@/lib/galat-kontrak";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions, when } from "../../_lib";
 import {
-  acknowledgeFindingAction, createRevisionAction, moveReleaseAction, runValidationAction,
+  acknowledgeFindingAction, moveReleaseAction, runValidationAction,
 } from "../../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
@@ -35,6 +35,13 @@ import { akarGaris } from "@/lib/pengajar";
  * current step and only for a reader who may take it, and the author told
  * that approving and locking are a second person's. The content check is
  * "Periksa isi sekarang" beside the findings it writes.
+ *
+ * D-085 M10, A CORRECTION. «Perbaiki kursus ini» used to make a copy "to edit
+ * freely", which no screen can edit, and a copy left the line's newest course a
+ * draft no workbook could correct. A locked course that is the newest of its
+ * line now links to the upload, which brings the corrected workbook in as its
+ * next version with what changed and why; «Riwayat perbaikan» lists the line,
+ * each version with its release, its summary, who wrote it and when.
  */
 
 type Params = Promise<{ course: string }>;
@@ -126,6 +133,26 @@ export default async function Paket({ params, searchParams }: { params: Params; 
     return kini === courseId ? null : kini;
   })();
 
+  // D-085 M10: the line in order, first version first, each with its release and the note its correction carried
+  const urutGaris: string[] = [];
+  for (let kini: string | undefined = akar.get(courseId) ?? courseId, n = 0; kini && n < 64; n++) {
+    urutGaris.push(kini);
+    const k: string = kini;
+    kini = sesudah.find((x) => x.supersedes_course_id === k)?.id;
+  }
+  const { data: catatanRows } = urutGaris.length > 1
+    ? await supabase.from("course_revision_notes").select("course_id, summary, written_by_person_id, written_at").in("course_id", urutGaris)
+    : { data: [] as Array<{ course_id: string; summary: string; written_by_person_id: string | null; written_at: string }> };
+  const catatan = new Map(((catatanRows ?? []) as Array<{ course_id: string; summary: string; written_by_person_id: string | null; written_at: string }>)
+    .map((r) => [r.course_id, r]));
+  const penulisIds = [...new Set([...catatan.values()].map((r) => r.written_by_person_id).filter((x): x is string => !!x))];
+  const { data: penulisRows } = penulisIds.length > 0
+    ? await supabase.from("persons").select("id, display_name").in("id", penulisIds)
+    : { data: [] as Array<{ id: string; display_name: string }> };
+  const penulis = new Map(((penulisRows ?? []) as Array<{ id: string; display_name: string }>).map((p) => [p.id, p.display_name]));
+  const TERSEGEL = ["FROZEN", "PUBLISHED", "SUPERSEDED"];
+  const terkunci = TERSEGEL.includes(course.status as string) || (releases ?? []).some((r) => TERSEGEL.includes(r.status as string));
+
   // D-088(h): the package's questions with their key and rationale, read under the reader's own row security
   // (CAN_DRAFT in the school, which every reviewer holds), so the person who approves sees what they approve
   const soal = can(inst, "CAN_DRAFT") ? await soalPaket(supabase, courseId) : [];
@@ -166,7 +193,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         {course.supersedes_course_id ? (
           <p className="mt-2 text-sm text-ink-2">
             <Link href={`/studio/paket/${course.supersedes_course_id}`} className="underline underline-offset-4">
-              ← {s("studio.paket.revisi_penjelasan")}
+              ← {s("studio.paket.revisi_sebelum")}
             </Link>
           </p>
         ) : null}
@@ -282,14 +309,50 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         )}
       </section>
 
-      {can(inst, "CAN_DRAFT") ? (
+      {urutGaris.length > 1 ? (
+        <section className={card} id="riwayat">
+          <h3 className="text-lg font-medium">{sl("studio.paket.riwayat.judul")}</h3>
+          <ol className="mt-2 grid gap-3">
+            {urutGaris.map((id, i) => {
+              const r = (rilisGaris ?? []).filter((x) => x.course_id === id).at(-1);
+              const n = catatan.get(id);
+              return (
+                <li key={id} className="pin-riwayat" data-versi={id}>
+                  <p className="font-medium">
+                    {r?.version_label ?? "—"}
+                    {" · "}
+                    {r?.published_at ? when(r.published_at as string) : sl("studio.paket.riwayat.belum_terbit")}
+                    {" · "}
+                    {id === courseId
+                      ? <span className="text-ink-3">{sl("studio.paket.riwayat.ini")}</span>
+                      : <Link href={`/studio/paket/${id}`} className="underline underline-offset-4">{sl("studio.paket.riwayat.buka")}</Link>}
+                  </p>
+                  {i === 0 ? (
+                    <p className="text-sm text-ink-2">{sl("studio.paket.riwayat.asli")}</p>
+                  ) : n ? (
+                    <>
+                      <p className="text-sm"><TeksBaris teks={n.summary} /></p>
+                      <p className="text-xs text-ink-3">
+                        {when(n.written_at)}
+                        {n.written_by_person_id && penulis.get(n.written_by_person_id)
+                          ? ` · ${sl("studio.paket.riwayat.oleh")} ${penulis.get(n.written_by_person_id)}` : ""}
+                      </p>
+                    </>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      ) : null}
+
+      {can(inst, "CAN_DRAFT") && terkunci && !penerus ? (
         <section className={card} id="revisi">
           <h3 className="text-lg font-medium">{s("studio.paket.revisi")}</h3>
           <p className="mt-1 text-sm text-ink-2">{s("studio.paket.revisi_penjelasan")}</p>
-          <form action={createRevisionAction} className="mt-3">
-            <input type="hidden" name="course" value={courseId} />
-            <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.paket.revisi")}</TombolKirim>
-          </form>
+          <p className="mt-3">
+            <Link className={button} href={`/studio/unggah?revisi=${courseId}#buku-kerja`}>{sl("studio.paket.revisi_unggah")}</Link>
+          </p>
           <HasilDi q={sp} bagian="revisi" kalimat={banner} />
         </section>
       ) : null}

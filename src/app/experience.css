@@ -2161,6 +2161,9 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-ung-isian { display: grid; gap: var(--space-1); min-width: 0; width: 100%; }
 .pin-ung-isian label { font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2); }
 .pin-ung-isian input[type="file"], .pin-ung-isian select { width: 100%; min-width: 0; font-size: var(--type-meta); }
+/* D-085 M10: what a correction changed, and the line it belongs to */
+.pin-ung-isian textarea { width: 100%; min-width: 0; font-size: var(--type-meta); }
+.pin-riwayat { display: grid; gap: var(--space-1); }
 .pin-ung-catatan { margin: 0; font-size: var(--type-meta); color: var(--ink-2); }
 .pin-ung-hasil { display: grid; gap: var(--space-2); }
 .pin-ung-lolos { margin: 0; font-weight: var(--weight-strong); color: var(--status-ok); }

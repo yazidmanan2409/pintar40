@@ -308,6 +308,20 @@ export function terbaruPerGaris<T extends { courseId: string; terbitPada: string
   return daftar.filter((t) => terbaru.get(garis(t)) === t);
 }
 
+/**
+ * D-085 M10: the courses a corrected workbook may name -- locked (FROZEN, PUBLISHED or SUPERSEDED, by the course's
+ * own status or a release's, as content_is_sealed reads it) and the newest of their line, so a line never forks. The
+ * database decides (package_revision_problems); this only offers what it would accept. Pure.
+ */
+export function bisaDikoreksi<K extends { id: string; supersedes_course_id: string | null; status: string }>(
+  kursus: readonly K[], rilis: ReadonlyArray<{ course_id: string; status: string }>,
+): K[] {
+  const tersegel = (st: string) => st === "FROZEN" || st === "PUBLISHED" || st === "SUPERSEDED";
+  const dikoreksi = new Set(kursus.map((k) => k.supersedes_course_id).filter(Boolean));
+  const rilisTersegel = new Set(rilis.filter((r) => tersegel(r.status)).map((r) => r.course_id));
+  return kursus.filter((k) => !dikoreksi.has(k.id) && (tersegel(k.status) || rilisTersegel.has(k.id)));
+}
+
 type Distribusi = {
   plp_release_id: string; version_label: string; published_at: string | null; course_id: string; course_title: string;
   consuming_institution_id: string; distribution_status: string; supersedes_release_id: string | null;

@@ -330,6 +330,10 @@ function gagal(fn: string, error: { code?: string | null; details?: string | nul
 async function siapkan(fd: FormData, kind: Asal): Promise<HasilPaket> {
   const institution = uuidOrNull(str(fd, "institution") || str(fd, "institusi"));
   if (!institution) return { ok: false, code: "PACKAGE_INPUT_INVALID" };
+  // D-085 M10: a correction names the course it corrects and says what changed; the database checks both
+  // (package_revision_problems). A value that is not a course reference is refused, never dropped into a new course.
+  const revisi = uuidOrNull(str(fd, "revisi"));
+  if (str(fd, "revisi") && !revisi) return { ok: false, code: "PACKAGE_INPUT_INVALID" };
   const paket = await paketDari(fd);
   if (!paket.ok) return { ok: false, code: paket.code, problems: paket.problems };
   const supabase = await supabaseServer();
@@ -337,6 +341,7 @@ async function siapkan(fd: FormData, kind: Asal): Promise<HasilPaket> {
     .from("ingest_batches")
     .insert({
       institution_id: institution, source_kind: kind, raw_payload: paket.paket,
+      revises_course_id: revisi, change_summary: revisi ? str(fd, "ringkasan").slice(0, 4000) || null : null,
       producer_identifier: str(fd, "produsen") || (paket.asal === "WORKBOOK" ? "pintar-buku-kerja" : null),
       capability_contract: str(fd, "kontrak") || null,
       request_id: str(fd, "permintaan") || null,
