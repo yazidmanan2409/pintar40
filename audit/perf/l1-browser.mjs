@@ -126,6 +126,9 @@ for (const m of mine.filter((x) => x.sess)) {
 log({ phase: "setup-done", minted, mintFail, pre_done: preDone, pre_failed: preFail, ready_in_s: Math.round((T0 - Date.now()) / 1000) });
 
 // ── the wave
+// requests the browser itself cancelled (a prefetch made obsolete by a navigation, a check still in flight when
+// the page moves on): not a server's answer, so not a server error; counted by reason and reported apart
+const dibatalkan = new Map();
 const calls = [];
 const catat = (name, t, ms, status, who, err = null) => calls.push({ name, ms, status, at: t - T0, who, err, code: null });
 const browser = await chromium.launch();
@@ -153,8 +156,16 @@ async function sitting(m, i) {
   page.on("requestfailed", (req) => {
     const u = new URL(req.url());
     if (u.origin !== asal || u.pathname.startsWith("/_next/static")) return;
-    if (s.offline) return; // the planned network loss, not the server's
-    catat("gagal", Date.now(), 0, 0, who, String(req.failure()?.errorText ?? "failed").slice(0, 80));
+    if (s.offline || s.selesai) return; // the planned network loss, or the tab closing after the hand-in
+    const sebab = String(req.failure()?.errorText ?? "failed").slice(0, 80);
+    const h = req.headers();
+    const jenis = req.method() === "POST" && h["next-action"] ? "aksi" : h["rsc"] ? "rsc" : req.resourceType();
+    if (/ERR_ABORTED|NS_BINDING_ABORTED/.test(sebab)) {
+      const k = `${jenis} ${sebab}`;
+      dibatalkan.set(k, (dibatalkan.get(k) ?? 0) + 1);
+      return;
+    }
+    catat("gagal", Date.now(), 0, 0, who, `${jenis} ${sebab}`);
   });
   const ukur = async (name, fn) => {
     const t = Date.now();
@@ -226,6 +237,7 @@ async function sitting(m, i) {
     s.refused.push(`journey: ${String(e.message).split("\n")[0].slice(0, 120)}`);
   } finally {
     await page.waitForTimeout(3000).catch(() => {}); // the result page's own reads settle
+    s.selesai = true;
     await ctx.close().catch(() => {});
   }
 }
@@ -265,6 +277,8 @@ const summary = {
   sessions: sesi, answers_acknowledged: diakui, items_stored: disimpan,
   answers_lost: hilang, answers_duplicated: ganda, finished_without_result: tanpaHasil,
   refusals: sittings.flatMap((s) => s.refused).slice(0, 20), wave_s: Math.round((endAt - T0) / 1000),
+  cancelled_by_browser: Object.fromEntries(dibatalkan),
+  failed_requests: Object.fromEntries([...calls.filter((c) => c.name === "gagal").reduce((m, c) => m.set(c.err, (m.get(c.err) ?? 0) + 1), new Map())]),
 };
 writeFileSync(join(OUT, `calls-${SHARD}.json`), JSON.stringify(calls));
 writeFileSync(join(OUT, `summary-${SHARD}.json`), JSON.stringify(summary));

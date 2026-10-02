@@ -50,6 +50,12 @@ for (const c of calls) { const b = Math.floor(c.at / 10000); bucket.set(b, (buck
 const peak = Math.max(0, ...bucket.values()) / 10;
 const waveEnd = Math.max(0, ...calls.map((c) => c.at + c.ms));
 say(""); say(`Peak load ${peak.toFixed(1)} requests/s; the wave ended ${Math.round(waveEnd / 1000)} s after T0.`);
+if (BROWSER) {
+  const sum = (k) => { const m = new Map(); for (const x of sums) for (const [r, n] of Object.entries(x[k] ?? {})) m.set(r, (m.get(r) ?? 0) + n); return [...m]; };
+  const batal = sum("cancelled_by_browser"), gagal = sum("failed_requests");
+  say(`Requests the browser itself cancelled (not server answers, not counted as errors): ${batal.length ? batal.map(([r, n]) => `${r} ×${n}`).join("; ") : "none"}.`);
+  say(`Requests that failed otherwise (counted as server errors): ${gagal.length ? gagal.map(([r, n]) => `${r} ×${n}`).join("; ") : "none"}.`);
+}
 
 // the database's figures: CPU busy share and backends, baseline (before T0) vs peak vs after the wave
 function cpuBusy(a, b) {
