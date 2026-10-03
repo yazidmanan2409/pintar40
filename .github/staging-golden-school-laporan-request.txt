@@ -1,5 +1,6 @@
 # Golden School: the reports, the certificate and its public check (GS-17 to GS-19)
 # 3 Oct, first walk (stopped at import: SUPABASE_URL unset)
 # 3 Oct, second walk (run 37089599501: L2-L4, C1, C3, V2 green; L1 and V1 red on the walk reading CSS-capitalised labels)
-# 3 Oct, third walk
+# 3 Oct, third walk (run 37090112107: green, 9 PASS, 1 NOT RUN)
+# 3 Oct, fourth walk: GS-17 again after D-095 (the performance bands), staging on 18da25b
 slug: gs-001
