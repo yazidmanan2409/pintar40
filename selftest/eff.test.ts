@@ -10,6 +10,9 @@
  *
  *   EFF-K01  executes jedaBantuan / jedaAwal and periksaSaatLuring (src/lib/bantuan-terjadwal.ts) and reads the
  *            question player, the assessment surface, the noteView action and the proxy's matcher for the wiring.
+ *            Item 17 (owner ruling, 3 Oct): a recovery the probe finds enters the same path as the browser's `online`
+ *            (the held answers are sent at once); executes dijawabDiHalaman: a question whose answer the page holds,
+ *            acknowledged or held, sends no help check.
  *
  * WHOLE-SYSTEM AUDIT (2 Oct) -- A SCHOOL ADMINISTRATOR'S LISTS NAME THEIR SCHOOLS.
  *
@@ -20,6 +23,7 @@
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import * as terjadwal from "../src/lib/bantuan-terjadwal";
 import { ALAMAT_PERIKSA, SELISIH_MS, jedaAwal, jedaBantuan, periksaSaatLuring } from "../src/lib/bantuan-terjadwal";
 import { Checks, type SelfTest } from "./lib";
 
@@ -28,6 +32,8 @@ const tidur = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 const kode = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
 // the assistance checks' detector, run on the player and on a planted copy of the old poll
 const pollBantuan = (src: string) => /(setInterval|tanyaBerkala)\([\s\S]{0,200}?actions\.assistance\(/.test(src);
+// item 17: what the probe does on its first success, read from the player and from a planted copy of the old one
+const pemulihanProbe = (src: string) => /periksaSaatLuring\(\s*\(\) => fetch\([\s\S]*?\),\s*([^,]+?),\s*5000,?\s*\)/.exec(src)?.[1]?.trim() ?? "";
 
 export const effTests: SelfTest[] = [
   {
@@ -71,6 +77,17 @@ export const effTests: SelfTest[] = [
       c.expect(ALAMAT_PERIKSA.startsWith("/brand/") && /\(\?!_next\/static\|_next\/image\|favicon\.ico\|brand\/\|fonts\/\)/.test(proxy),
         "the probe is not a static file outside the proxy's matcher (it would cost a session check)");
 
+      // 2b. item 17: an answer the page holds sends no help check; holding it is not a receipt
+      const lokal = (terjadwal as Record<string, unknown>).dijawabDiHalaman as
+        ((d: Record<string, unknown>, t: { presentedItemId: string }[], id: string) => boolean) | undefined;
+      c.expect(typeof lokal === "function", "dijawabDiHalaman is missing from src/lib/bantuan-terjadwal.ts");
+      if (typeof lokal === "function") {
+        c.expect(lokal({ a: { posisi: 1 } }, [], "a") === true, "an acknowledged answer does not suppress the help check");
+        c.expect(lokal({}, [{ presentedItemId: "a" }], "a") === true, "an answer held for sending does not suppress the help check");
+        c.expect(lokal({ b: { posisi: 1 } }, [{ presentedItemId: "c" }], "a") === false, "another question's answer suppresses this one's help check");
+        c.expect(lokal({}, [], "a") === false, "a question with no answer taken sends no help check");
+      }
+
       // 3. the wiring
       const pemain = kode(readFileSync(join(repoRoot, "src", "app", "belajar", "_components", "ItemPlayer.tsx"), "utf8"));
       c.expect(!pollBantuan(pemain), "the question player still asks about help on a timer of its own");
@@ -88,6 +105,16 @@ export const effTests: SelfTest[] = [
         && /onClick=\{\(\) => \{ ditutup\.current\.add\(itemId\); void actions\.dismissAssistance\(itemId\); setAssist\(null\); \}\}/.test(pemain),
         "«Tutup» does not keep the offer closed on that question");
       c.expect(/if \(online\) return;\s*return periksaSaatLuring\(/.test(pemain), "the probe is not limited to offline");
+      // item 17: one recovery path. The browser's `online` and the probe's first success both send the held answers.
+      c.expect(/const pulihkan = useCallback\(\(\) => \{ setOnline\(true\); void flush\(\); \}, \[flush\]\);/.test(pemain),
+        "there is no single recovery that clears the notice and sends the held answers");
+      c.expect(/window\.addEventListener\("online", pulihkan\);/.test(pemain), "the browser's `online` does not take the shared recovery");
+      c.expect(pemulihanProbe(pemain) === "() => pulihkanRef.current()", `the probe's recovery is «${pemulihanProbe(pemain)}», not the shared recovery`);
+      c.expect(pemulihanProbe("periksaSaatLuring(\n () => fetch(`${ALAMAT_PERIKSA}?periksa=${Date.now()}`, { method: \"HEAD\" }).then((r) => r.ok),\n () => setOnline(true),\n 5000,\n)") === "() => setOnline(true)",
+        "the control: the old probe recovery (the notice only, nothing sent) is not read");
+      // item 17: the scheduled help check is not sent for a question whose answer the page holds
+      c.expect(/window\.setTimeout\(\(\) => \{\s*if \(dijawabDiHalaman\(diterima\.current, readEntries\(sessionId\), itemId\)\) return;\s*void tanya\(\);\s*\}, ms\)/.test(pemain),
+        "the scheduled help check is sent for a question the learner has answered on this page");
       c.expect(/tanyaBantuan\.current\?\.\(\);\s*\}\s*\};/.test(pemain), "opening a level does not ask the server for the next one");
       const permukaan = readFileSync(join(repoRoot, "src", "app", "belajar", "_components", "PermukaanAsesmen.tsx"), "utf8");
       c.expect(/assistanceWindow=\{session\?\.hesitation_window_seconds \?\? null\}/.test(permukaan),
@@ -102,7 +129,9 @@ export const effTests: SelfTest[] = [
           "offline it probes until the first yes, then recovers once and stops; stopped, it probes no more; reads the question " +
           "player (src/app/belajar/_components/ItemPlayer.tsx): no timer of its own asks about help (a planted 5 s poll is caught), " +
           "the one ask is scheduled from the server's figures, a refusal does not turn on the offline notice, «Tutup» keeps the " +
-          "offer closed, the probe runs only offline against a static file outside the proxy; the surface passes the server's window",
+          "offer closed, the probe runs only offline against a static file outside the proxy; the surface passes the server's window; " +
+          "item 17: the probe's first success takes the same recovery as the browser's online (the held answers sent at once; the old " +
+          "notice-only recovery is caught), and the scheduled check is not sent for a question answered on this page (dijawabDiHalaman executed)",
       );
     },
   },

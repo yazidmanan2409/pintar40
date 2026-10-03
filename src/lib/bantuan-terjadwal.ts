@@ -58,5 +58,20 @@ export function periksaSaatLuring(probe: () => Promise<boolean>, pulih: () => vo
   return () => { berhenti = true; if (timer !== undefined) clearTimeout(timer); };
 }
 
+/**
+ * ANSWERED ON THIS PAGE (owner ruling, 3 Oct, item 17). A question whose answer the page holds, acknowledged by the
+ * server or taken and still waiting in the outbox, cannot become due for help, so its scheduled help check is not
+ * sent. This only spares a request: holding an answer is not evidence that the server has it. Only the server's
+ * acknowledgement is, and only that shows «Tersimpan». A choice not yet taken («Simpan jawaban ini» not pressed)
+ * is not an answer here.
+ */
+export function dijawabDiHalaman(
+  diterima: Readonly<Record<string, unknown>>,
+  tertahan: ReadonlyArray<{ presentedItemId: string }>,
+  itemId: string,
+): boolean {
+  return diterima[itemId] !== undefined || tertahan.some((e) => e.presentedItemId === itemId);
+}
+
 /** A static file outside the proxy's matcher (src/proxy.ts excludes /brand/): no session check, no database. */
 export const ALAMAT_PERIKSA = "/brand/pintar-selalu-logo.png";

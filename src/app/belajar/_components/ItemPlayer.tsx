@@ -32,7 +32,7 @@ import { t, type HleEvent, type Locale } from "@/lib/hle";
 import type { PaperEntry, AssistanceState, AssistanceLevel } from "@/lib/assessment-engine";
 import { TeksBaris } from "@/components/teks/Teks";
 import { belumDisimpan, sameAnswer, soalAwal, type Answer, type Entry } from "@/lib/kumpulkan";
-import { ALAMAT_PERIKSA, jedaAwal, jedaBantuan, periksaSaatLuring } from "@/lib/bantuan-terjadwal";
+import { ALAMAT_PERIKSA, dijawabDiHalaman, jedaAwal, jedaBantuan, periksaSaatLuring } from "@/lib/bantuan-terjadwal";
 
 export type ItemPlayerProps = {
   sessionId: string;
@@ -263,21 +263,28 @@ export default function ItemPlayer(props: ItemPlayerProps) {
     return result;
   }, [deliver, sessionId]);
 
+  // ONE RECOVERY (owner ruling, 3 Oct, item 17). The browser's `online` and a successful offline probe (below)
+  // take the same path: the notice clears and every held answer is sent at once. «Tersimpan» still shows only on
+  // the server's acknowledgement (deliver), and a resend that does not arrive keeps the answer and turns offline
+  // mode, and with it the probe, back on (flush).
+  const pulihkan = useCallback(() => { setOnline(true); void flush(); }, [flush]);
+  const pulihkanRef = useRef(pulihkan);
+  useEffect(() => { pulihkanRef.current = pulihkan; }, [pulihkan]);
+
   useEffect(() => {
     // The mount replay is deferred by a tick rather than run in the effect
     // body: it settles state, and a synchronous settle here would cascade a
     // render before the first paint for no benefit.
     const first = window.setTimeout(() => { void flush(); }, 0);
-    const on = () => { setOnline(true); void flush(); };
     const off = () => setOnline(false);
-    window.addEventListener("online", on);
+    window.addEventListener("online", pulihkan);
     window.addEventListener("offline", off);
     return () => {
       window.clearTimeout(first);
-      window.removeEventListener("online", on);
+      window.removeEventListener("online", pulihkan);
       window.removeEventListener("offline", off);
     };
-  }, [flush]);
+  }, [flush, pulihkan]);
 
   const send = useCallback(async (entry: PaperEntry, value: Answer) => {
     const item = entry.presentedItemId;
@@ -401,7 +408,11 @@ export default function ItemPlayer(props: ItemPlayerProps) {
     const itemId = current.presentedItemId;
     const jadwalkan = (ms: number | null) => {
       if (timer !== undefined) window.clearTimeout(timer);
-      timer = ms === null ? undefined : window.setTimeout(() => { void tanya(); }, ms);
+      // item 17: an answer this page holds (acknowledged, or held for sending) cannot become due: no check is sent
+      timer = ms === null ? undefined : window.setTimeout(() => {
+        if (dijawabDiHalaman(diterima.current, readEntries(sessionId), itemId)) return;
+        void tanya();
+      }, ms);
     };
     const tanya = async () => {
       if (!alive || ditutup.current.has(itemId)) return;
@@ -431,7 +442,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       tanyaBantuan.current = null;
       if (timer !== undefined) window.clearTimeout(timer);
     };
-  }, [actions, current, jendelaBantuan]);
+  }, [actions, current, jendelaBantuan, sessionId]);
 
   // an answer the server holds ends the hesitation: while help is on screen, ask once so the offer follows the server
   const terimaKini = current ? accepted[current.presentedItemId] : undefined;
@@ -446,9 +457,10 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   // see: no session check, no database, no decision but the notice.
   useEffect(() => {
     if (online) return;
+    // item 17: the first success takes the same recovery as the browser's `online`, sending the held answers
     return periksaSaatLuring(
       () => fetch(`${ALAMAT_PERIKSA}?periksa=${Date.now()}`, { method: "HEAD", cache: "no-store" }).then((r) => r.ok),
-      () => setOnline(true),
+      () => pulihkanRef.current(),
       5000,
     );
   }, [online]);

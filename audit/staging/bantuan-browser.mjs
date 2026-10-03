@@ -75,6 +75,7 @@ async function step(id, title, fn) {
 
 // ── every request the page makes to PINTAR, and what each server action answered
 const asal = new URL(APP).origin;
+const idBantuan = new Set(); // the help check's server-action id, learned from its answers
 const jejak = []; // { t, kind: "aksi"|"probe"|"rsc"|"halaman"|"lain", jenis?: "bantuan"|"lihat"|"lain", ok, gagal? }
 function rekam(page) {
   page.on("request", (req) => {
@@ -84,7 +85,7 @@ function rekam(page) {
     const kind = u.pathname === PROBE && req.method() === "HEAD" ? "probe"
       : req.method() === "POST" && h["next-action"] ? "aksi" : h["rsc"] ? "rsc" : req.resourceType() === "document" ? "halaman" : "lain";
     if (kind === "lain" && /\.(png|svg|ico|woff2?|css|js|jpg|webp)$/.test(u.pathname)) return;
-    const e = { t: Date.now(), kind, ok: null };
+    const e = { t: Date.now(), kind, ok: null, aksiId: h["next-action"] ?? null };
     jejak.push(e);
     req.__e = e;
   });
@@ -96,6 +97,7 @@ function rekam(page) {
     const body = await res.text().catch(() => "");
     // assistance answers { ok, state: { windowSeconds, …, due } }; noteView answers { ok, at, dwellSeconds }
     e.jenis = /"state":\{[^}]*"due":(true|false)/.test(body) ? "bantuan" : /"at":"[^"]+","dwellSeconds"/.test(body) ? "lihat" : "lain";
+    if (e.jenis === "bantuan" && e.aksiId) idBantuan.add(e.aksiId);
     e.due = /"due":true/.test(body);
   });
   page.on("requestfailed", (req) => {
@@ -338,9 +340,9 @@ await step("B6", "question 4, the browser offline: the notice; the save held; th
     `recovery checks while offline ${luring} in ${s1(sambung - putus)}; notice gone ${s1(hilang - sambung)} after reconnecting; «Tersimpan» ${s1(terkirim - sambung)} after; checks in the 15 s after ${setelah}`;
 });
 
-await step("B7", "question 5, PINTAR unreachable while the browser believes it is online: the failed save turns the notice on; the check runs; the first success clears it and the checks stop", async (rec) => {
+await step("B7", "question 5, PINTAR unreachable while the browser believes it is online (item 17): the notice; no help check for the held answer through the window; the first successful check sends it at once, «Tersimpan» only after the server has it, once; the checks stop", async (rec) => {
   if (!page || !SESI) { rec.verdict = "NOT RUN"; return "B3 did not start the sitting"; }
-  await berikutnya();
+  const lihat = await berikutnya();
   await tunggu(2000);
   await pilih();
   const tolak = (route) => route.abort("connectionrefused");
@@ -350,27 +352,39 @@ await step("B7", "question 5, PINTAR unreachable while the browser believes it i
   await simpan(false);
   const ada = await page.getByText(LURING).first().waitFor({ state: "visible", timeout: 15000 }).then(() => true, () => false);
   const muncul = Date.now();
-  await tunggu(12_000);
+  // unreachable past the question's help window (first view + 25 s), so its scheduled help check falls in the gap
+  await tunggu(Math.max(0, lihat + 30_000 - Date.now()));
+  const sebelumPulih = await page.getByRole("button", { name: "Tersimpan", exact: true }).count();
   await shot(page, "b7-tak-terjangkau");
   const sambung = Date.now();
   await ctx.unroute(kePintar, tolak);
   const pulih = await page.getByText(LURING).first().waitFor({ state: "detached", timeout: 15000 }).then(() => true, () => false);
   const hilang = Date.now();
-  const terkirim = await page.getByRole("button", { name: "Tersimpan", exact: true }).waitFor({ timeout: 10000 }).then(() => Date.now(), () => null);
+  const terkirim = await page.getByRole("button", { name: "Tersimpan", exact: true }).waitFor({ timeout: 15000 }).then(() => Date.now(), () => null);
   await tunggu(15_000);
   const akhir = Date.now();
   q5Tertahan = !terkirim;
   q5Ditawari = await ditawarkan();
+  // what the server holds for this question: one final answer, when it arrived, and how
+  const q = await kini();
+  const r = sql(`select count(*) || '|' || coalesce((extract(epoch from min(received_at)) * 1000)::bigint::text, '') || '|' ||
+      coalesce(string_agg(distinct receipt_mode::text, ','), '-')
+    from public.responses where presented_item_id = '${uuid(q.id)}'`).split("|");
+  const [nJawab, diterimaPada, cara] = [Number(r[0]), r[1] ? Number(r[1]) : null, r[2]];
+  // «Tersimpan» on the server's acknowledgement: it shows after the server received the answer (database clock)
+  const urutan = terkirim && diterimaPada ? terkirim + offset - diterimaPada : null;
+  const cekBantuan = dalam(lihat, akhir, (e) => e.kind === "aksi" && idBantuan.has(e.aksiId)).length;
   const cek = await periksaDalam(putus, sambung);
   const sukses = await periksaDalam(sambung, hilang + 500, (e) => e.ok === true);
-  const catatan = (await diHalaman()).filter((e) => e.t >= putus - 1000).map((e) => `${s1(e.t - putus)}:${e.ok}`).join(" ");
   const setelah = await periksaDalam(hilang + 1000, akhir);
-  if (!ada || !cek || !pulih || !sukses || setelah) rec.verdict = "FAIL";
-  else if (!terkirim) rec.verdict = "NOTE";
-  return `notice ${ada ? s1(muncul - putus) + " after the refused save" : "never shown"}; recovery checks while unreachable ${cek}; ` +
-    `notice ${pulih ? `cleared ${s1(hilang - sambung)} after PINTAR answered again, on a successful check (${sukses})` : "still shown"}; checks in the 15 s after ${setelah}; ` +
-    `the held answer ${terkirim ? `sent on its own, «Tersimpan» ${s1(terkirim - sambung)} after` : "not sent on recovery: no «Tersimpan» within 10 s (it is replayed at «Kumpulkan», B8)"}` +
-    `${q5Ditawari ? "; the server, not holding the answer, offered help on this question once its window passed" : ""}; checks (s after the refusal:ok) ${catatan}`;
+  const catatan = (await diHalaman()).filter((e) => e.t >= putus - 1000).map((e) => `${s1(e.t - putus)}:${e.ok}`).join(" ");
+  const ok = ada && cek && pulih && sukses && !setelah && terkirim && !sebelumPulih && nJawab === 1 && urutan !== null && urutan >= -1500 && !cekBantuan && !q5Ditawari;
+  if (!ok) rec.verdict = "FAIL";
+  return `notice ${ada ? s1(muncul - putus) + " after the refused save" : "never shown"}; unreachable ${s1(sambung - putus)} (past the window); ` +
+    `«Tersimpan» before recovery ${sebelumPulih}; help checks for this question ${cekBantuan} (attempted, any outcome); offer ${q5Ditawari ? "shown" : "none"}; ` +
+    `recovery checks while unreachable ${cek}; notice ${pulih ? `cleared ${s1(hilang - sambung)} after PINTAR answered again, on a successful check (${sukses})` : "still shown"}; ` +
+    `held answer ${terkirim ? `sent at once: «Tersimpan» ${s1(terkirim - hilang)} after the notice cleared, ${urutan === null ? "?" : s1(urutan)} after the server received it` : "NOT sent on recovery"}; ` +
+    `answers held by the server for it ${nJawab} (${cara}); checks in the 15 s after ${setelah}; checks (s after the refusal:ok) ${catatan}`;
 });
 
 await step("B8", "the rest answered and saved; «Kumpulkan»; the result page", async (rec) => {
@@ -396,7 +410,7 @@ await step("B8", "the rest answered and saved; «Kumpulkan»; the result page", 
   return `${n} more answered; result page: «${t.match(/Terjawab tepat \d+ dari \d+ soal/)?.[0] ?? t.slice(0, 80)}»`;
 });
 
-await step("B9", "read back: the sitting FINALIZED, every answer stored once; help granted for questions 1 and 3 only, each at or after the window; the offer's and the close's telemetry", async (rec) => {
+await step("B9", "read back: the sitting FINALIZED, every answer stored once; help granted for questions 1 and 3 only, each at or after the window; exactly three help checks on the page; the offer's and the close's telemetry", async (rec) => {
   if (!SESI) { rec.verdict = "NOT RUN"; return "no sitting"; }
   const r = sql(`select s.status || '|' || (select count(*) from public.presented_items p where p.session_id = s.id) || '|' ||
       (select count(distinct r.presented_item_id) from public.responses r where r.session_id = s.id and r.is_final) || '|' ||
@@ -411,16 +425,17 @@ await step("B9", "read back: the sitting FINALIZED, every answer stored once; he
   const [status, n, diterima, ganda, diberi, tele, ragu] = r.split("|");
   const posisi = [...butir.values()].sort((a, b) => a.pos - b.pos).map((b) => b.pos);
   // help is expected on questions 1 and 3; on question 5 only if its answer was still held when the window passed (B7)
-  const harap = [posisi[0], posisi[2], ...(q5Tertahan ? [posisi[4]] : [])];
+  const harap = [posisi[0], posisi[2]];
   const g = diberi === "-" ? [] : diberi.split(",").map((x) => x.split(":").map(Number));
   const lain = g.filter(([p]) => !harap.includes(p));
   const ok = status === "FINALIZED" && Number(diterima) === Number(n) && ganda === "0" &&
-    g.some(([p]) => p === posisi[0]) && g.some(([p]) => p === posisi[2]) && !lain.length && g.every(([, s]) => s >= 25) && Number(ragu) === g.length;
+    g.some(([p]) => p === posisi[0]) && g.some(([p]) => p === posisi[2]) && !lain.length && g.every(([, s]) => s >= 25) && Number(ragu) === g.length &&
+    jejak.filter((e) => e.kind === "aksi" && idBantuan.has(e.aksiId)).length === 3;
   if (!ok) rec.verdict = "FAIL";
   const semua = jejak.filter((e) => e.kind === "aksi");
   writeFileSync(join(OUT, "jejak.json"), JSON.stringify(jejak.map((e) => ({ ...e, t: e.t - mulaiUji })), null, 0));
   return `${status}; answers stored ${diterima}/${n}, duplicated ${ganda}; help granted (position: seconds after first view) ${diberi}; telemetry ${tele}; hesitations ${ragu}; ` +
-    `the Uji Penguasaan's page: ${semua.length} server actions, ${semua.filter((e) => e.jenis === "bantuan").length} of them help checks, ${probeTotal} recovery checks`;
+    `the Uji Penguasaan's page: ${semua.length} server actions, ${semua.filter((e) => idBantuan.has(e.aksiId)).length} of them help checks (attempted), ${probeTotal} recovery checks`;
 });
 
 await browser.close();
