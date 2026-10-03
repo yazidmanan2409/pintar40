@@ -7,8 +7,8 @@
     },
     "db-wp8-gates": {
       "suite": "selftest.run_fable08()",
-      "control_green": 8,
-      "what": "WP8's onboarding repair, the client-write reachability assertion and report configuration"
+      "control_green": 9,
+      "what": "WP8's onboarding repair, the client-write reachability assertion and report configuration; and D-093 T1: an operational state has one path"
     },
     "db-r1-gates": {
       "suite": "selftest.run_fable09()",
@@ -275,6 +275,10 @@
       "expect_red": "F08-P08",
       "expect_detail": "read the list of people awaiting a first role"
     },
+    { "name": "wp8-11", "gate": "db-wp8-gates", "expect_red": "F08-P09", "expect_detail": "a teacher still moves an assessment window by writing the table" },
+    { "name": "wp8-12", "gate": "db-wp8-gates", "expect_red": "F08-P09", "expect_detail": "a school administrator still changes the school's is_synthetic directly" },
+    { "name": "wp8-13", "gate": "db-wp8-gates", "expect_red": "F08-P09", "expect_detail": "service_role can still change the installation's posture" },
+    { "name": "wp8-14", "gate": "db-wp8-gates", "expect_red": "F08-P09", "expect_detail": "the posture change was recorded 0 time(s)" },
     {
       "name": "r1-1",
       "gate": "db-r1-gates",
