@@ -113,7 +113,8 @@ async function periksaDalam(a, b, f = () => true) {
   const di = (await diHalaman()).filter((e) => e.t >= a && e.t < b && f(e)).length;
   return Math.max(di, dalam(a, b, (e) => probe(e) && f(e)).length);
 }
-const bantuan = (e) => e.kind === "aksi" && e.jenis === "bantuan";
+// a help check: by its answer, or by its server-action id once learned (an answer whose body could not be read still counts)
+const bantuan = (e) => e.kind === "aksi" && (e.jenis === "bantuan" || (e.aksiId !== null && idBantuan.has(e.aksiId)));
 const probe = (e) => e.kind === "probe";
 
 let S = null, page = null, ctx = null;
