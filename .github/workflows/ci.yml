@@ -198,7 +198,7 @@ jobs:
               mkdir -p "src/app/verifikasi-ulang/[token]"
               printf -- "export default function P() {\n  return null;\n}\n" > "src/app/verifikasi-ulang/[token]/page.tsx" ;;
             db-fable04-gates)
-              echo "the four FABLE-04 gate defects are planted in SQL against the running stack, below" ;;
+              echo "the five FABLE-04 gate defects are planted in SQL against the running stack, below" ;;
             db-fable05-gates)
               echo "the five FABLE-05 gate defects are planted in SQL against the running stack, below" ;;
             db-task1-gates)
@@ -465,6 +465,26 @@ jobs:
           rollback;
           SQL
           red F04-T09 'plp_release_id' /tmp/rc4.sql
+
+          # 5. D-093 T2: a revoked certificate is revoked again, and the second revocation rewrites the first
+          cat > /tmp/rc5.sql <<'SQL'
+          begin;
+          do $d$
+          declare src text; orig text;
+          begin
+            orig := pg_get_functiondef('public.revoke_certificate(uuid,text)'::regprocedure);
+            src := replace(orig, 'if v_cert.status = ''REVOKED'' then', 'if false then');
+            if src = orig then raise exception 'the plant did not reach the second-revocation refusal'; end if;
+            execute src;
+            orig := pg_get_functiondef('public.enforce_certificate_write()'::regprocedure);
+            src := replace(orig, 'if old.status = ''REVOKED'' and (new.revoked_at', 'if false and (new.revoked_at');
+            if src = orig then raise exception 'the plant did not reach the guard'; end if;
+            execute src;
+          end $d$;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_fable04() where test_id = 'F04-T10';
+          rollback;
+          SQL
+          red F04-T10 'a revoked certificate was revoked again' /tmp/rc5.sql
 
       # FABLE-05 §10.6's five red cases. One stack, same discipline as the
       # FABLE-04 leg: each defect is planted inside its own transaction and

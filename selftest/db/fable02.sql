@@ -690,7 +690,7 @@ begin
   if n <> 1 then ok := false; detail := detail || 'the course did not stay in its own institution; '; end if;
 
   perform selftest.as_user('sysadmin@synthetic.pintar.test');
-  perform public.revoke_role(v_hop);
+  perform public.revoke_role(v_hop, 'selftest: D-097');
   perform selftest.as_owner();
   test_id := 'F02-T10'; invariant := 'INV-01 (tenant isolation)';
   if ok then detail := 'institution_id is immutable on content and releases; a caller privileged in two institutions cannot carry a record across, with or without a seal in the same statement'; end if;

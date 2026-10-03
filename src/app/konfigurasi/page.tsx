@@ -684,7 +684,14 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? short(a.scope_node_id) : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {a.valid_until.slice(0, 10)}</span>
                   </span>
                   {a.person_id !== viewer.personId && (
-                    <form action={revokeRoleAction}><input type="hidden" name="assignment" value={a.id} /><TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.revoke")}</TombolKirim></form>
+                    // D-097(a): a revocation states why
+                    <form action={revokeRoleAction} className="flex flex-wrap items-center gap-2">
+                      <input type="hidden" name="assignment" value={a.id} />
+                      <label className="flex items-center gap-1 text-xs text-ink-3">{s("config.label.reason")}
+                        <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
+                      </label>
+                      <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.revoke")}</TombolKirim>
+                    </form>
                   )}
                 </li>
               ))}

@@ -132,9 +132,12 @@ export async function grantRoleAction(fd: FormData): Promise<void> {
 
 export async function revokeRoleAction(fd: FormData): Promise<void> {
   const id = uuidOrNull(str(fd, "assignment"));
+  // D-097(a): a revocation states why; the database asks again (revoke_role)
+  const alasan = str(fd, "alasan");
   if (!id) back("roles", { ok: false, kode: "ACTION_NOT_FOUND" });
+  if (!alasan || alasan.length > 300) back("roles", { ok: false, kode: "ROLE_REASON_REQUIRED" });
   const supabase = await supabaseServer();
-  const { error } = await supabase.rpc("revoke_role", { p_assignment: id });
+  const { error } = await supabase.rpc("revoke_role", { p_assignment: id, p_reason: alasan });
   back("roles", error ? ditolak("revoke_role", error) : { ok: true, kode: "ROLE_REVOKED" });
 }
 
@@ -249,7 +252,7 @@ export async function saveReportTemplateAction(fd: FormData): Promise<void> {
  *   buatTingkatAksi          bagian, nama, tahun_ajaran
  *   buatKelasAksi            tingkat, nama, tahun_ajaran (optional; must be the Tingkat's)
  *   ubahNamaStrukturAksi     simpul, nama
- *   nonaktifkanStrukturAksi  simpul
+ *   nonaktifkanStrukturAksi  simpul, alasan
  */
 async function struktur(fn: string, args: Record<string, string | null>): Promise<HasilStruktur> {
   const supabase = await supabaseServer();
@@ -305,7 +308,9 @@ export async function ubahNamaStrukturAksi(_prev: HasilStruktur | null, fd: Form
 
 export async function nonaktifkanStrukturAksi(_prev: HasilStruktur | null, fd: FormData): Promise<HasilStruktur> {
   const simpul = uuidOrNull(str(fd, "simpul"));
-  if (!simpul) return KURANG;
-  return struktur("deactivate_school_node", { p_node: simpul });
+  // D-097(a): a deactivation states why; the database asks again (STRUCTURE_REASON_REQUIRED)
+  const alasan = str(fd, "alasan");
+  if (!simpul || !alasan || alasan.length > 300) return KURANG;
+  return struktur("deactivate_school_node", { p_node: simpul, p_reason: alasan });
 }
 

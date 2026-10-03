@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 171,
+  "version": 172,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -514,7 +514,7 @@
     {
       "id": "F04-T10",
       "runner": "db",
-      "proves": "D3a / D3b / INV-38 — the verification token is opaque and derivable from nothing; the public payload is exactly {pass, predikat, institution, date, validity} and reads no identity column; revocation changes the answer and keeps the row"
+      "proves": "D3a / D3b / INV-38 — the verification token is opaque and derivable from nothing; the public payload is exactly {pass, predikat, institution, date, validity} and reads no identity column; revocation changes the answer and keeps the row D-093 T2: the revocation is on the record with its previous and new status, its reason and the actor's role; a second revocation is refused and the first is never rewritten, whatever the path (CI plant rc5)."
     },
     {
       "id": "F04-T11",
@@ -1628,6 +1628,11 @@
       "proves": "D-093 T1 (owner ruling 3 Oct, O4): an operational state has one path. A teacher who may assign cannot move or close an assessment window, end a lesson window or insert an assignment by writing the table; a school's administrator cannot change the school's own is_synthetic (which decides whether its evidence is OFFICIAL) or is_active, or write classes.status -- each refused by privilege (42501), not filtered to zero rows. Reads are unchanged; assign_release and launch_quick_assessment stay definer functions a teacher may call; service_role cannot change the installation's posture; the deployment system's change of posture is audited once, from and to, and an unchanged save is not. Red on the grants before migration 20261110100000."
     },
     {
+      "id": "F08-P10",
+      "runner": "db",
+      "proves": "D-093 T2 (D-097): an operational change says what it was. A role revocation and a structure deactivation are refused without a reason; given one, each is on the record once with its previous and new state, the reason and the role the administrator acted under; the assignment keeps why it was revoked; the deactivation names every place it closed; a revoked role is not revoked twice. The inert platform and feature-flag switches record from and to, and a save that changes nothing writes nothing. Red on the writers before migration 20261111100000 (plants wp8-15..17)."
+    },
+    {
       "id": "F09-R01",
       "runner": "db",
       "proves": "A seq conflict and a closed session are told apart by code. The player could not distinguish 'this client_seq is taken, renumber' from 'this session is over', so it either held an answer forever or dropped it. A different answer at a taken client_seq now raises PR001 whose DETAIL is the server's high-water mark for that item, an identical replay is acknowledged, a renumbered answer above the mark is accepted, and an answer into someone else's session raises PR002, the terminal code the player stops on."
@@ -1650,7 +1655,7 @@
     {
       "id": "F09-A02",
       "runner": "db",
-      "proves": "A provisioned person can be activated and signs in as themselves (F-01). persons_awaiting_account offers the school's administrator the provisioned person and nobody who already holds an account; another school's administrator, an educator and an anonymous caller are refused, as are an unknown account kind, a malformed email, a card account without a ten-digit card, a card number on an email account, and an institution administrator calling authorize_new_person. The authorized activation is audited once and writes a single-use activation grant; the identity Auth then inserts -- with nothing PINTAR wrote in app_metadata -- is linked through that grant to the provisioned person and activates their PENDING enrolment; current_person_id is that person; the person leaves the list; a second activation is refused; a SYSTEM_ADMIN may authorize a person no institution has provisioned. The same path through the real route and the real Auth service is F09-C02's."
+      "proves": "A provisioned person can be activated and signs in as themselves (F-01). persons_awaiting_account offers the school's administrator the provisioned person and nobody who already holds an account; another school's administrator, an educator and an anonymous caller are refused, as are an unknown account kind, a malformed email, a card account without a ten-digit card, a card number on an email account, and an institution administrator calling authorize_new_person. The authorized activation is audited once and writes a single-use activation grant; the identity Auth then inserts -- with nothing PINTAR wrote in app_metadata -- is linked through that grant to the provisioned person and activates their PENDING enrolment; current_person_id is that person; the person leaves the list; a second activation is refused; a SYSTEM_ADMIN may authorize a person no institution has provisioned. The same path through the real route and the real Auth service is F09-C02's. D-093 T3: an authorization alone leaves no record that an account was activated; when Auth creates the account, one account.activated row names the person, who authorized it and the role they acted under, for a provisioned person and for a new one (plants r1-4, r1-5)."
     },
     {
       "id": "F09-A03",

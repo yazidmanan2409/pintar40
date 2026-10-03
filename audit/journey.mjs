@@ -2071,6 +2071,8 @@ await step("S24", "the school admin revokes the head of department's role on Kon
     rec.shots.push(await shot(a, "adm-j14-peran"));
     return `no «Kepala departemen · Kelas Rendah» row on Peran & akses: ${norm(await a.locator("#roles").innerText().catch(() => "")).slice(0, 300)}`;
   }
+  // D-097(a): a revocation states why
+  await baris.locator('input[name="alasan"]').fill("Tidak lagi memimpin Kelas Rendah");
   await baris.getByRole("button", { name: "Cabut", exact: true }).click();
   await a.waitForURL((u) => u.searchParams.get("bagian") === "roles" && u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
   await a.waitForLoadState("networkidle");
@@ -2179,6 +2181,8 @@ await step("S26", "the school admin corrects the structure on Struktur sekolah: 
   // deactivate, with a student placed there: the question first, then the refusal with its reason
   await baris().getByRole("button", { name: "Nonaktifkan", exact: true }).click();
   const tanya = norm(await a.locator("#struktur form.pin-str-tanya").first().innerText().catch(() => ""));
+  // D-097(a): a deactivation states why
+  await a.locator("#struktur form.pin-str-tanya").first().locator('input[name="alasan"]').fill("Digabung dengan Kelas 1A");
   await a.locator("#struktur form.pin-str-tanya").first().getByRole("button", { name: "Ya, nonaktifkan", exact: true }).click();
   await a.waitForFunction(() => /Masih ada murid di sini/.test(document.querySelector("#struktur")?.textContent ?? ""), null, { timeout: SLOW }).catch(() => {});
   const tolak = norm(await a.locator("#struktur").innerText().catch(() => ""));
@@ -2230,6 +2234,7 @@ await step("S26b", "a new teacher replaces the old one mid-year: the school admi
   await a.goto(`${APP}/konfigurasi?muat=${Date.now()}#roles`, { waitUntil: "networkidle" });
   const lama = a.locator("#roles li").filter({ hasText: people.guru.name }).filter({ hasText: "Guru" }).filter({ hasText: "Kelas 1A" }).first();
   if (!(await lama.count())) { rec.verdict = "FAIL"; return `${jejak.join(" | ")}; no «${people.guru.name} · Guru · Kelas 1A» row on Peran & akses`; }
+  await lama.locator('input[name="alasan"]').fill("Digantikan Bu Guru Sari");   // D-097(a)
   await lama.getByRole("button", { name: "Cabut", exact: true }).click();
   await a.waitForURL((u) => u.searchParams.get("bagian") === "roles" && u.searchParams.get("kode") === "ROLE_REVOKED", { timeout: SLOW }).catch(() => {});
   jejak.push(`Budi revoked: ${new URL(a.url()).searchParams.get("kode")}`);

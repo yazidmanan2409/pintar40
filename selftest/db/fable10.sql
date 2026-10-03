@@ -409,7 +409,7 @@ begin
         format('select public.create_tingkat(%L::uuid, %L, %L)', v_bag1, 'Tingkat Liar', selftest.f10_tahun(0)),
         format('select public.create_kelas(%L::uuid, %L)', v_t1, 'Kelas Liar'),
         format('select public.rename_school_node(%L::uuid, %L)', v_k1a, 'Liar'),
-        format('select public.deactivate_school_node(%L::uuid)', v_k1b)];
+        format('select public.deactivate_school_node(%L::uuid, %L)', v_k1b, 'selftest: D-093')];
       for r in select * from unnest(array['a DEAN at the school', 'a HEAD_OF_DEPARTMENT at the Bagian',
                                           'an EDUCATOR at the Kelas', 'a student placed in another Kelas',
                                           'a person with no role'],
@@ -463,11 +463,11 @@ begin
                 format('select public.create_tingkat(%L::uuid, %L, %L)', v_bag1, 'Asing', selftest.f10_tahun(0)),
                 format('select public.create_kelas(%L::uuid, %L)', v_t1, 'Asing'),
                 format('select public.rename_school_node(%L::uuid, %L)', v_bag1, 'Asing'),
-                format('select public.deactivate_school_node(%L::uuid)', v_k1b),
+                format('select public.deactivate_school_node(%L::uuid, %L)', v_k1b, 'selftest: D-093'),
                 format('select * from public.school_structure(%L::uuid)', v_b),
                 format('select public.create_tingkat(%L::uuid, %L, %L)', v_ips, 'Asing', selftest.f10_tahun(0)),
                 format('select public.rename_school_node(%L::uuid, %L)', v_kbx, 'Asing'),
-                format('select public.deactivate_school_node(%L::uuid)', v_txi)]) as t(uid, q) loop
+                format('select public.deactivate_school_node(%L::uuid, %L)', v_txi, 'selftest: D-093')]) as t(uid, q) loop
         perform selftest.as_user_uid(r.uid);
         v_got := selftest.f10_code(r.q);
         perform selftest.as_owner();
@@ -557,9 +557,9 @@ begin
       -- an inactive Tingkat and an inactive Bagian, for STRUCTURE_PARENT_INACTIVE
       perform selftest.as_user_uid(v_adm_a);
       v_t5   := public.create_tingkat(v_bag2, 'Kelas 5', selftest.f10_tahun(0));
-      perform public.deactivate_school_node(v_t5);
+      perform public.deactivate_school_node(v_t5, 'selftest: D-093');
       v_bag3 := public.create_bagian(v_a, 'Sementara');
-      perform public.deactivate_school_node(v_bag3);
+      perform public.deactivate_school_node(v_bag3, 'selftest: D-093');
       -- the hidden nodes, read as the owner rather than through the admin's RLS
       perform selftest.as_owner();
       select l.id into v_jenjang from public.org_nodes l where l.institution_id = v_a and l.kind = 'FACULTY' limit 1;
@@ -585,11 +585,11 @@ begin
             format('select public.create_tingkat(%L::uuid, %L, %L)', v_bag3, 'Kelas 9', selftest.f10_tahun(0)),
             format('select public.rename_school_node(%L::uuid, %L)', v_a, 'Sekolah Baru'),
             format('select public.rename_school_node(%L::uuid, %L)', v_jenjang, 'Terlihat'),
-            format('select public.deactivate_school_node(%L::uuid)', c_prog),
-            format('select public.deactivate_school_node(%L::uuid)', v_t1),
-            format('select public.deactivate_school_node(%L::uuid)', v_bag1),
-            format('select public.deactivate_school_node(%L::uuid)', v_k1b),
-            format('select public.deactivate_school_node(%L::uuid)', v_k4b)],
+            format('select public.deactivate_school_node(%L::uuid, %L)', c_prog, 'selftest: D-093'),
+            format('select public.deactivate_school_node(%L::uuid, %L)', v_t1, 'selftest: D-093'),
+            format('select public.deactivate_school_node(%L::uuid, %L)', v_bag1, 'selftest: D-093'),
+            format('select public.deactivate_school_node(%L::uuid, %L)', v_k1b, 'selftest: D-093'),
+            format('select public.deactivate_school_node(%L::uuid, %L)', v_k4b, 'selftest: D-093')],
           array[
             'STRUCTURE_NAME_INVALID', 'STRUCTURE_NAME_INVALID', 'STRUCTURE_NAME_INVALID', 'STRUCTURE_NAME_INVALID',
             'STRUCTURE_NAME_INVALID',
@@ -624,7 +624,7 @@ begin
       -- repeated deactivation, and the reuse of a deactivated node's name
       perform public.rename_school_node(v_k1b, '1 B');
       perform public.rename_school_node(v_k1b, '1 B');
-      perform public.deactivate_school_node(v_t5);
+      perform public.deactivate_school_node(v_t5, 'selftest: D-093');
       v_p := public.create_tingkat(v_bag2, 'Kelas 5', selftest.f10_tahun(0));
       perform selftest.as_owner();
       select count(*) into n from public.org_nodes o where o.id = v_k1b and o.name = '1 B';
@@ -813,10 +813,10 @@ begin
       s7_t := public.create_tingkat(s7_b, 'Tutup T', selftest.f10_tahun(0));
       s7_a := public.create_kelas(s7_t, 'Tutup A', selftest.f10_tahun(0));
       s7_k := public.create_kelas(s7_t, 'Tutup K', selftest.f10_tahun(0));
-      perform public.deactivate_school_node(s7_k);
+      perform public.deactivate_school_node(s7_k, 'selftest: D-093');
       s7_b2 := public.create_bagian(v_a, 'Tutup Dua ' || v_tag);
       select n.id into s7_reg from public.org_nodes n where n.parent_id = s7_b2 and n.kind = 'PROGRAMME';
-      perform public.deactivate_school_node(s7_b2);
+      perform public.deactivate_school_node(s7_b2, 'selftest: D-093');
       perform selftest.as_owner();
       select a.person_id into s7_person from public.accounts a where a.auth_user_id = v_nobody;
       insert into public.enrollments (person_id, institution_id, academic_period_id, status)
@@ -932,7 +932,7 @@ begin
       values (s7_person, 'EDUCATOR', s10_reg, now() + interval '30 days');
       perform set_config('app.seed_intent', '', true);
       perform selftest.f10_claims(v_adm_a);
-      v_got := selftest.f10_code(format('select public.deactivate_school_node(%L::uuid)', s10_b));
+      v_got := selftest.f10_code(format('select public.deactivate_school_node(%L::uuid, %L)', s10_b, 'selftest: D-093'));
       if v_got <> 'PR020:STRUCTURE_HAS_STAFF' then
         v_probs := selftest.f10_note(v_probs, 'F10-S10', 'a Bagian with staff below it answered ' || v_got);
       end if;

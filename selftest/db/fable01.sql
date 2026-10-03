@@ -211,7 +211,7 @@ begin
     if n <> 1 then ok := false; detail := detail || format('legit grant audit rows=%s; ', n); end if;
     begin update public.role_assignments set valid_until = now() + interval '5 years' where id = v_id; ok := false; detail := detail || 'assignment mutated; ';
     exception when others then null; end;
-    perform public.revoke_role(v_id);
+    perform public.revoke_role(v_id, 'selftest: D-097');
     select count(*) into n from public.audit_log where action = 'role.revoked' and target_id = v_id::text;
     if n <> 1 then ok := false; detail := detail || format('revoke audit rows=%s; ', n); end if;
   exception when others then ok := false; detail := detail || 'legit grant failed: ' || sqlerrm || '; ';
@@ -585,7 +585,7 @@ begin
       -- another place is another grant
       perform public.grant_role(p_aguru, 'HEAD_OF_DEPARTMENT', a_cls5a, now() + interval '30 days');
       -- revoked, it may be granted again
-      perform public.revoke_role(g1);
+      perform public.revoke_role(g1, 'selftest: D-097');
       perform public.grant_role(p_aguru, 'HEAD_OF_DEPARTMENT', a_dept, now() + interval '30 days');
       -- an expired grant does not stand (seeded rows may be dated; the owner writes one)
       perform selftest.as_owner();

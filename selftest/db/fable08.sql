@@ -91,6 +91,7 @@ declare
   m_boot_denied int := 0; v_first_u uuid; v_first uuid; v_second_u uuid; v_second uuid;
   m_wait_denied int := 0; v_fresh_u uuid; v_fresh uuid; v_sysadmin_u uuid;
   m_d093 int := 0; v_audit_before bigint;
+  m_t2 int := 0; v_ra uuid; v_b_tutup uuid; v_sum jsonb;
 begin
   perform selftest.as_owner();
   begin
@@ -914,6 +915,102 @@ begin
       begin perform selftest.as_owner(); exception when others then null; end;
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F08-P10  D-093 T2 (D-097): AN OPERATIONAL CHANGE SAYS WHAT IT WAS.
+    -- A revocation and a deactivation are refused without a reason (D-097(a)) and, given one, are on the record with
+    -- what they changed from and to, the reason, and the role the administrator acted under -- the deactivation naming
+    -- every place it closed. A revocation is not written twice. The inert switches record from and to, and a save that
+    -- changes nothing writes nothing.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      select ra.id into v_ra from public.role_assignments ra
+        join public.accounts ac on ac.person_id = ra.person_id
+       where ac.auth_user_id = v_guru_u and ra.role = 'EDUCATOR' and ra.revoked_at is null limit 1;
+      perform selftest.as_user('f08-admin-' || v_tag || '@local.invalid');
+      -- 1. role revoke: no reason, no revocation
+      begin
+        execute format('select public.revoke_role(%L::uuid, %L)', v_ra, '   ');
+        v_probs := selftest.f08_note(v_probs, 'F08-P10', 'a role was revoked without a reason');
+      exception when others then
+        if sqlerrm ~ 'reason' then m_t2 := m_t2 + 1;
+        else v_probs := selftest.f08_note(v_probs, 'F08-P10', 'a role revocation without a reason was refused for something else: ' || left(sqlerrm, 80)); end if;
+      end;
+      execute format('select public.revoke_role(%L::uuid, %L)', v_ra, 'pindah tugas ke sekolah lain');
+      begin
+        execute format('select public.revoke_role(%L::uuid, %L)', v_ra, 'kedua kali');
+        v_probs := selftest.f08_note(v_probs, 'F08-P10', 'a revoked role was revoked a second time');
+      exception when others then m_t2 := m_t2 + 1; end;
+      perform selftest.as_owner();
+      select a.summary into v_sum from public.audit_log a
+       where a.action = 'role.revoked' and a.target_id = v_ra::text order by a.id desc limit 1;
+      if (select count(*) from public.audit_log a where a.action = 'role.revoked' and a.target_id = v_ra::text) <> 1 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10', 'the revocation is not on the record exactly once');
+      end if;
+      if v_sum ->> 'reason' is distinct from 'pindah tugas ke sekolah lain'
+         or v_sum -> 'from' ->> 'state' is distinct from 'ACTIVE' or v_sum -> 'to' ->> 'state' is distinct from 'REVOKED'
+         or v_sum ->> 'actor_role' is distinct from 'INSTITUTION_ADMIN' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10',
+          'the revocation''s record lacks its reason, from and to, or the actor''s role: ' || left(coalesce(v_sum::text, 'none'), 160));
+      end if;
+      if (select ra.revoked_reason from public.role_assignments ra where ra.id = v_ra) is distinct from 'pindah tugas ke sekolah lain' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10', 'the assignment does not keep why it was revoked');
+      end if;
+
+      -- 2. structure deactivation: no reason, no deactivation; given one, every closed place is named
+      perform selftest.as_user('f08-admin-' || v_tag || '@local.invalid');
+      v_b_tutup := public.create_bagian(v_inst, 'Bagian tutup ' || v_tag);
+      begin
+        execute format('select public.deactivate_school_node(%L::uuid, %L)', v_b_tutup, '');
+        v_probs := selftest.f08_note(v_probs, 'F08-P10', 'a place was deactivated without a reason');
+      exception when others then
+        if sqlerrm ~ 'reason' then m_t2 := m_t2 + 1;
+        else v_probs := selftest.f08_note(v_probs, 'F08-P10', 'a deactivation without a reason was refused for something else: ' || left(sqlerrm, 80)); end if;
+      end;
+      execute format('select public.deactivate_school_node(%L::uuid, %L)', v_b_tutup, 'digabung dengan Bagian lain');
+      perform selftest.as_owner();
+      select a.summary into v_sum from public.audit_log a
+       where a.action = 'structure.deactivated' and a.target_id = v_b_tutup::text order by a.id desc limit 1;
+      if v_sum ->> 'reason' is distinct from 'digabung dengan Bagian lain'
+         or (v_sum -> 'from' ->> 'is_active') is distinct from 'true' or (v_sum -> 'to' ->> 'is_active') is distinct from 'false'
+         or v_sum ->> 'actor_role' is distinct from 'INSTITUTION_ADMIN'
+         or coalesce(jsonb_array_length(v_sum -> 'deactivated'), 0) <> 2 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10',
+          'the deactivation''s record lacks its reason, from and to, the actor''s role or the places it closed (a Bagian and its hidden Reguler): '
+          || left(coalesce(v_sum::text, 'none'), 160));
+      end if;
+
+      -- 3. the inert switches: from and to, and nothing for a save that changes nothing
+      perform selftest.as_owner();
+      select coalesce(max(audit_log.id), 0) into v_audit_before from public.audit_log;
+      update public.platform_config set value = value where key = 'maintenance_mode';
+      update public.platform_config set value = to_jsonb(not (value::text)::boolean) where key = 'maintenance_mode';
+      select count(*) into n from public.audit_log a where a.id > v_audit_before and a.action = 'platform_config.updated';
+      select a.summary into v_sum from public.audit_log a
+       where a.id > v_audit_before and a.action = 'platform_config.updated' order by a.id desc limit 1;
+      if n <> 1 or v_sum -> 'from' is null or v_sum -> 'to' is null or v_sum -> 'from' = v_sum -> 'to' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10',
+          format('a platform setting change wrote %s row(s); expected one, from and to: %s', n, left(coalesce(v_sum::text, 'none'), 120)));
+      end if;
+      perform selftest.as_user('f08-admin-' || v_tag || '@local.invalid');
+      select coalesce(max(audit_log.id), 0) into v_audit_before from public.audit_log;
+      insert into public.feature_flags (key, institution_id, enabled) values ('f08.d093.' || v_tag, v_inst, true);
+      update public.feature_flags set enabled = true where key = 'f08.d093.' || v_tag and institution_id = v_inst;
+      update public.feature_flags set enabled = false where key = 'f08.d093.' || v_tag and institution_id = v_inst;
+      perform selftest.as_owner();
+      select count(*) into n from public.audit_log a where a.id > v_audit_before and a.target_table = 'feature_flags';
+      select a.summary into v_sum from public.audit_log a
+       where a.id > v_audit_before and a.action = 'feature_flag.UPDATE' order by a.id desc limit 1;
+      if n <> 2 or (v_sum -> 'from' ->> 'enabled') is distinct from 'true' or (v_sum -> 'to' ->> 'enabled') is distinct from 'false'
+         or v_sum ->> 'actor_role' is distinct from 'INSTITUTION_ADMIN' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10',
+          format('a feature flag''s three saves (one unchanged) wrote %s row(s), expected 2 with from, to and the actor''s role: %s',
+                 n, left(coalesce(v_sum::text, 'none'), 120)));
+      end if;
+    exception when others then
+      v_probs := selftest.f08_note(v_probs, 'F08-P10', 'the test could not run: ' || left(sqlerrm, 150));
+      begin perform selftest.as_owner(); exception when others then null; end;
+    end;
+
     raise exception 'F08_UNDO';
 
   exception when others then
@@ -925,7 +1022,7 @@ begin
   ------------------------------------------------------------------- verdicts
   for r in
     select * from unnest(
-      array['F08-P01','F08-P02','F08-P03','F08-P04','F08-P05','F08-P06','F08-P07','F08-P08','F08-P09'],
+      array['F08-P01','F08-P02','F08-P03','F08-P04','F08-P05','F08-P06','F08-P07','F08-P08','F08-P09','F08-P10'],
       array['WP8 -- a school can build its own shape, signed in',
             'WP8 -- no client-writable table runs a trigger the client cannot execute',
             'WP8 -- an institution assembles a report and the engine runs on it',
@@ -934,7 +1031,8 @@ begin
             'WP8 -- a retired metric, and a grant that could never work',
             'WP8 -- the first administrator, and the door that shuts behind them',
             'WP8 -- a person with no past can be given their first role',
-            'D-093 -- an operational state has one path'],
+            'D-093 -- an operational state has one path',
+            'D-093 -- an operational change says what it was'],
       array[
         format('an institution administrator signs in and builds a Bagian, a Tingkat and a Kelas in their '
             || 'own school through BOB-01''s structure functions, and the Kelas carries a jalur %s deep; '
@@ -994,7 +1092,12 @@ begin
             || 'OFFICIAL) or is_active, or write classes.status. Reads are unchanged, the governed paths '
             || '(assign_release, launch_quick_assessment) are still definer functions a teacher may call, '
             || 'service_role cannot change the installation''s posture, and the deployment system''s change of '
-            || 'posture is on the record once, from and to, while a save that changes nothing is not', m_d093)
+            || 'posture is on the record once, from and to, while a save that changes nothing is not', m_d093),
+        format('%s of 3 refusals: a role revocation and a deactivation without a reason, and a second revocation of '
+            || 'the same role. Given a reason, each is on the record once with what it changed from and to, the '
+            || 'reason and the role the administrator acted under (INSTITUTION_ADMIN); the assignment keeps why it '
+            || 'was revoked; the deactivation names both places it closed (the Bagian and its hidden Reguler). The '
+            || 'inert switches record from and to, and a save that changes nothing writes nothing (D-097)', m_t2)
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

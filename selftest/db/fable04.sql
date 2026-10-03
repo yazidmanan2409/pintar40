@@ -475,7 +475,7 @@ returns table (test_id text, invariant text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   f record; s uuid; c record; n int; n2 int; v_ok boolean; v_detail text;
-  v_tok text; v_cert uuid; e record; v record; v_row record;
+  v_tok text; v_cert uuid; e record; v record; v_row record; v_tok_rev text;
   v_before text; v_after text; v_pos int; v_inst uuid; v_sess uuid;
   bad text; v_def2 uuid; v_course uuid; v_status text; v_blockers jsonb;
   v_demo uuid; v_enr uuid; v_taught uuid;
@@ -971,9 +971,32 @@ begin
   if v.validity <> 'DICABUT' then ok := false; detail := detail || 'revocation did not change the public response; '; end if;
   select count(*) into n from public.certificates where id = v_cert;
   if n <> 1 then ok := false; detail := detail || 'revocation removed the row; '; end if;
+  -- D-093 T2: the revocation is on the record from and to, with its reason and the actor's role; a second revocation
+  -- is refused and neither the row nor the record changes -- the first stands as recorded, whatever the path
+  select summary into v_row from public.audit_log l
+   where l.action = 'certificate.revoked' and l.target_id = v_cert::text order by l.id desc limit 1;
+  if ((v_row.summary) -> 'from' ->> 'status') is distinct from 'ISSUED' or ((v_row.summary) -> 'to' ->> 'status') is distinct from 'REVOKED'
+     or (v_row.summary) ->> 'reason' is distinct from 'selftest probe' or (v_row.summary) ->> 'actor_role' is null then
+    ok := false; detail := detail || 'the revocation''s record lacks from, to, reason or the actor''s role; ';
+  end if;
+  select ce.revoked_at::text || '|' || ce.revoked_reason into v_tok_rev from public.certificates ce where ce.id = v_cert;
+  perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+  begin
+    perform public.revoke_certificate(v_cert, 'a second, different reason');
+    ok := false; detail := detail || 'a revoked certificate was revoked again; ';
+  exception when others then null; end;
+  perform selftest.as_owner();
+  begin
+    update public.certificates set revoked_at = now() + interval '1 day', revoked_reason = 'rewritten' where id = v_cert;
+    ok := false; detail := detail || 'a revocation''s time and reason were rewritten in place; ';
+  exception when others then null; end;
+  if (select ce.revoked_at::text || '|' || ce.revoked_reason from public.certificates ce where ce.id = v_cert) is distinct from v_tok_rev
+     or (select count(*) from public.audit_log l where l.action = 'certificate.revoked' and l.target_id = v_cert::text) <> 1 then
+    ok := false; detail := detail || 'a second revocation overwrote or added to the first; ';
+  end if;
   test_id := 'F04-T10'; invariant := 'D3a / D3b / INV-38';
   if ok then detail := 'the token is opaque and derivable from nothing; the public payload is exactly the five enumerated fields and reads no identity column; '
-    || 'an unknown token yields no row; revocation changes the answer and keeps the row; the anonymous principal executes nothing at all and cannot reach the signed payload'; end if;
+    || 'an unknown token yields no row; revocation changes the answer and keeps the row, is on the record from and to with its reason and the actor''s role, and is not revoked or rewritten a second time (D-093); the anonymous principal executes nothing at all and cannot reach the signed payload'; end if;
   return next;
 
   -- =========================================================================

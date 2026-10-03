@@ -571,14 +571,14 @@ async function runStructureConcurrency(dbUrl: string, only: string[] | null | un
   };
 
   const cases = [
-    { id: "F10-C01", holder: (t: string) => `select public.deactivate_school_node('${t}'::uuid)`,
+    { id: "F10-C01", holder: (t: string) => `select public.deactivate_school_node('${t}'::uuid, 'selftest: D-093')`,
       racer: (t: string) => `select public.create_kelas('${t}'::uuid, 'Kelas Balapan')`, code: "STRUCTURE_PARENT_INACTIVE",
       went: "a Kelas was created under a Tingkat being deactivated",
       verdict: (t: string) => `select selftest.f10_concurrency_verdict('${t}'::uuid)`,
       held: (t: string, out: string) => out.includes(t),
       pass: "the holder deactivated a Tingkat and held its transaction open; the concurrent create_kelas under it waited " +
         "on the per-school structure lock, read the Tingkat again and was refused PR020 STRUCTURE_PARENT_INACTIVE" },
-    { id: "F10-C02", holder: (t: string) => `select public.deactivate_school_node('${t}'::uuid)`,
+    { id: "F10-C02", holder: (t: string) => `select public.deactivate_school_node('${t}'::uuid, 'selftest: D-093')`,
       // to the school's own staff member: a self-grant is refused whatever the place
       // (INV-16), and since BOB-21 a person the school does not have is refused first
       racer: (t: string, _uid: string, staf: string) => `select public.grant_role('${staf}'::uuid, 'EDUCATOR', '${t}'::uuid, now() + interval '30 days')`,

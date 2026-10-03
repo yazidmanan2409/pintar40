@@ -376,6 +376,7 @@ export type HleEvent =
   | "config.struktur.galat.masih_ada_murid"
   | "config.struktur.galat.masih_ada_staf"
   | "config.struktur.galat.isian_kurang"
+  | "config.struktur.galat.alasan_kosong"
   | "config.struktur.galat.gagal"
   | "config.section.struktur"
   | "config.struktur.intro"
@@ -955,6 +956,7 @@ export type HleEvent =
   | "galat.rollover_input_incomplete"
   | "galat.transfer_input_incomplete"
   | "galat.role_input_incomplete"
+  | "galat.role_reason_required"
   | "galat.role_scope_required"
   | "galat.template_input_incomplete"
   | "galat.school_required"
@@ -2240,6 +2242,7 @@ const table: Table = {
   "config.struktur.galat.masih_ada_murid": { default: "Masih ada murid di sini. Pindahkan mereka dulu.", en: "Students are still placed here. Move them first." },
   "config.struktur.galat.masih_ada_staf": { default: "Masih ada guru atau staf yang ditugaskan di sini.", en: "A teacher or staff member is still assigned here." },
   "config.struktur.galat.isian_kurang": { default: "Lengkapi pilihan yang diminta.", en: "Complete the choices asked for." },
+  "config.struktur.galat.alasan_kosong": { default: "Tuliskan alasan tempat ini dinonaktifkan.", en: "Write why this place is being deactivated." },
   "config.struktur.galat.gagal": { default: "Perubahan belum tersimpan. Coba lagi sebentar lagi.", en: "The change was not saved. Try again in a moment." },
   // DAISY-05: the Struktur sekolah screen (D-006, D-022). The names Bagian,
   // Tingkat and Kelas are the school's own words and stay Indonesian in English.
@@ -2873,6 +2876,7 @@ const table: Table = {
   "galat.rollover_input_incomplete": { default: "Pilih tahun ajaran asal dan tujuan, lalu kelas tujuan untuk sedikitnya satu kelas.", en: "Choose the academic years to move from and to, then a destination class for at least one class." },
   "galat.transfer_input_incomplete": { default: "Pilih peserta didik, lalu isi kode sekolah tujuan dan kode tahun ajaran tujuan.", en: "Choose the student, then fill in the destination school code and the destination academic-year code." },
   "galat.role_input_incomplete": { default: "Pilih orang dan peran, lalu isi Berlaku sampai.", en: "Choose the person and the role, then fill in Valid until." },
+  "galat.role_reason_required": { default: "Tuliskan alasan peran ini dicabut.", en: "Write why this role is being revoked." },
   "galat.role_scope_required": { default: "Pilih Lingkup, yaitu bagian sekolah tempat peran ini berlaku. Hanya Admin platform yang tidak memerlukannya.", en: "Choose the Scope, the part of the school where this role applies. Only a Platform administrator needs none." },
   "galat.template_input_incomplete": { default: "Pilih institusi, isi kunci judul, lalu pilih sedikitnya satu metrik.", en: "Choose the institution, fill in the title key, then choose at least one metric." },
   "galat.school_required": { default: "Pilih sekolah terlebih dahulu.", en: "Choose a school first." },

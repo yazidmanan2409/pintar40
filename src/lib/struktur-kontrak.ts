@@ -210,6 +210,8 @@ export const KODE_STRUKTUR_DB = [
   "STRUCTURE_NOT_A_SCHOOL",
   "STRUCTURE_YEAR_OUT_OF_RANGE",
   "STRUCTURE_PLACE_INACTIVE",
+  // D-093 T2 (D-097(a)): a deactivation states its reason
+  "STRUCTURE_REASON_REQUIRED",
 ] as const;
 
 /**
@@ -264,6 +266,7 @@ export const KUNCI_GALAT_STRUKTUR: Record<KodeStruktur, HleEvent> = {
   STRUCTURE_NOT_A_SCHOOL: "config.struktur.galat.bukan_sekolah",
   STRUCTURE_YEAR_OUT_OF_RANGE: "config.struktur.galat.tahun_di_luar",
   STRUCTURE_PLACE_INACTIVE: "config.struktur.galat.tempat_nonaktif",
+  STRUCTURE_REASON_REQUIRED: "config.struktur.galat.alasan_kosong",
   STRUCTURE_INPUT_INVALID: "config.struktur.galat.isian_kurang",
   STRUCTURE_FAILED: "config.struktur.galat.gagal",
 };

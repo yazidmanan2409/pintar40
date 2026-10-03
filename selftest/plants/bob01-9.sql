@@ -3,7 +3,7 @@
 do $d$
 declare orig text; src text;
 begin
-  orig := pg_get_functiondef('public.deactivate_school_node(uuid)'::regprocedure);
+  orig := pg_get_functiondef('public.deactivate_school_node(uuid,text)'::regprocedure);
   src := replace(orig, 'where c.jalur @> array[n.id] and m.valid_to is null) then',
                        'where c.jalur @> array[n.id] and m.valid_to is null and false) then');
   if src = orig then raise exception 'the plant did not reach the members clause'; end if;

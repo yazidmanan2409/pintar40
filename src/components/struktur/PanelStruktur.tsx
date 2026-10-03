@@ -361,6 +361,18 @@ export function KonfirmasiNonaktif({
         {s("config.struktur.konfirmasi.tanya")} {s(KUNCI_JENIS[simpul.level])} <strong>{simpul.name}</strong>?
       </p>
       <p className="pin-hint">{s("config.struktur.konfirmasi.arti")}</p>
+      {/* D-097(a): a deactivation states why; it is kept with the record of what was closed */}
+      <div className="pin-str-isian">
+        <label htmlFor={`str-alasan-${simpul.node_id}`}>{s("config.label.reason")}</label>
+        <input
+          id={`str-alasan-${simpul.node_id}`}
+          name="alasan"
+          className="pin-input"
+          maxLength={300}
+          required
+          autoComplete="off"
+        />
+      </div>
       <div className="pin-str-tanya-aksi">
         <TombolKirim className="pin-btn pin-str-bahaya" disabled={sibuk} sibuk={s("config.struktur.sibuk")}>
           {s("config.struktur.konfirmasi.ya")}

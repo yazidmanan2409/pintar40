@@ -1336,7 +1336,7 @@ begin
      where ra.person_id = v_e2 and ra.role = 'EDUCATOR' and ra.scope_node_id = v_k2
        and ra.revoked_at is null;
     perform selftest.as_user_uid(v_adm_u);
-    perform public.revoke_role(v_one);
+    perform public.revoke_role(v_one, 'selftest: D-097');
     perform selftest.as_owner();
     perform selftest.as_user_uid(v_dean_u);
     select count(*) into n from public.feedback_subjects_for_class(v_k2);

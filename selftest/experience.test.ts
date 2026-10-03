@@ -1334,6 +1334,10 @@ export const experienceTests: SelfTest[] = [
       // 20261110100000 revokes client writes on four tables and service_role's on the posture,
       // and audits the posture's change; no table, no column, no colour, mark or brand surface.
       //
+      // MOVED 147 -> 148 for D-093 T2 + T3 (3 Oct): an operational change says what it was.
+      // 20261111100000 rewrites audit writers and adds two reason/role columns (role_assignments,
+      // account_activation_grants); no colour, mark or brand surface.
+      //
       // MOVED 144 -> 145 for D-084 C1, D-085 M1: a school is founded by one versioned step.
       // 20261108100000 adds operator_found_school (the operator's connection
       // only); no table, no column, no colour, mark or brand surface.
@@ -1569,7 +1573,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 147, `${migrations.length} migrations; the frozen baseline has 147`);
+      c.expect(migrations.length === 148, `${migrations.length} migrations; the frozen baseline has 148`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3228,7 +3232,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 146 -> 147 for D-093 T1's one path for operational state
+      // from, not a claim about the tour. MOVED 147 -> 148 for D-093 T2 + T3's audit writers (20261111100000),
+      // not a tour RPC (D-024). MOVED 146 -> 147 for D-093 T1's one path for operational state
       // (20261110100000), not a tour RPC (D-024). MOVED 145 -> 146 for the efficiency audit's draw by index
       // (20261109100000), not a tour RPC (D-024). MOVED 144 -> 145 for C1's school founding (20261108100000),
       // not a tour RPC (D-024). MOVED 143 -> 144 for D-085 M3's request to read again
@@ -3307,7 +3312,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 147, `${migs.length} migrations; the baseline has 147`);
+      c.expect(migs.length === 148, `${migs.length} migrations; the baseline has 148`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
