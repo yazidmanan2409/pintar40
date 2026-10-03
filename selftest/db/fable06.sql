@@ -656,8 +656,10 @@ begin
     (institution_id, plp_release_id, course_id, node_id, academic_period_id)
   values (p_inst, v_rel, v_course, v_node, v_period)
   returning learning_assignments.id into v_la;
-  -- assigning learning is a capability, not a side effect of editing a row
+  -- assigning learning is a capability, not a side effect of editing a row. D-093 T1: no client writes the table,
+  -- so it is asked as assign_release meets it, with the person's claims and the owner's role
   perform selftest.as_user_uid(p_admin_uid);
+  perform selftest.as_release_writer();
   update public.learning_assignments set status = 'ACTIVE' where learning_assignments.id = v_la;
   perform selftest.as_owner();
 
@@ -5952,6 +5954,7 @@ begin
               true, true, 120, 2)
       returning assessment_definitions.id into v_def;
       perform selftest.pass_mark(c.inst, pk.course);   -- D-088(b): the school's mark before the class is given it
+      perform selftest.as_release_writer();   -- D-093 T1: as assign_release writes it, with the admin's claims
       insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id,
                                                academic_period_id)
       values (c.inst, v_rel, pk.course, v_cls, v_period)

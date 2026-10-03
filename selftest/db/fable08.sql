@@ -90,6 +90,7 @@ declare
   m_entries int := 0; m_version int := 0; m_cfg_denied int := 0; m_audit int := 0;
   m_boot_denied int := 0; v_first_u uuid; v_first uuid; v_second_u uuid; v_second uuid;
   m_wait_denied int := 0; v_fresh_u uuid; v_fresh uuid; v_sysadmin_u uuid;
+  m_d093 int := 0; v_audit_before bigint;
 begin
   perform selftest.as_owner();
   begin
@@ -809,6 +810,110 @@ begin
       begin perform selftest.as_owner(); exception when others then null; end;
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F08-P09  D-093 T1 (owner ruling 3 Oct, O4): AN OPERATIONAL STATE HAS ONE PATH.
+    -- A teacher may not move an assignment window or close it by writing the table, a school's administrator may
+    -- not change the school's own is_synthetic (which decides whether its evidence is OFFICIAL) or is_active, and
+    -- nobody signed in writes classes.status: each is refused by privilege (42501), not merely filtered to zero
+    -- rows. The posture of the installation is the deployment system's alone, and its change is on the record from
+    -- and to. The governed paths stay: assign_release and launch_quick_assessment keep opening windows as SECURITY
+    -- DEFINER functions a teacher may call (walked as the teacher in F13 and Q12).
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_user('f08-guru-' || v_tag || '@local.invalid');
+      if not public.can_in_institution('CAN_ASSIGN_LEARNING', v_inst) then
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'the fixture teacher cannot assign here, so the refusals below would prove nothing');
+      end if;
+      begin
+        update public.assessment_assignments set closes_at = now() + interval '30 days' where institution_id = v_inst;
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a teacher still moves an assessment window by writing the table');
+      exception when insufficient_privilege then m_d093 := m_d093 + 1; end;
+      begin
+        update public.assessment_assignments set status = 'CLOSED' where institution_id = v_inst;
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a teacher still closes an assessment by writing the table');
+      exception when insufficient_privilege then m_d093 := m_d093 + 1; end;
+      begin
+        update public.learning_assignments set available_until = now() where institution_id = v_inst;
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a teacher still ends a lesson window by writing the table');
+      exception when insufficient_privilege then m_d093 := m_d093 + 1; end;
+      begin
+        insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id, academic_period_id)
+        values (v_inst, gen_random_uuid(), gen_random_uuid(), v_prog, v_period);
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a teacher still inserts an assignment row directly');
+      exception
+        when insufficient_privilege then m_d093 := m_d093 + 1;
+        when others then
+          v_probs := selftest.f08_note(v_probs, 'F08-P09',
+            'a teacher''s direct insert reached the row checks instead of a privilege refusal: ' || left(sqlerrm, 80));
+      end;
+
+      perform selftest.as_user('f08-admin-' || v_tag || '@local.invalid');
+      begin
+        update public.institutions set is_synthetic = not is_synthetic where institutions.id = v_inst;
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a school administrator still changes the school''s is_synthetic directly');
+      exception
+        when insufficient_privilege then m_d093 := m_d093 + 1;
+        when others then   -- a row guard, not the privilege: outside production the bootstrap guard can refuse it
+          v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a school administrator still changes the school''s is_synthetic directly (stopped only by a row guard: ' || left(sqlerrm, 60) || ')');
+      end;
+      begin
+        update public.institutions set is_active = false where institutions.id = v_inst;
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a school administrator still changes the school''s is_active directly');
+      exception
+        when insufficient_privilege then m_d093 := m_d093 + 1;
+        when others then   -- a row guard, not the privilege: outside production the bootstrap guard can refuse it
+          v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a school administrator still changes the school''s is_active directly (stopped only by a row guard: ' || left(sqlerrm, 60) || ')');
+      end;
+      begin
+        update public.classes set status = 'ENDED' where node_id = v_prog;
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a school administrator still writes classes.status directly');
+      exception
+        when insufficient_privilege then m_d093 := m_d093 + 1;
+        when others then   -- a row guard, not the privilege: outside production the bootstrap guard can refuse it
+          v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a school administrator still writes classes.status directly (stopped only by a row guard: ' || left(sqlerrm, 60) || ')');
+      end;
+      perform selftest.as_owner();
+
+      -- the grants themselves, as a fresh session meets them, and the posture's
+      foreach v_msg in array array['learning_assignments','assessment_assignments','institutions','classes'] loop
+        if has_table_privilege('authenticated', 'public.' || v_msg, 'insert')
+           or has_table_privilege('authenticated', 'public.' || v_msg, 'update') then
+          v_probs := selftest.f08_note(v_probs, 'F08-P09', format('authenticated still holds a write grant on %s', v_msg));
+        end if;
+        if not has_table_privilege('authenticated', 'public.' || v_msg, 'select') then
+          v_probs := selftest.f08_note(v_probs, 'F08-P09', format('authenticated lost its read of %s', v_msg));
+        end if;
+      end loop;
+      if has_table_privilege('service_role', 'public.platform_environment', 'update')
+         or has_table_privilege('service_role', 'public.platform_environment', 'insert')
+         or has_table_privilege('service_role', 'public.platform_environment', 'delete') then
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'service_role can still change the installation''s posture');
+      end if;
+      -- the governed paths are intact: definer functions a teacher may call
+      if not (select bool_and(p.prosecdef and has_function_privilege('authenticated', p.oid, 'execute'))
+                from pg_proc p join pg_namespace ns on ns.oid = p.pronamespace
+               where ns.nspname = 'public' and p.proname in ('assign_release', 'launch_quick_assessment')) then
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a governed assignment path is no longer a definer function a teacher may call');
+      end if;
+
+      -- the deployment system's change of posture is recorded, from and to; a save that changes nothing is not
+      select coalesce(max(audit_log.id), 0) into v_audit_before from public.audit_log;
+      update public.platform_environment set environment = environment;
+      update public.platform_environment
+         set local_fixtures_enabled = not local_fixtures_enabled;
+      select count(*) into n from public.audit_log a
+       where a.id > v_audit_before and a.action = 'platform_environment.changed'
+         and a.summary -> 'from' ->> 'local_fixtures_enabled' is distinct from a.summary -> 'to' ->> 'local_fixtures_enabled'
+         and a.summary ->> 'database_role' is not null;
+      if n <> 1 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', format('the posture change was recorded %s time(s), expected once with from and to', n));
+      end if;
+      update public.platform_environment set local_fixtures_enabled = not local_fixtures_enabled;   -- back as it was
+    exception when others then
+      v_probs := selftest.f08_note(v_probs, 'F08-P09', 'the test could not run: ' || left(sqlerrm, 150));
+      begin perform selftest.as_owner(); exception when others then null; end;
+    end;
+
     raise exception 'F08_UNDO';
 
   exception when others then
@@ -820,7 +925,7 @@ begin
   ------------------------------------------------------------------- verdicts
   for r in
     select * from unnest(
-      array['F08-P01','F08-P02','F08-P03','F08-P04','F08-P05','F08-P06','F08-P07','F08-P08'],
+      array['F08-P01','F08-P02','F08-P03','F08-P04','F08-P05','F08-P06','F08-P07','F08-P08','F08-P09'],
       array['WP8 -- a school can build its own shape, signed in',
             'WP8 -- no client-writable table runs a trigger the client cannot execute',
             'WP8 -- an institution assembles a report and the engine runs on it',
@@ -828,7 +933,8 @@ begin
             'WP8 -- authorization is the first gate on the new endpoint',
             'WP8 -- a retired metric, and a grant that could never work',
             'WP8 -- the first administrator, and the door that shuts behind them',
-            'WP8 -- a person with no past can be given their first role'],
+            'WP8 -- a person with no past can be given their first role',
+            'D-093 -- an operational state has one path'],
       array[
         format('an institution administrator signs in and builds a Bagian, a Tingkat and a Kelas in their '
             || 'own school through BOB-01''s structure functions, and the Kelas carries a jalur %s deep; '
@@ -881,7 +987,14 @@ begin
             || 'build their own cohort. %s refusals -- an institution administrator, a dean, an '
             || 'educator and an anonymous caller -- each by the SYSTEM_ADMIN name. Visibility was '
             || 'not widened to do any of it: the read defers to person_visible_to_me and that '
-            || 'predicate knows nothing about this list', m_wait_denied)
+            || 'predicate knows nothing about this list', m_wait_denied),
+        format('%s of 7 direct writes refused by privilege: a teacher who may assign cannot move or close an '
+            || 'assessment window, end a lesson window or insert an assignment by writing the table; a school''s '
+            || 'administrator cannot change the school''s is_synthetic (which decides whether its evidence is '
+            || 'OFFICIAL) or is_active, or write classes.status. Reads are unchanged, the governed paths '
+            || '(assign_release, launch_quick_assessment) are still definer functions a teacher may call, '
+            || 'service_role cannot change the installation''s posture, and the deployment system''s change of '
+            || 'posture is on the record once, from and to, while a save that changes nothing is not', m_d093)
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

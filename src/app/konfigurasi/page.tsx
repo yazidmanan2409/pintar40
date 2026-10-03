@@ -7,9 +7,8 @@ import KartuKesehatan, { type KeadaanKesehatan } from "@/components/konfigurasi/
 import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
-  grantRoleAction, pindahKelasAction, revokeRoleAction, rolloverAction, saveReportTemplateAction, setFlagAction,
-  setPlatformConfigAction, tetapkanBatasAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction,
-  transferRequestAction,
+  grantRoleAction, pindahKelasAction, revokeRoleAction, rolloverAction, saveReportTemplateAction,
+  tetapkanBatasAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction, transferRequestAction,
 } from "./actions";
 import { pelajaranDanBatas } from "@/lib/batas-ketuntasan";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
@@ -37,8 +36,14 @@ import { lingkupPeran } from "@/lib/lingkup-peran";
  *
  * Phase-1 surfaces wired here call only RPCs and tables that already exist:
  * period rollover, transfer request/authorize/execute/reject (policy hooks
- * only — OD-9), role grant/revoke, audit reader, feature flags and the two
- * platform switches. Every read is the signed-in user's own RLS view.
+ * only — OD-9), role grant/revoke and the audit reader. Every read is the
+ * signed-in user's own RLS view.
+ *
+ * D-093 O3 (owner ruling, 3 Oct): no control here claims an operational change
+ * PINTAR does not enforce. «Mode pemeliharaan», «Kunci pendaftaran» and the
+ * feature-flag form were saved and audited but read by nothing, so they are
+ * gone from this page. Their tables stay; #148 builds the real maintenance
+ * control when its behaviour exists.
  */
 
 const s = (event: HleEvent) => t(event, "staff");
@@ -105,7 +110,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
 
   const [
     { data: institutions }, { data: periods }, { data: nodes }, { data: enrollments }, { data: transfers },
-    { data: assignments }, { data: audit }, { data: flags }, { data: platformConfig }, { data: lint, error: lintError }, { data: env },
+    { data: assignments }, { data: audit }, { data: lint, error: lintError }, { data: env },
     { data: awaiting }, [{ data: reportTemplates }, { data: templateMetrics }, { data: metricDefs }],
   ] = await Promise.all([
     supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
@@ -115,8 +120,6 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     supabase.from("transfers").select("id, person_id, from_institution_id, to_institution_id, status, reason, created_at").order("created_at", { ascending: false }).limit(50),
     supabase.from("role_assignments").select("id, person_id, role, scope_node_id, institution_id, valid_until, revoked_at").is("revoked_at", null).order("created_at", { ascending: false }),
     (isSys === true ? jejak : jejak.in("institution_id", adminInstitutionIds)).order("at", { ascending: false }).limit(50),
-    supabase.from("feature_flags").select("key, institution_id, enabled, note").order("key"),
-    supabase.from("platform_config").select("key, value"),
     // BOB-18 (D-046): the schema lint runs when an operator asks for it, never
     // on an ordinary load -- it reads the whole catalogue, and every sign-in of
     // the platform admin lands here.
@@ -193,7 +196,6 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     console.error(`[konfigurasi ${ref}] platform_schema_lint failed`, lintError?.code, lintError?.message);
     kesehatan = { jenis: "gagal", rujukan: ref };
   } else kesehatan = { jenis: "diperiksa", hasil: nilaiSkema(lint as Record<string, unknown>) };
-  const configValue = (key: string) => (platformConfig ?? []).find((r) => r.key === key)?.value === true;
   const myInstitutions = (institutions ?? []).filter((i) => isSys || adminInstitutionIds.includes(i.id));
   const myInstitutionIds = myInstitutions.map((i) => i.id);
   const myTemplates = (reportTemplates ?? []).filter((t) => myInstitutionIds.includes(t.institution_id));
@@ -242,7 +244,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     ["pindah", s("config.section.pindah")],
     ["laporan", s("config.laporan.judul")],
     ["system", s("config.section.system")], ["rollover", s("config.section.rollover")], ["transfers", s("config.section.transfers")],
-    ["roles", s("config.section.roles")], ["audit", s("config.section.audit")], ["flags", s("config.section.flags")],
+    ["roles", s("config.section.roles")], ["audit", s("config.section.audit")],
     // Polish batch 2 (UX-30): no menu item for a section that does not exist yet
     ["intelligence", s("config.section.intelligence")],
   ];
@@ -748,47 +750,6 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 </tbody>
               </table>
             </div>
-          </section>
-
-          {/* Feature flags and platform switches (doc 16 §8) */}
-          <section id="flags" className={card}>
-            <h2 className="font-medium">{s("config.section.flags")}</h2>
-            {isSys && (
-              <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                {(["maintenance_mode", "registration_lock"] as const).map((key) => (
-                  <form key={key} action={setPlatformConfigAction} className="flex items-center justify-between gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 text-sm">
-                    <input type="hidden" name="key" value={key} />
-                    <label className="flex items-center gap-2">
-                      <input type="checkbox" name="value" defaultChecked={configValue(key)} />
-                      {key === "maintenance_mode" ? s("config.label.maintenance") : s("config.label.registration_lock")}
-                    </label>
-                    <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.action.save")}</TombolKirim>
-                  </form>
-                ))}
-              </div>
-            )}
-            <ul className="mt-2 grid gap-1 text-sm text-ink-2">
-              {(flags ?? []).map((f) => (
-                <li key={`${f.key}:${f.institution_id}`} className="flex items-center justify-between rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
-                  <span>{f.key} <span className="text-ink-3">· {institutionName.get(f.institution_id) ?? short(f.institution_id)}</span></span>
-                  <span className="text-ink-3">{f.enabled ? "aktif" : "nonaktif"}</span>
-                </li>
-              ))}
-              {(flags ?? []).length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
-            </ul>
-            {myInstitutions.length > 0 && (
-              <form action={setFlagAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-[1fr_1fr_auto_auto] sm:items-end">
-                <label className={label}>{s("config.section.system")}
-                  <select name="institution" className={field} required defaultValue={myInstitutions[0].id}>
-                    {myInstitutions.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
-                  </select>
-                </label>
-                <label className={label}>{s("config.label.flag_key")}<input name="key" className={field} required pattern="[a-z][a-z0-9_.]{1,80}" /></label>
-                <label className="flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" name="enabled" />{s("config.label.enabled")}</label>
-                <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.action.save")}</TombolKirim>
-              </form>
-            )}
-            {result("flags")}
           </section>
 
           {/* W8-02 — REPORT CONFIGURATION.

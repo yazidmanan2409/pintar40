@@ -1354,14 +1354,23 @@ begin
     values (v_inst, v_rel3, v_course2, v_node,
             (select academic_period_id from public.enrollments where id = v_enr))
     returning id into v_la;
-  -- an EDUCATOR holds CAN_ASSIGN_LEARNING; a plain reviewer does not
+  -- an EDUCATOR holds CAN_ASSIGN_LEARNING; a plain reviewer does not. D-093 T1: no signed-in client writes the
+  -- table any more (assign_release does, as its owner, with the caller's identity), so the capability is asked
+  -- the way the function meets it -- the D-041 writer pattern: the person's claims stay, the client role goes --
+  -- and the teacher's own direct write is refused by privilege.
   perform selftest.as_user('alpha-dean@synthetic.pintar.test');
+  perform selftest.as_release_writer();
   begin
     update public.learning_assignments set status = 'ACTIVE' where id = v_la;
     get diagnostics n = row_count;
     if n > 0 then ok := false; detail := detail || 'a DEAN activated an assignment; '; end if;
   exception when others then null; end;
   perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+  begin
+    update public.learning_assignments set status = 'ACTIVE' where id = v_la;
+    ok := false; detail := detail || 'a teacher activated an assignment by writing the table (D-093 T1); ';
+  exception when insufficient_privilege then null; end;
+  perform selftest.as_release_writer();
   update public.learning_assignments set status = 'ACTIVE' where id = v_la;
   get diagnostics n = row_count;
   perform selftest.as_owner();
@@ -1395,6 +1404,7 @@ begin
     values (v_inst, v_def_p, v_node, (select academic_period_id from public.enrollments where id = v_enr))
     returning id into v_aa;
   perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+  perform selftest.as_release_writer();   -- D-093 T1: as the assigning function writes it
   update public.assessment_assignments set status = 'SCHEDULED' where id = v_aa;
   update public.assessment_assignments set status = 'OPEN' where id = v_aa;
   perform selftest.as_owner();
@@ -1408,7 +1418,7 @@ begin
     ok := false; detail := detail || 'a CLOSED assignment reopened; ';
   exception when others then null; end;
   test_id := 'F02-T20'; invariant := 'INV-27 / doc 04 §4';
-  if ok then detail := 'assigning needs CAN_ASSIGN_LEARNING and is stamped; a release move is recorded and audited before it applies; CLOSED is terminal and touches no running session'; end if;
+  if ok then detail := 'assigning needs CAN_ASSIGN_LEARNING and is stamped, and a teacher cannot do it by writing the table (D-093 T1); a release move is recorded and audited before it applies; CLOSED is terminal and touches no running session'; end if;
   return next;
 
   -- F02-T21 §11: provenance lands before rows, and Easy Upload never guesses.

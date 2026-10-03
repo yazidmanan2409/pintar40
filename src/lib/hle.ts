@@ -330,7 +330,6 @@ export type HleEvent =
   | "config.pindah.grup_tingkat"
   | "config.section.roles"
   | "config.section.audit"
-  | "config.section.flags"
   | "config.action.rollover"
   | "config.action.request_transfer"
   | "config.action.authorize"
@@ -355,10 +354,6 @@ export type HleEvent =
   | "config.label.role"
   | "config.label.scope"
   | "config.label.valid_until"
-  | "config.label.flag_key"
-  | "config.label.enabled"
-  | "config.label.maintenance"
-  | "config.label.registration_lock"
   | "config.label.when"
   | "config.label.action"
   | "config.label.target"
@@ -961,7 +956,6 @@ export type HleEvent =
   | "galat.transfer_input_incomplete"
   | "galat.role_input_incomplete"
   | "galat.role_scope_required"
-  | "galat.flag_key_invalid"
   | "galat.template_input_incomplete"
   | "galat.school_required"
   | "galat.move_input_incomplete"
@@ -980,8 +974,6 @@ export type HleEvent =
   | "galat.transfer_authorized"
   | "galat.transfer_executed"
   | "galat.transfer_rejected"
-  | "galat.flag_saved"
-  | "galat.platform_setting_saved"
   | "galat.step_taken"
   | "galat.check_run"
   | "galat.finding_acknowledged"
@@ -2199,7 +2191,6 @@ const table: Table = {
   "config.pindah.tanpa_tujuan": { default: "Tidak ada Kelas lain pada tahun ajaran ini. Buat Kelas tujuannya dulu di Struktur sekolah.", en: "There is no other Kelas in this academic year. Create the destination Kelas under School structure first." },
   "config.section.roles": { default: "Peran & akses", en: "Roles & access" },
   "config.section.audit": { default: "Jejak audit", en: "Audit trail" },
-  "config.section.flags": { default: "Fitur & saklar", en: "Features & switches" },
   "config.action.rollover": { default: "Jalankan pergantian", en: "Run the rollover" },
   "config.action.request_transfer": { default: "Ajukan perpindahan", en: "Request a transfer" },
   "config.action.authorize": { default: "Setujui", en: "Authorize" },
@@ -2224,10 +2215,6 @@ const table: Table = {
   "config.label.role": { default: "Peran", en: "Role" },
   "config.label.scope": { default: "Lingkup", en: "Scope" },
   "config.label.valid_until": { default: "Berlaku sampai", en: "Valid until" },
-  "config.label.flag_key": { default: "Kunci fitur", en: "Feature key" },
-  "config.label.enabled": { default: "Aktif", en: "Enabled" },
-  "config.label.maintenance": { default: "Mode pemeliharaan", en: "Maintenance mode" },
-  "config.label.registration_lock": { default: "Kunci pendaftaran", en: "Registration lock" },
   "config.label.when": { default: "Waktu", en: "When" },
   "config.label.action": { default: "Tindakan", en: "Action" },
   "config.label.target": { default: "Sasaran", en: "Target" },
@@ -2887,7 +2874,6 @@ const table: Table = {
   "galat.transfer_input_incomplete": { default: "Pilih peserta didik, lalu isi kode sekolah tujuan dan kode tahun ajaran tujuan.", en: "Choose the student, then fill in the destination school code and the destination academic-year code." },
   "galat.role_input_incomplete": { default: "Pilih orang dan peran, lalu isi Berlaku sampai.", en: "Choose the person and the role, then fill in Valid until." },
   "galat.role_scope_required": { default: "Pilih Lingkup, yaitu bagian sekolah tempat peran ini berlaku. Hanya Admin platform yang tidak memerlukannya.", en: "Choose the Scope, the part of the school where this role applies. Only a Platform administrator needs none." },
-  "galat.flag_key_invalid": { default: "Kunci fitur diawali huruf kecil dan hanya berisi huruf kecil, angka, titik, dan garis bawah.", en: "A feature key starts with a lower-case letter and contains only lower-case letters, digits, dots and underscores." },
   "galat.template_input_incomplete": { default: "Pilih institusi, isi kunci judul, lalu pilih sedikitnya satu metrik.", en: "Choose the institution, fill in the title key, then choose at least one metric." },
   "galat.school_required": { default: "Pilih sekolah terlebih dahulu.", en: "Choose a school first." },
   "galat.move_input_incomplete": { default: "Pilih kelas tujuan untuk murid itu.", en: "Choose the class to move that student to." },
@@ -2910,8 +2896,6 @@ const table: Table = {
   "galat.transfer_authorized": { default: "Perpindahan disetujui dan tinggal dijalankan.", en: "Transfer authorized; it only remains to be executed." },
   "galat.transfer_executed": { default: "Perpindahan dijalankan.", en: "Transfer executed." },
   "galat.transfer_rejected": { default: "Perpindahan ditolak.", en: "Transfer rejected." },
-  "galat.flag_saved": { default: "Fitur disimpan.", en: "Feature saved." },
-  "galat.platform_setting_saved": { default: "Pengaturan platform disimpan.", en: "Platform setting saved." },
   "galat.step_taken": { default: "Kursus ini maju ke langkah berikutnya.", en: "This course has moved on to its next step." },
   "galat.check_run": { default: "Pemeriksaan isi selesai. Temuannya ada di bawah.", en: "The content check is done. Its findings are below." },
   "galat.finding_acknowledged": { default: "Temuan itu sudah diakui.", en: "That finding has been acknowledged." },

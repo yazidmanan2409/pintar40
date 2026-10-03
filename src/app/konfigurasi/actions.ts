@@ -189,33 +189,6 @@ export async function tetapkanBatasAction(fd: FormData): Promise<void> {
   kembali({ ok: true, kode: (data as { changed?: boolean } | null)?.changed === false ? "PASS_MARK_UNCHANGED" : "PASS_MARK_SET" });
 }
 
-export async function setFlagAction(fd: FormData): Promise<void> {
-  const institution = uuidOrNull(str(fd, "institution"));
-  const key = str(fd, "key");
-  const enabled = str(fd, "enabled") === "on";
-  if (!institution || !/^[a-z][a-z0-9_.]{1,80}$/.test(key)) back("flags", { ok: false, kode: "FLAG_KEY_INVALID" });
-  const supabase = await supabaseServer();
-  const { data, error } = await supabase
-    .from("feature_flags")
-    .upsert({ key, institution_id: institution, enabled, updated_at: new Date().toISOString() }, { onConflict: "key,institution_id" })
-    .select("enabled");
-  // F-05: an upsert RLS filtered to nothing reports no error; read back instead
-  back("flags", error ? ditolak("feature_flags upsert", error)
-    : (data ?? []).length === 1 && data![0].enabled === enabled ? { ok: true, kode: "FLAG_SAVED" } : { ok: false, kode: "ACTION_UNCHANGED" });
-}
-
-export async function setPlatformConfigAction(fd: FormData): Promise<void> {
-  const key = str(fd, "key");
-  if (!["maintenance_mode", "registration_lock"].includes(key)) back("flags", { ok: false, kode: "ACTION_INPUT_INVALID" });
-  const value = str(fd, "value") === "on";
-  const supabase = await supabaseServer();
-  const { error, count } = await supabase
-    .from("platform_config")
-    .update({ value, updated_at: new Date().toISOString() }, { count: "exact" })
-    .eq("key", key);
-  back("flags", error ? ditolak("platform_config update", error) : count ? { ok: true, kode: "PLATFORM_SETTING_SAVED" } : { ok: false, kode: "ACTION_UNCHANGED" });
-}
-
 /**
  * W8-02 — an institution assembles one of its own report templates.
  *

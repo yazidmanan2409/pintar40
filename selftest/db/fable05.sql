@@ -301,6 +301,7 @@ begin
 
   perform selftest.pass_mark(p_institution, p_course);   -- D-088(b): the school's mark before the class is given it
   perform selftest.as_user(p_admin_email);
+  perform selftest.as_release_writer();   -- D-093 T1: no client writes assignments; as assign_release does, with the person's claims
   select public.current_person_id() into v_person;
   insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id,
     academic_period_id, available_from, available_until, is_required, learning_cycle,
@@ -467,6 +468,7 @@ begin
   select n.academic_period_id into v_period from public.org_nodes n where n.id = p_node;
   perform selftest.pass_mark(p_institution, p_course);   -- D-088(b): the school's mark before the class is given it
   perform selftest.as_user(p_admin_email);
+  perform selftest.as_release_writer();   -- D-093 T1: no client writes assignments; as assign_release does, with the person's claims
   insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id,
     academic_period_id, available_from, available_until, is_required, learning_cycle,
     release_correction_policy, assigned_by_person_id, assigned_at)
