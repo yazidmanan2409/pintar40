@@ -1,3 +1,4 @@
 # Golden School: the reports, the certificate and its public check (GS-17 to GS-19)
-# 3 Oct, first walk
+# 3 Oct, first walk (stopped at import: SUPABASE_URL unset)
+# 3 Oct, second walk
 slug: gs-001

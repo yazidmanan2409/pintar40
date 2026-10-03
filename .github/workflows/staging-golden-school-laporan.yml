@@ -67,6 +67,8 @@ jobs:
           STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
           GS_MAILBOX_PASSWORD: ${{ secrets.GS_MAILBOX_PASSWORD }}
           OUT_DIR: ${{ github.workspace }}/out
+          # read by ../perf/lib.mjs at import (its server-made session is never used here, and no key is given)
+          SUPABASE_URL: https://${{ env.STAGING_SUPABASE_PROJECT_REF }}.supabase.co
         run: node golden-school-laporan.mjs
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}
