@@ -246,6 +246,7 @@ It changes nothing a screen does.
   - Run `37100337054` on `43f9b07` was red on one job, `red case · db-wp8-gates`: the gate's control still expected 8 green rows, and F08-P09 made 9 (it was green on the real Supabase stack, the `service_role` check included).
   - Fixed in `13d2df1`: control 8 → 9, plus four plants that turn F08-P09 red (wp8-11 a teacher's window write, wp8-12 a school admin's `is_synthetic` write, wp8-13 `service_role`'s posture write, wp8-14 a posture trigger that records nothing).
   - **Run `37100797372` on `13d2df1`: green, 33/33**, including the strict self-test contract on the real stack, the upgrade path from the previous schema, and 14/14 WP8 plants.
+- **Landed:** `main` `ac56678`. Staging migrated by run `37101563285` (147 migrations, equal to the repository). The migration's verification block ran on the hosted stack, where Supabase's real default grants apply. Vercel deployed. The Konfigurasi removal was verified by the build and the static tests, not walked in a browser.
 
 **Still open, as planned and not started:**
 - **T2, the writers.** Under O1: reasons for role revoke and structure deactivation, a from-state for certificate revoke, actor role in `summary`.
