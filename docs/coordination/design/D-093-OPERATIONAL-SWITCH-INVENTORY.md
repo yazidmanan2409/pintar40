@@ -289,6 +289,7 @@ It changes nothing a screen does.
   - R1 8/8 (r1-4: an intention audited; r1-5: a creation unrecorded).
   - BOB-01 24/24.
   - CI plant `rc5`, re-revocation, proved locally.
+- **CI:** run `37103569263` on `dda0cdd`, green 33/33: the strict self-test contract on the real stack, the upgrade path, and every red-case gate including WP8, R1, BOB-01 and FABLE-04's `rc5`.
 
 ## 10. D-093 status
 
