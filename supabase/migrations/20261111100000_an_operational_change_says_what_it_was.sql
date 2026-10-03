@@ -405,6 +405,40 @@ begin
 end $$;
 revoke all on function public.platform_config_audit() from public, anon, authenticated;
 
+-- ═══════════════════════════════════════════════════════════════ S16 / S18 the states T1 left to the owner
+-- After T1 no signed-in client writes a school's is_synthetic / is_active or a class's status. The database owner and
+-- the server's service key still can (no PINTAR path does); like the installation's posture (T1), such a change is
+-- recorded, from and to, with the database role that made it, and nothing is written when nothing changed.
+create function public.institutions_state_audit() returns trigger
+language plpgsql security definer set search_path = public, pg_temp as $$
+begin
+  if (old.is_synthetic, old.is_active) is distinct from (new.is_synthetic, new.is_active) then
+    perform public.audit_write('institution.state_changed', 'institutions', new.id::text, new.id,
+      jsonb_build_object('from', jsonb_build_object('is_synthetic', old.is_synthetic, 'is_active', old.is_active),
+                         'to', jsonb_build_object('is_synthetic', new.is_synthetic, 'is_active', new.is_active),
+                         'database_role', session_user));
+  end if;
+  return null;
+end $$;
+revoke all on function public.institutions_state_audit() from public, anon, authenticated, service_role;
+create trigger institutions_state_audit after update on public.institutions
+  for each row execute function public.institutions_state_audit();
+
+create function public.classes_status_audit() returns trigger
+language plpgsql security definer set search_path = public, pg_temp as $$
+begin
+  if old.status is distinct from new.status then
+    perform public.audit_write('class.status_changed', 'classes', new.node_id::text,
+      (select n.institution_id from public.org_nodes n where n.id = new.node_id),
+      jsonb_build_object('from', jsonb_build_object('status', old.status), 'to', jsonb_build_object('status', new.status),
+                         'database_role', session_user));
+  end if;
+  return null;
+end $$;
+revoke all on function public.classes_status_audit() from public, anon, authenticated, service_role;
+create trigger classes_status_audit after update on public.classes
+  for each row execute function public.classes_status_audit();
+
 -- ═══════════════════════════════════════════════════════════════ S3 / T3 account activation
 alter table public.account_activation_grants add column authorized_role text;
 comment on column public.account_activation_grants.authorized_role is

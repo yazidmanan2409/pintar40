@@ -988,6 +988,21 @@ begin
 
       -- 3. the inert switches: from and to, and nothing for a save that changes nothing
       perform selftest.as_owner();
+      -- (the states T1 left to the owner: a school's active flag and a class's status, recorded from and to)
+      select coalesce(max(audit_log.id), 0) into v_audit_before from public.audit_log;
+      update public.institutions set is_active = is_active where institutions.id = v_inst;
+      update public.institutions set is_active = false where institutions.id = v_inst;
+      insert into public.classes (node_id, subject) values (v_cls, 'F08 kelas') on conflict (node_id) do nothing;
+      update public.classes set status = 'ACTIVE' where node_id = v_cls and status = 'SCHEDULED';
+      select count(*) into n from public.audit_log a
+       where a.id > v_audit_before and a.action in ('institution.state_changed', 'class.status_changed')
+         and a.summary -> 'from' is not null and a.summary -> 'to' is not null and a.summary -> 'from' <> a.summary -> 'to'
+         and a.summary ->> 'database_role' is not null;
+      if n <> 2 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10',
+          format('a school''s active flag and a class''s status changed by the owner were recorded %s time(s), expected 2 with from and to', n));
+      end if;
+      update public.institutions set is_active = true where institutions.id = v_inst;
       select coalesce(max(audit_log.id), 0) into v_audit_before from public.audit_log;
       update public.platform_config set value = value where key = 'maintenance_mode';
       update public.platform_config set value = to_jsonb(not (value::text)::boolean) where key = 'maintenance_mode';
@@ -1105,7 +1120,8 @@ begin
             || 'reason and the role the administrator acted under (INSTITUTION_ADMIN); the assignment keeps why it '
             || 'was revoked; the deactivation names both places it closed (the Bagian and its hidden Reguler). The '
             || 'inert switches record from and to, and a save that changes nothing writes nothing (D-097). Every row '
-            || 'written while a person acts names their role, including from writers that do not name it (G1)', m_t2)
+            || 'written while a person acts names their role, including from writers that do not name it (G1). The '
+            || 'states T1 left to the owner -- a school''s active flag, a class''s status -- are recorded from and to', m_t2)
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;
