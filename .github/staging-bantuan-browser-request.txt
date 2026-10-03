@@ -1,0 +1,2 @@
+# The assistance check and the offline notice, in a real browser (owner, 3 Oct)
+# 3 Oct, first walk, staging on 18da25b
