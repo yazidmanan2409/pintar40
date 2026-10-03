@@ -1,2 +1,3 @@
 # The assistance check and the offline notice, in a real browser (owner, 3 Oct)
-# 3 Oct, first walk, staging on 18da25b
+# 3 Oct, first walk, staging on 18da25b (run 37094556110: 8 PASS; B5 red on the walk's counting window; B7 red: the held answer is not resent when the recovery check clears the notice)
+# 3 Oct, second walk: B5 counts from the answer; B7 records each recovery check's outcome in the page

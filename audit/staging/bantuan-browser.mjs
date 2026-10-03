@@ -107,9 +107,9 @@ const dalam = (a, b, f = () => true) => jejak.filter((e) => e.t >= a && e.t < b 
 // every recovery check the page itself starts, counted in the page (window.fetch, as the player calls it): a request the
 // browser refuses while offline may never reach the network log; the larger of the two counts is used
 const diHalaman = async () => (await page.evaluate(() => window.__periksa ?? []).catch(() => [])) || [];
-async function periksaDalam(a, b) {
-  const di = (await diHalaman()).filter((t) => t >= a && t < b).length;
-  return Math.max(di, dalam(a, b, probe).length);
+async function periksaDalam(a, b, f = () => true) {
+  const di = (await diHalaman()).filter((e) => e.t >= a && e.t < b && f(e)).length;
+  return Math.max(di, dalam(a, b, (e) => probe(e) && f(e)).length);
 }
 const bantuan = (e) => e.kind === "aksi" && e.jenis === "bantuan";
 const probe = (e) => e.kind === "probe";
@@ -158,8 +158,13 @@ await step("B1", "SETUP (not journey evidence): the learner's session made on th
     const asli = window.fetch.bind(window);
     window.fetch = (input, init) => {
       const url = typeof input === "string" ? input : input?.url ?? String(input);
-      if (url.includes(`${alamat}?periksa=`)) window.__periksa.push(Date.now());
-      return asli(input, init);
+      const p = asli(input, init);
+      if (url.includes(`${alamat}?periksa=`)) {
+        const e = { t: Date.now(), ok: null };
+        window.__periksa.push(e);
+        p.then((r) => { e.ok = r.ok; }, () => { e.ok = false; });
+      }
+      return p;
     };
   }, PROBE);
   await ctx.addCookies(sessionCookies(sess).map((c) => ({ ...c, expires: -1 })));
@@ -295,11 +300,11 @@ await step("B5", "question 3 left until the offer, then answered: one check afte
   await page.locator(OFFER).waitFor({ state: "visible", timeout: 60000 });
   const muncul = Date.now();
   await pilih();
-  await simpan();
   const jawab = Date.now();
+  await simpan();
   await tunggu(4000);
   const b = Date.now();
-  const sebelum = dalam(a, muncul, bantuan).length, sesudah = dalam(jawab - 500, b, bantuan).length;
+  const sebelum = dalam(a, muncul, bantuan).length, sesudah = dalam(jawab, b, bantuan).length;
   const masih = await ditawarkan();
   if (sebelum !== 1 || sesudah !== 1 || masih) rec.verdict = "FAIL";
   return `offer after ${s1(muncul - a)}; checks before it ${sebelum}, after the answer ${sesudah}; offer ${masih ? "still shown" : "gone"}`;
@@ -357,14 +362,15 @@ await step("B7", "question 5, PINTAR unreachable while the browser believes it i
   q5Tertahan = !terkirim;
   q5Ditawari = await ditawarkan();
   const cek = await periksaDalam(putus, sambung);
-  const sukses = dalam(sambung, hilang + 500, (e) => probe(e) && e.ok === true).length;
+  const sukses = await periksaDalam(sambung, hilang + 500, (e) => e.ok === true);
+  const catatan = (await diHalaman()).filter((e) => e.t >= putus - 1000).map((e) => `${s1(e.t - putus)}:${e.ok}`).join(" ");
   const setelah = await periksaDalam(hilang + 1000, akhir);
   if (!ada || !cek || !pulih || !sukses || setelah) rec.verdict = "FAIL";
   else if (!terkirim) rec.verdict = "NOTE";
   return `notice ${ada ? s1(muncul - putus) + " after the refused save" : "never shown"}; recovery checks while unreachable ${cek}; ` +
     `notice ${pulih ? `cleared ${s1(hilang - sambung)} after PINTAR answered again, on a successful check (${sukses})` : "still shown"}; checks in the 15 s after ${setelah}; ` +
     `the held answer ${terkirim ? `sent on its own, «Tersimpan» ${s1(terkirim - sambung)} after` : "not sent on recovery: no «Tersimpan» within 10 s (it is replayed at «Kumpulkan», B8)"}` +
-    `${q5Ditawari ? "; the server, not holding the answer, offered help on this question once its window passed" : ""}`;
+    `${q5Ditawari ? "; the server, not holding the answer, offered help on this question once its window passed" : ""}; checks (s after the refusal:ok) ${catatan}`;
 });
 
 await step("B8", "the rest answered and saved; «Kumpulkan»; the result page", async (rec) => {
