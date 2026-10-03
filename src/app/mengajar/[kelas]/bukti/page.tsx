@@ -7,7 +7,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { AngkaBerdiri, BarisKesiapan, BarisLingkup, KartuKetiadaan, KeadaanHariIni } from "@/components/bukti";
-import { nilaiMetrik } from "@/lib/nilai-metrik";
+import { nilaiMetrik, urutkanPita } from "@/lib/nilai-metrik";
 
 export const dynamic = "force-dynamic";
 
@@ -89,7 +89,7 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
 
   const sebaran =
     siap && siap.status === "ok" && siap.value && typeof siap.value === "object"
-      ? Object.entries(siap.value as Record<string, number>)
+      ? urutkanPita(Object.entries(siap.value as Record<string, number>)) // D-095: band order, not key order
       : [];
   const totalSiap = sebaran.reduce((n, [, c]) => n + Number(c), 0);
 
@@ -194,12 +194,13 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
           {siap && siap.status === "ok" && sebaran.length > 0 ? (
             <div className="pin-metric">
               <span className="pin-ml">{siap.label_key ? t(siap.label_key as HleEvent, "educator", { locale }) : ""}</span>
-              <span className="pin-ms">{s("mengajar.murid.sub")}</span>
               <div className="pin-readiness">
                 {sebaran.map(([tier, n]) => (
                   <BarisKesiapan key={tier} tierKey={tier} count={Number(n)} total={totalSiap} locale={locale} />
                 ))}
               </div>
+              {/* D-095: PINTAR's fixed bands, not the school's mastery threshold; they decide no certificate */}
+              <span className="pin-mm">{s("kesiapan.catatan")}</span>
               <span className="pin-ma">{actionText(siap, locale)}</span>
             </div>
           ) : siap ? (

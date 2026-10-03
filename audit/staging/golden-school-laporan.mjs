@@ -68,7 +68,9 @@ const PERSEN = new Intl.NumberFormat("id-ID", { style: "percent", maximumFractio
 const ANGKA = new Intl.NumberFormat("id-ID");
 const persen = (v) => PERSEN.format(v);
 const poin = (v) => { const p = Math.round(v * 100); return `${p > 0 ? "+" : ""}${ANGKA.format(p)} poin`; };
-const TIER = { siap: "Siap sertifikasi", review: "Perlu review", dampingi: "Butuh pendampingan ekstra" };
+// PINTAR's fixed performance bands (D-095, 3 Oct): band words in band order, never certificate readiness
+const TIER = { siap: "Mantap", review: "Berkembang", dampingi: "Perlu penguatan" };
+const PITA = "Sebaran hasil Uji Penguasaan";
 
 const results = [];
 let shotN = 0;
@@ -126,7 +128,7 @@ async function angka(scope) {
   }));
 }
 // one figure, by its label, must read as expected; returns a line for the log, or throws
-function harus(figs, label, { nilai, sampel, tingkat, kurang } = {}) {
+function harus(figs, label, { nilai, sampel, tingkat, kurang, pita } = {}) {
   const f = figs.find((x) => x.label === label);
   if (!f) throw new Error(`no «${label}» on the page (labels: ${figs.map((x) => x.label).filter(Boolean).join(", ") || "none"})`);
   const salah = [];
@@ -138,6 +140,15 @@ function harus(figs, label, { nilai, sampel, tingkat, kurang } = {}) {
     for (const [k, n] of Object.entries(ada)) if (!(k in tingkat) && n !== 0) salah.push(`unexpected «${k}» ${n}`);
   }
   if (kurang && !/Belum cukup data|Belum ada bukti/.test(f.teks)) salah.push(`expected withheld below its minimum, got «${f.teks.slice(0, 120)}»`);
+  if (pita) {
+    // D-095: the bands drawn in band order, with the line that they are PINTAR's fixed bands, not the school's threshold
+    const urut = f.baris.map(([k]) => k).filter((k) => Object.values(TIER).includes(k));
+    const harap = Object.values(TIER).filter((k) => urut.includes(k));
+    if (JSON.stringify(urut) !== JSON.stringify(harap)) salah.push(`bands drawn as ${urut.join(", ")}, not ${harap.join(", ")}`);
+    if (!/Pita tetap PINTAR/.test(f.teks) || !/Bukan batas ketuntasan sekolah/.test(f.teks) || !/tidak menentukan sertifikat/.test(f.teks))
+      salah.push(`no line saying these are PINTAR's fixed bands, not the school's threshold («${f.teks.slice(0, 160)}»)`);
+    if (/Siap sertifikasi|Perlu review|Butuh pendampingan ekstra|Nama diurutkan abjad/i.test(f.teks)) salah.push(`a retired word or the stray sentence: «${f.teks.slice(0, 160)}»`);
+  }
   if (salah.length) throw new Error(`«${label}»: ${salah.join("; ")}`);
   return `«${label}» ${kurang ? f.teks.match(/\(\d+\/\d+\)/)?.[0] ?? "withheld" : f.nilai || f.baris.map((b) => b.join(" ")).join(", ")}`;
 }
@@ -217,7 +228,7 @@ await step("L0", `read only: «${SLUG}», «${KELAS}», «${BAB}», and the figu
 const KELAS_ANGKA = () => ({
   paham: [`Pemahaman`, { nilai: persen(S.paham), sampel: S.nPost }],
   naik: [`Kenaikan`, { nilai: poin(S.naik), sampel: S.nKedua }],
-  siap: [`Sebaran kesiapan`, { tingkat: S.tingkat }],
+  siap: [PITA, { tingkat: S.tingkat, pita: true }],
 });
 
 // ── GS-17: the teacher
@@ -311,7 +322,7 @@ async function kelasDiPimpinan(p, nama) {
   out.push(harus(figs, "Peserta", { nilai: ANGKA.format(S.peserta) }));
   out.push(harus(figs, "Pemahaman", { nilai: persen(S.paham) }));
   out.push(harus(figs, "Kenaikan", { nilai: poin(S.naik) }));
-  out.push(harus(figs, "Sebaran kesiapan", { tingkat: S.tingkat }));
+  out.push(harus(figs, PITA, { tingkat: S.tingkat, pita: true }));
   return out;
 }
 
@@ -357,7 +368,7 @@ await step("L4", "GS-17 the school admin: signs in → Konfigurasi → «Laporan
   const kls = await angka(p.locator("main"));
   await shot(p, "l4-admin-kelas");
   out.push(`«${KELAS}» summary: ${[harus(kls, "Peserta", { nilai: ANGKA.format(S.peserta) }),
-    ...Object.values(KELAS_ANGKA()).map(([label, h]) => harus(kls, label, { nilai: h.nilai, tingkat: h.tingkat }))].join(", ")}`);
+    ...Object.values(KELAS_ANGKA()).map(([label, h]) => harus(kls, label, { nilai: h.nilai, tingkat: h.tingkat, pita: h.pita }))].join(", ")}`);
   out.push(await ditolak(p, "/pimpinan"));
   out.push(await tanpaAngka(p, `/edukator/ringkasan?kelas=${S.kelasLain}`));
   await p.context().close();

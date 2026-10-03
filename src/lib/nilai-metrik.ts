@@ -76,3 +76,28 @@ export function nilaiIsi(metricId: string | null | undefined, value: unknown, lo
 export function berstruktur(value: unknown): boolean {
   return value !== null && typeof value === "object";
 }
+
+/**
+ * D-095: PINTAR's fixed performance bands are drawn in band order (Mantap, Berkembang, Perlu penguatan, then the
+ * not-yet state), never in the order the database returned their keys (jsonb orders keys by length, which put
+ * «Berkembang» first on every GS-17 surface). A key that is not a band keeps its place after the bands. The bands'
+ * thresholds live in the metric catalogue, never here.
+ */
+export const URUTAN_PITA: readonly string[] = [
+  "kesiapan.siap_sertifikasi",
+  "kesiapan.perlu_review",
+  "kesiapan.butuh_pendampingan",
+  "kesiapan.belum_post_test",
+];
+
+/** A copy of the rows in band order; the argument is not reordered. */
+export function urutkanPita<T>(baris: ReadonlyArray<readonly [string, T]>): [string, T][] {
+  const posisi = (k: string) => {
+    const i = URUTAN_PITA.indexOf(k);
+    return i < 0 ? URUTAN_PITA.length : i;
+  };
+  return baris
+    .map((b, i) => ({ b, i }))
+    .sort((x, y) => posisi(x.b[0]) - posisi(y.b[0]) || x.i - y.i)
+    .map(({ b }) => [b[0], b[1]]);
+}

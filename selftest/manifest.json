@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 168,
+  "version": 169,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2787,6 +2787,11 @@
       "id": "EFF-K02",
       "runner": "static",
       "proves": "whole-system efficiency audit (2 Oct): reads the source of the Konfigurasi route (src/app/konfigurasi/page.tsx): a school administrator's enrolments and audit trail are read for the schools they administer, named, so the database reads the (institution_id, ...) indexes instead of checking the policy on every row of every school; the platform administrator's reads are unchanged; each table is read once"
+    },
+    {
+      "id": "PITA-K01",
+      "runner": "static",
+      "proves": "owner ruling on the performance bands (3 Oct, D-095): PINTAR's fixed 60/80 bands are an independent performance distribution, not the school's mastery threshold; the band words read «Mantap», «Berkembang», «Perlu penguatan» and «Belum mengerjakan Uji Penguasaan» for every staff reader and claim no pass, target or certificate; one short line wherever the bands are drawn says they are PINTAR's fixed bands, not the school's threshold, and decide no certificate; the action sentence names its bands while the safety-gate figure keeps its own; executes urutkanPita (src/lib/nilai-metrik.ts): band order, not key order; reads «Lihat bukti» and NilaiLaporan: in order, with the line, and no «Nama diurutkan abjad» under the bands; no threshold in the presentation code"
     }
   ]
 }

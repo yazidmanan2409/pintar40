@@ -59,7 +59,7 @@ export type HleEvent =
   | "metrik.posisi.label" | "metrik.posisi.arti"
   | "metrik.hasil_murid.label" | "metrik.hasil_murid.arti"
   | "kesiapan.belum_post_test" | "kesiapan.butuh_pendampingan"
-  | "kesiapan.perlu_review" | "kesiapan.siap_sertifikasi"
+  | "kesiapan.perlu_review" | "kesiapan.siap_sertifikasi" | "kesiapan.catatan"
   | "kesehatan.judul" | "kesehatan.diamati" | "kesehatan.ditandai"
   | "kesehatan.belum_cukup" | "kesehatan.belum_diperiksa"
   | "kesehatan.catatan_paparan" | "kesehatan.belum_dikalibrasi"
@@ -105,7 +105,7 @@ export type HleEvent =
   | "pimpinan.rincian.riwayat" | "pimpinan.rincian.sampai"
   | "pimpinan.rincian.alasan.MOVED" | "pimpinan.rincian.alasan.PERIOD_ROLLOVER" | "pimpinan.rincian.alasan.ENROLLMENT_ENDED"
   | "pimpinan.rincian.catatan" | "pimpinan.rincian.belum" | "pimpinan.rincian.penguasaan"
-  | "tindakan.ulangi" | "tindakan.fokus" | "tindakan.lanjut" | "tindakan.tunggu"
+  | "tindakan.ulangi" | "tindakan.fokus" | "tindakan.fokus_pita" | "tindakan.lanjut" | "tindakan.tunggu"
   | "verifikasi.judul"
   | "verifikasi.status"
   | "verifikasi.hasil"
@@ -1593,8 +1593,9 @@ const table: Table = {
   "metrik.pemahaman.arti": { default: "Rata-rata penguasaan kelas pada penilaian akhir.", en: "The class's average mastery on the Mastery Check." },
   "metrik.kenaikan.label": { default: "Kenaikan", en: "Gain" },
   "metrik.kenaikan.arti": { default: "Selisih penguasaan sebelum dan sesudah pembelajaran, per murid.", en: "The difference in mastery before and after the lessons, per student." },
-  "metrik.kesiapan.label": { default: "Sebaran kesiapan", en: "Readiness distribution" },
-  "metrik.kesiapan.arti": { default: "Banyaknya murid pada tiap tingkat kesiapan.", en: "How many students sit at each readiness tier." },
+  // D-095: PINTAR's fixed performance bands, an independent distribution, not the school's mastery threshold
+  "metrik.kesiapan.label": { default: "Sebaran hasil Uji Penguasaan", en: "Spread of Mastery Check results" },
+  "metrik.kesiapan.arti": { default: "Banyaknya murid pada tiap pita hasil, menurut Uji Penguasaan terakhir mereka.", en: "How many students sit in each result band, by their latest Mastery Check." },
   "metrik.topik.label": { default: "Penguasaan per topik", en: "Mastery by topic" },
   "metrik.topik.arti": { default: "Rata-rata penguasaan kelas pada tiap topik.", en: "The class's average mastery on each topic." },
   // "Salah" is an INTERNAL_WORD -- the HLE refused this label's first
@@ -1624,10 +1625,13 @@ const table: Table = {
   "metrik.hasil_murid.label": { default: "Hasil murid", en: "Student results" },
   "metrik.hasil_murid.arti": { default: "Penguasaan murid ini pada tiap penilaian.", en: "This student's mastery on each assessment." },
 
-  "kesiapan.belum_post_test": { default: "Belum mengerjakan penilaian akhir", en: "Mastery Check not yet taken" },
-  "kesiapan.butuh_pendampingan": { default: "Butuh pendampingan ekstra", en: "Needs extra support" },
-  "kesiapan.perlu_review": { default: "Perlu review", en: "Needs review" },
-  "kesiapan.siap_sertifikasi": { default: "Siap sertifikasi", en: "Ready for certification" },
+  // D-095: the band words describe a level and claim no pass, target or certificate (the keys are unchanged;
+  // «Siap sertifikasi» is retired). Daisy may finalise the words in context.
+  "kesiapan.belum_post_test": { default: "Belum mengerjakan Uji Penguasaan", en: "Mastery Check not yet taken" },
+  "kesiapan.butuh_pendampingan": { default: "Perlu penguatan", en: "Needs strengthening" },
+  "kesiapan.perlu_review": { default: "Berkembang", en: "Developing" },
+  "kesiapan.siap_sertifikasi": { default: "Mantap", en: "Strong" },
+  "kesiapan.catatan": { default: "Pita tetap PINTAR: 80% ke atas, 60–79%, dan di bawah 60% atau soal wajib belum tepat. Bukan batas ketuntasan sekolah dan tidak menentukan sertifikat.", en: "PINTAR's fixed bands: 80% and above, 60–79%, and below 60% or a required item not yet right. Not the school's mastery threshold, and they do not decide certificates." },
 
   "kesehatan.judul": { default: "Butir yang perlu dilihat", en: "Items worth a look" },
   "kesehatan.diamati": { default: "Sedang diamati", en: "Being watched" },
@@ -1926,6 +1930,7 @@ const table: Table = {
 
   "tindakan.ulangi": { default: "Ulangi topik ini bersama-sama sebelum lanjut.", en: "Go over this topic together before moving on." },
   "tindakan.fokus": { default: "Fokuskan waktu tambahan pada murid di dua tingkat kesiapan terbawah.", en: "Focus extra time on students in the two lowest readiness tiers." },
+  "tindakan.fokus_pita": { default: "Fokuskan waktu tambahan pada murid di pita Berkembang dan Perlu penguatan.", en: "Focus extra time on students in the Developing and Needs strengthening bands." },
   "tindakan.lanjut": { default: "Tidak perlu diulang — lanjutkan ke materi berikutnya.", en: "No need to reteach — move on to the next topic." },
   "tindakan.tunggu": { default: "Tunggu sampai lebih banyak murid mengerjakan sebelum menyimpulkan.", en: "Wait until more students have taken it before drawing conclusions." },
 

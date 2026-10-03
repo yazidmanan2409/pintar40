@@ -1,5 +1,5 @@
 import { format, t, type HleEvent, type Locale } from "@/lib/hle";
-import { nilaiIsi, nilaiMetrik } from "@/lib/nilai-metrik";
+import { nilaiIsi, nilaiMetrik, urutkanPita } from "@/lib/nilai-metrik";
 import type { Envelope } from "./types";
 
 /**
@@ -61,9 +61,13 @@ export default function NilaiLaporan({ entry, locale, tempat = {} }: {
   }
 
   if (v !== null && typeof v === "object") {
+    // D-095: PINTAR's fixed performance bands in band order, with the line that says what they are not
+    const baris = urutkanPita(Object.entries(v as Record<string, unknown>));
+    const pita = baris.some(([k]) => k.startsWith("kesiapan."));
     return (
+      <>
       <dl className="pin-lap-isi">
-        {Object.entries(v as Record<string, unknown>).map(([k, n]) => (
+        {baris.map(([k, n]) => (
           <div key={k}>
             {/* tier keys are copy keys; the readiness enum never renders */}
             <dt>{k.startsWith("kesiapan.") ? s(k) : k}</dt>
@@ -71,6 +75,8 @@ export default function NilaiLaporan({ entry, locale, tempat = {} }: {
           </div>
         ))}
       </dl>
+      {pita ? <p className="pin-meta">{s("kesiapan.catatan")}</p> : null}
+      </>
     );
   }
 
