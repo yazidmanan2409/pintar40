@@ -25,6 +25,8 @@
 -- The actor's role comes from one helper, audit_actor_role(institution): SYSTEM_ADMIN for an active platform admin,
 -- otherwise the highest active role the person holds in that institution, null with no person (the database owner,
 -- or Auth). Every writer here is gated on SYSTEM_ADMIN or INSTITUTION_ADMIN, so that is the role that answered.
+-- G1 (no row recorded the actor's role) is closed in audit_write itself: every row written while a person acts now
+-- carries it, so the writers the inventory classed A gain it without being rewritten.
 
 create function public.audit_actor_role(p_institution uuid) returns text
 language plpgsql stable security definer set search_path = public, pg_temp as $$
@@ -41,6 +43,58 @@ begin
   return v_role;
 end $$;
 revoke all on function public.audit_actor_role(uuid) from public, anon, authenticated, service_role;
+
+-- G1 of the inventory, closed where every row is written: the one writer adds the actor's role to any summary that
+-- does not already name it, whenever a person is acting. A writer that knows better (the Auth trigger, which acts for
+-- the administrator who authorized it) names it itself and is left alone. No column is added: the summary holds it.
+-- The rest is 20260917120000's body, unchanged, so the dual-identity assertions still hold over it.
+create or replace function public.audit_write(p_action text, p_target_table text, p_target_id text,
+                                              p_institution_id uuid, p_summary jsonb default '{}'::jsonb)
+returns bigint
+language plpgsql security definer set search_path = public, pg_temp as $function$
+declare v_id bigint; v_person uuid; v_sha text;
+        v_eval_actor uuid; v_eval_session uuid;
+        v_summary jsonb := coalesce(p_summary, '{}'::jsonb); v_role text;
+begin
+  begin
+    select a.person_id into v_person from public.accounts a where a.auth_user_id = auth.uid();
+  exception when undefined_table then v_person := null; end;
+
+  -- ADDED IN 0067. The second identity, derived here and nowhere else.
+  -- `ended_at is null` alone, and deliberately NOT the session's expiry -- see
+  -- that migration's header: an expired-but-unended session must still be
+  -- recorded, or expiry becomes a laundering window that opens on a timer.
+  begin
+    select s.evaluator_person_id, s.id into v_eval_actor, v_eval_session
+      from public.evaluation_sessions s
+     where s.persona_auth_user_id = auth.uid() and s.ended_at is null
+     order by s.started_at desc
+     limit 1;
+  exception when undefined_table then v_eval_actor := null; v_eval_session := null; end;
+
+  -- ADDED BY D-093 T2: the role the acting person holds, unless the writer named it
+  if v_person is not null and not (v_summary ? 'actor_role') then
+    v_role := public.audit_actor_role(p_institution_id);
+    if v_role is not null then v_summary := v_summary || jsonb_build_object('actor_role', v_role); end if;
+  end if;
+
+  v_sha := nullif(current_setting('app.build_sha', true), '');
+  if v_sha is null then
+    begin
+      v_sha := nullif(current_setting('request.headers', true), '')::jsonb ->> 'x-pintar-build';
+    exception when others then v_sha := null; end;
+  end if;
+  if v_sha !~ '^[0-9a-f]{7,40}$' then v_sha := null; end if;
+
+  insert into public.audit_log (actor_auth_uid, actor_person_id, action, target_table, target_id,
+                                institution_id, summary, build_sha,
+                                evaluation_actor_person_id, evaluation_session_id)
+  values (auth.uid(), v_person, p_action, p_target_table, p_target_id, p_institution_id,
+          v_summary, v_sha, v_eval_actor, v_eval_session)
+  returning id into v_id;
+  return v_id;
+end $function$;
+revoke all on function public.audit_write(text, text, text, uuid, jsonb) from public, anon, authenticated;
 
 -- ═══════════════════════════════════════════════════════════════ S2 role revoke
 alter table public.role_assignments add column revoked_reason text;
@@ -528,6 +582,10 @@ begin
   if pg_get_functiondef('public.authorize_account_activation(uuid,text,text,text)'::regprocedure) ~ 'audit_write'
      or pg_get_functiondef('public.authorize_new_person(text,text)'::regprocedure) ~ 'audit_write' then
     raise exception 'D-093 T3: an authorization still writes an audit row before any account exists';
+  end if;
+  if pg_get_functiondef('public.audit_write(text, text, text, uuid, jsonb)'::regprocedure) !~ 'audit_actor_role'
+     or pg_get_functiondef('public.audit_write(text, text, text, uuid, jsonb)'::regprocedure) !~ 'evaluation_sessions' then
+    raise exception 'D-093 T2: audit_write lost the actor''s role or the evaluation stamp';
   end if;
   if pg_get_functiondef('public.handle_new_auth_user()'::regprocedure) !~ 'account\.activated' then
     raise exception 'D-093 T3: the account''s creation is not audited where it happens';

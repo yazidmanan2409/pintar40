@@ -1630,7 +1630,7 @@
     {
       "id": "F08-P10",
       "runner": "db",
-      "proves": "D-093 T2 (D-097): an operational change says what it was. A role revocation and a structure deactivation are refused without a reason; given one, each is on the record once with its previous and new state, the reason and the role the administrator acted under; the assignment keeps why it was revoked; the deactivation names every place it closed; a revoked role is not revoked twice. The inert platform and feature-flag switches record from and to, and a save that changes nothing writes nothing. Red on the writers before migration 20261111100000 (plants wp8-15..17)."
+      "proves": "D-093 T2 (D-097): an operational change says what it was. A role revocation and a structure deactivation are refused without a reason; given one, each is on the record once with its previous and new state, the reason and the role the administrator acted under; the assignment keeps why it was revoked; the deactivation names every place it closed; a revoked role is not revoked twice. The inert platform and feature-flag switches record from and to, and a save that changes nothing writes nothing. Every audit row written while a person acts names their role, also from writers that do not name it themselves (G1, closed in audit_write). Red on the writers before migration 20261111100000 (plants wp8-15..18)."
     },
     {
       "id": "F09-R01",

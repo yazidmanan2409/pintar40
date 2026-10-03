@@ -282,6 +282,7 @@
     { "name": "wp8-15", "gate": "db-wp8-gates", "expect_red": "F08-P10", "expect_detail": "the revocation's record lacks its reason" },
     { "name": "wp8-16", "gate": "db-wp8-gates", "expect_red": "F08-P10", "expect_detail": "a place was deactivated without a reason" },
     { "name": "wp8-17", "gate": "db-wp8-gates", "expect_red": "F08-P10", "expect_detail": "a feature flag's three saves (one unchanged) wrote 3 row(s)" },
+    { "name": "wp8-18", "gate": "db-wp8-gates", "expect_red": "F08-P10", "expect_detail": "does not name their role (G1)" },
     { "name": "r1-4", "gate": "db-r1-gates", "expect_red": "F09-A02", "expect_detail": "say an account was activated before any account existed" },
     { "name": "r1-5", "gate": "db-r1-gates", "expect_red": "F09-A02", "expect_detail": "0 record(s) of the account's creation" },
     {

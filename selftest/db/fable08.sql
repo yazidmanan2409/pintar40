@@ -968,6 +968,13 @@ begin
       end;
       execute format('select public.deactivate_school_node(%L::uuid, %L)', v_b_tutup, 'digabung dengan Bagian lain');
       perform selftest.as_owner();
+      -- G1, closed in audit_write: a row whose writer names no role still names the acting administrator's
+      select a.summary into v_sum from public.audit_log a
+       where a.action = 'structure.bagian_created' and a.target_id = v_b_tutup::text order by a.id desc limit 1;
+      if v_sum ->> 'actor_role' is distinct from 'INSTITUTION_ADMIN' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10',
+          'a row written by the school administrator does not name their role (G1): ' || left(coalesce(v_sum::text, 'none'), 120));
+      end if;
       select a.summary into v_sum from public.audit_log a
        where a.action = 'structure.deactivated' and a.target_id = v_b_tutup::text order by a.id desc limit 1;
       if v_sum ->> 'reason' is distinct from 'digabung dengan Bagian lain'
@@ -1097,7 +1104,8 @@ begin
             || 'the same role. Given a reason, each is on the record once with what it changed from and to, the '
             || 'reason and the role the administrator acted under (INSTITUTION_ADMIN); the assignment keeps why it '
             || 'was revoked; the deactivation names both places it closed (the Bagian and its hidden Reguler). The '
-            || 'inert switches record from and to, and a save that changes nothing writes nothing (D-097)', m_t2)
+            || 'inert switches record from and to, and a save that changes nothing writes nothing (D-097). Every row '
+            || 'written while a person acts names their role, including from writers that do not name it (G1)', m_t2)
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;
