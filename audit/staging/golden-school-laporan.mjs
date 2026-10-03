@@ -232,15 +232,16 @@ await step("L1", "GS-17 the teacher: signs in → Mengajar → «Kelas 5A» → 
   await baris.waitFor({ timeout: SLOW });
   out.push(`Mengajar lists «${norm(await baris.innerText()).slice(0, 60)}»`);
   await klikTautan(guru, `/mengajar/${S.kelas}`);
-  const fakta = norm(await guru.locator("main").innerText());
-  const terdaftar = fakta.match(/Murid terdaftar\s*(\d+)/)?.[1];
+  // the text as written (textContent): innerText returns labels the stylesheet sets in capitals (.pin-facts dt)
+  const fakta = norm(await guru.locator("main").textContent());
+  const terdaftar = fakta.match(/Murid terdaftar\s*(\d+)/i)?.[1];
   if (Number(terdaftar) !== S.peserta) throw new Error(`«Murid terdaftar» ${terdaftar}, expected ${S.peserta}`);
   await guru.getByRole("link", { name: "Lihat bukti" }).click();
   await guru.waitForURL((u) => u.pathname === `/mengajar/${S.kelas}/bukti`, { timeout: SLOW });
   await guru.waitForLoadState("networkidle");
   await shot(guru, "l1-guru-bukti");
-  const isi = norm(await guru.locator("main").innerText());
-  const kumpul = [...isi.matchAll(/Mengumpulkan\s*(\d+)\s*\/\s*(\d+)/g)].map((m) => `${m[1]}/${m[2]}`);
+  const isi = norm(await guru.locator("main").textContent());
+  const kumpul = [...isi.matchAll(/Mengumpulkan\s*(\d+)\s*\/\s*(\d+)/gi)].map((m) => `${m[1]}/${m[2]}`);
   if (!kumpul.length || kumpul.some((k) => k !== `${S.peserta}/${S.peserta}`)) throw new Error(`«Mengumpulkan» ${kumpul.join(", ") || "absent"}, expected ${S.peserta}/${S.peserta} for each test`);
   out.push(`«Keadaan hari ini» Mengumpulkan ${kumpul.join(", ")}`);
   const figs = await angka(guru.locator("main"));
@@ -418,12 +419,14 @@ await step("V1", "GS-19 an anonymous visitor opens each issued certificate's ver
     const path = `/verifikasi/${encodeURIComponent(s.token)}`;
     const resp = await p.goto(`${APP}${path}`, { timeout: SLOW, waitUntil: "networkidle" });
     const di = new URL(p.url()).pathname;
-    const teks = norm(await p.locator("main").innerText());
+    // as written (textContent): the facts' labels are set in capitals by the stylesheet
+    const teks = norm(await p.locator("main").textContent());
     const pemilik = MURID.find((n) => teks.includes(n));
-    const ok = di === path && /Verifikasi Sertifikat/.test(teks) && /Berlaku/.test(teks) && /Sertifikat ini benar diterbitkan dan masih berlaku\./.test(teks) &&
-      /Memenuhi capaian/.test(teks) && teks.includes(S.nama) && /Tanggal terbit/.test(teks) && !pemilik;
+    const ok = di === path && /Verifikasi Sertifikat/i.test(teks) && /Berlaku/.test(teks) && /Sertifikat ini benar diterbitkan dan masih berlaku\./.test(teks) &&
+      /Memenuhi capaian/.test(teks) && teks.includes(S.nama) && /Tanggal terbit/i.test(teks) && /Diterbitkan oleh/i.test(teks) && !pemilik;
     if (!ok) { rec.verdict = "FAIL"; await shot(p, `v1-${s.nomor.slice(-5)}`); }
-    out.push(`${s.nomor}: HTTP ${resp?.status()} ${ok ? "«Berlaku», «Memenuhi capaian», issued by the school, dated" : `MISMATCH (at ${di}; ${teks.slice(0, 140)})`}${pemilik ? `; shows the holder's name ${pemilik}` : ""}`);
+    const tanggal = teks.match(/Tanggal terbit\s*([0-9]{1,2} [A-Za-z]+ [0-9]{4})/i)?.[1];
+    out.push(`${s.nomor}: HTTP ${resp?.status()} ${ok ? `«Berlaku», «Memenuhi capaian», «${S.nama}», ${tanggal ?? "dated"}` : `MISMATCH (at ${di}; ${teks.slice(0, 400)})`}${pemilik ? `; shows the holder's name ${pemilik}` : ""}`);
     if (s === SERT[0]) await shot(p, "v1-berlaku");
     await p.close();
   }
