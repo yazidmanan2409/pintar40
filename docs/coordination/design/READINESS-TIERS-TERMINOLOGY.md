@@ -101,3 +101,47 @@
 | T4 | Review F5 confirmed: `requires_safety_gate` is never read (the gate applies to every band, matching the catalogue's own comment), and `belum_post_test` is never emitted. | Bob (MC-4 when it is fixed) |
 | T5 | A tier is the learner's latest Uji Penguasaan **in any chapter**. Any new wording must not suggest the current chapter. | Words (R1) |
 | T6 | The spec's column heading "certifies" for `requires_safety_gate` (`CORE-DB-BACKEND-SPEC.md:5928`). | Coordinator (doc) |
+
+## 6. 3 Oct: the owner's ruling on pass mark and readiness semantics, answered (read-only; nothing implemented)
+
+**The trigger (GS-17, run 37090112107).** On gs-001 Bunga scored 75% against the school's sealed 70%, met the target and holds certificate PINTAR/GS-001/2026/00002. Every staff surface counts her «Perlu review». The same report reads «Siap sertifikasi» 2 beside «Sertifikat terbit» 3.
+
+**The ruling's first question: what were the 60% / 80% bands canonically meant to represent?**
+- **Their source is PINTAR 3.0's educator dashboard, not a 4.0 decision.** The 28 Aug comprehensive hand-off (§2, Educator) lists «readiness distribution (Siap Sertifikasi / Perlu Review / Butuh Pendampingan Ekstra)» inside the Class Learning Intelligence briefing, beside the «do not reteach» and «focus» topic lists and a timed lesson plan. It gives no thresholds.
+- **The numbers were added during the rebuild.** The FABLE prompt cross-check (`docs/rebuild/14`, line 80) found no FABLE prompt defined them, took them from the old hand-off and the uploaded Master Context, and amended FABLE-06 to state them. FABLE-06 then froze them as catalogue values (MC-1, 18 Sep, `20260918100000:101-108`: «The frozen scope states them as …»).
+- **No decision ever approved 0.60 / 0.80** (semantic review, F9). No canonical text defines the tiers against a pass mark.
+- **In 4.0 a certificate never issued at 80%.** Eligibility has always been the passing rule (FABLE-04, `certificate_eligibility`), and since D-081 / D-086(b) it is the school's sealed mark, «no second definition of mastery». No code links a tier to a certificate (§1).
+- **The tiers' only behaviour is teaching triage.** The one sentence they drive is «Fokuskan waktu tambahan pada murid di dua tingkat kesiapan terbawah.» (§2).
+- **Answer.** The bands were meant as a teaching-triage spread of results. Their top tier carries a certification assumption brought over from PINTAR 3.0. That assumption was never backed by a 4.0 rule, and D-081 rules it out. So the bands are an **independent performance distribution** (the ruling's second branch). D-082(e) already points this way: the thresholds do not change, and «Siap sertifikasi» is no longer valid wording. Re-basing the bands on the school's target (the first branch) would build a different metric: «met the target», which is already shown per student.
+
+**The smallest correct correction (text, plus two display fixes; no threshold, key, catalogue, migration or engine change):**
+1. **Tier words that describe a level and claim no pass or certificate** (R1, R2):
+   - «Mantap»: 80% and above, with the safety gate passed;
+   - «Berkembang»: 60–79%;
+   - «Perlu penguatan»: below 60%, or a required item missed;
+   - «Belum mengerjakan Uji Penguasaan».
+   «Siap sertifikasi» is retired, because no fixed band can match certificate readiness when the mark is the school's.
+2. **The metric's name and meaning sentence say what it is** (R3). An example for Daisy to word: «Sebaran hasil Uji Penguasaan» / «Banyaknya murid menurut hasil Uji Penguasaan terakhir mereka, pada pita tetap PINTAR. Ini bukan batas ketuntasan sekolah dan tidak menentukan sertifikat.»
+3. **The action sentence names the tiers it means** (R4).
+4. **Display defects with a settled answer:**
+   - **T2:** the tiers are drawn in their catalogue order, not jsonb key order. GS-17 saw «Perlu review», «Siap sertifikasi», «Butuh pendampingan ekstra» on every surface.
+   - **T3:** the misplaced «Nama diurutkan abjad; tidak ada peringkat.» line under the block is removed.
+
+**Why this is the smallest change:**
+- The labels are `hle` text and the catalogue stores keys (R5), so there is no MC-4 under D-060.
+- Tests compare through `t()`, so DAISY-25-TEKS-01, F06-P23 and UX1-BRAND-02 stay green.
+- The only literal copy of the words is the GS-17 walk (`audit/staging/golden-school-laporan.mjs`), updated with the change.
+- Learners never see tiers.
+
+**Pass status is kept separate, where it already lives:**
+- against the school's sealed mark: the learner's result page, the teacher's «Hasil resmi» per student («target 70%», «di bawah target»), the certificate and «Sertifikat terbit»;
+- a fixed spread: this distribution.
+
+**Not included, for the owner if wanted:**
+- **A class figure «Memenuhi target sekolah: k dari n», from the sealed marks.** It is a new metric (MC-4, a calculator, a catalogue row), not a correction.
+- **T4 / F5:** the calculator never reads `requires_safety_gate` and never emits «belum mengerjakan». That changes a calculation, so it publishes MC-4.
+- **The predikat bands on the certificate** (the semantic review's Alternatives 1–3). They are a separate open question; this correction does not touch them.
+
+**Ownership:**
+- the final words: Daisy, under Terminology v1, in context;
+- the build: one small ticket (text plus T2 and T3), walked again with GS-17.
