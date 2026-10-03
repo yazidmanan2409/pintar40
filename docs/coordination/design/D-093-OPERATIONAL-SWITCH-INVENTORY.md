@@ -252,3 +252,59 @@ It changes nothing a screen does.
 - **T2, the writers.** Under O1: reasons for role revoke and structure deactivation, a from-state for certificate revoke, actor role in `summary`.
 - **T3, activation outcome.**
 - The three follow-ups in §3 are recorded separately (JOURNEY-LOG items 19–21).
+
+---
+
+## 9. T2 + T3 done (3 Oct): the closure
+
+**Migration `20261111100000_an_operational_change_says_what_it_was.sql`** (commits `37b2105`, `dc838fa`, `dda0cdd`). No `audit_log` change: the summary holds everything below.
+
+| # | Before | Now |
+|---|---|---|
+| S2 role revoke | no reason; new state only | `revoke_role(p_assignment, p_reason)`: reason required (D-097(a)), kept on the row (`role_assignments.revoked_reason`, written once with the revocation, guarded) and in the audit with from/to state (ACTIVE or EXPIRED → REVOKED). A revoked role is not revoked twice. Grants record the actor's role too (no reason: routine positive). |
+| S7 structure deactivation | no reason; descendants not named | `deactivate_school_node(p_node, p_reason)`: reason required (`STRUCTURE_REASON_REQUIRED`). The audit records from/to and names every place closed (a Bagian and its hidden Reguler). |
+| S15 certificate revoke | a second revoke overwrote date and reason | A second revocation is refused (`CERTIFICATE_ALREADY_REVOKED`). The certificate guard keeps a revocation's time and reason as first recorded, whatever the path. The audit records from/to status, reason and actor role. |
+| S5/S6 inert switches | new value only; no-op saves logged | From/to recorded; a save that changes nothing writes nothing. No reason: nothing in PINTAR writes them any more (D-097(c)). |
+| S3 activation (T3) | `account.activation_authorized` written at authorization, before any account existed | Authorization writes only the grant, with `authorized_role`. `handle_new_auth_user` writes `account.activated` in Auth's own transaction once the account exists, so a failed creation leaves no row. The row names the person (also for a new person), the kind, the card number, the authorizer, their role, when they authorized it, and outcome `ACCOUNT_CREATED`. |
+| G1 actor role | recorded nowhere | `audit_write` adds `actor_role` to any summary that does not name it, whenever a person acts. This covers every writer, including those classed A, without rewriting them. Helper `audit_actor_role(institution)`: SYSTEM_ADMIN, else the highest active role in that institution. It is revoked from every client role. |
+| S16/S18 after T1 | owner-only changes unrecorded | A school's `is_synthetic` / `is_active` and a class's `status`, which only the database owner (or an unused service key) can now change, are recorded from/to with the database role, like the posture in T1. |
+
+**UI.** Konfigurasi «Cabut» and the «Nonaktifkan» question both ask for «Alasan». New codes `ROLE_REASON_REQUIRED` and `STRUCTURE_REASON_REQUIRED` have their own sentences. The journey harness fills the reason in S24, S26 and S26b.
+
+**Gate 3.** The held branch redefines none of these functions, and no Gate 3 functionality was brought onto main.
+
+**Evidence.**
+- **Red on the pre-T2 writers** (local, the 147-migration database):
+  - **F04-T10:** a second revocation was accepted and overwrote the first; an in-place rewrite was accepted; the record had no from/to.
+  - **F09-A02:** an `account.*` row existed before any account; no `account.activated` row, for either path.
+  - **F08-P10:** no revoke path took a reason.
+- **Green after:** a clean replay of 148 migrations plus seeds; the full manifest, 460 passed. The 7 failing rows are app-route tests that need a running Next.js server, unchanged from the baseline.
+- **Plants:**
+  - WP8 19/19, including:
+    - wp8-15: a revocation without its reason;
+    - wp8-16: a deactivation without a reason;
+    - wp8-17: a flag no-op recorded;
+    - wp8-18: no actor role;
+    - wp8-19: an unrecorded owner change.
+  - R1 8/8 (r1-4: an intention audited; r1-5: a creation unrecorded).
+  - BOB-01 24/24.
+  - CI plant `rc5`, re-revocation, proved locally.
+
+## 10. D-093 status
+
+**Every row of §2 now satisfies D-093.**
+- **G1:** closed in `audit_write`.
+- **G2:** closed by T1.
+- **G3:** from/to recorded everywhere.
+- **G4:** reasons where D-097(a) requires them.
+- **G5:** activation outcome closed by T3; refused attempts are out of scope by O2.
+- **G6:** inert controls removed by O3.
+
+**Carried forward (requirements, not D-093 blockers on main):**
+- **Gate 3 (held):** card re-issue and revoke must meet D-093 when it lands (§5): actor and role, old and new card, reason (D-088(e)), outcome, old credential row kept.
+- **#148:** builds maintenance as append-only events under D-093 (§5).
+
+**Observations, not D-093 gaps:**
+- The Konfigurasi audit reader shows neither actor nor summary.
+- The class of a card batch is not in the activation row; the learner's placement holds it.
+- Items 19–21 (transfer rejection reason, report-template history, Studio content steps) are separate follow-ups.
