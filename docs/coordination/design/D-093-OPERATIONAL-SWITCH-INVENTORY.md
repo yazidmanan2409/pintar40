@@ -290,6 +290,7 @@ It changes nothing a screen does.
   - BOB-01 24/24.
   - CI plant `rc5`, re-revocation, proved locally.
 - **CI:** run `37103569263` on `dda0cdd`, green 33/33: the strict self-test contract on the real stack, the upgrade path, and every red-case gate including WP8, R1, BOB-01 and FABLE-04's `rc5`.
+- **Landed:** `main` `fd22772`. Staging migrated by run `37104300486` (148 migrations; the verification block ran on the hosted stack). Vercel deployed. The «Alasan» fields were verified by the build, the static tests and the journey-harness source, not walked in a browser.
 
 ## 10. D-093 status
 
