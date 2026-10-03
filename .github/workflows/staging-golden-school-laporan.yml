@@ -1,0 +1,76 @@
+# STAGING ONLY. The Golden School after its students (docs/recovery/GOLDEN-SCHOOL-CONTRACT.md §5): GS-17 (the
+# teacher, the head of department, the dean and the school admin read their reports, each signed in by the real email
+# link; every figure compared with the raw official results; each role's scope tried), GS-18 (the certificate: who is
+# eligible against what was issued) and GS-19 (an anonymous visitor checks each certificate; a random code gives the
+# private not-found). Runs audit/staging/golden-school-laporan.mjs once per edit of
+# .github/staging-golden-school-laporan-request.txt on the coordinator's branch; the request's last line names the
+# school's slug ("slug: <slug>").
+#
+# NEVER: production (staging's ref and database URL are checked first; production's keys are never read); any write
+# (the database is read in read-only transactions, and the walk only signs four staff in and reads).
+
+name: staging · Golden School, reports, certificate, public check (GS-17 to GS-19)
+
+on:
+  push:
+    branches:
+      - claude/awesome-rubin-bqxp6p
+    paths:
+      - .github/staging-golden-school-laporan-request.txt
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  STAGING_ORIGIN: https://staging.pintarselalu.com
+
+jobs:
+  reports:
+    name: the staff read their reports; the certificate and its public check
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: The school named by the request
+        run: |
+          set -euo pipefail
+          slug=$(tail -n 1 .github/staging-golden-school-laporan-request.txt | sed -n 's/^slug: *\([a-z0-9][a-z0-9-]*\) *$/\1/p')
+          [ -n "$slug" ] || { echo "::error::the request's last line is not 'slug: <slug>'"; exit 1; }
+          echo "GS_SLUG=$slug" >> "$GITHUB_ENV"
+          echo "school: $slug"
+      - name: Playwright (the audit harness's version)
+        working-directory: audit/staging
+        run: |
+          npm init -y >/dev/null
+          npm i --no-save --no-audit --no-fund playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+      - name: Staging's database URL (checked, never printed)
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          [ "$STAGING_SUPABASE_PROJECT_REF" != "$PRODUCTION_SUPABASE_PROJECT_REF" ]
+          case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_SUPABASE_PROJECT_REF"*) echo "::error::the database URL names production"; exit 1;; esac
+          case "$STAGING_SUPABASE_DB_URL" in *"$STAGING_SUPABASE_PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::the database URL does not name staging's project"; exit 1;; esac
+      - name: The reports, the certificate and its public check (read only)
+        working-directory: audit/staging
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          GS_MAILBOX_PASSWORD: ${{ secrets.GS_MAILBOX_PASSWORD }}
+          OUT_DIR: ${{ github.workspace }}/out
+        run: node golden-school-laporan.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: staging-golden-school-laporan
+          path: out/
+          if-no-files-found: ignore

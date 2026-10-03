@@ -1,0 +1,3 @@
+# Golden School: the reports, the certificate and its public check (GS-17 to GS-19)
+# 3 Oct, first walk
+slug: gs-001
