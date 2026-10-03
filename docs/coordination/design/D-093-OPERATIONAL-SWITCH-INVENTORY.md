@@ -188,3 +188,63 @@ It changes nothing a screen does.
   - A trail assertion over a registry of switch actions.
   - If O3 removes S5 and S6 from the screen, T2 shrinks to S2, S7 and S15.
 - **T3: activation outcome (S3).** Write the audit row when the account exists, not when it is authorized. Put the card number and the class of a batch in the summary.
+
+---
+
+## 8. Ruled and done (3 Oct): D-097, T1 and O3
+
+**Ruling.** D-097: O1 (reasons only for consequential negative or reversal actions), O2 (no refused attempts in D-093 for 4.0), O3 (remove the inert controls, keep the schema), O4 (close the direct-write paths after a dependency trace; `platform_environment` checked first).
+
+**Dependency trace**, before any permission changed (static, `main` `327ce90`):
+
+| Where | Writes to the four tables (or the posture) | Effect of the change |
+|---|---|---|
+| Application code (`src/`) | none; every `.from()` on these tables is a read | none |
+| Functions | `assign_release`, `launch_quick_assessment`, `move_learning_assignment_release`, `operator_found_school`, `reserve_institution_namespace`: all SECURITY DEFINER | none; they write as the owner |
+| Migrations | earlier verification blocks, applied before this one | none |
+| Seeds | run as the owner | none |
+| DB self-tests | **fable02 F02-T20, fable05 (two fixtures), fable06 (two fixtures)** activated assignments as the signed-in teacher. F02-T20 even asserted that the direct write works. fable01 F01-T06 attempts are refusals and stay refused. | fixtures moved to the D-041 writer pattern (`as_release_writer`: the person's claims stay, the client role goes), so the capability triggers still decide on the person; F02-T20 now also asserts the teacher's direct write is refused |
+| TS self-tests, plants | owner `psql`, or rewrites of definer bodies | none |
+| Harnesses (journey, diagnostics, staging walks, Golden School) | owner `psql` or the screens | none |
+| Admin and platform paths | `staging.yml` `initialise` (owner `psql`), `found-school.yml` (service-role RPC) | none |
+| Held Gate 3 branches | no writes to these tables; they carry the old flag controls only as unchanged lines from their base | none |
+
+**`platform_environment`.** It is deployment configuration, not a runtime switch. Its table comment says "Set to 'production' only by the deployment system" (`foundation_base`). Staging sets it once, in the `initialise` step of `staging.yml`, as the database owner (D-038). The local seed pipeline sets the fixtures marker. No screen or function changes it. Signed-in clients hold SELECT only. `service_role` held INSERT, UPDATE, DELETE and TRUNCATE through Supabase's default privileges (as `audit_log` did, `20260912051935`), and nothing used them. **So no setter was made.** `service_role`'s writes were withdrawn, leaving only the deployment system able to change the posture, and an UPDATE trigger records each change it makes (`platform_environment.changed` `{from, to, database_role}`; nothing when nothing changed). No owner ruling is needed: this enforces the table's own stated intent.
+
+**What changed** (`43f9b07`):
+- Migration `20261110100000_an_operational_state_has_one_path.sql`:
+  - revokes client INSERT and UPDATE on `learning_assignments`, `assessment_assignments`, `institutions` and `classes`;
+  - revokes every non-owner write on `platform_environment`;
+  - adds the posture trigger;
+  - its verification block asserts the grants, the trigger, and that a no-op change writes nothing.
+  - Reads are unchanged.
+- Konfigurasi:
+  - the «Fitur & saklar» section, its tab, `setFlagAction`, `setPlatformConfigAction`, the three result codes and their copy are removed;
+  - `feature_flags`, `platform_config`, their RLS and audit triggers stay;
+  - `flag_enabled()` stays.
+- **F08-P09** (new). Seven direct writes, each refused by privilege (42501), not filtered to zero rows:
+  - window move, close and lesson end, plus an insert, by a teacher who may assign;
+  - `is_synthetic`, `is_active` and `classes.status` by a school administrator.
+
+  It also checks:
+  - the grants and that reads are kept;
+  - that the governed functions are still definers a teacher may call;
+  - that `service_role` cannot change the posture;
+  - that the posture's change is recorded once, from and to.
+
+**Evidence.**
+- **Local** (Postgres 16 with the repository's shim):
+  - **Red on the old schema:** F08-P09 13 of 13 problems, with `service_role` given Supabase's default grant to make that check bite. F02-T20 red too.
+  - **Green after:**
+    - the migration applied on that same database;
+    - a clean replay of all 147 migrations plus seeds;
+    - the full manifest: 457 passed.
+    - The 7 failing rows are app-route tests that need a running Next.js server (all `→ 500`), the same as the baseline before the change.
+    - The 2 migration-count baselines were moved 146 → 147.
+  - `tsc` clean; eslint clean.
+- **CI:** run `37100337054` on `43f9b07` (recorded below when it finishes).
+
+**Still open, as planned and not started:**
+- **T2, the writers.** Under O1: reasons for role revoke and structure deactivation, a from-state for certificate revoke, actor role in `summary`.
+- **T3, activation outcome.**
+- The three follow-ups in §3 are recorded separately (JOURNEY-LOG items 19–21).
