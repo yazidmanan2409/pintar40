@@ -127,6 +127,7 @@ jobs:
           envs = [('staging', os.environ['STAGING_DOMAIN'], os.environ['STAGING_DB_URL']),
                   ('production', os.environ['PRODUCTION_DOMAIN'], None)]
           prod_note = None
+          staging_project = None
           say('| Environment | App deployment | App commit | Migrations applied | Migrations at the app commit | Verdict |')
           say('|---|---|---|---|---|---|')
           for name, domain, db_url in envs:
@@ -166,6 +167,26 @@ jobs:
                   red.extend('%s: %s' % (name, n) for n in notes)
               dep = '%s (%s)' % (app['deployment'], app['state']) if app else '-'
               say('| %s | %s | `%s` | %s | %s | %s |' % (name, dep, (sha or '-')[:12], len(mig) if mig is not None else ('not read' if not db_url else '-'), len(at) if at is not None else '-', verdict))
+              if name == 'staging':
+                  staging_project = app and app.get('project')
+          say()
+          # BOB-25 / Gate 3: the app's own email (activation codes, the card, recovery) needs the four
+          # sending settings on staging's Vercel project, Production target. NAMES ONLY: the listing is
+          # read with decrypt=false and only each entry's key and targets are looked at; no value is
+          # read, compared or printed. Production gets them at the Gate 8 release (GATE-0-FACTS §2).
+          perlu = ['PINTAR_SMTP_HOST', 'PINTAR_SMTP_PORT', 'PINTAR_SMTP_USER', 'PINTAR_SMTP_PASSWORD']
+          try:
+              if not staging_project:
+                  raise RuntimeError('the staging app project is not known')
+              listing = http('https://api.vercel.com/v9/projects/%s/env?decrypt=false' % staging_project, os.environ['VERCEL_TOKEN'])
+              ada = {e.get('key') for e in (listing or {}).get('envs', []) if 'production' in (e.get('target') or [])}
+              kurang = [k for k in perlu if k not in ada]
+              say('Staging email settings (%s, Production target, names only): %s' % (staging_project,
+                  'all four present' if not kurang else 'MISSING ' + ', '.join(kurang)))
+              if kurang:
+                  red.append('staging: the app cannot send its own email; missing %s' % ', '.join(kurang))
+          except Exception as e:
+              red.append('staging: email settings not readable: %s' % str(e)[:200])
           say()
           if prod_note:
               say('Production runs %s (a production release is a deliberate step, D-004; not red). Its database is not read by this check: that needs Yazid\'s permission.' % prod_note)
