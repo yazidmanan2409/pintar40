@@ -1,0 +1,50 @@
+<!-- @dsCard group="Identity" height=760 subtitle="«PINTAR terkunci»: a shared computer, five idle minutes, the PIN to come back" -->
+<div class="pds">
+  <div class="pds-grid-2" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); align-items: start">
+    <div class="pds-tugas-bingkai">
+      <form class="pds-tugas" onsubmit="return false" aria-labelledby="lk-1-judul">
+        <img class="pds-merek" src="/_blob/abed353d4f794a8b5de8a83d14b0d67f" alt="PINTAR SELALU" width="766" height="429">
+        <div class="pds-stack" style="gap: var(--space-2)">
+          <h1 id="lk-1-judul">PINTAR terkunci</h1>
+          <p class="pds-ink-2">Komputer ini tidak dipakai selama 5 menit. Ketik PIN Anda untuk melanjutkan.</p>
+        </div>
+        <div class="pds-field">
+          <label class="pds-label" for="lk-1-pin">PIN (4 angka)</label>
+          <span class="pds-pin" data-pin>
+            <input id="lk-1-pin" class="pds-input pds-input-lg" type="password" inputmode="numeric" autocomplete="current-password" maxlength="4">
+            <button type="button" class="pds-btn pds-btn-icon" data-pin-lihat aria-pressed="false" aria-label="Tampilkan PIN"><i data-ikon="eye"></i></button>
+          </span>
+        </div>
+        <button type="submit" class="pds-btn pds-btn-primary pds-btn-lg">Buka PINTAR</button>
+        <div class="pds-row-tight" style="justify-content: space-between">
+          <span class="pds-help">Bukan akun Anda?</span>
+          <button type="button" class="pds-btn pds-btn-secondary">Keluar</button>
+        </div>
+      </form>
+    </div>
+    <div class="pds-tugas-bingkai">
+      <form class="pds-tugas" onsubmit="return false" aria-labelledby="lk-2-judul">
+        <img class="pds-merek" src="/_blob/abed353d4f794a8b5de8a83d14b0d67f" alt="PINTAR SELALU" width="766" height="429">
+        <div class="pds-stack" style="gap: var(--space-2)">
+          <h1 id="lk-2-judul">PINTAR terkunci</h1>
+          <p class="pds-ink-2">Komputer ini tidak dipakai selama 5 menit. Ketik PIN Anda untuk melanjutkan.</p>
+        </div>
+        <div class="pds-field">
+          <label class="pds-label" for="lk-2-pin">PIN (4 angka)</label>
+          <span class="pds-pin" data-pin>
+            <input id="lk-2-pin" class="pds-input pds-input-lg" type="password" inputmode="numeric" autocomplete="current-password" maxlength="4" value="4721" aria-invalid="true" aria-describedby="lk-2-galat">
+            <button type="button" class="pds-btn pds-btn-icon" data-pin-lihat aria-pressed="false" aria-label="Tampilkan PIN"><i data-ikon="eye"></i></button>
+          </span>
+          <p class="pds-error" id="lk-2-galat" role="alert"><i data-ikon="circle-alert"></i>PIN belum cocok. Sisa 1 kali percobaan; setelah itu sesi ini berakhir dan Anda masuk lagi dengan password.</p>
+        </div>
+        <button type="submit" class="pds-btn pds-btn-primary pds-btn-lg">Buka PINTAR</button>
+        <div class="pds-row-tight" style="justify-content: space-between">
+          <span class="pds-help">Bukan akun Anda?</span>
+          <button type="button" class="pds-btn pds-btn-secondary">Keluar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <p class="pds-demo-catatan">Gate 6 (BOB-29 and DAISY-23) is not built, so every word here is sample text from IDENTITY-4.0 §7 and the board's DAISY-23 row: 5 idle minutes lock a shared computer, 3 wrong PINs end that session, 60 locked minutes end it. No name is shown: the lock is on a shared screen. «Keluar» is always there.</p>
+</div>
+<script>Pintar.siapkan();</script>

@@ -1,0 +1,103 @@
+<!-- @dsCard group="Data" height=780 width=1040 subtitle="Search, filter, sort, select, act and page, in one table" -->
+<div class="pds">
+  <div class="pds-table-wrap" data-tabel data-per-halaman="6" data-benda="murid">
+    <div class="pds-toolbar">
+      <span class="pds-search">
+        <i data-ikon="search"></i>
+        <input class="pds-input" type="search" aria-label="Cari murid" placeholder="Cari nama" data-tabel-cari>
+        <button type="button" class="pds-search-hapus" aria-label="Hapus pencarian"><i data-ikon="x"></i></button>
+      </span>
+      <span class="pds-select pds-sempit-saja">
+        <select aria-label="Tampilkan" data-tabel-saring-pilih>
+          <option value="semua">Semua murid</option><option value="belum">Belum mulai</option><option value="perlu">Perlu dilihat</option><option value="selesai">Selesai</option>
+        </select>
+        <i data-ikon="chevron-down"></i>
+      </span>
+      <div class="pds-seg pds-lebar-saja" role="radiogroup" aria-label="Tampilkan">
+        <label><input type="radio" name="tb-status" value="semua" data-tabel-saring checked><span>Semua</span></label>
+        <label><input type="radio" name="tb-status" value="belum" data-tabel-saring><span>Belum mulai</span></label>
+        <label><input type="radio" name="tb-status" value="perlu" data-tabel-saring><span>Perlu dilihat</span></label>
+        <label><input type="radio" name="tb-status" value="selesai" data-tabel-saring><span>Selesai</span></label>
+      </div>
+    </div>
+    <div class="pds-bulk" hidden>
+      <span data-bulk-jumlah aria-live="polite">0 dipilih</span>
+      <span class="pds-row-tight">
+        <button type="button" class="pds-btn pds-btn-secondary pds-btn-sm">Kirim pengingat</button>
+        <button type="button" class="pds-btn pds-btn-quiet pds-btn-sm" data-bulk-batal>Batalkan pilihan</button>
+      </span>
+    </div>
+    <div class="pds-table-frame" tabindex="0" role="region" aria-label="Murid Kelas 5A">
+      <table class="pds-table">
+        <caption class="pds-sr">Murid Kelas 5A dan kemajuan mereka di Bab 3</caption>
+        <thead>
+          <tr>
+            <th scope="col" class="pds-sticky"><span class="pds-identitas"><label class="pds-pilih"><input type="checkbox" class="pds-check" aria-label="Pilih semua murid"></label><button type="button" class="pds-sort">Nama<i data-ikon="arrow-up-down"></i></button></span></th>
+            <th scope="col">Status</th>
+            <th scope="col" class="pds-angka"><button type="button" class="pds-sort">Bab 3<i data-ikon="arrow-up-down"></i></button></th>
+            <th scope="col" data-prioritas="rendah"><button type="button" class="pds-sort">Terakhir aktif<i data-ikon="arrow-up-down"></i></button></th>
+            <th scope="col" class="pds-sempit"><span class="pds-sr">Tindakan</span></th>
+          </tr>
+        </thead>
+        <tbody id="tb-isi">
+          <tr class="pds-table-empty" hidden>
+            <td colspan="5">
+              <div class="pds-empty">
+                <h3>Tidak ada murid yang cocok</h3>
+                <p>Tidak ada nama dengan «<span data-tabel-kueri></span>» di tampilan ini.</p>
+                <div class="pds-actions"><button type="button" class="pds-btn pds-btn-secondary" data-tabel-reset>Hapus pencarian dan saringan</button></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <nav class="pds-pager" aria-label="Halaman daftar murid">
+      <span data-pager-ringkas></span>
+      <span class="pds-pager-gerak">
+        <button type="button" class="pds-btn pds-btn-secondary" data-pager-sebelum><i data-ikon="chevron-left"></i><span class="pds-btn-teks">Sebelumnya</span><span class="pds-sr">Halaman sebelumnya</span></button>
+        <span class="pds-pager-posisi" data-pager-posisi aria-live="polite"></span>
+        <button type="button" class="pds-btn pds-btn-secondary" data-pager-sesudah><span class="pds-btn-teks">Berikutnya</span><span class="pds-sr">Halaman berikutnya</span><i data-ikon="chevron-right"></i></button>
+      </span>
+    </nav>
+  </div>
+  <p class="pds-demo-catatan">Invented names. Sort by a column, search, filter, select rows (the action bar appears), open a row's menu, page through. Below 640 px the low-priority column steps back, the filter becomes a select, and the table scrolls inside its frame with each row's name held still. There is no card view.</p>
+</div>
+<script>
+  (function () {
+    var murid = [
+      ["Adi Pratama", "selesai", 5, "3 Okt", 3], ["Ayu Lestari", "sedang", 3, "4 Okt", 4], ["Bagus Santoso", "belum", 0, "28 Sep", -6],
+      ["Citra Dewi", "sedang", 2, "4 Okt", 4], ["Dimas Anggara", "perlu", 1, "26 Sep", -8], ["Eka Putri", "selesai", 5, "2 Okt", 2],
+      ["Fajar Nugroho", "sedang", 4, "4 Okt", 4], ["Gita Maharani", "belum", 0, "30 Sep", -4], ["Hendra Wijaya", "selesai", 5, "1 Okt", 1],
+      ["Intan Permata", "sedang", 3, "3 Okt", 3], ["Joko Susilo", "perlu", 1, "25 Sep", -9], ["Kartika Sari", "selesai", 5, "4 Okt", 4],
+      ["Lukman Hakim", "sedang", 2, "3 Okt", 3], ["Maya Anggraini", "selesai", 5, "2 Okt", 2], ["Muhammad Rizky Ramadhan Saputra Nugraha", "sedang", 4, "4 Okt", 4],
+      ["Nanda Pratiwi", "belum", 0, "29 Sep", -5], ["Oki Setiawan", "sedang", 3, "4 Okt", 4], ["Putri Ramadhani", "selesai", 5, "3 Okt", 3],
+      ["Sari Wulandari", "sedang", 2, "2 Okt", 2], ["Teguh Prasetyo", "belum", 0, "27 Sep", -7], ["Umar Faruq", "sedang", 3, "4 Okt", 4],
+      ["Wulan Safitri", "selesai", 5, "1 Okt", 1], ["Yoga Firmansyah", "sedang", 1, "3 Okt", 3]
+    ];
+    var lencana = {
+      selesai: '<span class="pds-badge pds-badge-ok"><i data-ikon="check"></i>Selesai</span>',
+      sedang: '<span class="pds-badge pds-badge-info">Sedang belajar</span>',
+      belum: '<span class="pds-badge">Belum mulai</span>',
+      perlu: '<span class="pds-badge pds-badge-attention">Perlu dilihat</span>'
+    };
+    var isi = document.getElementById("tb-isi"), kosong = isi.querySelector(".pds-table-empty");
+    murid.forEach(function (m, i) {
+      var tr = document.createElement("tr");
+      tr.setAttribute("data-baris", ""); tr.setAttribute("data-cari", m[0]); tr.setAttribute("data-status", m[1]);
+      tr.innerHTML =
+        '<th scope="row" class="pds-sticky pds-nama"><span class="pds-identitas"><label class="pds-pilih"><input type="checkbox" class="pds-check" aria-label="Pilih ' + m[0] + '"></label><span>' + m[0] + "</span></span></th>" +
+        "<td>" + lencana[m[1]] + "</td>" +
+        '<td class="pds-angka" data-nilai="' + m[2] + '">' + m[2] + ' <span class="pds-ink-3">dari 5</span></td>' +
+        '<td data-prioritas="rendah" data-nilai="' + m[4] + '" class="pds-ink-2">' + m[3] + "</td>" +
+        '<td><div class="pds-row-actions"><a href="#" class="pds-btn pds-btn-quiet pds-btn-sm">Lihat<span class="pds-sr"> ' + m[0] + '</span></a>' +
+        '<span class="pds-menu-host"><button type="button" class="pds-btn pds-btn-icon" aria-haspopup="menu" aria-expanded="false" aria-controls="tb-menu-' + i + '" aria-label="Opsi untuk ' + m[0] + '"><i data-ikon="ellipsis"></i></button>' +
+        '<span class="pds-menu" id="tb-menu-' + i + '" role="menu" aria-label="Opsi untuk ' + m[0] + '" hidden>' +
+        '<a href="#" class="pds-menu-item" role="menuitem">Kirim pengingat</a>' +
+        '<a href="#" class="pds-menu-item" role="menuitem">Pindahkan ke kelas lain</a>' +
+        '<hr class="pds-menu-pisah"><a href="#" class="pds-menu-item pds-menu-bahaya" role="menuitem">Keluarkan dari kelas</a></span></span></div></td>';
+      isi.insertBefore(tr, kosong);
+    });
+  })();
+  Pintar.siapkan();
+</script>

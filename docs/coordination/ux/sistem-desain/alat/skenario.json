@@ -1,0 +1,274 @@
+{
+  "AppShell": [
+    {
+      "nama": "rail-1100",
+      "langkah": [
+        {
+          "klik": "input[name=as-lebar][value='1100']",
+          "tunggu": 200
+        }
+      ]
+    },
+    {
+      "nama": "tablet-820",
+      "langkah": [
+        {
+          "klik": "input[name=as-lebar][value='820']",
+          "tunggu": 200
+        }
+      ]
+    },
+    {
+      "nama": "ponsel-390-laci",
+      "langkah": [
+        {
+          "klik": "input[name=as-lebar][value='390']",
+          "tunggu": 200
+        },
+        {
+          "klik": "[data-dialog-buka=as-laci]",
+          "tunggu": 400
+        }
+      ]
+    },
+    {
+      "nama": "admin-platform",
+      "langkah": [
+        {
+          "klik": "input[name=as-persona][value=adminplatform]",
+          "tunggu": 200
+        }
+      ]
+    },
+    {
+      "nama": "menu-identitas",
+      "langkah": [
+        {
+          "klik": ".pds-nav .pds-identity",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "klik-tempat",
+      "langkah": [
+        {
+          "klik": ".pds-nav [data-tempat=studio]",
+          "tunggu": 120
+        }
+      ]
+    }
+  ],
+  "ActionFeedback": [
+    {
+      "nama": "memproses",
+      "langkah": [
+        {
+          "klik": "#af-simpan-judul ~ .pds-actions [data-aksi]",
+          "tunggu": 300
+        }
+      ]
+    },
+    {
+      "nama": "tersimpan",
+      "langkah": [
+        {
+          "klik": "#af-simpan-judul ~ .pds-actions [data-aksi]",
+          "tunggu": 1300
+        },
+        {
+          "klik": "#af-terbit-judul ~ .pds-actions [data-aksi]",
+          "tunggu": 1300
+        }
+      ]
+    },
+    {
+      "nama": "lambat",
+      "langkah": [
+        {
+          "klik": "input[name=af-jaringan][value=lambat]"
+        },
+        {
+          "klik": "#af-kirim-judul ~ .pds-actions [data-aksi]",
+          "tunggu": 3300
+        }
+      ]
+    },
+    {
+      "nama": "gagal",
+      "langkah": [
+        {
+          "klik": "input[name=af-jaringan][value=gagal]"
+        },
+        {
+          "klik": "#af-simpan-judul ~ .pds-actions [data-aksi]",
+          "tunggu": 1900
+        }
+      ]
+    }
+  ],
+  "FormLayout": [
+    {
+      "nama": "galat",
+      "langkah": [
+        {
+          "klik": "button[type=submit]",
+          "tunggu": 300
+        }
+      ]
+    },
+    {
+      "nama": "sebagian-benar",
+      "langkah": [
+        {
+          "ketik": [
+            "#fl-nama",
+            "Rina Kartika"
+          ]
+        },
+        {
+          "klik": "button[type=submit]",
+          "tunggu": 300
+        }
+      ]
+    }
+  ],
+  "PinInput": [
+    {
+      "nama": "lihat",
+      "langkah": [
+        {
+          "klik": "[data-pin-lihat]",
+          "tunggu": 150
+        }
+      ]
+    }
+  ],
+  "Table": [
+    {
+      "nama": "urut-bab3",
+      "langkah": [
+        {
+          "klik": "thead th:nth-child(3) .pds-sort"
+        },
+        {
+          "klik": "thead th:nth-child(3) .pds-sort",
+          "tunggu": 150
+        }
+      ]
+    },
+    {
+      "nama": "pilih",
+      "langkah": [
+        {
+          "klik": "#tb-isi tr[data-baris]:not([hidden]) .pds-check"
+        },
+        {
+          "klik": "#tb-isi tr[data-baris]:not([hidden]) .pds-check >> nth=2",
+          "tunggu": 150
+        }
+      ]
+    },
+    {
+      "nama": "menu-baris",
+      "langkah": [
+        {
+          "klik": "#tb-isi tr[data-baris]:not([hidden]) [aria-haspopup=menu]",
+          "tunggu": 200
+        }
+      ]
+    },
+    {
+      "nama": "kosong",
+      "langkah": [
+        {
+          "ketik": [
+            "[data-tabel-cari]",
+            "Zainal"
+          ]
+        },
+        {
+          "tunggu": 200
+        }
+      ]
+    },
+    {
+      "nama": "saring-perlu",
+      "langkah": [
+        {
+          "klik": "input[name=tb-status][value=perlu]",
+          "tunggu": 150
+        }
+      ]
+    },
+    {
+      "nama": "halaman-2",
+      "langkah": [
+        {
+          "klik": "[data-pager-sesudah]",
+          "tunggu": 150
+        }
+      ]
+    },
+    {
+      "nama": "ponsel",
+      "lebar": 390,
+      "langkah": []
+    }
+  ],
+  "Dialog": [
+    {
+      "nama": "terbuka",
+      "langkah": [
+        {
+          "klik": "[data-dialog-buka=dl-semua]",
+          "tunggu": 400
+        }
+      ]
+    }
+  ],
+  "Drawer": [
+    {
+      "nama": "terbuka",
+      "langkah": [
+        {
+          "klik": "[data-dialog-buka=dr-bantuan]",
+          "tunggu": 400
+        }
+      ]
+    }
+  ],
+  "Menu": [
+    {
+      "nama": "terbuka",
+      "langkah": [
+        {
+          "klik": "[aria-controls=mn-bab]",
+          "tunggu": 250
+        }
+      ]
+    }
+  ],
+  "Identity": [
+    {
+      "nama": "menu",
+      "langkah": [
+        {
+          "klik": "[aria-controls=id-menu]",
+          "tunggu": 250
+        }
+      ]
+    }
+  ],
+  "Tooltip": [
+    {
+      "nama": "fokus",
+      "langkah": [
+        {
+          "tekan": "Tab",
+          "tunggu": 200
+        }
+      ]
+    }
+  ]
+}

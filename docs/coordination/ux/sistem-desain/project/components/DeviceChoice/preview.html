@@ -1,0 +1,21 @@
+<!-- @dsCard group="Identity" height=600 subtitle="«Komputer siapa ini?»: two whole-row choices, the safer one chosen" -->
+<div class="pds">
+  <div class="pds-tugas-bingkai">
+    <form class="pds-tugas" style="max-width: var(--measure-narrow)" onsubmit="return false" aria-labelledby="dc-judul">
+      <div class="pds-stack" style="gap: var(--space-2)">
+        <h1 id="dc-judul">Komputer siapa ini?</h1>
+        <p class="pds-ink-2">PINTAR menjaga akun Anda sesuai tempat Anda masuk.</p>
+      </div>
+      <fieldset class="pds-fieldset">
+        <legend class="pds-sr">Komputer siapa ini?</legend>
+        <div class="pds-pilihan">
+          <label><input type="radio" class="pds-radio" name="dc-perangkat" checked><strong>Komputer bersama</strong><small>Di sekolah, lab atau perpustakaan. PINTAR terkunci setelah 5 menit tidak dipakai, dan Anda keluar setelah 60 menit terkunci.</small></label>
+          <label><input type="radio" class="pds-radio" name="dc-perangkat"><strong>Komputer atau tablet pribadi saya</strong><small>Hanya Anda yang memakainya. Anda tetap masuk sampai sekitar 7 hari.</small></label>
+        </div>
+      </fieldset>
+      <button type="submit" class="pds-btn pds-btn-primary pds-btn-lg">Lanjut</button>
+    </form>
+  </div>
+  <p class="pds-demo-catatan">Asked after signing in on a browser PINTAR has not seen. The shared computer is first and chosen, because it is the safer answer and the normal case at school (D-099). Sample text from IDENTITY-4.0 C4, C11 and §7; Gate 6 is not built.</p>
+</div>
+<script>Pintar.siapkan();</script>

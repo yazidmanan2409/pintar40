@@ -1,0 +1,34 @@
+<!-- @dsCard group="Inputs" height=300 subtitle="The native select, drawn in tokens" -->
+<div class="pds">
+  <div class="pds-grid-2">
+    <div class="pds-field">
+      <label class="pds-label" for="sel-tingkat">Tingkat</label>
+      <span class="pds-select">
+        <select id="sel-tingkat">
+          <option>Kelas 1</option><option>Kelas 2</option><option>Kelas 3</option>
+          <option>Kelas 4</option><option selected>Kelas 5</option><option>Kelas 6</option>
+        </select>
+        <i data-ikon="chevron-down"></i>
+      </span>
+    </div>
+    <div class="pds-field">
+      <label class="pds-label" for="sel-peran">Peran</label>
+      <span class="pds-select">
+        <select id="sel-peran" aria-invalid="true" aria-describedby="sel-peran-galat">
+          <option value="" selected>Pilih peran</option><option>Guru</option><option>Kepala departemen</option><option>Dekan</option><option>Admin sekolah</option>
+        </select>
+        <i data-ikon="chevron-down"></i>
+      </span>
+      <p class="pds-error" id="sel-peran-galat"><i data-ikon="circle-alert"></i>Pilih peran orang ini di sekolah Anda.</p>
+    </div>
+    <div class="pds-field">
+      <label class="pds-label" for="sel-tahun">Tahun ajaran</label>
+      <span class="pds-select">
+        <select id="sel-tahun" disabled aria-describedby="sel-tahun-alasan"><option>2026/2027</option></select>
+        <i data-ikon="chevron-down"></i>
+      </span>
+      <p class="pds-help" id="sel-tahun-alasan">Mengikuti Tingkat-nya; ubah di Struktur sekolah.</p>
+    </div>
+  </div>
+</div>
+<script>Pintar.siapkan();</script>

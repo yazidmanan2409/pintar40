@@ -1,0 +1,78 @@
+<!-- @dsCard group="Actions" height=780 subtitle="Five families, every state" -->
+<div class="pds">
+  <section class="pds-stack" aria-labelledby="btn-keluarga">
+    <h2 id="btn-keluarga" class="pds-demo-label">Families</h2>
+    <div class="pds-row">
+      <button type="button" class="pds-btn pds-btn-primary">Simpan</button>
+      <button type="button" class="pds-btn pds-btn-secondary">Pratinjau</button>
+      <button type="button" class="pds-btn pds-btn-quiet">Batal</button>
+      <button type="button" class="pds-btn pds-btn-destructive"><i data-ikon="trash-2"></i>Hapus draf</button>
+      <button type="button" class="pds-btn pds-btn-icon" aria-label="Opsi lain" data-tip="Opsi lain"><i data-ikon="ellipsis"></i></button>
+      <button type="button" class="pds-btn pds-btn-icon" aria-label="Tutup" data-tip="Tutup"><i data-ikon="x"></i></button>
+    </div>
+    <div class="pds-row">
+      <button type="button" class="pds-btn pds-btn-primary pds-btn-lg">Masuk ke PINTAR</button>
+      <button type="button" class="pds-btn pds-btn-secondary pds-btn-sm"><i data-ikon="plus"></i>Tambah kolom</button>
+      <span class="pds-demo-catatan">Large (52 px) on sign-in and a learner's own surface. Compact (36 px tall, 44 px to hit) only in a dense table toolbar.</span>
+    </div>
+  </section>
+
+  <section class="pds-stack" aria-labelledby="btn-keadaan">
+    <h2 id="btn-keadaan" class="pds-demo-label">States</h2>
+    <div class="pds-demo-matrix" role="presentation">
+      <span class="pds-demo-label">.</span>
+      <span class="pds-demo-label">Default</span>
+      <span class="pds-demo-label">Hover</span>
+      <span class="pds-demo-label">Pressed</span>
+      <span class="pds-demo-label">Focus</span>
+      <span class="pds-demo-label">Disabled</span>
+
+      <span class="pds-demo-label">Primary</span>
+      <button type="button" class="pds-btn pds-btn-primary">Simpan</button>
+      <button type="button" class="pds-btn pds-btn-primary is-hover" tabindex="-1">Simpan</button>
+      <button type="button" class="pds-btn pds-btn-primary is-pressed" tabindex="-1">Simpan</button>
+      <button type="button" class="pds-btn pds-btn-primary is-focus" tabindex="-1">Simpan</button>
+      <button type="button" class="pds-btn pds-btn-primary" disabled>Simpan</button>
+
+      <span class="pds-demo-label">Secondary</span>
+      <button type="button" class="pds-btn pds-btn-secondary">Pratinjau</button>
+      <button type="button" class="pds-btn pds-btn-secondary is-hover" tabindex="-1">Pratinjau</button>
+      <button type="button" class="pds-btn pds-btn-secondary is-pressed" tabindex="-1">Pratinjau</button>
+      <button type="button" class="pds-btn pds-btn-secondary is-focus" tabindex="-1">Pratinjau</button>
+      <button type="button" class="pds-btn pds-btn-secondary" disabled>Pratinjau</button>
+
+      <span class="pds-demo-label">Quiet</span>
+      <button type="button" class="pds-btn pds-btn-quiet">Batal</button>
+      <button type="button" class="pds-btn pds-btn-quiet is-hover" tabindex="-1">Batal</button>
+      <button type="button" class="pds-btn pds-btn-quiet is-pressed" tabindex="-1">Batal</button>
+      <button type="button" class="pds-btn pds-btn-quiet is-focus" tabindex="-1">Batal</button>
+      <button type="button" class="pds-btn pds-btn-quiet" disabled>Batal</button>
+
+      <span class="pds-demo-label">Destructive</span>
+      <button type="button" class="pds-btn pds-btn-destructive">Hapus draf</button>
+      <button type="button" class="pds-btn pds-btn-destructive is-hover" tabindex="-1">Hapus draf</button>
+      <button type="button" class="pds-btn pds-btn-destructive is-pressed" tabindex="-1">Hapus draf</button>
+      <button type="button" class="pds-btn pds-btn-destructive is-focus" tabindex="-1">Hapus draf</button>
+      <button type="button" class="pds-btn pds-btn-destructive" disabled>Hapus draf</button>
+
+      <span class="pds-demo-label">Confirm</span>
+      <button type="button" class="pds-btn pds-btn-destructive-confirm">Hapus</button>
+      <button type="button" class="pds-btn pds-btn-destructive-confirm is-hover" tabindex="-1">Hapus</button>
+      <button type="button" class="pds-btn pds-btn-destructive-confirm is-pressed" tabindex="-1">Hapus</button>
+      <button type="button" class="pds-btn pds-btn-destructive-confirm is-focus" tabindex="-1">Hapus</button>
+      <button type="button" class="pds-btn pds-btn-destructive-confirm" disabled>Hapus</button>
+    </div>
+  </section>
+
+  <section class="pds-stack" aria-labelledby="btn-proses">
+    <h2 id="btn-proses" class="pds-demo-label">Processing and completed</h2>
+    <div class="pds-row">
+      <button type="button" class="pds-btn pds-btn-primary" aria-busy="true" aria-disabled="true"><span class="pds-dot" aria-hidden="true"></span>Menyimpan…</button>
+      <button type="button" class="pds-btn pds-btn-primary" data-keadaan="selesai" aria-disabled="true"><i data-ikon="check"></i>Tersimpan</button>
+      <button type="button" class="pds-btn pds-btn-secondary" aria-busy="true" aria-disabled="true"><span class="pds-dot" aria-hidden="true"></span>Mengirim…</button>
+      <button type="button" class="pds-btn pds-btn-secondary" data-keadaan="selesai" aria-disabled="true"><i data-ikon="check"></i>Terkirim</button>
+    </div>
+    <p class="pds-demo-catatan">Processing keeps the button's own colour: PINTAR heard the click and is working. Only the server's answer turns it to ✓. An email never ends in ✓ «Terkirim»: PINTAR can only say it is sending (D-098(c)). Disabled is different: grey, and its reason is written beside it. Try the full sequence in Action feedback.</p>
+  </section>
+</div>
+<script>Pintar.siapkan();</script>

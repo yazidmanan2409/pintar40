@@ -1,0 +1,50 @@
+<!-- @dsCard group="Inputs" height=640 subtitle="Label above, help under the label, the error under the field" -->
+<div class="pds">
+  <div class="pds-grid-2">
+    <div class="pds-field">
+      <label class="pds-label" for="tf-nama">Nama lengkap</label>
+      <input id="tf-nama" class="pds-input" autocomplete="name" value="Rina Kartika">
+    </div>
+    <div class="pds-field">
+      <label class="pds-label" for="tf-email">Email sekolah</label>
+      <p class="pds-help" id="tf-email-bantu">PINTAR mengirim kode masuk ke email ini.</p>
+      <input id="tf-email" class="pds-input" type="email" autocomplete="email" aria-describedby="tf-email-bantu" placeholder="nama@sekolah.sch.id">
+    </div>
+    <div class="pds-field">
+      <label class="pds-label" for="tf-telp">Nomor telepon <span class="pds-opsional">(opsional)</span></label>
+      <input id="tf-telp" class="pds-input" type="tel" inputmode="tel" autocomplete="tel">
+    </div>
+    <div class="pds-field">
+      <label class="pds-label" for="tf-email-salah">Email sekolah</label>
+      <input id="tf-email-salah" class="pds-input" type="email" value="rina.kartika@sdn" aria-invalid="true" aria-describedby="tf-email-salah-galat">
+      <p class="pds-error" id="tf-email-salah-galat"><i data-ikon="circle-alert"></i>Masukkan email lengkap, misalnya nama@sekolah.sch.id.</p>
+    </div>
+    <div class="pds-field">
+      <label class="pds-label" for="tf-id">PINTAR ID</label>
+      <input id="tf-id" class="pds-input pds-mono" value="7Q2Z 0D9K" readonly aria-describedby="tf-id-bantu">
+      <p class="pds-help" id="tf-id-bantu">Tetap sama selamanya. Tidak bisa diubah.</p>
+    </div>
+    <div class="pds-field">
+      <label class="pds-label" for="tf-sekolah">Sekolah</label>
+      <input id="tf-sekolah" class="pds-input" value="SDN Kaliandra 1" disabled aria-describedby="tf-sekolah-alasan">
+      <p class="pds-help" id="tf-sekolah-alasan">Hanya Admin sekolah yang dapat mengubah nama sekolah.</p>
+    </div>
+  </div>
+
+  <div class="pds-stack">
+    <h2 class="pds-demo-label">States</h2>
+    <div class="pds-demo-grid">
+      <div class="pds-demo-sel"><span class="pds-demo-label">Default</span><input class="pds-input" aria-label="Contoh" value="Kelas 5A"></div>
+      <div class="pds-demo-sel"><span class="pds-demo-label">Hover</span><input class="pds-input is-hover" aria-label="Contoh" value="Kelas 5A" tabindex="-1"></div>
+      <div class="pds-demo-sel"><span class="pds-demo-label">Focus</span><input class="pds-input is-focus" aria-label="Contoh" value="Kelas 5A" tabindex="-1"></div>
+      <div class="pds-demo-sel"><span class="pds-demo-label">Error</span><input class="pds-input" aria-label="Contoh" value="Kelas 5A" aria-invalid="true" tabindex="-1"></div>
+      <div class="pds-demo-sel"><span class="pds-demo-label">Disabled</span><input class="pds-input" aria-label="Contoh" value="Kelas 5A" disabled></div>
+    </div>
+  </div>
+
+  <div class="pds-field" style="max-width: var(--measure-auth)">
+    <label class="pds-label" for="tf-masuk">Email (sign-in size, 52 px)</label>
+    <input id="tf-masuk" class="pds-input pds-input-lg" type="email" autocomplete="username">
+  </div>
+</div>
+<script>Pintar.siapkan();</script>

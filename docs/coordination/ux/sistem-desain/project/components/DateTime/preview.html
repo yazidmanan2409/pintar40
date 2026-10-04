@@ -1,0 +1,19 @@
+<!-- @dsCard group="Inputs" height=300 subtitle="Native date and time, always in Jakarta time" -->
+<div class="pds">
+  <fieldset class="pds-fieldset">
+    <legend class="pds-label">Uji Cepat dibuka</legend>
+    <p class="pds-help" id="dt-bantu">Murid melihat waktu yang sama, apa pun jam di perangkatnya.</p>
+    <div class="pds-row" style="align-items: end">
+      <div class="pds-field">
+        <label class="pds-label" for="dt-tanggal">Tanggal</label>
+        <input id="dt-tanggal" class="pds-input" type="date" value="2026-10-09" aria-describedby="dt-bantu">
+      </div>
+      <div class="pds-field">
+        <label class="pds-label" for="dt-jam">Jam</label>
+        <span class="pds-unit"><input id="dt-jam" class="pds-input" type="time" value="07:30" aria-describedby="dt-bantu dt-wib"><span id="dt-wib">WIB</span></span>
+      </div>
+    </div>
+  </fieldset>
+  <p class="pds-ink-2">Ditampilkan sebagai: <strong class="pds-num">Jumat, 9 Okt 2026, 07.30 WIB</strong></p>
+</div>
+<script>Pintar.siapkan();</script>

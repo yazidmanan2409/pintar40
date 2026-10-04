@@ -1,0 +1,26 @@
+<!-- @dsCard group="Inputs" height=260 subtitle="Only for a setting that takes effect at once; its state is also a word" -->
+<div class="pds">
+  <div class="pds-stack" style="max-width: var(--measure-read)">
+    <div class="pds-switch-row">
+      <div>
+        <p id="sw-petunjuk" class="pds-label">Tampilkan petunjuk di soal latihan</p>
+        <p class="pds-help" id="sw-petunjuk-arti">Berlaku untuk Kelas 5A mulai soal berikutnya. Tidak berlaku saat Uji Cepat.</p>
+      </div>
+      <span class="pds-row-tight">
+        <span class="pds-switch-kata" data-switch-kata aria-hidden="true"></span>
+        <span class="pds-switch-wrap"><button type="button" role="switch" class="pds-switch" aria-checked="true" aria-labelledby="sw-petunjuk" aria-describedby="sw-petunjuk-arti"></button></span>
+      </span>
+    </div>
+    <div class="pds-switch-row">
+      <div>
+        <p id="sw-email" class="pds-label">Email ringkasan mingguan</p>
+        <p class="pds-help" id="sw-email-arti">Belum tersedia. Pengiriman email dari PINTAR diatur oleh Admin sekolah.</p>
+      </div>
+      <span class="pds-row-tight">
+        <span class="pds-switch-kata" data-switch-kata aria-hidden="true"></span>
+        <span class="pds-switch-wrap"><button type="button" role="switch" class="pds-switch" aria-checked="false" aria-labelledby="sw-email" aria-describedby="sw-email-arti" disabled></button></span>
+      </span>
+    </div>
+  </div>
+</div>
+<script>Pintar.siapkan();</script>

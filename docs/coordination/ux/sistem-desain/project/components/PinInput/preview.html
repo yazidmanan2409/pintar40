@@ -1,0 +1,41 @@
+<!-- @dsCard group="Inputs" height=800 subtitle="One masked field, four digits, a way to see what was typed" -->
+<div class="pds">
+  <div class="pds-grid-2">
+    <div class="pds-field">
+      <label class="pds-label" for="pin-baru">PIN baru (4 angka)</label>
+      <p class="pds-help" id="pin-baru-bantu">Bukan tanggal lahir, dan bukan angka berurutan seperti 1234.</p>
+      <span class="pds-pin" data-pin>
+        <input id="pin-baru" class="pds-input" type="password" inputmode="numeric" autocomplete="new-password" maxlength="4" aria-describedby="pin-baru-bantu">
+        <button type="button" class="pds-btn pds-btn-icon" data-pin-lihat aria-pressed="false" aria-label="Tampilkan PIN"><i data-ikon="eye"></i></button>
+      </span>
+    </div>
+    <div class="pds-field">
+      <label class="pds-label" for="pin-buka">PIN Anda</label>
+      <span class="pds-pin" data-pin>
+        <input id="pin-buka" class="pds-input pds-input-lg" type="password" inputmode="numeric" autocomplete="current-password" maxlength="4" value="4721" aria-invalid="true" aria-describedby="pin-buka-galat">
+        <button type="button" class="pds-btn pds-btn-icon" data-pin-lihat aria-pressed="false" aria-label="Tampilkan PIN"><i data-ikon="eye"></i></button>
+      </span>
+      <p class="pds-error" id="pin-buka-galat"><i data-ikon="circle-alert"></i>PIN belum cocok. Sisa 2 kali percobaan sebelum sesi ini berakhir.</p>
+    </div>
+  </div>
+  <div class="pds-stack" style="max-width: var(--measure-auth)">
+    <h2 class="pds-demo-label">The class card: a child types what is printed on the card (60 px)</h2>
+    <p class="pds-ink-2">Masukkan nomor kartu dan PIN yang tertera pada kartu.</p>
+    <div class="pds-field">
+      <label class="pds-label" for="pin-kartu-no">Nomor kartu</label>
+      <input id="pin-kartu-no" class="pds-input pds-input-xl pds-mono" inputmode="numeric" autocomplete="username" value="4821 0937">
+    </div>
+    <div class="pds-field">
+      <label class="pds-label" for="pin-kartu">PIN</label>
+      <span class="pds-pin" data-pin>
+        <input id="pin-kartu" class="pds-input pds-input-xl" type="password" inputmode="numeric" autocomplete="current-password" maxlength="4" value="1958" aria-invalid="true" aria-describedby="pin-kartu-galat">
+        <button type="button" class="pds-btn pds-btn-icon pds-btn-xl" data-pin-lihat aria-pressed="false" aria-label="Tampilkan PIN"><i data-ikon="eye"></i></button>
+      </span>
+      <p class="pds-error" id="pin-kartu-galat"><i data-ikon="circle-alert"></i>Belum cocok. Coba periksa nomor kartu dan PIN, lalu coba sekali lagi.</p>
+    </div>
+    <button type="button" class="pds-btn pds-btn-primary pds-btn-xl pds-btn-block">Masuk dengan kartu</button>
+    <p class="pds-help">Lupa PIN? Tanyakan kepada guru.</p>
+  </div>
+  <p class="pds-demo-catatan">Words: the class card is auth.card_lede, card_number, card_pin, card_show, card_failed, card_enter and card_tanya_guru (real); the staff PIN lines are akun.pin.label and aktifkan.n_aturan in spirit, and the tries-left line is sample text for Gate 6's resume (3 wrong end that session, IDENTITY-4.0 §3). One input, not four boxes: paste, password managers and screen readers work, and a learner can correct one digit. Digits only; the large size is for a learner's own sign-in.</p>
+</div>
+<script>Pintar.siapkan();</script>

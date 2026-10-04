@@ -1,0 +1,29 @@
+<!-- @dsCard group="Foundations" height=760 width=1200 subtitle="Three content widths, one gutter rule, four screen bands" -->
+<div class="pds">
+  <section class="pds-stack" aria-labelledby="lg-lebar">
+    <h2 id="lg-lebar" class="pds-demo-label">Content widths (drawn to scale, at most 1120 px)</h2>
+    <div class="pds-demo-garis">
+      <div class="pds-demo-batang" style="width: calc(560 / 1120 * 100%)">measure-narrow · 560 · one task: sign-in, a short form</div>
+      <div class="pds-demo-batang" style="width: calc(760 / 1120 * 100%)">measure-read · 760 · reading and forms</div>
+      <div class="pds-demo-batang" style="width: 100%">measure-stage · 1120 · tables and overviews, the widest anything goes</div>
+    </div>
+    <p class="pds-demo-catatan">No 12-column grid. A page is one column at its measure; where items sit side by side, they use an auto-fit grid with a minimum width (220 px for fields, 260 px for cards), so the count of columns follows the screen.</p>
+  </section>
+
+  <section class="pds-stack" aria-labelledby="lg-band">
+    <h2 id="lg-band" class="pds-demo-label">Screen bands</h2>
+    <div class="pds-table-frame" tabindex="0" role="region" aria-label="Rentang layar">
+      <table class="pds-table">
+        <thead><tr><th scope="col">Band</th><th scope="col">Shell</th><th scope="col">Gutter</th><th scope="col">Page title</th><th scope="col">Tables</th><th scope="col">Typical device at school</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Small, under 640</th><td>Top bar, menu in a drawer</td><td class="pds-num">16</td><td>26 / 32</td><td>Low-priority columns step back; scroll in the frame</td><td>A phone (never required for a student's school journey)</td></tr>
+          <tr><th scope="row">Medium, 640 to 1023</th><td>Top bar, menu in a drawer</td><td class="pds-num">24</td><td>30 / 36</td><td>Full; scroll in the frame if needed</td><td>A shared tablet, portrait</td></tr>
+          <tr><th scope="row">Large, 1024 to 1279</th><td>Rail, 72</td><td class="pds-num">24</td><td>30 / 36</td><td>Full</td><td>A school laptop or Chromebook, 1366 × 768; a tablet, landscape</td></tr>
+          <tr><th scope="row">Wide, 1280 and up</th><td>Navigation, 248</td><td class="pds-num">24</td><td>30 / 36</td><td>Full, to 1120</td><td>A desktop in the staff room</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="pds-demo-catatan">Learners keep the top bar in every band. The 1366 × 768 laptop is the reference screen for staff work: the expanded navigation (from 1280) still leaves 1118 px for content.</p>
+  </section>
+</div>
+<script>Pintar.siapkan();</script>

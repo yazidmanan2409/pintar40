@@ -1,0 +1,26 @@
+<!-- @dsCard group="Inputs" height=460 subtitle="Longer text, with its limit said as it is reached" -->
+<div class="pds">
+  <div class="pds-field" style="max-width: var(--measure-read)">
+    <label class="pds-label" for="ta-catatan">Catatan untuk murid <span class="pds-opsional">(opsional)</span></label>
+    <p class="pds-help" id="ta-bantu">Murid membaca catatan ini sebelum mulai Bab 3.</p>
+    <textarea id="ta-catatan" class="pds-textarea" maxlength="300" aria-describedby="ta-bantu ta-hitung">Kerjakan latihan pertama di kelas; sisanya boleh di rumah.</textarea>
+    <p class="pds-help pds-num" id="ta-hitung" aria-live="polite"></p>
+  </div>
+  <div class="pds-field" style="max-width: var(--measure-read)">
+    <label class="pds-label" for="ta-alasan">Alasan menarik Bab 3</label>
+    <textarea id="ta-alasan" class="pds-textarea" aria-invalid="true" aria-describedby="ta-alasan-galat"></textarea>
+    <p class="pds-error" id="ta-alasan-galat"><i data-ikon="circle-alert"></i>Tulis alasannya. Murid dan Kepala departemen akan membacanya.</p>
+  </div>
+</div>
+<script>
+  Pintar.siapkan();
+  (function () {
+    var t = document.getElementById("ta-catatan"), h = document.getElementById("ta-hitung");
+    function tulis() {
+      var sisa = 300 - t.value.length;
+      // Said only when it matters: within 50 characters of the limit.
+      h.textContent = sisa <= 50 ? "Tersisa " + sisa + " karakter." : t.value.length + " dari 300 karakter";
+    }
+    t.addEventListener("input", tulis); tulis();
+  })();
+</script>

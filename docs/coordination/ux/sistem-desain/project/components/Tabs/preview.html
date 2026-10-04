@@ -1,0 +1,27 @@
+<!-- @dsCard group="Navigation" height=420 subtitle="Views of one thing; the selected one is underlined and bold" -->
+<div class="pds">
+  <div class="pds-stack">
+    <h2 class="pds-demo-label">Tabs that are pages (links, aria-current)</h2>
+    <nav class="pds-tabs" aria-label="Kelas 5A">
+      <a href="#" class="pds-tab">Siapkan materi</a>
+      <a href="#" class="pds-tab">Uji Cepat</a>
+      <a href="#" class="pds-tab" aria-current="page">Bukti</a>
+      <a href="#" class="pds-tab">Langkah berikutnya</a>
+      <a href="#" class="pds-tab">Umpan balik</a>
+    </nav>
+    <p class="pds-demo-catatan">An example built from the class page's real destinations. Whether the class page gets tabs is decided in the application pass, not here.</p>
+  </div>
+
+  <div class="pds-stack">
+    <h2 class="pds-demo-label">Tabs inside a page (role=tablist; arrow keys move)</h2>
+    <div class="pds-tabs" role="tablist" aria-label="Hasil Uji Cepat Bab 2">
+      <button type="button" role="tab" class="pds-tab" id="tb-1" aria-controls="tp-1" aria-selected="true">Per tujuan</button>
+      <button type="button" role="tab" class="pds-tab" id="tb-2" aria-controls="tp-2">Per soal</button>
+      <button type="button" role="tab" class="pds-tab" id="tb-3" aria-controls="tp-3">Per murid <span class="pds-count">31</span></button>
+    </div>
+    <div role="tabpanel" id="tp-1" aria-labelledby="tb-1" tabindex="0"><p class="pds-ink-2">Tujuan 1, membandingkan pecahan: 24 dari 31 murid menunjukkan penguasaan.</p></div>
+    <div role="tabpanel" id="tp-2" aria-labelledby="tb-2" tabindex="0" hidden><p class="pds-ink-2">Soal 4 paling sering keliru: 11 murid memilih 2/6.</p></div>
+    <div role="tabpanel" id="tp-3" aria-labelledby="tb-3" tabindex="0" hidden><p class="pds-ink-2">31 murid, urut abjad. Tidak ada peringkat.</p></div>
+  </div>
+</div>
+<script>Pintar.siapkan();</script>

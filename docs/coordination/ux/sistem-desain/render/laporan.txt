@@ -1,0 +1,147 @@
+47 previews, 0 with a failure
+
+ok   ActionFeedback @960 (height 1080px, card 1080)
+      note, under 44px: button.pds-btn "Ulangi contoh" 119x36; button.pds-btn "Ulangi contoh" 119x36
+ok   ActionFeedback @390 (height 1426px, card 1080)
+      note, under 44px: button.pds-btn "Ulangi contoh" 119x36; button.pds-btn "Ulangi contoh" 119x36
+ok   ActionFeedback [memproses] @960 (height 1080px, card 1080)
+      note, under 44px: button.pds-btn "Ulangi contoh" 119x36; button.pds-btn "Ulangi contoh" 119x36
+ok   ActionFeedback [tersimpan] @960 (height 1168px, card 1080)
+      note, under 44px: button.pds-btn "Ulangi contoh" 119x36; button.pds-btn "Ulangi contoh" 119x36
+ok   ActionFeedback [lambat] @960 (height 1120px, card 1080)
+      note, under 44px: button.pds-btn "Ulangi contoh" 119x36; button.pds-btn "Ulangi contoh" 119x36
+ok   ActionFeedback [gagal] @960 (height 1140px, card 1080)
+      note, under 44px: button.pds-btn "Ulangi contoh" 119x36; button.pds-btn "Ulangi contoh" 119x36
+ok   ActivationFlow @960 (height 780px, card 780)
+ok   ActivationFlow @390 (height 1376px, card 780)
+ok   Alert @960 (height 740px, card 740)
+      note, under 44px: a.pds-btn "Tetapkan guru" 121x36; a.pds-btn "Lihat kedua baris" 139x36
+ok   Alert @390 (height 980px, card 740)
+      note, under 44px: a.pds-btn "Tetapkan guru" 121x36; a.pds-btn "Lihat kedua baris" 139x36
+ok   AppShell @1328 (height 1000px, card 1000)
+ok   AppShell @390 (height 1172px, card 1000)
+      note, under 44px: button.pds-btn "Keluar" 69x36
+ok   AppShell [rail-1100] @1328 (height 1000px, card 1000)
+ok   AppShell [tablet-820] @1328 (height 1000px, card 1000)
+      note, under 44px: button.pds-btn "Keluar" 69x36
+ok   AppShell [ponsel-390-laci] @1328 (height 1000px, card 1000)
+      note, under 44px: button.pds-btn "Keluar" 69x36
+ok   AppShell [admin-platform] @1328 (height 1000px, card 1000)
+ok   AppShell [menu-identitas] @1328 (height 1000px, card 1000)
+ok   AppShell [klik-tempat] @1328 (height 1000px, card 1000)
+ok   Badge @960 (height 480px, card 480)
+ok   Badge @390 (height 551px, card 480)
+ok   Breadcrumb @960 (height 200px, card 200)
+ok   Breadcrumb @390 (height 224px, card 200)
+ok   Button @960 (height 792px, card 780)
+      note, under 44px: button.pds-btn "Tambah kolom" 148x36
+ok   Button @390 (height 984px, card 780)
+      note, under 44px: button.pds-btn "Tambah kolom" 148x36
+ok   Checkbox @960 (height 440px, card 440)
+ok   Checkbox @390 (height 648px, card 440)
+ok   CodeInput @960 (height 380px, card 380)
+ok   CodeInput @390 (height 564px, card 380)
+ok   Confirmation @960 (height 620px, card 620)
+ok   Confirmation @390 (height 818px, card 620)
+ok   Cover @960 (height 288px, card 288)
+ok   DateTime @960 (height 300px, card 300)
+ok   DateTime @390 (height 348px, card 300)
+ok   DeviceChoice @960 (height 600px, card 600)
+ok   DeviceChoice @390 (height 742px, card 600)
+ok   Dialog @960 (height 360px, card 360)
+ok   Dialog @390 (height 360px, card 360)
+ok   Dialog [terbuka] @960 (height 360px, card 360)
+ok   Disclosure @960 (height 380px, card 380)
+ok   Disclosure @390 (height 380px, card 380)
+ok   Drawer @960 (height 300px, card 300)
+ok   Drawer @390 (height 300px, card 300)
+ok   Drawer [terbuka] @960 (height 300px, card 300)
+ok   EmptyState @960 (height 680px, card 680)
+ok   EmptyState @390 (height 848px, card 680)
+ok   FormLayout @960 (height 900px, card 900)
+ok   FormLayout @390 (height 900px, card 900)
+ok   FormLayout [galat] @960 (height 957px, card 900)
+ok   FormLayout [sebagian-benar] @960 (height 901px, card 900)
+ok   Hierarchy @960 (height 1160px, card 1160)
+      note, under 44px: a.pds-link "Lihat soal yang paling s" 812x24
+ok   Hierarchy @390 (height 1840px, card 1160)
+      note, under 44px: a.pds-link "Lihat soal yang paling s" 342x24
+ok   Icons @960 (height 860px, card 860)
+ok   Icons @390 (height 2244px, card 860)
+ok   Identity @960 (height 400px, card 400)
+ok   Identity @390 (height 424px, card 400)
+ok   Identity [menu] @960 (height 400px, card 400)
+ok   IdleWarning @960 (height 300px, card 300)
+ok   IdleWarning @390 (height 372px, card 300)
+ok   InteractionStates @1100 (height 520px, card 520)
+ok   InteractionStates @390 (height 560px, card 520)
+ok   LayoutGrid @1200 (height 760px, card 760)
+ok   LayoutGrid @390 (height 1090px, card 760)
+ok   LearnerShell @1040 (height 760px, card 760)
+ok   LearnerShell @390 (height 884px, card 760)
+ok   Link @960 (height 280px, card 280)
+ok   Link @390 (height 344px, card 280)
+ok   Loading @960 (height 540px, card 540)
+ok   Loading @390 (height 590px, card 540)
+ok   LockScreen @960 (height 760px, card 760)
+ok   LockScreen @390 (height 1336px, card 760)
+ok   Menu @960 (height 320px, card 320)
+ok   Menu @390 (height 320px, card 320)
+ok   Menu [terbuka] @960 (height 320px, card 320)
+ok   Motion @960 (height 600px, card 600)
+ok   Motion @390 (height 940px, card 600)
+ok   Pagination @960 (height 420px, card 420)
+ok   Pagination @390 (height 436px, card 420)
+ok   Panel @960 (height 1020px, card 1020)
+ok   Panel @390 (height 1543px, card 1020)
+ok   PasswordField @960 (height 780px, card 780)
+ok   PasswordField @390 (height 898px, card 780)
+ok   PinInput @960 (height 800px, card 800)
+ok   PinInput @390 (height 1024px, card 800)
+ok   PinInput [lihat] @960 (height 800px, card 800)
+ok   Progress @960 (height 480px, card 480)
+ok   Progress @390 (height 480px, card 480)
+ok   Radio @960 (height 300px, card 300)
+ok   Radio @390 (height 328px, card 300)
+ok   Recovery @960 (height 740px, card 740)
+      note, under 44px: a.pds-link "Pulihkan lewat email" 352x24; a.pds-btn "Pulihkan lewat email" 272x36
+ok   Recovery @390 (height 1192px, card 740)
+      note, under 44px: a.pds-link "Pulihkan lewat email" 292x24; a.pds-btn "Pulihkan lewat email" 212x36
+ok   Search @960 (height 200px, card 200)
+ok   Search @390 (height 200px, card 200)
+ok   SegmentedControl @960 (height 300px, card 300)
+ok   SegmentedControl @390 (height 334px, card 300)
+ok   Select @960 (height 300px, card 300)
+ok   Select @390 (height 352px, card 300)
+ok   Switch @960 (height 260px, card 260)
+ok   Switch @390 (height 260px, card 260)
+ok   Table @1040 (height 780px, card 780)
+      note, under 44px: a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36
+ok   Table @390 (height 857px, card 780)
+      note, under 44px: a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36
+ok   Table [urut-bab3] @1040 (height 780px, card 780)
+      note, under 44px: a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Eka Putri" 59x36; a.pds-btn "Lihat Hendra Wijaya" 59x36; a.pds-btn "Lihat Kartika Sari" 59x36; a.pds-btn "Lihat Maya Anggraini" 59x36; a.pds-btn "Lihat Putri Ramadhani" 59x36
+ok   Table [pilih] @1040 (height 780px, card 780)
+      note, under 44px: button.pds-btn "Kirim pengingat" 132x36; button.pds-btn "Batalkan pilihan" 132x36; a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36
+ok   Table [menu-baris] @1040 (height 780px, card 780)
+      note, under 44px: a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36
+ok   Table [kosong] @1040 (height 780px, card 780)
+ok   Table [saring-perlu] @1040 (height 780px, card 780)
+      note, under 44px: a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Joko Susilo" 59x36
+ok   Table [halaman-2] @1040 (height 780px, card 780)
+      note, under 44px: a.pds-btn "Lihat Fajar Nugroho" 59x36; a.pds-btn "Lihat Gita Maharani" 59x36; a.pds-btn "Lihat Hendra Wijaya" 59x36; a.pds-btn "Lihat Intan Permata" 59x36; a.pds-btn "Lihat Joko Susilo" 59x36; a.pds-btn "Lihat Kartika Sari" 59x36
+ok   Table [ponsel] @390 (height 857px, card 780)
+      note, under 44px: a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36
+ok   Tabs @960 (height 420px, card 420)
+ok   Tabs @390 (height 420px, card 420)
+ok   Tag @960 (height 240px, card 240)
+      note, under 44px: button.pds-btn "Hapus semua saringan" 176x36
+ok   Tag @390 (height 308px, card 240)
+      note, under 44px: button.pds-btn "Hapus semua saringan" 176x36
+ok   TextField @960 (height 640px, card 640)
+ok   TextField @390 (height 1276px, card 640)
+ok   Textarea @960 (height 460px, card 460)
+ok   Textarea @390 (height 472px, card 460)
+ok   Tooltip @960 (height 200px, card 200)
+ok   Tooltip @390 (height 208px, card 200)
+ok   Tooltip [fokus] @960 (height 200px, card 200)

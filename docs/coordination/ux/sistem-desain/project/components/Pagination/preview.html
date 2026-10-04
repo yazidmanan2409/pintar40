@@ -1,0 +1,68 @@
+<!-- @dsCard group="Navigation" height=420 subtitle="Where am I, how much is there, how do I move" -->
+<div class="pds">
+  <div class="pds-stack">
+    <h2 class="pds-demo-label">Under a table: position and two moves (the default)</h2>
+    <div class="pds-table-wrap">
+      <nav class="pds-pager" aria-label="Halaman daftar murid" data-pager="16" data-total="312" data-per="20">
+        <span data-ringkas></span>
+        <span class="pds-pager-gerak">
+          <button type="button" class="pds-btn pds-btn-secondary" data-sebelum><i data-ikon="chevron-left"></i><span class="pds-btn-teks">Sebelumnya</span><span class="pds-sr">Halaman sebelumnya</span></button>
+          <span class="pds-pager-posisi" data-posisi aria-live="polite"></span>
+          <button type="button" class="pds-btn pds-btn-secondary" data-sesudah><span class="pds-btn-teks">Berikutnya</span><span class="pds-sr">Halaman berikutnya</span><i data-ikon="chevron-right"></i></button>
+        </span>
+      </nav>
+    </div>
+  </div>
+  <div class="pds-stack">
+    <h2 class="pds-demo-label">A report people jump around in: page numbers</h2>
+    <div class="pds-table-wrap">
+      <nav class="pds-pager" aria-label="Halaman laporan" data-pager="12" data-total="236" data-per="20" data-nomor>
+        <span data-ringkas></span>
+        <span class="pds-pager-gerak">
+          <button type="button" class="pds-btn pds-btn-icon" data-sebelum aria-label="Halaman sebelumnya"><i data-ikon="chevron-left"></i></button>
+          <span class="pds-pager-nomor"></span>
+          <span class="pds-pager-posisi pds-pager-kecil" data-kecil></span>
+          <button type="button" class="pds-btn pds-btn-icon" data-sesudah aria-label="Halaman berikutnya"><i data-ikon="chevron-right"></i></button>
+        </span>
+      </nav>
+    </div>
+  </div>
+  <div class="pds-stack">
+    <h2 class="pds-demo-label">A list read in order: show more</h2>
+    <div class="pds-row">
+      <button type="button" class="pds-btn pds-btn-secondary" id="pg-lagi">Tampilkan 50 nama lagi</button>
+      <span class="pds-help pds-num" id="pg-lagi-ket" aria-live="polite">Menampilkan 50 dari 500 nama</span>
+    </div>
+  </div>
+</div>
+<script>
+  Pintar.siapkan();
+  document.querySelectorAll("[data-pager]").forEach(function (n) {
+    var hal = Number(n.getAttribute("data-pager")), total = Number(n.getAttribute("data-total")), per = Number(n.getAttribute("data-per")), kini = 2;
+    function gambar() {
+      var awal = (kini - 1) * per + 1, akhir = Math.min(kini * per, total);
+      n.querySelector("[data-ringkas]").textContent = "Menampilkan " + awal + "–" + akhir + " dari " + total;
+      var pos = n.querySelector("[data-posisi]"); if (pos) pos.textContent = "Halaman " + kini + " dari " + hal;
+      var kecil = n.querySelector("[data-kecil]"); if (kecil) kecil.textContent = kini + " / " + hal;
+      n.querySelector("[data-sebelum]").disabled = kini <= 1;
+      n.querySelector("[data-sesudah]").disabled = kini >= hal;
+      var nomor = n.querySelector(".pds-pager-nomor");
+      if (nomor) {
+        var h = [];
+        for (var i = 1; i <= hal; i++) { if (i === 1 || i === hal || Math.abs(i - kini) <= 1) h.push(i); else if (h[h.length - 1] !== "…") h.push("…"); }
+        nomor.innerHTML = h.map(function (x) { return x === "…" ? '<span class="pds-pager-elipsis" aria-hidden="true">…</span>' : '<button type="button" class="pds-btn pds-btn-quiet" data-ke="' + x + '" aria-label="Halaman ' + x + '"' + (x === kini ? ' aria-current="page"' : "") + ">" + x + "</button>"; }).join("");
+      }
+    }
+    n.addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b || b.disabled) return;
+      if (b.hasAttribute("data-sebelum")) kini--; else if (b.hasAttribute("data-sesudah")) kini++; else if (b.getAttribute("data-ke")) kini = Number(b.getAttribute("data-ke"));
+      gambar();
+      var akt = n.querySelector('[aria-current="page"]'); if (akt && b.getAttribute("data-ke")) akt.focus();
+    });
+    gambar();
+  });
+  (function () {
+    var b = document.getElementById("pg-lagi"), k = document.getElementById("pg-lagi-ket"), n = 50;
+    b.addEventListener("click", function () { n = Math.min(500, n + 50); k.textContent = "Menampilkan " + n + " dari 500 nama"; if (n >= 500) { b.disabled = true; k.textContent = "Semua 500 nama ditampilkan"; } });
+  })();
+</script>

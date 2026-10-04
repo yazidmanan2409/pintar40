@@ -1,0 +1,106 @@
+<!-- @dsCard group="Navigation" height=1000 width=1328 subtitle="The staff shell: places above, the person below" -->
+<div class="pds" data-shell>
+  <div class="pds-demo-kontrol">
+    <span class="pds-demo-label">See as (review only)</span>
+    <div class="pds-seg pds-seg-sm" role="radiogroup" aria-label="Lihat sebagai">
+      <label><input type="radio" name="as-persona" value="guru" data-shell-persona checked><span>Guru</span></label>
+      <label><input type="radio" name="as-persona" value="kadep" data-shell-persona><span>Guru + Kepala departemen</span></label>
+      <label><input type="radio" name="as-persona" value="dekan" data-shell-persona><span>Dekan</span></label>
+      <label><input type="radio" name="as-persona" value="adminsekolah" data-shell-persona><span>Admin sekolah</span></label>
+      <label><input type="radio" name="as-persona" value="adminplatform" data-shell-persona><span>Admin platform</span></label>
+    </div>
+    <span class="pds-demo-label">Width</span>
+    <div class="pds-seg pds-seg-sm" role="radiogroup" aria-label="Lebar layar">
+      <label><input type="radio" name="as-lebar" value="1280" data-shell-lebar checked><span>1280</span></label>
+      <label><input type="radio" name="as-lebar" value="1100" data-shell-lebar><span>1100</span></label>
+      <label><input type="radio" name="as-lebar" value="820" data-shell-lebar><span>820</span></label>
+      <label><input type="radio" name="as-lebar" value="390" data-shell-lebar><span>390</span></label>
+    </div>
+  </div>
+
+  <div class="pds-shell-host" style="max-width: 1280px">
+    <div class="pds-shell">
+      <nav class="pds-nav" aria-label="Tempat kerja Anda">
+        <div class="pds-nav-kepala">
+          <img class="pds-merek pds-merek-penuh" src="/_blob/abed353d4f794a8b5de8a83d14b0d67f" alt="PINTAR SELALU" width="766" height="429">
+          <button type="button" class="pds-btn pds-btn-icon" data-shell-ciut aria-label="Ciutkan navigasi" aria-expanded="true"><i data-ikon="panel-left-close"></i></button>
+        </div>
+        <ul class="pds-nav-daftar" data-shell-nav></ul>
+        <div class="pds-nav-bawah">
+          <a href="#" class="pds-nav-item" data-shell-bantuan aria-label="Bantuan"><i data-ikon="circle-help"></i><span class="pds-nav-label">Bantuan</span></a>
+          <div class="pds-menu-host" data-shell-identitas>
+            <button type="button" class="pds-identity" aria-haspopup="menu" aria-expanded="false" aria-controls="as-menu-id">
+              <span class="pds-avatar" data-id-inisial aria-hidden="true">RK</span>
+              <div><strong data-id-nama>Rina Kartika</strong><small data-id-konteks>Guru · SDN Kaliandra 1</small></div>
+              <i data-ikon="ellipsis"></i>
+            </button>
+            <div class="pds-menu pds-menu-samping" id="as-menu-id" role="menu" aria-label="Akun" hidden>
+              <a href="#" class="pds-menu-item" role="menuitem"><i data-ikon="id-card"></i>Akun saya</a>
+              <a href="#" class="pds-menu-item" role="menuitem"><i data-ikon="languages"></i>English</a>
+            </div>
+          </div>
+          <button type="button" class="pds-nav-item pds-nav-keluar" aria-label="Keluar"><i data-ikon="log-out"></i><span class="pds-nav-label">Keluar</span></button>
+        </div>
+      </nav>
+
+      <div class="pds-main">
+        <header class="pds-bar">
+          <img class="pds-merek" src="/_blob/abed353d4f794a8b5de8a83d14b0d67f" alt="PINTAR SELALU" width="766" height="429">
+          <span class="pds-bar-tempat" aria-hidden="true">Kelas</span>
+          <button type="button" class="pds-btn pds-btn-secondary pds-btn-sm">Keluar</button>
+          <button type="button" class="pds-btn pds-btn-icon" aria-label="Buka menu" data-dialog-buka="as-laci"><i data-ikon="menu"></i></button>
+        </header>
+
+        <main class="pds-main-isi">
+          <div class="pds-pagehead">
+            <div>
+              <ol class="pds-scope" aria-label="Lokasi">
+                <li><a href="#">SDN Kaliandra 1</a></li>
+                <li><span aria-current="page" data-shell-cakupan>Kelas</span></li>
+              </ol>
+              <h1 class="pds-title" data-shell-judul>Kelas 5A · Matematika</h1>
+            </div>
+            <div class="pds-actions" data-shell-isi="kelas"><button type="button" class="pds-btn pds-btn-primary">Terbitkan Bab 4</button></div>
+          </div>
+
+          <section class="pds-section" data-shell-isi="kelas" aria-labelledby="as-perlu">
+            <h2 id="as-perlu">Yang perlu Anda lihat hari ini</h2>
+            <ul class="pds-list">
+              <li><a href="#" class="pds-list-row"><strong>7 murid belum mulai Bab 3</strong><span class="pds-badge pds-badge-attention">Perlu dilihat</span><small>Bab 3 diterbitkan 2 Okt · batas 9 Okt</small></a></li>
+              <li><a href="#" class="pds-list-row"><strong>Uji Cepat Bab 2 selesai</strong><span class="pds-badge">24 dari 31</span><small>Hasilnya bisa dibahas di kelas besok</small></a></li>
+              <li><a href="#" class="pds-list-row"><strong>Bab 4 · Pecahan campuran</strong><span class="pds-badge pds-badge-info">Siap diterbitkan</span><small>Sudah ditinjau Kepala departemen</small></a></li>
+            </ul>
+          </section>
+          <section class="pds-section" data-shell-isi="pimpinan" hidden>
+            <p class="pds-intro">Ringkasan tiap kelas di lingkup Anda, dengan hal yang perlu dilihat lebih dulu.</p>
+          </section>
+          <section class="pds-section" data-shell-isi="konfigurasi" hidden>
+            <p class="pds-intro">Struktur sekolah, peran dan kesiapan PINTAR untuk sekolah ini.</p>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <dialog class="pds-drawer" id="as-laci" aria-label="Menu" data-tutup-luar>
+    <div class="pds-drawer-kepala">
+      <img class="pds-merek" src="/_blob/abed353d4f794a8b5de8a83d14b0d67f" alt="PINTAR SELALU" width="766" height="429">
+      <button type="button" class="pds-btn pds-btn-icon" aria-label="Tutup menu" data-dialog-tutup><i data-ikon="x"></i></button>
+    </div>
+    <nav class="pds-drawer-isi" aria-label="Tempat kerja Anda">
+      <ul class="pds-nav-daftar" data-shell-nav></ul>
+      <div class="pds-nav-bawah" data-shell-identitas>
+        <a href="#" class="pds-nav-item" data-shell-bantuan><i data-ikon="circle-help"></i><span class="pds-nav-label">Bantuan</span></a>
+        <div class="pds-identity" style="cursor: default">
+          <span class="pds-avatar" data-id-inisial aria-hidden="true">RK</span>
+          <div><strong data-id-nama>Rina Kartika</strong><small data-id-konteks>Guru · SDN Kaliandra 1</small></div>
+        </div>
+        <a href="#" class="pds-nav-item"><i data-ikon="id-card"></i><span class="pds-nav-label">Akun saya</span></a>
+        <a href="#" class="pds-nav-item"><i data-ikon="languages"></i><span class="pds-nav-label">English</span></a>
+        <a href="#" class="pds-nav-item"><i data-ikon="log-out"></i><span class="pds-nav-label">Keluar</span></a>
+      </div>
+    </nav>
+  </dialog>
+  <p class="pds-demo-catatan">«Keluar» is always one press away and visible: at the bottom of the navigation, as an icon in the rail, and in the top bar on smaller screens (D-009, DAISY-02). Staff see their own name; a learner never does (see Learner shell). The places per person are today's (D-010, DAISY-11, WP6B and Konfigurasi's own links); this proposal draws them and does not decide them. Click a place: it says it heard you at once, then the page changes. Collapse the navigation, or choose 1100 to see the rail, and 820 or 390 for the top bar and its drawer.</p>
+</div>
+<script>Pintar.siapkan();</script>

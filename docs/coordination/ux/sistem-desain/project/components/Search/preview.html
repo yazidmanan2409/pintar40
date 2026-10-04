@@ -1,0 +1,25 @@
+<!-- @dsCard group="Inputs" height=200 subtitle="One field, a clear button, results that say how many" -->
+<div class="pds">
+  <div class="pds-field" style="max-width: 420px">
+    <label class="pds-label" for="cari-murid">Cari murid</label>
+    <span class="pds-search">
+      <i data-ikon="search"></i>
+      <input id="cari-murid" class="pds-input" type="search" autocomplete="off" placeholder="Nama atau PINTAR ID" aria-describedby="cari-hasil">
+      <button type="button" class="pds-search-hapus" aria-label="Hapus pencarian"><i data-ikon="x"></i></button>
+    </span>
+    <p class="pds-help" id="cari-hasil" aria-live="polite">31 murid di Kelas 5A</p>
+  </div>
+</div>
+<script>
+  Pintar.siapkan();
+  (function () {
+    var nama = ["Adi Pratama", "Ayu Lestari", "Bagus Santoso", "Citra Dewi", "Dimas Anggara", "Fajar Nugroho", "Intan Permata", "Rizky Ramadhan"];
+    var i = document.getElementById("cari-murid"), h = document.getElementById("cari-hasil");
+    i.addEventListener("input", function () {
+      var q = i.value.trim().toLowerCase();
+      if (!q) { h.textContent = "31 murid di Kelas 5A"; return; }
+      var n = nama.filter(function (x) { return x.toLowerCase().indexOf(q) !== -1; }).length;
+      h.textContent = n ? n + " murid cocok dengan «" + i.value.trim() + "»" : "Tidak ada murid yang cocok dengan «" + i.value.trim() + "». Periksa ejaannya, atau cari dengan PINTAR ID.";
+    });
+  })();
+</script>

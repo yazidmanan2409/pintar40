@@ -1,0 +1,51 @@
+<!-- @dsCard group="Foundations" height=520 width=1100 subtitle="One grammar of states across every control" -->
+<div class="pds">
+  <div class="pds-demo-gulir" tabindex="0" role="region" aria-label="Keadaan kontrol">
+  <div class="pds-demo-matrix" role="presentation" style="grid-template-columns: minmax(110px, auto) repeat(6, minmax(0, 1fr)); min-width: 1000px">
+    <span class="pds-demo-label">.</span>
+    <span class="pds-demo-label">Default</span><span class="pds-demo-label">Hover</span><span class="pds-demo-label">Pressed</span><span class="pds-demo-label">Focus</span><span class="pds-demo-label">Selected</span><span class="pds-demo-label">Disabled</span>
+
+    <span class="pds-demo-label">Navigation</span>
+    <a href="#" class="pds-nav-item" tabindex="-1"><i data-ikon="users"></i>Kelas</a>
+    <a href="#" class="pds-nav-item is-hover" tabindex="-1"><i data-ikon="users"></i>Kelas</a>
+    <a href="#" class="pds-nav-item is-pressed" tabindex="-1"><i data-ikon="users"></i>Kelas</a>
+    <a href="#" class="pds-nav-item is-focus" tabindex="-1"><i data-ikon="users"></i>Kelas</a>
+    <a href="#" class="pds-nav-item" aria-current="page" tabindex="-1"><i data-ikon="users"></i>Kelas</a>
+    <span class="pds-demo-catatan">Not shown: a place a person may not use is absent, not disabled.</span>
+
+    <span class="pds-demo-label">Tab</span>
+    <span class="pds-tabs" style="border: 0"><a href="#" class="pds-tab" tabindex="-1">Bukti</a></span>
+    <span class="pds-tabs" style="border: 0"><a href="#" class="pds-tab is-hover" tabindex="-1">Bukti</a></span>
+    <span class="pds-tabs" style="border: 0"><a href="#" class="pds-tab is-hover" tabindex="-1">Bukti</a></span>
+    <span class="pds-tabs" style="border: 0"><a href="#" class="pds-tab is-focus" tabindex="-1">Bukti</a></span>
+    <span class="pds-tabs" style="border: 0"><a href="#" class="pds-tab" aria-current="page" tabindex="-1">Bukti</a></span>
+    <span class="pds-demo-catatan">Absent, as above.</span>
+
+    <span class="pds-demo-label">Row</span>
+    <a href="#" class="pds-list-row" tabindex="-1"><strong>Kelas 5A</strong></a>
+    <a href="#" class="pds-list-row is-hover" tabindex="-1"><strong>Kelas 5A</strong></a>
+    <a href="#" class="pds-list-row is-pressed" tabindex="-1"><strong>Kelas 5A</strong></a>
+    <a href="#" class="pds-list-row is-focus" tabindex="-1"><strong>Kelas 5A</strong></a>
+    <a href="#" class="pds-list-row" style="background: var(--pintar-primary-soft)" tabindex="-1"><strong>Kelas 5A</strong></a>
+    <span class="pds-demo-catatan">A row that cannot open is plain text, not a dimmed link.</span>
+
+    <span class="pds-demo-label">Field</span>
+    <input class="pds-input" aria-label="Contoh" value="Kelas 5A" tabindex="-1">
+    <input class="pds-input is-hover" aria-label="Contoh" value="Kelas 5A" tabindex="-1">
+    <input class="pds-input is-hover" aria-label="Contoh" value="Kelas 5A" tabindex="-1">
+    <input class="pds-input is-focus" aria-label="Contoh" value="Kelas 5A" tabindex="-1">
+    <input class="pds-input" aria-label="Contoh" value="Kelas 5A" aria-invalid="true" tabindex="-1">
+    <input class="pds-input" aria-label="Contoh" value="Kelas 5A" disabled>
+
+    <span class="pds-demo-label">Segment</span>
+    <span class="pds-seg"><label><input type="radio" name="is-1" tabindex="-1"><span>Semua</span></label></span>
+    <span class="pds-seg"><label><input type="radio" name="is-2" tabindex="-1"><span style="color: var(--ink-1)">Semua</span></label></span>
+    <span class="pds-seg"><label><input type="radio" name="is-3" tabindex="-1"><span style="color: var(--ink-1)">Semua</span></label></span>
+    <span class="pds-seg"><label><input type="radio" name="is-4" tabindex="-1"><span class="is-focus">Semua</span></label></span>
+    <span class="pds-seg"><label><input type="radio" name="is-5" checked tabindex="-1"><span>Semua</span></label></span>
+    <span class="pds-demo-catatan">A choice that is never available is left out.</span>
+  </div>
+  </div>
+  <p class="pds-demo-catatan">Hover: one step of ground (surface-2) or of ink. Pressed: one more (surface-3). Focus: the same 2 px PINTAR-green ring everywhere. Selected: the primary-soft ground, or the 2 px underline on a tab, always with weight 600. Field «Selected» shows the error edge, the state a field has instead.</p>
+</div>
+<script>Pintar.siapkan();</script>

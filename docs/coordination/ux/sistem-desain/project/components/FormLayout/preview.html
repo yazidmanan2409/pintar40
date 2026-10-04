@@ -1,0 +1,64 @@
+<!-- @dsCard group="Inputs" height=900 subtitle="A long form that stays calm; validation on submit" -->
+<div class="pds">
+  <form class="pds-form" data-validasi aria-labelledby="fl-judul">
+    <div class="pds-stack" style="gap: var(--space-2)">
+      <h2 id="fl-judul" class="t-section">Tambah guru</h2>
+      <p class="pds-ink-2">Guru ini menerima email aktivasi setelah Anda menyimpan. Semua bagian wajib diisi, kecuali yang bertanda opsional.</p>
+    </div>
+
+    <div class="pds-error-summary" data-ringkasan-galat tabindex="-1" role="alert" hidden>
+      <h2><i data-ikon="circle-alert"></i>Ada yang perlu diperbaiki</h2>
+      <ul></ul>
+    </div>
+
+    <div class="pds-form-group">
+      <h3>Orangnya</h3>
+      <div class="pds-field">
+        <label class="pds-label" for="fl-nama">Nama lengkap</label>
+        <input id="fl-nama" class="pds-input" autocomplete="name" required data-galat="Tulis nama lengkap guru." aria-describedby="fl-nama-galat">
+        <p class="pds-error" id="fl-nama-galat" hidden><i data-ikon="circle-alert"></i>Tulis nama lengkap guru.</p>
+      </div>
+      <div class="pds-field">
+        <label class="pds-label" for="fl-email">Email sekolah</label>
+        <p class="pds-help" id="fl-email-bantu">Alamat untuk email aktivasi. Pakai alamat yang dibaca orang ini sendiri.</p>
+        <input id="fl-email" class="pds-input" type="email" autocomplete="email" required data-galat="Masukkan email lengkap, misalnya nama@sekolah.sch.id." aria-describedby="fl-email-bantu fl-email-galat">
+        <p class="pds-error" id="fl-email-galat" hidden><i data-ikon="circle-alert"></i>Masukkan email lengkap, misalnya nama@sekolah.sch.id.</p>
+      </div>
+      <div class="pds-field">
+        <label class="pds-label" for="fl-telp">Nomor telepon <span class="pds-opsional">(opsional)</span></label>
+        <input id="fl-telp" class="pds-input pds-input-pendek" type="tel" autocomplete="tel">
+      </div>
+    </div>
+
+    <div class="pds-form-group">
+      <h3>Tempatnya di sekolah</h3>
+      <div class="pds-grid-2">
+        <div class="pds-field">
+          <label class="pds-label" for="fl-peran">Peran</label>
+          <span class="pds-select">
+            <select id="fl-peran" required data-galat="Pilih peran guru ini." aria-describedby="fl-peran-galat">
+              <option value="">Pilih peran</option><option>Guru</option><option>Kepala departemen</option>
+            </select>
+            <i data-ikon="chevron-down"></i>
+          </span>
+          <p class="pds-error" id="fl-peran-galat" hidden><i data-ikon="circle-alert"></i>Pilih peran guru ini.</p>
+        </div>
+        <div class="pds-field">
+          <label class="pds-label" for="fl-kelas">Kelas <span class="pds-opsional">(opsional)</span></label>
+          <span class="pds-select">
+            <select id="fl-kelas"><option value="">Belum ada</option><option>Kelas 5A</option><option>Kelas 5B</option></select>
+            <i data-ikon="chevron-down"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pds-actions">
+      <button type="submit" class="pds-btn pds-btn-primary" data-aksi data-sibuk="Menyimpan…" data-selesai="Tersimpan" data-status="#fl-status" data-hasil="#fl-hasil" data-hasil-teks="Guru tersimpan. PINTAR sedang mengirim email aktivasi ke alamatnya." data-lanjut="Tambah guru lain">Simpan</button>
+      <button type="button" class="pds-btn pds-btn-quiet">Batal</button>
+      <p id="fl-status" class="pds-result" role="status" hidden></p>
+    </div>
+    <p id="fl-hasil" class="pds-result" role="status" hidden></p>
+  </form>
+</div>
+<script>Pintar.siapkan();</script>

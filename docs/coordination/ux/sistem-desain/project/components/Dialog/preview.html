@@ -1,0 +1,18 @@
+<!-- @dsCard group="Containers" height=360 subtitle="Rare: a short question asked from a place with no room to ask it in the page" -->
+<div class="pds">
+  <div class="pds-row">
+    <button type="button" class="pds-btn pds-btn-secondary" data-dialog-buka="dl-semua"><i data-ikon="log-out"></i>Keluar dari semua perangkat…</button>
+  </div>
+  <p class="pds-demo-catatan">The native dialog: focus moves in and is held there, Esc and «Batal» close it, and focus returns to the button that opened it. The cancel action is focused first because the other one ends sessions. PINTAR's default is still the in-page confirmation (Confirmation).</p>
+  <dialog class="pds-dialog" id="dl-semua" aria-labelledby="dl-semua-judul" aria-describedby="dl-semua-isi">
+    <div class="pds-dialog-isi">
+      <h2 id="dl-semua-judul">Keluar dari semua perangkat?</h2>
+      <p id="dl-semua-isi">Anda akan keluar di semua komputer dan tablet yang memakai akun ini, termasuk yang ini. Untuk masuk lagi, pakai email dan password Anda.</p>
+      <div class="pds-actions">
+        <button type="button" class="pds-btn pds-btn-quiet" data-dialog-tutup autofocus>Batal</button>
+        <button type="button" class="pds-btn pds-btn-destructive-confirm" data-dialog-tutup="ya">Keluar dari semua</button>
+      </div>
+    </div>
+  </dialog>
+</div>
+<script>Pintar.siapkan();</script>

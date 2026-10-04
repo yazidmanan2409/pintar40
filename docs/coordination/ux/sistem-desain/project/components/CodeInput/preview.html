@@ -1,0 +1,21 @@
+<!-- @dsCard group="Inputs" height=380 subtitle="A six-digit code from email, grouped as it is read" -->
+<div class="pds">
+  <div class="pds-grid-2">
+    <div class="pds-field pds-kode">
+      <label class="pds-label" for="kode-a">Kode dari email</label>
+      <p class="pds-help" id="kode-a-bantu">Jika alamat ini terdaftar dan akunnya belum aktif, PINTAR sedang mengirim kode aktivasi ke sana. Biasanya kode tiba dalam satu menit. Buka email Anda, lalu ketik kodenya di sini.</p>
+      <input id="kode-a" class="pds-input pds-input-lg" inputmode="numeric" autocomplete="one-time-code" data-kode aria-describedby="kode-a-bantu">
+    </div>
+    <div class="pds-field pds-kode">
+      <label class="pds-label" for="kode-b">Kode dari email</label>
+      <input id="kode-b" class="pds-input pds-input-lg" inputmode="numeric" autocomplete="one-time-code" data-kode value="482 931" aria-invalid="true" aria-describedby="kode-b-galat">
+      <p class="pds-error" id="kode-b-galat"><i data-ikon="circle-alert"></i>Kode ini tidak cocok. Pakai kode di email terbaru, atau minta kode baru.</p>
+      <div class="pds-row-tight">
+        <button type="button" class="pds-btn pds-btn-quiet" aria-disabled="true" aria-describedby="kode-tunggu">Minta kode baru</button>
+        <span class="pds-help pds-num" id="kode-tunggu">Bisa diminta lagi dalam 42 detik.</span>
+      </div>
+    </div>
+  </div>
+  <p class="pds-demo-catatan">Typed or pasted either way («482913» or «482 913»); it is shown grouped 3 + 3, as the email shows it. Words: the help is aktifkan.kode_terkirim, which says PINTAR is sending, never that it sent (EMAILJUJUR-L01); the rest is sample text.</p>
+</div>
+<script>Pintar.siapkan();</script>

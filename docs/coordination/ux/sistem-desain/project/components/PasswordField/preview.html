@@ -1,0 +1,33 @@
+<!-- @dsCard group="Identity" height=780 subtitle="Today's rules, shown before typing; each ticks as it is met" -->
+<div class="pds">
+  <div class="pds-tugas-bingkai">
+    <form class="pds-tugas" style="max-width: var(--measure-narrow)" onsubmit="return false" aria-labelledby="pw-judul">
+      <p class="pds-eyebrow">Langkah 2 dari 5</p>
+      <div class="pds-stack" style="gap: var(--space-2)">
+        <h1 id="pw-judul">Buat password</h1>
+        <p class="pds-ink-2">Password ini dipakai untuk masuk ke PINTAR, bersama email atau username Anda.</p>
+      </div>
+      <div class="pds-field" data-aturan-pw>
+        <label class="pds-label" for="pw-1">Password</label>
+        <span class="pds-pin">
+          <input id="pw-1" class="pds-input pds-input-lg" type="password" autocomplete="new-password" aria-describedby="pw-aturan" style="font-family: var(--font-sans); font-size: 16px; letter-spacing: normal; width: 100%">
+          <button type="button" class="pds-btn pds-btn-icon" data-pw-lihat aria-pressed="false" aria-label="Tampilkan password"><i data-ikon="eye"></i></button>
+        </span>
+        <ul class="pds-aturan" id="pw-aturan">
+          <li data-aturan="panjang">Paling sedikit 8 karakter.<span class="pds-sr"></span></li>
+          <li data-aturan="kecil">Harus berisi huruf kecil<span class="pds-sr"></span></li>
+          <li data-aturan="besar">Harus berisi huruf besar<span class="pds-sr"></span></li>
+          <li data-aturan="angka">Harus berisi angka<span class="pds-sr"></span></li>
+        </ul>
+        <p class="pds-help">Password yang pernah bocor di internet tidak bisa dipakai.</p>
+      </div>
+      <div class="pds-field">
+        <label class="pds-label" for="pw-2">Ketik ulang password</label>
+        <input id="pw-2" class="pds-input pds-input-lg" type="password" autocomplete="new-password">
+      </div>
+      <button type="submit" class="pds-btn pds-btn-primary pds-btn-lg">Simpan password</button>
+    </form>
+  </div>
+  <p class="pds-demo-catatan">Words: aktifkan.langkah / dari, p_judul, p_lede, p_min («Paling sedikit … karakter.»), p_wajib with p_k.* («Harus berisi huruf kecil»), p_bocor, p_label, p_ulang, p_simpan. The rules come from the canonical setting (BOB-26), never typed into the screen; 8 and the four kinds here are an example. An unmet rule stays plain ink, never red: nothing is wrong while someone is still typing.</p>
+</div>
+<script>Pintar.siapkan();</script>

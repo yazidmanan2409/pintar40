@@ -1,0 +1,42 @@
+<!-- @dsCard group="Inputs" height=440 subtitle="Many choices from a list; the whole row is the target" -->
+<div class="pds">
+  <div class="pds-grid-2">
+    <fieldset class="pds-fieldset">
+      <legend class="pds-label">Terbitkan untuk kelas</legend>
+      <label class="pds-choice"><input type="checkbox" class="pds-check" id="cb-semua"><span>Semua kelas di Tingkat 5</span></label>
+      <label class="pds-choice"><input type="checkbox" class="pds-check" name="cb-kelas" checked><span>Kelas 5A</span><small>31 murid</small></label>
+      <label class="pds-choice"><input type="checkbox" class="pds-check" name="cb-kelas"><span>Kelas 5B</span><small>29 murid</small></label>
+      <label class="pds-choice"><input type="checkbox" class="pds-check" name="cb-kelas" disabled><span>Kelas 5C</span><small>Belum ada guru. Tetapkan guru dulu di Konfigurasi.</small></label>
+    </fieldset>
+    <fieldset class="pds-fieldset" aria-describedby="cb-galat">
+      <legend class="pds-label">Saya mengerti bahwa</legend>
+      <label class="pds-choice"><input type="checkbox" class="pds-check" aria-invalid="true" required><span>Murid yang sudah mulai tetap menyimpan jawabannya.</span></label>
+      <p class="pds-error" id="cb-galat"><i data-ikon="circle-alert"></i>Centang pernyataan ini untuk melanjutkan.</p>
+    </fieldset>
+  </div>
+  <div class="pds-stack">
+    <h2 class="pds-demo-label">States</h2>
+    <div class="pds-row">
+      <label class="pds-choice"><input type="checkbox" class="pds-check"><span>Tidak dipilih</span></label>
+      <label class="pds-choice"><input type="checkbox" class="pds-check" checked><span>Dipilih</span></label>
+      <label class="pds-choice"><input type="checkbox" class="pds-check" id="cb-sebagian"><span>Sebagian</span></label>
+      <label class="pds-choice"><input type="checkbox" class="pds-check" disabled><span>Tidak tersedia</span></label>
+      <label class="pds-choice"><input type="checkbox" class="pds-check" checked disabled><span>Terkunci, dipilih</span></label>
+    </div>
+  </div>
+</div>
+<script>
+  Pintar.siapkan();
+  (function () {
+    document.getElementById("cb-sebagian").indeterminate = true;
+    var semua = document.getElementById("cb-semua");
+    var anak = Array.prototype.slice.call(document.querySelectorAll('[name="cb-kelas"]:not(:disabled)'));
+    function sinkron() {
+      var n = anak.filter(function (c) { return c.checked; }).length;
+      semua.checked = n === anak.length; semua.indeterminate = n > 0 && n < anak.length;
+    }
+    semua.addEventListener("change", function () { anak.forEach(function (c) { c.checked = semua.checked; }); sinkron(); });
+    anak.forEach(function (c) { c.addEventListener("change", sinkron); });
+    sinkron();
+  })();
+</script>

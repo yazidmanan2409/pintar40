@@ -1,0 +1,23 @@
+<!-- @dsCard group="Containers" height=300 subtitle="A side layer: the navigation on small screens, Help everywhere" -->
+<div class="pds">
+  <div class="pds-row">
+    <button type="button" class="pds-btn pds-btn-quiet" data-dialog-buka="dr-bantuan"><i data-ikon="circle-help"></i>Bantuan</button>
+  </div>
+  <p class="pds-demo-catatan">The left drawer carries the navigation below 1024 px (see App shell). The right drawer carries Help, which today is its own panel (UX-1 §O). A drawer never holds a form that saves.</p>
+  <dialog class="pds-drawer pds-drawer-kanan" id="dr-bantuan" aria-labelledby="dr-bantuan-judul" data-tutup-luar>
+    <div class="pds-drawer-kepala">
+      <h2 id="dr-bantuan-judul">Bantuan</h2>
+      <button type="button" class="pds-btn pds-btn-icon" aria-label="Tutup bantuan" data-dialog-tutup><i data-ikon="x"></i></button>
+    </div>
+    <div class="pds-drawer-isi">
+      <p class="pds-ink-2">Tujuh hal yang perlu diketahui di halaman Kelas.</p>
+      <ul class="pds-list">
+        <li><a href="#" class="pds-list-row"><strong>Melihat siapa yang belum mulai</strong></a></li>
+        <li><a href="#" class="pds-list-row"><strong>Menerbitkan bab berikutnya</strong></a></li>
+        <li><a href="#" class="pds-list-row"><strong>Membuka Uji Cepat</strong></a></li>
+      </ul>
+      <button type="button" class="pds-btn pds-btn-secondary">Mulai tur halaman ini</button>
+    </div>
+  </dialog>
+</div>
+<script>Pintar.siapkan();</script>

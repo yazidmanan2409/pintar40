@@ -1,0 +1,47 @@
+<!-- @dsCard group="Containers" height=1020 subtitle="Type and space first; a container only when something must stand apart" -->
+<div class="pds" style="max-width: 900px">
+  <section class="pds-section" aria-labelledby="pn-1">
+    <p class="pds-demo-label">1 · A section: no container at all</p>
+    <h2 id="pn-1">Uji Cepat Bab 2</h2>
+    <dl class="pds-grid-2" style="gap: var(--space-3) var(--space-6)">
+      <div><dt class="pds-help">Dibuka</dt><dd class="pds-num">Jumat, 9 Okt 2026, 07.30 WIB</dd></div>
+      <div><dt class="pds-help">Waktu mengerjakan</dt><dd class="pds-num">20 menit</dd></div>
+      <div><dt class="pds-help">Sudah mengerjakan</dt><dd class="pds-num">24 dari 31 murid</dd></div>
+      <div><dt class="pds-help">Soal</dt><dd class="pds-num">10</dd></div>
+    </dl>
+  </section>
+
+  <section class="pds-section" aria-labelledby="pn-2">
+    <p class="pds-demo-label">2 · A well: quiet information beside the main thing</p>
+    <h2 id="pn-2" class="pds-sr">Catatan</h2>
+    <div class="pds-well">
+      <p class="pds-label">Tentang kejujuran mengerjakan</p>
+      <p class="pds-ink-2">PINTAR mencatat bila jawaban dikirim sangat cepat atau tab berpindah. Catatan ini untuk guru, bukan hukuman bagi murid.</p>
+    </div>
+  </section>
+
+  <section class="pds-section" aria-labelledby="pn-3">
+    <p class="pds-demo-label">3 · Cards: objects in a small collection you open</p>
+    <h2 id="pn-3">Kelas Anda</h2>
+    <div class="pds-grid-2">
+      <a href="#" class="pds-card"><h3>Kelas 5A · Matematika</h3><p>31 murid · Bab 3 sedang berjalan</p></a>
+      <a href="#" class="pds-card"><h3>Kelas 5B · Matematika</h3><p>29 murid · Bab 3 sedang berjalan</p></a>
+      <a href="#" class="pds-card"><h3>Kelas 6A · Matematika</h3><p>30 murid · Bab 2 selesai</p></a>
+    </div>
+  </section>
+
+  <section class="pds-section" aria-labelledby="pn-4">
+    <p class="pds-demo-label">4 · A panel: a group of fields that must stand apart</p>
+    <h2 id="pn-4" class="pds-sr">Panel</h2>
+    <div class="pds-panel">
+      <h3>Waktu Uji Cepat</h3>
+      <p class="pds-help">Berlaku untuk semua murid Kelas 5A.</p>
+      <div class="pds-row" style="align-items: end">
+        <div class="pds-field"><label class="pds-label" for="pn-menit">Waktu mengerjakan</label><span class="pds-unit"><input id="pn-menit" class="pds-input" style="width: 8ch" inputmode="numeric" value="20"><span>menit</span></span></div>
+        <button type="button" class="pds-btn pds-btn-secondary">Simpan waktu</button>
+      </div>
+    </div>
+  </section>
+  <p class="pds-demo-catatan">More than 6 objects of one kind is a list (rows), not a grid of cards. A card is never a box drawn around a heading and a paragraph.</p>
+</div>
+<script>Pintar.siapkan();</script>

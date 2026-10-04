@@ -1,0 +1,41 @@
+<!-- @dsCard group="Identity" height=740 subtitle="Gates 4 and 5: back in by email, or by PINTAR ID and PIN" -->
+<div class="pds">
+  <div class="pds-grid-2" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); align-items: start">
+    <div class="pds-tugas-bingkai">
+      <form class="pds-tugas" onsubmit="return false" aria-labelledby="rc-1-judul">
+        <div class="pds-stack" style="gap: var(--space-2)">
+          <h1 id="rc-1-judul">Pulihkan dengan PINTAR ID dan PIN</h1>
+          <p class="pds-ink-2">Ketik PINTAR ID yang ada di kartu PINTAR Anda dan PIN pribadi Anda. Setelah itu Anda membuat password baru.</p>
+        </div>
+        <div class="pds-field">
+          <label class="pds-label" for="rc-id">PINTAR ID</label>
+          <input id="rc-id" class="pds-input pds-input-lg pds-mono" autocomplete="username" autocapitalize="characters" spellcheck="false" placeholder="A14C D7ST">
+        </div>
+        <div class="pds-field">
+          <label class="pds-label" for="rc-pin">PIN pribadi (4 angka)</label>
+          <span class="pds-pin" data-pin>
+            <input id="rc-pin" class="pds-input pds-input-lg" type="password" inputmode="numeric" maxlength="4" autocomplete="current-password" aria-invalid="true" aria-describedby="rc-galat">
+            <button type="button" class="pds-btn pds-btn-icon" data-pin-lihat aria-pressed="false" aria-label="Tampilkan PIN"><i data-ikon="eye"></i></button>
+          </span>
+          <p class="pds-error" id="rc-galat" role="alert"><i data-ikon="circle-alert"></i>PINTAR ID atau PIN tidak cocok. Periksa keduanya, lalu coba lagi.</p>
+        </div>
+        <button type="submit" class="pds-btn pds-btn-primary pds-btn-lg">Lanjut</button>
+        <a href="#" class="pds-link pds-link-quiet">Pulihkan lewat email</a>
+      </form>
+    </div>
+    <div class="pds-tugas-bingkai">
+      <div class="pds-tugas">
+        <div class="pds-stack" style="gap: var(--space-2)">
+          <h1>Pulihkan dengan PINTAR ID dan PIN</h1>
+        </div>
+        <div class="pds-alert pds-alert-attention" role="status">
+          <i data-ikon="triangle-alert"></i>
+          <p>Pemulihan dengan PIN untuk PINTAR ID ini ditutup sementara setelah beberapa PIN tidak cocok. Anda tetap bisa memulihkan akun lewat email.</p>
+          <div class="pds-actions"><a href="#" class="pds-btn pds-btn-secondary pds-btn-sm">Pulihkan lewat email</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="pds-demo-catatan">Words: lupa.pin.judul, lede, id_label, pin_label, salah, periksa, ke_email, terkunci (real). The lock is attention, not error: it opens again by itself, and the way through email stays open. The message is the same whether or not the ID exists, so it reveals nothing.</p>
+</div>
+<script>Pintar.siapkan();</script>

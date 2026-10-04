@@ -1,0 +1,59 @@
+<!-- @dsCard group="Feedback" height=1080 subtitle="Click → acknowledged → processing → completed or failed → next action" -->
+<div class="pds">
+  <div class="pds-demo-kontrol" role="group" aria-label="Simulasi jaringan">
+    <span class="pds-demo-label">Network (review only)</span>
+    <div class="pds-seg pds-seg-sm">
+      <label><input type="radio" name="af-jaringan" value="normal" data-jaringan checked><span>Normal, 0.9 s</span></label>
+      <label><input type="radio" name="af-jaringan" value="lambat" data-jaringan><span>Slow, 4.6 s</span></label>
+      <label><input type="radio" name="af-jaringan" value="gagal" data-jaringan><span>Fails</span></label>
+    </div>
+  </div>
+
+  <form class="pds-panel" aria-labelledby="af-simpan-judul" onsubmit="return false">
+    <h3 id="af-simpan-judul">Simpan → Menyimpan… → ✓ Tersimpan</h3>
+    <div class="pds-field">
+      <label class="pds-label" for="af-nama">Nama kelas</label>
+      <input id="af-nama" class="pds-input pds-input-pendek" value="Kelas 5A" required>
+    </div>
+    <div class="pds-actions">
+      <button type="submit" class="pds-btn pds-btn-primary" data-aksi data-sibuk="Menyimpan…" data-selesai="Tersimpan" data-status="#af-simpan-status" data-hasil="#af-simpan-hasil" data-hasil-teks="Nama kelas tersimpan: semua guru dan murid kelas ini melihatnya sekarang." data-gagal="Belum tersimpan.">Simpan</button>
+      <p id="af-simpan-status" class="pds-result" role="status" hidden></p>
+    </div>
+    <p id="af-simpan-hasil" class="pds-result" role="status" aria-live="polite" hidden></p>
+    <p class="pds-demo-catatan">Change the name after saving: the button returns to «Simpan», because there is something new to save.</p>
+    <p class="pds-demo-catatan">Words: «Menyimpan…» is tombol.menyimpan; «Mengirim…» is umpanbalik.form.mengirim and akun.mengirim; «Sudah terkirim» is umpanbalik.selesai.judul; the email line follows aktifkan.kode_ulang_ok («PINTAR sedang mengirim…»). The rest is sample text.</p>
+  </form>
+
+  <div class="pds-panel" aria-labelledby="af-kirim-judul">
+    <h3 id="af-kirim-judul">Kirim → Mengirim… → ✓ Terkirim (the server confirmed it)</h3>
+    <p class="pds-ink-2">Jawaban umpan balik kelas: the server stores them, then says so.</p>
+    <div class="pds-actions">
+      <button type="button" class="pds-btn pds-btn-primary" data-aksi data-sibuk="Mengirim…" data-selesai="Terkirim" data-status="#af-kirim-status" data-hasil="#af-kirim-hasil" data-hasil-teks="Sudah terkirim. Jawaban Anda tersimpan untuk guru kelas ini." data-gagal="Jawaban Anda belum terkirim." data-ulang="#af-kirim-ulang">Kirim jawaban</button>
+      <p id="af-kirim-status" class="pds-result" role="status" hidden></p>
+      <button type="button" class="pds-btn pds-btn-quiet pds-btn-sm" id="af-kirim-ulang">Ulangi contoh</button>
+    </div>
+    <p id="af-kirim-hasil" class="pds-result" role="status" aria-live="polite" hidden></p>
+  </div>
+
+  <div class="pds-panel" aria-labelledby="af-email-judul">
+    <h3 id="af-email-judul">Email: Kirim → Mengirim… → «PINTAR sedang mengirim…», never ✓</h3>
+    <p class="pds-ink-2">Kirim ulang kartu PINTAR ke email Anda. PINTAR cannot confirm that an email arrived (D-098(c)), so it never says it was sent.</p>
+    <div class="pds-actions">
+      <button type="button" class="pds-btn pds-btn-secondary" data-aksi data-email data-sibuk="Mengirim…" data-status="#af-email-status" data-hasil="#af-email-hasil" data-hasil-teks="PINTAR sedang mengirim kartu PINTAR ke r•••@sdnkaliandra1.sch.id. Biasanya tiba dalam satu menit." data-gagal="Kartu belum bisa dikirim sekarang.">Kirim kartu</button>
+      <p id="af-email-status" class="pds-result" role="status" hidden></p>
+    </div>
+    <p id="af-email-hasil" class="pds-result" role="status" aria-live="polite" hidden></p>
+  </div>
+
+  <div class="pds-panel" aria-labelledby="af-terbit-judul">
+    <h3 id="af-terbit-judul">Terbitkan → Menerbitkan… → ✓ Selesai</h3>
+    <p class="pds-ink-2">Bab 3 · Pecahan senilai, untuk Kelas 5A (31 murid).</p>
+    <div class="pds-actions">
+      <button type="button" class="pds-btn pds-btn-primary" data-aksi data-sibuk="Menerbitkan…" data-selesai="Selesai" data-status="#af-terbit-status" data-hasil="#af-terbit-hasil" data-hasil-teks="Bab 3 tersedia untuk 31 murid Kelas 5A mulai sekarang." data-lanjut="Lihat siapa yang sudah mulai" data-gagal="Belum diterbitkan." data-ulang="#af-terbit-ulang">Terbitkan</button>
+      <p id="af-terbit-status" class="pds-result" role="status" hidden></p>
+      <button type="button" class="pds-btn pds-btn-quiet pds-btn-sm" id="af-terbit-ulang">Ulangi contoh</button>
+    </div>
+    <p id="af-terbit-hasil" class="pds-result" role="status" aria-live="polite" hidden></p>
+  </div>
+</div>
+<script>Pintar.siapkan();</script>
