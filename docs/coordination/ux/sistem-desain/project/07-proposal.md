@@ -15,7 +15,7 @@ Token set v3 evolves token set v2 (`src/app/globals.css`); it does not replace i
 | Ruling today | This proposal | Question |
 |---|---|---|
 | No shadow tokens: hairlines and grounds, by design | Two small shadows, only on layers floating over the page (menus, dialogs, drawers), and a scrim | 5 |
-| Radii 8, 12 and pill | A fourth, 4 px, for checkboxes and tags (replacing today's literal 6 px) | 7 |
+| Radii 8, 12 and pill | A fourth, 4 px, for checkboxes only (replacing today's literal 6 px); tags became pills after the 4 Oct references | 7 |
 | Motion: colour and opacity, 160 ms | Kept as the default. Two more durations, 8 px travel for an entering layer and a turning chevron are proposed, and unused | 8 |
 | No modal outside the tour (spec §5) | One use for a dialog: a short destructive question from a menu («Keluar dari semua perangkat?») | 6 |
 | The header shell, CangkangPengalaman | A left navigation for staff | 1 |
