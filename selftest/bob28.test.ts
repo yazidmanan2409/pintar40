@@ -338,10 +338,13 @@ export const bob28AppTests: SelfTest[] = [
         `the owner was told: ${kabar.map((p) => p.Subject).join(" | ")}; expected two locks and one suspension`);
 
       // 2. email recovery works during the suspension, restores it, and the old PIN stays dead
+      // by username: the address asked for its activation code within the minute, and D-098(c)'s pace (one code
+      // request a minute per name typed) would rightly answer MINTA_KODE_TUNGGU
       const z = new Peramban(asal, ipUji());
-      await z.jsonDari("/masuk/lupa/kode", { form: { nama: email } });
+      const minta = await z.jsonDari("/masuk/lupa/kode", { form: { nama: `rudi.${tag}` } });
+      c.expect(minta.status === 200, `asking for a recovery code during the suspension: ${minta.status} ${JSON.stringify(minta.body)}`);
       const kodeP = kodeDari((await sinkTunggu(email, 6)).find((p) => /password baru/i.test(p.Subject)));
-      const periksa = await z.jsonDari("/masuk/lupa/periksa", { form: { nama: email, kode: kodeP } });
+      const periksa = await z.jsonDari("/masuk/lupa/periksa", { form: { nama: `rudi.${tag}`, kode: kodeP } });
       const sandi = sandiBagas();
       const ganti = await z.jsonDari("/masuk/lupa/password", { form: { password: sandi } });
       c.expect(periksa.status === 200 && ganti.status === 200, `email recovery during the suspension (${periksa.status}, ${ganti.status})`);
