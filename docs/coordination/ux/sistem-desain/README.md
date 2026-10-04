@@ -40,7 +40,7 @@ python3 docs/coordination/ux/sistem-desain/alat/kontras.py
 
 ## The boards (PNG)
 
-The design language, system and grammar as 19 image boards. Each is 1600 px wide and saved at 2×, built from these same files with every component card live:
+The design language, system and grammar as 19 image boards (24 images: five boards come in two parts, so each image stays under 8000 px tall). Each is 1600 px wide and saved at 2×, built from these same files with every component card live:
 
 ```sh
 npx tsx docs/coordination/ux/sistem-desain/alat/papan.mts        # all boards → papan/NN-name.png

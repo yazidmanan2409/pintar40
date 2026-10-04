@@ -225,8 +225,14 @@ function papanWarna(): string {
   const tabel = k.slice(k.indexOf("| Pair |"), k.indexOf("**For information")).trim().split("\n");
   const separuh = Math.ceil((tabel.length - 2) / 2);
   const t1 = [tabel[0], tabel[1], ...tabel.slice(2, 2 + separuh)].join("\n"), t2 = [tabel[0], tabel[1], ...tabel.slice(2 + separuh)].join("\n");
-  return gayaWarna + `<section class="warna">${kel}</section>
-<section class="grid" style="grid-template-columns: 1fr 1fr; gap: 40px"><div class="prosa lebar-penuh"><h2>Rules</h2>${md(bagian("01-colour.md", "Rules"))}</div><div class="grid">${kartu("Accent", { lebar: 960, skala: 0.7 })}</div></section>
+  return gayaWarna + `<section class="warna">${kel}</section>`;
+}
+function papanWarna2(): string {
+  const k = readFileSync(join(akar, "render", "kontras.md"), "utf8");
+  const tabel = k.slice(k.indexOf("| Pair |"), k.indexOf("**For information")).trim().split("\n");
+  const separuh = Math.ceil((tabel.length - 2) / 2);
+  const t1 = [tabel[0], tabel[1], ...tabel.slice(2, 2 + separuh)].join("\n"), t2 = [tabel[0], tabel[1], ...tabel.slice(2 + separuh)].join("\n");
+  return gayaWarna + `<section class="grid" style="grid-template-columns: 1fr 1fr; gap: 40px"><div class="prosa lebar-penuh"><h2>Rules</h2>${md(bagian("01-colour.md", "Rules"))}</div><div class="grid">${kartu("Accent", { lebar: 960, skala: 0.7 })}</div></section>
 <section class="grid"><h2 class="judul-bagian">Contrast, computed (WCAG: text 4.5:1, marks and outlines 3:1)</h2><div class="grid" style="grid-template-columns: 1fr 1fr; gap: 24px">${md(t1)}${md(t2)}</div></section>`;
 }
 function papanHuruf(): string {
@@ -300,7 +306,10 @@ function papanNavigasi(): string {
   return `<section class="grid" style="grid-template-columns: 1fr 1fr; gap: 40px"><div class="prosa lebar-penuh"><h2>The four shells</h2>${md(bagian("05-navigation.md", "The four shells"))}</div><div class="prosa lebar-penuh"><h2>«Keluar» and the name</h2>${md(bagian("05-navigation.md", "«Keluar» and the name"))}<h2>Small screens</h2>${md(bagian("05-navigation.md", "Small screens"))}</div></section>
 <section class="grid"><h2 class="judul-bagian">The staff shell at 1280 px (question 1)</h2>${kartu("AppShell", { lebar: 1328, tinggi: 1000, skala: 1456 / 1328 })}</section>
 <section class="grid"><h2 class="judul-bagian">The rail at 1100 px</h2>${kartu("AppShell", { lebar: 1180, tinggi: 1060, sk: "rail-1100" })}</section>
-<section class="grid" style="grid-template-columns: 440px 440px minmax(0, 1fr); gap: 32px; align-items: start"><div class="grid"><h2 class="judul-bagian">A phone at 390 px</h2>${kartu("AppShell", { lebar: 440, tinggi: 1240, langkah: [{ klik: "input[name=as-lebar][value='390']", tunggu: 200 }] })}</div><div class="grid"><h2 class="judul-bagian">The drawer open</h2>${kartu("AppShell", { lebar: 440, tinggi: 1240, sk: "ponsel-390-laci" })}</div><div class="prosa lebar-penuh" style="padding-top: 40px"><h2>Under 1024 px</h2><p>A top bar carries the mark, the current place's name, «Keluar» and a menu button. The menu opens a left drawer with the same places and the identity block, over a scrim.</p><p>«Keluar» never moves into the drawer: it stays one press away on every signed-in screen (D-009).</p><p>The review controls above each frame («See as», «Width») are not part of the product.</p></div></section>
+`;
+}
+function papanNavigasi2(): string {
+  return `<section class="grid" style="grid-template-columns: 440px 440px minmax(0, 1fr); gap: 32px; align-items: start"><div class="grid"><h2 class="judul-bagian">A phone at 390 px</h2>${kartu("AppShell", { lebar: 440, tinggi: 1240, langkah: [{ klik: "input[name=as-lebar][value='390']", tunggu: 200 }] })}</div><div class="grid"><h2 class="judul-bagian">The drawer open</h2>${kartu("AppShell", { lebar: 440, tinggi: 1240, sk: "ponsel-390-laci" })}</div><div class="prosa lebar-penuh" style="padding-top: 40px"><h2>Under 1024 px</h2><p>A top bar carries the mark, the current place's name, «Keluar» and a menu button. The menu opens a left drawer with the same places and the identity block, over a scrim.</p><p>«Keluar» never moves into the drawer: it stays one press away on every signed-in screen (D-009).</p><p>The review controls above each frame («See as», «Width») are not part of the product.</p></div></section>
 <section class="grid"><h2 class="judul-bagian">The learner's top bar, the focus shell and the public shell</h2>${kartu("LearnerShell", { lebar: 1040, skala: 1.4 })}</section>
 <section class="grid" style="grid-template-columns: 1fr 1fr; gap: 40px"><div class="prosa lebar-penuh"><h2>Which places each person sees</h2>${md(bagian("05-navigation.md", "Which places each person sees"))}</div><div class="prosa lebar-penuh"><h2>Within a page</h2>${md(bagian("05-navigation.md", "Within a page"))}</div></section>`;
 }
@@ -339,26 +348,31 @@ function papanKomponen(daftar: Array<string | [string, string]>): string {
   return daftar.map((d) => (typeof d === "string" ? baris(d) : baris(d[0], { sk: d[1] }))).join("\n");
 }
 
-const PAPAN: Array<[string, string, string, () => string]> = [
-  ["intent", "PINTAR: intent and voice", "Complex underneath. Calm above. One obvious next action per screen, hierarchy from type and space, colour only with a reason, and every click answered.", papanNiat],
-  ["colour", "Colour", "Neutral first, one green, status only with a word. Every v2 value is kept; additions are marked NEW, and departures need a ruling.", papanWarna],
-  ["typography", "Typography", "Plus Jakarta Sans at 400 and 600, IBM Plex Mono 500 for identifiers. Eight interface sizes, plus the learner's question stem.", papanHuruf],
-  ["space-shape-layout", "Space, shape and layout", "A 4 px base used in 8s, three corners and a pill, 44 px targets, three content widths and four screen bands.", papanRuang],
-  ["interaction-grammar", "The interaction grammar", "PINTAR hears every click: it answers at once, says what it is doing, says honestly how it ended, and offers the next step.", papanTataBahasa],
-  ["states-motion", "States and motion", "One grammar of states across every control. Motion is colour and opacity at 160 ms, and only where it has a reason.", papanKeadaan],
-  ["navigation", "Navigation and shells", "Upper navigation is what I can do in PINTAR; the bottom is me. A proposal: it replaces today's staff header only with Yazid's approval.", papanNavigasi],
-  ["at-a-glance", "At a glance", "Every family of control together, to judge in one look: does this feel like PINTAR?", papanSekilas],
-  ["actions", "Components: actions", "Five button families at 44 px, and the link.", () => papanKomponen(["Button", "Link"])],
-  ["inputs", "Components: inputs", "Label above, help under the label, the error under the field. Validation on submit.", () => papanKomponen(["TextField", "Textarea", "Select", "Search", "DateTime", ["FormLayout", "galat"], "Checkbox", "Radio", "Switch"])],
-  ["navigation-controls", "Components: moving within a page", "Tabs for views of one thing, the segmented control for a value, pagination that always says where you are, and the scope line.", () => papanKomponen(["Tabs", "SegmentedControl", "Pagination", "Breadcrumb"])],
-  ["feedback", "Components: feedback", "Results at the action, alerts at the top of their section, loading in the page's own shape, and three kinds of empty.", () => papanKomponen([["ActionFeedback", "tersimpan"], "Alert", "Progress", "Loading", "EmptyState"])],
-  ["data", "Components: data", "One table that searches, filters, sorts, selects and pages; badges for how something is doing; tags for what it is.", () => papanKomponen(["Table", "Badge", "Tag"])],
-  ["containers", "Components: containers and layers", "Type and space first; a container only when something must stand apart. Layers float only when they must.", () => papanKomponen(["Panel", "Disclosure", "Confirmation", ["Identity", "menu"], ["Dialog", "terbuka"], ["Drawer", "terbuka"], ["Menu", "terbuka"], ["Tooltip", "fokus"]])],
-  ["identity-1", "Identity screens: on a shared computer", "The lock, the device question, the idle warning, the PIN and the code: Gates 3 to 6.", () => papanKomponen(["LockScreen", "DeviceChoice", "IdleWarning", "PinInput", "CodeInput"])],
-  ["identity-2", "Identity screens: activation and recovery", "Password rules shown before typing, activation one step at a time, and the way back in.", () => papanKomponen(["PasswordField", "ActivationFlow", "Recovery"])],
-  ["foundations", "Foundations in use", "A page made of type and space, the layout grid, and the forty icons.", () => papanKomponen(["Hierarchy", "LayoutGrid", "Icons"])],
-  ["accessibility", "Accessibility and school reality", "Shared computers, 1366 × 768 laptops, slow networks and children still learning to read. Nothing depends on a phone, hover, animation or a fast machine.", papanAkses],
-  ["questions", "Open questions for Yazid", "Nothing here is applied until Yazid approves. These are the decisions the proposal needs.", papanPertanyaan],
+const PAPAN: Array<[string, string, string, string, () => string]> = [
+  ["01", "intent", "PINTAR: intent and voice", "Complex underneath. Calm above. One obvious next action per screen, hierarchy from type and space, colour only with a reason, and every click answered.", papanNiat],
+  ["02a", "colour-palette", "Colour: the palette", "Neutral first, one green, status only with a word. Every v2 value is kept; additions are marked NEW, and departures need a ruling.", papanWarna],
+  ["02b", "colour-rules-contrast", "Colour: rules, accent and contrast", "Accent only where it says context, hierarchy, state or attention. Every pair computed against WCAG.", papanWarna2],
+  ["03", "typography", "Typography", "Plus Jakarta Sans at 400 and 600, IBM Plex Mono 500 for identifiers. Eight interface sizes, plus the learner's question stem.", papanHuruf],
+  ["04", "space-shape-layout", "Space, shape and layout", "A 4 px base used in 8s, three corners and a pill, 44 px targets, three content widths and four screen bands.", papanRuang],
+  ["05", "interaction-grammar", "The interaction grammar", "PINTAR hears every click: it answers at once, says what it is doing, says honestly how it ended, and offers the next step.", papanTataBahasa],
+  ["06", "states-motion", "States and motion", "One grammar of states across every control. Motion is colour and opacity at 160 ms, and only where it has a reason.", papanKeadaan],
+  ["07a", "navigation-staff", "Navigation and shells: staff", "Upper navigation is what I can do in PINTAR; the bottom is me. A proposal: it replaces today's staff header only with Yazid's approval.", papanNavigasi],
+  ["07b", "navigation-small-learner", "Navigation and shells: small screens and learners", "Under 1024 px a top bar and a drawer, «Keluar» always in reach. A learner's bar names no one.", papanNavigasi2],
+  ["08", "at-a-glance", "At a glance", "Every family of control together, to judge in one look: does this feel like PINTAR?", papanSekilas],
+  ["09", "actions", "Components: actions", "Five button families at 44 px, and the link.", () => papanKomponen(["Button", "Link"])],
+  ["10a", "inputs-fields", "Components: fields and forms", "Label above, help under the label, the error under the field. Validation on submit.", () => papanKomponen(["TextField", "Textarea", "Select", "Search", "DateTime", ["FormLayout", "galat"]])],
+  ["10b", "inputs-choices", "Components: choices", "The whole row is the target; a setting that takes effect at once says its state in a word.", () => papanKomponen(["Checkbox", "Radio", "Switch"])],
+  ["11", "navigation-controls", "Components: moving within a page", "Tabs for views of one thing, the segmented control for a value, pagination that always says where you are, and the scope line.", () => papanKomponen(["Tabs", "SegmentedControl", "Pagination", "Breadcrumb"])],
+  ["12a", "feedback-results", "Components: results and alerts", "A result at the action that caused it; a state of a whole section at the top of that section.", () => papanKomponen([["ActionFeedback", "tersimpan"], "Alert"])],
+  ["12b", "feedback-progress-loading-empty", "Components: progress, loading and empty", "Committed counts and named steps, the page's own shape while it loads, and three kinds of empty.", () => papanKomponen(["Progress", "Loading", "EmptyState"])],
+  ["13", "data", "Components: data", "One table that searches, filters, sorts, selects and pages; badges for how something is doing; tags for what it is.", () => papanKomponen(["Table", "Badge", "Tag"])],
+  ["14a", "containers", "Components: containers", "Type and space first; a container only when something must stand apart.", () => papanKomponen(["Panel", "Disclosure", "Confirmation", ["Identity", "menu"]])],
+  ["14b", "layers", "Components: layers", "Layers float only when they must: a rare dialog, the drawers, a menu, a tooltip.", () => papanKomponen([["Dialog", "terbuka"], ["Drawer", "terbuka"], ["Menu", "terbuka"], ["Tooltip", "fokus"]])],
+  ["15", "identity-1", "Identity screens: on a shared computer", "The lock, the device question, the idle warning, the PIN and the code: Gates 3 to 6.", () => papanKomponen(["LockScreen", "DeviceChoice", "IdleWarning", "PinInput", "CodeInput"])],
+  ["16", "identity-2", "Identity screens: activation and recovery", "Password rules shown before typing, activation one step at a time, and the way back in.", () => papanKomponen(["PasswordField", "ActivationFlow", "Recovery"])],
+  ["17", "foundations", "Foundations in use", "A page made of type and space, the layout grid, and the forty icons.", () => papanKomponen(["Hierarchy", "LayoutGrid", "Icons"])],
+  ["18", "accessibility", "Accessibility and school reality", "Shared computers, 1366 × 768 laptops, slow networks and children still learning to read. Nothing depends on a phone, hover, animation or a fast machine.", papanAkses],
+  ["19", "questions", "Open questions for Yazid", "Nothing here is applied until Yazid approves. These are the decisions the proposal needs.", papanPertanyaan],
 ];
 
 // ── serve, render, save ─────────────────────────────────────────────────
@@ -389,10 +403,9 @@ const port = (server.address() as { port: number }).port;
 
 const dipilih = process.argv.slice(2);
 const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
-for (const [i, [nama, judul, lede, isi]] of PAPAN.entries()) {
-  const no = String(i + 1).padStart(2, "0");
+for (const [no, nama, judul, lede, isi] of PAPAN) {
   if (dipilih.length && !dipilih.includes(no) && !dipilih.includes(nama)) continue;
-  halaman.set(`/papan/${no}.html`, papan(no, judul, lede, isi(), PAPAN.length));
+  halaman.set(`/papan/${no}.html`, papan(no, judul, lede, isi(), 19));
   const page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 2 });
   const galat: string[] = [];
   page.on("pageerror", (e: Error) => galat.push(e.message));
@@ -410,6 +423,7 @@ for (const [i, [nama, judul, lede, isi]] of PAPAN.entries()) {
   const berkas = join(keluaran, `${no}-${nama}.png`);
   await page.screenshot({ path: berkas, fullPage: true });
   const ukuran = await page.evaluate(() => document.documentElement.scrollHeight);
+  if (ukuran * 2 > 8000) console.log(`  note: ${no} is ${ukuran * 2} px tall at 2x; image uploads accept at most 8000`);
   console.log(`${no}-${nama}.png  1600 × ${ukuran}  ${(statSync(berkas).size / 1048576).toFixed(1)} MB${galat.length ? "  ERRORS: " + galat.join("; ") : ""}`);
   await page.close();
 }
