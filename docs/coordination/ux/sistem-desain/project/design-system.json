@@ -36,8 +36,8 @@
   },
   "lastChange": {
     "by": "Yazid",
-    "at": "2026-10-04T23:48:24Z",
+    "at": "2026-10-04T23:55:08Z",
     "via": "Claude Code",
-    "note": "Visual reference review (4 Oct): filled selection restored, pagination jump, pill tags, accent role (Q12), button shape (Q13), Specimen sheet. Still a proposal; nothing applied to PINTAR."
+    "note": "Layout: the learner navigation row names no one (S15, D-020); pagination row gains the jump select; two token notes cleaned. Still a proposal."
   }
 }
