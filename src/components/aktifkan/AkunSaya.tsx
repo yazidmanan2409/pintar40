@@ -6,6 +6,7 @@ import BarisHasil from "@/components/BarisHasil";
 import { kalimat, kirim, type Gagal } from "./jawaban";
 import type { DataKartu } from "./kontrak";
 import IdentitasSaya from "./IdentitasSaya";
+import PinBaru from "./PinBaru";
 
 /**
  * AKUN SAYA (DAISY-20, BOB-26 §4): a staff member's PINTAR ID, QR and card.
@@ -53,6 +54,7 @@ export default function AkunSaya({ locale }: { locale: Locale }) {
   return (
     <>
       <IdentitasSaya locale={locale} kartu={muat.kartu} />
+      <PinBaru locale={locale} />
       <section className="pin-sec" aria-labelledby="pin-akun-kartu">
         <h2 id="pin-akun-kartu">{s("akun.kartu_judul")}</h2>
         <p className="pin-meta">{s("akun.kartu_arti")}</p>

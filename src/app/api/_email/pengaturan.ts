@@ -23,6 +23,8 @@ import { appUrl } from "@/lib/env";
 
 export const ASAL_PRODUKSI = "https://app.pintarselalu.com";
 export const BALAS_KE = "info@pintarselalu.com";
+/** C7, IDENTITY-4.0 §6: the platform admin's security recipient, fixed at Gate 0 like Reply-To. */
+export const PENERIMA_KEAMANAN = "admin_gt@pintarselalu.com";
 export const NAMA_PENGIRIM = "Tim PINTAR";
 export const NAMA_PENGIRIM_UJI = "Tim PINTAR (Staging)";
 const MESIN_INI = new Set(["127.0.0.1", "localhost", "::1", "[::1]"]);

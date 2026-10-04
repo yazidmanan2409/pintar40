@@ -11,8 +11,9 @@
  * The codes are the contract (D-011); the words are the screens' (D-014).
  */
 import {
-  STATUS_KARTU_AKUN, STATUS_LUPA_KODE, STATUS_LUPA_PASSWORD, STATUS_LUPA_PERIKSA, STATUS_MASUK_PASSWORD, STATUS_MINTA_KODE,
-  STATUS_NAMA, STATUS_PASSWORD, STATUS_PIN, STATUS_SELESAI, STATUS_USERNAME, STATUS_VERIFIKASI, STATUS_WIZARD,
+  STATUS_KARTU_AKUN, STATUS_LUPA_KODE, STATUS_LUPA_PASSWORD, STATUS_LUPA_PERIKSA, STATUS_LUPA_PIN, STATUS_MASUK_PASSWORD,
+  STATUS_MINTA_KODE, STATUS_NAMA, STATUS_PASSWORD, STATUS_PIN, STATUS_PIN_BARU, STATUS_SELESAI, STATUS_USERNAME,
+  STATUS_VERIFIKASI, STATUS_WIZARD,
 } from "@/lib/aktivasi-kontrak";
 
 export {
@@ -40,6 +41,9 @@ export const JALUR = {
   lupaKode: "/masuk/lupa/kode",
   lupaPeriksa: "/masuk/lupa/periksa",
   lupaPassword: "/masuk/lupa/password",
+  // BOB-28 (Gate 5): recovery by PINTAR ID + PIN, signed out; and a new PIN, signed in
+  lupaPin: "/masuk/lupa/pin",
+  pinBaru: "/api/akun/pin",
 } as const;
 
 /** Each route's own status table, the contract's, under the route's key. */
@@ -58,6 +62,8 @@ export const STATUS = {
   lupaKode: STATUS_LUPA_KODE,
   lupaPeriksa: STATUS_LUPA_PERIKSA,
   lupaPassword: STATUS_LUPA_PASSWORD,
+  lupaPin: STATUS_LUPA_PIN,
+  pinBaru: STATUS_PIN_BARU,
 } as const;
 export type Rute = keyof typeof STATUS;
 /** A route's own codes; distributes over a union of routes, so a sentence reader takes any. */

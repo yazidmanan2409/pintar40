@@ -113,7 +113,8 @@ export const aktifkanTests: SelfTest[] = [
       const c = new Checks();
       const rute = Object.keys(STATUS) as Rute[];
       // RESTATED FOR BOB-27 (Gate 4): «Lupa password?»'s three routes join Gate 3's eleven, each code read and said below
-      c.expect(rute.length === 14, `${rute.length} route(s) in the contract's status map; Gates 3 and 4 have 14`);
+      // RESTATED FOR BOB-28 (Gate 5): recovery by PINTAR ID + PIN and the new PIN on Akun saya join
+      c.expect(rute.length === 16, `${rute.length} route(s) in the contract's status map; Gates 3, 4 and 5 have 16`);
 
       // 1. EVERY CODE, EVERY ROUTE, BOTH LANGUAGES: read back as itself, and
       //    said as a sentence -- never the dash, never a code word, never the

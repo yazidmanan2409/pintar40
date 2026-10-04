@@ -1,8 +1,8 @@
 import { format, type HleEvent, type Locale } from "@/lib/hle";
 import {
   bacaJawabanKartu, bacaJawabanKirimKartu, bacaJawabanLupaKode, bacaJawabanLupaPassword, bacaJawabanLupaPeriksa,
-  bacaJawabanMasukPassword, bacaJawabanMintaKode, bacaJawabanNama,
-  bacaJawabanPassword, bacaJawabanPin, bacaJawabanSelesai, bacaJawabanUsername, bacaJawabanVerifikasi,
+  bacaJawabanLupaPin, bacaJawabanMasukPassword, bacaJawabanMintaKode, bacaJawabanNama,
+  bacaJawabanPassword, bacaJawabanPin, bacaJawabanPinBaru, bacaJawabanSelesai, bacaJawabanUsername, bacaJawabanVerifikasi,
   STATUS_WIZARD,
 } from "@/lib/aktivasi-kontrak";
 import { JALUR, type AlasanPassword, type KodeRute, type Langkah, type Rute } from "./kontrak";
@@ -78,6 +78,8 @@ const PEMBACA: { [R in Rute]: (isi: unknown) => Dibaca } = {
   lupaKode: bacaJawabanLupaKode,
   lupaPeriksa: bacaJawabanLupaPeriksa,
   lupaPassword: bacaJawabanLupaPassword,
+  lupaPin: bacaJawabanLupaPin,
+  pinBaru: bacaJawabanPinBaru,
 };
 
 /**
@@ -88,7 +90,7 @@ export function baca<R extends Rute, T extends object>(rute: R, body: unknown | 
   const j = PEMBACA[rute](body);
   if (j.ok) return j as unknown as { ok: true } & T;
   const kode = j.code as KodeRute<R>;
-  const menunggu = /TUNGGU|DIBATASI/.test(kode);
+  const menunggu = /TUNGGU|DIBATASI|TERKUNCI/.test(kode);
   return {
     ok: false,
     kode,
@@ -186,6 +188,12 @@ const KALIMAT: Record<string, HleEvent> = {
   // BOB-27 (Gate 4)
   IDENTITAS_KOSONG: "lupa.nama_kosong",
   PEMULIHAN_BERAKHIR: "lupa.berakhir",
+  // BOB-28 (Gate 5): the same sentence for every well-formed ID
+  ID_TIDAK_SAH: "lupa.pin.id_salah",
+  PIN_KOSONG: "lupa.pin.kosong",
+  PIN_TIDAK_COCOK: "lupa.pin.salah",
+  PIN_DITANGGUHKAN: "lupa.pin.ditangguhkan",
+  AKUN_BELUM_AKTIF: "lupa.pin.belum_aktif",
 };
 /** PASSWORD_LEMAH says each reason the route gave, in this order. */
 const ALASAN: Record<AlasanPassword, HleEvent> = {
@@ -201,9 +209,9 @@ export function kalimatTunggu(tunggu: number | null, s: S, locale: Locale): stri
     : s("auth.card_tunggu_sebentar");
 }
 
-/** A waiting answer is a note, not an error: nothing the person typed was judged. */
+/** A waiting answer is a note, not an error: nothing the person typed was judged (a lock is a wait too). */
 export function menunggu(g: { kode: string }): boolean {
-  return /TUNGGU|DIBATASI/.test(g.kode);
+  return /TUNGGU|DIBATASI|TERKUNCI/.test(g.kode);
 }
 
 /** The sentence for a refusal, in the reader's language. Only these keys, only these parts. */
@@ -218,6 +226,9 @@ export function kalimat<R extends Rute>(g: Gagal<R>, s: S, locale: Locale): stri
   // D-098(c): no code was sent, and the person is told so, with the wait the route gave
   if (kode === "MINTA_KODE_TUNGGU") return `${s("aktifkan.minta_sering")} ${kalimatTunggu(g.tunggu, s, locale)}`;
   if (kode === "EMAIL_TUNGGU") return `${s("aktifkan.email_tertahan")} ${kalimatTunggu(g.tunggu, s, locale)}`;
+  // BOB-28: the ladder's lock, and the per-address wait, each with the wait the route gave
+  if (kode === "PIN_TERKUNCI") return `${s("lupa.pin.terkunci")} ${kalimatTunggu(g.tunggu, s, locale)}`;
+  if (kode === "PIN_TUNGGU") return `${s("lupa.pin.sering")} ${kalimatTunggu(g.tunggu, s, locale)}`;
   if (/DIBATASI$/.test(kode)) return `${s("aktifkan.ramai")} ${kalimatTunggu(g.tunggu, s, locale)}`;
   if (kode === "LAYANAN_TIDAK_TERSEDIA") {
     return g.ref

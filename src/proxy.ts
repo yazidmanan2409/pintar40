@@ -20,11 +20,12 @@ import { NextResponse, type NextRequest } from "next/server";
  * /aktifkan is public, and so are its two doors and the password sign-in's,
  * each POST-only and rewritten to its handler (next.config.ts), each declared
  * in public_surface_registry, as /masuk/kartu is. BOB-27 (Gate 4): the same
- * for «Lupa password?» at /masuk/lupa and its three doors.
+ * for «Lupa password?» at /masuk/lupa and its three doors. BOB-28 (Gate 5):
+ * its fourth door, recovery by PINTAR ID + PIN.
  */
 const PUBLIC_PATHS = new Set(["/", "/masuk", "/masuk/kartu", "/masuk/password", "/aktifkan", "/aktifkan/kode",
                               "/aktifkan/periksa", "/masuk/lupa", "/masuk/lupa/kode", "/masuk/lupa/periksa",
-                              "/masuk/lupa/password", "/auth/callback", "/keluar"]);
+                              "/masuk/lupa/password", "/masuk/lupa/pin", "/auth/callback", "/keluar"]);
 // INV-38: exactly one public certificate verification surface. Both entries
 // below ARE that one surface — the route a QR code points at, and the data
 // endpoint that route reads. `public_surface_registry` records the second as
@@ -49,7 +50,11 @@ const PUBLIC_PATHS = new Set(["/", "/masuk", "/masuk/kartu", "/masuk/password", 
 // The trailing slash is load-bearing. It admits `/api/verifikasi/<token>` and
 // nothing else: `/api/verifikasi` itself, and any sibling such as
 // `/api/verifikasi-admin`, remain protected.
-const PUBLIC_PREFIXES = ["/verifikasi/", "/api/verifikasi/"];
+//
+// BOB-28 (Gate 5, IDENTITY-4.0 §5): "/id/" is the page a PINTAR card's QR
+// opens, the same page for every ID. It reads nothing; its recovery is the
+// /masuk/lupa/pin door above. Its own row in public_surface_registry.
+const PUBLIC_PREFIXES = ["/verifikasi/", "/api/verifikasi/", "/id/"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

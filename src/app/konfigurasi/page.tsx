@@ -277,6 +277,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         <Link href="/studio" className={tautanTempat}>{s("nav.studio")}<TandaTautan /></Link>
         {/* BOB-51: the platform admin's delivery proof, a click rather than a console */}
         {isSys === true ? <Link href="/konfigurasi/email-uji" className={tautanTempat}>{s("emailuji.judul")}<TandaTautan /></Link> : null}
+        {/* BOB-28: the platform admin's PIN-recovery reset and the security record */}
+        {isSys === true ? <Link href="/konfigurasi/keamanan" className={tautanTempat}>{s("keamanan.judul")}<TandaTautan /></Link> : null}
         <TabTempat
           tempat={tempatDariPeran(peran)}
           kecuali={["/konfigurasi"]}

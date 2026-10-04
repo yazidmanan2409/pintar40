@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 176,
+  "version": 177,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3021,6 +3021,39 @@
       "runner": "app",
       "proves": "BOB-27 (Gate 4) against the running app, Auth and the Mailpit sink: a person registered by «Orang baru» activates (Gate 3) and signs in on two other devices; «Lupa password?» by username (any case, spaced) answers exactly as nobody's name does and the recovery code arrives; a wrong code is KODE_TIDAK_COCOK and the right one, spaced, gives the grant cookie without signing the browser in (/mengajar redirects to /masuk); a short password is PASSWORD_LEMAH; the new password is set, the grant cookie removed, this browser opens /mengajar, both other devices are signed out, and the grant cannot be used again (PEMULIHAN_BERAKHIR); the old password is refused (401) and the new one signs in by username; the password-changed email arrives saying every device was signed out; the audit log holds identity.recovery_verified (EMAIL) and identity.password_set (RECOVERY).",
       "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
+    },
+    {
+      "id": "BOB28-K01",
+      "runner": "static",
+      "proves": "BOB-28 (Gate 5). Executes src/lib/pemulihan.ts's periksaPinPemulihan with its tools replaced: another origin, a malformed PINTAR ID (ABC, a U) and a PIN that is not four digits are answered at once and count nothing; the caller's address is counted first under one keyed hash (PIN_TUNGGU with the wait, the ladder never asked); the ID and PIN as typed are made canonical; a wrong PIN answers alike for a person's ID and nobody's and tells nobody; a match saves the grant whose SHA-256 the database was given, clears the address and tells the owner after the answer (PULIH_PIN); the third wrong is PIN_TERKUNCI with the wait and tells at the threshold, a try while locked tells nobody; a suspension is PIN_DITANGGUHKAN; an unfinished account is AKUN_BELUM_AKTIF with no grant; an unreachable database is LAYANAN_TIDAK_TERSEDIA with a reference; kanonikPintarId matches BOB-24's own cases; src/components/email/keamanan.ts renders every event to the owner and to the platform admin with the ID 4+4, no empty line, and the email-recovery link only in the owner's; every refusal code has a sentence in id and en."
+    },
+    {
+      "id": "BOB28-S01",
+      "runner": "static",
+      "proves": "BOB-28 (Gate 5), the source: src/app/api/masuk/lupa/pin/route.ts counts RECOVERY_PIN per address, asks recovery_by_pin, gives the grant cookie and never touches a session; src/proxy.ts lists /masuk/lupa/pin and the /id/ prefix and next.config.ts rewrites the door; src/app/id/[pintarId]/page.tsx reads nothing (no database, no fetch), makes the ID canonical, is not-found for a malformed one and offers /masuk and /masuk/lupa?id=; the card's QR names /id/<ID>; the re-issue route asks authorize_card_reissue with the caller's client before Auth's admin write and creates no identity; the platform admin's reset asks recovery_status and admin_reset_recovery with the caller's client; a security notice goes to admin_gt@pintarselalu.com always and the owner when there is one; «Lupa password?» has the PINTAR ID + PIN step; the migration declares /masuk/lupa/pin with its handler and /id/[pintarId]."
+    },
+    {
+      "id": "BOB28-D01",
+      "runner": "static",
+      "proves": "BOB-28 (Gate 5), migration 20261116100000 against the database, rolled back (selftest/bob28.test.ts with selftest/db/fable01.sql's personas): recovery_by_pin answers MALFORMED for a short ID; nobody's ID walks WRONG, WRONG, LOCKED 3600 with no notice; a person's ID (any case, hyphenated) gives a PIN grant on the right PIN (audited identity.recovery_verified via PIN, ladder reset, notice PULIH_PIN to the owner); an unfinished account's right PIN is NOT_ELIGIBLE; three wrong lock 3600 with TERKUNCI, three more 14400 with TERKUNCI, three more SUSPENDED with DITANGGUHKAN and the PIN dead, the right PIN then SUSPENDED with no notice; an EMAIL recovery's password write restores the ladder (audited EMAIL_RECOVERY) and the old PIN stays WRONG; recovery_status, security_event_list and admin_reset_recovery refuse a teacher (42501) and serve the platform admin, nothing for nobody's ID; after six sends to an address a code is refused by ADDRESS and a security notice goes, twice; card_holders and authorize_card_reissue refuse a teacher and serve the school's administrator (last four digits only), refuse a wrong reason, a person without a card and a taken number, and write a CARD_REISSUE permit; the auth.users guard refuses any other address, moves the card number to the grant's own, audits account.card_reissued (reason, both numbers, the administrator and INSTITUTION_ADMIN), refuses a second change, and leaves email accounts alone; no client role reaches recovery_by_pin, card_holders as anon, or the re-issue table, and RECOVERY_PIN is a known scope."
+    },
+    {
+      "id": "BOB28-A01",
+      "runner": "app",
+      "proves": "BOB-28 (Gate 5) against the running app, Auth and the Mailpit sink: a person activated by Gate 3 with PIN 2817 and signed in on two other devices; a wrong PIN for their PINTAR ID and for nobody's ID gives the same PIN_TIDAK_COCOK body, a malformed ID is ID_TIDAK_SAH; the right PIN with the ID spaced gives the pintar_pulih cookie without signing in; the new password through /masuk/lupa/password signs this browser in and signs both other devices out; the owner's mail holds the recovery notice (the ID 4+4, never the PIN) and the password-changed email; admin_gt@pintarselalu.com's mail holds the success notice without the owner's address or the PIN and none for nobody's ID; the rendered html of /id/<their ID> and /id/<nobody's> is the same page but for the ID, names nobody and leads to /masuk/lupa?id=; a malformed ID's page is 404.",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
+    },
+    {
+      "id": "BOB28-A02",
+      "runner": "app",
+      "proves": "BOB-28 (Gate 5) against the running app, Auth and the Mailpit sink: three wrong PINs give 400, 400, 423 PIN_TERKUNCI 3600 and the right PIN stays locked; after the lock passes three more give 14400; then three more give PIN_DITANGGUHKAN and the right PIN stays suspended; a session on another device is untouched; the owner's mail holds two lock notices and one suspension notice; email recovery during the suspension sets a new password and the database's ladder returns to 0 while the old PIN answers PIN_TIDAK_COCOK; /akun renders, /api/akun/pin sets a new PIN once (a second is 409) and the new PIN recovers; the platform admin (uji.sysadmin) resets through /api/keamanan/pemulihan only with a reason (400 without), the answer says a new PIN is awaited, the PIN stops recovering, a staff member who is not the platform admin is refused 403, the audit log holds identity.recovery_restored ADMIN_RESET with the reason, and the owner's mail holds the reset notice.",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
+    },
+    {
+      "id": "BOB28-A03",
+      "runner": "app",
+      "proves": "BOB-28 (D-088(e)) against the running app and Auth: a learner provisioned in the synthetic school gets a class card from the platform admin and signs in with it; /aktivasi lists them under «Kartu hilang atau rusak» in its rendered html; /api/akun/kartu-kelas refuses an unknown reason (400) and re-issues with HILANG: a new ten-digit number and six-digit PIN; the old card's session is sent to /masuk and the old card is refused; the new card signs in and opens /belajar; the account row and its Auth user are the same and its card number is the new one; the audit log holds account.card_reissued with HILANG and both numbers; a teacher is refused.",
+      "skip_justification": "needs the running app and the local stack (Auth, PostgREST)"
     }
   ]
 }

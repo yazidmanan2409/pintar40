@@ -78,6 +78,7 @@ import { bob50Tests } from "./bob50.test";
 import { bob51Tests } from "./bob51.test";
 import { emailJujurTests } from "./emailjujur.test";
 import { bob27Tests } from "./bob27.test";
+import { bob28Tests } from "./bob28.test";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
 
@@ -955,9 +956,10 @@ export const staticTests: SelfTest[] = [
       // joined the list.
       // RESTATED FOR BOB-27 (Gate 4, a changed requirement): «Lupa password?» starts signed out too, at /masuk/lupa
       // and its three POST-only doors, each declared with its handler as Gate 3's are.
+      // RESTATED FOR BOB-28 (Gate 5, a changed requirement): its fourth door, recovery by PINTAR ID + PIN, declared the same way.
       const expectedPaths = ["/", "/masuk", "/masuk/kartu", "/masuk/password", "/aktifkan", "/aktifkan/kode",
                              "/aktifkan/periksa", "/masuk/lupa", "/masuk/lupa/kode", "/masuk/lupa/periksa",
-                             "/masuk/lupa/password", "/auth/callback", "/keluar"];
+                             "/masuk/lupa/password", "/masuk/lupa/pin", "/auth/callback", "/keluar"];
       c.expect(
         JSON.stringify(paths.slice().sort()) === JSON.stringify(expectedPaths.slice().sort()),
         `the anonymous path list changed: ${JSON.stringify(paths)}`,
@@ -966,8 +968,10 @@ export const staticTests: SelfTest[] = [
       // endpoint it fetches anonymously, registered as its child in
       // public_surface_registry. The endpoint was missing, so every QR scan read
       // "not found"; F01-R07 proves both against the running middleware.
+      // RESTATED FOR BOB-28 (IDENTITY-4.0 §5): "/id/", the page a PINTAR card's QR opens; it reads nothing and is its own
+      // surface in public_surface_registry (identity_page).
       c.expect(
-        JSON.stringify(prefixes) === JSON.stringify(["/verifikasi/", "/api/verifikasi/"]),
+        JSON.stringify(prefixes) === JSON.stringify(["/verifikasi/", "/api/verifikasi/", "/id/"]),
         `the anonymous prefix list changed: ${JSON.stringify(prefixes)}`,
       );
       c.expect(/matcher: \["\/\(\(\?!/.test(proxy), "the proxy matcher is no longer catch-all");
@@ -991,12 +995,13 @@ export const staticTests: SelfTest[] = [
       const migTeks = readdirSync(join(repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql"))
         .map((f) => readFileSync(join(repoRoot, "supabase", "migrations", f), "utf8")).join("\n");
       for (const pintu of ["/masuk/kartu", "/masuk/password", "/aktifkan/kode", "/aktifkan/periksa",
-                           "/masuk/lupa/kode", "/masuk/lupa/periksa", "/masuk/lupa/password"]) {
+                           "/masuk/lupa/kode", "/masuk/lupa/periksa", "/masuk/lupa/password", "/masuk/lupa/pin"]) {
         c.expect(new RegExp(`'ROUTE',\\s*'${pintu}'`).test(migTeks) && new RegExp(`'ENDPOINT',\\s*'/api${pintu}'`).test(migTeks),
           `${pintu} is anonymous but not declared in public_surface_registry with /api${pintu} as its child`);
       }
       c.note(`${routes.length} routes, ${studio.length} in Studio, ${paths.length + prefixes.length} anonymous`);
-      return c.verdict("the anonymous surface did not grow beyond its declared doors (Gate 3's three and Gate 4's three, each registered with its handler) and every Studio route sits behind the proxy");
+      c.expect(/'ROUTE',\s*'\/id\/\[pintarId\]'/.test(migTeks), "/id/ is anonymous but not declared in public_surface_registry");
+      return c.verdict("the anonymous surface did not grow beyond its declared doors (Gate 3's three, Gate 4's three and Gate 5's one, each registered with its handler, and the declared ID page) and every Studio route sits behind the proxy");
     },
   },
   {
@@ -2023,4 +2028,5 @@ export const staticTests: SelfTest[] = [
   ...bob51Tests,
   ...emailJujurTests,
   ...bob27Tests,
+  ...bob28Tests,
 ];

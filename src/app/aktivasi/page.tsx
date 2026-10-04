@@ -9,6 +9,7 @@ import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import FormAktivasi from "@/components/aktivasi/FormAktivasi";
 import { KeAktifkan } from "@/components/aktivasi/HasilAktivasi";
+import KartuUlang, { type PemegangKartu } from "@/components/aktivasi/KartuUlang";
 
 export const dynamic = "force-dynamic";
 
@@ -23,20 +24,26 @@ export const dynamic = "force-dynamic";
  * reader holds CAN_PROVISION_PEOPLE who hold no account — and every action goes
  * through `/api/akun/aktivasi`, where the database decides before an identity
  * is created. A reader with no such institution sees the one refusal page.
+ *
+ * BOB-28 (D-088(e)): below it, «Kartu hilang atau rusak»: a learner who has a
+ * class card gets a new one (`card_holders()`, `/api/akun/kartu-kelas`).
  */
 export default async function Aktivasi() {
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const supabase = await supabaseServer();
 
-  const [{ data: menunggu, error }, { data: sistem }] = await Promise.all([
+  const [{ data: menunggu, error }, { data: sistem }, { data: berkartu }] = await Promise.all([
     supabase.rpc("persons_awaiting_account"),
     supabase.rpc("is_system_admin"),
+    // BOB-28 (D-088(e)): the class-card holders a lost or damaged card can be re-issued for
+    supabase.rpc("card_holders"),
   ]);
   const orang = (Array.isArray(menunggu) ? menunggu : []) as Array<{
     person_id: string; display_name: string; institutional_id: string; institution_id: string;
   }>;
   const adminSistem = sistem === true;
+  const pemegang = (Array.isArray(berkartu) ? berkartu : []) as PemegangKartu[];
 
   // who may use this screen at all: a SYSTEM_ADMIN, or anyone the intake
   // already recognises as provisioning for a school (the same predicate)
@@ -62,6 +69,7 @@ export default async function Aktivasi() {
           <p className="pin-intro">{s("aktivasi.intro")} <KeAktifkan s={s} sebelum="aktivasi.intro.buka" /></p>
         </div>
         <FormAktivasi locale={locale} orang={orang} adminSistem={adminSistem} kelas={kelas} />
+        <KartuUlang locale={locale} pemegang={pemegang} />
         <KakiPintar />
       </main>
     </>

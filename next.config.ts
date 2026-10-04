@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
       { source: "/masuk/lupa/kode", destination: "/api/masuk/lupa/kode" },
       { source: "/masuk/lupa/periksa", destination: "/api/masuk/lupa/periksa" },
       { source: "/masuk/lupa/password", destination: "/api/masuk/lupa/password" },
+      { source: "/masuk/lupa/pin", destination: "/api/masuk/lupa/pin" },
     ];
   },
 };

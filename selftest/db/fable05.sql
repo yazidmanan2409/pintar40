@@ -1947,11 +1947,13 @@ begin
   -- card's: 5 surfaces, 10 addresses, each registered in public_surface_registry
   -- RESTATED FOR BOB-27 (Gate 4): «Lupa password?»'s three declared doors (the recovery code request and check, the
   -- new password) join: 8 surfaces, 16 addresses, each registered in public_surface_registry
-  if (v_lint ->> 'anon_public_surface')::int <> 8 then
-    ok := false; detail := detail || format('anon_public_surface is %s, expected 8; ', v_lint ->> 'anon_public_surface');
+  -- RESTATED FOR BOB-28 (Gate 5): recovery by PINTAR ID + PIN (a door and its handler) and the public ID page a card's
+  -- QR opens join: 10 surfaces, 19 addresses, each registered in public_surface_registry
+  if (v_lint ->> 'anon_public_surface')::int <> 10 then
+    ok := false; detail := detail || format('anon_public_surface is %s, expected 10; ', v_lint ->> 'anon_public_surface');
   end if;
-  if (v_lint ->> 'anon_reachable_http_paths')::int <> 16 then
-    ok := false; detail := detail || format('anon_reachable_http_paths is %s, expected 16; ', v_lint ->> 'anon_reachable_http_paths');
+  if (v_lint ->> 'anon_reachable_http_paths')::int <> 19 then
+    ok := false; detail := detail || format('anon_reachable_http_paths is %s, expected 19; ', v_lint ->> 'anon_reachable_http_paths');
   end if;
   for r in select k from jsonb_object_keys(v_lint) k where k like '%\_ok' loop
     if (v_lint ->> r) <> 'true' then

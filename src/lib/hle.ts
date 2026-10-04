@@ -1539,6 +1539,123 @@ export type HleEvent =
   | "email.diubah.bukan_anda"
   | "email.diubah.tombol"
   | "email.diubah.alasan"
+  | "lupa.ke_pin"
+  | "lupa.pin.judul"
+  | "lupa.pin.lede"
+  | "lupa.pin.id_label"
+  | "lupa.pin.pin_label"
+  | "lupa.pin.id_salah"
+  | "lupa.pin.kosong"
+  | "lupa.pin.salah"
+  | "lupa.pin.terkunci"
+  | "lupa.pin.sering"
+  | "lupa.pin.ditangguhkan"
+  | "lupa.pin.belum_aktif"
+  | "lupa.pin.ke_email"
+  | "lupa.pin.periksa"
+  | "idpage.judul"
+  | "idpage.lede"
+  | "idpage.id_label"
+  | "idpage.masuk"
+  | "idpage.pulih"
+  | "akun.pin.judul"
+  | "akun.pin.arti"
+  | "akun.pin.label"
+  | "akun.pin.ulang"
+  | "akun.pin.beda"
+  | "akun.pin.simpan"
+  | "akun.pin.menyimpan"
+  | "akun.pin.tersimpan"
+  | "aktivasi.ulang.judul"
+  | "aktivasi.ulang.arti"
+  | "aktivasi.ulang.cari"
+  | "aktivasi.ulang.kosong"
+  | "aktivasi.ulang.tidak_ketemu"
+  | "aktivasi.ulang.akhiran"
+  | "aktivasi.ulang.pilih"
+  | "aktivasi.ulang.alasan"
+  | "aktivasi.ulang.hilang"
+  | "aktivasi.ulang.rusak"
+  | "aktivasi.ulang.konfirmasi"
+  | "aktivasi.ulang.ya"
+  | "aktivasi.ulang.batal"
+  | "aktivasi.ulang.sibuk"
+  | "aktivasi.ulang.lembar"
+  | "aktivasi.ulang.gagal.DITOLAK"
+  | "aktivasi.ulang.gagal.KARTU_TIDAK_ADA"
+  | "aktivasi.ulang.gagal.ALASAN_TIDAK_SAH"
+  | "aktivasi.ulang.gagal.BELUM_MASUK"
+  | "aktivasi.ulang.gagal.PERMINTAAN_DITOLAK"
+  | "aktivasi.ulang.gagal.LAYANAN_TIDAK_TERSEDIA"
+  | "aktivasi.ulang.rujukan"
+  | "keamanan.eyebrow"
+  | "keamanan.judul"
+  | "keamanan.intro"
+  | "keamanan.ditolak"
+  | "keamanan.cari_judul"
+  | "keamanan.id_label"
+  | "keamanan.lihat"
+  | "keamanan.memuat"
+  | "keamanan.k.NORMAL"
+  | "keamanan.k.LOCKED"
+  | "keamanan.k.SUSPENDED"
+  | "keamanan.pin_baru"
+  | "keamanan.tanpa_email"
+  | "keamanan.alasan_label"
+  | "keamanan.atur_ulang"
+  | "keamanan.mengatur"
+  | "keamanan.selesai"
+  | "keamanan.gagal.ID_TIDAK_SAH"
+  | "keamanan.gagal.TIDAK_ADA"
+  | "keamanan.gagal.ALASAN_KOSONG"
+  | "keamanan.gagal.DITOLAK"
+  | "keamanan.gagal.BELUM_MASUK"
+  | "keamanan.gagal.PERMINTAAN_DITOLAK"
+  | "keamanan.gagal.LAYANAN_TIDAK_TERSEDIA"
+  | "keamanan.catatan_judul"
+  | "keamanan.catatan_kosong"
+  | "keamanan.kolom.waktu"
+  | "keamanan.kolom.peristiwa"
+  | "keamanan.kolom.id"
+  | "keamanan.a.identity.recovery_pin_ok"
+  | "keamanan.a.identity.recovery_pin_wrong"
+  | "keamanan.a.identity.recovery_locked"
+  | "keamanan.a.identity.recovery_suspended"
+  | "keamanan.a.identity.recovery_restored"
+  | "keamanan.a.identity.recovery_verified"
+  | "keamanan.a.identity.password_set"
+  | "keamanan.a.identity.pin_set"
+  | "keamanan.a.account.card_reissued"
+  | "email.aman.id"
+  | "email.aman.waktu"
+  | "email.aman.tombol"
+  | "email.aman.admin_catatan"
+  | "email.aman.alasan"
+  | "email.aman.alasan_admin"
+  | "email.aman.terkunci.subjek"
+  | "email.aman.terkunci.judul"
+  | "email.aman.terkunci.isi"
+  | "email.aman.terkunci.bukan_anda"
+  | "email.aman.terkunci.subjek_admin"
+  | "email.aman.terkunci.isi_admin"
+  | "email.aman.ditangguhkan.subjek"
+  | "email.aman.ditangguhkan.judul"
+  | "email.aman.ditangguhkan.isi"
+  | "email.aman.ditangguhkan.bukan_anda"
+  | "email.aman.ditangguhkan.subjek_admin"
+  | "email.aman.ditangguhkan.isi_admin"
+  | "email.aman.pulih_pin.subjek"
+  | "email.aman.pulih_pin.judul"
+  | "email.aman.pulih_pin.isi"
+  | "email.aman.pulih_pin.bukan_anda"
+  | "email.aman.pulih_pin.subjek_admin"
+  | "email.aman.pulih_pin.isi_admin"
+  | "email.aman.diatur_ulang.subjek"
+  | "email.aman.diatur_ulang.judul"
+  | "email.aman.diatur_ulang.isi"
+  | "email.aman.diatur_ulang.bukan_anda"
+  | "email.aman.diatur_ulang.subjek_admin"
+  | "email.aman.diatur_ulang.isi_admin"
   | "aktifkan.email_tertahan"
   | "aktifkan.tidak_tersedia"
   | "aktifkan.rujukan_arti"
@@ -2385,9 +2502,9 @@ const table: Table = {
   "config.kesehatan.cek.undeclared_anon_functions": { default: "Tidak ada fungsi terbuka tanpa masuk yang tidak dinyatakan", en: "No undeclared function is open without signing in" },
   // BOB-12: the class card's sign-in is the second declared public surface. DAISY-13 confirms this sentence and
   // replaces the paths one: each surface is two declared addresses, a page and the endpoint behind it
-  "config.kesehatan.cek.anon_public_surface": { default: "Tepat delapan permukaan publik: pemeriksaan sertifikat, masuk dengan kartu kelas, masuk dengan password, permintaan kode aktivasi, pemeriksaan kode aktivasi, permintaan kode pemulihan, pemeriksaan kode pemulihan, dan password baru dari pemulihan", en: "Exactly eight public surfaces: certificate verification, class-card sign-in, password sign-in, the activation code request, the activation code check, the recovery code request, the recovery code check, and the new password from recovery" },
+  "config.kesehatan.cek.anon_public_surface": { default: "Tepat sepuluh permukaan publik: pemeriksaan sertifikat, masuk dengan kartu kelas, masuk dengan password, permintaan kode aktivasi, pemeriksaan kode aktivasi, permintaan kode pemulihan, pemeriksaan kode pemulihan, password baru dari pemulihan, pemulihan dengan PIN, dan halaman PINTAR ID", en: "Exactly ten public surfaces: certificate verification, class-card sign-in, password sign-in, the activation code request, the activation code check, the recovery code request, the recovery code check, the new password from recovery, recovery with a PIN, and the PINTAR ID page" },
   "config.kesehatan.cek.client_readable_definer_views": { default: "Tidak ada tampilan berhak pemilik yang terbaca aplikasi", en: "No owner-rights view is readable by the app" },
-  "config.kesehatan.cek.anon_reachable_http_paths": { default: "Tepat enam belas alamat publik yang dinyatakan: dua untuk pemeriksaan sertifikat, dua untuk masuk dengan kartu kelas, dua untuk masuk dengan password, dua untuk permintaan kode aktivasi, dua untuk pemeriksaan kode aktivasi, dua untuk permintaan kode pemulihan, dua untuk pemeriksaan kode pemulihan, dua untuk password baru dari pemulihan", en: "Exactly sixteen declared public addresses: two for certificate verification, two for class-card sign-in, two for password sign-in, two for the activation code request, two for the activation code check, two for the recovery code request, two for the recovery code check, two for the new password from recovery" },
+  "config.kesehatan.cek.anon_reachable_http_paths": { default: "Tepat sembilan belas alamat publik yang dinyatakan: dua untuk pemeriksaan sertifikat, dua untuk masuk dengan kartu kelas, dua untuk masuk dengan password, dua untuk permintaan kode aktivasi, dua untuk pemeriksaan kode aktivasi, dua untuk permintaan kode pemulihan, dua untuk pemeriksaan kode pemulihan, dua untuk password baru dari pemulihan, dua untuk pemulihan dengan PIN, satu untuk halaman PINTAR ID", en: "Exactly nineteen declared public addresses: two for certificate verification, two for class-card sign-in, two for password sign-in, two for the activation code request, two for the activation code check, two for the recovery code request, two for the recovery code check, two for the new password from recovery, two for recovery with a PIN, one for the PINTAR ID page" },
   "config.kesehatan.cek.public_surface_ok": { default: "Permukaan publik sesuai yang dinyatakan", en: "The public surface matches its declaration" },
   "config.kesehatan.cek.anon_table_grants": { default: "Tidak ada hak tabel bagi pengguna yang belum masuk", en: "No table grant to signed-out users" },
   "config.kesehatan.cek.public_buckets": { default: "Tidak ada penyimpanan berkas yang publik", en: "No public storage bucket" },
@@ -3342,6 +3459,123 @@ const table: Table = {
   "email.diubah.bukan_anda": { default: "Jika bukan Anda yang menggantinya, segera buat password baru lewat Lupa password dan hubungi admin sekolah Anda.", en: "If it wasn't you who changed it, make a new password at once through Forgot your password and contact your school's administrator." },
   "email.diubah.tombol": { default: "Buat password baru", en: "Make a new password" },
   "email.diubah.alasan": { default: "Anda menerima email ini karena password akun PINTAR dengan alamat ini baru saja diganti.", en: "You are receiving this email because the password of the PINTAR account with this address was just changed." },
+  "lupa.ke_pin": { default: "Pakai PINTAR ID dan PIN", en: "Use your PINTAR ID and PIN" },
+  "lupa.pin.judul": { default: "Pulihkan dengan PINTAR ID dan PIN", en: "Recover with your PINTAR ID and PIN" },
+  "lupa.pin.lede": { default: "Ketik PINTAR ID yang ada di kartu PINTAR Anda dan PIN pribadi Anda. Setelah itu Anda membuat password baru.", en: "Type the PINTAR ID on your PINTAR card and your personal PIN. Then you make a new password." },
+  "lupa.pin.id_label": { default: "PINTAR ID", en: "PINTAR ID" },
+  "lupa.pin.pin_label": { default: "PIN pribadi (4 angka)", en: "Personal PIN (4 digits)" },
+  "lupa.pin.id_salah": { default: "Periksa PINTAR ID: 8 huruf dan angka, seperti A14C D7ST.", en: "Check the PINTAR ID: 8 letters and digits, like A14C D7ST." },
+  "lupa.pin.kosong": { default: "Ketik PIN Anda: 4 angka.", en: "Type your PIN: 4 digits." },
+  "lupa.pin.salah": { default: "PINTAR ID atau PIN tidak cocok. Periksa keduanya, lalu coba lagi.", en: "The PINTAR ID or the PIN doesn't match. Check both, then try again." },
+  "lupa.pin.terkunci": { default: "Pemulihan dengan PIN untuk PINTAR ID ini ditutup sementara setelah beberapa PIN tidak cocok. Anda tetap bisa memulihkan akun lewat email.", en: "Recovery with a PIN for this PINTAR ID is locked for a while after several PINs that didn't match. You can still recover your account by email." },
+  "lupa.pin.sering": { default: "Terlalu banyak percobaan dari perangkat ini.", en: "Too many tries from this device." },
+  "lupa.pin.ditangguhkan": { default: "Pemulihan dengan PIN untuk PINTAR ID ini dihentikan setelah terlalu banyak PIN tidak cocok. Pulihkan akun lewat email, lalu buat PIN baru di Akun saya.", en: "Recovery with a PIN for this PINTAR ID has been stopped after too many PINs that didn't match. Recover your account by email, then make a new PIN in My account." },
+  "lupa.pin.belum_aktif": { default: "Akun ini belum selesai diaktifkan. Aktifkan akun PINTAR Anda lebih dulu.", en: "This account hasn't finished activation. Activate your PINTAR account first." },
+  "lupa.pin.ke_email": { default: "Pulihkan lewat email", en: "Recover by email" },
+  "lupa.pin.periksa": { default: "Lanjut", en: "Continue" },
+  "idpage.judul": { default: "Kartu PINTAR", en: "PINTAR card" },
+  "idpage.lede": { default: "Ini PINTAR ID dari sebuah kartu PINTAR. PINTAR ID bukan kunci: untuk masuk, pemiliknya memakai email atau nama pengguna dan password.", en: "This is the PINTAR ID from a PINTAR card. A PINTAR ID is not a key: to sign in, its owner uses their email or username and password." },
+  "idpage.id_label": { default: "PINTAR ID", en: "PINTAR ID" },
+  "idpage.masuk": { default: "Masuk ke PINTAR", en: "Sign in to PINTAR" },
+  "idpage.pulih": { default: "Lupa password? Pulihkan dengan PIN", en: "Forgot your password? Recover with your PIN" },
+  "akun.pin.judul": { default: "Buat PIN baru", en: "Make a new PIN" },
+  "akun.pin.arti": { default: "PIN lama Anda tidak berlaku lagi. Buat PIN baru 4 angka: PIN ini dipakai untuk memulihkan akun dengan PINTAR ID Anda. Jangan berikan kepada siapa pun.", en: "Your old PIN no longer works. Make a new 4-digit PIN: it is used to recover your account with your PINTAR ID. Don't give it to anyone." },
+  "akun.pin.label": { default: "PIN baru (4 angka)", en: "New PIN (4 digits)" },
+  "akun.pin.ulang": { default: "Ketik PIN itu sekali lagi", en: "Type that PIN once more" },
+  "akun.pin.beda": { default: "Kedua PIN tidak sama.", en: "The two PINs are not the same." },
+  "akun.pin.simpan": { default: "Simpan PIN baru", en: "Save the new PIN" },
+  "akun.pin.menyimpan": { default: "Menyimpan…", en: "Saving…" },
+  "akun.pin.tersimpan": { default: "PIN baru tersimpan.", en: "Your new PIN is saved." },
+  "aktivasi.ulang.judul": { default: "Kartu hilang atau rusak", en: "Lost or damaged card" },
+  "aktivasi.ulang.arti": { default: "Terbitkan kartu baru untuk murid yang kehilangan kartunya atau kartunya rusak. Kartu lama langsung berhenti berlaku; akun, kelas dan semua hasil belajarnya tetap.", en: "Issue a new card for a learner whose card is lost or damaged. The old card stops working at once; their account, class and all their learning stay." },
+  "aktivasi.ulang.cari": { default: "Cari nama murid", en: "Search for a learner's name" },
+  "aktivasi.ulang.kosong": { default: "Belum ada murid yang punya kartu kelas.", en: "No learner has a class card yet." },
+  "aktivasi.ulang.tidak_ketemu": { default: "Tidak ada nama yang cocok.", en: "No name matches." },
+  "aktivasi.ulang.akhiran": { default: "Kartu berakhiran", en: "Card ending in" },
+  "aktivasi.ulang.pilih": { default: "Terbitkan kartu baru", en: "Issue a new card" },
+  "aktivasi.ulang.alasan": { default: "Mengapa?", en: "Why?" },
+  "aktivasi.ulang.hilang": { default: "Kartunya hilang", en: "The card is lost" },
+  "aktivasi.ulang.rusak": { default: "Kartunya rusak", en: "The card is damaged" },
+  "aktivasi.ulang.konfirmasi": { default: "Kartu lama akan langsung berhenti berlaku. Terbitkan kartu baru sekarang?", en: "The old card will stop working at once. Issue the new card now?" },
+  "aktivasi.ulang.ya": { default: "Ya, terbitkan kartu baru", en: "Yes, issue the new card" },
+  "aktivasi.ulang.batal": { default: "Batal", en: "Cancel" },
+  "aktivasi.ulang.sibuk": { default: "Menerbitkan…", en: "Issuing…" },
+  "aktivasi.ulang.lembar": { default: "Kartu baru", en: "New card" },
+  "aktivasi.ulang.gagal.DITOLAK": { default: "Anda tidak bisa menerbitkan kartu untuk murid ini.", en: "You can't issue a card for this learner." },
+  "aktivasi.ulang.gagal.KARTU_TIDAK_ADA": { default: "Murid ini belum punya kartu kelas. Buat kartunya di atas.", en: "This learner has no class card yet. Make it above." },
+  "aktivasi.ulang.gagal.ALASAN_TIDAK_SAH": { default: "Pilih alasannya: hilang atau rusak.", en: "Choose why: lost or damaged." },
+  "aktivasi.ulang.gagal.BELUM_MASUK": { default: "Sesi Anda sudah berakhir. Masuk lagi, lalu coba lagi.", en: "Your session has ended. Sign in again, then try again." },
+  "aktivasi.ulang.gagal.PERMINTAAN_DITOLAK": { default: "Muat ulang halaman ini, lalu coba lagi.", en: "Reload this page, then try again." },
+  "aktivasi.ulang.gagal.LAYANAN_TIDAK_TERSEDIA": { default: "Kartu baru belum bisa diterbitkan. Kartu lama masih berlaku. Coba lagi sebentar lagi.", en: "The new card could not be issued yet. The old card still works. Try again in a moment." },
+  "aktivasi.ulang.rujukan": { default: "Rujukan", en: "Reference" },
+  "keamanan.eyebrow": { default: "Konfigurasi", en: "Configuration" },
+  "keamanan.judul": { default: "Keamanan akun", en: "Account security" },
+  "keamanan.intro": { default: "Pemulihan dengan PIN: lihat keadaan satu PINTAR ID, lalu atur ulang dengan alasan yang tercatat. Di bawahnya, catatan keamanan terbaru.", en: "Recovery with a PIN: see the state of one PINTAR ID, then reset it with a recorded reason. Below, the latest security record." },
+  "keamanan.ditolak": { default: "Halaman ini hanya untuk admin platform.", en: "This page is for the platform administrator only." },
+  "keamanan.cari_judul": { default: "Pemulihan dengan PIN", en: "Recovery with a PIN" },
+  "keamanan.id_label": { default: "PINTAR ID", en: "PINTAR ID" },
+  "keamanan.lihat": { default: "Lihat", en: "Look up" },
+  "keamanan.memuat": { default: "Memeriksa…", en: "Checking…" },
+  "keamanan.k.NORMAL": { default: "Bisa dipakai", en: "Available" },
+  "keamanan.k.LOCKED": { default: "Ditutup sementara, sampai", en: "Locked for a while, until" },
+  "keamanan.k.SUSPENDED": { default: "Dihentikan", en: "Stopped" },
+  "keamanan.pin_baru": { default: "Pemiliknya belum membuat PIN baru.", en: "Its owner hasn't made a new PIN yet." },
+  "keamanan.tanpa_email": { default: "Orang ini tidak punya akun email, jadi tidak memulihkan akun dengan PIN.", en: "This person has no email account, so they don't recover with a PIN." },
+  "keamanan.alasan_label": { default: "Alasan atur ulang (wajib, tercatat)", en: "Reason for the reset (required, recorded)" },
+  "keamanan.atur_ulang": { default: "Atur ulang pemulihan PIN", en: "Reset PIN recovery" },
+  "keamanan.mengatur": { default: "Mengatur ulang…", en: "Resetting…" },
+  "keamanan.selesai": { default: "Pemulihan dengan PIN sudah diatur ulang. Pemiliknya harus membuat PIN baru di Akun saya; pemiliknya dan penerima keamanan PINTAR dikirimi email.", en: "Recovery with a PIN has been reset. Its owner must make a new PIN in My account; the owner and PINTAR's security recipient are sent an email." },
+  "keamanan.gagal.ID_TIDAK_SAH": { default: "Periksa PINTAR ID: 8 huruf dan angka.", en: "Check the PINTAR ID: 8 letters and digits." },
+  "keamanan.gagal.TIDAK_ADA": { default: "Tidak ada orang dengan PINTAR ID ini.", en: "Nobody has this PINTAR ID." },
+  "keamanan.gagal.ALASAN_KOSONG": { default: "Tulis alasannya. Alasan ini tercatat.", en: "Write the reason. It is recorded." },
+  "keamanan.gagal.DITOLAK": { default: "Hanya admin platform yang bisa melakukan ini.", en: "Only the platform administrator can do this." },
+  "keamanan.gagal.BELUM_MASUK": { default: "Sesi Anda sudah berakhir. Masuk lagi.", en: "Your session has ended. Sign in again." },
+  "keamanan.gagal.PERMINTAAN_DITOLAK": { default: "Muat ulang halaman ini, lalu coba lagi.", en: "Reload this page, then try again." },
+  "keamanan.gagal.LAYANAN_TIDAK_TERSEDIA": { default: "PINTAR belum bisa menjawab. Coba lagi sebentar lagi.", en: "PINTAR can't answer yet. Try again in a moment." },
+  "keamanan.catatan_judul": { default: "Catatan keamanan terbaru", en: "Latest security record" },
+  "keamanan.catatan_kosong": { default: "Belum ada catatan.", en: "No record yet." },
+  "keamanan.kolom.waktu": { default: "Waktu", en: "Time" },
+  "keamanan.kolom.peristiwa": { default: "Kejadian", en: "Event" },
+  "keamanan.kolom.id": { default: "PINTAR ID", en: "PINTAR ID" },
+  "keamanan.a.identity.recovery_pin_ok": { default: "PIN cocok untuk pemulihan", en: "PIN matched for recovery" },
+  "keamanan.a.identity.recovery_pin_wrong": { default: "PIN pemulihan tidak cocok", en: "Recovery PIN did not match" },
+  "keamanan.a.identity.recovery_locked": { default: "Pemulihan dengan PIN ditutup sementara", en: "PIN recovery locked" },
+  "keamanan.a.identity.recovery_suspended": { default: "Pemulihan dengan PIN dihentikan", en: "PIN recovery stopped" },
+  "keamanan.a.identity.recovery_restored": { default: "Pemulihan dengan PIN dipulihkan", en: "PIN recovery restored" },
+  "keamanan.a.identity.recovery_verified": { default: "Izin membuat password baru diberikan", en: "Permission to make a new password given" },
+  "keamanan.a.identity.password_set": { default: "Password ditulis", en: "Password written" },
+  "keamanan.a.identity.pin_set": { default: "PIN dibuat", en: "PIN made" },
+  "keamanan.a.account.card_reissued": { default: "Kartu kelas diterbitkan ulang", en: "Class card re-issued" },
+  "email.aman.id": { default: "PINTAR ID", en: "PINTAR ID" },
+  "email.aman.waktu": { default: "Waktu", en: "Time" },
+  "email.aman.tombol": { default: "Pulihkan akun lewat email", en: "Recover your account by email" },
+  "email.aman.admin_catatan": { default: "Email ini untuk penerima keamanan PINTAR. Isinya tidak memuat PIN, kode, password atau alamat siapa pun.", en: "This email is for PINTAR's security recipient. It carries no PIN, code, password or anyone's address." },
+  "email.aman.alasan": { default: "Anda menerima email ini karena ada kejadian keamanan pada akun PINTAR dengan alamat ini.", en: "You are receiving this email because of a security event on the PINTAR account with this address." },
+  "email.aman.alasan_admin": { default: "Anda menerima email ini sebagai penerima keamanan PINTAR.", en: "You are receiving this email as PINTAR's security recipient." },
+  "email.aman.terkunci.subjek": { default: "Pemulihan dengan PIN untuk akun PINTAR Anda ditutup sementara", en: "Recovery with a PIN for your PINTAR account is locked for a while" },
+  "email.aman.terkunci.judul": { default: "Pemulihan dengan PIN ditutup sementara", en: "Recovery with a PIN is locked for a while" },
+  "email.aman.terkunci.isi": { default: "Seseorang memasukkan PIN yang tidak cocok beberapa kali untuk PINTAR ID Anda, jadi pemulihan dengan PIN ditutup sementara. Akun, password dan perangkat Anda tidak berubah.", en: "Someone typed a PIN that didn't match several times for your PINTAR ID, so recovery with a PIN is locked for a while. Your account, password and devices have not changed." },
+  "email.aman.terkunci.bukan_anda": { default: "Jika bukan Anda, PIN Anda tetap aman selama tidak Anda berikan kepada siapa pun. Anda selalu bisa memulihkan akun lewat email.", en: "If it wasn't you, your PIN stays safe as long as you don't give it to anyone. You can always recover your account by email." },
+  "email.aman.terkunci.subjek_admin": { default: "Pemulihan dengan PIN ditutup sementara", en: "PIN recovery locked" },
+  "email.aman.terkunci.isi_admin": { default: "Pemulihan dengan PIN untuk PINTAR ID ini ditutup sementara setelah tiga PIN tidak cocok.", en: "Recovery with a PIN for this PINTAR ID is locked for a while after three PINs that didn't match." },
+  "email.aman.ditangguhkan.subjek": { default: "Pemulihan dengan PIN untuk akun PINTAR Anda dihentikan", en: "Recovery with a PIN for your PINTAR account has been stopped" },
+  "email.aman.ditangguhkan.judul": { default: "Pemulihan dengan PIN dihentikan", en: "Recovery with a PIN has been stopped" },
+  "email.aman.ditangguhkan.isi": { default: "PIN yang tidak cocok dimasukkan terlalu sering untuk PINTAR ID Anda, jadi pemulihan dengan PIN dihentikan. Akun, password dan perangkat Anda tidak berubah. Untuk memakainya lagi, pulihkan akun lewat email, lalu buat PIN baru di Akun saya.", en: "A PIN that didn't match was typed too often for your PINTAR ID, so recovery with a PIN has been stopped. Your account, password and devices have not changed. To use it again, recover your account by email, then make a new PIN in My account." },
+  "email.aman.ditangguhkan.bukan_anda": { default: "Jika bukan Anda, seseorang mungkin mencoba menebak PIN Anda. PIN lama Anda tidak akan berlaku lagi.", en: "If it wasn't you, someone may be trying to guess your PIN. Your old PIN will not work again." },
+  "email.aman.ditangguhkan.subjek_admin": { default: "Pemulihan dengan PIN dihentikan", en: "PIN recovery stopped" },
+  "email.aman.ditangguhkan.isi_admin": { default: "Pemulihan dengan PIN untuk PINTAR ID ini dihentikan setelah ditutup sementara tiga kali. Hanya pemulihan lewat email (lalu PIN baru) atau atur ulang oleh admin platform yang memulihkannya.", en: "Recovery with a PIN for this PINTAR ID has been stopped after being locked three times. Only an email recovery (then a new PIN) or the platform administrator's reset restores it." },
+  "email.aman.pulih_pin.subjek": { default: "PINTAR ID dan PIN Anda dipakai untuk memulihkan akun", en: "Your PINTAR ID and PIN were used to recover your account" },
+  "email.aman.pulih_pin.judul": { default: "Pemulihan akun dengan PIN", en: "Account recovery with a PIN" },
+  "email.aman.pulih_pin.isi": { default: "PINTAR ID dan PIN Anda baru saja dipakai untuk mulai membuat password baru.", en: "Your PINTAR ID and PIN were just used to start making a new password." },
+  "email.aman.pulih_pin.bukan_anda": { default: "Jika bukan Anda, segera pulihkan akun lewat email dan hubungi admin sekolah Anda: seseorang mungkin tahu PIN Anda.", en: "If it wasn't you, recover your account by email at once and contact your school's administrator: someone may know your PIN." },
+  "email.aman.pulih_pin.subjek_admin": { default: "Pemulihan dengan PIN berhasil", en: "PIN recovery succeeded" },
+  "email.aman.pulih_pin.isi_admin": { default: "PINTAR ID dan PIN yang cocok dipakai untuk mulai memulihkan akun ini.", en: "A matching PINTAR ID and PIN were used to start recovering this account." },
+  "email.aman.diatur_ulang.subjek": { default: "Pemulihan dengan PIN untuk akun PINTAR Anda diatur ulang", en: "Recovery with a PIN for your PINTAR account was reset" },
+  "email.aman.diatur_ulang.judul": { default: "Buat PIN baru", en: "Make a new PIN" },
+  "email.aman.diatur_ulang.isi": { default: "Admin platform PINTAR mengatur ulang pemulihan dengan PIN untuk akun Anda. PIN lama Anda tidak berlaku lagi: masuk ke PINTAR, lalu buat PIN baru di Akun saya.", en: "PINTAR's platform administrator reset recovery with a PIN for your account. Your old PIN no longer works: sign in to PINTAR, then make a new PIN in My account." },
+  "email.aman.diatur_ulang.bukan_anda": { default: "Jika Anda tidak memintanya, hubungi admin sekolah Anda.", en: "If you didn't ask for this, contact your school's administrator." },
+  "email.aman.diatur_ulang.subjek_admin": { default: "Pemulihan dengan PIN diatur ulang", en: "PIN recovery reset" },
+  "email.aman.diatur_ulang.isi_admin": { default: "Pemulihan dengan PIN untuk PINTAR ID ini diatur ulang oleh admin platform. Pemiliknya harus membuat PIN baru.", en: "The platform administrator reset recovery with a PIN for this PINTAR ID. Its owner must make a new PIN." },
   "aktifkan.minta_sering": { default: "Kode untuk alamat ini sudah terlalu sering diminta, jadi kode tidak dikirim.", en: "A code has been asked for this address too often, so no code was sent." },
   "aktifkan.email_tertahan": { default: "PINTAR belum bisa mengirim email saat ini, jadi kode tidak dikirim.", en: "PINTAR can't send email right now, so no code was sent." },
   "aktifkan.tidak_tersedia": { default: "PINTAR sedang tidak dapat memproses ini. Coba lagi sebentar lagi.", en: "PINTAR can't handle this right now. Try again in a little while." },

@@ -2250,6 +2250,10 @@ a.pin-tautan { display: inline-flex; align-items: center; }
   border: 1px solid var(--line); border-radius: var(--radius-1); padding: var(--space-2) var(--space-3);
 }
 
+/* BOB-28 (D-088(e)): «Kartu hilang atau rusak» — why, asked inline on the learner's row */
+.pin-akt-alasan { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
+.pin-akt-alasan > legend { padding: 0; margin-bottom: var(--space-1); }
+
 /* M7: a whole class's cards, and the printable class set (two across, none split; only the set prints) */
 .pin-akt-kelas { margin-top: var(--space-5); }
 .pin-akt-lembar { margin-top: var(--space-5); display: grid; gap: var(--space-3); }

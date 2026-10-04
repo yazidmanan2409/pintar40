@@ -87,9 +87,12 @@ begin
     perform public.email_send_settle((r ->> 'log_id')::uuid, 'SENT', 250);
 
     -- six to one address an hour, whatever the kind; the seventh is refused
+    -- RESTATED FOR BOB-28 (BOB-25's gate note): a security notice counts only under GLOBAL, so the six are the six
+    -- other kinds; the seventh is the first kind again once its own minute has passed, refused by ADDRESS; and a
+    -- notice to the same address still goes.
     h2 := selftest.f17_hash(v_tag || '-b');
     i := 0;
-    foreach k in array array['KODE_AKTIVASI','KODE_ULANG','PEMULIHAN_PASSWORD','PASSWORD_DIUBAH','KARTU_DIGITAL','PEMBERITAHUAN_KEAMANAN'] loop
+    foreach k in array array['KODE_AKTIVASI','KODE_ULANG','PEMULIHAN_PASSWORD','PASSWORD_DIUBAH','KARTU_DIGITAL','UJI_PENGIRIMAN'] loop
       r := selftest.f17_reserve(k, h2);
       if (r ->> 'allowed')::boolean then
         i := i + 1;
@@ -99,10 +102,16 @@ begin
       end if;
     end loop;
     if i <> 6 then v_probs := selftest.f17_note(v_probs, 'F17-L01', format('only %s of six different kinds to one address went', i)); end if;
-    r := selftest.f17_reserve('UJI_PENGIRIMAN', h2);
+    update public.email_send_log set requested_at = requested_at - interval '61 seconds' where recipient_hash = h2 and kind = 'KODE_AKTIVASI';
+    r := selftest.f17_reserve('KODE_AKTIVASI', h2);
     if (r ->> 'allowed')::boolean or r ->> 'limit_scope' is distinct from 'ADDRESS' then
       v_probs := selftest.f17_note(v_probs, 'F17-L01', format('a seventh email to one address within the hour, three of them refused by the host, was answered %s, not refused by ADDRESS', r));
     end if;
+    r := selftest.f17_reserve('PEMBERITAHUAN_KEAMANAN', h2);
+    if (r ->> 'allowed')::boolean is not true then
+      v_probs := selftest.f17_note(v_probs, 'F17-L01', format('a security notice to an address whose hour was used up was refused: %s', r));
+    end if;
+    perform public.email_send_settle((r ->> 'log_id')::uuid, 'SENT', 250);
     -- the hour passes: the address is free again
     update public.email_send_log set requested_at = requested_at - interval '3601 seconds' where recipient_hash = h2;
     r := selftest.f17_reserve('UJI_PENGIRIMAN', h2);

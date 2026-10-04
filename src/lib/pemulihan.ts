@@ -8,12 +8,16 @@ import {
   STATUS_LUPA_KODE,
   STATUS_LUPA_PASSWORD,
   STATUS_LUPA_PERIKSA,
+  STATUS_LUPA_PIN,
+  kanonikPintarId,
   type JawabanLupaKode,
   type JawabanLupaPassword,
   type JawabanLupaPeriksa,
+  type JawabanLupaPin,
   type KodeLupaKode,
   type KodeLupaPassword,
   type KodeLupaPeriksa,
+  type KodeLupaPin,
 } from "@/lib/aktivasi-kontrak";
 
 /**
@@ -222,4 +226,99 @@ export async function gantiPasswordPemulihan(
   const masuk = await alat.masuk(akun.email, password).catch((e) => ({ error: { name: "Unexpected", code: e instanceof Error ? e.message : "unknown" } as GalatAuth }));
   // The password changed either way; if this browser could not sign in, the person signs in with it normally.
   return { status: 200, body: { ok: true, tujuan: masuk.error ? "/masuk" : await alat.tujuan() } };
+}
+
+// ═══════════════════════════════════════════════ recovery by PINTAR ID + PIN (BOB-28, Gate 5)
+/** recovery_by_pin's answer (the ladder's outcome, the threshold crossed, the owner to tell). */
+export type HasilCobaPin = {
+  outcome: "MALFORMED" | "WRONG" | "LOCKED" | "SUSPENDED" | "OK" | "NOT_ELIGIBLE";
+  tunggu: number | null;
+  /** only for an ID that is a person's: the threshold this attempt crossed, or a recovery */
+  notice: PeristiwaPin | null;
+  /** the person's email account, to tell them; null when they have none */
+  pemilik: string | null;
+};
+export type PeristiwaPin = "TERKUNCI" | "DITANGGUHKAN" | "PULIH_PIN";
+
+export type AlatPinPemulihan = {
+  /** identity_attempt('RECOVERY_PIN', key of the caller's address): seconds to wait, 0 to go ahead */
+  catat(kunci: string): Promise<number>;
+  selesaikan(kunci: string, hasil: "OK"): Promise<void>;
+  /** a fresh grant token and its SHA-256 (the cookie holds the token, the database the hash) */
+  izinBaru(): { token: string; hash: string };
+  /** recovery_by_pin: the ladder decides, and a match gives the grant. Throws when it cannot be asked. */
+  coba(pintarId: string, pin: string, hashIzin: string): Promise<HasilCobaPin>;
+  /** the browser's httpOnly grant cookie */
+  simpanIzin(token: string): Promise<void>;
+  /** the owner and the platform admin are told (C7); runs after the answer. Never throws into the answer. */
+  kabari(peristiwa: PeristiwaPin, pintarId: string, pemilik: string | null): Promise<void>;
+  nanti(kerja: () => Promise<void>): void;
+  catatGalat(ref: string, apa: string): void;
+};
+
+/**
+ * THE RULES (IDENTITY-4.0 §3-§5, C5-C7):
+ *   - a malformed ID or PIN is answered at once and counts nothing;
+ *   - the caller's address is counted first (per address, BOB-12), so one
+ *     machine cannot sweep many IDs;
+ *   - the ladder is the typed ID's, so an ID nobody holds walks the same steps
+ *     and gets the same answers: wrong, then locked 1 h, then 4 h, then
+ *     suspended (which only email recovery, followed by a new PIN, or the
+ *     platform admin's audited reset, restores);
+ *   - a match signs nobody in: it gives the browser Gate 4's single-use,
+ *     ten-minute grant, and the new password goes through Gate 4's door;
+ *   - the owner and the platform admin are told at a threshold and on a
+ *     recovery, after the answer; nobody is told about an ID nobody holds.
+ */
+export async function periksaPinPemulihan(
+  masukan: { origin: boolean; id: unknown; pin: unknown; alamat: string | null },
+  alat: AlatPinPemulihan,
+): Promise<Hasil<JawabanLupaPin>> {
+  type K = KodeLupaPin; type B = JawabanLupaPin;
+  if (!masukan.origin) return gagal<K, B>(STATUS_LUPA_PIN, "PERMINTAAN_DITOLAK");
+  const pintarId = kanonikPintarId(masukan.id);
+  if (!pintarId) return gagal<K, B>(STATUS_LUPA_PIN, "ID_TIDAK_SAH");
+  const pin = typeof masukan.pin === "string" ? masukan.pin.replace(/\s/g, "") : "";
+  if (!/^[0-9]{4}$/.test(pin)) return gagal<K, B>(STATUS_LUPA_PIN, "PIN_KOSONG");
+
+  const kunci = kunciIdentitas("pulih-pin-alamat", masukan.alamat ?? "tanpa-alamat");
+  let hasil: HasilCobaPin;
+  let izin: { token: string; hash: string };
+  try {
+    const tunggu = await alat.catat(kunci);
+    if (tunggu > 0) return gagal<K, B>(STATUS_LUPA_PIN, "PIN_TUNGGU", { tunggu });
+    izin = alat.izinBaru();
+    hasil = await alat.coba(pintarId, pin, izin.hash);
+  } catch (e) {
+    const ref = rujukan();
+    alat.catatGalat(ref, `PIN recovery could not be asked: ${e instanceof Error ? e.message : "unknown"}`);
+    return gagal<K, B>(STATUS_LUPA_PIN, "LAYANAN_TIDAK_TERSEDIA", { ref });
+  }
+  if (hasil.notice) {
+    const peristiwa = hasil.notice; const pemilik = hasil.pemilik;
+    alat.nanti(() => alat.kabari(peristiwa, pintarId, pemilik).catch((e) =>
+      alat.catatGalat(rujukan(), `a security notice was not sent: ${e instanceof Error ? e.name : "unknown"}`)));
+  }
+  switch (hasil.outcome) {
+    case "OK":
+      try {
+        await alat.simpanIzin(izin.token);
+      } catch (e) {
+        const ref = rujukan();
+        alat.catatGalat(ref, `the recovery grant could not be given: ${e instanceof Error ? e.message : "unknown"}`);
+        return gagal<K, B>(STATUS_LUPA_PIN, "LAYANAN_TIDAK_TERSEDIA", { ref });
+      }
+      await alat.selesaikan(kunci, "OK").catch(() => alat.catatGalat(rujukan(), "a recovered address's record was not cleared"));
+      return { status: 200, body: { ok: true } };
+    case "WRONG":
+      return gagal<K, B>(STATUS_LUPA_PIN, "PIN_TIDAK_COCOK");
+    case "LOCKED":
+      return gagal<K, B>(STATUS_LUPA_PIN, "PIN_TERKUNCI", hasil.tunggu ? { tunggu: hasil.tunggu } : {});
+    case "SUSPENDED":
+      return gagal<K, B>(STATUS_LUPA_PIN, "PIN_DITANGGUHKAN");
+    case "NOT_ELIGIBLE":
+      return gagal<K, B>(STATUS_LUPA_PIN, "AKUN_BELUM_AKTIF");
+    default:
+      return gagal<K, B>(STATUS_LUPA_PIN, "ID_TIDAK_SAH");
+  }
 }

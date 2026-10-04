@@ -94,6 +94,17 @@ export const STATUS_PIN = {
   PIN_REUSED: 409,
 } as const;
 export const STATUS_NAMA = { ...STATUS_WIZARD, NAMA_TIDAK_SAH: 422, NAMA_SUDAH_DIKONFIRMASI: 409 } as const;
+/**
+ * BOB-28 (C5): a NEW PIN, on Akun saya, after a suspension was restored (email recovery or the platform admin's reset).
+ * Only for a finished account whose PIN is awaited (PIN_ALREADY_SET otherwise); a replaced PIN never again (PIN_REUSED).
+ */
+export const STATUS_PIN_BARU = {
+  ...STATUS_UMUM, BELUM_MASUK: 401, TIDAK_BERLAKU: 403,
+  ...Object.fromEntries(KODE_PIN_TOLAK.map((k) => [k, 422])) as Record<(typeof KODE_PIN_TOLAK)[number], 422>,
+  PIN_ALREADY_SET: 409, PIN_REUSED: 409,
+} as const;
+export type KodePinBaru = keyof typeof STATUS_PIN_BARU;
+export type JawabanPinBaru = { ok: true } | { ok: false; code: KodePinBaru; ref?: string };
 export const STATUS_SELESAI = { ...STATUS_WIZARD, SETUP_BELUM_LENGKAP: 409 } as const;
 
 export type KodeUsername = keyof typeof STATUS_USERNAME;
@@ -155,12 +166,41 @@ export type JawabanLupaPassword =
   | { ok: true; tujuan: string }
   | { ok: false; code: KodeLupaPassword; alasan?: AlasanPasswordLemah[]; ref?: string };
 
+// ─────────────────────── recovery by PINTAR ID + PIN (BOB-28, Gate 5), signed out
+/** The public page a card's QR opens (IDENTITY-4.0 §5): `/id/<PINTAR ID>`. */
+export const HALAMAN_ID = "/id/";
+
+// POST /masuk/lupa/pin: the ladder is the typed ID's, so every well-formed ID answers alike. A match gives Gate 4's grant.
+//   ID_TIDAK_SAH        not an 8-character PINTAR ID; nothing counted
+//   PIN_KOSONG          the PIN is not four digits; nothing counted
+//   PIN_TIDAK_COCOK     wrong PIN, no PIN, or nobody's ID; counted on the typed ID's ladder
+//   PIN_TERKUNCI        the third wrong at a level, or tried while locked (tunggu: the seconds left)
+//   PIN_DITANGGUHKAN    suspended: recovery by email, then a new PIN (C5)
+//   PIN_TUNGGU          this address tried too often (per address, BOB-12)
+//   AKUN_BELUM_AKTIF    the PIN matched, but the account's set-up is not finished: it activates instead
+export const STATUS_LUPA_PIN = {
+  ...STATUS_UMUM, ID_TIDAK_SAH: 400, PIN_KOSONG: 400, PIN_TIDAK_COCOK: 400, PIN_TERKUNCI: 423, PIN_DITANGGUHKAN: 423,
+  PIN_TUNGGU: 429, AKUN_BELUM_AKTIF: 409,
+} as const;
+export type KodeLupaPin = keyof typeof STATUS_LUPA_PIN;
+export type JawabanLupaPin = { ok: true } | { ok: false; code: KodeLupaPin; tunggu?: number; ref?: string };
+
+/**
+ * A PINTAR ID as typed, made canonical (IDENTITY-4.0 §4, the same rule as pintar_id_canonical): case ignored,
+ * spaces and hyphens dropped, O→0 and I/L→1; then exactly 8 Crockford Base32 characters, or null.
+ */
+export function kanonikPintarId(v: unknown): string | null {
+  if (typeof v !== "string") return null;
+  const k = v.toUpperCase().replace(/[\s-]/g, "").replace(/O/g, "0").replace(/[IL]/g, "1");
+  return /^[0-9A-HJKMNP-TV-Z]{8}$/.test(k) ? k : null;
+}
+
 // ─────────────────────────────────────────────────────────── Akun saya's card
 export type PeranKartu = "SYSTEM_ADMIN" | "INSTITUTION_ADMIN" | "DEAN" | "HEAD_OF_DEPARTMENT" | "EDUCATOR";
 export type DataKartu = {
   nama: string;
   pintarId: string;
-  /** what the QR encodes: the public ID page (IDENTITY-4.0 §5; the page is Gate 5) */
+  /** what the QR encodes: the public ID page (IDENTITY-4.0 §5; src/app/id/[pintarId]) */
   tautanId: string;
   konteks: { peran: PeranKartu; institusi: string | null }[];
 };
@@ -204,6 +244,8 @@ export const bacaJawabanLupaKode = (isi: unknown) => baca<JawabanLupaKode>(STATU
   (o) => typeof o.kirimUlangDalam === "number" && typeof o.berlakuMenit === "number");
 export const bacaJawabanLupaPeriksa = (isi: unknown) => baca<JawabanLupaPeriksa>(STATUS_LUPA_PERIKSA, isi, () => true);
 export const bacaJawabanLupaPassword = (isi: unknown) => baca<JawabanLupaPassword>(STATUS_LUPA_PASSWORD, isi, tujuanSah);
+export const bacaJawabanLupaPin = (isi: unknown) => baca<JawabanLupaPin>(STATUS_LUPA_PIN, isi, () => true);
+export const bacaJawabanPinBaru = (isi: unknown) => baca<JawabanPinBaru>(STATUS_PIN_BARU, isi, () => true);
 export const bacaJawabanUsername = (isi: unknown) => baca<JawabanUsername>(STATUS_USERNAME, isi, (o) => typeof o.username === "string");
 export const bacaJawabanPassword = (isi: unknown) => baca<JawabanPassword>(STATUS_PASSWORD, isi, () => true);
 export const bacaJawabanPin = (isi: unknown) => baca<JawabanPin>(STATUS_PIN, isi, () => true);
