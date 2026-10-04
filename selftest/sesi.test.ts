@@ -124,7 +124,9 @@ export const sesiTests: SelfTest[] = [
 
       // 5. the lifetime is applied where the cookies are written
       const proxy = readFileSync(join(src, "proxy.ts"), "utf8");
-      c.expect(/umurSesi\(user\.email\)/.test(proxy) && /DEFAULT_COOKIE_OPTIONS, maxAge: umur/.test(proxy),
+      // RESTATED FOR BOB-29 (Gate 6, C4): the lifetime is the session's mode's (penjaga-sesi.ts umurSesiMode): a
+      // personal computer 7 days, a shared computer and a card 60 minutes, by the address when the mode is unknown.
+      c.expect(/umurSesiMode\(mode, user\.email\)/.test(proxy) && /DEFAULT_COOKIE_OPTIONS, maxAge: umur/.test(proxy),
         "the proxy does not re-send the auth cookies with the account's lifetime");
       const server = readFileSync(join(src, "lib", "supabase", "server.ts"), "utf8");
       c.expect(/alamatDariCookieSesi\(cookiesToSet\)/.test(server) && /maxAge: umurSesi\(alamat\)/.test(server),

@@ -11,9 +11,28 @@
  * Every sign-out in src/ goes through here (BOB05-K01 asserts it).
  */
 export async function keluarPerangkatIni(supabase: {
+  rpc(fn: "sesi_akhiri_saya"): PromiseLike<unknown>;
   auth: { signOut(options: { scope: "local" }): Promise<unknown> };
 }): Promise<void> {
+  // BOB-29: PINTAR's own record of this session ends first, so the rest of its access token's life is refused by
+  // the database too (a locked session may still leave). Unreadable, it holds nothing: Auth still signs out.
+  await Promise.resolve(supabase.rpc("sesi_akhiri_saya")).catch(() => undefined);
   await supabase.auth.signOut({ scope: "local" });
+}
+
+/**
+ * BOB-29: «KELUAR DARI SEMUA PERANGKAT», confirmed on Akun saya. Every session of the person ends in the database
+ * (sesi_akhiri_semua: each recorded and audited, their Auth sessions deleted, so no refresh succeeds), then this
+ * device's cookies go the ordinary way. Not Auth's global sign-out, which BOB-05 keeps out of src/.
+ */
+export async function keluarSemuaPerangkat(supabase: {
+  rpc(fn: "sesi_akhiri_saya" | "sesi_akhiri_semua"): PromiseLike<{ error: unknown }>;
+  auth: { signOut(options: { scope: "local" }): Promise<unknown> };
+}): Promise<boolean> {
+  const { error } = await supabase.rpc("sesi_akhiri_semua");
+  if (error) return false;
+  await keluarPerangkatIni(supabase);
+  return true;
 }
 
 /**

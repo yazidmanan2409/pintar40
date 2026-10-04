@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 177,
+  "version": 178,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3054,6 +3054,39 @@
       "runner": "app",
       "proves": "BOB-28 (D-088(e)) against the running app and Auth: a learner provisioned in the synthetic school gets a class card from the platform admin and signs in with it; /aktivasi lists them under «Kartu hilang atau rusak» in its rendered html; /api/akun/kartu-kelas refuses an unknown reason (400) and re-issues with HILANG: a new ten-digit number and six-digit PIN; the old card's session is sent to /masuk and the old card is refused; the new card signs in and opens /belajar; the account row and its Auth user are the same and its card number is the new one; the audit log holds account.card_reissued with HILANG and both numbers; a teacher is refused.",
       "skip_justification": "needs the running app and the local stack (Auth, PostgREST)"
+    },
+    {
+      "id": "BOB29-K01",
+      "runner": "static",
+      "proves": "BOB-29 (Gate 6). Runs src/lib/penjaga-sesi.ts: bacaPenjagaan reads sesi_periksa's answer and nothing else; jalurSaatTerkunci lets a locked session reach only /terkunci, /api/sesi/buka and /keluar; jalurBebasPilih; navigasiHalaman is a browser's GET document that is not a prefetch; mintaHalaman; idSesiDariToken; the device value and its SHA-256; the PERSONAL mark verifies only for its own session with this server's pepper and is not made without one; umurSesiMode gives 7 days on a personal computer and 60 minutes on a shared one and a card; pinSahUntuk; bacaJawabanBuka; BATAS_SESI matches migration 20261117100000's 5 and 60 minutes; every hle line of the lock, the warning, «Komputer siapa ini?» and Akun saya has words in id and en, asks for no phone or message, and a card's forgotten PIN goes to the teacher."
+    },
+    {
+      "id": "BOB29-S01",
+      "runner": "static",
+      "proves": "BOB-29 (Gate 6), the source: src/proxy.ts asks sesi_periksa, sends a locked page to /terkunci and refuses anything else with 423, signs an ended session out to /masuk?sesi=berakhir, asks «Komputer siapa ini?» of a browser's page load only and writes no cookie on a server action; migration 20261117100000 sets pintar_permintaan.periksa as PostgREST's pre-request (PT423, PT401; only sesi_periksa and sesi_akhiri_saya pass); src/lib/keluar.ts ends PINTAR's record before Auth's; /api/sesi/buka asks sesi_buka for the verified token's own session with a card secret derived as at sign-in; src/components/PenjagaSesi.tsx is in the root layout, locks the server first, shares one clock across tabs, counts a playing video and reloads a restored page; «PINTAR terkunci» never names a learner; no phone, message or code in any of it."
+    },
+    {
+      "id": "BOB29-D01",
+      "runner": "static",
+      "proves": "BOB-29 (Gate 6), migration 20261117100000 against the database, rolled back (selftest/bob29.test.ts): authenticator's pgrst.db_pre_request is pintar_permintaan.periksa; sesi_periksa makes a staff person's first session SHARED and asks, a card's CARD, a persona's nothing; no client reads device_sessions or calls sesi_buka, and a card declares no computer; sesi_tetapkan_perangkat makes this browser PERSONAL for the person and the session and the next one follow; a personal session 6 days idle passes the pre-request; a shared one 5 minutes idle is refused PT423 except sesi_periksa and sesi_akhiri_saya, other sessions untouched; activity never unlocks; sesi_buka counts a wrong PIN, opens with the right staff PIN or card secret, never for another person, and the third wrong ends it (PIN_GAGAL, auth.sessions row deleted, PT401); 60 minutes locked end it (KUNCI_HABIS) and an abandoned one is ended on another's request; sesi_kunci_saya; sesi_akhiri_saya (KELUAR) and sesi_akhiri_semua; audit_log rows for each."
+    },
+    {
+      "id": "BOB29-A01",
+      "runner": "app",
+      "proves": "BOB-29 (Gate 6) against the running app, Auth and PostgREST: a teacher's unknown browser is sent to /perangkat («Komputer siapa ini?», shared chosen) before /mengajar; declared shared, 5 minutes without activity send /mengajar to /terkunci, /api/sesi/detak to 423 and PostgREST's /rest/v1 to 423, a refreshed token too, while the same person's other computer is served; the rendered html of /terkunci has the PIN field and a form to /keluar; a wrong PIN leaves 2 tries and the right one (2817) serves the page and the data again.",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the database"
+    },
+    {
+      "id": "BOB29-A02",
+      "runner": "app",
+      "proves": "BOB-29 (Gate 6; T1) against the running app: card 7001 is never asked about the computer and gets the CARD mark; 5 minutes idle send /belajar to /terkunci, whose html asks for the card's PIN and never holds the learner's name, and PostgREST refuses the token; a wrong card PIN counts and 2468 opens /belajar; «Bukan akun Anda?» (POST /keluar) ends the session (device_sessions KELUAR) and its refresh; three wrong PINs end that session (BERAKHIR, /belajar sent to /masuk, refresh and data refused) while the same card on another computer carries on.",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the database"
+    },
+    {
+      "id": "BOB29-A03",
+      "runner": "app",
+      "proves": "BOB-29 (Gate 6) against the running app: the platform admin's shared session locked 60 minutes is ended on its next page, whose route the proxy answers with /masuk?sesi=berakhir (device_sessions KUNCI_HABIS, the refresh refused); a computer declared personal through /api/sesi/perangkat is served after 6 days without use; /api/sesi/keluar-semua from one computer ends that session and another computer's (both refreshes refused, the other's token refused by PostgREST).",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the database"
     }
   ]
 }

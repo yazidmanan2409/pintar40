@@ -3,6 +3,7 @@ import "./globals.css";
 import { t } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import EvaluationBanner from "./_evaluation-banner";
+import PenjagaSesi from "@/components/PenjagaSesi";
 
 export const metadata: Metadata = {
   title: t("app.name", "public"),
@@ -25,6 +26,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             cannot be lost on refresh or dismissed (ADR-0020). */}
         <EvaluationBanner />
         {children}
+        {/* BOB-29: the inactivity clock of a shared computer or a class card; nothing for anybody else. */}
+        <PenjagaSesi locale={locale} />
       </body>
     </html>
   );

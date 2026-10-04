@@ -312,6 +312,9 @@ const RESET_SURFACES = [
   "src/app/konfigurasi/keamanan/page.tsx",
   // BOB-51: the platform admin's «Kirim email uji», on the same shell and pin-* classes as Aktivasi.
   "src/app/konfigurasi/email-uji/page.tsx",
+  // BOB-29 (Gate 6): «PINTAR terkunci» and «Komputer siapa ini?», on the sign-in stage, built on the token set.
+  "src/app/terkunci/page.tsx",
+  "src/app/perangkat/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */
@@ -1355,6 +1358,10 @@ export const experienceTests: SelfTest[] = [
       // (password_write_permits), two set-up columns (password_set_at, name_confirmed_at), the identity
       // functions and a trigger on auth.users; no colour, mark or brand surface.
       //
+      // MOVED 153 -> 154 for BOB-29 (Gate 6), a shared computer locks and resumes with the PIN. 20261117100000 adds
+      // device_sessions and device_contexts (session state and «Komputer siapa ini?», no colour, mark or brand), the
+      // sesi_* functions and PostgREST's pre-request refusal; no colour, mark or brand surface.
+      //
       // MOVED 152 -> 153 for BOB-28 (Gate 5), recovery by PINTAR ID + PIN and the card re-issue. 20261116100000 adds
       // recovery_by_pin, the card re-issue's grant table and guard on auth.users, the platform admin's lookup and
       // record, and redefines the send reserve and the password guard; no colour, mark or brand surface.
@@ -1606,7 +1613,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 153, `${migrations.length} migrations; the frozen baseline has 153`);
+      c.expect(migrations.length === 154, `${migrations.length} migrations; the frozen baseline has 154`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3301,7 +3308,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 152 -> 153 for BOB-28's PIN recovery and card re-issue
+      // from, not a claim about the tour. MOVED 153 -> 154 for BOB-29's shared-computer lock (20261117100000), not a
+      // tour RPC (D-024). MOVED 152 -> 153 for BOB-28's PIN recovery and card re-issue
       // (20261116100000), not a tour RPC (D-024). MOVED 151 -> 152 for BOB-27's email recovery
       // (20261115100000), not a tour RPC (D-024). MOVED 150 -> 151 for D-098(c)'s email waits
       // (20261114100000), not a tour RPC (D-024). MOVED 149 -> 150 for BOB-50's Uji Cepat certificate rule
@@ -3386,7 +3394,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 153, `${migs.length} migrations; the baseline has 153`);
+      c.expect(migs.length === 154, `${migs.length} migrations; the baseline has 154`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -10264,6 +10272,9 @@ export const experienceTests: SelfTest[] = [
         // RESTATED FOR BOB-27: «Lupa password?» has the same two lines as MintaKode (the name, the code).
         // RESTATED FOR BOB-28: and one more, the PINTAR ID + PIN step's line.
         "src/components/aktifkan/LupaPassword.tsx": 3,
+        // RESTATED FOR BOB-29: «PINTAR terkunci» has one line, the PIN's, tied to its field (a wrong PIN and the tries
+        // left); the device question and «Keluar dari semua perangkat» answer through BarisHasil.
+        "src/components/sesi/LayarTerkunci.tsx": 1,
         "src/components/struktur/PanelStruktur.tsx": 1,
         "src/components/pendataan/Penggerak.tsx": 1,
       };

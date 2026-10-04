@@ -40,7 +40,7 @@ export const dynamic = "force-dynamic";
 export default async function Masuk({
   searchParams,
 }: {
-  searchParams: Promise<{ peran?: string; lanjut?: string }>;
+  searchParams: Promise<{ peran?: string; lanjut?: string; sesi?: string }>;
 }) {
   const sp = await searchParams;
   const locale = await currentLocale();
@@ -85,7 +85,11 @@ export default async function Masuk({
               </div>
             </div>
           ) : (
-            <LayarMasuk locale={locale} lanjut={lanjut} />
+            <>
+              {/* BOB-29: the proxy sends an ended session here (3 wrong PINs, 60 minutes locked, signed out elsewhere) */}
+              {sp.sesi === "berakhir" ? <p className="pin-msg pin-msg-note" role="status">{s("masuk.sesi_berakhir")}</p> : null}
+              <LayarMasuk locale={locale} lanjut={lanjut} />
+            </>
           )}
 
           <KalimatPonsel locale={locale} />

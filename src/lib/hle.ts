@@ -1610,6 +1610,50 @@ export type HleEvent =
   | "keamanan.gagal.ALASAN_KOSONG"
   | "keamanan.gagal.DITOLAK"
   | "keamanan.gagal.BELUM_MASUK"
+  // BOB-29 (Gate 6): the shared-computer lock, «Komputer siapa ini?», «Keluar dari semua perangkat»
+  | "kunci.judul"
+  | "kunci.untuk"
+  | "kunci.lede"
+  | "kunci.lede.kartu"
+  | "kunci.pin_label"
+  | "kunci.pin_label.kartu"
+  | "kunci.kosong"
+  | "kunci.kosong.kartu"
+  | "kunci.lanjut"
+  | "kunci.memeriksa"
+  | "kunci.tidak_cocok.2"
+  | "kunci.tidak_cocok.1"
+  | "kunci.berakhir"
+  | "kunci.masuk"
+  | "kunci.tanpa_pin"
+  | "kunci.lupa"
+  | "kunci.lupa.kartu"
+  | "kunci.bukan_anda.arti"
+  | "kunci.gagal"
+  | "jaga.peringatan"
+  | "jaga.masih"
+  | "perangkat.judul"
+  | "perangkat.lede"
+  | "perangkat.bersama"
+  | "perangkat.bersama.arti"
+  | "perangkat.pribadi"
+  | "perangkat.pribadi.arti"
+  | "perangkat.catatan"
+  | "perangkat.simpan"
+  | "perangkat.menyimpan"
+  | "perangkat.gagal"
+  | "akun.perangkat.judul"
+  | "akun.perangkat.SHARED"
+  | "akun.perangkat.PERSONAL"
+  | "akun.perangkat.ubah"
+  | "akun.semua.judul"
+  | "akun.semua.arti"
+  | "akun.semua.tombol"
+  | "akun.semua.yakin"
+  | "akun.semua.ya"
+  | "akun.semua.batal"
+  | "akun.semua.gagal"
+  | "masuk.sesi_berakhir"
   | "keamanan.gagal.PERMINTAAN_DITOLAK"
   | "keamanan.gagal.LAYANAN_TIDAK_TERSEDIA"
   | "keamanan.catatan_judul"
@@ -3530,6 +3574,50 @@ const table: Table = {
   "keamanan.gagal.ALASAN_KOSONG": { default: "Tulis alasannya. Alasan ini tercatat.", en: "Write the reason. It is recorded." },
   "keamanan.gagal.DITOLAK": { default: "Hanya admin platform yang bisa melakukan ini.", en: "Only the platform administrator can do this." },
   "keamanan.gagal.BELUM_MASUK": { default: "Sesi Anda sudah berakhir. Masuk lagi.", en: "Your session has ended. Sign in again." },
+  // BOB-29 (Gate 6): a class card (.kartu) is never named and types the card's PIN; staff type their personal PIN
+  "kunci.judul": { default: "PINTAR terkunci", en: "PINTAR is locked" },
+  "kunci.untuk": { default: "Terkunci untuk", en: "Locked for" },
+  "kunci.lede": { default: "Komputer ini tidak dipakai selama 5 menit, jadi PINTAR menutup layar ini agar data Anda aman. Ketik PIN pribadi Anda untuk melanjutkan.", en: "This computer wasn't used for 5 minutes, so PINTAR closed this screen to keep your information safe. Type your personal PIN to continue." },
+  "kunci.lede.kartu": { default: "Komputer ini tidak dipakai selama 5 menit, jadi PINTAR menutup layar ini. Ketik PIN kartu Anda untuk melanjutkan.", en: "This computer wasn't used for 5 minutes, so PINTAR closed this screen. Type your card's PIN to continue." },
+  "kunci.pin_label": { default: "PIN pribadi (4 angka)", en: "Personal PIN (4 digits)" },
+  "kunci.pin_label.kartu": { default: "PIN kartu", en: "Card PIN" },
+  "kunci.kosong": { default: "Ketik PIN Anda: 4 angka.", en: "Type your PIN: 4 digits." },
+  "kunci.kosong.kartu": { default: "Ketik PIN kartu Anda.", en: "Type your card's PIN." },
+  "kunci.lanjut": { default: "Lanjutkan", en: "Continue" },
+  "kunci.memeriksa": { default: "Memeriksa…", en: "Checking…" },
+  "kunci.tidak_cocok.2": { default: "PIN tidak cocok. Anda bisa mencoba 2 kali lagi.", en: "That PIN doesn't match. You can try 2 more times." },
+  "kunci.tidak_cocok.1": { default: "PIN tidak cocok. Anda bisa mencoba 1 kali lagi; jika tidak cocok lagi, Anda perlu masuk lagi.", en: "That PIN doesn't match. You can try once more; if it doesn't match again, you'll need to sign in again." },
+  "kunci.berakhir": { default: "Sesi di komputer ini sudah berakhir. Masuk lagi untuk melanjutkan.", en: "The session on this computer has ended. Sign in again to continue." },
+  "kunci.masuk": { default: "Masuk", en: "Sign in" },
+  "kunci.tanpa_pin": { default: "Akun ini belum punya PIN, jadi layar ini tidak bisa dibuka dengan PIN. Keluar, lalu masuk lagi.", en: "This account has no PIN yet, so this screen can't be opened with a PIN. Sign out, then sign in again." },
+  "kunci.lupa": { default: "Lupa PIN? Keluar, lalu masuk lagi dengan password Anda.", en: "Forgot your PIN? Sign out, then sign in again with your password." },
+  "kunci.lupa.kartu": { default: "Lupa PIN? Keluar, lalu minta bantuan guru Anda.", en: "Forgot your PIN? Sign out, then ask your teacher for help." },
+  "kunci.bukan_anda.arti": { default: "Keluar dulu, supaya Anda bisa masuk dengan akun Anda sendiri.", en: "Sign out first, so you can sign in with your own account." },
+  "kunci.gagal": { default: "PINTAR belum bisa memeriksa PIN. Coba lagi sebentar lagi.", en: "PINTAR couldn't check the PIN. Try again in a moment." },
+  "jaga.peringatan": { default: "Komputer ini belum dipakai selama 4 menit. Sebentar lagi PINTAR menutup layar ini; Anda bisa membukanya lagi dengan PIN.", en: "This computer hasn't been used for 4 minutes. In a moment PINTAR will close this screen; you can open it again with your PIN." },
+  "jaga.masih": { default: "Saya masih di sini", en: "I'm still here" },
+  "perangkat.judul": { default: "Komputer siapa ini?", en: "Whose computer is this?" },
+  "perangkat.lede": { default: "PINTAR menjaga akun Anda sesuai komputer yang Anda pakai. Anda bisa mengubah pilihan ini nanti di Akun saya.", en: "PINTAR looks after your account to suit the computer you use. You can change this later in My account." },
+  "perangkat.bersama": { default: "Komputer bersama", en: "A shared computer" },
+  "perangkat.bersama.arti": { default: "Dipakai bergantian, seperti komputer sekolah atau lab. Setelah 5 menit tidak dipakai, PINTAR menutup layar dan Anda membukanya lagi dengan PIN. Ini pilihan yang lebih aman.", en: "Used by others too, like a school or lab computer. After 5 minutes without use, PINTAR closes the screen and you open it again with your PIN. This is the safer choice." },
+  "perangkat.pribadi": { default: "Komputer pribadi saya", en: "My personal computer" },
+  "perangkat.pribadi.arti": { default: "Hanya Anda yang memakainya. Anda tetap masuk hingga 7 hari tanpa dipakai.", en: "Only you use it. You stay signed in for up to 7 days without use." },
+  "perangkat.catatan": { default: "Ini pilihan Anda untuk browser ini, bukan bukti kepemilikan.", en: "This is your choice for this browser, not proof of ownership." },
+  "perangkat.simpan": { default: "Simpan pilihan", en: "Save my choice" },
+  "perangkat.menyimpan": { default: "Menyimpan…", en: "Saving…" },
+  "perangkat.gagal": { default: "Pilihan ini belum tersimpan. Coba lagi.", en: "This choice wasn't saved. Try again." },
+  "akun.perangkat.judul": { default: "Komputer ini", en: "This computer" },
+  "akun.perangkat.SHARED": { default: "Komputer bersama: layar ditutup setelah 5 menit tidak dipakai.", en: "A shared computer: the screen closes after 5 minutes without use." },
+  "akun.perangkat.PERSONAL": { default: "Komputer pribadi Anda: Anda tetap masuk hingga 7 hari.", en: "Your personal computer: you stay signed in for up to 7 days." },
+  "akun.perangkat.ubah": { default: "Ubah", en: "Change" },
+  "akun.semua.judul": { default: "Keluar dari semua perangkat", en: "Sign out of every device" },
+  "akun.semua.arti": { default: "Akun Anda keluar dari setiap komputer dan perangkat tempat Anda masuk, termasuk yang ini. Setelah itu Anda masuk lagi di perangkat yang Anda pakai.", en: "Your account is signed out of every computer and device where you're signed in, including this one. Then you sign in again on the device you use." },
+  "akun.semua.tombol": { default: "Keluar dari semua perangkat", en: "Sign out of every device" },
+  "akun.semua.yakin": { default: "Keluar dari semua perangkat sekarang?", en: "Sign out of every device now?" },
+  "akun.semua.ya": { default: "Ya, keluar dari semua", en: "Yes, sign out everywhere" },
+  "akun.semua.batal": { default: "Batal", en: "Cancel" },
+  "akun.semua.gagal": { default: "PINTAR belum bisa mengeluarkan akun Anda dari semua perangkat. Coba lagi.", en: "PINTAR couldn't sign you out everywhere yet. Try again." },
+  "masuk.sesi_berakhir": { default: "Sesi di komputer ini sudah berakhir. Masuk lagi untuk melanjutkan.", en: "The session on this computer has ended. Sign in again to continue." },
   "keamanan.gagal.PERMINTAAN_DITOLAK": { default: "Muat ulang halaman ini, lalu coba lagi.", en: "Reload this page, then try again." },
   "keamanan.gagal.LAYANAN_TIDAK_TERSEDIA": { default: "PINTAR belum bisa menjawab. Coba lagi sebentar lagi.", en: "PINTAR can't answer yet. Try again in a moment." },
   "keamanan.catatan_judul": { default: "Catatan keamanan terbaru", en: "Latest security record" },
