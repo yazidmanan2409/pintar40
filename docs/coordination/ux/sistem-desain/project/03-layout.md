@@ -42,9 +42,9 @@ Inside a page, components respond to the space they are given (container queries
 | Fields side by side | Auto-fit columns | One column |
 | Table | Every column | Columns marked low priority step back; the table scrolls inside its frame with each row's name held still |
 | A filter of 2 to 4 choices | Segmented control | A select with the same options |
-| Pagination | Position, numbers where useful, labelled buttons | Position («2 / 16») and two icon buttons |
+| Pagination | Position, numbers where useful, labelled buttons, a jump select | Position («2 / 16») and two icon buttons; in a report ‹ [2 ▾] dari 12 › |
 | Staff navigation | Expanded, or the rail | A top bar with the place's name; the full navigation in a drawer |
-| Learner navigation | Top bar: two places, Bantuan, language, the name, Keluar | The same bar; the places take their own row and the name steps back |
+| Learner navigation | Top bar: two places, Bantuan, the language, «Bukan akun Anda?», «Keluar». Never a name (S15, D-020) | The same bar; the places take their own row |
 | Identity | The bottom of the navigation | The bottom of the drawer |
 
 **Never turn every dataset into cards on small screens.** A row of a table stays a row. A list of records read one at a time (a learner's own chapters) may be a list of rows with two lines each; that is a list, not cards.

@@ -38,6 +38,17 @@ python3 docs/coordination/ux/sistem-desain/alat/kontras.py
 
 `alat/skenario.json` holds the interaction scenarios the harness plays before it checks a card: a menu opened, a dialog shown, a table filtered, an action that fails.
 
+## The boards (PNG)
+
+The design language, system and grammar as 19 image boards. Each is 1600 px wide and saved at 2×, built from these same files with every component card live:
+
+```sh
+npx tsx docs/coordination/ux/sistem-desain/alat/papan.mts        # all boards → papan/NN-name.png
+npx tsx docs/coordination/ux/sistem-desain/alat/papan.mts 07 14  # some boards
+```
+
+The PNGs are not committed (about 22 MB); the script rebuilds them.
+
 ## Rebuilding the bundle
 
 `bundle.js` is `alat/bundle-sumber.js` with the icon map inlined:
