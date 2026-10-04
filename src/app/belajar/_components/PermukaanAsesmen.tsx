@@ -135,6 +135,7 @@ export default async function PermukaanAsesmen({
           accepted={accepted}
           seqs={seqs}
           mode={mode}
+          memintaSertifikat={session?.mode === "POST_TEST"}
           stage={session?.stage ?? null}
           allowsPause={mode === "PENGUASAAN" && Boolean(session?.allows_pause)}
           startedAt={session?.started_at ?? null}

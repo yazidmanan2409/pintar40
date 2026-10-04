@@ -11,6 +11,8 @@ import { createServerClient } from "@supabase/ssr";
 import { Checks, visibleText, type SelfTest, type Context } from "./lib";
 import { INTERNAL_WORDS, t, type HleEvent } from "../src/lib/hle";
 import { bacaJawabanKartu } from "../src/components/masuk/kartu";
+import { bob26AppTests } from "./bob26.test";
+import { bob50AppTests } from "./bob50.test";
 
 /** Synthetic personas (supabase/seed/synthetic.sql). Passwords are seed constants, not secrets. */
 const PERSONA = {
@@ -115,6 +117,11 @@ const ROUTE_INVENTORY = [
   // F-01. Account activation — the step after the intake — is a static route
   // like the intake's own entry, so its rendered output is swept too.
   "/aktivasi",
+  // DAISY-20 (Gate 3). «Aktifkan akun PINTAR Anda» is served signed out and
+  // Akun saya signed in; both render server answers through the copy table,
+  // so both are swept like every other page.
+  "/aktifkan",
+  "/akun",
 ] as const;
 
 type Session = { cookie: string; accessToken: string; refreshToken: string };
@@ -2953,4 +2960,8 @@ export const appTests: SelfTest[] = [
       );
     },
   },
+  // BOB-26 (Gate 3): activation and password sign-in, through the running app
+  ...bob26AppTests,
+  // BOB-50 (D-082(d)): a single Uji Cepat issues no certificate, through the running app
+  ...bob50AppTests,
 ];

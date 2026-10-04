@@ -1942,11 +1942,14 @@ begin
   -- 1 since D-032 (BOB-14): the verification route; the lesson view is not public.
   -- RESTATED FOR BOB-12 (a changed requirement): 2, with the class card's sign-in
   -- route declared beside it, and 4 addresses, each route with its endpoint.
-  if (v_lint ->> 'anon_public_surface')::int <> 2 then
-    ok := false; detail := detail || format('anon_public_surface is %s, expected 2; ', v_lint ->> 'anon_public_surface');
+  -- RESTATED FOR BOB-26: Gate 3's three declared doors (activation's code
+  -- request and check, the password sign-in) join the certificate's and the
+  -- card's: 5 surfaces, 10 addresses, each registered in public_surface_registry
+  if (v_lint ->> 'anon_public_surface')::int <> 5 then
+    ok := false; detail := detail || format('anon_public_surface is %s, expected 5; ', v_lint ->> 'anon_public_surface');
   end if;
-  if (v_lint ->> 'anon_reachable_http_paths')::int <> 4 then
-    ok := false; detail := detail || format('anon_reachable_http_paths is %s, expected 4; ', v_lint ->> 'anon_reachable_http_paths');
+  if (v_lint ->> 'anon_reachable_http_paths')::int <> 10 then
+    ok := false; detail := detail || format('anon_reachable_http_paths is %s, expected 10; ', v_lint ->> 'anon_reachable_http_paths');
   end if;
   for r in select k from jsonb_object_keys(v_lint) k where k like '%\_ok' loop
     if (v_lint ->> r) <> 'true' then

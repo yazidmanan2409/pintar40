@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 172,
+  "version": 173,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -121,7 +121,7 @@
     {
       "id": "F01-T17",
       "runner": "db",
-      "proves": "doc 05 own-profile update only",
+      "proves": "doc 05 own-profile update only, restated for BOB-26 (D-077(2), migration 20261112100000): the photo is the person's own; the name is governed identity data and a direct update of it is refused",
       "skip_justification": "needs a reachable Postgres with the migrations and synthetic seed applied (CI local stack via SUPABASE_DB_URL); without one, the same file is executed on the Supabase management channel and its rows recorded in docs/CHECKPOINT-FABLE-01.md"
     },
     {
@@ -1174,7 +1174,7 @@
     {
       "id": "UX1-S3-CEPAT-01",
       "runner": "static",
-      "proves": "THE QUICK ASSESSMENT'S BOUNDS ARE READ, AND ITS CERTIFICATE SENTENCE IS CHECKED AGAINST THE CONTRACT RATHER THAN AGAINST ITSELF. The item range comes from public.assessment_definition_bounds for QUICK rather than from a literal in the route, the migration's own row is parsed to confirm the ceiling of 20 and the single attempt, and the three minute presets in src/lib/pengajar.ts are asserted to sit inside the 5-to-60 range launch_quick_assessment itself enforces. THE HALF THAT EARNS THE TEST: the reviewed concept told an educator three times that a Quick Assessment does not enter a certificate. mode_policy's QUICK row has certifies = true and its own note reads \"evidence is ordinary evidence\", so certificate_eligibility does not refuse a QUICK session on mode grounds. This test therefore PARSES mode_policy's column order and its QUICK row out of the migration and requires the copy in src/lib/hle.ts to agree with what it finds: while certifies is true the copy may not deny that the result can reach certificate evidence, may not say the result is not a learner's or is the educator's alone, must actually tell the canonical meaning in BOTH languages (learning evidence, certificate eligibility), and must still say that one Quick Assessment does not issue a certificate -- the opposite overclaim. If a later migration flips that row, this test says the copy has to move rather than quietly becoming wrong. Also asserts the screen promises no per-item result, because responses_select and presented_items_select are CAN_REVIEW_INTEGRITY only and the service statistics views are revoked from authenticated outright"
+      "proves": "THE QUICK ASSESSMENT'S BOUNDS ARE READ, AND ITS CERTIFICATE SENTENCE IS CHECKED AGAINST THE CONTRACT RATHER THAN AGAINST ITSELF. The item range comes from public.assessment_definition_bounds for QUICK rather than from a literal in the route, the migration's own row is parsed to confirm the ceiling of 20 and the single attempt, and the three minute presets in src/lib/pengajar.ts are asserted to sit inside the 5-to-60 range launch_quick_assessment itself enforces. THE HALF THAT EARNS THE TEST: the reviewed concept told an educator three times that a Quick Assessment does not enter a certificate. mode_policy's QUICK row has certifies = true and its own note reads \"evidence is ordinary evidence\", so certificate_eligibility does not refuse a QUICK session on mode grounds. This test therefore PARSES mode_policy's column order and its QUICK row out of the migration and requires the copy in src/lib/hle.ts to agree with what it finds: while certifies is true the copy may not deny that the result can reach certificate evidence, may not say the result is not a learner's or is the educator's alone, must actually tell the canonical meaning in BOTH languages (learning evidence, certificate eligibility), and must still say that one Quick Assessment does not issue a certificate -- the opposite overclaim. If a later migration flips that row, this test says the copy has to move rather than quietly becoming wrong. Also asserts the screen promises no per-item result, because responses_select and presented_items_select are CAN_REVIEW_INTEGRITY only and the service statistics views are revoked from authenticated outright RE-POINTED AND INVERTED FOR DAISY-39 (D-082(d), BOB-50): the policy read is the LIVE QUICK row — its insert in 20260914093000, then every later migration that sets QUICK's certifies, in order (BOB-50's 20261113100000 sets it false, and the test fails if that change is not read). With QUICK not certifying, no Uji Cepat line (mengajar.cepat.*, mengajar.langkah.f5w, tur.pg.4.isi) claims or hedges a way to a certificate — «kelayakan sertifikat», «certificate eligibility», «satu Uji Cepat (saja)», «a single Quick Assessment», «penerbitan dilakukan sekolah» — with the old sentence as the planted control; each language says plainly that an Uji Cepat does not issue a certificate; and the result is still called learning evidence. The certifying branch is kept for a policy that flips back."
     },
     {
       "id": "UX1-S3-BUKTI-01",
@@ -2802,6 +2802,170 @@
       "id": "PITA-K01",
       "runner": "static",
       "proves": "owner ruling on the performance bands (3 Oct, D-095): PINTAR's fixed 60/80 bands are an independent performance distribution, not the school's mastery threshold; the band words read «Mantap», «Berkembang», «Perlu penguatan» and «Belum mengerjakan Uji Penguasaan» for every staff reader and claim no pass, target or certificate; one short line wherever the bands are drawn says they are PINTAR's fixed bands, not the school's threshold, and decide no certificate; the action sentence names its bands while the safety-gate figure keeps its own; executes urutkanPita (src/lib/nilai-metrik.ts): band order, not key order; reads «Lihat bukti» and NilaiLaporan: in order, with the line, and no «Nama diurutkan abjad» under the bands; no threshold in the presentation code"
+    },
+    {
+      "id": "F18-N01",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261112100000 measured in selftest/db/fable18.sql: the Ironman test's database half (D-077(4)): Bagas Saputra (activated, a Guru), a Murid on a class card and a Guru each run UPDATE persons SET display_name = 'Ironman' on their own row as themselves and are refused by the privileges (the revoked display_name grant); no name changes.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-N02",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261112100000 measured in selftest/db/fable18.sql: confirm_my_name, the one confirmation at activation (D-077(1)): the registered name is corrected once and confirmed, audited with the old name, the new name and who; a second correction, the step after set-up, an empty name and a control character are refused by their own codes; a class card has no name step.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-N03",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261112100000 measured in selftest/db/fable18.sql: correct_person_name, the platform admin's governed correction (D-077(3)): with a reason, audited from, to, reason and who; a school admin, a Guru, the person, a class card and a learner are refused 42501.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-N04",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261112100000 measured in selftest/db/fable18.sql: INV-30 under a correction: a certificate issued before correct_person_name keeps name_as_issued and its row is byte-identical; one issued after reads the corrected name.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-N05",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261112100000 measured in selftest/db/fable18.sql: my_identity_card and my_setup_progress read the corrected current name, the PINTAR ID and the current role and school (D-059); a learner gets no card and no PINTAR ID (C17).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-P01",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261112100000 measured in selftest/db/fable18.sql: the password write permit: the trigger pintar_password_write_guard on auth.users refuses a new password hash written by Auth's own role without a permit; password_write_permit is single-use, one minute, for a REQUIRED email account only, records the wizard's step and is audited without the hash.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-S01",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261112100000 measured in selftest/db/fable18.sql: my_setup_progress reports exactly the steps done, and complete_my_setup needs the username, the password, the PIN and the name's confirmation.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-L01",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261112100000 measured in selftest/db/fable18.sql: the signed-out lookups: activation_code_target names only a REQUIRED email account; signin_resolve maps an email or a username to the account's address and a class card or unknown name to nothing; identity_attempt's PASSWORD_SIGNIN scope holds a sixth attempt and a success clears it; email_resend_seconds is the limit's; email_send_would_allow is read-only.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-I01",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261112100000 measured in selftest/db/fable18.sql: import_preview_names returns every name of an import job, in order, paged, with the new-person mark and the role, to the job's own school admin only (D-077(4)).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F18-A01",
+      "runner": "db",
+      "proves": "BOB-26 (Gate 3), migration 20261112100000 measured in selftest/db/fable18.sql: access: no client role reaches activation_code_target, signin_resolve, password_write_permit, email_send_would_allow, email_resend_seconds or the permit table; anon reaches no signed-in identity function; the permit table has RLS and no policy.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "BOB26-A01",
+      "runner": "app",
+      "proves": "BOB-26 (Gate 3), selftest/bob26.test.ts over the running app (each route executes against Auth, PostgREST and the Mailpit sink): POST /aktifkan/kode, /aktifkan/periksa, /api/aktifkan/* and /masuk/password, the journey from «Orang baru» to the Guru's home: the code with its canonical validity, typed spaced; the proxy's hold; username, password, PIN and D-077's name step with their refusals; the card email; sign-in by username and by email.",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
+    },
+    {
+      "id": "BOB26-A02",
+      "runner": "app",
+      "proves": "BOB-26, selftest/bob26.test.ts, each route executes against the running app: /aktifkan/kode answers a stranger, a finished Guru and a class card identically and sends nothing to them or makes no Auth user; /masuk/password answers a wrong password and an unknown username with one code, no sooner than LANTAI_GAGAL_MS, medians within 150 ms; the PASSWORD_SIGNIN and CODE_VERIFY counters hold a sixth try with Retry-After.",
+      "skip_justification": "needs the running app, the local stack and the Mailpit sink"
+    },
+    {
+      "id": "BOB26-A03",
+      "runner": "app",
+      "proves": "BOB-26, selftest/bob26.test.ts: the Gate 0 finding closed by the password write permit (migration 20261112100000): a signed-in session's own PUT /auth/v1/user password change is refused and does not take; the Ironman test through PostgREST: the Guru's PATCH of display_name to «Ironman» is refused, the photo stays theirs.",
+      "skip_justification": "needs the running app and the local stack (Auth, PostgREST)"
+    },
+    {
+      "id": "BOB26-A04",
+      "runner": "app",
+      "proves": "BOB-26 (D-079), selftest/bob26.test.ts, the route executes against the running app and the send log: with the address's hourly limit used up, /api/aktifkan/selesai completes the set-up and answers BELUM_TERKIRIM without sending; /api/akun/kartu/kirim sends the card once the limit has passed.",
+      "skip_justification": "needs the running app, the local stack and the Mailpit sink"
+    },
+    {
+      "id": "BOB26-K01",
+      "runner": "static",
+      "proves": "BOB-26, the source file src/lib/aktivasi.ts executes with its tools replaced (selftest/bob26.test.ts): mintaKode answers alike whether activation_code_target finds an account and sends only after the answer; angkaKode reads «482 913»; masukPassword sends an unknown name to Auth as ALAMAT_TIADA and waits for the floor; kunciIdentitas keeps the two counters apart."
+    },
+    {
+      "id": "BOB26-S01",
+      "runner": "static",
+      "proves": "BOB-26 (D-079 addendum), selftest/bob26.test.ts: supabase/config.toml equals supabase/auth-identitas.json; templatKode's «berlaku N menit» follows mailer_otp_exp (600, 900, 300); no validity is typed in src; staging.yml writes and reads back the file and identity-facts.yml fails on drift (scripts/auth-identitas-banding.py)."
+    },
+    {
+      "id": "F19-Q01",
+      "runner": "db",
+      "proves": "BOB-50 (D-082(d)), migration 20261113100000 measured in selftest/db/fable19.sql: a finished, all-correct Uji Cepat (QUICK session; started under the old policy, finished under the new) is not certificate-eligible because its mode does not certify; certificate_prepare raises for it and no certificate row exists for it.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F19-Q02",
+      "runner": "db",
+      "proves": "BOB-50 (D-082(d)), migration 20261113100000 measured in selftest/db/fable19.sql: the cycle's Uji Penguasaan (POST_TEST) still certifies: the same learner's all-correct attempt is eligible and a certificate is prepared.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F19-Q03",
+      "runner": "db",
+      "proves": "BOB-50 (D-082(d)), migration 20261113100000 measured in selftest/db/fable19.sql: mode_policy: QUICK does not certify while POST_TEST, TEST, EXAM, STANDALONE and PAPER still do; the change is audited; assert_mode_policy_complete passes and names QUICK if it certifies again.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F19-Q04",
+      "runner": "db",
+      "proves": "BOB-50 (D-082(d)), migration 20261113100000 measured in selftest/db/fable19.sql: an Uji Cepat in progress when the policy changes finishes with the same verdict: started while QUICK certified and finished after, its session_outcome is a pass and identical under either policy (session_outcome does not read mode_policy).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "BOB50-A01",
+      "runner": "app",
+      "proves": "BOB-50 (D-082(d)), selftest/bob50.test.ts: the route POST /api/certificates/issue executes against the running app for a real, all-correct Uji Cepat asked by its own learner (signed in through /masuk/password): not_eligible, and no certificate row exists for the session.",
+      "skip_justification": "needs the running app and the local stack (Auth, PostgREST)"
+    },
+    {
+      "id": "BOB50-S01",
+      "runner": "static",
+      "proves": "BOB-50 (D-082(d)), the source files src/app/belajar/_components/ItemPlayer.tsx and PermukaanAsesmen.tsx: the player asks for a certificate from one place, only when memintaSertifikat is set, which the surface sets only for a POST_TEST session; migration 20261113100000 sets QUICK certifies = false and refuses to apply over an unsigned Uji Cepat certificate."
+    },
+    {
+      "id": "DAISY-20-EMAIL-01",
+      "runner": "static",
+      "proves": "DAISY-20 × BOB-26 §5 (D-079 and its addendum): the identity emails, src/components/email/identitas.ts on the DAISY-19 frame, which BOB-26's send (src/app/api/_email/identitas.ts) renders. (1) templatKode (first code and, with ulang, the resend) is BOB-25's Templat over BOB-26's DataEmailKode (src/lib/email/identitas.ts), each with its own subject, heading and body from the copy table, the reason, and what to do if the code was not asked for. (2) The real duration comes from the data: rendered at berlakuMenit 10 and planted at 7 and 60, each email says exactly format.durasi of that value and no other; no email.kode or email.kartu line types a number or says «segera»; the source reads data.berlakuMenit. (3) The code is shown «482 913» in both bodies; the greeting names the person only when there is a name. (4) templatKartuDigital shows the name, the PINTAR ID 4 + 4, each context line as the data gives it (role · school; the platform role alone; a planted change shows, D-059), the way to Akun saya, and that the ID is not a secret. (5) identitas.ts exports templatKode and templatKartu, typed as Templat over BOB-26's data shapes under the names BOB-26's send imports, and reads no configuration and sends nothing. DAISY-19-EMAIL-01 also holds all three to the frame's structure, word, contrast and plain-text checks, and reads every module in src/components/email"
+    },
+    {
+      "id": "DAISY-20-KODE-01",
+      "runner": "static",
+      "proves": "DAISY-20 on BOB-26's contract as built (src/lib/aktivasi-kontrak.ts): every code on each of the 11 routes is read back as itself through the contract's own reader for that route (keadaan, which ships none, by the same rules): a success only with the route's own fields, a code another route gives or none at all as the unavailable answer, and an answer that never arrived as «not reached» and said as a plain sentence in both languages with no code word, no INTERNAL_WORDS entry and none of the server's own text (planted on every answer); every username and PIN refusal reads differently; a wait is the route's own (body, then Retry-After), «a moment» when it gave none, never on a refusal, and a note rather than a judgement; a reference only on LAYANAN_TIDAK_TERSEDIA and only the contract's six characters, with «yang mengurus PINTAR di sekolah Anda» (Terminology v1); PASSWORD_LEMAH says each reason in order; «482 913», «482-913» and «482913» are one code; the ID shows 4 + 4; a destination never leaves PINTAR; the address check agrees with the sign-in screen's"
+    },
+    {
+      "id": "DAISY-20-LAYAR-01",
+      "runner": "static",
+      "proves": "DAISY-20: the activation screens RENDERED in both languages (username, password with today's and planted rules, PIN, the name viewed and changing, the welcome with the card sent and not sent, a stop, the email screen, the wizard and Akun saya loading, the identity block): «Langkah N dari 4» in the journey's order with a focusable heading; every field labelled; username, new-password (twice), numeric four-digit PIN and one-time-code filling; the password rules shown before typing and following the canonical setting (8 and the leak check; a planted 12 with two kinds and no leak check changes the screen); one labelled pressed-state reveal per secret; a judged field aria-invalid and described by its alert, none before anything is judged; a form whose script has not started held with auth.belum_siap; the welcome with the name, the ID 4 + 4, a labelled QR, where the card went, the data's role · school lines and «Masuk ke PINTAR» to the route's home; no code word, internal word or empty key on any screen; every key used declared in both languages; no pre-sign-in activation line types a duration or says «segera»"
+    },
+    {
+      "id": "DAISY-20-C17-01",
+      "runner": "static",
+      "proves": "DAISY-20, C17: no PINTAR-ID screen reaches a learner. /akun returns the refusal page for a reader with no staff role before drawing AkunSaya, the only component that requests the card besides the wizard's welcome, which asks inside `if (keadaan.staf)` and reports TIDAK_ADA otherwise; STUDENT is not in PERAN_STAF; RENDERED in both languages, a learner-only account's welcome has no ID, no QR and no card word; the «Akun saya» door is drawn only with the staff-only strip name (S15); no wizard step, intake name-list or approval line mentions a card or a PINTAR ID"
+    },
+    {
+      "id": "DAISY-20-NAMA-01",
+      "runner": "static",
+      "proves": "DAISY-20, D-077. (1) The wizard's name step RENDERED in both languages: the name whole in its large line, the once-only line before «Sudah benar» (the submit, first) and «Ubah nama» (a button); changing opens one labelled field holding the name, with «Batal»; «Sudah benar» sends no name, a correction sends the normalised name alone (BOB-26 §3.5). (2) «Orang baru»: «Buat dan aktifkan» checks with isianKurang and sends nothing; the only NEW_PERSON request is «Sudah benar, buat dan aktifkan» with exactly the name and address shown; «Ubah» goes back; rendered, no confirmation shows before a press. (3) The intake: DaftarNama draws all 1234 planted rows in order in a labelled, keyboard-scrollable region, marks the already-registered ones, never mentions a card (C17); kumpulkanNama reads import_preview_names page by page and returns the whole list, two exact full pages and an empty intake correctly, and null on a refusal, a malformed row, rows out of order, a read that never ends or a thrown read; the page offers its one approval only under a complete list as long as WP5A's row_count, and otherwise says the list could not be read"
+    },
+    {
+      "id": "DAISY-20-ALUR-01",
+      "runner": "static",
+      "proves": "DAISY-20 wiring on BOB-26's contract as built: the screens' contract module re-exports src/lib/aktivasi-kontrak.ts and restates no code, status or shape, adding only the paths; the code is checked at /aktifkan/periksa (INV-38); every answer is read by the contract's own reader; every request is jawaban.ts's single fetch to the contract's path, no-store and same-origin, and no activation or sign-in screen reads a server message; the code screen's «berlaku selama N menit» is format.durasi of the route's berlakuMenit and its resend countdown the route's kirimUlangDalam, on the first code and on a resend, with the resend held while it runs and no number typed (D-079 addendum); the code is sent as digits from a field that takes «482 913»; every signed-in destination is narrowed to PINTAR; the code screen says «jika alamat ini terdaftar» for every address and nothing branches on an account existing (D2); /aktifkan chooses the email screen or the wizard by the session; «Masuk ke PINTAR» leads to «Aktifkan akun» (D-019 amended); the email-link fallback switch is the contract's"
+    },
+    {
+      "id": "DAISY-40-SERTIFIKAT-01",
+      "runner": "static",
+      "proves": "DAISY-40: the learner's certificate list opens each certificate. A row finds its learning assignment through its session by petaSesi (src/components/sertifikat/asalSertifikat.ts), the inverse of the certificate page's own read: each assignment's my_cycle_state post_session, mapped back to that assignment. So the row shows the assignment's subject, grade and title and links to /belajar/<assignment>/sertifikat, which reads the same session. An assignment with no post session, a session no assignment reports and a second claim on a session change nothing; a row that finds no assignment is drawn as a non-link row. The page builds the map from engine.cycleState(...).post_session, looks rows up by row.session_id, has exactly one link (the found assignment's page) and no /belajar/<session id> fallback; the certificate page still finds its session by my_cycle_state's post_session; the list still reads certificates only through myCertificates. The control, the old map keyed by learning_assignment_id and looked up by session_id, finds nothing: the defect"
     }
   ]
 }

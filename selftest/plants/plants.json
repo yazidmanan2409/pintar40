@@ -60,6 +60,11 @@
       "control_green": 3,
       "what": "BOB-25's send log and limits: email_send_reserve refuses by each scope and counts what it should, a send settles once, and no client role reaches the log"
     },
+    "db-bob26-gates": {
+      "suite": "selftest.run_fable18()",
+      "control_green": 10,
+      "what": "BOB-26's activation: nobody renames themselves at the table, a password needs a permit, a code goes only to an unfinished set-up, set-up needs the name, the correction is the platform admin's, the name step closes, and an import's names are its own school's"
+    },
     "db-bob37-gates": {
       "suite": "selftest.run_fable06()",
       "control_green": 35,
@@ -74,6 +79,11 @@
       "suite": "selftest.run_bob36()",
       "control_green": 1,
       "what": "BOB-36's Uji Cepat rules: once a session cites an ad-hoc definition, its twelve interpretive fields and its status are fixed for every role, the owner included, while its title and an unsat definition stay editable"
+    },
+    "db-bob50-gates": {
+      "suite": "selftest.run_fable19()",
+      "control_green": 4,
+      "what": "BOB-50's certificate rule (D-082(d)): a single Uji Cepat is not eligible and nothing is prepared for it, the cycle's Uji Penguasaan still certifies, and the mode policy lint names QUICK if it certifies again; an Uji Cepat in progress keeps its verdict"
     }
   },
   "plants": [
@@ -674,6 +684,18 @@
     { "name": "bob25-2", "gate": "db-bob25-gates", "expect_red": "F17-L01", "expect_detail": "three of them refused by the host, was answered" },
     { "name": "bob25-3", "gate": "db-bob25-gates", "expect_red": "F17-L02", "expect_detail": "a settled send was settled a second time" },
     { "name": "bob25-4", "gate": "db-bob25-gates", "expect_red": "F17-N01", "expect_detail": "authenticated may reserve or settle a send" },
-    { "name": "bob25-5", "gate": "db-bob25-gates", "expect_red": "F17-L01", "expect_detail": "a second code to the same address within a minute was answered" }
+    { "name": "bob25-5", "gate": "db-bob25-gates", "expect_red": "F17-L01", "expect_detail": "a second code to the same address within a minute was answered" },
+    { "name": "bob26-1", "gate": "db-bob26-gates", "expect_red": "F18-N01", "expect_detail": "renamed themselves «Ironman» straight at the table" },
+    { "name": "bob26-2", "gate": "db-bob26-gates", "expect_red": "F18-P01", "expect_detail": "Auth wrote a password with no permit" },
+    { "name": "bob26-3", "gate": "db-bob26-gates", "expect_red": "F18-L01", "expect_detail": "would be sent a code (only a REQUIRED email account is)" },
+    { "name": "bob26-4", "gate": "db-bob26-gates", "expect_red": "F18-S01", "expect_detail": "set-up completed before the name was confirmed" },
+    { "name": "bob26-5", "gate": "db-bob26-gates", "expect_red": "F18-N03", "expect_detail": "corrected a name" },
+    { "name": "bob26-6", "gate": "db-bob26-gates", "expect_red": "F18-N02", "expect_detail": "the name could be corrected a second time" },
+    { "name": "bob26-7", "gate": "db-bob26-gates", "expect_red": "F18-I01", "expect_detail": "another school's admin read the names" },
+    { "name": "bob26-8", "gate": "db-bob26-gates", "expect_red": "F18-S01", "expect_detail": "set-up completed with no password" },
+    { "name": "bob50-1", "gate": "db-bob50-gates", "expect_red": "F19-Q01", "expect_detail": "a finished Uji Cepat is certificate-eligible" },
+    { "name": "bob50-2", "gate": "db-bob50-gates", "expect_red": "F19-Q03", "expect_detail": "with QUICK certifying again the lint did not name it" },
+    { "name": "bob50-3", "gate": "db-bob50-gates", "expect_red": "F19-Q02", "expect_detail": "is not eligible" },
+    { "name": "bob50-4", "gate": "db-bob50-gates", "expect_red": "F19-Q04", "expect_detail": "depends on the certificate policy" }
   ]
 }

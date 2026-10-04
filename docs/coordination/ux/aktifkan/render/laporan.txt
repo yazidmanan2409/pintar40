@@ -1,0 +1,80 @@
+DAISY-20 · 320 px and accessibility proof · 16 states × 2 languages × 2 widths = 64 checks
+(no horizontal scroll; every control ≥ 24 px and DAISY-20's ≥ 44 px; axe-core WCAG 2.0/2.1/2.2 A+AA; focus on the new screen's heading; each state says what it must)
+
+ok    01-email id 320px
+ok    01-email id 1280px
+ok    01-email en 320px
+ok    01-email en 1280px
+ok    02-kode id 320px
+ok    02-kode id 1280px
+ok    02-kode en 320px
+ok    02-kode en 1280px
+ok    03-kode-tidak-cocok id 320px
+ok    03-kode-tidak-cocok id 1280px
+ok    03-kode-tidak-cocok en 320px
+ok    03-kode-tidak-cocok en 1280px
+ok    04-username id 320px
+ok    04-username id 1280px
+ok    04-username en 320px
+ok    04-username en 1280px
+ok    05-username-ditolak id 320px
+ok    05-username-ditolak id 1280px
+ok    05-username-ditolak en 320px
+ok    05-username-ditolak en 1280px
+ok    06-password id 320px
+ok    06-password id 1280px
+ok    06-password en 320px
+ok    06-password en 1280px
+ok    07-pin-ditolak id 320px
+ok    07-pin-ditolak id 1280px
+ok    07-pin-ditolak en 320px
+ok    07-pin-ditolak en 1280px
+ok    08-nama id 320px
+ok    08-nama id 1280px
+ok    08-nama en 320px
+ok    08-nama en 1280px
+ok    09-nama-ubah id 320px
+ok    09-nama-ubah id 1280px
+ok    09-nama-ubah en 320px
+ok    09-nama-ubah en 1280px
+ok    10-selamat id 320px
+ok    10-selamat id 1280px
+ok    10-selamat en 320px
+ok    10-selamat en 1280px
+ok    11-selamat-murid id 320px
+ok    11-selamat-murid id 1280px
+ok    11-selamat-murid en 320px
+ok    11-selamat-murid en 1280px
+ok    12-masuk-password id 320px
+ok    12-masuk-password id 1280px
+ok    12-masuk-password en 320px
+ok    12-masuk-password en 1280px
+ok    12b-masuk-kartu id 320px
+ok    12b-masuk-kartu id 1280px
+ok    12b-masuk-kartu en 320px
+ok    12b-masuk-kartu en 1280px
+ok    13-akun-saya id 320px
+ok    13-akun-saya id 1280px
+ok    13-akun-saya en 320px
+ok    13-akun-saya en 1280px
+ok    14-orang-baru-periksa id 320px
+ok    14-orang-baru-periksa id 1280px
+ok    14-orang-baru-periksa en 320px
+ok    14-orang-baru-periksa en 1280px
+ok    15-pendataan-nama id 320px
+ok    15-pendataan-nama id 1280px
+ok    15-pendataan-nama en 320px
+ok    15-pendataan-nama en 1280px
+
+NOTES (shared controls that predate DAISY-20: above WCAG 2.5.8's 24 px, under PINTAR's 44 px; not changed here):
+  aktivasi: button 26 px
+  aktivasi: button.pin-btn 40 px
+  aktivasi: input.pin-input 40 px
+  akun: button 26 px
+  akun: button.pin-btn 40 px
+  masuk: button 26 px
+  pendataan: button 26 px
+  tamu: button 26 px
+  wizard: button 26 px
+
+all checks passed

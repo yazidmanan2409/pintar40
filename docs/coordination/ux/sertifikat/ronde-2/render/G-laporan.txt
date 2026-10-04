@@ -1,0 +1,17 @@
+G · THE PRINT PROOF: today's certificate page (the review harness: the real KartuSertifikat and the real compiled stylesheet), printed by Chromium before and after cetak-usulan.css
+
+The print dialog as it opens (A4, «Default» margins, headers and footers on, background graphics off)
+  BEFORE 2 page(s), 210.2 × 297.3 mm; the certificate printed 2 time(s); the green rule MISSING; the sheet's first line 211.8 mm from the page top; QR read back yes; the browser's own lines: «9/30/26, 10:51 AM 02-sertifikat-berlaku id» «http://127.0.0.1:34451/g-sebelum.html 1/2» «9/30/26, 10:51 AM 02-sertifikat-berlaku id» «http://127.0.0.1:34451/g-sebelum.html 2/2»
+  AFTER  1 page(s), 209.9 × 297 mm; the certificate printed 1 time(s); the green rule printed; the sheet's first line 19.9 mm from the page top; QR read back yes; the browser's own lines: none
+
+Every option in the sheet's favour (no margins, no headers, background graphics on)
+  BEFORE 2 page(s), 210.2 × 297.3 mm; the certificate printed 2 time(s); the green rule printed; the sheet's first line 202 mm from the page top; QR read back yes; the browser's own lines: none
+  AFTER  1 page(s), 209.9 × 297 mm; the certificate printed 1 time(s); the green rule printed; the sheet's first line 19.9 mm from the page top; QR read back yes; the browser's own lines: none
+
+Letter paper instead of A4 (a printer set to Letter), otherwise as the dialog opens
+  BEFORE 2 page(s), 215.9 × 279.4 mm; the certificate printed 2 time(s); the green rule MISSING; the sheet's first line 211.8 mm from the page top; QR read back yes; the browser's own lines: «9/30/26, 10:51 AM 02-sertifikat-berlaku id» «http://127.0.0.1:34451/g-sebelum.html 1/2» «9/30/26, 10:51 AM 02-sertifikat-berlaku id» «http://127.0.0.1:34451/g-sebelum.html 2/2»
+  AFTER  1 page(s), 215.9 × 279.4 mm; the certificate printed 1 time(s); the green rule printed; the sheet's first line 18.7 mm from the page top; QR read back yes; the browser's own lines: none
+
+The reader overrides the margins: 10 mm on every side, headers and footers on
+  BEFORE 2 page(s), 210.2 × 297.3 mm; the certificate printed 2 time(s); the green rule MISSING; the sheet's first line 211.8 mm from the page top; QR read back yes; the browser's own lines: «9/30/26, 10:51 AM 02-sertifikat-berlaku id» «http://127.0.0.1:34451/g-sebelum-margin.html 1/2» «9/30/26, 10:51 AM 02-sertifikat-berlaku id» «http://127.0.0.1:34451/g-sebelum-margin.html 2/2»
+  AFTER  1 page(s), 209.9 × 297 mm; the certificate printed 1 time(s); the green rule printed; the sheet's first line 29.9 mm from the page top; QR read back yes; the browser's own lines: «9/30/26, 10:51 AM 02-sertifikat-berlaku id» «http://127.0.0.1:34451/g-sesudah-margin.html 1/1»

@@ -42,7 +42,7 @@ export default function BarisSesi({
   /** In a header row, or on the refusal page. */
   varian?: "kepala" | "penolakan";
 }) {
-  const s = (k: "sesi.label" | "sesi.sebagai" | "sesi.bukan_anda" | "sesi.keluar") => t(k, persona, { locale });
+  const s = (k: "sesi.label" | "sesi.sebagai" | "sesi.bukan_anda" | "sesi.keluar" | "sesi.akun") => t(k, persona, { locale });
   // One strip per page, but the two variants never share an id either way.
   const idKet = `pin-sesi-ket-${varian}`;
   return (
@@ -56,6 +56,9 @@ export default function BarisSesi({
           s("sesi.bukan_anda")
         )}
       </span>
+      {/* DAISY-20: Akun saya — the PINTAR ID and card — for the reader the strip
+          names, which is a staff reader and never a learner (C17). */}
+      {nama ? <a className="pin-sesi-akun" href="/akun">{s("sesi.akun")}</a> : null}
       <form action="/keluar" method="post">
         <button type="submit" className="pin-sesi-keluar" aria-describedby={idKet}>
           {s("sesi.keluar")}

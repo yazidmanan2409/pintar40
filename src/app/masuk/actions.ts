@@ -7,6 +7,7 @@ import { currentViewer } from "@/lib/auth";
 import { appUrl } from "@/lib/env";
 import { berandaPeran } from "@/lib/beranda";
 import { tujuanInternal } from "@/lib/tujuan";
+import { TAUTAN_MASUK_CADANGAN } from "@/lib/aktivasi-kontrak";
 
 /**
  * WHAT THE SIGN-IN SCREEN IS TOLD, AND WHAT IT IS NOT.
@@ -31,6 +32,8 @@ export async function sendMagicLink(formData: FormData): Promise<HasilKirim> {
   // BOB-06 (D-010): none asked for stays none, and the link then carries none.
   const next = tujuanInternal(formData.get("lanjut"), "");
   if (!email) return "gagal";
+  // BOB-26 (C14): the magic link is the fallback behind one switch; off, nothing is sent
+  if (!TAUTAN_MASUK_CADANGAN) return "gagal";
   const supabase = await supabaseServer();
   const origin = appUrl();
   const { error } = await supabase.auth.signInWithOtp({
@@ -70,6 +73,13 @@ export async function sendMagicLink(formData: FormData): Promise<HasilKirim> {
   // The fold is honest as well as safe. The throttle fires BECAUSE a link went
   // out recently, so "if that address is linked, a sign-in link has been sent
   // there" is describing the one already in the person's inbox.
+  //
+  // D-057(d) (29 Sep) AMENDS D2 NARROWLY: a resend countdown is allowed ONLY on
+  // the verification and recovery CODE screens (Gate 3's /aktifkan, Gate 4 and
+  // 5's recovery), and there it is one number for everybody, whether or not
+  // the identity exists: `kirimUlangDalam` from BOB-25's limit table, never a
+  // per-address state (src/app/api/aktifkan/kode, src/lib/aktivasi.ts). This
+  // screen keeps D2 whole: no countdown, no held state, one answer.
   if (!error || tidakTerdaftar(error) || terlaluSering(error)) return "terkirim";
   return "gagal";
 }
@@ -95,8 +105,9 @@ function tidakTerdaftar(error: { code?: string; status?: number; message?: strin
  * state back through the other door.
  *
  * No timer, no countdown, no cooldown, no retry-after and no policy lives in
- * this codebase. The condition is the provider's; the screen's answer to it is
- * the same answer it gives everybody.
+ * this screen's sign-in link. The condition is the provider's; the screen's
+ * answer to it is the same answer it gives everybody. (The code screens' one
+ * uniform countdown, D-057(d), is theirs and is described above.)
  */
 function terlaluSering(error: { code?: string; status?: number }): boolean {
   if (error.code === "over_email_send_rate_limit" || error.code === "over_request_rate_limit") return true;

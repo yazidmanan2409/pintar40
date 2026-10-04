@@ -1,0 +1,542 @@
+[
+ {
+  "kode": "a",
+  "nama": "A · akademik (usulan)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 40,
+    "blur_px": 5.25,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 60,
+    "blur_px": 3.25,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ },
+ {
+  "kode": "abu",
+  "nama": "D · skala abu-abu",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 40,
+    "blur_px": 5.25,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 60,
+    "blur_px": 3.25,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ },
+ {
+  "kode": "an-m",
+  "nama": "Kajian QR · alfanumerik V3-M (terkecil)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 35,
+    "blur_px": 6.25,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 65,
+    "blur_px": 4,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ },
+ {
+  "kode": "an-h",
+  "nama": "Kajian QR · alfanumerik V4-H",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 40,
+    "blur_px": 5.5,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 60,
+    "blur_px": 3.75,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ },
+ {
+  "kode": "p",
+  "nama": "B · pengembangan profesi (usulan)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 40,
+    "blur_px": 5.5,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 60,
+    "blur_px": 4,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ },
+ {
+  "kode": "c",
+  "nama": "C · teks panjang, token 16 karakter",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 40,
+    "blur_px": 5.25,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 60,
+    "blur_px": 4,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ },
+ {
+  "kode": "byte-m",
+  "nama": "Kajian QR · byte V4-M (penyandi aplikasi hari ini)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": false
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 40,
+    "blur_px": 5,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": null,
+    "blur_px": null,
+    "kontras": null,
+    "miring": null
+   }
+  }
+ },
+ {
+  "kode": "byte-m-16",
+  "nama": "Kajian QR · token 16, byte V4-M",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 40,
+    "blur_px": 5.5,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 85,
+    "blur_px": 3.5,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ },
+ {
+  "kode": "r1-v5",
+  "nama": "Round 1 · Modern academic (its own PDF)",
+  "uji": [
+   {
+    "nama": "300 dpi, actual size",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 150 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "downscaled to 100 dpi",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 1.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "blurred (sigma 2.5 px at 300 dpi)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "angled (25 deg tilt, 8 deg turn)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "low contrast (35% left)",
+    "zxing": true,
+    "opencv": true
+   },
+   {
+    "nama": "all combined + noise + JPEG",
+    "zxing": true,
+    "opencv": true
+   }
+  ],
+  "batas": {
+   "zxing": {
+    "dpi": 45,
+    "blur_px": 4.25,
+    "kontras": 0.15,
+    "miring": 72.5
+   },
+   "opencv": {
+    "dpi": 80,
+    "blur_px": 2,
+    "kontras": 0.05,
+    "miring": 50
+   }
+  }
+ }
+]

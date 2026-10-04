@@ -1433,7 +1433,166 @@ export type HleEvent =
   | "email.uji.isi"
   | "email.uji.dikirim"
   | "email.uji.tenang"
-  | "email.uji.alasan";
+  | "email.uji.alasan"
+  | "aktifkan.judul"
+  | "aktifkan.lede"
+  | "aktifkan.kirim"
+  | "aktifkan.mengirim"
+  | "aktifkan.sudah_aktif"
+  | "aktifkan.ke_masuk"
+  | "aktifkan.kode_judul"
+  | "aktifkan.kode_terkirim"
+  | "aktifkan.berlaku"
+  | "aktifkan.berlaku_lalu"
+  | "aktifkan.kode_label"
+  | "aktifkan.lanjut"
+  | "aktifkan.memeriksa"
+  | "aktifkan.kode_bantu"
+  | "aktifkan.kirim_ulang"
+  | "aktifkan.kirim_ulang_dalam"
+  | "aktifkan.kode_ulang_ok"
+  | "aktifkan.email_lain"
+  | "aktifkan.kode_kosong"
+  | "aktifkan.kode_salah"
+  | "aktifkan.kode_sering"
+  | "aktifkan.ramai"
+  | "aktifkan.tidak_tersedia"
+  | "aktifkan.rujukan_arti"
+  | "aktifkan.langkah"
+  | "aktifkan.dari"
+  | "aktifkan.memuat"
+  | "aktifkan.menyimpan"
+  | "aktifkan.menyelesaikan"
+  | "aktifkan.keluar"
+  | "aktifkan.mulai_lagi"
+  | "aktifkan.belum_masuk"
+  | "aktifkan.tidak_berlaku"
+  | "aktifkan.sudah_selesai"
+  | "aktifkan.belum_lengkap"
+  | "aktifkan.u_judul"
+  | "aktifkan.u_lede"
+  | "aktifkan.u_label"
+  | "aktifkan.u_aturan"
+  | "aktifkan.u_simpan"
+  | "aktifkan.p_judul"
+  | "aktifkan.p_lede"
+  | "aktifkan.p_min"
+  | "aktifkan.p_min_lalu"
+  | "aktifkan.p_wajib"
+  | "aktifkan.p_k.HURUF_KECIL"
+  | "aktifkan.p_k.HURUF_BESAR"
+  | "aktifkan.p_k.ANGKA"
+  | "aktifkan.p_k.SIMBOL"
+  | "aktifkan.p_bocor"
+  | "aktifkan.p_label"
+  | "aktifkan.p_ulang"
+  | "aktifkan.p_simpan"
+  | "aktifkan.p_kosong"
+  | "aktifkan.p_beda"
+  | "aktifkan.n_judul"
+  | "aktifkan.n_lede"
+  | "aktifkan.n_label"
+  | "aktifkan.n_aturan"
+  | "aktifkan.n_ulang"
+  | "aktifkan.n_simpan"
+  | "aktifkan.n_beda"
+  | "aktifkan.m_judul"
+  | "aktifkan.m_lede"
+  | "aktifkan.m_sekali"
+  | "aktifkan.m_benar"
+  | "aktifkan.m_ubah"
+  | "aktifkan.m_label"
+  | "aktifkan.m_batal"
+  | "aktifkan.w_siap"
+  | "aktifkan.w_kartu_terkirim"
+  | "aktifkan.w_kartu_belum"
+  | "aktifkan.w_masuk"
+  | "aktifkan.kode.USERNAME_LENGTH"
+  | "aktifkan.kode.USERNAME_CHARACTERS"
+  | "aktifkan.kode.USERNAME_START"
+  | "aktifkan.kode.USERNAME_EMAIL_SHAPE"
+  | "aktifkan.kode.USERNAME_ID_SHAPE"
+  | "aktifkan.kode.USERNAME_NUMBER"
+  | "aktifkan.kode.USERNAME_RESERVED"
+  | "aktifkan.kode.USERNAME_TAKEN"
+  | "aktifkan.kode.USERNAME_ALREADY_SET"
+  | "aktifkan.kode.PASSWORD_LEMAH.PANJANG"
+  | "aktifkan.kode.PASSWORD_LEMAH.BOCOR"
+  | "aktifkan.kode.PASSWORD_LEMAH.KARAKTER"
+  | "aktifkan.kode.PASSWORD_TERLALU_PANJANG"
+  | "aktifkan.kode.PIN_FORMAT"
+  | "aktifkan.kode.PIN_REPEATED"
+  | "aktifkan.kode.PIN_SEQUENCE"
+  | "aktifkan.kode.PIN_PATTERN"
+  | "aktifkan.kode.PIN_KEYPAD"
+  | "aktifkan.kode.PIN_YEAR"
+  | "aktifkan.kode.PIN_COMMON"
+  | "aktifkan.kode.PIN_ALREADY_SET"
+  | "aktifkan.kode.PIN_REUSED"
+  | "aktifkan.kode.NAMA_TIDAK_SAH"
+  | "aktifkan.kode.NAMA_SUDAH_DIKONFIRMASI"
+  | "auth.pw_identitas"
+  | "auth.pw_password"
+  | "auth.pw_show"
+  | "auth.pw_hide"
+  | "auth.pw_masuk"
+  | "auth.pw_kosong"
+  | "auth.pw_gagal"
+  | "auth.pw_sering"
+  | "auth.pw_lupa"
+  | "auth.link_h1"
+  | "auth.link_lede"
+  | "auth.ke_password"
+  | "auth.aktifkan_tanya"
+  | "auth.aktifkan_go"
+  | "sesi.akun"
+  | "akun.judul"
+  | "akun.intro"
+  | "akun.id"
+  | "akun.id_arti"
+  | "akun.qr"
+  | "akun.kartu_judul"
+  | "akun.kartu_arti"
+  | "akun.kirim"
+  | "akun.mengirim"
+  | "akun.terkirim"
+  | "akun.belum"
+  | "akun.coba_dalam"
+  | "akun.coba_nanti"
+  | "akun.gagal_muat"
+  | "aktivasi.halaman_aktifkan"
+  | "aktivasi.baru.periksa_judul"
+  | "aktivasi.baru.periksa_arti"
+  | "aktivasi.baru.benar"
+  | "aktivasi.baru.ubah"
+  | "pendataan.nama.judul"
+  | "pendataan.nama.arti"
+  | "pendataan.nama.sudah"
+  | "pendataan.nama.gagal"
+  | "email.kode.subjek"
+  | "email.kode.pratinjau"
+  | "email.kode.judul"
+  | "email.kode.halo"
+  | "email.kode.isi"
+  | "email.kode.ulang.subjek"
+  | "email.kode.ulang.pratinjau"
+  | "email.kode.ulang.judul"
+  | "email.kode.ulang.isi"
+  | "email.kode.label"
+  | "email.kode.berlaku"
+  | "email.kode.berlaku_lalu"
+  | "email.kode.bukan_anda"
+  | "email.kode.alasan"
+  | "email.kartu.subjek"
+  | "email.kartu.pratinjau"
+  | "email.kartu.judul"
+  | "email.kartu.isi"
+  | "email.kartu.nama"
+  | "email.kartu.id"
+  | "email.kartu.peran"
+  | "email.kartu.bukan_rahasia"
+  | "email.kartu.tombol"
+  | "email.kartu.alasan";
 
 /**
  * One key's telling, in both languages.
@@ -2029,7 +2188,7 @@ const table: Table = {
   // it has: a child with a card and a head teacher with an email see the same
   // welcome, the same lede and the same standing line.
   "auth.title": { default: "Selamat datang di PINTAR", en: "Welcome to PINTAR" },
-  "auth.lede": { default: "Masukkan email Anda. Kami kirimkan tautan untuk masuk — tanpa kata sandi.", en: "Enter your email. We'll send you a link to sign in — no password needed." },
+  "auth.lede": { default: "Masuk dengan email atau username, dan password Anda.", en: "Sign in with your email or username, and your password." },
   "auth.email_label": { default: "Alamat email", en: "Email address" },
   "auth.email_ph": { default: "nama@sekolah.sch.id", en: "name@school.sch.id" },
   "auth.send_link": { default: "Kirim tautan masuk", en: "Send the sign-in link" },
@@ -2064,7 +2223,7 @@ const table: Table = {
   // LOAD-BEARING. "belum" means NOT YET, not wrong. The card may be fine and
   // the PIN mistyped; the screen does not know which and does not accuse.
   "auth.card_failed": { default: "Belum cocok. Coba periksa nomor kartu dan PIN, lalu coba sekali lagi.", en: "Not a match yet. Check the card number and the PIN, then try once more." },
-  "auth.card_back": { default: "Masuk lewat email", en: "Sign in with email" },
+  "auth.card_back": { default: "Masuk dengan password", en: "Sign in with a password" },
   // DAISY-13: a non-match stays auth.card_failed; a wait is never a non-match (M13)
   "auth.card_sering": { default: "Nomor kartu ini sudah terlalu sering dicoba.", en: "This card number has been tried too many times." },
   "auth.card_tanya_guru": { default: "Lupa PIN? Tanyakan kepada guru.", en: "Forgot the PIN? Ask the teacher." },
@@ -2142,9 +2301,9 @@ const table: Table = {
   "config.kesehatan.cek.undeclared_anon_functions": { default: "Tidak ada fungsi terbuka tanpa masuk yang tidak dinyatakan", en: "No undeclared function is open without signing in" },
   // BOB-12: the class card's sign-in is the second declared public surface. DAISY-13 confirms this sentence and
   // replaces the paths one: each surface is two declared addresses, a page and the endpoint behind it
-  "config.kesehatan.cek.anon_public_surface": { default: "Tepat dua permukaan publik: pemeriksaan sertifikat dan masuk dengan kartu kelas", en: "Exactly two public surfaces: certificate verification and class-card sign-in" },
+  "config.kesehatan.cek.anon_public_surface": { default: "Tepat lima permukaan publik: pemeriksaan sertifikat, masuk dengan kartu kelas, masuk dengan password, permintaan kode aktivasi, dan pemeriksaan kode aktivasi", en: "Exactly five public surfaces: certificate verification, class-card sign-in, password sign-in, the activation code request, and the activation code check" },
   "config.kesehatan.cek.client_readable_definer_views": { default: "Tidak ada tampilan berhak pemilik yang terbaca aplikasi", en: "No owner-rights view is readable by the app" },
-  "config.kesehatan.cek.anon_reachable_http_paths": { default: "Tepat empat alamat publik yang dinyatakan: dua untuk pemeriksaan sertifikat, dua untuk masuk dengan kartu kelas", en: "Exactly four declared public addresses: two for certificate verification, two for class-card sign-in" },
+  "config.kesehatan.cek.anon_reachable_http_paths": { default: "Tepat sepuluh alamat publik yang dinyatakan: dua untuk pemeriksaan sertifikat, dua untuk masuk dengan kartu kelas, dua untuk masuk dengan password, dua untuk permintaan kode aktivasi, dua untuk pemeriksaan kode aktivasi", en: "Exactly ten declared public addresses: two for certificate verification, two for class-card sign-in, two for password sign-in, two for the activation code request, two for the activation code check" },
   "config.kesehatan.cek.public_surface_ok": { default: "Permukaan publik sesuai yang dinyatakan", en: "The public surface matches its declaration" },
   "config.kesehatan.cek.anon_table_grants": { default: "Tidak ada hak tabel bagi pengguna yang belum masuk", en: "No table grant to signed-out users" },
   "config.kesehatan.cek.public_buckets": { default: "Tidak ada penyimpanan berkas yang publik", en: "No public storage bucket" },
@@ -2935,12 +3094,12 @@ const table: Table = {
   "aktivasi.judul": { default: "Aktifkan akun", en: "Activate accounts" },
   // polish batch 2 (UX-11): each sentence stops where the sign-in address goes; the screen puts the
   // environment's own address there (src/components/aktivasi/alamat.ts), or «halaman Masuk PINTAR» when it has none
-  "aktivasi.intro": { default: "Orang yang sudah didata sekolah Anda tetapi belum bisa masuk. Pilih caranya untuk masing-masing: dengan alamat surel, atau dengan kartu kelas dan PIN. PINTAR tidak mengirim surel atau pesan apa pun.", en: "People your school has recorded who cannot sign in yet. Choose how each one signs in: with an email address, or with a classroom card and PIN. PINTAR sends no email or message of any kind." },
-  "aktivasi.intro.buka": { default: "Setelah akun dibuat, minta orangnya membuka", en: "Once the account is made, ask the person to open" },
+  "aktivasi.intro": { default: "Orang yang sudah didata sekolah Anda tetapi belum bisa masuk. Pilih caranya untuk masing-masing: dengan email, atau dengan kartu kelas dan PIN. PINTAR tidak mengirim email atau pesan apa pun saat akun dibuat.", en: "People your school has recorded who cannot sign in yet. Choose how each one signs in: with email, or with a classroom card and PIN. PINTAR sends no email or message of any kind when the account is made." },
+  "aktivasi.intro.buka": { default: "Untuk akun email, minta orangnya mengaktifkan akunnya di", en: "For an email account, ask the person to activate it at" },
   "aktivasi.halaman_masuk": { default: "halaman Masuk PINTAR", en: "PINTAR's sign-in page" },
   "aktivasi.kosong": { default: "Semua orang yang sudah didata sudah bisa masuk.", en: "Everyone who has been recorded can already sign in." },
-  "aktivasi.surel": { default: "Alamat surel", en: "Email address" },
-  "aktivasi.dengan_surel": { default: "Aktifkan dengan surel", en: "Activate with email address" },
+  "aktivasi.surel": { default: "Alamat email", en: "Email address" },
+  "aktivasi.dengan_surel": { default: "Aktifkan dengan email", en: "Activate with email" },
   "aktivasi.dengan_kartu": { default: "Buat kartu kelas", en: "Make a classroom card" },
   // M7 (D-085): a whole class's cards in one press, and the printable class set
   "aktivasi.kelas.judul": { default: "Kartu untuk satu kelas", en: "Cards for a whole class" },
@@ -2960,18 +3119,18 @@ const table: Table = {
   "aktivasi.baru.arti": { default: "Untuk pengelola pertama sebuah sekolah. Setelah dibuat, beri peran di Konfigurasi.", en: "For a school's first administrator. Once created, give them a role in Configuration." },
   "aktivasi.baru.nama": { default: "Nama", en: "Name" },
   "aktivasi.baru.tombol": { default: "Buat dan aktifkan", en: "Create and activate" },
-  "aktivasi.baru.ok": { default: "PINTAR tidak mengirim surel ke orang ini. Minta orang ini membuka", en: "PINTAR has not emailed this person. Ask them to open" },
-  "aktivasi.baru.ok.lalu": { default: ", lalu mengetik alamat surel ini. Tautan masuk dikirim saat itu. Setelah itu, beri perannya di Konfigurasi.", en: " and type this email address. The sign-in link is sent then. Next, give them a role in Configuration." },
+  "aktivasi.baru.ok": { default: "PINTAR tidak mengirim email ke orang ini sekarang. Beri dulu perannya di Konfigurasi. Lalu minta orang ini membuka", en: "PINTAR has not emailed this person. First give them a role in Configuration. Then ask them to open" },
+  "aktivasi.baru.ok.lalu": { default: ", dan mengetik alamat email ini. Kode aktivasi dikirim saat itu.", en: " and type this email address. The activation code is sent then." },
   "aktivasi.surel_dibuat": { default: "Akun dibuat untuk alamat", en: "Account made for the address" },
-  "aktivasi.surel_arti": { default: "PINTAR tidak mengirim surel ke orang ini. Minta orang ini membuka", en: "PINTAR has not emailed this person. Ask them to open" },
-  "aktivasi.surel_arti.lalu": { default: ", lalu mengetik alamat surel ini. Tautan masuk dikirim saat itu.", en: " and type this email address. The sign-in link is sent then." },
+  "aktivasi.surel_arti": { default: "PINTAR tidak mengirim email ke orang ini sekarang. Minta orang ini membuka", en: "PINTAR has not emailed this person. Ask them to open" },
+  "aktivasi.surel_arti.lalu": { default: ", lalu mengetik alamat email ini. Kode aktivasi dikirim saat itu.", en: " and type this email address. The activation code is sent then." },
   "aktivasi.kartu_arti": { default: "PINTAR tidak mengirim apa pun. Berikan nomor kartu dan PIN ini kepada orangnya. Di", en: "PINTAR has not sent anything. Give this card number and PIN to the person. On" },
   "aktivasi.kartu_arti.lalu": { default: " ia memilih “Gunakan kartu kelas”, lalu mengetik keduanya.", en: " they choose “Use a class card” and type both." },
   "aktivasi.galat.nama": { default: "Tulis nama orangnya dulu.", en: "Write the person's name first." },
-  "aktivasi.galat.surel": { default: "Alamat surel ini belum lengkap. Contoh: nama@sekolah.sch.id", en: "This email address isn't complete. Example: name@school.sch.id" },
+  "aktivasi.galat.surel": { default: "Alamat email ini belum lengkap. Contoh: nama@sekolah.sch.id", en: "This email address isn't complete. Example: name@school.sch.id" },
   "aktivasi.galat.ditolak": { default: "PINTAR menolak, dan tidak ada yang dibuat. Orang ini mungkin sudah punya akun, atau bukan dari sekolah yang Anda kelola. Muat ulang halaman ini untuk melihat daftar terbaru.", en: "PINTAR refused, and nothing was made. This person may already have an account, or may not belong to a school you manage. Reload this page to see the current list." },
   "aktivasi.galat.baru_ditolak": { default: "PINTAR menolak, dan tidak ada yang dibuat. Hanya admin platform yang bisa membuat orang di luar pendataan.", en: "PINTAR refused, and nothing was made. Only a platform administrator can create a person outside the intake." },
-  "aktivasi.galat.dipakai": { default: "Akun belum bisa dibuat. Alamat surel ini mungkin sudah dipakai akun lain. Coba alamat lain.", en: "The account could not be made. This email address may already belong to another account. Try another address." },
+  "aktivasi.galat.dipakai": { default: "Akun belum bisa dibuat. Alamat email ini mungkin sudah dipakai akun lain. Coba alamat lain.", en: "The account could not be made. This email address may already belong to another account. Try another address." },
   "aktivasi.galat.kartu": { default: "Kartu belum bisa dibuat, dan tidak ada yang tersimpan. Coba lagi.", en: "The card could not be made, and nothing was saved. Try again." },
   "aktivasi.galat.sesi": { default: "Sesi Anda sudah berakhir, dan tidak ada yang dibuat. Masuk lagi, lalu ulangi.", en: "Your session has ended, and nothing was made. Sign in again, then repeat this." },
   "aktivasi.galat.jaringan": { default: "PINTAR belum bisa dihubungi. Periksa sambungan internet, lalu coba lagi.", en: "PINTAR could not be reached. Check the internet connection, then try again." },
@@ -2993,6 +3152,174 @@ const table: Table = {
   "email.uji.dikirim": { default: "Dikirim", en: "Sent" },
   "email.uji.tenang": { default: "Tidak ada yang perlu Anda lakukan.", en: "There is nothing you need to do." },
   "email.uji.alasan": { default: "Anda menerima email ini karena Admin platform PINTAR sedang menguji pengiriman email.", en: "You are receiving this email because PINTAR's Admin platform is testing email delivery." },
+  // DAISY-20 (Gate 3, D-054, D-077, D-079): «Aktifkan akun PINTAR Anda», signed out.
+  "aktifkan.judul": { default: "Aktifkan akun PINTAR Anda", en: "Activate your PINTAR account" },
+  "aktifkan.lede": { default: "Masukkan email yang didaftarkan sekolah Anda. Jika alamat ini terdaftar dan akunnya belum aktif, PINTAR mengirim kode aktivasi ke sana.", en: "Enter the email address your school registered for you. If it is registered and its account is not active yet, PINTAR sends an activation code to it." },
+  "aktifkan.kirim": { default: "Kirim kode", en: "Send the code" },
+  "aktifkan.mengirim": { default: "Mengirim kode…", en: "Sending the code…" },
+  "aktifkan.sudah_aktif": { default: "Akun Anda sudah aktif?", en: "Is your account already active?" },
+  "aktifkan.ke_masuk": { default: "Masuk ke PINTAR", en: "Sign in to PINTAR" },
+  "aktifkan.kode_judul": { default: "Masukkan kode aktivasi", en: "Enter the activation code" },
+  "aktifkan.kode_terkirim": { default: "Jika alamat ini terdaftar dan akunnya belum aktif, kode aktivasi sudah dikirim ke sana. Buka email Anda, lalu ketik kodenya di sini.", en: "If this address is registered and its account is not active yet, an activation code has been sent to it. Open your email, then type the code here." },
+  "aktifkan.berlaku": { default: "Kode berlaku selama", en: "The code is valid for" },
+  "aktifkan.berlaku_lalu": { default: ".", en: "." },
+  "aktifkan.kode_label": { default: "Kode aktivasi", en: "Activation code" },
+  "aktifkan.lanjut": { default: "Lanjut", en: "Continue" },
+  "aktifkan.memeriksa": { default: "Memeriksa kode…", en: "Checking the code…" },
+  "aktifkan.kode_bantu": { default: "Belum ada email? Periksa folder Spam atau Promosi. Kode hanya dikirim ke alamat yang didaftarkan sekolah Anda, jadi pastikan alamatnya benar.", en: "No email yet? Check your Spam or Promotions folder. The code goes only to the address your school registered, so make sure the address is right." },
+  "aktifkan.kirim_ulang": { default: "Kirim ulang kode", en: "Send the code again" },
+  "aktifkan.kirim_ulang_dalam": { default: "Kode bisa dikirim ulang dalam", en: "You can ask again in" },
+  "aktifkan.kode_ulang_ok": { default: "Jika alamat ini terdaftar, kode baru sudah dikirim. Pakai kode dari email yang paling baru.", en: "If this address is registered, a new code has been sent. Use the code from the newest email." },
+  "aktifkan.email_lain": { default: "Gunakan email lain", en: "Use a different email" },
+  "aktifkan.kode_kosong": { default: "Ketik kode dari email dulu.", en: "Type the code from the email first." },
+  "aktifkan.kode_salah": { default: "Kode ini tidak cocok atau sudah tidak berlaku. Periksa kodenya, atau minta kode baru.", en: "This code doesn't match or is no longer valid. Check the code, or ask for a new one." },
+  "aktifkan.kode_sering": { default: "Kode sudah terlalu sering dicoba untuk alamat ini.", en: "The code has been tried too many times for this address." },
+  "aktifkan.ramai": { default: "Sedang banyak permintaan bersamaan.", en: "There are many requests at once." },
+  "aktifkan.tidak_tersedia": { default: "PINTAR sedang tidak dapat memproses ini. Coba lagi sebentar lagi.", en: "PINTAR can't handle this right now. Try again in a little while." },
+  "aktifkan.rujukan_arti": { default: "Bila masih terjadi, sampaikan kode rujukan berikut kepada yang mengurus PINTAR di sekolah Anda.", en: "If it keeps happening, give the reference that follows to whoever looks after PINTAR at your school." },
+  // DAISY-20: the wizard, signed in (username → password → PIN → name → the welcome).
+  "aktifkan.langkah": { default: "Langkah", en: "Step" },
+  "aktifkan.dari": { default: "dari", en: "of" },
+  "aktifkan.memuat": { default: "Memuat…", en: "Loading…" },
+  "aktifkan.menyimpan": { default: "Menyimpan…", en: "Saving…" },
+  "aktifkan.menyelesaikan": { default: "Menyelesaikan aktivasi…", en: "Finishing the activation…" },
+  "aktifkan.keluar": { default: "Keluar dan lanjutkan nanti", en: "Sign out and continue later" },
+  "aktifkan.mulai_lagi": { default: "Mulai lagi", en: "Start again" },
+  "aktifkan.belum_masuk": { default: "Sesi aktivasi Anda sudah berakhir. Mulai lagi dengan meminta kode baru.", en: "Your activation session has ended. Start again by asking for a new code." },
+  "aktifkan.tidak_berlaku": { default: "Akun ini tidak perlu diaktifkan di sini.", en: "This account doesn't need activating here." },
+  "aktifkan.sudah_selesai": { default: "Akun Anda sudah aktif. Tidak ada lagi yang perlu diisi.", en: "Your account is already active. There is nothing more to fill in." },
+  "aktifkan.belum_lengkap": { default: "Masih ada langkah yang belum selesai. Lengkapi dulu langkah ini.", en: "A step isn't finished yet. Complete this step first." },
+  "aktifkan.u_judul": { default: "Pilih username", en: "Choose a username" },
+  "aktifkan.u_lede": { default: "Selain email, Anda bisa masuk ke PINTAR dengan username. Pilih dengan teliti: username tidak bisa diganti.", en: "Besides your email, you can sign in to PINTAR with a username. Choose carefully: a username can't be changed." },
+  "aktifkan.u_label": { default: "Username", en: "Username" },
+  "aktifkan.u_aturan": { default: "4–20 karakter: huruf kecil, angka, titik (.) atau garis bawah (_), diawali huruf.", en: "4–20 characters: lowercase letters, numbers, dots (.) or underscores (_), starting with a letter." },
+  "aktifkan.u_simpan": { default: "Simpan username", en: "Save the username" },
+  "aktifkan.p_judul": { default: "Buat password", en: "Create a password" },
+  "aktifkan.p_lede": { default: "Password ini dipakai untuk masuk ke PINTAR, bersama email atau username Anda.", en: "You'll use this password to sign in to PINTAR, with your email or username." },
+  "aktifkan.p_min": { default: "Paling sedikit", en: "At least" },
+  "aktifkan.p_min_lalu": { default: "karakter.", en: "characters." },
+  "aktifkan.p_wajib": { default: "Harus berisi", en: "Must include" },
+  "aktifkan.p_k.HURUF_KECIL": { default: "huruf kecil", en: "a lowercase letter" },
+  "aktifkan.p_k.HURUF_BESAR": { default: "huruf besar", en: "an uppercase letter" },
+  "aktifkan.p_k.ANGKA": { default: "angka", en: "a number" },
+  "aktifkan.p_k.SIMBOL": { default: "simbol", en: "a symbol" },
+  "aktifkan.p_bocor": { default: "Password yang pernah bocor di internet tidak bisa dipakai.", en: "A password that has appeared in a known data leak can't be used." },
+  "aktifkan.p_label": { default: "Password", en: "Password" },
+  "aktifkan.p_ulang": { default: "Ketik ulang password", en: "Type the password again" },
+  "aktifkan.p_simpan": { default: "Simpan password", en: "Save the password" },
+  "aktifkan.p_kosong": { default: "Ketik password dulu.", en: "Type a password first." },
+  "aktifkan.p_beda": { default: "Kedua password belum sama. Ketik ulang keduanya.", en: "The two passwords don't match. Type both again." },
+  "aktifkan.n_judul": { default: "Buat PIN pribadi", en: "Create your personal PIN" },
+  "aktifkan.n_lede": { default: "PIN ini rahasia kedua Anda, di samping password. Jangan beri tahu siapa pun, termasuk yang mengurus PINTAR di sekolah Anda.", en: "This PIN is your second secret, alongside your password. Don't tell anyone, including whoever looks after PINTAR at your school." },
+  "aktifkan.n_label": { default: "PIN (4 angka)", en: "PIN (4 digits)" },
+  "aktifkan.n_aturan": { default: "Hindari PIN yang mudah ditebak: angka yang sama (1111), berurutan (1234), berpola (1212, 2580), atau tahun (1990).", en: "Avoid a PIN that is easy to guess: one digit repeated (1111), digits in order (1234), a pattern (1212, 2580), or a year (1990)." },
+  "aktifkan.n_ulang": { default: "Ketik ulang PIN", en: "Type the PIN again" },
+  "aktifkan.n_simpan": { default: "Simpan PIN", en: "Save the PIN" },
+  "aktifkan.n_beda": { default: "Kedua PIN belum sama. Ketik ulang keduanya.", en: "The two PINs don't match. Type both again." },
+  "aktifkan.m_judul": { default: "Periksa nama Anda", en: "Check your name" },
+  "aktifkan.m_lede": { default: "Nama ini dipakai di seluruh PINTAR, termasuk di sertifikat Anda. Pastikan ejaannya benar.", en: "This name is used throughout PINTAR, including on your certificates. Make sure it is spelled correctly." },
+  "aktifkan.m_sekali": { default: "Nama dikonfirmasi sekali saja. Setelah itu, untuk mengubahnya, hubungi yang mengurus PINTAR di sekolah Anda.", en: "You confirm your name once. After that, to change it, contact whoever looks after PINTAR at your school." },
+  "aktifkan.m_benar": { default: "Sudah benar", en: "That's right" },
+  "aktifkan.m_ubah": { default: "Ubah nama", en: "Change the name" },
+  "aktifkan.m_label": { default: "Nama lengkap", en: "Full name" },
+  "aktifkan.m_batal": { default: "Batal", en: "Cancel" },
+  "aktifkan.w_siap": { default: "Akun Anda sudah aktif. Mulai sekarang, masuk dengan email atau username, dan password Anda.", en: "Your account is active. From now on, sign in with your email or username, and your password." },
+  "aktifkan.w_kartu_terkirim": { default: "Kartu PINTAR Anda juga sudah dikirim ke email Anda.", en: "Your PINTAR Card has also been sent to your email." },
+  "aktifkan.w_kartu_belum": { default: "Kartu PINTAR belum bisa dikirim ke email Anda sekarang. Anda bisa mengirimnya lagi nanti dari Akun saya.", en: "Your PINTAR Card couldn't be emailed just now. You can send it again later from My account." },
+  "aktifkan.w_masuk": { default: "Masuk ke PINTAR", en: "Go to PINTAR" },
+  // DAISY-20: what the server can refuse, one sentence per code (BOB-24's C9 rules and PIN list; BOB-26 §3).
+  "aktifkan.kode.USERNAME_LENGTH": { default: "Username harus 4–20 karakter.", en: "A username is 4–20 characters." },
+  "aktifkan.kode.USERNAME_CHARACTERS": { default: "Username hanya boleh berisi huruf kecil, angka, titik, dan garis bawah.", en: "A username can only contain lowercase letters, numbers, dots and underscores." },
+  "aktifkan.kode.USERNAME_START": { default: "Username harus diawali huruf.", en: "A username must start with a letter." },
+  "aktifkan.kode.USERNAME_EMAIL_SHAPE": { default: "Username tidak boleh berisi @. Email Anda sendiri sudah bisa dipakai untuk masuk.", en: "A username can't contain @. Your email already works for signing in." },
+  "aktifkan.kode.USERNAME_ID_SHAPE": { default: "Username yang hanya 8 huruf dan angka tidak bisa dipakai. Tambahkan satu karakter, atau pakai titik atau garis bawah.", en: "A username of only 8 letters and numbers can't be used. Add a character, or use a dot or an underscore." },
+  "aktifkan.kode.USERNAME_NUMBER": { default: "Username tidak boleh hanya berisi angka.", en: "A username can't be only numbers." },
+  "aktifkan.kode.USERNAME_RESERVED": { default: "Username ini disediakan untuk PINTAR sendiri. Pilih yang lain.", en: "This username is kept for PINTAR itself. Choose another." },
+  "aktifkan.kode.USERNAME_TAKEN": { default: "Username ini sudah dipakai orang lain. Pilih yang lain.", en: "Someone else already has this username. Choose another." },
+  "aktifkan.kode.USERNAME_ALREADY_SET": { default: "Username Anda sudah tersimpan dan tidak bisa diganti.", en: "Your username is already saved and can't be changed." },
+  "aktifkan.kode.PASSWORD_LEMAH.PANJANG": { default: "Password ini terlalu pendek.", en: "This password is too short." },
+  "aktifkan.kode.PASSWORD_LEMAH.BOCOR": { default: "Password ini pernah bocor di internet, jadi orang lain bisa menebaknya. Pilih password lain.", en: "This password has appeared in a data leak, so others could guess it. Choose another." },
+  "aktifkan.kode.PASSWORD_LEMAH.KARAKTER": { default: "Password ini belum berisi semua jenis karakter yang diminta.", en: "This password doesn't include every kind of character asked for." },
+  "aktifkan.kode.PASSWORD_TERLALU_PANJANG": { default: "Password ini terlalu panjang. Pilih yang lebih pendek.", en: "This password is too long. Choose a shorter one." },
+  "aktifkan.kode.PIN_FORMAT": { default: "PIN harus 4 angka.", en: "A PIN is 4 digits." },
+  "aktifkan.kode.PIN_REPEATED": { default: "PIN ini hanya satu angka yang diulang. Pilih PIN lain.", en: "This PIN is one digit repeated. Choose another." },
+  "aktifkan.kode.PIN_SEQUENCE": { default: "PIN ini angka berurutan, jadi mudah ditebak. Pilih PIN lain.", en: "This PIN is digits in order, so it is easy to guess. Choose another." },
+  "aktifkan.kode.PIN_PATTERN": { default: "PIN ini berpola, seperti 1212 atau 1122, jadi mudah ditebak. Pilih PIN lain.", en: "This PIN is a pattern, like 1212 or 1122, so it is easy to guess. Choose another." },
+  "aktifkan.kode.PIN_KEYPAD": { default: "PIN ini satu garis lurus di papan angka, jadi mudah ditebak. Pilih PIN lain.", en: "This PIN is a straight line on the keypad, so it is easy to guess. Choose another." },
+  "aktifkan.kode.PIN_YEAR": { default: "PIN ini terbaca seperti tahun, jadi mudah ditebak. Pilih PIN lain.", en: "This PIN reads like a year, so it is easy to guess. Choose another." },
+  "aktifkan.kode.PIN_COMMON": { default: "PIN ini termasuk yang paling sering dipakai orang. Pilih PIN lain.", en: "This PIN is one of the most commonly used. Choose another." },
+  "aktifkan.kode.PIN_ALREADY_SET": { default: "PIN Anda sudah tersimpan.", en: "Your PIN is already saved." },
+  "aktifkan.kode.PIN_REUSED": { default: "PIN ini pernah Anda pakai dan tidak bisa dipakai lagi. Pilih PIN lain.", en: "You have used this PIN before, and it can't be used again. Choose another." },
+  "aktifkan.kode.NAMA_TIDAK_SAH": { default: "Tulis nama Anda. Nama tidak boleh kosong atau lebih dari 200 karakter.", en: "Write your name. It can't be empty or longer than 200 characters." },
+  "aktifkan.kode.NAMA_SUDAH_DIKONFIRMASI": { default: "Nama Anda sudah dikonfirmasi.", en: "Your name is already confirmed." },
+  // DAISY-20: «Masuk ke PINTAR» with a password (D-054(a)); the email link stays behind «Lupa password?» until C14.
+  "auth.pw_identitas": { default: "Email atau username", en: "Email or username" },
+  "auth.pw_password": { default: "Password", en: "Password" },
+  "auth.pw_show": { default: "Tampilkan password", en: "Show password" },
+  "auth.pw_hide": { default: "Sembunyikan password", en: "Hide password" },
+  "auth.pw_masuk": { default: "Masuk", en: "Sign in" },
+  "auth.pw_kosong": { default: "Isi email atau username, dan password Anda dulu.", en: "Fill in your email or username, and your password, first." },
+  "auth.pw_gagal": { default: "Email, username, atau password belum cocok. Periksa lagi, lalu coba sekali lagi.", en: "The email, username or password doesn't match. Check them, then try once more." },
+  "auth.pw_sering": { default: "Sudah terlalu sering dicoba.", en: "It has been tried too many times." },
+  "auth.pw_lupa": { default: "Lupa password?", en: "Forgot your password?" },
+  "auth.link_h1": { default: "Masuk dengan tautan email", en: "Sign in with an email link" },
+  "auth.link_lede": { default: "Masukkan email Anda. Jika alamat itu terhubung dengan akun PINTAR, tautan untuk masuk dikirim ke sana.", en: "Enter your email. If that address is linked to a PINTAR account, a sign-in link is sent to it." },
+  "auth.ke_password": { default: "Masuk dengan password", en: "Sign in with a password" },
+  "auth.aktifkan_tanya": { default: "Belum mengaktifkan akun?", en: "Haven't activated your account yet?" },
+  "auth.aktifkan_go": { default: "Aktifkan akun", en: "Activate your account" },
+  // DAISY-20: Akun saya (BOB-26 §4), staff only (C17).
+  "sesi.akun": { default: "Akun saya", en: "My account" },
+  "akun.judul": { default: "Akun saya", en: "My account" },
+  "akun.intro": { default: "PINTAR ID dan Kartu PINTAR Anda.", en: "Your PINTAR ID and PINTAR Card." },
+  "akun.id": { default: "PINTAR ID", en: "PINTAR ID" },
+  "akun.id_arti": { default: "PINTAR ID bukan rahasia. Nomor ini menunjukkan siapa Anda di PINTAR, dan tidak bisa dipakai untuk masuk.", en: "Your PINTAR ID isn't a secret. It shows who you are in PINTAR, and it can't be used to sign in." },
+  "akun.qr": { default: "Kode QR untuk PINTAR ID Anda", en: "QR code for your PINTAR ID" },
+  "akun.kartu_judul": { default: "Kartu PINTAR", en: "PINTAR Card" },
+  "akun.kartu_arti": { default: "Kirim Kartu PINTAR Anda ke email Anda, untuk disimpan atau ditunjukkan.", en: "Send your PINTAR Card to your email, to keep or to show." },
+  "akun.kirim": { default: "Kirim kartu ke email saya", en: "Email the card to me" },
+  "akun.mengirim": { default: "Mengirim…", en: "Sending…" },
+  "akun.terkirim": { default: "Kartu sudah dikirim ke email Anda.", en: "The card has been sent to your email." },
+  "akun.belum": { default: "Kartu belum bisa dikirim sekarang.", en: "The card couldn't be sent just now." },
+  "akun.coba_dalam": { default: "Coba lagi dalam", en: "Try again in" },
+  "akun.coba_nanti": { default: "Coba lagi nanti.", en: "Try again later." },
+  "akun.gagal_muat": { default: "Data akun Anda belum bisa dimuat. Muat ulang halaman ini.", en: "Your account details couldn't be loaded. Reload this page." },
+  // DAISY-20 × D-077(2): a new person's name, confirmed before the person is made; D-019 amended: where an email account starts.
+  "aktivasi.halaman_aktifkan": { default: "halaman Aktifkan akun PINTAR", en: "PINTAR's account activation page" },
+  "aktivasi.baru.periksa_judul": { default: "Periksa sebelum dibuat", en: "Check before it is made" },
+  "aktivasi.baru.periksa_arti": { default: "Nama ini dicatat persis seperti tertulis di atas, dan orang ini akan melihatnya saat mengaktifkan akunnya. Periksa ejaannya sekarang.", en: "This name is recorded exactly as written above, and this person will see it when they activate their account. Check the spelling now." },
+  "aktivasi.baru.benar": { default: "Sudah benar, buat dan aktifkan", en: "That's right — create and activate" },
+  "aktivasi.baru.ubah": { default: "Ubah", en: "Change" },
+  // DAISY-20 × D-077(3): every name of an intake, before the one approval. Never says a name goes on a card (C17).
+  "pendataan.nama.judul": { default: "Nama yang akan dicatat", en: "The names to be recorded" },
+  "pendataan.nama.arti": { default: "Semua baris dari daftar, dengan nama persis seperti akan dicatat. Periksa ejaannya sebelum menyetujui. Jika ada nama yang keliru, jangan setujui: perbaiki berkasnya, lalu mulai pendataan baru dengan berkas itu.", en: "Every row of the list, with each name exactly as it will be recorded. Check the spelling before you approve. If a name is wrong, don't approve: correct the file, then start a new intake with it." },
+  "pendataan.nama.sudah": { default: "sudah terdaftar", en: "already registered" },
+  "pendataan.nama.gagal": { default: "Daftar nama belum bisa dibaca seluruhnya, jadi persetujuan belum bisa diberikan. Muat ulang halaman ini.", en: "The list of names couldn't be read in full, so it can't be approved yet. Reload this page." },
+  // DAISY-20 × BOB-26 §5: the activation code email (KODE_AKTIVASI, KODE_ULANG). The duration is the data's, never typed (D-079 addendum).
+  "email.kode.subjek": { default: "Kode aktivasi akun PINTAR Anda", en: "Your PINTAR account activation code" },
+  "email.kode.pratinjau": { default: "Pakai kode ini untuk mengaktifkan akun PINTAR Anda.", en: "Use this code to activate your PINTAR account." },
+  "email.kode.judul": { default: "Aktifkan akun PINTAR Anda", en: "Activate your PINTAR account" },
+  "email.kode.halo": { default: "Halo,", en: "Hello," },
+  "email.kode.isi": { default: "Ketik kode ini di halaman Aktifkan akun PINTAR Anda untuk melanjutkan aktivasi.", en: "Type this code on the Activate your PINTAR account page to continue." },
+  "email.kode.ulang.subjek": { default: "Kode aktivasi baru untuk akun PINTAR Anda", en: "A new activation code for your PINTAR account" },
+  "email.kode.ulang.pratinjau": { default: "Ini kode baru yang Anda minta.", en: "Here is the new code you asked for." },
+  "email.kode.ulang.judul": { default: "Kode aktivasi baru", en: "A new activation code" },
+  "email.kode.ulang.isi": { default: "Anda meminta kode baru. Ketik kode ini di halaman Aktifkan akun PINTAR Anda.", en: "You asked for a new code. Type this code on the Activate your PINTAR account page." },
+  "email.kode.label": { default: "Kode aktivasi", en: "Activation code" },
+  "email.kode.berlaku": { default: "Kode ini berlaku selama", en: "This code is valid for" },
+  "email.kode.berlaku_lalu": { default: ". Jika sudah lewat, minta kode baru di halaman yang sama.", en: ". If it runs out, ask for a new code on the same page." },
+  "email.kode.bukan_anda": { default: "Jika Anda tidak meminta kode ini, abaikan email ini. Jangan berikan kode ini kepada siapa pun.", en: "If you didn't ask for this code, ignore this email. Don't give this code to anyone." },
+  "email.kode.alasan": { default: "Anda menerima email ini karena kode aktivasi diminta untuk alamat ini di PINTAR.", en: "You are receiving this email because an activation code was requested for this address in PINTAR." },
+  // DAISY-20 × BOB-26 §5: the PINTAR Card email (KARTU_DIGITAL), staff only (C17).
+  "email.kartu.subjek": { default: "Kartu PINTAR Anda", en: "Your PINTAR Card" },
+  "email.kartu.pratinjau": { default: "PINTAR ID Anda:", en: "Your PINTAR ID:" },
+  "email.kartu.judul": { default: "Kartu PINTAR Anda", en: "Your PINTAR Card" },
+  "email.kartu.isi": { default: "Ini Kartu PINTAR Anda.", en: "This is your PINTAR Card." },
+  "email.kartu.nama": { default: "Nama", en: "Name" },
+  "email.kartu.id": { default: "PINTAR ID", en: "PINTAR ID" },
+  "email.kartu.peran": { default: "Peran", en: "Role" },
+  "email.kartu.bukan_rahasia": { default: "PINTAR ID bukan rahasia: boleh ditunjukkan, dan tidak bisa dipakai untuk masuk. Password dan PIN Anda tetap rahasia.", en: "Your PINTAR ID isn't a secret: you can show it, and it can't be used to sign in. Your password and PIN stay secret." },
+  "email.kartu.tombol": { default: "Buka Akun saya", en: "Open My account" },
+  "email.kartu.alasan": { default: "Anda menerima email ini karena akun PINTAR Anda baru diaktifkan, atau kartunya diminta dari Akun saya.", en: "You are receiving this email because your PINTAR account was just activated, or its card was requested from My account." },
   "sync.sesi_ditutup": { default: "Asesmen ini sudah ditutup, jadi jawaban terakhir tidak lagi dapat dikirim.", en: "This assessment is already closed, so the last answer could not be sent." },
 
   // ═══════════════════════════ UX-1 · the role-based first-login tour (r2.1).
@@ -3096,7 +3423,7 @@ const table: Table = {
   "tur.pg.3.isi": { default: "Penilaian yang jendelanya masih terbuka, dengan jumlah murid yang sudah mengumpulkan. Angka ini hitungan, bukan penilaian.", en: "Assessments whose window is still open, with how many learners have submitted. These numbers are counts, not judgments." },
   "tur.pg.3.kosong": { default: "Saat ada penilaian yang jendelanya terbuka, daftarnya muncul di halaman ini.", en: "When an assessment window is open, it appears on this page." },
   "tur.pg.4.judul": { default: "Uji Cepat", en: "Quick Assessment" },
-  "tur.pg.4.isi": { default: "Dari halaman kelas: atur, tinjau, lalu sediakan. Murid baru menerimanya setelah Anda menekan Sediakan. Hasilnya ikut menjadi bukti belajar; satu Uji Cepat saja tidak menerbitkan sertifikat.", en: "From a class page: configure, review, then make it available. Learners receive it only after you press Make available. Results become learning evidence; a single Quick Assessment does not issue a certificate." },
+  "tur.pg.4.isi": { default: "Dari halaman kelas: atur, tinjau, lalu sediakan. Murid baru menerimanya setelah Anda menekan Sediakan. Hasilnya ikut menjadi bukti belajar; Uji Cepat tidak menerbitkan sertifikat.", en: "From a class page: configure, review, then make it available. Learners receive it only after you press Make available. Results become learning evidence; a Quick Assessment does not issue a certificate." },
   "tur.pg.5.judul": { default: "Menyediakan materi", en: "Making material available" },
   "tur.pg.5.isi": { default: "Bab yang sudah diterbitkan sekolah tidak otomatis sampai ke murid. Tinjau yang akan diterima murid, lalu sediakan untuk kelas yang dipilih.", en: "A chapter the school has published does not reach learners by itself. Review what learners will receive, then make it available to the selected class." },
   "tur.pg.6.judul": { default: "Apa yang sudah bisa disimpulkan", en: "What can be concluded" },
@@ -3426,7 +3753,7 @@ const table: Table = {
   "mengajar.percobaan": { default: "kesempatan", en: "attempt" },
   "mengajar.cepat.eyebrow": { default: "Uji Cepat", en: "Quick Assessment" },
   "mengajar.cepat.judul": { default: "Uji Cepat", en: "Quick Assessment" },
-  "mengajar.cepat.intro": { default: "Beberapa soal untuk mengecek pemahaman hari ini. Hasilnya dinilai seperti asesmen lain dan dapat menjadi bagian dari bukti pembelajaran yang dipakai saat menentukan kelayakan sertifikat.", en: "A few items to check today's understanding. The result is scored like any other assessment and may contribute to the learning evidence used when certificate eligibility is determined." },
+  "mengajar.cepat.intro": { default: "Beberapa soal untuk mengecek pemahaman hari ini. Hasilnya dinilai seperti asesmen lain dan menjadi bagian dari bukti pembelajaran kelas ini.", en: "A few items to check today's understanding. The result is scored like any other assessment and becomes part of this class's learning evidence." },
   "mengajar.cepat.langkah1": { default: "Atur", en: "Configure" },
   "mengajar.cepat.langkah2": { default: "Tinjau", en: "Review" },
   "mengajar.cepat.langkah3": { default: "Sediakan", en: "Make available" },
@@ -3445,7 +3772,7 @@ const table: Table = {
   "mengajar.cepat.tinjau": { default: "Yang akan terjadi", en: "What will happen" },
   "mengajar.cepat.rv1": { default: "Murid kelas ini yang masuk PINTAR melihat Uji Cepat itu di halaman Belajar mereka.", en: "Learners in this class who are signed in see that Quick Assessment on their Learning page." },
   "mengajar.cepat.rv2": { default: "Satu kesempatan untuk tiap murid, dan jendelanya mulai berjalan begitu disediakan.", en: "One attempt for each learner, and the window starts the moment it is made available." },
-  "mengajar.cepat.rv3": { default: "Hasilnya tercatat sebagai bukti pembelajaran dan dapat dipakai saat menentukan kelayakan sertifikat. Satu Uji Cepat tidak menerbitkan sertifikat; penerbitan dilakukan sekolah.", en: "The result is recorded as learning evidence and may be used when certificate eligibility is determined. One Quick Assessment does not issue a certificate; the school issues." },
+  "mengajar.cepat.rv3": { default: "Hasilnya tercatat sebagai bukti pembelajaran. Uji Cepat tidak menerbitkan sertifikat.", en: "The result is recorded as learning evidence. A Quick Assessment does not issue a certificate." },
   "mengajar.cepat.rv4": { default: "Murid yang tidak sempat mengerjakan tidak dicatat sebagai tidak mampu — tercatat belum mengumpulkan.", en: "A learner who does not get to it is not recorded as unable — only as not yet submitted." },
   "mengajar.cepat.akibat": { default: "Begitu disediakan, jendela mulai berjalan untuk semua murid dan murid bisa langsung mulai mengerjakan.", en: "The moment it is made available, the window starts for every learner and they can begin straight away." },
   "mengajar.cepat.komit": { default: "Sediakan Uji Cepat sekarang", en: "Make the Quick Assessment available now" },

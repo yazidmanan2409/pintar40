@@ -201,6 +201,9 @@
 }
 .pin-row:first-child { border-top: 0; }
 .pin-row:hover { background: var(--surface-0); text-decoration: none; }
+/* DAISY-40: a certificate with no page to open is a row, not a link. */
+.pin-row.pin-row-diam { cursor: default; }
+.pin-row.pin-row-diam:hover { background: none; }
 .pin-row .pin-eyebrow { grid-column: 1; }
 .pin-row .pin-title {
   grid-column: 1; font-size: var(--type-card); font-weight: var(--weight-strong);
@@ -1428,7 +1431,12 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 }
 .pin-authtop { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
 .pin-authbody { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: var(--space-6) 0 var(--space-2); }
-.pin-form { display: grid; gap: var(--space-3); align-content: start; }
+/* ONE COLUMN THAT MAY BE NARROWER THAN ITS WIDEST FIELD'S NATURAL WIDTH
+   (DAISY-20). An implicit grid column is sized to its content's minimum, and
+   a big field's input (20 characters of 20 px type, no size attribute) plus a
+   44 px reveal needs 336 px: at 320 px the PIN step, and the class card's PIN
+   before it, scrolled sideways. The fields fill the column and shrink with it. */
+.pin-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); align-content: start; }
 .pin-mh1 {
   font-size: 26px; font-weight: var(--weight-strong);
   letter-spacing: var(--tracking-tight); line-height: var(--leading-heading);
@@ -1500,6 +1508,9 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   color: var(--pintar-primary); text-decoration: underline; text-underline-offset: 3px;
   cursor: pointer; min-height: 44px;
 }
+/* The same target as a link (DAISY-20: «Aktifkan akun», «Masuk ke PINTAR»):
+   min-height does nothing on an inline box, so a link sat 18 px tall. */
+a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-kembali {
   justify-self: start;
   background: none; border: 0; padding: var(--space-2) 0;
@@ -1848,6 +1859,24 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-data-pilot li + li { border-top: 1px solid var(--line); }
 .pin-data-pilot .pin-mono { font-family: var(--font-mono); font-size: var(--type-fine); color: var(--ink-2); }
 
+/* D-077(3): EVERY NAME, BEFORE THE ONE APPROVAL. A long intake scrolls inside
+   its own box, which takes keyboard focus so it can be scrolled without a
+   pointer, and the approval stays one scroll below it. */
+.pin-data-nama {
+  max-height: 340px; overflow-y: auto; margin: var(--space-3) 0 var(--space-4);
+  background: var(--surface-0); border: 1px solid var(--line); border-radius: var(--radius-1);
+}
+.pin-data-nama:focus-visible { outline: 2px solid var(--pintar-primary); outline-offset: 2px; }
+.pin-data-nama ol { list-style: none; margin: 0; padding: 0; }
+.pin-data-nama li {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3); align-items: baseline; padding: var(--space-2) var(--space-4);
+}
+.pin-data-nama li + li { border-top: 1px solid var(--line); }
+.pin-data-nama .pin-num { color: var(--ink-3); font-size: var(--type-fine); }
+.pin-data-nama-nama { overflow-wrap: anywhere; }
+.pin-data-nama-peran { font-size: var(--type-fine); color: var(--ink-2); text-align: end; }
+
 /* -------------------------------------------------------------- progress */
 /* THE WIDTH IS A COMMITTED COUNT. There is no keyframe moving it and no
    indeterminate state: a bar that animated on its own would be claiming
@@ -1889,6 +1918,8 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   .pin-data-periksa { padding: var(--space-4); }
   .pin-data-pilot li { grid-template-columns: auto minmax(0, 1fr); }
   .pin-data-pilot .pin-mono { grid-column: 2; }
+  .pin-data-nama li { grid-template-columns: auto minmax(0, 1fr); }
+  .pin-data-nama-peran { grid-column: 2; text-align: start; }
 }
 
 /* Reduced motion stops the one thing that moves without being asked to. The
@@ -2239,6 +2270,79 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   .pin-akt-lembar { margin-top: 0; }
   .pin-akt-lembar .pin-grid2 { grid-template-columns: repeat(2, 1fr); }
   .pin-akt-kartu { break-inside: avoid; }
+}
+
+/* DAISY-20 × D-077(2): a new person's name, checked before it is made. It sits
+   on the attention ground, as the intake's checkpoint does, because somebody
+   is being asked to look before PINTAR acts. */
+.pin-akt-periksa {
+  display: grid; gap: var(--space-2); min-width: 0; padding: var(--space-4);
+  background: var(--status-attention-soft); border: 1px solid var(--status-attention); border-radius: var(--radius-2);
+}
+.pin-akt-periksa h3 { margin: 0; font-size: var(--type-card); font-weight: var(--weight-strong); }
+.pin-akt-periksa h3:focus:not(:focus-visible) { outline: none; }
+.pin-akt-periksa p { margin: 0; overflow-wrap: anywhere; }
+.pin-akt-periksa .pin-actions { margin-top: var(--space-1); }
+
+/* ------------------------------------------ «Aktifkan akun PINTAR Anda» (DAISY-20)
+   The activation screens are the sign-in page's grammar: one column, one
+   primary action, labels above controls. What is new is the step line, the
+   rules shown before typing, and the name shown the way it will be read. */
+.pin-akt-langkah {
+  margin: 0; font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-akt-aturan {
+  margin: 0; padding: var(--space-3) var(--space-3) var(--space-3) var(--space-6);
+  display: grid; gap: var(--space-1);
+  background: var(--surface-2); border-radius: var(--radius-1);
+  font-size: var(--type-meta); color: var(--ink-2);
+}
+/* THE NAME AS IT WILL BE READ (D-077): large, whole, and never truncated, so
+   a misspelling is seen before it is confirmed. A long name wraps. */
+.pin-akt-nama {
+  margin: 0; padding: var(--space-3) var(--space-4);
+  background: var(--surface-2); border-radius: var(--radius-1);
+  font-size: var(--type-subhead); font-weight: var(--weight-strong); line-height: var(--leading-heading);
+  color: var(--ink-1); overflow-wrap: anywhere;
+}
+.pin-akt-hitung { margin: 0; text-align: center; font-variant-numeric: tabular-nums; }
+.pin-akt-selamat .pin-disc { justify-self: start; }
+.pin-akt-keluar { display: flex; justify-content: center; margin-top: var(--space-5); }
+
+/* THE PINTAR ID, 4 + 4, with its QR (Akun saya and the welcome). The ID never
+   breaks across its space; the QR is the certificate page's own box. On the
+   narrowest phones the QR goes under the text rather than squeezing it. */
+.pin-idn {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-4); align-items: start;
+  padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+}
+.pin-idn-teks { display: grid; gap: var(--space-1); min-width: 0; }
+.pin-idn-teks p { margin: 0; }
+.pin-idn-nama { font-size: var(--type-card); font-weight: var(--weight-strong); overflow-wrap: anywhere; }
+.pin-idn-id {
+  font-family: var(--font-mono); font-size: var(--type-subhead); font-weight: var(--weight-strong);
+  font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink-1);
+}
+.pin-idn-konteks { margin: 0; padding: 0; list-style: none; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-idn-qr { flex: none; }
+@media (max-width: 360px) {
+  .pin-idn { grid-template-columns: minmax(0, 1fr); }
+  /* With «Akun saya» beside «Keluar», a 320 px row left the staff name «Na…»,
+     and the strip exists so the name can be read. On the narrowest phones the
+     name takes the whole line and the two doors sit together under it, on the
+     right; from 361 px the strip stays one row. */
+  .pin-top .pin-sesi { flex-wrap: wrap; }
+  .pin-top .pin-sesi-ket { flex: 1 1 100%; }
+}
+
+/* The door to Akun saya in the session strip: a link, 44px tall like the
+   button beside it, kept with that button on a phone's own row. */
+.pin-sesi-akun {
+  display: inline-flex; align-items: center; flex: none; min-height: 44px; padding: 0 var(--space-2);
+  margin-inline-start: auto;
+  font-size: var(--type-fine); font-weight: var(--weight-strong); white-space: nowrap;
+  color: var(--pintar-primary); text-decoration: underline; text-underline-offset: 3px;
 }
 
 /* DAISY-06, the Terbit step: seven named steps to publication on the package

@@ -12,6 +12,13 @@
  *                      carries the test line and production never does; a code
  *                      is shown grouped; and the frame refuses what the sending
  *                      module would refuse
+ *   DAISY-20-EMAIL-01  the identity emails (BOB-26 §5): the activation code
+ *                      and its resend say the real duration from their data
+ *                      and never type one (D-079 addendum), show the code
+ *                      grouped and greet by name only when there is one; the
+ *                      PINTAR Card email carries the name, the ID 4 + 4 and the
+ *                      context lines as the data gives them, and the way to
+ *                      Akun saya
  *
  * The frame was accepted as a prototype on 29 Sep
  * (docs/coordination/ux/email-frame/); these tests pin what that prototype's
@@ -19,21 +26,38 @@
  * only exercise the frame's blocks: each email's own wording is DAISY-20 to
  * DAISY-24's.
  */
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
-import { t, allKeys, telling, INTERNAL_WORDS, type HleEvent } from "../src/lib/hle";
+import { t, format, allKeys, telling, INTERNAL_WORDS, type HleEvent } from "../src/lib/hle";
 import type { KonteksEmail, Templat } from "../src/lib/email/templat";
 import {
   bingkaiEmail, tampilKode, tautanAman, logoEmail, BERKAS_LOGO, WARNA, KONTAK, RANAH, BADAN_HUKUM, type Email,
 } from "../src/components/email/bingkai";
 import { templatUjiPengiriman } from "../src/components/email/uji";
+import { templatKode, templatKartu } from "../src/components/email/identitas";
+import type { DataEmailKartu, DataEmailKode } from "../src/lib/email/identitas";
+
+// the two code emails, as BOB-26's send asks for them (src/app/api/_email/identitas.ts)
+const templatKodeAktivasi: Templat<DataEmailKode> = (d, k) => templatKode({ ...d, ulang: false }, k);
+const templatKodeUlang: Templat<DataEmailKode> = (d, k) => templatKode({ ...d, ulang: true }, k);
+const templatKartuDigital: Templat<DataEmailKartu> = templatKartu;
 
 const PRODUKSI: KonteksEmail = { asal: "https://app.pintarselalu.com", staging: false };
 const STAGING: KonteksEmail = { asal: "https://staging.pintarselalu.com", staging: true };
 const LOKAL: KonteksEmail = { asal: "http://127.0.0.1:3000", staging: true };
 /** the proof route's own shape for its send time (src/app/api/email/uji/route.ts) */
 const WAKTU = "2026-09-30 03:12 UTC";
+
+/** DAISY-20's identity emails, with BOB-26 §5's data shapes. */
+const KODE: DataEmailKode = { kode: "482913", berlakuMenit: 10, nama: "Nadia Putri Maharani" };
+const KARTU: DataEmailKartu = {
+  nama: "Nadia Putri Maharani",
+  pintarId: "A14CD7ST",
+  tautanId: "https://app.pintarselalu.com/id/A14CD7ST",
+  konteks: [{ peran: "EDUCATOR", institusi: "SMA Negeri 1 Contoh" }, { peran: "SYSTEM_ADMIN", institusi: null }],
+  tautanAkun: "https://app.pintarselalu.com/akun",
+};
 
 /** The prototype's two samples: they exercise every block. Not final copy. */
 const CONTOH: Record<string, Email> = {
@@ -135,6 +159,12 @@ export const emailTests: SelfTest[] = [
         { nama: "the delivery test (production)", e: templatUjiPengiriman({ waktu: WAKTU }, PRODUKSI), pratinjau: t("email.uji.pratinjau", "public"), lokal: false },
         { nama: "the delivery test (staging)", e: templatUjiPengiriman({ waktu: WAKTU }, STAGING), pratinjau: t("email.uji.pratinjau", "public"), lokal: false },
         { nama: "the delivery test (the local sink)", e: templatUjiPengiriman({ waktu: WAKTU }, LOKAL), pratinjau: t("email.uji.pratinjau", "public"), lokal: true },
+        // DAISY-20: the identity emails go through every frame check too
+        ...[PRODUKSI, STAGING].flatMap((k) => [
+          { nama: `the activation code (${k.staging ? "staging" : "production"})`, e: templatKodeAktivasi(KODE, k), pratinjau: t("email.kode.pratinjau", "public"), lokal: false },
+          { nama: `the code again (${k.staging ? "staging" : "production"})`, e: templatKodeUlang(KODE, k), pratinjau: t("email.kode.ulang.pratinjau", "public"), lokal: false },
+          { nama: `the PINTAR Card (${k.staging ? "staging" : "production"})`, e: templatKartuDigital(KARTU, k), pratinjau: t("email.kartu.pratinjau", "public"), lokal: false },
+        ]),
       ];
 
       // 1. STRUCTURE: email-client-safe, in Bahasa Indonesia, one heading
@@ -155,7 +185,12 @@ export const emailTests: SelfTest[] = [
       //    writes none of them itself
       const kunci = allKeys().filter((k) => k.startsWith("email."));
       c.expect(kunci.length >= 13, `only ${kunci.length} email key(s) in the copy table`);
-      const sumber = ["bingkai.ts", "uji.ts"].map((f) => readFileSync(join(repoRoot, "src", "components", "email", f), "utf8")).join("\n");
+      // every module in src/components/email, so a new template is held to it the day it is added
+      const berkasEmail = readdirSync(join(repoRoot, "src", "components", "email")).filter((f) => /\.tsx?$/.test(f));
+      c.expect(["bingkai.ts", "uji.ts", "identitas.ts"].every((f) => berkasEmail.includes(f)), `the email modules are not where this test reads them: ${berkasEmail.join(", ")}`);
+      // comments are not words a reader sees: the rule is about what the modules write
+      const sumber = berkasEmail.map((f) => readFileSync(join(repoRoot, "src", "components", "email", f), "utf8")
+        .replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "")).join("\n");
       for (const k of kunci) {
         const row = telling(k as HleEvent);
         c.expect(Boolean(row.default?.trim()) && Boolean(row.en?.trim()), `${k} is missing a language`);
@@ -316,6 +351,93 @@ export const emailTests: SelfTest[] = [
         "email carries the test line at the top of both bodies and no production email does; a code arrives spaced or not " +
         "and is shown «482 913» (4 + 4 for eight digits); a subject with a line break, an empty subject, a non-https link " +
         "and a plain-http origin other than the local sink are all refused",
+      );
+    },
+  },
+
+  {
+    id: "DAISY-20-EMAIL-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const kata = (k: HleEvent) => t(k, "public", { locale: "id" });
+      // the plain text wraps at 72 characters: a sentence is read with its line breaks folded
+      const rata = (x: string) => x.replace(/\s+/g, " ");
+
+      // 1. THE CODE EMAILS ARE BOB-25's Templat OVER BOB-26's DATA, each with
+      //    its own words: the first code and a resend are told apart.
+      const kodeA: Templat<DataEmailKode> = templatKodeAktivasi, kodeU: Templat<DataEmailKode> = templatKodeUlang;
+      const a = kodeA(KODE, PRODUKSI), u = kodeU(KODE, PRODUKSI);
+      c.expect(a.subjek === kata("email.kode.subjek") && u.subjek === kata("email.kode.ulang.subjek") && a.subjek !== u.subjek,
+        "the first code and a resend do not carry their own subjects");
+      c.expect(a.html.includes(kata("email.kode.judul")) && u.html.includes(kata("email.kode.ulang.judul"))
+        && rata(a.teks).includes(kata("email.kode.isi")) && rata(u.teks).includes(kata("email.kode.ulang.isi")),
+        "a code email does not say its own heading and body");
+      c.expect(a.html.includes(kata("email.kode.alasan")) && rata(a.teks).includes(kata("email.kode.bukan_anda")),
+        "the code email does not give its reason, or does not say what to do if it was not asked for");
+
+      // 2. THE REAL DURATION, FROM THE DATA (D-079 addendum). The canonical
+      //    value changes and the sentence changes with it: rendered at 10, and
+      //    planted at 7 and 60, each email says exactly that duration and no
+      //    other; no email.kode line types a number or says «segera».
+      for (const berlakuMenit of [10, 7, 60]) {
+        for (const tpl of [templatKodeAktivasi, templatKodeUlang]) {
+          const e = tpl({ ...KODE, berlakuMenit }, PRODUKSI);
+          const kalimat = `${kata("email.kode.berlaku")} ${format.durasi(berlakuMenit * 60, "id")}${kata("email.kode.berlaku_lalu")}`;
+          c.expect(rata(e.teks).includes(kalimat) && e.html.includes(format.durasi(berlakuMenit * 60, "id")),
+            `a code valid for ${berlakuMenit} minutes does not say «${format.durasi(berlakuMenit * 60, "id")}»`);
+          for (const lain of [10, 7, 60].filter((n) => n !== berlakuMenit)) {
+            c.expect(!rata(e.teks).includes(format.durasi(lain * 60, "id")), `a code valid for ${berlakuMenit} minutes also says «${format.durasi(lain * 60, "id")}»`);
+          }
+        }
+      }
+      c.expect(format.durasi(600, "id") === "10 menit", `ten minutes reads «${format.durasi(600, "id")}»`);
+      for (const k of allKeys().filter((k) => k.startsWith("email.kode.") || k.startsWith("email.kartu."))) {
+        const row = telling(k as HleEvent);
+        c.expect(!/\d/.test(row.default) && !/\d/.test(row.en ?? ""), `${k} types a number itself: «${row.default}»`);
+        c.expect(!/segera|soon|immediately/i.test(`${row.default} ${row.en}`), `${k} says «segera» instead of a real duration`);
+      }
+      // one module holds both (BOB-26's correction (a)): src/components/email/identitas.ts
+      const srcKode = readFileSync(join(repoRoot, "src", "components", "email", "identitas.ts"), "utf8");
+      c.expect(/format\.durasi\(data\.berlakuMenit \* 60, "id"\)/.test(srcKode), "the code email's duration is not read from its data");
+
+      // 3. THE CODE, GROUPED, and the greeting only when there is a name
+      c.expect(a.html.includes(">482 913</p>") && /\n {4}482 913\n/.test(a.teks), "the code is not shown «482 913» in both bodies");
+      c.expect(rata(a.teks).includes(`${kata("email.kode.halo")} Nadia Putri Maharani.`), "the code email does not greet the person by name");
+      const tanpaNama = templatKodeAktivasi({ ...KODE, nama: "  " }, PRODUKSI);
+      c.expect(!tanpaNama.teks.includes(kata("email.kode.halo")) && !/Halo,\s*\./.test(tanpaNama.teks), "an email with no name greets nobody");
+
+      // 4. THE PINTAR CARD EMAIL: the facts as the data gives them (D-059:
+      //    the context lines are read at send time and are a statement), the
+      //    ID 4 + 4, and the way to Akun saya.
+      const kartu: Templat<DataEmailKartu> = templatKartuDigital;
+      const k = kartu(KARTU, PRODUKSI);
+      c.expect(k.subjek === kata("email.kartu.subjek") && k.html.includes(kata("email.kartu.judul")), "the card email does not carry its own subject and heading");
+      c.expect(k.html.includes(">A14C D7ST<") && k.teks.includes("A14C D7ST") && !k.teks.includes("A14CD7ST"), "the PINTAR ID is not shown 4 + 4");
+      c.expect(rata(k.teks).includes(`${t("role.EDUCATOR", "public", { locale: "id" })} · SMA Negeri 1 Contoh`)
+        && k.teks.includes(t("role.SYSTEM_ADMIN", "public", { locale: "id" })) && !k.teks.includes("· null"),
+        "the card email does not state each context line as the data gives it (the platform role has no school)");
+      const lain = kartu({ ...KARTU, konteks: [{ peran: "DEAN", institusi: "Universitas Contoh" }] }, PRODUKSI);
+      c.expect(rata(lain.teks).includes(`${t("role.DEAN", "public", { locale: "id" })} · Universitas Contoh`) && !lain.teks.includes("SMA Negeri 1 Contoh"),
+        "the context lines are not read from the data at send time (a planted change does not show)");
+      c.expect(k.html.includes(`href="${KARTU.tautanAkun}"`) && k.teks.includes(KARTU.tautanAkun), "the card email does not lead to Akun saya");
+      c.expect(rata(k.teks).includes(kata("email.kartu.bukan_rahasia")) && k.html.includes(kata("email.kartu.alasan")), "the card email does not say the ID is not a secret, or does not give its reason");
+
+      // 5. THE SOURCES: typed as BOB-25's Templat, reading BOB-26's data
+      //    shapes, sending nothing
+      c.expect(/from "@\/lib\/email\/templat"/.test(srcKode) && /from "@\/lib\/email\/identitas"/.test(srcKode)
+        && /export const templatKode: Templat<DataEmailKode & \{ ulang: boolean \}>/.test(srcKode) && /export const templatKartu: Templat<DataEmailKartu>/.test(srcKode),
+        "identitas.ts's templates are not BOB-25's Templat over BOB-26's data shapes, under the names BOB-26's send imports");
+      c.expect(!/process\.env|server-only|nodemailer|kirimEmail|fetch\(/.test(srcKode), "identitas.ts reads configuration or sends");
+      const kirimSrc = readFileSync(join(repoRoot, "src", "app", "api", "_email", "identitas.ts"), "utf8");
+      c.expect(/import \{ templatKartu, templatKode \} from "@\/components\/email\/identitas";/.test(kirimSrc), "BOB-26's send does not render these templates");
+
+      return c.verdict(
+        "the activation code and its resend and the PINTAR Card (src/components/email/identitas.ts, which BOB-26's send renders) are BOB-25's Templat " +
+        "over BOB-26 §5's data, each in its own copy table words; the code emails say the real duration from berlakuMenit " +
+        "(10, and planted 7 and 60, each exactly once) and no email.kode or email.kartu line types a number or says «segera»; " +
+        "the code is shown «482 913» in both bodies and the greeting names the person only when there is a name; the card " +
+        "email shows the ID 4 + 4, each context line as the data gives it (a planted change shows), and leads to Akun saya",
       );
     },
   },
