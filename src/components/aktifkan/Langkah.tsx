@@ -105,8 +105,10 @@ export function aturanPassword(aturan: AturanPassword, s: (k: HleEvent) => strin
   return baris;
 }
 
-export function LangkahPassword({ locale, siap, sibuk, pesan, judulRef, aturan, onKirim }: Umum & {
+export function LangkahPassword({ locale, siap, sibuk, pesan, judulRef, aturan, onKirim, kepala }: Umum & {
   aturan: AturanPassword;
+  /** BOB-27: the recovery's own heading, outside the wizard's numbered steps */
+  kepala?: { judul: HleEvent; lede: HleEvent };
   /** Both fields as typed; the wizard compares them before anything is sent. */
   onKirim: (password: string, ulang: string) => void;
 }) {
@@ -115,7 +117,14 @@ export function LangkahPassword({ locale, siap, sibuk, pesan, judulRef, aturan, 
   const salah = Boolean(pesan?.salah);
   return (
     <form className="pin-form" noValidate onSubmit={(e) => { e.preventDefault(); onKirim(ambil(e, "password"), ambil(e, "ulang")); }}>
-      <KepalaLangkah locale={locale} langkah="PASSWORD" judul="aktifkan.p_judul" lede="aktifkan.p_lede" judulRef={judulRef} />
+      {kepala ? (
+        <>
+          <h1 className="pin-mh1" tabIndex={-1} ref={judulRef}>{s(kepala.judul)}</h1>
+          <p className="pin-lede-m">{s(kepala.lede)}</p>
+        </>
+      ) : (
+        <KepalaLangkah locale={locale} langkah="PASSWORD" judul="aktifkan.p_judul" lede="aktifkan.p_lede" judulRef={judulRef} />
+      )}
       <ul className="pin-akt-aturan" id="password-aturan">
         {aturanPassword(aturan, s, locale).map((b) => <li key={b}>{b}</li>)}
       </ul>

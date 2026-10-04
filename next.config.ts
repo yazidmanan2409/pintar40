@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
       { source: "/masuk/password", destination: "/api/masuk/password" },
       { source: "/aktifkan/kode", destination: "/api/aktifkan/kode" },
       { source: "/aktifkan/periksa", destination: "/api/aktifkan/periksa" },
+      // BOB-27 (Gate 4): «Lupa password?»'s three signed-out doors
+      { source: "/masuk/lupa/kode", destination: "/api/masuk/lupa/kode" },
+      { source: "/masuk/lupa/periksa", destination: "/api/masuk/lupa/periksa" },
+      { source: "/masuk/lupa/password", destination: "/api/masuk/lupa/password" },
     ];
   },
 };

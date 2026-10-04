@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 175,
+  "version": 176,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2996,6 +2996,31 @@
       ],
       "proves": "D-098(c), J1.9: the database half (supabase/migrations/20261114100000), in one rolled-back transaction. email_sending_wait is 0 with nothing refused, about nine minutes after the host refused a minute ago, 0 eleven minutes after, 0 once a later send is accepted, and about thirty minutes while the GLOBAL limit is full; code_request_pace is 0 for a first request, up to a minute for one at once, 0 for another key, about ten minutes after five in the hour, 0 after one ten minutes ago; email_send_history answers the platform admin by address hash and by reference (outcome and SMTP code) and refuses a school admin (42501); anon and authenticated execute neither signed-out decision nor read the pace table, the service role does; no column of the send log or the pace table can hold an address.",
       "skip_justification": "needs a Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "BOB27-K01",
+      "runner": "static",
+      "proves": "BOB-27 (Gate 4). Executes src/lib/pemulihan.ts with its tools replaced: asking for a recovery code answers alike for a real name and nobody's, asks D-098(c)'s waits before the lookup (EMAIL_TUNGGU, MINTA_KODE_TUNGGU alike, nothing sent), counts on the keyed hash of the normalised name, sends for an active account only, and asks nothing for an empty name; checking asks Auth for nobody's name too (an address nobody has), answers a wrong code and nobody's name alike (KODE_TIDAK_COCOK), gives the grant only on a real match (never for an Auth match on an address nobody has), never signs in, counts a malformed code as nothing, waits a counted-out name (KODE_TUNGGU) and takes back an attempt Auth limited (KODE_DIBATASI with Retry-After); the new password keeps the rules before asking for a permit, answers PEMULIHAN_BERAKHIR and drops the grant without one, keeps the grant on Auth's leaked-password refusal (PASSWORD_LEMAH BOCOR), and on success writes, drops the grant, signs this browser in and tells the owner after the answer; a failed sign-in after a successful change still reports the change."
+    },
+    {
+      "id": "BOB27-S01",
+      "runner": "static",
+      "proves": "BOB-27 (Gate 4), the source: /masuk/lupa/periksa verifies on a client that keeps no session and ends the session Auth made (admin signOut, local), and never uses the cookie client; the grant is an httpOnly, same-site strict, ten-minute cookie kept in the database by its SHA-256; /masuk/lupa/password writes the password (admin updateUserById) only after recovery_grant_permit; TAUTAN_MASUK_CADANGAN is false (C14) and «Lupa password?» on /masuk links to HALAMAN_PEMULIHAN; lupa.kode_terkirim and lupa.kode_ulang_ok say PINTAR is sending, never that it has sent, in both languages; the three doors are declared in public_surface_registry with their handlers."
+    },
+    {
+      "id": "BOB27-D01",
+      "runner": "static",
+      "requires": [
+        "db"
+      ],
+      "proves": "BOB-27 (Gate 4), the database (supabase/migrations/20261115100000), rolled back: recovery_code_target names an active (COMPLETE) email account by its address in any case and by its username in any case and spacing, and never an account in activation, a class card, nobody or an empty name; recovery_grant_issue refuses an account in activation (RECOVERY_NOT_ELIGIBLE), keeps one grant per person (a second replaces the first), lasts ten minutes and is audited (identity.recovery_verified, via EMAIL); a replaced grant gives no permit; a password written with a grant but no permit is refused (PASSWORD_WRITE_REFUSED); the live grant's permit writes once, and the write spends the grant and the permit, is audited as identity.password_set RECOVERY and leaves the set-up COMPLETE; spent and expired grants give nothing (RECOVERY_GRANT_INVALID); anon and authenticated reach none of the three functions, the service role reaches the permit, and nobody reads the grants.",
+      "skip_justification": "needs a Postgres with the migrations and the synthetic and activated-staff seeds applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "BOB27-A01",
+      "runner": "app",
+      "proves": "BOB-27 (Gate 4) against the running app, Auth and the Mailpit sink: a person registered by «Orang baru» activates (Gate 3) and signs in on two other devices; «Lupa password?» by username (any case, spaced) answers exactly as nobody's name does and the recovery code arrives; a wrong code is KODE_TIDAK_COCOK and the right one, spaced, gives the grant cookie without signing the browser in (/mengajar redirects to /masuk); a short password is PASSWORD_LEMAH; the new password is set, the grant cookie removed, this browser opens /mengajar, both other devices are signed out, and the grant cannot be used again (PEMULIHAN_BERAKHIR); the old password is refused (401) and the new one signs in by username; the password-changed email arrives saying every device was signed out; the audit log holds identity.recovery_verified (EMAIL) and identity.password_set (RECOVERY).",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
     }
   ]
 }

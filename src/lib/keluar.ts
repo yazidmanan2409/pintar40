@@ -15,3 +15,16 @@ export async function keluarPerangkatIni(supabase: {
 }): Promise<void> {
   await supabase.auth.signOut({ scope: "local" });
 }
+
+/**
+ * BOB-27 (Gate 4): A RECOVERY CODE IS NOT A SIGN-IN. Auth's verifyOtp proves the
+ * inbox by making a session; that session is ended here at once, scope "local"
+ * (that session only), so the person's other sessions are neither ended nor
+ * joined by a code check.
+ */
+export async function akhiriSesiVerifikasi(
+  admin: { auth: { admin: { signOut(jwt: string, scope: "local"): Promise<unknown> } } },
+  token: string,
+): Promise<void> {
+  await admin.auth.admin.signOut(token, "local");
+}

@@ -1,6 +1,7 @@
 import { format, type HleEvent, type Locale } from "@/lib/hle";
 import {
-  bacaJawabanKartu, bacaJawabanKirimKartu, bacaJawabanMasukPassword, bacaJawabanMintaKode, bacaJawabanNama,
+  bacaJawabanKartu, bacaJawabanKirimKartu, bacaJawabanLupaKode, bacaJawabanLupaPassword, bacaJawabanLupaPeriksa,
+  bacaJawabanMasukPassword, bacaJawabanMintaKode, bacaJawabanNama,
   bacaJawabanPassword, bacaJawabanPin, bacaJawabanSelesai, bacaJawabanUsername, bacaJawabanVerifikasi,
   STATUS_WIZARD,
 } from "@/lib/aktivasi-kontrak";
@@ -74,6 +75,9 @@ const PEMBACA: { [R in Rute]: (isi: unknown) => Dibaca } = {
   selesai: bacaJawabanSelesai,
   kartu: bacaJawabanKartu,
   kirimKartu: bacaJawabanKirimKartu,
+  lupaKode: bacaJawabanLupaKode,
+  lupaPeriksa: bacaJawabanLupaPeriksa,
+  lupaPassword: bacaJawabanLupaPassword,
 };
 
 /**
@@ -179,6 +183,9 @@ const KALIMAT: Record<string, HleEvent> = {
   PIN_REUSED: "aktifkan.kode.PIN_REUSED",
   NAMA_TIDAK_SAH: "aktifkan.kode.NAMA_TIDAK_SAH",
   NAMA_SUDAH_DIKONFIRMASI: "aktifkan.kode.NAMA_SUDAH_DIKONFIRMASI",
+  // BOB-27 (Gate 4)
+  IDENTITAS_KOSONG: "lupa.nama_kosong",
+  PEMULIHAN_BERAKHIR: "lupa.berakhir",
 };
 /** PASSWORD_LEMAH says each reason the route gave, in this order. */
 const ALASAN: Record<AlasanPassword, HleEvent> = {

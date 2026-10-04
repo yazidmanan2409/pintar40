@@ -77,6 +77,7 @@ import { bob26Tests } from "./bob26.test";
 import { bob50Tests } from "./bob50.test";
 import { bob51Tests } from "./bob51.test";
 import { emailJujurTests } from "./emailjujur.test";
+import { bob27Tests } from "./bob27.test";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
 
@@ -952,8 +953,11 @@ export const staticTests: SelfTest[] = [
       // public_surface_registry with its rewrite target as its child (the card
       // route's shape), which the registry check below also asks; nothing else
       // joined the list.
+      // RESTATED FOR BOB-27 (Gate 4, a changed requirement): «Lupa password?» starts signed out too, at /masuk/lupa
+      // and its three POST-only doors, each declared with its handler as Gate 3's are.
       const expectedPaths = ["/", "/masuk", "/masuk/kartu", "/masuk/password", "/aktifkan", "/aktifkan/kode",
-                             "/aktifkan/periksa", "/auth/callback", "/keluar"];
+                             "/aktifkan/periksa", "/masuk/lupa", "/masuk/lupa/kode", "/masuk/lupa/periksa",
+                             "/masuk/lupa/password", "/auth/callback", "/keluar"];
       c.expect(
         JSON.stringify(paths.slice().sort()) === JSON.stringify(expectedPaths.slice().sort()),
         `the anonymous path list changed: ${JSON.stringify(paths)}`,
@@ -986,12 +990,13 @@ export const staticTests: SelfTest[] = [
       // handler it is rewritten to as its child, in the migrations themselves.
       const migTeks = readdirSync(join(repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql"))
         .map((f) => readFileSync(join(repoRoot, "supabase", "migrations", f), "utf8")).join("\n");
-      for (const pintu of ["/masuk/kartu", "/masuk/password", "/aktifkan/kode", "/aktifkan/periksa"]) {
+      for (const pintu of ["/masuk/kartu", "/masuk/password", "/aktifkan/kode", "/aktifkan/periksa",
+                           "/masuk/lupa/kode", "/masuk/lupa/periksa", "/masuk/lupa/password"]) {
         c.expect(new RegExp(`'ROUTE',\\s*'${pintu}'`).test(migTeks) && new RegExp(`'ENDPOINT',\\s*'/api${pintu}'`).test(migTeks),
           `${pintu} is anonymous but not declared in public_surface_registry with /api${pintu} as its child`);
       }
       c.note(`${routes.length} routes, ${studio.length} in Studio, ${paths.length + prefixes.length} anonymous`);
-      return c.verdict("the anonymous surface did not grow beyond its declared doors (Gate 3's three, each registered with its handler) and every Studio route sits behind the proxy");
+      return c.verdict("the anonymous surface did not grow beyond its declared doors (Gate 3's three and Gate 4's three, each registered with its handler) and every Studio route sits behind the proxy");
     },
   },
   {
@@ -2017,4 +2022,5 @@ export const staticTests: SelfTest[] = [
   ...bob50Tests,
   ...bob51Tests,
   ...emailJujurTests,
+  ...bob27Tests,
 ];

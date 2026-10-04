@@ -85,8 +85,12 @@ export const sesiTests: SelfTest[] = [
       }
       c.expect(liar.length === 0, `sign-out outside src/lib/keluar.ts: ${liar.join(", ")}`);
       const helper = readFileSync(join(src, "lib", "keluar.ts"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
-      c.expect(/\.signOut\(\{ scope: "local" \}\)/.test(helper) && (helper.match(/\.signOut\(/g) ?? []).length === 1,
-        "src/lib/keluar.ts does not make exactly one signOut({ scope: \"local\" }) call");
+      // RESTATED FOR BOB-27: besides the one sign-out of this device, keluar.ts ends a recovery code's verification
+      // session through Auth's admin endpoint, also scope "local"; nothing in it signs out globally.
+      c.expect((helper.match(/\.signOut\(\{ scope: "local" \}\)/g) ?? []).length === 1
+        && (helper.match(/\.admin\.signOut\(token, "local"\)/g) ?? []).length === 1
+        && (helper.match(/\.signOut\(/g) ?? []).length === 2,
+        "src/lib/keluar.ts does not make exactly one signOut({ scope: \"local\" }) call and one admin signOut(token, \"local\")");
       for (const f of [join(src, "app", "keluar", "route.ts"), join(src, "app", "masuk", "actions.ts")]) {
         c.expect(/keluarPerangkatIni\(supabase\)/.test(readFileSync(f, "utf8")),
           `${relative(ctx.repoRoot, f)} does not sign out through keluarPerangkatIni`);

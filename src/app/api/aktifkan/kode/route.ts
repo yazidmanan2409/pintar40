@@ -4,7 +4,7 @@ import { asalSendiri } from "@/lib/kartu-masuk";
 import { HALAMAN_AKTIVASI } from "@/lib/aktivasi-kontrak";
 import { mintaKode } from "@/lib/aktivasi";
 import { kirimKodeAktivasi } from "@/app/api/_email/identitas";
-import { bacaPengaturanEmail } from "@/app/api/_email/pengaturan";
+import { alatTunggu } from "@/app/api/_email/tunggu";
 import { jawab, kembaliKe } from "../_jawab";
 
 /**
@@ -37,23 +37,7 @@ export async function POST(request: NextRequest) {
         const r = Array.isArray(data) ? data[0] : null;
         return r?.auth_user_id ? { authUserId: String(r.auth_user_id), nama: String(r.nama ?? "") } : null;
       },
-      jedaKirimUlang: async () => {
-        const { data, error } = await layanan.rpc("email_resend_seconds");
-        if (error || typeof data !== "number") throw new Error(error?.code ?? "no answer");
-        return data;
-      },
-      // D-098(c): asked before the answer, the same for every address
-      jedaPengiriman: async () => {
-        bacaPengaturanEmail(); // missing settings: no code could ever go, so the request fails as the server's
-        const { data, error } = await layanan.rpc("email_sending_wait");
-        if (error || typeof data !== "number") throw new Error(error?.code ?? "no answer");
-        return data;
-      },
-      catatPermintaan: async (kunci) => {
-        const { data, error } = await layanan.rpc("code_request_pace", { p_kunci: kunci });
-        if (error || typeof data !== "number") throw new Error(error?.code ?? "no answer");
-        return data;
-      },
+      ...alatTunggu(layanan), // D-098(c): asked before the answer, the same for every address
       kirim: async (s, ulang) => {
         const h = await kirimKodeAktivasi(s, ulang);
         if (h && !h.terkirim) console.error(`[aktifkan/kode] ref=${h.rujukan} not sent (${h.alasan})`);

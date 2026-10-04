@@ -304,6 +304,8 @@ const RESET_SURFACES = [
   // stage, and Akun saya in the reader's own shell. Built on the token set.
   "src/app/aktifkan/page.tsx",
   "src/app/akun/page.tsx",
+  // BOB-27 (Gate 4): «Lupa password?» on the same stage as «Aktifkan», built on the token set.
+  "src/app/masuk/lupa/page.tsx",
   // BOB-51: the platform admin's «Kirim email uji», on the same shell and pin-* classes as Aktivasi.
   "src/app/konfigurasi/email-uji/page.tsx",
 ];
@@ -1349,6 +1351,10 @@ export const experienceTests: SelfTest[] = [
       // (password_write_permits), two set-up columns (password_set_at, name_confirmed_at), the identity
       // functions and a trigger on auth.users; no colour, mark or brand surface.
       //
+      // MOVED 151 -> 152 for BOB-27 (Gate 4), a forgotten password is recovered by email. 20261115100000 adds
+      // recovery_code_target, the recovery grant (its table, issue and permit) and RECOVERY in the password guard;
+      // no colour, mark or brand surface.
+      //
       // MOVED 150 -> 151 for D-098(c), a refused email is never called sent. 20261114100000 adds
       // email_sending_wait, code_request_pace and its table (keyed hashes and times only), and the platform admin's
       // email_send_history; no colour, mark or brand surface.
@@ -1592,7 +1598,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 151, `${migrations.length} migrations; the frozen baseline has 151`);
+      c.expect(migrations.length === 152, `${migrations.length} migrations; the frozen baseline has 152`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3287,7 +3293,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 150 -> 151 for D-098(c)'s email waits
+      // from, not a claim about the tour. MOVED 151 -> 152 for BOB-27's email recovery
+      // (20261115100000), not a tour RPC (D-024). MOVED 150 -> 151 for D-098(c)'s email waits
       // (20261114100000), not a tour RPC (D-024). MOVED 149 -> 150 for BOB-50's Uji Cepat certificate rule
       // (20261113100000), not a tour RPC (D-024). MOVED 148 -> 149 for BOB-26's activation
       // (20261112100000), not a tour RPC (D-024). MOVED 147 -> 148 for D-093 T2 + T3's audit writers (20261111100000),
@@ -3370,7 +3377,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 151, `${migs.length} migrations; the baseline has 151`);
+      c.expect(migs.length === 152, `${migs.length} migrations; the baseline has 152`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -10245,6 +10252,8 @@ export const experienceTests: SelfTest[] = [
         "src/components/masuk/LayarMasuk.tsx": 4,
         "src/components/aktifkan/MintaKode.tsx": 2,
         "src/components/aktifkan/Langkah.tsx": 1,
+        // RESTATED FOR BOB-27: «Lupa password?» has the same two lines as MintaKode (the name, the code).
+        "src/components/aktifkan/LupaPassword.tsx": 2,
         "src/components/struktur/PanelStruktur.tsx": 1,
         "src/components/pendataan/Penggerak.tsx": 1,
       };
@@ -10456,9 +10465,12 @@ export const experienceTests: SelfTest[] = [
       // addresses): the number words run to ten, and the surface list may be
       // a series («a, b, dan c»), each name still required in the addresses
       // sentence. The check itself is unchanged.
+      // RESTATED FOR BOB-27 (Gate 4: 8 surfaces, 16 addresses): the number words run to sixteen.
       const ANGKA: Record<string, string[]> = {
-        id: ["nol", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh"],
-        en: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"] };
+        id: ["nol", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh",
+             "sebelas", "dua belas", "tiga belas", "empat belas", "lima belas", "enam belas"],
+        en: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+             "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"] };
       const katakan = (kalimat: string, n: unknown, locale: string) =>
         typeof n === "number" && new RegExp(`^(Tepat|Exactly) ${ANGKA[locale][n]}\\b`).test(kalimat);
       c.expect(!katakan("Tepat tiga permukaan publik: pemeriksaan sertifikat dan masuk dengan kartu kelas", 2, "id"),

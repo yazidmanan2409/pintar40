@@ -15,11 +15,14 @@ import type { AlasanPasswordLemah, AturanPassword } from "@/lib/pengaturan-auth"
 export const HALAMAN_AKTIVASI = "/aktifkan";
 
 /**
- * C14's switch: the everyday magic link stays on /masuk as a fallback until
- * the release in which activation, password sign-in, email recovery and the
- * existing-staff transition all work. Off, `sendMagicLink` sends nothing.
+ * C14's switch: the everyday magic link stayed on /masuk as a fallback until
+ * activation, password sign-in, email recovery and the existing-staff
+ * transition all worked. OFF since Gate 4 (BOB-27): «Lupa password?» is the
+ * email recovery at HALAMAN_PEMULIHAN, an existing staff member who never
+ * activated uses «Aktifkan akun», and `sendMagicLink` sends nothing. The
+ * callback stays (C14: what is still technically needed stays).
  */
-export const TAUTAN_MASUK_CADANGAN = true;
+export const TAUTAN_MASUK_CADANGAN = false;
 
 // ─────────────────────────────────────────────── shared by every route
 export const STATUS_UMUM = {
@@ -127,6 +130,31 @@ export type JawabanSelesai =
   | { ok: true; tujuan: string; kartu: StatusKartuEmail }
   | { ok: false; code: KodeSelesai; kurang?: LangkahAktivasi[]; ref?: string };
 
+// ─────────────────────── «Lupa password?» (BOB-27, Gate 4), signed out
+/** The recovery page: email or username → code → new password. */
+export const HALAMAN_PEMULIHAN = "/masuk/lupa";
+/** A checked recovery code's grant, held by the browser (httpOnly, ten minutes, single use). */
+export const COOKIE_PEMULIHAN = "pintar_pulih";
+
+// POST /masuk/lupa/kode: the same answer for every name, D-098(c)'s waits first
+export const STATUS_LUPA_KODE = { ...STATUS_UMUM, IDENTITAS_KOSONG: 400, MINTA_KODE_TUNGGU: 429, EMAIL_TUNGGU: 503 } as const;
+export type KodeLupaKode = keyof typeof STATUS_LUPA_KODE;
+export type JawabanLupaKode =
+  | { ok: true; kirimUlangDalam: number; berlakuMenit: number }
+  | { ok: false; code: KodeLupaKode; tunggu?: number; ref?: string };
+
+// POST /masuk/lupa/periksa: a match signs nobody in; it gives the grant
+export const STATUS_LUPA_PERIKSA = { ...STATUS_UMUM, KODE_TIDAK_COCOK: 400, KODE_TUNGGU: 429, KODE_DIBATASI: 429 } as const;
+export type KodeLupaPeriksa = keyof typeof STATUS_LUPA_PERIKSA;
+export type JawabanLupaPeriksa = { ok: true } | { ok: false; code: KodeLupaPeriksa; tunggu?: number; ref?: string };
+
+// POST /masuk/lupa/password: the new password, with the grant
+export const STATUS_LUPA_PASSWORD = { ...STATUS_UMUM, PEMULIHAN_BERAKHIR: 410, PASSWORD_LEMAH: 422, PASSWORD_TERLALU_PANJANG: 422 } as const;
+export type KodeLupaPassword = keyof typeof STATUS_LUPA_PASSWORD;
+export type JawabanLupaPassword =
+  | { ok: true; tujuan: string }
+  | { ok: false; code: KodeLupaPassword; alasan?: AlasanPasswordLemah[]; ref?: string };
+
 // ─────────────────────────────────────────────────────────── Akun saya's card
 export type PeranKartu = "SYSTEM_ADMIN" | "INSTITUTION_ADMIN" | "DEAN" | "HEAD_OF_DEPARTMENT" | "EDUCATOR";
 export type DataKartu = {
@@ -172,6 +200,10 @@ export const bacaJawabanMintaKode = (isi: unknown) => baca<JawabanMintaKode>(STA
   (o) => typeof o.kirimUlangDalam === "number" && typeof o.berlakuMenit === "number");
 export const bacaJawabanVerifikasi = (isi: unknown) => baca<JawabanVerifikasi>(STATUS_VERIFIKASI, isi, tujuanSah);
 export const bacaJawabanMasukPassword = (isi: unknown) => baca<JawabanMasukPassword>(STATUS_MASUK_PASSWORD, isi, tujuanSah);
+export const bacaJawabanLupaKode = (isi: unknown) => baca<JawabanLupaKode>(STATUS_LUPA_KODE, isi,
+  (o) => typeof o.kirimUlangDalam === "number" && typeof o.berlakuMenit === "number");
+export const bacaJawabanLupaPeriksa = (isi: unknown) => baca<JawabanLupaPeriksa>(STATUS_LUPA_PERIKSA, isi, () => true);
+export const bacaJawabanLupaPassword = (isi: unknown) => baca<JawabanLupaPassword>(STATUS_LUPA_PASSWORD, isi, tujuanSah);
 export const bacaJawabanUsername = (isi: unknown) => baca<JawabanUsername>(STATUS_USERNAME, isi, (o) => typeof o.username === "string");
 export const bacaJawabanPassword = (isi: unknown) => baca<JawabanPassword>(STATUS_PASSWORD, isi, () => true);
 export const bacaJawabanPin = (isi: unknown) => baca<JawabanPin>(STATUS_PIN, isi, () => true);

@@ -1505,6 +1505,40 @@ export type HleEvent =
   | "aktifkan.kode_sering"
   | "aktifkan.ramai"
   | "aktifkan.minta_sering"
+  | "lupa.judul"
+  | "lupa.lede"
+  | "lupa.nama_label"
+  | "lupa.nama_kosong"
+  | "lupa.belum_aktif"
+  | "lupa.ke_aktifkan"
+  | "lupa.ke_masuk"
+  | "lupa.kode_judul"
+  | "lupa.kode_terkirim"
+  | "lupa.kode_label"
+  | "lupa.kode_ulang_ok"
+  | "lupa.kode_bantu"
+  | "lupa.nama_lain"
+  | "lupa.p_judul"
+  | "lupa.p_lede"
+  | "lupa.berakhir"
+  | "lupa.selesai_judul"
+  | "lupa.selesai_isi"
+  | "lupa.lanjut"
+  | "email.pulih.subjek"
+  | "email.pulih.pratinjau"
+  | "email.pulih.judul"
+  | "email.pulih.isi"
+  | "email.pulih.label"
+  | "email.pulih.bukan_anda"
+  | "email.pulih.alasan"
+  | "email.diubah.subjek"
+  | "email.diubah.pratinjau"
+  | "email.diubah.judul"
+  | "email.diubah.isi"
+  | "email.diubah.sesi"
+  | "email.diubah.bukan_anda"
+  | "email.diubah.tombol"
+  | "email.diubah.alasan"
   | "aktifkan.email_tertahan"
   | "aktifkan.tidak_tersedia"
   | "aktifkan.rujukan_arti"
@@ -2351,9 +2385,9 @@ const table: Table = {
   "config.kesehatan.cek.undeclared_anon_functions": { default: "Tidak ada fungsi terbuka tanpa masuk yang tidak dinyatakan", en: "No undeclared function is open without signing in" },
   // BOB-12: the class card's sign-in is the second declared public surface. DAISY-13 confirms this sentence and
   // replaces the paths one: each surface is two declared addresses, a page and the endpoint behind it
-  "config.kesehatan.cek.anon_public_surface": { default: "Tepat lima permukaan publik: pemeriksaan sertifikat, masuk dengan kartu kelas, masuk dengan password, permintaan kode aktivasi, dan pemeriksaan kode aktivasi", en: "Exactly five public surfaces: certificate verification, class-card sign-in, password sign-in, the activation code request, and the activation code check" },
+  "config.kesehatan.cek.anon_public_surface": { default: "Tepat delapan permukaan publik: pemeriksaan sertifikat, masuk dengan kartu kelas, masuk dengan password, permintaan kode aktivasi, pemeriksaan kode aktivasi, permintaan kode pemulihan, pemeriksaan kode pemulihan, dan password baru dari pemulihan", en: "Exactly eight public surfaces: certificate verification, class-card sign-in, password sign-in, the activation code request, the activation code check, the recovery code request, the recovery code check, and the new password from recovery" },
   "config.kesehatan.cek.client_readable_definer_views": { default: "Tidak ada tampilan berhak pemilik yang terbaca aplikasi", en: "No owner-rights view is readable by the app" },
-  "config.kesehatan.cek.anon_reachable_http_paths": { default: "Tepat sepuluh alamat publik yang dinyatakan: dua untuk pemeriksaan sertifikat, dua untuk masuk dengan kartu kelas, dua untuk masuk dengan password, dua untuk permintaan kode aktivasi, dua untuk pemeriksaan kode aktivasi", en: "Exactly ten declared public addresses: two for certificate verification, two for class-card sign-in, two for password sign-in, two for the activation code request, two for the activation code check" },
+  "config.kesehatan.cek.anon_reachable_http_paths": { default: "Tepat enam belas alamat publik yang dinyatakan: dua untuk pemeriksaan sertifikat, dua untuk masuk dengan kartu kelas, dua untuk masuk dengan password, dua untuk permintaan kode aktivasi, dua untuk pemeriksaan kode aktivasi, dua untuk permintaan kode pemulihan, dua untuk pemeriksaan kode pemulihan, dua untuk password baru dari pemulihan", en: "Exactly sixteen declared public addresses: two for certificate verification, two for class-card sign-in, two for password sign-in, two for the activation code request, two for the activation code check, two for the recovery code request, two for the recovery code check, two for the new password from recovery" },
   "config.kesehatan.cek.public_surface_ok": { default: "Permukaan publik sesuai yang dinyatakan", en: "The public surface matches its declaration" },
   "config.kesehatan.cek.anon_table_grants": { default: "Tidak ada hak tabel bagi pengguna yang belum masuk", en: "No table grant to signed-out users" },
   "config.kesehatan.cek.public_buckets": { default: "Tidak ada penyimpanan berkas yang publik", en: "No public storage bucket" },
@@ -3274,6 +3308,40 @@ const table: Table = {
   "aktifkan.kode_salah": { default: "Kode ini tidak cocok atau sudah tidak berlaku. Periksa kodenya, atau minta kode baru.", en: "This code doesn't match or is no longer valid. Check the code, or ask for a new one." },
   "aktifkan.kode_sering": { default: "Kode sudah terlalu sering dicoba untuk alamat ini.", en: "The code has been tried too many times for this address." },
   "aktifkan.ramai": { default: "Sedang banyak permintaan bersamaan.", en: "There are many requests at once." },
+  "lupa.judul": { default: "Lupa password", en: "Forgot your password" },
+  "lupa.lede": { default: "Ketik email atau username akun PINTAR Anda. Jika akun itu sudah aktif, PINTAR mengirim kode ke email akun itu untuk membuat password baru.", en: "Type the email address or username of your PINTAR account. If that account is active, PINTAR sends a code to its email address so you can make a new password." },
+  "lupa.nama_label": { default: "Email atau username", en: "Email or username" },
+  "lupa.nama_kosong": { default: "Ketik email atau username akun Anda dulu.", en: "Type your account's email address or username first." },
+  "lupa.belum_aktif": { default: "Belum pernah mengaktifkan akun?", en: "Never activated your account?" },
+  "lupa.ke_aktifkan": { default: "Aktifkan akun", en: "Activate your account" },
+  "lupa.ke_masuk": { default: "Kembali ke halaman masuk", en: "Back to sign in" },
+  "lupa.kode_judul": { default: "Periksa email Anda", en: "Check your email" },
+  "lupa.kode_terkirim": { default: "Jika nama ini milik akun PINTAR yang sudah aktif, PINTAR sedang mengirim kode ke email akun itu. Biasanya kode tiba dalam satu menit. Ketik kodenya di sini.", en: "If this name belongs to an active PINTAR account, PINTAR is sending a code to that account's email address. It usually arrives within a minute. Type the code here." },
+  "lupa.kode_label": { default: "Kode untuk membuat password baru", en: "Code to make a new password" },
+  "lupa.kode_ulang_ok": { default: "Jika nama ini milik akun yang sudah aktif, PINTAR sedang mengirim kode baru. Pakai kode dari email yang paling baru.", en: "If this name belongs to an active account, PINTAR is sending a new code. Use the code from the newest email." },
+  "lupa.kode_bantu": { default: "Belum ada email? Periksa folder Spam atau Promosi. Kode hanya dikirim ke email akun itu sendiri.", en: "No email yet? Check your Spam or Promotions folder. The code goes only to the account's own email address." },
+  "lupa.nama_lain": { default: "Gunakan email atau username lain", en: "Use a different email or username" },
+  "lupa.p_judul": { default: "Buat password baru", en: "Make a new password" },
+  "lupa.p_lede": { default: "Setelah password baru disimpan, akun ini keluar dari semua perangkat lain.", en: "Once the new password is saved, this account is signed out of every other device." },
+  "lupa.berakhir": { default: "Waktu untuk membuat password baru sudah habis. Minta kode baru, lalu coba lagi.", en: "The time to make a new password has run out. Ask for a new code, then try again." },
+  "lupa.selesai_judul": { default: "Password Anda sudah diganti", en: "Your password has been changed" },
+  "lupa.selesai_isi": { default: "Akun ini sudah keluar dari semua perangkat lain. Mulai sekarang, masuk dengan password baru Anda.", en: "This account has been signed out of every other device. From now on, sign in with your new password." },
+  "lupa.lanjut": { default: "Lanjut", en: "Continue" },
+  "email.pulih.subjek": { default: "Kode untuk membuat password baru PINTAR", en: "Your PINTAR code to make a new password" },
+  "email.pulih.pratinjau": { default: "Pakai kode ini untuk membuat password baru akun PINTAR Anda.", en: "Use this code to make a new password for your PINTAR account." },
+  "email.pulih.judul": { default: "Buat password baru", en: "Make a new password" },
+  "email.pulih.isi": { default: "Ketik kode ini di halaman Lupa password PINTAR untuk membuat password baru.", en: "Type this code on PINTAR's Forgot your password page to make a new password." },
+  "email.pulih.label": { default: "Kode", en: "Code" },
+  "email.pulih.bukan_anda": { default: "Jika Anda tidak meminta kode ini, abaikan email ini: password Anda tidak berubah. Jangan berikan kode ini kepada siapa pun.", en: "If you didn't ask for this code, ignore this email: your password hasn't changed. Don't give this code to anyone." },
+  "email.pulih.alasan": { default: "Anda menerima email ini karena kode untuk membuat password baru diminta untuk akun PINTAR dengan alamat ini.", en: "You are receiving this email because a code to make a new password was requested for the PINTAR account with this address." },
+  "email.diubah.subjek": { default: "Password PINTAR Anda sudah diganti", en: "Your PINTAR password has been changed" },
+  "email.diubah.pratinjau": { default: "Password akun PINTAR Anda baru saja diganti.", en: "Your PINTAR account's password was just changed." },
+  "email.diubah.judul": { default: "Password Anda sudah diganti", en: "Your password has been changed" },
+  "email.diubah.isi": { default: "Password akun PINTAR Anda diganti pada", en: "Your PINTAR account's password was changed on" },
+  "email.diubah.sesi": { default: "Akun ini sudah keluar dari semua perangkat. Masuk lagi dengan password baru.", en: "This account has been signed out of every device. Sign in again with the new password." },
+  "email.diubah.bukan_anda": { default: "Jika bukan Anda yang menggantinya, segera buat password baru lewat Lupa password dan hubungi admin sekolah Anda.", en: "If it wasn't you who changed it, make a new password at once through Forgot your password and contact your school's administrator." },
+  "email.diubah.tombol": { default: "Buat password baru", en: "Make a new password" },
+  "email.diubah.alasan": { default: "Anda menerima email ini karena password akun PINTAR dengan alamat ini baru saja diganti.", en: "You are receiving this email because the password of the PINTAR account with this address was just changed." },
   "aktifkan.minta_sering": { default: "Kode untuk alamat ini sudah terlalu sering diminta, jadi kode tidak dikirim.", en: "A code has been asked for this address too often, so no code was sent." },
   "aktifkan.email_tertahan": { default: "PINTAR belum bisa mengirim email saat ini, jadi kode tidak dikirim.", en: "PINTAR can't send email right now, so no code was sent." },
   "aktifkan.tidak_tersedia": { default: "PINTAR sedang tidak dapat memproses ini. Coba lagi sebentar lagi.", en: "PINTAR can't handle this right now. Try again in a little while." },

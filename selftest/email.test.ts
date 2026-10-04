@@ -430,7 +430,8 @@ export const emailTests: SelfTest[] = [
         "identitas.ts's templates are not BOB-25's Templat over BOB-26's data shapes, under the names BOB-26's send imports");
       c.expect(!/process\.env|server-only|nodemailer|kirimEmail|fetch\(/.test(srcKode), "identitas.ts reads configuration or sends");
       const kirimSrc = readFileSync(join(repoRoot, "src", "app", "api", "_email", "identitas.ts"), "utf8");
-      c.expect(/import \{ templatKartu, templatKode \} from "@\/components\/email\/identitas";/.test(kirimSrc), "BOB-26's send does not render these templates");
+      // RESTATED FOR BOB-27 (Gate 4): the send also renders the recovery code and the password-changed email
+      c.expect(/import \{ templatKartu, templatKode, templatPasswordDiubah, templatPemulihan \} from "@\/components\/email\/identitas";/.test(kirimSrc), "BOB-26's send does not render these templates");
 
       return c.verdict(
         "the activation code and its resend and the PINTAR Card (src/components/email/identitas.ts, which BOB-26's send renders) are BOB-25's Templat " +

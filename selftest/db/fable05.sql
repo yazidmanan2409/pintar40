@@ -1945,11 +1945,13 @@ begin
   -- RESTATED FOR BOB-26: Gate 3's three declared doors (activation's code
   -- request and check, the password sign-in) join the certificate's and the
   -- card's: 5 surfaces, 10 addresses, each registered in public_surface_registry
-  if (v_lint ->> 'anon_public_surface')::int <> 5 then
-    ok := false; detail := detail || format('anon_public_surface is %s, expected 5; ', v_lint ->> 'anon_public_surface');
+  -- RESTATED FOR BOB-27 (Gate 4): «Lupa password?»'s three declared doors (the recovery code request and check, the
+  -- new password) join: 8 surfaces, 16 addresses, each registered in public_surface_registry
+  if (v_lint ->> 'anon_public_surface')::int <> 8 then
+    ok := false; detail := detail || format('anon_public_surface is %s, expected 8; ', v_lint ->> 'anon_public_surface');
   end if;
-  if (v_lint ->> 'anon_reachable_http_paths')::int <> 10 then
-    ok := false; detail := detail || format('anon_reachable_http_paths is %s, expected 10; ', v_lint ->> 'anon_reachable_http_paths');
+  if (v_lint ->> 'anon_reachable_http_paths')::int <> 16 then
+    ok := false; detail := detail || format('anon_reachable_http_paths is %s, expected 16; ', v_lint ->> 'anon_reachable_http_paths');
   end if;
   for r in select k from jsonb_object_keys(v_lint) k where k like '%\_ok' loop
     if (v_lint ->> r) <> 'true' then

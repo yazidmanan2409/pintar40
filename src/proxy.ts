@@ -19,10 +19,12 @@ import { NextResponse, type NextRequest } from "next/server";
  * BOB-26 (Gate 3): "Aktifkan akun PINTAR Anda" starts signed out, so
  * /aktifkan is public, and so are its two doors and the password sign-in's,
  * each POST-only and rewritten to its handler (next.config.ts), each declared
- * in public_surface_registry, as /masuk/kartu is.
+ * in public_surface_registry, as /masuk/kartu is. BOB-27 (Gate 4): the same
+ * for «Lupa password?» at /masuk/lupa and its three doors.
  */
 const PUBLIC_PATHS = new Set(["/", "/masuk", "/masuk/kartu", "/masuk/password", "/aktifkan", "/aktifkan/kode",
-                              "/aktifkan/periksa", "/auth/callback", "/keluar"]);
+                              "/aktifkan/periksa", "/masuk/lupa", "/masuk/lupa/kode", "/masuk/lupa/periksa",
+                              "/masuk/lupa/password", "/auth/callback", "/keluar"]);
 // INV-38: exactly one public certificate verification surface. Both entries
 // below ARE that one surface — the route a QR code points at, and the data
 // endpoint that route reads. `public_surface_registry` records the second as

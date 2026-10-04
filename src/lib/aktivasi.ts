@@ -65,6 +65,22 @@ export type AlatMintaKode = {
   catatGalat(ref: string, apa: string): void;
 };
 
+/**
+ * D-098(c): BEFORE ANY CODE REQUEST IS ANSWERED (activation, Gate 3; recovery, Gate 4), the two waits PINTAR
+ * already knows, asked BEFORE the lookup so neither can depend on whether the name has an account: PINTAR cannot
+ * send now (EMAIL_TUNGGU), or codes were asked for this name too often, counted on the keyed hash of what was
+ * typed (MINTA_KODE_TUNGGU). Null when the request may go ahead. Throws when either cannot be asked.
+ */
+export async function tungguSebelumMenjawab(
+  alat: Pick<AlatMintaKode, "jedaPengiriman" | "catatPermintaan">,
+  nama: string,
+): Promise<{ kode: "EMAIL_TUNGGU" | "MINTA_KODE_TUNGGU"; detik: number } | null> {
+  const kirim = await alat.jedaPengiriman();
+  if (kirim > 0) return { kode: "EMAIL_TUNGGU", detik: kirim };
+  const minta = await alat.catatPermintaan(kunciIdentitas("minta-kode", nama));
+  return minta > 0 ? { kode: "MINTA_KODE_TUNGGU", detik: minta } : null;
+}
+
 export async function mintaKode(
   masukan: { origin: boolean; email: unknown; ulang: unknown },
   alat: AlatMintaKode,
@@ -74,21 +90,16 @@ export async function mintaKode(
   if (!email || email.length > PANJANG_MAKS || !EMAIL.test(email)) {
     return gagal<KodeMintaKode, JawabanMintaKode>(STATUS_MINTA_KODE, "EMAIL_TIDAK_SAH");
   }
-  // D-098(c): WHAT PINTAR KNOWS BEFORE IT ANSWERS, IT SAYS, and the same for every address. If it cannot send
-  // now, or codes were asked for this address too often, nobody is told a code is coming and nothing is sent.
-  // Both are asked before the lookup, so neither can depend on whether the address has an account.
-  let tungguKirim: number;
-  let tungguMinta = 0;
+  // D-098(c): WHAT PINTAR KNOWS BEFORE IT ANSWERS, IT SAYS, and the same for every address (tungguSebelumMenjawab).
+  let tunggu: Awaited<ReturnType<typeof tungguSebelumMenjawab>>;
   try {
-    tungguKirim = await alat.jedaPengiriman();
-    if (tungguKirim <= 0) tungguMinta = await alat.catatPermintaan(kunciIdentitas("minta-kode", email));
+    tunggu = await tungguSebelumMenjawab(alat, email);
   } catch (e) {
     const ref = rujukan();
     alat.catatGalat(ref, `the sending state could not be asked: ${e instanceof Error ? e.message : "unknown"}`);
     return gagal<KodeMintaKode, JawabanMintaKode>(STATUS_MINTA_KODE, "LAYANAN_TIDAK_TERSEDIA", { ref });
   }
-  if (tungguKirim > 0) return gagal<KodeMintaKode, JawabanMintaKode>(STATUS_MINTA_KODE, "EMAIL_TUNGGU", { tunggu: tungguKirim });
-  if (tungguMinta > 0) return gagal<KodeMintaKode, JawabanMintaKode>(STATUS_MINTA_KODE, "MINTA_KODE_TUNGGU", { tunggu: tungguMinta });
+  if (tunggu) return gagal<KodeMintaKode, JawabanMintaKode>(STATUS_MINTA_KODE, tunggu.kode, { tunggu: tunggu.detik });
 
   let sasaran: Awaited<ReturnType<AlatMintaKode["sasaran"]>>;
   let jeda: number;

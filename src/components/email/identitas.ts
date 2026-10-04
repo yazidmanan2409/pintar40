@@ -21,9 +21,9 @@
  * (IDENTITY-4.0 §4). The card as a designed object is DAISY-24's; this email
  * carries its facts and the way to Akun saya, where the QR is.
  */
-import { format, t, type HleEvent } from "@/lib/hle";
+import { format, t, TIMEZONE, type HleEvent } from "@/lib/hle";
 import type { Templat } from "@/lib/email/templat";
-import type { DataEmailKartu, DataEmailKode } from "@/lib/email/identitas";
+import type { DataEmailKartu, DataEmailKode, DataEmailPasswordDiubah } from "@/lib/email/identitas";
 import { tampilPintarId } from "@/lib/aktivasi-kontrak";
 import { bingkaiEmail, kata, type Blok } from "./bingkai";
 
@@ -70,6 +70,55 @@ export const templatKartu: Templat<DataEmailKartu> = (data, konteks) => {
         { jenis: "tombol", teks: kata("email.kartu.tombol"), href: data.tautanAkun, cadangan: true },
       ],
       alasan: kata("email.kartu.alasan"),
+    },
+    konteks,
+  );
+};
+
+/**
+ * PEMULIHAN_PASSWORD (BOB-27): the recovery code. The same frame and the same
+ * code block as activation's; it says the real duration from its data.
+ */
+export const templatPemulihan: Templat<DataEmailKode> = (data, konteks) => {
+  const nama = data.nama.trim();
+  return bingkaiEmail(
+    {
+      subjek: kata("email.pulih.subjek"),
+      pratinjau: kata("email.pulih.pratinjau"),
+      judul: kata("email.pulih.judul"),
+      isi: [
+        ...(nama ? [{ jenis: "paragraf" as const, teks: `${kata("email.kode.halo")} ${nama}.` }] : []),
+        { jenis: "paragraf", teks: kata("email.pulih.isi") },
+        { jenis: "kode", label: kata("email.pulih.label"), kode: data.kode },
+        { jenis: "paragraf", teks: `${kata("email.kode.berlaku")} ${format.durasi(data.berlakuMenit * 60, "id")}${kata("email.kode.berlaku_lalu")}` },
+        { jenis: "catatan", nada: "perhatian", teks: kata("email.pulih.bukan_anda") },
+      ],
+      alasan: kata("email.pulih.alasan"),
+    },
+    konteks,
+  );
+};
+
+/** PASSWORD_DIUBAH (BOB-27, D-055(f)): the password changed, when, and every session ended. */
+export const templatPasswordDiubah: Templat<DataEmailPasswordDiubah> = (data, konteks) => {
+  const nama = data.nama.trim();
+  const d = new Date(data.waktu);
+  const kapan = Number.isNaN(d.getTime()) ? data.waktu : new Intl.DateTimeFormat("id-ID", {
+    day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: TIMEZONE, timeZoneName: "short",
+  }).format(d);
+  return bingkaiEmail(
+    {
+      subjek: kata("email.diubah.subjek"),
+      pratinjau: kata("email.diubah.pratinjau"),
+      judul: kata("email.diubah.judul"),
+      isi: [
+        ...(nama ? [{ jenis: "paragraf" as const, teks: `${kata("email.kode.halo")} ${nama}.` }] : []),
+        { jenis: "paragraf", teks: `${kata("email.diubah.isi")} ${kapan}.` },
+        { jenis: "paragraf", teks: kata("email.diubah.sesi") },
+        { jenis: "catatan", nada: "perhatian", teks: kata("email.diubah.bukan_anda") },
+        { jenis: "tombol", teks: kata("email.diubah.tombol"), href: data.tautanLupa, cadangan: true },
+      ],
+      alasan: kata("email.diubah.alasan"),
     },
     konteks,
   );

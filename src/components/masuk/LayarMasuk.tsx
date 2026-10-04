@@ -6,7 +6,7 @@ import { useSiap } from "./siap";
 import { sendMagicLink, type HasilKirim } from "@/app/masuk/actions";
 import { kirimKartu, kalimatKartu, menunggu, type GagalKartu } from "./kartu";
 import { kirim as kirimRute, kalimat, menunggu as menungguRute, tujuanAman, type Gagal } from "@/components/aktifkan/jawaban";
-import { TAUTAN_MASUK_CADANGAN } from "@/components/aktifkan/kontrak";
+import { HALAMAN_PEMULIHAN, TAUTAN_MASUK_CADANGAN } from "@/components/aktifkan/kontrak";
 
 /**
  * THE SIGN-IN SCREEN'S TWELVE INTERACTIVE STATES (S1–S12 of the handoff).
@@ -449,13 +449,15 @@ export default function LayarMasuk({
         {layar.sibuk ? <><span className="pin-putar" aria-hidden="true" />{s("auth.card_checking")}</> : s("auth.pw_masuk")}
       </button>
 
-      {/* Until C14 the email link stays as the way in without a password;
-          Gate 4's recovery replaces it (DAISY-21). */}
-      {TAUTAN_MASUK_CADANGAN ? (
-        <p className="pin-rute">
+      {/* BOB-27 (Gate 4, C14): «Lupa password?» is the email recovery; the
+          email link stays only behind the switch, which is now off. */}
+      <p className="pin-rute">
+        {TAUTAN_MASUK_CADANGAN ? (
           <button type="button" className="pin-tautan" onClick={keTautan} disabled={!siap}>{s("auth.pw_lupa")}</button>
-        </p>
-      ) : null}
+        ) : (
+          <a className="pin-tautan" href={HALAMAN_PEMULIHAN}>{s("auth.pw_lupa")}</a>
+        )}
+      </p>
       <p className="pin-rute">
         {s("auth.aktifkan_tanya")}{" "}
         <a className="pin-tautan" href="/aktifkan">{s("auth.aktifkan_go")}</a>

@@ -41,14 +41,14 @@ import { Checks, type SelfTest } from "./lib";
 const SINK_API = "http://127.0.0.1:54324/api/v1";
 const tanpaKomentar = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
 
-function psql(sql: string): string {
+export function psql(sql: string): string {
   const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", sql, process.env.SUPABASE_DB_URL!], { encoding: "utf8" });
   if (r.status !== 0) throw new Error(`psql: ${(r.stderr || "").trim().split("\n").pop()}`);
   return r.stdout.trim();
 }
-const lit = (s: string) => `'${s.replace(/'/g, "''")}'`;
+export const lit = (s: string) => `'${s.replace(/'/g, "''")}'`;
 
-type PesanSink = { ID: string; To: Array<{ Address: string }>; Subject: string; Text: string; HTML: string };
+export type PesanSink = { ID: string; To: Array<{ Address: string }>; Subject: string; Text: string; HTML: string };
 async function sinkCari(alamat: string): Promise<PesanSink[]> {
   const r = await fetch(`${SINK_API}/search?query=${encodeURIComponent(`to:"${alamat}"`)}`);
   const d = (await r.json()) as { messages?: Array<{ ID: string }> };
@@ -56,7 +56,7 @@ async function sinkCari(alamat: string): Promise<PesanSink[]> {
   for (const m of d.messages ?? []) out.push((await (await fetch(`${SINK_API}/message/${m.ID}`)).json()) as PesanSink);
   return out;
 }
-async function sinkTunggu(alamat: string, n: number, ms = 8000): Promise<PesanSink[]> {
+export async function sinkTunggu(alamat: string, n: number, ms = 8000): Promise<PesanSink[]> {
   const batas = Date.now() + ms;
   let p: PesanSink[] = [];
   while (Date.now() < batas) {
@@ -66,10 +66,10 @@ async function sinkTunggu(alamat: string, n: number, ms = 8000): Promise<PesanSi
   }
   return p;
 }
-const kodeDari = (p: PesanSink | undefined) => /\b(\d{3}) ?(\d{3})\b/.exec(p?.Text ?? "")?.slice(1).join("") ?? "";
+export const kodeDari = (p: PesanSink | undefined) => /\b(\d{3}) ?(\d{3})\b/.exec(p?.Text ?? "")?.slice(1).join("") ?? "";
 
 /** A browser on PINTAR's own page: same origin, its own cookies, redirects not followed. */
-class Peramban {
+export class Peramban {
   kue = new Map<string, string>();
   constructor(readonly asal: string, readonly ip: string) {}
   async kirim(path: string, opsi: { form?: Record<string, string>; json?: unknown; method?: string } = {}): Promise<Response> {
@@ -93,7 +93,7 @@ class Peramban {
   }
 }
 
-const ipUji = () => `198.51.100.${1 + (randomBytes(1)[0] % 250)}`;
+export const ipUji = () => `198.51.100.${1 + (randomBytes(1)[0] % 250)}`;
 
 async function authMasuk(url: string, anon: string, email: string, password: string): Promise<string | null> {
   const r = await fetch(`${url}/auth/v1/token?grant_type=password`, {
@@ -102,7 +102,7 @@ async function authMasuk(url: string, anon: string, email: string, password: str
 }
 
 /** «Orang baru»: the platform admin registers a person (the real route), then a fixture EDUCATOR role. */
-async function daftar(asal: string, nama: string, email: string): Promise<string> {
+export async function daftar(asal: string, nama: string, email: string): Promise<string> {
   const admin = new Peramban(asal, ipUji());
   const m = await admin.jsonDari("/masuk/password", { form: { identitas: "uji.sysadmin", password: "Sintetis-Sys-91!" } });
   if (m.status !== 200) throw new Error(`the platform admin could not sign in by username (${m.status} ${JSON.stringify(m.body)})`);
@@ -121,7 +121,7 @@ async function daftar(asal: string, nama: string, email: string): Promise<string
     select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = ${lit(email)};`).split("\n").pop()!;
 }
 
-const sandiBagas = () => `Bagas-${randomBytes(6).toString("hex")}`;
+export const sandiBagas = () => `Bagas-${randomBytes(6).toString("hex")}`;
 
 export const bob26AppTests: SelfTest[] = [
   {

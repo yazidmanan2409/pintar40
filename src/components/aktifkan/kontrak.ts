@@ -11,12 +11,12 @@
  * The codes are the contract (D-011); the words are the screens' (D-014).
  */
 import {
-  STATUS_KARTU_AKUN, STATUS_MASUK_PASSWORD, STATUS_MINTA_KODE, STATUS_NAMA, STATUS_PASSWORD, STATUS_PIN,
-  STATUS_SELESAI, STATUS_USERNAME, STATUS_VERIFIKASI, STATUS_WIZARD,
+  STATUS_KARTU_AKUN, STATUS_LUPA_KODE, STATUS_LUPA_PASSWORD, STATUS_LUPA_PERIKSA, STATUS_MASUK_PASSWORD, STATUS_MINTA_KODE,
+  STATUS_NAMA, STATUS_PASSWORD, STATUS_PIN, STATUS_SELESAI, STATUS_USERNAME, STATUS_VERIFIKASI, STATUS_WIZARD,
 } from "@/lib/aktivasi-kontrak";
 
 export {
-  TAUTAN_MASUK_CADANGAN, HALAMAN_AKTIVASI, URUTAN_LANGKAH as LANGKAH,
+  TAUTAN_MASUK_CADANGAN, HALAMAN_AKTIVASI, HALAMAN_PEMULIHAN, URUTAN_LANGKAH as LANGKAH,
   type KeadaanAktivasi, type DataKartu, type PeranKartu,
   type LangkahAktivasi as Langkah, type StatusKartuEmail as StatusKartu,
 } from "@/lib/aktivasi-kontrak";
@@ -36,6 +36,10 @@ export const JALUR = {
   selesai: "/api/aktifkan/selesai",
   kartu: "/api/akun/kartu",
   kirimKartu: "/api/akun/kartu/kirim",
+  // BOB-27 (Gate 4): «Lupa password?», signed out, rewritten by next.config.ts
+  lupaKode: "/masuk/lupa/kode",
+  lupaPeriksa: "/masuk/lupa/periksa",
+  lupaPassword: "/masuk/lupa/password",
 } as const;
 
 /** Each route's own status table, the contract's, under the route's key. */
@@ -51,6 +55,9 @@ export const STATUS = {
   selesai: STATUS_SELESAI,
   kartu: STATUS_KARTU_AKUN,
   kirimKartu: STATUS_KARTU_AKUN,
+  lupaKode: STATUS_LUPA_KODE,
+  lupaPeriksa: STATUS_LUPA_PERIKSA,
+  lupaPassword: STATUS_LUPA_PASSWORD,
 } as const;
 export type Rute = keyof typeof STATUS;
 /** A route's own codes; distributes over a union of routes, so a sentence reader takes any. */

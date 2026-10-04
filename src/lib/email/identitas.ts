@@ -23,3 +23,12 @@ export type DataEmailKode = {
 
 /** KARTU_DIGITAL: the card's data (read at send time, D-059) and where Akun saya is. */
 export type DataEmailKartu = DataKartu & { tautanAkun: string };
+
+/** PASSWORD_DIUBAH (BOB-27, D-055(f)): the owner is told their password changed, when, and that every session ended. */
+export type DataEmailPasswordDiubah = {
+  nama: string;
+  /** when the password changed, ISO; the template says it in the school's time zone */
+  waktu: string;
+  /** where to start a recovery if it was not them */
+  tautanLupa: string;
+};
