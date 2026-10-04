@@ -1,5 +1,7 @@
-47 previews, 0 with a failure
+49 previews, 0 with a failure
 
+ok   Accent @960 (height 760px, card 760)
+ok   Accent @390 (height 1008px, card 760)
 ok   ActionFeedback @960 (height 1080px, card 1080)
       note, under 44px: button.pds-btn "Ulangi contoh" 119x36; button.pds-btn "Ulangi contoh" 119x36
 ok   ActionFeedback @390 (height 1426px, card 1080)
@@ -32,7 +34,7 @@ ok   AppShell [klik-tempat] @1328 (height 1000px, card 1000)
 ok   Badge @960 (height 480px, card 480)
 ok   Badge @390 (height 551px, card 480)
 ok   Breadcrumb @960 (height 200px, card 200)
-ok   Breadcrumb @390 (height 224px, card 200)
+ok   Breadcrumb @390 (height 228px, card 200)
 ok   Button @960 (height 792px, card 780)
       note, under 44px: button.pds-btn "Tambah kolom" 148x36
 ok   Button @390 (height 984px, card 780)
@@ -113,8 +115,12 @@ ok   SegmentedControl @960 (height 300px, card 300)
 ok   SegmentedControl @390 (height 334px, card 300)
 ok   Select @960 (height 300px, card 300)
 ok   Select @390 (height 352px, card 300)
+ok   Specimen @960 (height 1480px, card 1480)
+      note, under 44px: button.pds-btn "Tambah kolom" 148x36
+ok   Specimen @390 (height 2970px, card 1480)
+      note, under 44px: button.pds-btn "Tambah kolom" 148x36
 ok   Switch @960 (height 260px, card 260)
-ok   Switch @390 (height 260px, card 260)
+ok   Switch @390 (height 304px, card 260)
 ok   Table @1040 (height 780px, card 780)
       note, under 44px: a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36
 ok   Table @390 (height 857px, card 780)

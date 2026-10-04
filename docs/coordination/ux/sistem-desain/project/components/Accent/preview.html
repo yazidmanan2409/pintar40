@@ -1,0 +1,51 @@
+<!-- @dsCard group="Foundations" height=760 subtitle="Accent only where it says context, hierarchy, state or attention" -->
+<style>
+  .pds-konteks { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); min-height: var(--control-md); padding: var(--space-2) var(--space-4); background: var(--context); color: var(--context-ink); border-radius: var(--radius-md); font-size: 14px; line-height: 20px; }
+  .pds-konteks strong { font-weight: 600; letter-spacing: 0.04em; }
+  .pds-konteks a { color: var(--context-ink); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; display: inline-flex; align-items: center; min-height: var(--control-md); }
+  .pds-konteks a:focus-visible { outline: var(--border-focus) solid var(--context-ink); outline-offset: 2px; }
+  .pds-konteks-kanan { margin-left: auto; display: flex; gap: var(--space-4); flex-wrap: wrap; }
+  .pds-batang-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); max-width: 560px; }
+  .pds-batang-daftar li { display: grid; grid-template-columns: 9ch minmax(0, 1fr) 7ch; gap: var(--space-3); align-items: center; font-size: 14px; line-height: 20px; color: var(--ink-2); }
+  .pds-batang-daftar .jalur { height: 12px; border-radius: var(--radius-pill); background: var(--surface-2); overflow: hidden; }
+  .pds-batang-daftar .isi { display: block; height: 100%; background: var(--ink-3); border-radius: var(--radius-pill); }
+  .pds-batang-daftar .fokus { color: var(--ink-1); font-weight: 600; }
+  .pds-batang-daftar .fokus .isi { background: var(--pintar-primary); }
+  .pds-batang-daftar .angka { text-align: right; font-variant-numeric: tabular-nums; }
+  .pds-peta-warna { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: var(--space-3); }
+  .pds-peta-warna div { display: grid; gap: var(--space-1); font-size: 14px; line-height: 20px; color: var(--ink-2); }
+  .pds-peta-warna i { display: block; height: 32px; border-radius: var(--radius-md); }
+  .pds-peta-warna b { color: var(--ink-1); font-weight: 600; }
+</style>
+<div class="pds">
+  <section class="pds-stack" aria-labelledby="ac-konteks">
+    <h2 id="ac-konteks" class="pds-demo-label">Context: a mode that changes what the screen means (proposed, question 12)</h2>
+    <div class="pds-konteks" role="region" aria-label="Mode peragaan">
+      <span><strong>MODE PERAGAAN</strong> · Sedang melihat sebagai: <strong>Guru</strong></span>
+      <span class="pds-konteks-kanan"><a href="#ac-konteks">Ganti sudut pandang</a><a href="#ac-konteks">Keluar dari peragaan</a></span>
+    </div>
+    <p class="pds-demo-catatan">Words: evaluasi.mode, evaluasi.sebagai, evaluasi.ganti, evaluasi.keluar (real); «Guru» is sample. Today this band is <code>surface-2</code>, easy to miss on a page that is also <code>surface-2</code> in places. In deep ink it can't be missed, and it looks like neither a status nor an action.</p>
+  </section>
+  <section class="pds-stack" aria-labelledby="ac-hirarki">
+    <h2 id="ac-hirarki" class="pds-demo-label">Hierarchy: the one value the page is about</h2>
+    <ul class="pds-batang-daftar" aria-label="Murid yang sudah mulai, per minggu (contoh)">
+      <li><span>Minggu 1</span><span class="jalur"><span class="isi" style="width: 35%"></span></span><span class="angka">11 dari 31</span></li>
+      <li><span>Minggu 2</span><span class="jalur"><span class="isi" style="width: 58%"></span></span><span class="angka">18 dari 31</span></li>
+      <li class="fokus"><span>Minggu ini</span><span class="jalur"><span class="isi" style="width: 77%"></span></span><span class="angka">24 dari 31</span></li>
+    </ul>
+    <p class="pds-demo-catatan">Sample figures. The others are in <code>ink-3</code>; the one the page is about is in <code>pintar-primary</code> and set in bold. Each figure has its base. No red-to-green scale.</p>
+  </section>
+  <section class="pds-stack" aria-labelledby="ac-peta">
+    <h2 id="ac-peta" class="pds-demo-label">Every hue already carries a meaning</h2>
+    <div class="pds-peta-warna">
+      <div><i style="background: var(--pintar-primary)"></i><b>PINTAR green</b>Identity, the action, the selection</div>
+      <div><i style="background: var(--status-ok)"></i><b>Success</b>Only with ✓ and a word</div>
+      <div><i style="background: var(--status-attention)"></i><b>Attention</b>Needs a look</div>
+      <div><i style="background: var(--status-blocked)"></i><b>Did not happen</b>A failure or a refusal</div>
+      <div><i style="background: var(--status-info)"></i><b>Information</b>Neutral news</div>
+      <div><i style="background: var(--context)"></i><b>Context (proposed)</b>A mode, in deep ink</div>
+    </div>
+    <p class="pds-demo-catatan">Not shown, and never interface colours: the card and certificate families (plum, the greens, teal) and the warm gold line. A new hue would sit beside one of these meanings, so none is proposed until a use needs one (question 12).</p>
+  </section>
+</div>
+<script>Pintar.siapkan();</script>

@@ -244,6 +244,9 @@ body {
   min-height: var(--control-md);
 }
 .pds-switch-row .pds-switch-kata { font-size: 14px; line-height: 20px; color: var(--ink-2); min-width: 8ch; text-align: right; }
+.pds-switch-row { flex-wrap: wrap; }
+.pds-switch-row > :first-child { flex: 1 1 18ch; min-width: 0; }
+.pds-switch-row > .pds-row-tight { flex: none; flex-wrap: nowrap; margin-left: auto; }
 .pds-switch {
   /* The button is the 44px target; the 44 x 24 track and the thumb are drawn inside it. */
   position: relative; flex: none; width: 52px; height: var(--control-md); padding: 0;
@@ -324,7 +327,7 @@ body {
 .pds-seg {
   /* Each segment is a full 44px target. The selected pill is drawn inset (a 3px
      border in the track's colour), so the whole height still answers a tap. */
-  display: inline-flex; max-width: 100%; min-width: 0; overflow-x: auto;
+  display: inline-flex; max-width: 100%; min-width: 0; overflow-x: auto; justify-self: start;
   background: var(--surface-2); border-radius: var(--radius-md);
 }
 .pds-seg label { position: relative; display: block; flex: none; }
@@ -336,9 +339,13 @@ body {
   font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-2); white-space: nowrap;
   transition: background-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
 }
-.pds-seg label:hover span { color: var(--ink-1); }
-.pds-seg input:checked + span { background-color: var(--surface-1); box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--ink-1); }
-.pds-seg input:focus-visible + span { outline: var(--border-focus) solid var(--focus-ring); outline-offset: -1px; }
+.pds-seg label:hover input:not(:checked) + span { color: var(--ink-1); background-color: var(--surface-3); }
+/* Selected is filled, as v2's .pin-seg and the language switch are: the state reads at 3:1 or
+   better against the track (WCAG 1.4.11), not by a hairline. The ring sits on the segment's edge,
+   3px clear of the fill, so it shows on the green too. */
+.pds-seg input:checked + span { background-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pds-seg input:focus-visible + span { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 0; }
+.pds-seg input:checked + span :is(.pds-ink-3, .pds-num) { color: inherit; }
 .pds-seg-sm span { min-height: 36px; padding: 0 var(--space-3); }
 
 /* ──────────────────────────────────────────────────────────── badges */
@@ -358,13 +365,13 @@ body {
 
 .pds-tag {
   display: inline-flex; align-items: center; gap: var(--space-1);
-  min-height: 28px; padding: 0 var(--space-2); border-radius: var(--radius-sm);
-  border: var(--border-hairline) solid var(--line); background: var(--surface-1);
+  min-height: 28px; padding: 0 var(--space-3); border-radius: var(--radius-pill);
+  border: var(--border-hairline) solid var(--line-strong); background: var(--surface-1);
   font-size: 14px; line-height: 20px; color: var(--ink-2); white-space: nowrap;
 }
 .pds-tag button {
   display: grid; place-items: center; width: 24px; height: 24px; margin-right: -6px; padding: 0;
-  border: 0; background: transparent; color: var(--ink-2); border-radius: var(--radius-sm); cursor: pointer;
+  border: 0; background: transparent; color: var(--ink-2); border-radius: var(--radius-pill); cursor: pointer;
 }
 .pds-tag button:hover { background: var(--surface-2); color: var(--ink-1); }
 .pds-tag button .pds-ikon { width: var(--icon-sm); height: var(--icon-sm); }
@@ -451,13 +458,21 @@ th.pds-angka .pds-sort { flex-direction: row-reverse; }
 .pds-pager-posisi { font-variant-numeric: tabular-nums; color: var(--ink-1); font-weight: 600; white-space: nowrap; padding: 0 var(--space-2); }
 .pds-pager-nomor { display: flex; gap: var(--space-1); align-items: center; }
 .pds-pager-nomor .pds-btn { min-width: var(--control-md); padding: 0 var(--space-2); font-variant-numeric: tabular-nums; }
-.pds-pager-nomor [aria-current="page"] { background: var(--pintar-primary-soft); color: var(--pintar-primary); }
+.pds-pager-nomor [aria-current="page"], .pds-pager-nomor [aria-current="page"]:hover { background: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pds-pager-lompat { display: inline-flex; align-items: center; gap: var(--space-2); white-space: nowrap; }
+.pds-pager-lompat .pds-select select { min-width: 76px; font-variant-numeric: tabular-nums; }
+.pds-pager-dari { font-variant-numeric: tabular-nums; }
 .pds-pager-elipsis { min-width: var(--control-md); text-align: center; color: var(--ink-3); }
 .pds-pager-kecil { display: none; }
 @container (max-width: 639px) {
   .pds-pager-nomor { display: none; }
   .pds-pager-kecil { display: inline; }
   .pds-pager .pds-btn-teks { display: none; }
+  /* On a phone the page list becomes ‹ [2 ▾] dari 12 ›: the select is the page list. */
+  .pds-pager-gerak:has(.pds-pager-lompat) [data-sebelum] { order: 0; }
+  .pds-pager-gerak .pds-pager-lompat { order: 1; }
+  .pds-pager-gerak:has(.pds-pager-lompat) [data-sesudah] { order: 2; }
+  .pds-pager-lompat-kata { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
 
 /* ────────────────────────────────────────── alerts and result lines */
@@ -567,7 +582,8 @@ a.pds-card:hover { border-color: var(--line-control); }
 }
 a.pds-list-row:hover, .pds-list-row.is-hover { background: var(--surface-2); }
 a.pds-list-row:active, .pds-list-row.is-pressed { background: var(--surface-3); }
-:is(.pds-nav-item, .pds-tab, .pds-list-row, .pds-seg span).is-focus { outline: var(--border-focus) solid var(--focus-ring); outline-offset: -2px; }
+:is(.pds-nav-item, .pds-tab, .pds-list-row).is-focus { outline: var(--border-focus) solid var(--focus-ring); outline-offset: -2px; }
+.pds-seg span.is-focus { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 0; }
 .pds-back { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control-md); color: var(--pintar-primary); font-weight: 600; text-decoration: none; border-radius: var(--radius-sm); }
 .pds-back:hover { text-decoration: underline; text-underline-offset: 3px; }
 .pds-list-row strong { font-weight: 600; }
@@ -684,7 +700,8 @@ a.pds-list-row:active, .pds-list-row.is-pressed { background: var(--surface-3); 
 .pds-pagehead .pds-actions { justify-content: flex-end; }
 .pds-scope { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); align-items: center; list-style: none; padding: 0; font-size: 14px; line-height: 20px; color: var(--ink-3); }
 .pds-scope li { display: inline-flex; align-items: center; gap: var(--space-2); }
-.pds-scope li + li::before { content: "/"; color: var(--line-control); }
+/* The separator ends a line rather than starting one, as the middle dot binds to the word before it. */
+.pds-scope li:not(:last-child)::after { content: "/"; color: var(--line-control); }
 .pds-scope a { display: inline-flex; align-items: center; min-height: 24px; color: var(--ink-2); text-decoration: none; border-radius: 2px; }
 .pds-scope a:hover { color: var(--ink-1); text-decoration: underline; text-underline-offset: 3px; }
 .pds-scope [aria-current="page"] { color: var(--ink-1); }
@@ -850,6 +867,7 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
   background: var(--surface-2);
 }
 .pds-demo-kontrol .pds-demo-label { margin-right: var(--space-1); }
+.pds-demo-kontrol .pds-seg input:checked + span { background-color: var(--surface-1); color: var(--ink-1); box-shadow: inset 0 0 0 1px var(--line-strong); }
 .pds-demo-gulir { overflow-x: auto; max-width: 100%; border-radius: var(--radius-md); }
 .pds-demo-catatan { font-size: 14px; line-height: 20px; color: var(--ink-3); max-width: var(--measure-prose); }
 .pds-demo-garis { display: grid; gap: var(--space-2); }

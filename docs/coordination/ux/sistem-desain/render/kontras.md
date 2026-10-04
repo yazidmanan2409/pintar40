@@ -18,7 +18,9 @@
 | Link, quiet button | `pintar-primary` | `surface-0` | 7.08:1 | 4.5:1 | pass |
 | Link, quiet button | `pintar-primary` | `surface-1` | 7.39:1 | 4.5:1 | pass |
 | Link on hover ground | `pintar-primary` | `surface-2` | 6.54:1 | 4.5:1 | pass |
-| Current page number | `pintar-primary` | `pintar-primary-soft` | 6.27:1 | 4.5:1 | pass |
+| Selected segment, current page | `pintar-primary-ink` | `pintar-primary` | 7.39:1 | 4.5:1 | pass |
+| Selected segment on its track (non-text) | `pintar-primary` | `surface-2` | 6.54:1 | 3:1 | pass |
+| Context band (question 12) | `context-ink` | `context` | 14.00:1 | 4.5:1 | pass |
 | Primary button | `pintar-primary-ink` | `pintar-primary` | 7.39:1 | 4.5:1 | pass |
 | Primary, hover | `pintar-primary-ink` | `pintar-primary-hover` | 9.03:1 | 4.5:1 | pass |
 | Primary, pressed | `pintar-primary-ink` | `pintar-primary-pressed` | 10.85:1 | 4.5:1 | pass |

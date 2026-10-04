@@ -21,8 +21,10 @@
         <span class="pds-pager-gerak">
           <button type="button" class="pds-btn pds-btn-icon" data-sebelum aria-label="Halaman sebelumnya"><i data-ikon="chevron-left"></i></button>
           <span class="pds-pager-nomor"></span>
-          <span class="pds-pager-posisi pds-pager-kecil" data-kecil></span>
           <button type="button" class="pds-btn pds-btn-icon" data-sesudah aria-label="Halaman berikutnya"><i data-ikon="chevron-right"></i></button>
+          <label class="pds-pager-lompat"><span class="pds-pager-lompat-kata">Ke halaman</span>
+            <span class="pds-select"><select class="pds-input" data-lompat></select><i data-ikon="chevron-down"></i></span>
+            <span class="pds-pager-dari" data-dari></span></label>
         </span>
       </nav>
     </div>
@@ -44,6 +46,12 @@
       n.querySelector("[data-ringkas]").textContent = "Menampilkan " + awal + "–" + akhir + " dari " + total;
       var pos = n.querySelector("[data-posisi]"); if (pos) pos.textContent = "Halaman " + kini + " dari " + hal;
       var kecil = n.querySelector("[data-kecil]"); if (kecil) kecil.textContent = kini + " / " + hal;
+      var lompat = n.querySelector("[data-lompat]");
+      if (lompat) {
+        if (!lompat.options.length) for (var j = 1; j <= hal; j++) lompat.add(new Option(String(j), String(j)));
+        lompat.value = String(kini);
+        n.querySelector("[data-dari]").textContent = "dari " + hal;
+      }
       n.querySelector("[data-sebelum]").disabled = kini <= 1;
       n.querySelector("[data-sesudah]").disabled = kini >= hal;
       var nomor = n.querySelector(".pds-pager-nomor");
@@ -53,6 +61,8 @@
         nomor.innerHTML = h.map(function (x) { return x === "…" ? '<span class="pds-pager-elipsis" aria-hidden="true">…</span>' : '<button type="button" class="pds-btn pds-btn-quiet" data-ke="' + x + '" aria-label="Halaman ' + x + '"' + (x === kini ? ' aria-current="page"' : "") + ">" + x + "</button>"; }).join("");
       }
     }
+    var pilih = n.querySelector("[data-lompat]");
+    if (pilih) pilih.addEventListener("change", function () { kini = Number(pilih.value); gambar(); });
     n.addEventListener("click", function (e) {
       var b = e.target.closest("button"); if (!b || b.disabled) return;
       if (b.hasAttribute("data-sebelum")) kini--; else if (b.hasAttribute("data-sesudah")) kini++; else if (b.getAttribute("data-ke")) kini = Number(b.getAttribute("data-ke"));

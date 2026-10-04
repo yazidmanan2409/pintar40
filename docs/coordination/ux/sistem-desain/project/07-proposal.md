@@ -37,6 +37,7 @@ Token set v3 evolves token set v2 (`src/app/globals.css`); it does not replace i
 | Lucide icons, about 40 (ISC) | PINTAR has no icon set; the rail and icon-only buttons need one. |
 | A skip link | Spec §13 records its absence. |
 | The identity screens of Gates 3 to 6 | One look for activation, the code, password rules, recovery, the PIN, the lock, the device question and the idle warning. |
+| `context`, `context-ink` (question 12) | The accent role without a new hue: one deep-ink band for a mode that changes what the screen means. |
 
 ## What becomes one
 
@@ -75,11 +76,27 @@ The full class-by-class map is in «Migration map».
 4. **The type ladder.** Some sizes move by 1 or 2 px (13 → 14, 17 and 20 → 18, 24 → 22). Agree to the eight sizes?
 5. **Shadows on floating layers only**, small, with no blur filter: an exception to "no elevation". Or keep layers flat, with a hairline and the scrim only?
 6. **One kind of dialog:** a short destructive question asked from a menu, such as «Keluar dari semua perangkat?». The in-page confirmation stays the default. Agree?
-7. **A 4 px radius** for checkboxes and tags, replacing today's literal 6 px: a fourth radius beside 8, 12 and pill. Agree, or fold them into 8?
+7. **A 4 px radius** for checkboxes (and skeleton blocks), replacing today's literal 6 px: a fourth radius beside 8, 12 and pill. *Narrowed after the 4 Oct references:* tags are now pills like badges, so 4 px is only the small square of a checkbox, drawn as the references draw theirs. Agree, or fold it into 8?
 8. **Motion.** v2 rules colour and opacity at 160 ms, and that stays the default. Do you want any of: a faster 120 ms for hover, a 240 ms for layers entering, 8 px of travel for an entering layer, a chevron that turns? All off under reduced motion.
 9. **Lucide as PINTAR's one icon source,** about 40 icons copied into the product (ISC licence). Agree?
 10. **WCAG 2.2 AA** as PINTAR's named accessibility standard (spec §18(9)), with the skip link. Agree?
 11. **The menu.** The staff navigation lists today's places only; grouping appears only for an educator who also learns («Mengajar», «Belajar»). Any change to order or grouping before the application pass?
+12. **Accent colour** (new, from your 4 Oct note). An accent where it earns its place, filled without a new hue:
+    - state and attention: the status colours, with words;
+    - hierarchy: PINTAR green (the action, the selection, the one value a chart is about);
+    - context: a deep-ink `context` band for a mode that changes what the screen means (MODE PERAGAAN, a preview of a learner's screen).
+    Every free hue sits beside a status colour or a card and certificate colour, so none is proposed. Agree to the context band, and to no new hue until a use needs one?
+13. **Button and field shape** (new, from the references). Three of the four references use pill buttons, and the sheet uses pill fields. The proposal keeps v2's 8 px corners for buttons and fields: Indonesian labels wrap to two lines at 320 px, where a pill reads as a blob, and a button beside a field shares its corners. Pills stay for every small label and for the switch. Keep 8 px, or move buttons to pills?
+
+## The visual references of 4 Oct
+
+Four references arrived after `f76542b`. «Visual references» compares them against this proposal:
+
+- what they confirmed;
+- what changed: the filled selection, pagination, pill tags, the accent role and the Specimen sheet;
+- what was deliberately not copied, and why.
+
+Questions 7, 12 and 13 come from them; the rest stand.
 
 ## Where the playground lives
 

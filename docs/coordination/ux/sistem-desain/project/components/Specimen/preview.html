@@ -1,0 +1,165 @@
+<!-- @dsCard group="Foundations" height=1480 subtitle="Every family together: does this feel like PINTAR?" -->
+<style>
+  .pds-sekilas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
+  .pds-sekilas > section { background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); padding: var(--space-5); display: grid; gap: var(--space-4); align-content: start; min-width: 0; }
+  .pds-sekilas > .lebar { grid-column: span 2; }
+  .pds-sekilas > .penuh { grid-column: 1 / -1; }
+  @media (max-width: 899px) { .pds-sekilas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 639px) { .pds-sekilas { grid-template-columns: minmax(0, 1fr); } .pds-sekilas > .lebar { grid-column: auto; } }
+</style>
+<div class="pds">
+  <div class="pds-sekilas">
+    <section class="lebar" aria-labelledby="sk-tombol">
+      <h2 id="sk-tombol" class="pds-demo-label">Buttons</h2>
+      <div class="pds-row">
+        <button type="button" class="pds-btn pds-btn-primary">Terbitkan Bab 4</button>
+        <button type="button" class="pds-btn pds-btn-secondary">Pratinjau</button>
+        <button type="button" class="pds-btn pds-btn-quiet">Batal</button>
+      </div>
+      <div class="pds-row">
+        <button type="button" class="pds-btn pds-btn-destructive">Keluarkan dari kelas</button>
+        <button type="button" class="pds-btn pds-btn-secondary pds-btn-sm"><i data-ikon="plus"></i>Tambah kolom</button>
+        <button type="button" class="pds-btn pds-btn-icon" aria-label="Tindakan lain" data-tip="Tindakan lain"><i data-ikon="ellipsis"></i></button>
+      </div>
+      <div class="pds-row">
+        <button type="button" class="pds-btn pds-btn-primary" aria-busy="true" aria-disabled="true"><span class="pds-dot" aria-hidden="true"></span>Menyimpan…</button>
+        <button type="button" class="pds-btn pds-btn-primary" data-keadaan="selesai" aria-disabled="true"><i data-ikon="check"></i>Tersimpan</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="sk-label">
+      <h2 id="sk-label" class="pds-demo-label">Badges and tags</h2>
+      <div class="pds-row-tight">
+        <span class="pds-badge">Belum mulai</span>
+        <span class="pds-badge pds-badge-info">Sedang belajar</span>
+        <span class="pds-badge pds-badge-ok"><i data-ikon="check"></i>Selesai</span>
+        <span class="pds-badge pds-badge-attention">Perlu dilihat</span>
+      </div>
+      <div class="pds-row-tight">
+        <span class="pds-tag">Matematika</span>
+        <span class="pds-tag">SD · Kelas 5</span>
+        <span class="pds-tag">Status: Belum mulai<button type="button" aria-label="Hapus saringan Status: Belum mulai"><i data-ikon="x"></i></button></span>
+      </div>
+    </section>
+
+    <section aria-labelledby="sk-lokasi">
+      <h2 id="sk-lokasi" class="pds-demo-label">Scope line</h2>
+      <ol class="pds-scope" aria-label="Lokasi">
+        <li><a href="#">Pimpinan</a></li>
+        <li><a href="#">SDN Kaliandra 1</a></li>
+        <li><span aria-current="page">Kelas 5A</span></li>
+      </ol>
+      <h2 id="sk-hasil" class="pds-demo-label">Result at the action</h2>
+      <p class="pds-result pds-result-ok" role="status"><i data-ikon="check"></i><span>Bab 3 tersedia untuk 31 murid Kelas 5A mulai sekarang.</span></p>
+    </section>
+
+    <section class="lebar" aria-labelledby="sk-buka">
+      <h2 id="sk-buka" class="pds-demo-label">Disclosure</h2>
+      <div>
+        <details class="pds-disclosure" open>
+          <summary><span>Kelas 5A<small>24 dari 31 sudah mengerjakan Uji Cepat Bab 2</small></span><i data-ikon="chevron-down"></i></summary>
+          <div><p>Tujuan 1, membandingkan pecahan: 24 dari 31 murid menunjukkan penguasaan. Tujuan 2 belum cukup untuk disimpulkan.</p></div>
+        </details>
+        <details class="pds-disclosure">
+          <summary><span>Kelas 5B<small>Belum ada hasil: Uji Cepat dibuka Jumat</small></span><i data-ikon="chevron-down"></i></summary>
+          <div><p>Hasil muncul setelah sedikitnya 5 murid mengerjakan.</p></div>
+        </details>
+      </div>
+    </section>
+
+    <section aria-labelledby="sk-centang">
+      <h2 id="sk-centang" class="pds-demo-label">Checkboxes</h2>
+      <fieldset class="pds-fieldset">
+        <legend class="pds-sr">Terbitkan untuk kelas</legend>
+        <label class="pds-choice"><input type="checkbox" class="pds-check" checked><span>Kelas 5A</span></label>
+        <label class="pds-choice"><input type="checkbox" class="pds-check"><span>Kelas 5B</span></label>
+        <label class="pds-choice"><input type="checkbox" class="pds-check" disabled><span>Kelas 5C</span><small>Belum ada guru.</small></label>
+      </fieldset>
+    </section>
+
+    <section aria-labelledby="sk-pilih">
+      <h2 id="sk-pilih" class="pds-demo-label">Radios</h2>
+      <fieldset class="pds-fieldset">
+        <legend class="pds-sr">Cara masuk</legend>
+        <label class="pds-choice"><input type="radio" class="pds-radio" name="sk-cara" checked><span>Dengan email</span></label>
+        <label class="pds-choice"><input type="radio" class="pds-radio" name="sk-cara"><span>Dengan kartu kelas dan PIN</span></label>
+        <label class="pds-choice"><input type="radio" class="pds-radio" name="sk-cara" disabled><span>Dengan akun sekolah</span><small>Belum tersedia.</small></label>
+      </fieldset>
+    </section>
+
+    <section aria-labelledby="sk-saklar">
+      <h2 id="sk-saklar" class="pds-demo-label">Switch</h2>
+      <div class="pds-switch-row">
+        <div>
+          <p id="sk-petunjuk" class="pds-label">Tampilkan petunjuk</p>
+          <p class="pds-help" id="sk-petunjuk-arti">Berlaku mulai soal berikutnya.</p>
+        </div>
+        <span class="pds-row-tight">
+          <span class="pds-switch-kata" data-switch-kata aria-hidden="true"></span>
+          <span class="pds-switch-wrap"><button type="button" role="switch" class="pds-switch" aria-checked="true" aria-labelledby="sk-petunjuk" aria-describedby="sk-petunjuk-arti"></button></span>
+        </span>
+      </div>
+    </section>
+
+    <section aria-labelledby="sk-peringatan">
+      <h2 id="sk-peringatan" class="pds-demo-label">Alert</h2>
+      <div class="pds-alert pds-alert-attention" role="status">
+        <i data-ikon="triangle-alert"></i>
+        <h3>Kelas 5C belum punya guru</h3>
+        <p>Murid di kelas ini belum bisa mulai Bab 3 sampai ada guru yang ditetapkan.</p>
+      </div>
+    </section>
+
+    <section class="lebar" aria-labelledby="sk-isian">
+      <h2 id="sk-isian" class="pds-demo-label">Fields</h2>
+      <div class="pds-field">
+        <label class="pds-label" for="sk-cari">Cari murid</label>
+        <span class="pds-search">
+          <i data-ikon="search"></i>
+          <input id="sk-cari" class="pds-input" type="search" autocomplete="off" placeholder="Nama atau PINTAR ID">
+        </span>
+      </div>
+      <div class="pds-grid-2">
+        <div class="pds-field">
+          <label class="pds-label" for="sk-nama">Nama lengkap</label>
+          <input id="sk-nama" class="pds-input" autocomplete="off" value="Rina Kartika">
+        </div>
+        <div class="pds-field">
+          <label class="pds-label" for="sk-tingkat">Tingkat</label>
+          <span class="pds-select"><select id="sk-tingkat"><option>Kelas 4</option><option selected>Kelas 5</option><option>Kelas 6</option></select><i data-ikon="chevron-down"></i></span>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="penuh" aria-labelledby="sk-tab">
+      <h2 id="sk-tab" class="pds-demo-label">Tabs and the segmented control</h2>
+      <nav class="pds-tabs" aria-label="Kelas 5A">
+        <a href="#" class="pds-tab">Siapkan materi</a>
+        <a href="#" class="pds-tab">Uji Cepat</a>
+        <a href="#" class="pds-tab" aria-current="page">Bukti</a>
+        <a href="#" class="pds-tab">Langkah berikutnya</a>
+      </nav>
+      <div class="pds-seg" role="radiogroup" aria-label="Tampilkan">
+        <label><input type="radio" name="sk-tampil" checked><span>Semua</span></label>
+        <label><input type="radio" name="sk-tampil"><span>Perlu dilihat</span></label>
+        <label><input type="radio" name="sk-tampil"><span>Selesai</span></label>
+      </div>
+    </section>
+
+    <section class="penuh" aria-labelledby="sk-halaman">
+      <h2 id="sk-halaman" class="pds-demo-label">Pagination</h2>
+      <div class="pds-table-wrap">
+        <nav class="pds-pager" aria-label="Halaman daftar murid">
+          <span>Menampilkan 21–40 dari 312</span>
+          <span class="pds-pager-gerak">
+            <button type="button" class="pds-btn pds-btn-secondary"><i data-ikon="chevron-left"></i><span class="pds-btn-teks">Sebelumnya</span><span class="pds-sr">Halaman sebelumnya</span></button>
+            <span class="pds-pager-posisi">Halaman 2 dari 16</span>
+            <button type="button" class="pds-btn pds-btn-secondary"><span class="pds-btn-teks">Berikutnya</span><span class="pds-sr">Halaman berikutnya</span><i data-ikon="chevron-right"></i></button>
+          </span>
+        </nav>
+      </div>
+    </section>
+  </div>
+</div>
+<script>Pintar.siapkan();</script>
