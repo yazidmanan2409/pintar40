@@ -378,6 +378,8 @@ export const bob26Tests: SelfTest[] = [
       const alatKode = (ada: boolean) => ({
         sasaran: async () => (ada ? { authUserId: "00000000-0000-0000-0000-000000000001", nama: "X" } : null),
         jedaKirimUlang: async () => 60,
+        jedaPengiriman: async () => 0, // D-098(c): PINTAR can send; its own case is EMAILJUJUR-K01
+        catatPermintaan: async () => 0,
         kirim: async () => { throw new Error("the host refused"); },
         nanti: (k: () => Promise<void>) => { nanti.push(k); },
         catatGalat: () => {},

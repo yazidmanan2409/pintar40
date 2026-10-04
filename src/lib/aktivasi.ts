@@ -50,6 +50,14 @@ export type AlatMintaKode = {
   sasaran(email: string): Promise<{ authUserId: string; nama: string } | null>;
   /** email_resend_seconds */
   jedaKirimUlang(): Promise<number>;
+  /**
+   * D-098(c): email_sending_wait, seconds until PINTAR can send at all (0 = now): the GLOBAL limit or a
+   * recent refusal by the host, never anything about an address. Throws when it cannot be asked, or when
+   * the sending settings are missing (a code could never be sent).
+   */
+  jedaPengiriman(): Promise<number>;
+  /** D-098(c): code_request_pace on the keyed hash, seconds to wait (0 = counted, go ahead). Every address alike. */
+  catatPermintaan(kunci: string): Promise<number>;
   /** issue the code and send it; runs after the answer has gone. Never throws into the answer. */
   kirim(sasaran: { authUserId: string; nama: string }, ulang: boolean): Promise<void>;
   /** schedule work after the response (Next's after()); a test runs it inline */
@@ -66,6 +74,22 @@ export async function mintaKode(
   if (!email || email.length > PANJANG_MAKS || !EMAIL.test(email)) {
     return gagal<KodeMintaKode, JawabanMintaKode>(STATUS_MINTA_KODE, "EMAIL_TIDAK_SAH");
   }
+  // D-098(c): WHAT PINTAR KNOWS BEFORE IT ANSWERS, IT SAYS, and the same for every address. If it cannot send
+  // now, or codes were asked for this address too often, nobody is told a code is coming and nothing is sent.
+  // Both are asked before the lookup, so neither can depend on whether the address has an account.
+  let tungguKirim: number;
+  let tungguMinta = 0;
+  try {
+    tungguKirim = await alat.jedaPengiriman();
+    if (tungguKirim <= 0) tungguMinta = await alat.catatPermintaan(kunciIdentitas("minta-kode", email));
+  } catch (e) {
+    const ref = rujukan();
+    alat.catatGalat(ref, `the sending state could not be asked: ${e instanceof Error ? e.message : "unknown"}`);
+    return gagal<KodeMintaKode, JawabanMintaKode>(STATUS_MINTA_KODE, "LAYANAN_TIDAK_TERSEDIA", { ref });
+  }
+  if (tungguKirim > 0) return gagal<KodeMintaKode, JawabanMintaKode>(STATUS_MINTA_KODE, "EMAIL_TUNGGU", { tunggu: tungguKirim });
+  if (tungguMinta > 0) return gagal<KodeMintaKode, JawabanMintaKode>(STATUS_MINTA_KODE, "MINTA_KODE_TUNGGU", { tunggu: tungguMinta });
+
   let sasaran: Awaited<ReturnType<AlatMintaKode["sasaran"]>>;
   let jeda: number;
   try {
@@ -81,7 +105,9 @@ export async function mintaKode(
     alat.nanti(() => alat.kirim(s, ulang).catch((e) =>
       alat.catatGalat(rujukan(), `an activation code was not sent: ${e instanceof Error ? e.name : "unknown"}`)));
   }
-  // THE SAME ANSWER FOR EVERY ADDRESS: sent, not sent, refused by a limit, or nobody's.
+  // THE SAME ANSWER FOR EVERY ADDRESS: a code is being sent if the address is a REQUIRED account. Not "has
+  // been sent": the send runs after this answer, and what PINTAR learns of it (a refusal by the host) it tells
+  // everybody from then on, through email_sending_wait above.
   return { status: 200, body: { ok: true, kirimUlangDalam: jeda, berlakuMenit: PENGATURAN.berlakuMenit } };
 }
 

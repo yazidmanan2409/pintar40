@@ -5,6 +5,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import FormEmailUji from "@/components/email-uji/FormEmailUji";
+import RiwayatEmail from "@/components/email-uji/RiwayatEmail";
 import { NAMA_PENGATURAN_EMAIL } from "@/app/api/_email/pengaturan";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +17,8 @@ export const dynamic = "force-dynamic";
  * For the platform admin only: the page asks is_system_admin and shows anyone
  * else the one refusal page. The page decides nothing about the send; the route
  * (`POST /api/email/uji`, BOB-25, unchanged) asks again, applies the limits and
- * writes the send log.
+ * writes the send log. Under it, J1.9's answer to "what happened to this
+ * email?" (D-098(c)): the send log for one address or reference.
  */
 export default async function EmailUji() {
   const locale = await currentLocale();
@@ -40,6 +42,7 @@ export default async function EmailUji() {
           <p className="pin-intro">{s("emailuji.intro")}</p>
         </div>
         <FormEmailUji locale={locale} namaPengaturan={NAMA_PENGATURAN_EMAIL} />
+        <RiwayatEmail locale={locale} />
         <KakiPintar />
       </main>
     </>

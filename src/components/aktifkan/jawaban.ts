@@ -208,6 +208,9 @@ export function kalimat<R extends Rute>(g: Gagal<R>, s: S, locale: Locale): stri
   }
   if (kode === "KODE_TUNGGU") return `${s("aktifkan.kode_sering")} ${kalimatTunggu(g.tunggu, s, locale)}`;
   if (kode === "MASUK_TUNGGU") return `${s("auth.pw_sering")} ${kalimatTunggu(g.tunggu, s, locale)}`;
+  // D-098(c): no code was sent, and the person is told so, with the wait the route gave
+  if (kode === "MINTA_KODE_TUNGGU") return `${s("aktifkan.minta_sering")} ${kalimatTunggu(g.tunggu, s, locale)}`;
+  if (kode === "EMAIL_TUNGGU") return `${s("aktifkan.email_tertahan")} ${kalimatTunggu(g.tunggu, s, locale)}`;
   if (/DIBATASI$/.test(kode)) return `${s("aktifkan.ramai")} ${kalimatTunggu(g.tunggu, s, locale)}`;
   if (kode === "LAYANAN_TIDAK_TERSEDIA") {
     return g.ref

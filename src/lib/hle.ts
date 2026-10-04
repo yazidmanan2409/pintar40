@@ -1384,6 +1384,29 @@ export type HleEvent =
   | "sync.belum_terkirim"
   | "sync.sesi_ditutup"
   | "emailuji.ditolak"
+  | "emailuji.r.judul"
+  | "emailuji.r.intro"
+  | "emailuji.r.label"
+  | "emailuji.r.tombol"
+  | "emailuji.r.kode"
+  | "emailuji.r.isian"
+  | "emailuji.r.ditolak"
+  | "emailuji.r.gagal"
+  | "emailuji.r.kosong"
+  | "emailuji.r.jenis.KODE_AKTIVASI"
+  | "emailuji.r.jenis.KODE_ULANG"
+  | "emailuji.r.jenis.PEMULIHAN_PASSWORD"
+  | "emailuji.r.jenis.PASSWORD_DIUBAH"
+  | "emailuji.r.jenis.KARTU_DIGITAL"
+  | "emailuji.r.jenis.PEMBERITAHUAN_KEAMANAN"
+  | "emailuji.r.jenis.UJI_PENGIRIMAN"
+  | "emailuji.r.jenis.lain"
+  | "emailuji.r.hasil.PENDING"
+  | "emailuji.r.hasil.SENT"
+  | "emailuji.r.hasil.BATAS_ALAMAT"
+  | "emailuji.r.hasil.BATAS_UMUM"
+  | "emailuji.r.hasil.REFUSED_BY_HOST"
+  | "emailuji.r.hasil.FAILED"
   | "emailuji.eyebrow"
   | "emailuji.judul"
   | "emailuji.intro"
@@ -1481,6 +1504,8 @@ export type HleEvent =
   | "aktifkan.kode_salah"
   | "aktifkan.kode_sering"
   | "aktifkan.ramai"
+  | "aktifkan.minta_sering"
+  | "aktifkan.email_tertahan"
   | "aktifkan.tidak_tersedia"
   | "aktifkan.rujukan_arti"
   | "aktifkan.langkah"
@@ -3115,6 +3140,29 @@ const table: Table = {
   // F-01. The step after the intake: a provisioned person becomes someone
   // who can sign in. Plain words; the card PIN is shown once and said so.
   // BOB-51: «Kirim email uji», the platform admin's delivery proof (Daisy's words at the polish pass)
+  "emailuji.r.judul": { default: "Apa yang terjadi pada sebuah email?", en: "What happened to an email?" },
+  "emailuji.r.intro": { default: "Ketik alamat email atau rujukan sebuah pengiriman. PINTAR tidak menyimpan alamat email; ia mencocokkan sidik alamat yang Anda ketik dengan catatan pengirimannya.", en: "Type an email address or a send's reference. PINTAR does not keep email addresses; it matches a fingerprint of the address you type against its send log." },
+  "emailuji.r.label": { default: "Alamat email atau rujukan", en: "Email address or reference" },
+  "emailuji.r.tombol": { default: "Lihat riwayat", en: "Show the history" },
+  "emailuji.r.kode": { default: "kode", en: "code" },
+  "emailuji.r.isian": { default: "Tulis alamat email yang lengkap atau rujukan pengiriman yang lengkap.", en: "Enter a complete email address or a complete send reference." },
+  "emailuji.r.ditolak": { default: "Hanya admin platform yang dapat melihat riwayat email.", en: "Only the platform administrator can see the email history." },
+  "emailuji.r.gagal": { default: "Riwayat email tidak bisa dibaca sekarang. Coba lagi sebentar lagi.", en: "The email history can't be read right now. Try again in a moment." },
+  "emailuji.r.kosong": { default: "PINTAR belum pernah mencoba mengirim email ke alamat atau rujukan ini.", en: "PINTAR has never tried to send an email to this address or reference." },
+  "emailuji.r.jenis.KODE_AKTIVASI": { default: "Kode aktivasi", en: "Activation code" },
+  "emailuji.r.jenis.KODE_ULANG": { default: "Kode aktivasi, dikirim ulang", en: "Activation code, sent again" },
+  "emailuji.r.jenis.PEMULIHAN_PASSWORD": { default: "Kode pemulihan password", en: "Password recovery code" },
+  "emailuji.r.jenis.PASSWORD_DIUBAH": { default: "Email password diubah", en: "Password changed email" },
+  "emailuji.r.jenis.KARTU_DIGITAL": { default: "Kartu PINTAR", en: "PINTAR Card" },
+  "emailuji.r.jenis.PEMBERITAHUAN_KEAMANAN": { default: "Email keamanan akun", en: "Account security email" },
+  "emailuji.r.jenis.UJI_PENGIRIMAN": { default: "Email uji", en: "Test email" },
+  "emailuji.r.jenis.lain": { default: "Email", en: "Email" },
+  "emailuji.r.hasil.PENDING": { default: "Sedang dikirim", en: "Being sent" },
+  "emailuji.r.hasil.SENT": { default: "Diterima server email", en: "Accepted by the email server" },
+  "emailuji.r.hasil.BATAS_ALAMAT": { default: "Tidak dikirim: batas PINTAR untuk alamat ini", en: "Not sent: PINTAR's limit for this address" },
+  "emailuji.r.hasil.BATAS_UMUM": { default: "Tidak dikirim: batas pengiriman PINTAR per jam", en: "Not sent: PINTAR's hourly sending limit" },
+  "emailuji.r.hasil.REFUSED_BY_HOST": { default: "Ditolak server email", en: "Refused by the email server" },
+  "emailuji.r.hasil.FAILED": { default: "Tidak dikirim: server email tidak terjangkau", en: "Not sent: the email server could not be reached" },
   "emailuji.ditolak": { default: "Halaman ini hanya untuk admin platform.", en: "This page is for the platform administrator only." },
   "emailuji.eyebrow": { default: "Email", en: "Email" },
   "emailuji.judul": { default: "Kirim email uji", en: "Send a test email" },
@@ -3211,7 +3259,7 @@ const table: Table = {
   "aktifkan.sudah_aktif": { default: "Akun Anda sudah aktif?", en: "Is your account already active?" },
   "aktifkan.ke_masuk": { default: "Masuk ke PINTAR", en: "Sign in to PINTAR" },
   "aktifkan.kode_judul": { default: "Masukkan kode aktivasi", en: "Enter the activation code" },
-  "aktifkan.kode_terkirim": { default: "Jika alamat ini terdaftar dan akunnya belum aktif, kode aktivasi sudah dikirim ke sana. Buka email Anda, lalu ketik kodenya di sini.", en: "If this address is registered and its account is not active yet, an activation code has been sent to it. Open your email, then type the code here." },
+  "aktifkan.kode_terkirim": { default: "Jika alamat ini terdaftar dan akunnya belum aktif, PINTAR sedang mengirim kode aktivasi ke sana. Biasanya kode tiba dalam satu menit. Buka email Anda, lalu ketik kodenya di sini.", en: "If this address is registered and its account is not active yet, PINTAR is sending an activation code to it. It usually arrives within a minute. Open your email, then type the code here." },
   "aktifkan.berlaku": { default: "Kode berlaku selama", en: "The code is valid for" },
   "aktifkan.berlaku_lalu": { default: ".", en: "." },
   "aktifkan.kode_label": { default: "Kode aktivasi", en: "Activation code" },
@@ -3220,12 +3268,14 @@ const table: Table = {
   "aktifkan.kode_bantu": { default: "Belum ada email? Periksa folder Spam atau Promosi. Kode hanya dikirim ke alamat yang didaftarkan sekolah Anda, jadi pastikan alamatnya benar.", en: "No email yet? Check your Spam or Promotions folder. The code goes only to the address your school registered, so make sure the address is right." },
   "aktifkan.kirim_ulang": { default: "Kirim ulang kode", en: "Send the code again" },
   "aktifkan.kirim_ulang_dalam": { default: "Kode bisa dikirim ulang dalam", en: "You can ask again in" },
-  "aktifkan.kode_ulang_ok": { default: "Jika alamat ini terdaftar, kode baru sudah dikirim. Pakai kode dari email yang paling baru.", en: "If this address is registered, a new code has been sent. Use the code from the newest email." },
+  "aktifkan.kode_ulang_ok": { default: "Jika alamat ini terdaftar, PINTAR sedang mengirim kode baru. Pakai kode dari email yang paling baru.", en: "If this address is registered, PINTAR is sending a new code. Use the code from the newest email." },
   "aktifkan.email_lain": { default: "Gunakan email lain", en: "Use a different email" },
   "aktifkan.kode_kosong": { default: "Ketik kode dari email dulu.", en: "Type the code from the email first." },
   "aktifkan.kode_salah": { default: "Kode ini tidak cocok atau sudah tidak berlaku. Periksa kodenya, atau minta kode baru.", en: "This code doesn't match or is no longer valid. Check the code, or ask for a new one." },
   "aktifkan.kode_sering": { default: "Kode sudah terlalu sering dicoba untuk alamat ini.", en: "The code has been tried too many times for this address." },
   "aktifkan.ramai": { default: "Sedang banyak permintaan bersamaan.", en: "There are many requests at once." },
+  "aktifkan.minta_sering": { default: "Kode untuk alamat ini sudah terlalu sering diminta, jadi kode tidak dikirim.", en: "A code has been asked for this address too often, so no code was sent." },
+  "aktifkan.email_tertahan": { default: "PINTAR belum bisa mengirim email saat ini, jadi kode tidak dikirim.", en: "PINTAR can't send email right now, so no code was sent." },
   "aktifkan.tidak_tersedia": { default: "PINTAR sedang tidak dapat memproses ini. Coba lagi sebentar lagi.", en: "PINTAR can't handle this right now. Try again in a little while." },
   "aktifkan.rujukan_arti": { default: "Bila masih terjadi, sampaikan kode rujukan berikut kepada yang mengurus PINTAR di sekolah Anda.", en: "If it keeps happening, give the reference that follows to whoever looks after PINTAR at your school." },
   // DAISY-20: the wizard, signed in (username → password → PIN → name → the welcome).

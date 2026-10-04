@@ -1,9 +1,11 @@
 import "server-only";
-import { createHash } from "node:crypto";
 import nodemailer from "nodemailer";
 import { supabaseService } from "@/lib/supabase/service";
 import type { EmailJadi, JenisEmail, KonteksEmail } from "@/lib/email/templat";
 import { bacaPengaturanEmail, type PengaturanEmail } from "./pengaturan";
+import { GalatEmail, hashAlamat, normalisasiAlamat } from "@/lib/email/alamat";
+
+export { GalatEmail, hashAlamat, normalisasiAlamat };
 
 /**
  * The send log's two calls. In production they are the service-role RPCs; a
@@ -54,26 +56,6 @@ export function catatanLayanan(): CatatanKirim {
 export type HasilKirim =
   | { terkirim: true; rujukan: string }
   | { terkirim: false; alasan: "BATAS_ALAMAT" | "BATAS_UMUM" | "DITOLAK_SERVER" | "GAGAL_KIRIM"; rujukan: string };
-
-export class GalatEmail extends Error {
-  constructor(pesan: string) {
-    super(pesan);
-    this.name = "GalatEmail";
-  }
-}
-
-/** One address, trimmed and lower-cased: the same person hashes the same whatever they typed. */
-export function normalisasiAlamat(ke: string): string {
-  const alamat = ke.trim().toLowerCase();
-  if (!/^[^\s@<>"(),;:\\[\]]+@[^\s@<>"(),;:\\[\]]+\.[^\s@<>"(),;:\\[\]]+$/.test(alamat) || alamat.length > 254) {
-    throw new GalatEmail("the recipient is not one email address");
-  }
-  return alamat;
-}
-
-export function hashAlamat(alamat: string): string {
-  return createHash("sha256").update(alamat, "utf8").digest("hex");
-}
 
 export function periksaEmailJadi(email: EmailJadi): void {
   if (typeof email?.subjek !== "string" || email.subjek.trim() === "") throw new GalatEmail("the email has no subject");

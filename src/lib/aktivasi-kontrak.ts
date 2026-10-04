@@ -28,11 +28,16 @@ export const STATUS_UMUM = {
 } as const;
 
 // ─────────────────────────────────────────── POST /aktifkan/kode (signed out)
-export const STATUS_MINTA_KODE = { ...STATUS_UMUM, EMAIL_TIDAK_SAH: 400 } as const;
+// D-098(c): two waits PINTAR knows BEFORE it answers, the same for every
+// address: EMAIL_TUNGGU (PINTAR cannot send email now: its hourly limit is full
+// or the mail server just refused) and MINTA_KODE_TUNGGU (codes were asked for
+// this address too often, counted for every address, existing or not). Each
+// carries `tunggu`, and with either no code is sent.
+export const STATUS_MINTA_KODE = { ...STATUS_UMUM, EMAIL_TIDAK_SAH: 400, MINTA_KODE_TUNGGU: 429, EMAIL_TUNGGU: 503 } as const;
 export type KodeMintaKode = keyof typeof STATUS_MINTA_KODE;
 export type JawabanMintaKode =
   | { ok: true; kirimUlangDalam: number; berlakuMenit: number }
-  | { ok: false; code: KodeMintaKode; ref?: string };
+  | { ok: false; code: KodeMintaKode; tunggu?: number; ref?: string };
 
 // ─────────────────────────────────── POST /aktifkan/periksa (signed out)
 export const STATUS_VERIFIKASI = {

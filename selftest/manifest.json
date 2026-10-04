@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 174,
+  "version": 175,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2977,6 +2977,25 @@
       "id": "BOB51-S01",
       "runner": "static",
       "proves": "BOB-51 (D-057, REL-08), the source files src/components/email-uji/hasil.ts and FormEmailUji.tsx, src/app/konfigurasi/email-uji/page.tsx and src/app/konfigurasi/page.tsx: every answer POST /api/email/uji can give (read out of the route and the sending module) has its own sentence in both languages; a setting is shown by name only, one the sending module reads, never a value; the form makes one request, to the route, with the inbox alone; the page asks is_system_admin and refuses anyone else; Konfigurasi links it for the platform admin alone."
+    },
+    {
+      "id": "EMAILJUJUR-K01",
+      "runner": "static",
+      "proves": "D-098(c), J1.9 (D-085 M8): a refused email is never called sent. Executes mintaKode (src/lib/aktivasi.ts) with its tools replaced: when PINTAR cannot send (email_sending_wait > 0) every address, with or without an account, is answered 503 EMAIL_TUNGGU with the wait (Retry-After too), nothing is looked up, counted or sent; codes asked too often (code_request_pace > 0) are answered 429 MINTA_KODE_TUNGGU alike, nothing looked up or sent; both are asked before the lookup; the pace is counted on the keyed hash of the normalised address (the same for another case or spaces, different for another address); an unreadable sending state or missing settings is the server's failure with a reference and nothing sent; able to send, one answer for both and one send, for the account only."
+    },
+    {
+      "id": "EMAILJUJUR-L01",
+      "runner": "static",
+      "proves": "D-098(c): what the person reads, in both languages. «aktifkan.kode_terkirim» and «aktifkan.kode_ulang_ok» say PINTAR is sending, never that a code has been sent; EMAIL_TUNGGU and MINTA_KODE_TUNGGU read through the route's reader (src/components/aktifkan/jawaban.ts baca, kalimat, menunggu) say no code was sent and to wait the route's time (from the body, or Retry-After when the body gave none), as a note not an error; the contract's reader (bacaJawabanMintaKode) keeps the wait."
+    },
+    {
+      "id": "EMAILJUJUR-D01",
+      "runner": "static",
+      "requires": [
+        "db"
+      ],
+      "proves": "D-098(c), J1.9: the database half (supabase/migrations/20261114100000), in one rolled-back transaction. email_sending_wait is 0 with nothing refused, about nine minutes after the host refused a minute ago, 0 eleven minutes after, 0 once a later send is accepted, and about thirty minutes while the GLOBAL limit is full; code_request_pace is 0 for a first request, up to a minute for one at once, 0 for another key, about ten minutes after five in the hour, 0 after one ten minutes ago; email_send_history answers the platform admin by address hash and by reference (outcome and SMTP code) and refuses a school admin (42501); anon and authenticated execute neither signed-out decision nor read the pace table, the service role does; no column of the send log or the pace table can hold an address.",
+      "skip_justification": "needs a Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     }
   ]
 }
