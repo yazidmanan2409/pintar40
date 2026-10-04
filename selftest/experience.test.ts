@@ -304,6 +304,8 @@ const RESET_SURFACES = [
   // stage, and Akun saya in the reader's own shell. Built on the token set.
   "src/app/aktifkan/page.tsx",
   "src/app/akun/page.tsx",
+  // BOB-51: the platform admin's «Kirim email uji», on the same shell and pin-* classes as Aktivasi.
+  "src/app/konfigurasi/email-uji/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */

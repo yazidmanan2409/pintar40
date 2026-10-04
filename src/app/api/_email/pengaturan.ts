@@ -27,6 +27,14 @@ export const NAMA_PENGIRIM = "Tim PINTAR";
 export const NAMA_PENGIRIM_UJI = "Tim PINTAR (Staging)";
 const MESIN_INI = new Set(["127.0.0.1", "localhost", "::1", "[::1]"]);
 
+/**
+ * BOB-51: every name a setting error can carry (the four SMTP variables and
+ * the app's origin), so the platform admin's «Kirim email uji» can say which
+ * setting to fix. Names only, never a value; this file stays the only one that
+ * names them (the page passes the list down).
+ */
+export const NAMA_PENGATURAN_EMAIL = ["PINTAR_SMTP_HOST", "PINTAR_SMTP_PORT", "PINTAR_SMTP_USER", "PINTAR_SMTP_PASSWORD", "NEXT_PUBLIC_APP_URL"] as const;
+
 export type KodeGalatPengaturan = "VARIABEL_HILANG" | "NILAI_TIDAK_SAH" | "KONEKSI_TIDAK_AMAN";
 
 /** A configuration error. It names the variable (`variabel`, and in its message), never a value. */

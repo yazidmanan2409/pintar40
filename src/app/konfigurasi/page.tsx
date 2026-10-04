@@ -275,6 +275,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         {bolehPendataan ? <Link href="/pendataan" className={tautanTempat}>{s("pendataan.judul")}<TandaTautan /></Link> : null}
         <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}<TandaTautan /></Link>
         <Link href="/studio" className={tautanTempat}>{s("nav.studio")}<TandaTautan /></Link>
+        {/* BOB-51: the platform admin's delivery proof, a click rather than a console */}
+        {isSys === true ? <Link href="/konfigurasi/email-uji" className={tautanTempat}>{s("emailuji.judul")}<TandaTautan /></Link> : null}
         <TabTempat
           tempat={tempatDariPeran(peran)}
           kecuali={["/konfigurasi"]}

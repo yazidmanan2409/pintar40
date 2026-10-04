@@ -13,6 +13,7 @@ import { INTERNAL_WORDS, t, type HleEvent } from "../src/lib/hle";
 import { bacaJawabanKartu } from "../src/components/masuk/kartu";
 import { bob26AppTests } from "./bob26.test";
 import { bob50AppTests } from "./bob50.test";
+import { bob51AppTests } from "./bob51.test";
 
 /** Synthetic personas (supabase/seed/synthetic.sql). Passwords are seed constants, not secrets. */
 const PERSONA = {
@@ -122,6 +123,8 @@ const ROUTE_INVENTORY = [
   // so both are swept like every other page.
   "/aktifkan",
   "/akun",
+  // BOB-51. The platform admin's «Kirim email uji», a static route under Konfigurasi.
+  "/konfigurasi/email-uji",
 ] as const;
 
 type Session = { cookie: string; accessToken: string; refreshToken: string };
@@ -2964,4 +2967,6 @@ export const appTests: SelfTest[] = [
   ...bob26AppTests,
   // BOB-50 (D-082(d)): a single Uji Cepat issues no certificate, through the running app
   ...bob50AppTests,
+  // BOB-51 (D-057, REL-08): «Kirim email uji», the platform admin's delivery proof, through the running app
+  ...bob51AppTests,
 ];
