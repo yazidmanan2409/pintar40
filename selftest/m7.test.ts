@@ -92,8 +92,17 @@ export const m7Tests: SelfTest[] = [
         "the whole-class issue does not ask for each learner's card in turn through the same request");
       c.expect(!/localStorage|sessionStorage|indexedDB|document\.cookie/.test(form + buang(readFileSync(join(ctx.repoRoot, "src", "components", "aktivasi", "LembarKartu.tsx"), "utf8"))),
         "a PIN can be kept on the device");
-      const api = readdirSync(join(ctx.repoRoot, "src", "app", "api", "akun"));
-      c.expect(JSON.stringify(api) === JSON.stringify(["aktivasi"]), `a second issuance route exists beside aktivasi: ${JSON.stringify(api)}`);
+      // RESTATED AT THE GATE 3 LANDING (D-098): BOB-26 adds api/akun/kartu (the staff PINTAR card's data and
+      // its email, read by my_identity_card; no credential). The guard keeps its point: aktivasi is the only
+      // route under api/akun that issues a credential, so nothing beside it may authorise or create an account.
+      const akun = join(ctx.repoRoot, "src", "app", "api", "akun");
+      const api = readdirSync(akun);
+      c.expect(api.includes("aktivasi"), `the issuance route aktivasi is gone: ${JSON.stringify(api)}`);
+      const sumber = (d: string): string[] => readdirSync(d, { withFileTypes: true }).flatMap((e) =>
+        e.isDirectory() ? sumber(join(d, e.name)) : /\.tsx?$/.test(e.name) ? [buang(readFileSync(join(d, e.name), "utf8"))] : []);
+      const penerbit = api.filter((r) => r !== "aktivasi" &&
+        sumber(join(akun, r)).some((s) => /authorize_account_activation|authorize_new_person|auth\.admin\.createUser|CLASSROOM_CARD/.test(s)));
+      c.expect(penerbit.length === 0, `a second issuance route exists beside aktivasi: ${JSON.stringify(penerbit)}`);
       const page = buang(readFileSync(join(ctx.repoRoot, "src", "app", "aktivasi", "page.tsx"), "utf8"));
       c.expect(/\.in\("node_id", kelasIds\)\.is\("valid_to", null\)/.test(page) && /kelasUntukKartu\(orang, keanggotaan, tempat\)/.test(page),
         "the page does not read the classes' current members and group them through kelasUntukKartu");

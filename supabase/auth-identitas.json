@@ -12,7 +12,7 @@
     "mfa_totp_enroll_enabled": false
   },
   "config_toml": {
-    "_": "Where each setting lives in supabase/config.toml. The last two have no key there (the CLI does not map them); PINTAR's own guard (the password write permit, migration 20261030100000) refuses a direct change on every stack regardless.",
+    "_": "Where each setting lives in supabase/config.toml. The last two have no key there (the CLI does not map them); PINTAR's own guard (the password write permit, migration 20261112100000) refuses a direct change on every stack regardless.",
     "mailer_otp_length": "auth.email.otp_length",
     "mailer_otp_exp": "auth.email.otp_expiry",
     "password_min_length": "auth.minimum_password_length",
