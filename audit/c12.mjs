@@ -39,7 +39,6 @@ export async function jalankanC12(d) {
   const C = {};
   const q = (s) => sql(s).trim();
   const orangDari = (email) => q(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${email}'`);
-  const uidDari = (email) => q(`select id from auth.users where email = '${email}'`);
   // under an ancestor, by its path: a Tingkat's parent is its Bagian's hidden Reguler (D-027), not the Bagian
   const simpul = (kind, nama, induk = null) => q(`select id from public.org_nodes where institution_id='${ids.sd}' and kind='${kind}' and name='${nama}'
     ${induk ? `and jalur @> array['${induk}']::uuid[]` : ""} and is_active limit 1`);

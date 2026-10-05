@@ -166,17 +166,19 @@ export const c12Tests: SelfTest[] = [
       const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-At", "-c", DB_SKRIP, process.env.SUPABASE_DB_URL!], { encoding: "utf8", maxBuffer: 1 << 24 });
       const baris = (r.stdout || "").trim().split("\n").filter((l) => l.startsWith("{"));
       if (!c.expect(r.status === 0 && baris.length > 0, `the database half could not run: ${(r.stderr || "").trim().split("\n").slice(-3).join(" | ")}`)) return c.verdict("");
-      const v: Record<string, any> = JSON.parse(baris.at(-1)!);
+      type Jawab = { hasil?: string; duduk?: number; nama?: string[]; pilihan?: number; soal?: number };
+      const v: { dunia?: boolean; peserta?: string; murid?: string; fasilitator?: Jawab; guru_lain?: Jawab; peserta_sendiri?: Jawab;
+                 akademik?: Jawab; akademik_guru_lain?: Jawab } = JSON.parse(baris.at(-1)!);
       c.expect(v.dunia === true, "the Guru's finished Uji Penguasaan in the professional-learning Kelas could not be made");
-      const tolak = (x: any) => x?.hasil === "E:42501";
+      const tolak = (x: Jawab | undefined) => x?.hasil === "E:42501";
       c.expect(tolak(v.fasilitator),
         `the facilitator of the professional-learning Kelas, at «Lihat per soal»: ${JSON.stringify(v.fasilitator)} (expected the refusal, 42501; ` +
         `D-069(b): not individual answers)`);
       c.expect(!JSON.stringify(v.fasilitator).includes(String(v.peserta)), `the facilitator was given the participant's name, ${v.peserta}`);
       c.expect(tolak(v.guru_lain) && tolak(v.peserta_sendiri),
         `another Guru and the participant himself, at the PD Kelas's «Lihat per soal»: ${JSON.stringify(v.guru_lain)}, ${JSON.stringify(v.peserta_sendiri)}`);
-      const ak = v.akademik ?? {};
-      c.expect(ak.hasil === "OK" && Number(ak.duduk) >= 1 && Array.isArray(ak.nama) && ak.nama.includes(v.murid) && Number(ak.pilihan) >= 1 && Number(ak.soal) >= 1,
+      const ak: Jawab = v.akademik ?? {};
+      c.expect(ak.hasil === "OK" && Number(ak.duduk) >= 1 && Array.isArray(ak.nama) && ak.nama.includes(String(v.murid)) && Number(ak.pilihan) >= 1 && Number(ak.soal) >= 1,
         `the academic Kelas's teacher no longer reads the class question by question and learner by learner: ${JSON.stringify(ak)}`);
       c.expect(tolak(v.akademik_guru_lain), `another Guru reads the academic Kelas's evidence: ${JSON.stringify(v.akademik_guru_lain)}`);
       return c.verdict("teacher_question_evidence against the database, rolled back: in a professional-learning Kelas holding the Guru's finished " +
