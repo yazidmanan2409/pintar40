@@ -31,6 +31,10 @@
 | Table metadata, selected row | `ink-3` | `table-row-selected` | 4.70:1 | 4.5:1 | pass |
 | Table link, selected row | `pintar-primary` | `table-row-selected` | 6.27:1 | 4.5:1 | pass |
 | Selected row edge (non-text) | `pintar-primary` | `table-row-selected` | 6.27:1 | 3:1 | pass |
+| Wordmark, green on white | `pintar-primary` | `surface-1` | 7.39:1 | 4.5:1 | pass |
+| Wordmark, green on the canvas | `pintar-primary` | `surface-0` | 7.08:1 | 4.5:1 | pass |
+| Wordmark, white on green | `surface-1` | `pintar-primary` | 7.39:1 | 4.5:1 | pass |
+| Wordmark, white on deep ink | `surface-1` | `ink-1` | 14.61:1 | 4.5:1 | pass |
 | Primary button | `pintar-primary-ink` | `pintar-primary` | 7.39:1 | 4.5:1 | pass |
 | Primary, hover | `pintar-primary-ink` | `pintar-primary-hover` | 9.03:1 | 4.5:1 | pass |
 | Primary, pressed | `pintar-primary-ink` | `pintar-primary-pressed` | 10.85:1 | 4.5:1 | pass |

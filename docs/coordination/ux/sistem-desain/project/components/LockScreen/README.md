@@ -2,7 +2,7 @@
 
 **Status: NEW** (Gate 6, BOB-29 and DAISY-23, not built yet). Its words are sample text from IDENTITY-4.0 §7 and the board.
 
-**Anatomy.** The mark, the title «PINTAR terkunci», one sentence saying why («Komputer ini tidak dipakai selama 5 menit»), the PIN field (4 digits, 52 px, with «Tampilkan PIN»), «Buka PINTAR» (primary, full width), then «Bukan akun Anda?» and «Keluar».
+**Anatomy.** The wordmark, the title «PINTAR terkunci», one sentence saying why («Komputer ini tidak dipakai selama 5 menit»), the PIN field (4 digits, 52 px, with «Tampilkan PIN»), «Buka PINTAR» (primary, full width), then «Bukan akun Anda?» and «Keluar».
 
 **Rules**
 - No name on the lock: it is on a shared screen. «Keluar» is always on it.

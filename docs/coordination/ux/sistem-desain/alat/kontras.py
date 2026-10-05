@@ -37,6 +37,7 @@ PASANGAN = [
   ('Table text, row under the pointer', 'ink-1', 'table-row-hover', 4.5), ('Table secondary, row under the pointer', 'ink-2', 'table-row-hover', 4.5), ('Table metadata, row under the pointer', 'ink-3', 'table-row-hover', 4.5),
   ('Table link, row under the pointer', 'pintar-primary', 'table-row-hover', 4.5), ('Table metadata, selected row', 'ink-3', 'table-row-selected', 4.5), ('Table link, selected row', 'pintar-primary', 'table-row-selected', 4.5),
   ('Selected row edge (non-text)', 'pintar-primary', 'table-row-selected', 3.0),
+  ('Wordmark, green on white', 'pintar-primary', 'surface-1', 4.5), ('Wordmark, green on the canvas', 'pintar-primary', 'surface-0', 4.5), ('Wordmark, white on green', 'surface-1', 'pintar-primary', 4.5), ('Wordmark, white on deep ink', 'surface-1', 'ink-1', 4.5),
   ('Primary button', 'pintar-primary-ink', 'pintar-primary', 4.5), ('Primary, hover', 'pintar-primary-ink', 'pintar-primary-hover', 4.5), ('Primary, pressed', 'pintar-primary-ink', 'pintar-primary-pressed', 4.5),
   ('Destructive confirm', 'pintar-primary-ink', 'status-blocked', 4.5), ('Destructive, hover', 'pintar-primary-ink', 'status-blocked-hover', 4.5), ('Destructive, pressed', 'pintar-primary-ink', 'status-blocked-pressed', 4.5),
   ('Destructive words', 'status-blocked', 'surface-1', 4.5), ('Destructive words, hover', 'status-blocked', 'status-blocked-soft', 4.5),

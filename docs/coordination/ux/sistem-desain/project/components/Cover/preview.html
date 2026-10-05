@@ -8,9 +8,9 @@
   .sampul .tile { rx: var(--radius-lg); }
   .sampul .rule { stroke: var(--line-strong); stroke-width: var(--border-hairline); }
   .sampul .cut { stroke: var(--surface-0); stroke-width: var(--border-hairline); }
+  /* The wordmark alone: no tagline is ever attached to it (canonical wordmark ruling, 5 Oct). */
   .sampul .nama-blok { position: absolute; left: var(--space-8); bottom: var(--space-8); max-width: 440px; }
-  .sampul .nama { margin: 0; font-size: 120px; line-height: 0.92; font-weight: 600; letter-spacing: -0.02em; color: var(--ink-1); }
-  .sampul .moto { margin: var(--space-3) 0 0; font-size: 14px; line-height: 20px; color: var(--ink-3); }
+  .sampul .nama { display: block; margin: 0; --merek-tinggi: 76px; }
 </style>
 <div class="sampul">
   <!--
@@ -48,7 +48,6 @@
     <line class="rule" x1="416" y1="216" x2="480" y2="216"/>
   </svg>
   <div class="nama-blok">
-    <p class="nama">PINTAR</p>
-    <p class="moto">Complex underneath. Calm above.</p>
+    <span class="nama pds-merek" role="img" aria-label="PINTAR">PINTAR</span>
   </div>
 </div>

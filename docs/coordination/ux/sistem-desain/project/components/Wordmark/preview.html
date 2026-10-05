@@ -1,0 +1,57 @@
+<!-- @dsCard group="Brand" height=1200 width=1040 subtitle="PINTAR: the name, in Helvetica Neue 65 Medium capitals, in PINTAR green. Locked." -->
+<style>
+  .wm-pahlawan { display: grid; justify-items: center; gap: var(--space-4); padding: var(--space-8) var(--space-5); background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); }
+  .wm-ruang { --merek-tinggi: 56px; position: relative; padding: var(--merek-tinggi); outline: 1px dashed var(--line-control); outline-offset: 0; }
+  .wm-ruang::before { content: ""; position: absolute; inset: var(--merek-tinggi); outline: 1px solid var(--line); }
+  .wm-ruang .pds-merek { --merek-tinggi: 56px; }
+  .wm-x { position: absolute; left: 0; top: 0; width: var(--merek-tinggi); height: var(--merek-tinggi); display: grid; place-items: center; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ink-3); background: repeating-linear-gradient(45deg, transparent 0 6px, var(--surface-2) 6px 7px); }
+  .wm-ket { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-2); text-align: center; max-width: 60ch; }
+  .wm-versi { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: var(--space-4); }
+  .wm-versi figure { margin: 0; display: grid; gap: var(--space-2); }
+  .wm-dasar { display: grid; place-items: center; min-height: 140px; border-radius: var(--radius-lg); border: var(--border-hairline) solid var(--line); }
+  .wm-dasar .pds-merek { --merek-tinggi: 28px; }
+  .wm-versi figcaption { font-size: 14px; line-height: 20px; color: var(--ink-2); }
+  .wm-versi figcaption b { display: block; color: var(--ink-1); font-weight: 600; }
+  .wm-ukuran { display: grid; gap: var(--space-3); }
+  .wm-ukuran div { display: grid; grid-template-columns: 340px auto; gap: var(--space-4); align-items: center; min-height: 44px; padding: var(--space-2) 0; border-bottom: var(--border-hairline) solid var(--line); font-size: 14px; line-height: 20px; color: var(--ink-2); }
+  .wm-ukuran code { color: var(--ink-1); }
+  @media (max-width: 639px) { .wm-ukuran div { grid-template-columns: minmax(0, 1fr); } .wm-ruang, .wm-ruang .pds-merek { --merek-tinggi: 32px; } }
+</style>
+<div class="pds">
+  <section class="wm-pahlawan" aria-labelledby="wm-judul">
+    <h2 id="wm-judul" class="pds-sr">Wordmark PINTAR dan ruang kosongnya</h2>
+    <div class="wm-ruang"><span class="wm-x" aria-hidden="true">X</span><span class="pds-merek" role="img" aria-label="PINTAR">PINTAR</span></div>
+    <p class="wm-ket">X is the cap height. The clear space is X on every side (the dashed line), and nothing enters it. In the product's own navigation and top bar, at least ½ X.</p>
+  </section>
+
+  <section class="pds-stack" aria-labelledby="wm-versi">
+    <h2 id="wm-versi" class="pds-demo-label">The four versions</h2>
+    <div class="wm-versi">
+      <figure><div class="wm-dasar" style="background: var(--surface-1)"><span class="pds-merek" role="img" aria-label="PINTAR">PINTAR</span></div>
+        <figcaption><b>PINTAR green on light</b>The default. 7.39 : 1 on white, 7.08 on the canvas.</figcaption></figure>
+      <figure><div class="wm-dasar" style="background: var(--pintar-primary); border-color: var(--pintar-primary)"><span class="pds-merek pds-merek-putih" role="img" aria-label="PINTAR">PINTAR</span></div>
+        <figcaption><b>White on PINTAR green</b>A solid green field, X clear round the word. 7.39 : 1.</figcaption></figure>
+      <figure><div class="wm-dasar" style="background: #fff"><span class="pds-merek pds-merek-hitam" role="img" aria-label="PINTAR">PINTAR</span></div>
+        <figcaption><b>Black</b>One-colour print, photocopies, faxes, engraving. 21 : 1.</figcaption></figure>
+      <figure><div class="wm-dasar" style="background: #000; border-color: #000"><span class="pds-merek pds-merek-putih" role="img" aria-label="PINTAR">PINTAR</span></div>
+        <figcaption><b>White</b>Black or deep-ink grounds. 21 : 1 on black, 14.61 on <code>ink-1</code>.</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="pds-stack" aria-labelledby="wm-ukuran">
+    <h2 id="wm-ukuran" class="pds-demo-label">Sizes in PINTAR, drawn at size (cap height)</h2>
+    <div class="wm-ukuran">
+      <div><span><code>wordmark-standalone</code> 24 px · about 132 px wide · above a task: sign-in, the lock, an error page</span><span class="pds-merek" style="--merek-tinggi: var(--wordmark-standalone)" role="img" aria-label="PINTAR">PINTAR</span></div>
+      <div><span><code>wordmark-nav</code> 18 px · about 99 px wide · the staff navigation</span><span class="pds-merek" style="--merek-tinggi: var(--wordmark-nav)" role="img" aria-label="PINTAR">PINTAR</span></div>
+      <div><span><code>wordmark-bar</code> 16 px · about 88 px wide · every top bar</span><span class="pds-merek" style="--merek-tinggi: var(--wordmark-bar)" role="img" aria-label="PINTAR">PINTAR</span></div>
+      <div><span><code>wordmark-min</code> 12 px · about 66 px wide · the smallest on screen (in print, 15 mm wide)</span><span class="pds-merek" style="--merek-tinggi: var(--wordmark-min)" role="img" aria-label="PINTAR">PINTAR</span></div>
+    </div>
+  </section>
+
+  <div class="pds-alert pds-alert-info" role="note">
+    <i data-ikon="info"></i>
+    <h3>A proof, until the master is supplied</h3>
+    <p>The product uses outlined artwork made from a licensed Helvetica Neue 65 Medium (tracking +50, metric kerning, one optical pass), never live text. This page has neither the font nor the master, so each wordmark here is set in the viewer's own face: Helvetica Neue on Apple devices, a stand-in elsewhere.</p>
+  </div>
+</div>
+<script>Pintar.siapkan();</script>

@@ -54,8 +54,13 @@ PINTAR speaks plain Bahasa Indonesia first; English is the second language of ev
 - **Use.** An icon accompanies a label; it never replaces one, except in an icon-only button, which always has an accessible name and a tooltip. Icons never carry status alone: ✓ «Selesai» has its word.
 - **No emoji** in the interface chrome.
 
-## Imagery and the mark
+## The wordmark and imagery
 
-- **The mark** is the supplied PINTAR SELALU artwork (Logos), used as it is: height only (36 px in the navigation, 32 px in the top bar, 44 px standalone), never cropped, recoloured, redrawn or set as text, and never below 32 px. The collapsed rail shows no mark.
+- **The wordmark is PINTAR** (approved brand ruling, 5 Oct; locked).
+  - The name in Helvetica Neue 65 Medium capitals, tracking +50, in PINTAR green #245F55, and nothing else: no symbol, no tagline, no «SELALU».
+  - Clear space X (the cap height) on every side. Never smaller than a 12 px cap height on screen or 15 mm wide in print.
+  - Four versions: green on light, white on green, black, white. See Wordmark for the full production specification.
+  - In the product it is outlined artwork, never live text. It replaces the supplied «PINTAR SELALU» artwork everywhere in the interface.
+- **PINTAR is the only identity inside the product.** PT ZAYD PINTAR SELALU, the legal company, appears only where the company itself must: legal and privacy information, official correspondence, and the legal line in a footer. pintarselalu.com is an address, never a brand name.
 - **No illustrations, stock photos or decorative graphics** in the interface. An empty state is a sentence and an action.
-- **A school's own mark** may one day replace the PINTAR mark in the same place, and nothing else changes (the institution-mark ruling): not a token, not a colour, not a component.
+- **A school's own mark** may one day replace the PINTAR wordmark in the same place, and nothing else changes (the institution-mark ruling): not a token, not a colour, not a component.

@@ -15,7 +15,7 @@ PINTAR is a quiet, neutral interface with one green. Colour appears where it mea
 | Hairline | `line` | ink at 12% | Divides. Never outlines a field. |
 | Button outline | `line-strong` | ink at 24% | Secondary buttons, tags. |
 | Field outline | `line-control` | #808A91 | **New, needs a ruling (question 3).** Every field, checkbox, radio and switch: 3:1 or better. |
-| PINTAR green | `pintar-primary` | #245F55 | The one primary action, links, focus, a checked control, and a selection that must read at 3:1: the selected segment and the current page are filled, as v2's are. |
+| PINTAR green | `pintar-primary` | #245F55 | The PINTAR wordmark (CMYK 84 43 65 29 in print), the one primary action, links, focus, a checked control, and a selection that must read at 3:1: the selected segment and the current page are filled, as v2's are. |
 | Selected | `pintar-primary-soft` | #E3EFEC | The current place, a selected row. Never success. |
 | Hover, pressed | `pintar-primary-hover`, `-pressed` | #1E5148, #19443D | The primary button's states (pressed is new). |
 | Success | `status-ok` + soft | #2F6E4A on #E4F2EA | A confirmed change, a verified result. Always ✓ and a word. Rare. |
@@ -82,6 +82,10 @@ Computed from `tokens.json` by `alat/kontras.py`. Text needs 4.5:1; a field outl
 | Table metadata, selected row | `ink-3` | `table-row-selected` | 4.70:1 | 4.5:1 | pass |
 | Table link, selected row | `pintar-primary` | `table-row-selected` | 6.27:1 | 4.5:1 | pass |
 | Selected row edge (non-text) | `pintar-primary` | `table-row-selected` | 6.27:1 | 3:1 | pass |
+| Wordmark, green on white | `pintar-primary` | `surface-1` | 7.39:1 | 4.5:1 | pass |
+| Wordmark, green on the canvas | `pintar-primary` | `surface-0` | 7.08:1 | 4.5:1 | pass |
+| Wordmark, white on green | `surface-1` | `pintar-primary` | 7.39:1 | 4.5:1 | pass |
+| Wordmark, white on deep ink | `surface-1` | `ink-1` | 14.61:1 | 4.5:1 | pass |
 | Primary button | `pintar-primary-ink` | `pintar-primary` | 7.39:1 | 4.5:1 | pass |
 | Primary, hover | `pintar-primary-ink` | `pintar-primary-hover` | 9.03:1 | 4.5:1 | pass |
 | Primary, pressed | `pintar-primary-ink` | `pintar-primary-pressed` | 10.85:1 | 4.5:1 | pass |

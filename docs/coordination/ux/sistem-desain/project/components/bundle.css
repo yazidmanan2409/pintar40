@@ -741,7 +741,25 @@ a.pds-list-row:active, .pds-list-row.is-pressed { background: var(--surface-3); 
   border-right: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg) 0 0 var(--radius-lg);
 }
 .pds-nav-kepala { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: 0 var(--space-1) var(--space-3) var(--space-2); }
-.pds-merek { height: 36px; width: auto; display: block; }
+/* THE PINTAR WORDMARK (canonical, 5 Oct; locked): PINTAR in Helvetica Neue 65 Medium, capitals,
+   tracking +50, PINTAR green, nothing else. In the product it is the outlined master artwork (an
+   inline SVG), never live text: Helvetica Neue is not on Windows, Chromebooks or Android, and is not
+   licensed as a web font. Here it is a PROOF, set in the viewer's own face: Helvetica Neue on Apple
+   devices, a stand-in elsewhere. Sized by its cap height (0.714 em in Helvetica Neue); the trailing
+   tracking is taken back so the word's box ends at the R. */
+.pds-merek {
+  --merek-tinggi: var(--wordmark-nav);
+  display: inline-block; flex: none; vertical-align: middle;
+  font-family: var(--font-wordmark); font-weight: 500; font-style: normal; font-kerning: normal; font-synthesis: none;
+  font-size: calc(var(--merek-tinggi) / 0.714); line-height: 1;
+  letter-spacing: 0.05em; margin-right: -0.05em;
+  text-transform: uppercase; white-space: nowrap; color: var(--pintar-primary);
+  /* The box is the letters: cap height to baseline, as the outlined master's bounds will be. */
+  text-box: trim-both cap alphabetic;
+}
+.pds-merek-berdiri { --merek-tinggi: var(--wordmark-standalone); }
+.pds-merek-putih { color: var(--surface-1); }
+.pds-merek-hitam { color: #000; }
 .pds-nav-daftar { list-style: none; padding: 0; display: grid; gap: 2px; }
 .pds-nav-grup { padding: var(--space-4) var(--space-3) var(--space-1); }
 .pds-nav-item {
@@ -771,7 +789,7 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
   align-items: center; gap: var(--space-2); min-height: var(--shell-bar); padding: 0 var(--space-2) 0 var(--space-4);
   background: var(--surface-0); border-bottom: var(--border-hairline) solid var(--line);
 }
-.pds-bar .pds-merek { height: 32px; }
+.pds-bar .pds-merek { --merek-tinggi: var(--wordmark-bar); }
 .pds-bar-tempat { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Collapsed by the reader, or 1024 to 1279px: the rail. */
@@ -855,7 +873,6 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
 
 /* A single task on its own: the lock, sign-in, recovery. */
 .pds-tugas { display: grid; gap: var(--space-5); width: 100%; max-width: var(--measure-auth); margin-inline: auto; padding: var(--space-7) var(--space-5); }
-.pds-tugas .pds-merek-tugas { height: var(--icon-lg); }
 .pds-tugas h1 { font-size: 26px; line-height: 32px; font-weight: 600; letter-spacing: -0.015em; }
 .pds-tugas .pds-btn:not(.pds-btn-icon) { width: 100%; }
 .pds-tugas-bingkai { background: var(--surface-0); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); }

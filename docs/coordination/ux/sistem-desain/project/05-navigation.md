@@ -8,10 +8,10 @@
 
 | Shell | Who | What it carries |
 |---|---|---|
-| **Staff** (App shell) | Guru, Kepala departemen, Dekan, Admin sekolah, Admin platform | A sticky left navigation: the mark, the person's places, Bantuan where a tour exists, and at the bottom the identity block (their own name, role and school, a menu with Akun saya and the language) with «Keluar» visible under it. |
+| **Staff** (App shell) | Guru, Kepala departemen, Dekan, Admin sekolah, Admin platform | A sticky left navigation: the PINTAR wordmark, the person's places, Bantuan where a tour exists, and at the bottom the identity block (their own name, role and school, a menu with Akun saya and the language) with «Keluar» visible under it. |
 | **Learner** (Learner shell) | Murid | A top bar at every width: Belajar and Sertifikat, Bantuan, the language, «Bukan akun Anda?» and «Keluar». No name: a learner is never named on a shared screen (S15, D-020). A child's screen belongs to the lesson; two places do not earn a sidebar. |
-| **Focus** | A learner inside an assessment | The mark, the language, «Bukan akun Anda?» and «Keluar». No other way out of a timed task. |
-| **Public** | Anyone holding a verification link | The mark, «Pemeriksaan sertifikat» and the language. No way into PINTAR. |
+| **Focus** | A learner inside an assessment | The wordmark, the language, «Bukan akun Anda?» and «Keluar». No other way out of a timed task. |
+| **Public** | Anyone holding a verification link | The wordmark, «Pemeriksaan sertifikat» and the language. No way into PINTAR. |
 
 Focus and Public are today's shells, unchanged.
 
@@ -51,8 +51,8 @@ What changes is where the places are drawn: the top-bar tabs become the left nav
 
 ## Small screens
 
-- **Rail (1024 to 1279 px, or collapsed by the reader):** icons only, 72 px wide. Each has its name as an accessible name and as a tooltip. The mark is not shown (it never goes below 32 px).
-- **Under 1024 px:** a top bar (the mark, the current place's name, «Keluar», a menu button). The menu opens a left drawer with the same places and the identity block.
+- **Rail (1024 to 1279 px, or collapsed by the reader):** icons only, 72 px wide. Each has its name as an accessible name and as a tooltip. The wordmark is not shown: 72 px cannot hold it with its clear space.
+- **Under 1024 px:** a top bar (the wordmark, the current place's name, «Keluar», a menu button). The menu opens a left drawer with the same places and the identity block.
 
 ## Within a page
 

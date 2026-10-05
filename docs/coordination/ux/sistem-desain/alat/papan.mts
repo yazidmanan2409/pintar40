@@ -160,7 +160,7 @@ body { margin: 0; background: var(--surface-2); color: var(--ink-1); font-family
 .papan { width: 1600px; padding: 64px 72px 56px; display: grid; gap: 48px; }
 .kepala { display: grid; gap: 12px; padding-bottom: 32px; border-bottom: 1px solid var(--line-strong); }
 .kepala .atas { display: flex; justify-content: space-between; align-items: center; color: var(--ink-3); }
-.kepala .atas img { height: 36px; display: block; }
+
 .kepala h1 { margin: 8px 0 0; } .kepala .lede { margin: 0; max-width: 64ch; color: var(--ink-2); font-size: 18px; line-height: 28px; }
 .kaki { display: flex; justify-content: space-between; gap: 24px; padding-top: 24px; border-top: 1px solid var(--line-strong); color: var(--ink-3); font-size: 14px; line-height: 20px; }
 h2.judul-bagian { margin: 0 0 4px; font-size: 22px; line-height: 28px; font-weight: 600; }
@@ -194,11 +194,10 @@ code { font-family: var(--font-mono); font-weight: 500; font-size: 0.86em; color
 .panel p { margin: 0; color: var(--ink-2); }
 .label { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
 `;
-const merek = "/_blob/abed353d4f794a8b5de8a83d14b0d67f";
 function papan(no: string, judul: string, lede: string, isi: string, total: number): string {
   return `<!doctype html><html lang="id"><head><meta charset="utf-8"><title>${esc(judul)}</title>
 <link rel="stylesheet" href="/tokens.css"><link rel="stylesheet" href="/components/bundle.css"><script src="/components/bundle.js"></script><style>${gaya}</style></head>
-<body><main class="papan"><header class="kepala"><div class="atas"><img src="${merek}" alt="PINTAR SELALU"><span class="label">PINTAR design system · ${no} / ${String(total).padStart(2, "0")}</span></div>
+<body><main class="papan"><header class="kepala"><div class="atas"><span class="pds-merek" style="--merek-tinggi: 20px" role="img" aria-label="PINTAR">PINTAR</span><span class="label">PINTAR design system · ${no} / ${String(total).padStart(2, "0")}</span></div>
 <h1 class="t-display">${esc(judul)}</h1><p class="lede">${lede}</p></header>
 ${isi}
 <footer class="kaki"><span>A proposal for review: token set v3 (draft), not applied to PINTAR. Every word and value comes from the design system files.</span><span>${sha} · ${hariCommit}</span></footer></main>
@@ -356,6 +355,11 @@ ${baris("DateTime")}
 <section class="grid" style="grid-template-columns: 1fr 1fr; gap: 40px"><div class="prosa lebar-penuh"><h2>Native date fields</h2>${md(bagian("10-dates.md", "Native date fields"))}</div><div class="prosa lebar-penuh"><h2>In the product today (for the application pass)</h2>${md(bagian("10-dates.md", "In the product today (for the application pass, nothing changed)"))}</div></section>
 <section class="prosa lebar-penuh" style="max-width: 1456px"><h2>Specimen audit (5 Oct)</h2>${md(bagian("10-dates.md", "Specimen audit (5 Oct)"))}</section>`;
 }
+function papanMerek(): string {
+  const r = baca("components/Wordmark/README.md").replace(/^.*\n/, "");
+  return `<section class="grid">${kartu("Wordmark", { lebar: 1040, skala: 1456 / 1040 })}</section>
+<section class="prosa">${md(r)}</section>`;
+}
 function papanKomponen(daftar: Array<string | [string, string]>): string {
   return daftar.map((d) => (typeof d === "string" ? baris(d) : baris(d[0], { sk: d[1] }))).join("\n");
 }
@@ -387,6 +391,7 @@ const PAPAN: Array<[string, string, string, string, () => string]> = [
   ["17", "foundations", "Foundations in use", "A page made of type and space, the layout grid, and the forty icons.", () => papanKomponen(["Hierarchy", "LayoutGrid", "Icons"])],
   ["18", "accessibility", "Accessibility and school reality", "Shared computers, 1366 × 768 laptops, slow networks and children still learning to read. Nothing depends on a phone, hover, animation or a fast machine.", papanAkses],
   ["20", "dates", "Dates and times (Dr Gladys)", "Indonesia-first: day before month, the month in words wherever a misreading would matter, always WIB. A native date field is followed by the date in words.", papanTanggal],
+  ["21", "wordmark", "The PINTAR wordmark (locked)", "PINTAR, the name, in Helvetica Neue 65 Medium capitals, in PINTAR green, with nothing added. Production refinement only.", papanMerek],
   ["19", "questions", "Open questions for Yazid", "Nothing here is applied until Yazid approves. These are the decisions the proposal needs.", papanPertanyaan],
 ];
 
@@ -420,7 +425,7 @@ const dipilih = process.argv.slice(2);
 const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
 for (const [no, nama, judul, lede, isi] of PAPAN) {
   if (dipilih.length && !dipilih.includes(no) && !dipilih.includes(nama)) continue;
-  halaman.set(`/papan/${no}.html`, papan(no, judul, lede, isi(), 20));
+  halaman.set(`/papan/${no}.html`, papan(no, judul, lede, isi(), 21));
   let skala = 2;
   let page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: skala });
   const galat: string[] = [];

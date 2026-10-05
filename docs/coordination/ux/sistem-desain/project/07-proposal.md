@@ -93,6 +93,21 @@ The full class-by-class map is in «Migration map».
 
     `surface-2` is not proposed: neutral badges vanish on it. Please look at A on a school computer before choosing. A or A+?
 15. **Date fields: the native field plus the date in words under it** (new, from Dr Gladys's comment). The field's own display follows the computer's language, and shows «10/09/2026» for 9 October on an English-language one. The line under it always says «Jumat, 9 Okt 2026, 07.30 WIB». Agree?
+16. **The ID card and the certificate** (new, from the wordmark ruling). Both carry «PINTAR SELALU» as their formal identity, ruled on 30 Sep and frozen on 4 Oct. Today's brand architecture says PINTAR is the product identity and the company appears only where it must. Do they stay «PINTAR SELALU», or move to PINTAR in a later card and certificate round? Nothing was changed here.
+17. **A small icon** (new, from the wordmark ruling). The wordmark cannot be read at a browser tab's 16 to 32 px, and the ruling rules out a standalone P inside the wordmark. A favicon or app icon therefore needs its own decision. None was drawn here.
+
+## The canonical wordmark (approved brand ruling, 5 Oct; locked)
+
+The wordmark is PINTAR: the name in Helvetica Neue 65 Medium capitals, in PINTAR green, and nothing else. This proposal only refines it for production (Wordmark):
+
+- tracking +50 with metric kerning and one optical pass;
+- #245F55, CMYK 84 43 65 29;
+- clear space X, the cap height;
+- smallest size 12 px cap height on screen, 15 mm wide in print;
+- four versions: green on light, white on green, black, white;
+- sizes `wordmark-nav` 18, `wordmark-bar` 16, `wordmark-standalone` 24.
+
+It replaces the supplied «PINTAR SELALU» artwork in every specimen. **Still needed:** the outlined master, made from a licensed Helvetica Neue. Until then every wordmark here is a proof in the viewer's own face.
 
 ## Dr Gladys's comments (5 Oct)
 

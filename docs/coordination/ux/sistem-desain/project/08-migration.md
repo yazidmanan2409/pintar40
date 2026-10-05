@@ -53,7 +53,11 @@ This map lists each of today's classes and shared components beside the v3 compo
 | `.pin-tabs` and TabTempat (15 px links in the header) | App shell navigation items (staff); Learner shell links | Under question 1. If not approved: `t-body` 16 and a 44 px target. |
 | TandaTautan (`.pin-tanda-tautan`, `-sibuk`) | The navigation item's working dot | Nothing in behaviour. |
 | SesiSaya, BarisSesi (`.pin-sesi`, `.pin-sesi-akun`, `.pin-sesi-ket`, `.pin-sesi-keluar`) | Identity (staff, with their own name); the Learner shell's «Bukan akun Anda?» and «Keluar» | Nothing in who is named (S15, D-020). «Keluar» stays visible. |
-| MerekPintar (`.pin-merek`, `.pin-merek-standalone`) | The mark in each shell | Nothing: height only, never below 32 px. |
+| MerekPintar (`.pin-merek`, `.pin-merek-standalone`), drawing `public/brand/pintar-selalu-logo.png` | The canonical wordmark (Wordmark): the outlined master as an inline SVG, `role="img"`, accessible name «PINTAR» | The «PINTAR SELALU» block becomes PINTAR in green, at `wordmark-nav`, `wordmark-bar` or `wordmark-standalone`. Its alt text «PINTAR SELALU» becomes «PINTAR». It stays the one place a school's mark would substitute. |
+| The email header (`public/brand/pintar-email-logo.png`, 104 × 58) | The wordmark as a 2× PNG of the master, its alt text styled as the wordmark (as today) | «PINTAR» only. The footer keeps PT ZAYD PINTAR SELALU and pintarselalu.com: official correspondence is where the company belongs. |
+| `.pin-wordmark` and `--tracking-wordmark` (0.14 em, Plus Jakarta Sans 600) | Retired | A typeset PINTAR in the interface face would be a second logo. Running text writes PINTAR as a word. |
+| KakiPintar (the footer's legal line: PT ZAYD PINTAR SELALU, the contact address, pintarselalu.com) | Unchanged | Legal information is where the company belongs. It names the company, not the product. |
+| The ID card and the certificate («PINTAR SELALU» typeset as their formal identity, 30 Sep and 4 Oct rulings) | **Unchanged: frozen** | Question 16 asks whether they move to PINTAR under the new brand architecture. Nothing here touches them. |
 | `.pin-switch` (links between views) | Tabs, as page links | The underline and weight for the current one. |
 | `.pin-lingkup` (the scope switcher) | Tabs, as page links | Nothing in size (already 44). |
 | `.pin-lang`, PengalihBahasa (26 px, 6 px radius) | Segmented control | 44 px; `radius-md`. |

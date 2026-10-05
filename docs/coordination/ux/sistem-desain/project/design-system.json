@@ -16,17 +16,8 @@
     "Logos": {
       "name": "Logos",
       "tile": "l",
-      "order": [
-        "pintar-selalu-logo.png"
-      ],
-      "files": {
-        "pintar-selalu-logo.png": {
-          "name": "pintar-selalu-logo.png",
-          "blob": "abed353d4f794a8b5de8a83d14b0d67f",
-          "size": 29499,
-          "type": "image/png"
-        }
-      }
+      "order": [],
+      "files": {}
     }
   },
   "blobs": {},
@@ -36,8 +27,8 @@
   },
   "lastChange": {
     "by": "Yazid",
-    "at": "2026-10-05T02:54:59Z",
+    "at": "2026-10-05T10:20:52Z",
     "via": "Claude Code",
-    "note": "Dr Gladys's comments (5 Oct): striped table rows from existing colours (Table rows, questions 14) and the Indonesian date grammar with the date-field echo (Dates, Date and time, question 15), plus a specimen audit. Prepared only; nothing applied to PINTAR."
+    "note": "Canonical PINTAR wordmark (approved brand ruling, 5 Oct; locked): production specification (Wordmark), the four versions, sizes, clear space, print and accessibility; the supplied PINTAR SELALU artwork retired from every specimen; brand architecture; questions 16–17. Prepared only; nothing applied to PINTAR."
   }
 }
