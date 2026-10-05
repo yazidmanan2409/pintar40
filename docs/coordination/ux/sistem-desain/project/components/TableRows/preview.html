@@ -1,0 +1,144 @@
+<!-- @dsCard group="Data" height=2660 width=1040 subtitle="A whole class in one table: stripes to follow a row, hover and selection that read on their own" -->
+<style>
+  .pds-legenda { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); font-size: 14px; line-height: 20px; color: var(--ink-2); }
+  .pds-legenda span { display: inline-flex; align-items: center; gap: var(--space-2); }
+  .pds-legenda i { display: block; width: 28px; height: 20px; border-radius: var(--radius-sm); box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .pds-banding { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
+  @media (max-width: 899px) { .pds-banding { grid-template-columns: minmax(0, 1fr); } }
+  .pds-banding h3 { margin: 0 0 var(--space-2); font-size: 16px; line-height: 24px; font-weight: 600; }
+  .pds-banding .pds-table th, .pds-banding .pds-table td { padding-inline: var(--space-3); }
+  .pds-banding .pds-nama { min-width: 0; }
+  @media (min-width: 900px) { .pds-banding p { min-height: 120px; } }
+  .pds-banding p { margin: 0 0 var(--space-3); font-size: 14px; line-height: 20px; color: var(--ink-2); }
+  /* The considered alternative, for comparison only */
+  /* A+: halfway between surface-0 and surface-2 (#F7F6F2), a derived value that would need a ruling */
+  .pds-tengah tbody tr:where(:nth-child(even)) > * { background: #f7f6f2; }
+  .pds-alternatif thead th { background: var(--surface-3); }
+  .pds-alternatif tbody tr:where(:nth-child(even)) > * { background: var(--surface-2); }
+  .pds-alternatif tbody tr.is-hover > * { background: var(--surface-3); }
+  .pds-table a.pds-baris-nama { color: var(--ink-1); text-decoration: none; }
+  .pds-table a.pds-baris-nama:hover { text-decoration: underline; text-underline-offset: 3px; }
+</style>
+<div class="pds">
+  <div class="pds-stack">
+    <h2 class="pds-demo-label">Kelas 5A · Bab 3 · all 31 learners on one page</h2>
+    <div class="pds-legenda" aria-hidden="true">
+      <span><i style="background: var(--table-head)"></i>Header <code>table-head</code></span>
+      <span><i style="background: var(--table-row)"></i>Row <code>table-row</code></span>
+      <span><i style="background: var(--table-row-alt)"></i>Alternate <code>table-row-alt</code></span>
+      <span><i style="background: var(--table-row-hover)"></i>Under the pointer <code>table-row-hover</code></span>
+      <span><i style="background: var(--table-row-selected); box-shadow: inset 3px 0 0 var(--pintar-primary), inset 0 0 0 1px var(--line-strong)"></i>Selected <code>table-row-selected</code></span>
+    </div>
+  </div>
+  <div class="pds-table-wrap">
+    <div class="pds-bulk">
+      <span id="tr-jumlah" aria-live="polite">2 dipilih</span>
+      <span class="pds-row-tight">
+        <button type="button" class="pds-btn pds-btn-secondary pds-btn-sm">Kirim pengingat</button>
+        <button type="button" class="pds-btn pds-btn-quiet pds-btn-sm" id="tr-batal">Batalkan pilihan</button>
+      </span>
+    </div>
+    <div class="pds-table-frame" tabindex="0" role="region" aria-label="Murid Kelas 5A">
+      <table class="pds-table">
+        <caption class="pds-sr">Murid Kelas 5A dan kemajuan mereka di Bab 3, urut nama</caption>
+        <thead>
+          <tr>
+            <th scope="col" class="pds-sticky">Nama</th>
+            <th scope="col" data-prioritas="rendah">PINTAR ID</th>
+            <th scope="col">Bab 3</th>
+            <th scope="col" class="pds-angka">Bagian dibaca</th>
+            <th scope="col" data-prioritas="rendah">Terakhir aktif</th>
+          </tr>
+        </thead>
+        <tbody id="tr-isi"></tbody>
+      </table>
+    </div>
+    <p class="pds-help">Menampilkan 31 dari 31 murid · urut nama. Baris 6 menunjukkan keadaan di bawah penunjuk; baris 11 dan 12 dipilih.</p>
+  </div>
+
+  <section class="pds-stack" aria-labelledby="tr-banding">
+    <h2 id="tr-banding" class="pds-demo-label">How strong a stripe: three strengths, eight rows each</h2>
+    <div class="pds-banding">
+      <div>
+        <h3>A · Proposed: <code>surface-0</code></h3>
+        <p>Existing tokens only. Every state is distinct: the neutral badge keeps its ground, and the row under the pointer (row 3) is darker than anything else. The stripe is quiet; on a washed-out projector it may fade.</p>
+        <div class="pds-table-frame" tabindex="0" role="region" aria-label="Contoh A">
+          <table class="pds-table" id="tr-a"><thead><tr><th scope="col">Nama</th><th scope="col">Bab 3</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+      <div>
+        <h3>A+ · If A proves too faint</h3>
+        <p>The stripe halfway between <code>surface-0</code> and <code>surface-2</code> (#F7F6F2). It is derived from two approved tokens but is a new value, so it needs a ruling. Every state stays distinct.</p>
+        <div class="pds-table-frame" tabindex="0" role="region" aria-label="Contoh A plus">
+          <table class="pds-table pds-tengah" id="tr-c"><thead><tr><th scope="col">Nama</th><th scope="col">Bab 3</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+      <div>
+        <h3>B · Not proposed: <code>surface-2</code></h3>
+        <p>The neutral badge «Belum mulai» loses its ground on every second row. The header has to move to <code>surface-3</code>, which is also the row under the pointer.</p>
+        <div class="pds-table-frame" tabindex="0" role="region" aria-label="Contoh B">
+          <table class="pds-table pds-alternatif" id="tr-b"><thead><tr><th scope="col">Nama</th><th scope="col">Bab 3</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+  </section>
+  <p class="pds-demo-catatan">Invented names and IDs. Dates are written «3 Okt 2026», the year included (see Dates). Under 640 px the PINTAR ID and «Terakhir aktif» step back and the stripes carry on.</p>
+</div>
+<script>
+  (function () {
+    var murid = [
+      ["Adi Pratama", "selesai", 5, "2026-10-03"], ["Agus Salim", "sedang", 3, "2026-10-04"], ["Ayu Lestari", "sedang", 3, "2026-10-04"],
+      ["Bagus Santoso", "belum", 0, "2026-09-28"], ["Bayu Aji", "sedang", 2, "2026-10-02"], ["Citra Dewi", "sedang", 2, "2026-10-04"],
+      ["Dewi Kusuma", "selesai", 5, "2026-10-01"], ["Dimas Anggara", "perlu", 1, "2026-09-26"], ["Eka Putri", "selesai", 5, "2026-10-02"],
+      ["Fajar Nugroho", "sedang", 4, "2026-10-04"], ["Fitri Handayani", "sedang", 3, "2026-10-03"], ["Gita Maharani", "belum", 0, "2026-09-30"],
+      ["Hendra Wijaya", "selesai", 5, "2026-10-01"], ["Indah Permatasari", "sedang", 4, "2026-10-04"], ["Intan Permata", "sedang", 3, "2026-10-03"],
+      ["Joko Susilo", "perlu", 1, "2026-09-25"], ["Kartika Sari", "selesai", 5, "2026-10-04"], ["Lukman Hakim", "sedang", 2, "2026-10-03"],
+      ["Maya Anggraini", "selesai", 5, "2026-10-02"], ["Muhammad Rizky Ramadhan Saputra Nugraha", "sedang", 4, "2026-10-04"], ["Nanda Pratiwi", "belum", 0, "2026-09-29"],
+      ["Nur Aisyah", "sedang", 3, "2026-10-04"], ["Oki Setiawan", "sedang", 3, "2026-10-04"], ["Putri Ramadhani", "selesai", 5, "2026-10-03"],
+      ["Rahmat Hidayat", "sedang", 2, "2026-10-02"], ["Rina Marlina", "selesai", 5, "2026-10-01"], ["Sari Wulandari", "sedang", 2, "2026-10-02"],
+      ["Teguh Prasetyo", "belum", 0, "2026-09-27"], ["Umar Faruq", "sedang", 3, "2026-10-04"], ["Wulan Safitri", "selesai", 5, "2026-10-01"],
+      ["Yoga Firmansyah", "sedang", 1, "2026-10-03"]
+    ];
+    var lencana = {
+      selesai: '<span class="pds-badge pds-badge-ok"><i data-ikon="check"></i>Selesai</span>',
+      sedang: '<span class="pds-badge pds-badge-info">Sedang belajar</span>',
+      belum: '<span class="pds-badge">Belum mulai</span>',
+      perlu: '<span class="pds-badge pds-badge-attention">Perlu dilihat</span>'
+    };
+    var huruf = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+    function id(i) { var s = ""; for (var k = 0; k < 8; k++) s += huruf[(i * 7 + k * 13 + k * k * 5) % huruf.length]; return s.slice(0, 4) + " " + s.slice(4); }
+    var isi = document.getElementById("tr-isi");
+    murid.forEach(function (m, i) {
+      var tr = document.createElement("tr");
+      tr.className = "is-link" + (i === 5 ? " is-hover" : "");
+      var pilih = i === 10 || i === 11;
+      tr.setAttribute("aria-selected", pilih ? "true" : "false");
+      tr.innerHTML =
+        '<th scope="row" class="pds-sticky pds-nama"><span class="pds-identitas"><label class="pds-pilih"><input type="checkbox" class="pds-check" aria-label="Pilih ' + m[0] + '"' + (pilih ? " checked" : "") + '></label><a href="#" class="pds-baris-nama">' + m[0] + "</a></span></th>" +
+        '<td data-prioritas="rendah"><span class="pds-mono pds-ink-2">' + id(i + 3) + "</span></td>" +
+        "<td>" + lencana[m[1]] + "</td>" +
+        '<td class="pds-angka">' + m[2] + ' <span class="pds-ink-3">dari 5</span></td>' +
+        '<td data-prioritas="rendah" class="pds-ink-2 pds-tanggal">' + Pintar.tanggal(m[3], "biasa") + "</td>";
+      isi.appendChild(tr);
+    });
+    ["tr-a", "tr-c", "tr-b"].forEach(function (t) {
+      var tb = document.querySelector("#" + t + " tbody");
+      murid.slice(0, 8).forEach(function (m, i) {
+        var tr = document.createElement("tr");
+        if (i === 2) tr.className = "is-hover";
+        tr.innerHTML = '<th scope="row" class="pds-nama">' + m[0] + "</th><td>" + lencana[i === 3 || i === 1 ? "belum" : m[1]] + "</td>";
+        tb.appendChild(tr);
+      });
+    });
+    var jumlah = document.getElementById("tr-jumlah");
+    function hitung() { jumlah.textContent = isi.querySelectorAll('tr[aria-selected="true"]').length + " dipilih"; }
+    isi.addEventListener("change", function (e) {
+      var c = e.target.closest(".pds-check"); if (!c) return;
+      c.closest("tr").setAttribute("aria-selected", c.checked ? "true" : "false"); hitung();
+    });
+    document.getElementById("tr-batal").addEventListener("click", function () {
+      isi.querySelectorAll(".pds-check").forEach(function (c) { c.checked = false; c.closest("tr").setAttribute("aria-selected", "false"); }); hitung();
+    });
+  })();
+  Pintar.siapkan();
+</script>

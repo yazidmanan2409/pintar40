@@ -66,14 +66,14 @@
 <script>
   (function () {
     var murid = [
-      ["Adi Pratama", "selesai", 5, "3 Okt", 3], ["Ayu Lestari", "sedang", 3, "4 Okt", 4], ["Bagus Santoso", "belum", 0, "28 Sep", -6],
-      ["Citra Dewi", "sedang", 2, "4 Okt", 4], ["Dimas Anggara", "perlu", 1, "26 Sep", -8], ["Eka Putri", "selesai", 5, "2 Okt", 2],
-      ["Fajar Nugroho", "sedang", 4, "4 Okt", 4], ["Gita Maharani", "belum", 0, "30 Sep", -4], ["Hendra Wijaya", "selesai", 5, "1 Okt", 1],
-      ["Intan Permata", "sedang", 3, "3 Okt", 3], ["Joko Susilo", "perlu", 1, "25 Sep", -9], ["Kartika Sari", "selesai", 5, "4 Okt", 4],
-      ["Lukman Hakim", "sedang", 2, "3 Okt", 3], ["Maya Anggraini", "selesai", 5, "2 Okt", 2], ["Muhammad Rizky Ramadhan Saputra Nugraha", "sedang", 4, "4 Okt", 4],
-      ["Nanda Pratiwi", "belum", 0, "29 Sep", -5], ["Oki Setiawan", "sedang", 3, "4 Okt", 4], ["Putri Ramadhani", "selesai", 5, "3 Okt", 3],
-      ["Sari Wulandari", "sedang", 2, "2 Okt", 2], ["Teguh Prasetyo", "belum", 0, "27 Sep", -7], ["Umar Faruq", "sedang", 3, "4 Okt", 4],
-      ["Wulan Safitri", "selesai", 5, "1 Okt", 1], ["Yoga Firmansyah", "sedang", 1, "3 Okt", 3]
+      ["Adi Pratama", "selesai", 5, "2026-10-03", 3], ["Ayu Lestari", "sedang", 3, "2026-10-04", 4], ["Bagus Santoso", "belum", 0, "2026-09-28", -6],
+      ["Citra Dewi", "sedang", 2, "2026-10-04", 4], ["Dimas Anggara", "perlu", 1, "2026-09-26", -8], ["Eka Putri", "selesai", 5, "2026-10-02", 2],
+      ["Fajar Nugroho", "sedang", 4, "2026-10-04", 4], ["Gita Maharani", "belum", 0, "2026-09-30", -4], ["Hendra Wijaya", "selesai", 5, "2026-10-01", 1],
+      ["Intan Permata", "sedang", 3, "2026-10-03", 3], ["Joko Susilo", "perlu", 1, "2026-09-25", -9], ["Kartika Sari", "selesai", 5, "2026-10-04", 4],
+      ["Lukman Hakim", "sedang", 2, "2026-10-03", 3], ["Maya Anggraini", "selesai", 5, "2026-10-02", 2], ["Muhammad Rizky Ramadhan Saputra Nugraha", "sedang", 4, "2026-10-04", 4],
+      ["Nanda Pratiwi", "belum", 0, "2026-09-29", -5], ["Oki Setiawan", "sedang", 3, "2026-10-04", 4], ["Putri Ramadhani", "selesai", 5, "2026-10-03", 3],
+      ["Sari Wulandari", "sedang", 2, "2026-10-02", 2], ["Teguh Prasetyo", "belum", 0, "2026-09-27", -7], ["Umar Faruq", "sedang", 3, "2026-10-04", 4],
+      ["Wulan Safitri", "selesai", 5, "2026-10-01", 1], ["Yoga Firmansyah", "sedang", 1, "2026-10-03", 3]
     ];
     var lencana = {
       selesai: '<span class="pds-badge pds-badge-ok"><i data-ikon="check"></i>Selesai</span>',
@@ -89,7 +89,7 @@
         '<th scope="row" class="pds-sticky pds-nama"><span class="pds-identitas"><label class="pds-pilih"><input type="checkbox" class="pds-check" aria-label="Pilih ' + m[0] + '"></label><span>' + m[0] + "</span></span></th>" +
         "<td>" + lencana[m[1]] + "</td>" +
         '<td class="pds-angka" data-nilai="' + m[2] + '">' + m[2] + ' <span class="pds-ink-3">dari 5</span></td>' +
-        '<td data-prioritas="rendah" data-nilai="' + m[4] + '" class="pds-ink-2">' + m[3] + "</td>" +
+        '<td data-prioritas="rendah" data-nilai="' + m[4] + '" class="pds-ink-2 pds-tanggal">' + Pintar.tanggal(m[3], "biasa") + "</td>" +
         '<td><div class="pds-row-actions"><a href="#" class="pds-btn pds-btn-quiet pds-btn-sm">Lihat<span class="pds-sr"> ' + m[0] + '</span></a>' +
         '<span class="pds-menu-host"><button type="button" class="pds-btn pds-btn-icon" aria-haspopup="menu" aria-expanded="false" aria-controls="tb-menu-' + i + '" aria-label="Opsi untuk ' + m[0] + '"><i data-ikon="ellipsis"></i></button>' +
         '<span class="pds-menu" id="tb-menu-' + i + '" role="menu" aria-label="Opsi untuk ' + m[0] + '" hidden>' +

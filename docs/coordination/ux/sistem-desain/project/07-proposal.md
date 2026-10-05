@@ -87,6 +87,19 @@ The full class-by-class map is in «Migration map».
     - context: a deep-ink `context` band for a mode that changes what the screen means (MODE PERAGAAN, a preview of a learner's screen).
     Every free hue sits beside a status colour or a card and certificate colour, so none is proposed. Agree to the context band, and to no new hue until a use needs one?
 13. **Button and field shape** (new, from the references). Three of the four references use pill buttons, and the sheet uses pill fields. The proposal keeps v2's 8 px corners for buttons and fields: Indonesian labels wrap to two lines at 320 px, where a pill reads as a blob, and a button beside a field shares its corners. Pills stay for every small label and for the switch. Keep 8 px, or move buttons to pills?
+14. **How strong a table stripe** (new, from Dr Gladys's comment). There are two options:
+    - **A, proposed:** `surface-0`, existing tokens only. It is quiet (1.04:1 against white): visible on a good screen, but it may fade on a washed-out projector.
+    - **A+:** #F7F6F2, halfway between `surface-0` and `surface-2`, if A proves too faint. It is a new value, though derived from two approved ones.
+
+    `surface-2` is not proposed: neutral badges vanish on it. Please look at A on a school computer before choosing. A or A+?
+15. **Date fields: the native field plus the date in words under it** (new, from Dr Gladys's comment). The field's own display follows the computer's language, and shows «10/09/2026» for 9 October on an English-language one. The line under it always says «Jumat, 9 Okt 2026, 07.30 WIB». Agree?
+
+## Dr Gladys's comments (5 Oct)
+
+Two comments were accepted as design-system requirements. Both are prepared here and neither is applied.
+
+1. **Table rows are striped.** Five table roles, all existing colours: the header's own ground, rows alternating white and the canvas tint, a darker row under the pointer, and a selected tint with an edge and a checked box. See «Table rows», a whole class of 31 in one table.
+2. **Dates follow an Indonesian grammar:** day before month, the month in words wherever a misreading matters, «09/10/2026» only in a dense column, and always WIB. A native date field is followed by the date in words, because the field's own display follows the computer's language. See «Dates and times» and «Date and time».
 
 ## The visual references of 4 Oct
 

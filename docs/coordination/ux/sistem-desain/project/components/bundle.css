@@ -175,6 +175,12 @@ body {
 .pds-textarea { min-height: 120px; padding: var(--space-3); resize: vertical; }
 .pds-input-pendek { max-width: 20ch; }
 
+/* A date field's echo (Dr Gladys, 5 Oct): the chosen date in words, built from the value, so it
+   is right whatever the browser shows inside the field. */
+.pds-gema { display: flex; align-items: center; gap: var(--space-2); margin: var(--space-2) 0 0; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--ink-1); }
+.pds-gema .pds-ikon { color: var(--ink-3); flex: none; }
+.pds-gema .is-kosong { font-weight: 400; color: var(--ink-3); }
+
 .pds-select { position: relative; display: block; }
 .pds-select select { appearance: none; padding-right: calc(var(--space-3) + var(--icon-md) + var(--space-2)); cursor: pointer; }
 .pds-select .pds-ikon {
@@ -386,7 +392,7 @@ body {
 .pds-table-wrap { container-type: inline-size; display: grid; gap: var(--space-3); min-width: 0; }
 .pds-table-wrap > * { min-width: 0; }
 /* A row's checkbox: the 20px box inside a 44px target that fills its cell. */
-.pds-pilih { display: grid; place-items: center; width: var(--control-md); height: var(--control-md); margin: -10px -12px; cursor: pointer; }
+.pds-pilih { display: grid; place-items: center; flex: none; width: var(--control-md); height: var(--control-md); margin: -10px -12px; cursor: pointer; }
 .pds-pilih .pds-check { margin: 0; }
 .pds-toolbar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
 .pds-toolbar .pds-search { flex: 1 1 240px; max-width: 360px; }
@@ -407,7 +413,7 @@ body {
 .pds-table caption { text-align: left; padding: var(--space-4) var(--space-4) 0; font-size: 14px; line-height: 20px; color: var(--ink-2); caption-side: top; }
 .pds-table th, .pds-table td { padding: var(--space-3) var(--space-4); text-align: left; vertical-align: middle; border-bottom: var(--border-hairline) solid var(--line); }
 .pds-table thead th {
-  position: sticky; top: 0; z-index: var(--z-sticky); background: var(--surface-1);
+  position: sticky; top: 0; z-index: var(--z-sticky); background: var(--table-head);
   font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-2); white-space: nowrap;
 }
 .pds-table tbody tr:last-child > * { border-bottom: 0; }
@@ -418,12 +424,24 @@ body {
 /* The identifying cell: the row's checkbox and its name, held still when the table scrolls. */
 .pds-table .pds-identitas { display: flex; align-items: center; gap: var(--space-3); }
 .pds-table .pds-sub { display: block; font-weight: 400; font-size: 14px; line-height: 20px; color: var(--ink-3); }
+/* ROWS (Dr Gladys, 5 Oct). Body rows alternate table-row and table-row-alt so a long row can be
+   followed across; the stripe is the canvas tint, quiet enough never to read as meaning. Hidden
+   rows (a filter, another page) do not count, so the visible rows always alternate. Hover is one
+   step darker than either stripe; selected is its own tint with an edge and a checked box. Each
+   state is set on the cells, so a sticky cell carries its row's ground with it. */
+/* The stripe rules carry no extra weight (:where), so hover and selected always win over them. */
+.pds-table tbody tr > * { background: var(--table-row); }
+.pds-table tbody tr:where(:nth-child(even)) > * { background: var(--table-row-alt); }
+.pds-table tbody tr:where(:nth-child(odd of :not([hidden]))) > * { background: var(--table-row); }
+.pds-table tbody tr:where(:nth-child(even of :not([hidden]))) > * { background: var(--table-row-alt); }
 .pds-table tbody tr.is-link { cursor: pointer; }
-.pds-table tbody tr.is-link:hover > *, .pds-table tbody tr.is-hover > * { background: var(--surface-2); }
-.pds-table tbody tr[aria-selected="true"] > * { background: var(--pintar-primary-soft); }
-.pds-table .pds-sticky { position: sticky; left: 0; background: var(--surface-1); z-index: 1; }
+.pds-table tbody tr.is-link:hover > *, .pds-table tbody tr.is-hover > * { background: var(--table-row-hover); }
+.pds-table tbody tr[aria-selected="true"] > *, .pds-table tbody tr[aria-selected="true"]:hover > * { background: var(--table-row-selected); }
+.pds-table tbody tr[aria-selected="true"] > :first-child { box-shadow: inset 3px 0 0 var(--pintar-primary); }
+.pds-table .pds-sticky { position: sticky; left: 0; z-index: 1; }
 .pds-table thead .pds-sticky { z-index: calc(var(--z-sticky) + 1); }
-.pds-table tbody tr[aria-selected="true"] > .pds-sticky { background: var(--pintar-primary-soft); }
+.pds-table thead .pds-sort:hover { background: var(--surface-3); }
+.pds-table .pds-tanggal { white-space: nowrap; }
 
 .pds-sort {
   display: inline-flex; align-items: center; gap: var(--space-1);

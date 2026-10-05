@@ -25,6 +25,12 @@ const req = createRequire(join(execSync("npm root -g").toString().trim(), "x.js"
 const { chromium } = req("playwright");
 const baca = (p: string) => readFileSync(join(proyek, p), "utf8");
 const sha = execSync("git rev-parse --short HEAD", { cwd: repo }).toString().trim();
+// The commit's own day, written as the date grammar writes it in English: «5 Oct 2026».
+const hariCommit = (() => {
+  const [t, b, h] = execSync("git log -1 --format=%cs", { cwd: repo }).toString().trim().split("-").map(Number);
+  return `${h} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][b - 1]} ${t}`;
+})();
+const NAMA: Record<string, string> = { DateTime: "Date and time", TableRows: "Table rows", PinInput: "PIN input", CodeInput: "Code input", TextField: "Text field", SegmentedControl: "Segmented control", ActionFeedback: "Action feedback", EmptyState: "Empty state", AppShell: "App shell", LearnerShell: "Learner shell", LockScreen: "Lock screen", DeviceChoice: "Device choice", IdleWarning: "Idle warning", PasswordField: "Password field", ActivationFlow: "Activation flow", FormLayout: "Form layout", LayoutGrid: "Layout grid", InteractionStates: "Interaction states" };
 
 // ── tokens.css, as the page compiles it (same as pratinjau.mts) ─────────
 type Tok = { name: string; value: string; usage?: string };
@@ -141,7 +147,7 @@ function tandaStatus(teks: string): string {
 }
 function baris(nama: string, opsi: { sk?: string } = {}): string {
   const k = kartuInfo(nama), g = panduan(nama);
-  const teks = `<div class="teks"><p class="t-eyebrow">${esc(k.grup)}</p><h3>${esc(nama.replace(/([a-z])([A-Z])/g, "$1 $2"))}</h3>${tandaStatus(g.status)}<p class="ringkas">${sebaris(g.ringkas)}</p>${g.aturan.length ? `<ul class="aturan">${g.aturan.map((a) => `<li>${sebaris(a)}</li>`).join("")}</ul>` : ""}</div>`;
+  const teks = `<div class="teks"><p class="t-eyebrow">${esc(k.grup)}</p><h3>${esc(NAMA[nama] ?? nama.replace(/([a-z])([A-Z])/g, "$1 $2"))}</h3>${tandaStatus(g.status)}<p class="ringkas">${sebaris(g.ringkas)}</p>${g.aturan.length ? `<ul class="aturan">${g.aturan.map((a) => `<li>${sebaris(a)}</li>`).join("")}</ul>` : ""}</div>`;
   const lebar = k.lebar > 960;
   return `<section class="baris ${lebar ? "baris-tumpuk" : ""}">${teks}${kartu(nama, opsi)}</section>`;
 }
@@ -195,7 +201,7 @@ function papan(no: string, judul: string, lede: string, isi: string, total: numb
 <body><main class="papan"><header class="kepala"><div class="atas"><img src="${merek}" alt="PINTAR SELALU"><span class="label">PINTAR design system · ${no} / ${String(total).padStart(2, "0")}</span></div>
 <h1 class="t-display">${esc(judul)}</h1><p class="lede">${lede}</p></header>
 ${isi}
-<footer class="kaki"><span>A proposal for review: token set v3 (draft), not applied to PINTAR. Every word and value comes from the design system files.</span><span>${sha} · 4 Oct 2026</span></footer></main>
+<footer class="kaki"><span>A proposal for review: token set v3 (draft), not applied to PINTAR. Every word and value comes from the design system files.</span><span>${sha} · ${hariCommit}</span></footer></main>
 <script>Pintar.siapkan && Pintar.siapkan();</script></body></html>`;
 }
 
@@ -344,6 +350,12 @@ function papanPertanyaan(): string {
   return `<section class="prosa lebar-penuh" style="max-width: 1200px">${md(bagian("07-proposal.md", "Questions for Yazid"))}</section>
 <section class="grid" style="grid-template-columns: 1fr 1fr; gap: 40px"><div class="prosa lebar-penuh"><h2>Departures from existing rulings</h2>${md(bagian("07-proposal.md", "Departures from existing rulings: for Yazid, not decided here"))}</div><div class="prosa lebar-penuh"><h2>What does not change</h2>${md(bagian("07-proposal.md", "What does not change"))}</div></section>`;
 }
+function papanTanggal(): string {
+  return `<section class="grid">${kartu("Dates", { lebar: 1040, skala: 1.4 })}</section>
+${baris("DateTime")}
+<section class="grid" style="grid-template-columns: 1fr 1fr; gap: 40px"><div class="prosa lebar-penuh"><h2>Native date fields</h2>${md(bagian("10-dates.md", "Native date fields"))}</div><div class="prosa lebar-penuh"><h2>In the product today (for the application pass)</h2>${md(bagian("10-dates.md", "In the product today (for the application pass, nothing changed)"))}</div></section>
+<section class="prosa lebar-penuh" style="max-width: 1456px"><h2>Specimen audit (5 Oct)</h2>${md(bagian("10-dates.md", "Specimen audit (5 Oct)"))}</section>`;
+}
 function papanKomponen(daftar: Array<string | [string, string]>): string {
   return daftar.map((d) => (typeof d === "string" ? baris(d) : baris(d[0], { sk: d[1] }))).join("\n");
 }
@@ -367,12 +379,14 @@ const PAPAN: Array<[string, string, string, string, () => string]> = [
   ["12a", "feedback-results", "Components: results and alerts", "A result at the action that caused it; a state of a whole section at the top of that section.", () => papanKomponen([["ActionFeedback", "tersimpan"], "Alert"])],
   ["12b", "feedback-progress-loading-empty", "Components: progress, loading and empty", "Committed counts and named steps, the page's own shape while it loads, and three kinds of empty.", () => papanKomponen(["Progress", "Loading", "EmptyState"])],
   ["13", "data", "Components: data", "One table that searches, filters, sorts, selects and pages; badges for how something is doing; tags for what it is.", () => papanKomponen(["Table", "Badge", "Tag"])],
+  ["13b", "table-rows", "Table rows: striping (Dr Gladys)", "A whole class in one table. Quiet stripes to follow a row, hover and selection that each read on their own, all from existing PINTAR colours.", () => papanKomponen(["TableRows"])],
   ["14a", "containers", "Components: containers", "Type and space first; a container only when something must stand apart.", () => papanKomponen(["Panel", "Disclosure", "Confirmation", ["Identity", "menu"]])],
   ["14b", "layers", "Components: layers", "Layers float only when they must: a rare dialog, the drawers, a menu, a tooltip.", () => papanKomponen([["Dialog", "terbuka"], ["Drawer", "terbuka"], ["Menu", "terbuka"], ["Tooltip", "fokus"]])],
   ["15", "identity-1", "Identity screens: on a shared computer", "The lock, the device question, the idle warning, the PIN and the code: Gates 3 to 6.", () => papanKomponen(["LockScreen", "DeviceChoice", "IdleWarning", "PinInput", "CodeInput"])],
   ["16", "identity-2", "Identity screens: activation and recovery", "Password rules shown before typing, activation one step at a time, and the way back in.", () => papanKomponen(["PasswordField", "ActivationFlow", "Recovery"])],
   ["17", "foundations", "Foundations in use", "A page made of type and space, the layout grid, and the forty icons.", () => papanKomponen(["Hierarchy", "LayoutGrid", "Icons"])],
   ["18", "accessibility", "Accessibility and school reality", "Shared computers, 1366 × 768 laptops, slow networks and children still learning to read. Nothing depends on a phone, hover, animation or a fast machine.", papanAkses],
+  ["20", "dates", "Dates and times (Dr Gladys)", "Indonesia-first: day before month, the month in words wherever a misreading would matter, always WIB. A native date field is followed by the date in words.", papanTanggal],
   ["19", "questions", "Open questions for Yazid", "Nothing here is applied until Yazid approves. These are the decisions the proposal needs.", papanPertanyaan],
 ];
 
@@ -406,7 +420,7 @@ const dipilih = process.argv.slice(2);
 const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
 for (const [no, nama, judul, lede, isi] of PAPAN) {
   if (dipilih.length && !dipilih.includes(no) && !dipilih.includes(nama)) continue;
-  halaman.set(`/papan/${no}.html`, papan(no, judul, lede, isi(), 19));
+  halaman.set(`/papan/${no}.html`, papan(no, judul, lede, isi(), 20));
   let skala = 2;
   let page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: skala });
   const galat: string[] = [];

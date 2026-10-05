@@ -1,4 +1,12 @@
-<!-- @dsCard group="Inputs" height=300 subtitle="Native date and time, always in Jakarta time" -->
+<!-- @dsCard group="Inputs" height=640 subtitle="Native date and time fields, each followed by the date in words" -->
+<style>
+  .pds-tiruan-baris { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: var(--space-4); }
+  .pds-tiruan { display: grid; gap: var(--space-2); align-content: start; padding: var(--space-4); border-radius: var(--radius-lg); background: var(--surface-1); border: var(--border-hairline) solid var(--line); }
+  .pds-tiruan b { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-2); }
+  .pds-tiruan-isian { display: flex; gap: var(--space-2); }
+  .pds-tiruan-isian span { display: inline-flex; align-items: center; min-height: var(--control-md); padding: 0 var(--space-3); border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-md); background: var(--surface-1); font-variant-numeric: tabular-nums; }
+  .pds-tiruan p { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-2); }
+</style>
 <div class="pds">
   <fieldset class="pds-fieldset">
     <legend class="pds-label">Uji Cepat dibuka</legend>
@@ -6,14 +14,45 @@
     <div class="pds-row" style="align-items: end">
       <div class="pds-field">
         <label class="pds-label" for="dt-tanggal">Tanggal</label>
-        <input id="dt-tanggal" class="pds-input" type="date" value="2026-10-09" aria-describedby="dt-bantu">
+        <input id="dt-tanggal" class="pds-input" type="date" value="2026-10-09" aria-describedby="dt-gema dt-bantu">
       </div>
       <div class="pds-field">
         <label class="pds-label" for="dt-jam">Jam</label>
-        <span class="pds-unit"><input id="dt-jam" class="pds-input" type="time" value="07:30" aria-describedby="dt-bantu dt-wib"><span id="dt-wib">WIB</span></span>
+        <span class="pds-unit"><input id="dt-jam" class="pds-input" type="time" value="07:30" aria-describedby="dt-gema dt-wib"><span id="dt-wib">WIB</span></span>
       </div>
     </div>
+    <p class="pds-gema" aria-live="polite"><i data-ikon="calendar"></i><span id="dt-gema" data-gema-tanggal="#dt-tanggal" data-gema-jam="#dt-jam"></span></p>
   </fieldset>
-  <p class="pds-ink-2">Ditampilkan sebagai: <strong class="pds-num">Jumat, 9 Okt 2026, 07.30 WIB</strong></p>
+
+  <div class="pds-field" style="max-width: 320px">
+    <label class="pds-label" for="dt-selesai">Tanggal selesai <span class="pds-opsional">(opsional)</span></label>
+    <input id="dt-selesai" class="pds-input" type="date" aria-describedby="dt-selesai-gema">
+    <p class="pds-gema" aria-live="polite"><i data-ikon="calendar"></i><span id="dt-selesai-gema" data-gema-tanggal="#dt-selesai"></span></p>
+  </div>
+
+  <section class="pds-stack" aria-labelledby="dt-tiruan">
+    <h2 id="dt-tiruan" class="pds-demo-label">Illustration: what the field itself may show for the same value (2026-10-09, 07:30)</h2>
+    <div class="pds-tiruan-baris">
+      <div class="pds-tiruan" role="img" aria-label="Komputer berbahasa Inggris (AS): kolom menampilkan 10/09/2026 dan 07:30 AM">
+        <b>A computer set to English (US)</b>
+        <div class="pds-tiruan-isian" aria-hidden="true"><span>10/09/2026</span><span>07:30 AM</span></div>
+        <p>Read in Indonesia as 10 September.</p>
+      </div>
+      <div class="pds-tiruan" role="img" aria-label="Komputer berbahasa Indonesia: kolom menampilkan 09/10/2026 dan 07.30">
+        <b>A computer set to Bahasa Indonesia</b>
+        <div class="pds-tiruan-isian" aria-hidden="true"><span>09/10/2026</span><span>07.30</span></div>
+        <p>Right, but the same digits as above.</p>
+      </div>
+      <div class="pds-tiruan">
+        <b>PINTAR's line, on both</b>
+        <p class="pds-gema" style="margin: 0"><i data-ikon="calendar"></i><span id="dt-contoh"></span></p>
+        <p>Built from the value, never from the display.</p>
+      </div>
+    </div>
+  </section>
+  <p class="pds-demo-catatan">The fields above are native: what they show depends on the computer viewing this page. The line under each one doesn't. Change a date or the time and the line follows; clear «Tanggal selesai» and it says «Belum ada tanggal.»</p>
 </div>
-<script>Pintar.siapkan();</script>
+<script>
+  Pintar.siapkan();
+  document.getElementById("dt-contoh").textContent = Pintar.tanggal("2026-10-09", "waktu", "07:30");
+</script>

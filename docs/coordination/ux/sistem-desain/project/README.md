@@ -28,7 +28,7 @@ PINTAR speaks plain Bahasa Indonesia first; English is the second language of ev
 - **Words live in the copy table** (`src/lib/hle.ts`, D-014). Never an internal word («Menunggu», «Salah», "Failed"), never a promise to notify («notifikasi», «pemberitahuan»), never «dikunci» on a learner's line.
 - **Navigation is a short noun** («Kelas», «Pimpinan», «Konfigurasi»). A heading may be a question or a purpose («Apa yang sudah bisa disimpulkan»). «Kembali» names its destination when it is not obvious («Kembali ke Kelas 5A»).
 - **Numbers never stand alone.** «24 dari 31», never «77%» without its base; «Belum cukup untuk disimpulkan», never a zero standing in for an unknown.
-- **Dates and times** are Jakarta time and say so: «Jumat, 9 Okt 2026, 07.30 WIB». Time uses a full stop.
+- **Dates and times** are day before month, Jakarta time, and say so: «Jumat, 9 Okt 2026, 07.30 WIB». Time uses a full stop and 24 hours. The month is in words wherever a misreading would matter; «09/10/2026» only in a dense column of dates (see Dates and times).
 - **Quoting the interface** uses guillemets: «Simpan».
 - **A middle dot binds to the word before it.** «Bab&nbsp;3&nbsp;· Pecahan senilai» uses no-break spaces so no line starts with «·».
 - **Errors blame nobody and say what to do.** «Kode ini tidak cocok. Pakai kode di email terbaru, atau minta kode baru.» Never raw server text (D-011); an unknown failure gives a calm sentence and a short reference.

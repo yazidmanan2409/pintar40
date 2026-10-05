@@ -595,6 +595,49 @@
   }
 
   /* ─────────────────────────────────────────────────────── siapkan */
+  // ── dates (Dr Gladys, 5 Oct): one grammar, built from the value, never from the browser's locale ──
+  var BULAN = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+  var BULAN_PANJANG = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+  var HARI = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  // hari: "yyyy-mm-dd" (a date field's value, a calendar day in WIB); jam: "HH:MM" (a time field's value).
+  // bentuk: "ringkas" 09/10/2026 · "biasa" 9 Okt 2026 · "hari" Jumat, 9 Okt 2026 · "resmi" 9 Oktober 2026
+  //         · "waktu" Jumat, 9 Okt 2026, 07.30 WIB · "catatan" 9 Okt 2026, 07.30 WIB
+  function tanggal(hari, bentuk, jam) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(hari || "");
+    if (!m) return "";
+    var t = +m[1], b = +m[2], h = +m[3];
+    var d = new Date(Date.UTC(t, b - 1, h));
+    if (d.getUTCMonth() !== b - 1) return "";
+    var j = /^(\d{2}):(\d{2})/.exec(jam || "");
+    var pukul = j ? j[1] + "." + j[2] + " WIB" : "";
+    var biasa = h + " " + BULAN[b - 1] + " " + t;
+    var denganHari = HARI[d.getUTCDay()] + ", " + biasa;
+    switch (bentuk) {
+      case "ringkas": return m[3] + "/" + m[2] + "/" + m[1];
+      case "resmi": return h + " " + BULAN_PANJANG[b - 1] + " " + t;
+      case "hari": return denganHari;
+      case "waktu": return pukul ? denganHari + ", " + pukul : denganHari;
+      case "catatan": return pukul ? biasa + ", " + pukul : biasa;
+      default: return biasa;
+    }
+  }
+  // A native date or time field followed by its echo: [data-gema-tanggal="#field"] (and data-gema-jam="#field").
+  function gemaTanggal(akar) {
+    (akar || document).querySelectorAll("[data-gema-tanggal]").forEach(function (gema) {
+      var ft = document.querySelector(gema.getAttribute("data-gema-tanggal"));
+      var fj = gema.getAttribute("data-gema-jam") ? document.querySelector(gema.getAttribute("data-gema-jam")) : null;
+      var awal = gema.getAttribute("data-awal") || "", kosong = gema.getAttribute("data-kosong") || "Belum ada tanggal.";
+      function tulis() {
+        var teks = tanggal(ft.value, fj ? "waktu" : "hari", fj ? fj.value : "");
+        gema.textContent = teks ? awal + teks : kosong;
+        gema.classList.toggle("is-kosong", !teks);
+      }
+      ft.addEventListener("input", tulis); ft.addEventListener("change", tulis);
+      if (fj) { fj.addEventListener("input", tulis); fj.addEventListener("change", tulis); }
+      tulis();
+    });
+  }
+
   function siapkan(akar) {
     akar = akar || document;
     isiIkon(akar);
@@ -609,6 +652,7 @@
     akar.querySelectorAll("[data-aturan-pw]").forEach(aturan);
     akar.querySelectorAll(".pds-search").forEach(cari);
     akar.querySelectorAll("[data-tabel]").forEach(tabel);
+    gemaTanggal(akar);
     dialogs(akar);
     akar.querySelectorAll("[data-tip]").forEach(tooltip);
     akar.querySelectorAll("[data-jaringan]").forEach(function (r) {
@@ -621,5 +665,5 @@
     });
   }
 
-  window.Pintar = { ikon: ikon, siapkan: siapkan, jaringan: JARINGAN, persona: PERSONA, tempat: TEMPAT };
+  window.Pintar = { ikon: ikon, siapkan: siapkan, tanggal: tanggal, jaringan: JARINGAN, persona: PERSONA, tempat: TEMPAT };
 })();

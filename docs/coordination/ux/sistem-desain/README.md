@@ -14,7 +14,7 @@ The playground is not a route in the app. Nothing is added to `src/`, the route 
 | `project/tokens.json` | Token set v3, evolved from v2 (`src/app/globals.css`). Every token says KEPT, CHANGED, NEW, or NEEDS A RULING. |
 | `project/README.md` | The brand book: intent, content, visual foundations, icons, the mark. |
 | `project/01-colour.md` … `06-accessibility.md` | Colour (with the contrast table), typography, layout, interaction and motion, navigation, accessibility. |
-| `project/07-proposal.md` | What is new, what departs from a ruling, what does not change, the findings, and **thirteen questions for Yazid**. |
+| `project/07-proposal.md` | What is new, what departs from a ruling, what does not change, the findings, and **fifteen questions for Yazid**. |
 | `project/09-references.md` | The four visual references of 4 Oct against this proposal: confirmed, changed, not copied. The images themselves are not stored here. |
 | `project/08-migration.md` | Today's `pin-*` classes and shared components → v3 components; the spec §6 gaps; print. |
 | `project/components/<Name>/` | 48 components: `README.md` (the guideline, with a Status line) and `preview.html` (the live card). `Cover/` is the page's cover. |

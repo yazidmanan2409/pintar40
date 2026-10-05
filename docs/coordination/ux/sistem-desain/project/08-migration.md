@@ -41,6 +41,8 @@ This map lists each of today's classes and shared components beside the v3 compo
 | `.pin-picker` (PemilihLingkup), `.pin-lselect` | Select | 44 px; the chevron icon. |
 | `.pin-ub-opsi`, `.pin-ub-pilihan`, `.pin-cepat-pilih` | Radio or Checkbox | A 44 px row. |
 | `.pin-seg` (a radio group drawn as segments) | Segmented control | Each segment 44 px. |
+| Native date fields: Siapkan's «mulai» and «sampai», Konfigurasi's «valid_until» | Date and time: the native field plus its echo | The date in words with the day under each field. Today they show «10/09/2026» for 9 October on an English-language computer. |
+| Every date written on a page (`toLocaleString`, `Intl.DateTimeFormat` per surface) | One helper in the copy table's `format`, writing the forms in «Dates and times» | WIB and the year where they are missing today (Studio, Konfigurasi, Keamanan, Email uji). |
 | The learner's answer options: `.pin-op`, `.pin-opsi`, `.pin-soal-opsi` | Unchanged: the assessment's own component | Only the focus ring and pressed ground take v3 tokens. |
 
 ## Navigation and identity
@@ -83,7 +85,7 @@ This map lists each of today's classes and shared components beside the v3 compo
 
 | Today | v3 | What changes on screen |
 |---|---|---|
-| `.pin-ttabel` | Table | Sticky header, tabular figures, sort and filter where the page already offers them. |
+| `.pin-ttabel` | Table | Sticky header on `table-head`, striped rows (Dr Gladys, 5 Oct), tabular figures, sort and filter where the page already offers them. |
 | `.pin-roster`, `.pin-nama-list` (names, alphabetical, nothing beside them) | Unchanged: a list, never a table | Nothing. Their missing status, order and count are the rule, and adding one changes the product. |
 | `.pin-ub-daftar` | A list with hairlines (Hierarchy) | Nothing. |
 | `.pin-row`, `.pin-list`, `.pin-rowmeta` | A list with hairlines (Hierarchy), or Table where columns compare | Nothing in what is listed. |

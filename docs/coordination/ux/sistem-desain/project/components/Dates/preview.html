@@ -1,0 +1,65 @@
+<!-- @dsCard group="Foundations" height=1000 width=1040 subtitle="Day before month, the month in words wherever it matters, always WIB" -->
+<style>
+  .pds-nama-bulan { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .pds-tanggal-dua { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: var(--space-5); }
+  .pds-tanggal-dua ul { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-2); font-size: 16px; line-height: 24px; }
+  .pds-jangan li { color: var(--ink-2); }
+  .pds-jangan li span { text-decoration: line-through; text-decoration-color: var(--status-blocked); text-decoration-thickness: 2px; color: var(--ink-1); }
+</style>
+<div class="pds">
+  <div class="pds-table-frame" tabindex="0" role="region" aria-label="Bentuk tanggal PINTAR">
+    <table class="pds-table">
+      <caption class="pds-sr">Bentuk tanggal PINTAR, dengan contoh untuk Jumat, 9 Oktober 2026, pukul 07.30 WIB</caption>
+      <thead><tr><th scope="col">Form</th><th scope="col">Pattern</th><th scope="col">Example</th><th scope="col">Use it for</th></tr></thead>
+      <tbody id="tg-isi"></tbody>
+    </table>
+  </div>
+  <section class="pds-stack" aria-labelledby="tg-nama">
+    <h2 id="tg-nama" class="pds-demo-label">Months and days</h2>
+    <div class="pds-nama-bulan" id="tg-bulan"></div>
+    <div class="pds-nama-bulan"><span class="pds-tag">Senin</span><span class="pds-tag">Selasa</span><span class="pds-tag">Rabu</span><span class="pds-tag">Kamis</span><span class="pds-tag">Jumat</span><span class="pds-tag">Sabtu</span><span class="pds-tag">Minggu</span></div>
+  </section>
+  <div class="pds-tanggal-dua">
+    <section class="pds-stack" aria-labelledby="tg-tulis">
+      <h2 id="tg-tulis" class="pds-demo-label">Write</h2>
+      <ul>
+        <li>Batas waktu: Jumat, 16 Okt 2026, 23.59 WIB</li>
+        <li>Uji Cepat dibuka 9–16 Okt 2026</li>
+        <li>Libur 28 Sep – 4 Okt 2026</li>
+        <li>Diperbarui hari ini, 9 Okt 2026, 07.30 WIB</li>
+        <li>English: Friday, 9 Oct 2026, 07.30 WIB</li>
+      </ul>
+    </section>
+    <section class="pds-stack pds-jangan" aria-labelledby="tg-jangan">
+      <h2 id="tg-jangan" class="pds-demo-label">Never</h2>
+      <ul>
+        <li><span>10/09/2026</span> for 9 Oct: month first, the US order</li>
+        <li><span>9/10/26</span> no padding, a two-digit year</li>
+        <li><span>Oct 9, 2026</span> month first, even in English</li>
+        <li><span>07:30 AM</span> 12-hour, no WIB</li>
+        <li><span>Batas: 16 Okt</span> no year</li>
+      </ul>
+    </section>
+  </div>
+  <p class="pds-demo-catatan">Every example in the table is written by <code>Pintar.tanggal()</code> from the value 2026-10-09 and 07:30, the same way a page would write it.</p>
+</div>
+<script>
+  (function () {
+    var t = Pintar.tanggal, v = "2026-10-09", j = "07:30";
+    var baris = [
+      ["Human-readable (the default)", "d MMM yyyy", t(v, "biasa"), "Any date a person reads: lists, tables, history, results."],
+      ["With the day", "EEEE, d MMM yyyy", t(v, "hari"), "A date someone acts on: a deadline, an opening, a schedule; the line under a date field."],
+      ["Date and time", "EEEE, d MMM yyyy, HH.mm WIB", t(v, "waktu", j), "Anything with a time that someone acts on."],
+      ["Timestamp", "d MMM yyyy, HH.mm WIB", t(v, "catatan", j), "When something happened: «Diperbarui …», a line of history."],
+      ["Compact numeric", "dd/mm/yyyy", t(v, "ringkas"), "Only where space is tight: a narrow column of dates only, an export. Never in a sentence or a deadline."],
+      ["Formal", "d MMMM yyyy", t(v, "resmi"), "Emails and printed letters. The certificate keeps its own (frozen)."]
+    ];
+    document.getElementById("tg-isi").innerHTML = baris.map(function (b) {
+      return '<tr><th scope="row" class="pds-nama">' + b[0] + '</th><td><code>' + b[1] + '</code></td><td class="pds-tanggal"><strong>' + b[2] + "</strong></td><td>" + b[3] + "</td></tr>";
+    }).join("");
+    var nama = [];
+    for (var b = 1; b <= 12; b++) nama.push('<span class="pds-tag">' + t("2026-" + (b < 10 ? "0" : "") + b + "-01", "biasa").split(" ")[1] + "</span>");
+    document.getElementById("tg-bulan").innerHTML = nama.join("");
+  })();
+  Pintar.siapkan();
+</script>

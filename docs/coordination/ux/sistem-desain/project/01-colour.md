@@ -23,6 +23,7 @@ PINTAR is a quiet, neutral interface with one green. Colour appears where it mea
 | Error, destructive | `status-blocked` + soft | #8C3B3B on #F6E4E4 | A failure, a refusal, a destructive confirmation. Never on a person. |
 | Information | `status-info` + soft | #3D5A80 on #E7EDF5 | Neutral news. |
 | Scrim | `scrim` | ink at 32% | **New, needs a ruling (question 5).** Behind a dialog or drawer only; no blur. |
+| Table rows | `table-head`, `table-row`, `table-row-alt`, `table-row-hover`, `table-row-selected` | = `surface-2`, `surface-1`, `surface-0`, `surface-3`, `pintar-primary-soft` | **New roles, no new colour (Dr Gladys, 5 Oct).** The header's own ground; rows alternating white and the canvas tint to follow a row across; one step darker under the pointer; selected with an edge and a checked box. See Table rows. |
 | Context | `context`, `context-ink` | = `ink-1`, = `surface-0` | **New role, needs a ruling (question 12).** The accent without a new hue: one full-width band for a mode that changes what the screen means (MODE PERAGAAN, a preview of a learner's screen). Nowhere else. |
 
 ## Rules
@@ -71,6 +72,16 @@ Computed from `tokens.json` by `alat/kontras.py`. Text needs 4.5:1; a field outl
 | Selected segment, current page | `pintar-primary-ink` | `pintar-primary` | 7.39:1 | 4.5:1 | pass |
 | Selected segment on its track (non-text) | `pintar-primary` | `surface-2` | 6.54:1 | 3:1 | pass |
 | Context band (question 12) | `context-ink` | `context` | 14.00:1 | 4.5:1 | pass |
+| Table header label | `ink-2` | `table-head` | 6.26:1 | 4.5:1 | pass |
+| Table text, alternate row | `ink-1` | `table-row-alt` | 14.00:1 | 4.5:1 | pass |
+| Table metadata, alternate row | `ink-3` | `table-row-alt` | 5.30:1 | 4.5:1 | pass |
+| Table text, row under the pointer | `ink-1` | `table-row-hover` | 11.94:1 | 4.5:1 | pass |
+| Table secondary, row under the pointer | `ink-2` | `table-row-hover` | 5.78:1 | 4.5:1 | pass |
+| Table metadata, row under the pointer | `ink-3` | `table-row-hover` | 4.52:1 | 4.5:1 | pass |
+| Table link, row under the pointer | `pintar-primary` | `table-row-hover` | 6.04:1 | 4.5:1 | pass |
+| Table metadata, selected row | `ink-3` | `table-row-selected` | 4.70:1 | 4.5:1 | pass |
+| Table link, selected row | `pintar-primary` | `table-row-selected` | 6.27:1 | 4.5:1 | pass |
+| Selected row edge (non-text) | `pintar-primary` | `table-row-selected` | 6.27:1 | 3:1 | pass |
 | Primary button | `pintar-primary-ink` | `pintar-primary` | 7.39:1 | 4.5:1 | pass |
 | Primary, hover | `pintar-primary-ink` | `pintar-primary-hover` | 9.03:1 | 4.5:1 | pass |
 | Primary, pressed | `pintar-primary-ink` | `pintar-primary-pressed` | 10.85:1 | 4.5:1 | pass |

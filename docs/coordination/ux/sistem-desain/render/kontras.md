@@ -21,6 +21,16 @@
 | Selected segment, current page | `pintar-primary-ink` | `pintar-primary` | 7.39:1 | 4.5:1 | pass |
 | Selected segment on its track (non-text) | `pintar-primary` | `surface-2` | 6.54:1 | 3:1 | pass |
 | Context band (question 12) | `context-ink` | `context` | 14.00:1 | 4.5:1 | pass |
+| Table header label | `ink-2` | `table-head` | 6.26:1 | 4.5:1 | pass |
+| Table text, alternate row | `ink-1` | `table-row-alt` | 14.00:1 | 4.5:1 | pass |
+| Table metadata, alternate row | `ink-3` | `table-row-alt` | 5.30:1 | 4.5:1 | pass |
+| Table text, row under the pointer | `ink-1` | `table-row-hover` | 11.94:1 | 4.5:1 | pass |
+| Table secondary, row under the pointer | `ink-2` | `table-row-hover` | 5.78:1 | 4.5:1 | pass |
+| Table metadata, row under the pointer | `ink-3` | `table-row-hover` | 4.52:1 | 4.5:1 | pass |
+| Table link, row under the pointer | `pintar-primary` | `table-row-hover` | 6.04:1 | 4.5:1 | pass |
+| Table metadata, selected row | `ink-3` | `table-row-selected` | 4.70:1 | 4.5:1 | pass |
+| Table link, selected row | `pintar-primary` | `table-row-selected` | 6.27:1 | 4.5:1 | pass |
+| Selected row edge (non-text) | `pintar-primary` | `table-row-selected` | 6.27:1 | 3:1 | pass |
 | Primary button | `pintar-primary-ink` | `pintar-primary` | 7.39:1 | 4.5:1 | pass |
 | Primary, hover | `pintar-primary-ink` | `pintar-primary-hover` | 9.03:1 | 4.5:1 | pass |
 | Primary, pressed | `pintar-primary-ink` | `pintar-primary-pressed` | 10.85:1 | 4.5:1 | pass |
