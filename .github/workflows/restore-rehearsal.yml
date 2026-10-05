@@ -185,6 +185,12 @@ jobs:
           psql --single-transaction --variable ON_ERROR_STOP=1 --file "$RUNNER_TEMP/pemicu.sql" --dbname "$LOKAL_DB" > /dev/null 2> "$RUNNER_TEMP/pemicu.err"
           echo "recreated on the copy: exit $?"; grep -E 'ERROR' "$RUNNER_TEMP/pemicu.err" | cut -c1-200 | head -5
           PGOPTIONS='-c default_transaction_read_only=on' psql "$LOKAL_DB" -At -F '|' -f audit/restore/fakta.sql > "$RUNNER_TEMP/pulih2.txt" 2>/dev/null
+          # a function whose definition differs: the difference itself (PINTAR's own code, in the repository; no data)
+          for f in $(awk -F'|' 'FNR==NR && $1=="P" {d[$2]=$3; next} $1=="P" && ($2 in d) && d[$2]!=$3 {print $2}' "$RUNNER_TEMP/sesudah.txt" "$RUNNER_TEMP/pulih.txt" | head -3 | tr -d ' '); do
+            q="select pg_get_functiondef('public.$f'::regprocedure)"
+            echo "definition difference, staging -> copy, for $f:"
+            diff <(PGOPTIONS='-c default_transaction_read_only=on' psql "$DB" -At -c "$q") <(psql "$LOKAL_DB" -At -c "$q") | head -20 | cut -c1-200
+          done
           echo "after the corrected step:"
           bash audit/restore/banding.sh "$RUNNER_TEMP/sesudah.txt" "$RUNNER_TEMP/sebelum.txt" "$RUNNER_TEMP/pulih2.txt" | grep -E 'auth.users triggers|^functions:|^table rights|^tables:'
 
