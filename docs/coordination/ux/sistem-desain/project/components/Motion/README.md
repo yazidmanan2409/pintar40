@@ -1,15 +1,16 @@
-Colour and opacity at 160 ms, used only to acknowledge, guide attention, show continuity or confirm completion.
+A restrained vocabulary, used only to acknowledge, guide attention, show continuity or confirm completion.
 
-**Status: KEPT by default** (colour and opacity, 160 ms, off under reduced motion). The extra durations and any travel are question 8.
+**Status: CHANGED, APPROVED (question 8, 5 Oct).** v2's 160 ms is kept for ordinary changes. Hover gets 120 ms, an entering floating layer 240 ms with 8 px of travel at most, and a disclosure's chevron turns.
 
 | Token | ms | For |
 |---|---|---|
-| `duration-base` | 160 | Every transition today: hover and press colour, a state change, a result line or a layer fading in |
+| `duration-fast` | 120 | Hover and press colour, a checkbox's tick |
+| `duration-base` | 160 | An ordinary colour or opacity change: a tab, a segment, a switch, a result line appearing, a chevron turning |
+| `duration-slow` | 240 | A floating layer entering: a dialog (rises 8 px), a drawer (slides 8 px), a menu (4 px away from its button) |
 | `duration-pulse` | 900 | One cycle of the working dot |
-| `duration-fast`, `duration-slow` | 120, 240 | Proposed only (question 8); unused until ruled |
 
 **Rules**
-- Colour and opacity only, as v2 rules. Letting an entering layer travel 8 px, or a chevron turn, is question 8; nothing here uses it.
+- Colour and opacity, plus a short travel for an entering floating layer: 8 px at most. A disclosure's chevron may turn.
 - Nothing spins, bounces, slides across the page, counts up or celebrates.
-- Under `prefers-reduced-motion`, every duration is 0 and the working dot stays still (try the toggle in the preview).
+- Under `prefers-reduced-motion`, every nonessential motion is removed: every duration is 0, nothing travels, and the working dot stays still (try the toggle in the preview).
 - No motion delays the next action.

@@ -1,6 +1,6 @@
 A page made of type and space only: the ladder in use, before any box.
 
-**Status: CHANGED** (the ladder at 8 sizes, question 4).
+**Status: CHANGED, APPROVED** (the ladder at 8 sizes, question 4, 5 Oct).
 
 **Read it top to bottom.** The eyebrow names the context; `t-page` says what the page is for; one sentence of `t-body` in `ink-2` says what it rests on; `t-section` and `t-subsection` organise; `t-stat` is the one figure with its base; `t-small` in `ink-3` carries the metadata.
 

@@ -19,7 +19,7 @@ Rows in a long table: a quiet stripe to follow a row across, and hover and selec
 - Stripes are for tables with columns. A list (one column of rows) keeps hairlines only.
 - Print keeps the stripes. They are light enough for a school printer, and help a teacher follow a printed row.
 
-**How strong a stripe (for Dr Gladys and Yazid).** The card shows three strengths side by side.
-- **A, proposed:** `surface-0`, existing tokens only. Every state stays distinct. Its weakness is that the stripe is quiet (1.04:1 against white). It shows on a good screen; on a washed-out projector or a cheap laptop panel it may fade. Check it on a school computer before ruling.
-- **A+, if A proves too faint:** halfway between `surface-0` and `surface-2` (#F7F6F2). It is derived from two approved tokens but is a new value, so it needs a ruling. Every state still stays distinct.
-- **B, not proposed:** `surface-2`. It tracks best, but a neutral badge («Belum mulai», `surface-2`) loses its ground on every second row, and the header has to move to `surface-3`, which is also the row under the pointer.
+**How strong a stripe: A, provisionally (question 14, 5 Oct).** The card shows three strengths side by side, for the display validation.
+- **A, chosen provisionally:** `surface-0`, existing tokens only. Every state stays distinct. Its weakness is that the stripe is quiet (1.04:1 against white). It shows on a good screen; on a washed-out projector or a cheap laptop panel it may fade. It is validated on an ordinary or poor school display and a projector (`11-validation.md`).
+- **A+, only if A demonstrably lacks visibility:** halfway between `surface-0` and `surface-2` (#F7F6F2). It is not introduced pre-emptively: it is not a token, and it is shown here only so the validation can compare. Every state still stays distinct.
+- **B, not chosen:** `surface-2`. It tracks best, but a neutral badge («Belum mulai», `surface-2`) loses its ground on every second row, and the header has to move to `surface-3`, which is also the row under the pointer.

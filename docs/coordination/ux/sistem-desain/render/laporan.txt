@@ -93,7 +93,7 @@ ok   Menu @960 (height 320px, card 320)
 ok   Menu @390 (height 320px, card 320)
 ok   Menu [terbuka] @960 (height 320px, card 320)
 ok   Motion @960 (height 600px, card 600)
-ok   Motion @390 (height 940px, card 600)
+ok   Motion @390 (height 980px, card 600)
 ok   Pagination @960 (height 420px, card 420)
 ok   Pagination @390 (height 436px, card 420)
 ok   Panel @960 (height 1020px, card 1020)
@@ -142,7 +142,7 @@ ok   Table [ponsel] @390 (height 857px, card 780)
       note, under 44px: a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36
 ok   TableRows @1040 (height 2660px, card 2660)
       note, under 44px: button.pds-btn "Kirim pengingat" 132x36; button.pds-btn "Batalkan pilihan" 132x36; a.pds-baris-nama "Adi Pratama" 93x24; a.pds-baris-nama "Agus Salim" 84x24; a.pds-baris-nama "Ayu Lestari" 84x24; a.pds-baris-nama "Bagus Santoso" 115x24; a.pds-baris-nama "Bayu Aji" 61x24; a.pds-baris-nama "Citra Dewi" 80x24; a.pds-baris-nama "Dewi Kusuma" 104x24; a.pds-baris-nama "Dimas Anggara" 116x24; a.pds-baris-nama "Eka Putri" 67x24; a.pds-baris-nama "Fajar Nugroho" 108x24; a.pds-baris-nama "Fitri Handayani" 114x24; a.pds-baris-nama "Gita Maharani" 106x24; a.pds-baris-nama "Hendra Wijaya" 111x24; a.pds-baris-nama "Indah Permatasari" 138x24; a.pds-baris-nama "Intan Permata" 107x24; a.pds-baris-nama "Joko Susilo" 85x24; a.pds-baris-nama "Kartika Sari" 86x24; a.pds-baris-nama "Lukman Hakim" 112x24; a.pds-baris-nama "Maya Anggraini" 118x24; a.pds-baris-nama "Muhammad Rizky Ramadhan " 351x24; a.pds-baris-nama "Nanda Pratiwi" 106x24; a.pds-baris-nama "Nur Aisyah" 80x24; a.pds-baris-nama "Oki Setiawan" 102x24; a.pds-baris-nama "Putri Ramadhani" 125x24; a.pds-baris-nama "Rahmat Hidayat" 122x24; a.pds-baris-nama "Rina Marlina" 91x24; a.pds-baris-nama "Sari Wulandari" 109x24; a.pds-baris-nama "Teguh Prasetyo" 118x24; a.pds-baris-nama "Umar Faruq" 88x24; a.pds-baris-nama "Wulan Safitri" 96x24; a.pds-baris-nama "Yoga Firmansyah" 130x24
-ok   TableRows @390 (height 4229px, card 2660)
+ok   TableRows @390 (height 4249px, card 2660)
       note, under 44px: button.pds-btn "Kirim pengingat" 132x36; button.pds-btn "Batalkan pilihan" 132x36; a.pds-baris-nama "Adi Pratama" 93x24; a.pds-baris-nama "Agus Salim" 84x24; a.pds-baris-nama "Ayu Lestari" 84x24; a.pds-baris-nama "Bagus Santoso" 115x24; a.pds-baris-nama "Bayu Aji" 61x24; a.pds-baris-nama "Citra Dewi" 80x24; a.pds-baris-nama "Dewi Kusuma" 104x24; a.pds-baris-nama "Dimas Anggara" 116x24; a.pds-baris-nama "Eka Putri" 67x24; a.pds-baris-nama "Fajar Nugroho" 108x24; a.pds-baris-nama "Fitri Handayani" 114x24; a.pds-baris-nama "Gita Maharani" 106x24; a.pds-baris-nama "Hendra Wijaya" 111x24; a.pds-baris-nama "Intan Permata" 107x24; a.pds-baris-nama "Joko Susilo" 85x24; a.pds-baris-nama "Kartika Sari" 86x24; a.pds-baris-nama "Lukman Hakim" 112x24; a.pds-baris-nama "Maya Anggraini" 118x24; a.pds-baris-nama "Nanda Pratiwi" 106x24; a.pds-baris-nama "Nur Aisyah" 80x24; a.pds-baris-nama "Oki Setiawan" 102x24; a.pds-baris-nama "Rina Marlina" 91x24; a.pds-baris-nama "Sari Wulandari" 109x24; a.pds-baris-nama "Teguh Prasetyo" 118x24; a.pds-baris-nama "Umar Faruq" 88x24; a.pds-baris-nama "Wulan Safitri" 96x24
 ok   Tabs @960 (height 420px, card 420)
 ok   Tabs @390 (height 420px, card 420)

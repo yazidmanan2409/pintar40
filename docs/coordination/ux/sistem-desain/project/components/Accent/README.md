@@ -1,6 +1,6 @@
 Accent colour in PINTAR: used only where it says context, hierarchy, state or attention, and never to decorate.
 
-**Status: NEW role, NEEDS A RULING (question 12).** Yazid's note of 4 Oct allows an accent when it is genuinely useful. This proposal fills the role without adding a hue.
+**Status: NEW role, APPROVED (question 12, 5 Oct).** No new hue. Status colours communicate state with words; PINTAR green communicates hierarchy, action and selection; deep ink may identify a context that changes the meaning of the screen, such as MODE PERAGAAN.
 
 **Each job and its colour**
 - **State and attention:** the four status colours, always with a word («Selesai», «Perlu dilihat»). Already ruled.

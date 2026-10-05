@@ -1,5 +1,7 @@
 # Visual references (4 Oct)
 
+**Since ruled (5 Oct).** Every question this review raised is ruled: tags as pills and `radius-sm` for small square controls (7), the context band with no new hue (12), and 8 px buttons and fields (13). See «Proposal and rulings».
+
 Four visual references arrived after the foundation at `f76542b`:
 
 1. **A design-system sheet:** a warm off-white ground, white cards, pill controls, a black primary, one orange accent, serif titles.

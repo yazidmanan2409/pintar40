@@ -32,7 +32,7 @@ This map lists each of today's classes and shared components beside the v3 compo
 
 | Today | v3 | What changes on screen |
 |---|---|---|
-| `.pin-input`, `.pin-isian` (40 px) | Text field, `control-md` | 44 px; outline `line-control` (3:1, question 3). |
+| `.pin-input`, `.pin-isian` (40 px) | Text field, `control-md` | 44 px; outline `line-control` (3:1; approved, question 3). |
 | `.pin-inp` (52 px, sign-in) | Text field, `control-lg` | The outline. |
 | `.pin-inp.pin-inp-big` (60 px, the class card) | PIN input, `control-xl` | The characters 20 → 22 px. Never masked, reformatted or auto-advanced, as today. |
 | `.pin-inp-salah` | The field's error state | Its message sits under the field. |
@@ -49,8 +49,8 @@ This map lists each of today's classes and shared components beside the v3 compo
 
 | Today | v3 | What changes on screen |
 |---|---|---|
-| CangkangPengalaman (`.pin-top .pin-shell`) | App shell (staff), Learner shell | Only if question 1 is approved. Otherwise the header stays and only its tokens change. |
-| `.pin-tabs` and TabTempat (15 px links in the header) | App shell navigation items (staff); Learner shell links | Under question 1. If not approved: `t-body` 16 and a 44 px target. |
+| CangkangPengalaman (`.pin-top .pin-shell`) | App shell (staff), Learner shell | Approved (question 1): staff get the sticky left navigation; learners keep the top bar at every width. |
+| `.pin-tabs` and TabTempat (15 px links in the header) | App shell navigation items (staff); Learner shell links | The staff navigation in the order and grouping of question 11, validated in composed journeys first. |
 | TandaTautan (`.pin-tanda-tautan`, `-sibuk`) | The navigation item's working dot | Nothing in behaviour. |
 | SesiSaya, BarisSesi (`.pin-sesi`, `.pin-sesi-akun`, `.pin-sesi-ket`, `.pin-sesi-keluar`) | Identity (staff, with their own name); the Learner shell's «Bukan akun Anda?» and «Keluar» | Nothing in who is named (S15, D-020). «Keluar» stays visible. |
 | MerekPintar (`.pin-merek`, `.pin-merek-standalone`), drawing `public/brand/pintar-selalu-logo.png` | The canonical wordmark (Wordmark): the outlined master as an inline SVG, `role="img"`, accessible name «PINTAR» | The «PINTAR SELALU» block becomes PINTAR in green, at `wordmark-nav`, `wordmark-bar` or `wordmark-standalone`. Its alt text «PINTAR SELALU» becomes «PINTAR». It stays the one place a school's mark would substitute. |
@@ -84,7 +84,7 @@ This map lists each of today's classes and shared components beside the v3 compo
 | `.pin-akt-periksa` (a name checked before it is made) | Confirmation, attention | Nothing. |
 | HalamanPenolakan (`.pin-refusal`) | Panel with the page's own sentence and next step | Nothing in behaviour. |
 | HalamanGalat | Panel, Button | Nothing in behaviour. |
-| `.pin-tip` (TipSetelahTutup) | A floating Panel | `shadow-overlay`, if question 5 is approved. |
+| `.pin-tip` (TipSetelahTutup) | A floating Panel | `shadow-overlay` (approved, question 5). |
 
 ## Data
 
@@ -108,7 +108,7 @@ This map lists each of today's classes and shared components beside the v3 compo
 | `.pin-kp`, `.pin-lcard`, `.pin-course`, `.pin-tugas` | Panel | Nothing. |
 | `.pin-hasil` (the learner's result section), `.pin-bantuan` (the lesson's help) | Panel, quiet well | Nothing. |
 | `.pin-kelas-bukti` (summary with a ▾ character) | Disclosure | The chevron icon replaces the character. |
-| The tour (`.pin-tur-*`) | Unchanged in behaviour: today's one modal (spec §5) | Dialog's layer tokens (`scrim`, `radius-lg`, `shadow-dialog` if question 5 is approved). The spotlight stays. |
+| The tour (`.pin-tur-*`) | Unchanged in behaviour: today's one modal (spec §5) | Dialog's layer tokens (`scrim`, `radius-lg`, `shadow-dialog`; approved, question 5). The spotlight stays. |
 | The help panel (PanelBantuan) | Drawer | Only its layer tokens; where it opens stays as today. |
 
 ## Known gaps (spec §6)
@@ -136,7 +136,7 @@ This map lists each of today's classes and shared components beside the v3 compo
 | `.pin-lang` (language switch) | `radius-md` 8 |
 | `.pin-tur-x`, `.pin-bantuan-tutup` | `radius-md` 8 |
 | `.pin-chip`, `.pin-qr` (the certificate's link and QR frame) | Unchanged: the certificate's geometry, and the QR's own |
-| Thumbnails in the help panel (`.pin-mini-*`) | `radius-sm` 4 if question 7 is approved, otherwise `radius-md` |
+| Thumbnails in the help panel (`.pin-mini-*`) | `radius-sm` 4 (approved, question 7) |
 
 ### Controls under 44 px
 

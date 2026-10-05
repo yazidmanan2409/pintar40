@@ -17,7 +17,7 @@ PINTAR's one grammar for any act that takes time: click, acknowledged at once, p
 - Say the result beside the action, never in a toast.
 - A completed button returns to its verb as soon as there is something new to do.
 
-**The words.** Simpan → Menyimpan… → ✓ Tersimpan · Kirim → Mengirim… → ✓ Terkirim · Terbitkan → Menerbitkan… → ✓ Selesai (see question 2 in the proposal) · Periksa → Memeriksa… → the result.
+**The words.** Simpan → Menyimpan… → ✓ Tersimpan · Kirim → Mengirim… → ✓ Terkirim · Terbitkan → Menerbitkan… → ✓ Diterbitkan (question 2, 5 Oct: the result names what happened) · Periksa → Memeriksa… → the result.
 
 **Email is the exception.** PINTAR cannot confirm that an email arrived, so an email action never ends in ✓ or «Terkirim»: the button returns to its verb and the line says PINTAR is sending («PINTAR sedang mengirim…», `data-email`). D-098(c); EMAILJUJUR-L01 enforces it for the code emails. «✓ Terkirim» is only for a result the server has authoritatively confirmed, such as feedback answers stored («Sudah terkirim»).
 

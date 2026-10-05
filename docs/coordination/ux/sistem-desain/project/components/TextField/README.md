@@ -1,6 +1,6 @@
 One field: its label above, help under the label, the field, and its error under the field.
 
-**Status: CHANGED.** 40 px becomes 44 px; the outline goes from 1.6:1 to 3:1 (`line-control`, question 3); the error edge is drawn inside so nothing moves.
+**Status: CHANGED.** 40 px becomes 44 px; the outline goes from 1.6:1 to 3:1 (`line-control`, approved, question 3); the error edge is drawn inside so nothing moves.
 
 **Markup.** `pds-field` > `label.pds-label` (+ `span.pds-opsional` «(opsional)») > `p.pds-help` > `input.pds-input` > `p.pds-error`. The input's `aria-describedby` names the help and the error.
 

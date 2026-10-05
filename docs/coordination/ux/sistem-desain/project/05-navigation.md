@@ -2,7 +2,9 @@
 
 **Upper navigation is what I can do in PINTAR. The bottom is me.**
 
-**This is a proposal, not a change.** A sticky left navigation would replace the staff header of today's shell (CangkangPengalaman), so nothing here is applied without Yazid's approval (question 1).
+**Approved (question 1, 5 Oct).** Staff get a sticky left navigation, replacing the staff header of today's shell (CangkangPengalaman); learners keep the top bar at every width; the shell changes at 640, 1024 and 1280 px. The staff navigation keeps the order and grouping below for the application pass (question 11): an educator who also learns has the distinct «Mengajar» and «Belajar» contexts. Before anything changes further, it is validated in composed PINTAR journeys (`11-validation.md`). Nothing is applied to PINTAR until the authorised UI/UX stage begins.
+
+**Not to be confused with the design-system browser.** The browsable file of this system (`alat/buat-situs.mts`) groups its pages under collapsible categories with a + / − on a soft band. That treatment is for browsing the design system only. It is not a pattern for PINTAR's application sidebar, and it is not propagated there.
 
 ## The four shells
 

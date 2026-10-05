@@ -11,7 +11,7 @@
   @media (min-width: 900px) { .pds-banding p { min-height: 120px; } }
   .pds-banding p { margin: 0 0 var(--space-3); font-size: 14px; line-height: 20px; color: var(--ink-2); }
   /* The considered alternative, for comparison only */
-  /* A+: halfway between surface-0 and surface-2 (#F7F6F2), a derived value that would need a ruling */
+  /* A+: halfway between surface-0 and surface-2 (#F7F6F2). Not a token: shown only so the display validation can compare (question 14). */
   .pds-tengah tbody tr:where(:nth-child(even)) > * { background: #f7f6f2; }
   .pds-alternatif thead th { background: var(--surface-3); }
   .pds-alternatif tbody tr:where(:nth-child(even)) > * { background: var(--surface-2); }
@@ -60,21 +60,21 @@
     <h2 id="tr-banding" class="pds-demo-label">How strong a stripe: three strengths, eight rows each</h2>
     <div class="pds-banding">
       <div>
-        <h3>A · Proposed: <code>surface-0</code></h3>
-        <p>Existing tokens only. Every state is distinct: the neutral badge keeps its ground, and the row under the pointer (row 3) is darker than anything else. The stripe is quiet; on a washed-out projector it may fade.</p>
+        <h3>A · Chosen provisionally: <code>surface-0</code></h3>
+        <p>Existing tokens only. Every state is distinct: the neutral badge keeps its ground, and the row under the pointer (row 3) is darker than anything else. The stripe is quiet; on a washed-out projector it may fade, which the display validation checks.</p>
         <div class="pds-table-frame" tabindex="0" role="region" aria-label="Contoh A">
           <table class="pds-table" id="tr-a"><thead><tr><th scope="col">Nama</th><th scope="col">Bab 3</th></tr></thead><tbody></tbody></table>
         </div>
       </div>
       <div>
-        <h3>A+ · If A proves too faint</h3>
-        <p>The stripe halfway between <code>surface-0</code> and <code>surface-2</code> (#F7F6F2). It is derived from two approved tokens but is a new value, so it needs a ruling. Every state stays distinct.</p>
+        <h3>A+ · Only if A demonstrably fails</h3>
+        <p>The stripe halfway between <code>surface-0</code> and <code>surface-2</code> (#F7F6F2). Not introduced pre-emptively: it is not a token, and it is here only for comparison in the display validation. Every state stays distinct.</p>
         <div class="pds-table-frame" tabindex="0" role="region" aria-label="Contoh A plus">
           <table class="pds-table pds-tengah" id="tr-c"><thead><tr><th scope="col">Nama</th><th scope="col">Bab 3</th></tr></thead><tbody></tbody></table>
         </div>
       </div>
       <div>
-        <h3>B · Not proposed: <code>surface-2</code></h3>
+        <h3>B · Not chosen: <code>surface-2</code></h3>
         <p>The neutral badge «Belum mulai» loses its ground on every second row. The header has to move to <code>surface-3</code>, which is also the row under the pointer.</p>
         <div class="pds-table-frame" tabindex="0" role="region" aria-label="Contoh B">
           <table class="pds-table pds-alternatif" id="tr-b"><thead><tr><th scope="col">Nama</th><th scope="col">Bab 3</th></tr></thead><tbody></tbody></table>

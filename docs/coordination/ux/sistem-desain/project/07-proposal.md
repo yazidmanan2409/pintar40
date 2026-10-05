@@ -1,23 +1,23 @@
-# Proposal and open questions
+# Proposal and rulings
 
-**This is a proposal.** It changes nothing in PINTAR and renames nothing in `src/`. It is applied only after Yazid approves it, in a separate UI/UX application pass. That pass changes no behaviour, permission, journey or business rule: this is a visual and interaction system, not a redesign of the product.
+**Approved in principle (5 Oct): every question is ruled.** It still changes nothing in PINTAR and renames nothing in `src/`. It is applied only in the UI/UX application pass, once the authorised UI/UX stage begins. That pass changes no behaviour, permission, journey or business rule: this is a visual and interaction system, not a redesign of the product. What is checked before then is in «Validation».
 
 ## Built from what exists
 
 Token set v3 evolves token set v2 (`src/app/globals.css`); it does not replace it. It starts from the design spec (`docs/coordination/design/PINTAR-DESIGN-SKILL-SPEC.md`), the components in `src/app/experience.css`, the shared interaction components (TombolKirim, BarisHasil, MemuatHalaman, TandaTautan), the shells (CangkangPengalaman, SesiSaya, `tempat.ts`) and the copy table (`src/lib/hle.ts`).
 
-- **Every token** says in its usage note whether it is KEPT, CHANGED (and why) or NEW, and NEEDS A RULING where it departs from an existing ruling.
+- **Every token** says in its usage note whether it is KEPT, CHANGED (and why) or NEW, and APPROVED with its question where it departed from an earlier ruling.
 - **Every component** says the same in its guideline's Status line.
 - **Every v2 colour value is kept.**
 
-## Departures from existing rulings: for Yazid, not decided here
+## Departures from earlier rulings: approved 5 Oct
 
-| Ruling today | This proposal | Question |
+| The earlier ruling | v3, approved | Question |
 |---|---|---|
-| No shadow tokens: hairlines and grounds, by design | Two small shadows, only on layers floating over the page (menus, dialogs, drawers), and a scrim | 5 |
-| Radii 8, 12 and pill | A fourth, 4 px, for checkboxes only (replacing today's literal 6 px); tags became pills after the 4 Oct references | 7 |
-| Motion: colour and opacity, 160 ms | Kept as the default. Two more durations, 8 px travel for an entering layer and a turning chevron are proposed, and unused | 8 |
-| No modal outside the tour (spec §5) | One use for a dialog: a short destructive question from a menu («Keluar dari semua perangkat?») | 6 |
+| No shadow tokens: hairlines and grounds, by design | Two restrained small shadows, only on genuine floating layers (menus, dialogs, drawers), and a scrim; ordinary surfaces and cards stay flat | 5 |
+| Radii 8, 12 and pill | A fourth, 4 px, for checkboxes, small square controls and skeleton blocks (replacing today's literal 6 px); 8, 12 and pill everywhere else; tags became pills after the 4 Oct references | 7 |
+| Motion: colour and opacity, 160 ms | 160 ms kept for ordinary changes; hover 120 ms; a floating layer entering 240 ms with 8 px of travel at most; a disclosure's chevron turns; nonessential motion removed under reduced motion | 8 |
+| No modal outside the tour (spec §5) | One short dialog pattern, for a consequential or destructive question started from a menu («Keluar dari semua perangkat?»); in-page confirmation stays the default | 6 |
 | The header shell, CangkangPengalaman | A left navigation for staff | 1 |
 | 560 px phone breakpoint | Shell bands at 640, 1024 and 1280 | 1 |
 | Field outlines at `line-strong` (1.6:1) | `line-control` at 3:1 or better | 3 |
@@ -66,39 +66,47 @@ The full class-by-class map is in «Migration map».
   - akun.terkirim: «Kartu sudah dikirim ke email Anda.»
   - aktifkan.w_kartu_terkirim: «Kartu PINTAR Anda juga sudah dikirim ke email Anda.»
   EMAILJUJUR-L01 checks only the two code-email lines. These two are for the copy pass, through the copy table; nothing in `src/` was changed here.
-- **Field outlines are 1.6:1 today**, under WCAG 1.4.11's 3:1 for a field's boundary (question 3).
+- **Field outlines are 1.6:1 today**, under WCAG 1.4.11's 3:1 for a field's boundary (question 3, now approved: `line-control`).
 
-## Questions for Yazid
+## Rulings (5 Oct)
 
-**Where the proposal stands (5 Oct).** The brand is approved; the rest of the grammar is not.
-- **Brand: closed.** Questions 16 and 17 are ruled, and the wordmark's status is below («The canonical wordmark»).
+**Where the design system stands (5 Oct).** Approved in principle; all seventeen questions are ruled.
+- **Brand: closed.** Questions 16 and 17, and the wordmark's status below («The canonical wordmark»).
 - **Visual language: approved in principle.**
-- **Interaction and navigation grammar: open.** Questions 1 to 15 each need their own ruling, then validation in composed PINTAR journeys.
-- **Production propagation: later,** after Engineering Complete.
+- **Interaction and navigation grammar: ruled** (questions 1 to 15). Next, validation in composed PINTAR journeys, and the table stripe on real school displays («Validation»).
+- **Production propagation: not yet.** Nothing is applied to PINTAR's application until the authorised UI/UX stage begins, after Engineering Complete.
 
-1. **The shells.** Staff get a sticky left navigation, replacing CangkangPengalaman's staff header; learners keep the top bar at every width (two places do not earn a sidebar, and a child's screen belongs to the lesson). The shell changes at 640, 1024 and 1280 px. Agree?
-2. **«Terbitkan → Menerbitkan… → ✓ Selesai».** Your brief says «Selesai»; the spec's earlier proposal (§18(3)) said «Diterbitkan», which names what happened, as D-047(e) asks of results. Keep «Selesai», or use «Diterbitkan»?
-3. **Field outlines at 3:1.** Every field becomes visibly firmer (#808A91 instead of a 24 % hairline). It is the accessible choice; it is also the most visible change here. Agree?
-4. **The type ladder.** Some sizes move by 1 or 2 px (13 → 14, 17 and 20 → 18, 24 → 22). Agree to the eight sizes?
-5. **Shadows on floating layers only**, small, with no blur filter: an exception to "no elevation". Or keep layers flat, with a hairline and the scrim only?
-6. **One kind of dialog:** a short destructive question asked from a menu, such as «Keluar dari semua perangkat?». The in-page confirmation stays the default. Agree?
-7. **A 4 px radius** for checkboxes (and skeleton blocks), replacing today's literal 6 px: a fourth radius beside 8, 12 and pill. *Narrowed after the 4 Oct references:* tags are now pills like badges, so 4 px is only the small square of a checkbox, drawn as the references draw theirs. Agree, or fold it into 8?
-8. **Motion.** v2 rules colour and opacity at 160 ms, and that stays the default. Do you want any of: a faster 120 ms for hover, a 240 ms for layers entering, 8 px of travel for an entering layer, a chevron that turns? All off under reduced motion.
-9. **Lucide as PINTAR's one icon source,** about 40 icons copied into the product (ISC licence). Agree?
-10. **WCAG 2.2 AA** as PINTAR's named accessibility standard (spec §18(9)), with the skip link. Agree?
-11. **The menu.** The staff navigation lists today's places only; grouping appears only for an educator who also learns («Mengajar», «Belajar»). Any change to order or grouping before the application pass?
-12. **Accent colour** (new, from your 4 Oct note). An accent where it earns its place, filled without a new hue:
-    - state and attention: the status colours, with words;
-    - hierarchy: PINTAR green (the action, the selection, the one value a chart is about);
-    - context: a deep-ink `context` band for a mode that changes what the screen means (MODE PERAGAAN, a preview of a learner's screen).
-    Every free hue sits beside a status colour or a card and certificate colour, so none is proposed. Agree to the context band, and to no new hue until a use needs one?
-13. **Button and field shape** (new, from the references). Three of the four references use pill buttons, and the sheet uses pill fields. The proposal keeps v2's 8 px corners for buttons and fields: Indonesian labels wrap to two lines at 320 px, where a pill reads as a blob, and a button beside a field shares its corners. Pills stay for every small label and for the switch. Keep 8 px, or move buttons to pills?
-14. **How strong a table stripe** (new, from Dr Gladys's comment). There are two options:
-    - **A, proposed:** `surface-0`, existing tokens only. It is quiet (1.04:1 against white): visible on a good screen, but it may fade on a washed-out projector.
-    - **A+:** #F7F6F2, halfway between `surface-0` and `surface-2`, if A proves too faint. It is a new value, though derived from two approved ones.
+1. **The shells. AGREED.**
+   - Staff: a sticky left navigation, replacing CangkangPengalaman's staff header.
+   - Learners: the top bar at every width.
+   - The shell changes at 640, 1024 and 1280 px.
+2. **The publishing state:** Terbitkan → Menerbitkan… → **✓ Diterbitkan.** The result names what happened (D-047(e)). «Selesai» is not used for publishing; the learning status «Selesai» on a badge is unchanged.
+3. **Field outlines: AGREED.** The firmer, accessible 3:1 treatment (`line-control` #808A91).
+4. **The type ladder: AGREED.** The eight sizes.
+5. **Floating layers: APPROVED.** A restrained small shadow for genuine floating layers only (menus, tooltips, a select's open list, dialogs, drawers). Ordinary surfaces and cards stay flat.
+6. **Dialog: AGREED.** One short dialog pattern, for a consequential or destructive question started from a menu. In-page confirmation stays the default.
+7. **Small-control radius: AGREED.** 4 px for checkboxes, small square controls and suitable skeleton blocks. 8, 12 and pill everywhere else.
+8. **Motion: APPROVED,** a restrained vocabulary:
+   - hover: 120 ms;
+   - an ordinary colour or opacity change: 160 ms;
+   - a floating layer entering: 240 ms;
+   - travel: 8 px at most;
+   - a disclosure's chevron may turn;
+   - under reduced motion, nonessential motion is removed.
 
-    `surface-2` is not proposed: neutral badges vanish on it. Please look at A on a school computer before choosing. A or A+?
-15. **Date fields: the native field plus the date in words under it** (new, from Dr Gladys's comment). The field's own display follows the computer's language, and shows «10/09/2026» for 9 October on an English-language one. The line under it always says «Jumat, 9 Okt 2026, 07.30 WIB». Agree?
+   The design system's own components now use it («Motion»).
+9. **Icons: AGREED.** Lucide is PINTAR's single icon source.
+10. **Accessibility: AGREED.** WCAG 2.2 AA is PINTAR's named accessibility standard, including the skip link.
+11. **Staff navigation: KEPT** for the application pass, in the proposed order and grouping. An educator who also learns may have the distinct «Mengajar» and «Belajar» contexts. It is validated in composed journeys before it changes further.
+12. **Accent and context: AGREED. No new hue.**
+    - Status colours communicate state, with words.
+    - PINTAR green communicates hierarchy, action and selection.
+    - Deep ink may identify a context that changes the meaning of the screen, such as MODE PERAGAAN.
+13. **Buttons and fields: KEPT at 8 px corners.** Pills stay for small labels, badges and switches.
+14. **The table stripe: A, provisionally** (`surface-0`, existing tokens).
+    - It is validated on an ordinary or poor school computer display and a projector.
+    - A+ (#F7F6F2) replaces it only if A demonstrably lacks visibility. The new value is not introduced pre-emptively.
+15. **Date fields: AGREED.** The native date and time control, with the unambiguous human-readable Indonesian date and time beneath it («Jumat, 9 Okt 2026, 07.30 WIB»).
 16. **The ID card and the certificate** (asked: do they stay «PINTAR SELALU», or move to PINTAR?). **RULED (5 Oct): approved, with a narrow reopening.**
 
     > The PINTAR ID Card and PINTAR Certificate remain frozen in design, layout, information architecture, colour, typography, dimensions and behaviour. The freeze is reopened solely to replace the superseded PINTAR SELALU product identity with the canonical PINTAR wordmark. This is a brand correction, not a redesign. No other changes are authorised.
@@ -150,7 +158,7 @@ The proofs approve placement, hierarchy, minimum sizes and clear space. They do 
 
 ## Dr Gladys's comments (5 Oct)
 
-Two comments were accepted as design-system requirements. Both are prepared here and neither is applied.
+Two comments were accepted as design-system requirements. Both are prepared here and neither is applied. The stripe's strength is A, provisionally (question 14); the date fields are approved (question 15).
 
 1. **Table rows are striped.** Five table roles, all existing colours: the header's own ground, rows alternating white and the canvas tint, a darker row under the pointer, and a selected tint with an edge and a checked box. See «Table rows», a whole class of 31 in one table.
 2. **Dates follow an Indonesian grammar:** day before month, the month in words wherever a misreading matters, «09/10/2026» only in a dense column, and always WIB. A native date field is followed by the date in words, because the field's own display follows the computer's language. See «Dates and times» and «Date and time».
@@ -169,16 +177,14 @@ Questions 7, 12 and 13 come from them; the rest stand.
 
 **Outside the product.** The playground is this Design System page, a private claude.ai artifact, and its source files in the repository at `docs/coordination/ux/sistem-desain/`. It is not a route in the app: no public surface, no inventory entry and no change to `src/`. If a development-only route is wanted later, it would return 404 outside development (as `/api/dev` does) and need its route and surface inventory entries and the token check (UX1-S0-TOKEN-01).
 
-## If approved: the application pass
+## The application pass (once the authorised UI/UX stage begins)
 
-Each step is one change with its own tests and one CI run. None starts before the approval.
+Each step is one change with its own tests and one CI run. None starts before the authorised UI/UX stage, and none before the validation in «Validation» has passed.
 
 1. **Tokens.** Token set v3 in `globals.css`, with v2 names kept as aliases until no surface uses them. UX1-S0-TOKEN-01 and UX1-S0-CONTRAST-01 move to v3.
 2. **Primitives.** Button (and TombolKirim's states), fields, the segmented control, tabs, badges, the result line (BarisHasil), the alert. A target-size guard joins the selftest.
-3. **The shells,** if question 1 is approved: the staff navigation and the learner top bar, from today's place map. Nothing about who may go where changes.
+3. **The shells** (question 1): the staff navigation and the learner top bar, from today's place map, in the order and grouping of question 11. Nothing about who may go where changes.
 4. **Surfaces, one area at a time:** the learner's, the teacher's, Pimpinan, then Konfigurasi, Pendataan and Studio (the last Tailwind surfaces). Each with 320 and 1280 px screenshots, the X.6 crawl and an accessibility run.
-5. **Copy:** the two email lines above, through the copy table.
-
-## Not received
-
-The brief mentions attached visual references. None reached this session, so the proposal was built from the brief's words and PINTAR's own system. If they matter, send them and I'll check the proposal against them.
+5. **Copy,** through the copy table:
+   - the two email lines above;
+   - «✓ Diterbitkan» as the result of publishing (question 2).

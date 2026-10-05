@@ -2,7 +2,7 @@
 
 PINTAR's icons: a fixed set of forty from Lucide, each with one meaning, always beside a word.
 
-**Status: NEW, NEEDS A RULING (question 9).** PINTAR has no icon set today; the staff navigation's rail and the icon-only buttons need one.
+**Status: NEW, APPROVED (question 9, 5 Oct).** Lucide is PINTAR's single icon source. PINTAR has no icon set today; the staff navigation's rail and the icon-only buttons need one.
 
 **Source and licence**
 - Lucide (`lucide-static` 0.468.0), ISC licence. The SVGs are copied unchanged; nothing is redrawn.

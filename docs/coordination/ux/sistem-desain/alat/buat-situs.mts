@@ -141,7 +141,10 @@ ${md(baca("assets/Logos/README.md"))}
 }
 
 // ── the pages and the navigation ──────────────────────────────────────────────
-type Halaman = { id: string; bagian: string; judul: string; lede?: string; isi: string; komp?: string };
+// `kat` is the main category in the left column (collapsible); `sub` a quiet label inside Components; `bagian` the page's eyebrow.
+type Halaman = { id: string; kat: string; sub?: string; bagian: string; judul: string; lede?: string; isi: string; komp?: string };
+const KATEGORI: Array<[string, string]> = [["foundations", "Foundations"], ["components", "Components"], ["rulings", "Rulings and validation"], ["assets", "Assets"]];
+const SUB: Record<string, string> = { Foundations: "Foundations in use" };
 const dok = (berkas: string) => {
   const s = baca(berkas);
   const judul = /^#\s+(.+)$/m.exec(s)?.[1] ?? berkas;
@@ -149,22 +152,28 @@ const dok = (berkas: string) => {
 };
 const HAL: Halaman[] = [];
 const sampul = KOMP.find((k) => k.nama === "Cover");
-HAL.push({ id: "overview", bagian: "Start", judul: "PINTAR design system", lede: "Token set v3 (draft): the brand book, the foundations and every component, live. A proposal for review; nothing here is applied to PINTAR.", isi: md(baca("README.md")), komp: sampul ? "Cover" : undefined });
+HAL.push({ id: "overview", kat: "", bagian: "Overview", judul: "PINTAR design system", lede: "Token set v3, approved in principle (5 Oct): the brand book, the foundations and every component, live. Nothing here is applied to PINTAR until the authorised UI/UX stage.", isi: md(baca("README.md")), komp: sampul ? "Cover" : undefined });
 const FONDASI: Array<[string, string]> = [["colour", "01-colour.md"], ["typography", "02-typography.md"], ["layout", "03-layout.md"], ["interaction", "04-interaction.md"], ["navigation", "05-navigation.md"], ["accessibility", "06-accessibility.md"], ["dates", "10-dates.md"]];
-for (const [id, f] of FONDASI) HAL.push({ id, bagian: "Foundations", ...dok(f) });
-HAL.push({ id: "tokens", bagian: "Foundations", judul: "Tokens", lede: "Every token in tokens.json, drawn with its own value.", isi: halamanToken() });
+for (const [id, f] of FONDASI) HAL.push({ id, kat: "foundations", bagian: "Foundations", ...dok(f) });
+HAL.push({ id: "tokens", kat: "foundations", bagian: "Foundations", judul: "Tokens", lede: "Every token in tokens.json, drawn with its own value.", isi: halamanToken() });
 for (const g of GRUP) {
   for (const k of KOMP.filter((x) => x.grup === g).sort((a, b) => a.label.localeCompare(b.label))) {
-    HAL.push({ id: `c/${k.nama}`, bagian: `Components · ${g}`, judul: k.label, lede: k.subjudul, isi: k.panduan, komp: k.nama });
+    HAL.push({ id: `c/${k.nama}`, kat: "components", sub: SUB[g] ?? g, bagian: `Components · ${SUB[g] ?? g}`, judul: k.label, lede: k.subjudul, isi: k.panduan, komp: k.nama });
   }
 }
-for (const [id, f] of [["proposal", "07-proposal.md"], ["migration", "08-migration.md"], ["references", "09-references.md"]] as const) HAL.push({ id, bagian: "Proposal", ...dok(f) });
-HAL.push({ id: "assets", bagian: "Assets", judul: "Assets", lede: "The tab icon and the wordmark's master files.", isi: halamanAset() });
+for (const [id, f] of [["proposal", "07-proposal.md"], ["validation", "11-validation.md"], ["migration", "08-migration.md"], ["references", "09-references.md"]] as const) HAL.push({ id, kat: "rulings", bagian: "Rulings and validation", ...dok(f) });
+HAL.push({ id: "assets", kat: "assets", bagian: "Assets", judul: "Assets", lede: "The tab icon and the wordmark's master files.", isi: halamanAset() });
 
-const nav = [...new Set(HAL.map((h) => h.bagian))].map((b) => `<section class="nav-grup" data-grup><h2>${esc(b)}</h2><ul>${HAL.filter((h) => h.bagian === b).map((h) => `<li><a href="#/${h.id}" data-id="${h.id}">${esc(h.judul)}</a></li>`).join("")}</ul></section>`).join("");
+const tautan = (h: Halaman) => `<li><a href="#/${h.id}" data-id="${h.id}">${esc(h.judul)}</a></li>`;
+const nav = `<ul class="nav-atas">${HAL.filter((h) => !h.kat).map(tautan).join("")}</ul>` + KATEGORI.map(([kat, judul]) => {
+  const isi = HAL.filter((h) => h.kat === kat);
+  const subs = [...new Set(isi.map((h) => h.sub ?? ""))];
+  const daftar = subs.map((sub) => `<div class="kat-grup">${sub ? `<p class="kat-sub">${esc(sub)}</p>` : ""}<ul>${isi.filter((h) => (h.sub ?? "") === sub).map(tautan).join("")}</ul></div>`).join("");
+  return `<section class="nav-kat" data-kat="${kat}"><h2 class="kat-kepala"><button type="button" class="kat-tombol" aria-expanded="true" aria-controls="kat-${kat}"><span class="kat-nama">${esc(judul)}</span><span class="kat-jumlah">${isi.length}</span><span class="kat-tanda" aria-hidden="true">−</span></button></h2><div class="kat-isi" id="kat-${kat}">${daftar}</div></section>`;
+}).join("");
 
 const DATA = {
-  kaki: esc(`A proposal for review: token set v3 (draft), not applied to PINTAR. Built from commit ${sha}, ${hariCommit}. Every word and value comes from the design system's files.`),
+  kaki: esc(`Token set v3, approved in principle (5 Oct); not applied to PINTAR until the authorised UI/UX stage. Built from commit ${sha}, ${hariCommit}. Every word and value comes from the design system's files.`),
   kepala: `<style>${TOKENS_CSS}</style><style>${BUNDLE_CSS}</style><script>${BUNDLE_JS}</script>`,
   halaman: HAL,
   komp: Object.fromEntries(KOMP.map((k) => [k.nama, { label: k.label, grup: k.grup, lebar: k.lebar, tinggi: k.tinggi, status: tandaStatus(k.status), pratinjau: k.pratinjau }])),
@@ -185,11 +194,23 @@ a { color: var(--pintar-primary); }
 .merek { display: block; margin: 0 var(--space-3) var(--space-1); font-family: var(--font-wordmark); font-weight: 500; font-synthesis: none; font-size: calc(var(--wordmark-nav) / 0.714); font-size-adjust: cap-height 0.714; line-height: 1; letter-spacing: 0.05em; text-transform: uppercase; color: var(--pintar-primary); text-decoration: none; }
 .sub-merek { margin: var(--space-2) var(--space-3) var(--space-4); font-size: 13px; line-height: 18px; color: var(--ink-3); }
 .cari { display: block; width: calc(100% - 2 * var(--space-2)); margin: 0 var(--space-2) var(--space-2); height: 40px; padding: 0 var(--space-3); border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-md); background: var(--surface-1); font: inherit; font-size: 15px; color: var(--ink-1); }
-.nav-grup h2 { margin: var(--space-5) var(--space-3) var(--space-1); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
-.nav-grup ul { list-style: none; margin: 0; padding: 0; }
-.nav-grup a { display: flex; align-items: center; min-height: 36px; padding: var(--space-1) var(--space-3); border-radius: var(--radius-md); color: var(--ink-1); text-decoration: none; font-size: 15px; line-height: 20px; transition: background-color var(--duration-fast) var(--ease-standard); }
-.nav-grup a:hover { background: var(--surface-2); }
-.nav-grup a[aria-current="page"] { background: var(--pintar-primary-soft); color: var(--pintar-primary); font-weight: 600; }
+/* The design-system browser's own navigation: main categories as soft bands that open and close.
+   This is for browsing the system only; it is not PINTAR's application sidebar. */
+.nav-atas, .kat-isi ul { list-style: none; margin: 0; padding: 0; }
+.nav-atas { margin-bottom: var(--space-2); }
+.kat-kepala { margin: var(--space-2) 0 0; }
+.kat-tombol { display: flex; align-items: center; gap: var(--space-2); width: 100%; min-height: 40px; padding: 0 var(--space-3); border: 0; border-radius: var(--radius-md); background: var(--surface-2); color: var(--ink-1); font: inherit; font-size: 14px; line-height: 20px; font-weight: 600; text-align: left; cursor: pointer; transition: background-color var(--duration-fast) var(--ease-standard); }
+.kat-tombol:hover { background: var(--surface-3); }
+.kat-nama { flex: 1; }
+.kat-jumlah { font-weight: 400; font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.kat-tanda { width: 16px; text-align: center; font-size: 18px; line-height: 1; font-weight: 400; color: var(--ink-2); }
+.kat-isi { padding: var(--space-1) 0 var(--space-2); }
+.kat-isi[hidden] { display: none; }
+.kat-sub { margin: var(--space-3) var(--space-3) 2px; font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.kat-grup:first-child .kat-sub { margin-top: var(--space-2); }
+.nav-atas a, .kat-isi a { display: flex; align-items: center; min-height: 36px; padding: var(--space-1) var(--space-3); border-radius: var(--radius-md); color: var(--ink-1); text-decoration: none; font-size: 15px; line-height: 20px; transition: background-color var(--duration-fast) var(--ease-standard); }
+.nav-atas a:hover, .kat-isi a:hover { background: var(--surface-2); }
+.nav-atas a[aria-current="page"], .kat-isi a[aria-current="page"] { background: var(--pintar-primary-soft); color: var(--pintar-primary); font-weight: 600; }
 .kosong-cari { margin: var(--space-4) var(--space-3); font-size: 14px; color: var(--ink-2); }
 .utama { min-width: 0; padding: var(--space-8) var(--space-8) var(--space-9); }
 .utama:focus { outline: none; }
@@ -316,6 +337,24 @@ function pasangPratinjau(nama) {
   if (s) s.addEventListener("click", () => window.open(URL.createObjectURL(new Blob([dokumen(nama)], { type: "text/html" })), "_blank"));
 }
 
+// Each category opens and closes on its own (several may be open). The state lasts for the session;
+// storage may be unavailable (a private window, a blocked file page), and then it simply is not kept.
+const KUNCI = "pintar-ds-kategori";
+let keadaanKat = {};
+try { keadaanKat = JSON.parse(sessionStorage.getItem(KUNCI) || "{}") || {}; } catch (e) { keadaanKat = {}; }
+const simpanKat = () => { try { sessionStorage.setItem(KUNCI, JSON.stringify(keadaanKat)); } catch (e) { /* not kept */ } };
+function aturKat(sec, terbuka, ingat) {
+  sec.querySelector(".kat-tombol").setAttribute("aria-expanded", String(terbuka));
+  sec.querySelector(".kat-tanda").textContent = terbuka ? "\u2212" : "+";
+  if (!cari.value.trim()) sec.querySelector(".kat-isi").hidden = !terbuka;
+  if (ingat) { keadaanKat[sec.dataset.kat] = terbuka; simpanKat(); }
+}
+const cari = document.querySelector(".cari");
+document.querySelectorAll(".nav-kat").forEach((sec) => {
+  aturKat(sec, keadaanKat[sec.dataset.kat] !== false, false);
+  sec.querySelector(".kat-tombol").addEventListener("click", (e) => aturKat(sec, e.currentTarget.getAttribute("aria-expanded") !== "true", true));
+});
+
 function buka(id, pindahFokus) {
   const i = Math.max(0, HAL.findIndex((h) => h.id === id));
   const h = HAL[i];
@@ -329,8 +368,11 @@ function buka(id, pindahFokus) {
     '<p class="kaki">' + DATA.kaki + "</p></div>";
   if (k) pasangPratinjau(h.komp);
   document.title = h.judul + " · PINTAR design system";
-  document.querySelectorAll(".nav-grup a").forEach((a) => { if (a.dataset.id === h.id) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
-  const aktif = document.querySelector('.nav-grup a[aria-current="page"]');
+  document.querySelectorAll(".samping nav a").forEach((a) => { if (a.dataset.id === h.id) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  const aktif = document.querySelector('.samping nav a[aria-current="page"]');
+  // The category holding the current page opens, and stays open for the session.
+  const kat = aktif && aktif.closest(".nav-kat");
+  if (kat && kat.querySelector(".kat-tombol").getAttribute("aria-expanded") !== "true") aturKat(kat, true, true);
   if (aktif) aktif.scrollIntoView({ block: "nearest" });
   situs.classList.remove("nav-buka");
   window.scrollTo(0, 0);
@@ -340,14 +382,22 @@ const dariHash = () => decodeURIComponent(location.hash.replace(/^#\\/?/, "")) |
 window.addEventListener("hashchange", () => buka(dariHash(), true));
 
 // Filter the navigation as you type.
-const cari = document.querySelector(".cari");
+// While searching, every match shows, whatever its category's state; clearing the search restores it.
 cari.addEventListener("input", () => {
   const q = cari.value.trim().toLowerCase();
   let ada = 0;
-  document.querySelectorAll(".nav-grup").forEach((g) => {
+  document.querySelectorAll(".nav-atas li").forEach((li) => { const cocok = !q || li.textContent.toLowerCase().includes(q); li.hidden = !cocok; if (cocok) ada++; });
+  document.querySelectorAll(".nav-kat").forEach((sec) => {
+    const namaKat = sec.querySelector(".kat-nama").textContent.toLowerCase();
     let n = 0;
-    g.querySelectorAll("li").forEach((li) => { const cocok = !q || li.textContent.toLowerCase().includes(q) || g.querySelector("h2").textContent.toLowerCase().includes(q); li.hidden = !cocok; if (cocok) n++; });
-    g.hidden = n === 0; ada += n;
+    sec.querySelectorAll(".kat-grup").forEach((g) => {
+      const namaSub = (g.querySelector(".kat-sub")?.textContent ?? "").toLowerCase();
+      let m = 0;
+      g.querySelectorAll("li").forEach((li) => { const cocok = !q || li.textContent.toLowerCase().includes(q) || namaSub.includes(q) || namaKat.includes(q); li.hidden = !cocok; if (cocok) m++; });
+      g.hidden = m === 0; n += m;
+    });
+    sec.hidden = n === 0; ada += n;
+    sec.querySelector(".kat-isi").hidden = q ? n === 0 : sec.querySelector(".kat-tombol").getAttribute("aria-expanded") !== "true";
   });
   document.querySelector(".kosong-cari").hidden = ada > 0;
 });
@@ -373,7 +423,7 @@ const html = `<!doctype html>
   <header class="bar-atas"><a class="merek" href="#/overview" aria-label="PINTAR design system, overview">PINTAR</a><button type="button" data-menu aria-expanded="false">Menu</button></header>
   <aside class="samping" aria-label="Design system">
     <a class="merek" href="#/overview" aria-label="PINTAR design system, overview">PINTAR</a>
-    <p class="sub-merek">Design system · token set v3 (draft)<br>${esc(sha)} · ${esc(hariCommit)}</p>
+    <p class="sub-merek">Design system · token set v3, approved in principle<br>${esc(sha)} · ${esc(hariCommit)}</p>
     <input class="cari" type="search" placeholder="Find a page or component" aria-label="Find a page or component">
     <nav aria-label="Pages">${nav}</nav>
     <p class="kosong-cari" hidden>Nothing matches. Try a component's name, such as «Table».</p>

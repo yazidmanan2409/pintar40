@@ -72,20 +72,17 @@ This note is for a fresh session picking up Daisy's lane. Read it first. Then re
 | Final outlined master artwork | PENDING: licensed Helvetica Neue 65 Medium production, then optical verification |
 | Brand | closed |
 | Visual language | approved in principle |
-| Interaction and navigation grammar | **open:** questions 1 to 15 in `project/07-proposal.md` |
+| Interaction and navigation grammar | **ruled (5 Oct):** questions 1 to 15, recorded in `project/07-proposal.md` («Rulings») |
+| Next | **READY TO VALIDATE:** `project/11-validation.md` |
 | Production propagation | later, after Engineering Complete |
 
 ## The queue on restart
 
-1. **Questions 1 to 15** (the interaction and navigation grammar), when Yazid gives the final pass. The consequential ones:
-   - 1, the staff navigation;
-   - 3, field outlines at 3:1;
-   - 6, the one kind of dialog;
-   - 8, motion;
-   - 10, WCAG 2.2 AA;
-   - 15, date fields.
-
-   Record each ruling in `07-proposal.md` as questions 16 and 17 were («RULED», the words quoted). Then validate in composed PINTAR journeys. Nothing goes into `src/` until the application pass is approved.
+1. **Validation** (`docs/coordination/ux/sistem-desain/project/11-validation.md`). All seventeen questions are ruled (5 Oct).
+   - **Compose the journeys J1 to J7** from the design system's components only: invented people, words from the copy table, at 1280, 1024 and 390 px. Nothing goes into `src/`.
+   - **Then Yazid walks them** and rules on each finding.
+   - **The table stripe:** A, provisionally. It is checked on three real displays. A+ only if A demonstrably fails.
+   - **Not to propagate:** the design-system browser's collapsible categories are not PINTAR's sidebar.
 2. **The wordmark master.** It is production's, not a design question.
    - When the licence is verified and the outlined master exists, replace the proofs with it.
    - Measure the card's and certificate's wordmark again with `merek-pintar.mts` (each must stay at least 15 mm wide).

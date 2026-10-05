@@ -9,7 +9,7 @@ The learner's top bar, and the two shells with no navigation at all: focus (insi
 **Public.** For anyone holding a verification link: the wordmark, «Pemeriksaan sertifikat» and the language. No way into PINTAR.
 
 **Rules**
-- A learner never gets a sidebar: two places do not earn one, and a child's screen belongs to the lesson (question 1 in the proposal).
+- A learner never gets a sidebar: two places do not earn one, and a child's screen belongs to the lesson (approved, question 1, 5 Oct).
 - A learner sees no Akun saya and no PINTAR-ID screen (C17).
 - Bantuan appears only where a tour exists for this person.
 

@@ -38,7 +38,7 @@ None of them changed it. The field showed 9 October as «10/09/2026», the time 
 - **Forcing the format** with a text field and a «dd/mm/yyyy» mask: typing errors, no phone picker, and a value that has to be parsed.
 - **A custom calendar widget:** an accessibility cost, and the existing rule is native first.
 
-**The pattern (proposed, question 15).** Keep the native field (keyboard, screen readers and phone pickers all work), and follow it with **the echo**. The echo is one line, in words and with the day: «Jumat, 9 Okt 2026, 07.30 WIB».
+**The pattern (approved, question 15, 5 Oct).** Keep the native field (keyboard, screen readers and phone pickers all work), and follow it with **the echo**. The echo is one line, in words and with the day: «Jumat, 9 Okt 2026, 07.30 WIB».
 
 - It is built from the field's value (yyyy-mm-dd, the same in every browser), so it is right whatever the field shows.
 - It is announced politely as it changes (`aria-live`), and the field's `aria-describedby` points at it.

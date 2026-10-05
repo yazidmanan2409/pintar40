@@ -1,6 +1,6 @@
 # PINTAR design system: foundation study
 
-**Status: a proposal for Yazid's review.** Nothing here is applied to PINTAR. No file in `src/` was changed or renamed, and no surface, route, permission, journey or rule moves. The application pass starts only after Yazid approves, one step at a time (`project/07-proposal.md`, «If approved»).
+**Status: approved in principle (5 Oct); all seventeen questions ruled; READY TO VALIDATE.** Nothing here is applied to PINTAR. No file in `src/` was changed or renamed, and no surface, route, permission, journey or rule moves. What is checked next is in `project/11-validation.md`. The application pass starts only once the authorised UI/UX stage begins, one step at a time (`project/07-proposal.md`, «The application pass»).
 
 ## Where to look
 
@@ -14,7 +14,8 @@ The playground is not a route in the app. Nothing is added to `src/`, the route 
 | `project/tokens.json` | Token set v3, evolved from v2 (`src/app/globals.css`). Every token says KEPT, CHANGED, NEW, or NEEDS A RULING. |
 | `project/README.md` | The brand book: intent, content, visual foundations, icons, the mark. |
 | `project/01-colour.md` … `06-accessibility.md` | Colour (with the contrast table), typography, layout, interaction and motion, navigation, accessibility. |
-| `project/07-proposal.md` | What is new, what departs from a ruling, what does not change, the findings, and **seventeen questions for Yazid** (16 and 17 ruled on 5 Oct). |
+| `project/07-proposal.md` | What is new, what departed from an earlier ruling, what does not change, the findings, and **the seventeen rulings** (5 Oct). |
+| `project/11-validation.md` | **The next validation state:** the composed journeys J1 to J7, the table stripe on real school displays, and the gate to the application pass. |
 | `project/09-references.md` | The four visual references of 4 Oct against this proposal: confirmed, changed, not copied. The images themselves are not stored here. |
 | `project/08-migration.md` | Today's `pin-*` classes and shared components → v3 components; the spec §6 gaps; print. |
 | `project/components/<Name>/` | 48 components: `README.md` (the guideline, with a Status line) and `preview.html` (the live card). `Cover/` is the page's cover. |
@@ -51,7 +52,12 @@ The whole system as one HTML page that works offline:
 npx tsx docs/coordination/ux/sistem-desain/alat/buat-situs.mts   # → situs/PINTAR-design-system.html
 ```
 
-Everything is inside the file (tokens, fonts, styles, behaviour, previews), so it can be sent and opened by double-clicking. The file is not committed; the script rebuilds it.
+Everything is inside the file (tokens, fonts, styles, behaviour, previews), so it can be sent and opened by double-clicking. The left column groups the pages under main categories:
+- each category is a soft band that opens and closes with + / −, and several can stay open;
+- the state is kept for the browser session;
+- the category of the page you are on opens by itself.
+
+That treatment is for browsing the design system only, not for PINTAR's application sidebar. The file is not committed; the script rebuilds it.
 
 ## The boards (PNG)
 
@@ -84,7 +90,3 @@ The forty icons are Lucide (`lucide-static` 0.468.0), copied unchanged under the
 > THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 The fonts are the product's own (`public/fonts/`). The wordmark is PINTAR in Helvetica Neue 65 Medium (Wordmark). Every wordmark here is a proof in the viewer's own face until the outlined master is made, which waits on the font licence being verified. The tab icon (`project/assets/AppIcon/`, made by `alat/buat-ikon-tab.py`) is a plain colour square: no artwork and no licence involved.
-
-## Not received
-
-The brief mentions attached visual references. None reached this study.

@@ -1,6 +1,6 @@
 A side layer: the navigation on small screens (left), and Help (right).
 
-**Status: NEW for the navigation** (with question 1); **KEPT for Help** (UX-1 §O's panel), restyled.
+**Status: NEW for the navigation** (approved with question 1); **KEPT for Help** (UX-1 §O's panel), restyled.
 
 **Markup.** The native `dialog.pds-drawer` (left) or `pds-drawer pds-drawer-kanan` (right): a header with its title and «Tutup», then its content. It holds focus; Esc, «Tutup» or a press outside closes it.
 

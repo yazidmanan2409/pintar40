@@ -21,7 +21,7 @@ When an act takes time: **click → acknowledged → processing → completed or
 |---|---|---|---|
 | Save | Simpan | Menyimpan… | ✓ Tersimpan |
 | Send | Kirim | Mengirim… | ✓ Terkirim |
-| Publish | Terbitkan | Menerbitkan… | ✓ Selesai |
+| Publish | Terbitkan | Menerbitkan… | ✓ Diterbitkan (question 2, 5 Oct: the result names what happened) |
 | Check | Periksa | Memeriksa… | the result itself |
 
 A completed button returns to its verb as soon as there is something new to do (the form changes).
@@ -66,14 +66,16 @@ A completed button returns to its verb as soon as there is something new to do (
 
 ## Motion
 
-**As v2 rules, unless Yazid rules otherwise:** colour and opacity only, about 160 ms (`duration-base`), and nothing under `prefers-reduced-motion`. Motion acknowledges, guides attention, explains continuity or confirms completion; if it does none of these, it does not belong.
+**The approved vocabulary (question 8, 5 Oct).** Restrained, and only where it acknowledges, guides attention, explains continuity or confirms completion; if it does none of these, it does not belong. Under `prefers-reduced-motion`, every nonessential motion is removed.
 
 | Token | ms | Status |
 |---|---|---|
-| `duration-base` | 160 | Kept (v2 `motion-fast`). Every transition: hover and press colour, a state change, a result line, a layer fading in. |
+| `duration-fast` | 120 | Approved. Hover and press colour, a checkbox's tick. |
+| `duration-base` | 160 | Kept (v2 `motion-fast`). An ordinary colour or opacity change: a state change (a tab, a segment, a switch), a result line appearing, a disclosure's chevron turning. |
+| `duration-slow` | 240 | Approved. A floating layer entering: a dialog, a drawer, a menu. |
 | `duration-pulse` | 900 | Kept (today's `pin-denyut` pulse), now named. The working dot only. |
-| `duration-fast`, `duration-slow` | 120, 240 | Proposed (question 8). Unused until ruled. |
 
 - **What never moves:** nothing spins, bounces, slides, counts up or celebrates. A progress bar's width is a committed count and never animates.
-- **Proposed, not applied (question 8):** an entering layer travelling 8 px; a disclosure's chevron turning.
+- **Travel, 8 px at most:** a dialog rises 8 px as it enters; a drawer slides 8 px from its side; a menu moves 4 px away from its button. Nothing travels further.
+- **A disclosure's chevron turns** (180°, at `duration-base`).
 - **Never in the way:** no animation delays the next action.

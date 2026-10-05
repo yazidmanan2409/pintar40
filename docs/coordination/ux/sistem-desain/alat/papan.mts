@@ -306,8 +306,8 @@ function papanAkses(): string {
 <section class="prosa">${md(baca("06-accessibility.md").replace(/^# .*\n/, ""))}</section>`;
 }
 function papanPertanyaan(): string {
-  return `<section class="prosa lebar-penuh" style="max-width: 1200px">${md(bagian("07-proposal.md", "Questions for Yazid"))}</section>
-<section class="grid" style="grid-template-columns: 1fr 1fr; gap: 40px"><div class="prosa lebar-penuh"><h2>Departures from existing rulings</h2>${md(bagian("07-proposal.md", "Departures from existing rulings: for Yazid, not decided here"))}</div><div class="prosa lebar-penuh"><h2>What does not change</h2>${md(bagian("07-proposal.md", "What does not change"))}</div></section>`;
+  return `<section class="prosa lebar-penuh" style="max-width: 1200px">${md(bagian("07-proposal.md", "Rulings (5 Oct)"))}</section>
+<section class="grid" style="grid-template-columns: 1fr 1fr; gap: 40px"><div class="prosa lebar-penuh"><h2>Departures from earlier rulings, approved</h2>${md(bagian("07-proposal.md", "Departures from earlier rulings: approved 5 Oct"))}</div><div class="prosa lebar-penuh"><h2>What does not change</h2>${md(bagian("07-proposal.md", "What does not change"))}</div></section>`;
 }
 function papanTanggal(): string {
   return `<section class="grid">${kartu("Dates", { lebar: 1040, skala: 1.4 })}</section>
@@ -352,7 +352,7 @@ const PAPAN: Array<[string, string, string, string, () => string]> = [
   ["18", "accessibility", "Accessibility and school reality", "Shared computers, 1366 × 768 laptops, slow networks and children still learning to read. Nothing depends on a phone, hover, animation or a fast machine.", papanAkses],
   ["20", "dates", "Dates and times (Dr Gladys)", "Indonesia-first: day before month, the month in words wherever a misreading would matter, always WIB. A native date field is followed by the date in words.", papanTanggal],
   ["21", "wordmark", "The PINTAR wordmark (locked)", "PINTAR, the name, in Helvetica Neue 65 Medium capitals, in PINTAR green, with nothing added. Production refinement only.", papanMerek],
-  ["19", "questions", "Open questions for Yazid", "Nothing here is applied until Yazid approves. The brand is closed (16 and 17 ruled, 5 Oct); questions 1 to 15, the interaction and navigation grammar, are still open.", papanPertanyaan],
+  ["19", "rulings", "Rulings", "Approved in principle: all seventeen questions ruled on 5 Oct. Next, validation in composed PINTAR journeys and the stripe on real school displays; nothing is applied to PINTAR until the authorised UI/UX stage.", papanPertanyaan],
 ];
 
 // ── serve, render, save ─────────────────────────────────────────────────

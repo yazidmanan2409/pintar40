@@ -1,6 +1,6 @@
 The staff shell: a sticky left navigation with the person's places above and the person below, a rail on narrower screens, and a top bar with a drawer on small ones.
 
-**Status: NEW, NEEDS A RULING (question 1).** It would replace the staff header of today's CangkangPengalaman, so it is not applied without Yazid's approval. Its places are today's, derived from roles and journeys; nothing about who may go where changes.
+**Status: NEW, APPROVED (question 1, 5 Oct).** It replaces the staff header of today's CangkangPengalaman in the application pass, which waits for the authorised UI/UX stage. Its order and grouping are kept (question 11) and validated in composed journeys before anything changes further. Its places are today's, derived from roles and journeys; nothing about who may go where changes.
 
 **Anatomy**
 - The PINTAR wordmark (`wordmark-nav`, an 18 px cap height), and the collapse button.

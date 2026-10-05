@@ -1,6 +1,6 @@
 Three content widths, one gutter rule and four screen bands; no 12-column grid.
 
-**Status: CHANGED** (the bands at 640, 1024 and 1280, question 1); the widths are kept.
+**Status: CHANGED, APPROVED** (the bands at 640, 1024 and 1280, question 1, 5 Oct); the widths are kept.
 
 **Widths.** `measure-narrow` 560 for a task, `measure-read` 760 for reading and forms, `measure-stage` 1120 for tables and overviews.
 

@@ -4,7 +4,7 @@ Beauty must not depend on expensive hardware, animation, a fast network or a mou
 
 ## The standard
 
-WCAG 2.2 AA, as a whole (spec §18(9) asks Yazid to name it), plus PINTAR's own 44 px target. Every preview in this system is checked with axe-core for WCAG 2.0, 2.1 and 2.2 A and AA, at its card width and at 390 px.
+**WCAG 2.2 AA is PINTAR's named accessibility standard** (approved, question 10, 5 Oct; spec §18(9)), including the skip link, plus PINTAR's own 44 px target. Every preview in this system is checked with axe-core for WCAG 2.0, 2.1 and 2.2 A and AA, at its card width and at 390 px.
 
 ## Keyboard
 

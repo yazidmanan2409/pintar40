@@ -1,4 +1,4 @@
-**Status: a proposal for review (token set v3, draft).** The product still runs token set v2 (`src/app/globals.css`). Nothing here is applied to PINTAR until Yazid approves it. The «Proposal and open questions» section lists what is new, what changed and what needs a ruling.
+**Status: approved in principle (token set v3, 5 Oct).** Yazid has ruled on all seventeen questions; «Proposal and rulings» records each ruling, and «Validation» says what is checked next. The product still runs token set v2 (`src/app/globals.css`): nothing here is applied to PINTAR until the authorised UI/UX stage begins.
 
 ## The intent
 
@@ -21,7 +21,7 @@ PINTAR speaks plain Bahasa Indonesia first; English is the second language of ev
 - **The completion grammar.** One pattern, three words: the verb, its progressive with an ellipsis, then ✓ and its result.
   - Simpan → Menyimpan… → ✓ Tersimpan
   - Kirim → Mengirim… → ✓ Terkirim
-  - Terbitkan → Menerbitkan… → ✓ Selesai
+  - Terbitkan → Menerbitkan… → ✓ Diterbitkan
   The result line beside it then says what changed for whom: «Bab 3 tersedia untuk 31 murid Kelas 5A mulai sekarang.»
   **Email is the exception.** PINTAR cannot confirm that an email arrived, so an email action never ends in ✓ or «Terkirim»: it says PINTAR is sending («PINTAR sedang mengirim kode baru.»), D-098(c), enforced by EMAILJUJUR-L01. «✓ Terkirim» is only for a result the server confirmed.
 - **Nobody is named on a shared screen unless they are staff.** Staff see their own name; a learner sees «Bukan akun Anda?» and «Keluar» (S15, D-020). «Keluar» is visible on every signed-in screen.
@@ -36,20 +36,20 @@ PINTAR speaks plain Bahasa Indonesia first; English is the second language of ev
 
 ## Visual foundations
 
-- **Colour.** The canvas is `surface-0`; objects that must stand apart sit on `surface-1`; quiet wells and hover use `surface-2`; pressed uses `surface-3`. Text is `ink-1`, then `ink-2` for secondary text, then `ink-3` for metadata. `pintar-primary` is the one primary action, links, focus and selection. Status colours (`status-ok`, `status-attention`, `status-blocked`, `status-info`) each pair with their `-soft` ground and always come with a word. An accent appears only where it says context, hierarchy, state or attention (Accent, question 12); a selection is filled or underlined, never hinted. Never put a status colour on a person. The card and certificate family colours and the warm gold line are identity colours for those artifacts only, never interface colours.
-- **Type.** Plus Jakarta Sans at 400 and 600; IBM Plex Mono 500 for identifiers (`t-identifier`), exactly the weights v2 uses. No third weight. Eight sizes (`t-display` 36, `t-page` 30, `t-section` 22, `t-subsection` 18, `t-body` 16, `t-small`/`t-label` 14, `t-eyebrow` 12), plus the learner's question stem (`t-stem`, unchanged). Figures in tables and statistics are tabular.
+- **Colour.** The canvas is `surface-0`; objects that must stand apart sit on `surface-1`; quiet wells and hover use `surface-2`; pressed uses `surface-3`. Text is `ink-1`, then `ink-2` for secondary text, then `ink-3` for metadata. `pintar-primary` is the one primary action, links, focus and selection. Status colours (`status-ok`, `status-attention`, `status-blocked`, `status-info`) each pair with their `-soft` ground and always come with a word. An accent appears only where it says context, hierarchy, state or attention (Accent; approved, question 12); a selection is filled or underlined, never hinted. Never put a status colour on a person. The card and certificate family colours and the warm gold line are identity colours for those artifacts only, never interface colours.
+- **Type.** Plus Jakarta Sans at 400 and 600; IBM Plex Mono 500 for identifiers (`t-identifier`), exactly the weights v2 uses. No third weight. Eight sizes (approved, question 4: `t-display` 36, `t-page` 30, `t-section` 22, `t-subsection` 18, `t-body` 16, `t-small`/`t-label` 14, `t-eyebrow` 12), plus the learner's question stem (`t-stem`, unchanged). Figures in tables and statistics are tabular.
 - **Space.** A 4 px base used in 8s (`space-1` to `space-9`). Fields are `space-4` apart, groups `space-5`, sections `space-8`. The gutter is 16 px below 640 px, 24 px above.
 - **Layout.** One column at its measure: `measure-narrow` (560) for a task, `measure-read` (760) for reading and forms, `measure-stage` (1120) for tables. No 12-column grid; side-by-side items use an auto-fit grid with a minimum width.
 - **Lines.** One weight, 1 px. `line` divides; `line-control` outlines fields (3:1); `line-strong` outlines secondary buttons. 2 px only for focus and the selected tab.
-- **Corners.** `radius-md` 8 (buttons, fields, menus; question 13), `radius-lg` 12 (panels, tables, dialogs), `radius-pill` (every small label: badges and tags; the switch), as v2. `radius-sm` 4 for checkboxes is proposed (question 7) to replace the literal 6 px. Nothing larger.
-- **Elevation.** None in the page: hairlines and grounds separate things, as v2 rules. Proposed (question 5): a small shadow only on a layer floating above the page, `shadow-overlay` for menus and tooltips and `shadow-dialog` over `scrim` for dialogs and drawers. No blur filters, no backdrop filters.
-- **Motion.** Colour and opacity only, at `duration-base` (160 ms), with the working dot's `duration-pulse` (900 ms), as v2 rules. Motion acknowledges, guides attention, shows continuity or confirms completion; otherwise it is not there. Nothing spins, bounces or slides. Under `prefers-reduced-motion`, nothing moves. Further durations and any travel are proposals for Yazid (question 8).
+- **Corners.** `radius-md` 8 (buttons, fields, menus; kept, question 13), `radius-lg` 12 (panels, tables, dialogs), `radius-pill` (every small label: badges and tags; the switch), as v2. `radius-sm` 4 for checkboxes, small square controls and skeleton blocks (approved, question 7) replaces the literal 6 px. Nothing larger.
+- **Elevation.** None in the page: hairlines and grounds separate things, and ordinary surfaces and cards stay flat. Approved (question 5): a restrained small shadow only on a genuine floating layer, `shadow-overlay` for menus and tooltips and `shadow-dialog` over `scrim` for dialogs and drawers. No blur filters, no backdrop filters.
+- **Motion** (approved, question 8). Hover and press 120 ms (`duration-fast`); an ordinary colour or opacity change 160 ms (`duration-base`); a floating layer entering 240 ms (`duration-slow`), travelling 8 px at most; a disclosure's chevron may turn; the working dot's `duration-pulse` (900 ms). Motion acknowledges, guides attention, shows continuity or confirms completion; otherwise it is not there. Nothing spins, bounces or slides across the page. Under `prefers-reduced-motion`, every nonessential motion is removed.
 - **States.** Hover is one step of ground or ink; pressed one more; focus is always the same 2 px `focus-ring` with a 2 px offset; selected is `pintar-primary-soft` or the tab underline, with weight 600; disabled is `surface-2` with `ink-disabled`, and always says why nearby.
 - **Targets.** Every control is at least `control-md` (44 px) to hit. Sign-in and a learner's own primary action use `control-lg` (52); the class-card path uses `control-xl` (60).
 
 ## Iconography
 
-- **Source.** Lucide (ISC licence), a fixed set of forty icons copied unchanged (see Icons). No other icon set and no hand-drawn icons.
+- **Source.** Lucide (ISC licence), PINTAR's single icon source (approved, question 9): a fixed set of forty icons copied unchanged (see Icons). No other icon set and no hand-drawn icons.
 - **Drawing.** 20 px (`icon-md`) on a 24 grid, stroke 1.75, round caps and joins, in `currentColor`: `ink-2` or `ink-3` at rest, `pintar-primary` when the item is current. 16 px (`icon-sm`) beside 14 px text.
 - **Use.** An icon accompanies a label; it never replaces one, except in an icon-only button, which always has an accessible name and a tooltip. Icons never carry status alone: ✓ «Selesai» has its word.
 - **No emoji** in the interface chrome.

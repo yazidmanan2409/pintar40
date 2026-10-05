@@ -14,7 +14,7 @@ PINTAR is a quiet, neutral interface with one green. Colour appears where it mea
 | Disabled | `ink-disabled` | #7F8890 | **New.** Readable (3.2:1) though WCAG exempts it. |
 | Hairline | `line` | ink at 12% | Divides. Never outlines a field. |
 | Button outline | `line-strong` | ink at 24% | Secondary buttons, tags. |
-| Field outline | `line-control` | #808A91 | **New, needs a ruling (question 3).** Every field, checkbox, radio and switch: 3:1 or better. |
+| Field outline | `line-control` | #808A91 | **New, approved (question 3, 5 Oct).** Every field, checkbox, radio and switch: 3:1 or better. |
 | PINTAR green | `pintar-primary` | #245F55 | The PINTAR wordmark (CMYK 84 43 65 29 in print), the one primary action, links, focus, a checked control, and a selection that must read at 3:1: the selected segment and the current page are filled, as v2's are. |
 | Selected | `pintar-primary-soft` | #E3EFEC | The current place, a selected row. Never success. |
 | Hover, pressed | `pintar-primary-hover`, `-pressed` | #1E5148, #19443D | The primary button's states (pressed is new). |
@@ -22,17 +22,17 @@ PINTAR is a quiet, neutral interface with one green. Colour appears where it mea
 | Attention | `status-attention` + soft | #8A5F00 on #F7EED8 | Needs a look; nothing is broken, nobody did wrong. |
 | Error, destructive | `status-blocked` + soft | #8C3B3B on #F6E4E4 | A failure, a refusal, a destructive confirmation. Never on a person. |
 | Information | `status-info` + soft | #3D5A80 on #E7EDF5 | Neutral news. |
-| Scrim | `scrim` | ink at 32% | **New, needs a ruling (question 5).** Behind a dialog or drawer only; no blur. |
-| Table rows | `table-head`, `table-row`, `table-row-alt`, `table-row-hover`, `table-row-selected` | = `surface-2`, `surface-1`, `surface-0`, `surface-3`, `pintar-primary-soft` | **New roles, no new colour (Dr Gladys, 5 Oct).** The header's own ground; rows alternating white and the canvas tint to follow a row across; one step darker under the pointer; selected with an edge and a checked box. See Table rows. |
-| Context | `context`, `context-ink` | = `ink-1`, = `surface-0` | **New role, needs a ruling (question 12).** The accent without a new hue: one full-width band for a mode that changes what the screen means (MODE PERAGAAN, a preview of a learner's screen). Nowhere else. |
+| Scrim | `scrim` | ink at 32% | **New, approved (question 5, 5 Oct).** Behind a dialog or drawer only; no blur. |
+| Table rows | `table-head`, `table-row`, `table-row-alt`, `table-row-hover`, `table-row-selected` | = `surface-2`, `surface-1`, `surface-0`, `surface-3`, `pintar-primary-soft` | **New roles, no new colour (Dr Gladys, 5 Oct).** The header's own ground; rows alternating white and the canvas tint to follow a row across (option A, chosen provisionally on 5 Oct, question 14: validated on an ordinary school display and a projector, and A+ only if A demonstrably lacks visibility); one step darker under the pointer; selected with an edge and a checked box. See Table rows. |
+| Context | `context`, `context-ink` | = `ink-1`, = `surface-0` | **New role, approved (question 12, 5 Oct).** The accent without a new hue: one full-width band for a mode that changes what the screen means (MODE PERAGAAN, a preview of a learner's screen). Nowhere else. |
 
 ## Rules
 
 - **Accent colour earns its place or stays out** (Yazid, 4 Oct). An accent may say context, hierarchy, state or attention; it never decorates, and the default screen stays calm. PINTAR already has an accent for each of those jobs:
   - **state and attention:** the four status colours, always with a word;
   - **hierarchy:** `pintar-primary`, the one primary action and the current selection (in a chart, the one value the page is about);
-  - **context:** proposed, the `context` band in deep ink (question 12).
-  No new hue is proposed. The free hue space is narrow: green is identity and success, amber, red and blue are status, and plum, the family greens, teal and the gold line belong to the card and the certificate. A new hue waits for a use none of these can carry (question 12).
+  - **context:** the `context` band in deep ink (approved, question 12).
+  No new hue (question 12, 5 Oct). The free hue space is narrow: green is identity and success, amber, red and blue are status, and plum, the family greens, teal and the gold line belong to the card and the certificate. A new hue waits for a use none of these can carry.
 - **One green, two meanings kept apart.** `pintar-primary` means "act here" or "you are here"; `status-ok` means "this really happened". They differ by only 1.2:1 in lightness, so success never relies on colour: it always has ✓ and a word, and it never fills a button at rest.
 - **Success is rare.** It appears when a change is confirmed (the ✓ state of an action and its result line), when something becomes available, or on a verified result. Never as decoration, never for "normal".
 - **Status discipline, already ruled** (spec §6, citing `experience.css`), kept unchanged:

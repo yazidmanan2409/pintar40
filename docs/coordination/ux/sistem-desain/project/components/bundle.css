@@ -72,9 +72,9 @@ body {
   border: var(--border-hairline) solid transparent; border-radius: var(--radius-md);
   font-size: 16px; line-height: 24px; font-weight: 600;
   text-decoration: none; white-space: nowrap; cursor: pointer;
-  transition: background-color var(--duration-base) var(--ease-standard),
-              border-color var(--duration-base) var(--ease-standard),
-              color var(--duration-base) var(--ease-standard);
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard);
 }
 .pds-btn .pds-ikon { margin-inline: -2px; }
 
@@ -154,7 +154,7 @@ body {
   background: var(--surface-1); color: var(--ink-1);
   border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-md);
   font-size: 16px; line-height: 24px;
-  transition: border-color var(--duration-base) var(--ease-standard);
+  transition: border-color var(--duration-fast) var(--ease-standard);
 }
 .pds-input::placeholder, .pds-textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .pds-input:hover, .pds-textarea:hover, .pds-select select:hover,
@@ -218,7 +218,7 @@ body {
   appearance: none; margin: 2px 0 0; width: 20px; height: 20px; flex: none;
   background: var(--surface-1); border: var(--border-hairline) solid var(--line-control);
   display: grid; place-items: center; cursor: pointer;
-  transition: background-color var(--duration-base) var(--ease-standard), border-color var(--duration-base) var(--ease-standard);
+  transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 .pds-check { border-radius: var(--radius-sm); }
 .pds-radio { border-radius: 50%; }
@@ -317,7 +317,7 @@ body {
   min-height: var(--control-md); padding: 0 var(--space-1);
   background: none; border: 0; cursor: pointer; white-space: nowrap;
   font-size: 16px; line-height: 24px; color: var(--ink-2); text-decoration: none;
-  transition: color var(--duration-base) var(--ease-standard);
+  transition: color var(--duration-fast) var(--ease-standard);
 }
 .pds-tab::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: var(--border-selected);
@@ -585,7 +585,7 @@ th.pds-angka .pds-sort { flex-direction: row-reverse; }
   padding: var(--space-5); border-radius: var(--radius-lg);
   background: var(--surface-1); border: var(--border-hairline) solid var(--line);
   color: inherit; text-decoration: none;
-  transition: border-color var(--duration-base) var(--ease-standard);
+  transition: border-color var(--duration-fast) var(--ease-standard);
 }
 a.pds-card:hover { border-color: var(--line-control); }
 .pds-card h3 { font-size: 18px; line-height: 26px; font-weight: 600; color: var(--ink-1); }
@@ -596,7 +596,7 @@ a.pds-card:hover { border-color: var(--line-control); }
 .pds-list-row {
   display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-1) var(--space-4); align-items: center;
   min-height: 64px; padding: var(--space-3) var(--space-2); color: inherit; text-decoration: none;
-  transition: background-color var(--duration-base) var(--ease-standard);
+  transition: background-color var(--duration-fast) var(--ease-standard);
 }
 a.pds-list-row:hover, .pds-list-row.is-hover { background: var(--surface-2); }
 a.pds-list-row:active, .pds-list-row.is-pressed { background: var(--surface-3); }
@@ -619,6 +619,7 @@ a.pds-list-row:active, .pds-list-row.is-pressed { background: var(--surface-3); 
 .pds-disclosure > summary:hover { background: var(--surface-2); }
 .pds-disclosure > summary small { display: block; font-weight: 400; font-size: 14px; line-height: 20px; color: var(--ink-3); }
 .pds-disclosure > summary .pds-ikon { color: var(--ink-2); }
+.pds-disclosure > summary .pds-ikon { transition: rotate var(--duration-base) var(--ease-standard); }
 .pds-disclosure[open] > summary .pds-ikon { rotate: 180deg; }
 .pds-disclosure > div { padding: 0 var(--space-2) var(--space-5); color: var(--ink-2); display: grid; gap: var(--space-3); }
 
@@ -634,10 +635,11 @@ a.pds-list-row:active, .pds-list-row.is-pressed { background: var(--surface-3); 
 .pds-dialog-isi p { color: var(--ink-2); }
 .pds-dialog .pds-actions { justify-content: flex-end; margin-top: var(--space-2); }
 @media (prefers-reduced-motion: no-preference) {
-  .pds-dialog[open] { animation: pds-masuk var(--duration-base) var(--ease-standard); }
-  .pds-dialog[open]::backdrop { animation: pds-muncul var(--duration-base) var(--ease-standard); }
+  .pds-dialog[open] { animation: pds-masuk var(--duration-slow) var(--ease-standard); }
+  .pds-dialog[open]::backdrop { animation: pds-muncul var(--duration-slow) var(--ease-standard); }
 }
-@keyframes pds-masuk { from { opacity: 0; } }
+/* A floating layer enters at duration-slow and travels 8 px at most (question 8, 5 Oct). */
+@keyframes pds-masuk { from { opacity: 0; translate: 0 8px; } }
 
 .pds-drawer {
   position: fixed; inset: 0 auto 0 0; margin: 0; height: 100%; max-height: none;
@@ -650,12 +652,15 @@ a.pds-list-row:active, .pds-list-row.is-pressed { background: var(--surface-3); 
 .pds-drawer-kepala h2 { font-size: 18px; line-height: 26px; font-weight: 600; }
 .pds-drawer-isi { padding: var(--space-4); display: grid; gap: var(--space-4); }
 @media (prefers-reduced-motion: no-preference) {
-  .pds-drawer[open] { animation: pds-geser-kiri var(--duration-base) var(--ease-standard); }
-  .pds-drawer.pds-drawer-kanan[open] { animation: pds-geser-kanan var(--duration-base) var(--ease-standard); }
-  .pds-drawer[open]::backdrop { animation: pds-muncul var(--duration-base) var(--ease-standard); }
+  .pds-drawer[open] { animation: pds-geser-kiri var(--duration-slow) var(--ease-standard); }
+  .pds-drawer.pds-drawer-kanan[open] { animation: pds-geser-kanan var(--duration-slow) var(--ease-standard); }
+  .pds-drawer[open]::backdrop { animation: pds-muncul var(--duration-slow) var(--ease-standard); }
 }
-@keyframes pds-geser-kiri { from { opacity: 0; } }
-@keyframes pds-geser-kanan { from { opacity: 0; } }
+@keyframes pds-geser-kiri { from { opacity: 0; translate: -8px 0; } }
+@keyframes pds-geser-kanan { from { opacity: 0; translate: 8px 0; } }
+/* A menu is anchored to its button, so it travels less: 4 px, away from the button. */
+@keyframes pds-turun { from { opacity: 0; translate: 0 -4px; } }
+@keyframes pds-naik { from { opacity: 0; translate: 0 4px; } }
 
 /* ──────────────────────────────────────────────────── menu and tooltip */
 .pds-menu-host { position: relative; display: inline-block; }
@@ -680,7 +685,9 @@ a.pds-list-row:active, .pds-list-row.is-pressed { background: var(--surface-3); 
 .pds-menu-pisah { height: 1px; margin: var(--space-1) 0; background: var(--line); border: 0; }
 .pds-menu-judul { padding: var(--space-2) var(--space-3) var(--space-1); font-size: 14px; line-height: 20px; color: var(--ink-3); }
 @media (prefers-reduced-motion: no-preference) {
-  .pds-menu:not([hidden]) { animation: pds-muncul var(--duration-base) var(--ease-standard); }
+  .pds-menu:not([hidden]) { animation: pds-turun var(--duration-slow) var(--ease-standard); }
+  .pds-menu.pds-menu-atas:not([hidden]) { animation-name: pds-naik; }
+  .pds-menu.pds-menu-samping:not([hidden]) { animation-name: pds-muncul; }
 }
 
 .pds-tip-host { position: relative; display: inline-flex; }
@@ -766,7 +773,7 @@ a.pds-list-row:active, .pds-list-row.is-pressed { background: var(--surface-3); 
   display: flex; align-items: center; gap: var(--space-3); min-height: var(--control-md); padding: 0 var(--space-3);
   border-radius: var(--radius-md); color: var(--ink-2); text-decoration: none;
   font-size: 16px; line-height: 24px;
-  transition: background-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 .pds-nav-item .pds-ikon { color: var(--ink-3); }
 .pds-nav-item:hover, .pds-nav-item.is-hover { background: var(--surface-2); color: var(--ink-1); }
@@ -862,7 +869,7 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
   display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-1) var(--space-3); align-items: start;
   padding: var(--space-4); border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-lg);
   background: var(--surface-1); cursor: pointer;
-  transition: background-color var(--duration-base) var(--ease-standard), border-color var(--duration-base) var(--ease-standard);
+  transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 .pds-pilihan label:hover { background: var(--surface-2); }
 .pds-pilihan label:has(:checked) { border-color: var(--pintar-primary); background: var(--pintar-primary-soft); box-shadow: inset 0 0 0 1px var(--pintar-primary); }
