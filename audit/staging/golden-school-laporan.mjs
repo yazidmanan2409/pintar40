@@ -140,7 +140,8 @@ async function keluar(page) {
   const dari = new URL(page.url()).pathname;
   await page.getByRole("button", { name: "Keluar", exact: true }).first().click();
   await page.waitForURL((u) => u.pathname !== dari, { timeout: SLOW });
-  await page.waitForLoadState("networkidle");
+  // the public front it lands on never goes network-idle (run 37289554356); the sign-out itself is X1's to judge
+  await page.waitForLoadState("load");
   return new URL(page.url()).pathname;
 }
 // read only: the sessions one person opened since `sejak` (epoch seconds), each «MODE:ended reason» or «MODE:OPEN»
@@ -550,10 +551,11 @@ await step("U1", "GS-20 (J2.9, J2.20) the class computer: her lesson locks after
     const m = norm(await p.locator("p.pin-lpos").first().innerText().catch(() => "")).match(/(\d+)\s*\/\s*(\d+)/);
     return m ? [Number(m[1]), Number(m[2])] : [0, 0];
   };
-  // the reading map → the first lesson, as S21c of the audit walk
+  // the chapter's page → its first lesson in the list («Buka pelajarannya» on the reading map is there only while a
+  // lesson is unread, and the holder has read them all)
   const bukaPelajaran = async () => {
-    await buka(p, `/belajar/${S.tugas}/peta`);
-    await p.getByRole("link", { name: "Buka pelajarannya" }).first().click();
+    await buka(p, `/belajar/${S.tugas}`);
+    await p.locator(`a.pin-row[href^="/belajar/${S.tugas}/pelajaran/"]`).first().click();
     await p.waitForURL((u) => u.pathname.includes("/pelajaran/"), { timeout: SLOW });
     await p.locator("p.pin-lpos").first().waitFor({ timeout: SLOW });
     await p.waitForLoadState("networkidle");
@@ -600,7 +602,7 @@ await step("U1", "GS-20 (J2.9, J2.20) the class computer: her lesson locks after
   await shot(p, "u1-bukan-akun-anda");
   await bukan.click();
   await p.waitForURL((u) => u.pathname !== "/terkunci", { timeout: SLOW });
-  await p.waitForLoadState("networkidle");
+  await p.waitForLoadState("load");
   await p.goto(`${APP}${pelajaran}`, { timeout: SLOW, waitUntil: "networkidle" });
   const tanpa = new URL(p.url()).pathname;
   const sesiU = sesiSejak(authU, tKelas);
@@ -731,10 +733,14 @@ await step("X1", "GS-20 everyone signs out, read only: every session this run op
     .map(([siapa, who]) => [siapa, authDari(mail(who))]);
   for (const nama of MURID.slice(0, 2)) { const o = orangDari(nama); if (o) orang.push([nama.split(" ")[0], akunMurid(o).auth]); }
   const out = [];
+  // a record still open whose Auth session is gone (Auth ended it, as it ends the activation wizard's own session
+  // when the password is first set, and PINTAR signs the person straight back in) is reported as such, not as open
   for (const [siapa, auth] of orang) {
-    const s = sesiSejak(auth, MULAI);
+    const s = sql(`select coalesce(string_agg(d.mode || ':' || coalesce(d.ended_reason, case when exists (select 1 from auth.sessions x
+        where x.id = d.session_id) then 'OPEN' else 'RECORD_OPEN_AUTH_GONE' end), ',' order by d.created_at), '')
+      from public.device_sessions d where d.auth_user_id = '${uuid(auth)}' and d.created_at >= to_timestamp(${MULAI})`);
     const sesiAuth = Number(sql(`select count(*) from auth.sessions x where x.user_id = '${uuid(auth)}' and x.created_at >= to_timestamp(${MULAI})`));
-    if (!s || /OPEN/.test(s) || sesiAuth) rec.verdict = "FAIL";
+    if (!s || /:OPEN(,|$)/.test(s) || sesiAuth) rec.verdict = "FAIL";
     out.push(`${siapa}: ${s || "no session this run"}${sesiAuth ? `, ${sesiAuth} Auth session(s) still open` : ""}`);
   }
   out.push(...[...pamitan].map(([siapa, r]) => `${siapa} ${r}`));
