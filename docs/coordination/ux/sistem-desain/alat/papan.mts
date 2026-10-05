@@ -356,6 +356,7 @@ const PAPAN: Array<[string, string, string, string, () => string]> = [
   ["04", "space-shape-layout", "Space, shape and layout", "A 4 px base used in 8s, three corners and a pill, 44 px targets, three content widths and four screen bands.", papanRuang],
   ["05", "interaction-grammar", "The interaction grammar", "PINTAR hears every click: it answers at once, says what it is doing, says honestly how it ended, and offers the next step.", papanTataBahasa],
   ["06", "states-motion", "States and motion", "One grammar of states across every control. Motion is colour and opacity at 160 ms, and only where it has a reason.", papanKeadaan],
+  ["07", "navigation", "Navigation and shells", "Upper navigation is what I can do in PINTAR; the bottom is me. A proposal: it replaces today's staff header only with Yazid's approval. (The same board as 07a and 07b, in one image.)", () => papanNavigasi() + papanNavigasi2()],
   ["07a", "navigation-staff", "Navigation and shells: staff", "Upper navigation is what I can do in PINTAR; the bottom is me. A proposal: it replaces today's staff header only with Yazid's approval.", papanNavigasi],
   ["07b", "navigation-small-learner", "Navigation and shells: small screens and learners", "Under 1024 px a top bar and a drawer, «Keluar» always in reach. A learner's bar names no one.", papanNavigasi2],
   ["08", "at-a-glance", "At a glance", "Every family of control together, to judge in one look: does this feel like PINTAR?", papanSekilas],
@@ -406,10 +407,20 @@ const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromi
 for (const [no, nama, judul, lede, isi] of PAPAN) {
   if (dipilih.length && !dipilih.includes(no) && !dipilih.includes(nama)) continue;
   halaman.set(`/papan/${no}.html`, papan(no, judul, lede, isi(), 19));
-  const page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 2 });
+  let skala = 2;
+  let page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: skala });
   const galat: string[] = [];
   page.on("pageerror", (e: Error) => galat.push(e.message));
   await page.goto(`http://127.0.0.1:${port}/papan/${no}.html`, { waitUntil: "networkidle" });
+  const tinggiAwal = await page.evaluate(() => document.documentElement.scrollHeight);
+  if (tinggiAwal * skala > 8000) {
+    // Image uploads accept at most 8000 px on the long side: draw this board smaller rather than cut it.
+    skala = Math.floor((7990 / (tinggiAwal + 200)) * 100) / 100;
+    await page.close();
+    page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: skala });
+    page.on("pageerror", (e: Error) => galat.push(e.message));
+    await page.goto(`http://127.0.0.1:${port}/papan/${no}.html`, { waitUntil: "networkidle" });
+  }
   for (const f of page.frames()) await f.evaluate(() => document.fonts.ready).catch(() => {});
   for (const el of await page.$$("iframe[data-langkah]")) {
     const f = await el.contentFrame();
@@ -423,8 +434,8 @@ for (const [no, nama, judul, lede, isi] of PAPAN) {
   const berkas = join(keluaran, `${no}-${nama}.png`);
   await page.screenshot({ path: berkas, fullPage: true });
   const ukuran = await page.evaluate(() => document.documentElement.scrollHeight);
-  if (ukuran * 2 > 8000) console.log(`  note: ${no} is ${ukuran * 2} px tall at 2x; image uploads accept at most 8000`);
-  console.log(`${no}-${nama}.png  1600 × ${ukuran}  ${(statSync(berkas).size / 1048576).toFixed(1)} MB${galat.length ? "  ERRORS: " + galat.join("; ") : ""}`);
+  if (ukuran * skala > 8000) console.log(`  note: ${no} is ${Math.round(ukuran * skala)} px tall; image uploads accept at most 8000`);
+  console.log(`${no}-${nama}.png  ${Math.round(1600 * skala)} × ${Math.round(ukuran * skala)} px (${skala}x)  ${(statSync(berkas).size / 1048576).toFixed(1)} MB${galat.length ? "  ERRORS: " + galat.join("; ") : ""}`);
   await page.close();
 }
 await browser.close();
