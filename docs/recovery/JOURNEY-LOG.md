@@ -213,3 +213,16 @@ Gate 3 stays held; the coordinator does not merge it.
       - DAISY-35, the polish in the UI/UX pass;
       - the screenshots, which belong to the UI/UX pass.
     - **Also recorded today:** D-101, school self-service and recovery authority. Its conformance check is in `docs/coordination/reviews/D-101-RECOVERY-AUTHORITY-CONFORMANCE.md`: student card re-issue meets it; staff recovery by a peer School Admin, a self-reset guard, ending sessions on replacement and a second-admin recommendation are gaps, with three questions for Yazid.
+28. **«Laporkan masalah»: a member of staff reports a problem and PINTAR acknowledges it, 5 Oct (BOB-15, DAISY-12; D-037 step 2; D-100(d) item 2; D-101(f)).**
+    - **Receive.** «Laporkan masalah» is on every staff shell, in Studio and in Konfigurasi. It asks three things: what you did, what you expected, what happened. Also «this stops my class» and an optional screenshot.
+    - **What PINTAR attaches itself.** The page, any error reference, the reporter's role and school, the build and the device. A student is not offered the form and is refused by the database (PR100 `REPORT_NOT_STAFF`); the page tells them to tell their teacher.
+    - **Acknowledge.** The reporter lands on «Laporan saya» with the report received (Diterima) at once.
+    - **Status and next step.** Diterima → Ditangani → Selesai, forward only, and every move writes the next step to the reporter. Tier 1 is the school's Admin sekolah, for their own school's reports, in Konfigurasi «Laporan masalah». Tier 2 is Admin platform, for every report. Each submit and move is audited.
+    - **Privacy.** Reports stay inside PINTAR under row security, because they may name students: the reporter, the school's Admin sekolah and Admin platform. A screenshot is uploaded into the reporter's own folder and read only by whoever may read its report.
+    - **Not a ticket platform:** one table, one way in, one way forward.
+    - **Code.** Migration `20261119100000`.
+    - **Tests.**
+      - BOB15-K01/S01/D01. D01 was red on the 155-migration DB (no table); green after.
+      - UX1 baselines MOVED 155 → 156; route and surface inventories.
+      - Local suite: green apart from the environmental failures.
+    - **CI:** 37255470051 on `027b8a4`, green: 35/35 jobs, 557/557 tests.
