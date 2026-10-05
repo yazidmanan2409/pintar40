@@ -317,6 +317,9 @@ const RESET_SURFACES = [
   "src/app/perangkat/page.tsx",
   // DAISY-34 (D-070(a)): the professional-learning record, on the staff shell and the existing pin-* list classes.
   "src/app/pengembangan/[simpul]/page.tsx",
+  // BOB-15 + DAISY-12 (D-037 step 2): «Laporkan masalah» and «Laporan saya», on the staff shells and the pin-lapor classes.
+  "src/app/lapor/page.tsx",
+  "src/app/lapor/saya/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */
@@ -1360,6 +1363,9 @@ export const experienceTests: SelfTest[] = [
       // (password_write_permits), two set-up columns (password_set_at, name_confirmed_at), the identity
       // functions and a trigger on auth.users; no colour, mark or brand surface.
       //
+      // MOVED 155 -> 156 for BOB-15 + DAISY-12, «Laporkan masalah». 20261119100000 adds support_reports and its three
+      // functions; no colour, mark or brand surface.
+      //
       // MOVED 154 -> 155 for BOB-43..47, an educator learns as a participant. 20261118100000 adds a place's learning
       // context and member kind, the assignment boundary, enrolment for professional learning, the PD evidence policies,
       // catalogue MC-5 and the professional-learning record; no colour, mark or brand surface.
@@ -1619,7 +1625,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 155, `${migrations.length} migrations; the frozen baseline has 155`);
+      c.expect(migrations.length === 156, `${migrations.length} migrations; the frozen baseline has 156`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3314,7 +3320,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 154 -> 155 for BOB-43..47's educator as learner (20261118100000), not a
+      // from, not a claim about the tour. MOVED 155 -> 156 for BOB-15's «Laporkan masalah» (20261119100000), not a tour
+      // RPC (D-024). MOVED 154 -> 155 for BOB-43..47's educator as learner (20261118100000), not a
       // tour RPC (D-024). MOVED 153 -> 154 for BOB-29's shared-computer lock (20261117100000), not a
       // tour RPC (D-024). MOVED 152 -> 153 for BOB-28's PIN recovery and card re-issue
       // (20261116100000), not a tour RPC (D-024). MOVED 151 -> 152 for BOB-27's email recovery
@@ -3401,7 +3408,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 155, `${migs.length} migrations; the baseline has 155`);
+      c.expect(migs.length === 156, `${migs.length} migrations; the baseline has 156`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

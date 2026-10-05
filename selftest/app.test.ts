@@ -136,6 +136,9 @@ const ROUTE_INVENTORY = [
   // BOB-29 (Gate 6). «PINTAR terkunci» and «Komputer siapa ini?» render through the copy table.
   "/terkunci",
   "/perangkat",
+  // BOB-15 + DAISY-12 (D-037 step 2). «Laporkan masalah» and «Laporan saya» render through the copy table.
+  "/lapor",
+  "/lapor/saya",
 ] as const;
 
 type Session = { cookie: string; accessToken: string; refreshToken: string };

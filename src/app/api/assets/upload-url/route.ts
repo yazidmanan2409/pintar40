@@ -12,6 +12,7 @@ import { supabaseService } from "@/lib/supabase/service";
  * Phase 1 paths: `profile/<person_id>/<file>` (own photo, any signed-in
  * person). Content paths arrive with Phase 2 (`CAN_DRAFT`/`CAN_REVIEW`).
  * BOB-02: `pelajaran/<school>/<batch>/<file>`, a lesson package's media.
+ * BOB-15: `laporan/<id>.<png|jpg|webp>`, a problem report's screenshot, stored at `laporan/<person_id>/<id>.<ext>`.
  */
 export async function POST(request: NextRequest) {
   const supabase = await supabaseServer();
@@ -40,10 +41,18 @@ export async function POST(request: NextRequest) {
     const { data } = await supabase.rpc("may_upload_package_media", { p_path: path });
     allowed = data === true;
   }
+  // BOB-15 (DAISY-12): a problem report's screenshot. The browser names only a fresh id and the picture's kind; the
+  // folder is the signed-in person's own, set here, so nobody writes into another's
+  let jalur = path;
+  const tangkapan = /^laporan\/([0-9a-f-]{36}\.(?:png|jpg|webp))$/.exec(path);
+  if (tangkapan && personId) {
+    jalur = `laporan/${personId}/${tangkapan[1]}`;
+    allowed = true;
+  }
   if (!allowed) return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
   const service = supabaseService();
-  const { data, error } = await service.storage.from("assets").createSignedUploadUrl(path);
+  const { data, error } = await service.storage.from("assets").createSignedUploadUrl(jalur);
   if (error || !data) return NextResponse.json({ error: "signing_failed" }, { status: 500 });
   return NextResponse.json({ path: data.path, token: data.token });
 }

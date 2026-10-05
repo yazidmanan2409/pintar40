@@ -27,6 +27,9 @@ import { asalPindah, muridDiKelas, namaKelas, tujuanPindah } from "@/lib/pindah-
 import { persiapanSekolah, type PeranTerbaca } from "@/lib/persiapan-sekolah";
 import { lingkupPeran } from "@/lib/lingkup-peran";
 import { alamatCatatan, formulirPeserta, tempatCatatan } from "@/lib/pengembangan";
+import TautanLapor from "@/components/lapor/TautanLapor";
+import { kunciKodeLaporan, kunciStatusLaporan, langkahBerikut, laporanTriase, type KodeLaporan } from "@/lib/lapor-masalah";
+import { pindahkanLaporanAksi } from "@/app/lapor/actions";
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -70,7 +73,7 @@ type MetricDefinition = {
   deprecated: boolean;
 };
 
-type SearchParams = Promise<{ bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; sekolah?: string; periksa?: string; dari?: string }>;
+type SearchParams = Promise<{ bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; sekolah?: string; periksa?: string; dari?: string; lapor?: string }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
   // One parallel read of the viewer and their roles (DAISY-02/03).
@@ -223,11 +226,14 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   // holds no school's CAN_PROVISION_PEOPLE and was sent to a refusal.
   // D-088(b): the lessons the school can give, each with its pass mark (or none) and its history
   // BOB-44 / DAISY-32: the enrol form's places and people, and (DAISY-34) the records this administrator may open
-  const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan, peserta, catatanPd] = await Promise.all([
+  // BOB-15 (D-037 tier 1 and 2): the problem reports of the schools this reader administers, or every one for Admin
+  // platform; row security decides the set
+  const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan, peserta, catatanPd, laporan] = await Promise.all([
     bacaanStruktur, currentLocale(), bacaanAkar, sekolahPendataan().then((x) => x.length > 0).catch(() => false),
     sekolahStruktur ? pelajaranDanBatas(supabase, sekolahStruktur.id) : Promise.resolve(null),
     sekolahStruktur ? formulirPeserta(sekolahStruktur.id) : Promise.resolve(null),
     tempatCatatan(),
+    laporanTriase(isSys === true ? null : adminInstitutionIds),
   ]);
   const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
   // M9: the Kelas whose students «Pindah kelas» lists, if one was chosen, and
@@ -249,6 +255,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     ["ketuntasan", s("config.section.ketuntasan")],
     ["pindah", s("config.section.pindah")],
     ["peserta", s("config.section.peserta")],
+    ["laporan-masalah", s("config.section.laporan_masalah")],
     ["laporan", s("config.laporan.judul")],
     ["system", s("config.section.system")], ["rollover", s("config.section.rollover")], ["transfers", s("config.section.transfers")],
     ["roles", s("config.section.roles")], ["audit", s("config.section.audit")],
@@ -282,6 +289,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         {bolehPendataan ? <Link href="/pendataan" className={tautanTempat}>{s("pendataan.judul")}<TandaTautan /></Link> : null}
         <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}<TandaTautan /></Link>
         <Link href="/studio" className={tautanTempat}>{s("nav.studio")}<TandaTautan /></Link>
+        {/* DAISY-12 (D-037 step 2): «Laporkan masalah», as on every staff shell */}
+        <TautanLapor locale={await currentLocale()} kelas={tautanTempat} />
         {/* BOB-51: the platform admin's delivery proof, a click rather than a console */}
         {isSys === true ? <Link href="/konfigurasi/email-uji" className={tautanTempat}>{s("emailuji.judul")}<TandaTautan /></Link> : null}
         {/* BOB-28: the platform admin's PIN-recovery reset and the security record */}
@@ -577,6 +586,62 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               </>
             ) : (
               <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
+            )}
+          </section>
+
+          {/* BOB-15 + DAISY-12 (D-037 step 2; D-101(f)). LAPORAN MASALAH: the school resolves what it can (tier 1), the
+              PINTAR team reads every school's (tier 2). Open reports first, a stopped class first among them. Each is
+              moved forward once at a time with the next step written to its reporter; move_support_report decides
+              who may, and audits it. */}
+          <section id="laporan-masalah" className={card} aria-labelledby="pin-laporan-masalah">
+            <h2 id="pin-laporan-masalah" className="font-medium">{sl("config.section.laporan_masalah")}</h2>
+            <p className="mt-1 text-sm text-ink-2">{sl("lapor.triase.arti")}</p>
+            {sp.bagian === "laporan-masalah" && sp.lapor ? (
+              <BarisHasil nada={sp.lapor === "MOVED" ? "ok" : "gagal"}>
+                {sl(sp.lapor === "MOVED" ? "lapor.triase.ok" : kunciKodeLaporan(sp.lapor as KodeLaporan))}
+              </BarisHasil>
+            ) : null}
+            {laporan.length === 0 ? (
+              <p className="mt-3 text-sm text-ink-3">{sl("lapor.triase.kosong")}</p>
+            ) : (
+              <ul className="mt-3 grid gap-2 text-sm">
+                {laporan.map((l) => (
+                  <li key={l.id} data-laporan={l.id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
+                    <span className="text-ink-1">
+                      <strong>{sl(kunciStatusLaporan(l.status))}</strong>
+                      {l.hentikanKelas ? <> · <strong>{sl("lapor.hentikan.singkat")}</strong></> : null}
+                      {" · "}{format.date(l.dibuat, locale)} · {l.pelapor} · {roleLabel(l.peran)}{l.sekolah ? ` · ${l.sekolah}` : ""}
+                    </span>
+                    <span className="text-ink-2">
+                      <span className="pin-num">{l.halaman}</span>
+                      {l.rujukan ? <> · {sl("lapor.rujukan")} <span className="pin-num">{l.rujukan}</span></> : null}
+                      {l.build ? <> · <span className="pin-num">{l.build.slice(0, 7)}</span></> : null}
+                    </span>
+                    <span className="text-ink-2">{sl("lapor.lakukan")} {l.lakukan}</span>
+                    <span className="text-ink-2">{sl("lapor.harapan")} {l.harapan}</span>
+                    <span className="text-ink-2">{sl("lapor.terjadi")} {l.terjadi}</span>
+                    {l.perangkat ? <span className="text-xs text-ink-3">{l.perangkat}</span> : null}
+                    {l.tangkapan ? (
+                      <a className={tautanTempat} href={`/api/assets/read-url?alih=1&path=${encodeURIComponent(l.tangkapan)}`}>{sl("lapor.triase.tangkapan")}</a>
+                    ) : null}
+                    {l.langkah ? <span className="text-ink-1">{sl("lapor.langkah")} {l.langkah}</span> : null}
+                    {langkahBerikut(l.status).length > 0 ? (
+                      <form action={pindahkanLaporanAksi} className="flex flex-wrap items-end gap-2">
+                        <input type="hidden" name="laporan" value={l.id} />
+                        <label className={label}>{sl("lapor.triase.ubah")}
+                          <select name="status" className={field} required defaultValue={langkahBerikut(l.status)[0]}>
+                            {langkahBerikut(l.status).map((x) => <option key={x} value={x}>{sl(kunciStatusLaporan(x))}</option>)}
+                          </select>
+                        </label>
+                        <label className={label}>{sl("lapor.triase.langkah")}
+                          <input name="langkah" className={field} required maxLength={500} autoComplete="off" />
+                        </label>
+                        <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("lapor.triase.simpan")}</TombolKirim>
+                      </form>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
             )}
           </section>
 

@@ -5,6 +5,7 @@ import { s, studioInstitutions } from "./_lib";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
 import SesiSaya from "@/components/SesiSaya";
+import TautanLapor from "@/components/lapor/TautanLapor";
 import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
 import { peranSaya } from "@/lib/tur-negara";
 import { t } from "@/lib/hle";
@@ -68,6 +69,7 @@ export default async function StudioLayout({ children }: { children: React.React
         {tempat.length > 0 ? (
           <nav className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm" aria-label={t("nav.tempat", "staff", { locale })}>
             <TabTempat tempat={tempat} locale={locale} persona="staff" kelas="text-ink-2 underline underline-offset-4 hover:text-ink-1" />
+            <TautanLapor locale={locale} kelas="text-ink-2 underline underline-offset-4 hover:text-ink-1" />
           </nav>
         ) : null}
         <nav className="mt-4 flex flex-wrap gap-3 text-sm">

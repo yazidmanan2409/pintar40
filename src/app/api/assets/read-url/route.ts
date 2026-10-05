@@ -41,9 +41,14 @@ export async function GET(request: NextRequest) {
   // package's media (BOB-02). Either way the exact path must be named by a
   // lesson the caller is assigned; the shape only decides what is asked.
   const lesson = /^pelajaran\/(?:[0-9a-f-]{36}\/[0-9a-f-]{36}\/)?[a-z0-9_.-]{1,160}$/i.test(path);
-  if (!profile && !lesson) return NextResponse.json({ error: "invalid_path" }, { status: 400 });
+  // BOB-15: a problem report's screenshot, read by whoever may read its report (support_reports' own audiences)
+  const laporan = /^laporan\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.(?:png|jpg|jpeg|webp)$/.test(path);
+  if (!profile && !lesson && !laporan) return NextResponse.json({ error: "invalid_path" }, { status: 400 });
 
-  if (profile) {
+  if (laporan) {
+    const { data: boleh } = await supabase.rpc("may_read_support_screenshot", { p_path: path });
+    if (boleh !== true) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  } else if (profile) {
     const { data: visible } = await supabase.rpc("person_visible_to_me", { p_person: profile[1] });
     if (visible !== true) return NextResponse.json({ error: "forbidden" }, { status: 403 });
   } else {

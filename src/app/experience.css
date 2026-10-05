@@ -2496,3 +2496,23 @@ a.pin-tautan { display: inline-flex; align-items: center; }
   border: 1px solid var(--line-strong); border-radius: var(--radius-1); box-shadow: 0 0 0 4px var(--pintar-primary-soft);
 }
 .pin-jaga > p { margin: 0; flex: 1 1 var(--measure-guide-tip); }
+
+/* --------------------------------------------------------- laporkan masalah */
+/* BOB-15 / DAISY-12 (D-037 step 2): three questions, one box, an optional picture; and the reports themselves as a
+   plain list, each with its status and the next step written to the reporter. */
+.pin-lapor { display: grid; gap: var(--space-4); max-width: var(--measure-read); }
+.pin-lapor-isian { display: grid; gap: var(--space-1); }
+.pin-lapor-isian > span { font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-lapor textarea {
+  width: 100%; min-height: calc(var(--control-h) + var(--space-6)); font: inherit; resize: vertical;
+  padding: var(--space-2) var(--space-3); color: var(--ink-1); background: var(--surface-0);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+}
+.pin-lapor-pilih { display: flex; align-items: center; gap: var(--space-2); min-height: var(--control-h); }
+.pin-lapor-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.pin-lapor-satu {
+  display: grid; gap: var(--space-2); padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+}
+.pin-lapor-satu p { margin: 0; }
+.pin-lapor-langkah { color: var(--ink-1); }

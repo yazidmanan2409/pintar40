@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 179,
+  "version": 180,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3084,6 +3084,21 @@
       "id": "BOB43-D01",
       "runner": "static",
       "proves": "BOB-43..47, migration 20261118100000 against the database, rolled back (selftest/bob43.test.ts): a place's kind is set on the Bagian (create_bagian's boolean too), inherited, never changed or moved across; ASSIGN_CONTEXT_MISMATCH refuses PD material in an academic Kelas, academic material in a PD Kelas, any above a Bagian and an Uji Cepat across; Siapkan is offered matching releases only; enrol_for_professional_learning enrols a staff member ACTIVE or PENDING, reuses the enrolment, makes no person, account or number, and refuses an academic Kelas, a Murid (also by direct membership), a duplicate, another school's teacher and callers without CAN_PROVISION_PEOPLE; the briefing and Management's learner record count no PD; PD sessions, progress, answers and integrity signals reach only the ruled audiences, referral is refused for everyone; every academic row of five tables is read exactly as the previous policies admit for ten readers; professional_learning_record gives the facilitator, Dekan and PD head progress and the result through catalogue MC-5, Admin sekolah completion only, and refuses everyone else."
+    },
+    {
+      "id": "BOB15-K01",
+      "runner": "static",
+      "proves": "BOB-15 + DAISY-12 (D-037 step 2), the contract (selftest/bob15.test.ts executes src/lib/lapor-masalah-kontrak.ts and reads the copy table): PR100's codes are read by DETAIL only, each with its sentence in both languages; a report only moves forward; the page and reference keep their shape; a screenshot is named by a fresh id and its kind; no new line promises an email or a notification."
+    },
+    {
+      "id": "BOB15-S01",
+      "runner": "static",
+      "proves": "BOB-15 + DAISY-12, the source (selftest/bob15.test.ts): sending and moving a report are one database call each (submit_support_report, move_support_report); the /lapor form asks its three questions, attaches the page and device, sends once and tells a student to tell their teacher; reports are read under row security; «Laporkan masalah» is on every staff shell, Studio and Konfigurasi; the upload route chooses the screenshot's folder and the read route asks may_read_support_screenshot; Konfigurasi carries the triage list."
+    },
+    {
+      "id": "BOB15-D01",
+      "runner": "static",
+      "proves": "BOB-15, migration 20261119100000 against the database, rolled back (selftest/bob15.test.ts): a Guru's report is received with role, school, build, device, reference and stops-a-class attached; a student, empty answers, a page outside PINTAR, another's screenshot and any direct write are refused; the reporter, the school's admin and Admin platform read it and nobody else; it moves forward only, with the next step, by the school's admin or Admin platform; a screenshot is read by whoever reads its report; audit_log records each receipt and move."
     },
     {
       "id": "BOB29-A01",
