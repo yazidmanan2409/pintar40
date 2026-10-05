@@ -347,8 +347,9 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
       and s.person_id = '${C.guru}' and c.status = 'ISSUED'`));
     for (let k = 0; k < 60 && terbit() < 2; k++) await b.waitForTimeout(500);
     notes.push(`certificates issued ${terbit()} (waited ${Math.round((Date.now() - t0) / 1000)} s after the last hand-in)`);
-    await b.goto(`${APP}/belajar/sertifikat`, { waitUntil: "networkidle" });
     for (let i = 0; i < 2; i++) {
+      // the list, for each: the previous turn of this loop left it for that certificate's own page
+      await b.goto(`${APP}/belajar/sertifikat`, { waitUntil: "networkidle" });
       const tautan = b.locator(`a[href="/belajar/${C.tugas[i]}/sertifikat"]`).first();
       if (!(await tautan.count())) { rec.verdict = "FAIL"; notes.push(`Bab ${i + 1}'s certificate is not listed`); continue; }
       await b.goto(`${APP}/belajar/${C.tugas[i]}/sertifikat`, { waitUntil: "networkidle" });
