@@ -42,3 +42,19 @@ select 'F', 'tables without RLS in public',
 select 'F', 'extensions', (select string_agg(extname, ',' order by extname) from pg_extension);
 select 'F', 'storage objects (metadata rows, bytes)',
        coalesce((select count(*) || ' ' || coalesce(sum((metadata ->> 'size')::bigint), 0) from storage.objects), '-');
+-- per function (name only): its definition's hash, owner, and who may execute it (anon, authenticated, PUBLIC)
+select 'P', p.oid::regprocedure::text, md5(pg_get_functiondef(p.oid)),
+       pg_get_userbyid(p.proowner),
+       has_function_privilege('anon', p.oid, 'execute')::text || '/' || has_function_privilege('authenticated', p.oid, 'execute')::text || '/' ||
+       exists (select 1 from aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a where a.grantee = 0 and a.privilege_type = 'EXECUTE')::text
+  from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+ where n.nspname in ('public', 'pintar_permintaan') and p.prokind in ('f', 'p')
+ order by 2;
+-- per table (name only): what anon and authenticated may do to it (select/insert/update/delete)
+select 'G', format('%I.%I', n.nspname, c.relname),
+       (select string_agg(r || ':' || has_table_privilege(r, c.oid, 'SELECT')::text || has_table_privilege(r, c.oid, 'INSERT')::text
+                          || has_table_privilege(r, c.oid, 'UPDATE')::text || has_table_privilege(r, c.oid, 'DELETE')::text, ' ' order by r)
+          from unnest(array['anon', 'authenticated']) r)
+  from pg_class c join pg_namespace n on n.oid = c.relnamespace
+ where n.nspname = 'public' and c.relkind in ('r', 'v', 'm', 'p')
+ order by 2;

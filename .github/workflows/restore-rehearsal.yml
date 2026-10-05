@@ -154,8 +154,9 @@ jobs:
           if [ "$rc" != 0 ]; then
             echo "the documented single-transaction restore stopped at:"; saring 5 < pulih.err
             echo "a diagnostic restore without a single transaction, every error it meets (each statement's own line):"
+            d0=$(date +%s)
             psql --file roles.sql --file schema.sql --command 'SET session_replication_role = replica' --file data.sql --dbname "$LOKAL_DB" > /dev/null 2> diag.err
-            echo "errors: $(grep -cE '^psql:.*ERROR' diag.err)"; saring 25 < diag.err
+            echo "errors: $(grep -cE '^psql:.*ERROR' diag.err); the tolerant restore took $(( $(date +%s) - d0 )) s"; saring 25 < diag.err
           fi
           [ "$rh" = 0 ] || { echo "the history restore stopped at:"; saring 5 < riwayat.err; }
           echo "RESTORE_RC=$rc" >> "$GITHUB_ENV"; echo "HISTORY_RC=$rh" >> "$GITHUB_ENV"; echo "RESTORE_SECONDS=$((t1 - t0))" >> "$GITHUB_ENV"
@@ -164,28 +165,29 @@ jobs:
       - name: Compare the restored copy with staging
         env:
           DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
-          LC_ALL: C
         run: |
           set +e -uo pipefail
-          PGOPTIONS='-c default_transaction_read_only=on' psql "$LOKAL_DB" -At -F '|' -f audit/restore/fakta.sql > "$RUNNER_TEMP/pulih.txt" 2> "$RUNNER_TEMP/pulih-fakta.err" || true
-          S="$RUNNER_TEMP/sesudah.txt"; B="$RUNNER_TEMP/sebelum.txt"; P="$RUNNER_TEMP/pulih.txt"
-          # a table counts as restored when the copy matches staging after the backup (or before it, had it moved)
-          awk -F'|' 'FNR==NR && $1=="T" {s[$2]=$3"|"$4; next} FILENAME==ARGV[2] && $1=="T" {b[$2]=$3"|"$4; next}
-                     FILENAME==ARGV[3] && $1=="T" {p[$2]=$3"|"$4}
-                     END { same=0; diff=0; miss=0; moved=0; for (t in s) { if (s[t]!=b[t]) moved++;
-                             if (!(t in p)) { miss++; print "MISSING  " t " (staging " s[t] ")" }
-                             else if (p[t]==s[t] || p[t]==b[t]) same++;
-                             else { diff++; split(s[t], a, "|"); split(p[t], c, "|"); print "DIFFERS  " t " rows staging " a[1] ", restored " c[1] } }
-                           extra=0; for (t in p) if (!(t in s)) extra++;
-                           print "tables: " length(s) " on staging, " same " restored identically, " diff " differ, " miss " missing, " extra " only in the copy; " moved " moved on staging during the backup" }' \
-            "$S" "$B" "$P" | sort
-          echo "facts, staging → restored copy:"
-          join -t'|' -j1 <(grep '^F|' "$S" | cut -d'|' -f2- | sort) <(grep '^F|' "$P" | cut -d'|' -f2- | sort) | \
-            awk -F'|' '{ print ($2==$3 ? "same     " : "CHANGED  ") $1 ": " $2 ($2==$3 ? "" : "  →  " $3) }'
-          echo "launch readiness (docs/audit/launch-readiness.sql), FAIL rows: staging $(PGOPTIONS='-c default_transaction_read_only=on' psql "$DB" -At -F ' | ' -f docs/audit/launch-readiness.sql | grep -c '| FAIL' || true), restored copy $(psql "$LOKAL_DB" -At -F ' | ' -f docs/audit/launch-readiness.sql 2>/dev/null | grep -c '| FAIL' || true)"
-          echo "restore exit $RESTORE_RC (history $HISTORY_RC); backup ${BACKUP_SECONDS} s, restore ${RESTORE_SECONDS} s"
+          PGOPTIONS='-c default_transaction_read_only=on' psql "$LOKAL_DB" -At -F '|' -f audit/restore/fakta.sql > "$RUNNER_TEMP/pulih.txt" 2> "$RUNNER_TEMP/pulih-fakta.err"
+          bash audit/restore/banding.sh "$RUNNER_TEMP/sesudah.txt" "$RUNNER_TEMP/sebelum.txt" "$RUNNER_TEMP/pulih.txt"
+          echo "launch readiness (docs/audit/launch-readiness.sql), FAIL rows: staging $(PGOPTIONS='-c default_transaction_read_only=on' psql "$DB" -At -F ' | ' -f docs/audit/launch-readiness.sql | grep -c '| FAIL'), restored copy $(psql "$LOKAL_DB" -At -F ' | ' -f docs/audit/launch-readiness.sql 2>/dev/null | grep -c '| FAIL')"
+          echo "restore exit $RESTORE_RC (history $HISTORY_RC); backup ${BACKUP_SECONDS} s, documented restore ${RESTORE_SECONDS} s"
           echo "NOT in any database backup: Storage files (see 'storage objects' above: metadata only), CERT_SECRET_KEY_V1 and CARD_PEPPER (Vercel), Auth settings and SMTP (the Supabase project), API keys"
+
+      - name: The corrected step - PINTAR's triggers on auth.users, recreated from staging's own catalog, then compared again
+        env:
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set +e -uo pipefail
+          # the definitions, read from staging (read only): PINTAR's additions to a schema the logical backup leaves out
+          PGOPTIONS='-c default_transaction_read_only=on' psql "$DB" -At -c "select pg_get_triggerdef(t.oid) || ';' from pg_trigger t
+            where t.tgrelid = 'auth.users'::regclass and not t.tgisinternal order by t.tgname" > "$RUNNER_TEMP/pemicu.sql"
+          echo "trigger definitions read from staging: $(grep -c ';$' "$RUNNER_TEMP/pemicu.sql")"
+          psql --single-transaction --variable ON_ERROR_STOP=1 --file "$RUNNER_TEMP/pemicu.sql" --dbname "$LOKAL_DB" > /dev/null 2> "$RUNNER_TEMP/pemicu.err"
+          echo "recreated on the copy: exit $?"; grep -E 'ERROR' "$RUNNER_TEMP/pemicu.err" | cut -c1-200 | head -5
+          PGOPTIONS='-c default_transaction_read_only=on' psql "$LOKAL_DB" -At -F '|' -f audit/restore/fakta.sql > "$RUNNER_TEMP/pulih2.txt" 2>/dev/null
+          echo "after the corrected step:"
+          bash audit/restore/banding.sh "$RUNNER_TEMP/sesudah.txt" "$RUNNER_TEMP/sebelum.txt" "$RUNNER_TEMP/pulih2.txt" | grep -E 'auth.users triggers|^functions:|^table rights|^tables:'
 
       - name: Discard the backup
         if: always()
-        run: rm -rf "$RUNNER_TEMP/cadangan" "$RUNNER_TEMP/sebelum.txt" "$RUNNER_TEMP/sesudah.txt" "$RUNNER_TEMP/pulih.txt"; echo discarded
+        run: rm -rf "$RUNNER_TEMP/cadangan" "$RUNNER_TEMP"/sebelum.txt "$RUNNER_TEMP"/sesudah.txt "$RUNNER_TEMP"/pulih*.txt "$RUNNER_TEMP"/pemicu.*; echo discarded
