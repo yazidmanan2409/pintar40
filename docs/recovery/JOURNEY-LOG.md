@@ -368,3 +368,50 @@ Gate 3 stays held; the coordinator does not merge it.
         - the password guard ends sessions on RECOVERY and CARD_REISSUE;
         - the role guard carries the school-itself branch;
         - the reset refuses oneself and ends sessions.
+33. **The Golden School walks end to end on staging under Gate 3 and Gate 6, 5 Oct (GS-01 to GS-21; D-098(e); the harness-authentication block of item 23 is lifted).** A fresh school, «Sekolah Emas Uji 2026-10-05» (`sekolah-emas-uji-20261005`), was founded by the C1 step (`found-school.yml` run 37286047274). Every person in it signed in as a person does. No server-made session was used, no password was set behind the scenes, and nothing was written to the database except by pressing PINTAR's buttons (C2).
+    - **How the walk signs in (`audit/staging/masuk.mjs`).**
+      - A person's first sign-in is their activation. On «Aktifkan akun», PINTAR emails a code to the staging test mailbox; `mailbox_link.py --kode` reads it. The walk then answers the wizard: username, PIN, password, name, and «Komputer siapa ini?».
+      - Every later sign-in uses the password set then. When the walk does not know an account's password, it recovers the account as its owner would: «Lupa password?» by the emailed code.
+      - The username, PIN and password are derived from the mailbox's own secret (`GS_MAILBOX_PASSWORD`, CI only). They are masked in the log and never stored. The derived PIN rule equals `public.pin_weakness` over all 10,000 PINs.
+      - The Platform Operator signs in the same way. The four workflows no longer reveal the service-role key.
+    - **GS-01 to GS-03** (run 37287063109): 6/6 PASS.
+      - The operator activated by the emailed code and landed on Konfigurasi.
+      - The operator recorded the first administrator («Buat dan aktifkan», then «Sudah benar, buat dan aktifkan») and gave «Admin sekolah» at the school's root (ROLE_GRANTED).
+      - The administrator activated by their own code and landed on Konfigurasi, with «Persiapan sekolah» all «Belum».
+      - Two walk defects first (runs 37286096260, 37286615445): the walk pressed into a field the wizard holds read-only while it saves. Staging saves a password more slowly than CI does (Auth's leaked-password check). The walk now waits until nothing is busy.
+    - **GS-04 to GS-11** (run 37287437383): 12/12 PASS.
+      - The admin signed in with their password and set the school up: the structure, the school code «G05», the three staff with accounts and roles, the five students placed, and the chapter uploaded (5 lessons, 31 questions).
+      - The admin set the pass mark at 70%, audited.
+      - The head of department activated by their code, read 31/31 questions with their keys and reasons, approved the chapter, and made and locked the release. They reviewed the 31 WEAK_MISCONCEPTION_LINKAGE warnings (item 13). The admin published 1.0.0.
+      - The teacher activated and gave «Kelas 5A» the chapter, sealed at 70% (SCHOOL).
+    - **GS-07 cards, GS-12 to GS-16** (run 37288637571): 8/8 PASS.
+      - One press made the class set of five cards.
+      - Utama sat the Pemetaan Awal, read every lesson to its last page and passed 8/8.
+      - The four others sat both tests to plan: Bunga 75% and Dimas 100% pass; Citra 63% and Eka 50% do not.
+    - **GS-17 to GS-21** (run 37295261257): 15/15 PASS.
+      - Two runs before it, each red on the walk only:
+        - Run 37289554356: 13 PASS. U1 opened the lesson by «Buka pelajarannya», which the reading map shows only while a lesson is unread. After «Keluar» the walk waited for the public front page to go quiet; every sign-out had in fact ended its session (KELUAR).
+        - Run 37291018301: 12 PASS, GS-20 green. R2's code never came. PINTAR sends one address at most six emails an hour (`email_send_limits`). The rerun had to recover the teacher by email first, because the earlier run's R3 had left them on another password. R3 now sets the activation's password again; each run spends three of the address's six.
+      - **GS-17.** The teacher, the head of department, the dean and the school admin each signed in with their password and read their own report. Every figure equalled what the walk computed from the raw official results: Pemahaman 78% (from 5), Kenaikan +38 poin, the bands Mantap 2 · Berkembang 2 · Perlu penguatan 1, Peserta 5, «Sertifikat terbit» 3. Each role's scope held.
+      - **GS-21, the cards (R1).** On Aktivasi «Kartu hilang atau rusak», the school admin re-issued Utama's card as lost and Bunga's as damaged.
+        - Each account now holds the new card.
+        - `account.card_reissued` records HILANG or RUSAK, by INSTITUTION_ADMIN, at this school.
+        - Each student's official results are unchanged (2 → 2).
+        - Where a card still had an open session (the earlier runs: the students' walk's, the first U1's), it went 1 → 0 with the re-issue, its Auth session too (D-101(3)).
+      - **GS-18 (C1–C3).** Utama, Bunga and Dimas each hold one ISSUED certificate on their Uji Penguasaan (`PINTAR/SEKOLAH-EMAS-UJI-20261005/2026/00001`–`00003`); Citra and Eka hold none.
+        - **The holder sees hers, walked for the first time (J8.3).** With her new card, Utama went /belajar → «Sertifikat» → the chapter. The page shows «Sertifikat Penguasaan», its number, the name as issued, «Cetak atau simpan PDF» and the verification link, equal to the record.
+        - The teacher's browser shows no certificate.
+      - **GS-20 (U1), one class computer, two real 5-minute waits.**
+        - Utama opened her lesson at page 5/5. «Saya masih di sini» appeared at 241 s.
+        - «PINTAR terkunci» came at 303 s. It named nobody and asked nothing about the computer; one locked session was recorded.
+        - Her card's PIN resumed the same lesson at page 5/5.
+        - The screen locked again at 302 s. «Bukan akun Anda?» → «Keluar» followed, and her lesson's address then went to /masuk.
+        - Bunga's new card on the same browser opened the same lesson at page 1/5: she inherited nothing. She signed out.
+        - Both sessions ended KELUAR.
+      - **GS-21, the teacher (R2, R3).**
+        - By email (J2.11): «Lupa password?» → the code → a new password → /mengajar. The L1 browser went to /masuk, its sessions ended KREDENSIAL_DIGANTI. «Akun saya» showed the PINTAR ID, equal to the record.
+        - By PINTAR ID + PIN (J2.12), on a third browser, with that ID and the PIN set at activation: the R2 browser went to /masuk (KREDENSIAL_DIGANTI). The teacher signed out.
+      - **GS-19 (V1, V2).** Each certificate verifies «Berlaku», «Memenuhi capaian», «Sekolah Emas Uji 2026-10-05», 5 Oktober 2026, with no holder's name. Utama's opens by the link on her own page. A random and a malformed code give the private not-found; the endpoint answers 404 `{"found":false}`.
+      - **Everyone signed out (X1).** Every session this run opened is ended: KELUAR, or KREDENSIAL_DIGANTI by the teacher's recoveries. None is left open.
+    - **Observation for the owner, not changed (D-101(3) covers replaced credentials, not a first password).** When the activation wizard sets the first password, Auth ends the wizard's own session and PINTAR signs the person straight back in. That session's PINTAR record is never marked ended (seen on the dean's first sign-in, run 37289554356: a SHARED record still open, its Auth session gone), so its access token would still pass the pre-request until it expires (at most an hour). It is the person's own token, on the same browser, and the new session's cookies replace it. X1 reports such a record as «record open, Auth session gone», never as an open session. Closing it would mean adding ACTIVATION to the session-ending purposes: the owner's call.
+    - **Spend.** Today was over budget before the walk: 1,178 of 600 billed minutes, almost all CI. This walk's nine runs (founding included) billed 82 minutes, 53 of them the report walk with its two real idle waits. Today stands at 1,260.
