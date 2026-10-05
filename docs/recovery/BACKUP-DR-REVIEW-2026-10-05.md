@@ -1,4 +1,221 @@
-# #150 — Backup and disaster-recovery review, 5 Oct 2026
+# #150 — Backup and disaster-recovery review: examined 5 Oct, closing work 6 Oct 2026
+
+# Part I — Closing #150, 6 Oct
+
+**Owner's order (6 Oct):** close #150 at C-12's evidence standard: G1 read production's backup configuration (read
+only); G2 one billable "Restore to a new project" rehearsal from staging, verified, timed, deleted; G5 a safe recovery
+mechanism for the two durable secrets, failing safe instead of minting; G6 a recorded restore point before production
+migrations; G7 readiness that sees restore drift; G3/G4 a design only; G8 record 24 h RPO as provisional; G9/G10
+recommendations and the minimum implementation. "The objective is to prove: PINTAR can be reconstructed safely,
+predictably and verifiably after a serious failure. No shortcuts. No paper-only recovery claims."
+
+## Verdict: **NOT PASS**
+
+PINTAR cannot yet be shown to be reconstructable after a serious failure. Built and proven today: deploys can no longer
+silently replace the durable secrets (G5); no production migration runs without a recorded restore point (G6); the
+readiness check now catches every drift the restore rehearsal produced (G7). Not yet proven, and each needs the owner:
+
+1. **No hosted restore has been performed (G2).** Supabase's "Restore to a new project" exists only in the dashboard;
+   no API or tool this session holds can start or delete one. RTO is still unmeasured.
+2. **Production's backups are still unseen (G1).** The production token is refused the backup list (HTTP 403). G6 now
+   depends on that list, so it **refuses every production migration** until the token may read backups.
+3. **No copy outside Supabase, and no Storage backup (G3/G4).** This is a design awaiting the owner's decisions.
+4. **The two durable secrets exist only in Vercel (G5's escrow).** They can no longer be replaced silently, but there is
+   still no copy to recover them from. The escrow is part of G3's design and custody.
+
+PASS needs all four, plus a recovery verification rerun that shows them. The criteria are in the closing table below.
+
+## The closing table
+
+| # | Status 6 Oct | Evidence |
+|---|---|---|
+| G1 | **Partly established; backup list unread** | see G1 below |
+| G2 | **Not performed: needs the owner's two dashboard actions** | see G2 below |
+| G3/G4 | **Designed, not built** (owner's approval needed) | `docs/recovery/OFFSITE-BACKUP-DESIGN.md` |
+| G5 | **Guard built and proven; escrow waits on G3's custody** | `b4bd543`; DR-S01..S03 red on the old workflow, green; CI RUN_CI |
+| G6 | **Built and proven** (blocks production applies until G1's token can read backups) | `870fdac`; DR-S04, DR-S05; CI RUN_CI |
+| G7 | **Built and proven**, plus two defects found and fixed | `870fdac`; DR-D01; rehearsal RUN_REHEARSAL |
+| G8 | **Recorded**: D-103 | `docs/coordination/DECISIONS.md` |
+| G9 | Recommendations (owner's decisions) | see G9 below |
+| G10 | **Minimum built, off until the owner turns it on** | `7ffbacc`; DR-S06; watch run RUN_WATCH |
+
+### G1. Production's backup configuration (read only; nothing changed)
+
+Read 5–6 Oct through the Supabase connector (`get_project`, and `execute_sql` on system views only) and
+`recovery-facts.yml` run 37382592466 (HTTP GET only):
+
+| Fact | Value |
+|---|---|
+| Project | `pintar-production` (`trtlvibiybwixfumjrrx`), ap-southeast-1, `ACTIVE_HEALTHY`, Postgres 17.6.1.166 (GA channel), created 22 Sep |
+| Organisation plan | Pro (so: daily backups, 7 days kept; physical, since Postgres ≥ 15.8.1.079) |
+| WAL archiving | `archive_mode` on, an `archive_command` set, `archive_timeout` 2 min, `wal_level` logical |
+| WAL archiver | 155 segments archived, **0 failed**; the last at 2026-10-05 19:27:10 UTC (statistics since 25 Aug); not in recovery |
+| Database size | 20 MB |
+| Point-in-time recovery | off by necessity: it needs Small compute and production is on Micro (D-089(c)); now also deliberately (D-103) |
+| **The backup list** (how many, kind, status, age) | **not readable**: HTTP 403 to both workflow tokens, for backups and for add-ons alike |
+| Organisation inventory | three projects, all active: `pintar-production`, `pintar-staging`, and `pintar` (`sknixmwkynzmrgbxzrvb`), the former FABLE development project (docs/phases) — not part of recovery; whether it is still needed is the owner's call |
+
+**What is still missing.** The backups themselves. A daily physical backup is what the plan promises. That one exists,
+completed and recent, has not been seen. **Owner's decision G1:** let the production access token read the
+project's backups (the same token, re-issued with that permission). From then on `recovery-facts.yml`, G6 and the G10
+watch all read the list by machine.
+
+### G2. The hosted restore rehearsal: ready, waiting on the owner's dashboard
+
+Supabase's documentation ("Restore to a new project", Beta) says it copies the schema, the data, roles, permissions and
+Auth users. It does **not** copy Storage objects or bucket configuration, Auth settings, API keys, Edge Functions,
+Realtime settings, or extensions and settings. The new project mirrors the source's compute and region. A project made
+this way cannot itself be cloned. The feature has no Management API endpoint (run 37382592466 lists every restore
+endpoint), and the Supabase connector cannot create or delete such a project.
+
+**The two owner actions.**
+1. Staging dashboard → Database → Backups → **Restore to a New Project** → the latest backup → Restore. Supabase shows
+   the cost before confirming. Staging holds only synthetic data (D-064), so the copy holds no real data.
+2. After the evidence is captured, the coordinator says so; the owner **deletes** the temporary project
+   (Project settings → Delete project).
+
+**What the coordinator then does.** It reads both projects through the connector, read only.
+- Data fidelity: `audit/restore/fakta.sql` and `banding.sh`.
+- The `auth.users` triggers; table and view rights; function rights; the policies and row security; owners.
+- Auth users (counts and hashes, never values).
+- The pre-request, extensions, Storage metadata, and whether the `assets` bucket survives.
+- `launch-readiness.sql` with its G7 rows.
+- Auth settings and API keys against staging's, by name.
+- The time from the click to `ACTIVE_HEALTHY`, which is the RTO.
+
+Each difference is classified as restored, lost-and-reconfigured-by-repository, or lost-and-needing-a-procedure. The
+runbook (Part II §7) is corrected to match, and the project's deletion is confirmed.
+
+### G5. The durable secrets: never replaced silently (built)
+
+`scripts/release/durable-secrets.mjs` runs inside `deploy-vercel-production.yml`. It runs after the service-role key
+is proven and before any variable is written, taken from the workflow's own commit. For each of `CARD_PEPPER` and
+`CERT_SECRET_KEY_V1` it decides one of three things:
+
+- **KEEP** only a value that is readable, at least 32 characters, and matches its recorded fingerprint. For the
+  certificate key it must also **open an issued certificate's seal**, which proves it is the key the certificates were
+  sealed with.
+- **MINT** only an absent, never-recorded secret, and only into a production holding no classroom card, no sealed
+  certificate, no school and nobody beyond the first administrator.
+- **REFUSE** everything else, including a count it cannot read. Nothing is written, the deploy stops, and the message
+  says to recover the secret, never to replace it.
+
+Fingerprints are the first 16 hex characters of an HMAC-SHA256 under the secret's own label, never values. They live
+in `docs/recovery/durable-secrets.json`. Production's two are not recorded yet: the next production deploy prints them
+as a warning, and they are committed then. Production holds two schools (D-003), so if Vercel lost either secret
+today the deploy would refuse.
+
+Proof (DR-S01..S03, red on the old workflow, green now):
+- the decision table;
+- the seal byte for byte against `src/lib/certificates/sign.ts`;
+- end to end against a stand-in for Vercel and PostgREST, the guard:
+  - mints into an empty production;
+  - refuses, writing no verdict, when Vercel has lost both secrets and production holds cards;
+  - refuses an unreadable count;
+  - keeps recorded secrets whose key opens the seal;
+  - refuses a key that does not open it;
+  - never prints a value.
+
+**Still open: the escrow.** The secrets exist only in Vercel. If Vercel loses them, the guard now stops the deploy
+instead of breaking every card and certificate, but there is nothing to recover them from. The escrow is
+`secrets.age` in G3's design, under the same custody decision.
+
+### G6. A recorded restore point before every production migration (built)
+
+Named restore points are offered by Supabase only to select partners, and PITR is off (D-103). The restore point is
+therefore the platform's daily backup. `scripts/release/restore-point.mjs` runs inside `deploy-supabase-production.yml`
+before `db push`. The apply is refused unless Supabase lists a **COMPLETED backup no older than 26 hours**. The run
+records which backup it was and its age, the WAL archiver's state, and the database's facts before the apply (counts,
+hashes and names only), and keeps them as an artifact for 90 days. If the list cannot be read, nothing is applied.
+
+Proof:
+- DR-S04: the decision, and end to end against a stand-in Management API (GET only; the token never printed);
+- DR-S05: the wiring.
+
+**Consequence until G1's permission exists:** every production apply is refused.
+
+### G7. Readiness that sees restore drift (built), and two defects found on the way
+
+`docs/audit/launch-readiness.sql` has 24 rows, up from 17. Seven new G7 rows pin by name what this release grants:
+- `anon` holds no right on any public table, view or sequence;
+- `authenticated`'s table rights are exactly the release's 85 tokens (column grants included), and its executable
+  functions are exactly the client registry's 193 plus the 17 helpers that row security and CHECKs call;
+- every public object is owned by `postgres`;
+- PINTAR's three `auth.users` triggers are present, enabled and bound to their functions;
+- the PostgREST pre-request is set;
+- the `assets` bucket exists and is private.
+
+Before any of this was pinned, the expectation was checked on hosted staging (`execute_sql`, read only): the same 85
+tokens, the same 17 helpers (identical md5), the same owners, triggers, bucket and pre-request.
+
+**Defect 1: the rehearsal's readiness count was false.** It counted `'| FAIL'`, which no line contains, so it read 0
+on staging and on the restored copy whatever happened. It is fixed: the rehearsal now prints each row by its verdict.
+
+**Defect 2: two readiness rows had silently gone stale.** "Exactly one public verification path" and "anonymous surface
+unchanged (2 / 2 / 0)" pinned the anonymous surface at its first size. They have FAILed on every database since
+`20261019100000`, when the approved sign-in and recovery routes (BOB-12, BOB-26..28, IDENTITY-4.0) were registered.
+They are restated (`RESTATED FOR #150 G7`). They now pin the 19 registered surfaces by name and require exactly one
+certificate-verification route. Production's pinned release (17 rows) predates both changes. The count moves to 24
+with the next production release.
+
+Proof, DR-D01 (red on the old file, green now): 24 rows on CI's database with no unplanted FAIL. Then, inside a
+rolled-back transaction, the 5 Oct restore's drift is planted: every right granted to `anon` and `authenticated`, the
+password-write guard dropped, the pre-request lost. Two more drifts are added: a public bucket and a foreign owner.
+Every G7 row FAILs and names what differs, for example:
+- "2 of 3 present and enabled; missing or disabled: pintar_password_write_guard";
+- "138 relation(s) anon may touch: …";
+- "279 differ: +academic_periods_append_only …".
+
+On a real restore: REHEARSAL_RESULT
+
+### G8. Recorded
+
+D-103: RPO 24 hours, provisional; no PITR now; revisit as real-school usage grows, at the latest before the first real
+school's learners sit assessments in production.
+
+### G9. Recovery that does not hang on one person (recommendations; the people are the owner's to choose)
+
+1. A second production SYSTEM_ADMIN before real schools depend on PINTAR (D-001 requires one before 23 Sep 2027;
+   SYS-08 FAIL), and C-11's break-glass rehearsal.
+2. A second person with administrative access to each account recovery needs: the Supabase organisation, the Vercel
+   team, the GitHub repository, the domain registrar and mail host, and G3's backup account if approved. Each
+   account's own recovery codes should be kept offline.
+3. A second custodian of G3's recovery key (G3 design §3).
+
+No implementation: each of these is a person or an account, and none is assumed.
+
+### G10. Being told when production fails (minimum built, off)
+
+`.github/workflows/production-watch.yml` looks at production from outside, with GET only:
+- the sign-in page, without following a redirect;
+- Supabase Auth's health;
+- the TLS certificate's remaining days;
+- the restore point through `restore-point.mjs` (an unreadable list is reported, not failed).
+
+On a failure it opens one GitHub issue, comments on it while the failure lasts, and closes it when everything is green
+again. GitHub notifies the repository's watchers; no paid service is used. Its hourly schedule is skipped at no cost
+until the owner sets the repository variable `PINTAR_PRODUCTION_WATCH` to `on`. One dispatched run: RUN_WATCH_RESULT.
+
+**Owner's decisions:** turn it on, and how often. Who watches the repository; GitHub emails watchers about the issue.
+
+## The owner's decisions, together
+
+| # | Decision | Recommended |
+|---|---|---|
+| 1 | G2: start "Restore to a New Project" from staging's latest backup; delete it when told | yes, now (approved in principle 6 Oct) |
+| 2 | G1/G6: let the production access token read the project's backups | yes; without it no production migration can be applied |
+| 3 | G3/G4: destination, account, custody, drill key, retention, schedule | AWS S3 Singapore with Object Lock; the owner's account; the owner holds the recovery key (plus a second custodian); drill key yes; 35 days + 12 months; daily |
+| 4 | G9: a second SYSTEM_ADMIN and a second account administrator | yes, before real schools depend on PINTAR |
+| 5 | G10: turn the watch on, and how often | on, hourly |
+
+## The recovery verification rerun
+
+RERUN_SECTION
+
+---
+
+# Part II — The examination of 5 Oct (as written, with corrections marked)
+
 
 **Owner's order (5 Oct):** after C-12 and ENGINEERING COMPLETE, examine backup and disaster recovery against PINTAR 4.0's
 actual hosted architecture and configuration: not whether a backup mechanism exists, but whether there is a credible,
@@ -58,12 +275,12 @@ SYSTEM_ADMIN": **FAIL**; C-11 break-glass rehearsal: TODO).
 | | Result |
 |---|---|
 | Data | **150 of 157 tables byte-identical** (row count and content hash): every PINTAR table in `public` and `telemetry`, `auth.users` and the other Auth data, the migration history. The 7 others are Supabase's own version tables, empty newer-version Auth tables, and `storage.buckets` (the `assets` row). |
-| Kept | row security on every `public` table; all 131 policies; all 143 `public` triggers; PostgREST's pre-request on `authenticator`; the extensions; Storage **metadata** (staging: **28 objects, 206 MB**); `launch-readiness.sql` 0 FAIL. |
+| Kept | row security on every `public` table; all 131 policies; all 143 `public` triggers; PostgREST's pre-request on `authenticator`; the extensions; Storage **metadata** (staging: **28 objects, 206 MB**). ~~`launch-readiness.sql` 0 FAIL~~ **Corrected 6 Oct:** that figure was false: the rehearsal counted lines containing `'\| FAIL'`, and no line does (each begins with its verdict), so it read 0 whatever happened. See Part I, G7. |
 | **Lost** | **PINTAR's three triggers on `auth.users`** — account creation, the **password-write guard** (Gate 3, D-101, D-102) and the **card-email guard**. The schema backup contains none of them (Supabase leaves `auth` out; its docs say changes to `auth` "have to be restored separately"). |
 | **Opened** | **Every privilege.** On the copy, `anon` and `authenticated` hold SELECT, INSERT, UPDATE and DELETE on **all 137** `public` tables and views (on staging `anon` holds none and `authenticated` only what each needs), and EXECUTE on **all 490** `public` functions: **280 that no client may call on staging** (among them `audit_write`, `auth_password_write_guard`, `certificate_prepare`, `bootstrap_first_system_admin`, `card_signin_settle`, `assume_persona`) and 210 that only a signed-in caller may call, now open to anonymous callers too. |
 | Changed | one function's definition, `content_canonical_payload` (the content seal's payload): the only difference (run 37379973507, `diff` of the two definitions) is its **eleven SQL comment lines that begin at the first column, removed** by the CLI's dump (it is the only function in `public` with such lines, which is why it alone differs); no executable line changed, so the payload it computes, and every content seal, is unaffected. A fidelity note, not a defect. |
 
-**Why the privileges open.** A Supabase project's default privileges grant `anon` and `authenticated` every right on every object `postgres` creates in `public`. PINTAR revokes them explicitly in each migration (ADR-0021; D-033), but a dump records each object's rights only relative to Postgres's own defaults, so nothing revokes what the new project's defaults just granted. Row security still filters rows (which is why the readiness check reads 0 FAIL), but SECURITY DEFINER functions do not pass through it, and every internal one becomes callable by anyone at `/rest/v1/rpc`. **PINTAR's own readiness check does not detect this.**
+**Why the privileges open.** A Supabase project's default privileges grant `anon` and `authenticated` every right on every object `postgres` creates in `public`. PINTAR revokes them explicitly in each migration (ADR-0021; D-033), but a dump records each object's rights only relative to Postgres's own defaults, so nothing revokes what the new project's defaults just granted. Row security still filters rows, but SECURITY DEFINER functions do not pass through it, and every internal one becomes callable by anyone at `/rest/v1/rpc`. ~~PINTAR's own readiness check does not detect this.~~ **Corrected 6 Oct:** two of its rows would have failed (`anon` may execute functions; client write grants on `audit_log`), but the rehearsal's count could not show it, and it had no row for table rights in general, for `authenticated`'s functions, for the `auth.users` triggers or for the pre-request (Part I, G7).
 
 **The corrected step, proven.** Recreating the three `auth.users` triggers from the source's own catalog (`pg_get_triggerdef`, read-only on staging) brings them back: the copy then reads `same` for them. The privileges were **not** corrected in the rehearsal: that is a proposal (§8), not something this review built.
 
@@ -96,7 +313,7 @@ SYSTEM_ADMIN": **FAIL**; C-11 break-glass rehearsal: TODO).
 - **H4. The documented logical restore opens every privilege** (§3): all 137 tables and views to `anon` and `authenticated`, all 490 functions to `anon`, including 280 internal ones. Silent: row security, the policies and the readiness check all look healthy.
 - **H5. The documented logical restore drops PINTAR's three `auth.users` triggers**, the password-write guard among them. Silent.
 - **H6. The documented logical restore does not run**: it stops at a role parameter the project may not set, and its single transaction restores nothing. A person following Supabase's page under pressure meets a failure, then (by the troubleshooting advice) an unguarded tolerant restore that produces H4 and H5.
-- **H7. `docs/audit/launch-readiness.sql` cannot see H4 or H5**: it checks row security and policies, not grants, `anon`'s rights, or the `auth.users` triggers.
+- **H7. `docs/audit/launch-readiness.sql` cannot see H4 or H5**: it checks row security and policies, not grants, `anon`'s rights, or the `auth.users` triggers. **Corrected 6 Oct:** it saw part of H4 (anon's functions, `audit_log`'s write grants), none of H5; and the rehearsal's count of its FAIL rows was itself broken (Part I, G7).
 
 ## 6. Single points of failure
 
