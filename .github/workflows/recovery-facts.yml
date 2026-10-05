@@ -1,0 +1,89 @@
+# #150 G1 (owner, 6 Oct): the backup configuration of production and staging, READ ONLY.
+#
+# Every call below is an HTTP GET to Supabase's Management API (the helper refuses any other method), from main only.
+# Nothing is written to Supabase, Vercel, GitHub or DNS, and no database is opened. Printed: each project's status,
+# region and Postgres version; whether point-in-time recovery is on; the daily backups Supabase holds (count, kind,
+# status, earliest and latest); the add-ons selected; and, from Supabase's public API description, the endpoints that
+# restore a backup (so the hosted restore rehearsal, G2, uses the documented one). No key, token or password is printed.
+
+name: facts · backups and recovery (read only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+
+jobs:
+  facts:
+    if: github.ref == 'refs/heads/main'
+    name: production and staging backups, read only
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Backups, point-in-time recovery and add-ons (GET only)
+        env:
+          PROD_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
+          STAGING_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -uo pipefail
+          for n in PROD_TOKEN STAGING_TOKEN; do
+            v="${!n:-}"; case "$v" in sbp_fc*) k=scoped;; sbp_*) k=classic;; "") k=ABSENT;; *) k=unrecognised;; esac
+            echo "$n: $k${v:+, fingerprint $(printf %s "$v" | sha256sum | cut -c1-8)}"
+          done
+          # the only verb this job uses
+          get() { curl -sS -X GET --max-time 30 -w '\n%{http_code}' -H "Authorization: Bearer $1" "https://api.supabase.com/v1$2"; }
+          body() { printf '%s' "$1" | sed '$d'; }; code() { printf '%s' "$1" | tail -1; }
+          for env in production staging; do
+            if [ "$env" = production ]; then ref=$PRODUCTION_SUPABASE_PROJECT_REF; tok=$PROD_TOKEN; else ref=$STAGING_SUPABASE_PROJECT_REF; tok=$STAGING_TOKEN; fi
+            for try in "$tok" "$PROD_TOKEN"; do
+              r=$(get "$try" "/projects/$ref/database/backups"); [ "$(code "$r")" = 200 ] && break
+            done
+            which=$([ "$try" = "$tok" ] && echo "its own token" || echo "the production token")
+            echo "== $env ($ref)"
+            p=$(get "$try" "/projects/$ref")
+            echo "project: HTTP $(code "$p")"
+            [ "$(code "$p")" = 200 ] && body "$p" | jq -r '"  status \(.status); region \(.region); created \(.created_at); database \(.database.version // "-") (\(.database.postgres_engine // "-"), \(.database.release_channel // "-"))"'
+            echo "backups: HTTP $(code "$r") (asked with $which)"
+            if [ "$(code "$r")" = 200 ]; then
+              body "$r" | jq -r '
+                "  point-in-time recovery enabled: \(.pitr_enabled); WAL-G enabled: \(.walg_enabled); region \(.region // "-")",
+                "  backups held: \(.backups | length)",
+                (.backups | sort_by(.inserted_at) | if length > 0 then "  earliest \(.[0].inserted_at); latest \(.[-1].inserted_at)" else "  none" end),
+                (.backups | group_by(.status) | map("  status \(.[0].status): \(length)") | .[]),
+                (.backups | group_by(.is_physical_backup) | map("  physical \(.[0].is_physical_backup): \(length)") | .[]),
+                (.physical_backup_data // {} | "  physical backup data: \(tostring)")'
+              body "$r" | jq -r '.backups | sort_by(.inserted_at) | .[] | "  · \(.inserted_at) \(.status) physical=\(.is_physical_backup)"'
+            fi
+            a=$(get "$try" "/projects/$ref/billing/addons")
+            echo "add-ons: HTTP $(code "$a")"
+            [ "$(code "$a")" = 200 ] && body "$a" | jq -r '"  selected: " + ((.selected_addons // []) | map("\(.type)=\(.variant.identifier // .variant.id // "-")") | if length > 0 then join(", ") else "none" end)'
+          done
+          echo "== the organisation's projects (names, status, region only)"
+          l=$(get "$PROD_TOKEN" "/projects"); echo "projects: HTTP $(code "$l")"
+          [ "$(code "$l")" = 200 ] && body "$l" | jq -r '.[] | "  \(.name) (\(.id)) \(.status) \(.region) created \(.created_at)"'
+          exit 0
+
+      - name: The documented endpoints that restore a backup (Supabase's public API description)
+        run: |
+          set -uo pipefail
+          curl -sS --max-time 30 https://api.supabase.com/api/v1-json -o /tmp/api.json || true
+          python3 - <<'PY'
+          import json
+          try: d = json.load(open('/tmp/api.json'))
+          except Exception as e: print('the API description could not be read:', e); raise SystemExit(0)
+          for p, v in sorted(d.get('paths', {}).items()):
+              for m, o in v.items():
+                  s = (o.get('summary', '') + ' ' + o.get('description', '')).lower()
+                  if any(k in p.lower() or k in s for k in ('backup', 'restore', 'clone', 'duplicate')):
+                      print(m.upper(), p, '-', o.get('summary', ''), '|', o.get('operationId', ''))
+                      ref = (o.get('requestBody', {}).get('content', {}).get('application/json', {}).get('schema', {}) or {}).get('$ref')
+                      if ref:
+                          name = ref.split('/')[-1]
+                          sch = d.get('components', {}).get('schemas', {}).get(name, {})
+                          print('    body', name, json.dumps({k: v.get('type', v.get('$ref', '')) for k, v in sch.get('properties', {}).items()}), 'required', sch.get('required', []))
+          PY
