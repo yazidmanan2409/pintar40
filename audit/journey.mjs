@@ -1862,7 +1862,7 @@ await step("S21i", "the certificate as students meet it: above the target it is 
     const sebelum = sertifikatDari(lulus.nama);
     await a1.goto(`${APP}/belajar/sertifikat`, { waitUntil: "networkidle" });
     await tutupTur(a1);
-    const daftar = norm(await a1.locator("main").innerText());
+    const daftar = norm(await bodyText(a1));
     const baris = a1.locator(`a[href="/belajar/${tugas}/sertifikat"]`);
     const setelahDaftar = sertifikatDari(lulus.nama);
     rec.shots.push(await shot(a1, "stu17-daftar"));
@@ -1872,7 +1872,7 @@ await step("S21i", "the certificate as students meet it: above the target it is 
       await baris.first().click();
       await a1.waitForURL((u) => u.pathname === `/belajar/${tugas}/sertifikat`, { timeout: SLOW });
       await a1.waitForLoadState("networkidle");
-      const isi = norm(await a1.locator("main").innerText());
+      const isi = norm(await bodyText(a1));
       rec.shots.push(await shot(a1, "stu17-sertifikat"));
       const terbit = sertifikatDari(lulus.nama).split(",").includes("ISSUED");
       const aksi = /Cetak atau simpan PDF/.test(isi) && /Periksa keaslian|Tautan verifikasi|Salin tautan verifikasi/.test(isi);
@@ -1895,9 +1895,9 @@ await step("S21i", "the certificate as students meet it: above the target it is 
     const sebelum = sertifikatDari(belum.nama);
     await b1.goto(`${APP}/belajar/sertifikat`, { waitUntil: "networkidle" });
     await tutupTur(b1);
-    const daftar = norm(await b1.locator("main").innerText());
+    const daftar = norm(await bodyText(b1));
     await b1.goto(`${APP}/belajar/${tugas}/sertifikat`, { waitUntil: "networkidle" });
-    const halaman = norm(await b1.locator("main").innerText());
+    const halaman = norm(await bodyText(b1));
     await b1.goto(`${APP}/belajar/${tugas}/sertifikat`, { waitUntil: "networkidle" });
     rec.shots.push(await shot(b1, "stu17-belum"));
     const setelah = sertifikatDari(belum.nama);
@@ -2312,13 +2312,14 @@ await step("S23i", "the head of department reviews Kelas 1A's integrity observat
     await h.getByRole("link", { name: "Tinjauan Integritas" }).first().click();
     await h.waitForURL((u) => u.pathname === "/studio/integritas", { timeout: SLOW });
     await h.waitForLoadState("networkidle");
-    const teks = norm(await h.locator("main").innerText());
+    const teks = norm(await bodyText(h));
     rec.shots.push(await shot(h, "hod07-integritas"));
     const bingkai = /bahan pertimbangan manusia, bukan kesimpulan/i.test(teks);
     const vonis = /curang|kecurangan|menyontek|mencontek|pelanggaran|bersalah|dihukum|cheat/i.test(teks);
     const kategori = /Terputus lalu tersambung lagi|Berpindah dari layar penilaian/.test(teks);
     const namaTampak = teks.includes(namaMurid);
     notes.push(`the page frames them as material for a human ${bingkai}, carries a verdict word ${vonis}, names the observation ${kategori}, names the student ${namaTampak}`);
+    if (!bingkai || !kategori) notes.push(`the page at ${new URL(h.url()).pathname} says: «${teks.slice(0, 400)}»`);
     const form = h.locator("form").filter({ has: h.locator(`input[name="sinyal"][value="${idSinyal}"]`) }).first();
     if (!(await form.count()) || !bingkai || vonis || !kategori) { rec.verdict = "FAIL"; return notes.join("; "); }
     await form.locator('select[name="keputusan"]').selectOption("NO_CONCERN");
@@ -3103,11 +3104,15 @@ await step("S27", "a new school year: the school admin makes next year's Tingkat
 // their department, launches an Uji Cepat of three questions for Kelas 1B (Kelas 1A's is S26e's), and the student
 // placed there finds it on her home. A class outside the department is not theirs to open.
 await step("S27h", "a head of department runs an Uji Cepat within their department: Mengajar offers exactly its Kelas, three questions are launched for Kelas 1B, and its student finds it; a class outside it is refused (HOD-08)", async (rec) => {
-  const satuB = sql(`select id from public.org_nodes where institution_id='${ids.sd}' and kind='CLASS' and name='Kelas 1B' and is_active limit 1`).trim();
+  // the Kelas Eka was moved to in S25 (S26 renamed it «Kelas 1 Biru»), where she is placed now
+  const satuB = sql(`select m.node_id from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+    join public.persons p on p.id = e.person_id join public.org_nodes o on o.id = m.node_id
+   where p.display_name = '${MURID[4]}' and e.institution_id = '${ids.sd}' and o.kind = 'CLASS' and o.is_active
+     and (m.valid_to is null or m.valid_to > now()) order by m.valid_from desc limit 1`).trim();
   const bab1 = babSatu();
   const modul = bab1 ? sql(`select id from public.modules where course_id='${bab1}' order by ordinal limit 1`).trim() : "";
   const siswa = kartuKelas.find((x) => x.nama === MURID[4]);
-  if (!terbitBab || !satuB || !modul || !siswa) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "no Kelas 1B (S25), Bab 1 chapter or card for Eka Murid"; }
+  if (!terbitBab || !satuB || !modul || !siswa) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "no Kelas for Eka (S25), Bab 1 chapter or card for her"; }
   const notes = [];
   const beri = await grantViaForm(a, people.kaprodi.name, "HEAD_OF_DEPARTMENT", "Kelas Rendah");
   notes.push(`the school admin gives ${people.kaprodi.name} Kepala departemen at Kelas Rendah: ${beri.ok}`);
@@ -3153,7 +3158,7 @@ await step("S27h", "a head of department runs an Uji Cepat within their departme
     const aa = sql(`select aa.id from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
       where aa.node_id='${satuB}' and d.mode::text = 'QUICK' order by aa.created_at desc limit 1`).trim();
     const oleh = aa ? sql(`select p.display_name from public.assessment_assignments aa join public.persons p on p.id = aa.assigned_by_person_id where aa.id='${aa}'`).trim() : "";
-    notes.push(`launched for Kelas 1B by ${oleh || "nobody"}`);
+    notes.push(`launched for Eka's Kelas by ${oleh || "nobody"}`);
     if (!aa || oleh !== people.kaprodi.name) { rec.verdict = "FAIL"; return notes.join("; "); }
     // outside the department: Kelas 1A's next-year Kelas from S27 is in it too, so the refusal is asked of a class of
     // another school, which this head stands over in no way
