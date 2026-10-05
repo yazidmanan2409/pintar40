@@ -3,7 +3,7 @@
 //
 //   M0  read only: the school GS_SLUG, «Kelas 5A» with its five students, the published chapter given to the class
 //       (GS-11), its post-test sealed at the school's mark.
-//   M1  GS-07, its second half (J3.7, M7): the school admin signs in by the real email link and, on Aktivasi, makes
+//   M1  GS-07, its second half (J3.7, M7): the school admin signs in with their password (masuk.mjs) and, on Aktivasi, makes
 //       the class's cards in one press as a printable class set; the walk reads the five cards from that set.
 //   M2  GS-12 (J2.19): the primary student signs in with their class card and lands on /belajar with the chapter.
 //   M3  GS-13 (J6.5–J6.9): by clicking, the chapter → its Pemetaan Awal → the explicit «Mulai Pemetaan Awal» →
@@ -18,9 +18,9 @@
 //   M7  read back, read only: every sitting FINALIZED; the post-tests OFFICIAL, sealed at the school's mark; each
 //       student's mastery and pass/fail as planned.
 //
-// ONE RUN. A card's PIN is shown once, and main has no card re-issue (GS-21), so the cards are made and used in this
-// run and never kept: a failure after M1 leaves these students without a way in until re-issue exists or a new Golden
-// School is founded (C1). Every page is reached by clicking, except that the four other students open their two tests
+// ONE RUN. A card's PIN is shown once, so the cards are made and used in this run and never kept: after M1, a student
+// signs in again only with a card the school admin re-issues (GS-21; golden-school-laporan.mjs R1 does so for the two
+// it needs), or on a new Golden School (C1). Every page is reached by clicking, except that the four other students open their two tests
 // by address (they "only sit the tests", §4). NEVER: production; a direct write (the database is read in read-only
 // transactions; every write is a press of PINTAR's buttons); a server-made session as a person's act.
 import { chromium } from "playwright";
@@ -28,6 +28,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 import { APP, SLOW, closeTour } from "../perf/lib.mjs";
+import { keadaanDari, masukStaf } from "./masuk.mjs";
 
 const env = (k) => { const v = process.env[k]; if (!v) throw new Error(`${k} is not set`); return v; };
 const DB = env("STAGING_SUPABASE_DB_URL");
@@ -78,19 +79,12 @@ async function klikTautan(page, href) {
   await page.waitForLoadState("networkidle");
   await closeTour(page);
 }
+// a person signs in as Gate 3 has it (masuk.mjs): activation the first time, the password after; where it lands
+const jalanMasuk = new Map();
 async function masukSurel(page, email) {
-  const t0 = Date.now() / 1000 - 60;
-  await page.goto(`${APP}/masuk`, { timeout: SLOW, waitUntil: "networkidle" });
-  await page.locator("#email").fill(email);
-  await page.getByRole("button", { name: "Kirim tautan masuk" }).click();
-  await page.getByRole("heading", { name: "Periksa email Anda" }).waitFor({ timeout: SLOW });
-  const link = execFileSync("python3", ["mailbox_link.py", email, String(t0), "180"], { encoding: "utf8" }).trim();
-  console.log(`::add-mask::${link}`);
-  await page.goto(link, { timeout: SLOW, waitUntil: "networkidle" });
-  await page.waitForURL((u) => !u.pathname.startsWith("/auth/"), { timeout: SLOW }).catch(() => {});
-  await page.waitForLoadState("networkidle");
-  await closeTour(page);
-  return new URL(page.url()).pathname;
+  const r = await masukStaf(page, email, keadaanDari(sql, lit));
+  jalanMasuk.set(email, `${r.jalan}${r.lewat.length ? ` (${r.lewat.join(" → ")})` : ""}`);
+  return r.di;
 }
 async function masukKartu(page, k) {
   await page.goto(`${APP}/masuk`, { timeout: SLOW, waitUntil: "networkidle" });
@@ -147,8 +141,8 @@ if (!S || results.at(-1).verdict === "FAIL") { await browser.close(); log("RED: 
 
 // ── M1: the class set of cards, made and read in this run
 const kartu = [];
-await step("M1", `GS-07, second half (J3.7, M7): the school admin signs in by the real email link and, on Aktivasi, makes «${KELAS}»'s cards in one press as a printable class set; the five are read from the set`, async (rec) => {
-  if (S.akun > 0) { rec.verdict = "FAIL"; return `${S.akun} of the five already have an account: their cards were made in an earlier run and cannot be shown again; without re-issue (GS-21) the students cannot be walked again in «${SLUG}»`; }
+await step("M1", `GS-07, second half (J3.7, M7): the school admin signs in with their password and, on Aktivasi, makes «${KELAS}»'s cards in one press as a printable class set; the five are read from the set`, async (rec) => {
+  if (S.akun > 0) { rec.verdict = "FAIL"; return `${S.akun} of the five already have an account: their cards were made in an earlier run and cannot be shown again: walk the students on a new Golden School (C1)`; }
   const A = await (await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "id-ID", timezoneId: "Asia/Jakarta" })).newPage();
   const di = await masukSurel(A, ADMIN_EMAIL);
   if (di !== "/konfigurasi") { rec.verdict = "FAIL"; return `the admin landed on ${di}`; }
