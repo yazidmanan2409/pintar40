@@ -268,7 +268,7 @@ const diam = (idSesi: string, menit: number) =>
 export async function postgrest(url: string, anon: string, akses: string): Promise<number> {
   return (await fetch(`${url}/rest/v1/accounts?select=kind&limit=1`, { headers: { apikey: anon, authorization: `Bearer ${akses}` } })).status;
 }
-async function segarkan(url: string, anon: string, refresh: string): Promise<{ ok: boolean; akses: string | null }> {
+export async function segarkan(url: string, anon: string, refresh: string): Promise<{ ok: boolean; akses: string | null }> {
   const r = await fetch(`${url}/auth/v1/token?grant_type=refresh_token`, {
     method: "POST", headers: { apikey: anon, "content-type": "application/json" }, body: JSON.stringify({ refresh_token: refresh }) });
   const isi = (await r.json().catch(() => null)) as { access_token?: string } | null;

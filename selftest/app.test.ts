@@ -16,6 +16,7 @@ import { bob27AppTests } from "./bob27.test";
 import { bob28AppTests } from "./bob28.test";
 import { bob29AppTests } from "./bob29.test";
 import { d101AppTests } from "./d101.test";
+import { d102AppTests } from "./d102.test";
 import { bob50AppTests } from "./bob50.test";
 import { bob51AppTests } from "./bob51.test";
 
@@ -3003,6 +3004,7 @@ export const appTests: SelfTest[] = [
   ...bob28AppTests,
   ...bob29AppTests,
   ...d101AppTests,
+  ...d102AppTests,
   // BOB-50 (D-082(d)): a single Uji Cepat issues no certificate, through the running app
   ...bob50AppTests,
   // BOB-51 (D-057, REL-08): «Kirim email uji», the platform admin's delivery proof, through the running app

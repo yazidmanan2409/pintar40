@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 183,
+  "version": 184,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3068,6 +3068,12 @@
       "skip_justification": "needs the running app and the local stack (Auth, PostgREST, the mail sink)"
     },
     {
+      "id": "D102-A01",
+      "runner": "app",
+      "proves": "D-102 against the running app's routes, Auth and PostgREST (selftest/d102.test.ts): the activation wizard's token answers a direct PostgREST request; with the guard's activation branch planted away the first password leaves it served (200, the gap shown on the same stack); with it, the username step and a refused password leave it served (no clean-up there), and the first password moves the browser to a new session that is served (200) while the old token is refused (401) and its refresh too, recorded and audited PASSWORD_PERTAMA; the wizard then takes the PIN, the name and the finish on the new session and the home opens (or asks «Komputer siapa ini?», Gate 6).",
+      "skip_justification": "needs the running app and the local stack (Auth, PostgREST, the mail sink)"
+    },
+    {
       "id": "BOB29-K01",
       "runner": "static",
       "proves": "BOB-29 (Gate 6). Runs src/lib/penjaga-sesi.ts: bacaPenjagaan reads sesi_periksa's answer and nothing else; jalurSaatTerkunci lets a locked session reach only /terkunci, /api/sesi/buka and /keluar; jalurBebasPilih; navigasiHalaman is a browser's GET document that is not a prefetch; mintaHalaman; idSesiDariToken; the device value and its SHA-256; the PERSONAL mark verifies only for its own session with this server's pepper and is not made without one; umurSesiMode gives 7 days on a personal computer and 60 minutes on a shared one and a card; pinSahUntuk; bacaJawabanBuka; BATAS_SESI matches migration 20261117100000's 5 and 60 minutes; every hle line of the lock, the warning, «Komputer siapa ini?» and Akun saya has words in id and en, asks for no phone or message, and a card's forgotten PIN goes to the teacher."
@@ -3145,12 +3151,22 @@
     {
       "id": "D101-S01",
       "runner": "static",
-      "proves": "D-101 answers (5 Oct), the source (selftest/d101.test.ts): migration 20261122100000 asks one authority question for the recovery lookup and reset -- the Platform Admin, or an active School Admin of a school that has the person by its number, a role there or a learner there; never oneself; a Platform Admin only by another -- audits the reset with the school that acted, ends every session of the person on a recovery, a card's re-issue and an assisted reset but not an activation, and lets a School Admin appoint another at the school itself only; every function revoked from public and the two declared as the School Admin's scope; the route answers oneself SENDIRI; Keamanan akun and Admin sekolah (confirmed by a second press) are a School Admin's, the security record and Admin platform the Platform Admin's; Persiapan sekolah carries the quiet second-admin line."
+      "proves": "D-101 answers (5 Oct), the source (selftest/d101.test.ts): migration 20261122100000 asks one authority question for the recovery lookup and reset -- the Platform Admin, or an active School Admin of a school that has the person by its number, a role there or a learner there; never oneself; a Platform Admin only by another -- audits the reset with the school that acted, ends every session of the person on a recovery, a card's re-issue and an assisted reset but not an activation (D-102 adds the activation in 20261123100000), and lets a School Admin appoint another at the school itself only; every function revoked from public and the two declared as the School Admin's scope; the route answers oneself SENDIRI; Keamanan akun and Admin sekolah (confirmed by a second press) are a School Admin's, the security record and Admin platform the Platform Admin's; Persiapan sekolah carries the quiet second-admin line."
     },
     {
       "id": "D101-D01",
       "runner": "static",
-      "proves": "D-101 answers, migration 20261122100000 against the database, rolled back (selftest/d101.test.ts): PostgREST's own pre-request with a session's claims passes a teacher's sessions before her School Admin's reset and refuses them after (PT401, KREDENSIAL_DIGANTI, Auth's rows gone, audited), and likewise a class card's after its re-issue and a recovered password's, while an activation's write ends nothing; the School Admin assists the school's teacher and email learner (audited with her, INSTITUTION_ADMIN and the school) and is refused another school's learner, a Platform Admin the school has, herself (RECOVERY_SELF) and a reset without a reason; the Platform Admin is refused only herself; a dean nothing; a School Admin appoints a teacher School Admin at the school itself (audited) and is refused below it, at another school, for a stranger, as Admin platform and for herself; the internal functions are no client's."
+      "proves": "D-101 answers, migration 20261122100000 against the database, rolled back (selftest/d101.test.ts): PostgREST's own pre-request with a session's claims passes a teacher's sessions before her School Admin's reset and refuses them after (PT401, KREDENSIAL_DIGANTI, Auth's rows gone, audited), and likewise a class card's after its re-issue and a recovered password's, and (D-102) an activation's first password ends the wizard's session too, as PASSWORD_PERTAMA; the School Admin assists the school's teacher and email learner (audited with her, INSTITUTION_ADMIN and the school) and is refused another school's learner, a Platform Admin the school has, herself (RECOVERY_SELF) and a reset without a reason; the Platform Admin is refused only herself; a dean nothing; a School Admin appoints a teacher School Admin at the school itself (audited) and is refused below it, at another school, for a stranger, as Admin platform and for herself; the internal functions are no client's."
+    },
+    {
+      "id": "D102-S01",
+      "runner": "static",
+      "proves": "D-102 (owner ruling, 5 Oct), the source (selftest/d102.test.ts): migration 20261123100000 ends every session of the person when the password guard takes an activation's first password, through D-101's core with the reason PASSWORD_PERTAMA; the replaced credential's branch and the refusal of a write without a live permit stay as they were; the guard is revoked from public; device_sessions accepts the new reason beside its five; the activation route signs the person back in right after Auth has set the password, and only then."
+    },
+    {
+      "id": "D102-D01",
+      "runner": "static",
+      "proves": "D-102, migration 20261123100000 against the database, rolled back (selftest/d102.test.ts): a person mid-activation has the wizard's session recorded and one not yet seen, both passed by PostgREST's own pre-request; a password write with no permit or an expired one is refused (PASSWORD_WRITE_REFUSED) and ends nothing; the activation's first password, through its own permit, is taken as the step and ends both (PT401, PASSWORD_PERTAMA, Auth's rows gone, audited) and nobody else's; a session begun after it passes; a recovery still ends with KREDENSIAL_DIGANTI; the guard is no client's."
     },
     {
       "id": "BOB29-A01",

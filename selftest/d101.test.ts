@@ -8,9 +8,9 @@
  *            lets a School Admin appoint another at the school itself only; the screens offer what the database allows
  *            (Keamanan akun's lookup and reset, «Admin sekolah» confirmed by a second press, the quiet second-admin line)
  *  D101-D01  the database, rolled back: PostgREST's own pre-request (pintar_permintaan.periksa) with a session's claims
- *            passes before a reset, a card's re-issue and a recovered password, and refuses after (PT401), while an
- *            activation's write ends nothing; a School Admin assists a teacher and an email learner of the school, is
- *            refused another school's person, a Platform Admin the school has, and themselves; the Platform Admin is
+ *            passes before a reset, a card's re-issue and a recovered password, and refuses after (PT401), as it
+ *            does after an activation's first password (D-102, 20261123100000); a School Admin assists a teacher
+ *            and an email learner of the school, is refused another school's person, a Platform Admin the school has, and themselves; the Platform Admin is
  *            refused only themselves; a teacher nothing; each reset audited with its authority; a second School Admin
  *            appointed at the school, never below it, at another school, to a stranger, as Platform Admin or oneself
  *  D101-A01  the running app (CI): an access token issued before a replacement makes a direct PostgREST request; with
@@ -158,7 +158,8 @@ begin
     'dekan_reset', pg_temp.jawab(format('select ''OK'' from (select public.admin_reset_recovery(%L, %L)) x', p_guru, 'uji')));
   perform selftest.as_owner();
 
-  -- (4) every replacement through the password guard ends the person's sessions; an activation ends none
+  -- (4) every replacement through the password guard ends the person's sessions; so does an activation's first password,
+  -- by a reason of its own (D-102, 20261123100000)
   s3 := pg_temp.sesi(e_kartu, 'CARD');
   s4 := pg_temp.sesi(e_hod, 'PERSONAL');
   s5 := pg_temp.sesi(e_dekan, 'SHARED');
@@ -334,8 +335,8 @@ export const d101Tests: SelfTest[] = [
       c.expect(JSON.stringify(v.tulis_sebelum) === JSON.stringify(["LEWAT", "LEWAT", "LEWAT"]), `the three sessions before the writes: ${JSON.stringify(v.tulis_sebelum)}`);
       c.expect(v.tulis_sesudah?.kartu === tolak && v.tulis_sesudah?.pulih === tolak,
         `after a card's re-issue and a recovered password, the old tokens at the pre-request: ${JSON.stringify(v.tulis_sesudah)} (the gap: still served)`);
-      c.expect(v.tulis_sesudah?.aktivasi === "LEWAT" && Number(v.tulis_auth?.aktivasi) === 1 && Number(v.tulis_auth?.kartu) === 0,
-        `an activation's password write ended a session, or a re-issue left Auth's row: ${JSON.stringify([v.tulis_sesudah?.aktivasi, v.tulis_auth])}`);
+      c.expect(v.tulis_sesudah?.aktivasi === tolak && Number(v.tulis_auth?.aktivasi) === 0 && Number(v.tulis_auth?.kartu) === 0,
+        `an activation's first password left its session served (D-102), or a re-issue left Auth's row: ${JSON.stringify([v.tulis_sesudah?.aktivasi, v.tulis_auth])}`);
       // (5)
       c.expect(v.angkat === "OK", `a School Admin appointing a teacher of the school at the school itself: ${v.angkat}`);
       c.expect(v.angkat_bawah === "E:P0001" && v.angkat_beta === "E:P0001" && v.angkat_asing === "E:GRANT_NO_SCHOOL_RELATIONSHIP"
@@ -352,8 +353,8 @@ export const d101Tests: SelfTest[] = [
         `the registry declares ${JSON.stringify(v.registri)}`);
       return c.verdict("migration 20261122100000 against the database, rolled back: PostgREST's own pre-request with a session's claims passed a " +
         "teacher's two sessions before her School Admin's reset and refused both after (PT401, recorded KREDENSIAL_DIGANTI, Auth's rows gone, " +
-        "audited), and likewise a class card's after its re-issue and a staff member's after a recovered password, while an activation's write " +
-        "ended nothing; the School Admin assisted the school's teacher and email learner (each reset audited with her, INSTITUTION_ADMIN and the " +
+        "audited), and likewise a class card's after its re-issue and a staff member's after a recovered password, and an activation's first " +
+        "password (D-102); the School Admin assisted the school's teacher and email learner (each reset audited with her, INSTITUTION_ADMIN and the " +
         "school), and was refused another school's learner, a Platform Admin the school has, herself (RECOVERY_SELF) and a reset without a reason; " +
         "the Platform Admin assisted a School Admin (audited SYSTEM_ADMIN) and was refused only herself; a dean nothing; a School Admin appointed a " +
         "teacher School Admin at the school itself (audited with her and her role) and was refused below it, at another school, for a stranger, " +
