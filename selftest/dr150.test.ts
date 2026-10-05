@@ -31,6 +31,14 @@
  *          the restore rehearsal counts readiness FAIL rows by the verdict a line begins with (it counted '| FAIL',
  *          which no line contains, and so read 0 whatever happened)
  *
+ * #150 G10 (owner, 6 Oct): A FAILURE OF PRODUCTION IS NOTICED WITHOUT A NEW SERVICE OR A NEW PERSON.
+ *
+ *  DR-S06  .github/workflows/production-watch.yml: runs only from main, and on its schedule only when the owner turns it
+ *          on (PINTAR_PRODUCTION_WATCH = on; skipped, at no cost, until then); looks at production from outside with GET
+ *          only (the sign-in page, strictly, without following a redirect; Supabase Auth's health; the TLS certificate's
+ *          remaining days; the restore point through restore-point.mjs, where an unreadable backup list is reported and
+ *          not failed); opens one issue on a failure, comments on it while it lasts, and closes it when green again
+ *
  * #150 G7 (owner, 6 Oct): THE READINESS CHECK SEES WHAT A RESTORE BREAKS.
  *
  *  DR-D01  docs/audit/launch-readiness.sql against CI's database: every row PASS (the five rows about live content are
@@ -58,6 +66,7 @@ const READINESS = "docs/audit/launch-readiness.sql";
 const TITIK = "scripts/release/restore-point.mjs";
 const APPLY = ".github/workflows/deploy-supabase-production.yml";
 const REHEARSAL = ".github/workflows/restore-rehearsal.yml";
+const WATCH = ".github/workflows/production-watch.yml";
 type Titik = { verdict: "OK" | "REFUSE"; reasons: string[]; backup?: { inserted_at: string }; ageHours?: number };
 type TitikModul = { MAX_AGE_HOURS: number; decide: (status: number, body: unknown, now: number) => Titik };
 
@@ -418,6 +427,34 @@ export const dr150Tests: SelfTest[] = [
       return c.verdict("the production apply runs the restore-point check from its own commit, after the state before and before any " +
         "migration, records the WAL archiver and the facts before the apply read only, and keeps the record 90 days; the rehearsal counts " +
         "readiness FAIL rows by the verdict each line begins with");
+    },
+  },
+  {
+    id: "DR-S06",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      let wf = "";
+      try { wf = readFileSync(join(repoRoot, WATCH), "utf8"); } catch { /* the check below says so */ }
+      if (!c.expect(wf, `${WATCH} is missing: nobody is told when production fails`)) return c.verdict("");
+      const body = wf.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+      c.expect(/if: github\.ref == 'refs\/heads\/main' && \(github\.event_name == 'workflow_dispatch' \|\| vars\.PINTAR_PRODUCTION_WATCH == 'on'\)/.test(body)
+        && /schedule:\s*\n\s*- cron:/.test(body), "the scheduled watch is not off until the owner turns it on, or runs off main");
+      c.expect(/permissions:\s*\n\s*contents: read\s*\n\s*issues: write\s*\n/.test(body), "the watch holds more than reading the code and writing an issue");
+      const look = body.slice(body.indexOf("name: Look at production"), body.indexOf("name: Open, update or close"));
+      c.expect(/curl -sS -o \/tmp\/masuk\.html -w '%\{http_code\}' --max-time 20 "\$APP_ORIGIN\/masuk"/.test(look) && !/curl[^\n]*(-L|--location)\b/.test(look),
+        "the sign-in page is not asked strictly (a redirect would be followed)");
+      c.expect(/\/auth\/v1\/health/.test(look) && /openssl x509 -noout -enddate/.test(look) && /-ge 14/.test(look),
+        "Supabase Auth's health or the certificate's remaining days are not checked");
+      c.expect(/node scripts\/release\/restore-point\.mjs check/.test(look) && /HTTP \(401\|403\)/.test(look),
+        "the restore point is not checked through restore-point.mjs, or an unreadable backup list fails the watch");
+      c.expect(!/-X (POST|PUT|PATCH|DELETE)/.test(look) && !/SUPABASE_DB|PGPASSWORD|SERVICE_ROLE|VERCEL_TOKEN/.test(body),
+        "the look at production writes, or holds a database, service-role or Vercel credential");
+      const issue = body.slice(body.indexOf("name: Open, update or close"));
+      c.expect(/select\(\.title == \$t/.test(issue) && /\/issues\/\$open\/comments/.test(issue) && /"state":"closed","state_reason":"completed"/.test(issue)
+        && /exit 1/.test(issue), "a failure does not open (or update) the one issue and fail the run, or green does not close it");
+      return c.verdict("the production watch runs from main, on its schedule only once the owner turns it on, looks at production from outside " +
+        "with GET only (sign-in page strictly, Auth health, the certificate's days, the restore point; an unreadable backup list reported, not " +
+        "failed), opens or updates one issue on a failure and closes it when green");
     },
   },
 ];
