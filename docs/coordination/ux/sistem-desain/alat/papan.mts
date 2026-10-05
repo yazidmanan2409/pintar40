@@ -215,7 +215,7 @@ function swatch(t: Tok): string {
 }
 const kelompokWarna: Array<[string, RegExp]> = [
   ["Grounds", /^surface-/], ["Ink", /^ink-/], ["Lines", /^line/], ["PINTAR green", /^pintar-|^focus-ring/],
-  ["Status, always with a word", /^status-/], ["Layers and context", /^scrim|^context/],
+  ["Status, always with a word", /^status-/], ["Table rows (Dr Gladys, 5 Oct): roles, no new colour", /^table-/], ["Layers and context", /^scrim|^context/],
 ];
 const gayaWarna = `<style>
 .warna { display: grid; gap: 32px; }
