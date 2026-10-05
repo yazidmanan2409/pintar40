@@ -226,3 +226,39 @@ Gate 3 stays held; the coordinator does not merge it.
       - UX1 baselines MOVED 155 → 156; route and surface inventories.
       - Local suite: green apart from the environmental failures.
     - **CI:** 37255470051 on `027b8a4`, green: 35/35 jobs, 557/557 tests.
+29. **#148: planned maintenance is announced and drains; an emergency stops at once, 5 Oct (D-094, D-100(b)(c); D-093 §5; D-100(d) item 3).**
+    - **Who.**
+      - Admin sekolah schedules planned maintenance for their own school.
+      - Admin platform schedules it for chosen schools or the whole platform.
+      - «Hentikan sekarang» is Admin platform's alone: the typed phrase HENTIKAN SEKARANG and a reason. It is a separate control from planned maintenance.
+    - **Planned, as people meet it.**
+      - From T−60 the people the window reaches see one line, timed T−60/30/15 by the browser against the database's clock. The status is read once per page; there is no polling.
+      - The line fits the surface. On an assessment it says a sitting under way can still be finished and handed in, and that an answer counts once «Tersimpan» shows. Elsewhere it says to finish and leave.
+      - From T−15 no new assessment sitting starts. The database refuses it on the insert itself (PR110 `MAINTENANCE_NO_NEW_START`), and the learner is sent to the maintenance page.
+      - From T=0 PostgREST's pre-request answers PT503 `PINTAR_PEMELIHARAAN`, and a page goes to `/pemeliharaan`. Three things still pass: the status read, leaving, and the window's own administrators.
+    - **Drain (D-100(b)).**
+      - A learner whose sitting is under way (opened, running or paused) is not stopped. Their sitting continues, answers are kept and they hand it in.
+      - A timed sitting drains until its late-sync grace has passed, so an answer still travelling arrives as it would have without maintenance.
+      - Once handed in, they are stopped too. `/pemeliharaan` acknowledges the hand-in with its time.
+    - **Emergency (D-100(c)).**
+      - It stops the people it reaches at once, running sittings included (PT503 `PINTAR_DIHENTIKAN`).
+      - Nothing is submitted, finalised or discarded: the sitting stays as it was, its received answers kept.
+      - The page says so, says that an answer not shown as «Tersimpan» did not arrive, and gives the next step: open the assessment again when PINTAR is back, and tell the teacher if its time ran out.
+      - Only Admin platform ends it.
+    - **Collisions (D-094(g)).** Before scheduling, Konfigurasi shows how many assessments the window would meet and when the last one ends, and suggests a later start. It warns; it does not forbid.
+    - **Notices (D-094(b)).** One line for a school, chosen schools or the platform, from a publication time to an expiry, withdrawable. A window can publish its matching notice; ending the window withdraws it. This is not a messaging system.
+    - **Audit (D-093).** Every schedule, start, end, cancellation, emergency stop, notice and withdrawal is a row with its from and to states and its reason. The automatic start and end are recorded as SYSTEM, with no person.
+    - **Code.** Migration `20261120100000`. src: proxy, `/pemeliharaan`, the root layout's line, `mulaiAsesmen`, Konfigurasi «Pemeliharaan dan pengumuman». Current components only.
+    - **Tests.**
+      - M148-K01/S01; M148-D01 (planned) and M148-D02 (emergency), tested apart. Both were red on the 156-migration DB and are green after.
+      - UX1 baselines MOVED 156 → 157; route and surface inventories.
+      - The audit crawl of every role's screens was green on `577b4cd` (run 37258286723, job A).
+    - **CI:**
+      - 37257573565 on `577b4cd` was red on one row: DAISY-05-STRUKTUR-02. The new section listed the national library to Admin platform. Fixed in `91eae17` to the school picker's own schools.
+      - 37258599735 on `91eae17`, green: 35/35 jobs, 561/561 tests.
+    - **Choices where the ruling was silent.** None needs a decision before acceptance:
+      - a sitting opened but not yet answered counts as under way;
+      - a timed sitting drains through its late-sync grace;
+      - a draining learner's other requests pass too;
+      - at T=0 the browser moves a stopped reader to the maintenance page;
+      - the warning copy keeps D-094(e)'s «Tersimpan» sentence and says the sitting can still be finished, as D-100(b) rules.
