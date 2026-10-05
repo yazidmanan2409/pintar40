@@ -39,6 +39,20 @@ python3 docs/coordination/ux/sistem-desain/alat/kontras.py
 
 `alat/skenario.json` holds the interaction scenarios the harness plays before it checks a card: a menu opened, a dialog shown, a table filtered, an action that fails.
 
+## One file to open in a browser
+
+The whole system as one HTML page that works offline:
+- every document;
+- the tokens drawn with their values;
+- every component's guideline, with its live preview (hover, focus, menus, dialogs, the table's filters);
+- the preview's width switchable: the card's own, 820 px, 390 px, or the window's.
+
+```sh
+npx tsx docs/coordination/ux/sistem-desain/alat/buat-situs.mts   # → situs/PINTAR-design-system.html
+```
+
+Everything is inside the file (tokens, fonts, styles, behaviour, previews), so it can be sent and opened by double-clicking. The file is not committed; the script rebuilds it.
+
 ## The boards (PNG)
 
 The design language, system and grammar as 21 image boards (28 images: six boards come in two parts, so each image stays under 8000 px tall, and board 07 also comes whole). Each is 1600 px wide and saved at 2×, built from these same files with every component card live:
