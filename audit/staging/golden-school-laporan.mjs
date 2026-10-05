@@ -37,7 +37,7 @@
 //   R2  GS-21 (J2.11): the teacher, on another browser, «Lupa password?» → the emailed code → a new password; the
 //       browser of L1 is signed out (D-101(3)); the teacher reads their PINTAR ID on «Akun saya».
 //   R3  GS-21 (J2.12): on a third browser, «Lupa password?» → «Pakai PINTAR ID dan PIN» with that ID and the PIN set
-//       at activation → a new password; R2's browser is signed out. The teacher then signs out.
+//       at activation → a new password (the activation's again); R2's browser is signed out. The teacher signs out.
 //   V1  GS-19 (J8.6): an anonymous visitor (a fresh browser, no sign-in) opens each issued certificate's verification
 //       link, as the certificate page builds it (<app>/verifikasi/<token>): «Berlaku», the result, the school, the
 //       date; never the holder's name. The holder's link is the one C2 read on her page; the others, from the record.
@@ -47,8 +47,9 @@
 //
 // NEVER: production; a direct write (the database is read in read-only transactions; every write is a press of
 // PINTAR's buttons); a server-made session as a person's act; a card number, PIN or password in the log. The walk
-// changes two cards and the teacher's password, as their owners' journeys do; a later run signs the teacher in again
-// by «Lupa password?» (masuk.mjs).
+// changes two cards and the teacher's password, as their owners' journeys do, and leaves the teacher on the password
+// set at activation. Each run spends three emails of the teacher's address (R2's code and two «password diganti»
+// notices) of the six PINTAR sends one address an hour, so runs an hour apart stay inside it.
 import { chromium } from "playwright";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, appendFileSync } from "node:fs";
@@ -664,7 +665,9 @@ await step("R3", "GS-21 (J2.12) on a third browser: «Lupa password?» → «Pak
   const email = mail("guru"), auth = authDari(email), k = kredensial(email);
   const t = kini();
   const p = await (await ctx()).newPage();
-  await pulihkanDenganPin(p, pintarId, k.pin, kredensial(email, 2).password);
+  // the new password is the activation's again (R2 set another), so a later run signs the teacher in with it and spends
+  // none of the address's emails: PINTAR sends one address at most six an hour (email_send_limits; run 37291018301)
+  await pulihkanDenganPin(p, pintarId, k.pin, k.password);
   const lewat = await selesaikan(p, k);
   const di = new URL(p.url()).pathname;
   await buka(pulih, "/mengajar");
