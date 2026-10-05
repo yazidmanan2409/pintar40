@@ -5,4 +5,5 @@
 # 3 Oct, fourth walk: GS-17 again after D-095 (the performance bands), staging on 18da25b
 # 5 Oct: Sekolah Emas Uji 2026-10-05 after run 37288637571 (GS-12 to GS-16 green, 8 PASS); with GS-21 (card re-issue, staff recovery), the holder's certificate and GS-20 (one class computer)
 # 5 Oct: again after run 37289554356 (13 PASS; U1 opened the lesson by a link the reading map shows only while one is unread; «Keluar» waited for a front page that never goes quiet)
+# 5 Oct: again after run 37291018301 (12 PASS, GS-20 walked; R2's code held by the six-an-hour limit per address); timed so R2 falls inside it
 slug: sekolah-emas-uji-20261005
