@@ -455,3 +455,14 @@ Gate 3 stays held; the coordinator does not merge it.
     - **Reported, not changed:** the PD Kelas's «Lihat bukti» still links «Lihat per soal», which now opens the refusal page (how that page presents is DAISY-35's, R9).
     - **Evidence kept:** the run's artifact `audit-production-posture` (14 days) holds `c12-sebelum.json` and `c12-sesudah.json` (the snapshot before and after) and every screen; the catalogue readings' md5 is the same before and after (`067a8c26f3b9…`).
     - **ENGINEERING COMPLETE is declared, 5 Oct (D-070(f): BOB-43 to BOB-47 landed, item 27; C-12 passed, this item).** Next, by the owner's order: #150, the backup and disaster-recovery review (mandatory before production, D-098(d)); UI/UX polish only on the owner's approval after it.
+
+36. **#150, the backup and disaster-recovery review, 5 Oct (owner's order after C-12; D-098(d)): examined, rehearsed on staging, reported. Production not read or touched; no product change.** The review: `docs/recovery/BACKUP-DR-REVIEW-2026-10-05.md`.
+    - **The examination.** The hosted architecture and every asset in it, what is and is not backed up, frequency and retention, RPO and RTO as configured, the recovery sequence, single points of failure, from the repository's record and Supabase's documentation.
+    - **The rehearsal** (`restore-rehearsal.yml`, read-only on staging, the backup discarded with the runner; runs 37377017030, 37377920733, 37378809242, 37379973507): Supabase's documented logical backup works (157 tables, 224–288 s, about 25 MB), but:
+      - Supabase's documented restore **fails outright** (a reserved role parameter; its single transaction restores nothing);
+      - tolerated, it restores **150 of 157 tables byte-identically** (all of PINTAR's data);
+      - it **drops PINTAR's three `auth.users` triggers** (the password-write guard among them), restored by a corrected step from the source's catalog (proven);
+      - it **opens every privilege**: all 137 `public` tables and views to `anon` and `authenticated`, all 490 functions to `anon` (280 internal), through the new project's default privileges; row security, policies and `launch-readiness.sql` (0 FAIL) do not see it;
+      - one function's definition loses its 11 column-0 comment lines (CLI rewriting; behaviour unchanged).
+    - **Also found.** Production has no off-platform copy (deleting a project deletes its backups); Storage (staging: 28 objects, 206 MB) is in no backup; the two durable secrets have no verified copy and the deploy workflow would re-mint them silently on a rebuilt Vercel project; no restore point before a production migration; no machine can read the backup list (staging token: HTTP 403); one person holds every account.
+    - **Proposed, not implemented:** G1–G10; G1, G2, G3 with G4, G5, G6 and G7 must close before production. Waiting on the owner. UI/UX polish not started.

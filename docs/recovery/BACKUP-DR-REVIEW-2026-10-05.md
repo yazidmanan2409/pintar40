@@ -1,4 +1,4 @@
-# #150 — Backup and disaster-recovery review, 5 Oct 2026 (DRAFT: sections 3, 5 and 8 wait for the rehearsal's output)
+# #150 — Backup and disaster-recovery review, 5 Oct 2026
 
 **Owner's order (5 Oct):** after C-12 and ENGINEERING COMPLETE, examine backup and disaster recovery against PINTAR 4.0's
 actual hosted architecture and configuration: not whether a backup mechanism exists, but whether there is a credible,
@@ -49,7 +49,7 @@ SYSTEM_ADMIN": **FAIL**; C-11 break-glass rehearsal: TODO).
 
 **What Supabase would tell us.** The backup list and the add-ons are **refused (HTTP 403)** to the token the workflows hold: no machine can see staging's backups or whether PITR is on (production's were not asked).
 
-**The logical backup** (Supabase's documented CLI procedure) works: 157 tables, **224–253 s**, about **25 MB** (data 20.9 MB, migration history 3.1 MB, schema 1.3 MB); no table changed on staging while it ran. `pg_dump` warns of circular foreign keys on 15 tables (handled by the documented `session_replication_role = replica`).
+**The logical backup** (Supabase's documented CLI procedure) works: 157 tables, **224–288 s** over four runs, about **25 MB** (data 20.9 MB, migration history 3.1 MB, schema 1.3 MB); no table changed on staging while it ran. `pg_dump` warns of circular foreign keys on 15 tables (handled by the documented `session_replication_role = replica`).
 
 **The documented restore fails outright.** `psql --single-transaction … roles.sql schema.sql data.sql` stops at `roles.sql:17: permission denied for parameter log_min_messages`, and the single transaction restores **nothing**. Followed to the letter, Supabase's procedure does not restore PINTAR.
 
@@ -61,7 +61,7 @@ SYSTEM_ADMIN": **FAIL**; C-11 break-glass rehearsal: TODO).
 | Kept | row security on every `public` table; all 131 policies; all 143 `public` triggers; PostgREST's pre-request on `authenticator`; the extensions; Storage **metadata** (staging: **28 objects, 206 MB**); `launch-readiness.sql` 0 FAIL. |
 | **Lost** | **PINTAR's three triggers on `auth.users`** — account creation, the **password-write guard** (Gate 3, D-101, D-102) and the **card-email guard**. The schema backup contains none of them (Supabase leaves `auth` out; its docs say changes to `auth` "have to be restored separately"). |
 | **Opened** | **Every privilege.** On the copy, `anon` and `authenticated` hold SELECT, INSERT, UPDATE and DELETE on **all 137** `public` tables and views (on staging `anon` holds none and `authenticated` only what each needs), and EXECUTE on **all 490** `public` functions: **280 that no client may call on staging** (among them `audit_write`, `auth_password_write_guard`, `certificate_prepare`, `bootstrap_first_system_admin`, `card_signin_settle`, `assume_persona`) and 210 that only a signed-in caller may call, now open to anonymous callers too. |
-| Changed | one function's definition, `content_canonical_payload` (the content seal's payload): FUNCTION_DIFF |
+| Changed | one function's definition, `content_canonical_payload` (the content seal's payload): the only difference (run 37379973507, `diff` of the two definitions) is its **eleven SQL comment lines that begin at the first column, removed** by the CLI's dump (it is the only function in `public` with such lines, which is why it alone differs); no executable line changed, so the payload it computes, and every content seal, is unaffected. A fidelity note, not a defect. |
 
 **Why the privileges open.** A Supabase project's default privileges grant `anon` and `authenticated` every right on every object `postgres` creates in `public`. PINTAR revokes them explicitly in each migration (ADR-0021; D-033), but a dump records each object's rights only relative to Postgres's own defaults, so nothing revokes what the new project's defaults just granted. Row security still filters rows (which is why the readiness check reads 0 FAIL), but SECURITY DEFINER functions do not pass through it, and every internal one becomes callable by anyone at `/rest/v1/rpc`. **PINTAR's own readiness check does not detect this.**
 
@@ -83,11 +83,6 @@ SYSTEM_ADMIN": **FAIL**; C-11 break-glass rehearsal: TODO).
 
 ## 5. Hazards found in the recovery path itself
 
-- **H4. The documented logical restore opens every privilege** (§3): all 137 tables and views to `anon` and `authenticated`, all 490 functions to `anon`, including 280 internal ones. Silent: row security, the policies and the readiness check all look healthy.
-- **H5. The documented logical restore drops PINTAR's three `auth.users` triggers**, the password-write guard among them. Silent.
-- **H6. The documented logical restore does not run**: it stops at a role parameter the project may not set, and its single transaction restores nothing. A person following Supabase's page under pressure meets a failure, then (by the troubleshooting advice) an unguarded tolerant restore that produces H4 and H5.
-- **H7. `docs/audit/launch-readiness.sql` cannot see H4 or H5**: it checks row security and policies, not grants, `anon`'s rights, or the `auth.users` triggers.
-
 - **H1. A rebuilt Vercel project silently re-keys PINTAR.** `deploy-vercel-production.yml` mints `CARD_PEPPER` and
   `CERT_SECRET_KEY_V1` whenever Vercel does not already hold them (`keep`: "added only when absent"). After losing the
   Vercel project or its environment, the ordinary deploy would succeed and mint **new** values: every existing card
@@ -98,6 +93,10 @@ SYSTEM_ADMIN": **FAIL**; C-11 break-glass rehearsal: TODO).
   forward-only with no down-migration, so the restore is the only undo, and with daily backups it can cost up to a day.
 - **H3. Nobody can see the backups by machine.** The staging token is refused the backup list (HTTP 403); production's
   has never been read. The backups' existence, kind and age are an assumption until someone looks.
+- **H4. The documented logical restore opens every privilege** (§3): all 137 tables and views to `anon` and `authenticated`, all 490 functions to `anon`, including 280 internal ones. Silent: row security, the policies and the readiness check all look healthy.
+- **H5. The documented logical restore drops PINTAR's three `auth.users` triggers**, the password-write guard among them. Silent.
+- **H6. The documented logical restore does not run**: it stops at a role parameter the project may not set, and its single transaction restores nothing. A person following Supabase's page under pressure meets a failure, then (by the troubleshooting advice) an unguarded tolerant restore that produces H4 and H5.
+- **H7. `docs/audit/launch-readiness.sql` cannot see H4 or H5**: it checks row security and policies, not grants, `anon`'s rights, or the `auth.users` triggers.
 
 ## 6. Single points of failure
 
