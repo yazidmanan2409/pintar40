@@ -98,6 +98,8 @@ async function latestCode(email, after) {
 // their address and that password. The name is kept for the walk's existing calls.
 const sudahAktif = new Set();
 const lokalDari = (email) => email.split("@")[0].replace(/[^a-z0-9._]/g, "").slice(0, 16);
+// a username the rules accept for every walk person: «admin.sd» is reserved (it begins with «admin.»), so all take a prefix
+const usernameDari = (email) => `jalan_${lokalDari(email)}`.slice(0, 20).replace(/[._]+$/, "");
 const sandiDari = (email) => `Audit-Jalan-${lokalDari(email)}-2026!Qz`;
 async function magicSignIn(page, email) {
   if (!sudahAktif.has(email)) {
@@ -133,7 +135,6 @@ async function magicSignIn(page, email) {
 // rule is walked by BOB29-A01..A03). The username, PIN and password are this local stack's synthetic values.
 async function selesaikanMasuk(page, email) {
   const lewat = [];
-  const lokal = lokalDari(email);
   for (let putaran = 0; putaran < 12; putaran++) {
     const jalur = new URL(page.url()).pathname;
     if (jalur === "/aktifkan") {
@@ -148,7 +149,7 @@ async function selesaikanMasuk(page, email) {
       }
       if (await page.locator("#username").count()) {
         lewat.push("username");
-        await page.locator("#username").fill(/^[a-z]/.test(lokal) ? lokal : `u${lokal}`);
+        await page.locator("#username").fill(usernameDari(email));
         await page.getByRole("button", { name: "Simpan username" }).click();
       } else if (await page.locator("#pin").count()) {
         lewat.push("pin");
@@ -169,6 +170,9 @@ async function selesaikanMasuk(page, email) {
       }
       await page.waitForTimeout(1500);
       await page.waitForLoadState("networkidle");
+      // a step the wizard refused says so in its alert; the walk stops there rather than pressing again
+      const tolak = page.locator('.pin-msg-err[role="alert"]');
+      if (await tolak.count()) throw new Error(`the activation wizard refused the ${lewat.at(-1)} step: ${norm(await tolak.first().innerText())}`);
       continue;
     }
     if (jalur === "/perangkat") {
@@ -339,7 +343,8 @@ await step("S3", "Gladys creates the school admin on Aktivasi by the screen: «O
   rec.shots.push(await shot(g, "aktivasi-orang-baru"));
   const after = await mailCount(people.sdAdmin.email);
   // the screen says what happens next: no email now; the person types the address on /masuk, and the role is given on Konfigurasi
-  const arahan = /tidak mengirim surel/.test(r.teks) && /Konfigurasi/.test(r.teks);
+  // Gate 3 (BOB-26): the person activates on /aktifkan by the address, once the role is given
+  const arahan = /tidak mengirim (surel|email)/.test(r.teks) && /Konfigurasi/.test(r.teks) && /aktifkan/.test(r.teks);
   if (!r.ok || !arahan) rec.verdict = "FAIL";
   return `pressed «Buat dan aktifkan» on «Orang baru di luar pendataan»; the screen answered "${r.teks.slice(0, 300)}"; ` +
     `it says what comes next ${arahan}; emails sent to the new admin: ${after - before}`;
