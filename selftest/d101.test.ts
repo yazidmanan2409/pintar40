@@ -530,7 +530,11 @@ export const d101AppTests: SelfTest[] = [
       const luarReset = await sekar.jsonDari("/api/keamanan/pemulihan", { json: { id: idBeta, alasan: "uji" } });
       c.expect(luar.status === 404 && luarReset.status === 404, `another school's learner: lookup ${luar.status}, reset ${luarReset.status}; expected 404 each`);
 
-      // 4. the screens give her what the database allows, and no more
+      // 4. the screens give her what the database allows, and no more. Her browser answers Gate 6's «Komputer siapa
+      // ini?» first, as a person does before their first page (BOB29-A01)
+      await sekar.halaman("/konfigurasi");
+      const perangkat = await sekar.jsonDari("/api/sesi/perangkat", { form: { mode: "PERSONAL" } });
+      c.expect(perangkat.status === 200, `Sekar's computer could not be declared (${perangkat.status})`);
       const halaman = await sekar.halaman("/konfigurasi/keamanan");
       const html = await halaman.text();
       c.expect(halaman.status === 200 && html.includes("Keamanan akun") && !html.includes("pin-keamanan-catatan"),
