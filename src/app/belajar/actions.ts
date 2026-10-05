@@ -10,6 +10,7 @@ import { tujuanInternal } from "@/lib/tujuan";
 import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
 import type { LearnerAnswer } from "@/lib/assessment-engine";
+import { galatPemeliharaan, HALAMAN_PEMELIHARAAN } from "@/lib/pemeliharaan-kontrak";
 
 async function db() {
   return (await supabaseServer()) as unknown as engine.EngineClient;
@@ -172,6 +173,16 @@ export async function mulaiAsesmen(formData: FormData) {
   // No eligibility check here: `start_learning_session()` asks
   // `may_start_assessment()` itself, inside the database, from the JWT. A check
   // in this process would be a second opinion that can drift from the first.
-  await engine.startSession(await db(), penugasan);
+  // #148 (D-094(c)): from 15 minutes before planned maintenance no new sitting
+  // starts (PR110), and during a window the database answers PT503; either way
+  // the learner is told so on the maintenance page rather than shown an error.
+  try {
+    await engine.startSession(await db(), penugasan);
+  } catch (e) {
+    const err = e as Partial<engine.EngineError>;
+    if (err.code === "PR110" && err.detail === "MAINTENANCE_NO_NEW_START") redirect(`${HALAMAN_PEMELIHARAAN}?mulai=ditolak`);
+    if (galatPemeliharaan({ code: err.code ?? null, message: (e as Error).message })) redirect(HALAMAN_PEMELIHARAAN);
+    throw e;
+  }
   redirect(kembali);
 }

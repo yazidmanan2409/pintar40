@@ -9,6 +9,7 @@ import {
   perangkatBaru, pribadiTersimpan, umurSesiMode, UMUR_PERANGKAT, type ModeSesi,
 } from "@/lib/penjaga-sesi";
 import { keluarPerangkatIni } from "@/lib/keluar";
+import { galatPemeliharaan, HALAMAN_PEMELIHARAAN, jalurSaatPemeliharaan } from "@/lib/pemeliharaan-kontrak";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
@@ -111,6 +112,17 @@ export async function proxy(request: NextRequest) {
       const { data, error } = await supabase.rpc("sesi_periksa", {
         p_perangkat: kartu ? null : hashPerangkat(alat), p_navigasi: navigasiHalaman(request.method, request.headers) });
       const jaga = error ? null : bacaPenjagaan(data);
+      // #148 (D-094, D-100): a maintenance window that stops this person answers the session check itself (PT503).
+      // A page goes to /pemeliharaan, which says what stops them and what next; anything else is refused 503.
+      const henti = galatPemeliharaan(error);
+      if (henti && !jalurSaatPemeliharaan(path)) {
+        const tutup = mintaHalaman(path, request.headers)
+          ? NextResponse.redirect(new URL(HALAMAN_PEMELIHARAAN, request.url))
+          : NextResponse.json({ error: henti === "EMERGENCY" ? "pintar_dihentikan" : "pemeliharaan" },
+              { status: 503, headers: { "cache-control": "no-store" } });
+        for (const k of response.cookies.getAll()) tutup.cookies.set(k);
+        return tutup;
+      }
       if (jaga?.keadaan === "TERKUNCI" && !jalurSaatTerkunci(path)) {
         const tahan = mintaHalaman(path, request.headers)
           ? NextResponse.redirect(alamatTerkunci(request))

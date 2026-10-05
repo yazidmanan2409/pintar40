@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 180,
+  "version": 181,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3099,6 +3099,26 @@
       "id": "BOB15-D01",
       "runner": "static",
       "proves": "BOB-15, migration 20261119100000 against the database, rolled back (selftest/bob15.test.ts): a Guru's report is received with role, school, build, device, reference and stops-a-class attached; a student, empty answers, a page outside PINTAR, another's screenshot and any direct write are refused; the reporter, the school's admin and Admin platform read it and nobody else; it moves forward only, with the next step, by the school's admin or Admin platform; a screenshot is read by whoever reads its report; audit_log records each receipt and move."
+    },
+    {
+      "id": "M148-K01",
+      "runner": "static",
+      "proves": "#148 (D-094, D-100), the contract (selftest/m148.test.ts executes src/lib/pemeliharaan-kontrak.ts and galat-kontrak.ts and reads the copy table): the status is read back trusting nothing, an emergency first; PT503 is read as PLANNED or EMERGENCY only; the browser's notices fall at T-60, T-30, T-15 and T=0 against the database's clock; times are WIB both ways; a stopped reader keeps /pemeliharaan and /keluar; PR110's codes are read by DETAIL only and PT503 as MAINTENANCE_ACTIVE, each with a sentence in both languages; no new line promises a message PINTAR does not send."
+    },
+    {
+      "id": "M148-S01",
+      "runner": "static",
+      "proves": "#148, the source (selftest/m148.test.ts): the proxy sends a page the window stops to /pemeliharaan and refuses the rest 503; the root layout reads pintar_status_saya once and the browser times the notices without asking again, never sending a draining learner or the window's admin away; a start refused before maintenance lands on the maintenance page, which tells planned from emergency, acknowledges a handed-in sitting and offers Keluar; Konfigurasi asks maintenance_collisions before scheduling and offers «Hentikan sekarang» to Admin platform only; the migration's pre-request checks maintenance first and the insert refuses a new sitting from T-15."
+    },
+    {
+      "id": "M148-D01",
+      "runner": "static",
+      "proves": "#148 planned maintenance, migration 20261120100000 against the database, rolled back (selftest/m148.test.ts): only the school's admin schedules for their school; T-20 told and a start allowed; from T-15 a new sitting refused (MAINTENANCE_NO_NEW_START); at T=0 the school's people are refused PT503 PINTAR_PEMELIHARAAN but for the status read and leaving, while a learner whose sitting runs drains and hands it in, then is stopped and told it was received; the admin and another school pass; ended by its admin or by the clock, nobody is stopped; the notice reaches its school only; every step is audited, the automatic ones as SYSTEM."
+    },
+    {
+      "id": "M148-D02",
+      "runner": "static",
+      "proves": "#148 emergency interruption, migration 20261120100000 against the database, rolled back (selftest/m148.test.ts): only Admin platform, with HENTIKAN SEKARANG and a reason; the school is stopped at once (PT503 PINTAR_DIHENTIKAN), the learner mid-assessment and the school's admin included, while the status read and leaving pass and say EMERGENCY; the running sitting stays IN_PROGRESS, not handed in or finalised, its answer kept; a school admin cannot end it; once ended the learner carries on; audited with reason and actor."
     },
     {
       "id": "BOB29-A01",

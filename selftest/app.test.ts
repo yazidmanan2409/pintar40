@@ -139,6 +139,8 @@ const ROUTE_INVENTORY = [
   // BOB-15 + DAISY-12 (D-037 step 2). «Laporkan masalah» and «Laporan saya» render through the copy table.
   "/lapor",
   "/lapor/saya",
+  // #148 (D-094, D-100). Where a person the maintenance stops is sent; it renders through the copy table.
+  "/pemeliharaan",
 ] as const;
 
 type Session = { cookie: string; accessToken: string; refreshToken: string };

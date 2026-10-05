@@ -76,6 +76,15 @@ export const KODE_PESERTA = [
 ] as const;
 
 /**
+ * #148 (D-094, D-100): maintenance. The controls refuse with PR110 and the code in DETAIL; PostgREST's pre-request
+ * answers PT503 for a person a window stops (MAINTENANCE_ACTIVE), so an action they press says so.
+ */
+export const KODE_PEMELIHARAAN = [
+  "MAINTENANCE_NOT_ALLOWED", "MAINTENANCE_INPUT_INVALID", "MAINTENANCE_NOT_OPEN", "MAINTENANCE_CONFIRMATION",
+  "MAINTENANCE_NO_NEW_START", "NOTICE_INPUT_INVALID", "NOTICE_NOT_OPEN", "MAINTENANCE_ACTIVE",
+] as const;
+
+/**
  * A content step (Studio steps 1–4, `advanceContentAction`): each refusal
  * `enforce_content_status` can raise, named. `kodeGalatKonten` reads them from
  * the database's message, which carries no code of its own; BOB07-K02 reads
@@ -129,14 +138,17 @@ export const KODE_SUKSES = [
   "PASS_MARK_SET", "PASS_MARK_UNCHANGED",
   // BOB-44: a person enrolled for professional learning
   "PD_ENROLLED",
+  // #148: maintenance scheduled, started now, ended (or cancelled), stopped at once; a notice published or withdrawn
+  "MAINTENANCE_SCHEDULED", "MAINTENANCE_STARTED", "MAINTENANCE_ENDED", "MAINTENANCE_STOPPED", "NOTICE_PUBLISHED", "NOTICE_WITHDRAWN",
 ] as const;
 
 export type KodePindah = (typeof KODE_PINDAH)[number];
 export type KodePindahKelas = (typeof KODE_PINDAH_KELAS)[number];
 export type KodeKetuntasan = (typeof KODE_KETUNTASAN)[number];
 export type KodePeserta = (typeof KODE_PESERTA)[number];
+export type KodePemeliharaan = (typeof KODE_PEMELIHARAAN)[number];
 /** What `kodeGalat` answers: any action's codes, a release move's two (DAISY-31) and a class move's four (M9). */
-export type KodeGalat = (typeof KODE_GALAT)[number] | KodePindah | KodePindahKelas | KodeKetuntasan | KodePeserta;
+export type KodeGalat = (typeof KODE_GALAT)[number] | KodePindah | KodePindahKelas | KodeKetuntasan | KodePeserta | KodePemeliharaan;
 export type KodeKonten = (typeof KODE_KONTEN)[number];
 export type KodeIsian = (typeof KODE_ISIAN)[number];
 export type KodeSukses = (typeof KODE_SUKSES)[number];
@@ -177,6 +189,11 @@ export function kodeGalat(e: GalatDb): KodeGalat {
   if (state === "PR090") {
     return (KODE_PESERTA as readonly string[]).includes(e?.details ?? "") ? e!.details as KodePeserta : "ACTION_FAILED";
   }
+  // #148: a maintenance control's refusals by their DETAIL, and the window that stops this person (PT503)
+  if (state === "PR110") {
+    return (KODE_PEMELIHARAAN as readonly string[]).includes(e?.details ?? "") ? e!.details as KodePemeliharaan : "ACTION_FAILED";
+  }
+  if (state === "PT503") return "MAINTENANCE_ACTIVE";
   if (state === "42501" || /permission denied|\brequires CAN_[A-Z_]+|\bnot allowed\b|\bmay not\b|\bonly (?:a|an|the) [A-Z_]+/i.test(pesan)) {
     return "ACTION_NOT_ALLOWED";
   }
@@ -218,7 +235,8 @@ export function rujukan(): string {
 }
 
 const SEMUA_KODE = new Set<string>([
-  ...KODE_GALAT, ...KODE_PINDAH, ...KODE_PINDAH_KELAS, ...KODE_KETUNTASAN, ...KODE_PESERTA, ...KODE_KONTEN, ...KODE_ISIAN, ...KODE_SUKSES,
+  ...KODE_GALAT, ...KODE_PINDAH, ...KODE_PINDAH_KELAS, ...KODE_KETUNTASAN, ...KODE_PESERTA, ...KODE_PEMELIHARAAN, ...KODE_KONTEN,
+  ...KODE_ISIAN, ...KODE_SUKSES,
   ...KODE_TERBITAN_DB, "RELEASE_INPUT_INVALID", "RELEASE_FAILED",
   ...KODE_TOLAK_PAKET, "PACKAGE_HAS_PROBLEMS", "PACKAGE_INPUT_INVALID", "PACKAGE_FAILED",
 ]);
