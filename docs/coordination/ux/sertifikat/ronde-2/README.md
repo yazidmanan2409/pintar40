@@ -54,7 +54,9 @@ The family is one name: the application, the ID card, the certificate and the do
 
 **The renders A to H predate the correction.** They still show «PINTAR SELALU» and were not redrawn: the freeze covers them, and J shows the corrected header beside the old one. `sertifikat2.mts` (the grammar) carries the correction, so the next run of `buat-ronde2.mts` draws the wordmark everywhere.
 
-**The wordmark here is a proof.** Helvetica Neue is not installed in this environment, so the renders draw it in Liberation Sans (Arial's metrics), with its cap height normalised to Helvetica Neue's (`font-size-adjust: cap-height 0.714`). The place and size are true; the letterforms are not. The A4 print proof (E) is re-made from the outlined master, which is made only after PT ZAYD PINTAR SELALU's Helvetica Neue licence is verified to permit it (the design system's Wordmark card, «Master artwork»). In production the wordmark is placed as artwork, never set as live text, so no Helvetica Neue font is embedded in the PDF.
+**The wordmark here is a proof.** Helvetica Neue is not installed in this environment, so the renders draw it in Liberation Sans (Arial's metrics), with its cap height normalised to Helvetica Neue's (`font-size-adjust: cap-height 0.714`). The place and size are true; the letterforms are not. The A4 print proof (E) is re-made from the outlined master, which is made only after the font licence is verified to permit it (the design system's Wordmark card, «Master artwork and the font licence»). In production the wordmark is placed as artwork, never set as live text, so no Helvetica Neue font is embedded in the PDF.
+
+**Accepted (Yazid, 5 Oct):** the brand correction is approved as `05c7b51`. The final outlined master stays pending: it is produced from licensed Helvetica Neue 65 Medium and verified optically, and only then are the kerning and exact width judged.
 
 ## Contents
 

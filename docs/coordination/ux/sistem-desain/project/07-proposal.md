@@ -70,6 +70,12 @@ The full class-by-class map is in «Migration map».
 
 ## Questions for Yazid
 
+**Where the proposal stands (5 Oct).** The brand is approved; the rest of the grammar is not.
+- **Brand: closed.** Questions 16 and 17 are ruled, and the wordmark's status is below («The canonical wordmark»).
+- **Visual language: approved in principle.**
+- **Interaction and navigation grammar: open.** Questions 1 to 15 each need their own ruling, then validation in composed PINTAR journeys.
+- **Production propagation: later,** after Engineering Complete.
+
 1. **The shells.** Staff get a sticky left navigation, replacing CangkangPengalaman's staff header; learners keep the top bar at every width (two places do not earn a sidebar, and a child's screen belongs to the lesson). The shell changes at 640, 1024 and 1280 px. Agree?
 2. **«Terbitkan → Menerbitkan… → ✓ Selesai».** Your brief says «Selesai»; the spec's earlier proposal (§18(3)) said «Diterbitkan», which names what happened, as D-047(e) asks of results. Keep «Selesai», or use «Diterbitkan»?
 3. **Field outlines at 3:1.** Every field becomes visibly firmer (#808A91 instead of a 24 % hairline). It is the accessible choice; it is also the most visible change here. Agree?
@@ -129,6 +135,16 @@ The wordmark is PINTAR: the name in Helvetica Neue 65 Medium capitals, in PINTAR
 - sizes `wordmark-nav` 18, `wordmark-bar` 16, `wordmark-standalone` 24.
 
 It replaces the supplied «PINTAR SELALU» artwork in every specimen, and, since question 16 was ruled, the «PINTAR SELALU» line on the ID card and the certificate.
+
+| | Status (Yazid, 5 Oct) |
+|---|---|
+| Logo direction | **LOCKED** |
+| Production specification | **APPROVED** |
+| ID card and certificate brand correction (`05c7b51`) | **APPROVED** |
+| 4.0 tab-icon treatment | **APPROVED** |
+| Final outlined master artwork | **PENDING:** production from licensed Helvetica Neue 65 Medium, then optical verification |
+
+The proofs approve placement, hierarchy, minimum sizes and clear space. They do not approve the final letter geometry: kerning and exact width are judged on the licensed master. That is production completion, not an open design question.
 
 **Still needed: the outlined master,** made from Helvetica Neue 65 Medium and no other face. **Required first:** verify that the font licence permits logo artwork, outlining, and distributing the outlined files (Wordmark, «Master artwork and the font licence»). Until the master is made, every wordmark here is a proof in the viewer's own face, labelled as one.
 

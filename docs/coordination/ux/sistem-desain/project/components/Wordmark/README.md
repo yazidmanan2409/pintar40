@@ -2,6 +2,16 @@ PINTAR's canonical wordmark is the name in Helvetica Neue 65 Medium capitals, in
 
 **Status: LOCKED (approved brand ruling, 5 Oct).** This is production refinement only: no alternative is explored, nothing is added, and no letter is altered.
 
+| | Status (Yazid, 5 Oct) |
+|---|---|
+| Logo direction | **LOCKED** |
+| Production specification | **APPROVED** |
+| ID card and certificate brand correction (`05c7b51`) | **APPROVED** |
+| 4.0 tab-icon treatment | **APPROVED** |
+| Final outlined master artwork | **PENDING:** production from licensed Helvetica Neue 65 Medium, then optical verification |
+
+The proofs approve placement, hierarchy, minimum sizes and clear space. They do not approve the final letter geometry: kerning and exact width are judged on the licensed master. That is production completion, not an open design question.
+
 **The specification**
 | | |
 |---|---|

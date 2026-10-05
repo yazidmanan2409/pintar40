@@ -79,7 +79,9 @@ The family is one name: the application, the ID card, the certificate and the do
 
 **The renders A to I predate the correction.** They still show «PINTAR SELALU» and were not redrawn: the freeze covers them, and L shows the corrected front beside the old one. `kartu.mts` (the grammar) carries the correction, so the next run of `buat-kartu.mts` draws the wordmark everywhere.
 
-**The wordmark here is a proof.** Helvetica Neue is not installed in this environment, so the renders draw it in Liberation Sans (Arial's metrics), with its cap height normalised to Helvetica Neue's (`font-size-adjust: cap-height 0.714`). The place and size are true; the letterforms are not. The print proof (I) is re-made from the outlined master, which is made only after the font licence is verified (the design system's Wordmark card, «Master artwork»). The card never sets the wordmark as live text in production.
+**The wordmark here is a proof.** Helvetica Neue is not installed in this environment, so the renders draw it in Liberation Sans (Arial's metrics), with its cap height normalised to Helvetica Neue's (`font-size-adjust: cap-height 0.714`). The place and size are true; the letterforms are not. The print proof (I) is re-made from the outlined master, which is made only after the font licence is verified (the design system's Wordmark card, «Master artwork and the font licence»). The card never sets the wordmark as live text in production.
+
+**Accepted (Yazid, 5 Oct):** the brand correction is approved as `05c7b51`. The final outlined master stays pending: it is produced from licensed Helvetica Neue 65 Medium and verified optically, and only then are the kerning and exact width judged.
 
 ## K. Status after Yazid's rulings (30 Sep)
 

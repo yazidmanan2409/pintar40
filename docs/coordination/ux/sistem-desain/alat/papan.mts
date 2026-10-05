@@ -407,7 +407,7 @@ const PAPAN: Array<[string, string, string, string, () => string]> = [
   ["18", "accessibility", "Accessibility and school reality", "Shared computers, 1366 × 768 laptops, slow networks and children still learning to read. Nothing depends on a phone, hover, animation or a fast machine.", papanAkses],
   ["20", "dates", "Dates and times (Dr Gladys)", "Indonesia-first: day before month, the month in words wherever a misreading would matter, always WIB. A native date field is followed by the date in words.", papanTanggal],
   ["21", "wordmark", "The PINTAR wordmark (locked)", "PINTAR, the name, in Helvetica Neue 65 Medium capitals, in PINTAR green, with nothing added. Production refinement only.", papanMerek],
-  ["19", "questions", "Open questions for Yazid", "Nothing here is applied until Yazid approves. These are the decisions the proposal needs; 16 and 17 were ruled on 5 Oct.", papanPertanyaan],
+  ["19", "questions", "Open questions for Yazid", "Nothing here is applied until Yazid approves. The brand is closed (16 and 17 ruled, 5 Oct); questions 1 to 15, the interaction and navigation grammar, are still open.", papanPertanyaan],
 ];
 
 // ── serve, render, save ─────────────────────────────────────────────────
