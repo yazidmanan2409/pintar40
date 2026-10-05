@@ -1871,7 +1871,9 @@ await step("S21i", "the certificate as students meet it: above the target it is 
     else {
       await baris.first().click();
       await a1.waitForURL((u) => u.pathname === `/belajar/${tugas}/sertifikat`, { timeout: SLOW });
-      await a1.waitForLoadState("networkidle");
+      // a click is a client-side move: the address changes while the page still says «Memuat halaman…», and the load
+      // state was reached long before, so the certificate is read once its own actions or its state are on screen
+      await a1.getByText(/Cetak atau simpan PDF|disiapkan/i).first().waitFor({ timeout: SLOW }).catch(() => {});
       const isi = norm(await bodyText(a1));
       rec.shots.push(await shot(a1, "stu17-sertifikat"));
       const terbit = sertifikatDari(lulus.nama).split(",").includes("ISSUED");
@@ -2311,7 +2313,8 @@ await step("S23i", "the head of department reviews Kelas 1A's integrity observat
     await tutupTur(h);
     await h.getByRole("link", { name: "Tinjauan Integritas" }).first().click();
     await h.waitForURL((u) => u.pathname === "/studio/integritas", { timeout: SLOW });
-    await h.waitForLoadState("networkidle");
+    // the page's own heading, not Studio's nav link of the same name: until it shows, the page says «Memuat halaman…»
+    await h.getByRole("heading", { name: "Tinjauan Integritas", exact: true }).waitFor({ timeout: SLOW }).catch(() => {});
     const teks = norm(await bodyText(h));
     rec.shots.push(await shot(h, "hod07-integritas"));
     const bingkai = /bahan pertimbangan manusia, bukan kesimpulan/i.test(teks);
@@ -3103,7 +3106,7 @@ await step("S27", "a new school year: the school admin makes next year's Tingkat
 // the school admin gives the department a head again (Kelas Rendah), who finds on /mengajar exactly the Kelas of
 // their department, launches an Uji Cepat of three questions for Kelas 1B (Kelas 1A's is S26e's), and the student
 // placed there finds it on her home. A class outside the department is not theirs to open.
-await step("S27h", "a head of department runs an Uji Cepat within their department: Mengajar offers exactly its Kelas, three questions are launched for Kelas 1B, and its student finds it; a class outside it is refused (HOD-08)", async (rec) => {
+await step("S27h", "a head of department runs an Uji Cepat within their department: Mengajar offers exactly its Kelas, three questions are launched for Eka's Kelas, and she finds it; a class outside it is refused (HOD-08)", async (rec) => {
   // the Kelas Eka was moved to in S25 (S26 renamed it «Kelas 1 Biru»), where she is placed now
   const satuB = sql(`select m.node_id from public.memberships m join public.enrollments e on e.id = m.enrollment_id
     join public.persons p on p.id = e.person_id join public.org_nodes o on o.id = m.node_id
@@ -3114,8 +3117,10 @@ await step("S27h", "a head of department runs an Uji Cepat within their departme
   const siswa = kartuKelas.find((x) => x.nama === MURID[4]);
   if (!terbitBab || !satuB || !modul || !siswa) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "no Kelas for Eka (S25), Bab 1 chapter or card for her"; }
   const notes = [];
-  const beri = await grantViaForm(a, people.kaprodi.name, "HEAD_OF_DEPARTMENT", "Kelas Rendah");
-  notes.push(`the school admin gives ${people.kaprodi.name} Kepala departemen at Kelas Rendah: ${beri.ok}`);
+  // S24 revoked her only role. She was made by the platform administrator («Orang baru», S16) and has no record at the
+  // school, so the school admin no longer sees her (BOB-20, D-048); the platform administrator appoints her again, as in S16
+  const beri = await grantViaForm(g, people.kaprodi.name, "HEAD_OF_DEPARTMENT", "Kelas Rendah");
+  notes.push(`the platform administrator gives ${people.kaprodi.name} Kepala departemen at Kelas Rendah again: ${beri.ok}`);
   if (beri.ok !== "ok") { rec.verdict = "FAIL"; return notes.join("; "); }
   // the Kelas a head of Kelas Rendah stands over, current and active
   const lingkup = sql(`select coalesce(string_agg(c.id::text, ',' order by c.id::text), '') from public.org_nodes c
@@ -3171,7 +3176,7 @@ await step("S27h", "a head of department runs an Uji Cepat within their departme
     } else {
       notes.push("no class outside the school exists to ask (the refusal outside a scope is S24's and S26b's)");
     }
-    // the student placed in Kelas 1B finds it
+    // Eka, placed in that Kelas, finds it
     const sc = await ctx();
     const sp = await sc.newPage();
     try {
