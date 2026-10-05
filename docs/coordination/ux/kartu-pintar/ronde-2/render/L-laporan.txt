@@ -1,0 +1,15 @@
+Kartu PINTAR · the wordmark correction (5 Oct) · measured on render
+X (cap height) = 2.9 mm; print minimum 15 mm wide; safe margin 3 mm
+Before: «PINTAR SELALU», 21.9 mm wide (its box, the last letter's tracking included)
+
+ok   After: the PINTAR wordmark, cap height 2.9 mm    cap 2.90 mm · 16.4 mm wide · left 6.00 · top 5.57 · name 8.3 mm below
+ok   Murid                                            cap 2.90 mm · 16.4 mm wide · left 6.00 · top 5.57 · name 8.3 mm below
+ok   Guru                                             cap 2.90 mm · 16.4 mm wide · left 6.00 · top 5.57 · name 8.3 mm below
+ok   Kepala departemen                                cap 2.90 mm · 16.4 mm wide · left 6.00 · top 5.57 · name 8.3 mm below
+ok   Dekan                                            cap 2.90 mm · 16.4 mm wide · left 6.00 · top 5.57 · name 8.3 mm below
+ok   Admin sekolah                                    cap 2.90 mm · 16.4 mm wide · left 6.00 · top 5.57 · name 8.3 mm below
+ok   Admin platform                                   cap 2.90 mm · 16.4 mm wide · left 6.00 · top 5.57 · name 8.3 mm below
+ok   Ni Luh Putu Ayu Kartika Maharani Suryaningsih    cap 2.90 mm · 16.4 mm wide · left 6.00 · top 5.57 · name 3.4 mm below
+
+Face asked for: "Helvetica Neue", "Neue Helvetica", Helvetica, Arial, sans-serif
+Face drawn here: Liberation Sans. Helvetica Neue is not installed in this environment, so this is a stand-in proof of place and size, not of the letterforms.

@@ -6,7 +6,8 @@
  * (typography, alignment, spacing, proportion). It adds nothing. Structure,
  * decided by Yazid: Achievement → Issuer → Verification.
  *
- *   HEADER       «SERTIFIKAT PENGUASAAN» upper-left, «PINTAR SELALU» upper-right, in type
+ *   HEADER       «SERTIFIKAT PENGUASAAN» upper-left; the PINTAR wordmark upper-right on its baseline
+ *                (brand correction, 5 Oct: it replaces «PINTAR SELALU» in type; nothing else changed)
  *   ACHIEVEMENT  the name (dominant), «telah menuntaskan», the course; centred. The course's
  *                middle dot stays with the subject: a line never starts «· Bab 5»
  *   RECORD       Predikat, Tanggal terbit, Nomor sertifikat: one restrained block,
@@ -43,7 +44,7 @@ export const QR_MM = 26; // the symbol, modules only
 export const KOLOM_TEKS = 92; // the verification text column: holds the 16-character stress link grouped, at 9 pt, on one line (89.5 mm)
 export const CELAH_QR = 12; // between the text and the QR's modules
 
-export type Gaya = { huruf: "Plus Jakarta Sans" | "IBM Plex Mono"; berat: 400 | 500 | 600; pt: number; baris: number; spasi: number; kata?: number; kapital?: boolean; tangga: string; peran: string; warna: string };
+export type Gaya = { huruf: "Plus Jakarta Sans" | "IBM Plex Mono" | "Helvetica Neue"; berat: 400 | 500 | 600; pt: number; baris: number; spasi: number; kata?: number; kapital?: boolean; tangga: string; peran: string; warna: string };
 /**
  * Every size is a step of the app's token ladder (the sheet renders at 96 dpi,
  * so 1 pt = 1.333 px). Round 1's three print-only 7 pt sizes are gone: the
@@ -51,7 +52,10 @@ export type Gaya = { huruf: "Plus Jakarta Sans" | "IBM Plex Mono"; berat: 400 | 
  * as the reference draws them, and the link is one line at 9 pt.
  */
 export const GAYA: Record<string, Gaya> = {
-  kepala: { peran: "«SERTIFIKAT PENGUASAAN» and «PINTAR SELALU»", huruf: "Plus Jakarta Sans", berat: 600, pt: 12, baris: 1.15, spasi: 0.12, kata: 0.1, kapital: true, tangga: "body 16 px", warna: "the accent (left); PINTAR green (right)" },
+  kepala: { peran: "«SERTIFIKAT PENGUASAAN»", huruf: "Plus Jakarta Sans", berat: 600, pt: 12, baris: 1.15, spasi: 0.12, kata: 0.1, kapital: true, tangga: "body 16 px", warna: "the accent" },
+  // The canonical wordmark (brand correction, 5 Oct). Its cap height is the header's (12 pt × 0.745 = 3.15 mm),
+  // so the two header words keep their balance; 17.75 mm wide in the stand-in face, over the 15 mm print minimum.
+  merek: { peran: "PINTAR, the canonical wordmark (5 Oct)", huruf: "Helvetica Neue", berat: 500, pt: 12.5, baris: 1, spasi: 0.05, kapital: true, tangga: "the wordmark (cap height = the header's)", warna: "PINTAR green #245F55" },
   nama: { peran: "Recipient's name", huruf: "Plus Jakarta Sans", berat: 600, pt: 33, baris: 1.05, spasi: -0.018, tangga: "name-print 44 px", warna: "ink #1F2A33" },
   diberikan: { peran: "«telah menuntaskan»", huruf: "Plus Jakarta Sans", berat: 400, pt: 12, baris: 1.25, spasi: 0, tangga: "body 16 px", warna: "ink-2 #4E5A64" },
   kursus: { peran: "Course title", huruf: "Plus Jakarta Sans", berat: 600, pt: 16.5, baris: 1.25, spasi: -0.005, tangga: "subhead 22 px", warna: "ink #1F2A33" },
@@ -76,6 +80,9 @@ ${Object.entries(GAYA).map(([k, g]) => `.s2 .t-${k} { ${gayaCss(g)} }`).join("\n
 /* the number and the link are single values: no break anywhere in them, «/» included */
 .s2 .t-nomor, .s2 .t-tautan { white-space: nowrap; }
 .s2 .t-arti { text-wrap: pretty; }
+/* The wordmark: its cap height normalised to Helvetica Neue's 0.714 so a stand-in proof face draws the
+   same cap height; the box trimmed to the letters. A proof until the outlined master replaces it. */
+.s2 .t-merek { font-family: "Helvetica Neue", "Neue Helvetica", Helvetica, Arial, sans-serif; font-synthesis: none; font-size-adjust: cap-height 0.714; text-box: trim-both cap alphabetic; white-space: nowrap; margin-right: -0.05em; }
 `;
 }
 
@@ -185,8 +192,11 @@ ${baris(k.predikat, esc(d.predikat), "t-nilai")}${baris(k.tanggal, esc(d.tanggal
 </div>
 <div class="abs s2-kode" style="left:${mm(kiriGrup + KOLOM_TEKS + CELAH_QR - q)};top:${mm(verifikasi - q)}">${svgQr(d.matriks, QR_MM, "", w.hijau)}</div>`;
 
-  const kepala = `<p class="abs t-kepala merek-jenis" style="left:${mm(tepi)};top:${mm(atas)};color:${aksen}">${esc(k.jenis)}</p>
-<p class="abs t-kepala merek" style="right:${mm(tepi)};top:${mm(atas)};color:${w.hijau};margin-right:-0.12em">PINTAR SELALU</p>`;
+  // The header row: the title stays exactly where it was (it has the deeper baseline, so the row's
+  // top is its top); the wordmark sits on the same baseline at the right margin.
+  const kepala = `<div class="abs s2-kepala" style="left:${mm(tepi)};right:${mm(tepi)};top:${mm(atas)};display:flex;justify-content:space-between;align-items:baseline">
+<p class="t-kepala merek-jenis" style="color:${aksen}">${esc(k.jenis)}</p>
+<p class="t-merek merek" style="color:${w.hijau}">PINTAR</p></div>`;
 
   const tepiGaris = o.bingkai ? `<div class="abs" style="inset:0;border:0.25mm solid rgba(31,42,51,0.18);pointer-events:none"></div>` : "";
   return `<div class="s2" style="width:${mm(A4.w)};height:${mm(A4.h)};background:${latar};">${kepala}${pencapaian}${rekam}${penerbit}${verif}${tepiGaris}</div>`;

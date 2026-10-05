@@ -150,7 +150,7 @@ catat("");
 catat("CONTRAST (WCAG 2.x; all card text is small text, 4.5:1)");
 type Pas = { apa: string; teks: string; latar: string; min: number };
 const PAS: Pas[] = [
-  { apa: "front · «PINTAR SELALU» (PINTAR green) on paper", teks: W.hijau, latar: W.kertas, min: 4.5 },
+  { apa: "front · the PINTAR wordmark (PINTAR green) on paper", teks: W.hijau, latar: W.kertas, min: 4.5 },
   { apa: "front · name (ink) on paper", teks: W.tinta, latar: W.kertas, min: 4.5 },
   { apa: "front · PINTAR ID (ink-2) on paper", teks: W.tinta2, latar: W.kertas, min: 4.5 },
   { apa: "back · QR modules (green) on the tile", teks: W.hijau, latar: W.hijauLembut, min: 4.5 },
@@ -187,7 +187,7 @@ const matriksJarak = (palet: K.Palet, vis: string) => {
 const swatch = (palet: K.Palet) => `<div style="display:flex;gap:2mm;margin-bottom:2mm">${K.KELUARGA.map((k) => `<div style="text-align:center"><div style="width:26mm;height:9mm;border-radius:1mm;background:${K.PALET[palet][k]}"></div><p class="ket" style="margin-top:0.8mm">${K.PERAN[k]}<br>${K.PALET[palet][k]}</p></div>`).join("")}</div>`;
 await potret(halaman("A · six fronts", `<div class="lembar" style="width:${3 * 85.6 + 2 * 6}mm">
 <h1>A · The six fronts, final candidates</h1>
-<p class="sub">One grammar. Warm-white upper field, the warm-gold line, a deep muted family colour below. Above the line what is permanent (PINTAR SELALU, the name, the PINTAR ID); below it the current chapter (role and school). The six colours share one lightness (OKLab L 0.487) and are spread in hue until every pair is at least 0.056 apart. Samples are invented.</p>
+<p class="sub">One grammar. Warm-white upper field, the warm-gold line, a deep muted family colour below. Above the line what is permanent (the PINTAR wordmark, the name, the PINTAR ID); below it the current chapter (role and school). The six colours share one lightness (OKLab L 0.487) and are spread in hue until every pair is at least 0.056 apart. Samples are invented.</p>
 ${kisiEnam("terpisah")}
 <h2>The palette: round 1 → proposed (and the olive alternative)</h2>
 <p class="ket" style="margin:0 0 1mm">Round 1 (two pairs too close)</p>${swatch("r1")}
@@ -285,12 +285,12 @@ ${LEBAR_GARIS.map((w) => `<tr><td><b>${w.toFixed(2)} mm</b></td>${[440, 358, 266
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// D. Typography, with «PINTAR SELALU» and the name-consistency panel
+// D. Typography, with the PINTAR wordmark and the name-consistency panel
 // ════════════════════════════════════════════════════════════════════════════
 {
   const layarPx = (pt: number, lebarKartu: number) => ((pt * 25.4) / 72) * (lebarKartu / K.UKURAN.lebar);
   const CONTOH: Record<string, [string, string, string]> = {
-    merek: ["kp-merek", "PINTAR SELALU", W.hijau], nama: ["kp-nama", "Ratna Dewi Kusumawardani", W.tinta], id: ["kp-id", "A14C D7ST", W.tinta2],
+    merek: ["kp-merek", "PINTAR", W.hijau], nama: ["kp-nama", "Ratna Dewi Kusumawardani", W.tinta], id: ["kp-id", "A14C D7ST", W.tinta2],
     peran: ["kp-bab-baris kp-peran", "Kepala departemen", W.kertas], sekolah: ["kp-bab-baris", "SMA Bukit Asri Kaliandra", W.kertas],
     petunjuk: ["kp-petunjuk", K.KATA_BELAKANG.petunjuk, W.tinta], situs: ["kp-situs", K.KATA_BELAKANG.situs, W.tinta3],
   };
@@ -311,14 +311,14 @@ ${LEBAR_GARIS.map((w) => `<tr><td><b>${w.toFixed(2)} mm</b></td>${[440, 358, 266
 <p class="sub">Plus Jakarta Sans 400/600 and IBM Plex Mono 500: the app's own OFL files (public/fonts), licensed for print and embedding. Samples at actual size (this render is 4×). Sizes 12 · 9 · 8 · 6.5 pt. «On screen»: CSS px when the card is 358 px (phone) and 266 px (email 320) wide.</p>
 <table class="spek"><tr><th>Style</th><th>Sample (actual size)</th><th>Typeface</th><th>Weight</th><th>Size</th><th>Line height</th><th>Tracking</th><th>Colour</th><th>Contrast</th><th>On screen</th></tr>${baris}</table>
 <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:8mm;margin-top:6mm">
-<div><h2>«PINTAR SELALU»: set in type, not the logo</h2>
-<p class="ket" style="font-size:6.5pt">Plus Jakarta Sans 600, 6.5 pt, capitals, tracking 0.16 em and word space +0.12 em (so the two words stay two words when tracked), PINTAR green ${W.hijau} (7.08:1), top left on the 6 mm margin, 5.2 mm from the top. The same family, weight and green as the app's typeset wordmark (--tracking-wordmark 0.14 em), slightly more open because it now carries two words. It is the card's only brand text on the front, and the smallest style: the card, not the logo, carries the identity. The stacked logo block is not used. This is an interim treatment for this artifact; the brand mark is reconsidered separately.</p>
+<div><h2>PINTAR: the canonical wordmark (brand correction, 5 Oct)</h2>
+<p class="ket" style="font-size:6.5pt">The canonical PINTAR wordmark replaces «PINTAR SELALU» (the card's freeze reopened for this alone, 5 Oct): Helvetica Neue 65 Medium, capitals, tracking +50, PINTAR green ${W.hijau} (7.08:1), on the 6 mm margin with its cap top where the old line's was (5.57 mm). Cap height 2.9 mm (16.4 mm wide in the stand-in face; the outlined master fixes the exact width, never under 15 mm): the wordmark's 15 mm print minimum sets the size. Everything else on the card is unchanged. Rendered here in a stand-in face until the outlined master replaces it.</p>
 <h2 style="margin-top:4mm">Do the front and back read as one name?</h2>
 <div style="display:flex;gap:4mm;align-items:center;background:${W.kertas};padding:3mm;border-radius:1mm">
-<div><p class="ket" style="margin:0 0 1mm">Front header</p><span class="kp"><span class="kp-merek" style="color:${W.hijau}">PINTAR SELALU</span></span></div>
+<div><p class="ket" style="margin:0 0 1mm">Front header</p><span class="kp"><span class="kp-merek" style="color:${W.hijau}">PINTAR</span></span></div>
 <div><p class="ket" style="margin:0 0 1mm">Back instruction</p><span class="kp"><span class="kp-petunjuk" style="color:${W.tinta}">${K.KATA_BELAKANG.petunjuk}</span></span></div>
 <div><p class="ket" style="margin:0 0 1mm">Back URL</p><span class="kp"><span class="kp-situs" style="color:${W.tinta3}">${K.KATA_BELAKANG.situs}</span></span></div></div>
-<p class="ket"><span class="buka">Flag, not changed:</span> the front names «PINTAR SELALU», the back's instruction names «PINTAR», and the URL joins them («pintarselalu»). The app and the emails say «PINTAR» (Kartu PINTAR, Masuk ke PINTAR, Tim PINTAR), while the app's logo block reads PINTAR SELALU. A reader will likely take them as one brand, but the card shows two names for it. Which name the card carries is a brand decision for Yazid.</p></div>
+<p class="ket"><span class="buka">Resolved (5 Oct):</span> the front, the back's instruction, the app and the emails all name PINTAR. PT ZAYD PINTAR SELALU is the company and pintarselalu.com the address; neither is the product's name.</p></div>
 <div><h2>Look-alike characters at card size (9 pt)</h2>
 <table class="spek"><tr><td>IBM Plex Mono 500 (kept)</td><td>${mirip("IBM Plex Mono", 500)}</td></tr><tr><td>Plus Jakarta Sans 600</td><td>${mirip("Plus Jakarta Sans", 600)}</td></tr></table>
 <p class="ket">Kept under examination, as asked: Plex Mono's dotted zero never reads as D; 1 has a flag and a foot; 2 a curved top against Z's straight one; 5's flat top against S; 8's two closed bowls against B's flat spine. No reason found to depart.<br><br><b>Changes from round 1:</b> role and school 7.5 → 8 pt (the lower field has room; on the 266 px email card 8 pt is 8.8 px instead of 8.2) and the QR instruction to 8 pt, so the chapter and the instruction share one size; «PINTAR SELALU» replaces «PINTAR» (0.14 → 0.16 em, words +0.12 em). Smallest printed size stays 6.5 pt (x-height 1.23 mm), for the header and the URL only.</p></div></div></div>`),
@@ -370,9 +370,9 @@ ${kk(K.depan(DUA_SEKOLAH, { warnaBab: K.PALET.terpisah.guru, susunan: "terpisah"
   const belakangTutup = belakangHtml.replace('class="kp-petunjuk"', 'class="kp-petunjuk merek"').replace('class="kp-situs"', 'class="kp-situs merek"');
   await potret(halaman("G · recognition", `<div class="lembar" style="width:362mm">
 <h1>G · The recognition test: is it PINTAR before it is read?</h1>
-<p class="sub">1: the six as they are. 2: «PINTAR SELALU» covered. 3: the six among seven other cards, every brand name covered on all thirteen. The others are invented organisations, drawn plainly and competently in ordinary typefaces; one (Yayasan, green two-band) deliberately shares PINTAR's structure without the line. 4: the back with every «PINTAR» covered, beside two other backs.</p>
+<p class="sub">1: the six as they are. 2: the PINTAR wordmark covered. 3: the six among seven other cards, every brand name covered on all thirteen. The others are invented organisations, drawn plainly and competently in ordinary typefaces; one (Yayasan, green two-band) deliberately shares PINTAR's structure without the line. 4: the back with every «PINTAR» covered, beside two other backs.</p>
 <h2>1 · As they are</h2>${meja(enam, letakMeja, 130, false)}
-<h2 style="margin-top:6mm">2 · «PINTAR SELALU» covered</h2>${meja(enam, letakMeja, 130, true)}
+<h2 style="margin-top:6mm">2 · The PINTAR wordmark covered</h2>${meja(enam, letakMeja, 130, true)}
 <h2 style="margin-top:6mm">3 · Among other cards, every brand name covered</h2>${meja(campur, letakCampur, 252, true, 362)}
 <h2 style="margin-top:6mm">4 · The back, «PINTAR» covered, beside two other backs</h2>
 <div class="tutup" style="display:flex;gap:8mm;background:#CFC9BE;padding:6mm;border-radius:2mm">${belakangTutup}${BELAKANG_LAIN.map((b) => b.html).join("")}</div></div>`),

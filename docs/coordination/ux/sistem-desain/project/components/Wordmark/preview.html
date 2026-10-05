@@ -1,4 +1,4 @@
-<!-- @dsCard group="Brand" height=1200 width=1040 subtitle="PINTAR: the name, in Helvetica Neue 65 Medium capitals, in PINTAR green. Locked." -->
+<!-- @dsCard group="Brand" height=1360 width=1040 subtitle="PINTAR: the name, in Helvetica Neue 65 Medium capitals, in PINTAR green. Locked." -->
 <style>
   .wm-pahlawan { display: grid; justify-items: center; gap: var(--space-4); padding: var(--space-8) var(--space-5); background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); }
   .wm-ruang { --merek-tinggi: 56px; position: relative; padding: var(--merek-tinggi); outline: 1px dashed var(--line-control); outline-offset: 0; }
@@ -15,6 +15,11 @@
   .wm-ukuran { display: grid; gap: var(--space-3); }
   .wm-ukuran div { display: grid; grid-template-columns: 340px auto; gap: var(--space-4); align-items: center; min-height: 44px; padding: var(--space-2) 0; border-bottom: var(--border-hairline) solid var(--line); font-size: 14px; line-height: 20px; color: var(--ink-2); }
   .wm-ukuran code { color: var(--ink-1); }
+  .wm-ikon { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-6); }
+  .wm-ikon figure { margin: 0; display: grid; justify-items: start; gap: var(--space-2); font-size: 14px; line-height: 20px; color: var(--ink-2); }
+  .wm-ikon .kotak { background: var(--pintar-primary); border-radius: 18.75%; }
+  .wm-ikon .penuh { border-radius: 0; }
+  .wm-ikon-ket { margin: 0; font-size: 14px; line-height: 20px; color: var(--ink-2); max-width: 70ch; }
   @media (max-width: 639px) { .wm-ukuran div { grid-template-columns: minmax(0, 1fr); } .wm-ruang, .wm-ruang .pds-merek { --merek-tinggi: 32px; } }
 </style>
 <div class="pds">
@@ -48,10 +53,21 @@
     </div>
   </section>
 
+  <section class="pds-stack" aria-labelledby="wm-ikon">
+    <h2 id="wm-ikon" class="pds-demo-label">Not a logo: the tab icon, drawn at size</h2>
+    <div class="wm-ikon">
+      <figure><span class="kotak" style="width: 16px; height: 16px" aria-hidden="true"></span><figcaption>16 px</figcaption></figure>
+      <figure><span class="kotak" style="width: 32px; height: 32px" aria-hidden="true"></span><figcaption>32 px</figcaption></figure>
+      <figure><span class="kotak" style="width: 48px; height: 48px" aria-hidden="true"></span><figcaption>48 px</figcaption></figure>
+      <figure><span class="kotak penuh" style="width: 90px; height: 90px" aria-hidden="true"></span><figcaption>180 px home screen, full bleed (half size)</figcaption></figure>
+    </div>
+    <p class="wm-ikon-ket">A functional identifier, not a second logo: a solid PINTAR-green square with nothing on it, no letter, no P, no symbol. Rounded in the tab, full bleed where the phone rounds it. A permanent app-icon design is a later decision.</p>
+  </section>
+
   <div class="pds-alert pds-alert-info" role="note">
     <i data-ikon="info"></i>
-    <h3>A proof, until the master is supplied</h3>
-    <p>The product uses outlined artwork made from a licensed Helvetica Neue 65 Medium (tracking +50, metric kerning, one optical pass), never live text. This page has neither the font nor the master, so each wordmark here is set in the viewer's own face: Helvetica Neue on Apple devices, a stand-in elsewhere.</p>
+    <h3>A proof, until the master is made</h3>
+    <p>The product uses outlined artwork made from Helvetica Neue 65 Medium (tracking +50, metric kerning, one optical pass), never live text. The master is made only after the font licence is verified to permit it. This page has neither the font nor the master, so each wordmark here is set in the viewer's own face: Helvetica Neue on Apple devices, a stand-in elsewhere.</p>
   </div>
 </div>
 <script>Pintar.siapkan();</script>

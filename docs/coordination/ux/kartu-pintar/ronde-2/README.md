@@ -51,6 +51,35 @@ The last run ended **"all checks passed"** in about a minute.
 | H | [`H-email-600-terang.png`](render/H-email-600-terang.png), [`-600-gelap`](render/H-email-600-gelap.png), [`-320-terang`](render/H-email-320-terang.png), [`-320-gelap`](render/H-email-320-gelap.png), [`H-ponsel-390.png`](render/H-ponsel-390.png) | The card in the DAISY-19 email frame, and on a phone in Akun saya (a context mock; that screen is DAISY-20's). |
 | I | [`I-A4-100persen.pdf`](render/I-A4-100persen.pdf) | **The print proof**, four A4 pages at 100% with crop marks. Previews: [`-halaman-1`](render/I-A4-halaman-1.png), [`-2`](render/I-A4-halaman-2.png), [`-3`](render/I-A4-halaman-3.png), [`-4`](render/I-A4-halaman-4.png). |
 | J, K | this README | Every decision and measurement; the recommendation. |
+| L | [`L-merek-PINTAR.png`](render/L-merek-PINTAR.png), [`L-laporan.txt`](render/L-laporan.txt) | **The wordmark correction (5 Oct):** the Guru card before and after at actual size; the corner at 3× with the clear space dashed; all six families and the longest name after; measured. Made by `merek-pintar.mts`. |
+
+## L. The wordmark correction (5 Oct)
+
+**Yazid's ruling (Q16, 5 Oct), verbatim:**
+
+> The PINTAR ID Card and PINTAR Certificate remain frozen in design, layout, information architecture, colour, typography, dimensions and behaviour. The freeze is reopened solely to replace the superseded PINTAR SELALU product identity with the canonical PINTAR wordmark. This is a brand correction, not a redesign. No other changes are authorised.
+
+The family is one name: the application, the ID card, the certificate and the documents are all **PINTAR**. PT ZAYD PINTAR SELALU is the legal company only.
+
+**The one element that changed:** the front's top-left line. «PINTAR SELALU» in type is replaced by the canonical PINTAR wordmark (the design system's Wordmark card: Helvetica Neue 65 Medium, capitals, tracking +50, PINTAR green `#245F55`).
+
+| | Before (30 Sep) | After (5 Oct) |
+|---|---|---|
+| What | «PINTAR SELALU» in type | the PINTAR wordmark |
+| Face | Plus Jakarta Sans 600, 6.5 pt, tracking 0.16 em, word space +0.12 em | Helvetica Neue 65 Medium, capitals, tracking +50 |
+| Colour | PINTAR green `#245F55` (7.08:1 on the paper) | the same |
+| Place | the 6 mm margin; cap top 5.57 mm | the same: the 6 mm margin; cap top 5.57 mm |
+| Cap height | 1.71 mm | **2.9 mm** (= X, the wordmark's clear space) |
+| Width | 21.9 mm (two words) | 16.4 mm in the stand-in face; the outlined master fixes it, never under 15 mm |
+| Clear space | none defined | X = 2.9 mm on every side: 5.57 mm to the top edge, 6 mm to the left, 8.3 mm to a one-line name, 3.4 mm to the longest (two-line) name |
+
+**Why the size changed, and only the size.** The wordmark's print minimum is 15 mm wide. At the old line's cap height (1.71 mm) it would be about 9.7 mm wide, under the minimum, so the correction sets the cap height at 2.9 mm: 16.4 mm wide in the stand-in face, with a margin over 15 mm for the master's exact width. The master is measured before the print proof; if it came out under 15 mm, the cap height would grow, never the place. Its cap top stays where the old line's was, so the upper field's rhythm, the name, the ID, the line, the lower field and the back are exactly as frozen. Nothing else on the card moved: `L-laporan.txt` measures every front (cap height, width, margins, distance to the name) and the script exits non-zero if any falls short.
+
+**What did not change:** the layout, the information, the family colours, the gold line, the type of every other element, the dimensions, the back (its instruction already said «…halaman masuk PINTAR.»), the QR tile and the behaviour.
+
+**The renders A to I predate the correction.** They still show «PINTAR SELALU» and were not redrawn: the freeze covers them, and L shows the corrected front beside the old one. `kartu.mts` (the grammar) carries the correction, so the next run of `buat-kartu.mts` draws the wordmark everywhere.
+
+**The wordmark here is a proof.** Helvetica Neue is not installed in this environment, so the renders draw it in Liberation Sans (Arial's metrics), with its cap height normalised to Helvetica Neue's (`font-size-adjust: cap-height 0.714`). The place and size are true; the letterforms are not. The print proof (I) is re-made from the outlined master, which is made only after the font licence is verified (the design system's Wordmark card, «Master artwork»). The card never sets the wordmark as live text in production.
 
 ## K. Status after Yazid's rulings (30 Sep)
 
@@ -60,7 +89,7 @@ The last run ended **"all checks passed"** in about a minute.
 |---|---|---|
 | 1 | The family colours | **Approved: the proposed palette, with plum Murid** (§4). |
 | 2 | The warm-gold colour | **`#C09C4F` approved as the PINTAR artifact-signature candidate.** It belongs to the identity and artifact language only. It is **not** a general-purpose UI accent; the certificate exploration can show whether it deserves wider status (§3). |
-| 3 | Which name the card carries | **«PINTAR SELALU» on the card**, physical and digital: the formal artifact identity. The product language stays «PINTAR». Nothing in the app or the emails is to be changed to «PINTAR SELALU» (§2). |
+| 3 | Which name the card carries | **«PINTAR SELALU» on the card**, physical and digital: the formal artifact identity. The product language stays «PINTAR». Nothing in the app or the emails is to be changed to «PINTAR SELALU» (§2). **Superseded 5 Oct** by the canonical wordmark ruling: the card carries the PINTAR wordmark (§L). |
 | 4 | Several roles: the colour | **The family colour of the first role in the alphabetically ordered list of roles shown.** This is a deterministic presentation rule only. It does not indicate a primary role, seniority, authority, permission, importance or precedence. It is not tenure and not `display_role`. No neutral seventh colour (§10). |
 | 5 | Several roles: the order | **Alphabetical**, by the Terminology v1 names. Chosen solely because it is deterministic and non-hierarchical. **Any apparent seniority that results from the Indonesian role names is coincidental and must not be read, or documented, as precedence** (§10). |
 | 6 | Roles at two schools | **One role with its school per line** (option (i)) (§10). |
@@ -70,7 +99,7 @@ The last run ended **"all checks passed"** in about a minute.
 | 9 | The QR geometry | **Not frozen merely because it fits.** Acceptance principle: the QR design that survives realistic physical use wins, even if the visually preferred version does not. If 0.598 mm modules scan reliably on the printed CR80 with ordinary phones, keep them; if not, give the QR more space (§7). |
 
 **Ready to freeze now:**
-- the family grammar: paper upper field, the line, family colour below; above the line «PINTAR SELALU», the name and the PINTAR ID; below it the role(s) and school(s); the back as drawn;
+- the family grammar: paper upper field, the line, family colour below; above the line the PINTAR wordmark (since 5 Oct; «PINTAR SELALU» before, §L), the name and the PINTAR ID; below it the role(s) and school(s); the back as drawn;
 - the geometry, except the two elements that wait for the physical proof below: CR80, 3 mm safe margin, 6 mm text margin, 2 mm bleed, the line at 32 mm on both faces;
 - the typography (§8);
 - the palette (ruling 1).
@@ -103,6 +132,8 @@ Yazid's mock-up was kept as the concept. Refinements:
 - **No new elements.** No icon, badge, photo, date, signature, «official» label, security claim, pattern or effect. The render script scans every face for PIN, password, an email address, a date of birth, validity words and verify/authentic/official claims. It found none, and it catches a planted control.
 
 ## 2. «PINTAR SELALU» in type
+
+**Superseded 5 Oct (§L):** the canonical PINTAR wordmark replaces this line. The section is kept as the record of what was frozen on 30 Sep.
 
 - **Set as:** Plus Jakarta Sans 600, 6.5 pt, capitals, tracking 0.16 em, word space +0.12 em, PINTAR green `#245F55` (7.08:1 on the paper). It sits top left on the 6 mm margin, 5.2 mm from the top.
 - **Why:**
@@ -212,7 +243,7 @@ Yazid's mock-up was kept as the concept. Refinements:
 
 ## 5. Front
 
-- **Above the line,** what is permanent: «PINTAR SELALU», the name (12 pt), the PINTAR ID (9 pt mono).
+- **Above the line,** what is permanent: the PINTAR wordmark (since 5 Oct, §L; «PINTAR SELALU» before), the name (12 pt), the PINTAR ID (9 pt mono).
 - **Below the line,** the current chapter: role (8 pt, 600) and school (8 pt, 400), read at render time.
 - **Negative space:** the header stands alone at the top; the name group stands on the line; the chapter hangs from it. The lower field keeps its bottom half empty except for long schools.
 - **Stress cases** (F), measured:
@@ -278,9 +309,12 @@ Round 1's back was clean but anonymous. The smallest change that makes it PINTAR
 
 PINTAR's own typefaces, both SIL OFL 1.1: licensed for print and embedding. The PDF embeds them as TrueType subsets (static instances of the app's variable font, cut at build time).
 
+**The wordmark is not type** (since 5 Oct, §L). It is placed as outlined artwork from the master, so no Helvetica Neue font is embedded. The master is made only after PT ZAYD PINTAR SELALU's Helvetica Neue licence is verified to permit it.
+
 | Style | Typeface | Weight | Size | Line height | Tracking | Colour | Contrast |
 |---|---|---|---|---|---|---|---|
-| PINTAR SELALU | Plus Jakarta Sans | 600 | 6.5 pt, caps | 1 | 0.16 em; words +0.12 em | PINTAR green `#245F55` | 7.08 |
+| The PINTAR wordmark (5 Oct, §L) | Helvetica Neue 65 Medium, as outlined artwork | 500 | cap height 2.9 mm, caps | n/a | +50 (0.05 em) | PINTAR green `#245F55` | 7.08 |
+| ~~PINTAR SELALU~~ (until 5 Oct) | Plus Jakarta Sans | 600 | 6.5 pt, caps | 1 | 0.16 em; words +0.12 em | PINTAR green `#245F55` | 7.08 |
 | Name | Plus Jakarta Sans | 600 | 12 pt | 1.15 | −0.01 em | ink `#1F2A33` | 14.00 |
 | PINTAR ID | IBM Plex Mono | 500 | 9 pt | 1.2 | 0.06 em | ink-2 `#4E5A64` (front); green (tile) | 6.77; 6.27 |
 | Role | Plus Jakarta Sans | 600 | 8 pt | 1.3 | 0; words +0.06 em | paper on the family colour | 5.90–6.24 |
@@ -288,14 +322,14 @@ PINTAR's own typefaces, both SIL OFL 1.1: licensed for print and embedding. The 
 | QR instruction | Plus Jakarta Sans | 400 | 8 pt | 1.35 | 0.005 em; words +0.06 em | ink | 14.00 |
 | URL | Plus Jakarta Sans | 400 | 6.5 pt | 1.3 | 0.02 em | ink-3 `#5F6A73` | 5.30 |
 
-**The system:** four sizes (12, 9, 8, 6.5 pt) and three weights.
+**The system:** four sizes (12, 9, 8, 6.5 pt) and three weights, plus the wordmark, which is artwork, not a type style.
 
 **Changes from round 1:**
 - **Role, school and instruction: 7.5 → 8 pt.** The lower field has room, and on the 266 px email card 8 pt is 8.8 px instead of 8.2.
 - **«PINTAR SELALU» replaces «PINTAR».**
 
 **Unchanged:**
-- The smallest printed size is 6.5 pt (x-height 1.23 mm), for the header and the URL only.
+- The smallest printed size is 6.5 pt (x-height 1.23 mm), for the URL only (and for the header until 5 Oct).
 - Plex Mono stays for the ID, kept under examination as asked. Its dotted 0 against D, flagged 1 against 7, curved 2 against Z, 5 against S, and closed 8 against B's flat spine all hold at 9 pt (D, right).
 
 ## 9. Admin platform
@@ -385,7 +419,7 @@ Kepala departemen · SMA Bukit Asri Kaliandra
 
 | Pair | Ratio |
 |---|---|
-| «PINTAR SELALU» (green) on paper | 7.08 |
+| The PINTAR wordmark (green) on paper | 7.08 |
 | Name (ink) on paper | 14.00 |
 | PINTAR ID (ink-2) on paper | 6.77 |
 | QR modules and the ID (green) on the tile | 6.27 |

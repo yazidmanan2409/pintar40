@@ -22,6 +22,16 @@ export const UKURAN = { lebar: 85.6, tinggi: 53.98, sudut: 3.18, aman: 3, bleed:
  */
 export const TATA = { tepi: 6, atas: 5.2, garis: 32, jarakAtas: 4.4, jarakBawah: 4.0 } as const;
 
+/**
+ * THE WORDMARK (brand correction, 5 Oct; the card's design freeze reopened for this alone).
+ * «PINTAR SELALU» in type is replaced by the canonical PINTAR wordmark: Helvetica Neue 65 Medium,
+ * capitals, tracking +50, PINTAR green. Same place: the 6 mm left margin, its cap top where the old
+ * line's was (5.57 mm). Its size is the one thing the correction decides: the old line's 1.71 mm
+ * cap height would make the wordmark about 9.7 mm wide, under its 15 mm print minimum, so the cap
+ * height is 2.9 mm (16.4 mm wide in the stand-in face; the outlined master fixes the exact width, never under 15 mm). Clear space below is X = 2.9 mm, measured on render.
+ */
+export const MEREK = { capAtas: 5.57, tinggiHuruf: 2.9 } as const;
+
 /** The line's width. 0.75 mm is the recommendation (README §C); 0.50 and 1.00 are compared. */
 export const GARIS_MM = 0.75;
 
@@ -87,7 +97,7 @@ export const abuWarna = (w: Warna): Warna => Object.fromEntries(Object.entries(w
 
 // ── typography: two families, four sizes, three weights ─────────────────────
 export type Gaya = {
-  peran: string; huruf: "Plus Jakarta Sans" | "IBM Plex Mono"; berat: 400 | 500 | 600;
+  peran: string; huruf: "Plus Jakarta Sans" | "IBM Plex Mono" | "Helvetica Neue"; berat: 400 | 500 | 600;
   pt: number; baris: number; spasi: number /* em */; kata?: number /* word spacing, em */; kapital?: boolean; warna: string;
 };
 /**
@@ -95,7 +105,7 @@ export type Gaya = {
  * ink spread to close it, so the small styles add some (round 1 §3).
  */
 export const GAYA: Record<string, Gaya> = {
-  merek: { peran: "PINTAR SELALU (header)", huruf: "Plus Jakarta Sans", berat: 600, pt: 6.5, baris: 1, spasi: 0.16, kata: 0.12, kapital: true, warna: "PINTAR green #245F55" },
+  merek: { peran: "PINTAR, the canonical wordmark (5 Oct)", huruf: "Helvetica Neue", berat: 500, pt: 11.5, baris: 1, spasi: 0.05, kapital: true, warna: "PINTAR green #245F55" },
   nama: { peran: "Person name", huruf: "Plus Jakarta Sans", berat: 600, pt: 12, baris: 1.15, spasi: -0.01, warna: "ink #1F2A33" },
   id: { peran: "PINTAR ID", huruf: "IBM Plex Mono", berat: 500, pt: 9, baris: 1.2, spasi: 0.06, warna: "ink-2 #4E5A64 (front); PINTAR green (tile)" },
   peran: { peran: "Role", huruf: "Plus Jakarta Sans", berat: 600, pt: 8, baris: 1.3, spasi: 0, kata: 0.06, warna: "paper #FBFAF7 on the family colour" },
@@ -122,7 +132,12 @@ ${pjs}
 .kp { position: relative; overflow: hidden; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-kerning: normal; text-rendering: geometricPrecision; }
 .kp * { box-sizing: border-box; margin: 0; }
 .kp-trim { position: absolute; }
-.kp-merek { ${gayaCss(GAYA.merek)} white-space: nowrap; }
+/* The wordmark: the canonical face, its cap height normalised to Helvetica Neue's 0.714 so a
+   stand-in proof face draws the same cap height, and its box trimmed to cap height and baseline.
+   A proof until the outlined master replaces it. */
+.kp-merek { font-family: "Helvetica Neue", "Neue Helvetica", Helvetica, Arial, sans-serif; font-weight: 500; font-synthesis: none;
+  font-size: ${(MEREK.tinggiHuruf / 0.714).toFixed(3)}mm; font-size-adjust: cap-height 0.714; line-height: 1; letter-spacing: 0.05em;
+  text-transform: uppercase; white-space: nowrap; text-box: trim-both cap alphabetic; }
 .kp-nama { ${gayaCss(GAYA.nama)} overflow-wrap: break-word; }
 .kp-id { ${gayaCss(GAYA.id)} white-space: nowrap; }
 .kp-bab-baris { ${gayaCss(GAYA.sekolah)} }
@@ -193,7 +208,7 @@ export function barisBab(bab: Bab[], susunan: "pasangan" | "terpisah" = "pasanga
 }
 
 /**
- * FRONT. Above the line, what is permanent: «PINTAR SELALU», the name, the PINTAR ID.
+ * FRONT. Above the line, what is permanent: the PINTAR wordmark, the name, the PINTAR ID.
  * Below it, the current chapter: the role and the school, read at render time.
  * A family changes one thing: the colour below the line.
  */
@@ -208,7 +223,7 @@ export function depan(o: Orang, opsi: OpsiMuka = {}): string {
   const isi = `
 <div style="position:absolute;left:${mm(-b)};top:${mm(TATA.garis)};width:${mm(W + 2 * b)};height:${mm(H - TATA.garis + b)};background:${warna};"></div>
 ${garisEmas(w, g, b)}
-<p class="kp-merek merek" style="position:absolute;left:${mm(TATA.tepi)};top:${mm(TATA.atas)};color:${w.hijau};">PINTAR SELALU</p>
+<p class="kp-merek merek" style="position:absolute;left:${mm(TATA.tepi)};top:${mm(MEREK.capAtas)};color:${w.hijau};">PINTAR</p>
 <div style="position:absolute;left:${mm(TATA.tepi)};width:${mm(W - 2 * TATA.tepi)};bottom:${mm(H - TATA.garis + g / 2 + TATA.jarakAtas)};">
   <p class="kp-nama" style="color:${w.tinta};">${esc(o.nama)}</p>
   <p class="kp-id" style="margin-top:1.3mm;color:${w.tinta2};">${esc(tampilId(o.id))}</p>

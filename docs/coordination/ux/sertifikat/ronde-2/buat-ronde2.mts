@@ -195,7 +195,7 @@ const PAS: Pas[] = [
   { apa: "name, course, values, number, link (ink)", teks: W.tinta, latar: PUTIH, min: 4.5 },
   { apa: "«telah menuntaskan», verification sentence (ink-2)", teks: W.tinta2, latar: PUTIH, min: 4.5 },
   { apa: "record labels, 9 pt capitals (ink-3)", teks: W.tinta3, latar: PUTIH, min: 4.5 },
-  { apa: "«PINTAR SELALU» (PINTAR green)", teks: W.hijau, latar: PUTIH, min: 4.5 },
+  { apa: "the PINTAR wordmark (PINTAR green)", teks: W.hijau, latar: PUTIH, min: 4.5 },
   { apa: "QR modules (PINTAR green) on paper", teks: W.hijau, latar: PUTIH, min: 4.5 },
   { apa: "«SERTIFIKAT PENGUASAAN», academic plum", teks: AK, latar: PUTIH, min: 4.5 },
   { apa: "«SERTIFIKAT PENGUASAAN», professional sage", teks: PR, latar: PUTIH, min: 4.5 },

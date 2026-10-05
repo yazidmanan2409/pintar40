@@ -79,15 +79,28 @@ function md(teks: string): string {
     }
     if (/^\s*([-*]|\d+\.)\s/.test(b)) {
       const urut = /^\s*\d+\./.test(b);
+      const mula = urut ? Number(/^\s*(\d+)\./.exec(b)![1]) : 1;
       const item: string[] = [];
-      while (i < baris.length && (/^\s*([-*]|\d+\.)\s/.test(baris[i]) || (/^\s{2,}\S/.test(baris[i]) && item.length))) {
+      // An item continues over a blank line when the next text is indented under it: a new paragraph,
+      // a nested list (two levels) or a quote inside the item.
+      const lanjut = (j: number) => { while (j < baris.length && !baris[j].trim()) j++; return j < baris.length && /^\s{2,}\S/.test(baris[j]); };
+      let kosong = false;
+      while (i < baris.length && (/^\s*([-*]|\d+\.)\s/.test(baris[i]) || (/^\s{2,}\S/.test(baris[i]) && item.length) || (!baris[i].trim() && item.length && lanjut(i)))) {
         const l = baris[i];
-        if (/^\s{2,}([-*]|\d+\.)\s/.test(l)) item[item.length - 1] += `<ul><li>${sebaris(l.replace(/^\s+([-*]|\d+\.)\s/, ""))}</li></ul>`;
-        else if (/^\s{2,}\S/.test(l) && !/^\s*([-*]|\d+\.)\s/.test(l)) item[item.length - 1] += ` ${sebaris(l.trim())}`;
+        const akhir = item.length - 1;
+        if (!l.trim()) { kosong = true; i++; continue; }
+        if (/^\s{6,}([-*]|\d+\.)\s/.test(l) && item[akhir].endsWith("</li></ul>")) item[akhir] = item[akhir].replace(/<\/li><\/ul>$/, `<ul><li>${sebaris(l.replace(/^\s+([-*]|\d+\.)\s/, ""))}</li></ul></li></ul>`);
+        else if (/^\s{2,}([-*]|\d+\.)\s/.test(l)) item[akhir] += `<ul><li>${sebaris(l.replace(/^\s+([-*]|\d+\.)\s/, ""))}</li></ul>`;
+        else if (/^\s{2,}>/.test(l)) {
+          const q: string[] = [];
+          while (i < baris.length && /^\s{2,}>/.test(baris[i])) { q.push(baris[i].replace(/^\s+>\s?/, "")); i++; }
+          item[akhir] += `<blockquote>${md(q.join("\n"))}</blockquote>`; kosong = false; continue;
+        } else if (/^\s{2,}\S/.test(l)) item[akhir] += kosong ? `<p>${sebaris(l.trim())}</p>` : ` ${sebaris(l.trim())}`;
         else item.push(sebaris(l.replace(/^\s*([-*]|\d+\.)\s/, "")));
+        kosong = false;
         i++;
       }
-      out.push(`<${urut ? "ol" : "ul"}>${item.map((x) => `<li>${x.replace(/<\/ul><ul>/g, "")}</li>`).join("")}</${urut ? "ol" : "ul"}>`);
+      out.push(`<${urut ? `ol${mula !== 1 ? ` start="${mula}"` : ""}` : "ul"}>${item.map((x) => `<li>${x.replace(/<\/ul><ul>/g, "")}</li>`).join("")}</${urut ? "ol" : "ul"}>`);
       continue;
     }
     if (b.startsWith(">")) { const q: string[] = []; while (i < baris.length && baris[i].startsWith(">")) { q.push(baris[i].replace(/^>\s?/, "")); i++; } out.push(`<blockquote>${md(q.join("\n"))}</blockquote>`); continue; }
@@ -183,6 +196,8 @@ h2.judul-bagian { margin: 0 0 4px; font-size: 22px; line-height: 28px; font-weig
 button, input, select, textarea { font: inherit; }
 .prosa h2, .prosa h3 { font-size: 18px; line-height: 24px; margin: 0 0 8px; font-weight: 600; break-after: avoid; }
 .prosa p, .prosa ul, .prosa ol { margin: 0 0 16px; } .prosa ul, .prosa ol { padding-left: 20px; } .prosa li { margin: 0 0 6px; }
+.prosa p:has(> strong:only-child) { break-after: avoid; }
+.prosa blockquote { margin: 8px 0 12px; padding: 2px 0 2px 16px; border-left: 3px solid var(--pintar-primary); color: var(--ink-2); } .prosa blockquote p { margin: 0; } .prosa li > p { margin: 8px 0 0; }
 .lebar-penuh { columns: 1; max-width: 1100px; }
 table { border-collapse: collapse; width: 100%; font-size: 14px; line-height: 20px; background: var(--surface-1); border-radius: 12px; overflow: hidden; }
 th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
@@ -392,7 +407,7 @@ const PAPAN: Array<[string, string, string, string, () => string]> = [
   ["18", "accessibility", "Accessibility and school reality", "Shared computers, 1366 × 768 laptops, slow networks and children still learning to read. Nothing depends on a phone, hover, animation or a fast machine.", papanAkses],
   ["20", "dates", "Dates and times (Dr Gladys)", "Indonesia-first: day before month, the month in words wherever a misreading would matter, always WIB. A native date field is followed by the date in words.", papanTanggal],
   ["21", "wordmark", "The PINTAR wordmark (locked)", "PINTAR, the name, in Helvetica Neue 65 Medium capitals, in PINTAR green, with nothing added. Production refinement only.", papanMerek],
-  ["19", "questions", "Open questions for Yazid", "Nothing here is applied until Yazid approves. These are the decisions the proposal needs.", papanPertanyaan],
+  ["19", "questions", "Open questions for Yazid", "Nothing here is applied until Yazid approves. These are the decisions the proposal needs; 16 and 17 were ruled on 5 Oct.", papanPertanyaan],
 ];
 
 // ── serve, render, save ─────────────────────────────────────────────────

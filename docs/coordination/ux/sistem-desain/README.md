@@ -14,10 +14,11 @@ The playground is not a route in the app. Nothing is added to `src/`, the route 
 | `project/tokens.json` | Token set v3, evolved from v2 (`src/app/globals.css`). Every token says KEPT, CHANGED, NEW, or NEEDS A RULING. |
 | `project/README.md` | The brand book: intent, content, visual foundations, icons, the mark. |
 | `project/01-colour.md` … `06-accessibility.md` | Colour (with the contrast table), typography, layout, interaction and motion, navigation, accessibility. |
-| `project/07-proposal.md` | What is new, what departs from a ruling, what does not change, the findings, and **seventeen questions for Yazid**. |
+| `project/07-proposal.md` | What is new, what departs from a ruling, what does not change, the findings, and **seventeen questions for Yazid** (16 and 17 ruled on 5 Oct). |
 | `project/09-references.md` | The four visual references of 4 Oct against this proposal: confirmed, changed, not copied. The images themselves are not stored here. |
 | `project/08-migration.md` | Today's `pin-*` classes and shared components → v3 components; the spec §6 gaps; print. |
 | `project/components/<Name>/` | 48 components: `README.md` (the guideline, with a Status line) and `preview.html` (the live card). `Cover/` is the page's cover. |
+| `project/assets/` | `Logos/`: the wordmark's master files, to be made once the font licence is verified. `AppIcon/`: the tab icon, a plain PINTAR-green square (question 17), made by `alat/buat-ikon-tab.py`. |
 | `project/components/bundle.css`, `bundle.js` | The components' styles (`pds-*` classes) and behaviour (`window.Pintar`). `bundle.js` is generated; do not edit it. |
 | `alat/` | Review tooling. It is not product code and is not published. |
 | `render/kontras.md`, `render/laporan.txt` | The last contrast and preview reports. The screenshots are not committed; the harness rebuilds them. |
@@ -40,7 +41,7 @@ python3 docs/coordination/ux/sistem-desain/alat/kontras.py
 
 ## The boards (PNG)
 
-The design language, system and grammar as 19 image boards (24 images: five boards come in two parts, so each image stays under 8000 px tall). Each is 1600 px wide and saved at 2×, built from these same files with every component card live:
+The design language, system and grammar as 21 image boards (28 images: six boards come in two parts, so each image stays under 8000 px tall, and board 07 also comes whole). Each is 1600 px wide and saved at 2×, built from these same files with every component card live:
 
 ```sh
 npx tsx docs/coordination/ux/sistem-desain/alat/papan.mts        # all boards → papan/NN-name.png
@@ -68,7 +69,7 @@ The forty icons are Lucide (`lucide-static` 0.468.0), copied unchanged under the
 >
 > THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-The fonts are the product's own (`public/fonts/`). The mark is the supplied PINTAR SELALU artwork (`public/brand/`).
+The fonts are the product's own (`public/fonts/`). The wordmark is PINTAR in Helvetica Neue 65 Medium (Wordmark). Every wordmark here is a proof in the viewer's own face until the outlined master is made, which waits on the font licence being verified. The tab icon (`project/assets/AppIcon/`, made by `alat/buat-ikon-tab.py`) is a plain colour square: no artwork and no licence involved.
 
 ## Not received
 

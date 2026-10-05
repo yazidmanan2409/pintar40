@@ -55,7 +55,7 @@ The full class-by-class map is in «Migration map».
 
 - Every v2 colour value, the two faces and their weights, the 4 px spacing scale, the content widths.
 - The learner's question stem (21 / 19), the focus shell, the public verification shell.
-- The card and the certificate, their colours and the warm gold line (D-074, D-080, and the 4 Oct rulings).
+- The card and the certificate, their colours and the warm gold line (D-074, D-080, and the 4 Oct rulings). The one exception, ruled on 5 Oct (question 16): their «PINTAR SELALU» line became the PINTAR wordmark.
 - The interaction components' behaviour: TombolKirim's one-save guard, TandaTautan, MemuatHalaman, BarisHasil, HalamanGalat, HalamanPenolakan.
 - Status discipline (spec §6): no blocked ground on Management pages, readiness on the quiet ground, no red-to-green scale, nothing by colour alone.
 - Every permission, journey and rule. A place in the navigation still decides nothing.
@@ -93,8 +93,29 @@ The full class-by-class map is in «Migration map».
 
     `surface-2` is not proposed: neutral badges vanish on it. Please look at A on a school computer before choosing. A or A+?
 15. **Date fields: the native field plus the date in words under it** (new, from Dr Gladys's comment). The field's own display follows the computer's language, and shows «10/09/2026» for 9 October on an English-language one. The line under it always says «Jumat, 9 Okt 2026, 07.30 WIB». Agree?
-16. **The ID card and the certificate** (new, from the wordmark ruling). Both carry «PINTAR SELALU» as their formal identity, ruled on 30 Sep and frozen on 4 Oct. Today's brand architecture says PINTAR is the product identity and the company appears only where it must. Do they stay «PINTAR SELALU», or move to PINTAR in a later card and certificate round? Nothing was changed here.
-17. **A small icon** (new, from the wordmark ruling). The wordmark cannot be read at a browser tab's 16 to 32 px, and the ruling rules out a standalone P inside the wordmark. A favicon or app icon therefore needs its own decision. None was drawn here.
+16. **The ID card and the certificate** (asked: do they stay «PINTAR SELALU», or move to PINTAR?). **RULED (5 Oct): approved, with a narrow reopening.**
+
+    > The PINTAR ID Card and PINTAR Certificate remain frozen in design, layout, information architecture, colour, typography, dimensions and behaviour. The freeze is reopened solely to replace the superseded PINTAR SELALU product identity with the canonical PINTAR wordmark. This is a brand correction, not a redesign. No other changes are authorised.
+
+    The family is one name: the application, the ID card, the certificate and the documents are all PINTAR; PT ZAYD PINTAR SELALU is the legal company. **Done, prepare only:**
+    - **Card:** the front's «PINTAR SELALU» line is the wordmark. It stays in the same place and green. Its cap height went from 1.71 to 2.9 mm, the size the wordmark's 15 mm print minimum needs. See `kartu-pintar/ronde-2` README §L and render L.
+    - **Certificate:** the header's «PINTAR SELALU» is the wordmark, at the same cap height and on the title's baseline; the title did not move. See `sertifikat/ronde-2` README, «The wordmark correction», and render J.
+    - Nothing else in either design changed. Both are measured, before and after.
+17. **A small icon** (asked: what does the browser tab show, when the wordmark cannot be read at 16 to 32 px?). **RULED (5 Oct): no new brand symbol for 4.0.**
+
+    > The canonical logo remains the PINTAR wordmark. Do not create a standalone P, monogram, education symbol or secondary logo. A favicon/app icon is a functional identifier rather than an alternative logo. Use the simplest technically appropriate PINTAR-green treatment for now and leave a permanent app-icon design as a separate future decision.
+
+    **Done, prepare only:**
+    - A solid PINTAR-green square with nothing on it (Wordmark, «The tab icon is not a logo»), in `assets/AppIcon/`:
+      - `favicon.ico` (16, 32, 48 px) and `icon.svg`, rounded;
+      - `apple-icon.png` (180 px), full bleed;
+      - 192 and 512 px for a manifest, if one is ever added.
+    - `src/app/favicon.ico` is still the framework's default until the application pass.
+
+**Also ruled on 5 Oct: the wordmark's typeface.**
+- Helvetica Neue 65 Medium remains the canonical typeface decision.
+- Production artwork and font licensing must be verified before the final master is created or distributed. This is a production and legal item; nothing here assumes what a licence permits.
+- No other typeface becomes the canonical master because Helvetica Neue is unavailable in this environment.
 
 ## The canonical wordmark (approved brand ruling, 5 Oct; locked)
 
@@ -107,7 +128,9 @@ The wordmark is PINTAR: the name in Helvetica Neue 65 Medium capitals, in PINTAR
 - four versions: green on light, white on green, black, white;
 - sizes `wordmark-nav` 18, `wordmark-bar` 16, `wordmark-standalone` 24.
 
-It replaces the supplied «PINTAR SELALU» artwork in every specimen. **Still needed:** the outlined master, made from a licensed Helvetica Neue. Until then every wordmark here is a proof in the viewer's own face.
+It replaces the supplied «PINTAR SELALU» artwork in every specimen, and, since question 16 was ruled, the «PINTAR SELALU» line on the ID card and the certificate.
+
+**Still needed: the outlined master,** made from Helvetica Neue 65 Medium and no other face. **Required first:** verify that the font licence permits logo artwork, outlining, and distributing the outlined files (Wordmark, «Master artwork and the font licence»). Until the master is made, every wordmark here is a proof in the viewer's own face, labelled as one.
 
 ## Dr Gladys's comments (5 Oct)
 

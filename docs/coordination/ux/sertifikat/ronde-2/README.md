@@ -4,6 +4,8 @@
 
 **Status, 30 Sep: Yazid has ruled on every question this round raised (below). The design closes pending the physical proof.** There is no round 3.
 
+**5 Oct: one brand correction** (below, «The wordmark correction»): the PINTAR wordmark replaces «PINTAR SELALU» in the header. Nothing else changed.
+
 ## Yazid's rulings, 30 Sep
 
 | | Ruling | What it settles here |
@@ -26,6 +28,34 @@
   - Bagas Saputra (Yazid's reference sample) holds his own card ID **7Q2Z0D9K**. Giving him A14CD7ST would make card and certificate disagree, the opposite of the brief's aim.
 - **The QRs** hold `https://verifikasi.pintarselalu.com/<token>`, the canonical verification domain (ruling 8). It resolves once it is set up; then these invented tokens read as not found.
 
+## The wordmark correction (5 Oct)
+
+**Yazid's ruling (Q16, 5 Oct), verbatim:**
+
+> The PINTAR ID Card and PINTAR Certificate remain frozen in design, layout, information architecture, colour, typography, dimensions and behaviour. The freeze is reopened solely to replace the superseded PINTAR SELALU product identity with the canonical PINTAR wordmark. This is a brand correction, not a redesign. No other changes are authorised.
+
+The family is one name: the application, the ID card, the certificate and the documents are all **PINTAR**. PT ZAYD PINTAR SELALU is the legal company only. The verification address stays `verifikasi.pintarselalu.com` (ruling 8): a domain is an address, not a name.
+
+**The one element that changed:** the header's upper-right line. «PINTAR SELALU» in type is replaced by the canonical PINTAR wordmark (the design system's Wordmark card: Helvetica Neue 65 Medium, capitals, tracking +50, PINTAR green `#245F55`).
+
+| | Before (30 Sep) | After (5 Oct) |
+|---|---|---|
+| What | «PINTAR SELALU» in type | the PINTAR wordmark |
+| Face | Plus Jakarta Sans 600, 12 pt, capitals, tracking 0.12 em | Helvetica Neue 65 Medium, capitals, tracking +50 |
+| Colour | PINTAR green `#245F55` (7.39:1 on white) | the same |
+| Place | upper right, on the 20 mm margin, 22 mm from the top | the same, on the title's baseline |
+| Cap height | 3.15 mm (12 pt × 0.745) | **3.15 mm**, the same: the two header words keep their balance |
+| Width | two words | 17.75 mm in the stand-in face; the outlined master fixes it, never under 15 mm |
+| Clear space | none defined | X = 3.15 mm on every side; 88.6 mm to the title, 22 mm to the top edge, 20 mm to the right edge |
+
+**«SERTIFIKAT PENGUASAAN» did not move.** The two header words now share one baseline row: the title keeps its box exactly (measured: 0.00 mm), and the wordmark sits on its baseline at the right margin. The cap height is the old line's, so no size changed. The name, the record, the band, the gold line, the verification block and the QR are exactly as frozen.
+
+**Measured** by `merek-pintar.mts` on the academic, professional and longest samples (`render/J-laporan.txt`): the title unchanged, the cap height 3.15 mm, the width over 15 mm, the baseline the title's, the header words 88.6 mm apart (the 10 mm floor holds), nothing within 12 mm of the sheet's edge. The script exits non-zero if any fails.
+
+**The renders A to H predate the correction.** They still show «PINTAR SELALU» and were not redrawn: the freeze covers them, and J shows the corrected header beside the old one. `sertifikat2.mts` (the grammar) carries the correction, so the next run of `buat-ronde2.mts` draws the wordmark everywhere.
+
+**The wordmark here is a proof.** Helvetica Neue is not installed in this environment, so the renders draw it in Liberation Sans (Arial's metrics), with its cap height normalised to Helvetica Neue's (`font-size-adjust: cap-height 0.714`). The place and size are true; the letterforms are not. The A4 print proof (E) is re-made from the outlined master, which is made only after PT ZAYD PINTAR SELALU's Helvetica Neue licence is verified to permit it (the design system's Wordmark card, «Master artwork»). In production the wordmark is placed as artwork, never set as live text, so no Helvetica Neue font is embedded in the PDF.
+
 ## Contents
 
 | File | What it is |
@@ -36,6 +66,7 @@
 | `uji-ronde2.py` | Round 2's tests: the damage sweep, what a PDF gives back for the number and link, and the printer's unprintable margin. Round 1's `../uji-sertifikat.py` runs the decode, stress and print simulations unchanged. |
 | `cetak-usulan.css` | **The proposed print fix** (6): the exact replacement for the print block in `src/app/experience.css`. |
 | `cetak-bukti.mts` | The print proof: today's page, before and after the fix, in round 1's harness (G). |
+| `merek-pintar.mts` | The wordmark correction (5 Oct): before and after, measured (J). |
 | `render/` | Deliverables A–H, the report `laporan.txt`, `G-laporan.txt` and `uji-qr.json`. |
 
 **Run** from the repository root, with a Python that has `../requirements.txt` (round 1's, unchanged):
@@ -63,6 +94,7 @@ The script never reads Yazid's reference image (D-082(b)); H is round 1 against 
 | G | The print proof: today's page before and after the fix, four ways, as PDFs and a board | `render/G-*.pdf`, `G-cetak-sebelum-sesudah.png`, `G-laporan.txt` |
 | H | One page: what changed from round 1 (round 1 beside round 2), and against the reference in words | `render/H-sebelum-sesudah.png` |
 | I | This README | |
+| J | **The wordmark correction (5 Oct):** the academic certificate before and after, the header's right half at 2× with the clear space dashed, the other samples after; measured | `render/J-merek-PINTAR.png`, `J-laporan.txt` |
 
 **E's pages:**
 1. The cover.
@@ -88,7 +120,7 @@ H shows these on one page.
 | | Round 1 | Round 2 | Why |
 |---|---|---|---|
 | 1 · Axis | Left-aligned, 24 mm margin | One centred axis, 20 mm margin | Yazid's composition. A centred sheet reads as a certificate at first glance. |
-| 2 · Header | «SERTIFIKAT PENGUASAAN» alone, 10.5 pt. «PINTAR SELALU» a 7 pt colophon at the foot. | «SERTIFIKAT PENGUASAAN» upper-left in the accent; «PINTAR SELALU» upper-right in PINTAR green. Both 12 pt capitals, in type. | Decided (D-074, D-076). The pair says what the paper is and whose system proves it, at one level, before the name. |
+| 2 · Header | «SERTIFIKAT PENGUASAAN» alone, 10.5 pt. «PINTAR SELALU» a 7 pt colophon at the foot. | «SERTIFIKAT PENGUASAAN» upper-left in the accent; «PINTAR SELALU» upper-right in PINTAR green. Both 12 pt capitals, in type. | Decided (D-074, D-076). The pair says what the paper is and whose system proves it, at one level, before the name. **Corrected 5 Oct:** the PINTAR wordmark replaces «PINTAR SELALU», at the same cap height and on the same baseline (above). |
 | 3 · Achievement | Name, «telah menuntaskan», course and Predikat sat on the line and grew upward. | Name 33 pt, «telah menuntaskan» 12 pt, course 16.5 pt, centred between the header and the record. | The name dominates and the course stays directly under the statement. A long name or course re-centres instead of climbing. |
 | 4 · Record | Predikat under the course; date and number at the foot. | Predikat, Tanggal terbit and Nomor sertifikat in one block of three rows, 16 mm above the line. Labels are right-aligned and meet the values at the page's axis. | Decided: one restrained record block. Meeting at the axis keeps the block centred whatever the values' lengths. |
 | 5 · Number | `PINTAR/SMP-CAHAYA-KALIANDRA/2026/00042`: the school's slug and the year, up to 70 characters, over two lines | `A14CD7ST/00001`, 14 characters, unbroken, Plex Mono 12 pt | The proposal (§3). Unbroken, it is the one form a reader can search and copy. |
@@ -311,7 +343,7 @@ A note for DAISY-36's copy: the English telling of `sertifikat.diberikan` is "ha
 | Name, course, values, number, link (ink) | 14.61:1 |
 | «telah menuntaskan», the verification sentence (ink-2) | 7.07:1 |
 | Record labels (ink-3) | 5.53:1 (5.30:1 on screen paper) |
-| «PINTAR SELALU» and the QR's modules | 7.39:1 |
+| The PINTAR wordmark (since 5 Oct; «PINTAR SELALU» before) and the QR's modules | 7.39:1 |
 
 All hold in greyscale.
 

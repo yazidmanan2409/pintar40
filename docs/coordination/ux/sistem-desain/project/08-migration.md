@@ -57,7 +57,8 @@ This map lists each of today's classes and shared components beside the v3 compo
 | The email header (`public/brand/pintar-email-logo.png`, 104 × 58) | The wordmark as a 2× PNG of the master, its alt text styled as the wordmark (as today) | «PINTAR» only. The footer keeps PT ZAYD PINTAR SELALU and pintarselalu.com: official correspondence is where the company belongs. |
 | `.pin-wordmark` and `--tracking-wordmark` (0.14 em, Plus Jakarta Sans 600) | Retired | A typeset PINTAR in the interface face would be a second logo. Running text writes PINTAR as a word. |
 | KakiPintar (the footer's legal line: PT ZAYD PINTAR SELALU, the contact address, pintarselalu.com) | Unchanged | Legal information is where the company belongs. It names the company, not the product. |
-| The ID card and the certificate («PINTAR SELALU» typeset as their formal identity, 30 Sep and 4 Oct rulings) | **Unchanged: frozen** | Question 16 asks whether they move to PINTAR under the new brand architecture. Nothing here touches them. |
+| The ID card and the certificate (the round 2 designs, frozen 30 Sep and 4 Oct, with «PINTAR SELALU» typeset as their identity; neither is in `src/` yet) | **Ruled 5 Oct (question 16): the wordmark replaces «PINTAR SELALU». Nothing else changes.** | A brand correction, not a redesign. The round 2 grammars carry it: the card's wordmark has a 2.9 mm cap height (the 15 mm print minimum sets it) in the old line's place; the certificate's keeps the header's cap height and baseline. When DAISY-24 and DAISY-36 build them, they place the outlined master, never live text. |
+| `src/app/favicon.ico` (the framework's default icon, 16 and 32 px) | The tab icon (Wordmark, «The tab icon is not a logo»; `assets/AppIcon/`), question 17 | A plain PINTAR-green rounded square in the tab, nothing on it. `icon.svg` and `apple-icon.png` join it in `src/app/` (the framework's file conventions). Not a logo; a permanent app icon is a later decision. |
 | `.pin-switch` (links between views) | Tabs, as page links | The underline and weight for the current one. |
 | `.pin-lingkup` (the scope switcher) | Tabs, as page links | Nothing in size (already 44). |
 | `.pin-lang`, PengalihBahasa (26 px, 6 px radius) | Segmented control | 44 px; `radius-md`. |
@@ -165,6 +166,7 @@ Print keeps what it has. Nothing printed is redesigned, and print uses no shadow
 - **Classes:** `.pin-sheet`, `.pin-sheetbox`, `.pin-printwell`, `.pin-noprint`, `.pin-cert`.
 - **Rules:** `@media print` at `experience.css` 346–352. The sheet is the page, and one A4 leaves the printer.
 - **v3:** unchanged, and frozen (D-074, D-080, the 4 Oct rulings). Its sizes, its colours, the gold line, the QR's 96 px and 6 px inset are the certificate's own, never the interface ladder.
+- **The 5 Oct brand correction** (question 16) touches only the round 2 design's header line, where the wordmark replaces «PINTAR SELALU». Today's printed certificate in `src/` carries no brand line, so this pass changes nothing on it.
 - **The one duty of the pass:** every new shell part carries `.pin-noprint`, so no navigation, rail, drawer, top bar, skip link or identity block reaches the paper.
 
 ### The class-card sheet

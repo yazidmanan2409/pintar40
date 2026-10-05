@@ -1,0 +1,8 @@
+Sertifikat PINTAR · the wordmark correction (5 Oct) · measured on render, in sheet millimetres
+X (cap height) = 3.15 mm (the header's: 12 pt × 0.745); print minimum 15 mm wide; nothing within 12 mm of the sheet's edge; header words at least 10 mm apart
+
+ok   Akademik (Bagas Saputra)                   title unchanged (moved 0.00 mm) · wordmark cap 3.15 mm · 17.75 mm wide · baseline 25.23 (title 25.23) · 88.56 mm from the title · right margin 19.79 mm (the box carries the last letter's 0.05 em tracking, hung past the 20 mm margin as the old line hung its 0.12 em) · top 22.09 mm
+ok   Profesional (Ratna Dewi Kusumawardani)     title unchanged (moved 0.00 mm) · wordmark cap 3.15 mm · 17.75 mm wide · baseline 25.23 (title 25.23) · 88.56 mm from the title · right margin 19.79 mm (the box carries the last letter's 0.05 em tracking, hung past the 20 mm margin as the old line hung its 0.12 em) · top 22.09 mm
+ok   Terpanjang (Ni Luh Putu Ayu …)             title unchanged (moved 0.00 mm) · wordmark cap 3.15 mm · 17.75 mm wide · baseline 25.23 (title 25.23) · 88.56 mm from the title · right margin 19.79 mm (the box carries the last letter's 0.05 em tracking, hung past the 20 mm margin as the old line hung its 0.12 em) · top 22.09 mm
+
+Face drawn here: Liberation Sans. Helvetica Neue is not installed in this environment, so this is a stand-in proof of place and size, not of the letterforms.

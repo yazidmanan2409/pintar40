@@ -5,7 +5,7 @@
  * organisations would, and none is made worse to help PINTAR win. One of them
  * (Yayasan) deliberately shares PINTAR's two-band structure, without the line, so
  * the test shows what carries the recognition. Each brand name has the class
- * `merek`, so the test can cover it exactly as it covers «PINTAR SELALU».
+ * `merek`, so the test can cover it exactly as it covers the PINTAR wordmark.
  */
 const kartu = (latar: string, isi: string, garis = false) =>
   `<div class="kl" style="position:relative;width:85.6mm;height:53.98mm;border-radius:3.18mm;overflow:hidden;background:${latar};${garis ? "box-shadow:inset 0 0 0 0.2mm rgba(0,0,0,.12);" : ""}">${isi}</div>`;
