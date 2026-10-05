@@ -18,7 +18,11 @@ export async function statusSaya(): Promise<StatusSaya> {
     const supabase = await supabaseServer();
     const { data, error } = await supabase.rpc("pintar_status_saya");
     if (error) {
-      console.error("[pemeliharaan] pintar_status_saya failed", error.code, error.message);
+      // a shared computer's locked or ended session (BOB-29, PT423/PT401) reads nothing until it is opened: expected,
+      // so not logged; its page is the lock screen or the sign-in, which say what they need to
+      if (error.code !== "PT423" && error.code !== "PT401") {
+        console.error("[pemeliharaan] pintar_status_saya failed", error.code, error.message);
+      }
       return STATUS_KOSONG;
     }
     return bacaStatusSaya(data);

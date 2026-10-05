@@ -391,6 +391,8 @@ export const m148Tests: SelfTest[] = [
         && /permukaanAsesmen\(path\)/.test(pita), "the browser asks the server again, does not time the notices itself, or sends a draining learner away at T=0");
       const lib = baca("src", "lib", "pemeliharaan.ts");
       c.expect(/rpc\("pintar_status_saya"\)/.test(lib) && /adalahCookieSesi/.test(lib), "the status is not one read, or is asked of nobody signed in");
+      // a locked or ended session's refusal of the read is expected, not a failure to log (audit walk 37260826024)
+      c.expect(/error\.code !== "PT423" && error\.code !== "PT401"/.test(lib), "a locked session's status read is logged as a failure");
       const aksiBelajar = baca("src", "app", "belajar", "actions.ts");
       c.expect(/err\.code === "PR110" && err\.detail === "MAINTENANCE_NO_NEW_START"\) redirect\(`\$\{HALAMAN_PEMELIHARAAN\}\?mulai=ditolak`\)/.test(aksiBelajar),
         "a start refused before maintenance is shown as an error rather than explained");
