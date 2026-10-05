@@ -10,11 +10,13 @@ import { jawab } from "@/app/api/aktifkan/_jawab";
 import { detailPr040 } from "@/app/api/aktifkan/_wizard";
 
 /**
- * BOB-28 (C5 path (2)): THE PLATFORM ADMIN'S AUDITED RESET OF A PERSON'S PIN
- * RECOVERY. GET ?id= looks one PINTAR ID up (recovery_status); POST resets it
- * with a stated reason (admin_reset_recovery, BOB-24: the ladder to 0, a new
- * PIN required, audited with the reason). Both ask the database with the
- * CALLER's own client, which refuses anyone but the platform admin. The
+ * BOB-28 (C5 path (2)), D-101 (1)(3): THE NEAREST AUTHORITY'S AUDITED RESET OF
+ * A PERSON'S PIN RECOVERY. GET ?id= looks one PINTAR ID up (recovery_status);
+ * POST resets it with a stated reason (admin_reset_recovery, BOB-24: the ladder
+ * to 0, a new PIN required, every session of the person ended, audited with the
+ * reason and the school that acted). Both ask the database with the CALLER's
+ * own client, which admits the Platform Admin, or a School Admin for a person
+ * their school has, and refuses one's own ID (SENDIRI). The
  * service key reads one thing after a reset: the owner's account, to tell them
  * (C7); the security recipient is told too.
  */
@@ -33,7 +35,10 @@ type Klien = Awaited<ReturnType<typeof supabaseServer>>;
 
 async function status(caller: Klien, pintarId: string): Promise<StatusPemulihan | KodePemulihanAdmin> {
   const { data, error } = await caller.rpc("recovery_status", { p_typed_id: pintarId });
-  if (error) return error.code === "42501" ? "DITOLAK" : "LAYANAN_TIDAK_TERSEDIA";
+  if (error) {
+    if (detailPr040(error) === "RECOVERY_SELF") return "SENDIRI";
+    return error.code === "42501" ? "DITOLAK" : "LAYANAN_TIDAK_TERSEDIA";
+  }
   const r = Array.isArray(data) ? (data[0] as Record<string, unknown> | undefined) : undefined;
   if (!r) return "TIDAK_ADA";
   return {
@@ -70,6 +75,7 @@ export async function POST(request: NextRequest) {
   const { error } = await caller.rpc("admin_reset_recovery", { p_person: s.personId, p_reason: alasan });
   if (error) {
     if (error.code === "42501") return gagal("DITOLAK");
+    if (detailPr040(error) === "RECOVERY_SELF") return gagal("SENDIRI");
     if (detailPr040(error) === "REASON_REQUIRED") return gagal("ALASAN_KOSONG");
     return gagal("LAYANAN_TIDAK_TERSEDIA", `admin_reset_recovery refused (${error.code})`);
   }

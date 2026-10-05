@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 182,
+  "version": 183,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -1821,7 +1821,7 @@
     {
       "id": "F10-V03",
       "runner": "db",
-      "proves": "BOB-20 (D-048). In the suite selftest/db/fable10.sql, seeing grants nothing: the school's admin is still refused a grant at another school's node (INSTITUTION_ADMIN scope) and a grant of INSTITUTION_ADMIN or SYSTEM_ADMIN to a teacher it can see, and no refused grant leaves a role behind."
+      "proves": "BOB-20 (D-048). In the suite selftest/db/fable10.sql, seeing grants nothing: the school's admin is still refused a grant at another school's node (INSTITUTION_ADMIN scope), INSTITUTION_ADMIN at another school, and SYSTEM_ADMIN to a teacher it can see (D-101 (2): INSTITUTION_ADMIN at its own school is its own to appoint), and no refused grant leaves a role behind."
     },
     {
       "id": "F10-G01",
@@ -2186,7 +2186,7 @@
     {
       "id": "F16-N01",
       "runner": "db",
-      "proves": "BOB-24, storage and surfaces of migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: the six identity tables have RLS on, no policies and no grant for anon, authenticated or service_role; recovery_attempt, recovery_restore, identity_attempt and identity_attempt_settle execute for service_role only and are no client RPC; pin_matches, the ID generator and normaliser and the rule functions execute for nobody; the seven client functions are in client_rpc_registry, the four self-service ones as LEARNER noted as the caller's own and the platform admin's as SYSTEM_ADMIN; a teacher and a visitor are refused 42501 by the database; and security_events gives the platform admin identity events only."
+      "proves": "BOB-24, storage and surfaces of migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: the six identity tables have RLS on, no policies and no grant for anon, authenticated or service_role; recovery_attempt, recovery_restore, identity_attempt and identity_attempt_settle execute for service_role only and are no client RPC; pin_matches, the ID generator and normaliser and the rule functions execute for nobody; the seven client functions are in client_rpc_registry, the four self-service ones as LEARNER noted as the caller's own, correct_username and security_events as SYSTEM_ADMIN and admin_reset_recovery as SCOPE INSTITUTION_ADMIN (D-101 (1)); a teacher and a visitor are refused 42501 by the database; and security_events gives the platform admin identity events only."
     },
     {
       "id": "F16-C01",
@@ -3046,7 +3046,7 @@
     {
       "id": "BOB28-A02",
       "runner": "app",
-      "proves": "BOB-28 (Gate 5) against the running app, Auth and the Mailpit sink: three wrong PINs give 400, 400, 423 PIN_TERKUNCI 3600 and the right PIN stays locked; after the lock passes three more give 14400; then three more give PIN_DITANGGUHKAN and the right PIN stays suspended; a session on another device is untouched; the owner's mail holds two lock notices and one suspension notice; email recovery during the suspension (asked by username, answered 200) sets a new password and the database's ladder returns to 0 while the old PIN answers PIN_TIDAK_COCOK; /akun renders, /api/akun/pin sets a new PIN once (a second is 409) and the new PIN recovers; the platform admin (uji.sysadmin) resets through /api/keamanan/pemulihan only with a reason (400 without), the answer says a new PIN is awaited, the PIN stops recovering, a staff member who is not the platform admin is refused 403, the audit log holds identity.recovery_restored ADMIN_RESET with the reason, and the owner's mail holds the reset notice.",
+      "proves": "BOB-28 (Gate 5) against the running app, Auth and the Mailpit sink: three wrong PINs give 400, 400, 423 PIN_TERKUNCI 3600 and the right PIN stays locked; after the lock passes three more give 14400; then three more give PIN_DITANGGUHKAN and the right PIN stays suspended; a session on another device is untouched; the owner's mail holds two lock notices and one suspension notice; email recovery during the suspension (asked by username, answered 200) sets a new password and the database's ladder returns to 0 while the old PIN answers PIN_TIDAK_COCOK; /akun renders, /api/akun/pin sets a new PIN once (a second is 409) and the new PIN recovers; the platform admin (uji.sysadmin) resets through /api/keamanan/pemulihan only with a reason (400 without), the answer says a new PIN is awaited, the PIN stops recovering, the person's own session is then sent to sign-in (D-101 (3)), a staff member who is no administrator is refused 403 (asked before the reset), the audit log holds identity.recovery_restored ADMIN_RESET with the reason, and the owner's mail holds the reset notice.",
       "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
     },
     {
@@ -3054,6 +3054,18 @@
       "runner": "app",
       "proves": "BOB-28 (D-088(e)) against the running app and Auth: a learner provisioned in the synthetic school gets a class card from the platform admin and signs in with it; /aktivasi lists them under «Kartu hilang atau rusak» in its rendered html; /api/akun/kartu-kelas refuses an unknown reason (400) and re-issues with HILANG: a new ten-digit number and six-digit PIN; the old card's session is sent to /masuk and the old card is refused; the new card signs in and opens /belajar; the account row and its Auth user are the same and its card number is the new one; the audit log holds account.card_reissued with HILANG and both numbers; a teacher is refused.",
       "skip_justification": "needs the running app and the local stack (Auth, PostgREST)"
+    },
+    {
+      "id": "D101-A01",
+      "runner": "app",
+      "proves": "D-101 answer (3) against the running app's routes, Auth and PostgREST (selftest/d101.test.ts): an access token a browser already holds answers a direct PostgREST request (200); with the session-ending core planted away a re-issued card's old token is still served (200, the gap shown on the same stack); with it, the old token is refused at once (401) after a card's re-issue, after a recovery by PINTAR ID + PIN (the person's other browser) and after the Platform Admin's assisted reset (the recovering browser too); every ended session is audited as a replaced credential.",
+      "skip_justification": "needs the running app and the local stack (Auth, PostgREST, the mail sink)"
+    },
+    {
+      "id": "D101-A02",
+      "runner": "app",
+      "proves": "D-101 answer (1) against the running app's route and rendered html (selftest/d101.test.ts): a teacher is refused a recovery lookup; a School Admin looks up and resets a teacher of her school through the route /api/keamanan/pemulihan, the teacher's token is then refused (401), and the reset is recorded with her, INSTITUTION_ADMIN and the school; she is refused herself (SENDIRI) and another school's learner (404, as an ID nobody holds); Konfigurasi links her to Keamanan akun without the security record and offers Admin sekolah, never Admin platform.",
+      "skip_justification": "needs the running app and the local stack (Auth, PostgREST, the mail sink)"
     },
     {
       "id": "BOB29-K01",
@@ -3129,6 +3141,16 @@
       "id": "FU1921-D01",
       "runner": "static",
       "proves": "Follow-ups 19-21, migration 20261121100000 against the database, rolled back (selftest/fu1921.test.ts): a rejected transfer keeps its request's reason and records its own, both on the audit row with REQUESTED to REJECTED; two saves of a report template leave each version's selection on the record; a Studio step on a course writes one audit row with its from and to states, and an update that moves no status writes none."
+    },
+    {
+      "id": "D101-S01",
+      "runner": "static",
+      "proves": "D-101 answers (5 Oct), the source (selftest/d101.test.ts): migration 20261122100000 asks one authority question for the recovery lookup and reset -- the Platform Admin, or an active School Admin of a school that has the person by its number, a role there or a learner there; never oneself; a Platform Admin only by another -- audits the reset with the school that acted, ends every session of the person on a recovery, a card's re-issue and an assisted reset but not an activation, and lets a School Admin appoint another at the school itself only; every function revoked from public and the two declared as the School Admin's scope; the route answers oneself SENDIRI; Keamanan akun and Admin sekolah (confirmed by a second press) are a School Admin's, the security record and Admin platform the Platform Admin's; Persiapan sekolah carries the quiet second-admin line."
+    },
+    {
+      "id": "D101-D01",
+      "runner": "static",
+      "proves": "D-101 answers, migration 20261122100000 against the database, rolled back (selftest/d101.test.ts): PostgREST's own pre-request with a session's claims passes a teacher's sessions before her School Admin's reset and refuses them after (PT401, KREDENSIAL_DIGANTI, Auth's rows gone, audited), and likewise a class card's after its re-issue and a recovered password's, while an activation's write ends nothing; the School Admin assists the school's teacher and email learner (audited with her, INSTITUTION_ADMIN and the school) and is refused another school's learner, a Platform Admin the school has, herself (RECOVERY_SELF) and a reset without a reason; the Platform Admin is refused only herself; a dean nothing; a School Admin appoints a teacher School Admin at the school itself (audited) and is refused below it, at another school, for a stranger, as Admin platform and for herself; the internal functions are no client's."
     },
     {
       "id": "BOB29-A01",

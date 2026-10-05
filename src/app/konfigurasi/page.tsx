@@ -26,7 +26,7 @@ import BarisHasil from "@/components/BarisHasil";
 import { sekolahPendataan } from "@/lib/pendataan";
 import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
 import { asalPindah, muridDiKelas, namaKelas, tujuanPindah } from "@/lib/pindah-kelas";
-import { persiapanSekolah, type PeranTerbaca } from "@/lib/persiapan-sekolah";
+import { jumlahAdminSekolah, persiapanSekolah, type PeranTerbaca } from "@/lib/persiapan-sekolah";
 import { lingkupPeran } from "@/lib/lingkup-peran";
 import { alamatCatatan, formulirPeserta, tempatCatatan } from "@/lib/pengembangan";
 import TautanLapor from "@/components/lapor/TautanLapor";
@@ -80,6 +80,8 @@ type SearchParams = Promise<{
   bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; sekolah?: string; periksa?: string; dari?: string; lapor?: string;
   // #148: the first step of scheduling, asked by a plain GET so the second step can show what the window would meet
   pm_cek?: string; pm_platform?: string; pm_sekolah?: string | string[]; pm_mulai?: string; pm_selesai?: string;
+  // D-101 (2): «Admin sekolah» named on Peran & akses, waiting for its second press
+  angkat?: string; lingkup?: string; sampai?: string;
 }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
@@ -197,6 +199,16 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const institutionName = new Map((institutions ?? []).map((i) => [i.id, i.name]));
   const periodName = new Map((periods ?? []).map((p) => [p.id, p.name]));
   const nodeName = new Map((nodes ?? []).map((n) => [n.id, `${n.name}`]));
+  // D-101 (2): a School Admin's «Admin sekolah» comes back here once, to be confirmed by a second press; the
+  // database decides again on that press (role_assignments_guard: at the school itself, a person the school has)
+  const uuidSah = (v: string | undefined) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v ?? "");
+  const angkat = uuidSah(sp.angkat) && uuidSah(sp.lingkup) && /^\d{4}-\d{2}-\d{2}$/.test(sp.sampai ?? "")
+    ? {
+        person: sp.angkat!, scope: sp.lingkup!, sampai: sp.sampai!,
+        nama: personName.get(sp.angkat!) ?? awaitingPersons.find((p) => p.person_id === sp.angkat)?.display_name ?? short(sp.angkat),
+        tempat: nodeName.get(sp.lingkup!) ?? institutionName.get(sp.lingkup!) ?? short(sp.lingkup),
+      }
+    : null;
 
   const activeClassCount = (nodes ?? []).filter((n) => n.kind === "CLASS" && n.is_active).length;
   // BOB-19: the card judges each check by the one rule F01-T13 uses
@@ -268,6 +280,11 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     ? persiapanSekolah(struktur.rows, (assignments ?? []) as PeranTerbaca[],
         new Map((nodes ?? []).map((n) => [n.id as string, ((n as { jalur?: string[] }).jalur ?? []) as string[]])), new Date().valueOf())
     : null;
+  // D-101(e): one School Admin is never an error; a second is recommended quietly, as recovery cover
+  const satuAdmin = sekolahStruktur
+    ? jumlahAdminSekolah((assignments ?? []) as Array<PeranTerbaca & { institution_id: string | null; person_id: string }>,
+        sekolahStruktur.id, new Date().valueOf()) === 1
+    : false;
 
   const nav: Array<[string, string]> = [
     ["struktur", s("config.section.struktur")],
@@ -313,8 +330,9 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         <TautanLapor locale={await currentLocale()} kelas={tautanTempat} />
         {/* BOB-51: the platform admin's delivery proof, a click rather than a console */}
         {isSys === true ? <Link href="/konfigurasi/email-uji" className={tautanTempat}>{s("emailuji.judul")}<TandaTautan /></Link> : null}
-        {/* BOB-28: the platform admin's PIN-recovery reset and the security record */}
-        {isSys === true ? <Link href="/konfigurasi/keamanan" className={tautanTempat}>{s("keamanan.judul")}<TandaTautan /></Link> : null}
+        {/* BOB-28, D-101 (1): the assisted PIN-recovery reset (a School Admin's for their school's people), and for the
+            platform admin the security record */}
+        {(isSys === true || adminInstitutionIds.length > 0) ? <Link href="/konfigurasi/keamanan" className={tautanTempat}>{s("keamanan.judul")}<TandaTautan /></Link> : null}
         <TabTempat
           tempat={tempatDariPeran(peran)}
           kecuali={["/konfigurasi"]}
@@ -424,6 +442,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   </li>
                 ))}
               </ul>
+              {satuAdmin ? <p className="mt-3 text-sm text-ink-2">{sl("config.persiapan.admin_kedua")}</p> : null}
             </section>
           ) : null}
 
@@ -1027,6 +1046,22 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               ))}
               {(assignments ?? []).length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
+            {angkat ? (
+              <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" role="group" aria-labelledby="pin-angkat">
+                <h3 id="pin-angkat" className="font-medium">{s("config.angkat.judul")}</h3>
+                <p className="text-sm text-ink-1"><strong>{angkat.nama}</strong> · {roleLabel("INSTITUTION_ADMIN")} · {angkat.tempat}</p>
+                <p className="text-sm text-ink-2">{s("config.angkat.arti")}</p>
+                <form action={grantRoleAction} className="flex flex-wrap items-center gap-3">
+                  <input type="hidden" name="person" value={angkat.person} />
+                  <input type="hidden" name="role" value="INSTITUTION_ADMIN" />
+                  <input type="hidden" name="scope" value={angkat.scope} />
+                  <input type="hidden" name="valid_until" value={angkat.sampai} />
+                  <input type="hidden" name="yakin" value="ya" />
+                  <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.angkat.ya")}</TombolKirim>
+                  <Link href="/konfigurasi?bagian=roles#roles" className={tautanTempat}>{s("config.angkat.batal")}</Link>
+                </form>
+              </div>
+            ) : null}
             <form action={grantRoleAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2">
               <label className={label}>{s("config.label.person")}
                 <select name="person" className={field} required defaultValue="">
@@ -1049,7 +1084,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               </label>
               <label className={label}>{s("config.label.role")}
                 <select name="role" className={field} required defaultValue="EDUCATOR">
-                  {(["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", ...(isSys ? ["INSTITUTION_ADMIN", "SYSTEM_ADMIN"] : [])]).map((r) => (
+                  {/* D-101 (2): a School Admin may appoint another, at the school itself; Admin platform stays the platform's */}
+                  {(["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", ...(isSys || adminInstitutionIds.length > 0 ? ["INSTITUTION_ADMIN"] : []), ...(isSys ? ["SYSTEM_ADMIN"] : [])]).map((r) => (
                     <option key={r} value={r}>{roleLabel(r)}</option>
                   ))}
                 </select>

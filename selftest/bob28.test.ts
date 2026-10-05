@@ -190,7 +190,7 @@ rollback;
 `;
 
 /** Each attempt from its own address, so the per-address count is not what is being tested. */
-async function cobaPin(asal: string, id: string, pin: string, b = new Peramban(asal, ipUji())) {
+export async function cobaPin(asal: string, id: string, pin: string, b = new Peramban(asal, ipUji())) {
   return { b, r: await b.jsonDari("/masuk/lupa/pin", { form: { id, pin } }) };
 }
 
@@ -198,7 +198,7 @@ const tanpaId = (html: string, id: string) => html.split(id).join("@").split(`${
 const utama = (html: string) => /<main[\s\S]*<\/main>/.exec(html)?.[0] ?? "";
 
 /** Gate 3's activation, as a person does it, with a known PIN. */
-async function aktifkan(c: Checks, asal: string, email: string, username: string, pin: string): Promise<string | null> {
+export async function aktifkan(c: Checks, asal: string, email: string, username: string, pin: string): Promise<string | null> {
   const w = new Peramban(asal, ipUji());
   await w.jsonDari("/aktifkan/kode", { form: { email } });
   const kode = kodeDari((await sinkTunggu(email, 1))[0]);
@@ -217,7 +217,7 @@ async function aktifkan(c: Checks, asal: string, email: string, username: string
   return ok ? sandi : null;
 }
 
-const pintarIdDari = (email: string) =>
+export const pintarIdDari = (email: string) =>
   psql(`select p.pintar_id from public.persons p join public.accounts a on a.person_id = p.id join auth.users u on u.id = a.auth_user_id where u.email = ${lit(email)}`);
 
 export const bob28AppTests: SelfTest[] = [
@@ -361,7 +361,10 @@ export const bob28AppTests: SelfTest[] = [
       const pulih = await cobaPin(asal, id, "6042");
       c.expect(pulih.r.status === 200, `the new PIN did not recover (${JSON.stringify(pulih.r.body)})`);
 
-      // 4. the platform admin's audited reset forces another new PIN
+      // 4. the platform admin's audited reset forces another new PIN. The person themself (signed in again by the email
+      // recovery) is refused it first: a staff member who is no administrator (D-101: and nobody on their own ID)
+      const bukanAdmin = await z.jsonDari("/api/keamanan/pemulihan", { json: { id, alasan: "x" } });
+      c.expect(bukanAdmin.status === 403, `a staff member who is not an administrator reset recovery (${bukanAdmin.status})`);
       const sys = new Peramban(asal, ipUji());
       c.expect((await sys.jsonDari("/masuk/password", { form: { identitas: "uji.sysadmin", password: "Sintetis-Sys-91!" } })).status === 200, "the platform admin could not sign in");
       const tanpaAlasan = await sys.jsonDari("/api/keamanan/pemulihan", { json: { id, alasan: "  " } });
@@ -370,9 +373,9 @@ export const bob28AppTests: SelfTest[] = [
       c.expect(tanpaAlasan.status === 400 && reset.status === 200 && s?.pinBaruDitunggu === true && s?.keadaan === "NORMAL",
         `the reset: without a reason ${tanpaAlasan.status}, with one ${reset.status} ${JSON.stringify(reset.body)}`);
       c.expect((await cobaPin(asal, id, "6042")).r.status === 400, "the PIN still recovers after the platform admin's reset");
-      // the person themself, signed in again by the email recovery (which ended every other session)
-      const bukanAdmin = await z.jsonDari("/api/keamanan/pemulihan", { json: { id, alasan: "x" } });
-      c.expect(bukanAdmin.status === 403, `a staff member who is not the platform admin reset recovery (${bukanAdmin.status})`);
+      // D-101 (3): the old PIN replaced, the person's sessions end with it -- the browser signed in by the email recovery too
+      const keluar = await z.kirim("/mengajar");
+      c.expect(keluar.status >= 300 && keluar.status < 400, `the person's session survived the platform admin's reset (${keluar.status})`);
       const audit = psql(`select count(*) from public.audit_log a join public.persons p on p.id::text = a.target_id
                            where p.pintar_id = ${lit(id)} and a.action = 'identity.recovery_restored'
                              and a.summary ->> 'via' = 'ADMIN_RESET' and a.summary ->> 'reason' = 'Pemilik kehilangan PIN (uji)'`);
@@ -382,8 +385,8 @@ export const bob28AppTests: SelfTest[] = [
       return c.verdict(
         "three wrong PINs locked PIN recovery an hour, three more four hours, three more suspended it, and a right PIN did nothing meanwhile; a "
         + "session elsewhere stayed; the owner was told at each threshold; email recovery during the suspension restored it and the old PIN stayed "
-        + "dead; a new PIN set on Akun saya recovered; the platform admin's reset needed a reason, was audited with it, forced another new PIN, "
-        + "was refused to anyone else and told the owner");
+        + "dead; a new PIN set on Akun saya recovered; the person themself was refused the reset; the platform admin's reset needed a reason, was "
+        + "audited with it, forced another new PIN, ended the person's session (D-101 (3)) and told the owner");
     },
   },
   {
@@ -641,7 +644,7 @@ export const bob28Tests: SelfTest[] = [
       return c.verdict(
         "recovery_by_pin walks the typed ID's ladder (nobody's alike, no notice), gives a PIN grant on a match (audited, ladder reset), refuses an "
         + "unfinished account; three wrong lock 1 h, then 4 h, then suspend with the PIN dead, a notice at each threshold only; an EMAIL recovery's "
-        + "write restores a suspension and the old PIN stays dead; the lookup, record and reset are the platform admin's; a notice passes an address "
+        + "write restores a suspension and the old PIN stays dead; the lookup, record and reset refuse a teacher and serve the platform admin (a School Admin's own scope is D101-D01's); a notice passes an address "
         + "limit; the re-issue asks the school's authority and a reason, the guard moves the card only to the grant's own address and audits who, "
         + "as what and why; no client reaches recovery or the re-issues");
     },

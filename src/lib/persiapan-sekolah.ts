@@ -54,3 +54,18 @@ export function persiapanSekolah(
     { kunci: "guru", selesai: aktif.length > 0 && tanpaGuru.length === 0, tanpaGuru },
   ];
 }
+
+/**
+ * D-101(e): how many School Admins the school has now, from the roles the page
+ * already read. One is never an error: the page then recommends a second,
+ * quietly, as recovery cover (D-101 (2) lets the school appoint one itself).
+ */
+export function jumlahAdminSekolah(
+  peran: readonly (PeranTerbaca & { institution_id: string | null; person_id: string })[],
+  sekolah: string,
+  sekarang: number,
+): number {
+  return new Set(peran
+    .filter((p) => p.role === "INSTITUTION_ADMIN" && !p.revoked_at && p.institution_id === sekolah && Date.parse(p.valid_until) > sekarang)
+    .map((p) => p.person_id)).size;
+}

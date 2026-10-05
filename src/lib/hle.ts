@@ -318,6 +318,11 @@ export type HleEvent =
   | "config.persiapan.guru"
   | "config.persiapan.guru.kurang"
   | "config.persiapan.guru.cara"
+  | "config.persiapan.admin_kedua"
+  | "config.angkat.judul"
+  | "config.angkat.arti"
+  | "config.angkat.ya"
+  | "config.angkat.batal"
   | "config.pindah.arti"
   | "config.pindah.dari"
   | "config.pindah.lihat"
@@ -1614,6 +1619,7 @@ export type HleEvent =
   | "keamanan.gagal.ALASAN_KOSONG"
   | "keamanan.gagal.DITOLAK"
   | "keamanan.gagal.BELUM_MASUK"
+  | "keamanan.gagal.SENDIRI"
   // BOB-29 (Gate 6): the shared-computer lock, «Komputer siapa ini?», «Keluar dari semua perangkat»
   | "kunci.judul"
   | "kunci.untuk"
@@ -2589,6 +2595,13 @@ const table: Table = {
   "config.persiapan.guru": { default: "Setiap Kelas punya guru", en: "Every class has a teacher" },
   "config.persiapan.guru.kurang": { default: "Kelas yang belum punya guru:", en: "Classes without a teacher yet:" },
   "config.persiapan.guru.cara": { default: "Beri peran Guru untuk Kelas itu di Peran & akses.", en: "Give the Guru role for that class under Roles & access." },
+  // D-101(e): a quiet recommendation, never an error
+  "config.persiapan.admin_kedua": { default: "Sekolah ini punya satu admin sekolah. Admin sekolah kedua dapat membantu memulihkan akun bila yang satu berhalangan; tambahkan di Peran & akses.", en: "This school has one school administrator. A second can help recover accounts when the first is away; add one in Roles & access." },
+  // D-101 (2): appointing another school administrator is confirmed by a second press
+  "config.angkat.judul": { default: "Jadikan admin sekolah?", en: "Make a school administrator?" },
+  "config.angkat.arti": { default: "Admin sekolah mengatur seluruh sekolah ini: struktur, data, peran, dan pemulihan akun. Penunjukan ini tercatat.", en: "A school administrator manages this whole school: its structure, data, roles and account recovery. The appointment is recorded." },
+  "config.angkat.ya": { default: "Ya, jadikan admin sekolah", en: "Yes, make them a school administrator" },
+  "config.angkat.batal": { default: "Batal", en: "Cancel" },
   "config.pindah.arti": { default: "Pindahkan seorang murid ke Kelas lain di sekolah ini, pada tahun ajaran yang sama, atau tempatkan murid yang dicatat di sebuah Tingkat ke salah satu Kelasnya. Ia tetap murid yang sama. Apa yang sudah ia kerjakan tetap tercatat di kelas tempat ia mengerjakannya, dan kelas lamanya tidak lagi menghitungnya sebagai muridnya sekarang.", en: "Move a student to another Kelas in this school, in the same academic year, or place a student recorded in a Tingkat into one of its classes. They stay the same student. What they have already done stays recorded with the class where they did it, and their old class no longer counts them as a current student." },
   "config.pindah.dari": { default: "Kelas murid sekarang", en: "The student's class now" },
   "config.pindah.lihat": { default: "Tampilkan murid", en: "Show students" },
@@ -3746,8 +3759,8 @@ const table: Table = {
   "aktivasi.ulang.rujukan": { default: "Rujukan", en: "Reference" },
   "keamanan.eyebrow": { default: "Konfigurasi", en: "Configuration" },
   "keamanan.judul": { default: "Keamanan akun", en: "Account security" },
-  "keamanan.intro": { default: "Pemulihan dengan PIN: lihat keadaan satu PINTAR ID, lalu atur ulang dengan alasan yang tercatat. Di bawahnya, catatan keamanan terbaru.", en: "Recovery with a PIN: see the state of one PINTAR ID, then reset it with a recorded reason. Below, the latest security record." },
-  "keamanan.ditolak": { default: "Halaman ini hanya untuk admin platform.", en: "This page is for the platform administrator only." },
+  "keamanan.intro": { default: "Pemulihan dengan PIN: lihat keadaan satu PINTAR ID, lalu atur ulang dengan alasan yang tercatat.", en: "Recovery with a PIN: see the state of one PINTAR ID, then reset it with a recorded reason." },
+  "keamanan.ditolak": { default: "Halaman ini untuk admin sekolah dan admin platform.", en: "This page is for school administrators and the platform administrator." },
   "keamanan.cari_judul": { default: "Pemulihan dengan PIN", en: "Recovery with a PIN" },
   "keamanan.id_label": { default: "PINTAR ID", en: "PINTAR ID" },
   "keamanan.lihat": { default: "Lihat", en: "Look up" },
@@ -3760,12 +3773,14 @@ const table: Table = {
   "keamanan.alasan_label": { default: "Alasan atur ulang (wajib, tercatat)", en: "Reason for the reset (required, recorded)" },
   "keamanan.atur_ulang": { default: "Atur ulang pemulihan PIN", en: "Reset PIN recovery" },
   "keamanan.mengatur": { default: "Mengatur ulang…", en: "Resetting…" },
-  "keamanan.selesai": { default: "Pemulihan dengan PIN sudah diatur ulang. Pemiliknya harus membuat PIN baru di Akun saya; pemiliknya dan penerima keamanan PINTAR dikirimi email.", en: "Recovery with a PIN has been reset. Its owner must make a new PIN in My account; the owner and PINTAR's security recipient are sent an email." },
+  "keamanan.selesai": { default: "Pemulihan dengan PIN sudah diatur ulang, dan semua sesi pemiliknya diakhiri. Pemiliknya harus membuat PIN baru di Akun saya; pemiliknya dan penerima keamanan PINTAR dikirimi email.", en: "Recovery with a PIN has been reset, and all its owner's sessions have ended. Its owner must make a new PIN in My account; the owner and PINTAR's security recipient are sent an email." },
   "keamanan.gagal.ID_TIDAK_SAH": { default: "Periksa PINTAR ID: 8 huruf dan angka.", en: "Check the PINTAR ID: 8 letters and digits." },
-  "keamanan.gagal.TIDAK_ADA": { default: "Tidak ada orang dengan PINTAR ID ini.", en: "Nobody has this PINTAR ID." },
+  "keamanan.gagal.TIDAK_ADA": { default: "Tidak ada orang dengan PINTAR ID ini yang bisa Anda bantu.", en: "Nobody you can help has this PINTAR ID." },
   "keamanan.gagal.ALASAN_KOSONG": { default: "Tulis alasannya. Alasan ini tercatat.", en: "Write the reason. It is recorded." },
-  "keamanan.gagal.DITOLAK": { default: "Hanya admin platform yang bisa melakukan ini.", en: "Only the platform administrator can do this." },
+  "keamanan.gagal.DITOLAK": { default: "Hanya admin sekolah dan admin platform yang bisa melakukan ini.", en: "Only a school administrator or the platform administrator can do this." },
   "keamanan.gagal.BELUM_MASUK": { default: "Sesi Anda sudah berakhir. Masuk lagi.", en: "Your session has ended. Sign in again." },
+  // D-101 (1): one's own recovery is assisted by another administrator, never by oneself
+  "keamanan.gagal.SENDIRI": { default: "Pemulihan akun Anda sendiri dibantu oleh admin lain, bukan dari sini.", en: "Your own account's recovery is done by another administrator, not here." },
   // BOB-29 (Gate 6): a class card (.kartu) is never named and types the card's PIN; staff type their personal PIN
   "kunci.judul": { default: "PINTAR terkunci", en: "PINTAR is locked" },
   "kunci.untuk": { default: "Terkunci untuk", en: "Locked for" },
@@ -3852,10 +3867,10 @@ const table: Table = {
   "email.aman.pulih_pin.isi_admin": { default: "PINTAR ID dan PIN yang cocok dipakai untuk mulai memulihkan akun ini.", en: "A matching PINTAR ID and PIN were used to start recovering this account." },
   "email.aman.diatur_ulang.subjek": { default: "Pemulihan dengan PIN untuk akun PINTAR Anda diatur ulang", en: "Recovery with a PIN for your PINTAR account was reset" },
   "email.aman.diatur_ulang.judul": { default: "Buat PIN baru", en: "Make a new PIN" },
-  "email.aman.diatur_ulang.isi": { default: "Admin platform PINTAR mengatur ulang pemulihan dengan PIN untuk akun Anda. PIN lama Anda tidak berlaku lagi: masuk ke PINTAR, lalu buat PIN baru di Akun saya.", en: "PINTAR's platform administrator reset recovery with a PIN for your account. Your old PIN no longer works: sign in to PINTAR, then make a new PIN in My account." },
+  "email.aman.diatur_ulang.isi": { default: "Admin PINTAR mengatur ulang pemulihan dengan PIN untuk akun Anda. PIN lama Anda tidak berlaku lagi, dan Anda sudah dikeluarkan dari semua perangkat: masuk ke PINTAR, lalu buat PIN baru di Akun saya.", en: "A PINTAR administrator reset recovery with a PIN for your account. Your old PIN no longer works, and you have been signed out of every device: sign in to PINTAR, then make a new PIN in My account." },
   "email.aman.diatur_ulang.bukan_anda": { default: "Jika Anda tidak memintanya, hubungi admin sekolah Anda.", en: "If you didn't ask for this, contact your school's administrator." },
   "email.aman.diatur_ulang.subjek_admin": { default: "Pemulihan dengan PIN diatur ulang", en: "PIN recovery reset" },
-  "email.aman.diatur_ulang.isi_admin": { default: "Pemulihan dengan PIN untuk PINTAR ID ini diatur ulang oleh admin platform. Pemiliknya harus membuat PIN baru.", en: "The platform administrator reset recovery with a PIN for this PINTAR ID. Its owner must make a new PIN." },
+  "email.aman.diatur_ulang.isi_admin": { default: "Pemulihan dengan PIN untuk PINTAR ID ini diatur ulang oleh admin sekolah atau admin platform. Pemiliknya harus membuat PIN baru.", en: "A school administrator or the platform administrator reset recovery with a PIN for this PINTAR ID. Its owner must make a new PIN." },
   "aktifkan.minta_sering": { default: "Kode untuk alamat ini sudah terlalu sering diminta, jadi kode tidak dikirim.", en: "A code has been asked for this address too often, so no code was sent." },
   "aktifkan.email_tertahan": { default: "PINTAR belum bisa mengirim email saat ini, jadi kode tidak dikirim.", en: "PINTAR can't send email right now, so no code was sent." },
   "aktifkan.tidak_tersedia": { default: "PINTAR sedang tidak dapat memproses ini. Coba lagi sebentar lagi.", en: "PINTAR can't handle this right now. Try again in a little while." },

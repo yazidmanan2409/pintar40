@@ -122,6 +122,15 @@ export async function grantRoleAction(fd: FormData): Promise<void> {
   }
   if (role !== "SYSTEM_ADMIN" && !scope) back("roles", { ok: false, kode: "ROLE_SCOPE_REQUIRED" });
   const supabase = await supabaseServer();
+  // D-101 (2): a School Admin appoints another explicitly. «Admin sekolah» named on the form comes back to Peran &
+  // akses once, saying what it will do, and is granted on that second press; the Platform Admin's grant is as before.
+  if (role === "INSTITUTION_ADMIN" && str(fd, "yakin") !== "ya") {
+    const { data: isSys } = await supabase.rpc("is_system_admin");
+    if (isSys !== true) {
+      const q = new URLSearchParams({ bagian: "roles", angkat: person ?? "", lingkup: scope ?? "", sampai: until });
+      redirect(`/konfigurasi?${q.toString()}#roles`);
+    }
+  }
   const { error } = await supabase.rpc("grant_role", {
     p_person: person,
     p_role: role,

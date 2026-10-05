@@ -575,9 +575,14 @@ begin
                   and (g.exposure <> 'LEARNER' or g.note !~ 'self-service identity, the caller''s own')) then
         v_probs := selftest.f11_note(v_probs, 'F16-N01', 'a self-service identity function is not registered as LEARNER, the caller''s own');
       end if;
-      if exists (select 1 from public.client_rpc_registry g where g.function_name in ('correct_username', 'admin_reset_recovery', 'security_events')
+      if exists (select 1 from public.client_rpc_registry g where g.function_name in ('correct_username', 'security_events')
                   and g.authorization_kind is distinct from 'SYSTEM_ADMIN') then
         v_probs := selftest.f11_note(v_probs, 'F16-N01', 'a platform-admin function is not declared SYSTEM_ADMIN');
+      end if;
+      -- D-101 (1): the assisted reset is the nearest authority's, a School Admin's scope as well as the platform's
+      if not exists (select 1 from public.client_rpc_registry g where g.function_name = 'admin_reset_recovery'
+                      and g.authorization_kind = 'SCOPE' and g.authorization_requirement = 'INSTITUTION_ADMIN') then
+        v_probs := selftest.f11_note(v_probs, 'F16-N01', 'the assisted reset is not declared as the School Admin''s scope (D-101)');
       end if;
       -- refused by the database, as the client roles
       perform selftest.as_user(v_ea);
@@ -646,7 +651,7 @@ begin
         'the six identity tables have RLS on, no policies and no grant for anon, authenticated or service_role; recovery and '
           || 'the code counters are service_role''s only and no client RPC; the PIN check, the ID generator and normaliser and '
           || 'the rule functions are nobody''s; the seven client functions are registered, the four self-service ones as LEARNER, the '
-          || 'caller''s own, and the platform admin''s as SYSTEM_ADMIN; '
+          || 'caller''s own, correct_username and security_events as SYSTEM_ADMIN, and admin_reset_recovery as the School Admin''s scope (D-101); '
           || 'a teacher and a visitor are refused 42501 by the database; the platform admin reads identity events only'
       ]) as t(tid, tarea, tdetail)
   loop

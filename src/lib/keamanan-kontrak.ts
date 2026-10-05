@@ -1,11 +1,12 @@
 /**
- * BOB-28 (C5 path (2), C7): THE PLATFORM ADMIN'S PIN-RECOVERY TOOL, the
+ * BOB-28 (C5 path (2), C7), D-101 (1): THE ASSISTED PIN-RECOVERY TOOL, the
  * contract between /api/keamanan/pemulihan and Konfigurasi › Keamanan.
  *
  * Look up one PINTAR ID (who, and the state of their PIN recovery), then an
  * audited reset with a stated reason: the ladder back to 0 and a NEW PIN
- * required; the owner and the security recipient are told. The platform
- * admin's only; the database refuses everyone else.
+ * required; the owner and the security recipient are told. The Platform
+ * Admin's, or a School Admin's for a person their school has (D-101); never
+ * one's own; the database decides.
  */
 export type KeadaanPemulihan = "NORMAL" | "LOCKED" | "SUSPENDED";
 
@@ -26,8 +27,10 @@ export const STATUS_PEMULIHAN_ADMIN = {
   PERMINTAAN_DITOLAK: 403,
   LAYANAN_TIDAK_TERSEDIA: 503,
   BELUM_MASUK: 401,
-  /** not the platform admin */
+  /** neither the Platform Admin nor a School Admin */
   DITOLAK: 403,
+  /** D-101: one's own recovery is never reset with an administrator's authority */
+  SENDIRI: 403,
   ID_TIDAK_SAH: 400,
   /** no person holds this ID */
   TIDAK_ADA: 404,

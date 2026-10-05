@@ -233,7 +233,7 @@ rollback;
 
 // ═══════════════════════════════════════════════════════════════ the running app
 /** A browser at PINTAR: Peramban's cookies, and a page load as a browser makes it (Sec-Fetch-Dest: document). */
-class Komputer extends Peramban {
+export class Komputer extends Peramban {
   async halaman(path: string): Promise<Response> {
     const headers: Record<string, string> = { "sec-fetch-dest": "document", "sec-fetch-mode": "navigate", "x-real-ip": this.ip };
     if (this.kue.size) headers.cookie = [...this.kue].map(([k, v]) => `${k}=${v}`).join("; ");
@@ -265,7 +265,7 @@ const tempat = (r: Response) => r.headers.get("location") ?? "";
 const diam = (idSesi: string, menit: number) =>
   psql(`update public.device_sessions set last_activity_at = now() - make_interval(secs => ${Math.round(menit * 60)}) where session_id = ${lit(idSesi)}`);
 
-async function postgrest(url: string, anon: string, akses: string): Promise<number> {
+export async function postgrest(url: string, anon: string, akses: string): Promise<number> {
   return (await fetch(`${url}/rest/v1/accounts?select=kind&limit=1`, { headers: { apikey: anon, authorization: `Bearer ${akses}` } })).status;
 }
 async function segarkan(url: string, anon: string, refresh: string): Promise<{ ok: boolean; akses: string | null }> {
