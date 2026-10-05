@@ -335,6 +335,8 @@ export const d101Tests: SelfTest[] = [
       c.expect(JSON.stringify(v.tulis_sebelum) === JSON.stringify(["LEWAT", "LEWAT", "LEWAT"]), `the three sessions before the writes: ${JSON.stringify(v.tulis_sebelum)}`);
       c.expect(v.tulis_sesudah?.kartu === tolak && v.tulis_sesudah?.pulih === tolak,
         `after a card's re-issue and a recovered password, the old tokens at the pre-request: ${JSON.stringify(v.tulis_sesudah)} (the gap: still served)`);
+      // RESTATED FOR D-102 (owner ruling, 5 Oct): an activation's first password now ends the wizard's session too
+      // (20261123100000), so the old token is refused and Auth's row is gone; it was "ends nothing" under D-101.
       c.expect(v.tulis_sesudah?.aktivasi === tolak && Number(v.tulis_auth?.aktivasi) === 0 && Number(v.tulis_auth?.kartu) === 0,
         `an activation's first password left its session served (D-102), or a re-issue left Auth's row: ${JSON.stringify([v.tulis_sesudah?.aktivasi, v.tulis_auth])}`);
       // (5)
