@@ -53,7 +53,9 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
         run: |
-          set -uo pipefail
+          # GitHub runs a step under bash -e; a check that exits non-zero must be
+          # reported, never end the step (run 37389383812 died at the backups here).
+          set +e -uo pipefail
           bad=""; note=""
           # 1. the sign-in page, strictly (no redirect followed: a login wall or a parked page is not PINTAR)
           code=$(curl -sS -o /tmp/masuk.html -w '%{http_code}' --max-time 20 "$APP_ORIGIN/masuk" || echo 000)

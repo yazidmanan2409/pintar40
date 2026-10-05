@@ -37,7 +37,12 @@
  *          on (PINTAR_PRODUCTION_WATCH = on; skipped, at no cost, until then); looks at production from outside with GET
  *          only (the sign-in page, strictly, without following a redirect; Supabase Auth's health; the TLS certificate's
  *          remaining days; the restore point through restore-point.mjs, where an unreadable backup list is reported and
- *          not failed); opens one issue on a failure, comments on it while it lasts, and closes it when green again
+ *          not failed); opens one issue on a failure, comments on it while it lasts, and closes it when green again;
+ *          and its look step EXECUTED as GitHub runs it (bash -e), against a local stand-in for the app, Auth and the
+ *          Management API: all well but the backup list refused (403) reports the 403 as a note and fails nothing; a
+ *          sign-in page answering 500 and a backup 30 hours old are both named as failures; a fresh backup leaves
+ *          nothing to say (the first dispatch, run 37389383812, died at the backup check because bash -e ended the
+ *          step on restore-point.mjs's exit before the 403 could be reported)
  *
  * #150 G7 (owner, 6 Oct): THE READINESS CHECK SEES WHAT A RESTORE BREAKS.
  *
@@ -452,9 +457,54 @@ export const dr150Tests: SelfTest[] = [
       const issue = body.slice(body.indexOf("name: Open, update or close"));
       c.expect(/select\(\.title == \$t/.test(issue) && /\/issues\/\$open\/comments/.test(issue) && /"state":"closed","state_reason":"completed"/.test(issue)
         && /exit 1/.test(issue), "a failure does not open (or update) the one issue and fail the run, or green does not close it");
+      // the look step, executed exactly as GitHub runs a step (bash -e), against a stand-in for the app, Auth and the API
+      const mulai = body.indexOf("name: Look at production");
+      const jalan = mulai < 0 ? "" : body.slice(body.indexOf("run: |", mulai) + 6, body.indexOf("- name:", mulai + 10));
+      const skrip = jalan.split("\n").map((l) => l.replace(/^ {10}/, "")).join("\n");
+      const dir = mkdtempSync(join(tmpdir(), "dr150-watch-"));
+      writeFileSync(join(dir, "openssl"), `#!/bin/sh\ncase "$*" in *x509*) echo "notAfter=$(date -u -d '+77 days' '+%b %d %H:%M:%S %Y GMT')";; *) cat > /dev/null;; esac\n`, { mode: 0o755 });
+      const lihat = async (masuk: number, cadangan: number, jam: number) => {
+        const srv = createServer((req, res) => {
+          const u = req.url ?? "";
+          if (u.startsWith("/masuk")) { res.writeHead(masuk, { "content-type": "text/html" }); res.end("<title>PINTAR</title>"); return; }
+          if (u.startsWith("/auth/v1/health")) { res.writeHead(200); res.end("{}"); return; }
+          if (u.includes("/database/backups")) {
+            res.writeHead(cadangan, { "content-type": "application/json" });
+            res.end(JSON.stringify(cadangan === 200 ? { backups: [{ inserted_at: new Date(Date.now() - jam * 3_600_000).toISOString(), status: "COMPLETED" }],
+              pitr_enabled: false, walg_enabled: true } : { message: "Forbidden resource" }));
+            return;
+          }
+          res.writeHead(404); res.end();
+        });
+        await new Promise<void>((ok) => srv.listen(0, "127.0.0.1", () => ok()));
+        const base = `http://127.0.0.1:${(srv.address() as AddressInfo).port}`;
+        const out = join(dir, `out-${masuk}-${cadangan}-${jam}`);
+        writeFileSync(out, "");
+        try {
+          return await new Promise<{ code: number; text: string; bad: string; note: string }>((ok) => {
+            const p = spawn("bash", ["-e", "-c", skrip], { cwd: repoRoot, env: { PATH: `${dir}:${process.env.PATH ?? ""}`, NODE_ENV: "production",
+              APP_ORIGIN: base, SUPABASE_URL: base, SUPABASE_ANON_KEY: "anon", SUPABASE_ACCESS_TOKEN: "sbp_standin", SUPABASE_API: base,
+              PRODUCTION_SUPABASE_PROJECT_REF: "refstandin", GITHUB_OUTPUT: out, GITHUB_STEP_SUMMARY: join(dir, "summary") } });
+            let text = ""; p.stdout.on("data", (b) => (text += b)); p.stderr.on("data", (b) => (text += b));
+            p.on("close", (code) => {
+              const o = readFileSync(out, "utf8");
+              ok({ code: code ?? -1, text, bad: /^bad=(.*)$/m.exec(o)?.[1] ?? "(none written)", note: /^note=(.*)$/m.exec(o)?.[1] ?? "(none written)" });
+            });
+          });
+        } finally { srv.close(); }
+      };
+      const a = await lihat(200, 403, 0);
+      c.expect(a.code === 0 && a.bad === "" && /not readable with the production token/.test(a.note) && /tls: 7[67] days left/.test(a.text),
+        `all well but the backup list refused (403): exit ${a.code}, bad «${a.bad}», note «${a.note}»; ${a.text.trim().split("\n").slice(-3).join(" | ")}`);
+      const b = await lihat(500, 200, 30);
+      c.expect(b.code === 0 && /the sign-in page answered HTTP 500/.test(b.bad) && /30\.0 hours old, older than 26/.test(b.bad),
+        `a 500 sign-in page and a backup 30 hours old: exit ${b.code}, bad «${b.bad}»; ${b.text.trim().split("\n").slice(-3).join(" | ")}`);
+      const d = await lihat(200, 200, 3);
+      c.expect(d.code === 0 && d.bad === "" && d.note === "", `all well, a backup 3 hours old: exit ${d.code}, bad «${d.bad}», note «${d.note}»`);
       return c.verdict("the production watch runs from main, on its schedule only once the owner turns it on, looks at production from outside " +
         "with GET only (sign-in page strictly, Auth health, the certificate's days, the restore point; an unreadable backup list reported, not " +
-        "failed), opens or updates one issue on a failure and closes it when green");
+        "failed), opens or updates one issue on a failure and closes it when green; its look step, executed under bash -e against a stand-in, " +
+        "reports a refused backup list as a note, names a 500 sign-in page and a 30-hour-old backup as failures, and says nothing when all is well");
     },
   },
 ];
