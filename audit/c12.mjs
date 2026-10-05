@@ -285,11 +285,13 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
     await tutupTur(b);
     await b.getByRole("link", { name: "Pembelajaran Saya" }).first().click();
     await b.waitForURL((u) => u.pathname === "/belajar", { timeout: SLOW });
-    await b.waitForLoadState("networkidle");
+    // a client-side navigation: the load state was reached by /mengajar already, so wait for the home's own list
+    await b.locator('section[data-tur="daftar"]').first().waitFor({ timeout: SLOW }).catch(() => {});
+    await b.getByText(JUDUL[0], { exact: true }).first().waitFor({ timeout: SLOW }).catch(() => {});
     const rumah = norm(await bodyText(b));
     rec.shots.push(await shot(b, "c12-pembelajaran-saya"));
     const keduanya = JUDUL.every((t) => rumah.includes(t));
-    notes.push(`«Pembelajaran Saya» lists both Bab with their [UJI INTERNAL] titles: ${keduanya}`);
+    notes.push(`«Pembelajaran Saya» lists both Bab with their [UJI INTERNAL] titles: ${keduanya}${keduanya ? "" : ` (the page: ${rumah.slice(0, 400)})`}`);
     if (!keduanya) rec.verdict = "FAIL";
     for (let i = 0; i < 2; i++) {
       const tugas = C.tugas[i];
@@ -338,6 +340,14 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
     }
     // the certificates: listed, opened, and each verified by its token by an anonymous visitor
     C.sertifikat = [];
+    // the player asks for the certificate as the test is handed in and never waits for it (doc 04 §7): the list shows
+    // what has been issued, so the walk waits until both are, and says how long that took
+    const t0 = Date.now();
+    const terbit = () => Number(q(`select count(*) from public.certificates c join public.assessment_sessions s on s.id = c.session_id
+      join public.assessment_assignments aa on aa.id = s.assessment_assignment_id where aa.learning_assignment_id in ('${C.tugas.join("','")}')
+      and s.person_id = '${C.guru}' and c.status = 'ISSUED'`));
+    for (let k = 0; k < 60 && terbit() < 2; k++) await b.waitForTimeout(500);
+    notes.push(`certificates issued ${terbit()} (waited ${Math.round((Date.now() - t0) / 1000)} s after the last hand-in)`);
     await b.goto(`${APP}/belajar/sertifikat`, { waitUntil: "networkidle" });
     for (let i = 0; i < 2; i++) {
       const tautan = b.locator(`a[href="/belajar/${C.tugas[i]}/sertifikat"]`).first();
@@ -480,6 +490,7 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => /^\d+\|/.tes
     rec.shots.push(await shot(f, "c12-catatan-fasilitator"));
     await f.goto(`${APP}/mengajar/${C.kelasA}`, { waitUntil: "networkidle" });
     const kelasTeks = norm(await f.locator("main").innerText().catch(() => ""));
+    const judulKelas = (await f.locator("main h2").allInnerTexts()).map((x) => norm(x).toLowerCase());
     const kp = await masuk("kepalaPd", ORANG_PD.kepalaPd.email);
     const kepala = await bukaCatatan(kp, "/pimpinan", kelasPd);
     rec.shots.push(await shot(kp, "c12-catatan-kepala"));
@@ -489,11 +500,20 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => /^\d+\|/.tes
     await dc.close();
     const admin = await bukaCatatan(a, `/konfigurasi?muat=${Date.now()}#peserta`, kelasPd);
     rec.shots.push(await shot(a, "c12-catatan-admin"));
-    const penuh = (x) => x.di === `/pengembangan/${C.kelasA}` && x.teks.includes(people.guru.name) && /Pelajaran selesai/.test(x.teks) && /Hasil:/.test(x.teks) && /Tercapai/.test(x.teks);
-    const terbatas = admin.di === `/pengembangan/${C.kelasA}` && admin.teks.includes(people.guru.name) && /Selesai/.test(admin.teks) && !/Pelajaran selesai/.test(admin.teks) && !/Hasil:/.test(admin.teks);
+    // a participant's name is a section heading, drawn in capitals (.pin-sec > h2): compared without case. FULL: per Bab,
+    // «Pelajaran selesai: 2/2» and «Hasil: <n> % · Tercapai» (both Bab passed); COMPLETION: «Selesai: Ya», neither of those
+    const nama = (x) => x.teks.toLowerCase().includes(people.guru.name.toLowerCase());
+    const hitung = (x, re) => (x.teks.match(re) ?? []).length;
+    const penuh = (x) => x.di === `/pengembangan/${C.kelasA}` && nama(x) && hitung(x, /Pelajaran selesai: 2\/2/gi) === 2
+      && hitung(x, /Hasil: \d[\d.,]*\s?% · Tercapai/gi) === 2;
+    const terbatas = admin.di === `/pengembangan/${C.kelasA}` && nama(admin) && hitung(admin, /Selesai: Ya/gi) === 2
+      && !/Pelajaran selesai/i.test(admin.teks) && !/Hasil:/i.test(admin.teks);
+    const ringkas = (x) => (x.di ? x.teks.slice(x.teks.toLowerCase().indexOf(people.guru.name.toLowerCase()), undefined).slice(0, 300) : `not reached: ${x.teks}`);
+    const pesertaJudul = judulKelas.includes("peserta"), muridJudul = judulKelas.includes("murid");
     notes.push(`on screen: the facilitator ${penuh(fasil)}, the PD Kepala departemen ${penuh(kepala)}, the Dekan ${penuh(dekan)} (full columns); the school admin ${terbatas} (completion only); ` +
-      `the facilitator's Kelas says «Peserta» ${/Peserta/.test(kelasTeks)} and names the Guru ${kelasTeks.includes(people.guru.name)}, «Murid» ${/\bMurid\b/.test(kelasTeks)}`);
-    if (!penuh(fasil) || !penuh(kepala) || !penuh(dekan) || !terbatas || !/Peserta/.test(kelasTeks) || /\bMurid\b/.test(kelasTeks)) rec.verdict = "FAIL";
+      `the facilitator's Kelas heads its list «Peserta» ${pesertaJudul}, «Murid» ${muridJudul}, and names the Guru ${kelasTeks.toLowerCase().includes(people.guru.name.toLowerCase())}` +
+      ([fasil, kepala, dekan].every(penuh) && terbatas ? "" : `; the record as read: facilitator «${ringkas(fasil)}» | admin «${ringkas(admin)}»`));
+    if (!penuh(fasil) || !penuh(kepala) || !penuh(dekan) || !terbatas || !pesertaJudul || muridJudul) rec.verdict = "FAIL";
     // the refused, at the record's address
     for (const [siapa, email, pakaiKartu] of [["another Guru", ORANG_PD.guruLain.email, false], ["another Kepala departemen", people.kaprodi.email, false],
       ["a student", null, true]]) {
@@ -601,10 +621,15 @@ end $y$;`);
     const b = await masuk("guru", people.guru.email);
     await b.goto(`${APP}/mengajar/${kelasSatuA()}/siapkan`, { waitUntil: "networkidle" });
     await tutupTur(b);
+    await b.locator("main h1").first().waitFor({ timeout: SLOW }).catch(() => {});
     const daftar = norm(await b.locator("main").innerText().catch(() => ""));
     rec.shots.push(await shot(b, "c12-siapkan-kelas1a"));
-    notes.push(`Kelas 1A's Siapkan offers a PD release ${/\[UJI INTERNAL\]/.test(daftar)}, the academic Bab 1 ${/Matematika Kelas 5/.test(daftar)}`);
-    if (/\[UJI INTERNAL\]/.test(daftar) || !/Matematika Kelas 5/.test(daftar)) rec.verdict = "FAIL";
+    const rilisPd2 = q(`select r.id from public.plp_releases r where r.course_id = '${C.kursus[1]}' and r.status = 'PUBLISHED' order by r.created_at desc limit 1`);
+    const cocok = await gs.rpc("releases_matching_place", { p_node: kelasSatuA(), p_releases: [rilisAkademik, rilisPd, rilisPd2] });
+    const boleh = cocok.error ? `error ${cocok.error.code}` : (cocok.data ?? []).map((x) => (typeof x === "string" ? x : Object.values(x)[0]))
+      .map((x) => (x === rilisAkademik ? "AKADEMIK" : x === rilisPd || x === rilisPd2 ? "PD" : "?")).sort().join("/");
+    notes.push(`Kelas 1A's Siapkan loaded ${daftar.length > 0} and offers a PD release ${/\[UJI INTERNAL\]/i.test(daftar)}; the releases that may be given to Kelas 1A, asked as its teacher: ${boleh || "none"}`);
+    if (!daftar || /\[UJI INTERNAL\]/i.test(daftar) || boleh !== "AKADEMIK") rec.verdict = "FAIL";
     return notes.join("; ");
   });
 
@@ -643,13 +668,16 @@ end $y$;`);
     const b = await masuk("guru", people.guru.email);
     await b.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
     await tutupTur(b);
-    const kelas = b.locator(`a[href^="/mengajar/${kelasSatuA()}"]`).first();
+    // the class itself, by its exact address (the home's «Siapkan …» card also starts with it)
+    const kelas = b.locator(`a[href="/mengajar/${kelasSatuA()}"]`).first();
     let tab = false;
     if (await kelas.count()) {
       await kelas.click();
-      await b.waitForURL((u) => u.pathname.startsWith(`/mengajar/${kelasSatuA()}`), { timeout: SLOW }).catch(() => {});
-      await b.waitForLoadState("networkidle");
-      tab = (await b.locator(".pin-refusal").count()) === 0 && /Kelas 1A/.test(norm(await bodyText(b)));
+      await b.waitForURL((u) => u.pathname === `/mengajar/${kelasSatuA()}`, { timeout: SLOW }).catch(() => {});
+      await b.locator("main h2").first().waitFor({ timeout: SLOW }).catch(() => {});
+      const judul = (await b.locator("main h2").allInnerTexts()).map((x) => norm(x).toLowerCase());
+      tab = new URL(b.url()).pathname === `/mengajar/${kelasSatuA()}` && (await b.locator(".pin-refusal").count()) === 0
+        && /kelas 1a/i.test(norm(await bodyText(b))) && judul.includes("murid") && !judul.includes("peserta");
     }
     const satuOrang = q(`select (select count(distinct e.person_id) from public.enrollments e join public.memberships m on m.enrollment_id = e.id where m.node_id = '${C.kelasA}' and e.person_id = '${C.guru}')
       || '|' || (select count(distinct s.person_id) from public.assessment_sessions s where s.id in ('${C.sesi.join("','")}'))
