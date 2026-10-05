@@ -11,19 +11,42 @@ predictably and verifiably after a serious failure. No shortcuts. No paper-only 
 
 ## Verdict: **NOT PASS**
 
-PINTAR cannot yet be shown to be reconstructable after a serious failure. Built and proven today: deploys can no longer
-silently replace the durable secrets (G5); no production migration runs without a recorded restore point (G6); the
-readiness check now catches every drift the restore rehearsal produced (G7). Not yet proven, and each needs the owner:
+The objective is to prove that PINTAR can be reconstructed safely, predictably and verifiably after a serious failure.
+That is not yet proven. The controls PINTAR itself owns are built and proven (A). The recovery that depends on the
+provider and the owner has not been carried out (B), and B is what decides the verdict. ENGINEERING COMPLETE (declared
+5 Oct) does not soften this.
 
-1. **No hosted restore has been performed (G2).** Supabase's "Restore to a new project" exists only in the dashboard;
-   no API or tool this session holds can start or delete one. RTO is still unmeasured.
-2. **Production's backups are still unseen (G1).** The production token is refused the backup list (HTTP 403). G6 now
-   depends on that list, so it **refuses every production migration** until the token may read backups.
-3. **No copy outside Supabase, and no Storage backup (G3/G4).** This is a design awaiting the owner's decisions.
-4. **The two durable secrets exist only in Vercel (G5's escrow).** They can no longer be replaced silently, but there is
-   still no copy to recover them from. The escrow is part of G3's design and custody.
+### A. Recovery engineering readiness: the controls under PINTAR's own control — implemented and proven
 
-PASS needs all four, plus a recovery verification rerun that shows them. The criteria are in the closing table below.
+| Control | Proof |
+|---|---|
+| G5: the production deploy never replaces `CARD_PEPPER` or `CERT_SECRET_KEY_V1` silently | DR-S01..S03, red on the old workflow, green; CI CI_FINAL |
+| G6: no production migration without a recorded restore point (a completed backup ≤ 26 h) | DR-S04, DR-S05; CI CI_FINAL |
+| G7: readiness sees restore drift by name | DR-D01 (planted drift, CI's database); **on a real restore, rehearsal 37389380945: 7 rows FAIL on the copy, each naming what drifted; staging 24/24 PASS** |
+| G10: production is watched from outside, one self-closing issue, off until switched on | DR-S06, which now executes the step under `bash -e`; watch run WATCH_FINAL |
+| The rehearsal's own instruments, corrected | the readiness count (`'\| FAIL'` → `^FAIL`); the two stale readiness rows restated; both kept on the record below |
+| G8: the RPO decided and recorded | D-103 |
+| G3/G4: the off-platform backup designed | `docs/recovery/OFFSITE-BACKUP-DESIGN.md` (design only, as authorised) |
+
+**Not yet built on PINTAR's side:** the PINTAR logical-restore procedure. It must re-apply every object's rights,
+recreate the `auth.users` triggers (the step itself is proven) and restore the bucket. It is part of G3/G4 and waits on
+the same authorisation. Until then, a logical restore leaves the 6 FAIL rows the rehearsal shows after its corrected
+step.
+
+### B. Production recovery readiness: the provider and owner actions — not completed
+
+| # | Blocker | Why it blocks | What clears it |
+|---|---|---|---|
+| B1 | **G2: no hosted restore performed; RTO unmeasured** | Supabase's "Restore to a new project" is the production recovery path. Whether it keeps PINTAR's triggers, rights, pre-request and bucket is unproven, and so is how long it takes | the owner starts it from staging's dashboard; the coordinator verifies and times it; the owner deletes the copy |
+| B2 | **G1: production's backups never seen** | the existence, kind, status and age of the backups a restore would use are an assumption (HTTP 403) | the production token may read the project's backups |
+| B3 | **G6 refuses every production apply until B2** | the restore-point check fails closed by design | B2 |
+| B4 | **G3/G4: no copy outside Supabase; Storage in no backup** | deleting the project or losing the account loses everything; Storage files are lost on any restore | the owner's decisions in the design; then build, a restore drill, one CI |
+| B5 | **G5 escrow: the two secrets exist only in Vercel** | losing Vercel's environment now stops the deploy instead of breaking cards and certificates, but nothing can recover the values | part of B4 (`secrets.age`) |
+| B6 | G9: recovery rests on one person | — | the owner's choice of a second administrator and custodian |
+| B7 | G10 is off | a failure is still noticed only when reported | the owner sets `PINTAR_PRODUCTION_WATCH` to `on` |
+
+**PASS requires B1, B2 and B4 with B5 cleared, with a recovery verification rerun showing them.** B6 and B7 are owner
+decisions that should not be left open once real schools depend on PINTAR.
 
 ## The closing table
 
@@ -32,12 +55,12 @@ PASS needs all four, plus a recovery verification rerun that shows them. The cri
 | G1 | **Partly established; backup list unread** | see G1 below |
 | G2 | **Not performed: needs the owner's two dashboard actions** | see G2 below |
 | G3/G4 | **Designed, not built** (owner's approval needed) | `docs/recovery/OFFSITE-BACKUP-DESIGN.md` |
-| G5 | **Guard built and proven; escrow waits on G3's custody** | `b4bd543`; DR-S01..S03 red on the old workflow, green; CI RUN_CI |
-| G6 | **Built and proven** (blocks production applies until G1's token can read backups) | `870fdac`; DR-S04, DR-S05; CI RUN_CI |
-| G7 | **Built and proven**, plus two defects found and fixed | `870fdac`; DR-D01; rehearsal RUN_REHEARSAL |
+| G5 | **Guard built and proven; escrow waits on G3's custody** | `b4bd543`; DR-S01..S03 red on the old workflow, green; CI CI_FINAL |
+| G6 | **Built and proven** (blocks production applies until G1's token can read backups) | `870fdac`; DR-S04, DR-S05; CI CI_FINAL |
+| G7 | **Built and proven**, plus two defects found and fixed | `870fdac`; DR-D01; rehearsal 37389380945 |
 | G8 | **Recorded**: D-103 | `docs/coordination/DECISIONS.md` |
 | G9 | Recommendations (owner's decisions) | see G9 below |
-| G10 | **Minimum built, off until the owner turns it on** | `7ffbacc`; DR-S06; watch run RUN_WATCH |
+| G10 | **Minimum built, off until the owner turns it on**; one defect found by its first run and fixed | `7ffbacc`, `babafd5`; DR-S06; watch runs 37389383812 (died, the defect) and WATCH_FINAL |
 
 ### G1. Production's backup configuration (read only; nothing changed)
 
@@ -166,7 +189,18 @@ Every G7 row FAILs and names what differs, for example:
 - "138 relation(s) anon may touch: …";
 - "279 differ: +academic_periods_append_only …".
 
-On a real restore: REHEARSAL_RESULT
+**On a real restore** (rehearsal 37389380945, `main` `6de0b9c`): staging reads **24 PASS, 0 FAIL**. The copy restored
+by Supabase's documented procedure reads **17 PASS, 7 FAIL**, and every one of the seven is restore drift, named:
+- 490 functions `anon` may execute;
+- 9 client write grants on `audit_log`;
+- 138 relations `anon` may touch;
+- 280 functions `authenticated` may execute that it must not;
+- 223 table-right differences;
+- 0 of 3 `auth.users` triggers;
+- no `assets` bucket.
+
+After the corrected trigger step, 18 PASS and 6 FAIL: the trigger row passes, and exactly the rights and the bucket
+remain. Rows that should hold did hold: the pre-request (kept by `roles.sql`), owners, row security, policies.
 
 ### G8. Recorded
 
@@ -194,7 +228,14 @@ No implementation: each of these is a person or an account, and none is assumed.
 
 On a failure it opens one GitHub issue, comments on it while the failure lasts, and closes it when everything is green
 again. GitHub notifies the repository's watchers; no paid service is used. Its hourly schedule is skipped at no cost
-until the owner sets the repository variable `PINTAR_PRODUCTION_WATCH` to `on`. One dispatched run: RUN_WATCH_RESULT.
+until the owner sets the repository variable `PINTAR_PRODUCTION_WATCH` to `on`. **Its first run found a defect in itself** (run 37389383812, `main` `6de0b9c`):
+- the sign-in page answered 200, Auth was healthy, and TLS had 77 days left;
+- then the step died at the backup check, because GitHub runs a step under `bash -e` and `restore-point.mjs`'s exit on
+  the expected 403 ended the step before the 403 could be reported. No issue was opened.
+
+DR-S06 had only read the workflow's text, so it missed this. It now **executes the step under `bash -e`** against a
+local stand-in. Red on the old step: exit 1 right after the TLS line, as in the run. Green after `set +e` (`babafd5`).
+Rerun on the fixed step: WATCH_FINAL.
 
 **Owner's decisions:** turn it on, and how often. Who watches the repository; GitHub emails watchers about the issue.
 
@@ -210,7 +251,18 @@ until the owner sets the repository variable `PINTAR_PRODUCTION_WATCH` to `on`. 
 
 ## The recovery verification rerun
 
-RERUN_SECTION
+Run on `main` after the candidate's final CI (CI CI_FINAL, 35/35):
+
+| Check | Run | Result | Classification |
+|---|---|---|---|
+| Restore rehearsal (staging, read only; logical procedure) | 37389380945 | backup 283 s, 25.3 MB, nothing moved during it; documented restore exit 3 at `roles.sql:17` (H6); tolerant restore 4 s, 7 errors; 150/157 tables byte-identical | as 5 Oct: no PINTAR data lost; H4, H5, H6 reproduced |
+| — tolerant restore's 7 errors | | the reserved role parameter; 4 Auth objects and 1 Storage column newer than the CLI's local stack | version skew of the rehearsal target, not a PINTAR defect; it drops the `assets` bucket row, which G7 now reports |
+| — facts | | triggers lost; grants changed (490 functions, 137 tables); 1 function's comments (`content_canonical_payload`, behaviour unchanged); policies, public triggers, pre-request, extensions, owners and Storage metadata (28 objects, 206 MB) the same | as 5 Oct |
+| — readiness | | staging 24/24 PASS; copy 7 FAIL, then 6 after the corrected step | **G7 proven on a real restore** |
+| Production watch, fixed step | WATCH_FINAL | WATCH_RESULT | |
+| Staging's backups and add-ons, the rehearsal's token | 37389380945 | HTTP 403 | the same permission gap as G1 |
+
+Not rerun, because it cannot be: the hosted restore (B1). Nothing here substitutes for it.
 
 ---
 
