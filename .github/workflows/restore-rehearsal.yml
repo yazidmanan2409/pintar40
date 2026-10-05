@@ -138,7 +138,8 @@ jobs:
 
       - name: The restore into the empty stack (Supabase's documented procedure)
         run: |
-          set -uo pipefail
+          # the runner's shell stops at the first failing command (bash -e); a failed restore is a finding to read, not the end
+          set +e -uo pipefail
           cd "$RUNNER_TEMP/cadangan"
           # psql's own errors only: the statement's error line, never DETAIL lines (which can quote values)
           saring() { grep -E '^psql:.*(ERROR|FATAL)' | sed -E 's/(DETAIL|Key \().*//' | cut -c1-220 | head -${1:-15}; }
@@ -165,7 +166,7 @@ jobs:
           DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
           LC_ALL: C
         run: |
-          set -uo pipefail
+          set +e -uo pipefail
           PGOPTIONS='-c default_transaction_read_only=on' psql "$LOKAL_DB" -At -F '|' -f audit/restore/fakta.sql > "$RUNNER_TEMP/pulih.txt" 2> "$RUNNER_TEMP/pulih-fakta.err" || true
           S="$RUNNER_TEMP/sesudah.txt"; B="$RUNNER_TEMP/sebelum.txt"; P="$RUNNER_TEMP/pulih.txt"
           # a table counts as restored when the copy matches staging after the backup (or before it, had it moved)
