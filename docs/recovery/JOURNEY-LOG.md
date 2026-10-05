@@ -358,3 +358,13 @@ Gate 3 stays held; the coordinator does not merge it.
       - 37274005721 on `03451db`: red on one row, D101-A02's page step (307). The test's browser had not answered Gate 6's «Komputer siapa ini?», which a staff browser meets before its first page. That was a harness omission, not a product failure; its lookup, reset and refusals had passed.
       - Fixed in `4cc7169` (the browser declares its computer first, as BOB29-A01 does).
       - 37275342877 on `4cc7169`, green: 35/35 jobs, 567/567 tests.
+    - **Main and staging.**
+      - Main is `6b85254`.
+      - Staging run 37276745601 applied it: 159 migrations, latest `20261122100000`.
+      - Read-only verification on staging:
+        - only the lookup and the reset are a client's, and both are declared SCOPE `INSTITUTION_ADMIN`;
+        - the three internal functions are no client's;
+        - the session record accepts `KREDENSIAL_DIGANTI`;
+        - the password guard ends sessions on RECOVERY and CARD_REISSUE;
+        - the role guard carries the school-itself branch;
+        - the reset refuses oneself and ends sessions.
