@@ -570,7 +570,7 @@ await step("S12", "the school admin adds the teacher: by name on Pendataan, an a
     return `${jejak.join(" | ")}; ${people.guru.name} is not on Aktivasi: ${norm(await bodyText(a)).slice(0, 300)}`;
   }
   await baris.locator('input[type="email"]').fill(people.guru.email);
-  await baris.getByRole("button", { name: "Aktifkan dengan surel", exact: true }).click();
+  await baris.getByRole("button", { name: "Aktifkan dengan email", exact: true }).click();
   await baris.locator('input[type="email"]').waitFor({ state: "detached", timeout: SLOW }).catch(() => {});
   rec.shots.push(await shot(a, "aktivasi-guru"));
   const akun = sql(`select count(*) from public.accounts ac join public.persons p on p.id = ac.person_id where p.display_name='${people.guru.name}'`).trim();
@@ -2239,7 +2239,7 @@ await step("S23d", "the dean: the school admin adds the dean by the screens; the
   const baris = a.locator("li.pin-akt-orang", { hasText: people.dekan.name }).first();
   if (!(await baris.count())) { rec.verdict = "FAIL"; return `${jejak.join(" | ")}; ${people.dekan.name} is not on Aktivasi`; }
   await baris.locator('input[type="email"]').fill(people.dekan.email);
-  await baris.getByRole("button", { name: "Aktifkan dengan surel", exact: true }).click();
+  await baris.getByRole("button", { name: "Aktifkan dengan email", exact: true }).click();
   await baris.locator('input[type="email"]').waitFor({ state: "detached", timeout: SLOW }).catch(() => {});
   const r = await grantViaForm(a, people.dekan.name, "DEAN", "SD Zayd");
   jejak.push(`«Dekan» at the school's root: ${JSON.stringify(r)}`);
@@ -2274,7 +2274,7 @@ await step("S23d", "the dean: the school admin adds the dean by the screens; the
     for (const jalan of ["/konfigurasi", "/aktivasi", "/studio", "/pendataan"]) {
       await d.goto(`${APP}${jalan}`, { waitUntil: "networkidle" });
       const ditolak = (await d.locator(".pin-refusal").count()) > 0 || new URL(d.url()).pathname !== jalan;
-      const tombolTulis = await d.locator('button:has-text("Berikan peran"), button:has-text("Aktifkan dengan surel"), button:has-text("Simpan")').count();
+      const tombolTulis = await d.locator('button:has-text("Berikan peran"), button:has-text("Aktifkan dengan email"), button:has-text("Simpan")').count();
       tolak[jalan] = ditolak ? "refused" : `opened (${tombolTulis} write button(s))`;
     }
     rec.shots.push(await shot(d, "j7-3-dekan-ditolak"));
@@ -2527,7 +2527,7 @@ await step("S26b", "a new teacher replaces the old one mid-year: the school admi
   const baris = a.locator("li.pin-akt-orang", { hasText: people.guru2.name }).first();
   if (!(await baris.count())) { rec.verdict = "FAIL"; return `${jejak.join(" | ")}; ${people.guru2.name} is not on Aktivasi`; }
   await baris.locator('input[type="email"]').fill(people.guru2.email);
-  await baris.getByRole("button", { name: "Aktifkan dengan surel", exact: true }).click();
+  await baris.getByRole("button", { name: "Aktifkan dengan email", exact: true }).click();
   await baris.locator('input[type="email"]').waitFor({ state: "detached", timeout: SLOW }).catch(() => {});
   const g = await grantViaForm(a, people.guru2.name, "EDUCATOR", "Kelas 1A");
   jejak.push(`Sari: Guru at Kelas 1A ${g.ok}`);
