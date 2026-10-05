@@ -36,7 +36,7 @@ SYSTEM_ADMIN": **FAIL**; C-11 break-glass rehearsal: TODO).
 |---|---|---|---|
 | Postgres, all schemas (public, auth incl. password hashes and card secrets' bcrypt, storage metadata, audit_log, certificates, migration history) | **By the plan, yes; verified, no.** | Supabase Pro: daily, **7 days**; physical backups for Postgres ≥ 15.8.1.079 (so production's are physical and **not downloadable**). No point-in-time recovery: it is an add-on that **requires at least Small compute**, and D-089(c) keeps production on Micro. | Supabase docs. **Production's actual backup list: not read** (permission). **Staging's: the workflows' token is refused (HTTP 403)** — nobody but the dashboard can currently see them. |
 | A copy outside Supabase | **No.** | — | **Deleting a project deletes its backups** (Supabase docs). No `pg_dump`, no off-platform copy anywhere in the repository or its workflows. |
-| Storage objects (bucket `assets`: profile photos, lesson media, problem-report screenshots) | **No.** | Database backups hold only their metadata (Supabase docs: "Database backups do not include objects you store via the Storage API"). | REHEARSAL_STORAGE |
+| Storage objects (bucket `assets`: profile photos, lesson media, problem-report screenshots) | **No.** | Database backups hold only their metadata (Supabase docs: "Database backups do not include objects you store via the Storage API"). | Staging holds **28 objects (206 MB)** in Storage that no backup covers (rehearsal). |
 | `CARD_PEPPER`, `CERT_SECRET_KEY_V1` | **No verified copy.** | D-066(a) requires verified offline copies before the first production card or certificate; REL-09: **NOT VERIFIED**. | Loss: every card in every school unusable; every certificate signed with V1 fails verification for ever (YAZID-DECISION-BRIEFS 3b). |
 | Schema, functions, policies | Yes, as code. | Every change is a migration in git; CI replays all of them on a clean database and checks the upgrade from the previous commit. | `ci.yml`. CI does not test from production's exact level (111). |
 | Application | Yes, as code and as Vercel's own deployments. | Rebuilt from a pinned commit by the deploy workflow. | `deploy-vercel-production.yml`. |
@@ -45,7 +45,29 @@ SYSTEM_ADMIN": **FAIL**; C-11 break-glass rehearsal: TODO).
 
 ## 3. The rehearsal on staging (evidence that a restore can be performed)
 
-REHEARSAL_RESULTS
+**Runs** (all on `main`, read-only on staging): 37377017030 (the backup; the restore step stopped by the workflow's own shell, fixed), 37377920733, 37378809242 (per object, and the corrected step), 37379973507 (the one differing function's text). Staging at 161 migrations, `ACTIVE_HEALTHY`, Postgres 17.6.1.166.
+
+**What Supabase would tell us.** The backup list and the add-ons are **refused (HTTP 403)** to the token the workflows hold: no machine can see staging's backups or whether PITR is on (production's were not asked).
+
+**The logical backup** (Supabase's documented CLI procedure) works: 157 tables, **224–253 s**, about **25 MB** (data 20.9 MB, migration history 3.1 MB, schema 1.3 MB); no table changed on staging while it ran. `pg_dump` warns of circular foreign keys on 15 tables (handled by the documented `session_replication_role = replica`).
+
+**The documented restore fails outright.** `psql --single-transaction … roles.sql schema.sql data.sql` stops at `roles.sql:17: permission denied for parameter log_min_messages`, and the single transaction restores **nothing**. Followed to the letter, Supabase's procedure does not restore PINTAR.
+
+**Restored with errors tolerated** (5 s; 7 errors: that role parameter, five Auth objects of a newer Auth version than the CLI's local stack carries, and a newer Storage column, which loses the `assets` bucket's row):
+
+| | Result |
+|---|---|
+| Data | **150 of 157 tables byte-identical** (row count and content hash): every PINTAR table in `public` and `telemetry`, `auth.users` and the other Auth data, the migration history. The 7 others are Supabase's own version tables, empty newer-version Auth tables, and `storage.buckets` (the `assets` row). |
+| Kept | row security on every `public` table; all 131 policies; all 143 `public` triggers; PostgREST's pre-request on `authenticator`; the extensions; Storage **metadata** (staging: **28 objects, 206 MB**); `launch-readiness.sql` 0 FAIL. |
+| **Lost** | **PINTAR's three triggers on `auth.users`** — account creation, the **password-write guard** (Gate 3, D-101, D-102) and the **card-email guard**. The schema backup contains none of them (Supabase leaves `auth` out; its docs say changes to `auth` "have to be restored separately"). |
+| **Opened** | **Every privilege.** On the copy, `anon` and `authenticated` hold SELECT, INSERT, UPDATE and DELETE on **all 137** `public` tables and views (on staging `anon` holds none and `authenticated` only what each needs), and EXECUTE on **all 490** `public` functions: **280 that no client may call on staging** (among them `audit_write`, `auth_password_write_guard`, `certificate_prepare`, `bootstrap_first_system_admin`, `card_signin_settle`, `assume_persona`) and 210 that only a signed-in caller may call, now open to anonymous callers too. |
+| Changed | one function's definition, `content_canonical_payload` (the content seal's payload): FUNCTION_DIFF |
+
+**Why the privileges open.** A Supabase project's default privileges grant `anon` and `authenticated` every right on every object `postgres` creates in `public`. PINTAR revokes them explicitly in each migration (ADR-0021; D-033), but a dump records each object's rights only relative to Postgres's own defaults, so nothing revokes what the new project's defaults just granted. Row security still filters rows (which is why the readiness check reads 0 FAIL), but SECURITY DEFINER functions do not pass through it, and every internal one becomes callable by anyone at `/rest/v1/rpc`. **PINTAR's own readiness check does not detect this.**
+
+**The corrected step, proven.** Recreating the three `auth.users` triggers from the source's own catalog (`pg_get_triggerdef`, read-only on staging) brings them back: the copy then reads `same` for them. The privileges were **not** corrected in the rehearsal: that is a proposal (§8), not something this review built.
+
+**Not rehearsed:** Supabase's own physical restore (in place, or "Restore to a new project"). It copies the database as it is, so it should keep the triggers and the rights; whether it does is unproven (§8 G2).
 
 ## 4. Recovery objectives (as the configuration stands)
 
@@ -61,7 +83,10 @@ REHEARSAL_RESULTS
 
 ## 5. Hazards found in the recovery path itself
 
-REHEARSAL_HAZARDS
+- **H4. The documented logical restore opens every privilege** (§3): all 137 tables and views to `anon` and `authenticated`, all 490 functions to `anon`, including 280 internal ones. Silent: row security, the policies and the readiness check all look healthy.
+- **H5. The documented logical restore drops PINTAR's three `auth.users` triggers**, the password-write guard among them. Silent.
+- **H6. The documented logical restore does not run**: it stops at a role parameter the project may not set, and its single transaction restores nothing. A person following Supabase's page under pressure meets a failure, then (by the troubleshooting advice) an unguarded tolerant restore that produces H4 and H5.
+- **H7. `docs/audit/launch-readiness.sql` cannot see H4 or H5**: it checks row security and policies, not grants, `anon`'s rights, or the `auth.users` triggers.
 
 - **H1. A rebuilt Vercel project silently re-keys PINTAR.** `deploy-vercel-production.yml` mints `CARD_PEPPER` and
   `CERT_SECRET_KEY_V1` whenever Vercel does not already hold them (`keep`: "added only when absent"). After losing the
@@ -87,15 +112,30 @@ REHEARSAL_HAZARDS
 
 1. **Declare and freeze.** The owner decides; stop writes with PINTAR's own maintenance control (#148: a planned window, or Admin platform's «Hentikan sekarang») so nothing is written on top of the damage.
 2. **Choose the restore point** (the last good daily backup before the damage) and record it.
-3. **Restore the database**: in place from the dashboard (downtime), or to a new project ("Restore to a new project": database and Auth users; **not** Storage, Auth settings or API keys).
-4. **Verify before reopening**: migration history equals the release's; `docs/audit/launch-readiness.sql` all PASS; the auth.users triggers and the authenticator pre-request present (§3); row counts of the key tables against the last known figures; one certificate verifies by its token; one class card signs in; one staff sign-in.
+3. **Restore the database**: in place from the dashboard (downtime), or to a new project ("Restore to a new project": database and Auth users; **not** Storage, Auth settings or API keys). **Never Supabase's logical CLI procedure as written** (H4–H6); a logical restore only through G3's PINTAR procedure.
+4. **Verify before reopening**: migration history equals the release's; `audit/restore/banding.sh` against the last facts taken from the source shows no difference in data, rights, triggers or pre-request; `docs/audit/launch-readiness.sql` all PASS (with G7's rows); row counts of the key tables against the last known figures; one certificate verifies by its token; one class card signs in; one staff sign-in.
 5. **Reconnect** (new project only): `configure-supabase-auth.yml`, `configure-supabase-smtp.yml`, then `deploy-vercel-production.yml` (new URL and keys) — **with `CARD_PEPPER` and `CERT_SECRET_KEY_V1` restored from their offline copies first**, never minted (H1).
 6. **Storage**: restore objects from their off-platform copy (none exists today).
 7. **Reopen**, end the maintenance window, tell the schools what was lost (the window between the restore point and the damage), and record it in RELEASES.md and the journey log.
 
 ## 8. Gaps to close before production (each a proposal; none implemented)
 
-GAPS
+Ordered by what must close before production; each is the smallest change that closes it.
+
+| # | Gap | Proposed remediation | Whose |
+|---|---|---|---|
+| G1 | Production's backups are unverified (kind, age, retention, PITR). | The owner reads production's Database → Backups page once (read-only), or gives a read-only token the backups permission; recorded in RELEASES.md. | Owner |
+| G2 | No hosted restore has ever been performed; RTO unknown. | One rehearsal of Supabase's own **"Restore to a new project"** from staging's latest backup: a temporary Micro project, compared with staging by `audit/restore/fakta.sql` and `banding.sh` (data, rights, triggers, pre-request, bucket), timed, then deleted. Billable for its hours; needs the owner's approval. | Owner approves; coordinator runs |
+| G3 | No copy outside Supabase (a deleted project or lost account loses the backups too). | A scheduled, encrypted logical backup to storage outside Supabase (custody the owner's), **and** a PINTAR restore procedure that (a) skips the reserved role parameter, (b) recreates the `auth.users` triggers, (c) re-applies every object's rights exactly as the source holds them (revoke `anon`, `authenticated`, PUBLIC; grant the source's ACLs), and (d) must pass `banding.sh` with no differences before anything reopens. Never Supabase's procedure as written (H4–H6). | Owner decides where; coordinator builds |
+| G4 | Storage objects are in no backup. | Copy the `assets` bucket's objects on the same schedule as G3 (staging: 28 objects, 206 MB; production: none today). Before any real photo, lesson media or screenshot reaches production. | Coordinator |
+| G5 | The two durable secrets have no verified copy, and a rebuilt Vercel project re-keys silently (H1). | D-066's offline copies made and verified (REL-09) before the first production card or certificate; and the deploy workflow refuses to mint `CARD_PEPPER` or `CERT_SECRET_KEY_V1` when the database already holds cards or certificates (fail closed). | Owner (copies); coordinator (workflow) |
+| G6 | No restore point before a production migration (H2). | The apply workflow records the latest backup's identifier (or takes G3's backup) before `db push`, and refuses to apply without one. | Coordinator |
+| G7 | The readiness check is blind to H4 and H5. | Add rows to `launch-readiness.sql`: `anon` holds no table right and no EXECUTE in `public`; EXECUTE for `authenticated` only on functions `client_rpc_registry` declares; the three `auth.users` triggers present; the pre-request set. Then any restore, and any drift, shows as FAIL. | Coordinator |
+| G8 | RPO is up to 24 h; PITR is not possible on Micro. | Owner's decision: accept 24 h (with G3 more often than daily if wanted), or Small compute plus the PITR add-on (Supabase's prices: about USD 100 a month for 7 days, plus the compute). | Owner |
+| G9 | Recovery depends on one person (SYS-08 FAIL, C-11 TODO). | A second SYSTEM_ADMIN and the break-glass rehearsal, as C-11 already plans. | Owner |
+| G10 | Nobody is alerted when production fails. | Minimal uptime and error alerting on `app.pintarselalu.com` and the Supabase project. | Owner decides; coordinator sets up |
+
+**Must close before production:** G1, G2, G5, G6, G7, and G3 with G4 before production holds real people's data. G8–G10 are owner decisions that set how much loss and delay is acceptable.
 
 ## 9. What this review could not establish
 
