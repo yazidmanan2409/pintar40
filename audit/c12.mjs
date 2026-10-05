@@ -40,8 +40,9 @@ export async function jalankanC12(d) {
   const q = (s) => sql(s).trim();
   const orangDari = (email) => q(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${email}'`);
   const uidDari = (email) => q(`select id from auth.users where email = '${email}'`);
+  // under an ancestor, by its path: a Tingkat's parent is its Bagian's hidden Reguler (D-027), not the Bagian
   const simpul = (kind, nama, induk = null) => q(`select id from public.org_nodes where institution_id='${ids.sd}' and kind='${kind}' and name='${nama}'
-    ${induk ? `and parent_id='${induk}'` : ""} and is_active limit 1`);
+    ${induk ? `and jalur @> array['${induk}']::uuid[]` : ""} and is_active limit 1`);
   const tunggu = async (page, f, n = 30) => { for (let i = 0; i < n; i++) { const v = f(); if (v) return v; await page.waitForTimeout(500); } return f(); };
   // a refused call: its code and detail as the person's own session received them
   const tolakan = (r) => (r.error ? `${r.error.code}:${r.error.details ?? r.error.message}` : `OK:${JSON.stringify(r.data)?.slice(0, 80)}`);
@@ -94,11 +95,14 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
     writeFileSync(join(OUT, "c12-sebelum.json"), JSON.stringify(C.awal, null, 1));
     C.layarAwal = await bacaLayar("sebelum");
     const angka = C.layarAwal.bukti.join(" | ");
-    const harap = /75\s?%/.test(angka) && /\+35 poin/.test(angka) && /Peserta[^|]*\b5\b/.test(angka);
+    // «Peserta» (terminology v1: those taking part in a measurement) is what each figure says it is «Dari»
+    const kartu = (label) => C.layarAwal.bukti.find((x) => x.startsWith(label)) ?? "";
+    const paham = kartu("Pemahaman"), naik = kartu("Kenaikan");
+    const harap = /Pemahaman 75\s?%/.test(paham) && /Dari 5 murid/.test(paham) && /Kenaikan \+35 poin/.test(naik) && /Dari 5 murid/.test(naik);
     if (!harap || C.awal.jumlah_metrik !== 16 || !C.awal.metrik_ok) rec.verdict = "FAIL";
     return `catalogue ${C.awal.katalog}, ${C.awal.jumlah_metrik} metrics, ${Object.keys(C.awal.metrik).length} readings (${C.awal.metrik_ok} ok), md5 ${C.awal.metrik_md5}; ` +
       `sources ${JSON.stringify(C.awal.sumber)}; rosters ${JSON.stringify(C.awal.daftar)}; the Guru ${JSON.stringify(C.awal.orang)}; ` +
-      `«Lihat bukti» Kelas 1A: ${angka.slice(0, 300)} (Pemahaman 75%, +35 poin, Peserta 5: ${harap})`;
+      `«Lihat bukti» Kelas 1A: ${angka.slice(0, 300)} (Pemahaman 75% from 5, Kenaikan +35 poin from 5: ${harap})`;
   });
   if (!C.awal) return;
 
@@ -544,7 +548,7 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => /^\d+\|/.tes
     const platform = tolakan(await gl.rpc("refer_integrity_signal", { p_signal: id, p_note: "uji C-12" }));
     const dirujuk = q(`select count(*) from public.audit_log where target_id = '${id}' and action ilike '%REFER%'`);
     notes.push(`referral asked by the PD Kepala departemen, the school admin, the facilitator and the Dekan: ${sekolah.join(" / ")}; by the platform admin: ${platform}; referral rows ${dirujuk}`);
-    if (sekolah.some((x) => x.startsWith("OK")) || !/^PR090:PD_SIGNAL_NOT_REFERRED/.test(platform) || dirujuk !== "0") rec.verdict = "FAIL";
+    if (sekolah.some((x) => !/requires CAN_REVIEW_INTEGRITY/.test(x)) || !/^PR090:PD_SIGNAL_NOT_REFERRED/.test(platform) || dirujuk !== "0") rec.verdict = "FAIL";
     return notes.join("; ");
   });
 
