@@ -3103,10 +3103,10 @@ await step("S27", "a new school year: the school admin makes next year's Tingkat
     `Fajar (not yet signed in) carried over: ${fajar}; sessions still recorded in 1A: ${sesi}`;
 });
 // HOD-08: a head of department assigns and runs an Uji Cepat within their scope. S24 took Bu Kepala Dept's role away;
-// the school admin gives the department a head again (Kelas Rendah), who finds on /mengajar exactly the Kelas of
-// their department, launches an Uji Cepat of three questions for Kelas 1B (Kelas 1A's is S26e's), and the student
-// placed there finds it on her home. A class outside the department is not theirs to open.
-await step("S27h", "a head of department runs an Uji Cepat within their department: Mengajar offers exactly its Kelas, three questions are launched for Eka's Kelas, and she finds it; a class outside it is refused (HOD-08)", async (rec) => {
+// the platform administrator appoints her head of Kelas Rendah again, as in S16. She finds on /mengajar exactly the
+// Kelas of her department, gives Bab 1 to Eka's Kelas (Kelas 1A's Uji Cepat is S26e's), launches an Uji Cepat of three
+// of its questions there, and Eka finds it on her home. A class outside the department is not hers to open.
+await step("S27h", "a head of department assigns and runs an Uji Cepat within their department: Mengajar offers exactly its Kelas; the head gives Bab 1 to Eka's Kelas and launches three of its questions there, and she finds it; a class outside it is refused (HOD-08)", async (rec) => {
   // the Kelas Eka was moved to in S25 (S26 renamed it «Kelas 1 Biru»), where she is placed now
   const satuB = sql(`select m.node_id from public.memberships m join public.enrollments e on e.id = m.enrollment_id
     join public.persons p on p.id = e.person_id join public.org_nodes o on o.id = m.node_id
@@ -3138,6 +3138,28 @@ await step("S27h", "a head of department runs an Uji Cepat within their departme
     const sama = ditawarkan.join(",") === lingkup;
     notes.push(`Mengajar offers ${ditawarkan.length} Kelas, exactly the department's ${sama}`);
     if (!sama || !ditawarkan.includes(satuB)) { rec.verdict = "FAIL"; return notes.join("; "); }
+    // an Uji Cepat draws on what the class was given (D-085 T2). Eka's Kelas was given nothing after her move (S25,
+    // S26d2), and Kelas 1A's own Uji Cepat from S26e is still running, so the head first gives Bab 1 to Eka's Kelas
+    await h.goto(`${APP}/mengajar/${satuB}/siapkan`, { waitUntil: "networkidle" });
+    await tutupTur(h);
+    const barisBab1 = h.locator("a.pin-row").filter({ hasText: "Matematika Kelas 5" }).filter({ hasText: "Bab 1:" }).first();
+    if (!(await barisBab1.count())) { rec.verdict = "FAIL"; notes.push(`Siapkan does not offer Bab 1: ${(await bodyText(h)).slice(0, 200)}`); return notes.join("; "); }
+    await barisBab1.click();
+    const sediakan = h.locator('form:has(input[name="terbitan"]) button[type="submit"]').first();
+    await sediakan.waitFor({ timeout: SLOW });
+    const sampai = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" })
+      .format(new Date(Date.now() + 30 * 86400000));
+    await h.locator("#pin-sampai").fill(sampai).catch(() => {});
+    await sediakan.click();
+    await h.waitForLoadState("networkidle");
+    let diberi = "";
+    for (let i = 0; i < 20 && !diberi; i++) {
+      diberi = sql(`select coalesce(p.display_name, '-') from public.learning_assignments la left join public.persons p on p.id = la.assigned_by_person_id
+        where la.course_id='${bab1}' and la.node_id='${satuB}' order by la.created_at desc limit 1`).trim();
+      if (!diberi) await h.waitForTimeout(500);
+    }
+    notes.push(`Bab 1 given to Eka's Kelas on Siapkan by ${diberi || "nobody"}`);
+    if (diberi !== people.kaprodi.name) { rec.verdict = "FAIL"; return notes.join("; "); }
     await h.goto(`${APP}/mengajar/${satuB}/uji-cepat`, { waitUntil: "networkidle" });
     await tutupTur(h);
     if (!(await h.locator("#pin-bab").count())) { rec.verdict = "FAIL"; notes.push(`no chapter to choose: ${(await bodyText(h)).slice(0, 200)}`); return notes.join("; "); }
