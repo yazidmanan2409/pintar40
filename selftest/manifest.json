@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 184,
+  "version": 185,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3177,6 +3177,21 @@
       "id": "C12-D01",
       "runner": "static",
       "proves": "C-12's finding (D-069(b)), migration 20261124100000 against the database, rolled back (selftest/c12.test.ts): in a professional-learning Kelas holding the Guru's finished Uji Penguasaan and its answer, the facilitator is refused (42501) and given no name and no option, as are another Guru and the participant himself; in the academic Kelas the class's teacher still reads the handed-in sitting question by question and learner by learner, and another Guru is still refused."
+    },
+    {
+      "id": "DR-S01",
+      "runner": "static",
+      "proves": "#150 G5, the decision (selftest/dr150.test.ts, scripts/release/durable-secrets.mjs): the production deploy keeps CARD_PEPPER or CERT_SECRET_KEY_V1 only when Vercel holds a readable value of at least 32 characters that matches its recorded fingerprint and, for the certificate key, opens an issued certificate's seal; mints one only when it is absent, was never recorded, and production holds no classroom card, no sealed certificate, no school and nobody beyond the first administrator; and refuses everything else, an unknown count included. The guard's seal is src/lib/certificates/sign.ts's, byte for byte; a fingerprint is HMAC-SHA256 under its own label and says nothing of the value."
+    },
+    {
+      "id": "DR-S02",
+      "runner": "static",
+      "proves": "#150 G5, the deploy (selftest/dr150.test.ts): .github/workflows/deploy-vercel-production.yml runs the durable-secret guard, taken from the workflow's own commit, after the service-role key is proven and before any variable is written; a durable secret is minted only on the guard's MINT, a missing verdict stops the deploy, and nothing mints unconditionally; docs/recovery/durable-secrets.json names both secrets with well-formed fingerprints (or null: not recorded yet)."
+    },
+    {
+      "id": "DR-S03",
+      "runner": "static",
+      "proves": "#150 G5, end to end (selftest/dr150.test.ts): the guard against a local stand-in for Vercel's env API and PostgREST mints into an empty production; refuses, writing no verdict, when Vercel has lost both secrets and production holds classroom cards, or when a count cannot be read; keeps held, recorded secrets whose certificate key opens the issued seal; refuses a certificate key that does not open it; and never prints a value."
     },
     {
       "id": "BOB29-A01",
