@@ -415,3 +415,21 @@ Gate 3 stays held; the coordinator does not merge it.
       - **Everyone signed out (X1).** Every session this run opened is ended: KELUAR, or KREDENSIAL_DIGANTI by the teacher's recoveries. None is left open.
     - **Observation for the owner, not changed (D-101(3) covers replaced credentials, not a first password).** When the activation wizard sets the first password, Auth ends the wizard's own session and PINTAR signs the person straight back in. That session's PINTAR record is never marked ended (seen on the dean's first sign-in, run 37289554356: a SHARED record still open, its Auth session gone), so its access token would still pass the pre-request until it expires (at most an hour). It is the person's own token, on the same browser, and the new session's cookies replace it. X1 reports such a record as «record open, Auth session gone», never as an open session. Closing it would mean adding ACTIVATION to the session-ending purposes: the owner's call.
     - **Spend.** Today was over budget before the walk: 1,178 of 600 billed minutes, almost all CI. This walk's nine runs (founding included) billed 82 minutes, 53 of them the report walk with its two real idle waits. Today stands at 1,260.
+34. **D-102: an activation ends its own first session, 5 Oct (owner ruling: close item 33's finding before C-12).** Bounded to the one gap; no other session rule changed.
+    - **The gap.** The activation wizard runs in the session the emailed code began. At the first password, Auth ended that session and the route signed the person straight back in (`src/app/api/aktifkan/password/route.ts`, unchanged). PINTAR's record of the wizard's session stayed open, and PostgREST's pre-request refuses only an ended record, so a token issued before the first password was still served for up to an hour (seen on staging, run 37289554356).
+    - **The change.** Migration `20261123100000`:
+      - When the password guard takes an ACTIVATION write, it ends every session of the person through D-101's own core (`sesi_akhiri_orang`). This happens in the same transaction as the hash, with a reason of its own, `PASSWORD_PERTAMA`: a first password, not a replaced credential (D-101(3)).
+      - The route's sign-in right after is the new session, so the move stays seamless.
+      - A write that does not happen ends nothing: no permit or an expired one (refused by the guard, rolled back), a password Auth refuses (never written), or a step before the password.
+      - Everything else in the guard is `20261122100000`'s. No route, screen or other function changed.
+    - **Tests.**
+      - D102-S01 (source) and D102-D01 (database, rolled back), both red on the 159-migration database and green after.
+        - On 159: after the first password, the wizard's two sessions (one recorded, one PINTAR had not yet seen) still passed PostgREST's pre-request, nothing was recorded, and both Auth rows stayed.
+        - After: both refused (PT401), recorded `PASSWORD_PERTAMA`, Auth's rows gone, audited. Nobody else's session was touched. A write with no permit or an expired one is refused and ends nothing. The session begun after the password passes. A recovery still ends as `KREDENSIAL_DIGANTI`.
+      - D102-A01, against the running app (CI), red and green on one stack:
+        - With the guard's activation branch planted away, the wizard's token is still served after the first password (200, the gap).
+        - With the fix, the token is served through the username step and a refused password (no clean-up there). The first password then moves the browser to a new session, served (200), while the old token is refused (401) and its refresh too. The wizard then takes the PIN, the name and the finish on the new session, and the home opens or asks «Komputer siapa ini?» (Gate 6).
+      - Restated: D101-D01's activation case (it pinned "an activation ends nothing"). UX1 baselines MOVED 159 → 160.
+      - Gate 3 and Gate 6 unchanged: BOB26-A01..A04, BOB27-A01, BOB28-A01..A03, BOB29-A01..A03 and D101-A01/A02 in the same CI.
+    - **CI:** 37299581260 on `a8027d3`: green, 35/35 jobs, 570/570 tests (D102-A01 with its planted gap among them).
+    - **Staging:** migration dispatched on main (`staging.yml`); verified read-only below once it lands.
