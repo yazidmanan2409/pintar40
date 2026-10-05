@@ -71,7 +71,7 @@ None of this was in the finite list (D-100(d)).
 
 ## 5. What the answers add before ENGINEERING COMPLETE, and the smallest change
 
-**Status: not built.** Nothing in the code has changed since §1–§3.
+**Status: built 5 Oct as proposed below** (JOURNEY-LOG 32; migration `20261122100000`; CI 37275342877 green on `4cc7169`). §1–§3 describe the code before it.
 
 **Required before ENGINEERING COMPLETE: yes.**
 - D-101 is canonical for PINTAR 4.0, and ENGINEERING COMPLETE means the intended 4.0 functionality is in (D-052(b)). The answers turn the gaps below into specified 4.0 work.

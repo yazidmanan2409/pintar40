@@ -309,3 +309,52 @@ Gate 3 stays held; the coordinator does not merge it.
         - it asked the school admin to see a person the school had never recorded;
         - it launched an Uji Cepat for a class that had been given nothing.
       - Checklist v2.5: STU-16, STU-17, HOD-07, HOD-08 and X-11 N-T → PASS. All are P1, so the P0 count is unchanged.
+32. **D-101: the nearest safe authority recovers a credential, and a replaced credential ends its sessions, 5 Oct (D-101 and its answers of 5 Oct).** Built as `docs/coordination/reviews/D-101-RECOVERY-AUTHORITY-CONFORMANCE.md` §5 proposed, and no wider.
+    - **Assisted recovery (answer 1).**
+      - The PIN-recovery lookup and reset («Keamanan akun») are now open to a School Admin as well as the Platform Admin.
+      - A School Admin may assist a person their school has: its number, a role there other than Platform Admin, or a learner there. This is BOB-21's own definition, not a new one.
+      - A person outside the school answers as an ID nobody holds, so there is no existence oracle.
+      - Nobody resets their own recovery with an administrator's authority, the Platform Admin included: `RECOVERY_SELF`, shown as «Pemulihan akun Anda sendiri dibantu oleh admin lain».
+      - A Platform Admin is never assisted by a school, even one that has them; only by another Platform Admin.
+      - Each reset is audited with its reason, the actor and, for a School Admin, the school and `INSTITUTION_ADMIN`.
+      - Learners on a class card keep their recovery journey: the card's re-issue, already the School Admin's.
+    - **A second School Admin (answer 2).**
+      - An active School Admin may appoint a person the school has as School Admin, at the school itself only.
+      - On Peran & akses the choice comes back once, saying what it does, and is granted on a second press. The grant is audited as every grant is (`role.granted`, the grantor and their role).
+      - Below a school, `SYSTEM_ADMIN` anywhere, and an unscoped grant stay the Platform Admin's; self-grant stays refused.
+      - The Platform Admin's own grants are unchanged (no extra press), so existing journeys walk as before.
+      - Persiapan sekolah adds one quiet line when a school has a single School Admin, recommending a second as recovery cover (D-101(e)). It is never shown as an error.
+    - **Sessions end with a replaced credential (answer 3).**
+      - The gap: Auth ended its own sessions on a password change, so pages went to sign-in. But PINTAR's session record stayed open, and PostgREST's pre-request refuses only an ended record. An access token issued before the change was still served for direct data requests for up to an hour.
+      - Now one core (`sesi_akhiri_orang`) records and ends every session of the person, in the change's own transaction:
+        - a recovered password (by email or by PINTAR ID + PIN);
+        - a re-issued class card;
+        - an assisted reset.
+      - An activation, «Keluar» and «Keluar dari semua perangkat» are unchanged. Identity, roles, history and records are untouched.
+    - **Code.**
+      - Migration `20261122100000`:
+        - `recovery_assist_school`, `recovery_may_assist` and `sesi_akhiri_orang` (internal);
+        - `recovery_status` and `admin_reset_recovery`, declared SCOPE `INSTITUTION_ADMIN`;
+        - the restore's audit naming the school;
+        - the password guard;
+        - one branch of the role guard;
+        - the session record's new reason `KREDENSIAL_DIGANTI`.
+      - src (existing components only): the recovery route (`SENDIRI`), «Keamanan akun» (open to a School Admin, the security record still the Platform Admin's), Konfigurasi (the link, «Admin sekolah» and its second press, the quiet line), and copy.
+    - **Tests.**
+      - D101-S01 (source) and D101-D01 (database, rolled back), both red on the 158-migration database and green after. On 158, PostgREST's own pre-request still passed:
+        - a card's session after its re-issue;
+        - a staff member's after a recovered password.
+        - The School Admin was refused every lookup and reset, the Platform Admin could reset herself, and no School Admin could be appointed.
+      - D101-A01, against the running app (CI), is the HTTP-level red and green on one stack. A token a browser already held answered a direct PostgREST request (200).
+        - With the session-ending core planted away for one step, a re-issued card's old token was still served (200): the gap.
+        - With the fix, the old token was refused at once (401) after a card's re-issue, after a recovery by PINTAR ID + PIN, and after the Platform Admin's reset.
+      - D101-A02, against the running app: a School Admin's lookup and reset of her school's teacher (the teacher's token then 401), herself refused `SENDIRI`, another school's learner refused 404, and her Konfigurasi.
+      - Restated, because the ruling changes what they pinned:
+        - F01-T04 and F10-V03: a School Admin is still refused School Admin below the school and at another school, and Platform Admin everywhere.
+        - BOB28-A02: the person is refused the reset before it, and their session ends with it.
+      - UX1 baselines MOVED 158 → 159.
+      - Every plant on the redefined functions still reaches its clause.
+    - **CI:**
+      - 37274005721 on `03451db`: red on one row, D101-A02's page step (307). The test's browser had not answered Gate 6's «Komputer siapa ini?», which a staff browser meets before its first page. That was a harness omission, not a product failure; its lookup, reset and refusals had passed.
+      - Fixed in `4cc7169` (the browser declares its computer first, as BOB29-A01 does).
+      - 37275342877 on `4cc7169`, green: 35/35 jobs, 567/567 tests.
