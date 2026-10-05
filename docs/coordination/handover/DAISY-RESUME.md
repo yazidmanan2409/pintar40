@@ -1,7 +1,8 @@
-# Daisy: resume note (1 Oct, team pause)
+# Daisy: resume note (5 Oct, paused for the day)
 
 This note is for a fresh session picking up Daisy's lane. Read it first. Then read:
 
+- `docs/coordination/briefs/RESUME-2026-10-04.md`, the owner's build brief (Gates 3 to 5 landed; what comes next);
 - `docs/coordination/BOARD.md`, `DECISIONS.md` and `briefs/DAISY.md`, from main, since the board moves there;
 - the design constitution, `docs/coordination/design/PINTAR-DESIGN-SKILL-SPEC.md`;
 - Terminology v1, `docs/coordination/ux/TERMINOLOGY-V1-FREEZE-PACKAGE.md`.
@@ -17,7 +18,7 @@ This note is for a fresh session picking up Daisy's lane. Read it first. Then re
   - rebase, force-push or `git reset --hard`. Merge instead; move work aside with `git switch -c` and `git cherry-pick`;
   - push anywhere but the lane, or open a PR;
   - commit `AGENTS.md` or `CLAUDE.md`. `next dev` writes them, and they stay untracked;
-  - reopen the card or certificate designs (D-074, D-080);
+  - reopen the card or certificate designs (D-074, D-080). The one exception, already done: Yazid's Q16 ruling (5 Oct) reopened them solely to replace «PINTAR SELALU» with the PINTAR wordmark. Nothing else may change;
   - put Yazid's reference image in the repository (D-082(b));
   - weaken, skip or delete a test. Restating one for a changed requirement is allowed, and it must be named in the hand-off.
 - **Copy:**
@@ -36,44 +37,96 @@ This note is for a fresh session picking up Daisy's lane. Read it first. Then re
   - The file goes in `docs/coordination/handover/HANDOFF-DAISY-<n>.md`, committed `[skip ci]`.
 - **Manifest:** on a `version` conflict, take the higher and add one; the ids are the union.
 
-## State at pause (1 Oct)
+## State at pause (5 Oct)
 
-The lane tip is `957e314`. From the top down:
+**The lane tip is `72147dd`.** Everything is committed and pushed, and the working tree holds only `AGENTS.md` and `CLAUDE.md` (untracked by rule).
 
-| Commit | What | CI |
-|---|---|---|
-| `957e314` | **DAISY-39** (a cherry-pick of `fc1b2c2`), manifest v133 | **none yet**, and not part of any gate |
-| `5a7fab7` | `HANDOFF-DAISY-20.md` `[skip ci]` | — |
-| `713c7ec` | the proof README: «Two modules» → «Three» `[skip ci]` | — |
-| **`59696ad`** | **the DAISY-20 gated head** | **CI #252 (run 36793651616): green, 35 of 35** |
-| `08c6f72` | merge of Bob's `1246835` (BOB-26, BOB-50) and DAISY-20 wired to the real routes | #251 cancelled after its lint failure |
+**Since 1 Oct, on main:** the coordinator landed Gates 3 to 6 and the Golden School walk. That included my held head (DAISY-20, DAISY-39, DAISY-40, in `e0853e5`), DAISY-38 (`948b506`), DAISY-21 (`b1e4d11`) and DAISY-22 (`259a50a`).
+- **Main is ahead of the lane** (main `9db95aa` on 5 Oct).
+- Before any code work, `git merge origin/main` into the lane. Never rebase.
 
-Under `59696ad` are main `28d3015`, DAISY-40 (`fcdf56f`) and D-082(b) (`c806b0c`, docs only).
+**This lane's work since 4 Oct: the design system foundation study.** It is design only, all `[skip ci]`, prepared only, with nothing in `src/` changed.
 
-**The pause (Yazid, 1 Oct):** nothing merges to main. After the pause, the coordinator gates main + `59696ad` (BOB-26, BOB-50, DAISY-20, DAISY-40) with one CI and one audit. The DAISY-20 hand-off was given, and its file is `docs/coordination/handover/HANDOFF-DAISY-20.md`.
+| Commit | What |
+|---|---|
+| `f76542b` | Token set v3 proposal, brand book, 48 components, migration map |
+| `e0167cf` | The four visual references of 4 Oct reviewed |
+| `7f7ab1e` … `b949700` | The PNG boards (`alat/papan.mts`) |
+| `e85765f`, `c2cc82b` | Dr Gladys: table striping; the Indonesian date grammar |
+| `4c67e18` | The canonical PINTAR wordmark: production specification (Wordmark card) |
+| `05c7b51` | Q16 and Q17 ruled: the wordmark on the ID card and certificate (brand correction only); the tab icon; the font-licence wording |
+| `72147dd` | Yazid accepted `05c7b51`; the status split recorded |
+
+**Where it lives:**
+- the files: `docs/coordination/ux/sistem-desain/` (its README says how to run everything);
+- the playground: the private Design System page, https://claude.ai/artifact/153KwNRJkTETDKAZSoorS1, version 9.
+
+**Status, as Yazid recorded it (5 Oct):**
+
+| | |
+|---|---|
+| Logo direction | LOCKED |
+| Production specification | APPROVED |
+| ID card and certificate brand correction (`05c7b51`) | APPROVED |
+| 4.0 tab icon (a plain PINTAR-green square) | APPROVED |
+| Final outlined master artwork | PENDING: licensed Helvetica Neue 65 Medium production, then optical verification |
+| Brand | closed |
+| Visual language | approved in principle |
+| Interaction and navigation grammar | **open:** questions 1 to 15 in `project/07-proposal.md` |
+| Production propagation | later, after Engineering Complete |
 
 ## The queue on restart
 
-1. **The joint gate's verdict on DAISY-20.** Fix any finding on the lane, then run one CI and hand off again. Bob's code is his: name any test of his you restate, as `HANDOFF-DAISY-20.md` does for BOB26-A01 and BOB26-S01.
-2. **DAISY-39** (after BOB-50), on the lane as `957e314` with no CI. If main has moved by then, merge `origin/main` first. Then run one CI and hand off.
-   - **Copy.** Three lines no longer say an Uji Cepat feeds certificate eligibility (D-082(d)): `mengajar.cepat.intro`, `mengajar.cepat.rv3` and `tur.pg.4.isi`, each in both languages. The board names them as hle 3170, 3189 and 2856.
-   - **UX1-S3-CEPAT-01** is re-pointed and inverted. It reads QUICK's live `certifies` value through every migration after `20260914093000`, and fails if the copy claims eligibility while QUICK does not certify. It has a planted control. On the old copy it is red, naming six claims.
-   - **Manifest:** v133, still 477 ids (the test is restated, not added).
-3. **DAISY-38** (the school's pass-mark setting and its words) is on BOB-49's contract, after DAISY-20.
-   - Not started; there is no contract yet.
-   - Yazid's HOLD (`3f2aca6`) is on the pass mark, the predikat bands, «Perlu Pendampingan» and certificate eligibility. Check that DAISY-38 is clear of it before starting.
-   - D-078 is amended: «Perlu Pendampingan» is descriptive only, and the bands are unchanged.
-4. **The physical proof.** Yazid printed the PINTAR card and the certificate (1 Oct); his first word was «gorgeous».
-   - His notes on the 0.75 mm gold line and the QR scan are still to come.
-   - Then the designs freeze (D-074(12), D-080). Record that in `docs/coordination/ux/kartu-pintar/ronde-2/README.md` and `docs/coordination/ux/sertifikat/ronde-2/README.md` `[skip ci]`. Change no design unless he asks.
-5. **Later, in board order:**
-   - DAISY-21 to DAISY-23, each on its identity gate (BOB-27 to BOB-29);
-   - DAISY-36, the certificate implemented, after BOB-48's build;
-   - DAISY-37, the canonical email system, in the UI/UX POLISHED pass;
-   - DAISY-24 (Gate 7);
-   - the educator-as-learner tickets, DAISY-32 to DAISY-35, each on its Bob contract and never interrupting an identity-gate screen ticket.
+1. **Questions 1 to 15** (the interaction and navigation grammar), when Yazid gives the final pass. The consequential ones:
+   - 1, the staff navigation;
+   - 3, field outlines at 3:1;
+   - 6, the one kind of dialog;
+   - 8, motion;
+   - 10, WCAG 2.2 AA;
+   - 15, date fields.
 
-## Open items owned by others
+   Record each ruling in `07-proposal.md` as questions 16 and 17 were («RULED», the words quoted). Then validate in composed PINTAR journeys. Nothing goes into `src/` until the application pass is approved.
+2. **The wordmark master.** It is production's, not a design question.
+   - When the licence is verified and the outlined master exists, replace the proofs with it.
+   - Measure the card's and certificate's wordmark again with `merek-pintar.mts` (each must stay at least 15 mm wide).
+   - Re-make the print proofs (card I, certificate E).
+3. **The physical proof.** Yazid's notes on the 0.75 mm gold line and the QR scan are still to come; then the designs freeze (D-074(12), D-080). Record it in both round 2 READMEs, `[skip ci]`.
+4. **The application pass** (after approval and Engineering Complete; not before):
+   - tokens;
+   - primitives;
+   - shells;
+   - surfaces;
+   - the wordmark in place of `MerekPintar`'s «PINTAR SELALU» PNG;
+   - the email header;
+   - the tab icons from `project/assets/AppIcon/` into `src/app/`.
+
+   `project/08-migration.md` maps every one.
+5. **Later, in board order** (check `BOARD.md` on main first; much has moved):
+   - DAISY-23 on Gate 6;
+   - DAISY-36, the certificate implemented;
+   - DAISY-37, the email system;
+   - DAISY-24 (Gate 7);
+   - the educator-as-learner tickets, DAISY-32 to DAISY-35.
+
+## Tooling a fresh container needs (design work)
+
+- **Chromium:** the preinstalled one (`/opt/pw-browsers`) and the global Playwright (`/opt/node22/lib/node_modules/`). It supports `text-box` trimming and `font-size-adjust: cap-height`, which the wordmark proofs use.
+- **Python:**
+  - `python3 -m venv .venv-kartu && .venv-kartu/bin/pip install -r docs/coordination/ux/kartu-pintar/ronde-2/requirements.txt pillow`;
+  - point `KARTU_PY` at it for the card and certificate scripts;
+  - Pillow is only for `alat/buat-ikon-tab.py`.
+- **Helvetica Neue is not available** in this environment. Every wordmark render is a proof in Liberation Sans with the cap height normalised, and is labelled so. Never present one as the master.
+- **Checks before a design commit:**
+  - `npx tsx docs/coordination/ux/sistem-desain/alat/pratinjau.mts --sempit` must be a full run, ending «52 previews, 0 with a failure». A partial run overwrites `render/laporan.txt`.
+  - After it, set each card's `@dsCard height` to the measured height, rounded up to 20 px.
+  - `python3 docs/coordination/ux/sistem-desain/alat/kontras.py` must report «61 pairs, 0 under the floor».
+- **Publishing the playground:** publish to the URL above.
+  - `root` is `docs/coordination/ux/sistem-desain`.
+  - `file_path` is `project/design-system.json`, with its `lastChange` updated (by Yazid, via Claude Code).
+  - `files` lists only the changed `project/…` paths.
+- **Boards:** `npx tsx docs/coordination/ux/sistem-desain/alat/papan.mts [NN …]` writes `papan/*.png` (gitignored). Images must stay under 8000 px on the long side to upload.
+
+## Open items owned by others (as of 1 Oct; not re-checked since)
 
 - **FOR BOB.** `GET /api/aktifkan/keadaan` has no `bacaJawaban*` reader in `src/lib/aktivasi-kontrak.ts`. `src/components/aktifkan/jawaban.ts` mirrors one (`bacaKeadaan`). Once Bob ships `bacaJawabanKeadaan`, drop the mirror.
 - **The polish register.** Three shared controls are under PINTAR's 44 px, though they pass WCAG's 24 px: the language switch (26 px), and the admin `.pin-btn` and `.pin-input` (40 px).
@@ -96,4 +149,11 @@ Under `59696ad` are main `28d3015`, DAISY-40 (`fcdf56f`) and D-082(b) (`c806b0c`
 - `/opt/pw-browsers/chromium`;
 - `axe-core` and `esbuild` from `node_modules`.
 
-**Design rounds:** `docs/coordination/ux/kartu-pintar/ronde-2/` and `docs/coordination/ux/sertifikat/ronde-2/`. Each has its own render script and README.
+**Design rounds:** `docs/coordination/ux/kartu-pintar/ronde-2/` and `docs/coordination/ux/sertifikat/ronde-2/`.
+- Each has its own render script and README.
+- Each has `merek-pintar.mts`, the 5 Oct wordmark correction measured before and after: render L for the card, J for the certificate.
+- Their older renders (card A–I, certificate A–H) predate the correction.
+
+**The design system:** `docs/coordination/ux/sistem-desain/`.
+- `project/` is what the playground shows: tokens, the brand book, the docs `01`–`10`, the components and the assets.
+- `alat/` is the tooling.
