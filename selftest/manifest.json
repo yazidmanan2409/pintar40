@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 181,
+  "version": 182,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3119,6 +3119,16 @@
       "id": "M148-D02",
       "runner": "static",
       "proves": "#148 emergency interruption, migration 20261120100000 against the database, rolled back (selftest/m148.test.ts): only Admin platform, with HENTIKAN SEKARANG and a reason; the school is stopped at once (PT503 PINTAR_DIHENTIKAN), the learner mid-assessment and the school's admin included, while the status read and leaving pass and say EMERGENCY; the running sitting stays IN_PROGRESS, not handed in or finalised, its answer kept; a school admin cannot end it; once ended the learner carries on; audited with reason and actor."
+    },
+    {
+      "id": "FU1921-S01",
+      "runner": "static",
+      "proves": "Follow-ups 19-21, the source (selftest/fu1921.test.ts): migration 20261121100000 gives a transfer's rejection its own reason and leaves the request's alone, the transfer's audit row carrying both with its states; the template's audit row names the selection saved and the one a revision replaced; a course's status change writes one content.status_changed row."
+    },
+    {
+      "id": "FU1921-D01",
+      "runner": "static",
+      "proves": "Follow-ups 19-21, migration 20261121100000 against the database, rolled back (selftest/fu1921.test.ts): a rejected transfer keeps its request's reason and records its own, both on the audit row with REQUESTED to REJECTED; two saves of a report template leave each version's selection on the record; a Studio step on a course writes one audit row with its from and to states, and an update that moves no status writes none."
     },
     {
       "id": "BOB29-A01",

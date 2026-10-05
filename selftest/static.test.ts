@@ -83,6 +83,7 @@ import { bob29Tests } from "./bob29.test";
 import { bob43Tests } from "./bob43.test";
 import { bob15Tests } from "./bob15.test";
 import { m148Tests } from "./m148.test";
+import { fu1921Tests } from "./fu1921.test";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
 
@@ -2037,4 +2038,5 @@ export const staticTests: SelfTest[] = [
   ...bob43Tests,
   ...bob15Tests,
   ...m148Tests,
+  ...fu1921Tests,
 ];

@@ -1365,6 +1365,9 @@ export const experienceTests: SelfTest[] = [
       // (password_write_permits), two set-up columns (password_set_at, name_confirmed_at), the identity
       // functions and a trigger on auth.users; no colour, mark or brand surface.
       //
+      // MOVED 157 -> 158 for follow-ups 19-21. 20261121100000 adds a transfer's rejection reason, the template's audit
+      // selection and a course status audit trigger; no colour, mark or brand surface.
+      //
       // MOVED 156 -> 157 for #148, maintenance and notices. 20261120100000 adds maintenance_windows, broadcast_notices,
       // the maintenance check in PostgREST's pre-request and the controls; no colour, mark or brand surface.
       //
@@ -1630,7 +1633,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 157, `${migrations.length} migrations; the frozen baseline has 157`);
+      c.expect(migrations.length === 158, `${migrations.length} migrations; the frozen baseline has 158`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3325,7 +3328,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 156 -> 157 for #148's maintenance and notices (20261120100000), not a
+      // from, not a claim about the tour. MOVED 157 -> 158 for follow-ups 19-21 (20261121100000), not a tour RPC (D-024).
+      // MOVED 156 -> 157 for #148's maintenance and notices (20261120100000), not a
       // tour RPC (D-024). MOVED 155 -> 156 for BOB-15's «Laporkan masalah» (20261119100000), not a tour
       // RPC (D-024). MOVED 154 -> 155 for BOB-43..47's educator as learner (20261118100000), not a
       // tour RPC (D-024). MOVED 153 -> 154 for BOB-29's shared-computer lock (20261117100000), not a
@@ -3414,7 +3418,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 157, `${migs.length} migrations; the baseline has 157`);
+      c.expect(migs.length === 158, `${migs.length} migrations; the baseline has 158`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
