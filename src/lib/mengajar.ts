@@ -46,6 +46,7 @@
  *
  * This module is pure. The reads that use it live in `src/lib/pengajar.ts`.
  */
+import type { HleEvent } from "./hle";
 
 /** A grant, as this module reads it: the target node, and nothing else. */
 export type Hibah = {
@@ -65,7 +66,36 @@ export type Simpul = {
   is_active?: boolean | null;
   institution_id: string;
   academic_period_id?: string | null;
+  /** BOB-45: the kind a member of this place is (org_nodes.member_kind). */
+  member_kind?: string | null;
 };
+
+/**
+ * BOB-45 (D-069(a), (k)): THE KIND A MEMBER OF A PLACE IS, as the database returns it -- a learner (academic) or a
+ * participant (educators' professional learning). The screens say «Murid» or «Peserta» from this and from nothing
+ * else; src never names or computes the place's learning context (R10).
+ */
+export type JenisAnggota = "LEARNER" | "PARTICIPANT";
+
+/** The database's value, failing safe to LEARNER: an unread kind changes no academic screen. */
+export function jenisAnggota(v: unknown): JenisAnggota {
+  return v === "PARTICIPANT" ? "PARTICIPANT" : "LEARNER";
+}
+
+/** DAISY-33: the words that name the people of a class, each with its participant form. */
+export const KATA_PESERTA = {
+  "mengajar.fakta.murid": "mengajar.fakta.peserta",
+  "mengajar.murid.judul": "mengajar.peserta.judul",
+  "mengajar.murid.kosong": "mengajar.peserta.kosong",
+  "mengajar.bukti.murid": "mengajar.bukti.peserta",
+  "mengajar.siap.terdaftar": "mengajar.siap.terdaftar_peserta",
+  "mengajar.siapa.kosong": "mengajar.siapa.kosong_peserta",
+} as const satisfies Record<string, HleEvent>;
+
+/** The word for this class's people: the learner key as it is, or its participant form. */
+export function kataAnggota(kunci: keyof typeof KATA_PESERTA, jenis: JenisAnggota): HleEvent {
+  return jenis === "PARTICIPANT" ? KATA_PESERTA[kunci] : kunci;
+}
 
 /** A class inside the teaching context. */
 export type KelasMengajar = {
@@ -73,6 +103,8 @@ export type KelasMengajar = {
   nama: string;
   institusi: string;
   periode: string | null;
+  /** BOB-45: «Murid» or «Peserta» on every count and list of this class. */
+  jenis: JenisAnggota;
 };
 
 export class LingkupError extends Error {}
@@ -141,6 +173,7 @@ export function kelasDalamLingkup(
       nama: n.name,
       institusi: n.institution_id,
       periode: n.academic_period_id ?? null,
+      jenis: jenisAnggota(n.member_kind),
     });
   }
   return out.sort((a, b) => a.nama.localeCompare(b.nama, "id"));

@@ -629,8 +629,12 @@ begin
   -- ASSIGNMENT is made at the department and the educator's MEMBERSHIP sits
   -- at the class beneath it -- which is how every other learner reaches an
   -- assignment made above them.
-  insert into public.org_nodes (institution_id, parent_id, kind, name)
-  values (p_inst, p_parent, 'DEPARTMENT', 'Pengembangan Profesi') returning org_nodes.id into v_node;
+  -- RESTATED FOR BOB-43 (a changed requirement, D-069(d)): the place says what it
+  -- is for, on the Bagian, and every node below inherits it; an academic Bagian
+  -- would now refuse this professional-development assignment
+  insert into public.org_nodes (institution_id, parent_id, kind, name, learning_context)
+  values (p_inst, p_parent, 'DEPARTMENT', 'Pengembangan Profesi', 'PROFESSIONAL_DEVELOPMENT')
+  returning org_nodes.id into v_node;
   insert into public.org_nodes (institution_id, parent_id, kind, name)
   values (p_inst, v_node, 'PROGRAMME', 'Program Pengembangan') returning org_nodes.id into v_prog;
   insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
@@ -6388,10 +6392,12 @@ begin
         bad := bad || array[format('the school''s competency outcomes should count at least the five learners against the minimum of 10, they said %s', v)];
       end if;
 
-      -- D-060: the live catalogue is MC-4 (D-088(g)), and MC-4 is MC-3 copied forward with every definition,
-      -- minimum sample and audience identical, its sources MC-3's plus the three content relations
-      if v_cat is distinct from 'MC-4' then
-        bad := bad || array[format('the live metric catalogue is %s, not MC-4', coalesce(v_cat, 'none'))];
+      -- D-060: MC-4 (D-088(g)) is MC-3 copied forward with every definition, minimum sample and audience
+      -- identical, its sources MC-3's plus the three content relations. RESTATED FOR BOB-47 (a changed requirement,
+      -- D-069(b), D-060(a)): the live catalogue is MC-5, MC-4 copied forward unchanged (asserted by its migration
+      -- and BOB47-D01); MC-4 itself stays as it was (D-060(e)), so its relation to MC-3 is still checked here
+      if v_cat is distinct from 'MC-5' then
+        bad := bad || array[format('the live metric catalogue is %s, not MC-5', coalesce(v_cat, 'none'))];
       else
         if exists (select 1 from (select * from public.metric_definitions where catalogue_version = 'MC-4') d4
                     full join (select * from public.metric_definitions where catalogue_version = 'MC-3') d3

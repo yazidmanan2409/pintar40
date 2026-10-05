@@ -2147,6 +2147,10 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-str-isian-tahun { flex: 0 1 20ch; }
 .pin-str-isian label { font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2); }
 .pin-str-isian .pin-input { width: 100%; min-width: 0; }
+/* BOB-43 / DAISY-32: what a new Bagian is for -- two choices, the school's teaching preselected, each a whole row */
+.pin-str-untuk { border: 0; padding: 0; margin: 0; flex: 1 1 100%; }
+.pin-str-untuk legend { padding: 0; font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-str-pilih { display: flex; align-items: center; gap: var(--space-2); min-height: var(--control-h); font-size: var(--type-body); }
 .pin-str-pesan { margin: 0; font-size: var(--type-meta); color: var(--status-ok); }
 .pin-str-ubah { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); flex: 1 1 20ch; min-width: 0; }
 .pin-str-ubah .pin-input { flex: 1 1 20ch; min-width: 0; }

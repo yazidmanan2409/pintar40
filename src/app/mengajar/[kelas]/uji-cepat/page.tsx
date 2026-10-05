@@ -13,6 +13,7 @@ import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
 import { bacaGagalUjiCepat } from "@/lib/ujicepat-kontrak";
 import { kalimatTolakUjiCepat } from "@/components/mengajar/tolakUjiCepat";
 import { TeksBaris } from "@/components/teks/Teks";
+import { kataAnggota } from "@/lib/mengajar";
 
 export const dynamic = "force-dynamic";
 
@@ -347,7 +348,7 @@ export default async function UjiCepat({
               <span className="pin-label">{s("mengajar.cepat.untuk")}</span>
               <p className="pin-value">
                 {ctx.ini.nama} ({s("mengajar.siap.dipilih")}) ·{" "}
-                {n(fakta.murid.length)} {s("mengajar.siap.terdaftar")}
+                {n(fakta.murid.length)} {s(kataAnggota("mengajar.siap.terdaftar", ctx.ini.jenis))}
               </p>
             </div>
 

@@ -129,7 +129,8 @@ export const d088gTests: SelfTest[] = [
       const kelas = snap.KELAS;
       if (!c.expect(!!kelas, "the database half returned no snapshot")) return c.verdict("");
       const h = kelas.hasil;
-      c.expect(kelas.katalog === "MC-4" && h?.catalogue_version === "MC-4", `the live catalogue is ${kelas.katalog}; expected MC-4`);
+      // RESTATED FOR BOB-47 (a changed requirement, D-060(a)): MC-5 is MC-4 copied forward, the topic grouping unchanged
+      c.expect(kelas.katalog === "MC-5" && h?.catalogue_version === "MC-5", `the live catalogue is ${kelas.katalog}; expected MC-5`);
       c.expect(h?.status === "ok", `the class's per-topic mastery did not show for ten learners: ${JSON.stringify(h)}`);
       const baris = (Array.isArray(h?.value) ? h.value : []) as Array<{ objective_id: string | null; code: string; competency: string; mean_score: number; learners: number }>;
       const [o1, o2] = kelas.objektif as string[];

@@ -46,6 +46,8 @@ export function kalimatTolakUjiCepat(
       return `${awal} ${s("mengajar.cepat.tolak.pilih_bukan")}`;
     case "QUICK_SELECTION_SIBLINGS":
       return `${awal} ${s("mengajar.cepat.tolak.pilih_versi")}`;
+    case "QUICK_CONTEXT_MISMATCH":
+      return `${awal} ${s("mengajar.cepat.tolak.konteks")}`;
     default:
       // QUICK_FAILED, or a code the contract does not know: the app's general
       // line, and the reference only when the address carried one

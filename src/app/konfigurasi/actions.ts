@@ -167,6 +167,29 @@ export async function pindahKelasAction(fd: FormData): Promise<void> {
 }
 
 /**
+ * BOB-44 / DAISY-32 (D-069(e), D-070(c)): «Daftarkan sebagai peserta». One call, as the signed-in administrator:
+ * `enrol_for_professional_learning` places an existing person who holds a staff role at the school in a
+ * professional-learning Kelas or Tingkat, reusing their enrolment for the year, and audits it. It creates no person,
+ * account or number. Every rule is the database's; a refusal comes back as its code.
+ */
+export async function daftarkanPesertaAction(fd: FormData): Promise<void> {
+  const orang = uuidOrNull(str(fd, "orang"));
+  const tempat = uuidOrNull(str(fd, "tempat"));
+  const sekolah = uuidOrNull(str(fd, "sekolah"));
+  const kembali = (h: HasilAksi): never => {
+    const q = queryHasil("peserta", h);
+    if (sekolah) q.set("sekolah", sekolah);
+    redirect(`/konfigurasi?${q.toString()}#peserta`);
+  };
+  if (!orang || !tempat) kembali({ ok: false, kode: "PD_INPUT_INCOMPLETE" });
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("enrol_for_professional_learning", { p_person: orang, p_node: tempat });
+  if (error) kembali(ditolak("enrol_for_professional_learning", error));
+  revalidatePath("/konfigurasi");
+  kembali({ ok: true, kode: "PD_ENROLLED" });
+}
+
+/**
  * D-088(b), BOB-49: the school admin sets a lesson's pass mark (a whole percentage and a reason). The database decides
  * who may (the school's INSTITUTION_ADMIN), keeps the change as a new row, audits it and seals it only onto what is
  * given afterwards.
@@ -248,13 +271,13 @@ export async function saveReportTemplateAction(fd: FormData): Promise<void> {
  * whose response was lost has still happened, and a retry then answers
  * STRUCTURE_NAME_TAKEN.
  *
- *   buatBagianAksi           institusi, nama
+ *   buatBagianAksi           institusi, nama, untuk ("murid" | "guru")
  *   buatTingkatAksi          bagian, nama, tahun_ajaran
  *   buatKelasAksi            tingkat, nama, tahun_ajaran (optional; must be the Tingkat's)
  *   ubahNamaStrukturAksi     simpul, nama
  *   nonaktifkanStrukturAksi  simpul, alasan
  */
-async function struktur(fn: string, args: Record<string, string | null>): Promise<HasilStruktur> {
+async function struktur(fn: string, args: Record<string, string | boolean | null>): Promise<HasilStruktur> {
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc(fn, args);
   if (error || typeof data !== "string") {
@@ -277,7 +300,8 @@ const KURANG: HasilStruktur = { ok: false, code: "STRUCTURE_INPUT_INVALID" };
 export async function buatBagianAksi(_prev: HasilStruktur | null, fd: FormData): Promise<HasilStruktur> {
   const institusi = uuidOrNull(str(fd, "institusi"));
   if (!institusi) return KURANG;
-  return struktur("create_bagian", { p_institution: institusi, p_name: str(fd, "nama") });
+  // BOB-43 / DAISY-32: what the Bagian is for, asked once and never changed; a boolean, so nothing here names the context
+  return struktur("create_bagian", { p_institution: institusi, p_name: str(fd, "nama"), p_for_educators: str(fd, "untuk") === "guru" });
 }
 
 export async function buatTingkatAksi(_prev: HasilStruktur | null, fd: FormData): Promise<HasilStruktur> {

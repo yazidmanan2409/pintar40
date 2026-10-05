@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 178,
+  "version": 179,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3069,6 +3069,21 @@
       "id": "BOB29-D01",
       "runner": "static",
       "proves": "BOB-29 (Gate 6), migration 20261117100000 against the database, rolled back (selftest/bob29.test.ts): authenticator's pgrst.db_pre_request is pintar_permintaan.periksa; sesi_periksa makes a staff person's first session SHARED and asks, a card's CARD, a persona's nothing; no client reads device_sessions or calls sesi_buka, and a card declares no computer; sesi_tetapkan_perangkat makes this browser PERSONAL for the person and the session and the next one follow; a personal session 6 days idle passes the pre-request; a shared one 5 minutes idle is refused PT423 except sesi_periksa and sesi_akhiri_saya, other sessions untouched; activity never unlocks; sesi_buka counts a wrong PIN, opens with the right staff PIN or card secret, never for another person, and the third wrong ends it (PIN_GAGAL, auth.sessions row deleted, PT401); 60 minutes locked end it (KUNCI_HABIS) and an abandoned one is ended on another's request; sesi_kunci_saya; sesi_akhiri_saya (KELUAR) and sesi_akhiri_semua; audit_log rows for each."
+    },
+    {
+      "id": "BOB43-K01",
+      "runner": "static",
+      "proves": "BOB-43..47 / DAISY-32..34 (D-069, D-070), the contracts run (selftest/bob43.test.ts executes them, and reads the copy table): src/lib/mengajar.ts maps a place's returned kind to «Murid» or «Peserta» for every count and list key, both languages, an unknown kind failing safe to LEARNER; the structure counts say peserta; ASSIGN_CONTEXT_MISMATCH is read by Siapkan and as QUICK_CONTEXT_MISMATCH by Uji Cepat; PR090's six PD_* codes are read by DETAIL only and each has its sentence; the record read (src/lib/pengembangan-kontrak.ts) keeps exactly the columns the database returned; «Pindah kelas» never offers a place of the other purpose."
+    },
+    {
+      "id": "BOB43-S01",
+      "runner": "static",
+      "proves": "BOB-43..47 / DAISY-32..34, the source (selftest/bob43.test.ts): the Konfigurasi Bagian form passes one boolean with the school's teaching preselected and shows the purpose read-only; Siapkan, the class page and «Langkah» ask releases_matching_place for their class; the teacher's counts and lists use the returned kind; «Murid pada bagian ini» and the transfer picker list learners only; the enrol form makes one database call on two database reads; the record route /pengembangan/[simpul] is one database read linked from the facilitator's Kelas and /pimpinan outside the decision queue; no new src file names the learning context; the boundary and the membership rule are triggers in migration 20261118100000."
+    },
+    {
+      "id": "BOB43-D01",
+      "runner": "static",
+      "proves": "BOB-43..47, migration 20261118100000 against the database, rolled back (selftest/bob43.test.ts): a place's kind is set on the Bagian (create_bagian's boolean too), inherited, never changed or moved across; ASSIGN_CONTEXT_MISMATCH refuses PD material in an academic Kelas, academic material in a PD Kelas, any above a Bagian and an Uji Cepat across; Siapkan is offered matching releases only; enrol_for_professional_learning enrols a staff member ACTIVE or PENDING, reuses the enrolment, makes no person, account or number, and refuses an academic Kelas, a Murid (also by direct membership), a duplicate, another school's teacher and callers without CAN_PROVISION_PEOPLE; the briefing and Management's learner record count no PD; PD sessions, progress, answers and integrity signals reach only the ruled audiences, referral is refused for everyone; every academic row of five tables is read exactly as the previous policies admit for ten readers; professional_learning_record gives the facilitator, Dekan and PD head progress and the result through catalogue MC-5, Admin sekolah completion only, and refuses everyone else."
     },
     {
       "id": "BOB29-A01",

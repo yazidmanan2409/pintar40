@@ -205,8 +205,9 @@ function FormTambah({
   // action, and a refusal must not wipe what was typed.
   const [nama, setNama] = useState("");
   const [tahun, setTahun] = useState(tahunBawaan ?? "");
+  const [untuk, setUntuk] = useState<"murid" | "guru">("murid");
   const [jejak, kirim, sibuk] = useAksi(aksi, (h) => {
-    if (h.ok) setNama("");
+    if (h.ok) { setNama(""); setUntuk("murid"); }
   });
   const idNama = `str-nama-${tingkatan}-${induk.id}`;
   const idTahun = `str-tahun-${induk.id}`;
@@ -228,6 +229,21 @@ function FormTambah({
             autoComplete="off"
           />
         </div>
+        {/* BOB-43 / DAISY-32 (D-069(d)): what a new Bagian is for, asked once; its Tingkat and Kelas follow it */}
+        {tingkatan === "BAGIAN" && (
+          <fieldset className="pin-str-untuk">
+            <legend>{s("config.struktur.untuk")}</legend>
+            <label className="pin-str-pilih">
+              <input type="radio" name="untuk" value="murid" checked={untuk === "murid"} onChange={() => setUntuk("murid")} />
+              {s("config.struktur.untuk.murid")}
+            </label>
+            <label className="pin-str-pilih">
+              <input type="radio" name="untuk" value="guru" checked={untuk === "guru"} onChange={() => setUntuk("guru")} />
+              {s("config.struktur.untuk.guru")}
+            </label>
+            <p className="pin-hint">{s("config.struktur.untuk.arti")}</p>
+          </fieldset>
+        )}
         {tahunBawaan !== undefined && (
           <div className="pin-str-isian pin-str-isian-tahun">
             <label htmlFor={idTahun}>{s("config.struktur.tahun")}</label>
@@ -276,7 +292,7 @@ function BarisSimpul({ simpul, locale }: { simpul: SimpulStruktur; locale: Local
     setTerakhir("dinonaktifkan");
     if (h.ok) setMode("lihat");
   });
-  const murid = jumlahMurid(simpul.active_members, locale);
+  const murid = jumlahMurid(simpul.active_members, locale, simpul.member_kind);
   const jejak = terakhir === "diubah" ? jejakUbah : jejakNonaktif;
 
   return (
@@ -309,6 +325,8 @@ function BarisSimpul({ simpul, locale }: { simpul: SimpulStruktur; locale: Local
         )}
         {simpul.academic_year && <span className="pin-num pin-str-tahun">{simpul.academic_year}</span>}
         {murid && <span className="pin-str-murid">{murid}</span>}
+        {/* DAISY-32: shown, never changed, on the Bagian and every Tingkat and Kelas under it */}
+        {simpul.member_kind === "PARTICIPANT" && <span className="pin-str-tanda">{s("config.struktur.untuk_guru")}</span>}
         {!simpul.is_active && <span className="pin-str-tanda">{s("config.struktur.nonaktif")}</span>}
         {bolehDiubah(simpul) && mode === "lihat" && (
           <span className="pin-str-aksi">

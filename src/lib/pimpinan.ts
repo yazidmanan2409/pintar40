@@ -443,14 +443,18 @@ export async function daftarMurid(node: string): Promise<MuridDalamLingkup[]> {
  */
 export async function daftarMuridDari(c: Db, node: string): Promise<MuridDalamLingkup[]> {
   const simpul = [...new Set([node, ...(await cabangDari(c, [node])).map((n) => n.id)])];
-  // a closed membership (valid_to set) is a class the learner has left
+  // a closed membership (valid_to set) is a class the learner has left. BOB-45 (D-069(b)G): «Murid pada bagian ini»
+  // lists learners only -- a place for educators' professional learning holds participants, who are seen on its
+  // professional-learning record instead (D-070(a)); the place's kind is the database's (member_kind)
   const { data: anggota } = await c
     .from("memberships")
-    .select("enrollment_id, node_id")
+    .select("enrollment_id, node_id, node:org_nodes(member_kind)")
     .in("node_id", simpul)
     .is("valid_to", null);
   const enrolIds = [
-    ...new Set(rows<{ enrollment_id: string }>(anggota).map((m) => String(m.enrollment_id))),
+    ...new Set(rows<{ enrollment_id: string; node: { member_kind: string | null } | null }>(anggota)
+      .filter((m) => m.node?.member_kind !== "PARTICIPANT")
+      .map((m) => String(m.enrollment_id))),
   ];
   if (enrolIds.length === 0) return [];
 

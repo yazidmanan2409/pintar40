@@ -71,7 +71,9 @@ export function tujuanPindah(rows: readonly SimpulStruktur[], dari: string): Sim
   if (!asal) return [];
   return rows
     .filter((k) => k.level === "KELAS" && k.is_active && k.node_id !== dari
-      && (asal.level === "KELAS" ? k.academic_year === asal.academic_year : k.parent_id === asal.node_id))
+      && (asal.level === "KELAS" ? k.academic_year === asal.academic_year : k.parent_id === asal.node_id)
+      // BOB-43: never across a Bagian's purpose; the database refuses that move (PD_OTHER_PURPOSE / PD_PERSON_NOT_STAFF)
+      && (k.member_kind ?? "LEARNER") === (asal.member_kind ?? "LEARNER"))
     .sort((a, b) => a.name.localeCompare(b.name, "id", { numeric: true, sensitivity: "base" }));
 }
 

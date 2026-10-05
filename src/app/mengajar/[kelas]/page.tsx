@@ -9,6 +9,8 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import PemilihKelas from "@/components/mengajar/PemilihKelas";
 import DaftarMurid from "@/components/mengajar/DaftarMurid";
+import { kataAnggota } from "@/lib/mengajar";
+import { alamatCatatan } from "@/lib/pengembangan-kontrak";
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +63,7 @@ export default async function Kelas({
     ajar.faktaKelas(id),
     ajar.penugasan(id),
     ajar.berjalan([id]),
-    ajar.terbitan(ctx.ini.institusi),
+    ajar.terbitan(ctx.ini.institusi, id),
   ]);
 
   const punya = new Set(tugas.map((x) => x.releaseId));
@@ -97,7 +99,7 @@ export default async function Kelas({
             <dd>{fakta.mapel ?? "—"}</dd>
           </div>
           <div>
-            <dt>{s("mengajar.fakta.murid")}</dt>
+            <dt>{s(kataAnggota("mengajar.fakta.murid", ctx.ini.jenis))}</dt>
             <dd className="pin-num">{format.number(fakta.murid.length, locale)}</dd>
           </div>
           <div>
@@ -120,6 +122,12 @@ export default async function Kelas({
           <Link className="pin-btn" href={`/mengajar/${id}/bukti`}>
             {s("mengajar.aksi.bukti")}
           </Link>
+          {/* DAISY-34 (D-070(a)): a professional-learning Kelas's record, for its facilitator; the database decides again */}
+          {ctx.ini.jenis === "PARTICIPANT" ? (
+            <Link className="pin-btn" href={alamatCatatan(id)}>
+              {s("mengajar.kelas.catatan_pengembangan")}
+            </Link>
+          ) : null}
           <Link className="pin-btn" href={`/mengajar/${id}/langkah`}>
             {s("mengajar.aksi.langkah")}
           </Link>
@@ -201,15 +209,15 @@ export default async function Kelas({
         </div>
 
         <div className="pin-sec">
-          <h2>{s("mengajar.murid.judul")}</h2>
+          <h2>{s(kataAnggota("mengajar.murid.judul", ctx.ini.jenis))}</h2>
           <p className="pin-sub">
-            {format.number(fakta.murid.length, locale)} {s("mengajar.fakta.murid").toLowerCase()}.{" "}
+            {format.number(fakta.murid.length, locale)} {s(kataAnggota("mengajar.fakta.murid", ctx.ini.jenis)).toLowerCase()}.{" "}
             {s("mengajar.murid.sub")}
             {fakta.rosterBerubah
               ? ` ${s("mengajar.fakta.berubah")} ${format.date(fakta.rosterBerubah, locale)}.`
               : ""}
           </p>
-          <DaftarMurid murid={fakta.murid} locale={locale} kelas={id} />
+          <DaftarMurid murid={fakta.murid} locale={locale} kelas={id} kosong={kataAnggota("mengajar.murid.kosong", ctx.ini.jenis)} />
         </div>
 
         <KakiPintar />

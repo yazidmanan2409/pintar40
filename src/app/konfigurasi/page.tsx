@@ -7,7 +7,7 @@ import KartuKesehatan, { type KeadaanKesehatan } from "@/components/konfigurasi/
 import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
-  grantRoleAction, pindahKelasAction, revokeRoleAction, rolloverAction, saveReportTemplateAction,
+  daftarkanPesertaAction, grantRoleAction, pindahKelasAction, revokeRoleAction, rolloverAction, saveReportTemplateAction,
   tetapkanBatasAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction, transferRequestAction,
 } from "./actions";
 import { pelajaranDanBatas } from "@/lib/batas-ketuntasan";
@@ -26,6 +26,7 @@ import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
 import { asalPindah, muridDiKelas, namaKelas, tujuanPindah } from "@/lib/pindah-kelas";
 import { persiapanSekolah, type PeranTerbaca } from "@/lib/persiapan-sekolah";
 import { lingkupPeran } from "@/lib/lingkup-peran";
+import { alamatCatatan, formulirPeserta, tempatCatatan } from "@/lib/pengembangan";
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -105,7 +106,9 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   // platform's history. Named, it reads the (institution_id, ...) indexes. Measured as gs-001's administrator on
   // staging (whole-system efficiency audit, 2 Oct): the audit trail 1,979 ms -> 15 ms, the enrolments 490 -> 6 ms,
   // the same rows. The platform administrator's reads are unchanged.
-  const enrolmen = supabase.from("enrollments").select("id, person_id, institution_id, academic_period_id, status").eq("status", "ACTIVE");
+  // BOB-45: member_kind (a computed field) says whether an enrolment is a learner's or a professional-learning
+  // participant's; the transfer picker lists learners' only
+  const enrolmen = supabase.from("enrollments").select("id, person_id, institution_id, academic_period_id, status, member_kind").eq("status", "ACTIVE");
   const jejak = supabase.from("audit_log").select("id, at, action, target_table, target_id, institution_id, build_sha");
 
   const [
@@ -219,9 +222,12 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   // admits -- the same predicate it asks on arrival. A platform administrator
   // holds no school's CAN_PROVISION_PEOPLE and was sent to a refusal.
   // D-088(b): the lessons the school can give, each with its pass mark (or none) and its history
-  const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan] = await Promise.all([
+  // BOB-44 / DAISY-32: the enrol form's places and people, and (DAISY-34) the records this administrator may open
+  const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan, peserta, catatanPd] = await Promise.all([
     bacaanStruktur, currentLocale(), bacaanAkar, sekolahPendataan().then((x) => x.length > 0).catch(() => false),
     sekolahStruktur ? pelajaranDanBatas(supabase, sekolahStruktur.id) : Promise.resolve(null),
+    sekolahStruktur ? formulirPeserta(sekolahStruktur.id) : Promise.resolve(null),
+    tempatCatatan(),
   ]);
   const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
   // M9: the Kelas whose students «Pindah kelas» lists, if one was chosen, and
@@ -242,6 +248,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     ["struktur", s("config.section.struktur")],
     ["ketuntasan", s("config.section.ketuntasan")],
     ["pindah", s("config.section.pindah")],
+    ["peserta", s("config.section.peserta")],
     ["laporan", s("config.laporan.judul")],
     ["system", s("config.section.system")], ["rollover", s("config.section.rollover")], ["transfers", s("config.section.transfers")],
     ["roles", s("config.section.roles")], ["audit", s("config.section.audit")],
@@ -520,6 +527,59 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             )}
           </section>
 
+          {/* BOB-44 / DAISY-32 (D-069(e), D-070(c)). PESERTA PENGEMBANGAN PROFESI: an existing teacher or staff member of
+              this school is enrolled as a participant in a professional-learning Kelas. The people offered are those the
+              database says hold a staff role here now; the places, this school's professional-learning Kelas and
+              Tingkat. enrol_for_professional_learning decides again, creates no person, account or number, and audits.
+              DAISY-34: the records this administrator may open are linked here, read-only, never as a figure. */}
+          <section id="peserta" className={card} aria-labelledby="pin-peserta">
+            <h2 id="pin-peserta" className="font-medium">{sl("config.section.peserta")}</h2>
+            {sekolahStruktur && peserta ? (
+              <>
+                <p className="mt-1 text-sm text-ink-2">{sl("config.peserta.arti")}</p>
+                {peserta.tempat.length > 0 ? (
+                  <form action={daftarkanPesertaAction} className="mt-3 flex flex-wrap items-end gap-2">
+                    <input type="hidden" name="sekolah" value={sekolahStruktur.id} />
+                    <label className={label}>{sl("config.peserta.orang")}
+                      <select name="orang" className={field} required defaultValue="">
+                        <option value="" disabled>—</option>
+                        {peserta.calon.map((o) => <option key={o.id} value={o.id}>{o.nama}</option>)}
+                      </select>
+                    </label>
+                    <label className={label}>{sl("config.peserta.tempat")}
+                      <select name="tempat" className={field} required defaultValue="">
+                        <option value="" disabled>—</option>
+                        {peserta.tempat.map((k) => (
+                          <option key={k.id} value={k.id}>{[k.tingkat, k.nama].filter(Boolean).join(" · ")}{k.tahun ? ` (${k.tahun})` : ""}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.peserta.daftarkan")}</TombolKirim>
+                  </form>
+                ) : (
+                  <p className="mt-3 text-sm text-ink-3">{sl("config.peserta.tanpa_tempat")}</p>
+                )}
+                {result("peserta")}
+                {catatanPd.length > 0 ? (
+                  <nav className="mt-3 text-sm" aria-label={sl("config.peserta.catatan")}>
+                    <p className="text-ink-3">{sl("config.peserta.catatan")}</p>
+                    <ul className="mt-1 grid gap-1">
+                      {catatanPd.map((k) => (
+                        <li key={k.id}>
+                          <Link href={alamatCatatan(k.id)} className={tautanTempat}>
+                            {k.nama}{k.tahun ? ` (${k.tahun})` : ""}<TandaTautan />
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                ) : null}
+              </>
+            ) : (
+              <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
+            )}
+          </section>
+
           {/* DAISY-07 (B6b). THE SCHOOL'S REPORTS, one click away. BOB-06 gave
               every school PINTAR's standard class and school reports; nothing
               linked to them, so an administrator had to type an id. The school
@@ -660,7 +720,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <label className={`${label} sm:col-span-2`}>{s("config.label.enrollment")}
                 <select name="from_enrollment" className={field} required defaultValue="">
                   <option value="" disabled>—</option>
-                  {(enrollments ?? []).filter((e) => isSys || adminInstitutionIds.includes(e.institution_id)).map((e) => (
+                  {(enrollments ?? []).filter((e) => (isSys || adminInstitutionIds.includes(e.institution_id))
+                    && e.member_kind !== "PARTICIPANT").map((e) => (
                     <option key={e.id} value={e.id}>
                       {personName.get(e.person_id) ?? short(e.person_id)} · {institutionName.get(e.institution_id) ?? short(e.institution_id)} · {periodName.get(e.academic_period_id) ?? ""}
                     </option>
