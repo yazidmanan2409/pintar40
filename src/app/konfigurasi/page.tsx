@@ -683,7 +683,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     <input type="checkbox" name="pm_platform" value="1" defaultChecked={pmPlatform} /> {sl("config.pemeliharaan.platform")}
                   </label>
                 ) : null}
-                {myInstitutions.map((i) => (
+                {sekolahKu.map((i) => (
                   <label key={i.id} className="flex items-center gap-2">
                     <input type="checkbox" name="pm_sekolah" value={i.id} defaultChecked={pmSekolah.includes(i.id)} /> {i.name}
                   </label>
@@ -778,7 +778,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 {isSys === true ? (
                   <label className="flex items-center gap-2"><input type="checkbox" name="platform" value="1" /> {sl("config.pemeliharaan.platform")}</label>
                 ) : null}
-                {myInstitutions.map((i) => (
+                {sekolahKu.map((i) => (
                   <label key={i.id} className="flex items-center gap-2"><input type="checkbox" name="sekolah" value={i.id} /> {i.name}</label>
                 ))}
               </fieldset>
@@ -829,7 +829,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   <fieldset className="grid gap-1 text-sm">
                     <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
                     <label className="flex items-center gap-2"><input type="checkbox" name="platform" value="1" /> {sl("config.pemeliharaan.platform")}</label>
-                    {myInstitutions.map((i) => (
+                    {sekolahKu.map((i) => (
                       <label key={i.id} className="flex items-center gap-2"><input type="checkbox" name="sekolah" value={i.id} /> {i.name}</label>
                     ))}
                   </fieldset>

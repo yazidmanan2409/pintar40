@@ -402,6 +402,10 @@ export const m148Tests: SelfTest[] = [
       c.expect(/<section id="pemeliharaan"/.test(konf) && /rpc\("maintenance_collisions"/.test(konf) && /action=\{jadwalkanPemeliharaanAction\}/.test(konf)
         && /\{isSys === true \? \(\s*<div[^>]*data-hentikan="1"/.test(konf) && /action=\{hentikanSekarangAction\}/.test(konf),
         "Konfigurasi does not check the window against the assessments before scheduling, or offers «Hentikan sekarang» beyond Admin platform");
+      // the schools a window or notice may name are the school picker's own (sekolahDitawarkan): never the national library
+      const bagian148 = konf.slice(konf.indexOf('<section id="pemeliharaan"'), konf.indexOf("</section>", konf.indexOf('data-hentikan="1"')));
+      c.expect((bagian148.match(/sekolahKu\.map\(/g) ?? []).length === 3 && !/myInstitutions/.test(bagian148),
+        "the maintenance section offers schools beyond the school picker's own, the national library among them");
       const aksi = baca("src", "app", "konfigurasi", "actions.ts");
       for (const fn of ["schedule_maintenance", "change_maintenance", "stop_pintar_now", "publish_notice", "withdraw_notice"]) {
         c.expect(new RegExp(`rpc\\("${fn}"`).test(aksi), `${fn} is not one database call`);
