@@ -3194,6 +3194,21 @@
       "proves": "#150 G5, end to end (selftest/dr150.test.ts): the guard against a local stand-in for Vercel's env API and PostgREST mints into an empty production; refuses, writing no verdict, when Vercel has lost both secrets and production holds classroom cards, or when a count cannot be read; keeps held, recorded secrets whose certificate key opens the issued seal; refuses a certificate key that does not open it; and never prints a value."
     },
     {
+      "id": "DR-S04",
+      "runner": "static",
+      "proves": "#150 G6, the restore-point check (selftest/dr150.test.ts, scripts/release/restore-point.mjs): a production apply proceeds only when Supabase lists a COMPLETED backup no older than 26 hours (D-103's 24-hour RPO plus slack), and the check names that backup and its age; it refuses an unreadable list (a 403 names the permission the token needs), no completed backup, an older one, one dated in the future and a malformed answer; end to end against a stand-in for the Management API it asks with GET only, writes the record and never prints the token."
+    },
+    {
+      "id": "DR-S05",
+      "runner": "static",
+      "proves": "#150 G6, the wiring (selftest/dr150.test.ts): .github/workflows/deploy-supabase-production.yml runs the restore-point check, from the workflow's own commit with production's token, after the state before and before any migration, records the WAL archiver's state and the database's facts before the apply (read only; counts, hashes and names) and keeps the record as an artifact for 90 days; .github/workflows/restore-rehearsal.yml counts readiness FAIL rows by the verdict each line begins with."
+    },
+    {
+      "id": "DR-D01",
+      "runner": "static",
+      "proves": "#150 G7, the readiness check against CI's database (selftest/dr150.test.ts, docs/audit/launch-readiness.sql): 24 rows with no unplanted FAIL (the five live-content rows reported, not required), the two rows restated for G7 among them; with the 5 Oct restore rehearsal's drift planted in a transaction and rolled back (every right granted to anon and authenticated through default privileges, the password-write guard dropped from auth.users, the PostgREST pre-request lost) and two more (the assets bucket public, a function under another owner), each G7 row and the anonymous-surface row FAIL and name what differs, while the untouched rows stay PASS."
+    },
+    {
       "id": "BOB29-A01",
       "runner": "app",
       "proves": "BOB-29 (Gate 6) against the running app, Auth and PostgREST: a teacher's unknown browser is sent to /perangkat («Komputer siapa ini?», shared chosen) before /mengajar; declared shared, 5 minutes without activity send /mengajar to /terkunci, /api/sesi/detak to 423 and PostgREST's /rest/v1 to 423, a refreshed token too, while the same person's other computer is served; the rendered html of /terkunci has the PIN field and a form to /keluar; a wrong PIN leaves 2 tries and the right one (2817) serves the page and the data again.",

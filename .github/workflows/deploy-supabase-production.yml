@@ -32,6 +32,13 @@
 #     table, in version order, each in its own transaction, writing the
 #     canonical history record atomically with it. A migration that fails its
 #     own ADR-0014 verification block rolls itself back and stops the run.
+#   * #150 G6: nothing is applied without a restore point. Supabase must
+#     report a COMPLETED backup of production no older than 26 hours (named
+#     restore points are not offered to this plan, and point-in-time recovery
+#     is off by D-103), and the run records which backup that is, the WAL
+#     archiver's state and the database's facts before the apply (counts,
+#     hashes and names only) as an artifact kept 90 days. If the backups
+#     cannot be read, nothing is applied.
 #
 # It applies migrations. It creates no data, no identity and no role, and it
 # changes no grant.
@@ -142,6 +149,38 @@ jobs:
           psql "$PROBE_URL" -At \
             -c "select count(*)||' applied, last '||coalesce(max(version),'-') from supabase_migrations.schema_migrations"
 
+      # #150 G6: see the header. GET-only against the Management API, read-only
+      # against the database; a REFUSE stops the run before any migration.
+      - name: Restore point — a completed backup no older than 26 hours, recorded
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
+          PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          # The check and the fact query come from the commit this workflow
+          # runs from, not from the frozen release, which predates them.
+          git fetch --no-tags --depth=1 origin "$GITHUB_SHA"
+          git show FETCH_HEAD:scripts/release/restore-point.mjs > "$RUNNER_TEMP/restore-point.mjs"
+          git show FETCH_HEAD:audit/restore/fakta.sql > "$RUNNER_TEMP/fakta.sql"
+          R="$RUNNER_TEMP/restore-point"; mkdir -p "$R"
+          node "$RUNNER_TEMP/restore-point.mjs" check "$R/backup.json"
+          PGOPTIONS='-c default_transaction_read_only=on' psql "$PROBE_URL" -v ON_ERROR_STOP=1 -At -F ' | ' \
+            -c "select 'migrations', count(*)::text, coalesce(max(version), '-') from supabase_migrations.schema_migrations" \
+            -c "select 'wal archiver', archived_count::text, coalesce(last_archived_time::text, '-'), failed_count::text, coalesce(last_failed_time::text, '-') from pg_stat_archiver" \
+            > "$R/state.txt"
+          PGOPTIONS='-c default_transaction_read_only=on' psql "$PROBE_URL" -v ON_ERROR_STOP=1 -At -f "$RUNNER_TEMP/fakta.sql" > "$R/facts-before.txt"
+          cat "$R/state.txt"
+          echo "facts before the apply: $(grep -c '^T|' "$R/facts-before.txt") tables, $(grep -c '^P|' "$R/facts-before.txt") functions (counts, hashes and names only)"
+          { echo "### Restore point (#150 G6)"; echo; echo '```'; cat "$R/backup.json"; cat "$R/state.txt"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the restore point's record
+        uses: actions/upload-artifact@v4
+        with:
+          name: restore-point-${{ github.run_id }}
+          path: ${{ runner.temp }}/restore-point
+          retention-days: 90
+          if-no-files-found: error
+
       - name: Apply pending migrations
         run: |
           set -euo pipefail
@@ -171,6 +210,10 @@ jobs:
       # live data; they mutate nothing and insert nothing. The selftest DB suites
       # are deliberately NOT here -- they mutate business data and are never
       # pointed at a hosted project.
+      # The row count is the PINNED release's: 17 for c358f58. From the release
+      # that carries #150 G7 (docs/audit/launch-readiness.sql with its G7 rows
+      # and the two rows restated for it) the count is 24 and moves with
+      # RELEASE_SHA in the same commit (DR-S05).
       - name: Launch readiness — 17 rows, all PASS
         env:
           PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}

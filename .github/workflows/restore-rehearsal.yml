@@ -169,7 +169,13 @@ jobs:
           set +e -uo pipefail
           PGOPTIONS='-c default_transaction_read_only=on' psql "$LOKAL_DB" -At -F '|' -f audit/restore/fakta.sql > "$RUNNER_TEMP/pulih.txt" 2> "$RUNNER_TEMP/pulih-fakta.err"
           bash audit/restore/banding.sh "$RUNNER_TEMP/sesudah.txt" "$RUNNER_TEMP/sebelum.txt" "$RUNNER_TEMP/pulih.txt"
-          echo "launch readiness (docs/audit/launch-readiness.sql), FAIL rows: staging $(PGOPTIONS='-c default_transaction_read_only=on' psql "$DB" -At -F ' | ' -f docs/audit/launch-readiness.sql | grep -c '| FAIL'), restored copy $(psql "$LOKAL_DB" -At -F ' | ' -f docs/audit/launch-readiness.sql 2>/dev/null | grep -c '| FAIL')"
+          # launch readiness, by row: a line begins with its verdict (PASS | FAIL); the
+          # measured text is names and counts only. (Until 6 Oct this counted '| FAIL',
+          # which no line contains, and read 0 whatever happened.)
+          kesiapan() { out=$(PGOPTIONS='-c default_transaction_read_only=on' psql "$2" -At -F ' | ' -f docs/audit/launch-readiness.sql 2>&1)
+            echo "launch readiness on $1: $(printf '%s\n' "$out" | grep -c '^PASS') PASS, $(printf '%s\n' "$out" | grep -c '^FAIL') FAIL"
+            printf '%s\n' "$out" | grep -E '^FAIL|ERROR' | cut -c1-240; }
+          kesiapan staging "$DB"; kesiapan "the restored copy" "$LOKAL_DB"
           echo "restore exit $RESTORE_RC (history $HISTORY_RC); backup ${BACKUP_SECONDS} s, documented restore ${RESTORE_SECONDS} s"
           echo "NOT in any database backup: Storage files (see 'storage objects' above: metadata only), CERT_SECRET_KEY_V1 and CARD_PEPPER (Vercel), Auth settings and SMTP (the Supabase project), API keys"
 
@@ -193,6 +199,9 @@ jobs:
           done
           echo "after the corrected step:"
           bash audit/restore/banding.sh "$RUNNER_TEMP/sesudah.txt" "$RUNNER_TEMP/sebelum.txt" "$RUNNER_TEMP/pulih2.txt" | grep -E 'auth.users triggers|^functions:|^table rights|^tables:'
+          out=$(psql "$LOKAL_DB" -At -F ' | ' -f docs/audit/launch-readiness.sql 2>&1)
+          echo "launch readiness on the copy after the corrected step: $(printf '%s\n' "$out" | grep -c '^PASS') PASS, $(printf '%s\n' "$out" | grep -c '^FAIL') FAIL"
+          printf '%s\n' "$out" | grep -E '^FAIL|ERROR' | cut -c1-240
 
       - name: Discard the backup
         if: always()

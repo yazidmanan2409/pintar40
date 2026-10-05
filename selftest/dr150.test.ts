@@ -18,8 +18,29 @@
  *          into; a production holding classroom cards, or a count it cannot read, is refused with no verdict written;
  *          held secrets that match are kept; a certificate key that does not open the issued seal is refused; no value
  *          ever appears in what it prints
+ *
+ * #150 G6 (owner, 6 Oct): NO PRODUCTION MIGRATION WITHOUT A RECORDED RESTORE POINT.
+ *
+ *  DR-S04  the check (scripts/release/restore-point.mjs): OK only when Supabase lists a COMPLETED backup no older than
+ *          26 hours, and it names that backup and its age; REFUSE when the backups cannot be read (a 403 says the token
+ *          needs permission to read them), when none is completed, when the latest completed one is older, or dated in
+ *          the future; end to end against a stand-in for the Management API it writes the record, asks with GET only and
+ *          never prints the token
+ *  DR-S05  the wiring: the production apply runs the check, from the workflow's own commit, after the state before and
+ *          before any migration, records the WAL archiver and the facts before the apply, and keeps the record 90 days;
+ *          the restore rehearsal counts readiness FAIL rows by the verdict a line begins with (it counted '| FAIL',
+ *          which no line contains, and so read 0 whatever happened)
+ *
+ * #150 G7 (owner, 6 Oct): THE READINESS CHECK SEES WHAT A RESTORE BREAKS.
+ *
+ *  DR-D01  docs/audit/launch-readiness.sql against CI's database: every row PASS (the five rows about live content are
+ *          reported, not required, because other suites write content), the two rows restated for G7 among them; then,
+ *          in one transaction rolled back, what the 5 Oct rehearsal's restore did (every right granted to anon and
+ *          authenticated through default privileges, the password-write guard gone from auth.users, the pre-request
+ *          lost) and two more drifts (the assets bucket made public, a function given to another owner): each G7 row
+ *          FAILs and names what differs, and the untouched rows stay PASS
  */
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { createHmac } from "node:crypto";
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
@@ -33,6 +54,60 @@ import { canonicalBytes, signWithKey } from "../src/lib/certificates/sign";
 const GUARD = "scripts/release/durable-secrets.mjs";
 const RECORD = "docs/recovery/durable-secrets.json";
 const DEPLOY = ".github/workflows/deploy-vercel-production.yml";
+const READINESS = "docs/audit/launch-readiness.sql";
+const TITIK = "scripts/release/restore-point.mjs";
+const APPLY = ".github/workflows/deploy-supabase-production.yml";
+const REHEARSAL = ".github/workflows/restore-rehearsal.yml";
+type Titik = { verdict: "OK" | "REFUSE"; reasons: string[]; backup?: { inserted_at: string }; ageHours?: number };
+type TitikModul = { MAX_AGE_HOURS: number; decide: (status: number, body: unknown, now: number) => Titik };
+
+// the readiness rows about live content: other suites write content into CI's database, so these are reported, not required
+const ISI = ["every option carries a rationale (live data)", "scoring reproducibility versions recorded on every result",
+  "certificate keys are versioned", "empirical psychometric fields are honestly NULL", "audit trail is append-only AND populated"];
+const G7 = {
+  anon: "G7 anon holds no right on any public table, view or sequence",
+  tabel: "G7 authenticated holds exactly the release's table rights",
+  fungsi: "G7 authenticated executes exactly the registered functions",
+  pemilik: "G7 every public table, view, sequence and function is owned by postgres",
+  pemicu: "G7 PINTAR's three auth.users triggers present and enabled",
+  praminta: "G7 PostgREST pre-request set on authenticator",
+  wadah: "G7 the assets bucket exists and is private",
+};
+// what the restore of 5 Oct did (H4, H5, the role setting), and two drifts it could have done
+const TANAM = `
+grant all on all tables in schema public to anon, authenticated;
+grant all on all sequences in schema public to anon, authenticated;
+grant execute on all functions in schema public to anon, authenticated;
+do $t$ begin
+  begin
+    drop trigger pintar_password_write_guard on auth.users;
+  exception when insufficient_privilege then
+    execute 'set local role supabase_auth_admin';
+    drop trigger pintar_password_write_guard on auth.users;
+    execute 'reset role';
+  end;
+end $t$;
+alter role authenticator reset pgrst.db_pre_request;
+update storage.buckets set public = true where id = 'assets';
+create role dr150_pemilik_lain nologin;
+grant dr150_pemilik_lain to current_user;
+grant create on schema public to dr150_pemilik_lain;
+alter function public.engine_version() owner to dr150_pemilik_lain;
+`;
+
+function kesiapan(repoRoot: string, tanam: string): { ok: boolean; rows: Map<string, { v: string; m: string }>; n: number; err: string } {
+  const r = spawnSync("psql", ["-v", "ON_ERROR_STOP=1", "-q", "-At", "-F", " | ", "-f", "-", process.env.SUPABASE_DB_URL!], {
+    cwd: repoRoot, encoding: "utf8", maxBuffer: 1 << 24,
+    input: `begin;\n${tanam}\n\\i ${READINESS}\nrollback;\n`,
+  });
+  const rows = new Map<string, { v: string; m: string }>();
+  let n = 0;
+  for (const l of (r.stdout || "").split("\n")) {
+    const m = /^(PASS|FAIL) \| (.*?) \| (.*)$/.exec(l);
+    if (m) { n++; rows.set(m[2], { v: m[1], m: m[3] }); }
+  }
+  return { ok: r.status === 0, rows, n, err: (r.stderr || "").trim().split("\n").slice(-3).join(" | ") };
+}
 
 type Facts = { cards: number | null; sealed: number | null; schools: number | null; persons: number | null };
 type State = { present: boolean; value: string | null; recorded: string | null; sealCheck?: string };
@@ -96,7 +171,7 @@ async function jalankan(repoRoot: string, d: Dunia, recorded: Record<string, str
     const out = await new Promise<{ code: number; text: string }>((ok) => {
       const p = spawn(process.execPath, [join(repoRoot, GUARD), "guard", reg, verdict], {
         env: { PATH: process.env.PATH ?? "", VERCEL_TOKEN: "t", PRODUCTION_VERCEL_PROJECT_NAME: "pintar40", VERCEL_API: s.url,
-               SUPABASE_URL: s.url, SERVICE_ROLE_KEY_FILE: key },
+               SUPABASE_URL: s.url, SERVICE_ROLE_KEY_FILE: key, NODE_ENV: "production" },
       });
       let text = "";
       p.stdout.on("data", (b) => (text += b)); p.stderr.on("data", (b) => (text += b));
@@ -227,6 +302,122 @@ export const dr150Tests: SelfTest[] = [
       return c.verdict("end to end against a stand-in for Vercel and PostgREST: an empty production is minted into; Vercel emptied with classroom " +
         "cards in production is refused with no verdict; an unreadable count is refused; held and recorded secrets whose key opens the issued seal " +
         "are kept; a certificate key that does not open the seal is refused; no value is ever printed");
+    },
+  },
+  {
+    id: "DR-D01",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const bersih = kesiapan(repoRoot, "");
+      if (!c.expect(bersih.ok && bersih.n > 0, `the readiness check could not run: ${bersih.err}`)) return c.verdict("");
+      c.expect(bersih.n === 24, `the readiness check has ${bersih.n} rows, expected 24`);
+      for (const nama of Object.values(G7)) c.expect(bersih.rows.has(nama), `the readiness check has no row "${nama}"`);
+      const gagal = [...bersih.rows].filter(([, x]) => x.v === "FAIL");
+      for (const [k, x] of gagal) {
+        if (ISI.includes(k)) c.note(`live-content row FAIL on CI's database (other suites' content): ${k}: ${x.m}`);
+        else c.expect(false, `on CI's database, unplanted: FAIL ${k}: ${x.m}`);
+      }
+      const t = kesiapan(repoRoot, TANAM);
+      if (!c.expect(t.ok && t.n === bersih.n, `the planted drift could not be measured: ${t.err}`)) return c.verdict("");
+      const gagalKah = (nama: string, kata?: RegExp) => {
+        const x = t.rows.get(nama);
+        return x?.v === "FAIL" && (!kata || kata.test(x.m));
+      };
+      c.expect(gagalKah(G7.anon, /^\d{2,} relation/), `anon given every right: ${JSON.stringify(t.rows.get(G7.anon))}`);
+      c.expect(gagalKah(G7.tabel, /differ: \+/), `authenticated given every right: ${JSON.stringify(t.rows.get(G7.tabel))}`);
+      c.expect(gagalKah(G7.fungsi, /differ: \+/), `authenticated given every function: ${JSON.stringify(t.rows.get(G7.fungsi))}`);
+      c.expect(gagalKah("anonymous surface unchanged (10 / 19 / 0)", /[1-9]\d* anon function/), `anon given every function: ${JSON.stringify(t.rows.get("anonymous surface unchanged (10 / 19 / 0)"))}`);
+      c.expect(gagalKah(G7.pemicu, /2 of 3 .*pintar_password_write_guard/), `the password-write guard dropped: ${JSON.stringify(t.rows.get(G7.pemicu))}`);
+      c.expect(gagalKah(G7.praminta, /no role setting|function/), `the pre-request lost: ${JSON.stringify(t.rows.get(G7.praminta))}`);
+      c.expect(gagalKah(G7.wadah, /assets \(PUBLIC\)/) && gagalKah("storage buckets private"), `the assets bucket made public: ${JSON.stringify(t.rows.get(G7.wadah))}`);
+      c.expect(gagalKah(G7.pemilik, /1 function\(s\) owned by another role/), `a function given to another owner: ${JSON.stringify(t.rows.get(G7.pemilik))}`);
+      for (const nama of ["RLS closed by default", "no policy grants unconditionally", "exactly one public verification path", "every function pins its search_path"]) {
+        c.expect(t.rows.get(nama)?.v === "PASS", `an untouched row moved with the drift: ${nama}: ${JSON.stringify(t.rows.get(nama))}`);
+      }
+      return c.verdict("the readiness check reads 24 rows on CI's database with no unplanted FAIL; with the 5 Oct restore's drift planted and rolled " +
+        "back (every right to anon and authenticated, the password-write guard dropped, the pre-request lost) and two more (a public assets " +
+        "bucket, a function under another owner), each G7 row and the anonymous-surface row FAIL and name what differs, and untouched rows stay PASS");
+    },
+  },
+  {
+    id: "DR-S04",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      let m: TitikModul | null = null;
+      try { m = (await import(pathToFileURL(join(repoRoot, TITIK)).href)) as TitikModul; } catch { /* the check below says so */ }
+      if (!c.expect(m, `${TITIK} is missing or does not load: nothing establishes a restore point before a production apply`)) return c.verdict("");
+      const t = m!;
+      const now = Date.parse("2026-10-06T12:00:00Z");
+      const jam = (h: number) => new Date(now - h * 3_600_000).toISOString();
+      const daftar = (...b: { inserted_at: string; status: string }[]) => ({ backups: b, pitr_enabled: false, walg_enabled: true });
+      c.expect(t.MAX_AGE_HOURS === 26, `the age limit is ${t.MAX_AGE_HOURS} hours, not 26 (the 24-hour RPO of D-103 plus slack)`);
+      const ok = t.decide(200, daftar({ inserted_at: jam(30), status: "COMPLETED" }, { inserted_at: jam(5), status: "COMPLETED" }), now);
+      c.expect(ok.verdict === "OK" && ok.backup?.inserted_at === jam(5) && Math.abs((ok.ageHours ?? 0) - 5) < 0.01 && /5\.0 hours old/.test(ok.reasons.join(" ")),
+        `a completed backup 5 hours old is not the restore point: ${JSON.stringify(ok)}`);
+      const lewat = t.decide(200, daftar({ inserted_at: jam(2), status: "FAILED" }, { inserted_at: jam(20), status: "COMPLETED" }), now);
+      c.expect(lewat.verdict === "OK" && lewat.backup?.inserted_at === jam(20), `a failed newer backup is taken, or the completed one is not: ${JSON.stringify(lewat)}`);
+      const tolak = (x: Titik, kata: RegExp) => x.verdict === "REFUSE" && kata.test(x.reasons.join(" "));
+      c.expect(tolak(t.decide(200, daftar({ inserted_at: jam(27), status: "COMPLETED" }), now), /27\.0 hours old, older than 26/), "a backup 27 hours old is accepted");
+      c.expect(tolak(t.decide(200, daftar(), now), /no COMPLETED backup/) && tolak(t.decide(200, daftar({ inserted_at: jam(1), status: "PENDING" }), now), /no COMPLETED backup/),
+        "no completed backup is accepted");
+      c.expect(tolak(t.decide(403, { message: "forbidden" }, now), /HTTP 403.*permission to read the project's backups/), "an unreadable list (403) is accepted, or does not say what is needed");
+      c.expect(tolak(t.decide(500, null, now), /HTTP 500/) && tolak(t.decide(200, { nothing: true }, now), /no list of backups/), "a failed or malformed answer is accepted");
+      c.expect(tolak(t.decide(200, daftar({ inserted_at: new Date(now + 3_600_000).toISOString(), status: "COMPLETED" }), now), /future/), "a backup dated in the future is accepted");
+      // end to end against a stand-in for the Management API
+      const TOKEN = "sbp_standin_token_never_printed_0123456789";
+      const jalan = async (status: number, body: unknown) => {
+        let metode = ""; let jalur = "";
+        const srv = createServer((req, res) => { metode = req.method ?? ""; jalur = req.url ?? ""; res.writeHead(status, { "content-type": "application/json" }); res.end(JSON.stringify(body)); });
+        await new Promise<void>((ok2) => srv.listen(0, "127.0.0.1", () => ok2()));
+        const dir = mkdtempSync(join(tmpdir(), "dr150-titik-")); const rec = join(dir, "backup.json");
+        try {
+          const out = await new Promise<{ code: number; text: string }>((ok2) => {
+            const p = spawn(process.execPath, [join(repoRoot, TITIK), "check", rec], { env: { PATH: process.env.PATH ?? "",
+              SUPABASE_ACCESS_TOKEN: TOKEN, PRODUCTION_SUPABASE_PROJECT_REF: "refstandin", RELEASE_SHA: "abc",
+              SUPABASE_API: `http://127.0.0.1:${(srv.address() as AddressInfo).port}`, NODE_ENV: "production" } });
+            let text = ""; p.stdout.on("data", (b) => (text += b)); p.stderr.on("data", (b) => (text += b));
+            p.on("close", (code) => ok2({ code: code ?? -1, text }));
+          });
+          return { ...out, metode, jalur, rec: existsSync(rec) ? JSON.parse(readFileSync(rec, "utf8")) : null };
+        } finally { srv.close(); }
+      };
+      const baru = new Date(Date.now() - 3 * 3_600_000).toISOString();
+      const a = await jalan(200, { backups: [{ inserted_at: baru, status: "COMPLETED", is_physical_backup: true }], pitr_enabled: false, walg_enabled: true });
+      c.expect(a.code === 0 && a.metode === "GET" && a.jalur === "/v1/projects/refstandin/database/backups" && a.rec?.verdict === "OK"
+        && a.rec?.backup?.inserted_at === baru && a.rec?.release_sha === "abc" && /point-in-time recovery off/.test(a.text),
+        `a fresh backup, end to end: exit ${a.code}, ${a.metode} ${a.jalur}, record ${JSON.stringify(a.rec)}; ${a.text.trim()}`);
+      const b = await jalan(403, { message: "Forbidden resource" });
+      c.expect(b.code !== 0 && b.rec?.verdict === "REFUSE" && /No migration was applied/.test(b.text), `an unreadable list, end to end: exit ${b.code}; ${b.text.trim()}`);
+      c.expect(!a.text.includes(TOKEN) && !b.text.includes(TOKEN) && !JSON.stringify(a.rec).includes(TOKEN), "the check printed or recorded the token");
+      return c.verdict("the restore-point check accepts only a COMPLETED backup no older than 26 hours and names it and its age; it refuses an " +
+        "unreadable list (a 403 names the permission needed), no completed backup, an older one, a future date and a malformed answer; end to end " +
+        "it asks with GET only, writes the record and never prints the token");
+    },
+  },
+  {
+    id: "DR-S05",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const wf = readFileSync(join(repoRoot, APPLY), "utf8");
+      const body = wf.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+      const at = (x: string) => body.indexOf(x);
+      const langkah = at("name: Restore point");
+      c.expect(langkah > at("name: State before") && at("name: State before") > 0 && langkah < at("name: Apply pending migrations"),
+        "the restore-point check does not run after the state before and before any migration");
+      const isi = langkah < 0 ? "" : body.slice(langkah, at("name: Apply pending migrations"));
+      c.expect(/git fetch --no-tags --depth=1 origin "\$GITHUB_SHA"/.test(isi) && /git show FETCH_HEAD:scripts\/release\/restore-point\.mjs/.test(isi)
+        && /restore-point\.mjs" check /.test(isi) && /SUPABASE_ACCESS_TOKEN: \$\{\{ secrets\.PRODUCTION_SUPABASE_ACCESS_TOKEN \}\}/.test(isi),
+        "the check is not taken from the workflow's own commit, or is not run with production's token");
+      c.expect(/pg_stat_archiver/.test(isi) && /fakta\.sql/.test(isi) && /default_transaction_read_only=on/.test(isi),
+        "the WAL archiver and the facts before the apply are not recorded, or not read only");
+      c.expect(/uses: actions\/upload-artifact@v4/.test(isi) && /retention-days: 90/.test(isi) && /if-no-files-found: error/.test(isi),
+        "the restore point's record is not kept as an artifact for 90 days");
+      const r = readFileSync(join(repoRoot, REHEARSAL), "utf8");
+      c.expect(!/grep -c '\| FAIL'/.test(r) && /grep -c '\^FAIL'/.test(r), "the restore rehearsal still counts readiness FAIL rows by a pattern no line contains");
+      return c.verdict("the production apply runs the restore-point check from its own commit, after the state before and before any " +
+        "migration, records the WAL archiver and the facts before the apply read only, and keeps the record 90 days; the rehearsal counts " +
+        "readiness FAIL rows by the verdict each line begins with");
     },
   },
 ];
