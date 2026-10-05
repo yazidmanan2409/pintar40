@@ -61,6 +61,17 @@ export function kodeDariSurel(email, t0, tunggu = 180) {
 }
 
 const tunggu = (page) => page.waitForLoadState("networkidle").then(() => page.waitForTimeout(1200));
+// The wizard between two screens (a step saving, the next one loading) has nothing to answer, and a field it shows
+// while saving is read-only. Staging saves slower than CI (the password passes Auth's leaked-password check), so the
+// walk waits until nothing is busy and something can be answered; on staging's pace, up to 90 seconds.
+const LAMBAT = 90000;
+async function layarSiap(page) {
+  await page.waitForFunction(() => {
+    if (document.querySelector('[aria-busy="true"], .pin-putar')) return false;
+    if (document.querySelector('#username, #pin, #password, .pin-msg-err[role="alert"]')) return true;
+    return [...document.querySelectorAll("a, button")].some((e) => /^(Masuk ke PINTAR|Sudah benar)/.test((e.textContent ?? "").trim()));
+  }, null, { timeout: LAMBAT, polling: 250 }).catch(() => {});
+}
 const teksHalaman = async (page) => String(await page.locator("body").innerText().catch(() => "")).replace(/\s+/g, " ").trim();
 
 // The activation wizard (BOB-26, DAISY-20) and «Komputer siapa ini?» (BOB-29), answered by their own screens.
@@ -71,6 +82,10 @@ export async function selesaikan(page, k) {
     if (jalur === "/aktifkan") {
       await page.locator("h1").first().waitFor({ timeout: SLOW });
       await page.waitForLoadState("networkidle");
+      await layarSiap(page);
+      // a step the wizard refused says so in its alert; the walk stops there rather than pressing again
+      const tolak = page.locator('.pin-msg-err[role="alert"]');
+      if (lewat.length && await tolak.count()) throw new Error(`the activation wizard refused the ${lewat.at(-1)} step: ${(await tolak.first().innerText()).trim()}`);
       if (await page.getByRole("link", { name: "Masuk ke PINTAR" }).count()) {
         lewat.push("selesai");
         await page.getByRole("link", { name: "Masuk ke PINTAR" }).click();
@@ -99,8 +114,6 @@ export async function selesaikan(page, k) {
         throw new Error(`the activation wizard shows nothing the walk can answer: ${(await teksHalaman(page)).slice(0, 200)}`);
       }
       await tunggu(page);
-      const tolak = page.locator('.pin-msg-err[role="alert"]');
-      if (await tolak.count()) throw new Error(`the activation wizard refused the ${lewat.at(-1)} step: ${(await tolak.first().innerText()).trim()}`);
       continue;
     }
     if (jalur === "/perangkat") {
@@ -126,7 +139,13 @@ export async function aktifkan(page, email, k) {
   await page.locator("#kode").waitFor({ timeout: SLOW });
   await page.locator("#kode").fill(kodeDariSurel(email, t0));
   await page.getByRole("button", { name: "Lanjut", exact: true }).click();
-  await tunggu(page);
+  // a right code leaves the code screen by a whole-page load into the wizard; a refusal stays and says why
+  await Promise.race([
+    page.locator("#kode").waitFor({ state: "detached", timeout: LAMBAT }),
+    page.locator('#kode-err.pin-msg-err').waitFor({ timeout: LAMBAT }),
+  ]).catch(() => {});
+  if (await page.locator('#kode-err.pin-msg-err').count()) throw new Error(`the code was refused: ${(await page.locator("#kode-err").innerText()).trim()}`);
+  await page.waitForLoadState("load");
   return selesaikan(page, k);
 }
 
