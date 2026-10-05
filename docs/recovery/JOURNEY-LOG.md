@@ -432,4 +432,8 @@ Gate 3 stays held; the coordinator does not merge it.
       - Restated: D101-D01's activation case (it pinned "an activation ends nothing"). UX1 baselines MOVED 159 → 160.
       - Gate 3 and Gate 6 unchanged: BOB26-A01..A04, BOB27-A01, BOB28-A01..A03, BOB29-A01..A03 and D101-A01/A02 in the same CI.
     - **CI:** 37299581260 on `a8027d3`: green, 35/35 jobs, 570/570 tests (D102-A01 with its planted gap among them).
-    - **Staging:** migration dispatched on main (`staging.yml`); verified read-only below once it lands.
+    - **Staging:** run 37300944500 on `main` `ed9c408` migrated staging to 160. Verified read-only:
+      - the latest migration is `20261123100000`;
+      - the guard ends an activation's first password as `PASSWORD_PERTAMA` and a recovery or a re-issue as `KREDENSIAL_DIGANTI`;
+      - `device_sessions` accepts the new reason;
+      - the guard is no client's, and its trigger on `auth.users` is enabled.
