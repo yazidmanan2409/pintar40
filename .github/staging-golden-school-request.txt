@@ -2,4 +2,5 @@
 # The last line names the school, founded first by found-school.yml (C1, GS-01). One sign-in email per run.
 #
 # run 001: SD Golden School GS-001, founded by found-school.yml run 36959472214 on main 38944b5 (GS-01)
-slug: gs-001
+# run 002, 5 Oct: Sekolah Emas Uji 2026-10-05, founded by found-school.yml run 37286047274 (GS-01); every person signs in as Gate 3 has it (masuk.mjs)
+slug: sekolah-emas-uji-20261005
