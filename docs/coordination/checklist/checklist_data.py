@@ -1228,6 +1228,28 @@ CHANGES_V21.append("2 Oct, v2.5, later: 50 at once on Micro (D-089(d)). The draw
                    "RPC journey (289 ms) and not through the real app measured from the US (1,366 ms). CAP-02 stays FAIL "
                    "(1,000), CAP-07 PARTIAL. P0 PASS stays 76.")
 
+# --- 5 Oct: the five recorded unwalked checks, walked (D-100(d) item 4; JOURNEY-LOG 31) ---
+CURRENT.update({
+    "STU-16": "PASS: from her home («Lihat hasil») Ani reviews her finished Bab 1: the 8 questions of her Uji Penguasaan, her "
+              "own answers and each question's explanation; no other learner, no internal word, no identifier (audit S21h, run "
+              "37267985806).",
+    "STU-17": "PASS: above the target the certificate is listed «Berlaku» and opens issued, with «Cetak atau simpan PDF» and its "
+              "verification link; below the target the list says there is none, the chapter's page shows no credential, and "
+              "opening it twice creates none (audit S21i, run 37267985806). The lifecycle is covered by selftests (F04).",
+    "HOD-07": "PASS: the head of department opens Studio → «Tinjauan Integritas» for Kelas 1A: observations framed as material "
+              "for a person's judgement, no verdict word, each named by its category; the review is recorded "
+              "(INTEGRITY_SIGNAL_REVIEWED, NO_CONCERN) and no score in the class changes; the student finds none of it on "
+              "/belajar, her result or /studio/integritas (audit S23i, run 37267985806).",
+    "HOD-08": "PASS: a head of Kelas Rendah is offered exactly the department's Kelas on Mengajar, gives Bab 1 to a Kelas in it on "
+              "Siapkan and launches three of its questions as an Uji Cepat there, both recorded as hers, and the student placed "
+              "there finds it on /belajar (audit S27h, run 37267985806). No class outside the department exists in that world to "
+              "ask; the refusals outside a scope are S24 and S26b, green in the same run.",
+    "X-11": "PASS: the head of department reviews the observations and they stay observations: no verdict, no score change, "
+            "nothing shown to the learner (audit S23i, run 37267985806; HOD-07).",
+})
+CHANGES_V21.append("5 Oct: the five recorded unwalked checks walked green in the audit (run 37267985806, 57 PASS): STU-16, "
+                   "STU-17, HOD-07, HOD-08 and X-11 N-T → PASS. All are P1; P0 PASS unchanged.")
+
 def as_dict():
     g = globals()
     return {

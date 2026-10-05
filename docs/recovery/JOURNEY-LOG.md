@@ -119,7 +119,7 @@ The walks now leave student 4's last post-test answer unsaved before «Kumpulkan
 | 1 | Real-school provisioning on staging | (a) A staging-only Platform Operator identity the automation can sign in as, audited, never in production | **Built** (`96c994b`); runs on staging once `main` carries `staging.yml`'s new check; then the operator appoints SD ZPS's first school admin by the screens |
 | 2 | Pass mark | (b) The school sets one sealed mark before publishing what depends on mastery; prospective changes only; unset says «Batas ketuntasan belum ditetapkan»; no default | **Built** (BOB-49 with DAISY-38: design note §8; walk S17b, S18, staging J05b) |
 | 3 | D2 | (c) Not fixed separately; Gate 3 replaces the path | Held with Gate 3 |
-| 5 | W18, the student's home order | (d) Running session → current lesson → the post-test when ready → the next chapter's Pemetaan Awal: continue before beginning | **Built** (`7873124`); the two-chapter browser walk still to add |
+| 5 | W18, the student's home order | (d) Running session → current lesson → the post-test when ready → the next chapter's Pemetaan Awal: continue before beginning | **Built** (`7873124`); the two-chapter browser walk is S26d (green in audit runs 36943034831 and 37262466524) |
 | 6 | Card re-issue | (e) A new card revokes the old; same identity and history; who, when and why recorded | Held with Gate 3 |
 | 7 | BOB-50, DAISY-40 | (f) Approved as built; land through the Gate 3 batch; walk the certificate journey then | Held with Gate 3 |
 | 8 | Topic names on class figures | (g) Option (a): group by the session's objective, show its statement; `learning_objectives` a metric source in MC-4 | **Built** (`0bece02`, `2d9a05e`, `4681f01`) |
@@ -272,3 +272,40 @@ Gate 3 stays held; the coordinator does not merge it.
       - UX1 baselines MOVED 157 → 158.
       - Local suite: green apart from the seven environmental app-route failures.
     - **CI:** 37259724961 on `d6935f8`, green: 35/35 jobs, 563/563 tests.
+31. **The five recorded unwalked checks are walked, 5 Oct (D-100(d) item 4).** Each is walked against its own checklist requirement, on the journeys as they are. No adjacent journey changed.
+    - **STU-16, review feedback (S21h).** Ani comes back to her finished Bab 1 from her home by «Lihat hasil» and reaches `/belajar/{tugas}/hasil`. The review shows the 8 questions of her Uji Penguasaan, with her own answers and each question's explanation. It shows no other learner, no internal word and no identifier.
+    - **STU-17, certificate state (S21i).**
+      - Above the target: Ani's certificate list shows the chapter, and its page opens issued with its actions (print or save as PDF, verification). Opening the list creates nothing.
+      - Below the target: Eka's list says she has none. Her certificate page shows no credential, and opening it twice leaves her with no certificate. Rendering never issues one.
+    - **HOD-07 and X-11, integrity observations (S23i).** The head of department opens Studio → «Tinjauan Integritas» for Kelas 1A.
+      - The page frames them as material for a person's judgement, not a conclusion. It carries no verdict word and names each observation by its category.
+      - The head records the review (no concern, with a note). The audit gains `INTEGRITY_SIGNAL_REVIEWED` with that decision, and every score in the class is unchanged.
+      - The student sees none of it: not on /belajar, not on her result, and not on /studio/integritas.
+    - **HOD-08, Uji Cepat within scope (S27h).**
+      - The platform administrator appoints the head «Kepala departemen» at Kelas Rendah again, as in S16. Mengajar then offers exactly that department's active Kelas.
+      - Why not the school admin: S24 revoked the head's only role. She was made by the platform administrator («Orang baru») and has no record at the school, so the school admin no longer sees her (BOB-20, D-048's visibility). That is the existing boundary, unchanged. A teacher the school itself records (an institutional identity there) stays on its «Belum memiliki peran» list after a revocation.
+      - An Uji Cepat draws only on what the class was given (D-085 T2). Eka's current Kelas was given nothing after her move, and Kelas 1A's Uji Cepat from S26e is still running.
+      - So the head first gives Bab 1 to Eka's Kelas on Siapkan, recorded as given by the head. She then launches three of its questions as an Uji Cepat there, recorded as assigned by her.
+      - Eka finds the Uji Cepat on /belajar.
+      - Outside the department: no other class exists in this world to ask. The refusals outside a scope are S24 and S26b, green in the same run.
+    - **W18.** The WAITING FOR OWNER table said the two-chapter walk was still to add. It is S26d, green since run 36943034831; corrected.
+    - **The walk under Gate 3 and Gate 6.** The audit walk had stopped at its first sign-in, since sign-in by email link is gone (Gate 3). It now signs people in as they do:
+      - The workflow runs a local Mailpit sink and gives the app its SMTP settings, so PINTAR's own activation email arrives there.
+      - A new account is activated by the emailed code and finishes the setup wizard (username, PIN, password, name, device); later sign-ins use the password.
+      - S3 reads Gate 3's «Orang baru» answer; Aktivasi's per-person button is «Aktifkan dengan email».
+      - These are synthetic local identities on the CI stack. Nothing on staging was touched, and the Golden School walk on staging stays blocked by harness authentication.
+    - **A finding fixed on the way.** A shared computer's locked or ended session (PT423/PT401) made every page log the maintenance status read as a failure. It is expected, and is no longer logged; M148-S01 holds it. `97bb170`, CI 37262509335 green: 35/35 jobs, 563/563 tests.
+    - **Evidence.**
+      - Audit run 37267985806 (walk `2d5e0bc`, app `97bb170`), green.
+        - Job B, from an empty production-like database: 57 PASS, none failed or blocked, S21h, S21i, S23i, S26d and S27h among them.
+        - Job A, every role's screens: green.
+      - On the way:
+        - 37262466524: 54 PASS, 2 FAIL, 1 BLOCKED.
+        - 37264373758: 54 PASS, 3 FAIL.
+        - 37266092326: 56 PASS, 1 FAIL.
+      - Each failure was the walk's, not the product's:
+        - it read a part of the page the certificate pages do not have, or read a page while it still said «Memuat halaman…»;
+        - it looked for a class by a name S26 had changed;
+        - it asked the school admin to see a person the school had never recorded;
+        - it launched an Uji Cepat for a class that had been given nothing.
+      - Checklist v2.5: STU-16, STU-17, HOD-07, HOD-08 and X-11 N-T → PASS. All are P1, so the P0 count is unchanged.
