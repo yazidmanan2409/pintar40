@@ -4,4 +4,5 @@
 # 2 Oct, fifth walk: the fourth was refused its sign-in email (429; 2 an hour then); staging now allows 30 an hour (D-092)
 # 2 Oct, sixth walk: GS-09 (the head of department reviews, makes and locks the release; the school admin publishes)
 # 2 Oct, seventh walk: GS-10 (the teacher signs in, lands on Mengajar) and GS-11 (Siapkan → Sediakan for Kelas 5A)
-slug: gs-001
+# 5 Oct: Sekolah Emas Uji 2026-10-05 after run 37287063109 (GS-01 to GS-03 green); staff sign in as Gate 3 has it (masuk.mjs)
+slug: sekolah-emas-uji-20261005
