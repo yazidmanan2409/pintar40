@@ -13,6 +13,8 @@
 // of a secret in the log, or any change to PINTAR's sign-in.
 import { execFileSync } from "node:child_process";
 import { createHmac } from "node:crypto";
+import { mkdirSync } from "node:fs";
+import { join } from "node:path";
 import { APP, SLOW, closeTour } from "../perf/lib.mjs";
 
 const rahasia = () => {
@@ -182,18 +184,37 @@ export async function masukStaf(page, email, keadaan) {
   const k = kredensial(email);
   const state = keadaan(email);
   if (state === null) throw new Error("this person has no account yet");
-  let jalan;
-  if (state === "REQUIRED") {
-    jalan = "activated by the emailed code";
-    await aktifkan(page, email, k);
-  } else if (await denganPassword(page, email, k.password)) {
-    jalan = "the password";
-  } else {
-    jalan = "«Lupa password?» by the emailed code, then the password";
-    await pulihkanDenganEmail(page, email, k.password);
+  let jalan = "";
+  try {
+    if (state === "REQUIRED") {
+      jalan = "activated by the emailed code";
+      await aktifkan(page, email, k);
+    } else if (await denganPassword(page, email, k.password)) {
+      jalan = "the password";
+    } else {
+      jalan = "«Lupa password?» by the emailed code, then the password";
+      await pulihkanDenganEmail(page, email, k.password);
+    }
+    const lewat = await selesaikan(page, k);
+    return { di: new URL(page.url()).pathname, jalan, lewat };
+  } catch (e) {
+    throw await bukti(page, e, `signing in (${state}, ${jalan})`);
   }
-  const lewat = await selesaikan(page, k);
-  return { di: new URL(page.url()).pathname, jalan, lewat };
+}
+
+/** A failed sign-in, with where it stopped: the page's path, what it says, and a screenshot in OUT_DIR/shots. */
+export async function bukti(page, e, langkah) {
+  let di = "?";
+  try { di = new URL(page.url()).pathname; } catch { /* closed */ }
+  const teks = (await teksHalaman(page)).slice(0, 300);
+  const dir = join(process.env.OUT_DIR ?? "out", "shots");
+  mkdirSync(dir, { recursive: true });
+  await page.screenshot({ path: join(dir, `masuk-berhenti-${Date.now()}.png`), fullPage: true }).catch(() => {});
+  // Playwright's call log says which element and why (not visible, not editable); never a typed value
+  const baris = String(e?.message ?? e).split("\n");
+  const log = baris.filter((l) => /waiting for|resolved to|not visible|not editable|not enabled|detached/.test(l))
+    .map((l) => l.trim().replace(/value="[^"]*"/g, 'value="…"')).slice(0, 4).join(" | ");
+  return new Error(`${langkah}: ${baris[0]}${log ? ` [${log}]` : ""} — at ${di}: «${teks}»`);
 }
 
 /** The account_setup state of one address, for `masukStaf`, from a script's own read-only `sql` and `lit`. */
