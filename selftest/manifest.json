@@ -3169,6 +3169,16 @@
       "proves": "D-102, migration 20261123100000 against the database, rolled back (selftest/d102.test.ts): a person mid-activation has the wizard's session recorded and one not yet seen, both passed by PostgREST's own pre-request; a password write with no permit or an expired one is refused (PASSWORD_WRITE_REFUSED) and ends nothing; the activation's first password, through its own permit, is taken as the step and ends both (PT401, PASSWORD_PERTAMA, Auth's rows gone, audited) and nobody else's; a session begun after it passes; a recovery still ends with KREDENSIAL_DIGANTI; the guard is no client's."
     },
     {
+      "id": "C12-S01",
+      "runner": "static",
+      "proves": "C-12's finding (D-069(b)), the source (selftest/c12.test.ts): migration 20261124100000 re-emits teacher_question_evidence with one rule added, an academic place only (fail closed, 42501, between the teacher check and the first read), and keeps D-088(k)'s teacher check, class binding, handed-in-only rule and teaching-evidence-only reads; «Lihat per soal» reads through that function alone and shows the refusal page when refused."
+    },
+    {
+      "id": "C12-D01",
+      "runner": "static",
+      "proves": "C-12's finding (D-069(b)), migration 20261124100000 against the database, rolled back (selftest/c12.test.ts): in a professional-learning Kelas holding the Guru's finished Uji Penguasaan and its answer, the facilitator is refused (42501) and given no name and no option, as are another Guru and the participant himself; in the academic Kelas the class's teacher still reads the handed-in sitting question by question and learner by learner, and another Guru is still refused."
+    },
+    {
       "id": "BOB29-A01",
       "runner": "app",
       "proves": "BOB-29 (Gate 6) against the running app, Auth and PostgREST: a teacher's unknown browser is sent to /perangkat («Komputer siapa ini?», shared chosen) before /mengajar; declared shared, 5 minutes without activity send /mengajar to /terkunci, /api/sesi/detak to 423 and PostgREST's /rest/v1 to 423, a refreshed token too, while the same person's other computer is served; the rendered html of /terkunci has the PIN field and a form to /keluar; a wrong PIN leaves 2 tries and the right one (2817) serves the page and the data again.",
