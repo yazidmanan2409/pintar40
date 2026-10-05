@@ -15,6 +15,7 @@ import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { jalankanC12 } from "./c12.mjs";
 
 const APP = process.env.APP_URL;
 const SB = process.env.SUPABASE_URL;
@@ -2367,6 +2368,12 @@ await step("S23i", "the head of department reviews Kelas 1A's integrity observat
   return notes.join("; ");
 });
 
+
+// C-12 (D-069, D-070, design/EDUCATOR-AS-LEARNER-TICKETS.md §7): Kelas 1A's teacher learns as a participant in a
+// professional-learning place, here, while he still teaches Kelas 1A and its figures are settled (before S24 changes
+// who leads it). The walk and its snapshot live in c12.mjs and c12-potret.mjs.
+await jalankanC12({ step, sql, ctx, magicSignIn, apiSession, grantViaForm, catatLewatLayar, kirimPaket, terbitkanLewatLayar, keadaanBab, jawab,
+  tutupTur, masukKartu, shot, bodyText, norm, people, ids, a, g, kartuKelas, KUNCI, kelasSatuA, babSatu, SLOW, APP, DB, GLADYS, newPerson, OUT });
 
 await step("S24", "the school admin revokes the head of department's role on Konfigurasi → Peran & akses; the head of department is then refused /pimpinan (ADM-J14)", async (rec) => {
   await a.goto(`${APP}/konfigurasi#roles`, { waitUntil: "networkidle" });
