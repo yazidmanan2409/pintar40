@@ -1,7 +1,11 @@
-# #150 closure plan under D-106, revision 2 (amendments A1–A6): for approval
+# #150 closure plan under D-106, revision 2 (amendments A1–A7)
 
-**Status: PLAN, approved in principle; implementation awaits the Second Eye's approval of this revision.**
-Nothing below is built, bought, configured or run yet. No UI/UX work. No change to unrelated PINTAR functionality.
+**Status: APPROVED (D-107, 6 Oct), with amendment A7 and decisions D1–D8.** Implementation proceeds one work package at
+a time in the order below, each with its red→green evidence and its CI, and is reported before any owner action or
+external-service boundary. Every stop point stands. No UI/UX work. No change to unrelated PINTAR functionality. No
+PITR implementation. No 100,000-user rehearsal.
+
+**Progress:** WP-A in progress.
 
 **Unchanged boundaries (D-106(h)–(j)):**
 - native Supabase restore is the **primary** database recovery path;
@@ -22,6 +26,7 @@ security, restored its files and configuration, connected the application, and p
 | A4 secret retention | escrow kept 5 years | **no expiry.** S3 Object Lock *legal hold*; removal only by a retirement procedure that proves nothing depends on the secret |
 | A5 completeness | not specified | **fail closed:** ten verified conditions, or no success and nothing uploaded |
 | A6 recovery authority | a second SYSTEM_ADMIN | **external-account recovery authority** for Supabase, Vercel, GitHub, the registrar and DNS, mail and AWS, documented |
+| A7 `pintar_backup` (D-107) | — | C2 treated as **highly privileged for confidentiality**: backup environment only, never logged, rotation and immediate revocation, Supabase's restrictions examined, a test that it cannot mutate PINTAR, and its compromise stated plainly (below) |
 
 ## A2: the investigation, and its result
 
@@ -60,6 +65,71 @@ the **list of expected Storage objects** all read that same snapshot (`pg_dump -
 
 If either fails, the work stops and returns for approval, as A2 requires.
 
+## A7: `pintar_backup` can read everything, so C2 is guarded as such (D-107(c))
+
+**Stated plainly: a compromise of C2 could expose the complete database.** That means every school's staff and student
+records, password hashes, the class cards' secret hashes, the audit log and the certificates. C2 cannot modify any of
+it. For confidentiality it is therefore handled like the `postgres` password, not like a read-only convenience.
+
+**Where C2 lives, and where it never goes:**
+- **Only** in the secrets of the GitHub environment `backup`. Its deployment-branch rule is `main` only, so only the
+  backup workflows on `main` can read it.
+- **Never** in Vercel, never in the application or its runtime, never a repository-wide secret, never in `src/`.
+  DR-S11 proves that its name appears in no other file.
+- The job passes it only through `PGPASSWORD` in the environment of `pg_dump`, `pg_dumpall` and `psql`. It never
+  appears on a command line, in a connection URL, a file in the bundle or the log. GitHub masks it as well. DR-S14
+  plants a stand-in password and proves it appears in no output and no bundle.
+- It is always used over `sslmode=verify-full` against Supabase's CA certificate, so it never crosses an unencrypted
+  or unverified connection.
+- **Setting it:** the database receives only a salted SCRAM-SHA-256 verifier, computed on the runner, never the
+  password. If the statement is logged, only the verifier is; with a random password of 32 or more characters it cannot
+  be brute-forced.
+
+**Rotation and immediate revocation (workflow `backup-credential.yml`, `main` only, environment `backup`):**
+
+| | How | Effect |
+|---|---|---|
+| Rotation (yearly, or on any doubt) | the owner puts a new random password in the password manager and in the `backup` environment secret; the `set` action applies its verifier | the old password stops working at once; the next backup proves the new one |
+| **Immediate revocation** | the `revoke` action: `ALTER ROLE pintar_backup NOLOGIN` and its open sessions terminated, using the `postgres` password the apply already holds | no login at all with C2, whatever its value; backups fail closed and the watch says so until `set` restores LOGIN with a new password |
+| Retirement | a migration drops the role | — |
+
+**Supabase's connection, source and environment restrictions, examined (Supabase docs, 6 Oct):**
+
+| Restriction | What Supabase offers | Practical for C2? | Adopted |
+|---|---|---|---|
+| Network Restrictions | an IP allowlist for Postgres and its pooler, **project-wide** (every role), in Database Settings | **No, not today.** GitHub-hosted runners connect from changing addresses across Azure's ranges. A fixed address needs GitHub's larger runners with static IPs (a paid plan) or a self-hosted runner. The allowlist would also bind the deploy workflows and every other database client | no; an owner option for later (a Supabase setting plus a paid runner) |
+| Temporary access ("JIT") | a Supabase user's scoped token used as a role's password, with a per-role expiry and per-role IP ranges; needs Postgres ≥ 17.6.1.081 and a project setting switched on | **Partly.** The expiry is useful. The IP ranges have the runner problem above. The credential would become one person's Supabase account token, tying the backup to one person (against A6) | no for 4.0; recorded as an option |
+| SSL enforcement | a project-wide setting that refuses non-SSL clients | the job already insists on it from its side (`verify-full`) | client side yes; the project setting is an owner option, since it affects every client |
+| In-database role limits | standard PostgreSQL, set by migration 162 | **yes** | yes: LOGIN; member of `pg_read_all_data` only; read-only by default; `statement_timeout` and `idle_in_transaction_session_timeout`; connection limit 3; owns nothing; no other grant |
+| A PostgreSQL 17 login event trigger (by role or time) | possible in principle | a fault in a login trigger can lock **every** role out of the database | rejected |
+
+**DR-S15 proves it cannot mutate PINTAR.** On CI's database, as `pintar_backup`, the session first switches its own
+read-only default **off**: the worst case, since a stolen C2 can do that. Each of the following must then be refused:
+- INSERT, UPDATE, DELETE, TRUNCATE and `COPY … FROM` on PINTAR's tables, `auth.users`, `storage.objects` and
+  `audit_log`;
+- `nextval` and `setval` on a sequence;
+- CREATE (table, view, function, trigger, policy) in every PINTAR schema, CREATE SCHEMA, CREATE EXTENSION;
+- ALTER and DROP of a table, a function and a policy, and `COMMENT ON`;
+- GRANT on an object; granting any role (it holds no admin option); CREATE ROLE; ALTER ROLE of another role;
+  `SET ROLE` to `postgres`, `authenticated`, `service_role` or `anon`.
+
+From the catalog, it also proves:
+- no PINTAR function it may execute is SECURITY DEFINER, so any function it calls runs with its own read-only rights;
+- it owns nothing, holds no table, column or schema privilege beyond reading, and no role attribute beyond LOGIN and
+  BYPASSRLS.
+
+**What it can still do, and why none of it mutates PINTAR:**
+- create temporary tables and large objects, which PostgreSQL allows every role as session scratch space and which
+  touch no PINTAR object;
+- change its own password, which PostgreSQL always allows: the next backup then fails closed and is reported;
+- use up its 3 connections.
+
+The same catalog checks run read-only against staging after migration 162, and against production before its first
+backup, because CI's database has only stand-ins for Supabase's own schemas.
+
+**Stop (D-107(c)):** if a complete dump turns out to need any privilege beyond this profile (for example a
+Supabase-managed object it cannot read), the work stops and returns for approval.
+
 ## A1: encryption, and who can decrypt what
 
 | Key (OpenPGP) | Purpose | Private half held by | Encrypts |
@@ -96,7 +166,7 @@ If either fails, the work stops and returns for approval, as A2 requires.
 | ID | System | Credential | Purpose | Permissions | Held by | Rotation | Revocation |
 |---|---|---|---|---|---|---|---|
 | C1 | **Supabase Management API** | scoped access token, `pintar-production` | B3: read the backup list (G6, the watch, recovery facts) | **backups: read**, nothing else; probed by GETs to `/api-keys` and `/config/auth`, both of which must answer 403 | GitHub repository secret `PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN` | owner: Supabase → Account → Access Tokens → new token → update the secret → revoke the old | revoke in Access Tokens |
-| C2 | **Supabase Postgres** (production; staging separately) | role `pintar_backup` + password | B4: the database dump | read every table (`pg_read_all_data`, BYPASSRLS); no write grant; read-only by default; 3 connections | GitHub environment secrets `PRODUCTION_DB_BACKUP_PASSWORD`, `STAGING_DB_BACKUP_PASSWORD` | owner: a new password in the password manager → the secret → the coordinator's set-password workflow | `ALTER ROLE … NOLOGIN` by workflow |
+| C2 | **Supabase Postgres** (production; staging separately) | role `pintar_backup` + password | B4: the database dump | **reads every row of every table, across all tenants** (`pg_read_all_data`, BYPASSRLS); no write, create, alter, drop or grant (DR-S15); read-only by default; 3 connections. **Its compromise exposes the complete database** (A7) | **only** the GitHub environment `backup` (`main` only): `PRODUCTION_DB_BACKUP_PASSWORD`, `STAGING_DB_BACKUP_PASSWORD`; never Vercel, the application or a repository secret | yearly or on doubt: the owner puts a new random password in the password manager and in the secret → `backup-credential.yml set` | **immediate:** `backup-credential.yml revoke` (NOLOGIN + sessions terminated) |
 | C3 | **Supabase Storage S3-compatible API** (Supabase's, **not AWS**) | Storage S3 access key (ID + secret), per project | B9: download every Storage object | full Storage access on that project (Supabase offers no read-only key); the job only lists and gets | GitHub environment secrets `PRODUCTION_SUPABASE_STORAGE_S3_KEY_ID` / `…_SECRET` (staging likewise) | owner: Supabase → Storage → S3 access keys → new → update the secrets → revoke the old | revoke in the same screen |
 | C4 | **AWS S3 (Amazon Web Services)** | IAM user `pintar-backup-writer` access key | B4/B5/B9: upload bundles and escrow | `PutObject` with checksum, `PutObjectRetention`, `PutObjectLegalHold` on the backup bucket only; **no read, list or delete** | GitHub environment secrets `AWS_BACKUP_WRITER_KEY_ID` / `…_SECRET` (backup and escrow environments) | owner: AWS → IAM → new key → update → delete the old | deactivate the key |
 | C5 | **AWS S3** | IAM user `pintar-backup-reader` access key | drills and restores: download | `GetObject`, `ListBucket`, `GetObjectRetention`/`LegalHold` on the bucket only | GitHub environment secrets `AWS_BACKUP_READER_KEY_ID` / `…_SECRET` (`staging-recovery-drill`, `production-recovery`; owner-approved runs) | as C4 | as C4 |
@@ -120,7 +190,7 @@ If either fails, the work stops and returns for approval, as A2 requires.
 | Why | RPO and personal-data minimisation | **Cards:** every class card's sign-in secret is derived from `CARD_PEPPER`, so it must stay recoverable while any card account exists, which in practice is the life of the deployment. **Certificates:** a certificate sealed with `V<n>` stays verifiable only while `V<n>` exists (INV-07); certificates are lasting records |
 | Removal | automatic, by lifecycle | only by the **retirement procedure**: (1) for `V<n>`, proof that no certificate with key_version `n` exists or needs verifying; for the pepper, proof that no card account exists; (2) an owner ruling; (3) the AWS root (C9) lifts the legal hold. Never automatic, never by the backup's credentials |
 | Continuity of the decryption keys | — | escrow stays decryptable by **two independent recovery keys** (R1, R2). When either rotates, the escrow is re-encrypted to the new set **before** the old private key is retired. The quarterly possession check covers both |
-| Offline copy | — | D-066(a) asked for "verified offline recovery copies". **Owner decision D8:** whether, beyond the encrypted escrow, a sealed paper copy of the two secrets is kept (an independent path, or plaintext risk) |
+| Offline copy | — | **D8 (decided, D-107): no sealed offline plaintext copy.** The dual-recipient encrypted escrow is the recovery path; R1 and R2's private keys each have their own offline backup |
 
 ## A5: when a backup counts as successful (fail closed)
 
@@ -183,7 +253,7 @@ A run is recorded as successful **only if all ten hold**. On any failure nothing
 | DR-S10 | escrow and recovery against stand-ins for Vercel and S3: legal hold set and no lifecycle expiry on `escrow/`; escrows only on a fingerprint match; recovery writes only a matching value; never prints a value |
 | DR-S11 | the wiring: environments, schedules, `main` only; each credential C1–C8 appears only where the inventory says |
 | DR-S14 | **A5, executed:** a backup run against CI's database and Storage, with each failure planted (a missing table, a missing or changed Storage object, a wrong recipient, a rejected checksum), is red and uploads no success record; the clean run is green |
-| DR-S15 | `pintar_backup`: it can read every table, `auth` and `storage` included; it cannot write, create or change roles; the dump made with it equals one made with `postgres` |
+| DR-S15 | `pintar_backup` (A7): it reads every table, `auth` and `storage` included, and a dump made with it equals one made with `postgres`; with its read-only default switched **off** it is still refused every INSERT, UPDATE, DELETE, TRUNCATE, COPY FROM, sequence advance, CREATE, ALTER, DROP, COMMENT, GRANT, role grant, CREATE ROLE and SET ROLE; the catalog shows it owns nothing, can execute no PINTAR SECURITY DEFINER function, and holds no attribute beyond LOGIN and BYPASSRLS |
 | DR-D02 | the logical path end to end on CI: CI's bundle restored by `restore-bundle.sh` into a fresh database gives `banding.sh` 0 differences and readiness 24/24 |
 
 **Evidence:**
@@ -268,7 +338,7 @@ The screenshots are not committed (they show names); the record keeps roles and 
 
 | # | Action | When |
 |---|---|---|
-| O1 | Approve revision 2 and decisions D1–D8 | first |
+| O1 | Approve revision 2 and decisions D1–D8 | **done** (D-107) |
 | O2 | C1: the backups-read token (screenshot of its permission list) → GitHub secret | after WP-A's code |
 | O3 | AWS: the account (custodian A, root MFA), the stack from the template, access keys for C4 and C5 → environment secrets | after WP-B's code |
 | O4 | **Key ceremony:** custodian A creates R1 and the owner creates R3 in the desktop OpenPGP application; public keys to the coordinator; R3's private key into `staging-recovery-drill`; R1's private key backed up offline. Custodian B creates R2 when named (B6) | with O3 |
@@ -281,18 +351,18 @@ The screenshots are not committed (they show names); the record keeps roles and 
 | O11 | The privacy-notice line on backup retention (≤ 12 months), owner or legal | before real-school use |
 | O12 | Each quarter: answer the key-possession check (custodians A and B) | recurring |
 
-## Decisions needed
+## Decisions (decided, D-107)
 
-| | Decision | Recommended |
+| | Decision | Decided |
 |---|---|---|
-| D1 | Destination | AWS S3 ap-southeast-1, Object Lock |
-| D2 | Encryption | OpenPGP public keys R1 + R2 (custodians, offline) and R3 (staging drill only), made in a desktop application; hardware keys as the stronger alternative |
-| D3 | Drill | monthly + on demand, each run owner-approved |
+| D1 | Destination | AWS S3 ap-southeast-1 (Singapore), Object Lock |
+| D2 | Encryption | OpenPGP R1 + R2 (custodians, offline) and R3 (staging drill only) |
+| D3 | Drill | monthly, owner-approved |
 | D4 | Ordinary retention | 35 days daily, 12 months monthly |
-| D5 | Production bundles on runners | never decrypted in normal operation: recipients and checksums + the quarterly possession check |
-| D6 | Database credential | `pintar_backup` (A2: feasible), **not** the `postgres` password |
-| D7 | Schedule | 20:00 UTC (03:00 WIB) |
-| D8 | Offline plaintext copy of the two secrets (D-066(a)) | the owner's decision. Recommended: no plaintext copy; the escrow under two independent recovery keys is the offline recovery path, since D-066(a)'s intent is met by verified recoverability |
+| D5 | Production bundles on runners | not decrypted on normal runners |
+| D6 | Database credential | `pintar_backup`, not the `postgres` password; guarded as in A7 |
+| D7 | Schedule | 03:00 WIB (20:00 UTC) |
+| D8 | Offline plaintext copy of the two secrets | **no**; the dual-recipient encrypted escrow is the recovery path |
 
 ## Cost
 
@@ -316,6 +386,8 @@ The screenshots are not committed (they show names); the record keeps roles and 
   ≤ 12 months (O11).
 - **Escrow is under legal hold.** Only the AWS root (C9) can lift it, by the retirement procedure.
 - **Residual risks, named:**
+  - **a compromise of C2 could expose the complete database** (it cannot modify it); A7 bounds where C2 lives, and
+    its revocation is immediate;
   - losing **both** custodians' private keys makes production bundles and the escrow unrecoverable; the quarterly
     possession check is the control;
   - C3 can write to Storage, a Supabase limitation;
@@ -323,13 +395,15 @@ The screenshots are not committed (they show names); the record keeps roles and 
 
 ## Sequence and stop points
 
-1. **WP-A**, **WP-B** and **WP-C**'s runbook tooling, each one finished change with red-then-green tests and one CI.
+1. **WP-A**, **WP-B** and **WP-C**'s runbook tooling, each one finished change with red-then-green tests and one CI,
+   reported before the owner action or external service it leads to (D-107(a)).
    WP-B carries migration 162 (staging at once; production at the PRODUCTION READY release).
 2. **Owner actions O2–O7.** Stop if:
    - Supabase cannot isolate backups-read;
    - production's `postgres` lacks the `pg_read_all_data` admin option;
    - the snapshot cannot be shared through the pooler;
-   - a custodian cannot use the desktop application.
+   - a custodian cannot use the desktop application;
+   - a complete dump needs any privilege beyond `pintar_backup`'s read-only profile (A7, D-107(c)).
 3. **WP-B's evidence:** green and planted-red backups, escrow, the drill, the production checks, the first possession
    check.
 4. **The WP-C hosted rehearsal (O8):** the sentence at the top, evidenced clause by clause.
