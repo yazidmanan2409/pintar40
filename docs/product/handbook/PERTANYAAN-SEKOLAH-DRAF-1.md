@@ -1,5 +1,7 @@
 **INTERNAL — untuk tim PINTAR saja; jangan dibagikan ke sekolah. FAQ untuk sekolah akan menjadi dokumen terpisah yang diturunkan dari jawaban canonical, bukan dokumen ini dengan bagian yang dihapus.**
 
+**Persetujuan (6 Okt 2026, D-114):** revisi 1D ini DISETUJUI untuk penggunaan internal sebagai rujukan canonical dan materi pelatihan, setelah audit sampel terakhir Second Eye. Tetap INTERNAL (D-112(f)). Yang dijelaskan adalah `main` pada `f707464`; perubahan sesudahnya masuk lewat revisi berikutnya. Kalimat "belum canonical dan belum materi training" di bawah mencatat keadaan sebelum persetujuan ini.
+
 # PINTAR — 100 Pertanyaan yang Mungkin Ditanyakan Sekolah
 ## Draf 1 — Handbook Pengetahuan & Kepercayaan (INTERNAL)
 
