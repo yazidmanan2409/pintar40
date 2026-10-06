@@ -20,10 +20,10 @@ provider and the owner has not been carried out (B), and B is what decides the v
 
 | Control | Proof |
 |---|---|
-| G5: the production deploy never replaces `CARD_PEPPER` or `CERT_SECRET_KEY_V1` silently | DR-S01..S03, red on the old workflow, green; CI CI_FINAL |
-| G6: no production migration without a recorded restore point (a completed backup ≤ 26 h) | DR-S04, DR-S05; CI CI_FINAL |
+| G5: the production deploy never replaces `CARD_PEPPER` or `CERT_SECRET_KEY_V1` silently | DR-S01..S03, red on the old workflow, green; CI 37390261594 (35/35, 579/579) |
+| G6: no production migration without a recorded restore point (a completed backup ≤ 26 h) | DR-S04, DR-S05; CI 37390261594 (35/35, 579/579) |
 | G7: readiness sees restore drift by name | DR-D01 (planted drift, CI's database); **on a real restore, rehearsal 37389380945: 7 rows FAIL on the copy, each naming what drifted; staging 24/24 PASS** |
-| G10: production is watched from outside, one self-closing issue, off until switched on | DR-S06, which now executes the step under `bash -e`; watch run WATCH_FINAL |
+| G10: production is watched from outside, one self-closing issue, off until switched on | DR-S06, which now executes the step under `bash -e`; watch run 37391618155 (green; the 403 reported, not failed) |
 | The rehearsal's own instruments, corrected | the readiness count (`'\| FAIL'` → `^FAIL`); the two stale readiness rows restated; both kept on the record below |
 | G8: the RPO decided and recorded | D-103 |
 | G3/G4: the off-platform backup designed | `docs/recovery/OFFSITE-BACKUP-DESIGN.md` (design only, as authorised) |
@@ -55,12 +55,12 @@ decisions that should not be left open once real schools depend on PINTAR.
 | G1 | **Partly established; backup list unread** | see G1 below |
 | G2 | **Not performed: needs the owner's two dashboard actions** | see G2 below |
 | G3/G4 | **Designed, not built** (owner's approval needed) | `docs/recovery/OFFSITE-BACKUP-DESIGN.md` |
-| G5 | **Guard built and proven; escrow waits on G3's custody** | `b4bd543`; DR-S01..S03 red on the old workflow, green; CI CI_FINAL |
-| G6 | **Built and proven** (blocks production applies until G1's token can read backups) | `870fdac`; DR-S04, DR-S05; CI CI_FINAL |
+| G5 | **Guard built and proven; escrow waits on G3's custody** | `b4bd543`; DR-S01..S03 red on the old workflow, green; CI 37390261594 (35/35, 579/579) |
+| G6 | **Built and proven** (blocks production applies until G1's token can read backups) | `870fdac`; DR-S04, DR-S05; CI 37390261594 (35/35, 579/579) |
 | G7 | **Built and proven**, plus two defects found and fixed | `870fdac`; DR-D01; rehearsal 37389380945 |
 | G8 | **Recorded**: D-103 | `docs/coordination/DECISIONS.md` |
 | G9 | Recommendations (owner's decisions) | see G9 below |
-| G10 | **Minimum built, off until the owner turns it on**; one defect found by its first run and fixed | `7ffbacc`, `babafd5`; DR-S06; watch runs 37389383812 (died, the defect) and WATCH_FINAL |
+| G10 | **Minimum built, off until the owner turns it on**; one defect found by its first run and fixed | `7ffbacc`, `babafd5`; DR-S06; watch runs 37389383812 (died, the defect) and 37391618155 (green) |
 
 ### G1. Production's backup configuration (read only; nothing changed)
 
@@ -235,7 +235,7 @@ until the owner sets the repository variable `PINTAR_PRODUCTION_WATCH` to `on`. 
 
 DR-S06 had only read the workflow's text, so it missed this. It now **executes the step under `bash -e`** against a
 local stand-in. Red on the old step: exit 1 right after the TLS line, as in the run. Green after `set +e` (`babafd5`).
-Rerun on the fixed step: WATCH_FINAL.
+Rerun on the fixed step: run 37391618155: every check green, the 403 reported as a note, no issue opened.
 
 **Owner's decisions:** turn it on, and how often. Who watches the repository; GitHub emails watchers about the issue.
 
@@ -251,7 +251,7 @@ Rerun on the fixed step: WATCH_FINAL.
 
 ## The recovery verification rerun
 
-Run on `main` after the candidate's final CI (CI CI_FINAL, 35/35):
+Run on `main` after the candidate's final CI (CI 37390261594 on `683edd9`, 35/35, 579/579):
 
 | Check | Run | Result | Classification |
 |---|---|---|---|
@@ -259,7 +259,7 @@ Run on `main` after the candidate's final CI (CI CI_FINAL, 35/35):
 | — tolerant restore's 7 errors | | the reserved role parameter; 4 Auth objects and 1 Storage column newer than the CLI's local stack | version skew of the rehearsal target, not a PINTAR defect; it drops the `assets` bucket row, which G7 now reports |
 | — facts | | triggers lost; grants changed (490 functions, 137 tables); 1 function's comments (`content_canonical_payload`, behaviour unchanged); policies, public triggers, pre-request, extensions, owners and Storage metadata (28 objects, 206 MB) the same | as 5 Oct |
 | — readiness | | staging 24/24 PASS; copy 7 FAIL, then 6 after the corrected step | **G7 proven on a real restore** |
-| Production watch, fixed step | WATCH_FINAL | WATCH_RESULT | |
+| Production watch, fixed step | 37391618155 (`main` `000f600`) | sign-in page 200 and PINTAR's; Auth healthy; TLS 77 days; the backup list refused (403), reported as a note; nothing failing; no issue opened | **G10 proven on production**; G1 still open |
 | Staging's backups and add-ons, the rehearsal's token | 37389380945 | HTTP 403 | the same permission gap as G1 |
 
 Not rerun, because it cannot be: the hosted restore (B1). Nothing here substitutes for it.
