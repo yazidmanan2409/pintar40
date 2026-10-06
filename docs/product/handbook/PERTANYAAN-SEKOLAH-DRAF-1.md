@@ -1,7 +1,7 @@
 # PINTAR — 100 Pertanyaan yang Mungkin Ditanyakan Sekolah
 ## Draf 1 — Handbook Pengetahuan & Kepercayaan (INTERNAL)
 
-**Status dokumen: LANGKAH 1B — jawaban lengkap untuk Q001–Q100. Draf untuk diperiksa Yazid dan Second Eye; belum canonical dan belum materi training.**
+**Status dokumen: LANGKAH 1B — jawaban lengkap untuk Q001–Q100. Draf untuk diperiksa pemilik produk dan Second Eye; belum canonical dan belum materi training.**
 
 - Penyusun: FIONA
 - Tanggal baca: 6 Oktober 2026
@@ -79,13 +79,13 @@
 **Jawaban singkat:**
 "Footer aplikasi kami mencantumkan nama badan hukum, tetapi dokumen pendukungnya, seperti akta, izin usaha, dan susunan kepemilikan, tidak ada di tim produk. Kami akan menyerahkan informasi resminya langsung dari pemilik, dan tidak akan menebak di luar itu."
 
-**Penjelasan:** Fakta yang ditemukan: footer aplikasi memuat empat baris, yaitu penanggung jawab, badan hukum, email, dan domain, tanpa klaim hukum apa pun. Badan hukum yang tertulis adalah **"PT ZAYD PINTAR SELALU"** (konstanta `BADAN_HUKUM` di `src/components/KakiPintar.tsx:29` dan `src/components/email/bingkai.ts:92`; tes UX1-S1-KAKI-01). Domain `pintarselalu.com`. Yang **tidak** ditemukan: akta, NIB/NPWP, izin usaha, pemilik atau pemegang saham, alamat perusahaan, ketentuan layanan, kebijakan privasi, kontrak, SLA (dicari "badan hukum", "legal entity", "kontrak", "SLA", "terms"). Apakah nama itu benar, aktif, dan menjadi pihak yang akan menandatangani kontrak dengan sekolah **tidak dapat dipastikan dari repositori**. D-031 menyebut "signed MOU" tanpa isi dan tanpa menyebut pihak. Konflik sumber kecil: dua dokumen koordinasi menyebut peran "product owner" untuk orang yang berbeda; jangan dipakai sebagai referensi.
+**Penjelasan:** Fakta yang ditemukan: footer aplikasi memuat empat baris, yaitu penanggung jawab, badan hukum, email, dan domain, tanpa klaim hukum apa pun. Badan hukum yang tertulis adalah **"PT ZAYD PINTAR SELALU"** (konstanta `BADAN_HUKUM` di `src/components/KakiPintar.tsx:29` dan `src/components/email/bingkai.ts:92`; tes UX1-S1-KAKI-01). Domain `pintarselalu.com`. Yang **tidak** ditemukan: akta, NIB/NPWP, izin usaha, pemilik atau pemegang saham, alamat perusahaan, ketentuan layanan, kebijakan privasi, kontrak, SLA (dicari "badan hukum", "legal entity", "kontrak", "SLA", "terms"). Apakah nama itu benar, aktif, dan menjadi pihak yang akan menandatangani kontrak dengan sekolah **tidak dapat dipastikan dari repositori**. D-031 memuat isi MOU (harapan sedikitnya 150 sekolah × 400 siswa pada tahun pertama); yang tidak disebut hanya para pihaknya.
 
 **Mengapa PINTAR seperti ini:** Footer sengaja hanya memuat fakta identitas yang diberikan pemilik; klaim hukum tidak ditambahkan (UX1-S1-KAKI-01).
 
 **Bukti / mekanisme di PINTAR:** Footer aplikasi dan templat email.
 
-**Sumber:** MEMBUKTIKAN: `src/components/KakiPintar.tsx:29`; `src/components/email/bingkai.ts:92-94`; tes UX1-S1-KAKI-01. MENETAPKAN ATURAN: D-031; `docs/coordination/README.md` §1; `docs/deployment/GO-LIVE-2026-09-23.md` (bertentangan soal "product owner"). Dokumen badan hukum: **tidak ditemukan**.
+**Sumber:** MEMBUKTIKAN: `src/components/KakiPintar.tsx:29`; `src/components/email/bingkai.ts:92-94`; tes UX1-S1-KAKI-01. MENETAPKAN ATURAN: D-031. Dokumen badan hukum: **tidak ditemukan**.
 
 **Yang tidak boleh dikatakan:** status badan hukum (aktif, terdaftar, berizin), struktur kepemilikan, atau kesediaan menandatangani kontrak sebagai pihak itu; "MOU" sebagai referensi tanpa seizin pemilik.
 
@@ -100,9 +100,9 @@
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Kami belum punya sekolah pengguna yang bisa dijadikan referensi. Produksi hanya memuat dua sekolah yang didaftarkan oleh tim pemilik produk, tanpa sesi ujian, dan semua pengujian dengan orang dilakukan di lingkungan uji dengan data fiktif. Karena belum ada sekolah pengguna, kami tidak punya catatan sekolah yang berhenti."
+"Belum ada sekolah pengguna yang bisa dijadikan referensi."
 
-**Penjelasan:** Produksi memuat dua sekolah, dibuat lewat database oleh koordinator, dengan dua periode akademik 2026/2027, "satu orang dan tanpa sesi ujian" (RELEASES.md; D-103). Semua uji manusia di staging sintetis (D-036; D-064; D-084 "Golden School" memakai orang fiktif). Rencana 1 November (2 sekolah) dan 1 Desember (10 sekolah) dari D-035 ditarik kembali oleh D-083 ("siap sekitar 1 Desember bukan tanggal rilis"; kohort perlu diputuskan ulang). Tidak ditemukan: daftar sekolah pelanggan, testimoni, referensi, catatan sekolah yang berhenti (dicari testimon, referensi sekolah, churn, berhenti).
+**Penjelasan:** Produksi memuat dua sekolah milik pemilik produk yang diklasifikasikan sebagai sekolah nyata (D-003), dibuat lewat database oleh koordinator, dengan dua periode akademik 2026/2027, "satu orang dan tanpa sesi ujian" (RELEASES.md; D-103). Karena belum ada sekolah pengguna lain, tidak ada catatan sekolah yang berhenti. Semua uji manusia di staging sintetis (D-036; D-064; D-084 "Golden School" memakai orang fiktif). D-083 menarik tanggal uji 5 Oktober dan menyatakan kesiapan sekitar 1 Desember sebagai horizon perencanaan, bukan tanggal rilis; kedua kohort D-035 (1 November dan 1 Desember) masih terbuka ("both need a decision"), jadi jangan disebut sebagai jadwal. Tidak ditemukan: daftar sekolah pelanggan, testimoni, referensi, catatan sekolah yang berhenti (dicari testimon, referensi sekolah, churn, berhenti).
 
 **Mengapa PINTAR seperti ini:** Aturan: jangan mengklaim sekolah nyata memakai, jumlah pengguna, atau testimoni tanpa catatan resmi.
 
@@ -126,10 +126,10 @@
 "Rekayasanya dinyatakan selesai pada 5 Oktober dan sudah diuji di lingkungan uji, tetapi itu belum berarti siap produksi. Pekerjaan backup dan pemulihan belum lulus, uji beban 1.000 siswa belum memenuhi target, dan produksi masih menjalankan versi lama. Saat ini kami berada di tahap uji terkendali, bukan penerimaan sekolah luas."
 
 **Penjelasan:**
-- ENGINEERING COMPLETE dinyatakan 5 Okt (JOURNEY-LOG butir 35; D-070(f)). Gerbang berikutnya: UI/UX POLISHED → persetujuan pemilik → persetujuan penguji penerimaan → pilot pendidik sekitar 20–30 orang → perluasan (D-052(b)); tidak ditemukan catatan bahwa gerbang itu sudah dilewati.
-- #150 (backup/DR) NOT PASS, diterima; gerbang keras PRODUCTION READY (D-104, D-106). Kunci/escrow, kustodian kedua, dan salinan eksternal masih menunggu pemilik (RESUME-2026-10-06). RPO 24 jam sementara, tanpa PITR (D-103).
+- ENGINEERING COMPLETE dinyatakan 5 Okt (JOURNEY-LOG butir 35; D-070(f) hanya menetapkan syaratnya). Gerbang berikutnya: UI/UX POLISHED → persetujuan pemilik → persetujuan penguji penerimaan → pilot pendidik sekitar 20–30 orang → perluasan (D-052(b)); tidak ditemukan catatan bahwa gerbang itu sudah dilewati.
+- #150 (backup/DR) NOT PASS, diterima; gerbang keras PRODUCTION READY (D-104, D-106). D-111 (6 Okt) menyatakan GREEN untuk melanjutkan persiapan infrastruktur milik pemilik; **itu bukan #150 lulus dan bukan siap produksi**. Kunci/escrow, kustodian kedua, dan salinan eksternal masih menunggu pemilik (RESUME-2026-10-06). RPO 24 jam sementara, tanpa PITR (D-103).
 - Beban: uji L1 pada 1.000 siswa bersamaan gagal pada konfigurasi sekarang (CAP-02 FAIL; D-089); selama pengujian awal maksimal 50 orang sekaligus (D-089(d)).
-- Produksi tertinggal (111 vs 162 migrasi). D-106(d): ketahanan administrator kedua wajib sebelum penggunaan sekolah nyata. Lokasi data Singapura.
+- Produksi tertinggal (111 vs 162 migrasi). D-106(d): ketahanan administrator kedua wajib sebelum penggunaan sekolah nyata. Lokasi data Singapura (RELEASES.md:34).
 - Konflik sumber kecil: JOURNEY-LOG butir 35 menyatakan polesan UI hanya setelah #150; D-104(e) (6 Okt, lebih baru) mengizinkan kerja UI/UX berjalan terpisah untuk uji terkendali. Yang baru berlaku.
 
 **Mengapa PINTAR seperti ini:** Tahapan gerbang dibuat berurutan agar kesiapan dibuktikan, bukan diumumkan.
@@ -137,10 +137,10 @@
 **Bukti / mekanisme di PINTAR:** Lihat Q070–Q072 dan Q088.
 
 **Sumber:**
-- MEMBUKTIKAN: JOURNEY-LOG butir 35, 38, 41–43; RELEASE-CHECKLIST CAP-02; RESUME-2026-10-06.
-- MENETAPKAN ATURAN: D-052(b), D-070(f), D-083, D-089, D-103, D-104, D-106.
+- MEMBUKTIKAN: JOURNEY-LOG butir 35 (deklarasi ENGINEERING COMPLETE), 38, 41–43; RELEASE-CHECKLIST CAP-02; RESUME-2026-10-06; `docs/coordination/RELEASES.md:34`.
+- MENETAPKAN ATURAN: D-052(b), D-070(f), D-083, D-089, D-103, D-104, D-106, D-111.
 
-**Yang tidak boleh dikatakan:** "Sudah siap produksi"; "ENGINEERING COMPLETE berarti siap pakai"; "sudah lulus uji beban"; "backup/DR sudah aman"; tanggal mulai.
+**Yang tidak boleh dikatakan:** "Sudah siap produksi"; "ENGINEERING COMPLETE berarti siap pakai"; "sudah lulus uji beban"; "backup/DR sudah aman"; "#150 sudah lulus" atau "GREEN" (D-111 hanya izin melanjutkan persiapan infrastruktur); tanggal mulai.
 
 **Status:** SEBAGIAN
 **Tingkat sensitivitas:** KRITIS
@@ -155,7 +155,7 @@
 **Jawaban singkat:**
 "Yang paling penting untuk diketahui: PINTAR tidak punya portal orang tua, tidak bisa mengekspor data sekolah ke Excel, tidak terhubung ke Dapodik atau e-Rapor, tidak bisa dipakai penuh tanpa internet, dan AI tidak menilai atau menerbitkan apa pun. Kami lebih suka Anda tahu ini sejak awal."
 
-**Penjelasan:** Di luar 4.0 (SCOPE-INVENTORY §10): email undangan, notifikasi keamanan ke admin sekolah, ganti nama pengguna mandiri, MDM, layar pembuatan sekolah atau pendaftaran mandiri, lencana dan poin, helpdesk sebagai produk (ditinjau 2027), tautan ajaib atau email-kata sandi untuk murid, remediasi adaptif otomatis, ulang pasca-uji tanpa batas, umpan jawaban langsung, layanan produksi kartu, jaminan kotak masuk email, foto murid di kartu atau sertifikat. LATER (doc 09, tanpa versi): pengalaman orang tua, SSO/integrasi, alur ujian kertas, kasus integritas, IRT, laporan terjadwal, berbagi konten antar institusi. PARK: pengawasan webcam/mikrofon/layar, platform offline luas, OMR, kartu NFC, perbandingan antar sekolah, SQL/metrik bebas. Masuk lewat WhatsApp dijadwalkan 4.1 (D-105(c)). Video/audio/slide di luar pengujian awal (D-050). Tidak ada ekspor data sekolah (hanya cetak; kandidat 4.5, D-110(b)). Tidak ada PITR (D-103, D-106(h)). AI hanya fondasi tanpa pemanggilan penyedia, dan AI tidak berotoritas pedagogis (doc 10 §2). Juga tidak ada: aplikasi seluler; penyunting soal di layar ("untuk mengubah soal, unggah buku kerja perbaikan", `src/lib/hle.ts:3469`); perpanjangan tenggat dari layar guru; penonaktifan akun guru (Q022).
+**Penjelasan:** Di luar 4.0 (SCOPE-INVENTORY §10): email undangan, notifikasi keamanan ke admin sekolah, ganti nama pengguna mandiri, MDM, layar pembuatan sekolah atau pendaftaran mandiri, lencana dan poin, helpdesk sebagai produk (ditinjau 2027), tautan ajaib atau email-kata sandi untuk murid, remediasi adaptif otomatis, ulang pasca-uji tanpa batas, umpan jawaban langsung, layanan produksi kartu, jaminan kotak masuk email, foto murid di kartu atau sertifikat. LATER (doc 09, tanpa versi): pengalaman orang tua, SSO/integrasi, alur ujian kertas, kasus integritas, IRT, laporan terjadwal, berbagi konten antar institusi. PARK: pengawasan webcam/mikrofon/layar, platform offline luas, OMR, kartu NFC, perbandingan antar sekolah, SQL/metrik bebas. Masuk lewat WhatsApp dipindahkan keluar dari 4.0; tidak ada jadwal (D-098(c)). Video/audio/slide di luar pengujian awal (D-050). Tidak ada ekspor data sekolah (hanya cetak; kandidat 4.5, D-110(b)). Tidak ada PITR (D-103, D-106(h)). AI hanya fondasi tanpa pemanggilan penyedia, dan AI tidak berotoritas pedagogis (doc 10 §2). Juga tidak ada: aplikasi seluler; penyunting soal di layar («Untuk mengubah soal, unggah buku kerja yang sudah diperbaiki di Buat Paket.», `src/lib/hle.ts:3469`); perpanjangan tenggat dari layar guru; penonaktifan akun guru (Q022).
 
 **Mengapa PINTAR seperti ini:** Prinsip: katakan "PINTAR tidak melakukan itu" bila itu jawabannya.
 
@@ -163,11 +163,11 @@
 
 **Sumber:**
 - MEMBUKTIKAN: SCHOOL-DATA-EXPORT-4.0.md; `src/lib/hle.ts:3469`; `src/ai-gateway/README.md`.
-- MENETAPKAN ATURAN: SCOPE-INVENTORY §10; `docs/rebuild/09`; `docs/rebuild/10` §2; D-050, D-103, D-105(c), D-106(h), D-110(b).
+- MENETAPKAN ATURAN: SCOPE-INVENTORY §10; `docs/rebuild/09`; `docs/rebuild/10` §2; D-050, D-098(c), D-103, D-106(h), D-110(b).
 
 **Yang tidak boleh dikatakan:** "Orang tua bisa memantau"; "bisa ekspor ke Excel"; "bisa offline penuh"; "AI menyusun atau menilai"; "semua mata pelajaran dan kurikulum".
 
-**Status:** TERSEDIA DI 4.0 (sebagai daftar batas, dengan bukti dan aturan di atas)
+**Status:** TIDAK DILAKUKAN PINTAR (daftar batas, dengan bukti dan aturan di atas)
 **Tingkat sensitivitas:** PENTING
 
 ---
@@ -178,22 +178,22 @@
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Ada dua asal konten: konten standar PINTAR dan konten sekolah sendiri, dan asalnya selalu terlihat. Alur penerbitan mengharuskan orang kedua menyetujui sebelum terbit. Untuk konten standar yang kami siapkan, jujur kami belum punya catatan bahwa guru mata pelajaran memeriksanya, dan penyusunannya melibatkan asisten AI."
+"Ada dua asal konten: konten standar PINTAR dan konten sekolah sendiri. Alur penerbitan mengharuskan orang kedua menyetujui sebelum terbit. Untuk konten standar yang kami siapkan, kami belum punya catatan bahwa guru mata pelajaran memeriksanya, dan persiapannya dibantu AI dengan pemeriksaan oleh koordinator."
 
 **Penjelasan:**
-- Dua asal konten (J4.11; D-085 M6). Alur Studio dikunci di database: susun dan ajukan (Guru, Kepala departemen, Admin sekolah) → setujui (Kepala departemen/Admin sekolah; penulis tidak boleh menyetujui pekerjaannya sendiri) → buat dan kunci rilis (orang kedua) → terbitkan (hanya Admin sekolah; Kepala departemen tidak bisa). Peninjau melihat soal, kunci, dan alasan. Catatan mutu soal ditinjau satu per satu sebelum terbit. Dekan tidak punya kemampuan Studio (INV-19; F06-N02).
-- Konten yang ada (SD kelas 5 Matematika Bab 1–9, SMA kelas X Matematika Bab 1–7, SMA kelas XI Geografi Bab 1–4; 20 buku kerja di `docs/onboarding/konten/`) disusun oleh jalur kerja penulis pelajaran PINTAR dari PDF buku siswa terbitan Kemendikbudristek, diperiksa koordinator dengan skrip dan verifikasi kunci, lalu diuji alurnya di staging. Sumber tidak menyatakan secara eksplisit bahwa penyusunnya asisten AI, tetapi pekerjaannya tercatat sebagai sesi kerja; kesimpulan bahwa asisten AI terlibat kuat tetapi **perlu dipastikan oleh pemilik**. Papan kerja mencatat "CONTENT PASS", bukan tinjauan guru mata pelajaran.
-- Tidak ditemukan: catatan tinjauan manusia ahli bidang atas konten itu; pernyataan lisensi atau hak pakai buku sumber (D-069(g) hanya untuk demo pendidik).
+- Dua asal konten (J4.11; D-085 M6). Alur Studio dikunci di database: susun dan ajukan (Guru, Kepala departemen, Admin sekolah) → setujui (Kepala departemen/Admin sekolah; penulis tidak boleh menyetujui pekerjaannya sendiri) → kunci rilis (orang kedua) → terbitkan (hanya Admin sekolah; Kepala departemen tidak bisa). Peninjau melihat soal, kunci, dan alasan. Catatan mutu soal ditinjau satu per satu sebelum terbit. Dekan tidak punya kemampuan Studio (INV-19; F06-N02).
+- Konten yang ada (SD kelas 5 Matematika Bab 1–9, SMA kelas X Matematika Bab 1–7, SMA kelas XI Geografi Bab 1–4; 20 buku kerja di `docs/onboarding/konten/`) disusun lewat persiapan berbantuan AI dengan pemeriksaan oleh koordinator (`LANA.md:5`), lalu diuji alurnya di staging. Sumbernya berbeda: sembilan buku kerja SD kelas 5 "diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V" (`docs/onboarding/konten/sd5_*.py`); Geografi kelas XI dan Matematika kelas X dari buku siswa (`LANA.md:25, 56`). Papan kerja mencatat "CONTENT PASS", bukan tinjauan guru mata pelajaran.
+- Tidak ditemukan: catatan tinjauan manusia ahli bidang atas konten itu; pernyataan lisensi atau hak pakai bahan sumber (D-069(g) hanya untuk demo pendidik); ini masuk G2.3 dan G4.
 - Pengisian pustaka standar pusat tertahan: JOURNEY-LOG baris 139 (2 Okt) "belum ada jalur authoring"; D-029 menolak impor ke pustaka kanonik; G2 (siapa menyiapkan dan menyetujui) belum diputuskan. Jalur penampilan ke guru ada (`src/app/studio/kanonik`; M6-S01, M6-K01), pengisian pustaka belum.
 - AI tidak menerbitkan apa pun sendiri; penerbitan selalu oleh manusia (INV-32; doc 10).
 
-**Mengapa PINTAR seperti ini:** Otoritas pedagogis ada pada manusia; orang kedua wajib menyetujui.
+**Mengapa PINTAR seperti ini:** Otoritas pedagogis ada pada manusia; penulis tidak boleh menyetujui pekerjaannya sendiri.
 
 **Bukti / mekanisme di PINTAR:** `src/components/studio/langkah.ts`; tes F06-N02, M6-S01, M6-K01; `docs/onboarding/konten/` (20 berkas).
 
 **Sumber:**
 - MEMBUKTIKAN: `src/components/studio/langkah.ts`; tes di atas; JOURNEY-LOG butir 13, baris 139.
-- MENETAPKAN ATURAN: D-029, D-041, D-085 (M6), D-088(h); SCOPE-INVENTORY J1.5, J4.3, J4.11; INV-32; `docs/coordination/briefs/LANA.md`; BOARD (LANA-01–21). Tinjauan ahli bidang dan lisensi buku sumber: **tidak ditemukan**.
+- MENETAPKAN ATURAN: D-029, D-041, D-085 (M6), D-088(h); SCOPE-INVENTORY J1.5, J4.3, J4.11; INV-32; `docs/coordination/briefs/LANA.md`; BOARD (LANA-01–21). Tinjauan ahli bidang dan lisensi bahan sumber: **tidak ditemukan**.
 
 **Yang tidak boleh dikatakan:** "Semua konten diperiksa guru atau pakar"; "konten standar sudah tersedia untuk semua sekolah"; "AI tidak dipakai membuat konten"; "kesesuaian kurikulum terjamin".
 
@@ -210,7 +210,7 @@
 **Jawaban singkat:**
 "Yang ada hari ini adalah buku kerja Matematika kelas 5 dan kelas X, serta Geografi kelas XI. Kami belum punya pemetaan resmi ke capaian pembelajaran Kurikulum Merdeka, jadi kami tidak akan mengklaim kesesuaian."
 
-**Penjelasan:** Buku kerja yang ada: SD kelas 5 Matematika Bab 1–9; SMA kelas X Matematika Bab 1–7; SMA kelas XI Geografi Bab 1–4 (20 berkas di `docs/onboarding/konten/`). Keberadaan berkas bukan bukti bahwa konten tersedia di sekolah. Kolom "tujuan pembelajaran" opsional di templat (`src/lib/unggah-kontrak.ts:56-112`). Tidak ditemukan kata "Kurikulum Merdeka" atau "Capaian Pembelajaran" di kode, teks layar, atau keputusan; tidak ada peta ke fase atau CP. Sumber penyusunan adalah buku siswa edisi revisi terbitan kementerian (LANA.md), yang tidak sama dengan klaim kesesuaian CP. Konten di produksi tidak diverifikasi (24 Sep: satu draf SD5 Bab 1 belum terbit).
+**Penjelasan:** Buku kerja yang ada: SD kelas 5 Matematika Bab 1–9; SMA kelas X Matematika Bab 1–7; SMA kelas XI Geografi Bab 1–4 (20 berkas di `docs/onboarding/konten/`). Keberadaan berkas bukan bukti bahwa konten tersedia di sekolah. Kolom "tujuan pembelajaran" opsional di templat (`src/lib/unggah-kontrak.ts:56-112`). Tidak ditemukan kata "Kurikulum Merdeka" atau "Capaian Pembelajaran" di kode, teks layar, atau keputusan; tidak ada peta ke fase atau CP. Sumber penyusunan: SD kelas 5 diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V; Geografi kelas XI dan Matematika kelas X dari buku siswa (`LANA.md:25, 56`). Sumber itu tidak sama dengan klaim kesesuaian CP. Lisensi bahan sumber: lihat G2.3 dan G4. Konten di produksi tidak diverifikasi.
 
 **Mengapa PINTAR seperti ini:** Kesesuaian kurikulum membutuhkan pemeriksaan yang belum dilakukan.
 
@@ -256,13 +256,13 @@
 **Jawaban singkat:**
 "Yang bisa kami tunjukkan adalah apa yang bisa dilakukan sekolah dengan PINTAR: siklus belajar, bukti kelas, laporan cetak, dan sertifikat. Bukti dampak dari sekolah lain belum ada, jadi kami tidak akan menyebut angka."
 
-**Penjelasan:** Yang dapat dijalankan (di staging sintetis): siklus Pemetaan Awal → pelajaran → Uji Penguasaan, bukti kelas, laporan cetak, sertifikat, «Minta membaca lagi» (JOURNEY-LOG butir 33). Bukti kelas tampil hanya bila bukti resmi cukup (J7.1; D-064). "Kelas pilot nyata pertama" adalah konfirmasi operasional, bukan prasyarat (D-064). Tidak ditemukan data dampak, studi, atau studi kasus dari sekolah nyata (dicari impact, dampak, case study).
+**Penjelasan:** Yang dapat dijalankan (di staging sintetis): siklus Pemetaan Awal → pelajaran → Uji Penguasaan, bukti kelas, laporan cetak, sertifikat, «Minta membaca lagi» (JOURNEY-LOG baris 77 dan 94); cetak laporan: `SCHOOL-DATA-EXPORT-4.0.md:22`. Bukti kelas tampil hanya bila bukti resmi cukup (J7.1; D-064). "Kelas pilot nyata pertama" adalah konfirmasi operasional, bukan prasyarat (D-064). Tidak ditemukan data dampak, studi, atau studi kasus dari sekolah nyata (dicari impact, dampak, case study).
 
 **Mengapa PINTAR seperti ini:** Tidak ada sekolah nyata yang sudah memakai; mengarang dampak merusak kepercayaan.
 
 **Bukti / mekanisme di PINTAR:** Alur belajar dan laporan (lihat Q019, Q039).
 
-**Sumber:** MEMBUKTIKAN: JOURNEY-LOG butir 33. MENETAPKAN ATURAN: D-064; SCOPE-INVENTORY J7.1. Data dampak: **tidak ditemukan**.
+**Sumber:** MEMBUKTIKAN: JOURNEY-LOG baris 77, 94; SCHOOL-DATA-EXPORT-4.0.md:22. MENETAPKAN ATURAN: D-064; SCOPE-INVENTORY J7.1. Data dampak: **tidak ditemukan**.
 
 **Yang tidak boleh dikatakan:** angka peningkatan; "hasil dari sekolah lain"; "dalam tiga bulan Anda akan melihat X".
 
@@ -455,11 +455,11 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Jawaban singkat:**
 "Layar guru dirancang sederhana: satu langkah lanjutan di beranda, dan guru tidak membuat akun siswa atau kartu. Tetapi kami belum mengukurnya dengan guru nyata, jadi kami belum bisa mengatakan beban administrasi berkurang. Penyiapan pelajaran masih lewat templat Excel."
 
-**Penjelasan:** Layar guru: beranda dengan satu aksi lanjutan (EDU-02), Siapkan → Sediakan, Uji Cepat (pilih bab → centang soal → tinjau → sediakan; D-085 T2), bukti dan nama siswa, dalam bahasa Indonesia dan Inggris, layar 320 px; dilalui pada sekolah uji di staging (butir 33). Tur dan Bantuan (Q015). Guru tidak membuat akun siswa atau kartu (itu admin). Pelajaran dibuat lewat templat Excel; tidak ada penyunting soal di layar; tiap catatan mutu soal ditinjau sebelum terbit. Beban admin sekolah: struktur, staf, siswa, kartu, batas ketuntasan (J3). Tidak ada: uji kegunaan dengan guru nyata, studi waktu atau beban administrasi, catatan pilot pendidik yang sudah berjalan (dicari usability, waktu menyiapkan, kesulitan).
+**Penjelasan:** Layar guru: beranda dengan satu aksi lanjutan (EDU-02), Siapkan → Sediakan, Uji Cepat (pilih bab → centang soal → tinjau → sediakan; D-085 T2), bukti dan nama siswa, dalam bahasa Indonesia dan Inggris, layar 320 px; dilalui pada sekolah uji di staging (butir 33); alur Uji Cepat dibuktikan T2-S01 dan T2-K01. Tur dan Bantuan (Q015). Guru tidak membuat akun siswa atau kartu (itu admin). Pelajaran dibuat lewat templat Excel; tidak ada penyunting soal di layar; tiap catatan mutu soal ditinjau sebelum terbit. Beban admin sekolah: struktur, staf, siswa, kartu, batas ketuntasan (J3). Tidak ada: uji kegunaan dengan guru nyata, studi waktu atau beban administrasi, catatan pilot pendidik yang sudah berjalan (dicari usability, waktu menyiapkan, kesulitan).
 
 **Mengapa PINTAR seperti ini:** Satu aksi berikutnya yang jelas dan keadaan kosong yang jujur (EDU-02, X.5).
 
-**Bukti / mekanisme di PINTAR:** `src/app/mengajar/*`; tes UX1-S3-CEPAT-01.
+**Bukti / mekanisme di PINTAR:** `src/app/mengajar/*`; tes T2-S01, T2-K01, UX1-S3-CEPAT-01.
 
 **Sumber:** MEMBUKTIKAN: JOURNEY-LOG butir 33; kode di atas. MENETAPKAN ATURAN: D-085 (T2); SCOPE-INVENTORY J5.1, J5.5, X.6. Uji kegunaan: **tidak ditemukan**.
 
@@ -547,9 +547,9 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"PINTAR tidak punya fitur penilaian kinerja atau peringkat guru. Tetapi kami tidak akan mengatakan 'tidak ada pemantauan sama sekali': pimpinan melihat angka kelas dan jejak audit sekolah, dan kepala departemen dapat melihat umpan balik kelas dari siswa."
+"PINTAR tidak punya fitur penilaian kinerja atau peringkat guru. Tetapi kami tidak akan mengatakan 'tidak ada pemantauan sama sekali': Kepala departemen dan Dekan melihat angka dalam lingkupnya, Admin sekolah membaca jejak audit sekolah, dan kepala departemen dapat melihat umpan balik kelas dari siswa."
 
-**Penjelasan:** Teks layar: "Bukan penilaian kinerja dan bukan peringkat" (`src/lib/hle.ts:2725`, untuk pembelajaran pendidik); D-069(c): integritas pembelajaran pendidik tidak ditampilkan ke pimpinan, "bukan penilaian SDM, tanpa alur disipliner"; D-069(j): bukan sistem SDM. Pimpinan (Kepala departemen, Dekan) melihat angka dalam lingkup kelas atau bagian dan daftar murid (J7.2, J7.3); komentar kode: "nothing compares two educators". Admin sekolah membaca jejak audit sekolah: 50 baris terakhir (waktu, aksi, target, build) tanpa kolom pelaku. Pembukaan detail murid oleh Kepala departemen dicatat. «Umpan balik kelas»: lima pertanyaan tetap, ringkasan per kelas dan guru, hasil ditahan di bawah ambang anonimitas, dapat dilihat Kepala departemen; ada di `main` **tanpa sumber lingkup** menunggu putusan pemilik (SCOPE-INVENTORY §11 B1). Dekan tidak dapat menulis. Guru tidak melihat integritas atau Question Health (J5.8). Tidak ada: dasbor aktivitas per guru, peringkat guru, laporan jam masuk. Konflik: doc 05 (rancangan) mengizinkan guru membaca sinyal integritas kelasnya; J5.8/EDU-09 melarang; yang berlaku EDU-09.
+**Penjelasan:** Teks layar: "Bukan penilaian kinerja dan bukan peringkat" (`src/lib/hle.ts:2725`, untuk pembelajaran pendidik); D-069(c): integritas pembelajaran pendidik tidak ditampilkan ke pimpinan, "bukan penilaian SDM, tanpa alur disipliner"; D-069(j): bukan sistem SDM. Pimpinan (Kepala departemen, Dekan) melihat angka dalam lingkup kelas atau bagian dan daftar murid (J7.2, J7.3); komentar kode: "nothing compares two educators". Jejak audit sekolah dibaca **Admin sekolah**, bukan Dekan atau Kepala departemen (Admin sekolah bahkan ditolak dari beranda Pimpinan; UX1-PIMPINAN-AKSES-01): 50 baris terakhir (waktu, aksi, target, build) tanpa kolom pelaku. Pembukaan detail murid oleh Kepala departemen dicatat. «Umpan balik kelas»: lima pertanyaan tetap, ringkasan per kelas dan guru, hasil ditahan di bawah ambang anonimitas, dapat dilihat Kepala departemen; ada di `main` **tanpa sumber lingkup** menunggu putusan pemilik (SCOPE-INVENTORY §11 B1). Dekan tidak dapat menulis. Guru tidak melihat integritas atau Question Health (J5.8). Tidak ada: dasbor aktivitas per guru, peringkat guru, laporan jam masuk. Konflik: doc 05 (rancangan) mengizinkan guru membaca sinyal integritas kelasnya; J5.8/EDU-09 melarang; yang berlaku EDU-09.
 
 **Mengapa PINTAR seperti ini:** PINTAR mengukur pembelajaran siswa, bukan menilai guru.
 
@@ -595,7 +595,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 > **Catatan lintas-pertanyaan untuk pembaca kelompok ini.**
 > 1. **Produksi tertinggal dari `main`.** `RESUME-2026-10-06.md`: produksi tetap di build `5b5b68d` (111 migrasi, terakhir `20261005120000`). Yang ada di `main` dan staging tetapi **tidak** di produksi antara lain: batas percobaan dan jeda masuk kartu (migrasi 125), PINTAR ID (127), batas ketuntasan sekolah (139), koreksi ke depan M10 (142–143), jejak audit pencabutan sertifikat (148), koreksi nama (149), kartu diterbitkan ulang dan pemulihan PIN (153), kunci perangkat bersama (154), wewenang pemulihan oleh sekolah (159). "TERSEDIA" di bawah berarti ada di `main` dan terbukti di tes/staging, bukan berjalan di produksi.
 > 2. Pekerjaan backup/DR (#150) belum lulus (D-104 s/d D-109).
-> 3. Uji beban 1.000 siswa bersamaan belum memenuhi target; pada 50 siswa terpenuhi; penguji dibatasi 50 orang (D-089).
+> 3. Uji beban 1.000 siswa bersamaan belum memenuhi target. Pada 50 siswa, target terpenuhi hanya lewat jalur RPC; lewat aplikasi nyata yang diukur dari AS tidak terpenuhi, dan di atas 50 belum terbukti (JOURNEY-LOG:98). Penguji dibatasi 50 orang (D-089).
 > 4. Dokumen lama kadang usang: JOURNEY-LOG daftar "WAITING FOR OWNER" butir 6 dan 11 menyebut kartu ulang dan kunci PIN "not built", sedangkan entri 25 dan 26 (4 Okt) menyatakan keduanya dibangun; yang baru berlaku.
 
 ### Q023 — Siswa kami masuk bagaimana? Apakah harus punya email atau password?
@@ -604,16 +604,16 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Siswa masuk dengan Kartu PINTAR dan PIN yang dicetak sekolah. Mereka tidak perlu email atau kata sandi, dan email yang tercatat tidak memberi cara masuk lain."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), siswa masuk dengan Kartu PINTAR dan PIN yang dicetak sekolah. Mereka tidak perlu email atau kata sandi, dan email yang tercatat tidak memberi cara masuk lain."
 
-**Penjelasan:** Satu model masuk untuk siswa: nomor kartu 10 digit + PIN (J2.19; D-085 M2). Tidak ada tautan ajaib, email/kata sandi, atau "pilih cara masuk". Salah kartu atau PIN dijawab sama (401) dan layar tidak membedakannya (UX1-MASUK-PRIVASI-01). Lima percobaan dalam 15 menit gratis; sesudahnya ada jeda 30 → 300 detik, tidak pernah mengunci permanen (BOB12-A01; F15-P01/P02/C01). Sesi kartu berumur 3.600 detik (BOB05-R01). Tautan ajaib tidak membuat akun baru (L2-KONTRAK-01, L2-TIDAK-DIBUAT-01). Siswa tidak punya halaman "Akun saya" atau PINTAR ID di 4.0 (C17). Kartu dibuat sekolah per Kelas sebagai lembar cetak; PIN tampil sekali dan tidak disimpan (M7-K01, F09-A02). Tidak ada: masuk siswa dengan email, kata sandi, atau Google; kartu desain khusus siswa (D-059(g), §10). Jeda percobaan (migrasi 125) belum di produksi.
+**Penjelasan:** Satu model masuk untuk siswa: nomor kartu 10 digit + PIN (J2.19; D-085 M2). Tidak ada tautan ajaib, email/kata sandi, atau "pilih cara masuk". Salah kartu atau PIN dijawab sama (401) dan layar tidak membedakannya (UX1-MASUK-PRIVASI-01). Lima percobaan dalam 15 menit gratis; sesudahnya ada jeda 30 → 300 detik, tidak pernah mengunci permanen (BOB12-A01; F15-P01/P02/C01). Sesi kartu berumur 3.600 detik (BOB05-R01). Siswa punya PINTAR ID, tetapi tidak ada layar yang menampilkannya dan tidak ada halaman "Akun saya" untuk siswa di 4.0 (J2.16; `src/app/akun/page.tsx:17-18`). Kartu dibuat sekolah per Kelas sebagai lembar cetak; PIN tampil sekali pada lembar kartu dan tidak disimpan (M7-K01; SCHOOL-DATA-EXPORT-4.0.md §A; F09-A02). Tidak ada: masuk siswa dengan email, kata sandi, atau Google; kartu desain khusus siswa (D-059(g), §10). Jeda percobaan (migrasi 125) belum di produksi.
 
 **Mengapa PINTAR seperti ini:** Siswa tidak bergantung pada akun email; pemulihan dibantu sekolah (D-085 M2).
 
 **Bukti / mekanisme di PINTAR:** Rute `POST /masuk/kartu`; `src/app/akun/page.tsx:16-20`.
 
 **Sumber:**
-- MEMBUKTIKAN: tes BOB12-A01, F15-P01/P02/C01, BOB05-R01, UX1-MASUK-PRIVASI-01, L2-KONTRAK-01, L2-TIDAK-DIBUAT-01, M7-K01, F09-A02.
+- MEMBUKTIKAN: tes BOB12-A01, F15-P01/P02/C01, BOB05-R01, UX1-MASUK-PRIVASI-01, M7-K01, F09-A02.
 - MENETAPKAN ATURAN: SCOPE-INVENTORY J2.19, §10; D-085 (M2); D-059(g).
 
 **Yang tidak boleh dikatakan:** "Siswa bisa masuk dengan email"; "tanpa batas percobaan"; "sudah berjalan di produksi".
@@ -677,16 +677,16 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** SEDANG
 
 **Jawaban singkat:**
-"Sesi siswa terkunci setelah 5 menit tanpa aktivitas, layar kunci tidak menampilkan nama siswa, dan hanya PIN kartu yang membukanya. Siswa berikutnya bisa menekan «Bukan akun Anda?» untuk mengakhiri sesi."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), sesi siswa terkunci setelah 5 menit tanpa aktivitas, layar kunci tidak menampilkan nama siswa, dan hanya PIN kartu yang membukanya. Siswa berikutnya bisa menekan «Bukan akun Anda?» untuk mengakhiri sesi."
 
-**Penjelasan:** Setiap sesi kartu terkunci setelah 5 menit tanpa aktivitas, ditegakkan **server** (permintaan data sesi terkunci ditolak dengan 423). PIN kartu melanjutkan; 3 PIN salah mengakhiri sesi itu; terkunci 60 menit mengakhiri sesi. «Bukan akun Anda?» mengakhiri sesi di komputer itu (BOB29-A02, BOB29-D01, BOB29-K01; D-085 T1; D-086(c)). Siswa disapa nama depan saja (D-020). Posisi pelajaran terikat ke orang, bukan perangkat (W2-K01). Walk GS-20 di staging: kunci muncul pada 303 detik tanpa menyebut nama. Tidak ditemukan: tes tombol Back/cache peramban setelah «Keluar»; tes perilaku jawaban ujian yang belum terkirim (disimpan di localStorage) setelah keluar di perangkat bersama. Konflik: D-009 (60 menit diam untuk kartu) diubah oleh D-085 T1. Kunci perangkat bersama (migrasi 154) belum di produksi.
+**Penjelasan:** Setiap sesi kartu terkunci setelah 5 menit tanpa aktivitas, ditegakkan **server** (permintaan data sesi terkunci ditolak dengan 423). PIN kartu melanjutkan; 3 PIN salah mengakhiri sesi itu; terkunci 60 menit mengakhiri sesi. «Bukan akun Anda?» mengakhiri sesi di komputer itu (BOB29-A02, BOB29-D01, BOB29-K01; D-085 T1; D-086(c)). Siswa disapa nama depan saja (D-020). Posisi pelajaran terikat ke orang, bukan perangkat (W2-K01). Walk GS-20 di staging: kunci muncul pada 303 detik tanpa menyebut nama. Tombol Back dan muat ulang setelah «Keluar» sudah terbukti (RELEASE-CHECKLIST:97, STU-19 PASS; walk S21c). Tidak ditemukan: tes perilaku jawaban ujian yang belum terkirim (disimpan di penyimpanan lokal peramban) setelah keluar di perangkat bersama. Konflik: D-009 (60 menit diam untuk kartu) diubah oleh D-085 T1. Kunci perangkat bersama (migrasi 154) belum di produksi.
 
 **Mengapa PINTAR seperti ini:** Anak berikutnya di perangkat bersama tidak boleh melihat nama atau data anak sebelumnya (D-020; U-PRIV).
 
 **Bukti / mekanisme di PINTAR:** `src/components/PenjagaSesi.tsx:25-32`; layar `/terkunci`.
 
 **Sumber:**
-- MEMBUKTIKAN: tes BOB29-A02, BOB29-D01, BOB29-K01, W2-K01, DAISY-10-SAPA-01/02; JOURNEY-LOG baris 184, ~403.
+- MEMBUKTIKAN: tes BOB29-A02, BOB29-D01, BOB29-K01, W2-K01, DAISY-10-SAPA-01/02; RELEASE-CHECKLIST:97 (STU-19 PASS); JOURNEY-LOG baris 184, ~403.
 - MENETAPKAN ATURAN: D-020, D-085 (T1), D-086(c); SCOPE-INVENTORY J2.20.
 
 **Yang tidak boleh dikatakan:** "Tidak mungkin ada kebocoran"; "kunci otomatis di produksi hari ini".
@@ -702,7 +702,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** SEDANG
 
 **Jawaban singkat:**
-"Tidak. Siswa hanya melihat hasil dan pertumbuhan dirinya sendiri, tanpa peringkat, rata-rata kelas, atau siswa lain."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi): tidak. Siswa hanya melihat hasil dan pertumbuhan dirinya sendiri, tanpa peringkat, rata-rata kelas, atau siswa lain."
 
 **Penjelasan:** J6.11: hasil menampilkan penguasaan dan maknanya serta pertumbuhan sendiri, tanpa peringkat, rata-rata kelas, atau murid lain. Siswa membaca hasil sendiri (F06-P12: "learner sees themselves alone"; M3R-S01). Laporan guru dan pimpinan mengurutkan nama berdasarkan abjad dan diberi kalimat "bukan peringkat" (UX1-S3-NAMA-01, UX1-PIMPINAN-KATA-01). Catatan jujur: tidak ada tes HTTP ujung-ke-ujung yang membaca halaman hasil siswa lain dengan identitas siswa (F06-P12 bekerja di tingkat database). Laporan sekolah memuat metrik `institution.cohort_comparison` yang mengurutkan angkatan menurut rata-rata penguasaan, hanya untuk Kepala departemen, Dekan, dan Admin sekolah di dalam satu sekolah.
 
@@ -710,7 +710,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 
 **Bukti / mekanisme di PINTAR:** Halaman hasil siswa; `calc_institution_cohort_comparison`.
 
-**Sumber:** MEMBUKTIKAN: tes F06-P12, M3R-S01, UX1-S3-NAMA-01, UX1-PIMPINAN-KATA-01. MENETAPKAN ATURAN: SCOPE-INVENTORY J6.11 (baris 140), X.8.
+**Sumber:** MEMBUKTIKAN: tes F06-P12, M3R-S01, UX1-S3-NAMA-01, UX1-PIMPINAN-KATA-01; RELEASE-CHECKLIST:93 (STU-15 PASS). MENETAPKAN ATURAN: SCOPE-INVENTORY J6.11 (baris 140), X.8.
 
 **Yang tidak boleh dikatakan:** "Siswa tidak mungkin melihat teman" tanpa dasar tes HTTP; "tidak ada peringkat sama sekali" (ada urutan angkatan di laporan sekolah).
 
@@ -756,7 +756,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 
 **Bukti / mekanisme di PINTAR:** `launch_quick_assessment`, `assign_release`; `src/app/studio/definisi/page.tsx:78`.
 
-**Sumber:** MEMBUKTIKAN: JOURNEY-LOG baris 94 (GS-17); tes BOB49-S01, F03-T07; `docs/product/SCHOOL-DATA-EXPORT-4.0.md`. MENETAPKAN ATURAN: D-003, D-038, D-081; `docs/rebuild/09` baris 129-130.
+**Sumber:** MEMBUKTIKAN: JOURNEY-LOG baris 94 (GS-17); tes BOB49-S01, F03-T07; `docs/product/SCHOOL-DATA-EXPORT-4.0.md`. MENETAPKAN ATURAN: D-003, D-038, D-081; `docs/rebuild/09` baris 120 (alur kertas, LATER), 124 (SSO, LATER), 136-137 (pengawasan kamera/layar, PARK).
 
 **Yang tidak boleh dikatakan:** "Hasil otomatis masuk rapor"; "bisa dipakai untuk UAS resmi"; "ada pengawasan ujian".
 
@@ -773,7 +773,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Jawaban singkat:**
 "Sekolah yang menentukan, lewat Admin sekolah, per pelajaran. Tidak ada angka bawaan: pelajaran tanpa batas ketuntasan tidak bisa disediakan."
 
-**Penjelasan:** Admin sekolah mengatur «Batas ketuntasan» per pelajaran per sekolah: bilangan bulat 0–100, dengan alasan, riwayat, dan audit, di Konfigurasi. Guru, Kepala departemen, dan siswa tidak bisa mengaturnya (D-081 Q1–Q4; D-088(b); BOB49-S01, BOB49-K01; migrasi `20261102100000`). Pelajaran tanpa batas ditolak (`ASSIGN_PASS_MARK_MISSING`); layar berbunyi «Batas ketuntasan belum ditetapkan». Batas disegel pada penugasan dan percobaan, sehingga perubahan hanya berlaku ke depan. Pita kinerja tetap (≥80 «Mantap», 60–79 «Berkembang», <60 «Perlu penguatan») bukan batas lulus (D-095). Catatan: `passing_rules mastery_min 0.6` masih tertulis di definisi buatan buku kerja, tetapi BOB49-K01 menyatakan pembaca tidak memakai 0,6 sendiri. Konflik: JOURNEY-LOG baris 142 menyebut semantik batas terbuka, padahal D-088(b) dan BOB-49 sudah memutuskannya.
+**Penjelasan:** Admin sekolah mengatur «Batas ketuntasan» per pelajaran per sekolah: bilangan bulat 0–100, dengan alasan, riwayat, dan audit, di Konfigurasi. Guru, Kepala departemen, dan siswa tidak bisa mengaturnya (D-081 Q1–Q4; D-088(b); BOB49-S01, BOB49-K01; migrasi `20261102100000`). Pelajaran tanpa batas ditolak (`ASSIGN_PASS_MARK_MISSING`); layar berbunyi «Batas ketuntasan belum ditetapkan». Batas disegel pada penugasan dan percobaan, sehingga perubahan hanya berlaku ke depan. Pita kinerja tetap (≥80 «Mantap», 60–79 «Berkembang», <60 «Perlu penguatan») bukan batas lulus (D-095). Catatan: `passing_rules mastery_min 0.6` masih tertulis di definisi buatan buku kerja, tetapi BOB49-K01 menyatakan pembaca tidak memakai 0,6 sendiri.
 
 **Mengapa PINTAR seperti ini:** Kelulusan adalah kewenangan sekolah, bukan angka bawaan produk.
 
@@ -805,7 +805,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Bukti / mekanisme di PINTAR:** Alur Studio koreksi ke depan.
 
 **Sumber:**
-- MEMBUKTIKAN: tes M10-S01/S02/K01/K02, F05-T12, F05-T14, F05-T14b, F05-C01; JOURNEY-LOG baris 71–72.
+- MEMBUKTIKAN: tes M10-S01/S02/K01/K02, F05-T12, F05-T14, F05-T14b, F05-C01; JOURNEY-LOG baris 74–76.
 - MENETAPKAN ATURAN/RANCANGAN: D-041, D-085 (M10); SCOPE-INVENTORY J4.12; `docs/rebuild/08` (rancangan).
 
 **Yang tidak boleh dikatakan:** "Nilai siswa otomatis dikoreksi"; "soal bisa diedit diam-diam setelah dipakai".
@@ -821,17 +821,17 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** SEDANG
 
 **Jawaban singkat:**
-"Kunci jawaban dirancang tidak pernah dikirim ke peramban siswa, dan itu dipaksa di database dan server serta diuji. Tetapi kami belum melakukan uji dari luar terhadap aplikasi yang berjalan, jadi kami tidak akan mengatakan 'tidak mungkin dibobol'."
+"Selama siswa mengerjakan, kunci jawaban dirancang tidak dikirim ke peramban, dan itu dipaksa di database serta diuji. Tetapi setelah Uji Penguasaan selesai, tinjauan menampilkan benar atau salah dan penjelasan pilihan siswa, dan percobaan kedua memakai soal yang sama. Kami belum melakukan uji dari luar terhadap aplikasi yang berjalan, jadi kami tidak akan mengatakan 'tidak mungkin dibobol'."
 
-**Penjelasan:** INV-01: kunci tidak pernah sampai ke klien siswa. Muatan siswa hanya jenis soal, pertanyaan, stimulus, dan pilihan (daftar putih dengan CHECK) (F06-P02, F03-S02, F06-P01, F03-T03: siswa membaca nol baris bank soal; `src/lib/assessment-engine/types.ts:13-22`). Konteks bantuan menolak bidang kunci (F03-S03). Setelah mengumpulkan (bukan Pemetaan Awal), `session_review` menampilkan jawaban siswa, benar atau tidak, dan alasan pilihan yang dipilihnya; ditolak sebelum FINALIZED dan untuk pre-test. Uji Penguasaan memiliki 2 kesempatan (Q034), sehingga alasan terlihat setelah percobaan pertama. Tidak ditemukan: uji kotak-hitam lewat REST dengan identitas siswa asli seperti yang diminta INV-01 (F03-T03 memakai `set_config` pada suite database).
+**Penjelasan:** INV-01: kunci tidak sampai ke klien siswa. Muatan soal yang dikirim ke siswa hanya jenis soal, pertanyaan, stimulus, dan pilihan (daftar putih dengan CHECK; `sanitized_item` di migrasi `20260913090000` dan `20260918130000`; F06-P02, F03-S02, F06-P01, F03-T03; `src/lib/assessment-engine/types.ts:13-22`). Konteks bantuan menolak bidang kunci (F03-S03). **Setelah** sesi dikumpulkan (bukan Pemetaan Awal), `session_review` menampilkan jawaban yang dipilih siswa, benar atau salah, dan penjelasan opsi yang dipilihnya; ditolak sebelum FINALIZED dan untuk pre-test. Uji Penguasaan dari buku kerja memiliki 2 percobaan (Q034) dengan soal yang sama, sehingga penjelasan yang terlihat setelah percobaan pertama dapat dipakai pada percobaan kedua. Apakah itu diinginkan adalah **keputusan produk** (dicatat di G1, tanpa penilaian). Tidak ditemukan: uji kotak-hitam lewat REST dengan identitas siswa asli seperti yang diminta INV-01 (F03-T03 memakai `set_config` pada suite database). Detail teknis lain: tim teknis.
 
-**Mengapa PINTAR seperti ini:** Validitas seluruh asesmen bergantung pada kunci yang tidak bocor (INV-01).
+**Mengapa PINTAR seperti ini:** Validitas asesmen bergantung pada kunci yang tidak bocor selama asesmen berlangsung (INV-01).
 
-**Bukti / mekanisme di PINTAR:** `sanitized_item`; migrasi `20260913091500`.
+**Bukti / mekanisme di PINTAR:** `sanitized_item`; migrasi `20260913091500` (`session_review`).
 
-**Sumber:** MEMBUKTIKAN: tes F06-P02, F03-S02, F06-P01, F03-T03, F03-S03. MENETAPKAN ATURAN: `docs/rebuild/03-PINTAR-INVARIANTS.md` baris 17 (INV-01). Uji kotak-hitam klien: **tidak ditemukan**.
+**Sumber:** MEMBUKTIKAN: tes F06-P02, F03-S02, F06-P01, F03-T03, F03-S03; migrasi di atas. MENETAPKAN ATURAN: `docs/rebuild/03-PINTAR-INVARIANTS.md` baris 17 (INV-01). Uji kotak-hitam klien: **tidak ditemukan**.
 
-**Yang tidak boleh dikatakan:** "Tidak mungkin dibobol"; "sudah diuji penetrasi".
+**Yang tidak boleh dikatakan:** "Kunci tidak pernah terlihat siswa" (setelah selesai, penjelasan terlihat); "tidak mungkin dibobol"; "sudah diuji penetrasi".
 
 **Status:** PERLU VERIFIKASI TEKNIS (kuat di tingkat database; belum diuji dari sisi klien secara kotak-hitam)
 **Tingkat sensitivitas:** KRITIS
@@ -963,13 +963,13 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Jawaban singkat:**
 "Belum. Alur ujian kertas belum ada di PINTAR 4.0 dan kami tidak punya versi atau tanggal untuk itu."
 
-**Penjelasan:** Kanal bukti kertas (`PAPER_MANUAL_ENTRY`, `PAPER_IMPORTED`) hanya fondasi: tidak ada alur kertas yang dikirim (doc 09 baris 98-99). Alur kertas adalah LATER (doc 09 baris 117-122); OMR adalah PARK. Jenis asesmen PAPER ada di enum database dan layar punya label «Lembar kertas» (`src/lib/hle.ts:1987`), tetapi tidak ada layar kertas. Tidak ada: input nilai manual, impor hasil kertas, cetak lembar ujian.
+**Penjelasan:** Kanal bukti kertas (`PAPER_MANUAL_ENTRY`, `PAPER_IMPORTED`) hanya fondasi: tidak ada alur kertas yang dikirim (doc 09 baris 87-88). Alur kertas adalah LATER (doc 09 baris 117-122); OMR adalah PARK. Jenis asesmen PAPER ada di enum database dan layar punya label «Lembar kertas» (`src/lib/hle.ts:1987`), tetapi tidak ada layar kertas. Tidak ada: input nilai manual, impor hasil kertas, cetak lembar ujian.
 
 **Mengapa PINTAR seperti ini:** Fondasi bukti disiapkan agar kertas kelak tidak mengubah arsitektur, tanpa membangun alurnya sekarang.
 
 **Bukti / mekanisme di PINTAR:** Tidak ada selain label.
 
-**Sumber:** MENETAPKAN ATURAN/LINGKUP: `docs/rebuild/09-PINTAR-V1-SCOPE-BOUNDARIES.md` baris 98-99, 117-122 (LATER), PARK (OMR); `docs/rebuild/06` (kanal bukti).
+**Sumber:** MENETAPKAN ATURAN/LINGKUP: `docs/rebuild/09-PINTAR-V1-SCOPE-BOUNDARIES.md` baris 87-88, 117-122 (LATER), PARK (OMR); `docs/rebuild/06` (kanal bukti).
 
 **Yang tidak boleh dikatakan:** "Ada mode kertas" (label ada, fitur tidak); "akan ada di 4.1".
 
@@ -986,13 +986,13 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Jawaban singkat:**
 "Guru melihat bukti kelasnya, Kepala departemen dan Dekan melihat ringkasan dalam lingkupnya, dan Admin sekolah melihat laporan ringkasan sekolah dan kelas. Angkanya dihitung dari bukti resmi saja, dan setiap pembaca hanya melihat apa yang menjadi haknya."
 
-**Penjelasan:** Guru: Mengajar → kelas → «Lihat bukti» (kesimpulan kelas, daftar nama berabjad, hasil resmi per murid; GS-17; UX1-S3-BUKTI-01). Kepala departemen dan Dekan: halaman Pimpinan per Kelas dan ringkasan; Dekan: ringkasan sekolah. Admin sekolah: Konfigurasi → Laporan. «Kepala sekolah» bukan peran sendiri; pimpinan sekolah memakai peran Dekan (D-006). Angka dihasilkan `generate_report` → `metric_evaluate` per metrik katalog, hanya bukti OFFICIAL, dengan otorisasi ulang per pembaca; 12 metrik: class.participants/comprehension/net_gain/readiness_distribution/topic_mastery/misconceptions dan institution.participants/net_gain/safety_gate_pass_rate/cohort_comparison/competency_outcomes/verified_credentials (migrasi `20260918100000:288-312`). Angka GS-17 dibandingkan dengan perhitungan mentah di walk. Isolasi lingkup: F06-P09, F06-P10, F06-P12, F06-P20. Tidak ada: laporan terjadwal (LATER); bentuk laporan akreditasi (OD-1 terbuka). Bukti penggunaan untuk pengawas: tidak ada paket khusus; yang ada ringkasan cetak (Q041).
+**Penjelasan:** Guru: Mengajar → kelas → «Lihat bukti» (kesimpulan kelas, daftar nama berabjad, hasil resmi per murid; GS-17; UX1-S3-BUKTI-01). Kepala departemen dan Dekan: halaman Pimpinan per Kelas dan ringkasan; Dekan: ringkasan sekolah. Admin sekolah: Konfigurasi → Laporan. «Kepala sekolah» bukan peran tersendiri di PINTAR; sekolah memberi peran sesuai kebutuhan. Angka dihasilkan `generate_report` → `metric_evaluate` per metrik katalog, hanya bukti OFFICIAL, dengan otorisasi ulang per pembaca; 12 metrik: class.participants/comprehension/net_gain/readiness_distribution/topic_mastery/misconceptions dan institution.participants/net_gain/safety_gate_pass_rate/cohort_comparison/competency_outcomes/verified_credentials (migrasi `20260918100000:288-312`). Angka GS-17 dibandingkan dengan perhitungan mentah di walk. Isolasi lingkup: F06-P09, F06-P10, F06-P12. Tidak ada: laporan terjadwal (LATER); bentuk laporan akreditasi (OD-1 terbuka). Bukti penggunaan untuk pengawas: tidak ada paket khusus; yang ada ringkasan cetak (Q041).
 
 **Mengapa PINTAR seperti ini:** Hanya bukti resmi yang boleh membentuk laporan (INV-20).
 
 **Bukti / mekanisme di PINTAR:** `generate_report`; `src/app/dekan/ringkasan`; `src/app/edukator/ringkasan`.
 
-**Sumber:** MEMBUKTIKAN: tes UX1-S3-BUKTI-01, F06-P09, F06-P10, F06-P12, F06-P20; JOURNEY-LOG baris 94. MENETAPKAN ATURAN: D-006, D-095; INV-20; SCOPE-INVENTORY J7; OD-1.
+**Sumber:** MEMBUKTIKAN: tes UX1-S3-BUKTI-01, F06-P09, F06-P10, F06-P12; JOURNEY-LOG baris 94. MENETAPKAN ATURAN: D-095; INV-20; SCOPE-INVENTORY J7; OD-1.
 
 **Yang tidak boleh dikatakan:** "Laporan akreditasi siap"; "ada laporan per mata pelajaran lintas kelas untuk semua orang".
 
@@ -1057,7 +1057,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Jawaban singkat:**
 "Artinya jumlah hasil resmi belum cukup untuk menampilkan angka yang adil. Kami tidak menampilkan nol karena nol akan terbaca sebagai hasil buruk, padahal yang terjadi adalah belum ada cukup bukti."
 
-**Penjelasan:** Tiap metrik punya ambang sampel sendiri: peserta 1; pemahaman, kenaikan, kesiapan, topik 5; miskonsepsi 3; kenaikan sekolah, gerbang keselamatan, kompetensi 10; angkatan 5 (migrasi `20260918100000:288-312`). Di bawah ambang status `below_minimum` dan tidak ada nilai. Tiga keadaan berbeda: NOT_YET_EVALUABLE («Belum ada yang memenuhi syarat»), INSUFFICIENT_EVIDENCE («Sudah ada, belum cukup»), SUFFICIENT_EVIDENCE (F06-P16). Teks layar: «Belum cukup data untuk menampilkan angka ini» dan «Belum cukup bukan berarti buruk — artinya belum». Tiap angka yang kurang diberi kalimat syarat munculnya (DAISY-07-LAPORAN-01). Aturan "tanpa nol rekaan" (D-003, D-038, D-064, J7.1). Catatan: frasa persis «data belum cukup» tidak ada di layar; yang ada «Belum cukup data…» dan «bukti belum cukup».
+**Penjelasan:** Tiap metrik punya ambang sampel sendiri: peserta 1; pemahaman, kenaikan, kesiapan, topik 5; miskonsepsi 3; kenaikan sekolah, gerbang keselamatan, kompetensi 10; kredensial terverifikasi (`institution.verified_credentials`) 1; angkatan 5 (migrasi `20260918100000:288-312`). Di bawah ambang status `below_minimum` dan tidak ada nilai. Tiga keadaan berbeda: NOT_YET_EVALUABLE («Belum ada yang memenuhi syarat»), INSUFFICIENT_EVIDENCE («Sudah ada, belum cukup»), SUFFICIENT_EVIDENCE (F06-P16). Teks layar: «Belum cukup data untuk menampilkan angka ini» dan «Belum cukup bukan berarti buruk — artinya belum». Tiap angka yang kurang diberi kalimat syarat munculnya (DAISY-07-LAPORAN-01). Aturan "tanpa nol rekaan" bersumber J7.1 (SCOPE-INVENTORY baris 150), dengan D-003, D-038, D-064. Catatan: frasa persis «data belum cukup» tidak ada di layar; yang ada «Belum cukup data…» dan «bukti belum cukup».
 
 **Mengapa PINTAR seperti ini:** Ketiadaan bukan temuan (X.5).
 
@@ -1103,15 +1103,15 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** SEDANG
 
 **Jawaban singkat:**
-"Siapa pun dengan tautan atau kode QR dapat memeriksa. Yang tampil hanya status lulus, predikat, sekolah, tanggal, dan masa berlaku, tanpa nama, skor, atau foto siswa. Pemeriksa mencocokkan dengan sertifikat cetak yang memuat nama."
+"Siapa pun dengan tautan atau kode QR dapat memeriksa. Yang tampil hanya status lulus, predikat, sekolah, tanggal, dan status keabsahan, tanpa nama, skor, atau foto siswa. Pemeriksa mencocokkan dengan sertifikat cetak yang memuat nama."
 
-**Penjelasan:** Satu rute publik `/verifikasi/[token]` (halaman) dan `/api/verifikasi/[token]` (JSON); token acak 32 byte, tidak diturunkan dari apa pun (F04-T10, F04-S01, F01-R07). Yang terbuka: persis lima bidang `{pass, predikat, institution, date, validity}`; tanpa nama, foto, skor, kunci, atau muatan (F04-T10, F04-S05, EVAL-S02). Status BERLAKU, DICABUT, DIGANTIKAN, atau TIDAK SAH. Token acak, belum terbit, atau salah bentuk menghasilkan jawaban yang sama (tanpa oracle keberadaan; F04-S05, DAISY-04-TIDAK-ADA-01). Konflik antara keputusan dan kode: D-080(8) menetapkan domain kanonik `verifikasi.pintarselalu.com` dan D-076/D-080 menetapkan nomor berbentuk `<PINTAR ID>/<urut>`, sedangkan kode membangun tautan dari alamat aplikasi (`sertifikat/page.tsx:121`) dan memakai format `PINTAR/<slug>/<tahun>/<urut>`; BOB-48/DAISY-36 tampak belum dibangun.
+**Penjelasan:** Satu rute publik `/verifikasi/[token]` (halaman) dan `/api/verifikasi/[token]` (JSON); token acak 32 byte, tidak diturunkan dari apa pun (F04-T10, F04-S01, F01-R07). Yang terbuka: persis lima bidang `{pass, predikat, institution, date, validity}` ("validity" berarti status keabsahan SAH atau TIDAK SAH, bukan tanggal kedaluwarsa; `route.ts:34-36`); tanpa nama, foto, skor, kunci, atau muatan (F04-T10, F04-S05, EVAL-S02). Status BERLAKU, DICABUT, DIGANTIKAN, atau TIDAK SAH. Token acak, belum terbit, atau salah bentuk menghasilkan jawaban yang sama (tanpa oracle keberadaan; F04-S05, DAISY-04-TIDAK-ADA-01). Konflik antara keputusan dan kode: D-080(8) menetapkan domain kanonik `verifikasi.pintarselalu.com` dan D-080(2) memutuskan nomor berbentuk `<PINTAR ID>/<urut>` (D-076(c) hanya usulan; D-073(b) mencatat format kode sekarang), sedangkan kode membangun tautan dari alamat aplikasi (`sertifikat/page.tsx:121`) dan memakai format `PINTAR/<slug>/<tahun>/<urut>`; BOB-48/DAISY-36 tampak belum dibangun.
 
 **Mengapa PINTAR seperti ini:** Verifikasi harus mudah bagi pihak luar tanpa membocorkan data pribadi.
 
 **Bukti / mekanisme di PINTAR:** `src/app/api/verifikasi/[token]/route.ts:25-30`; migrasi `20260914103000`.
 
-**Sumber:** MEMBUKTIKAN: tes F04-T10, F04-S01, F04-S05, EVAL-S02, F01-R07, DAISY-04-TIDAK-ADA-01. MENETAPKAN ATURAN: D-073(b), D-076, D-080.
+**Sumber:** MEMBUKTIKAN: tes F04-T10, F04-S01, F04-S05, EVAL-S02, F01-R07, DAISY-04-TIDAK-ADA-01. MENETAPKAN ATURAN: D-073(b), D-076(c) (usulan), D-080(2)(8).
 
 **Yang tidak boleh dikatakan:** "Verifikasi di verifikasi.pintarselalu.com"; "nomor memakai PINTAR ID"; "tidak ada data pribadi sama sekali" (sekolah, tanggal, dan predikat terbuka).
 
@@ -1135,7 +1135,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Bukti / mekanisme di PINTAR:** Migrasi `20261112100000:296-301`, `20261111100000:354-377`.
 
 **Sumber:**
-- MEMBUKTIKAN: tes F18-N01/N02/N03/N04, F04-T10, F08-P10; migrasi di atas.
+- MEMBUKTIKAN: tes F18-N01/N02/N03/N04, F04-T10 (pencabutan); migrasi di atas.
 - MENETAPKAN ATURAN: D-077(d); SCOPE-INVENTORY J8.3, J8.5; `docs/recovery/PHASE-1-STATUS.md:188`.
 
 **Yang tidak boleh dikatakan:** "Sekolah bisa memperbaiki nama sendiri"; "sertifikat diterbitkan ulang otomatis"; "nama sekolah dikunci pada sertifikat".
@@ -1176,13 +1176,13 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Jawaban singkat:**
 "Tidak ada fitur di PINTAR yang mengerjakan tugas guru secara mandiri. Gurulah yang meluncurkan asesmen, menugaskan materi, melihat siswa yang butuh bantuan, dan memutuskan tindak lanjut."
 
-**Penjelasan:** Guru meluncurkan Uji Cepat, menyediakan materi, melihat siswa di bawah target, dan menugaskan baca ulang (J5.12; M3R-S01); "tidak ada remediasi adaptif otomatis" (J5.12; §10). Saran «apa berikutnya» bersifat bantuan berbasis aturan (BOB40-K01; J5.10). Pimpinan: «PINTAR mengusulkan, manusia memutuskan» (UX1-PIMPINAN-KEPUTUSAN-01: "automates nothing"). Konten sekolah ditinjau orang kedua sebelum terbit (INV-32; F02-T08). Tidak ada tutor AI, guru virtual, atau pembelajaran adaptif otomatis. Tidak ditemukan keputusan tertulis yang menyatakan sikap resmi "PINTAR tidak menggantikan guru"; jawaban ini bersandar pada ketiadaan fitur.
+**Penjelasan:** Guru meluncurkan Uji Cepat, menyediakan materi, melihat siswa di bawah target, dan menugaskan baca ulang (J5.12; M3R-S01); "tidak ada remediasi adaptif otomatis" (J5.12; §10). Saran «apa berikutnya» bersifat bantuan berbasis aturan (BOB40-K01; J5.10). Pimpinan: «PINTAR mengusulkan, manusia memutuskan» (UX1-PIMPINAN-KEPUTUSAN-01: "automates nothing"). Konten sekolah ditinjau orang kedua sebelum terbit (INV-32; `content_lifecycle.sql:142`; F12-P03). Tidak ada tutor AI, guru virtual, atau pembelajaran adaptif otomatis. Tidak ditemukan keputusan tertulis yang menyatakan sikap resmi "PINTAR tidak menggantikan guru"; jawaban ini bersandar pada ketiadaan fitur.
 
 **Mengapa PINTAR seperti ini:** PINTAR mengamati dan menyorot; pendidik memutuskan.
 
 **Bukti / mekanisme di PINTAR:** Alur guru; tes BOB40-K01, M3R-S01.
 
-**Sumber:** MEMBUKTIKAN: tes BOB40-K01, M3R-S01, UX1-PIMPINAN-KEPUTUSAN-01, F02-T08. MENETAPKAN ATURAN: SCOPE-INVENTORY J5.10, J5.12, §10; INV-32; `docs/rebuild/10` §2.
+**Sumber:** MEMBUKTIKAN: tes BOB40-K01, M3R-S01, UX1-PIMPINAN-KEPUTUSAN-01, F12-P03. MENETAPKAN ATURAN: SCOPE-INVENTORY J5.10, J5.12, §10; INV-32; `docs/rebuild/10` §2.
 
 **Yang tidak boleh dikatakan:** "PINTAR mengajar menggantikan guru"; "personalisasi AI".
 
@@ -1199,7 +1199,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Jawaban singkat:**
 "Berdasarkan kode kami, hari ini tidak ada fitur AI yang aktif di PINTAR: tidak ada pemanggilan ke penyedia model AI. Ada sebuah fondasi 'AI Provider Gateway' yang baru berupa kontrak dan batas keamanan, belum dipakai. Jadi sekolah memakai PINTAR tanpa AI secara bawaan."
 
-**Penjelasan:** Pencarian `anthropic|openai|gemini|gpt|llm|bedrock|vertex|mistral|cohere|ollama|huggingface|langchain` di `src/`, `supabase/`, `package.json`, skrip, `vercel.json`, `next.config.ts`: nol hasil di kode produk. Dependensi runtime hanya `@supabase/ssr`, `@supabase/supabase-js`, `next`, `nodemailer`, `react`, `react-dom`. Tidak ada `supabase/functions`; tidak ada ekstensi jaringan di database. `src/ai-gateway/` berisi `README.md` dan `contexts.ts`: kontrak konteks bantuan pelajar yang dibangun ulang dari daftar putih dan menolak bidang kunci (INV-31); tidak ada penyedia, rute, nama model, kunci, atau panggilan, dan tidak diimpor kode aplikasi (F03-S03). Doc 09: gateway = FOUNDATION NOW; "multi-provider AI routing" dan "sophisticated AI academic analysis" = LATER. Petunjuk siswa adalah teks buatan penulis yang dilayani `open_assistance()` dan divalidasi INV-02 (F02-T22, F03-T09); validator konten "coaching" berbasis aturan (F02-T19).
+**Penjelasan:** Pencarian `anthropic|openai|gemini|gpt|llm|bedrock|vertex|mistral|cohere|ollama|huggingface|langchain` di `src/`, `supabase/`, `package.json`, skrip, `vercel.json`, `next.config.ts`: nol hasil di kode produk. Dependensi runtime hanya `@supabase/ssr`, `@supabase/supabase-js`, `next`, `nodemailer`, `react`, `react-dom`. Tidak ada `supabase/functions`; tidak ada ekstensi jaringan di database. `src/ai-gateway/` berisi `README.md` dan `contexts.ts`: kontrak konteks bantuan pelajar yang dibangun ulang dari daftar putih dan menolak bidang kunci (INV-31); tidak ada penyedia, rute, nama model, kunci, atau panggilan (F03-S03). Bahwa kode aplikasi tidak mengimpornya adalah hasil pencarian kode, bukan hasil tes. Doc 09: gateway = FOUNDATION NOW; "multi-provider AI routing" dan "sophisticated AI academic analysis" = LATER. Petunjuk siswa adalah teks buatan penulis yang dilayani `open_assistance()` dan divalidasi INV-02 (F02-T22, F03-T09); validator konten "coaching" berbasis aturan (F02-T19).
 
 **Mengapa PINTAR seperti ini:** Domain dan UI tidak memanggil penyedia AI secara langsung; AI tidak berotoritas pedagogis (INV-31, INV-32).
 
@@ -1222,19 +1222,23 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Di kode PINTAR tidak ada pengiriman data ke penyedia AI. Tetapi data produksi disimpan di Singapura lewat penyedia infrastruktur, dan kami belum punya kebijakan pengolah data atau perjanjian pemrosesan tertulis, jadi kami tidak akan mengatakan 'tidak ada data keluar negeri'."
+"Produk PINTAR sendiri tidak mengirim data siswa ke penyedia AI. Tetapi pekerjaan pengembangan PINTAR dibantu sesi AI yang membaca fakta lingkungan uji dan produksi lewat konektor database, dan kebijakan pengungkapan untuk itu belum diputuskan. Data produksi juga disimpan di Singapura lewat penyedia infrastruktur, jadi kami tidak akan mengatakan 'tidak ada data keluar negeri'."
 
-**Penjelasan:** Tidak ditemukan panggilan keluar ke penyedia AI. Pemanggilan `fetch` di `src/` hanya ke asal PINTAR sendiri dan Supabase; host eksternal dalam kode hanya domain PINTAR. Database tidak punya ekstensi jaringan. Font dilayani sendiri. Surel lewat `nodemailer` ke SMTP (BOB25-K01). Lokasi data: Supabase ap-southeast-1 (Singapura) dan Vercel `sin1`; salinan luar situs dirancang di AWS S3 Singapura, belum aktif. Tidak ada kebijakan pengolah data, perjanjian pemrosesan data, atau kebijakan privasi tertulis (hanya OD-5 tentang retensi). Verifikasi runtime atau log jaringan tidak dilakukan. Pengembangan PINTAR dibantu sesi AI yang bekerja pada repositori dengan data sintetis; kebijakan untuk data nyata pada sesi pengembangan tidak ditemukan.
+**Penjelasan:**
+- Produk: tidak ditemukan satu pun panggilan keluar ke penyedia AI di kode. Pemanggilan `fetch` di `src/` hanya ke asal PINTAR sendiri dan Supabase; host eksternal dalam kode hanya domain PINTAR. Database tidak punya ekstensi jaringan. Font dilayani sendiri. Surel lewat `nodemailer` ke SMTP (BOB25-K01). Verifikasi runtime atau log jaringan tidak dilakukan.
+- Pengembangan: sesi koordinator berbantuan AI membaca fakta lingkungan staging dan produksi lewat konektor database (RESUME-2026-10-06; BACKUP-DR-REVIEW:423). Itu bukan fitur produk, tetapi data dari lingkungan hosted dapat sampai ke penyedia AI yang menjalankan sesi itu. Kebijakan pengungkapan dan batas akses untuk sesi semacam ini: **tidak ditemukan**; ini menjadi gap kebijakan bagi pemilik produk.
+- Lokasi data: Supabase ap-southeast-1 (Singapura) dan Vercel `sin1`; salinan luar situs dirancang di AWS S3 Singapura, belum aktif.
+- Tidak ada kebijakan pengolah data, perjanjian pemrosesan data, atau kebijakan privasi tertulis (hanya OD-5 tentang retensi).
 
-**Mengapa PINTAR seperti ini:** Konteks AI dibatasi allow-list dan belum ada penyedia (INV-31).
+**Mengapa PINTAR seperti ini:** Konteks AI di produk dibatasi allow-list dan belum ada penyedia (INV-31).
 
 **Bukti / mekanisme di PINTAR:** Pencarian `fetch(` di `src/`; `vercel.json`; `package.json`.
 
-**Sumber:** MEMBUKTIKAN: pencarian kode; `src/ai-gateway/README.md`; tes BOB25-K01, F03-S03; BACKUP-DR-REVIEW:87; OFFSITE-BACKUP-DESIGN:22. MENETAPKAN ATURAN: OD-5 (`docs/rebuild/11` baris 80-95). Kebijakan pengolah data: **tidak ditemukan**.
+**Sumber:** MEMBUKTIKAN: pencarian kode; `src/ai-gateway/README.md`; tes BOB25-K01, F03-S03; `docs/coordination/briefs/RESUME-2026-10-06.md`; `docs/recovery/BACKUP-DR-REVIEW-2026-10-05.md:423`. MENETAPKAN ATURAN: OD-5 (`docs/rebuild/11` baris 80-95). Kebijakan pengolah data dan pengungkapan: **tidak ditemukan**.
 
-**Yang tidak boleh dikatakan:** "Tidak ada data keluar negeri"; "data tidak pernah dilihat AI" (sesi pengembangan AI membaca kode dan data sintetis).
+**Yang tidak boleh dikatakan:** "Tidak ada data keluar negeri"; "data tidak pernah dilihat AI"; "AI tidak punya akses ke data kami".
 
-**Status:** PERLU VERIFIKASI TEKNIS; kedua: PERLU VERIFIKASI HUKUM
+**Status:** PERLU VERIFIKASI TEKNIS; kedua: PERLU VERIFIKASI HUKUM dan KEBIJAKAN BELUM DIPUTUSKAN (pengungkapan akses sesi berbantuan AI)
 **Tingkat sensitivitas:** KRITIS
 
 ---
@@ -1311,7 +1315,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Jawaban singkat:**
 "Tidak. Sinyal itu hanya bahan pertimbangan untuk manusia. Sinyal tidak mengubah nilai, tidak membuat kesimpulan tentang siswa, dan tidak menghasilkan keputusan apa pun sampai seseorang di sekolah meninjaunya."
 
-**Penjelasan:** Sinyal tidak punya kolom vonis dan tidak bisa dibaca oleh fungsi penilaian. Tidak ada ambang yang mengubah sinyal menjadi hasil: tes F06-P15 menyatakan "sinyal tidak menciptakan apa pun: tidak ada catatan Manajemen dan tidak ada hasil sampai seorang manusia bertindak". Peninjau memilih salah satu dari tiga tindakan yang menggambarkan apa yang *peninjau* lakukan, bukan sesuatu tentang siswa: «Tidak ada yang perlu ditindaklanjuti», «Sudah dibicarakan dengan siswa», «Diteruskan ke pihak sekolah». Keputusan itu hanya menjadi baris audit.
+**Penjelasan:** Sinyal tidak punya kolom vonis dan tidak bisa dibaca oleh fungsi penilaian. Tidak ada ambang yang mengubah sinyal menjadi hasil: tes F06-P15 menyatakan "sinyal tidak menciptakan apa pun: tidak ada catatan Manajemen dan tidak ada hasil sampai seorang manusia bertindak". Peninjau memilih salah satu dari tiga tindakan yang menggambarkan apa yang *peninjau* lakukan, bukan sesuatu tentang siswa: «Tidak ada yang perlu ditindaklanjuti», «Sudah dibicarakan dengan siswa», «Diteruskan ke pihak sekolah». Keputusan itu menjadi baris audit; «Diteruskan ke pihak sekolah» (REFERRED_TO_INSTITUTION) juga membuat satu rujukan dengan status AWAITING_REVIEW (F06-P22). Penghentian sesi: F04-T06.
 Catatan jujur: di database ada fungsi untuk menurunkan kelas bukti sebuah sesi dari OFFICIAL dan fungsi menghentikan sesi (tes F06-P04). Tidak ditemukan halaman atau tombol yang memanggilnya, jadi tidak terjangkau pengguna sekolah. Namun itu berarti "sinyal tidak pernah berdampak apa pun pada hasil" tidak boleh diucapkan secara mutlak.
 
 **Mengapa PINTAR seperti ini:** "Automatic cheating verdicts" ditolak; keputusan integritas butuh otoritas manusia (INV, doc 10 baris 54).
@@ -1371,7 +1375,7 @@ Catatan jujur: di database ada fungsi untuk menurunkan kelas bukti sebuah sesi d
 
 **Penjelasan:** Dari skema database (bukan dari kebijakan):
 - `persons`: nama tampilan, jalur foto profil (belum ada layar; lihat Q059), tanda anonimisasi.
-- `accounts`: nomor kartu (akun kartu kelas). Siswa tidak punya email; tidak ada kolom NISN, tanggal lahir, alamat, atau telepon di skema ini.
+- `accounts`: nomor kartu (akun kartu kelas). Siswa tidak memakai email untuk masuk (sebuah alamat sintetis dibuat untuk akun kartu: `src/lib/card.ts:19-21`); tidak ada kolom NISN, tanggal lahir, alamat, atau telepon di skema ini.
 - Pendaftaran, keanggotaan, nomor induk sekolah; sesi asesmen, jawaban, soal yang ditampilkan, hasil, kemajuan pelajaran.
 - Telemetri waktu/bantuan dan sinyal integritas (Q051).
 - Catatan audit: waktu, pelaku, tindakan, target, ringkasan, build (hanya tambah, tidak bisa diubah).
@@ -1399,29 +1403,30 @@ Catatan jujur: di database ada fungsi untuk menurunkan kelas bukti sebuah sesi d
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Secara teknis, ya: Admin platform PINTAR dapat melihat data semua sekolah, termasuk hasil individual, dan saat ini hanya satu orang yang memegang peran itu. Kebijakan tertulis tentang kapan itu boleh dilakukan dan pencatatan akses-bacanya belum ada, jadi kami tidak akan mengatakan 'tidak bisa'."
+"Secara teknis, ya: ada beberapa jalur bagi pihak PINTAR untuk mengakses data sekolah, termasuk hasil individual siswa. Kebijakan tertulis tentang kapan itu boleh dilakukan dan pencatatan semua akses belum ada, jadi kami tidak akan mengatakan 'tidak bisa'."
 
-**Penjelasan:**
-- Admin platform memegang kewenangan melihat hasil siswa dan, lewat aturan akses database, dapat membaca hasil individual, daftar murid, dan log audit semua institusi. Jawaban mentah dapat dibaca siswa itu sendiri atau pemegang kewenangan meninjau integritas di sekolah tersebut, termasuk Admin platform.
-- Admin sekolah tidak memegang kewenangan melihat hasil individual; Dekan hanya daftar.
-- Hanya satu Admin platform yang tercatat (D-001).
-- Kunci service-role dipakai server (20+ rute API). Kredensial cadangan `pintar_backup` dapat membaca semua tenant dan diakui eksplisit (D-107(c)); kredensial itu belum aktif.
-- Akses baca oleh Admin platform **tidak dicatat sebagai pembacaan**: audit hanya untuk perubahan; log akses-baca tidak ditemukan.
-- Akses langsung ke dasbor Supabase, Vercel, GitHub oleh pemilik/operator: tidak ada kebijakan akses di repositori.
-- Konflik sumber: doc 05 baris 53 ("jawaban mentah: SERVICE saja") berbeda dari kebijakan database (peninjau integritas juga bisa).
+**Penjelasan:** Jalur akses yang ada:
+1. **Admin platform** (peran di dalam aplikasi): memegang kewenangan melihat hasil siswa dan, lewat aturan akses database, dapat membaca hasil individual, daftar murid, dan log audit semua sekolah. Jawaban mentah dapat dibaca siswa itu sendiri atau pemegang kewenangan meninjau integritas di sekolah tersebut, termasuk Admin platform.
+2. **Server aplikasi:** berjalan dengan kunci server yang memintas aturan akses baris (detail teknis: tim teknis).
+3. **Pemilik project database:** dasbor dan SQL langsung; tidak ada kebijakan akses di repositori.
+4. **Sesi koordinator berbantuan AI** yang membaca fakta staging dan produksi lewat konektor database (RESUME-2026-10-06; BACKUP-DR-REVIEW:423). Lihat Q049.
+5. **Cadangan penyedia database** dan, setelah aktif, salinan independen; salinan independen berisi data semua sekolah (D-107(c)).
+Pencatatan: sebagian pembacaan **diaudit**, misalnya pembukaan detail murid oleh pimpinan (`learner_detail.opened`, F06-P12), tetapi tidak ada log akses-baca menyeluruh untuk Admin platform, pemilik project, atau sesi berbantuan AI.
+Admin sekolah tidak memegang kewenangan melihat hasil individual; Dekan hanya daftar (R6).
+Konflik sumber: doc 05 baris 55 ("jawaban mentah: SERVICE saja") berbeda dari kebijakan database (peninjau integritas juga bisa).
 
 **Mengapa PINTAR seperti ini:** Tim operasional perlu dapat membantu sekolah, tetapi kontrol tertulis atas akses staf belum dibuat.
 
-**Bukti / mekanisme di PINTAR:** `20260924100000_an_administrator_is_not_an_examiner.sql`; `20260912004431_authorization.sql:36-44, 91, 130-136`; `20261118100000_an_educator_learns_as_a_participant.sql:768-775`; `src/lib/supabase/service.ts`.
+**Bukti / mekanisme di PINTAR:** `supabase/migrations/20260924100000_an_administrator_is_not_an_examiner.sql`; `20260912004431_authorization.sql:36-44, 91, 130-136`; `20261118100000_an_educator_learns_as_a_participant.sql:768-775`.
 
 **Sumber:**
-- MEMBUKTIKAN: migrasi di atas.
-- MENETAPKAN ATURAN: D-001; D-107(c); `docs/rebuild/05-PINTAR-AUTHORIZATION-MATRIX.md`.
+- MEMBUKTIKAN: migrasi di atas; tes F06-P12; RESUME-2026-10-06; BACKUP-DR-REVIEW:423.
+- MENETAPKAN ATURAN: D-107(c); `docs/rebuild/05-PINTAR-AUTHORIZATION-MATRIX.md` baris 55 (rancangan).
 - Kebijakan akses staf PINTAR / log akses-baca: **tidak ditemukan**.
 
-**Yang tidak boleh dikatakan:** "Staf PINTAR tidak bisa melihat nilai siswa"; "semua akses staf dicatat"; "hanya sekolah Anda yang bisa membukanya".
+**Yang tidak boleh dikatakan:** "Staf PINTAR tidak bisa melihat nilai siswa"; "semua akses dicatat"; "hanya sekolah Anda yang bisa membukanya".
 
-**Status:** SEBAGIAN; kedua: PERLU VERIFIKASI TEKNIS
+**Status:** SEBAGIAN; kedua: PERLU VERIFIKASI TEKNIS dan KEBIJAKAN BELUM DIPUTUSKAN (kebijakan akses staf dan sesi berbantuan AI)
 **Tingkat sensitivitas:** KRITIS
 
 ---
@@ -1536,7 +1541,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Jawaban singkat:**
 "Di kode PINTAR yang kami periksa tidak ada fitur pesan, obrolan, atau komentar, dan orang luar tidak bisa mendaftar. Siswa hanya masuk dengan Kartu PINTAR yang diterbitkan sekolah."
 
-**Penjelasan:** Tidak ada fitur pesan/chat/komentar/forum di `src/` (pencarian chat, inbox, komentar, direct message). Umpan balik kelas (B1) hanya lima pertanyaan pilihan tertutup tanpa teks bebas; B1 tercatat "dibangun tanpa sumber lingkup" dan belum diputuskan masuk 4.0. Tanpa swa-registrasi: identitas dibuat sekolah (J1.1, D-054(a), tes L2-TIDAK-DIBUAT-01). «Laporkan masalah» hanya untuk staf. Halaman publik hanya verifikasi sertifikat dan halaman ID PINTAR tanpa data. Kata penting: pemeriksaan teknis menyeluruh tetap perlu sebelum klaim mutlak.
+**Penjelasan:** Tidak ada fitur pesan/chat/komentar/forum di `src/` (pencarian chat, inbox, komentar, direct message). Umpan balik kelas (B1) hanya lima pertanyaan pilihan tertutup tanpa teks bebas; B1 tercatat "dibangun tanpa sumber lingkup" dan belum diputuskan masuk 4.0. Tanpa swa-registrasi: identitas dibuat sekolah (J1.1, D-054(a), tes L2-TIDAK-DIBUAT-01). «Laporkan masalah» hanya untuk staf. Halaman publik: verifikasi sertifikat, halaman ID PINTAR tanpa data, masuk, aktivasi, pemulihan, dan pemeliharaan. Kata penting: pemeriksaan teknis menyeluruh tetap perlu sebelum klaim mutlak.
 
 **Mengapa PINTAR seperti ini:** Cakupan 4.0 tidak mencakup komunikasi antar pengguna; akun hanya diterbitkan sekolah.
 
@@ -1669,17 +1674,17 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"PINTAR punya kontrol keamanan yang kami uji secara internal, tetapi kami belum punya audit keamanan atau uji penetrasi oleh pihak luar, dan belum punya sertifikasi seperti ISO 27001. Kami tidak akan mengklaim sebaliknya."
+"PINTAR punya kontrol keamanan yang kami uji secara internal, tetapi kami belum punya audit keamanan atau uji penetrasi oleh pihak luar, dan belum punya sertifikasi seperti ISO 27001. Kami tidak akan mengklaim sebaliknya. Detail teknis: tim teknis."
 
-**Penjelasan:** Kontrol yang dibuktikan kode dan tes: aturan akses baris (RLS) pada tabel; fungsi server dengan `search_path` terkunci dan terdaftar; kunci service-role dan pepper hanya di sisi server (tes F01-S03); data fixture sintetis tertutup di host produksi (F06-N05); penyimpanan privat dengan unggah lewat URL bertanda tangan; pembatasan percobaan masuk kartu/PIN (BOB-12), jawaban seragam untuk identitas yang tidak ada (L2-TIDAK-DIBUAT-01), tangga kunci PIN (F16-R01), penjaga penulisan kata sandi (F18-P01). Header keamanan HTTP (CSP/HSTS): tidak ditemukan di konfigurasi yang diperiksa; perlu verifikasi teknis. "Second Eye" dan "Layer-3" adalah peninjauan internal. Uji penetrasi, audit pihak ketiga, ISO 27001, SOC 2, bug bounty: **tidak ditemukan**. Risiko yang terdokumentasi: kredensial cadangan `pintar_backup` dapat membaca semua tenant bila bocor (D-107(c)); cadangan/DR belum lulus; Advisor Supabase mencatat 121 fungsi SECURITY DEFINER yang dapat dipanggil pengguna masuk, diterima "by design" (D-033).
+**Penjelasan:** Kontrol yang dibuktikan kode dan tes, secara umum: aturan akses per sekolah di database; rahasia server hanya di sisi server (F01-S03); data fixture sintetis tertutup di host produksi (F06-N05); penyimpanan privat dengan unggah lewat tautan bertanda tangan; pembatasan percobaan masuk kartu (BOB-12); jawaban seragam untuk identitas yang tidak ada (BOB27-A01, BOB28-A01); penguncian bertahap pada pemulihan dengan PIN (F16-R01); penjaga penulisan kata sandi (F18-P01). Header keamanan HTTP: tidak ditemukan di konfigurasi yang diperiksa; dicatat di G3. "Second Eye" dan "Layer-3" adalah peninjauan internal. Uji penetrasi, audit pihak ketiga, ISO 27001, SOC 2, bug bounty: **tidak ditemukan**. Cadangan dan pemulihan belum lulus (Q070–Q072). Temuan teknis lain dicatat di G3 tanpa detail.
 
-**Mengapa PINTAR seperti ini:** Batas keamanan ditegakkan di lapisan data (INV-37), bukan sekadar disembunyikan di layar.
+**Mengapa PINTAR seperti ini:** Batas keamanan ditegakkan di lapisan data (INV-37), bukan sekadar disembunyikan di layar. Detail keamanan sensitif tidak dibuka (D-110(e)).
 
-**Bukti / mekanisme di PINTAR:** Tes F01-S03, F06-N05, L2-TIDAK-DIBUAT-01, F16-R01, F18-P01.
+**Bukti / mekanisme di PINTAR:** Tes F01-S03, F06-N05, BOB27-A01, BOB28-A01, F16-R01, F18-P01.
 
 **Sumber:**
 - MEMBUKTIKAN: tes di atas (manifest).
-- MENETAPKAN ATURAN: D-033, D-107(c); INV-14, INV-15, INV-37 (`docs/rebuild/03`). Audit pihak luar/sertifikasi: **tidak ditemukan**.
+- MENETAPKAN ATURAN: D-033, D-110(e); INV-14, INV-15, INV-37 (`docs/rebuild/03`). Audit pihak luar/sertifikasi: **tidak ditemukan**.
 
 **Yang tidak boleh dikatakan:** "Sudah diaudit/uji penetrasi pihak luar"; "bersertifikat ISO 27001"; "aman dari peretasan"; "enkripsi menyeluruh" (enkripsi diam/transit adalah fitur platform penyedia dan tidak dibuktikan di repositori).
 
@@ -1694,21 +1699,21 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Kemungkinan ditanya:** SEDANG
 
 **Jawaban singkat:**
-"PIN siswa tidak disimpan sama sekali. Yang dipakai adalah rahasia turunan dari nomor kartu, PIN, dan kunci rahasia server. PIN pribadi staf disimpan sebagai hash, dan kata sandi dikelola layanan masuk. Tidak ada layar di PINTAR yang menampilkan PIN atau kata sandi siapa pun."
+"PIN siswa tidak disimpan oleh PINTAR; PIN hanya tampil satu kali, pada lembar kartu saat kartu diterbitkan. Untuk staf, PIN dan kata sandi dilindungi dan tidak ditampilkan kepada admin. Detail teknis penyimpanan: tim teknis."
 
-**Penjelasan:** Siswa: rahasia masuk diturunkan dari `sha256(pepper | nomor kartu | PIN)` dan dipakai sebagai kata sandi di layanan autentikasi; PIN tidak disimpan, sehingga lembar kartu hanya bisa dicetak sekali di sesi penerbitan. Pepper wajib ≥32 karakter di luar development dan tidak ada di bundel klien (F01-R06, F01-S03). Staf: PIN pribadi 4 digit dengan hash bcrypt, diverifikasi di server, tidak pernah ditampilkan ke admin (D-056(a); F16-P01); kata sandi minimal 8 karakter dengan perlindungan kata sandi bocor (D-082(a)), dikelola layanan autentikasi; penulisan hash dijaga (F18-P01). Detail algoritma hash kata sandi layanan autentikasi tidak terlihat di repositori (perilaku platform): perlu verifikasi teknis. Catatan penilai: PIN 4 digit yang diturunkan dengan SHA-256 dan pepper berarti pemegang pepper bersama hash dapat menebak PIN secara offline (10.000 kemungkinan); itu inferensi, bukan klaim dokumen, dan perlu dinilai tim teknis. Pepper dan kunci sertifikat berada di Vercel; escrow terenkripsi dua penerima diputuskan (D-107 D8) tetapi belum aktif di produksi. Konflik sumber: D-033(c) ("tidak ada kata sandi pilihan manusia") digantikan D-082 dan J2.5.
+**Penjelasan:** Siswa: PIN tidak disimpan; karena itu lembar kartu hanya bisa dicetak sekali pada sesi penerbitan, dan kartu yang sudah terbit tidak bisa dicetak ulang (hanya diterbitkan ulang) (M7-K01; `SCHOOL-DATA-EXPORT-4.0.md` §A). Lembar kartu itu menampilkan PIN satu kali. Staf: PIN pribadi dan kata sandi hanya ada di versi `main`/staging (belum di produksi); PIN diverifikasi di server dan tidak pernah ditampilkan ke admin (D-056(a); F16-P01); kata sandi minimal 8 karakter dengan perlindungan kata sandi bocor (D-082(a)); penulisan dijaga (F18-P01). Konflik sumber: D-033(c) ("tidak ada kata sandi pilihan manusia") digantikan D-082 dan J2.5. Analisis ketahanan dan algoritma tidak dimuat di dokumen ini; tim teknis menilainya dan temuan dicatat di G3.
 
-**Mengapa PINTAR seperti ini:** Siswa tidak perlu mengingat kata sandi; PIN tidak dapat dibocorkan dari database karena tidak disimpan.
+**Mengapa PINTAR seperti ini:** Siswa tidak perlu mengingat kata sandi; PIN yang tidak disimpan tidak dapat dibocorkan dari database.
 
-**Bukti / mekanisme di PINTAR:** `src/lib/card.ts:11-13`; `src/lib/env.ts:43-47`.
+**Bukti / mekanisme di PINTAR:** Lembar kartu kelas (`src/components/aktivasi/LembarKartu.tsx`).
 
 **Sumber:**
-- MEMBUKTIKAN: kode di atas; tes F01-R06, F01-S03, F16-P01, F18-P01.
-- MENETAPKAN ATURAN: D-056(a), D-082(a), D-107 D8; D-033(c) (digantikan).
+- MEMBUKTIKAN: tes M7-K01, F16-P01, F18-P01; `docs/product/SCHOOL-DATA-EXPORT-4.0.md` §A.
+- MENETAPKAN ATURAN: D-056(a), D-082(a), D-110(e); D-033(c) (digantikan).
 
-**Yang tidak boleh dikatakan:** "PIN dienkripsi sehingga tak ada yang bisa membaca"; "tidak ada yang bisa mengakses akun siswa"; "siswa punya kata sandi" (siswa hanya kartu + PIN).
+**Yang tidak boleh dikatakan:** "Tidak ada layar yang menampilkan PIN" (lembar kartu menampilkannya sekali); "tidak ada yang bisa mengakses akun siswa"; "siswa punya kata sandi" (siswa hanya kartu + PIN); detail teknis penyimpanan.
 
-**Status:** TERSEDIA DI 4.0 (siswa: turunan berpepper; staf: PIN ber-hash, kata sandi di layanan autentikasi); kedua: PERLU VERIFIKASI TEKNIS (detail hash dan ketahanan PIN 4 digit)
+**Status:** TERSEDIA DI 4.0 (main/staging; belum di produksi); kedua: PERLU VERIFIKASI TEKNIS (detail teknis)
 **Tingkat sensitivitas:** KRITIS
 
 ---
@@ -1721,7 +1726,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Jawaban singkat:**
 "Kami belum punya prosedur tertulis untuk memberi tahu sekolah saat terjadi kebocoran data, jadi kami tidak bisa menjanjikan siapa, kapan, atau lewat apa. Ini sedang kami catat sebagai hal yang harus diputuskan, termasuk kewajiban hukumnya."
 
-**Penjelasan:** Prosedur insiden/kebocoran, tenggat pemberitahuan, kontak, atau templat: **tidak ditemukan**. Satu-satunya pemberitahuan keamanan otomatis: ke pemilik akun dan ke alamat email admin platform untuk kunci PIN, penangguhan, pemulihan PIN, dan reset (D-057(b)); itu bukan pemberitahuan kebocoran, dan "tidak ada pemberitahuan ke admin sekolah di 4.0". Dukungan: «Laporkan masalah» tanpa SLA mengikat. D-107(c) mengakui bahwa kompromi kredensial cadangan dapat mengekspos seluruh database; tidak ada rencana komunikasi ke sekolah. Kewajiban menurut UU PDP: tidak ada analisis hukum di repositori.
+**Penjelasan:** Prosedur insiden/kebocoran, tenggat pemberitahuan, kontak, atau templat: **tidak ditemukan**. Satu-satunya pemberitahuan keamanan otomatis: ke pemilik akun dan ke alamat email admin platform untuk kunci PIN, penangguhan, pemulihan PIN, dan reset (D-057(b)); itu bukan pemberitahuan kebocoran, dan "tidak ada pemberitahuan ke admin sekolah di 4.0". Dukungan: «Laporkan masalah»; D-037 punya target internal (laporan yang menghentikan kelas dijawab pada hari sekolah yang sama), tetapi tidak ada SLA kontraktual. D-107(c) mengakui bahwa kompromi kredensial cadangan dapat mengekspos seluruh database; tidak ada rencana komunikasi ke sekolah. Kewajiban menurut UU PDP: tidak ada analisis hukum di repositori.
 
 **Mengapa PINTAR seperti ini:** Prosedur belum dibuat; tidak boleh dikarang.
 
@@ -2217,27 +2222,25 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Jujur: saat ini pemulihan bergantung pada satu orang, dan itu risiko yang sudah kami catat sendiri. Ada rencana untuk menunjuk administrator kedua dan kustodian kunci kedua, tetapi belum dijalankan."
+"Itu risiko yang kami catat sendiri, dan kami sudah menetapkan bahwa ketahanan ini wajib dipenuhi sebelum PINTAR dipakai sekolah nyata di produksi. Pelaksanaannya, seperti penunjukan administrator dan kustodian kunci tambahan, belum selesai."
 
 **Penjelasan:**
-- **Satu orang** memegang semua akun pemulihan, dan hanya satu Admin platform produksi (BACKUP-DR-REVIEW Part II §1, §6; SYS-08 FAIL di PHASE-1-STATUS). D-001: Admin platform pertama dan satu-satunya; admin kedua harus ditunjuk sebelum 23 September 2027.
-- D-054(e): admin sistem tunggal produksi harus punya prosedur break-glass yang teruji sebelum rilis produksi. Latihan break-glass tercatat TODO (BOARD C-11); bukti latihan tidak ditemukan.
-- D-101: Admin platform adalah otoritas pemulihan terakhir; Admin platform hanya dipulihkan oleh Admin platform lain (D101-S01). Tanpa yang kedua, tidak ada jalur selain break-glass.
-- D-106(d) (B6, A6): administrator kedua untuk tiap sistem eksternal (Supabase, Vercel, GitHub, registrar/DNS, email, AWS) plus Admin platform kedua, wajib **sebelum penggunaan produksi sekolah nyata**. `docs/recovery/RECOVERY-AUTHORITY.md` direncanakan dan belum ada; O9 (menamai kustodian B dan administrator kedua) belum dilakukan.
-- Kunci dekripsi cadangan: `custody.json` menunjukkan kustodian R1 tanpa bukti kepemilikan dan R2 belum ditunjuk; kehilangan keduanya membuat bundel produksi dan escrow tidak dapat dipulihkan (CLOSURE-PLAN residual risks). Runbook native restore belum ditulis.
-- Konflik sumber: D-001 dan BACKUP-DR-REVIEW Part II §1 menyebut pemegang peran itu secara berbeda; **jangan menyimpulkan siapa**, dan jangan menyebut nama dalam jawaban kepada sekolah.
+- Sudah **diputuskan wajib**: D-001 (admin kedua sebelum 23 September 2027), D-054(e) (prosedur break-glass teruji sebelum rilis produksi), D-106(d) (administrator kedua untuk tiap sistem eksternal, sebelum penggunaan sekolah nyata), D-109(c) dan D-111(b) (dua kustodian terpisah yang masing-masing membuktikan kepemilikan kunci sebelum escrow atau cadangan produksi).
+- **Belum dilaksanakan:** penunjukan administrator kedua dan kustodian kunci (O9); latihan break-glass (C-11 tercatat TODO; bukti latihan tidak ditemukan); `docs/recovery/RECOVERY-AUTHORITY.md` direncanakan dan belum ada; runbook native restore belum ditulis. Saat ini ketergantungan pada satu orang untuk pemulihan diakui sebagai celah terbuka (BACKUP-DR-REVIEW Part II §1, §6; SYS-08 FAIL).
+- D-101: Admin platform adalah otoritas pemulihan terakhir dan hanya dipulihkan oleh Admin platform lain (D101-S01).
+- Dokumen koordinasi tidak konsisten tentang pemegang peran; dirapikan koordinator.
 
-**Mengapa PINTAR seperti ini:** Ketergantungan pada satu orang diakui sebagai syarat yang harus dituntaskan sebelum PRODUCTION READY (D-106(d)).
+**Mengapa PINTAR seperti ini:** Pemulihan yang hanya bisa dibuka oleh satu kustodian adalah ketergantungan yang justru ingin dihilangkan #150 (D-111).
 
-**Bukti / mekanisme di PINTAR:** Tes D101-S01; struktur `custody.json`.
+**Bukti / mekanisme di PINTAR:** Tes D101-S01; struktur `docs/recovery/custody.json` (belum terisi).
 
 **Sumber:**
-- MEMBUKTIKAN: BACKUP-DR-REVIEW Part II §1, §6; `docs/recovery/custody.json` (struktur); `docs/recovery/PHASE-1-STATUS.md:200`.
-- MENETAPKAN ATURAN/RANCANGAN: D-001, D-054(e), D-101, D-106(d); CLOSURE-PLAN-150 WP-D (baris 439-460).
+- MEMBUKTIKAN: BACKUP-DR-REVIEW Part II §1, §6; `docs/recovery/PHASE-1-STATUS.md:200`; `docs/recovery/custody.json` (struktur).
+- MENETAPKAN ATURAN: D-001, D-054(e), D-101, D-106(d), D-109(c), D-111(b); `docs/recovery/CLOSURE-PLAN-150.md` WP-D (baris 441–462).
 
-**Yang tidak boleh dikatakan:** "Ada tim yang bisa mengambil alih"; "pemulihan tidak bergantung pada satu orang"; "break-glass sudah teruji".
+**Yang tidak boleh dikatakan:** "Ada tim yang bisa mengambil alih"; "pemulihan tidak bergantung pada satu orang"; "break-glass sudah teruji"; jumlah orang yang memegang peran tertentu.
 
-**Status:** KEBIJAKAN BELUM DIPUTUSKAN; kedua: PERLU VERIFIKASI TEKNIS — ▲ BELUM DIPUTUSKAN HARI INI
+**Status:** SEBAGIAN (kewajiban sudah diputuskan; pelaksanaan belum)
 **Tingkat sensitivitas:** KRITIS
 
 ---
