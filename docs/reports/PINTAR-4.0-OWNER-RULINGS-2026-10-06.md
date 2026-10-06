@@ -131,6 +131,10 @@ So the proof is that nothing short of a complete, passing run can end in `succes
 
 Each is a CI-W02 assertion, red on the old guard and green on the new.
 
+**Demonstrated live, 6 Oct:**
+- **ALREADY PROVEN.** Commit `3b1c89b` changed six documents in docs/reports and nothing else. CI run 37453037724's guard wrote: «**ALREADY PROVEN** by CI run 37450773138 on `0d80c36` …, whose strict selftest ran and succeeded: this commit differs only in 6 unread document(s). This run cancels itself and is not evidence; run 37450773138 is.» The cancellation took hold 13 seconds later. The run ended `cancelled` after 30 seconds, at compute 0.6 · estimate 2 minutes against 123 for a full cycle. No job ran past the guard, and the monitor counts its 6 unstarted jobs as cancelled before a runner, not as waste.
+- **Supersede.** Runs 37449744168 and 37450178108 were cancelled by the next dispatch on the branch (CE-2), as §2's spend table shows.
+
 **Checked against history:** the 30 most recent successful CI runs (2 to 6 Oct) each have every job `success`, none skipped, and the strict selftest `success`. No earlier run is a false green the guard could cite.
 
 **What is not proven by a live run, and why:** DEFERRED cannot be demonstrated safely. It needs a real runner shortage, and creating one would mean deliberately queueing work that cannot run, the waste D-119 forbids. Its proof is therefore the code path (it calls `cancelSelf()` before anything else), the cancel-or-exit-1 rule, the `verdict` job, and CI-W02, which executes `starved()` and reads that both outcomes call `cancelSelf()` and that `cancelSelf()` ends in `process.exit(1)`.

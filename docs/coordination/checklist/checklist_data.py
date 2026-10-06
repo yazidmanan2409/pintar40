@@ -1387,8 +1387,8 @@ FINDINGS[:] = [(f[0], f[1], f[2], _fixed27[f[0]]) if f[0] in _fixed27 else f for
 FINDINGS.append(("Certificate number (6 Oct)",
                  "The decided printed number is `<PINTAR ID>/<5-digit per-person sequence>` (D-080(2); BOB-48's design note), but PINTAR issues "
                  "`<the template's prefix, or PINTAR/<SCHOOL>>/<YYYY>/<per-school sequence>` (ADM-18; 20261126100000, 20261128100000 extended that "
-                 "format on 6 Oct without reconciling it with D-080(2)). Whether a student's certificate may show their PINTAR ID is still open (D-076).",
-                 "BOB-48 (not built), after the owner's ruling", "OPEN: an owner decision; nothing changes during the walkthrough freeze (D-117)"))
+                 "format on 6 Oct without reconciling it with D-080(2)). A student's certificate shows the PINTAR ID: D-080(9) ruled it on 30 Sep (corrected 6 Oct; this row had called it open).",
+                 "BOB-48 (not built), after the owner's ruling", "OPEN: D-080(2) decides the format, so the issued number is the defect (BOB-48); left to rule: Studio's «Awalan nomor» (owner rulings table, 6 Oct)"))
 CURRENT.update({
     "STU-01": ("PASS: a student signs in with the class card and PIN, the one student model since D-085 M2 (staging GS-12, GS-16, GS-20, runs "
                "37433910433 and 37434862707; BOB12-A01, DAISY-13-KARTU-01, DAISY-13-KARTU-02); a wrong card says what happened. The email-link "
