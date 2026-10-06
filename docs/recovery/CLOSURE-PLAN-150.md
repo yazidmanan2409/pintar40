@@ -477,12 +477,12 @@ The screenshots are not committed (they show names); the record keeps roles and 
 | O1 | Approve revision 2 and decisions D1–D8 | **done** (D-107) |
 | O2 | C1: the backups-read token (screenshot of its permission list) → GitHub secret | after WP-A's code |
 | O3 | AWS: the account (custodian A, root MFA), the stack from the template, access keys for C4 and C5 → environment secrets | after WP-B's code |
-| O4 | **Key ceremony:** custodian A creates R1 and the owner creates R3 in the desktop OpenPGP application; public keys to the coordinator; R3's private key into `staging-recovery-drill`; R1's private key backed up offline. Custodian B creates R2 when named (B6) | with O3 |
+| O4 | **Key ceremony:** custodian A creates R1 and the owner creates R3 in the desktop OpenPGP application; public keys to the coordinator; R3's private key into `staging-recovery-drill`; R1's private key backed up offline. Custodian B creates R2 when named (B6); **R2 and both custodians' possession proofs come before the first production backup and the first escrow** (D-109(c)) | with O3 |
 | O5 | **Supabase Storage S3 access keys (C3)** for production and staging → environment secrets | with O3 |
 | O6 | The `pintar_backup` passwords (C2) in the password manager → environment secrets | with O3 |
-| O7 | Approve the first escrow run (it reads the two production secrets from Vercel, read-only) | after O3–O4 |
+| O7 | Approve the first escrow run (it reads the two production secrets from Vercel, read-only) | after O3–O4 **and R2 with both possession proofs** (D-107 D8, D-109(c)) |
 | O8 | B8: one native restore of staging for the rehearsal; the temporary token (C10); deletion and revocation when told | after WP-C's code |
-| O9 | B6/A6: name custodian B and the second administrators; the provider invitations; Gladys's grant; recovery codes stored offline | before real-school use |
+| O9 | B6/A6: name custodian B (R2: **before the first production backup and escrow**, D-109(c)); the second administrators, the provider invitations, Gladys's grant and recovery codes stored offline | R2: before production backups; the rest before real-school use |
 | O10 | B7: switch the watch on at the release gate | PRODUCTION READY |
 | O11 | The privacy-notice line on backup retention (≤ 12 months), owner or legal | before real-school use |
 | O12 | Each quarter: answer the key-possession check (custodians A and B) | recurring |

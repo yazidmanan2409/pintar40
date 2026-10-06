@@ -54,7 +54,11 @@
  *          the workflow runs by hand from main only, reads with the credentials staging's apply already holds and
  *          writes nothing; the pooler endpoint is taken only where Supabase's own configuration and staging's apply
  *          agree (a disagreement, two hosts, another project's user, the wrong port or an unreadable configuration
- *          stop it, and the owner is asked: never guessed), and the backup workflow's value is checked against it;
+ *          stop it, and the owner is asked: never guessed), and the backup workflow's value is checked against it.
+ *          RESTATED (Supabase refused its configuration to the token, run 37414154468): the owner's dashboard value,
+ *          given as the run's inputs and never spliced into a command, is taken where it is a pooler host on 5432 for
+ *          this project's user and staging's apply agrees; a malformed value, the wrong port or user, or Supabase and
+ *          the owner disagreeing stop it; hosted checks always use the session port
  *          off this machine every connection is verify-full against the committed CA; executed on CI's database, the
  *          backup's own exported snapshot is imported by another session (the same view) and dumped from by pg_dump;
  *          pintar_backup's profile there equals docs/recovery/pintar-backup-profile.expected, and a right planted for
@@ -730,8 +734,12 @@ export const dr150bTests: SelfTest[] = [
       };
       // 1. the workflow: by hand, main only, read only, the apply's own credentials
       const wf = (() => { try { return readFileSync(join(repoRoot, ".github/workflows/staging-backup-path.yml"), "utf8").split("\n").filter((l) => !/^\s*#/.test(l)).join("\n"); } catch { return ""; } })();
-      c.expect(/on:\s*\n\s+workflow_dispatch:\s*\n\s*\n?permissions:/.test(wf) && /^ {4}if: github\.ref == 'refs\/heads\/main'$/m.test(wf) && /contents: read/.test(wf) && !/write/.test(wf.replace(/backup-offsite/g, "")),
+      const triggers = wf.slice(wf.indexOf("\non:"), wf.indexOf("\npermissions:"));
+      c.expect(/^\s+workflow_dispatch:/m.test(triggers) && !/^\s+(push|schedule|pull_request|workflow_run):/m.test(triggers) && /^ {4}if: github\.ref == 'refs\/heads\/main'$/m.test(wf)
+        && /contents: read/.test(wf) && !/write/.test(wf.replace(/backup-offsite/g, "")),
         "staging-backup-path.yml is not dispatch-only, main-only and read-only");
+      // the owner's dashboard value reaches the script only through the environment, never spliced into a command
+      c.expect(!/run:[^\n]*\$\{\{\s*inputs\./.test(wf) && /OWNER_POOLER_HOST: \$\{\{ inputs\.pooler_host \}\}/.test(wf), "the owner's pooler value is spliced into a command line");
       const secrets = [...new Set([...wf.matchAll(/secrets\.([A-Z_]+)/g)].map((x) => x[1]))].sort();
       c.expect(JSON.stringify(secrets) === '["STAGING_SUPABASE_ACCESS_TOKEN","STAGING_SUPABASE_DB_URL"]', `the path check holds ${secrets.join(", ")}`);
       c.expect(["pooler", "tls", "snapshot", "profile"].every((x) => wf.includes(`path-check.mjs ${x}`)), "the path check leaves out a step");
@@ -749,6 +757,21 @@ export const dr150bTests: SelfTest[] = [
         ["a read replica's pooler only", m.choosePooler([e(H, 6543, "transaction", "READ_REPLICA")], H, "5432", `postgres.${ref}`, ref, H), /0 pooler host/],
       ];
       for (const [n, r, re] of cases) c.expect(!r.host && re.test(r.problems.join("; ")), `${n}: ${JSON.stringify(r)}`);
+      // RESTATED: the owner's dashboard value, where Supabase refuses its configuration to the token (run 37414154468)
+      type Own = { entry: object | null; problems: string[] };
+      const ownerEntry = (m as unknown as { ownerEntry: (h?: string, p?: string, u?: string, r?: string) => Own }).ownerEntry;
+      const own = ownerEntry(H, "5432", `postgres.${ref}`, ref);
+      const viaOwner = m.choosePooler([own.entry!], H, "5432", `postgres.${ref}`, ref, H);
+      c.expect(own.problems.length === 0 && viaOwner.host === H && viaOwner.problems.length === 0, `the owner's agreeing value is not taken: ${JSON.stringify(viaOwner)}`);
+      const badOwner: [string, Own, RegExp][] = [
+        ["a value that is not a pooler host", ownerEntry("db.keijhmdtsgrfvnvocfvk.supabase.co", "5432", `postgres.${ref}`, ref), /not a Supabase pooler host/],
+        ["a command smuggled in", ownerEntry(`${H}; rm -rf /`, "5432", `postgres.${ref}`, ref), /not a Supabase pooler host/],
+        ["the transaction port", ownerEntry(H, "6543", `postgres.${ref}`, ref), /not the session pooler's 5432/],
+        ["another project's user", ownerEntry(H, "5432", "postgres.trtlvibiybwixfumjrrx", ref), /not postgres\.keijhmdtsgrfvnvocfvk/],
+      ];
+      for (const [n, r, re] of badOwner) c.expect(r.entry === null && re.test(r.problems.join("; ")), `the owner's value, ${n}: ${JSON.stringify(r)}`);
+      const disagree = m.choosePooler([e(H, 6543, "transaction"), own.entry!, ...[ownerEntry("aws-0-ap-southeast-1.pooler.supabase.com", "5432", `postgres.${ref}`, ref).entry!]], H, "5432", `postgres.${ref}`, ref, H);
+      c.expect(!disagree.host && /2 pooler host/.test(disagree.problems.join()), `Supabase and the owner disagreeing is taken: ${JSON.stringify(disagree)}`);
       const wrongWf = m.choosePooler([e(H, 6543, "transaction")], H, "5432", `postgres.${ref}`, ref, "aws-0-ap-southeast-1.pooler.supabase.com");
       c.expect(wrongWf.host === H && /backup workflow names aws-0/.test(wrongWf.workflow.join()), `the backup workflow's own value is not checked: ${JSON.stringify(wrongWf)}`);
       // an unreadable configuration: the run stops and the owner is asked
@@ -762,13 +785,21 @@ export const dr150bTests: SelfTest[] = [
         });
         c.expect(r.code !== 0 && /HTTP 403.*owner gives the dashboard's value/.test(r.text) && !/RESOLVED/.test(r.text) && !r.text.includes(":pw@"),
           `an unreadable pooler configuration: exit ${r.code}; ${r.text.trim().slice(0, 200)}`);
+        const withOwner = await new Promise<{ code: number | null; text: string }>((done) => {
+          const p = spawn("node", [PC, "pooler"], { env: { PATH: process.env.PATH ?? "", NODE_ENV: "production", MGMT_API: `http://127.0.0.1:${(api.address() as AddressInfo).port}`,
+            SUPABASE_PROJECT_REF: ref, SUPABASE_ACCESS_TOKEN: "standin", ADMIN_DB_URL: `postgresql://postgres.${ref}:pw@${H}:5432/postgres`,
+            OWNER_POOLER_HOST: H, OWNER_POOLER_PORT: "5432", OWNER_POOLER_USER: `postgres.${ref}`, EXPECTED_POOLER_HOST: H } });
+          let text = ""; p.stdout.on("data", (b) => (text += b)); p.stderr.on("data", (b) => (text += b)); p.on("close", (code) => done({ code, text }));
+        });
+        c.expect(withOwner.code === 0 && new RegExp(`RESOLVED: the session pooler is ${H.replace(/\./g, "\\.")}:5432, from the owner's dashboard value \\(Supabase refused the configuration to this token: HTTP 403\\)`).test(withOwner.text)
+          && !withOwner.text.includes(":pw@"), `the owner's dashboard value with Supabase refusing: exit ${withOwner.code}; ${withOwner.text.trim().slice(0, 300)}`);
       } finally { await new Promise((r) => api.close(r)); }
       // 3. verify-full off this machine, against the committed CA
       const savedAdmin = process.env.ADMIN_DB_URL;
       process.env.ADMIN_DB_URL = process.env.SUPABASE_DB_URL;
       const far = m.adminEnv(H);
-      c.expect(far.PGSSLMODE === "verify-full" && /docs\/recovery\/supabase-root-2021-ca\.crt$/.test(far.PGSSLROOTCERT) && m.adminEnv("127.0.0.1").PGSSLMODE === "disable",
-        `a hosted connection is not verify-full against the committed CA: ${far.PGSSLMODE} ${far.PGSSLROOTCERT}`);
+      c.expect(far.PGSSLMODE === "verify-full" && /docs\/recovery\/supabase-root-2021-ca\.crt$/.test(far.PGSSLROOTCERT) && far.PGPORT === "5432" && m.adminEnv("127.0.0.1").PGSSLMODE === "disable",
+        `a hosted connection is not verify-full against the committed CA on the session port: ${far.PGSSLMODE} ${far.PGSSLROOTCERT} ${far.PGPORT}`);
       // 4. executed on CI's database: the backup's own snapshot, imported and dumped from
       const pg = postgres();
       const bin = pgBin(pg);
