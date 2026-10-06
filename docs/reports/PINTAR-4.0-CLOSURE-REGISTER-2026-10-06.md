@@ -40,6 +40,24 @@ This register reconciles existing evidence; it does not reinterpret PINTAR. The 
 
 **The threshold (D-118(c)):** Dr Gladys has approved Daisy's design direction, so anything she can see that is below that standard is FI, and Daisy's propagation is itself bucket A.
 
+## 0. Progress
+
+**Batch 0 closed (6 Oct):** `PINTAR-4.0-CLOSURE-BATCH-0-2026-10-06.md`.
+- Closed: CR-10, 16, 17, 20, 26, 32, 60, 61, 62 and 64.
+- GS-20's U1 had an instrument defect, now corrected; batch 6 re-proves it.
+- Allowance spent: 60 of 1,900 estimated minutes.
+
+**Batch 2 in progress:**
+
+| CR | Proof | State |
+|---|---|---|
+| CR-29 | F03-T11 | proven, red on plants |
+| CR-19 | F16-X01 | proven, red on plants |
+| CR-45 | BOB07-K03 | proven, red on plants |
+| CR-18 | the countdown instrument | proven locally (red on two plants); staging run pending in the closure walk |
+
+The walks (CR-30, 33, 35, 38–44) follow.
+
 ## 1. The register
 
 ### Certificates
