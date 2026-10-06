@@ -25,8 +25,16 @@
  *          - nothing CI executes reads the unread paths;
  *          - ci.yml runs the guard first and the cheap gate before the expensive jobs, caps the red cases at 15, supersedes per
  *            branch, filters exactly the inert unread documents, and ends in a verdict that fails unless every job succeeded.
+ *  CI-W03  S4 (D-091(e), approved 6 Oct): the database red cases share a stack per group without losing a case or its
+ *          isolation. The matrix holds exactly the 30 cases there were, each in one group; every plant gate in
+ *          selftest/plants/plants.json is one of them; every case has steps and every step's case is in the matrix; a
+ *          case's steps run whatever an earlier case in its group did (!cancelled()), so one red case never hides another;
+ *          db-table-without-rls, which plants a migration, is alone; a shared group holds database cases only. The
+ *          local-stack action reuses a stack only when one runs, resets the database on every use, and fails a use whose
+ *          fresh database's fingerprint (functions, grants, policies, triggers, extensions, roles, memberships, role
+ *          settings, row counts) differs from the job's first.
  */
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { pathToFileURL } from "node:url";
 import { Checks, type SelfTest } from "./lib";
@@ -201,6 +209,58 @@ export const ciwasteTests: SelfTest[] = [
         "authoritative run on a branch; starvation and reuse cancel the run or fail it, never succeed; nothing CI runs reads the unread " +
         "paths; ci.yml: guard first, cheap gate before the expensive jobs, 15 red cases at a time, superseded by branch, exact filter, " +
         "and a verdict that fails unless every job succeeded");
+    },
+  },
+  {
+    id: "CI-W03",
+    run: async (ctx) => {
+      const c = new Checks();
+      // the 30 red cases of 6 Oct, before S4: none may be lost or duplicated by grouping
+      const CASES = ["static-permissive-policy", "db-table-without-rls", "static-raw-evidence-read", "static-duplicate-engine",
+        "static-second-verification-route", "db-fable04-gates", "db-fable05-gates", "db-task1-gates", "db-task2-gates", "db-fable06-gates",
+        "static-fable06-gates", "db-tour-gates", "db-wp1-gates", "db-wp7-gates", "db-wp8-gates", "db-r1-gates", "db-bob01-gates",
+        "db-bob02-gates", "db-bob03-gates", "db-bob04-gates", "db-bob06-gates", "db-bob12-gates", "db-bob24-gates", "db-bob35-gates",
+        "db-bob36-gates", "db-bob39-gates", "db-bob37-gates", "db-bob25-gates", "db-bob26-gates", "db-bob50-gates"];
+      const ci = readFileSync(join(ctx.repoRoot, ".github/workflows/ci.yml"), "utf8");
+      const redCase = ci.slice(ci.indexOf("\n  red-case:\n"), ci.indexOf("\n  baseline-parity:\n"));
+      const groups = [...redCase.matchAll(/- \{ group: "([^"]+)", cases: " ([a-z0-9 -]+) " \}/g)].map((x) => ({ group: x[1], cases: x[2].split(" ") }));
+      c.expect(groups.length > 0, "the red cases are not grouped (S4): each still boots its own stack");
+      const listed = groups.flatMap((g) => g.cases);
+      c.expect(JSON.stringify([...listed].sort()) === JSON.stringify([...CASES].sort()),
+        `the grouped red cases are not exactly the 30 there were: ${JSON.stringify(listed.filter((x) => !CASES.includes(x)))} added, ${JSON.stringify(CASES.filter((x) => !listed.includes(x)))} lost`);
+      c.expect(new Set(listed).size === listed.length, "a red case is in more than one group");
+      const plantGates = new Set((JSON.parse(readFileSync(join(ctx.repoRoot, "selftest/plants/plants.json"), "utf8")).plants ?? [])
+        .map((p: { gate?: string }) => p.gate).filter(Boolean));
+      for (const g of plantGates) c.expect(listed.includes(g as string), `plant gate ${g} is in no red-case group, so its plants never run`);
+      const stepCases = new Set([...redCase.matchAll(/if: \$\{\{ !cancelled\(\) && contains\(matrix\.cases, ' ([a-z0-9-]+) '\) \}\}/g)].map((x) => x[1]));
+      for (const k of CASES) c.expect(stepCases.has(k), `red case ${k} has no step: it is listed but nothing runs`);
+      for (const k of stepCases) c.expect(CASES.includes(k), `a step runs for ${k}, which is in no group`);
+      c.expect(!/if: matrix\.case\b/.test(redCase) && !/\bif: (?!\$\{\{ !cancelled\(\) && )[^\n]*matrix\.cases/.test(redCase),
+        "a red-case step is skipped when an earlier case in its group failed, so one red case can hide another");
+      c.expect(groups.some((g) => g.cases.length === 1 && g.cases[0] === "db-table-without-rls"),
+        "db-table-without-rls shares a stack, so its planted migration reaches every later case's reset");
+      for (const g of groups.filter((x) => x.cases.length > 1)) {
+        c.expect(g.cases.every((k) => k.startsWith("db-") && k !== "db-table-without-rls"), `group «${g.group}» shares a stack with a case that changes files`);
+      }
+      c.expect(/for c in \$\{\{ matrix\.cases \}\}; do\n {10}case "\$c" in/.test(redCase), "the defects are not injected for each case of the group");
+
+      const action = readFileSync(join(ctx.repoRoot, ".github/actions/local-stack/action.yml"), "utf8");
+      c.expect(/if \[ -n "\$\(docker ps -q --filter name=supabase_db_\)" \]; then[\s\S]*?else\n\s+npx --no-install supabase start/.test(action),
+        "local-stack does not boot a stack when none runs, or reuses without asking");
+      c.expect(/\n {6}run: npx --no-install supabase db reset --local\n/.test(action), "local-stack does not reset the database on every use");
+      c.expect(/fingerprint\.sql[\s\S]*?fresh-database\.fingerprint[\s\S]*?\[ "\$fp" = "\$\(cat "\$first"\)" \] \|\| \{[^}]*exit 1; \}/.test(action),
+        "local-stack does not fail a use whose fresh database differs from the job's first");
+      const fpPath = join(ctx.repoRoot, ".github/actions/local-stack/fingerprint.sql");
+      const fp = existsSync(fpPath) ? readFileSync(fpPath, "utf8") : "";
+      c.expect(fp !== "", "local-stack has no fresh-database fingerprint");
+      for (const [what, re] of [["functions", /pg_get_functiondef/], ["column grants", /attacl/], ["policies", /pg_policies/], ["relation grants", /relacl/],
+        ["triggers", /pg_trigger/], ["extensions", /pg_extension/], ["roles", /pg_roles/], ["memberships", /pg_auth_members/],
+        ["role settings", /pg_db_role_setting/], ["row counts", /count\(\*\)/]] as const) {
+        c.expect(re.test(fp), `the fresh-database fingerprint does not cover ${what}`);
+      }
+      c.expect(!/\b(insert|update|delete|create|drop|alter|grant|revoke|truncate)\b/i.test(fp.replace(/--[^\n]*/g, "")), "the fingerprint writes; it must only read");
+      return c.verdict(`${CASES.length} red cases in ${groups.length} groups, each once, every plant gate among them; every case has its steps and runs ` +
+        "whatever an earlier case did; the migration-planting case alone; every use of a shared stack resets and is fingerprinted against the job's first fresh database");
     },
   },
 ];

@@ -54,9 +54,9 @@
 |---|---|---|---|
 | **1** | Component and security tests (lint, typecheck, build, unit, RLS, tenancy, authorization, concurrency, integrity, cryptography) | Every relevant change, before merge | CI, local stack |
 | **2** | A browser slice of each journey the change touches. A file-to-journey map decides which; if unclear, all slices run | Before merge | CI, local stack (branches are not deployed, D-062(a)) |
-| **3** | The complete Golden School (`GOLDEN-SCHOOL-CONTRACT.md`) | Every merge to `main` that changes `src/` or `supabase/`; nightly; before a release. Documentation-only merges never trigger it | Deployed staging; it first asserts the commit and migration set |
+| **3** | The complete Golden School (`GOLDEN-SCHOOL-CONTRACT.md`) | **On dispatch, at the controlled points (D-120, QN6):** after each closure slice that changes what a Golden School step covers (the affected steps), before each gate (the whole walk), and before a release. Never automatically on a merge and never nightly. Documentation-only changes never trigger it | Deployed staging. The commit and migration set are read before and after the run (GOLDEN-SCHOOL-CONTRACT «Status»); asserting them inside the run is CR-60 |
 
-[6 Oct: Level 3 runs on dispatch, by editing a request file, not on every merge and not nightly. It does not yet assert the commit and migration set inside the run; those are read before and after (GOLDEN-SCHOOL-CONTRACT «Status»).]
+[6 Oct, corrected by D-120: this row said «every merge to `main` that changes `src/` or `supabase/`; nightly». Level 3 never ran that way. It runs on dispatch, by editing a request file, and the model now says so rather than claim evidence that is not produced.]
 
 ## 5. Trusting a test or an instrument
 
