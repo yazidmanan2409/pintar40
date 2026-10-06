@@ -1,6 +1,6 @@
 # Dr Gladys's walkthrough · evidence and findings (D-117)
 
-**State: FROZEN, waiting for the walkthrough.** Nothing is remediated from this record until the owner and the Second
+**State: POSTPONED (D-118, 6 Oct).** The freeze below did not begin. This record and its instruments are kept, and are re-pinned to the specimen Dr Gladys eventually walks; §1 and §2 describe the 6 Oct specimen. Earlier state: FROZEN, waiting for the walkthrough. Nothing is remediated from this record until the owner and the Second
 Eye have reviewed the findings report (§6) and approved each finding.
 
 This walkthrough does not change #150, Production Ready, the legal and data-protection gate, the capacity gate, or the use

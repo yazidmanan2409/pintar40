@@ -7,7 +7,7 @@ only when a product or architecture ruling is needed. The full picture, line by 
 
 **Updated 6 Oct 2026.** The 1 Oct version of this board is in git history (`e5a4173`).
 
-**The application is frozen for the Dr Gladys walkthrough** (D-117), from Yazid's sign-in on 6 Oct evening until she signs off.
+**Dr Gladys's walkthrough is postponed (D-118).** The pre-Gladys closure gate runs first: the register, then closing, proving and Daisy's propagation, then the owner's own walkthrough. The D-117 freeze did not begin.
 
 | | |
 |---|---|

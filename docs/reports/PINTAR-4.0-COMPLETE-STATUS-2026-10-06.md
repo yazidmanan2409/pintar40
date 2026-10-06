@@ -2,6 +2,8 @@
 
 **6 October 2026, status at 09:30 UTC.** Prepared by the coordinator for Yazid and the Second Eye.
 
+> **Superseded in part, the same day:** D-118 postponed Dr Gladys's walkthrough. The D-117 freeze did not begin, and Daisy's design now comes before her walk. The next step is `PINTAR-4.0-CLOSURE-REGISTER-2026-10-06.md`. Where this report says "the freeze" or "tomorrow", read it in that light.
+
 **Status as of:**
 - `main` `12b480b`, frozen for the Dr Gladys walkthrough (D-117);
 - application code = `3a7501b`;
@@ -170,7 +172,7 @@ The counts are of `PINTAR-4.0-SCOPE-INVENTORY.md` lines at each line's highest s
 - J2.7, the staff transition rehearsal;
 - J1.5, PINTAR standard content end to end.
 
-J4.10 is the exception: it is explicitly parked (D-098(d)). Recorded for your review; none blocks the walkthrough.
+J4.10 was parked by D-098(d) only "until the remaining build is complete". That build is complete, so it is open again (corrected 6 Oct; closure register CR-50). Recorded for your review.
 
 ## 5. The Golden School: the end-to-end walk on staging
 
@@ -495,7 +497,7 @@ database was not read for this report). `main` is 54 migrations ahead.
 | Environment facts (staging and production: app commit, migrations, email settings) | GREEN | Nightly 02:17 WIB and on dispatch; run 37438389611 |
 | Staging database and sign-in (migrations, the sign-in boundary, email sender, identity settings) | GREEN | `staging.yml` 37437241796 (re-run after Supabase's Management API outage, HTTP 500 "FGA Authentication Error", which failed 37432544176's Auth steps; nothing changed then) |
 | Production watch | Built; **off** until the release (O10) | 37391618155 green when dispatched; scheduled runs skip while `PINTAR_PRODUCTION_WATCH` is off |
-| Actions spend (D-090, D-091) | **RED** | Billed minutes against a 600 budget: 3 Oct 680; 4 Oct 736; **5 Oct 4,194** (CI 16 runs = 3,730). 6 Oct's scheduled check died on a GitHub 502; re-run 37440187720 read 5 Oct. The biggest line is CI, about 230 minutes a run |
+| Actions spend (D-090, D-091) | **RED** | The check reported, against a 600 budget: 3 Oct 680; 4 Oct 736; 5 Oct 4,194 (re-run 37440187720). **The measure overstates:** it counts jobs that never got a runner. On 5 Oct, 77 such jobs made up about 1,680 of its 3,730 CI minutes. Real 5 Oct spend is roughly 2,400–2,500: 16 CI runs at about 120 minutes each (35 jobs). Root cause and fix: closure register CR-64, CR-65 |
 | Backups off-platform | Built; **off** (`PINTAR_OFFSITE_BACKUP`) until #150's owner steps | `backup-offsite.yml` never run |
 | Restore drill | Built; next scheduled 2 Nov; needs O3 | `restore-drill.yml` never run |
 | Key-possession check | Built; quarterly | never run |

@@ -11,15 +11,18 @@ on:
     # main, where the coordinator merges. A lane dispatches this workflow itself,
     # exactly once per hand-off, on its head commit. The deploy still requires a
     # green run on the exact commit it ships; the coordinator dispatches one on
-    # main when the release commit has none. Documentation-only pushes do not
-    # start CI, except the frozen documents that baseline parity guards.
+    # main when the release commit has none. A push that changes only paths
+    # nothing reads does not start CI. Those paths are proven by search (CI
+    # efficiency gate, 6 Oct) and kept true by CI-W02. docs/audit and
+    # docs/onboarding are NOT among them: tests read launch-readiness.sql,
+    # hosted-credential-audit.sql, the intake workbook and the lesson content
+    # there, and until 6 Oct this filter wrongly skipped them.
     branches: [main]
     paths:
       - "**"
       - "!docs/coordination/**"
-      - "!docs/audit/**"
+      - "!docs/reports/**"
       - "!docs/deployment/**"
-      - "!docs/onboarding/**"
   pull_request:
   # A phase is not done until this workflow is green on a pushed commit, and
   # until now it could only run on main or on a pull request — so work on a
@@ -27,8 +30,11 @@ on:
   # two triggers above are unchanged.
   workflow_dispatch:
 
+# A newer run supersedes an older one on the same branch, whichever trigger
+# started it (a dispatch on the branch and its pull request share the group), so
+# an obsolete commit never waits in the queue (CI efficiency gate, 6 Oct).
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
@@ -38,8 +44,38 @@ env:
   NODE_VERSION: 22
 
 jobs:
+  # CI efficiency gate (6 Oct). Before anything is queued: are runners starved
+  # (then stop at once rather than queue 35 jobs that cannot start), and is this
+  # code already proven by an earlier green run on a working branch (then skip
+  # every expensive job and name that run)? audit/ci/proof-reuse.mjs; never
+  # reuses on main.
+  reuse:
+    name: proof · runners free, code not already proven
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      proven: ${{ steps.r.outputs.proven }}
+      proven_by: ${{ steps.r.outputs.proven_by }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - id: r
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: node audit/ci/proof-reuse.mjs
+
   check:
     name: install · lint · typecheck · build
+    needs: [reuse]
+    if: needs.reuse.outputs.proven != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -59,8 +95,11 @@ jobs:
           PINTAR_BUILD_SHA: ${{ github.sha }}
         run: npm run build
 
+  # The expensive jobs start only after the cheap gate passes (S1, efficiency
+  # audit 28 Sep and 2 Oct): a lint, type or build failure queues nothing else.
   migrations-clean:
     name: migrations · clean database + seed
+    needs: [check]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -83,6 +122,7 @@ jobs:
 
   migrations-upgrade-path:
     name: migrations · previous schema → HEAD (upgrade path)
+    needs: [check]
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -163,10 +203,14 @@ jobs:
 
   red-case:
     name: red case · ${{ matrix.case }}
+    needs: [check]
     runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
       fail-fast: false
+      # at most 15 at once: CI never floods the account's runners (5 Oct: 35 jobs
+      # queued together, most never started); every case still runs
+      max-parallel: 15
       matrix:
         case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
                static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,

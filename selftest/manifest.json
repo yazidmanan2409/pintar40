@@ -3311,6 +3311,16 @@
       "runner": "app",
       "proves": "BOB-29 (Gate 6) against the running app: the platform admin's shared session locked 60 minutes is ended on its next page, whose route the proxy answers with /masuk?sesi=berakhir (device_sessions KUNCI_HABIS, the refresh refused); a computer declared personal through /api/sesi/perangkat is served after 6 days without use; /api/sesi/keluar-semua from one computer ends that session and another computer's (both refreshes refused, the other's token refused by PostgREST).",
       "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the database"
+    },
+    {
+      "id": "CI-W01",
+      "runner": "static",
+      "proves": "The CI efficiency gate (6 Oct): executes audit/ci/actions-spend.mjs's classify, judge and report on jobs shaped as GitHub's API returns them (selftest/ciwaste.test.ts). A job that never got a runner (no runner, no step) counts as queue time and costs nothing: the 5 Oct shape, 26 minutes queued, is 0 billable where the old measure said 26. A job that ran counts its runner minutes, rounded up per job for the estimate, and its wait as queue; a cancelled job that had started counts as cancelled after start; a skipped job counts for nothing. The waste alarm is red at 10 never-started jobs (not at 9), at a 16-minute wait, at a third attempt and at one commit run twice, even when it costs nothing, and not for a superseded (cancelled) run; the cost alarm is red only over the budget; the report gives compute, queue and the estimate apart."
+    },
+    {
+      "id": "CI-W02",
+      "runner": "static",
+      "proves": "The CI efficiency gate (6 Oct): executes audit/ci/proof-reuse.mjs's sameCode and starved, and reads .github/workflows/ci.yml (selftest/ciwaste.test.ts). A commit counts as already proven only when every changed path is one nothing reads (docs/coordination, docs/reports, docs/deployment, the staging request files); a change to source, tests, migrations, workflows, tools, the lockfile, or a document tests read (docs/audit, docs/onboarding, docs/recovery) makes it new code. A job of another run queued for more than 10 minutes is starvation; a younger one or a running one is not. No file CI executes (src, selftest, scripts, supabase, .github/actions, audit/ci) reads an unread path outside a comment. ci.yml runs the guard first, gates migrations and the red cases on lint, typecheck and build, caps the red cases at 15 at a time, lets a newer run on the same branch supersede an older one, and its push filter skips exactly the unread documents."
     }
   ]
 }

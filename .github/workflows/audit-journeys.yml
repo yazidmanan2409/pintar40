@@ -25,6 +25,12 @@ on:
 permissions:
   contents: read
 
+# A newer dispatch on the same branch supersedes an older one: an obsolete audit never
+# waits for a runner (CI efficiency gate, 6 Oct; 5 Oct had 11 audit runs, 10 red).
+concurrency:
+  group: audit-journeys-${{ github.ref_name }}
+  cancel-in-progress: true
+
 env:
   # The application under audit: the dispatched ref, else the release in production.
   RELEASE_SHA: ${{ inputs.ref || '5b5b68d4c77700976904fdee5a2fb52e46f8221e' }}
