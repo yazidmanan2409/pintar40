@@ -430,6 +430,11 @@
       "proves": "INV-08 / INV-09 — a second learner is refused on both paths, the stored score equals a fresh recomputation, and a duplicate finalize observes one root result. SCOPE: the RPC exposure contract re-run here (assert_engine_takes_no_identity) is a SIGNATURE TRIPWIRE, not the INV-08 proof — it inspects argument names and types and cannot tell a resource id from an identity, so p_session uuid passes and correctly so. INV-08's actual guarantee is the ownership check in session_is_mine and the definer bodies, which the behavioural half of this id exercises. It also asserts every client-executable SECDEF function carries an exposure class, so an unregistered new RPC fails rather than being skipped."
     },
     {
+      "id": "F03-T11",
+      "runner": "db",
+      "proves": "J6.7 / STU-08 (CR-29), doc 04 §2's pause rule, measured in selftest/db/fable03.sql against pause_session and resume_session (20260913090000): the learning cycle's Uji Penguasaan, whose definition allows pausing, is paused by its learner and resumed by them; its Pemetaan Awal, whose definition does not, is refused «does not allow pausing»; another learner can neither resume nor pause someone's sitting; a sitting past its authoritative deadline cannot be paused."
+    },
+    {
       "id": "F03-S01",
       "runner": "static",
       "proves": "INV-26: exactly one module calls the engine's RPCs and holds no privilege of its own. Inspects the SOURCE import graph under src/ and the live schema's grants"
