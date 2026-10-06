@@ -24,7 +24,7 @@
 | The journeys audit on 0652d21 (code identical to 9a46bf5 but for one test) | 37487347244 | **green**: both jobs; the screens audit and the journey, **72 PASS, 0 other** (S15b, S23r/l/t/j, S25, S26d, S27 and the C-12 steps among them) |
 | main fast-forwarded 12b480b → 9a46bf5 (no request file touched) | — | done 6 Oct 16:10 UTC |
 | staging migrated | 37493598299 | **green**: 165 → 171 applied (last 20261204100000), equal to the repository; CR-50's guard found no cross-owner link; the sign-in boundary verified |
-| CI on main at 9a46bf5 (main always runs the full cycle, CE-8) | 37493596839 | _(running)_ |
+| CI on main at 9a46bf5 (main always runs the full cycle, CE-8) | 37493596839 | **green**: 18/18 jobs; the strict selftest **617 passed, 0 failed** |
 
 ## 3. The red CI runs, and why
 
@@ -108,8 +108,16 @@ Every Actions run since batch 0's report, read with the same classify/judge (`au
 | CI on a28b4d2 37486231374, **red** (§3) | 75 |
 | journeys audit 37487347244 | 40 |
 | CI on 9a46bf5 37489874488 | 79 |
-| staging migration 37493598299 | _(below)_ |
-| CI on main 37493596839 | _(below)_ |
-| **Spent so far** | _(below)_ |
+| staging migration 37493598299 | 1 |
+| CI on main 37493596839 | 73 |
+| **Spent since D-121** | **400** |
 
-_(completed when main's run ends)_
+- **Batches 2 and 3 cost 340.** Of that, **144 is waste**: the two red CI runs (§3), both the coordinator's instruments.
+- **Remaining: 1,500 of 1,900.** No job waited for a runner (queue 6.6 minutes in all), none was starved, and nothing was cancelled.
+- **Landing costs a second cycle.** On main, CI never reuses a branch's run (CE-8), so moving main to a proven commit runs the full cycle again: 73 here. The register's forecast counted one cycle per batch; batches that land on main cost about two. That does not threaten the ceiling at this rate. I record it because the forecast in §2 of the register is the owner's figure.
+- **What is left, at the measured rates:**
+  - Batches 4 and 7 are the owner's and Daisy's.
+  - Batch 5 is eight slices. At two cycles each (branch, then main), that is about **1,170** before each slice's staging walks.
+  - Batch 6 is a full Golden School walk (about 44) and an audit (about 40), plus its cycles.
+  - That is close to the **1,500** remaining. **The ceiling is likely to bind during batch 5.** I will say so in the batch report before it is reached, never after.
+  - Meanwhile: no avoidable red runs: every plant gate a change touches runs locally before its dispatch.

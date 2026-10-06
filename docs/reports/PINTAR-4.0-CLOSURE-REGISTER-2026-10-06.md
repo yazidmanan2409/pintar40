@@ -55,7 +55,8 @@ This register reconciles existing evidence; it does not reinterpret PINTAR. The 
 
 **Batch 3 closed (6 Oct):** `PINTAR-4.0-CLOSURE-BATCH-3-2026-10-06.md`.
 - Closed: CR-47 with Q10 (Alternative 4 and the not-yet state), CR-02, CR-01, CR-50, CR-13 (server and route; the screen is S7) and CR-51.
-- Landed: main 9a46bf5 (CI 37489874488, 18/18, 617 tests); staging 171 migrations (run 37493598299).
+- Landed: main 9a46bf5 (CI 37489874488 on the branch and 37493596839 on main, each 18/18 with 617 tests); staging at 171 migrations (run 37493598299).
+- Allowance spent: 400 of 1,900 estimated minutes (report §8), 144 of them wasted on two red runs. The ceiling is likely to bind during batch 5.
 - Questions for the owner and Daisy are in the report §4.
 
 CR-28 and CR-37 are not in batch 3, as D-120 ruled:
