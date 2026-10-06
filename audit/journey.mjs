@@ -790,20 +790,24 @@ await step("S15", "Gladys uploads a lesson: Paket Terstruktur", async (rec) => {
   return notes.join("; ");
 });
 
-await step("S15b", "D-029: a package addressed to the canonical library is refused", async (rec) => {
+await step("S15b", "D-029, D-120 Q7: the canonical library is offered to the platform admin only, last, and nothing is sent", async (rec) => {
+  // RESTATED FOR CR-51 (D-120 Q7, a changed requirement): the platform admin now prepares the library's standard content
+  // through this page, so a package sent here would be accepted and would add a course to this database's library. The
+  // step reads the picker instead and sends nothing: the library is offered once, last, and never preselected. That every
+  // SCHOOL role is still refused at the library is the database's (F11-N02, F12-N01 in CI).
   const inst = sql(`select id from public.institutions where tenant_kind='PLATFORM_CANONICAL' limit 1`).trim();
   if (!inst) { rec.verdict = "NOTE"; return "no canonical tenant in this database"; }
   const before = hitung(inst);
-  // Since DAISY-06 the page no longer offers the library at all (M8), so the server's own
-  // refusal is proved with a request the page would never build.
   await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
-  const offered = (await g.locator("select option").filter({ hasText: "Kurikulum Nasional" }).count()) > 0;
-  const r = offered ? await kirimPaket("Kurikulum Nasional", paketContoh ?? paketLama)
-                    : await kirimPaket("Kurikulum Nasional", paketContoh ?? paketLama, inst);
+  const sel = g.locator("#ung-sekolah");
+  const nama = (await sel.count()) ? (await sel.locator("option").allTextContents()).map((x) => x.trim()) : [];
+  const dipilih = (await sel.count()) ? ((await sel.locator("option:checked").textContent().catch(() => "")) ?? "").trim() : "";
+  const kali = nama.filter((x) => /Kurikulum Nasional/.test(x)).length;
   const after = hitung(inst);
-  if (!r.chosen) rec.verdict = "NOTE";
-  else if (after.courses !== before.courses || r.hasil === "ok") rec.verdict = "FAIL";
-  return `offered on the page: ${offered}; ${offered ? "chosen" : "forged request"} → hasil=${r.hasil} detail=${r.detail}; canonical courses ${before.courses} → ${after.courses}`;
+  if (!nama.length) rec.verdict = "NOTE";
+  else if (kali !== 1 || !/Kurikulum Nasional/.test(nama.at(-1) ?? "") || /Kurikulum Nasional/.test(dipilih)
+           || after.courses !== before.courses) rec.verdict = "FAIL";
+  return `the platform admin's picker: ${JSON.stringify(nama)}, preselected "${dipilih}"; the library offered ${kali} time(s), last ${/Kurikulum Nasional/.test(nama.at(-1) ?? "")}; canonical courses ${before.courses} → ${after.courses} (nothing sent)`;
 });
 
 // Real content: SD Kelas 5 Matematika Bab 1, from docs/onboarding/konten/SD5-Matematika-Bab1.xlsx,

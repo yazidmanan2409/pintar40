@@ -267,14 +267,26 @@ begin
       if v_code is distinct from v_code2 then
         v_probs := selftest.f11_note(v_probs, 'F12-N01', 'another school''s course and an unknown course answer differently');
       end if;
-      -- the platform library is not a school (D-029)
+      -- the platform library is not a school (D-029). RESTATED FOR CR-51 (D-120 Q7, a changed requirement): the platform
+      -- admin releases the library's standard content; a school role stays refused there, even one holding
+      -- CAN_FREEZE_RELEASE in the library itself
       if v_kanon_course is not null then
-        perform selftest.as_user_uid(v_sys);
+        perform selftest.f05_actor('kanonik-admin@pintar.test', 'INSTITUTION_ADMIN', v_kanon);
+        perform selftest.as_user('kanonik-admin@pintar.test');
         v_code := selftest.f12_code(format('select public.create_release(%L)', v_kanon_course));
         perform selftest.as_owner();
         if v_code is distinct from 'RELEASE_SCHOOL_NOT_ALLOWED' then
           v_probs := selftest.f11_note(v_probs, 'F12-N01', 'a release of the platform library answered ' || coalesce(v_code, 'ok -- it was created'));
         else m_refused := m_refused + 1; end if;
+        perform selftest.as_user_uid(v_sys);
+        v_code := selftest.f12_code(format('select public.create_release(%L)', v_kanon_course));
+        perform selftest.as_owner();
+        if v_code is not distinct from 'RELEASE_SCHOOL_NOT_ALLOWED'
+           or v_code is distinct from (case when exists (select 1 from public.plp_releases pr where pr.course_id = v_kanon_course) then 'RELEASE_EXISTS'
+                                            when (select c.status::text from public.courses c where c.id = v_kanon_course) <> 'APPROVED' then 'RELEASE_COURSE_NOT_APPROVED' end) then
+          v_probs := selftest.f11_note(v_probs, 'F12-N01', 'the platform admin''s release of a library course answered ' || coalesce(v_code, 'ok')
+            || ', not the course''s own state (D-120 Q7)');
+        end if;
       else
         v_probs := selftest.f11_note(v_probs, 'F12-N01', 'no PLATFORM_CANONICAL course exists to test D-029 against');
       end if;
@@ -632,7 +644,8 @@ begin
           || 'is authored by the head of department; the head of department''s freeze is RELEASE_SAME_PERSON and the '
           || 'admin''s freeze goes through',
         format('%s refusal(s), each PR040 with its code: a course in review, a second release, a teacher, a DEAN, '
-          || 'another school''s admin and an unknown course (answering identically), the platform library, a second '
+          || 'another school''s admin and an unknown course (answering identically), a school role''s release of the platform '
+          || 'library (the platform admin''s answers the course''s own state, D-120 Q7), a second '
           || 'freeze, a teacher''s freeze, publishing an unfrozen release, a head of department''s withdrawal, a '
           || 'withdrawal without a reason and another school''s withdrawal; the release was left as it was, and a '
           || 'second click on Terbitkan published and audited nothing twice', m_refused),

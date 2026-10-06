@@ -2105,9 +2105,11 @@ export const appTests: SelfTest[] = [
           nama: m[2].replace(/&amp;/g, "&").trim(),
           dipilih: /\sselected(=""|\s|$)/.test(m[1]),
         }));
-      for (const [peran, orang, harap] of [
-        ["INSTITUTION_ADMIN", PERSONA.alphaAdmin, "Sekolah Sintetis Alpha"],
-        ["SYSTEM_ADMIN", PERSONA.sysadmin, null],
+      // RESTATED FOR CR-51 (D-120 Q7, a changed requirement): the platform administrator is also offered the national
+      // library, as the picker's LAST option, so that it still starts on a real school; a school role never sees it
+      for (const [peran, orang, harap, pustaka] of [
+        ["INSTITUTION_ADMIN", PERSONA.alphaAdmin, "Sekolah Sintetis Alpha", false],
+        ["SYSTEM_ADMIN", PERSONA.sysadmin, null, true],
       ] as const) {
         const sesi = await signIn(ctx, orang);
         const res = await get(`${base}/studio/unggah`, { headers: { cookie: sesi.cookie } });
@@ -2134,13 +2136,19 @@ export const appTests: SelfTest[] = [
         c.expect(pilihan.length > 0, `${peran}: the Sekolah picker offers no school`);
         c.expect(awal !== undefined && awal.nama !== kanon, `${peran}: the Sekolah picker starts on "${awal?.nama ?? "(nothing)"}"`);
         if (harap) c.expect(awal?.nama === harap, `${peran}: the Sekolah picker starts on "${awal?.nama ?? "(nothing)"}", expected "${harap}"`);
-        c.expect(!opsi(html).some((o) => o.nama === kanon), `${peran}: a school picker on the page offers the national library`);
+        if (pustaka) {
+          c.expect(pilihan.at(-1)?.nama === kanon && pilihan.filter((o) => o.nama === kanon).length === 1,
+            `${peran}: the Sekolah picker does not offer the national library once, last (${pilihan.map((o) => o.nama).join(", ")})`);
+        } else {
+          c.expect(!opsi(html).some((o) => o.nama === kanon), `${peran}: a school picker on the page offers the national library`);
+        }
         c.note(`${peran}: ${pilihan.length} school(s) offered, starting on "${awal?.nama ?? ""}"`);
       }
       return c.verdict(
         "Studio's upload opens, for Alpha's school administrator and for the platform administrator, on the workbook: the template " +
         "to download, three steps with the first current, and one file input that takes an .xlsx. Its Sekolah picker starts on a " +
-        "real school (Alpha for Alpha's administrator), and no picker on the page offers the national library (audit S14)",
+        "real school (Alpha for Alpha's administrator); no picker on Alpha's administrator's page offers the national library "
+        + "(audit S14), and the platform administrator's offers it once, last (CR-51, D-120 Q7)",
       );
     },
   },

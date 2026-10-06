@@ -500,14 +500,24 @@ begin
       if v_err ->> 'code' is distinct from '42501' then
         v_probs := selftest.f11_note(v_probs, 'F11-N02', 'an anonymous caller reached confirm_ingest_batch: ' || coalesce(v_err::text, 'ok'));
       else m_refused := m_refused + 1; end if;
-      -- M8: the platform's library is not where a school's workbook goes
+      -- M8: the platform's library is not where a school's workbook goes. RESTATED FOR CR-51 (D-120 Q7, a changed
+      -- requirement): the platform admin prepares the library's standard content through the same import, and every
+      -- school role stays refused there, even one holding CAN_DRAFT in the library itself
       if v_kanon is not null then
-        perform selftest.as_user_uid(v_sys);
+        perform selftest.f05_actor('kanonik-penyusun@pintar.test', 'EDUCATOR', v_kanon);
+        perform selftest.as_user('kanonik-penyusun@pintar.test');
         v_batch3 := selftest.f11_batch(v_kanon, 'EASY_UPLOAD', selftest.f11_contoh());
         v_err := selftest.f11_raised(format('select public.prepare_ingest_batch(%L::uuid)', v_batch3));
         perform selftest.as_owner();
         if v_err ->> 'code' = 'PR030' and v_err ->> 'detail' = 'PACKAGE_SCHOOL_NOT_ALLOWED' then m_refused := m_refused + 1;
         else v_probs := selftest.f11_note(v_probs, 'F11-N02', 'a package for the platform library answered ' || coalesce(v_err::text, 'ok -- it was accepted')); end if;
+        perform selftest.as_user_uid(v_sys);
+        v_batch3 := selftest.f11_batch(v_kanon, 'EASY_UPLOAD', selftest.f11_contoh());
+        v_err := selftest.f11_raised(format('select public.prepare_ingest_batch(%L::uuid)', v_batch3));
+        perform selftest.as_owner();
+        if v_err is not null then
+          v_probs := selftest.f11_note(v_probs, 'F11-N02', 'the platform admin''s package for the library was refused (D-120 Q7): ' || v_err::text);
+        end if;
       else
         v_probs := selftest.f11_note(v_probs, 'F11-N02', 'no PLATFORM_CANONICAL institution exists to test M8 against');
       end if;
@@ -630,8 +640,9 @@ begin
           || 'sheet and row where the package named one, and nothing but a code and a place; it was not offered for '
           || 'confirmation, a confirmation made nothing, and an empty package is PACKAGE_EMPTY', m_codes),
         format('a DEAN and another school''s admin are PR030 PACKAGE_NOT_ALLOWED on prepare and confirm, a foreign and '
-          || 'an unknown batch answer identically, an anonymous caller cannot execute confirm, and a SYSTEM_ADMIN''s '
-          || 'package for the platform library is PACKAGE_SCHOOL_NOT_ALLOWED (%s refusal(s))', m_refused),
+          || 'an unknown batch answer identically, an anonymous caller cannot execute confirm, and a school role''s '
+          || 'package for the platform library (CAN_DRAFT there) is PACKAGE_SCHOOL_NOT_ALLOWED while the platform admin''s '
+          || 'is accepted (D-120 Q7) (%s refusal(s))', m_refused),
         format('may_upload_package_media grants the school''s admin and a drafting teacher a file the package names, and '
           || 'refuses an unnamed file, another school''s id, a path without its batch, another school''s admin and a '
           || 'DEAN; once the batch is materialised it grants nothing (%s of 8)', m_media),

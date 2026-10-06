@@ -1876,7 +1876,7 @@
     {
       "id": "F11-N02",
       "runner": "db",
-      "proves": "BOB-02 (M8). Only someone who may draft in the batch's school prepares or confirms it: a DEAN and another school's admin are PR030 PACKAGE_NOT_ALLOWED, a foreign and an unknown batch answer identically, an anonymous caller cannot execute confirm_ingest_batch, and a package for the platform's canonical library is PACKAGE_SCHOOL_NOT_ALLOWED."
+      "proves": "BOB-02 (M8). Only someone who may draft in the batch's school prepares or confirms it: a DEAN and another school's admin are PR030 PACKAGE_NOT_ALLOWED, a foreign and an unknown batch answer identically, an anonymous caller cannot execute confirm_ingest_batch, and a package for the platform's canonical library from a school role holding CAN_DRAFT there is PACKAGE_SCHOOL_NOT_ALLOWED, while the platform admin's is accepted (RESTATED for CR-51, D-120 Q7)."
     },
     {
       "id": "F11-N03",
@@ -1911,7 +1911,7 @@
     {
       "id": "F12-N01",
       "runner": "db",
-      "proves": "BOB-03 (D-011). Every refusal on the release path is PR040 with its code and changes nothing: a course in review (RELEASE_COURSE_NOT_APPROVED), a second release (RELEASE_EXISTS), a teacher, a DEAN, another school's admin and an unknown course (RELEASE_NOT_ALLOWED, the last two identical), the platform library (RELEASE_SCHOOL_NOT_ALLOWED, D-029), a second freeze and publishing an unfrozen release (RELEASE_STATE_INVALID), a teacher's freeze, a head of department's and another school's withdrawal (RELEASE_PUBLISH_NOT_ALLOWED) and a withdrawal without a reason (RELEASE_REASON_REQUIRED); a second click on publish publishes and audits nothing twice."
+      "proves": "BOB-03 (D-011). Every refusal on the release path is PR040 with its code and changes nothing: a course in review (RELEASE_COURSE_NOT_APPROVED), a second release (RELEASE_EXISTS), a teacher, a DEAN, another school's admin and an unknown course (RELEASE_NOT_ALLOWED, the last two identical), a school role's release of the platform library (RELEASE_SCHOOL_NOT_ALLOWED, D-029; the platform admin's answers the course's own state, RESTATED for CR-51, D-120 Q7), a second freeze and publishing an unfrozen release (RELEASE_STATE_INVALID), a teacher's freeze, a head of department's and another school's withdrawal (RELEASE_PUBLISH_NOT_ALLOWED) and a withdrawal without a reason (RELEASE_REASON_REQUIRED); a second click on publish publishes and audits nothing twice."
     },
     {
       "id": "F12-N02",
@@ -2359,7 +2359,7 @@
     {
       "id": "DAISY-06-UNGGAH-01",
       "runner": "static",
-      "proves": "DAISY-06: the upload panel is RENDERED to html in a child process in both languages: the template download; three steps named for what they do with the first current; a Sekolah picker offering exactly the given schools with the first selected; an .xlsx file input; a check that waits for a file; no upload when no school is on offer. From the COPY TABLE, every package problem and refusal code reads as its own sentence in both languages, and a problem's place is OUTPUT as sheet, row and the column's KOLOM header. From the SOURCE, /studio/unggah reads each drafting school's tenant_kind and is_active and offers them through the shared school rule (never the national library) to the panel and the JSON forms, labelled Sekolah; the workbook panel comes first; and the panel reaches the server only through BOB-02's two typed actions and the signed-upload route, to the path the check returned."
+      "proves": "DAISY-06: the upload panel is RENDERED to html in a child process in both languages: the template download; three steps named for what they do with the first current; a Sekolah picker offering exactly the given schools with the first selected; an .xlsx file input; a check that waits for a file; no upload when no school is on offer. From the COPY TABLE, every package problem and refusal code reads as its own sentence in both languages, and a problem's place is OUTPUT as sheet, row and the column's KOLOM header. From the SOURCE, /studio/unggah reads each drafting school's tenant_kind and is_active and offers them through the shared school rule (never the national library) and, to the platform admin alone, the national library as well, last (tujuanUnggah, RESTATED for CR-51, D-120 Q7), to the panel and the JSON forms, labelled Sekolah; the workbook panel comes first; and the panel reaches the server only through BOB-02's two typed actions and the signed-upload route, to the path the check returned."
     },
     {
       "id": "DAISY-06-UNGGAH-02",
@@ -2369,7 +2369,7 @@
         "network"
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator and the platform administrator and reads the rendered /studio/unggah against the seed. CI has both facilities, so it never skips there",
-      "proves": "DAISY-06 over real HTTP against the seeded database (audit S14). The RENDERED html of /studio/unggah, for Alpha's school administrator and for the platform administrator, opens with the workbook section before the JSON forms and without a refusal: the template download, the three named steps with exactly one current, and exactly one file input in the first step, which accepts .xlsx. Its Sekolah picker offers at least one school and starts on a real one -- Sekolah Sintetis Alpha for Alpha's administrator, never 'PINTAR Kurikulum Nasional' -- and no school picker anywhere on the page offers the national library. Read only."
+      "proves": "DAISY-06 over real HTTP against the seeded database (audit S14). The RENDERED html of /studio/unggah, for Alpha's school administrator and for the platform administrator, opens with the workbook section before the JSON forms and without a refusal: the template download, the three named steps with exactly one current, and exactly one file input in the first step, which accepts .xlsx. Its Sekolah picker offers at least one school and starts on a real one -- Sekolah Sintetis Alpha for Alpha's administrator, never 'PINTAR Kurikulum Nasional' -- and no school picker anywhere on Alpha's administrator's page offers the national library, while the platform administrator's offers it exactly once, as the picker's last option (RESTATED for CR-51, D-120 Q7). Read only."
     },
     {
       "id": "DAISY-09-AKTIVASI-01",
@@ -3020,6 +3020,12 @@
       "id": "F20-E02",
       "runner": "db",
       "proves": "CR-13 (D-120 QN1), measured in selftest/db/fable20.sql against auth.users itself: an email account's address does not move without a grant, to another address than the granted one, or twice (EMAIL_CHANGE_REFUSED). After activation the platform admin's grant moves it in Auth's own transaction, the outstanding one-time code and the open session die, the password and the set-up stay, and identity.email_corrected records the reason, both addresses, the branch and who. Before activation the school admin's grant moves it and also clears the password, sets the PIN to be chosen again and the name to be confirmed again, and an activation code now goes to the new address only.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-K01",
+      "runner": "db",
+      "proves": "CR-51 (D-120 Q7), measured in selftest/db/fable20.sql: a platform admin imports a chapter into the PINTAR library (PLATFORM_CANONICAL) through the same package import a school uses and is recorded as its author; that admin's approval is refused and their freeze answers RELEASE_SAME_PERSON, so a second platform admin approves and freezes it; the release is published, distributed to a school by grant_release_distribution, and the school's teacher finds it exactly once in distributed_releases. Every school role stays refused at the library (F11-N02, F12-N01).",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {

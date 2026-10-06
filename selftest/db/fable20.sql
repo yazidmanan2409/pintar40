@@ -36,6 +36,10 @@
 --            (CAN_PROVISION_PEOPLE there) or the platform admin; after it the platform admin only; never a teacher or
 --            another school's admin. A reason is required, and an invalid, unchanged or taken address and a person
 --            with no email account are refused by name; the yes is a grant, and nothing has changed yet
+--   F20-K01  CR-51, D-120 Q7: the platform admin prepares the PINTAR library's standard content through the same
+--            import. One platform admin imports a chapter into the library and is its author; that admin cannot
+--            approve or freeze it (two people, as for any school), a second platform admin does; it is published,
+--            distributed to a school, and the school's teacher finds it among the library releases given to the school
 --   F20-E02  CR-13, D-120 QN1: an email account's address changes only against that grant, for exactly its address,
 --            once. In the same transaction every outstanding code dies, every session ends and the correction is
 --            audited with its reason, both addresses and the branch; after activation the password and the set-up
@@ -62,6 +66,8 @@ create or replace function selftest.f20_note(p jsonb, p_id text, p_problem text)
 returns jsonb language sql immutable as $$
   select jsonb_set(coalesce(p, '{}'::jsonb), array[p_id], coalesce(p -> p_id, '[]'::jsonb) || to_jsonb(p_problem))
 $$;
+-- a problem noted while a test acts as a person is still noted, not lost to a permission error
+grant execute on function selftest.f20_note(jsonb, text, text) to authenticated, anon;
 
 -- The refusal's code: PR040's DETAIL, else the SQLSTATE; NULL when it ran.
 create or replace function selftest.f20_kode(p_sql text)
@@ -163,6 +169,7 @@ declare
   v_sa uuid; v_sb uuid; v_ga uuid; v_gb uuid; v_kode text; v_defs jsonb; v_batch uuid; v_hj jsonb; v_course uuid; v_item uuid;
   v_ed uuid; v_eu uuid; v_eadm uuid; v_esys uuid; v_einst uuid; v_elama text; v_eb1 text; v_eb2 text; v_ek text; v_er record;
   v_ehash text; v_esesi uuid; v_ekartu uuid; v_edulu bigint;
+  v_kk uuid; v_kc uuid; v_kr uuid; v_ksys2 uuid; v_ka uuid; v_kcode text; v_kj jsonb;
   v_probs jsonb := '{}'::jsonb; v_fatal text := '';
 begin
   perform selftest.as_owner();
@@ -596,7 +603,8 @@ begin
       select a.person_id into v_esys from public.accounts a join auth.users u on u.id = a.auth_user_id
        where u.email = 'sysadmin@synthetic.pintar.test';
       select ra.institution_id into v_einst from public.role_assignments ra
-       where ra.person_id = v_eadm and ra.role = 'INSTITUTION_ADMIN' limit 1;
+       where ra.person_id = v_eadm and ra.role = 'INSTITUTION_ADMIN' and ra.revoked_at is null
+       order by ra.created_at limit 1;
       select a.person_id into v_ekartu from public.accounts a where a.kind = 'CLASSROOM_CARD' order by a.card_number limit 1;
       if v_ed is null or v_eadm is null or v_esys is null or v_einst is null or v_ekartu is null then
         raise exception 'the fixture lacks the dean, the school admin, the platform admin or a class card';
@@ -761,6 +769,84 @@ begin
       v_probs := selftest.f20_note(v_probs, 'F20-E02', 'the test could not run: ' || left(sqlerrm, 160));
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F20-K01  CR-51 (D-120 Q7): THE PLATFORM ADMIN PREPARES THE PINTAR LIBRARY
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_owner();
+      select i.id into v_kk from public.institutions i where i.tenant_kind = 'PLATFORM_CANONICAL' limit 1;
+      select ra.institution_id into v_ka from public.role_assignments ra join public.accounts a on a.person_id = ra.person_id
+        join auth.users u on u.id = a.auth_user_id
+       where u.email = 'alpha-admin@synthetic.pintar.test' and ra.role = 'INSTITUTION_ADMIN' and ra.revoked_at is null
+       order by ra.created_at limit 1;
+      -- a second platform admin, inside the rolled-back transaction: the head of department (F20-E02 has moved the dean's
+      -- address by now)
+      select a.person_id into v_ksys2 from public.accounts a join auth.users u on u.id = a.auth_user_id
+       where u.email = 'alpha-hod@synthetic.pintar.test';
+      perform set_config('app.seed_intent', 'synthetic', true);
+      insert into public.role_assignments (person_id, role, valid_from, valid_until)
+      values (v_ksys2, 'SYSTEM_ADMIN', now() - interval '1 day', now() + interval '1 day');
+      perform set_config('app.seed_intent', '', true);
+      if v_kk is null or v_ka is null or v_ksys2 is null then raise exception 'the fixture lacks the library, the school or its head of department'; end if;
+
+      -- 1. the platform admin imports a chapter into the library, and is its author
+      perform selftest.as_user('sysadmin@synthetic.pintar.test');
+      v_kcode := selftest.f12_code(format('select selftest.f12_course(%L, %L::jsonb)', v_kk,
+        selftest.f12_paket('Pustaka F20 ' || v_tag, 'Berapa hasil dua ditambah dua?', 'Empat', 'Lima')));
+      perform selftest.as_owner();
+      select c.id into v_kc from public.courses c where c.institution_id = v_kk and c.title = 'Pustaka F20 ' || v_tag;
+      if v_kcode is not null or v_kc is null then
+        v_probs := selftest.f20_note(v_probs, 'F20-K01', format('the platform admin could not import a chapter into the PINTAR library (%s)', coalesce(v_kcode, 'no course')));
+      else
+        if (select c.author_person_id from public.courses c where c.id = v_kc) is distinct from
+           (select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = 'sysadmin@synthetic.pintar.test') then
+          v_probs := selftest.f20_note(v_probs, 'F20-K01', 'the library chapter is not authored by the platform admin who imported it');
+        end if;
+        -- 2. its author cannot approve it; a second platform admin does
+        perform selftest.as_user('sysadmin@synthetic.pintar.test');
+        v_kcode := selftest.f12_code(format('select selftest.f12_advance(%L, %L)', v_kc, 'APPROVED'));
+        perform selftest.as_owner();
+        if v_kcode is null or (select c.status::text from public.courses c where c.id = v_kc) = 'APPROVED' then
+          v_probs := selftest.f20_note(v_probs, 'F20-K01', 'the platform admin approved the chapter they imported (one person, no second)');
+        end if;
+        perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+        perform selftest.f12_advance(v_kc, 'APPROVED');
+        perform selftest.as_owner();
+        -- 3. released by the platform; frozen by the second person only
+        perform selftest.as_user('sysadmin@synthetic.pintar.test');
+        v_kj := public.create_release(v_kc);
+        v_kr := (v_kj ->> 'release')::uuid;
+        v_kcode := selftest.f12_code(format('select public.freeze_release(%L)', v_kr));
+        perform selftest.as_owner();
+        if v_kr is null or v_kcode is distinct from 'RELEASE_SAME_PERSON' then
+          v_probs := selftest.f20_note(v_probs, 'F20-K01', format('the release %s; its author freezing it answered %s, not RELEASE_SAME_PERSON', coalesce(v_kj::text, 'none'), coalesce(v_kcode, 'ok')));
+        end if;
+        perform selftest.as_user('alpha-hod@synthetic.pintar.test');
+        v_kj := public.freeze_release(v_kr);
+        for r in select f.id from public.mcq_quality_findings f where f.course_id = v_kc and f.acknowledged_at is null loop
+          perform public.acknowledge_finding('MCQ_QUALITY', r.id, 'F20-K01');
+        end loop;
+        for r in select f.id from public.coaching_findings f where f.course_id = v_kc and f.acknowledged_at is null loop
+          perform public.acknowledge_finding('COACHING', r.id, 'F20-K01');
+        end loop;
+        perform selftest.as_user('sysadmin@synthetic.pintar.test');
+        perform public.publish_release(v_kr);
+        -- 4. distributed to a school, where its teacher finds it
+        perform public.grant_release_distribution(v_kr, v_ka, 'F20-K01');
+        perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+        v_kcode := (select count(*)::text from public.distributed_releases() d where to_jsonb(d)::text like '%' || v_kr::text || '%');
+        perform selftest.as_owner();
+        if (select pr.status::text from public.plp_releases pr where pr.id = v_kr) is distinct from 'PUBLISHED'
+           or not public.release_is_distributed_to(v_kr, v_ka) or v_kcode is distinct from '1' then
+          v_probs := selftest.f20_note(v_probs, 'F20-K01', format('the library release is %s, distributed %s, and the school''s teacher sees it %s time(s)',
+            (select pr.status::text from public.plp_releases pr where pr.id = v_kr), public.release_is_distributed_to(v_kr, v_ka), v_kcode));
+        end if;
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f20_note(v_probs, 'F20-K01', 'the test could not run: ' || left(sqlerrm, 200));
+    end;
+
     raise exception 'F20-ROLLBACK';
   exception when others then
     if sqlerrm <> 'F20-ROLLBACK' then v_fatal := sqlerrm; end if;
@@ -769,7 +855,7 @@ begin
 
   for r in
     select * from unnest(
-      array['F20-Q10', 'F20-F01', 'F20-N01', 'F20-S01', 'F20-C01', 'F20-M01', 'F20-M02', 'F20-M03', 'F20-E01', 'F20-E02'],
+      array['F20-Q10', 'F20-F01', 'F20-N01', 'F20-S01', 'F20-C01', 'F20-M01', 'F20-M02', 'F20-M03', 'F20-E01', 'F20-E02', 'F20-K01'],
       array['D-121(a)(b), Q10 Alternative 4 -- mastery is the school''s mark; the descriptor is PINTAR''s fixed scale, none below 70%',
             'D-121(a), INV-29 -- a result is decided under its session''s own scoring version',
             'D-121(c), D-095(c)(g) -- «Belum mengerjakan Uji Penguasaan» is produced and stays apart from the bands',
@@ -779,7 +865,8 @@ begin
             'CR-50, D-063 M2/M3/M4 -- an option names only its own school''s definition; append-only; readers per school',
             'CR-50 -- a coded chapter has no weak-linkage finding',
             'CR-13, D-120 QN1 -- who may correct a staff email, and when',
-            'CR-13, D-120 QN1 -- an email moves only against its grant; codes and sessions die; audited'],
+            'CR-13, D-120 QN1 -- an email moves only against its grant; codes and sessions die; audited',
+            'CR-51, D-120 Q7 -- the platform admin prepares the PINTAR library; two people approve it'],
       array[
         'the current scoring version names Sangat Baik ≥ 90%, Baik ≥ 80% and Cukup ≥ 70% and nothing below; the engine version is '
           || 'pintar-engine/2; a published version''s descriptors cannot be edited in place and the next publication carries them '
@@ -815,7 +902,10 @@ begin
           || 'the platform admin''s grant moves it, the outstanding code and the open session die, the password and the set-up stay, '
           || 'and identity.email_corrected records the reason, both addresses, the branch and who; before activation the school '
           || 'admin''s grant moves it and also clears the password, sets the PIN to be chosen again and the name to be confirmed '
-          || 'again, and an activation code now goes to the new address only'
+          || 'again, and an activation code now goes to the new address only',
+        'a platform admin imports a chapter into the PINTAR library through the same import and is its author; that admin''s '
+          || 'approval is refused and their freeze answers RELEASE_SAME_PERSON; a second platform admin approves and freezes it; '
+          || 'it is published, distributed to a school, and the school''s teacher finds it once among the releases given to the school'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

@@ -100,7 +100,7 @@ import { LANGKAH_TERBITAN, KODE_TERBITAN_DB, kunciKodeTerbitan, type KodeTerbita
 import { namaUntukStrip, namaSapaan, PERAN_STAF } from "../src/components/sesi";
 import { pohonStruktur, bolehDiubah, bolehDitambahi, kalimatGagal, kalimatGagalBaca } from "../src/components/struktur/tampilan";
 import { KODE_STRUKTUR_DB, type KodeStruktur, type SimpulStruktur } from "../src/lib/struktur-kontrak";
-import { sekolahDitawarkan, sekolahDipilih, type SekolahBaris } from "../src/components/sekolah";
+import { sekolahDitawarkan, sekolahDipilih, tujuanUnggah, type SekolahBaris } from "../src/components/sekolah";
 import { KODE_SUKSES, kunciKode } from "../src/lib/galat-kontrak";
 import { kunciGagal, isianKurang, surelLengkap, GALAT_RUTE, type ModeAktivasi, type JawabanAktivasi } from "../src/components/aktivasi/hasil";
 import { SYARAT_METRIK, kunciMuncul } from "../src/components/bukti/muncul";
@@ -1365,6 +1365,9 @@ export const experienceTests: SelfTest[] = [
       // (password_write_permits), two set-up columns (password_set_at, name_confirmed_at), the identity
       // functions and a trigger on auth.users; no colour, mark or brand surface.
       //
+      // MOVED 170 -> 171 for CR-51 (D-120 Q7). 20261204100000 replaces package_batch's and create_release's bodies (the
+      // platform admin alone at the PINTAR library) and two refusal sentences; no colour, mark or brand surface.
+      //
       // MOVED 169 -> 170 for CR-13 (D-120 QN1). 20261203100000 adds the email-correction grant table, its RPC and a guard
       // trigger on auth.users; no colour, mark or brand surface.
       //
@@ -1662,7 +1665,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 170, `${migrations.length} migrations; the frozen baseline has 170`);
+      c.expect(migrations.length === 171, `${migrations.length} migrations; the frozen baseline has 171`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3357,7 +3360,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 169 -> 170 for CR-13's email correction (20261203100000), not a tour RPC
+      // from, not a claim about the tour. MOVED 170 -> 171 for CR-51's library import (20261204100000), not a tour RPC
+      // (D-024). MOVED 169 -> 170 for CR-13's email correction (20261203100000), not a tour RPC
       // (D-024). MOVED 165 -> 169 for the closure's batch 3 (20261129100000 Q10, 20261130100000
       // CR-47, 20261201100000 CR-02/CR-01, 20261202100000 CR-50), not a tour RPC (D-024). MOVED 164 -> 165 for ADM-18's prefix (20261128100000, a replaced function body), not a
       // tour RPC (D-024). MOVED 162 -> 164 for ADM-18 and STU-12 (20261126100000, 20261127100000: two
@@ -3455,7 +3459,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 170, `${migs.length} migrations; the baseline has 170`);
+      c.expect(migs.length === 171, `${migs.length} migrations; the baseline has 171`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -9045,8 +9049,9 @@ export const experienceTests: SelfTest[] = [
       /**
        * THE PAGE AND THE FLOW, FROM THE SOURCE.
        *   - /studio/unggah reads each drafting school's tenant_kind and
-       *     is_active and offers them through sekolah.ts -- never the national
-       *     library (audit S14; D-029) -- to the panel AND the JSON forms, and
+       *     is_active and offers them through sekolah.ts -- the national
+       *     library to the platform admin alone (CR-51, D-120 Q7; audit S14,
+       *     D-029 for every school role) -- to the panel AND the JSON forms, and
        *     labels the JSON forms' picker "Sekolah" (it said "Peran & akses").
        *   - The panel comes before the JSON forms.
        *   - The panel talks to the server only through BOB-02's two typed
@@ -9056,7 +9061,22 @@ export const experienceTests: SelfTest[] = [
       const halaman = code(readFileSync(join(repoRoot, "src", "app", "studio", "unggah", "page.tsx"), "utf8"));
       c.expect(/from\("institutions"\)\.select\("[^"]*\btenant_kind\b[^"]*\bis_active\b[^"]*"\)/.test(halaman) || /from\("institutions"\)\.select\("[^"]*\bis_active\b[^"]*\btenant_kind\b[^"]*"\)/.test(halaman),
         "the upload page reads the schools without their kind or state");
-      c.expect(/const institutions = sekolahDitawarkan\(tenant \?\? \[\], \(id\) => menyusun\.has\(id\)\)/.test(halaman), "the upload page does not offer its schools through the shared rule");
+      // RESTATED FOR CR-51 (D-120 Q7, a changed requirement): the schools through the shared rule, and the PINTAR library
+      // for the platform admin alone (tujuanUnggah), asked of the database rather than inferred
+      c.expect(/const institutions = tujuanUnggah\(tenant \?\? \[\], \(id\) => menyusun\.has\(id\), adminPlatform === true\)/.test(halaman)
+        && /\{ data: adminPlatform \}\] = await Promise\.all\(\[[^\]]*supabase\.rpc\("is_system_admin"\)\]\)/.test(halaman),
+        "the upload page does not offer its schools through the shared rule, or the library to the platform admin alone");
+      {
+        const T: SekolahBaris[] = [
+          { id: "kanon", name: "PINTAR Kurikulum Nasional", tenant_kind: "PLATFORM_CANONICAL", is_active: true },
+          { id: "sma", name: "SMA Contoh", tenant_kind: "INSTITUTION", is_active: true },
+          { id: "tutup", name: "Sekolah Tutup", tenant_kind: "INSTITUTION", is_active: false },
+        ];
+        const ids = (xs: SekolahBaris[]) => xs.map((x) => x.id).join(",");
+        c.expect(ids(tujuanUnggah(T, () => true, false)) === "sma", `a school role is offered ${ids(tujuanUnggah(T, () => true, false))} to upload to`);
+        c.expect(ids(tujuanUnggah(T, () => true, true)) === "sma,kanon", `the platform admin is offered ${ids(tujuanUnggah(T, () => true, true))}; the library comes last`);
+        c.expect(ids(tujuanUnggah(T.map((x) => ({ ...x, is_active: x.id === "sma" })), () => true, true)) === "sma", "an inactive library is offered");
+      }
       c.expect(!/config\.section\.roles/.test(halaman) && /<span>\{s\("studio\.unggah\.sekolah"\)\}<\/span>/.test(halaman), "the JSON forms' school picker is not labelled Sekolah");
       c.expect(/<PanelUnggah locale=\{locale\} sekolah=\{institutions\}/.test(halaman) && halaman.indexOf("<PanelUnggah") < halaman.indexOf("easyUploadAction}"),
         "the workbook panel is not the first way in, or it is not given the offered schools");
