@@ -7,8 +7,10 @@ PITR implementation. No 100,000-user rehearsal.
 
 **Progress:** WP-A's code built and proven (`e6cb045`; CI 37401454517, 35/35, 580/580); waiting for O2 (C1), the
 owner's action. **WP-B:** stopped for a ruling on 6 Oct (§ A7, "Finding"), ruled A + B (D-108), resumed; its code is
-built and proven against local stand-ins (on the branch only; CI 37409454539 on `9133ffc`: 35/35, 587/587). Migration 162 stays off hosted staging and production,
-and off `main`, until separately authorised.
+built and proven against local stand-ins (CI 37409454539 on `9133ffc`: 35/35, 587/587), then accepted (D-109): on `main`
+since 6 Oct (CI 37412506567 on `cc2307e`, 35/35), migration 162 **applied to hosted staging only** (run 37414019844) and
+verified read only; the staging path check waits for the owner's pooler value. Production is untouched until separately
+authorised. The evidence, decision by decision: `docs/recovery/EVIDENCE-INDEX-150.md`.
 
 **Unchanged boundaries (D-106(h)–(j)):**
 - native Supabase restore is the **primary** database recovery path;
@@ -322,9 +324,9 @@ A run is recorded as successful **only if all ten hold**. On any failure nothing
 **WP-B: B4, B5, B9 (database + Storage files + escrow, independent of Supabase and Vercel). Code built and proven against
 local stand-ins; nothing hosted, nothing bought, no real credential (owner's boundary, 6 Oct).**
 - **Built:**
-  - `pintar_backup`, migration 162 (`20261125100000`). **Not on `main` and not applied to any hosted database:** a push
-    to `main` that touches `supabase/migrations/` applies it to staging through `staging.yml`. Its landing needs the
-    owner's authorisation.
+  - `pintar_backup`, migration 162 (`20261125100000`). On `main` and **applied to hosted staging only** (D-109(a);
+    run 37414019844); its profile there equals the proven local one (JOURNEY-LOG item 43). Production needs its own
+    authorisation.
   - `scripts/recovery/backup.mjs`: one snapshot; the Supabase CLI's five dumps without `--role`; conditions 1-9 of
     A5; the extension baseline (D-108).
   - `scripts/recovery/restore-bundle.mjs`: the secondary logical path, with exact rights; `--verify-only` checks a copy

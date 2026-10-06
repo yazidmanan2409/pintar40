@@ -167,7 +167,7 @@
 | J8.4 | Implement the certificate as designed (the frozen refinement) | D-076; D-078(d); D-080 | EC |
 | J8.5 | Support a certificate template and revocation; numbers never collide | ADM-18 | P1 |
 | J8.6 | Verify anonymously: a valid token shows the status first, then only the bounded facts. A random token gets the private not-found; eligible-but-not-issued exposes nothing; nothing leaks | PUB-03 to PUB-06 | P0 / P1 |
-| J8.7 | Establish the production card pepper and signing key, with verified offline copies, before the first production card or certificate. Keys are versioned | D-066; REL-09 | REL |
+| J8.7 | Establish the production card pepper and signing key, with verified offline copies, before the first production card or certificate. Keys are versioned. **Superseded in part (6 Oct): no offline plaintext copy; the dual-recipient encrypted escrow (R1 and R2) is the recovery path (D-107 D8, D-109(c))** | D-066; REL-09; D-107 | REL |
 | J8.8 | Provide a profile-photo capability on the student's profile. The photo appears only on the profile: never on the PINTAR class card or the certificate. Certificate issuance never requests or consumes it, and a student's choice of image never alters the identity or evidence meaning of a card or certificate | D-085 (T4); D-086 (G1) | EC |
 
 ## J9. Educator as learner (a bounded 4.0 capability, D-069(j))
