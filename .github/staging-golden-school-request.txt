@@ -7,4 +7,5 @@
 # run 004, 5 Oct: again, after run 37286615445 (the walk pressed on while the wizard was still saving the password; it now waits)
 # 6 Oct: Sekolah Demo PINTAR (found-school.yml run 37431278133), the demo school for Dr Gladys's walkthrough on 7 Oct (owner's direction)
 # run 2, 6 Oct: the request again, its commit without [skip ci] (that marker skips this push-triggered walk)
-slug: sekolah-demo-pintar
+# 6 Oct, closure batch 0 (D-118): Sekolah Uji Penutupan B0 (found-school.yml run 37462555196, GS-00 green inside it); G4 now asserts D-054(b)'s activation order
+slug: sekolah-uji-b0
