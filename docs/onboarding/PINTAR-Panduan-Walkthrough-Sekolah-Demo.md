@@ -1,51 +1,40 @@
-# PINTAR 4.0 · Walkthrough di staging: Sekolah Demo PINTAR
+# PINTAR 4.0 · Walkthrough di staging
 
-**Alamat uji:** https://staging.pintarselalu.com. Ini salinan uji PINTAR, bukan PINTAR yang dipakai sekolah. Semua orang dan
-nilai di Sekolah Demo PINTAR adalah data buatan. Silakan mencoba apa saja; tidak ada yang bisa rusak.
+**Alamat:** https://staging.pintarselalu.com. Ini salinan uji PINTAR. Semua orang dan nilai di dalamnya adalah data buatan,
+jadi silakan mencoba apa saja: tidak ada yang bisa rusak.
 
-**Sekolah Anda:** «Sekolah Demo PINTAR», tahun ajaran 2026/2027. Anda masuk sebagai **Admin sekolah**. Sekolah ini sudah
-dijalankan dari awal sampai akhir pada 6 Oktober:
-- struktur: «Kelas Tinggi» → «Kelas 5» → «Kelas 5A»;
-- staf uji: «Guru SEKOLAH-DEMO-PINTAR» (Kelas 5A), «Kepala Bagian SEKOLAH-DEMO-PINTAR» (Kelas Tinggi), «Dekan
-  SEKOLAH-DEMO-PINTAR» (sekolah), dan admin sekolah uji;
-- lima murid uji di Kelas 5A (Utama, Bunga, Citra, Dimas, Eka), masing-masing dengan kartu kelas;
-- batas ketuntasan sekolah: 70%;
-- satu bab terbit: «Matematika Kelas 5 · Bab 1: Bilangan Cacah sampai 100.000» (5 pelajaran, 31 soal), disusun oleh admin,
-  ditinjau dan dikunci oleh kepala bagian, lalu ditugaskan guru ke Kelas 5A sampai 5 November;
-- kelima murid sudah mengerjakan Pemetaan Awal dan Uji Penguasaan: Utama, Bunga, dan Dimas mencapai 70%, Citra dan Eka belum.
-  Hasil, laporan, dan sertifikat untuk tiga murid yang tuntas sudah ada.
+**Yang diuji adalah PINTAR, bukan Anda.** Kami ingin melihat apakah PINTAR bisa dipahami dan dipakai tanpa penjelasan dari
+tim. Bila sesuatu membingungkan, itu temuan yang berharga, bukan kesalahan Anda.
 
-Tahap uji ini: pelajaran teks dan soal pilihan ganda. Video, audio, dan presentasi belum termasuk.
+**Peran Anda:** Admin sekolah di «Sekolah Demo PINTAR». Sekolah ini sudah dipakai: sudah ada kelas, staf, murid, dan satu
+bab Matematika Kelas 5 yang sudah dikerjakan murid-muridnya.
 
-## 1. Masuk pertama kali (sekali saja)
+**Akun Anda:** Yazid sudah mendaftarkan alamat surel Anda. Surel dari PINTAR untuk uji ini dikirim atas nama «PINTAR
+Staging»; bila tidak muncul, periksa juga folder Spam atau Promosi.
 
-1. Buka alamat uji, lalu pilih **«Aktifkan akun»**.
-2. Ketik alamat surel Anda, lalu **«Kirim kode»**. Kode 6 angka datang dari **PINTAR Staging** (periksa juga folder Spam
-   atau Promosi). Kode berlaku 10 menit.
-3. Ikuti langkahnya: nama pengguna, PIN 4 angka, password (minimal 8 karakter; password yang terlalu umum ditolak), lalu
-   periksa nama Anda.
-4. Bila ditanya **«Komputer siapa ini?»** di komputer Anda sendiri, pilih **«Komputer pribadi saya»**.
+## Yang dicoba
 
-Sesudah itu: **«Masuk»** dengan nama pengguna atau surel dan password. Lupa password: **«Lupa password?»**.
+Urutan ini hanya saran.
 
-## 2. Yang bisa dicoba
+1. Masuk ke PINTAR untuk pertama kali dengan alamat surel Anda.
+2. Kenali sekolah Anda: bagaimana sekolah ini tersusun, siapa saja orangnya, dan apa peran mereka.
+3. Cari tahu bagaimana hasil belajar Kelas 5A pada bab Matematika itu.
+4. Lihat bab itu: apa isinya, dan bagaimana bab itu sampai ke murid.
+5. Tambahkan seorang murid baru dengan nama buatan ke Kelas 5A, lalu buat murid itu bisa masuk ke PINTAR.
+6. Lihat PINTAR dari sisi murid itu: masuk sebagai dia, dan kerjakan apa yang PINTAR minta darinya.
+7. Utama, murid Kelas 5A, kehilangan kartu kelasnya. Bantu dia supaya bisa masuk lagi, lalu lihat apa yang Utama lihat.
+8. Orang tua Utama ingin memastikan sertifikat Utama asli. Bagaimana mereka bisa memeriksanya?
+9. Apa pun yang menurut Anda perlu dicoba sebagai pemilik produk.
 
-| Di mana | Coba ini |
-|---|---|
-| **Konfigurasi** | Lihat sekolah, Struktur sekolah (Bagian, Tingkat, Kelas), orang dan perannya, Batas ketuntasan, laporan masalah, dan catatan audit. |
-| **Konfigurasi → Laporan** | Ringkasan sekolah dan ringkasan Kelas 5A dari hasil kelima murid, termasuk sertifikat yang terbit. |
-| **Pendataan** | Tambah murid uji dengan menempel daftar nama buatan (misalnya «Siswa Uji 1»), di tempat «Kelas Tinggi · Kelas 5 · Kelas 5A · 2026/2027». |
-| **Aktivasi** | Buat kartu kelas untuk murid baru. Di «Kartu hilang atau rusak», terbitkan kartu baru untuk seorang murid. |
-| **Studio** | Lihat bab yang terbit, antrean tinjauan, bank soal, dan tata letak sertifikat («Awalan nomor»). |
-| **Sisi murid** | Di Aktivasi → «Kartu hilang atau rusak», terbitkan kartu baru untuk **Utama** (alasan: hilang). Kartu baru menampilkan nomor 10 angka dan PIN 6 angka **sekali saja**: catat dulu. Lalu, di jendela browser lain (jendela samaran), pilih **«Gunakan kartu kelas»**, ketik nomor dan PIN-nya: Anda melihat PINTAR seperti Utama melihatnya, dengan hasilnya dan sertifikatnya. Untuk mencoba dari awal (Pemetaan Awal, pelajaran, Uji Penguasaan), tambahkan murid baru di Pendataan, buat kartunya di Aktivasi, lalu masuk dengan kartu itu. |
-| **Sertifikat** | Dari sertifikat Utama, buka tautan verifikasinya. Siapa pun bisa memeriksanya tanpa masuk. |
+Untuk sisi murid, pakai jendela browser lain (jendela samaran), supaya Anda tetap masuk sebagai admin di jendela pertama.
 
-Kerjakan seperti biasa Anda bekerja. Bila sesuatu membingungkan, itu juga temuan yang berharga.
+## Selama mencoba
 
-## 3. Mencatat temuan
+- Bila Yazid menemani, ucapkan apa yang Anda pikirkan sambil mencoba: apa yang Anda cari, apa yang membuat ragu, apa yang
+  terasa jelas.
+- Bila mencoba sendiri, catat dengan kata-kata Anda sendiri: apa yang Anda coba, apa yang terjadi, dan apa yang Anda
+  pikirkan saat itu. Tidak perlu rapi. Bila Anda mengharapkan sesuatu yang lain, tulis juga.
+- Bila muncul pesan kesalahan, ambil tangkapan layar, tanpa PIN atau nomor kartu.
+- Bila Anda benar-benar tidak bisa melanjutkan, tanyakan kepada Yazid, dan catat di mana itu terjadi.
 
-Untuk setiap hal yang janggal: alamat halaman (dari bilah alamat), apa yang Anda lakukan, apa yang Anda harapkan, apa yang
-terjadi, dan pesan di layar persis seperti tertulis (bila ada **Kode rujukan**, salin kodenya). Tangkapan layar membantu,
-tanpa PIN atau nomor kartu. Kirimkan ke Yazid.
-
-Terima kasih.
+Kirimkan catatan dan tangkapan layar Anda kepada Yazid. Terima kasih.
