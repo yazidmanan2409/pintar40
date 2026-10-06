@@ -7,4 +7,5 @@
 # 5 Oct: again after run 37289554356 (13 PASS; U1 opened the lesson by a link the reading map shows only while one is unread; «Keluar» waited for a front page that never goes quiet)
 # 5 Oct: again after run 37291018301 (12 PASS, GS-20 walked; R2's code held by the six-an-hour limit per address); timed so R2 falls inside it
 # 6 Oct: Sekolah Demo PINTAR (D-116, Dr Gladys walks it on 7 Oct) after run 37433910433 (GS-12 to GS-16 green, 8 PASS)
-slug: sekolah-demo-pintar
+# 6 Oct, closure batch 0: Sekolah Uji Penutupan B0 after run 37465147297 (M0 to M7 green, GS-16 by clicking); adds U2 (staff shared), the J2.13 notice, GS-22
+slug: sekolah-uji-b0
