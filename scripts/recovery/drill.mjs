@@ -5,8 +5,8 @@
 //                                 without one is incomplete and is never taken), downloaded with C5, its SHA-256 equal to
 //                                 the record's and to the checksum S3 stored; prints the record's facts
 //   check-production              production's newest complete bundle: its checksum as above, its retention lock, and its
-//                                 recipients exactly DRILL_PRODUCTION_RECIPIENTS (R1 and R2; R1 alone until custodian B
-//                                 exists), read from the ciphertext's packets. Never decrypted (D5)
+//                                 recipients exactly DRILL_PRODUCTION_RECIPIENTS (R1 and R2, never one alone: D-109(c)),
+//                                 read from the ciphertext's packets. Never decrypted (D5)
 //   possession <R1|R2> <out-dir>  the quarterly key-possession check: a random 20-letter phrase encrypted to one recovery
 //                                 key (armored, to give the custodian) and the phrase's SHA-256 (to compare the answer);
 //                                 the phrase itself is never printed
@@ -66,7 +66,7 @@ export async function checkProduction() {
     if (f.head.lockMode !== "GOVERNANCE" || !f.head.retainUntil) problems.push(`${f.key} carries no GOVERNANCE retention`);
     const home = mkdtempSync(join(tmpdir(), "drill-keys-"));
     try {
-      // exactly the recipients production's backups are made for (R1 and R2; R1 alone until custodian B exists)
+      // exactly the recipients production's backups are made for (R1 and R2; D-109(c))
       const r = recipientsFor("production", process.env.DRILL_PRODUCTION_RECIPIENTS || "R1 R2");
       if (r.problems.length) throw new Error(r.problems.join("; "));
       const expected = r.list.map((n) => keyInfo(join(keysDir(), `${n}.asc`), home).subkeys);

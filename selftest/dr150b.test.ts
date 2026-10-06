@@ -18,7 +18,8 @@
  *  DR-S09  encryption with public keys only (scripts/recovery/backup.mjs): a bundle sealed for production goes to R1 and
  *          R2 exactly (checked from its packets, without decrypting); each of their private keys opens it, R3's and the
  *          job's own public-only keyring do not; production may never name R3, staging must, R1 is always required; a
- *          key file holding a private key, a weak key and a ciphertext with a missing or an extra recipient are refused
+ *          key file holding a private key, a weak key and a ciphertext with a missing or an extra recipient are refused.
+ *          RESTATED FOR D-109(c): production to R1 alone (one custodian's key) is refused; R1 AND R2
  *  DR-S14  A5, fail closed, executed: `backup.mjs run` as pintar_backup against CI's database and Storage and a stand-in
  *          for AWS S3. Clean, it uploads each copy (daily, and monthly on the 1st) with its SHA-256 checksum and its
  *          Object Lock retention (35 days, 366 days), each success record after its bundle; the bundle opens with R3's
@@ -26,14 +27,19 @@
  *          output and no file. Each planted failure is red with no success record uploaded: a table missing from the
  *          data dump; a Storage object that is not there; one whose size differs from its metadata; a staging bundle
  *          not going to R3; a production bundle going to R3; a checksum S3 rejects; an extension pintar_backup itself
- *          added through supautils (D-108); a production backup with no approved extension baseline
+ *          added through supautils (D-108); a production backup with no approved extension baseline. RESTATED FOR
+ *          D-109: a production bundle going to R1 alone is red too; the success record carries the bundle's share of
+ *          the 5 GiB one upload may carry; from 80 % the run warns, above 5 GiB it is refused before any upload; a
+ *          production backup is refused before it reads anything until R1 and R2 are held by two separate custodians
+ *          who have each proven possession and decryption (docs/recovery/custody.json; the repository's says not yet)
  *  DR-S10  escrow and recovery of the durable secrets (scripts/recovery/escrow.mjs) against stand-ins for Vercel and S3:
  *          escrow uploads each secret, encrypted to R1 and R2 only, with its checksum and a legal hold, only when its
  *          fingerprint equals the record (a mismatch or a missing record escrows nothing); mint escrows FIRST and writes to
  *          Vercel only after (a refused upload writes nothing); recover writes back only the recorded value, only where
  *          Vercel holds none (a different value in Vercel, or an escrow holding another value, writes nothing); no value
  *          is ever printed; the AWS template keeps Object Lock and versioning on, gives the escrow prefix no lifecycle
- *          rule, the writer only puts and the reader only reads
+ *          rule, the writer only puts and the reader only reads. RESTATED FOR D-109(b)(c): an escrow or a mint to R1
+ *          alone, or before both custodians proved possession, uploads nothing and writes nothing to Vercel
  *  DR-S11  the wiring (D-108(c)(1)-(4)): the six WP-B workflows run from main only, their schedules (the 03:00 WIB backup,
  *          the monthly drill, the quarterly possession check) do nothing until the owner switches them on, and each runs
  *          in its own environment; every credential of the inventory (C2-C5, C8, a custodian's key) appears in exactly the
@@ -42,7 +48,17 @@
  *          Executed: the drill takes the newest bundle WITH its success record (condition 10) and refuses one whose bytes
  *          differ from its record; credential.mjs sets C2 as a SCRAM verifier (pintar_backup then signs in, read-only by
  *          default) and revokes it at once (sign-in refused); the possession check's message opens only with its own
- *          custodian's key, to the phrase whose SHA-256 it printed
+ *          custodian's key, to the phrase whose SHA-256 it printed. RESTATED FOR D-109: production's backup, escrow and
+ *          drill name R1 R2 fixed, never a variable; a size warning raises its own backup-size issue from both jobs
+ *  DR-S16  staging's backup path, read only (D-109(a); scripts/recovery/path-check.mjs and staging-backup-path.yml):
+ *          the workflow runs by hand from main only, reads with the credentials staging's apply already holds and
+ *          writes nothing; the pooler endpoint is taken only where Supabase's own configuration and staging's apply
+ *          agree (a disagreement, two hosts, another project's user, the wrong port or an unreadable configuration
+ *          stop it, and the owner is asked: never guessed), and the backup workflow's value is checked against it;
+ *          off this machine every connection is verify-full against the committed CA; executed on CI's database, the
+ *          backup's own exported snapshot is imported by another session (the same view) and dumped from by pg_dump;
+ *          pintar_backup's profile there equals docs/recovery/pintar-backup-profile.expected, and a right planted for
+ *          it (rolled back) is a difference
  *  DR-S08  exact rights: acl.sql (backup.mjs acl) executed on CI's database in a transaction rolled back, after the drift
  *          the 5 Oct logical restore produced (every table, sequence and function given to anon and authenticated, CREATE
  *          on public given to anon) and a right taken away: every PINTAR object's rights for anon, authenticated,
@@ -511,7 +527,9 @@ export const dr150bTests: SelfTest[] = [
       c.expect(/may never open a production bundle/.test(rf("production", "R1 R2 R3")), "a production bundle may go to R3");
       c.expect(/must also go to R3/.test(rf("staging", "R1 R2")), "a staging bundle may leave out R3, the drill's key");
       c.expect(/R1, custodian A's recovery key, is not among/.test(rf("production", "R2")), "a bundle may leave out R1");
-      c.expect(rf("production", "R1 R2") === "" && rf("staging", "R1 R2 R3") === "" && rf("production", "R1") === "", "a permitted recipient set is refused");
+      // RESTATED FOR D-109(c): production R1 alone was permitted (until custodian B exists); it is now refused, R1 AND R2
+      c.expect(/must go to both R1 and R2/.test(rf("production", "R1")), "a production bundle may go to R1 alone, one custodian's key (D-109(c))");
+      c.expect(rf("production", "R1 R2") === "" && rf("staging", "R1 R2 R3") === "" && rf("staging", "R1 R3") === "", "a permitted recipient set is refused");
       // a missing and an extra recipient
       c.expect(/not encrypted to R3/.test(b.checkRecipients(out, [sub("R1"), sub("R2"), sub("R3")], ["R1", "R2", "R3"]).problems.join(" ")), "a missing recipient is not noticed");
       c.expect(/unexpected key/.test(b.checkRecipients(out, [sub("R1")], ["R1"]).problems.join(" ")), "an extra recipient is not noticed");
@@ -526,7 +544,7 @@ export const dr150bTests: SelfTest[] = [
       let e2 = ""; try { await b.seal(isi, join(dir, "w.gpg"), weak.pub, ["R1", "R2"]); } catch (e) { e2 = (e as Error).message; }
       c.expect(/too weak/.test(e2), `a 2048-bit RSA key was accepted: ${e2 || "sealed"}`);
       return c.verdict("a production bundle goes to R1 and R2 exactly, read from its packets; their private keys open it, R3's and the job's " +
-        "public-only keyring do not; production never names R3, staging always does, R1 is required; a private key file, a weak key and a " +
+        "public-only keyring do not; production never names R3 and never R1 alone, staging always names R3, R1 is required; a private key file, a weak key and a " +
         "missing or extra recipient are refused");
     },
   },
@@ -591,6 +609,9 @@ export const dr150bTests: SelfTest[] = [
         c.expect(rec?.target === "staging" && rec?.bundle?.recipients?.join(" ") === "R1 R2 R3" && rec?.database?.tables > 100 && rec?.storage?.objects >= 3
           && /^[0-9a-f]{64}$/.test(rec?.database?.extensions?.fingerprint ?? "") && rec?.bundle?.sha256 === createHash("sha256").update(a.objects.get(daily)?.body ?? "").digest("hex"),
           `the success record: ${JSON.stringify(rec).slice(0, 400)}`);
+        // D-109(d): the record says how near the bundle is to the 5 GiB one upload may carry
+        c.expect(typeof rec?.bundle?.limit_percent === "number" && rec.bundle.limit_percent < 1 && rec?.bundle?.size_warning === false && !/::warning::/.test(a.text),
+          `the success record does not carry the bundle's share of the 5 GiB limit: ${JSON.stringify(rec?.bundle ?? {}).slice(0, 200)}`);
         // the bundle opens with the drill's key, matches its manifest and holds every planted object with its hash
         if (daily) {
           writeFileSync(join(dir, "daily.gpg"), a.objects.get(daily)!.body);
@@ -638,6 +659,9 @@ export const dr150bTests: SelfTest[] = [
         // recipients
         await merah("a staging bundle not going to R3", /must also go to R3/, { BACKUP_RECIPIENTS: "R1 R2" });
         await merah("a production bundle going to R3", /may never open a production bundle/, { BACKUP_TARGET: "production", BACKUP_RECIPIENTS: "R1 R2 R3" });
+        // D-109(c): never one custodian's key alone
+        const m5 = await merah("a production bundle going to R1 alone", /must go to both R1 and R2/, { BACKUP_TARGET: "production", BACKUP_RECIPIENTS: "R1" });
+        c.expect(m5.order.length === 0, "something was uploaded for a production bundle going to R1 alone");
         // a checksum S3 rejects
         const m6 = await merah("a checksum S3 rejects", /was refused: BadDigest/, {}, /\.gpg$/);
         c.expect(m6.order.length === 0, "something was uploaded around a rejected checksum");
@@ -646,10 +670,35 @@ export const dr150bTests: SelfTest[] = [
         c.expect(tambah.ok, `pintar_backup could not add an extension through supautils this time: ${tambah.err}`);
         await merah("an extension pintar_backup added", /extension pg_trgm .* not in the approved baseline/);
         psql(pg, "drop extension if exists pg_trgm", { stopOnError: false });
-        // a production backup with no approved baseline
+        // D-109(c): no production backup until two separate custodians have each proven possession and decryption
+        const custody = (r1: object | null, r2: object | null) => {
+          const f = join(dir, `custody-${randomBytes(3).toString("hex")}.json`);
+          writeFileSync(f, JSON.stringify({ R1: r1, R2: r2 }));
+          return f;
+        };
+        const proven = { at: "2026-11-01", run: "https://github.com/x/y/actions/runs/1" };
+        const PROD = { BACKUP_TARGET: "production", BACKUP_RECIPIENTS: "R1 R2" };
+        const m7 = await merah("a production backup with the repository's custody record (R2 not yet held)", /R2 has no custodian recorded/, PROD);
+        await merah("a production backup before custodian B proved possession", /R2's custodian \(B\) has not yet proven possession/,
+          { ...PROD, KEY_CUSTODY: custody({ custodian: "A", possession_proven: proven }, { custodian: "B", possession_proven: null }) });
+        await merah("a production backup with R1 and R2 held by one custodian", /held by the same custodian/,
+          { ...PROD, KEY_CUSTODY: custody({ custodian: "A", possession_proven: proven }, { custodian: "A", possession_proven: proven }) });
+        c.expect(m7.order.length === 0 && !/pg_dump|COPY/.test(m7.text), "a production backup refused for its custody read or uploaded something first");
+        // a production backup with no approved baseline (its custody proven)
         await merah("a production backup with no approved extension baseline", /no approved extension baseline is recorded for production/,
-          { BACKUP_TARGET: "production", BACKUP_RECIPIENTS: "R1 R2" });
+          { ...PROD, KEY_CUSTODY: custody({ custodian: "A", possession_proven: proven }, { custodian: "B", possession_proven: proven }) });
         c.expect(!outputs.join("\n").includes(kata), "the password appears in the backup's output");
+        // D-109(d): the 5 GiB single-upload limit, refused above it (before any upload: run() checks before upload()) and
+        // warned of from 80 % (the workflow turns the warning into the size issue, DR-S11)
+        const sc = ((await backupModul(repoRoot)) as unknown as { sizeCheck?: (n: number) => { verdict: string } }).sizeCheck;
+        const GiB = 1024 ** 3;
+        const v = (n: number) => (sc ? sc(n).verdict : "missing");
+        c.expect(v(1) === "OK" && v(Math.floor(0.8 * 5 * GiB) - 1) === "OK" && v(Math.ceil(0.8 * 5 * GiB)) === "WARN" && v(5 * GiB) === "WARN" && v(5 * GiB + 1) === "REFUSE",
+          `the size check: 1 B ${v(1)}, just under 80 % ${v(Math.floor(0.8 * 5 * GiB) - 1)}, 80 % ${v(Math.ceil(0.8 * 5 * GiB))}, 5 GiB ${v(5 * GiB)}, 5 GiB + 1 ${v(5 * GiB + 1)}`);
+        const src = readFileSync(join(repoRoot, BACKUP), "utf8");
+        const body = src.slice(src.indexOf("export async function run("));
+        c.expect(body.indexOf("sizeCheck(") > 0 && body.indexOf("sizeCheck(") < body.indexOf("await upload(") && /verdict === "REFUSE"\) throw/.test(body),
+          "run() does not refuse an oversized bundle before uploading it");
       } finally {
         psql(pg, "alter role pintar_backup password null; select pg_terminate_backend(pid) from pg_stat_activity where usename = 'pintar_backup'; " +
           "drop extension if exists pg_trgm;", { stopOnError: false });
@@ -660,8 +709,94 @@ export const dr150bTests: SelfTest[] = [
       }
       return c.verdict("a clean run uploads the daily and monthly copies with their checksums and locks, each success record after its bundle; " +
         "the bundle opens with the drill's key, matches its manifest and holds every Storage object as stored, and never the password; a missing " +
-        "table, a missing or changed Storage object, wrong recipients, a rejected checksum, an extension added through supautils and a production " +
-        "backup without a baseline are each red with no success record");
+        "table, a missing or changed Storage object, wrong recipients (production to R1 alone among them), a rejected checksum, an extension added " +
+        "through supautils, a production backup before two separate custodians proved possession and one without a baseline are each red with no " +
+        "success record; the record carries the bundle's share of the 5 GiB limit, warned of from 80 % and refused above it before any upload");
+    },
+  },
+  {
+    id: "DR-S16",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const PC = join(repoRoot, "scripts/recovery/path-check.mjs");
+      if (!c.expect(existsSync(PC), "scripts/recovery/path-check.mjs is missing: nothing checks staging's backup path before a backup")) return c.verdict("");
+      type Pooler = { host?: string; problems: string[]; workflow: string[] };
+      const m = (await import(pathToFileURL(PC).href)) as {
+        choosePooler: (api: object[], h: string, p: string, u: string, ref: string, exp?: string) => Pooler;
+        adminEnv: (h?: string) => Record<string, string>; profileDiff: (a: string, e: string) => object[];
+        snapshot: (h: string) => Promise<{ view: string; migrations: number; files: { file: string; bytes: number }[]; problems: string[] }>;
+        profile: (h: string) => { diff: object[]; harness: boolean; problems: string[] };
+      };
+      // 1. the workflow: by hand, main only, read only, the apply's own credentials
+      const wf = (() => { try { return readFileSync(join(repoRoot, ".github/workflows/staging-backup-path.yml"), "utf8").split("\n").filter((l) => !/^\s*#/.test(l)).join("\n"); } catch { return ""; } })();
+      c.expect(/on:\s*\n\s+workflow_dispatch:\s*\n\s*\n?permissions:/.test(wf) && /^ {4}if: github\.ref == 'refs\/heads\/main'$/m.test(wf) && /contents: read/.test(wf) && !/write/.test(wf.replace(/backup-offsite/g, "")),
+        "staging-backup-path.yml is not dispatch-only, main-only and read-only");
+      const secrets = [...new Set([...wf.matchAll(/secrets\.([A-Z_]+)/g)].map((x) => x[1]))].sort();
+      c.expect(JSON.stringify(secrets) === '["STAGING_SUPABASE_ACCESS_TOKEN","STAGING_SUPABASE_DB_URL"]', `the path check holds ${secrets.join(", ")}`);
+      c.expect(["pooler", "tls", "snapshot", "profile"].every((x) => wf.includes(`path-check.mjs ${x}`)), "the path check leaves out a step");
+      // 2. the pooler: only where both sources agree
+      const ref = "keijhmdtsgrfvnvocfvk", H = "aws-9-ap-southeast-1.pooler.supabase.com";
+      const e = (host: string, port: number, mode: string, type = "PRIMARY") => ({ db_host: host, db_port: port, pool_mode: mode, db_user: `postgres.${ref}`, database_type: type });
+      const ok = m.choosePooler([e(H, 6543, "transaction")], H, "5432", `postgres.${ref}`, ref, H);
+      c.expect(ok.host === H && ok.problems.length === 0 && ok.workflow.length === 0, `the agreeing sources are not taken: ${JSON.stringify(ok)}`);
+      const cases: [string, Pooler, RegExp][] = [
+        ["the apply elsewhere", m.choosePooler([e(H, 5432, "session")], "aws-0-ap-southeast-1.pooler.supabase.com", "5432", `postgres.${ref}`, ref, H), /connects to aws-0/],
+        ["two hosts", m.choosePooler([e(H, 5432, "session"), e("aws-0-ap-southeast-1.pooler.supabase.com", 6543, "transaction")], H, "5432", `postgres.${ref}`, ref, H), /2 pooler host/],
+        ["no pooler", m.choosePooler([], H, "5432", `postgres.${ref}`, ref, H), /0 pooler host/],
+        ["the transaction port", m.choosePooler([e(H, 6543, "transaction")], H, "6543", `postgres.${ref}`, ref, H), /port 6543, not the session pooler's 5432/],
+        ["another project's user", m.choosePooler([e(H, 6543, "transaction")], H, "5432", "postgres.trtlvibiybwixfumjrrx", ref, H), /not postgres\.keijhmdtsgrfvnvocfvk/],
+        ["a read replica's pooler only", m.choosePooler([e(H, 6543, "transaction", "READ_REPLICA")], H, "5432", `postgres.${ref}`, ref, H), /0 pooler host/],
+      ];
+      for (const [n, r, re] of cases) c.expect(!r.host && re.test(r.problems.join("; ")), `${n}: ${JSON.stringify(r)}`);
+      const wrongWf = m.choosePooler([e(H, 6543, "transaction")], H, "5432", `postgres.${ref}`, ref, "aws-0-ap-southeast-1.pooler.supabase.com");
+      c.expect(wrongWf.host === H && /backup workflow names aws-0/.test(wrongWf.workflow.join()), `the backup workflow's own value is not checked: ${JSON.stringify(wrongWf)}`);
+      // an unreadable configuration: the run stops and the owner is asked
+      const api = createServer((q, a) => { a.writeHead(q.url?.endsWith("/config/database/pooler") ? 403 : 404); a.end("{}"); });
+      await new Promise<void>((r) => api.listen(0, "127.0.0.1", () => r()));
+      try {
+        const r = await new Promise<{ code: number | null; text: string }>((done) => {
+          const p = spawn("node", [PC, "pooler"], { env: { PATH: process.env.PATH ?? "", NODE_ENV: "production", MGMT_API: `http://127.0.0.1:${(api.address() as AddressInfo).port}`,
+            SUPABASE_PROJECT_REF: ref, SUPABASE_ACCESS_TOKEN: "standin", ADMIN_DB_URL: `postgresql://postgres.${ref}:pw@${H}:5432/postgres` } });
+          let text = ""; p.stdout.on("data", (b) => (text += b)); p.stderr.on("data", (b) => (text += b)); p.on("close", (code) => done({ code, text }));
+        });
+        c.expect(r.code !== 0 && /HTTP 403.*owner gives the dashboard's value/.test(r.text) && !/RESOLVED/.test(r.text) && !r.text.includes(":pw@"),
+          `an unreadable pooler configuration: exit ${r.code}; ${r.text.trim().slice(0, 200)}`);
+      } finally { await new Promise((r) => api.close(r)); }
+      // 3. verify-full off this machine, against the committed CA
+      const savedAdmin = process.env.ADMIN_DB_URL;
+      process.env.ADMIN_DB_URL = process.env.SUPABASE_DB_URL;
+      const far = m.adminEnv(H);
+      c.expect(far.PGSSLMODE === "verify-full" && /docs\/recovery\/supabase-root-2021-ca\.crt$/.test(far.PGSSLROOTCERT) && m.adminEnv("127.0.0.1").PGSSLMODE === "disable",
+        `a hosted connection is not verify-full against the committed CA: ${far.PGSSLMODE} ${far.PGSSLROOTCERT}`);
+      // 4. executed on CI's database: the backup's own snapshot, imported and dumped from
+      const pg = postgres();
+      const bin = pgBin(pg);
+      const savedBin = process.env.PINTAR_PG_BIN;
+      if (bin.dir) process.env.PINTAR_PG_BIN = bin.dir;
+      try {
+        const host = new URL(process.env.SUPABASE_DB_URL!).hostname;
+        const sn = await m.snapshot(host);
+        c.expect(sn.problems.length === 0 && /^\d+:\d+:/.test(sn.view) && sn.migrations > 150 && sn.files.length === 2 && sn.files.every((f) => f.bytes > 1000),
+          `the shared snapshot: ${JSON.stringify(sn).slice(0, 300)}`);
+        // 5. the profile: equal to the proven one, and a planted right is a difference
+        const pr = m.profile(host);
+        c.expect(pr.diff.length === 0, `pintar_backup's profile on CI's database differs from the proven one: ${JSON.stringify(pr.diff)}`);
+        const expected = readFileSync(join(repoRoot, "docs/recovery/pintar-backup-profile.expected"), "utf8");
+        const sql = readFileSync(join(repoRoot, "scripts/recovery/backup-profile.sql"), "utf8");
+        const planted = psql(pg, `begin;\ngrant insert on public.persons to pintar_backup;\ngrant create on schema public to pintar_backup;\n${sql}\nrollback;\n`);
+        const d = m.profileDiff(planted.out, expected) as { expected: string; actual: string }[];
+        c.expect(planted.ok && d.length >= 3 && d.some((x) => /^writes_to\|public\.persons$/.test(x.actual)) && d.some((x) => /^creates_in_schema\|public$/.test(x.actual))
+          && d.some((x) => /^named_in_a_grant\|[1-9]/.test(x.actual)), `a right planted for pintar_backup is not a difference: ${JSON.stringify(d)}`);
+        c.expect(psql(pg, "select has_table_privilege('pintar_backup', 'public.persons', 'INSERT')").out.trim() === "f", "the planted right outlived its rollback");
+      } finally {
+        if (savedBin === undefined) delete process.env.PINTAR_PG_BIN; else process.env.PINTAR_PG_BIN = savedBin;
+        if (savedAdmin === undefined) delete process.env.ADMIN_DB_URL; else process.env.ADMIN_DB_URL = savedAdmin;
+      }
+      return c.verdict("the path check runs by hand from main only and read only with the apply's own credentials; the pooler is taken only where " +
+        "Supabase's configuration and staging's apply agree, otherwise it stops and asks, and the backup workflow's value is checked against it; " +
+        "hosted connections are verify-full against the committed CA; the backup's own snapshot is imported by another session and dumped from; " +
+        "pintar_backup's profile equals the proven one, and a planted right is a difference");
     },
   },
   {
@@ -796,6 +931,9 @@ rollback;
       };
       const fa = ds.fingerprint("CARD_PEPPER", A), fb = ds.fingerprint("CERT_SECRET_KEY_V1", B);
       const outputs: string[] = [];
+      const custody = join(dir, "custody.json");
+      const proven = { at: "2026-11-01", run: "https://github.com/x/y/actions/runs/1" };
+      writeFileSync(custody, JSON.stringify({ R1: { custodian: "A", possession_proven: proven }, R2: { custodian: "B", possession_proven: proven } }));
       const jalan = async (args: string[], o: { vercel: Record<string, string>; registry: string; refuse?: RegExp; preload?: Map<string, { body: Buffer; headers: Record<string, string> }>; extra?: Record<string, string> }) => {
         const events: string[] = [];
         const v = await standInVercel(o.vercel, events);
@@ -805,7 +943,7 @@ rollback;
             const p = spawn("node", [ESCROW, ...args], { env: { PATH: process.env.PATH ?? "", NODE_ENV: "production", VERCEL_TOKEN: "vercel-standin-token",
               PRODUCTION_VERCEL_PROJECT_NAME: "pintar-standin", VERCEL_API: v.url, REGISTRY: o.registry, RECIPIENTS_DIR: k.pub,
               ESCROW_S3_ENDPOINT: s3.url, ESCROW_S3_REGION: "ap-southeast-1", ESCROW_S3_BUCKET: "pintar-backup-test", ESCROW_S3_KEY_ID: "AKIASTANDINESCROW",
-              ESCROW_S3_SECRET: "standin", ESCROW_S3_PATH_STYLE: "1", ...(o.extra ?? {}) } });
+              ESCROW_S3_SECRET: "standin", ESCROW_S3_PATH_STYLE: "1", KEY_CUSTODY: custody, ...(o.extra ?? {}) } });
             let text = ""; p.stdout.on("data", (b) => (text += b)); p.stderr.on("data", (b) => (text += b));
             p.on("close", (code) => ok({ code, text }));
           });
@@ -843,6 +981,16 @@ rollback;
       }
       const t2 = await jalan(["mint", verdict], { vercel: {}, registry: reg(null, null), refuse: /escrow/ });
       c.expect(t2.code !== 0 && t2.writes.length === 0, `a mint whose escrow is refused wrote to Vercel: ${t2.writes.join(", ")}`);
+      // D-109(b)(c): the escrow is never one custodian's key alone; with R1 alone, a mint escrows nothing and writes nothing
+      const t3 = await jalan(["mint", verdict], { vercel: {}, registry: reg(null, null), extra: { ESCROW_RECIPIENTS: "R1" } });
+      c.expect(t3.code !== 0 && t3.writes.length === 0 && t3.objects.size === 0 && /must go to both R1 and R2/.test(t3.text),
+        `a mint escrowing to R1 alone: exit ${t3.code}; uploaded ${t3.objects.size}; wrote ${t3.writes.join(", ")}`);
+      const e3 = await jalan(["escrow"], { vercel: { CARD_PEPPER: A, CERT_SECRET_KEY_V1: B }, registry: reg(fa, fb), extra: { ESCROW_RECIPIENTS: "R1" } });
+      c.expect(e3.code !== 0 && e3.objects.size === 0 && /must go to both R1 and R2/.test(e3.text), `an escrow to R1 alone: exit ${e3.code}; uploaded ${e3.objects.size}`);
+      // D-109(c): nor before both custodians have proven possession (the repository's own record: not yet)
+      const t4 = await jalan(["mint", verdict], { vercel: {}, registry: reg(null, null), extra: { KEY_CUSTODY: join(repoRoot, "docs/recovery/custody.json") } });
+      c.expect(t4.code !== 0 && t4.writes.length === 0 && t4.objects.size === 0 && /production is not yet encrypted to anyone/.test(t4.text),
+        `a mint before both custodians proved possession: exit ${t4.code}; uploaded ${t4.objects.size}; wrote ${t4.writes.join(", ")}`);
       // 6-8. recover
       const pre = new Map([[kA, e.objects.get(kA)!], [kB, e.objects.get(kB)!]]);
       const r = await jalan(["recover", "CARD_PEPPER"], { vercel: { CERT_SECRET_KEY_V1: B }, registry: reg(fa, fb), preload: pre, extra: { RECOVERY_GNUPGHOME: k.homes.R1 } });
@@ -867,7 +1015,7 @@ rollback;
       c.expect(acts("ReaderUser").length > 0 && acts("ReaderUser").every((a: string) => /^s3:(Get|List)/.test(a)), `the reader may ${acts("ReaderUser").join(", ")}`);
       c.expect(JSON.stringify(tpl.Resources?.BackupBucketPolicy ?? {}).includes('"aws:SecureTransport":"false"'), "the bucket is not TLS-only");
       return c.verdict("escrow puts each secret, to R1 and R2 only, with its checksum and a legal hold, only on a fingerprint match; mint escrows " +
-        "first and writes to Vercel after, and writes nothing when the escrow is refused; recover writes back only the recorded value where Vercel " +
+        "first and writes to Vercel after, and writes nothing when the escrow is refused, would go to R1 alone or precedes the custodians' proofs; recover writes back only the recorded value where Vercel " +
         "holds none; no value is printed; the template keeps Object Lock and versioning, no lifecycle rule on the escrow, a put-only writer and a " +
         "read-only reader");
     },
@@ -923,6 +1071,16 @@ rollback;
       c.expect(!!watchTitle && b.includes(`ISSUE_TITLE: "${watchTitle}"`) && /if: failure\(\)[\s\S]*\/issues/.test(b.slice(0, b.indexOf("  staging:"))),
         "a failed production backup does not raise the production watch's one issue");
       c.expect(!/--decrypt/.test(kode("restore-drill").slice(kode("restore-drill").indexOf("  production:"))), "the drill decrypts a production bundle on a runner (D-107 D5)");
+      // D-109(c): production's recipients are fixed at R1 and R2, never a variable that could say R1 alone
+      const prod = b.slice(0, b.indexOf("  staging:"));
+      c.expect(/BACKUP_RECIPIENTS: R1 R2\b/.test(prod) && /ESCROW_RECIPIENTS: R1 R2\b/.test(kode("escrow-durable-secrets")) && /DRILL_PRODUCTION_RECIPIENTS: R1 R2\b/.test(kode("restore-drill"))
+        && !files.some((f) => /PINTAR_BACKUP_RECIPIENTS_PRODUCTION|PINTAR_ESCROW_RECIPIENTS/.test(kode(f))),
+        "production's backup, escrow or drill takes its recipients from somewhere other than the fixed R1 R2 (D-109(c))");
+      // D-109(d): a bundle at 80 % of the 5 GiB limit raises the backup-size issue, from either job, even if the run then fails
+      const sizeTitle = /SIZE_ISSUE_TITLE: "([^"]+)"/.exec(b)?.[1] ?? "";
+      const sizeSteps = b.match(/- name: [^\n]*backup-size issue[^\n]*\n\s+if: always\(\) && steps\.backup\.outputs\.size_warning != ''[\s\S]*?SIZE_ISSUE_TITLE[\s\S]*?\/issues/g) ?? [];
+      c.expect(/5 GiB/.test(sizeTitle) && sizeTitle !== watchTitle && (b.match(/^ {8}id: backup$/gm) ?? []).length === 2 && sizeSteps.length === 2,
+        `the size warning does not raise its own issue from both jobs: title "${sizeTitle}", ${sizeSteps.length} step(s)`);
 
       // executed: condition 10
       const dm = (await import(pathToFileURL(join(repoRoot, "scripts/recovery/drill.mjs")).href)) as { latestComplete: (k: string[], t: string) => { chosen: string | null; incomplete: string[] } };

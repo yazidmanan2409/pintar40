@@ -46,6 +46,8 @@
 //   BACKUP_RECIPIENTS    the recovery keys, e.g. "R1 R2" (production may never name R3; staging must name R3)
 //   RECIPIENTS_DIR       where R1.asc, R2.asc, R3.asc are (default docs/recovery/keys)
 //   EXTENSION_BASELINE   the approved extensions (default docs/recovery/extension-baseline.json), read for BACKUP_TARGET
+//   KEY_CUSTODY          who holds R1 and R2 and when each proved possession (default docs/recovery/custody.json);
+//                        production only (D-109(c))
 //   BACKUP_S3_ENDPOINT BACKUP_S3_REGION BACKUP_S3_BUCKET BACKUP_S3_KEY_ID BACKUP_S3_SECRET [BACKUP_S3_PATH_STYLE]  C4
 //   RELEASE_SHA GITHUB_RUN_ID BACKUP_NOW (an ISO time; tests only)
 import { spawn, spawnSync } from "node:child_process";
@@ -132,7 +134,7 @@ function transform(line, seds) {
 }
 
 /** Run one dump, line by line through its filters, into <dir>/<file>. Never passes the password on a command line. */
-async function runDump(plan, dir, snapshot) {
+export async function runDump(plan, dir, snapshot) {
   const bin = process.env.PINTAR_PG_BIN ? join(process.env.PINTAR_PG_BIN, plan.tool) : plan.tool;
   const args = [...plan.args, ...(plan.snapshot && snapshot ? [`--snapshot=${snapshot}`] : [])];
   const p = spawn(bin, args, { env: process.env, stdio: ["ignore", "pipe", "pipe"] });
@@ -158,7 +160,7 @@ async function runDump(plan, dir, snapshot) {
 }
 
 // ─── psql, with or without the snapshot
-function psqlRun(sql, { snapshot, json = false } = {}) {
+export function psqlRun(sql, { snapshot, json = false } = {}) {
   const wrapped = snapshot
     ? `begin isolation level repeatable read read only;\nset transaction snapshot '${snapshot}';\n${sql}\ncommit;\n`
     : sql;
@@ -175,18 +177,19 @@ export async function exportSnapshot() {
   p.stderr.on("data", (b) => (out += b));
   // this session's own limit: the dumps it serves may outlast the role's 15-minute default
   p.stdin.write("set idle_in_transaction_session_timeout = '6h';\nbegin isolation level repeatable read read only;\n" +
-    "select 'SNAPSHOT ' || pg_export_snapshot() || ' ' || to_char(now() at time zone 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"');\n");
-  const [, id, at] = await new Promise((ok, no) => {
+    "select 'SNAPSHOT ' || pg_export_snapshot() || ' ' || to_char(now() at time zone 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') || ' ' || pg_current_snapshot();\n");
+  const [, id, at, xids] = await new Promise((ok, no) => {
     const t0 = Date.now();
     const look = () => {
-      const m = /^SNAPSHOT (\S+) (\S+)$/m.exec(out);
+      const m = /^SNAPSHOT (\S+) (\S+) (\S+)$/m.exec(out);
       if (m) return ok(m);
       if (Date.now() - t0 > 30000 || p.exitCode !== null) return no(new Error(`no snapshot could be exported: ${out.trim().slice(0, 200)}`));
       setTimeout(look, 50);
     };
     look();
   });
-  return { id, at, release: () => new Promise((ok) => { if (p.exitCode !== null) return ok(); p.on("close", () => ok()); p.stdin.end("commit;\n"); }) };
+  // xids: the exporting transaction's own view (xmin:xmax:in-progress); a session that imported it sees the same
+  return { id, at, xids, release: () => new Promise((ok) => { if (p.exitCode !== null) return ok(); p.on("close", () => ok()); p.stdin.end("commit;\n"); }) };
 }
 
 /** The tables, counts, sequences, Storage objects and catalog facts a complete bundle must hold, read in the snapshot. */
@@ -489,8 +492,25 @@ export function recipientsFor(target, names) {
   for (const n of list) if (!/^R[123]$/.test(n)) problems.push(`${n} is not a recovery key (R1, R2, R3)`);
   if (!list.includes("R1")) problems.push("R1, custodian A's recovery key, is not among the recipients");
   if (target === "production" && list.includes("R3")) problems.push("R3, the staging drill key held in GitHub, may never open a production bundle");
+  // D-109(c): never one custodian's key alone for production: R1 AND R2, held by separate custodians
+  if (target === "production" && !list.includes("R2")) problems.push("a production bundle must go to both R1 and R2 (D-109(c)): R2, custodian B's key, is missing");
   if (target === "staging" && !list.includes("R3")) problems.push("a staging bundle must also go to R3, or the monthly drill cannot open it");
   return { list, problems };
+}
+
+/** D-109(c): before anything of production is encrypted to R1 and R2, they are held by two separate custodians and each
+ *  custodian has proven possession and decryption (the possession check, answered). The record names roles, no person. */
+export function custodyCheck(file = process.env.KEY_CUSTODY || join(ROOT, "docs/recovery/custody.json")) {
+  let c;
+  try { c = JSON.parse(readFileSync(file, "utf8")); } catch (e) { return [`the key custody record cannot be read (${e.code ?? e.message})`]; }
+  const problems = [];
+  for (const n of ["R1", "R2"]) {
+    const k = c?.[n];
+    if (!k?.custodian) problems.push(`${n} has no custodian recorded`);
+    else if (!k.possession_proven?.at || !k.possession_proven?.run) problems.push(`${n}'s custodian (${k.custodian}) has not yet proven possession and decryption`);
+  }
+  if (c?.R1?.custodian && c.R1.custodian === c?.R2?.custodian) problems.push("R1 and R2 are held by the same custodian");
+  return problems.length ? [`production is not yet encrypted to anyone (D-109(c)): ${problems.join("; ")}`] : [];
 }
 /** A key file's usable encryption subkeys (gpg --show-keys), refusing an expired, revoked or weak one. */
 export function keyInfo(file, home) {
@@ -624,6 +644,17 @@ export async function seal(dir, out, keysDir, names) {
   return { recipients: e.recipients, size: statSync(out).size, sha256: await fileSha256(out) };
 }
 
+// D-109(d): one S3 PUT carries at most 5 GiB. A bigger bundle is refused before any upload (fail closed, a known 4.0
+// limit); from 80 % of it the run warns, and the workflow raises the size issue, so the limit is seen coming.
+export const SINGLE_PUT_LIMIT = 5 * 1024 ** 3;
+export const SIZE_WARNING_SHARE = 0.8;
+export function sizeCheck(bytes) {
+  const pct = Math.round((bytes / SINGLE_PUT_LIMIT) * 1000) / 10;
+  if (bytes > SINGLE_PUT_LIMIT) return { verdict: "REFUSE", pct, reason: `the encrypted bundle is ${pct} % of the 5 GiB one upload may carry; nothing was uploaded (D-109(d))` };
+  if (bytes >= SIZE_WARNING_SHARE * SINGLE_PUT_LIMIT) return { verdict: "WARN", pct, reason: `the encrypted bundle is ${pct} % of the 5 GiB one upload may carry (D-109(d)): plan the next step before it is reached` };
+  return { verdict: "OK", pct, reason: `the encrypted bundle is ${pct} % of the 5 GiB one upload may carry` };
+}
+
 /** Where a bundle and its success record go, and until when each is locked (D-107 D4: 35 days daily, 12 months monthly). */
 export function placement(target, now) {
   const day = now.toISOString().slice(0, 10);
@@ -662,6 +693,7 @@ export async function run() {
   const target = process.env.BACKUP_TARGET;
   const rec = recipientsFor(target, process.env.BACKUP_RECIPIENTS);
   if (rec.problems.length) throw new Error(rec.problems.join("; "));
+  if (target === "production") { const cu = custodyCheck(); if (cu.length) throw new Error(cu.join("; ")); }
   const keysDir = process.env.RECIPIENTS_DIR || join(ROOT, "docs/recovery/keys");
   const now = process.env.BACKUP_NOW ? new Date(process.env.BACKUP_NOW) : new Date();
   const work = mkdtempSync(join(process.env.RUNNER_TEMP || tmpdir(), "pintar-backup-"));
@@ -671,11 +703,18 @@ export async function run() {
     const out = join(work, "bundle.tar.gz.gpg");
     const sealed = await seal(dir, out, keysDir, rec.list);
     rmSync(dir, { recursive: true, force: true });
+    const size = sizeCheck(sealed.size);
+    if (size.verdict === "REFUSE") throw new Error(size.reason);
+    if (size.verdict === "WARN") {
+      console.log(`::warning::${size.reason}`);
+      if (process.env.GITHUB_OUTPUT) writeFileSync(process.env.GITHUB_OUTPUT, `size_warning=${size.reason}\n`, { flag: "a" });
+    }
     const record = {
       what: "#150 WP-B: the success record of one PINTAR backup. A bundle without this record is incomplete (A5, condition 9).",
       target, at: now.toISOString(), conditions: "1-9 verified by scripts/recovery/backup.mjs",
       snapshot: meta.snapshot, release_sha: meta.release_sha, run: meta.run, database: meta.database, storage: meta.storage, files: meta.files,
-      bundle: { sha256: sealed.sha256, bytes: sealed.size, recipients: rec.list, recipient_key_ids: sealed.recipients },
+      bundle: { sha256: sealed.sha256, bytes: sealed.size, limit_percent: size.pct, size_warning: size.verdict === "WARN",
+        recipients: rec.list, recipient_key_ids: sealed.recipients },
     };
     const keys = await upload(out, record, target, now);
     return { keys, record };

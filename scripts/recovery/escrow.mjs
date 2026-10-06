@@ -19,7 +19,7 @@
 // Environment:
 //   VERCEL_TOKEN PRODUCTION_VERCEL_PROJECT_NAME [VERCEL_API: tests only]
 //   REGISTRY (default docs/recovery/durable-secrets.json); RECIPIENTS_DIR (default docs/recovery/keys)
-//   ESCROW_RECIPIENTS (default "R1 R2")
+//   ESCROW_RECIPIENTS (default "R1 R2"; never R1 alone, D-109(c)); KEY_CUSTODY (default docs/recovery/custody.json)
 //   ESCROW_S3_ENDPOINT ESCROW_S3_REGION ESCROW_S3_BUCKET ESCROW_S3_KEY_ID ESCROW_S3_SECRET [ESCROW_S3_PATH_STYLE]
 //                (C4, the writer, for escrow and mint; C5, the reader, for recover)
 //   RECOVERY_GNUPGHOME [RECOVERY_PASSPHRASE]    recover only: the custodian's key, imported for this run
@@ -30,7 +30,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { DURABLE, MIN_LENGTH, fingerprint, recordedFrom, vercelState } from "../release/durable-secrets.mjs";
-import { encrypt, recipientsFor } from "./backup.mjs";
+import { custodyCheck, encrypt, recipientsFor } from "./backup.mjs";
 import { s3Client } from "./s3.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -50,6 +50,8 @@ function recorded() {
 function recipients() {
   const r = recipientsFor("production", process.env.ESCROW_RECIPIENTS || "R1 R2");
   if (r.problems.length) throw new Error(r.problems.join("; "));
+  const cu = custodyCheck();    // D-109(c), as for a production bundle
+  if (cu.length) throw new Error(cu.join("; "));
   return r.list;
 }
 
@@ -79,6 +81,7 @@ async function vercelWrite(name, value) {
 
 export async function escrowAll() {
   need(["VERCEL_TOKEN", "PRODUCTION_VERCEL_PROJECT_NAME"]);
+  recipients();
   const rec = recorded();
   const state = await vercelState(process.env.VERCEL_TOKEN, process.env.PRODUCTION_VERCEL_PROJECT_NAME);
   const problems = [];
@@ -100,6 +103,7 @@ export async function mint(verdictFile) {
   const verdicts = Object.fromEntries(readFileSync(verdictFile, "utf8").trim().split("\n").map((l) => l.split(" ")));
   const todo = DURABLE.filter((n) => verdicts[n] === "MINT");
   for (const n of DURABLE) if (!["MINT", "KEEP"].includes(verdicts[n])) throw new Error(`${n}: the guard gave no verdict; nothing is minted`);
+  if (todo.length) recipients();   // nothing is minted that cannot be escrowed first (D-109(b))
   const client = bucket();
   const done = [];
   for (const n of todo) {

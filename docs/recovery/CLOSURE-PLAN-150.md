@@ -352,12 +352,28 @@ local stand-ins; nothing hosted, nothing bought, no real credential (owner's bou
      job. DR-S02 restated.
   6. **The drill restores into an empty Supabase stack on the runner**, the same stand-in for a new project that
      DR-D02 uses on CI.
-- **Still to confirm at the first hosted run (each a stop point if it fails):**
-  - the exported snapshot works through Supavisor's session pooler;
+- **Still to confirm on hosted staging (D-109(a); each a stop point if it fails):** checked read only, before any
+  backup credential exists, by `staging-backup-path.yml` (`scripts/recovery/path-check.mjs`, DR-S16):
+  - staging's session pooler host, from Supabase's own pooler configuration and staging's apply agreeing, never
+    guessed (otherwise the owner gives the dashboard's value), and `backup-offsite.yml`'s value checked against it;
   - the pooler's certificate chains to the Supabase Root 2021 CA (`verify-full`; this container cannot reach port 5432);
-  - staging's pooler host is the same as production's (`aws-0-ap-southeast-1`).
+  - the exported snapshot is shared through Supavisor's session pooler (another session and `pg_dump --snapshot`);
+  - `pintar_backup`'s profile there equals the proven local one, line for line
+    (`docs/recovery/pintar-backup-profile.expected`), and the extensions equal staging's baseline.
+  Still unproven until O6: a sign-in as `pintar_backup` itself through the pooler (C2 does not exist yet).
+- **D-109, built in:**
+  - **(c) production goes to R1 and R2, never one custodian's key alone**, and not at all until two separate
+    custodians have each proven possession and decryption (`docs/recovery/custody.json`, roles only). The backup, the
+    escrow and the mint refuse before they read anything; production's recipients are fixed in the workflows, no
+    longer a variable. Staging keeps R1 and R3 (R2 added when it exists).
+  - **(b) escrow first:** a durable secret is minted only where it can be escrowed first; a mint that cannot escrow
+    (recipients, custody, upload) writes nothing to Vercel.
+  - **(d) the 5 GiB limit is watched:** each success record carries the bundle's share of it; from 80 % the run warns
+    and raises the backup-size issue (its own, apart from the production watch); above 5 GiB it is refused before
+    any upload.
 - **Limits, named:**
-  - a single upload is at most 5 GB (no multipart yet): a scale item, refused clearly, never truncated;
+  - a single upload is at most 5 GiB (no multipart, accepted for 4.0 by D-109(d)): refused clearly, never truncated,
+    and warned of from 80 %;
   - large objects are not carried, and the run fails closed if any exist;
   - the role's timeouts are defaults that a session may lengthen; only the connection limit is enforced by the
     server.
@@ -369,6 +385,7 @@ local stand-ins; nothing hosted, nothing bought, no real credential (owner's bou
 | DR-S08 | `acl.sql` on CI's database, rolled back: after the 5 Oct drift (everything to `anon` and `authenticated`, CREATE on `public` to `anon`) and a right taken away, every PINTAR object's rights for `anon`, `authenticated`, `service_role` and PUBLIC, columns included, are exactly as before; readiness as before |
 | DR-S09 | encryption with public keys only: a production bundle goes to exactly R1 and R2 (read from its packets); their private keys open it, R3's and the job's public keyring do not; production never R3, staging always R3, R1 always; a private-key file, a weak key, a missing or extra recipient refused |
 | DR-S10 | escrow, mint and recover against stand-ins for Vercel and S3: legal hold, checksum, R1 and R2 only, only on a fingerprint match; mint escrows before Vercel; recover writes only the recorded value where Vercel holds none; no value printed; the template's lock, versioning, lifecycle (none on escrow), put-only writer, read-only reader, TLS |
+| DR-S16 | staging's backup path, read only (D-109(a)): the path check is dispatch-only, `main`-only, read-only, with the apply's own credentials; the pooler only where Supabase's configuration and the apply agree (six disagreements and an unreadable configuration stop it and ask the owner); hosted connections `verify-full`; executed: the backup's own snapshot imported and dumped from; `pintar_backup`'s profile equals the proven one, a planted right is a difference |
 | DR-S11 | the wiring (D-108(c)(1)-(4)): `main` only, schedules off until switched on, one environment per job, each credential in exactly its workflows and C2 nowhere in `src/`, `verify-full` against the committed CA, a failed production backup raises the watch's issue; executed: condition 10, a bundle with altered bytes refused, C2 set as a SCRAM verifier and revoked at once, the possession check |
 | DR-S14 | **A5, executed** against CI's database and Storage and a stand-in S3: the clean run uploads daily and monthly copies with checksum and lock, each success record last, the bundle opening with R3 and holding every Storage object; red with no success record for a missing table, a missing or changed Storage object, wrong recipients, a rejected checksum, an extension `pintar_backup` itself added (D-108), and a production backup without a baseline |
 | DR-S15 | `pintar_backup` (A7, D-108): it reads every table, `auth` and `storage` included, and its dumps equal `postgres`'s; with its read-only default switched **off** it is still refused every ordinary INSERT, UPDATE, DELETE, TRUNCATE, COPY FROM, sequence advance, CREATE, ALTER, DROP, COMMENT, GRANT, role grant, CREATE ROLE and SET ROLE; the catalog shows it owns nothing, can execute no PINTAR or SECURITY DEFINER function, and holds no attribute beyond LOGIN and BYPASSRLS; the `supautils` extension residual is shown to be the platform's (the extension is created by `supabase_admin`, not by the role) and is left to controls 5-8 |

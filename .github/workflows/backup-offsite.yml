@@ -7,6 +7,11 @@
 # green only when all ten A5 conditions hold, the extension set among them (D-108(c)(5)-(7)); otherwise it is red, no
 # success record is written, and a failed PRODUCTION backup raises the production watch's one issue.
 #
+# D-109: production is encrypted to R1 AND R2, never one custodian's key alone, and not at all until both custodians
+# have proven possession (docs/recovery/custody.json; backup.mjs refuses before it reads anything). One upload carries
+# at most 5 GiB (a known 4.0 limit, refused above it); from 80 % of it either job raises the backup-size issue, so the
+# limit is seen well before it is reached.
+#
 # OFF BY DEFAULT. The schedule does nothing until the owner sets the repository variable PINTAR_OFFSITE_BACKUP = on,
 # after O3-O7 (docs/recovery/OWNER-INSTRUCTIONS-150.md). A dispatch runs it once. C2, C3 and C4 live only in the
 # `backup` environment (main only); the application never holds them (D-108(c)(1)). The database is reached through the
@@ -43,6 +48,7 @@ env:
   SUPABASE_REGION: ap-southeast-1
   BACKUP_S3_REGION: ap-southeast-1
   ISSUE_TITLE: "Production watch: PINTAR production is failing a check"
+  SIZE_ISSUE_TITLE: "Backup size: a PINTAR backup is nearing the 5 GiB single-upload limit"
 
 jobs:
   production:
@@ -69,9 +75,10 @@ jobs:
           sudo apt-get install -y -qq postgresql-client-17 > /dev/null
           /usr/lib/postgresql/17/bin/pg_dump --version
       - name: The backup (A5's ten conditions, or red with no success record)
+        id: backup
         env:
           BACKUP_TARGET: production
-          BACKUP_RECIPIENTS: ${{ vars.PINTAR_BACKUP_RECIPIENTS_PRODUCTION }}
+          BACKUP_RECIPIENTS: R1 R2   # D-109(c): both custodians' keys, never one alone
           PGHOST: ${{ env.PRODUCTION_POOLER_HOST }}
           PGPORT: "5432"
           PGDATABASE: postgres
@@ -89,6 +96,21 @@ jobs:
           BACKUP_S3_SECRET: ${{ secrets.AWS_BACKUP_WRITER_SECRET }}
           RELEASE_SHA: ${{ github.sha }}
         run: node scripts/recovery/backup.mjs run
+      - name: A bundle at 80 % of the 5 GiB limit or more raises the backup-size issue (D-109(d))
+        if: always() && steps.backup.outputs.size_warning != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WHICH: production
+          WARNING: ${{ steps.backup.outputs.size_warning }}
+        run: |
+          set -euo pipefail
+          api() { curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$@"; }
+          repo="https://api.github.com/repos/${{ github.repository }}"
+          run="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          open=$(api "$repo/issues?state=open&per_page=100" | jq -r --arg t "$SIZE_ISSUE_TITLE" '[.[] | select(.title == $t and (.pull_request | not))][0].number // empty')
+          msg="The $WHICH backup at $(date -u +%FT%TZ): $WARNING. Above 5 GiB a backup is refused (fail closed). Run: $run"
+          if [ -n "$open" ]; then api -X POST "$repo/issues/$open/comments" -d "$(jq -n --arg b "$msg" '{body: $b}')" > /dev/null; echo "commented on #$open"
+          else api -X POST "$repo/issues" -d "$(jq -n --arg t "$SIZE_ISSUE_TITLE" --arg b "$msg" '{title: $t, body: $b}')" | jq -r '"opened #\(.number)"'; fi
       - name: A failed production backup raises the production watch's one issue (D-108(c)(7))
         if: failure()
         env:
@@ -127,6 +149,7 @@ jobs:
           sudo apt-get install -y -qq postgresql-client-17 > /dev/null
           /usr/lib/postgresql/17/bin/pg_dump --version
       - name: The backup (A5's ten conditions, or red with no success record)
+        id: backup
         env:
           BACKUP_TARGET: staging
           BACKUP_RECIPIENTS: ${{ vars.PINTAR_BACKUP_RECIPIENTS_STAGING }}
@@ -147,3 +170,18 @@ jobs:
           BACKUP_S3_SECRET: ${{ secrets.AWS_BACKUP_WRITER_SECRET }}
           RELEASE_SHA: ${{ github.sha }}
         run: node scripts/recovery/backup.mjs run
+      - name: A bundle at 80 % of the 5 GiB limit or more raises the backup-size issue (D-109(d))
+        if: always() && steps.backup.outputs.size_warning != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WHICH: staging
+          WARNING: ${{ steps.backup.outputs.size_warning }}
+        run: |
+          set -euo pipefail
+          api() { curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$@"; }
+          repo="https://api.github.com/repos/${{ github.repository }}"
+          run="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          open=$(api "$repo/issues?state=open&per_page=100" | jq -r --arg t "$SIZE_ISSUE_TITLE" '[.[] | select(.title == $t and (.pull_request | not))][0].number // empty')
+          msg="The $WHICH backup at $(date -u +%FT%TZ): $WARNING. Above 5 GiB a backup is refused (fail closed). Run: $run"
+          if [ -n "$open" ]; then api -X POST "$repo/issues/$open/comments" -d "$(jq -n --arg b "$msg" '{body: $b}')" > /dev/null; echo "commented on #$open"
+          else api -X POST "$repo/issues" -d "$(jq -n --arg t "$SIZE_ISSUE_TITLE" --arg b "$msg" '{title: $t, body: $b}')" | jq -r '"opened #\(.number)"'; fi

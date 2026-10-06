@@ -82,7 +82,14 @@ offers a supported restriction, the coordinator brings it back to you before any
 
 **Do none of these until the coordinator asks for each one, after you have approved it** (D-107(a): the coordinator
 reports before every owner action or external service). They are written down now so they can be reviewed with the code.
-Before any of them, migration 162 (`pintar_backup`) must be authorised for staging, and later for production.
+Migration 162 (`pintar_backup`) is authorised for staging only (D-109(a)); production needs its own authorisation.
+
+**D-109(c): production waits for two custodians.** Production backups and the escrow are encrypted to R1 **and** R2,
+never to one custodian's key alone. Before the first production backup or escrow: R1 and R2 both exist, held by two
+separate approved custodians, and each custodian has proven, on their own, that they hold their key and can decrypt
+with it (the possession check below). Until then the code refuses every production backup and every escrow
+(`docs/recovery/custody.json` says who holds which key, by role only, and when each proved it). Staging goes ahead
+with R1 and R3 meanwhile.
 
 The order: O3 (AWS), O4 (keys), O5 (Supabase Storage keys), O6 (the `pintar_backup` passwords), then the coordinator's
 first backup and drill runs, then O7 (the first escrow).
@@ -116,10 +123,15 @@ first backup and drill runs, then O7 (the first escrow).
    - export the private key as text and put it in environment `staging-recovery-drill`, secret
      `STAGING_DRILL_PRIVATE_KEY`;
    - then delete R3's private key from your computer.
-4. **R2 (custodian B)** is made the same way as R1 when custodian B is named (B6). Until then production bundles and
-   the escrow go to R1 alone: repository variables `PINTAR_BACKUP_RECIPIENTS_PRODUCTION` = `R1` and
-   `PINTAR_ESCROW_RECIPIENTS` = `R1`; `PINTAR_BACKUP_RECIPIENTS_STAGING` = `R1 R3`. When R2 exists, these become
-   `R1 R2`, `R1 R2` and `R1 R2 R3`.
+4. **R2 (custodian B, named under B6)** is made by custodian B, on their own computer, the same way as R1: their own
+   passphrase, their own offline backup of the private key; only the public key comes to the coordinator. You never
+   hold R2's private key, and custodian B never holds R1's.
+5. Repository variable `PINTAR_BACKUP_RECIPIENTS_STAGING` = `R1 R3`, and `R1 R2 R3` once R2 exists. Production's
+   recipients are not a setting: they are fixed at `R1 R2` (D-109(c)).
+6. **Each custodian proves possession, separately.** The coordinator runs **key possession check** for R1 and for R2.
+   Each custodian alone decrypts their own message with their own key and passphrase and sends back only the phrase;
+   the coordinator compares its SHA-256 with the run's. Only when both match does the coordinator record both proofs
+   in `docs/recovery/custody.json`, and only then can production be backed up or escrowed.
 
 ### O5: the Supabase Storage S3 keys (C3; Supabase's, not AWS)
 
@@ -138,7 +150,8 @@ never leaves GitHub.
 ### Then the coordinator, read only where it can be
 
 1. Records production's extension baseline (read only).
-2. Runs one staging backup and one production backup, and shows one planted failure red.
+2. Runs one staging backup, and shows one planted failure red. The first production backup waits for both
+   custodians' proofs (O4 step 6).
 3. Runs the drill.
 4. Runs the possession check.
 
@@ -147,7 +160,9 @@ Each run is reported to you before the next step.
 ### O7: the first escrow
 
 Approve the run of **escrow · the durable secrets** (environment `escrow`). It needs both fingerprints recorded in
-`docs/recovery/durable-secrets.json` first (the next production deploy prints them).
+`docs/recovery/durable-secrets.json` first (the next production deploy prints them), and both custodians' proofs
+(O4 step 6): the escrow, like a production bundle, goes to R1 and R2 together. A durable secret is never minted
+unless it is escrowed first (D-109(b)).
 
 ### Afterwards
 
