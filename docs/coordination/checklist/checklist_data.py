@@ -1364,15 +1364,35 @@ RETIRED_NOTICE = ("RETIRED AS THE READINESS MEASURE, 1 Oct 2026 (D-084). The row
                   "under docs/recovery/EVIDENCE-MODEL.md, summarised in docs/reports/PINTAR-4.0-COMPLETE-STATUS-2026-10-06.md; go-live is "
                   "Phase 8 of docs/recovery/RECOVERY-CHARTER.md.")
 VERDICT_NOW = ("NO-GO. What stands, by kind: media playback (STU-11, ADM-10, X-07) is out of scope for the first testing phases "
-               "(D-050); capacity (CAP-01, CAP-02, CAP-07, CAP-08) waits on Yazid's compute decision and the forwarding key (D-089); "
-               "the release-day rows REL-02, REL-08, REL-09 and REL-13; #150, NOT PASS (D-104(d)); and human acceptance: Dr Gladys "
+               "(D-050); capacity (CAP-01, CAP-02, CAP-07, CAP-08) waits on Yazid's compute decision (D-089) and the forwarding key (D-092(c), BOB-12's "
+               "staging acceptance); the release-day rows REL-02, REL-08, REL-09 and REL-13; #150, NOT PASS (D-104(d)); and human acceptance: Dr Gladys "
                "walks staging on 7 Oct (D-116, D-117), and no journey is HUMAN-ACCEPTED yet. Code work left without a screen: none. "
                "Work that needs a screen (the UI lane, after the walkthrough's findings are reviewed and Daisy's grammar is APPLICATION "
                "READY, D-117(h)): ADM-18's layout on the printed sheet, EDU-10 after a ruling on where the score appears, ADM-08's email "
                "correction, ADM-18's revocation, EDU-11, DEA-04's briefings and CAP-10's paging.")
+CURRENT["CAP-01"] = ("N-T: the load harness exists and ran L1 on staging (perf-l1.yml run 36964437916, D-089); the 1,000-card sign-in burst "
+                     "itself has not been run. Until IP forwarding and the forwarding key are on, every sign-in through PINTAR shares one "
+                     "IP's Auth allowance (D-092(c), BOB-12's staging acceptance, Yazid); compute waits on D-089.")
+_fixed27 = {
+    "B4": "FIXED: made at upload, opened on assignment, answered and finished by five students (staging GS-13, GS-15, GS-16, run 37433910433)",
+    "B5": "FIXED: «Keluar» everywhere, this device only; every session of a full walk ends (staging GS-20 X1, run 37434862707)",
+    "B6": "FIXED: every role reads the same figures, each scope refused where it should be (staging GS-17, run 37434862707)",
+    "M9": "OUT OF SCOPE for the first testing phases (D-050): media playback is not tested",
+    "M5": "FIXED: a place that is not a Kelas or Tingkat is refused with a reason, and staff rows never become students (ADM-07: BOB-10, F10-M01, audit #30 S8)",
+    "M7": "FIXED: every action and route answers with a code; release blockers read in plain words in both languages (U-LOC: BOB-07, BOB-17, DAISY-16)",
+    "Capacity": "OPEN: CAP-01 not yet run; the forwarding key and IP forwarding (D-092(c), BOB-12's staging acceptance) and compute (D-089) are Yazid's",
+    "M1–M15, N2–N15": "MOSTLY CLOSED; the remainder is the board backlog (BOARD.md 'not started', partly stale: N5 and N8 are done), none of it a P0 row",
+}
+FINDINGS[:] = [(f[0], f[1], f[2], _fixed27[f[0]]) if f[0] in _fixed27 else f for f in FINDINGS]
+FINDINGS.append(("Certificate number (6 Oct)",
+                 "The decided printed number is `<PINTAR ID>/<5-digit per-person sequence>` (D-080(2); BOB-48's design note), but PINTAR issues "
+                 "`<the template's prefix, or PINTAR/<SCHOOL>>/<YYYY>/<per-school sequence>` (ADM-18; 20261126100000, 20261128100000 extended that "
+                 "format on 6 Oct without reconciling it with D-080(2)). Whether a student's certificate may show their PINTAR ID is still open (D-076).",
+                 "BOB-48 (not built), after the owner's ruling", "OPEN: an owner decision; nothing changes during the walkthrough freeze (D-117)"))
 CHANGES_V21.append("6 Oct (v2.7): status pinned to the Dr Gladys walkthrough specimen 12b480b (application code = 3a7501b, CI "
                    "37430770665; staging machine-read GREEN, run 37438389611) and to the full Golden School walk of Sekolah Demo PINTAR "
-                   "(GS-01 to GS-21, 41 of 41 PASS). Evidence refreshed on X-09, DEA-05, ADM-18 and REL-08; REL-09 read against D-107 D8 (escrow, not an offline plaintext copy); REL-12 notes Phase 6. No "
+                   "(GS-01 to GS-21, 41 of 41 PASS). Evidence refreshed on X-09, DEA-05, ADM-18 and REL-08; REL-09 read against D-107 D8 (escrow, not an offline plaintext copy); REL-12 notes Phase 6. The findings list (§14) brought up to date "
+                   "(B4–B6, M5, M7, M9, Capacity) and the certificate-number conflict added; CAP-01's stale reason replaced. No row's "
                    "status changed; P0 PASS stays 77 of 84. From 6 Oct evening the application is frozen for the walkthrough (D-117).")
 
 def as_dict():

@@ -2,6 +2,14 @@
 
 > **SUPERSEDED as the operational board, 1 Oct (D-084).** The recovery board is `docs/recovery/RECOVERY-BOARD.md`, and the governing document is `docs/recovery/RECOVERY-CHARTER.md`. This file stays as the historical ticket record: a ticket here is not active work, and none resumes merely because it exists.
 
+> **Reconciliation note, 6 Oct 2026 (statuses below are not edited; this file is the historical record).** These tickets show
+> TODO or HELD below but landed on `main`: BOB-26, BOB-50, BOB-51, DAISY-20, DAISY-39 and DAISY-40 (Gate 3, 4 Oct, D-098;
+> JOURNEY-LOG 22); BOB-27 and DAISY-21 (Gate 4, item 24); BOB-28 and DAISY-22 (Gate 5, item 25); BOB-29 and its screens
+> (Gate 6, item 26). BOB-12 passed its gate on 29 Sep; its staging acceptance waits on IP forwarding and the forwarding key
+> (D-092(c), Yazid). Still open as work: BOB-13, BOB-48 (built only after the owner rules on the certificate number, see
+> the release checklist §14), DAISY-24, DAISY-35, DAISY-36, DAISY-37, and C-04, C-05, C-08, C-11 and C-13. The current
+> picture is `docs/reports/PINTAR-4.0-COMPLETE-STATUS-2026-10-06.md`.
+
 **Sprint 1 goal (D-005):** a school can run one lesson end to end through the app.
 Statuses: TODO → IN PROGRESS → IN REVIEW (at the gate) → MERGED (on `main`) → RELEASED (in production).
 Audit references (B1–B6, M1–M15, N1–N15) point to `docs/audit/PINTAR-4.0-ISSUES-AND-STATUS-2026-09-24.md`.
