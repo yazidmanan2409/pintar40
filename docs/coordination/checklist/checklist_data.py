@@ -1268,8 +1268,9 @@ CURRENT.update({
                "F02-T22)."),
     "ADM-18": ("PARTIAL: numbers never collide since 20261126100000: one preparation at a time per school, a taken number skipped "
                "(N8; ADM18-K01: two prepared at once get two numbers, one session twice gives one certificate); no photo on a "
-               "certificate (D-085 T4). Open: a saved template is not applied at issuance (its prefix is never read and the layout's "
-               "result is unused), and revocation (revoke_certificate) has no screen."),
+               "certificate (D-085 T4); the number carries the prefix the school saved in Studio, the course's over the school's "
+               "(20261128100000, ADM18-K02). Open, both screens: the template's layout on the printed sheet, and revocation "
+               "(revoke_certificate) has no screen."),
     "X-09": ("PASS: the result says «Target tercapai» or «Belum mencapai target» against the school's sealed mark (M3, W4; staging J12); "
              "the certificate state is walked: one issued certificate each above the target, none below, the holder sees hers "
              "(staging GS-18), each verifies «Berlaku» (GS-19), and a single Uji Cepat certifies nothing (BOB50-A01, F19-Q01); audit "
@@ -1310,11 +1311,11 @@ CURRENT.update({
 VERDICT_NOW = ("NO-GO. What stands, by kind: media playback (STU-11, ADM-10, X-07) is out of scope for "
                "the first testing phases (D-050); capacity (CAP-01, CAP-02, CAP-07, CAP-08) waits on Yazid's compute decision and "
                "the forwarding key (D-089); the release-day rows REL-02, REL-08, REL-09 and REL-13; and #150, NOT PASS (D-104(d)). "
-               "Code work left without a screen: ADM-18's template at issuance. Work that needs a screen (the UI lane): EDU-10 after "
+               "Code work left without a screen: none. Work that needs a screen (the UI lane): ADM-18's layout on the printed sheet, EDU-10 after "
                "a ruling on where the score appears, ADM-08's email correction, ADM-18's revocation, EDU-11, DEA-04's briefings and "
                "CAP-10's paging.")
 CHANGES_V21.append("6 Oct (v2.6): every row not PASS re-checked against main 808ae6e. N8 and N5 fixed (20261126100000, "
-                   "20261127100000). PASS: X-09 (P0), ADM-04, DEA-05, SYS-06, STU-12. ADM-18 N-T → PARTIAL; ADM-08, U-RECOVER, "
+                   "20261127100000), and ADM-18's prefix applied (20261128100000). PASS: X-09 (P0), ADM-04, DEA-05, SYS-06, STU-12. ADM-18 N-T → PARTIAL; ADM-08, U-RECOVER, "
                    "EDU-10, REL-08, REL-13 and CAP-09 to PARTIAL; EDU-11 N-T → N-I; SYS-07 PARTIAL → N-T (flags out of scope, "
                    "D-097(c)); DEA-04's stale text corrected. P0 PASS 76 → 77.")
 

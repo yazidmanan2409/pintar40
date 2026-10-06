@@ -6,6 +6,8 @@
  *             on the unique number); one session prepared twice at the same moment gives one certificate (before, the
  *             second failed on one root per session); a learner with a profile photo gets a certificate whose identity
  *             snapshot holds no photo, and whose snapshot hash is the name's alone
+ *  ADM18-K02  ADM-18, certificate_prepare (20261128100000): a certificate's number is headed by the prefix the school saved
+ *             in Studio (save_certificate_template), the course's over the school's, and PINTAR/<school> where none is saved
  *  STU12-K01  N5, hint_reveals_answer_shape (20261127100000): a hint that names an option (a capital letter, a bracketed
  *             letter, or a letter after an option word) is still refused; a hint that names small-letter variables, or
  *             says "a" as an article, is not
@@ -113,6 +115,43 @@ export const rilis40Tests: SelfTest[] = [
       return c.verdict("two learners of one school prepared at the same moment got two different numbers and both were prepared; one session " +
         "prepared twice at the same moment gave one certificate; a learner with a profile photo got a certificate whose snapshot holds no " +
         "photo, its hash the name's alone (D-085 T4)");
+    },
+  },
+  {
+    id: "ADM18-K02",
+    requires: ["db"],
+    run: async () => {
+      const c = new Checks();
+      // a template saved as the school's own admin would save it in Studio (save_certificate_template, CAN_PUBLISH)
+      const simpan = (awalan: string, lingkup: "sekolah" | "mapel") => psql(`
+        do $t$ declare f record; begin
+          perform selftest.as_owner();
+          select * into f from selftest.boot_fixture();
+          perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+          perform public.save_certificate_template(f.inst, ${lingkup === "mapel" ? "f.course" : "null"}, null, 'CLASSIC', ${lit(awalan)});
+          perform selftest.as_owner();
+        end $t$;`);
+      // a fresh finished sitting each time, and the number its certificate is prepared with
+      const nomor = () => {
+        psql("select selftest.purge_certificates()");
+        const s = psql("select selftest.boot_attempt(true)").split("\n").pop()!;
+        return psql(`select canonical_payload->>'certificate_number' from public.certificate_prepare('${s}'::uuid, 1::smallint)`);
+      };
+      let tanpa = "", sekolah = "", mapel = "";
+      try {
+        tanpa = nomor();
+        simpan("SDBOOT", "sekolah");
+        sekolah = nomor();
+        simpan("SDBOOT/MAT", "mapel");
+        mapel = nomor();
+      } finally {
+        psql("delete from public.certificate_templates where institution_id = (select inst from selftest.boot_fixture())");
+        try { psql("select selftest.purge_certificates()"); } catch { /* the F04 suite purges again */ }
+      }
+      c.expect(/^PINTAR\/[A-Z0-9-]+\/\d{4}\/\d{5}$/.test(tanpa), `with no template the number is ${tanpa}, not PINTAR/<school>/<year>/<n>`);
+      c.expect(/^SDBOOT\/\d{4}\/\d{5}$/.test(sekolah), `with the school's prefix SDBOOT the number is ${sekolah}`);
+      c.expect(/^SDBOOT\/MAT\/\d{4}\/\d{5}$/.test(mapel), `with the course's prefix SDBOOT/MAT over the school's the number is ${mapel}`);
+      return c.verdict(`no template: ${tanpa}; the school's prefix: ${sekolah}; the course's, over the school's: ${mapel}`);
     },
   },
   {

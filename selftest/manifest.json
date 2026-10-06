@@ -3269,6 +3269,11 @@
       "proves": "Release checklist ADM-18 (N8) and D-085 T4, certificate_prepare as 20261126100000 leaves it (selftest/rilis40.test.ts), on CI's database with two real psql sessions: two finished sittings of one school whose certificates are prepared at the same moment (the first holding its transaction open) get two different certificate numbers and both are prepared, where before the second failed on the unique number; one sitting prepared twice at the same moment gives one certificate and the same id to both, where before the second failed on one root per session; a learner with a profile photo gets a certificate whose identity snapshot holds no photo path and no photo hash, and whose snapshot hash, in the row and in the signed payload, is the hash of the name alone. The fixture's sittings and certificates are removed after."
     },
     {
+      "id": "ADM18-K02",
+      "runner": "static",
+      "proves": "Release checklist ADM-18, the template half of numbering (selftest/rilis40.test.ts): executes certificate_prepare as migration 20261128100000 leaves it on CI's database: with no certificate template the number is PINTAR/<school>/<year>/<n> as before; after the school's admin saves the school-wide prefix SDBOOT through save_certificate_template (Studio's «Awalan nomor») the number is SDBOOT/<year>/<n>; after a course template SDBOOT/MAT it is SDBOOT/MAT/<year>/<n>, the course's prefix over the school's. Templates and certificates made by the test are removed after."
+    },
+    {
       "id": "STU12-K01",
       "runner": "static",
       "proves": "Release checklist STU-12 (N5): executes hint_reveals_answer_shape as migration 20261127100000 leaves it (selftest/rilis40.test.ts): hints that name an option are still refused (a capital letter after 'jawabannya adalah' or 'the answer is', a bracketed letter, 'bukan A', 'not D', 'selain E', 'A atau C', '(a) atau (b)', 'pilihan a atau b', 'kunci: (b)'); nothing is refused that the old patterns did not refuse, so no stored hint stops saving; ordinary hints are not (small-letter variables in 'nilai a atau b', 'whether c or d is larger', 'a + b = c', 'a = 2b', and the article in 'the answer is a whole number', 'it is not a fraction'); an empty or missing hint is not refused."
