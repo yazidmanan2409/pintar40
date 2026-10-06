@@ -1734,6 +1734,16 @@ jobs:
         if: ${{ !cancelled() && contains(matrix.cases, ' db-wp7-gates ') }}
         id: gatesWp7
         uses: ./.github/actions/local-stack
+      - name: Each planted anonymity defect must turn its own F07 test red
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-wp7-gates ') }}
+        env:
+          DB_URL: ${{ steps.gatesWp7.outputs.db-url }}
+        # The defects themselves live in selftest/plants/, declared once in
+        # selftest/plants/plants.json and run by the same harness a developer
+        # runs against a clone of the golden database. They used to be
+        # heredocs here as well, and the two copies drifted over nothing more
+        # than this file's indentation.
+        run: node scripts/dev/plants.mjs run --gate=db-wp7-gates
       # WP8's gates: the onboarding repair, the standing client-write
       # reachability assertion, and report configuration. Same harness, same
       # declarations, same four things every plant has to prove.
@@ -1972,17 +1982,6 @@ jobs:
         env:
           DB_URL: ${{ steps.gatesBob50.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob50-gates
-
-      - name: Each planted anonymity defect must turn its own F07 test red
-        if: ${{ !cancelled() && contains(matrix.cases, ' db-wp7-gates ') }}
-        env:
-          DB_URL: ${{ steps.gatesWp7.outputs.db-url }}
-        # The defects themselves live in selftest/plants/, declared once in
-        # selftest/plants/plants.json and run by the same harness a developer
-        # runs against a clone of the golden database. They used to be
-        # heredocs here as well, and the two copies drifted over nothing more
-        # than this file's indentation.
-        run: node scripts/dev/plants.mjs run --gate=db-wp7-gates
 
   baseline-parity:
     name: baseline · frozen documents are what they say they are

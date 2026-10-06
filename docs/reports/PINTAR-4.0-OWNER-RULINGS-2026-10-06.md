@@ -7,7 +7,25 @@
 - **Two more only need recording.** QN2: D-082(a) already ruled the leaked-password check on. QN6: practice already differs from the evidence model's text.
 - **So nine need a decision:** Q1's two leftovers, QN1, Q8, QN3, QN4, Q9, Q7, QN5, Q10 and QN7. QN7 is set from the measured cycle (§2), not from the old ~120-minute assumption.
 
-## 1. The table
+## 0. Ruled, 6 Oct (D-120)
+
+| # | Ruling | Register item → bucket |
+|---|---|---|
+| Q1 | Recorded as already decided (D-080(2), (9)) | CR-01, CR-03 → A (BOB-48; DAISY-36) |
+| Q18 | Recorded: your Q16 ruling, verbatim | CR-03, CR-21, CR-56 → A |
+| QN1 | AGREE as recommended | CR-13 → A |
+| Q8 | AGREE: class outcome primary, learner scores a drill-down | CR-27, CR-34 → A |
+| QN3 | AFTER GO-LIVE (frozen P2) | CR-28 → E, outside this gate |
+| QN4 | HIDE FOR 4.0; no producer | CR-37 → A (remove the surface, slice S6) |
+| Q9 | AGREE; CR-50 stays mandatory pre-Gladys | CR-50 → A |
+| Q7 | AGREE | CR-51 → A |
+| QN5 | AGREE | CR-52 → B (a walk of Bank Soal) |
+| Q10 | **HOLD:** the analysis is `PINTAR-4.0-Q10-GRADE-LABELS-2026-10-06.md` | CR-47 → C |
+| QN2 | Recorded | CR-23 → closed (a record) |
+| QN6 | AGREE; the evidence model corrected | CR-63 → closed |
+| QN7 | S4 first; no allowance yet; one measured cycle after S4, then the revised forecast | CR-65 → S4 built (`0a27ec7`), measured in §2A |
+
+## 1. The table (as presented)
 
 | # | Existing canonical evidence | Current behaviour | Consequence | Recommendation | Implementation consequence |
 |---|---|---|---|---|---|

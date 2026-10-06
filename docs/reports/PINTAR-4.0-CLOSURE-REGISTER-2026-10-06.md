@@ -193,6 +193,8 @@ Each batch ends with its report (D-118 §11). Each batch that changes code gets 
 
 ## 3. Owner rulings needed before implementation
 
+**Ruled 6 Oct (D-120):** QN1, Q8, QN4, Q9, Q7, QN5 and QN6 agreed; QN3 after go-live (CR-28 leaves this gate); QN7 S4 first; **Q10 held** for the analysis in `PINTAR-4.0-Q10-GRADE-LABELS-2026-10-06.md`; Q1, Q18 and QN2 recorded as already decided. The buckets that follow are in the rulings document §0.
+
 **The decision table** (canonical evidence → current behaviour → consequence → recommendation → implementation consequence) is `PINTAR-4.0-OWNER-RULINGS-2026-10-06.md`. Checking the evidence showed Q1 and Q18 already decided, and QN2 and QN6 records only, so **nine** need a decision.
 
 | # | Question | Blocks |

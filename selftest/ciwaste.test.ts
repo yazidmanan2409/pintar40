@@ -27,7 +27,9 @@
  *            branch, filters exactly the inert unread documents, and ends in a verdict that fails unless every job succeeded.
  *  CI-W03  S4 (D-091(e), approved 6 Oct): the database red cases share a stack per group without losing a case or its
  *          isolation. The matrix holds exactly the 30 cases there were, each in one group; every plant gate in
- *          selftest/plants/plants.json is one of them; every case has steps and every step's case is in the matrix; a
+ *          selftest/plants/plants.json is one of them; every case has steps and every step's case is in the matrix; each
+ *          case's steps are contiguous, so its plants run on the database its own reset gave it (6 Oct: wp7's plants sat at
+ *          the end of the job and ran after bob26's reset and plants); a
  *          case's steps run whatever an earlier case in its group did (!cancelled()), so one red case never hides another;
  *          db-table-without-rls, which plants a migration, is alone; a shared group holds database cases only. The
  *          local-stack action reuses a stack only when one runs, resets the database on every use, and fails a use whose
@@ -237,6 +239,14 @@ export const ciwasteTests: SelfTest[] = [
       for (const k of stepCases) c.expect(CASES.includes(k), `a step runs for ${k}, which is in no group`);
       c.expect(!/if: matrix\.case\b/.test(redCase) && !/\bif: (?!\$\{\{ !cancelled\(\) && )[^\n]*matrix\.cases/.test(redCase),
         "a red-case step is skipped when an earlier case in its group failed, so one red case can hide another");
+      // each case's steps are contiguous: no other case's stack (and so its reset) comes between a case's stack step and
+      // its plants, so every case's plants run on the database its own reset gave it
+      const order = [...redCase.matchAll(/\n {6}- name:[^\n]*\n {8}if: \$\{\{ !cancelled\(\) && contains\(matrix\.cases, ' ([a-z0-9-]+) '\) \}\}/g)].map((x) => x[1]);
+      for (const k of CASES) {
+        const at = order.flatMap((o, i) => (o === k ? [i] : []));
+        const between = at.length ? order.slice(at[0], at[at.length - 1] + 1).filter((o) => o !== k) : [];
+        c.expect(between.length === 0, `red case ${k}'s steps are split by ${[...new Set(between)].join(", ")}: its plants would run on another case's database`);
+      }
       c.expect(groups.some((g) => g.cases.length === 1 && g.cases[0] === "db-table-without-rls"),
         "db-table-without-rls shares a stack, so its planted migration reaches every later case's reset");
       for (const g of groups.filter((x) => x.cases.length > 1)) {
@@ -260,7 +270,7 @@ export const ciwasteTests: SelfTest[] = [
       }
       c.expect(!/\b(insert|update|delete|create|drop|alter|grant|revoke|truncate)\b/i.test(fp.replace(/--[^\n]*/g, "")), "the fingerprint writes; it must only read");
       return c.verdict(`${CASES.length} red cases in ${groups.length} groups, each once, every plant gate among them; every case has its steps and runs ` +
-        "whatever an earlier case did; the migration-planting case alone; every use of a shared stack resets and is fingerprinted against the job's first fresh database");
+        "whatever an earlier case did, its steps contiguous; the migration-planting case alone; every use of a shared stack resets and is fingerprinted against the job's first fresh database");
     },
   },
 ];
