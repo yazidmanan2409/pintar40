@@ -38,7 +38,9 @@
 #     is off by D-103), and the run records which backup that is, the WAL
 #     archiver's state and the database's facts before the apply (counts,
 #     hashes and names only) as an artifact kept 90 days. If the backups
-#     cannot be read, nothing is applied.
+#     cannot be read, nothing is applied. The list is read with C1 only
+#     (#150 WP-A): PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN, a scoped token that
+#     can read production's backups and nothing else.
 #
 # It applies migrations. It creates no data, no identity and no role, and it
 # changes no grant.
@@ -153,7 +155,7 @@ jobs:
       # against the database; a REFUSE stops the run before any migration.
       - name: Restore point — a completed backup no older than 26 hours, recorded
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN }}
           PGPASSWORD: ${{ secrets.SUPABASE_PROD_DB_PASSWORD }}
         run: |
           set -euo pipefail

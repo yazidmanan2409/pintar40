@@ -5,8 +5,10 @@
 #   1. the sign-in page on the production origin answers 200 and is PINTAR's;
 #   2. Supabase Auth's health endpoint for production answers 200 (with the public anon key);
 #   3. the origin's TLS certificate has at least 14 days left;
-#   4. the latest COMPLETED backup is no older than 26 hours (D-103), when the production token may read the backup
-#      list; while it may not (#150 G1) that is reported, not failed.
+#   4. the latest COMPLETED backup is no older than 26 hours (D-103), read with C1 only (#150 WP-A):
+#      PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN, which can read production's backups and nothing else. C1 exists to read
+#      them, so a refusal means it was revoked or has expired, and is a failure; only its absence, before the owner
+#      creates it, is reported as a note.
 # On a failure it opens one GitHub issue (or comments on the open one); when everything is green again it closes it.
 # GitHub notifies the repository's watchers of that issue: no paid alerting service and no named person is assumed.
 #
@@ -51,7 +53,7 @@ jobs:
       - name: Look at production (GET only)
         id: look
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN }}
         run: |
           # GitHub runs a step under bash -e; a check that exits non-zero must be
           # reported, never end the step (run 37389383812 died at the backups here).
@@ -69,14 +71,13 @@ jobs:
           if [ -n "$end" ]; then days=$(( ( $(date -d "$end" +%s) - $(date +%s) ) / 86400 )); echo "tls: $days days left"
             [ "$days" -ge 14 ] || bad="$bad; the TLS certificate has $days days left"
           else bad="$bad; the TLS certificate could not be read"; fi
-          # 4. the restore point (D-103), when the token may read the backups
+          # 4. the restore point (D-103), with the backups-read token C1; a refusal is a failure (see the header)
           if [ -n "${SUPABASE_ACCESS_TOKEN:-}" ]; then
             node scripts/release/restore-point.mjs check /tmp/backup.json > /tmp/backup.txt 2>&1; rc=$?
-            v=$(jq -r '.verdict // "-"' /tmp/backup.json 2>/dev/null); why=$(jq -r '(.reasons // []) | join("; ")' /tmp/backup.json 2>/dev/null)
+            why=$(jq -r '(.reasons // []) | join("; ")' /tmp/backup.json 2>/dev/null)
             if [ "$rc" = 0 ]; then echo "backups: $why"
-            elif printf '%s' "$why" | grep -qE 'HTTP (401|403)'; then note="the backup list is not readable with the production token (#150 G1)"; echo "backups: $note"
             else why="${why:-the backup check could not run: $(tail -1 /tmp/backup.txt | cut -c1-200)}"; bad="$bad; $why"; echo "backups: $why"; fi
-          else note="no production token: the backups were not asked"; echo "backups: $note"; fi
+          else note="no backups-read token (C1, PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN): the backups were not asked"; echo "backups: $note"; fi
           bad="${bad#; }"
           { echo "bad=$bad"; echo "note=$note"; } >> "$GITHUB_OUTPUT"
           { echo "### Production watch"; echo; echo "- failing: ${bad:-nothing}"; echo "- note: ${note:-none}"; } >> "$GITHUB_STEP_SUMMARY"

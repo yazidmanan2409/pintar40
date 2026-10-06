@@ -5,6 +5,11 @@
 # region and Postgres version; whether point-in-time recovery is on; the daily backups Supabase holds (count, kind,
 # status, earliest and latest); the add-ons selected; and, from Supabase's public API description, the endpoints that
 # restore a backup (so the hosted restore rehearsal, G2, uses the documented one). No key, token or password is printed.
+#
+# #150 WP-A (D-106(a), B3): production is asked with C1 only (PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN, a scoped token
+# that can read production's backups and nothing else), never with the deploy token; a token is never tried on another
+# project. The last step proves C1's isolation (GET only; each probe's answer is discarded unread) and runs G6's check
+# dry, so the evidence that B3 is resolved is a run of this job. It is red unless C1 is isolated and G6 says OK.
 
 name: facts · backups and recovery (read only)
 
@@ -27,7 +32,7 @@ jobs:
     steps:
       - name: Backups, point-in-time recovery and add-ons (GET only)
         env:
-          PROD_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN }}
+          PROD_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN }}
           STAGING_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
         run: |
           set -uo pipefail
@@ -39,13 +44,12 @@ jobs:
           get() { curl -sS -X GET --max-time 30 -w '\n%{http_code}' -H "Authorization: Bearer $1" "https://api.supabase.com/v1$2"; }
           body() { printf '%s' "$1" | sed '$d'; }; code() { printf '%s' "$1" | tail -1; }
           for env in production staging; do
-            if [ "$env" = production ]; then ref=$PRODUCTION_SUPABASE_PROJECT_REF; tok=$PROD_TOKEN; else ref=$STAGING_SUPABASE_PROJECT_REF; tok=$STAGING_TOKEN; fi
-            for try in "$tok" "$PROD_TOKEN"; do
-              r=$(get "$try" "/projects/$ref/database/backups"); [ "$(code "$r")" = 200 ] && break
-            done
-            which=$([ "$try" = "$tok" ] && echo "its own token" || echo "the production token")
+            if [ "$env" = production ]; then ref=$PRODUCTION_SUPABASE_PROJECT_REF; tok=$PROD_TOKEN; which="C1, the backups-read token"
+            else ref=$STAGING_SUPABASE_PROJECT_REF; tok=$STAGING_TOKEN; which="staging's own token"; fi
+            [ -n "$tok" ] || { echo "== $env ($ref): no token, not asked"; continue; }
+            r=$(get "$tok" "/projects/$ref/database/backups")
             echo "== $env ($ref)"
-            p=$(get "$try" "/projects/$ref")
+            p=$(get "$tok" "/projects/$ref")
             echo "project: HTTP $(code "$p")"
             [ "$(code "$p")" = 200 ] && body "$p" | jq -r '"  status \(.status); region \(.region); created \(.created_at); database \(.database.version // "-") (\(.database.postgres_engine // "-"), \(.database.release_channel // "-"))"'
             echo "backups: HTTP $(code "$r") (asked with $which)"
@@ -59,13 +63,10 @@ jobs:
                 (.physical_backup_data // {} | "  physical backup data: \(tostring)")'
               body "$r" | jq -r '.backups | sort_by(.inserted_at) | .[] | "  · \(.inserted_at) \(.status) physical=\(.is_physical_backup)"'
             fi
-            a=$(get "$try" "/projects/$ref/billing/addons")
+            a=$(get "$tok" "/projects/$ref/billing/addons")
             echo "add-ons: HTTP $(code "$a")"
             [ "$(code "$a")" = 200 ] && body "$a" | jq -r '"  selected: " + ((.selected_addons // []) | map("\(.type)=\(.variant.identifier // .variant.id // "-")") | if length > 0 then join(", ") else "none" end)'
           done
-          echo "== the organisation's projects (names, status, region only)"
-          l=$(get "$PROD_TOKEN" "/projects"); echo "projects: HTTP $(code "$l")"
-          [ "$(code "$l")" = 200 ] && body "$l" | jq -r '.[] | "  \(.name) (\(.id)) \(.status) \(.region) created \(.created_at)"'
           exit 0
 
       - name: The documented endpoints that restore a backup (Supabase's public API description)
@@ -87,3 +88,19 @@ jobs:
                           sch = d.get('components', {}).get('schemas', {}).get(name, {})
                           print('    body', name, json.dumps({k: v.get('type', v.get('$ref', '')) for k, v in sch.get('properties', {}).items()}), 'required', sch.get('required', []))
           PY
+
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/release
+
+      - name: C1 reads production's backups and nothing else, and G6 says OK (GET only)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN }}
+          OTHER_SUPABASE_PROJECT_REF: ${{ env.STAGING_SUPABASE_PROJECT_REF }}
+        run: |
+          set +e -uo pipefail
+          node scripts/release/restore-point.mjs isolation "$RUNNER_TEMP/isolation.json"; i=$?
+          node scripts/release/restore-point.mjs check "$RUNNER_TEMP/backup.json"; g=$?
+          { echo "### C1 (#150 WP-A)"; echo; echo '```'; jq -c '{verdict, reasons}' "$RUNNER_TEMP/isolation.json" 2>/dev/null
+            jq -c '{verdict, reasons, age_hours}' "$RUNNER_TEMP/backup.json" 2>/dev/null; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          [ "$i" = 0 ] && [ "$g" = 0 ] && echo "C1 is isolated and G6's restore point is established (nothing was applied: this is the dry check)"

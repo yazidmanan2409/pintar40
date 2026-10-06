@@ -26,23 +26,35 @@
  *          needs permission to read them), when none is completed, when the latest completed one is older, or dated in
  *          the future; end to end against a stand-in for the Management API it writes the record, asks with GET only and
  *          never prints the token
- *  DR-S05  the wiring: the production apply runs the check, from the workflow's own commit, after the state before and
- *          before any migration, records the WAL archiver and the facts before the apply, and keeps the record 90 days;
- *          the restore rehearsal counts readiness FAIL rows by the verdict a line begins with (it counted '| FAIL',
- *          which no line contains, and so read 0 whatever happened)
+ *  DR-S05  the wiring: the production apply runs the check, from the workflow's own commit, with the backups-read
+ *          token C1 (RESTATED FOR #150 WP-A: it was the deploy token), after the state before and before any migration,
+ *          records the WAL archiver and the facts before the apply, and keeps the record 90 days; the restore rehearsal
+ *          counts readiness FAIL rows by the verdict a line begins with (it counted '| FAIL', which no line contains,
+ *          and so read 0 whatever happened)
  *
  * #150 G10 (owner, 6 Oct): A FAILURE OF PRODUCTION IS NOTICED WITHOUT A NEW SERVICE OR A NEW PERSON.
  *
  *  DR-S06  .github/workflows/production-watch.yml: runs only from main, and on its schedule only when the owner turns it
  *          on (PINTAR_PRODUCTION_WATCH = on; skipped, at no cost, until then); looks at production from outside with GET
  *          only (the sign-in page, strictly, without following a redirect; Supabase Auth's health; the TLS certificate's
- *          remaining days; the restore point through restore-point.mjs, where an unreadable backup list is reported and
- *          not failed); opens one issue on a failure, comments on it while it lasts, and closes it when green again;
- *          and its look step EXECUTED as GitHub runs it (bash -e), against a local stand-in for the app, Auth and the
- *          Management API: all well but the backup list refused (403) reports the 403 as a note and fails nothing; a
- *          sign-in page answering 500 and a backup 30 hours old are both named as failures; a fresh backup leaves
- *          nothing to say (the first dispatch, run 37389383812, died at the backup check because bash -e ended the
- *          step on restore-point.mjs's exit before the 403 could be reported)
+ *          remaining days; the restore point through restore-point.mjs with C1); opens one issue on a failure, comments
+ *          on it while it lasts, and closes it when green again; and its look step EXECUTED as GitHub runs it
+ *          (bash -e), against a local stand-in for the app, Auth and the Management API. RESTATED FOR #150 WP-A: C1
+ *          exists to read the backups, so a refused backup list (403) is now named as a failure, and only C1's absence
+ *          (before the owner creates it) is a note; a sign-in page answering 500 and a backup 30 hours old are both
+ *          named as failures; a fresh backup leaves nothing to say (the first dispatch, run 37389383812, died at the
+ *          backup check because bash -e ended the step on restore-point.mjs's exit before the 403 could be reported)
+ *
+ * #150 WP-A (D-106(a), B3): THE TOKEN THAT READS PRODUCTION'S BACKUPS CAN DO NOTHING ELSE.
+ *
+ *  DR-S07  credential isolation: C1 (secrets.PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN) is held by exactly G6's step in
+ *          the production apply, the watch's look step and the facts job, and by nothing in src/; the deploy token is
+ *          held by none of those; restore-point.mjs's isolation command, EXECUTED against a stand-in for the
+ *          Management API with GET only, finds a token that reads the backups and is refused the API keys, the Auth
+ *          configuration, the project's settings, the Edge Function secrets, another project's backups and the
+ *          account's projects and organisations ISOLATED; a token handed the API keys is TOO BROAD, and the keys it was
+ *          handed are never read or printed; a token refused the backups, or a probe answering 500, is UNPROVEN; the
+ *          token is never printed
  *
  * #150 G7 (owner, 6 Oct): THE READINESS CHECK SEES WHAT A RESTORE BREAKS.
  *
@@ -55,7 +67,7 @@
  */
 import { spawn, spawnSync } from "node:child_process";
 import { createHmac } from "node:crypto";
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
@@ -74,6 +86,9 @@ const REHEARSAL = ".github/workflows/restore-rehearsal.yml";
 const WATCH = ".github/workflows/production-watch.yml";
 type Titik = { verdict: "OK" | "REFUSE"; reasons: string[]; backup?: { inserted_at: string }; ageHours?: number };
 type TitikModul = { MAX_AGE_HOURS: number; decide: (status: number, body: unknown, now: number) => Titik };
+type Isolasi = { verdict: "ISOLATED" | "TOO BROAD" | "UNPROVEN"; reasons: string[] };
+type IsolasiModul = { PROBES: { name: string; needs: string }[]; isolation: (backups: number, probes: { name: string; needs: string; status: number }[]) => Isolasi };
+const C1 = "PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN";
 
 // the readiness rows about live content: other suites write content into CI's database, so these are reported, not required
 const ISI = ["every option carries a rationale (live data)", "scoring reproducibility versions recorded on every result",
@@ -421,15 +436,16 @@ export const dr150Tests: SelfTest[] = [
         "the restore-point check does not run after the state before and before any migration");
       const isi = langkah < 0 ? "" : body.slice(langkah, at("name: Apply pending migrations"));
       c.expect(/git fetch --no-tags --depth=1 origin "\$GITHUB_SHA"/.test(isi) && /git show FETCH_HEAD:scripts\/release\/restore-point\.mjs/.test(isi)
-        && /restore-point\.mjs" check /.test(isi) && /SUPABASE_ACCESS_TOKEN: \$\{\{ secrets\.PRODUCTION_SUPABASE_ACCESS_TOKEN \}\}/.test(isi),
-        "the check is not taken from the workflow's own commit, or is not run with production's token");
+        // RESTATED FOR #150 WP-A: the list is read with C1, which can read production's backups and nothing else (was the deploy token)
+        && /restore-point\.mjs" check /.test(isi) && /SUPABASE_ACCESS_TOKEN: \$\{\{ secrets\.PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN \}\}/.test(isi),
+        "the check is not taken from the workflow's own commit, or is not run with the backups-read token C1");
       c.expect(/pg_stat_archiver/.test(isi) && /fakta\.sql/.test(isi) && /default_transaction_read_only=on/.test(isi),
         "the WAL archiver and the facts before the apply are not recorded, or not read only");
       c.expect(/uses: actions\/upload-artifact@v4/.test(isi) && /retention-days: 90/.test(isi) && /if-no-files-found: error/.test(isi),
         "the restore point's record is not kept as an artifact for 90 days");
       const r = readFileSync(join(repoRoot, REHEARSAL), "utf8");
       c.expect(!/grep -c '\| FAIL'/.test(r) && /grep -c '\^FAIL'/.test(r), "the restore rehearsal still counts readiness FAIL rows by a pattern no line contains");
-      return c.verdict("the production apply runs the restore-point check from its own commit, after the state before and before any " +
+      return c.verdict("the production apply runs the restore-point check from its own commit with C1, after the state before and before any " +
         "migration, records the WAL archiver and the facts before the apply read only, and keeps the record 90 days; the rehearsal counts " +
         "readiness FAIL rows by the verdict each line begins with");
     },
@@ -450,8 +466,9 @@ export const dr150Tests: SelfTest[] = [
         "the sign-in page is not asked strictly (a redirect would be followed)");
       c.expect(/\/auth\/v1\/health/.test(look) && /openssl x509 -noout -enddate/.test(look) && /-ge 14/.test(look),
         "Supabase Auth's health or the certificate's remaining days are not checked");
-      c.expect(/node scripts\/release\/restore-point\.mjs check/.test(look) && /HTTP \(401\|403\)/.test(look),
-        "the restore point is not checked through restore-point.mjs, or an unreadable backup list fails the watch");
+      // RESTATED FOR #150 WP-A: a refusal of C1 is a failure; only C1's absence is a note (a 401 or 403 was excused under G1)
+      c.expect(/node scripts\/release\/restore-point\.mjs check/.test(look) && !/HTTP \(401\|403\)/.test(look) && /no backups-read token \(C1/.test(look),
+        "the restore point is not checked through restore-point.mjs, or a refusal of C1 is excused instead of failed");
       c.expect(!/-X (POST|PUT|PATCH|DELETE)/.test(look) && !/SUPABASE_DB|PGPASSWORD|SERVICE_ROLE|VERCEL_TOKEN/.test(body),
         "the look at production writes, or holds a database, service-role or Vercel credential");
       const issue = body.slice(body.indexOf("name: Open, update or close"));
@@ -463,7 +480,7 @@ export const dr150Tests: SelfTest[] = [
       const skrip = jalan.split("\n").map((l) => l.replace(/^ {10}/, "")).join("\n");
       const dir = mkdtempSync(join(tmpdir(), "dr150-watch-"));
       writeFileSync(join(dir, "openssl"), `#!/bin/sh\ncase "$*" in *x509*) echo "notAfter=$(date -u -d '+77 days' '+%b %d %H:%M:%S %Y GMT')";; *) cat > /dev/null;; esac\n`, { mode: 0o755 });
-      const lihat = async (masuk: number, cadangan: number, jam: number) => {
+      const lihat = async (masuk: number, cadangan: number, jam: number, token = true) => {
         const srv = createServer((req, res) => {
           const u = req.url ?? "";
           if (u.startsWith("/masuk")) { res.writeHead(masuk, { "content-type": "text/html" }); res.end("<title>PINTAR</title>"); return; }
@@ -478,12 +495,12 @@ export const dr150Tests: SelfTest[] = [
         });
         await new Promise<void>((ok) => srv.listen(0, "127.0.0.1", () => ok()));
         const base = `http://127.0.0.1:${(srv.address() as AddressInfo).port}`;
-        const out = join(dir, `out-${masuk}-${cadangan}-${jam}`);
+        const out = join(dir, `out-${masuk}-${cadangan}-${jam}-${token}`);
         writeFileSync(out, "");
         try {
           return await new Promise<{ code: number; text: string; bad: string; note: string }>((ok) => {
             const p = spawn("bash", ["-e", "-c", skrip], { cwd: repoRoot, env: { PATH: `${dir}:${process.env.PATH ?? ""}`, NODE_ENV: "production",
-              APP_ORIGIN: base, SUPABASE_URL: base, SUPABASE_ANON_KEY: "anon", SUPABASE_ACCESS_TOKEN: "sbp_standin", SUPABASE_API: base,
+              APP_ORIGIN: base, SUPABASE_URL: base, SUPABASE_ANON_KEY: "anon", SUPABASE_ACCESS_TOKEN: token ? "sbp_standin" : "", SUPABASE_API: base,
               PRODUCTION_SUPABASE_PROJECT_REF: "refstandin", GITHUB_OUTPUT: out, GITHUB_STEP_SUMMARY: join(dir, "summary") } });
             let text = ""; p.stdout.on("data", (b) => (text += b)); p.stderr.on("data", (b) => (text += b));
             p.on("close", (code) => {
@@ -493,18 +510,112 @@ export const dr150Tests: SelfTest[] = [
           });
         } finally { srv.close(); }
       };
+      // RESTATED FOR #150 WP-A: C1 refused (403) is a failure, no longer a note; C1 absent is the note
       const a = await lihat(200, 403, 0);
-      c.expect(a.code === 0 && a.bad === "" && /not readable with the production token/.test(a.note) && /tls: 7[67] days left/.test(a.text),
-        `all well but the backup list refused (403): exit ${a.code}, bad «${a.bad}», note «${a.note}»; ${a.text.trim().split("\n").slice(-3).join(" | ")}`);
+      c.expect(a.code === 0 && /HTTP 403/.test(a.bad) && a.note === "" && /tls: 7[67] days left/.test(a.text),
+        `all well but C1 refused the backup list (403): exit ${a.code}, bad «${a.bad}», note «${a.note}»; ${a.text.trim().split("\n").slice(-3).join(" | ")}`);
+      const e = await lihat(200, 200, 3, false);
+      c.expect(e.code === 0 && e.bad === "" && /no backups-read token \(C1/.test(e.note), `all well, no C1 yet: exit ${e.code}, bad «${e.bad}», note «${e.note}»`);
       const b = await lihat(500, 200, 30);
       c.expect(b.code === 0 && /the sign-in page answered HTTP 500/.test(b.bad) && /30\.0 hours old, older than 26/.test(b.bad),
         `a 500 sign-in page and a backup 30 hours old: exit ${b.code}, bad «${b.bad}»; ${b.text.trim().split("\n").slice(-3).join(" | ")}`);
       const d = await lihat(200, 200, 3);
       c.expect(d.code === 0 && d.bad === "" && d.note === "", `all well, a backup 3 hours old: exit ${d.code}, bad «${d.bad}», note «${d.note}»`);
       return c.verdict("the production watch runs from main, on its schedule only once the owner turns it on, looks at production from outside " +
-        "with GET only (sign-in page strictly, Auth health, the certificate's days, the restore point; an unreadable backup list reported, not " +
-        "failed), opens or updates one issue on a failure and closes it when green; its look step, executed under bash -e against a stand-in, " +
-        "reports a refused backup list as a note, names a 500 sign-in page and a 30-hour-old backup as failures, and says nothing when all is well");
+        "with GET only (sign-in page strictly, Auth health, the certificate's days, the restore point with C1), opens or updates one issue on a " +
+        "failure and closes it when green; its look step, executed under bash -e against a stand-in, names C1 refused (403), a 500 sign-in page " +
+        "and a 30-hour-old backup as failures, reports C1's absence as a note, and says nothing when all is well");
+    },
+  },
+  {
+    id: "DR-S07",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // 1. who holds C1, and who no longer holds the deploy token (comments stripped: the headers name C1 in prose)
+      const wfDir = join(repoRoot, ".github/workflows");
+      const kode = (f: string) => readFileSync(join(wfDir, f), "utf8").split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+      const ref = `secrets.${C1}`;
+      const pemegang = readdirSync(wfDir).filter((f) => /\.ya?ml$/.test(f) && kode(f).includes(ref)).sort();
+      c.expect(JSON.stringify(pemegang) === JSON.stringify(["deploy-supabase-production.yml", "production-watch.yml", "recovery-facts.yml"]),
+        `C1 is held by ${pemegang.join(", ") || "no workflow"}, not by exactly G6's apply, the watch and the facts job`);
+      const langkah = (f: string, dari: string, sampai: string) => { const b = kode(f); const i = b.indexOf(dari); return i < 0 ? "" : b.slice(i, sampai ? b.indexOf(sampai, i) : undefined); };
+      const kali = (t: string) => t.split(ref).length - 1;
+      const apply = kode("deploy-supabase-production.yml");
+      const g6 = langkah("deploy-supabase-production.yml", "name: Restore point", "name: Keep the restore point's record");
+      c.expect(kali(apply) === 1 && kali(g6) === 1, `the production apply holds C1 ${kali(apply)} time(s), ${kali(g6)} of them in G6's step: only G6 may`);
+      const watch = kode("production-watch.yml");
+      c.expect(kali(watch) === 1 && kali(langkah("production-watch.yml", "name: Look at production", "name: Open, update or close")) === 1,
+        "the watch holds C1 outside its look step, or more than once");
+      const facts = kode("recovery-facts.yml");
+      c.expect(kali(facts) === 2 && kali(langkah("recovery-facts.yml", "name: C1 reads production's backups", "")) === 1,
+        `the facts job holds C1 ${kali(facts)} time(s): once to ask production's backups, once to prove C1's isolation`);
+      c.expect(!g6.includes("PRODUCTION_SUPABASE_ACCESS_TOKEN") && !watch.includes("PRODUCTION_SUPABASE_ACCESS_TOKEN") && !facts.includes("PRODUCTION_SUPABASE_ACCESS_TOKEN"),
+        "G6, the watch or the facts job still holds the deploy token");
+      c.expect(!/for try in/.test(facts), "the facts job still tries one project's token on another project");
+      const src: string[] = [];
+      for (const f of readdirSync(join(repoRoot, "src"), { recursive: true }) as string[]) {
+        if (/\.(ts|tsx|js|mjs|json)$/.test(f) && readFileSync(join(repoRoot, "src", f), "utf8").includes(C1)) src.push(f);
+      }
+      c.expect(src.length === 0, `the application holds C1: ${src.join(", ")}`);
+      // 2. the verdict
+      let m: IsolasiModul | null = null;
+      try { m = (await import(pathToFileURL(join(repoRoot, TITIK)).href)) as IsolasiModul; } catch { /* the check below says so */ }
+      if (!c.expect(m && typeof m.isolation === "function" && Array.isArray(m.PROBES),
+        `${TITIK} has no isolation check: nothing proves the backups-read token can do nothing else`)) return c.verdict("");
+      const t = m!;
+      const semua = (s: number) => t.PROBES.map((p) => ({ ...p, status: s }));
+      c.expect(t.PROBES.length === 7 && ["API Keys", "Auth Config", "Project Settings", "Edge Function Secrets", "access to another project",
+        "Projects (account-wide)", "Organizations"].every((n) => t.PROBES.some((p) => p.needs === n)), `the probes are not the seven planned: ${JSON.stringify(t.PROBES)}`);
+      c.expect(t.isolation(200, semua(403)).verdict === "ISOLATED" && t.isolation(200, semua(404)).verdict === "ISOLATED", "a token refused everything but the backups is not ISOLATED");
+      const lebar = t.isolation(200, t.PROBES.map((p, i) => ({ ...p, status: i === 0 ? 200 : 403 })));
+      c.expect(lebar.verdict === "TOO BROAD" && /API keys \(HTTP 200\), which needs API Keys/.test(lebar.reasons.join(" ")), `a token that reads the API keys: ${JSON.stringify(lebar)}`);
+      c.expect(t.isolation(403, semua(403)).verdict === "UNPROVEN" && t.isolation(200, t.PROBES.map((p, i) => ({ ...p, status: i === 1 ? 500 : 403 }))).verdict === "UNPROVEN"
+        && t.isolation(200, semua(400)).verdict === "UNPROVEN" && t.isolation(200, semua(403).slice(1)).verdict === "UNPROVEN",
+        "a token refused the backups, a probe answering 500 or 400, or a missing probe is taken as proof");
+      // 3. end to end against a stand-in for the Management API
+      const TOKEN = "sbp_fc_standin_token_never_printed_0123456789";
+      const KUNCI = "sb_secret_standin_key_never_read_9876543210";
+      const jalan = async (jawab: (path: string) => number) => {
+        const asked: string[] = [];
+        const srv = createServer((req, res) => {
+          const u = req.url ?? ""; asked.push(`${req.method} ${u}`);
+          const st = jawab(u);
+          res.writeHead(st, { "content-type": "application/json" });
+          res.end(st === 200 && u.endsWith("/database/backups") ? JSON.stringify({ backups: [], pitr_enabled: false })
+            : st === 200 ? JSON.stringify([{ name: "service_role", api_key: KUNCI }]) : JSON.stringify({ message: "Forbidden resource" }));
+        });
+        await new Promise<void>((ok) => srv.listen(0, "127.0.0.1", () => ok()));
+        const dir = mkdtempSync(join(tmpdir(), "dr150-c1-")); const rec = join(dir, "isolation.json");
+        try {
+          const out = await new Promise<{ code: number; text: string }>((ok) => {
+            const p = spawn(process.execPath, [join(repoRoot, TITIK), "isolation", rec], { env: { PATH: process.env.PATH ?? "", NODE_ENV: "production",
+              SUPABASE_ACCESS_TOKEN: TOKEN, PRODUCTION_SUPABASE_PROJECT_REF: "refprod", OTHER_SUPABASE_PROJECT_REF: "refother",
+              SUPABASE_API: `http://127.0.0.1:${(srv.address() as AddressInfo).port}` } });
+            let text = ""; p.stdout.on("data", (b) => (text += b)); p.stderr.on("data", (b) => (text += b));
+            p.on("close", (code) => ok({ code: code ?? -1, text }));
+          });
+          return { ...out, asked, rec: existsSync(rec) ? readFileSync(rec, "utf8") : "" };
+        } finally { srv.close(); }
+      };
+      const sempit = await jalan((u) => (u === "/v1/projects/refprod/database/backups" ? 200 : u.startsWith("/v1/projects/refother") ? 404 : 403));
+      c.expect(sempit.code === 0 && /"verdict": "ISOLATED"/.test(sempit.rec) && sempit.asked.length === 8 && sempit.asked.every((a) => a.startsWith("GET "))
+        && ["/v1/projects/refprod/api-keys", "/v1/projects/refprod/config/auth", "/v1/projects/refprod", "/v1/projects/refprod/secrets",
+          "/v1/projects/refother/database/backups", "/v1/projects", "/v1/organizations"].every((x) => sempit.asked.includes(`GET ${x}`)),
+        `a narrow token, end to end: exit ${sempit.code}; asked ${sempit.asked.join(", ")}; ${sempit.text.trim().split("\n").slice(-1)}`);
+      const luas = await jalan((u) => (u.startsWith("/v1/projects/refother") ? 403 : u === "/v1/projects/refprod/api-keys" || u.endsWith("/database/backups") ? 200 : 403));
+      c.expect(luas.code !== 0 && /"verdict": "TOO BROAD"/.test(luas.rec) && /reads the API keys/.test(luas.text),
+        `a token handed the API keys, end to end: exit ${luas.code}; ${luas.text.trim().split("\n").slice(-1)}`);
+      const ditolak = await jalan(() => 403);
+      c.expect(ditolak.code !== 0 && /"verdict": "UNPROVEN"/.test(ditolak.rec) && /cannot read production's backups \(HTTP 403\)/.test(ditolak.text),
+        `a token refused the backups, end to end: exit ${ditolak.code}; ${ditolak.text.trim().split("\n").slice(-1)}`);
+      const rusak = await jalan((u) => (u.endsWith("/database/backups") && u.includes("refprod") ? 200 : u.endsWith("/config/auth") ? 500 : 403));
+      c.expect(rusak.code !== 0 && /"verdict": "UNPROVEN"/.test(rusak.rec), `a probe answering 500, end to end: exit ${rusak.code}`);
+      const semuaTeks = [sempit, luas, ditolak, rusak].map((x) => x.text + x.rec).join("\n");
+      c.expect(!semuaTeks.includes(TOKEN) && !semuaTeks.includes(KUNCI), "the isolation check printed or recorded the token, or a key it was handed");
+      return c.verdict("C1 is held by exactly G6's step, the watch's look step and the facts job (and nothing in src/), which no longer hold the " +
+        "deploy token; executed against a stand-in with GET only, the isolation check finds a token that reads the backups and is refused all " +
+        "seven probes ISOLATED, one handed the API keys TOO BROAD without reading or printing them, and one refused the backups or answered 500 " +
+        "UNPROVEN; the token is never printed");
     },
   },
 ];

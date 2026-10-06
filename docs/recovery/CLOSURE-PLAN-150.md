@@ -5,7 +5,7 @@ a time in the order below, each with its red→green evidence and its CI, and is
 external-service boundary. Every stop point stands. No UI/UX work. No change to unrelated PINTAR functionality. No
 PITR implementation. No 100,000-user rehearsal.
 
-**Progress:** WP-A in progress.
+**Progress:** WP-A's code built and proven; waiting for O2 (C1), the owner's action.
 
 **Unchanged boundaries (D-106(h)–(j)):**
 - native Supabase restore is the **primary** database recovery path;
@@ -165,7 +165,7 @@ Supabase-managed object it cannot read), the work stops and returns for approval
 
 | ID | System | Credential | Purpose | Permissions | Held by | Rotation | Revocation |
 |---|---|---|---|---|---|---|---|
-| C1 | **Supabase Management API** | scoped access token, `pintar-production` | B3: read the backup list (G6, the watch, recovery facts) | **backups: read**, nothing else; probed by GETs to `/api-keys` and `/config/auth`, both of which must answer 403 | GitHub repository secret `PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN` | owner: Supabase → Account → Access Tokens → new token → update the secret → revoke the old | revoke in Access Tokens |
+| C1 | **Supabase Management API** | scoped access token, `pintar-production` | B3: read the backup list (G6, the watch, recovery facts) | **Database → Backups: Read**, one project, nothing else; `restore-point.mjs isolation` proves it is refused seven probes (API keys, Auth config, project settings, Edge Function secrets, another project, the account's projects and organisations) | GitHub repository secret `PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN`, read only by G6's step, the watch's look step and the facts job (DR-S07) | owner, at expiry (12 months) or on doubt: Supabase → Access Tokens → new token → replace the secret → revoke the old | revoke in Access Tokens; G6 then refuses applies and the watch reports it |
 | C2 | **Supabase Postgres** (production; staging separately) | role `pintar_backup` + password | B4: the database dump | **reads every row of every table, across all tenants** (`pg_read_all_data`, BYPASSRLS); no write, create, alter, drop or grant (DR-S15); read-only by default; 3 connections. **Its compromise exposes the complete database** (A7) | **only** the GitHub environment `backup` (`main` only): `PRODUCTION_DB_BACKUP_PASSWORD`, `STAGING_DB_BACKUP_PASSWORD`; never Vercel, the application or a repository secret | yearly or on doubt: the owner puts a new random password in the password manager and in the secret → `backup-credential.yml set` | **immediate:** `backup-credential.yml revoke` (NOLOGIN + sessions terminated) |
 | C3 | **Supabase Storage S3-compatible API** (Supabase's, **not AWS**) | Storage S3 access key (ID + secret), per project | B9: download every Storage object | full Storage access on that project (Supabase offers no read-only key); the job only lists and gets | GitHub environment secrets `PRODUCTION_SUPABASE_STORAGE_S3_KEY_ID` / `…_SECRET` (staging likewise) | owner: Supabase → Storage → S3 access keys → new → update the secrets → revoke the old | revoke in the same screen |
 | C4 | **AWS S3 (Amazon Web Services)** | IAM user `pintar-backup-writer` access key | B4/B5/B9: upload bundles and escrow | `PutObject` with checksum, `PutObjectRetention`, `PutObjectLegalHold` on the backup bucket only; **no read, list or delete** | GitHub environment secrets `AWS_BACKUP_WRITER_KEY_ID` / `…_SECRET` (backup and escrow environments) | owner: AWS → IAM → new key → update → delete the old | deactivate the key |
@@ -227,12 +227,35 @@ A run is recorded as successful **only if all ten hold**. On any failure nothing
 
 ## The work packages (revised)
 
-**WP-A: B3, the backups-read token (C1).**
-- G6, the watch and `recovery-facts` use C1 only.
-- **Tests:** DR-S05 and DR-S06 restated; **DR-S07** (credential isolation). Red on today's files.
-- **Evidence:** the backup list HTTP 200 with C1; GETs to `/api-keys` and `/config/auth` with C1 answer **403**; a
-  dry, read-only G6 check reports OK.
-- **Stop point:** if Supabase cannot isolate backups-read, the work stops and asks.
+**WP-A: B3, the backups-read token (C1). Code built and proven; waiting for O2.**
+- **Built:**
+  - G6's step in the production apply, the watch's look step and `recovery-facts` read the backups with C1
+    (`PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN`) only. None of them holds the deploy token any more, and the facts job no
+    longer tries one project's token on another.
+  - In the watch, C1 refused is a **failure**, because C1 exists to read the backups. Only C1's absence, before O2, is
+    a note.
+  - `restore-point.mjs isolation` proves C1 reads production's backups and is refused seven probes:
+    - the API keys;
+    - the Auth configuration;
+    - the project's settings;
+    - the Edge Function secrets;
+    - staging's backups;
+    - the account's projects;
+    - the account's organisations.
+
+    It uses GET only, and each answer is discarded unread. It fails closed: ISOLATED, TOO BROAD or UNPROVEN.
+  - The facts job's last step runs that check and G6's check dry. It is red unless C1 is ISOLATED and G6 says OK.
+- **Supabase's side (docs, 6 Oct):** scoped tokens (public alpha) have a **Database → Backups: Read** permission. It
+  unlocks only "List all backups" and "Get backup schedule". API Keys, Auth Config, Project Settings, Edge Function
+  Secrets, Projects and Organizations are separate permissions.
+- **Tests:**
+  - DR-S05 and DR-S06 restated (`RESTATED FOR #150 WP-A`), and DR-S07 new;
+  - red on the commit before WP-A, green after.
+- **Owner action O2:** `docs/recovery/OWNER-INSTRUCTIONS-150.md`.
+- **Evidence after O2:**
+  - a `recovery-facts` run from `main`: C1 ISOLATED (backups HTTP 200; every probe 401, 403 or 404) and G6 dry OK;
+  - the owner's screenshot of the token's permission list (Read, not Read-write, cannot be seen without a write).
+- **Stop point:** if Supabase offers no choice of permissions, or the run says TOO BROAD, the work stops and asks.
 
 **WP-B: B4, B5, B9 (database + Storage files + escrow, independent of Supabase and Vercel).** It covers A1–A5, with:
 - the bucket and the two IAM users from a CloudFormation template;
