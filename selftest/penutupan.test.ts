@@ -238,10 +238,14 @@ export const penutupanAppTests: SelfTest[] = [
         c.expect(lama.status !== 200 && baru.status === 200, `with the same password the old address answered ${lama.status} and the new one ${baru.status}`);
       }
       const subjek = t("email.aman.email_dikoreksi.subjek", "public", { locale: "id" });
-      const keLama = (await sinkTunggu(e2, dulu + 1)).slice(dulu);
-      const keBaru = await sinkTunggu(e3, 1);
-      c.expect(keLama.length === 1 && keLama[0].Subject === subjek && keBaru.length === 1 && keBaru[0].Subject === subjek,
-        `the notices: to the old address ${keLama.map((m) => m.Subject).join(" | ") || "none"}; to the new ${keBaru.map((m) => m.Subject).join(" | ") || "none"}`);
+      // the sink lists messages in its own order (Mailpit: newest first), so the notice is found by its subject, and the
+      // old address has received exactly one message more than before the correction
+      const semuaLama = await sinkTunggu(e2, dulu + 1);
+      const keLama = semuaLama.filter((m) => m.Subject === subjek);
+      const keBaru = (await sinkTunggu(e3, 1)).filter((m) => m.Subject === subjek);
+      c.expect(semuaLama.length === dulu + 1 && keLama.length === 1 && keBaru.length === 1,
+        `the notices: the old address received ${semuaLama.length - dulu} message(s) (${semuaLama.map((m) => m.Subject).join(" | ")}), ` +
+        `${keLama.length} of them the correction's; the new address ${keBaru.length}`);
       c.expect([...keLama, ...keBaru].every((m) => !m.Text.includes(e2) && !m.Text.includes(e3) && !m.Text.includes(e1)),
         "a notice carries an address");
       const audit = psql(`select string_agg((summary ->> 'activated') || '/' || (summary #>> '{from,email}') || '/' || (summary #>> '{to,email}'), ' ' order by id)
