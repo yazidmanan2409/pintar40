@@ -633,3 +633,23 @@ Gate 3 stays held; the coordinator does not merge it.
       (`20261127100000`; STU12-K01).
     - Red on `808ae6e`, green on `3a7501b` (CI 37430770665, 35/35, 595 tests). Migrations 165.
 
+
+48. **Sekolah Demo PINTAR, 6 Oct: the Golden School walked end to end on staging for Dr Gladys's walkthrough (D-116).**
+    - Founded by `found-school.yml` (run 37431278133); staging on `main` with 165 migrations. Every step a press of PINTAR's
+      buttons; the database read only.
+    - **GS-02, GS-03** (run 37431385287): the first «Admin sekolah» recorded and signed in.
+    - **GS-04 to GS-11** (run 37432707928, 12 PASS): «Kelas Tinggi» → «Kelas 5» → «Kelas 5A»; teacher, head of department and
+      dean with their roles; five students; the chapter (5 lessons, 31 questions) composed by the admin, reviewed and locked by
+      the head of department, published; the pass mark 70%; the teacher gave it to «Kelas 5A» until 5 Nov.
+    - **GS-12 to GS-16** (run 37433910433, 8 PASS): the class set of cards; all five sat both tests; Utama, Bunga and Dimas
+      reached 70%, Citra and Eka did not.
+    - **GS-17 to GS-21** (run 37434862707, 15 PASS): the teacher, head of department, dean and admin read the same figures
+      (Peserta 5, Pemahaman 78%, Kenaikan +38 poin, Mantap 2 · Berkembang 2 · Perlu penguatan 1, Sertifikat terbit 3);
+      exactly three certificates (PINTAR/SEKOLAH-DEMO-PINTAR/2026/00001 to 00003), each «Berlaku» to an anonymous visitor;
+      two cards re-issued; the class computer's lock and hand-over; the teacher's two password recoveries; every session ended.
+    - Her one-page guide: `docs/onboarding/PINTAR-Panduan-Walkthrough-Sekolah-Demo.md`. Her account is the owner's to add on
+      staging (Aktivasi → «Orang baru di luar pendataan», then «Admin sekolah» at the school on Peran & akses).
+    - **Staging stays as it is until she has walked:** it deploys from `main`, so nothing lands on `main` before then.
+    - Not re-confirmed today: `staging.yml`'s Auth read-back (run 37432544176), refused by Supabase's Management API
+      (HTTP 500, "FGA Authentication Error"); nothing in Auth was changed. The walk's emailed codes (6 digits) arrived as
+      the settings say.
