@@ -1,5 +1,11 @@
 # #150 — Backup and disaster-recovery review: examined 5 Oct, closing work 6 Oct 2026
 
+> **Superseded in part (noted 6 Oct, after D-106 to D-111):** this review is the record of 5–6 Oct. Where it says B3
+> "on hold", B4 or G3/G4 "design only", B8 "recorded, not built", escrow as G3's `secrets.age`, or G6 refused while G1
+> Part 2 is on hold, the later rulings prevail: B3 is WP-A (built, waiting for O2), B4/B9 are WP-B (built), B5 is the
+> dual-recipient escrow (D-107 D8, D-109), B8 is WP-C (built), and G6 rests on C1. The current checklist is
+> `EVIDENCE-INDEX-150.md` and `CLOSURE-PLAN-150.md`.
+
 # Part I — Closing #150, 6 Oct
 
 **Owner's order (6 Oct):** close #150 at C-12's evidence standard: G1 read production's backup configuration (read

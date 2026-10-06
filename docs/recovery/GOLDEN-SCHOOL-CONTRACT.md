@@ -4,6 +4,33 @@
 
 The Golden School is PINTAR's primary integration truth. It is one deliberate school on staging that proves PINTAR works as PINTAR: one school, one admin, one teacher, one student, from the front door.
 
+## Status, 6 Oct 2026
+
+**Built and run.** C1 (`found-school.yml`), the C2 mailbox reader and the four walks (`staging-golden-school{,-admin,-murid,-laporan}.yml`, `audit/staging/golden-school*.mjs`) exist and run on staging.
+
+**The latest run is green end to end: last step passed unaided GS-21; current break: none.**
+- **School:** «Sekolah Demo PINTAR», 6 Oct, 41 of 41 steps PASS (JOURNEY-LOG 48).
+- **The one before it:** «Sekolah Emas Uji 2026-10-05», runs 37287063109 to 37295261257.
+
+| Step | Walk step(s) | Run | Result |
+|---|---|---|---|
+| GS-00 | Not an in-run step. Machine reads bracket the walk: 07:38 UTC `808ae6e` 162/162 (run 37430955533); 07:54 staging's migrations 165 = the repository (`staging.yml` 37432544176); 08:37 `a64b9b6` 165/165 (37437396764); 08:46 `12b480b` 165/165 (37438389611). The application code (`src`) is identical across all four | — | GREEN by bracketing reads |
+| GS-01 | C1 | 37431278133 | PASS (read back by G0) |
+| GS-02 | G1, G2, G3 (the operator signs in with their own password) | 37431385287 | PASS |
+| GS-03 | G4, G5 | 37431385287 | PASS (on the 162-migration set; the three later migrations touch certificate numbers and hints only) |
+| GS-04 to GS-11 | A0 to A11 | 37432707928 | 12 PASS |
+| GS-07 (cards), GS-12 to GS-16 | M0 to M7 | 37433910433 | 8 PASS |
+| GS-17 to GS-21 | L0 to L4, C1 to C3, R1 to R3, U1, V1, V2, X1 | 37434862707 | 15 PASS |
+
+**Gaps in the instrument (recorded, not repaired during the D-117 freeze):**
+- GS-00 is not asserted inside the run; it rests on the reads around it.
+- Roles beyond the spine (the review queue's signals, the dean's queue, Uji Cepat, educator-as-learner, support) are not yet further Level 3 journeys (§5).
+
+**Human acceptance (§6, Phase 6):**
+- Dr Gladys walks this school on 7 Oct under D-117.
+- Yazid makes his own pass the evening before.
+- Nothing is HUMAN-ACCEPTED yet.
+
 ## 1. Rules
 
 The Golden School never uses:
@@ -110,7 +137,7 @@ Today `main` moves by a `[skip ci]` fast-forward, which suppresses push-triggere
 
 ## 7. Not in Phase 1
 
-None of these is built in Phase 1:
+None of these was built in Phase 1 (all built since; see «Status, 6 Oct 2026» above):
 - the C1 script and workflow;
 - the mailbox and its reader;
 - the Level 3 runner;

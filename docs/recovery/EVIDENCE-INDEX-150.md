@@ -15,8 +15,8 @@ instructions, the tests, the staging evidence, and D-109(c) (R1 and R2 before an
 exists; §3 the tests and CI runs; §4 the hosted runs; §5 the consistency check and what it changed; §6 what is open,
 never yet exercised, or limited; §7 the O3–O7 order the code allows.
 
-Sources: `docs/coordination/DECISIONS.md` (D-103–D-110), `docs/recovery/CLOSURE-PLAN-150.md`,
-`docs/recovery/OWNER-INSTRUCTIONS-150.md`, `docs/recovery/JOURNEY-LOG.md` (items 36–43), `selftest/manifest.json`,
+Sources: `docs/coordination/DECISIONS.md` (D-103–D-111, and since the checkpoint D-113 and D-117(m)), `docs/recovery/CLOSURE-PLAN-150.md`,
+`docs/recovery/OWNER-INSTRUCTIONS-150.md`, `docs/recovery/JOURNEY-LOG.md` (items 36–43; WP-C in 45–46), `selftest/manifest.json`,
 `docs/recovery/BACKUP-DR-REVIEW-2026-10-05.md`, `docs/recovery/evidence/150/`.
 
 ---
@@ -139,6 +139,8 @@ restated; red on `f707464`, green on `9631bf6` (CI 37425505226, 35/35, 592 tests
 | 37412506567 | `cc2307e` | 35/35 | D-109 (R1 + R2, custody, 5 GiB, the path check) |
 | 37415061854 | `c13589f` | **34/35**, 587 passed, 1 failed | the owner's pooler value as an input; R1 + R2 documents aligned. **DR-D02 red:** its second (empty) stack could not bind port 55322, which lies in Linux's ephemeral range and was held on the runner. The test now takes the first free set of ports below that range; reproduced locally (55322 held: the old test red with the same error, the new one green) |
 | 37416489180 | `df7c170` | **35/35** | the DR-D02 fix; the landing of the pooler input, this index and D-111 (D-111(h)) |
+| 37421222152 | `f49280e` | 35/35, 590 | WP-C.1 (DR-S12, DR-S13) |
+| 37425505226 | `9631bf6` | 35/35, 592 | WP-C.2 (DR-S17, DR-D03; DR-S11 and DR-S13 restated) |
 
 ---
 

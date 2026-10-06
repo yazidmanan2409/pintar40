@@ -9,8 +9,9 @@ PITR implementation. No 100,000-user rehearsal.
 owner's action. **WP-B:** stopped for a ruling on 6 Oct (§ A7, "Finding"), ruled A + B (D-108), resumed; its code is
 built and proven against local stand-ins (CI 37409454539 on `9133ffc`: 35/35, 587/587), then accepted (D-109): on `main`
 since 6 Oct (CI 37412506567 on `cc2307e`, 35/35), migration 162 **applied to hosted staging only** (run 37414019844) and
-verified read only; the staging path check waits for the owner's pooler value. Production is untouched until separately
-authorised. The evidence, decision by decision: `docs/recovery/EVIDENCE-INDEX-150.md`.
+verified read only; the staging path check waits for the owner's pooler value. **WP-C:** built and proven against stand-ins: WP-C.1
+(`f49280e`, CI 37421222152, 35/35, 590) and WP-C.2 (`9631bf6`, CI 37425505226, 35/35, 592; D-113), both on `main`;
+the hosted rehearsal is O8. Production is untouched until separately authorised. The evidence, decision by decision: `docs/recovery/EVIDENCE-INDEX-150.md`.
 
 **Unchanged boundaries (D-106(h)–(j)):**
 - native Supabase restore is the **primary** database recovery path;
@@ -270,7 +271,7 @@ A run is recorded as successful **only if all ten hold**. On any failure nothing
    - `auth-triggers.sql` holds exactly the snapshot's `auth.users` triggers (3 today);
    - `acl.sql` covers every public object;
    - `role-settings.sql` carries the pre-request;
-   - `facts.txt` and `readiness.txt` are written.
+   - `facts.txt` is written (`readiness.txt` dropped by D-108(d): readiness is checked where the restore runs, see below).
 4. **Storage is complete:**
    - the expected objects are **exactly the `storage.objects` rows in the snapshot**, and each is downloaded;
    - each object's size equals its metadata, and its MD5/ETag matches where Storage provides one;
@@ -281,7 +282,7 @@ A run is recorded as successful **only if all ten hold**. On any failure nothing
    snapshot fails the run too, and the next day's run captures the new state.
 5. **The bundle manifest** lists every file with its SHA-256, and the tar re-reads equal to it.
 6. **Encryption:** `gpg` exits 0, and the ciphertext's recipient list equals exactly the expected key IDs (production:
-   R1 and R2; staging: R1, R2, R3).
+   R1 and R2; staging: R1 and R3, with R2 added when it exists, D-109(c)).
 7. **Upload integrity:** S3 `PutObject` with `x-amz-checksum-sha256` succeeds, so S3 itself rejects any mismatch.
    The writer key cannot read back, so this is the verification it is allowed.
 8. **Retention:** set by the upload itself (lock and retain-until date).

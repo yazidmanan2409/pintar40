@@ -96,8 +96,10 @@ with it (the possession check below). Until then the code refuses every producti
 (`docs/recovery/custody.json` says who holds which key, by role only, and when each proved it). Staging goes ahead
 with R1 and R3 meanwhile.
 
-The order: O3 (AWS), O4 (keys), O5 (Supabase Storage keys), O6 (the `pintar_backup` passwords), then the coordinator's
-first backup and drill runs, then O7 (the first escrow).
+The order (as `EVIDENCE-INDEX-150.md` §7 sets it): O3 (AWS), O4 (keys), O5 (Supabase Storage keys), O6 (the
+`pintar_backup` passwords, staging first), then the coordinator's first staging backup and drill runs, then R2 made by
+custodian B with both possession proofs (D-109(c)), then the separate production rulings (migration 162, its extension
+baseline and C2 on production), then O7 (the first escrow). O8 (the rehearsal) follows the first staging bundle.
 
 ### O3: AWS (D-107 D1)
 

@@ -1,5 +1,9 @@
 # Phase 1 status
 
+> **Historical record (noted 6 Oct 2026).** This is the Phase 0 and Phase 1 exit package of 1 Oct; it is kept unchanged as evidence. The current
+> status is `docs/reports/PINTAR-4.0-COMPLETE-STATUS-2026-10-06.md`, the operational board is `docs/recovery/RECOVERY-BOARD.md`,
+> and the engineering rows are `docs/coordination/RELEASE-CHECKLIST.md` (v2.7).
+
 **1 October 2026.** The Phase 0 and Phase 1 exit package: reviewed by ChatGPT, accepted by Yazid.
 
 - **PHASE 0: COMPLETE.**

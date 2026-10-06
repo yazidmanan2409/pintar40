@@ -1319,6 +1319,62 @@ CHANGES_V21.append("6 Oct (v2.6): every row not PASS re-checked against main 808
                    "EDU-10, REL-08, REL-13 and CAP-09 to PARTIAL; EDU-11 N-T → N-I; SYS-07 PARTIAL → N-T (flags out of scope, "
                    "D-097(c)); DEA-04's stale text corrected. P0 PASS 76 → 77.")
 
+# --- 6 Oct: v2.7, the walkthrough specimen: Sekolah Demo PINTAR walked end to end on the current code (D-116, D-117) ---
+
+META["version"] = "v2.7 — 6 October 2026 (status on the Dr Gladys walkthrough specimen 12b480b, application code = 3a7501b; v2 of 24 Sep kept as the baseline)"
+NOW.update({
+    "sha": "12b480b",
+    "date": "6 Oct 2026",
+    "label": "the Dr Gladys walkthrough specimen, application code = 3a7501b",
+    "evidence": ("CI 37430770665 (35/35, 595 tests) on 3a7501b, whose application code 12b480b carries unchanged; 165 migrations. Staging "
+                 "machine-read GREEN by environment-facts.yml run 37438389611 (deployment dpl_4f9zxVXUnTPmQ3WcxzysR3hf3Yar, 165 of 165); "
+                 "staging.yml run 37437241796 green (the sign-in boundary, the email sender and the identity settings read back). The "
+                 "Level 3 Golden School walk of «Sekolah Demo PINTAR» on 6 Oct, GS-01 to GS-21, 41 of 41 steps PASS (C1 run 37431278133; "
+                 "runs 37431385287, 37432707928, 37433910433, 37434862707; JOURNEY-LOG 48)."),
+})
+CURRENT.update({
+    "X-09": ("PASS: the result says «Target tercapai» or «Belum mencapai target» against the school's sealed mark (M3, W4); re-walked "
+             "6 Oct on Sekolah Demo PINTAR: of five students, the three at or above 70% each hold one issued certificate and the two "
+             "below hold none (GS-18 C1), the holder sees hers (C2), each verifies «Berlaku» to an anonymous visitor (GS-19 V1, run "
+             "37434862707); a single Uji Cepat certifies nothing (BOB50-A01, F19-Q01); audit S21i (run 37267985806)."),
+    "DEA-05": ("PASS on staging: the dean reads «Sertifikat terbit» equal to the issued count, and another school's summary is withheld "
+               "(GS-17 L3; re-walked 6 Oct, «Sertifikat terbit» 3 = 3 issued, run 37434862707; the metric institution.verified_credentials)."),
+    "ADM-18": ("PARTIAL: numbers never collide since 20261126100000: one preparation at a time per school, a taken number skipped "
+               "(N8; ADM18-K01: two prepared at once get two numbers, one session twice gives one certificate); no photo on a "
+               "certificate (D-085 T4); the number carries the prefix the school saved in Studio, the course's over the school's "
+               "(20261128100000, ADM18-K02). On staging 6 Oct, a school that saved no prefix numbered its three certificates "
+               "PINTAR/SEKOLAH-DEMO-PINTAR/2026/00001 to 00003, in order (GS-18, run 37434862707). Open, both screens: the template's "
+               "layout on the printed sheet, and revocation (revoke_certificate) has no screen."),
+    "REL-08": ("PARTIAL: (i) PINTAR's own email path is proven on staging: on 6 Oct the activation codes of four staff and a "
+               "password-recovery code arrived through it (GS-03, GS-09, GS-10, GS-17, GS-21; send limits F17-L01, F17-L02, F17-C01); no "
+               "production send, and no SPF, DKIM or DMARC header read. (ii) Gate 3's settings come from one file (BOB26-S01) and "
+               "staging read them back on 6 Oct (staging.yml run 37437241796: codes 6 digits valid 10 minutes, the password policy, the "
+               "leaked-password check); Gate 3 cards were made and signed in (GS-07, GS-12, GS-21). (iii) DAISY-20's emails landed. "
+               "Open: Gate 8's production settings and production's SMTP password (Yazid, D-039)."),
+    "REL-09": ("NOT VERIFIED: Yazid, before the first production card or certificate (D-066). Since D-107 D8 the recovery copy is "
+               "the dual-recipient encrypted escrow (R1 and R2, two custodians who have each proven possession, D-109(c)), never a sealed "
+               "offline plaintext copy; the row's wording predates that ruling. Built and proven on stand-ins (#150 B5: DR-S01 to "
+               "DR-S03, DR-S10); waiting for O3, O4, R2 and O7. The deploy never silently replaces either secret (G5). Production "
+               "has 0 cards."),
+    "REL-12": ("N/A until the release. Before it, human acceptance on staging (charter Phase 6): Dr Gladys walks Sekolah Demo PINTAR "
+               "on 7 Oct under D-117 (freeze, no coaching, findings reviewed before any change). No journey is HUMAN-ACCEPTED yet."),
+})
+RETIRED_NOTICE = ("RETIRED AS THE READINESS MEASURE, 1 Oct 2026 (D-084). The rows below stay as engineering detail. "
+                  "Their PASS counts are not a readiness measure. PINTAR's status is the journey status on docs/recovery/RECOVERY-BOARD.md "
+                  "under docs/recovery/EVIDENCE-MODEL.md, summarised in docs/reports/PINTAR-4.0-COMPLETE-STATUS-2026-10-06.md; go-live is "
+                  "Phase 8 of docs/recovery/RECOVERY-CHARTER.md.")
+VERDICT_NOW = ("NO-GO. What stands, by kind: media playback (STU-11, ADM-10, X-07) is out of scope for the first testing phases "
+               "(D-050); capacity (CAP-01, CAP-02, CAP-07, CAP-08) waits on Yazid's compute decision and the forwarding key (D-089); "
+               "the release-day rows REL-02, REL-08, REL-09 and REL-13; #150, NOT PASS (D-104(d)); and human acceptance: Dr Gladys "
+               "walks staging on 7 Oct (D-116, D-117), and no journey is HUMAN-ACCEPTED yet. Code work left without a screen: none. "
+               "Work that needs a screen (the UI lane, after the walkthrough's findings are reviewed and Daisy's grammar is APPLICATION "
+               "READY, D-117(h)): ADM-18's layout on the printed sheet, EDU-10 after a ruling on where the score appears, ADM-08's email "
+               "correction, ADM-18's revocation, EDU-11, DEA-04's briefings and CAP-10's paging.")
+CHANGES_V21.append("6 Oct (v2.7): status pinned to the Dr Gladys walkthrough specimen 12b480b (application code = 3a7501b, CI "
+                   "37430770665; staging machine-read GREEN, run 37438389611) and to the full Golden School walk of Sekolah Demo PINTAR "
+                   "(GS-01 to GS-21, 41 of 41 PASS). Evidence refreshed on X-09, DEA-05, ADM-18 and REL-08; REL-09 read against D-107 D8 (escrow, not an offline plaintext copy); REL-12 notes Phase 6. No "
+                   "status changed; P0 PASS stays 77 of 84. From 6 Oct evening the application is frozen for the walkthrough (D-117).")
+
 def as_dict():
     g = globals()
     return {
