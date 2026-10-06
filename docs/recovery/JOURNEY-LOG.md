@@ -581,4 +581,4 @@ Gate 3 stays held; the coordinator does not merge it.
       dashboard's value, and C1 `ISOLATED` (O2). Every first use of real infrastructure is a stop point.
     - **CI on the way:** 37415061854 on `c13589f` was 34/35: DR-D02's empty stack could not bind port 55322 (inside
       Linux's ephemeral range, held on the runner). The test now takes free ports below that range; reproduced red
-      and green locally with the port held. The rerun decides the landing (D-111(h)).
+      and green locally with the port held. **Rerun 37416489180 on `df7c170`: 35/35**; landed on `main` (D-111(h)).
