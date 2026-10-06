@@ -537,3 +537,19 @@ Gate 3 stays held; the coordinator does not merge it.
     - **Nothing hosted:** no AWS, no real credential, no key, no escrow, no hosted apply.
     - **Next, the owner's:** authorise migration 162 for staging (the landing), then O3-O7
       (`OWNER-INSTRUCTIONS-150.md`, prepared). O2 (C1) is still open.
+
+42. **#150 WP-B accepted and D-109 built in, 6 Oct; migration 162 authorised for hosted STAGING only.**
+    - **D-109 in the code:** production bundles, the escrow and a mint go to R1 and R2, never R1 alone, and are refused
+      before anything is read until two separate custodians have each proven possession (`docs/recovery/custody.json`,
+      both still unproven); the success record carries the bundle's share of the 5 GiB single upload, warned of from
+      80 % (its own backup-size issue) and refused above it.
+    - **Staging's backup path, checked read only before any backup credential exists:** `staging-backup-path.yml`
+      (`scripts/recovery/path-check.mjs`): the session pooler only where Supabase's own configuration and staging's
+      apply agree, `verify-full`, the backup's snapshot shared through the pooler, and `pintar_backup`'s profile
+      against the proven local one (`docs/recovery/pintar-backup-profile.expected`).
+    - **Tests:** DR-S09, S10, S11, S14 restated and DR-S16 new, red on `d1e5664` and green now (local 54/54).
+      **CI 37412506567 on `cc2307e`: 35/35.**
+    - **Staging before the apply (read only, Supabase connector):** 161 migrations, no `pintar_backup`, the extensions
+      equal to the baseline, no test-harness schema, PostgreSQL 17.6.
+    - **Landed on `main` with this record;** `staging.yml` is dispatched next to apply migration 162 to staging; then
+      the read-only verification. Production untouched.
