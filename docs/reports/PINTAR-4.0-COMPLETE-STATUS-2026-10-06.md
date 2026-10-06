@@ -405,7 +405,7 @@ database was not read for this report). `main` is 54 migrations ahead.
 
 | # | Question | Source | Blocks |
 |---|---|---|---|
-| Q1 | **The certificate number.** D-080(2) and BOB-48's note decide `<PINTAR ID>/<per-person sequence>`; PINTAR issues `<prefix or PINTAR/<SCHOOL>>/<YYYY>/<per-school sequence>`, which the 6 Oct ADM-18 change extended without reconciling. Which stands, and may a student's certificate show their PINTAR ID (open since D-076)? | D-080(2), D-076, BOB-48; release checklist §14 | BOB-48; ADM-18; any real certificate |
+| Q1 | **The certificate number.** D-080(2) and BOB-48's note decide `<PINTAR ID>/<per-person sequence>`; PINTAR issues `<prefix or PINTAR/<SCHOOL>>/<YYYY>/<per-school sequence>`, which the 6 Oct ADM-18 change extended without reconciling. Which stands, and may a student's certificate show their PINTAR ID (open since D-076)? [Corrected 6 Oct: both are already decided. D-080(2) rules the format and D-080(9) rules «a student's academic certificate may show their PINTAR ID, and with (2) it must»; the issued format is the defect (`PINTAR-4.0-OWNER-RULINGS-2026-10-06.md`).] | D-080(2), D-076, BOB-48; release checklist §14 | BOB-48; ADM-18; any real certificate |
 | Q2 | Compute tier for staging and production, decided on capacity evidence, then L1 rerun | D-089(c); CAP-08 | CAP-01/02/07/08; Phase 7; more than 50 people at once |
 | Q3 | Size of the first real deployment, and what happens to the 1 Nov and 1 Dec cohorts | D-083; D-112(d) | L1's size; onboarding |
 | Q4 | The legal and data-protection gate: UU PDP, PSE registration, controller and processor, retention, parental consent; approval for real student data | D-117(m); handbook G2, G4 | Real external student data; production |
