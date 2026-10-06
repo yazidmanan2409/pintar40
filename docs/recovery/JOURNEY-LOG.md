@@ -650,6 +650,6 @@ Gate 3 stays held; the coordinator does not merge it.
     - Her one-page guide: `docs/onboarding/PINTAR-Panduan-Walkthrough-Sekolah-Demo.md`. Her account is the owner's to add on
       staging (Aktivasi → «Orang baru di luar pendataan», then «Admin sekolah» at the school on Peran & akses).
     - **Staging stays as it is until she has walked:** it deploys from `main`, so nothing lands on `main` before then.
-    - Not re-confirmed today: `staging.yml`'s Auth read-back (run 37432544176), refused by Supabase's Management API
-      (HTTP 500, "FGA Authentication Error"); nothing in Auth was changed. The walk's emailed codes (6 digits) arrived as
-      the settings say.
+    - Re-confirmed after Supabase's Management API outage (HTTP 500 "FGA Authentication Error" on run 37432544176; nothing
+      changed then): `staging.yml` run 37437241796 green (migrations 165, the sign-in boundary, the email sender, the identity
+      settings read back); `environment-facts.yml` run 37437396764 GREEN, staging serving `a64b9b6` with 165 of 165.
