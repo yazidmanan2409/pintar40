@@ -582,3 +582,22 @@ Gate 3 stays held; the coordinator does not merge it.
     - **CI on the way:** 37415061854 on `c13589f` was 34/35: DR-D02's empty stack could not bind port 55322 (inside
       Linux's ephemeral range, held on the runner). The test now takes free ports below that range; reproduced red
       and green locally with the port held. **Rerun 37416489180 on `df7c170`: 35/35**; landed on `main` (D-111(h)).
+
+45. **#150 WP-C.1, 6 Oct: the reconstruction runbook and its tooling, built and proven against stand-ins (D-107(a)
+    order; D-111(g)).**
+    - **The runbook** `docs/recovery/RUNBOOK-NATIVE-RESTORE.md`: nine steps (restore to a new project; new credentials;
+      repoint; Auth and email re-applied and read back; files put back; durable secrets kept or recovered; redeploy;
+      verify; reopen), each with who, the tool, its check and when to stop; B8's sentence mapped clause by clause; the
+      rehearsal (O8) on a copy of staging, never production.
+    - **One guarded record** of the projects the workflows point at (`docs/recovery/projects.json`): 29 workflows name
+      production's reference, 23 staging's, 2 carry production's public key; `scripts/recovery/repoint.mjs` keeps them
+      equal (`check`), moves an environment in one reviewed rewrite with its decision (`apply`), and verifies the live
+      project before anything is written (`verify`).
+    - **The Auth read-back** (`scripts/recovery/auth-state.mjs`): the declared sign-in and email settings, read back
+      field by field anywhere; written only to a rehearsal copy (staging and production keep their own workflows).
+    - **Files after a native restore:** `restore-bundle.mjs --files-only` puts back each file whose row the restored
+      database holds, by hash, and names rows the bundle has no file for.
+    - **Tests:** DR-S12 and DR-S13 new, DR-D02 restated: red on `178e915`, green on `f49280e` (CI 37421222152, 35/35 jobs,
+      590 tests passed). **Not built yet (WP-C.2):** the
+      rehearsal's one-off preview deployment and its functional checks (3 items PENDING in the runbook, counted by
+      DR-S13).

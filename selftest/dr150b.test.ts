@@ -318,7 +318,7 @@ async function emptyStack(repoRoot: string, dir: string) {
     const ports = [...cfg.matchAll(/= 543(\d\d)\b/g)].map((m) => Number(`${b}${m[1]}`));
     if ((await Promise.all([...ports, 8183].map(portFree))).every(Boolean)) { base = b; break; }
   }
-  if (!base) return { ok: false, err: "no free set of ports below the ephemeral range for the empty stack", db: "", s3: {}, stop: () => undefined };
+  if (!base) return { ok: false, err: "no free set of ports below the ephemeral range for the empty stack", db: "", rest: { api: "", service: "" }, s3: {}, stop: () => undefined };
   cfg = cfg.replace(/^project_id = .*$/m, 'project_id = "pintar40drd02"').replace(/= 543(\d\d)\b/g, `= ${base}$1`).replace(/= 8083\b/g, "= 8183")
     .replace(/^major_version = .*$/m, "major_version = 17");
   writeFileSync(cfgFile, cfg);
@@ -326,7 +326,7 @@ async function emptyStack(repoRoot: string, dir: string) {
   const env = cli("status", "-o", "env").stdout ?? "";
   const val = (k: string) => new RegExp(`^${k}="?([^"\n]*)"?$`, "m").exec(env)?.[1] ?? "";
   return { ok: st.status === 0 && !!val("DB_URL"), err: `${st.stdout ?? ""}${st.stderr ?? ""}`.trim().split("\n").slice(-3).join(" | "),
-    db: val("DB_URL"), s3: { TARGET_STORAGE_S3_ENDPOINT: val("STORAGE_S3_URL"), TARGET_STORAGE_S3_REGION: val("S3_PROTOCOL_REGION") || "local",
+    db: val("DB_URL"), rest: { api: val("API_URL"), service: val("SERVICE_ROLE_KEY") }, s3: { TARGET_STORAGE_S3_ENDPOINT: val("STORAGE_S3_URL"), TARGET_STORAGE_S3_REGION: val("S3_PROTOCOL_REGION") || "local",
       TARGET_STORAGE_S3_KEY_ID: val("S3_PROTOCOL_ACCESS_KEY_ID"), TARGET_STORAGE_S3_SECRET: val("S3_PROTOCOL_ACCESS_KEY_SECRET") },
     stop: () => cli("stop", "--no-backup") };
 }
@@ -950,6 +950,32 @@ rollback;
         psql(target, "drop extension pg_trgm");
         const d = restore("--verify-only", "--storage");
         c.expect(d.code === 0 && /SAFE TO REOPEN/.test(d.text), `the copy once the extension is removed: exit ${d.code}; ${d.text.trim().split("\n").slice(-3).join(" | ").slice(0, 400)}`);
+        // 5. #150 WP-C (B9 after a NATIVE restore): the database came back with its storage.objects rows and no files. A
+        //    file is lost on the copy while its row stays (as a native restore leaves it); --files-only puts it back from
+        //    the bundle by hash, changes no row, and names a row the bundle has no file for instead of inventing one
+        const su = { ...target, PGUSER: "supabase_admin" };
+        const row = psql(su, `select row_to_json(o) from storage.objects o where bucket_id = '${BUCKET}' and name = 'two.txt'`).out.trim();
+        await storageRest(stack.rest, "DELETE", `object/${BUCKET}`, JSON.stringify({ prefixes: ["two.txt"] }));
+        const gone = psql(target, `select count(*) from storage.objects where bucket_id = '${BUCKET}' and name = 'two.txt'`).out.trim();
+        // its row put back as a native restore leaves it (every ordinary column; the generated ones fill themselves)
+        const back = psql(su, `do $x$ declare cols text; begin
+            select string_agg(quote_ident(column_name), ', ' order by ordinal_position) into cols from information_schema.columns
+             where table_schema = 'storage' and table_name = 'objects' and is_generated = 'NEVER';
+            execute format('insert into storage.objects (%s) select %s from json_populate_record(null::storage.objects, %L::json)', cols, cols, ${"$"}j$${row}$j$);
+          end $x$;`);
+        const rowsBefore = psql(target, `select string_agg(bucket_id || '/' || name || ':' || (metadata->>'size'), ',' order by name) from storage.objects where bucket_id = '${BUCKET}'`).out.trim();
+        const fo = restore("--files-only");
+        const rowsAfter = psql(target, `select string_agg(bucket_id || '/' || name || ':' || (metadata->>'size'), ',' order by name) from storage.objects where bucket_id = '${BUCKET}'`).out.trim();
+        c.expect(row !== "" && gone === "0" && back.ok && fo.code === 0 && /FILES PUT BACK/.test(fo.text) && /files: 2 put back/.test(fo.text) && rowsAfter === rowsBefore,
+          `--files-only after a lost file whose row stayed: row kept ${back.ok}, exit ${fo.code}, rows ${rowsBefore} -> ${rowsAfter}; ${fo.text.trim().split("\n").slice(-3).join(" | ").slice(0, 400)}`);
+        const e = restore("--verify-only", "--storage");
+        c.expect(e.code === 0 && /SAFE TO REOPEN/.test(e.text), `the copy after the files were put back: exit ${e.code}; ${e.text.trim().split("\n").slice(-2).join(" | ").slice(0, 300)}`);
+        // a row the bundle has no file for: named, not invented
+        psql(su, `insert into storage.objects (bucket_id, name, metadata) values ('${BUCKET}', 'made-after.bin', '{"size": 3}')`);
+        const g = restore("--files-only");
+        c.expect(g.code !== 0 && !/FILES PUT BACK/.test(g.text) && /has no file in the bundle/.test(g.text) && /1 row\(s\) with no file in the bundle/.test(g.text),
+          `a row with no file in the bundle: exit ${g.code}; ${g.text.trim().split("\n").slice(-2).join(" | ").slice(0, 300)}`);
+        psql(su, `set storage.allow_delete_query = 'true'; delete from storage.objects where bucket_id = '${BUCKET}' and name = 'made-after.bin'`, { stopOnError: false });
       } finally {
         stack?.stop();
         psql(pg, "alter role pintar_backup password null; select pg_terminate_backend(pid) from pg_stat_activity where usename = 'pintar_backup';", { stopOnError: false });
@@ -958,7 +984,8 @@ rollback;
       }
       return c.verdict("a bundle collected by pintar_backup from CI's database and Storage restores into an empty Supabase stack with 0 differences, " +
         "every Storage file read back with its hash, anon's reach as its source's, the extension baseline held and readiness as its source: SAFE TO " +
-        "REOPEN; an extension added on the copy makes its verification refuse, and removing it makes it safe again");
+        "REOPEN; an extension added on the copy makes its verification refuse, and removing it makes it safe again; after a native-like loss " +
+        "(a file gone, its row kept) --files-only puts the file back by hash and changes no row, and a row the bundle has no file for is named");
     },
   },
   {

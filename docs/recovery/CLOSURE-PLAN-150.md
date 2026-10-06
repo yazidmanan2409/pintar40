@@ -402,7 +402,11 @@ local stand-ins; nothing hosted, nothing bought, no real credential (owner's bou
 - the production recipient and checksum check;
 - the first key-possession check answered by both custodians.
 
-**WP-C: B8, reconstructing PINTAR in a new environment, proven.**
+**WP-C: B8, reconstructing PINTAR in a new environment, proven.** *WP-C.1 built (6 Oct): the runbook
+(`docs/recovery/RUNBOOK-NATIVE-RESTORE.md`), the one guarded record of the projects (`docs/recovery/projects.json`,
+`scripts/recovery/repoint.mjs`), the Auth read-back (`scripts/recovery/auth-state.mjs`), the files put back after a
+native restore (`restore-bundle.mjs --files-only`) and the read-only `recovery-target.yml`; DR-S12, DR-S13 new, DR-D02
+restated. WP-C.2 (the rehearsal's preview deployment and functional checks) is next; then O8.*
 
 **The runbook** (`docs/recovery/RUNBOOK-NATIVE-RESTORE.md`):
 1. native restore to a new project;
