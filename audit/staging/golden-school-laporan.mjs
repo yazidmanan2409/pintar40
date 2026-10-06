@@ -32,7 +32,8 @@
 //       without touching anything and the screen goes to «PINTAR terkunci» (no name, no question about the
 //       computer); the new card's PIN resumes the lesson at the same page. Idle again: «Bukan akun Anda?» → «Keluar»;
 //       her lesson's address now asks for a sign-in. Bunga signs in on the same browser: her own session, the same
-//       lesson at its first page. She signs out. Two real 5-minute waits: nothing is shortened or simulated.
+//       lesson at her own saved place (the record's furthest page for her, never the holder's). She signs out. Two real
+//       5-minute waits: nothing is shortened or simulated.
 //   U2  GS-20 (J2.10), staff on a shared computer (CR-17): before U1, the head of department signs in on a new browser
 //       and answers «Komputer siapa ini?» with «Komputer bersama»; after U1's waits (more than 5 idle minutes), the
 //       server sends that browser's page to «PINTAR terkunci», her PIN resumes the same page, and she signs out. The
@@ -568,7 +569,7 @@ await step("U2a", "GS-20 (J2.10) the head of department, on a new browser: signs
   if (!r.lewat.includes("perangkat bersama") || !/SHARED/.test(mode)) rec.verdict = "FAIL";
   return `${r.jalan}${r.lewat.length ? ` (${r.lewat.join(" → ")})` : ""} → ${r.di}; open sessions this run: ${mode || "none"}`;
 });
-await step("U1", "GS-20 (J2.9, J2.20) the class computer: her lesson locks after 5 idle minutes and her card's PIN resumes it at the same page; idle again, «Bukan akun Anda?» → «Keluar»; Bunga signs in on the same browser to her own session and the lesson at its first page; she signs out", async (rec) => {
+await step("U1", "GS-20 (J2.9, J2.20) the class computer: her lesson locks after 5 idle minutes and her card's PIN resumes it at the same page; idle again, «Bukan akun Anda?» → «Keluar»; Bunga signs in on the same browser to her own session and the lesson at her own saved place; she signs out", async (rec) => {
   const ku = kartuBaru.get(MURID[0]), kb = kartuBaru.get(MURID[1]);
   if (!kelas || !ku || !kb) { rec.verdict = "NOT RUN"; return !kelas ? "C2 did not sign the holder in" : "R1 gave the two students no new cards"; }
   const p = kelas, out = [];
@@ -639,11 +640,21 @@ await step("U1", "GS-20 (J2.9, J2.20) the class computer: her lesson locks after
   const pelajaranB = await bukaPelajaran();
   const [halB] = await posisi();
   await shot(p, "u1-bunga-pelajaran");
-  if (diB !== "/belajar" || pelajaranB !== pelajaran || (dari > 1 && halB !== 1)) rec.verdict = "FAIL";
+  // her own place: the furthest page the record holds for her (BOB-23), the first page if none; never the holder's.
+  // Every learner read the whole chapter in the murid walk, so both may hold its last page, and then the page alone
+  // cannot tell the two apart: her own session (below) is what does
+  const idPelajaran = pelajaran.split("/").pop();
+  const jauh = (orang) => Number(sql(`select coalesce(max(lp.furthest_position), 0) from public.lesson_progress lp
+     where lp.person_id = '${uuid(orang)}' and lp.lesson_id = '${uuid(idPelajaran)}'`));
+  const milikB = Math.min(dari, Math.max(1, jauh(orangDari(MURID[1]))));
+  const milikU = Math.min(dari, Math.max(1, jauh(orangDari(MURID[0]))));
+  if (diB !== "/belajar" || pelajaranB !== pelajaran || (dari > 1 && halB !== milikB)) rec.verdict = "FAIL";
   const pergi = await keluar(p);
   const sesiB = sesiSejak(authB, tKelas);
   if (sesiB !== "CARD:KELUAR") rec.verdict = "FAIL";
-  out.push(`Bunga's new card on the same browser → ${diB}; the same lesson opens at page ${halB}/${dari}; she signs out → ${pergi}; her session ${sesiB || "not recorded"}`);
+  out.push(`Bunga's new card on the same browser → ${diB}; the same lesson opens at page ${halB}/${dari}, her own saved place ` +
+    `${milikB}/${dari} (the holder's ${milikU}/${dari}${milikB === milikU ? ": the same page, so the page alone cannot tell them apart; her own session does" : ""}); ` +
+    `she signs out → ${pergi}; her session ${sesiB || "not recorded"}`);
   await p.context().close();
   kelas = null;
   if (rec.verdict === "PASS" && dari < 2) { rec.verdict = "NOTE"; out.push("the lesson has one page: whose position it opens at cannot be told apart"); }

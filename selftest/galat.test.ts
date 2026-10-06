@@ -270,21 +270,22 @@ export const galatTests: SelfTest[] = [
       const c = new Checks();
       const PESAN = 'permission denied for table person_pins: relation "public.person_pins" at src/lib/rahasia.ts:42';
       const DIGEST = "3141592653";
-      const kasus = [
+      type Kasus = { halaman: "error" | "global-error" | "panel"; pesan?: string; digest?: string; locale?: "id" | "en" };
+      const kasus: Kasus[] = [
         { halaman: "error", pesan: PESAN, digest: DIGEST },
         { halaman: "global-error", pesan: PESAN, digest: DIGEST },
         { halaman: "error", pesan: PESAN },
         { halaman: "global-error", pesan: PESAN },
         { halaman: "panel", digest: DIGEST, locale: "en" },
-      ] as const;
-      const { html, galat } = gambarGalat(ctx.repoRoot, [...kasus]);
+      ];
+      const { html, galat } = gambarGalat(ctx.repoRoot, kasus);
       c.expect(galat === "", `the failure pages could not be rendered: ${galat}`);
       const teks = (h: string) => h.replace(/<[^>]+>/g, " ").replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&amp;/g, "&")
         .replace(/\s+/g, " ").trim();
       const RAW = /permission denied|person_pins|relation "|src\/lib|rahasia\.ts|\bat [\w.]+ \(|Error:/;
       if (galat === "") {
         kasus.forEach((k, i) => {
-          const locale = k.halaman === "panel" ? k.locale : "id";
+          const locale = k.halaman === "panel" ? (k.locale ?? "id") : "id";
           const s = (key: HleEvent) => t(key, "public", { locale });
           const nama = `${k.halaman}${k.halaman === "panel" ? ` (${locale})` : ""}, ${k.digest ? "with" : "without"} a digest`;
           const h = html[i] ?? "", v = teks(h);
