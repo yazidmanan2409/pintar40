@@ -4,6 +4,8 @@
  *
  * PENUTUPAN-Q10 — D-121(a): a certificate whose learner passed a school mark below 70% carries no PINTAR descriptor,
  * and its line is absent from the certificate and from the public check, rather than a dash.
+ * PENUTUPAN-S01 — CR-02 (D-078(c), D-077(d)): the learner's certificate page draws the school, the course and the
+ * certificate's language from the certificate's own seal (my_certificate), never from today's school or assignment.
  */
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -65,6 +67,26 @@ export const penutupanTests: SelfTest[] = [
       return c.verdict(
         `rendered from the real KartuSertifikat on screen and on the sheet, a certificate with no descriptor has no «${label}» line ` +
         "and no dash, and one with «Baik» or «Cukup» reads it; the public check draws the descriptor only when there is one (D-121(a))");
+    },
+  },
+  {
+    id: "PENUTUPAN-S01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const hal = readFileSync(join(ctx.repoRoot, "src", "app", "belajar", "[tugas]", "sertifikat", "page.tsx"), "utf8");
+      const tanpaKomentar = hal.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+      c.expect(/const institution = detail\?\.institution_as_issued\s*\?\?/.test(tanpaKomentar),
+        "the certificate page does not read the school's name from the certificate's seal first");
+      c.expect(/detail\?\.course_title_as_issued/.test(tanpaKomentar) && /const course = sealedCourse \?\?/.test(tanpaKomentar),
+        "the certificate page does not read the course from the certificate's seal first");
+      c.expect((tanpaKomentar.match(/<KartuSertifikat cred=\{cred\} locale=\{bahasaSertifikat\}/g) ?? []).length === 2
+        && /detail\?\.language_as_issued/.test(tanpaKomentar),
+        "the certificate (screen and sheet) is not drawn in the language it was issued in");
+      const kontrak = readFileSync(join(ctx.repoRoot, "src", "lib", "sertifikat-kontrak.ts"), "utf8");
+      c.expect(["institution_as_issued", "course_subject_as_issued", "course_title_as_issued", "language_as_issued"].every((k) => kontrak.includes(`${k}: string | null;`)),
+        "CertificateDetail does not carry the four sealed fields");
+      return c.verdict("the learner's certificate page reads the school, the course and the language from the certificate's own seal " +
+        "(my_certificate), on screen and on the A4 sheet; today's school and assignment are read only where the certificate predates the seal");
     },
   },
 ];

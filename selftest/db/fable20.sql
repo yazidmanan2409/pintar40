@@ -16,6 +16,12 @@
 --            with no official Uji Penguasaan result there (never started, an enrolment still PENDING, or a sitting not
 --            finished) counts in the not-yet state, never in a performance band; an assessed learner never counts as
 --            not yet, a failed safety gate included; the class's sample is every learner the distribution counts
+--   F20-S01  CR-02, D-078(c), D-077(d), D-076(e): a certificate is sealed at issuance. Renaming the school afterwards
+--            changes neither the certificate the learner reads nor its public check; the course is the one the
+--            certificate's own release teaches; the language is fixed; a seal can never be edited
+--   F20-C01  CR-01, D-080(2)(9), D-120 Q1: a certificate's number is the holder's PINTAR ID and their own five-digit
+--            sequence, `<PINTAR ID>/<NNNNN>`; the holder's next certificate takes the next number; the sequence is never
+--            reset or reused; «Awalan nomor» is retired, and no saved template changes the number
 --
 -- EVERY ROW IS ROLLED BACK: one subtransaction, verdicts collected in a jsonb of problems, a sentinel to undo the
 -- lot, and the findings emitted afterwards.
@@ -113,6 +119,7 @@ declare
   r record; k text; v_tag text; v_sess uuid; v_bands jsonb; v_cur text; v_e record; v_c record; v_probe text;
   v_aa uuid; v_ver text; v_res text; v_inst uuid; v_class uuid; v_period uuid; v_d0 jsonb; v_d1 jsonb;
   v_p uuid[] := '{}'; v_pid uuid; v_enr uuid; i int; v_beda jsonb;
+  v_cert uuid; v_tok text; v_nama_lama text; v_v record; v_d jsonb; v_pintar text; v_n1 text; v_n2 text; v_kursus text;
   v_probs jsonb := '{}'::jsonb; v_fatal text := '';
 begin
   perform selftest.as_owner();
@@ -305,6 +312,94 @@ begin
       v_probs := selftest.f20_note(v_probs, 'F20-N01', 'the test could not run: ' || left(sqlerrm, 160));
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F20-S01  THE CERTIFICATE IS SEALED AT ISSUANCE
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.purge_certificates();
+      v_sess := selftest.boot_attempt(true);
+      perform selftest.as_owner();
+      select c.certificate_id into v_cert from public.certificate_prepare(v_sess, 1::smallint) c;
+      perform public.certificate_seal(v_cert, 1::smallint, repeat('a', 64));
+      select c.verification_token, i.name, i.id into v_tok, v_nama_lama, v_inst
+        from public.certificates c join public.institutions i on i.id = c.institution_id where c.id = v_cert;
+      select co.title into v_kursus from public.certificates c join public.assessment_sessions s on s.id = c.session_id
+        join public.plp_releases rl on rl.id = s.plp_release_id join public.courses co on co.id = rl.course_id where c.id = v_cert;
+      if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'certificates'
+                      and column_name in ('institution_as_issued', 'course_title_as_issued', 'language_as_issued')
+                     having count(*) = 3) then
+        v_probs := selftest.f20_note(v_probs, 'F20-S01', 'a certificate keeps no school name, course or language of its own: they are read live');
+      end if;
+      -- the school is renamed after the certificate was issued
+      update public.institutions set name = v_nama_lama || ' (nama baru ' || v_tag || ')' where institutions.id = v_inst;
+      select * into v_v from public.verify_certificate(v_tok);
+      if v_v.institution is distinct from v_nama_lama then
+        v_probs := selftest.f20_note(v_probs, 'F20-S01', format('after the school was renamed the public check reads «%s», not the name it was issued under', v_v.institution));
+      end if;
+      perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+      begin
+        select to_jsonb(m) into v_d from public.my_certificate(v_sess) m;
+      exception when others then v_d := null;
+      end;
+      perform selftest.as_owner();
+      if v_d is null or v_d ->> 'institution_as_issued' is distinct from v_nama_lama
+         or v_d ->> 'course_title_as_issued' is distinct from v_kursus or v_d ->> 'language_as_issued' is distinct from 'id' then
+        v_probs := selftest.f20_note(v_probs, 'F20-S01', format('the learner''s certificate does not read the sealed school «%s», course «%s» and language id: %s',
+          v_nama_lama, v_kursus, coalesce(v_d::text, 'nothing')));
+      end if;
+      -- a seal is never edited
+      if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'certificates'
+                  and column_name = 'institution_as_issued') then
+        k := selftest.f20_kode(format('update public.certificates set institution_as_issued = %L where id = %L', 'Sekolah Lain', v_cert));
+        if k is null then
+          v_probs := selftest.f20_note(v_probs, 'F20-S01', 'a certificate''s sealed school name could be edited');
+        end if;
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f20_note(v_probs, 'F20-S01', 'the test could not run: ' || left(sqlerrm, 160));
+    end;
+
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F20-C01  THE NUMBER IS THE HOLDER'S PINTAR ID AND THEIR OWN SEQUENCE
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      select p.pintar_id into v_pintar from public.persons p join public.accounts a on a.person_id = p.id
+        join auth.users u on u.id = a.auth_user_id where u.email = 'boot-siswa@bootstrap.pintar.test';
+      -- a template saved with the old «Awalan nomor», if that can still be done, must change nothing
+      if to_regprocedure('public.save_certificate_template(uuid, uuid, uuid, text, text)') is not null then
+        v_probs := selftest.f20_note(v_probs, 'F20-C01', '«Awalan nomor» is still saved (save_certificate_template takes a number prefix)');
+      end if;
+      perform selftest.purge_certificates();
+      v_sess := selftest.boot_attempt(true);
+      perform selftest.as_owner();
+      select c.canonical_payload ->> 'certificate_number' into v_n1 from public.certificate_prepare(v_sess, 1::smallint) c;
+      if v_n1 !~ ('^' || v_pintar || '/[0-9]{5}$') then
+        v_probs := selftest.f20_note(v_probs, 'F20-C01', format('the number is %s, not the holder''s PINTAR ID %s and a five-digit sequence', v_n1, v_pintar));
+      end if;
+      perform selftest.purge_certificates();
+      v_sess := selftest.boot_attempt(true);
+      perform selftest.as_owner();
+      select c.canonical_payload ->> 'certificate_number' into v_n2 from public.certificate_prepare(v_sess, 1::smallint) c;
+      if v_n1 ~ '/[0-9]{5}$' and v_n2 ~ '/[0-9]{5}$'
+         and (substring(v_n2 from '([0-9]{5})$')::int <> substring(v_n1 from '([0-9]{5})$')::int + 1
+              or regexp_replace(v_n2, '/[0-9]{5}$', '') is distinct from v_pintar) then
+        v_probs := selftest.f20_note(v_probs, 'F20-C01', format('the holder''s next certificate is %s after %s, not the next number of their own', v_n2, v_n1));
+      end if;
+      -- the sequence is never reset or reused
+      if to_regclass('public.certificate_number_counters') is null then
+        v_probs := selftest.f20_note(v_probs, 'F20-C01', 'there is no per-person counter (BOB-48)');
+      else
+        k := selftest.f20_kode('delete from public.certificate_number_counters');
+        if k is null then v_probs := selftest.f20_note(v_probs, 'F20-C01', 'a holder''s counter could be deleted, so a number could be reused'); end if;
+        k := selftest.f20_kode('update public.certificate_number_counters set last_sequence = 0');
+        if k is null then v_probs := selftest.f20_note(v_probs, 'F20-C01', 'a holder''s counter could be set back, so a number could be reused'); end if;
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f20_note(v_probs, 'F20-C01', 'the test could not run: ' || left(sqlerrm, 160));
+    end;
+
     raise exception 'F20-ROLLBACK';
   exception when others then
     if sqlerrm <> 'F20-ROLLBACK' then v_fatal := sqlerrm; end if;
@@ -313,10 +408,12 @@ begin
 
   for r in
     select * from unnest(
-      array['F20-Q10', 'F20-F01', 'F20-N01'],
+      array['F20-Q10', 'F20-F01', 'F20-N01', 'F20-S01', 'F20-C01'],
       array['D-121(a)(b), Q10 Alternative 4 -- mastery is the school''s mark; the descriptor is PINTAR''s fixed scale, none below 70%',
             'D-121(a), INV-29 -- a result is decided under its session''s own scoring version',
-            'D-121(c), D-095(c)(g) -- «Belum mengerjakan Uji Penguasaan» is produced and stays apart from the bands'],
+            'D-121(c), D-095(c)(g) -- «Belum mengerjakan Uji Penguasaan» is produced and stays apart from the bands',
+            'CR-02, D-078(c), D-077(d) -- a certificate is sealed at issuance: school, course, language',
+            'CR-01, D-080(2)(9) -- the number is the holder''s PINTAR ID and their own sequence'],
       array[
         'the current scoring version names Sangat Baik ≥ 90%, Baik ≥ 80% and Cukup ≥ 70% and nothing below; the engine version is '
           || 'pintar-engine/2; a published version''s descriptors cannot be edited in place and the next publication carries them '
@@ -329,7 +426,12 @@ begin
         'five learners placed in the official class: the two never started (one enrolment PENDING) and the one whose sitting is '
           || 'unfinished add 3 to «Belum mengerjakan Uji Penguasaan»; the one assessed at 45% and the one at 95% whose safety '
           || 'gate failed add 2 to the lowest band and nothing elsewhere; the sample grows by 5; the learner assessed at 100% is '
-          || 'in the top band; a learner moved out of the class no longer counts there'
+          || 'in the top band; a learner moved out of the class no longer counts there',
+        'a certificate issued and sealed, then the school renamed: the public check and the learner''s certificate still read the '
+          || 'school''s name as issued, the course the certificate''s release teaches and the language id; the sealed school name '
+          || 'cannot be edited',
+        'the holder''s certificate is numbered <PINTAR ID>/<five digits>, their next certificate the next number of their own; the '
+          || 'per-person counter can be neither deleted nor set back; «Awalan nomor» can no longer be saved'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

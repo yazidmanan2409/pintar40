@@ -2245,6 +2245,11 @@
       "proves": "D-121(a), executed: rendered from the real src/components/sertifikat/KartuSertifikat.tsx on screen and on the A4 sheet, a certificate with no PINTAR descriptor (a learner who passed a school mark below 70%) has no «Predikat» line and no dash, while «Baik» and «Cukup» are read; the public check (src/app/verifikasi/[token]/page.tsx) draws the descriptor line only when there is one."
     },
     {
+      "id": "PENUTUPAN-S01",
+      "runner": "static",
+      "proves": "CR-02 (D-078(c), D-077(d)), read from the source file src/app/belajar/[tugas]/sertifikat/page.tsx: the learner's certificate page takes the school's name and the course from the certificate's own seal (my_certificate's institution_as_issued, course_*_as_issued) before anything live, and draws the certificate on screen and on the A4 sheet in the language it was issued in (language_as_issued); CertificateDetail carries the four sealed fields. The database half is F20-S01."
+    },
+    {
       "id": "BOB07-R01",
       "runner": "app",
       "proves": "BOB-07 (D-011), against the running app and Auth: the rendered package page /studio/paket/<course>, asked with a content refusal's code and a planted detail in the database's English, shows the code's Indonesian sentence and never the planted words; asked with ACTION_FAILED and a reference, it shows the reference; the rendered route /konfigurasi does the same for a role refusal's code.",
@@ -2960,6 +2965,18 @@
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
+      "id": "F20-S01",
+      "runner": "db",
+      "proves": "CR-02, D-078(c), D-077(d), D-076(e), measured in selftest/db/fable20.sql: a certificate is prepared and sealed for the bootstrap learner, then the school is renamed; the public check (verify_certificate) and the learner's my_certificate still read the school's name as issued, the course its own release teaches and the language id; an update of the sealed school name is refused.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-C01",
+      "runner": "db",
+      "proves": "CR-01, D-080(2)(9), D-120 Q1, measured in selftest/db/fable20.sql: the holder's certificate is numbered <PINTAR ID>/<five digits>; their next certificate takes the next number of their own; the per-person counter (certificate_number_counters) can be neither deleted nor set back; save_certificate_template no longer takes a number prefix («Awalan nomor» retired).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
       "id": "BOB50-A01",
       "runner": "app",
       "proves": "BOB-50 (D-082(d)), selftest/bob50.test.ts: the route POST /api/certificates/issue executes against the running app for a real, all-correct Uji Cepat asked by its own learner (signed in through /masuk/password): not_eligible, and no certificate row exists for the session.",
@@ -3304,12 +3321,12 @@
     {
       "id": "ADM18-K01",
       "runner": "static",
-      "proves": "Release checklist ADM-18 (N8) and D-085 T4, certificate_prepare as 20261126100000 leaves it (selftest/rilis40.test.ts), on CI's database with two real psql sessions: two finished sittings of one school whose certificates are prepared at the same moment (the first holding its transaction open) get two different certificate numbers and both are prepared, where before the second failed on the unique number; one sitting prepared twice at the same moment gives one certificate and the same id to both, where before the second failed on one root per session; a learner with a profile photo gets a certificate whose identity snapshot holds no photo path and no photo hash, and whose snapshot hash, in the row and in the signed payload, is the hash of the name alone. The fixture's sittings and certificates are removed after."
+      "proves": "ADM-18, D-085 T4, restated for CR-01 (D-080(2)): two certificates of one holder prepared at the same moment get consecutive numbers of the holder's own, <PINTAR ID>/<n>, and both are prepared (the holder's sequence row is locked); one session prepared twice at the same moment gives one certificate; a learner with a profile photo gets a certificate whose snapshot holds no photo, its hash the name's alone."
     },
     {
       "id": "ADM18-K02",
       "runner": "static",
-      "proves": "Release checklist ADM-18, the template half of numbering (selftest/rilis40.test.ts): executes certificate_prepare as migration 20261128100000 leaves it on CI's database: with no certificate template the number is PINTAR/<school>/<year>/<n> as before; after the school's admin saves the school-wide prefix SDBOOT through save_certificate_template (Studio's «Awalan nomor») the number is SDBOOT/<year>/<n>; after a course template SDBOOT/MAT it is SDBOOT/MAT/<year>/<n>, the course's prefix over the school's. Templates and certificates made by the test are removed after."
+      "proves": "ADM-18, restated for CR-01 (D-080(2)(9), D-120 Q1): «Awalan nomor» is retired; save_certificate_template takes no number prefix, and the holder's certificates are numbered <PINTAR ID>/<five digits>, consecutive, whether no template, the school's or the course's is saved."
     },
     {
       "id": "STU12-K01",

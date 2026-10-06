@@ -87,11 +87,16 @@ export const rilis40Tests: SelfTest[] = [
         const layak = psql(`select string_agg(e.eligible::text, ',') from unnest(array['${s1}','${s2}','${s3}']::uuid[]) s, lateral public.certificate_eligibility(s) e`);
         if (!c.expect(layak === "true,true,true", `the three sittings are not all eligible for a certificate (${layak})`)) return c.verdict("");
 
-        // two learners' certificates at the same moment: two numbers, both prepared
+        // two certificates of one holder at the same moment: two numbers, both prepared. RESTATED FOR CR-01 (D-080(2),
+        // D-120 Q1, a changed requirement): the number is the holder's PINTAR ID and their own sequence, so the two are
+        // consecutive numbers of that holder's, whichever was taken first
+        const pid = psql(`select pintar_id from public.persons where id = ${lit(siswa)}`);
         const [a, b] = await bersamaan(s1, s2);
         const [, nA] = a.out.split("|"), [, nB] = b.out.split("|");
-        c.expect(a.code === 0 && b.code === 0 && !!nA && !!nB && nA !== nB,
-          `two certificates prepared at the same moment: ${a.code === 0 ? nA : a.err} and ${b.code === 0 ? nB : b.err}; expected two different numbers, both prepared`);
+        const urut = (n: string) => (new RegExp(`^${pid}/(\\d{5})$`).exec(n ?? "") ?? [])[1];
+        const [uA, uB] = [Number(urut(nA)), Number(urut(nB))].sort((x, y) => x - y);
+        c.expect(a.code === 0 && b.code === 0 && !!nA && !!nB && nA !== nB && !!urut(nA) && !!urut(nB) && uB === uA + 1,
+          `two certificates prepared at the same moment: ${a.code === 0 ? nA : a.err} and ${b.code === 0 ? nB : b.err}; expected two consecutive numbers of the holder's own, ${pid}/<n>, both prepared`);
 
         // one session at the same moment twice: one certificate
         const [x, y] = await bersamaan(s3, s3);
@@ -112,7 +117,7 @@ export const rilis40Tests: SelfTest[] = [
         psql(`update public.persons set photo_path = ${fotoLama ? lit(fotoLama) : "null"} where id = ${lit(siswa)}`);
         try { psql("select selftest.purge_certificates()"); } catch { /* the F04 suite purges again */ }
       }
-      return c.verdict("two learners of one school prepared at the same moment got two different numbers and both were prepared; one session " +
+      return c.verdict("two certificates of one holder prepared at the same moment got consecutive numbers of the holder's own (<PINTAR ID>/<n>) and both were prepared; one session " +
         "prepared twice at the same moment gave one certificate; a learner with a profile photo got a certificate whose snapshot holds no " +
         "photo, its hash the name's alone (D-085 T4)");
     },
@@ -121,37 +126,45 @@ export const rilis40Tests: SelfTest[] = [
     id: "ADM18-K02",
     requires: ["db"],
     run: async () => {
+      // RESTATED FOR CR-01 (D-080(2)(9), D-120 Q1, a changed requirement): «Awalan nomor» is retired. The number is the
+      // holder's PINTAR ID and their own five-digit sequence whatever template the school saves, and the template saves
+      // its layout only
       const c = new Checks();
-      // a template saved as the school's own admin would save it in Studio (save_certificate_template, CAN_PUBLISH)
-      const simpan = (awalan: string, lingkup: "sekolah" | "mapel") => psql(`
+      const simpan = (lingkup: "sekolah" | "mapel") => psql(`
         do $t$ declare f record; begin
           perform selftest.as_owner();
           select * into f from selftest.boot_fixture();
           perform selftest.as_user('boot-admin@bootstrap.pintar.test');
-          perform public.save_certificate_template(f.inst, ${lingkup === "mapel" ? "f.course" : "null"}, null, 'CLASSIC', ${lit(awalan)});
+          perform public.save_certificate_template(f.inst, ${lingkup === "mapel" ? "f.course" : "null"}, null, 'CLASSIC');
           perform selftest.as_owner();
         end $t$;`);
-      // a fresh finished sitting each time, and the number its certificate is prepared with
       const nomor = () => {
         psql("select selftest.purge_certificates()");
         const s = psql("select selftest.boot_attempt(true)").split("\n").pop()!;
         return psql(`select canonical_payload->>'certificate_number' from public.certificate_prepare('${s}'::uuid, 1::smallint)`);
       };
+      const pid = psql(`select p.pintar_id from public.persons p join public.accounts a on a.person_id = p.id join auth.users u on u.id = a.auth_user_id where u.email = 'boot-siswa@bootstrap.pintar.test'`);
+      const lima = psql("select count(*) from pg_proc where proname = 'save_certificate_template' and pronargs = 5");
       let tanpa = "", sekolah = "", mapel = "";
       try {
         tanpa = nomor();
-        simpan("SDBOOT", "sekolah");
+        simpan("sekolah");
         sekolah = nomor();
-        simpan("SDBOOT/MAT", "mapel");
+        simpan("mapel");
         mapel = nomor();
       } finally {
         psql("delete from public.certificate_templates where institution_id = (select inst from selftest.boot_fixture())");
         try { psql("select selftest.purge_certificates()"); } catch { /* the F04 suite purges again */ }
       }
-      c.expect(/^PINTAR\/[A-Z0-9-]+\/\d{4}\/\d{5}$/.test(tanpa), `with no template the number is ${tanpa}, not PINTAR/<school>/<year>/<n>`);
-      c.expect(/^SDBOOT\/\d{4}\/\d{5}$/.test(sekolah), `with the school's prefix SDBOOT the number is ${sekolah}`);
-      c.expect(/^SDBOOT\/MAT\/\d{4}\/\d{5}$/.test(mapel), `with the course's prefix SDBOOT/MAT over the school's the number is ${mapel}`);
-      return c.verdict(`no template: ${tanpa}; the school's prefix: ${sekolah}; the course's, over the school's: ${mapel}`);
+      const bentuk = new RegExp(`^${pid}/\\d{5}$`);
+      const urut = (n: string) => Number(n.split("/").pop());
+      c.expect(lima === "0", "save_certificate_template still takes a number prefix («Awalan nomor»)");
+      c.expect(bentuk.test(tanpa) && bentuk.test(sekolah) && bentuk.test(mapel),
+        `the numbers are ${tanpa}, ${sekolah} and ${mapel}; expected ${pid}/<five digits> with no template, the school's and the course's`);
+      c.expect(urut(sekolah) === urut(tanpa) + 1 && urut(mapel) === urut(sekolah) + 1,
+        `the holder's numbers ${tanpa}, ${sekolah}, ${mapel} are not consecutive: a saved template changed the sequence`);
+      return c.verdict(`no template: ${tanpa}; the school's template: ${sekolah}; the course's: ${mapel}; one holder's consecutive numbers, ` +
+        "<PINTAR ID>/<sequence>, whatever the template; the template takes no prefix");
     },
   },
   {

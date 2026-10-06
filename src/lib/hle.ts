@@ -943,7 +943,6 @@ export type HleEvent =
   | "studio.integritas.catat"
   | "studio.sertifikat.judul"
   | "studio.sertifikat.tata_letak"
-  | "studio.sertifikat.awalan"
   | "studio.sertifikat.identitas"
   | "studio.sertifikat.simpan"
   | "studio.bank.judul"
@@ -3461,7 +3460,6 @@ const table: Table = {
   "studio.integritas.catat": { default: "Catat tinjauan", en: "Record the review" },
   "studio.sertifikat.judul": { default: "Tata Letak Sertifikat", en: "Certificate Layout" },
   "studio.sertifikat.tata_letak": { default: "Tata letak", en: "Layout" },
-  "studio.sertifikat.awalan": { default: "Awalan nomor", en: "Number prefix" },
   "studio.sertifikat.identitas": { default: "Sertifikat menampilkan nama pemegang saja.", en: "The certificate shows the holder's name only." },
   "studio.sertifikat.simpan": { default: "Simpan", en: "Save" },
   "studio.bank.judul": { default: "Bank Soal", en: "Item Bank" },

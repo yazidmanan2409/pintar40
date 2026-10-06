@@ -453,15 +453,22 @@ await step("C1", "GS-18 read only: who is eligible (official, sealed mark, safet
   if (!S) { rec.verdict = "NOT RUN"; return "L0 did not read the school"; }
   SERT = sql(`select c.person_id || '|' || c.session_id || '|' || s.mode::text || '|' || c.status::text || '|' || c.certificate_number || '|' ||
         c.verification_token || '|' || sn.name_as_issued || '|' || (c.signature is not null and c.signature <> '')::text || '|' ||
-        (c.revoked_at is null)::text || '|' || c.issued_at_iso
+        (c.revoked_at is null)::text || '|' || c.issued_at_iso || '|' || p.pintar_id || '|' ||
+        coalesce(cc.institution_as_issued, '')
       from public.academic_certificates c join public.assessment_sessions s on s.id = c.session_id
       join public.certificate_identity_snapshots sn on sn.id = c.snapshot_id
+      join public.persons p on p.id = c.person_id
+      join public.certificates cc on cc.id = c.id
      where c.institution_id = '${uuid(S.id)}' order by c.certificate_number`).split("\n").filter(Boolean).map((l) => {
-    const [orang, sesi, mode, status, nomor, token, nama, bertanda, berlaku, terbit] = l.split("|");
-    return { orang, sesi, mode, status, nomor, token, nama, bertanda: bertanda === "true", berlaku: berlaku === "true", terbit };
+    const [orang, sesi, mode, status, nomor, token, nama, bertanda, berlaku, terbit, pintarId, sekolahSegel] = l.split("|");
+    return { orang, sesi, mode, status, nomor, token, nama, bertanda: bertanda === "true", berlaku: berlaku === "true", terbit, pintarId, sekolahSegel };
   });
   const out = [];
-  const nomor = new RegExp(`^PINTAR/${SLUG.toUpperCase()}/\\d{4}/\\d{5}$`);
+  // CR-01 (D-080(2)(9)): the holder's PINTAR ID and their own five-digit sequence, sealed with the school's name as
+  // issued (CR-02). A certificate issued before 20261201100000 keeps its PINTAR/<school>/<year>/<n> number and has no seal.
+  const lama = new RegExp(`^PINTAR/${SLUG.toUpperCase()}/\\d{4}/\\d{5}$`);
+  const sah = (c) => (c.sekolahSegel ? new RegExp(`^${c.pintarId}/\\d{5}$`).test(c.nomor) && c.sekolahSegel === S.nama : lama.test(c.nomor));
+  const nomor = { test: (n) => SERT.some((c) => c.nomor === n && sah(c)) };
   for (const m of S.murid) {
     const layak = m.post.batas != null && m.post.gerbang && m.post.m >= m.post.batas;
     const milik = SERT.filter((c) => c.orang === m.orang);
