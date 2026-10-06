@@ -618,7 +618,8 @@ Gate 3 stays held; the coordinator does not merge it.
       confirmed). Its guards are `scripts/recovery/rehearsal.mjs`. No Vercel setting changes; where one would be needed
       (a protected preview, a value not reaching previews) the run stops for the owner.
     - **Tests:** DR-S17 and DR-D03 new; DR-S11 (C5 and C8 also in the rehearsal, in their own environment) and DR-S13
-      (nothing left PENDING; the rehearsal's workflow tied to its steps) restated: red on `f707464`, green now. The
+      (nothing left PENDING; the rehearsal's workflow tied to its steps) restated: red on `f707464`, green on `9631bf6`
+      (CI 37425505226, 35/35, 592 tests passed). The
       runbook's three PENDING items are cleared; owner instructions O8 written (prepared, not yet to be done).
     - **Not done:** the hosted rehearsal (O8), after WP-B's first staging bundle. Every part of it is a first use of real
       infrastructure (EVIDENCE-INDEX §6).
