@@ -303,7 +303,6 @@ export function aclRows(snapshot) {
 
 /** PINTAR's additions (condition 3), read in the snapshot. */
 function additions(dir, snapshot, exp) {
-  const pintar = patternRegex(SCHEMA_EXCLUDE);
   const trig = psqlRun(`select regexp_replace(pg_get_triggerdef(t.oid), '^CREATE TRIGGER', 'CREATE OR REPLACE TRIGGER') || ';'
                           || case t.tgenabled when 'D' then E'\\nALTER TABLE auth.users DISABLE TRIGGER ' || quote_ident(t.tgname) || ';' else '' end
                           from pg_trigger t where t.tgrelid = to_regclass('auth.users') and not t.tgisinternal order by t.tgname;`, { snapshot });
@@ -521,7 +520,7 @@ export function ciphertextRecipients(file) {
  * Condition 6: encrypt to exactly the named recipients, then prove the ciphertext names exactly them. `input` is a file,
  * or a Buffer handed to gpg on its standard input (a secret's value is never written to disk in the clear).
  */
-export function encrypt(input, output, keysDir, names) {
+export function encrypt(input, output, keysDir, names, { armor = false } = {}) {
   const home = mkdtempSync(join(tmpdir(), "gpg-pub-"));
   try {
     const problems = [], fprs = [], expected = [];
@@ -537,7 +536,7 @@ export function encrypt(input, output, keysDir, names) {
     if (problems.length) return { problems };
     const secret = tool("gpg", ["--homedir", home, "--batch", "--list-secret-keys", "--with-colons"]);
     if (/^sec/m.test(secret.out)) return { problems: ["a private key is present where only public keys may be"] };
-    const r = tool("gpg", ["--homedir", home, "--batch", "--yes", "--trust-model", "always", "--compress-algo", "none",
+    const r = tool("gpg", ["--homedir", home, "--batch", "--yes", "--trust-model", "always", "--compress-algo", "none", ...(armor ? ["--armor"] : []),
       ...fprs.flatMap((f) => ["--recipient", f]), "--output", output, "--encrypt", ...(Buffer.isBuffer(input) ? [] : [input])],
       Buffer.isBuffer(input) ? { input } : {});
     if (!r.ok) return { problems: [`gpg could not encrypt: ${r.err.split("\n").slice(-1)[0]}`] };

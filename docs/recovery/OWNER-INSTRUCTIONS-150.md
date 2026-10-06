@@ -75,3 +75,81 @@ projects, settings, billing or data changes. The existing deploy token stays as 
 
 Send nothing else: no password, key, connection string or data. Forward the answer to the coordinator. If Supabase
 offers a supported restriction, the coordinator brings it back to you before anything changes.
+
+---
+
+## O3–O7: WP-B's owner actions — PREPARED, NOT YET TO BE DONE
+
+**Do none of these until the coordinator asks for each one, after you have approved it** (D-107(a): the coordinator
+reports before every owner action or external service). They are written down now so they can be reviewed with the code.
+Before any of them, migration 162 (`pintar_backup`) must be authorised for staging, and later for production.
+
+The order: O3 (AWS), O4 (keys), O5 (Supabase Storage keys), O6 (the `pintar_backup` passwords), then the coordinator's
+first backup and drill runs, then O7 (the first escrow).
+
+### O3: AWS (D-107 D1)
+
+1. An AWS account in your name, with **MFA on the root login**. Keep the recovery codes offline.
+2. CloudFormation → Create stack → upload `infra/aws/pintar-backup.json` → stack name `pintar-backup`. Region **Asia
+   Pacific (Singapore)**. BucketName: `pintar-backup-` followed by a few random letters.
+3. IAM → Users → `pintar-backup-writer` → Security credentials → Create access key ("application running outside
+   AWS"). Put it in GitHub (Settings → Environments):
+   - environment **`backup`**: secrets `AWS_BACKUP_WRITER_KEY_ID` and `AWS_BACKUP_WRITER_SECRET`;
+   - environment **`escrow`**: the same two secrets.
+4. The same for `pintar-backup-reader`:
+   - environments **`staging-recovery-drill`** and **`production-recovery`**: secrets `AWS_BACKUP_READER_KEY_ID` and
+     `AWS_BACKUP_READER_SECRET`.
+5. Repository variable `PINTAR_BACKUP_BUCKET` = the bucket's name.
+6. On each of the four environments: deployment branches = `main` only. On `escrow`, `production-recovery` and
+   `staging-recovery-drill`: required reviewer = you.
+
+### O4: the key ceremony (D-107 D2)
+
+1. Install a desktop OpenPGP application: GPG Suite (Mac) or Kleopatra (Windows).
+2. **R1 (you, custodian A):**
+   - make a new key pair named "PINTAR recovery R1", with a strong passphrase;
+   - export the **public** key and send it to the coordinator;
+   - export a **backup of the private key** to offline media, kept in a safe.
+3. **R3 (the staging drill key, opens synthetic staging data only):**
+   - make a new key pair named "PINTAR staging drill R3", **without** a passphrase;
+   - export the public key to the coordinator;
+   - export the private key as text and put it in environment `staging-recovery-drill`, secret
+     `STAGING_DRILL_PRIVATE_KEY`;
+   - then delete R3's private key from your computer.
+4. **R2 (custodian B)** is made the same way as R1 when custodian B is named (B6). Until then production bundles and
+   the escrow go to R1 alone: repository variables `PINTAR_BACKUP_RECIPIENTS_PRODUCTION` = `R1` and
+   `PINTAR_ESCROW_RECIPIENTS` = `R1`; `PINTAR_BACKUP_RECIPIENTS_STAGING` = `R1 R3`. When R2 exists, these become
+   `R1 R2`, `R1 R2` and `R1 R2 R3`.
+
+### O5: the Supabase Storage S3 keys (C3; Supabase's, not AWS)
+
+For each project (`pintar-production`, then `pintar-staging`): Supabase → Storage → Settings → S3 access keys → New
+access key. Put them in environment **`backup`**:
+- `PRODUCTION_SUPABASE_STORAGE_S3_KEY_ID` and `PRODUCTION_SUPABASE_STORAGE_S3_SECRET`;
+- `STAGING_SUPABASE_STORAGE_S3_KEY_ID` and `STAGING_SUPABASE_STORAGE_S3_SECRET`.
+
+### O6: the `pintar_backup` passwords (C2)
+
+Your password manager makes a random password of 40 characters (letters, digits and symbols, no spaces) for each
+database. Put them in environment **`backup`**: `STAGING_DB_BACKUP_PASSWORD` and `PRODUCTION_DB_BACKUP_PASSWORD`.
+The coordinator then runs **backup credential · set** for each. The database receives only a verifier; the password
+never leaves GitHub.
+
+### Then the coordinator, read only where it can be
+
+1. Records production's extension baseline (read only).
+2. Runs one staging backup and one production backup, and shows one planted failure red.
+3. Runs the drill.
+4. Runs the possession check.
+
+Each run is reported to you before the next step.
+
+### O7: the first escrow
+
+Approve the run of **escrow · the durable secrets** (environment `escrow`). It needs both fingerprints recorded in
+`docs/recovery/durable-secrets.json` first (the next production deploy prints them).
+
+### Afterwards
+
+Set the repository variables `PINTAR_OFFSITE_BACKUP`, `PINTAR_RECOVERY_DRILL` and `PINTAR_POSSESSION_CHECK` to `on`
+when you decide. Until then the schedules do nothing.

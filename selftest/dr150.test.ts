@@ -11,8 +11,9 @@
  *          school and nobody beyond the first administrator; REFUSE everything else, an unknown count included; the
  *          seal is made byte for byte as src/lib/certificates/sign.ts makes it; a fingerprint says nothing of the value
  *  DR-S02  the deploy (.github/workflows/deploy-vercel-production.yml): the guard runs, from the workflow's own commit,
- *          after the service-role key is proven and before any variable is written; a durable secret is minted only on
- *          the guard's MINT, a missing verdict stops the deploy, and nothing mints unconditionally any more; the record
+ *          after the service-role key is proven and before any variable is written; RESTATED FOR #150 WP-B: the deploy
+ *          never mints a durable secret (a MINT verdict stops it and names escrow-durable-secrets.yml, which escrows
+ *          first), and a missing verdict stops the deploy; the record
  *          (docs/recovery/durable-secrets.json) names both secrets and holds only well-formed fingerprints
  *  DR-S03  the guard end to end, against a local stand-in for Vercel and PostgREST: an empty production is minted
  *          into; a production holding classroom cards, or a count it cannot read, is refused with no verdict written;
@@ -281,9 +282,11 @@ export const dr150Tests: SelfTest[] = [
         "the guard and its record are not taken from the workflow's own commit, or the guard is not run");
       c.expect(!/\bkeep (CARD_PEPPER|CERT_SECRET_KEY_V1)\b/.test(body) && /\bdurable CARD_PEPPER\b/.test(body) && /\bdurable CERT_SECRET_KEY_V1\b/.test(body),
         "a durable secret is still written by the unconditional keep()");
-      const rand = body.match(/openssl rand/g) ?? [];
+      // RESTATED FOR #150 WP-B (A4): the deploy never mints; a MINT verdict stops it and names the workflow that escrows first
+      const rand = body.match(/openssl rand|randomBytes/g) ?? [];
       const mint = /MINT\)([\s\S]*?);;/.exec(body)?.[1] ?? "";
-      c.expect(rand.length === 1 && /openssl rand/.test(mint) && /write_env "\$1"/.test(mint), "a durable secret can be minted outside the guard's MINT verdict");
+      c.expect(rand.length === 0 && /exit 1/.test(mint) && /escrow-durable-secrets\.yml/.test(mint) && !/write_env/.test(mint),
+        "the deploy can still mint a durable secret, or a MINT verdict does not stop it and name escrow-durable-secrets.yml");
       c.expect(/\*\)\s+echo "::error::the durable-secret guard gave no verdict for \$1; nothing is minted"; exit 1;;/.test(body),
         "a missing verdict does not stop the deploy");
       let rec: { production?: Record<string, { fingerprint?: unknown }> } = {};
@@ -294,7 +297,8 @@ export const dr150Tests: SelfTest[] = [
       });
       c.expect(ok, `${RECORD} does not name both secrets with a well-formed fingerprint (or null, not recorded yet)`);
       return c.verdict("the production deploy runs the guard from its own commit after the service-role key is proven and before any variable is " +
-        "written, mints a durable secret only on the guard's MINT and stops on a missing verdict; the record names both secrets");
+        "written, never mints a durable secret (a MINT verdict stops it and names escrow-durable-secrets.yml) and stops on a missing verdict; the record " +
+        "names both secrets");
     },
   },
   {

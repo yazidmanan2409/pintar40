@@ -1,0 +1,42 @@
+# #150 WP-B (closure plan A1, O12): EACH QUARTER, EACH CUSTODIAN PROVES THEIR RECOVERY KEY STILL WORKS.
+#
+# A random 20-letter phrase is encrypted to R1 and, separately, to R2 (public keys only; nothing here can read it). The
+# job summary shows each armored message and the SHA-256 of its phrase. Each custodian opens their message in their
+# desktop OpenPGP application and sends the phrase back; the coordinator compares its SHA-256. A match proves the private
+# key is still held and still opens what backups are encrypted to, and reveals nothing. OFF BY DEFAULT: the quarterly
+# schedule does nothing until PINTAR_POSSESSION_CHECK = on. No secret is used.
+
+name: drill · recovery-key possession check, quarterly
+
+on:
+  schedule:
+    - cron: '23 2 1 1,4,7,10 *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || vars.PINTAR_POSSESSION_CHECK == 'on')
+    name: R1 and R2
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/recovery
+            scripts/release
+            docs/recovery
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: One message for each custodian
+        run: |
+          set -euo pipefail
+          for k in R1 R2; do
+            out=$(node scripts/recovery/drill.mjs possession "$k" "$RUNNER_TEMP/possession")
+            echo "$out"
+            { echo "### $k"; echo; echo "${out#*must be }" | sed 's/^/the answer'"'"'s SHA-256: /'; echo; echo '```'; cat "$RUNNER_TEMP/possession/$k-possession.asc"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          done

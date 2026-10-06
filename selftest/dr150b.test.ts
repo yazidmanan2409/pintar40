@@ -34,6 +34,15 @@
  *          Vercel holds none (a different value in Vercel, or an escrow holding another value, writes nothing); no value
  *          is ever printed; the AWS template keeps Object Lock and versioning on, gives the escrow prefix no lifecycle
  *          rule, the writer only puts and the reader only reads
+ *  DR-S11  the wiring (D-108(c)(1)-(4)): the six WP-B workflows run from main only, their schedules (the 03:00 WIB backup,
+ *          the monthly drill, the quarterly possession check) do nothing until the owner switches them on, and each runs
+ *          in its own environment; every credential of the inventory (C2-C5, C8, a custodian's key) appears in exactly the
+ *          workflows the inventory names and C2 nowhere in src/; the backup reaches the database with verify-full against
+ *          the committed Supabase root CA and never through a URL; a failed production backup raises the watch's issue.
+ *          Executed: the drill takes the newest bundle WITH its success record (condition 10) and refuses one whose bytes
+ *          differ from its record; credential.mjs sets C2 as a SCRAM verifier (pintar_backup then signs in, read-only by
+ *          default) and revokes it at once (sign-in refused); the possession check's message opens only with its own
+ *          custodian's key, to the phrase whose SHA-256 it printed
  *  DR-S08  exact rights: acl.sql (backup.mjs acl) executed on CI's database in a transaction rolled back, after the drift
  *          the 5 Oct logical restore produced (every table, sequence and function given to anon and authenticated, CREATE
  *          on public given to anon) and a right taken away: every PINTAR object's rights for anon, authenticated,
@@ -861,6 +870,120 @@ rollback;
         "first and writes to Vercel after, and writes nothing when the escrow is refused; recover writes back only the recorded value where Vercel " +
         "holds none; no value is printed; the template keeps Object Lock and versioning, no lifecycle rule on the escrow, a put-only writer and a " +
         "read-only reader");
+    },
+  },
+  {
+    id: "DR-S11",
+    requires: ["db"],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const WF = join(repoRoot, ".github/workflows");
+      const files = ["backup-offsite", "backup-credential", "escrow-durable-secrets", "recover-durable-secret", "restore-drill", "key-possession-check"];
+      const kode = (f: string) => { try { return readFileSync(join(WF, `${f}.yml`), "utf8").split("\n").filter((l) => !/^\s*#/.test(l)).join("\n"); } catch { return ""; } };
+      const missing = files.filter((f) => !kode(f));
+      if (!c.expect(missing.length === 0, `the WP-B workflows are missing: ${missing.join(", ")}`)) return c.verdict("");
+      // main only; schedules off until switched on; environments
+      for (const f of files) {
+        const ifs = kode(f).match(/^ {4}if: .*$/gm) ?? [];
+        c.expect(ifs.length > 0 && ifs.every((l) => l.includes("github.ref == 'refs/heads/main'")), `${f}: a job does not run from main only`);
+      }
+      const off = (f: string, v: string) => (kode(f).match(/^ {4}if: .*$/gm) ?? []).every((l) => l.includes(`vars.${v} == 'on'`)) && /schedule:/.test(kode(f));
+      c.expect(/- cron: '0 20 \* \* \*'/.test(kode("backup-offsite")) && off("backup-offsite", "PINTAR_OFFSITE_BACKUP"), "the nightly backup is not at 20:00 UTC (03:00 WIB), or is not off until switched on");
+      c.expect(off("restore-drill", "PINTAR_RECOVERY_DRILL") && off("key-possession-check", "PINTAR_POSSESSION_CHECK"), "the drill or the possession check is not off until switched on");
+      const env = (f: string) => [...kode(f).matchAll(/^ {4}environment: (\S+)$/gm)].map((m) => m[1]);
+      c.expect(JSON.stringify(env("backup-offsite")) === '["backup","backup"]' && JSON.stringify(env("backup-credential")) === '["backup"]'
+        && JSON.stringify(env("escrow-durable-secrets")) === '["escrow"]' && JSON.stringify(env("recover-durable-secret")) === '["production-recovery"]'
+        && JSON.stringify(env("restore-drill")) === '["staging-recovery-drill","staging-recovery-drill"]' && env("key-possession-check").length === 0,
+        "a WP-B job runs outside the environment its credentials belong to");
+      // the inventory: each credential in exactly its workflows
+      const all = readdirSync(WF).filter((f) => /\.ya?ml$/.test(f)).map((f) => f.replace(/\.ya?ml$/, ""));
+      const holders = (secret: string) => all.filter((f) => kode(f).includes(`secrets.${secret} `) || kode(f).includes(`secrets.${secret}}`)).sort();
+      const harus: Record<string, string[]> = {
+        PRODUCTION_DB_BACKUP_PASSWORD: ["backup-credential", "backup-offsite"], STAGING_DB_BACKUP_PASSWORD: ["backup-credential", "backup-offsite"],
+        PRODUCTION_SUPABASE_STORAGE_S3_KEY_ID: ["backup-offsite"], PRODUCTION_SUPABASE_STORAGE_S3_SECRET: ["backup-offsite"],
+        STAGING_SUPABASE_STORAGE_S3_KEY_ID: ["backup-offsite"], STAGING_SUPABASE_STORAGE_S3_SECRET: ["backup-offsite"],
+        AWS_BACKUP_WRITER_KEY_ID: ["backup-offsite", "escrow-durable-secrets"], AWS_BACKUP_WRITER_SECRET: ["backup-offsite", "escrow-durable-secrets"],
+        AWS_BACKUP_READER_KEY_ID: ["recover-durable-secret", "restore-drill"], AWS_BACKUP_READER_SECRET: ["recover-durable-secret", "restore-drill"],
+        STAGING_DRILL_PRIVATE_KEY: ["restore-drill"], RECOVERY_PRIVATE_KEY: ["recover-durable-secret"], RECOVERY_KEY_PASSPHRASE: ["recover-durable-secret"],
+      };
+      for (const [n, want] of Object.entries(harus)) c.expect(JSON.stringify(holders(n)) === JSON.stringify(want), `${n} is held by ${holders(n).join(", ") || "nothing"}, not ${want.join(", ")}`);
+      const src: string[] = [];
+      for (const f of readdirSync(join(repoRoot, "src"), { recursive: true }) as string[]) {
+        if (/\.(ts|tsx|js|mjs|json)$/.test(f) && /DB_BACKUP_PASSWORD|pintar_backup/.test(readFileSync(join(repoRoot, "src", f), "utf8"))) src.push(f);
+      }
+      c.expect(src.length === 0, `the application names C2 or pintar_backup: ${src.join(", ")}`);
+      // the connection: verify-full against the committed CA, never a URL; a failed production backup raises the watch's issue
+      const b = kode("backup-offsite");
+      c.expect((b.match(/PGSSLMODE: verify-full/g) ?? []).length === 2 && (b.match(/PGSSLROOTCERT: docs\/recovery\/supabase-root-2021-ca\.crt/g) ?? []).length === 2
+        && !/postgres(ql)?:\/\//.test(b), "the backup does not insist on verify-full against Supabase's root CA, or passes C2 in a URL");
+      const ca = spawnSync("openssl", ["x509", "-in", join(repoRoot, "docs/recovery/supabase-root-2021-ca.crt"), "-noout", "-fingerprint", "-sha256", "-subject"], { encoding: "utf8" });
+      c.expect(/80:70:25:AD:50:D4:ED:21:9D:2C:9C:7D:29:9C:00:4F:82:4E:B0:0C:F7:F6:5A:FE:F6:07:D0:7B:72:E6:CA:FA/.test(ca.stdout ?? "") && /Supabase Root 2021 CA/.test(ca.stdout ?? ""),
+        `the committed CA is not Supabase Root 2021 CA as recorded: ${(ca.stdout ?? "").trim()}`);
+      const watchTitle = /ISSUE_TITLE: "([^"]+)"/.exec(readFileSync(join(WF, "production-watch.yml"), "utf8"))?.[1];
+      c.expect(!!watchTitle && b.includes(`ISSUE_TITLE: "${watchTitle}"`) && /if: failure\(\)[\s\S]*\/issues/.test(b.slice(0, b.indexOf("  staging:"))),
+        "a failed production backup does not raise the production watch's one issue");
+      c.expect(!/--decrypt/.test(kode("restore-drill").slice(kode("restore-drill").indexOf("  production:"))), "the drill decrypts a production bundle on a runner (D-107 D5)");
+
+      // executed: condition 10
+      const dm = (await import(pathToFileURL(join(repoRoot, "scripts/recovery/drill.mjs")).href)) as { latestComplete: (k: string[], t: string) => { chosen: string | null; incomplete: string[] } };
+      const B = (d: string, t: string) => `staging/daily/${d}/pintar-staging-${t}.tar.gz.gpg`;
+      const keys = [B("2026-11-01", "20261101T200000Z"), `${B("2026-11-01", "20261101T200000Z")}.success.json`, B("2026-11-02", "20261102T200000Z"),
+        `production/daily/2026-11-03/pintar-production-20261103T200000Z.tar.gz.gpg`, `production/daily/2026-11-03/pintar-production-20261103T200000Z.tar.gz.gpg.success.json`];
+      const lc = dm.latestComplete(keys, "staging");
+      c.expect(lc.chosen === B("2026-11-01", "20261101T200000Z") && lc.incomplete.length === 1, `the drill would take ${lc.chosen} (a newer bundle without its success record must never be taken)`);
+      // executed: a fetched bundle whose bytes differ from its record is refused
+      const dir = mkdtempSync(join(tmpdir(), "dr-s11-"));
+      const body = randomBytes(2048);
+      const rec = Buffer.from(JSON.stringify({ bundle: { sha256: createHash("sha256").update(body).digest("hex"), bytes: body.length }, database: { tables: 1, rows: 1 }, storage: { objects: 0 } }));
+      const k1 = B("2026-11-04", "20261104T200000Z");
+      const ambil = async (bytes: Buffer) => {
+        const s3 = await standInS3({ keyId: "AKIASTANDINREADER", preload: new Map([[k1, { body: bytes, headers: {} }], [`${k1}.success.json`, { body: rec, headers: {} }]]) });
+        try {
+          return await new Promise<{ code: number | null; text: string }>((ok) => {
+            const p = spawn("node", [join(repoRoot, "scripts/recovery/drill.mjs"), "fetch", "staging", join(dir, `f-${randomBytes(3).toString("hex")}`)], { env: { PATH: process.env.PATH ?? "",
+              NODE_ENV: "production", DRILL_S3_ENDPOINT: s3.url, DRILL_S3_REGION: "ap-southeast-1", DRILL_S3_BUCKET: "pintar-backup-test", DRILL_S3_KEY_ID: "AKIASTANDINREADER",
+              DRILL_S3_SECRET: "standin", DRILL_S3_PATH_STYLE: "1" } });
+            let text = ""; p.stdout.on("data", (x) => (text += x)); p.stderr.on("data", (x) => (text += x));
+            p.on("close", (code) => ok({ code, text }));
+          });
+        } finally { await s3.close(); }
+      };
+      const g = await ambil(body);
+      c.expect(g.code === 0 && g.text.includes(k1), `the drill could not fetch a complete bundle: ${g.text.trim().split("\n").slice(-1)}`);
+      const bad = await ambil(Buffer.concat([body.subarray(0, 2047), Buffer.from([body[2047] ^ 1])]));
+      c.expect(bad.code !== 0 && /does not match its success record/.test(bad.text), `the drill took a bundle whose bytes differ from its record: exit ${bad.code}`);
+      // executed: C2 set (a verifier only) and revoked at once, on CI's database
+      const pg = postgres();
+      const pw = randomBytes(30).toString("base64url");
+      const cred = (action: string) => spawnSync("node", [join(repoRoot, "scripts/recovery/credential.mjs"), action], { encoding: "utf8",
+        env: { PATH: process.env.PATH ?? "", NODE_ENV: "production", ADMIN_DB_URL: process.env.SUPABASE_DB_URL!, BACKUP_PASSWORD: pw } });
+      try {
+        const set = cred("set");
+        const stored = psql(pg, "select rolpassword like 'SCRAM-SHA-256$4096:%', rolcanlogin from pg_authid where rolname = 'pintar_backup'").out.trim();
+        c.expect(set.status === 0 && /signs in with the new password, read-only by default/.test(set.stdout) && stored === "t|t" && !`${set.stdout}${set.stderr}`.includes(pw),
+          `credential set: exit ${set.status}; stored ${stored}; ${(set.stdout + set.stderr).trim().slice(0, 200)}`);
+        const rv = cred("revoke");
+        const after = psql(pgAs("pintar_backup", pw), "select 1");
+        c.expect(rv.status === 0 && !after.ok, `credential revoke: exit ${rv.status}; a sign-in afterwards ${after.ok ? "succeeded" : "was refused"}`);
+      } finally { psql(pg, "alter role pintar_backup login password null", { stopOnError: false }); }
+      const cm = (await import(pathToFileURL(join(repoRoot, "scripts/recovery/credential.mjs")).href)) as { scramVerifier: (p: string) => string };
+      let weak = ""; try { cm.scramVerifier("short"); } catch (e) { weak = (e as Error).message; }
+      c.expect(/at least 32 printable/.test(weak), "a short password is accepted for C2");
+      // executed: the possession check
+      const k = makeKeys(join(dir, "keys"), ["R1", "R2"]);
+      const pz = spawnSync("node", [join(repoRoot, "scripts/recovery/drill.mjs"), "possession", "R1", join(dir, "pos")], { encoding: "utf8",
+        env: { PATH: process.env.PATH ?? "", NODE_ENV: "production", RECIPIENTS_DIR: k.pub } });
+      const hash = /must be ([0-9a-f]{64})/.exec(pz.stdout ?? "")?.[1];
+      const open1 = spawnSync("gpg", ["--homedir", k.homes.R1, "--batch", "--pinentry-mode", "loopback", "--passphrase", "", "--decrypt", join(dir, "pos/R1-possession.asc")], { encoding: "utf8" });
+      const open2 = spawnSync("gpg", ["--homedir", k.homes.R2, "--batch", "--pinentry-mode", "loopback", "--passphrase", "", "--decrypt", join(dir, "pos/R1-possession.asc")], { encoding: "utf8" });
+      const phrase = (open1.stdout ?? "").trim();
+      c.expect(pz.status === 0 && /^-----BEGIN PGP MESSAGE-----/.test(readFileSync(join(dir, "pos/R1-possession.asc"), "utf8")) && /^([A-Z]{4}-){4}[A-Z]{4}$/.test(phrase)
+        && createHash("sha256").update(phrase).digest("hex") === hash && open2.status !== 0 && !(pz.stdout ?? "").includes(phrase),
+        `the possession check: exit ${pz.status}; R1 opens it ${open1.status === 0}, R2 ${open2.status === 0}`);
+      return c.verdict("the six WP-B workflows run from main only, their schedules do nothing until switched on, each in its own environment; every " +
+        "credential sits in exactly the workflows the inventory names and C2 nowhere in src/; the backup insists on verify-full against the " +
+        "committed Supabase root CA; a failed production backup raises the watch's issue; the drill takes only a complete bundle and refuses " +
+        "altered bytes; C2 is set as a SCRAM verifier and revoked at once; the possession message opens only for its own custodian");
     },
   },
 ];

@@ -3186,7 +3186,7 @@
     {
       "id": "DR-S02",
       "runner": "static",
-      "proves": "#150 G5, the deploy (selftest/dr150.test.ts): .github/workflows/deploy-vercel-production.yml runs the durable-secret guard, taken from the workflow's own commit, after the service-role key is proven and before any variable is written; a durable secret is minted only on the guard's MINT, a missing verdict stops the deploy, and nothing mints unconditionally; docs/recovery/durable-secrets.json names both secrets with well-formed fingerprints (or null: not recorded yet)."
+      "proves": "#150 G5, the deploy (selftest/dr150.test.ts): .github/workflows/deploy-vercel-production.yml runs the durable-secret guard, taken from the workflow's own commit, after the service-role key is proven and before any variable is written; RESTATED FOR #150 WP-B, the deploy never mints a durable secret: a MINT verdict stops it and names escrow-durable-secrets.yml, which escrows the secret before writing it; a missing verdict stops the deploy; docs/recovery/durable-secrets.json names both secrets with well-formed fingerprints (or null: not recorded yet)."
     },
     {
       "id": "DR-S03",
@@ -3227,6 +3227,11 @@
       "id": "DR-S10",
       "runner": "static",
       "proves": "#150 WP-B, B5 escrow and recovery (A4; selftest/dr150b.test.ts): executes scripts/recovery/escrow.mjs against local stand-ins for Vercel's env API and S3: escrow uploads each durable secret, encrypted to R1 and R2 only (R3 cannot open it), with its SHA-256 checksum and an Object Lock legal hold, and only when its fingerprint equals docs/recovery/durable-secrets.json's record (a mismatch or a missing record escrows nothing); mint escrows first and writes to Vercel only afterwards, and writes nothing when the escrow is refused; recover writes back only the recorded value and only where Vercel holds none (a different value in Vercel, or an escrow holding another value, writes nothing); no value is printed. The AWS template infra/aws/pintar-backup.json keeps Object Lock, versioning and the public-access block, gives no lifecycle rule to the escrow prefix (35-day daily and 12-month monthly expiry otherwise), lets the writer only put and the reader only read, and is TLS-only."
+    },
+    {
+      "id": "DR-S11",
+      "runner": "static",
+      "proves": "#150 WP-B, the wiring and controls D-108(c)(1)-(4) (selftest/dr150b.test.ts): the workflow files backup-offsite, backup-credential, escrow-durable-secrets, recover-durable-secret, restore-drill and key-possession-check run from main only; the 03:00 WIB backup, the monthly drill and the quarterly possession check do nothing until the owner switches them on; each job runs in its own environment; every credential of the inventory (C2-C5, C8, a custodian's key) appears in exactly the workflows the inventory names, and C2 nowhere in src/; the backup reaches the database with verify-full against the committed Supabase Root 2021 CA and never through a URL; a failed production backup raises the production watch's issue; production bundles are never decrypted by the drill. It executes scripts/recovery/drill.mjs (only a bundle with its success record is taken; one whose bytes differ from its record is refused; the possession message opens only with its custodian's key, to the phrase whose SHA-256 it printed) and scripts/recovery/credential.mjs against CI's database (C2 set as a SCRAM verifier, pintar_backup then signs in read-only by default; revoked at once, a sign-in refused; a short password refused)."
     },
     {
       "id": "DR-S14",

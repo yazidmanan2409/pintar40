@@ -14,13 +14,13 @@
 # copying a URL between two consoles by hand, and that is precisely the step
 # that was wrong before.
 #
-# SECRETS ARE GENERATED HERE AND NEVER LEAVE. CARD_PEPPER and
-# CERT_SECRET_KEY_V1 are minted in the job with `openssl rand` and written
-# straight into Vercel. They are never printed and never pass through a chat
-# transcript. They are also written ONCE: the certificate keyring may never
-# lose a version (FABLE-04, INV-07), and re-minting the pepper would
-# invalidate every classroom-card PIN derived from it. Both are therefore
-# added only when absent.
+# DURABLE SECRETS ARE NEVER MINTED HERE (#150 WP-B, A4). CARD_PEPPER and
+# CERT_SECRET_KEY_V1 are written ONCE: the certificate keyring may never lose a
+# version (FABLE-04, INV-07), and re-minting the pepper would invalidate every
+# classroom-card PIN derived from it. They are made only by
+# escrow-durable-secrets.yml (mode mint), which escrows each one outside Vercel
+# BEFORE writing it, so no durable secret ever exists in one place alone. This
+# deploy keeps them, and stops when one would have to be minted.
 #
 # ABSENT IS NOT THE SAME AS NEW (#150 G5). An emptied or rebuilt Vercel project
 # looks exactly like a first deployment, and minting then would silently break
@@ -29,8 +29,9 @@
 # from) decides first, from what Vercel holds, the fingerprints recorded in
 # docs/recovery/durable-secrets.json and what production holds: a secret is
 # kept only when it matches its record and (the certificate key) opens an issued
-# certificate's seal, and minted only into a production holding no card, no
-# sealed certificate, no school and nobody beyond the first administrator.
+# certificate's seal, and may be minted (by the escrow workflow) only into a
+# production holding no card, no sealed certificate, no school and nobody
+# beyond the first administrator.
 # Anything else, or anything it cannot establish, stops the deploy before a
 # single variable is written: the secret is then recovered, never replaced.
 #
@@ -358,16 +359,14 @@ jobs:
           # Replaceable configuration: rewritten every deploy so the origin and
           # the build stamp always match what is actually deployed.
           put() { write_env "$1" "$2"; echo "set $1"; }
-          # Durable secrets: written once, never rewritten, and minted only where
-          # the guard said MINT. See the header (#150 G5).
+          # Durable secrets: kept, never rewritten here, and never minted here: a MINT
+          # verdict stops the deploy and names the workflow that escrows first
+          # (#150 G5, WP-B). See the header.
           durable() {
             case "$(awk -v n="$1" '$1 == n { print $2 }' "${DURABLE_VERDICT_FILE:-/nonexistent}" 2>/dev/null)" in
               KEEP) has "$1" || { echo "::error::$1 vanished from Vercel after the guard kept it; nothing is minted"; exit 1; }
                     echo "kept $1 (verified by the guard)";;
-              MINT) has "$1" && { echo "::error::$1 appeared in Vercel after the guard found it absent; nothing is minted"; exit 1; }
-                    v="$(openssl rand -hex 32)"; write_env "$1" "$v"
-                    echo "minted $1, fingerprint $(printf %s "$v" | node "$DURABLE_GUARD" fingerprint "$1"): record it in docs/recovery/durable-secrets.json"
-                    unset v;;
+              MINT) echo "::error::$1 is absent and production is empty, so it may be minted, but never here: run escrow-durable-secrets.yml (mode mint), which escrows it before writing it to Vercel; then deploy again. Nothing is minted"; exit 1;;
               *)    echo "::error::the durable-secret guard gave no verdict for $1; nothing is minted"; exit 1;;
             esac
           }
