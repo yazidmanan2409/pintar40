@@ -19,15 +19,18 @@
 | Step | Run | Result |
 |---|---|---|
 | CI on bcc3b7a | 37483042122 | **red**: two plant gates (§3) |
-| CI on a28b4d2 | 37486231374 | _(pending)_ |
+| CI on a28b4d2 | 37486231374 | **red**: every plant gate green; the strict selftest 616 passed, 1 failed (§3) |
+| CI on 9a46bf5 | 37489874488 | _(pending)_ |
 | main fast-forwarded; staging migrated | _(pending)_ | _(pending)_ |
 
-## 3. The red CI run, and why
+## 3. The red CI runs, and why
 
-Two mutation-plant gates failed. **Neither was a product defect**; both were the instruments not following the batch's own changes, and both are the coordinator's miss: the plant gates were not run locally before the dispatch.
+**Run 37483042122.** Two mutation-plant gates failed. **Neither was a product defect**; both were the instruments not following the batch's own changes, and both are the coordinator's miss: the plant gates were not run locally before the dispatch.
 - **F06 plant 3b** deleted the capability check of `save_certificate_template` in its five-argument form, which CR-01 retired with «Awalan nomor». The plant errored before planting and the gate read it as "stayed green". It now plants the same deletion in the four-argument form; proven locally (F06-N02 red for ACCEPTED, and the whole FABLE-06 step green with every plant red for its own reason).
 - **db-bob24-gates** expected 6 green rows of the identity suite; CR-19's F16-X01 (batch 2) made it 7. Proven locally: 14/14 plants prove their gate.
 Cost: 69 estimated minutes. From now on the plant gates of any suite a change touches run locally first (`scripts/dev/plants.mjs run --gate=…`, and the F06 step's script).
+
+**Run 37486231374.** Every plant gate green; the strict selftest 616 passed and 1 failed: PENUTUPAN-A01, CR-13's end-to-end test. The correction's notice **had** arrived at both addresses; the test took the old address's newest message by position, and CI's Mailpit lists a mailbox newest first where the local sink listed it oldest first, so it read the activation code instead. The test now finds the notice by its subject and requires exactly one more message (9a46bf5); the local sink was changed to Mailpit's order and the test re-proven against it. Again an instrument, not the product; again the coordinator's miss (a local sink that did not behave as CI's).
 
 ## 4. For the owner and for Daisy
 
