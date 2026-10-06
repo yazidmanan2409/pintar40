@@ -476,3 +476,14 @@ Gate 3 stays held; the coordinator does not merge it.
     - **Verdict: NOT PASS.** A (PINTAR's own controls) is built and proven; B (provider and owner actions) is not done: G2, G1 (and so G6's applies), G3/G4 with G5's escrow; G9 and G10 are open decisions.
     - **Waiting on the owner:** G2's two dashboard actions; the production token's backup permission (G1, G6); G3/G4's decisions (`docs/recovery/OFFSITE-BACKUP-DESIGN.md`); G9's people; G10's switch.
     - **6 Oct rulings (D-104, D-105):** NOT PASS and the A/B distinction accepted; #150 gates PRODUCTION READY, not staging human acceptance. The review is corrected: G3/G4 are design only, and their implementation is not a condition of the current scope (a later owner ruling may set the intended-scale requirement). G1 Part 2 is on hold, with no credential change; G6 stays fail-closed. G1 Part 1 and G2 are approved as owner actions, with the recovery time measured as T0–T3. Instructions: `docs/recovery/OWNER-INSTRUCTIONS-G1-G2.md`.
+38. **#150 G1 Part 1 and G2, 6 Oct (D-105; owner actions, read-only verification).**
+    - **G1 Part 1 (owner screenshots):** production lists 7 scheduled physical backups (the latest 05 Oct 19:24:09 UTC, "Last backup 5 hours ago", none visibly failed, no status column); PITR not enabled; Storage objects not included. G1 Part 2 on hold.
+    - **G2:** "Restore to a New Project" from `pintar-staging` (backup 05 Oct 23:34:27 UTC) to `pintar-g2-rehearsal-DELETE-ME` (`rzphxkmbsunmedxmxwsz`).
+      - Timings: T0 00:48:02, T1 ≤00:51:39, T2 00:51:48, T3 00:56:05; **8 min 03 s** restore-to-verified, on the current staging dataset.
+      - Same as staging: all 157 tables byte-identical; schema, rights, owners, row security, policies, `auth.users` triggers, pre-request, audit protections, roles and settings identical; readiness **24/24 PASS**; nothing repaired.
+      - Not reproduced: API keys, and Auth settings (leaked-password protection off).
+      - Not verified: Storage files (metadata identical).
+      - The copy came up on Postgres 17.11.0.002 (staging 17.6.1.166).
+      - The copy was deleted by the owner; the deletion was confirmed at 01:05:56.
+    - **Second Eye:** "PINTAR's native Supabase database recovery path is proven at current staging scale… This does not establish production-scale RTO. Auth/platform configuration and actual Storage objects require separate reconstruction/recovery procedures."
+    - Evidence: `docs/recovery/evidence/150/`.

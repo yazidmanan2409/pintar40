@@ -43,8 +43,8 @@ authorised #150 scope.*
 
 | # | Item | Status | What clears it |
 |---|---|---|---|
-| B1 | **G2: no hosted restore performed; RTO unmeasured** | approved 6 Oct as an owner action (D-105) | the owner restores staging to a temporary new project; the coordinator verifies it read only and measures T0–T3; the owner deletes it |
-| B2 | **G1 Part 1: production's backups never seen** | approved 6 Oct as an owner action (D-105) | the owner's screenshots of `pintar-production`'s Scheduled backups and Point in Time pages; the coordinator records only what they show |
+| B1 | **G2: hosted restore** | **CLOSED 6 Oct:** native restore proven at staging scale; 24/24; 8 min 03 s; temporary project deleted, deletion confirmed | — |
+| B2 | **G1 Part 1: production's backups seen** | **CLOSED 6 Oct:** 7 physical backups, the latest 05 Oct 19:24:09 UTC, none visibly failed, PITR off | — |
 
 **On hold, or outside the current scope (recorded, not decided here):**
 
@@ -55,17 +55,20 @@ authorised #150 scope.*
 | B5 | **G5 escrow: the two secrets exist only in Vercel** | Part of B4's design; the same status |
 | B6 | G9: recovery rests on one person | An owner decision; open |
 | B7 | G10 is off | An owner decision; open |
+| B8 | **Reconstructing Auth and platform configuration after a restore to a new project.** G2 showed that API keys and Auth settings are not reproduced (leaked-password protection was off on the copy). The production workflows are pinned to the production ref, and the scoped tokens reach only their own project | **Found by G2; recorded, not built.** Per the Second Eye's conclusion, it needs a separate reconstruction procedure; whether and when is the owner's ruling |
+| B9 | **Storage files in a restore** | Not verified by G2 (the metadata is identical). Per Supabase's documentation they are not copied, and no Storage backup exists (B4). **Recorded; the owner's ruling, with B4** |
 
-**#150's status under the current authorised scope:** NOT PASS (accepted). B1 and B2 remain to be evidenced. This
-review does not redefine the PASS criteria. What #150 needs beyond B1 and B2 for PRODUCTION READY waits on the owner's
-rulings on B3 and B4.
+**#150's status under the current authorised scope (6 Oct, after G2):** the required evidence, B1 and B2, is **complete**.
+The accepted verdict, **NOT PASS** for PRODUCTION READY, stands. This review does not redefine the PASS criteria. What
+would change it waits on the owner's rulings on B3 (G6's backup read: production migrations stay blocked), B4/B5
+(intended-scale independent recovery) and B8/B9 (configuration reconstruction and Storage files), and on B6/B7.
 
 ## The closing table
 
 | # | Status 6 Oct | Evidence |
 |---|---|---|
 | G1 | **Part 1 done 6 Oct:** 7 scheduled physical backups listed, the latest 05 Oct 19:24:09 UTC, none visibly failed, status not displayed, PITR off. **Part 2 on hold** (D-105) | see G1 Part 1 below |
-| G2 | **Performed 6 Oct; evidence captured.** Native database recovery proven at current staging scale (Second Eye); 8 min 03 s restore-to-verified; temporary project deletion pending | see G2 result below |
+| G2 | **Closed 6 Oct.** Native database recovery proven at current staging scale (Second Eye); 8 min 03 s restore-to-verified; the temporary project deleted, and its deletion confirmed | see G2 result below |
 | G3/G4 | **Design only (D-104)**; implementation not authorised and not a condition of the current scope | `docs/recovery/OFFSITE-BACKUP-DESIGN.md` |
 | G5 | **Guard built and proven; escrow waits on G3's custody** | `b4bd543`; DR-S01..S03 red on the old workflow, green; CI 37390261594 (35/35, 579/579) |
 | G6 | **Built and proven** (refuses production applies while the backup list cannot be read by machine; G1 Part 2 on hold, D-105) | `870fdac`; DR-S04, DR-S05; CI 37390261594 (35/35, 579/579) |
@@ -233,7 +236,7 @@ recovery-readiness controls without repair. Current measured restore-to-verified
 production-scale RTO. Auth/platform configuration and actual Storage objects require separate reconstruction/recovery
 procedures."
 
-**Still open in G2:** the owner deletes the temporary project, and the coordinator confirms it is gone.
+**G2 closed (6 Oct).** The owner deleted the temporary project. The coordinator confirmed at 01:05:56 UTC that only `pintar`, `pintar-production` and `pintar-staging` remain, and that `rzphxkmbsunmedxmxwsz` no longer resolves.
 
 ### G5. The durable secrets: never replaced silently (built)
 
@@ -512,6 +515,11 @@ SYSTEM_ADMIN": **FAIL**; C-11 break-glass rehearsal: TODO).
 4. **Verify before reopening**: migration history equals the release's; `audit/restore/banding.sh` against the last facts taken from the source shows no difference in data, rights, triggers or pre-request; `docs/audit/launch-readiness.sql` all PASS (with G7's rows); row counts of the key tables against the last known figures; one certificate verifies by its token; one class card signs in; one staff sign-in.
 5. **Reconnect** (new project only): `configure-supabase-auth.yml`, `configure-supabase-smtp.yml`, then `deploy-vercel-production.yml` (new URL and keys) — **with `CARD_PEPPER` and `CERT_SECRET_KEY_V1` restored from their offline copies first**, never minted (H1).
 6. **Storage**: restore objects from their off-platform copy (none exists today).
+   *Corrected 6 Oct by G2:*
+   - a native "Restore to a new project" **kept every database-level control**: rights, triggers, pre-request, policies, owners, readiness 24/24;
+   - it did **not** keep API keys or Auth settings;
+   - step 5 must therefore also re-issue the scoped tokens for the new ref, repoint the production workflows (pinned to `trtlvibiybwixfumjrrx`) and re-apply Auth settings **before** reopening (B8);
+   - Storage files need their own source (B9, B4).
 7. **Reopen**, end the maintenance window, tell the schools what was lost (the window between the restore point and the damage), and record it in RELEASES.md and the journey log.
 
 ## 8. Gaps to close before production (each a proposal; none implemented)
