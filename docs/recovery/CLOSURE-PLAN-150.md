@@ -6,8 +6,9 @@ external-service boundary. Every stop point stands. No UI/UX work. No change to 
 PITR implementation. No 100,000-user rehearsal.
 
 **Progress:** WP-A's code built and proven (`e6cb045`; CI 37401454517, 35/35, 580/580); waiting for O2 (C1), the
-owner's action. **WP-B:** stopped for a ruling on 6 Oct (§ A7, "Finding"); ruled A + B (D-108) and resumed under
-D-107's boundaries. Migration 162 stays off hosted staging and production until separately authorised.
+owner's action. **WP-B:** stopped for a ruling on 6 Oct (§ A7, "Finding"), ruled A + B (D-108), resumed; its code is
+built and proven against local stand-ins (on the branch only; CI 37409454539 on `9133ffc`: 35/35, 587/587). Migration 162 stays off hosted staging and production,
+and off `main`, until separately authorised.
 
 **Unchanged boundaries (D-106(h)–(j)):**
 - native Supabase restore is the **primary** database recovery path;
@@ -318,27 +319,61 @@ A run is recorded as successful **only if all ten hold**. On any failure nothing
   - the owner's screenshot of the token's permission list (Read, not Read-write, cannot be seen without a write).
 - **Stop point:** if Supabase offers no choice of permissions, or the run says TOO BROAD, the work stops and asks.
 
-**WP-B: B4, B5, B9 (database + Storage files + escrow, independent of Supabase and Vercel).** It covers A1–A5, with:
-- the bucket and the two IAM users from a CloudFormation template;
-- `pintar_backup` (migration 162);
-- `backup-offsite.yml`: daily 20:00 UTC, `main` only, fail closed;
-- `escrow-durable-secrets.yml`, and the deploy's mint path escrowing first;
-- `recover-durable-secret.yml`;
-- `scripts/recovery/restore-bundle.sh` (the secondary logical path, with exact rights);
-- `restore-drill.yml` (monthly + on demand, owner-approved): the full restore of the **staging** bundle; for
-  **production**, recipients, checksums and the quarterly possession check only.
+**WP-B: B4, B5, B9 (database + Storage files + escrow, independent of Supabase and Vercel). Code built and proven against
+local stand-ins; nothing hosted, nothing bought, no real credential (owner's boundary, 6 Oct).**
+- **Built:**
+  - `pintar_backup`, migration 162 (`20261125100000`). **Not on `main` and not applied to any hosted database:** a push
+    to `main` that touches `supabase/migrations/` applies it to staging through `staging.yml`. Its landing needs the
+    owner's authorisation.
+  - `scripts/recovery/backup.mjs`: one snapshot; the Supabase CLI's five dumps without `--role`; conditions 1-9 of
+    A5; the extension baseline (D-108).
+  - `scripts/recovery/restore-bundle.mjs`: the secondary logical path, with exact rights; `--verify-only` checks a copy
+    already restored.
+  - `scripts/recovery/escrow.mjs` (escrow, mint, recover), `drill.mjs` (condition 10, the production check, the
+    possession check), `credential.mjs` (C2 set and revoke), and `s3.mjs` (one Signature V4 client, checked against
+    AWS's published example and local Storage).
+  - `infra/aws/pintar-backup.json`: the bucket and the two IAM users, as CloudFormation.
+  - `docs/recovery/extension-baseline.json` (staging recorded; production `null` until read before its first backup)
+    and `docs/recovery/supabase-root-2021-ca.crt` (public; SHA-256 `80:70:25:AD:…:E6:CA:FA`).
+  - Workflows: `backup-offsite.yml`, `backup-credential.yml`, `escrow-durable-secrets.yml`,
+    `recover-durable-secret.yml`, `restore-drill.yml`, `key-possession-check.yml`. All run from `main` only, and every
+    schedule is off until switched on.
+- **Where it departs from this plan's first wording, and why:**
+  1. **No `readiness.txt` in the bundle** (approved, D-108(d)). Readiness is required at 24/24 on the restored copy.
+  2. **Comment lines are kept in the schema dumps.** The CLI deletes every line beginning with `--`, which also
+     deletes comment lines inside function bodies: the 5 Oct rehearsal's restored `content_canonical_payload` lost
+     eleven. Kept, the restored definitions are byte-identical (DR-D02).
+  3. **`acl.sql` puts column rights back last.** A table's REVOKE ALL also clears its columns' rights; found by DR-S08
+     and DR-D02, fixed before landing.
+  4. **The restore's comparison leaves out the platform's own migration ledgers** (`storage.migrations` and the
+     like). The CLI's dump excludes them, and a new project keeps its own.
+  5. **The production deploy no longer mints.** A MINT verdict stops it and names `escrow-durable-secrets.yml`
+     (mode mint), which escrows first and writes to Vercel only after. This keeps the AWS writer key out of the deploy
+     job. DR-S02 restated.
+  6. **The drill restores into an empty Supabase stack on the runner**, the same stand-in for a new project that
+     DR-D02 uses on CI.
+- **Still to confirm at the first hosted run (each a stop point if it fails):**
+  - the exported snapshot works through Supavisor's session pooler;
+  - the pooler's certificate chains to the Supabase Root 2021 CA (`verify-full`; this container cannot reach port 5432);
+  - staging's pooler host is the same as production's (`aws-0-ap-southeast-1`).
+- **Limits, named:**
+  - a single upload is at most 5 GB (no multipart yet): a scale item, refused clearly, never truncated;
+  - large objects are not carried, and the run fails closed if any exist;
+  - the role's timeouts are defaults that a session may lengthen; only the connection limit is enforced by the
+    server.
 
-**Tests (each red on today's code):**
+**Tests (each red on the code before WP-B, green after; run on the local Supabase stack, then CI):**
 
 | ID | Proves |
 |---|---|
-| DR-S08 | `acl.sql`, executed on CI's database: planted drift (all rights to `anon` and `authenticated`) is put back; the rights digest equals the original; readiness 24/24 |
-| DR-S09 | encryption with public keys only: a bundle encrypted to test R1/R2 decrypts with the private keys and **not** with anything the backup job holds; the recipient check rejects a wrong or missing recipient |
-| DR-S10 | escrow and recovery against stand-ins for Vercel and S3: legal hold set and no lifecycle expiry on `escrow/`; escrows only on a fingerprint match; recovery writes only a matching value; never prints a value |
-| DR-S11 | the wiring: environments, schedules, `main` only; each credential C1–C8 appears only where the inventory says |
-| DR-S14 | **A5, executed:** a backup run against CI's database and Storage, with each failure planted (a missing table, a missing or changed Storage object, a wrong recipient, a rejected checksum), is red and uploads no success record; the clean run is green |
+| DR-S08 | `acl.sql` on CI's database, rolled back: after the 5 Oct drift (everything to `anon` and `authenticated`, CREATE on `public` to `anon`) and a right taken away, every PINTAR object's rights for `anon`, `authenticated`, `service_role` and PUBLIC, columns included, are exactly as before; readiness as before |
+| DR-S09 | encryption with public keys only: a production bundle goes to exactly R1 and R2 (read from its packets); their private keys open it, R3's and the job's public keyring do not; production never R3, staging always R3, R1 always; a private-key file, a weak key, a missing or extra recipient refused |
+| DR-S10 | escrow, mint and recover against stand-ins for Vercel and S3: legal hold, checksum, R1 and R2 only, only on a fingerprint match; mint escrows before Vercel; recover writes only the recorded value where Vercel holds none; no value printed; the template's lock, versioning, lifecycle (none on escrow), put-only writer, read-only reader, TLS |
+| DR-S11 | the wiring (D-108(c)(1)-(4)): `main` only, schedules off until switched on, one environment per job, each credential in exactly its workflows and C2 nowhere in `src/`, `verify-full` against the committed CA, a failed production backup raises the watch's issue; executed: condition 10, a bundle with altered bytes refused, C2 set as a SCRAM verifier and revoked at once, the possession check |
+| DR-S14 | **A5, executed** against CI's database and Storage and a stand-in S3: the clean run uploads daily and monthly copies with checksum and lock, each success record last, the bundle opening with R3 and holding every Storage object; red with no success record for a missing table, a missing or changed Storage object, wrong recipients, a rejected checksum, an extension `pintar_backup` itself added (D-108), and a production backup without a baseline |
 | DR-S15 | `pintar_backup` (A7, D-108): it reads every table, `auth` and `storage` included, and its dumps equal `postgres`'s; with its read-only default switched **off** it is still refused every ordinary INSERT, UPDATE, DELETE, TRUNCATE, COPY FROM, sequence advance, CREATE, ALTER, DROP, COMMENT, GRANT, role grant, CREATE ROLE and SET ROLE; the catalog shows it owns nothing, can execute no PINTAR or SECURITY DEFINER function, and holds no attribute beyond LOGIN and BYPASSRLS; the `supautils` extension residual is shown to be the platform's (the extension is created by `supabase_admin`, not by the role) and is left to controls 5-8 |
-| DR-D02 | the logical path end to end on CI: CI's bundle restored by `restore-bundle.sh` into a fresh database gives `banding.sh` 0 differences and readiness 24/24 |
+| DR-D02 | the logical path end to end: a bundle collected by `pintar_backup` restored into a second, **empty** Supabase stack with its Storage files: 0 differences, every file's hash, `anon`'s reach as its source's, the extension baseline, readiness as its source, SAFE TO REOPEN; an extension added afterwards makes `--verify-only` refuse |
+| DR-S02 | restated: the deploy never mints |
 
 **Evidence:**
 - the first green, fail-closed backups of staging and production (the success records);
