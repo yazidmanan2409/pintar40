@@ -840,7 +840,13 @@ await step("S15c", "SD 5 Matematika Bab 1 (real content) imports whole into SD",
   const items = course ? sql(`select count(*) from public.items i join public.lessons l on l.id=i.lesson_id join public.modules m on m.id=l.module_id where m.course_id='${course}'`).trim() : "0";
   const tags = course ? sql(`select coalesce(string_agg(r||':'||n, ', '),'-') from (select coalesce(i.cycle_role::text,'LATIHAN') r, count(*) n from public.items i join public.lessons l on l.id=i.lesson_id join public.modules m on m.id=l.module_id where m.course_id='${course}' group by 1 order by 1) x`).trim() : "-";
   notes.push(`SD courses ${before.courses} → ${after.courses}, lessons ${before.lessons} → ${after.lessons}; this course: items ${items} (${tags})`);
-  if (!course || Number(items) !== 28) rec.verdict = "FAIL";
+  // the chapter as its package has it (CR-82: the fixture is today's PINTAR content, so nothing here is a written-in number)
+  const paketBab1 = JSON.parse(readFileSync(f, "utf8"));
+  const nSoal = paketBab1.courses.reduce((n, c) => n + c.modules.reduce((m, md) => m + md.lessons.reduce((k, l) => k + (l.items ?? []).length, 0), 0), 0);
+  const kodeMis = (paketBab1.misconceptions ?? []).map((x) => x.code);
+  const misSd = kodeMis.length ? Number(sql(`select count(*) from public.misconception_taxonomy where institution_id='${ids.sd}' and code in (${kodeMis.map((k) => `'${k}'`).join(",")})`).trim()) : 0;
+  notes.push(`the package: ${nSoal} question(s), ${kodeMis.length} misconception definition(s); SD now holds ${misSd} of them (CR-50: a package carries its own definitions)`);
+  if (!course || Number(items) !== nSoal || kodeMis.length === 0 || misSd !== kodeMis.length) rec.verdict = "FAIL";
   return notes.join("; ");
 });
 
@@ -887,7 +893,10 @@ const siap = (c) => sql(`select status || ' | ' || coalesce(blockers::text, '') 
 // (the reason is in `notes`, the verdict set).
 // `peninjau` (HOD-04, GS-09): the page that takes the reviewer's steps (approve, make and lock the release) and reads the
 // questions first; the school admin by default.
-async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama = "Bab 1", awalan = "", antrean = null, peninjau = null } = {}) {
+// `tanpaLemah` (CR-50, CR-82): the chapter is PINTAR's own regenerated content, every wrong option naming a misconception
+// its package defines (PENUTUPAN-M04), so its review must raise no WEAK_MISCONCEPTION_LINKAGE finding (F20-M03 in the
+// database; here through the screens).
+async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama = "Bab 1", awalan = "", antrean = null, peninjau = null, tanpaLemah = false } = {}) {
   const pen = peninjau ?? a;
   const siapaPen = peninjau ? "the head of department" : "the school admin";
   // press a step's button as `page`; the state it moved to, or null when nothing moved
@@ -932,6 +941,11 @@ async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama 
         from (select severity::text, pattern_class, count(*) n from public.mcq_quality_findings where course_id='${course}' group by 1, 2) x`).trim();
       const teks = sql(`select coalesce(string_agg(severity || ' x' || n, ', '), 'none') from (select severity::text, count(*) n from public.coaching_findings where course_id='${course}' group by 1) x`).trim();
       notes.push(`findings on ${nama}: question quality ${mutu}; student text ${teks}`);
+      if (tanpaLemah) {
+        const lemah = Number(sql(`select count(*) from public.mcq_quality_findings where course_id='${course}' and pattern_class = 'WEAK_MISCONCEPTION_LINKAGE'`).trim());
+        notes.push(`CR-50/CR-82: WEAK_MISCONCEPTION_LINKAGE findings on ${nama}: ${lemah} (must be 0 on PINTAR's regenerated content)`);
+        if (lemah !== 0) rec.verdict = "FAIL";
+      }
       const r0 = siap(course);
       notes.push(`readiness: ${r0}`);
       if (!r0.startsWith("READY")) {
@@ -1030,7 +1044,7 @@ await step("S17", "Studio to Terbit with two people: Bab 1 through the seven ste
   const kaprodi = await lihatAntreanKaprodi(course);
   antreanKaprodi = kaprodi.hasil;
   // HOD-04, GS-09: the head of department reviews (reading every question first), makes and locks the release
-  const jadi = await terbitkanLewatLayar(course, rec, notes, { bacaSoal: true, antrean: kaprodi.fase, peninjau: kaprodi.halaman() });
+  const jadi = await terbitkanLewatLayar(course, rec, notes, { bacaSoal: true, antrean: kaprodi.fase, peninjau: kaprodi.halaman(), tanpaLemah: true });
   await kaprodi.tutup();
   if (!jadi) return notes.join("; ");
   terbitBab = keadaanBab(course).endsWith("|PUBLISHED");
@@ -3223,7 +3237,7 @@ await step("S26d", "two chapters: Gita, part-way through Bab 1, finds her home c
   if (!bab2) { rec.verdict = "FAIL"; return notes.join("; "); }
 
   // 2. the seven steps, two people, as Bab 1 went (S17)
-  if (!(await terbitkanLewatLayar(bab2, rec, notes, { nama: "Bab 2", awalan: "bab2-" }))) return notes.join("; ");
+  if (!(await terbitkanLewatLayar(bab2, rec, notes, { nama: "Bab 2", awalan: "bab2-", tanpaLemah: true }))) return notes.join("; ");
   if (!keadaanBab(bab2).endsWith("|PUBLISHED")) { rec.verdict = "FAIL"; notes.push(`Bab 2 ended ${keadaanBab(bab2)}`); return notes.join("; "); }
 
   // 3. the school admin sets Bab 2's pass mark on Konfigurasi → Batas ketuntasan

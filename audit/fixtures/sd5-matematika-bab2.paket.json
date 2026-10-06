@@ -53,7 +53,8 @@
            "label": "A",
            "body": "27",
            "is_correct": false,
-           "rationale": "27 berakhiran 7, tetapi 27 : 7 = 3 sisa 6. Kelipatan 7 dibagi 7 selalu habis."
+           "rationale": "27 berakhiran 7, tetapi 27 : 7 = 3 sisa 6. Kelipatan 7 dibagi 7 selalu habis.",
+           "misconception_code": "SD5-M-B2-17"
           },
           {
            "_row": {
@@ -73,7 +74,8 @@
            "label": "C",
            "body": "1",
            "is_correct": false,
-           "rationale": "1 adalah faktor dari 7 (membagi habis 7), bukan kelipatannya. Kelipatan 7 dimulai dari 7."
+           "rationale": "1 adalah faktor dari 7 (membagi habis 7), bukan kelipatannya. Kelipatan 7 dimulai dari 7.",
+           "misconception_code": "SD5-M-B2-01"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "72",
            "is_correct": false,
-           "rationale": "72 memuat angka 7, tetapi 72 : 7 = 10 sisa 2. Kelipatan ditentukan pembagian, bukan angkanya."
+           "rationale": "72 memuat angka 7, tetapi 72 : 7 = 10 sisa 2. Kelipatan ditentukan pembagian, bukan angkanya.",
+           "misconception_code": "SD5-M-B2-17"
           }
          ]
         },
@@ -105,7 +108,8 @@
            "label": "A",
            "body": "49 dan 59",
            "is_correct": false,
-           "rationale": "Bilangan yang berakhiran 9 belum tentu kelipatan 9: 49 : 9 = 5 sisa 4."
+           "rationale": "Bilangan yang berakhiran 9 belum tentu kelipatan 9: 49 : 9 = 5 sisa 4.",
+           "misconception_code": "SD5-M-B2-17"
           },
           {
            "_row": {
@@ -115,7 +119,8 @@
            "label": "B",
            "body": "45, 54, dan 63",
            "is_correct": false,
-           "rationale": "45 dan 54 tepat, tetapi 63 lebih dari 60, jadi tidak di antara 40 dan 60."
+           "rationale": "45 dan 54 tepat, tetapi 63 lebih dari 60, jadi tidak di antara 40 dan 60.",
+           "misconception_code": "SD5-M-B2-12"
           },
           {
            "_row": {
@@ -135,7 +140,8 @@
            "label": "D",
            "body": "42 dan 51",
            "is_correct": false,
-           "rationale": "Dihitung dengan menambah 9 mulai dari 42, padahal 42 bukan kelipatan 9. Mulailah dari 9, 18, 27, ..."
+           "rationale": "Dihitung dengan menambah 9 mulai dari 42, padahal 42 bukan kelipatan 9. Mulailah dari 9, 18, 27, ...",
+           "misconception_code": "SD5-M-B2-18"
           }
          ]
         },
@@ -157,7 +163,8 @@
            "label": "A",
            "body": "6",
            "is_correct": false,
-           "rationale": "56 berakhiran 6, tetapi 56 : 6 = 9 sisa 2."
+           "rationale": "56 berakhiran 6, tetapi 56 : 6 = 9 sisa 2.",
+           "misconception_code": "SD5-M-B2-17"
           },
           {
            "_row": {
@@ -167,7 +174,8 @@
            "label": "B",
            "body": "112",
            "is_correct": false,
-           "rationale": "Terbalik: 112 adalah kelipatan 56, sedangkan 56 adalah faktor dari 112."
+           "rationale": "Terbalik: 112 adalah kelipatan 56, sedangkan 56 adalah faktor dari 112.",
+           "misconception_code": "SD5-M-B2-01"
           },
           {
            "_row": {
@@ -177,7 +185,8 @@
            "label": "C",
            "body": "5",
            "is_correct": false,
-           "rationale": "56 diawali angka 5, tetapi 56 : 5 = 11 sisa 1."
+           "rationale": "56 diawali angka 5, tetapi 56 : 5 = 11 sisa 1.",
+           "misconception_code": "SD5-M-B2-17"
           },
           {
            "_row": {
@@ -227,7 +236,8 @@
            "label": "A",
            "body": "24",
            "is_correct": false,
-           "rationale": "4 × 6 = 24 memang kelipatan keduanya, tetapi 12 lebih kecil dan juga kelipatan keduanya."
+           "rationale": "4 × 6 = 24 memang kelipatan keduanya, tetapi 12 lebih kecil dan juga kelipatan keduanya.",
+           "misconception_code": "SD5-M-B2-03"
           },
           {
            "_row": {
@@ -237,7 +247,8 @@
            "label": "B",
            "body": "2",
            "is_correct": false,
-           "rationale": "2 adalah faktor persekutuan terbesar (FPB) dari 4 dan 6. Kelipatan tidak lebih kecil dari bilangannya."
+           "rationale": "2 adalah faktor persekutuan terbesar (FPB) dari 4 dan 6. Kelipatan tidak lebih kecil dari bilangannya.",
+           "misconception_code": "SD5-M-B2-02"
           },
           {
            "_row": {
@@ -257,7 +268,8 @@
            "label": "D",
            "body": "48",
            "is_correct": false,
-           "rationale": "48 kelipatan 4 dan 6, tetapi bukan yang terkecil. 12 dan 24 lebih kecil."
+           "rationale": "48 kelipatan 4 dan 6, tetapi bukan yang terkecil. 12 dan 24 lebih kecil.",
+           "misconception_code": "SD5-M-B2-11"
           }
          ]
         },
@@ -280,7 +292,8 @@
            "label": "A",
            "body": "48",
            "is_correct": false,
-           "rationale": "48 kelipatan 8 dan 12, tetapi bukan yang terkecil. 24 juga kelipatan keduanya."
+           "rationale": "48 kelipatan 8 dan 12, tetapi bukan yang terkecil. 24 juga kelipatan keduanya.",
+           "misconception_code": "SD5-M-B2-11"
           },
           {
            "_row": {
@@ -290,7 +303,8 @@
            "label": "B",
            "body": "96",
            "is_correct": false,
-           "rationale": "8 × 12 = 96 memang kelipatan keduanya, tetapi 24 lebih kecil."
+           "rationale": "8 × 12 = 96 memang kelipatan keduanya, tetapi 24 lebih kecil.",
+           "misconception_code": "SD5-M-B2-03"
           },
           {
            "_row": {
@@ -310,7 +324,8 @@
            "label": "D",
            "body": "4",
            "is_correct": false,
-           "rationale": "4 adalah FPB dari 8 dan 12. KPK tidak mungkin lebih kecil dari bilangan-bilangannya."
+           "rationale": "4 adalah FPB dari 8 dan 12. KPK tidak mungkin lebih kecil dari bilangan-bilangannya.",
+           "misconception_code": "SD5-M-B2-02"
           }
          ]
         },
@@ -342,7 +357,8 @@
            "label": "B",
            "body": "12, 24, dan 36",
            "is_correct": false,
-           "rationale": "36 memang kelipatan persekutuan, tetapi lebih dari 30."
+           "rationale": "36 memang kelipatan persekutuan, tetapi lebih dari 30.",
+           "misconception_code": "SD5-M-B2-12"
           },
           {
            "_row": {
@@ -352,7 +368,8 @@
            "label": "C",
            "body": "6 dan 12",
            "is_correct": false,
-           "rationale": "6 kelipatan 3, tetapi bukan kelipatan 4. Kelipatan persekutuan harus kelipatan keduanya."
+           "rationale": "6 kelipatan 3, tetapi bukan kelipatan 4. Kelipatan persekutuan harus kelipatan keduanya.",
+           "misconception_code": "SD5-M-B2-04"
           },
           {
            "_row": {
@@ -362,7 +379,8 @@
            "label": "D",
            "body": "3, 4, 12, dan 24",
            "is_correct": false,
-           "rationale": "3 hanya kelipatan 3 dan 4 hanya kelipatan 4. Kelipatan persekutuan harus kelipatan keduanya."
+           "rationale": "3 hanya kelipatan 3 dan 4 hanya kelipatan 4. Kelipatan persekutuan harus kelipatan keduanya.",
+           "misconception_code": "SD5-M-B2-04"
           }
          ]
         },
@@ -384,7 +402,8 @@
            "label": "A",
            "body": "2",
            "is_correct": false,
-           "rationale": "2 adalah FPB dari 6 dan 10. KPK tidak lebih kecil dari bilangan-bilangannya."
+           "rationale": "2 adalah FPB dari 6 dan 10. KPK tidak lebih kecil dari bilangan-bilangannya.",
+           "misconception_code": "SD5-M-B2-02"
           },
           {
            "_row": {
@@ -404,7 +423,8 @@
            "label": "C",
            "body": "60",
            "is_correct": false,
-           "rationale": "6 × 10 = 60 kelipatan keduanya, tetapi 30 lebih kecil."
+           "rationale": "6 × 10 = 60 kelipatan keduanya, tetapi 30 lebih kecil.",
+           "misconception_code": "SD5-M-B2-03"
           },
           {
            "_row": {
@@ -414,7 +434,8 @@
            "label": "D",
            "body": "120",
            "is_correct": false,
-           "rationale": "120 kelipatan persekutuan, tetapi jauh dari yang terkecil."
+           "rationale": "120 kelipatan persekutuan, tetapi jauh dari yang terkecil.",
+           "misconception_code": "SD5-M-B2-11"
           }
          ]
         },
@@ -437,7 +458,8 @@
            "label": "A",
            "body": "12",
            "is_correct": false,
-           "rationale": "12 kelipatan 4 dan 6, tetapi bukan kelipatan 9. Periksa ketiga bilangan."
+           "rationale": "12 kelipatan 4 dan 6, tetapi bukan kelipatan 9. Periksa ketiga bilangan.",
+           "misconception_code": "SD5-M-B2-04"
           },
           {
            "_row": {
@@ -447,7 +469,8 @@
            "label": "B",
            "body": "18",
            "is_correct": false,
-           "rationale": "18 kelipatan 6 dan 9, tetapi bukan kelipatan 4. Periksa ketiga bilangan."
+           "rationale": "18 kelipatan 6 dan 9, tetapi bukan kelipatan 4. Periksa ketiga bilangan.",
+           "misconception_code": "SD5-M-B2-04"
           },
           {
            "_row": {
@@ -457,7 +480,8 @@
            "label": "C",
            "body": "216",
            "is_correct": false,
-           "rationale": "4 × 6 × 9 = 216 kelipatan ketiganya, tetapi bukan yang terkecil."
+           "rationale": "4 × 6 × 9 = 216 kelipatan ketiganya, tetapi bukan yang terkecil.",
+           "misconception_code": "SD5-M-B2-03"
           },
           {
            "_row": {
@@ -489,7 +513,8 @@
            "label": "A",
            "body": "37 Juli",
            "is_correct": false,
-           "rationale": "KPK-nya tepat (12 hari), tetapi Juli hanya sampai tanggal 31. Tanggalnya pindah ke Agustus."
+           "rationale": "KPK-nya tepat (12 hari), tetapi Juli hanya sampai tanggal 31. Tanggalnya pindah ke Agustus.",
+           "misconception_code": "SD5-M-B2-13"
           },
           {
            "_row": {
@@ -509,7 +534,8 @@
            "label": "C",
            "body": "7 Agustus",
            "is_correct": false,
-           "rationale": "Juli dianggap 30 hari (37 − 30 = 7). Bulan Juli mempunyai 31 hari."
+           "rationale": "Juli dianggap 30 hari (37 − 30 = 7). Bulan Juli mempunyai 31 hari.",
+           "misconception_code": "SD5-M-B2-13"
           },
           {
            "_row": {
@@ -519,7 +545,8 @@
            "label": "D",
            "body": "26 Juli",
            "is_correct": false,
-           "rationale": "Yang ditambahkan FPB dari 3 dan 4, yaitu 1. Bersamaan lagi memakai KPK."
+           "rationale": "Yang ditambahkan FPB dari 3 dan 4, yaitu 1. Bersamaan lagi memakai KPK.",
+           "misconception_code": "SD5-M-B2-02"
           }
          ]
         }
@@ -559,7 +586,8 @@
            "label": "A",
            "body": "12, 24, 36, 48",
            "is_correct": false,
-           "rationale": "Ini kelipatan 12, hasil 12 × 1, 12 × 2, ... Faktor adalah bilangan yang membagi habis 12."
+           "rationale": "Ini kelipatan 12, hasil 12 × 1, 12 × 2, ... Faktor adalah bilangan yang membagi habis 12.",
+           "misconception_code": "SD5-M-B2-01"
           },
           {
            "_row": {
@@ -569,7 +597,8 @@
            "label": "B",
            "body": "1, 2, 3, 4, 5, 6, 12",
            "is_correct": false,
-           "rationale": "5 bukan faktor dari 12: 12 : 5 = 2 sisa 2. Faktor harus membagi habis."
+           "rationale": "5 bukan faktor dari 12: 12 : 5 = 2 sisa 2. Faktor harus membagi habis.",
+           "misconception_code": "SD5-M-B2-21"
           },
           {
            "_row": {
@@ -579,7 +608,8 @@
            "label": "C",
            "body": "1, 2, 4, 6, 12",
            "is_correct": false,
-           "rationale": "3 terlewat, padahal 3 × 4 = 12. Cari pasangan perkalian satu per satu: 1 × 12, 2 × 6, 3 × 4."
+           "rationale": "3 terlewat, padahal 3 × 4 = 12. Cari pasangan perkalian satu per satu: 1 × 12, 2 × 6, 3 × 4.",
+           "misconception_code": "SD5-M-B2-08"
           },
           {
            "_row": {
@@ -622,7 +652,8 @@
            "label": "B",
            "body": "45, 90, 135, 180",
            "is_correct": false,
-           "rationale": "Ini kelipatan 45. Faktor adalah bilangan yang membagi habis 45."
+           "rationale": "Ini kelipatan 45. Faktor adalah bilangan yang membagi habis 45.",
+           "misconception_code": "SD5-M-B2-01"
           },
           {
            "_row": {
@@ -632,7 +663,8 @@
            "label": "C",
            "body": "3, 5, 9, 15",
            "is_correct": false,
-           "rationale": "1 dan 45 terlewat. Setiap bilangan mempunyai faktor 1 dan dirinya sendiri."
+           "rationale": "1 dan 45 terlewat. Setiap bilangan mempunyai faktor 1 dan dirinya sendiri.",
+           "misconception_code": "SD5-M-B2-08"
           },
           {
            "_row": {
@@ -642,7 +674,8 @@
            "label": "D",
            "body": "1, 3, 5, 7, 9, 15, 45",
            "is_correct": false,
-           "rationale": "7 bukan faktor: 45 : 7 = 6 sisa 3."
+           "rationale": "7 bukan faktor: 45 : 7 = 6 sisa 3.",
+           "misconception_code": "SD5-M-B2-21"
           }
          ]
         },
@@ -664,7 +697,8 @@
            "label": "A",
            "body": "1, 2, 3, 5, 6, 10, 15",
            "is_correct": false,
-           "rationale": "30 sendiri terlewat. 1 × 30 = 30, jadi 30 juga faktornya."
+           "rationale": "30 sendiri terlewat. 1 × 30 = 30, jadi 30 juga faktornya.",
+           "misconception_code": "SD5-M-B2-08"
           },
           {
            "_row": {
@@ -674,7 +708,8 @@
            "label": "B",
            "body": "30, 60, 90, 120",
            "is_correct": false,
-           "rationale": "Ini kelipatan 30. Faktor adalah bilangan yang membagi habis 30."
+           "rationale": "Ini kelipatan 30. Faktor adalah bilangan yang membagi habis 30.",
+           "misconception_code": "SD5-M-B2-01"
           },
           {
            "_row": {
@@ -694,7 +729,8 @@
            "label": "D",
            "body": "1, 2, 3, 4, 5, 6, 10, 15, 30",
            "is_correct": false,
-           "rationale": "4 bukan faktor dari 30: 30 : 4 = 7 sisa 2."
+           "rationale": "4 bukan faktor dari 30: 30 : 4 = 7 sisa 2.",
+           "misconception_code": "SD5-M-B2-21"
           }
          ]
         },
@@ -716,7 +752,8 @@
            "label": "A",
            "body": "3 anak",
            "is_correct": false,
-           "rationale": "20 : 3 = 6 sisa 2. Ada kue yang tersisa, jadi 3 bukan faktor dari 20."
+           "rationale": "20 : 3 = 6 sisa 2. Ada kue yang tersisa, jadi 3 bukan faktor dari 20.",
+           "misconception_code": "SD5-M-B2-21"
           },
           {
            "_row": {
@@ -736,7 +773,8 @@
            "label": "C",
            "body": "6 anak",
            "is_correct": false,
-           "rationale": "20 : 6 = 3 sisa 2. Ada kue yang tersisa."
+           "rationale": "20 : 6 = 3 sisa 2. Ada kue yang tersisa.",
+           "misconception_code": "SD5-M-B2-21"
           },
           {
            "_row": {
@@ -746,7 +784,8 @@
            "label": "D",
            "body": "40 anak",
            "is_correct": false,
-           "rationale": "40 adalah kelipatan 20, bukan faktornya. 20 kue tidak cukup untuk 40 anak."
+           "rationale": "40 adalah kelipatan 20, bukan faktornya. 20 kue tidak cukup untuk 40 anak.",
+           "misconception_code": "SD5-M-B2-01"
           }
          ]
         }
@@ -786,7 +825,8 @@
            "label": "A",
            "body": "160",
            "is_correct": false,
-           "rationale": "160 adalah KPK dari 32 dan 40. FPB tidak mungkin lebih besar dari bilangan-bilangannya."
+           "rationale": "160 adalah KPK dari 32 dan 40. FPB tidak mungkin lebih besar dari bilangan-bilangannya.",
+           "misconception_code": "SD5-M-B2-02"
           },
           {
            "_row": {
@@ -796,7 +836,8 @@
            "label": "B",
            "body": "4",
            "is_correct": false,
-           "rationale": "4 adalah faktor persekutuan, tetapi bukan yang terbesar. Faktor persekutuannya 1, 2, 4, 8."
+           "rationale": "4 adalah faktor persekutuan, tetapi bukan yang terbesar. Faktor persekutuannya 1, 2, 4, 8.",
+           "misconception_code": "SD5-M-B2-11"
           },
           {
            "_row": {
@@ -806,7 +847,8 @@
            "label": "C",
            "body": "2",
            "is_correct": false,
-           "rationale": "2 hanya faktor persekutuan pertama sesudah 1. Yang terbesar adalah 8."
+           "rationale": "2 hanya faktor persekutuan pertama sesudah 1. Yang terbesar adalah 8.",
+           "misconception_code": "SD5-M-B2-11"
           },
           {
            "_row": {
@@ -838,7 +880,8 @@
            "label": "A",
            "body": "2, 4, 8",
            "is_correct": false,
-           "rationale": "1 terlewat. 1 adalah faktor dari setiap bilangan, jadi selalu termasuk faktor persekutuan."
+           "rationale": "1 terlewat. 1 adalah faktor dari setiap bilangan, jadi selalu termasuk faktor persekutuan.",
+           "misconception_code": "SD5-M-B2-08"
           },
           {
            "_row": {
@@ -848,7 +891,8 @@
            "label": "B",
            "body": "48, 96, 144",
            "is_correct": false,
-           "rationale": "Ini kelipatan persekutuan dari 16 dan 24, bukan faktornya."
+           "rationale": "Ini kelipatan persekutuan dari 16 dan 24, bukan faktornya.",
+           "misconception_code": "SD5-M-B2-01"
           },
           {
            "_row": {
@@ -858,7 +902,8 @@
            "label": "C",
            "body": "1, 2, 3, 4, 6, 8, 12, 16, 24",
            "is_correct": false,
-           "rationale": "Ini semua faktor dari 16 atau 24, digabung. 3, 6, 12, dan 24 bukan faktor dari 16, dan 16 bukan faktor dari 24."
+           "rationale": "Ini semua faktor dari 16 atau 24, digabung. 3, 6, 12, dan 24 bukan faktor dari 16, dan 16 bukan faktor dari 24.",
+           "misconception_code": "SD5-M-B2-19"
           },
           {
            "_row": {
@@ -900,7 +945,8 @@
            "label": "B",
            "body": "54",
            "is_correct": false,
-           "rationale": "54 adalah KPK dari 18 dan 27. FPB tidak lebih besar dari bilangan-bilangannya."
+           "rationale": "54 adalah KPK dari 18 dan 27. FPB tidak lebih besar dari bilangan-bilangannya.",
+           "misconception_code": "SD5-M-B2-02"
           },
           {
            "_row": {
@@ -910,7 +956,8 @@
            "label": "C",
            "body": "3",
            "is_correct": false,
-           "rationale": "3 faktor persekutuan, tetapi bukan yang terbesar; 9 juga membagi habis keduanya."
+           "rationale": "3 faktor persekutuan, tetapi bukan yang terbesar; 9 juga membagi habis keduanya.",
+           "misconception_code": "SD5-M-B2-11"
           },
           {
            "_row": {
@@ -920,7 +967,8 @@
            "label": "D",
            "body": "6",
            "is_correct": false,
-           "rationale": "6 adalah faktor dari 18, tetapi bukan faktor dari 27 (27 : 6 = 4 sisa 3)."
+           "rationale": "6 adalah faktor dari 18, tetapi bukan faktor dari 27 (27 : 6 = 4 sisa 3).",
+           "misconception_code": "SD5-M-B2-04"
           }
          ]
         },
@@ -942,7 +990,8 @@
            "label": "A",
            "body": "180",
            "is_correct": false,
-           "rationale": "180 adalah KPK dari ketiga bilangan itu."
+           "rationale": "180 adalah KPK dari ketiga bilangan itu.",
+           "misconception_code": "SD5-M-B2-02"
           },
           {
            "_row": {
@@ -962,7 +1011,8 @@
            "label": "C",
            "body": "3",
            "is_correct": false,
-           "rationale": "3 faktor persekutuan ketiganya, tetapi bukan yang terbesar."
+           "rationale": "3 faktor persekutuan ketiganya, tetapi bukan yang terbesar.",
+           "misconception_code": "SD5-M-B2-11"
           },
           {
            "_row": {
@@ -972,7 +1022,8 @@
            "label": "D",
            "body": "12",
            "is_correct": false,
-           "rationale": "12 adalah bilangan terkecil, tetapi 12 bukan faktor dari 18 dan 30."
+           "rationale": "12 adalah bilangan terkecil, tetapi 12 bukan faktor dari 18 dan 30.",
+           "misconception_code": "SD5-M-B2-04"
           }
          ]
         },
@@ -994,7 +1045,8 @@
            "label": "A",
            "body": "96 anak",
            "is_correct": false,
-           "rationale": "96 adalah KPK dari 24 dan 32. Membagi barang sebanyak-banyaknya memakai FPB."
+           "rationale": "96 adalah KPK dari 24 dan 32. Membagi barang sebanyak-banyaknya memakai FPB.",
+           "misconception_code": "SD5-M-B2-02"
           },
           {
            "_row": {
@@ -1004,7 +1056,8 @@
            "label": "B",
            "body": "4 anak",
            "is_correct": false,
-           "rationale": "4 anak memang bisa (6 pensil dan 8 buku), tetapi bukan yang paling banyak."
+           "rationale": "4 anak memang bisa (6 pensil dan 8 buku), tetapi bukan yang paling banyak.",
+           "misconception_code": "SD5-M-B2-11"
           },
           {
            "_row": {
@@ -1024,7 +1077,8 @@
            "label": "D",
            "body": "3 anak",
            "is_correct": false,
-           "rationale": "3 adalah banyak pensil untuk setiap anak (24 : 8), bukan banyak anaknya."
+           "rationale": "3 adalah banyak pensil untuk setiap anak (24 : 8), bukan banyak anaknya.",
+           "misconception_code": "SD5-M-B2-12"
           }
          ]
         },
@@ -1056,7 +1110,8 @@
            "label": "B",
            "body": "FPB dari 20 dan 50 adalah 100.",
            "is_correct": false,
-           "rationale": "100 adalah KPK dari 20 dan 50. FPB-nya 10."
+           "rationale": "100 adalah KPK dari 20 dan 50. FPB-nya 10.",
+           "misconception_code": "SD5-M-B2-02"
           },
           {
            "_row": {
@@ -1066,7 +1121,8 @@
            "label": "C",
            "body": "13 dan 21 tidak mempunyai FPB.",
            "is_correct": false,
-           "rationale": "Faktor persekutuannya hanya 1, jadi FPB-nya 1. FPB selalu ada."
+           "rationale": "Faktor persekutuannya hanya 1, jadi FPB-nya 1. FPB selalu ada.",
+           "misconception_code": "SD5-M-B2-14"
           },
           {
            "_row": {
@@ -1076,7 +1132,8 @@
            "label": "D",
            "body": "KPK dari 20 dan 50 adalah 1.000.",
            "is_correct": false,
-           "rationale": "1.000 = 20 × 50, kelipatan persekutuan tetapi bukan yang terkecil. KPK-nya 100."
+           "rationale": "1.000 = 20 × 50, kelipatan persekutuan tetapi bukan yang terkecil. KPK-nya 100.",
+           "misconception_code": "SD5-M-B2-03"
           }
          ]
         }
@@ -1116,7 +1173,8 @@
            "label": "A",
            "body": "1",
            "is_correct": false,
-           "rationale": "1 hanya mempunyai satu faktor. Bilangan prima tepat mempunyai dua faktor."
+           "rationale": "1 hanya mempunyai satu faktor. Bilangan prima tepat mempunyai dua faktor.",
+           "misconception_code": "SD5-M-B2-16"
           },
           {
            "_row": {
@@ -1126,7 +1184,8 @@
            "label": "B",
            "body": "9",
            "is_correct": false,
-           "rationale": "9 ganjil, tetapi 9 = 3 × 3, jadi faktornya 1, 3, 9. Tidak semua bilangan ganjil prima."
+           "rationale": "9 ganjil, tetapi 9 = 3 × 3, jadi faktornya 1, 3, 9. Tidak semua bilangan ganjil prima.",
+           "misconception_code": "SD5-M-B2-09"
           },
           {
            "_row": {
@@ -1146,7 +1205,8 @@
            "label": "D",
            "body": "21",
            "is_correct": false,
-           "rationale": "21 ganjil, tetapi 21 = 3 × 7, jadi faktornya lebih dari dua."
+           "rationale": "21 ganjil, tetapi 21 = 3 × 7, jadi faktornya lebih dari dua.",
+           "misconception_code": "SD5-M-B2-09"
           }
          ]
         },
@@ -1169,7 +1229,8 @@
            "label": "A",
            "body": "1, 13, 37, 59",
            "is_correct": false,
-           "rationale": "1 bukan bilangan prima karena faktornya hanya satu."
+           "rationale": "1 bukan bilangan prima karena faktornya hanya satu.",
+           "misconception_code": "SD5-M-B2-16"
           },
           {
            "_row": {
@@ -1179,7 +1240,8 @@
            "label": "B",
            "body": "3, 17, 51, 83",
            "is_correct": false,
-           "rationale": "51 ganjil, tetapi 51 = 3 × 17, jadi bukan prima."
+           "rationale": "51 ganjil, tetapi 51 = 3 × 17, jadi bukan prima.",
+           "misconception_code": "SD5-M-B2-09"
           },
           {
            "_row": {
@@ -1199,7 +1261,8 @@
            "label": "D",
            "body": "7, 23, 41, 91",
            "is_correct": false,
-           "rationale": "91 ganjil, tetapi 91 = 7 × 13, jadi bukan prima."
+           "rationale": "91 ganjil, tetapi 91 = 7 × 13, jadi bukan prima.",
+           "misconception_code": "SD5-M-B2-09"
           }
          ]
         },
@@ -1222,7 +1285,8 @@
            "label": "A",
            "body": "2 × 42",
            "is_correct": false,
-           "rationale": "Pohon faktornya berhenti terlalu cepat: 42 belum prima (42 = 2 × 3 × 7)."
+           "rationale": "Pohon faktornya berhenti terlalu cepat: 42 belum prima (42 = 2 × 3 × 7).",
+           "misconception_code": "SD5-M-B2-10"
           },
           {
            "_row": {
@@ -1242,7 +1306,8 @@
            "label": "C",
            "body": "2 × 2 × 3 × 7 × 1",
            "is_correct": false,
-           "rationale": "1 ikut ditulis seolah bilangan prima. 1 bukan prima, jadi tidak termasuk faktorisasi prima."
+           "rationale": "1 ikut ditulis seolah bilangan prima. 1 bukan prima, jadi tidak termasuk faktorisasi prima.",
+           "misconception_code": "SD5-M-B2-16"
           },
           {
            "_row": {
@@ -1252,7 +1317,8 @@
            "label": "D",
            "body": "2 × 3 × 7",
            "is_correct": false,
-           "rationale": "Faktor 2 muncul dua kali tetapi hanya ditulis sekali. 2 × 3 × 7 = 42, bukan 84."
+           "rationale": "Faktor 2 muncul dua kali tetapi hanya ditulis sekali. 2 × 3 × 7 = 42, bukan 84.",
+           "misconception_code": "SD5-M-B2-15"
           }
          ]
         },
@@ -1274,7 +1340,8 @@
            "label": "A",
            "body": "23, 29, 31, 37, 39",
            "is_correct": false,
-           "rationale": "39 ganjil, tetapi 39 = 3 × 13, jadi bukan prima."
+           "rationale": "39 ganjil, tetapi 39 = 3 × 13, jadi bukan prima.",
+           "misconception_code": "SD5-M-B2-09"
           },
           {
            "_row": {
@@ -1294,7 +1361,8 @@
            "label": "C",
            "body": "21, 23, 29, 31, 37",
            "is_correct": false,
-           "rationale": "21 ganjil, tetapi 21 = 3 × 7, jadi bukan prima."
+           "rationale": "21 ganjil, tetapi 21 = 3 × 7, jadi bukan prima.",
+           "misconception_code": "SD5-M-B2-09"
           },
           {
            "_row": {
@@ -1304,7 +1372,8 @@
            "label": "D",
            "body": "25, 27, 33, 35",
            "is_correct": false,
-           "rationale": "Semuanya ganjil tetapi tidak ada yang prima: 25 = 5 × 5, 27 = 3 × 9, 33 = 3 × 11, 35 = 5 × 7."
+           "rationale": "Semuanya ganjil tetapi tidak ada yang prima: 25 = 5 × 5, 27 = 3 × 9, 33 = 3 × 11, 35 = 5 × 7.",
+           "misconception_code": "SD5-M-B2-09"
           }
          ]
         },
@@ -1336,7 +1405,8 @@
            "label": "B",
            "body": "8 × 9",
            "is_correct": false,
-           "rationale": "Hasil kalinya 72, tetapi 8 dan 9 belum prima. Pohon faktornya harus diteruskan."
+           "rationale": "Hasil kalinya 72, tetapi 8 dan 9 belum prima. Pohon faktornya harus diteruskan.",
+           "misconception_code": "SD5-M-B2-10"
           },
           {
            "_row": {
@@ -1346,7 +1416,8 @@
            "label": "C",
            "body": "2 × 2 × 3 × 3",
            "is_correct": false,
-           "rationale": "Satu faktor 2 terlewat: 2 × 2 × 3 × 3 = 36, bukan 72."
+           "rationale": "Satu faktor 2 terlewat: 2 × 2 × 3 × 3 = 36, bukan 72.",
+           "misconception_code": "SD5-M-B2-15"
           },
           {
            "_row": {
@@ -1356,7 +1427,8 @@
            "label": "D",
            "body": "2 × 2 × 2 × 3 × 3 × 1",
            "is_correct": false,
-           "rationale": "1 ikut ditulis seolah bilangan prima. 1 bukan prima, jadi tidak termasuk faktorisasi prima."
+           "rationale": "1 ikut ditulis seolah bilangan prima. 1 bukan prima, jadi tidak termasuk faktorisasi prima.",
+           "misconception_code": "SD5-M-B2-16"
           }
          ]
         },
@@ -1388,7 +1460,8 @@
            "label": "B",
            "body": "15",
            "is_correct": false,
-           "rationale": "Faktor-faktornya dijumlahkan (2 + 3 + 3 + 7). Tanda × berarti dikalikan."
+           "rationale": "Faktor-faktornya dijumlahkan (2 + 3 + 3 + 7). Tanda × berarti dikalikan.",
+           "misconception_code": "SD5-M-B2-20"
           },
           {
            "_row": {
@@ -1398,7 +1471,8 @@
            "label": "C",
            "body": "42",
            "is_correct": false,
-           "rationale": "Faktor 3 hanya dihitung sekali: 2 × 3 × 7 = 42. Ada dua faktor 3."
+           "rationale": "Faktor 3 hanya dihitung sekali: 2 × 3 × 7 = 42. Ada dua faktor 3.",
+           "misconception_code": "SD5-M-B2-15"
           },
           {
            "_row": {
@@ -1408,7 +1482,8 @@
            "label": "D",
            "body": "63",
            "is_correct": false,
-           "rationale": "Faktor 2 terlewat: 3 × 3 × 7 = 63. Semua faktor harus dikalikan."
+           "rationale": "Faktor 2 terlewat: 3 × 3 × 7 = 63. Semua faktor harus dikalikan.",
+           "misconception_code": "SD5-M-B2-15"
           }
          ]
         }
@@ -1448,7 +1523,8 @@
            "label": "A",
            "body": "14",
            "is_correct": false,
-           "rationale": "Hanya pasangan faktor yang sama (2 dan 7) yang dikalikan; itu FPB. KPK juga memakai sisa faktornya (2 dan 3)."
+           "rationale": "Hanya pasangan faktor yang sama (2 dan 7) yang dikalikan; itu FPB. KPK juga memakai sisa faktornya (2 dan 3).",
+           "misconception_code": "SD5-M-B2-05"
           },
           {
            "_row": {
@@ -1458,7 +1534,8 @@
            "label": "B",
            "body": "588",
            "is_correct": false,
-           "rationale": "Faktor 7 yang berpasangan ditulis dua kali: 2 × 2 × 3 × 7 × 7. Pasangan cukup ditulis sekali."
+           "rationale": "Faktor 7 yang berpasangan ditulis dua kali: 2 × 2 × 3 × 7 × 7. Pasangan cukup ditulis sekali.",
+           "misconception_code": "SD5-M-B2-06"
           },
           {
            "_row": {
@@ -1468,7 +1545,8 @@
            "label": "C",
            "body": "1.176",
            "is_correct": false,
-           "rationale": "Semua faktor dari kedua bilangan dikalikan; hasilnya 28 × 42. Itu kelipatan persekutuan, tetapi bukan yang terkecil."
+           "rationale": "Semua faktor dari kedua bilangan dikalikan; hasilnya 28 × 42. Itu kelipatan persekutuan, tetapi bukan yang terkecil.",
+           "misconception_code": "SD5-M-B2-03"
           },
           {
            "_row": {
@@ -1501,7 +1579,8 @@
            "label": "A",
            "body": "32 Maret",
            "is_correct": false,
-           "rationale": "KPK-nya benar (18 hari), tetapi Maret hanya sampai tanggal 31. 32 − 31 = 1, jadi tanggal 1 bulan berikutnya."
+           "rationale": "KPK-nya benar (18 hari), tetapi Maret hanya sampai tanggal 31. 32 − 31 = 1, jadi tanggal 1 bulan berikutnya.",
+           "misconception_code": "SD5-M-B2-13"
           },
           {
            "_row": {
@@ -1511,7 +1590,8 @@
            "label": "B",
            "body": "17 Maret",
            "is_correct": false,
-           "rationale": "Yang ditambahkan FPB dari 6 dan 9, yaitu 3. Bersamaan lagi paling cepat memakai KPK."
+           "rationale": "Yang ditambahkan FPB dari 6 dan 9, yaitu 3. Bersamaan lagi paling cepat memakai KPK.",
+           "misconception_code": "SD5-M-B2-02"
           },
           {
            "_row": {
@@ -1531,7 +1611,8 @@
            "label": "D",
            "body": "18 Maret",
            "is_correct": false,
-           "rationale": "18 adalah banyak hari sampai bersamaan lagi, bukan tanggalnya. 18 hari harus ditambahkan ke 14 Maret."
+           "rationale": "18 adalah banyak hari sampai bersamaan lagi, bukan tanggalnya. 18 hari harus ditambahkan ke 14 Maret.",
+           "misconception_code": "SD5-M-B2-12"
           }
          ]
         },
@@ -1564,7 +1645,8 @@
            "label": "B",
            "body": "15 jeruk dan 15 salak",
            "is_correct": false,
-           "rationale": "15 adalah banyak kantong (FPB dari 30 dan 45), bukan isinya. Isinya 30 : 15 dan 45 : 15."
+           "rationale": "15 adalah banyak kantong (FPB dari 30 dan 45), bukan isinya. Isinya 30 : 15 dan 45 : 15.",
+           "misconception_code": "SD5-M-B2-12"
           },
           {
            "_row": {
@@ -1574,7 +1656,8 @@
            "label": "C",
            "body": "10 jeruk dan 15 salak",
            "is_correct": false,
-           "rationale": "Buahnya dibagi ke 3 kantong, faktor persekutuan terkecil selain 1. Kantong sebanyak mungkin memakai FPB, yaitu 15."
+           "rationale": "Buahnya dibagi ke 3 kantong, faktor persekutuan terkecil selain 1. Kantong sebanyak mungkin memakai FPB, yaitu 15.",
+           "misconception_code": "SD5-M-B2-11"
           },
           {
            "_row": {
@@ -1584,7 +1667,8 @@
            "label": "D",
            "body": "6 jeruk dan 9 salak",
            "is_correct": false,
-           "rationale": "Buahnya dibagi ke 5 kantong. 5 memang faktor persekutuan, tetapi bukan yang terbesar."
+           "rationale": "Buahnya dibagi ke 5 kantong. 5 memang faktor persekutuan, tetapi bukan yang terbesar.",
+           "misconception_code": "SD5-M-B2-11"
           }
          ]
         },
@@ -1616,7 +1700,8 @@
            "label": "B",
            "body": "2",
            "is_correct": false,
-           "rationale": "Hanya pasangan 2 yang diambil. Pasangan 7 juga ada di kedua bilangan."
+           "rationale": "Hanya pasangan 2 yang diambil. Pasangan 7 juga ada di kedua bilangan.",
+           "misconception_code": "SD5-M-B2-11"
           },
           {
            "_row": {
@@ -1626,7 +1711,8 @@
            "label": "C",
            "body": "210",
            "is_correct": false,
-           "rationale": "210 adalah KPK dari 42 dan 70 (pasangan ditambah sisanya)."
+           "rationale": "210 adalah KPK dari 42 dan 70 (pasangan ditambah sisanya).",
+           "misconception_code": "SD5-M-B2-02"
           },
           {
            "_row": {
@@ -1636,7 +1722,8 @@
            "label": "D",
            "body": "196",
            "is_correct": false,
-           "rationale": "Faktor yang sama dari kedua bilangan ditulis semuanya (2 × 7 × 2 × 7). Setiap pasangan cukup sekali."
+           "rationale": "Faktor yang sama dari kedua bilangan ditulis semuanya (2 × 7 × 2 × 7). Setiap pasangan cukup sekali.",
+           "misconception_code": "SD5-M-B2-07"
           }
          ]
         },
@@ -1658,7 +1745,8 @@
            "label": "A",
            "body": "4",
            "is_correct": false,
-           "rationale": "Hanya pasangan 2 × 2 yang dikalikan; itu FPB. KPK juga memakai 3 × 3 dan 5."
+           "rationale": "Hanya pasangan 2 × 2 yang dikalikan; itu FPB. KPK juga memakai 3 × 3 dan 5.",
+           "misconception_code": "SD5-M-B2-05"
           },
           {
            "_row": {
@@ -1668,7 +1756,8 @@
            "label": "B",
            "body": "720",
            "is_correct": false,
-           "rationale": "Semua faktor dari kedua bilangan dikalikan, sehingga pasangan 2 × 2 terhitung dua kali."
+           "rationale": "Semua faktor dari kedua bilangan dikalikan, sehingga pasangan 2 × 2 terhitung dua kali.",
+           "misconception_code": "SD5-M-B2-06"
           },
           {
            "_row": {
@@ -1678,7 +1767,8 @@
            "label": "C",
            "body": "30",
            "is_correct": false,
-           "rationale": "Setiap faktor prima hanya ditulis sekali (2 × 3 × 5). 30 bukan kelipatan 20 maupun 36."
+           "rationale": "Setiap faktor prima hanya ditulis sekali (2 × 3 × 5). 30 bukan kelipatan 20 maupun 36.",
+           "misconception_code": "SD5-M-B2-15"
           },
           {
            "_row": {
@@ -1710,7 +1800,8 @@
            "label": "A",
            "body": "Membagi 24 apel dan 36 jeruk ke kantong sebanyak mungkin dengan isi sama",
            "is_correct": false,
-           "rationale": "Membagi rata sebanyak-banyaknya diselesaikan dengan FPB."
+           "rationale": "Membagi rata sebanyak-banyaknya diselesaikan dengan FPB.",
+           "misconception_code": "SD5-M-B2-02"
           },
           {
            "_row": {
@@ -1730,7 +1821,8 @@
            "label": "C",
            "body": "Memotong dua pita 40 cm dan 60 cm menjadi potongan sama panjang yang terpanjang",
            "is_correct": false,
-           "rationale": "Mencari panjang terpanjang yang membagi habis kedua pita diselesaikan dengan FPB."
+           "rationale": "Mencari panjang terpanjang yang membagi habis kedua pita diselesaikan dengan FPB.",
+           "misconception_code": "SD5-M-B2-02"
           },
           {
            "_row": {
@@ -1740,7 +1832,8 @@
            "label": "D",
            "body": "Membagi 18 siswa laki-laki dan 12 perempuan ke kelompok sebanyak mungkin",
            "is_correct": false,
-           "rationale": "Membagi ke kelompok sebanyak-banyaknya dengan susunan sama diselesaikan dengan FPB."
+           "rationale": "Membagi ke kelompok sebanyak-banyaknya dengan susunan sama diselesaikan dengan FPB.",
+           "misconception_code": "SD5-M-B2-02"
           }
          ]
         },
@@ -1772,7 +1865,8 @@
            "label": "B",
            "body": "Pukul 20.60",
            "is_correct": false,
-           "rationale": "KPK-nya tepat (60 detik), tetapi 60 detik adalah 1 menit, jadi pukul 20.01."
+           "rationale": "KPK-nya tepat (60 detik), tetapi 60 detik adalah 1 menit, jadi pukul 20.01.",
+           "misconception_code": "SD5-M-B2-13"
           },
           {
            "_row": {
@@ -1782,7 +1876,8 @@
            "label": "C",
            "body": "Pukul 20.04",
            "is_correct": false,
-           "rationale": "Yang dipakai 4 × 6 × 10 = 240 detik (4 menit). Itu kelipatan persekutuan, tetapi bukan yang terkecil."
+           "rationale": "Yang dipakai 4 × 6 × 10 = 240 detik (4 menit). Itu kelipatan persekutuan, tetapi bukan yang terkecil.",
+           "misconception_code": "SD5-M-B2-03"
           },
           {
            "_row": {
@@ -1792,7 +1887,8 @@
            "label": "D",
            "body": "Pukul 20.00 lewat 12 detik",
            "is_correct": false,
-           "rationale": "12 hanya KPK dari 4 dan 6. Lampu yang berkedip setiap 10 detik belum diperhitungkan."
+           "rationale": "12 hanya KPK dari 4 dan 6. Lampu yang berkedip setiap 10 detik belum diperhitungkan.",
+           "misconception_code": "SD5-M-B2-04"
           }
          ]
         }
@@ -1801,6 +1897,218 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SD5-M-B2-01",
+   "label": "Faktor dan kelipatan tertukar",
+   "description": "Diminta faktor, murid menuliskan kelipatan, atau sebaliknya.",
+   "remediation": "Tanyakan: apakah bilangan ini membagi habis (faktor) atau hasil kali (kelipatan)? Faktor tidak lebih besar dari bilangannya, kelipatan tidak lebih kecil."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SD5-M-B2-02",
+   "label": "KPK dan FPB tertukar",
+   "description": "Yang dicari KPK, tetapi murid menghitung FPB, atau sebaliknya.",
+   "remediation": "Hubungkan huruf tengahnya dengan maknanya: Kelipatan-Terkecil dan Faktor-Terbesar, lalu periksa apakah jawabannya lebih besar (KPK) atau lebih kecil (FPB) dari bilangan-bilangannya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SD5-M-B2-03",
+   "label": "KPK dianggap hasil kali",
+   "description": "KPK dua bilangan dianggap selalu sama dengan hasil kali keduanya. Hasil kali memang kelipatan persekutuan, tetapi belum tentu yang terkecil.",
+   "remediation": "Daftar kelipatan bilangan yang lebih besar dan periksa satu per satu; tunjukkan bahwa KPK dari 6 dan 8 adalah 24, lebih kecil dari 6 × 8."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SD5-M-B2-04",
+   "label": "Tidak semua bilangan diperiksa",
+   "description": "Kelipatan atau faktor persekutuan hanya diperiksa pada sebagian bilangan, misalnya dua dari tiga bilangan.",
+   "remediation": "Tulis daftar untuk setiap bilangan dalam kolom sendiri dan centang hanya bilangan yang muncul di semua kolom."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SD5-M-B2-05",
+   "label": "KPK hanya dari faktor yang sama",
+   "description": "Dengan faktorisasi prima, KPK dihitung hanya dari faktor prima yang berpasangan, sehingga hasilnya sebenarnya FPB.",
+   "remediation": "Setelah memasangkan faktor yang sama, tanyakan: faktor mana yang belum ikut? Semua sisanya harus dikalikan juga untuk KPK."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SD5-M-B2-06",
+   "label": "Semua faktor prima dikalikan",
+   "description": "Untuk KPK, semua faktor prima dari kedua bilangan dikalikan, sehingga faktor yang berpasangan terhitung dua kali.",
+   "remediation": "Coret setiap pasangan faktor yang sama menjadi satu sebelum mengalikan, lalu periksa apakah hasilnya dibagi habis oleh kedua bilangan dan tidak ada kelipatan yang lebih kecil."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SD5-M-B2-07",
+   "label": "Pasangan FPB ditulis dua kali",
+   "description": "Untuk FPB, faktor prima yang berpasangan ditulis dari kedua bilangan, sehingga FPB lebih besar dari bilangan-bilangannya.",
+   "remediation": "Ingatkan bahwa FPB tidak mungkin lebih besar dari bilangan terkecil; setiap pasangan cukup ditulis sekali."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SD5-M-B2-08",
+   "label": "Daftar faktor tidak lengkap",
+   "description": "Sebagian faktor terlewat, sering 1, bilangan itu sendiri, atau salah satu anggota pasangan perkalian.",
+   "remediation": "Cari faktor berpasangan mulai dari 1 × bilangan itu, naik satu per satu sampai pasangan berulang, dan tulis kedua anggota setiap pasangan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SD5-M-B2-09",
+   "label": "Bilangan ganjil dianggap prima",
+   "description": "Bilangan ganjil dianggap pasti prima, misalnya 9, 21, 39, 51, atau 91.",
+   "remediation": "Minta murid mencoba membagi dengan 3, 5, dan 7 sebelum menyebut bilangan ganjil sebagai prima; pakai saringan Eratosthenes sebagai pemeriksa."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SD5-M-B2-10",
+   "label": "Faktorisasi belum sampai prima",
+   "description": "Pohon faktor dihentikan pada bilangan yang belum prima, misalnya 72 = 8 × 9.",
+   "remediation": "Periksa setiap ujung pohon faktor: bila masih mempunyai faktor lain selain 1 dan dirinya, cabang itu harus diteruskan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SD5-M-B2-11",
+   "label": "Bukan yang terkecil atau terbesar",
+   "description": "Yang dipilih kelipatan persekutuan yang bukan terkecil, atau faktor persekutuan yang bukan terbesar.",
+   "remediation": "Daftar semua kelipatan atau faktor persekutuan dulu, lalu lingkari yang paling kecil (KPK) atau paling besar (FPB)."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 13
+   },
+   "code": "SD5-M-B2-12",
+   "label": "Jawaban bukan yang ditanyakan",
+   "description": "Hasil hitungan yang benar diberikan sebagai jawaban, padahal pertanyaannya meminta hal lain (misalnya banyak kelompok, bukan isi kelompok), atau ada syarat soal yang terlewat.",
+   "remediation": "Minta murid menggarisbawahi yang ditanyakan dan menulis kalimat jawaban lengkap dengan satuannya sebelum memilih."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 14
+   },
+   "code": "SD5-M-B2-13",
+   "label": "Waktu tidak dikonversi",
+   "description": "Hari ditambahkan melewati akhir bulan (misalnya tanggal 35), atau detik dan menit tidak diubah (misalnya pukul 20.60).",
+   "remediation": "Ingatkan jumlah hari setiap bulan dan 1 menit = 60 detik; periksa apakah tanggal atau jam hasilnya benar-benar ada."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 15
+   },
+   "code": "SD5-M-B2-14",
+   "label": "FPB 1 dianggap tidak ada",
+   "description": "Dua bilangan yang faktor persekutuannya hanya 1 dianggap tidak mempunyai FPB.",
+   "remediation": "Tunjukkan bahwa 1 membagi habis setiap bilangan, jadi selalu ada faktor persekutuan, dan FPB-nya 1."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 16
+   },
+   "code": "SD5-M-B2-15",
+   "label": "Faktor prima berulang terlewat",
+   "description": "Faktor prima yang muncul lebih dari sekali hanya ditulis sekali, sehingga hasil perkaliannya tidak kembali ke bilangan semula.",
+   "remediation": "Biasakan mengalikan kembali semua faktor prima untuk memeriksa bahwa hasilnya sama dengan bilangan semula."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 17
+   },
+   "code": "SD5-M-B2-16",
+   "label": "1 dianggap prima",
+   "description": "Bilangan 1 dianggap bilangan prima.",
+   "remediation": "Hitung banyak faktor 1 bersama murid: hanya satu. Bilangan prima tepat mempunyai dua faktor."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 18
+   },
+   "code": "SD5-M-B2-17",
+   "label": "Kelipatan dikenali dari angkanya",
+   "description": "Bilangan yang memuat atau berakhiran angka tertentu dianggap kelipatan angka itu, misalnya 27 dianggap kelipatan 7.",
+   "remediation": "Periksa dengan pembagian: kelipatan 7 dibagi 7 habis. Bandingkan 27 : 7 dan 28 : 7."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 19
+   },
+   "code": "SD5-M-B2-18",
+   "label": "Kelipatan tidak dimulai dari bilangannya",
+   "description": "Kelipatan dihitung dengan menambah bilangan itu mulai dari bilangan lain, sehingga hasilnya tidak habis dibagi.",
+   "remediation": "Mulailah dari bilangan itu sendiri (atau dari hasil kali dalam tabel perkalian), lalu tambahkan bilangan yang sama setiap langkah."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 20
+   },
+   "code": "SD5-M-B2-19",
+   "label": "Gabungan dianggap persekutuan",
+   "description": "Semua faktor dari kedua bilangan digabung, padahal faktor persekutuan hanya yang ada di keduanya.",
+   "remediation": "Tulis faktor kedua bilangan berdampingan dan lingkari hanya yang muncul di kedua daftar."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 21
+   },
+   "code": "SD5-M-B2-20",
+   "label": "Faktor prima dijumlahkan",
+   "description": "Faktor-faktor prima dijumlahkan, bukan dikalikan, untuk mendapatkan bilangannya.",
+   "remediation": "Ingatkan bahwa tanda × pada faktorisasi berarti perkalian, lalu hitung bersama: 2 × 3 = 6, bukan 5."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 22
+   },
+   "code": "SD5-M-B2-21",
+   "label": "Pembagian bersisa dianggap faktor",
+   "description": "Bilangan yang tidak membagi habis dianggap faktor karena tidak dicek sisanya.",
+   "remediation": "Minta murid menulis pembagiannya dan memeriksa sisa; faktor selalu menghasilkan sisa 0."
   }
  ]
 }
