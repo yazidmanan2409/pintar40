@@ -56,3 +56,22 @@ projects, settings, billing or data changes. The existing deploy token stays as 
 
 **Rotation:** the same steps make a new token. Replace the secret's value, then revoke the old token.
 **Revocation:** Access Tokens → Revoke. G6 then refuses production migrations again, and the watch reports it.
+
+---
+
+## B (D-108(e)): a question for Supabase support (non-blocking)
+
+**Why:** any database login on Supabase can create or drop the extensions on Supabase's allow-list, through its
+`supautils` extension manager (CLOSURE-PLAN-150.md § A7). #150 does not wait for the answer.
+
+**When convenient:** open a support ticket from the Supabase dashboard (Help → Support) for organisation ZAYD, project
+`pintar-production`, and send this text:
+
+> We use a dedicated database LOGIN role for logical backups (`pg_dump`). It is a member of `pg_read_all_data` with
+> BYPASSRLS and has no other privilege. We observed that `supautils` lets this role create and drop extensions on
+> `supautils.privileged_extensions` (for example `DROP EXTENSION pgcrypto CASCADE`), as `supabase_admin`. Can extension
+> creation/drop through `supautils` be disabled or restricted for a specific dedicated database LOGIN role, while
+> retaining that role's read access required for `pg_dump`?
+
+Send nothing else: no password, key, connection string or data. Forward the answer to the coordinator. If Supabase
+offers a supported restriction, the coordinator brings it back to you before anything changes.

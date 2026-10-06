@@ -6,7 +6,8 @@ external-service boundary. Every stop point stands. No UI/UX work. No change to 
 PITR implementation. No 100,000-user rehearsal.
 
 **Progress:** WP-A's code built and proven (`e6cb045`; CI 37401454517, 35/35, 580/580); waiting for O2 (C1), the
-owner's action. **WP-B stopped for a ruling (6 Oct):** see § A7, "Finding: Supabase's extension manager".
+owner's action. **WP-B:** stopped for a ruling on 6 Oct (§ A7, "Finding"); ruled A + B (D-108) and resumed under
+D-107's boundaries. Migration 162 stays off hosted staging and production until separately authorised.
 
 **Unchanged boundaries (D-106(h)–(j)):**
 - native Supabase restore is the **primary** database recovery path;
@@ -69,8 +70,33 @@ If either fails, the work stops and returns for approval, as A2 requires.
 ## A7: `pintar_backup` can read everything, so C2 is guarded as such (D-107(c))
 
 **Stated plainly: a compromise of C2 could expose the complete database.** That means every school's staff and student
-records, password hashes, the class cards' secret hashes, the audit log and the certificates. C2 cannot modify any of
-it. For confidentiality it is therefore handled like the `postgres` password, not like a read-only convenience.
+records, password hashes, the class cards' secret hashes, the audit log and the certificates. For confidentiality it is
+therefore handled like the `postgres` password, not like a read-only convenience.
+
+**What C2 can change (D-108(b), the canonical wording):** "`pintar_backup` has no ordinary PostgreSQL privileges to
+mutate PINTAR data, schema, objects, roles or rights. Supabase's `supautils` extension-management mechanism nevertheless
+permits database LOGIN roles to create/drop allow-listed extensions, and dropping an extension with CASCADE may affect
+dependent PINTAR objects. This is a documented Supabase platform residual outside PINTAR's ordinary PostgreSQL grant
+model." `default_transaction_read_only` is a **safety default, not a security boundary**: the role can change its own
+session setting.
+
+**The compensating controls (D-108(c)), each with where it is built and proven:**
+
+| # | Control | Where | Proof |
+|---|---|---|---|
+| 1 | C2 only in the protected `backup` environment (`main` only); never in the application or its runtime | `backup-offsite.yml`, `backup-credential.yml` | DR-S11 (C2's name appears nowhere else, `src/` included) |
+| 2 | never printed or logged | `backup.mjs` (`PGPASSWORD` in the environment only) | DR-S14 (a planted password appears in no output and no bundle) |
+| 3 | rotation and immediate revocation | `backup-credential.yml` (`set`, `revoke`) | DR-S11 (wiring), DR-S15 (the role's catalog) |
+| 4 | the enforced connection limit | migration 162 (3) | DR-S15 (a fourth connection refused) |
+| 5 | every backup captures the installed extensions and their fingerprint | `backup.mjs` (`extensions.json`, the success record) | DR-S14 |
+| 6 | compared with the approved baseline | `docs/recovery/extension-baseline.json` | DR-S14 |
+| 7 | any addition, removal or version change fails the run closed and raises the production watch issue | `backup.mjs`; `backup-offsite.yml`'s failure step | DR-S14 (an extension planted by `pintar_backup` itself turns the run red); DR-S11 |
+| 8 | a restore verifies the extension baseline before PINTAR may reopen | `restore-bundle.mjs` | DR-D02 |
+| 9 | no EXECUTE or mutation privilege added for metadata collection | migration 162 | DR-S15 (no PINTAR function executable) |
+
+**Provider follow-up (B; non-blocking; the owner asks Supabase).** "Can extension creation/drop through `supautils` be
+disabled or restricted for a specific dedicated database LOGIN role while retaining that role's read access required
+for `pg_dump`?" If Supabase offers a supported restriction, the coordinator returns before changing the architecture.
 
 **Where C2 lives, and where it never goes:**
 - **Only** in the secrets of the GitHub environment `backup`. Its deployment-branch rule is `main` only, so only the
@@ -104,8 +130,9 @@ it. For confidentiality it is therefore handled like the `postgres` password, no
 | In-database role limits | standard PostgreSQL, set by migration 162 | **yes** | yes: LOGIN; member of `pg_read_all_data` only; read-only by default; `statement_timeout` and `idle_in_transaction_session_timeout`; connection limit 3; owns nothing; no other grant |
 | A PostgreSQL 17 login event trigger (by role or time) | possible in principle | a fault in a login trigger can lock **every** role out of the database | rejected |
 
-**DR-S15 proves it cannot mutate PINTAR.** On CI's database, as `pintar_backup`, the session first switches its own
-read-only default **off**: the worst case, since a stolen C2 can do that. Each of the following must then be refused:
+**DR-S15 proves it holds no ordinary privilege to mutate PINTAR.** On CI's database, as `pintar_backup`, the session
+first switches its own read-only default **off**: the worst case, since a stolen C2 can do that. Each of the following
+must then be refused:
 - INSERT, UPDATE, DELETE, TRUNCATE and `COPY … FROM` on PINTAR's tables, `auth.users`, `storage.objects` and
   `audit_log`;
 - `nextval` and `setval` on a sequence;
@@ -120,6 +147,7 @@ From the catalog, it also proves:
   BYPASSRLS.
 
 **What it can still do, and why none of it mutates PINTAR:**
+- create or drop Supabase's allow-listed extensions through `supautils` (the platform residual above; controls 5-8);
 - create temporary tables and large objects, which PostgreSQL allows every role as session scratch space and which
   touch no PINTAR object;
 - change its own password, which PostgreSQL always allows: the next backup then fails closed and is reported;
@@ -152,11 +180,10 @@ Everything else A7 asks is proven on the local stack:
 - it owns nothing; it is read-only by default; the connection limit is enforced;
 - its five dumps are byte-identical to `postgres`'s.
 
-**So "cannot CREATE or DROP" holds for every PINTAR object, but not for Supabase's allow-listed extensions.** That is a
-platform behaviour that applies to any database login. No grant of PINTAR's causes it and none can remove it. A ruling
-is needed (options in the stop report of 6 Oct).
+**Ruled 6 Oct (D-108): A + B.** The residual is recorded in the canonical wording above, with controls 1-9; the
+provider question is pursued in parallel; the `postgres` credential (C) is rejected.
 
-**Also changed from A5 condition 3:** the bundle does not carry `readiness.txt`. The readiness check calls PINTAR's
+**Also changed from A5 condition 3 (approved, D-108(d)):** the bundle does not carry `readiness.txt`. The readiness check calls PINTAR's
 functions, which `pintar_backup` may not execute (A7), and no right is added for it. Readiness is checked where it
 decides something: on the restored copy, where 24/24 is required. `facts.txt` carries the security facts: rights,
 triggers, the pre-request, policies, and each function's definition, owner and execute rights.
@@ -200,7 +227,7 @@ Supabase-managed object it cannot read), the work stops and returns for approval
 | ID | System | Credential | Purpose | Permissions | Held by | Rotation | Revocation |
 |---|---|---|---|---|---|---|---|
 | C1 | **Supabase Management API** | scoped access token, `pintar-production` | B3: read the backup list (G6, the watch, recovery facts) | **Database → Backups: Read**, one project, nothing else; `restore-point.mjs isolation` proves it is refused seven probes (API keys, Auth config, project settings, Edge Function secrets, another project, the account's projects and organisations) | GitHub repository secret `PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN`, read only by G6's step, the watch's look step and the facts job (DR-S07) | owner, at expiry (12 months) or on doubt: Supabase → Access Tokens → new token → replace the secret → revoke the old | revoke in Access Tokens; G6 then refuses applies and the watch reports it |
-| C2 | **Supabase Postgres** (production; staging separately) | role `pintar_backup` + password | B4: the database dump | **reads every row of every table, across all tenants** (`pg_read_all_data`, BYPASSRLS); no write, create, alter, drop or grant (DR-S15); read-only by default; 3 connections. **Its compromise exposes the complete database** (A7) | **only** the GitHub environment `backup` (`main` only): `PRODUCTION_DB_BACKUP_PASSWORD`, `STAGING_DB_BACKUP_PASSWORD`; never Vercel, the application or a repository secret | yearly or on doubt: the owner puts a new random password in the password manager and in the secret → `backup-credential.yml set` | **immediate:** `backup-credential.yml revoke` (NOLOGIN + sessions terminated) |
+| C2 | **Supabase Postgres** (production; staging separately) | role `pintar_backup` + password | B4: the database dump | **reads every row of every table, across all tenants** (`pg_read_all_data`, BYPASSRLS); no ordinary privilege to write, create, alter, drop or grant (DR-S15); like any Supabase login it can create or drop allow-listed extensions through `supautils` (D-108; detected by controls 5-8); read-only by default; 3 connections. **Its compromise exposes the complete database** (A7) | **only** the GitHub environment `backup` (`main` only): `PRODUCTION_DB_BACKUP_PASSWORD`, `STAGING_DB_BACKUP_PASSWORD`; never Vercel, the application or a repository secret | yearly or on doubt: the owner puts a new random password in the password manager and in the secret → `backup-credential.yml set` | **immediate:** `backup-credential.yml revoke` (NOLOGIN + sessions terminated) |
 | C3 | **Supabase Storage S3-compatible API** (Supabase's, **not AWS**) | Storage S3 access key (ID + secret), per project | B9: download every Storage object | full Storage access on that project (Supabase offers no read-only key); the job only lists and gets | GitHub environment secrets `PRODUCTION_SUPABASE_STORAGE_S3_KEY_ID` / `…_SECRET` (staging likewise) | owner: Supabase → Storage → S3 access keys → new → update the secrets → revoke the old | revoke in the same screen |
 | C4 | **AWS S3 (Amazon Web Services)** | IAM user `pintar-backup-writer` access key | B4/B5/B9: upload bundles and escrow | `PutObject` with checksum, `PutObjectRetention`, `PutObjectLegalHold` on the backup bucket only; **no read, list or delete** | GitHub environment secrets `AWS_BACKUP_WRITER_KEY_ID` / `…_SECRET` (backup and escrow environments) | owner: AWS → IAM → new key → update → delete the old | deactivate the key |
 | C5 | **AWS S3** | IAM user `pintar-backup-reader` access key | drills and restores: download | `GetObject`, `ListBucket`, `GetObjectRetention`/`LegalHold` on the bucket only | GitHub environment secrets `AWS_BACKUP_READER_KEY_ID` / `…_SECRET` (`staging-recovery-drill`, `production-recovery`; owner-approved runs) | as C4 | as C4 |
@@ -310,7 +337,7 @@ A run is recorded as successful **only if all ten hold**. On any failure nothing
 | DR-S10 | escrow and recovery against stand-ins for Vercel and S3: legal hold set and no lifecycle expiry on `escrow/`; escrows only on a fingerprint match; recovery writes only a matching value; never prints a value |
 | DR-S11 | the wiring: environments, schedules, `main` only; each credential C1–C8 appears only where the inventory says |
 | DR-S14 | **A5, executed:** a backup run against CI's database and Storage, with each failure planted (a missing table, a missing or changed Storage object, a wrong recipient, a rejected checksum), is red and uploads no success record; the clean run is green |
-| DR-S15 | `pintar_backup` (A7): it reads every table, `auth` and `storage` included, and a dump made with it equals one made with `postgres`; with its read-only default switched **off** it is still refused every INSERT, UPDATE, DELETE, TRUNCATE, COPY FROM, sequence advance, CREATE, ALTER, DROP, COMMENT, GRANT, role grant, CREATE ROLE and SET ROLE; the catalog shows it owns nothing, can execute no PINTAR SECURITY DEFINER function, and holds no attribute beyond LOGIN and BYPASSRLS |
+| DR-S15 | `pintar_backup` (A7, D-108): it reads every table, `auth` and `storage` included, and its dumps equal `postgres`'s; with its read-only default switched **off** it is still refused every ordinary INSERT, UPDATE, DELETE, TRUNCATE, COPY FROM, sequence advance, CREATE, ALTER, DROP, COMMENT, GRANT, role grant, CREATE ROLE and SET ROLE; the catalog shows it owns nothing, can execute no PINTAR or SECURITY DEFINER function, and holds no attribute beyond LOGIN and BYPASSRLS; the `supautils` extension residual is shown to be the platform's (the extension is created by `supabase_admin`, not by the role) and is left to controls 5-8 |
 | DR-D02 | the logical path end to end on CI: CI's bundle restored by `restore-bundle.sh` into a fresh database gives `banding.sh` 0 differences and readiness 24/24 |
 
 **Evidence:**
@@ -443,8 +470,9 @@ The screenshots are not committed (they show names); the record keeps roles and 
   ≤ 12 months (O11).
 - **Escrow is under legal hold.** Only the AWS root (C9) can lift it, by the retirement procedure.
 - **Residual risks, named:**
-  - **a compromise of C2 could expose the complete database** (it cannot modify it); A7 bounds where C2 lives, and
-    its revocation is immediate;
+  - **a compromise of C2 could expose the complete database**; it holds no ordinary privilege to modify it, but, like
+    any Supabase login, it can create or drop allow-listed extensions (D-108); A7 bounds where C2 lives, controls 5-8
+    detect an extension change at every backup and restore, and revocation is immediate;
   - losing **both** custodians' private keys makes production bundles and the escrow unrecoverable; the quarterly
     possession check is the control;
   - C3 can write to Storage, a Supabase limitation;
