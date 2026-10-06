@@ -65,7 +65,7 @@ rulings on B3 and B4.
 | # | Status 6 Oct | Evidence |
 |---|---|---|
 | G1 | **Part 1 done 6 Oct:** 7 scheduled physical backups listed, the latest 05 Oct 19:24:09 UTC, none visibly failed, status not displayed, PITR off. **Part 2 on hold** (D-105) | see G1 Part 1 below |
-| G2 | **Approved (D-105); not yet performed:** waiting on the owner's dashboard action | see G2 below |
+| G2 | **Performed 6 Oct; evidence captured.** Native database recovery proven at current staging scale (Second Eye); 8 min 03 s restore-to-verified; temporary project deletion pending | see G2 result below |
 | G3/G4 | **Design only (D-104)**; implementation not authorised and not a condition of the current scope | `docs/recovery/OFFSITE-BACKUP-DESIGN.md` |
 | G5 | **Guard built and proven; escrow waits on G3's custody** | `b4bd543`; DR-S01..S03 red on the old workflow, green; CI 37390261594 (35/35, 579/579) |
 | G6 | **Built and proven** (refuses production applies while the backup list cannot be read by machine; G1 Part 2 on hold, D-105) | `870fdac`; DR-S04, DR-S05; CI 37390261594 (35/35, 579/579) |
@@ -193,6 +193,47 @@ G2 tests them empirically.** The native hosted restore is not assumed to behave 
 
 The results are recorded here, and the runbook (Part II §7) is corrected to match what was seen. The deletion is
 confirmed afterwards.
+
+### G2: result (6 Oct), and the Second Eye's conclusion
+
+**Evidence:** `docs/recovery/evidence/150/g2-observations.md` (`e836385`).
+- **The restore:** "Restore to a New Project" from `pintar-staging` (`keijhmdtsgrfvnvocfvk`), backup 05 Oct 2026
+  23:34:27 UTC, to `pintar-g2-rehearsal-DELETE-ME` (`rzphxkmbsunmedxmxwsz`).
+- **Timings:**
+  - T0 00:48:02 (the owner confirms);
+  - T1 at or before 00:51:39 (healthy);
+  - T2 00:51:48.117 (queryable);
+  - T3 00:56:04.697 (verified);
+  - **total 8 min 03 s.**
+- **Data and schema:** all 157 tables byte-identical, as are the schema, rights, owners, row security, policies, the
+  `auth.users` triggers, the pre-request, the audit protections, roles and settings. Readiness **24/24 PASS**, every
+  measured value identical to staging's. Nothing was repaired.
+- **Not reproduced:**
+  - API keys: a new anon key, and no publishable key;
+  - Auth settings: leaked-password protection off.
+- **Not verified:** the Storage files themselves (the metadata is identical).
+- **Platform difference:** the copy runs Postgres image 17.11.0.002; staging runs 17.6.1.166.
+
+**Native hosted restore against the 5 Oct logical restore:**
+
+| Control | Native hosted restore (6 Oct) | Logical restore (5 Oct) |
+|---|---|---|
+| Table rights | identical (anon 0) | all 137 opened to `anon` and `authenticated` |
+| Function rights | identical (anon 1, the pre-request; authenticated 211) | all 490 to `anon` (280 internal) |
+| Row security and policies | identical | kept |
+| Owners | identical | kept |
+| `auth.users` triggers | 3 of 3 | 0 of 3 |
+| Pre-request | kept | kept |
+| Audit protections | 0 client write grants | 9 client write grants |
+| Readiness | 24/24 PASS | 7 FAIL |
+
+**The Second Eye's conclusion (6 Oct), recorded as given:** "PINTAR's native Supabase database recovery path is proven at
+current staging scale. A native hosted restore reproduced the complete tested database state and passed all 24
+recovery-readiness controls without repair. Current measured restore-to-verified time: 8m03s. This does not establish
+production-scale RTO. Auth/platform configuration and actual Storage objects require separate reconstruction/recovery
+procedures."
+
+**Still open in G2:** the owner deletes the temporary project, and the coordinator confirms it is gone.
 
 ### G5. The durable secrets: never replaced silently (built)
 
