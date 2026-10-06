@@ -1,6 +1,7 @@
 import { format, t, type HleEvent, type Locale } from "@/lib/hle";
 import { nilaiIsi, nilaiMetrik, urutkanPita } from "@/lib/nilai-metrik";
 import type { Envelope } from "./types";
+import PopulasiKelas from "./PopulasiKelas";
 
 /**
  * W9 (J7.3, J7.4) — A FIGURE AS A READER READS IT, ROWS INCLUDED.
@@ -76,6 +77,8 @@ export default function NilaiLaporan({ entry, locale, tempat = {} }: {
         ))}
       </dl>
       {pita ? <p className="pin-meta">{s("kesiapan.catatan")}</p> : null}
+      {/* CR-81 (D-123(3)): the class's population, apart from the bands */}
+      <PopulasiKelas populasi={entry.population} locale={locale} />
       </>
     );
   }

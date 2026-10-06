@@ -15,7 +15,11 @@
 --   F20-N01  D-121(c), D-095(c)(g), review F5 / T4: «Belum mengerjakan Uji Penguasaan». A learner placed in the class
 --            with no official Uji Penguasaan result there (never started, an enrolment still PENDING, or a sitting not
 --            finished) counts in the not-yet state, never in a performance band; an assessed learner never counts as
---            not yet, a failed safety gate included; the class's sample is every learner the distribution counts
+--            not yet, a failed safety gate included. RESTATED FOR CR-81 (D-123(3)): the not-yet learners are the class's
+--            population (placed, assessed, not yet), never a band, and the sample the floor reads is the assessed only
+--   F20-N02  CR-81, D-123(3): through the evaluator, the floor reads the assessed only (three assessed among more placed
+--            are below it; five show the bands, over the assessed alone), and the population is said below the floor too,
+--            to a reader who may read the class and to nobody else
 --   F20-S01  CR-02, D-078(c), D-077(d), D-076(e): a certificate is sealed at issuance. Renaming the school afterwards
 --            changes neither the certificate the learner reads nor its public check; the course is the one the
 --            certificate's own release teaches; the language is fixed; a seal can never be edited
@@ -332,30 +336,84 @@ begin
         into v_beda
         from (select jsonb_object_keys(coalesce(v_d1 -> 'value', '{}'::jsonb)) as kunci
               union select jsonb_object_keys(coalesce(v_d0 -> 'value', '{}'::jsonb))) ks;
-      if coalesce((v_beda ->> 'kesiapan.belum_post_test')::int, 0) <> 3 then
-        v_probs := selftest.f20_note(v_probs, 'F20-N01', format('the three learners without an Uji Penguasaan result moved «Belum mengerjakan» by %s, not 3',
-          coalesce(v_beda ->> 'kesiapan.belum_post_test', 'nothing (the state is never produced)')));
+      -- RESTATED FOR CR-81 (D-123(3)): «Belum mengerjakan» is the class's population, never a band, so the bands and the
+      -- sample (which the floor reads) are the assessed only; the three without a result are said in the population
+      if v_d1 -> 'value' ? 'kesiapan.belum_post_test' then
+        v_probs := selftest.f20_note(v_probs, 'F20-N01', format('«Belum mengerjakan» is still one of the bands: %s', v_d1 -> 'value'));
+      end if;
+      if coalesce((v_d1 #>> '{population,not_yet}')::int, 0) - coalesce((v_d0 #>> '{population,not_yet}')::int, 0) <> 3 then
+        v_probs := selftest.f20_note(v_probs, 'F20-N01', format('the three learners without an Uji Penguasaan result moved the population''s «Belum mengerjakan» by %s, not 3 (%s)',
+          coalesce((v_d1 #>> '{population,not_yet}')::int, 0) - coalesce((v_d0 #>> '{population,not_yet}')::int, 0),
+          coalesce(v_d1 -> 'population', '"no population"'::jsonb)));
+      end if;
+      if coalesce((v_d1 #>> '{population,placed}')::int, 0) - coalesce((v_d0 #>> '{population,placed}')::int, 0) <> 5
+         or coalesce((v_d1 #>> '{population,assessed}')::int, 0) - coalesce((v_d0 #>> '{population,assessed}')::int, 0) <> 2 then
+        v_probs := selftest.f20_note(v_probs, 'F20-N01', format('five placed and two assessed did not show in the population: before %s, after %s',
+          v_d0 -> 'population', v_d1 -> 'population'));
       end if;
       if coalesce((v_beda ->> 'kesiapan.butuh_pendampingan')::int, 0) <> 2
-         or exists (select 1 from jsonb_each_text(v_beda) b where b.key not in ('kesiapan.belum_post_test', 'kesiapan.butuh_pendampingan')
-                     and b.value::int <> 0) then
+         or exists (select 1 from jsonb_each_text(v_beda) b where b.key <> 'kesiapan.butuh_pendampingan' and b.value::int <> 0) then
         v_probs := selftest.f20_note(v_probs, 'F20-N01', format('the 45%% learner and the 95%% learner whose gate failed did not both count in the lowest band, and only there: %s', v_beda));
       end if;
-      if coalesce((v_d1 ->> 'sample')::int, 0) - coalesce((v_d0 ->> 'sample')::int, 0) <> 5 then
-        v_probs := selftest.f20_note(v_probs, 'F20-N01', format('the sample grew by %s for five learners placed in the class',
+      if coalesce((v_d1 ->> 'sample')::int, 0) - coalesce((v_d0 ->> 'sample')::int, 0) <> 2 then
+        v_probs := selftest.f20_note(v_probs, 'F20-N01', format('the sample grew by %s for two learners assessed among five placed (the floor reads the assessed only)',
           coalesce((v_d1 ->> 'sample')::int, 0) - coalesce((v_d0 ->> 'sample')::int, 0)));
       end if;
       -- the bootstrap learner, assessed at 100%, is in a band, never not-yet
       if coalesce((v_d0 -> 'value' ->> 'kesiapan.siap_sertifikasi')::int, 0) < 1 then
         v_probs := selftest.f20_note(v_probs, 'F20-N01', 'the learner assessed at 100% is not in the top band: ' || coalesce(v_d0::text, 'nothing'));
       end if;
-      -- a learner who left the class is not counted there as not yet
+      -- a learner who left the class is not counted there as not yet, nor as placed
       update public.memberships set valid_to = now(), close_reason = 'MOVED' where enrollment_id in
         (select e.id from public.enrollments e where e.person_id = v_p[1]) and node_id = v_class;
-      if coalesce((selftest.f20_kesiapan(v_class, v_inst) -> 'value' ->> 'kesiapan.belum_post_test')::int, 0)
-         <> coalesce((v_d1 -> 'value' ->> 'kesiapan.belum_post_test')::int, 0) - 1 then
-        v_probs := selftest.f20_note(v_probs, 'F20-N01', 'a learner moved out of the class still counts there as not yet');
+      v_d := selftest.f20_kesiapan(v_class, v_inst);
+      if coalesce((v_d #>> '{population,not_yet}')::int, 0) <> coalesce((v_d1 #>> '{population,not_yet}')::int, 0) - 1
+         or coalesce((v_d #>> '{population,placed}')::int, 0) <> coalesce((v_d1 #>> '{population,placed}')::int, 0) - 1 then
+        v_probs := selftest.f20_note(v_probs, 'F20-N01', 'a learner moved out of the class still counts there as not yet or as placed');
       end if;
+
+      -- ═══════════════════════════════════════════════════════════════════════
+      -- F20-N02  CR-81: THE FLOOR READS THE ASSESSED, AND THE POPULATION IS SAID WHATEVER THE FLOOR
+      -- ═══════════════════════════════════════════════════════════════════════
+      -- the same class, as the evaluator answers it: three assessed (the bootstrap learner and the two above) is below
+      -- the floor of five however many are placed, so the bands are withheld, and who is waiting is still said
+      begin
+        perform selftest.as_user('sysadmin@synthetic.pintar.test');
+        v_d := public.metric_evaluate('class.readiness_distribution', v_class, v_inst, null);
+        perform selftest.as_owner();
+        if v_d ->> 'status' is distinct from 'below_minimum' or (v_d ->> 'have')::int is distinct from (v_d1 ->> 'sample')::int then
+          v_probs := selftest.f20_note(v_probs, 'F20-N02', format('with %s assessed among %s placed the bands were not withheld on the assessed count: %s',
+            v_d1 ->> 'sample', v_d1 #>> '{population,placed}', v_d));
+        end if;
+        if v_d ? 'value' then
+          v_probs := selftest.f20_note(v_probs, 'F20-N02', 'a band was shown below the floor: ' || (v_d -> 'value')::text);
+        end if;
+        if (v_d #>> '{population,not_yet}')::int is distinct from (v_d1 #>> '{population,not_yet}')::int - 1 then
+          v_probs := selftest.f20_note(v_probs, 'F20-N02', format('below the floor the class''s «Belum mengerjakan» was not said: %s', v_d));
+        end if;
+        -- two more assessed reach five: the bands show, still over the assessed only
+        perform selftest.f20_sitting(v_sess, v_p[2], v_class, 0.85, true);
+        perform selftest.f20_sitting(v_sess, v_p[3], v_class, 0.75, true);
+        perform selftest.as_user('sysadmin@synthetic.pintar.test');
+        v_d := public.metric_evaluate('class.readiness_distribution', v_class, v_inst, null);
+        perform selftest.as_owner();
+        if v_d ->> 'status' is distinct from 'ok'
+           or (select coalesce(sum(b.value::int), 0) from jsonb_each_text(coalesce(v_d -> 'value', '{}'::jsonb)) b) <> (v_d ->> 'sample')::int
+           or (v_d #>> '{population,assessed}')::int is distinct from (v_d ->> 'sample')::int then
+          v_probs := selftest.f20_note(v_probs, 'F20-N02', format('with five assessed the bands did not show over the assessed alone: %s', v_d));
+        end if;
+        -- a learner nobody may read about is not answered: the population leaves with the figure
+        perform selftest.as_user('beta-admin@synthetic.pintar.test');
+        v_d := public.metric_evaluate('class.readiness_distribution', v_class, v_inst, null);
+        perform selftest.as_owner();
+        if v_d ? 'population' then
+          v_probs := selftest.f20_note(v_probs, 'F20-N02', 'another school''s admin was told the class''s population: ' || v_d::text);
+        end if;
+      exception when others then
+        perform selftest.as_owner();
+        perform set_config('pintar.metric_boundary_node', '', true);
+        v_probs := selftest.f20_note(v_probs, 'F20-N02', 'the test could not run: ' || left(sqlerrm, 160));
+      end;
     exception when others then
       perform selftest.as_owner();
       perform set_config('pintar.metric_boundary_node', '', true);
@@ -855,10 +913,11 @@ begin
 
   for r in
     select * from unnest(
-      array['F20-Q10', 'F20-F01', 'F20-N01', 'F20-S01', 'F20-C01', 'F20-M01', 'F20-M02', 'F20-M03', 'F20-E01', 'F20-E02', 'F20-K01'],
+      array['F20-Q10', 'F20-F01', 'F20-N01', 'F20-N02', 'F20-S01', 'F20-C01', 'F20-M01', 'F20-M02', 'F20-M03', 'F20-E01', 'F20-E02', 'F20-K01'],
       array['D-121(a)(b), Q10 Alternative 4 -- mastery is the school''s mark; the descriptor is PINTAR''s fixed scale, none below 70%',
             'D-121(a), INV-29 -- a result is decided under its session''s own scoring version',
-            'D-121(c), D-095(c)(g) -- «Belum mengerjakan Uji Penguasaan» is produced and stays apart from the bands',
+            'D-121(c), CR-81 -- «Belum mengerjakan Uji Penguasaan» is the class''s population, apart from the bands',
+            'CR-81, D-123(3) -- the floor reads the assessed; the population is said whatever the floor',
             'CR-02, D-078(c), D-077(d) -- a certificate is sealed at issuance: school, course, language',
             'CR-01, D-080(2)(9) -- the number is the holder''s PINTAR ID and their own sequence',
             'CR-50, D-063 M1/M5, D-120 Q9 -- a package carries its definitions; each school owns its own',
@@ -877,9 +936,13 @@ begin
         'a Uji Penguasaan started under one version, with a newer version published before the learner finishes, is stamped with '
           || 'the version it was started under',
         'five learners placed in the official class: the two never started (one enrolment PENDING) and the one whose sitting is '
-          || 'unfinished add 3 to «Belum mengerjakan Uji Penguasaan»; the one assessed at 45% and the one at 95% whose safety '
-          || 'gate failed add 2 to the lowest band and nothing elsewhere; the sample grows by 5; the learner assessed at 100% is '
-          || 'in the top band; a learner moved out of the class no longer counts there',
+          || 'unfinished add 3 to the population''s «Belum mengerjakan Uji Penguasaan» and to no band; the one assessed at 45% and '
+          || 'the one at 95% whose safety gate failed add 2 to the lowest band and nothing elsewhere; the population counts 5 more '
+          || 'placed and 2 more assessed; the sample grows by 2, the assessed; the learner assessed at 100% is in the top band; a '
+          || 'learner moved out of the class counts there neither as not yet nor as placed',
+        'through metric_evaluate, three assessed among more placed are below the floor of 5 (have = the assessed): no band is '
+          || 'shown and the population still says who has not sat; with five assessed the bands show and add up to the assessed '
+          || 'alone; another school''s admin is told nothing, the population included',
         'a certificate issued and sealed, then the school renamed: the public check and the learner''s certificate still read the '
           || 'school''s name as issued, the course the certificate''s release teaches and the language id; the sealed school name '
           || 'cannot be edited',

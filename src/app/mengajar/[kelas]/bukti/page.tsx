@@ -6,7 +6,7 @@ import { actionText, omissionText } from "../../../_intel";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
-import { AngkaBerdiri, BarisKesiapan, BarisLingkup, KartuKetiadaan, KeadaanHariIni } from "@/components/bukti";
+import { AngkaBerdiri, BarisKesiapan, BarisLingkup, KartuKetiadaan, KeadaanHariIni, PopulasiKelas } from "@/components/bukti";
 import { nilaiMetrik, urutkanPita } from "@/lib/nilai-metrik";
 
 export const dynamic = "force-dynamic";
@@ -91,6 +91,7 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
     siap && siap.status === "ok" && siap.value && typeof siap.value === "object"
       ? urutkanPita(Object.entries(siap.value as Record<string, number>)) // D-095: band order, not key order
       : [];
+  // CR-81 (D-123(3)): the bands are the assessed alone (MC-7), so their bars are drawn over the assessed
   const totalSiap = sebaran.reduce((n, [, c]) => n + Number(c), 0);
 
   // D-088(g), MC-4: one row per objective, named by its statement (what was learned), never by a code that two
@@ -201,10 +202,15 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
               </div>
               {/* D-095: PINTAR's fixed bands, not the school's mastery threshold; they decide no certificate */}
               <span className="pin-mm">{s("kesiapan.catatan")}</span>
+              <PopulasiKelas populasi={siap.population} locale={locale} />
               <span className="pin-ma">{actionText(siap, locale)}</span>
             </div>
           ) : siap ? (
-            <KartuKetiadaan entry={siap} action={omissionText(siap, locale)} locale={locale} />
+            <>
+              <KartuKetiadaan entry={siap} action={omissionText(siap, locale)} locale={locale} />
+              {/* CR-81: who has not sat yet is said even while the bands are withheld (D-121(c), D-123(3)) */}
+              <PopulasiKelas populasi={siap.population} locale={locale} />
+            </>
           ) : null}
         </div>
 

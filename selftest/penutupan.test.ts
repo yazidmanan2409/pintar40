@@ -46,6 +46,26 @@ function gambarKartu(repoRoot: string, kasus: { predikat: string | null; variant
   return { html, galat: anak.status === 0 && html.length === kasus.length ? "" : (anak.stderr || "no output").split("\n").slice(0, 4).join(" ") };
 }
 
+/** Renders a component module's default export once per case (props as JSON; `denganAksi` adds a no-op action). */
+function gambar(repoRoot: string, modul: string, kasus: Record<string, unknown>[]): { html: string[]; galat: string } {
+  const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+    "(async () => {" +
+    '  const { createElement: h } = await import("react");' +
+    '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+    `  const m = await import("file://" + process.cwd() + ${JSON.stringify("/" + modul)});` +
+    "  const K = m.default?.default ?? m.default;" +
+    '  const { readFileSync } = await import("node:fs");' +
+    '  const out = JSON.parse(readFileSync(0, "utf8")).map((p) => { const { denganAksi, ...q } = p;' +
+    "    return renderToStaticMarkup(h(K, denganAksi ? { ...q, aksi: async () => {} } : q)); });" +
+    "  process.stdout.write(JSON.stringify(out));" +
+    "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+    cwd: repoRoot, encoding: "utf8", maxBuffer: 1 << 24, input: JSON.stringify(kasus),
+  });
+  let html: string[] = [];
+  try { html = JSON.parse(anak.stdout); } catch { /* reported by the caller */ }
+  return { html, galat: anak.status === 0 && html.length === kasus.length ? "" : (anak.stderr || "no output").split("\n").slice(0, 4).join(" ") };
+}
+
 export const penutupanTests: SelfTest[] = [
   {
     id: "PENUTUPAN-Q10",
@@ -179,6 +199,85 @@ export const penutupanTests: SelfTest[] = [
         + "authorize_email_correction with the caller's own client before Auth is touched, moves exactly the granted address and no password, "
         + `maps each of the ${db.length} refusals the database names to its own code, and tells the old and the new address only after `
         + "activation, after the answer; the notice's six texts read in both languages and carry no address");
+    },
+  },
+  {
+    id: "PENUTUPAN-W01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const tunggu = t("pimpinan.menunggu_pemutus_lain", "staff", { locale: "id" });
+      const tiada = t("pimpinan.belum_ada_pemutus_lain", "staff", { locale: "id" });
+      const dasar = { id: "d1", keluarga: "INTEGRITY_REFERRAL", keadaan: "AWAITING_REVIEW", hasil: null, simpul: "n", simpulNama: "Kelas 1A",
+        institusi: "i", subjek: null, sumberTabel: "integrity_signals", diangkatPada: "2026-10-07T00:00:00Z", catatan: "catatan perujuk",
+        diputuskanPada: null, olehSaya: false, pemutusLain: null };
+      const kasus = [
+        { keputusan: { ...dasar, olehSaya: true, pemutusLain: true }, denganAksi: true },
+        { keputusan: { ...dasar, olehSaya: true, pemutusLain: false }, denganAksi: true },
+        { keputusan: { ...dasar, keadaan: "UNDER_REVIEW", olehSaya: true, pemutusLain: true }, denganAksi: true },
+        { keputusan: { ...dasar }, denganAksi: true },
+        { keputusan: { ...dasar, keadaan: "DECIDED", hasil: "NO_FURTHER_ACTION", diputuskanPada: "2026-10-07T01:00:00Z", olehSaya: true }, denganAksi: true },
+      ];
+      const { html, galat } = gambar(ctx.repoRoot, "src/components/pimpinan/KartuKeputusan.tsx", kasus);
+      if (!c.expect(galat === "", `the card did not render: ${galat}`)) return c.verdict("");
+      const [milikAda, milikTiada, milikDitinjau, oranglain, diputus] = html;
+      c.expect(!/<form/.test(milikAda) && milikAda.includes(tunggu) && !milikAda.includes(tiada),
+        "the referrer's own open referral offers a move, or does not say it waits for another person");
+      c.expect(!/<form/.test(milikTiada) && milikTiada.includes(tunggu) && milikTiada.includes(tiada),
+        "with nobody else able to decide, the referrer's card does not say so");
+      c.expect(!/<form/.test(milikDitinjau) && milikDitinjau.includes(tunggu), "the referrer is offered «Catat keputusan» on their referral under review");
+      c.expect((oranglain.match(/<form/g) ?? []).length === 2 && !oranglain.includes(tunggu),
+        "another decider is not offered «Saya yang menangani» and «Catat keputusan», or is told to wait");
+      c.expect(!diputus.includes(tunggu), "a decided referral still says it waits");
+      // the loader asks the database only for the reader's own open integrity referrals
+      const muat = readFileSync(join(ctx.repoRoot, "src", "lib", "pimpinan.ts"), "utf8");
+      c.expect(/r\.family === "INTEGRITY_REFERRAL" && r\.state !== "DECIDED"/.test(muat)
+        && /c\.rpc\("management_decision_independent_decider", \{ p_decision: r\.id \}\)/.test(muat),
+        "the loader does not ask management_decision_independent_decider for the reader's own open referrals");
+      for (const k of ["pimpinan.menunggu_pemutus_lain", "pimpinan.belum_ada_pemutus_lain"] as const) {
+        for (const locale of LOCALES) {
+          const v = t(k, "staff", { locale });
+          c.expect(v.length > 20 && !v.startsWith("pimpinan."), `${k} (${locale}) reads «${v}»`);
+        }
+      }
+      return c.verdict("the rendered component KartuKeputusan (src/components/pimpinan/KartuKeputusan.tsx): the referrer's own open integrity referral, "
+        + "awaiting or under review, carries no form and says another leader decides it; with nobody else able to decide it also says so and "
+        + "who can change that; another decider's card offers both moves and no waiting line; a decided referral says nothing of waiting; "
+        + "read from the source file src/lib/pimpinan.ts, the loader asks management_decision_independent_decider for the reader's own open "
+        + "integrity referrals only; both texts read in both languages (CR-76, D-123(4))");
+    },
+  },
+  {
+    id: "PENUTUPAN-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const pop = { placed: 30, assessed: 6, not_yet: 24 };
+      const baris = `30 ${t("kesiapan.populasi.murid", "educator", { locale: "id" })} · 6 ${t("kesiapan.populasi.sudah", "educator", { locale: "id" })} · 24 ${t("kesiapan.populasi.belum", "educator", { locale: "id" })}`;
+      const lp = gambar(ctx.repoRoot, "src/components/bukti/PopulasiKelas.tsx", [{ populasi: pop }, { populasi: null }]);
+      if (!c.expect(lp.galat === "", `the population line did not render: ${lp.galat}`)) return c.verdict("");
+      const teks = (h: string) => h.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+      c.expect(teks(lp.html[0]) === baris, `the population reads «${teks(lp.html[0])}», expected «${baris}»`);
+      c.expect(lp.html[1] === "", "a figure with no population draws a line");
+      // a report entry: the bands, then the population, and «Belum mengerjakan» is no band row
+      const entri = { status: "ok", metric_id: "class.readiness_distribution",
+        value: { "kesiapan.siap_sertifikasi": 3, "kesiapan.perlu_review": 2, "kesiapan.butuh_pendampingan": 1 }, sample: 6, population: pop };
+      const lap = gambar(ctx.repoRoot, "src/components/bukti/NilaiLaporan.tsx", [{ entry: entri, locale: "id" }]);
+      if (!c.expect(lap.galat === "", `the report entry did not render: ${lap.galat}`)) return c.verdict("");
+      const dt = [...lap.html[0].matchAll(/<dt>([^<]*)<\/dt>/g)].map((m) => m[1]);
+      c.expect(dt.length === 3 && !dt.includes(t("kesiapan.belum_post_test", "educator", { locale: "id" })) && teks(lap.html[0]).includes(baris),
+        `the report entry's band rows are ${JSON.stringify(dt)} and its population line is ${teks(lap.html[0]).includes(baris)}`);
+      // the bars are drawn over the assessed: 3 of 6 is half
+      const bar = gambar(ctx.repoRoot, "src/components/bukti/BarisKesiapan.tsx", [{ tierKey: "kesiapan.siap_sertifikasi", count: 3, total: 6 }]);
+      c.expect(bar.galat === "" && /width:50\.0%/.test(bar.html[0] ?? ""), `a band of 3 among 6 assessed is drawn as ${(/width:[^;"]*/.exec(bar.html[0] ?? "") ?? ["nothing"])[0]}`);
+      // the class's evidence page sums the bands alone and says the population with the figure and without it
+      const hal = readFileSync(join(ctx.repoRoot, "src", "app", "mengajar", "[kelas]", "bukti", "page.tsx"), "utf8");
+      c.expect((hal.match(/<PopulasiKelas populasi=\{siap\.population\}/g) ?? []).length === 2
+        && /const totalSiap = sebaran\.reduce/.test(hal),
+        "the class's evidence page does not say the population both with the bands and while they are withheld");
+      return c.verdict("the rendered component PopulasiKelas says «30 murid di kelas ini · 6 sudah mengerjakan Uji Penguasaan · 24 belum "
+        + "mengerjakan Uji Penguasaan» and nothing for a figure with no population; the rendered report entry NilaiLaporan lists three "
+        + "band rows, none of them «Belum mengerjakan», then the population; the rendered BarisKesiapan draws 3 of 6 assessed as half; read from "
+        + "the source file src/app/mengajar/[kelas]/bukti/page.tsx, the class's evidence page sums the bands alone and says the population "
+        + "with the bands and while they are withheld (CR-81, D-123(3))");
     },
   },
 ];

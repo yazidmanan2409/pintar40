@@ -2487,6 +2487,14 @@ await step("S23r", "the head of department refers Kelas 1A's integrity observati
     notes.push(`the head of department's /pimpinan card: «${diKaprodi.slice(0, 220)}»`);
     if (!/Menunggu tinjauan/.test(diKaprodi) || !/Tinjauan integritas/.test(diKaprodi) || !/Kelas 1A/.test(diKaprodi)      // hle.ts:2131, 2127
         || !/Berasal dari satu catatan integritas\./.test(diKaprodi) || UUID.test(diKaprodi) || MENTAH.test(diKaprodi)) rec.verdict = "FAIL";  // hle.ts:2156
+    // CR-76 (D-123(4)): whoever referred it does not decide it. Her card offers neither move and says another leader
+    // decides it; the dean stands over Kelas 1A, so it does not say that nobody else can (KartuKeputusan.tsx; hle.ts
+    // pimpinan.menunggu_pemutus_lain, pimpinan.belum_ada_pemutus_lain)
+    const tombolPerujuk = await kartu(h).first().getByRole("button", { name: /Saya yang menangani|Catat keputusan/ }).count();
+    const menungguLain = /keputusannya diambil oleh pimpinan lain/.test(diKaprodi);
+    const tiadaLain = /Belum ada pimpinan lain yang berwenang/.test(diKaprodi);
+    notes.push(`CR-76: the referrer is offered ${tombolPerujuk} move(s); the card says another leader decides it ${menungguLain}; says nobody else can ${tiadaLain}`);
+    if (tombolPerujuk !== 0 || !menungguLain || tiadaLain) rec.verdict = "FAIL";
 
     // 3. the dean takes it, then decides it
     await magicSignIn(d, people.dekan.email);

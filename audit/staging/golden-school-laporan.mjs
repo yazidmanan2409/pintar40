@@ -190,7 +190,7 @@ async function angka(scope) {
   }));
 }
 // one figure, by its label, must read as expected; returns a line for the log, or throws
-function harus(figs, label, { nilai, sampel, tingkat, kurang, pita } = {}) {
+function harus(figs, label, { nilai, sampel, tingkat, kurang, pita, belum } = {}) {
   const f = figs.find((x) => x.label === label);
   if (!f) throw new Error(`no «${label}» on the page (labels: ${figs.map((x) => x.label).filter(Boolean).join(", ") || "none"})`);
   const salah = [];
@@ -202,6 +202,9 @@ function harus(figs, label, { nilai, sampel, tingkat, kurang, pita } = {}) {
     for (const [k, n] of Object.entries(ada)) if (!(k in tingkat) && n !== 0) salah.push(`unexpected «${k}» ${n}`);
   }
   if (kurang && !/Belum cukup data|Belum ada bukti/.test(f.teks)) salah.push(`expected withheld below its minimum, got «${f.teks.slice(0, 120)}»`);
+  // CR-81 (D-123(3)): the class's population is said apart from the bands, «… · N belum mengerjakan Uji Penguasaan»
+  if (belum !== undefined && !new RegExp(`(^|\\D)${belum} belum mengerjakan Uji Penguasaan`).test(f.teks))
+    salah.push(`the population does not say ${belum} have not sat the Uji Penguasaan («${f.teks.slice(0, 200)}»)`);
   if (pita) {
     // D-095: the bands drawn in band order, with the line that they are PINTAR's fixed bands, not the school's threshold
     const urut = f.baris.map(([k]) => k).filter((k) => Object.values(TIER).includes(k));
@@ -272,11 +275,12 @@ await step("L0", `read only: «${SLUG}», «${KELAS}», «${BAB}», and the figu
   const posts = semua.filter((x) => x.post);
   const kedua = semua.filter((x) => x.post && x.pre);
   // D-095(c): below 60% or a required item missed is «Perlu penguatan»; 60–79% «Berkembang»; 80% and above «Mantap»
-  const tingkat = { [TIER.siap]: 0, [TIER.review]: 0, [TIER.dampingi]: 0, [TIER.belum]: 0 };
+  // CR-81 (D-123(3)): the bands are the assessed alone; «Belum mengerjakan» is the class's population, never a band
+  const tingkat = { [TIER.siap]: 0, [TIER.review]: 0, [TIER.dampingi]: 0 };
   for (const x of posts) tingkat[x.post.m < 0.6 || !x.post.gerbang ? TIER.dampingi : x.post.m < 0.8 ? TIER.review : TIER.siap]++;
   // D-121(c): a learner placed in the class now (an open placement of a PENDING or ACTIVE enrolment) with no official
   // Uji Penguasaan result there is «Belum mengerjakan Uji Penguasaan», never a band
-  tingkat[TIER.belum] = Number(sql(`select count(distinct e.person_id) from public.memberships m
+  const belum = Number(sql(`select count(distinct e.person_id) from public.memberships m
       join public.enrollments e on e.id = m.enrollment_id
      where m.node_id = '${uuid(kelas)}' and m.valid_to is null and e.status in ('PENDING', 'ACTIVE')
        and not exists (select 1 from public.assessment_sessions s
@@ -289,18 +293,18 @@ await step("L0", `read only: «${SLUG}», «${KELAS}», «${BAB}», and the figu
     peserta: semua.length,
     paham: posts.reduce((t, x) => t + x.post.m, 0) / posts.length,
     naik: kedua.reduce((t, x) => t + (x.post.m - x.pre.m), 0) / kedua.length,
-    nPost: posts.length, nKedua: kedua.length, tingkat,
+    nPost: posts.length, nKedua: kedua.length, tingkat, belum,
   };
   if (S.peserta !== MURID.length || posts.length !== MURID.length) { rec.verdict = "FAIL"; return `${S.peserta} learners with official results, ${posts.length} post-tests; the recipe has ${MURID.length}`; }
   return `${nama}: ${S.peserta} learners; expected Pemahaman ${persen(S.paham)} (from ${S.nPost}), Kenaikan ${poin(S.naik)} (from ${S.nKedua}), ` +
-    `tiers ${Object.entries(tingkat).map(([k, n]) => `${k} ${n}`).join(", ")}; certificates issued ${terbit}; ` +
+    `tiers ${Object.entries(tingkat).map(([k, n]) => `${k} ${n}`).join(", ")}; not yet assessed ${belum}; certificates issued ${terbit}; ` +
     semua.map((x) => `${x.nama.split(" ")[0]} pre ${x.pre ? persen(x.pre.m) : "-"} post ${persen(x.post.m)}${x.post.batas != null ? ` (mark ${persen(x.post.batas)})` : ""}`).join("; ");
 });
 
 const KELAS_ANGKA = () => ({
   paham: [`Pemahaman`, { nilai: persen(S.paham), sampel: S.nPost }],
   naik: [`Kenaikan`, { nilai: poin(S.naik), sampel: S.nKedua }],
-  siap: [PITA, { tingkat: S.tingkat, pita: true }],
+  siap: [PITA, { tingkat: S.tingkat, pita: true, belum: S.belum }],
 });
 
 // ── GS-17: the teacher
@@ -394,7 +398,7 @@ async function kelasDiPimpinan(p, nama) {
   out.push(harus(figs, "Peserta", { nilai: ANGKA.format(S.peserta) }));
   out.push(harus(figs, "Pemahaman", { nilai: persen(S.paham) }));
   out.push(harus(figs, "Kenaikan", { nilai: poin(S.naik) }));
-  out.push(harus(figs, PITA, { tingkat: S.tingkat, pita: true }));
+  out.push(harus(figs, PITA, { tingkat: S.tingkat, pita: true, belum: S.belum }));
   return out;
 }
 
@@ -440,7 +444,7 @@ await step("L4", "GS-17 the school admin: signs in → Konfigurasi → «Laporan
   const kls = await angka(p.locator("main"));
   await shot(p, "l4-admin-kelas");
   out.push(`«${KELAS}» summary: ${[harus(kls, "Peserta", { nilai: ANGKA.format(S.peserta) }),
-    ...Object.values(KELAS_ANGKA()).map(([label, h]) => harus(kls, label, { nilai: h.nilai, tingkat: h.tingkat, pita: h.pita }))].join(", ")}`);
+    ...Object.values(KELAS_ANGKA()).map(([label, h]) => harus(kls, label, { nilai: h.nilai, tingkat: h.tingkat, pita: h.pita, belum: h.belum }))].join(", ")}`);
   out.push(await ditolak(p, "/pimpinan"));
   out.push(await tanpaAngka(p, `/edukator/ringkasan?kelas=${S.kelasLain}`));
   await pamit(p, "the school admin (L4)", "/konfigurasi");

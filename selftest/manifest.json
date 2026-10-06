@@ -2047,7 +2047,7 @@
     {
       "id": "F06-P22",
       "runner": "db",
-      "proves": "BOB-39 (post-login review #2, D-061), migration 20261024100000 measured in selftest/db/fable06.sql: a Head of Department recording REFERRED_TO_INSTITUTION through record_integrity_review raises, in the same transaction, one AWAITING_REVIEW INTEGRITY_REFERRAL on the signal's class node with the reviewer's note as raised_note, beside the review's audit row, and it is in that Head of Department's decision queue read through RLS as /pimpinan reads it; NO_CONCERN and DISCUSSED_WITH_LEARNER create nothing; a second referral of the open signal is the same decision; a referral of a signal outside the reviewer's department is refused whole, leaving no decision and no review row, while NO_CONCERN there is still recorded; a Head of Department over another department does not see it; a teacher is still refused; advance_management_decision takes it up and decides it."
+      "proves": "BOB-39 (post-login review #2, D-061), migration 20261024100000 measured in selftest/db/fable06.sql: a Head of Department recording REFERRED_TO_INSTITUTION through record_integrity_review raises, in the same transaction, one AWAITING_REVIEW INTEGRITY_REFERRAL on the signal's class node with the reviewer's note as raised_note, beside the review's audit row, and it is in that Head of Department's decision queue read through RLS as /pimpinan reads it; NO_CONCERN and DISCUSSED_WITH_LEARNER create nothing; a second referral of the open signal is the same decision; a referral of a signal outside the reviewer's department is refused whole, leaving no decision and no review row, while NO_CONCERN there is still recorded; a Head of Department over another department does not see it; a teacher is still refused; advance_management_decision takes it up and decides it. RESTATED FOR CR-76 (W-2, D-123(4), migration 20261205100000): the Head of Department who referred it is refused «Saya yang menangani» and «Catat keputusan» (REFERRER_CANNOT_DECIDE) and told by management_decision_independent_decider that another may decide it, or that nobody else can while no other Management role stands over the class; another department's Head of Department is told nothing; the dean takes it up and decides it; the table refuses a referral decided by its referrer."
     },
     {
       "id": "F06-P23",
@@ -2258,6 +2258,16 @@
       "id": "PENUTUPAN-E03",
       "runner": "static",
       "proves": "CR-13 (D-120 QN1), read from the source file src/app/api/akun/email/route.ts and the migration 20261203100000: the route refuses another origin and a signed-out caller, asks authorize_email_correction with the caller's own client before Auth is touched, moves exactly the granted address (no password, no new identity), maps every refusal the database names to its own code with a status, and tells the old and the new address only after activation, after the answer; the notice's six texts (email.aman.email_dikoreksi.*) read in both languages and carry no address."
+    },
+    {
+      "id": "PENUTUPAN-W01",
+      "runner": "static",
+      "proves": "CR-76 (W-2, D-123(4)), the rendered component KartuKeputusan (src/components/pimpinan/KartuKeputusan.tsx): the referrer's own open integrity referral, awaiting or under review, carries no form and says another leader decides it; with nobody else able to decide it also says so and that the school admin can appoint one; another decider's card offers «Saya yang menangani» and «Catat keputusan» and no waiting line; a decided referral says nothing of waiting; read from the source file src/lib/pimpinan.ts, the loader asks management_decision_independent_decider for the reader's own open integrity referrals only; both texts read in both languages."
+    },
+    {
+      "id": "PENUTUPAN-K01",
+      "runner": "static",
+      "proves": "CR-81 (D-123(3)), the rendered components PopulasiKelas, NilaiLaporan and BarisKesiapan (src/components/bukti/): the population reads «30 murid di kelas ini · 6 sudah mengerjakan Uji Penguasaan · 24 belum mengerjakan Uji Penguasaan» and is absent where a figure has none; a report entry lists the three bands, none of them «Belum mengerjakan», then the population; a band of 3 among 6 assessed is drawn as half; read from the source file src/app/mengajar/[kelas]/bukti/page.tsx, the class's evidence page sums the bands alone and says the population with the bands and while they are withheld."
     },
     {
       "id": "PENUTUPAN-A01",
@@ -2977,7 +2987,13 @@
     {
       "id": "F20-N01",
       "runner": "db",
-      "proves": "D-121(c), D-095(c)(g), review F5 / T4, measured in selftest/db/fable20.sql against calc_class_readiness_distribution with the boundary bound to the class: five learners placed in an official class, two never started (one enrolment still PENDING) and one with an unfinished sitting, add 3 to «Belum mengerjakan Uji Penguasaan» (kesiapan.belum_post_test); one assessed at 45% and one at 95% whose safety gate failed add 2 to the lowest band and nothing elsewhere; the class's sample grows by 5; a learner assessed at 100% is in the top band, never not yet; a learner moved out of the class no longer counts there.",
+      "proves": "D-121(c), D-095(c)(g), review F5 / T4; RESTATED FOR CR-81 (D-123(3)), measured in selftest/db/fable20.sql against calc_class_readiness_distribution with the boundary bound to the class: five learners placed in an official class, two never started (one enrolment still PENDING) and one with an unfinished sitting, add 3 to the population's «Belum mengerjakan Uji Penguasaan» and to no band; one assessed at 45% and one at 95% whose safety gate failed add 2 to the lowest band and nothing elsewhere; the population counts 5 more placed and 2 more assessed; the sample, which the floor reads, grows by 2 (the assessed); a learner assessed at 100% is in the top band, never not yet; a learner moved out of the class counts there neither as not yet nor as placed.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-N02",
+      "runner": "db",
+      "proves": "CR-81, D-123(3), measured in selftest/db/fable20.sql through metric_evaluate as the platform admin: with three learners assessed among more placed the class's readiness distribution is below the floor of 5 with have equal to the assessed, shows no band, and its population still says how many have not sat the Uji Penguasaan; with five assessed it is ok and its bands add up to the assessed alone; another school's admin is answered not_permitted with no population.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {

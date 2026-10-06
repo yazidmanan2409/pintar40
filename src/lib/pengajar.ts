@@ -931,6 +931,8 @@ export type Amplop = {
   sample?: number;
   have?: number;
   needed?: number;
+  /** CR-81 (D-123(3)): the class's population beside the readiness bands (placed, assessed, not yet). */
+  population?: { placed: number; assessed: number; not_yet: number };
 };
 
 /**

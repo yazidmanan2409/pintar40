@@ -1665,7 +1665,10 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 171, `${migrations.length} migrations; the frozen baseline has 171`);
+      // MOVED 171 -> 173 for batch 3b (D-123): 20261205100000 adds a constraint, a function and a registry row on the
+      // decision queue, and 20261206100000 copies the catalogue to MC-7 and replaces two function bodies; neither adds a
+      // table or a column, so the sweep below still asserts over files without its answer changing. Re-read first.
+      c.expect(migrations.length === 173, `${migrations.length} migrations; the frozen baseline has 173`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3459,7 +3462,8 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 171, `${migs.length} migrations; the baseline has 171`);
+      // MOVED 171 -> 173 for batch 3b (D-123): the decision queue's referrer rule and catalogue MC-7 touch no tour RPC.
+      c.expect(migs.length === 173, `${migs.length} migrations; the baseline has 173`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -5155,7 +5159,7 @@ export const experienceTests: SelfTest[] = [
       const k = (id: string, keadaan: Keputusan["keadaan"], at: string): Keputusan => ({
         id, keluarga: "INTEGRITY_REFERRAL", keadaan, hasil: null, simpul: "n", simpulNama: null,
         institusi: "i", subjek: null, sumberTabel: "integrity_signals", diangkatPada: at,
-        catatan: null, diputuskanPada: null,
+        catatan: null, diputuskanPada: null, olehSaya: false, pemutusLain: null,
       });
       const diurut = urutan([
         k("d", "DECIDED", "2026-01-01T00:00:00Z"),

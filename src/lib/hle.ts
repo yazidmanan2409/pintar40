@@ -60,6 +60,7 @@ export type HleEvent =
   | "metrik.hasil_murid.label" | "metrik.hasil_murid.arti"
   | "kesiapan.belum_post_test" | "kesiapan.butuh_pendampingan"
   | "kesiapan.perlu_review" | "kesiapan.siap_sertifikasi" | "kesiapan.catatan"
+  | "kesiapan.populasi.murid" | "kesiapan.populasi.sudah" | "kesiapan.populasi.belum"
   | "kesehatan.judul" | "kesehatan.diamati" | "kesehatan.ditandai"
   | "kesehatan.belum_cukup" | "kesehatan.belum_diperiksa"
   | "kesehatan.catatan_paparan" | "kesehatan.belum_dikalibrasi"
@@ -96,6 +97,7 @@ export type HleEvent =
   | "pimpinan.tentang" | "pimpinan.sejak" | "pimpinan.diputuskan"
   | "pimpinan.aksi.ambil" | "pimpinan.aksi.putuskan" | "pimpinan.aksi.pilih"
   | "pimpinan.aksi.catatan" | "pimpinan.aksi.gagal" | "pimpinan.aksi.tercatat"
+  | "pimpinan.menunggu_pemutus_lain" | "pimpinan.belum_ada_pemutus_lain"
   | "pimpinan.kesiapan.judul" | "pimpinan.kesiapan.catatan"
   | "pimpinan.kesiapan.cukup" | "pimpinan.kesiapan.belum_cukup" | "pimpinan.kesiapan.belum_ada"
   | "pimpinan.bukti.judul" | "pimpinan.bukti.kosong" | "pimpinan.bukti.di_kelas" | "pimpinan.bukti.dari"
@@ -2048,6 +2050,10 @@ const table: Table = {
   "kesiapan.butuh_pendampingan": { default: "Perlu penguatan", en: "Needs strengthening" },
   "kesiapan.perlu_review": { default: "Berkembang", en: "Developing" },
   "kesiapan.siap_sertifikasi": { default: "Mantap", en: "Strong" },
+  // CR-81 (D-123(3)): the class's population, said apart from the bands
+  "kesiapan.populasi.murid": { default: "murid di kelas ini", en: "learners in this class" },
+  "kesiapan.populasi.sudah": { default: "sudah mengerjakan Uji Penguasaan", en: "have taken the Mastery Check" },
+  "kesiapan.populasi.belum": { default: "belum mengerjakan Uji Penguasaan", en: "have not taken the Mastery Check yet" },
   "kesiapan.catatan": { default: "Pita tetap PINTAR: 80% ke atas, 60–79%, dan di bawah 60% atau soal wajib belum tepat. Bukan batas ketuntasan sekolah dan tidak menentukan sertifikat.", en: "PINTAR's fixed bands: 80% and above, 60–79%, and below 60% or a required item not yet right. Not the school's mastery threshold, and they do not decide certificates." },
 
   "kesehatan.judul": { default: "Butir yang perlu dilihat", en: "Items worth a look" },
@@ -2163,6 +2169,9 @@ const table: Table = {
   "pimpinan.aksi.putuskan": { default: "Catat keputusan", en: "Record the decision" },
   "pimpinan.aksi.pilih": { default: "Hasil", en: "Outcome" },
   "pimpinan.aksi.catatan": { default: "Catatan (boleh dikosongkan)", en: "Note (may be left empty)" },
+  // CR-76 (D-123(4)): whoever referred an integrity case does not decide it
+  "pimpinan.menunggu_pemutus_lain": { default: "Anda yang meneruskan kasus ini, jadi keputusannya diambil oleh pimpinan lain. Kasus ini menunggu keputusan mereka.", en: "You referred this case, so another leader decides it. It is waiting for their decision." },
+  "pimpinan.belum_ada_pemutus_lain": { default: "Belum ada pimpinan lain yang berwenang memutuskan di bagian ini. Minta Admin sekolah menunjuk kepala program atau dekan.", en: "No other leader can decide here yet. Ask the school admin to appoint a head of department or a dean." },
   "pimpinan.aksi.gagal": { default: "Keputusan belum tercatat. Coba sekali lagi.", en: "The decision has not been recorded. Try once more." },
   "pimpinan.aksi.tercatat": { default: "Tercatat. Keadaan keputusan ini sudah diperbarui.", en: "Recorded. This decision’s state has been updated." },
 

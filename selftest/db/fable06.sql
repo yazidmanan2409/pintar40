@@ -4411,8 +4411,9 @@ begin
       select count(*) into n from public.integrity_signals s where s.id = c.signal_a;
       if n <> 1 then bad := bad || array['the referral disturbed the signal row']; end if;
 
-      -- E. INVALID TRANSITIONS REFUSED.
-      perform selftest.as_user_uid(c.hod_u);
+      -- E. INVALID TRANSITIONS REFUSED. RESTATED FOR CR-76 (D-123(4)): probed as the dean, who stands over the class
+      -- and did not refer it, so each refusal is the state machine's and not the referrer rule's.
+      perform selftest.as_user_uid(c.dean_u);
       v_caught := false;
       begin perform public.advance_management_decision(v_d, 'DECIDED', null, 'no outcome');
       exception when others then v_caught := true; end;
@@ -4469,8 +4470,9 @@ begin
       -- referral probe wrongly SUCCEEDS it will already have queued v_sig_b,
       -- and this insert would then collide and crash the probe instead of
       -- reporting the breach. Measured: it did.
+      -- RESTATED FOR CR-76: raised by the school admin, so the dean who decides it is not its referrer
       values ('INTEGRITY_REFERRAL', c.inst, c.cls_b, c.lb, 'integrity_signals',
-              gen_random_uuid(), c.dean)
+              gen_random_uuid(), c.adm)
       returning management_decisions.id into v_dec_b;
       v_caught := false;
       perform selftest.as_user_uid(c.hod_u);
@@ -4485,27 +4487,28 @@ begin
       exception when others then bad := bad || array['the dean could not decide inside their own faculty']; end;
       perform selftest.as_owner();
 
-      -- D. THE VALID HUMAN DECISION, and G. the trail it leaves.
+      -- D. THE VALID HUMAN DECISION, and G. the trail it leaves. RESTATED FOR CR-76 (D-123(4)): the head of department
+      -- referred it, so the dean standing over the class takes it up and decides it.
       select count(*) into n_aud from public.audit_log where action = 'management_decision.advanced';
-      perform selftest.as_user_uid(c.hod_u);
+      perform selftest.as_user_uid(c.dean_u);
       perform public.advance_management_decision(v_d, 'UNDER_REVIEW', null, 'saya tinjau');
       perform public.advance_management_decision(v_d, 'DECIDED', 'LEARNER_SUPPORT_ARRANGED', 'sudah dibahas');
       perform selftest.as_owner();
       select count(*) into n from public.management_decisions m
        where m.id = v_d and m.state = 'DECIDED' and m.outcome = 'LEARNER_SUPPORT_ARRANGED'
-         and m.decided_by_person_id = c.hod and m.decided_at is not null;
+         and m.decided_by_person_id = c.dean and m.decided_at is not null;
       if n <> 1 then bad := bad || array['the human decision was not persisted with its human and its moment']; end if;
       select count(*) into n from public.audit_log
        where action = 'management_decision.advanced' and target_id = v_d::text
-         and actor_person_id = c.hod and institution_id = c.inst
+         and actor_person_id = c.dean and institution_id = c.inst
          and target_table = 'management_decisions';
       if n <> 2 then
         bad := bad || array[format('%s audit row(s) naming the actor for 2 transitions', n)];
       end if;
 
-      -- E again, at the terminal state: a recorded decision is not edited.
+      -- E again, at the terminal state: a recorded decision is not edited (asked by the dean who recorded it).
       v_caught := false;
-      perform selftest.as_user_uid(c.hod_u);
+      perform selftest.as_user_uid(c.dean_u);
       begin perform public.advance_management_decision(v_d, 'UNDER_REVIEW', null, 'reopen');
       exception when others then v_caught := true; end;
       perform selftest.as_owner();
@@ -4562,7 +4565,9 @@ begin
         || 'untouched -- referenced, not rewritten. Referring twice while open is the SAME referral with '
         || 'ONE audit row. Deciding is refused to the institution admin, who outranks both Management '
         || 'roles and passes containment from the root, and to the educator; refused to the head of '
-        || 'department in the sibling department and allowed to the dean who stands over both. The '
+        || 'department in the sibling department and allowed to the dean who stands over both. RESTATED '
+        || 'FOR CR-76 (D-123(4)): the head of department who referred it does not decide it, so the dean '
+        || 'probes the state machine and records the decision. The '
         || 'declared transitions succeed and every other one fails -- DECIDED with no outcome, an '
         || 'outcome without deciding, a move backwards, and reopening a recorded decision -- while the '
         || 'two that succeed leave two audit rows naming the actor, the institution and the decision. '
@@ -6267,15 +6272,66 @@ begin
       perform selftest.as_owner();
       if not v_caught then bad := bad || array['a teacher without CAN_REVIEW_INTEGRITY recorded a referral']; end if;
 
-      -- «Saya yang menangani» and «Catat keputusan» work on it unchanged
-      perform selftest.as_user_uid(c.hod_u);
+      -- RESTATED FOR CR-76 (W-2, D-123(4)): «the person who refers an integrity case cannot make its final decision».
+      -- The Head of Department who referred it is refused «Saya yang menangani» and «Catat keputusan»; the dean standing
+      -- over the class takes it up and decides it; the referrer is told whether anyone else may decide it at all.
+      declare v_det text; v_lain boolean;
       begin
+        perform selftest.as_user_uid(c.hod_u);
+        foreach v_det in array array['UNDER_REVIEW', 'DECIDED'] loop
+          v_caught := false;
+          begin
+            perform public.advance_management_decision(v_d, v_det::public.management_decision_state,
+              case when v_det = 'DECIDED' then (enum_range(null::public.management_decision_outcome))[1] end, 'oleh perujuk');
+          exception when others then
+            get stacked diagnostics v_why = pg_exception_detail;
+            v_caught := v_why = 'REFERRER_CANNOT_DECIDE';
+            v_why := '';
+          end;
+          if not v_caught then
+            bad := bad || array[format('the person who referred took up or decided their own referral (%s)', v_det)];
+          end if;
+        end loop;
+        v_lain := public.management_decision_independent_decider(v_d);
+        if v_lain is distinct from true then
+          bad := bad || array[format('the referrer was told %s about another decider, with the dean standing over the class', coalesce(v_lain::text, 'nothing'))];
+        end if;
+        -- with no other Management role over the class, the referrer is told so: nobody else can decide it yet
+        begin
+          perform selftest.as_owner();
+          update public.role_assignments ra set revoked_at = now()
+           where ra.person_id <> c.hod and ra.revoked_at is null and ra.role = any (public.management_learner_roles())
+             and (select o.jalur from public.org_nodes o where o.id = c.cls_a) @> array[ra.scope_node_id];
+          perform selftest.as_user_uid(c.hod_u);
+          v_lain := public.management_decision_independent_decider(v_d);
+          if v_lain is distinct from false then
+            bad := bad || array[format('with no other Management role over the class the referrer was told %s', coalesce(v_lain::text, 'nothing'))];
+          end if;
+          raise exception 'F06_P22_TANPA_DEKAN';
+        exception when others then
+          if sqlerrm <> 'F06_P22_TANPA_DEKAN' then bad := bad || array['the no-other-decider probe failed: ' || left(sqlerrm, 120)]; end if;
+        end;
+        -- a reader who may not see the decision is told nothing
+        perform selftest.as_user_uid(v_hod_b);
+        if public.management_decision_independent_decider(v_d) is not null then
+          bad := bad || array['a Head of Department over another department was told whether the referral has another decider'];
+        end if;
+        -- the dean takes it up and decides it
+        perform selftest.as_user_uid(c.dean_u);
         perform public.advance_management_decision(v_d, 'UNDER_REVIEW', null, null);
         select count(*) into n2 from public.management_decisions m where m.id = v_d and m.state = 'UNDER_REVIEW';
-        if n2 <> 1 then bad := bad || array['«Saya yang menangani» did not take the referral up']; end if;
+        if n2 <> 1 then bad := bad || array['the dean''s «Saya yang menangani» did not take the referral up']; end if;
         perform public.advance_management_decision(v_d, 'DECIDED', (enum_range(null::public.management_decision_outcome))[1], 'diputuskan');
-        select count(*) into n2 from public.management_decisions m where m.id = v_d and m.state = 'DECIDED';
-        if n2 <> 1 then bad := bad || array['«Catat keputusan» did not record a decision on the referral']; end if;
+        select count(*) into n2 from public.management_decisions m where m.id = v_d and m.state = 'DECIDED' and m.decided_by_person_id = c.dean;
+        if n2 <> 1 then bad := bad || array['the dean''s «Catat keputusan» did not record a decision on the referral']; end if;
+        -- and no path writes a referrer's own decision: the table refuses it
+        perform selftest.as_owner();
+        v_caught := false;
+        begin
+          update public.management_decisions m set decided_by_person_id = m.raised_by_person_id where m.id = v_d;
+        exception when check_violation then v_caught := true;
+        end;
+        if not v_caught then bad := bad || array['the table accepted a referral decided by its referrer']; end if;
       exception when others then
         bad := bad || array['the referral could not be taken up or decided: ' || left(sqlerrm, 120)];
       end;
@@ -6300,7 +6356,10 @@ begin
         || 'decision; a referral of a signal outside the reviewer''s department is refused whole, leaving no decision and no '
         || 'review row, while NO_CONCERN there is still recorded; a Head of Department over the other department does not see it; '
         || 'a teacher is still refused the review; '
-        || 'and «Saya yang menangani» and «Catat keputusan» take it up and decide it. Every row rolled back';
+        || 'the Head of Department who referred it is refused «Saya yang menangani» and «Catat keputusan» (REFERRER_CANNOT_DECIDE) '
+        || 'and told another person may decide it, or that nobody else can while no other Management role stands over the '
+        || 'class; another department''s Head of Department is told nothing; the dean takes it up and decides it; and the '
+        || 'table refuses a referral decided by its referrer (CR-76, D-123(4)). Every row rolled back';
     end if;
     return next;
   end;
@@ -6397,9 +6456,11 @@ begin
       -- D-069(b), D-060(a)): the live catalogue is MC-5, MC-4 copied forward unchanged (asserted by its migration
       -- and BOB47-D01); MC-4 itself stays as it was (D-060(e)), so its relation to MC-3 is still checked here.
       -- RESTATED FOR D-121(c) (a changed requirement, D-060(a)): the live catalogue is MC-6, MC-5 copied forward with
-      -- the not-yet state produced and scoped_class_placements added (its migration and F20-N01)
-      if v_cat is distinct from 'MC-6' then
-        bad := bad || array[format('the live metric catalogue is %s, not MC-6', coalesce(v_cat, 'none'))];
+      -- the not-yet state produced and scoped_class_placements added (its migration and F20-N01).
+      -- RESTATED FOR CR-81 (D-123(3)): the live catalogue is MC-7, MC-6 copied forward with the readiness distribution's
+      -- bands and floor over the assessed and its population beside them (its migration, F20-N01 and F20-N02)
+      if v_cat is distinct from 'MC-7' then
+        bad := bad || array[format('the live metric catalogue is %s, not MC-7', coalesce(v_cat, 'none'))];
       else
         if exists (select 1 from (select * from public.metric_definitions where catalogue_version = 'MC-4') d4
                     full join (select * from public.metric_definitions where catalogue_version = 'MC-3') d3
