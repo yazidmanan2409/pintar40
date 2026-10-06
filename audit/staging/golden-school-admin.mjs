@@ -44,6 +44,7 @@ import { chromium } from "playwright";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, appendFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { APP, SLOW, closeTour } from "../perf/lib.mjs";
 import { keadaanDari, masukStaf } from "./masuk.mjs";
@@ -63,7 +64,12 @@ mkdirSync(join(OUT, "shots"), { recursive: true });
 // the recipe (§4): fabricated test identities on the staging test mailbox's plus-addresses (D-084)
 const mail = (who) => `goldenschool+${SLUG}-${who}@pintarselalu.com`;
 const ADMIN_EMAIL = mail("admin");
-const KODE = `G${(SLUG.replace(/\D/g, "") || "0").slice(-2).padStart(2, "0")}`;
+// the school's three-character code: «G» and two characters from the slug. Codes are globally unique (a school's
+// people are numbered under it), so the walk takes the first one no other school holds, as a person choosing one would
+// (6 Oct: «sekolah-uji-b0» and «sekolah-demo-pintar» both gave «G00», and the screen rightly saved nothing)
+const KODE_CALON = [`G${(SLUG.replace(/\D/g, "") || "0").slice(-2).padStart(2, "0")}`,
+  ...Array.from({ length: 24 }, (_, i) => `G${(parseInt(createHash("sha256").update(`${SLUG}:${i}`).digest("hex").slice(0, 8), 16) % 1296).toString(36).toUpperCase().padStart(2, "0")}`)];
+let KODE = KODE_CALON[0];
 const BAGIAN = "Kelas Tinggi", TINGKAT = "Kelas 5", KELAS = "Kelas 5A";
 const STAF = [
   { kunci: "guru", nama: `Guru ${SLUG.toUpperCase()}`, peran: "EDUCATOR", tempat: KELAS },
@@ -248,6 +254,7 @@ await step("A3", "GS-06 (J3.5): the teacher, the head of department and the dean
   // 1. names on Pendataan; a new school sets its three-letter code there first
   await klikTautan(A, "/pendataan");
   if (sql(`select coalesce(namespace, '') from public.institutions where id = '${S.id}'`) === "") {
+    KODE = KODE_CALON.find((k) => sql(`select count(*) from public.institutions where upper(namespace) = upper(${lit(k)})`) === "0") ?? KODE;
     await A.locator("#pin-kode-isi").fill(KODE);
     await A.getByRole("button", { name: "Simpan kode", exact: true }).click();
     await A.locator("#pin-tempel").waitFor({ timeout: SLOW }).catch(() => {});
