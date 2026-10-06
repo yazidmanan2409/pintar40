@@ -1007,7 +1007,8 @@ jobs:
           do $d$
           declare orig text; src text;
           begin
-            orig := pg_get_functiondef('public.save_certificate_template(uuid,uuid,uuid,text,text)'::regprocedure);
+            -- CR-01 (20261201100000) retired the number prefix: the template is saved by its four-argument form
+            orig := pg_get_functiondef('public.save_certificate_template(uuid,uuid,uuid,text)'::regprocedure);
             src := replace(orig,
               '  if not public.can_in_institution(''CAN_PUBLISH'', p_institution) then' || chr(10) ||
               '    raise exception ''the certificate template manager requires CAN_PUBLISH in the owning institution'';' || chr(10) ||
