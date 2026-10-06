@@ -25,6 +25,9 @@
 --   F16-N01  storage and surfaces: RLS on, no policies, no grants; the routes'
 --            functions are service_role's only; the helpers nobody's; the
 --            platform admin's refuse everyone else; the client ones registered
+--   F16-X01  C13 / J1.8 (CR-19): an evaluation persona, given what a staff
+--            person would need, is still out of the password, the PIN and
+--            the PINTAR ID, each surface by its own persona clause
 --   (F16-C01..C03, concurrency, are driven from run.ts.)
 --
 -- EVERY ROW IS ROLLED BACK: one subtransaction, verdicts collected in a jsonb
@@ -608,6 +611,103 @@ begin
       v_probs := selftest.f11_note(v_probs, 'F16-N01', 'the test could not run: ' || left(sqlerrm, 150));
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F16-X01  C13 / J1.8 (CR-19): AN EVALUATION PERSONA IS OUT OF THE PIN AND THE PINTAR ID. Every person holds an
+    -- ID in the data model (C17, F16-I01), a persona too; C13 keeps the persona from seeing, using or being reached
+    -- through it, and from any PIN. The persona is given here, and rolled back with the rest, everything a staff
+    -- person would need to qualify: a set-up row, a PIN, a username. So each surface is refused by its own persona
+    -- clause, not by a missing row.
+    -- ═══════════════════════════════════════════════════════════════════════
+    declare v_pp uuid; v_pu uuid; v_pid text; v_akun uuid; v_uname text := 'persona.' || v_tag; v_token text;
+            v_x record; v_j jsonb;
+    begin
+      select a.person_id, a.auth_user_id, a.id, p.pintar_id into v_pp, v_pu, v_akun, v_pid
+        from public.evaluation_personas e join public.accounts a on a.person_id = e.person_id and a.kind = 'EMAIL'
+        join public.persons p on p.id = e.person_id order by e.created_at limit 1;
+      if v_pp is null then
+        v_probs := selftest.f11_note(v_probs, 'F16-X01', 'no evaluation persona with an email account to test the exclusion with');
+      else
+        if v_pid is null then
+          v_probs := selftest.f11_note(v_probs, 'F16-X01', 'the persona holds no PINTAR ID in the data model (C17: every person does)');
+        end if;
+        -- what a staff person would need: a set-up (REQUIRED first, for the password permit), a PIN, a username
+        -- (an earlier test that a broken clause let through may have left one of them already: kept, and read back)
+        insert into public.account_setup (account_id, state) values (v_akun, 'REQUIRED')
+        on conflict (account_id) do update set state = 'REQUIRED', completed_at = null;
+        insert into public.person_pins (person_id, pin_hash, reset_required)
+        values (v_pp, extensions.crypt('2817', extensions.gen_salt('bf', 4)), false)
+        on conflict (person_id) do update set pin_hash = excluded.pin_hash, reset_required = false;
+        insert into public.person_usernames (person_id, username) values (v_pp, v_uname) on conflict (person_id) do nothing;
+        select u.username into v_uname from public.person_usernames u where u.person_id = v_pp;
+
+        -- the password: no permit to set one at activation
+        k := selftest.f16_kode_tolak(format('select public.password_write_permit(%L, %L)', v_pu, 'ACTIVATION'));
+        if k is distinct from 'SETUP_NOT_REQUIRED' then
+          v_probs := selftest.f11_note(v_probs, 'F16-X01', format('the persona was permitted to set a password (%s)', coalesce(k, 'success')));
+        end if;
+        update public.account_setup set state = 'COMPLETE', completed_at = now() where account_id = v_akun;
+
+        -- as the persona: no set-up, no card, no PINTAR ID on the wizard, no PIN (its planted one awaiting a new one)
+        update public.person_pins set reset_required = true where person_id = v_pp;
+        perform selftest.as_user(v_persona);
+        if public.my_setup_state() is distinct from 'NOT_APPLICABLE' then
+          v_probs := selftest.f11_note(v_probs, 'F16-X01', 'the persona reads a set-up state: ' || coalesce(public.my_setup_state(), 'null'));
+        end if;
+        v_j := public.my_setup_progress();
+        if v_j ? 'pintar_id' or v_j ->> 'state' is distinct from 'NOT_APPLICABLE' then
+          v_probs := selftest.f11_note(v_probs, 'F16-X01', 'the wizard''s state shows the persona something: ' || v_j::text);
+        end if;
+        k := selftest.f16_kode_tolak('select public.my_identity_card()');
+        if k is distinct from 'IDENTITY_NOT_ELIGIBLE' then
+          v_probs := selftest.f11_note(v_probs, 'F16-X01', format('the persona was shown a card with its PINTAR ID (%s)', coalesce(k, 'success')));
+        end if;
+        k := selftest.f16_kode_tolak('select public.set_my_pin(''7394'')');
+        if k is distinct from 'IDENTITY_NOT_ELIGIBLE' then
+          v_probs := selftest.f11_note(v_probs, 'F16-X01', format('the persona set a PIN (%s)', coalesce(k, 'success')));
+        end if;
+        perform selftest.as_owner();
+        update public.person_pins set reset_required = false where person_id = v_pp;
+
+        -- signed out: neither its address nor its username resolves, and no recovery code goes to it
+        if public.signin_resolve(upper(v_persona)) is not null or public.signin_resolve(v_uname) is not null then
+          v_probs := selftest.f11_note(v_probs, 'F16-X01', 'the persona''s address or username resolved for a password sign-in');
+        end if;
+        if exists (select 1 from public.recovery_code_target(v_persona)) or exists (select 1 from public.recovery_code_target(v_uname)) then
+          v_probs := selftest.f11_note(v_probs, 'F16-X01', 'a recovery code would go to the persona');
+        end if;
+
+        -- its PINTAR ID and its (planted) right PIN recover nothing: no grant, no notice, no owner named
+        v_token := md5('f16-x01-' || v_tag) || md5('f16-x01b-' || v_tag);
+        begin
+          select * into v_x from public.recovery_by_pin(v_pid, '2817', v_token);
+          if v_x.outcome is distinct from 'NOT_ELIGIBLE' or v_x.notice is not null or v_x.owner_auth_user is not null then
+            v_probs := selftest.f11_note(v_probs, 'F16-X01', format('the persona''s PINTAR ID and PIN answered %s / notice %s / owner %s',
+              v_x.outcome, coalesce(v_x.notice, '-'), coalesce(v_x.owner_auth_user::text, '-')));
+          end if;
+        exception when others then
+          v_probs := selftest.f11_note(v_probs, 'F16-X01', 'the persona''s PINTAR ID and PIN reached the recovery grant, which refused it: ' || left(sqlerrm, 100));
+        end;
+        if exists (select 1 from public.password_recovery_grants g where g.auth_user_id = v_pu) then
+          v_probs := selftest.f11_note(v_probs, 'F16-X01', 'a password-recovery grant was issued to the persona');
+        end if;
+        k := selftest.f16_kode_tolak(format('select public.recovery_grant_issue(%L, %L, %L)', v_pu, v_token, 'PIN'));
+        if k is distinct from 'RECOVERY_NOT_ELIGIBLE' then
+          v_probs := selftest.f11_note(v_probs, 'F16-X01', format('a recovery grant could be issued to the persona (%s)', coalesce(k, 'success')));
+        end if;
+
+        -- the platform admin's recovery look-up by PINTAR ID finds nobody
+        perform selftest.as_user(v_admin);
+        select count(*) into n from public.recovery_status(v_pid);
+        perform selftest.as_owner();
+        if n <> 0 then
+          v_probs := selftest.f11_note(v_probs, 'F16-X01', 'the platform admin''s recovery look-up found the persona by its PINTAR ID');
+        end if;
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f11_note(v_probs, 'F16-X01', 'the test could not run: ' || left(sqlerrm, 150));
+    end;
+
     raise exception 'F16-ROLLBACK';
   exception when others then
     if sqlerrm <> 'F16-ROLLBACK' then v_fatal := sqlerrm; end if;
@@ -616,13 +716,14 @@ begin
 
   for r in
     select * from unnest(
-      array['F16-I01', 'F16-U01', 'F16-P01', 'F16-S01', 'F16-R01', 'F16-N01'],
+      array['F16-I01', 'F16-U01', 'F16-P01', 'F16-S01', 'F16-R01', 'F16-N01', 'F16-X01'],
       array['BOB-24 -- the PINTAR ID: random, well-formed, distinct, immutable (D-054 (d), D-059)',
             'BOB-24 -- usernames: C9, reserved names, one claim, no rename, audited correction',
             'BOB-24 -- the personal PIN: blocklist, bcrypt, never returned (D-056 (a))',
             'BOB-24 -- set-up state: staff EMAIL accounts only; never a card or a persona (C13)',
             'BOB-24 -- the recovery ladder and the code counters (D-056 (c)-(e))',
-            'BOB-24 -- storage and surfaces: functions only'],
+            'BOB-24 -- storage and surfaces: functions only',
+            'C13 / J1.8 (CR-19) -- an evaluation persona is out of the PIN and the PINTAR ID'],
       array[
         'every person holds a distinct 8-character Crockford Base32 PINTAR ID; input is read case-insensitively with spaces '
           || 'and hyphens ignored and O->0, I/L->1, a U or a wrong length refused; 1000 fresh IDs stay in the alphabet; a person '
@@ -652,7 +753,13 @@ begin
           || 'the code counters are service_role''s only and no client RPC; the PIN check, the ID generator and normaliser and '
           || 'the rule functions are nobody''s; the seven client functions are registered, the four self-service ones as LEARNER, the '
           || 'caller''s own, correct_username and security_events as SYSTEM_ADMIN, and admin_reset_recovery as the School Admin''s scope (D-101); '
-          || 'a teacher and a visitor are refused 42501 by the database; the platform admin reads identity events only'
+          || 'a teacher and a visitor are refused 42501 by the database; the platform admin reads identity events only',
+        'an evaluation persona, given a set-up row, a PIN and a username as a staff person would have, is refused by each '
+          || 'surface''s own persona clause: no permit to set a password (SETUP_NOT_REQUIRED); signed in it reads NOT_APPLICABLE, '
+          || 'its wizard state carries no PINTAR ID, its card is refused and it cannot set a PIN (IDENTITY_NOT_ELIGIBLE); its '
+          || 'address and username resolve to nothing for a sign-in or a recovery code; its PINTAR ID with the right PIN '
+          || 'answers NOT_ELIGIBLE with no grant, no notice and no owner, and a grant for it is refused (RECOVERY_NOT_ELIGIBLE); '
+          || 'the platform admin''s look-up by PINTAR ID finds nobody. Its ID exists in the data model (C17) and reaches nothing'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

@@ -2194,6 +2194,11 @@
       "proves": "BOB-24, storage and surfaces of migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: the six identity tables have RLS on, no policies and no grant for anon, authenticated or service_role; recovery_attempt, recovery_restore, identity_attempt and identity_attempt_settle execute for service_role only and are no client RPC; pin_matches, the ID generator and normaliser and the rule functions execute for nobody; the seven client functions are in client_rpc_registry, the four self-service ones as LEARNER noted as the caller's own, correct_username and security_events as SYSTEM_ADMIN and admin_reset_recovery as SCOPE INSTITUTION_ADMIN (D-101 (1)); a teacher and a visitor are refused 42501 by the database; and security_events gives the platform admin identity events only."
     },
     {
+      "id": "F16-X01",
+      "runner": "db",
+      "proves": "C13 / J1.8 (CR-19), the persona clause of identity, measured in selftest/db/fable16.sql against the live functions: an evaluation persona is given, and rolled back, a set-up row, a personal PIN and a username, as a staff person would have, and every surface still refuses it by its own persona clause. No permit to set a password at activation; signed in it reads NOT_APPLICABLE, the wizard shows no PINTAR ID, my_identity_card and set_my_pin are IDENTITY_NOT_ELIGIBLE; its address and username resolve to nothing for a password sign-in or a recovery code; its PINTAR ID with the right PIN answers NOT_ELIGIBLE with no grant, no notice and no owner, and a grant for it is refused; the platform admin's recovery look-up by PINTAR ID finds nobody. Activation (F18-L01), the username claim (F16-U01) and the device question (BOB29) are proven where they are built."
+    },
+    {
       "id": "F16-C01",
       "runner": "db",
       "proves": "BOB-24 under real concurrency (runIdentityConcurrency in selftest/run.ts): 20 connections each insert 50 persons in transactions held open together and rolled back; the 1000 PINTAR IDs drawn side by side by persons_pintar_id_guard are well-formed and distinct, no insert fails, and nothing is left behind."
