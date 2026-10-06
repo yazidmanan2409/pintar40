@@ -2240,6 +2240,11 @@
       "proves": "J10.2 (CR-45), D-011, executed: the real src/app/error.tsx and src/app/global-error.tsx are rendered as Next draws them before any script runs, with a failure whose own words are a database sentence, a table name and a source path, and with one that has no digest. Each shows PINTAR's sentence, a way to try again and back to the start, an alert role and «Rujukan: <digest>», and none of the failure's words or Next's default text; with no digest, no reference is made up; the root-error page brings its own <html lang>; the shared panel reads the same in English. The not-found page is DAISY-04's app test (a 404 over HTTP)."
     },
     {
+      "id": "PENUTUPAN-Q10",
+      "runner": "static",
+      "proves": "D-121(a), executed: rendered from the real src/components/sertifikat/KartuSertifikat.tsx on screen and on the A4 sheet, a certificate with no PINTAR descriptor (a learner who passed a school mark below 70%) has no «Predikat» line and no dash, while «Baik» and «Cukup» are read; the public check (src/app/verifikasi/[token]/page.tsx) draws the descriptor line only when there is one."
+    },
+    {
       "id": "BOB07-R01",
       "runner": "app",
       "proves": "BOB-07 (D-011), against the running app and Auth: the rendered package page /studio/paket/<course>, asked with a content refusal's code and a planted detail in the database's English, shows the code's Indonesian sentence and never the planted words; asked with ACTION_FAILED and a reference, it shows the reference; the rendered route /konfigurasi does the same for a role refusal's code.",
@@ -2934,6 +2939,18 @@
       "id": "F19-Q04",
       "runner": "db",
       "proves": "BOB-50 (D-082(d)), migration 20261113100000 measured in selftest/db/fable19.sql: an Uji Cepat in progress when the policy changes finishes with the same verdict: started while QUICK certified and finished after, its session_outcome is a pass and identical under either policy (session_outcome does not read mode_policy).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-Q10",
+      "runner": "db",
+      "proves": "D-121(a)(b), Q10 Alternative 4, measured in selftest/db/fable20.sql: the current scoring version names Sangat Baik ≥ 90%, Baik ≥ 80% and Cukup ≥ 70% and nothing below 70%; the engine version is pintar-engine/2 (D-060(b)); a published version's descriptors cannot be edited in place and the next publication carries them forward; an official Uji Penguasaan at a school mark of 60% is not eligible at 55%, eligible with no descriptor at 65%, Cukup at 70% and 79%, Baik at 80%, Sangat Baik at 90% and 100%; the certificate at 65% carries passed, no descriptor, its score and the version, and the attempt keeps the 60% it was judged against; an attempt started under pintar-scoring/1 at 65% still reads «Perlu Pendampingan» (prospective only, issued certificates unaltered).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-F01",
+      "runner": "db",
+      "proves": "D-121(a), INV-29, measured in selftest/db/fable20.sql: a Uji Penguasaan started under one scoring version, with a newer version published before the learner finishes, is stamped with the version it was started under (finalize_session), not the newer one.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {

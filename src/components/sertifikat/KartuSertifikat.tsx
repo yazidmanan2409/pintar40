@@ -63,10 +63,14 @@ export default function KartuSertifikat({
 
       <div className={variant === "sheet" ? "pin-s-low" : undefined}>
         <dl className="pin-facts">
-          <div>
-            <dt>{s("sertifikat.predikat")}</dt>
-            <dd>{cred.predikat ?? "—"}</dd>
-          </div>
+          {/* D-121(a): PINTAR's descriptor has no band below 70%, so a learner who passed a lower school mark holds a
+              certificate with no descriptor, and the line is absent rather than a dash */}
+          {cred.predikat ? (
+            <div>
+              <dt>{s("sertifikat.predikat")}</dt>
+              <dd>{cred.predikat}</dd>
+            </div>
+          ) : null}
           <div>
             <dt>{s("sertifikat.tanggal")}</dt>
             <dd className="pin-num">{format.date(cred.issuedAtIso, locale)}</dd>

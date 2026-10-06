@@ -476,7 +476,7 @@ language plpgsql set search_path = public, pg_temp as $$
 declare
   f record; s uuid; c record; n int; n2 int; v_ok boolean; v_detail text;
   v_tok text; v_cert uuid; e record; v record; v_row record; v_tok_rev text;
-  v_before text; v_after text; v_pos int; v_inst uuid; v_sess uuid;
+  v_before text; v_after text; v_pos int; v_inst uuid; v_sess uuid; v_probe text;
   bad text; v_def2 uuid; v_course uuid; v_status text; v_blockers jsonb;
   v_demo uuid; v_enr uuid; v_taught uuid;
   v_judul_cepat text;  -- BOB-33 (F04-T04c)
@@ -523,12 +523,15 @@ begin
   -- a subtransaction that is unwound at the end of this test: a scoring policy
   -- can never be deleted (INV-29), and leaving one behind would make the suite
   -- non-idempotent on a long-lived local stack.
+  -- RESTATED FOR D-121 (a changed requirement): pintar-scoring/2 is a real version now (20261129100000), so the
+  -- probe takes the next free number; a collision swallowed here would let this test prove nothing
+  select 'pintar-scoring/' || (coalesce(max(substring(p.version from '[0-9]+$')::int), 0) + 1) into v_probe
+    from public.scoring_policy p;
   perform selftest.as_user('sysadmin@synthetic.pintar.test');
   begin
-    perform public.publish_scoring_policy('pintar-scoring/2', '{}'::jsonb, '{}'::jsonb, '{}'::jsonb,
+    perform public.publish_scoring_policy(v_probe, '{}'::jsonb, '{}'::jsonb, '{}'::jsonb,
       '{}'::jsonb, '{}'::jsonb, '{}'::jsonb, 'selftest probe');
-  exception when unique_violation then null;
-  when others then
+  exception when others then
     ok := false; detail := detail || 'publishing a second policy failed: ' || left(sqlerrm, 60) || '; ';
   end;
   perform selftest.as_owner();
@@ -537,7 +540,7 @@ begin
   if v_after is distinct from v_before then
     ok := false; detail := detail || 'an existing result changed policy version when a new one was published; ';
   end if;
-  if public.scoring_policy_version() <> 'pintar-scoring/2' then
+  if public.scoring_policy_version() is distinct from v_probe then
     ok := false; detail := detail || 'the current policy did not advance; ';
   end if;
   -- a correction is a new linked row, never an edit
