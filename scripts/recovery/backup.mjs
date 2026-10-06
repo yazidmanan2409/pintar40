@@ -12,6 +12,10 @@
 //       and content hash; each function's definition, owner and who may execute it; the rights, triggers and policies).
 //       The readiness check is NOT run here: it calls PINTAR's functions, which pintar_backup may not execute (A7). It
 //       is run where it decides something, on the restored copy (restore-bundle.mjs: 24/24 or the restore fails);
+//       D-108: the installed extensions (name and version) are captured with their fingerprint and must equal the
+//       approved baseline (docs/recovery/extension-baseline.json) for the target: Supabase's supautils lets any login,
+//       pintar_backup included, create or drop allow-listed extensions, so an addition, removal or version change
+//       fails the run closed (and the workflow raises the production watch issue);
 //    4  Storage is complete: exactly the snapshot's storage.objects rows, each downloaded, its size and MD5/ETag equal
 //       to its metadata, its SHA-256 recorded (3 tries each, then the run fails);
 //    5  the bundle's manifest lists every file with its SHA-256, and the tar, read back, equals it;
@@ -31,6 +35,7 @@
 //   node backup.mjs collect <dir>             conditions 1-5 into <dir>: the bundle's content, nothing uploaded
 //   node backup.mjs seal <dir> <out.gpg>      conditions 5-6: tar, read back, encrypt, check the recipients
 //   node backup.mjs dumps <dir>               the five dumps alone (selftest DR-S15 compares pintar_backup's with postgres's)
+//   node backup.mjs acl <acl.sql>             the exact-rights script for the database as it is now (selftest DR-S08)
 //
 // Environment:
 //   PGHOST PGPORT PGUSER PGDATABASE PGPASSWORD [PGSSLMODE PGSSLROOTCERT]   the database, as pintar_backup
@@ -40,6 +45,7 @@
 //   BACKUP_TARGET        production | staging
 //   BACKUP_RECIPIENTS    the recovery keys, e.g. "R1 R2" (production may never name R3; staging must name R3)
 //   RECIPIENTS_DIR       where R1.asc, R2.asc, R3.asc are (default docs/recovery/keys)
+//   EXTENSION_BASELINE   the approved extensions (default docs/recovery/extension-baseline.json), read for BACKUP_TARGET
 //   BACKUP_S3_ENDPOINT BACKUP_S3_REGION BACKUP_S3_BUCKET BACKUP_S3_KEY_ID BACKUP_S3_SECRET [BACKUP_S3_PATH_STYLE]  C4
 //   RELEASE_SHA GITHUB_RUN_ID BACKUP_NOW (an ISO time; tests only)
 import { spawn, spawnSync } from "node:child_process";
@@ -107,12 +113,14 @@ export function dumpPlan() {
   return [
     { file: "roles.sql", tool: "pg_dumpall", args: ["--roles-only", "--quote-all-identifier", "--no-role-passwords", "--no-comments"],
       seds: ROLE_SEDS, dropComments: true, uniq: true, tail: "RESET ALL;\n", snapshot: false },
+    // dropComments false, unlike the CLI: its `sed "/^--/d"` also deletes the comment lines INSIDE function bodies (the 5 Oct
+    // rehearsal's restored content_canonical_payload lost eleven); kept, a restored definition is byte-identical
     { file: "schema.sql", tool: "pg_dump", args: ["--schema-only", "--quote-all-identifier", "--exclude-schema", SCHEMA_EXCLUDE],
-      seds: schemaSeds(true), dropComments: true, snapshot: true },
+      seds: schemaSeds(true), dropComments: false, snapshot: true },
     { file: "data.sql", tool: "pg_dump", args: ["--data-only", "--quote-all-identifier", "--exclude-schema", DATA_EXCLUDE, ...ex.slice(0, 6), "--schema", "*", ...ex.slice(6)],
       seds: DATA_SEDS, head: "SET session_replication_role = replica;\n\n", tail: "RESET ALL;\n", snapshot: true },
     { file: "history-schema.sql", tool: "pg_dump", args: ["--schema-only", "--quote-all-identifier", "--schema=supabase_migrations"],
-      seds: schemaSeds(false), dropComments: true, snapshot: true },
+      seds: schemaSeds(false), dropComments: false, snapshot: true },
     { file: "history-data.sql", tool: "pg_dump", args: ["--data-only", "--quote-all-identifier", "--schema", "supabase_migrations"],
       seds: DATA_SEDS, head: "SET session_replication_role = replica;\n\n", tail: "RESET ALL;\n", snapshot: true },
   ];
@@ -215,6 +223,7 @@ export function expectations(snapshot) {
                                   where n.nspname !~ '${pintar}' and p.prokind in ('f','p','a','w')
                                     and not exists (select 1 from pg_depend d where d.classid = 'pg_proc'::regclass and d.objid = p.oid and d.deptype = 'e'))),
       'pre_request', (select count(*) from pg_roles r, unnest(r.rolconfig) x where r.rolname = 'authenticator' and x like 'pgrst.db_pre_request=%'),
+      'extensions', (select json_object_agg(extname, extversion order by extname) from pg_extension),
       'objects', (select coalesce(json_agg(json_build_object('bucket', bucket_id, 'name', name, 'size', metadata->>'size', 'etag', metadata->>'eTag',
                                    'mimetype', metadata->>'mimetype') order by bucket_id, name), '[]') from storage.objects));`, { snapshot, json: true });
   return { tables, ...facts };
@@ -249,21 +258,29 @@ export async function verifyData(file, tables, sequences, label = "data dump") {
   return { problems, tables: seen.size, rows: [...seen.values()].reduce((a, b) => a + b, 0), sequences: setvals.size };
 }
 
-/** PINTAR's additions (condition 3), read in the snapshot. */
-function additions(dir, snapshot, exp) {
+/** The extension set's fingerprint: SHA-256 of its sorted name=version lines. */
+export function extensionFingerprint(set) {
+  return createHash("sha256").update(Object.keys(set ?? {}).sort().map((k) => `${k}=${set[k]}`).join("\n")).digest("hex");
+}
+/** D-108(c)(6)-(7): the snapshot's extensions against the approved baseline; any difference is a problem. */
+export function extensionCheck(actual, baseline, target = "the target") {
+  if (!baseline || typeof baseline !== "object") return [`no approved extension baseline is recorded for ${target}`];
+  const problems = [];
+  for (const [k, v] of Object.entries(actual ?? {})) {
+    if (!(k in baseline)) problems.push(`the extension ${k} ${v} is installed but not in the approved baseline`);
+    else if (baseline[k] !== v) problems.push(`the extension ${k} is at version ${v}, the approved baseline ${baseline[k]}`);
+  }
+  for (const k of Object.keys(baseline)) if (!(k in (actual ?? {}))) problems.push(`the extension ${k} of the approved baseline is not installed`);
+  return problems;
+}
+export function baselineFor(target) {
+  const file = process.env.EXTENSION_BASELINE || join(ROOT, "docs/recovery/extension-baseline.json");
+  try { return JSON.parse(readFileSync(file, "utf8"))[target] ?? null; } catch { return null; }
+}
+
+/** Every PINTAR object's rights, one VALUES row each (schemas, relations, routines, columns that carry rights). */
+export function aclRows(snapshot) {
   const pintar = patternRegex(SCHEMA_EXCLUDE);
-  const trig = psqlRun(`select regexp_replace(pg_get_triggerdef(t.oid), '^CREATE TRIGGER', 'CREATE OR REPLACE TRIGGER') || ';'
-                          || case t.tgenabled when 'D' then E'\\nALTER TABLE auth.users DISABLE TRIGGER ' || quote_ident(t.tgname) || ';' else '' end
-                          from pg_trigger t where t.tgrelid = to_regclass('auth.users') and not t.tgisinternal order by t.tgname;`, { snapshot });
-  writeFileSync(join(dir, "auth-triggers.sql"), `-- the triggers PINTAR keeps on auth.users (a schema the dump leaves to the platform)\n${trig}`);
-  const nTrig = (trig.match(/^CREATE OR REPLACE TRIGGER /gm) ?? []).length;
-  const settings = psqlRun(`select format('ALTER ROLE %I SET %I TO %L;', r.rolname, split_part(x, '=', 1), substr(x, strpos(x, '=') + 1))
-                              from pg_roles r, unnest(r.rolconfig) x
-                             where r.rolname in ('anon', 'authenticated', 'authenticator', 'service_role')
-                               and split_part(x, '=', 1) ~ '^(pgaudit\\..*|pgrst\\..*|session_replication_role|statement_timeout|track_io_timing)$'
-                             order by 1;`, { snapshot });
-  writeFileSync(join(dir, "role-settings.sql"), `-- the settings PINTAR keeps on Supabase's own roles (the PostgREST pre-request among them)\n${settings}`);
-  const nPre = (settings.match(/SET "pgrst\.db_pre_request" TO /g) ?? []).length;
   const acl = psqlRun(`
     with o as (
       select 'SCHEMA' as kind, quote_ident(n.nspname) as ident, n.nspowner as owner, coalesce(n.nspacl, acldefault('n', n.nspowner)) as acl, null::text as col
@@ -281,7 +298,25 @@ function additions(dir, snapshot, exp) {
         from pg_attribute a join pg_class c on c.oid = a.attrelid join pg_namespace n on n.oid = c.relnamespace
        where n.nspname ~ '${pintar}' is false and a.attnum > 0 and not a.attisdropped and a.attacl is not null)
     select format('(%L, %L, %L, %L, %L::aclitem[]),', kind, ident, col, pg_get_userbyid(owner), acl::text) from o order by kind, ident, col;`, { snapshot });
-  const rows = acl.trim().split("\n").filter(Boolean);
+  return acl.trim().split("\n").filter(Boolean);
+}
+
+/** PINTAR's additions (condition 3), read in the snapshot. */
+function additions(dir, snapshot, exp) {
+  const pintar = patternRegex(SCHEMA_EXCLUDE);
+  const trig = psqlRun(`select regexp_replace(pg_get_triggerdef(t.oid), '^CREATE TRIGGER', 'CREATE OR REPLACE TRIGGER') || ';'
+                          || case t.tgenabled when 'D' then E'\\nALTER TABLE auth.users DISABLE TRIGGER ' || quote_ident(t.tgname) || ';' else '' end
+                          from pg_trigger t where t.tgrelid = to_regclass('auth.users') and not t.tgisinternal order by t.tgname;`, { snapshot });
+  writeFileSync(join(dir, "auth-triggers.sql"), `-- the triggers PINTAR keeps on auth.users (a schema the dump leaves to the platform)\n${trig}`);
+  const nTrig = (trig.match(/^CREATE OR REPLACE TRIGGER /gm) ?? []).length;
+  const settings = psqlRun(`select format('ALTER ROLE %I SET %I TO %L;', r.rolname, split_part(x, '=', 1), substr(x, strpos(x, '=') + 1))
+                              from pg_roles r, unnest(r.rolconfig) x
+                             where r.rolname in ('anon', 'authenticated', 'authenticator', 'service_role')
+                               and split_part(x, '=', 1) ~ '^(pgaudit\\..*|pgrst\\..*|session_replication_role|statement_timeout|track_io_timing)$'
+                             order by 1;`, { snapshot });
+  writeFileSync(join(dir, "role-settings.sql"), `-- the settings PINTAR keeps on Supabase's own roles (the PostgREST pre-request among them)\n${settings}`);
+  const nPre = (settings.match(/SET "pgrst\.db_pre_request" TO /g) ?? []).length;
+  const rows = aclRows(snapshot);
   writeFileSync(join(dir, "acl.sql"), aclScript(rows));
   const nAcl = rows.filter((r) => !/^\('COLUMN'/.test(r)).length;
   const facts = psqlRun(readFileSync(join(ROOT, "audit/restore/fakta.sql"), "utf8"), { snapshot });
@@ -310,7 +345,8 @@ do $acl$
 declare
   e record; g record; v_now aclitem[]; v_owner oid; v_kw text; v_on text; v_who text;
 begin
-  for e in select * from pintar_acl order by kind, ident, col loop
+  -- columns last: a table's REVOKE ALL also takes its columns' rights away
+  for e in select * from pintar_acl order by case kind when 'SCHEMA' then 1 when 'TABLE' then 2 when 'SEQUENCE' then 3 when 'ROUTINE' then 4 else 5 end, ident, col loop
     v_kw := case e.kind when 'COLUMN' then 'TABLE' else e.kind end;
     if e.kind = 'SCHEMA' then
       select coalesce(nspacl, acldefault('n', nspowner)), nspowner into v_now, v_owner from pg_namespace where oid = e.ident::regnamespace;
@@ -323,11 +359,12 @@ begin
        where a.attrelid = e.ident::regclass and quote_ident(a.attname) = e.col;
     end if;
     v_on := case when e.kind = 'COLUMN' then format('(%s) ON TABLE %s', e.col, e.ident) else format('ON %s %s', v_kw, e.ident) end;
-    for g in select distinct a.grantee from aclexplode(coalesce(v_now, '{}')) a where a.grantee <> v_owner loop
+    -- (an emptied ACL is a zero-dimensional array, which aclexplode refuses: nothing to revoke then)
+    for g in select distinct a.grantee from aclexplode(case when cardinality(v_now) > 0 then v_now end) a where a.grantee <> v_owner loop
       v_who := case when g.grantee = 0 then 'PUBLIC' else quote_ident(pg_get_userbyid(g.grantee)) end;
       execute format('REVOKE ALL %s FROM %s', v_on, v_who);
     end loop;
-    for g in select a.grantee, a.privilege_type, a.is_grantable from aclexplode(e.acl) a where a.grantee <> e.owner::regrole loop
+    for g in select a.grantee, a.privilege_type, a.is_grantable from aclexplode(case when cardinality(e.acl) > 0 then e.acl end) a where a.grantee <> e.owner::regrole loop
       v_who := case when g.grantee = 0 then 'PUBLIC' else quote_ident(pg_get_userbyid(g.grantee)) end;
       execute format('GRANT %s %s TO %s%s', g.privilege_type,
                      case when e.kind = 'COLUMN' then format('(%s) ON TABLE %s', e.col, e.ident) else v_on end, v_who,
@@ -341,7 +378,7 @@ declare c record; g record;
 begin
   for c in select a.attrelid::regclass::text as t, quote_ident(a.attname) as col, a.attacl, cl.relowner
              from pg_attribute a join pg_class cl on cl.oid = a.attrelid join pg_namespace n on n.oid = cl.relnamespace
-            where n.nspname ~ '${patternRegex(SCHEMA_EXCLUDE)}' is false and a.attnum > 0 and not a.attisdropped and a.attacl is not null
+            where n.nspname ~ '${patternRegex(SCHEMA_EXCLUDE)}' is false and a.attnum > 0 and not a.attisdropped and cardinality(a.attacl) > 0
               and not exists (select 1 from pintar_acl p where p.kind = 'COLUMN' and p.ident = a.attrelid::regclass::text and p.col = quote_ident(a.attname)) loop
     for g in select distinct x.grantee from aclexplode(c.attacl) x where x.grantee <> c.relowner loop
       execute format('REVOKE ALL (%s) ON TABLE %s FROM %s', c.col, c.t, case when g.grantee = 0 then 'PUBLIC' else quote_ident(pg_get_userbyid(g.grantee)) end);
@@ -480,7 +517,10 @@ export function ciphertextRecipients(file) {
     return [...`${r.out}\n${r.err}`.matchAll(/:pubkey enc packet: version \d+, algo \d+, keyid ([0-9A-F]{16})/g)].map((m) => m[1]);
   } finally { rmSync(home, { recursive: true, force: true }); }
 }
-/** Condition 6: encrypt to exactly the named recipients, then prove the ciphertext names exactly them. */
+/**
+ * Condition 6: encrypt to exactly the named recipients, then prove the ciphertext names exactly them. `input` is a file,
+ * or a Buffer handed to gpg on its standard input (a secret's value is never written to disk in the clear).
+ */
 export function encrypt(input, output, keysDir, names) {
   const home = mkdtempSync(join(tmpdir(), "gpg-pub-"));
   try {
@@ -498,7 +538,8 @@ export function encrypt(input, output, keysDir, names) {
     const secret = tool("gpg", ["--homedir", home, "--batch", "--list-secret-keys", "--with-colons"]);
     if (/^sec/m.test(secret.out)) return { problems: ["a private key is present where only public keys may be"] };
     const r = tool("gpg", ["--homedir", home, "--batch", "--yes", "--trust-model", "always", "--compress-algo", "none",
-      ...fprs.flatMap((f) => ["--recipient", f]), "--output", output, "--encrypt", input]);
+      ...fprs.flatMap((f) => ["--recipient", f]), "--output", output, "--encrypt", ...(Buffer.isBuffer(input) ? [] : [input])],
+      Buffer.isBuffer(input) ? { input } : {});
     if (!r.ok) return { problems: [`gpg could not encrypt: ${r.err.split("\n").slice(-1)[0]}`] };
     return checkRecipients(output, expected, names);
   } finally { rmSync(home, { recursive: true, force: true }); }
@@ -540,6 +581,8 @@ export async function collect(dir) {
     if (exp.large_objects > 0) problems.push(`the database holds ${exp.large_objects} large object(s), which this backup does not carry`);
     add = additions(dir, held.id, exp);
     problems.push(...add.problems);
+    writeFileSync(join(dir, "extensions.json"), JSON.stringify({ extensions: exp.extensions, fingerprint: extensionFingerprint(exp.extensions) }, null, 2) + "\n");
+    problems.push(...extensionCheck(exp.extensions, baselineFor(process.env.BACKUP_TARGET), process.env.BACKUP_TARGET || "an unnamed target"));
     dumped = await dumps(dir, held.id);
   } finally { await held.release(); }
   data = await verifyData(join(dir, "data.sql"), exp.tables.filter((x) => x.s !== "supabase_migrations"), exp.sequences);
@@ -553,7 +596,8 @@ export async function collect(dir) {
     what: "#150 WP-B: a PINTAR backup bundle (scripts/recovery/backup.mjs). Counts, sizes and hashes only; no value.",
     snapshot: { id: held.id, at: held.at }, release_sha: process.env.RELEASE_SHA ?? null, run: process.env.GITHUB_RUN_ID ?? null,
     database: { tables: data.tables, rows: data.rows, sequences: data.sequences, history_rows: exp.history_rows, auth_triggers: add.auth_triggers,
-      pre_request: add.pre_request, acl_objects: add.acl_objects, dumps: dumped.map((d) => d.file) },
+      pre_request: add.pre_request, acl_objects: add.acl_objects, dumps: dumped.map((d) => d.file),
+      extensions: { count: Object.keys(exp.extensions ?? {}).length, fingerprint: extensionFingerprint(exp.extensions) } },
     storage: { objects: st.objects, bytes: st.bytes }, seconds: Math.round((Date.now() - t0) / 1000),
   };
   writeFileSync(join(dir, "meta.json"), JSON.stringify(meta, null, 2) + "\n");
@@ -654,12 +698,17 @@ async function main(argv) {
     const s = await seal(a, b, process.env.RECIPIENTS_DIR || join(ROOT, "docs/recovery/keys"), names.list);
     console.log(`sealed: ${s.size} bytes, recipients ${s.recipients.join(" ")}`); return 0;
   }
+  if (cmd === "acl" && argv.length === 2) {
+    const rows = aclRows(null);
+    writeFileSync(a, aclScript(rows));
+    console.log(`acl.sql: ${rows.length} rights rows`); return 0;
+  }
   if (cmd === "dumps" && argv.length === 2) {
     const held = process.env.PINTAR_SNAPSHOT ? { id: process.env.PINTAR_SNAPSHOT, release: async () => {} } : await exportSnapshot();
     try { const d = await dumps(a, held.id); console.log(`dumped: ${d.map((x) => x.file).join(", ")}`); } finally { await held.release(); }
     return 0;
   }
-  console.error("usage: backup.mjs run | collect <dir> | seal <dir> <out.gpg> | dumps <dir>");
+  console.error("usage: backup.mjs run | collect <dir> | seal <dir> <out.gpg> | dumps <dir> | acl <acl.sql>");
   return 2;
 }
 

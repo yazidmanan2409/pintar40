@@ -143,7 +143,7 @@ async function http(url, headers) {
   return r;
 }
 
-async function vercelState(token, project) {
+export async function vercelState(token, project) {
   const api = process.env.VERCEL_API || "https://api.vercel.com";
   const auth = { Authorization: `Bearer ${token}` };
   const r = await http(`${api}/v9/projects/${encodeURIComponent(project)}/env?decrypt=false`, auth);
@@ -168,7 +168,7 @@ async function count(base, key, path) {
   return m ? Number(m[1]) : null;
 }
 
-async function productionFacts(base, key) {
+export async function productionFacts(base, key) {
   return {
     cards: await count(base, key, "accounts?select=id&kind=eq.CLASSROOM_CARD"),
     sealed: await count(base, key, "certificates?select=id&signature=not.is.null"),
@@ -177,7 +177,7 @@ async function productionFacts(base, key) {
   };
 }
 
-async function sealCheck(base, key, certKey) {
+export async function sealCheck(base, key, certKey) {
   if (typeof certKey !== "string") return "unknown";
   const r = await http(`${base}/rest/v1/certificates?select=canonical_payload,signature&key_version=eq.1&signature=not.is.null&limit=1`,
     { apikey: key, Authorization: `Bearer ${key}` });
