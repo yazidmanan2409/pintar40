@@ -63,7 +63,14 @@ CR-28 and CR-37 are not in batch 3, as D-120 ruled:
 - CR-28 leaves this gate (QN3, after go-live).
 - CR-37's surface is removed in slice S6 (QN4).
 
-Next: batch 4 (Daisy's gate), which is the owner's and Daisy's.
+**D-122 (7 Oct):**
+- Batches 2 and 3 GREEN; CR-13's four choices confirmed.
+- CR-51: staging's Bab 1 to be re-imported into the library and distributed (batch 6, with the new specimen). The second production admin is CR-69, open until named.
+- CR-47's populations told apart (CR-81).
+- W-2 is CR-76 (separation of duties). W-1, 3, 4 and 6 are CR-75, 77, 78 and 79; W-7 joins CR-41. W-5 is accepted with a truthful state (CR-80).
+- CR-52 now. Batch 4's order fixed. The allowance kept; the forecast again before S1.
+
+Next: CR-52 (a walk of Bank Soal), then batch 4 (Daisy's gate), which is the owner's and Daisy's.
 
 ## 1. The register
 
@@ -126,7 +133,7 @@ Next: batch 4 (Daisy's gate), which is the owner's and Daisy's.
 | CR-38 | **The decision queue** (DEA-04's EC part: «Diteruskan ke pihak sekolah» → /pimpinan decides; BOB-39) | TESTED (F06-P22, BOB39-K01), never walked | A walk | U (dean) | low | EC | none | A Level 3 step | **B** |
 | CR-39 | **The audit reader** (J1.6, SYS-07) | Never walked | A walk (school admin and platform admin) | G (Konfigurasi), U | medium | P1 | none | A walk | **B** |
 | CR-40 | **Report templates** (J3.9 P2; ADM-17) | TESTED, never walked | A walk | G (Konfigurasi), U | medium | P2 | none | A walk | **B** |
-| CR-41 | **Transfer between schools** (J3.10 P2; ADM-19, now PARTIAL) | TESTED, never walked | A walk (two schools) | U (admins) | low | P2 | none | A walk | **B** |
+| CR-41 | **Transfer between schools** (J3.10 P2; ADM-19, now PARTIAL). **D-122: A, with W-7** (the receiving school sees an 8-character ID; solved with the transfer journey) | TESTED, never walked | A walk (two schools) | U (admins) | low | P2 | none | A walk | **B** |
 | CR-42 | **Class move** (J3.12 EC) | TESTED; audit S25 on earlier commits | A Level 3 step or the audit run | G (Struktur, people), U | medium | EC | none | GS step or CR-33 | **B** |
 | CR-43 | **Year rollover** (J3.4; ADM-21) | TESTED; audit S27 | A walk on a separate school (it changes the school) | G («Jalankan pergantian» is on Konfigurasi), U | **yes**: one press changes the whole demo school | P1/P2 | none | Walk on its own school; the confirmation reads what will happen | **B** |
 | CR-44 | **«Laporkan masalah»** (J10.1 REL; REL-13) | TESTED, never walked | A walk: report → status → the admin and platform admin see it | G, U | medium | yes | the tier people are an owner action | A walk; the tiers named | **B** + **D** (tiers) |
@@ -144,6 +151,18 @@ Next: batch 4 (Daisy's gate), which is the owner's and Daisy's.
 | CR-51 | **PINTAR standard content end to end** (J1.5 EC; M6 vs D-029; SYS-05) | BUILT (distribution) | Who authors and approves it; may imports target the library? | U (teachers, on Siapkan) | medium | EC | **Q7** | One PINTAR chapter authored → distributed → assigned → learned | **C → A** |
 | CR-52 | **"The MCQ Question Bank workflows"** (J4.8 EC; D-050(a), (d)) | UNVERIFIED: D-050(d) says "the Question Bank workflows intended for this phase, proved separately", and no record defines them. What exists: Studio → Bank Soal (browse); questions come from workbooks only | A definition | G (Studio), U | medium | EC | **QN5**: confirm 4.0's meaning. Proposed: browse, filter and review the school's questions with key and reason; no authoring outside workbooks. Then prove | A walk of Bank Soal against the confirmed meaning | **C → B** |
 | CR-53 | **Media playback** (J4.2; STU-11, ADM-10, X-07) | OUT OF SCOPE for the first testing phases (D-050) | — | — | — | yes, eventually (still 4.0, D-050(c)) | unless you change D-050 | — | **E** (D-050) |
+
+### Added by D-122 (7 Oct): the walks' findings and CR-47's presentation
+
+| ID | Item (source) | State now | What is missing | Who meets it | FI | PR | Ruling | Closure evidence | Bucket → destination |
+|---|---|---|---|---|---|---|---|---|---|
+| CR-75 | **Integrity review names people** (W-1; batch 3 report §7) | Studio «Tinjauan Integritas» names a sitting by 8 characters of its UUID; the note has no label; only a sitting's newest signal can be reviewed; reviewed and new look alike | The learner's name, with the PINTAR ID as secondary disambiguation; a labelled note; a visible state | U (heads of department, school admins) | yes | EC | D-122(5) | The walk S23i/S23r reads names, not IDs | **A** · DAISY (S7) + ENGINEERING |
+| CR-76 | **Separation of duties for integrity decisions** (W-2) | `advance_management_decision` checks Management scope only: the referrer can decide their own referral | Whoever raised a referral cannot decide it. With no other eligible decider, the case shows as waiting for an independent decision | U (heads of department, deans) | — | EC | D-122(4) | A database test (the referrer refused, another decider accepted) red before, green after; the walk | **A** · ENGINEERING (+ DAISY for the waiting state) |
+| CR-77 | **The referrer sees the outcome** (W-3) | A school admin may refer (CAN_REVIEW_INTEGRITY), but /pimpinan refuses them, so no screen shows them what became of it; the decision card has no way to the evidence; one phrase names two acts | The referrer sees the final status and outcome their permissions allow (receive → acknowledge → status → next step) | U (school admins) | — | EC | D-122(5) | A walk: a school admin refers, then reads the outcome | **A** · ENGINEERING + DAISY |
+| CR-78 | **«Laporan saya» reachable by navigation** (W-4) | The page exists; only the redirect after sending reaches it; the copy key `lapor.saya.buka` is unused | A link where the reporter's journey needs it; no typed-URL proof | U (every staff reporter) | yes | — | D-122(5) | S23l reaches it by clicking | **A** · DAISY |
+| CR-79 | **The audit trail in human words** (W-6) | Raw action codes in mixed conventions, raw table names and id fragments, no actor; newest 50 only | Meaningful labels, the raw value underneath and secondary. **CR-13's addresses stay off school-facing surfaces** (D-122(1)): today the screen reads no payload (`konfigurasi/page.tsx:124`) | G (Konfigurasi), U | yes | P1 | D-122(5) | S23j reads labels; the payload stays unread | **A** · DAISY (S7, presentation) |
+| CR-80 | **Report templates: the existing state told truthfully** (W-5) | No screen revision (the form never sends the template; a second save fails generically) | **No editor (J3.9 promises composition only).** The screen says truthfully what exists and what can be done | U (school admins) | — | P2 | D-122(5) | S23t, with a second save answered truthfully | **A** · DAISY + ENGINEERING (small) |
+| CR-81 | **Class figures: the populations told apart** (D-122(3), after CR-47) | Counts per band and «Belum mengerjakan» are produced, but the bars are drawn against every placed learner, and the minimum-sample floor applies to that total | Learners, assessed, not yet, achieved mastery, below threshold shown apart. **Performance bands over the assessed denominator** (so the floor for the bands is read on the assessed: my reading of the ruling); readiness includes the not-yet | U (teachers, heads of department) | **yes** | POL | D-122(3) | A test (a class of 30 with 6 assessed) red before, green after; S6's visual check | **A** · ENGINEERING (calculator, catalogue MC-7) + DAISY (S6) |
 
 ### Experience: Daisy's design system (the threshold of D-118(c))
 
@@ -187,7 +206,7 @@ Next: batch 4 (Daisy's gate), which is the owner's and Daisy's.
 | CR-66 | #150 (pre-O3, O2–O12, custodian B, the production rulings, the O8 rehearsal) | NOT PASS; checkpoint GREEN to proceed (D-111) | **D** · #150 |
 | CR-67 | Capacity: L1 at the chosen tier (CAP-01, 02, 07, 08, 09); IP forwarding and the forwarding key (BOB-12 staging acceptance) | L1 failed on Micro (D-089) | **D** · CAPACITY (Q2, Q3) |
 | CR-68 | The production upgrade rehearsed from 111 to 165 | Not done | **D** · RELEASE-DAY |
-| CR-69 | Break-glass for the sole production admin (J1.7, C-11); a second SYSTEM_ADMIN (SYS-08, O9) | Not done | **D** · RELEASE-DAY |
+| CR-69 | Break-glass for the sole production admin (J1.7, C-11); a second SYSTEM_ADMIN (SYS-08, O9). **D-122(2):** a named, accountable person who accepts the role, credentials and recovery independently controlled; also CR-51's second approver; open until Yazid designates them | Not done | **D** · RELEASE-DAY |
 | CR-70 | Production email: SMTP password, Gate 8 settings, a production send with SPF, DKIM and DMARC (REL-08) | PARTIAL | **D** · RELEASE-DAY |
 | CR-71 | Support: tier people named, the same-day answer (REL-13) | Owner | **D** · RELEASE-DAY |
 | CR-72 | REL-02 (every P0 PASS on the candidate, zero operator steps); REL-12 | Open | **D** · RELEASE-DAY |
@@ -204,7 +223,7 @@ Each batch ends with its report (D-118 §11). Each batch that changes code gets 
 | **1. Your rulings** (§3) | Q1, Q18, QN1, Q8, QN3, QN4, Q9, Q7, QN5, Q10, QN2, QN6, QN7 | — | No |
 | **2. Proof on today's code** | CR-18, 19, 29, 30, 33, 35, 38, 39, 40, 41, 42, 43, 44, 45: tests and walks, no product change. Anything red becomes an A item | Batch 0 | No (tests only) |
 | **3. Behaviour that does not wait for design** | CR-02 (sealing); CR-01 (the number, after Q1); CR-13 (email correction RPC, after QN1); CR-28 and CR-37 if ruled in; CR-50 (mandatory, its shape per Q9; the largest, possibly its own batch); CR-51 per Q7 | Batch 1 | Yes (server; screens follow in the slices) |
-| **4. Daisy's gate** | CR-55 (you walk J1–J7, and the stripe test); CR-56 (licence, master); the physical proofs for the card and certificate; your rulings on screens; the grammar frozen APPLICATION READY | Batches 1, 3 | No |
+| **4. Daisy's gate** (order: D-122(7)) | Daisy composes J1–J7 → **you walk them once Daisy says the design-system specimen is ready for owner validation** (CR-55) → findings corrected at source → the stripe test → Daisy freezes APPLICATION READY. Also CR-56 (licence, master); the physical proofs for the card and certificate; your rulings on screens. **Then the allowance forecast again, before S1** (D-122(8)) | Batches 1, 3 | No |
 | **5. Propagation, slice by slice** (each: tests → lint → typecheck → build → CI → staging → visual check → the affected GS) | **S1** foundation: tokens, type, colour, spacing, radii, elevation, focus, the base shell. **S2** shells and navigation: the staff shell, the learner's top bar, the MODE PERAGAAN band. **S3** feedback and forms: Idle → Working → Done, fields, errors, dialogs, empty states (CR-46), dates. **S4** identity: activation, sign-in, recovery screens; the Digital Card (CR-21); the email system (CR-22). **S5** learner screens. **S6** teacher and leadership screens, tables with the stripe; the Uji Cepat score (CR-27); briefings per QN4. **S7** admin screens: Konfigurasi, Pendataan, Aktivasi, Studio; corrections (CR-13, 14); revocation (CR-05); Bank Soal (CR-52). **S8** the certificate (CR-03, 04, 06) and the profile photo (CR-07) | Batch 4 | Yes |
 | **6. Full regression** | A fresh Golden School with GS-22, Uji Cepat and the new steps; the audit run; U-PERF (CR-58) | Batch 5 | No |
 | **7. Your final walkthrough** | Your green light (D-052): what you find is fixed and re-proven; the specimen frozen; Dr Gladys's guide, observer's sheet and baseline re-pinned | Batch 6 | Only fixes you approve |
