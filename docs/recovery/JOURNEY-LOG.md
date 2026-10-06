@@ -623,3 +623,13 @@ Gate 3 stays held; the coordinator does not merge it.
       runbook's three PENDING items are cleared; owner instructions O8 written (prepared, not yet to be done).
     - **Not done:** the hosted rehearsal (O8), after WP-B's first staging bundle. Every part of it is a first use of real
       infrastructure (EVIDENCE-INDEX §6).
+47. **4.0 release checklist, 6 Oct: the open rows re-checked, and three certificate and hint fixes landed (v2.6).**
+    - Every row not PASS re-read against `main` (code, manifest, this log, the audit and the staging walk); P0 PASS 76 → 77
+      (X-09), NO-GO stands on media (out of scope, D-050), capacity (the owner's compute decision, D-089), the release-day rows
+      and #150.
+    - **ADM-18:** certificate numbers never collide (one preparation at a time per school; N8), carry no photo (D-085 T4) and
+      carry the school's saved prefix (`20261126100000`, `20261128100000`; ADM18-K01, ADM18-K02).
+    - **STU-12 (N5):** a hint may name a variable; an option is still refused, and nothing is refused that was not before
+      (`20261127100000`; STU12-K01).
+    - Red on `808ae6e`, green on `3a7501b` (CI 37430770665, 35/35, 595 tests). Migrations 165.
+
