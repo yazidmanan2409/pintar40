@@ -72,10 +72,13 @@ export async function periksaHitungMundur(halaman, { selisih = 3, batasMs = 90_0
       if (i > 0 && pilih(b) !== a) masalah.push(`${langkah}: «${halaman[i].nama}» reads ${JSON.stringify(pilih(b))}, «${halaman[0].nama}» ${JSON.stringify(a)}`);
     });
   };
+  // what a line can mean: «N detik» is N exactly; «N menit» is anything from (N-1)·60+1 to N·60 seconds
+  const rentang = (b) => (b.detik == null ? null : / menit/.test(b.teks) ? [b.detik - 59, b.detik] : [b.detik, b.detik]);
   const detikSama = (langkah, baca) => {
-    const d = baca.map((b) => b.detik);
-    if (d.some((x) => x == null)) return;
-    if (Math.max(...d) - Math.min(...d) > (Math.max(...d) >= 60 ? 60 : selisih)) masalah.push(`${langkah}: the counts differ (${d.join(", ")} s)`);
+    const r = baca.map(rentang);
+    if (r.some((x) => x == null)) return;
+    const atas = Math.min(...r.map((x) => x[1])), bawah = Math.max(...r.map((x) => x[0]));
+    if (bawah - atas > selisih) masalah.push(`${langkah}: the counts differ (${baca.map((b) => `«${b.teks}»`).join(", ")})`);
   };
 
   // 1. at the start: held, with a line, on every screen alike
@@ -106,16 +109,21 @@ export async function periksaHitungMundur(halaman, { selisih = 3, batasMs = 90_0
     detikSama("running", turun);
   }
 
-  // 3. at zero: free, and the line gone
+  // 3. at zero: free, and the line gone, on every screen at the same moment (a screen freed later was given a longer
+  //    wait than the others)
+  const bebasPada = halaman.map(() => null);
   let bebas = null;
   while (Date.now() - mulai < batasMs) {
-    await halaman[0].page.waitForTimeout(2_000);
+    await halaman[0].page.waitForTimeout(1_000);
     const b = await semua();
+    b.forEach((x, i) => { if (x.tertahan === false && bebasPada[i] == null) bebasPada[i] = Date.now() - mulai; });
     if (b.every((x) => x.tertahan === false)) { bebas = b; break; }
   }
-  if (!bebas) masalah.push(`«Kirim ulang kode» was not free on every screen within ${batasMs / 1000} s`);
+  if (!bebas) masalah.push(`«Kirim ulang kode» was not free on every screen within ${batasMs / 1000} s (freed at ${bebasPada.map((t) => (t == null ? "never" : `${Math.round(t / 1000)} s`)).join(", ")})`);
   else {
-    jejak.push(`free after ${Math.round((Date.now() - mulai) / 1000)} s; lines: ${bebas.map((b) => JSON.stringify(b.teks)).join(", ")}`);
+    const t = bebasPada.map((x) => Math.round(x / 1000));
+    jejak.push(`free after ${t.join(", ")} s; lines: ${bebas.map((b) => JSON.stringify(b.teks)).join(", ")}`);
+    if (Math.max(...t) - Math.min(...t) > selisih + 2) masalah.push(`the screens came free at different moments (${t.join(", ")} s)`);
     bebas.forEach((b, i) => { if (b.teks) masalah.push(`«${halaman[i].nama}»: the countdown line stays at zero («${b.teks}»)`); });
   }
 
