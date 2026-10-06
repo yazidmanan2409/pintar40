@@ -7,7 +7,8 @@
  *          rounded up per job for the estimate, and its wait before the runner as queue. A cancelled job that had
  *          started counts as cancelled after start. Skipped jobs count for nothing. The waste alarm is red, whatever
  *          the cost:
- *          - at 10 jobs that never started (not at 9);
+ *          - at 10 jobs that never got a runner after waiting over 5 minutes (not at 9); jobs a newer run superseded
+ *            before they got a runner (a minute or two, no cost) are listed apart and are not waste;
  *          - at a wait over 15 minutes;
  *          - at a third attempt;
  *          - at one commit run twice.
@@ -64,10 +65,10 @@ export const ciwasteTests: SelfTest[] = [
 
       const run = (id: number, jobs: Job[], extra: Record<string, unknown> = {}) =>
         ({ id, name: "ci", head_sha: `sha${id}`, conclusion: "success", run_attempt: 1, jobs, ...extra });
-      const nineIdle = Array.from({ length: 9 }, (_, i) => neverRan(`q${i}`, "11:00:00", "11:05:00"));
+      const nineIdle = Array.from({ length: 9 }, (_, i) => neverRan(`q${i}`, "11:00:00", "11:06:00"));
       const calm = m.judge([run(1, [ran("check", "11:00:00", "11:01:00", "11:04:00"), ...nineIdle])], { budget: 600 });
       c.expect(!calm.wasteRed && !calm.costRed, `9 unstarted jobs and a short wait: ${JSON.stringify(calm.findings)}`);
-      const tenIdle = [...nineIdle, neverRan("q9", "11:00:00", "11:05:00")];
+      const tenIdle = [...nineIdle, neverRan("q9", "11:00:00", "11:06:00")];
       const burst = m.judge([run(2, tenIdle)], { budget: 600 });
       c.expect(burst.wasteRed && !burst.costRed && burst.total.estimate === 0 && burst.findings.some((f: string) => /10 jobs never got a runner/.test(f)),
         `10 unstarted jobs costing nothing must still be waste: ${JSON.stringify(burst.findings)}`);
@@ -81,13 +82,21 @@ export const ciwasteTests: SelfTest[] = [
       const superseded = m.judge([run(7, [ran("a", "14:00:00", "14:00:05", "14:01:00")], { head_sha: "same2", conclusion: "cancelled" }),
         run(8, [ran("a", "15:00:00", "15:00:05", "15:01:00")], { head_sha: "same2" })], { budget: 600 });
       c.expect(!superseded.findings.some((f: string) => /more than once/.test(f)), `a superseded (cancelled) run is not a duplicate: ${JSON.stringify(superseded.findings)}`);
+      // 6 Oct: a newer run superseded one whose 17 jobs were still waiting for a runner, cancelled after 0.6 minutes: no
+      // cost and no starvation, so not waste (it is the supersede working); counted apart so the table still shows them
+      const supersededIdle = Array.from({ length: 17 }, (_, i) => neverRan(`s${i}`, "10:30:00", "10:30:36"));
+      const sup = m.judge([run(10, supersededIdle, { conclusion: "cancelled" })], { budget: 600 });
+      c.expect(!sup.wasteRed && sup.total.neverStarted === 17,
+        `17 jobs superseded before a runner (0.6 minutes, no cost) were called waste: ${JSON.stringify(sup.findings)}`);
+      c.expect(/superseded or cancelled before a runner/.test(m.report("2026-10-06", 600, sup).join("\n")),
+        "the report does not say apart the jobs cancelled before a runner within 5 minutes");
       const dear = m.judge([run(9, [ran("big", "16:00:00", "16:00:00", "16:11:00")])], { budget: 10 });
       c.expect(dear.costRed && !dear.wasteRed, `11 minutes against a budget of 10: cost ${dear.costRed}, waste ${dear.wasteRed}`);
       const text = m.report("2026-10-05", 600, burst).join("\n");
-      c.expect(/compute 0 min · queue 50 min · estimated billable 0 min/.test(text) && /Never started/.test(text),
+      c.expect(/compute 0 min · queue 60 min · estimated billable 0 min/.test(text) && /Never started/.test(text),
         `the report does not give the three numbers apart: ${text.split("\n")[0]}`);
       return c.verdict("never-started jobs are queue, not cost; runner minutes and the per-job estimate are counted apart; " +
-        "the waste alarm fires at 10 unstarted, a 16-minute wait, a third attempt and a duplicate commit, even at no cost");
+        "the waste alarm fires at 10 jobs that waited over 5 minutes and never started (superseded ones apart), a 16-minute wait, a third attempt and a duplicate commit, even at no cost");
     },
   },
   {

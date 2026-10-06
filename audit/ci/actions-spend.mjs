@@ -17,7 +17,10 @@
 // TWO ALARMS, either one RED:
 //   cost   the day's estimate exceeds BUDGET
 //   waste  work that could not influence a decision:
-//            - WASTE_UNSTARTED or more jobs that never got a runner (default 10);
+//            - WASTE_UNSTARTED or more jobs that never got a runner after waiting longer than WASTE_STARVED_MINUTES
+//              (defaults 10 and 5). A job a newer run superseded before it got a runner ends within a minute or two, costs
+//              nothing and is the supersede working (6 Oct: 31 such jobs made the alarm red with no starvation at all), so
+//              those are listed apart and are not waste;
 //            - any job that waited longer than WASTE_WAIT_MINUTES for its runner (default 15);
 //            - any run attempted more than twice;
 //            - one commit run more than once by the same workflow to a conclusion that ran jobs.
@@ -27,7 +30,7 @@
 //
 //   GH_TOKEN  the workflow's token (actions: read)   REPO  owner/name
 //   DAY       YYYY-MM-DD, UTC (default: yesterday)   BUDGET  estimated billable minutes a day (default 600)
-//   WASTE_UNSTARTED, WASTE_WAIT_MINUTES              the waste thresholds (defaults 10 and 15)
+//   WASTE_UNSTARTED, WASTE_STARVED_MINUTES, WASTE_WAIT_MINUTES   the waste thresholds (defaults 10, 5 and 15)
 import { appendFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
@@ -51,10 +54,10 @@ export function classify(j) {
   return { kind: "neverStarted", compute: 0, estimate: 0, queue };
 }
 
-const blank = () => ({ runs: 0, compute: 0, estimate: 0, queue: 0, completed: 0, cancelledAfterStart: 0, neverStarted: 0, skipped: 0, longestWait: 0 });
+const blank = () => ({ runs: 0, compute: 0, estimate: 0, queue: 0, completed: 0, cancelledAfterStart: 0, neverStarted: 0, skipped: 0, longestWait: 0, starved: 0, cancelledEarly: 0 });
 
 /** The day: per workflow and in total, with the waste findings. `runs` carry their `jobs` (every attempt). */
-export function judge(runs, { budget = 600, unstarted = 10, waitMinutes = 15 } = {}) {
+export function judge(runs, { budget = 600, unstarted = 10, waitMinutes = 15, starvedMinutes = 5 } = {}) {
   const per = new Map();
   const total = blank();
   const findings = [];
@@ -73,7 +76,11 @@ export function judge(runs, { budget = 600, unstarted = 10, waitMinutes = 15 } =
       if (c.kind !== "skipped" && c.kind !== "neverStarted" && c.queue > waitMinutes) {
         findings.push(`«${run.name}» run ${run.id}: «${j.name}» waited ${Math.round(c.queue)} minutes for a runner`);
       }
-      if (c.kind === "neverStarted" && c.queue > w.longestWait) w.longestWait = c.queue;
+      if (c.kind === "neverStarted") {
+        const k = c.queue > starvedMinutes ? "starved" : "cancelledEarly";
+        w[k]++; total[k]++;
+        if (k === "starved" && c.queue > w.longestWait) w.longestWait = c.queue;
+      }
     }
     if ((run.run_attempt ?? 1) > 2) findings.push(`«${run.name}» run ${run.id} was attempted ${run.run_attempt} times`);
     if (ranJobs > 0 && run.conclusion && run.conclusion !== "cancelled") {
@@ -84,8 +91,8 @@ export function judge(runs, { budget = 600, unstarted = 10, waitMinutes = 15 } =
     }
     per.set(run.name, w);
   }
-  if (total.neverStarted >= unstarted) {
-    findings.unshift(`${total.neverStarted} jobs never got a runner (threshold ${unstarted}); they waited ${Math.round(per.size ? [...per.values()].reduce((m, w) => Math.max(m, w.longestWait), 0) : 0)} minutes at the longest before they ended`);
+  if (total.starved >= unstarted) {
+    findings.unshift(`${total.starved} jobs never got a runner after waiting more than ${starvedMinutes} minutes (threshold ${unstarted}); they waited ${Math.round(per.size ? [...per.values()].reduce((m, w) => Math.max(m, w.longestWait), 0) : 0)} minutes at the longest before they ended`);
   }
   return { per, total, findings, costRed: total.estimate > budget, wasteRed: findings.length > 0 };
 }
@@ -101,6 +108,7 @@ export function report(day, budget, j) {
     ...rows.map(([n, w]) => `| ${n} | ${w.runs} | ${r(w.compute)} | ${r(w.queue)} | ${w.estimate} | ${w.completed} | ${w.cancelledAfterStart} | ${w.neverStarted} | ${w.skipped} |`),
     "",
     "The estimate rounds each job that ran up to the whole minute; jobs that never got a runner are not billed. The bill itself is on the owner's billing page.",
+    `Never started: ${j.total.starved} waited more than the starvation threshold for a runner; ${j.total.cancelledEarly} were superseded or cancelled before a runner within it (no cost, not waste).`,
     "",
     j.costRed ? `**COST: over budget by ${j.total.estimate - budget} minutes.** The biggest line is «${rows[0]?.[0]}» (D-091).` : "Cost: within budget.",
     j.wasteRed ? `**WASTE:**\n${j.findings.map((f) => `- ${f}`).join("\n")}` : "Waste: none found.",
@@ -115,6 +123,7 @@ async function main() {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !(budget > 0)) throw new Error(`bad DAY ${day} or BUDGET ${budget}`);
   const unstarted = Number(process.env.WASTE_UNSTARTED || 10);
   const waitMinutes = Number(process.env.WASTE_WAIT_MINUTES || 15);
+  const starvedMinutes = Number(process.env.WASTE_STARVED_MINUTES || 5);
 
   // GitHub's API answers 502 now and then (6 Oct): retry before giving up, so the monitor itself does not go red
   async function api(path) {
@@ -148,7 +157,7 @@ async function main() {
       if (d.jobs.length < 100) break;
     }
   }
-  const j = judge(runs, { budget, unstarted, waitMinutes });
+  const j = judge(runs, { budget, unstarted, waitMinutes, starvedMinutes });
   const lines = report(day, budget, j);
   console.log(lines.join("\n"));
   if (GITHUB_STEP_SUMMARY) appendFileSync(GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
