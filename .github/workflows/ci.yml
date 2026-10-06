@@ -11,18 +11,45 @@ on:
     # main, where the coordinator merges. A lane dispatches this workflow itself,
     # exactly once per hand-off, on its head commit. The deploy still requires a
     # green run on the exact commit it ships; the coordinator dispatches one on
-    # main when the release commit has none. A push that changes only paths
-    # nothing reads does not start CI. Those paths are proven by search (CI
-    # efficiency gate, 6 Oct) and kept true by CI-W02. docs/audit and
-    # docs/onboarding are NOT among them: tests read launch-readiness.sql,
-    # hosted-credential-audit.sql, the intake workbook and the lesson content
-    # there, and until 6 Oct this filter wrongly skipped them.
+    # main when the release commit has none. A push that changes only inert
+    # documents nothing reads does not start CI (D-119; audit/ci/proof-reuse.mjs
+    # UNREAD_DIRS x INERT; kept true by CI-W02). Code files are never skipped,
+    # wherever they lie: tsconfig compiles every **/*.ts and **/*.mts and lint
+    # reads every script, docs/ included. docs/audit and docs/onboarding are
+    # never skipped: tests read them, and until 6 Oct this filter wrongly did.
     branches: [main]
     paths:
       - "**"
-      - "!docs/coordination/**"
-      - "!docs/reports/**"
-      - "!docs/deployment/**"
+      - "!docs/coordination/**/*.md"
+      - "!docs/coordination/**/*.pdf"
+      - "!docs/coordination/**/*.png"
+      - "!docs/coordination/**/*.jpg"
+      - "!docs/coordination/**/*.jpeg"
+      - "!docs/coordination/**/*.docx"
+      - "!docs/coordination/**/*.xlsx"
+      - "!docs/coordination/**/*.csv"
+      - "!docs/coordination/**/*.txt"
+      - "!docs/coordination/**/*.html"
+      - "!docs/reports/**/*.md"
+      - "!docs/reports/**/*.pdf"
+      - "!docs/reports/**/*.png"
+      - "!docs/reports/**/*.jpg"
+      - "!docs/reports/**/*.jpeg"
+      - "!docs/reports/**/*.docx"
+      - "!docs/reports/**/*.xlsx"
+      - "!docs/reports/**/*.csv"
+      - "!docs/reports/**/*.txt"
+      - "!docs/reports/**/*.html"
+      - "!docs/deployment/**/*.md"
+      - "!docs/deployment/**/*.pdf"
+      - "!docs/deployment/**/*.png"
+      - "!docs/deployment/**/*.jpg"
+      - "!docs/deployment/**/*.jpeg"
+      - "!docs/deployment/**/*.docx"
+      - "!docs/deployment/**/*.xlsx"
+      - "!docs/deployment/**/*.csv"
+      - "!docs/deployment/**/*.txt"
+      - "!docs/deployment/**/*.html"
   pull_request:
   # A phase is not done until this workflow is green on a pushed commit, and
   # until now it could only run on main or on a pull request — so work on a
@@ -44,17 +71,19 @@ env:
   NODE_VERSION: 22
 
 jobs:
-  # CI efficiency gate (6 Oct). Before anything is queued: are runners starved
-  # (then stop at once rather than queue 35 jobs that cannot start), and is this
-  # code already proven by an earlier green run on a working branch (then skip
-  # every expensive job and name that run)? audit/ci/proof-reuse.mjs; never
-  # reuses on main.
+  # CI efficiency gate (D-119). Before anything is queued: are runners starved
+  # (DEFERRED · NOT PROVEN: the run cancels itself), and is this code already
+  # proven by an earlier authoritative run, on a working branch only (ALREADY
+  # PROVEN: the run cancels itself and names that run)? Neither outcome is ever
+  # green; `verdict` below fails any run in which a job did not succeed.
   reuse:
     name: proof · runners free, code not already proven
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
-      actions: read
+      # write only to cancel its own run (DEFERRED or ALREADY PROVEN); it never
+      # makes a run green
+      actions: write
       contents: read
     outputs:
       proven: ${{ steps.r.outputs.proven }}
@@ -2005,3 +2034,26 @@ jobs:
         run: |
           npm run build
           npm run selftest
+
+  # The run is green only when every job ran and succeeded (D-119): a skipped,
+  # failed or cancelled job makes this fail. On a cancelled run (superseded,
+  # DEFERRED or ALREADY PROVEN) it does not run and the run stays cancelled. So
+  # `success`, the only conclusion the deploy gates and the reuse search accept,
+  # always means the full proof ran.
+  verdict:
+    name: verdict · green only when every job ran and succeeded
+    needs: [reuse, check, migrations-clean, migrations-upgrade-path, red-case, baseline-parity, selftest]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every job ran and succeeded
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          node -e '
+            const n = JSON.parse(process.env.RESULTS);
+            const bad = Object.entries(n).filter(([, v]) => v.result !== "success");
+            for (const [k, v] of bad) console.log(`::error::${k}: ${v.result}`);
+            if (bad.length) process.exit(1);
+            console.log(`all ${Object.keys(n).length} jobs ran and succeeded`);'

@@ -1,54 +1,94 @@
-// CI's first job (the CI efficiency gate, 6 Oct): before CI queues its jobs, two questions, each answered from the
-// repository and the Actions API, read only.
+// CI's first job (the CI efficiency gate, D-119). Before CI queues its jobs, two questions, read only. The answers
+// never make a run green:
 //
-// 1. ARE RUNNERS AVAILABLE? On 5 Oct, CI queued 35 jobs at a time while hosted runners were scarce. Most of them never
-//    got a runner, waited 20 to 25 minutes (their timeouts), and were cancelled, and the whole run was attempted four
-//    times. If any job of another run in this repository has been waiting longer than STARVED_MINUTES (default 10)
-//    for a runner, CI does not add its own jobs to that queue: this job fails at once and says so. Dispatch again when
-//    the queue has cleared. Nothing is lost by waiting; a run that cannot start proves nothing.
+// 1. ARE RUNNERS STARVED? On 5 Oct, CI queued 35 jobs at a time while hosted runners were scarce. Most of them never
+//    got a runner, waited 20 to 25 minutes (their timeouts), and were cancelled; one run was attempted four times. If
+//    any job of another run in this repository has waited longer than STARVED_MINUTES (default 10) for a runner, the
+//    outcome is DEFERRED · NOT PROVEN: this run cancels itself before it queues anything. Dispatch again when the
+//    queue has cleared.
 //
-// 2. IS THIS CODE ALREADY PROVEN? On a working branch only (never on main: every release candidate runs in full), when
-//    an earlier CI run succeeded on a commit whose files differ from this one only in paths no build, test or tool
-//    reads, CI does not run again. It says which run proved the code, and exits green with every expensive job
-//    skipped. The unread paths are UNREAD below, proven by search on 6 Oct and kept true by CI-W02, which fails if
-//    any code starts reading them.
+// 2. IS THIS CODE ALREADY PROVEN? On a working branch only (never on main: every release candidate runs in full). The
+//    outcome is ALREADY PROVEN, and the run cancels itself, naming the earlier run that is the evidence. It applies
+//    when that run is authoritative and its code is identical:
+//      - its strict selftest job really ran and succeeded;
+//      - it is at most MAX_AGE_HOURS old (default 72);
+//      - its files differ from this commit's only in documents nothing reads. A path counts as unread only when it is
+//        an inert document (UNREAD_DIRS × INERT, or a staging request file). A code file is never unread, wherever it
+//        lies: tsconfig compiles every **/*.ts and **/*.mts, and lint reads every script, docs/ included. Renames
+//        count as both of their paths (--no-renames).
+//    CI-W02 keeps this true: it fails if anything CI executes starts reading these paths.
 //
-//   GH_TOKEN, REPO, GITHUB_REF_NAME, GITHUB_SHA, GITHUB_RUN_ID   from the workflow
-//   STARVED_MINUTES                                              the starvation threshold (default 10)
-// Writes `proven=true|false` and `proven_by=<run id>` to $GITHUB_OUTPUT.
+// THE RULE: an outcome of this job is never success with skipped proof. DEFERRED and ALREADY PROVEN both cancel the
+// run, so its conclusion is `cancelled`. If the cancellation does not take hold within 90 s, this job fails, so the
+// conclusion is `failure`. Either way it creates no evidence: the deploy gates and this job's own search accept only
+// `success`. And ci.yml's `verdict` job independently fails any run in which a job did not succeed.
+//
+//   GH_TOKEN (actions: write, to cancel its own run), REPO, GITHUB_REF_NAME, GITHUB_SHA, GITHUB_RUN_ID   from CI
+//   STARVED_MINUTES, MAX_AGE_HOURS                                                                    thresholds
 import { appendFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 
-/** Paths nothing in the build, the tests or the tools reads (6 Oct). D-034 already treats docs/coordination as not code. */
-export const UNREAD = [/^docs\/coordination\//, /^docs\/reports\//, /^docs\/deployment\//, /^\.github\/staging-[a-z-]+-request\.txt$/];
+export const UNREAD_DIRS = /^docs\/(coordination|reports|deployment)\//;
+/** Inert document types: nothing compiles, lints, imports or tests them. Code extensions are deliberately absent. */
+export const INERT = /\.(md|pdf|png|jpe?g|gif|webp|docx|xlsx|pptx|csv|txt|html?)$/i;
+const REQUEST = /^\.github\/staging-[a-z-]+-request\.txt$/;
 
-/** True when every changed path is one nothing reads, i.e. the code is the same. An empty list is the same code too. */
-export const sameCode = (changed) => changed.every((p) => UNREAD.some((re) => re.test(p)));
+export const unread = (p) => REQUEST.test(p) || (UNREAD_DIRS.test(p) && INERT.test(p));
+/** Same code when every changed path is unread (no change at all is the same code too). */
+export const sameCode = (changed) => changed.every(unread);
+/** The arguments that list changed paths: a rename counts as its old and its new path. */
+export const DIFF_ARGS = (from, to) => ["diff", "--no-renames", "--name-only", from, to];
+export const SELFTEST_JOB = "selftest contract (strict, local stack)";
 
 /** Jobs of other runs waiting for a runner longer than `minutes`, at `now`. */
 export function starved(jobs, now, minutes = 10) {
   return jobs.filter((j) => j.status === "queued" && j.created_at && (now - Date.parse(j.created_at)) / 60000 > minutes);
 }
 
+/**
+ * May this commit cite `candidate` instead of running? Only if every condition holds; `why` says which failed.
+ * candidate: { run, selftestConclusion, changed }
+ */
+export function reusable({ onMain, run, selftestConclusion, changed, now, maxAgeHours = 72 }) {
+  if (onMain) return { ok: false, why: "main: every run is in full" };
+  if (!run || run.conclusion !== "success") return { ok: false, why: "the candidate run did not succeed" };
+  if (selftestConclusion !== "success") return { ok: false, why: "the candidate's strict selftest did not run and succeed" };
+  if ((now - Date.parse(run.created_at)) / 3600000 > maxAgeHours) return { ok: false, why: `the candidate is older than ${maxAgeHours} h` };
+  if (!Array.isArray(changed)) return { ok: false, why: "the candidate's commit is not in this history" };
+  if (!sameCode(changed)) return { ok: false, why: "a changed path is code, or a document something reads" };
+  return { ok: true, why: changed.length ? `differs only in ${changed.length} unread document(s)` : "the same commit" };
+}
+
 async function main() {
   const { GH_TOKEN, REPO, GITHUB_REF_NAME, GITHUB_SHA, GITHUB_RUN_ID, GITHUB_OUTPUT, GITHUB_STEP_SUMMARY } = process.env;
   const minutes = Number(process.env.STARVED_MINUTES || 10);
+  const maxAgeHours = Number(process.env.MAX_AGE_HOURS || 72);
   const say = (s) => { console.log(s); if (GITHUB_STEP_SUMMARY) appendFileSync(GITHUB_STEP_SUMMARY, `${s}\n`); };
   const out = (k, v) => { if (GITHUB_OUTPUT) appendFileSync(GITHUB_OUTPUT, `${k}=${v}\n`); };
-  async function api(path) {
+  async function api(path, method = "GET") {
     for (let attempt = 1; ; attempt++) {
       const r = await fetch(`https://api.github.com/repos/${REPO}${path}`, {
+        method,
         headers: { authorization: `Bearer ${GH_TOKEN}`, accept: "application/vnd.github+json", "x-github-api-version": "2022-11-28" },
       }).catch(() => null);
-      if (r?.ok) return r.json();
-      if (r && r.status < 500) throw new Error(`${path}: HTTP ${r.status}`);
-      if (attempt >= 3) throw new Error(`${path}: HTTP ${r?.status ?? "network"} after ${attempt} attempts`);
+      if (r?.ok) return r.status === 202 || r.status === 204 ? {} : r.json();
+      if (r && r.status < 500) throw new Error(`${method} ${path}: HTTP ${r.status}`);
+      if (attempt >= 3) throw new Error(`${method} ${path}: HTTP ${r?.status ?? "network"} after ${attempt} attempts`);
       await new Promise((ok) => setTimeout(ok, 2000 * attempt));
     }
   }
+  /** Cancel this run and wait for it to take hold; if it does not within 90 s, fail (never succeed). */
+  async function cancelSelf() {
+    await api(`/actions/runs/${GITHUB_RUN_ID}/cancel`, "POST");
+    // once the cancellation takes hold, GitHub stops this job here; it never reaches the line below
+    await new Promise((ok) => setTimeout(ok, 90000));
+    say("The cancellation did not take hold within 90 s: this job fails, so the run is red, never green.");
+    process.exit(1);
+  }
 
-  // 1. starvation: the jobs of every other run that is queued or in progress
+  out("proven", "false");
+  // 1. starvation
   const live = [];
   for (const status of ["queued", "in_progress"]) {
     const d = await api(`/actions/runs?status=${status}&per_page=50`);
@@ -58,30 +98,33 @@ async function main() {
   for (const r of live) jobs.push(...(await api(`/actions/runs/${r.id}/jobs?per_page=100`)).jobs);
   const waiting = starved(jobs, Date.now(), minutes);
   if (waiting.length) {
-    say(`**Runners are starved:** ${waiting.length} job(s) of other runs have waited more than ${minutes} minutes for a runner ` +
-        `(the longest: «${waiting[0].name}»). CI does not add its jobs to that queue. Dispatch again when it has cleared.`);
-    process.exit(1);
+    say(`**DEFERRED · NOT PROVEN.** ${waiting.length} job(s) of other runs have waited more than ${minutes} minutes for a runner ` +
+        `(the longest: «${waiting[0].name}»). This run cancels itself before queueing anything; nothing here is evidence. ` +
+        "Dispatch again when the queue has cleared.");
+    await cancelSelf();
   }
 
-  // 2. already proven (working branches only)
-  out("proven", "false");
-  if (GITHUB_REF_NAME === "main") { say("On main every run is in full: no reuse."); return; }
+  // 2. already proven
+  const onMain = GITHUB_REF_NAME === "main";
+  if (onMain) { say("On main every run is in full."); return; }
   const done = await api(`/actions/workflows/ci.yml/runs?status=success&per_page=30`);
-  for (const r of done.workflow_runs) {
-    if (r.head_sha === GITHUB_SHA && String(r.id) === String(GITHUB_RUN_ID)) continue;
-    let changed;
+  for (const run of done.workflow_runs) {
+    if (String(run.id) === String(GITHUB_RUN_ID)) continue;
+    const runJobs = (await api(`/actions/runs/${run.id}/jobs?per_page=100`)).jobs;
+    const selftestConclusion = runJobs.find((j) => j.name === SELFTEST_JOB)?.conclusion ?? "missing";
+    let changed = null;
     try {
-      changed = execFileSync("git", ["diff", "--name-only", r.head_sha, GITHUB_SHA], { encoding: "utf8" }).split("\n").filter(Boolean);
-    } catch { continue; } // that commit is not in this checkout's history
-    if (sameCode(changed)) {
-      say(`**Already proven** by CI run ${r.id} on \`${r.head_sha.slice(0, 7)}\` (${r.html_url}): ` +
-          (changed.length ? `this commit differs only in paths nothing reads (${changed.length} file(s)).` : "the same commit.") +
-          " Every expensive job is skipped.");
-      out("proven", "true"); out("proven_by", r.id);
-      return;
+      changed = execFileSync("git", DIFF_ARGS(run.head_sha, GITHUB_SHA), { encoding: "utf8" }).split("\n").filter(Boolean);
+    } catch { /* that commit is not in this checkout's history */ }
+    const v = reusable({ onMain, run, selftestConclusion, changed, now: Date.now(), maxAgeHours });
+    if (v.ok) {
+      say(`**ALREADY PROVEN** by CI run ${run.id} on \`${run.head_sha.slice(0, 7)}\` (${run.html_url}), whose strict selftest ran ` +
+          `and succeeded: this commit ${v.why}. This run cancels itself and is not evidence; run ${run.id} is.`);
+      out("proven", "true"); out("proven_by", run.id);
+      await cancelSelf();
     }
   }
-  say("Not proven by an earlier run: CI runs in full.");
+  say("Not proven by an earlier authoritative run: CI runs in full.");
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
