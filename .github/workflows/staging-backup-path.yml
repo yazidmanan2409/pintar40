@@ -2,9 +2,9 @@
 #
 # Before any backup credential exists (C2 is O6), this shows on hosted staging, through the very path the backup will
 # use, what backup-offsite.yml takes for granted (scripts/recovery/path-check.mjs):
-#   1. the session pooler's endpoint, read from Supabase's own configuration for the project and from the connection
-#      staging's apply already uses, both agreeing; never guessed (if Supabase does not say, the run stops and the
-#      owner gives the dashboard's value);
+#   1. the session pooler's endpoint, from Supabase's own configuration for the project or, where Supabase refuses it
+#      to the token (run 37414154468: HTTP 403), from the owner's dashboard value given as this run's inputs
+#      (staging -> Connect -> Session pooler); the connection staging's apply already uses must agree; never guessed;
 #   2. TLS verify-full against the committed Supabase Root 2021 CA;
 #   3. one exported snapshot shared with a second session and with pg_dump through the pooler (a schema dump, hashed
 #      and deleted; no row of data leaves the database);
@@ -17,6 +17,19 @@ name: backup · staging's path, read only
 
 on:
   workflow_dispatch:
+    inputs:
+      pooler_host:
+        description: "Session pooler host, from the dashboard (staging -> Connect -> Session pooler); empty: Supabase's API only"
+        type: string
+        default: ""
+      pooler_port:
+        description: "its port (the session pooler's is 5432)"
+        type: string
+        default: "5432"
+      pooler_user:
+        description: "its user (postgres.keijhmdtsgrfvnvocfvk)"
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -56,6 +69,9 @@ jobs:
           SUPABASE_PROJECT_REF: ${{ env.STAGING_SUPABASE_PROJECT_REF }}
           SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
           ADMIN_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          OWNER_POOLER_HOST: ${{ inputs.pooler_host }}
+          OWNER_POOLER_PORT: ${{ inputs.pooler_port }}
+          OWNER_POOLER_USER: ${{ inputs.pooler_user }}
         run: |
           set -euo pipefail
           # the backup workflow's own value, read from its file: it must be the one Supabase reports

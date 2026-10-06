@@ -1,5 +1,10 @@
 # #150 G3/G4 (and G5's escrow): the off-platform encrypted backup — a design for the owner's decision
 
+> **Superseded where it differs (6 Oct):** this was the 5 Oct proposal. What was decided and built is in D-107 (OpenPGP
+> recipients R1, R2 and R3, not `age`; **no** sealed paper or plaintext copy of the recovery key, D8), D-108 and D-109,
+> and in `CLOSURE-PLAN-150.md`. In particular the second recipient is **not optional**: production bundles and the
+> escrow go to R1 **and** R2, held by two separate custodians who have each proven possession (D-109(c)).
+
 **Status: PROPOSAL. Nothing here is bought, created or configured.** The owner's order (6 Oct): "propose the smallest
 robust provider-independent encrypted backup design covering both the database and Storage. Do not purchase or
 configure a new external service without my approval. Give me the recommended destination, retention, encryption and

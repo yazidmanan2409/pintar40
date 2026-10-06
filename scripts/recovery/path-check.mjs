@@ -2,10 +2,11 @@
 // #150 WP-B (D-109(a)): THE STAGING BACKUP'S CONNECTION PATH, CHECKED READ ONLY BEFORE ANY BACKUP CREDENTIAL EXISTS.
 //
 // What the backup (backup-offsite.yml) takes for granted about hosted staging, each shown here, through the same path:
-//   pooler    the session pooler's endpoint, read from Supabase's own configuration (the Management API's pooler
-//             settings for the project) and from the connection staging's apply already uses; both must name the same
-//             session pooler (port 5432), and the workflow's STAGING_POOLER_HOST must be it. Never guessed: when Supabase
-//             does not say, the run stops and the owner gives the dashboard's value.
+//   pooler    the session pooler's endpoint, from an authoritative source: Supabase's own configuration (the
+//             Management API's pooler settings for the project), or, where Supabase refuses that to the token, the
+//             owner's value read from the dashboard (Connect -> Session pooler: host, port, user; the dispatch's inputs).
+//             Where both exist they must agree, and the connection staging's apply already uses must name the same
+//             session pooler (port 5432); the workflow's STAGING_POOLER_HOST is checked against it. Never guessed.
 //   tls       the pooler's certificate chains to the committed Supabase Root 2021 CA and names the host (verify-full);
 //             psql, with PGSSLMODE=verify-full and that CA alone, connects.
 //   snapshot  backup.mjs's own exportSnapshot() through the pooler: a second session imports it and sees exactly the
@@ -21,6 +22,7 @@
 //   node path-check.mjs pooler | tls | snapshot | profile
 //
 // Environment: ADMIN_DB_URL (staging's, as staging.yml holds it); SUPABASE_ACCESS_TOKEN SUPABASE_PROJECT_REF (pooler);
+//              OWNER_POOLER_HOST OWNER_POOLER_PORT OWNER_POOLER_USER (pooler: the owner's dashboard value, if given);
 //              POOLER_HOST (tls, snapshot, profile: the endpoint `pooler` resolved); EXPECTED_POOLER_HOST (pooler: the
 //              workflow's); PGSSLROOTCERT (default docs/recovery/supabase-root-2021-ca.crt); PINTAR_PG_BIN; MGMT_API (tests)
 import { spawnSync } from "node:child_process";
@@ -40,7 +42,8 @@ export function adminEnv(host) {
   const u = new URL(process.env.ADMIN_DB_URL);
   const h = host ?? u.hostname;
   const loopback = h === "127.0.0.1" || h === "localhost";
-  return { PATH: process.env.PATH, PGHOST: h, PGPORT: u.port || "5432", PGUSER: decodeURIComponent(u.username),
+  // a hosted check always goes to the session pooler's port, whatever port the apply's URL names
+  return { PATH: process.env.PATH, PGHOST: h, PGPORT: loopback ? u.port || "5432" : "5432", PGUSER: decodeURIComponent(u.username),
     PGPASSWORD: decodeURIComponent(u.password), PGDATABASE: u.pathname.replace(/^\//, "") || "postgres",
     PGSSLMODE: loopback ? "disable" : "verify-full", PGSSLROOTCERT: CA(), PGAPPNAME: "pintar-path-check", PGOPTIONS: "" };
 }
@@ -65,19 +68,38 @@ export function choosePooler(api, urlHost, urlPort, urlUser, ref, expected) {
   return { host: problems.length ? undefined : host, problems, workflow };
 }
 
+/** The owner's dashboard value as one more pooler entry, or why it cannot be one. */
+export function ownerEntry(host, port, user, ref) {
+  if (!host) return { entry: null, problems: [] };
+  const problems = [];
+  if (!/^[a-z0-9-]+\.pooler\.supabase\.com$/.test(host)) problems.push(`the owner's value "${host.slice(0, 80)}" is not a Supabase pooler host (<name>.pooler.supabase.com)`);
+  if (String(port || "5432") !== "5432") problems.push(`the owner's port ${String(port).slice(0, 10)} is not the session pooler's 5432`);
+  if ((user || `postgres.${ref}`) !== `postgres.${ref}`) problems.push(`the owner's user is not postgres.${ref}`);
+  return { entry: problems.length ? null : { db_host: host, db_port: 5432, db_user: `postgres.${ref}`, pool_mode: "session", database_type: "PRIMARY", source: "owner" }, problems };
+}
+
 export async function pooler() {
   const ref = process.env.SUPABASE_PROJECT_REF;
   const api = process.env.MGMT_API || "https://api.supabase.com";
+  const owner = ownerEntry(process.env.OWNER_POOLER_HOST, process.env.OWNER_POOLER_PORT, process.env.OWNER_POOLER_USER, ref);
   const r = await fetch(`${api}/v1/projects/${ref}/config/database/pooler`, { headers: { Authorization: `Bearer ${process.env.SUPABASE_ACCESS_TOKEN}`, "User-Agent": "pintar-path-check" } });
-  if (r.status !== 200) {
+  let list = [];
+  let source;
+  if (r.status === 200) {
+    const body = await r.json();
+    list = Array.isArray(body) ? body : [body];
+    source = owner.entry ? "Supabase's configuration and the owner's dashboard value" : "Supabase's configuration";
+  } else if (process.env.OWNER_POOLER_HOST) {
+    source = `the owner's dashboard value (Supabase refused the configuration to this token: HTTP ${r.status})`;
+  } else {
     throw new Error(`Supabase's pooler configuration could not be read (HTTP ${r.status}): the endpoint is not resolved; ` +
       "the owner gives the dashboard's value (Connect -> Session pooler) and nothing is guessed (D-109(a))");
   }
-  const body = await r.json();
-  const list = Array.isArray(body) ? body : [body];
+  const all = owner.entry ? [...list, owner.entry] : list;
   const u = new URL(process.env.ADMIN_DB_URL);
-  const c = choosePooler(list, u.hostname, u.port || "5432", decodeURIComponent(u.username), ref, process.env.EXPECTED_POOLER_HOST);
-  return { reported: list.map(shown), urlHost: u.hostname, ...c };
+  const c = choosePooler(all, u.hostname, u.port || "5432", decodeURIComponent(u.username), ref, process.env.EXPECTED_POOLER_HOST);
+  const problems = [...owner.problems, ...c.problems];
+  return { reported: list.map(shown), owner: owner.entry ? shown(owner.entry) : null, source, urlHost: u.hostname, host: problems.length ? undefined : c.host, problems, workflow: c.workflow };
 }
 
 export function tls(host) {
@@ -155,9 +177,10 @@ async function main(argv) {
   const fail = (problems) => { for (const p of problems) console.log(`::error::${p}`); return problems.length ? 1 : 0; };
   if (cmd === "pooler") {
     const p = await pooler();
-    console.log(`Supabase's pooler configuration for ${process.env.SUPABASE_PROJECT_REF}: ${JSON.stringify(p.reported)}`);
+    console.log(`Supabase's pooler configuration for ${process.env.SUPABASE_PROJECT_REF}: ${p.reported.length ? JSON.stringify(p.reported) : "not readable with this token"}`);
+    if (p.owner) console.log(`the owner's dashboard value: ${JSON.stringify(p.owner)}`);
     console.log(`staging's apply connects to: ${p.urlHost}`);
-    if (p.host) { console.log(`RESOLVED: the session pooler is ${p.host}:5432, as Supabase and staging's apply both say`); out("host", p.host); }
+    if (p.host) { console.log(`RESOLVED: the session pooler is ${p.host}:5432, from ${p.source}, and staging's apply connects to it`); out("host", p.host); }
     if (p.host && !p.workflow.length) console.log("backup-offsite.yml's STAGING_POOLER_HOST is that host");
     return fail([...p.problems, ...p.workflow]);
   }

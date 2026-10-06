@@ -71,9 +71,10 @@ workflows; no export path was found for:
   deleted at all (`institutions_no_delete`, `persons_no_delete`); the audit log cannot be deleted. OD-5
   (`docs/rebuild/11-PINTAR-OPEN-DECISIONS.md:80-95`) is "architecture resolved; legal durations open", and forbids
   inventing legal retention periods.
-- **Backups outlive deletion:** ordinary backups are kept 35 days (daily) and 12 months (monthly) (D-107 D4);
-  `docs/recovery/OFFSITE-BACKUP-DESIGN.md:74-76` notes that data removed from PINTAR remains in backups until they
-  age out.
+- **Backups outlive deletion.** Two layers, not one: **today**, Supabase's own daily backups, kept **7 days** (D-103);
+  **once active** (built, not yet switched on: O3–O7), the independent encrypted copies, kept **35 days** (daily) and
+  **12 months** (monthly) (D-107 D4). `docs/recovery/OFFSITE-BACKUP-DESIGN.md:74-76` notes that data removed from
+  PINTAR remains in backups until they age out.
 - **Student transfer between PINTAR schools is built, as a move inside PINTAR, not an export.** Only enrolments and
   memberships are portable (`supabase/migrations/20260912004527_transfer_rollover.sql:15-19`); certificates, content,
   the audit log and role assignments stay with the school. The authorise action sends an empty consent record
