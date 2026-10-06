@@ -64,7 +64,7 @@ rulings on B3 and B4.
 
 | # | Status 6 Oct | Evidence |
 |---|---|---|
-| G1 | **Partly established; backup list unread.** Part 1 (owner screenshots) approved; Part 2 on hold (D-105) | see G1 below |
+| G1 | **Part 1 done 6 Oct:** 7 scheduled physical backups listed, the latest 05 Oct 19:24:09 UTC, none visibly failed, status not displayed, PITR off. **Part 2 on hold** (D-105) | see G1 Part 1 below |
 | G2 | **Approved (D-105); not yet performed:** waiting on the owner's dashboard action | see G2 below |
 | G3/G4 | **Design only (D-104)**; implementation not authorised and not a condition of the current scope | `docs/recovery/OFFSITE-BACKUP-DESIGN.md` |
 | G5 | **Guard built and proven; escrow waits on G3's custody** | `b4bd543`; DR-S01..S03 red on the old workflow, green; CI 37390261594 (35/35, 579/579) |
@@ -94,6 +94,45 @@ Read 5–6 Oct through the Supabase connector (`get_project`, and `execute_sql` 
 completed and recent, has not been seen. **G1 Part 1 (approved 6 Oct, D-105):** the owner inspects `pintar-production`'s
 Scheduled backups and Point in Time pages and provides screenshots; only what they show is recorded. **G1 Part 2**
 (machine reading of the list, for G6 and the G10 watch) is **on hold**: no token is to be changed.
+
+### G1 Part 1: the owner's screenshots, 6 Oct (evidence; only what they show)
+
+The owner inspected `pintar-production` (`trtlvibiybwixfumjrrx`) in the dashboard, changed nothing, and provided
+screenshots. They are kept in `docs/recovery/evidence/150/` (`2026-10-06-g1-production-scheduled-backups.png`,
+`2026-10-06-g1-production-point-in-time.png`, `2026-10-06-g1-production-home.png`).
+
+| Fact asked for | What the screenshots show |
+|---|---|
+| Scheduled backups exist | **Yes.** Database → Backups → Scheduled backups lists backups; the page says "Projects are backed up daily around midnight of your project's region" |
+| Number visible | **7 rows**, each labelled **PHYSICAL**, each with a Restore button |
+| Dates listed (UTC, as shown) | 05 Oct 2026 19:24:09; 04 Oct 2026 19:23:57; 03 Oct 2026 19:23:52; 02 Oct 2026 19:25:16; 01 Oct 2026 19:24:04; **one row whose date is hidden by a dashboard tooltip** (only "…:24:46 (+0000)" is legible); 29 Sep 2026 19:24:43 |
+| Latest backup | **05 Oct 2026 19:24:09 (+0000)**, PHYSICAL |
+| Its age | the project's home page shows **"LAST BACKUP 5 hours ago"** at the time of that screenshot (the screenshots carry no clock) |
+| Status of each backup | **the list shows no status column.** No row is marked failed, and none is marked completed. "Completed" therefore cannot be stated from these screenshots |
+| Failed or missing backups | **none visible.** The six legible dates run 29 Sep and 1–5 Oct; the hidden row lies between them. Whether it is 30 Sep cannot be read |
+| PITR | **not enabled.** The Point in Time tab reads "Point in Time Recovery is available as an add-on. Enable the add-on to add point-in-time recovery to your project." (the button was not clicked) |
+| Also shown | the notice "Storage objects are not included"; the tab "Restore to new project" (BETA) exists; the project is Healthy, compute **MICRO**, ap-southeast-1 (t3a.micro); last migration `activation_is_granted_not_i…` (the repository's 111th, `20261005120000`) |
+
+**The owner's own statement (6 Oct), recorded as given:** "Scheduled backups visibly contain 7 physical backups from
+29 Sep–5 Oct 2026. Latest visible backup: 5 Oct 2026 19:24:09 UTC. Production overview reports 'Last backup 5 hours
+ago.' No failed backup is visible." The owner also recorded `pintar-staging` (`keijhmdtsgrfvnvocfvk`) as healthy, with
+its overview reporting a backup about an hour ago (`2026-10-06-g2-staging-home-before.png`). **G1 Part 1 is treated as
+evidence captured (owner, 6 Oct). G1 Part 2 is neither performed nor requested.**
+
+**What G1 Part 1 establishes:** production has scheduled physical backups, seven listed, the latest of 5 Oct 19:24:09
+UTC, with no visible failure, and PITR off. **What it does not establish:** each backup's completion status (not
+displayed), the hidden row's date, and anything machine-readable for G6 (G1 Part 2, on hold).
+
+**Visible on the screenshots, outside G1's list; recorded, not acted on:**
+- **Production's home page shows "Advisor found 1 issue", SECURITY, CRITICAL:** "Security Definer View: View
+  `public.published_lessons` is defined with the SECURITY DEFINER property".
+  - The repository closes this in migration `20261008100000_lesson_content_is_not_public` (the 114th): it sets
+    `security_invoker`, revokes the view from `anon` and `authenticated`, and removes it from the public surface.
+  - Staging, which has it, shows "Advisor found no issues". Production is pinned at 111 migrations and does not have it.
+  - This is the known consequence of production not having been upgraded since 23 Sep, not a recovery finding. Any
+    production change waits on the owner (and on G6's backup read).
+- The home page's last-24-hours panel shows production with 54 requests, a 20.4% success rate, and 24 Postgres errors.
+  These are not interpreted here.
 
 ### G2. The hosted restore rehearsal: approved 6 Oct (D-105); waiting on the owner's dashboard action
 
