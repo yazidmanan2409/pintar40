@@ -516,3 +516,24 @@ Gate 3 stays held; the coordinator does not merge it.
     - **Record:** `CLOSURE-PLAN-150.md` § A7.
     - Nothing hosted was changed; migration 162 was applied to the local stack only and is **not** on `main` (a push to
       `main` that touches `supabase/migrations/` applies it to staging, through `staging.yml`).
+41. **#150 WP-B, 6 Oct: the independent backup, its logical restore and the escrow, built and proven against local stand-ins (D-107, D-108).**
+    - **Ruled first (D-108):** A + B. The `supautils` extension residual is recorded in canonical wording, with
+      compensating controls 1-9; the readiness deviation approved; a provider question for Supabase; C rejected.
+    - **Built** on the branch `claude/awesome-rubin-bqxp6p` at `9133ffc`, **not on `main`** (its migration 162 would
+      reach staging through `staging.yml`):
+      - `pintar_backup`;
+      - `scripts/recovery/` (backup, restore, escrow, drill, credential, S3);
+      - the AWS template;
+      - six workflows (all `main` only, all schedules off);
+      - the deploy no longer mints.
+    - **Found and fixed on the way:**
+      - the CLI's schema filter deletes comment lines inside function bodies (the 5 Oct finding): the bundle keeps them,
+        so a restored definition is byte-identical;
+      - `acl.sql` must restore column rights after table rights.
+    - **Tests:** DR-S08, S09, S10, S11, S14, S15, D02 new, and DR-S02 restated. All were red on `80b7f10` and are
+      green now. The logical path restores into an empty Supabase stack with 0 differences, every Storage file's hash,
+      the extension baseline and readiness, in 3 s on CI.
+    - **CI 37409454539 on `9133ffc`:** 35/35 jobs, 587/587 tests.
+    - **Nothing hosted:** no AWS, no real credential, no key, no escrow, no hosted apply.
+    - **Next, the owner's:** authorise migration 162 for staging (the landing), then O3-O7
+      (`OWNER-INSTRUCTIONS-150.md`, prepared). O2 (C1) is still open.

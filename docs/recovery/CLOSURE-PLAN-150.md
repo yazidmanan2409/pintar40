@@ -7,7 +7,7 @@ PITR implementation. No 100,000-user rehearsal.
 
 **Progress:** WP-A's code built and proven (`e6cb045`; CI 37401454517, 35/35, 580/580); waiting for O2 (C1), the
 owner's action. **WP-B:** stopped for a ruling on 6 Oct (§ A7, "Finding"), ruled A + B (D-108), resumed; its code is
-built and proven against local stand-ins (on the branch only). Migration 162 stays off hosted staging and production,
+built and proven against local stand-ins (on the branch only; CI 37409454539 on `9133ffc`: 35/35, 587/587). Migration 162 stays off hosted staging and production,
 and off `main`, until separately authorised.
 
 **Unchanged boundaries (D-106(h)–(j)):**
