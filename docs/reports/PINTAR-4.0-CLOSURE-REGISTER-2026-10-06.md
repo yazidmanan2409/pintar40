@@ -47,16 +47,22 @@ This register reconciles existing evidence; it does not reinterpret PINTAR. The 
 - GS-20's U1 had an instrument defect, now corrected; batch 6 re-proves it.
 - Allowance spent: 60 of 1,900 estimated minutes.
 
-**Batch 2 in progress:**
+**Batch 2 closed (6 Oct), reported with batch 3** (`PINTAR-4.0-CLOSURE-BATCH-3-2026-10-06.md` §6):
+- Closed: CR-18 (staging run 37483810708), CR-19, CR-29 and CR-45 (CI 37489874488), CR-33, 35, 38, 39, 40, 42, 43 and 44 (journeys audit 37487347244, 72 PASS).
+- **CR-41 becomes an A item:** not walkable, because the transfer form takes raw UUIDs no screen shows (S7, Daisy with engineering).
+- CR-30 moves to batch 6 (it needs the specimen's fresh learner).
+- Seven findings from the walks (W-1 to W-7, report §7) are proposed for the register. W-2 (a referrer can decide their own referral) needs an owner ruling.
 
-| CR | Proof | State |
-|---|---|---|
-| CR-29 | F03-T11 | proven, red on plants |
-| CR-19 | F16-X01 | proven, red on plants |
-| CR-45 | BOB07-K03 | proven, red on plants |
-| CR-18 | the countdown instrument | proven locally (red on two plants); staging run pending in the closure walk |
+**Batch 3 closed (6 Oct):** `PINTAR-4.0-CLOSURE-BATCH-3-2026-10-06.md`.
+- Closed: CR-47 with Q10 (Alternative 4 and the not-yet state), CR-02, CR-01, CR-50, CR-13 (server and route; the screen is S7) and CR-51.
+- Landed: main 9a46bf5 (CI 37489874488, 18/18, 617 tests); staging 171 migrations (run 37493598299).
+- Questions for the owner and Daisy are in the report §4.
 
-The walks (CR-30, 33, 35, 38–44) follow.
+CR-28 and CR-37 are not in batch 3, as D-120 ruled:
+- CR-28 leaves this gate (QN3, after go-live).
+- CR-37's surface is removed in slice S6 (QN4).
+
+Next: batch 4 (Daisy's gate), which is the owner's and Daisy's.
 
 ## 1. The register
 

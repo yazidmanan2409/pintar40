@@ -20,8 +20,11 @@
 |---|---|---|
 | CI on bcc3b7a | 37483042122 | **red**: two plant gates (§3) |
 | CI on a28b4d2 | 37486231374 | **red**: every plant gate green; the strict selftest 616 passed, 1 failed (§3) |
-| CI on 9a46bf5 | 37489874488 | _(pending)_ |
-| main fast-forwarded; staging migrated | _(pending)_ | _(pending)_ |
+| CI on 9a46bf5 | 37489874488 | **green**: 18/18 jobs, every plant gate red for its own reason; the strict selftest **617 passed, 0 failed** |
+| The journeys audit on 0652d21 (code identical to 9a46bf5 but for one test) | 37487347244 | **green**: both jobs; the screens audit and the journey, **72 PASS, 0 other** (S15b, S23r/l/t/j, S25, S26d, S27 and the C-12 steps among them) |
+| main fast-forwarded 12b480b → 9a46bf5 (no request file touched) | — | done 6 Oct 16:10 UTC |
+| staging migrated | 37493598299 | **green**: 165 → 171 applied (last 20261204100000), equal to the repository; CR-50's guard found no cross-owner link; the sign-in boundary verified |
+| CI on main at 9a46bf5 (main always runs the full cycle, CE-8) | 37493596839 | _(running)_ |
 
 ## 3. The red CI runs, and why
 
@@ -59,6 +62,54 @@ Cost: 69 estimated minutes. From now on the plant gates of any suite a change to
 - F18's fixture picks the school admin's role with an unordered `limit 1`; on a database where that admin has gained other (revoked) roles it picks the wrong one. CI's fresh database never has them.
 - F03-R02's internal word «Salah» also matches the ordinary phrase «Salah satu …» in the seeded cycle's options.
 
-## 6. The allowance (D-121(d): 1,900 estimated minutes, a ceiling)
+## 6. Batch 2, closed with this batch (proof on today's code, no product change)
 
-_(filled at the end of the batch)_
+| CR | Proof | Result |
+|---|---|---|
+| CR-29 pause and resume | F03-T11 | **Closed**: green in CI 37489874488; red on three plants |
+| CR-19 persona exclusion | F16-X01 | **Closed**: green in CI; red on eight plants |
+| CR-45 error-page reference | BOB07-K03 | **Closed**: green in CI; red on three plants |
+| CR-18 resend countdown | `audit/staging/kode-ulang-walk.mjs` K1–K3 on staging | **Closed**: run 37483810708 green (a real account and an unknown name wait the same; red locally on two plants) |
+| CR-33 audit-only evidence | the journeys audit | **Closed on today's code**: 37487347244, 72 PASS. Batch 6 runs it again on the frozen specimen |
+| CR-35 "what next" | S26d (`[data-tur="layak"]`: «Layak dikerjakan lebih dulu», Bab 2, the siapkan link) | **Closed** (same run) |
+| CR-38 the decision queue | S23r: referred in Studio, one decision only; the dean takes it and records «Tidak ada tindakan lanjutan»; the referrer sees it decided; no score moves; the student sees none of it | **Closed** (same run) |
+| CR-39 the audit reader | S23j: the school admin reads exactly their school's newest 50 rows; the platform admin the platform's | **Closed** (same run) |
+| CR-40 report templates | S23t: the school's own class report replaces PINTAR's standard on the head of department's summary | **Closed** (same run) |
+| CR-42 class move | S25 | **Closed** (same run) |
+| CR-43 year rollover | S27, on the audit's own stack (never the demo school) | **Closed** (same run) |
+| CR-44 «Laporkan masalah» | S23l: teacher reports; the school admin moves it to «Ditangani»; the platform admin to «Selesai»; the reporter reads both | **Closed** (same run). The tiers' people stay an owner action (D) |
+| CR-41 transfer between schools | — | **Not walkable, so it becomes an A item** (the register's rule for batch 2). The request form takes «Kode sekolah tujuan» and «Kode tahun ajaran tujuan» as raw UUIDs that no screen shows, and Pendataan calls the namespace «SDZ» a «Kode sekolah» too. A walk could pass only by reading the UUIDs from the database, which would hide the gap, so none was written. Its fix belongs to S7 (Daisy) with engineering |
+| CR-30 answers kept through network loss | — | **Moved to batch 6**: it needs a fresh specimen learner with no sitting, which the specimen gives |
+
+## 7. Findings from the walks (reported, not changed: no ruling covers them)
+
+Each was found while writing or running a batch 2 walk. None made a walk red; none was worked around. I propose them for the register; the owner rules which are A (and whose), and which are accepted.
+
+| # | Where | Finding | Who it reaches | Kind |
+|---|---|---|---|---|
+| W-1 | Studio «Tinjauan Integritas» | Each sitting is named by 8 characters of its UUID and a count: no learner, class or test. The note field has no label (a hard-coded placeholder). Only a sitting's newest signal can be reviewed. A reviewed or referred signal looks exactly like a new one | heads of department, school admins | Daisy (S7) + engineering |
+| W-2 | The decision queue | **The referrer can decide their own referral**: `advance_management_decision` checks Management scope only, and the head of department who referred stands over the class. No separation of duties. Read from the code, not walked | heads of department | **owner ruling** (is a second person required?) |
+| W-3 | The decision queue | A school admin may refer (holds CAN_REVIEW_INTEGRITY) but /pimpinan refuses them, so they never see the outcome. The decision card gives no way to the evidence. One phrase, «Diteruskan ke pihak sekolah», names two different acts | school admins, deans | Daisy + engineering |
+| W-4 | «Laporkan masalah» | No screen links to «Laporan saya» (/lapor/saya): the copy key exists and is used nowhere; the reporter reaches it only through the redirect after sending. The triage line shows the raw user-agent and path | every staff reporter | Daisy (S3/S7) |
+| W-5 | «Templat laporan» | **A template cannot be revised on the screen** (the form never sends the template, so a second save hits the unique version index and fails generically); the order cannot be chosen; raw identifiers throughout; the title changes nothing; learner_result can be saved but nothing shows it; no way back to the standard | school admins | Daisy (S7) + engineering |
+| W-6 | «Jejak audit» | Raw codes in mixed conventions, raw table names and id fragments, no actor shown although it is recorded; the newest 50 only, no paging or filter | school admins, platform admin | Daisy (S7) |
+| W-7 | Transfers | Beyond CR-41: the receiving admin sees the learner as an 8-character id before approving; whether the platform admin alone can request and approve is not verified | admins | with CR-41 |
+
+## 8. The allowance (D-121(d): 1,900 estimated minutes, a ceiling)
+
+Every Actions run since batch 0's report, read with the same classify/judge (`audit/ci/actions-spend.mjs`):
+
+| Run | Estimate (min) |
+|---|---|
+| batch 0 (its report §4) | 60 |
+| watch · production 37477387473 (scheduled, skipped) | 0 |
+| CI on bcc3b7a 37483042122, **red** (§3) | 69 |
+| staging CR-18 37483810708 | 3 |
+| CI on a28b4d2 37486231374, **red** (§3) | 75 |
+| journeys audit 37487347244 | 40 |
+| CI on 9a46bf5 37489874488 | 79 |
+| staging migration 37493598299 | _(below)_ |
+| CI on main 37493596839 | _(below)_ |
+| **Spent so far** | _(below)_ |
+
+_(completed when main's run ends)_
