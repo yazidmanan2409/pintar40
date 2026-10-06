@@ -2857,6 +2857,81 @@ await step("S23j", "the audit reader: on Konfigurasi → «Jejak audit» the sch
     `the actions as printed: ${JSON.stringify([...new Set(layarAdmin.map((k) => k.split("|")[0]))].slice(0, 8))}`;
 });
 
+// CR-52 (J4.8 EC; D-050(a)(d)): the Question Bank, walked against QN5 as D-120 ruled it: «4.0's Question Bank means
+// browse, filter and review with the answer key and reason; no additional authoring workflow». Read only; before S24,
+// which revokes the head of department. The head of department reviews question health (CAN_REVIEW_QUESTION_HEALTH,
+// role_capabilities, 20260912004158:59-60) and reaches Studio → «Bank Soal» by clicking (studio/layout.tsx:53).
+// Each of QN5's four parts is recorded on its own and judged as QN5 words it. Whether a chapter's package page, where
+// the reviewer reads every question with its key and reason (D-088(h), S17), counts as the bank's review is the
+// owner's call, not this step's: the step says whether the bank shows them or leads to them.
+await step("S23q", "the Question Bank as QN5 rules it (CR-52): the head of department opens Studio → «Bank Soal» by clicking; browse (the school's questions, no other school's), filter (a way to narrow the list), review with the answer key and reason (on the bank, or a link from a question to them), and no authoring on the bank", async (rec) => {
+  const hc = await ctx();
+  const h = await hc.newPage();
+  const notes = [];
+  try {
+    await magicSignIn(h, people.kaprodi.email);
+    await h.goto(`${APP}/studio`, { waitUntil: "networkidle" });
+    await tutupTur(h);
+    await h.getByRole("link", { name: "Bank Soal" }).first().click();                                  // studio/layout.tsx:53; hle.ts:3300
+    await h.waitForURL((u) => u.pathname === "/studio/bank", { timeout: SLOW });
+    await h.waitForLoadState("networkidle");
+    await tutupTur(h);
+    await h.getByRole("heading", { name: "Bank Soal", exact: true }).waitFor({ timeout: SLOW });        // studio/bank/page.tsx:73; hle.ts:3479
+    rec.shots.push(await shot(h, "cr52-bank-soal"));
+
+    // 1. BROWSE: every listed question is one of SD's; the newest 40 of SD's at least (bank/page.tsx:50, li[data-soal] :86)
+    const layar = await h.locator("li[data-soal]").evaluateAll((ls) => ls.map((l) => l.getAttribute("data-soal") ?? ""));
+    const pemilik = new Map(sql(`select coalesce(string_agg(left(i.id::text, 8) || '|' || coalesce(n.slug, '-') || '|' || coalesce(n.tenant_kind::text, '-'), chr(10)), '')
+      from public.items i left join public.institutions n on n.id = i.institution_id`).split("\n").filter(Boolean).map((b) => { const [k, slug, jenis] = b.split("|"); return [k, { slug, jenis }]; }));
+    const slugSd = sql(`select slug from public.institutions where id='${ids.sd}'`).trim();
+    const nSd = Number(sql(`select count(*) from public.items where institution_id='${ids.sd}'`).trim());
+    const milikSd = layar.filter((k) => pemilik.get(k)?.slug === slugSd).length;
+    const sekolahLain = layar.filter((k) => { const p = pemilik.get(k); return p && p.slug !== slugSd && p.jenis === "INSTITUTION"; });
+    const pustaka = layar.filter((k) => pemilik.get(k)?.jenis === "PLATFORM_CANONICAL").length;
+    const telusur = layar.length > 0 && milikSd >= Math.min(40, nSd) && sekolahLain.length === 0;
+    notes.push(`browse: ${layar.length} question(s) listed, ${milikSd} of them SD's (SD holds ${nSd}; the page lists the newest 40 and every one waiting on a reviewer), ` +
+      `${sekolahLain.length} of another school${sekolahLain.length ? ` (${sekolahLain.slice(0, 3).map((k) => pemilik.get(k)?.slug).join(", ")})` : ""}, ${pustaka} of the PINTAR library; no paging (${nSd > 40 ? `${nSd - 40} older question(s) not reachable here` : "all fit"})`);
+
+    // 2. FILTER: a control that narrows the list: a search or text field, a select or a link that is not a question's
+    //    review form (each review form carries input[name=soal], :99), or a query string the page reads to narrow it
+    //    (a form with no field of its own, such as signing out, narrows nothing and is not counted)
+    const kendali = (await h.locator("main form").evaluateAll((fs) => fs.filter((f) => !f.querySelector("input[name=soal]"))
+      .map((f) => [...f.querySelectorAll("input:not([type=hidden]):not([type=submit]), select, textarea")].map((x) => x.getAttribute("name") ?? x.tagName.toLowerCase()).join(","))))
+      .filter((f) => f.length > 0);
+    const cari = await h.locator("main input[type=search], main [role=search]").count();
+    const saringan = await h.locator("main a[href*='/studio/bank?']").count();
+    const ada = kendali.length + cari + saringan;
+    notes.push(`filter: ${ada} control(s) on the bank (forms other than a question's review: ${kendali.length}${kendali.length ? ` ${JSON.stringify(kendali)}` : ""}; search fields ${cari}; narrowing links ${saringan})`);
+
+    // 3. REVIEW WITH KEY AND REASON: on the bank, or one link from a question to them (the package page marks the key
+    //    li.pin-opsi-kunci and gives each option its reason li.pin-opsi, studio/paket/[course]/page.tsx:256-262)
+    const kunciDiBank = await h.locator("li[data-soal] .pin-opsi-kunci").count();
+    const alasanDiBank = await h.locator("li[data-soal] .pin-opsi").count();
+    const keSoal = await h.locator("li[data-soal] a[href]").count();
+    notes.push(`review: on the bank ${kunciDiBank} key(s) and ${alasanDiBank} option(s) with a reason are shown; ${keSoal} link(s) from a question to anywhere; ` +
+      `each listed question shows its text, its bank and its predicted difficulty (:89-94). A chapter's package page shows every question with its key and reason (D-088(h), S17), reached from the chapter, not from the bank`);
+
+    // 4. NO AUTHORING: nothing on the bank writes a question; its forms are a question's health review (:96-109)
+    const tulis = await h.locator("main textarea, main input[name=stem], main input[name=opsi], main input[name=kunci]").count();
+    const tombolTulis = await h.locator("main button, main a").filter({ hasText: /tambah soal|buat soal|ubah soal|sunting soal/i }).count();
+    const tanpaTulis = tulis === 0 && tombolTulis === 0;
+    const caraUbah = /unggah buku kerja yang sudah diperbaiki/i.test(await bodyText(h));                // hle.ts:3481, «Untuk mengubah soal …»
+    notes.push(`no authoring: ${tanpaTulis ? "nothing on the bank writes a question" : `${tulis} writing field(s), ${tombolTulis} control(s) offering to write a question`}; the page says a question is changed by a corrected workbook: ${caraUbah}`);
+
+    // the verdict, as QN5 words it: all four parts on the bank
+    const kurang = [];
+    if (!telusur) kurang.push("browse");
+    if (ada === 0) kurang.push("filter");
+    if (kunciDiBank === 0 && keSoal === 0) kurang.push("review with the answer key and reason");
+    if (!tanpaTulis) kurang.push("no authoring");
+    if (kurang.length) rec.verdict = "FAIL";
+    notes.push(kurang.length ? `QN5 not met on the bank: ${kurang.join(", ")}` : "QN5 met on the bank");
+  } finally {
+    await hc.close();
+  }
+  return notes.join("; ");
+});
+
 await step("S24", "the school admin revokes the head of department's role on Konfigurasi → Peran & akses; the head of department is then refused /pimpinan (ADM-J14)", async (rec) => {
   await a.goto(`${APP}/konfigurasi#roles`, { waitUntil: "networkidle" });
   const baris = a.locator("#roles li").filter({ hasText: "Kepala departemen" }).filter({ hasText: "Kelas Rendah" }).first();
