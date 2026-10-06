@@ -12,9 +12,9 @@ predictably and verifiably after a serious failure. No shortcuts. No paper-only 
 ## Verdict: **NOT PASS**
 
 The objective is to prove that PINTAR can be reconstructed safely, predictably and verifiably after a serious failure.
-That is not yet proven. The controls PINTAR itself owns are built and proven (A). The recovery that depends on the
-provider and the owner has not been carried out (B), and B is what decides the verdict. ENGINEERING COMPLETE (declared
-5 Oct) does not soften this.
+That is not yet proven. The controls PINTAR itself owns are built and proven (A). The recovery evidence that depends on
+the provider and the owner has not yet been produced (B). ENGINEERING COMPLETE (declared 5 Oct) does not soften this.
+**The verdict NOT PASS, and this A/B distinction, were accepted on 6 Oct (D-104, D-105).**
 
 ### A. Recovery engineering readiness: the controls under PINTAR's own control — implemented and proven
 
@@ -35,28 +35,40 @@ step.
 
 ### B. Production recovery readiness: the provider and owner actions — not completed
 
-| # | Blocker | Why it blocks | What clears it |
-|---|---|---|---|
-| B1 | **G2: no hosted restore performed; RTO unmeasured** | Supabase's "Restore to a new project" is the production recovery path. Whether it keeps PINTAR's triggers, rights, pre-request and bucket is unproven, and so is how long it takes | the owner starts it from staging's dashboard; the coordinator verifies and times it; the owner deletes the copy |
-| B2 | **G1: production's backups never seen** | the existence, kind, status and age of the backups a restore would use are an assumption (HTTP 403) | the production token may read the project's backups |
-| B3 | **G6 refuses every production apply until B2** | the restore-point check fails closed by design | B2 |
-| B4 | **G3/G4: no copy outside Supabase; Storage in no backup** | deleting the project or losing the account loses everything; Storage files are lost on any restore | the owner's decisions in the design; then build, a restore drill, one CI |
-| B5 | **G5 escrow: the two secrets exist only in Vercel** | losing Vercel's environment now stops the deploy instead of breaking cards and certificates, but nothing can recover the values | part of B4 (`secrets.age`) |
-| B6 | G9: recovery rests on one person | — | the owner's choice of a second administrator and custodian |
-| B7 | G10 is off | a failure is still noticed only when reported | the owner sets `PINTAR_PRODUCTION_WATCH` to `on` |
+*Corrected 6 Oct (D-105). The first version of this section made G3/G4 implementation a condition of PASS. That
+contradicted D-104, under which G3/G4 are design only. Implementation of G3/G4 is **not** a condition of the currently
+authorised #150 scope.*
 
-**PASS requires B1, B2 and B4 with B5 cleared, with a recovery verification rerun showing them.** B6 and B7 are owner
-decisions that should not be left open once real schools depend on PINTAR.
+**Required evidence under the currently authorised scope:**
+
+| # | Item | Status | What clears it |
+|---|---|---|---|
+| B1 | **G2: no hosted restore performed; RTO unmeasured** | approved 6 Oct as an owner action (D-105) | the owner restores staging to a temporary new project; the coordinator verifies it read only and measures T0–T3; the owner deletes it |
+| B2 | **G1 Part 1: production's backups never seen** | approved 6 Oct as an owner action (D-105) | the owner's screenshots of `pintar-production`'s Scheduled backups and Point in Time pages; the coordinator records only what they show |
+
+**On hold, or outside the current scope (recorded, not decided here):**
+
+| # | Item | Status |
+|---|---|---|
+| B3 | **G1 Part 2 and G6's automated backup read.** G6 refuses every production apply while the backup list cannot be read by machine | **On hold** (D-105). It is to be solved separately once the minimum safe mechanism is established. G6 is **not** weakened or bypassed meanwhile: production applies stay refused |
+| B4 | **G3/G4: no copy outside Supabase; Storage files in no backup** | **Design only** (D-104). A later owner ruling may require independent database, Storage and secret recovery before large-scale production. The scenario is 100,000 active users a day, 1,000 lessons, 75,000 questions, and large volumes of assessment, progress, audit and history records. **That ruling has not been made, and is not made here** |
+| B5 | **G5 escrow: the two secrets exist only in Vercel** | Part of B4's design; the same status |
+| B6 | G9: recovery rests on one person | An owner decision; open |
+| B7 | G10 is off | An owner decision; open |
+
+**#150's status under the current authorised scope:** NOT PASS (accepted). B1 and B2 remain to be evidenced. This
+review does not redefine the PASS criteria. What #150 needs beyond B1 and B2 for PRODUCTION READY waits on the owner's
+rulings on B3 and B4.
 
 ## The closing table
 
 | # | Status 6 Oct | Evidence |
 |---|---|---|
-| G1 | **Partly established; backup list unread** | see G1 below |
-| G2 | **Not performed: needs the owner's two dashboard actions** | see G2 below |
-| G3/G4 | **Designed, not built** (owner's approval needed) | `docs/recovery/OFFSITE-BACKUP-DESIGN.md` |
+| G1 | **Partly established; backup list unread.** Part 1 (owner screenshots) approved; Part 2 on hold (D-105) | see G1 below |
+| G2 | **Approved (D-105); not yet performed:** waiting on the owner's dashboard action | see G2 below |
+| G3/G4 | **Design only (D-104)**; implementation not authorised and not a condition of the current scope | `docs/recovery/OFFSITE-BACKUP-DESIGN.md` |
 | G5 | **Guard built and proven; escrow waits on G3's custody** | `b4bd543`; DR-S01..S03 red on the old workflow, green; CI 37390261594 (35/35, 579/579) |
-| G6 | **Built and proven** (blocks production applies until G1's token can read backups) | `870fdac`; DR-S04, DR-S05; CI 37390261594 (35/35, 579/579) |
+| G6 | **Built and proven** (refuses production applies while the backup list cannot be read by machine; G1 Part 2 on hold, D-105) | `870fdac`; DR-S04, DR-S05; CI 37390261594 (35/35, 579/579) |
 | G7 | **Built and proven**, plus two defects found and fixed | `870fdac`; DR-D01; rehearsal 37389380945 |
 | G8 | **Recorded**: D-103 | `docs/coordination/DECISIONS.md` |
 | G9 | Recommendations (owner's decisions) | see G9 below |
@@ -79,35 +91,69 @@ Read 5–6 Oct through the Supabase connector (`get_project`, and `execute_sql` 
 | Organisation inventory | three projects, all active: `pintar-production`, `pintar-staging`, and `pintar` (`sknixmwkynzmrgbxzrvb`), the former FABLE development project (docs/phases) — not part of recovery; whether it is still needed is the owner's call |
 
 **What is still missing.** The backups themselves. A daily physical backup is what the plan promises. That one exists,
-completed and recent, has not been seen. **Owner's decision G1:** let the production access token read the
-project's backups (the same token, re-issued with that permission). From then on `recovery-facts.yml`, G6 and the G10
-watch all read the list by machine.
+completed and recent, has not been seen. **G1 Part 1 (approved 6 Oct, D-105):** the owner inspects `pintar-production`'s
+Scheduled backups and Point in Time pages and provides screenshots; only what they show is recorded. **G1 Part 2**
+(machine reading of the list, for G6 and the G10 watch) is **on hold**: no token is to be changed.
 
-### G2. The hosted restore rehearsal: ready, waiting on the owner's dashboard
+### G2. The hosted restore rehearsal: approved 6 Oct (D-105); waiting on the owner's dashboard action
 
 Supabase's documentation ("Restore to a new project", Beta) says it copies the schema, the data, roles, permissions and
 Auth users. It does **not** copy Storage objects or bucket configuration, Auth settings, API keys, Edge Functions,
 Realtime settings, or extensions and settings. The new project mirrors the source's compute and region. A project made
 this way cannot itself be cloned. The feature has no Management API endpoint (run 37382592466 lists every restore
-endpoint), and the Supabase connector cannot create or delete such a project.
+endpoint), and the Supabase connector cannot create or delete such a project. **These are the documentation's claims.
+G2 tests them empirically.** The native hosted restore is not assumed to behave like the logical restore of 5 Oct.
 
-**The two owner actions.**
-1. Staging dashboard → Database → Backups → **Restore to a New Project** → the latest backup → Restore. Supabase shows
-   the cost before confirming. Staging holds only synthetic data (D-064), so the copy holds no real data.
-2. After the evidence is captured, the coordinator says so; the owner **deletes** the temporary project
-   (Project settings → Delete project).
+**The owner's actions (approved):**
+1. Source **`pintar-staging`**, ref **`keijhmdtsgrfvnvocfvk`** (never `pintar-production`, `trtlvibiybwixfumjrrx`):
+   Database → Backups → **Restore to a New Project** → the latest backup → Restore. Temporary name
+   `pintar-g2-rehearsal-DELETE-ME`. Staging holds only synthetic data (D-064).
+2. One attempt only. A second restore needs explicit approval.
+3. Deletion only after the coordinator's message "G2 EVIDENCE CAPTURED — SAFE TO DELETE TEMPORARY PROJECT", which
+   names the temporary project's name and ref.
 
-**What the coordinator then does.** It reads both projects through the connector, read only.
-- Data fidelity: `audit/restore/fakta.sql` and `banding.sh`.
-- The `auth.users` triggers; table and view rights; function rights; the policies and row security; owners.
-- Auth users (counts and hashes, never values).
-- The pre-request, extensions, Storage metadata, and whether the `assets` bucket survives.
-- `launch-readiness.sql` with its G7 rows.
-- Auth settings and API keys against staging's, by name.
-- The time from the click to `ACTIVE_HEALTHY`, which is the RTO.
+**What the coordinator does: read only, nothing repaired on the copy before its state is captured.**
+- **Time, measured, not assumed:**
+  - T0: the owner confirms;
+  - T1: Supabase reports the project available or healthy;
+  - T2: the database answers a query;
+  - T3: PINTAR's verification completes.
 
-Each difference is classified as restored, lost-and-reconfigured-by-repository, or lost-and-needing-a-procedure. The
-runbook (Part II §7) is corrected to match, and the project's deletion is confirmed.
+  From these: the restore duration (T1−T0), the time to queryable (T2−T0), the verification duration (T3−T2), and the
+  total (T3−T0). This is a rehearsal measurement on the current staging dataset, **not a prediction** for production
+  at intended scale.
+- **Database and data:**
+  - the schema and the migration history;
+  - row counts and content hashes of every table (`audit/restore/fakta.sql`, `banding.sh`);
+  - representative critical records, by count and hash.
+- **Identity:** the Auth user count and a hash of the users' identities and their links to `public.accounts` and
+  `public.persons`. No password, token or personal value is read out.
+- **Security:**
+  - row security and the policies;
+  - table rights and function rights;
+  - SECURITY DEFINER functions and owners;
+  - the `auth.users` triggers;
+  - the pre-request;
+  - the `audit_log` protections.
+- **Readiness:** all 24 rows, PASS or FAIL by row, none summarised away.
+- **Storage:** the bucket and object **metadata rows** are reported separately from the **files themselves**.
+  Metadata is not taken as proof that a file was restored.
+- **Configuration the restore does not reproduce:** each item named:
+  - Auth configuration;
+  - API keys;
+  - Storage files;
+  - Edge Functions;
+  - Realtime settings;
+  - extensions and settings;
+  - external integrations;
+  - PINTAR's durable secrets;
+  - Vercel configuration.
+- **Native hosted restore against the 5 Oct logical restore,** for each of: table rights, function rights, row
+  security and policies, owners, the triggers, the pre-request, the audit protections, and readiness. Any dangerous
+  drift is a major recovery finding.
+
+The results are recorded here, and the runbook (Part II §7) is corrected to match what was seen. The deletion is
+confirmed afterwards.
 
 ### G5. The durable secrets: never replaced silently (built)
 
@@ -155,7 +201,8 @@ Proof:
 - DR-S04: the decision, and end to end against a stand-in Management API (GET only; the token never printed);
 - DR-S05: the wiring.
 
-**Consequence until G1's permission exists:** every production apply is refused.
+**Consequence while G1 Part 2 is on hold (D-105):** every production apply is refused. G6 is not weakened or bypassed;
+the minimum safe backup-read mechanism will be established separately.
 
 ### G7. Readiness that sees restore drift (built), and two defects found on the way
 
@@ -243,9 +290,10 @@ Rerun on the fixed step: run 37391618155: every check green, the 403 reported as
 
 | # | Decision | Recommended |
 |---|---|---|
-| 1 | G2: start "Restore to a New Project" from staging's latest backup; delete it when told | yes, now (approved in principle 6 Oct) |
-| 2 | G1/G6: let the production access token read the project's backups | yes; without it no production migration can be applied |
-| 3 | G3/G4: destination, account, custody, drill key, retention, schedule | AWS S3 Singapore with Object Lock; the owner's account; the owner holds the recovery key (plus a second custodian); drill key yes; 35 days + 12 months; daily |
+| 1 | G2: start "Restore to a New Project" from staging's latest backup; delete it when told | **approved 6 Oct (D-105)**, as an owner action |
+| 2 | G1 Part 1: screenshots of production's backup pages | **approved 6 Oct (D-105)**, as an owner action |
+| 2a | G1 Part 2 / G6: a machine-readable backup list | **on hold (D-105)**; no credential change |
+| 3 | G3/G4: destination, account, custody, drill key, retention, schedule | **design only (D-104)**; the coordinator's design recommends AWS S3 Singapore with Object Lock, the owner's account, the owner holding the recovery key (plus a second custodian), a drill key, 35 days + 12 months, daily. Any requirement to implement awaits the owner's intended-scale ruling |
 | 4 | G9: a second SYSTEM_ADMIN and a second account administrator | yes, before real schools depend on PINTAR |
 | 5 | G10: turn the watch on, and how often | on, hourly |
 
@@ -403,7 +451,7 @@ Ordered by what must close before production; each is the smallest change that c
 | G9 | Recovery depends on one person (SYS-08 FAIL, C-11 TODO). | A second SYSTEM_ADMIN and the break-glass rehearsal, as C-11 already plans. | Owner |
 | G10 | Nobody is alerted when production fails. | Minimal uptime and error alerting on `app.pintarselalu.com` and the Supabase project. | Owner decides; coordinator sets up |
 
-**Must close before production:** G1, G2, G5, G6, G7, and G3 with G4 before production holds real people's data. G8–G10 are owner decisions that set how much loss and delay is acceptable.
+**Must close before production:** G1, G2, G5, G6, G7, and G3 with G4 before production holds real people's data. G8–G10 are owner decisions that set how much loss and delay is acceptable. *(5 Oct proposal. Superseded on 6 Oct by D-104 and D-105: G3/G4 are design only, and whether their implementation is required before production, at intended scale, awaits an owner ruling. See Part I, B.)*
 
 ## 9. What this review could not establish
 
