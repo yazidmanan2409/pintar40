@@ -487,3 +487,16 @@ Gate 3 stays held; the coordinator does not merge it.
       - The copy was deleted by the owner; the deletion was confirmed at 01:05:56.
     - **Second Eye:** "PINTAR's native Supabase database recovery path is proven at current staging scale… This does not establish production-scale RTO. Auth/platform configuration and actual Storage objects require separate reconstruction/recovery procedures."
     - Evidence: `docs/recovery/evidence/150/`.
+39. **#150 closure under D-106 and D-107, WP-A (B3), 6 Oct: the backups-read token's code built and proven; waiting for the owner's O2.**
+    - **Decided first (D-107):** revision 2 approved; D1–D8 decided (D8: no sealed plaintext copy); A7 recorded
+      (`pintar_backup`'s confidentiality risk, guarded in `CLOSURE-PLAN-150.md` § A7).
+    - **Supabase's side (docs):** scoped tokens have a Database → Backups: Read permission, separate from API Keys,
+      Auth Config, Project Settings, Edge Function Secrets, Projects and Organizations.
+    - **Built (`e6cb045`):**
+      - G6, the watch and the facts job read the backups with C1 (`PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN`) only; the
+        deploy token left all three;
+      - the watch fails on a refused C1;
+      - `restore-point.mjs isolation` proves, with GET only, that C1 is refused seven probes. It fails closed.
+    - **Tests:** DR-S05 and DR-S06 restated, DR-S07 new: red on `d7f47f1`, green on `e6cb045`.
+    - **CI 37401454517 on `e6cb045`:** 35/35 jobs, 580/580 tests.
+    - **Next:** the owner's O2 (`docs/recovery/OWNER-INSTRUCTIONS-150.md`), then a `recovery-facts` run as the evidence.

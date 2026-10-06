@@ -5,7 +5,8 @@ a time in the order below, each with its red→green evidence and its CI, and is
 external-service boundary. Every stop point stands. No UI/UX work. No change to unrelated PINTAR functionality. No
 PITR implementation. No 100,000-user rehearsal.
 
-**Progress:** WP-A's code built and proven; waiting for O2 (C1), the owner's action.
+**Progress:** WP-A's code built and proven (`e6cb045`; CI 37401454517, 35/35, 580/580); waiting for O2 (C1), the
+owner's action.
 
 **Unchanged boundaries (D-106(h)–(j)):**
 - native Supabase restore is the **primary** database recovery path;
