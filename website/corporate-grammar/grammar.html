@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en" data-dir="a" data-icons="assets/icons.svg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Design Grammar — PINTAR corporate website (proposal)</title>
+<script src="assets/dir.js"></script>
+<link rel="stylesheet" href="assets/grammar.css">
+<link rel="stylesheet" href="assets/compose.css">
+<link rel="stylesheet" href="assets/doc.css">
+<script src="assets/motion.js"></script>
+<script type="module" src="assets/specimens.js"></script>
+<script type="module" src="assets/roles.js"></script>
+<script type="module" src="assets/doc.js"></script>
+</head>
+<body>
+<a class="skip" href="#g-00">Skip to the grammar</a>
+
+<div class="review" role="note">
+  <div class="wrap review__in">
+    <span><b>Design grammar proposal</b> · for review, not approved · nothing propagated to the website</span>
+    <nav aria-label="Review navigation"><a href="index.html">Overview</a><a href="a.html">A</a><a href="b.html">B</a><a href="c.html">C</a></nav>
+  </div>
+</div>
+
+<div class="doc-switch">
+  <div class="wrap doc-switch__in">
+    <p class="doc-switch__title">PINTAR Corporate Website — Design Grammar <span>· showing direction <span data-dir-name>A · Editorial</span></span></p>
+    <nav aria-label="Choose a direction">
+      <a href="?dir=a" data-dir-link="a">A · Editorial</a><a href="?dir=b" data-dir-link="b">B · Instrument</a><a href="?dir=c" data-dir-link="c">C · Human</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap doc">
+  <nav class="doc-toc" aria-label="Contents">
+    <ol>
+      <li><a href="#g-00"><span>00</span>Same family, different personality</a></li>
+      <li><a href="#g-01"><span>01</span>Visual personality</a></li>
+      <li><a href="#g-02"><span>02</span>Colour strategy</a></li>
+      <li><a href="#g-03"><span>03</span>Typography and scale</a></li>
+      <li><a href="#g-04"><span>04</span>Spacing and rhythm</a></li>
+      <li><a href="#g-05"><span>05</span>Page width and grid</a></li>
+      <li><a href="#g-06"><span>06</span>Section composition</a></li>
+      <li><a href="#g-07"><span>07</span>Hero grammar</a></li>
+      <li><a href="#g-08"><span>08</span>Cards and containers</a></li>
+      <li><a href="#g-09"><span>09</span>Imagery and screenshots</a></li>
+      <li><a href="#g-10"><span>10</span>Reports and evidence</a></li>
+      <li><a href="#g-11"><span>11</span>Audience benefits</a></li>
+      <li><a href="#g-12"><span>12</span>Capabilities</a></li>
+      <li><a href="#g-13"><span>13</span>CTA hierarchy</a></li>
+      <li><a href="#g-14"><span>14</span>Navigation and header</a></li>
+      <li><a href="#g-15"><span>15</span>Footer</a></li>
+      <li><a href="#g-16"><span>16</span>Buttons and links</a></li>
+      <li><a href="#g-17"><span>17</span>Iconography</a></li>
+      <li><a href="#g-18"><span>18</span>Motion</a></li>
+      <li><a href="#g-19"><span>19</span>Responsive behaviour</a></li>
+      <li><a href="#g-20"><span>20</span>Accessibility</a></li>
+      <li><a href="#g-21"><span>21</span>Editorial compositions</a></li>
+      <li><a href="#g-22"><span>22</span>What not to do</a></li>
+      <li><a href="#g-23"><span>23</span>Decisions for you</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+<!-- ======================================================== 00 -->
+<section class="g-sec" id="g-00">
+  <header><span class="g-num">00</span><h2>Same family, different personality</h2></header>
+  <p>The PINTAR application is calm, quiet, predictable and focused. That is right for a tool people work in every day. The corporate website has a different job: <b>attract → explain → demonstrate → build confidence → invite action</b>. It needs more energy and character, while staying sophisticated, trustworthy and restrained.</p>
+  <div class="spec-wrap" tabindex="0" role="region" aria-label="Scrollable table"><table class="spec">
+    <thead><tr><th>Kept from the family</th><th>Different, on purpose</th></tr></thead>
+    <tbody>
+      <tr><td>The supplied PINTAR SELALU mark, unaltered, and its own teal (<code>#224F55</code>) as the brand anchor</td><td>Display typography at 4–6.5 rem, where the app's largest heading is about 1.75 rem</td></tr>
+      <tr><td>Plus Jakarta Sans for reading text, from the product's own font files</td><td>Weights beyond the app's 400/600; in Direction A, a serif for display</td></tr>
+      <tr><td>The product's own words for every report, and its evidence semantics: neutral bars, and a figure shown only when the evidence is enough</td><td>Dark bands, an accent colour and photography: things the app deliberately avoids</td></tr>
+      <tr><td>Bahasa Indonesia first; nothing stored on the visitor's device</td><td>Entrance motion and asymmetric, editorial composition</td></tr>
+      <tr><td>Honesty about evidence: "belum cukup" is shown, never hidden</td><td>One idea per screen; the page is read, not worked in</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small" style="margin-top: var(--s-4)">Not taken from the app: its tokens, components, layout shell or navigation. This grammar has its own (assets/grammar.css).</p>
+</section>
+
+<!-- ======================================================== 01 -->
+<section class="g-sec" id="g-01">
+  <header><span class="g-num">01</span><h2>Visual personality</h2>
+    <p>Three directions, each a different answer to "where does the energy come from?". All three obey every invariant rule in this document. Open each full composition to judge them.</p></header>
+  <div class="dirs">
+    <a class="dir-card" href="a.html" style="text-decoration:none; color: inherit">
+      <div class="dir-card__swatch"><span style="background:#F6F3EC"></span><span style="background:#143A40"></span><span style="background:#224F55"></span><span style="background:#9A6A17"></span></div>
+      <div class="dir-card__body"><span class="g-num">A</span><h3 class="h3">Editorial</h3><p class="dir-card__type" style="font-family: var(--font-serif)">Bukti, dibaca dengan tenang.</p>
+        <p class="small">An intelligent education journal. Energy comes from typography and scale: a serif display, hairline rules, numbered figures with captions, documentary photography. Reports appear as captioned figures on paper.</p></div>
+    </a>
+    <a class="dir-card" href="b.html" style="text-decoration:none; color: inherit">
+      <div class="dir-card__swatch"><span style="background:#0B2B2F"></span><span style="background:#FFFFFF"></span><span style="background:#224F55"></span><span style="background:#79D9BF"></span></div>
+      <div class="dir-card__body"><span class="g-num">B</span><h3 class="h3">Instrument</h3><p class="dir-card__type" style="font-family: var(--font-sans); font-weight: 800; letter-spacing: -0.04em">Bukti yang terang.</p>
+        <p class="small">Precise and data-confident. Energy comes from contrast and evidence: deep night-teal canvases, heavy sans display, mono labels, report artefacts staggered as the hero image, and true facts set as large numbers.</p></div>
+    </a>
+    <a class="dir-card" href="c.html" style="text-decoration:none; color: inherit">
+      <div class="dir-card__swatch"><span style="background:#F7F1E8"></span><span style="background:#224F55"></span><span style="background:#B4502F"></span><span style="background:#DCE9E8"></span></div>
+      <div class="dir-card__body"><span class="g-num">C</span><h3 class="h3">Human</h3><p class="dir-card__type" style="font-family: var(--font-sans); font-weight: 700; letter-spacing: -0.025em">Untuk setiap orang di sekolah.</p>
+        <p class="small">Warm and people-first. Energy comes from colour and photography: sand and teal colour blocks, a terracotta accent, rounded containers, a person beside their evidence. It depends most on real photography.</p></div>
+    </a>
+  </div>
+  <h3>The same for every direction: never</h3>
+  <p>Loud, flashy, childish, startup-gimmicky, animation-heavy, driven by gradients or effects, full of decorative UI, or a clone of the PINTAR application.</p>
+</section>
+
+<!-- ======================================================== 02 -->
+<section class="g-sec" id="g-02">
+  <header><span class="g-num">02</span><h2>Colour strategy</h2>
+    <p>Colours are given by role, not by name. Brand colour and evidence colour are different tokens and never stand in for each other.</p></header>
+  <div class="swatches" data-swatches>
+    <div class="swatch"><div class="swatch__c" style="background: var(--paper)"></div><div class="swatch__t"><b>Paper</b>page ground · <code data-hex="--paper"></code></div></div>
+    <div class="swatch"><div class="swatch__c" style="background: var(--paper-2)"></div><div class="swatch__t"><b>Paper, sunk</b>alternate sections · <code data-hex="--paper-2"></code></div></div>
+    <div class="swatch"><div class="swatch__c" style="background: var(--ink)"></div><div class="swatch__t"><b>Ink</b>headings and body · <code data-hex="--ink"></code></div></div>
+    <div class="swatch"><div class="swatch__c" style="background: var(--ink-2)"></div><div class="swatch__t"><b>Ink, second</b>leads and notes · <code data-hex="--ink-2"></code></div></div>
+    <div class="swatch"><div class="swatch__c" style="background: var(--brand)"></div><div class="swatch__t"><b>Brand teal</b>the mark's own teal · <code data-hex="--brand"></code></div></div>
+    <div class="swatch"><div class="swatch__c" style="background: var(--dark)"></div><div class="swatch__t"><b>Dark band</b>feature sections, footer · <code data-hex="--dark"></code></div></div>
+    <div class="swatch"><div class="swatch__c" style="background: var(--accent)"></div><div class="swatch__t"><b>Accent</b>rules, markers, numerals · <code data-hex="--accent"></code></div></div>
+    <div class="swatch"><div class="swatch__c" style="background: var(--accent-on-dark)"></div><div class="swatch__t"><b>Accent on dark</b><code data-hex="--accent-on-dark"></code></div></div>
+    <div class="swatch"><div class="swatch__c" style="background: var(--ev-bar)"></div><div class="swatch__t"><b>Evidence bar</b>every bar, every direction · <code data-hex="--ev-bar"></code></div></div>
+  </div>
+  <ol class="rules" style="margin-top: var(--s-6)">
+    <li><span><b>The brand anchor is the mark's own teal, <code>#224F55</code></b>, sampled from the supplied logo. The app uses <code>#245F55</code>. They are close relatives, deliberately not identical (see Decisions).</span></li>
+    <li><span><b>The accent covers at most about 10% of any screen.</b> It marks; it does not fill. Exception: Direction C's primary call to action.</span></li>
+    <li><span><b>Evidence is never painted in brand or accent colours.</b> Every bar uses one neutral ink, as the product draws it. A band such as "Perlu penguatan" is never red, and "Mantap" is never green.</span></li>
+    <li><span><b>Text contrast is at least 4.5:1 and large text at least 3:1</b>, calculated rather than judged by eye. A's ochre and C's terracotta fall below 4.5:1 on their sunken grounds, so they are used only for text of 24 px or larger, for fills and for marks. Where A needs ochre in small text (a caption number, a note mark) it uses a deeper step, #7F570F, which clears 5:1.</span></li>
+    <li><span><b>There are at most two surface families on a page</b>: light (paper and paper-sunk) and one dark band colour.</span></li>
+    <li><span><b>No gradients, glows, glassmorphism or colour washes over photographs.</b> Text over imagery always sits on a solid ground.</span></li>
+  </ol>
+</section>
+
+<!-- ======================================================== 03 -->
+<section class="g-sec" id="g-03">
+  <header><span class="g-num">03</span><h2>Typography and scale</h2>
+    <p>Two voices: a display voice that carries the personality, and the product's Plus Jakarta Sans for everything that is read or operated. Numbers in reports are always the sans: a figure is data, not decoration.</p></header>
+  <div class="scale-row"><span>Display · hero</span><p class="display" style="font-size: clamp(2.25rem, 1.5rem + 3vw, 4rem)">Setelah pelajaran usai, <em>apa yang terjadi?</em></p></div>
+  <div class="scale-row"><span>H2 · section</span><p class="h2">Yang ditunjukkan PINTAR setelah belajar.</p></div>
+  <div class="scale-row"><span>H3 · card</span><p class="h3">Belajar yang menyesuaikan</p></div>
+  <div class="scale-row"><span>Lead · 18–21 px</span><p class="lead">PINTAR menyusun pembelajaran dan asesmen, lalu menunjukkan apa yang sudah didukung bukti.</p></div>
+  <div class="scale-row"><span>Body · 17 px</span><p>Urutan bacaan disusun dari apa yang sudah diketahui tiap murid.</p></div>
+  <div class="scale-row"><span>Label · 14 px floor</span><p class="eyebrow">Laporan · untuk guru</p></div>
+  <div class="scale-row"><span>Figure · sans, always</span><p class="mtr__value" style="color: var(--ink)">72%</p></div>
+  <div class="spec-wrap" tabindex="0" role="region" aria-label="Scrollable table"><table class="spec">
+    <thead><tr><th></th><th>A · Editorial</th><th>B · Instrument</th><th>C · Human</th></tr></thead>
+    <tbody>
+      <tr><td>Display</td><td>Newsreader 420, italic for emphasis</td><td>Plus Jakarta Sans 800, tracking −0.038 em</td><td>Plus Jakarta Sans 700, tracking −0.025 em</td></tr>
+      <tr><td>Labels</td><td>Sans 600 capitals, a short ochre rule</td><td>IBM Plex Mono 500 capitals</td><td>Sans 600, sentence case, in a pill</td></tr>
+      <tr><td>Hero size</td><td>up to 6 rem</td><td>up to 6.5 rem</td><td>up to 4.25 rem</td></tr>
+      <tr><td>New font files</td><td>Newsreader (OFL), added</td><td>none (Plex Mono is the product's)</td><td>none</td></tr>
+    </tbody>
+  </table></div>
+  <ol class="rules" style="margin-top: var(--s-5)">
+    <li><span><b>Write for Bahasa Indonesia first.</b> It runs 20–30% longer than English, so layouts are tested in ID.</span></li>
+    <li><span><b>At most three type sizes per section</b> (heading, lead, body), plus labels.</span></li>
+    <li><span><b>Headlines are no longer than about 10 words.</b> Leads are no longer than about 30 words, in a measure of 38 rem.</span></li>
+    <li><span><b>Nothing is smaller than 14 px.</b> Body text is 17 px.</span></li>
+    <li><span><b>No all-capitals headlines.</b> Capitals are for short labels only.</span></li>
+  </ol>
+</section>
+
+<!-- ======================================================== 04 -->
+<section class="g-sec" id="g-04">
+  <header><span class="g-num">04</span><h2>Spacing and rhythm</h2>
+    <p>One 4-px-based scale. Sections breathe at 64–128 px, so a scroll reads as a sequence of single ideas.</p></header>
+  <div class="scale-row"><span>4 · 8 · 12 · 16</span><div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center"><span class="space-bar" style="width:4px"></span><span class="space-bar" style="width:8px"></span><span class="space-bar" style="width:12px"></span><span class="space-bar" style="width:16px"></span></div></div>
+  <div class="scale-row"><span>24 · 32 · 48</span><div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center"><span class="space-bar" style="width:24px"></span><span class="space-bar" style="width:32px"></span><span class="space-bar" style="width:48px"></span></div></div>
+  <div class="scale-row"><span>64 · 96 · 128</span><div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center"><span class="space-bar" style="width:64px"></span><span class="space-bar" style="width:96px"></span><span class="space-bar" style="width:128px"></span></div></div>
+  <ol class="rules" style="margin-top: var(--s-5)">
+    <li><span><b>Section padding is fluid from 64 to 128 px</b> (<code>--section-y</code>). A section's heading has 64 px below it before its content.</span></li>
+    <li><span><b>Inside a block, spacing steps down</b>: 24 px between paragraphs and controls, 12–16 px inside cards.</span></li>
+    <li><span><b>One idea per screen on desktop.</b> If two ideas share a viewport, one of them is a figure.</span></li>
+  </ol>
+</section>
+
+<!-- ======================================================== 05 -->
+<section class="g-sec" id="g-05">
+  <header><span class="g-num">05</span><h2>Page width and grid</h2>
+    <p>A 12-column grid in a 76 rem (1216 px) content width, with a fluid gutter of 16–48 px. On a phone it is four columns.</p></header>
+  <div class="gridviz" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+  <ol class="rules" style="margin-top: var(--s-5)">
+    <li><span><b>Reading measure is 38 rem</b> (about 65 characters of Indonesian). Text never spans the full width.</span></li>
+    <li><span><b>Asymmetric splits</b>: 7/5 and 5/7, never 6/6, for a hero or any text-plus-figure pair. The 6/6 split is reserved for comparisons.</span></li>
+    <li><span><b>Dark and sunken bands bleed to the viewport edge</b>; their content stays in the grid.</span></li>
+    <li><span><b>Figures may break the grid's rhythm</b> (a vertical offset, or a report laid over a photograph) only in heroes and report sections. A figure never covers text, a call to action, or another figure's data.</span></li>
+  </ol>
+</section>
+
+<!-- ======================================================== 06 -->
+<section class="g-sec" id="g-06">
+  <header><span class="g-num">06</span><h2>Section composition</h2>
+    <p>The landing page answers six questions, in this order. Each section has one label, one headline, at most one lead, and one visual idea.</p></header>
+  <div class="spec-wrap" tabindex="0" role="region" aria-label="Scrollable table"><table class="spec">
+    <thead><tr><th>#</th><th>Question</th><th>Section</th><th>Primary visual</th><th>Ground</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>What is PINTAR? Why should I care?</td><td>Hero</td><td>A report artefact (A, B) or a person with their evidence (C)</td><td>light (A, C) / dark (B)</td></tr>
+      <tr><td>2</td><td>What can it show me?</td><td>Reports, the largest section</td><td>Several artefacts, captioned and annotated</td><td>dark (A) / sunken (B, C)</td></tr>
+      <tr><td>3</td><td>Who benefits?</td><td>Four audiences</td><td>Icon or photograph, at most three outcomes each</td><td>light</td></tr>
+      <tr><td>4</td><td>What can it do?</td><td>Four capabilities</td><td>Icons, with details on request</td><td>sunken</td></tr>
+      <tr><td>5</td><td>Can I try it?</td><td>Mini-PINTAR</td><td>A glimpse of its first screen</td><td>light / dark / accent</td></tr>
+      <tr><td>—</td><td>Who made it?</td><td>Footer link to Tentang kami (PT ZPS)</td><td>none on the landing page</td><td>dark</td></tr>
+    </tbody>
+  </table></div>
+  <ol class="rules" style="margin-top: var(--s-5)">
+    <li><span><b>Grounds alternate</b> so the eye feels each change of topic. Two dark bands are never adjacent.</span></li>
+    <li><span><b>The company is not on the landing page.</b> PINTAR is the protagonist, and PT ZPS is one deliberate click away.</span></li>
+    <li><span><b>The landing page is not documentation.</b> Anything longer than the formula above moves to an inner page.</span></li>
+  </ol>
+</section>
+
+<!-- ======================================================== 07 -->
+<section class="g-sec" id="g-07">
+  <header><span class="g-num">07</span><h2>Hero grammar</h2>
+    <p>Say what PINTAR is and why it matters in one screen, and offer the experience. The three directions compose it differently; the contents are the same.</p></header>
+  <ol class="rules">
+    <li><span><b>Five parts, no more</b>: label, headline (≤ 10 words), lead (≤ 30 words), one primary call to action plus one secondary link, and one visual.</span></li>
+    <li><span><b>The visual is evidence, not decoration</b>: a real report artefact, or (in C) a documentary photograph with an artefact beside it. Never an abstract illustration, a device mockup, or a stock photo.</span></li>
+    <li><span><b>The primary call to action is always "Coba Mini-PINTAR"</b>, and the secondary is "Lihat laporannya".</span></li>
+    <li><span><b>No carousel, no rotating headline, no video background.</b></span></li>
+  </ol>
+  <div class="spec-wrap" tabindex="0" role="region" aria-label="Scrollable table"><table class="spec">
+    <thead><tr><th>A · Editorial</th><th>B · Instrument</th><th>C · Human</th></tr></thead>
+    <tbody><tr>
+      <td>Light paper. A 7/5 split: a serif question with an italic answer, and the class report as "Gambar 1" with a caption. <a class="link" href="a.html">See it</a></td>
+      <td>A full-bleed night band. A heavy sans headline with a mint emphasis. Three artefacts staggered below, each labelled with the role that sees it. <a class="link" href="b.html">See it</a></td>
+      <td>Sand ground. A 6/6 split: a friendly two-line promise, and a photograph on a teal colour block with the student's own result overlapping it. <a class="link" href="c.html">See it</a></td>
+    </tr></tbody>
+  </table></div>
+</section>
+
+<!-- ======================================================== 08 -->
+<section class="g-sec" id="g-08">
+  <header><span class="g-num">08</span><h2>Cards and containers</h2>
+    <p>Containers exist to group, never to decorate. Each direction has one container language.</p></header>
+  <div class="stage"><div class="stage__label"><span>Audience card · capability · figure frame</span><span data-dir-name></span></div>
+    <div class="stage__body g g-3">
+      <article class="card aud">
+        <div class="aud__who"><span class="icon-chip"><svg class="icon"><use href="assets/icons.svg#i-pendidik"/></svg></span><h3 class="h3">Guru</h3></div>
+        <ul class="aud__outcomes"><li><span><b>Tahu apa yang sudah</b> bisa disimpulkan tentang kelas.</span></li><li><span><b>Melihat soal mana yang sulit</b>, dan siapa yang mungkin perlu bantuan.</span></li></ul>
+      </article>
+      <div class="cap"><span class="icon-chip"><svg class="icon"><use href="assets/icons.svg#i-peta"/></svg></span><h3 class="h3">Belajar yang menyesuaikan</h3><p class="small">Urutan bacaan disusun dari apa yang sudah diketahui tiap murid.</p>
+        <details><summary>Rinciannya</summary><ul><li>Pemetaan Awal</li><li>Peta Bacaan Personal</li><li>Pelajaran, dengan bantuan bertahap</li><li>Uji Penguasaan dan Hasil</li></ul></details></div>
+      <figure class="figure"><div data-spec="topik" data-compact></div><figcaption class="figure__cap"><b>Gambar 2</b><span>Penguasaan per bagian.</span></figcaption></figure>
+    </div></div>
+  <ol class="rules" style="margin-top: var(--s-5)">
+    <li><span><b>A: no boxes</b>, only a hairline above each item. <b>B: crisp cards</b> with a 10–14 px radius and a quiet shadow. <b>C: soft cards</b> with a 16–28 px radius, a lifted shadow, and colour blocks behind.</span></li>
+    <li><span><b>Never a card inside a card.</b> A report artefact is the one exception: it is the product's object, framed.</span></li>
+    <li><span><b>A single line of text never gets a card.</b> Cards in a row share a height and a structure.</span></li>
+  </ol>
+</section>
+
+<!-- ======================================================== 09 -->
+<section class="g-sec" id="g-09">
+  <header><span class="g-num">09</span><h2>Imagery and product screenshots</h2>
+    <p>Two kinds of picture: photographs of real school life, and PINTAR's own screens. Neither is ever invented.</p></header>
+  <div class="g g-2">
+    <div class="ph" style="min-height: 16rem" role="img" aria-label="Photograph placeholder"><div class="ph__tag"><b>PHOTOGRAPH</b>Documentary, in real Indonesian classrooms, in natural light. Never posed and never stock. 3:2 or 4:5. Labelled until real photography exists.</div></div>
+    <div data-spec="kelas" data-compact></div>
+  </div>
+  <ol class="rules" style="margin-top: var(--s-5)">
+    <li><span><b>Photography is documentary</b>: real schools, real light, people doing the work. No AI-generated images, no robots, brains, holograms or glowing networks, and no laptop stock photography.</span></li>
+    <li><span><b>Product screens are drawn as live artefacts</b> (HTML, as here) rather than bitmap screenshots wherever possible. They stay sharp, translatable and accessible, and they cannot drift from the product's words unnoticed.</span></li>
+    <li><span><b>When a bitmap screenshot is unavoidable</b>, it is the real product with simulated data, labelled, and shown full and flat. No fake laptops or phones, no perspective tilt, and never cropped through text.</span></li>
+    <li><span><b>Direction C depends on photography.</b> Until a shoot exists it should not be judged on its placeholders alone.</span></li>
+  </ol>
+</section>
+
+<!-- ======================================================== 10 -->
+<section class="g-sec" id="g-10">
+  <header><span class="g-num">10</span><h2>Reports and evidence: the hero capability</h2>
+    <p>What PINTAR can tell people after learning happens is its strongest story, so the reports themselves are the website's main visual material. Every artefact below is a real PINTAR screen in the product's own words. Only the numbers are simulated.</p></header>
+  <ol class="rules">
+    <li><span><b>The artefact is the product's; the frame is the site's.</b> Titles, labels, meanings, band names and state sentences are copied from the product. The caption ("Gambar 2 — …") and annotations ("i · Untuk guru") are the site's voice, and sit outside the artefact.</span></li>
+    <li><span><b>Every artefact says DATA SIMULASI</b>, and says who sees it ("Dilihat oleh guru kelas ini").</span></li>
+    <li><span><b>Show the refusals too.</b> "Belum cukup data untuk menampilkan angka ini." is part of the message, not an embarrassment.</span></li>
+    <li><span><b>Neutral bars, always.</b> Bands are never coloured as verdicts. Every chart has a table twin for screen readers.</span></li>
+    <li><span><b>One artefact per idea</b>, with at most five on the landing page. The rest live on the Laporan page.</span></li>
+    <li><span><b>Only screens that exist.</b> Not featured, because they are not live or not ruled in scope: periodic briefings, automatic Question Health signals, the recurring-misconception list (empty in practice), student feedback on teachers, and any parent view. There is no AI anywhere in PINTAR's reports, and the site must never say there is.</span></li>
+  </ol>
+  <div class="stage"><div class="stage__label"><span>The report library: eight artefacts, each a real screen</span><span data-dir-name></span></div>
+    <div class="stage__body g g-2" style="align-items: start">
+      <figure class="figure"><div data-spec="kelas"></div><figcaption class="figure__cap"><b>Guru</b><span>/mengajar/[kelas]/bukti</span></figcaption></figure>
+      <figure class="figure"><div data-spec="soal"></div><figcaption class="figure__cap"><b>Guru</b><span>/mengajar/[kelas]/soal</span></figcaption></figure>
+      <figure class="figure"><div data-spec="topik"></div><figcaption class="figure__cap"><b>Guru</b><span>Penguasaan per bagian</span></figcaption></figure>
+      <figure class="figure"><div data-spec="kesiapan"></div><figcaption class="figure__cap"><b>Guru · pimpinan</b><span>PINTAR's fixed bands (D-095)</span></figcaption></figure>
+      <figure class="figure"><div data-spec="belumcukup"></div><figcaption class="figure__cap"><b>Refusal</b><span>a figure below its minimum</span></figcaption></figure>
+      <figure class="figure"><div data-spec="sekolah"></div><figcaption class="figure__cap"><b>Pimpinan</b><span>/pimpinan</span></figcaption></figure>
+      <figure class="figure"><div data-spec="hasil"></div><figcaption class="figure__cap"><b>Murid</b><span>/belajar/[tugas]/hasil</span></figcaption></figure>
+      <figure class="figure"><div data-spec="verifikasi"></div><figcaption class="figure__cap"><b>Publik</b><span>/verifikasi/[token]</span></figcaption></figure>
+    </div></div>
+  <h3>Annotation, the site's voice</h3>
+  <div class="g g-3" data-reveal-group>
+    <p class="note" data-reveal><span class="note__mark">i</span><span><b>Untuk guru.</b> Apa yang perlu diulang besok, dan untuk siapa.</span></p>
+    <p class="note" data-reveal><span class="note__mark">ii</span><span><b>Untuk murid.</b> Hasil sendiri, dengan yang perlu dipelajari lagi.</span></p>
+    <p class="note" data-reveal><span class="note__mark">iii</span><span><b>Untuk pimpinan.</b> Angka mana yang sudah boleh ditafsirkan.</span></p>
+  </div>
+</section>
+
+<!-- ======================================================== 11 -->
+<section class="g-sec" id="g-11">
+  <header><span class="g-num">11</span><h2>Audience benefits</h2>
+    <p>Each audience answers "what becomes better for me?" in at most three outcomes, each a bold lead phrase plus at most 12 words. No essays and no feature lists.</p></header>
+  <div class="g g-4">
+    <article class="card aud"><div class="aud__who"><span class="icon-chip"><svg class="icon"><use href="assets/icons.svg#i-sekolah"/></svg></span><h3 class="h3">Sekolah</h3></div>
+      <ul class="aud__outcomes"><li><span><b>Satu gambaran</b> pembelajaran, tanpa peringkat orang.</span></li><li><span><b>Tahu angka mana</b> yang sudah boleh ditafsirkan.</span></li></ul></article>
+    <article class="card aud"><div class="aud__who"><span class="icon-chip"><svg class="icon"><use href="assets/icons.svg#i-pendidik"/></svg></span><h3 class="h3">Guru</h3></div>
+      <ul class="aud__outcomes"><li><span><b>Soal yang sulit</b>, dan siapa yang mungkin perlu bantuan.</span></li><li><span><b>Satu langkah</b> yang paling layak dikerjakan lebih dulu.</span></li></ul></article>
+    <article class="card aud"><div class="aud__who"><span class="icon-chip"><svg class="icon"><use href="assets/icons.svg#i-murid"/></svg></span><h3 class="h3">Murid</h3></div>
+      <ul class="aud__outcomes"><li><span><b>Mulai dari</b> apa yang sudah diketahui.</span></li><li><span><b>Hasil yang jujur</b>, dengan yang perlu dipelajari lagi.</span></li></ul></article>
+    <article class="card aud"><div class="aud__who"><span class="icon-chip"><svg class="icon"><use href="assets/icons.svg#i-orangtua"/></svg></span><h3 class="h3">Orang tua</h3></div>
+      <ul class="aud__outcomes"><li><span><b>Sertifikat</b> yang bisa diperiksa siapa pun.</span></li></ul><p class="aud__flag">Decision needed: see below.</p></article>
+  </div>
+  <div class="decision"><b>Decision: Parents</b><p>PINTAR has no parent role, screen, report or notification. "Parent experience" is on the product's LATER list, and the parent role-view ruling R1 says nothing was built. What is true today is indirect: public certificate verification (/verifikasi, which does not show the holder's name), and results that are never overstated. Options: (1) keep Parents, limited to those indirect benefits, as drafted; (2) leave Parents off until a parent experience exists; (3) show Parents with an "under consideration" status. I recommend (1) or (2), not (3): the website must not present roadmap as product.</p></div>
+</section>
+
+<!-- ======================================================== 12 -->
+<section class="g-sec" id="g-12">
+  <header><span class="g-num">12</span><h2>Capabilities, with progressive disclosure</h2>
+    <p>Four ideas instead of a feature matrix. Each is an icon, a name, one line, and a "Rinciannya" disclosure that names the real parts.</p></header>
+  <div class="spec-wrap" tabindex="0" role="region" aria-label="Scrollable table"><table class="spec">
+    <thead><tr><th>Idea</th><th>One line (draft)</th><th>Details (all live in the product)</th></tr></thead>
+    <tbody>
+      <tr><td>Materi dan asesmen</td><td>Paket Pustaka PINTAR atau materi sekolah sendiri, ditinjau sebelum dipakai.</td><td>Pustaka PINTAR · Studio and the Excel template · review by a second person, then publishing by the school · Uji Cepat (3–20 questions, no certificate)</td></tr>
+      <tr><td>Belajar yang menyesuaikan</td><td>Urutan bacaan disusun dari apa yang sudah diketahui tiap murid.</td><td>Pemetaan Awal · Peta Bacaan Personal · Pelajaran with step-by-step help · Uji Penguasaan · Hasil</td></tr>
+      <tr><td>Laporan dari bukti</td><td>Untuk guru, murid dan pimpinan, masing-masing sesuai perannya.</td><td>Apa yang sudah bisa disimpulkan · Penguasaan per bagian · Soal mana yang sulit · Ringkasan Kelas and Ringkasan Sekolah · Kesiapan bukti</td></tr>
+      <tr><td>Manusia yang memutuskan</td><td>PINTAR mengusulkan. Guru dan pimpinan yang memutuskan.</td><td>Access by role and scope · deliberate, recorded opening of a learner's record · signed certificates with public verification</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ======================================================== 13 -->
+<section class="g-sec" id="g-13">
+  <header><span class="g-num">13</span><h2>Call-to-action hierarchy</h2></header>
+  <div class="stage"><div class="stage__label"><span>Light ground</span></div><div class="stage__body actions">
+    <a class="btn btn--primary" href="#g-13">Coba Mini-PINTAR <span class="arrow" aria-hidden="true">→</span></a>
+    <a class="btn btn--secondary" href="#g-13">Bicara dengan kami</a>
+    <a class="link" href="#g-13">Lihat laporannya</a></div></div>
+  <div class="stage stage--dark"><div class="stage__label"><span>Dark ground</span></div><div class="stage__body actions is-dark">
+    <a class="btn btn--primary" href="#g-13">Coba Mini-PINTAR <span class="arrow" aria-hidden="true">→</span></a>
+    <a class="link" href="#g-13">Lihat laporannya</a></div></div>
+  <ol class="rules" style="margin-top: var(--s-5)">
+    <li><span><b>Primary: "Coba Mini-PINTAR"</b>, the experiential path. There is at most one primary per viewport, and the header carries the same one.</span></li>
+    <li><span><b>Secondary: "Bicara dengan kami"</b>, outlined, for conversation and availability. It is never styled as the primary.</span></li>
+    <li><span><b>Tertiary: text links</b> ("Lihat laporannya", "Untuk guru") with an underline and an arrow.</span></li>
+    <li><span><b>Verbs say what happens.</b> No "Pelajari lebih lanjut", no "Mulai sekarang" for a demonstration, and no urgency.</span></li>
+  </ol>
+</section>
+
+<!-- ======================================================== 14 -->
+<section class="g-sec" id="g-14">
+  <header><span class="g-num">14</span><h2>Navigation and header</h2></header>
+  <div class="stage"><div class="stage__label"><span>Header · desktop</span></div>
+    <header class="hdr" style="position: static"><div class="wrap hdr__in">
+      <a class="hdr__logo" href="#g-14"><img src="assets/brand/pintar-selalu-logo.png" alt="PINTAR SELALU" width="766" height="429"></a>
+      <nav class="hdr__nav" aria-label="Example navigation"><a href="#g-14" aria-current="page">Laporan</a><a href="#g-14">Untuk siapa</a><a href="#g-14">Kemampuan</a><a href="#g-14">Tentang kami</a></nav>
+      <div class="hdr__end"><span class="lang" role="group" aria-label="Bahasa"><a href="#g-14" aria-current="true">ID</a><a href="#g-14">EN</a></span><a class="btn btn--primary" href="#g-14">Coba Mini-PINTAR</a>
+        <button class="btn btn--secondary hdr__menu" type="button" aria-label="Buka menu"><svg class="icon"><use href="assets/icons.svg#i-menu"/></svg></button></div>
+    </div></header></div>
+  <ol class="rules" style="margin-top: var(--s-5)">
+    <li><span><b>The supplied logo sits on the left</b>, 36 px high (32 px on a phone), with its width never set. It links Home.</span></li>
+    <li><span><b>Four items</b>: Laporan, Untuk siapa, Kemampuan, Tentang kami. Then ID/EN and the primary call to action. Kontak sits in the footer and in calls to action.</span></li>
+    <li><span><b>The header is sticky and opaque</b>, on the paper with a hairline below; never translucent or blurred. In B it is the dark of the hero.</span></li>
+    <li><span><b>Below 960 px the items move into a menu</b>, and the language switch and menu button stay visible.</span></li>
+    <li><span><b>The language travels in <code>?lang=</code></b>, and every link is relative, so the site works from any folder.</span></li>
+  </ol>
+</section>
+
+<!-- ======================================================== 15 -->
+<section class="g-sec" id="g-15">
+  <header><span class="g-num">15</span><h2>Footer</h2></header>
+  <footer class="ftr is-dark" style="border-radius: var(--radius-lg)"><div class="wrap">
+    <div class="ftr__grid">
+      <div class="ftr__brand"><img src="assets/brand/pintar-selalu-logo.png" alt="PINTAR SELALU" width="766" height="429"><p>PINTAR menunjukkan apa yang didukung bukti. Keputusannya tetap pada manusia.</p></div>
+      <div><h4>PINTAR</h4><ul><li><a href="#g-15">Laporan</a></li><li><a href="#g-15">Untuk siapa</a></li><li><a href="#g-15">Coba Mini-PINTAR</a></li></ul></div>
+      <div><h4>Perusahaan</h4><ul><li><a href="#g-15">Tentang kami</a></li><li><a href="#g-15">Kontak</a></li></ul></div>
+      <div><h4>Bahasa</h4><ul><li><a href="#g-15">Bahasa Indonesia</a></li><li><a href="#g-15">English</a></li></ul></div>
+    </div>
+    <div class="ftr__base"><span>© 2026 PT ZPS</span><span>Mini-PINTAR adalah demonstrasi, bukan asesmen resmi.</span></div>
+  </div></footer>
+  <ol class="rules" style="margin-top: var(--s-5)">
+    <li><span><b>The footer is always dark</b>, with the mark on it unchanged and the PT ZPS line at the base.</span></li>
+    <li><span><b>A status line keeps demonstration and product apart.</b> The site never says PINTAR is in use at a school until that is true.</span></li>
+  </ol>
+</section>
+
+<!-- ======================================================== 16 -->
+<section class="g-sec" id="g-16">
+  <header><span class="g-num">16</span><h2>Buttons and links</h2></header>
+  <div class="spec-wrap" tabindex="0" role="region" aria-label="Scrollable table"><table class="spec">
+    <thead><tr><th>Element</th><th>Size</th><th>States</th></tr></thead>
+    <tbody>
+      <tr><td>Button</td><td>48 px high, 24 px side padding, 600 weight. Radius: A 2 px, B and C pill</td><td>Hover deepens the fill and nudges the arrow 3 px. Focus is a 3 px ring with a 3 px offset. Disabled is never used for the primary.</td></tr>
+      <tr><td>Text link</td><td>44 px minimum target</td><td>Underline at 40% strength, full strength on hover</td></tr>
+      <tr><td>Disclosure</td><td>44 px minimum target</td><td>A "+" that rotates to "×" in 180 ms</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ======================================================== 17 -->
+<section class="g-sec" id="g-17">
+  <header><span class="g-num">17</span><h2>Iconography</h2></header>
+  <div class="g g-4" style="gap: var(--s-4)">
+    <span class="icon-chip"><svg class="icon"><use href="assets/icons.svg#i-sekolah"/></svg></span>
+    <span class="icon-chip"><svg class="icon"><use href="assets/icons.svg#i-pendidik"/></svg></span>
+    <span class="icon-chip"><svg class="icon"><use href="assets/icons.svg#i-murid"/></svg></span>
+    <span class="icon-chip"><svg class="icon"><use href="assets/icons.svg#i-orangtua"/></svg></span>
+    <span class="icon-chip"><svg class="icon"><use href="assets/icons.svg#i-materi"/></svg></span>
+    <span class="icon-chip"><svg class="icon"><use href="assets/icons.svg#i-peta"/></svg></span>
+    <span class="icon-chip"><svg class="icon"><use href="assets/icons.svg#i-bukti"/></svg></span>
+    <span class="icon-chip"><svg class="icon"><use href="assets/icons.svg#i-keputusan"/></svg></span>
+  </div>
+  <ol class="rules" style="margin-top: var(--s-5)">
+    <li><span><b>One set, drawn on a 24 px grid</b>: a 1.6 stroke, round caps, no fills, in currentColor.</span></li>
+    <li><span><b>An icon labels an idea next to its words</b>, and never replaces them. No emoji, no illustration in place of an icon, no icon in body text.</span></li>
+    <li><span><b>The chip around an icon follows the direction</b>: A a hairline circle, B a soft square, C a pale rounded square.</span></li>
+  </ol>
+</section>
+
+<!-- ======================================================== 18 -->
+<section class="g-sec" id="g-18">
+  <header><span class="g-num">18</span><h2>Motion</h2>
+    <p>Motion supports hierarchy and discovery. It happens once, on entry, and then everything is still.</p></header>
+  <div class="spec-wrap" tabindex="0" role="region" aria-label="Scrollable table"><table class="spec">
+    <thead><tr><th>Token</th><th>Value</th><th>Used for</th></tr></thead>
+    <tbody>
+      <tr><td><code>--ease</code></td><td>cubic-bezier(0.16, 0.84, 0.32, 1)</td><td>everything: a quick start that settles gently</td></tr>
+      <tr><td><code>--dur-ui</code></td><td>180 ms</td><td>hover, focus, disclosure, a role-pill switch</td></tr>
+      <tr><td><code>--dur-enter</code></td><td>560 ms</td><td>text and cards entering the viewport</td></tr>
+      <tr><td><code>--dur-figure</code></td><td>760 ms (bars 900 ms, starting 240 ms later)</td><td>a report or image arriving</td></tr>
+      <tr><td><code>--dist-text</code> / <code>--dist-figure</code></td><td>16 px / 28 px upward (plus a 0.985 scale for figures)</td><td>entrance distance</td></tr>
+      <tr><td><code>--stagger</code></td><td>70 ms, at most four steps</td><td>siblings in a group</td></tr>
+    </tbody>
+  </table></div>
+  <div class="stage"><div class="stage__label"><span>Entrance, demonstrated</span><button class="btn btn--secondary" type="button" data-replay>Replay</button></div>
+    <div class="stage__body motion-demo" data-reveal-group data-motion-demo>
+      <div class="motion-demo__box" data-reveal><b>Text</b><br>16 px up, 560 ms</div>
+      <div class="motion-demo__box" data-reveal><b>Card</b><br>70 ms later</div>
+      <div data-reveal="figure"><div data-spec="topik" data-compact></div></div>
+    </div></div>
+  <p class="small" data-reduced-note hidden style="margin-top: var(--s-3)">Your device asks for reduced motion, so nothing above moves: everything is simply there. That is the reduced-motion behaviour.</p>
+  <ol class="rules" style="margin-top: var(--s-5)">
+    <li><span><b>Entrance only, once.</b> An element fades and rises the first time it enters the viewport, and never moves again. Report bars grow from zero once.</span></li>
+    <li><span><b>Never</b>: blinking, looping, autoplaying carousels, bouncing, scroll-jacking, typing effects, counters that spin up, or decoration that moves on its own.</span></li>
+    <li><span><b>Parallax: not used.</b> Depth comes from offsets and shadow (Direction B's stack), not from motion tied to scrolling. If ever wanted, it is one layer, at most 24 px of travel, and off for reduced motion.</span></li>
+    <li><span><b>Reduced motion</b> (<code>prefers-reduced-motion</code>): no translation and no fade. Everything is present at load, and state changes are instant.</span></li>
+    <li><span><b>Without JavaScript, everything is visible.</b> Content is hidden for its entrance only when the script is running and motion is allowed.</span></li>
+  </ol>
+</section>
+
+<!-- ======================================================== 19 -->
+<section class="g-sec" id="g-19">
+  <header><span class="g-num">19</span><h2>Responsive behaviour</h2></header>
+  <ol class="rules">
+    <li><span><b>Breakpoints at 640, 760, 900, 960, 1024 and 1100 px</b>, chosen where the content breaks rather than by device. Nothing overflows sideways from 320 to 1440 px.</span></li>
+    <li><span><b>Splits stack text first, figure second.</b> In A the report wall becomes one column; in B the stack keeps one or two artefacts; C's role pills stay.</span></li>
+    <li><span><b>Four audience cards become two, then one.</b> Capability details stay collapsed.</span></li>
+    <li><span><b>No horizontal carousels on phones.</b> Fewer artefacts, each shown whole, with a link to the Laporan page.</span></li>
+  </ol>
+  <div class="phones">
+    <div class="phone"><div class="phone__frame"><iframe src="a.html" title="Direction A at phone width" loading="lazy"></iframe></div><p class="phone__cap">A · 390 px</p></div>
+    <div class="phone"><div class="phone__frame"><iframe src="b.html" title="Direction B at phone width" loading="lazy"></iframe></div><p class="phone__cap">B · 390 px</p></div>
+    <div class="phone"><div class="phone__frame"><iframe src="c.html" title="Direction C at phone width" loading="lazy"></iframe></div><p class="phone__cap">C · 390 px</p></div>
+  </div>
+</section>
+
+<!-- ======================================================== 20 -->
+<section class="g-sec" id="g-20">
+  <header><span class="g-num">20</span><h2>Accessibility</h2></header>
+  <ol class="rules">
+    <li><span><b>Contrast is measured, not judged</b>: 4.5:1 for text, 3:1 for large text and for marks that carry meaning, at both widths. <code>verify/check.mjs</code> measures every page in all three directions.</span></li>
+    <li><span><b>Nothing is smaller than 14 px.</b> Targets are at least 44 px.</span></li>
+    <li><span><b>Focus is always visible</b>: a 3 px ring, with a light ring on dark bands. There is a skip link on every page.</span></li>
+    <li><span><b>Every chart has a table twin.</b> Each artefact is a named group, and the role pills are real buttons with <code>aria-pressed</code>.</span></li>
+    <li><span><b>Headings are in order</b>, one H1 per page, and <code>lang</code> is set (id or en).</span></li>
+    <li><span><b>Reduced motion and no-JavaScript both give a complete, static page.</b> On the site the report artefacts are plain HTML. In this review package one shared script draws them, so that every page shows the same source; without JavaScript the package shows the text but not the artefacts.</span></li>
+    <li><span><b>No text is set in an image.</b> Text over a photograph sits on a solid ground.</span></li>
+  </ol>
+</section>
+
+<!-- ======================================================== 21 -->
+<section class="g-sec" id="g-21">
+  <header><span class="g-num">21</span><h2>Editorial compositions: inner-page openings</h2>
+    <p>How the grammar opens the pages beyond the landing page, in the direction shown above. Switch direction at the top to compare.</p></header>
+
+  <div class="stage" id="c-laporan"><div class="stage__label"><span>/laporan · Laporan</span><span data-dir-name></span></div>
+    <div class="stage__body split split--57">
+      <div class="stack"><p class="eyebrow">Laporan</p><h1 class="h2">Apa yang ditunjukkan PINTAR setelah belajar.</h1>
+        <p class="lead">Laporan untuk guru, murid dan pimpinan, dari bukti resmi. Contoh di halaman ini memakai data simulasi.</p></div>
+      <div class="g g-2 pair" style="align-items: start"><div data-spec="kelas" data-compact></div><div data-spec="belumcukup" data-compact></div></div>
+    </div></div>
+
+  <div class="stage" id="c-guru"><div class="stage__label"><span>/untuk-guru · Untuk guru</span><span data-dir-name></span></div>
+    <div class="stage__body split split--75">
+      <div class="stack"><p class="eyebrow">Untuk guru</p><h1 class="h2">Tahu apa yang perlu diulang besok, dan untuk siapa.</h1>
+        <p class="lead">Setelah murid mengumpulkan, PINTAR menunjukkan soal yang paling sulit bagi kelas, dengan nama murid yang mungkin perlu bantuan.</p>
+        <div class="actions"><a class="btn btn--primary" href="../corporate/mini-pintar/?lang=id">Coba Mini-PINTAR</a><a class="link" href="#c-guru">Lihat laporannya</a></div></div>
+      <div data-spec="soal"></div>
+    </div></div>
+
+  <div class="stage" id="c-tentang"><div class="stage__label"><span>/tentang · Tentang kami (PT ZPS)</span><span data-dir-name></span></div>
+    <div class="stage__body split split--75">
+      <div class="stack"><p class="eyebrow">Tentang kami</p><h1 class="h2">PINTAR dikembangkan oleh PT ZPS.</h1>
+        <p class="lead">[Satu paragraf pendek tentang PT ZPS: siapa, di mana, mengapa. Ditulis oleh Anda; tidak ada sejarah atau angka yang dikarang.]</p>
+        <div class="kv" style="max-width: 26rem"><dt>Nama resmi</dt><dd>[konfirmasi]</dd><dt>Alamat</dt><dd>[konfirmasi]</dd><dt>Kontak</dt><dd>[konfirmasi]</dd></div></div>
+      <div class="ph" style="min-height: 18rem" role="img" aria-label="Photograph placeholder"><div class="ph__tag"><b>PHOTOGRAPH</b>The team at work, documentary, only if a real shoot exists.</div></div>
+    </div></div>
+</section>
+
+<!-- ======================================================== 22 -->
+<section class="g-sec" id="g-22">
+  <header><span class="g-num">22</span><h2>What not to do</h2></header>
+  <div class="dodont">
+    <div class="dd dd--no"><div class="dd__head">✕ Bands as verdicts</div>
+      <div class="dd__body"><div class="rows"><div class="row"><span>Mantap</span><span class="num">9</span><div class="bar"><i style="width:37%; background:#2E8B57"></i></div></div><div class="row"><span>Perlu penguatan</span><span class="num">7</span><div class="bar"><i style="width:29%; background:#C0392B"></i></div></div></div></div>
+      <p class="dd__why">Red and green turn a band into a judgement about children. The product refuses this, and so does the site.</p></div>
+    <div class="dd dd--yes"><div class="dd__head">✓ One neutral ink</div>
+      <div class="dd__body"><div class="rows"><div class="row"><span>Mantap</span><span class="num">9</span><div class="bar"><i style="width:37%"></i></div></div><div class="row"><span>Perlu penguatan</span><span class="num">7</span><div class="bar"><i style="width:29%"></i></div></div></div></div>
+      <p class="dd__why">The distribution reads as a shape, not an alarm.</p></div>
+    <div class="dd dd--no"><div class="dd__head">✕ Gradient-and-glow hero</div>
+      <div class="dd__body" style="background: radial-gradient(circle at 30% 30%, #7FE0C4, #224F55 55%, #0B2B2F); color:#fff; border-radius: 4px"><p style="font: 800 1.5rem/1.1 var(--font-sans)">Revolusi belajar dengan AI ✨</p></div>
+      <p class="dd__why">Effects instead of evidence, and a claim (AI) PINTAR does not make.</p></div>
+    <div class="dd dd--yes"><div class="dd__head">✓ Evidence as the picture</div>
+      <div class="dd__body"><div data-spec="kelas" data-compact></div></div>
+      <p class="dd__why">The product's own screen does the persuading.</p></div>
+    <div class="dd dd--no"><div class="dd__head">✕ Invented numbers</div>
+      <div class="dd__body"><p style="font: 800 2.5rem/1 var(--font-sans)">10.000+</p><p class="small">murid sudah belajar dengan PINTAR</p></div>
+      <p class="dd__why">No school uses PINTAR in production yet. Adoption, outcome and time-saving figures stay off until they are true and sourced.</p></div>
+    <div class="dd dd--yes"><div class="dd__head">✓ True rules as figures</div>
+      <div class="dd__body"><p style="font: 800 2.5rem/1 var(--font-sans)">5</p><p class="small">murid paling sedikit sebelum PINTAR menampilkan angka sebuah kelas.</p></div>
+      <p class="dd__why">A large number that is a fact about the product, not about its market.</p></div>
+    <div class="dd dd--no"><div class="dd__head">✕ The app, enlarged</div>
+      <div class="dd__body" style="background:#FBFAF7; border:1px solid #E6E2DA"><p style="font: 600 1.125rem/1.3 var(--font-sans); color:#1F2A33">Beranda</p><p class="small">Kelas Anda · Tugas · Laporan</p></div>
+      <p class="dd__why">The app's shell, tones and density used as a website. Same family must not mean same face.</p></div>
+    <div class="dd dd--no"><div class="dd__head">✕ Long paragraphs on the landing page</div>
+      <div class="dd__body"><p class="small">PINTAR adalah platform pembelajaran komprehensif yang mengintegrasikan berbagai fitur canggih untuk mendukung ekosistem pendidikan secara menyeluruh, mulai dari…</p></div>
+      <p class="dd__why">Documentation, jargon, and no picture. One idea per screen instead.</p></div>
+  </div>
+</section>
+
+<!-- ======================================================== 23 -->
+<section class="g-sec" id="g-23">
+  <header><span class="g-num">23</span><h2>Decisions for you</h2>
+    <p>These are not mine to settle. Nothing propagates until you rule.</p></header>
+  <ol class="rules">
+    <li><span><b>Direction:</b> A, B or C, or a named combination (for example, A's typography with B's report stack). My recommendation is in the overview.</span></li>
+    <li><span><b>Brand teal:</b> the mark's own <code>#224F55</code> for the website, or the app's approved <code>#245F55</code>.</span></li>
+    <li><span><b>A display serif (Direction A only):</b> Newsreader (OFL) would revise the 24 Sep identity ruling that the site uses Plus Jakarta Sans.</span></li>
+    <li><span><b>Parents:</b> options (1), (2) or (3) in section 11.</span></li>
+    <li><span><b>PT ZPS:</b> the full legal name for © and Tentang kami, and the contact details.</span></li>
+    <li><span><b>Photography:</b> whether a documentary shoot is planned. It decides how far Direction C can go.</span></li>
+  </ol>
+</section>
+
+  </main>
+</div>
+
+<footer class="ftr is-dark" style="padding-top: var(--s-7)"><div class="wrap"><div class="ftr__base" style="margin-top:0; border-top:0"><span>PINTAR corporate website · design grammar proposal · draft copy · simulated data</span><span>Not approved · not propagated · not deployed</span></div></div></footer>
+</body>
+</html>
