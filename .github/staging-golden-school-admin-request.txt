@@ -6,4 +6,5 @@
 # 2 Oct, seventh walk: GS-10 (the teacher signs in, lands on Mengajar) and GS-11 (Siapkan → Sediakan for Kelas 5A)
 # 5 Oct: Sekolah Emas Uji 2026-10-05 after run 37287063109 (GS-01 to GS-03 green); staff sign in as Gate 3 has it (masuk.mjs)
 # 6 Oct: Sekolah Demo PINTAR after run 37431385287 (GS-02, GS-03 green), for Dr Gladys's walkthrough (D-116); staging at 165 migrations
-slug: sekolah-demo-pintar
+# 6 Oct, closure batch 0 (D-118): Sekolah Uji Penutupan B0 after run 37462648562 (GS-02/03 green; G4 observed D-054(b)'s order)
+slug: sekolah-uji-b0
