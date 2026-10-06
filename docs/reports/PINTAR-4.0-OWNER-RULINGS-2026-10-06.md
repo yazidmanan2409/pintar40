@@ -23,7 +23,7 @@
 | Q10 | **HOLD:** the analysis is `PINTAR-4.0-Q10-GRADE-LABELS-2026-10-06.md` | CR-47 → C |
 | QN2 | Recorded | CR-23 → closed (a record) |
 | QN6 | AGREE; the evidence model corrected | CR-63 → closed |
-| QN7 | S4 first; no allowance yet; one measured cycle after S4, then the revised forecast | CR-65 → S4 built (`0a27ec7`), measured in §2A |
+| QN7 | S4 first; no allowance yet; one measured cycle after S4, then the revised forecast | CR-65 → S4 built and measured: a cycle 68 (was 123); the gate ≈ 1,740–1,880 (§2A) |
 
 ## 1. The table (as presented)
 
@@ -117,6 +117,46 @@ It did **not** make a cycle cheaper. A full proof costs the same: 123 against 11
 | 37450773138 | the authoritative cycle | 101 | 123 |
 
 The two supersedes cost 69 estimated minutes. Each was cheaper than finishing a run on code about to change.
+
+## 2A. S4 measured, and the revised closure forecast (D-120, QN7)
+
+**S4, as approved:** the 25 database red cases share one local stack per group (five groups); the five static cases and `db-table-without-rls` stay alone. 30 cases in 11 jobs, where there were 30.
+
+**Isolation and red-case strength, kept and proven:**
+- **Each case starts from its own fresh database.** Every use of the shared stack resets the database and fingerprints it: functions and grants, policies, triggers, extensions, roles, memberships, role settings and row counts. A case fails if its fingerprint differs from the job's first fresh database. In CI every reuse logged «fresh: the same fingerprint as the job's first fresh database (`267c8fd9…`)», the same value as a locally booted stack.
+- **The fingerprint proves isolation on every use, rather than assuming it.** Rehearsed locally, a leftover role, membership, role setting or row each moved it. Each reset returned it to `267c8fd9…`: Supabase's reset clears roles as well as the database, and the fingerprint now shows that on every use.
+- **Every plant runs as before, with the same four proofs.** Each case's steps run even after an earlier case in its group failed, so one red case never hides another.
+- **Found and fixed on the way:** in the first S4 cycle (run 37455602363), wp7's plants step sat at the end of the job, so it ran after bob26's reset and plants rather than on wp7's own fresh database. The plants still proved their gates, but the invariant did not hold for that case. The step now follows wp7's stack step. CI-W03 asserts every case's steps are contiguous (red on that workflow, naming wp7; green now).
+- **CI-W03** also asserts: the 30 cases, each in one group; every plant gate among them; every case with its steps; the migration-planting case alone; a reset and fingerprint on every use. It was red on the pre-S4 workflow.
+
+**The authoritative cycle after S4: CI run 37458146396** on `7912372`. **18 of 18 jobs succeeded**, the verdict included. The strict selftest ran **598 tests: 598 passed, 0 failed, 0 skipped.**
+
+| Measure | Before S4 (run 37450773138) | After S4 (run 37458146396) | Change |
+|---|---:|---:|---:|
+| Compute (runner minutes) | 101 | **59** | −42% |
+| Queue (minutes waiting) | 41 | **1** | −98% |
+| Estimate (billable) | 123 | **68** | **−45%** |
+| Database red cases (estimate) | 99 in 25 jobs | 43 in 6 jobs | −57% |
+| Wall-clock | 18.2 min | 20.9 min | **+2.7 min**: a group runs its cases one after another |
+| Jobs | 37 | 18 | — |
+
+The first S4 cycle (run 37455602363) measured 60 · 2 · 71. **A cycle is now 68–71 estimated minutes.**
+
+**The revised closure forecast,** from the same units as §2: 18–20 cycles, and about 480 minutes of Golden School walks and audits.
+
+| | Before S4 (§2) | **After S4, measured** |
+|---|---:|---:|
+| A cycle | 123 | **about 70** |
+| The gate's cycles | 2,214–2,460 | **1,260–1,400** |
+| Walks and audits | about 480 | about 480 |
+| **The gate** | ≈ 2,700–2,950 | **≈ 1,740–1,880** |
+| Cycles a day inside 600 | about 4 | about 8 |
+
+**S4's own cost** (today, already spent): the two cycles above, 71 + 68 = 139 estimated minutes.
+
+**For your decision on the allowance:** about **1,900 estimated minutes for the closure gate**. That is the measured forecast's upper end. It is reviewed at each batch report against the monitor's three numbers.
+
+**Today, 6 Oct, in total** (the monitor): compute 1,304 · queue 391 · estimated 1,572 minutes, against the 600 a day. **Cost red; waste none.** The day held the morning's #150 work and every D-119, CE-8 and S4 run.
 
 ## 3. CE-8: the guards can never make CI falsely green or falsely proven
 

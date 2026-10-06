@@ -140,7 +140,7 @@ This register reconciles existing evidence; it does not reinterpret PINTAR. The 
 | CR-62 | **The contract's step map** (GS-18 ↔ J8.3; GS-13 ↔ J6.7/J6.8; J7 labels) | Wrong in places | Corrected | **A** · docs |
 | CR-63 | **Level 3 cadence** (evidence model: every `src` merge, nightly) | Dispatch only | Keep dispatch-only for cost, and say so in the model; the closure gate runs it per slice | **C** (light): **QN6**, confirm dispatch-only |
 | CR-64 | **The CI / Actions efficiency gate (D-119)** | See §1A | Built on the branch; see §1A | **A** · ENGINEERING (in progress) |
-| CR-65 | **The CI budget for this gate**, and D-091(e)'s remaining structural fixes: S2 (group the static red cases), S4 (share stacks between plants, about half the boots), S5 (cache the browser) | Open | The budget figure and the timing of S2, S4 and S5 | **C** · OWNER (QN7) |
+| CR-65 | **The CI budget for this gate**, and D-091(e)'s remaining structural fixes: S2 (group the static red cases), S4 (share stacks between plants, about half the boots), S5 (cache the browser) | **S4 done (D-120):** a cycle 123 → 68 estimated minutes (run 37458146396), isolation fingerprinted per case. S2 and S5 not worth touching (about 3 and under 1 minute) | The allowance figure: about 1,900 proposed from the measured forecast | **C** · OWNER (the allowance) |
 
 ### 1A. The CI / Actions efficiency gate (D-119): kept apart from product behaviour
 
@@ -190,6 +190,7 @@ Each batch ends with its report (D-118 §11). Each batch that changes code gets 
 - **The gate's units:** 18–20 cycles, with about one in five re-run after a fix; full Golden School walks at 44 and audits at about 36, about 480 in all.
 - **The gate:** about **2,700–2,950** estimated minutes as CI stands. About **2,100–2,250** if D-091(e)'s S4 (shared stacks for the database red cases) lands first; that figure is an estimate until S4's first cycle is measured.
 - The table and the recommendation: `PINTAR-4.0-OWNER-RULINGS-2026-10-06.md` §2 (QN7).
+- **After S4 (approved by D-120; measured 6 Oct):** a cycle is **68** estimated minutes (run 37458146396: 18/18 jobs, 598 tests; compute 59, queue 1), so the gate is **≈ 1,740–1,880**. Isolation is proven by a fingerprinted reset per case (rulings document §2A).
 
 ## 3. Owner rulings needed before implementation
 
