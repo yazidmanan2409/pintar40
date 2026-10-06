@@ -2954,6 +2954,12 @@
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
+      "id": "F20-N01",
+      "runner": "db",
+      "proves": "D-121(c), D-095(c)(g), review F5 / T4, measured in selftest/db/fable20.sql against calc_class_readiness_distribution with the boundary bound to the class: five learners placed in an official class, two never started (one enrolment still PENDING) and one with an unfinished sitting, add 3 to «Belum mengerjakan Uji Penguasaan» (kesiapan.belum_post_test); one assessed at 45% and one at 95% whose safety gate failed add 2 to the lowest band and nothing elsewhere; the class's sample grows by 5; a learner assessed at 100% is in the top band, never not yet; a learner moved out of the class no longer counts there.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
       "id": "BOB50-A01",
       "runner": "app",
       "proves": "BOB-50 (D-082(d)), selftest/bob50.test.ts: the route POST /api/certificates/issue executes against the running app for a real, all-correct Uji Cepat asked by its own learner (signed in through /masuk/password): not_eligible, and no certificate row exists for the session.",

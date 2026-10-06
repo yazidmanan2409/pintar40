@@ -6395,9 +6395,11 @@ begin
       -- D-060: MC-4 (D-088(g)) is MC-3 copied forward with every definition, minimum sample and audience
       -- identical, its sources MC-3's plus the three content relations. RESTATED FOR BOB-47 (a changed requirement,
       -- D-069(b), D-060(a)): the live catalogue is MC-5, MC-4 copied forward unchanged (asserted by its migration
-      -- and BOB47-D01); MC-4 itself stays as it was (D-060(e)), so its relation to MC-3 is still checked here
-      if v_cat is distinct from 'MC-5' then
-        bad := bad || array[format('the live metric catalogue is %s, not MC-5', coalesce(v_cat, 'none'))];
+      -- and BOB47-D01); MC-4 itself stays as it was (D-060(e)), so its relation to MC-3 is still checked here.
+      -- RESTATED FOR D-121(c) (a changed requirement, D-060(a)): the live catalogue is MC-6, MC-5 copied forward with
+      -- the not-yet state produced and scoped_class_placements added (its migration and F20-N01)
+      if v_cat is distinct from 'MC-6' then
+        bad := bad || array[format('the live metric catalogue is %s, not MC-6', coalesce(v_cat, 'none'))];
       else
         if exists (select 1 from (select * from public.metric_definitions where catalogue_version = 'MC-4') d4
                     full join (select * from public.metric_definitions where catalogue_version = 'MC-3') d3

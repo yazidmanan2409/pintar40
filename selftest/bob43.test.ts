@@ -591,14 +591,14 @@ export const bob43Tests: SelfTest[] = [
         `referral and review: ${JSON.stringify([v.rujuk_platform, v.tinjau_rujuk_platform, v.tinjau_platform, v.rujuk_kaprodi_pd, v.tinjau_kaprodi_pd, v.rujuk_akademik])}`);
       c.expect(JSON.stringify(v.setara) === "{}" && Number(v.setara_isi) >= 15,
         `academic rows differ from the previous policies for: ${JSON.stringify(v.setara)} (${v.setara_isi} non-empty reader×table sets)`);
-      // BOB-47
-      c.expect(v.katalog === "MC-5", `the live catalogue is ${v.katalog}`);
+      // BOB-47. RESTATED FOR D-121(c): MC-6 is MC-5 copied forward (the not-yet state), PD admission unchanged
+      c.expect(v.katalog === "MC-6", `the live catalogue is ${v.katalog}`);
       const fasil = v.catatan_fasilitator;
       // the Guru, and the staff member enrolled without an account (PENDING), both participants of the PD Kelas
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the database's own JSON
       const guru = (fasil?.participants ?? []).find((x: any) => x.person_id === v.peserta);
       const paket = guru?.packages?.[0];
-      c.expect(fasil?.columns === "FULL" && fasil?.catalogue_version === "MC-5" && fasil?.participants?.length === 2
+      c.expect(fasil?.columns === "FULL" && fasil?.catalogue_version === "MC-6" && fasil?.participants?.length === 2
         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the database's own JSON
         && fasil.participants.every((x: any) => x.member_kind === "PARTICIPANT") && guru?.enrolment_status === "ACTIVE"
         && paket?.completed === true && paket?.post_test === "SELESAI" && paket?.lessons_done === 1 && paket?.lessons_total === 1

@@ -101,7 +101,7 @@ const ANGKA = new Intl.NumberFormat("id-ID");
 const persen = (v) => PERSEN.format(v);
 const poin = (v) => { const p = Math.round(v * 100); return `${p > 0 ? "+" : ""}${ANGKA.format(p)} poin`; };
 // PINTAR's fixed performance bands (D-095, 3 Oct): band words in band order, never certificate readiness
-const TIER = { siap: "Mantap", review: "Berkembang", dampingi: "Perlu penguatan" };
+const TIER = { siap: "Mantap", review: "Berkembang", dampingi: "Perlu penguatan", belum: "Belum mengerjakan Uji Penguasaan" };
 const PITA = "Sebaran hasil Uji Penguasaan";
 
 const results = [];
@@ -271,8 +271,18 @@ await step("L0", `read only: «${SLUG}», «${KELAS}», «${BAB}», and the figu
   const semua = [...murid.values()];
   const posts = semua.filter((x) => x.post);
   const kedua = semua.filter((x) => x.post && x.pre);
-  const tingkat = { [TIER.siap]: 0, [TIER.review]: 0, [TIER.dampingi]: 0 };
-  for (const x of posts) tingkat[x.post.m < 0.6 ? TIER.dampingi : x.post.m < 0.8 || !x.post.gerbang ? TIER.review : TIER.siap]++;
+  // D-095(c): below 60% or a required item missed is «Perlu penguatan»; 60–79% «Berkembang»; 80% and above «Mantap»
+  const tingkat = { [TIER.siap]: 0, [TIER.review]: 0, [TIER.dampingi]: 0, [TIER.belum]: 0 };
+  for (const x of posts) tingkat[x.post.m < 0.6 || !x.post.gerbang ? TIER.dampingi : x.post.m < 0.8 ? TIER.review : TIER.siap]++;
+  // D-121(c): a learner placed in the class now (an open placement of a PENDING or ACTIVE enrolment) with no official
+  // Uji Penguasaan result there is «Belum mengerjakan Uji Penguasaan», never a band
+  tingkat[TIER.belum] = Number(sql(`select count(distinct e.person_id) from public.memberships m
+      join public.enrollments e on e.id = m.enrollment_id
+     where m.node_id = '${uuid(kelas)}' and m.valid_to is null and e.status in ('PENDING', 'ACTIVE')
+       and not exists (select 1 from public.assessment_sessions s
+                         join public.assessment_results r on r.session_id = s.id and r.supersedes_result_id is null
+                        where s.person_id = e.person_id and s.class_node_id = '${uuid(kelas)}' and s.mode = 'POST_TEST'
+                          and s.status = 'FINALIZED' and public.effective_evidence_class(s.id) = 'OFFICIAL')`));
   const terbit = Number(sql(`select count(*) from public.academic_certificates c where c.institution_id = '${uuid(id)}' and c.status = 'ISSUED'`));
   S = {
     id, nama, kelas, bagian, akar, tugas, kursus, kelasLain, akarLain, murid: semua, terbit,
