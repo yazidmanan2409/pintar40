@@ -1,5 +1,8 @@
 # #150 evidence index: the checkpoint before O3–O7
 
+**Checkpoint result (D-111, 6 Oct): GREEN to proceed from engineering proof into owner-controlled infrastructure
+setup, after the two pre-O3 prerequisites (§6). Not #150 PASS; not PRODUCTION READY. No interim R1-only escrow.**
+
 **For the Second Eye.** As of 6 Oct 2026, `main` at the commit that carries this file. Everything below points to its
 source; nothing here is new evidence, and nothing here is a ruling.
 
@@ -165,19 +168,24 @@ tests.
 | Dated documents | `BACKUP-DR-REVIEW-2026-10-05.md` and `OFFSITE-BACKUP-DESIGN.md` are 5 Oct records; where they differ, D-106–D-109 and the closure plan prevail |
 | `backup-offsite.yml` `STAGING_POOLER_HOST` | **unverified**: a copy of production's; the path check compares it with the authoritative value |
 | `PRODUCTION_POOLER_HOST` | the production apply's own host; `verify-full` to it is **not yet shown** (production is outside D-109(a)) |
-| **The order of O3–O7** | **One decision needed.** An order that puts the escrow before custodian B contradicts D-107 D8 + D-109(c): the code refuses an escrow until R1 and R2 are both held and proven. Either the escrow follows R2 (§7), or the owner rules an interim R1-only escrow |
+| **The order of O3–O7** | **Ruled (D-111(b)): no interim R1-only production escrow.** The escrow follows R2 and both custodians' proofs (§7), as the code already enforces |
 
 ---
 
 ## 6. Open, never yet exercised, and limits
 
-**Waiting on the owner:**
-1. Staging's session pooler host, port and user (dashboard → Connect → Session pooler), so the path check can finish.
-2. O2 (C1), then the isolation run (ISOLATED, not TOO BROAD).
-3. The escrow-timing decision (§5).
-4. B (D-108(e)), non-blocking.
+**The two prerequisites before O3 (D-111(c)):**
+1. Staging's session pooler host, port and user (dashboard → Connect → Session pooler), so the path check finishes
+   green: the pooler resolved, `verify-full`, the shared snapshot, the profile through the pooler.
+2. O2 (C1), then the isolation run: `ISOLATED` (not TOO BROAD, not UNPROVEN).
 
-**Never yet exercised on real infrastructure** (each is first proven at its owner step):
+**Also open:** B (D-108(e)), non-blocking.
+
+**Every first use of real infrastructure is a stop point** on unexpected behaviour or an evidence mismatch
+(D-111(d)); production is not touched because staging succeeds (D-111(e)).
+
+**Never yet exercised on real infrastructure** (each is first proven at its owner step; kept current, D-111(f): an
+item leaves this list only with the run that proved it):
 - a sign-in as `pintar_backup` through the pooler (needs C2, O6);
 - `pg_dump` as `pintar_backup` through Supavisor with one shared snapshot (the path check does it as the
   administrative user first);
@@ -217,5 +225,5 @@ Each step's evidence is reported before the next starts (D-107(a)).
 | 7 | production authorisations (162, its baseline, C2) by separate ruling; O7 escrow | escrow under legal hold; a production backup encrypted to R1 and R2 only, checked from its packets |
 | 8 | O10 at the release | the watch's first green scheduled run |
 
-If the owner rules an interim R1-only escrow, step 7's escrow moves earlier and D-109(c)'s code changes with it; that
-is the owner's decision, not this index's.
+No interim R1-only escrow (D-111(b)). Step 7's production authorisations are separate rulings (D-111(e)). WP-C/B8
+remains mandatory before final #150 PASS (D-111(g)).

@@ -571,3 +571,14 @@ Gate 3 stays held; the coordinator does not merge it.
       therefore **not resolved and not guessed** (D-109(a)); `verify-full`, the shared snapshot and the profile
       through the pooler did not run. **Waiting for the owner's dashboard value** (staging project → Connect → Session
       pooler: host, port, user).
+
+44. **#150 Second-Eye checkpoint, 6 Oct (D-111): GREEN to proceed from engineering proof into owner-controlled
+    infrastructure setup; not PASS, not PRODUCTION READY.**
+    - Reviewed: `docs/recovery/EVIDENCE-INDEX-150.md` (every ruling D-103 to D-110 traced to code, tests and hosted
+      evidence; the consistency check fixed four stale statements: the owner-action table, the 5 Oct design note, the
+      closure plan's status of migration 162, and J8.7).
+    - **Ruled:** no interim R1-only production escrow (D-109(c) stands). Before O3: the staging pooler proof with the
+      dashboard's value, and C1 `ISOLATED` (O2). Every first use of real infrastructure is a stop point.
+    - **CI on the way:** 37415061854 on `c13589f` was 34/35: DR-D02's empty stack could not bind port 55322 (inside
+      Linux's ephemeral range, held on the runner). The test now takes free ports below that range; reproduced red
+      and green locally with the port held. The rerun decides the landing (D-111(h)).

@@ -84,6 +84,11 @@ offers a supported restriction, the coordinator brings it back to you before any
 reports before every owner action or external service). They are written down now so they can be reviewed with the code.
 Migration 162 (`pintar_backup`) is authorised for staging only (D-109(a)); production needs its own authorisation.
 
+**Before O3 (D-111(c)):** two things must be green first: the staging pooler proof (you give the coordinator the
+staging project's Connect → Session pooler host, port and user; no password) and O2 above, with the run saying
+`ISOLATED`. Then O3 onward, one at a time; each first use of real infrastructure is a stop point if anything
+unexpected happens (D-111(d)). Staging succeeding does not authorise anything in production (D-111(e)).
+
 **D-109(c): production waits for two custodians.** Production backups and the escrow are encrypted to R1 **and** R2,
 never to one custodian's key alone. Before the first production backup or escrow: R1 and R2 both exist, held by two
 separate approved custodians, and each custodian has proven, on their own, that they hold their key and can decrypt

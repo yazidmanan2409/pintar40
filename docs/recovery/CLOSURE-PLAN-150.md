@@ -537,7 +537,8 @@ The screenshots are not committed (they show names); the record keeps roles and 
 1. **WP-A**, **WP-B** and **WP-C**'s runbook tooling, each one finished change with red-then-green tests and one CI,
    reported before the owner action or external service it leads to (D-107(a)).
    WP-B carries migration 162 (staging at once; production at the PRODUCTION READY release).
-2. **Owner actions O2–O7.** Stop if:
+2. **Owner actions O2–O7** (D-111: checkpoint GREEN; before O3, the staging pooler proof and C1 `ISOLATED`; then one
+   at a time in `EVIDENCE-INDEX-150.md` §7; every first use of real infrastructure a stop point). Stop if:
    - Supabase cannot isolate backups-read;
    - production's `postgres` lacks the `pg_read_all_data` admin option;
    - the snapshot cannot be shared through the pooler;
