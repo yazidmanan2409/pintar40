@@ -144,7 +144,10 @@ await step("G3", "GS-02: the operator gives «Admin sekolah» at the school's ro
 await O.context().close();
 
 const A = await newPage();
-await step("G4", "GS-03: the school admin activates as a person does (the code from the staging test mailbox → username → PIN → password → name → «Komputer siapa ini?») and lands on Konfigurasi, on their own school, nothing set up yet", async (rec) => {
+// D-054(b)'s order (and the server's, src/lib/aktivasi-kontrak.ts URUTAN_LANGKAH): the screens are read as they come and
+// the order is asserted, not assumed (6 Oct: this title said «PIN → password», which no run had observed)
+const URUTAN_D054 = ["username", "password", "pin", "nama"];
+await step("G4", "GS-03: the school admin activates as a person does (the code from the staging test mailbox → username → password → PIN → name, D-054(b), as observed → «Komputer siapa ini?») and lands on Konfigurasi, on their own school, nothing set up yet", async (rec) => {
   if (hibah(S.id) !== "1") { rec.verdict = "FAIL"; return "the administrator holds no «Admin sekolah» here (G3)"; }
   const r = await masukStaf(A, ADMIN_EMAIL, keadaan);
   if (new URL(A.url()).pathname !== "/konfigurasi") {
@@ -155,9 +158,11 @@ await step("G4", "GS-03: the school admin activates as a person does (the code f
   const halaman = norm(await A.locator("main").innerText().catch(() => ""));
   const persiapan = norm(await A.locator("#persiapan").innerText().catch(() => ""));
   await shot(A, "g4-admin-sekolah");
-  const ok = di === "/konfigurasi" && halaman.includes(S.nama) && /Belum/.test(persiapan);
+  const wizard = r.lewat.filter((x) => URUTAN_D054.includes(x));
+  const urutan = JSON.stringify(wizard) === JSON.stringify(URUTAN_D054);
+  const ok = di === "/konfigurasi" && halaman.includes(S.nama) && /Belum/.test(persiapan) && urutan;
   if (!ok) rec.verdict = "FAIL";
-  return `${r.jalan}${r.lewat.length ? ` (${r.lewat.join(" → ")})` : ""}, landed on ${di}; their school named ${halaman.includes(S.nama)}; «Persiapan sekolah»: "${persiapan.slice(0, 220)}"`;
+  return `${r.jalan} (${r.lewat.join(" → ") || "no steps recorded"}; D-054(b)'s order ${urutan}), landed on ${di}; their school named ${halaman.includes(S.nama)}; «Persiapan sekolah»: "${persiapan.slice(0, 220)}"`;
 });
 
 await step("G5", "read back: one active «Admin sekolah» at the school's root, made by the operator, audited; no other role in the school", async (rec) => {

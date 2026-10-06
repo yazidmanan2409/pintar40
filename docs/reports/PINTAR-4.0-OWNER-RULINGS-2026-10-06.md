@@ -20,10 +20,10 @@
 | Q9 | AGREE; CR-50 stays mandatory pre-Gladys | CR-50 → A |
 | Q7 | AGREE | CR-51 → A |
 | QN5 | AGREE | CR-52 → B (a walk of Bank Soal) |
-| Q10 | **HOLD:** the analysis is `PINTAR-4.0-Q10-GRADE-LABELS-2026-10-06.md` | CR-47 → C |
+| Q10 | **Ruled (D-121): Alternative 4.** Descriptors fixed (Cukup ≥ 70%, Baik ≥ 80%, Sangat Baik ≥ 90%, none below 70%), prospectively; the threshold not printed; the not-yet state built | CR-47 → A (batch 3) |
 | QN2 | Recorded | CR-23 → closed (a record) |
 | QN6 | AGREE; the evidence model corrected | CR-63 → closed |
-| QN7 | S4 first; no allowance yet; one measured cycle after S4, then the revised forecast | CR-65 → S4 built and measured: a cycle 68 (was 123); the gate ≈ 1,740–1,880 (§2A) |
+| QN7 | S4 first, then the forecast. **S4 GREEN and the allowance approved (D-121):** 1,900 estimated minutes, a ceiling reviewed in every batch report | CR-65 → closed: a cycle 68 (was 123); the gate ≈ 1,740–1,880 (§2A) |
 
 ## 1. The table (as presented)
 

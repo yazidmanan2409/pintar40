@@ -76,7 +76,7 @@ This register reconciles existing evidence; it does not reinterpret PINTAR. The 
 | CR-23 | Leaked-password protection: D-033(c) "off" vs D-082(a) "on" | Staging reads it on; production not read | A recorded supersede | — | — | Gate 8 | **QN2**: confirm D-082(a) supersedes D-033(c) | DECISIONS note; production read at Gate 8 | **C** (a record only) |
 | CR-24 | **The existing-staff transition, rehearsed** (J2.7; C10; D-054(e)) | No staging rehearsal recorded | Rehearse production's existing staff moving to activation, with no duplicates | — | — | yes | none | C-11's rehearsal | **D** · RELEASE-DAY |
 | CR-25 | The magic link removed on production (J2.6) | Production `5b5b68d` still has it | The release itself | — | — | yes | — | The release | **D** · RELEASE-DAY |
-| CR-26 | Activation order wording (the inventory and contract put the password before the PIN) | Docs only | Correct the wording | — | — | — | — | Docs | **A** · docs |
+| CR-26 | Activation order wording | **Re-examined in batch 0 (6 Oct):** the inventory and the contract were right (username → password → PIN → name, D-054(b), and the server's `URUTAN_LANGKAH`). The wrong text was the contract's own note «PINTAR asks for the PIN first», which came from G4's title and was never observed | Correct the note; G4 records the observed order and asserts D-054(b)'s | — | — | — | — | G4 in the batch 0 walk | **A** · docs + instrument |
 
 ### Teaching and learning
 
@@ -107,7 +107,7 @@ This register reconciles existing evidence; it does not reinterpret PINTAR. The 
 | CR-44 | **«Laporkan masalah»** (J10.1 REL; REL-13) | TESTED, never walked | A walk: report → status → the admin and platform admin see it | G, U | medium | yes | the tier people are an owner action | A walk; the tiers named | **B** + **D** (tiers) |
 | CR-45 | **Error-page reference** (J10.2) | Checked in source only | An executable test | U | low | P0 | none | Test | **B** |
 | CR-46 | **«(0/5)» cards that promise figures** (X.5; U-EMPTY, DAISY-07) | PARTIAL | An honest empty state | G (a class below five), U | **yes** | P1 | none | In Daisy's feedback slice; a walk | **A** · DAISY |
-| CR-47 | **The «not yet» band; certificate grade labels** (J7.7 POL; D-095(g)) | Open | Q10 | U | medium | POL | **Q10** | Per the ruling | **C** |
+| CR-47 | **The «not yet» band; certificate grade labels** (J7.7 POL; D-095(g)) | Open | Q10 | U | medium | POL | **Q10, ruled by D-121:** Alternative 4; the not-yet state built | A new scoring version with no descriptor below 70%, prospective; the not-yet state emitted; red then green; GS-17 again | **A** · ENGINEERING (batch 3) |
 | CR-48 | **Cross-school admin sign-in facts** (SYS-02 P1) | Open | Q11 | — (platform admin) | no | P1 | **Q11** | Per the ruling | **C** (not on Gladys's path) |
 | CR-49 | **Paging for lists that grow with schools** (CAP-10; BOB-13) | N-I | Paging in the platform admin's lists | — (platform admin; staging has a handful of schools) | no | onboarding > 10 schools | none | A paged list | **D** · CAPACITY (onboarding gate) |
 
@@ -193,6 +193,8 @@ Each batch ends with its report (D-118 §11). Each batch that changes code gets 
 - **After S4 (approved by D-120; measured 6 Oct):** a cycle is **68** estimated minutes (run 37458146396: 18/18 jobs, 598 tests; compute 59, queue 1), so the gate is **≈ 1,740–1,880**. Isolation is proven by a fingerprinted reset per case (rulings document §2A).
 
 ## 3. Owner rulings needed before implementation
+
+**Ruled 6 Oct (D-121):** Q10 Alternative 4 (descriptors fixed at 70 / 80 / 90%, none below 70%, prospectively; the threshold not printed; the not-yet state built); the closure allowance 1,900 estimated minutes, a ceiling reviewed in every batch report; S4 GREEN (run 37458146396). The closure sequence proceeds.
 
 **Ruled 6 Oct (D-120):** QN1, Q8, QN4, Q9, Q7, QN5 and QN6 agreed; QN3 after go-live (CR-28 leaves this gate); QN7 S4 first; **Q10 held** for the analysis in `PINTAR-4.0-Q10-GRADE-LABELS-2026-10-06.md`; Q1, Q18 and QN2 recorded as already decided. The buckets that follow are in the rulings document §0.
 

@@ -33,8 +33,19 @@ env:
   OPERATOR_EMAIL: goldenschool+operator@pintarselalu.com
 
 jobs:
+  gs00:
+    # GS-00 (CR-60): staging runs main's code and main's migrations, read by machine inside this run; red stops the walk
+    name: GS-00 · staging runs main's commit and migrations
+    uses: ./.github/workflows/environment-facts.yml
+    with:
+      scope: staging
+    secrets:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+
   first-admin:
     name: the school's first administrator, appointed by the operator and signing in like a person
+    needs: [gs00]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

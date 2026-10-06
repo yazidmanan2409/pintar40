@@ -19,6 +19,11 @@
 #
 # The controlled red: dispatch with plant=true and the expected main commit is
 # replaced by an empty tree, so staging must read as drifted.
+#
+# GS-00 (CR-60, 6 Oct): every Golden School walk calls this workflow as its first job, with scope `staging`, and
+# runs only if it is GREEN: staging runs main's code and main's migrations, read by machine inside the walk's own
+# run rather than by reads before and after it. The same code, the same read-only calls and the same token as the
+# nightly check; production is not read in that scope.
 
 name: facts · environments (read only)
 
@@ -36,6 +41,20 @@ on:
       - claude/awesome-rubin-bqxp6p
     paths:
       - .github/workflows/environment-facts.yml
+  workflow_call:
+    inputs:
+      scope:
+        description: "all (both environments) or staging (GS-00: staging only)"
+        type: string
+        default: all
+      plant:
+        type: boolean
+        default: false
+    secrets:
+      VERCEL_TOKEN:
+        required: true
+      STAGING_SUPABASE_DB_URL:
+        required: true
 
 permissions:
   contents: read
@@ -64,6 +83,7 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           STAGING_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
           PLANT: ${{ inputs.plant || 'false' }}
+          SCOPE: ${{ inputs.scope || 'all' }}
         run: |
           set -euo pipefail
           git fetch --quiet origin main
@@ -126,6 +146,9 @@ jobs:
           say()
           envs = [('staging', os.environ['STAGING_DOMAIN'], os.environ['STAGING_DB_URL']),
                   ('production', os.environ['PRODUCTION_DOMAIN'], None)]
+          if os.environ.get('SCOPE') == 'staging':
+              envs = envs[:1]
+              say('GS-00: staging only (production is not read in this scope).')
           prod_note = None
           staging_project = None
           say('| Environment | App deployment | App commit | Migrations applied | Migrations at the app commit | Verdict |')

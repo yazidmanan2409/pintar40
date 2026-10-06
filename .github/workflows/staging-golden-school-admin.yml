@@ -34,8 +34,19 @@ env:
   STAGING_ORIGIN: https://staging.pintarselalu.com
 
 jobs:
+  gs00:
+    # GS-00 (CR-60): staging runs main's code and main's migrations, read by machine inside this run; red stops the walk
+    name: GS-00 · staging runs main's commit and migrations
+    uses: ./.github/workflows/environment-facts.yml
+    with:
+      scope: staging
+    secrets:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+
   admin-setup:
     name: the school admin signs in like a person and sets the school up by their own screens
+    needs: [gs00]
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:

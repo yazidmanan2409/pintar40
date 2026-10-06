@@ -47,6 +47,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { APP, SLOW, closeTour } from "../perf/lib.mjs";
 import { keadaanDari, masukStaf } from "./masuk.mjs";
+import { catat as catatDi } from "./pendataan.mjs";
 
 const env = (k) => { const v = process.env[k]; if (!v) throw new Error(`${k} is not set`); return v; };
 const DB = env("STAGING_SUPABASE_DB_URL");
@@ -155,41 +156,8 @@ async function tambah(page, tingkatan, nama) {
   await page.waitForLoadState("networkidle");
 }
 // Pendataan: a pasted list, its place and role for every row, checked, confirmed, until «Selesai» (ADM-J08)
-async function catat(page, nama, { kelas = null, peran = null } = {}) {
-  const jejak = [];
-  await page.locator("#pin-tempel").fill(["nama", ...nama].join("\n"));
-  await page.locator("#pin-medan-node_id").waitFor({ timeout: SLOW });
-  if (kelas) {
-    const tempat = await page.locator("#pin-medan-node_id option").evaluateAll((os) => os.map((o) => ({ v: o.value, t: (o.textContent ?? "").trim() })));
-    const k = tempat.find((o) => o.v.startsWith("t:") && o.t.includes(kelas));
-    if (!k) throw new Error(`«${kelas}» is not offered as a place: ${JSON.stringify(tempat.map((o) => o.t))}`);
-    await page.locator("#pin-medan-node_id").selectOption(k.v);
-    jejak.push(`Tempat «${k.t}»`);
-  }
-  if (peran) await page.locator("#pin-medan-role").selectOption(`t:${peran}`);
-  await page.getByRole("button", { name: "Lanjut ke pemeriksaan", exact: true }).click();
-  await page.waitForURL((u) => /^\/pendataan\/[^/]+$/.test(u.pathname), { timeout: SLOW });
-  await page.getByRole("button", { name: "Periksa daftar ini", exact: true }).click();
-  await page.getByRole("button", { name: "Ya, catat orang-orang ini", exact: true }).waitFor({ timeout: SLOW });
-  await shot(page, "pendataan-pratinjau");
-  await page.getByRole("button", { name: "Ya, catat orang-orang ini", exact: true }).click();
-  for (let i = 0; i < 60; i++) {
-    await page.waitForLoadState("networkidle");
-    if (/· Selesai\b/.test(norm(await page.locator("main").innerText().catch(() => "")))) { jejak.push("«Selesai»"); break; }
-    for (const tombol of ["Sudah saya periksa, lanjutkan sisanya", "Mulai mencatat", "Lanjutkan"]) {
-      const b = page.getByRole("button", { name: tombol, exact: true });
-      if (await b.count() && await b.first().isEnabled()) { await b.first().click(); jejak.push(`«${tombol}»`); break; }
-    }
-    await page.waitForTimeout(1000);
-    if (i % 5 === 4) await page.reload({ waitUntil: "networkidle" });
-  }
-  await shot(page, "pendataan-selesai");
-  // back to the list by the page's own link
-  await page.locator('a.pin-back[href="/pendataan"]').first().click();
-  await page.waitForURL((u) => u.pathname === "/pendataan", { timeout: SLOW });
-  await page.waitForLoadState("networkidle");
-  return `${nama.length} name(s) pasted; ${jejak.join(" → ")}`;
-}
+// Pendataan (pendataan.mjs, shared with the report walk's GS-22), with this walk's screenshots
+const catat = (page, nama, opsi = {}) => catatDi(page, nama, opsi, { shot });
 // Peran & akses on Konfigurasi: person, role, place, until the school year ends; «Berikan peran»
 async function beriPeran(page, nama, peran, tempatNama) {
   const form = page.locator("form").filter({ has: page.locator('select[name="person"]') });

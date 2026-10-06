@@ -74,8 +74,9 @@ async function layarSiap(page) {
 }
 const teksHalaman = async (page) => String(await page.locator("body").innerText().catch(() => "")).replace(/\s+/g, " ").trim();
 
-// The activation wizard (BOB-26, DAISY-20) and «Komputer siapa ini?» (BOB-29), answered by their own screens.
-export async function selesaikan(page, k) {
+// The activation wizard (BOB-26, DAISY-20) and «Komputer siapa ini?» (BOB-29), answered by their own screens: «Komputer
+// pribadi saya» unless the walk asks for «Komputer bersama» (perangkat: "SHARED", GS-20's staff on a shared computer).
+export async function selesaikan(page, k, { perangkat = "PERSONAL" } = {}) {
   const lewat = [];
   for (let putaran = 0; putaran < 12; putaran++) {
     const jalur = new URL(page.url()).pathname;
@@ -117,8 +118,8 @@ export async function selesaikan(page, k) {
       continue;
     }
     if (jalur === "/perangkat") {
-      lewat.push("perangkat");
-      await page.locator('input[type="radio"][name="mode"][value="PERSONAL"]').check();
+      lewat.push(perangkat === "SHARED" ? "perangkat bersama" : "perangkat");
+      await page.locator(`input[type="radio"][name="mode"][value="${perangkat}"]`).check();
       await page.getByRole("button", { name: "Simpan pilihan" }).click();
       await page.waitForURL((u) => u.pathname !== "/perangkat", { timeout: SLOW }).catch(() => {});
       await page.waitForLoadState("networkidle");
@@ -199,22 +200,24 @@ export async function pulihkanDenganPin(page, pintarId, pin, password) {
  * for an account whose password the walk does not know. `keadaan` reads the account's set-up state from the
  * database, read only: null for no account, else its account_setup state. Returns where the person landed and how.
  */
-export async function masukStaf(page, email, keadaan) {
+export async function masukStaf(page, email, keadaan, { perangkat = "PERSONAL" } = {}) {
   const k = kredensial(email);
   const state = keadaan(email);
   if (state === null) throw new Error("this person has no account yet");
   let jalan = "";
+  let diaktifkan = [];
   try {
     if (state === "REQUIRED") {
       jalan = "activated by the emailed code";
-      await aktifkan(page, email, k);
+      // the wizard's steps, in the order the screens asked for them (6 Oct: kept, not dropped)
+      diaktifkan = await aktifkan(page, email, k);
     } else if (await denganPassword(page, email, k.password)) {
       jalan = "the password";
     } else {
       jalan = "«Lupa password?» by the emailed code, then the password";
       await pulihkanDenganEmail(page, email, k.password);
     }
-    const lewat = await selesaikan(page, k);
+    const lewat = [...diaktifkan, ...await selesaikan(page, k, { perangkat })];
     return { di: new URL(page.url()).pathname, jalan, lewat };
   } catch (e) {
     throw await bukti(page, e, `signing in (${state}, ${jalan})`);

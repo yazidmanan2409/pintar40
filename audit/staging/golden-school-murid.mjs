@@ -6,22 +6,24 @@
 //   M1  GS-07, its second half (J3.7, M7): the school admin signs in with their password (masuk.mjs) and, on Aktivasi, makes
 //       the class's cards in one press as a printable class set; the walk reads the five cards from that set.
 //   M2  GS-12 (J2.19): the primary student signs in with their class card and lands on /belajar with the chapter.
-//   M3  GS-13 (J6.5–J6.9): by clicking, the chapter → its Pemetaan Awal → the explicit «Mulai Pemetaan Awal» →
-//       answers → «Selesaikan pemetaan».
+//   M3  GS-13 (J6.2, J6.5–J6.9): by clicking, the chapter → its Pemetaan Awal → the explicit «Mulai Pemetaan Awal» →
+//       answers → «Selesaikan pemetaan». No sitting exists before that press (J6.2: opening is not starting).
 //   M4  GS-14 (J6.3): every lesson read to its last page by clicking «Halaman berikutnya», each lesson reached by the
 //       previous one's link; after the last, the page offers the post-test.
 //   M5  GS-15 (J6.10, J6.11, J6.15): the post-test by that link; «Mulai Uji Penguasaan»; each answer saved
 //       («Simpan jawaban ini» → «Tersimpan»); «Kumpulkan» asks first; the result says how many were right and that
-//       the school's target was met (M3).
-//   M6  GS-16: the four other students sign in with their cards and sit both tests, to a plan that puts the class's
-//       figures above the five-learner floor and its results on both sides of the school's mark.
+//       the school's target was met (M3). No sitting before «Mulai Uji Penguasaan»; the result shows her own growth
+//       (the Pemetaan Awal's mastery → the Uji Penguasaan's) and no rank, class average or other learner (J6.11).
+//   M6  GS-16: the four other students sign in with their cards and, every page by clicking as the primary student,
+//       sit the Pemetaan Awal, read the lessons and sit the Uji Penguasaan, to a plan that puts the class's figures
+//       above the five-learner floor and its results on both sides of the school's mark.
 //   M7  read back, read only: every sitting FINALIZED; the post-tests OFFICIAL, sealed at the school's mark; each
 //       student's mastery and pass/fail as planned.
 //
 // ONE RUN. A card's PIN is shown once, so the cards are made and used in this run and never kept: after M1, a student
 // signs in again only with a card the school admin re-issues (GS-21; golden-school-laporan.mjs R1 does so for the two
-// it needs), or on a new Golden School (C1). Every page is reached by clicking, except that the four other students open their two tests
-// by address (they "only sit the tests", §4). NEVER: production; a direct write (the database is read in read-only
+// it needs), or on a new Golden School (C1). Every page is reached by clicking: the four other students too, since 6 Oct
+// (CR-61; until then they opened their two tests by typed address, a declared bypass). NEVER: production; a direct write (the database is read in read-only
 // transactions; every write is a press of PINTAR's buttons); a server-made session as a person's act.
 import { chromium } from "playwright";
 import { execFileSync } from "node:child_process";
@@ -233,6 +235,49 @@ async function bacaHasil(page) {
   return { tepat: m ? Number(m[1]) : null, dari: m ? Number(m[2]) : null, tercapai: t.includes("Target tercapai."), belum: t.includes("Belum mencapai target.") };
 }
 
+// the sittings one student has in this chapter, by mode: J6.2 (opening a test's page starts nothing) is read here
+const sittings = (nama, mode) => Number(sql(`select count(*) from public.assessment_sessions s join public.persons p on p.id = s.person_id
+   where s.learning_assignment_id = '${S.tugas}' and s.mode = '${mode}' and p.display_name = ${lit(nama)}`));
+
+// GS-14's reading, by clicking: from the reading map's own button, every lesson to its last page by «Halaman berikutnya»,
+// each reached by the previous one's link, until the last offers the post-test; `p` is on the reading map
+async function bacaSemua(p, pelajaran, foto = false) {
+  const jejak = [];
+  await klikTautan(p, `/belajar/${S.tugas}/pelajaran/${pelajaran[0]}`);
+  for (let i = 0; i < pelajaran.length; i++) {
+    if (new URL(p.url()).pathname !== `/belajar/${S.tugas}/pelajaran/${pelajaran[i]}`) { jejak.push(`expected lesson ${i + 1}, at ${new URL(p.url()).pathname}`); return { ok: false, jejak }; }
+    const maju = p.getByRole("button", { name: "Halaman berikutnya", exact: true });
+    await maju.waitFor({ timeout: SLOW });
+    let halaman = 1;
+    for (let q = 0; q < 60 && await maju.isEnabled(); q++) { await maju.click(); halaman++; await p.waitForTimeout(250); }
+    const posisi = norm(await p.locator(".pin-lpos").innerText().catch(() => ""));
+    // the save that makes the lesson read refreshes the page once; then its onward link is there
+    const lanjut = i + 1 < pelajaran.length ? `/belajar/${S.tugas}/pelajaran/${pelajaran[i + 1]}` : `/belajar/${S.tugas}/penguasaan`;
+    const tautan = p.locator(`a[href="${lanjut}"]`).first();
+    const ada = await tautan.waitFor({ state: "visible", timeout: SLOW }).then(() => true, () => false);
+    jejak.push(`lesson ${i + 1}: ${halaman} page(s), "${posisi}"`);
+    if (foto && i === pelajaran.length - 1) await shot(p, "m4-terakhir");
+    if (!ada) { jejak.push(`no link onward to ${lanjut}`); return { ok: false, jejak }; }
+    await tautan.click();
+    await p.waitForURL((u) => u.pathname === lanjut, { timeout: SLOW });
+    await p.waitForLoadState("networkidle");
+    await closeTour(p);
+  }
+  return { ok: true, jejak };
+}
+// J6.11 on a result page: the learner's own growth, Pemetaan Awal → Uji Penguasaan, as the plan makes it; and no rank,
+// class average or other learner anywhere on it
+async function tumbuh(p, nama, pre, post) {
+  const t = norm(await p.locator("main").innerText().catch(() => ""));
+  const m = t.match(/(\d+)\s?%\s*→\s*(\d+)\s?%/);
+  const awal = Math.round((100 * pre.right) / SOAL.pre), akhir = Math.round((100 * post.right) / SOAL.post);
+  const tumbuhOk = Boolean(m) && Math.abs(Number(m[1]) - awal) <= 1 && Math.abs(Number(m[2]) - akhir) <= 1;
+  const lain = MURID.filter((n) => n !== nama && t.includes(n));
+  const peringkat = /peringkat|ranking|rata-rata|rerata|urutan ke|juara/i.test(t);
+  return { ok: tumbuhOk && !lain.length && !peringkat,
+    kata: `growth ${m ? `${m[1]}% → ${m[2]}%` : "not shown"} (planned ${awal}% → ${akhir}%); ${lain.length ? `names ${lain.join(", ")}` : "no other learner"}; ${peringkat ? "a rank or average shown" : "no rank or average"}` };
+}
+
 // ── M2–M5: the primary student, every step by clicking
 const U = await (await ctx()).newPage();
 let utamaMasuk = false;
@@ -246,87 +291,76 @@ await step("M2", `GS-12 (J2.19): the primary student «${MURID[0]}» signs in wi
 });
 
 let pre0 = null;
-await step("M3", "GS-13 (J6.5–J6.9): /belajar's card → the Pemetaan Awal (orientation) → «Mulai Pemetaan Awal» → every question answered → «Selesaikan pemetaan» → the reading map", async (rec) => {
+await step("M3", "GS-13 (J6.2, J6.5–J6.9): /belajar's card → the Pemetaan Awal (orientation; no sitting yet) → «Mulai Pemetaan Awal» → every question answered → «Selesaikan pemetaan» → the reading map", async (rec) => {
   if (!utamaMasuk) { rec.verdict = "FAIL"; return "not signed in (M2)"; }
   // /belajar's card says the step it opens (DAISY-26): for a new learner, the Pemetaan Awal; else via the chapter's page
   if (await U.locator(`a[href="/belajar/${S.tugas}/pemetaan"]`).count()) await klikTautan(U, `/belajar/${S.tugas}/pemetaan`);
   else { await klikTautan(U, `/belajar/${S.tugas}`); await klikTautan(U, `/belajar/${S.tugas}/pemetaan`); }
   const orientasi = norm(await U.locator("main").innerText().catch(() => "")).slice(0, 200);
   await shot(U, "m3-orientasi");
+  const sebelum = sittings(MURID[0], "PRE_TEST");
   await U.getByRole("button", { name: "Mulai Pemetaan Awal", exact: true }).click();
   pre0 = await jawab(U, "pre", target(SOAL.pre, RENCANA[0][0]));
   await shot(U, "m3-peta");
   const di = new URL(U.url()).pathname;
-  if (pre0.unknown || pre0.answered !== SOAL.pre || !di.endsWith("/peta")) rec.verdict = "FAIL";
-  return `orientation: "${orientasi}"; answered ${pre0.answered}/${SOAL.pre}, ${pre0.right} right as planned, ${pre0.unknown} not in the key; then ${di}`;
+  if (sebelum !== 0 || pre0.unknown || pre0.answered !== SOAL.pre || !di.endsWith("/peta")) rec.verdict = "FAIL";
+  return `orientation: "${orientasi}"; sittings before «Mulai Pemetaan Awal»: ${sebelum} (J6.2); answered ${pre0.answered}/${SOAL.pre}, ${pre0.right} right as planned, ${pre0.unknown} not in the key; then ${di}`;
 });
 
-let bacaSemua = false;
+let bacaSemua_ = false;
+const daftarPelajaran = () => sql(`select string_agg(l.id::text, ',' order by m.ordinal, l.ordinal) from public.lessons l join public.modules m on m.id = l.module_id where m.course_id = '${S.kursus}'`).split(",");
 await step("M4", "GS-14 (J6.3): every lesson read to its last page by clicking «Halaman berikutnya», each reached by the previous one's link; after the last, the page offers the post-test", async (rec) => {
   if (!pre0) { rec.verdict = "FAIL"; return "no pre-test (M3)"; }
-  const pelajaran = sql(`select string_agg(l.id::text, ',' order by m.ordinal, l.ordinal) from public.lessons l join public.modules m on m.id = l.module_id where m.course_id = '${S.kursus}'`).split(",");
-  const jejak = [];
-  // the reading map's own button opens the first lesson
-  await klikTautan(U, `/belajar/${S.tugas}/pelajaran/${pelajaran[0]}`);
-  for (let i = 0; i < pelajaran.length; i++) {
-    if (new URL(U.url()).pathname !== `/belajar/${S.tugas}/pelajaran/${pelajaran[i]}`) { rec.verdict = "FAIL"; jejak.push(`expected lesson ${i + 1}, at ${new URL(U.url()).pathname}`); break; }
-    const maju = U.getByRole("button", { name: "Halaman berikutnya", exact: true });
-    await maju.waitFor({ timeout: SLOW });
-    let halaman = 1;
-    for (let p = 0; p < 60 && await maju.isEnabled(); p++) { await maju.click(); halaman++; await U.waitForTimeout(250); }
-    const posisi = norm(await U.locator(".pin-lpos").innerText().catch(() => ""));
-    // the save that makes the lesson read refreshes the page once; then its onward link is there
-    const lanjut = i + 1 < pelajaran.length ? `/belajar/${S.tugas}/pelajaran/${pelajaran[i + 1]}` : `/belajar/${S.tugas}/penguasaan`;
-    const tautan = U.locator(`a[href="${lanjut}"]`).first();
-    const ada = await tautan.waitFor({ state: "visible", timeout: SLOW }).then(() => true, () => false);
-    jejak.push(`lesson ${i + 1}: ${halaman} page(s), "${posisi}"`);
-    if (i === pelajaran.length - 1) { await shot(U, "m4-terakhir"); bacaSemua = ada; }
-    if (!ada) { rec.verdict = "FAIL"; jejak.push(`no link onward to ${lanjut}`); break; }
-    await tautan.click();
-    await U.waitForURL((u) => u.pathname === lanjut, { timeout: SLOW });
-    await U.waitForLoadState("networkidle");
-    await closeTour(U);
-  }
+  const pelajaran = daftarPelajaran();
+  const baca = await bacaSemua(U, pelajaran, true);
+  bacaSemua_ = baca.ok;
+  const jejak = baca.jejak;
+  if (!baca.ok) rec.verdict = "FAIL";
   const dibaca = sql(`select count(*) filter (where lp.furthest_position >= lp.total_positions) || '/' || count(*)
     from public.lesson_progress lp join public.persons p on p.id = lp.person_id
    where p.display_name = ${lit(MURID[0])} and lp.lesson_id in (${pelajaran.map((x) => `'${x}'`).join(",")})`);
   jejak.push(`read in the database: ${dibaca} of ${pelajaran.length}`);
-  if (!bacaSemua || dibaca !== `${pelajaran.length}/${pelajaran.length}`) rec.verdict = "FAIL";
+  if (!bacaSemua_ || dibaca !== `${pelajaran.length}/${pelajaran.length}`) rec.verdict = "FAIL";
   return jejak.join("; ");
 });
 
-await step("M5", `GS-15 (J6.10, J6.11, J6.15): the post-test by that link; «Mulai Uji Penguasaan»; each answer saved; «Kumpulkan» asks first; the result says how many were right and that the school's target (70%) was met`, async (rec) => {
-  if (!bacaSemua || new URL(U.url()).pathname !== `/belajar/${S.tugas}/penguasaan`) { rec.verdict = "FAIL"; return `not on the post-test (M4); at ${new URL(U.url()).pathname}`; }
+await step("M5", `GS-15 (J6.2, J6.10, J6.11, J6.15): the post-test by that link; no sitting before «Mulai Uji Penguasaan»; each answer saved; «Kumpulkan» asks first; the result says how many were right, that the school's target (70%) was met, her own growth, and no rank or other learner`, async (rec) => {
+  if (!bacaSemua_ || new URL(U.url()).pathname !== `/belajar/${S.tugas}/penguasaan`) { rec.verdict = "FAIL"; return `not on the post-test (M4); at ${new URL(U.url()).pathname}`; }
   await shot(U, "m5-orientasi");
+  const sebelum = sittings(MURID[0], "POST_TEST");
   await U.getByRole("button", { name: "Mulai Uji Penguasaan", exact: true }).click();
   const post = await jawab(U, "post", target(SOAL.post, RENCANA[0][1]));
   const h = await bacaHasil(U);
+  const g = await tumbuh(U, MURID[0], pre0, post);
   await shot(U, "m5-hasil");
-  if (post.unknown || h.tepat !== post.right || h.dari !== SOAL.post || !h.tercapai || !post.ditanya) rec.verdict = "FAIL";
-  return `answered ${post.answered}/${SOAL.post}, ${post.right} right as planned; «Kumpulkan» asked first ${post.ditanya}; the page says "Terjawab tepat ${h.tepat} dari ${h.dari} soal", «Target tercapai.» ${h.tercapai}`;
+  if (sebelum !== 0 || post.unknown || h.tepat !== post.right || h.dari !== SOAL.post || !h.tercapai || !post.ditanya || !g.ok) rec.verdict = "FAIL";
+  return `sittings before «Mulai Uji Penguasaan»: ${sebelum} (J6.2); answered ${post.answered}/${SOAL.post}, ${post.right} right as planned; «Kumpulkan» asked first ${post.ditanya}; ` +
+    `the page says "Terjawab tepat ${h.tepat} dari ${h.dari} soal", «Target tercapai.» ${h.tercapai}; J6.11: ${g.kata}`;
 });
 await U.context().close();
 
 // ── M6: the four others sit both tests
-await step("M6", "GS-16: the four other students sign in with their cards and sit both tests to plan; each result page says whether the school's target was met", async (rec) => {
+await step("M6", "GS-16: the four other students, each by clicking as the primary student: card → /belajar → the Pemetaan Awal → the reading map → every lesson → the Uji Penguasaan → the result, which says whether the school's target was met", async (rec) => {
   const out = [];
+  const pelajaran = daftarPelajaran();
   for (let i = 1; i < MURID.length; i++) {
     const s = await (await ctx()).newPage();
     try {
       const di = await masukKartu(s, kartu[i]);
-      await s.goto(`${APP}/belajar/${S.tugas}/pemetaan`, { waitUntil: "networkidle" });
-      await closeTour(s);
+      // /belajar's card says the step it opens: for a new learner, the Pemetaan Awal
+      if (await s.locator(`a[href="/belajar/${S.tugas}/pemetaan"]`).count()) await klikTautan(s, `/belajar/${S.tugas}/pemetaan`);
+      else { await klikTautan(s, `/belajar/${S.tugas}`); await klikTautan(s, `/belajar/${S.tugas}/pemetaan`); }
       await s.getByRole("button", { name: "Mulai Pemetaan Awal", exact: true }).click();
       const pre = await jawab(s, "pre", target(SOAL.pre, RENCANA[i][0]));
-      await s.goto(`${APP}/belajar/${S.tugas}/penguasaan`, { waitUntil: "networkidle" });
-      await closeTour(s);
+      const baca = new URL(s.url()).pathname.endsWith("/peta") ? await bacaSemua(s, pelajaran) : { ok: false, jejak: [`after the Pemetaan Awal at ${new URL(s.url()).pathname}`] };
+      if (!baca.ok) throw new Error(`reading: ${baca.jejak.at(-1)}`);
       await s.getByRole("button", { name: "Mulai Uji Penguasaan", exact: true }).click();
       const post = await jawab(s, "post", target(SOAL.post, RENCANA[i][1]));
       const h = await bacaHasil(s);
       const lulus = RENCANA[i][1] >= 0.7;
       const ok = !pre.unknown && !post.unknown && h.tepat === post.right && (lulus ? h.tercapai : h.belum);
       if (!ok) rec.verdict = "FAIL";
-      out.push(`${MURID[i]} (landed ${di}): pre ${pre.right}/${pre.answered}, post ${post.right}/${post.answered}; the page: ${lulus ? "«Target tercapai.»" : "«Belum mencapai target.»"} ${lulus ? h.tercapai : h.belum}${ok ? "" : " MISMATCH"}`);
+      out.push(`${MURID[i]} (landed ${di}): pre ${pre.right}/${pre.answered}; read ${pelajaran.length} lesson(s) by clicking; post ${post.right}/${post.answered}; the page: ${lulus ? "«Target tercapai.»" : "«Belum mencapai target.»"} ${lulus ? h.tercapai : h.belum}${ok ? "" : " MISMATCH"}`);
     } catch (e) {
       rec.verdict = "FAIL";
       await shot(s, `m6-murid${i + 1}-berhenti`);
