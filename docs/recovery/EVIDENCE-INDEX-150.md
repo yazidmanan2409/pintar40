@@ -129,7 +129,7 @@ DR-S12 and DR-S13 are reserved for WP-C (not built).
 | 37401454517 | `e6cb045` | 35/35, 580/580 | WP-A |
 | 37409454539 | `9133ffc` | 35/35, 587/587 | WP-B |
 | 37412506567 | `cc2307e` | 35/35 | D-109 (R1 + R2, custody, 5 GiB, the path check) |
-| 37415061854 | `c13589f` | see `JOURNEY-LOG.md` | the owner's pooler value as an input; R1 + R2 documents aligned |
+| 37415061854 | `c13589f` | **34/35**, 587 passed, 1 failed | the owner's pooler value as an input; R1 + R2 documents aligned. **DR-D02 red:** its second (empty) stack could not bind port 55322, which lies in Linux's ephemeral range and was held on the runner. The test now takes the first free set of ports below that range; reproduced locally (55322 held: the old test red with the same error, the new one green) |
 
 ---
 

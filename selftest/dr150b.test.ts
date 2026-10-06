@@ -77,7 +77,7 @@
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
-import type { AddressInfo } from "node:net";
+import { createServer as tcpServer, type AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -298,12 +298,28 @@ function hakDigest(skemaRegex: string) {
 }
 
 /** A second, EMPTY local Supabase stack on its own ports: a new project's stand-in. */
+/** Whether nothing on this machine holds TCP `port` (bound on every address, as Docker's port publishing binds it). */
+const portFree = (port: number) => new Promise<boolean>((ok) => {
+  const s = tcpServer();
+  s.once("error", () => ok(false));
+  s.listen(port, "0.0.0.0", () => s.close(() => ok(true)));
+});
+
 async function emptyStack(repoRoot: string, dir: string) {
   const cli = (...a: string[]) => spawnSync("npx", ["--no-install", "supabase", "--workdir", dir, ...a], { cwd: repoRoot, encoding: "utf8", input: "n\nn\n", maxBuffer: 1 << 24 });
   cli("init", "--force");
   const cfgFile = join(dir, "supabase", "config.toml");
   let cfg = readFileSync(cfgFile, "utf8");
-  cfg = cfg.replace(/^project_id = .*$/m, 'project_id = "pintar40drd02"').replace(/= 543(\d\d)\b/g, "= 553$1").replace(/= 8083\b/g, "= 8183")
+  // The second stack's ports sit BELOW Linux's ephemeral range (32768-60999): a port inside it can already be held by
+  // any outgoing connection on the machine, and was once (CI run 37415061854: 55322 "address already in use"). The
+  // first base whose every port is free is taken.
+  let base = "";
+  for (const b of ["243", "253", "263", "273", "283"]) {
+    const ports = [...cfg.matchAll(/= 543(\d\d)\b/g)].map((m) => Number(`${b}${m[1]}`));
+    if ((await Promise.all([...ports, 8183].map(portFree))).every(Boolean)) { base = b; break; }
+  }
+  if (!base) return { ok: false, err: "no free set of ports below the ephemeral range for the empty stack", db: "", s3: {}, stop: () => undefined };
+  cfg = cfg.replace(/^project_id = .*$/m, 'project_id = "pintar40drd02"').replace(/= 543(\d\d)\b/g, `= ${base}$1`).replace(/= 8083\b/g, "= 8183")
     .replace(/^major_version = .*$/m, "major_version = 17");
   writeFileSync(cfgFile, cfg);
   const st = cli("start", "-x", "studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit");
