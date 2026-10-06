@@ -112,15 +112,18 @@ export const ciwasteTests: SelfTest[] = [
 
       // 2. reuse only from an authoritative run: on a branch, a successful run whose strict selftest ran, recent, same code
       const now = Date.parse("2026-10-06T12:00:00Z");
-      const ok = { onMain: false, run: { conclusion: "success", created_at: "2026-10-06T10:00:00Z" }, selftestConclusion: "success", changed: ["docs/reports/a.md"], now };
+      const ok = { onMain: false, run: { conclusion: "success", event: "workflow_dispatch", created_at: "2026-10-06T10:00:00Z" }, selftestConclusion: "success", changed: ["docs/reports/a.md"], now };
       c.expect(m.reusable(ok).ok, `an authoritative recent run with only an unread change is not reusable: ${m.reusable(ok).why}`);
       for (const [label, over] of [
         ["on main", { onMain: true }],
-        ["a failed run", { run: { conclusion: "failure", created_at: "2026-10-06T10:00:00Z" } }],
-        ["a cancelled run (DEFERRED or ALREADY PROVEN)", { run: { conclusion: "cancelled", created_at: "2026-10-06T10:00:00Z" } }],
+        ["a failed run", { run: { conclusion: "failure", event: "workflow_dispatch", created_at: "2026-10-06T10:00:00Z" } }],
+        ["a cancelled run (DEFERRED or ALREADY PROVEN)", { run: { conclusion: "cancelled", event: "workflow_dispatch", created_at: "2026-10-06T10:00:00Z" } }],
         ["a run whose selftest was skipped", { selftestConclusion: "skipped" }],
         ["a run with no selftest", { selftestConclusion: "missing" }],
-        ["a run older than 72 hours", { run: { conclusion: "success", created_at: "2026-10-03T11:59:00Z" } }],
+        ["a run older than 72 hours", { run: { conclusion: "success", event: "workflow_dispatch", created_at: "2026-10-03T11:59:00Z" } }],
+        // a pull request run tests the merge of its head with the base, so its head_sha was never itself proven
+        ["a pull request run", { run: { conclusion: "success", event: "pull_request", created_at: "2026-10-06T10:00:00Z" } }],
+        ["a run of unknown event", { run: { conclusion: "success", created_at: "2026-10-06T10:00:00Z" } }],
         ["a commit outside this history", { changed: null }],
         ["a code change", { changed: ["docs/reports/a.md", "src/x.ts"] }],
       ] as const) {

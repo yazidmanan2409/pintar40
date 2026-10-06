@@ -10,6 +10,8 @@
 // 2. IS THIS CODE ALREADY PROVEN? On a working branch only (never on main: every release candidate runs in full). The
 //    outcome is ALREADY PROVEN, and the run cancels itself, naming the earlier run that is the evidence. It applies
 //    when that run is authoritative and its code is identical:
+//      - it ran on a push or a dispatch, so it tested its head commit itself (a pull request run tests the merge of its
+//        head with the base, and that head was never proven on its own);
 //      - its strict selftest job really ran and succeeded;
 //      - it is at most MAX_AGE_HOURS old (default 72);
 //      - its files differ from this commit's only in documents nothing reads. A path counts as unread only when it is
@@ -40,6 +42,8 @@ export const sameCode = (changed) => changed.every(unread);
 /** The arguments that list changed paths: a rename counts as its old and its new path. */
 export const DIFF_ARGS = (from, to) => ["diff", "--no-renames", "--name-only", from, to];
 export const SELFTEST_JOB = "selftest contract (strict, local stack)";
+/** Events whose run tests exactly its head_sha. */
+export const HEAD_EVENTS = ["push", "workflow_dispatch"];
 
 /** Jobs of other runs waiting for a runner longer than `minutes`, at `now`. */
 export function starved(jobs, now, minutes = 10) {
@@ -53,6 +57,7 @@ export function starved(jobs, now, minutes = 10) {
 export function reusable({ onMain, run, selftestConclusion, changed, now, maxAgeHours = 72 }) {
   if (onMain) return { ok: false, why: "main: every run is in full" };
   if (!run || run.conclusion !== "success") return { ok: false, why: "the candidate run did not succeed" };
+  if (!HEAD_EVENTS.includes(run.event)) return { ok: false, why: "the candidate did not test its own head (a pull request run tests a merge)" };
   if (selftestConclusion !== "success") return { ok: false, why: "the candidate's strict selftest did not run and succeed" };
   if ((now - Date.parse(run.created_at)) / 3600000 > maxAgeHours) return { ok: false, why: `the candidate is older than ${maxAgeHours} h` };
   if (!Array.isArray(changed)) return { ok: false, why: "the candidate's commit is not in this history" };
