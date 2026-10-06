@@ -553,3 +553,21 @@ Gate 3 stays held; the coordinator does not merge it.
       equal to the baseline, no test-harness schema, PostgreSQL 17.6.
     - **Landed on `main` with this record;** `staging.yml` is dispatched next to apply migration 162 to staging; then
       the read-only verification. Production untouched.
+
+43. **#150 migration 162 on hosted staging, 6 Oct (D-109(a)): applied and verified read only; the path check stopped
+    at the pooler, as ruled.**
+    - **Applied:** `staging.yml` run 37414019844 on `main` `29337de`: migrations before 161, after 162 (last
+      `20261125100000`), equal to the repository. The migration's own assertions (ADR-0014) ran on staging and passed,
+      or the apply would have failed. Production untouched; nothing else was dispatched.
+    - **The catalog, read only (Supabase connector):** `pintar_backup`'s profile on staging, printed by
+      `scripts/recovery/backup-profile.sql`, **equals the proven local profile on all 16 lines**
+      (`docs/recovery/pintar-backup-profile.expected`): LOGIN, BYPASSRLS, INHERIT, nothing else; the five defaults;
+      member of `pg_read_all_data` alone, without admin; nobody can become it; owns nothing; named in no grant;
+      creates nowhere; writes nothing; advances no sequence; executes no SECURITY DEFINER and no PINTAR function;
+      reads every backup table. Extensions equal staging's baseline; no test-harness schema. No password exists for
+      it (C2 is O6), so nobody can sign in as it.
+    - **The path check (`staging-backup-path.yml` run 37414154468): stopped at step 1.** Supabase refused staging's
+      access token the pooler configuration (`/v1/projects/{ref}/config/database/pooler`: HTTP 403). The endpoint is
+      therefore **not resolved and not guessed** (D-109(a)); `verify-full`, the shared snapshot and the profile
+      through the pooler did not run. **Waiting for the owner's dashboard value** (staging project → Connect → Session
+      pooler: host, port, user).
