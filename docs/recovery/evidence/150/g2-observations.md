@@ -56,3 +56,13 @@ Not included: the time to decide and start a restore, and reconnecting the appli
 | API keys | legacy anon key (staging's ref) + a modern `sb_publishable_…` key | a **new** legacy anon key (the copy's own ref); **no** `sb_publishable_…` key | **not reproduced** |
 | Auth settings (via the security advisors) | 3 findings | the same 3 **plus `auth_leaked_password_protection`** (WARN) | **not reproduced**: leaked-password protection (on in staging, D-082(a)) is off in the copy; the other Auth settings were not readable read-only |
 | Edge Functions | none | none | nothing to reproduce |
+
+## Deletion (owner), and its confirmation
+
+| Time (UTC) | Observation | Source |
+|---|---|---|
+| after 00:57 | the owner deleted `pintar-g2-rehearsal-DELETE-ME`; the owner's screenshot shows only `pintar`, `pintar-production`, `pintar-staging` | owner |
+| 01:05:56 | `list_projects` returns exactly `pintar` (`sknixmwkynzmrgbxzrvb`), `pintar-production` (`trtlvibiybwixfumjrrx`), `pintar-staging` (`keijhmdtsgrfvnvocfvk`), all `ACTIVE_HEALTHY`; **`rzphxkmbsunmedxmxwsz` is absent** | connector `list_projects` |
+| 01:05:56 | `get_project rzphxkmbsunmedxmxwsz` is refused ("You do not have permission to perform this action"): the ref no longer resolves to a project of the organisation | connector `get_project` |
+
+The temporary project existed from 00:48:02 until its deletion, at most about 18 minutes (the copy was last seen `ACTIVE_HEALTHY` at 00:58; deletion confirmed by 01:05:56). **G2 is closed.**
