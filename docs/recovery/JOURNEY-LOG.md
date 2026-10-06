@@ -500,3 +500,19 @@ Gate 3 stays held; the coordinator does not merge it.
     - **Tests:** DR-S05 and DR-S06 restated, DR-S07 new: red on `d7f47f1`, green on `e6cb045`.
     - **CI 37401454517 on `e6cb045`:** 35/35 jobs, 580/580 tests.
     - **Next:** the owner's O2 (`docs/recovery/OWNER-INSTRUCTIONS-150.md`), then a `recovery-facts` run as the evidence.
+40. **#150 WP-B, 6 Oct: stopped for a ruling. Supabase's extension manager lets any database login create and drop allow-listed extensions.**
+    - **Approved (owner):** WP-B's code, migration 162 and its tests, against local and test stand-ins only, while O2 is
+      pending.
+    - **Measured on the local Supabase stack** (this container, and CI's), the same Postgres 17.6 image family as
+      hosted:
+      - the read-only profile (`pg_read_all_data` + BYPASSRLS, nothing else) makes all five dumps **byte-identical** to
+        `postgres`'s, so no further privilege is needed for a complete dump;
+      - it can execute none of PINTAR's 490 functions;
+      - staging's catalog, read-only, shows the same write paths.
+    - **Finding:** `supautils` performs CREATE and DROP of its allow-listed extensions as `supabase_admin` for **any**
+      login, even a bare one. So `pintar_backup` could create extensions (one test run really created `hstore` in
+      `public`; removed) and could drop `pgcrypto` or `uuid-ossp` with CASCADE (rolled back).
+    - **Tried and failed:** a `postgres`-owned event trigger does not stop it.
+    - **Record:** `CLOSURE-PLAN-150.md` § A7.
+    - Nothing hosted was changed; migration 162 was applied to the local stack only and is **not** on `main` (a push to
+      `main` that touches `supabase/migrations/` applies it to staging, through `staging.yml`).

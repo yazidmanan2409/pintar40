@@ -6,7 +6,7 @@ external-service boundary. Every stop point stands. No UI/UX work. No change to 
 PITR implementation. No 100,000-user rehearsal.
 
 **Progress:** WP-A's code built and proven (`e6cb045`; CI 37401454517, 35/35, 580/580); waiting for O2 (C1), the
-owner's action.
+owner's action. **WP-B stopped for a ruling (6 Oct):** see § A7, "Finding: Supabase's extension manager".
 
 **Unchanged boundaries (D-106(h)–(j)):**
 - native Supabase restore is the **primary** database recovery path;
@@ -127,6 +127,39 @@ From the catalog, it also proves:
 
 The same catalog checks run read-only against staging after migration 162, and against production before its first
 backup, because CI's database has only stand-ins for Supabase's own schemas.
+
+**Finding: Supabase's extension manager (6 Oct, WP-B; stops the work for a ruling).** Building DR-S15 on the local
+Supabase stack, which runs the same Postgres image family as hosted staging (17.6), showed that `pintar_backup` **can
+create and drop extensions**.
+
+The mechanism is Supabase's `supautils`. For the extensions on its allow-list (`supautils.privileged_extensions`), it
+performs CREATE and DROP EXTENSION on behalf of **any** database login, as the superuser `supabase_admin`. Staging's
+settings are identical, read-only. Observed on the local stack, nothing left changed:
+- a **bare LOGIN role with no grant at all** created `pg_trgm`, so this is not something PINTAR's grants give;
+- `pintar_backup`, with its read-only default switched off, created `pg_trgm` (in `public`) and `dblink` (in `auth`);
+- it dropped `hstore`, and dropped **`pgcrypto CASCADE` and `"uuid-ossp" CASCADE`** (each inside a transaction rolled
+  back). A cascade can destroy every PINTAR object that depends on the extension;
+- one test run's `CREATE EXTENSION hstore` was real: `hstore` appeared in `public`, owned by `supabase_admin`, its
+  functions executable by PUBLIC, which includes `anon` through the API. It was removed;
+- a `postgres`-owned event trigger refusing all DDL from a `pintar_backup` session did **not** stop any of it:
+  `supautils` runs the command as the superuser, for whom such event triggers are skipped.
+
+Everything else A7 asks is proven on the local stack:
+- no INSERT, UPDATE, DELETE, TRUNCATE, COPY FROM, sequence advance, CREATE TABLE, VIEW or FUNCTION, CREATE SCHEMA,
+  ALTER, DROP of a PINTAR object, COMMENT, policy, trigger, role grant, CREATE ROLE, ALTER ROLE or SET ROLE;
+- no GRANT or REVOKE that moves a right;
+- no PINTAR function or SECURITY DEFINER function it can execute;
+- it owns nothing; it is read-only by default; the connection limit is enforced;
+- its five dumps are byte-identical to `postgres`'s.
+
+**So "cannot CREATE or DROP" holds for every PINTAR object, but not for Supabase's allow-listed extensions.** That is a
+platform behaviour that applies to any database login. No grant of PINTAR's causes it and none can remove it. A ruling
+is needed (options in the stop report of 6 Oct).
+
+**Also changed from A5 condition 3:** the bundle does not carry `readiness.txt`. The readiness check calls PINTAR's
+functions, which `pintar_backup` may not execute (A7), and no right is added for it. Readiness is checked where it
+decides something: on the restored copy, where 24/24 is required. `facts.txt` carries the security facts: rights,
+triggers, the pre-request, policies, and each function's definition, owner and execute rights.
 
 **Stop (D-107(c)):** if a complete dump turns out to need any privilege beyond this profile (for example a
 Supabase-managed object it cannot read), the work stops and returns for approval.
