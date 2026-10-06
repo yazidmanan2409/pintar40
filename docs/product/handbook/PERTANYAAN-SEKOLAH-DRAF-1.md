@@ -1,12 +1,15 @@
+**INTERNAL — untuk tim PINTAR saja; jangan dibagikan ke sekolah. FAQ untuk sekolah akan menjadi dokumen terpisah yang diturunkan dari jawaban canonical, bukan dokumen ini dengan bagian yang dihapus.**
+
 # PINTAR — 100 Pertanyaan yang Mungkin Ditanyakan Sekolah
 ## Draf 1 — Handbook Pengetahuan & Kepercayaan (INTERNAL)
 
-**Status dokumen: LANGKAH 1B — jawaban lengkap untuk Q001–Q100. Draf untuk diperiksa pemilik produk dan Second Eye; belum canonical dan belum materi training.**
+**Status dokumen: LANGKAH 1C — revisi atas tinjauan 1B dan putusan D-112; jawaban lengkap untuk Q001–Q100. Draf untuk diperiksa pemilik produk dan Second Eye; belum canonical dan belum materi training.**
 
 - Penyusun: FIONA
 - Tanggal baca: 6 Oktober 2026
-- Commit yang dibaca: `e5d2e35dc825e49a496efed92f5cf153b2f290c4` (`main` di `origin`, diperiksa ulang saat 1B dimulai dan sebelum dokumen ini diselesaikan: tidak berubah). Dokumen ini ditulis di branch `claude/new-session-nfib2w`.
-- Brief kondisi terkini yang dibaca: `docs/coordination/briefs/RESUME-2026-10-06.md` (yang terbaru).
+- Commit yang dibaca: `178e915cf773af142d9560a89f33ad110e9fbc1b` (`main` di `origin`, digabung ke branch ini dengan merge, bukan rebase; putaran 1B memakai `e5d2e35`, putaran 1C awal memakai `1b45612`). Dokumen ini ditulis di branch `claude/new-session-nfib2w`.
+- Brief kondisi terkini yang dibaca: `docs/coordination/briefs/RESUME-2026-10-06.md` (yang terbaru, termasuk daftar putusan D-112).
+- Dibaca ulang pada putaran 1C: D-111 dan D-112 (`DECISIONS.md`), `docs/recovery/EVIDENCE-INDEX-150.md`, `docs/product/SCHOOL-DATA-EXPORT-4.0.md` bagian D (dua lapis cadangan dipisahkan), `CLOSURE-PLAN-150.md`, `OFFSITE-BACKUP-DESIGN.md` (catatan "superseded"), SCOPE-INVENTORY J8.7 (catatan "superseded").
 - **Dokumen #150 (CLOSURE-PLAN, RESUME, JOURNEY-LOG) masih berubah minggu ini. Bila commit `main` berubah, bagian backup/pemulihan (Q070–Q072, Q085) dan Q004, Q088, Q100 harus diperiksa ulang.**
 
 ### Sumber yang dibaca
@@ -20,6 +23,7 @@
 3. Tidak ada nama orang atau sekolah nyata di dokumen ini. Satu-satunya nama yang disebut adalah badan hukum yang tertulis di footer aplikasi (Q002), dan itu ditandai PERLU VERIFIKASI HUKUM.
 4. Dokumen ini tidak menyelesaikan gap, tidak membuat keputusan produk, tidak mengubah roadmap, dan tidak membuat janji atas nama PINTAR. Jawaban singkat adalah kalimat yang aman diucapkan; bila status bukan TERSEDIA DI 4.0, jawaban singkat adalah jawaban sementara yang jujur.
 5. Perubahan dari tinjauan Langkah 1A (7 pertanyaan digabung, 4 rumusan diperluas, 7 pertanyaan baru, koreksi status) sudah diterapkan; pemetaan nomor lama → baru ada di Lampiran.
+6. **Putaran 1C (6 Okt):** `main` digabung ulang (178e915); tinjauan 1B diterapkan (±930 sitasi diperiksa pemeriksa, ±94% tepat; sitasi yang salah dikoreksi); aturan baru dipatuhi: tidak ada detail keamanan sensitif (D-110(e)), tidak ada nama orang, tidak ada fakta internal tentang staf dalam jawaban singkat, setiap "TERSEDIA DI 4.0" diberi penanda `(main/staging; belum di produksi)`, dan "dijadwalkan" tidak dipakai untuk apa pun di luar 4.0. D-112 diterapkan: AI (Q049, Q055: produk vs alat berbantuan AI tidak digabung), Q032/Q034 (ditahan untuk keputusan produk), Q006/Q007 (lisensi bahan kementerian), kohort (Q003, Q004, Q088, Q090), dan model hak atas data (Q061, Q075, Q082, G2.2). D-111 adalah GREEN untuk melanjutkan persiapan infrastruktur, **bukan** #150 lulus dan bukan siap produksi. Dokumen ini INTERNAL (D-112(f)).
 
 ### Daftar isi
 
@@ -27,15 +31,14 @@
 |---|---|---|
 | 1 | Tentang PINTAR, perusahaan, konten, implementasi, guru | Q001–Q022 |
 | 2 | Siswa, asesmen, laporan, sertifikat, AI | Q023–Q050 |
-| 6 | Integritas, privasi, kepemilikan data, ekspor, keamanan, akun | Q051–Q069 |
-| 7 | Backup, pemulihan, kesalahan manusia, perpindahan, hak akses, orang tua, retensi, keluar, dukungan | Q070–Q087 |
-| 10 | Skalabilitas, regulasi, biaya, sistem lain, roadmap | Q088–Q100 |
+| 3 | Integritas, privasi, kepemilikan data, ekspor, keamanan, akun | Q051–Q069 |
+| 4 | Backup, pemulihan, kesalahan manusia, perpindahan, hak akses, orang tua, retensi, keluar, dukungan | Q070–Q087 |
+| 5 | Skalabilitas, regulasi, biaya, sistem lain, roadmap | Q088–Q100 |
 | — | Pertanyaan yang PINTAR belum dapat jawab dengan yakin (gap, G1–G5) | — |
 | — | Glosarium | — |
 | — | Ringkasan: jumlah per status dan sensitivitas | — |
 | — | Lampiran: pemetaan nomor | — |
 
-(Penomoran kelompok mengikuti urutan penyusunan; kelompok 3–5 dan 8–9 tidak dipakai karena pertanyaan digabung ke kelompok di atas.)
 
 ---
 
@@ -183,7 +186,7 @@
 **Penjelasan:**
 - Dua asal konten (J4.11; D-085 M6). Alur Studio dikunci di database: susun dan ajukan (Guru, Kepala departemen, Admin sekolah) → setujui (Kepala departemen/Admin sekolah; penulis tidak boleh menyetujui pekerjaannya sendiri) → kunci rilis (orang kedua) → terbitkan (hanya Admin sekolah; Kepala departemen tidak bisa). Peninjau melihat soal, kunci, dan alasan. Catatan mutu soal ditinjau satu per satu sebelum terbit. Dekan tidak punya kemampuan Studio (INV-19; F06-N02).
 - Konten yang ada (SD kelas 5 Matematika Bab 1–9, SMA kelas X Matematika Bab 1–7, SMA kelas XI Geografi Bab 1–4; 20 buku kerja di `docs/onboarding/konten/`) disusun lewat persiapan berbantuan AI dengan pemeriksaan oleh koordinator (`LANA.md:5`), lalu diuji alurnya di staging. Sumbernya berbeda: sembilan buku kerja SD kelas 5 "diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V" (`docs/onboarding/konten/sd5_*.py`); Geografi kelas XI dan Matematika kelas X dari buku siswa (`LANA.md:25, 56`). Papan kerja mencatat "CONTENT PASS", bukan tinjauan guru mata pelajaran.
-- Tidak ditemukan: catatan tinjauan manusia ahli bidang atas konten itu; pernyataan lisensi atau hak pakai bahan sumber (D-069(g) hanya untuk demo pendidik); ini masuk G2.3 dan G4.
+- Tidak ditemukan: catatan tinjauan manusia ahli bidang atas konten itu; pernyataan lisensi atau hak pakai bahan sumber (D-069(g) hanya untuk demo pendidik); ini masuk G2.3 dan G4. "Diadaptasi dari" bukan izin (D-112(c)); buku panduan guru (sembilan buku kerja SD kelas 5) dan buku siswa (Geografi XI, Matematika X) adalah bahan yang berbeda dan hak pakainya harus diverifikasi terpisah.
 - Pengisian pustaka standar pusat tertahan: JOURNEY-LOG baris 139 (2 Okt) "belum ada jalur authoring"; D-029 menolak impor ke pustaka kanonik; G2 (siapa menyiapkan dan menyetujui) belum diputuskan. Jalur penampilan ke guru ada (`src/app/studio/kanonik`; M6-S01, M6-K01), pengisian pustaka belum.
 - AI tidak menerbitkan apa pun sendiri; penerbitan selalu oleh manusia (INV-32; doc 10).
 
@@ -195,9 +198,9 @@
 - MEMBUKTIKAN: `src/components/studio/langkah.ts`; tes di atas; JOURNEY-LOG butir 13, baris 139.
 - MENETAPKAN ATURAN: D-029, D-041, D-085 (M6), D-088(h); SCOPE-INVENTORY J1.5, J4.3, J4.11; INV-32; `docs/coordination/briefs/LANA.md`; BOARD (LANA-01–21). Tinjauan ahli bidang dan lisensi bahan sumber: **tidak ditemukan**.
 
-**Yang tidak boleh dikatakan:** "Semua konten diperiksa guru atau pakar"; "konten standar sudah tersedia untuk semua sekolah"; "AI tidak dipakai membuat konten"; "kesesuaian kurikulum terjamin".
+**Yang tidak boleh dikatakan:** "berlisensi", "resmi dari kementerian", "boleh dipakai bebas" ("diadaptasi dari" bukan izin; D-112(c)); "Semua konten diperiksa guru atau pakar"; "konten standar sudah tersedia untuk semua sekolah"; "AI tidak dipakai membuat konten"; "kesesuaian kurikulum terjamin".
 
-**Status:** SEBAGIAN
+**Status:** SEBAGIAN; kedua: PERLU VERIFIKASI HUKUM (lisensi dan hak pakai bahan kementerian harus diverifikasi sebelum distribusi ke sekolah nyata, D-112(c))
 **Tingkat sensitivitas:** PENTING
 
 ---
@@ -210,7 +213,7 @@
 **Jawaban singkat:**
 "Yang ada hari ini adalah buku kerja Matematika kelas 5 dan kelas X, serta Geografi kelas XI. Kami belum punya pemetaan resmi ke capaian pembelajaran Kurikulum Merdeka, jadi kami tidak akan mengklaim kesesuaian."
 
-**Penjelasan:** Buku kerja yang ada: SD kelas 5 Matematika Bab 1–9; SMA kelas X Matematika Bab 1–7; SMA kelas XI Geografi Bab 1–4 (20 berkas di `docs/onboarding/konten/`). Keberadaan berkas bukan bukti bahwa konten tersedia di sekolah. Kolom "tujuan pembelajaran" opsional di templat (`src/lib/unggah-kontrak.ts:56-112`). Tidak ditemukan kata "Kurikulum Merdeka" atau "Capaian Pembelajaran" di kode, teks layar, atau keputusan; tidak ada peta ke fase atau CP. Sumber penyusunan: SD kelas 5 diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V; Geografi kelas XI dan Matematika kelas X dari buku siswa (`LANA.md:25, 56`). Sumber itu tidak sama dengan klaim kesesuaian CP. Lisensi bahan sumber: lihat G2.3 dan G4. Konten di produksi tidak diverifikasi.
+**Penjelasan:** Buku kerja yang ada: SD kelas 5 Matematika Bab 1–9; SMA kelas X Matematika Bab 1–7; SMA kelas XI Geografi Bab 1–4 (20 berkas di `docs/onboarding/konten/`). Keberadaan berkas bukan bukti bahwa konten tersedia di sekolah. Kolom "tujuan pembelajaran" opsional di templat (`src/lib/unggah-kontrak.ts:56-112`). Tidak ditemukan kata "Kurikulum Merdeka" atau "Capaian Pembelajaran" di kode, teks layar, atau keputusan; tidak ada peta ke fase atau CP. Sumber penyusunan: SD kelas 5 diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V; Geografi kelas XI dan Matematika kelas X dari buku siswa (`LANA.md:25, 56`). Sumber itu tidak sama dengan klaim kesesuaian CP. Lisensi bahan sumber: lihat G2.3 dan G4. Buku panduan guru (SD5) dan buku siswa (Geografi XI, Matematika X) dibedakan; "diadaptasi dari" bukan izin (D-112(c)). Konten di produksi tidak diverifikasi.
 
 **Mengapa PINTAR seperti ini:** Kesesuaian kurikulum membutuhkan pemeriksaan yang belum dilakukan.
 
@@ -218,9 +221,9 @@
 
 **Sumber:** MEMBUKTIKAN: keberadaan berkas; BOARD (LANA-01–21). Pemetaan CP: **tidak ditemukan** (dicari "kurikulum merdeka", "capaian pembelajaran", "fase" di `docs/`, `src/`, `supabase/`).
 
-**Yang tidak boleh dikatakan:** "Sesuai Kurikulum Merdeka"; "selaras CP"; "tersedia untuk semua mata pelajaran dan kelas"; "sudah dipakai di sekolah".
+**Yang tidak boleh dikatakan:** "berlisensi", "resmi dari kementerian", "boleh dipakai bebas" (D-112(c)); "Sesuai Kurikulum Merdeka"; "selaras CP"; "tersedia untuk semua mata pelajaran dan kelas"; "sudah dipakai di sekolah".
 
-**Status:** PERLU VERIFIKASI TEKNIS
+**Status:** PERLU VERIFIKASI TEKNIS; kedua: PERLU VERIFIKASI HUKUM (lisensi dan hak pakai bahan kementerian sebelum distribusi ke sekolah nyata, D-112(c))
 **Tingkat sensitivitas:** PENTING
 
 ---
@@ -499,7 +502,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Ya, bila sudah ada hasil resmi yang cukup. Guru bisa melihat penguasaan per bagian, siswa yang di bawah target, dan soal yang paling sulit setelah asesmen ditutup, lalu meminta siswa tertentu membaca ulang materi. PINTAR tidak melabeli siswa berisiko secara otomatis."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), ya, bila sudah ada hasil resmi yang cukup. Guru bisa melihat penguasaan per bagian, siswa yang di bawah target, dan soal yang paling sulit setelah asesmen ditutup, lalu meminta siswa tertentu membaca ulang materi. PINTAR tidak melabeli siswa berisiko secara otomatis."
 
 **Penjelasan:** «Lihat bukti» kelas dari bukti resmi saja, kecukupan eksplisit, tanpa nol palsu (J7.1; D-064). Daftar murid → catatan satu murid (progres, status per asesmen, penguasaan; «di bawah target» terhadap batas yang sudah tersegel; M4, M4-K01). «Lihat per soal»: soal tersulit dan murid yang mungkin perlu bantuan setelah asesmen ditutup, tanpa umpan jawaban langsung, integritas, atau Question Health (D-088(k); D088K-K01). «Penguasaan per bagian» dinamai tujuan pembelajaran (D-088(g)). «Minta membaca lagi» menugaskan ulang materi ke murid terpilih tanpa remediasi otomatis (M3; M3R-S01, M3R-K01). EDU-09 lulus di staging. Syarat: ada hasil resmi cukup; hanya kelas yang diajar guru. Dibuktikan dengan lima murid fiktif; belum dengan siswa nyata. Produksi belum menjalankan versi ini.
 
@@ -511,7 +514,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 
 **Yang tidak boleh dikatakan:** "Deteksi otomatis siswa berisiko"; "prediksi"; "sudah terbukti dengan sekolah nyata".
 
-**Status:** TERSEDIA DI 4.0 (di `main`/staging dengan data sintetis; produksi belum)
+**Status:** TERSEDIA DI 4.0 (main/staging; belum di produksi)
 **Tingkat sensitivitas:** PENTING
 
 ---
@@ -618,7 +621,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 
 **Yang tidak boleh dikatakan:** "Siswa bisa masuk dengan email"; "tanpa batas percobaan"; "sudah berjalan di produksi".
 
-**Status:** TERSEDIA DI 4.0 (di `main`/staging; jeda percobaan belum di produksi)
+**Status:** TERSEDIA DI 4.0 (main/staging; belum di produksi)
 **Tingkat sensitivitas:** PENTING
 
 ---
@@ -691,7 +694,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 
 **Yang tidak boleh dikatakan:** "Tidak mungkin ada kebocoran"; "kunci otomatis di produksi hari ini".
 
-**Status:** TERSEDIA DI 4.0 (di `main`/staging; kunci perangkat bersama belum di produksi)
+**Status:** TERSEDIA DI 4.0 (main/staging; belum di produksi)
 **Tingkat sensitivitas:** TINGGI
 
 ---
@@ -714,7 +717,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 
 **Yang tidak boleh dikatakan:** "Siswa tidak mungkin melihat teman" tanpa dasar tes HTTP; "tidak ada peringkat sama sekali" (ada urutan angkatan di laporan sekolah).
 
-**Status:** TERSEDIA DI 4.0
+**Status:** TERSEDIA DI 4.0 (main/staging; belum di produksi)
 **Tingkat sensitivitas:** TINGGI
 
 ---
@@ -771,7 +774,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** SEDANG
 
 **Jawaban singkat:**
-"Sekolah yang menentukan, lewat Admin sekolah, per pelajaran. Tidak ada angka bawaan: pelajaran tanpa batas ketuntasan tidak bisa disediakan."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), sekolah yang menentukan, lewat Admin sekolah, per pelajaran. Tidak ada angka bawaan: pelajaran tanpa batas ketuntasan tidak bisa disediakan."
 
 **Penjelasan:** Admin sekolah mengatur «Batas ketuntasan» per pelajaran per sekolah: bilangan bulat 0–100, dengan alasan, riwayat, dan audit, di Konfigurasi. Guru, Kepala departemen, dan siswa tidak bisa mengaturnya (D-081 Q1–Q4; D-088(b); BOB49-S01, BOB49-K01; migrasi `20261102100000`). Pelajaran tanpa batas ditolak (`ASSIGN_PASS_MARK_MISSING`); layar berbunyi «Batas ketuntasan belum ditetapkan». Batas disegel pada penugasan dan percobaan, sehingga perubahan hanya berlaku ke depan. Pita kinerja tetap (≥80 «Mantap», 60–79 «Berkembang», <60 «Perlu penguatan») bukan batas lulus (D-095). Catatan: `passing_rules mastery_min 0.6` masih tertulis di definisi buatan buku kerja, tetapi BOB49-K01 menyatakan pembaca tidak memakai 0,6 sendiri.
 
@@ -785,7 +788,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 
 **Yang tidak boleh dikatakan:** "PINTAR memakai 60% atau 70%"; "guru bisa mengatur batas lulus"; "mengubah batas mengubah hasil lama".
 
-**Status:** TERSEDIA DI 4.0 (di `main`/staging; migrasi 139 belum di produksi)
+**Status:** TERSEDIA DI 4.0 (main/staging; belum di produksi)
 **Tingkat sensitivitas:** TINGGI
 
 ---
@@ -821,19 +824,24 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** SEDANG
 
 **Jawaban singkat:**
-"Selama siswa mengerjakan, kunci jawaban dirancang tidak dikirim ke peramban, dan itu dipaksa di database serta diuji. Tetapi setelah Uji Penguasaan selesai, tinjauan menampilkan benar atau salah dan penjelasan pilihan siswa, dan percobaan kedua memakai soal yang sama. Kami belum melakukan uji dari luar terhadap aplikasi yang berjalan, jadi kami tidak akan mengatakan 'tidak mungkin dibobol'."
+"Selama siswa mengerjakan, kunci jawaban dirancang tidak dikirim ke peramban, dan itu dipaksa di database serta diuji. Setelah sebuah percobaan selesai, tinjauan menampilkan benar atau salah beserta penjelasannya. Bagaimana percobaan kedua sebaiknya bekerja masih menunggu keputusan produk, dan kami belum melakukan uji dari luar terhadap aplikasi yang berjalan."
 
-**Penjelasan:** INV-01: kunci tidak sampai ke klien siswa. Muatan soal yang dikirim ke siswa hanya jenis soal, pertanyaan, stimulus, dan pilihan (daftar putih dengan CHECK; `sanitized_item` di migrasi `20260913090000` dan `20260918130000`; F06-P02, F03-S02, F06-P01, F03-T03; `src/lib/assessment-engine/types.ts:13-22`). Konteks bantuan menolak bidang kunci (F03-S03). **Setelah** sesi dikumpulkan (bukan Pemetaan Awal), `session_review` menampilkan jawaban yang dipilih siswa, benar atau salah, dan penjelasan opsi yang dipilihnya; ditolak sebelum FINALIZED dan untuk pre-test. Uji Penguasaan dari buku kerja memiliki 2 percobaan (Q034) dengan soal yang sama, sehingga penjelasan yang terlihat setelah percobaan pertama dapat dipakai pada percobaan kedua. Apakah itu diinginkan adalah **keputusan produk** (dicatat di G1, tanpa penilaian). Tidak ditemukan: uji kotak-hitam lewat REST dengan identitas siswa asli seperti yang diminta INV-01 (F03-T03 memakai `set_config` pada suite database). Detail teknis lain: tim teknis.
+**Penjelasan:** Perilaku sekarang, dijelaskan apa adanya tanpa menilainya:
+- Selama pengerjaan: muatan soal yang dikirim ke siswa hanya jenis soal, pertanyaan, stimulus, dan pilihan (INV-01; `sanitized_item` di migrasi `20260913090000` dan `20260918130000`; F06-P02, F03-S02, F06-P01, F03-T03; `src/lib/assessment-engine/types.ts:13-22`). Konteks bantuan menolak bidang kunci (F03-S03).
+- Setelah sesi dikumpulkan (bukan Pemetaan Awal): `session_review` menampilkan jawaban yang dipilih siswa, benar atau salah, dan penjelasan opsi yang dipilihnya; ditolak sebelum FINALIZED dan untuk pre-test.
+- Uji Penguasaan dari buku kerja memiliki 2 percobaan dan percobaan kedua menarik soal bertanda yang sama (Q034).
+- **Ditahan untuk keputusan produk (D-112(b)):** tidak ada yang diubah sekarang; perilaku ini bisa disengaja secara pedagogis, tetapi harus disengaja. Dokumen ini tidak menilainya.
+- Tidak ditemukan: uji kotak-hitam lewat REST dengan identitas siswa asli seperti yang diminta INV-01 (F03-T03 memakai `set_config` pada suite database). Detail teknis lain: tim teknis.
 
 **Mengapa PINTAR seperti ini:** Validitas asesmen bergantung pada kunci yang tidak bocor selama asesmen berlangsung (INV-01).
 
 **Bukti / mekanisme di PINTAR:** `sanitized_item`; migrasi `20260913091500` (`session_review`).
 
-**Sumber:** MEMBUKTIKAN: tes F06-P02, F03-S02, F06-P01, F03-T03, F03-S03; migrasi di atas. MENETAPKAN ATURAN: `docs/rebuild/03-PINTAR-INVARIANTS.md` baris 17 (INV-01). Uji kotak-hitam klien: **tidak ditemukan**.
+**Sumber:** MEMBUKTIKAN: tes F06-P02, F03-S02, F06-P01, F03-T03, F03-S03; migrasi di atas. MENETAPKAN ATURAN: `docs/rebuild/03-PINTAR-INVARIANTS.md` baris 17 (INV-01); D-112(b). Uji kotak-hitam klien: **tidak ditemukan**.
 
-**Yang tidak boleh dikatakan:** "Kunci tidak pernah terlihat siswa" (setelah selesai, penjelasan terlihat); "tidak mungkin dibobol"; "sudah diuji penetrasi".
+**Yang tidak boleh dikatakan:** "Kunci tidak pernah terlihat siswa"; "tidak mungkin dibobol"; "sudah diuji penetrasi"; penilaian bahwa percobaan kedua baik atau buruk.
 
-**Status:** PERLU VERIFIKASI TEKNIS (kuat di tingkat database; belum diuji dari sisi klien secara kotak-hitam)
+**Status:** KEBIJAKAN BELUM DIPUTUSKAN (ditahan untuk keputusan produk, D-112(b)); kedua: PERLU VERIFIKASI TEKNIS (uji kotak-hitam klien belum ada) — ▲ BELUM DIPUTUSKAN HARI INI
 **Tingkat sensitivitas:** KRITIS
 
 ---
@@ -869,7 +877,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Jawaban singkat:**
 "Tidak ada pengulangan tanpa batas. Untuk Uji Penguasaan buatan buku kerja, saat ini diberi 2 percobaan; Pemetaan Awal 1. Guru dapat menugaskan ulang materi bacaan, tetapi tidak bisa menambah percobaan satu siswa lewat layar."
 
-**Penjelasan:** `attempt_limit` per definisi; `start` menolak `ATTEMPT_LIMIT_REACHED`. Batas platform: 5 (bawaan) dan 1 untuk QUICK, EXAM, PAPER. Definisi dari buku kerja: Pemetaan Awal 1, Uji Penguasaan 2 (migrasi `20261106100000`). Aturan: "tidak ada pengulangan tak terbatas" (D-085 M3; J6.15). Guru dapat menugaskan ulang materi (M3R-S01). Orientasi memberi tahu percobaan ke berapa (UX1-S2-ORIENT-01). Tidak ditemukan: tes yang menyebut `ATTEMPT_LIMIT_REACHED`; bukti percobaan kedua berjalan ujung-ke-ujung; penjelasan percobaan mana yang dihitung ke laporan atau sertifikat. Konflik: komentar tes `selftest/db/fable06.sql:3605` menulis batas 1 untuk "most POST_TEST"; migrasi terbaru memberi 2.
+**Penjelasan:** `attempt_limit` per definisi; `start` menolak `ATTEMPT_LIMIT_REACHED`. Batas platform: 5 (bawaan) dan 1 untuk QUICK, EXAM, PAPER. Definisi dari buku kerja: Pemetaan Awal 1, Uji Penguasaan 2 (migrasi `20261106100000`). Aturan: "tidak ada pengulangan tak terbatas" (D-085 M3; J6.15). Guru dapat menugaskan ulang materi (M3R-S01). Percobaan kedua menarik soal bertanda yang sama dengan percobaan pertama; ditahan untuk keputusan produk (D-112(b); Q032). Orientasi memberi tahu percobaan ke berapa (UX1-S2-ORIENT-01). Tidak ditemukan: tes yang menyebut `ATTEMPT_LIMIT_REACHED`; bukti percobaan kedua berjalan ujung-ke-ujung; penjelasan percobaan mana yang dihitung ke laporan atau sertifikat. Konflik: komentar tes `selftest/db/fable06.sql:3605` menulis batas 1 untuk "most POST_TEST"; migrasi terbaru memberi 2.
 
 **Mengapa PINTAR seperti ini:** Selesai mengerjakan tidak sama dengan mencapai target; ulang tak terbatas ditolak (M3).
 
@@ -984,7 +992,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Guru melihat bukti kelasnya, Kepala departemen dan Dekan melihat ringkasan dalam lingkupnya, dan Admin sekolah melihat laporan ringkasan sekolah dan kelas. Angkanya dihitung dari bukti resmi saja, dan setiap pembaca hanya melihat apa yang menjadi haknya."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), guru melihat bukti kelasnya, Kepala departemen dan Dekan melihat ringkasan dalam lingkupnya, dan Admin sekolah melihat laporan ringkasan sekolah dan kelas. Angkanya dihitung dari bukti resmi saja, dan setiap pembaca hanya melihat apa yang menjadi haknya."
 
 **Penjelasan:** Guru: Mengajar → kelas → «Lihat bukti» (kesimpulan kelas, daftar nama berabjad, hasil resmi per murid; GS-17; UX1-S3-BUKTI-01). Kepala departemen dan Dekan: halaman Pimpinan per Kelas dan ringkasan; Dekan: ringkasan sekolah. Admin sekolah: Konfigurasi → Laporan. «Kepala sekolah» bukan peran tersendiri di PINTAR; sekolah memberi peran sesuai kebutuhan. Angka dihasilkan `generate_report` → `metric_evaluate` per metrik katalog, hanya bukti OFFICIAL, dengan otorisasi ulang per pembaca; 12 metrik: class.participants/comprehension/net_gain/readiness_distribution/topic_mastery/misconceptions dan institution.participants/net_gain/safety_gate_pass_rate/cohort_comparison/competency_outcomes/verified_credentials (migrasi `20260918100000:288-312`). Angka GS-17 dibandingkan dengan perhitungan mentah di walk. Isolasi lingkup: F06-P09, F06-P10, F06-P12. Tidak ada: laporan terjadwal (LATER); bentuk laporan akreditasi (OD-1 terbuka). Bukti penggunaan untuk pengawas: tidak ada paket khusus; yang ada ringkasan cetak (Q041).
 
@@ -996,7 +1004,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 
 **Yang tidak boleh dikatakan:** "Laporan akreditasi siap"; "ada laporan per mata pelajaran lintas kelas untuk semua orang".
 
-**Status:** TERSEDIA DI 4.0 (di `main`/staging)
+**Status:** TERSEDIA DI 4.0 (main/staging; belum di produksi)
 **Tingkat sensitivitas:** PENTING
 
 ---
@@ -1055,7 +1063,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** SEDANG
 
 **Jawaban singkat:**
-"Artinya jumlah hasil resmi belum cukup untuk menampilkan angka yang adil. Kami tidak menampilkan nol karena nol akan terbaca sebagai hasil buruk, padahal yang terjadi adalah belum ada cukup bukti."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), artinya jumlah hasil resmi belum cukup untuk menampilkan angka yang adil. Kami tidak menampilkan nol karena nol akan terbaca sebagai hasil buruk, padahal yang terjadi adalah belum ada cukup bukti."
 
 **Penjelasan:** Tiap metrik punya ambang sampel sendiri: peserta 1; pemahaman, kenaikan, kesiapan, topik 5; miskonsepsi 3; kenaikan sekolah, gerbang keselamatan, kompetensi 10; kredensial terverifikasi (`institution.verified_credentials`) 1; angkatan 5 (migrasi `20260918100000:288-312`). Di bawah ambang status `below_minimum` dan tidak ada nilai. Tiga keadaan berbeda: NOT_YET_EVALUABLE («Belum ada yang memenuhi syarat»), INSUFFICIENT_EVIDENCE («Sudah ada, belum cukup»), SUFFICIENT_EVIDENCE (F06-P16). Teks layar: «Belum cukup data untuk menampilkan angka ini» dan «Belum cukup bukan berarti buruk — artinya belum». Tiap angka yang kurang diberi kalimat syarat munculnya (DAISY-07-LAPORAN-01). Aturan "tanpa nol rekaan" bersumber J7.1 (SCOPE-INVENTORY baris 150), dengan D-003, D-038, D-064. Catatan: frasa persis «data belum cukup» tidak ada di layar; yang ada «Belum cukup data…» dan «bukti belum cukup».
 
@@ -1067,7 +1075,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 
 **Yang tidak boleh dikatakan:** "Belum cukup berarti nilainya jelek"; "angka 0".
 
-**Status:** TERSEDIA DI 4.0
+**Status:** TERSEDIA DI 4.0 (main/staging; belum di produksi)
 **Tingkat sensitivitas:** NORMAL
 
 ---
@@ -1080,7 +1088,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Jawaban singkat:**
 "Sertifikat PINTAR dapat diverifikasi keasliannya lewat tautan atau kode QR dan tidak bisa dipalsukan dengan mengubah isinya. Tetapi kami tidak punya keputusan atau dokumen yang menyatakan sertifikat ini diakui dinas, kementerian, atau sekolah lain, jadi kami tidak mengatakan 'resmi' dalam arti hukum."
 
-**Penjelasan:** Yang dibuktikan: ditandatangani dengan kunci server (HMAC), dapat diverifikasi publik, tidak bisa dipalsukan dari muatan yang diubah (F04-S05, F04-S04, EVAL-S02, UX1-S1-QR-01). Syarat terbit: bukti OFFICIAL, mode bersertifikat, gerbang keselamatan, nilai ≥ batas sekolah yang disegel (D-078, D-081, D-082(d)); satu Uji Cepat tidak menerbitkan sertifikat (BOB-50; migrasi `20261113100000`). Footer halaman hanya memuat empat baris identitas, tanpa klaim hukum (UX1-S1-KAKI-01). D-003: sertifikat dari dua sekolah produksi adalah sertifikat nyata. Tidak ditemukan: dokumen atau keputusan pengakuan oleh dinas, kementerian, atau sekolah lain; kerja sama akreditasi; klaim ijazah (dicari diakui, Kemendikbud, ijazah, BSN). Kata «resmi» di PINTAR berarti "bukti OFFICIAL" (bukan pengakuan hukum).
+**Penjelasan:** Yang dibuktikan: ditandatangani secara kriptografis oleh server, dapat diverifikasi publik, tidak bisa dipalsukan dari muatan yang diubah (F04-S05, F04-S04, EVAL-S02, UX1-S1-QR-01). Syarat terbit: bukti OFFICIAL, mode bersertifikat, gerbang keselamatan, nilai ≥ batas sekolah yang disegel (D-078, D-081, D-082(d)); satu Uji Cepat tidak menerbitkan sertifikat (BOB-50; migrasi `20261113100000`). Footer halaman hanya memuat empat baris identitas, tanpa klaim hukum (UX1-S1-KAKI-01). D-003: sertifikat dari dua sekolah produksi adalah sertifikat nyata. Tidak ditemukan: dokumen atau keputusan pengakuan oleh dinas, kementerian, atau sekolah lain; kerja sama akreditasi; klaim ijazah (dicari diakui, Kemendikbud, ijazah, BSN). Kata «resmi» di PINTAR berarti "bukti OFFICIAL" (bukan pengakuan hukum).
 
 **Mengapa PINTAR seperti ini:** Keaslian teknis dapat dibuktikan; pengakuan hukum bukan wewenang produk.
 
@@ -1103,7 +1111,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** SEDANG
 
 **Jawaban singkat:**
-"Siapa pun dengan tautan atau kode QR dapat memeriksa. Yang tampil hanya status lulus, predikat, sekolah, tanggal, dan status keabsahan, tanpa nama, skor, atau foto siswa. Pemeriksa mencocokkan dengan sertifikat cetak yang memuat nama."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), siapa pun dengan tautan atau kode QR dapat memeriksa. Yang tampil hanya status lulus, predikat, sekolah, tanggal, dan status keabsahan, tanpa nama, skor, atau foto siswa. Pemeriksa mencocokkan dengan sertifikat cetak yang memuat nama."
 
 **Penjelasan:** Satu rute publik `/verifikasi/[token]` (halaman) dan `/api/verifikasi/[token]` (JSON); token acak 32 byte, tidak diturunkan dari apa pun (F04-T10, F04-S01, F01-R07). Yang terbuka: persis lima bidang `{pass, predikat, institution, date, validity}` ("validity" berarti status keabsahan SAH atau TIDAK SAH, bukan tanggal kedaluwarsa; `route.ts:34-36`); tanpa nama, foto, skor, kunci, atau muatan (F04-T10, F04-S05, EVAL-S02). Status BERLAKU, DICABUT, DIGANTIKAN, atau TIDAK SAH. Token acak, belum terbit, atau salah bentuk menghasilkan jawaban yang sama (tanpa oracle keberadaan; F04-S05, DAISY-04-TIDAK-ADA-01). Konflik antara keputusan dan kode: D-080(8) menetapkan domain kanonik `verifikasi.pintarselalu.com` dan D-080(2) memutuskan nomor berbentuk `<PINTAR ID>/<urut>` (D-076(c) hanya usulan; D-073(b) mencatat format kode sekarang), sedangkan kode membangun tautan dari alamat aplikasi (`sertifikat/page.tsx:121`) dan memakai format `PINTAR/<slug>/<tahun>/<urut>`; BOB-48/DAISY-36 tampak belum dibangun.
 
@@ -1115,7 +1123,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 
 **Yang tidak boleh dikatakan:** "Verifikasi di verifikasi.pintarselalu.com"; "nomor memakai PINTAR ID"; "tidak ada data pribadi sama sekali" (sekolah, tanggal, dan predikat terbuka).
 
-**Status:** TERSEDIA DI 4.0 (fungsi inti); kedua: SEBAGIAN (domain dan format nomor belum sesuai keputusan)
+**Status:** TERSEDIA DI 4.0 (main/staging; belum di produksi); kedua: SEBAGIAN (domain dan format nomor belum sesuai keputusan)
 **Tingkat sensitivitas:** KRITIS
 
 ---
@@ -1222,23 +1230,22 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Produk PINTAR sendiri tidak mengirim data siswa ke penyedia AI. Tetapi pekerjaan pengembangan PINTAR dibantu sesi AI yang membaca fakta lingkungan uji dan produksi lewat konektor database, dan kebijakan pengungkapan untuk itu belum diputuskan. Data produksi juga disimpan di Singapura lewat penyedia infrastruktur, jadi kami tidak akan mengatakan 'tidak ada data keluar negeri'."
+"Produk PINTAR sendiri tidak mengirim data sekolah ke penyedia AI; itu hasil pencarian kode kami. Soal alat berbantuan AI yang dipakai personel pengembangan dan operasi PINTAR, kebijakannya belum ada. Data produksi juga disimpan di Singapura lewat penyedia infrastruktur, jadi kami tidak akan mengatakan 'tidak ada data keluar negeri'."
 
-**Penjelasan:**
-- Produk: tidak ditemukan satu pun panggilan keluar ke penyedia AI di kode. Pemanggilan `fetch` di `src/` hanya ke asal PINTAR sendiri dan Supabase; host eksternal dalam kode hanya domain PINTAR. Database tidak punya ekstensi jaringan. Font dilayani sendiri. Surel lewat `nodemailer` ke SMTP (BOB25-K01). Verifikasi runtime atau log jaringan tidak dilakukan.
-- Pengembangan: sesi koordinator berbantuan AI membaca fakta lingkungan staging dan produksi lewat konektor database (RESUME-2026-10-06; BACKUP-DR-REVIEW:423). Itu bukan fitur produk, tetapi data dari lingkungan hosted dapat sampai ke penyedia AI yang menjalankan sesi itu. Kebijakan pengungkapan dan batas akses untuk sesi semacam ini: **tidak ditemukan**; ini menjadi gap kebijakan bagi pemilik produk.
-- Lokasi data: Supabase ap-southeast-1 (Singapura) dan Vercel `sin1`; salinan luar situs dirancang di AWS S3 Singapura, belum aktif.
-- Tidak ada kebijakan pengolah data, perjanjian pemrosesan data, atau kebijakan privasi tertulis (hanya OD-5 tentang retensi).
+**Penjelasan:** Dua hal berikut tidak pernah digabung (D-112(a)).
+- **(i) Produk PINTAR (temuan pencarian kode, di `main`/staging):** tidak ditemukan satu pun panggilan keluar ke penyedia AI. Pemanggilan `fetch` di `src/` hanya ke asal PINTAR sendiri dan Supabase; host eksternal dalam kode hanya domain PINTAR. Database tidak punya ekstensi jaringan. Font dilayani sendiri. Surel lewat `nodemailer` ke SMTP (BOB25-K01). Verifikasi runtime atau log jaringan tidak dilakukan.
+- **(ii) Personel pengembangan dan operasi PINTAR:** mereka memakai alat berbantuan AI yang dapat menjangkau sistem hosted, misalnya sesi koordinator yang membaca staging dan produksi lewat konektor database (D-112(a); RESUME-2026-10-06; BACKUP-DR-REVIEW:423). Ini **kebijakan yang belum diputuskan**: siapa boleh memakai alat semacam itu, terhadap lingkungan dan data mana, untuk tujuan apa, dengan audit dan minimisasi apa. Dokumen ini tidak merumuskannya.
+- Lokasi data: Supabase ap-southeast-1 (Singapura) dan Vercel `sin1`; salinan luar situs dirancang di AWS S3 Singapura, belum aktif. Tidak ada kebijakan pengolah data, perjanjian pemrosesan data, atau kebijakan privasi tertulis (hanya OD-5 tentang retensi).
 
 **Mengapa PINTAR seperti ini:** Konteks AI di produk dibatasi allow-list dan belum ada penyedia (INV-31).
 
 **Bukti / mekanisme di PINTAR:** Pencarian `fetch(` di `src/`; `vercel.json`; `package.json`.
 
-**Sumber:** MEMBUKTIKAN: pencarian kode; `src/ai-gateway/README.md`; tes BOB25-K01, F03-S03; `docs/coordination/briefs/RESUME-2026-10-06.md`; `docs/recovery/BACKUP-DR-REVIEW-2026-10-05.md:423`. MENETAPKAN ATURAN: OD-5 (`docs/rebuild/11` baris 80-95). Kebijakan pengolah data dan pengungkapan: **tidak ditemukan**.
+**Sumber:** MEMBUKTIKAN: pencarian kode; `src/ai-gateway/README.md`; tes BOB25-K01, F03-S03. MENETAPKAN ATURAN: D-112(a); OD-5 (`docs/rebuild/11` baris 80-95). Kebijakan alat berbantuan AI dan pengolah data: **tidak ditemukan**.
 
-**Yang tidak boleh dikatakan:** "Tidak ada data keluar negeri"; "data tidak pernah dilihat AI"; "AI tidak punya akses ke data kami".
+**Yang tidak boleh dikatakan:** "Tidak ada data keluar negeri"; "tidak ada AI yang menyentuh data kami"; menyatukan (i) dan (ii) dalam satu kalimat; merumuskan kebijakan (ii) sebelum diputuskan.
 
-**Status:** PERLU VERIFIKASI TEKNIS; kedua: PERLU VERIFIKASI HUKUM dan KEBIJAKAN BELUM DIPUTUSKAN (pengungkapan akses sesi berbantuan AI)
+**Status:** PERLU VERIFIKASI TEKNIS (i: temuan pencarian kode; belum diverifikasi runtime); kedua: KEBIJAKAN BELUM DIPUTUSKAN (ii: alat berbantuan AI, D-112(a)) dan PERLU VERIFIKASI HUKUM — ▲ BELUM DIPUTUSKAN HARI INI
 **Tingkat sensitivitas:** KRITIS
 
 ---
@@ -1269,7 +1276,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 ---
 
 
-## Kelompok 6 — Integritas, privasi, kepemilikan data, ekspor, keamanan, akun (Q051–Q069)
+## Kelompok 3 — Integritas, privasi, kepemilikan data, ekspor, keamanan, akun (Q051–Q069)
 
 > **Catatan lintas-pertanyaan untuk pembaca kelompok ini.**
 > 1. **Produksi belum memuat sebagian besar yang dikutip.** `RESUME-2026-10-06.md`: produksi masih menjalankan build `5b5b68d` dengan 111 migrasi; `main` dan staging 162. Fitur dari migrasi ≥112 (masuk dengan kata sandi, pemulihan, kunci komputer bersama, «Laporkan masalah», antrean keputusan rujukan integritas) terbukti ada di kode `main`/staging dan oleh tes, **bukan terbukti aktif di produksi**. Sebelum klaim ke sekolah, status produksi harus diperiksa.
@@ -1313,7 +1320,7 @@ Tidak ditemukan: panduan pelaksanaan yang benar-benar dipakai (Panduan Penguji P
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Tidak. Sinyal itu hanya bahan pertimbangan untuk manusia. Sinyal tidak mengubah nilai, tidak membuat kesimpulan tentang siswa, dan tidak menghasilkan keputusan apa pun sampai seseorang di sekolah meninjaunya."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), tidak. Sinyal itu hanya bahan pertimbangan untuk manusia. Sinyal tidak mengubah nilai, tidak membuat kesimpulan tentang siswa, dan tidak menghasilkan keputusan apa pun sampai seseorang di sekolah meninjaunya."
 
 **Penjelasan:** Sinyal tidak punya kolom vonis dan tidak bisa dibaca oleh fungsi penilaian. Tidak ada ambang yang mengubah sinyal menjadi hasil: tes F06-P15 menyatakan "sinyal tidak menciptakan apa pun: tidak ada catatan Manajemen dan tidak ada hasil sampai seorang manusia bertindak". Peninjau memilih salah satu dari tiga tindakan yang menggambarkan apa yang *peninjau* lakukan, bukan sesuatu tentang siswa: «Tidak ada yang perlu ditindaklanjuti», «Sudah dibicarakan dengan siswa», «Diteruskan ke pihak sekolah». Keputusan itu menjadi baris audit; «Diteruskan ke pihak sekolah» (REFERRED_TO_INSTITUTION) juga membuat satu rujukan dengan status AWAITING_REVIEW (F06-P22). Penghentian sesi: F04-T06.
 Catatan jujur: di database ada fungsi untuk menurunkan kelas bukti sebuah sesi dari OFFICIAL dan fungsi menghentikan sesi (tes F06-P04). Tidak ditemukan halaman atau tombol yang memanggilnya, jadi tidak terjangkau pengguna sekolah. Namun itu berarti "sinyal tidak pernah berdampak apa pun pada hasil" tidak boleh diucapkan secara mutlak.
@@ -1328,7 +1335,7 @@ Catatan jujur: di database ada fungsi untuk menurunkan kelas bukti sebuah sesi d
 
 **Yang tidak boleh dikatakan:** "Sistem mendeteksi kecurangan"; "sinyal tidak berdampak apa pun pada hasil" tanpa catatan di atas.
 
-**Status:** TERSEDIA DI 4.0 (sinyal bukan tuduhan)
+**Status:** TERSEDIA DI 4.0 (main/staging; belum di produksi)
 **Tingkat sensitivitas:** KRITIS
 
 ---
@@ -1409,11 +1416,9 @@ Catatan jujur: di database ada fungsi untuk menurunkan kelas bukti sebuah sesi d
 1. **Admin platform** (peran di dalam aplikasi): memegang kewenangan melihat hasil siswa dan, lewat aturan akses database, dapat membaca hasil individual, daftar murid, dan log audit semua sekolah. Jawaban mentah dapat dibaca siswa itu sendiri atau pemegang kewenangan meninjau integritas di sekolah tersebut, termasuk Admin platform.
 2. **Server aplikasi:** berjalan dengan kunci server yang memintas aturan akses baris (detail teknis: tim teknis).
 3. **Pemilik project database:** dasbor dan SQL langsung; tidak ada kebijakan akses di repositori.
-4. **Sesi koordinator berbantuan AI** yang membaca fakta staging dan produksi lewat konektor database (RESUME-2026-10-06; BACKUP-DR-REVIEW:423). Lihat Q049.
-5. **Cadangan penyedia database** dan, setelah aktif, salinan independen; salinan independen berisi data semua sekolah (D-107(c)).
-Pencatatan: sebagian pembacaan **diaudit**, misalnya pembukaan detail murid oleh pimpinan (`learner_detail.opened`, F06-P12), tetapi tidak ada log akses-baca menyeluruh untuk Admin platform, pemilik project, atau sesi berbantuan AI.
-Admin sekolah tidak memegang kewenangan melihat hasil individual; Dekan hanya daftar (R6).
-Konflik sumber: doc 05 baris 55 ("jawaban mentah: SERVICE saja") berbeda dari kebijakan database (peninjau integritas juga bisa).
+4. **Cadangan penyedia database** dan, setelah aktif, salinan independen; salinan independen memuat data semua sekolah (D-107(c)).
+5. **Alat berbantuan AI milik personel pengembangan dan operasi** yang dapat menjangkau sistem hosted (misalnya sesi koordinator yang membaca staging dan produksi lewat konektor database; RESUME-2026-10-06; BACKUP-DR-REVIEW:423). Ini **kebijakan yang belum diputuskan** (D-112(a); lihat Q049).
+Pencatatan: sebagian pembacaan **diaudit**, misalnya pembukaan detail murid oleh pimpinan (`learner_detail.opened`, F06-P12), tetapi tidak ada log akses-baca menyeluruh untuk Admin platform, pemilik project, atau alat berbantuan AI. Admin sekolah tidak memegang kewenangan melihat hasil individual; Dekan hanya daftar (R6). Konflik sumber: doc 05 baris 55 ("jawaban mentah: SERVICE saja") berbeda dari kebijakan database (peninjau integritas juga bisa).
 
 **Mengapa PINTAR seperti ini:** Tim operasional perlu dapat membantu sekolah, tetapi kontrol tertulis atas akses staf belum dibuat.
 
@@ -1421,12 +1426,12 @@ Konflik sumber: doc 05 baris 55 ("jawaban mentah: SERVICE saja") berbeda dari ke
 
 **Sumber:**
 - MEMBUKTIKAN: migrasi di atas; tes F06-P12; RESUME-2026-10-06; BACKUP-DR-REVIEW:423.
-- MENETAPKAN ATURAN: D-107(c); `docs/rebuild/05-PINTAR-AUTHORIZATION-MATRIX.md` baris 55 (rancangan).
+- MENETAPKAN ATURAN: D-107(c), D-112(a); `docs/rebuild/05-PINTAR-AUTHORIZATION-MATRIX.md` baris 55 (rancangan).
 - Kebijakan akses staf PINTAR / log akses-baca: **tidak ditemukan**.
 
-**Yang tidak boleh dikatakan:** "Staf PINTAR tidak bisa melihat nilai siswa"; "semua akses dicatat"; "hanya sekolah Anda yang bisa membukanya".
+**Yang tidak boleh dikatakan:** "Staf PINTAR tidak bisa melihat nilai siswa"; "semua akses dicatat"; "hanya sekolah Anda yang bisa membukanya"; jumlah orang yang memegang peran.
 
-**Status:** SEBAGIAN; kedua: PERLU VERIFIKASI TEKNIS dan KEBIJAKAN BELUM DIPUTUSKAN (kebijakan akses staf dan sesi berbantuan AI)
+**Status:** SEBAGIAN; kedua: PERLU VERIFIKASI TEKNIS dan KEBIJAKAN BELUM DIPUTUSKAN (kebijakan akses staf dan alat berbantuan AI, D-112(a)) — ▲ BELUM DIPUTUSKAN HARI INI
 **Tingkat sensitivitas:** KRITIS
 
 ---
@@ -1437,7 +1442,7 @@ Konflik sumber: doc 05 baris 55 ("jawaban mentah: SERVICE saja") berbeda dari ke
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Tidak untuk sekolah lain pada umumnya: data tiap sekolah dipisahkan oleh aturan akses di database dan ini diuji. Ada dua pengecualian yang harus kami sebut: siswa yang dipindahkan antar sekolah PINTAR, dan verifikasi sertifikat publik yang hanya menampilkan fakta terbatas. Tim PINTAR sendiri dapat melihat semua sekolah (lihat Q055)."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), tidak untuk sekolah lain pada umumnya: data tiap sekolah dipisahkan oleh aturan akses di database dan ini diuji. Ada dua pengecualian yang harus kami sebut: siswa yang dipindahkan antar sekolah PINTAR, dan verifikasi sertifikat publik yang hanya menampilkan fakta terbatas. Tim PINTAR sendiri dapat melihat semua sekolah (lihat Q055)."
 
 **Penjelasan:** Invarian INV-13: data satu tenant tidak terbaca tenant lain. Dibuktikan oleh tes: admin sekolah melihat nol baris milik sekolah lain (F01-T02); admin tidak melihat staf sekolah lain atau Admin platform (F10-V02); node sekolah lain ditolak tanpa membocorkan keberadaannya (F10-S04); konten buatan sekolah tak terlihat sekolah lain (F05-T09, QAC-T04, F02-T10, F02-T18); admin sekolah lain ditolak (F09-A02, F08-P05).
 Pengecualian: (1) transfer siswa antar sekolah PINTAR memberi sekolah penerima visibilitas atas person dan enrolmen/keanggotaan; sertifikat, konten, audit, dan peran tetap di sekolah asal (tes F01-T10, F07-P10; aturan persetujuan masih terbuka, OD-9); (2) verifikasi sertifikat publik menampilkan lulus, predikat, institusi, tanggal; (3) Admin platform melihat semua.
@@ -1453,7 +1458,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 
 **Yang tidak boleh dikatakan:** "Mustahil sekolah lain melihat data Anda"; "terisolasi sepenuhnya, bahkan dari PINTAR".
 
-**Status:** TERSEDIA DI 4.0 (di kode `main`; belum terbukti di produksi build 111)
+**Status:** TERSEDIA DI 4.0 (main/staging; belum di produksi)
 **Tingkat sensitivitas:** KRITIS
 
 ---
@@ -1491,7 +1496,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Jawaban singkat:**
 "Berdasarkan konfigurasi kami, data produksi disimpan di Singapura, bukan di Indonesia. Apakah itu memenuhi aturan yang berlaku bagi sekolah Anda perlu diperiksa secara hukum, dan kami tidak akan menyatakan sebaliknya sebelum itu."
 
-**Penjelasan:** Database Supabase produksi `pintar-production` berada di region ap-southeast-1 (Singapura), paket Pro; staging juga Singapura. Fungsi server Vercel di `sin1`. Rencana salinan independen (AWS S3 dengan Object Lock) juga di Singapura (D-107 D1); alurnya sudah ada di `main` tetapi belum aktif (O3–O7 belum dimulai). Cadangan harian bawaan Supabase disimpan 7 hari (D-103; BACKUP-DR-REVIEW). Retensi 35 hari harian dan 12 bulan bulanan (D-107 D4) adalah rancangan untuk salinan independen yang belum aktif; `SCHOOL-DATA-EXPORT-4.0.md` menyebut angka 35/12 sebagai "cadangan biasa", sehingga ada ketidakjelasan antar sumber yang perlu diverifikasi. Berkas Storage tidak ikut cadangan database. Lokasi server email: tidak ditemukan. Tidak ada data di Indonesia yang ditemukan di konfigurasi mana pun. Analisis UU PDP/transfer lintas negara: tidak ditemukan.
+**Penjelasan:** Database Supabase produksi `pintar-production` berada di region ap-southeast-1 (Singapura), paket Pro; staging juga Singapura. Fungsi server Vercel di `sin1`. Rencana salinan independen (AWS S3 dengan Object Lock) juga di Singapura (D-107 D1); alurnya sudah ada di `main` tetapi belum aktif (O3–O7 belum dimulai). Cadangan ada dalam dua lapis (SCHOOL-DATA-EXPORT-4.0.md §D): **hari ini** cadangan harian bawaan Supabase, disimpan **7 hari** (D-103); **setelah aktif** (dibangun, belum dinyalakan: O3–O7) salinan independen terenkripsi, disimpan **35 hari** (harian) dan **12 bulan** (bulanan) (D-107 D4). Berkas Storage tidak ikut cadangan database. Lokasi server email: tidak ditemukan. Tidak ada data di Indonesia yang ditemukan di konfigurasi mana pun. Analisis UU PDP/transfer lintas negara: tidak ditemukan.
 
 **Mengapa PINTAR seperti ini:** Keputusan penyedia diambil per konfigurasi teknis; penilaian hukumnya belum dibuat.
 
@@ -1499,7 +1504,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 
 **Sumber:**
 - MEMBUKTIKAN: `docs/coordination/RELEASES.md:34`; `vercel.json`; `docs/recovery/BACKUP-DR-REVIEW-2026-10-05.md` (baris ~423, 439).
-- MENETAPKAN ATURAN: D-103, D-107 D1/D4; `docs/recovery/OFFSITE-BACKUP-DESIGN.md:74-76`.
+- MEMBUKTIKAN tambahan: `docs/product/SCHOOL-DATA-EXPORT-4.0.md` §D (dua lapis cadangan). MENETAPKAN ATURAN: D-103, D-107 D1/D4; `docs/recovery/OFFSITE-BACKUP-DESIGN.md:79-81`.
 
 **Yang tidak boleh dikatakan:** "Data disimpan di Indonesia"; "sesuai UU PDP"; "cadangan di luar Supabase sudah berjalan".
 
@@ -1564,22 +1569,23 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Prinsip kami: data sekolah tetap milik sekolah dan PINTAR tidak boleh menahannya. Tetapi soal pembagian yang tepat antara data milik sekolah dan catatan belajar yang melekat pada siswa sendiri belum kami putuskan, jadi kami tidak akan menyederhanakannya."
+"Prinsip kami: data milik sekolah tetap milik sekolah dan PINTAR tidak boleh menahannya. Tetapi itu bukan berarti sekolah memiliki setiap data tentang seseorang; pembagian hak atas berbagai jenis data belum kami putuskan, jadi kami tidak akan menyederhanakannya."
 
-**Penjelasan:** Ada ketegangan antara dua sumber yang tidak saling mengurai.
+**Penjelasan:** Ini **bukan kontradiksi, tetapi perlu model hak atas data** (D-112(e)).
 - D-110: data milik sekolah tetap milik sekolah; PINTAR tidak boleh memakai pembatasan teknis, format tertutup, gesekan kontrak, atau hambatan operasional untuk menghalangi sekolah mendapatkan data yang berhak atau keluar. D-110(b): ini prinsip, bukan fitur; ekspor mandiri tetap kandidat 4.5. D-110(e): jangan menjanjikan kepemilikan atas data yang secara hukum/operasional milik pihak lain.
-- Dokumen 02 (baris 56-59) dan 06 (baris 150-156): identitas seseorang adalah "paspor belajar seumur hidup" yang tidak pernah dimiliki institusi, dan catatan portabel tetap milik siswa. Catatan terikat institusi (misalnya sinyal integritas) tidak ikut siswa. Sertifikat memuat snapshot identitas permanen.
+- Dokumen 02 (baris 56-59) dan 06 (baris 150-156): identitas seseorang adalah "paspor belajar seumur hidup" yang tidak pernah dimiliki institusi, dan catatan portabel tetap milik siswa. Catatan terikat institusi (misalnya sinyal integritas) tidak ikut siswa. Sertifikat memuat salinan identitas permanen.
+- D-112(e): D-110 adalah prinsip, bukan klaim bahwa sekolah memiliki setiap data tentang seseorang; catatan belajar portabel seorang siswa dapat membawa hak dan kepentingan yang berbeda dari catatan institusional sekolah. Desain portabilitas dan keluar untuk 4.5 akan **mengklasifikasikan data** daripada memilih satu pemilik universal: data institusional sekolah, data portabel siswa, data kontekstual bersama, bukti operasional dan keamanan PINTAR, dan catatan yang wajib disimpan menurut hukum. D-110 tidak ditulis ulang begitu saja.
 - Tidak ada ketentuan layanan atau kontrak di repositori yang menyatakan kepemilikan; isi MOU tidak ada.
-- Hak subjek data (akses, koreksi, hapus) tidak dibangun: orang tidak dapat dihapus, retensi belum berjalan.
-**Ini masuk daftar gap. Tidak diselesaikan di dokumen ini.**
+- Hak subjek data: koreksi nama ada (`correct_person_name`, F18-N03; `confirm_my_name`, F18-N02) dan siswa membaca hasilnya sendiri; yang tidak ada hanya penghapusan (orang tidak dapat dihapus, retensi belum berjalan).
+**Ini masuk daftar gap (G2.2). Tidak diselesaikan di dokumen ini.**
 
-**Mengapa PINTAR seperti ini:** Prinsip NO HOSTAGE DATA ada; klasifikasi data belum.
+**Mengapa PINTAR seperti ini:** Prinsip NO HOSTAGE DATA ada; model hak atas data belum.
 
 **Bukti / mekanisme di PINTAR:** Tidak ada mekanisme kepemilikan; hanya cetak (SCHOOL-DATA-EXPORT-4.0.md).
 
 **Sumber:**
 - MEMBUKTIKAN: `docs/product/SCHOOL-DATA-EXPORT-4.0.md` (seluruhnya).
-- MENETAPKAN ATURAN/RANCANGAN: D-110(a)(b)(e)(f); `docs/rebuild/02-PINTAR-CANONICAL-DOMAIN-MODEL.md` baris 56-59; `docs/rebuild/06` baris 150-156.
+- MENETAPKAN ATURAN/RANCANGAN: D-110(a)(b)(e)(f); D-112(e); `docs/rebuild/02-PINTAR-CANONICAL-DOMAIN-MODEL.md` baris 56-59; `docs/rebuild/06` baris 150-156.
 
 **Yang tidak boleh dikatakan:** "Semua data milik sekolah"; "semua data milik siswa"; "Anda bisa mengambilnya kapan saja"; jangan mengutip D-110 sebagai fitur.
 
@@ -1699,7 +1705,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Kemungkinan ditanya:** SEDANG
 
 **Jawaban singkat:**
-"PIN siswa tidak disimpan oleh PINTAR; PIN hanya tampil satu kali, pada lembar kartu saat kartu diterbitkan. Untuk staf, PIN dan kata sandi dilindungi dan tidak ditampilkan kepada admin. Detail teknis penyimpanan: tim teknis."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), PIN siswa tidak disimpan oleh PINTAR; PIN hanya tampil satu kali, pada lembar kartu saat kartu diterbitkan. Untuk staf, PIN dan kata sandi dilindungi dan tidak ditampilkan kepada admin. Detail teknis penyimpanan: tim teknis."
 
 **Penjelasan:** Siswa: PIN tidak disimpan; karena itu lembar kartu hanya bisa dicetak sekali pada sesi penerbitan, dan kartu yang sudah terbit tidak bisa dicetak ulang (hanya diterbitkan ulang) (M7-K01; `SCHOOL-DATA-EXPORT-4.0.md` §A). Lembar kartu itu menampilkan PIN satu kali. Staf: PIN pribadi dan kata sandi hanya ada di versi `main`/staging (belum di produksi); PIN diverifikasi di server dan tidak pernah ditampilkan ke admin (D-056(a); F16-P01); kata sandi minimal 8 karakter dengan perlindungan kata sandi bocor (D-082(a)); penulisan dijaga (F18-P01). Konflik sumber: D-033(c) ("tidak ada kata sandi pilihan manusia") digantikan D-082 dan J2.5. Analisis ketahanan dan algoritma tidak dimuat di dokumen ini; tim teknis menilainya dan temuan dicatat di G3.
 
@@ -1779,7 +1785,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Kemungkinan ditanya:** SEDANG
 
 **Jawaban singkat:**
-"Di komputer yang dinyatakan bersama, layar terkunci setelah 5 menit tanpa aktivitas dan hanya terbuka dengan PIN guru; sesi berakhir setelah 60 menit terkunci, atau setelah tiga PIN salah. Ini hanya berlaku bila komputer dinyatakan bersama, dan pelindungannya dipastikan oleh server, bukan hanya oleh layar."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), di komputer yang dinyatakan bersama, layar terkunci setelah 5 menit tanpa aktivitas dan hanya terbuka dengan PIN guru; sesi berakhir setelah 60 menit terkunci, atau setelah tiga PIN salah. Ini hanya berlaku bila komputer dinyatakan bersama, dan pelindungannya dipastikan oleh server, bukan hanya oleh layar."
 
 **Penjelasan:** D-055(b): di perangkat bersama, 5 menit diam → kunci PIN yang ditegakkan server; PIN benar melanjutkan; 3 PIN salah mengakhiri sesi itu; 60 menit terkunci mengakhiri sesi itu; sesi di perangkat lain tidak terganggu. Tes: BOB29-D01 (sesi bersama diam 5 menit ditolak, tiga PIN salah menghapus sesi), BOB29-A01 (halaman mengajar dialihkan ke `/terkunci`, token yang diperbarui pun ditolak, PIN benar memulihkan), BOB29-A03, BOB29-K01. Siswa: kunci setelah 5 menit, hanya PIN kartu yang membuka, layar kunci tanpa nama siswa, «Bukan akun Anda?» mengakhiri sesi (BOB29-A02). Pertanyaan «Komputer siapa ini?» diajukan di peramban yang tidak dikenal; itu pernyataan pengguna, bukan bukti kepemilikan. Bila guru memilih perangkat pribadi, sesi sekitar 7 hari dan kunci tidak berlaku. «Keluar» ada di setiap layar dan hanya mengakhiri perangkat ini; «Keluar dari semua perangkat» terpisah. Kelemahan: kunci tidak berlaku bila guru menyatakan komputer pribadi; fitur ada di `main`/staging dan belum di produksi (migrasi 154).
 
@@ -1793,13 +1799,13 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 
 **Yang tidak boleh dikatakan:** "Komputer otomatis keluar dalam 5 menit" (terkunci 5 menit, keluar 60 menit, pada komputer yang dinyatakan bersama); "terlindungi sepenuhnya bila memilih pribadi"; "sudah aktif di produksi".
 
-**Status:** TERSEDIA DI 4.0 (di `main`/staging; belum terbukti di produksi)
+**Status:** TERSEDIA DI 4.0 (main/staging; belum di produksi)
 **Tingkat sensitivitas:** TINGGI
 
 ---
 
 
-## Kelompok 7 — Backup, pemulihan, kesalahan manusia, perpindahan, hak akses, orang tua, retensi, keluar, dukungan (Q070–Q087)
+## Kelompok 4 — Backup, pemulihan, kesalahan manusia, perpindahan, hak akses, orang tua, retensi, keluar, dukungan (Q070–Q087)
 
 > **Catatan lintas-pertanyaan untuk pembaca kelompok ini.**
 > 1. **Produksi belum di-upgrade.** `RESUME-2026-10-06.md`: produksi tetap di build `5b5b68d` dengan 111 migrasi; migrasi 112 dan seterusnya hanya ada di `main` dan staging. Terdampak antara lain: «Pindah kelas» (`20261027100000`), struktur sekolah dengan alasan wajib, koreksi nama (`20261112100000`), «Laporkan masalah» (`20261119100000`). Produksi saat ini memuat 2 sekolah, 1 orang, dan tanpa sitting asesmen (BACKUP-DR-REVIEW Part II §1; D-103). "TERSEDIA" di bawah berarti "ada di `main`/staging dan terbukti oleh tes"; pernyataan tentang produksi menunggu PRODUCTION READY, yang digerbang #150 (D-104(d)).
@@ -1811,17 +1817,17 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Hari ini data produksi dicadangkan setiap hari oleh penyedia database kami, dan itu bisa dipulihkan, tetapi salinan independen di luar penyedia itu sudah kami bangun dan belum dinyalakan. Berkas seperti foto dan media pelajaran tidak ikut dalam cadangan harian. Kami tidak akan mengatakan data tidak mungkin hilang."
+"Hari ini data produksi dicadangkan setiap hari oleh penyedia database kami, dan pemulihan bawaan pernah diuji satu kali pada salinan lingkungan uji. Pemulihan produksi belum pernah dilakukan. Salinan independen di luar penyedia itu sudah kami bangun tetapi belum dinyalakan, dan berkas seperti foto dan media pelajaran tidak ikut dalam cadangan harian. Kami tidak akan mengatakan data tidak mungkin hilang."
 
 **Penjelasan:**
 - Supabase Pro membuat cadangan fisik harian, disimpan 7 hari; pemilik melihat 7 cadangan di dasbor produksi, terbaru 5 Okt 2026 19:24 UTC. Daftar itu tidak punya kolom status, sehingga "selesai" tidak dapat dinyatakan dari tangkapan layar.
 - Supabase menghapus cadangan bersama project-nya. Storage (foto, media pelajaran, tangkapan layar laporan) tidak termasuk cadangan mana pun.
-- **Salinan di luar Supabase: belum ada yang berjalan.** Yang sudah ada: kode (`scripts/recovery/*`, alur `backup-offsite.yml`, migrasi 162 untuk kredensial cadangan khusus) di `main`, terbukti oleh tes DR-S08..S16 dan DR-D02. Semua jadwalnya mati sampai pemilik menyalakan variabel `PINTAR_OFFSITE_BACKUP`. Belum dilakukan: akun AWS, kunci, penunjukan kustodian, dan langkah pemilik O3–O7.
+- **Salinan di luar Supabase: belum ada yang berjalan.** Yang sudah ada: kode (`scripts/recovery/*`, alur `backup-offsite.yml`, migrasi 162 untuk akun cadangan khusus) di `main`, terbukti oleh tes DR-S08..S16 dan DR-D02. Semua jadwalnya mati sampai pemilik menyalakan variabel `PINTAR_OFFSITE_BACKUP`. Belum dilakukan: akun AWS, kunci, penunjukan kustodian, dan langkah pemilik O3–O7.
 - Cadangan produksi dan penyimpanan rahasia ditolak oleh kode sampai dua kustodian terpisah masing-masing membuktikan memegang kuncinya (D-109(c)). Di `custody.json`, bukti kepemilikan R1 belum tercatat dan R2 belum ditunjuk.
-- Rancangan: AWS S3 Singapura dengan Object Lock, enkripsi OpenPGP untuk dua penerima, harian 35 hari dan bulanan 12 bulan (D-107 D1, D2, D4).
+- Rancangan: AWS S3 Singapura dengan Object Lock, enkripsi untuk dua penerima, harian 35 hari dan bulanan 12 bulan (D-107 D1, D2, D4).
 - Kode aplikasi ada di Git dan skema ada sebagai migrasi.
-- **Tidak ada:** salinan off-platform aktif; salinan Storage; escrow terverifikasi untuk dua kunci kriptografi PINTAR (kunci kartu dan kunci sertifikat). Ada penjaga yang mencegah pembuatan ulang diam-diam (DR-S01..S03), tetapi escrow belum dibuat.
-- Konflik sumber: `OFFSITE-BACKUP-DESIGN.md` memakai enkripsi `age`, sedangkan CLOSURE-PLAN-150 dan D-107 D2 memakai OpenPGP. Yang baru berlaku: OpenPGP.
+- **Tidak ada:** salinan off-platform aktif; salinan Storage; escrow terverifikasi untuk rahasia kriptografis PINTAR (detail teknis: tim teknis). Ada penjaga yang mencegah pembuatan ulang diam-diam (DR-S01..S03), tetapi escrow belum dibuat.
+- D-111 (6 Okt): GREEN untuk melanjutkan persiapan infrastruktur milik pemilik, tanpa escrow sementara dengan satu kustodian; **itu bukan #150 lulus dan bukan siap produksi**.
 
 **Mengapa PINTAR seperti ini:** Pemulihan harus dilakukan dan dibuktikan sebelum sekolah nyata bergantung pada produksi (D-104, D-106); salinan independen dianggap wajib sebelum PRODUCTION READY (D-106(b)).
 
@@ -1829,9 +1835,9 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 
 **Sumber:**
 - MEMBUKTIKAN: `docs/recovery/BACKUP-DR-REVIEW-2026-10-05.md` Part I (G1 Part 1) dan Part II §2; JOURNEY-LOG butir 41–43; tes DR-S08..S16, DR-D02; `docs/recovery/custody.json`, `durable-secrets.json` (hanya struktur).
-- MENETAPKAN ATURAN: D-103, D-104, D-106(b), D-107 D1/D2/D4, D-109(b)(c); RESUME-2026-10-06; `docs/recovery/CLOSURE-PLAN-150.md`; `docs/recovery/OWNER-INSTRUCTIONS-150.md`.
+- MENETAPKAN ATURAN: D-103, D-104, D-106(b), D-107 D1/D2/D4, D-109(b)(c), D-111; RESUME-2026-10-06; `docs/recovery/EVIDENCE-INDEX-150.md`; `docs/recovery/CLOSURE-PLAN-150.md`; `docs/recovery/OWNER-INSTRUCTIONS-150.md`.
 
-**Yang tidak boleh dikatakan:** "Data kami dicadangkan di dua tempat / di luar Supabase"; "foto dan media ikut dicadangkan"; "cadangan terenkripsi sudah berjalan"; "lulus uji backup"; lokasi selain Singapura.
+**Yang tidak boleh dikatakan:** "Data kami dicadangkan di dua tempat / di luar Supabase"; "foto dan media ikut dicadangkan"; "cadangan terenkripsi sudah berjalan"; "lulus uji backup"; "#150 sudah lulus" atau "GREEN" (D-111 hanya izin melanjutkan persiapan infrastruktur); "bisa dipulihkan" tanpa menyebut bahwa pemulihan produksi belum pernah dilakukan; lokasi selain Singapura.
 
 **Status:** SEBAGIAN; kedua: DIBANGUN, BELUM AKTIF (salinan independen)
 **Tingkat sensitivitas:** KRITIS
@@ -1849,7 +1855,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Penjelasan:**
 - Titik pemulihan produksi adalah cadangan fisik harian: satu pemulihan dapat kehilangan hingga 24 jam penulisan (D-103(a)). Pemulihan ke titik waktu (PITR) tidak aktif dan tidak dibeli (butuh compute di atas tingkat sekarang plus add-on, sekitar USD 100 per bulan); ini keputusan sengaja yang **sementara**, ditinjau ulang paling lambat saat murid sekolah nyata mulai ujian di produksi (D-103(b)(c)).
 - Skenario lebih buruk (analisis, bukan jaminan): bila project atau akun Supabase hilang, semuanya hilang karena cadangan ikut terhapus dan belum ada salinan luar; Storage hilang total bila Storage hilang.
-- Sebelum migrasi produksi, penjaga G6 mewajibkan cadangan COMPLETED yang tidak lebih tua dari 26 jam; selama pembacaan otomatis itu belum tersedia, setiap penerapan produksi ditolak (DR-S04, DR-S05, DR-S07).
+- Sebelum migrasi produksi, penjaga G6 mewajibkan cadangan COMPLETED yang tidak lebih tua dari 26 jam; selama pembacaan otomatis itu belum tersedia, setiap penerapan produksi ditolak (DR-S04, DR-S05).
 - Jika satu cadangan gagal, kehilangan bisa lebih dari 24 jam; pemantauan produksi (watch) default mati sehingga kegagalan tidak terlihat secara otomatis (DR-S06).
 
 **Mengapa PINTAR seperti ini:** Satu hari kehilangan dianggap tertoleransi selama produksi hanya berisi dua sekolah, satu orang, dan tanpa ujian (D-103); itu berubah saat kelas nyata mulai ujian.
@@ -1857,7 +1863,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Bukti / mekanisme di PINTAR:** `scripts/release/restore-point.mjs` (penjaga G6); `production-watch.yml:44`.
 
 **Sumber:**
-- MEMBUKTIKAN: tes DR-S04..S07; BACKUP-DR-REVIEW Part I (G1 Part 1), Part II §4.
+- MEMBUKTIKAN: tes DR-S04, DR-S05, DR-S06; BACKUP-DR-REVIEW Part I (G1 Part 1), Part II §4.
 - MENETAPKAN ATURAN: D-103(a)–(d), D-106(h).
 
 **Yang tidak boleh dikatakan:** "Maksimal kehilangan 24 jam dijamin"; "tidak ada kehilangan / real-time"; "ada point-in-time recovery"; "jawaban siswa yang sedang ujian aman bila server rusak".
@@ -1880,7 +1886,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 - Catatan Second Eye: terbukti "pada skala staging saat ini", tidak menetapkan waktu pulih skala produksi; konfigurasi Auth/platform dan objek Storage perlu prosedur terpisah.
 - Yang tidak direproduksi atau tidak diverifikasi: kunci API dan pengaturan Auth tidak ikut (perlindungan kata sandi bocor mati di salinan); berkas Storage tidak diverifikasi; versi Postgres berbeda (17.11 vs 17.6).
 - Pemulihan logis 5 Okt gagal sesuai prosedur penyedia; setelah dipaksa, 150 dari 157 tabel identik, tiga pemicu `auth.users` hilang, hak akses terbuka lebar. Sebagian dikoreksi di kode (DR-S08, DR-D01, DR-D02). DR-D02: bundel dari `backup.mjs` dipulihkan ke stack Supabase kosong di CI dengan 0 perbedaan, tetapi itu pengganti lokal, bukan restore hosted.
-- **#150 = NOT PASS** (D-104(a)); gerbang keras PRODUCTION READY (D-104(d)). D-106 menambah syarat B3–B9 yang belum selesai. Runbook pemulihan penuh (`RUNBOOK-NATIVE-RESTORE.md`) **belum ada**; DR-S12/S13 tidak ada di manifest. "ENGINEERING COMPLETE" tidak melunakkan ini.
+- **#150 = NOT PASS** (D-104(a)); gerbang keras PRODUCTION READY (D-104(d)). D-111 (6 Okt) menyatakan GREEN untuk melanjutkan persiapan infrastruktur; itu bukan lulus. D-106 menambah syarat B3–B9 yang belum selesai. Runbook pemulihan penuh (`RUNBOOK-NATIVE-RESTORE.md`) **belum ada**; DR-S12/S13 tidak ada di manifest. "ENGINEERING COMPLETE" tidak melunakkan ini.
 - Tidak ada: restore produksi; pengukuran waktu pulih skala produksi; bukti pemulihan Storage nyata.
 
 **Mengapa PINTAR seperti ini:** Pemulihan harus dilakukan, bukan dijelaskan, sebelum sekolah nyata bergantung pada produksi (D-104).
@@ -1889,9 +1895,9 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 
 **Sumber:**
 - MEMBUKTIKAN: `docs/recovery/JOURNEY-LOG.md` butir 38, 41; `docs/recovery/BACKUP-DR-REVIEW-2026-10-05.md` Part I (G2: result) dan Verdict; tes DR-S08, DR-D01, DR-D02.
-- MENETAPKAN ATURAN: D-103, D-104, D-105, D-106, D-107.
+- MENETAPKAN ATURAN: D-103, D-104, D-105, D-106, D-107, D-111; `docs/recovery/EVIDENCE-INDEX-150.md`.
 
-**Yang tidak boleh dikatakan:** "Backup kami sudah teruji penuh"; "pulih dalam 8 menit" (itu staging, dataset kecil, hanya database); "#150 lulus" atau "siap produksi".
+**Yang tidak boleh dikatakan:** "Backup kami sudah teruji penuh"; "pulih dalam 8 menit" (itu staging, dataset kecil, hanya database); "#150 lulus", "GREEN" (D-111 bukan lulus), atau "siap produksi".
 
 **Status:** SEBAGIAN (belum lulus, #150)
 **Tingkat sensitivitas:** KRITIS
@@ -1912,7 +1918,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 - Pencatatan: log audit hanya-tambah. Namun layar «Jejak audit» di Konfigurasi hanya menampilkan 50 baris terakhir dan **tidak menampilkan kolom pelaku maupun alasan**. Dibaca oleh Admin platform dan Admin sekolah untuk sekolahnya.
 - Fitur pindah kelas ada di `main`/staging (migrasi 20261027100000), belum di produksi.
 
-**Mengapa PINTAR seperti ini:** Riwayat tidak pernah ditulis ulang; koreksi dilakukan ke depan (D-085 M9).
+**Mengapa PINTAR seperti ini:** Riwayat tidak pernah ditulis ulang (D-085 M9 untuk pindah kelas; koreksi ke depan untuk konten adalah M10).
 
 **Bukti / mekanisme di PINTAR:** `supabase/migrations/20261027100000_*.sql`; `src/app/konfigurasi/actions.ts:156-175`; `src/lib/hle.ts:2890`; `src/components/struktur/tampilan.ts:46`; `src/app/konfigurasi/page.tsx:124-137, 1106-1122`.
 
@@ -1938,7 +1944,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Penjelasan:**
 - Nama: hanya Admin platform lewat `correct_person_name`, dengan alasan; tercatat dari/ke/alasan/siapa. Admin sekolah, guru, orangnya sendiri, dan kartu kelas ditolak. Sertifikat yang sudah terbit tetap memuat nama saat terbit (D-077(d)). Tidak ada layar untuk fungsi ini.
 - Hasil asesmen: ditulis sistem lewat pemicu; skema punya `supersedes_result_id`, tetapi **tidak ditemukan layar atau fungsi klien** bagi guru atau admin untuk mengoreksi nilai (dicari: regrade, rescore, supersedes_result).
-- Override kelas bukti: hanya Admin platform, hanya boleh melemahkan, tanpa UI.
+- Penurunan kelas bukti sebuah sesi (`evidence_class_overrides`): hanya boleh melemahkan, hanya-tambah, memerlukan kewenangan meninjau integritas, yaitu Admin platform, Admin sekolah, dan Kepala departemen (migrasi `20260912201500:465-466`, `20260926100000:144-157`; F06-P04); doc 05:110 hanya rancangan. Tanpa layar di aplikasi.
 - Perpanjangan waktu ujian: fungsi database ada (1–120 menit, alasan wajib, maksimal 3 kali, tercatat) tetapi tidak ada layar guru.
 - Bukti yang bisa ditunjukkan: guru melihat catatan satu murid di kelasnya (hasil resmi dengan penguasaan tercatat; M4-K01) dan tampilan per soal setelah asesmen ditutup; hasil dan keanggotaan lama tetap dengan konteks aslinya (M9-S01). Sinyal integritas bukan tuduhan dan tidak mengubah skor.
 - Murid tidak punya formulir «Laporkan masalah»; mereka bicara ke guru (D-037).
@@ -1974,7 +1980,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 - Sertifikat: murid membaca sertifikatnya sendiri; verifikasi publik lewat `/verifikasi/[token]` tetap bisa (halaman PINTAR sendiri, jadi PINTAR harus berjalan). Sertifikat tidak ditulis ulang saat nama dikoreksi (F18-N04).
 - Lulus: skema punya alasan akhir enrolmen 'COMPLETED', tetapi **tidak ada konsep, layar, atau status "lulus/alumni"**. Apakah murid dengan enrolmen berakhir masih bisa masuk dan membuka sertifikatnya: belum ditelusuri; PERLU VERIFIKASI TEKNIS.
 - Pindah ke sekolah non-PINTAR (ekspor catatan portabel): dirancang (doc 04 §3c), tidak dibangun.
-- Ketegangan data sekolah vs catatan portabel siswa: lihat Q061.
+- Hak atas data sekolah dan catatan portabel siswa: bukan kontradiksi, tetapi perlu model hak atas data (D-112(e); Q061).
 
 **Mengapa PINTAR seperti ini:** Bukti belajar terikat sekolah tempat bukti dibuat; identitas dan sertifikat tidak ditulis ulang.
 
@@ -1997,7 +2003,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Itu bergantung pada peran yang diberikan sekolah. 'Kepala sekolah' bukan peran tersendiri di PINTAR. Admin sekolah mengelola struktur dan orang, tetapi tidak membaca hasil akademik siswa; Dekan melihat angka dalam lingkupnya; guru melihat kelasnya; siswa hanya dirinya sendiri."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), itu bergantung pada peran yang diberikan sekolah. 'Kepala sekolah' bukan peran tersendiri di PINTAR. Admin sekolah mengelola struktur dan orang, tetapi tidak membaca hasil akademik siswa; Dekan melihat angka dalam lingkupnya; guru melihat kelasnya; siswa hanya dirinya sendiri."
 
 **Penjelasan:**
 - Peran di database ada enam: murid, guru, kepala departemen, dekan, admin sekolah, admin platform. Nama layar: Guru, Kepala departemen, Dekan, Admin sekolah, Admin platform. «Kepala sekolah» adalah taksonomi desain, bukan peran (D-059(c)).
@@ -2017,7 +2023,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 
 **Yang tidak boleh dikatakan:** "Kepala sekolah melihat semua guru dan siswa"; "Admin sekolah bisa melihat nilai semua siswa"; "hak akses cukup diatur lewat tampilan".
 
-**Status:** TERSEDIA DI 4.0 (di `main`/staging, dengan catatan bergantung pada peran yang diberikan)
+**Status:** TERSEDIA DI 4.0 (main/staging; belum di produksi)
 **Tingkat sensitivitas:** TINGGI
 
 ---
@@ -2076,7 +2082,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Jawaban singkat:**
 "Kami belum punya fitur akomodasi khusus yang dapat kami janjikan, dan belum menguji PINTAR dengan pembaca layar atau alat bantu lain. Perpanjangan waktu ujian ada di sisi database tetapi belum punya layar untuk guru."
 
-**Penjelasan:** Waktu tambahan per sitting: fungsi database `extend_session_deadline` (1–120 menit, alasan wajib, maksimal 3 kali, tercatat) untuk pemegang kewenangan menugaskan; **tidak ada layar** (komentar kode di halaman mengajar). Aksesibilitas yang terbukti oleh tes: kontras warna dihitung dari token (UX1-S0-CONTRAST-01); dialog tur berlabel dan fokus (UX1-TUR-AKSES-01); kolom masuk dengan atribut dan fokus benar (UX1-MASUK-AKSES-01); layar 320 px. Itu tes komponen tertentu, bukan sertifikasi aksesibilitas. Tidak ditemukan: akomodasi per murid (waktu tambahan terprogram, teks besar, pembaca layar teruji, mode disleksia) maupun keputusan tentangnya (dicari aksesibilitas, berkebutuhan khusus, ABK, disleksia, extra time).
+**Penjelasan:** Waktu tambahan per sitting: fungsi database `extend_session_deadline` (1–120 menit, alasan wajib, maksimal 3 kali, tercatat) untuk pemegang kewenangan menugaskan; **tidak ada layar** (komentar kode di halaman mengajar). Aksesibilitas yang terbukti oleh tes: kontras warna dihitung dari token (UX1-S0-CONTRAST-01); dialog tur berlabel dan fokus (UX1-TUR-AKSES-01); kolom masuk dengan atribut dan fokus benar (UX1-MASUK-AKSES-01); layar 320 px (tanpa ID tes khusus untuk klaim ini di bagian ini). Itu tes komponen tertentu, bukan sertifikasi aksesibilitas. Tidak ditemukan: akomodasi per murid (waktu tambahan terprogram, teks besar, pembaca layar teruji, mode disleksia) maupun keputusan tentangnya (dicari aksesibilitas, berkebutuhan khusus, ABK, disleksia, extra time).
 
 **Mengapa PINTAR seperti ini:** Aksesibilitas khusus belum menjadi baris lingkup 4.0.
 
@@ -2124,7 +2130,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Jawaban singkat:**
 "Durasi retensi belum diputuskan, dan kami tidak akan mengarang angka. Saat ini data tinggal tanpa batas karena PINTAR belum punya mekanisme penghapusan, sementara aturan durasi menurut hukum masih terbuka."
 
-**Penjelasan:** OD-5: "arsitektur sudah diputuskan; durasi hukum terbuka"; PINTAR tidak boleh mengarang durasi retensi hukum (doc 06; doc 11). `institutions.retention_days` kosong berarti "tidak dikonfigurasi, job mati" dan tidak dipakai. Praktiknya: orang, institusi, dan log audit tidak bisa dihapus (SCHOOL-DATA-EXPORT-4.0.md §D). Rancangan: log audit disimpan tanpa batas atau menurut kebijakan institusi; sertifikat menyimpan snapshot identitas (INV-30). Cadangan: data yang sudah dihapus tetap ada di cadangan hingga kedaluwarsa, paling lama 12 bulan untuk salinan independen (belum aktif; OFFSITE-BACKUP-DESIGN baris 74-76); cadangan bawaan Supabase 7 hari. Catatan pemberitahuan privasi tentang retensi cadangan (O11) belum dilakukan.
+**Penjelasan:** OD-5: "arsitektur sudah diputuskan; durasi hukum terbuka"; PINTAR tidak boleh mengarang durasi retensi hukum (doc 06; doc 11). `institutions.retention_days` kosong berarti "tidak dikonfigurasi, job mati" dan tidak dipakai. Praktiknya: orang, institusi, dan log audit tidak bisa dihapus (SCHOOL-DATA-EXPORT-4.0.md §D). Rancangan: log audit disimpan tanpa batas atau menurut kebijakan institusi; sertifikat menyimpan snapshot identitas (INV-30). Cadangan: data yang sudah dihapus tetap ada di cadangan hingga kedaluwarsa, paling lama 12 bulan untuk salinan independen (belum aktif; OFFSITE-BACKUP-DESIGN baris 79-81); cadangan bawaan Supabase 7 hari. Catatan pemberitahuan privasi tentang retensi cadangan (O11) belum dilakukan.
 
 **Mengapa PINTAR seperti ini:** Durasi hukum adalah keputusan pemilik/penasihat hukum, bukan produk.
 
@@ -2132,7 +2138,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 
 **Sumber:**
 - MEMBUKTIKAN: `docs/product/SCHOOL-DATA-EXPORT-4.0.md` §D.
-- MENETAPKAN ATURAN/RANCANGAN: `docs/rebuild/11-PINTAR-OPEN-DECISIONS.md` OD-5 (baris 80-95); `docs/rebuild/06` bagian Retention; D-107 D4; `docs/recovery/OFFSITE-BACKUP-DESIGN.md:74-76`.
+- MENETAPKAN ATURAN/RANCANGAN: `docs/rebuild/11-PINTAR-OPEN-DECISIONS.md` OD-5 (baris 80-95); `docs/rebuild/06` bagian Retention; D-107 D4; `docs/recovery/OFFSITE-BACKUP-DESIGN.md:79-81`.
 
 **Yang tidak boleh dikatakan:** angka retensi apa pun ("5 tahun", "sampai lulus"); "data dihapus otomatis".
 
@@ -2150,7 +2156,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 "Prinsip kami: PINTAR tidak boleh menahan data sekolah atau mempersulit sekolah yang ingin pergi. Tetapi alur keluar, unduh data, dan penghapusan belum dibangun di 4.0, jadi kami belum bisa menjanjikan prosesnya. Sertifikat yang sudah terbit dirancang tetap dapat diverifikasi lewat tautan."
 
 **Penjelasan:**
-- D-110(a): NO HOSTAGE DATA. D-110(d): perjalanan keluar tertib (permintaan → pengakuan → penjelasan status → penyerahan data yang berhak → penjelasan retensi/penghapusan → selesai) "harus pada akhirnya ada". D-110(b)(f): prinsip, bukan fitur; ekspor mandiri adalah kandidat 4.5, belum dirancang atau disetujui.
+- D-110(a): NO HOSTAGE DATA (prinsip, bukan klaim bahwa sekolah memiliki setiap data tentang seseorang; D-112(e), Q061). D-110(d): perjalanan keluar tertib (permintaan → pengakuan → penjelasan status → penyerahan data yang berhak → penjelasan retensi/penghapusan → selesai) "harus pada akhirnya ada". D-110(b)(f): prinsip, bukan fitur; ekspor mandiri adalah kandidat 4.5, belum dirancang atau disetujui.
 - Kenyataan kode: tidak ada ekspor terstruktur, tidak ada alat ekstraksi satu sekolah, jalur keluar dan retensi tidak dibangun. Yang bisa dicetak: dua laporan ringkasan, sertifikat milik murid, lembar kartu yang baru diterbitkan.
 - Sertifikat: verifikasi publik lewat `/verifikasi/[token]` bekerja hari ini; rancangan keluar menyatakan sertifikat tetap dapat diverifikasi setelah sekolah keluar (doc 06 baris 150-156), tetapi **alur keluar belum dibangun dan tidak ada tes "sekolah dinonaktifkan lalu sertifikat diverifikasi"**. Jangan menjanjikannya.
 - Tidak ada layar atau alur "berhenti berlangganan" dan tidak ada model langganan di kode.
@@ -2178,13 +2184,13 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Jawaban singkat:**
 "Belum ada fitur penghapusan data sekolah di PINTAR, dan kebijakannya belum diputuskan. Salinan di cadangan tidak dihapus segera; cadangan akan habis masa simpannya dengan sendirinya."
 
-**Penjelasan:** Tidak ada fungsi penghapusan data sekolah atau orang; institusi dan orang tidak bisa dihapus oleh desain. D-110(c) menyebut penghapusan, kedaluwarsa cadangan, dan retensi yang wajib secara hukum sebagai hal yang harus didefinisikan. Cadangan: cadangan bawaan Supabase 7 hari; salinan independen (belum aktif) hingga 12 bulan dengan Object Lock yang mencegah penghapusan dini (D-107 D4; OFFSITE-BACKUP-DESIGN baris 71-76). CLOSURE-PLAN menyatakan data pribadi produksi meninggalkan Supabase dan bertahan hingga 12 bulan (O11).
+**Penjelasan:** Tidak ada fungsi penghapusan data sekolah atau orang; institusi dan orang tidak bisa dihapus oleh desain. D-110(c) menyebut penghapusan, kedaluwarsa cadangan, dan retensi yang wajib secara hukum sebagai hal yang harus didefinisikan. Cadangan: cadangan bawaan Supabase 7 hari; salinan independen (belum aktif) hingga 12 bulan dengan Object Lock yang mencegah penghapusan dini (D-107 D4; OFFSITE-BACKUP-DESIGN baris 79-81). CLOSURE-PLAN menyatakan data pribadi produksi meninggalkan Supabase dan bertahan hingga 12 bulan (O11).
 
 **Mengapa PINTAR seperti ini:** Prinsip ada (D-110); mekanisme belum.
 
 **Bukti / mekanisme di PINTAR:** Tidak ada.
 
-**Sumber:** MENETAPKAN ATURAN/RANCANGAN: D-110(c); D-107 D4; `docs/recovery/OFFSITE-BACKUP-DESIGN.md` baris 71-76; `docs/recovery/CLOSURE-PLAN-150.md` (O11, residual risks). MEMBUKTIKAN: `docs/product/SCHOOL-DATA-EXPORT-4.0.md` §D.
+**Sumber:** MENETAPKAN ATURAN/RANCANGAN: D-110(c); D-107 D4; `docs/recovery/OFFSITE-BACKUP-DESIGN.md` baris 79-81; `docs/recovery/CLOSURE-PLAN-150.md` (O11, residual risks). MEMBUKTIKAN: `docs/product/SCHOOL-DATA-EXPORT-4.0.md` §D.
 
 **Yang tidak boleh dikatakan:** "Kami bisa menghapus seluruh data Anda"; "backup ikut terhapus segera"; "data dihapus permanen".
 
@@ -2251,7 +2257,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Staf menekan «Laporkan masalah» di dalam PINTAR dan menandai bahwa kelas terhenti. Targetnya laporan yang menghentikan kelas dijawab pada hari sekolah yang sama, tetapi itu target kami, bukan jaminan kontrak, dan belum ada nomor darurat."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), staf menekan «Laporkan masalah» di dalam PINTAR dan menandai bahwa kelas terhenti. Targetnya laporan yang menghentikan kelas dijawab pada hari sekolah yang sama, tetapi itu target kami, bukan jaminan kontrak, dan belum ada nomor darurat."
 
 **Penjelasan:**
 - «Laporkan masalah» tersedia untuk staf (Guru, Kepala departemen, Dekan, Admin sekolah, Admin platform): apa yang dilakukan, yang diharapkan, yang terjadi, kotak "menghentikan kelas", tangkapan layar opsional; halaman, kode rujukan, peran, sekolah, build, dan perangkat terlampir otomatis. Murid tidak mendapat formulir; mereka memberi tahu gurunya. Dibaca oleh pelapor, Admin sekolah, dan Admin platform.
@@ -2280,7 +2286,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Kemungkinan ditanya:** SEDANG
 
 **Jawaban singkat:**
-"Setelah mengirim, Anda langsung melihat 'Laporan Anda diterima' dan bisa mengikuti statusnya di «Laporan saya»: Diterima, Ditangani, Selesai. Setiap perpindahan status disertai catatan 'langkah berikutnya' untuk Anda. Tidak ada email otomatis, jadi Anda perlu membuka halaman itu."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), setelah mengirim, Anda langsung melihat 'Laporan Anda diterima' dan bisa mengikuti statusnya di «Laporan saya»: Diterima, Ditangani, Selesai. Setiap perpindahan status disertai catatan 'langkah berikutnya' untuk Anda. Tidak ada email otomatis, jadi Anda perlu membuka halaman itu."
 
 **Penjelasan:** Status hanya maju dan setiap perpindahan wajib menulis "langkah berikutnya" untuk pelapor (maksimal 500 karakter). Tier 1 (Admin sekolah, di Konfigurasi «Laporan masalah») dan Tier 2 (Admin platform) mengubah status; pengiriman dan perpindahan masuk audit. Hanya untuk staf: murid dan orang tua tidak punya akses. Pembuktian berasal dari tes dan CI hijau; catatan uji manusia untuk J10 tidak ditemukan. Ada di `main`/staging; belum di produksi.
 
@@ -2294,13 +2300,13 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 
 **Yang tidak boleh dikatakan:** "Kami akan memberi tahu lewat email/SMS"; "laporan murid atau orang tua diterima lewat PINTAR"; "status berjalan otomatis" (dipindah manual oleh admin).
 
-**Status:** TERSEDIA DI 4.0 (di `main`/staging; produksi belum menerima migrasinya)
+**Status:** TERSEDIA DI 4.0 (main/staging; belum di produksi)
 **Tingkat sensitivitas:** NORMAL
 
 ---
 
 
-## Kelompok 10 — Skalabilitas, regulasi, biaya, sistem lain, roadmap (Q088–Q100)
+## Kelompok 5 — Skalabilitas, regulasi, biaya, sistem lain, roadmap (Q088–Q100)
 
 ### Q088 — Seribu siswa ujian bersamaan, apakah kuat? Berapa sekolah yang sudah diuji, dan apakah ada batas jumlah kelas dan siswa yang bisa kami tambahkan?
 
@@ -2317,7 +2323,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 - Selama pengujian awal, jumlah penguji dibatasi 50 orang pada satu waktu (D-089(d)). Ukuran komputasi (tier) produksi diputuskan sebelum produksi berdasarkan uji kapasitas (D-089(c), CAP-08).
 - Gelombang masuk pagi hari dengan Kartu PINTAR (CAP-01) belum pernah diuji. Ada risiko yang tercatat: batas permintaan per alamat server pada layanan masuk dapat menolak banyak siswa sekaligus (D-031).
 - Batas keras jumlah sekolah/kelas/siswa **tidak ditemukan** di kode. Yang membatasi adalah kebijakan penerimaan bertahap (D-031/D-035/D-089(d)), bukan batas sistem.
-- Konflik yang belum diselesaikan: D-035 mensyaratkan L1 lulus sebelum 1 November 2026, sedangkan L1 gagal dan tidak diulang (D-089). Belum ada keputusan tertulis yang menyelaraskannya.
+- Kohort D-035 (1 November dan 1 Desember) **bukan lagi komitmen jadwal**; D-083 yang berlaku, dan keduanya tetap terbuka sampai PRODUCTION READY (D-112(d)). Jangan menyebut tanggal itu kepada sekolah. Hasil uji L1 yang gagal (D-089) berdiri sendiri dan tidak boleh ditutupi oleh hasil skala kecil yang lulus.
 
 **Mengapa PINTAR seperti ini:** Kapasitas harus diketahui, bukan diasumsikan. Angka yang penting adalah aktivitas bersamaan, bukan jumlah akun, karena ujian menulis banyak data (D-031, D-089).
 
@@ -2325,7 +2331,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 
 **Sumber:**
 - MEMBUKTIKAN: `docs/recovery/JOURNEY-LOG.md` baris 97–98 (L1 dan 50 siswa); `docs/coordination/RELEASE-CHECKLIST.md` CAP-01, CAP-02 (FAIL), CAP-07 (PARTIAL), CAP-08 (PARTIAL), CAP-09/CAP-10.
-- MENETAPKAN ATURAN: D-031, D-035, D-089(a)–(d).
+- MENETAPKAN ATURAN: D-031, D-035, D-083, D-089(a)–(d), D-112(d).
 
 **Yang tidak boleh dikatakan:** "Kuat untuk seribu siswa"; "sudah diuji di X sekolah" (uji memakai satu sekolah sintetis); "mendukung 60.000 siswa"; "ada batas teknis N sekolah"; tanggal kapan kapasitas tercapai.
 
@@ -2346,10 +2352,10 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 
 **Mengapa PINTAR seperti ini:** Aturan produk melarang mengarang kewajiban hukum atau durasi retensi (OD-5). Hukum ditetapkan penasihat hukum, bukan tim produk.
 
-**Bukti / mekanisme di PINTAR:** Tidak ada dokumen kepatuhan. Fakta teknis yang relevan: data per sekolah dipisahkan oleh aturan akses di database (lihat Q056); lokasi data Singapura (lihat Q058); kredensial cadangan `pintar_backup` dapat membaca semua tenant dan diperlakukan sangat istimewa (D-107(c) A7).
+**Bukti / mekanisme di PINTAR:** Tidak ada dokumen kepatuhan. Fakta teknis yang relevan: data per sekolah dipisahkan oleh aturan akses di database (lihat Q056); lokasi data Singapura (lihat Q058); salinan independen yang kelak aktif akan memuat data semua sekolah dan diperlakukan sangat sensitif (D-107(c); detail teknis: tim teknis).
 
 **Sumber:**
-- MENETAPKAN ATURAN/RANCANGAN: `docs/rebuild/11-PINTAR-OPEN-DECISIONS.md` OD-5; `docs/recovery/OFFSITE-BACKUP-DESIGN.md:74-76`; D-107(c).
+- MENETAPKAN ATURAN/RANCANGAN: `docs/rebuild/11-PINTAR-OPEN-DECISIONS.md` OD-5; `docs/recovery/OFFSITE-BACKUP-DESIGN.md:79-81`; D-107(c).
 - Bukti kepatuhan: **tidak ditemukan** (dicari: UU PDP, PSE, Komdigi, pengendali, pemroses, DPA, kebijakan privasi di `docs/`, `src/`, `supabase/`).
 
 **Yang tidak boleh dikatakan:** "Patuh UU PDP"; "terdaftar PSE"; "sekolah adalah pengendali dan PINTAR pemroses" (belum ditetapkan); "ada perjanjian pemrosesan data"; "data hanya di Indonesia"; nomor pasal apa pun.
@@ -2367,13 +2373,13 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Jawaban singkat:**
 "Soal harga dan cara pembayaran belum ada ketetapan tertulis yang bisa kami sampaikan hari ini, jadi kami tidak mau menyebut angka. Kami akan kembalikan ke Anda dengan penawaran resmi dari pihak yang berwenang."
 
-**Penjelasan:** Tidak ditemukan harga, tarif, penagihan, faktur, langganan, atau uji coba gratis di dokumen maupun kode (tidak ada kode penagihan sama sekali). Sekolah masuk lewat penyiapan oleh operasi PINTAR dan tidak ada pendaftaran mandiri (D-054(a)). Jadwal penerimaan: 1 November 2026 dua sekolah, 1 Desember sepuluh sekolah (D-035); belum tertulis apakah itu gratis. Isi MOU tidak ada di repositori. Uji coba dengan penguji memakai lingkungan staging dengan formulir laporan (`docs/onboarding/PINTAR-Panduan-Penguji-Pilot.md`), tetapi itu bukan tawaran "coba dulu" untuk sekolah.
+**Penjelasan:** Tidak ditemukan harga, tarif, penagihan, faktur, langganan, atau uji coba gratis di dokumen maupun kode (tidak ada kode penagihan sama sekali). Sekolah masuk lewat penyiapan oleh operasi PINTAR dan tidak ada pendaftaran mandiri sekolah (D-085 M1; SCOPE-INVENTORY §10). Kohort D-035 bukan jadwal (D-083; D-112(d)) dan tidak boleh disebut kepada sekolah; belum tertulis apakah masa awal itu gratis. Isi MOU tidak ada di repositori. Uji coba dengan penguji memakai lingkungan staging dengan formulir laporan (`docs/onboarding/PINTAR-Panduan-Penguji-Pilot.md`), tetapi itu bukan tawaran "coba dulu" untuk sekolah.
 
 **Mengapa PINTAR seperti ini:** Harga dan kontrak adalah keputusan bisnis pemilik, bukan produk; tidak boleh diisi tim produk.
 
 **Bukti / mekanisme di PINTAR:** Tidak ada.
 
-**Sumber:** MENETAPKAN ATURAN: D-035, D-054(a). Harga/uji coba: **tidak ditemukan**.
+**Sumber:** MENETAPKAN ATURAN: D-083, D-085 (M1), D-112(d). Harga/uji coba: **tidak ditemukan**.
 
 **Yang tidak boleh dikatakan:** angka harga; "gratis"; "uji coba 30 hari"; metode pembayaran tertentu.
 
@@ -2411,11 +2417,11 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Kemungkinan ditanya:** TINGGI
 
 **Jawaban singkat:**
-"Syarat kontrak belum bisa kami sampaikan karena belum ada ketetapan tertulis yang kami pegang. Yang bisa kami pastikan adalah prinsipnya: data sekolah tetap milik sekolah, dan PINTAR tidak boleh mempersulit sekolah yang ingin pergi. Tetapi alat untuk mengambil data secara mandiri belum ada di versi 4.0."
+"Syarat kontrak belum bisa kami sampaikan karena belum ada ketetapan tertulis yang kami pegang. Yang bisa kami pastikan adalah prinsipnya: data milik sekolah tetap milik sekolah dan PINTAR tidak boleh mempersulit sekolah yang ingin pergi, dengan batas bahwa PINTAR tidak menjanjikan kepemilikan atas data yang secara hukum atau operasional milik pihak lain. Alat untuk mengambil data secara mandiri dan alur keluarnya belum ada di versi 4.0."
 
 **Penjelasan:**
 - Durasi, terminasi, dan kenaikan harga: tidak ditemukan.
-- Prinsip NO HOSTAGE DATA (D-110(a)): PINTAR tidak boleh memakai hambatan teknis, format tertutup, gesekan kontrak, atau hambatan operasional untuk menahan sekolah. Alur keluar tertib (permintaan → pengakuan → penjelasan status → penyerahan data yang berhak → penjelasan retensi/penghapusan → selesai) baru dirancang, **belum dibangun** (D-110(d)).
+- Prinsip NO HOSTAGE DATA (D-110(a)): PINTAR tidak boleh memakai hambatan teknis, format tertutup, gesekan kontrak, atau hambatan operasional untuk menahan sekolah. Alur keluar tertib (permintaan → pengakuan → penjelasan status → penyerahan data yang berhak → penjelasan retensi/penghapusan → selesai) hanya ditetapkan sebagai apa yang pada akhirnya harus ada (D-110(d)); alurnya **belum dirancang dan belum dibangun** (D-110(b)).
 - Ekspor mandiri adalah kandidat 4.5, belum dijanjikan (D-110(b)). Di 4.0 sekolah hanya bisa mencetak; tim PINTAR pun tidak punya alat untuk mengambil data satu sekolah (SCHOOL-DATA-EXPORT-4.0.md §B).
 - D-110(f): keputusan menetapkan perilaku yang wajib, tetapi tidak membuktikan perilaku itu sudah ada.
 
@@ -2472,11 +2478,11 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 
 **Bukti / mekanisme di PINTAR:** Unggah templat pelajaran Excel (J4.1; tes DAISY-06-TEMPLAT-01, DAISY-06-UNGGAH-01/02).
 
-**Sumber:** MEMBUKTIKAN: JOURNEY-LOG baris 97, 139. MENETAPKAN ATURAN: SCOPE-INVENTORY J4.1, J4.11; D-007, D-029. Dukungan madrasah/EMIS: **tidak ditemukan**.
+**Sumber:** MEMBUKTIKAN: JOURNEY-LOG baris 90, 139. MENETAPKAN ATURAN: SCOPE-INVENTORY J4.1, J4.11; D-007, D-029. Dukungan madrasah/EMIS: **tidak ditemukan**.
 
 **Yang tidak boleh dikatakan:** "Kompatibel dengan EMIS"; "sesuai kurikulum madrasah".
 
-**Status:** PERLU VERIFIKASI TEKNIS
+**Status:** TIDAK DI 4.0 (integrasi EMIS tidak ada; kesesuaian kurikulum madrasah tidak ditemukan, G1.3)
 **Tingkat sensitivitas:** PENTING
 
 ---
@@ -2499,7 +2505,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 
 **Yang tidak boleh dikatakan:** "Mempersiapkan ANBK"; "setara/selaras ANBK".
 
-**Status:** PERLU VERIFIKASI TEKNIS (tidak ada kemampuan khusus yang ditemukan)
+**Status:** TIDAK DI 4.0 (kemampuan khusus ANBK tidak ada; kesesuaian kurikulum: G1.3)
 **Tingkat sensitivitas:** PENTING
 
 ---
@@ -2512,15 +2518,15 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Jawaban singkat:**
 "Tidak. Siswa masuk dengan Kartu PINTAR dan PIN, guru dan staf dengan email atau nama pengguna dan kata sandi. Masuk dengan akun Google atau Microsoft tidak ada di 4.0, dan kami tidak punya tanggal untuk itu."
 
-**Penjelasan:** Siswa: Kartu PINTAR + PIN adalah satu-satunya model masuk normal; email yang tercatat tidak memberi metode masuk lain (J2.19). Staf: email atau nama pengguna + kata sandi (J2.5). Pembuatan identitas dilakukan sekolah, bukan lewat masuk (tes L2-KONTRAK-01, L2-TIDAK-DIBUAT-01). Tidak ditemukan kode masuk Google/Microsoft/SAML di `src/` maupun migrasi. SSO adalah LATER tanpa versi dan tanggal. Masuk via WhatsApp (#147) dipindah ke 4.1 (D-105(c)); itu bukan SSO.
+**Penjelasan:** Siswa: Kartu PINTAR + PIN adalah satu-satunya model masuk normal; email yang tercatat tidak memberi metode masuk lain (J2.19). Staf: email atau nama pengguna + kata sandi (J2.5). Pembuatan identitas dilakukan sekolah, bukan lewat masuk (tes L2-KONTRAK-01, L2-TIDAK-DIBUAT-01). Tidak ditemukan kode masuk Google/Microsoft/SAML di `src/` maupun migrasi. SSO adalah LATER tanpa versi dan tanggal. Masuk via WhatsApp (#147) dipindahkan keluar dari 4.0; tidak ada jadwal (D-098(c)); itu bukan SSO. Masuk staf dengan kata sandi hanya ada di versi `main`/staging.
 
 **Mengapa PINTAR seperti ini:** Siswa tidak bergantung pada akun email; pemulihan dibantu sekolah, bukan penyedia email (D-085 M2).
 
 **Bukti / mekanisme di PINTAR:** Kartu PINTAR dan masuk staf.
 
-**Sumber:** MEMBUKTIKAN: tes L2-KONTRAK-01, L2-TIDAK-DIBUAT-01 (manifest). MENETAPKAN ATURAN: SCOPE-INVENTORY J2.5, J2.19, §10; `docs/rebuild/09` (LATER: SSO); D-105(c).
+**Sumber:** MEMBUKTIKAN: tes L2-KONTRAK-01, L2-TIDAK-DIBUAT-01 (manifest). MENETAPKAN ATURAN: SCOPE-INVENTORY J2.5, J2.19, §10; `docs/rebuild/09` (LATER: SSO); D-098(c).
 
-**Yang tidak boleh dikatakan:** "Bisa masuk dengan Google/Microsoft"; "SSO segera hadir"; "4.1 akan menambah SSO" (4.1 hanya WhatsApp).
+**Yang tidak boleh dikatakan:** "Bisa masuk dengan Google/Microsoft"; "SSO segera hadir"; "akan ada SSO" atau "WhatsApp dijadwalkan" (WhatsApp dipindahkan keluar dari 4.0 tanpa jadwal).
 
 **Status:** TIDAK DI 4.0 (LATER, tanpa versi dan tanggal)
 **Tingkat sensitivitas:** PENTING
@@ -2537,15 +2543,15 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 
 **Penjelasan:** Peran di layar: Guru, Kepala departemen, Dekan, Admin sekolah, Admin platform (D-006). Cakupan Dekan dan Admin sekolah adalah satu sekolah; hanya Admin platform (tim PINTAR) yang melihat semua sekolah. Tidak ditemukan peran atau lingkup lintas sekolah untuk pihak luar. Satu-satunya akses luar adalah verifikasi sertifikat publik yang hanya menampilkan lulus, predikat, institusi, tanggal, dan masa berlaku (tes F04-T10, F04-S05).
 
-**Mengapa PINTAR seperti ini:** Batas tenant adalah institusi (doc 02:151); data sekolah tidak dibuka ke pihak lain.
+**Mengapa PINTAR seperti ini:** Batas tenant adalah institusi (INV-13); data sekolah tidak dibuka ke pihak lain.
 
 **Bukti / mekanisme di PINTAR:** Peran dan cakupan; cetak laporan (SCHOOL-DATA-EXPORT-4.0.md §A).
 
-**Sumber:** MEMBUKTIKAN: tes F04-T10, F04-S05; SCHOOL-DATA-EXPORT-4.0.md §A. MENETAPKAN ATURAN/RANCANGAN: D-006; `docs/rebuild/05-PINTAR-AUTHORIZATION-MATRIX.md`; `docs/rebuild/02-PINTAR-CANONICAL-DOMAIN-MODEL.md:151`. Peran dinas: **tidak ditemukan**.
+**Sumber:** MEMBUKTIKAN: tes F04-T10, F04-S05; SCHOOL-DATA-EXPORT-4.0.md §A. MENETAPKAN ATURAN/RANCANGAN: D-006; `docs/rebuild/05-PINTAR-AUTHORIZATION-MATRIX.md`; `docs/rebuild/03-PINTAR-INVARIANTS.md` (INV-13). Peran dinas: **tidak ditemukan**.
 
 **Yang tidak boleh dikatakan:** "Dinas/pengawas bisa melihat dasbor"; "ada peran pengawas".
 
-**Status:** TIDAK DILAKUKAN PINTAR di 4.0 (peran dinas tidak ada dan tidak dijadwalkan); lihat gap
+**Status:** TIDAK DI 4.0 (tidak ada rencana tertulis; tidak ada sumber yang menyebut LATER untuk dinas atau pengawas)
 **Tingkat sensitivitas:** TINGGI
 
 ---
@@ -2561,14 +2567,14 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Penjelasan:**
 - Unduh data: kandidat 4.5 "sampai dirancang dan disetujui terpisah"; prinsip ditetapkan di D-110, fiturnya belum.
 - Portal orang tua: "parent experience" LATER, tanpa versi dan tanggal; tidak ada peran orang tua di kode.
-- Hal lain yang disebut sumber: masuk lewat WhatsApp = 4.1 (D-105(c)). Tinjauan arsitektur (Horizon Review, bukan keputusan) menyebut ide-ide 4.5/5.0; tidak ada yang sudah ditiket atau dibangun.
+- Hal lain yang disebut sumber: masuk lewat WhatsApp dipindahkan keluar dari 4.0; tidak ada jadwal (D-098(c)). Tinjauan arsitektur (Horizon Review, bukan keputusan) menyebut ide-ide 4.5/5.0; tidak ada yang sudah ditiket atau dibangun.
 - Tidak ditemukan komitmen kontraktual atau jadwal untuk fitur mana pun. Apakah sebuah roadmap boleh ditagih adalah soal kontrak (belum diputuskan).
 
 **Mengapa PINTAR seperti ini:** Aturan: jangan mencampur roadmap dengan yang sudah tersedia; "kandidat" bukan "akan ada".
 
 **Bukti / mekanisme di PINTAR:** Tidak ada (bukan fitur yang sudah ada).
 
-**Sumber:** MENETAPKAN ATURAN: D-110(b); D-105(c); `docs/rebuild/09` (LATER: parent experience). Rancangan: `docs/reports/ARCHITECTURE-HORIZON-REVIEW-2026-09-29.md` §7 (tinjauan, bukan keputusan). Fakta: SCHOOL-DATA-EXPORT-4.0.md.
+**Sumber:** MENETAPKAN ATURAN: D-110(b); D-098(c); `docs/rebuild/09` (LATER: parent experience). Rancangan: `docs/reports/ARCHITECTURE-HORIZON-REVIEW-2026-09-29.md` §7 (tinjauan, bukan keputusan). Fakta: SCHOOL-DATA-EXPORT-4.0.md.
 
 **Yang tidak boleh dikatakan:** tanggal rilis; "pasti ada"; "bisa ditagih"; "portal orang tua segera".
 
@@ -2583,7 +2589,7 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Kemungkinan ditanya:** SEDANG
 
 **Jawaban singkat:**
-"Untuk pemeliharaan terjadwal, PINTAR dapat menampilkan pemberitahuan di layar sebelum mulai. Untuk perubahan tampilan atau cara kerja, kami belum punya kebijakan pemberitahuan atau catatan rilis untuk sekolah yang bisa kami janjikan."
+"Pada versi yang sudah dibangun dan diuji (belum di produksi), pemeliharaan terjadwal dapat menampilkan pemberitahuan di layar sebelum mulai. Untuk perubahan tampilan atau cara kerja, kami belum punya kebijakan pemberitahuan atau catatan rilis untuk sekolah yang bisa kami janjikan."
 
 **Penjelasan:**
 - Pemeliharaan terjadwal dan pengumuman terbatas (#148) sudah dibangun di versi `main`/staging: Admin sekolah untuk sekolahnya, Admin platform untuk sekolah terpilih atau semuanya; pemberitahuan di layar pada T-60/30/15 menit, mulai asesmen baru ditolak dari T-15, sesi yang berjalan dibiarkan selesai (D-094, D-100(b)(c); tes M148-K01, M148-S01, M148-D01, M148-D02).
@@ -2610,24 +2616,24 @@ Catatan: pembuktian ini pada kode `main`; belum di produksi untuk kebijakan vers
 **Kemungkinan ditanya:** SEDANG
 
 **Jawaban singkat:**
-"Yang paling mungkin bermasalah, menurut catatan kami sendiri: kapasitas saat banyak siswa mulai bersamaan, dan pemulihan data kalau terjadi masalah besar. Keduanya belum lulus uji kami, dan kami akan menjelaskan apa adanya. Kalau ada masalah di kelas, guru atau admin bisa menekan «Laporkan masalah» dan melihat statusnya."
+"Yang paling mungkin bermasalah, menurut catatan kami sendiri: kapasitas saat banyak siswa mulai bersamaan, dan pemulihan data kalau terjadi masalah besar. Keduanya belum lulus uji kami, dan kami akan menjelaskan apa adanya. Pada versi yang sudah dibangun dan diuji (belum di produksi), guru atau admin yang menghadapi masalah di kelas bisa menekan «Laporkan masalah» dan melihat statusnya."
 
 **Penjelasan:** Daftar keterbatasan nyata menurut bukti (bukan peringkat resmi):
 1. Kapasitas: pada 1.000 siswa bersamaan, konfigurasi saat ini jenuh; aman hanya terbukti pada 50 (Q088). Gelombang masuk dengan kartu belum diuji (CAP-01).
 2. Cadangan dan pemulihan (#150) belum lulus: pemulihan dapat kehilangan hingga 24 jam data, pemulihan ke titik waktu tidak aktif (D-103); salinan independen di luar penyedia utama dibangun tetapi belum aktif; berkas Storage tidak ikut pemulihan bawaan; kunci kriptografi belum ber-escrow; pemulihan bergantung pada satu administrator platform (lihat Q070–Q072, Q085).
-3. Email masuk staf: bila pengirim email menahan, layar tetap mengatakan «Periksa email Anda» (JOURNEY-LOG item 14).
+3. Email masuk staf: di `main`, email yang ditolak tidak lagi tampil sebagai terkirim (JOURNEY-LOG:181 butir 23; D-098(c)); perilaku lama masih ada di produksi.
 4. Konten: penerbitan bab sempat tertahan peringatan miskonsepsi palsu (item 13); konten standar PINTAR belum bisa masuk sebagai pustaka (M6 vs D-029).
 5. Ekspor dan keluar data belum ada; retensi/penghapusan belum dibangun (OD-5).
 Jika masalah terjadi pada sekolah: staf menekan «Laporkan masalah» (halaman, peran, sekolah, build, dan perangkat terlampir otomatis; status Diterima → Ditangani → Selesai). Tier 1 adalah admin sekolah dan tim operasi PINTAR; Tier 2 koordinator. Siswa memberi tahu gurunya (tidak punya formulir). Target D-037: laporan yang menghentikan kelas dijawab pada hari sekolah yang sama (WIB), lainnya dalam satu hari sekolah. **Ini target keputusan, bukan SLA mengikat.** Dukungan di luar jam sekolah tidak ditemukan.
 - Dokumen 12 (mode kegagalan) adalah pre-mortem pencegahan, bukan catatan insiden; jangan disajikan sebagai kejadian.
 
-**Mengapa PINTAR seperti ini:** Kepercayaan dibangun dengan mengatakan keterbatasan sebelum ditanya (prinsip 6 dan 7).
+**Mengapa PINTAR seperti ini:** Kepercayaan dibangun dengan mengatakan keterbatasan sebelum ditanya.
 
 **Bukti / mekanisme di PINTAR:** «Laporkan masalah» (migrasi `20261119100000`; tes BOB15-K01/S01/D01; JOURNEY-LOG item 28) berada di `main`/staging; produksi belum terbukti (build 111).
 
 **Sumber:** MEMBUKTIKAN: JOURNEY-LOG baris 97–98, item 13, 14, 28; tes BOB15-*. MENETAPKAN ATURAN: D-037, D-103–D-109. Rancangan: `docs/rebuild/12-PINTAR-FAILURE-MODES.md`. Kondisi: RESUME-2026-10-06; BACKUP-DR-REVIEW-2026-10-05; CLOSURE-PLAN-150.
 
-**Yang tidak boleh dikatakan:** "Tidak ada risiko besar"; "backup sudah terjamin/siap produksi"; "SLA 24 jam"; "kami pulihkan data dalam X jam" (waktu pulih produksi tidak diketahui); "berkas/foto tidak akan hilang"; "sinyal integritas menuduh siswa".
+**Yang tidak boleh dikatakan:** "Tidak ada risiko besar"; "backup sudah terjamin/siap produksi"; "#150 sudah lulus" atau "GREEN" (D-111 bukan lulus); "SLA 24 jam"; "kami pulihkan data dalam X jam" (waktu pulih produksi tidak diketahui); "berkas/foto tidak akan hilang"; "sinyal integritas menuduh siswa".
 
 **Status:** SEBAGIAN
 **Tingkat sensitivitas:** KRITIS
@@ -2641,108 +2647,111 @@ Jika masalah terjadi pada sekolah: staf menekan «Laporkan masalah» (halaman, p
 
 Bagian ini adalah salah satu hasil terpenting dokumen. Tanda **▲ BELUM DIPUTUSKAN HARI INI** pada sebuah pertanyaan di atas berarti jawaban yang jujur hari ini adalah "belum diputuskan" (status utama atau kedua = KEBIJAKAN BELUM DIPUTUSKAN). FIONA tidak menyelesaikan gap ini sendiri dan tidak membuat keputusan baru.
 
-Pemutus yang mungkin: **Yazid** (pemilik produk/keputusan), **tim teknis**, **penasihat hukum**.
+Pemutus yang mungkin: **pemilik produk**, **tim teknis**, **penasihat hukum**.
 
 ### G1. Keputusan produk
 
 | Gap | Pertanyaan | Apa yang perlu diputuskan atau diperiksa | Siapa |
 |---|---|---|---|
-| G1.1 | Q004, Q003, Q088 | Jadwal penerimaan sekolah (D-035: 1 Nov dan 1 Des) vs D-083 dan hasil uji beban L1 yang gagal (D-089); tingkat komputasi produksi (CAP-08); apakah "50 siswa serentak" menjadi batas onboarding resmi. | Yazid |
-| G1.2 | Q006, Q062 | Siapa menyiapkan dan menyetujui konten standar PINTAR dan jalur pengisian pustaka pusat (M6 vs D-029; G2/CF11). | Yazid |
-| G1.3 | Q007, Q094, Q095 | Apakah isi PINTAR akan dipetakan ke capaian pembelajaran Kurikulum Merdeka, kurikulum madrasah, atau ANBK; saat ini tidak ada klaim. | Yazid |
-| G1.4 | Q024 | Pilihan alasan «lupa PIN» di layar penerbitan ulang kartu (D-099 menyebutnya, layar hanya "hilang/rusak"); layar koreksi email salah (J2.21). | Yazid |
-| G1.5 | Q034, Q036, Q074, Q079 | Layar guru untuk memperpanjang waktu satu siswa dan jalur resmi percobaan tambahan; akomodasi siswa berkebutuhan khusus. | Yazid |
-| G1.6 | Q045, Q074 | Layar koreksi nama, layar pencabutan sertifikat, jalur penerbitan ulang sertifikat; koreksi nilai oleh sekolah (saat ini tidak ada). | Yazid |
-| G1.7 | Q044, Q045 | Domain verifikasi kanonik dan format nomor sertifikat (D-080/D-076) vs kode; penyegelan nama sekolah dan bahasa (J8.3, BOB-48/DAISY-36). | Yazid |
-| G1.8 | Q059 | Foto profil siswa: layar belum ada; penerbit sertifikat masih menyalin jalur foto (bertentangan dengan T4). | Yazid |
-| G1.9 | Q053 | Alur banding/hak membela diri atas sinyal integritas; pemberitahuan siswa/orang tua; cakupan baca sinyal. | Yazid |
-| G1.10 | Q073 | Reaktivasi Kelas yang salah dinonaktifkan (D-022); jejak audit lengkap (pelaku dan alasan) di layar. | Yazid |
-| G1.11 | Q022, Q075 | Penonaktifan akun staf, serah-terima kelas, pindah sekolah staf (D-049(d)); status lulus/alumni. | Yazid |
-| G1.12 | Q013, Q012, Q014 | Tingkat yayasan/multi-unit; impor staf massal dan .xlsx langsung untuk siswa; migrasi dari sistem lain. | Yazid |
-| G1.13 | Q093, Q096, Q097, Q040 | Integrasi Dapodik/e-Rapor/EMIS, SSO, peran dinas/pengawas: hanya LATER tanpa versi atau tanggal. | Yazid |
-| G1.14 | Q021, Q060 | Apakah «Umpan balik kelas» (B1) masuk lingkup 4.0 (SCOPE-INVENTORY §11). | Yazid |
-| G1.15 | Q099 | Catatan rilis dan kebijakan pemberitahuan perubahan tampilan ke sekolah (selain pemeliharaan). | Yazid |
+| G1.1 | Q003, Q004, Q088, Q090 | Kohort D-035 (1 November dan 1 Desember) **bukan lagi komitmen jadwal**; D-083 yang berlaku, dan keduanya tetap terbuka sampai PRODUCTION READY (D-112(d)). Hasil uji beban L1 yang gagal (D-089) tetap terlihat tersendiri. Tingkat komputasi produksi (CAP-08) dan apakah "50 siswa serentak" menjadi batas penerimaan resmi masih terbuka. | Pemilik produk |
+| ▲ G1.2 | Q032, Q034 | Percobaan kedua Uji Penguasaan: tinjauan menampilkan benar atau salah beserta penjelasan, dan percobaan kedua menarik soal bertanda yang sama. **Ditahan untuk keputusan produk (D-112(b))**: bisa disengaja secara pedagogis, tetapi harus disengaja. Tidak ada yang berubah sekarang. | Pemilik produk |
+| G1.3 | Q006, Q062 | Siapa menyiapkan dan menyetujui konten standar PINTAR dan jalur pengisian pustaka pusat (M6 vs D-029; G2/CF11). | Pemilik produk |
+| G1.4 | Q007, Q094, Q095 | Apakah isi PINTAR akan dipetakan ke capaian pembelajaran Kurikulum Merdeka, kurikulum madrasah, atau ANBK; saat ini tidak ada klaim. | Pemilik produk |
+| G1.5 | Q024 | Pilihan alasan «lupa PIN» di layar penerbitan ulang kartu (D-099 menyebutnya, layar hanya "hilang/rusak"); layar koreksi email salah (J2.21). | Pemilik produk |
+| G1.6 | Q034, Q036, Q079 | Layar guru untuk memperpanjang waktu satu siswa dan jalur resmi percobaan tambahan; akomodasi siswa berkebutuhan khusus. | Pemilik produk |
+| G1.7 | Q045, Q074 | Layar koreksi nama, layar pencabutan sertifikat, jalur penerbitan ulang sertifikat; koreksi nilai oleh sekolah dan **jalur banding nilai oleh orang tua** (keduanya saat ini tidak ada). | Pemilik produk |
+| G1.8 | Q044, Q045 | Domain verifikasi kanonik dan format nomor sertifikat (D-080(2)(8)) vs kode; penyegelan nama sekolah dan bahasa (J8.3, BOB-48/DAISY-36). | Pemilik produk |
+| G1.9 | Q059 | Foto profil siswa: layar belum ada; penerbit sertifikat masih menyalin jalur foto (bertentangan dengan T4). | Pemilik produk |
+| G1.10 | Q053 | Alur banding/hak membela diri atas sinyal integritas; pemberitahuan siswa/orang tua; cakupan baca sinyal. | Pemilik produk |
+| G1.11 | Q073 | Reaktivasi Kelas yang salah dinonaktifkan (D-022); jejak audit lengkap (pelaku dan alasan) di layar. | Pemilik produk |
+| G1.12 | Q022, Q075 | Penonaktifan akun staf, serah-terima kelas, pindah sekolah staf (D-049(d)); status lulus/alumni; **ekspor catatan saat siswa pindah ke sekolah non-PINTAR (doc 04 §3c; hanya dirancang)**. | Pemilik produk |
+| G1.13 | Q013, Q012, Q014 | Tingkat yayasan/multi-unit; impor staf massal dan .xlsx langsung untuk siswa; migrasi dari sistem lain. | Pemilik produk |
+| G1.14 | Q093, Q094, Q096, Q097, Q040 | Integrasi Dapodik/e-Rapor: tidak ada keputusan. SSO: LATER tanpa versi dan tanggal. EMIS, peran dinas/pengawas: tidak ada sumber yang menyebutnya (bahkan sebagai LATER). | Pemilik produk |
+| G1.15 | Q021, Q060 | Apakah «Umpan balik kelas» (B1) masuk lingkup 4.0 (SCOPE-INVENTORY §11). | Pemilik produk |
+| ▲ G1.16 | Q099 | Catatan rilis dan kebijakan pemberitahuan perubahan produk ke sekolah (selain pemberitahuan pemeliharaan, yang hanya ada di `main`/staging). | Pemilik produk |
 
 ### G2. Keputusan kebijakan  (▲ = jawaban hari ini "belum diputuskan"; juga dipakai untuk aspek tertentu dari pertanyaan berstatus SEBAGIAN, misalnya SLA pada Q086)
 
 | Gap | Pertanyaan | Apa yang perlu diputuskan | Siapa |
 |---|---|---|---|
-| ▲ G2.1 | Q090, Q091, Q092 | Harga, cara bayar, uji coba, dokumen pertanggungjawaban BOS, lama kontrak, terminasi, kenaikan harga. Isi MOU tidak ada di repositori. | Yazid (dengan penasihat hukum) |
-| ▲ G2.2 | Q061, Q075 | **Ketegangan D-110 vs dokumen 02 dan 06:** data milik sekolah vs identitas dan catatan portabel milik siswa. Perlu klasifikasi data: milik sekolah, milik siswa, milik PINTAR. | Yazid + penasihat hukum |
-| ▲ G2.3 | Q062, Q050 | Kepemilikan dan lisensi konten buatan guru; lisensi buku sumber untuk konten standar; berbagi antar sekolah. | Yazid + penasihat hukum |
-| ▲ G2.4 | Q057, Q040 | Pernyataan resmi tentang iklan, penjualan, riset, pelatihan model, dan pemakaian data agregat/perbandingan antar sekolah. | Yazid + penasihat hukum |
-| ▲ G2.5 | Q081, Q083, Q080 | Retensi (OD-5: durasi hukum terbuka), penghapusan, anonimisasi, kedaluwarsa cadangan, proses hak subjek data. | Yazid + penasihat hukum |
-| ▲ G2.6 | Q063, Q064, Q082 | Alur keluar sekolah (D-110(d)), format ekspor, biaya, izin, apakah sertifikat tetap dapat diverifikasi setelah keluar; ekspor mandiri baru kandidat 4.5. | Yazid |
-| ▲ G2.7 | Q084, Q085 | Rencana jika perusahaan tutup; siapa yang menjalankan dan memulihkan PINTAR bila orang kunci berhalangan (B6/A6, break-glass, administrator kedua). | Yazid |
-| ▲ G2.8 | Q055 | Kebijakan akses staf PINTAR ke data siswa dan pencatatan akses-baca. | Yazid |
-| ▲ G2.9 | Q067 | Prosedur insiden/kebocoran dan pemberitahuan ke sekolah. | Yazid + penasihat hukum |
-| ▲ G2.10 | Q086, Q024 | Dukungan: SLA mengikat, jam dukungan, kanal darurat saat ujian (D-037 hanya target). | Yazid |
-| ▲ G2.11 | Q015 | Pelatihan guru: siapa, bahan, jadwal. | Yazid |
-| ▲ G2.12 | Q050, Q047 | Tanggung jawab kontraktual bila AI atau konten keliru; sikap resmi "tidak menggantikan guru". | Yazid + penasihat hukum |
-| ▲ G2.13 | Q075 | OD-9: persetujuan transfer (orang tua/wali, pengirim tidak responsif atau bukan pelanggan). | Yazid + penasihat hukum |
-| ▲ G2.14 | Q098 | Apakah fitur roadmap boleh "ditagih" dan bagaimana berkomunikasi tentangnya. | Yazid |
-| ▲ G2.15 | Q099 | Kebijakan pemberitahuan perubahan produk (lihat G1.15). | Yazid |
+| ▲ G2.1 | Q090, Q091, Q092 | Harga, cara bayar, uji coba, dokumen pertanggungjawaban BOS, lama kontrak, terminasi, kenaikan harga. Isi MOU memuat harapan 150 sekolah × 400 siswa (D-031); para pihaknya tidak disebut. | Pemilik produk (dengan penasihat hukum) |
+| ▲ G2.2 | Q061, Q075, Q082 | **Model hak atas data (D-112(e)):** bukan kontradiksi antara D-110 dan dokumen 02/06, tetapi perlu model. D-110 adalah prinsip, bukan klaim bahwa sekolah memiliki setiap data tentang seseorang. Untuk 4.5 diklasifikasikan: data institusional sekolah, data portabel siswa, data kontekstual bersama, bukti operasional dan keamanan PINTAR, dan catatan yang wajib disimpan menurut hukum. | Pemilik produk + penasihat hukum |
+| ▲ G2.3 | Q062, Q050, Q006 | Kepemilikan dan lisensi konten buatan guru; berbagi antar sekolah. (Lisensi bahan kementerian: lihat G4.2.) | Pemilik produk + penasihat hukum |
+| ▲ G2.4 | Q057, Q040 | Pernyataan resmi tentang iklan, penjualan, riset, pelatihan model, dan pemakaian data agregat/perbandingan antar sekolah. | Pemilik produk + penasihat hukum |
+| ▲ G2.5 | Q081, Q083, Q080 | Retensi (OD-5: durasi hukum terbuka), penghapusan, anonimisasi, kedaluwarsa cadangan, proses hak subjek data. | Pemilik produk + penasihat hukum |
+| ▲ G2.6 | Q063, Q064, Q082 | Alur keluar sekolah (D-110(d) hanya menetapkan apa yang pada akhirnya harus ada), format ekspor, biaya, izin, apakah sertifikat tetap dapat diverifikasi setelah keluar; ekspor mandiri baru kandidat 4.5. | Pemilik produk |
+| ▲ G2.7 | Q084 | Rencana jika perusahaan yang mengoperasikan PINTAR tutup. | Pemilik produk |
+| ▲ G2.8 | Q055 | Kebijakan akses staf PINTAR ke data siswa dan pencatatan akses-baca. | Pemilik produk |
+| ▲ G2.9 | Q049, Q055 | **Kebijakan akses dan pengungkapan alat berbantuan AI:** siapa, lingkungan dan data mana, untuk tujuan apa, dengan audit dan minimisasi apa; sebelum sekolah nyata (D-112(a)). | Pemilik produk + penasihat hukum |
+| ▲ G2.10 | Q067 | Prosedur insiden/kebocoran dan pemberitahuan ke sekolah. | Pemilik produk + penasihat hukum |
+| ▲ G2.11 | Q086, Q024 | Dukungan: SLA mengikat, jam dukungan, kanal darurat saat ujian (D-037 hanya target internal). | Pemilik produk |
+| ▲ G2.12 | Q015 | Pelatihan guru: siapa, bahan, jadwal. | Pemilik produk |
+| ▲ G2.13 | Q050, Q047 | Tanggung jawab kontraktual bila AI atau konten keliru; sikap resmi "tidak menggantikan guru". | Pemilik produk + penasihat hukum |
+| ▲ G2.14 | Q075 | OD-9: persetujuan transfer (orang tua/wali, pengirim tidak responsif atau bukan pelanggan). | Pemilik produk + penasihat hukum |
+| ▲ G2.15 | Q098 | Apakah fitur roadmap boleh "ditagih" dan bagaimana berkomunikasi tentangnya. | Pemilik produk |
+| ▲ G2.16 | Q078 | Apakah PINTAR menyediakan mekanisme persetujuan orang tua atas data anak, atau itu sepenuhnya kewajiban sekolah. | Pemilik produk + penasihat hukum |
 
 ### G3. Verifikasi teknis
 
 | Gap | Pertanyaan | Apa yang perlu diperiksa | Siapa |
 |---|---|---|---|
-| G3.1 | Hampir semua kelompok | **Produksi masih di build `5b5b68d` (111 migrasi); `main`/staging 162.** Setiap "TERSEDIA" berarti di `main`/staging. Perlu daftar fitur yang belum ada di produksi dan tanggal produksi (tanpa menyebut tanggal kepada sekolah). | Tim teknis |
-| G3.2 | Q088 | CAP-01 (gelombang masuk kartu), L2–L5, CAP-07/09/10 belum dijalankan; CAP-02 gagal pada konfigurasi sekarang. | Tim teknis |
+| G3.1 | Hampir semua kelompok | **Produksi masih di build `5b5b68d` (111 migrasi); `main`/staging 162.** Setiap "TERSEDIA" berarti di `main`/staging. Penerapan produksi diblokir sampai O2 selesai (penjaga DR-S04/S05), jadi produksi tidak bisa menerima versi baru sebelum itu. Perlu daftar fitur yang belum ada di produksi (tanpa menyebut tanggal kepada sekolah). | Tim teknis |
+| G3.2 | Q088 | CAP-01 (gelombang masuk kartu), L2–L5, CAP-09/10 belum dijalankan; CAP-07 PARTIAL; CAP-02 gagal pada konfigurasi sekarang. | Tim teknis |
 | G3.3 | Q025 | Pengukuran kuota dan uji di HP sungguhan. | Tim teknis |
-| G3.4 | Q032 | Uji kotak-hitam: kunci jawaban tidak terbaca dengan identitas siswa lewat REST. | Tim teknis |
+| G3.4 | Q032 | Uji kotak-hitam: kunci jawaban tidak terbaca dengan identitas siswa lewat REST selama pengerjaan. | Tim teknis |
 | G3.5 | Q053 | Cakupan baca sinyal integritas di database (seluruh sekolah) vs rujukan per departemen. | Tim teknis |
-| G3.6 | Q065, Q066 | Header keamanan HTTP; detail hash kata sandi layanan masuk; ketahanan PIN 4 digit yang diturunkan dengan SHA-256 dan pepper terhadap tebakan offline. | Tim teknis |
+| G3.6 | Q065, Q066 | Header keamanan HTTP; ketahanan penyimpanan PIN dan kata sandi. Rincian: tim teknis (tidak dimuat di dokumen ini). | Tim teknis |
 | G3.7 | Q075 | Apakah siswa dengan enrolmen berakhir masih bisa masuk dan membuka sertifikatnya. | Tim teknis |
-| G3.8 | Q026, Q035, Q036 | Tes tombol Back/cache setelah keluar; perilaku simpanan lokal jawaban di perangkat bersama; melanjutkan sesi ujian di perangkat lain. | Tim teknis |
-| G3.9 | Q034 | Percobaan kedua Uji Penguasaan berjalan ujung-ke-ujung dan mana yang dihitung. | Tim teknis |
-| G3.10 | Q049, Q048 | Verifikasi runtime/log jaringan bahwa tidak ada data keluar ke penyedia AI. | Tim teknis |
+| G3.8 | Q035, Q036 | Perilaku simpanan lokal jawaban yang belum terkirim di perangkat bersama; melanjutkan sesi ujian di perangkat lain. | Tim teknis |
+| G3.9 | Q034 | Percobaan kedua Uji Penguasaan berjalan ujung-ke-ujung dan percobaan mana yang dihitung. | Tim teknis |
+| G3.10 | Q049, Q048 | Verifikasi runtime/log jaringan bahwa produk tidak mengirim data ke penyedia AI. | Tim teknis |
 | G3.11 | Q060 | Pemeriksaan penuh tidak ada jalur pesan/kontak dari luar. | Tim teknis |
-| G3.12 | Q058, Q070, Q083 | Ketidakselarasan angka retensi cadangan: 7 hari (Supabase, D-103) vs 35 hari/12 bulan (D-107 D4, rancangan salinan independen; SCHOOL-DATA-EXPORT-4.0.md menyebutnya "cadangan biasa"). | Tim teknis |
-| G3.13 | Q070, Q071, Q072 | #150: salinan independen (O3–O7), escrow kunci, kustodian kedua, runbook pemulihan, pemulihan Storage, RTO skala produksi. | Tim teknis + Yazid |
+| G3.12 | Q070, Q071, Q072 | #150: salinan independen (O3–O7), escrow dan kustodian, runbook pemulihan, pemulihan Storage, waktu pulih skala produksi. D-111 adalah GREEN untuk melanjutkan persiapan, bukan lulus. | Tim teknis + pemilik produk |
+| G3.13 | Q071 | D-103(c): RPO dan PITR ditinjau ulang paling lambat sebelum ujian sekolah nyata. | Pemilik produk + tim teknis |
+| G3.14 | Q071 | B7: pemantauan produksi (watch) masih mati. | Tim teknis |
+| G3.15 | Q079 | Uji aksesibilitas dengan alat bantu (pembaca layar, WCAG); saat ini hanya tes komponen tertentu. | Tim teknis |
 
 ### G4. Verifikasi hukum / compliance
 
 | Gap | Pertanyaan | Apa yang perlu diperiksa | Siapa |
 |---|---|---|---|
 | G4.1 | Q002 | Badan hukum: apakah nama di footer benar dan menjadi pihak kontrak; susunan kepemilikan. | Penasihat hukum |
-| G4.2 | Q089 | Status UU PDP, pendaftaran PSE di Komdigi, peran pengendali/pemroses, perjanjian pemrosesan data. | Penasihat hukum |
-| G4.3 | Q058, Q049 | Konsekuensi hukum data disimpan di Singapura dan pemroses pihak ketiga. | Penasihat hukum |
-| G4.4 | Q078 | Apakah izin orang tua diperlukan untuk data anak, dan siapa yang meminta. | Penasihat hukum |
-| G4.5 | Q080, Q081, Q083 | Hak subjek data dan durasi retensi menurut hukum. | Penasihat hukum |
-| G4.6 | Q067 | Kewajiban pemberitahuan kebocoran. | Penasihat hukum |
-| G4.7 | Q091 | Apakah layanan dapat dibayar dengan dana BOS. | Penasihat hukum |
-| G4.8 | Q043 | Pengakuan sertifikat oleh dinas, kementerian, sekolah lain; makna "resmi". | Penasihat hukum |
-| G4.9 | Q050 | Tanggung jawab bila AI atau konten keliru. | Penasihat hukum |
+| G4.2 | Q006, Q007 | **Lisensi dan hak pakai bahan kementerian** (buku panduan guru untuk sembilan buku kerja SD5; buku siswa untuk Geografi XI dan Matematika X) harus diverifikasi sebelum distribusi ke sekolah nyata (D-112(c)); "diadaptasi dari" bukan izin. | Penasihat hukum |
+| G4.3 | Q089 | Status UU PDP, pendaftaran PSE di Komdigi, peran pengendali/pemroses, perjanjian pemrosesan data. | Penasihat hukum |
+| G4.4 | Q058, Q049 | Konsekuensi hukum data disimpan di Singapura dan pemroses pihak ketiga. | Penasihat hukum |
+| G4.5 | Q078 | Apakah izin orang tua diperlukan untuk data anak, dan siapa yang meminta. | Penasihat hukum |
+| G4.6 | Q080, Q081, Q083 | Hak subjek data dan durasi retensi menurut hukum. | Penasihat hukum |
+| G4.7 | Q067 | Kewajiban pemberitahuan kebocoran. | Penasihat hukum |
+| G4.8 | Q091 | Apakah layanan dapat dibayar dengan dana BOS. | Penasihat hukum |
+| G4.9 | Q043 | Pengakuan sertifikat oleh dinas, kementerian, sekolah lain; makna "resmi". | Penasihat hukum |
+| G4.10 | Q050 | Tanggung jawab bila AI atau konten keliru. | Penasihat hukum |
 
-### G5. Kebutuhan evidence tambahan
+### G5. Kebutuhan evidence tambahan dan tindakan pemilik
 
-| Gap | Pertanyaan | Bukti yang belum ada | Siapa |
+| Gap | Pertanyaan | Bukti atau tindakan yang belum ada | Siapa |
 |---|---|---|---|
-| G5.1 | Q003, Q009 | Sekolah pengguna nyata, referensi, bukti dampak. | Yazid |
-| G5.2 | Q017 | Uji kegunaan dengan guru nyata. | Yazid / tim UX |
-| G5.3 | Q006, Q007 | Tinjauan pakar mata pelajaran atas konten standar; pemetaan CP. | Yazid |
-| G5.4 | Q065 | Audit/uji penetrasi pihak luar; sertifikasi keamanan. | Yazid + tim teknis |
-| G5.5 | Q072, Q085 | Latihan break-glass; restore produksi dan RTO. | Tim teknis + Yazid |
-| G5.6 | Q010 | Waktu nyata onboarding sekolah. | Yazid |
+| G5.1 | Q003, Q009 | Sekolah pengguna nyata, referensi, bukti dampak. | Pemilik produk |
+| G5.2 | Q017 | Uji kegunaan dengan guru nyata. | Pemilik produk / tim UX |
+| G5.3 | Q006, Q007 | Tinjauan pakar mata pelajaran atas konten standar; pemetaan CP. | Pemilik produk |
+| G5.4 | Q065 | Audit/uji penetrasi pihak luar; sertifikasi keamanan. | Pemilik produk + tim teknis |
+| G5.5 | Q085, Q072 | Pelaksanaan yang sudah diputuskan wajib (D-001, D-054(e), D-106(d), D-109(c), D-111(b)): penunjukan administrator dan kustodian kedua (O9), latihan break-glass (C-11), restore produksi dan waktu pulih. | Pemilik produk + tim teknis |
+| G5.6 | Q010 | Waktu nyata onboarding sekolah. | Pemilik produk |
+| G5.7 | Q086, Q087 | Uji manusia untuk «Laporkan masalah» (J10); saat ini hanya tes dan CI. | Pemilik produk / tim UX |
 
 ### Konflik antar sumber yang ditemukan (belum diselesaikan oleh dokumen ini)
 
-- D-035 (L1 sebelum 1 Nov) vs D-089 (L1 gagal, tanpa rerun) vs D-083 (Q088, Q004).
-- D-110 (data sekolah milik sekolah) vs dokumen 02 baris 56-59 dan 06 baris 150-156 (catatan portabel milik siswa) (Q061).
-- D-001 dan BACKUP-DR-REVIEW Part II §1 menyebut pemegang peran Admin platform produksi secara berbeda (Q085).
+- D-035 (kohort) vs D-083 vs D-089: kohort bukan lagi komitmen jadwal (D-112(d)); lihat G1.1 (Q088, Q004).
 - Dokumen 05 (rancangan) vs kode/tes soal hak baca guru atas sinyal integritas, jawaban mentah, dan peran Dekan/Admin sekolah (Q021, Q053, Q055, Q076).
-- OFFSITE-BACKUP-DESIGN (`age`) vs CLOSURE-PLAN-150/D-107 D2 (OpenPGP) (Q070).
-- SCOPE-INVENTORY J8.7 vs D-107 D8 (salinan offline kunci) (Q070–Q072 konteks).
 - SCOPE-INVENTORY J8.8 ("4.0 menyediakan" foto profil) vs JOURNEY-LOG baris 137 (Q059).
-- D-080(8), D-076 vs kode (domain dan format nomor sertifikat) (Q044).
+- D-080(2)(8) vs kode (domain dan format nomor sertifikat) (Q044).
 - D-094 ("belum diimplementasi") vs JOURNEY-LOG butir 29 (sudah dibangun) (Q099).
-- PHASE-1-STATUS dan RELEASE-CHECKLIST (REL-13, ADM-08) vs JOURNEY-LOG butir 28 dan tes BOB15 (Q086).
+- PHASE-1-STATUS dan RELEASE-CHECKLIST (REL-13) vs JOURNEY-LOG butir 28 dan tes BOB15 (Q086).
 - JOURNEY-LOG butir terbuka 6/11/17 vs entri 25/26 dan D-096 (Q024, Q026, Q035).
 - D-009 vs D-085 T1/D-055 (Q026).
 - D-033(c) vs D-082(a) (Q066).
 - doc 08 (intervensi pada siswa aktif) vs F05-T14 (Q031).
-- Catatan jujur tentang dokumen ini: **dua dokumen koordinasi menyebut peran "product owner" untuk orang yang berbeda** (Q002).
+- Dokumen koordinasi tidak konsisten tentang pemegang peran; dirapikan koordinator.
+- Hak atas data: bukan konflik antara D-110 dan dokumen 02/06, tetapi memerlukan model hak atas data (D-112(e); G2.2).
 
 
 ---
@@ -2770,7 +2779,7 @@ Pemutus yang mungkin: **Yazid** (pemilik produk/keputusan), **tim teknis**, **pe
 | Studio | Studio | Tempat menyusun, meninjau, menerbitkan konten. |
 | Workbook | Buku kerja pelajaran (Excel) | Satu kursus per berkas; lima lembar. |
 | RLS / row-level security | Aturan akses di database | Jangan dijelaskan lebih teknis dari perlu. |
-| Service role / pepper | Kunci rahasia server | Tidak pernah ada di sisi pengguna. |
+| Kunci server / rahasia kriptografis | Rahasia server | Tidak pernah ada di sisi pengguna; detail teknis: tim teknis. |
 | Audit log | Jejak audit | Hanya-tambah; layar menampilkan 50 baris terakhir. |
 | Break-glass | Prosedur darurat pemulihan akses | Dokumen dan uji wajib sebelum produksi (D-054(e)). |
 | RPO | Berapa banyak data yang bisa hilang | Sementara: sampai 24 jam (D-103). |
@@ -2790,24 +2799,24 @@ Pemutus yang mungkin: **Yazid** (pemilik produk/keputusan), **tim teknis**, **pe
 
 ---
 
-## Ringkasan
+## Ringkasan (dihitung ulang pada putaran 1C)
 
 ### Jumlah pertanyaan per status utama
 
 | Status utama | Jumlah |
 |---|---|
-| TERSEDIA DI 4.0 | 15 |
-| SEBAGIAN | 41 |
+| TERSEDIA DI 4.0 (main/staging; belum di produksi) | 14 |
+| SEBAGIAN | 42 |
 | DIBANGUN, BELUM AKTIF | 0 |
 | TIDAK DILAKUKAN PINTAR | 4 |
-| TIDAK DI 4.0 (PARK/LATER) | 6 |
+| TIDAK DI 4.0 | 9 |
 | ROADMAP | 1 |
 | KEBIJAKAN BELUM DIPUTUSKAN | 13 |
-| PERLU VERIFIKASI TEKNIS | 14 |
+| PERLU VERIFIKASI TEKNIS | 11 |
 | PERLU VERIFIKASI HUKUM | 6 |
 | **Total** | **100** |
 
-Catatan: status kedua (misalnya DIBANGUN, BELUM AKTIF atau ROADMAP 4.5 kandidat) tidak dihitung di tabel ini. Pertanyaan yang jawabannya hari ini "belum diputuskan" (status utama atau kedua = KEBIJAKAN BELUM DIPUTUSKAN, ditandai ▲): 19 pertanyaan: Q015, Q040, Q050, Q057, Q061, Q062, Q064, Q067, Q078, Q080, Q081, Q083, Q084, Q085, Q090, Q091, Q092, Q098, Q099.
+Catatan: status kedua (misalnya DIBANGUN, BELUM AKTIF atau ROADMAP 4.5 kandidat) tidak dihitung di tabel ini. "TIDAK DI 4.0" mencakup PARK dan LATER tanpa versi dan tanggal, serta hal yang tidak ada dan tidak ada rencana tertulisnya. Pertanyaan yang jawabannya hari ini "belum diputuskan" (status utama atau kedua = KEBIJAKAN BELUM DIPUTUSKAN, ditandai ▲): 21 pertanyaan: Q015, Q032, Q040, Q049, Q050, Q055, Q057, Q061, Q062, Q064, Q067, Q078, Q080, Q081, Q083, Q084, Q090, Q091, Q092, Q098, Q099.
 
 ### Jumlah pertanyaan per tingkat sensitivitas
 
@@ -2819,8 +2828,7 @@ Catatan: status kedua (misalnya DIBANGUN, BELUM AKTIF atau ROADMAP 4.5 kandidat)
 | NORMAL | 5 |
 | **Total** | **100** |
 
-**Pembacaan singkat:** hanya 15 dari 100 pertanyaan berstatus TERSEDIA DI 4.0, dan semuanya hanya berlaku di `main`/staging. Pertanyaan KRITIS (35) mengelompok pada privasi data anak, kehilangan data, keluar dari PINTAR, dan hukum; di sanalah jawaban jujur paling sering berbunyi "belum diputuskan", "tidak ada", atau "perlu verifikasi hukum".
-
+**Pembacaan singkat:** hanya 14 dari 100 pertanyaan berstatus TERSEDIA DI 4.0, dan semuanya hanya berlaku di `main`/staging, belum di produksi. Pertanyaan KRITIS (35) mengelompok pada privasi data anak, kehilangan data, keluar dari PINTAR, dan hukum; di sanalah jawaban jujur paling sering berbunyi "belum diputuskan", "tidak ada", atau "perlu verifikasi hukum". Dokumen ini INTERNAL.
 
 ## Lampiran — pemetaan nomor tinjauan 1A → nomor akhir
 
