@@ -597,6 +597,7 @@ Gate 3 stays held; the coordinator does not merge it.
       field by field anywhere; written only to a rehearsal copy (staging and production keep their own workflows).
     - **Files after a native restore:** `restore-bundle.mjs --files-only` puts back each file whose row the restored
       database holds, by hash, and names rows the bundle has no file for.
-    - **Tests:** DR-S12 and DR-S13 new, DR-D02 restated: red on `178e915`, green now. **Not built yet (WP-C.2):** the
+    - **Tests:** DR-S12 and DR-S13 new, DR-D02 restated: red on `178e915`, green on `f49280e` (CI 37421222152, 35/35 jobs,
+      590 tests passed). **Not built yet (WP-C.2):** the
       rehearsal's one-off preview deployment and its functional checks (3 items PENDING in the runbook, counted by
       DR-S13).

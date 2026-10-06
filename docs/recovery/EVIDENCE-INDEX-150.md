@@ -32,7 +32,7 @@ mostly not done.
 | B3: the backups-read token C1 | WP-A | yes: DR-S05–S07; CI 37401454517 | none | **O2** (owner), then the isolation run |
 | B4 + B9: independent database and Storage files | WP-B | yes: DR-S08, S09, S14, S15, S16, DR-D02 | migration 162 on staging, profile equal (§4) | staging path proof (pooler value); O3–O6; a real staging run and drill |
 | B5: durable-secret escrow | WP-B | yes, against stand-ins: DR-S01–S03, DR-S10 | none | fingerprints recorded; O3–O4; **R2 and both custodians' proofs**; O7 |
-| B8: reconstruction in a new environment | WP-C | **WP-C.1 built**: the runbook, the guarded repointing, the Auth read-back, files after a native restore (DR-S12, DR-S13, DR-D02) | G2: native **database** restore, 24/24, 8 min 03 s (staging scale) | WP-C.2 (the rehearsal's preview deployment and functional checks: 3 items PENDING in the runbook), then the hosted rehearsal (O8) |
+| B8: reconstruction in a new environment | WP-C | **WP-C.1 built**: the runbook, the guarded repointing, the Auth read-back, files after a native restore (DR-S12, DR-S13, DR-D02; CI 37421222152 on `f49280e`, 35/35) | G2: native **database** restore, 24/24, 8 min 03 s (staging scale) | WP-C.2 (the rehearsal's preview deployment and functional checks: 3 items PENDING in the runbook), then the hosted rehearsal (O8) |
 | B6/A6: recovery authority | WP-D | **not started** | none | custodian B and R2 (now before production backups, D-109(c)); second administrators (O9) |
 | B7: the production watch | WP-E | yes: DR-S06 (G10) | watch 37391618155 (green; 403 as a note) | switched on at the release gate (O10) |
 | PITR / RPO | — | D-103: RPO 24 h, provisional; not a 4.0 blocker (D-106(h)) | G1 Part 1: 7 daily backups, PITR off | revisited per D-103(c) |
@@ -126,7 +126,7 @@ after (the restatements say `RESTATED FOR …`).
 | DR-D01 | readiness: 24 rows, each planted drift FAILs by name |
 | DR-D02 | the logical path end to end into an empty Supabase stack: 0 differences, every file's hash, the baseline, 24/24, SAFE TO REOPEN; files put back after a native-like loss (`--files-only`) |
 
-DR-S12 and DR-S13: WP-C.1 (6 Oct).
+DR-S12 and DR-S13: WP-C.1 (6 Oct; CI 37421222152 on `f49280e`, 35/35, 590 tests).
 
 | CI run | Commit | Result | What it carried |
 |---|---|---|---|
