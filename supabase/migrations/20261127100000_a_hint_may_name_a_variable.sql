@@ -31,3 +31,28 @@ language sql immutable parallel safe set search_path = public, pg_temp as $$
   select case when p_text is null or btrim(p_text) = '' then false
               else exists (select 1 from m where o is not null or b = '(' or l ~ '^[A-E]$') end
 $$;
+-- privileges as 20260912112903 set them: never PUBLIC or anon; the authoring and player paths call it as authenticated
+revoke all on function public.hint_reveals_answer_shape(text) from public, anon;
+grant execute on function public.hint_reveals_answer_shape(text) to authenticated;
+
+-- verification: an option is still refused, a variable is not, the function keeps its kind, or nothing applies
+do $$
+declare v_vol char; v_par char; v_cfg text[];
+begin
+  if not public.hint_reveals_answer_shape('Jawabannya adalah B.') or not public.hint_reveals_answer_shape('bukan (c)')
+     or not public.hint_reveals_answer_shape('A atau C') then
+    raise exception 'STU-12: a hint that names an option is no longer refused (INV-02)';
+  end if;
+  if public.hint_reveals_answer_shape('Bandingkan nilai a atau b') or public.hint_reveals_answer_shape('The answer is a whole number') then
+    raise exception 'STU-12 (N5): an ordinary hint is still refused as naming an option';
+  end if;
+  select p.provolatile, p.proparallel, p.proconfig into v_vol, v_par, v_cfg from pg_proc p
+   where p.oid = 'public.hint_reveals_answer_shape(text)'::regprocedure;
+  if v_vol <> 'i' or v_par <> 's' or not ('search_path=public, pg_temp' = any (v_cfg)) then
+    raise exception 'hint_reveals_answer_shape is no longer immutable, parallel safe and pinned (its CHECK constraints rely on it)';
+  end if;
+  if has_function_privilege('anon', 'public.hint_reveals_answer_shape(text)', 'EXECUTE')
+     or not has_function_privilege('authenticated', 'public.hint_reveals_answer_shape(text)', 'EXECUTE') then
+    raise exception 'hint_reveals_answer_shape privileges differ from 20260912112903';
+  end if;
+end $$;

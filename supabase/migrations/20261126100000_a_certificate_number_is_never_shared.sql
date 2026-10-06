@@ -108,3 +108,21 @@ begin
 end $$;
 
 revoke all on function public.certificate_prepare(uuid, smallint) from public, anon, authenticated;
+
+-- verification: the function is what this migration says, or the migration does not apply
+do $$
+declare v_src text; v_def boolean; v_cfg text[];
+begin
+  select p.prosrc, p.prosecdef, p.proconfig into v_src, v_def, v_cfg from pg_proc p
+   where p.oid = 'public.certificate_prepare(uuid, smallint)'::regprocedure;
+  if v_src !~ 'pg_advisory_xact_lock' then raise exception 'ADM-18: certificate_prepare takes no lock before numbering'; end if;
+  if v_src ~ 'v_person\.photo_path' then raise exception 'D-085 T4: certificate_prepare still reads the person''s photo'; end if;
+  if v_src !~ 'exit when not exists' then raise exception 'ADM-18: certificate_prepare does not skip a number already taken'; end if;
+  if not v_def or not ('search_path=public, pg_temp' = any (v_cfg)) then
+    raise exception 'certificate_prepare lost SECURITY DEFINER or its pinned search_path';
+  end if;
+  if has_function_privilege('anon', 'public.certificate_prepare(uuid, smallint)', 'EXECUTE')
+     or has_function_privilege('authenticated', 'public.certificate_prepare(uuid, smallint)', 'EXECUTE') then
+    raise exception 'certificate_prepare is callable by a client (§7: internal only)';
+  end if;
+end $$;

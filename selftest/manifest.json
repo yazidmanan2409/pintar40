@@ -3271,7 +3271,7 @@
     {
       "id": "STU12-K01",
       "runner": "static",
-      "proves": "Release checklist STU-12 (N5), hint_reveals_answer_shape as 20261127100000 leaves it (selftest/rilis40.test.ts): hints that name an option are still refused (a capital letter after 'jawabannya adalah' or 'the answer is', a bracketed letter, 'bukan A', 'not D', 'selain E', 'A atau C', '(a) atau (b)', 'pilihan a atau b', 'kunci: (b)'); nothing is refused that the old patterns did not refuse, so no stored hint stops saving; ordinary hints are not (small-letter variables in 'nilai a atau b', 'whether c or d is larger', 'a + b = c', 'a = 2b', and the article in 'the answer is a whole number', 'it is not a fraction'); an empty or missing hint is not refused."
+      "proves": "Release checklist STU-12 (N5): executes hint_reveals_answer_shape as migration 20261127100000 leaves it (selftest/rilis40.test.ts): hints that name an option are still refused (a capital letter after 'jawabannya adalah' or 'the answer is', a bracketed letter, 'bukan A', 'not D', 'selain E', 'A atau C', '(a) atau (b)', 'pilihan a atau b', 'kunci: (b)'); nothing is refused that the old patterns did not refuse, so no stored hint stops saving; ordinary hints are not (small-letter variables in 'nilai a atau b', 'whether c or d is larger', 'a + b = c', 'a = 2b', and the article in 'the answer is a whole number', 'it is not a fraction'); an empty or missing hint is not refused."
     },
     {
       "id": "DR-D01",
