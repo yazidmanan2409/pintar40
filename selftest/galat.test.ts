@@ -8,6 +8,7 @@
  * content-step mapping and the banner that shows the result.
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { join, relative } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { TANPA_SALINAN, t, type HleEvent } from "../src/lib/hle";
@@ -76,6 +77,40 @@ export function bocoran(root: string): string[] {
     });
   }
   return out;
+}
+
+/**
+ * J10.2 (CR-45): PINTAR's two failure pages as Next draws them before any script runs, rendered from the real
+ * src/app/error.tsx and src/app/global-error.tsx in a child process. The root-error page imports the stylesheet,
+ * which a server render has no use for, so any .css loads as an empty module (an ESM hook, and the CommonJS table tsx uses).
+ */
+function gambarGalat(repoRoot: string, kasus: { halaman: "error" | "global-error" | "panel"; pesan?: string; digest?: string; locale?: string }[]):
+  { html: string[]; galat: string } {
+  const kait = "export async function load(url, ctx, next) { return url.endsWith('.css') ? { format: 'module', source: '', shortCircuit: true } : next(url, ctx); }";
+  const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+    "(async () => {" +
+    '  const mod = await import("node:module");' +
+    `  mod.register("data:text/javascript," + encodeURIComponent(${JSON.stringify(kait)}));` +
+    '  mod.default._extensions[".css"] = () => {};' +
+    '  const { createElement: h } = await import("react");' +
+    '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+    '  const dari = async (f) => { const m = await import("file://" + process.cwd() + f); return m.default?.default ?? m.default; };' +
+    '  const hal = { error: await dari("/src/app/error.tsx"), "global-error": await dari("/src/app/global-error.tsx"),' +
+    '                panel: await dari("/src/components/HalamanGalat.tsx") };' +
+    '  const { readFileSync } = await import("node:fs");' +
+    '  const out = JSON.parse(readFileSync(0, "utf8")).map((k) => {' +
+    "    const e = Object.assign(new Error(k.pesan ?? \"\"), k.digest ? { digest: k.digest } : {});" +
+    "    const ulang = () => {};" +
+    '    return k.halaman === "panel" ? renderToStaticMarkup(h(hal.panel, { locale: k.locale, rujukan: k.digest, ulang }))' +
+    "                                 : renderToStaticMarkup(h(hal[k.halaman], { error: e, reset: ulang }));" +
+    "  });" +
+    "  process.stdout.write(JSON.stringify(out));" +
+    "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+    cwd: repoRoot, encoding: "utf8", maxBuffer: 1 << 24, input: JSON.stringify(kasus),
+  });
+  let html: string[] = [];
+  try { html = JSON.parse(anak.stdout); } catch { /* reported by the caller */ }
+  return { html, galat: anak.status === 0 && html.length === kasus.length ? "" : (anak.stderr || "no output").split("\n").slice(0, 4).join(" ") };
 }
 
 export const galatTests: SelfTest[] = [
@@ -221,6 +256,57 @@ export const galatTests: SelfTest[] = [
         "has a sentence in both languages naming no machinery; the banner shows the code's sentence, a count, a package " +
         "problem at its place and a failure's reference, and a planted legacy detail, unknown code, bad reference and " +
         "unknown sheet never reach it; Studio's shared outcome line and Konfigurasi's result line read only the code");
+    },
+  },
+  {
+    // =======================================================================
+    // BOB07-K03 — J10.2 (CR-45): A FAILED PAGE SHOWS PINTAR'S PAGE AND A
+    // REFERENCE, NEVER THE ERROR'S OWN WORDS. Executed, not read: the real
+    // error and root-error pages are rendered with a failure that carries a
+    // database sentence and a stack, and with one that carries no digest.
+    // =======================================================================
+    id: "BOB07-K03",
+    run: async (ctx) => {
+      const c = new Checks();
+      const PESAN = 'permission denied for table person_pins: relation "public.person_pins" at src/lib/rahasia.ts:42';
+      const DIGEST = "3141592653";
+      const kasus = [
+        { halaman: "error", pesan: PESAN, digest: DIGEST },
+        { halaman: "global-error", pesan: PESAN, digest: DIGEST },
+        { halaman: "error", pesan: PESAN },
+        { halaman: "global-error", pesan: PESAN },
+        { halaman: "panel", digest: DIGEST, locale: "en" },
+      ] as const;
+      const { html, galat } = gambarGalat(ctx.repoRoot, [...kasus]);
+      c.expect(galat === "", `the failure pages could not be rendered: ${galat}`);
+      const teks = (h: string) => h.replace(/<[^>]+>/g, " ").replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&amp;/g, "&")
+        .replace(/\s+/g, " ").trim();
+      const RAW = /permission denied|person_pins|relation "|src\/lib|rahasia\.ts|\bat [\w.]+ \(|Error:/;
+      if (galat === "") {
+        kasus.forEach((k, i) => {
+          const locale = k.halaman === "panel" ? k.locale : "id";
+          const s = (key: HleEvent) => t(key, "public", { locale });
+          const nama = `${k.halaman}${k.halaman === "panel" ? ` (${locale})` : ""}, ${k.digest ? "with" : "without"} a digest`;
+          const h = html[i] ?? "", v = teks(h);
+          c.expect(v.includes(s("galat.judul")) && v.includes(s("galat.arti")), `${nama}: not PINTAR's sentence: "${v.slice(0, 120)}"`);
+          c.expect(v.includes(s("galat.ulang")) && /href="\/"/.test(h) && v.includes(s("galat.beranda")), `${nama}: no way to try again or back to the start`);
+          c.expect(/role="alert"/.test(h), `${nama}: the failure is not announced`);
+          c.expect(!RAW.test(v) && !h.includes("person_pins"), `${nama}: the error's own words reached the reader: "${v.slice(0, 160)}"`);
+          c.expect(!/Application error|client-side exception|This page could not be found/i.test(v), `${nama}: Next's default text`);
+          if (k.digest) {
+            c.expect(v.includes(`${s("galat.rujukan")} ${DIGEST}`), `${nama}: the reference is not shown as «${s("galat.rujukan")} ${DIGEST}»: "${v.slice(0, 160)}"`);
+          } else {
+            c.expect(!v.includes(s("galat.rujukan")), `${nama}: a reference is shown with no digest to show`);
+          }
+        });
+        c.expect(/^<html lang="id">[\s\S]*<body>/.test(html[1] ?? "") && /^<html lang="id">[\s\S]*<body>/.test(html[3] ?? ""),
+          "the root-error page does not bring its own <html> in the reader's language");
+      }
+      return c.verdict(
+        "rendered from the real src/app/error.tsx and src/app/global-error.tsx, a failure whose own words are a database " +
+        "sentence, a table name and a source path shows PINTAR's sentence, «Coba lagi», a way back to the start, an alert " +
+        `role and «${t("galat.rujukan", "public", { locale: "id" })} ${DIGEST}», and none of its words; with no digest, no reference ` +
+        "is made up; the root-error page brings its own <html lang>; the shared panel says the same in English");
     },
   },
 ];

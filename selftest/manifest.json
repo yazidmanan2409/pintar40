@@ -2235,6 +2235,11 @@
       "proves": "BOB-07 (D-011). Each refusal enforce_content_status raises, read from the migration source that defines it last, maps to its own CONTENT_ code in the source file src/lib/galat-kontrak.ts, and a message that only quotes one does not; any action's refusal becomes its code by SQLSTATE and wording, else ACTION_FAILED; every code of the catalogue has a sentence in the copy table in both languages naming no machinery; the banner shows a code's sentence, a count, a package problem at its place and a failure's reference, while a planted legacy detail, unknown code, bad reference and unknown problem never reach it; Studio's shared outcome line and Konfigurasi's result line read only the code."
     },
     {
+      "id": "BOB07-K03",
+      "runner": "static",
+      "proves": "J10.2 (CR-45), D-011, executed: the real src/app/error.tsx and src/app/global-error.tsx are rendered as Next draws them before any script runs, with a failure whose own words are a database sentence, a table name and a source path, and with one that has no digest. Each shows PINTAR's sentence, a way to try again and back to the start, an alert role and «Rujukan: <digest>», and none of the failure's words or Next's default text; with no digest, no reference is made up; the root-error page brings its own <html lang>; the shared panel reads the same in English. The not-found page is DAISY-04's app test (a 404 over HTTP)."
+    },
+    {
       "id": "BOB07-R01",
       "runner": "app",
       "proves": "BOB-07 (D-011), against the running app and Auth: the rendered package page /studio/paket/<course>, asked with a content refusal's code and a planted detail in the database's English, shows the code's Indonesian sentence and never the planted words; asked with ACTION_FAILED and a reference, it shows the reference; the rendered route /konfigurasi does the same for a role refusal's code.",
