@@ -1,0 +1,42 @@
+{
+  "what": "#150 WP-C (B8, D-106(f)): THE ONE record of which Supabase projects PINTAR's workflows point at, and of the sign-in and email settings each project must carry. Every workflow's project reference, address and public key, and every literal of the settings below, must equal this record: scripts/recovery/repoint.mjs check fails on any difference (selftest DR-S12). Moving an environment to another project (after a native restore to a new project, RUNBOOK-NATIVE-RESTORE.md step 3) is done only by `repoint.mjs apply`, which rewrites this record and every workflow together, refuses a malformed or reused reference and requires the decision that authorised it; the move is a reviewed commit, never a hidden setting. `repoint.mjs verify` checks the live project's name, region and health against this record before anything is written to it. Public values only: no password, token or service key is ever kept here.",
+  "production": {
+    "ref": "trtlvibiybwixfumjrrx",
+    "name": "pintar-production",
+    "region": "ap-southeast-1",
+    "url": "https://trtlvibiybwixfumjrrx.supabase.co",
+    "anon_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRydGx2aWJpeWJ3aXhmdW1qcnJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxMDAxNDksImV4cCI6MjEwNTY3NjE0OX0.9QTwBrToGkL8XCORvbO6XtlbvvLmEwilXtgQaLQYjoE",
+    "auth": {
+      "site_url": "https://app.pintarselalu.com",
+      "uri_allow_list": "https://app.pintarselalu.com/auth/callback*",
+      "disable_signup": true
+    },
+    "email": {
+      "smtp_host": "pintarselalu.com",
+      "smtp_port": "465",
+      "smtp_user": "noreply@pintarselalu.com",
+      "smtp_admin_email": "noreply@pintarselalu.com",
+      "smtp_sender_name": "PINTAR"
+    }
+  },
+  "staging": {
+    "ref": "keijhmdtsgrfvnvocfvk",
+    "name": "pintar-staging",
+    "region": "ap-southeast-1",
+    "url": "https://keijhmdtsgrfvnvocfvk.supabase.co",
+    "anon_key": null,
+    "auth": {
+      "site_url": "https://staging.pintarselalu.com",
+      "uri_allow_list": "https://staging.pintarselalu.com/auth/callback*",
+      "disable_signup": true
+    },
+    "email": {
+      "smtp_host": "pintarselalu.com",
+      "smtp_port": "465",
+      "smtp_user": "noreply@pintarselalu.com",
+      "smtp_admin_email": "noreply@pintarselalu.com",
+      "smtp_sender_name": "PINTAR Staging"
+    }
+  },
+  "history": []
+}

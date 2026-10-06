@@ -23,6 +23,11 @@
 //
 //   node restore-bundle.mjs <bundle-dir> [--storage]                 restore, then verify
 //   node restore-bundle.mjs <bundle-dir> --verify-only [--storage]   verify an already restored copy, change nothing
+//   node restore-bundle.mjs <bundle-dir> --files-only                #150 WP-C (B9 after a NATIVE restore, the primary
+//        path): the database came back natively, with every storage.objects row but no file. Each file whose row the
+//        database holds is put back from the bundle and read back by its SHA-256; nothing in the database is changed.
+//        Rows the bundle has no file for, and bundle files the database has no row for, are named, never invented: the
+//        native backup and the bundle are taken at different moments (RUNBOOK-NATIVE-RESTORE.md, step 5).
 //
 // Environment:
 //   PGHOST PGPORT PGUSER PGDATABASE PGPASSWORD [PGSSLMODE]    the target database, as its postgres
@@ -113,6 +118,41 @@ async function restoreStorage(dir, { put = true } = {}) {
   return { problems, objects: lines.length };
 }
 
+/** B9 after a native restore: put back the file of every row the database already holds; change no row. */
+export async function putBackFiles(dir) {
+  const m = await checkManifest(dir);
+  if (m.problems.length) throw new Error(`the bundle does not match its manifest, nothing put back: ${m.problems.slice(0, 5).join("; ")}`);
+  const miss = ["TARGET_STORAGE_S3_ENDPOINT", "TARGET_STORAGE_S3_REGION", "TARGET_STORAGE_S3_KEY_ID", "TARGET_STORAGE_S3_SECRET"].filter((k) => !process.env[k]);
+  if (miss.length) throw new Error(`--files-only needs ${miss.join(", ")}`);
+  const lines = readFileSync(join(dir, "storage/manifest.jsonl"), "utf8").trim().split("\n").filter(Boolean).map((l) => JSON.parse(l));
+  const r = psql(["-c", "select coalesce(json_agg(json_build_array(bucket_id, name, (metadata->>'size')::bigint)), '[]') from storage.objects"]);
+  if (!r.ok) throw new Error(`storage.objects could not be read: ${r.err.join(" | ")}`);
+  const rows = new Map(JSON.parse(r.out.trim()).map(([b, n, size]) => [JSON.stringify([b, n]), size]));
+  const inBundle = new Set(lines.map((o) => JSON.stringify([o.bucket, o.name])));
+  const clients = new Map();
+  const c = (bucket) => {
+    if (!clients.has(bucket)) clients.set(bucket, s3Client({ endpoint: process.env.TARGET_STORAGE_S3_ENDPOINT, region: process.env.TARGET_STORAGE_S3_REGION,
+      keyId: process.env.TARGET_STORAGE_S3_KEY_ID, secret: process.env.TARGET_STORAGE_S3_SECRET, bucket, pathStyle: true }));
+    return clients.get(bucket);
+  };
+  const problems = [];
+  const report = { put: 0, noRow: 0, noFile: 0, sizeDiffers: 0 };
+  let n = 0;
+  for (const o of lines) {
+    const k = JSON.stringify([o.bucket, o.name]);
+    n++;
+    if (!rows.has(k)) { report.noRow++; continue; }   // gone, or never there, at the native backup's moment: not invented
+    if (Number(rows.get(k)) !== Number(o.size)) { report.sizeDiffers++; problems.push(`Storage object #${n} in ${o.bucket}: the database's row says ${rows.get(k)} bytes, the bundle's file has ${o.size}; not put back`); continue; }
+    const put = await c(o.bucket).putFile(o.name, join(dir, o.file), o.mimetype ? { "content-type": o.mimetype } : {});
+    if (!put.ok) { problems.push(`Storage object #${n} in ${o.bucket} could not be put back: ${put.error}`); continue; }
+    const back = await c(o.bucket).getBytes(o.name);
+    if (back.status !== 200 || createHash("sha256").update(back.bytes).digest("hex") !== o.sha256) { problems.push(`Storage object #${n} in ${o.bucket} does not read back as stored`); continue; }
+    report.put++;
+  }
+  for (const k of rows.keys()) if (!inBundle.has(k)) { report.noFile++; problems.push(`a storage.objects row in ${JSON.parse(k)[0]} has no file in the bundle (made after it was taken?)`); }
+  return { problems, report, objects: lines.length };
+}
+
 export async function restore(dir, { storage = false, verifyOnly = false } = {}) {
   const t0 = Date.now();
   const say = (s) => console.log(s);
@@ -176,7 +216,15 @@ export async function restore(dir, { storage = false, verifyOnly = false } = {})
 
 async function main(argv) {
   const dir = argv.find((a) => !a.startsWith("--"));
-  if (!dir || !existsSync(dir)) { console.error("usage: restore-bundle.mjs <bundle-dir> [--storage]"); return 2; }
+  if (!dir || !existsSync(dir)) { console.error("usage: restore-bundle.mjs <bundle-dir> [--storage | --verify-only [--storage] | --files-only]"); return 2; }
+  if (argv.includes("--files-only")) {
+    const f = await putBackFiles(dir);
+    console.log(`files: ${f.report.put} put back and read back by hash; ${f.report.noRow} bundle file(s) with no row in the database ` +
+      `(not invented); ${f.report.noFile} row(s) with no file in the bundle; ${f.report.sizeDiffers} of another size`);
+    if (f.problems.length) { for (const p of f.problems) console.log(`::error::${p}`); return 1; }
+    console.log("FILES PUT BACK: every row the database holds has its file, as the bundle stored it");
+    return 0;
+  }
   const r = await restore(dir, { storage: argv.includes("--storage"), verifyOnly: argv.includes("--verify-only") });
   console.log(`SAFE TO REOPEN: the copy equals the bundle (${r.facts} facts${r.storage === null ? "" : `, ${r.storage} Storage objects`}), ` +
     `its extensions equal the approved baseline and readiness passes; restored and verified in ${r.seconds} s`);

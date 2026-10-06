@@ -1,0 +1,59 @@
+# #150 WP-C (B8, D-106(f)): IS THE PROJECT THE WORKFLOWS POINT AT THE RIGHT ONE, AND DOES IT CARRY ITS SETTINGS? READ ONLY.
+#
+# RUNBOOK-NATIVE-RESTORE.md, steps 3 and 4 (and 8): after a native restore to a new project and the reviewed commit that
+# repoints the workflows (scripts/recovery/repoint.mjs apply), this shows, before anything is written there:
+#   1. the workflows equal docs/recovery/projects.json (the one guarded record; no retired reference survives);
+#   2. the live project the record names has the recorded name and region and is ACTIVE_HEALTHY;
+#   3. its Auth configuration carries every declared sign-in and email setting (scripts/recovery/auth-state.mjs verify:
+#      the record's address, allow list, sign-up closed and sender; Gate 3's settings where they apply); smtp_pass is
+#      never read or printed.
+# GET only, with the environment's existing management token. Nothing is written, deployed or configured. By hand only.
+
+name: recovery · the target project, read only
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: which recorded environment
+        type: choice
+        options: [staging, production]
+        default: staging
+
+permissions:
+  contents: read
+
+concurrency:
+  group: recovery-target
+  cancel-in-progress: false
+
+jobs:
+  target:
+    if: github.ref == 'refs/heads/main'
+    name: the record, the live project, its Auth settings
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/recovery
+            docs/recovery
+            supabase/auth-identitas.json
+            .github/workflows
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: 1. The workflows equal the record
+        run: node scripts/recovery/repoint.mjs check
+      - name: 2. The live project is the recorded one, healthy
+        env:
+          ENV: ${{ inputs.env }}
+          SUPABASE_ACCESS_TOKEN: ${{ inputs.env == 'production' && secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN || secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+        run: node scripts/recovery/repoint.mjs verify "$ENV"
+      - name: 3. Its Auth configuration carries every declared setting
+        env:
+          ENV: ${{ inputs.env }}
+          SUPABASE_ACCESS_TOKEN: ${{ inputs.env == 'production' && secrets.PRODUCTION_SUPABASE_ACCESS_TOKEN || secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+        run: node scripts/recovery/auth-state.mjs verify "$ENV" --ref "$(jq -r --arg e "$ENV" '.[$e].ref' docs/recovery/projects.json)"
