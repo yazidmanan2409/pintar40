@@ -2691,6 +2691,15 @@ await step("S26d", "two chapters: Gita, part-way through Bab 1, finds her home c
   const tc = await ctx();
   const t = await tc.newPage();
   await magicSignIn(t, people.guru2.email);
+  // CR-35: before Bab 2 is given, her home names it «Layak dikerjakan lebih dulu», published for Kelas 1A, with the way
+  // to prepare it for that class (the card is the one thing worth doing; Bab 1 is given already)
+  await t.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
+  await tutupTur(t);
+  const layak = t.locator('[data-tur="layak"]');
+  const layakTeks = (await layak.count()) ? (await layak.innerText()).replace(/\s+/g, " ").trim() : "";
+  const layakKe = (await layak.count()) ? await layak.locator(`a[href*="/mengajar/${kelas}/siapkan?terbitan="]`).count() : 0;
+  notes.push(`her home before Bab 2 is given: «${layakTeks.slice(0, 180)}»; a way to prepare it for Kelas 1A: ${layakKe > 0}`);
+  if (!/Layak dikerjakan lebih dulu/.test(layakTeks) || !/Bab 2/.test(layakTeks) || layakKe < 1) rec.verdict = "FAIL";
   await t.goto(`${APP}/mengajar/${kelas}/siapkan`, { waitUntil: "networkidle" });
   await tutupTur(t);
   const row = t.locator("a.pin-row").filter({ hasText: "Bab 2" }).first();
