@@ -32,6 +32,15 @@
 --            readers join a definition on the option's own school
 --   F20-M03  CR-50 (the closure evidence): a chapter whose every wrong option carries a defined misconception
 --            publishes its review with no WEAK_MISCONCEPTION_LINKAGE finding (31 a chapter on today's content)
+--   F20-E01  CR-13, D-120 QN1: who may correct a staff email, and when. Before activation the person's school admin
+--            (CAN_PROVISION_PEOPLE there) or the platform admin; after it the platform admin only; never a teacher or
+--            another school's admin. A reason is required, and an invalid, unchanged or taken address and a person
+--            with no email account are refused by name; the yes is a grant, and nothing has changed yet
+--   F20-E02  CR-13, D-120 QN1: an email account's address changes only against that grant, for exactly its address,
+--            once. In the same transaction every outstanding code dies, every session ends and the correction is
+--            audited with its reason, both addresses and the branch; after activation the password and the set-up
+--            stay; before it the set-up begun through the old address is undone (password, PIN, name confirmation)
+--            and an activation code now goes only to the new address
 --
 -- EVERY ROW IS ROLLED BACK: one subtransaction, verdicts collected in a jsonb of problems, a sentinel to undo the
 -- lot, and the findings emitted afterwards.
@@ -152,6 +161,8 @@ declare
   v_p uuid[] := '{}'; v_pid uuid; v_enr uuid; i int; v_beda jsonb;
   v_cert uuid; v_tok text; v_nama_lama text; v_v record; v_d jsonb; v_pintar text; v_n1 text; v_n2 text; v_kursus text;
   v_sa uuid; v_sb uuid; v_ga uuid; v_gb uuid; v_kode text; v_defs jsonb; v_batch uuid; v_hj jsonb; v_course uuid; v_item uuid;
+  v_ed uuid; v_eu uuid; v_eadm uuid; v_esys uuid; v_einst uuid; v_elama text; v_eb1 text; v_eb2 text; v_ek text; v_er record;
+  v_ehash text; v_esesi uuid; v_ekartu uuid; v_edulu bigint;
   v_probs jsonb := '{}'::jsonb; v_fatal text := '';
 begin
   perform selftest.as_owner();
@@ -573,6 +584,183 @@ begin
       v_probs := selftest.f20_note(v_probs, 'F20-M03', 'the test could not run: ' || left(sqlerrm, 160));
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F20-E01 .. E02  CR-13 (D-120 QN1): A WRONG STAFF EMAIL IS CORRECTED
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      select coalesce(max(al.id), 0) into v_edulu from public.audit_log al;
+      select a.person_id, a.auth_user_id, lower(u.email) into v_ed, v_eu, v_elama
+        from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = 'alpha-dean@synthetic.pintar.test';
+      select a.person_id into v_eadm from public.accounts a join auth.users u on u.id = a.auth_user_id
+       where u.email = 'alpha-admin@synthetic.pintar.test';
+      select a.person_id into v_esys from public.accounts a join auth.users u on u.id = a.auth_user_id
+       where u.email = 'sysadmin@synthetic.pintar.test';
+      select ra.institution_id into v_einst from public.role_assignments ra
+       where ra.person_id = v_eadm and ra.role = 'INSTITUTION_ADMIN' limit 1;
+      select a.person_id into v_ekartu from public.accounts a where a.kind = 'CLASSROOM_CARD' order by a.card_number limit 1;
+      if v_ed is null or v_eadm is null or v_esys is null or v_einst is null or v_ekartu is null then
+        raise exception 'the fixture lacks the dean, the school admin, the platform admin or a class card';
+      end if;
+      -- the dean is the school's person, as provisioning makes one (a school number), numbered inside the rolled-back
+      -- transaction; and is not yet activated
+      update public.institutions inst set namespace = (select x from generate_series(1, 500) g, lateral (select upper(substr(md5('f20e' || g), 1, 3)) x) q
+                                                   where x ~ '^[A-Z]{3}$' and not exists (select 1 from public.institutions t where upper(t.namespace) = q.x) limit 1)
+       where inst.id = v_einst and inst.namespace is null;
+      if not exists (select 1 from public.institutional_identities ii where ii.person_id = v_ed and ii.institution_id = v_einst) then
+        perform public.issue_institutional_id(v_ed, v_einst);
+      end if;
+      update public.account_setup s set state = 'REQUIRED', completed_at = null from public.accounts a
+       where a.id = s.account_id and a.person_id = v_ed and a.kind = 'EMAIL';
+      v_eb1 := 'f20-e1-' || v_tag || '@synthetic.pintar.test';
+      v_eb2 := 'f20-e2-' || v_tag || '@synthetic.pintar.test';
+
+      if to_regprocedure('public.authorize_email_correction(uuid,text,text)') is null then
+        v_probs := selftest.f20_note(v_probs, 'F20-E01', 'no governed path corrects a staff email: there is no authorize_email_correction, so a '
+          || 'mistyped address can be fixed only in SQL (J2.21)');
+      else
+        perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+        v_ek := selftest.f20_kode(format('select * from public.authorize_email_correction(%L, %L, %L)', v_ed, v_eb1, 'salah ketik'));
+        if v_ek is distinct from '42501' then
+          v_probs := selftest.f20_note(v_probs, 'F20-E01', format('a teacher could correct a colleague''s email (%s)', coalesce(v_ek, 'granted')));
+        end if;
+        perform selftest.as_user('beta-admin@synthetic.pintar.test');
+        v_ek := selftest.f20_kode(format('select * from public.authorize_email_correction(%L, %L, %L)', v_ed, v_eb1, 'salah ketik'));
+        if v_ek is distinct from '42501' then
+          v_probs := selftest.f20_note(v_probs, 'F20-E01', format('another school''s admin could correct the email (%s)', coalesce(v_ek, 'granted')));
+        end if;
+        perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+        for r in select * from (values ('REASON_REQUIRED', v_eb1, '   '), ('EMAIL_INVALID', 'bukan-alamat', 'salah ketik'),
+                                       ('EMAIL_INVALID', 'card-1234567890@kartu.test', 'salah ketik'),
+                                       ('EMAIL_UNCHANGED', upper(v_elama), 'salah ketik'),
+                                       ('EMAIL_TAKEN', 'alpha-guru@synthetic.pintar.test', 'salah ketik')) t(kode, alamat, alasan) loop
+          v_ek := selftest.f20_kode(format('select * from public.authorize_email_correction(%L, %L, %L)', v_ed, r.alamat, r.alasan));
+          if v_ek is distinct from r.kode then
+            v_probs := selftest.f20_note(v_probs, 'F20-E01', format('«%s» with reason «%s» answered %s, not %s', r.alamat, r.alasan, coalesce(v_ek, 'a grant'), r.kode));
+          end if;
+        end loop;
+        -- before activation the school's admin is granted exactly that address, and nothing has changed yet
+        select * into v_er from public.authorize_email_correction(v_ed, upper(v_eb1), 'salah ketik saat menambah staf');
+        if v_er.auth_user_id is distinct from v_eu or v_er.old_email is distinct from v_elama or v_er.activated is distinct from false then
+          v_probs := selftest.f20_note(v_probs, 'F20-E01', format('the school admin''s correction before activation answered %s', to_jsonb(v_er)));
+        end if;
+        perform selftest.as_owner();
+        if (select lower(u.email) from auth.users u where u.id = v_eu) is distinct from v_elama
+           or not exists (select 1 from public.email_corrections c where c.person_id = v_ed and c.new_email = v_eb1 and c.consumed_at is null
+                            and c.activated = false and c.authorized_by = v_eadm and c.reason = 'salah ketik saat menambah staf'
+                            and c.expires_at <= clock_timestamp() + interval '2 minutes')
+           or exists (select 1 from public.audit_log al where al.id > v_edulu and al.action = 'identity.email_corrected') then
+          v_probs := selftest.f20_note(v_probs, 'F20-E01', 'the grant is not a two-minute grant for exactly the new address, or something changed before Auth moved it');
+        end if;
+        -- after activation: the school's admin is refused; the platform admin is granted
+        update public.account_setup s set state = 'COMPLETE', completed_at = now() from public.accounts a
+         where a.id = s.account_id and a.person_id = v_ed and a.kind = 'EMAIL';
+        perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+        v_ek := selftest.f20_kode(format('select * from public.authorize_email_correction(%L, %L, %L)', v_ed, v_eb1, 'salah ketik'));
+        if v_ek is distinct from '42501' then
+          v_probs := selftest.f20_note(v_probs, 'F20-E01', format('after activation the school''s admin could still correct the email (%s)', coalesce(v_ek, 'granted')));
+        end if;
+        perform selftest.as_user('sysadmin@synthetic.pintar.test');
+        v_ek := selftest.f20_kode(format('select * from public.authorize_email_correction(%L, %L, %L)', v_ekartu, v_eb1, 'salah ketik'));
+        if v_ek is distinct from 'EMAIL_ACCOUNT_NOT_FOUND' then
+          v_probs := selftest.f20_note(v_probs, 'F20-E01', format('a class-card holder''s «email» answered %s, not EMAIL_ACCOUNT_NOT_FOUND', coalesce(v_ek, 'a grant')));
+        end if;
+        select * into v_er from public.authorize_email_correction(v_ed, v_eb1, 'alamat lama tidak dipakai lagi');
+        if v_er.activated is distinct from true or v_er.auth_user_id is distinct from v_eu then
+          v_probs := selftest.f20_note(v_probs, 'F20-E01', format('the platform admin''s correction after activation answered %s', to_jsonb(v_er)));
+        end if;
+        perform selftest.as_owner();
+        if has_function_privilege('anon', 'public.authorize_email_correction(uuid,text,text)', 'execute')
+           or has_table_privilege('authenticated', 'public.email_corrections', 'select')
+           or has_table_privilege('service_role', 'public.email_corrections', 'select') then
+          v_probs := selftest.f20_note(v_probs, 'F20-E01', 'the correction or its grants are reached by a role that should not reach them');
+        end if;
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f20_note(v_probs, 'F20-E01', 'the test could not run: ' || left(sqlerrm, 160));
+    end;
+
+    begin
+      perform selftest.as_owner();
+      -- no unguarded change: an email account's address does not move without a grant
+      v_ek := selftest.f20_kode(format('update auth.users set email = %L where id = %L', 'f20-liar-' || v_tag || '@synthetic.pintar.test', v_eu));
+      if v_ek is distinct from 'EMAIL_CHANGE_REFUSED' then
+        v_probs := selftest.f20_note(v_probs, 'F20-E02', format('an email account''s address changed with no correction behind it (%s)', coalesce(v_ek, 'accepted')));
+      end if;
+      if to_regprocedure('public.authorize_email_correction(uuid,text,text)') is not null then
+        -- AFTER ACTIVATION (the platform admin's grant from F20-E01 is live): a code outstanding and a session open
+        select u.encrypted_password into v_ehash from auth.users u where u.id = v_eu;
+        update auth.users u set recovery_token = 'f20-' || v_tag where u.id = v_eu;
+        insert into auth.one_time_tokens (id, user_id, token_type, token_hash, relates_to, created_at, updated_at)
+        values (gen_random_uuid(), v_eu, 'recovery_token', 'f20-' || v_tag, v_elama, now(), now());
+        insert into auth.sessions as ss (id, user_id) values (gen_random_uuid(), v_eu) returning ss.id into v_esesi;
+        v_ek := selftest.f20_kode(format('update auth.users set email = %L where id = %L', v_eb2, v_eu));
+        if v_ek is distinct from 'EMAIL_CHANGE_REFUSED' then
+          v_probs := selftest.f20_note(v_probs, 'F20-E02', format('an address other than the granted one was accepted (%s)', coalesce(v_ek, 'accepted')));
+        end if;
+        update auth.users u set email = v_eb1 where u.id = v_eu;
+        select * into r from auth.users u where u.id = v_eu;
+        if lower(r.email) <> v_eb1 or coalesce(r.recovery_token, '') <> ''
+           or exists (select 1 from auth.one_time_tokens t where t.user_id = v_eu)
+           or exists (select 1 from auth.sessions x where x.user_id = v_eu) then
+          v_probs := selftest.f20_note(v_probs, 'F20-E02', 'after activation the address moved but a code or a session outlived it');
+        end if;
+        if r.encrypted_password is distinct from v_ehash
+           or not exists (select 1 from public.account_setup s join public.accounts a on a.id = s.account_id
+                           where a.person_id = v_ed and a.kind = 'EMAIL' and s.state = 'COMPLETE') then
+          v_probs := selftest.f20_note(v_probs, 'F20-E02', 'after activation the correction also took the person''s password or set-up');
+        end if;
+        if not exists (select 1 from public.audit_log al where al.id > v_edulu and al.action = 'identity.email_corrected'
+                         and al.target_id = v_ed::text and al.summary ->> 'reason' = 'alamat lama tidak dipakai lagi'
+                         and al.summary #>> '{from,email}' = v_elama and al.summary #>> '{to,email}' = v_eb1
+                         and (al.summary ->> 'activated')::boolean and (al.summary ->> 'authorized_by')::uuid = v_esys
+                         and al.summary ->> 'actor_role' is not null) then
+          v_probs := selftest.f20_note(v_probs, 'F20-E02', 'the correction after activation is not audited with its reason, both addresses, the branch and who');
+        end if;
+        v_ek := selftest.f20_kode(format('update auth.users set email = %L where id = %L', v_eb2, v_eu));
+        if v_ek is distinct from 'EMAIL_CHANGE_REFUSED' then
+          v_probs := selftest.f20_note(v_probs, 'F20-E02', format('a consumed grant moved the address again (%s)', coalesce(v_ek, 'accepted')));
+        end if;
+
+        -- BEFORE ACTIVATION: a set-up begun through the wrong address (password, PIN, name confirmed), a code, a session
+        update public.account_setup s set state = 'REQUIRED', completed_at = null, password_set_at = now(), name_confirmed_at = now()
+          from public.accounts a where a.id = s.account_id and a.person_id = v_ed and a.kind = 'EMAIL';
+        insert into public.person_pins (person_id, pin_hash) values (v_ed, extensions.crypt('5193', extensions.gen_salt('bf', 4)))
+        on conflict (person_id) do update set reset_required = false;
+        insert into auth.one_time_tokens (id, user_id, token_type, token_hash, relates_to, created_at, updated_at)
+        values (gen_random_uuid(), v_eu, 'recovery_token', 'f20b-' || v_tag, v_eb1, now(), now());
+        insert into auth.sessions (id, user_id) values (gen_random_uuid(), v_eu);
+        perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+        perform public.authorize_email_correction(v_ed, v_eb2, 'salah ketik saat menambah staf');
+        perform selftest.as_owner();
+        update auth.users u set email = v_eb2 where u.id = v_eu;
+        select * into r from auth.users u where u.id = v_eu;
+        if lower(r.email) <> v_eb2 or exists (select 1 from auth.one_time_tokens t where t.user_id = v_eu)
+           or exists (select 1 from auth.sessions x where x.user_id = v_eu) then
+          v_probs := selftest.f20_note(v_probs, 'F20-E02', 'before activation the address moved but a code or a session outlived it');
+        end if;
+        if coalesce(r.encrypted_password, '') <> ''
+           or exists (select 1 from public.account_setup s join public.accounts a on a.id = s.account_id where a.person_id = v_ed and a.kind = 'EMAIL'
+                       and (s.password_set_at is not null or s.name_confirmed_at is not null or s.state <> 'REQUIRED'))
+           or not exists (select 1 from public.person_pins pp where pp.person_id = v_ed and pp.reset_required) then
+          v_probs := selftest.f20_note(v_probs, 'F20-E02', 'before activation the set-up begun through the old address was not undone (password, PIN, name confirmation)');
+        end if;
+        if not exists (select 1 from public.audit_log al where al.id > v_edulu and al.action = 'identity.email_corrected'
+                         and al.target_id = v_ed::text and al.summary ->> 'reason' = 'salah ketik saat menambah staf'
+                         and al.summary #>> '{from,email}' = v_eb1 and al.summary #>> '{to,email}' = v_eb2
+                         and not (al.summary ->> 'activated')::boolean and (al.summary ->> 'authorized_by')::uuid = v_eadm) then
+          v_probs := selftest.f20_note(v_probs, 'F20-E02', 'the correction before activation is not audited with its reason, both addresses, the branch and who');
+        end if;
+        if (select count(*) from public.activation_code_target(v_eb2) t where t.auth_user_id = v_eu) <> 1
+           or (select count(*) from public.activation_code_target(v_eb1)) <> 0 then
+          v_probs := selftest.f20_note(v_probs, 'F20-E02', 'an activation code would not go to the new address only');
+        end if;
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f20_note(v_probs, 'F20-E02', 'the test could not run: ' || left(sqlerrm, 160));
+    end;
+
     raise exception 'F20-ROLLBACK';
   exception when others then
     if sqlerrm <> 'F20-ROLLBACK' then v_fatal := sqlerrm; end if;
@@ -581,7 +769,7 @@ begin
 
   for r in
     select * from unnest(
-      array['F20-Q10', 'F20-F01', 'F20-N01', 'F20-S01', 'F20-C01', 'F20-M01', 'F20-M02', 'F20-M03'],
+      array['F20-Q10', 'F20-F01', 'F20-N01', 'F20-S01', 'F20-C01', 'F20-M01', 'F20-M02', 'F20-M03', 'F20-E01', 'F20-E02'],
       array['D-121(a)(b), Q10 Alternative 4 -- mastery is the school''s mark; the descriptor is PINTAR''s fixed scale, none below 70%',
             'D-121(a), INV-29 -- a result is decided under its session''s own scoring version',
             'D-121(c), D-095(c)(g) -- «Belum mengerjakan Uji Penguasaan» is produced and stays apart from the bands',
@@ -589,7 +777,9 @@ begin
             'CR-01, D-080(2)(9) -- the number is the holder''s PINTAR ID and their own sequence',
             'CR-50, D-063 M1/M5, D-120 Q9 -- a package carries its definitions; each school owns its own',
             'CR-50, D-063 M2/M3/M4 -- an option names only its own school''s definition; append-only; readers per school',
-            'CR-50 -- a coded chapter has no weak-linkage finding'],
+            'CR-50 -- a coded chapter has no weak-linkage finding',
+            'CR-13, D-120 QN1 -- who may correct a staff email, and when',
+            'CR-13, D-120 QN1 -- an email moves only against its grant; codes and sessions die; audited'],
       array[
         'the current scoring version names Sangat Baik ≥ 90%, Baik ≥ 80% and Cukup ≥ 70% and nothing below; the engine version is '
           || 'pintar-engine/2; a published version''s descriptors cannot be edited in place and the next publication carries them '
@@ -616,7 +806,16 @@ begin
           || 'author cannot edit a definition in place; session_misconceptions, reading_map and service_cohort_misconceptions join a '
           || 'definition on the option''s own school',
         'a chapter whose every wrong option carries a defined misconception is reviewed by run_mcq_quality with no '
-          || 'WEAK_MISCONCEPTION_LINKAGE finding'
+          || 'WEAK_MISCONCEPTION_LINKAGE finding',
+        'before activation a teacher and another school''s admin are refused (42501), the person''s school admin is granted exactly '
+          || 'the new address for two minutes with nothing changed yet; a blank reason, a malformed or card-shaped address, the same '
+          || 'address and another account''s address are refused by name; after activation the school''s admin is refused and the '
+          || 'platform admin granted; a class-card holder has no email to correct; anon reaches nothing and nobody reads the grants',
+        'with no grant, or for another address, or a second time, the address does not move (EMAIL_CHANGE_REFUSED); after activation '
+          || 'the platform admin''s grant moves it, the outstanding code and the open session die, the password and the set-up stay, '
+          || 'and identity.email_corrected records the reason, both addresses, the branch and who; before activation the school '
+          || 'admin''s grant moves it and also clears the password, sets the PIN to be chosen again and the name to be confirmed '
+          || 'again, and an activation code now goes to the new address only'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

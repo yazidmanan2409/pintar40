@@ -99,7 +99,8 @@ const G7 = {
   tabel: "G7 authenticated holds exactly the release's table rights",
   fungsi: "G7 authenticated executes exactly the registered functions",
   pemilik: "G7 every public table, view, sequence and function is owned by postgres",
-  pemicu: "G7 PINTAR's three auth.users triggers present and enabled",
+  // MOVED three -> four for CR-13 (20261203100000): the email-correction guard joins the three
+  pemicu: "G7 PINTAR's four auth.users triggers present and enabled",
   praminta: "G7 PostgREST pre-request set on authenticator",
   wadah: "G7 the assets bucket exists and is private",
 };
@@ -361,7 +362,7 @@ export const dr150Tests: SelfTest[] = [
       c.expect(gagalKah(G7.tabel, /differ: \+/), `authenticated given every right: ${JSON.stringify(t.rows.get(G7.tabel))}`);
       c.expect(gagalKah(G7.fungsi, /differ: \+/), `authenticated given every function: ${JSON.stringify(t.rows.get(G7.fungsi))}`);
       c.expect(gagalKah("anonymous surface unchanged (10 / 19 / 0)", /[1-9]\d* anon function/), `anon given every function: ${JSON.stringify(t.rows.get("anonymous surface unchanged (10 / 19 / 0)"))}`);
-      c.expect(gagalKah(G7.pemicu, /2 of 3 .*pintar_password_write_guard/), `the password-write guard dropped: ${JSON.stringify(t.rows.get(G7.pemicu))}`);
+      c.expect(gagalKah(G7.pemicu, /3 of 4 .*pintar_password_write_guard/), `the password-write guard dropped: ${JSON.stringify(t.rows.get(G7.pemicu))}`);
       c.expect(gagalKah(G7.praminta, /no role setting|function/), `the pre-request lost: ${JSON.stringify(t.rows.get(G7.praminta))}`);
       c.expect(gagalKah(G7.wadah, /assets \(PUBLIC\)/) && gagalKah("storage buckets private"), `the assets bucket made public: ${JSON.stringify(t.rows.get(G7.wadah))}`);
       c.expect(gagalKah(G7.pemilik, /1 function\(s\) owned by another role/), `a function given to another owner: ${JSON.stringify(t.rows.get(G7.pemilik))}`);

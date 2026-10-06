@@ -635,7 +635,9 @@ export const bob28Tests: SelfTest[] = [
       c.expect(v.daftar && /^\d{1,4}$/.test(v.daftar.card_last4) && !("card_number" in v.daftar), `the admin's list: ${JSON.stringify(v.daftar)}`);
       c.expect(v.alasan_salah === "REASON_INVALID" && v.bukan_kartu === "CARD_NOT_FOUND" && v.nomor_terpakai === "CARD_NUMBER_TAKEN" && v.ulang_untuk === true && v.permit === "CARD_REISSUE",
         `the re-issue's refusals and grant: ${JSON.stringify([v.alasan_salah, v.bukan_kartu, v.nomor_terpakai, v.ulang_untuk, v.permit])}`);
-      c.expect(v.alamat_lain === "CARD_ADDRESS_REFUSED" && v.kartu_sekarang === true && v.kartu_lagi === "CARD_ADDRESS_REFUSED" && v.email_bebas === null,
+      // RESTATED FOR CR-13 (D-120 QN1, a changed requirement): an email account's address no longer changes freely; the
+      // card guard still leaves it alone, and 20261203100000's own guard refuses it without a correction (F20-E02)
+      c.expect(v.alamat_lain === "CARD_ADDRESS_REFUSED" && v.kartu_sekarang === true && v.kartu_lagi === "CARD_ADDRESS_REFUSED" && v.email_bebas === "EMAIL_CHANGE_REFUSED",
         `the guard: another address ${v.alamat_lain}, the grant's own ${v.kartu_sekarang}, again ${v.kartu_lagi}, an email account ${v.email_bebas}`);
       c.expect(v.kartu_audit?.reason === "RUSAK" && v.kartu_audit?.by === true && v.kartu_audit?.role === "INSTITUTION_ADMIN" && v.kartu_audit?.to !== v.kartu_audit?.from,
         `the re-issue's audit row: ${JSON.stringify(v.kartu_audit)}`);

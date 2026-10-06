@@ -1713,6 +1713,12 @@ export type HleEvent =
   | "email.aman.diatur_ulang.bukan_anda"
   | "email.aman.diatur_ulang.subjek_admin"
   | "email.aman.diatur_ulang.isi_admin"
+  | "email.aman.email_dikoreksi.subjek"
+  | "email.aman.email_dikoreksi.judul"
+  | "email.aman.email_dikoreksi.isi"
+  | "email.aman.email_dikoreksi.bukan_anda"
+  | "email.aman.email_dikoreksi.subjek_admin"
+  | "email.aman.email_dikoreksi.isi_admin"
   | "aktifkan.email_tertahan"
   | "aktifkan.tidak_tersedia"
   | "aktifkan.rujukan_arti"
@@ -3877,6 +3883,13 @@ const table: Table = {
   "email.aman.diatur_ulang.bukan_anda": { default: "Jika Anda tidak memintanya, hubungi admin sekolah Anda.", en: "If you didn't ask for this, contact your school's administrator." },
   "email.aman.diatur_ulang.subjek_admin": { default: "Pemulihan dengan PIN diatur ulang", en: "PIN recovery reset" },
   "email.aman.diatur_ulang.isi_admin": { default: "Pemulihan dengan PIN untuk PINTAR ID ini diatur ulang oleh admin sekolah atau admin platform. Pemiliknya harus membuat PIN baru.", en: "A school administrator or the platform administrator reset recovery with a PIN for this PINTAR ID. Its owner must make a new PIN." },
+  // CR-13 (D-120 QN1): an email corrected after activation, told to the old and the new address (DAISY: copy to review)
+  "email.aman.email_dikoreksi.subjek": { default: "Alamat email akun PINTAR Anda dikoreksi", en: "The email address of your PINTAR account was corrected" },
+  "email.aman.email_dikoreksi.judul": { default: "Alamat email dikoreksi", en: "Email address corrected" },
+  "email.aman.email_dikoreksi.isi": { default: "Admin PINTAR mengoreksi alamat email untuk masuk ke akun PINTAR dengan PINTAR ID ini. Mulai sekarang email dari PINTAR dikirim ke alamat yang baru, dan semua sesi yang terbuka sudah ditutup. Password dan PIN tidak berubah.", en: "A PINTAR administrator corrected the sign-in email address of the PINTAR account with this PINTAR ID. From now on, email from PINTAR goes to the new address, and every open session has been closed. The password and PIN have not changed." },
+  "email.aman.email_dikoreksi.bukan_anda": { default: "Jika Anda tidak meminta koreksi ini, segera hubungi admin sekolah Anda.", en: "If you didn't ask for this correction, contact your school's administrator straight away." },
+  "email.aman.email_dikoreksi.subjek_admin": { default: "Alamat email sebuah akun dikoreksi", en: "An account's email address was corrected" },
+  "email.aman.email_dikoreksi.isi_admin": { default: "Alamat email untuk masuk ke akun dengan PINTAR ID ini dikoreksi oleh admin platform setelah aktivasi. Alasannya dan kedua alamat ada di catatan keamanan.", en: "The platform administrator corrected the sign-in email address of the account with this PINTAR ID after activation. The reason and both addresses are in the security record." },
   "aktifkan.minta_sering": { default: "Kode untuk alamat ini sudah terlalu sering diminta, jadi kode tidak dikirim.", en: "A code has been asked for this address too often, so no code was sent." },
   "aktifkan.email_tertahan": { default: "PINTAR belum bisa mengirim email saat ini, jadi kode tidak dikirim.", en: "PINTAR can't send email right now, so no code was sent." },
   "aktifkan.tidak_tersedia": { default: "PINTAR sedang tidak dapat memproses ini. Coba lagi sebentar lagi.", en: "PINTAR can't handle this right now. Try again in a little while." },

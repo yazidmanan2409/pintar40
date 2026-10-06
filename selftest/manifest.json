@@ -2255,6 +2255,17 @@
       "proves": "CR-50 (D-063 M5, D-120 Q9), executed: each PINTAR chapter workbook in docs/onboarding/konten, read and converted by the upload page's own reader and converter (src/lib/xlsx.ts, src/lib/unggah-kontrak.ts), is byte for byte its committed .paket.json, so the package imported is the file reviewed; every wrong option names a misconception code, every code it names is defined on the same file's «Miskonsepsi» sheet, and every definition is used; a problem on the «Miskonsepsi» sheet is placed by its column's header (src/components/unggah/lokasi.ts). The database half (the definitions become the importing owner's own, and a different definition of a held code is refused) is F20-M01..M03."
     },
     {
+      "id": "PENUTUPAN-E03",
+      "runner": "static",
+      "proves": "CR-13 (D-120 QN1), read from the source file src/app/api/akun/email/route.ts and the migration 20261203100000: the route refuses another origin and a signed-out caller, asks authorize_email_correction with the caller's own client before Auth is touched, moves exactly the granted address (no password, no new identity), maps every refusal the database names to its own code with a status, and tells the old and the new address only after activation, after the answer; the notice's six texts (email.aman.email_dikoreksi.*) read in both languages and carry no address."
+    },
+    {
+      "id": "PENUTUPAN-A01",
+      "runner": "app",
+      "proves": "CR-13 (D-120 QN1, J2.21 without SQL) against the running app, Auth and the Mailpit sink: a staff member provisioned at a wrong address whose inbox opened the set-up with a code; the platform admin's correction with no reason is ALASAN_WAJIB, with one it answers sudahAktif false, the wrong inbox's set-up stops, and the person activates at the corrected address; a second person's unused code sent to a wrong address opens the account at neither address after the correction; after activation a teacher is refused (DITOLAK), the platform admin's correction answers sudahAktif true, the same password signs in at the new address only, the old and the new address each receive one notice carrying no address, and both corrections are audited with their branch and addresses.",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
+    },
+    {
       "id": "BOB07-R01",
       "runner": "app",
       "proves": "BOB-07 (D-011), against the running app and Auth: the rendered package page /studio/paket/<course>, asked with a content refusal's code and a planted detail in the database's English, shows the code's Indonesian sentence and never the planted words; asked with ACTION_FAILED and a reference, it shows the reference; the rendered route /konfigurasi does the same for a role refusal's code.",
@@ -3000,6 +3011,18 @@
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
+      "id": "F20-E01",
+      "runner": "db",
+      "proves": "CR-13 (D-120 QN1), measured in selftest/db/fable20.sql: before activation a teacher and another school's admin are refused and the person's school admin (CAN_PROVISION_PEOPLE there) is granted exactly the new address for two minutes, nothing changed yet; a blank reason, a malformed or card-shaped address, the unchanged address and another account's address are refused by name; after activation the school's admin is refused and only the platform admin is granted; a class-card holder has no email to correct; anon reaches nothing and the grants are read by nobody.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-E02",
+      "runner": "db",
+      "proves": "CR-13 (D-120 QN1), measured in selftest/db/fable20.sql against auth.users itself: an email account's address does not move without a grant, to another address than the granted one, or twice (EMAIL_CHANGE_REFUSED). After activation the platform admin's grant moves it in Auth's own transaction, the outstanding one-time code and the open session die, the password and the set-up stay, and identity.email_corrected records the reason, both addresses, the branch and who. Before activation the school admin's grant moves it and also clears the password, sets the PIN to be chosen again and the name to be confirmed again, and an activation code now goes to the new address only.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
       "id": "BOB50-A01",
       "runner": "app",
       "proves": "BOB-50 (D-082(d)), selftest/bob50.test.ts: the route POST /api/certificates/issue executes against the running app for a real, all-correct Uji Cepat asked by its own learner (signed in through /masuk/password): not_eligible, and no certificate row exists for the session.",
@@ -3113,7 +3136,7 @@
     {
       "id": "BOB28-D01",
       "runner": "static",
-      "proves": "BOB-28 (Gate 5), migration 20261116100000 against the database, rolled back (selftest/bob28.test.ts with selftest/db/fable01.sql's personas): recovery_by_pin answers MALFORMED for a short ID; nobody's ID walks WRONG, WRONG, LOCKED 3600 with no notice; a person's ID (any case, hyphenated) gives a PIN grant on the right PIN (audited identity.recovery_verified via PIN, ladder reset, notice PULIH_PIN to the owner); an unfinished account's right PIN is NOT_ELIGIBLE; three wrong lock 3600 with TERKUNCI, three more 14400 with TERKUNCI, three more SUSPENDED with DITANGGUHKAN and the PIN dead, the right PIN then SUSPENDED with no notice; an EMAIL recovery's password write restores the ladder (audited EMAIL_RECOVERY) and the old PIN stays WRONG; recovery_status, security_event_list and admin_reset_recovery refuse a teacher (42501) and serve the platform admin, nothing for nobody's ID; after six sends to an address a code is refused by ADDRESS and a security notice goes, twice; card_holders and authorize_card_reissue refuse a teacher and serve the school's administrator (last four digits only), refuse a wrong reason, a person without a card and a taken number, and write a CARD_REISSUE permit; the auth.users guard refuses any other address, moves the card number to the grant's own, audits account.card_reissued (reason, both numbers, the administrator and INSTITUTION_ADMIN), refuses a second change, and leaves email accounts alone; no client role reaches recovery_by_pin, card_holders as anon, or the re-issue table, and RECOVERY_PIN is a known scope."
+      "proves": "BOB-28 (Gate 5), migration 20261116100000 against the database, rolled back (selftest/bob28.test.ts with selftest/db/fable01.sql's personas): recovery_by_pin answers MALFORMED for a short ID; nobody's ID walks WRONG, WRONG, LOCKED 3600 with no notice; a person's ID (any case, hyphenated) gives a PIN grant on the right PIN (audited identity.recovery_verified via PIN, ladder reset, notice PULIH_PIN to the owner); an unfinished account's right PIN is NOT_ELIGIBLE; three wrong lock 3600 with TERKUNCI, three more 14400 with TERKUNCI, three more SUSPENDED with DITANGGUHKAN and the PIN dead, the right PIN then SUSPENDED with no notice; an EMAIL recovery's password write restores the ladder (audited EMAIL_RECOVERY) and the old PIN stays WRONG; recovery_status, security_event_list and admin_reset_recovery refuse a teacher (42501) and serve the platform admin, nothing for nobody's ID; after six sends to an address a code is refused by ADDRESS and a security notice goes, twice; card_holders and authorize_card_reissue refuse a teacher and serve the school's administrator (last four digits only), refuse a wrong reason, a person without a card and a taken number, and write a CARD_REISSUE permit; the auth.users guard refuses any other address, moves the card number to the grant's own, audits account.card_reissued (reason, both numbers, the administrator and INSTITUTION_ADMIN), refuses a second change, and leaves email accounts to their own guard (RESTATED for CR-13, D-120 QN1: an email account's address changed with no correction is refused EMAIL_CHANGE_REFUSED, F20-E02); no client role reaches recovery_by_pin, card_holders as anon, or the re-issue table, and RECOVERY_PIN is a known scope."
     },
     {
       "id": "BOB28-A01",

@@ -87,6 +87,8 @@ exec_diff as (
 auth_triggers_release(name, fn) as (values
   ('on_auth_user_created', 'handle_new_auth_user()'),
   ('pintar_card_email_guard', 'auth_card_email_guard()'),
+  -- CR-13 (20261203100000, D-120 QN1): an email account's address moves only against a correction's grant
+  ('pintar_email_correction_guard', 'auth_email_correction_guard()'),
   ('pintar_password_write_guard', 'auth_password_write_guard()')),
 auth_triggers_missing as (
   select e.name from auth_triggers_release e
@@ -278,10 +280,10 @@ select 'G7 every public table, view, sequence and function is owned by postgres'
             where n.nspname = 'public' and pg_get_userbyid(p.proowner) <> 'postgres')
        || ' function(s) owned by another role'
 union all
--- #150 G7 (H5): the account-creation, card-email and password-write guards
-select 'G7 PINTAR''s three auth.users triggers present and enabled',
+-- #150 G7 (H5): the account-creation, card-email and password-write guards; and CR-13's email-correction guard
+select 'G7 PINTAR''s four auth.users triggers present and enabled',
        (select count(*) = 0 from auth_triggers_missing),
-       (select 3 - count(*) || ' of 3 present and enabled' || coalesce('; missing or disabled: ' || string_agg(name, ', ' order by name), '')
+       (select 4 - count(*) || ' of 4 present and enabled' || coalesce('; missing or disabled: ' || string_agg(name, ', ' order by name), '')
           from auth_triggers_missing)
 union all
 -- Gate 6: PostgREST asks pintar_permintaan.periksa() before every request

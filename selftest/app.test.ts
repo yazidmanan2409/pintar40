@@ -20,6 +20,7 @@ import { d102AppTests } from "./d102.test";
 import { bob50AppTests } from "./bob50.test";
 import { bob51AppTests } from "./bob51.test";
 import { dr150cAppTests } from "./dr150c.test";
+import { penutupanAppTests } from "./penutupan.test";
 
 /** Synthetic personas (supabase/seed/synthetic.sql). Passwords are seed constants, not secrets. */
 const PERSONA = {
@@ -3007,6 +3008,8 @@ export const appTests: SelfTest[] = [
   ...bob29AppTests,
   ...d101AppTests,
   ...d102AppTests,
+  // CR-13 (D-120 QN1): a wrong staff email corrected, through the running app, Auth and the mail sink
+  ...penutupanAppTests,
   // BOB-50 (D-082(d)): a single Uji Cepat issues no certificate, through the running app
   ...bob50AppTests,
   // BOB-51 (D-057, REL-08): «Kirim email uji», the platform admin's delivery proof, through the running app

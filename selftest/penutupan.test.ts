@@ -8,15 +8,23 @@
  * certificate's language from the certificate's own seal (my_certificate), never from today's school or assignment.
  * PENUTUPAN-M04 — CR-50 (D-063 M5, D-120 Q9): every PINTAR chapter in docs/onboarding/konten is what the upload page
  * makes of its workbook, and each wrong option names a misconception the same file defines on its «Miskonsepsi» sheet.
+ * PENUTUPAN-E03 — CR-13 (D-120 QN1): the correction route asks the caller's authority before Auth is touched, maps
+ * every refusal to its own code, and tells the old and the new address only after activation.
+ * PENUTUPAN-A01 — CR-13 (D-120 QN1), against the running app, Auth and the mail sink: a wrong email corrected before
+ * and after activation, as the platform admin does it, without SQL.
  */
 import { spawnSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
+import { randomBytes } from "node:crypto";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
-import { t } from "../src/lib/hle";
+import { t, LOCALES, type HleEvent } from "../src/lib/hle";
 import { bacaBukuKerja } from "../src/lib/xlsx";
 import { bukuKerjaKePaket } from "../src/lib/unggah-kontrak";
 import { lokasiMasalah } from "../src/components/unggah/lokasi";
+import { KODE_DARI_DB, STATUS_KOREKSI_EMAIL } from "../src/lib/koreksi-email-kontrak";
+import { aktifkan } from "./bob28.test";
+import { daftar, ipUji, kodeDari, lit, Peramban, psql, sinkTunggu } from "./bob26.test";
 
 function gambarKartu(repoRoot: string, kasus: { predikat: string | null; variant: "screen" | "sheet" }[]): { html: string[]; galat: string } {
   const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
@@ -136,6 +144,114 @@ export const penutupanTests: SelfTest[] = [
       return c.verdict(`each of the ${bab.length} PINTAR chapter workbooks in docs/onboarding/konten converts, with the upload page's own ` +
         `reader and converter, to its committed .paket.json, and all ${salah} wrong options name one of the ${definisi} misconceptions ` +
         "their own «Miskonsepsi» sheet defines, each of which is used; a problem on that sheet is placed by its column's header (D-063 M5, D-120 Q9)");
+    },
+  },
+  {
+    id: "PENUTUPAN-E03",
+    run: async (ctx) => {
+      const c = new Checks();
+      const rute = readFileSync(join(ctx.repoRoot, "src", "app", "api", "akun", "email", "route.ts"), "utf8")
+        .replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+      const tanya = rute.indexOf('caller.rpc("authorize_email_correction"');
+      c.expect(tanya > 0 && tanya < rute.indexOf("updateUserById") && !/createUser|supabaseService\(\)\.rpc|password/.test(rute),
+        "the route touches Auth before the caller's authority is asked, asks the database as the service, or writes a password");
+      c.expect(/updateUserById\(r\.auth_user_id, \{ email, email_confirm: true \}\)/.test(rute),
+        "Auth is not asked to move exactly the granted address");
+      c.expect(/if \(r\.activated === true && r\.pintar_id\)/.test(rute)
+        && /after\(\(\) => kirimPemberitahuanKeamanan\("EMAIL_DIKOREKSI", pintarId, pemilik, lama \?\? null\)/.test(rute),
+        "the notices are not sent after activation only, after the answer, to the new address (the owner) and the old one");
+      c.expect(/if \(!asalSendiri\(/.test(rute) && /if \(!user\) return gagal\("BELUM_MASUK"\)/.test(rute), "the route does not refuse another origin or a signed-out caller");
+      // every refusal the database names has the route's own code
+      const mig = readFileSync(join(ctx.repoRoot, "supabase", "migrations", "20261203100000_a_wrong_email_is_corrected_by_whom_the_owner_ruled.sql"), "utf8");
+      const fn = /create function public\.authorize_email_correction[\s\S]*?\$\$;/.exec(mig)?.[0] ?? "";
+      const db = [...new Set([...fn.matchAll(/detail = '([A-Z_]+)'/g)].map((m) => m[1]))].sort();
+      c.expect(db.length >= 5 && JSON.stringify(db) === JSON.stringify(Object.keys(KODE_DARI_DB).sort()),
+        `the database refuses with ${JSON.stringify(db)}; the route maps ${JSON.stringify(Object.keys(KODE_DARI_DB).sort())}`);
+      c.expect(Object.values(KODE_DARI_DB).every((k) => k in STATUS_KOREKSI_EMAIL), "a mapped code has no status");
+      // the notice reads in both languages
+      for (const akhir of ["subjek", "judul", "isi", "bukan_anda", "subjek_admin", "isi_admin"]) {
+        for (const locale of LOCALES) {
+          const v = t(`email.aman.email_dikoreksi.${akhir}` as HleEvent, "public", { locale });
+          c.expect(v.length > 10 && !v.startsWith("email.") && !/@/.test(v), `email.aman.email_dikoreksi.${akhir} (${locale}) reads «${v}»`);
+        }
+      }
+      return c.verdict("read from the source file src/app/api/akun/email/route.ts: the route refuses another origin and a signed-out caller, asks "
+        + "authorize_email_correction with the caller's own client before Auth is touched, moves exactly the granted address and no password, "
+        + `maps each of the ${db.length} refusals the database names to its own code, and tells the old and the new address only after `
+        + "activation, after the answer; the notice's six texts read in both languages and carry no address");
+    },
+  },
+];
+
+export const penutupanAppTests: SelfTest[] = [
+  {
+    id: "PENUTUPAN-A01",
+    requires: ["app", "network", "db", "mailsink"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const asal = ctx.appUrl!;
+      const tag = randomBytes(4).toString("hex");
+      const [e1, e2, e3] = ["salah", "benar", "baru"].map((x) => `cr13-${x}-${tag}@local.invalid`);
+      const pid = await daftar(asal, "Rini Kusuma", e1);
+      const sys = new Peramban(asal, ipUji());
+      c.expect((await sys.jsonDari("/masuk/password", { form: { identitas: "uji.sysadmin", password: "Sintetis-Sys-91!" } })).status === 200,
+        "the platform admin could not sign in");
+
+      // BEFORE ACTIVATION: whoever holds the wrong inbox has a code and an open set-up when the address is corrected
+      const asing = new Peramban(asal, ipUji());
+      await asing.jsonDari("/aktifkan/kode", { form: { email: e1 } });
+      const kode1 = kodeDari((await sinkTunggu(e1, 1))[0]);
+      const periksa = await asing.jsonDari("/aktifkan/periksa", { form: { email: e1, kode: kode1 } });
+      c.expect(kode1.length > 0 && periksa.status === 200, `the wrong inbox could not open the set-up first (${periksa.status})`);
+      const tanpaAlasan = await sys.jsonDari("/api/akun/email", { json: { person_id: pid, email: e2, alasan: " " } });
+      const koreksi1 = await sys.jsonDari("/api/akun/email", { json: { person_id: pid, email: e2.toUpperCase(), alasan: "salah ketik saat menambah staf" } });
+      c.expect(tanpaAlasan.status === 400 && tanpaAlasan.body?.code === "ALASAN_WAJIB" && koreksi1.status === 200
+        && koreksi1.body?.ok === true && koreksi1.body?.sudahAktif === false,
+        `the correction before activation: no reason ${tanpaAlasan.status} ${tanpaAlasan.body?.code}, with one ${koreksi1.status} ${JSON.stringify(koreksi1.body)}`);
+      const lanjut = await asing.jsonDari("/api/aktifkan/username", { form: { username: `asing.${tag}` } });
+      c.expect(lanjut.status !== 200, `the wrong inbox's set-up went on after the correction (${lanjut.status})`);
+      // a second person's code, sent to the wrong address and not yet used, dies with the correction
+      const [e4, e5] = ["salah2", "benar2"].map((x) => `cr13-${x}-${tag}@local.invalid`);
+      const pid2 = await daftar(asal, "Sari Wulandari", e4);
+      await new Peramban(asal, ipUji()).jsonDari("/aktifkan/kode", { form: { email: e4 } });
+      const kode4 = kodeDari((await sinkTunggu(e4, 1))[0]);
+      const koreksi4 = await sys.jsonDari("/api/akun/email", { json: { person_id: pid2, email: e5, alasan: "salah ketik saat menambah staf" } });
+      const diBaru = await new Peramban(asal, ipUji()).jsonDari("/aktifkan/periksa", { form: { email: e5, kode: kode4 } });
+      const diLama = await new Peramban(asal, ipUji()).jsonDari("/aktifkan/periksa", { form: { email: e4, kode: kode4 } });
+      c.expect(kode4.length > 0 && koreksi4.status === 200 && diBaru.status !== 200 && diLama.status !== 200,
+        `a code sent to the wrong address, unused, after the correction (${koreksi4.status}): at the new address ${diBaru.status}, at the old ${diLama.status}`);
+      const sandi = await aktifkan(c, asal, e2, `rini.${tag}`, "4826");
+      c.expect(sandi !== null, "the person could not activate at the corrected address");
+
+      // AFTER ACTIVATION: the platform admin only; the old and the new address are told
+      const guru = new Peramban(asal, ipUji());
+      c.expect((await guru.jsonDari("/masuk/password", { form: { identitas: "alpha-guru@synthetic.pintar.test", password: "Sintetis-AlphaGuru-52!" } })).status === 200,
+        "the teacher could not sign in");
+      const olehGuru = await guru.jsonDari("/api/akun/email", { json: { person_id: pid, email: e3, alasan: "pindah alamat" } });
+      c.expect(olehGuru.status === 403 && olehGuru.body?.code === "DITOLAK", `a teacher corrected an email (${olehGuru.status})`);
+      const dulu = (await sinkTunggu(e2, 2)).length;
+      const koreksi2 = await sys.jsonDari("/api/akun/email", { json: { person_id: pid, email: e3, alasan: "alamat lama tidak dipakai lagi" } });
+      c.expect(koreksi2.status === 200 && koreksi2.body?.sudahAktif === true, `the correction after activation answered ${koreksi2.status} ${JSON.stringify(koreksi2.body)}`);
+      if (sandi) {
+        const lama = await new Peramban(asal, ipUji()).jsonDari("/masuk/password", { form: { identitas: e2, password: sandi } });
+        const baru = await new Peramban(asal, ipUji()).jsonDari("/masuk/password", { form: { identitas: e3, password: sandi } });
+        c.expect(lama.status !== 200 && baru.status === 200, `with the same password the old address answered ${lama.status} and the new one ${baru.status}`);
+      }
+      const subjek = t("email.aman.email_dikoreksi.subjek", "public", { locale: "id" });
+      const keLama = (await sinkTunggu(e2, dulu + 1)).slice(dulu);
+      const keBaru = await sinkTunggu(e3, 1);
+      c.expect(keLama.length === 1 && keLama[0].Subject === subjek && keBaru.length === 1 && keBaru[0].Subject === subjek,
+        `the notices: to the old address ${keLama.map((m) => m.Subject).join(" | ") || "none"}; to the new ${keBaru.map((m) => m.Subject).join(" | ") || "none"}`);
+      c.expect([...keLama, ...keBaru].every((m) => !m.Text.includes(e2) && !m.Text.includes(e3) && !m.Text.includes(e1)),
+        "a notice carries an address");
+      const audit = psql(`select string_agg((summary ->> 'activated') || '/' || (summary #>> '{from,email}') || '/' || (summary #>> '{to,email}'), ' ' order by id)
+                            from public.audit_log where action = 'identity.email_corrected' and target_id = ${lit(pid)}`);
+      c.expect(audit === `false/${e1}/${e2} true/${e2}/${e3}`, `the corrections are audited as «${audit}»`);
+      return c.verdict("a wrong address corrected by the platform admin before activation, while its inbox had opened the set-up with a code: "
+        + "the set-up stopped and the person activated at the right address; a second person's unused code, sent to the wrong address, opens "
+        + "the account neither at the old address nor at the new one; after activation a teacher is "
+        + "refused, the correction moves the sign-in so the same password works only at the new address, the old and the new address each "
+        + "get one notice carrying no address, and both corrections are audited with their branch and addresses");
     },
   },
 ];
