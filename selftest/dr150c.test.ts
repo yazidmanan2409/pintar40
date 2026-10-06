@@ -484,6 +484,9 @@ export const dr150cAppTests: SelfTest[] = [
         return await dr150cD03Checks(c, { asal, FN, murid, tanpaKartu, token, adminEmail, tag, benar, rekam, bytes, nomor });
       } finally {
         try { psql("select selftest.purge_certificates()"); } catch { /* the F04 suite purges again */ }
+        // and the photo: a later bundle of this database (DR-D02) counts every Storage file
+        await fetch(`${ctx.supabaseUrl}/storage/v1/object/assets/${path}`, { method: "DELETE",
+          headers: { authorization: `Bearer ${ctx.supabaseServiceRoleKey}` } }).catch(() => undefined);
       }
     },
   },
