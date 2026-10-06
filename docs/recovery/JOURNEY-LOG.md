@@ -643,6 +643,8 @@ Gate 3 stays held; the coordinator does not merge it.
       the head of department, published; the pass mark 70%; the teacher gave it to «Kelas 5A» until 5 Nov.
     - **GS-12 to GS-16** (run 37433910433, 8 PASS): the class set of cards; all five sat both tests; Utama, Bunga and Dimas
       reached 70%, Citra and Eka did not.
+      The four extra students reach their tests by typed address. The walk declares it (contract §4), and the evidence
+      model counts it as a bypass (noted 6 Oct; GOLDEN-SCHOOL-CONTRACT «Status»).
     - **GS-17 to GS-21** (run 37434862707, 15 PASS): the teacher, head of department, dean and admin read the same figures
       (Peserta 5, Pemahaman 78%, Kenaikan +38 poin, Mantap 2 · Berkembang 2 · Perlu penguatan 1, Sertifikat terbit 3);
       exactly three certificates (PINTAR/SEKOLAH-DEMO-PINTAR/2026/00001 to 00003), each «Berlaku» to an anonymous visitor;

@@ -13,7 +13,7 @@ of real external student data (D-117(m)).
 | **Staging app** | deployment `dpl_4f9zxVXUnTPmQ3WcxzysR3hf3Yar` (READY), commit `12b480b` (`environment-facts.yml` run 37438389611, GREEN, 6 Oct 08:46 UTC) |
 | **Application code** | identical to `bcfd72c`, the commit Sekolah Demo PINTAR was walked on (no line of `src`, `supabase`, `public` or the package files differs), and to `3a7501b` (CI 37430770665, 35/35, 595 tests) |
 | **Database** | 165 migrations; `staging.yml` run 37437241796 green: the sign-in boundary, the email sender and the identity settings read back |
-| **The demo school** | walked GS-02 to GS-21, every step PASS (runs 37431385287, 37432707928, 37433910433, 37434862707; JOURNEY-LOG 48) |
+| **The demo school** | walked GS-01 to GS-21, every step PASS. GS-16's four extra students reach their tests by typed address: declared, and a bypass under the evidence model (runs 37431278133, 37431385287, 37432707928, 37433910433, 37434862707; JOURNEY-LOG 48) |
 | **Production** | untouched: `5b5b68d`, 111 migrations |
 
 ### The freeze

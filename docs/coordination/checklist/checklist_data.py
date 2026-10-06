@@ -1389,11 +1389,32 @@ FINDINGS.append(("Certificate number (6 Oct)",
                  "`<the template's prefix, or PINTAR/<SCHOOL>>/<YYYY>/<per-school sequence>` (ADM-18; 20261126100000, 20261128100000 extended that "
                  "format on 6 Oct without reconciling it with D-080(2)). Whether a student's certificate may show their PINTAR ID is still open (D-076).",
                  "BOB-48 (not built), after the owner's ruling", "OPEN: an owner decision; nothing changes during the walkthrough freeze (D-117)"))
+CURRENT.update({
+    "STU-01": ("PASS: a student signs in with the class card and PIN, the one student model since D-085 M2 (staging GS-12, GS-16, GS-20, runs "
+               "37433910433 and 37434862707; BOB12-A01, DAISY-13-KARTU-01, DAISY-13-KARTU-02); a wrong card says what happened. The email-link "
+               "half of this check is retired: students have no email sign-in (M2), and staff's magic link gave way to Gates 3 and 4."),
+    "STU-19": ("PASS: on one computer, «Keluar» ends this device's session and the next student finds only their own home (S21c, W2; "
+               "staging GS-20 U1 and X1, run 37434862707). The check's 60-minute idle rule is replaced by D-085 T1 and Gate 6: the "
+               "session locks after 5 idle minutes and the PIN resumes it at the same page (walked: locked at 302 s, resumed at page 5/5), "
+               "and a much longer idle ends it (BOB29-A02, tested, not walked)."),
+    "ADM-19": ("PARTIAL: the governed transfer between schools (request → authorize → execute) is built and tested in the database "
+               "(F01-T10, F07-P10, FU1921-D01); its screen has never been walked. «Pindah kelas» (M9, S25), cited here until v2.6, is "
+               "the class move within a school, a different behaviour (scope J3.12, not J3.10)."),
+    "REL-01": ("PASS for main's current code: CI 37430770665 (35/35, 595 tests) on 3a7501b, whose application code the walkthrough "
+               "specimen 12b480b carries unchanged. The release commit, when there is one, needs its own run."),
+    "REL-03": ("PASS for the live release (production 111 = 5b5b68d). main and staging carry 165 (environment-facts run 37438389611). "
+               "Production moves from 111 to 165 only through the rehearsed upgrade (Phase 8), and G6 refuses any production "
+               "migration without a recent backup read through C1."),
+})
+NOW["evidence"] = NOW["evidence"].replace(
+    "GS-01 to GS-21, 41 of 41 steps PASS (C1 run 37431278133; ",
+    "GS-01 to GS-21, every step PASS, unaided except GS-16, where the four extra students open their tests by typed address "
+    "(declared in the walk; a bypass under the evidence model; it maps to no inventory line) (C1 run 37431278133; ")
 CHANGES_V21.append("6 Oct (v2.7): status pinned to the Dr Gladys walkthrough specimen 12b480b (application code = 3a7501b, CI "
                    "37430770665; staging machine-read GREEN, run 37438389611) and to the full Golden School walk of Sekolah Demo PINTAR "
                    "(GS-01 to GS-21, 41 of 41 PASS). Evidence refreshed on X-09, DEA-05, ADM-18 and REL-08; REL-09 read against D-107 D8 (escrow, not an offline plaintext copy); REL-12 notes Phase 6. The findings list (§14) brought up to date "
-                   "(B4–B6, M5, M7, M9, Capacity) and the certificate-number conflict added; CAP-01's stale reason replaced. No row's "
-                   "status changed; P0 PASS stays 77 of 84. From 6 Oct evening the application is frozen for the walkthrough (D-117).")
+                   "(B4–B6, M5, M7, M9, Capacity) and the certificate-number conflict added; CAP-01's stale reason replaced. STU-01, STU-19, REL-01 and REL-03 brought to current "
+                   "evidence; ADM-19 PASS → PARTIAL (its evidence was the class move, not the transfer it checks; P2). P0 PASS stays 77 of 84. From 6 Oct evening the application is frozen for the walkthrough (D-117).")
 
 def as_dict():
     g = globals()
