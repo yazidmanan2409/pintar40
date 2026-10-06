@@ -1,0 +1,248 @@
+# #150 WP-C (B8, D-106(f)): THE RUNBOOK, PROVEN ON A COPY OF STAGING (O8). NEVER PRODUCTION.
+#
+# RUNBOOK-NATIVE-RESTORE.md, "The rehearsal (O8)". The owner restores staging's latest backup to a new project named
+# …-DELETE-ME and puts the rehearsal's temporary secrets into the staging-recovery-drill environment (C10, the copy's
+# database address and Storage key; the preview bypass only if `preflight` asks for it). Then, one stage at a time:
+#   preflight    read only: the copy is the rehearsal's own and C10 reaches nothing else; staging's Vercel project lets a
+#                preview carry staging's card and certificate values, and whether previews are behind its protection;
+#                every secret the rehearsal needs is present (names only)
+#   reconstruct  steps 1 to 8 on the copy, timed: its facts equal staging's and readiness is 24 of 24 (read only);
+#                Auth and email applied to the copy and read back; the newest complete staging bundle (R3) fetched,
+#                decrypted on this runner (staging's synthetic data only, D-064) and its files put back by hash; a one-off
+#                preview deployment of this commit aimed at the copy; the four checks through it (F1-F4)
+#   teardown     the preview's address and deployment removed, and their absence confirmed. The copy itself is
+#                deleted by the owner, and C10 revoked, both confirmed (step 9)
+#
+# NEVER: production's project, keys or secrets (none is named here); a recorded project written to (the guard refuses
+# staging's, production's and any retired reference before each stage); a Vercel setting changed: the preview is a
+# deployment of staging's project with its own values passed to that deployment only, never --prod, never a project
+# variable, domain or protection setting. Dispatch only, from main.
+
+name: recovery · rehearsal on a copy of staging (O8)
+
+on:
+  workflow_dispatch:
+    inputs:
+      copy_ref:
+        description: the copy's project reference (its name ends -DELETE-ME)
+        required: true
+        type: string
+      stage:
+        description: one stage at a time
+        type: choice
+        options: [preflight, reconstruct, teardown]
+        default: preflight
+
+permissions:
+  contents: read
+
+concurrency:
+  group: recovery-rehearsal
+  cancel-in-progress: false
+
+env:
+  STAGING_VERCEL_PROJECT_NAME: pintar40-staging
+
+jobs:
+  rehearsal:
+    if: github.ref == 'refs/heads/main'
+    name: the rehearsal, one stage
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: staging-recovery-drill
+    env:
+      COPY_REF: ${{ inputs.copy_ref }}
+      STAGE: ${{ inputs.stage }}
+      # every hosted database connection: verify-full against the committed Supabase root CA
+      PGSSLMODE: verify-full
+      PGSSLROOTCERT: docs/recovery/supabase-root-2021-ca.crt
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: "Preflight: every secret the rehearsal needs is present (names only)"
+        if: inputs.stage == 'preflight'
+        env:
+          REHEARSAL_SUPABASE_ACCESS_TOKEN: ${{ secrets.REHEARSAL_SUPABASE_ACCESS_TOKEN }}
+          REHEARSAL_SUPABASE_DB_URL: ${{ secrets.REHEARSAL_SUPABASE_DB_URL }}
+          REHEARSAL_STORAGE_S3_KEY_ID: ${{ secrets.REHEARSAL_STORAGE_S3_KEY_ID }}
+          REHEARSAL_STORAGE_S3_SECRET: ${{ secrets.REHEARSAL_STORAGE_S3_SECRET }}
+          STAGING_DRILL_PRIVATE_KEY: ${{ secrets.STAGING_DRILL_PRIVATE_KEY }}
+          AWS_BACKUP_READER_KEY_ID: ${{ secrets.AWS_BACKUP_READER_KEY_ID }}
+          AWS_BACKUP_READER_SECRET: ${{ secrets.AWS_BACKUP_READER_SECRET }}
+          PINTAR_BACKUP_BUCKET: ${{ vars.PINTAR_BACKUP_BUCKET }}
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
+          GS_MAILBOX_PASSWORD: ${{ secrets.GS_MAILBOX_PASSWORD }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -uo pipefail
+          miss=""
+          for n in REHEARSAL_SUPABASE_ACCESS_TOKEN REHEARSAL_SUPABASE_DB_URL REHEARSAL_STORAGE_S3_KEY_ID REHEARSAL_STORAGE_S3_SECRET \
+                   STAGING_DRILL_PRIVATE_KEY AWS_BACKUP_READER_KEY_ID AWS_BACKUP_READER_SECRET PINTAR_BACKUP_BUCKET \
+                   STAGING_SUPABASE_DB_URL PINTAR_SMTP_PASSWORD GS_MAILBOX_PASSWORD VERCEL_TOKEN; do
+            if [ -n "${!n:-}" ]; then echo "$n: present"; else echo "::error::$n is not set"; miss="$miss $n"; fi
+          done
+          [ -z "$miss" ]
+
+      - name: The copy is the rehearsal's own, and C10 reaches nothing else
+        if: inputs.stage != 'teardown'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.REHEARSAL_SUPABASE_ACCESS_TOKEN }}
+          REHEARSAL_DB_URL: ${{ secrets.REHEARSAL_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          echo "T_start=$(date +%s)" >> "$GITHUB_ENV"
+          node scripts/recovery/repoint.mjs check
+          node scripts/recovery/rehearsal.mjs guard "$COPY_REF"
+
+      - name: "Staging's Vercel project: what a preview carries, and whether previews are protected (read only)"
+        if: inputs.stage != 'teardown'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          HAS_BYPASS: ${{ secrets.REHEARSAL_VERCEL_BYPASS != '' }}
+        run: |
+          set -euo pipefail
+          if [ "$HAS_BYPASS" = true ]; then node scripts/recovery/rehearsal.mjs vercel --bypass-present; else node scripts/recovery/rehearsal.mjs vercel; fi
+          [ "$STAGE" != preflight ] || echo "PREFLIGHT GREEN: dispatch again with stage reconstruct" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: "1. The copy's facts equal staging's, readiness 24 of 24 (read only, both)"
+        if: inputs.stage == 'reconstruct'
+        env:
+          STAGING_DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          COPY_DB: ${{ secrets.REHEARSAL_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          ro() { PGOPTIONS='-c default_transaction_read_only=on' psql "$1" -X -v ON_ERROR_STOP=1 -At -F '|' -f audit/restore/fakta.sql; }
+          ro "$STAGING_DB" > "$RUNNER_TEMP/fakta-staging.txt"
+          ro "$COPY_DB" > "$RUNNER_TEMP/fakta-copy.txt"
+          node scripts/recovery/rehearsal.mjs facts "$RUNNER_TEMP/fakta-staging.txt" "$RUNNER_TEMP/fakta-copy.txt"
+          out=$(PGOPTIONS='-c default_transaction_read_only=on' psql "$COPY_DB" -X -At -F ' | ' -f docs/audit/launch-readiness.sql 2>&1)
+          pass=$(printf '%s\n' "$out" | grep -c '^PASS' || true); fail=$(printf '%s\n' "$out" | grep -c '^FAIL' || true)
+          echo "launch readiness on the copy: $pass PASS, $fail FAIL"
+          printf '%s\n' "$out" | grep -E '^FAIL|ERROR' | cut -c1-240 || true
+          [ "$pass" = 24 ] && [ "$fail" = 0 ] || { echo "::error::readiness on the copy is not 24 of 24"; exit 1; }
+          echo "1. facts equal, readiness 24/24: $(( $(date +%s) - T_start )) s" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: "2. The copy's keys, read with C10 (masked)"
+        if: inputs.stage == 'reconstruct'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.REHEARSAL_SUPABASE_ACCESS_TOKEN }}
+        run: node scripts/recovery/rehearsal.mjs keys "$COPY_REF"
+
+      - name: "4. Auth and email applied to the copy, with the preview's address, and read back"
+        if: inputs.stage == 'reconstruct'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.REHEARSAL_SUPABASE_ACCESS_TOKEN }}
+          PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          node scripts/recovery/auth-state.mjs apply staging --ref "$COPY_REF" --origin "https://pintar-rehearsal-${COPY_REF}.vercel.app" --rehearsal
+          echo "4. Auth and email read back: $(( $(date +%s) - T_start )) s" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: "5. The newest complete staging bundle (R3): its files put back on the copy, read back by hash"
+        if: inputs.stage == 'reconstruct'
+        env:
+          DRILL_S3_BUCKET: ${{ vars.PINTAR_BACKUP_BUCKET }}
+          DRILL_S3_KEY_ID: ${{ secrets.AWS_BACKUP_READER_KEY_ID }}
+          DRILL_S3_SECRET: ${{ secrets.AWS_BACKUP_READER_SECRET }}
+          DRILL_KEY: ${{ secrets.STAGING_DRILL_PRIVATE_KEY }}
+          COPY_DB: ${{ secrets.REHEARSAL_SUPABASE_DB_URL }}
+          TARGET_STORAGE_S3_KEY_ID: ${{ secrets.REHEARSAL_STORAGE_S3_KEY_ID }}
+          TARGET_STORAGE_S3_SECRET: ${{ secrets.REHEARSAL_STORAGE_S3_SECRET }}
+        run: |
+          set -euo pipefail
+          umask 077
+          D="$RUNNER_TEMP/drill"
+          node scripts/recovery/drill.mjs fetch staging "$D"
+          H=$(mktemp -d); trap 'gpgconf --homedir "$H" --kill all 2>/dev/null || true; rm -rf "$H"' EXIT
+          printf '%s\n' "$DRILL_KEY" | gpg --homedir "$H" --batch --import 2> /dev/null; unset DRILL_KEY
+          gpg --homedir "$H" --batch --pinentry-mode loopback --passphrase '' --output "$D/bundle.tar.gz" --decrypt "$D/bundle.tar.gz.gpg"
+          mkdir "$D/bundle" && tar -xzf "$D/bundle.tar.gz" -C "$D/bundle"
+          # the copy's database (its storage.objects rows), as its postgres
+          eval "$(node -e 'const u = new URL(process.argv[1]); for (const [k, v] of [["PGHOST", u.hostname], ["PGPORT", u.port || "5432"],
+            ["PGUSER", decodeURIComponent(u.username)], ["PGPASSWORD", decodeURIComponent(u.password)], ["PGDATABASE", u.pathname.slice(1) || "postgres"]])
+            console.log(`export ${k}=${JSON.stringify(v)}`)' "$COPY_DB")"
+          # the copy's Storage, in staging's recorded region (the guard has checked the copy is there)
+          export TARGET_STORAGE_S3_ENDPOINT="https://${COPY_REF}.supabase.co/storage/v1/s3" TARGET_STORAGE_S3_REGION="$(jq -r .staging.region docs/recovery/projects.json)"
+          node scripts/recovery/restore-bundle.mjs "$D/bundle" --files-only
+          echo "FC_OBJECTS=$D/bundle/storage/manifest.jsonl" >> "$GITHUB_ENV"
+          echo "5. files put back by hash: $(( $(date +%s) - T_start )) s" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: "7. A one-off preview of this commit, aimed at the copy (staging's Vercel project; no setting changes)"
+        if: inputs.stage == 'reconstruct'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          FC_BYPASS: ${{ secrets.REHEARSAL_VERCEL_BYPASS }}
+        run: |
+          set -euo pipefail
+          npm i -g vercel@latest > /dev/null
+          ALIAS="pintar-rehearsal-${COPY_REF}.vercel.app"
+          SUPA="https://${COPY_REF}.supabase.co"
+          vercel link --yes --project "$STAGING_VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN" > /dev/null
+          # the copy's address and keys, for this deployment only (build and run time); staging's card and certificate
+          # values reach it from the project's preview target (preflight). Never --prod.
+          URL=$(vercel deploy --yes --token "$VERCEL_TOKEN" --meta "pintar_rehearsal=${COPY_REF}" \
+            --build-env "NEXT_PUBLIC_SUPABASE_URL=$SUPA" --build-env "NEXT_PUBLIC_SUPABASE_ANON_KEY=$REHEARSAL_ANON_KEY" \
+            --build-env "NEXT_PUBLIC_APP_URL=https://$ALIAS" --build-env "PINTAR_BUILD_SHA=$GITHUB_SHA" \
+            --env "NEXT_PUBLIC_SUPABASE_URL=$SUPA" --env "NEXT_PUBLIC_SUPABASE_ANON_KEY=$REHEARSAL_ANON_KEY" \
+            --env "NEXT_PUBLIC_APP_URL=https://$ALIAS" --env "PINTAR_BUILD_SHA=$GITHUB_SHA" \
+            --env "SUPABASE_SERVICE_ROLE_KEY=$REHEARSAL_SERVICE_KEY")
+          vercel alias set "$URL" "$ALIAS" --token "$VERCEL_TOKEN" > /dev/null
+          echo "APP_ORIGIN=https://$ALIAS" >> "$GITHUB_ENV"
+          H=(); [ -z "${FC_BYPASS:-}" ] || H=(-H "x-vercel-protection-bypass: $FC_BYPASS")
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "${H[@]}" "https://$ALIAS/masuk" || true)
+            [ "$code" = 200 ] && break; sleep 10
+          done
+          [ "$code" = 200 ] || { echo "::error::the preview's /masuk answered $code"; exit 1; }
+          echo "7. the preview answers at https://$ALIAS: $(( $(date +%s) - T_start )) s" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: "8a. Who and what the checks use, on the copy (read only, masked)"
+        if: inputs.stage == 'reconstruct'
+        env:
+          COPY_DB: ${{ secrets.REHEARSAL_SUPABASE_DB_URL }}
+        run: node scripts/recovery/functional.mjs pick "$COPY_DB"
+
+      - name: "8b. The Golden School admin's password, derived as its walks set it (masked, never printed)"
+        if: inputs.stage == 'reconstruct'
+        env:
+          GS_MAILBOX_PASSWORD: ${{ secrets.GS_MAILBOX_PASSWORD }}
+          SUPABASE_URL: https://${{ inputs.copy_ref }}.supabase.co
+        run: |
+          node --input-type=module -e '
+            const { kredensial } = await import("./audit/staging/masuk.mjs");
+            const { appendFileSync } = await import("node:fs");
+            appendFileSync(process.env.GITHUB_ENV, `FC_STAFF_PASSWORD=${kredensial(process.env.FC_STAFF).password}\n`);'
+
+      - name: "8c. It works: four checks through the preview (F1-F4)"
+        if: inputs.stage == 'reconstruct'
+        env:
+          FC_BYPASS: ${{ secrets.REHEARSAL_VERCEL_BYPASS }}
+        run: |
+          set -euo pipefail
+          node scripts/recovery/functional.mjs check --rehearsal
+          echo "8. F1-F4 passed through the preview: $(( $(date +%s) - T_start )) s from this stage's start" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "RECONSTRUCTED AND PROVEN ON ${COPY_REF}. Next: stage teardown; then the owner deletes the copy and revokes C10 (step 9)" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: "Teardown: the preview's address and deployment removed, and confirmed gone"
+        if: inputs.stage == 'teardown'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          npm i -g vercel@latest > /dev/null
+          # the copy may already be gone: only its reference's form is checked, and only its own deployments are touched
+          [[ "$COPY_REF" =~ ^[a-z]{20}$ ]] || { echo "::error::\"$COPY_REF\" is not a Supabase project reference"; exit 1; }
+          ALIAS="pintar-rehearsal-${COPY_REF}.vercel.app"
+          vercel link --yes --project "$STAGING_VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN" > /dev/null
+          vercel alias rm "$ALIAS" --yes --token "$VERCEL_TOKEN" || echo "(no address $ALIAS)"
+          for u in $(vercel list "$STAGING_VERCEL_PROJECT_NAME" --meta "pintar_rehearsal=${COPY_REF}" --token "$VERCEL_TOKEN" 2>&1 | grep -oE 'https://[a-z0-9.-]+\.vercel\.app' | sort -u); do
+            vercel remove "$u" --yes --token "$VERCEL_TOKEN" > /dev/null && echo "removed a rehearsal deployment"
+          done
+          left=$(vercel list "$STAGING_VERCEL_PROJECT_NAME" --meta "pintar_rehearsal=${COPY_REF}" --token "$VERCEL_TOKEN" 2>&1 | grep -cE 'https://[a-z0-9.-]+\.vercel\.app' || true)
+          code=$(curl -s -o /dev/null -w '%{http_code}' "https://$ALIAS/masuk" || true)
+          [ "$left" = 0 ] && [ "$code" != 200 ] || { echo "::error::the rehearsal's preview is still there ($left deployment(s); its address answered $code)"; exit 1; }
+          echo "TORN DOWN: no rehearsal deployment remains for ${COPY_REF}; its address answers $code. The owner now deletes the copy and revokes C10." | tee -a "$GITHUB_STEP_SUMMARY"

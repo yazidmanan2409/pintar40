@@ -43,7 +43,8 @@
  *  DR-S11  the wiring (D-108(c)(1)-(4)): the six WP-B workflows run from main only, their schedules (the 03:00 WIB backup,
  *          the monthly drill, the quarterly possession check) do nothing until the owner switches them on, and each runs
  *          in its own environment; every credential of the inventory (C2-C5, C8, a custodian's key) appears in exactly the
- *          workflows the inventory names and C2 nowhere in src/; the backup reaches the database with verify-full against
+ *          workflows the inventory names (RESTATED FOR WP-C.2: C5 and C8 also in recovery-rehearsal, in their own
+ *          environment) and C2 nowhere in src/; the backup reaches the database with verify-full against
  *          the committed Supabase root CA and never through a URL; a failed production backup raises the watch's issue.
  *          Executed: the drill takes the newest bundle WITH its success record (condition 10) and refuses one whose bytes
  *          differ from its record; credential.mjs sets C2 as a SCRAM verifier (pintar_backup then signs in, read-only by
@@ -1125,8 +1126,9 @@ rollback;
         PRODUCTION_SUPABASE_STORAGE_S3_KEY_ID: ["backup-offsite"], PRODUCTION_SUPABASE_STORAGE_S3_SECRET: ["backup-offsite"],
         STAGING_SUPABASE_STORAGE_S3_KEY_ID: ["backup-offsite"], STAGING_SUPABASE_STORAGE_S3_SECRET: ["backup-offsite"],
         AWS_BACKUP_WRITER_KEY_ID: ["backup-offsite", "escrow-durable-secrets"], AWS_BACKUP_WRITER_SECRET: ["backup-offsite", "escrow-durable-secrets"],
-        AWS_BACKUP_READER_KEY_ID: ["recover-durable-secret", "restore-drill"], AWS_BACKUP_READER_SECRET: ["recover-durable-secret", "restore-drill"],
-        STAGING_DRILL_PRIVATE_KEY: ["restore-drill"], RECOVERY_PRIVATE_KEY: ["recover-durable-secret"], RECOVERY_KEY_PASSPHRASE: ["recover-durable-secret"],
+        // #150 WP-C.2: the rehearsal (O8) puts the staging bundle's files back on its copy, in the drill's own environment
+        AWS_BACKUP_READER_KEY_ID: ["recover-durable-secret", "recovery-rehearsal", "restore-drill"], AWS_BACKUP_READER_SECRET: ["recover-durable-secret", "recovery-rehearsal", "restore-drill"],
+        STAGING_DRILL_PRIVATE_KEY: ["recovery-rehearsal", "restore-drill"], RECOVERY_PRIVATE_KEY: ["recover-durable-secret"], RECOVERY_KEY_PASSPHRASE: ["recover-durable-secret"],
       };
       for (const [n, want] of Object.entries(harus)) c.expect(JSON.stringify(holders(n)) === JSON.stringify(want), `${n} is held by ${holders(n).join(", ") || "nothing"}, not ${want.join(", ")}`);
       const src: string[] = [];

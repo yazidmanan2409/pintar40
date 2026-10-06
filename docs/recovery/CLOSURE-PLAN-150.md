@@ -238,7 +238,7 @@ Supabase-managed object it cannot read), the work stops and returns for approval
 | C7 | **OpenPGP** | R2 key pair | as C6, independently | as C6 | public: repository; **private: custodian B, offline** | as C6 | as C6 |
 | C8 | **OpenPGP** | R3 key pair | staging drill | decrypt **staging** bundles only | public: repository; private: environment secret `staging-recovery-drill` | owner: new pair → secret → coordinator commits the public key | delete the secret |
 | C9 | **AWS account root** | root login + MFA | break-glass; the only authority that can lift a legal hold or shorten governance locks | everything | custodian A, MFA device + recovery codes offline | — | — |
-| C10 | **Supabase Management API** | temporary scoped token for the B8 rehearsal copy | WP-C | Auth config read-write, Project settings read-write, API keys read, **that temporary project only** | an environment secret for the rehearsal's duration | — | revoked when the copy is deleted (verified) |
+| C10 | **Supabase Management API** | temporary scoped token for the B8 rehearsal copy | WP-C | Auth config read-write, Project settings read-write, API keys read, **that temporary project only** | environment secret `REHEARSAL_SUPABASE_ACCESS_TOKEN` in `staging-recovery-drill`, for the rehearsal's duration only | — | revoked when the copy is deleted (verified) |
 
 **Existing credentials, unchanged in scope:**
 - `SUPABASE_PROD_DB_PASSWORD` (`postgres`): used only by the apply and by the one-off password setting;
@@ -406,7 +406,9 @@ local stand-ins; nothing hosted, nothing bought, no real credential (owner's bou
 (`docs/recovery/RUNBOOK-NATIVE-RESTORE.md`), the one guarded record of the projects (`docs/recovery/projects.json`,
 `scripts/recovery/repoint.mjs`), the Auth read-back (`scripts/recovery/auth-state.mjs`), the files put back after a
 native restore (`restore-bundle.mjs --files-only`) and the read-only `recovery-target.yml`; DR-S12, DR-S13 new, DR-D02
-restated. WP-C.2 (the rehearsal's preview deployment and functional checks) is next; then O8.*
+restated. WP-C.2 built (6 Oct): the rehearsal's workflow `recovery-rehearsal.yml` (preflight, reconstruct, teardown) with its
+guards `scripts/recovery/rehearsal.mjs`, and the four functional checks `scripts/recovery/functional.mjs` (F1–F4; F3 alone for
+production, D-113); DR-S17 and DR-D03 new, DR-S11 and DR-S13 restated. Next: O8, after WP-B's first staging bundle.*
 
 **The runbook** (`docs/recovery/RUNBOOK-NATIVE-RESTORE.md`):
 1. native restore to a new project;

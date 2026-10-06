@@ -173,3 +173,34 @@ unless it is escrowed first (D-109(b)).
 
 Set the repository variables `PINTAR_OFFSITE_BACKUP`, `PINTAR_RECOVERY_DRILL` and `PINTAR_POSSESSION_CHECK` to `on`
 when you decide. Until then the schedules do nothing.
+
+## O8: the rehearsal on a copy of staging (WP-C, B8) — PREPARED, NOT YET TO BE DONE
+
+**Not before the coordinator asks, after you have approved it.** It needs one complete staging bundle, so it comes after
+O3–O6 and WP-B's first staging backup. It never touches production. What it proves: the sentence at the top of the
+closure plan, clause by clause (`docs/recovery/RUNBOOK-NATIVE-RESTORE.md`, "The rehearsal (O8)").
+
+### Steps (yours)
+
+1. **Restore.** Supabase → `pintar-staging` → Database → Backups → the latest backup → *Restore to a new project*, named
+   `pintar-g8-rehearsal-DELETE-ME`, region `ap-southeast-1`. Note the time you start (T0) and give the coordinator the new
+   project's reference (the 20 letters in its address). No password goes to the coordinator.
+2. **The temporary token (C10).** As in O2, a Supabase access token scoped to `pintar-g8-rehearsal-DELETE-ME` only, with
+   Auth configuration (read and write), project settings (read and write) and API keys (read), and nothing else. Put it in
+   GitHub → Settings → Environments → `staging-recovery-drill` as the secret `REHEARSAL_SUPABASE_ACCESS_TOKEN`.
+3. **The copy's database and files.** In the same environment: `REHEARSAL_SUPABASE_DB_URL` (the copy's Connect → Session
+   pooler connection string, with the copy's database password in it), and the copy's Storage S3 key as
+   `REHEARSAL_STORAGE_S3_KEY_ID` and `REHEARSAL_STORAGE_S3_SECRET` (as in O5, for the copy).
+4. **Tell the coordinator.** The coordinator runs the rehearsal's `preflight` (read only) and reports. If it says preview
+   deployments of staging's Vercel project are behind Vercel's protection, or that a preview would not receive staging's
+   card and certificate values, it stops there: each needs a Vercel change that you decide on (a temporary bypass value,
+   `REHEARSAL_VERCEL_BYPASS`, created for the rehearsal and removed after it; or a variable's target), and nothing is
+   changed without your word.
+5. **Nothing else runs on staging** while the coordinator runs `reconstruct` (staging written after its backup is a
+   difference the rehearsal stops on).
+
+### Afterwards (yours, each confirmed to the coordinator)
+
+After the coordinator's `teardown` has removed the preview: delete `pintar-g8-rehearsal-DELETE-ME`; revoke C10; delete
+the four `REHEARSAL_*` secrets (and the bypass value, if one was made). The coordinator records the times T0 → Tn and
+each clause's evidence.

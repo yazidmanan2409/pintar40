@@ -32,7 +32,7 @@ mostly not done.
 | B3: the backups-read token C1 | WP-A | yes: DR-S05–S07; CI 37401454517 | none | **O2** (owner), then the isolation run |
 | B4 + B9: independent database and Storage files | WP-B | yes: DR-S08, S09, S14, S15, S16, DR-D02 | migration 162 on staging, profile equal (§4) | staging path proof (pooler value); O3–O6; a real staging run and drill |
 | B5: durable-secret escrow | WP-B | yes, against stand-ins: DR-S01–S03, DR-S10 | none | fingerprints recorded; O3–O4; **R2 and both custodians' proofs**; O7 |
-| B8: reconstruction in a new environment | WP-C | **WP-C.1 built**: the runbook, the guarded repointing, the Auth read-back, files after a native restore (DR-S12, DR-S13, DR-D02; CI 37421222152 on `f49280e`, 35/35) | G2: native **database** restore, 24/24, 8 min 03 s (staging scale) | WP-C.2 (the rehearsal's preview deployment and functional checks: 3 items PENDING in the runbook), then the hosted rehearsal (O8) |
+| B8: reconstruction in a new environment | WP-C | **WP-C.1 and WP-C.2 built**: the runbook, the guarded repointing, the Auth read-back, files after a native restore (DR-S12, DR-S13, DR-D02; CI 37421222152 on `f49280e`, 35/35); the rehearsal's workflow and guards and the four functional checks (DR-S17, DR-D03; DR-S11 and DR-S13 restated) | G2: native **database** restore, 24/24, 8 min 03 s (staging scale) | the hosted rehearsal (O8), after WP-B's first staging bundle |
 | B6/A6: recovery authority | WP-D | **not started** | none | custodian B and R2 (now before production backups, D-109(c)); second administrators (O9) |
 | B7: the production watch | WP-E | yes: DR-S06 (G10) | watch 37391618155 (green; 403 as a note) | switched on at the release gate (O10) |
 | PITR / RPO | — | D-103: RPO 24 h, provisional; not a 4.0 blocker (D-106(h)) | G1 Part 1: 7 daily backups, PITR off | revisited per D-103(c) |
@@ -53,7 +53,7 @@ mostly not done.
 | D-106(c) B5 | G5 guard; `scripts/recovery/escrow.mjs`; escrow and recover workflows | DR-S01–S03, DR-S10 | — | not active (O7) |
 | D-106(d) B6 | WP-D | — | — | not started |
 | D-106(e) B7 | `production-watch.yml` | DR-S06 | watch 37391618155 | off until the release |
-| D-106(f) B8 | WP-C: `docs/recovery/RUNBOOK-NATIVE-RESTORE.md`; `docs/recovery/projects.json` + `scripts/recovery/repoint.mjs`; `scripts/recovery/auth-state.mjs`; `restore-bundle.mjs --files-only`; `recovery-target.yml` | DR-S12, DR-S13, DR-D02 | G2 (database only) | WP-C.1 built; WP-C.2 and O8 open |
+| D-106(f) B8 | WP-C: `docs/recovery/RUNBOOK-NATIVE-RESTORE.md`; `docs/recovery/projects.json` + `scripts/recovery/repoint.mjs`; `scripts/recovery/auth-state.mjs`; `restore-bundle.mjs --files-only`; `recovery-target.yml`; `recovery-rehearsal.yml` + `scripts/recovery/rehearsal.mjs`; `scripts/recovery/functional.mjs` | DR-S12, DR-S13, DR-D02, DR-S17, DR-D03 | G2 (database only) | built; O8 open |
 | D-106(g) B9 Storage files, not metadata | `backup.mjs` reads every object through Storage's S3 API with its hash; `restore-bundle.mjs` puts files back | DR-S14 (every planted object, hash), DR-D02 (every file read back, hash) | — | not active |
 | D-106(h)–(i) PITR and the 100,000-user rehearsal are not 4.0 blockers | closure plan WP-F | — | — | recorded |
 | D-106(j) native restore primary; logical secondary, never equivalent | closure plan boundaries | DR-D02 (logical path) | G2 (native: 24/24) | recorded |
@@ -121,12 +121,15 @@ after (the restatements say `RESTATED FOR …`).
 | DR-S14 | a real backup run against CI's database and Storage and a stand-in S3: clean, and every planted failure red with no success record; custody; the 5 GiB limit |
 | DR-S15 | `pintar_backup`: reads everything, writes nothing; the `supautils` residual shown |
 | DR-S12 | WP-C: the workflows equal the one project record; a move rewrites them all at once, guarded (decision, no reuse, the right public key); the live project verified; the Auth settings read back, a rehearsal copy the only thing ever written |
-| DR-S13 | WP-C: the runbook's nine steps each tied to existing tools or an owner action, a check naming existing tests, a stop condition; B8's clauses mapped; PENDING items counted |
+| DR-S13 | WP-C: the runbook's nine steps each tied to existing tools or an owner action, a check naming existing tests, a stop condition; B8's clauses mapped; nothing left marked PENDING (restated for WP-C.2) |
+| DR-S17 | WP-C.2: the rehearsal's guards against stand-ins (only a healthy …-DELETE-ME copy; C10 too broad refused; the copy's own keys, unprinted; a protected preview or one without staging's values goes to the owner; facts line for line) and its workflow (by hand, main, the drill's environment, nothing of production, the guard first, no Vercel setting) |
+| DR-D03 | WP-C.2: the four functional checks through the running app (staff sign-in; a card re-issued and signed in; a certificate BERLAKU by its token; a file with its hash), each planted fault failing its own check; `certificate` alone for production (D-113) |
 | DR-S16 | the staging path check: dispatch-only, read-only; the pooler only from an authoritative source; `verify-full`; the shared snapshot; the profile against the proven one |
 | DR-D01 | readiness: 24 rows, each planted drift FAILs by name |
 | DR-D02 | the logical path end to end into an empty Supabase stack: 0 differences, every file's hash, the baseline, 24/24, SAFE TO REOPEN; files put back after a native-like loss (`--files-only`) |
 
-DR-S12 and DR-S13: WP-C.1 (6 Oct; CI 37421222152 on `f49280e`, 35/35, 590 tests).
+DR-S12 and DR-S13: WP-C.1 (6 Oct; CI 37421222152 on `f49280e`, 35/35, 590 tests). DR-S17 and DR-D03: WP-C.2 (6 Oct), with DR-S11 and DR-S13
+restated; red on `f707464`, green on WP-C.2.
 
 | CI run | Commit | Result | What it carried |
 |---|---|---|---|
@@ -196,13 +199,17 @@ item leaves this list only with the run that proved it):
 - Storage read through Supabase's real S3 API (O5);
 - encryption to the real R1, R2, R3 keys (O4); the possession check answered by a real custodian;
 - the escrow (O7: also needs both durable-secret fingerprints recorded in `docs/recovery/durable-secrets.json`,
-  printed by the next production deploy).
+  printed by the next production deploy);
+- the rehearsal (O8), every part of it: C10 and its isolation; the copy's keys from the Management API (only the JWT
+  format is taken); the copy reached through its pooler with verify-full; staging's Vercel project read for its preview
+  protection and variable targets; a preview deployment with per-deployment values and its alias; the four checks through
+  Vercel; the teardown.
 
 **Prerequisites recorded in the code:** production's extension baseline is `null` (a production backup refuses to run
 until it is read); `custody.json` has no proofs (production backup and escrow refuse).
 
-**WP-C:** WP-C.1 built (the runbook and its tooling); WP-C.2 (the rehearsal's preview deployment and functional checks)
-and the hosted rehearsal (O8) open. **Not started:** WP-D (B6/A6, O9). WP-E at the release (O10).
+**WP-C:** WP-C.1 and WP-C.2 built (the runbook, its tooling, the rehearsal's workflow and the functional checks); the
+hosted rehearsal (O8) open. **Not started:** WP-D (B6/A6, O9). WP-E at the release (O10).
 
 **Limits, named and accepted:**
 - 5 GiB per upload: refused above it, warned of from 80 % (D-109(d));

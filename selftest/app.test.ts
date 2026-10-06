@@ -19,6 +19,7 @@ import { d101AppTests } from "./d101.test";
 import { d102AppTests } from "./d102.test";
 import { bob50AppTests } from "./bob50.test";
 import { bob51AppTests } from "./bob51.test";
+import { dr150cAppTests } from "./dr150c.test";
 
 /** Synthetic personas (supabase/seed/synthetic.sql). Passwords are seed constants, not secrets. */
 const PERSONA = {
@@ -3000,6 +3001,7 @@ export const appTests: SelfTest[] = [
   },
   // BOB-26 (Gate 3): activation and password sign-in, through the running app
   ...bob26AppTests,
+  ...dr150cAppTests,
   ...bob27AppTests,
   ...bob28AppTests,
   ...bob29AppTests,

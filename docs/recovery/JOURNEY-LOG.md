@@ -601,3 +601,24 @@ Gate 3 stays held; the coordinator does not merge it.
       590 tests passed). **Not built yet (WP-C.2):** the
       rehearsal's one-off preview deployment and its functional checks (3 items PENDING in the runbook, counted by
       DR-S13).
+46. **#150 WP-C.2, 6 Oct: the rehearsal's workflow and the functional checks, built and proven against stand-ins and the
+    running app (D-107(a) order; D-111(g); D-113).**
+    - **D-113 (owner):** the card check re-issues a learner's card, so it runs on a rehearsal copy only; after a real
+      production recovery the card path is proven by `CARD_PEPPER`'s recorded fingerprint (step 6) with the rehearsal's
+      check, and the first real card sign-in after reopening is recorded; no test identity is ever made in production.
+    - **The functional checks** `scripts/recovery/functional.mjs`, through the application's own routes as a browser would:
+      F1 a staff sign-in; F2 a card re-issued as damaged and signed in (rehearsal only); F3 a certificate BERLAKU by its
+      token (the app recomputes the seal with its own key); F4 a file signed by the app and served with the bundle's
+      SHA-256. `certificate` runs F3 alone, with no sign-in and no write, for production's step 8.
+    - **The rehearsal** `.github/workflows/recovery-rehearsal.yml` (dispatch only, `main`, `staging-recovery-drill`):
+      `preflight` (read only: the copy and C10 guarded, staging's Vercel project read for preview protection and for
+      the card and certificate values reaching a preview, the secrets present by name), `reconstruct` (facts equal and
+      readiness 24/24, the copy's keys, Auth applied and read back, files put back from the staging bundle, a one-off
+      preview of staging's Vercel project aimed at the copy, F1–F4 through it), `teardown` (the preview removed and
+      confirmed). Its guards are `scripts/recovery/rehearsal.mjs`. No Vercel setting changes; where one would be needed
+      (a protected preview, a value not reaching previews) the run stops for the owner.
+    - **Tests:** DR-S17 and DR-D03 new; DR-S11 (C5 and C8 also in the rehearsal, in their own environment) and DR-S13
+      (nothing left PENDING; the rehearsal's workflow tied to its steps) restated: red on `f707464`, green now. The
+      runbook's three PENDING items are cleared; owner instructions O8 written (prepared, not yet to be done).
+    - **Not done:** the hosted rehearsal (O8), after WP-B's first staging bundle. Every part of it is a first use of real
+      infrastructure (EVIDENCE-INDEX §6).
