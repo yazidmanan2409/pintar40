@@ -53,7 +53,8 @@
            "label": "A",
            "body": "Pulau Rote",
            "is_correct": false,
-           "rationale": "Pulau Rote (11° 15' LS) adalah batas paling selatan."
+           "rationale": "Pulau Rote (11° 15' LS) adalah batas paling selatan.",
+           "misconception_code": "SMA11-G-B1-01"
           },
           {
            "_row": {
@@ -73,7 +74,8 @@
            "label": "C",
            "body": "Pulau Beureuh",
            "is_correct": false,
-           "rationale": "Pulau Beureuh (95° 45' BT) adalah batas paling barat."
+           "rationale": "Pulau Beureuh (95° 45' BT) adalah batas paling barat.",
+           "misconception_code": "SMA11-G-B1-01"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "Sungai Fly",
            "is_correct": false,
-           "rationale": "Sungai Fly (141° 05' BT) adalah batas paling timur."
+           "rationale": "Sungai Fly (141° 05' BT) adalah batas paling timur.",
+           "misconception_code": "SMA11-G-B1-01"
           }
          ]
         },
@@ -106,7 +109,8 @@
            "label": "A",
            "body": "06.00",
            "is_correct": false,
-           "rationale": "Selisihnya dikurangkan. Wilayah yang lebih timur jamnya lebih besar."
+           "rationale": "Selisihnya dikurangkan. Wilayah yang lebih timur jamnya lebih besar.",
+           "misconception_code": "SMA11-G-B1-04"
           },
           {
            "_row": {
@@ -116,7 +120,8 @@
            "label": "B",
            "body": "09.00",
            "is_correct": false,
-           "rationale": "Papua dianggap WITA. Menurut peta pembagian waktu, Papua memakai WIT."
+           "rationale": "Papua dianggap WITA. Menurut peta pembagian waktu, Papua memakai WIT.",
+           "misconception_code": "SMA11-G-B1-04"
           },
           {
            "_row": {
@@ -136,7 +141,8 @@
            "label": "D",
            "body": "11.00",
            "is_correct": false,
-           "rationale": "Selisihnya dianggap tiga jam karena ada tiga zona. Dari WIB ke WIT hanya dua langkah."
+           "rationale": "Selisihnya dianggap tiga jam karena ada tiga zona. Dari WIB ke WIT hanya dua langkah.",
+           "misconception_code": "SMA11-G-B1-04"
           }
          ]
         },
@@ -168,7 +174,8 @@
            "label": "B",
            "body": "6° 08' LU",
            "is_correct": false,
-           "rationale": "Ini letak Pulau We, batas paling utara."
+           "rationale": "Ini letak Pulau We, batas paling utara.",
+           "misconception_code": "SMA11-G-B1-01"
           },
           {
            "_row": {
@@ -178,7 +185,8 @@
            "label": "C",
            "body": "95° 45' BT",
            "is_correct": false,
-           "rationale": "Ini letak Pulau Beureuh, batas paling barat."
+           "rationale": "Ini letak Pulau Beureuh, batas paling barat.",
+           "misconception_code": "SMA11-G-B1-01"
           },
           {
            "_row": {
@@ -188,7 +196,8 @@
            "label": "D",
            "body": "141° 05' BT",
            "is_correct": false,
-           "rationale": "Ini letak Sungai Fly, batas paling timur."
+           "rationale": "Ini letak Sungai Fly, batas paling timur.",
+           "misconception_code": "SMA11-G-B1-01"
           }
          ]
         },
@@ -210,7 +219,8 @@
            "label": "A",
            "body": "Karena terletak di antara dua benua dan dua samudra",
            "is_correct": false,
-           "rationale": "Ini letak geografis, yang memengaruhi musim dan lalu lintas dunia."
+           "rationale": "Ini letak geografis, yang memengaruhi musim dan lalu lintas dunia.",
+           "misconception_code": "SMA11-G-B1-03"
           },
           {
            "_row": {
@@ -220,7 +230,8 @@
            "label": "B",
            "body": "Karena dilalui dua jalur pegunungan muda dunia",
            "is_correct": false,
-           "rationale": "Ini letak geologis, yang memengaruhi gunung api dan topografi."
+           "rationale": "Ini letak geologis, yang memengaruhi gunung api dan topografi.",
+           "misconception_code": "SMA11-G-B1-03"
           },
           {
            "_row": {
@@ -240,7 +251,8 @@
            "label": "D",
            "body": "Karena berada di antara 95° Bujur Timur dan 141° Bujur Timur",
            "is_correct": false,
-           "rationale": "Bujur menentukan pembagian zona waktu, bukan jalur iklim."
+           "rationale": "Bujur menentukan pembagian zona waktu, bukan jalur iklim.",
+           "misconception_code": "SMA11-G-B1-03"
           }
          ]
         },
@@ -262,7 +274,8 @@
            "label": "A",
            "body": "Kalimantan Barat",
            "is_correct": false,
-           "rationale": "Kalimantan Barat memakai WIB, berbeda dengan Kalimantan Selatan, Timur, dan Utara."
+           "rationale": "Kalimantan Barat memakai WIB, berbeda dengan Kalimantan Selatan, Timur, dan Utara.",
+           "misconception_code": "SMA11-G-B1-04"
           },
           {
            "_row": {
@@ -272,7 +285,8 @@
            "label": "B",
            "body": "Maluku",
            "is_correct": false,
-           "rationale": "Maluku memakai WIT."
+           "rationale": "Maluku memakai WIT.",
+           "misconception_code": "SMA11-G-B1-04"
           },
           {
            "_row": {
@@ -282,7 +296,8 @@
            "label": "C",
            "body": "Jawa Timur",
            "is_correct": false,
-           "rationale": "Seluruh Pulau Jawa memakai WIB."
+           "rationale": "Seluruh Pulau Jawa memakai WIB.",
+           "misconception_code": "SMA11-G-B1-04"
           },
           {
            "_row": {
@@ -332,7 +347,8 @@
            "label": "A",
            "body": "angin muson barat laut yang mengandung banyak uap air laut",
            "is_correct": false,
-           "rationale": "Angin muson barat laut bersifat basah dan mendatangkan musim hujan."
+           "rationale": "Angin muson barat laut bersifat basah dan mendatangkan musim hujan.",
+           "misconception_code": "SMA11-G-B1-05"
           },
           {
            "_row": {
@@ -352,7 +368,8 @@
            "label": "C",
            "body": "penyinaran matahari sepanjang tahun sekitar 12 jam",
            "is_correct": false,
-           "rationale": "Penyinaran 12 jam adalah pengaruh letak astronomis terhadap suhu, bukan penyebab musim kemarau."
+           "rationale": "Penyinaran 12 jam adalah pengaruh letak astronomis terhadap suhu, bukan penyebab musim kemarau.",
+           "misconception_code": "SMA11-G-B1-03"
           },
           {
            "_row": {
@@ -362,7 +379,8 @@
            "label": "D",
            "body": "dataran tinggi yang beriklim subtropis atau sedang",
            "is_correct": false,
-           "rationale": "Iklim dataran tinggi adalah pengaruh topografi, bukan penyebab musim kemarau."
+           "rationale": "Iklim dataran tinggi adalah pengaruh topografi, bukan penyebab musim kemarau.",
+           "misconception_code": "SMA11-G-B1-03"
           }
          ]
         },
@@ -385,7 +403,8 @@
            "label": "A",
            "body": "Samudra Pasifik dan Samudra Hindia",
            "is_correct": false,
-           "rationale": "Keduanya samudra yang mengapit Indonesia, bukan selat."
+           "rationale": "Keduanya samudra yang mengapit Indonesia, bukan selat.",
+           "misconception_code": "SMA11-G-B1-02"
           },
           {
            "_row": {
@@ -395,7 +414,8 @@
            "label": "B",
            "body": "Dangkalan Sunda dan Dangkalan Sahul",
            "is_correct": false,
-           "rationale": "Keduanya dangkalan dalam letak geologis, bukan selat."
+           "rationale": "Keduanya dangkalan dalam letak geologis, bukan selat.",
+           "misconception_code": "SMA11-G-B1-02"
           },
           {
            "_row": {
@@ -405,7 +425,8 @@
            "label": "C",
            "body": "Sirkum Mediterania dan Sirkum Pasifik",
            "is_correct": false,
-           "rationale": "Keduanya jalur pegunungan muda, bukan selat."
+           "rationale": "Keduanya jalur pegunungan muda, bukan selat.",
+           "misconception_code": "SMA11-G-B1-02"
           },
           {
            "_row": {
@@ -437,7 +458,8 @@
            "label": "A",
            "body": "Lempeng Eurasia, Lempeng Indo-Australia, dan Lempeng Pasifik",
            "is_correct": false,
-           "rationale": "Ketiga lempeng ini termasuk letak geologis."
+           "rationale": "Ketiga lempeng ini termasuk letak geologis.",
+           "misconception_code": "SMA11-G-B1-02"
           },
           {
            "_row": {
@@ -457,7 +479,8 @@
            "label": "C",
            "body": "Sirkum Mediterania dan Sirkum Pasifik",
            "is_correct": false,
-           "rationale": "Kedua jalur pegunungan muda ini termasuk letak geologis."
+           "rationale": "Kedua jalur pegunungan muda ini termasuk letak geologis.",
+           "misconception_code": "SMA11-G-B1-02"
           },
           {
            "_row": {
@@ -467,7 +490,8 @@
            "label": "D",
            "body": "6° LU – 11° LS dan 95° BT – 141° BT",
            "is_correct": false,
-           "rationale": "Ini letak astronomis, menurut garis lintang dan bujur."
+           "rationale": "Ini letak astronomis, menurut garis lintang dan bujur.",
+           "misconception_code": "SMA11-G-B1-02"
           }
          ]
         },
@@ -499,7 +523,8 @@
            "label": "B",
            "body": "Berada pada jalur silang lalu lintas pelayaran dan perdagangan dunia",
            "is_correct": false,
-           "rationale": "Ini keuntungan di bidang perdagangan, bukan penyebab negara agraris."
+           "rationale": "Ini keuntungan di bidang perdagangan, bukan penyebab negara agraris.",
+           "misconception_code": "SMA11-G-B1-03"
           },
           {
            "_row": {
@@ -509,7 +534,8 @@
            "label": "C",
            "body": "Banyak kapal negara luar singgah sehingga terjadi akulturasi budaya",
            "is_correct": false,
-           "rationale": "Ini keuntungan di bidang budaya."
+           "rationale": "Ini keuntungan di bidang budaya.",
+           "misconception_code": "SMA11-G-B1-03"
           },
           {
            "_row": {
@@ -519,7 +545,8 @@
            "label": "D",
            "body": "Ada 127 gunung berapi aktif",
            "is_correct": false,
-           "rationale": "Gunung api adalah pengaruh letak geologis, bukan letak geografis."
+           "rationale": "Gunung api adalah pengaruh letak geologis, bukan letak geografis.",
+           "misconception_code": "SMA11-G-B1-02"
           }
          ]
         }
@@ -559,7 +586,8 @@
            "label": "A",
            "body": "Paparan Sahul",
            "is_correct": false,
-           "rationale": "Paparan Sahul terletak di Indonesia bagian timur."
+           "rationale": "Paparan Sahul terletak di Indonesia bagian timur.",
+           "misconception_code": "SMA11-G-B1-07"
           },
           {
            "_row": {
@@ -569,7 +597,8 @@
            "label": "B",
            "body": "Sirkum Mediterania",
            "is_correct": false,
-           "rationale": "Sirkum Mediterania adalah jalur pegunungan muda, bukan dangkalan."
+           "rationale": "Sirkum Mediterania adalah jalur pegunungan muda, bukan dangkalan.",
+           "misconception_code": "SMA11-G-B1-07"
           },
           {
            "_row": {
@@ -579,7 +608,8 @@
            "label": "C",
            "body": "Lempeng Eurasia",
            "is_correct": false,
-           "rationale": "Lempeng Eurasia adalah salah satu dari tiga lempeng, bukan dangkalan."
+           "rationale": "Lempeng Eurasia adalah salah satu dari tiga lempeng, bukan dangkalan.",
+           "misconception_code": "SMA11-G-B1-07"
           },
           {
            "_row": {
@@ -612,7 +642,8 @@
            "label": "A",
            "body": "Pulau Bali",
            "is_correct": false,
-           "rationale": "Bali berada pada busur dalam yang aktif (vulkanik)."
+           "rationale": "Bali berada pada busur dalam yang aktif (vulkanik).",
+           "misconception_code": "SMA11-G-B1-06"
           },
           {
            "_row": {
@@ -622,7 +653,8 @@
            "label": "B",
            "body": "Pulau Jawa",
            "is_correct": false,
-           "rationale": "Jawa berada pada busur dalam yang aktif, dengan gunung seperti Merapi, Bromo, dan Semeru."
+           "rationale": "Jawa berada pada busur dalam yang aktif, dengan gunung seperti Merapi, Bromo, dan Semeru.",
+           "misconception_code": "SMA11-G-B1-06"
           },
           {
            "_row": {
@@ -642,7 +674,8 @@
            "label": "D",
            "body": "Pulau Madura",
            "is_correct": false,
-           "rationale": "Madura disebut buku sebagai bagian Paparan Sunda, bukan busur luar."
+           "rationale": "Madura disebut buku sebagai bagian Paparan Sunda, bukan busur luar.",
+           "misconception_code": "SMA11-G-B1-07"
           }
          ]
         },
@@ -664,7 +697,8 @@
            "label": "A",
            "body": "Sulawesi Tengah",
            "is_correct": false,
-           "rationale": "Sulawesi Tengah berada di urutan kedua."
+           "rationale": "Sulawesi Tengah berada di urutan kedua.",
+           "misconception_code": "SMA11-G-B1-13"
           },
           {
            "_row": {
@@ -674,7 +708,8 @@
            "label": "B",
            "body": "Nusa Tenggara Timur",
            "is_correct": false,
-           "rationale": "Nusa Tenggara Timur berada di urutan kelima."
+           "rationale": "Nusa Tenggara Timur berada di urutan kelima.",
+           "misconception_code": "SMA11-G-B1-13"
           },
           {
            "_row": {
@@ -684,7 +719,8 @@
            "label": "C",
            "body": "Kalimantan",
            "is_correct": false,
-           "rationale": "Kalimantan justru termasuk yang jarang mengalami gempa bumi."
+           "rationale": "Kalimantan justru termasuk yang jarang mengalami gempa bumi.",
+           "misconception_code": "SMA11-G-B1-13"
           },
           {
            "_row": {
@@ -716,7 +752,8 @@
            "label": "A",
            "body": "543 kejadian",
            "is_correct": false,
-           "rationale": "Ini rata-rata setiap bulan."
+           "rationale": "Ini rata-rata setiap bulan.",
+           "misconception_code": "SMA11-G-B1-13"
           },
           {
            "_row": {
@@ -736,7 +773,8 @@
            "label": "C",
            "body": "6.512 kejadian",
            "is_correct": false,
-           "rationale": "Ini rata-rata setiap tahun."
+           "rationale": "Ini rata-rata setiap tahun.",
+           "misconception_code": "SMA11-G-B1-13"
           },
           {
            "_row": {
@@ -746,7 +784,8 @@
            "label": "D",
            "body": "29 kejadian",
            "is_correct": false,
-           "rationale": "Ini jumlah gempa menurut data BNPB tahun 2020, bukan rata-rata harian 2009 sampai 2019."
+           "rationale": "Ini jumlah gempa menurut data BNPB tahun 2020, bukan rata-rata harian 2009 sampai 2019.",
+           "misconception_code": "SMA11-G-B1-13"
           }
          ]
         },
@@ -768,7 +807,8 @@
            "label": "A",
            "body": "Tropis dengan rata-rata suhu yang hangat",
            "is_correct": false,
-           "rationale": "Ini iklim dataran rendah."
+           "rationale": "Ini iklim dataran rendah.",
+           "misconception_code": "SMA11-G-B1-03"
           },
           {
            "_row": {
@@ -778,7 +818,8 @@
            "label": "B",
            "body": "Tropis dengan kelembapan udara yang tinggi",
            "is_correct": false,
-           "rationale": "Ini gambaran umum iklim Indonesia karena letak astronomisnya, bukan iklim khusus dataran tinggi."
+           "rationale": "Ini gambaran umum iklim Indonesia karena letak astronomisnya, bukan iklim khusus dataran tinggi.",
+           "misconception_code": "SMA11-G-B1-03"
           },
           {
            "_row": {
@@ -798,7 +839,8 @@
            "label": "D",
            "body": "Kering karena angin muson tenggara",
            "is_correct": false,
-           "rationale": "Angin muson tenggara mendatangkan musim kemarau di seluruh Indonesia, bukan iklim khusus dataran tinggi."
+           "rationale": "Angin muson tenggara mendatangkan musim kemarau di seluruh Indonesia, bukan iklim khusus dataran tinggi.",
+           "misconception_code": "SMA11-G-B1-05"
           }
          ]
         }
@@ -848,7 +890,8 @@
            "label": "B",
            "body": "kayu",
            "is_correct": false,
-           "rationale": "Kayu dimanfaatkan bentuk fisiknya, jadi termasuk SDA materi."
+           "rationale": "Kayu dimanfaatkan bentuk fisiknya, jadi termasuk SDA materi.",
+           "misconception_code": "SMA11-G-B1-09"
           },
           {
            "_row": {
@@ -858,7 +901,8 @@
            "label": "C",
            "body": "emas",
            "is_correct": false,
-           "rationale": "Emas dimanfaatkan bentuk fisiknya, jadi termasuk SDA materi."
+           "rationale": "Emas dimanfaatkan bentuk fisiknya, jadi termasuk SDA materi.",
+           "misconception_code": "SMA11-G-B1-09"
           },
           {
            "_row": {
@@ -868,7 +912,8 @@
            "label": "D",
            "body": "ruang pesisir",
            "is_correct": false,
-           "rationale": "Ruang pesisir dipakai untuk tempat tinggal dan beraktivitas, jadi termasuk SDA ruang."
+           "rationale": "Ruang pesisir dipakai untuk tempat tinggal dan beraktivitas, jadi termasuk SDA ruang.",
+           "misconception_code": "SMA11-G-B1-09"
           }
          ]
         },
@@ -891,7 +936,8 @@
            "label": "A",
            "body": "mineral",
            "is_correct": false,
-           "rationale": "Mineral memang nonhayati, tetapi tidak dapat diperbarui."
+           "rationale": "Mineral memang nonhayati, tetapi tidak dapat diperbarui.",
+           "misconception_code": "SMA11-G-B1-08"
           },
           {
            "_row": {
@@ -911,7 +957,8 @@
            "label": "C",
            "body": "hewan peliharaan",
            "is_correct": false,
-           "rationale": "Hewan peliharaan dapat diperbarui, tetapi termasuk SDA hayati (makhluk hidup)."
+           "rationale": "Hewan peliharaan dapat diperbarui, tetapi termasuk SDA hayati (makhluk hidup).",
+           "misconception_code": "SMA11-G-B1-08"
           },
           {
            "_row": {
@@ -921,7 +968,8 @@
            "label": "D",
            "body": "emas",
            "is_correct": false,
-           "rationale": "Emas nonhayati, tetapi termasuk SDA yang tidak dapat diperbarui."
+           "rationale": "Emas nonhayati, tetapi termasuk SDA yang tidak dapat diperbarui.",
+           "misconception_code": "SMA11-G-B1-08"
           }
          ]
         },
@@ -953,7 +1001,8 @@
            "label": "B",
            "body": "berbentuk benda mati di lingkungan kita",
            "is_correct": false,
-           "rationale": "Ini ciri SDA nonhayati (abiotik)."
+           "rationale": "Ini ciri SDA nonhayati (abiotik).",
+           "misconception_code": "SMA11-G-B1-08"
           },
           {
            "_row": {
@@ -963,7 +1012,8 @@
            "label": "C",
            "body": "akan habis setelah dipakai selama kurun waktu tertentu",
            "is_correct": false,
-           "rationale": "Ini ciri SDA yang tidak dapat diperbarui."
+           "rationale": "Ini ciri SDA yang tidak dapat diperbarui.",
+           "misconception_code": "SMA11-G-B1-08"
           },
           {
            "_row": {
@@ -973,7 +1023,8 @@
            "label": "D",
            "body": "dapat dimanfaatkan bentuk fisiknya",
            "is_correct": false,
-           "rationale": "Ini ciri SDA materi, pengelompokan menurut potensi."
+           "rationale": "Ini ciri SDA materi, pengelompokan menurut potensi.",
+           "misconception_code": "SMA11-G-B1-09"
           }
          ]
         },
@@ -995,7 +1046,8 @@
            "label": "A",
            "body": "materi",
            "is_correct": false,
-           "rationale": "SDA materi dimanfaatkan bentuk fisiknya, seperti kayu, emas, besi, dan batu."
+           "rationale": "SDA materi dimanfaatkan bentuk fisiknya, seperti kayu, emas, besi, dan batu.",
+           "misconception_code": "SMA11-G-B1-09"
           },
           {
            "_row": {
@@ -1005,7 +1057,8 @@
            "label": "B",
            "body": "ruang",
            "is_correct": false,
-           "rationale": "SDA ruang dipakai untuk tempat tinggal dan beraktivitas."
+           "rationale": "SDA ruang dipakai untuk tempat tinggal dan beraktivitas.",
+           "misconception_code": "SMA11-G-B1-09"
           },
           {
            "_row": {
@@ -1015,7 +1068,8 @@
            "label": "C",
            "body": "hayati",
            "is_correct": false,
-           "rationale": "Hayati adalah pengelompokan menurut jenis (makhluk hidup); sinar matahari bukan makhluk hidup."
+           "rationale": "Hayati adalah pengelompokan menurut jenis (makhluk hidup); sinar matahari bukan makhluk hidup.",
+           "misconception_code": "SMA11-G-B1-08"
           },
           {
            "_row": {
@@ -1065,7 +1119,8 @@
            "label": "A",
            "body": "hutan konservasi",
            "is_correct": false,
-           "rationale": "Fungsi pokok hutan konservasi adalah pengawetan keanekaragaman tumbuhan dan satwa."
+           "rationale": "Fungsi pokok hutan konservasi adalah pengawetan keanekaragaman tumbuhan dan satwa.",
+           "misconception_code": "SMA11-G-B1-10"
           },
           {
            "_row": {
@@ -1075,7 +1130,8 @@
            "label": "B",
            "body": "hutan produksi",
            "is_correct": false,
-           "rationale": "Hutan produksi berfungsi memproduksi hasil hutan seperti kayu, rotan, dan gaharu."
+           "rationale": "Hutan produksi berfungsi memproduksi hasil hutan seperti kayu, rotan, dan gaharu.",
+           "misconception_code": "SMA11-G-B1-10"
           },
           {
            "_row": {
@@ -1085,7 +1141,8 @@
            "label": "C",
            "body": "taman buru",
            "is_correct": false,
-           "rationale": "Taman buru adalah kawasan hutan untuk wisata berburu."
+           "rationale": "Taman buru adalah kawasan hutan untuk wisata berburu.",
+           "misconception_code": "SMA11-G-B1-10"
           },
           {
            "_row": {
@@ -1117,7 +1174,8 @@
            "label": "A",
            "body": "Kalimantan",
            "is_correct": false,
-           "rationale": "Kalimantan di urutan kedua, 28,5 juta hektare."
+           "rationale": "Kalimantan di urutan kedua, 28,5 juta hektare.",
+           "misconception_code": "SMA11-G-B1-13"
           },
           {
            "_row": {
@@ -1127,7 +1185,8 @@
            "label": "B",
            "body": "Sumatra",
            "is_correct": false,
-           "rationale": "Sumatra di urutan ketiga, 16 juta hektare."
+           "rationale": "Sumatra di urutan ketiga, 16 juta hektare.",
+           "misconception_code": "SMA11-G-B1-13"
           },
           {
            "_row": {
@@ -1147,7 +1206,8 @@
            "label": "D",
            "body": "Jawa",
            "is_correct": false,
-           "rationale": "Jawa justru yang tersempit, 1,6 juta hektare."
+           "rationale": "Jawa justru yang tersempit, 1,6 juta hektare.",
+           "misconception_code": "SMA11-G-B1-13"
           }
          ]
         },
@@ -1169,7 +1229,8 @@
            "label": "A",
            "body": "mencegah erosi dan abrasi air laut",
            "is_correct": false,
-           "rationale": "Ini fungsi ekologis mangrove."
+           "rationale": "Ini fungsi ekologis mangrove.",
+           "misconception_code": "SMA11-G-B1-10"
           },
           {
            "_row": {
@@ -1189,7 +1250,8 @@
            "label": "C",
            "body": "tempat pemijahan dan perkembangbiakan ikan",
            "is_correct": false,
-           "rationale": "Ini fungsi biologis mangrove."
+           "rationale": "Ini fungsi biologis mangrove.",
+           "misconception_code": "SMA11-G-B1-10"
           },
           {
            "_row": {
@@ -1199,7 +1261,8 @@
            "label": "D",
            "body": "sumber plasma nutfah",
            "is_correct": false,
-           "rationale": "Ini fungsi biologis mangrove."
+           "rationale": "Ini fungsi biologis mangrove.",
+           "misconception_code": "SMA11-G-B1-10"
           }
          ]
         },
@@ -1231,7 +1294,8 @@
            "label": "B",
            "body": "ekonomi",
            "is_correct": false,
-           "rationale": "Fungsi ekonomi terumbu karang adalah pendapatan keluarga melalui pariwisata."
+           "rationale": "Fungsi ekonomi terumbu karang adalah pendapatan keluarga melalui pariwisata.",
+           "misconception_code": "SMA11-G-B1-10"
           },
           {
            "_row": {
@@ -1241,7 +1305,8 @@
            "label": "C",
            "body": "ketahanan pangan",
            "is_correct": false,
-           "rationale": "Fungsi ketahanan pangan adalah makanan tambahan yang mengandung protein."
+           "rationale": "Fungsi ketahanan pangan adalah makanan tambahan yang mengandung protein.",
+           "misconception_code": "SMA11-G-B1-10"
           },
           {
            "_row": {
@@ -1251,7 +1316,8 @@
            "label": "D",
            "body": "biologis",
            "is_correct": false,
-           "rationale": "Fungsi biologis disebut buku untuk mangrove, misalnya tempat pemijahan ikan."
+           "rationale": "Fungsi biologis disebut buku untuk mangrove, misalnya tempat pemijahan ikan.",
+           "misconception_code": "SMA11-G-B1-10"
           }
          ]
         }
@@ -1301,7 +1367,8 @@
            "label": "B",
            "body": "Kepulauan Riau",
            "is_correct": false,
-           "rationale": "Kepulauan Riau berpotensi bauksit sekitar 180,97 juta ton, tetapi bukan penghasil 66,77%."
+           "rationale": "Kepulauan Riau berpotensi bauksit sekitar 180,97 juta ton, tetapi bukan penghasil 66,77%.",
+           "misconception_code": "SMA11-G-B1-11"
           },
           {
            "_row": {
@@ -1311,7 +1378,8 @@
            "label": "C",
            "body": "Bangka Belitung",
            "is_correct": false,
-           "rationale": "Sigembir di Bangka Belitung termasuk daerah produksi bauksit terbesar, tetapi bukan 66,77% produksi nasional."
+           "rationale": "Sigembir di Bangka Belitung termasuk daerah produksi bauksit terbesar, tetapi bukan 66,77% produksi nasional.",
+           "misconception_code": "SMA11-G-B1-11"
           },
           {
            "_row": {
@@ -1321,7 +1389,8 @@
            "label": "D",
            "body": "Kalimantan Selatan",
            "is_correct": false,
-           "rationale": "Kalimantan Selatan dikenal sebagai daerah penambangan bijih besi skala besar."
+           "rationale": "Kalimantan Selatan dikenal sebagai daerah penambangan bijih besi skala besar.",
+           "misconception_code": "SMA11-G-B1-11"
           }
          ]
         },
@@ -1343,7 +1412,8 @@
            "label": "A",
            "body": "minyak bumi, batu bara, dan gas alam",
            "is_correct": false,
-           "rationale": "Ini golongan A, untuk pertahanan, keamanan, dan perekonomian negara."
+           "rationale": "Ini golongan A, untuk pertahanan, keamanan, dan perekonomian negara.",
+           "misconception_code": "SMA11-G-B1-12"
           },
           {
            "_row": {
@@ -1353,7 +1423,8 @@
            "label": "B",
            "body": "besi, mangan, dan tembaga",
            "is_correct": false,
-           "rationale": "Ini golongan B, strategis untuk kepentingan hidup orang banyak."
+           "rationale": "Ini golongan B, strategis untuk kepentingan hidup orang banyak.",
+           "misconception_code": "SMA11-G-B1-12"
           },
           {
            "_row": {
@@ -1363,7 +1434,8 @@
            "label": "C",
            "body": "alumunium, mangan, tembaga, dan timah di dasar laut",
            "is_correct": false,
-           "rationale": "Ini contoh tambang dasar laut yang tidak dapat diperbarui, bukan golongan C."
+           "rationale": "Ini contoh tambang dasar laut yang tidak dapat diperbarui, bukan golongan C.",
+           "misconception_code": "SMA11-G-B1-12"
           },
           {
            "_row": {
@@ -1395,7 +1467,8 @@
            "label": "A",
            "body": "reaksi karbit dengan air yang menghasilkan asetilen",
            "is_correct": false,
-           "rationale": "Ini teori anorganik."
+           "rationale": "Ini teori anorganik.",
+           "misconception_code": "SMA11-G-B1-15"
           },
           {
            "_row": {
@@ -1405,7 +1478,8 @@
            "label": "B",
            "body": "fosil tumbuhan yang tertimbun pada cekungan berisi air",
            "is_correct": false,
-           "rationale": "Ini proses terbentuknya batu bara."
+           "rationale": "Ini proses terbentuknya batu bara.",
+           "misconception_code": "SMA11-G-B1-15"
           },
           {
            "_row": {
@@ -1425,7 +1499,8 @@
            "label": "D",
            "body": "proses magmatisme",
            "is_correct": false,
-           "rationale": "Ini proses terbentuknya emas."
+           "rationale": "Ini proses terbentuknya emas.",
+           "misconception_code": "SMA11-G-B1-15"
           }
          ]
         },
@@ -1447,7 +1522,8 @@
            "label": "A",
            "body": "21%",
            "is_correct": false,
-           "rationale": "21% adalah bagian Indonesia dari cadangan nikel global, bukan produksi."
+           "rationale": "21% adalah bagian Indonesia dari cadangan nikel global, bukan produksi.",
+           "misconception_code": "SMA11-G-B1-13"
           },
           {
            "_row": {
@@ -1467,7 +1543,8 @@
            "label": "C",
            "body": "4,4%",
            "is_correct": false,
-           "rationale": "4,4% adalah bagian cadangan emas Indonesia dari cadangan emas dunia."
+           "rationale": "4,4% adalah bagian cadangan emas Indonesia dari cadangan emas dunia.",
+           "misconception_code": "SMA11-G-B1-13"
           },
           {
            "_row": {
@@ -1477,7 +1554,8 @@
            "label": "D",
            "body": "66,77%",
            "is_correct": false,
-           "rationale": "66,77% adalah bagian Kalimantan Barat dari produksi bauksit nasional."
+           "rationale": "66,77% adalah bagian Kalimantan Barat dari produksi bauksit nasional.",
+           "misconception_code": "SMA11-G-B1-13"
           }
          ]
         },
@@ -1509,7 +1587,8 @@
            "label": "B",
            "body": "Mimika, Papua",
            "is_correct": false,
-           "rationale": "Mimika adalah penghasil tembaga terbesar."
+           "rationale": "Mimika adalah penghasil tembaga terbesar.",
+           "misconception_code": "SMA11-G-B1-11"
           },
           {
            "_row": {
@@ -1519,7 +1598,8 @@
            "label": "C",
            "body": "Halmahera Timur di Maluku Utara",
            "is_correct": false,
-           "rationale": "Halmahera Timur adalah lokasi tambang nikel."
+           "rationale": "Halmahera Timur adalah lokasi tambang nikel.",
+           "misconception_code": "SMA11-G-B1-11"
           },
           {
            "_row": {
@@ -1529,7 +1609,8 @@
            "label": "D",
            "body": "Kalimantan Selatan",
            "is_correct": false,
-           "rationale": "Kalimantan Selatan adalah daerah penambangan bijih besi skala besar."
+           "rationale": "Kalimantan Selatan adalah daerah penambangan bijih besi skala besar.",
+           "misconception_code": "SMA11-G-B1-11"
           }
          ]
         }
@@ -1569,7 +1650,8 @@
            "label": "A",
            "body": "intensifikasi pertanian",
            "is_correct": false,
-           "rationale": "Intensifikasi meningkatkan produksi dengan cara modern di lahan yang ada, seperti benih unggul dan pemupukan."
+           "rationale": "Intensifikasi meningkatkan produksi dengan cara modern di lahan yang ada, seperti benih unggul dan pemupukan.",
+           "misconception_code": "SMA11-G-B1-14"
           },
           {
            "_row": {
@@ -1579,7 +1661,8 @@
            "label": "B",
            "body": "reboisasi",
            "is_correct": false,
-           "rationale": "Reboisasi adalah penanaman kembali, misalnya di area bekas tambang."
+           "rationale": "Reboisasi adalah penanaman kembali, misalnya di area bekas tambang.",
+           "misconception_code": "SMA11-G-B1-14"
           },
           {
            "_row": {
@@ -1599,7 +1682,8 @@
            "label": "D",
            "body": "sistem kuota",
            "is_correct": false,
-           "rationale": "Sistem kuota adalah cara pengelolaan perikanan."
+           "rationale": "Sistem kuota adalah cara pengelolaan perikanan.",
+           "misconception_code": "SMA11-G-B1-14"
           }
          ]
         },
@@ -1632,7 +1716,8 @@
            "label": "B",
            "body": "menentukan bagian perairan yang boleh diambil ikannya pada musim tertentu",
            "is_correct": false,
-           "rationale": "Ini sistem kuota."
+           "rationale": "Ini sistem kuota.",
+           "misconception_code": "SMA11-G-B1-14"
           },
           {
            "_row": {
@@ -1642,7 +1727,8 @@
            "label": "C",
            "body": "larangan penangkapan anak ikan dengan ukuran jaring yang ditentukan",
            "is_correct": false,
-           "rationale": "Ini cara melestarikan anak ikan."
+           "rationale": "Ini cara melestarikan anak ikan.",
+           "misconception_code": "SMA11-G-B1-14"
           },
           {
            "_row": {
@@ -1652,7 +1738,8 @@
            "label": "D",
            "body": "larangan menangkap ikan di daerah pemijahan dan pembesaran ikan",
            "is_correct": false,
-           "rationale": "Ini menutup daerah perikanan, bukan menutup musim."
+           "rationale": "Ini menutup daerah perikanan, bukan menutup musim.",
+           "misconception_code": "SMA11-G-B1-14"
           }
          ]
         },
@@ -1674,7 +1761,8 @@
            "label": "A",
            "body": "pembukaan lahan pertanian baru melalui program transmigrasi",
            "is_correct": false,
-           "rationale": "Ini ekstensifikasi, memperluas lahan."
+           "rationale": "Ini ekstensifikasi, memperluas lahan.",
+           "misconception_code": "SMA11-G-B1-14"
           },
           {
            "_row": {
@@ -1684,7 +1772,8 @@
            "label": "B",
            "body": "kegiatan inventarisasi, perencanaan, implementasi, dan pengawasan",
            "is_correct": false,
-           "rationale": "Ini aktivitas pengelolaan hutan berkelanjutan."
+           "rationale": "Ini aktivitas pengelolaan hutan berkelanjutan.",
+           "misconception_code": "SMA11-G-B1-14"
           },
           {
            "_row": {
@@ -1704,7 +1793,8 @@
            "label": "D",
            "body": "sistem kuota dengan menentukan bagian perairan",
            "is_correct": false,
-           "rationale": "Ini cara pengelolaan perikanan."
+           "rationale": "Ini cara pengelolaan perikanan.",
+           "misconception_code": "SMA11-G-B1-14"
           }
          ]
         },
@@ -1726,7 +1816,8 @@
            "label": "A",
            "body": "pendapatan masyarakat dan penerimaan pajak bagi pemerintah daerah meningkat",
            "is_correct": false,
-           "rationale": "Ini manfaat pariwisata berkelanjutan."
+           "rationale": "Ini manfaat pariwisata berkelanjutan.",
+           "misconception_code": "SMA11-G-B1-14"
           },
           {
            "_row": {
@@ -1746,7 +1837,8 @@
            "label": "C",
            "body": "kegiatan inventarisasi, perencanaan, implementasi, dan pengawasan hutan",
            "is_correct": false,
-           "rationale": "Ini aktivitas pengelolaan hutan berkelanjutan."
+           "rationale": "Ini aktivitas pengelolaan hutan berkelanjutan.",
+           "misconception_code": "SMA11-G-B1-14"
           },
           {
            "_row": {
@@ -1756,7 +1848,8 @@
            "label": "D",
            "body": "sistem kuota perairan disertai kontrol yang baik",
            "is_correct": false,
-           "rationale": "Ini cara pengelolaan perikanan."
+           "rationale": "Ini cara pengelolaan perikanan.",
+           "misconception_code": "SMA11-G-B1-14"
           }
          ]
         }
@@ -1765,6 +1858,158 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SMA11-G-B1-01",
+   "label": "Batas wilayah atau arahnya tertukar",
+   "description": "Titik batas utara, selatan, barat, dan timur Indonesia tertukar, atau lintang utara dan selatan tertukar.",
+   "remediation": "Minta murid menuliskan keempat titik batas pada sketsa peta, masing-masing dengan arah dan koordinatnya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SMA11-G-B1-02",
+   "label": "Jenis letak tertukar",
+   "description": "Letak astronomis, geografis, dan geologis tertukar: misalnya benua dan samudra dianggap letak geologis, atau lempeng dianggap letak geografis.",
+   "remediation": "Bandingkan dasar ketiganya: lintang dan bujur (astronomis), wilayah di sekitarnya (geografis), struktur batuan (geologis)."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SMA11-G-B1-03",
+   "label": "Pengaruh letak tertukar",
+   "description": "Suatu akibat dikaitkan dengan letak yang keliru, misalnya iklim tropis dianggap akibat letak di antara dua benua.",
+   "remediation": "Buat tiga kolom (astronomis, geografis, geologis) dan minta murid menempatkan setiap akibat di kolom yang tepat beserta alasannya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SMA11-G-B1-04",
+   "label": "Zona waktu keliru",
+   "description": "Provinsi ditempatkan di zona yang keliru, atau selisih jam dihitung ke arah yang keliru (wilayah timur dianggap lebih lambat).",
+   "remediation": "Ingatkan: semakin ke timur, jamnya semakin besar (WIB +7, WITA +8, WIT +9). Periksa zona provinsi pada peta pembagian daerah waktu."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SMA11-G-B1-05",
+   "label": "Sifat angin muson tertukar",
+   "description": "Angin muson barat laut dan angin muson tenggara, atau musim yang dibawanya, tertukar.",
+   "remediation": "Kaitkan asal angin: muson barat laut melewati lautan luas sehingga basah; muson tenggara bersifat kering."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SMA11-G-B1-06",
+   "label": "Busur dalam dan busur luar tertukar",
+   "description": "Pulau pada busur luar yang tidak aktif dianggap busur dalam yang vulkanik, atau sebaliknya.",
+   "remediation": "Minta murid menelusuri kedua busur pada peta: busur dalam melalui Bukit Barisan, Jawa, Bali, Nusa Tenggara; busur luar melalui Simeulue, Nias, Enggano, Mentawai."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SMA11-G-B1-07",
+   "label": "Unsur geologis tertukar",
+   "description": "Pegunungan muda, lempeng, dan dangkalan tertukar, atau Paparan Sunda dan Paparan Sahul tertukar.",
+   "remediation": "Buat tabel tiga baris: dua pegunungan muda, tiga lempeng, dua dangkalan; tandai dangkalan yang berhubungan dengan Asia (Sunda)."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SMA11-G-B1-08",
+   "label": "Klasifikasi SDA menurut jenis atau sifat keliru",
+   "description": "SDA hayati dan nonhayati, atau yang dapat dan tidak dapat diperbarui, tertukar.",
+   "remediation": "Tanyakan dua hal untuk setiap SDA: apakah ia makhluk hidup? apakah ia dapat pulih dalam waktu singkat setelah dipakai?"
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SMA11-G-B1-09",
+   "label": "Klasifikasi SDA menurut potensi keliru",
+   "description": "SDA materi, energi, dan ruang tertukar, misalnya sinar matahari dianggap SDA materi.",
+   "remediation": "Tanyakan apa yang dimanfaatkan: bentuk fisiknya (materi), energinya (energi), atau ruangnya (ruang)."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SMA11-G-B1-10",
+   "label": "Fungsi hutan atau ekosistem tertukar",
+   "description": "Fungsi hutan konservasi, lindung, dan produksi, atau fungsi ekologis, ekonomis, dan biologis mangrove dan terumbu karang, tertukar.",
+   "remediation": "Minta murid mencari kata kunci fungsi pokoknya: pengawetan (konservasi), tata air dan banjir (lindung), hasil hutan (produksi)."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SMA11-G-B1-11",
+   "label": "Sebaran SDA tertukar",
+   "description": "Daerah penghasil suatu SDA tertukar dengan daerah penghasil SDA lain.",
+   "remediation": "Buat peta sebaran sederhana: satu simbol untuk setiap bahan tambang, lalu tempatkan daerah penghasil utamanya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 13
+   },
+   "code": "SMA11-G-B1-12",
+   "label": "Golongan bahan galian tertukar",
+   "description": "Bahan galian golongan A, B, dan C tertukar.",
+   "remediation": "Kaitkan setiap golongan dengan fungsinya: A untuk pertahanan dan perekonomian negara, B untuk hajat hidup orang banyak, C yang mudah didapat."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 14
+   },
+   "code": "SMA11-G-B1-13",
+   "label": "Data atau urutan tertukar",
+   "description": "Angka, persentase, atau peringkat milik fakta lain dipakai sebagai jawaban, misalnya angka cadangan dipakai untuk produksi.",
+   "remediation": "Minta murid membaca kembali satuan dan keterangan setiap angka (produksi atau cadangan, per hari atau per tahun, tahun datanya)."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 15
+   },
+   "code": "SMA11-G-B1-14",
+   "label": "Cara pengelolaan tertukar",
+   "description": "Cara pengelolaan SDA berkelanjutan tertukar, misalnya intensifikasi dan ekstensifikasi, atau sistem kuota dan penutupan musim.",
+   "remediation": "Minta murid menyebutkan tujuan setiap cara dengan kata-katanya sendiri sebelum memilih."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 16
+   },
+   "code": "SMA11-G-B1-15",
+   "label": "Proses pembentukan tertukar",
+   "description": "Proses terbentuknya satu bahan tambang dipakai untuk bahan tambang lain, misalnya magmatisme untuk minyak bumi.",
+   "remediation": "Buat pasangan bahan tambang dan proses pembentukannya, lalu minta murid menjelaskan asal bahannya."
   }
  ]
 }

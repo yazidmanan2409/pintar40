@@ -479,6 +479,10 @@ export type HleEvent =
   | "studio.paket.masalah.option_reason_missing"
   | "studio.paket.masalah.option_correct_invalid"
   | "studio.paket.masalah.option_misconception_unknown"
+  | "studio.paket.masalah.misconception_code_invalid"
+  | "studio.paket.masalah.misconception_text_missing"
+  | "studio.paket.masalah.misconception_repeated"
+  | "studio.paket.masalah.misconception_definition_differs"
   | "studio.paket.masalah.text_too_long"
   | "studio.paket.masalah.package_could_not_be_saved"
   | "studio.paket.masalah.revision_course_unknown"
@@ -2947,7 +2951,11 @@ const table: Table = {
   "studio.paket.masalah.option_text_missing": { default: "Teks pilihan belum diisi.", en: "The option text is empty." },
   "studio.paket.masalah.option_reason_missing": { default: "Alasan pilihan belum diisi. Setiap pilihan perlu alasannya.", en: "The option's reason is empty. Every option needs its reason." },
   "studio.paket.masalah.option_correct_invalid": { default: "Kolom Benar harus Ya atau Tidak.", en: "The Benar column must be Ya or Tidak." },
-  "studio.paket.masalah.option_misconception_unknown": { default: "Kode miskonsepsi ini belum terdaftar.", en: "This misconception code is not registered." },
+  "studio.paket.masalah.option_misconception_unknown": { default: "Kode miskonsepsi ini tidak ada di lembar Miskonsepsi berkas ini.", en: "This misconception code is not on this file's Miskonsepsi sheet." },
+  "studio.paket.masalah.misconception_code_invalid": { default: "Kode miskonsepsi hanya boleh huruf besar, angka dan tanda hubung, 3 sampai 40 karakter.", en: "A misconception code may use only capital letters, digits and hyphens, 3 to 40 characters." },
+  "studio.paket.masalah.misconception_text_missing": { default: "Nama, penjelasan dan cara membantu wajib diisi untuk setiap miskonsepsi.", en: "Every misconception needs a name, an explanation and a way to help." },
+  "studio.paket.masalah.misconception_repeated": { default: "Kode miskonsepsi ini muncul lebih dari sekali di lembar Miskonsepsi.", en: "This misconception code appears more than once on the Miskonsepsi sheet." },
+  "studio.paket.masalah.misconception_definition_differs": { default: "Sekolah Anda sudah memakai kode ini dengan teks lain. Pakai teks yang sama, atau beri kode baru.", en: "Your school already uses this code with a different text. Use the same text, or give it a new code." },
   "studio.paket.masalah.text_too_long": { default: "Teks di kolom ini terlalu panjang.", en: "The text in this column is too long." },
   "studio.paket.masalah.package_could_not_be_saved": { default: "Paket ini belum bisa disimpan. Coba lagi, atau hubungi admin platform.", en: "This package could not be saved. Try again, or contact the platform administrator." },
   "studio.paket.masalah.revision_course_unknown": { default: "Kursus yang mau diperbaiki tidak ada di sekolah ini.", en: "The course being corrected is not in this school." },

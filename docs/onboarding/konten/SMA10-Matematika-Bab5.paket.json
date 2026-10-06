@@ -63,7 +63,8 @@
            "label": "B",
            "body": "x³ + 2x² − 4 = 0",
            "is_correct": false,
-           "rationale": "Pangkat tertingginya 3, jadi bukan persamaan kuadrat."
+           "rationale": "Pangkat tertingginya 3, jadi bukan persamaan kuadrat.",
+           "misconception_code": "SMA10-M-B5-01"
           },
           {
            "_row": {
@@ -73,7 +74,8 @@
            "label": "C",
            "body": "2x + 5 = 0",
            "is_correct": false,
-           "rationale": "Tidak ada suku x² (a = 0); ini persamaan linear."
+           "rationale": "Tidak ada suku x² (a = 0); ini persamaan linear.",
+           "misconception_code": "SMA10-M-B5-01"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "1/x + x = 3",
            "is_correct": false,
-           "rationale": "Ada x di penyebut, jadi bentuknya bukan ax² + bx + c = 0."
+           "rationale": "Ada x di penyebut, jadi bentuknya bukan ax² + bx + c = 0.",
+           "misconception_code": "SMA10-M-B5-01"
           }
          ]
         },
@@ -106,7 +109,8 @@
            "label": "A",
            "body": "x² + 3x + 40 = 0",
            "is_correct": false,
-           "rationale": "40 dipindahkan ke ruas kiri tanpa mengubah tandanya."
+           "rationale": "40 dipindahkan ke ruas kiri tanpa mengubah tandanya.",
+           "misconception_code": "SMA10-M-B5-14"
           },
           {
            "_row": {
@@ -126,7 +130,8 @@
            "label": "C",
            "body": "2x + 3 = 40",
            "is_correct": false,
-           "rationale": "Lebar dan panjang dijumlahkan, padahal luas adalah hasil kali panjang dan lebar."
+           "rationale": "Lebar dan panjang dijumlahkan, padahal luas adalah hasil kali panjang dan lebar.",
+           "misconception_code": "SMA10-M-B5-14"
           },
           {
            "_row": {
@@ -136,7 +141,8 @@
            "label": "D",
            "body": "x² + 3 = 40",
            "is_correct": false,
-           "rationale": "x(x + 3) dijabarkan menjadi x² + 3, padahal x(x + 3) = x² + 3x."
+           "rationale": "x(x + 3) dijabarkan menjadi x² + 3, padahal x(x + 3) = x² + 3x.",
+           "misconception_code": "SMA10-M-B5-14"
           }
          ]
         },
@@ -158,7 +164,8 @@
            "label": "A",
            "body": "b ≠ 0",
            "is_correct": false,
-           "rationale": "b boleh nol, misalnya x² − 16 = 0."
+           "rationale": "b boleh nol, misalnya x² − 16 = 0.",
+           "misconception_code": "SMA10-M-B5-01"
           },
           {
            "_row": {
@@ -168,7 +175,8 @@
            "label": "B",
            "body": "c ≠ 0",
            "is_correct": false,
-           "rationale": "c boleh nol, misalnya 2x² − 18x = 0."
+           "rationale": "c boleh nol, misalnya 2x² − 18x = 0.",
+           "misconception_code": "SMA10-M-B5-01"
           },
           {
            "_row": {
@@ -188,7 +196,8 @@
            "label": "D",
            "body": "a, b, c ≠ 0",
            "is_correct": false,
-           "rationale": "Hanya a yang tidak boleh nol; b dan c boleh nol."
+           "rationale": "Hanya a yang tidak boleh nol; b dan c boleh nol.",
+           "misconception_code": "SMA10-M-B5-01"
           }
          ]
         },
@@ -220,7 +229,8 @@
            "label": "B",
            "body": "−7 cm",
            "is_correct": false,
-           "rationale": "(−7)² = 49, tetapi panjang sisi tidak mungkin negatif."
+           "rationale": "(−7)² = 49, tetapi panjang sisi tidak mungkin negatif.",
+           "misconception_code": "SMA10-M-B5-14"
           },
           {
            "_row": {
@@ -230,7 +240,8 @@
            "label": "C",
            "body": "24,5 cm",
            "is_correct": false,
-           "rationale": "49 dibagi 2. Luas persegi adalah sisi × sisi, jadi dicari x dengan x² = 49."
+           "rationale": "49 dibagi 2. Luas persegi adalah sisi × sisi, jadi dicari x dengan x² = 49.",
+           "misconception_code": "SMA10-M-B5-14"
           },
           {
            "_row": {
@@ -240,7 +251,8 @@
            "label": "D",
            "body": "49 cm",
            "is_correct": false,
-           "rationale": "Itu luasnya, bukan panjang sisinya."
+           "rationale": "Itu luasnya, bukan panjang sisinya.",
+           "misconception_code": "SMA10-M-B5-14"
           }
          ]
         },
@@ -262,7 +274,8 @@
            "label": "A",
            "body": "x² + 11x + 24 = 0",
            "is_correct": false,
-           "rationale": "Akar persamaan ini −3 dan −8, jumlahnya −11."
+           "rationale": "Akar persamaan ini −3 dan −8, jumlahnya −11.",
+           "misconception_code": "SMA10-M-B5-10"
           },
           {
            "_row": {
@@ -272,7 +285,8 @@
            "label": "B",
            "body": "x² − 24x + 11 = 0",
            "is_correct": false,
-           "rationale": "Jumlah dan hasil kali tertukar."
+           "rationale": "Jumlah dan hasil kali tertukar.",
+           "misconception_code": "SMA10-M-B5-10"
           },
           {
            "_row": {
@@ -282,7 +296,8 @@
            "label": "C",
            "body": "x² + 11x − 24 = 0",
            "is_correct": false,
-           "rationale": "Tanda b dan c keliru: jumlah akarnya −11 dan hasil kalinya −24."
+           "rationale": "Tanda b dan c keliru: jumlah akarnya −11 dan hasil kalinya −24.",
+           "misconception_code": "SMA10-M-B5-10"
           },
           {
            "_row": {
@@ -314,7 +329,8 @@
            "label": "A",
            "body": "x² + 3x − 10",
            "is_correct": false,
-           "rationale": "Suku tengahnya −5x + 2x = −3x, bukan +3x."
+           "rationale": "Suku tengahnya −5x + 2x = −3x, bukan +3x.",
+           "misconception_code": "SMA10-M-B5-14"
           },
           {
            "_row": {
@@ -334,7 +350,8 @@
            "label": "C",
            "body": "x² − 3x + 10",
            "is_correct": false,
-           "rationale": "Suku tetapnya 2 × (−5) = −10."
+           "rationale": "Suku tetapnya 2 × (−5) = −10.",
+           "misconception_code": "SMA10-M-B5-14"
           },
           {
            "_row": {
@@ -344,7 +361,8 @@
            "label": "D",
            "body": "x² − 10",
            "is_correct": false,
-           "rationale": "Suku tengah −5x + 2x terlupa."
+           "rationale": "Suku tengah −5x + 2x terlupa.",
+           "misconception_code": "SMA10-M-B5-14"
           }
          ]
         }
@@ -384,7 +402,8 @@
            "label": "A",
            "body": "−2 dan −3",
            "is_correct": false,
-           "rationale": "Dari faktor (x − 2) dan (x − 3), akarnya ditulis dengan tanda terbalik. x − 2 = 0 berarti x = 2."
+           "rationale": "Dari faktor (x − 2) dan (x − 3), akarnya ditulis dengan tanda terbalik. x − 2 = 0 berarti x = 2.",
+           "misconception_code": "SMA10-M-B5-02"
           },
           {
            "_row": {
@@ -404,7 +423,8 @@
            "label": "C",
            "body": "1 dan 6",
            "is_correct": false,
-           "rationale": "Hasil kalinya 6, tetapi jumlahnya 1 + 6 = 7, bukan 5."
+           "rationale": "Hasil kalinya 6, tetapi jumlahnya 1 + 6 = 7, bukan 5.",
+           "misconception_code": "SMA10-M-B5-03"
           },
           {
            "_row": {
@@ -414,7 +434,8 @@
            "label": "D",
            "body": "5 dan 6",
            "is_correct": false,
-           "rationale": "Itu jumlah dan hasil kali akar (−b/a = 5 dan c/a = 6), bukan akarnya. Untuk x = 5: 25 − 25 + 6 = 6, bukan 0."
+           "rationale": "Itu jumlah dan hasil kali akar (−b/a = 5 dan c/a = 6), bukan akarnya. Untuk x = 5: 25 − 25 + 6 = 6, bukan 0.",
+           "misconception_code": "SMA10-M-B5-10"
           }
          ]
         },
@@ -437,7 +458,8 @@
            "label": "A",
            "body": "−3/2 dan 2",
            "is_correct": false,
-           "rationale": "Tandanya terbalik. 2x − 3 = 0 berarti x = 3/2, dan x + 2 = 0 berarti x = −2."
+           "rationale": "Tandanya terbalik. 2x − 3 = 0 berarti x = 3/2, dan x + 2 = 0 berarti x = −2.",
+           "misconception_code": "SMA10-M-B5-02"
           },
           {
            "_row": {
@@ -447,7 +469,8 @@
            "label": "B",
            "body": "3 dan −2",
            "is_correct": false,
-           "rationale": "Koefisien 2 diabaikan: (x − 3)(x + 2) = x² − x − 6, bukan 2x² + x − 6."
+           "rationale": "Koefisien 2 diabaikan: (x − 3)(x + 2) = x² − x − 6, bukan 2x² + x − 6.",
+           "misconception_code": "SMA10-M-B5-04"
           },
           {
            "_row": {
@@ -467,7 +490,8 @@
            "label": "D",
            "body": "2 dan −3",
            "is_correct": false,
-           "rationale": "Koefisien 2 diabaikan: (x − 2)(x + 3) = x² + x − 6, bukan 2x² + x − 6."
+           "rationale": "Koefisien 2 diabaikan: (x − 2)(x + 3) = x² + x − 6, bukan 2x² + x − 6.",
+           "misconception_code": "SMA10-M-B5-04"
           }
          ]
         },
@@ -489,7 +513,8 @@
            "label": "A",
            "body": "3 dan 4",
            "is_correct": false,
-           "rationale": "Tandanya terbalik. x + 3 = 0 berarti x = −3."
+           "rationale": "Tandanya terbalik. x + 3 = 0 berarti x = −3.",
+           "misconception_code": "SMA10-M-B5-02"
           },
           {
            "_row": {
@@ -509,7 +534,8 @@
            "label": "C",
            "body": "−2 dan −6",
            "is_correct": false,
-           "rationale": "Hasil kalinya 12, tetapi jumlahnya 2 + 6 = 8, bukan 7."
+           "rationale": "Hasil kalinya 12, tetapi jumlahnya 2 + 6 = 8, bukan 7.",
+           "misconception_code": "SMA10-M-B5-03"
           },
           {
            "_row": {
@@ -519,7 +545,8 @@
            "label": "D",
            "body": "−1 dan −12",
            "is_correct": false,
-           "rationale": "Hasil kalinya 12, tetapi jumlahnya 1 + 12 = 13, bukan 7."
+           "rationale": "Hasil kalinya 12, tetapi jumlahnya 1 + 12 = 13, bukan 7.",
+           "misconception_code": "SMA10-M-B5-03"
           }
          ]
         },
@@ -541,7 +568,8 @@
            "label": "A",
            "body": "4 saja",
            "is_correct": false,
-           "rationale": "Kedua ruas dibagi x sehingga akar x = 0 hilang. Keluarkan 3x sebagai faktor."
+           "rationale": "Kedua ruas dibagi x sehingga akar x = 0 hilang. Keluarkan 3x sebagai faktor.",
+           "misconception_code": "SMA10-M-B5-04"
           },
           {
            "_row": {
@@ -551,7 +579,8 @@
            "label": "B",
            "body": "0 dan −4",
            "is_correct": false,
-           "rationale": "x − 4 = 0 berarti x = 4, bukan −4."
+           "rationale": "x − 4 = 0 berarti x = 4, bukan −4.",
+           "misconception_code": "SMA10-M-B5-02"
           },
           {
            "_row": {
@@ -561,7 +590,8 @@
            "label": "C",
            "body": "3 dan 12",
            "is_correct": false,
-           "rationale": "Itu koefisiennya, bukan akarnya. Untuk x = 3: 27 − 36 = −9, bukan 0."
+           "rationale": "Itu koefisiennya, bukan akarnya. Untuk x = 3: 27 − 36 = −9, bukan 0.",
+           "misconception_code": "SMA10-M-B5-04"
           },
           {
            "_row": {
@@ -603,7 +633,8 @@
            "label": "B",
            "body": "−3",
            "is_correct": false,
-           "rationale": "Tandanya keliru saat memindahkan ruas: 2b = 10 − 4 = 6, jadi b = 3."
+           "rationale": "Tandanya keliru saat memindahkan ruas: 2b = 10 − 4 = 6, jadi b = 3.",
+           "misconception_code": "SMA10-M-B5-14"
           },
           {
            "_row": {
@@ -613,7 +644,8 @@
            "label": "C",
            "body": "5",
            "is_correct": false,
-           "rationale": "Hanya −10 yang dipindahkan (2b = 10), padahal 4 juga harus dikurangkan: 2b = 10 − 4."
+           "rationale": "Hanya −10 yang dipindahkan (2b = 10), padahal 4 juga harus dikurangkan: 2b = 10 − 4.",
+           "misconception_code": "SMA10-M-B5-14"
           },
           {
            "_row": {
@@ -623,7 +655,8 @@
            "label": "D",
            "body": "−5",
            "is_correct": false,
-           "rationale": "Itu akar yang lain (2 × (−5) = −10), bukan b."
+           "rationale": "Itu akar yang lain (2 × (−5) = −10), bukan b.",
+           "misconception_code": "SMA10-M-B5-10"
           }
          ]
         },
@@ -645,7 +678,8 @@
            "label": "A",
            "body": "−1/2 dan −3",
            "is_correct": false,
-           "rationale": "Tandanya terbalik. 2x − 1 = 0 berarti x = 1/2."
+           "rationale": "Tandanya terbalik. 2x − 1 = 0 berarti x = 1/2.",
+           "misconception_code": "SMA10-M-B5-02"
           },
           {
            "_row": {
@@ -655,7 +689,8 @@
            "label": "B",
            "body": "1 dan 3",
            "is_correct": false,
-           "rationale": "Koefisien 2 diabaikan: (x − 1)(x − 3) = x² − 4x + 3."
+           "rationale": "Koefisien 2 diabaikan: (x − 1)(x − 3) = x² − 4x + 3.",
+           "misconception_code": "SMA10-M-B5-04"
           },
           {
            "_row": {
@@ -675,7 +710,8 @@
            "label": "D",
            "body": "−6 dan −1",
            "is_correct": false,
-           "rationale": "Itu dua bilangan pemecah suku tengah, karena (−6) × (−1) = 2 × 3 dan (−6) + (−1) = −7; keduanya bukan akar-akarnya."
+           "rationale": "Itu dua bilangan pemecah suku tengah, karena (−6) × (−1) = 2 × 3 dan (−6) + (−1) = −7; keduanya bukan akar-akarnya.",
+           "misconception_code": "SMA10-M-B5-03"
           }
          ]
         }
@@ -725,7 +761,8 @@
            "label": "B",
            "body": "(x + 3)² = 7",
            "is_correct": false,
-           "rationale": "9 hanya ditambahkan di ruas kiri. Ruas kanan juga harus ditambah 9."
+           "rationale": "9 hanya ditambahkan di ruas kiri. Ruas kanan juga harus ditambah 9.",
+           "misconception_code": "SMA10-M-B5-05"
           },
           {
            "_row": {
@@ -735,7 +772,8 @@
            "label": "C",
            "body": "(x + 6)² = 43",
            "is_correct": false,
-           "rationale": "Setengah dari b tidak diambil: (x + 6)² = x² + 12x + 36, bukan x² + 6x + 36."
+           "rationale": "Setengah dari b tidak diambil: (x + 6)² = x² + 12x + 36, bukan x² + 6x + 36.",
+           "misconception_code": "SMA10-M-B5-05"
           },
           {
            "_row": {
@@ -745,7 +783,8 @@
            "label": "D",
            "body": "(x + 3)² = −2",
            "is_correct": false,
-           "rationale": "9 dikurangkan dari ruas kanan (7 − 9), padahal harus ditambahkan."
+           "rationale": "9 dikurangkan dari ruas kanan (7 − 9), padahal harus ditambahkan.",
+           "misconception_code": "SMA10-M-B5-05"
           }
          ]
         },
@@ -777,7 +816,8 @@
            "label": "B",
            "body": "64",
            "is_correct": false,
-           "rationale": "Itu b² = 8². Yang ditambahkan (b/2)²."
+           "rationale": "Itu b² = 8². Yang ditambahkan (b/2)².",
+           "misconception_code": "SMA10-M-B5-05"
           },
           {
            "_row": {
@@ -787,7 +827,8 @@
            "label": "C",
            "body": "8",
            "is_correct": false,
-           "rationale": "Itu b. Yang ditambahkan (b/2)² = 16."
+           "rationale": "Itu b. Yang ditambahkan (b/2)² = 16.",
+           "misconception_code": "SMA10-M-B5-05"
           },
           {
            "_row": {
@@ -797,7 +838,8 @@
            "label": "D",
            "body": "4",
            "is_correct": false,
-           "rationale": "Itu b/2. Bilangan itu masih dikuadratkan: 4² = 16."
+           "rationale": "Itu b/2. Bilangan itu masih dikuadratkan: 4² = 16.",
+           "misconception_code": "SMA10-M-B5-05"
           }
          ]
         },
@@ -819,7 +861,8 @@
            "label": "A",
            "body": "8 saja",
            "is_correct": false,
-           "rationale": "Akar −3 dari 9 terlupa: x − 5 = −3 memberi x = 2."
+           "rationale": "Akar −3 dari 9 terlupa: x − 5 = −3 memberi x = 2.",
+           "misconception_code": "SMA10-M-B5-06"
           },
           {
            "_row": {
@@ -829,7 +872,8 @@
            "label": "B",
            "body": "14 dan −4",
            "is_correct": false,
-           "rationale": "9 tidak diakarkan (5 ± 9). √9 = 3."
+           "rationale": "9 tidak diakarkan (5 ± 9). √9 = 3.",
+           "misconception_code": "SMA10-M-B5-06"
           },
           {
            "_row": {
@@ -849,7 +893,8 @@
            "label": "D",
            "body": "−8 dan −2",
            "is_correct": false,
-           "rationale": "Tandanya terbalik. x − 5 = 3 berarti x = 8."
+           "rationale": "Tandanya terbalik. x − 5 = 3 berarti x = 8.",
+           "misconception_code": "SMA10-M-B5-02"
           }
          ]
         },
@@ -871,7 +916,8 @@
            "label": "A",
            "body": "−2 ± √5",
            "is_correct": false,
-           "rationale": "Tanda di dalam kuadrat terbalik: (x − 2)² = 5 memberi x = 2 ± √5."
+           "rationale": "Tanda di dalam kuadrat terbalik: (x − 2)² = 5 memberi x = 2 ± √5.",
+           "misconception_code": "SMA10-M-B5-02"
           },
           {
            "_row": {
@@ -891,7 +937,8 @@
            "label": "C",
            "body": "3 dan 1",
            "is_correct": false,
-           "rationale": "4 hanya ditambahkan di ruas kiri, sehingga (x − 2)² = 1. Ruas kanan juga ditambah 4: 1 + 4 = 5."
+           "rationale": "4 hanya ditambahkan di ruas kiri, sehingga (x − 2)² = 1. Ruas kanan juga ditambah 4: 1 + 4 = 5.",
+           "misconception_code": "SMA10-M-B5-05"
           },
           {
            "_row": {
@@ -901,7 +948,8 @@
            "label": "D",
            "body": "4 ± √17",
            "is_correct": false,
-           "rationale": "Dipakai (x − 4)² dengan menambahkan 16, padahal (x − 4)² = x² − 8x + 16. Setengah dari 4 adalah 2."
+           "rationale": "Dipakai (x − 4)² dengan menambahkan 16, padahal (x − 4)² = x² − 8x + 16. Setengah dari 4 adalah 2.",
+           "misconception_code": "SMA10-M-B5-05"
           }
          ]
         }
@@ -941,7 +989,8 @@
            "label": "A",
            "body": "24",
            "is_correct": false,
-           "rationale": "4ac ditambahkan (4 + 20). D = b² − 4ac."
+           "rationale": "4ac ditambahkan (4 + 20). D = b² − 4ac.",
+           "misconception_code": "SMA10-M-B5-08"
           },
           {
            "_row": {
@@ -951,7 +1000,8 @@
            "label": "B",
            "body": "16",
            "is_correct": false,
-           "rationale": "Tanda hasilnya terlupa: 4 − 20 = −16."
+           "rationale": "Tanda hasilnya terlupa: 4 − 20 = −16.",
+           "misconception_code": "SMA10-M-B5-08"
           },
           {
            "_row": {
@@ -971,7 +1021,8 @@
            "label": "D",
            "body": "−18",
            "is_correct": false,
-           "rationale": "b tidak dikuadratkan (2 − 20). b² = 4."
+           "rationale": "b tidak dikuadratkan (2 − 20). b² = 4.",
+           "misconception_code": "SMA10-M-B5-08"
           }
          ]
         },
@@ -994,7 +1045,8 @@
            "label": "A",
            "body": "dua akar real berbeda",
            "is_correct": false,
-           "rationale": "Itu terjadi jika D > 0. Di sini D = 144 − 144 = 0."
+           "rationale": "Itu terjadi jika D > 0. Di sini D = 144 − 144 = 0.",
+           "misconception_code": "SMA10-M-B5-09"
           },
           {
            "_row": {
@@ -1004,7 +1056,8 @@
            "label": "B",
            "body": "tidak mempunyai akar real",
            "is_correct": false,
-           "rationale": "Itu terjadi jika D < 0. Di sini D = 0."
+           "rationale": "Itu terjadi jika D < 0. Di sini D = 0.",
+           "misconception_code": "SMA10-M-B5-09"
           },
           {
            "_row": {
@@ -1014,7 +1067,8 @@
            "label": "C",
            "body": "hanya akar x = 0",
            "is_correct": false,
-           "rationale": "D = 0 tidak berarti akarnya 0. Akarnya −b/(2a) = 12/18 = 2/3."
+           "rationale": "D = 0 tidak berarti akarnya 0. Akarnya −b/(2a) = 12/18 = 2/3.",
+           "misconception_code": "SMA10-M-B5-09"
           },
           {
            "_row": {
@@ -1047,7 +1101,8 @@
            "label": "A",
            "body": "p + q = −7, pq = 10",
            "is_correct": false,
-           "rationale": "Jumlah akar adalah −b/a = −(−7) = 7, bukan b/a."
+           "rationale": "Jumlah akar adalah −b/a = −(−7) = 7, bukan b/a.",
+           "misconception_code": "SMA10-M-B5-10"
           },
           {
            "_row": {
@@ -1057,7 +1112,8 @@
            "label": "B",
            "body": "p + q = 10, pq = 7",
            "is_correct": false,
-           "rationale": "Jumlah dan hasil kali tertukar."
+           "rationale": "Jumlah dan hasil kali tertukar.",
+           "misconception_code": "SMA10-M-B5-10"
           },
           {
            "_row": {
@@ -1067,7 +1123,8 @@
            "label": "C",
            "body": "p + q = 7, pq = −10",
            "is_correct": false,
-           "rationale": "Hasil kali akar adalah c/a = 10, tanpa tanda minus."
+           "rationale": "Hasil kali akar adalah c/a = 10, tanpa tanda minus.",
+           "misconception_code": "SMA10-M-B5-10"
           },
           {
            "_row": {
@@ -1099,7 +1156,8 @@
            "label": "A",
            "body": "x = (b ± √(b² − 4ac))/(2a)",
            "is_correct": false,
-           "rationale": "Tanda minus pada −b terlupa."
+           "rationale": "Tanda minus pada −b terlupa.",
+           "misconception_code": "SMA10-M-B5-07"
           },
           {
            "_row": {
@@ -1109,7 +1167,8 @@
            "label": "B",
            "body": "x = (−b ± √(b² + 4ac))/(2a)",
            "is_correct": false,
-           "rationale": "Di bawah akar b² − 4ac, bukan b² + 4ac."
+           "rationale": "Di bawah akar b² − 4ac, bukan b² + 4ac.",
+           "misconception_code": "SMA10-M-B5-07"
           },
           {
            "_row": {
@@ -1119,7 +1178,8 @@
            "label": "C",
            "body": "x = (−b ± √(b² − 4ac))/a",
            "is_correct": false,
-           "rationale": "Pembaginya 2a, bukan a."
+           "rationale": "Pembaginya 2a, bukan a.",
+           "misconception_code": "SMA10-M-B5-07"
           },
           {
            "_row": {
@@ -1151,7 +1211,8 @@
            "label": "A",
            "body": "dua akar real kembar",
            "is_correct": false,
-           "rationale": "Akar kembar memerlukan D = 0. Di sini D = 25."
+           "rationale": "Akar kembar memerlukan D = 0. Di sini D = 25.",
+           "misconception_code": "SMA10-M-B5-09"
           },
           {
            "_row": {
@@ -1161,7 +1222,8 @@
            "label": "B",
            "body": "tidak mempunyai akar real",
            "is_correct": false,
-           "rationale": "Tanda −4ac keliru, sehingga D dihitung 9 − 16 = −7. Karena c = −2, D = 9 + 16 = 25."
+           "rationale": "Tanda −4ac keliru, sehingga D dihitung 9 − 16 = −7. Karena c = −2, D = 9 + 16 = 25.",
+           "misconception_code": "SMA10-M-B5-08"
           },
           {
            "_row": {
@@ -1171,7 +1233,8 @@
            "label": "C",
            "body": "hanya satu akar real",
            "is_correct": false,
-           "rationale": "Satu akar (kembar) terjadi jika D = 0. Di sini D = 25 > 0."
+           "rationale": "Satu akar (kembar) terjadi jika D = 0. Di sini D = 25 > 0.",
+           "misconception_code": "SMA10-M-B5-09"
           },
           {
            "_row": {
@@ -1203,7 +1266,8 @@
            "label": "A",
            "body": "4",
            "is_correct": false,
-           "rationale": "Dipakai −c/a. Hasil kali akar adalah c/a."
+           "rationale": "Dipakai −c/a. Hasil kali akar adalah c/a.",
+           "misconception_code": "SMA10-M-B5-10"
           },
           {
            "_row": {
@@ -1223,7 +1287,8 @@
            "label": "C",
            "body": "3",
            "is_correct": false,
-           "rationale": "Itu jumlah akar, −b/a = 6/2 = 3."
+           "rationale": "Itu jumlah akar, −b/a = 6/2 = 3.",
+           "misconception_code": "SMA10-M-B5-10"
           },
           {
            "_row": {
@@ -1233,7 +1298,8 @@
            "label": "D",
            "body": "−8",
            "is_correct": false,
-           "rationale": "c belum dibagi a = 2."
+           "rationale": "c belum dibagi a = 2.",
+           "misconception_code": "SMA10-M-B5-10"
           }
          ]
         },
@@ -1255,7 +1321,8 @@
            "label": "A",
            "body": "x² − 6x + 4 = 0",
            "is_correct": false,
-           "rationale": "pq dikali 2, padahal 2p × 2q = 4pq = 8."
+           "rationale": "pq dikali 2, padahal 2p × 2q = 4pq = 8.",
+           "misconception_code": "SMA10-M-B5-10"
           },
           {
            "_row": {
@@ -1265,7 +1332,8 @@
            "label": "B",
            "body": "x² + 6x + 8 = 0",
            "is_correct": false,
-           "rationale": "Koefisien x adalah −(jumlah akar) = −6."
+           "rationale": "Koefisien x adalah −(jumlah akar) = −6.",
+           "misconception_code": "SMA10-M-B5-10"
           },
           {
            "_row": {
@@ -1285,7 +1353,8 @@
            "label": "D",
            "body": "x² − 3x + 8 = 0",
            "is_correct": false,
-           "rationale": "Jumlah akar tidak dikali 2: 2p + 2q = 6."
+           "rationale": "Jumlah akar tidak dikali 2: 2p + 2q = 6.",
+           "misconception_code": "SMA10-M-B5-10"
           }
          ]
         },
@@ -1317,7 +1386,8 @@
            "label": "B",
            "body": "−1 ± √5",
            "is_correct": false,
-           "rationale": "Tanda −b terlupa: −b = −(−2) = 2."
+           "rationale": "Tanda −b terlupa: −b = −(−2) = 2.",
+           "misconception_code": "SMA10-M-B5-07"
           },
           {
            "_row": {
@@ -1327,7 +1397,8 @@
            "label": "C",
            "body": "1 ± 2√5",
            "is_correct": false,
-           "rationale": "Hanya 2 yang dibagi 2; √20 = 2√5 juga harus dibagi 2."
+           "rationale": "Hanya 2 yang dibagi 2; √20 = 2√5 juga harus dibagi 2.",
+           "misconception_code": "SMA10-M-B5-07"
           },
           {
            "_row": {
@@ -1337,7 +1408,8 @@
            "label": "D",
            "body": "2 ± 2√5",
            "is_correct": false,
-           "rationale": "Pembagian dengan 2a = 2 terlupa."
+           "rationale": "Pembagian dengan 2a = 2 terlupa.",
+           "misconception_code": "SMA10-M-B5-07"
           }
          ]
         }
@@ -1377,7 +1449,8 @@
            "label": "A",
            "body": "(3, 0)",
            "is_correct": false,
-           "rationale": "Koordinatnya terbalik. Titik pada sumbu y mempunyai x = 0."
+           "rationale": "Koordinatnya terbalik. Titik pada sumbu y mempunyai x = 0.",
+           "misconception_code": "SMA10-M-B5-13"
           },
           {
            "_row": {
@@ -1387,7 +1460,8 @@
            "label": "B",
            "body": "(0, −4)",
            "is_correct": false,
-           "rationale": "−4 adalah koefisien b. Titik potong dengan sumbu y adalah (0, c)."
+           "rationale": "−4 adalah koefisien b. Titik potong dengan sumbu y adalah (0, c).",
+           "misconception_code": "SMA10-M-B5-13"
           },
           {
            "_row": {
@@ -1397,7 +1471,8 @@
            "label": "C",
            "body": "(1, 0)",
            "is_correct": false,
-           "rationale": "Itu titik potong dengan sumbu x, karena x² − 4x + 3 = (x − 1)(x − 3)."
+           "rationale": "Itu titik potong dengan sumbu x, karena x² − 4x + 3 = (x − 1)(x − 3).",
+           "misconception_code": "SMA10-M-B5-13"
           },
           {
            "_row": {
@@ -1440,7 +1515,8 @@
            "label": "B",
            "body": "(−3, 32)",
            "is_correct": false,
-           "rationale": "Dipakai b/(2a) = −3, sehingga f(−3) = 9 + 18 + 5 = 32. Sumbu simetrinya x = −b/(2a) = 3."
+           "rationale": "Dipakai b/(2a) = −3, sehingga f(−3) = 9 + 18 + 5 = 32. Sumbu simetrinya x = −b/(2a) = 3.",
+           "misconception_code": "SMA10-M-B5-12"
           },
           {
            "_row": {
@@ -1450,7 +1526,8 @@
            "label": "C",
            "body": "(3, 5)",
            "is_correct": false,
-           "rationale": "Ordinatnya diambil dari c. Ordinat puncak adalah f(3) = −4."
+           "rationale": "Ordinatnya diambil dari c. Ordinat puncak adalah f(3) = −4.",
+           "misconception_code": "SMA10-M-B5-12"
           },
           {
            "_row": {
@@ -1460,7 +1537,8 @@
            "label": "D",
            "body": "(6, 5)",
            "is_correct": false,
-           "rationale": "Dipakai −b/a = 6, dan f(6) = 36 − 36 + 5 = 5. Pembaginya 2a."
+           "rationale": "Dipakai −b/a = 6, dan f(6) = 36 − 36 + 5 = 5. Pembaginya 2a.",
+           "misconception_code": "SMA10-M-B5-12"
           }
          ]
         },
@@ -1483,7 +1561,8 @@
            "label": "A",
            "body": "terbuka ke atas dan tidak memotong sumbu x",
            "is_correct": false,
-           "rationale": "Arah terbuka ditentukan oleh a = −1 < 0, jadi ke bawah."
+           "rationale": "Arah terbuka ditentukan oleh a = −1 < 0, jadi ke bawah.",
+           "misconception_code": "SMA10-M-B5-11"
           },
           {
            "_row": {
@@ -1493,7 +1572,8 @@
            "label": "B",
            "body": "terbuka ke bawah dan memotong sumbu x di dua titik",
            "is_correct": false,
-           "rationale": "Dua titik potong memerlukan D > 0. Di sini D = 4 − 12 = −8."
+           "rationale": "Dua titik potong memerlukan D > 0. Di sini D = 4 − 12 = −8.",
+           "misconception_code": "SMA10-M-B5-09"
           },
           {
            "_row": {
@@ -1513,7 +1593,8 @@
            "label": "D",
            "body": "terbuka ke atas dan memotong sumbu x di dua titik",
            "is_correct": false,
-           "rationale": "a = −1 < 0 (terbuka ke bawah), dan D = −8 < 0 (tidak memotong sumbu x)."
+           "rationale": "a = −1 < 0 (terbuka ke bawah), dan D = −8 < 0 (tidak memotong sumbu x).",
+           "misconception_code": "SMA10-M-B5-11"
           }
          ]
         },
@@ -1535,7 +1616,8 @@
            "label": "A",
            "body": "ke atas, karena c = 5 > 0",
            "is_correct": false,
-           "rationale": "c menentukan titik potong dengan sumbu y, bukan arah terbuka."
+           "rationale": "c menentukan titik potong dengan sumbu y, bukan arah terbuka.",
+           "misconception_code": "SMA10-M-B5-11"
           },
           {
            "_row": {
@@ -1545,7 +1627,8 @@
            "label": "B",
            "body": "ke atas, karena b = 1 > 0",
            "is_correct": false,
-           "rationale": "b tidak menentukan arah terbuka; yang menentukan adalah a."
+           "rationale": "b tidak menentukan arah terbuka; yang menentukan adalah a.",
+           "misconception_code": "SMA10-M-B5-11"
           },
           {
            "_row": {
@@ -1565,7 +1648,8 @@
            "label": "D",
            "body": "ke bawah, karena D = 41 > 0",
            "is_correct": false,
-           "rationale": "Arahnya memang ke bawah, tetapi karena a < 0. D menentukan banyak titik potong dengan sumbu x."
+           "rationale": "Arahnya memang ke bawah, tetapi karena a < 0. D menentukan banyak titik potong dengan sumbu x.",
+           "misconception_code": "SMA10-M-B5-11"
           }
          ]
         },
@@ -1597,7 +1681,8 @@
            "label": "B",
            "body": "x = −2",
            "is_correct": false,
-           "rationale": "Dipakai b/(2a). Sumbu simetrinya −b/(2a) = 2."
+           "rationale": "Dipakai b/(2a). Sumbu simetrinya −b/(2a) = 2.",
+           "misconception_code": "SMA10-M-B5-12"
           },
           {
            "_row": {
@@ -1607,7 +1692,8 @@
            "label": "C",
            "body": "x = 4",
            "is_correct": false,
-           "rationale": "Dipakai −b/a = 8/2. Pembaginya 2a = 4."
+           "rationale": "Dipakai −b/a = 8/2. Pembaginya 2a = 4.",
+           "misconception_code": "SMA10-M-B5-12"
           },
           {
            "_row": {
@@ -1617,7 +1703,8 @@
            "label": "D",
            "body": "x = 1",
            "is_correct": false,
-           "rationale": "c tidak menentukan sumbu simetri."
+           "rationale": "c tidak menentukan sumbu simetri.",
+           "misconception_code": "SMA10-M-B5-12"
           }
          ]
         },
@@ -1639,7 +1726,8 @@
            "label": "A",
            "body": "satu titik, yaitu (0, 1)",
            "is_correct": false,
-           "rationale": "(0, 1) adalah titik potong dengan sumbu y."
+           "rationale": "(0, 1) adalah titik potong dengan sumbu y.",
+           "misconception_code": "SMA10-M-B5-13"
           },
           {
            "_row": {
@@ -1649,7 +1737,8 @@
            "label": "B",
            "body": "dua titik, yaitu (−1, 0) dan (1, 0)",
            "is_correct": false,
-           "rationale": "Dua titik memerlukan D > 0. Di sini D = 0, dan f(1) = 4, bukan 0."
+           "rationale": "Dua titik memerlukan D > 0. Di sini D = 0, dan f(1) = 4, bukan 0.",
+           "misconception_code": "SMA10-M-B5-09"
           },
           {
            "_row": {
@@ -1659,7 +1748,8 @@
            "label": "C",
            "body": "tidak ada titik potong",
            "is_correct": false,
-           "rationale": "Tidak ada titik potong jika D < 0. Di sini D = 0."
+           "rationale": "Tidak ada titik potong jika D < 0. Di sini D = 0.",
+           "misconception_code": "SMA10-M-B5-09"
           },
           {
            "_row": {
@@ -1709,7 +1799,8 @@
            "label": "A",
            "body": "100 m²",
            "is_correct": false,
-           "rationale": "Kebun dianggap persegi 10 × 10 yang dipagar keliling. Sisi di tembok tidak memerlukan pagar."
+           "rationale": "Kebun dianggap persegi 10 × 10 yang dipagar keliling. Sisi di tembok tidak memerlukan pagar.",
+           "misconception_code": "SMA10-M-B5-15"
           },
           {
            "_row": {
@@ -1729,7 +1820,8 @@
            "label": "C",
            "body": "300 m²",
            "is_correct": false,
-           "rationale": "Dipakai lebar 10 dan panjang 40 − 10 = 30, padahal kedua sisi lebar memakai pagar: panjangnya 40 − 20 = 20."
+           "rationale": "Dipakai lebar 10 dan panjang 40 − 10 = 30, padahal kedua sisi lebar memakai pagar: panjangnya 40 − 20 = 20.",
+           "misconception_code": "SMA10-M-B5-15"
           },
           {
            "_row": {
@@ -1739,7 +1831,8 @@
            "label": "D",
            "body": "400 m²",
            "is_correct": false,
-           "rationale": "Kebun 20 × 20 memerlukan 20 + 20 + 20 = 60 m pagar, lebih dari 40 m."
+           "rationale": "Kebun 20 × 20 memerlukan 20 + 20 + 20 = 60 m pagar, lebih dari 40 m.",
+           "misconception_code": "SMA10-M-B5-15"
           }
          ]
         },
@@ -1761,7 +1854,8 @@
            "label": "A",
            "body": "f(x) = x² + 4x + 3",
            "is_correct": false,
-           "rationale": "Tanda h terbalik: ini (x + 2)² − 1, dengan puncak (−2, −1)."
+           "rationale": "Tanda h terbalik: ini (x + 2)² − 1, dengan puncak (−2, −1).",
+           "misconception_code": "SMA10-M-B5-12"
           },
           {
            "_row": {
@@ -1781,7 +1875,8 @@
            "label": "C",
            "body": "f(x) = x² − 5",
            "is_correct": false,
-           "rationale": "(x − 2)² dijabarkan menjadi x² − 4. Yang benar x² − 4x + 4."
+           "rationale": "(x − 2)² dijabarkan menjadi x² − 4. Yang benar x² − 4x + 4.",
+           "misconception_code": "SMA10-M-B5-14"
           },
           {
            "_row": {
@@ -1791,7 +1886,8 @@
            "label": "D",
            "body": "f(x) = x² − 4x − 1",
            "is_correct": false,
-           "rationale": "(x − 2)² dijabarkan menjadi x² − 4x, tanpa +4. Grafik ini melalui (0, −1), bukan (0, 3)."
+           "rationale": "(x − 2)² dijabarkan menjadi x² − 4x, tanpa +4. Grafik ini melalui (0, −1), bukan (0, 3).",
+           "misconception_code": "SMA10-M-B5-14"
           }
          ]
         }
@@ -1800,6 +1896,158 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SMA10-M-B5-01",
+   "label": "Bentuk persamaan kuadrat tidak dikenali",
+   "description": "Persamaan berpangkat tiga, tanpa suku x², atau dengan x di penyebut dianggap persamaan kuadrat.",
+   "remediation": "Periksa bentuk ax² + bx + c = 0: pangkat tertinggi 2 dan a ≠ 0."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SMA10-M-B5-02",
+   "label": "Tanda akar dari faktor terbalik",
+   "description": "Dari faktor (x + 3), akarnya ditulis 3, bukan −3.",
+   "remediation": "Buat faktor bernilai nol: x + 3 = 0 berarti x = −3."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SMA10-M-B5-03",
+   "label": "Faktorisasi hanya memeriksa hasil kali",
+   "description": "Dipilih dua bilangan dengan hasil kali c, tetapi jumlahnya tidak sama dengan b.",
+   "remediation": "Periksa kedua syarat, lalu jabarkan kembali faktornya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SMA10-M-B5-04",
+   "label": "Koefisien a atau akar nol terlupa",
+   "description": "Koefisien a diabaikan saat memfaktorkan, atau kedua ruas dibagi x sehingga akar 0 hilang.",
+   "remediation": "Jabarkan kembali faktornya; keluarkan x sebagai faktor, jangan membagi dengan x."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SMA10-M-B5-05",
+   "label": "Melengkapi kuadrat keliru",
+   "description": "Yang ditambahkan b² atau b/2, bukan (b/2)², atau hanya satu ruas yang ditambah.",
+   "remediation": "Tulis (x + m)² = x² + 2mx + m², lalu tambahkan m² di kedua ruas."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SMA10-M-B5-06",
+   "label": "Akar kuadrat hanya positif",
+   "description": "Dari (x + m)² = n hanya diambil akar positif, sehingga satu akar hilang.",
+   "remediation": "Ingat ±: x + m = √n atau x + m = −√n."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SMA10-M-B5-07",
+   "label": "Rumus kuadrat keliru",
+   "description": "Tanda −b terlupa, b² − 4ac ditulis b² + 4ac, atau hanya √D yang dibagi 2a.",
+   "remediation": "Tulis rumus lengkap dengan kurung: (−b ± √(b² − 4ac))/(2a)."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SMA10-M-B5-08",
+   "label": "Diskriminan keliru dihitung",
+   "description": "Tanda pada −4ac keliru, atau b tidak dikuadratkan.",
+   "remediation": "Hitung b² dan 4ac terpisah, lalu kurangkan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SMA10-M-B5-09",
+   "label": "Jenis akar dari D tertukar",
+   "description": "D = 0, D > 0, dan D < 0 dipasangkan dengan jenis akar yang keliru.",
+   "remediation": "Ingat √D dalam rumus: √D real dan bukan nol memberi dua akar, √0 memberi satu akar kembar."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SMA10-M-B5-10",
+   "label": "Jumlah dan hasil kali akar keliru",
+   "description": "Tanda −b/a dan c/a tertukar, atau jumlah dan hasil kali tertukar.",
+   "remediation": "Periksa dengan contoh: x² − 5x + 6 = (x − 2)(x − 3), jumlahnya 5 dan hasil kalinya 6."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SMA10-M-B5-11",
+   "label": "Arah parabola dibaca dari b atau c",
+   "description": "Arah terbuka parabola ditentukan dari tanda b, c, atau D, bukan dari a.",
+   "remediation": "Hanya tanda a yang menentukan: a > 0 ke atas, a < 0 ke bawah."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 13
+   },
+   "code": "SMA10-M-B5-12",
+   "label": "Sumbu simetri atau titik puncak keliru",
+   "description": "Dipakai −b/a atau b/(2a), atau ordinat puncak diambil dari c.",
+   "remediation": "Hitung h = −b/(2a), lalu substitusikan h ke f(x) untuk mendapat k."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 14
+   },
+   "code": "SMA10-M-B5-13",
+   "label": "Titik potong sumbu x dan sumbu y tertukar",
+   "description": "Titik (0, c) dianggap titik potong dengan sumbu x, atau koordinatnya dibalik.",
+   "remediation": "Sumbu y: x = 0, jadi (0, c). Sumbu x: f(x) = 0, jadi (akar, 0)."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 15
+   },
+   "code": "SMA10-M-B5-14",
+   "label": "Model atau penjabaran keliru",
+   "description": "Hubungan dalam masalah ditulis linear, tandanya tertukar, atau perkalian kurung tidak lengkap.",
+   "remediation": "Tulis arti variabel, lalu kalikan setiap suku di kurung pertama dengan setiap suku di kurung kedua."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 16
+   },
+   "code": "SMA10-M-B5-15",
+   "label": "Syarat masalah optimum terlupa",
+   "description": "Nilai maksimum dihitung tanpa memakai hubungan antarukuran, sehingga ukurannya tidak mungkin.",
+   "remediation": "Nyatakan semua ukuran dengan satu variabel sebelum mencari titik puncak."
   }
  ]
 }

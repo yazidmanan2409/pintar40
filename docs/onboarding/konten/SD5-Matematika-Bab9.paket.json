@@ -53,7 +53,8 @@
            "label": "A",
            "body": "empat puluh enam ribu dua ratus lima puluh",
            "is_correct": false,
-           "rationale": "Ini bacaan 46.250; angka 0 di puluh ribuan terlewat, sehingga 4 bergeser ke puluh ribuan."
+           "rationale": "Ini bacaan 46.250; angka 0 di puluh ribuan terlewat, sehingga 4 bergeser ke puluh ribuan.",
+           "misconception_code": "SD5-M-B9-02"
           },
           {
            "_row": {
@@ -73,7 +74,8 @@
            "label": "C",
            "body": "empat ratus ribu enam ribu dua ratus lima puluh",
            "is_correct": false,
-           "rationale": "Kata ribu diucapkan dua kali. Kelompok 406 dibaca utuh, lalu satu kali ribu."
+           "rationale": "Kata ribu diucapkan dua kali. Kelompok 406 dibaca utuh, lalu satu kali ribu.",
+           "misconception_code": "SD5-M-B9-01"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "empat ratus enam ribu dua puluh lima",
            "is_correct": false,
-           "rationale": "Ini bacaan 406.025. Kelompok kanan adalah 250, dua ratus lima puluh."
+           "rationale": "Ini bacaan 406.025. Kelompok kanan adalah 250, dua ratus lima puluh.",
+           "misconception_code": "SD5-M-B9-03"
           }
          ]
         },
@@ -106,7 +109,8 @@
            "label": "A",
            "body": "680.040",
            "is_correct": false,
-           "rationale": "Delapan ribu ditulis di puluh ribuan. Enam ratus delapan adalah 608."
+           "rationale": "Delapan ribu ditulis di puluh ribuan. Enam ratus delapan adalah 608.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -116,7 +120,8 @@
            "label": "B",
            "body": "608.400",
            "is_correct": false,
-           "rationale": "Empat puluh ditulis di ratusan. Kelompok kanan 040."
+           "rationale": "Empat puluh ditulis di ratusan. Kelompok kanan 040.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -136,7 +141,8 @@
            "label": "D",
            "body": "6.008.040",
            "is_correct": false,
-           "rationale": "Enam ratus dan delapan ribu ditulis terpisah (600 lalu 8.040). Keduanya satu kelompok: 608 ribu."
+           "rationale": "Enam ratus dan delapan ribu ditulis terpisah (600 lalu 8.040). Keduanya satu kelompok: 608 ribu.",
+           "misconception_code": "SD5-M-B9-01"
           }
          ]
         },
@@ -168,7 +174,8 @@
            "label": "B",
            "body": "tiga ratus dua puluh ribu delapan puluh",
            "is_correct": false,
-           "rationale": "Ini bacaan 320.080. Kelompok kanan 018: delapan belas."
+           "rationale": "Ini bacaan 320.080. Kelompok kanan 018: delapan belas.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -178,7 +185,8 @@
            "label": "C",
            "body": "tiga ribu dua ratus delapan belas",
            "is_correct": false,
-           "rationale": "Ini bacaan 3.218; semua angka 0 terlewat."
+           "rationale": "Ini bacaan 3.218; semua angka 0 terlewat.",
+           "misconception_code": "SD5-M-B9-02"
           },
           {
            "_row": {
@@ -188,7 +196,8 @@
            "label": "D",
            "body": "tiga ratus dua ribu delapan belas",
            "is_correct": false,
-           "rationale": "Ini bacaan 302.018. Kelompok kiri 320: tiga ratus dua puluh."
+           "rationale": "Ini bacaan 302.018. Kelompok kiri 320: tiga ratus dua puluh.",
+           "misconception_code": "SD5-M-B9-03"
           }
          ]
         },
@@ -210,7 +219,8 @@
            "label": "A",
            "body": "950.000",
            "is_correct": false,
-           "rationale": "Ini sembilan ratus lima puluh ribu. Lima puluh datang sesudah kata ribu."
+           "rationale": "Ini sembilan ratus lima puluh ribu. Lima puluh datang sesudah kata ribu.",
+           "misconception_code": "SD5-M-B9-01"
           },
           {
            "_row": {
@@ -220,7 +230,8 @@
            "label": "B",
            "body": "9.050",
            "is_correct": false,
-           "rationale": "Nol di ratus ribuan dan puluh ribuan terlewat; 9 harus di ratus ribuan."
+           "rationale": "Nol di ratus ribuan dan puluh ribuan terlewat; 9 harus di ratus ribuan.",
+           "misconception_code": "SD5-M-B9-02"
           },
           {
            "_row": {
@@ -240,7 +251,8 @@
            "label": "D",
            "body": "900.500",
            "is_correct": false,
-           "rationale": "Lima puluh ditulis di ratusan. Kelompok kanan 050."
+           "rationale": "Lima puluh ditulis di ratusan. Kelompok kanan 050.",
+           "misconception_code": "SD5-M-B9-03"
           }
          ]
         },
@@ -262,7 +274,8 @@
            "label": "A",
            "body": "100.000",
            "is_correct": false,
-           "rationale": "Ini seratus ribu. Satu juta adalah sepuluh kali seratus ribu."
+           "rationale": "Ini seratus ribu. Satu juta adalah sepuluh kali seratus ribu.",
+           "misconception_code": "SD5-M-B9-11"
           },
           {
            "_row": {
@@ -282,7 +295,8 @@
            "label": "C",
            "body": "10.000.000",
            "is_correct": false,
-           "rationale": "Ini sepuluh juta; ada tujuh angka 0."
+           "rationale": "Ini sepuluh juta; ada tujuh angka 0.",
+           "misconception_code": "SD5-M-B9-11"
           },
           {
            "_row": {
@@ -292,7 +306,8 @@
            "label": "D",
            "body": "1.000",
            "is_correct": false,
-           "rationale": "Ini seribu. Satu juta adalah seribu kali seribu."
+           "rationale": "Ini seribu. Satu juta adalah seribu kali seribu.",
+           "misconception_code": "SD5-M-B9-11"
           }
          ]
         }
@@ -332,7 +347,8 @@
            "label": "A",
            "body": "ribuan",
            "is_correct": false,
-           "rationale": "Ribuan ditempati angka 3. Angka 8 satu tempat lebih ke kiri."
+           "rationale": "Ribuan ditempati angka 3. Angka 8 satu tempat lebih ke kiri.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -342,7 +358,8 @@
            "label": "B",
            "body": "ratus ribuan",
            "is_correct": false,
-           "rationale": "Ratus ribuan ditempati angka 5, yang paling kiri."
+           "rationale": "Ratus ribuan ditempati angka 5, yang paling kiri.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -352,7 +369,8 @@
            "label": "C",
            "body": "80.000",
            "is_correct": false,
-           "rationale": "80.000 adalah nilai angka 8. Yang ditanyakan nama tempatnya."
+           "rationale": "80.000 adalah nilai angka 8. Yang ditanyakan nama tempatnya.",
+           "misconception_code": "SD5-M-B9-04"
           },
           {
            "_row": {
@@ -395,7 +413,8 @@
            "label": "B",
            "body": "Puluh ribuan",
            "is_correct": false,
-           "rationale": "Ini nama tempat angka 7. Yang ditanyakan nilainya: 7 × 10.000."
+           "rationale": "Ini nama tempat angka 7. Yang ditanyakan nilainya: 7 × 10.000.",
+           "misconception_code": "SD5-M-B9-04"
           },
           {
            "_row": {
@@ -405,7 +424,8 @@
            "label": "C",
            "body": "7.000",
            "is_correct": false,
-           "rationale": "Angka 7 dianggap di ribuan. Ribuan ditempati angka 2."
+           "rationale": "Angka 7 dianggap di ribuan. Ribuan ditempati angka 2.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -415,7 +435,8 @@
            "label": "D",
            "body": "700.000",
            "is_correct": false,
-           "rationale": "Angka 7 dianggap di ratus ribuan. Ratus ribuan ditempati angka 4."
+           "rationale": "Angka 7 dianggap di ratus ribuan. Ratus ribuan ditempati angka 4.",
+           "misconception_code": "SD5-M-B9-03"
           }
          ]
         },
@@ -437,7 +458,8 @@
            "label": "A",
            "body": "puluh ribuan",
            "is_correct": false,
-           "rationale": "Puluh ribuan ditempati angka 1."
+           "rationale": "Puluh ribuan ditempati angka 1.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -447,7 +469,8 @@
            "label": "B",
            "body": "ratusan",
            "is_correct": false,
-           "rationale": "Ratusan ditempati angka 9."
+           "rationale": "Ratusan ditempati angka 9.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -457,7 +480,8 @@
            "label": "C",
            "body": "6.000",
            "is_correct": false,
-           "rationale": "6.000 adalah nilai angka 6. Yang ditanyakan nama tempatnya."
+           "rationale": "6.000 adalah nilai angka 6. Yang ditanyakan nama tempatnya.",
+           "misconception_code": "SD5-M-B9-04"
           },
           {
            "_row": {
@@ -499,7 +523,8 @@
            "label": "B",
            "body": "5.000",
            "is_correct": false,
-           "rationale": "Angka 5 dianggap di ribuan. Ribuan ditempati angka 8."
+           "rationale": "Angka 5 dianggap di ribuan. Ribuan ditempati angka 8.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -509,7 +534,8 @@
            "label": "C",
            "body": "Puluh ribuan",
            "is_correct": false,
-           "rationale": "Ini nama tempat angka 5. Yang ditanyakan nilainya: 5 × 10.000."
+           "rationale": "Ini nama tempat angka 5. Yang ditanyakan nilainya: 5 × 10.000.",
+           "misconception_code": "SD5-M-B9-04"
           },
           {
            "_row": {
@@ -519,7 +545,8 @@
            "label": "D",
            "body": "500.000",
            "is_correct": false,
-           "rationale": "Angka 5 dianggap di ratus ribuan. Ratus ribuan ditempati angka 1."
+           "rationale": "Angka 5 dianggap di ratus ribuan. Ratus ribuan ditempati angka 1.",
+           "misconception_code": "SD5-M-B9-03"
           }
          ]
         },
@@ -541,7 +568,8 @@
            "label": "A",
            "body": "245.108",
            "is_correct": false,
-           "rationale": "Angka 4 di puluh ribuan, bernilai 40.000."
+           "rationale": "Angka 4 di puluh ribuan, bernilai 40.000.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -551,7 +579,8 @@
            "label": "B",
            "body": "154.208",
            "is_correct": false,
-           "rationale": "Angka 4 di ribuan, bernilai 4.000."
+           "rationale": "Angka 4 di ribuan, bernilai 4.000.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -571,7 +600,8 @@
            "label": "D",
            "body": "128.504",
            "is_correct": false,
-           "rationale": "Angka 4 di satuan, bernilai 4."
+           "rationale": "Angka 4 di satuan, bernilai 4.",
+           "misconception_code": "SD5-M-B9-03"
           }
          ]
         }
@@ -621,7 +651,8 @@
            "label": "B",
            "body": "99.870 > 100.200",
            "is_correct": false,
-           "rationale": "Angka pertama 9 dianggap menentukan. Hitung dahulu banyak angkanya: lima dan enam."
+           "rationale": "Angka pertama 9 dianggap menentukan. Hitung dahulu banyak angkanya: lima dan enam.",
+           "misconception_code": "SD5-M-B9-06"
           },
           {
            "_row": {
@@ -631,7 +662,8 @@
            "label": "C",
            "body": "99.870 = 100.200",
            "is_correct": false,
-           "rationale": "Kedua bilangan berbeda; 100.200 lebih besar."
+           "rationale": "Kedua bilangan berbeda; 100.200 lebih besar.",
+           "misconception_code": "SD5-M-B9-06"
           },
           {
            "_row": {
@@ -641,7 +673,8 @@
            "label": "D",
            "body": "Tidak dapat dibandingkan",
            "is_correct": false,
-           "rationale": "Bilangan dengan banyak angka berbeda tetap dapat dibandingkan: yang angkanya lebih banyak lebih besar."
+           "rationale": "Bilangan dengan banyak angka berbeda tetap dapat dibandingkan: yang angkanya lebih banyak lebih besar.",
+           "misconception_code": "SD5-M-B9-06"
           }
          ]
         },
@@ -664,7 +697,8 @@
            "label": "A",
            "body": "806.591 < 806.519",
            "is_correct": false,
-           "rationale": "Yang dibandingkan angka satuannya (1 dan 9). Mulailah dari kiri; puluhanlah yang pertama berbeda."
+           "rationale": "Yang dibandingkan angka satuannya (1 dan 9). Mulailah dari kiri; puluhanlah yang pertama berbeda.",
+           "misconception_code": "SD5-M-B9-05"
           },
           {
            "_row": {
@@ -674,7 +708,8 @@
            "label": "B",
            "body": "806.591 = 806.519",
            "is_correct": false,
-           "rationale": "Angka-angkanya sama, tetapi tempatnya berbeda, jadi nilainya berbeda."
+           "rationale": "Angka-angkanya sama, tetapi tempatnya berbeda, jadi nilainya berbeda.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -684,7 +719,8 @@
            "label": "C",
            "body": "95.910 > 806.519",
            "is_correct": false,
-           "rationale": "Angka pertama 9 dianggap menentukan. 95.910 hanya mempunyai lima angka."
+           "rationale": "Angka pertama 9 dianggap menentukan. 95.910 hanya mempunyai lima angka.",
+           "misconception_code": "SD5-M-B9-06"
           },
           {
            "_row": {
@@ -716,7 +752,8 @@
            "label": "A",
            "body": "700.009 < 699.999",
            "is_correct": false,
-           "rationale": "Yang dibandingkan angka-angka belakangnya (banyak 9 pada 699.999). Mulailah dari kiri: 7 > 6."
+           "rationale": "Yang dibandingkan angka-angka belakangnya (banyak 9 pada 699.999). Mulailah dari kiri: 7 > 6.",
+           "misconception_code": "SD5-M-B9-05"
           },
           {
            "_row": {
@@ -736,7 +773,8 @@
            "label": "C",
            "body": "700.009 = 699.999",
            "is_correct": false,
-           "rationale": "Kedua bilangan berbeda; ratus ribuannya 7 dan 6."
+           "rationale": "Kedua bilangan berbeda; ratus ribuannya 7 dan 6.",
+           "misconception_code": "SD5-M-B9-05"
           },
           {
            "_row": {
@@ -746,7 +784,8 @@
            "label": "D",
            "body": "Tidak dapat dibandingkan",
            "is_correct": false,
-           "rationale": "Keduanya mempunyai enam angka dan dapat dibandingkan dari kiri."
+           "rationale": "Keduanya mempunyai enam angka dan dapat dibandingkan dari kiri.",
+           "misconception_code": "SD5-M-B9-05"
           }
          ]
         },
@@ -768,7 +807,8 @@
            "label": "A",
            "body": "angka paling kanan, yaitu satuan",
            "is_correct": false,
-           "rationale": "Satuan bernilai paling kecil, jadi tidak menentukan bila angka di kirinya berbeda."
+           "rationale": "Satuan bernilai paling kecil, jadi tidak menentukan bila angka di kirinya berbeda.",
+           "misconception_code": "SD5-M-B9-05"
           },
           {
            "_row": {
@@ -778,7 +818,8 @@
            "label": "B",
            "body": "angka yang paling besar di setiap bilangan",
            "is_correct": false,
-           "rationale": "Yang dibandingkan angka pada tempat yang sama, mulai dari kiri."
+           "rationale": "Yang dibandingkan angka pada tempat yang sama, mulai dari kiri.",
+           "misconception_code": "SD5-M-B9-05"
           },
           {
            "_row": {
@@ -788,7 +829,8 @@
            "label": "C",
            "body": "jumlah semua angka pada setiap bilangan",
            "is_correct": false,
-           "rationale": "Jumlah angka tidak menentukan: 900.000 (jumlah 9) lebih besar dari 199.999 (jumlah 46)."
+           "rationale": "Jumlah angka tidak menentukan: 900.000 (jumlah 9) lebih besar dari 199.999 (jumlah 46).",
+           "misconception_code": "SD5-M-B9-06"
           },
           {
            "_row": {
@@ -838,7 +880,8 @@
            "label": "A",
            "body": "548.005; 540.812; 540.083; 504.089",
            "is_correct": false,
-           "rationale": "Ini urutan dari yang terbesar."
+           "rationale": "Ini urutan dari yang terbesar.",
+           "misconception_code": "SD5-M-B9-07"
           },
           {
            "_row": {
@@ -858,7 +901,8 @@
            "label": "C",
            "body": "540.812; 540.083; 548.005; 504.089",
            "is_correct": false,
-           "rationale": "Bilangan diurutkan dari angka belakangnya. Mulailah dari angka paling kiri."
+           "rationale": "Bilangan diurutkan dari angka belakangnya. Mulailah dari angka paling kiri.",
+           "misconception_code": "SD5-M-B9-05"
           },
           {
            "_row": {
@@ -868,7 +912,8 @@
            "label": "D",
            "body": "504.089; 540.812; 540.083; 548.005",
            "is_correct": false,
-           "rationale": "540.812 dan 540.083 tertukar: pada ratusan 0 < 8, jadi 540.083 lebih kecil."
+           "rationale": "540.812 dan 540.083 tertukar: pada ratusan 0 < 8, jadi 540.083 lebih kecil.",
+           "misconception_code": "SD5-M-B9-03"
           }
          ]
         },
@@ -891,7 +936,8 @@
            "label": "A",
            "body": "725.150",
            "is_correct": false,
-           "rationale": "900 + 250 = 1.150; seribunya tidak disimpan ke ribuan."
+           "rationale": "900 + 250 = 1.150; seribunya tidak disimpan ke ribuan.",
+           "misconception_code": "SD5-M-B9-08"
           },
           {
            "_row": {
@@ -901,7 +947,8 @@
            "label": "B",
            "body": "725.950",
            "is_correct": false,
-           "rationale": "Langkahnya dianggap 50. Selisih dua bilangan yang berurutan adalah 250."
+           "rationale": "Langkahnya dianggap 50. Selisih dua bilangan yang berurutan adalah 250.",
+           "misconception_code": "SD5-M-B9-08"
           },
           {
            "_row": {
@@ -921,7 +968,8 @@
            "label": "D",
            "body": "726.900",
            "is_correct": false,
-           "rationale": "Langkahnya dianggap 1.000. Selisih dua bilangan yang berurutan adalah 250."
+           "rationale": "Langkahnya dianggap 1.000. Selisih dua bilangan yang berurutan adalah 250.",
+           "misconception_code": "SD5-M-B9-08"
           }
          ]
         },
@@ -943,7 +991,8 @@
            "label": "A",
            "body": "Rp251.000",
            "is_correct": false,
-           "rationale": "Ini harga termahal. Yang ditanyakan termurah."
+           "rationale": "Ini harga termahal. Yang ditanyakan termurah.",
+           "misconception_code": "SD5-M-B9-07"
           },
           {
            "_row": {
@@ -953,7 +1002,8 @@
            "label": "B",
            "body": "Rp215.900",
            "is_correct": false,
-           "rationale": "Hanya ribuan yang dibandingkan. Pada puluh ribuan, 209.990 mempunyai 0."
+           "rationale": "Hanya ribuan yang dibandingkan. Pada puluh ribuan, 209.990 mempunyai 0.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -973,7 +1023,8 @@
            "label": "D",
            "body": "Rp219.500",
            "is_correct": false,
-           "rationale": "Angka-angka belakangnya yang dibandingkan. Mulailah dari angka paling kiri."
+           "rationale": "Angka-angka belakangnya yang dibandingkan. Mulailah dari angka paling kiri.",
+           "misconception_code": "SD5-M-B9-05"
           }
          ]
         },
@@ -1005,7 +1056,8 @@
            "label": "B",
            "body": "301.500",
            "is_correct": false,
-           "rationale": "Langkahnya dianggap 500. Selisih yang berurutan 250."
+           "rationale": "Langkahnya dianggap 500. Selisih yang berurutan 250.",
+           "misconception_code": "SD5-M-B9-08"
           },
           {
            "_row": {
@@ -1015,7 +1067,8 @@
            "label": "C",
            "body": "302.000",
            "is_correct": false,
-           "rationale": "Langkahnya dianggap 1.000. Selisih yang berurutan 250."
+           "rationale": "Langkahnya dianggap 1.000. Selisih yang berurutan 250.",
+           "misconception_code": "SD5-M-B9-08"
           },
           {
            "_row": {
@@ -1025,7 +1078,8 @@
            "label": "D",
            "body": "301.025",
            "is_correct": false,
-           "rationale": "250 ditulis di tempat yang bergeser. 301.000 + 250 = 301.250."
+           "rationale": "250 ditulis di tempat yang bergeser. 301.000 + 250 = 301.250.",
+           "misconception_code": "SD5-M-B9-03"
           }
          ]
         }
@@ -1065,7 +1119,8 @@
            "label": "A",
            "body": "3.527",
            "is_correct": false,
-           "rationale": "Angka-angka ditulis berjajar tanpa 0 untuk tempat yang kosong."
+           "rationale": "Angka-angka ditulis berjajar tanpa 0 untuk tempat yang kosong.",
+           "misconception_code": "SD5-M-B9-02"
           },
           {
            "_row": {
@@ -1075,7 +1130,8 @@
            "label": "B",
            "body": "350.720",
            "is_correct": false,
-           "rationale": "2 ratusan dan 7 satuan ditulis di tempat yang bergeser: 7 di ratusan, 2 di puluhan."
+           "rationale": "2 ratusan dan 7 satuan ditulis di tempat yang bergeser: 7 di ratusan, 2 di puluhan.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -1095,7 +1151,8 @@
            "label": "D",
            "body": "35.207",
            "is_correct": false,
-           "rationale": "Ratus ribuan ditulis sebagai puluh ribuan; satu tempat 0 terlewat."
+           "rationale": "Ratus ribuan ditulis sebagai puluh ribuan; satu tempat 0 terlewat.",
+           "misconception_code": "SD5-M-B9-02"
           }
          ]
         },
@@ -1128,7 +1185,8 @@
            "label": "B",
            "body": "700.000 + 40.000 + 30 + 6",
            "is_correct": false,
-           "rationale": "Angka 4 di ribuan, bukan di puluh ribuan. Puluh ribuannya 0."
+           "rationale": "Angka 4 di ribuan, bukan di puluh ribuan. Puluh ribuannya 0.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -1138,7 +1196,8 @@
            "label": "C",
            "body": "70.000 + 4.000 + 300 + 6",
            "is_correct": false,
-           "rationale": "Setiap angka digeser satu tempat ke kanan; angka 7 berada di ratus ribuan."
+           "rationale": "Setiap angka digeser satu tempat ke kanan; angka 7 berada di ratus ribuan.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -1148,7 +1207,8 @@
            "label": "D",
            "body": "7 + 4 + 3 + 6",
            "is_correct": false,
-           "rationale": "Ini angka-angkanya saja; nilainya belum dikalikan dengan nilai tempat."
+           "rationale": "Ini angka-angkanya saja; nilainya belum dikalikan dengan nilai tempat.",
+           "misconception_code": "SD5-M-B9-04"
           }
          ]
         },
@@ -1171,7 +1231,8 @@
            "label": "A",
            "body": "Rp63.800",
            "is_correct": false,
-           "rationale": "Setiap jenis uang ditulis satu tempat terlalu ke kanan. Seratus ribuan menempati ratus ribuan."
+           "rationale": "Setiap jenis uang ditulis satu tempat terlalu ke kanan. Seratus ribuan menempati ratus ribuan.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -1181,7 +1242,8 @@
            "label": "B",
            "body": "Rp683.000",
            "is_correct": false,
-           "rationale": "Sepuluh ribuan dan seribuan tertukar: 3 lembar sepuluh ribuan bernilai 30.000."
+           "rationale": "Sepuluh ribuan dan seribuan tertukar: 3 lembar sepuluh ribuan bernilai 30.000.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -1191,7 +1253,8 @@
            "label": "C",
            "body": "Rp17.000",
            "is_correct": false,
-           "rationale": "Banyak lembarnya dijumlahkan (6 + 3 + 8). Setiap lembar dikalikan dengan nilainya."
+           "rationale": "Banyak lembarnya dijumlahkan (6 + 3 + 8). Setiap lembar dikalikan dengan nilainya.",
+           "misconception_code": "SD5-M-B9-09"
           },
           {
            "_row": {
@@ -1223,7 +1286,8 @@
            "label": "A",
            "body": "564",
            "is_correct": false,
-           "rationale": "Angka-angka ditulis berjajar tanpa 0 untuk tempat yang kosong."
+           "rationale": "Angka-angka ditulis berjajar tanpa 0 untuk tempat yang kosong.",
+           "misconception_code": "SD5-M-B9-02"
           },
           {
            "_row": {
@@ -1233,7 +1297,8 @@
            "label": "B",
            "body": "560.400",
            "is_correct": false,
-           "rationale": "6 ribuan ditulis di puluh ribuan."
+           "rationale": "6 ribuan ditulis di puluh ribuan.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -1243,7 +1308,8 @@
            "label": "C",
            "body": "56.400",
            "is_correct": false,
-           "rationale": "Nol di puluh ribuan terlewat, sehingga 5 turun ke puluh ribuan."
+           "rationale": "Nol di puluh ribuan terlewat, sehingga 5 turun ke puluh ribuan.",
+           "misconception_code": "SD5-M-B9-02"
           },
           {
            "_row": {
@@ -1275,7 +1341,8 @@
            "label": "A",
            "body": "600.000 + 8.000 + 90",
            "is_correct": false,
-           "rationale": "Angka 8 di puluh ribuan, bernilai 80.000."
+           "rationale": "Angka 8 di puluh ribuan, bernilai 80.000.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -1295,7 +1362,8 @@
            "label": "C",
            "body": "600.000 + 80.000 + 900",
            "is_correct": false,
-           "rationale": "Angka 9 di puluhan, bernilai 90."
+           "rationale": "Angka 9 di puluhan, bernilai 90.",
+           "misconception_code": "SD5-M-B9-03"
           },
           {
            "_row": {
@@ -1305,7 +1373,8 @@
            "label": "D",
            "body": "6 + 8 + 9",
            "is_correct": false,
-           "rationale": "Ini angka-angkanya saja; kalikan dengan nilai tempatnya."
+           "rationale": "Ini angka-angkanya saja; kalikan dengan nilai tempatnya.",
+           "misconception_code": "SD5-M-B9-04"
           }
          ]
         },
@@ -1327,7 +1396,8 @@
            "label": "A",
            "body": "2 lembar seratus ribuan dan 5 lembar seribuan",
            "is_correct": false,
-           "rationale": "5 lembar seribuan hanya 5.000, jadi jumlahnya 205.000."
+           "rationale": "5 lembar seribuan hanya 5.000, jadi jumlahnya 205.000.",
+           "misconception_code": "SD5-M-B9-09"
           },
           {
            "_row": {
@@ -1337,7 +1407,8 @@
            "label": "B",
            "body": "25 lembar seribuan",
            "is_correct": false,
-           "rationale": "25 lembar seribuan hanya 25.000."
+           "rationale": "25 lembar seribuan hanya 25.000.",
+           "misconception_code": "SD5-M-B9-09"
           },
           {
            "_row": {
@@ -1357,7 +1428,8 @@
            "label": "D",
            "body": "5 lembar lima puluh ribuan dan 2 lembar sepuluh ribuan",
            "is_correct": false,
-           "rationale": "5 × 50.000 sudah 250.000; ditambah 20.000 menjadi 270.000."
+           "rationale": "5 × 50.000 sudah 250.000; ditambah 20.000 menjadi 270.000.",
+           "misconception_code": "SD5-M-B9-09"
           }
          ]
         }
@@ -1398,7 +1470,8 @@
            "label": "A",
            "body": "Rp1.503.500",
            "is_correct": false,
-           "rationale": "Kedua bilangan dijumlahkan. Kekurangan dicari dengan pengurangan."
+           "rationale": "Kedua bilangan dijumlahkan. Kekurangan dicari dengan pengurangan.",
+           "misconception_code": "SD5-M-B9-10"
           },
           {
            "_row": {
@@ -1418,7 +1491,8 @@
            "label": "C",
            "body": "Rp253.500",
            "is_correct": false,
-           "rationale": "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam."
+           "rationale": "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam.",
+           "misconception_code": "SD5-M-B9-10"
           },
           {
            "_row": {
@@ -1428,7 +1502,8 @@
            "label": "D",
            "body": "Rp247.500",
            "is_correct": false,
-           "rationale": "Pinjaman dari ribuan tidak dikurangkan. Periksa: 628.500 + 247.500 = 876.000."
+           "rationale": "Pinjaman dari ribuan tidak dikurangkan. Periksa: 628.500 + 247.500 = 876.000.",
+           "misconception_code": "SD5-M-B9-10"
           }
          ]
         },
@@ -1460,7 +1535,8 @@
            "label": "B",
            "body": "Rp615.000",
            "is_correct": false,
-           "rationale": "Harga dan uang dijumlahkan. Kekurangan dicari dengan pengurangan."
+           "rationale": "Harga dan uang dijumlahkan. Kekurangan dicari dengan pengurangan.",
+           "misconception_code": "SD5-M-B9-10"
           },
           {
            "_row": {
@@ -1470,7 +1546,8 @@
            "label": "C",
            "body": "Rp175.000",
            "is_correct": false,
-           "rationale": "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam."
+           "rationale": "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam.",
+           "misconception_code": "SD5-M-B9-10"
           },
           {
            "_row": {
@@ -1480,7 +1557,8 @@
            "label": "D",
            "body": "Rp295.000",
            "is_correct": false,
-           "rationale": "Ini uang yang dimiliki Rina. Yang ditanyakan kekurangannya."
+           "rationale": "Ini uang yang dimiliki Rina. Yang ditanyakan kekurangannya.",
+           "misconception_code": "SD5-M-B9-10"
           }
          ]
         },
@@ -1502,7 +1580,8 @@
            "label": "A",
            "body": "Rp562.300",
            "is_correct": false,
-           "rationale": "Uang dan kembalian dijumlahkan. Harga = uang yang dibayarkan − kembalian."
+           "rationale": "Uang dan kembalian dijumlahkan. Harga = uang yang dibayarkan − kembalian.",
+           "misconception_code": "SD5-M-B9-10"
           },
           {
            "_row": {
@@ -1512,7 +1591,8 @@
            "label": "B",
            "body": "Rp447.700",
            "is_correct": false,
-           "rationale": "Pinjaman pada puluh ribuan terlupa. Periksa: 447.700 + 62.300 = 510.000."
+           "rationale": "Pinjaman pada puluh ribuan terlupa. Periksa: 447.700 + 62.300 = 510.000.",
+           "misconception_code": "SD5-M-B9-10"
           },
           {
            "_row": {
@@ -1522,7 +1602,8 @@
            "label": "C",
            "body": "Rp62.300",
            "is_correct": false,
-           "rationale": "Ini kembaliannya. Yang ditanyakan harga barang."
+           "rationale": "Ini kembaliannya. Yang ditanyakan harga barang.",
+           "misconception_code": "SD5-M-B9-10"
           },
           {
            "_row": {
@@ -1554,7 +1635,8 @@
            "label": "A",
            "body": "Rp856.320",
            "is_correct": false,
-           "rationale": "Kedua dana dijumlahkan. Selisih dicari dengan pengurangan."
+           "rationale": "Kedua dana dijumlahkan. Selisih dicari dengan pengurangan.",
+           "misconception_code": "SD5-M-B9-10"
           },
           {
            "_row": {
@@ -1574,7 +1656,8 @@
            "label": "C",
            "body": "Rp55.220",
            "is_correct": false,
-           "rationale": "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam."
+           "rationale": "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam.",
+           "misconception_code": "SD5-M-B9-10"
           },
           {
            "_row": {
@@ -1584,7 +1667,8 @@
            "label": "D",
            "body": "Rp450.570",
            "is_correct": false,
-           "rationale": "Ini dana yang lebih banyak. Yang ditanyakan selisihnya."
+           "rationale": "Ini dana yang lebih banyak. Yang ditanyakan selisihnya.",
+           "misconception_code": "SD5-M-B9-10"
           }
          ]
         }
@@ -1593,6 +1677,118 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SD5-M-B9-01",
+   "label": "Kelompok ribuan keliru dibaca",
+   "description": "Bilangan tidak dibaca per kelompok tiga angka, misalnya kata ribu diucapkan dua kali (dua ratus ribu sembilan puluh enam ribu) atau kelompoknya tergeser.",
+   "remediation": "Tutup kelompok kanan dengan jari, baca kelompok kiri lalu ucapkan ribu, kemudian baca kelompok kanan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SD5-M-B9-02",
+   "label": "Angka nol terlewat",
+   "description": "Angka nol sebagai penanda tempat dihilangkan, sehingga bilangan kehilangan satu tempat atau lebih.",
+   "remediation": "Tulis bilangan pada tabel nilai tempat; setiap kolom harus terisi, dan yang kosong diisi 0."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SD5-M-B9-03",
+   "label": "Nilai tempat tertukar",
+   "description": "Tempat sebuah angka keliru ditentukan, misalnya puluh ribuan dianggap ribuan, atau angka ditulis di kolom yang bergeser.",
+   "remediation": "Hitung tempat dari kanan dengan jari: satuan, puluhan, ratusan, ribuan, puluh ribuan, ratus ribuan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SD5-M-B9-04",
+   "label": "Angka, tempat, dan nilai tertukar",
+   "description": "Angkanya saja (misalnya 7) atau nama tempatnya diberikan saat yang ditanyakan nilainya (70.000), atau sebaliknya.",
+   "remediation": "Tulis tiga baris untuk setiap angka: angkanya, tempatnya, nilainya (angka × nilai tempat)."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SD5-M-B9-05",
+   "label": "Membandingkan dari belakang",
+   "description": "Dua bilangan dibandingkan mulai dari angka paling kanan, padahal angka itu bernilai paling kecil.",
+   "remediation": "Tunjuk angka paling kiri lebih dahulu, dan bandingkan ke kanan sampai menemukan angka yang berbeda."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SD5-M-B9-06",
+   "label": "Banyak angka tidak diperhatikan",
+   "description": "Bilangan dengan angka depan lebih besar dianggap lebih besar walaupun angkanya lebih sedikit (99.870 dianggap lebih dari 100.200).",
+   "remediation": "Minta murid menghitung banyak angka setiap bilangan sebelum membandingkan angka pertamanya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SD5-M-B9-07",
+   "label": "Arah urutan terbalik",
+   "description": "Urutan dari yang terbesar diberikan saat yang diminta dari yang terkecil, atau sebaliknya.",
+   "remediation": "Minta murid menandai kata terkecil atau terbesar pada soal dan memeriksa bilangan pertama urutannya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SD5-M-B9-08",
+   "label": "Langkah pola keliru",
+   "description": "Selisih pola salah ditentukan, atau tempat yang berubah saat penjumlahan melewati 1.000 tidak disimpan.",
+   "remediation": "Hitung selisih dua pasang bilangan yang berurutan; bila sama, tambahkan selisih itu pada bilangan terakhir dengan teliti."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SD5-M-B9-09",
+   "label": "Banyak lembar dianggap nilai",
+   "description": "Banyak lembar atau keping uang dijumlahkan atau ditulis langsung, tanpa dikalikan dengan nilai setiap lembar.",
+   "remediation": "Pakai uang mainan: kelompokkan per jenis, kalikan banyak lembar dengan nilainya, lalu jumlahkan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SD5-M-B9-10",
+   "label": "Soal cerita keliru dipahami",
+   "description": "Operasi yang dipilih tidak sesuai dengan cerita, jawaban bukan yang ditanyakan, atau pengurangan dilakukan tanpa meminjam.",
+   "remediation": "Minta murid menceritakan ulang soal dengan kata-katanya sendiri dan menulis yang ditanyakan sebelum menghitung; periksa pengurangan dengan penjumlahan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SD5-M-B9-11",
+   "label": "Satu juta keliru ditulis",
+   "description": "Satu juta ditulis dengan banyak nol yang keliru, tertukar dengan seratus ribu atau sepuluh juta.",
+   "remediation": "Hitung bersama: 10 kali seratus ribu adalah sejuta, yang ditulis 1 diikuti enam angka 0."
   }
  ]
 }

@@ -63,7 +63,8 @@
            "label": "B",
            "body": "x = 3, y = 7",
            "is_correct": false,
-           "rationale": "Nilai x dan y tertukar. Periksa: 3 − 7 = −4, bukan 4."
+           "rationale": "Nilai x dan y tertukar. Periksa: 3 − 7 = −4, bukan 4.",
+           "misconception_code": "SMA10-M-B4-02"
           },
           {
            "_row": {
@@ -73,7 +74,8 @@
            "label": "C",
            "body": "x = 14, y = −4",
            "is_correct": false,
-           "rationale": "2x = 14 belum dibagi 2. x = 7."
+           "rationale": "2x = 14 belum dibagi 2. x = 7.",
+           "misconception_code": "SMA10-M-B4-01"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "x = 6, y = 4",
            "is_correct": false,
-           "rationale": "Hanya memenuhi x + y = 10; 6 − 4 = 2, bukan 4."
+           "rationale": "Hanya memenuhi x + y = 10; 6 − 4 = 2, bukan 4.",
+           "misconception_code": "SMA10-M-B4-03"
           }
          ]
         },
@@ -106,7 +109,8 @@
            "label": "A",
            "body": "Rp20.000",
            "is_correct": false,
-           "rationale": "Itu harga 1 kg apel (a = 32.000 − 2 × 6.000). Yang ditanya jeruk."
+           "rationale": "Itu harga 1 kg apel (a = 32.000 − 2 × 6.000). Yang ditanya jeruk.",
+           "misconception_code": "SMA10-M-B4-02"
           },
           {
            "_row": {
@@ -116,7 +120,8 @@
            "label": "B",
            "body": "Rp26.000",
            "is_correct": false,
-           "rationale": "Kedua persamaan dikurangkan tanpa menyamakan koefisien, sehingga yang didapat a + j = 26.000, bukan harga jeruk."
+           "rationale": "Kedua persamaan dikurangkan tanpa menyamakan koefisien, sehingga yang didapat a + j = 26.000, bukan harga jeruk.",
+           "misconception_code": "SMA10-M-B4-01"
           },
           {
            "_row": {
@@ -136,7 +141,8 @@
            "label": "D",
            "body": "Rp13.000",
            "is_correct": false,
-           "rationale": "a + j = 26.000 dibagi 2, seolah apel dan jeruk sama harganya."
+           "rationale": "a + j = 26.000 dibagi 2, seolah apel dan jeruk sama harganya.",
+           "misconception_code": "SMA10-M-B4-01"
           }
          ]
         },
@@ -158,7 +164,8 @@
            "label": "A",
            "body": "memenuhi satu persamaan saja",
            "is_correct": false,
-           "rationale": "Nilai yang hanya memenuhi satu persamaan belum tentu memenuhi yang lain."
+           "rationale": "Nilai yang hanya memenuhi satu persamaan belum tentu memenuhi yang lain.",
+           "misconception_code": "SMA10-M-B4-03"
           },
           {
            "_row": {
@@ -178,7 +185,8 @@
            "label": "C",
            "body": "membuat semua persamaan bernilai nol",
            "is_correct": false,
-           "rationale": "Yang dicari nilai variabel yang membuat setiap persamaan benar, bukan bernilai nol."
+           "rationale": "Yang dicari nilai variabel yang membuat setiap persamaan benar, bukan bernilai nol.",
+           "misconception_code": "SMA10-M-B4-04"
           },
           {
            "_row": {
@@ -188,7 +196,8 @@
            "label": "D",
            "body": "sama untuk setiap variabel",
            "is_correct": false,
-           "rationale": "Nilai setiap variabel boleh berbeda, seperti buku Rp2.000 dan pensil Rp4.000."
+           "rationale": "Nilai setiap variabel boleh berbeda, seperti buku Rp2.000 dan pensil Rp4.000.",
+           "misconception_code": "SMA10-M-B4-02"
           }
          ]
         },
@@ -210,7 +219,8 @@
            "label": "A",
            "body": "3",
            "is_correct": false,
-           "rationale": "Itu nilai y."
+           "rationale": "Itu nilai y.",
+           "misconception_code": "SMA10-M-B4-02"
           },
           {
            "_row": {
@@ -220,7 +230,8 @@
            "label": "B",
            "body": "8",
            "is_correct": false,
-           "rationale": "Itu nilai 2x. Masih dibagi 2."
+           "rationale": "Itu nilai 2x. Masih dibagi 2.",
+           "misconception_code": "SMA10-M-B4-01"
           },
           {
            "_row": {
@@ -230,7 +241,8 @@
            "label": "C",
            "body": "6",
            "is_correct": false,
-           "rationale": "Hasil 7 − 1 = 6 langsung dianggap nilai x. Jumlahkan kedua persamaan: 2x = 8, jadi x = 4."
+           "rationale": "Hasil 7 − 1 = 6 langsung dianggap nilai x. Jumlahkan kedua persamaan: 2x = 8, jadi x = 4.",
+           "misconception_code": "SMA10-M-B4-01"
           },
           {
            "_row": {
@@ -272,7 +284,8 @@
            "label": "B",
            "body": "4",
            "is_correct": false,
-           "rationale": "Itu nilai x."
+           "rationale": "Itu nilai x.",
+           "misconception_code": "SMA10-M-B4-02"
           },
           {
            "_row": {
@@ -282,7 +295,8 @@
            "label": "C",
            "body": "6",
            "is_correct": false,
-           "rationale": "12 dibagi 2, seolah x = y. Padahal y = 2x."
+           "rationale": "12 dibagi 2, seolah x = y. Padahal y = 2x.",
+           "misconception_code": "SMA10-M-B4-02"
           },
           {
            "_row": {
@@ -292,7 +306,8 @@
            "label": "D",
            "body": "24",
            "is_correct": false,
-           "rationale": "12 dikalikan 2. Substitusikan y = 2x ke x + y = 12 lebih dahulu."
+           "rationale": "12 dikalikan 2. Substitusikan y = 2x ke x + y = 12 lebih dahulu.",
+           "misconception_code": "SMA10-M-B4-02"
           }
          ]
         },
@@ -314,7 +329,8 @@
            "label": "A",
            "body": "b + 2p = 13.000",
            "is_correct": false,
-           "rationale": "Koefisiennya tertukar: 2 untuk buku, 1 untuk pena."
+           "rationale": "Koefisiennya tertukar: 2 untuk buku, 1 untuk pena.",
+           "misconception_code": "SMA10-M-B4-11"
           },
           {
            "_row": {
@@ -324,7 +340,8 @@
            "label": "B",
            "body": "2bp = 13.000",
            "is_correct": false,
-           "rationale": "Harga dijumlahkan, bukan dikalikan; 2bp juga bukan bentuk linear."
+           "rationale": "Harga dijumlahkan, bukan dikalikan; 2bp juga bukan bentuk linear.",
+           "misconception_code": "SMA10-M-B4-06"
           },
           {
            "_row": {
@@ -344,7 +361,8 @@
            "label": "D",
            "body": "2b + p < 13.000",
            "is_correct": false,
-           "rationale": "Harganya tepat Rp13.000, jadi dipakai persamaan."
+           "rationale": "Harganya tepat Rp13.000, jadi dipakai persamaan.",
+           "misconception_code": "SMA10-M-B4-11"
           }
          ]
         }
@@ -394,7 +412,8 @@
            "label": "B",
            "body": "(3, 2, 4)",
            "is_correct": false,
-           "rationale": "Hanya memenuhi persamaan pertama: 2 × 3 − 2 + 4 = 8, bukan 5."
+           "rationale": "Hanya memenuhi persamaan pertama: 2 × 3 − 2 + 4 = 8, bukan 5.",
+           "misconception_code": "SMA10-M-B4-03"
           },
           {
            "_row": {
@@ -404,7 +423,8 @@
            "label": "C",
            "body": "(4, 3, 2)",
            "is_correct": false,
-           "rationale": "Hanya memenuhi persamaan pertama: 2 × 4 − 3 + 2 = 7, bukan 5."
+           "rationale": "Hanya memenuhi persamaan pertama: 2 × 4 − 3 + 2 = 7, bukan 5.",
+           "misconception_code": "SMA10-M-B4-03"
           },
           {
            "_row": {
@@ -414,7 +434,8 @@
            "label": "D",
            "body": "(2, 4, 3)",
            "is_correct": false,
-           "rationale": "Hanya memenuhi persamaan pertama: 2 × 2 − 4 + 3 = 3, bukan 5."
+           "rationale": "Hanya memenuhi persamaan pertama: 2 × 2 − 4 + 3 = 3, bukan 5.",
+           "misconception_code": "SMA10-M-B4-03"
           }
          ]
         },
@@ -436,7 +457,8 @@
            "label": "A",
            "body": "x² + y + z = 3",
            "is_correct": false,
-           "rationale": "x² berpangkat dua, jadi bukan linear."
+           "rationale": "x² berpangkat dua, jadi bukan linear.",
+           "misconception_code": "SMA10-M-B4-06"
           },
           {
            "_row": {
@@ -446,7 +468,8 @@
            "label": "B",
            "body": "xy + z = 5",
            "is_correct": false,
-           "rationale": "xy adalah perkalian dua variabel, jadi bukan linear."
+           "rationale": "xy adalah perkalian dua variabel, jadi bukan linear.",
+           "misconception_code": "SMA10-M-B4-06"
           },
           {
            "_row": {
@@ -466,7 +489,8 @@
            "label": "D",
            "body": "x + y + 1/z = 2",
            "is_correct": false,
-           "rationale": "1/z memuat variabel di penyebut, jadi bukan linear."
+           "rationale": "1/z memuat variabel di penyebut, jadi bukan linear.",
+           "misconception_code": "SMA10-M-B4-06"
           }
          ]
         },
@@ -498,7 +522,8 @@
            "label": "B",
            "body": "6",
            "is_correct": false,
-           "rationale": "Itu ruas kanan persamaan. x dan y belum dikurangkan."
+           "rationale": "Itu ruas kanan persamaan. x dan y belum dikurangkan.",
+           "misconception_code": "SMA10-M-B4-02"
           },
           {
            "_row": {
@@ -508,7 +533,8 @@
            "label": "C",
            "body": "9",
            "is_correct": false,
-           "rationale": "x dan y ditambahkan ke 6. Pindahkan ke ruas kanan dengan mengurangkan: 6 − 1 − 2."
+           "rationale": "x dan y ditambahkan ke 6. Pindahkan ke ruas kanan dengan mengurangkan: 6 − 1 − 2.",
+           "misconception_code": "SMA10-M-B4-01"
           },
           {
            "_row": {
@@ -518,7 +544,8 @@
            "label": "D",
            "body": "−3",
            "is_correct": false,
-           "rationale": "Tandanya terbalik (1 + 2 − 6). z = 6 − 1 − 2 = 3."
+           "rationale": "Tandanya terbalik (1 + 2 − 6). z = 6 − 1 − 2 = 3.",
+           "misconception_code": "SMA10-M-B4-01"
           }
          ]
         },
@@ -540,7 +567,8 @@
            "label": "A",
            "body": "6",
            "is_correct": false,
-           "rationale": "Itu nilai 2z. Masih dibagi 2."
+           "rationale": "Itu nilai 2z. Masih dibagi 2.",
+           "misconception_code": "SMA10-M-B4-01"
           },
           {
            "_row": {
@@ -550,7 +578,8 @@
            "label": "B",
            "body": "7",
            "is_correct": false,
-           "rationale": "Itu nilai x + y = 10 − 3."
+           "rationale": "Itu nilai x + y = 10 − 3.",
+           "misconception_code": "SMA10-M-B4-02"
           },
           {
            "_row": {
@@ -560,7 +589,8 @@
            "label": "C",
            "body": "14",
            "is_correct": false,
-           "rationale": "Kedua persamaan dijumlahkan, sehingga z hilang: 2x + 2y = 14. Untuk mencari z, kurangkan."
+           "rationale": "Kedua persamaan dijumlahkan, sehingga z hilang: 2x + 2y = 14. Untuk mencari z, kurangkan.",
+           "misconception_code": "SMA10-M-B4-01"
           },
           {
            "_row": {
@@ -592,7 +622,8 @@
            "label": "A",
            "body": "dua",
            "is_correct": false,
-           "rationale": "Dua persamaan hanya cukup untuk dua variabel. Pada tiga variabel, satu variabel tersisa bebas."
+           "rationale": "Dua persamaan hanya cukup untuk dua variabel. Pada tiga variabel, satu variabel tersisa bebas.",
+           "misconception_code": "SMA10-M-B4-11"
           },
           {
            "_row": {
@@ -612,7 +643,8 @@
            "label": "C",
            "body": "satu",
            "is_correct": false,
-           "rationale": "Satu persamaan tiga variabel mempunyai banyak sekali solusi."
+           "rationale": "Satu persamaan tiga variabel mempunyai banyak sekali solusi.",
+           "misconception_code": "SMA10-M-B4-04"
           },
           {
            "_row": {
@@ -622,7 +654,8 @@
            "label": "D",
            "body": "enam",
            "is_correct": false,
-           "rationale": "Tiga persamaan sudah dapat cukup; tidak perlu dua persamaan untuk setiap variabel."
+           "rationale": "Tiga persamaan sudah dapat cukup; tidak perlu dua persamaan untuk setiap variabel.",
+           "misconception_code": "SMA10-M-B4-11"
           }
          ]
         }
@@ -662,7 +695,8 @@
            "label": "A",
            "body": "sistem mempunyai banyak solusi",
            "is_correct": false,
-           "rationale": "Banyak solusi ditandai pernyataan yang selalu benar, seperti 0 = 0."
+           "rationale": "Banyak solusi ditandai pernyataan yang selalu benar, seperti 0 = 0.",
+           "misconception_code": "SMA10-M-B4-04"
           },
           {
            "_row": {
@@ -672,7 +706,8 @@
            "label": "B",
            "body": "solusinya x = 0",
            "is_correct": false,
-           "rationale": "0 = 5 tidak memuat x. Pernyataan itu tidak benar untuk semua nilai."
+           "rationale": "0 = 5 tidak memuat x. Pernyataan itu tidak benar untuk semua nilai.",
+           "misconception_code": "SMA10-M-B4-04"
           },
           {
            "_row": {
@@ -692,7 +727,8 @@
            "label": "D",
            "body": "solusinya 5",
            "is_correct": false,
-           "rationale": "0 = 5 bukan nilai variabel, melainkan pernyataan yang tidak pernah benar."
+           "rationale": "0 = 5 bukan nilai variabel, melainkan pernyataan yang tidak pernah benar.",
+           "misconception_code": "SMA10-M-B4-04"
           }
          ]
         },
@@ -715,7 +751,8 @@
            "label": "A",
            "body": "tepat satu solusi",
            "is_correct": false,
-           "rationale": "Satu solusi memerlukan dua garis berpotongan. Persamaan kedua adalah persamaan pertama dikali 2, jadi garisnya berimpit."
+           "rationale": "Satu solusi memerlukan dua garis berpotongan. Persamaan kedua adalah persamaan pertama dikali 2, jadi garisnya berimpit.",
+           "misconception_code": "SMA10-M-B4-05"
           },
           {
            "_row": {
@@ -725,7 +762,8 @@
            "label": "B",
            "body": "tidak ada solusi",
            "is_correct": false,
-           "rationale": "Eliminasi memberi 0 = 0, bukan pernyataan yang tidak benar."
+           "rationale": "Eliminasi memberi 0 = 0, bukan pernyataan yang tidak benar.",
+           "misconception_code": "SMA10-M-B4-04"
           },
           {
            "_row": {
@@ -735,7 +773,8 @@
            "label": "C",
            "body": "tepat dua solusi",
            "is_correct": false,
-           "rationale": "Sistem persamaan linear tidak mungkin mempunyai tepat dua solusi: satu, tidak ada, atau banyak."
+           "rationale": "Sistem persamaan linear tidak mungkin mempunyai tepat dua solusi: satu, tidak ada, atau banyak.",
+           "misconception_code": "SMA10-M-B4-05"
           },
           {
            "_row": {
@@ -768,7 +807,8 @@
            "label": "A",
            "body": "dua garis berimpit",
            "is_correct": false,
-           "rationale": "Garis berimpit memberi 0 = 0. Di sini eliminasi memberi 0 = 2."
+           "rationale": "Garis berimpit memberi 0 = 0. Di sini eliminasi memberi 0 = 2.",
+           "misconception_code": "SMA10-M-B4-05"
           },
           {
            "_row": {
@@ -788,7 +828,8 @@
            "label": "C",
            "body": "dua garis berpotongan di satu titik",
            "is_correct": false,
-           "rationale": "Kedua persamaan mempunyai koefisien x dan y yang sebanding (4 : 2 = −2 : −1), jadi garisnya tidak berpotongan."
+           "rationale": "Kedua persamaan mempunyai koefisien x dan y yang sebanding (4 : 2 = −2 : −1), jadi garisnya tidak berpotongan.",
+           "misconception_code": "SMA10-M-B4-05"
           },
           {
            "_row": {
@@ -798,7 +839,8 @@
            "label": "D",
            "body": "dua garis yang saling tegak lurus",
            "is_correct": false,
-           "rationale": "Garis tegak lurus pasti berpotongan. Eliminasi memberi 0 = 2, jadi tidak ada titik bersama."
+           "rationale": "Garis tegak lurus pasti berpotongan. Eliminasi memberi 0 = 2, jadi tidak ada titik bersama.",
+           "misconception_code": "SMA10-M-B4-05"
           }
          ]
         },
@@ -820,7 +862,8 @@
            "label": "A",
            "body": "tidak ada solusi",
            "is_correct": false,
-           "rationale": "Tidak ada solusi ditandai pernyataan yang tidak pernah benar, seperti 0 = 5."
+           "rationale": "Tidak ada solusi ditandai pernyataan yang tidak pernah benar, seperti 0 = 5.",
+           "misconception_code": "SMA10-M-B4-04"
           },
           {
            "_row": {
@@ -830,7 +873,8 @@
            "label": "B",
            "body": "satu solusi, yaitu x = 0",
            "is_correct": false,
-           "rationale": "0 = 0 tidak memuat x, jadi bukan nilai x."
+           "rationale": "0 = 0 tidak memuat x, jadi bukan nilai x.",
+           "misconception_code": "SMA10-M-B4-04"
           },
           {
            "_row": {
@@ -840,7 +884,8 @@
            "label": "C",
            "body": "satu solusi, yaitu x = 0 dan y = 0",
            "is_correct": false,
-           "rationale": "0 = 0 bukan nilai variabel; pernyataan itu benar untuk semua nilai."
+           "rationale": "0 = 0 bukan nilai variabel; pernyataan itu benar untuk semua nilai.",
+           "misconception_code": "SMA10-M-B4-04"
           },
           {
            "_row": {
@@ -872,7 +917,8 @@
            "label": "A",
            "body": "semua titik pada kedua garis",
            "is_correct": false,
-           "rationale": "Titik pada satu garis saja hanya memenuhi satu persamaan."
+           "rationale": "Titik pada satu garis saja hanya memenuhi satu persamaan.",
+           "misconception_code": "SMA10-M-B4-03"
           },
           {
            "_row": {
@@ -892,7 +938,8 @@
            "label": "C",
            "body": "titik potong garis dengan sumbu x",
            "is_correct": false,
-           "rationale": "Titik pada sumbu x belum tentu terletak pada garis yang lain."
+           "rationale": "Titik pada sumbu x belum tentu terletak pada garis yang lain.",
+           "misconception_code": "SMA10-M-B4-05"
           },
           {
            "_row": {
@@ -902,7 +949,8 @@
            "label": "D",
            "body": "tidak ada",
            "is_correct": false,
-           "rationale": "Tidak ada solusi terjadi pada garis sejajar. Garis yang berpotongan mempunyai satu titik bersama."
+           "rationale": "Tidak ada solusi terjadi pada garis sejajar. Garis yang berpotongan mempunyai satu titik bersama.",
+           "misconception_code": "SMA10-M-B4-05"
           }
          ]
         },
@@ -924,7 +972,8 @@
            "label": "A",
            "body": "banyak solusi",
            "is_correct": false,
-           "rationale": "Banyak solusi memerlukan 0 = 0. Di sini diperoleh 0 = 2."
+           "rationale": "Banyak solusi memerlukan 0 = 0. Di sini diperoleh 0 = 2.",
+           "misconception_code": "SMA10-M-B4-04"
           },
           {
            "_row": {
@@ -934,7 +983,8 @@
            "label": "B",
            "body": "tepat satu solusi",
            "is_correct": false,
-           "rationale": "Koefisien x dan y sebanding (6 : 3 = 2 : 1), jadi garisnya tidak berpotongan."
+           "rationale": "Koefisien x dan y sebanding (6 : 3 = 2 : 1), jadi garisnya tidak berpotongan.",
+           "misconception_code": "SMA10-M-B4-05"
           },
           {
            "_row": {
@@ -954,7 +1004,8 @@
            "label": "D",
            "body": "tepat dua solusi",
            "is_correct": false,
-           "rationale": "Tepat dua solusi tidak mungkin terjadi."
+           "rationale": "Tepat dua solusi tidak mungkin terjadi.",
+           "misconception_code": "SMA10-M-B4-05"
           }
          ]
         },
@@ -986,7 +1037,8 @@
            "label": "B",
            "body": "x + y = 4 dan 2x + 2y = 8",
            "is_correct": false,
-           "rationale": "Persamaan kedua sama dengan yang pertama dikali 2: banyak solusi."
+           "rationale": "Persamaan kedua sama dengan yang pertama dikali 2: banyak solusi.",
+           "misconception_code": "SMA10-M-B4-05"
           },
           {
            "_row": {
@@ -996,7 +1048,8 @@
            "label": "C",
            "body": "x + y = 4 dan x + y = 6",
            "is_correct": false,
-           "rationale": "x + y tidak mungkin 4 dan 6 sekaligus: tidak ada solusi."
+           "rationale": "x + y tidak mungkin 4 dan 6 sekaligus: tidak ada solusi.",
+           "misconception_code": "SMA10-M-B4-05"
           },
           {
            "_row": {
@@ -1006,7 +1059,8 @@
            "label": "D",
            "body": "x − y = 2 dan 3x − 3y = 6",
            "is_correct": false,
-           "rationale": "Persamaan kedua sama dengan yang pertama dikali 3: banyak solusi."
+           "rationale": "Persamaan kedua sama dengan yang pertama dikali 3: banyak solusi.",
+           "misconception_code": "SMA10-M-B4-05"
           }
          ]
         }
@@ -1046,7 +1100,8 @@
            "label": "A",
            "body": "(4, 0)",
            "is_correct": false,
-           "rationale": "3 × 4 + 2 × 0 = 12, dan 12 < 12 tidak benar. Titik ini terletak pada garis batas yang putus-putus."
+           "rationale": "3 × 4 + 2 × 0 = 12, dan 12 < 12 tidak benar. Titik ini terletak pada garis batas yang putus-putus.",
+           "misconception_code": "SMA10-M-B4-08"
           },
           {
            "_row": {
@@ -1066,7 +1121,8 @@
            "label": "C",
            "body": "(2, 4)",
            "is_correct": false,
-           "rationale": "3 × 2 + 2 × 4 = 14, tidak kurang dari 12."
+           "rationale": "3 × 2 + 2 × 4 = 14, tidak kurang dari 12.",
+           "misconception_code": "SMA10-M-B4-09"
           },
           {
            "_row": {
@@ -1076,7 +1132,8 @@
            "label": "D",
            "body": "(4, 1)",
            "is_correct": false,
-           "rationale": "3 × 4 + 2 × 1 = 14, tidak kurang dari 12."
+           "rationale": "3 × 4 + 2 × 1 = 14, tidak kurang dari 12.",
+           "misconception_code": "SMA10-M-B4-09"
           }
          ]
         },
@@ -1099,7 +1156,8 @@
            "label": "A",
            "body": "(4, 1)",
            "is_correct": false,
-           "rationale": "x − y = 3 > 1 benar, tetapi 2 × 4 + 1 = 9, lebih dari 8. Kedua syarat harus dipenuhi."
+           "rationale": "x − y = 3 > 1 benar, tetapi 2 × 4 + 1 = 9, lebih dari 8. Kedua syarat harus dipenuhi.",
+           "misconception_code": "SMA10-M-B4-10"
           },
           {
            "_row": {
@@ -1119,7 +1177,8 @@
            "label": "C",
            "body": "(2, 1)",
            "is_correct": false,
-           "rationale": "x − y = 1, dan 1 > 1 tidak benar. Titik ini terletak pada garis batas putus-putus, yang tidak termasuk."
+           "rationale": "x − y = 1, dan 1 > 1 tidak benar. Titik ini terletak pada garis batas putus-putus, yang tidak termasuk.",
+           "misconception_code": "SMA10-M-B4-08"
           },
           {
            "_row": {
@@ -1129,7 +1188,8 @@
            "label": "D",
            "body": "(0, 0)",
            "is_correct": false,
-           "rationale": "2 × 0 + 0 ≤ 8 benar, tetapi 0 − 0 = 0 > 1 tidak benar."
+           "rationale": "2 × 0 + 0 ≤ 8 benar, tetapi 0 − 0 = 0 > 1 tidak benar.",
+           "misconception_code": "SMA10-M-B4-10"
           }
          ]
         },
@@ -1152,7 +1212,8 @@
            "label": "A",
            "body": "putus-putus, karena titik pada garis tidak termasuk daerah hasil",
            "is_correct": false,
-           "rationale": "Garis putus-putus dipakai untuk < dan >. Tanda ≥ memuat «sama dengan»."
+           "rationale": "Garis putus-putus dipakai untuk < dan >. Tanda ≥ memuat «sama dengan».",
+           "misconception_code": "SMA10-M-B4-08"
           },
           {
            "_row": {
@@ -1162,7 +1223,8 @@
            "label": "B",
            "body": "utuh, karena semua garis batas digambar utuh",
            "is_correct": false,
-           "rationale": "Tidak semua: garis untuk < dan > digambar putus-putus."
+           "rationale": "Tidak semua: garis untuk < dan > digambar putus-putus.",
+           "misconception_code": "SMA10-M-B4-08"
           },
           {
            "_row": {
@@ -1172,7 +1234,8 @@
            "label": "C",
            "body": "putus-putus, karena garis hanya batas",
            "is_correct": false,
-           "rationale": "Itu berlaku untuk < dan >. Untuk ≥, garisnya termasuk daerah hasil."
+           "rationale": "Itu berlaku untuk < dan >. Untuk ≥, garisnya termasuk daerah hasil.",
+           "misconception_code": "SMA10-M-B4-08"
           },
           {
            "_row": {
@@ -1214,7 +1277,8 @@
            "label": "B",
            "body": "tidak, karena 0 < 12 tidak benar",
            "is_correct": false,
-           "rationale": "0 < 12 justru benar."
+           "rationale": "0 < 12 justru benar.",
+           "misconception_code": "SMA10-M-B4-09"
           },
           {
            "_row": {
@@ -1224,7 +1288,8 @@
            "label": "C",
            "body": "tidak, karena (0, 0) terletak pada garis batas",
            "is_correct": false,
-           "rationale": "Pada garis batas 4x + 3y = 12. Di (0, 0) nilainya 0, jadi titik itu tidak pada garis."
+           "rationale": "Pada garis batas 4x + 3y = 12. Di (0, 0) nilainya 0, jadi titik itu tidak pada garis.",
+           "misconception_code": "SMA10-M-B4-09"
           },
           {
            "_row": {
@@ -1234,7 +1299,8 @@
            "label": "D",
            "body": "hanya jika garisnya digambar utuh",
            "is_correct": false,
-           "rationale": "Jenis garis hanya menentukan titik pada garis batas. (0, 0) tidak pada garis."
+           "rationale": "Jenis garis hanya menentukan titik pada garis batas. (0, 0) tidak pada garis.",
+           "misconception_code": "SMA10-M-B4-08"
           }
          ]
         },
@@ -1256,7 +1322,8 @@
            "label": "A",
            "body": "(2, 2)",
            "is_correct": false,
-           "rationale": "2 + 2 = 4, tidak lebih dari 5."
+           "rationale": "2 + 2 = 4, tidak lebih dari 5.",
+           "misconception_code": "SMA10-M-B4-09"
           },
           {
            "_row": {
@@ -1266,7 +1333,8 @@
            "label": "B",
            "body": "(5, 0)",
            "is_correct": false,
-           "rationale": "5 + 0 = 5, dan 5 > 5 tidak benar. Titik ini terletak pada garis batas putus-putus."
+           "rationale": "5 + 0 = 5, dan 5 > 5 tidak benar. Titik ini terletak pada garis batas putus-putus.",
+           "misconception_code": "SMA10-M-B4-08"
           },
           {
            "_row": {
@@ -1286,7 +1354,8 @@
            "label": "D",
            "body": "(0, 0)",
            "is_correct": false,
-           "rationale": "0 + 0 = 0, tidak lebih dari 5."
+           "rationale": "0 + 0 = 0, tidak lebih dari 5.",
+           "misconception_code": "SMA10-M-B4-09"
           }
          ]
         },
@@ -1308,7 +1377,8 @@
            "label": "A",
            "body": "garis utuh",
            "is_correct": false,
-           "rationale": "Garis utuh dipakai untuk ≤ dan ≥."
+           "rationale": "Garis utuh dipakai untuk ≤ dan ≥.",
+           "misconception_code": "SMA10-M-B4-08"
           },
           {
            "_row": {
@@ -1328,7 +1398,8 @@
            "label": "C",
            "body": "garis utuh yang diarsir",
            "is_correct": false,
-           "rationale": "Yang diarsir adalah daerahnya, dan garis untuk < digambar putus-putus."
+           "rationale": "Yang diarsir adalah daerahnya, dan garis untuk < digambar putus-putus.",
+           "misconception_code": "SMA10-M-B4-08"
           },
           {
            "_row": {
@@ -1338,7 +1409,8 @@
            "label": "D",
            "body": "tidak perlu digambar",
            "is_correct": false,
-           "rationale": "Garis batas diperlukan untuk memisahkan daerah hasil dari yang bukan."
+           "rationale": "Garis batas diperlukan untuk memisahkan daerah hasil dari yang bukan.",
+           "misconception_code": "SMA10-M-B4-08"
           }
          ]
         },
@@ -1360,7 +1432,8 @@
            "label": "A",
            "body": "gabungan semua daerah hasil",
            "is_correct": false,
-           "rationale": "Gabungan memuat titik yang hanya memenuhi satu pertidaksamaan."
+           "rationale": "Gabungan memuat titik yang hanya memenuhi satu pertidaksamaan.",
+           "misconception_code": "SMA10-M-B4-10"
           },
           {
            "_row": {
@@ -1370,7 +1443,8 @@
            "label": "B",
            "body": "daerah hasil pertidaksamaan pertama saja",
            "is_correct": false,
-           "rationale": "Setiap pertidaksamaan dalam sistem harus dipenuhi."
+           "rationale": "Setiap pertidaksamaan dalam sistem harus dipenuhi.",
+           "misconception_code": "SMA10-M-B4-10"
           },
           {
            "_row": {
@@ -1380,7 +1454,8 @@
            "label": "C",
            "body": "titik potong garis-garis batasnya",
            "is_correct": false,
-           "rationale": "Penyelesaiannya sebuah daerah, bukan hanya satu titik."
+           "rationale": "Penyelesaiannya sebuah daerah, bukan hanya satu titik.",
+           "misconception_code": "SMA10-M-B4-05"
           },
           {
            "_row": {
@@ -1430,7 +1505,8 @@
            "label": "A",
            "body": "6 meja dan 3 tenda",
            "is_correct": false,
-           "rationale": "Banyak meja dan tenda cukup, tetapi biayanya 180 + 150 = 330 ribu, melebihi anggaran."
+           "rationale": "Banyak meja dan tenda cukup, tetapi biayanya 180 + 150 = 330 ribu, melebihi anggaran.",
+           "misconception_code": "SMA10-M-B4-10"
           },
           {
            "_row": {
@@ -1440,7 +1516,8 @@
            "label": "B",
            "body": "1 meja dan 5 tenda",
            "is_correct": false,
-           "rationale": "Biayanya 280 ribu, masih cukup, tetapi mejanya kurang dari 2."
+           "rationale": "Biayanya 280 ribu, masih cukup, tetapi mejanya kurang dari 2.",
+           "misconception_code": "SMA10-M-B4-10"
           },
           {
            "_row": {
@@ -1460,7 +1537,8 @@
            "label": "D",
            "body": "5 meja dan tanpa tenda",
            "is_correct": false,
-           "rationale": "Biayanya cukup, tetapi diperlukan setidaknya 1 tenda."
+           "rationale": "Biayanya cukup, tetapi diperlukan setidaknya 1 tenda.",
+           "misconception_code": "SMA10-M-B4-10"
           }
          ]
         },
@@ -1482,7 +1560,8 @@
            "label": "A",
            "body": "13 anak dan 5 lomba",
            "is_correct": false,
-           "rationale": "Biayanya 460 ribu, cukup, tetapi 13 > 13 tidak benar: harus lebih dari 13 anak."
+           "rationale": "Biayanya 460 ribu, cukup, tetapi 13 > 13 tidak benar: harus lebih dari 13 anak.",
+           "misconception_code": "SMA10-M-B4-10"
           },
           {
            "_row": {
@@ -1492,7 +1571,8 @@
            "label": "B",
            "body": "16 anak dan 5 lomba",
            "is_correct": false,
-           "rationale": "Biayanya 320 + 200 = 520 ribu, melebihi 500 ribu."
+           "rationale": "Biayanya 320 + 200 = 520 ribu, melebihi 500 ribu.",
+           "misconception_code": "SMA10-M-B4-10"
           },
           {
            "_row": {
@@ -1502,7 +1582,8 @@
            "label": "C",
            "body": "20 anak dan 3 lomba",
            "is_correct": false,
-           "rationale": "Biayanya 400 + 120 = 520 ribu, melebihi 500 ribu."
+           "rationale": "Biayanya 400 + 120 = 520 ribu, melebihi 500 ribu.",
+           "misconception_code": "SMA10-M-B4-10"
           },
           {
            "_row": {
@@ -1552,7 +1633,8 @@
            "label": "A",
            "body": "x < 10",
            "is_correct": false,
-           "rationale": "Tanda < tidak membolehkan tepat 10 jam, padahal 10 jam tidak lebih dari 10."
+           "rationale": "Tanda < tidak membolehkan tepat 10 jam, padahal 10 jam tidak lebih dari 10.",
+           "misconception_code": "SMA10-M-B4-07"
           },
           {
            "_row": {
@@ -1562,7 +1644,8 @@
            "label": "B",
            "body": "x ≥ 10",
            "is_correct": false,
-           "rationale": "Arahnya terbalik: x ≥ 10 berarti setidaknya 10 jam."
+           "rationale": "Arahnya terbalik: x ≥ 10 berarti setidaknya 10 jam.",
+           "misconception_code": "SMA10-M-B4-07"
           },
           {
            "_row": {
@@ -1572,7 +1655,8 @@
            "label": "C",
            "body": "x > 10",
            "is_correct": false,
-           "rationale": "Itu berarti lebih dari 10 jam, kebalikan dari yang diminta."
+           "rationale": "Itu berarti lebih dari 10 jam, kebalikan dari yang diminta.",
+           "misconception_code": "SMA10-M-B4-07"
           },
           {
            "_row": {
@@ -1615,7 +1699,8 @@
            "label": "B",
            "body": "x + y < 60 dan x > 20",
            "is_correct": false,
-           "rationale": "Tanda < dan > tidak membolehkan tepat 60 kursi atau tepat 20 kursi lipat, padahal keduanya boleh."
+           "rationale": "Tanda < dan > tidak membolehkan tepat 60 kursi atau tepat 20 kursi lipat, padahal keduanya boleh.",
+           "misconception_code": "SMA10-M-B4-07"
           },
           {
            "_row": {
@@ -1625,7 +1710,8 @@
            "label": "C",
            "body": "x + y ≥ 60 dan x ≤ 20",
            "is_correct": false,
-           "rationale": "Kedua tanda terbalik: «paling banyak» memakai ≤ dan «paling sedikit» memakai ≥."
+           "rationale": "Kedua tanda terbalik: «paling banyak» memakai ≤ dan «paling sedikit» memakai ≥.",
+           "misconception_code": "SMA10-M-B4-07"
           },
           {
            "_row": {
@@ -1635,7 +1721,8 @@
            "label": "D",
            "body": "x + y = 60 dan x = 20",
            "is_correct": false,
-           "rationale": "Masalahnya berupa batasan, bukan jumlah yang tepat, jadi dipakai pertidaksamaan."
+           "rationale": "Masalahnya berupa batasan, bukan jumlah yang tepat, jadi dipakai pertidaksamaan.",
+           "misconception_code": "SMA10-M-B4-11"
           }
          ]
         },
@@ -1657,7 +1744,8 @@
            "label": "A",
            "body": "y > 5",
            "is_correct": false,
-           "rationale": "Tanda > tidak membolehkan tepat 5 tanaman, padahal 5 tanaman sudah memenuhi."
+           "rationale": "Tanda > tidak membolehkan tepat 5 tanaman, padahal 5 tanaman sudah memenuhi.",
+           "misconception_code": "SMA10-M-B4-07"
           },
           {
            "_row": {
@@ -1677,7 +1765,8 @@
            "label": "C",
            "body": "y ≤ 5",
            "is_correct": false,
-           "rationale": "Arahnya terbalik: itu berarti paling banyak 5."
+           "rationale": "Arahnya terbalik: itu berarti paling banyak 5.",
+           "misconception_code": "SMA10-M-B4-07"
           },
           {
            "_row": {
@@ -1687,7 +1776,8 @@
            "label": "D",
            "body": "y < 5",
            "is_correct": false,
-           "rationale": "Itu berarti kurang dari 5, kebalikan dari yang diminta."
+           "rationale": "Itu berarti kurang dari 5, kebalikan dari yang diminta.",
+           "misconception_code": "SMA10-M-B4-07"
           }
          ]
         },
@@ -1709,7 +1799,8 @@
            "label": "A",
            "body": "x + y < 8",
            "is_correct": false,
-           "rationale": "Tanda < tidak membolehkan tepat 8 jam."
+           "rationale": "Tanda < tidak membolehkan tepat 8 jam.",
+           "misconception_code": "SMA10-M-B4-07"
           },
           {
            "_row": {
@@ -1719,7 +1810,8 @@
            "label": "B",
            "body": "x + y ≥ 8",
            "is_correct": false,
-           "rationale": "Arahnya terbalik: itu berarti paling sedikit 8 jam."
+           "rationale": "Arahnya terbalik: itu berarti paling sedikit 8 jam.",
+           "misconception_code": "SMA10-M-B4-07"
           },
           {
            "_row": {
@@ -1739,7 +1831,8 @@
            "label": "D",
            "body": "x + y = 8",
            "is_correct": false,
-           "rationale": "«Paling banyak» adalah batasan, bukan jumlah yang tepat."
+           "rationale": "«Paling banyak» adalah batasan, bukan jumlah yang tepat.",
+           "misconception_code": "SMA10-M-B4-11"
           }
          ]
         },
@@ -1771,7 +1864,8 @@
            "label": "B",
            "body": "2 buku dan 1 pena seharga Rp13.000, berapa harga masing-masing",
            "is_correct": false,
-           "rationale": "Harganya tepat, jadi dipakai persamaan."
+           "rationale": "Harganya tepat, jadi dipakai persamaan.",
+           "misconception_code": "SMA10-M-B4-11"
           },
           {
            "_row": {
@@ -1781,7 +1875,8 @@
            "label": "C",
            "body": "tiga bola beratnya 1.550 g, berapa berat setiap bola",
            "is_correct": false,
-           "rationale": "Beratnya tepat, jadi dipakai persamaan."
+           "rationale": "Beratnya tepat, jadi dipakai persamaan.",
+           "misconception_code": "SMA10-M-B4-11"
           },
           {
            "_row": {
@@ -1791,7 +1886,8 @@
            "label": "D",
            "body": "jumlah dua bilangan 20 dan selisihnya 4",
            "is_correct": false,
-           "rationale": "Jumlah dan selisihnya tepat, jadi dipakai persamaan."
+           "rationale": "Jumlah dan selisihnya tepat, jadi dipakai persamaan.",
+           "misconception_code": "SMA10-M-B4-11"
           }
          ]
         }
@@ -1800,6 +1896,118 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SMA10-M-B4-01",
+   "label": "Eliminasi keliru",
+   "description": "Persamaan dijumlahkan padahal harus dikurangkan, atau hanya sebagian suku yang dikalikan.",
+   "remediation": "Tulis kedua persamaan bersusun, kalikan seluruh ruasnya, lalu periksa koefisien variabel yang hendak dihapus."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SMA10-M-B4-02",
+   "label": "Nilai variabel yang lain dijawab",
+   "description": "Yang ditulis nilai variabel lain atau hasil antara, bukan variabel yang ditanya.",
+   "remediation": "Tulis arti setiap variabel di awal, lalu baca kembali pertanyaannya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SMA10-M-B4-03",
+   "label": "Solusi hanya memenuhi sebagian persamaan",
+   "description": "Nilai yang memenuhi satu persamaan dianggap solusi sistem.",
+   "remediation": "Substitusikan jawaban ke semua persamaan; solusi harus membuat semuanya benar."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SMA10-M-B4-04",
+   "label": "Hasil eliminasi keliru dibaca",
+   "description": "0 = 0 dan 0 = (bilangan bukan nol) tertukar, atau dikira berarti x = 0.",
+   "remediation": "Tanyakan: apakah pernyataan itu selalu benar, tidak pernah benar, atau benar untuk satu nilai?"
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SMA10-M-B4-05",
+   "label": "Grafik dan banyaknya solusi tertukar",
+   "description": "Garis sejajar, berimpit, dan berpotongan dipasangkan dengan banyak solusi yang keliru.",
+   "remediation": "Solusi adalah titik bersama: berpotongan satu titik, sejajar tidak ada, berimpit semua titik."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SMA10-M-B4-06",
+   "label": "Persamaan yang bukan linear dianggap linear",
+   "description": "Persamaan dengan pangkat dua, perkalian variabel, atau variabel di penyebut dianggap linear.",
+   "remediation": "Periksa setiap suku: variabel berpangkat satu dan tidak dikalikan dengan variabel lain."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SMA10-M-B4-07",
+   "label": "Kata batasan keliru diterjemahkan",
+   "description": "«Setidaknya», «tidak lebih dari», dan «lebih dari» diterjemahkan dengan tanda yang keliru.",
+   "remediation": "Uji dengan satu bilangan: apakah batasnya sendiri boleh? Jika boleh, pakai ≤ atau ≥."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SMA10-M-B4-08",
+   "label": "Garis batas keliru",
+   "description": "Garis untuk < dan > digambar utuh, atau titik pada garis putus-putus dianggap penyelesaian.",
+   "remediation": "Tanda tanpa garis bawah (< dan >) berarti garisnya tidak termasuk."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SMA10-M-B4-09",
+   "label": "Uji titik keliru",
+   "description": "Hasil uji titik dibaca terbalik, atau titik uji diambil pada garis batas.",
+   "remediation": "Substitusikan titik di luar garis; benar berarti sisi itu daerah hasil, tidak benar berarti sisi lainnya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SMA10-M-B4-10",
+   "label": "Hanya satu syarat diperiksa",
+   "description": "Titik yang memenuhi satu pertidaksamaan dianggap penyelesaian sistem.",
+   "remediation": "Penyelesaian sistem adalah irisan: periksa setiap pertidaksamaan satu per satu."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SMA10-M-B4-11",
+   "label": "Model tidak sesuai masalah",
+   "description": "Koefisien atau variabel tertukar, atau persamaan dipakai padahal masalahnya berupa batasan.",
+   "remediation": "Tulis arti setiap variabel dan cocokkan setiap angka dengan keterangannya."
   }
  ]
 }

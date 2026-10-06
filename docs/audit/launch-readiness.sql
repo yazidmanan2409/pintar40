@@ -38,7 +38,8 @@ client_rights as (
     from pg_class c join pg_namespace n on n.oid = c.relnamespace
    where n.nspname = 'public' and c.relkind in ('r','v','m','p','f','S')),
 rights_now as (select rel || '=' || r as tok from client_rights where r <> ''),
--- this release's set (staging, 6 Oct, migrations 161: the same 85 tokens)
+-- this release's set (staging, 6 Oct, migrations 161: the same 85 tokens). MOVED for CR-50 (20261202100000, D-063 M2):
+-- misconception_taxonomy SIU -> SI, a school's definition is append-only and never edited in place
 rights_release as (select unnest(string_to_array(
   'academic_periods=S accounts=S assessment_assignment_status_transitions=S ' ||
   'assessment_assignments=S assessment_definition_bounds=S assessment_definitions=SIU ' ||
@@ -54,7 +55,7 @@ rights_release as (select unnest(string_to_array(
   'learning_assignment_status_transitions=S learning_assignments=S learning_objectives=SIU ' ||
   'lesson_progress=S lesson_review_items=S lesson_review_requests=S lessons=SIU ' ||
   'management_decisions=S mcq_quality_findings=SU memberships=SIU metric_catalogue=S ' ||
-  'metric_definitions=S metric_sources=S misconception_taxonomy=SIU mode_policy=S modules=SIU ' ||
+  'metric_definitions=S metric_sources=S misconception_taxonomy=SI mode_policy=S modules=SIU ' ||
   'my_profile=S org_nodes=S person_tour_state=S persons=Su platform_config=SU ' ||
   'platform_environment=S plp_releases=S portable_visibility=S presented_item_views=S ' ||
   'presented_items=S question_health=SIU question_health_thresholds=S question_health_transitions=S ' ||

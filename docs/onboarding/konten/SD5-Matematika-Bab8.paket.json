@@ -53,7 +53,8 @@
            "label": "A",
            "body": "7",
            "is_correct": false,
-           "rationale": "Kelompok lengkap dihitung 4; garis miringnya terlewat. Satu kelompok bernilai 5."
+           "rationale": "Kelompok lengkap dihitung 4; garis miringnya terlewat. Satu kelompok bernilai 5.",
+           "misconception_code": "SD5-M-B8-11"
           },
           {
            "_row": {
@@ -63,7 +64,8 @@
            "label": "B",
            "body": "3",
            "is_correct": false,
-           "rationale": "Hanya garis tegak yang terpisah yang dihitung; kelompok lima terlewat."
+           "rationale": "Hanya garis tegak yang terpisah yang dihitung; kelompok lima terlewat.",
+           "misconception_code": "SD5-M-B8-01"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "2",
            "is_correct": false,
-           "rationale": "Yang dihitung banyak kelompoknya (satu kelompok dan satu kelompok kecil), bukan banyak garisnya."
+           "rationale": "Yang dihitung banyak kelompoknya (satu kelompok dan satu kelompok kecil), bukan banyak garisnya.",
+           "misconception_code": "SD5-M-B8-11"
           }
          ]
         },
@@ -106,7 +109,8 @@
            "label": "A",
            "body": "12",
            "is_correct": false,
-           "rationale": "Setiap kelompok lengkap dihitung 4; garis miringnya terlewat. Satu kelompok bernilai 5."
+           "rationale": "Setiap kelompok lengkap dihitung 4; garis miringnya terlewat. Satu kelompok bernilai 5.",
+           "misconception_code": "SD5-M-B8-11"
           },
           {
            "_row": {
@@ -116,7 +120,8 @@
            "label": "B",
            "body": "6",
            "is_correct": false,
-           "rationale": "Setiap kelompok dihitung 1: 1 + 1 + 4. Satu kelompok lengkap bernilai 5."
+           "rationale": "Setiap kelompok dihitung 1: 1 + 1 + 4. Satu kelompok lengkap bernilai 5.",
+           "misconception_code": "SD5-M-B8-11"
           },
           {
            "_row": {
@@ -126,7 +131,8 @@
            "label": "C",
            "body": "10",
            "is_correct": false,
-           "rationale": "Hanya kedua kelompok lengkap yang dihitung; 4 garis terakhir terlewat."
+           "rationale": "Hanya kedua kelompok lengkap yang dihitung; 4 garis terakhir terlewat.",
+           "misconception_code": "SD5-M-B8-01"
           },
           {
            "_row": {
@@ -168,7 +174,8 @@
            "label": "B",
            "body": "Agar garis kelima tidak ikut dihitung",
            "is_correct": false,
-           "rationale": "Garis miring justru ikut dihitung; ia adalah garis kelima."
+           "rationale": "Garis miring justru ikut dihitung; ia adalah garis kelima.",
+           "misconception_code": "SD5-M-B8-11"
           },
           {
            "_row": {
@@ -178,7 +185,8 @@
            "label": "C",
            "body": "Karena garis kelima mewakili 10 data",
            "is_correct": false,
-           "rationale": "Setiap garis, termasuk yang miring, mewakili satu data."
+           "rationale": "Setiap garis, termasuk yang miring, mewakili satu data.",
+           "misconception_code": "SD5-M-B8-11"
           },
           {
            "_row": {
@@ -188,7 +196,8 @@
            "label": "D",
            "body": "Agar turusnya terlihat lebih rapi saja",
            "is_correct": false,
-           "rationale": "Kerapian bukan tujuannya; garis miring menandai kelompok lima agar mudah dihitung."
+           "rationale": "Kerapian bukan tujuannya; garis miring menandai kelompok lima agar mudah dihitung.",
+           "misconception_code": "SD5-M-B8-09"
           }
          ]
         },
@@ -210,7 +219,8 @@
            "label": "A",
            "body": "nilai data yang paling besar",
            "is_correct": false,
-           "rationale": "Itu nilai tertinggi, bukan frekuensi."
+           "rationale": "Itu nilai tertinggi, bukan frekuensi.",
+           "misconception_code": "SD5-M-B8-13"
           },
           {
            "_row": {
@@ -220,7 +230,8 @@
            "label": "B",
            "body": "garis-garis yang dipakai untuk mencatat",
            "is_correct": false,
-           "rationale": "Itu turus. Frekuensi adalah bilangan hasil menghitung turus itu."
+           "rationale": "Itu turus. Frekuensi adalah bilangan hasil menghitung turus itu.",
+           "misconception_code": "SD5-M-B8-11"
           },
           {
            "_row": {
@@ -230,7 +241,8 @@
            "label": "C",
            "body": "banyaknya jenis data yang dicatat",
            "is_correct": false,
-           "rationale": "Banyak jenis data berbeda dengan frekuensi setiap data."
+           "rationale": "Banyak jenis data berbeda dengan frekuensi setiap data.",
+           "misconception_code": "SD5-M-B8-13"
           },
           {
            "_row": {
@@ -262,7 +274,8 @@
            "label": "A",
            "body": "3",
            "is_correct": false,
-           "rationale": "Ada satu data 34 yang terlewat. Coret setiap data yang sudah dihitung."
+           "rationale": "Ada satu data 34 yang terlewat. Coret setiap data yang sudah dihitung.",
+           "misconception_code": "SD5-M-B8-01"
           },
           {
            "_row": {
@@ -282,7 +295,8 @@
            "label": "C",
            "body": "5",
            "is_correct": false,
-           "rationale": "Ada data yang terhitung dua kali. Coret setiap data yang sudah dihitung."
+           "rationale": "Ada data yang terhitung dua kali. Coret setiap data yang sudah dihitung.",
+           "misconception_code": "SD5-M-B8-01"
           },
           {
            "_row": {
@@ -292,7 +306,8 @@
            "label": "D",
            "body": "34",
            "is_correct": false,
-           "rationale": "Ini nilai datanya (ukuran sepatu), bukan berapa kali ukuran itu muncul."
+           "rationale": "Ini nilai datanya (ukuran sepatu), bukan berapa kali ukuran itu muncul.",
+           "misconception_code": "SD5-M-B8-13"
           }
          ]
         }
@@ -332,7 +347,8 @@
            "label": "A",
            "body": "4",
            "is_correct": false,
-           "rationale": "Ini banyak jenis warna, bukan banyak siswa."
+           "rationale": "Ini banyak jenis warna, bukan banyak siswa.",
+           "misconception_code": "SD5-M-B8-13"
           },
           {
            "_row": {
@@ -352,7 +368,8 @@
            "label": "C",
            "body": "13",
            "is_correct": false,
-           "rationale": "Ini frekuensi warna yang paling banyak disukai. Yang ditanyakan jumlah seluruh siswa."
+           "rationale": "Ini frekuensi warna yang paling banyak disukai. Yang ditanyakan jumlah seluruh siswa.",
+           "misconception_code": "SD5-M-B8-10"
           },
           {
            "_row": {
@@ -362,7 +379,8 @@
            "label": "D",
            "body": "28",
            "is_correct": false,
-           "rationale": "Frekuensi hijau (7) terlewat. Semua frekuensi harus dijumlahkan."
+           "rationale": "Frekuensi hijau (7) terlewat. Semua frekuensi harus dijumlahkan.",
+           "misconception_code": "SD5-M-B8-01"
           }
          ]
         },
@@ -384,7 +402,8 @@
            "label": "A",
            "body": "3",
            "is_correct": false,
-           "rationale": "Hanya nilai 60 yang dihitung; nilai 70 juga kurang dari 80."
+           "rationale": "Hanya nilai 60 yang dihitung; nilai 70 juga kurang dari 80.",
+           "misconception_code": "SD5-M-B8-01"
           },
           {
            "_row": {
@@ -394,7 +413,8 @@
            "label": "B",
            "body": "16",
            "is_correct": false,
-           "rationale": "Nilai 80 ikut dihitung. Kurang dari 80 tidak termasuk 80."
+           "rationale": "Nilai 80 ikut dihitung. Kurang dari 80 tidak termasuk 80.",
+           "misconception_code": "SD5-M-B8-10"
           },
           {
            "_row": {
@@ -414,7 +434,8 @@
            "label": "D",
            "body": "130",
            "is_correct": false,
-           "rationale": "Yang dijumlahkan nilainya (60 + 70). Yang dihitung banyak siswanya, yaitu frekuensinya."
+           "rationale": "Yang dijumlahkan nilainya (60 + 70). Yang dihitung banyak siswanya, yaitu frekuensinya.",
+           "misconception_code": "SD5-M-B8-13"
           }
          ]
         },
@@ -446,7 +467,8 @@
            "label": "B",
            "body": "8",
            "is_correct": false,
-           "rationale": "Ini frekuensinya. Yang ditanyakan nilainya."
+           "rationale": "Ini frekuensinya. Yang ditanyakan nilainya.",
+           "misconception_code": "SD5-M-B8-13"
           },
           {
            "_row": {
@@ -456,7 +478,8 @@
            "label": "C",
            "body": "100",
            "is_correct": false,
-           "rationale": "100 adalah nilai tertinggi, tetapi hanya diperoleh 2 siswa."
+           "rationale": "100 adalah nilai tertinggi, tetapi hanya diperoleh 2 siswa.",
+           "misconception_code": "SD5-M-B8-13"
           },
           {
            "_row": {
@@ -466,7 +489,8 @@
            "label": "D",
            "body": "22",
            "is_correct": false,
-           "rationale": "Ini banyak siswa seluruhnya."
+           "rationale": "Ini banyak siswa seluruhnya.",
+           "misconception_code": "SD5-M-B8-10"
           }
          ]
         }
@@ -516,7 +540,8 @@
            "label": "B",
            "body": "20 gambar buku",
            "is_correct": false,
-           "rationale": "Satu gambar mewakili 8 buku, bukan 1. 20 gambar berarti 160 buku."
+           "rationale": "Satu gambar mewakili 8 buku, bukan 1. 20 gambar berarti 160 buku.",
+           "misconception_code": "SD5-M-B8-04"
           },
           {
            "_row": {
@@ -526,7 +551,8 @@
            "label": "C",
            "body": "2 gambar utuh dan seperempat gambar",
            "is_correct": false,
-           "rationale": "Sisa 4 buku dari 8 adalah setengah, bukan seperempat."
+           "rationale": "Sisa 4 buku dari 8 adalah setengah, bukan seperempat.",
+           "misconception_code": "SD5-M-B8-03"
           },
           {
            "_row": {
@@ -536,7 +562,8 @@
            "label": "D",
            "body": "3 gambar utuh",
            "is_correct": false,
-           "rationale": "3 gambar mewakili 24 buku, lebih dari 20."
+           "rationale": "3 gambar mewakili 24 buku, lebih dari 20.",
+           "misconception_code": "SD5-M-B8-03"
           }
          ]
         },
@@ -558,7 +585,8 @@
            "label": "A",
            "body": "35 gambar utuh",
            "is_correct": false,
-           "rationale": "Satu gambar mewakili 10, bukan 1. 35 gambar berarti 350 pengunjung."
+           "rationale": "Satu gambar mewakili 10, bukan 1. 35 gambar berarti 350 pengunjung.",
+           "misconception_code": "SD5-M-B8-04"
           },
           {
            "_row": {
@@ -568,7 +596,8 @@
            "label": "B",
            "body": "4 gambar utuh",
            "is_correct": false,
-           "rationale": "4 gambar mewakili 40, lebih dari 35."
+           "rationale": "4 gambar mewakili 40, lebih dari 35.",
+           "misconception_code": "SD5-M-B8-03"
           },
           {
            "_row": {
@@ -578,7 +607,8 @@
            "label": "C",
            "body": "3 gambar utuh dan seperempat gambar",
            "is_correct": false,
-           "rationale": "Sisa 5 dari 10 adalah setengah, bukan seperempat."
+           "rationale": "Sisa 5 dari 10 adalah setengah, bukan seperempat.",
+           "misconception_code": "SD5-M-B8-03"
           },
           {
            "_row": {
@@ -610,7 +640,8 @@
            "label": "A",
            "body": "Tidak ada akibatnya, asal banyak gambarnya benar",
            "is_correct": false,
-           "rationale": "Gambar yang lebih besar tampak lebih banyak, sehingga pembaca dapat keliru."
+           "rationale": "Gambar yang lebih besar tampak lebih banyak, sehingga pembaca dapat keliru.",
+           "misconception_code": "SD5-M-B8-05"
           },
           {
            "_row": {
@@ -630,7 +661,8 @@
            "label": "C",
            "body": "Setiap gambar Senin bernilai lebih dari kuncinya",
            "is_correct": false,
-           "rationale": "Kuncinya tetap sama; hanya tampilannya yang menyesatkan."
+           "rationale": "Kuncinya tetap sama; hanya tampilannya yang menyesatkan.",
+           "misconception_code": "SD5-M-B8-05"
           },
           {
            "_row": {
@@ -640,7 +672,8 @@
            "label": "D",
            "body": "Piktogram tidak lagi memerlukan kunci",
            "is_correct": false,
-           "rationale": "Kunci tetap diperlukan untuk membaca nilai setiap gambar."
+           "rationale": "Kunci tetap diperlukan untuk membaca nilai setiap gambar.",
+           "misconception_code": "SD5-M-B8-09"
           }
          ]
         },
@@ -662,7 +695,8 @@
            "label": "A",
            "body": "Warna yang berbeda di setiap baris",
            "is_correct": false,
-           "rationale": "Warna boleh saja, tetapi tidak menyatakan nilai. Yang diperlukan adalah kunci."
+           "rationale": "Warna boleh saja, tetapi tidak menyatakan nilai. Yang diperlukan adalah kunci.",
+           "misconception_code": "SD5-M-B8-09"
           },
           {
            "_row": {
@@ -672,7 +706,8 @@
            "label": "B",
            "body": "Satu gambar untuk setiap satu benda",
            "is_correct": false,
-           "rationale": "Satu gambar boleh mewakili banyak benda, asal kuncinya ditulis."
+           "rationale": "Satu gambar boleh mewakili banyak benda, asal kuncinya ditulis.",
+           "misconception_code": "SD5-M-B8-04"
           },
           {
            "_row": {
@@ -692,7 +727,8 @@
            "label": "D",
            "body": "Gambar yang semakin besar untuk data yang besar",
            "is_correct": false,
-           "rationale": "Gambar harus sama besar; besar data ditunjukkan oleh banyak gambar."
+           "rationale": "Gambar harus sama besar; besar data ditunjukkan oleh banyak gambar.",
+           "misconception_code": "SD5-M-B8-05"
           }
          ]
         }
@@ -742,7 +778,8 @@
            "label": "B",
            "body": "6",
            "is_correct": false,
-           "rationale": "Ini banyak gambarnya. Setiap gambar mewakili 5 buku, jadi harus dikalikan."
+           "rationale": "Ini banyak gambarnya. Setiap gambar mewakili 5 buku, jadi harus dikalikan.",
+           "misconception_code": "SD5-M-B8-02"
           },
           {
            "_row": {
@@ -752,7 +789,8 @@
            "label": "C",
            "body": "11",
            "is_correct": false,
-           "rationale": "Banyak gambar ditambah nilai kunci. Seharusnya dikalikan: 6 × 5."
+           "rationale": "Banyak gambar ditambah nilai kunci. Seharusnya dikalikan: 6 × 5.",
+           "misconception_code": "SD5-M-B8-10"
           },
           {
            "_row": {
@@ -762,7 +800,8 @@
            "label": "D",
            "body": "5",
            "is_correct": false,
-           "rationale": "Ini nilai satu gambar pada kunci, bukan nilai seluruh baris."
+           "rationale": "Ini nilai satu gambar pada kunci, bukan nilai seluruh baris.",
+           "misconception_code": "SD5-M-B8-02"
           }
          ]
         },
@@ -785,7 +824,8 @@
            "label": "A",
            "body": "24 kg",
            "is_correct": false,
-           "rationale": "Setengah gambar terlewat. Setengah gambar mewakili 3 kg."
+           "rationale": "Setengah gambar terlewat. Setengah gambar mewakili 3 kg.",
+           "misconception_code": "SD5-M-B8-03"
           },
           {
            "_row": {
@@ -795,7 +835,8 @@
            "label": "B",
            "body": "30 kg",
            "is_correct": false,
-           "rationale": "Setengah gambar dihitung sebagai satu gambar penuh."
+           "rationale": "Setengah gambar dihitung sebagai satu gambar penuh.",
+           "misconception_code": "SD5-M-B8-03"
           },
           {
            "_row": {
@@ -815,7 +856,8 @@
            "label": "D",
            "body": "25 kg",
            "is_correct": false,
-           "rationale": "Setengah gambar dihitung 1 kg. Setengah gambar mewakili setengah dari 6 kg."
+           "rationale": "Setengah gambar dihitung 1 kg. Setengah gambar mewakili setengah dari 6 kg.",
+           "misconception_code": "SD5-M-B8-03"
           }
          ]
         },
@@ -838,7 +880,8 @@
            "label": "A",
            "body": "7 kg",
            "is_correct": false,
-           "rationale": "Ini selisih banyak gambarnya. Kalikan dengan 3 kg."
+           "rationale": "Ini selisih banyak gambarnya. Kalikan dengan 3 kg.",
+           "misconception_code": "SD5-M-B8-02"
           },
           {
            "_row": {
@@ -848,7 +891,8 @@
            "label": "B",
            "body": "24 kg",
            "is_correct": false,
-           "rationale": "Ini hasil tertinggi saja. Yang ditanyakan selisihnya dengan hasil terendah."
+           "rationale": "Ini hasil tertinggi saja. Yang ditanyakan selisihnya dengan hasil terendah.",
+           "misconception_code": "SD5-M-B8-10"
           },
           {
            "_row": {
@@ -858,7 +902,8 @@
            "label": "C",
            "body": "27 kg",
            "is_correct": false,
-           "rationale": "Tertinggi dan terendah dijumlahkan. Selisih berarti dikurangkan."
+           "rationale": "Tertinggi dan terendah dijumlahkan. Selisih berarti dikurangkan.",
+           "misconception_code": "SD5-M-B8-10"
           },
           {
            "_row": {
@@ -900,7 +945,8 @@
            "label": "B",
            "body": "7 kg",
            "is_correct": false,
-           "rationale": "Ini banyak gambarnya. Setiap gambar mewakili 2 kg."
+           "rationale": "Ini banyak gambarnya. Setiap gambar mewakili 2 kg.",
+           "misconception_code": "SD5-M-B8-02"
           },
           {
            "_row": {
@@ -910,7 +956,8 @@
            "label": "C",
            "body": "9 kg",
            "is_correct": false,
-           "rationale": "Banyak gambar ditambah 2. Seharusnya dikalikan: 7 × 2."
+           "rationale": "Banyak gambar ditambah 2. Seharusnya dikalikan: 7 × 2.",
+           "misconception_code": "SD5-M-B8-10"
           },
           {
            "_row": {
@@ -920,7 +967,8 @@
            "label": "D",
            "body": "12 kg",
            "is_correct": false,
-           "rationale": "Hanya 6 gambar yang terhitung. Hitung ulang gambarnya: ada 7."
+           "rationale": "Hanya 6 gambar yang terhitung. Hitung ulang gambarnya: ada 7.",
+           "misconception_code": "SD5-M-B8-01"
           }
          ]
         },
@@ -942,7 +990,8 @@
            "label": "A",
            "body": "32",
            "is_correct": false,
-           "rationale": "Seperempat gambar terlewat. Ia mewakili 1 kue."
+           "rationale": "Seperempat gambar terlewat. Ia mewakili 1 kue.",
+           "misconception_code": "SD5-M-B8-03"
           },
           {
            "_row": {
@@ -952,7 +1001,8 @@
            "label": "B",
            "body": "34",
            "is_correct": false,
-           "rationale": "Seperempat gambar dihitung 2 kue, seperti setengah gambar. Seperempat dari 4 adalah 1."
+           "rationale": "Seperempat gambar dihitung 2 kue, seperti setengah gambar. Seperempat dari 4 adalah 1.",
+           "misconception_code": "SD5-M-B8-03"
           },
           {
            "_row": {
@@ -962,7 +1012,8 @@
            "label": "C",
            "body": "36",
            "is_correct": false,
-           "rationale": "Seperempat gambar dihitung sebagai satu gambar penuh."
+           "rationale": "Seperempat gambar dihitung sebagai satu gambar penuh.",
+           "misconception_code": "SD5-M-B8-03"
           },
           {
            "_row": {
@@ -994,7 +1045,8 @@
            "label": "A",
            "body": "3 kg",
            "is_correct": false,
-           "rationale": "Ini selisih banyak gambarnya. Kalikan dengan 5 kg."
+           "rationale": "Ini selisih banyak gambarnya. Kalikan dengan 5 kg.",
+           "misconception_code": "SD5-M-B8-02"
           },
           {
            "_row": {
@@ -1014,7 +1066,8 @@
            "label": "C",
            "body": "45 kg",
            "is_correct": false,
-           "rationale": "Kedua minggu dijumlahkan. Kenaikan adalah selisihnya."
+           "rationale": "Kedua minggu dijumlahkan. Kenaikan adalah selisihnya.",
+           "misconception_code": "SD5-M-B8-10"
           },
           {
            "_row": {
@@ -1024,7 +1077,8 @@
            "label": "D",
            "body": "30 kg",
            "is_correct": false,
-           "rationale": "Ini hasil minggu ke-2 saja. Kenaikan adalah selisih kedua minggu."
+           "rationale": "Ini hasil minggu ke-2 saja. Kenaikan adalah selisih kedua minggu.",
+           "misconception_code": "SD5-M-B8-10"
           }
          ]
         }
@@ -1064,7 +1118,8 @@
            "label": "A",
            "body": "41",
            "is_correct": false,
-           "rationale": "Setiap bagian di atas 40 dianggap bernilai 1. Jarak dari 40 ke 50 adalah 10, jadi tengahnya 45."
+           "rationale": "Setiap bagian di atas 40 dianggap bernilai 1. Jarak dari 40 ke 50 adalah 10, jadi tengahnya 45.",
+           "misconception_code": "SD5-M-B8-06"
           },
           {
            "_row": {
@@ -1074,7 +1129,8 @@
            "label": "B",
            "body": "50",
            "is_correct": false,
-           "rationale": "Batang dibaca ke garis di atasnya. Ujungnya belum sampai 50."
+           "rationale": "Batang dibaca ke garis di atasnya. Ujungnya belum sampai 50.",
+           "misconception_code": "SD5-M-B8-06"
           },
           {
            "_row": {
@@ -1084,7 +1140,8 @@
            "label": "C",
            "body": "40",
            "is_correct": false,
-           "rationale": "Batang dibaca ke garis di bawahnya. Ujungnya sudah melewati 40."
+           "rationale": "Batang dibaca ke garis di bawahnya. Ujungnya sudah melewati 40.",
+           "misconception_code": "SD5-M-B8-06"
           },
           {
            "_row": {
@@ -1117,7 +1174,8 @@
            "label": "A",
            "body": "29",
            "is_correct": false,
-           "rationale": "Bagian di atas 28 dianggap bernilai 1. Tengah dari langkah 4 adalah 2, jadi 28 + 2 = 30."
+           "rationale": "Bagian di atas 28 dianggap bernilai 1. Tengah dari langkah 4 adalah 2, jadi 28 + 2 = 30.",
+           "misconception_code": "SD5-M-B8-06"
           },
           {
            "_row": {
@@ -1137,7 +1195,8 @@
            "label": "C",
            "body": "32",
            "is_correct": false,
-           "rationale": "Batang dibaca ke garis di atasnya. Ujungnya belum sampai 32."
+           "rationale": "Batang dibaca ke garis di atasnya. Ujungnya belum sampai 32.",
+           "misconception_code": "SD5-M-B8-06"
           },
           {
            "_row": {
@@ -1147,7 +1206,8 @@
            "label": "D",
            "body": "28",
            "is_correct": false,
-           "rationale": "Batang dibaca ke garis di bawahnya. Ujungnya sudah melewati 28."
+           "rationale": "Batang dibaca ke garis di bawahnya. Ujungnya sudah melewati 28.",
+           "misconception_code": "SD5-M-B8-06"
           }
          ]
         },
@@ -1180,7 +1240,8 @@
            "label": "B",
            "body": "Selasa, selisih 22 orang",
            "is_correct": false,
-           "rationale": "Selasa adalah hari yang paling banyak (batang terpanjang), bukan paling sedikit."
+           "rationale": "Selasa adalah hari yang paling banyak (batang terpanjang), bukan paling sedikit.",
+           "misconception_code": "SD5-M-B8-12"
           },
           {
            "_row": {
@@ -1190,7 +1251,8 @@
            "label": "C",
            "body": "Kamis, selisih 78 orang",
            "is_correct": false,
-           "rationale": "50 dan 28 dijumlahkan. Selisih berarti dikurangkan."
+           "rationale": "50 dan 28 dijumlahkan. Selisih berarti dikurangkan.",
+           "misconception_code": "SD5-M-B8-10"
           },
           {
            "_row": {
@@ -1200,7 +1262,8 @@
            "label": "D",
            "body": "Kamis, selisih 7 orang",
            "is_correct": false,
-           "rationale": "Kamis dibandingkan dengan Senin (35 − 28), bukan dengan hari yang paling banyak."
+           "rationale": "Kamis dibandingkan dengan Senin (35 − 28), bukan dengan hari yang paling banyak.",
+           "misconception_code": "SD5-M-B8-10"
           }
          ]
         },
@@ -1222,7 +1285,8 @@
            "label": "A",
            "body": "62",
            "is_correct": false,
-           "rationale": "Setiap langkah dianggap 1. Dari 60 ke 80 ada 5 langkah, jadi setiap langkah 4."
+           "rationale": "Setiap langkah dianggap 1. Dari 60 ke 80 ada 5 langkah, jadi setiap langkah 4.",
+           "misconception_code": "SD5-M-B8-06"
           },
           {
            "_row": {
@@ -1232,7 +1296,8 @@
            "label": "B",
            "body": "80",
            "is_correct": false,
-           "rationale": "Setiap langkah dianggap 10. Dari 60 ke 80 ada 5 langkah, bukan 2."
+           "rationale": "Setiap langkah dianggap 10. Dari 60 ke 80 ada 5 langkah, bukan 2.",
+           "misconception_code": "SD5-M-B8-06"
           },
           {
            "_row": {
@@ -1252,7 +1317,8 @@
            "label": "D",
            "body": "64",
            "is_correct": false,
-           "rationale": "Hanya satu langkah yang dihitung. Batang berhenti di garis tipis kedua."
+           "rationale": "Hanya satu langkah yang dihitung. Batang berhenti di garis tipis kedua.",
+           "misconception_code": "SD5-M-B8-06"
           }
          ]
         },
@@ -1285,7 +1351,8 @@
            "label": "B",
            "body": "Tidak, karena 30 kg kurang dari 99 kg",
            "is_correct": false,
-           "rationale": "Yang dibandingkan seperempat dari jumlahnya, bukan jumlahnya sendiri."
+           "rationale": "Yang dibandingkan seperempat dari jumlahnya, bukan jumlahnya sendiri.",
+           "misconception_code": "SD5-M-B8-10"
           },
           {
            "_row": {
@@ -1295,7 +1362,8 @@
            "label": "C",
            "body": "Tidak, karena seperempatnya 33 kg",
            "is_correct": false,
-           "rationale": "99 dibagi 3. Seperempat berarti dibagi 4: 24,75 kg."
+           "rationale": "99 dibagi 3. Seperempat berarti dibagi 4: 24,75 kg.",
+           "misconception_code": "SD5-M-B8-10"
           },
           {
            "_row": {
@@ -1305,7 +1373,8 @@
            "label": "D",
            "body": "Tidak, karena kolam 1 batangnya paling pendek",
            "is_correct": false,
-           "rationale": "Batang kolam 1 justru paling panjang; batang terpendek adalah kolam 3."
+           "rationale": "Batang kolam 1 justru paling panjang; batang terpendek adalah kolam 3.",
+           "misconception_code": "SD5-M-B8-12"
           }
          ]
         },
@@ -1327,7 +1396,8 @@
            "label": "A",
            "body": "Diagram horizontal tidak memerlukan skala",
            "is_correct": false,
-           "rationale": "Keduanya memerlukan skala pada sumbunya."
+           "rationale": "Keduanya memerlukan skala pada sumbunya.",
+           "misconception_code": "SD5-M-B8-09"
           },
           {
            "_row": {
@@ -1337,7 +1407,8 @@
            "label": "B",
            "body": "Diagram horizontal hanya untuk data yang kecil",
            "is_correct": false,
-           "rationale": "Kedua jenis dapat dipakai untuk data besar maupun kecil."
+           "rationale": "Kedua jenis dapat dipakai untuk data besar maupun kecil.",
+           "misconception_code": "SD5-M-B8-07"
           },
           {
            "_row": {
@@ -1347,7 +1418,8 @@
            "label": "C",
            "body": "Pada diagram vertikal, batang terpendek bernilai terbesar",
            "is_correct": false,
-           "rationale": "Pada kedua jenis, batang yang paling panjang bernilai paling besar."
+           "rationale": "Pada kedua jenis, batang yang paling panjang bernilai paling besar.",
+           "misconception_code": "SD5-M-B8-12"
           },
           {
            "_row": {
@@ -1397,7 +1469,8 @@
            "label": "A",
            "body": "Batang di diagram B, karena lebih tinggi",
            "is_correct": false,
-           "rationale": "Tinggi batang hanya dapat dibandingkan bila skalanya sama. Hitung nilainya: A 30, B 10."
+           "rationale": "Tinggi batang hanya dapat dibandingkan bila skalanya sama. Hitung nilainya: A 30, B 10.",
+           "misconception_code": "SD5-M-B8-08"
           },
           {
            "_row": {
@@ -1417,7 +1490,8 @@
            "label": "C",
            "body": "Keduanya sama besar",
            "is_correct": false,
-           "rationale": "Nilainya berbeda: A 3 × 10 = 30, B 5 × 2 = 10."
+           "rationale": "Nilainya berbeda: A 3 × 10 = 30, B 5 × 2 = 10.",
+           "misconception_code": "SD5-M-B8-06"
           },
           {
            "_row": {
@@ -1427,7 +1501,8 @@
            "label": "D",
            "body": "Tidak dapat dibandingkan sama sekali",
            "is_correct": false,
-           "rationale": "Dapat dibandingkan setelah nilai setiap batang dibaca dari skalanya masing-masing."
+           "rationale": "Dapat dibandingkan setelah nilai setiap batang dibaca dari skalanya masing-masing.",
+           "misconception_code": "SD5-M-B8-08"
           }
          ]
         },
@@ -1450,7 +1525,8 @@
            "label": "A",
            "body": "tepat; batang kelas B memang lebih tinggi daripada kelas A",
            "is_correct": false,
-           "rationale": "Tinggi batang hanya dapat dibandingkan bila skalanya sama."
+           "rationale": "Tinggi batang hanya dapat dibandingkan bila skalanya sama.",
+           "misconception_code": "SD5-M-B8-08"
           },
           {
            "_row": {
@@ -1460,7 +1536,8 @@
            "label": "B",
            "body": "tepat; kelas B 18, kelas A hanya 8",
            "is_correct": false,
-           "rationale": "Kelas A dibaca dengan skala 2 milik diagram B (4 × 2 = 8). Skala kelas A adalah 5: 4 × 5 = 20."
+           "rationale": "Kelas A dibaca dengan skala 2 milik diagram B (4 × 2 = 8). Skala kelas A adalah 5: 4 × 5 = 20.",
+           "misconception_code": "SD5-M-B8-06"
           },
           {
            "_row": {
@@ -1480,7 +1557,8 @@
            "label": "D",
            "body": "kurang tepat; keduanya sama, 20",
            "is_correct": false,
-           "rationale": "Kelas B: 9 × 2 = 18, bukan 20."
+           "rationale": "Kelas B: 9 × 2 = 18, bukan 20.",
+           "misconception_code": "SD5-M-B8-06"
           }
          ]
         },
@@ -1502,7 +1580,8 @@
            "label": "A",
            "body": "2023",
            "is_correct": false,
-           "rationale": "Tahun 2023 mempunyai batang paling tinggi (18), tetapi selisihnya hanya 3."
+           "rationale": "Tahun 2023 mempunyai batang paling tinggi (18), tetapi selisihnya hanya 3.",
+           "misconception_code": "SD5-M-B8-10"
           },
           {
            "_row": {
@@ -1522,7 +1601,8 @@
            "label": "C",
            "body": "2022",
            "is_correct": false,
-           "rationale": "Pada 2022 selisihnya 0, yang paling kecil."
+           "rationale": "Pada 2022 selisihnya 0, yang paling kecil.",
+           "misconception_code": "SD5-M-B8-12"
           },
           {
            "_row": {
@@ -1532,7 +1612,8 @@
            "label": "D",
            "body": "2020",
            "is_correct": false,
-           "rationale": "Selisih 2020 hanya 14 − 12 = 2."
+           "rationale": "Selisih 2020 hanya 14 − 12 = 2.",
+           "misconception_code": "SD5-M-B8-10"
           }
          ]
         },
@@ -1554,7 +1635,8 @@
            "label": "A",
            "body": "Agar kedua diagram terlihat lebih menarik bagi pembacanya",
            "is_correct": false,
-           "rationale": "Tampilan bukan alasannya; skala berbeda membuat tinggi batang menyesatkan."
+           "rationale": "Tampilan bukan alasannya; skala berbeda membuat tinggi batang menyesatkan.",
+           "misconception_code": "SD5-M-B8-08"
           },
           {
            "_row": {
@@ -1564,7 +1646,8 @@
            "label": "B",
            "body": "Agar semua batang menjadi sama tinggi",
            "is_correct": false,
-           "rationale": "Skala yang sama tidak membuat batang sama tinggi; nilainya tetap berbeda."
+           "rationale": "Skala yang sama tidak membuat batang sama tinggi; nilainya tetap berbeda.",
+           "misconception_code": "SD5-M-B8-08"
           },
           {
            "_row": {
@@ -1584,7 +1667,8 @@
            "label": "D",
            "body": "Agar diagram tidak memerlukan judul lagi",
            "is_correct": false,
-           "rationale": "Judul tetap diperlukan pada setiap diagram."
+           "rationale": "Judul tetap diperlukan pada setiap diagram.",
+           "misconception_code": "SD5-M-B8-09"
           }
          ]
         },
@@ -1616,7 +1700,8 @@
            "label": "B",
            "body": "Bila kedua data mencatat tahun-tahun yang sama",
            "is_correct": false,
-           "rationale": "Tahun yang sama justru memudahkan penggabungan."
+           "rationale": "Tahun yang sama justru memudahkan penggabungan.",
+           "misconception_code": "SD5-M-B8-07"
           },
           {
            "_row": {
@@ -1626,7 +1711,8 @@
            "label": "C",
            "body": "Bila kedua data memakai satuan yang sama, yaitu banyak siswa",
            "is_correct": false,
-           "rationale": "Satuan yang sama tidak menjadi masalah; yang perlu diperhatikan besar nilainya."
+           "rationale": "Satuan yang sama tidak menjadi masalah; yang perlu diperhatikan besar nilainya.",
+           "misconception_code": "SD5-M-B8-07"
           },
           {
            "_row": {
@@ -1636,7 +1722,8 @@
            "label": "D",
            "body": "Bila kedua data sudah memakai skala yang sama",
            "is_correct": false,
-           "rationale": "Skala yang sama justru syarat agar batangnya dapat dibandingkan."
+           "rationale": "Skala yang sama justru syarat agar batangnya dapat dibandingkan.",
+           "misconception_code": "SD5-M-B8-08"
           }
          ]
         }
@@ -1645,6 +1732,138 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SD5-M-B8-01",
+   "label": "Data terlewat atau terhitung dua kali",
+   "description": "Saat merekap data, ada hasil pengamatan yang tidak tercatat atau dicatat dua kali, sehingga frekuensi atau jumlahnya tidak cocok.",
+   "remediation": "Minta murid mencoret setiap data yang sudah dibuatkan turus, lalu mencocokkan jumlah frekuensi dengan banyak data."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SD5-M-B8-02",
+   "label": "Kunci piktogram diabaikan",
+   "description": "Banyak gambar dibaca sebagai nilai data, tanpa dikalikan dengan nilai satu gambar pada kunci.",
+   "remediation": "Minta murid membaca kunci dengan suara keras sebelum membaca baris mana pun, lalu menulis perkaliannya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SD5-M-B8-03",
+   "label": "Bagian gambar keliru",
+   "description": "Bagian gambar (seperempat, setengah, tiga perempat) dihitung sebagai satu gambar penuh, diabaikan, atau dibuat dari sisa yang tidak sesuai.",
+   "remediation": "Hitung bersama: setengah gambar mewakili setengah dari nilai kunci. Pakai kunci 4 agar setiap bagian bernilai bilangan bulat."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SD5-M-B8-04",
+   "label": "Satu gambar dianggap mewakili satu",
+   "description": "Satu gambar dianggap harus mewakili tepat satu benda, sehingga piktogram yang dibuat memuat terlalu banyak gambar.",
+   "remediation": "Bandingkan piktogram 40 gambar dengan piktogram 10 gambar berkunci 4 untuk data yang sama."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SD5-M-B8-05",
+   "label": "Ukuran gambar tidak sama",
+   "description": "Gambar-gambar yang mewakili nilai yang sama dibuat berbeda besar, sehingga piktogram menyesatkan pembaca.",
+   "remediation": "Tunjukkan dua baris yang sama nilainya tetapi berbeda ukuran gambarnya, lalu tanyakan mana yang tampak lebih banyak."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SD5-M-B8-06",
+   "label": "Nilai skala keliru dibaca",
+   "description": "Nilai satu langkah skala dianggap 1, atau ujung batang di antara dua garis dibaca ke garis terdekat.",
+   "remediation": "Minta murid menghitung dahulu nilai satu langkah: selisih dua angka dibagi banyak langkah di antaranya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SD5-M-B8-07",
+   "label": "Skala tidak tepat saat membuat diagram",
+   "description": "Jarak skala tidak sama, angka skala ditulis mengikuti data, atau dua data yang nilainya berbeda sangat jauh digabung dalam satu diagram.",
+   "remediation": "Pakai kertas berpetak: setiap petak satu langkah yang sama nilainya, dan angka ditulis tepat pada garis."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SD5-M-B8-08",
+   "label": "Hanya tinggi batang yang dibandingkan",
+   "description": "Dua diagram dengan skala berbeda dibandingkan hanya dari tinggi batangnya.",
+   "remediation": "Minta murid menuliskan nilai setiap batang dari skalanya masing-masing sebelum membandingkan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SD5-M-B8-09",
+   "label": "Bagian penting diagram dilupakan",
+   "description": "Judul, keterangan sumbu, atau kunci tidak dianggap perlu, sehingga diagram tidak dapat dibaca orang lain.",
+   "remediation": "Minta teman membaca diagram tanpa penjelasan; tanyakan bagian mana yang membuatnya bingung."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SD5-M-B8-10",
+   "label": "Jawaban bukan yang ditanyakan",
+   "description": "Jumlah, selisih, atau satu nilai tertukar dengan yang ditanyakan, atau ada data yang terlewat dalam hitungan.",
+   "remediation": "Minta murid menggarisbawahi kata tanya (jumlah, selisih, kenaikan, terbanyak) sebelum menghitung."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SD5-M-B8-11",
+   "label": "Turus keliru dihitung",
+   "description": "Satu kelompok turus dihitung 4 (garis miringnya terlewat), atau setiap kelompok dihitung 1.",
+   "remediation": "Bersama-sama buat turus 1 sampai 10 sambil menghitung; tunjukkan bahwa garis miring adalah yang kelima."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 13
+   },
+   "code": "SD5-M-B8-12",
+   "label": "Terbanyak dan tersedikit tertukar",
+   "description": "Data yang paling sedikit (batang terpendek) dipilih saat yang ditanyakan paling banyak, atau sebaliknya.",
+   "remediation": "Minta murid menunjuk batang terpanjang dan terpendek dahulu, lalu membaca kembali pertanyaannya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 14
+   },
+   "code": "SD5-M-B8-13",
+   "label": "Nilai data dan frekuensi tertukar",
+   "description": "Frekuensi diberikan saat yang ditanyakan nilai datanya, atau nilai data dijumlahkan seolah-olah frekuensi.",
+   "remediation": "Tunjuk kedua kolom tabel: kiri adalah datanya, kanan adalah berapa kali data itu muncul."
   }
  ]
 }

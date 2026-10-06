@@ -53,7 +53,8 @@
            "label": "A",
            "body": "Pulau Papua",
            "is_correct": false,
-           "rationale": "Papua adalah asal burung cendrawasih."
+           "rationale": "Papua adalah asal burung cendrawasih.",
+           "misconception_code": "SMA11-G-B2-02"
           },
           {
            "_row": {
@@ -73,7 +74,8 @@
            "label": "C",
            "body": "Pulau Komodo dan pulau-pulau kecil di sekitarnya",
            "is_correct": false,
-           "rationale": "Pulau Komodo dan sekitarnya adalah tempat hidup biawak komodo."
+           "rationale": "Pulau Komodo dan sekitarnya adalah tempat hidup biawak komodo.",
+           "misconception_code": "SMA11-G-B2-02"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "Pulau Sulawesi",
            "is_correct": false,
-           "rationale": "Sulawesi adalah tempat hidup anoa."
+           "rationale": "Sulawesi adalah tempat hidup anoa.",
+           "misconception_code": "SMA11-G-B2-02"
           }
          ]
         },
@@ -106,7 +109,8 @@
            "label": "A",
            "body": "berasal dari bahasa latin yang berarti alam tumbuhan",
            "is_correct": false,
-           "rationale": "Ini arti kata flora, bukan alasan disebut endemik."
+           "rationale": "Ini arti kata flora, bukan alasan disebut endemik.",
+           "misconception_code": "SMA11-G-B2-01"
           },
           {
            "_row": {
@@ -116,7 +120,8 @@
            "label": "B",
            "body": "banyak tanaman dari Timur Tengah dipindahkan ke Indonesia",
            "is_correct": false,
-           "rationale": "Ini contoh pengaruh manusia, seperti kurma; tumbuhan endemik tersebar secara alami."
+           "rationale": "Ini contoh pengaruh manusia, seperti kurma; tumbuhan endemik tersebar secara alami.",
+           "misconception_code": "SMA11-G-B2-01"
           },
           {
            "_row": {
@@ -136,7 +141,8 @@
            "label": "D",
            "body": "tanaman yang cocok dibudidayakan di Indonesia yang beriklim tropis",
            "is_correct": false,
-           "rationale": "Ini keterangan tentang padi, bukan pengertian endemik."
+           "rationale": "Ini keterangan tentang padi, bukan pengertian endemik.",
+           "misconception_code": "SMA11-G-B2-01"
           }
          ]
         },
@@ -168,7 +174,8 @@
            "label": "B",
            "body": "bahan utama untuk minyak kayu putih",
            "is_correct": false,
-           "rationale": "Ini manfaat eukaliptus di bidang kesehatan."
+           "rationale": "Ini manfaat eukaliptus di bidang kesehatan.",
+           "misconception_code": "SMA11-G-B2-03"
           },
           {
            "_row": {
@@ -178,7 +185,8 @@
            "label": "C",
            "body": "kayu yang sangat diandalkan dalam industri mebel",
            "is_correct": false,
-           "rationale": "Ini manfaat ekonomi kayu jati."
+           "rationale": "Ini manfaat ekonomi kayu jati.",
+           "misconception_code": "SMA11-G-B2-03"
           },
           {
            "_row": {
@@ -188,7 +196,8 @@
            "label": "D",
            "body": "makanan pokok di Indonesia bagian timur",
            "is_correct": false,
-           "rationale": "Ini manfaat sagu sebagai sumber pangan."
+           "rationale": "Ini manfaat sagu sebagai sumber pangan.",
+           "misconception_code": "SMA11-G-B2-03"
           }
          ]
         },
@@ -210,7 +219,8 @@
            "label": "A",
            "body": "sekitar 20.000 spesies",
            "is_correct": false,
-           "rationale": "Ini jumlah tumbuhan yang dipakai penduduk dunia sebagai obat menurut WHO."
+           "rationale": "Ini jumlah tumbuhan yang dipakai penduduk dunia sebagai obat menurut WHO.",
+           "misconception_code": "SMA11-G-B2-04"
           },
           {
            "_row": {
@@ -220,7 +230,8 @@
            "label": "B",
            "body": "1.252 jenis",
            "is_correct": false,
-           "rationale": "Ini jumlah jenis tumbuhan Indonesia dalam daftar merah."
+           "rationale": "Ini jumlah jenis tumbuhan Indonesia dalam daftar merah.",
+           "misconception_code": "SMA11-G-B2-04"
           },
           {
            "_row": {
@@ -240,7 +251,8 @@
            "label": "D",
            "body": "4.000 jenis",
            "is_correct": false,
-           "rationale": "Ini jumlah jenis tanaman anggrek di Indonesia."
+           "rationale": "Ini jumlah jenis tanaman anggrek di Indonesia.",
+           "misconception_code": "SMA11-G-B2-04"
           }
          ]
         }
@@ -290,7 +302,8 @@
            "label": "B",
            "body": "tanah yang memiliki tingkat keasaman tinggi",
            "is_correct": false,
-           "rationale": "Tanah asam adalah alasan jati tidak tumbuh maksimal di Kalimantan dan Sumatra."
+           "rationale": "Tanah asam adalah alasan jati tidak tumbuh maksimal di Kalimantan dan Sumatra.",
+           "misconception_code": "SMA11-G-B2-05"
           },
           {
            "_row": {
@@ -300,7 +313,8 @@
            "label": "C",
            "body": "perbedaan suhu siang dan malam yang sangat tinggi",
            "is_correct": false,
-           "rationale": "Ini ciri bioma gurun."
+           "rationale": "Ini ciri bioma gurun.",
+           "misconception_code": "SMA11-G-B2-06"
           },
           {
            "_row": {
@@ -310,7 +324,8 @@
            "label": "D",
            "body": "curah hujan lebih rendah dan beriklim lebih kering",
            "is_correct": false,
-           "rationale": "Ini ciri iklim wilayah timur Indonesia, bukan penyebab menyusutnya flora dan fauna."
+           "rationale": "Ini ciri iklim wilayah timur Indonesia, bukan penyebab menyusutnya flora dan fauna.",
+           "misconception_code": "SMA11-G-B2-05"
           }
          ]
         },
@@ -332,7 +347,8 @@
            "label": "A",
            "body": "Pisces (ikan), 4.000",
            "is_correct": false,
-           "rationale": "Ikan 4.000 jenis, jauh lebih sedikit daripada serangga."
+           "rationale": "Ikan 4.000 jenis, jauh lebih sedikit daripada serangga.",
+           "misconception_code": "SMA11-G-B2-04"
           },
           {
            "_row": {
@@ -352,7 +368,8 @@
            "label": "C",
            "body": "Aves (burung), 1.600",
            "is_correct": false,
-           "rationale": "Burung 1.600 jenis."
+           "rationale": "Burung 1.600 jenis.",
+           "misconception_code": "SMA11-G-B2-04"
           },
           {
            "_row": {
@@ -362,7 +379,8 @@
            "label": "D",
            "body": "Mamalia, 500",
            "is_correct": false,
-           "rationale": "Mamalia justru yang paling sedikit, 500 jenis."
+           "rationale": "Mamalia justru yang paling sedikit, 500 jenis.",
+           "misconception_code": "SMA11-G-B2-04"
           }
          ]
         },
@@ -384,7 +402,8 @@
            "label": "A",
            "body": "kurang dari 400 ekor",
            "is_correct": false,
-           "rationale": "Ini perkiraan populasi harimau Sumatra."
+           "rationale": "Ini perkiraan populasi harimau Sumatra.",
+           "misconception_code": "SMA11-G-B2-04"
           },
           {
            "_row": {
@@ -394,7 +413,8 @@
            "label": "B",
            "body": "14 ekor",
            "is_correct": false,
-           "rationale": "Ini jumlah harimau Sumatra yang mati dibunuh pemburu setiap bulan."
+           "rationale": "Ini jumlah harimau Sumatra yang mati dibunuh pemburu setiap bulan.",
+           "misconception_code": "SMA11-G-B2-04"
           },
           {
            "_row": {
@@ -404,7 +424,8 @@
            "label": "C",
            "body": "24 ekor",
            "is_correct": false,
-           "rationale": "24 adalah jumlah kakatua jambul kuning dalam kasus penyelundupan, bukan jumlah badak."
+           "rationale": "24 adalah jumlah kakatua jambul kuning dalam kasus penyelundupan, bukan jumlah badak.",
+           "misconception_code": "SMA11-G-B2-04"
           },
           {
            "_row": {
@@ -446,7 +467,8 @@
            "label": "B",
            "body": "curah hujan lebih rendah dan beriklim lebih kering",
            "is_correct": false,
-           "rationale": "Ini ciri wilayah timur Indonesia."
+           "rationale": "Ini ciri wilayah timur Indonesia.",
+           "misconception_code": "SMA11-G-B2-08"
           },
           {
            "_row": {
@@ -456,7 +478,8 @@
            "label": "C",
            "body": "kelembapan tinggi dan suhu rata-rata 25 °C",
            "is_correct": false,
-           "rationale": "Ini ciri bioma hutan tropis secara umum."
+           "rationale": "Ini ciri bioma hutan tropis secara umum.",
+           "misconception_code": "SMA11-G-B2-06"
           },
           {
            "_row": {
@@ -466,7 +489,8 @@
            "label": "D",
            "body": "beriklim sedang dengan curah hujan rendah",
            "is_correct": false,
-           "rationale": "Ini ciri daerah hutan gugur."
+           "rationale": "Ini ciri daerah hutan gugur.",
+           "misconception_code": "SMA11-G-B2-06"
           }
          ]
         }
@@ -506,7 +530,8 @@
            "label": "A",
            "body": "taiga",
            "is_correct": false,
-           "rationale": "Taiga juga di belahan bumi utara, tetapi berupa hutan pohon pinus berdaun jarum."
+           "rationale": "Taiga juga di belahan bumi utara, tetapi berupa hutan pohon pinus berdaun jarum.",
+           "misconception_code": "SMA11-G-B2-06"
           },
           {
            "_row": {
@@ -516,7 +541,8 @@
            "label": "B",
            "body": "gurun",
            "is_correct": false,
-           "rationale": "Gurun bercurah hujan sekitar 250 mm/tahun atau kurang, dengan tumbuhan berdaun kecil seperti duri."
+           "rationale": "Gurun bercurah hujan sekitar 250 mm/tahun atau kurang, dengan tumbuhan berdaun kecil seperti duri.",
+           "misconception_code": "SMA11-G-B2-06"
           },
           {
            "_row": {
@@ -526,7 +552,8 @@
            "label": "C",
            "body": "sabana",
            "is_correct": false,
-           "rationale": "Sabana didominasi rumput dan akasia yang diselingi pohon tinggi."
+           "rationale": "Sabana didominasi rumput dan akasia yang diselingi pohon tinggi.",
+           "misconception_code": "SMA11-G-B2-06"
           },
           {
            "_row": {
@@ -559,7 +586,8 @@
            "label": "A",
            "body": "padang rumput",
            "is_correct": false,
-           "rationale": "Curah hujan padang rumput umumnya 250–500 mm/tahun."
+           "rationale": "Curah hujan padang rumput umumnya 250–500 mm/tahun.",
+           "misconception_code": "SMA11-G-B2-06"
           },
           {
            "_row": {
@@ -569,7 +597,8 @@
            "label": "B",
            "body": "hutan gugur",
            "is_correct": false,
-           "rationale": "Hutan gugur bercurah hujan 750 sampai 1.000 mm/tahun."
+           "rationale": "Hutan gugur bercurah hujan 750 sampai 1.000 mm/tahun.",
+           "misconception_code": "SMA11-G-B2-06"
           },
           {
            "_row": {
@@ -579,7 +608,8 @@
            "label": "C",
            "body": "hutan tropis",
            "is_correct": false,
-           "rationale": "Hutan tropis memiliki kelembapan tinggi dan suhu rata-rata 25 °C."
+           "rationale": "Hutan tropis memiliki kelembapan tinggi dan suhu rata-rata 25 °C.",
+           "misconception_code": "SMA11-G-B2-06"
           },
           {
            "_row": {
@@ -611,7 +641,8 @@
            "label": "A",
            "body": "liana, seperti rotan",
            "is_correct": false,
-           "rationale": "Rotan memang contoh liana, tetapi anggrek bukan liana."
+           "rationale": "Rotan memang contoh liana, tetapi anggrek bukan liana.",
+           "misconception_code": "SMA11-G-B2-06"
           },
           {
            "_row": {
@@ -621,7 +652,8 @@
            "label": "B",
            "body": "daunnya berbentuk seperti jarum",
            "is_correct": false,
-           "rationale": "Daun seperti jarum adalah ciri pohon pinus di taiga."
+           "rationale": "Daun seperti jarum adalah ciri pohon pinus di taiga.",
+           "misconception_code": "SMA11-G-B2-06"
           },
           {
            "_row": {
@@ -641,7 +673,8 @@
            "label": "D",
            "body": "berdaun kecil seperti duri",
            "is_correct": false,
-           "rationale": "Ini ciri tumbuhan gurun."
+           "rationale": "Ini ciri tumbuhan gurun.",
+           "misconception_code": "SMA11-G-B2-06"
           }
          ]
         },
@@ -663,7 +696,8 @@
            "label": "A",
            "body": "rumput-rumput pendek diselingi oleh semak belukar",
            "is_correct": false,
-           "rationale": "Ini ciri stepa."
+           "rationale": "Ini ciri stepa.",
+           "misconception_code": "SMA11-G-B2-06"
           },
           {
            "_row": {
@@ -683,7 +717,8 @@
            "label": "C",
            "body": "tanaman pendek seperti semak dan banyak lumut",
            "is_correct": false,
-           "rationale": "Ini ciri tundra."
+           "rationale": "Ini ciri tundra.",
+           "misconception_code": "SMA11-G-B2-06"
           },
           {
            "_row": {
@@ -693,7 +728,8 @@
            "label": "D",
            "body": "hutan pohon pinus yang daunnya berbentuk seperti jarum",
            "is_correct": false,
-           "rationale": "Ini ciri taiga."
+           "rationale": "Ini ciri taiga.",
+           "misconception_code": "SMA11-G-B2-06"
           }
          ]
         }
@@ -733,7 +769,8 @@
            "label": "A",
            "body": "Nearktik",
            "is_correct": false,
-           "rationale": "Nearktik meliputi Amerika Serikat, Amerika Utara dekat kutub utara, dan Greenland."
+           "rationale": "Nearktik meliputi Amerika Serikat, Amerika Utara dekat kutub utara, dan Greenland.",
+           "misconception_code": "SMA11-G-B2-07"
           },
           {
            "_row": {
@@ -753,7 +790,8 @@
            "label": "C",
            "body": "Zona Palearktik",
            "is_correct": false,
-           "rationale": "Palearktik adalah zona yang paling luas, meliputi hampir seluruh Eropa dan Rusia."
+           "rationale": "Palearktik adalah zona yang paling luas, meliputi hampir seluruh Eropa dan Rusia.",
+           "misconception_code": "SMA11-G-B2-07"
           },
           {
            "_row": {
@@ -763,7 +801,8 @@
            "label": "D",
            "body": "Ethiopian",
            "is_correct": false,
-           "rationale": "Ethiopian meliputi benua Afrika, Madagaskar, dan sebagian daratan Arab."
+           "rationale": "Ethiopian meliputi benua Afrika, Madagaskar, dan sebagian daratan Arab.",
+           "misconception_code": "SMA11-G-B2-07"
           }
          ]
         },
@@ -785,7 +824,8 @@
            "label": "A",
            "body": "3 wilayah",
            "is_correct": false,
-           "rationale": "Tiga wilayah adalah pembagian fauna Indonesia (barat, tengah, timur)."
+           "rationale": "Tiga wilayah adalah pembagian fauna Indonesia (barat, tengah, timur).",
+           "misconception_code": "SMA11-G-B2-08"
           },
           {
            "_row": {
@@ -795,7 +835,8 @@
            "label": "B",
            "body": "4 wilayah",
            "is_correct": false,
-           "rationale": "Empat wilayah adalah pembagian flora Indonesia."
+           "rationale": "Empat wilayah adalah pembagian flora Indonesia.",
+           "misconception_code": "SMA11-G-B2-08"
           },
           {
            "_row": {
@@ -805,7 +846,8 @@
            "label": "C",
            "body": "30 wilayah",
            "is_correct": false,
-           "rationale": "30 adalah jumlah jenis burung cenderawasih yang berada di Indonesia."
+           "rationale": "30 adalah jumlah jenis burung cenderawasih yang berada di Indonesia.",
+           "misconception_code": "SMA11-G-B2-04"
           },
           {
            "_row": {
@@ -847,7 +889,8 @@
            "label": "B",
            "body": "Australian",
            "is_correct": false,
-           "rationale": "Australian meliputi Australia, Selandia Baru, Irian, dan Maluku."
+           "rationale": "Australian meliputi Australia, Selandia Baru, Irian, dan Maluku.",
+           "misconception_code": "SMA11-G-B2-07"
           },
           {
            "_row": {
@@ -857,7 +900,8 @@
            "label": "C",
            "body": "Palearktik",
            "is_correct": false,
-           "rationale": "Palearktik meliputi hampir seluruh Eropa dan Rusia."
+           "rationale": "Palearktik meliputi hampir seluruh Eropa dan Rusia.",
+           "misconception_code": "SMA11-G-B2-07"
           },
           {
            "_row": {
@@ -867,7 +911,8 @@
            "label": "D",
            "body": "Oceanik",
            "is_correct": false,
-           "rationale": "Oceanik tersebar di kepulauan Samudra Pasifik."
+           "rationale": "Oceanik tersebar di kepulauan Samudra Pasifik.",
+           "misconception_code": "SMA11-G-B2-07"
           }
          ]
         },
@@ -889,7 +934,8 @@
            "label": "A",
            "body": "piranha di sungai Amazon",
            "is_correct": false,
-           "rationale": "Piranha adalah hewan endemik wilayah Neotropikal."
+           "rationale": "Piranha adalah hewan endemik wilayah Neotropikal.",
+           "misconception_code": "SMA11-G-B2-07"
           },
           {
            "_row": {
@@ -899,7 +945,8 @@
            "label": "B",
            "body": "kanguru dan koala",
            "is_correct": false,
-           "rationale": "Keduanya hewan khas wilayah Australian."
+           "rationale": "Keduanya hewan khas wilayah Australian.",
+           "misconception_code": "SMA11-G-B2-07"
           },
           {
            "_row": {
@@ -919,7 +966,8 @@
            "label": "D",
            "body": "gajah, singa, dan citah",
            "is_correct": false,
-           "rationale": "Ini fauna khas wilayah Ethiopian di Afrika."
+           "rationale": "Ini fauna khas wilayah Ethiopian di Afrika.",
+           "misconception_code": "SMA11-G-B2-07"
           }
          ]
         }
@@ -969,7 +1017,8 @@
            "label": "B",
            "body": "Dangkalan Sunda",
            "is_correct": false,
-           "rationale": "Dangkalan Sunda adalah wilayah fauna Indonesia barat."
+           "rationale": "Dangkalan Sunda adalah wilayah fauna Indonesia barat.",
+           "misconception_code": "SMA11-G-B2-08"
           },
           {
            "_row": {
@@ -979,7 +1028,8 @@
            "label": "C",
            "body": "Kepulauan Wallacea",
            "is_correct": false,
-           "rationale": "Kepulauan Wallacea adalah wilayah fauna Indonesia tengah."
+           "rationale": "Kepulauan Wallacea adalah wilayah fauna Indonesia tengah.",
+           "misconception_code": "SMA11-G-B2-08"
           },
           {
            "_row": {
@@ -989,7 +1039,8 @@
            "label": "D",
            "body": "Zona oriental",
            "is_correct": false,
-           "rationale": "Zona oriental mencakup Indonesia bagian barat."
+           "rationale": "Zona oriental mencakup Indonesia bagian barat.",
+           "misconception_code": "SMA11-G-B2-07"
           }
          ]
         },
@@ -1012,7 +1063,8 @@
            "label": "A",
            "body": "Garis Weber",
            "is_correct": false,
-           "rationale": "Garis Weber memisahkan fauna tengah (peralihan) dari fauna timur (australis)."
+           "rationale": "Garis Weber memisahkan fauna tengah (peralihan) dari fauna timur (australis).",
+           "misconception_code": "SMA11-G-B2-09"
           },
           {
            "_row": {
@@ -1022,7 +1074,8 @@
            "label": "B",
            "body": "Gurun Sahara",
            "is_correct": false,
-           "rationale": "Gurun Sahara adalah pembatas alami antara wilayah Ethiopian dan Palearktik."
+           "rationale": "Gurun Sahara adalah pembatas alami antara wilayah Ethiopian dan Palearktik.",
+           "misconception_code": "SMA11-G-B2-09"
           },
           {
            "_row": {
@@ -1042,7 +1095,8 @@
            "label": "D",
            "body": "Dangkalan Sahul",
            "is_correct": false,
-           "rationale": "Dangkalan Sahul adalah nama wilayah fauna Indonesia timur, bukan garis batas."
+           "rationale": "Dangkalan Sahul adalah nama wilayah fauna Indonesia timur, bukan garis batas.",
+           "misconception_code": "SMA11-G-B2-08"
           }
          ]
         },
@@ -1064,7 +1118,8 @@
            "label": "A",
            "body": "orangutan",
            "is_correct": false,
-           "rationale": "Orangutan termasuk fauna Indonesia barat."
+           "rationale": "Orangutan termasuk fauna Indonesia barat.",
+           "misconception_code": "SMA11-G-B2-08"
           },
           {
            "_row": {
@@ -1084,7 +1139,8 @@
            "label": "C",
            "body": "kanguru",
            "is_correct": false,
-           "rationale": "Kanguru termasuk fauna Indonesia timur (Dangkalan Sahul)."
+           "rationale": "Kanguru termasuk fauna Indonesia timur (Dangkalan Sahul).",
+           "misconception_code": "SMA11-G-B2-08"
           },
           {
            "_row": {
@@ -1094,7 +1150,8 @@
            "label": "D",
            "body": "gajah",
            "is_correct": false,
-           "rationale": "Gajah termasuk fauna Indonesia barat."
+           "rationale": "Gajah termasuk fauna Indonesia barat.",
+           "misconception_code": "SMA11-G-B2-08"
           }
          ]
         },
@@ -1116,7 +1173,8 @@
            "label": "A",
            "body": "kayu meranti dan damar",
            "is_correct": false,
-           "rationale": "Ini flora khas Sumatra dan Kalimantan."
+           "rationale": "Ini flora khas Sumatra dan Kalimantan.",
+           "misconception_code": "SMA11-G-B2-08"
           },
           {
            "_row": {
@@ -1126,7 +1184,8 @@
            "label": "B",
            "body": "pohon jati",
            "is_correct": false,
-           "rationale": "Jati adalah flora khas hutan muson tropis di Jawa."
+           "rationale": "Jati adalah flora khas hutan muson tropis di Jawa.",
+           "misconception_code": "SMA11-G-B2-08"
           },
           {
            "_row": {
@@ -1136,7 +1195,8 @@
            "label": "C",
            "body": "pala dan cengkih",
            "is_correct": false,
-           "rationale": "Ini rempah-rempah di hutan campuran Maluku."
+           "rationale": "Ini rempah-rempah di hutan campuran Maluku.",
+           "misconception_code": "SMA11-G-B2-08"
           },
           {
            "_row": {
@@ -1178,7 +1238,8 @@
            "label": "B",
            "body": "hutan hujan tropis",
            "is_correct": false,
-           "rationale": "Hutan hujan tropis sebagian besar tersebar di Jawa Barat."
+           "rationale": "Hutan hujan tropis sebagian besar tersebar di Jawa Barat.",
+           "misconception_code": "SMA11-G-B2-08"
           },
           {
            "_row": {
@@ -1188,7 +1249,8 @@
            "label": "C",
            "body": "hutan pegunungan",
            "is_correct": false,
-           "rationale": "Hutan pegunungan disebut untuk sekitar Sulawesi."
+           "rationale": "Hutan pegunungan disebut untuk sekitar Sulawesi.",
+           "misconception_code": "SMA11-G-B2-08"
           },
           {
            "_row": {
@@ -1198,7 +1260,8 @@
            "label": "D",
            "body": "hutan campuran rempah-rempah",
            "is_correct": false,
-           "rationale": "Hutan campuran dengan rempah-rempah ada di Maluku."
+           "rationale": "Hutan campuran dengan rempah-rempah ada di Maluku.",
+           "misconception_code": "SMA11-G-B2-08"
           }
          ]
         }
@@ -1248,7 +1311,8 @@
            "label": "B",
            "body": "29 °C",
            "is_correct": false,
-           "rationale": "Suhu ditambahkan. Semakin tinggi suatu tempat, suhunya semakin dingin."
+           "rationale": "Suhu ditambahkan. Semakin tinggi suatu tempat, suhunya semakin dingin.",
+           "misconception_code": "SMA11-G-B2-12"
           },
           {
            "_row": {
@@ -1258,7 +1322,8 @@
            "label": "C",
            "body": "17,5 °C",
            "is_correct": false,
-           "rationale": "Yang dipakai ketinggian Desa Q seluruhnya (1.300 m). Hitung dari selisih ketinggian: 1.300 − 300 = 1.000 m."
+           "rationale": "Yang dipakai ketinggian Desa Q seluruhnya (1.300 m). Hitung dari selisih ketinggian: 1.300 − 300 = 1.000 m.",
+           "misconception_code": "SMA11-G-B2-12"
           },
           {
            "_row": {
@@ -1268,7 +1333,8 @@
            "label": "D",
            "body": "14 °C",
            "is_correct": false,
-           "rationale": "Penurunannya dihitung 1 °C setiap 100 m. Menurut buku sekitar 0,5 °C."
+           "rationale": "Penurunannya dihitung 1 °C setiap 100 m. Menurut buku sekitar 0,5 °C.",
+           "misconception_code": "SMA11-G-B2-12"
           }
          ]
         },
@@ -1291,7 +1357,8 @@
            "label": "A",
            "body": "xerophyta",
            "is_correct": false,
-           "rationale": "Xerophyta tahan di lingkungan kering, seperti kaktus."
+           "rationale": "Xerophyta tahan di lingkungan kering, seperti kaktus.",
+           "misconception_code": "SMA11-G-B2-11"
           },
           {
            "_row": {
@@ -1301,7 +1368,8 @@
            "label": "B",
            "body": "hygrophyta",
            "is_correct": false,
-           "rationale": "Hygrophyta cocok hidup di kawasan basah, seperti teratai."
+           "rationale": "Hygrophyta cocok hidup di kawasan basah, seperti teratai.",
+           "misconception_code": "SMA11-G-B2-11"
           },
           {
            "_row": {
@@ -1311,7 +1379,8 @@
            "label": "C",
            "body": "tropophyta",
            "is_correct": false,
-           "rationale": "Tropophyta dapat beradaptasi di musim hujan dan musim kemarau."
+           "rationale": "Tropophyta dapat beradaptasi di musim hujan dan musim kemarau.",
+           "misconception_code": "SMA11-G-B2-11"
           },
           {
            "_row": {
@@ -1343,7 +1412,8 @@
            "label": "A",
            "body": "xerophyta",
            "is_correct": false,
-           "rationale": "Xerophyta tahan di lingkungan kering, seperti kaktus."
+           "rationale": "Xerophyta tahan di lingkungan kering, seperti kaktus.",
+           "misconception_code": "SMA11-G-B2-11"
           },
           {
            "_row": {
@@ -1353,7 +1423,8 @@
            "label": "B",
            "body": "mesophyta",
            "is_correct": false,
-           "rationale": "Mesophyta cocok di lingkungan lembap tetapi tidak basah."
+           "rationale": "Mesophyta cocok di lingkungan lembap tetapi tidak basah.",
+           "misconception_code": "SMA11-G-B2-11"
           },
           {
            "_row": {
@@ -1373,7 +1444,8 @@
            "label": "D",
            "body": "tropophyta",
            "is_correct": false,
-           "rationale": "Tropophyta beradaptasi di musim hujan dan musim kemarau, seperti jati."
+           "rationale": "Tropophyta beradaptasi di musim hujan dan musim kemarau, seperti jati.",
+           "misconception_code": "SMA11-G-B2-11"
           }
          ]
         },
@@ -1395,7 +1467,8 @@
            "label": "A",
            "body": "manusia",
            "is_correct": false,
-           "rationale": "Contoh pengaruh manusia adalah memindahkan kurma dari Timur Tengah ke Indonesia."
+           "rationale": "Contoh pengaruh manusia adalah memindahkan kurma dari Timur Tengah ke Indonesia.",
+           "misconception_code": "SMA11-G-B2-10"
           },
           {
            "_row": {
@@ -1415,7 +1488,8 @@
            "label": "C",
            "body": "tumbuhan",
            "is_correct": false,
-           "rationale": "Tumbuhan berperan menyuburkan tanah."
+           "rationale": "Tumbuhan berperan menyuburkan tanah.",
+           "misconception_code": "SMA11-G-B2-10"
           },
           {
            "_row": {
@@ -1425,7 +1499,8 @@
            "label": "D",
            "body": "tanah",
            "is_correct": false,
-           "rationale": "Contoh pengaruh tanah adalah hutan jati di tanah berkapur."
+           "rationale": "Contoh pengaruh tanah adalah hutan jati di tanah berkapur.",
+           "misconception_code": "SMA11-G-B2-10"
           }
          ]
         },
@@ -1447,7 +1522,8 @@
            "label": "A",
            "body": "panas, 0–600 m",
            "is_correct": false,
-           "rationale": "Daerah panas ditanami padi, tebu, karet, dan kelapa."
+           "rationale": "Daerah panas ditanami padi, tebu, karet, dan kelapa.",
+           "misconception_code": "SMA11-G-B2-12"
           },
           {
            "_row": {
@@ -1457,7 +1533,8 @@
            "label": "B",
            "body": "sedang, 600–1500 m",
            "is_correct": false,
-           "rationale": "Daerah sedang ditanami tembakau, kopi, cokelat, dan padi."
+           "rationale": "Daerah sedang ditanami tembakau, kopi, cokelat, dan padi.",
+           "misconception_code": "SMA11-G-B2-12"
           },
           {
            "_row": {
@@ -1467,7 +1544,8 @@
            "label": "C",
            "body": "dingin, di atas 2500 m",
            "is_correct": false,
-           "rationale": "Di daerah dingin tidak ada tanaman budi daya."
+           "rationale": "Di daerah dingin tidak ada tanaman budi daya.",
+           "misconception_code": "SMA11-G-B2-12"
           },
           {
            "_row": {
@@ -1517,7 +1595,8 @@
            "label": "A",
            "body": "in situ",
            "is_correct": false,
-           "rationale": "In situ dilakukan langsung di habitat asli flora dan fauna."
+           "rationale": "In situ dilakukan langsung di habitat asli flora dan fauna.",
+           "misconception_code": "SMA11-G-B2-13"
           },
           {
            "_row": {
@@ -1527,7 +1606,8 @@
            "label": "B",
            "body": "cagar alam",
            "is_correct": false,
-           "rationale": "Cagar alam adalah salah satu bentuk pelestarian in situ, bukan nama metodenya."
+           "rationale": "Cagar alam adalah salah satu bentuk pelestarian in situ, bukan nama metodenya.",
+           "misconception_code": "SMA11-G-B2-13"
           },
           {
            "_row": {
@@ -1547,7 +1627,8 @@
            "label": "D",
            "body": "bioregional",
            "is_correct": false,
-           "rationale": "Bioregional adalah cara pengelolaan kawasan berdasarkan batas masyarakat dan sistem ekologis."
+           "rationale": "Bioregional adalah cara pengelolaan kawasan berdasarkan batas masyarakat dan sistem ekologis.",
+           "misconception_code": "SMA11-G-B2-14"
           }
          ]
         },
@@ -1570,7 +1651,8 @@
            "label": "A",
            "body": "melindungi populasi dan komunitas alami di habitat aslinya",
            "is_correct": false,
-           "rationale": "Ini tujuan metode in situ."
+           "rationale": "Ini tujuan metode in situ.",
+           "misconception_code": "SMA11-G-B2-13"
           },
           {
            "_row": {
@@ -1590,7 +1672,8 @@
            "label": "C",
            "body": "menyediakan sumber plasma nutfah atau keanekaragaman genetika",
            "is_correct": false,
-           "rationale": "Ini salah satu tujuan konservasi secara umum, bukan syarat metode ex situ."
+           "rationale": "Ini salah satu tujuan konservasi secara umum, bukan syarat metode ex situ.",
+           "misconception_code": "SMA11-G-B2-14"
           },
           {
            "_row": {
@@ -1600,7 +1683,8 @@
            "label": "D",
            "body": "areal dikelola masyarakat adat dalam suatu kesatuan ekosistem",
            "is_correct": false,
-           "rationale": "Ini AKKM, areal konservasi yang dikelola masyarakat."
+           "rationale": "Ini AKKM, areal konservasi yang dikelola masyarakat.",
+           "misconception_code": "SMA11-G-B2-14"
           }
          ]
         },
@@ -1632,7 +1716,8 @@
            "label": "B",
            "body": "mengembangkan ekowisata berbasis sains dan bioprospeksi",
            "is_correct": false,
-           "rationale": "Ini salah satu bentuk investasi nasional dalam pemanfaatan biodiversitas."
+           "rationale": "Ini salah satu bentuk investasi nasional dalam pemanfaatan biodiversitas.",
+           "misconception_code": "SMA11-G-B2-14"
           },
           {
            "_row": {
@@ -1642,7 +1727,8 @@
            "label": "C",
            "body": "membuat lingkungan buatan yang persis dengan tempat asal",
            "is_correct": false,
-           "rationale": "Ini cara kerja taman safari, salah satu bentuk ex situ."
+           "rationale": "Ini cara kerja taman safari, salah satu bentuk ex situ.",
+           "misconception_code": "SMA11-G-B2-13"
           },
           {
            "_row": {
@@ -1652,7 +1738,8 @@
            "label": "D",
            "body": "mengoleksi flora dan fauna yang berasal dari tempat lain",
            "is_correct": false,
-           "rationale": "Ini fungsi taman hutan raya."
+           "rationale": "Ini fungsi taman hutan raya.",
+           "misconception_code": "SMA11-G-B2-13"
           }
          ]
         },
@@ -1674,7 +1761,8 @@
            "label": "A",
            "body": "Taman Safari Prigen",
            "is_correct": false,
-           "rationale": "Taman safari adalah pelestarian ex situ."
+           "rationale": "Taman safari adalah pelestarian ex situ.",
+           "misconception_code": "SMA11-G-B2-13"
           },
           {
            "_row": {
@@ -1684,7 +1772,8 @@
            "label": "B",
            "body": "Taman Hutan Raya Cut Nyak Dien",
            "is_correct": false,
-           "rationale": "Taman hutan raya adalah pelestarian ex situ."
+           "rationale": "Taman hutan raya adalah pelestarian ex situ.",
+           "misconception_code": "SMA11-G-B2-13"
           },
           {
            "_row": {
@@ -1704,7 +1793,8 @@
            "label": "D",
            "body": "Kebun binatang",
            "is_correct": false,
-           "rationale": "Kebun binatang adalah pelestarian ex situ."
+           "rationale": "Kebun binatang adalah pelestarian ex situ.",
+           "misconception_code": "SMA11-G-B2-13"
           }
          ]
         }
@@ -1713,6 +1803,148 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SMA11-G-B2-01",
+   "label": "Pengertian endemik keliru",
+   "description": "Flora atau fauna endemik dikira sekadar tumbuhan atau hewan yang banyak di suatu daerah, atau yang dipindahkan manusia.",
+   "remediation": "Tekankan kata kuncinya: hanya ditemukan di wilayah tertentu dan tidak dijumpai di wilayah lain, persebarannya alami."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SMA11-G-B2-02",
+   "label": "Asal hewan atau tumbuhan tertukar",
+   "description": "Wilayah asal flora atau fauna endemik tertukar, misalnya badak bercula satu dikira dari Papua.",
+   "remediation": "Buat daftar pasangan hewan atau tumbuhan dengan wilayahnya dan tandai di peta Indonesia."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SMA11-G-B2-03",
+   "label": "Bidang manfaat tertukar",
+   "description": "Manfaat flora dan fauna dimasukkan ke bidang yang keliru (pangan, kesehatan, ekonomi, keseimbangan ekosistem, sosial, ekologis).",
+   "remediation": "Minta murid bertanya: apa yang diperoleh manusia dari contoh ini? makanan, obat, uang, keseimbangan, atau lapangan kerja?"
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SMA11-G-B2-04",
+   "label": "Data jumlah tertukar",
+   "description": "Angka milik fakta lain dipakai sebagai jawaban, misalnya jumlah tumbuhan obat dunia untuk Indonesia.",
+   "remediation": "Minta murid membaca kembali keterangan setiap angka: dunia atau Indonesia, jenis apa, tahun berapa."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SMA11-G-B2-05",
+   "label": "Penyebab masalah tertukar",
+   "description": "Penyebab menyusutnya flora dan fauna tertukar dengan fakta lain yang tidak menjadi penyebabnya.",
+   "remediation": "Kaitkan setiap masalah dengan penyebab yang disebut buku: pertumbuhan penduduk, perburuan, eksploitasi."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SMA11-G-B2-06",
+   "label": "Ciri bioma tertukar",
+   "description": "Ciri curah hujan, suhu, atau vegetasi satu bioma dipakai untuk bioma lain.",
+   "remediation": "Buat kartu bioma berisi curah hujan, letak, dan tumbuhan khas, lalu cocokkan ciri dengan kartunya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SMA11-G-B2-07",
+   "label": "Wilayah fauna dunia tertukar",
+   "description": "Cakupan atau hewan khas satu wilayah fauna Wallace dipakai untuk wilayah lain.",
+   "remediation": "Gunakan peta dunia: tandai delapan wilayah dan tempelkan satu hewan khas untuk setiap wilayah."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SMA11-G-B2-08",
+   "label": "Wilayah flora atau fauna Indonesia tertukar",
+   "description": "Wilayah barat (Dangkalan Sunda), tengah (Wallacea), dan timur (Dangkalan Sahul), atau flora khasnya, tertukar.",
+   "remediation": "Minta murid menempatkan pulau-pulau dan hewan khasnya pada tiga wilayah di peta Indonesia."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SMA11-G-B2-09",
+   "label": "Garis batas fauna tertukar",
+   "description": "Garis Wallace dan Garis Weber tertukar, atau keduanya dikira batas lain.",
+   "remediation": "Ingat urutannya dari barat: Garis Wallace memisahkan barat dan tengah, Garis Weber memisahkan tengah dan timur."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SMA11-G-B2-10",
+   "label": "Faktor sebaran tertukar",
+   "description": "Contoh pengaruh manusia, hewan, tumbuhan, tanah, atau iklim dimasukkan ke faktor yang keliru.",
+   "remediation": "Tanyakan siapa atau apa yang menyebabkan perpindahan atau pertumbuhan pada contoh itu."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SMA11-G-B2-11",
+   "label": "Kelompok tumbuhan menurut kelembapan tertukar",
+   "description": "Xerophyta, mesophyta, hygrophyta, dan tropophyta tertukar.",
+   "remediation": "Kaitkan awalan dengan tempat: xero (kering), meso (lembap tetapi tidak basah), hygro (basah), tropo (dua musim)."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 13
+   },
+   "code": "SMA11-G-B2-12",
+   "label": "Hubungan ketinggian dan suhu keliru",
+   "description": "Suhu dikira naik bila tempat makin tinggi, atau penurunan 0,5 °C setiap 100 m dihitung dengan jarak atau laju yang keliru.",
+   "remediation": "Hitung bersama selisih ketinggian dahulu, bagi 100, kalikan 0,5 °C, lalu kurangkan dari suhu awal."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 14
+   },
+   "code": "SMA11-G-B2-13",
+   "label": "In situ dan ex situ tertukar",
+   "description": "Pelestarian di habitat asli dan di luar habitat asli tertukar, atau contohnya dimasukkan ke metode yang keliru.",
+   "remediation": "Tanyakan: apakah hewan atau tumbuhan itu tetap di habitat aslinya? Bila ya, in situ; bila dipindahkan, ex situ."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 15
+   },
+   "code": "SMA11-G-B2-14",
+   "label": "Tujuan atau upaya konservasi tertukar",
+   "description": "Tujuan konservasi tertukar dengan upaya pemanfaatan atau pengelolaan lain.",
+   "remediation": "Bacakan tiga tujuan konservasi dan minta murid memeriksa apakah pilihan itu salah satunya."
   }
  ]
 }

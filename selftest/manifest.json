@@ -2250,6 +2250,11 @@
       "proves": "CR-02 (D-078(c), D-077(d)), read from the source file src/app/belajar/[tugas]/sertifikat/page.tsx: the learner's certificate page takes the school's name and the course from the certificate's own seal (my_certificate's institution_as_issued, course_*_as_issued) before anything live, and draws the certificate on screen and on the A4 sheet in the language it was issued in (language_as_issued); CertificateDetail carries the four sealed fields. The database half is F20-S01."
     },
     {
+      "id": "PENUTUPAN-M04",
+      "runner": "static",
+      "proves": "CR-50 (D-063 M5, D-120 Q9), executed: each PINTAR chapter workbook in docs/onboarding/konten, read and converted by the upload page's own reader and converter (src/lib/xlsx.ts, src/lib/unggah-kontrak.ts), is byte for byte its committed .paket.json, so the package imported is the file reviewed; every wrong option names a misconception code, every code it names is defined on the same file's «Miskonsepsi» sheet, and every definition is used; a problem on the «Miskonsepsi» sheet is placed by its column's header (src/components/unggah/lokasi.ts). The database half (the definitions become the importing owner's own, and a different definition of a held code is refused) is F20-M01..M03."
+    },
+    {
       "id": "BOB07-R01",
       "runner": "app",
       "proves": "BOB-07 (D-011), against the running app and Auth: the rendered package page /studio/paket/<course>, asked with a content refusal's code and a planted detail in the database's English, shows the code's Indonesian sentence and never the planted words; asked with ACTION_FAILED and a reference, it shows the reference; the rendered route /konfigurasi does the same for a role refusal's code.",
@@ -2974,6 +2979,24 @@
       "id": "F20-C01",
       "runner": "db",
       "proves": "CR-01, D-080(2)(9), D-120 Q1, measured in selftest/db/fable20.sql: the holder's certificate is numbered <PINTAR ID>/<five digits>; their next certificate takes the next number of their own; the per-person counter (certificate_number_counters) can be neither deleted nor set back; save_certificate_template no longer takes a number prefix («Awalan nomor» retired).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-M01",
+      "runner": "db",
+      "proves": "CR-50, D-063 M1/M5, D-120 Q9, measured in selftest/db/fable20.sql through prepare_ingest_batch and confirm_ingest_batch: two schools import the same chapter carrying its «Miskonsepsi» definition and both succeed, each owning its own row under the code, each option naming its own school's row; the same school re-imports the same text and it is reused as one row; a different text under a held code is refused MISCONCEPTION_DEFINITION_DIFFERS and nothing changes; an option naming a code its package does not define is refused OPTION_MISCONCEPTION_UNKNOWN even when the school holds it.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-M02",
+      "runner": "db",
+      "proves": "CR-50, D-063 M2/M3/M4, measured in selftest/db/fable20.sql: school B's author cannot insert an option naming a definition only school A holds (the composite foreign key); a school's author cannot edit a definition in place (append-only); session_misconceptions, reading_map and service_cohort_misconceptions join a definition on the option's own school.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-M03",
+      "runner": "db",
+      "proves": "CR-50 closure evidence, measured in selftest/db/fable20.sql: a chapter imported with every wrong option carrying a defined misconception is reviewed by run_mcq_quality with no WEAK_MISCONCEPTION_LINKAGE finding.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {

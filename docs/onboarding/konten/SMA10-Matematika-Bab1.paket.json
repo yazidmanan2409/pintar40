@@ -63,7 +63,8 @@
            "label": "B",
            "body": "4⁵",
            "is_correct": false,
-           "rationale": "Bilangan pokok dan pangkat tertukar. Yang dikalikan berulang adalah 5, sebanyak 4 faktor."
+           "rationale": "Bilangan pokok dan pangkat tertukar. Yang dikalikan berulang adalah 5, sebanyak 4 faktor.",
+           "misconception_code": "SMA10-M-B1-01"
           },
           {
            "_row": {
@@ -73,7 +74,8 @@
            "label": "C",
            "body": "5 × 4",
            "is_correct": false,
-           "rationale": "Itu perkalian biasa, bernilai 20. Perkalian berulang 5 sebanyak 4 faktor ditulis 5⁴ = 625."
+           "rationale": "Itu perkalian biasa, bernilai 20. Perkalian berulang 5 sebanyak 4 faktor ditulis 5⁴ = 625.",
+           "misconception_code": "SMA10-M-B1-01"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "5⁵",
            "is_correct": false,
-           "rationale": "Tanda × ikut dihitung sebagai faktor. Faktornya hanya 4."
+           "rationale": "Tanda × ikut dihitung sebagai faktor. Faktornya hanya 4.",
+           "misconception_code": "SMA10-M-B1-01"
           }
          ]
         },
@@ -106,7 +109,8 @@
            "label": "A",
            "body": "−16",
            "is_correct": false,
-           "rationale": "Pangkat negatif dikira membuat hasilnya negatif. 4⁻² = (1/4)², hasilnya positif."
+           "rationale": "Pangkat negatif dikira membuat hasilnya negatif. 4⁻² = (1/4)², hasilnya positif.",
+           "misconception_code": "SMA10-M-B1-02"
           },
           {
            "_row": {
@@ -126,7 +130,8 @@
            "label": "C",
            "body": "−1/16",
            "is_correct": false,
-           "rationale": "Kebalikannya sudah tepat, tetapi tanda negatif ikut ditulis. Pangkat negatif tidak membuat hasilnya negatif."
+           "rationale": "Kebalikannya sudah tepat, tetapi tanda negatif ikut ditulis. Pangkat negatif tidak membuat hasilnya negatif.",
+           "misconception_code": "SMA10-M-B1-02"
           },
           {
            "_row": {
@@ -136,7 +141,8 @@
            "label": "D",
            "body": "1/8",
            "is_correct": false,
-           "rationale": "Kebalikannya sudah tepat, tetapi 4 dikalikan 2, bukan dipangkatkan 2: 4² = 16."
+           "rationale": "Kebalikannya sudah tepat, tetapi 4 dikalikan 2, bukan dipangkatkan 2: 4² = 16.",
+           "misconception_code": "SMA10-M-B1-01"
           }
          ]
         },
@@ -168,7 +174,8 @@
            "label": "B",
            "body": "0",
            "is_correct": false,
-           "rationale": "Pangkat 0 dikira membuat hasilnya 0. Polanya: 2 : 2 = 1."
+           "rationale": "Pangkat 0 dikira membuat hasilnya 0. Polanya: 2 : 2 = 1.",
+           "misconception_code": "SMA10-M-B1-02"
           },
           {
            "_row": {
@@ -178,7 +185,8 @@
            "label": "C",
            "body": "2",
            "is_correct": false,
-           "rationale": "Nilai 2¹ diulang. Setiap langkah turun, nilainya dibagi 2."
+           "rationale": "Nilai 2¹ diulang. Setiap langkah turun, nilainya dibagi 2.",
+           "misconception_code": "SMA10-M-B1-02"
           },
           {
            "_row": {
@@ -188,7 +196,8 @@
            "label": "D",
            "body": "1/2",
            "is_correct": false,
-           "rationale": "Pembagian dilakukan satu langkah terlalu jauh: 1/2 = 1 : 2 adalah 2⁻¹. Dari 2¹ = 2, satu langkah turun memberi 2 : 2 = 1."
+           "rationale": "Pembagian dilakukan satu langkah terlalu jauh: 1/2 = 1 : 2 adalah 2⁻¹. Dari 2¹ = 2, satu langkah turun memberi 2 : 2 = 1.",
+           "misconception_code": "SMA10-M-B1-02"
           }
          ]
         },
@@ -210,7 +219,8 @@
            "label": "A",
            "body": "−5³",
            "is_correct": false,
-           "rationale": "Pangkat negatif dikira tanda negatif di depan bilangan. −5³ = −125, sedangkan (1/5)³ = 1/125."
+           "rationale": "Pangkat negatif dikira tanda negatif di depan bilangan. −5³ = −125, sedangkan (1/5)³ = 1/125.",
+           "misconception_code": "SMA10-M-B1-02"
           },
           {
            "_row": {
@@ -220,7 +230,8 @@
            "label": "B",
            "body": "5^{1/3}",
            "is_correct": false,
-           "rationale": "Pecahan 1/5 dipindah ke pangkat. 5^{1/3} adalah akar pangkat tiga dari 5."
+           "rationale": "Pecahan 1/5 dipindah ke pangkat. 5^{1/3} adalah akar pangkat tiga dari 5.",
+           "misconception_code": "SMA10-M-B1-03"
           },
           {
            "_row": {
@@ -230,7 +241,8 @@
            "label": "C",
            "body": "3⁻⁵",
            "is_correct": false,
-           "rationale": "Bilangan pokok dan pangkat tertukar. Bilangan pokoknya 5."
+           "rationale": "Bilangan pokok dan pangkat tertukar. Bilangan pokoknya 5.",
+           "misconception_code": "SMA10-M-B1-01"
           },
           {
            "_row": {
@@ -262,7 +274,8 @@
            "label": "A",
            "body": "20,25",
            "is_correct": false,
-           "rationale": "81 dibagi 4. Pangkat 1/4 berarti mencari bilangan yang dipangkatkan 4 hasilnya 81."
+           "rationale": "81 dibagi 4. Pangkat 1/4 berarti mencari bilangan yang dipangkatkan 4 hasilnya 81.",
+           "misconception_code": "SMA10-M-B1-03"
           },
           {
            "_row": {
@@ -272,7 +285,8 @@
            "label": "B",
            "body": "9",
            "is_correct": false,
-           "rationale": "Ini akar pangkat dua dari 81 (9² = 81). Yang dicari p⁴ = 81."
+           "rationale": "Ini akar pangkat dua dari 81 (9² = 81). Yang dicari p⁴ = 81.",
+           "misconception_code": "SMA10-M-B1-03"
           },
           {
            "_row": {
@@ -292,7 +306,8 @@
            "label": "D",
            "body": "324",
            "is_correct": false,
-           "rationale": "81 dikalikan 4. Pangkat 1/4 berarti akar pangkat empat."
+           "rationale": "81 dikalikan 4. Pangkat 1/4 berarti akar pangkat empat.",
+           "misconception_code": "SMA10-M-B1-03"
           }
          ]
         }
@@ -332,7 +347,8 @@
            "label": "A",
            "body": "3⁸",
            "is_correct": false,
-           "rationale": "Pangkatnya dikalikan (4 × 2). Pada perkalian dengan bilangan pokok sama, pangkatnya dijumlahkan."
+           "rationale": "Pangkatnya dikalikan (4 × 2). Pada perkalian dengan bilangan pokok sama, pangkatnya dijumlahkan.",
+           "misconception_code": "SMA10-M-B1-04"
           },
           {
            "_row": {
@@ -342,7 +358,8 @@
            "label": "B",
            "body": "9⁶",
            "is_correct": false,
-           "rationale": "Bilangan pokoknya ikut dikalikan (3 × 3). Bilangan pokok tetap 3."
+           "rationale": "Bilangan pokoknya ikut dikalikan (3 × 3). Bilangan pokok tetap 3.",
+           "misconception_code": "SMA10-M-B1-04"
           },
           {
            "_row": {
@@ -362,7 +379,8 @@
            "label": "D",
            "body": "3²",
            "is_correct": false,
-           "rationale": "Pangkatnya dikurangkan (4 − 2). Itu sifat pembagian, bukan perkalian."
+           "rationale": "Pangkatnya dikurangkan (4 − 2). Itu sifat pembagian, bukan perkalian.",
+           "misconception_code": "SMA10-M-B1-04"
           }
          ]
         },
@@ -385,7 +403,8 @@
            "label": "A",
            "body": "a⁴",
            "is_correct": false,
-           "rationale": "Pada (a³)⁴ pangkatnya dijumlahkan (3 + 4 = 7). Pangkat dari pangkat dikalikan: 3 × 4 = 12."
+           "rationale": "Pada (a³)⁴ pangkatnya dijumlahkan (3 + 4 = 7). Pangkat dari pangkat dikalikan: 3 × 4 = 12.",
+           "misconception_code": "SMA10-M-B1-05"
           },
           {
            "_row": {
@@ -395,7 +414,8 @@
            "label": "B",
            "body": "a¹⁹",
            "is_correct": false,
-           "rationale": "Pada pembagian pangkatnya dijumlahkan (12 + 2 + 5). Pada pembagian, pangkat penyebut dikurangkan."
+           "rationale": "Pada pembagian pangkatnya dijumlahkan (12 + 2 + 5). Pada pembagian, pangkat penyebut dikurangkan.",
+           "misconception_code": "SMA10-M-B1-04"
           },
           {
            "_row": {
@@ -405,7 +425,8 @@
            "label": "C",
            "body": "a^{14/5}",
            "is_correct": false,
-           "rationale": "Pangkat pembilang dibagi pangkat penyebut (14 : 5). Pada pembagian, pangkatnya dikurangkan: 14 − 5."
+           "rationale": "Pangkat pembilang dibagi pangkat penyebut (14 : 5). Pada pembagian, pangkatnya dikurangkan: 14 − 5.",
+           "misconception_code": "SMA10-M-B1-04"
           },
           {
            "_row": {
@@ -438,7 +459,8 @@
            "label": "A",
            "body": "2a⁶b³",
            "is_correct": false,
-           "rationale": "Koefisien 2 tidak ikut dipangkatkan. (ab)ᵐ = aᵐ × bᵐ berlaku juga untuk bilangannya: 2³ = 8."
+           "rationale": "Koefisien 2 tidak ikut dipangkatkan. (ab)ᵐ = aᵐ × bᵐ berlaku juga untuk bilangannya: 2³ = 8.",
+           "misconception_code": "SMA10-M-B1-06"
           },
           {
            "_row": {
@@ -448,7 +470,8 @@
            "label": "B",
            "body": "6a⁶b³",
            "is_correct": false,
-           "rationale": "Koefisien 2 dikalikan 3, bukan dipangkatkan 3: 2³ = 8."
+           "rationale": "Koefisien 2 dikalikan 3, bukan dipangkatkan 3: 2³ = 8.",
+           "misconception_code": "SMA10-M-B1-06"
           },
           {
            "_row": {
@@ -468,7 +491,8 @@
            "label": "D",
            "body": "8a⁵b⁴",
            "is_correct": false,
-           "rationale": "Pangkatnya dijumlahkan dengan 3 (2 + 3 dan 1 + 3). Pangkat dari pangkat dikalikan."
+           "rationale": "Pangkatnya dijumlahkan dengan 3 (2 + 3 dan 1 + 3). Pangkat dari pangkat dikalikan.",
+           "misconception_code": "SMA10-M-B1-05"
           }
          ]
         },
@@ -490,7 +514,8 @@
            "label": "A",
            "body": "2^{7/3}",
            "is_correct": false,
-           "rationale": "Pangkatnya dibagi (7 : 3). Pada pembagian, pangkatnya dikurangkan."
+           "rationale": "Pangkatnya dibagi (7 : 3). Pada pembagian, pangkatnya dikurangkan.",
+           "misconception_code": "SMA10-M-B1-04"
           },
           {
            "_row": {
@@ -510,7 +535,8 @@
            "label": "C",
            "body": "1⁴",
            "is_correct": false,
-           "rationale": "Bilangan pokoknya ikut dibagi (2 : 2). Bilangan pokok tetap 2."
+           "rationale": "Bilangan pokoknya ikut dibagi (2 : 2). Bilangan pokok tetap 2.",
+           "misconception_code": "SMA10-M-B1-04"
           },
           {
            "_row": {
@@ -520,7 +546,8 @@
            "label": "D",
            "body": "2¹⁰",
            "is_correct": false,
-           "rationale": "Pangkatnya dijumlahkan. Itu sifat perkalian, bukan pembagian."
+           "rationale": "Pangkatnya dijumlahkan. Itu sifat perkalian, bukan pembagian.",
+           "misconception_code": "SMA10-M-B1-04"
           }
          ]
         },
@@ -552,7 +579,8 @@
            "label": "B",
            "body": "9/6",
            "is_correct": false,
-           "rationale": "Pembilang dan penyebut dikalikan 3, bukan dipangkatkan 3."
+           "rationale": "Pembilang dan penyebut dikalikan 3, bukan dipangkatkan 3.",
+           "misconception_code": "SMA10-M-B1-01"
           },
           {
            "_row": {
@@ -562,7 +590,8 @@
            "label": "C",
            "body": "27/2",
            "is_correct": false,
-           "rationale": "Hanya pembilang yang dipangkatkan. Penyebut juga: 2³ = 8."
+           "rationale": "Hanya pembilang yang dipangkatkan. Penyebut juga: 2³ = 8.",
+           "misconception_code": "SMA10-M-B1-06"
           },
           {
            "_row": {
@@ -572,7 +601,8 @@
            "label": "D",
            "body": "9/8",
            "is_correct": false,
-           "rationale": "Pembilang dikalikan 3, penyebut dipangkatkan 3. Keduanya dipangkatkan: 3³ = 27."
+           "rationale": "Pembilang dikalikan 3, penyebut dipangkatkan 3. Keduanya dipangkatkan: 3³ = 27.",
+           "misconception_code": "SMA10-M-B1-06"
           }
          ]
         },
@@ -594,7 +624,8 @@
            "label": "A",
            "body": "a^{3/4}",
            "is_correct": false,
-           "rationale": "Pangkatnya dikalikan (1/2 × 3/2). Pada perkalian, pangkatnya dijumlahkan."
+           "rationale": "Pangkatnya dikalikan (1/2 × 3/2). Pada perkalian, pangkatnya dijumlahkan.",
+           "misconception_code": "SMA10-M-B1-04"
           },
           {
            "_row": {
@@ -604,7 +635,8 @@
            "label": "B",
            "body": "a¹",
            "is_correct": false,
-           "rationale": "Pembilang dan penyebut pangkat sama-sama dijumlahkan: (1 + 3)/(2 + 2) = 1. Penyebutnya sudah sama, jadi cukup pembilangnya yang dijumlahkan."
+           "rationale": "Pembilang dan penyebut pangkat sama-sama dijumlahkan: (1 + 3)/(2 + 2) = 1. Penyebutnya sudah sama, jadi cukup pembilangnya yang dijumlahkan.",
+           "misconception_code": "SMA10-M-B1-03"
           },
           {
            "_row": {
@@ -624,7 +656,8 @@
            "label": "D",
            "body": "a^{1/3}",
            "is_correct": false,
-           "rationale": "Pangkatnya dibagi (1/2 : 3/2). Pada perkalian, pangkatnya dijumlahkan."
+           "rationale": "Pangkatnya dibagi (1/2 : 3/2). Pada perkalian, pangkatnya dijumlahkan.",
+           "misconception_code": "SMA10-M-B1-04"
           }
          ]
         }
@@ -664,7 +697,8 @@
            "label": "A",
            "body": "10",
            "is_correct": false,
-           "rationale": "Bilangan pokok dikalikan dengan x (2 × 5). Nilai x menjadi pangkat."
+           "rationale": "Bilangan pokok dikalikan dengan x (2 × 5). Nilai x menjadi pangkat.",
+           "misconception_code": "SMA10-M-B1-07"
           },
           {
            "_row": {
@@ -684,7 +718,8 @@
            "label": "C",
            "body": "25",
            "is_correct": false,
-           "rationale": "Bilangan pokok dan pangkat tertukar (5²)."
+           "rationale": "Bilangan pokok dan pangkat tertukar (5²).",
+           "misconception_code": "SMA10-M-B1-01"
           },
           {
            "_row": {
@@ -694,7 +729,8 @@
            "label": "D",
            "body": "64",
            "is_correct": false,
-           "rationale": "Faktor 2 dihitung satu kali terlalu banyak (2⁶)."
+           "rationale": "Faktor 2 dihitung satu kali terlalu banyak (2⁶).",
+           "misconception_code": "SMA10-M-B1-01"
           }
          ]
         },
@@ -727,7 +763,8 @@
            "label": "B",
            "body": "160",
            "is_correct": false,
-           "rationale": "Jam dipakai sebagai banyak fase (40 × 2²). Setiap jam ada 3 fase, jadi 2 jam = 6 fase."
+           "rationale": "Jam dipakai sebagai banyak fase (40 × 2²). Setiap jam ada 3 fase, jadi 2 jam = 6 fase.",
+           "misconception_code": "SMA10-M-B1-08"
           },
           {
            "_row": {
@@ -737,7 +774,8 @@
            "label": "C",
            "body": "1.280",
            "is_correct": false,
-           "rationale": "Fasenya dihitung 5 (40 × 2⁵). Dari 0 sampai 120 menit ada 120 : 20 = 6 fase."
+           "rationale": "Fasenya dihitung 5 (40 × 2⁵). Dari 0 sampai 120 menit ada 120 : 20 = 6 fase.",
+           "misconception_code": "SMA10-M-B1-08"
           },
           {
            "_row": {
@@ -747,7 +785,8 @@
            "label": "D",
            "body": "280",
            "is_correct": false,
-           "rationale": "Setiap fase ditambah 40 (40 + 6 × 40), seperti pertumbuhan linear. Setiap fase banyaknya dikali 2."
+           "rationale": "Setiap fase ditambah 40 (40 + 6 × 40), seperti pertumbuhan linear. Setiap fase banyaknya dikali 2.",
+           "misconception_code": "SMA10-M-B1-10"
           }
          ]
         },
@@ -769,7 +808,8 @@
            "label": "A",
            "body": "f(x) = 1ˣ",
            "is_correct": false,
-           "rationale": "Bilangan pokoknya 1, padahal definisinya mensyaratkan a ≠ 1."
+           "rationale": "Bilangan pokoknya 1, padahal definisinya mensyaratkan a ≠ 1.",
+           "misconception_code": "SMA10-M-B1-09"
           },
           {
            "_row": {
@@ -779,7 +819,8 @@
            "label": "B",
            "body": "f(x) = x³",
            "is_correct": false,
-           "rationale": "Di sini x menjadi bilangan pokok, bukan pangkat. Pada fungsi eksponensial, x adalah pangkatnya."
+           "rationale": "Di sini x menjadi bilangan pokok, bukan pangkat. Pada fungsi eksponensial, x adalah pangkatnya.",
+           "misconception_code": "SMA10-M-B1-09"
           },
           {
            "_row": {
@@ -789,7 +830,8 @@
            "label": "C",
            "body": "f(x) = 0 × 4ˣ",
            "is_correct": false,
-           "rationale": "Koefisiennya 0, padahal definisinya mensyaratkan n bilangan real tak nol."
+           "rationale": "Koefisiennya 0, padahal definisinya mensyaratkan n bilangan real tak nol.",
+           "misconception_code": "SMA10-M-B1-09"
           },
           {
            "_row": {
@@ -821,7 +863,8 @@
            "label": "A",
            "body": "1.296",
            "is_correct": false,
-           "rationale": "Koefisien ikut dipangkatkan: (3 × 2)⁴ = 6⁴. Hitung 2⁴ dahulu, baru kalikan 3."
+           "rationale": "Koefisien ikut dipangkatkan: (3 × 2)⁴ = 6⁴. Hitung 2⁴ dahulu, baru kalikan 3.",
+           "misconception_code": "SMA10-M-B1-07"
           },
           {
            "_row": {
@@ -841,7 +884,8 @@
            "label": "C",
            "body": "24",
            "is_correct": false,
-           "rationale": "Nilai x dikalikan (3 × 2 × 4). Nilai x adalah pangkat dari 2."
+           "rationale": "Nilai x dikalikan (3 × 2 × 4). Nilai x adalah pangkat dari 2.",
+           "misconception_code": "SMA10-M-B1-07"
           },
           {
            "_row": {
@@ -851,7 +895,8 @@
            "label": "D",
            "body": "81",
            "is_correct": false,
-           "rationale": "Koefisien 3 dipakai sebagai bilangan pokok (3⁴). Bilangan pokoknya 2."
+           "rationale": "Koefisien 3 dipakai sebagai bilangan pokok (3⁴). Bilangan pokoknya 2.",
+           "misconception_code": "SMA10-M-B1-07"
           }
          ]
         },
@@ -883,7 +928,8 @@
            "label": "B",
            "body": "0 < a < 1",
            "is_correct": false,
-           "rationale": "Ini syarat peluruhan eksponen: nilainya makin kecil."
+           "rationale": "Ini syarat peluruhan eksponen: nilainya makin kecil.",
+           "misconception_code": "SMA10-M-B1-09"
           },
           {
            "_row": {
@@ -893,7 +939,8 @@
            "label": "C",
            "body": "a = 1",
            "is_correct": false,
-           "rationale": "Bilangan pokok 1 tidak diperbolehkan pada fungsi eksponensial."
+           "rationale": "Bilangan pokok 1 tidak diperbolehkan pada fungsi eksponensial.",
+           "misconception_code": "SMA10-M-B1-09"
           },
           {
            "_row": {
@@ -903,7 +950,8 @@
            "label": "D",
            "body": "a < 0",
            "is_correct": false,
-           "rationale": "Bilangan pokok fungsi eksponensial harus positif (a > 0)."
+           "rationale": "Bilangan pokok fungsi eksponensial harus positif (a > 0).",
+           "misconception_code": "SMA10-M-B1-09"
           }
          ]
         }
@@ -943,7 +991,8 @@
            "label": "A",
            "body": "108 mg",
            "is_correct": false,
-           "rationale": "Ini kadar setelah 2 jam, 243 × (2/3)². Setelah 3 jam dikalikan 2/3 sekali lagi."
+           "rationale": "Ini kadar setelah 2 jam, 243 × (2/3)². Setelah 3 jam dikalikan 2/3 sekali lagi.",
+           "misconception_code": "SMA10-M-B1-08"
           },
           {
            "_row": {
@@ -953,7 +1002,8 @@
            "label": "B",
            "body": "162 mg",
            "is_correct": false,
-           "rationale": "Ini kadar setelah 1 jam. Setiap jam dikalikan 2/3, jadi tiga kali."
+           "rationale": "Ini kadar setelah 1 jam. Setiap jam dikalikan 2/3, jadi tiga kali.",
+           "misconception_code": "SMA10-M-B1-08"
           },
           {
            "_row": {
@@ -973,7 +1023,8 @@
            "label": "D",
            "body": "9 mg",
            "is_correct": false,
-           "rationale": "Yang dipakai bagian yang hilang, 1/3, bukan yang tersisa: 243 × (1/3)³. Setiap jam tersisa 2/3."
+           "rationale": "Yang dipakai bagian yang hilang, 1/3, bukan yang tersisa: 243 × (1/3)³. Setiap jam tersisa 2/3.",
+           "misconception_code": "SMA10-M-B1-09"
           }
          ]
         },
@@ -995,7 +1046,8 @@
            "label": "A",
            "body": "f(x) = 20 × 4ˣ",
            "is_correct": false,
-           "rationale": "Bilangan pokoknya 4, lebih dari 1, jadi ini pertumbuhan."
+           "rationale": "Bilangan pokoknya 4, lebih dari 1, jadi ini pertumbuhan.",
+           "misconception_code": "SMA10-M-B1-09"
           },
           {
            "_row": {
@@ -1005,7 +1057,8 @@
            "label": "B",
            "body": "f(x) = 20 − 4x",
            "is_correct": false,
-           "rationale": "Ini fungsi linear: berkurang tetap 4 setiap langkah, tidak dikali tetap."
+           "rationale": "Ini fungsi linear: berkurang tetap 4 setiap langkah, tidak dikali tetap.",
+           "misconception_code": "SMA10-M-B1-10"
           },
           {
            "_row": {
@@ -1025,7 +1078,8 @@
            "label": "D",
            "body": "f(x) = (1/4) × 20ˣ",
            "is_correct": false,
-           "rationale": "Yang 1/4 adalah koefisiennya. Bilangan pokoknya 20, jadi ini pertumbuhan."
+           "rationale": "Yang 1/4 adalah koefisiennya. Bilangan pokoknya 20, jadi ini pertumbuhan.",
+           "misconception_code": "SMA10-M-B1-09"
           }
          ]
         },
@@ -1047,7 +1101,8 @@
            "label": "A",
            "body": "32",
            "is_correct": false,
-           "rationale": "Baru dikalikan 1/2 satu kali. Pangkat 3 berarti tiga kali."
+           "rationale": "Baru dikalikan 1/2 satu kali. Pangkat 3 berarti tiga kali.",
+           "misconception_code": "SMA10-M-B1-01"
           },
           {
            "_row": {
@@ -1057,7 +1112,8 @@
            "label": "B",
            "body": "61",
            "is_correct": false,
-           "rationale": "Setiap langkah dikurangi 1 (64 − 3), seperti fungsi linear. Setiap langkah dikalikan 1/2."
+           "rationale": "Setiap langkah dikurangi 1 (64 − 3), seperti fungsi linear. Setiap langkah dikalikan 1/2.",
+           "misconception_code": "SMA10-M-B1-10"
           },
           {
            "_row": {
@@ -1067,7 +1123,8 @@
            "label": "C",
            "body": "16",
            "is_correct": false,
-           "rationale": "Ini f(2). Untuk f(3), 64 dikalikan 1/2 sebanyak tiga kali."
+           "rationale": "Ini f(2). Untuk f(3), 64 dikalikan 1/2 sebanyak tiga kali.",
+           "misconception_code": "SMA10-M-B1-08"
           },
           {
            "_row": {
@@ -1127,7 +1184,8 @@
            "label": "B",
            "body": "10√5",
            "is_correct": false,
-           "rationale": "Pembilang sudah dikalikan √5, tetapi hasilnya belum dibagi penyebut baru, √5 × √5 = 5."
+           "rationale": "Pembilang sudah dikalikan √5, tetapi hasilnya belum dibagi penyebut baru, √5 × √5 = 5.",
+           "misconception_code": "SMA10-M-B1-13"
           },
           {
            "_row": {
@@ -1137,7 +1195,8 @@
            "label": "C",
            "body": "5√5",
            "is_correct": false,
-           "rationale": "Penyebutnya dianggap 2, seolah √5 × √5 = 2. Nilainya 5, jadi 10√5/5."
+           "rationale": "Penyebutnya dianggap 2, seolah √5 × √5 = 2. Nilainya 5, jadi 10√5/5.",
+           "misconception_code": "SMA10-M-B1-13"
           },
           {
            "_row": {
@@ -1147,7 +1206,8 @@
            "label": "D",
            "body": "2",
            "is_correct": false,
-           "rationale": "√5 di pembilang terlewat. 10√5/5 = 2√5, bukan 2."
+           "rationale": "√5 di pembilang terlewat. 10√5/5 = 2√5, bukan 2.",
+           "misconception_code": "SMA10-M-B1-13"
           }
          ]
         },
@@ -1179,7 +1239,8 @@
            "label": "B",
            "body": "(∛x)⁵",
            "is_correct": false,
-           "rationale": "Pembilang dan penyebut pangkat tertukar. Penyebutnya, 5, menjadi indeks akar."
+           "rationale": "Pembilang dan penyebut pangkat tertukar. Penyebutnya, 5, menjadi indeks akar.",
+           "misconception_code": "SMA10-M-B1-11"
           },
           {
            "_row": {
@@ -1189,7 +1250,8 @@
            "label": "C",
            "body": "x³ : 5",
            "is_correct": false,
-           "rationale": "Pangkat pecahan dibaca sebagai pembagian oleh 5. Penyebut 5 menjadi indeks akar, bukan pembagi."
+           "rationale": "Pangkat pecahan dibaca sebagai pembagian oleh 5. Penyebut 5 menjadi indeks akar, bukan pembagi.",
+           "misconception_code": "SMA10-M-B1-03"
           },
           {
            "_row": {
@@ -1199,7 +1261,8 @@
            "label": "D",
            "body": "x⁻²",
            "is_correct": false,
-           "rationale": "Pembilang dikurangi penyebut (3 − 5). Pangkat pecahan bukan pengurangan."
+           "rationale": "Pembilang dikurangi penyebut (3 − 5). Pangkat pecahan bukan pengurangan.",
+           "misconception_code": "SMA10-M-B1-03"
           }
          ]
         },
@@ -1221,7 +1284,8 @@
            "label": "A",
            "body": "14",
            "is_correct": false,
-           "rationale": "Akarnya dibagi ke setiap suku: √36 + √64 = 6 + 8. √(a + b) tidak sama dengan √a + √b."
+           "rationale": "Akarnya dibagi ke setiap suku: √36 + √64 = 6 + 8. √(a + b) tidak sama dengan √a + √b.",
+           "misconception_code": "SMA10-M-B1-12"
           },
           {
            "_row": {
@@ -1241,7 +1305,8 @@
            "label": "C",
            "body": "100",
            "is_correct": false,
-           "rationale": "Akarnya belum diambil. 36 + 64 = 100, lalu √100 = 10."
+           "rationale": "Akarnya belum diambil. 36 + 64 = 100, lalu √100 = 10.",
+           "misconception_code": "SMA10-M-B1-12"
           },
           {
            "_row": {
@@ -1251,7 +1316,8 @@
            "label": "D",
            "body": "50",
            "is_correct": false,
-           "rationale": "100 dibagi 2. Akar kuadrat 100 adalah bilangan yang dikuadratkan hasilnya 100."
+           "rationale": "100 dibagi 2. Akar kuadrat 100 adalah bilangan yang dikuadratkan hasilnya 100.",
+           "misconception_code": "SMA10-M-B1-03"
           }
          ]
         },
@@ -1273,7 +1339,8 @@
            "label": "A",
            "body": "7x^{3/4}",
            "is_correct": false,
-           "rationale": "Koefisiennya dijumlahkan (3 + 4). Koefisien dikalikan: 3 × 4 = 12."
+           "rationale": "Koefisiennya dijumlahkan (3 + 4). Koefisien dikalikan: 3 × 4 = 12.",
+           "misconception_code": "SMA10-M-B1-04"
           },
           {
            "_row": {
@@ -1283,7 +1350,8 @@
            "label": "B",
            "body": "12x^{1/8}",
            "is_correct": false,
-           "rationale": "Pangkatnya dikalikan (1/2 × 1/4). Pada perkalian, pangkatnya dijumlahkan."
+           "rationale": "Pangkatnya dikalikan (1/2 × 1/4). Pada perkalian, pangkatnya dijumlahkan.",
+           "misconception_code": "SMA10-M-B1-04"
           },
           {
            "_row": {
@@ -1303,7 +1371,8 @@
            "label": "D",
            "body": "12x^{1/3}",
            "is_correct": false,
-           "rationale": "Pembilang dan penyebut pangkat dijumlahkan: (1 + 1)/(2 + 4). Samakan penyebutnya: 2/4 + 1/4 = 3/4."
+           "rationale": "Pembilang dan penyebut pangkat dijumlahkan: (1 + 1)/(2 + 4). Samakan penyebutnya: 2/4 + 1/4 = 3/4.",
+           "misconception_code": "SMA10-M-B1-03"
           }
          ]
         },
@@ -1326,7 +1395,8 @@
            "label": "A",
            "body": "√5 − 1",
            "is_correct": false,
-           "rationale": "Yang dipakai bentuk yang sama, bukan sekawannya. Sekawan dari √5 − 1 adalah √5 + 1."
+           "rationale": "Yang dipakai bentuk yang sama, bukan sekawannya. Sekawan dari √5 − 1 adalah √5 + 1.",
+           "misconception_code": "SMA10-M-B1-13"
           },
           {
            "_row": {
@@ -1336,7 +1406,8 @@
            "label": "B",
            "body": "(2√5 + 2)/3",
            "is_correct": false,
-           "rationale": "Penyebutnya dihitung 5 + 1 = 6. (√5 − 1)(√5 + 1) = 5 − 1 = 4."
+           "rationale": "Penyebutnya dihitung 5 + 1 = 6. (√5 − 1)(√5 + 1) = 5 − 1 = 4.",
+           "misconception_code": "SMA10-M-B1-13"
           },
           {
            "_row": {
@@ -1346,7 +1417,8 @@
            "label": "C",
            "body": "4√5/5",
            "is_correct": false,
-           "rationale": "Hanya dikalikan √5/√5, seperti merasionalkan 4/√5. Karena ada − 1, kalikan dengan sekawan √5 + 1."
+           "rationale": "Hanya dikalikan √5/√5, seperti merasionalkan 4/√5. Karena ada − 1, kalikan dengan sekawan √5 + 1.",
+           "misconception_code": "SMA10-M-B1-13"
           },
           {
            "_row": {
@@ -1396,7 +1468,8 @@
            "label": "A",
            "body": "4",
            "is_correct": false,
-           "rationale": "Numerus dibagi basis (8 : 2). Logaritma mencari pangkat, yaitu 2 dipangkatkan berapa agar hasilnya 8."
+           "rationale": "Numerus dibagi basis (8 : 2). Logaritma mencari pangkat, yaitu 2 dipangkatkan berapa agar hasilnya 8.",
+           "misconception_code": "SMA10-M-B1-14"
           },
           {
            "_row": {
@@ -1406,7 +1479,8 @@
            "label": "B",
            "body": "16",
            "is_correct": false,
-           "rationale": "Numerus dikalikan basis (8 × 2). Logaritma mencari pangkatnya."
+           "rationale": "Numerus dikalikan basis (8 × 2). Logaritma mencari pangkatnya.",
+           "misconception_code": "SMA10-M-B1-14"
           },
           {
            "_row": {
@@ -1416,7 +1490,8 @@
            "label": "C",
            "body": "256",
            "is_correct": false,
-           "rationale": "Ini 2⁸: numerus dipakai sebagai pangkat. Yang dicari adalah pangkatnya, 3."
+           "rationale": "Ini 2⁸: numerus dipakai sebagai pangkat. Yang dicari adalah pangkatnya, 3.",
+           "misconception_code": "SMA10-M-B1-14"
           },
           {
            "_row": {
@@ -1449,7 +1524,8 @@
            "label": "A",
            "body": "³log 64 = 4",
            "is_correct": false,
-           "rationale": "Pangkat dan basis tertukar. Basis logaritmanya adalah bilangan pokok eksponen, yaitu 4."
+           "rationale": "Pangkat dan basis tertukar. Basis logaritmanya adalah bilangan pokok eksponen, yaitu 4.",
+           "misconception_code": "SMA10-M-B1-14"
           },
           {
            "_row": {
@@ -1469,7 +1545,8 @@
            "label": "C",
            "body": "⁶⁴log 4 = 3",
            "is_correct": false,
-           "rationale": "Basis dan numerus tertukar. Numerusnya adalah hasil perpangkatan, 64."
+           "rationale": "Basis dan numerus tertukar. Numerusnya adalah hasil perpangkatan, 64.",
+           "misconception_code": "SMA10-M-B1-14"
           },
           {
            "_row": {
@@ -1479,7 +1556,8 @@
            "label": "D",
            "body": "⁴log 3 = 64",
            "is_correct": false,
-           "rationale": "Numerus dan hasil tertukar. Hasil logaritmanya adalah pangkat, 3."
+           "rationale": "Numerus dan hasil tertukar. Hasil logaritmanya adalah pangkat, 3.",
+           "misconception_code": "SMA10-M-B1-14"
           }
          ]
         },
@@ -1511,7 +1589,8 @@
            "label": "B",
            "body": "3",
            "is_correct": false,
-           "rationale": "Ini ²log 8. Untuk 1/8, pangkatnya negatif: 2⁻³ = 1/8."
+           "rationale": "Ini ²log 8. Untuk 1/8, pangkatnya negatif: 2⁻³ = 1/8.",
+           "misconception_code": "SMA10-M-B1-02"
           },
           {
            "_row": {
@@ -1521,7 +1600,8 @@
            "label": "C",
            "body": "1/3",
            "is_correct": false,
-           "rationale": "Hasilnya ditulis sebagai kebalikan dari 3. Yang dicari pangkat c dengan 2ᶜ = 1/8, yaitu c = −3."
+           "rationale": "Hasilnya ditulis sebagai kebalikan dari 3. Yang dicari pangkat c dengan 2ᶜ = 1/8, yaitu c = −3.",
+           "misconception_code": "SMA10-M-B1-14"
           },
           {
            "_row": {
@@ -1531,7 +1611,8 @@
            "label": "D",
            "body": "−1/3",
            "is_correct": false,
-           "rationale": "Tanda negatif sudah tepat, tetapi hasilnya dibalik. 2⁻³ = 1/8, jadi hasilnya −3."
+           "rationale": "Tanda negatif sudah tepat, tetapi hasilnya dibalik. 2⁻³ = 1/8, jadi hasilnya −3.",
+           "misconception_code": "SMA10-M-B1-14"
           }
          ]
         },
@@ -1553,7 +1634,8 @@
            "label": "A",
            "body": "100",
            "is_correct": false,
-           "rationale": "Numerus dibagi basis (1.000 : 10). Yang dicari pangkatnya."
+           "rationale": "Numerus dibagi basis (1.000 : 10). Yang dicari pangkatnya.",
+           "misconception_code": "SMA10-M-B1-14"
           },
           {
            "_row": {
@@ -1563,7 +1645,8 @@
            "label": "B",
            "body": "4",
            "is_correct": false,
-           "rationale": "Yang dihitung banyak angka pada 1.000. Yang dicari pangkat 10 yang hasilnya 1.000."
+           "rationale": "Yang dihitung banyak angka pada 1.000. Yang dicari pangkat 10 yang hasilnya 1.000.",
+           "misconception_code": "SMA10-M-B1-14"
           },
           {
            "_row": {
@@ -1583,7 +1666,8 @@
            "label": "D",
            "body": "10.000",
            "is_correct": false,
-           "rationale": "Numerus dikalikan basis (10 × 1.000). Yang dicari pangkatnya."
+           "rationale": "Numerus dikalikan basis (10 × 1.000). Yang dicari pangkatnya.",
+           "misconception_code": "SMA10-M-B1-14"
           }
          ]
         },
@@ -1605,7 +1689,8 @@
            "label": "A",
            "body": "²⁰log 2",
            "is_correct": false,
-           "rationale": "Basis dan numerus tertukar. Basisnya 2, bilangan pokok eksponen."
+           "rationale": "Basis dan numerus tertukar. Basisnya 2, bilangan pokok eksponen.",
+           "misconception_code": "SMA10-M-B1-14"
           },
           {
            "_row": {
@@ -1625,7 +1710,8 @@
            "label": "C",
            "body": "10",
            "is_correct": false,
-           "rationale": "20 dibagi 2. Nilai x adalah pangkat 2 yang hasilnya 20, dan 2¹⁰ = 1.024, bukan 20."
+           "rationale": "20 dibagi 2. Nilai x adalah pangkat 2 yang hasilnya 20, dan 2¹⁰ = 1.024, bukan 20.",
+           "misconception_code": "SMA10-M-B1-14"
           },
           {
            "_row": {
@@ -1635,7 +1721,8 @@
            "label": "D",
            "body": "20²",
            "is_correct": false,
-           "rationale": "Yang dicari pangkatnya, bukan 20 dipangkatkan."
+           "rationale": "Yang dicari pangkatnya, bukan 20 dipangkatkan.",
+           "misconception_code": "SMA10-M-B1-14"
           }
          ]
         }
@@ -1675,7 +1762,8 @@
            "label": "A",
            "body": "²log 48",
            "is_correct": false,
-           "rationale": "Numerusnya dikalikan (3 × 16). Sifat 8 menghubungkan basis dan numerus yang sama: ²log 3 × ³log 16 = ²log 16."
+           "rationale": "Numerusnya dikalikan (3 × 16). Sifat 8 menghubungkan basis dan numerus yang sama: ²log 3 × ³log 16 = ²log 16.",
+           "misconception_code": "SMA10-M-B1-15"
           },
           {
            "_row": {
@@ -1685,7 +1773,8 @@
            "label": "B",
            "body": "16",
            "is_correct": false,
-           "rationale": "Hasilnya disamakan dengan numerus ²log 16. Nilai ²log 16 adalah pangkatnya, 4."
+           "rationale": "Hasilnya disamakan dengan numerus ²log 16. Nilai ²log 16 adalah pangkatnya, 4.",
+           "misconception_code": "SMA10-M-B1-15"
           },
           {
            "_row": {
@@ -1695,7 +1784,8 @@
            "label": "C",
            "body": "⁶log 48",
            "is_correct": false,
-           "rationale": "Basis dan numerus masing-masing dikalikan. Sifat 8 menghilangkan 3 yang muncul dua kali: hasilnya ²log 16."
+           "rationale": "Basis dan numerus masing-masing dikalikan. Sifat 8 menghilangkan 3 yang muncul dua kali: hasilnya ²log 16.",
+           "misconception_code": "SMA10-M-B1-15"
           },
           {
            "_row": {
@@ -1727,7 +1817,8 @@
            "label": "A",
            "body": "⁴log 10",
            "is_correct": false,
-           "rationale": "Numerusnya dijumlahkan (8 + 2). Menurut sifat 4, numerusnya dikalikan."
+           "rationale": "Numerusnya dijumlahkan (8 + 2). Menurut sifat 4, numerusnya dikalikan.",
+           "misconception_code": "SMA10-M-B1-15"
           },
           {
            "_row": {
@@ -1737,7 +1828,8 @@
            "label": "B",
            "body": "16",
            "is_correct": false,
-           "rationale": "Hasilnya disamakan dengan numerus ⁴log 16. Nilainya pangkatnya, 2."
+           "rationale": "Hasilnya disamakan dengan numerus ⁴log 16. Nilainya pangkatnya, 2.",
+           "misconception_code": "SMA10-M-B1-15"
           },
           {
            "_row": {
@@ -1747,7 +1839,8 @@
            "label": "C",
            "body": "⁸log 16",
            "is_correct": false,
-           "rationale": "Basisnya juga dijumlahkan (4 + 4). Basisnya tetap 4."
+           "rationale": "Basisnya juga dijumlahkan (4 + 4). Basisnya tetap 4.",
+           "misconception_code": "SMA10-M-B1-15"
           },
           {
            "_row": {
@@ -1779,7 +1872,8 @@
            "label": "A",
            "body": "5",
            "is_correct": false,
-           "rationale": "³log 9 dianggap 1. Nilainya 2, karena 3² = 9, jadi 5 × 2 = 10."
+           "rationale": "³log 9 dianggap 1. Nilainya 2, karena 3² = 9, jadi 5 × 2 = 10.",
+           "misconception_code": "SMA10-M-B1-15"
           },
           {
            "_row": {
@@ -1799,7 +1893,8 @@
            "label": "C",
            "body": "45",
            "is_correct": false,
-           "rationale": "Numerus dikalikan pangkatnya (9 × 5). Menurut sifat 6, pangkat numerus menjadi pengali hasil logaritma."
+           "rationale": "Numerus dikalikan pangkatnya (9 × 5). Menurut sifat 6, pangkat numerus menjadi pengali hasil logaritma.",
+           "misconception_code": "SMA10-M-B1-15"
           },
           {
            "_row": {
@@ -1809,7 +1904,8 @@
            "label": "D",
            "body": "7",
            "is_correct": false,
-           "rationale": "Pangkat dan ³log 9 dijumlahkan (5 + 2). Keduanya dikalikan."
+           "rationale": "Pangkat dan ³log 9 dijumlahkan (5 + 2). Keduanya dikalikan.",
+           "misconception_code": "SMA10-M-B1-15"
           }
          ]
         }
@@ -1818,6 +1914,158 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SMA10-M-B1-01",
+   "label": "Pangkat dikira perkalian biasa",
+   "description": "Bilangan pokok dikalikan dengan pangkatnya, atau bilangan pokok dan pangkat tertukar.",
+   "remediation": "Tulis perkalian berulangnya lengkap, misalnya 3⁴ = 3 × 3 × 3 × 3, lalu hitung."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SMA10-M-B1-02",
+   "label": "Pangkat nol atau negatif keliru",
+   "description": "Pangkat negatif dikira membuat hasilnya negatif, atau a⁰ dikira 0.",
+   "remediation": "Turunkan pola 2³, 2², 2¹, 2⁰, 2⁻¹ dengan membagi 2 setiap langkah."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SMA10-M-B1-03",
+   "label": "Pangkat pecahan keliru",
+   "description": "Pangkat pecahan dikalikan atau dibagikan dengan bilangan pokoknya, atau hanya sebagian yang dihitung.",
+   "remediation": "Tulis a^{m/n} sebagai (ⁿ√a)ᵐ: tentukan akarnya dahulu, lalu pangkatkan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SMA10-M-B1-04",
+   "label": "Sifat perkalian dan pembagian eksponen keliru",
+   "description": "Pada aᵐ · aⁿ atau aᵐ/aⁿ, pangkatnya dikalikan atau dibagi, atau bilangan pokoknya ikut dikalikan.",
+   "remediation": "Tulis kedua perkalian berulang dan hitung banyak faktornya bersama-sama."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SMA10-M-B1-05",
+   "label": "Pangkat dari pangkat keliru",
+   "description": "Pada (aᵐ)ⁿ, pangkatnya dijumlahkan, bukan dikalikan.",
+   "remediation": "Tulis (a³)² sebagai a³ · a³ dan hitung faktornya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SMA10-M-B1-06",
+   "label": "Koefisien tidak ikut dipangkatkan",
+   "description": "Pada (ab)ᵐ atau (a/b)ᵐ, hanya sebagian faktor yang dipangkatkan.",
+   "remediation": "Tulis (2a²b)³ sebagai tiga faktor yang sama dan kalikan setiap bagiannya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SMA10-M-B1-07",
+   "label": "Substitusi ke fungsi eksponensial keliru",
+   "description": "Nilai x dikalikan dengan bilangan pokok, bukan menjadi pangkatnya, atau koefisien ikut dipangkatkan.",
+   "remediation": "Hitung aˣ dahulu, baru kalikan dengan koefisiennya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SMA10-M-B1-08",
+   "label": "Banyak fase salah dihitung",
+   "description": "Waktu tidak diubah menjadi banyak fase, atau fase ke-0 dilupakan.",
+   "remediation": "Buat daftar nilai x = 0, 1, 2, … dan tuliskan waktunya di samping setiap fase."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SMA10-M-B1-09",
+   "label": "Pertumbuhan dan peluruhan tertukar",
+   "description": "Syarat a > 1 dan 0 < a < 1 tertukar, atau fungsi yang bukan eksponensial dianggap eksponensial.",
+   "remediation": "Hitung f(0), f(1), f(2): naik berarti pertumbuhan, turun berarti peluruhan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SMA10-M-B1-10",
+   "label": "Pertumbuhan dianggap linear",
+   "description": "Yang sama setiap fase dianggap selisihnya, padahal yang tetap adalah pengalinya.",
+   "remediation": "Bandingkan tabel yang bertambah tetap dengan tabel yang dikali tetap."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SMA10-M-B1-11",
+   "label": "Bentuk akar dan pangkat pecahan tertukar",
+   "description": "Pembilang dan penyebut pangkat pecahan tertukar saat ditulis sebagai akar.",
+   "remediation": "Ingat: penyebut menjadi indeks akar, pembilang menjadi pangkat."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 13
+   },
+   "code": "SMA10-M-B1-12",
+   "label": "Akar dibagi ke setiap suku",
+   "description": "√(a + b) dianggap sama dengan √a + √b.",
+   "remediation": "Hitung keduanya dengan bilangan, misalnya √(9 + 16) dan √9 + √16."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 14
+   },
+   "code": "SMA10-M-B1-13",
+   "label": "Merasionalkan keliru",
+   "description": "Sekawan salah dipilih, atau penyebut hasil perkalian sekawan salah dihitung.",
+   "remediation": "Kalikan (a − √b)(a + √b) langkah demi langkah sampai mendapat a² − b."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 15
+   },
+   "code": "SMA10-M-B1-14",
+   "label": "Definisi logaritma tertukar",
+   "description": "Basis, numerus, dan hasil logaritma tertukar saat mengubah bentuk eksponen.",
+   "remediation": "Beri warna: basis pada eksponen menjadi basis logaritma, pangkat menjadi hasilnya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 16
+   },
+   "code": "SMA10-M-B1-15",
+   "label": "Sifat logaritma keliru",
+   "description": "Numerus dijumlahkan atau dikurangkan, bukan dikalikan atau dibagi, atau hasil logaritma disamakan dengan numerusnya.",
+   "remediation": "Tulis sifatnya dan tandai: yang dikalikan numerus, yang dijumlahkan hasil logaritma."
   }
  ]
 }

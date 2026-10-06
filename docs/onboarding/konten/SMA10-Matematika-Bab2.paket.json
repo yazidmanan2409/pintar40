@@ -63,7 +63,8 @@
            "label": "B",
            "body": "−4",
            "is_correct": false,
-           "rationale": "Suku sebelum dikurangi suku sesudah (7 − 11). Beda dihitung U_{2} − U_{1} = 11 − 7 = 4."
+           "rationale": "Suku sebelum dikurangi suku sesudah (7 − 11). Beda dihitung U_{2} − U_{1} = 11 − 7 = 4.",
+           "misconception_code": "SMA10-M-B2-01"
           },
           {
            "_row": {
@@ -73,7 +74,8 @@
            "label": "C",
            "body": "7",
            "is_correct": false,
-           "rationale": "Itu suku pertama. Beda adalah selisih dua suku berurutan."
+           "rationale": "Itu suku pertama. Beda adalah selisih dua suku berurutan.",
+           "misconception_code": "SMA10-M-B2-02"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "23",
            "is_correct": false,
-           "rationale": "Itu suku berikutnya (19 + 4). Yang ditanya bedanya, yaitu 4."
+           "rationale": "Itu suku berikutnya (19 + 4). Yang ditanya bedanya, yaitu 4.",
+           "misconception_code": "SMA10-M-B2-02"
           }
          ]
         },
@@ -106,7 +109,8 @@
            "label": "A",
            "body": "85",
            "is_correct": false,
-           "rationale": "Beda ditambahkan 20 kali (5 + 20 × 4). Dari U_{1} ke U_{20} hanya ada 19 langkah."
+           "rationale": "Beda ditambahkan 20 kali (5 + 20 × 4). Dari U_{1} ke U_{20} hanya ada 19 langkah.",
+           "misconception_code": "SMA10-M-B2-03"
           },
           {
            "_row": {
@@ -126,7 +130,8 @@
            "label": "C",
            "body": "80",
            "is_correct": false,
-           "rationale": "Nomor suku dikalikan beda saja (20 × 4). Suku pertama 5 juga harus diperhitungkan: U_{20} = 5 + 19 × 4."
+           "rationale": "Nomor suku dikalikan beda saja (20 × 4). Suku pertama 5 juga harus diperhitungkan: U_{20} = 5 + 19 × 4.",
+           "misconception_code": "SMA10-M-B2-03"
           },
           {
            "_row": {
@@ -136,7 +141,8 @@
            "label": "D",
            "body": "77",
            "is_correct": false,
-           "rationale": "Itu U_{19} = 5 + 18 × 4. Untuk U_{20}, beda ditambahkan 19 kali."
+           "rationale": "Itu U_{19} = 5 + 18 × 4. Untuk U_{20}, beda ditambahkan 19 kali.",
+           "misconception_code": "SMA10-M-B2-03"
           }
          ]
         },
@@ -159,7 +165,8 @@
            "label": "A",
            "body": "14",
            "is_correct": false,
-           "rationale": "Itu nilai n − 1. Nomor barisnya n = 14 + 1 = 15."
+           "rationale": "Itu nilai n − 1. Nomor barisnya n = 14 + 1 = 15.",
+           "misconception_code": "SMA10-M-B2-03"
           },
           {
            "_row": {
@@ -169,7 +176,8 @@
            "label": "B",
            "body": "20",
            "is_correct": false,
-           "rationale": "60 dibagi beda (60 : 3). Suku pertama 18 belum diperhitungkan."
+           "rationale": "60 dibagi beda (60 : 3). Suku pertama 18 belum diperhitungkan.",
+           "misconception_code": "SMA10-M-B2-03"
           },
           {
            "_row": {
@@ -179,7 +187,8 @@
            "label": "C",
            "body": "42",
            "is_correct": false,
-           "rationale": "Itu selisih kursinya (60 − 18), bukan nomor baris. Selisih itu masih dibagi beda 3."
+           "rationale": "Itu selisih kursinya (60 − 18), bukan nomor baris. Selisih itu masih dibagi beda 3.",
+           "misconception_code": "SMA10-M-B2-02"
           },
           {
            "_row": {
@@ -211,7 +220,8 @@
            "label": "A",
            "body": "3",
            "is_correct": false,
-           "rationale": "Suku sebelum dikurangi suku sesudah (20 − 17). Beda = U_{2} − U_{1} = −3."
+           "rationale": "Suku sebelum dikurangi suku sesudah (20 − 17). Beda = U_{2} − U_{1} = −3.",
+           "misconception_code": "SMA10-M-B2-01"
           },
           {
            "_row": {
@@ -221,7 +231,8 @@
            "label": "B",
            "body": "11",
            "is_correct": false,
-           "rationale": "Itu suku berikutnya (14 − 3). Yang ditanya bedanya."
+           "rationale": "Itu suku berikutnya (14 − 3). Yang ditanya bedanya.",
+           "misconception_code": "SMA10-M-B2-02"
           },
           {
            "_row": {
@@ -231,7 +242,8 @@
            "label": "C",
            "body": "−6",
            "is_correct": false,
-           "rationale": "Itu selisih U_{3} dan U_{1} (14 − 20). Beda dihitung dari dua suku yang berdekatan."
+           "rationale": "Itu selisih U_{3} dan U_{1} (14 − 20). Beda dihitung dari dua suku yang berdekatan.",
+           "misconception_code": "SMA10-M-B2-02"
           },
           {
            "_row": {
@@ -263,7 +275,8 @@
            "label": "A",
            "body": "3, 6, 12, 24",
            "is_correct": false,
-           "rationale": "Selisihnya 3, 6, 12 (tidak tetap). Barisan ini dikalikan 2, jadi barisan geometri."
+           "rationale": "Selisihnya 3, 6, 12 (tidak tetap). Barisan ini dikalikan 2, jadi barisan geometri.",
+           "misconception_code": "SMA10-M-B2-04"
           },
           {
            "_row": {
@@ -283,7 +296,8 @@
            "label": "C",
            "body": "1, 4, 9, 16",
            "is_correct": false,
-           "rationale": "Selisihnya 3, 5, 7 (tidak tetap)."
+           "rationale": "Selisihnya 3, 5, 7 (tidak tetap).",
+           "misconception_code": "SMA10-M-B2-04"
           },
           {
            "_row": {
@@ -293,7 +307,8 @@
            "label": "D",
            "body": "1, 3, 6, 10",
            "is_correct": false,
-           "rationale": "Selisihnya 2, 3, 4 (tidak tetap)."
+           "rationale": "Selisihnya 2, 3, 4 (tidak tetap).",
+           "misconception_code": "SMA10-M-B2-04"
           }
          ]
         },
@@ -325,7 +340,8 @@
            "label": "B",
            "body": "48",
            "is_correct": false,
-           "rationale": "Bagian −1 terlupa. U_{12} = 4 × 12 − 1."
+           "rationale": "Bagian −1 terlupa. U_{12} = 4 × 12 − 1.",
+           "misconception_code": "SMA10-M-B2-02"
           },
           {
            "_row": {
@@ -335,7 +351,8 @@
            "label": "C",
            "body": "43",
            "is_correct": false,
-           "rationale": "Itu U_{11} = 4 × 11 − 1. Ganti n dengan 12."
+           "rationale": "Itu U_{11} = 4 × 11 − 1. Ganti n dengan 12.",
+           "misconception_code": "SMA10-M-B2-03"
           },
           {
            "_row": {
@@ -345,7 +362,8 @@
            "label": "D",
            "body": "51",
            "is_correct": false,
-           "rationale": "Itu U_{13} = 4 × 13 − 1. Ganti n dengan 12."
+           "rationale": "Itu U_{13} = 4 × 13 − 1. Ganti n dengan 12.",
+           "misconception_code": "SMA10-M-B2-03"
           }
          ]
         },
@@ -367,7 +385,8 @@
            "label": "A",
            "body": "U_{n} = 10 − 2n",
            "is_correct": false,
-           "rationale": "n − 1 diganti n. Periksa: rumus ini memberi U_{1} = 8, padahal U_{1} = 10."
+           "rationale": "n − 1 diganti n. Periksa: rumus ini memberi U_{1} = 8, padahal U_{1} = 10.",
+           "misconception_code": "SMA10-M-B2-03"
           },
           {
            "_row": {
@@ -377,7 +396,8 @@
            "label": "B",
            "body": "U_{n} = 8 + 2n",
            "is_correct": false,
-           "rationale": "Tanda beda terbalik (b = 2). Barisannya turun, jadi bedanya −2."
+           "rationale": "Tanda beda terbalik (b = 2). Barisannya turun, jadi bedanya −2.",
+           "misconception_code": "SMA10-M-B2-01"
           },
           {
            "_row": {
@@ -397,7 +417,8 @@
            "label": "D",
            "body": "U_{n} = 10n − 2",
            "is_correct": false,
-           "rationale": "Suku pertama dikalikan n dan beda ditambahkan sekali. U_{n} = a + (n − 1)b."
+           "rationale": "Suku pertama dikalikan n dan beda ditambahkan sekali. U_{n} = a + (n − 1)b.",
+           "misconception_code": "SMA10-M-B2-02"
           }
          ]
         }
@@ -437,7 +458,8 @@
            "label": "A",
            "body": "3",
            "is_correct": false,
-           "rationale": "Itu selisih 6 − 3, bukan hasil bagi. Selisihnya pun tidak tetap (6, lalu 12). Rasio adalah hasil bagi dua suku berurutan."
+           "rationale": "Itu selisih 6 − 3, bukan hasil bagi. Selisihnya pun tidak tetap (6, lalu 12). Rasio adalah hasil bagi dua suku berurutan.",
+           "misconception_code": "SMA10-M-B2-05"
           },
           {
            "_row": {
@@ -447,7 +469,8 @@
            "label": "B",
            "body": "1/2",
            "is_correct": false,
-           "rationale": "Pembagiannya terbalik (3/6). Rasio = suku sesudah dibagi suku sebelum."
+           "rationale": "Pembagiannya terbalik (3/6). Rasio = suku sesudah dibagi suku sebelum.",
+           "misconception_code": "SMA10-M-B2-05"
           },
           {
            "_row": {
@@ -467,7 +490,8 @@
            "label": "D",
            "body": "48",
            "is_correct": false,
-           "rationale": "Itu suku berikutnya (24 × 2). Yang ditanya rasionya, yaitu 2."
+           "rationale": "Itu suku berikutnya (24 × 2). Yang ditanya rasionya, yaitu 2.",
+           "misconception_code": "SMA10-M-B2-02"
           }
          ]
         },
@@ -500,7 +524,8 @@
            "label": "B",
            "body": "1.458",
            "is_correct": false,
-           "rationale": "Rasio dikalikan 6 kali (2 × 3⁶). Dari U_{1} ke U_{6} hanya ada 5 langkah."
+           "rationale": "Rasio dikalikan 6 kali (2 × 3⁶). Dari U_{1} ke U_{6} hanya ada 5 langkah.",
+           "misconception_code": "SMA10-M-B2-03"
           },
           {
            "_row": {
@@ -510,7 +535,8 @@
            "label": "C",
            "body": "729",
            "is_correct": false,
-           "rationale": "Suku pertama tidak dipakai sebagai pengali (3⁶). U_{6} = a × r⁵ = 2 × 3⁵."
+           "rationale": "Suku pertama tidak dipakai sebagai pengali (3⁶). U_{6} = a × r⁵ = 2 × 3⁵.",
+           "misconception_code": "SMA10-M-B2-06"
           },
           {
            "_row": {
@@ -520,7 +546,8 @@
            "label": "D",
            "body": "22",
            "is_correct": false,
-           "rationale": "Barisan dianggap aritmetika dengan beda 4 (2 + 5 × 4). Suku-sukunya dikalikan 3, bukan ditambah 4."
+           "rationale": "Barisan dianggap aritmetika dengan beda 4 (2 + 5 × 4). Suku-sukunya dikalikan 3, bukan ditambah 4.",
+           "misconception_code": "SMA10-M-B2-04"
           }
          ]
         },
@@ -552,7 +579,8 @@
            "label": "B",
            "body": "−3, −6, −9, −12",
            "is_correct": false,
-           "rationale": "Selisihnya tetap −3, jadi ini barisan aritmetika. Hasil baginya 2, lalu 3/2 (tidak tetap)."
+           "rationale": "Selisihnya tetap −3, jadi ini barisan aritmetika. Hasil baginya 2, lalu 3/2 (tidak tetap).",
+           "misconception_code": "SMA10-M-B2-04"
           },
           {
            "_row": {
@@ -562,7 +590,8 @@
            "label": "C",
            "body": "3, 6, 9, 12",
            "is_correct": false,
-           "rationale": "Selisihnya tetap 3, jadi ini barisan aritmetika. Hasil baginya 2, lalu 3/2 (tidak tetap)."
+           "rationale": "Selisihnya tetap 3, jadi ini barisan aritmetika. Hasil baginya 2, lalu 3/2 (tidak tetap).",
+           "misconception_code": "SMA10-M-B2-04"
           },
           {
            "_row": {
@@ -572,7 +601,8 @@
            "label": "D",
            "body": "3, 6, 12, 21",
            "is_correct": false,
-           "rationale": "Hasil baginya 2, 2, lalu 7/4 (tidak tetap)."
+           "rationale": "Hasil baginya 2, 2, lalu 7/4 (tidak tetap).",
+           "misconception_code": "SMA10-M-B2-05"
           }
          ]
         },
@@ -594,7 +624,8 @@
            "label": "A",
            "body": "80",
            "is_correct": false,
-           "rationale": "Pangkatnya n, bukan n − 1 (5 × 2⁴). Pangkatnya 4 − 1 = 3."
+           "rationale": "Pangkatnya n, bukan n − 1 (5 × 2⁴). Pangkatnya 4 − 1 = 3.",
+           "misconception_code": "SMA10-M-B2-03"
           },
           {
            "_row": {
@@ -604,7 +635,8 @@
            "label": "B",
            "body": "1.000",
            "is_correct": false,
-           "rationale": "Suku pertama ikut dipangkatkan ((5 × 2)³). Hanya 2 yang dipangkatkan."
+           "rationale": "Suku pertama ikut dipangkatkan ((5 × 2)³). Hanya 2 yang dipangkatkan.",
+           "misconception_code": "SMA10-M-B2-06"
           },
           {
            "_row": {
@@ -614,7 +646,8 @@
            "label": "C",
            "body": "11",
            "is_correct": false,
-           "rationale": "Rumusnya dibaca sebagai barisan aritmetika (5 + 3 × 2). Rasio 2 dikalikan, bukan ditambahkan."
+           "rationale": "Rumusnya dibaca sebagai barisan aritmetika (5 + 3 × 2). Rasio 2 dikalikan, bukan ditambahkan.",
+           "misconception_code": "SMA10-M-B2-04"
           },
           {
            "_row": {
@@ -646,7 +679,8 @@
            "label": "A",
            "body": "1/8",
            "is_correct": false,
-           "rationale": "Itu bagian anak ketiga. Bagian anak keempat setengahnya lagi."
+           "rationale": "Itu bagian anak ketiga. Bagian anak keempat setengahnya lagi.",
+           "misconception_code": "SMA10-M-B2-03"
           },
           {
            "_row": {
@@ -656,7 +690,8 @@
            "label": "B",
            "body": "1/32",
            "is_correct": false,
-           "rationale": "Itu bagian anak kelima: rasio dikalikan satu kali terlalu banyak."
+           "rationale": "Itu bagian anak kelima: rasio dikalikan satu kali terlalu banyak.",
+           "misconception_code": "SMA10-M-B2-03"
           },
           {
            "_row": {
@@ -676,7 +711,8 @@
            "label": "D",
            "body": "15/16",
            "is_correct": false,
-           "rationale": "Itu jumlah bagian empat anak (1/2 + 1/4 + 1/8 + 1/16). Yang ditanya bagian anak keempat saja."
+           "rationale": "Itu jumlah bagian empat anak (1/2 + 1/4 + 1/8 + 1/16). Yang ditanya bagian anak keempat saja.",
+           "misconception_code": "SMA10-M-B2-08"
           }
          ]
         },
@@ -698,7 +734,8 @@
            "label": "A",
            "body": "48",
            "is_correct": false,
-           "rationale": "Itu U_{5} = 3 × 2⁴, keadaan setelah 4 jam. Setelah 5 jam sudah terjadi 5 kali pembelahan."
+           "rationale": "Itu U_{5} = 3 × 2⁴, keadaan setelah 4 jam. Setelah 5 jam sudah terjadi 5 kali pembelahan.",
+           "misconception_code": "SMA10-M-B2-03"
           },
           {
            "_row": {
@@ -718,7 +755,8 @@
            "label": "C",
            "body": "13",
            "is_correct": false,
-           "rationale": "Banyak sel dianggap bertambah 2 setiap jam (3 + 5 × 2). Setiap sel membelah, jadi banyaknya dikali 2."
+           "rationale": "Banyak sel dianggap bertambah 2 setiap jam (3 + 5 × 2). Setiap sel membelah, jadi banyaknya dikali 2.",
+           "misconception_code": "SMA10-M-B2-04"
           },
           {
            "_row": {
@@ -728,7 +766,8 @@
            "label": "D",
            "body": "243",
            "is_correct": false,
-           "rationale": "Suku pertama dipakai sebagai rasio (3⁵). a = 3 dan r = 2."
+           "rationale": "Suku pertama dipakai sebagai rasio (3⁵). a = 3 dan r = 2.",
+           "misconception_code": "SMA10-M-B2-06"
           }
          ]
         }
@@ -768,7 +807,8 @@
            "label": "A",
            "body": "50",
            "is_correct": false,
-           "rationale": "Banyak pasangan dikalikan suku terakhir (5 × 10). Setiap pasang berjumlah 1 + 10 = 11."
+           "rationale": "Banyak pasangan dikalikan suku terakhir (5 × 10). Setiap pasang berjumlah 1 + 10 = 11.",
+           "misconception_code": "SMA10-M-B2-07"
           },
           {
            "_row": {
@@ -788,7 +828,8 @@
            "label": "C",
            "body": "110",
            "is_correct": false,
-           "rationale": "10 × 11 belum dibagi 2. Setiap suku dihitung dua kali, jadi hasilnya dibagi 2."
+           "rationale": "10 × 11 belum dibagi 2. Setiap suku dihitung dua kali, jadi hasilnya dibagi 2.",
+           "misconception_code": "SMA10-M-B2-07"
           },
           {
            "_row": {
@@ -798,7 +839,8 @@
            "label": "D",
            "body": "45",
            "is_correct": false,
-           "rationale": "Suku 10 terlewat (1 + 2 + … + 9 = 45)."
+           "rationale": "Suku 10 terlewat (1 + 2 + … + 9 = 45).",
+           "misconception_code": "SMA10-M-B2-03"
           }
          ]
         },
@@ -821,7 +863,8 @@
            "label": "A",
            "body": "25",
            "is_correct": false,
-           "rationale": "Itu banyak kaleng di tingkat ke-12 saja. Yang ditanya jumlah seluruh tingkat."
+           "rationale": "Itu banyak kaleng di tingkat ke-12 saja. Yang ditanya jumlah seluruh tingkat.",
+           "misconception_code": "SMA10-M-B2-08"
           },
           {
            "_row": {
@@ -831,7 +874,8 @@
            "label": "B",
            "body": "336",
            "is_correct": false,
-           "rationale": "12 × (3 + 25) belum dibagi 2. S_{n} = n/2 × (a + U_{n})."
+           "rationale": "12 × (3 + 25) belum dibagi 2. S_{n} = n/2 × (a + U_{n}).",
+           "misconception_code": "SMA10-M-B2-07"
           },
           {
            "_row": {
@@ -851,7 +895,8 @@
            "label": "D",
            "body": "180",
            "is_correct": false,
-           "rationale": "Pada 2a + (n − 1)b, n − 1 diganti n (6 × (6 + 12 × 2)). Seharusnya 6 × (6 + 11 × 2) = 168."
+           "rationale": "Pada 2a + (n − 1)b, n − 1 diganti n (6 × (6 + 12 × 2)). Seharusnya 6 × (6 + 11 × 2) = 168.",
+           "misconception_code": "SMA10-M-B2-03"
           }
          ]
         },
@@ -883,7 +928,8 @@
            "label": "B",
            "body": "barisan yang selisih dua suku berurutannya tetap",
            "is_correct": false,
-           "rationale": "Itu pengertian barisan aritmetika. Deret adalah jumlah suku-sukunya."
+           "rationale": "Itu pengertian barisan aritmetika. Deret adalah jumlah suku-sukunya.",
+           "misconception_code": "SMA10-M-B2-08"
           },
           {
            "_row": {
@@ -893,7 +939,8 @@
            "label": "C",
            "body": "jumlah suku-suku barisan geometri",
            "is_correct": false,
-           "rationale": "Itu deret geometri. Deret aritmetika berasal dari barisan aritmetika."
+           "rationale": "Itu deret geometri. Deret aritmetika berasal dari barisan aritmetika.",
+           "misconception_code": "SMA10-M-B2-04"
           },
           {
            "_row": {
@@ -903,7 +950,8 @@
            "label": "D",
            "body": "hasil kali suku-suku barisan aritmetika",
            "is_correct": false,
-           "rationale": "Deret adalah jumlah, bukan hasil kali, suku-suku barisan."
+           "rationale": "Deret adalah jumlah, bukan hasil kali, suku-suku barisan.",
+           "misconception_code": "SMA10-M-B2-08"
           }
          ]
         },
@@ -925,7 +973,8 @@
            "label": "A",
            "body": "79",
            "is_correct": false,
-           "rationale": "Itu U_{20} = 3 + 19 × 4, suku ke-20 saja. Yang ditanya jumlah 20 suku."
+           "rationale": "Itu U_{20} = 3 + 19 × 4, suku ke-20 saja. Yang ditanya jumlah 20 suku.",
+           "misconception_code": "SMA10-M-B2-08"
           },
           {
            "_row": {
@@ -935,7 +984,8 @@
            "label": "B",
            "body": "1.640",
            "is_correct": false,
-           "rationale": "20 × 82 belum dibagi 2. S_{n} = n/2 × (2a + (n − 1)b)."
+           "rationale": "20 × 82 belum dibagi 2. S_{n} = n/2 × (2a + (n − 1)b).",
+           "misconception_code": "SMA10-M-B2-07"
           },
           {
            "_row": {
@@ -945,7 +995,8 @@
            "label": "C",
            "body": "860",
            "is_correct": false,
-           "rationale": "n − 1 diganti n (10 × (6 + 20 × 4)). Seharusnya 10 × (6 + 19 × 4)."
+           "rationale": "n − 1 diganti n (10 × (6 + 20 × 4)). Seharusnya 10 × (6 + 19 × 4).",
+           "misconception_code": "SMA10-M-B2-03"
           },
           {
            "_row": {
@@ -977,7 +1028,8 @@
            "label": "A",
            "body": "1.860",
            "is_correct": false,
-           "rationale": "30 × 62 belum dibagi 2."
+           "rationale": "30 × 62 belum dibagi 2.",
+           "misconception_code": "SMA10-M-B2-07"
           },
           {
            "_row": {
@@ -987,7 +1039,8 @@
            "label": "B",
            "body": "62",
            "is_correct": false,
-           "rationale": "Itu hanya a + U_{n} (2 + 60). Hasil itu masih dikalikan n/2 = 15."
+           "rationale": "Itu hanya a + U_{n} (2 + 60). Hasil itu masih dikalikan n/2 = 15.",
+           "misconception_code": "SMA10-M-B2-07"
           },
           {
            "_row": {
@@ -1007,7 +1060,8 @@
            "label": "D",
            "body": "870",
            "is_correct": false,
-           "rationale": "Banyak suku dihitung 29 ((60 − 2) : 2), lalu dipakai 29/2 × 60. Banyak sukunya (60 − 2) : 2 + 1 = 30."
+           "rationale": "Banyak suku dihitung 29 ((60 − 2) : 2), lalu dipakai 29/2 × 60. Banyak sukunya (60 − 2) : 2 + 1 = 30.",
+           "misconception_code": "SMA10-M-B2-03"
           }
          ]
         }
@@ -1047,7 +1101,8 @@
            "label": "A",
            "body": "Rp64.000",
            "is_correct": false,
-           "rationale": "Itu uang yang disisihkan pada minggu ke-6 saja (2.000 × 2⁵). Yang ditanya jumlah enam minggu."
+           "rationale": "Itu uang yang disisihkan pada minggu ke-6 saja (2.000 × 2⁵). Yang ditanya jumlah enam minggu.",
+           "misconception_code": "SMA10-M-B2-08"
           },
           {
            "_row": {
@@ -1057,7 +1112,8 @@
            "label": "B",
            "body": "Rp128.000",
            "is_correct": false,
-           "rationale": "Pada rⁿ − 1, bagian −1 terlupa (2.000 × 2⁶). S_{6} = 2.000 × (64 − 1)."
+           "rationale": "Pada rⁿ − 1, bagian −1 terlupa (2.000 × 2⁶). S_{6} = 2.000 × (64 − 1).",
+           "misconception_code": "SMA10-M-B2-09"
           },
           {
            "_row": {
@@ -1077,7 +1133,8 @@
            "label": "D",
            "body": "Rp12.000",
            "is_correct": false,
-           "rationale": "Uangnya dianggap tetap 2.000 setiap minggu (6 × 2.000). Setiap minggu uangnya dikali 2."
+           "rationale": "Uangnya dianggap tetap 2.000 setiap minggu (6 × 2.000). Setiap minggu uangnya dikali 2.",
+           "misconception_code": "SMA10-M-B2-04"
           }
          ]
         },
@@ -1099,7 +1156,8 @@
            "label": "A",
            "body": "48",
            "is_correct": false,
-           "rationale": "Itu U_{5} = 3 × 2⁴, suku ke-5 saja. Yang ditanya jumlah 5 suku."
+           "rationale": "Itu U_{5} = 3 × 2⁴, suku ke-5 saja. Yang ditanya jumlah 5 suku.",
+           "misconception_code": "SMA10-M-B2-08"
           },
           {
            "_row": {
@@ -1119,7 +1177,8 @@
            "label": "C",
            "body": "96",
            "is_correct": false,
-           "rationale": "Pada 2⁵ − 1, bagian −1 terlupa (3 × 2⁵)."
+           "rationale": "Pada 2⁵ − 1, bagian −1 terlupa (3 × 2⁵).",
+           "misconception_code": "SMA10-M-B2-09"
           },
           {
            "_row": {
@@ -1129,7 +1188,8 @@
            "label": "D",
            "body": "35",
            "is_correct": false,
-           "rationale": "Rasio 2 dipakai sebagai beda: 3 + 5 + 7 + 9 + 11 = 35. Suku-suku deret geometri dikalikan 2."
+           "rationale": "Rasio 2 dipakai sebagai beda: 3 + 5 + 7 + 9 + 11 = 35. Suku-suku deret geometri dikalikan 2.",
+           "misconception_code": "SMA10-M-B2-04"
           }
          ]
         },
@@ -1161,7 +1221,8 @@
            "label": "B",
            "body": "5",
            "is_correct": false,
-           "rationale": "Itu satu suku saja. Ada 10 suku yang masing-masing 5."
+           "rationale": "Itu satu suku saja. Ada 10 suku yang masing-masing 5.",
+           "misconception_code": "SMA10-M-B2-08"
           },
           {
            "_row": {
@@ -1171,7 +1232,8 @@
            "label": "C",
            "body": "0",
            "is_correct": false,
-           "rationale": "Pembilang 5 × (1¹⁰ − 1) = 0 dianggap hasilnya, padahal penyebut r − 1 juga 0. Rumus itu hanya berlaku untuk r ≠ 1; untuk r = 1, S_{n} = n × a."
+           "rationale": "Pembilang 5 × (1¹⁰ − 1) = 0 dianggap hasilnya, padahal penyebut r − 1 juga 0. Rumus itu hanya berlaku untuk r ≠ 1; untuk r = 1, S_{n} = n × a.",
+           "misconception_code": "SMA10-M-B2-09"
           },
           {
            "_row": {
@@ -1181,7 +1243,8 @@
            "label": "D",
            "body": "10",
            "is_correct": false,
-           "rationale": "Itu banyak sukunya. Setiap suku bernilai 5, jadi jumlahnya 10 × 5."
+           "rationale": "Itu banyak sukunya. Setiap suku bernilai 5, jadi jumlahnya 10 × 5.",
+           "misconception_code": "SMA10-M-B2-08"
           }
          ]
         },
@@ -1203,7 +1266,8 @@
            "label": "A",
            "body": "5",
            "is_correct": false,
-           "rationale": "Itu pangkat pada suku terakhir, 5 × 2⁵ = 160. Pangkatnya n − 1, jadi n = 6."
+           "rationale": "Itu pangkat pada suku terakhir, 5 × 2⁵ = 160. Pangkatnya n − 1, jadi n = 6.",
+           "misconception_code": "SMA10-M-B2-03"
           },
           {
            "_row": {
@@ -1213,7 +1277,8 @@
            "label": "B",
            "body": "63",
            "is_correct": false,
-           "rationale": "Itu nilai 2ⁿ − 1 (315 : 5). Masih dicari n sehingga 2ⁿ = 64."
+           "rationale": "Itu nilai 2ⁿ − 1 (315 : 5). Masih dicari n sehingga 2ⁿ = 64.",
+           "misconception_code": "SMA10-M-B2-09"
           },
           {
            "_row": {
@@ -1223,7 +1288,8 @@
            "label": "C",
            "body": "64",
            "is_correct": false,
-           "rationale": "Itu nilai 2ⁿ. Banyak sukunya n, dan 2⁶ = 64."
+           "rationale": "Itu nilai 2ⁿ. Banyak sukunya n, dan 2⁶ = 64.",
+           "misconception_code": "SMA10-M-B2-09"
           },
           {
            "_row": {
@@ -1283,7 +1349,8 @@
            "label": "B",
            "body": "26",
            "is_correct": false,
-           "rationale": "Hanya tiga suku yang dijumlahkan (18 + 6 + 2). Deretnya tidak berhenti, jadi dipakai S_{∞} = a/(1 − r)."
+           "rationale": "Hanya tiga suku yang dijumlahkan (18 + 6 + 2). Deretnya tidak berhenti, jadi dipakai S_{∞} = a/(1 − r).",
+           "misconception_code": "SMA10-M-B2-12"
           },
           {
            "_row": {
@@ -1293,7 +1360,8 @@
            "label": "C",
            "body": "13,5",
            "is_correct": false,
-           "rationale": "Dipakai a/(1 + r) = 18/(4/3). Rumusnya S_{∞} = a/(1 − r)."
+           "rationale": "Dipakai a/(1 + r) = 18/(4/3). Rumusnya S_{∞} = a/(1 − r).",
+           "misconception_code": "SMA10-M-B2-11"
           },
           {
            "_row": {
@@ -1303,7 +1371,8 @@
            "label": "D",
            "body": "54",
            "is_correct": false,
-           "rationale": "Dipakai a/r = 18/(1/3). Rumusnya S_{∞} = a/(1 − r)."
+           "rationale": "Dipakai a/r = 18/(1/3). Rumusnya S_{∞} = a/(1 − r).",
+           "misconception_code": "SMA10-M-B2-11"
           }
          ]
         },
@@ -1326,7 +1395,8 @@
            "label": "A",
            "body": "r > 1 atau r < −1",
            "is_correct": false,
-           "rationale": "Itu |r| > 1, yang membuat deret divergen: suku-sukunya makin jauh dari 0."
+           "rationale": "Itu |r| > 1, yang membuat deret divergen: suku-sukunya makin jauh dari 0.",
+           "misconception_code": "SMA10-M-B2-10"
           },
           {
            "_row": {
@@ -1346,7 +1416,8 @@
            "label": "C",
            "body": "r > 0",
            "is_correct": false,
-           "rationale": "Tanda rasio tidak menentukan. Deret 1 + 2 + 4 + … memiliki r = 2 > 0, tetapi divergen."
+           "rationale": "Tanda rasio tidak menentukan. Deret 1 + 2 + 4 + … memiliki r = 2 > 0, tetapi divergen.",
+           "misconception_code": "SMA10-M-B2-10"
           },
           {
            "_row": {
@@ -1356,7 +1427,8 @@
            "label": "D",
            "body": "r = 1",
            "is_correct": false,
-           "rationale": "Jika r = 1, semua suku sama dengan a, dan jumlahnya n × a tidak menuju suatu nilai tertentu (untuk a ≠ 0), jadi deretnya divergen."
+           "rationale": "Jika r = 1, semua suku sama dengan a, dan jumlahnya n × a tidak menuju suatu nilai tertentu (untuk a ≠ 0), jadi deretnya divergen.",
+           "misconception_code": "SMA10-M-B2-10"
           }
          ]
         },
@@ -1378,7 +1450,8 @@
            "label": "A",
            "body": "1 + 2 + 4 + …",
            "is_correct": false,
-           "rationale": "r = 2 dan |r| > 1, jadi deretnya divergen."
+           "rationale": "r = 2 dan |r| > 1, jadi deretnya divergen.",
+           "misconception_code": "SMA10-M-B2-10"
           },
           {
            "_row": {
@@ -1388,7 +1461,8 @@
            "label": "B",
            "body": "3 + 3 + 3 + …",
            "is_correct": false,
-           "rationale": "r = 1. Jumlahnya terus bertambah 3 (3, 6, 9, …), jadi deretnya divergen."
+           "rationale": "r = 1. Jumlahnya terus bertambah 3 (3, 6, 9, …), jadi deretnya divergen.",
+           "misconception_code": "SMA10-M-B2-10"
           },
           {
            "_row": {
@@ -1408,7 +1482,8 @@
            "label": "D",
            "body": "2 − 6 + 18 − …",
            "is_correct": false,
-           "rationale": "r = −3 dan |r| = 3 > 1, jadi deretnya divergen. Tanda yang berganti tidak membuatnya konvergen."
+           "rationale": "r = −3 dan |r| = 3 > 1, jadi deretnya divergen. Tanda yang berganti tidak membuatnya konvergen.",
+           "misconception_code": "SMA10-M-B2-10"
           }
          ]
         },
@@ -1430,7 +1505,8 @@
            "label": "A",
            "body": "15,75",
            "is_correct": false,
-           "rationale": "Hanya tiga suku yang dijumlahkan (12 + 3 + 0,75). Deretnya tidak berhenti."
+           "rationale": "Hanya tiga suku yang dijumlahkan (12 + 3 + 0,75). Deretnya tidak berhenti.",
+           "misconception_code": "SMA10-M-B2-12"
           },
           {
            "_row": {
@@ -1450,7 +1526,8 @@
            "label": "C",
            "body": "9,6",
            "is_correct": false,
-           "rationale": "Dipakai a/(1 + r) = 12/(5/4). Rumusnya S_{∞} = a/(1 − r)."
+           "rationale": "Dipakai a/(1 + r) = 12/(5/4). Rumusnya S_{∞} = a/(1 − r).",
+           "misconception_code": "SMA10-M-B2-11"
           },
           {
            "_row": {
@@ -1460,7 +1537,8 @@
            "label": "D",
            "body": "48",
            "is_correct": false,
-           "rationale": "Dipakai a/r = 12/(1/4). Rumusnya S_{∞} = a/(1 − r)."
+           "rationale": "Dipakai a/r = 12/(1/4). Rumusnya S_{∞} = a/(1 − r).",
+           "misconception_code": "SMA10-M-B2-11"
           }
          ]
         },
@@ -1492,7 +1570,8 @@
            "label": "B",
            "body": "4/5",
            "is_correct": false,
-           "rationale": "Itu nilai 1 − r. Rasionya r = 1 − 4/5 = 1/5."
+           "rationale": "Itu nilai 1 − r. Rasionya r = 1 − 4/5 = 1/5.",
+           "misconception_code": "SMA10-M-B2-11"
           },
           {
            "_row": {
@@ -1502,7 +1581,8 @@
            "label": "C",
            "body": "5",
            "is_correct": false,
-           "rationale": "Itu selisih 25 − 20. Lagi pula, deret dengan r = 5 divergen."
+           "rationale": "Itu selisih 25 − 20. Lagi pula, deret dengan r = 5 divergen.",
+           "misconception_code": "SMA10-M-B2-10"
           },
           {
            "_row": {
@@ -1512,7 +1592,8 @@
            "label": "D",
            "body": "5/4",
            "is_correct": false,
-           "rationale": "Jumlah dibagi suku pertama (25/20). Deret dengan |r| > 1 divergen dan tidak mempunyai jumlah."
+           "rationale": "Jumlah dibagi suku pertama (25/20). Deret dengan |r| > 1 divergen dan tidak mempunyai jumlah.",
+           "misconception_code": "SMA10-M-B2-10"
           }
          ]
         }
@@ -1552,7 +1633,8 @@
            "label": "A",
            "body": "Rp220.000",
            "is_correct": false,
-           "rationale": "Itu nilai tabungan setelah satu tahun (200.000 + 20.000). Yang ditanya besar bunganya."
+           "rationale": "Itu nilai tabungan setelah satu tahun (200.000 + 20.000). Yang ditanya besar bunganya.",
+           "misconception_code": "SMA10-M-B2-14"
           },
           {
            "_row": {
@@ -1562,7 +1644,8 @@
            "label": "B",
            "body": "Rp2.000",
            "is_correct": false,
-           "rationale": "Itu 1% dari 200.000. 10% dari 200.000 adalah 20.000."
+           "rationale": "Itu 1% dari 200.000. 10% dari 200.000 adalah 20.000.",
+           "misconception_code": "SMA10-M-B2-14"
           },
           {
            "_row": {
@@ -1572,7 +1655,8 @@
            "label": "C",
            "body": "Rp180.000",
            "is_correct": false,
-           "rationale": "Bunga dikurangkan dari pokok. Bunga simpanan diterima penabung, jadi tabungannya bertambah."
+           "rationale": "Bunga dikurangkan dari pokok. Bunga simpanan diterima penabung, jadi tabungannya bertambah.",
+           "misconception_code": "SMA10-M-B2-14"
           },
           {
            "_row": {
@@ -1605,7 +1689,8 @@
            "label": "A",
            "body": "Rp4.800.000",
            "is_correct": false,
-           "rationale": "Bunga tahun ke-2 dihitung dari pokok awal (2 × 400.000). Pada bunga majemuk, bunga tahun ke-2 dihitung dari 4.400.000."
+           "rationale": "Bunga tahun ke-2 dihitung dari pokok awal (2 × 400.000). Pada bunga majemuk, bunga tahun ke-2 dihitung dari 4.400.000.",
+           "misconception_code": "SMA10-M-B2-13"
           },
           {
            "_row": {
@@ -1615,7 +1700,8 @@
            "label": "B",
            "body": "Rp4.400.000",
            "is_correct": false,
-           "rationale": "Itu nilai tabungan setelah 1 tahun. Masih ada satu tahun lagi."
+           "rationale": "Itu nilai tabungan setelah 1 tahun. Masih ada satu tahun lagi.",
+           "misconception_code": "SMA10-M-B2-14"
           },
           {
            "_row": {
@@ -1625,7 +1711,8 @@
            "label": "C",
            "body": "Rp840.000",
            "is_correct": false,
-           "rationale": "Itu besar seluruh bunganya (4.840.000 − 4.000.000). Yang ditanya nilai tabungannya."
+           "rationale": "Itu besar seluruh bunganya (4.840.000 − 4.000.000). Yang ditanya nilai tabungannya.",
+           "misconception_code": "SMA10-M-B2-14"
           },
           {
            "_row": {
@@ -1657,7 +1744,8 @@
            "label": "A",
            "body": "periode berikutnya dihitung dari pokok ditambah bunga sebelumnya",
            "is_correct": false,
-           "rationale": "Itu bunga majemuk."
+           "rationale": "Itu bunga majemuk.",
+           "misconception_code": "SMA10-M-B2-13"
           },
           {
            "_row": {
@@ -1667,7 +1755,8 @@
            "label": "B",
            "body": "besarnya bertambah setiap tahun",
            "is_correct": false,
-           "rationale": "Yang bertambah setiap tahun adalah bunga majemuk. Bunga tunggal besarnya sama setiap tahun."
+           "rationale": "Yang bertambah setiap tahun adalah bunga majemuk. Bunga tunggal besarnya sama setiap tahun.",
+           "misconception_code": "SMA10-M-B2-13"
           },
           {
            "_row": {
@@ -1677,7 +1766,8 @@
            "label": "C",
            "body": "dibayar nasabah kepada bank atas simpanannya",
            "is_correct": false,
-           "rationale": "Bunga simpanan dibayar bank kepada nasabah, bukan sebaliknya."
+           "rationale": "Bunga simpanan dibayar bank kepada nasabah, bukan sebaliknya.",
+           "misconception_code": "SMA10-M-B2-14"
           },
           {
            "_row": {
@@ -1709,7 +1799,8 @@
            "label": "A",
            "body": "Rp5.955.080",
            "is_correct": false,
-           "rationale": "Itu dihitung dengan bunga majemuk (5.000.000 × 1,06³). Pada bunga tunggal, bunga selalu dihitung dari pokok 5.000.000."
+           "rationale": "Itu dihitung dengan bunga majemuk (5.000.000 × 1,06³). Pada bunga tunggal, bunga selalu dihitung dari pokok 5.000.000.",
+           "misconception_code": "SMA10-M-B2-13"
           },
           {
            "_row": {
@@ -1719,7 +1810,8 @@
            "label": "B",
            "body": "Rp5.300.000",
            "is_correct": false,
-           "rationale": "Itu nilai uang setelah 1 tahun. Masih ada dua tahun lagi."
+           "rationale": "Itu nilai uang setelah 1 tahun. Masih ada dua tahun lagi.",
+           "misconception_code": "SMA10-M-B2-14"
           },
           {
            "_row": {
@@ -1739,7 +1831,8 @@
            "label": "D",
            "body": "Rp900.000",
            "is_correct": false,
-           "rationale": "Itu besar seluruh bunganya (3 × 300.000). Yang ditanya nilai uangnya."
+           "rationale": "Itu besar seluruh bunganya (3 × 300.000). Yang ditanya nilai uangnya.",
+           "misconception_code": "SMA10-M-B2-14"
           }
          ]
         },
@@ -1761,7 +1854,8 @@
            "label": "A",
            "body": "barisan aritmetika dengan b = 52.500",
            "is_correct": false,
-           "rationale": "Selisihnya 52.500, lalu 55.125 (tidak tetap). Yang tetap adalah pengalinya, 1,05."
+           "rationale": "Selisihnya 52.500, lalu 55.125 (tidak tetap). Yang tetap adalah pengalinya, 1,05.",
+           "misconception_code": "SMA10-M-B2-04"
           },
           {
            "_row": {
@@ -1781,7 +1875,8 @@
            "label": "C",
            "body": "barisan aritmetika dengan b = 50.000",
            "is_correct": false,
-           "rationale": "Itu bunga tunggal dari pokok 1.000.000. Pada bunga majemuk, bunganya bertambah setiap tahun."
+           "rationale": "Itu bunga tunggal dari pokok 1.000.000. Pada bunga majemuk, bunganya bertambah setiap tahun.",
+           "misconception_code": "SMA10-M-B2-13"
           },
           {
            "_row": {
@@ -1791,7 +1886,8 @@
            "label": "D",
            "body": "barisan geometri dengan r = 0,05",
            "is_correct": false,
-           "rationale": "0,05 adalah suku bunganya. Setiap tahun tabungan dikalikan 1 + 0,05 = 1,05."
+           "rationale": "0,05 adalah suku bunganya. Setiap tahun tabungan dikalikan 1 + 0,05 = 1,05.",
+           "misconception_code": "SMA10-M-B2-05"
           }
          ]
         }
@@ -1800,6 +1896,148 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SMA10-M-B2-01",
+   "label": "Tanda beda keliru",
+   "description": "Beda dihitung dari suku sebelumnya dikurangi suku sesudahnya, sehingga tandanya terbalik.",
+   "remediation": "Hitung b = U_{2} − U_{1}: suku sesudah dikurangi suku sebelum. Barisan yang turun bedanya negatif."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SMA10-M-B2-02",
+   "label": "Suku dan beda atau rasio tertukar",
+   "description": "Yang ditulis suku lain dari barisan, bukan beda atau rasionya, atau selisih dua suku yang tidak berdekatan.",
+   "remediation": "Beda dan rasio selalu dihitung dari dua suku yang berdekatan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SMA10-M-B2-03",
+   "label": "Banyak langkah n, bukan n − 1",
+   "description": "Beda atau rasio dipakai sebanyak n kali, padahal dari U_{1} ke U_{n} hanya ada n − 1 langkah.",
+   "remediation": "Tulis U_{1}, U_{2}, U_{3} dan hitung berapa kali beda ditambahkan atau rasio dikalikan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SMA10-M-B2-04",
+   "label": "Aritmetika dan geometri tertukar",
+   "description": "Barisan yang dikalikan tetap dianggap bertambah tetap, atau sebaliknya.",
+   "remediation": "Periksa selisih dan hasil bagi dua suku berurutan: yang tetap menentukan jenis barisannya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SMA10-M-B2-05",
+   "label": "Rasio keliru",
+   "description": "Rasio dihitung terbalik (suku sebelum dibagi suku sesudah) atau dianggap sama dengan selisih.",
+   "remediation": "Hitung r = U_{2}/U_{1} dan periksa bahwa U_{1} × r = U_{2}."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SMA10-M-B2-06",
+   "label": "Rumus suku ke-n geometri keliru",
+   "description": "Suku pertama ikut dipangkatkan, atau rasio dikalikan dengan nomor suku.",
+   "remediation": "Hitung r^{n−1} dahulu, lalu kalikan dengan a."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SMA10-M-B2-07",
+   "label": "Jumlah deret aritmetika keliru",
+   "description": "Hasil tidak dibagi 2, atau yang dihitung hanya suku terakhir atau jumlah suku pertama dan terakhir.",
+   "remediation": "Pasangkan suku depan dan belakang seperti Gauss: ada n/2 pasang, masing-masing a + U_{n}."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SMA10-M-B2-08",
+   "label": "Barisan dan deret tertukar",
+   "description": "Suku ke-n dianggap jumlah, atau jumlah dianggap suku.",
+   "remediation": "Barisan adalah daftar suku; deret adalah jumlah suku-suku itu."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SMA10-M-B2-09",
+   "label": "Jumlah deret geometri keliru",
+   "description": "Pada S_{n} = a(rⁿ − 1)/(r − 1), dikurangi 1 atau pembagian dengan r − 1 terlupa.",
+   "remediation": "Periksa rumus dengan menjumlahkan beberapa suku pertama satu per satu."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SMA10-M-B2-10",
+   "label": "Syarat konvergen keliru",
+   "description": "Deret dianggap konvergen karena sukunya positif atau sama, bukan karena |r| < 1.",
+   "remediation": "Hitung r, lalu periksa apakah |r| < 1."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SMA10-M-B2-11",
+   "label": "Rumus jumlah tak hingga keliru",
+   "description": "Dipakai a/r, a/(1 + r), atau 1 − r tertukar dengan r.",
+   "remediation": "Turunkan lagi: S − rS = a, jadi S_{∞} = a/(1 − r)."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 13
+   },
+   "code": "SMA10-M-B2-12",
+   "label": "Jumlah beberapa suku dianggap jumlah tak hingga",
+   "description": "Hanya beberapa suku pertama yang dijumlahkan, padahal deretnya tidak berhenti.",
+   "remediation": "Hitung S_{∞} dengan rumus, lalu bandingkan dengan jumlah beberapa suku pertama."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 14
+   },
+   "code": "SMA10-M-B2-13",
+   "label": "Bunga tunggal dan majemuk tertukar",
+   "description": "Bunga majemuk dihitung seperti bunga tunggal dari pokok awal, atau sebaliknya.",
+   "remediation": "Tulis pokok setiap tahun: tetap pada bunga tunggal, bertambah pada bunga majemuk."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 15
+   },
+   "code": "SMA10-M-B2-14",
+   "label": "Bunga, nilai uang, dan lama periode tertukar",
+   "description": "Yang ditulis besar bunga padahal yang ditanya nilai uang, atau banyak tahunnya salah dihitung.",
+   "remediation": "Buat daftar tahun demi tahun: pokok, bunga, dan nilai uang di akhir tahun."
   }
  ]
 }

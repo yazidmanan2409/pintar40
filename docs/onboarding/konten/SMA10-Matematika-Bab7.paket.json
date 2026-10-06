@@ -63,7 +63,8 @@
            "label": "B",
            "body": "1/3",
            "is_correct": false,
-           "rationale": "Hanya dua bilangan genap yang terhitung (2/6). Bilangan genapnya 2, 4, dan 6."
+           "rationale": "Hanya dua bilangan genap yang terhitung (2/6). Bilangan genapnya 2, 4, dan 6.",
+           "misconception_code": "SMA10-M-B7-04"
           },
           {
            "_row": {
@@ -73,7 +74,8 @@
            "label": "C",
            "body": "3",
            "is_correct": false,
-           "rationale": "Itu banyaknya hasil genap. Peluang = 3 : 6."
+           "rationale": "Itu banyaknya hasil genap. Peluang = 3 : 6.",
+           "misconception_code": "SMA10-M-B7-12"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "1/6",
            "is_correct": false,
-           "rationale": "Itu peluang satu angka tertentu, misalnya angka 6."
+           "rationale": "Itu peluang satu angka tertentu, misalnya angka 6.",
+           "misconception_code": "SMA10-M-B7-04"
           }
          ]
         },
@@ -106,7 +109,8 @@
            "label": "A",
            "body": "3/10",
            "is_correct": false,
-           "rationale": "Hanya bola merah yang dihitung. Bola hijau juga bukan biru."
+           "rationale": "Hanya bola merah yang dihitung. Bola hijau juga bukan biru.",
+           "misconception_code": "SMA10-M-B7-04"
           },
           {
            "_row": {
@@ -116,7 +120,8 @@
            "label": "B",
            "body": "1/5",
            "is_correct": false,
-           "rationale": "Hanya bola hijau yang dihitung. Bola merah juga bukan biru."
+           "rationale": "Hanya bola hijau yang dihitung. Bola merah juga bukan biru.",
+           "misconception_code": "SMA10-M-B7-04"
           },
           {
            "_row": {
@@ -136,7 +141,8 @@
            "label": "D",
            "body": "1",
            "is_correct": false,
-           "rationale": "Banyak bola bukan biru dibagi banyak bola biru (5 : 5). Pembaginya banyak seluruh bola, 10."
+           "rationale": "Banyak bola bukan biru dibagi banyak bola biru (5 : 5). Pembaginya banyak seluruh bola, 10.",
+           "misconception_code": "SMA10-M-B7-01"
           }
          ]
         },
@@ -158,7 +164,8 @@
            "label": "A",
            "body": "0",
            "is_correct": false,
-           "rationale": "Peluang 0 berarti kejadian tidak mungkin terjadi; nilai ini mungkin."
+           "rationale": "Peluang 0 berarti kejadian tidak mungkin terjadi; nilai ini mungkin.",
+           "misconception_code": "SMA10-M-B7-01"
           },
           {
            "_row": {
@@ -168,7 +175,8 @@
            "label": "B",
            "body": "1",
            "is_correct": false,
-           "rationale": "Peluang 1 berarti kejadian pasti terjadi; nilai ini mungkin."
+           "rationale": "Peluang 1 berarti kejadian pasti terjadi; nilai ini mungkin.",
+           "misconception_code": "SMA10-M-B7-01"
           },
           {
            "_row": {
@@ -178,7 +186,8 @@
            "label": "C",
            "body": "0,5",
            "is_correct": false,
-           "rationale": "0,5 berada di antara 0 dan 1; nilai ini mungkin."
+           "rationale": "0,5 berada di antara 0 dan 1; nilai ini mungkin.",
+           "misconception_code": "SMA10-M-B7-01"
           },
           {
            "_row": {
@@ -210,7 +219,8 @@
            "label": "A",
            "body": "12",
            "is_correct": false,
-           "rationale": "Banyaknya sisi dijumlahkan (6 + 6). Pasangannya dihitung dengan 6 × 6."
+           "rationale": "Banyaknya sisi dijumlahkan (6 + 6). Pasangannya dihitung dengan 6 × 6.",
+           "misconception_code": "SMA10-M-B7-02"
           },
           {
            "_row": {
@@ -230,7 +240,8 @@
            "label": "C",
            "body": "21",
            "is_correct": false,
-           "rationale": "Pasangan seperti (2, 3) dan (3, 2) dianggap sama. Dadunya berbeda warna, jadi keduanya hasil yang berbeda."
+           "rationale": "Pasangan seperti (2, 3) dan (3, 2) dianggap sama. Dadunya berbeda warna, jadi keduanya hasil yang berbeda.",
+           "misconception_code": "SMA10-M-B7-02"
           },
           {
            "_row": {
@@ -240,7 +251,8 @@
            "label": "D",
            "body": "6",
            "is_correct": false,
-           "rationale": "Itu banyaknya hasil satu dadu saja."
+           "rationale": "Itu banyaknya hasil satu dadu saja.",
+           "misconception_code": "SMA10-M-B7-02"
           }
          ]
         },
@@ -272,7 +284,8 @@
            "label": "B",
            "body": "hasil yang sama",
            "is_correct": false,
-           "rationale": "Angkanya sama, tetapi dadu yang menunjukkannya berbeda."
+           "rationale": "Angkanya sama, tetapi dadu yang menunjukkannya berbeda.",
+           "misconception_code": "SMA10-M-B7-02"
           },
           {
            "_row": {
@@ -282,7 +295,8 @@
            "label": "C",
            "body": "hanya satu yang boleh dihitung",
            "is_correct": false,
-           "rationale": "Keduanya titik sampel dan keduanya dihitung dalam 36 hasil."
+           "rationale": "Keduanya titik sampel dan keduanya dihitung dalam 36 hasil.",
+           "misconception_code": "SMA10-M-B7-02"
           },
           {
            "_row": {
@@ -292,7 +306,8 @@
            "label": "D",
            "body": "tidak termasuk ruang sampel",
            "is_correct": false,
-           "rationale": "Keduanya termasuk ruang sampel, yang memuat semua 36 pasangan."
+           "rationale": "Keduanya termasuk ruang sampel, yang memuat semua 36 pasangan.",
+           "misconception_code": "SMA10-M-B7-02"
           }
          ]
         },
@@ -314,7 +329,8 @@
            "label": "A",
            "body": "2/3",
            "is_correct": false,
-           "rationale": "1 ikut dihitung (4/6). 1 bukan bilangan prima."
+           "rationale": "1 ikut dihitung (4/6). 1 bukan bilangan prima.",
+           "misconception_code": "SMA10-M-B7-04"
           },
           {
            "_row": {
@@ -324,7 +340,8 @@
            "label": "B",
            "body": "1/3",
            "is_correct": false,
-           "rationale": "2 terlewat (hanya 3 dan 5). 2 adalah bilangan prima."
+           "rationale": "2 terlewat (hanya 3 dan 5). 2 adalah bilangan prima.",
+           "misconception_code": "SMA10-M-B7-04"
           },
           {
            "_row": {
@@ -344,7 +361,8 @@
            "label": "D",
            "body": "1/6",
            "is_correct": false,
-           "rationale": "Hanya satu bilangan prima yang dihitung."
+           "rationale": "Hanya satu bilangan prima yang dihitung.",
+           "misconception_code": "SMA10-M-B7-04"
           }
          ]
         }
@@ -384,7 +402,8 @@
            "label": "A",
            "body": "1/12",
            "is_correct": false,
-           "rationale": "Hanya (1, 6), (2, 5), (3, 4) yang dihitung. (6, 1), (5, 2), (4, 3) adalah hasil yang berbeda."
+           "rationale": "Hanya (1, 6), (2, 5), (3, 4) yang dihitung. (6, 1), (5, 2), (4, 3) adalah hasil yang berbeda.",
+           "misconception_code": "SMA10-M-B7-02"
           },
           {
            "_row": {
@@ -394,7 +413,8 @@
            "label": "B",
            "body": "7/36",
            "is_correct": false,
-           "rationale": "Jumlah 7 dipakai sebagai banyaknya hasil. Banyaknya pasangan berjumlah 7 adalah 6."
+           "rationale": "Jumlah 7 dipakai sebagai banyaknya hasil. Banyaknya pasangan berjumlah 7 adalah 6.",
+           "misconception_code": "SMA10-M-B7-04"
           },
           {
            "_row": {
@@ -414,7 +434,8 @@
            "label": "D",
            "body": "1/11",
            "is_correct": false,
-           "rationale": "Jumlah 2 sampai 12 tidak sama kemungkinannya, jadi peluangnya tidak dapat dihitung dari 11 jumlah itu."
+           "rationale": "Jumlah 2 sampai 12 tidak sama kemungkinannya, jadi peluangnya tidak dapat dihitung dari 11 jumlah itu.",
+           "misconception_code": "SMA10-M-B7-03"
           }
          ]
         },
@@ -447,7 +468,8 @@
            "label": "B",
            "body": "5/36",
            "is_correct": false,
-           "rationale": "Jumlah 12, yaitu (6, 6), terlewat: yang dihitung hanya 3 + 2 cara."
+           "rationale": "Jumlah 12, yaitu (6, 6), terlewat: yang dihitung hanya 3 + 2 cara.",
+           "misconception_code": "SMA10-M-B7-04"
           },
           {
            "_row": {
@@ -457,7 +479,8 @@
            "label": "C",
            "body": "1/12",
            "is_correct": false,
-           "rationale": "Itu peluang jumlah 10 saja (3/36). «Setidaknya 10» juga mencakup 11 dan 12."
+           "rationale": "Itu peluang jumlah 10 saja (3/36). «Setidaknya 10» juga mencakup 11 dan 12.",
+           "misconception_code": "SMA10-M-B7-04"
           },
           {
            "_row": {
@@ -467,7 +490,8 @@
            "label": "D",
            "body": "3/11",
            "is_correct": false,
-           "rationale": "Tiga jumlah dari 11 jumlah yang mungkin dianggap sama kemungkinannya, padahal tidak."
+           "rationale": "Tiga jumlah dari 11 jumlah yang mungkin dianggap sama kemungkinannya, padahal tidak.",
+           "misconception_code": "SMA10-M-B7-03"
           }
          ]
         },
@@ -489,7 +513,8 @@
            "label": "A",
            "body": "1/36",
            "is_correct": false,
-           "rationale": "Itu peluang jumlah 2 saja."
+           "rationale": "Itu peluang jumlah 2 saja.",
+           "misconception_code": "SMA10-M-B7-04"
           },
           {
            "_row": {
@@ -509,7 +534,8 @@
            "label": "C",
            "body": "2/11",
            "is_correct": false,
-           "rationale": "Dua jumlah dari 11 jumlah dianggap sama kemungkinannya, padahal tidak."
+           "rationale": "Dua jumlah dari 11 jumlah dianggap sama kemungkinannya, padahal tidak.",
+           "misconception_code": "SMA10-M-B7-03"
           },
           {
            "_row": {
@@ -519,7 +545,8 @@
            "label": "D",
            "body": "1/18",
            "is_correct": false,
-           "rationale": "Itu peluang jumlah 3 saja."
+           "rationale": "Itu peluang jumlah 3 saja.",
+           "misconception_code": "SMA10-M-B7-04"
           }
          ]
         },
@@ -541,7 +568,8 @@
            "label": "A",
            "body": "36",
            "is_correct": false,
-           "rationale": "Itu banyaknya hasil dua dadu, bukan jumlah peluangnya."
+           "rationale": "Itu banyaknya hasil dua dadu, bukan jumlah peluangnya.",
+           "misconception_code": "SMA10-M-B7-12"
           },
           {
            "_row": {
@@ -551,7 +579,8 @@
            "label": "B",
            "body": "0",
            "is_correct": false,
-           "rationale": "Setiap peluang tidak negatif dan sedikitnya satu hasil pasti terjadi, jadi jumlahnya 1."
+           "rationale": "Setiap peluang tidak negatif dan sedikitnya satu hasil pasti terjadi, jadi jumlahnya 1.",
+           "misconception_code": "SMA10-M-B7-01"
           },
           {
            "_row": {
@@ -561,7 +590,8 @@
            "label": "C",
            "body": "11",
            "is_correct": false,
-           "rationale": "Itu banyaknya jumlah yang mungkin pada dua dadu, bukan jumlah peluangnya."
+           "rationale": "Itu banyaknya jumlah yang mungkin pada dua dadu, bukan jumlah peluangnya.",
+           "misconception_code": "SMA10-M-B7-12"
           },
           {
            "_row": {
@@ -593,7 +623,8 @@
            "label": "A",
            "body": "1/3",
            "is_correct": false,
-           "rationale": "GG, satu G, dan AA dianggap sama kemungkinannya. Satu G dapat terjadi dengan dua cara."
+           "rationale": "GG, satu G, dan AA dianggap sama kemungkinannya. Satu G dapat terjadi dengan dua cara.",
+           "misconception_code": "SMA10-M-B7-03"
           },
           {
            "_row": {
@@ -603,7 +634,8 @@
            "label": "B",
            "body": "1/4",
            "is_correct": false,
-           "rationale": "Hanya GA yang dihitung; AG juga memuat tepat satu gambar."
+           "rationale": "Hanya GA yang dihitung; AG juga memuat tepat satu gambar.",
+           "misconception_code": "SMA10-M-B7-02"
           },
           {
            "_row": {
@@ -623,7 +655,8 @@
            "label": "D",
            "body": "3/4",
            "is_correct": false,
-           "rationale": "Itu peluang setidaknya satu gambar; GG memuat dua gambar."
+           "rationale": "Itu peluang setidaknya satu gambar; GG memuat dua gambar.",
+           "misconception_code": "SMA10-M-B7-04"
           }
          ]
         },
@@ -655,7 +688,8 @@
            "label": "B",
            "body": "12",
            "is_correct": false,
-           "rationale": "Jumlah 12 hanya dapat terjadi dengan 1 cara, (6, 6)."
+           "rationale": "Jumlah 12 hanya dapat terjadi dengan 1 cara, (6, 6).",
+           "misconception_code": "SMA10-M-B7-03"
           },
           {
            "_row": {
@@ -665,7 +699,8 @@
            "label": "C",
            "body": "2",
            "is_correct": false,
-           "rationale": "Jumlah 2 hanya dapat terjadi dengan 1 cara, (1, 1)."
+           "rationale": "Jumlah 2 hanya dapat terjadi dengan 1 cara, (1, 1).",
+           "misconception_code": "SMA10-M-B7-03"
           },
           {
            "_row": {
@@ -675,7 +710,8 @@
            "label": "D",
            "body": "6 dan 8",
            "is_correct": false,
-           "rationale": "Masing-masing dapat terjadi dengan 5 cara, satu cara lebih sedikit daripada jumlah 7."
+           "rationale": "Masing-masing dapat terjadi dengan 5 cara, satu cara lebih sedikit daripada jumlah 7.",
+           "misconception_code": "SMA10-M-B7-03"
           }
          ]
         }
@@ -715,7 +751,8 @@
            "label": "A",
            "body": "200",
            "is_correct": false,
-           "rationale": "Itu frekuensi harapan muncul angka selain 6 (240 − 40)."
+           "rationale": "Itu frekuensi harapan muncul angka selain 6 (240 − 40).",
+           "misconception_code": "SMA10-M-B7-06"
           },
           {
            "_row": {
@@ -725,7 +762,8 @@
            "label": "B",
            "body": "6",
            "is_correct": false,
-           "rationale": "Itu angka mata dadunya, bukan berapa kali ia diharapkan muncul."
+           "rationale": "Itu angka mata dadunya, bukan berapa kali ia diharapkan muncul.",
+           "misconception_code": "SMA10-M-B7-06"
           },
           {
            "_row": {
@@ -735,7 +773,8 @@
            "label": "C",
            "body": "80",
            "is_correct": false,
-           "rationale": "Dipakai peluang 2/6, misalnya angka 5 atau 6. Peluang angka 6 adalah 1/6."
+           "rationale": "Dipakai peluang 2/6, misalnya angka 5 atau 6. Peluang angka 6 adalah 1/6.",
+           "misconception_code": "SMA10-M-B7-06"
           },
           {
            "_row": {
@@ -768,7 +807,8 @@
            "label": "A",
            "body": "0,5",
            "is_correct": false,
-           "rationale": "Itu peluang teoretisnya. Frekuensi relatif dihitung dari hasil percobaan."
+           "rationale": "Itu peluang teoretisnya. Frekuensi relatif dihitung dari hasil percobaan.",
+           "misconception_code": "SMA10-M-B7-05"
           },
           {
            "_row": {
@@ -788,7 +828,8 @@
            "label": "C",
            "body": "28",
            "is_correct": false,
-           "rationale": "Itu banyaknya gambar muncul. Masih dibagi banyak percobaan."
+           "rationale": "Itu banyaknya gambar muncul. Masih dibagi banyak percobaan.",
+           "misconception_code": "SMA10-M-B7-12"
           },
           {
            "_row": {
@@ -798,7 +839,8 @@
            "label": "D",
            "body": "0,44",
            "is_correct": false,
-           "rationale": "Itu frekuensi relatif angka (22 : 50), bukan gambar."
+           "rationale": "Itu frekuensi relatif angka (22 : 50), bukan gambar.",
+           "misconception_code": "SMA10-M-B7-05"
           }
          ]
         },
@@ -830,7 +872,8 @@
            "label": "B",
            "body": "0,3",
            "is_correct": false,
-           "rationale": "Itu peluangnya. Masih dikalikan dengan banyak percobaan."
+           "rationale": "Itu peluangnya. Masih dikalikan dengan banyak percobaan.",
+           "misconception_code": "SMA10-M-B7-06"
           },
           {
            "_row": {
@@ -840,7 +883,8 @@
            "label": "C",
            "body": "35",
            "is_correct": false,
-           "rationale": "Itu frekuensi harapan kejadian itu tidak terjadi (50 − 15)."
+           "rationale": "Itu frekuensi harapan kejadian itu tidak terjadi (50 − 15).",
+           "misconception_code": "SMA10-M-B7-06"
           },
           {
            "_row": {
@@ -850,7 +894,8 @@
            "label": "D",
            "body": "3",
            "is_correct": false,
-           "rationale": "0,3 dikalikan 10, bukan 50."
+           "rationale": "0,3 dikalikan 10, bukan 50.",
+           "misconception_code": "SMA10-M-B7-06"
           }
          ]
         },
@@ -872,7 +917,8 @@
            "label": "A",
            "body": "makin menjauhi peluang teoretis",
            "is_correct": false,
-           "rationale": "Kebalikannya: percobaan yang lebih banyak membuat hasilnya makin mendekati peluang teoretis."
+           "rationale": "Kebalikannya: percobaan yang lebih banyak membuat hasilnya makin mendekati peluang teoretis.",
+           "misconception_code": "SMA10-M-B7-05"
           },
           {
            "_row": {
@@ -882,7 +928,8 @@
            "label": "B",
            "body": "selalu sama dengan peluang teoretis",
            "is_correct": false,
-           "rationale": "Frekuensi relatif dapat berbeda dari peluang teoretis, misalnya 8/20 untuk angka genap."
+           "rationale": "Frekuensi relatif dapat berbeda dari peluang teoretis, misalnya 8/20 untuk angka genap.",
+           "misconception_code": "SMA10-M-B7-05"
           },
           {
            "_row": {
@@ -902,7 +949,8 @@
            "label": "D",
            "body": "makin besar",
            "is_correct": false,
-           "rationale": "Frekuensi relatif tidak selalu naik; ia makin mendekati peluang teoretis."
+           "rationale": "Frekuensi relatif tidak selalu naik; ia makin mendekati peluang teoretis.",
+           "misconception_code": "SMA10-M-B7-05"
           }
          ]
         },
@@ -924,7 +972,8 @@
            "label": "A",
            "body": "1/6",
            "is_correct": false,
-           "rationale": "Itu peluang teoretisnya. Frekuensi relatif dihitung dari hasil percobaan."
+           "rationale": "Itu peluang teoretisnya. Frekuensi relatif dihitung dari hasil percobaan.",
+           "misconception_code": "SMA10-M-B7-05"
           },
           {
            "_row": {
@@ -934,7 +983,8 @@
            "label": "B",
            "body": "12",
            "is_correct": false,
-           "rationale": "Itu banyaknya angka 3 muncul. Masih dibagi 60."
+           "rationale": "Itu banyaknya angka 3 muncul. Masih dibagi 60.",
+           "misconception_code": "SMA10-M-B7-12"
           },
           {
            "_row": {
@@ -944,7 +994,8 @@
            "label": "C",
            "body": "4/5",
            "is_correct": false,
-           "rationale": "Itu frekuensi relatif muncul angka selain 3 (48 : 60)."
+           "rationale": "Itu frekuensi relatif muncul angka selain 3 (48 : 60).",
+           "misconception_code": "SMA10-M-B7-05"
           },
           {
            "_row": {
@@ -976,7 +1027,8 @@
            "label": "A",
            "body": "tepat 100 kali, karena 1/2 × 200 = 100 pasti terjadi",
            "is_correct": false,
-           "rationale": "1/2 × 200 = 100 adalah harapan; hasil sebenarnya dapat berbeda."
+           "rationale": "1/2 × 200 = 100 adalah harapan; hasil sebenarnya dapat berbeda.",
+           "misconception_code": "SMA10-M-B7-06"
           },
           {
            "_row": {
@@ -996,7 +1048,8 @@
            "label": "C",
            "body": "100 kali atau lebih",
            "is_correct": false,
-           "rationale": "Hasil sebenarnya dapat juga kurang dari 100."
+           "rationale": "Hasil sebenarnya dapat juga kurang dari 100.",
+           "misconception_code": "SMA10-M-B7-06"
           },
           {
            "_row": {
@@ -1006,7 +1059,8 @@
            "label": "D",
            "body": "kurang dari 100 kali",
            "is_correct": false,
-           "rationale": "Hasil sebenarnya dapat juga 100 atau lebih."
+           "rationale": "Hasil sebenarnya dapat juga 100 atau lebih.",
+           "misconception_code": "SMA10-M-B7-06"
           }
          ]
         }
@@ -1046,7 +1100,8 @@
            "label": "A",
            "body": "jumlah 8 dan dua angka sama",
            "is_correct": false,
-           "rationale": "(4, 4) memenuhi keduanya, jadi tidak saling lepas."
+           "rationale": "(4, 4) memenuhi keduanya, jadi tidak saling lepas.",
+           "misconception_code": "SMA10-M-B7-07"
           },
           {
            "_row": {
@@ -1066,7 +1121,8 @@
            "label": "C",
            "body": "jumlah 12 dan muncul angka 6",
            "is_correct": false,
-           "rationale": "(6, 6) memenuhi keduanya, jadi tidak saling lepas."
+           "rationale": "(6, 6) memenuhi keduanya, jadi tidak saling lepas.",
+           "misconception_code": "SMA10-M-B7-07"
           },
           {
            "_row": {
@@ -1076,7 +1132,8 @@
            "label": "D",
            "body": "jumlah genap dan dua angka sama",
            "is_correct": false,
-           "rationale": "Setiap hasil dengan dua angka sama berjumlah genap, jadi keduanya dapat terjadi bersamaan."
+           "rationale": "Setiap hasil dengan dua angka sama berjumlah genap, jadi keduanya dapat terjadi bersamaan.",
+           "misconception_code": "SMA10-M-B7-07"
           }
          ]
         },
@@ -1099,7 +1156,8 @@
            "label": "A",
            "body": "1/18",
            "is_correct": false,
-           "rationale": "Itu peluang salah satu jumlah saja (2/36). «Atau» menjumlahkan kedua peluang."
+           "rationale": "Itu peluang salah satu jumlah saja (2/36). «Atau» menjumlahkan kedua peluang.",
+           "misconception_code": "SMA10-M-B7-09"
           },
           {
            "_row": {
@@ -1119,7 +1177,8 @@
            "label": "C",
            "body": "1/324",
            "is_correct": false,
-           "rationale": "Kedua peluang dikalikan. Untuk «atau» pada kejadian saling lepas, peluangnya dijumlahkan."
+           "rationale": "Kedua peluang dikalikan. Untuk «atau» pada kejadian saling lepas, peluangnya dijumlahkan.",
+           "misconception_code": "SMA10-M-B7-09"
           },
           {
            "_row": {
@@ -1129,7 +1188,8 @@
            "label": "D",
            "body": "2/11",
            "is_correct": false,
-           "rationale": "Dua jumlah dari 11 jumlah dianggap sama kemungkinannya, padahal tidak."
+           "rationale": "Dua jumlah dari 11 jumlah dianggap sama kemungkinannya, padahal tidak.",
+           "misconception_code": "SMA10-M-B7-03"
           }
          ]
         },
@@ -1151,7 +1211,8 @@
            "label": "A",
            "body": "selalu terjadi bersamaan",
            "is_correct": false,
-           "rationale": "Kebalikannya: kejadian saling lepas tidak dapat terjadi bersamaan."
+           "rationale": "Kebalikannya: kejadian saling lepas tidak dapat terjadi bersamaan.",
+           "misconception_code": "SMA10-M-B7-07"
           },
           {
            "_row": {
@@ -1161,7 +1222,8 @@
            "label": "B",
            "body": "peluangnya sama besar",
            "is_correct": false,
-           "rationale": "Besar peluang tidak menentukan saling lepas atau tidaknya."
+           "rationale": "Besar peluang tidak menentukan saling lepas atau tidaknya.",
+           "misconception_code": "SMA10-M-B7-07"
           },
           {
            "_row": {
@@ -1181,7 +1243,8 @@
            "label": "D",
            "body": "yang satu tidak memengaruhi peluang yang lain",
            "is_correct": false,
-           "rationale": "Itu pengertian kejadian saling bebas, bukan saling lepas."
+           "rationale": "Itu pengertian kejadian saling bebas, bukan saling lepas.",
+           "misconception_code": "SMA10-M-B7-11"
           }
          ]
         },
@@ -1213,7 +1276,8 @@
            "label": "B",
            "body": "angka genap dan angka lebih dari 3",
            "is_correct": false,
-           "rationale": "4 dan 6 memenuhi keduanya."
+           "rationale": "4 dan 6 memenuhi keduanya.",
+           "misconception_code": "SMA10-M-B7-07"
           },
           {
            "_row": {
@@ -1223,7 +1287,8 @@
            "label": "C",
            "body": "angka prima dan angka ganjil",
            "is_correct": false,
-           "rationale": "3 dan 5 memenuhi keduanya."
+           "rationale": "3 dan 5 memenuhi keduanya.",
+           "misconception_code": "SMA10-M-B7-07"
           },
           {
            "_row": {
@@ -1233,7 +1298,8 @@
            "label": "D",
            "body": "angka kurang dari 3 dan angka genap",
            "is_correct": false,
-           "rationale": "2 memenuhi keduanya."
+           "rationale": "2 memenuhi keduanya.",
+           "misconception_code": "SMA10-M-B7-07"
           }
          ]
         },
@@ -1255,7 +1321,8 @@
            "label": "A",
            "body": "1/36",
            "is_correct": false,
-           "rationale": "Kedua peluang dikalikan. Untuk «atau» pada kejadian saling lepas, peluangnya dijumlahkan."
+           "rationale": "Kedua peluang dikalikan. Untuk «atau» pada kejadian saling lepas, peluangnya dijumlahkan.",
+           "misconception_code": "SMA10-M-B7-09"
           },
           {
            "_row": {
@@ -1275,7 +1342,8 @@
            "label": "C",
            "body": "1/6",
            "is_correct": false,
-           "rationale": "Itu peluang satu angka saja."
+           "rationale": "Itu peluang satu angka saja.",
+           "misconception_code": "SMA10-M-B7-09"
           },
           {
            "_row": {
@@ -1285,7 +1353,8 @@
            "label": "D",
            "body": "1/12",
            "is_correct": false,
-           "rationale": "Dua hasil dibagi 24, seolah ada 24 hasil. Ruang sampelnya hanya 6."
+           "rationale": "Dua hasil dibagi 24, seolah ada 24 hasil. Ruang sampelnya hanya 6.",
+           "misconception_code": "SMA10-M-B7-02"
           }
          ]
         }
@@ -1325,7 +1394,8 @@
            "label": "A",
            "body": "0,9",
            "is_correct": false,
-           "rationale": "P(A ∩ B) belum dikurangkan, padahal A dan B tidak saling lepas."
+           "rationale": "P(A ∩ B) belum dikurangkan, padahal A dan B tidak saling lepas.",
+           "misconception_code": "SMA10-M-B7-08"
           },
           {
            "_row": {
@@ -1335,7 +1405,8 @@
            "label": "B",
            "body": "0,2",
            "is_correct": false,
-           "rationale": "Itu P(A ∩ B), peluang A dan B terjadi bersamaan."
+           "rationale": "Itu P(A ∩ B), peluang A dan B terjadi bersamaan.",
+           "misconception_code": "SMA10-M-B7-10"
           },
           {
            "_row": {
@@ -1345,7 +1416,8 @@
            "label": "C",
            "body": "1,1",
            "is_correct": false,
-           "rationale": "P(A ∩ B) ditambahkan, bukan dikurangkan. Peluang juga tidak mungkin lebih dari 1."
+           "rationale": "P(A ∩ B) ditambahkan, bukan dikurangkan. Peluang juga tidak mungkin lebih dari 1.",
+           "misconception_code": "SMA10-M-B7-10"
           },
           {
            "_row": {
@@ -1388,7 +1460,8 @@
            "label": "B",
            "body": "1/4",
            "is_correct": false,
-           "rationale": "Irisan (5, 5) tidak dikurangkan: 6/36 + 3/36 = 9/36."
+           "rationale": "Irisan (5, 5) tidak dikurangkan: 6/36 + 3/36 = 9/36.",
+           "misconception_code": "SMA10-M-B7-08"
           },
           {
            "_row": {
@@ -1398,7 +1471,8 @@
            "label": "C",
            "body": "1/36",
            "is_correct": false,
-           "rationale": "Itu peluang keduanya terjadi, yaitu (5, 5) saja."
+           "rationale": "Itu peluang keduanya terjadi, yaitu (5, 5) saja.",
+           "misconception_code": "SMA10-M-B7-10"
           },
           {
            "_row": {
@@ -1408,7 +1482,8 @@
            "label": "D",
            "body": "7/36",
            "is_correct": false,
-           "rationale": "Irisan dikurangkan dua kali: (6 + 3 − 2)/36. Irisan dikurangkan satu kali."
+           "rationale": "Irisan dikurangkan dua kali: (6 + 3 − 2)/36. Irisan dikurangkan satu kali.",
+           "misconception_code": "SMA10-M-B7-10"
           }
          ]
         },
@@ -1430,7 +1505,8 @@
            "label": "A",
            "body": "P(A ∪ B) = P(A) + P(B)",
            "is_correct": false,
-           "rationale": "Itu hanya berlaku jika A dan B saling lepas."
+           "rationale": "Itu hanya berlaku jika A dan B saling lepas.",
+           "misconception_code": "SMA10-M-B7-08"
           },
           {
            "_row": {
@@ -1440,7 +1516,8 @@
            "label": "B",
            "body": "P(A ∪ B) = P(A) × P(B)",
            "is_correct": false,
-           "rationale": "Perkalian dipakai untuk «dan» pada kejadian saling bebas, bukan untuk «atau»."
+           "rationale": "Perkalian dipakai untuk «dan» pada kejadian saling bebas, bukan untuk «atau».",
+           "misconception_code": "SMA10-M-B7-09"
           },
           {
            "_row": {
@@ -1450,7 +1527,8 @@
            "label": "C",
            "body": "P(A ∪ B) = P(A) + P(B) + P(A ∩ B)",
            "is_correct": false,
-           "rationale": "Irisannya dikurangkan, bukan ditambahkan."
+           "rationale": "Irisannya dikurangkan, bukan ditambahkan.",
+           "misconception_code": "SMA10-M-B7-10"
           },
           {
            "_row": {
@@ -1482,7 +1560,8 @@
            "label": "A",
            "body": "1",
            "is_correct": false,
-           "rationale": "Irisan {4, 6} tidak dikurangkan: 3/6 + 3/6 = 1."
+           "rationale": "Irisan {4, 6} tidak dikurangkan: 3/6 + 3/6 = 1.",
+           "misconception_code": "SMA10-M-B7-08"
           },
           {
            "_row": {
@@ -1492,7 +1571,8 @@
            "label": "B",
            "body": "1/3",
            "is_correct": false,
-           "rationale": "Itu peluang irisannya, {4, 6}."
+           "rationale": "Itu peluang irisannya, {4, 6}.",
+           "misconception_code": "SMA10-M-B7-10"
           },
           {
            "_row": {
@@ -1502,7 +1582,8 @@
            "label": "C",
            "body": "1/2",
            "is_correct": false,
-           "rationale": "Itu peluang angka genap saja."
+           "rationale": "Itu peluang angka genap saja.",
+           "misconception_code": "SMA10-M-B7-04"
           },
           {
            "_row": {
@@ -1534,7 +1615,8 @@
            "label": "A",
            "body": "karena jumlah P(A) dan P(B) harus lebih kecil dari 1",
            "is_correct": false,
-           "rationale": "Jumlah P(A) dan P(B) boleh lebih dari 1; yang dikurangkan adalah bagian yang terhitung dua kali."
+           "rationale": "Jumlah P(A) dan P(B) boleh lebih dari 1; yang dikurangkan adalah bagian yang terhitung dua kali.",
+           "misconception_code": "SMA10-M-B7-10"
           },
           {
            "_row": {
@@ -1554,7 +1636,8 @@
            "label": "C",
            "body": "karena A dan B saling bebas",
            "is_correct": false,
-           "rationale": "Aturan penjumlahan tidak memerlukan kejadian saling bebas."
+           "rationale": "Aturan penjumlahan tidak memerlukan kejadian saling bebas.",
+           "misconception_code": "SMA10-M-B7-11"
           },
           {
            "_row": {
@@ -1564,7 +1647,8 @@
            "label": "D",
            "body": "karena irisan selalu kosong",
            "is_correct": false,
-           "rationale": "Jika irisannya kosong, kejadiannya saling lepas dan tidak ada yang dikurangkan."
+           "rationale": "Jika irisannya kosong, kejadiannya saling lepas dan tidak ada yang dikurangkan.",
+           "misconception_code": "SMA10-M-B7-07"
           }
          ]
         }
@@ -1604,7 +1688,8 @@
            "label": "A",
            "body": "1/2",
            "is_correct": false,
-           "rationale": "Itu peluang untuk satu uang logam saja."
+           "rationale": "Itu peluang untuk satu uang logam saja.",
+           "misconception_code": "SMA10-M-B7-09"
           },
           {
            "_row": {
@@ -1614,7 +1699,8 @@
            "label": "B",
            "body": "1/3",
            "is_correct": false,
-           "rationale": "GG, satu G, dan AA dianggap tiga hasil yang sama kemungkinannya. Satu G dapat terjadi dengan dua cara, GA dan AG."
+           "rationale": "GG, satu G, dan AA dianggap tiga hasil yang sama kemungkinannya. Satu G dapat terjadi dengan dua cara, GA dan AG.",
+           "misconception_code": "SMA10-M-B7-03"
           },
           {
            "_row": {
@@ -1624,7 +1710,8 @@
            "label": "C",
            "body": "3/4",
            "is_correct": false,
-           "rationale": "Itu peluang setidaknya satu gambar."
+           "rationale": "Itu peluang setidaknya satu gambar.",
+           "misconception_code": "SMA10-M-B7-04"
           },
           {
            "_row": {
@@ -1657,7 +1744,8 @@
            "label": "A",
            "body": "2/3",
            "is_correct": false,
-           "rationale": "Kedua peluang dijumlahkan. Untuk «dan» pada kejadian saling bebas, peluangnya dikalikan."
+           "rationale": "Kedua peluang dijumlahkan. Untuk «dan» pada kejadian saling bebas, peluangnya dikalikan.",
+           "misconception_code": "SMA10-M-B7-09"
           },
           {
            "_row": {
@@ -1667,7 +1755,8 @@
            "label": "B",
            "body": "1/6",
            "is_correct": false,
-           "rationale": "Itu peluang angka 6 saja; syarat gambar belum diperhitungkan."
+           "rationale": "Itu peluang angka 6 saja; syarat gambar belum diperhitungkan.",
+           "misconception_code": "SMA10-M-B7-09"
           },
           {
            "_row": {
@@ -1687,7 +1776,8 @@
            "label": "D",
            "body": "7/12",
            "is_correct": false,
-           "rationale": "Itu peluang angka 6 atau gambar (1/6 + 1/2 − 1/12). Yang ditanya keduanya terjadi."
+           "rationale": "Itu peluang angka 6 atau gambar (1/6 + 1/2 − 1/12). Yang ditanya keduanya terjadi.",
+           "misconception_code": "SMA10-M-B7-09"
           }
          ]
         },
@@ -1719,7 +1809,8 @@
            "label": "B",
            "body": "1/6",
            "is_correct": false,
-           "rationale": "Banyaknya hasil dijumlahkan (2 + 2 + 2). Ruang sampelnya 2 × 2 × 2 = 8."
+           "rationale": "Banyaknya hasil dijumlahkan (2 + 2 + 2). Ruang sampelnya 2 × 2 × 2 = 8.",
+           "misconception_code": "SMA10-M-B7-02"
           },
           {
            "_row": {
@@ -1729,7 +1820,8 @@
            "label": "C",
            "body": "3/8",
            "is_correct": false,
-           "rationale": "Itu peluang tepat dua gambar."
+           "rationale": "Itu peluang tepat dua gambar.",
+           "misconception_code": "SMA10-M-B7-04"
           },
           {
            "_row": {
@@ -1739,7 +1831,8 @@
            "label": "D",
            "body": "1/2",
            "is_correct": false,
-           "rationale": "Itu peluang satu lemparan saja. Ketiga lemparan harus gambar."
+           "rationale": "Itu peluang satu lemparan saja. Ketiga lemparan harus gambar.",
+           "misconception_code": "SMA10-M-B7-09"
           }
          ]
         },
@@ -1761,7 +1854,8 @@
            "label": "A",
            "body": "saling bebas, karena bolanya sama",
            "is_correct": false,
-           "rationale": "Tanpa pengembalian, peluang pengambilan kedua bergantung pada hasil pertama."
+           "rationale": "Tanpa pengembalian, peluang pengambilan kedua bergantung pada hasil pertama.",
+           "misconception_code": "SMA10-M-B7-11"
           },
           {
            "_row": {
@@ -1771,7 +1865,8 @@
            "label": "B",
            "body": "saling lepas, karena bola berbeda",
            "is_correct": false,
-           "rationale": "Saling lepas membicarakan dua kejadian pada satu hasil; yang ditanya apakah pengambilan pertama memengaruhi yang kedua."
+           "rationale": "Saling lepas membicarakan dua kejadian pada satu hasil; yang ditanya apakah pengambilan pertama memengaruhi yang kedua.",
+           "misconception_code": "SMA10-M-B7-07"
           },
           {
            "_row": {
@@ -1791,7 +1886,8 @@
            "label": "D",
            "body": "saling bebas, karena diambil satu per satu",
            "is_correct": false,
-           "rationale": "Diambil satu per satu tidak cukup; tanpa pengembalian, isi tas berubah."
+           "rationale": "Diambil satu per satu tidak cukup; tanpa pengembalian, isi tas berubah.",
+           "misconception_code": "SMA10-M-B7-11"
           }
          ]
         }
@@ -1800,6 +1896,128 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SMA10-M-B7-01",
+   "label": "Peluang di luar 0 sampai 1",
+   "description": "Nilai peluang lebih dari 1 atau negatif dianggap mungkin, atau peluang ditulis sebagai banyaknya hasil.",
+   "remediation": "Ingat: peluang adalah bagian dari seluruh hasil, jadi selalu dari 0 sampai 1."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SMA10-M-B7-02",
+   "label": "Ruang sampel keliru",
+   "description": "Urutan hasil diabaikan (misalnya (2, 3) dan (3, 2) dianggap satu), atau banyaknya dijumlahkan, bukan dikalikan.",
+   "remediation": "Tulis semua pasangan dalam tabel 6 × 6 untuk dua dadu."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SMA10-M-B7-03",
+   "label": "Hasil yang tidak sama kemungkinannya dianggap sama",
+   "description": "Peluang dihitung dari daftar hasil yang tidak sama kemungkinannya, misalnya 11 jumlah dua dadu.",
+   "remediation": "Hitung dari hasil-hasil dasar yang sama kemungkinannya, misalnya 36 pasangan dadu."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SMA10-M-B7-04",
+   "label": "Titik sampel terlewat atau berlebih",
+   "description": "Ada hasil dalam kejadian yang tidak terhitung, atau bilangan yang tidak memenuhi ikut dihitung.",
+   "remediation": "Daftarkan hasil kejadian satu per satu, lalu periksa setiap hasil."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SMA10-M-B7-05",
+   "label": "Frekuensi relatif dan peluang teoretis tertukar",
+   "description": "Frekuensi relatif hasil percobaan disamakan dengan peluang teoretis, atau sebaliknya.",
+   "remediation": "Frekuensi relatif = banyak kejadian : banyak percobaan dari data percobaan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SMA10-M-B7-06",
+   "label": "Frekuensi harapan keliru",
+   "description": "Peluang tidak dikalikan dengan banyak percobaan, atau frekuensi harapan dianggap pasti terjadi.",
+   "remediation": "Frekuensi harapan = peluang × banyak percobaan, dan itu perkiraan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SMA10-M-B7-07",
+   "label": "Kejadian saling lepas tidak dikenali",
+   "description": "Dua kejadian yang dapat terjadi bersamaan dianggap saling lepas, atau sebaliknya.",
+   "remediation": "Cari satu hasil yang memenuhi kedua kejadian; jika ada, keduanya tidak saling lepas."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SMA10-M-B7-08",
+   "label": "Irisan tidak dikurangkan",
+   "description": "Pada kejadian yang tidak saling lepas, P(A) dan P(B) dijumlahkan tanpa mengurangkan P(A ∩ B).",
+   "remediation": "Gambar diagram Venn: irisannya terhitung dua kali."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SMA10-M-B7-09",
+   "label": "Aturan penjumlahan dan perkalian tertukar",
+   "description": "Untuk «atau» peluangnya dikalikan, atau untuk «dan» peluangnya dijumlahkan.",
+   "remediation": "«Atau» memakai aturan penjumlahan; «dan» pada kejadian saling bebas memakai aturan perkalian."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SMA10-M-B7-10",
+   "label": "Pengurangan irisan keliru",
+   "description": "Yang dikurangkan bukan P(A ∩ B), atau irisan dikurangkan lebih dari sekali.",
+   "remediation": "Kurangkan tepat satu kali peluang irisan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SMA10-M-B7-11",
+   "label": "Kejadian saling bebas tidak dikenali",
+   "description": "Pengambilan tanpa pengembalian dianggap saling bebas, atau lemparan terpisah dianggap saling memengaruhi.",
+   "remediation": "Tanyakan: apakah hasil pertama mengubah peluang hasil kedua?"
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 13
+   },
+   "code": "SMA10-M-B7-12",
+   "label": "Banyaknya kejadian dianggap peluang",
+   "description": "Yang ditulis banyaknya hasil atau banyaknya kejadian dalam percobaan, bukan perbandingannya.",
+   "remediation": "Bagi dengan banyak seluruh hasil atau banyak seluruh percobaan."
   }
  ]
 }

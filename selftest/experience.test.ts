@@ -1365,6 +1365,12 @@ export const experienceTests: SelfTest[] = [
       // (password_write_permits), two set-up columns (password_set_at, name_confirmed_at), the identity
       // functions and a trigger on auth.users; no colour, mark or brand surface.
       //
+      // MOVED 165 -> 169 for the closure's batch 3 (D-118, D-120, D-121). 20261129100000 publishes pintar-scoring/2 and
+      // makes a version's descriptors immutable (Q10); 20261130100000 counts a learner not yet assessed as such (CR-47);
+      // 20261201100000 seals a certificate at issuance and numbers it by its holder (CR-02, CR-01); 20261202100000 gives a
+      // misconception definition its content's owner (CR-50). Columns and replaced function bodies; no colour, mark or
+      // brand surface.
+      //
       // MOVED 164 -> 165 for ADM-18's template half. 20261128100000 replaces certificate_prepare's body again (the
       // number carries the school's saved prefix); no relation, column or new function; no colour, mark or brand surface.
       //
@@ -1653,7 +1659,7 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 165, `${migrations.length} migrations; the frozen baseline has 165`);
+      c.expect(migrations.length === 169, `${migrations.length} migrations; the frozen baseline has 169`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3348,7 +3354,8 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 164 -> 165 for ADM-18's prefix (20261128100000, a replaced function body), not a
+      // from, not a claim about the tour. MOVED 165 -> 169 for the closure's batch 3 (20261129100000 Q10, 20261130100000
+      // CR-47, 20261201100000 CR-02/CR-01, 20261202100000 CR-50), not a tour RPC (D-024). MOVED 164 -> 165 for ADM-18's prefix (20261128100000, a replaced function body), not a
       // tour RPC (D-024). MOVED 162 -> 164 for ADM-18 and STU-12 (20261126100000, 20261127100000: two
       // replaced function bodies), not a tour RPC (D-024). MOVED 161 -> 162 for #150 WP-B's backup role (20261125100000), not a tour RPC
       // (D-024). MOVED 160 -> 161 for C-12's finding, «Lihat per soal» an academic place only
@@ -3444,7 +3451,7 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 165, `${migs.length} migrations; the baseline has 165`);
+      c.expect(migs.length === 169, `${migs.length} migrations; the baseline has 169`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

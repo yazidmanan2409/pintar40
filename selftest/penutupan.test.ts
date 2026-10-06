@@ -6,12 +6,17 @@
  * and its line is absent from the certificate and from the public check, rather than a dash.
  * PENUTUPAN-S01 — CR-02 (D-078(c), D-077(d)): the learner's certificate page draws the school, the course and the
  * certificate's language from the certificate's own seal (my_certificate), never from today's school or assignment.
+ * PENUTUPAN-M04 — CR-50 (D-063 M5, D-120 Q9): every PINTAR chapter in docs/onboarding/konten is what the upload page
+ * makes of its workbook, and each wrong option names a misconception the same file defines on its «Miskonsepsi» sheet.
  */
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { t } from "../src/lib/hle";
+import { bacaBukuKerja } from "../src/lib/xlsx";
+import { bukuKerjaKePaket } from "../src/lib/unggah-kontrak";
+import { lokasiMasalah } from "../src/components/unggah/lokasi";
 
 function gambarKartu(repoRoot: string, kasus: { predikat: string | null; variant: "screen" | "sheet" }[]): { html: string[]; galat: string } {
   const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
@@ -87,6 +92,50 @@ export const penutupanTests: SelfTest[] = [
         "CertificateDetail does not carry the four sealed fields");
       return c.verdict("the learner's certificate page reads the school, the course and the language from the certificate's own seal " +
         "(my_certificate), on screen and on the A4 sheet; today's school and assignment are read only where the certificate predates the seal");
+    },
+  },
+  {
+    id: "PENUTUPAN-M04",
+    run: async (ctx) => {
+      const c = new Checks();
+      const dir = join(ctx.repoRoot, "docs", "onboarding", "konten");
+      const bab = readdirSync(dir).filter((f) => f.endsWith(".xlsx")).sort();
+      c.expect(bab.length >= 20, `only ${bab.length} chapter workbooks were found in docs/onboarding/konten`);
+      let salah = 0, definisi = 0;
+      for (const f of bab) {
+        const nama = f.replace(/\.xlsx$/, "");
+        const baca = bacaBukuKerja(new Uint8Array(readFileSync(join(dir, f))));
+        const hasil = baca.ok ? bukuKerjaKePaket(baca.lembar) : null;
+        if (!c.expect(hasil?.ok === true, `${f} does not convert: ${hasil && !hasil.ok ? JSON.stringify(hasil.problems.slice(0, 3)) : "unreadable"}`)) continue;
+        const paket = (hasil as { paket: { misconceptions?: { code: string }[] } }).paket;
+        const json = readFileSync(join(dir, `${nama}.paket.json`), "utf8");
+        c.expect(JSON.stringify(paket, null, 1) + "\n" === json, `${nama}.paket.json is not what the upload page makes of ${f}`);
+        const kode = new Set((paket.misconceptions ?? []).map((m) => m.code));
+        definisi += kode.size;
+        const dipakai = new Set<string>();
+        const opsi: { is_correct: boolean; misconception_code?: string | null; label?: string }[] = [];
+        const jalan = (x: unknown): void => {
+          if (Array.isArray(x)) { x.forEach(jalan); return; }
+          if (x && typeof x === "object") {
+            if ("is_correct" in x) opsi.push(x as (typeof opsi)[number]);
+            Object.values(x).forEach(jalan);
+          }
+        };
+        jalan((paket as { courses: unknown }).courses);
+        for (const o of opsi.filter((o) => !o.is_correct)) {
+          salah++;
+          c.expect(!!o.misconception_code && kode.has(o.misconception_code),
+            `${nama}: a wrong option names ${o.misconception_code ? `«${o.misconception_code}», which its «Miskonsepsi» sheet does not define` : "no misconception"}`);
+          if (o.misconception_code) dipakai.add(o.misconception_code);
+        }
+        for (const k of kode) c.expect(dipakai.has(k), `${nama}: «${k}» is defined but no wrong option names it`);
+      }
+      // a problem on the «Miskonsepsi» sheet is placed by the column's own header, as on every other sheet (DAISY-06)
+      const tempat = lokasiMasalah({ code: "MISCONCEPTION_TEXT_MISSING", sheet: "Miskonsepsi", row: 3, field: "remediation" }, "id");
+      c.expect(tempat === "Lembar Miskonsepsi, baris 3, kolom Cara membantu", `a «Miskonsepsi» problem's place reads "${tempat}"`);
+      return c.verdict(`each of the ${bab.length} PINTAR chapter workbooks in docs/onboarding/konten converts, with the upload page's own ` +
+        `reader and converter, to its committed .paket.json, and all ${salah} wrong options name one of the ${definisi} misconceptions ` +
+        "their own «Miskonsepsi» sheet defines, each of which is used; a problem on that sheet is placed by its column's header (D-063 M5, D-120 Q9)");
     },
   },
 ];

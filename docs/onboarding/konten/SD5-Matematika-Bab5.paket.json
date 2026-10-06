@@ -53,7 +53,8 @@
            "label": "A",
            "body": "Panjang pagar di sekeliling kebun",
            "is_correct": false,
-           "rationale": "Pagar mengikuti tepi kebun. Itu keliling, bukan luas."
+           "rationale": "Pagar mengikuti tepi kebun. Itu keliling, bukan luas.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -63,7 +64,8 @@
            "label": "B",
            "body": "Panjang pita untuk tepi bingkai foto",
            "is_correct": false,
-           "rationale": "Pita dipasang di tepi. Itu keliling, bukan luas."
+           "rationale": "Pita dipasang di tepi. Itu keliling, bukan luas.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "Jarak berlari satu kali mengelilingi lapangan",
            "is_correct": false,
-           "rationale": "Berlari mengelilingi lapangan menyusuri tepinya. Itu keliling."
+           "rationale": "Berlari mengelilingi lapangan menyusuri tepinya. Itu keliling.",
+           "misconception_code": "SD5-M-B5-01"
           }
          ]
         },
@@ -116,7 +119,8 @@
            "label": "B",
            "body": "10 m²",
            "is_correct": false,
-           "rationale": "Banyak baris dan banyak ubin setiap baris dijumlahkan. Setiap baris berisi 4 ubin, jadi dikalikan."
+           "rationale": "Banyak baris dan banyak ubin setiap baris dijumlahkan. Setiap baris berisi 4 ubin, jadi dikalikan.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -126,7 +130,8 @@
            "label": "C",
            "body": "20 m²",
            "is_correct": false,
-           "rationale": "Ini keliling teras, (2 × 6) + (2 × 4). Luas menghitung semua ubin di dalamnya."
+           "rationale": "Ini keliling teras, (2 × 6) + (2 × 4). Luas menghitung semua ubin di dalamnya.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -136,7 +141,8 @@
            "label": "D",
            "body": "16 m²",
            "is_correct": false,
-           "rationale": "Hanya ubin di tepi yang dihitung. Ubin di bagian dalam juga menutupi lantai."
+           "rationale": "Hanya ubin di tepi yang dihitung. Ubin di bagian dalam juga menutupi lantai.",
+           "misconception_code": "SD5-M-B5-01"
           }
          ]
         },
@@ -158,7 +164,8 @@
            "label": "A",
            "body": "10 satuan luas",
            "is_correct": false,
-           "rationale": "Hanya petak utuh yang dihitung. Potongan setengah juga menutupi daerah bangun itu."
+           "rationale": "Hanya petak utuh yang dihitung. Potongan setengah juga menutupi daerah bangun itu.",
+           "misconception_code": "SD5-M-B5-04"
           },
           {
            "_row": {
@@ -178,7 +185,8 @@
            "label": "C",
            "body": "14 satuan luas",
            "is_correct": false,
-           "rationale": "Setiap potongan setengah dihitung sebagai satu petak utuh."
+           "rationale": "Setiap potongan setengah dihitung sebagai satu petak utuh.",
+           "misconception_code": "SD5-M-B5-04"
           },
           {
            "_row": {
@@ -188,7 +196,8 @@
            "label": "D",
            "body": "18 satuan luas",
            "is_correct": false,
-           "rationale": "Setiap potongan setengah dihitung dua petak. Dua potongan setengah baru sama dengan satu petak."
+           "rationale": "Setiap potongan setengah dihitung dua petak. Dua potongan setengah baru sama dengan satu petak.",
+           "misconception_code": "SD5-M-B5-04"
           }
          ]
         },
@@ -210,7 +219,8 @@
            "label": "A",
            "body": "15 ubin",
            "is_correct": false,
-           "rationale": "Hanya satu kamar tidur yang dihitung. Ada dua kamar tidur."
+           "rationale": "Hanya satu kamar tidur yang dihitung. Ada dua kamar tidur.",
+           "misconception_code": "SD5-M-B5-10"
           },
           {
            "_row": {
@@ -220,7 +230,8 @@
            "label": "B",
            "body": "18 ubin",
            "is_correct": false,
-           "rationale": "Dapurnya terlewat; 18 ubin baru untuk dua kamar tidur."
+           "rationale": "Dapurnya terlewat; 18 ubin baru untuk dua kamar tidur.",
+           "misconception_code": "SD5-M-B5-10"
           },
           {
            "_row": {
@@ -240,7 +251,8 @@
            "label": "D",
            "body": "6 ubin",
            "is_correct": false,
-           "rationale": "Itu baru ubin untuk dapur. Kamar tidur juga harus dipasangi ubin."
+           "rationale": "Itu baru ubin untuk dapur. Kamar tidur juga harus dipasangi ubin.",
+           "misconception_code": "SD5-M-B5-10"
           }
          ]
         }
@@ -280,7 +292,8 @@
            "label": "A",
            "body": "28 cm²",
            "is_correct": false,
-           "rationale": "Sisi dikali 4. Itu keliling persegi, bukan luasnya."
+           "rationale": "Sisi dikali 4. Itu keliling persegi, bukan luasnya.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -290,7 +303,8 @@
            "label": "B",
            "body": "14 cm²",
            "is_correct": false,
-           "rationale": "Sisi dikali 2. Luas persegi adalah sisi dikali sisi."
+           "rationale": "Sisi dikali 2. Luas persegi adalah sisi dikali sisi.",
+           "misconception_code": "SD5-M-B5-11"
           },
           {
            "_row": {
@@ -300,7 +314,8 @@
            "label": "C",
            "body": "21 cm²",
            "is_correct": false,
-           "rationale": "Sisi dikali 3. Luas persegi adalah sisi dikali sisi."
+           "rationale": "Sisi dikali 3. Luas persegi adalah sisi dikali sisi.",
+           "misconception_code": "SD5-M-B5-11"
           },
           {
            "_row": {
@@ -333,7 +348,8 @@
            "label": "A",
            "body": "40 m²",
            "is_correct": false,
-           "rationale": "Ini keliling kebun, (2 × 13) + (2 × 7). Luas adalah panjang × lebar."
+           "rationale": "Ini keliling kebun, (2 × 13) + (2 × 7). Luas adalah panjang × lebar.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -343,7 +359,8 @@
            "label": "B",
            "body": "20 m²",
            "is_correct": false,
-           "rationale": "Panjang dan lebar dijumlahkan. Luas didapat dengan mengalikan."
+           "rationale": "Panjang dan lebar dijumlahkan. Luas didapat dengan mengalikan.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -363,7 +380,8 @@
            "label": "D",
            "body": "49 m²",
            "is_correct": false,
-           "rationale": "Lebar dikali lebar (7 × 7). Yang dikalikan adalah panjang dan lebar."
+           "rationale": "Lebar dikali lebar (7 × 7). Yang dikalikan adalah panjang dan lebar.",
+           "misconception_code": "SD5-M-B5-11"
           }
          ]
         },
@@ -395,7 +413,8 @@
            "label": "B",
            "body": "74 m²",
            "is_correct": false,
-           "rationale": "Ini keliling lapangan, (2 × 25) + (2 × 12)."
+           "rationale": "Ini keliling lapangan, (2 × 25) + (2 × 12).",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -405,7 +424,8 @@
            "label": "C",
            "body": "37 m²",
            "is_correct": false,
-           "rationale": "Panjang dan lebar dijumlahkan. Luas didapat dengan mengalikan."
+           "rationale": "Panjang dan lebar dijumlahkan. Luas didapat dengan mengalikan.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -415,7 +435,8 @@
            "label": "D",
            "body": "144 m²",
            "is_correct": false,
-           "rationale": "Lebar dikali lebar (12 × 12). Yang dikalikan panjang dan lebar."
+           "rationale": "Lebar dikali lebar (12 × 12). Yang dikalikan panjang dan lebar.",
+           "misconception_code": "SD5-M-B5-11"
           }
          ]
         },
@@ -437,7 +458,8 @@
            "label": "A",
            "body": "36 dm²",
            "is_correct": false,
-           "rationale": "Sisi dikali 4. Itu keliling taplak."
+           "rationale": "Sisi dikali 4. Itu keliling taplak.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -447,7 +469,8 @@
            "label": "B",
            "body": "18 dm²",
            "is_correct": false,
-           "rationale": "Sisi dikali 2. Luas persegi adalah sisi × sisi."
+           "rationale": "Sisi dikali 2. Luas persegi adalah sisi × sisi.",
+           "misconception_code": "SD5-M-B5-11"
           },
           {
            "_row": {
@@ -457,7 +480,8 @@
            "label": "C",
            "body": "27 dm²",
            "is_correct": false,
-           "rationale": "Sisi dikali 3. Luas persegi adalah sisi × sisi."
+           "rationale": "Sisi dikali 3. Luas persegi adalah sisi × sisi.",
+           "misconception_code": "SD5-M-B5-11"
           },
           {
            "_row": {
@@ -489,7 +513,8 @@
            "label": "A",
            "body": "63 cm",
            "is_correct": false,
-           "rationale": "Luas dikurangi panjang. Luas = panjang × lebar, jadi lebar didapat dengan membagi."
+           "rationale": "Luas dikurangi panjang. Luas = panjang × lebar, jadi lebar didapat dengan membagi.",
+           "misconception_code": "SD5-M-B5-14"
           },
           {
            "_row": {
@@ -509,7 +534,8 @@
            "label": "C",
            "body": "648 cm",
            "is_correct": false,
-           "rationale": "Luas dikali panjang. Lebar pasti lebih kecil dari luasnya, jadi dibagi."
+           "rationale": "Luas dikali panjang. Lebar pasti lebih kecil dari luasnya, jadi dibagi.",
+           "misconception_code": "SD5-M-B5-14"
           },
           {
            "_row": {
@@ -519,7 +545,8 @@
            "label": "D",
            "body": "27 cm",
            "is_correct": false,
-           "rationale": "Luas diperlakukan seperti keliling (72 : 2 − 9). Luas adalah panjang × lebar."
+           "rationale": "Luas diperlakukan seperti keliling (72 : 2 − 9). Luas adalah panjang × lebar.",
+           "misconception_code": "SD5-M-B5-01"
           }
          ]
         }
@@ -559,7 +586,8 @@
            "label": "A",
            "body": "60 cm²",
            "is_correct": false,
-           "rationale": "Setengahnya terlupa. 10 × 6 adalah luas dua segitiga yang sama."
+           "rationale": "Setengahnya terlupa. 10 × 6 adalah luas dua segitiga yang sama.",
+           "misconception_code": "SD5-M-B5-02"
           },
           {
            "_row": {
@@ -579,7 +607,8 @@
            "label": "C",
            "body": "16 cm²",
            "is_correct": false,
-           "rationale": "Alas dan tinggi dijumlahkan. Luas didapat dengan mengalikan."
+           "rationale": "Alas dan tinggi dijumlahkan. Luas didapat dengan mengalikan.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -589,7 +618,8 @@
            "label": "D",
            "body": "8 cm²",
            "is_correct": false,
-           "rationale": "Alas dan tinggi dijumlahkan lalu dibagi dua. Keduanya harus dikalikan."
+           "rationale": "Alas dan tinggi dijumlahkan lalu dibagi dua. Keduanya harus dikalikan.",
+           "misconception_code": "SD5-M-B5-01"
           }
          ]
         },
@@ -622,7 +652,8 @@
            "label": "B",
            "body": "126 cm²",
            "is_correct": false,
-           "rationale": "Setengahnya terlupa: 14 × 9 adalah luas dua segitiga."
+           "rationale": "Setengahnya terlupa: 14 × 9 adalah luas dua segitiga.",
+           "misconception_code": "SD5-M-B5-02"
           },
           {
            "_row": {
@@ -632,7 +663,8 @@
            "label": "C",
            "body": "77 cm²",
            "is_correct": false,
-           "rationale": "Sisi miring 11 cm dipakai sebagai tinggi. Tinggi adalah jarak tegak lurus, yaitu 9 cm."
+           "rationale": "Sisi miring 11 cm dipakai sebagai tinggi. Tinggi adalah jarak tegak lurus, yaitu 9 cm.",
+           "misconception_code": "SD5-M-B5-03"
           },
           {
            "_row": {
@@ -642,7 +674,8 @@
            "label": "D",
            "body": "34 cm²",
            "is_correct": false,
-           "rationale": "Ketiga ukuran dijumlahkan. Luas segitiga adalah 1/2 × alas × tinggi."
+           "rationale": "Ketiga ukuran dijumlahkan. Luas segitiga adalah 1/2 × alas × tinggi.",
+           "misconception_code": "SD5-M-B5-01"
           }
          ]
         },
@@ -665,7 +698,8 @@
            "label": "A",
            "body": "108 cm²",
            "is_correct": false,
-           "rationale": "Sisi miring 9 cm dipakai sebagai tinggi. Tinggi adalah jarak tegak lurus, 7 cm."
+           "rationale": "Sisi miring 9 cm dipakai sebagai tinggi. Tinggi adalah jarak tegak lurus, 7 cm.",
+           "misconception_code": "SD5-M-B5-03"
           },
           {
            "_row": {
@@ -675,7 +709,8 @@
            "label": "B",
            "body": "42 cm²",
            "is_correct": false,
-           "rationale": "Dikali setengah seperti segitiga. Jajargenjang disusun ulang menjadi persegi panjang utuh, tanpa setengah."
+           "rationale": "Dikali setengah seperti segitiga. Jajargenjang disusun ulang menjadi persegi panjang utuh, tanpa setengah.",
+           "misconception_code": "SD5-M-B5-02"
           },
           {
            "_row": {
@@ -685,7 +720,8 @@
            "label": "C",
            "body": "38 cm²",
            "is_correct": false,
-           "rationale": "Ini keliling bila tinggi dianggap sisi, (2 × 12) + (2 × 7). Luas adalah alas × tinggi."
+           "rationale": "Ini keliling bila tinggi dianggap sisi, (2 × 12) + (2 × 7). Luas adalah alas × tinggi.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -717,7 +753,8 @@
            "label": "A",
            "body": "60 cm²",
            "is_correct": false,
-           "rationale": "Setengahnya terlupa: 12 × 5 adalah luas dua segitiga."
+           "rationale": "Setengahnya terlupa: 12 × 5 adalah luas dua segitiga.",
+           "misconception_code": "SD5-M-B5-02"
           },
           {
            "_row": {
@@ -727,7 +764,8 @@
            "label": "B",
            "body": "17 cm²",
            "is_correct": false,
-           "rationale": "Alas dan tinggi dijumlahkan. Luas didapat dengan mengalikan."
+           "rationale": "Alas dan tinggi dijumlahkan. Luas didapat dengan mengalikan.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -747,7 +785,8 @@
            "label": "D",
            "body": "15 cm²",
            "is_correct": false,
-           "rationale": "Setengah dipakai dua kali (1/2 × 12 × 1/2 × 5). Cukup satu kali setengah."
+           "rationale": "Setengah dipakai dua kali (1/2 × 12 × 1/2 × 5). Cukup satu kali setengah.",
+           "misconception_code": "SD5-M-B5-02"
           }
          ]
         },
@@ -779,7 +818,8 @@
            "label": "B",
            "body": "40 cm²",
            "is_correct": false,
-           "rationale": "Sisi miring 10 cm dipakai sebagai tinggi. Tingginya 6 cm, tegak lurus dengan alas."
+           "rationale": "Sisi miring 10 cm dipakai sebagai tinggi. Tingginya 6 cm, tegak lurus dengan alas.",
+           "misconception_code": "SD5-M-B5-03"
           },
           {
            "_row": {
@@ -789,7 +829,8 @@
            "label": "C",
            "body": "80 cm²",
            "is_correct": false,
-           "rationale": "Alas dikali sisi miring tanpa setengah. Yang dipakai alas dan tinggi, dengan setengah."
+           "rationale": "Alas dikali sisi miring tanpa setengah. Yang dipakai alas dan tinggi, dengan setengah.",
+           "misconception_code": "SD5-M-B5-03"
           },
           {
            "_row": {
@@ -799,7 +840,8 @@
            "label": "D",
            "body": "48 cm²",
            "is_correct": false,
-           "rationale": "Setengahnya terlupa: 8 × 6 adalah luas dua segitiga."
+           "rationale": "Setengahnya terlupa: 8 × 6 adalah luas dua segitiga.",
+           "misconception_code": "SD5-M-B5-02"
           }
          ]
         },
@@ -821,7 +863,8 @@
            "label": "A",
            "body": "150 cm²",
            "is_correct": false,
-           "rationale": "Sisi miring dipakai sebagai tinggi. Tingginya 8 cm."
+           "rationale": "Sisi miring dipakai sebagai tinggi. Tingginya 8 cm.",
+           "misconception_code": "SD5-M-B5-03"
           },
           {
            "_row": {
@@ -831,7 +874,8 @@
            "label": "B",
            "body": "60 cm²",
            "is_correct": false,
-           "rationale": "Dikali setengah seperti segitiga. Jajargenjang tidak memakai setengah."
+           "rationale": "Dikali setengah seperti segitiga. Jajargenjang tidak memakai setengah.",
+           "misconception_code": "SD5-M-B5-02"
           },
           {
            "_row": {
@@ -841,7 +885,8 @@
            "label": "C",
            "body": "50 cm²",
            "is_correct": false,
-           "rationale": "Ini keliling jajargenjang, (2 × 15) + (2 × 10). Luas adalah alas × tinggi."
+           "rationale": "Ini keliling jajargenjang, (2 × 15) + (2 × 10). Luas adalah alas × tinggi.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -891,7 +936,8 @@
            "label": "A",
            "body": "80 cm²",
            "is_correct": false,
-           "rationale": "Setengahnya terlupa: (10 + 6) × 5 adalah luas dua trapesium."
+           "rationale": "Setengahnya terlupa: (10 + 6) × 5 adalah luas dua trapesium.",
+           "misconception_code": "SD5-M-B5-02"
           },
           {
            "_row": {
@@ -911,7 +957,8 @@
            "label": "C",
            "body": "300 cm²",
            "is_correct": false,
-           "rationale": "Kedua sisi sejajar dan tingginya dikalikan semuanya. Sisi sejajar dijumlahkan dahulu."
+           "rationale": "Kedua sisi sejajar dan tingginya dikalikan semuanya. Sisi sejajar dijumlahkan dahulu.",
+           "misconception_code": "SD5-M-B5-05"
           },
           {
            "_row": {
@@ -921,7 +968,8 @@
            "label": "D",
            "body": "25 cm²",
            "is_correct": false,
-           "rationale": "Hanya sisi sejajar 10 cm yang dipakai. Kedua sisi sejajar harus dijumlahkan."
+           "rationale": "Hanya sisi sejajar 10 cm yang dipakai. Kedua sisi sejajar harus dijumlahkan.",
+           "misconception_code": "SD5-M-B5-05"
           }
          ]
         },
@@ -944,7 +992,8 @@
            "label": "A",
            "body": "160 cm²",
            "is_correct": false,
-           "rationale": "Setengahnya terlupa: 16 × 10 adalah luas persegi panjang di sekeliling layang-layang."
+           "rationale": "Setengahnya terlupa: 16 × 10 adalah luas persegi panjang di sekeliling layang-layang.",
+           "misconception_code": "SD5-M-B5-02"
           },
           {
            "_row": {
@@ -954,7 +1003,8 @@
            "label": "B",
            "body": "26 cm²",
            "is_correct": false,
-           "rationale": "Kedua diagonal dijumlahkan. Luas didapat dengan mengalikan."
+           "rationale": "Kedua diagonal dijumlahkan. Luas didapat dengan mengalikan.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -974,7 +1024,8 @@
            "label": "D",
            "body": "40 cm²",
            "is_correct": false,
-           "rationale": "Setengah dipakai dua kali (1/2 × 16 × 1/2 × 10). Cukup satu kali setengah."
+           "rationale": "Setengah dipakai dua kali (1/2 × 16 × 1/2 × 10). Cukup satu kali setengah.",
+           "misconception_code": "SD5-M-B5-02"
           }
          ]
         },
@@ -1006,7 +1057,8 @@
            "label": "B",
            "body": "120 cm²",
            "is_correct": false,
-           "rationale": "Setengahnya terlupa."
+           "rationale": "Setengahnya terlupa.",
+           "misconception_code": "SD5-M-B5-02"
           },
           {
            "_row": {
@@ -1016,7 +1068,8 @@
            "label": "C",
            "body": "546 cm²",
            "is_correct": false,
-           "rationale": "Semua ukuran dikalikan. Kedua sisi sejajar dijumlahkan dahulu."
+           "rationale": "Semua ukuran dikalikan. Kedua sisi sejajar dijumlahkan dahulu.",
+           "misconception_code": "SD5-M-B5-05"
           },
           {
            "_row": {
@@ -1026,7 +1079,8 @@
            "label": "D",
            "body": "39 cm²",
            "is_correct": false,
-           "rationale": "Hanya sisi sejajar 13 cm yang dipakai. Kedua sisi sejajar dijumlahkan."
+           "rationale": "Hanya sisi sejajar 13 cm yang dipakai. Kedua sisi sejajar dijumlahkan.",
+           "misconception_code": "SD5-M-B5-05"
           }
          ]
         },
@@ -1048,7 +1102,8 @@
            "label": "A",
            "body": "108 cm²",
            "is_correct": false,
-           "rationale": "Setengahnya terlupa."
+           "rationale": "Setengahnya terlupa.",
+           "misconception_code": "SD5-M-B5-02"
           },
           {
            "_row": {
@@ -1058,7 +1113,8 @@
            "label": "B",
            "body": "21 cm²",
            "is_correct": false,
-           "rationale": "Kedua diagonal dijumlahkan. Luas didapat dengan mengalikan."
+           "rationale": "Kedua diagonal dijumlahkan. Luas didapat dengan mengalikan.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -1078,7 +1134,8 @@
            "label": "D",
            "body": "27 cm²",
            "is_correct": false,
-           "rationale": "Setengah dipakai dua kali. Cukup satu kali."
+           "rationale": "Setengah dipakai dua kali. Cukup satu kali.",
+           "misconception_code": "SD5-M-B5-02"
           }
          ]
         },
@@ -1100,7 +1157,8 @@
            "label": "A",
            "body": "280 dm²",
            "is_correct": false,
-           "rationale": "Setengahnya terlupa: 20 × 14 adalah luas persegi panjang di sekeliling layang-layang."
+           "rationale": "Setengahnya terlupa: 20 × 14 adalah luas persegi panjang di sekeliling layang-layang.",
+           "misconception_code": "SD5-M-B5-02"
           },
           {
            "_row": {
@@ -1120,7 +1178,8 @@
            "label": "C",
            "body": "34 dm²",
            "is_correct": false,
-           "rationale": "Kedua bilah dijumlahkan. Luas didapat dengan mengalikan."
+           "rationale": "Kedua bilah dijumlahkan. Luas didapat dengan mengalikan.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -1130,7 +1189,8 @@
            "label": "D",
            "body": "70 dm²",
            "is_correct": false,
-           "rationale": "Setengah dipakai dua kali. Cukup satu kali."
+           "rationale": "Setengah dipakai dua kali. Cukup satu kali.",
+           "misconception_code": "SD5-M-B5-02"
           }
          ]
         },
@@ -1152,7 +1212,8 @@
            "label": "A",
            "body": "2.500 m²",
            "is_correct": false,
-           "rationale": "Setengahnya terlupa."
+           "rationale": "Setengahnya terlupa.",
+           "misconception_code": "SD5-M-B5-02"
           },
           {
            "_row": {
@@ -1162,7 +1223,8 @@
            "label": "B",
            "body": "60.000 m²",
            "is_correct": false,
-           "rationale": "Semua ukuran dikalikan. Kedua sisi sejajar dijumlahkan dahulu."
+           "rationale": "Semua ukuran dikalikan. Kedua sisi sejajar dijumlahkan dahulu.",
+           "misconception_code": "SD5-M-B5-05"
           },
           {
            "_row": {
@@ -1172,7 +1234,8 @@
            "label": "C",
            "body": "750 m²",
            "is_correct": false,
-           "rationale": "Hanya sisi 60 m yang dipakai. Kedua sisi sejajar dijumlahkan."
+           "rationale": "Hanya sisi 60 m yang dipakai. Kedua sisi sejajar dijumlahkan.",
+           "misconception_code": "SD5-M-B5-05"
           },
           {
            "_row": {
@@ -1222,7 +1285,8 @@
            "label": "A",
            "body": "32 m²",
            "is_correct": false,
-           "rationale": "Ini keliling ruangan (jumlah semua langkah). Luas menghitung daerah di dalamnya."
+           "rationale": "Ini keliling ruangan (jumlah semua langkah). Luas menghitung daerah di dalamnya.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -1232,7 +1296,8 @@
            "label": "B",
            "body": "63 m²",
            "is_correct": false,
-           "rationale": "Ini luas persegi panjang 9 m × 7 m di sekelilingnya. Pojok kanan bawah 5 m × 4 m tidak termasuk ruangan."
+           "rationale": "Ini luas persegi panjang 9 m × 7 m di sekelilingnya. Pojok kanan bawah 5 m × 4 m tidak termasuk ruangan.",
+           "misconception_code": "SD5-M-B5-06"
           },
           {
            "_row": {
@@ -1242,7 +1307,8 @@
            "label": "C",
            "body": "55 m²",
            "is_correct": false,
-           "rationale": "Bagian kiri dihitung setinggi 7 m (4 × 7) padahal 3 m teratasnya sudah termasuk bagian atas; bagian itu terhitung dua kali."
+           "rationale": "Bagian kiri dihitung setinggi 7 m (4 × 7) padahal 3 m teratasnya sudah termasuk bagian atas; bagian itu terhitung dua kali.",
+           "misconception_code": "SD5-M-B5-06"
           },
           {
            "_row": {
@@ -1286,7 +1352,8 @@
            "label": "B",
            "body": "15 m²",
            "is_correct": false,
-           "rationale": "Lebar jalan hanya ditambahkan sekali (11 × 5). Jalan ada di kedua sisi, jadi setiap ukuran bertambah 2 m."
+           "rationale": "Lebar jalan hanya ditambahkan sekali (11 × 5). Jalan ada di kedua sisi, jadi setiap ukuran bertambah 2 m.",
+           "misconception_code": "SD5-M-B5-07"
           },
           {
            "_row": {
@@ -1296,7 +1363,8 @@
            "label": "C",
            "body": "72 m²",
            "is_correct": false,
-           "rationale": "Ini luas daerah luar seluruhnya. Kolamnya bukan jalan dan harus dikurangkan."
+           "rationale": "Ini luas daerah luar seluruhnya. Kolamnya bukan jalan dan harus dikurangkan.",
+           "misconception_code": "SD5-M-B5-10"
           },
           {
            "_row": {
@@ -1306,7 +1374,8 @@
            "label": "D",
            "body": "28 m²",
            "is_correct": false,
-           "rationale": "Keliling kolam dikali lebar jalan (28 × 1). Keempat pojok jalan (masing-masing 1 m²) terlewat."
+           "rationale": "Keliling kolam dikali lebar jalan (28 × 1). Keempat pojok jalan (masing-masing 1 m²) terlewat.",
+           "misconception_code": "SD5-M-B5-06"
           }
          ]
         },
@@ -1338,7 +1407,8 @@
            "label": "B",
            "body": "140 m²",
            "is_correct": false,
-           "rationale": "Setengah pada segitiga terlupa: 10 × 6 = 60, padahal segitiga luasnya 30 m²."
+           "rationale": "Setengah pada segitiga terlupa: 10 × 6 = 60, padahal segitiga luasnya 30 m².",
+           "misconception_code": "SD5-M-B5-02"
           },
           {
            "_row": {
@@ -1348,7 +1418,8 @@
            "label": "C",
            "body": "80 m²",
            "is_correct": false,
-           "rationale": "Hanya persegi panjangnya yang dihitung; segitiga di atasnya terlewat."
+           "rationale": "Hanya persegi panjangnya yang dihitung; segitiga di atasnya terlewat.",
+           "misconception_code": "SD5-M-B5-06"
           },
           {
            "_row": {
@@ -1358,7 +1429,8 @@
            "label": "D",
            "body": "30 m²",
            "is_correct": false,
-           "rationale": "Hanya segitiganya yang dihitung; persegi panjang di bawahnya terlewat."
+           "rationale": "Hanya segitiganya yang dihitung; persegi panjang di bawahnya terlewat.",
+           "misconception_code": "SD5-M-B5-06"
           }
          ]
         },
@@ -1380,7 +1452,8 @@
            "label": "A",
            "body": "324 m²",
            "is_correct": false,
-           "rationale": "Luas kolam ditambahkan. Kolam tidak ditanami rumput, jadi dikurangkan."
+           "rationale": "Luas kolam ditambahkan. Kolam tidak ditanami rumput, jadi dikurangkan.",
+           "misconception_code": "SD5-M-B5-06"
           },
           {
            "_row": {
@@ -1390,7 +1463,8 @@
            "label": "B",
            "body": "300 m²",
            "is_correct": false,
-           "rationale": "Kolamnya tidak dikurangkan. Rumput hanya ditanam di luar kolam."
+           "rationale": "Kolamnya tidak dikurangkan. Rumput hanya ditanam di luar kolam.",
+           "misconception_code": "SD5-M-B5-10"
           },
           {
            "_row": {
@@ -1410,7 +1484,8 @@
            "label": "D",
            "body": "24 m²",
            "is_correct": false,
-           "rationale": "Itu luas kolamnya. Yang ditanyakan luas rumput."
+           "rationale": "Itu luas kolamnya. Yang ditanyakan luas rumput.",
+           "misconception_code": "SD5-M-B5-10"
           }
          ]
         },
@@ -1432,7 +1507,8 @@
            "label": "A",
            "body": "48 cm²",
            "is_correct": false,
-           "rationale": "Lekukan 2 cm × 4 cm di tengah atas tidak dikurangkan. Lekukan itu bukan bagian papan."
+           "rationale": "Lekukan 2 cm × 4 cm di tengah atas tidak dikurangkan. Lekukan itu bukan bagian papan.",
+           "misconception_code": "SD5-M-B5-06"
           },
           {
            "_row": {
@@ -1442,7 +1518,8 @@
            "label": "B",
            "body": "36 cm²",
            "is_correct": false,
-           "rationale": "Ini keliling papan (jumlah semua langkah). Luas menghitung daerah di dalamnya."
+           "rationale": "Ini keliling papan (jumlah semua langkah). Luas menghitung daerah di dalamnya.",
+           "misconception_code": "SD5-M-B5-01"
           },
           {
            "_row": {
@@ -1452,7 +1529,8 @@
            "label": "C",
            "body": "32 cm²",
            "is_correct": false,
-           "rationale": "Lekukan dikurangkan dua kali (48 − 16). Lekukannya hanya satu, 2 × 4 = 8 cm²."
+           "rationale": "Lekukan dikurangkan dua kali (48 − 16). Lekukannya hanya satu, 2 × 4 = 8 cm².",
+           "misconception_code": "SD5-M-B5-06"
           },
           {
            "_row": {
@@ -1502,7 +1580,8 @@
            "label": "A",
            "body": "80 m²",
            "is_correct": false,
-           "rationale": "10 m × 8 m dipilih karena persegi dianggap bukan persegi panjang. 9 m × 9 m boleh dan lebih luas."
+           "rationale": "10 m × 8 m dipilih karena persegi dianggap bukan persegi panjang. 9 m × 9 m boleh dan lebih luas.",
+           "misconception_code": "SD5-M-B5-09"
           },
           {
            "_row": {
@@ -1522,7 +1601,8 @@
            "label": "C",
            "body": "324 m²",
            "is_correct": false,
-           "rationale": "Setengah keliling (18 m) dipakai sebagai sisi. 18 m adalah panjang dan lebar bersama."
+           "rationale": "Setengah keliling (18 m) dipakai sebagai sisi. 18 m adalah panjang dan lebar bersama.",
+           "misconception_code": "SD5-M-B5-13"
           },
           {
            "_row": {
@@ -1532,7 +1612,8 @@
            "label": "D",
            "body": "17 m²",
            "is_correct": false,
-           "rationale": "Ini luas yang paling kecil (17 m × 1 m). Keliling yang sama tidak berarti luas yang sama."
+           "rationale": "Ini luas yang paling kecil (17 m × 1 m). Keliling yang sama tidak berarti luas yang sama.",
+           "misconception_code": "SD5-M-B5-08"
           }
          ]
         },
@@ -1554,7 +1635,8 @@
            "label": "A",
            "body": "Luasnya sama karena kelilingnya sama",
            "is_correct": false,
-           "rationale": "Keliling yang sama tidak berarti luas yang sama: 36 cm² dan 32 cm²."
+           "rationale": "Keliling yang sama tidak berarti luas yang sama: 36 cm² dan 32 cm².",
+           "misconception_code": "SD5-M-B5-08"
           },
           {
            "_row": {
@@ -1574,7 +1656,8 @@
            "label": "C",
            "body": "P lebih luas karena lebih panjang",
            "is_correct": false,
-           "rationale": "P memang lebih panjang, tetapi juga lebih kurus. Luasnya 32 cm², lebih kecil dari 36 cm²."
+           "rationale": "P memang lebih panjang, tetapi juga lebih kurus. Luasnya 32 cm², lebih kecil dari 36 cm².",
+           "misconception_code": "SD5-M-B5-08"
           },
           {
            "_row": {
@@ -1584,7 +1667,8 @@
            "label": "D",
            "body": "Tidak dapat dibandingkan karena Q persegi",
            "is_correct": false,
-           "rationale": "Persegi juga persegi panjang, dan luas keduanya dapat dihitung lalu dibandingkan."
+           "rationale": "Persegi juga persegi panjang, dan luas keduanya dapat dihitung lalu dibandingkan.",
+           "misconception_code": "SD5-M-B5-09"
           }
          ]
         },
@@ -1616,7 +1700,8 @@
            "label": "B",
            "body": "6 cm × 6 cm",
            "is_correct": false,
-           "rationale": "Persegi justru kelilingnya paling pendek di antara ketiganya, 24 cm. Persegi tidak selalu paling besar dalam segala hal."
+           "rationale": "Persegi justru kelilingnya paling pendek di antara ketiganya, 24 cm. Persegi tidak selalu paling besar dalam segala hal.",
+           "misconception_code": "SD5-M-B5-12"
           },
           {
            "_row": {
@@ -1626,7 +1711,8 @@
            "label": "C",
            "body": "Kelilingnya sama karena luasnya sama",
            "is_correct": false,
-           "rationale": "Luas yang sama tidak berarti keliling yang sama: 30 cm, 26 cm, dan 24 cm."
+           "rationale": "Luas yang sama tidak berarti keliling yang sama: 30 cm, 26 cm, dan 24 cm.",
+           "misconception_code": "SD5-M-B5-08"
           },
           {
            "_row": {
@@ -1636,7 +1722,8 @@
            "label": "D",
            "body": "4 cm × 9 cm",
            "is_correct": false,
-           "rationale": "Kelilingnya 26 cm, masih lebih pendek dari 3 cm × 12 cm yang 30 cm. Makin kurus, makin panjang kelilingnya."
+           "rationale": "Kelilingnya 26 cm, masih lebih pendek dari 3 cm × 12 cm yang 30 cm. Makin kurus, makin panjang kelilingnya.",
+           "misconception_code": "SD5-M-B5-12"
           }
          ]
         },
@@ -1658,7 +1745,8 @@
            "label": "A",
            "body": "63 cm²",
            "is_correct": false,
-           "rationale": "9 cm × 7 cm dipilih karena persegi dianggap bukan persegi panjang. 8 cm × 8 cm boleh dan lebih luas."
+           "rationale": "9 cm × 7 cm dipilih karena persegi dianggap bukan persegi panjang. 8 cm × 8 cm boleh dan lebih luas.",
+           "misconception_code": "SD5-M-B5-09"
           },
           {
            "_row": {
@@ -1668,7 +1756,8 @@
            "label": "B",
            "body": "256 cm²",
            "is_correct": false,
-           "rationale": "Setengah keliling (16 cm) dipakai sebagai sisi. 16 cm adalah panjang dan lebar bersama."
+           "rationale": "Setengah keliling (16 cm) dipakai sebagai sisi. 16 cm adalah panjang dan lebar bersama.",
+           "misconception_code": "SD5-M-B5-13"
           },
           {
            "_row": {
@@ -1688,7 +1777,8 @@
            "label": "D",
            "body": "15 cm²",
            "is_correct": false,
-           "rationale": "Ini luas yang paling kecil (15 cm × 1 cm)."
+           "rationale": "Ini luas yang paling kecil (15 cm × 1 cm).",
+           "misconception_code": "SD5-M-B5-08"
           }
          ]
         }
@@ -1697,6 +1787,148 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SD5-M-B5-01",
+   "label": "Luas tertukar dengan keliling",
+   "description": "Ukuran-ukuran sisi dijumlahkan, sehingga yang dihitung panjang tepi, bukan daerah di dalamnya.",
+   "remediation": "Tanyakan: apakah yang diukur tepinya (pagar, bingkai) atau yang menutup bagian dalamnya (ubin, karpet, cat)? Untuk luas, bayangkan baris-baris persegi satuan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SD5-M-B5-02",
+   "label": "Faktor setengah keliru",
+   "description": "Setengah terlupa pada segitiga, trapesium, belah ketupat, atau layang-layang; atau setengah dipakai dua kali, atau dipakai pada bangun yang tidak memerlukannya.",
+   "remediation": "Hubungkan setiap rumus dengan bangun asalnya: segitiga adalah setengah persegi panjang, jajargenjang tidak; periksa dengan menggambar dua segitiga menjadi satu persegi panjang."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SD5-M-B5-03",
+   "label": "Sisi miring dipakai sebagai tinggi",
+   "description": "Pada segitiga atau jajargenjang, sisi miring dikalikan dengan alas, padahal tinggi adalah jarak tegak lurus.",
+   "remediation": "Tandai tinggi dengan garis tegak lurus dari alas; tunjukkan bahwa sisi miring selalu lebih panjang dari tinggi."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SD5-M-B5-04",
+   "label": "Petak tidak utuh dihitung keliru",
+   "description": "Hanya petak utuh yang dihitung, atau setiap potongan dihitung sebagai satu petak utuh.",
+   "remediation": "Pasangkan dua potongan setengah menjadi satu petak utuh dan hitung pasangannya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SD5-M-B5-05",
+   "label": "Sisi sejajar trapesium keliru",
+   "description": "Pada trapesium, hanya satu sisi sejajar yang dipakai, atau kedua sisi sejajar dikalikan satu sama lain.",
+   "remediation": "Ingatkan bahwa trapesium disusun ulang menjadi jajargenjang yang alasnya jumlah kedua sisi sejajar."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SD5-M-B5-06",
+   "label": "Bagian gabungan dihitung keliru",
+   "description": "Pada bangun gabungan, satu bagian terhitung dua kali, bagian yang tidak termasuk tidak dikurangkan, atau ada bagian yang terlewat.",
+   "remediation": "Minta murid mewarnai setiap bagian dengan warna berbeda; setiap petak harus berwarna tepat satu kali."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SD5-M-B5-07",
+   "label": "Lebar jalan ditambahkan sekali",
+   "description": "Pada jalan atau bingkai di sekeliling sebuah bangun, lebarnya hanya ditambahkan sekali pada panjang dan lebar, padahal jalan ada di kedua sisi.",
+   "remediation": "Gambar jalannya di keempat sisi dan tulis ukuran luar sebagai 1 + panjang + 1."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SD5-M-B5-08",
+   "label": "Keliling sama dianggap luas sama",
+   "description": "Bangun yang kelilingnya sama dianggap pasti sama luas, atau yang luasnya sama dianggap pasti sama kelilingnya.",
+   "remediation": "Buat beberapa persegi panjang dengan tali yang sama panjang pada kertas berpetak dan hitung petaknya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SD5-M-B5-09",
+   "label": "Persegi dianggap bukan persegi panjang",
+   "description": "Persegi tidak dianggap sebagai persegi panjang, sehingga ukuran persegi tidak dipilih walaupun luasnya terbesar.",
+   "remediation": "Ulangi ciri persegi panjang: sisi berhadapan sama panjang dan semua sudut siku-siku; persegi memenuhi semuanya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SD5-M-B5-10",
+   "label": "Jawaban bukan yang ditanyakan",
+   "description": "Hasil satu bagian atau satu langkah diberikan sebagai jawaban akhir, atau ada bagian soal yang terlewat.",
+   "remediation": "Minta murid menggarisbawahi yang ditanyakan dan mencentang setiap bagian soal setelah dipakai."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SD5-M-B5-11",
+   "label": "Satu ukuran dipakai dua kali",
+   "description": "Luas dihitung dengan mengalikan satu ukuran dengan dirinya sendiri atau dengan 2, misalnya lebar × lebar atau sisi × 2.",
+   "remediation": "Tuliskan nama setiap ukuran (panjang, lebar, sisi) sebelum mengalikan dan periksa bahwa setiap ukuran dipakai sesuai rumusnya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 13
+   },
+   "code": "SD5-M-B5-12",
+   "label": "Persegi dianggap selalu terbesar",
+   "description": "Persegi dianggap selalu paling besar dalam segala hal, misalnya kelilingnya dianggap terpanjang di antara persegi panjang yang sama luas.",
+   "remediation": "Bandingkan keliling 6 × 6, 4 × 9, dan 3 × 12; yang paling kurus justru kelilingnya paling panjang."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 14
+   },
+   "code": "SD5-M-B5-13",
+   "label": "Keliling dibagi dua dijadikan sisi",
+   "description": "Setengah keliling (panjang + lebar) dipakai sebagai panjang sisi, sehingga luasnya terlalu besar.",
+   "remediation": "Ingatkan bahwa setengah keliling adalah panjang dan lebar bersama; bagi lagi menjadi dua bagian sebelum mengalikan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 15
+   },
+   "code": "SD5-M-B5-14",
+   "label": "Operasi terbalik keliru",
+   "description": "Saat mencari satu ukuran dari luasnya, luas dikurangi atau dikali dengan ukuran yang diketahui, bukan dibagi.",
+   "remediation": "Tulis rumusnya (luas = panjang × lebar), lalu tanyakan: 9 dikali berapa sama dengan 72? Periksa jawaban dengan mengalikannya kembali."
   }
  ]
 }

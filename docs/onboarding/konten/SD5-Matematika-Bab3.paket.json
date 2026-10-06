@@ -53,7 +53,8 @@
            "label": "A",
            "body": "8/3",
            "is_correct": false,
-           "rationale": "Pembilang dan penyebut tertukar. Penyebut adalah banyak seluruh bagian, yaitu 8."
+           "rationale": "Pembilang dan penyebut tertukar. Penyebut adalah banyak seluruh bagian, yaitu 8.",
+           "misconception_code": "SD5-M-B3-11"
           },
           {
            "_row": {
@@ -73,7 +74,8 @@
            "label": "C",
            "body": "3/5",
            "is_correct": false,
-           "rationale": "Penyebutnya diambil dari 5 potong yang tersisa. Penyebut adalah seluruh bagian pizza, 8."
+           "rationale": "Penyebutnya diambil dari 5 potong yang tersisa. Penyebut adalah seluruh bagian pizza, 8.",
+           "misconception_code": "SD5-M-B3-11"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "5/8",
            "is_correct": false,
-           "rationale": "5/8 adalah bagian yang tidak dimakan. Yang ditanyakan bagian yang dimakan Dodi."
+           "rationale": "5/8 adalah bagian yang tidak dimakan. Yang ditanyakan bagian yang dimakan Dodi.",
+           "misconception_code": "SD5-M-B3-12"
           }
          ]
         },
@@ -106,7 +109,8 @@
            "label": "A",
            "body": "4/5",
            "is_correct": false,
-           "rationale": "Pembilang dan penyebut ditambah 2. Pecahan senilai dibuat dengan mengali, bukan menambah."
+           "rationale": "Pembilang dan penyebut ditambah 2. Pecahan senilai dibuat dengan mengali, bukan menambah.",
+           "misconception_code": "SD5-M-B3-09"
           },
           {
            "_row": {
@@ -116,7 +120,8 @@
            "label": "B",
            "body": "2/6",
            "is_correct": false,
-           "rationale": "Hanya penyebutnya yang dikali 2. Pembilangnya juga harus dikali 2, menjadi 4/6."
+           "rationale": "Hanya penyebutnya yang dikali 2. Pembilangnya juga harus dikali 2, menjadi 4/6.",
+           "misconception_code": "SD5-M-B3-09"
           },
           {
            "_row": {
@@ -126,7 +131,8 @@
            "label": "C",
            "body": "6/12",
            "is_correct": false,
-           "rationale": "Pembilang dikali 3 tetapi penyebut dikali 4. Keduanya harus dikali dengan bilangan yang sama."
+           "rationale": "Pembilang dikali 3 tetapi penyebut dikali 4. Keduanya harus dikali dengan bilangan yang sama.",
+           "misconception_code": "SD5-M-B3-09"
           },
           {
            "_row": {
@@ -158,7 +164,8 @@
            "label": "A",
            "body": "5/6",
            "is_correct": false,
-           "rationale": "Pembilang dan penyebut ditambah 2. Pecahan senilai dibuat dengan mengali."
+           "rationale": "Pembilang dan penyebut ditambah 2. Pecahan senilai dibuat dengan mengali.",
+           "misconception_code": "SD5-M-B3-09"
           },
           {
            "_row": {
@@ -168,7 +175,8 @@
            "label": "B",
            "body": "3/8",
            "is_correct": false,
-           "rationale": "Hanya penyebutnya yang dikali 2; pembilangnya juga harus dikali 2, menjadi 6/8."
+           "rationale": "Hanya penyebutnya yang dikali 2; pembilangnya juga harus dikali 2, menjadi 6/8.",
+           "misconception_code": "SD5-M-B3-09"
           },
           {
            "_row": {
@@ -188,7 +196,8 @@
            "label": "D",
            "body": "6/12",
            "is_correct": false,
-           "rationale": "Pembilang dikali 2 tetapi penyebut dikali 3. Keduanya harus dikali dengan bilangan yang sama."
+           "rationale": "Pembilang dikali 2 tetapi penyebut dikali 3. Keduanya harus dikali dengan bilangan yang sama.",
+           "misconception_code": "SD5-M-B3-09"
           }
          ]
         },
@@ -210,7 +219,8 @@
            "label": "A",
            "body": "9/12",
            "is_correct": false,
-           "rationale": "Dibagi 2, faktor persekutuan yang bukan terbesar. 9/12 masih bisa dibagi 3."
+           "rationale": "Dibagi 2, faktor persekutuan yang bukan terbesar. 9/12 masih bisa dibagi 3.",
+           "misconception_code": "SD5-M-B3-10"
           },
           {
            "_row": {
@@ -230,7 +240,8 @@
            "label": "C",
            "body": "6/8",
            "is_correct": false,
-           "rationale": "Dibagi 3, faktor persekutuan yang bukan terbesar. 6/8 masih bisa dibagi 2."
+           "rationale": "Dibagi 3, faktor persekutuan yang bukan terbesar. 6/8 masih bisa dibagi 2.",
+           "misconception_code": "SD5-M-B3-10"
           },
           {
            "_row": {
@@ -240,7 +251,8 @@
            "label": "D",
            "body": "3/24",
            "is_correct": false,
-           "rationale": "Hanya pembilangnya yang dibagi 6. Penyebut juga harus dibagi dengan bilangan yang sama."
+           "rationale": "Hanya pembilangnya yang dibagi 6. Penyebut juga harus dibagi dengan bilangan yang sama.",
+           "misconception_code": "SD5-M-B3-09"
           }
          ]
         },
@@ -262,7 +274,8 @@
            "label": "A",
            "body": "5/5",
            "is_correct": false,
-           "rationale": "Bilangan utuh 3 hanya dijumlahkan dengan pembilang 2. Setiap utuh bernilai 5/5, jadi 3 utuh = 15/5."
+           "rationale": "Bilangan utuh 3 hanya dijumlahkan dengan pembilang 2. Setiap utuh bernilai 5/5, jadi 3 utuh = 15/5.",
+           "misconception_code": "SD5-M-B3-06"
           },
           {
            "_row": {
@@ -272,7 +285,8 @@
            "label": "B",
            "body": "6/5",
            "is_correct": false,
-           "rationale": "Bilangan utuh dikali pembilang (3 × 2). Yang dikali seharusnya penyebutnya: 3 × 5 = 15."
+           "rationale": "Bilangan utuh dikali pembilang (3 × 2). Yang dikali seharusnya penyebutnya: 3 × 5 = 15.",
+           "misconception_code": "SD5-M-B3-06"
           },
           {
            "_row": {
@@ -282,7 +296,8 @@
            "label": "C",
            "body": "17/15",
            "is_correct": false,
-           "rationale": "Penyebutnya ikut dikali 3. Penyebut tetap 5, karena ukuran bagiannya tetap seperlima."
+           "rationale": "Penyebutnya ikut dikali 3. Penyebut tetap 5, karena ukuran bagiannya tetap seperlima.",
+           "misconception_code": "SD5-M-B3-06"
           },
           {
            "_row": {
@@ -324,7 +339,8 @@
            "label": "B",
            "body": "3 2/4",
            "is_correct": false,
-           "rationale": "Hasil bagi dan sisanya tertukar. 11 : 4 = 2 sisa 3, jadi utuhnya 2 dan pembilangnya 3."
+           "rationale": "Hasil bagi dan sisanya tertukar. 11 : 4 = 2 sisa 3, jadi utuhnya 2 dan pembilangnya 3.",
+           "misconception_code": "SD5-M-B3-06"
           },
           {
            "_row": {
@@ -334,7 +350,8 @@
            "label": "C",
            "body": "1 7/4",
            "is_correct": false,
-           "rationale": "Baru satu utuh yang dikeluarkan; 7/4 masih lebih dari 1 dan harus dijadikan utuh lagi."
+           "rationale": "Baru satu utuh yang dikeluarkan; 7/4 masih lebih dari 1 dan harus dijadikan utuh lagi.",
+           "misconception_code": "SD5-M-B3-07"
           },
           {
            "_row": {
@@ -344,7 +361,8 @@
            "label": "D",
            "body": "2 3/11",
            "is_correct": false,
-           "rationale": "Penyebutnya diganti menjadi 11. Penyebut tetap 4."
+           "rationale": "Penyebutnya diganti menjadi 11. Penyebut tetap 4.",
+           "misconception_code": "SD5-M-B3-06"
           }
          ]
         }
@@ -394,7 +412,8 @@
            "label": "B",
            "body": "1/6, karena penyebutnya lebih besar",
            "is_correct": false,
-           "rationale": "Penyebut 6 memang lebih besar, tetapi makin besar penyebut, makin kecil setiap bagian."
+           "rationale": "Penyebut 6 memang lebih besar, tetapi makin besar penyebut, makin kecil setiap bagian.",
+           "misconception_code": "SD5-M-B3-03"
           },
           {
            "_row": {
@@ -404,7 +423,8 @@
            "label": "C",
            "body": "Sama besar, karena pembilangnya sama",
            "is_correct": false,
-           "rationale": "Pembilangnya sama-sama 1, tetapi ukuran bagiannya berbeda: seperempat lebih besar dari seperenam."
+           "rationale": "Pembilangnya sama-sama 1, tetapi ukuran bagiannya berbeda: seperempat lebih besar dari seperenam.",
+           "misconception_code": "SD5-M-B3-14"
           },
           {
            "_row": {
@@ -414,7 +434,8 @@
            "label": "D",
            "body": "Tidak dapat dibandingkan, karena penyebutnya berbeda",
            "is_correct": false,
-           "rationale": "Pecahan dengan penyebut berbeda tetap dapat dibandingkan, misalnya dengan menyamakan penyebut."
+           "rationale": "Pecahan dengan penyebut berbeda tetap dapat dibandingkan, misalnya dengan menyamakan penyebut.",
+           "misconception_code": "SD5-M-B3-14"
           }
          ]
         },
@@ -437,7 +458,8 @@
            "label": "A",
            "body": "5/6 < 7/9, karena 5 < 7",
            "is_correct": false,
-           "rationale": "Hanya pembilangnya yang dibandingkan, padahal penyebutnya berbeda. Samakan penyebut dahulu."
+           "rationale": "Hanya pembilangnya yang dibandingkan, padahal penyebutnya berbeda. Samakan penyebut dahulu.",
+           "misconception_code": "SD5-M-B3-04"
           },
           {
            "_row": {
@@ -447,7 +469,8 @@
            "label": "B",
            "body": "5/6 < 7/9, karena 5/18 < 7/18",
            "is_correct": false,
-           "rationale": "Penyebut sudah disamakan menjadi 18, tetapi pembilangnya tidak ikut dikali (5 × 3 dan 7 × 2)."
+           "rationale": "Penyebut sudah disamakan menjadi 18, tetapi pembilangnya tidak ikut dikali (5 × 3 dan 7 × 2).",
+           "misconception_code": "SD5-M-B3-02"
           },
           {
            "_row": {
@@ -467,7 +490,8 @@
            "label": "D",
            "body": "5/6 < 7/9, karena penyebut 9 lebih besar",
            "is_correct": false,
-           "rationale": "Penyebut yang lebih besar tidak membuat pecahan lebih besar; ukuran bagiannya justru lebih kecil."
+           "rationale": "Penyebut yang lebih besar tidak membuat pecahan lebih besar; ukuran bagiannya justru lebih kecil.",
+           "misconception_code": "SD5-M-B3-03"
           }
          ]
         },
@@ -500,7 +524,8 @@
            "label": "B",
            "body": "3 1/3 kg; 3 2/5 kg; 2 5/6 kg",
            "is_correct": false,
-           "rationale": "Yang dibandingkan hanya pecahannya (1/3 < 2/5 < 5/6), bilangan utuhnya diabaikan. 2 5/6 kurang dari 3."
+           "rationale": "Yang dibandingkan hanya pecahannya (1/3 < 2/5 < 5/6), bilangan utuhnya diabaikan. 2 5/6 kurang dari 3.",
+           "misconception_code": "SD5-M-B3-05"
           },
           {
            "_row": {
@@ -510,7 +535,8 @@
            "label": "C",
            "body": "3 2/5 kg; 3 1/3 kg; 2 5/6 kg",
            "is_correct": false,
-           "rationale": "Ini urutan dari yang paling berat. Yang diminta dari yang paling ringan."
+           "rationale": "Ini urutan dari yang paling berat. Yang diminta dari yang paling ringan.",
+           "misconception_code": "SD5-M-B3-13"
           },
           {
            "_row": {
@@ -520,7 +546,8 @@
            "label": "D",
            "body": "2 5/6 kg; 3 2/5 kg; 3 1/3 kg",
            "is_correct": false,
-           "rationale": "2/5 dianggap lebih kecil dari 1/3 karena penyebutnya lebih besar. Setelah disamakan, 2/5 = 6/15 dan 1/3 = 5/15."
+           "rationale": "2/5 dianggap lebih kecil dari 1/3 karena penyebutnya lebih besar. Setelah disamakan, 2/5 = 6/15 dan 1/3 = 5/15.",
+           "misconception_code": "SD5-M-B3-03"
           }
          ]
         },
@@ -542,7 +569,8 @@
            "label": "A",
            "body": "1/10",
            "is_correct": false,
-           "rationale": "Penyebut 10 paling besar, tetapi dibagi 10 menghasilkan bagian yang paling kecil."
+           "rationale": "Penyebut 10 paling besar, tetapi dibagi 10 menghasilkan bagian yang paling kecil.",
+           "misconception_code": "SD5-M-B3-03"
           },
           {
            "_row": {
@@ -552,7 +580,8 @@
            "label": "B",
            "body": "1/8",
            "is_correct": false,
-           "rationale": "Dibagi 8 menghasilkan bagian yang lebih kecil dari dibagi 3."
+           "rationale": "Dibagi 8 menghasilkan bagian yang lebih kecil dari dibagi 3.",
+           "misconception_code": "SD5-M-B3-03"
           },
           {
            "_row": {
@@ -572,7 +601,8 @@
            "label": "D",
            "body": "1/5",
            "is_correct": false,
-           "rationale": "Seperlima lebih kecil dari sepertiga, karena dibagi menjadi lebih banyak bagian."
+           "rationale": "Seperlima lebih kecil dari sepertiga, karena dibagi menjadi lebih banyak bagian.",
+           "misconception_code": "SD5-M-B3-03"
           }
          ]
         },
@@ -595,7 +625,8 @@
            "label": "A",
            "body": "3/4; 2/3; 5/8",
            "is_correct": false,
-           "rationale": "Ini urutan dari yang terbesar. Yang diminta dari yang terkecil."
+           "rationale": "Ini urutan dari yang terbesar. Yang diminta dari yang terkecil.",
+           "misconception_code": "SD5-M-B3-13"
           },
           {
            "_row": {
@@ -615,7 +646,8 @@
            "label": "C",
            "body": "2/3; 3/4; 5/8",
            "is_correct": false,
-           "rationale": "Diurutkan dari pembilangnya (2, 3, 5), padahal penyebutnya berbeda. Samakan penyebut dahulu."
+           "rationale": "Diurutkan dari pembilangnya (2, 3, 5), padahal penyebutnya berbeda. Samakan penyebut dahulu.",
+           "misconception_code": "SD5-M-B3-04"
           },
           {
            "_row": {
@@ -625,7 +657,8 @@
            "label": "D",
            "body": "5/8; 3/4; 2/3",
            "is_correct": false,
-           "rationale": "Diurutkan dari penyebutnya: penyebut besar dianggap kecil. Setelah disamakan, 2/3 = 16/24 lebih kecil dari 3/4 = 18/24."
+           "rationale": "Diurutkan dari penyebutnya: penyebut besar dianggap kecil. Setelah disamakan, 2/3 = 16/24 lebih kecil dari 3/4 = 18/24.",
+           "misconception_code": "SD5-M-B3-03"
           }
          ]
         },
@@ -647,7 +680,8 @@
            "label": "A",
            "body": "2 1/6 m; 1 2/3 m; 1 3/4 m",
            "is_correct": false,
-           "rationale": "Hanya pecahannya yang diurutkan (1/6 < 2/3 < 3/4); bilangan utuh 2 diabaikan."
+           "rationale": "Hanya pecahannya yang diurutkan (1/6 < 2/3 < 3/4); bilangan utuh 2 diabaikan.",
+           "misconception_code": "SD5-M-B3-05"
           },
           {
            "_row": {
@@ -657,7 +691,8 @@
            "label": "B",
            "body": "2 1/6 m; 1 3/4 m; 1 2/3 m",
            "is_correct": false,
-           "rationale": "Ini urutan dari yang terpanjang. Yang diminta dari yang terpendek."
+           "rationale": "Ini urutan dari yang terpanjang. Yang diminta dari yang terpendek.",
+           "misconception_code": "SD5-M-B3-13"
           },
           {
            "_row": {
@@ -667,7 +702,8 @@
            "label": "C",
            "body": "1 3/4 m; 1 2/3 m; 2 1/6 m",
            "is_correct": false,
-           "rationale": "3/4 dianggap lebih kecil dari 2/3 karena penyebut 4 lebih besar. Setelah disamakan, 3/4 = 9/12 lebih dari 2/3 = 8/12."
+           "rationale": "3/4 dianggap lebih kecil dari 2/3 karena penyebut 4 lebih besar. Setelah disamakan, 3/4 = 9/12 lebih dari 2/3 = 8/12.",
+           "misconception_code": "SD5-M-B3-03"
           },
           {
            "_row": {
@@ -717,7 +753,8 @@
            "label": "A",
            "body": "7/20",
            "is_correct": false,
-           "rationale": "Penyebutnya ikut dijumlahkan. Penyebut menunjukkan ukuran bagian, yang tetap 1/10."
+           "rationale": "Penyebutnya ikut dijumlahkan. Penyebut menunjukkan ukuran bagian, yang tetap 1/10.",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -727,7 +764,8 @@
            "label": "B",
            "body": "1/10",
            "is_correct": false,
-           "rationale": "Pembilangnya dikurangkan (4 − 3). Tanda + berarti dijumlahkan."
+           "rationale": "Pembilangnya dikurangkan (4 − 3). Tanda + berarti dijumlahkan.",
+           "misconception_code": "SD5-M-B3-12"
           },
           {
            "_row": {
@@ -747,7 +785,8 @@
            "label": "D",
            "body": "7/100",
            "is_correct": false,
-           "rationale": "Penyebutnya dikalikan (10 × 10). Penyebut tetap 10 karena ukuran bagiannya sama."
+           "rationale": "Penyebutnya dikalikan (10 × 10). Penyebut tetap 10 karena ukuran bagiannya sama.",
+           "misconception_code": "SD5-M-B3-01"
           }
          ]
         },
@@ -770,7 +809,8 @@
            "label": "A",
            "body": "4/11",
            "is_correct": false,
-           "rationale": "Pembilang dijumlahkan dengan pembilang, penyebut dengan penyebut. Samakan penyebut dahulu."
+           "rationale": "Pembilang dijumlahkan dengan pembilang, penyebut dengan penyebut. Samakan penyebut dahulu.",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -780,7 +820,8 @@
            "label": "B",
            "body": "4/24",
            "is_correct": false,
-           "rationale": "Penyebutnya sudah 24, tetapi pembilangnya tidak ikut dikali: 3 × 3 = 9 dan 1 × 8 = 8."
+           "rationale": "Penyebutnya sudah 24, tetapi pembilangnya tidak ikut dikali: 3 × 3 = 9 dan 1 × 8 = 8.",
+           "misconception_code": "SD5-M-B3-02"
           },
           {
            "_row": {
@@ -790,7 +831,8 @@
            "label": "C",
            "body": "17/48",
            "is_correct": false,
-           "rationale": "Penyebutnya sudah disamakan menjadi 24, lalu ikut dijumlahkan (24 + 24). Penyebut tetap 24."
+           "rationale": "Penyebutnya sudah disamakan menjadi 24, lalu ikut dijumlahkan (24 + 24). Penyebut tetap 24.",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -832,7 +874,8 @@
            "label": "B",
            "body": "7/18",
            "is_correct": false,
-           "rationale": "Penyebutnya ikut dijumlahkan. Ukuran bagiannya tetap sepersembilan."
+           "rationale": "Penyebutnya ikut dijumlahkan. Ukuran bagiannya tetap sepersembilan.",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -842,7 +885,8 @@
            "label": "C",
            "body": "3/9",
            "is_correct": false,
-           "rationale": "Pembilangnya dikurangkan (5 − 2). Tanda + berarti dijumlahkan."
+           "rationale": "Pembilangnya dikurangkan (5 − 2). Tanda + berarti dijumlahkan.",
+           "misconception_code": "SD5-M-B3-12"
           },
           {
            "_row": {
@@ -852,7 +896,8 @@
            "label": "D",
            "body": "10/81",
            "is_correct": false,
-           "rationale": "Pembilang dan penyebut dikalikan. Pada penjumlahan, pembilangnya dijumlahkan dan penyebutnya tetap."
+           "rationale": "Pembilang dan penyebut dikalikan. Pada penjumlahan, pembilangnya dijumlahkan dan penyebutnya tetap.",
+           "misconception_code": "SD5-M-B3-12"
           }
          ]
         },
@@ -874,7 +919,8 @@
            "label": "A",
            "body": "4/10",
            "is_correct": false,
-           "rationale": "Pembilang dijumlahkan dengan pembilang dan penyebut dengan penyebut. Samakan penyebut dahulu."
+           "rationale": "Pembilang dijumlahkan dengan pembilang dan penyebut dengan penyebut. Samakan penyebut dahulu.",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -884,7 +930,8 @@
            "label": "B",
            "body": "4/12",
            "is_correct": false,
-           "rationale": "Penyebutnya sudah 12, tetapi kedua pembilangnya tidak ikut dikali."
+           "rationale": "Penyebutnya sudah 12, tetapi kedua pembilangnya tidak ikut dikali.",
+           "misconception_code": "SD5-M-B3-02"
           },
           {
            "_row": {
@@ -904,7 +951,8 @@
            "label": "D",
            "body": "10/12",
            "is_correct": false,
-           "rationale": "3/4 sudah diubah menjadi 9/12, tetapi 1/6 tidak: pembilangnya harus dikali 2 menjadi 2/12."
+           "rationale": "3/4 sudah diubah menjadi 9/12, tetapi 1/6 tidak: pembilangnya harus dikali 2 menjadi 2/12.",
+           "misconception_code": "SD5-M-B3-02"
           }
          ]
         },
@@ -926,7 +974,8 @@
            "label": "A",
            "body": "12/16",
            "is_correct": false,
-           "rationale": "Penyebutnya ikut dijumlahkan. Penyebut tetap 8."
+           "rationale": "Penyebutnya ikut dijumlahkan. Penyebut tetap 8.",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -946,7 +995,8 @@
            "label": "C",
            "body": "2/8",
            "is_correct": false,
-           "rationale": "Pembilangnya dikurangkan (7 − 5). Tanda + berarti dijumlahkan."
+           "rationale": "Pembilangnya dikurangkan (7 − 5). Tanda + berarti dijumlahkan.",
+           "misconception_code": "SD5-M-B3-12"
           },
           {
            "_row": {
@@ -956,7 +1006,8 @@
            "label": "D",
            "body": "1 1/4",
            "is_correct": false,
-           "rationale": "12/8 sudah menjadi 1 4/8, tetapi 4/8 disederhanakan menjadi 1/4. FPB dari 4 dan 8 adalah 4, jadi 4/8 = 1/2."
+           "rationale": "12/8 sudah menjadi 1 4/8, tetapi 4/8 disederhanakan menjadi 1/4. FPB dari 4 dan 8 adalah 4, jadi 4/8 = 1/2.",
+           "misconception_code": "SD5-M-B3-10"
           }
          ]
         },
@@ -978,7 +1029,8 @@
            "label": "A",
            "body": "11/30 liter",
            "is_correct": false,
-           "rationale": "Penyebutnya sudah disamakan menjadi 15, lalu ikut dijumlahkan (15 + 15). Penyebut tetap 15."
+           "rationale": "Penyebutnya sudah disamakan menjadi 15, lalu ikut dijumlahkan (15 + 15). Penyebut tetap 15.",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -988,7 +1040,8 @@
            "label": "B",
            "body": "3/15 liter",
            "is_correct": false,
-           "rationale": "Penyebutnya sudah 15, tetapi pembilangnya tidak ikut dikali: 1 × 5 = 5 dan 2 × 3 = 6."
+           "rationale": "Penyebutnya sudah 15, tetapi pembilangnya tidak ikut dikali: 1 × 5 = 5 dan 2 × 3 = 6.",
+           "misconception_code": "SD5-M-B3-02"
           },
           {
            "_row": {
@@ -998,7 +1051,8 @@
            "label": "C",
            "body": "1/15 liter",
            "is_correct": false,
-           "rationale": "Susunya dikurangkan. Pagi dan sore digabung, jadi dijumlahkan."
+           "rationale": "Susunya dikurangkan. Pagi dan sore digabung, jadi dijumlahkan.",
+           "misconception_code": "SD5-M-B3-12"
           },
           {
            "_row": {
@@ -1048,7 +1102,8 @@
            "label": "A",
            "body": "3 5/12",
            "is_correct": false,
-           "rationale": "17/12 sudah diubah menjadi 1 5/12, tetapi satu utuhnya tidak ditambahkan ke 3."
+           "rationale": "17/12 sudah diubah menjadi 1 5/12, tetapi satu utuhnya tidak ditambahkan ke 3.",
+           "misconception_code": "SD5-M-B3-07"
           },
           {
            "_row": {
@@ -1068,7 +1123,8 @@
            "label": "C",
            "body": "3 5/7",
            "is_correct": false,
-           "rationale": "Pecahannya dijumlahkan pembilang dengan pembilang dan penyebut dengan penyebut (2 + 3)/(3 + 4)."
+           "rationale": "Pecahannya dijumlahkan pembilang dengan pembilang dan penyebut dengan penyebut (2 + 3)/(3 + 4).",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -1078,7 +1134,8 @@
            "label": "D",
            "body": "11/12",
            "is_correct": false,
-           "rationale": "Ini hasil pengurangan 2 2/3 − 1 3/4. Tanda + berarti dijumlahkan."
+           "rationale": "Ini hasil pengurangan 2 2/3 − 1 3/4. Tanda + berarti dijumlahkan.",
+           "misconception_code": "SD5-M-B3-12"
           }
          ]
         },
@@ -1110,7 +1167,8 @@
            "label": "B",
            "body": "3 3/10",
            "is_correct": false,
-           "rationale": "Penyebutnya ikut dijumlahkan. Penyebut tetap 5."
+           "rationale": "Penyebutnya ikut dijumlahkan. Penyebut tetap 5.",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -1120,7 +1178,8 @@
            "label": "C",
            "body": "3/5",
            "is_correct": false,
-           "rationale": "Hanya pecahannya yang dijumlahkan; bilangan utuh 1 dan 2 terlewat."
+           "rationale": "Hanya pecahannya yang dijumlahkan; bilangan utuh 1 dan 2 terlewat.",
+           "misconception_code": "SD5-M-B3-05"
           },
           {
            "_row": {
@@ -1130,7 +1189,8 @@
            "label": "D",
            "body": "4/5",
            "is_correct": false,
-           "rationale": "Ini hasil pengurangan 2 1/5 − 1 2/5. Tanda + berarti dijumlahkan."
+           "rationale": "Ini hasil pengurangan 2 1/5 − 1 2/5. Tanda + berarti dijumlahkan.",
+           "misconception_code": "SD5-M-B3-12"
           }
          ]
         },
@@ -1152,7 +1212,8 @@
            "label": "A",
            "body": "3 1/4 kg",
            "is_correct": false,
-           "rationale": "5/4 sudah menjadi 1 1/4, tetapi satu utuhnya tidak ditambahkan ke 3."
+           "rationale": "5/4 sudah menjadi 1 1/4, tetapi satu utuhnya tidak ditambahkan ke 3.",
+           "misconception_code": "SD5-M-B3-07"
           },
           {
            "_row": {
@@ -1162,7 +1223,8 @@
            "label": "B",
            "body": "3 4/6 kg",
            "is_correct": false,
-           "rationale": "Pecahannya dijumlahkan pembilang dengan pembilang dan penyebut dengan penyebut (3 + 1)/(4 + 2)."
+           "rationale": "Pecahannya dijumlahkan pembilang dengan pembilang dan penyebut dengan penyebut (3 + 1)/(4 + 2).",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -1182,7 +1244,8 @@
            "label": "D",
            "body": "3/4 kg",
            "is_correct": false,
-           "rationale": "Ini selisih kedua paket. Berat kedua paket berarti dijumlahkan."
+           "rationale": "Ini selisih kedua paket. Berat kedua paket berarti dijumlahkan.",
+           "misconception_code": "SD5-M-B3-12"
           }
          ]
         }
@@ -1222,7 +1285,8 @@
            "label": "A",
            "body": "4/2",
            "is_correct": false,
-           "rationale": "Pembilang dikurangi pembilang dan penyebut dikurangi penyebut, (5 − 1)/(6 − 4). Samakan penyebut dahulu."
+           "rationale": "Pembilang dikurangi pembilang dan penyebut dikurangi penyebut, (5 − 1)/(6 − 4). Samakan penyebut dahulu.",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -1232,7 +1296,8 @@
            "label": "B",
            "body": "4/12",
            "is_correct": false,
-           "rationale": "Penyebutnya sudah 12, tetapi pembilangnya tidak ikut dikali: 5 × 2 = 10 dan 1 × 3 = 3."
+           "rationale": "Penyebutnya sudah 12, tetapi pembilangnya tidak ikut dikali: 5 × 2 = 10 dan 1 × 3 = 3.",
+           "misconception_code": "SD5-M-B3-02"
           },
           {
            "_row": {
@@ -1252,7 +1317,8 @@
            "label": "D",
            "body": "1 1/12",
            "is_correct": false,
-           "rationale": "Ini hasil penjumlahan 10/12 + 3/12. Tanda − berarti dikurangkan."
+           "rationale": "Ini hasil penjumlahan 10/12 + 3/12. Tanda − berarti dikurangkan.",
+           "misconception_code": "SD5-M-B3-12"
           }
          ]
         },
@@ -1274,7 +1340,8 @@
            "label": "A",
            "body": "4/3",
            "is_correct": false,
-           "rationale": "Pembilang dikurangi pembilang dan penyebut dikurangi penyebut, (5 − 1)/(6 − 3)."
+           "rationale": "Pembilang dikurangi pembilang dan penyebut dikurangi penyebut, (5 − 1)/(6 − 3).",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -1294,7 +1361,8 @@
            "label": "C",
            "body": "4/6",
            "is_correct": false,
-           "rationale": "1/3 dianggap 1/6: penyebutnya diubah menjadi 6 tanpa mengali pembilangnya."
+           "rationale": "1/3 dianggap 1/6: penyebutnya diubah menjadi 6 tanpa mengali pembilangnya.",
+           "misconception_code": "SD5-M-B3-02"
           },
           {
            "_row": {
@@ -1304,7 +1372,8 @@
            "label": "D",
            "body": "7/6",
            "is_correct": false,
-           "rationale": "Ini hasil penjumlahan 5/6 + 2/6. Tanda − berarti dikurangkan."
+           "rationale": "Ini hasil penjumlahan 5/6 + 2/6. Tanda − berarti dikurangkan.",
+           "misconception_code": "SD5-M-B3-12"
           }
          ]
         },
@@ -1326,7 +1395,8 @@
            "label": "A",
            "body": "1/1",
            "is_correct": false,
-           "rationale": "Pembilang dikurangi pembilang (3 − 2) dan penyebut besar dikurangi yang kecil (5 − 4)."
+           "rationale": "Pembilang dikurangi pembilang (3 − 2) dan penyebut besar dikurangi yang kecil (5 − 4).",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -1336,7 +1406,8 @@
            "label": "B",
            "body": "1/20",
            "is_correct": false,
-           "rationale": "Penyebutnya sudah 20, tetapi pembilangnya tidak ikut dikali: 3 × 5 = 15 dan 2 × 4 = 8."
+           "rationale": "Penyebutnya sudah 20, tetapi pembilangnya tidak ikut dikali: 3 × 5 = 15 dan 2 × 4 = 8.",
+           "misconception_code": "SD5-M-B3-02"
           },
           {
            "_row": {
@@ -1346,7 +1417,8 @@
            "label": "C",
            "body": "23/20",
            "is_correct": false,
-           "rationale": "Ini hasil penjumlahan 15/20 + 8/20. Tanda − berarti dikurangkan."
+           "rationale": "Ini hasil penjumlahan 15/20 + 8/20. Tanda − berarti dikurangkan.",
+           "misconception_code": "SD5-M-B3-12"
           },
           {
            "_row": {
@@ -1406,7 +1478,8 @@
            "label": "B",
            "body": "3 3/10",
            "is_correct": false,
-           "rationale": "Pecahannya dibalik menjadi 5/10 − 2/10, supaya tidak perlu meminjam. 2/10 lebih kecil dari 5/10, jadi pinjam 1 utuh."
+           "rationale": "Pecahannya dibalik menjadi 5/10 − 2/10, supaya tidak perlu meminjam. 2/10 lebih kecil dari 5/10, jadi pinjam 1 utuh.",
+           "misconception_code": "SD5-M-B3-08"
           },
           {
            "_row": {
@@ -1416,7 +1489,8 @@
            "label": "C",
            "body": "3 7/10",
            "is_correct": false,
-           "rationale": "Sudah meminjam 1 utuh (12/10 − 5/10 = 7/10), tetapi bilangan utuhnya tidak dikurangi satu: 3 − 1 = 2."
+           "rationale": "Sudah meminjam 1 utuh (12/10 − 5/10 = 7/10), tetapi bilangan utuhnya tidak dikurangi satu: 3 − 1 = 2.",
+           "misconception_code": "SD5-M-B3-08"
           },
           {
            "_row": {
@@ -1426,7 +1500,8 @@
            "label": "D",
            "body": "5 7/10",
            "is_correct": false,
-           "rationale": "Ini hasil penjumlahan. Tanda − berarti dikurangkan."
+           "rationale": "Ini hasil penjumlahan. Tanda − berarti dikurangkan.",
+           "misconception_code": "SD5-M-B3-12"
           }
          ]
         },
@@ -1449,7 +1524,8 @@
            "label": "A",
            "body": "2/1 kg",
            "is_correct": false,
-           "rationale": "Pembilang dikurangi pembilang dan penyebut dikurangi penyebut. Sisanya tidak mungkin lebih banyak dari gula semula."
+           "rationale": "Pembilang dikurangi pembilang dan penyebut dikurangi penyebut. Sisanya tidak mungkin lebih banyak dari gula semula.",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -1469,7 +1545,8 @@
            "label": "C",
            "body": "2/12 kg",
            "is_correct": false,
-           "rationale": "Penyebutnya sudah 12, tetapi pembilangnya tidak ikut dikali: 3/4 = 9/12 dan 1/3 = 4/12."
+           "rationale": "Penyebutnya sudah 12, tetapi pembilangnya tidak ikut dikali: 3/4 = 9/12 dan 1/3 = 4/12.",
+           "misconception_code": "SD5-M-B3-02"
           },
           {
            "_row": {
@@ -1479,7 +1556,8 @@
            "label": "D",
            "body": "1 1/12 kg",
            "is_correct": false,
-           "rationale": "Gulanya dijumlahkan. Sisa berarti dikurangi."
+           "rationale": "Gulanya dijumlahkan. Sisa berarti dikurangi.",
+           "misconception_code": "SD5-M-B3-12"
           }
          ]
         },
@@ -1502,7 +1580,8 @@
            "label": "A",
            "body": "3 5/6 m",
            "is_correct": false,
-           "rationale": "Ini panjang pita yang dipotong, hasil langkah pertama. Yang ditanyakan sisanya."
+           "rationale": "Ini panjang pita yang dipotong, hasil langkah pertama. Yang ditanyakan sisanya.",
+           "misconception_code": "SD5-M-B3-12"
           },
           {
            "_row": {
@@ -1512,7 +1591,8 @@
            "label": "B",
            "body": "3 2/3 m",
            "is_correct": false,
-           "rationale": "Hanya potongan untuk Rani yang dikurangkan. Potongan untuk Sita juga harus dikurangkan."
+           "rationale": "Hanya potongan untuk Rani yang dikurangkan. Potongan untuk Sita juga harus dikurangkan.",
+           "misconception_code": "SD5-M-B3-12"
           },
           {
            "_row": {
@@ -1522,7 +1602,8 @@
            "label": "C",
            "body": "3 1/6 m",
            "is_correct": false,
-           "rationale": "6 − 3 = 3, lalu 1/6 diambil dari 6/6 − 5/6. Setelah meminjam 1 utuh, bilangan utuhnya tinggal 5 − 3 = 2."
+           "rationale": "6 − 3 = 3, lalu 1/6 diambil dari 6/6 − 5/6. Setelah meminjam 1 utuh, bilangan utuhnya tinggal 5 − 3 = 2.",
+           "misconception_code": "SD5-M-B3-08"
           },
           {
            "_row": {
@@ -1565,7 +1646,8 @@
            "label": "B",
            "body": "2 1/4",
            "is_correct": false,
-           "rationale": "Pecahannya dibalik menjadi 2/4 − 1/4 supaya tidak perlu meminjam. 1/4 lebih kecil dari 2/4, jadi pinjam 1 utuh."
+           "rationale": "Pecahannya dibalik menjadi 2/4 − 1/4 supaya tidak perlu meminjam. 1/4 lebih kecil dari 2/4, jadi pinjam 1 utuh.",
+           "misconception_code": "SD5-M-B3-08"
           },
           {
            "_row": {
@@ -1575,7 +1657,8 @@
            "label": "C",
            "body": "2 3/4",
            "is_correct": false,
-           "rationale": "Sudah meminjam 1 utuh (5/4 − 2/4 = 3/4), tetapi bilangan utuhnya tidak dikurangi satu: 2 − 1 = 1."
+           "rationale": "Sudah meminjam 1 utuh (5/4 − 2/4 = 3/4), tetapi bilangan utuhnya tidak dikurangi satu: 2 − 1 = 1.",
+           "misconception_code": "SD5-M-B3-08"
           },
           {
            "_row": {
@@ -1585,7 +1668,8 @@
            "label": "D",
            "body": "4 3/4",
            "is_correct": false,
-           "rationale": "Ini hasil penjumlahan. Tanda − berarti dikurangkan."
+           "rationale": "Ini hasil penjumlahan. Tanda − berarti dikurangkan.",
+           "misconception_code": "SD5-M-B3-12"
           }
          ]
         },
@@ -1607,7 +1691,8 @@
            "label": "A",
            "body": "2 3/4 liter",
            "is_correct": false,
-           "rationale": "Airnya dijumlahkan. Yang diminum berkurang, jadi dikurangi."
+           "rationale": "Airnya dijumlahkan. Yang diminum berkurang, jadi dikurangi.",
+           "misconception_code": "SD5-M-B3-12"
           },
           {
            "_row": {
@@ -1627,7 +1712,8 @@
            "label": "C",
            "body": "1 3/4 liter",
            "is_correct": false,
-           "rationale": "Setelah meminjam 1 utuh (4/4), yang ditulis 3/4, padahal 4/4 − 3/4 = 1/4."
+           "rationale": "Setelah meminjam 1 utuh (4/4), yang ditulis 3/4, padahal 4/4 − 3/4 = 1/4.",
+           "misconception_code": "SD5-M-B3-08"
           },
           {
            "_row": {
@@ -1637,7 +1723,8 @@
            "label": "D",
            "body": "1/4 liter",
            "is_correct": false,
-           "rationale": "Pecahannya benar, tetapi bilangan utuh 1 yang tersisa terlewat."
+           "rationale": "Pecahannya benar, tetapi bilangan utuh 1 yang tersisa terlewat.",
+           "misconception_code": "SD5-M-B3-05"
           }
          ]
         },
@@ -1659,7 +1746,8 @@
            "label": "A",
            "body": "1/2 + 1/3 = 2/5",
            "is_correct": false,
-           "rationale": "Pembilang dijumlahkan dengan pembilang dan penyebut dengan penyebut. Hasilnya 5/6."
+           "rationale": "Pembilang dijumlahkan dengan pembilang dan penyebut dengan penyebut. Hasilnya 5/6.",
+           "misconception_code": "SD5-M-B3-01"
           },
           {
            "_row": {
@@ -1669,7 +1757,8 @@
            "label": "B",
            "body": "3/4 > 5/6, karena penyebut 4 lebih kecil",
            "is_correct": false,
-           "rationale": "Penyebut yang lebih kecil tidak menentukan bila pembilangnya berbeda. 3/4 = 9/12 < 5/6 = 10/12."
+           "rationale": "Penyebut yang lebih kecil tidak menentukan bila pembilangnya berbeda. 3/4 = 9/12 < 5/6 = 10/12.",
+           "misconception_code": "SD5-M-B3-03"
           },
           {
            "_row": {
@@ -1689,7 +1778,8 @@
            "label": "D",
            "body": "2 1/3 = 3/3",
            "is_correct": false,
-           "rationale": "Bilangan utuh 2 hanya dijumlahkan dengan pembilang. 2 utuh = 6/3, jadi 2 1/3 = 7/3."
+           "rationale": "Bilangan utuh 2 hanya dijumlahkan dengan pembilang. 2 utuh = 6/3, jadi 2 1/3 = 7/3.",
+           "misconception_code": "SD5-M-B3-06"
           }
          ]
         }
@@ -1698,6 +1788,148 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SD5-M-B3-01",
+   "label": "Penyebut ikut dihitung",
+   "description": "Pembilang dijumlahkan atau dikurangkan dengan pembilang, dan penyebut dengan penyebut (misalnya 1/2 + 1/3 = 2/5).",
+   "remediation": "Gambarlah kedua pecahan sebagai potongan dari benda yang sama; tunjukkan bahwa penyebut adalah ukuran potongan, yang tidak berubah saat potongan digabung."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SD5-M-B3-02",
+   "label": "Penyebut disamakan, pembilang tidak",
+   "description": "Penyebut diubah menjadi KPK, tetapi pembilangnya tidak dikali dengan bilangan yang sama, sehingga nilai pecahannya berubah.",
+   "remediation": "Tulis pengalinya di atas dan di bawah garis pecahan setiap kali (× 4 / × 4), lalu periksa dengan gambar bahwa pecahannya tetap senilai."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SD5-M-B3-03",
+   "label": "Penyebut dijadikan patokan",
+   "description": "Besar kecilnya pecahan ditentukan dari penyebutnya saja, misalnya 1/8 dianggap lebih besar dari 1/4 karena 8 lebih besar dari 4.",
+   "remediation": "Bandingkan dua batang yang sama panjang yang dibagi 4 dan dibagi 8; makin banyak potongan, makin kecil setiap potongannya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SD5-M-B3-04",
+   "label": "Pembilang dijadikan patokan",
+   "description": "Pecahan dengan penyebut berbeda dibandingkan dari pembilangnya saja, misalnya 5/6 dianggap lebih kecil dari 7/9 karena 5 lebih kecil dari 7.",
+   "remediation": "Samakan penyebut dulu, baru bandingkan pembilangnya; pembilang hanya bisa dibandingkan bila ukuran bagiannya sama."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SD5-M-B3-05",
+   "label": "Bilangan utuh diabaikan",
+   "description": "Pada pecahan campuran, bilangan utuhnya tidak diperhitungkan: yang dibandingkan atau dihitung hanya bagian pecahannya.",
+   "remediation": "Minta murid menandai bilangan utuh lebih dulu dan membandingkan atau menjumlahkannya sebelum melihat pecahannya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SD5-M-B3-06",
+   "label": "Mengubah pecahan campuran keliru",
+   "description": "Pecahan campuran diubah menjadi pecahan biasa (atau sebaliknya) tanpa mengalikan bilangan utuh dengan penyebut, atau hasil bagi dan sisanya tertukar.",
+   "remediation": "Tuliskan setiap bilangan utuh sebagai pecahan berpenyebut sama (1 = 4/4), lalu jumlahkan; periksa kembali dengan pembagian."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SD5-M-B3-07",
+   "label": "Pecahan lebih dari 1 tidak dijadikan utuh",
+   "description": "Saat menjumlah pecahan campuran, pecahan yang hasilnya lebih dari 1 tidak diubah, atau satu utuh yang muncul darinya hilang.",
+   "remediation": "Setelah menjumlah pecahannya, tanyakan: apakah pembilangnya lebih besar dari penyebut? Bila ya, keluarkan satu utuh dan tambahkan ke bilangan utuhnya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SD5-M-B3-08",
+   "label": "Meminjam 1 utuh keliru",
+   "description": "Pada pengurangan pecahan campuran, pecahan yang lebih kecil dikurangi dari yang lebih besar dengan membalik urutannya, atau setelah meminjam, bilangan utuhnya tidak dikurangi.",
+   "remediation": "Tulis ulang bilangan yang dipinjami dalam bentuk barunya (3 1/3 = 2 4/3) sebelum mengurangi, lalu periksa hasilnya dengan penjumlahan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SD5-M-B3-09",
+   "label": "Pecahan senilai tanpa perkalian",
+   "description": "Pecahan senilai dibuat dengan menambah pembilang dan penyebut dengan bilangan yang sama, atau hanya salah satunya yang diubah.",
+   "remediation": "Tunjukkan dengan gambar bahwa 2/3 dan 4/5 tidak sama besar, lalu buat pecahan senilai dengan mengali keduanya dengan bilangan yang sama."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SD5-M-B3-10",
+   "label": "Penyederhanaan belum tuntas",
+   "description": "Pecahan dibagi dengan faktor persekutuan yang bukan FPB sehingga masih bisa disederhanakan, atau dibagi dengan bilangan yang tidak membagi keduanya.",
+   "remediation": "Cari FPB pembilang dan penyebut dulu dan bagi keduanya dengan FPB itu; periksa apakah hasilnya masih mempunyai faktor persekutuan selain 1."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SD5-M-B3-11",
+   "label": "Pembilang dan penyebut tertukar",
+   "description": "Pembilang dan penyebut tertukar tempat, atau penyebut diambil dari banyak bagian yang tidak diambil, bukan dari banyak seluruh bagian.",
+   "remediation": "Ingatkan bahwa penyebut adalah banyak seluruh bagian yang sama besar, dan pembilang adalah bagian yang dimaksud; hitung keduanya pada gambar."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 13
+   },
+   "code": "SD5-M-B3-12",
+   "label": "Jawaban bukan yang ditanyakan",
+   "description": "Operasi dipilih dari angka yang tampak, bukan dari pertanyaannya (menjumlah saat ditanya sisa), atau hasil langkah pertama diberikan sebagai jawaban akhir.",
+   "remediation": "Minta murid menggarisbawahi kata kunci pertanyaan (sisa, selisih, semuanya) dan menulis kalimat jawaban sebelum menghitung."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 14
+   },
+   "code": "SD5-M-B3-13",
+   "label": "Urutan terbalik",
+   "description": "Urutan dari terkecil tertukar dengan urutan dari terbesar.",
+   "remediation": "Setelah mengurutkan, periksa bilangan pertama: apakah memang yang diminta, terkecil atau terbesar?"
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 15
+   },
+   "code": "SD5-M-B3-14",
+   "label": "Beda penyebut dianggap tidak dapat dibandingkan",
+   "description": "Pecahan yang penyebutnya berbeda dianggap tidak dapat dibandingkan, atau dianggap sama besar karena pembilangnya sama.",
+   "remediation": "Tunjukkan bahwa setiap dua pecahan dapat dibandingkan setelah penyebutnya disamakan, atau dengan gambar batang yang sama panjang."
   }
  ]
 }

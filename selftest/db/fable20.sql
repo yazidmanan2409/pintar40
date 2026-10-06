@@ -22,6 +22,16 @@
 --   F20-C01  CR-01, D-080(2)(9), D-120 Q1: a certificate's number is the holder's PINTAR ID and their own five-digit
 --            sequence, `<PINTAR ID>/<NNNNN>`; the holder's next certificate takes the next number; the sequence is never
 --            reset or reused; «Awalan nomor» is retired, and no saved template changes the number
+--   F20-M01  CR-50, D-063 M1/M5, D-120 Q9: a package carries the misconception definitions its options name. Two schools
+--            import the same chapter with the same code: both succeed, each owns its own row, each option names its own
+--            school's row; the same school re-imports the same text: reused, one row; a different text under a held
+--            code is refused by name and nothing changes; an option naming a code the package does not define is
+--            refused, even when the school holds it
+--   F20-M02  CR-50, D-063 M2/M3/M4: an option can name only its own school's definition, whatever the route (a direct
+--            insert as another school's author is refused); definitions are append-only for a school; the three
+--            readers join a definition on the option's own school
+--   F20-M03  CR-50 (the closure evidence): a chapter whose every wrong option carries a defined misconception
+--            publishes its review with no WEAK_MISCONCEPTION_LINKAGE finding (31 a chapter on today's content)
 --
 -- EVERY ROW IS ROLLED BACK: one subtransaction, verdicts collected in a jsonb of problems, a sentinel to undo the
 -- lot, and the findings emitted afterwards.
@@ -79,6 +89,8 @@ revoke all on function selftest.f20_next_version() from public;
 
 revoke all on function selftest.f20_note(jsonb, text, text), selftest.f20_kode(text),
   selftest.f20_at(uuid, numeric, numeric, text) from public;
+-- read as the person a test impersonates, as f18_kode is
+grant execute on function selftest.f20_kode(text) to authenticated, anon;
 
 -- An official Uji Penguasaan for another learner of the bootstrap class, copied from the bootstrap attempt
 -- (fable06's harness) and restated at a mastery and safety gate; with p_finished false the sitting is only started.
@@ -111,6 +123,25 @@ begin
 end $$;
 revoke all on function selftest.f20_kesiapan(uuid, uuid) from public;
 
+-- A one-question structured package (the shape F11-P02 imports) whose wrong option names p_code, carrying p_defs as its
+-- «Miskonsepsi» sheet (D-063 M5)
+create or replace function selftest.f20_paket(p_title text, p_code text, p_defs jsonb)
+returns jsonb language sql immutable as $$
+  select jsonb_build_object('courses', jsonb_build_array(
+    jsonb_build_object('title', p_title, 'subject', 'IPA', 'stage', 'SMP', 'grade_label', 'Kelas 7',
+      'modules', jsonb_build_array(jsonb_build_object('title', 'Energi', 'lessons', jsonb_build_array(
+        jsonb_build_object('title', 'Energi kinetik', 'body_markdown', 'Benda yang bergerak memiliki energi kinetik.',
+          'items', jsonb_build_array(jsonb_build_object('stem', 'Benda manakah yang memiliki energi kinetik?', 'use', 'POST_TEST',
+            'options', jsonb_build_array(
+              jsonb_build_object('label', 'A', 'body', 'Bola yang menggelinding di lantai datar', 'is_correct', true,
+                                 'rationale', 'Bola itu bergerak.'),
+              jsonb_strip_nulls(jsonb_build_object('label', 'B', 'body', 'Batu besar yang diam di tanah', 'is_correct', false,
+                                 'rationale', 'Batu itu tidak bergerak.', 'misconception_code', p_code)))))))))))
+  ) || case when p_defs is null then '{}'::jsonb else jsonb_build_object('misconceptions', p_defs) end
+$$;
+revoke all on function selftest.f20_paket(text, text, jsonb) from public;
+grant execute on function selftest.f20_paket(text, text, jsonb) to authenticated;
+
 -- ═══════════════════════════════════════════════════════════════ the suite
 create or replace function selftest.run_fable20()
 returns table (id text, area text, ok boolean, detail text)
@@ -120,6 +151,7 @@ declare
   v_aa uuid; v_ver text; v_res text; v_inst uuid; v_class uuid; v_period uuid; v_d0 jsonb; v_d1 jsonb;
   v_p uuid[] := '{}'; v_pid uuid; v_enr uuid; i int; v_beda jsonb;
   v_cert uuid; v_tok text; v_nama_lama text; v_v record; v_d jsonb; v_pintar text; v_n1 text; v_n2 text; v_kursus text;
+  v_sa uuid; v_sb uuid; v_ga uuid; v_gb uuid; v_kode text; v_defs jsonb; v_batch uuid; v_hj jsonb; v_course uuid; v_item uuid;
   v_probs jsonb := '{}'::jsonb; v_fatal text := '';
 begin
   perform selftest.as_owner();
@@ -400,6 +432,147 @@ begin
       v_probs := selftest.f20_note(v_probs, 'F20-C01', 'the test could not run: ' || left(sqlerrm, 160));
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F20-M01 .. M03  CR-50: MISCONCEPTION LINKAGE (D-063 M1-M5, D-120 Q9)
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform set_config('app.seed_intent', 'synthetic', true);
+      insert into public.institutions (name, slug, is_synthetic, is_active)
+      values ('Sekolah F20 A ' || v_tag, 'f20a-' || v_tag, true, true) returning institutions.id into v_sa;
+      insert into public.institutions (name, slug, is_synthetic, is_active)
+      values ('Sekolah F20 B ' || v_tag, 'f20b-' || v_tag, true, true) returning institutions.id into v_sb;
+      perform set_config('app.seed_intent', '', true);
+      v_ga := selftest.f11_user('f20-guru-a-' || v_tag || '@local.invalid', 'EDUCATOR', v_sa);
+      v_gb := selftest.f11_user('f20-guru-b-' || v_tag || '@local.invalid', 'EDUCATOR', v_sb);
+      v_kode := 'MK-F20-' || upper(v_tag);
+      v_defs := jsonb_build_array(jsonb_build_object('code', v_kode, 'label', 'Mengira benda diam punya energi gerak',
+        'description', 'Peserta didik menganggap benda besar selalu memiliki energi kinetik.',
+        'remediation', 'Tanyakan dulu: apakah bendanya bergerak? Energi kinetik hanya ada pada benda yang bergerak.'));
+
+      -- M01: the same chapter into two schools, each its own row
+      foreach v_pid in array array[v_ga, v_gb] loop
+        perform selftest.as_user_uid(v_pid);
+        v_batch := selftest.f11_batch(case when v_pid = v_ga then v_sa else v_sb end, 'STRUCTURED_PACKAGE',
+                                      selftest.f20_paket('Energi ' || v_tag, v_kode, v_defs));
+        v_hj := public.prepare_ingest_batch(v_batch);
+        if (v_hj ->> 'ok')::boolean is true then v_hj := public.confirm_ingest_batch(v_batch); end if;
+        perform selftest.as_owner();
+        if (v_hj ->> 'ok')::boolean is not true then
+          v_probs := selftest.f20_note(v_probs, 'F20-M01', format('school %s could not import a chapter carrying its definition: %s',
+            case when v_pid = v_ga then 'A' else 'B' end, left(coalesce((v_hj -> 'problems')::text, v_hj::text), 160)));
+        end if;
+      end loop;
+      select count(*) into i from public.misconception_taxonomy t where t.code = v_kode and t.institution_id in (v_sa, v_sb);
+      if i <> 2 or (select count(distinct t.institution_id) from public.misconception_taxonomy t where t.code = v_kode
+                     and t.institution_id in (v_sa, v_sb)) <> 2 then
+        v_probs := selftest.f20_note(v_probs, 'F20-M01', format('the two schools hold %s row(s) for %s; each should own its own', i, v_kode));
+      end if;
+      if exists (select 1 from public.item_options o where o.misconception_code = v_kode and o.institution_id in (v_sa, v_sb)
+                  and not exists (select 1 from public.misconception_taxonomy t where t.code = o.misconception_code
+                                   and t.institution_id = o.institution_id)) then
+        v_probs := selftest.f20_note(v_probs, 'F20-M01', 'an option names a definition its own school does not hold');
+      end if;
+      -- T3: the same school, the same text again: reused
+      perform selftest.as_user_uid(v_ga);
+      v_batch := selftest.f11_batch(v_sa, 'STRUCTURED_PACKAGE', selftest.f20_paket('Energi lagi ' || v_tag, v_kode, v_defs));
+      v_hj := public.prepare_ingest_batch(v_batch);
+      if (v_hj ->> 'ok')::boolean is true then v_hj := public.confirm_ingest_batch(v_batch); end if;
+      perform selftest.as_owner();
+      if (v_hj ->> 'ok')::boolean is not true
+         or (select count(*) from public.misconception_taxonomy t where t.code = v_kode and t.institution_id = v_sa) <> 1 then
+        v_probs := selftest.f20_note(v_probs, 'F20-M01', 'the same school re-importing the same definition was not reused as one row: '
+          || left(coalesce((v_hj -> 'problems')::text, ''), 120));
+      end if;
+      -- T4: a different text under a held code: refused by name, nothing changed
+      perform selftest.as_user_uid(v_ga);
+      v_batch := selftest.f11_batch(v_sa, 'STRUCTURED_PACKAGE', selftest.f20_paket('Energi beda ' || v_tag, v_kode,
+        jsonb_build_array(jsonb_build_object('code', v_kode, 'label', 'Teks lain', 'description', 'Penjelasan lain.', 'remediation', 'Cara lain.'))));
+      v_hj := public.prepare_ingest_batch(v_batch);
+      perform selftest.as_owner();
+      if (v_hj ->> 'ok')::boolean is not false
+         or not exists (select 1 from jsonb_array_elements(v_hj -> 'problems') x where x ->> 'code' = 'MISCONCEPTION_DEFINITION_DIFFERS')
+         or (select t.label from public.misconception_taxonomy t where t.code = v_kode and t.institution_id = v_sa) is distinct from 'Mengira benda diam punya energi gerak' then
+        v_probs := selftest.f20_note(v_probs, 'F20-M01', 'a different text under a code the school holds was not refused MISCONCEPTION_DEFINITION_DIFFERS: '
+          || left(v_hj::text, 140));
+      end if;
+      -- T5: an option naming a code the package does not define: refused, though school A holds it
+      perform selftest.as_user_uid(v_ga);
+      v_batch := selftest.f11_batch(v_sa, 'STRUCTURED_PACKAGE', selftest.f20_paket('Energi tanpa definisi ' || v_tag, v_kode, null));
+      v_hj := public.prepare_ingest_batch(v_batch);
+      perform selftest.as_owner();
+      if (v_hj ->> 'ok')::boolean is not false
+         or not exists (select 1 from jsonb_array_elements(v_hj -> 'problems') x where x ->> 'code' = 'OPTION_MISCONCEPTION_UNKNOWN') then
+        v_probs := selftest.f20_note(v_probs, 'F20-M01', 'an option naming a code its package does not define was accepted: ' || left(v_hj::text, 140));
+      end if;
+
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f20_note(v_probs, 'F20-M01', 'the test could not run: ' || left(sqlerrm, 160));
+    end;
+
+    begin
+      if v_sa is null or v_sb is null then raise exception 'F20-M01 did not set the two schools up'; end if;
+      -- M02 T2: a direct insert by school B's author naming a definition only school A holds
+      insert into public.misconception_taxonomy (code, institution_id, label, description, remediation)
+      values (v_kode || '-A', v_sa, 'Hanya milik A', 'Penjelasan milik A.', 'Cara milik A.');
+      select o.item_id into v_item from public.item_options o where o.institution_id = v_sb and o.misconception_code = v_kode limit 1;
+      if v_item is null then
+        select i2.id into v_item from public.items i2 where i2.institution_id = v_sb limit 1;
+      end if;
+      if v_item is null then
+        v_probs := selftest.f20_note(v_probs, 'F20-M02', 'school B holds no question to test the link with');
+      else
+        k := selftest.f20_kode(format('insert into public.item_options (item_id, institution_id, label, body, is_correct, rationale, misconception_code) '
+          || 'values (%L, %L, %L, %L, false, %L, %L)', v_item, v_sb, 'Z', 'Pilihan uji', 'Alasan uji', v_kode || '-A'));
+        if k is null then
+          v_probs := selftest.f20_note(v_probs, 'F20-M02', 'an option of school B was linked to a definition only school A holds');
+        end if;
+      end if;
+      -- M4: append-only for the school's own author
+      perform selftest.as_user_uid(v_ga);
+      k := selftest.f20_kode(format('update public.misconception_taxonomy set label = %L where code = %L and institution_id = %L',
+                                    'Diubah', v_kode, v_sa));
+      perform selftest.as_owner();
+      if k is null and (select t.label from public.misconception_taxonomy t where t.code = v_kode and t.institution_id = v_sa) = 'Diubah' then
+        v_probs := selftest.f20_note(v_probs, 'F20-M02', 'a school''s author could edit a definition in place (it is append-only)');
+      end if;
+      -- M3: the three readers join on the option's own school
+      if pg_get_functiondef('public.session_misconceptions(uuid)'::regprocedure) !~ 'mt\.institution_id = o\.institution_id'
+         or pg_get_functiondef('public.reading_map(uuid)'::regprocedure) !~ 'mt\.institution_id = o2\.institution_id'
+         or pg_get_viewdef('public.service_cohort_misconceptions'::regclass) !~ 'mt\.institution_id = o\.institution_id' then
+        v_probs := selftest.f20_note(v_probs, 'F20-M02', 'a misconception reader still joins a definition on its code alone');
+      end if;
+
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f20_note(v_probs, 'F20-M02', 'the test could not run: ' || left(sqlerrm, 160));
+    end;
+
+    begin
+      -- M03: a chapter whose wrong options are all coded publishes its review with no weak-linkage finding. Never vacuous:
+      -- the chapter reviewed must hold a coded wrong option
+      select c.id into v_course from public.courses c
+       where c.institution_id = v_sa
+         and exists (select 1 from public.item_options o join public.items i2 on i2.id = o.item_id
+                       join public.lessons l on l.id = i2.lesson_id join public.modules m on m.id = l.module_id
+                      where m.course_id = c.id and o.misconception_code is not null)
+       order by c.created_at limit 1;
+      if v_course is null then
+        v_probs := selftest.f20_note(v_probs, 'F20-M03', 'no imported chapter with a coded wrong option to review');
+      else
+        perform selftest.as_user_uid(v_ga);
+        perform public.run_mcq_quality(v_course);
+        perform selftest.as_owner();
+        select count(*) into i from public.mcq_quality_findings f where f.course_id = v_course and f.pattern_class = 'WEAK_MISCONCEPTION_LINKAGE';
+        if i <> 0 then
+          v_probs := selftest.f20_note(v_probs, 'F20-M03', format('a chapter whose every wrong option is coded still shows %s WEAK_MISCONCEPTION_LINKAGE finding(s)', i));
+        end if;
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f20_note(v_probs, 'F20-M03', 'the test could not run: ' || left(sqlerrm, 160));
+    end;
+
     raise exception 'F20-ROLLBACK';
   exception when others then
     if sqlerrm <> 'F20-ROLLBACK' then v_fatal := sqlerrm; end if;
@@ -408,12 +581,15 @@ begin
 
   for r in
     select * from unnest(
-      array['F20-Q10', 'F20-F01', 'F20-N01', 'F20-S01', 'F20-C01'],
+      array['F20-Q10', 'F20-F01', 'F20-N01', 'F20-S01', 'F20-C01', 'F20-M01', 'F20-M02', 'F20-M03'],
       array['D-121(a)(b), Q10 Alternative 4 -- mastery is the school''s mark; the descriptor is PINTAR''s fixed scale, none below 70%',
             'D-121(a), INV-29 -- a result is decided under its session''s own scoring version',
             'D-121(c), D-095(c)(g) -- «Belum mengerjakan Uji Penguasaan» is produced and stays apart from the bands',
             'CR-02, D-078(c), D-077(d) -- a certificate is sealed at issuance: school, course, language',
-            'CR-01, D-080(2)(9) -- the number is the holder''s PINTAR ID and their own sequence'],
+            'CR-01, D-080(2)(9) -- the number is the holder''s PINTAR ID and their own sequence',
+            'CR-50, D-063 M1/M5, D-120 Q9 -- a package carries its definitions; each school owns its own',
+            'CR-50, D-063 M2/M3/M4 -- an option names only its own school''s definition; append-only; readers per school',
+            'CR-50 -- a coded chapter has no weak-linkage finding'],
       array[
         'the current scoring version names Sangat Baik ≥ 90%, Baik ≥ 80% and Cukup ≥ 70% and nothing below; the engine version is '
           || 'pintar-engine/2; a published version''s descriptors cannot be edited in place and the next publication carries them '
@@ -431,7 +607,16 @@ begin
           || 'school''s name as issued, the course the certificate''s release teaches and the language id; the sealed school name '
           || 'cannot be edited',
         'the holder''s certificate is numbered <PINTAR ID>/<five digits>, their next certificate the next number of their own; the '
-          || 'per-person counter can be neither deleted nor set back; «Awalan nomor» can no longer be saved'
+          || 'per-person counter can be neither deleted nor set back; «Awalan nomor» can no longer be saved',
+        'two schools import the same chapter carrying its «Miskonsepsi» definition: both succeed, each owns its own row under the '
+          || 'code and each option names its own school''s row; the same school re-imports the same text and it is reused (one row); '
+          || 'a different text under the held code is refused MISCONCEPTION_DEFINITION_DIFFERS and nothing changes; an option naming '
+          || 'a code its package does not define is refused OPTION_MISCONCEPTION_UNKNOWN although the school holds it',
+        'school B''s author cannot insert an option naming a definition only school A holds (the composite key refuses it); a school''s '
+          || 'author cannot edit a definition in place; session_misconceptions, reading_map and service_cohort_misconceptions join a '
+          || 'definition on the option''s own school',
+        'a chapter whose every wrong option carries a defined misconception is reviewed by run_mcq_quality with no '
+          || 'WEAK_MISCONCEPTION_LINKAGE finding'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

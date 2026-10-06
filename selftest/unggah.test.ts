@@ -359,7 +359,9 @@ baris</t></si><si><t>6.0</t></si></sst>`;
       const c = new Checks();
       // BOB-04 (D-040) replaced lesson_package_check, adding one code: both sources are read
       // D-085 M10 added a correction's own problems (package_revision_problems): read too
-      const sql = [MIGRASI, "20261010100000_a_lesson_is_assigned_whole.sql", "20261106100000_a_correction_arrives_in_its_line.sql"]
+      // RESTATED FOR CR-50 (D-063 M5): 20261202100000 replaces lesson_package_check with the «Miskonsepsi» codes; read too
+      const sql = [MIGRASI, "20261010100000_a_lesson_is_assigned_whole.sql", "20261106100000_a_correction_arrives_in_its_line.sql",
+        "20261202100000_a_misconception_belongs_to_its_contents_owner.sql"]
         .map((f) => readFileSync(join(ctx.repoRoot, "supabase", "migrations", f), "utf8")).join("\n").replace(/--[^\n]*/g, "");
       const dariDb = new Set<string>();
       for (const m of sql.matchAll(/package_problem\('([A-Z_]+)'/g)) dariDb.add(m[1]);
@@ -456,7 +458,7 @@ baris</t></si><si><t>6.0</t></si></sst>`;
         ["namaMediaMaks", `length(v_name) > ${b.namaMediaMaks.nilai} or v_name !~ '^[a-z0-9][a-z0-9_.-]*$' then\n            v_p := v_p || public.package_problem('${b.namaMediaMaks.kode}'`, ""],
         ["jenisMedia", `elsif v_kind is null then\n            v_p := v_p || public.package_problem('${b.jenisMedia.kode}'`, ""],
         ["transkripWajib", `if v_kind in (${b.transkripWajib.nilai.map((v) => `'${v}'`).join(", ")}) and public.package_text(md, 'transcript') is null then\n              v_p := v_p || public.package_problem('${b.transkripWajib.kode}'`, ""],
-        ["miskonsepsi", `not exists (select 1 from public.${b.miskonsepsi.nilai} mt where mt.code = v_t) then\n              v_p := v_p || public.package_problem('${b.miskonsepsi.kode}'`, ""],
+
         ["teksMaks.kursus", `if length(coalesce(public.package_text(c, v_t), '')) > ${t.judulKursus} then\n        v_p := v_p || public.package_problem('${b.teksMaks.kode}', c, v_path, v_t)`, ""],
         ["teksMaks.judulBab", `length(public.package_text(m, 'title')) > ${t.judulBab} then v_p := v_p || public.package_problem('${b.teksMaks.kode}'`, ""],
         ["teksMaks.judulPelajaran", `length(public.package_text(l, 'title')) > ${t.judulPelajaran} then v_p := v_p || public.package_problem('${b.teksMaks.kode}'`, ""],
@@ -471,6 +473,12 @@ baris</t></si><si><t>6.0</t></si></sst>`;
       for (const [nama, potongan] of klausa) {
         c.expect(sql.includes(potongan), `BATAS_PAKET.${nama} is not the clause lesson_package_check enforces`);
       }
+      // RESTATED FOR CR-50 (D-063 M5, a changed requirement): an option's misconception must be defined in the package's
+      // own «Miskonsepsi» (misconceptions), read from the migration that now defines lesson_package_check
+      const sql50 = readFileSync(join(ctx.repoRoot, "supabase", "migrations", "20261202100000_a_misconception_belongs_to_its_contents_owner.sql"), "utf8");
+      c.expect(sql50.includes(`p_package ? '${b.miskonsepsi.nilai}'`)
+        && sql50.includes(`if v_t is not null and not (v_t = any (v_codes)) then\n              v_p := v_p || public.package_problem('${b.miskonsepsi.kode}'`),
+        "BATAS_PAKET.miskonsepsi is not the clause lesson_package_check enforces");
       c.expect(t.mapel === t.judulKursus && t.jenjang === t.judulKursus && t.kelas === t.judulKursus,
         "the course's subject, stage and grade share the title's limit in the database");
       c.expect(sql.includes("foreach v_t in array array['title', 'subject', 'stage', 'grade_label'] loop"),
@@ -491,7 +499,7 @@ baris</t></si><si><t>6.0</t></si></sst>`;
       return c.verdict(`the template's v1 limits are the reader's (5 MB, 40 MB unpacked, 10,000 rows, 200 columns) and `
         + `the database's (20 courses, 500 lessons, 2,000 questions, 2-5 options labelled A-E, MCQ_SINGLE and MCQ_MULTI, `
         + `media names up to 110 characters of ${Object.keys(b.jenisMedia.nilai).length} kinds, a transcript for sound and video, `
-        + `taxonomy misconceptions only, and ${Object.keys(t).length} text lengths), each with its contract code`);
+        + `a misconception only when the file's own «Miskonsepsi» defines it, and ${Object.keys(t).length} text lengths), each with its contract code`);
     },
   },
   {
