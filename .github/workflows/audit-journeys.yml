@@ -15,6 +15,12 @@ on:
         description: "Commit or branch of the application to audit (the gate runs it on a candidate before release)"
         required: false
         default: "main"
+      plant:
+        description: "Controlled red (EVIDENCE-MODEL §5): plant one failure in the crawl or the journey, to prove the job turns red"
+        required: false
+        default: "none"
+        type: choice
+        options: [none, crawl, journey, both]
 
 permissions:
   contents: read
@@ -23,6 +29,8 @@ env:
   # The application under audit: the dispatched ref, else the release in production.
   RELEASE_SHA: ${{ inputs.ref || '5b5b68d4c77700976904fdee5a2fb52e46f8221e' }}
   APP_PORT: "3999"
+  # Any FAIL or BLOCKED step, or any broken page, turns its job red (D-087).
+  AUDIT_PLANT: ${{ inputs.plant || 'none' }}
 
 jobs:
   seeded-world:
@@ -35,8 +43,16 @@ jobs:
           path: harness
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.RELEASE_SHA }}
           path: app
+          fetch-depth: 0
+      # The candidate by branch, tag, full SHA or short SHA: actions/checkout
+      # accepts only the first three, so the ref is resolved here and the full
+      # SHA that was audited is printed for the record.
+      - name: Check out the candidate
+        run: |
+          set -euo pipefail
+          git -C app checkout --quiet --detach "$RELEASE_SHA" 2>/dev/null || git -C app checkout --quiet --detach "origin/$RELEASE_SHA"
+          echo "auditing $(git -C app rev-parse HEAD)"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -114,15 +130,23 @@ jobs:
   production-posture:
     name: B · Gladys's path from an empty production-like database
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
           path: harness
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.RELEASE_SHA }}
           path: app
+          fetch-depth: 0
+      # The candidate by branch, tag, full SHA or short SHA: actions/checkout
+      # accepts only the first three, so the ref is resolved here and the full
+      # SHA that was audited is printed for the record.
+      - name: Check out the candidate
+        run: |
+          set -euo pipefail
+          git -C app checkout --quiet --detach "$RELEASE_SHA" 2>/dev/null || git -C app checkout --quiet --detach "origin/$RELEASE_SHA"
+          echo "auditing $(git -C app rev-parse HEAD)"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -142,7 +166,7 @@ jobs:
         working-directory: app
         run: |
           set -euo pipefail
-          npx --no-install supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta
+          npx --no-install supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit
           npx --no-install supabase db reset --local --no-seed
           npx --no-install supabase status -o env > "$RUNNER_TEMP/stack.env"
           val() { grep -E "^$1=" "$RUNNER_TEMP/stack.env" | head -1 | cut -d= -f2- | tr -d '"'; }
@@ -151,6 +175,14 @@ jobs:
           echo "::add-mask::$svc"
           { echo "SUPABASE_URL=$(val API_URL)"; echo "SUPABASE_ANON_KEY=$anon"; echo "SUPABASE_SERVICE_ROLE_KEY=$svc"; echo "SUPABASE_DB_URL=$(val DB_URL)"; echo "MAILPIT_URL=http://127.0.0.1:54324"; } >> "$GITHUB_ENV"
           psql "$(val DB_URL)" -At -c "select 'institutions='||count(*) from public.institutions"
+      # Gate 3 (BOB-26): activation codes and the PINTAR Card are PINTAR's own sends, not Auth's. As in CI, they go to
+      # this sink and nowhere else (Supabase's own mailpit is left out above): loopback only, SMTP 54325, API 54324.
+      - name: Mailpit sink for PINTAR's own email
+        run: |
+          docker run -d --name mailpit -p 127.0.0.1:54325:1025 -p 127.0.0.1:54324:8025 axllent/mailpit:v1.31.3 \
+            --smtp-auth-accept-any --smtp-auth-allow-insecure --disable-version-check
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:54324/api/v1/info >/dev/null && break; sleep 1; done
+          curl -sf http://127.0.0.1:54324/api/v1/info >/dev/null
       - name: Build and start the release in production mode
         working-directory: app
         env:
@@ -161,6 +193,8 @@ jobs:
           export NEXT_PUBLIC_APP_URL="http://127.0.0.1:${APP_PORT}"
           export CARD_PEPPER=audit-card-pepper-0123456789abcdef CARD_EMAIL_DOMAIN=cards.pintar.internal
           export CERT_SECRET_KEY_V1=audit-certificate-key-0123456789abcdef PINTAR_BUILD_SHA="$RELEASE_SHA"
+          # not secrets: the sink accepts any login, and loopback is the only plain connection allowed
+          export PINTAR_SMTP_HOST=127.0.0.1 PINTAR_SMTP_PORT=54325 PINTAR_SMTP_USER=noreply@pintarselalu.test PINTAR_SMTP_PASSWORD=sink-accepts-any
           npm run build > "$RUNNER_TEMP/build.log" 2>&1 || { tail -40 "$RUNNER_TEMP/build.log"; exit 1; }
           nohup npx next start -p "$APP_PORT" -H 127.0.0.1 > "$RUNNER_TEMP/app.log" 2>&1 &
           for i in $(seq 1 60); do curl -fsS -o /dev/null "http://127.0.0.1:${APP_PORT}/masuk" && break; sleep 2; done

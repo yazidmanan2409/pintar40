@@ -331,13 +331,43 @@ export const loginTests: SelfTest[] = [
       );
 
       // The card path is a different mechanism and must stay one.
-      c.expect(/signInWithPassword\s*\(/.test(src), "the classroom-card path no longer uses signInWithPassword");
-      const cardFn = /export async function signInWithCard[\s\S]*?\n\}/.exec(src);
-      c.expect(!!cardFn && !/shouldCreateUser|signUp\(/.test(cardFn[0]), "the classroom-card path acquired signup behaviour");
-      c.expect(/deriveCardSecret\s*\(/.test(src), "the classroom-card path no longer derives its credential server-side; the PIN must never be the password");
+      // RESTATED FOR BOB-12 (a changed requirement): the card no longer signs in
+      // through a server action here. It signs in through POST /masuk/kartu
+      // (src/app/api/masuk/kartu/route.ts, deciding in src/lib/kartu-masuk.ts),
+      // and the action is deleted (design condition 3), so the same three
+      // properties are asked of that path, and its absence of this file.
+      const tanpaKomentar = (f: string) => readFileSync(join(ctx.repoRoot, f), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+      const rute = tanpaKomentar("src/app/api/masuk/kartu/route.ts");
+      const inti = tanpaKomentar("src/lib/kartu-masuk.ts");
+      c.expect(/signInWithPassword\s*\(/.test(rute), "the classroom-card path no longer uses signInWithPassword");
+      c.expect(!/shouldCreateUser|signUp\(|admin\.createUser/.test(rute + inti), "the classroom-card path acquired signup behaviour");
+      c.expect(/deriveCardSecret\s*\(/.test(inti), "the classroom-card path no longer derives its credential server-side; the PIN must never be the password");
+      c.expect(!/signInWithCard|signInWithPassword/.test(src), "the sign-in actions still sign a card in, walking around the card's cooldown");
+
+      // EXTENDED FOR BOB-26 (Gate 3; nothing above is changed). Activation and
+      // the password sign-in are two more doors into an EXISTING identity, and
+      // each is asked the same three things: it creates no identity, it tells
+      // a known name from an unknown one nowhere, and its lookups are the
+      // database's, server-side.
+      const gate3 = ["src/app/api/masuk/password/route.ts", "src/app/api/aktifkan/kode/route.ts",
+                     "src/app/api/aktifkan/periksa/route.ts", "src/lib/aktivasi.ts", "src/app/api/_email/identitas.ts"]
+        .map((f) => [f, tanpaKomentar(f)] as const);
+      for (const [f, isi] of gate3) {
+        c.expect(!/shouldCreateUser|signUp\(|admin\.createUser|inviteUserByEmail|type:\s*["'](?:signup|invite)["']/.test(isi), `${f} acquired identity-creating behaviour`);
+        c.expect(!/\.from\(\s*["'](?:accounts|persons|person_usernames|account_setup)["']\s*\)|auth\.admin\.listUsers/.test(isi),
+          `${f} reads accounts, persons, usernames or set-up rows itself instead of asking the database's one lookup`);
+      }
+      const [, rutePw] = gate3[0], [, ruteKode] = gate3[1], [, inti26] = gate3[3];
+      c.expect(/rpc\(\s*["']signin_resolve["']/.test(rutePw) && /signInWithPassword\s*\(/.test(rutePw),
+        "the password sign-in no longer resolves the name through signin_resolve and signs in with Auth's password grant");
+      c.expect(/rpc\(\s*["']activation_code_target["']/.test(ruteKode) && /after\(/.test(ruteKode),
+        "the code request no longer asks activation_code_target, or sends before the answer has gone");
+      c.expect(/masuk\(\s*email\s*\?\?\s*ALAMAT_TIADA/.test(inti26) && /LANTAI_GAGAL_MS/.test(inti26),
+        "an unknown sign-in name no longer takes the same path to Auth and the same floor as a wrong password");
+      c.expect(/if\s*\(\s*!TAUTAN_MASUK_CADANGAN\s*\)\s*return/.test(src), "the magic link is not behind C14's switch");
 
       return c.verdict(
-        "magic-link authentication carries shouldCreateUser: false, so an unknown address cannot become an auth user and therefore cannot become a PINTAR person or account through on_auth_user_created -- the Supabase default is true, so the flag's absence was the defect. No signup, invite or admin-create call exists in the sign-in actions. The refusal that means 'no such provisioned identity' is folded into the ordinary outcome and matched on a stable error code, so a known and an unknown address are indistinguishable at the public contract, and no database pre-check rebuilds that oracle a round-trip earlier. The classroom-card path is untouched: still signInWithPassword over a server-derived secret, with no signup behaviour and the PIN still not the password",
+        "magic-link authentication carries shouldCreateUser: false, so an unknown address cannot become an auth user and therefore cannot become a PINTAR person or account through on_auth_user_created -- the Supabase default is true, so the flag's absence was the defect. No signup, invite or admin-create call exists in the sign-in actions. The refusal that means 'no such provisioned identity' is folded into the ordinary outcome and matched on a stable error code, so a known and an unknown address are indistinguishable at the public contract, and no database pre-check rebuilds that oracle a round-trip earlier. The classroom-card path (BOB-12's route, no longer a server action) is still signInWithPassword over a server-derived secret, with no signup behaviour and the PIN still not the password. Gate 3's doors (BOB-26: the password sign-in, the code request and its verification) create no identity and read no account table themselves: the name resolves through signin_resolve, eligibility through activation_code_target, the code is sent after the answer, an unknown name takes Auth's path and the failure floor like a wrong password, and the magic link sits behind C14's switch",
       );
     },
   },

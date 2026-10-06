@@ -155,9 +155,10 @@ export const unggahTests: SelfTest[] = [
         <row r="1"><c r="A1" t="s"><v>0</v></c><c r="C1" t="inlineStr"><is><t>inline</t></is></c></row>
         <row r="3"><c t="s"><v>1</v></c><c t="b"><v>1</v></c><c t="str"><v>formula &lt;teks&gt;</v></c><c><v>0.5</v></c></row>
         <row r="4"><c r="A4" t="s"><v>2</v></c></row>
+        <row r="5"><c t="n"><v>3.0</v></c><c><v>12.000</v></c><c><v>-4.0</v></c><c><v>78.145</v></c><c t="str"><v>5.0</v></c><c t="s"><v>3</v></c><c><v>1.05</v></c></row>
       </sheetData></worksheet>`;
       const shared = `<sst><si><r><t>Ha</t></r><r><t xml:space="preserve">lo </t></r><rPh><t>FONETIK</t></rPh></si><si><t>A&amp;B &#x41;&#66; baris_x000D_</t></si><si><t>dua_x000D_
-baris</t></si></sst>`;
+baris</t></si><si><t>6.0</t></si></sst>`;
       const buat = dibaca(zip([
         { name: "xl/workbook.xml", data: WB, store: true },
         { name: "xl/_rels/workbook.xml.rels", data: RELS },
@@ -175,6 +176,11 @@ baris</t></si></sst>`;
           `entities, escapes, cells without a reference, a boolean and a formula string came back as ${JSON.stringify(l.baris[2])}`);
         c.expect(JSON.stringify(l.baris[3]) === JSON.stringify(["dua\nbaris"]),
           `Excel's CR LF line break came back as ${JSON.stringify(l.baris[3])}`);
+        // BOB-16: Google Sheets stores a whole number as N.0 where Excel stores
+        // N. A NUMBER cell that is whole reads as N; a fraction, a formula's
+        // text and typed text keep exactly what was stored
+        c.expect(JSON.stringify(l.baris[4]) === JSON.stringify(["3", "12", "-4", "78.145", "5.0", "6.0", "1.05"]),
+          `whole numbers stored as N.0, a fraction, a formula string and typed text came back as ${JSON.stringify(l.baris[4])}`);
       }
 
       const tolak: Array<[string, Buffer, string]> = [
@@ -352,7 +358,8 @@ baris</t></si></sst>`;
     run: async (ctx) => {
       const c = new Checks();
       // BOB-04 (D-040) replaced lesson_package_check, adding one code: both sources are read
-      const sql = [MIGRASI, "20261010100000_a_lesson_is_assigned_whole.sql"]
+      // D-085 M10 added a correction's own problems (package_revision_problems): read too
+      const sql = [MIGRASI, "20261010100000_a_lesson_is_assigned_whole.sql", "20261106100000_a_correction_arrives_in_its_line.sql"]
         .map((f) => readFileSync(join(ctx.repoRoot, "supabase", "migrations", f), "utf8")).join("\n").replace(/--[^\n]*/g, "");
       const dariDb = new Set<string>();
       for (const m of sql.matchAll(/package_problem\('([A-Z_]+)'/g)) dariDb.add(m[1]);

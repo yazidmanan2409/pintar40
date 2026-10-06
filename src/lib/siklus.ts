@@ -47,7 +47,76 @@ export type Posisi = {
 
 const FINAL = "FINALIZED";
 
-/** A lesson counts as read when the learner reached its last position. */
+/**
+ * BOB-22. WHAT A SAVED POSITION MEANS: the number of pages the learner has
+ * reached, 1 to N (0: never opened). The player shows pages counted from 0, so
+ * the page on screen saves as its index + 1, a learner resumes on the page
+ * before the count, and a lesson is read when the count reaches its total -- the
+ * database's own rule too (lesson_progress_within_total: furthest <= total).
+ * The player saved the index itself, so the last page of N saved N-1 and no
+ * lesson ever counted as read. These three are the only places the meaning
+ * lives; LessonPlayer uses the first two, every reader the third.
+ */
+export function posisiTersimpan(halaman: number): number {
+  return Math.max(0, Math.floor(halaman)) + 1;
+}
+
+/** The page (counted from 0) a learner resumes on, from what was saved. */
+export function halamanMulai(posisi: number, jumlahHalaman: number): number {
+  const akhir = Math.max(0, jumlahHalaman - 1);
+  return Math.min(akhir, Math.max(0, Math.floor(Number.isFinite(posisi) ? posisi : 0) - 1));
+}
+
+/**
+ * BOB-23. WHETHER A PAGE ON SCREEN IS SAVED: only when it reaches beyond what
+ * is already saved, and then as its count. `tersimpan` starts at the server's
+ * `startAt` and follows every save. Idle, a re-render, or going back saves
+ * nothing; each page newly reached saves once. The player ran its save on
+ * every render instead, and each save re-rendered the page.
+ */
+export function perluDisimpan(halaman: number, tersimpan: number): number | null {
+  const posisi = posisiTersimpan(halaman);
+  return posisi > (Number.isFinite(tersimpan) ? tersimpan : 0) ? posisi : null;
+}
+
+/**
+ * BOB-23 round 2. WHETHER A SAVE HAS JUST MADE THE LESSON READ: its result is
+ * ok and the server's furthest count reaches the total. The page's closing
+ * action (Uji Penguasaan, once every lesson is read) is decided when the page
+ * renders, and a save no longer redraws the page -- so on exactly this save,
+ * and no other, the player asks for one refresh. perluDisimpan already
+ * guarantees the save is the one that crossed: it saves only beyond what was
+ * saved.
+ */
+export function menjadiDibaca(hasil: { ok: boolean; furthest?: number } | null | undefined, total: number): boolean {
+  return Boolean(hasil?.ok) && total > 0 && (hasil?.furthest ?? 0) >= total;
+}
+
+/**
+ * W5. WHAT A SAVE LEAVES BEHIND. A save the server acknowledged raises what the
+ * server holds (its own furthest count when it gives one); a save that failed
+ * leaves it where it was, and the player's mark of what is saved returns there,
+ * so the next page turn tries again instead of believing it was saved. Before
+ * W5 the mark moved on before the answer came back and stayed there, so a lost
+ * save of the last page left the lesson unread with nothing to try it again.
+ */
+export function setelahSimpan(
+  hasil: { ok: boolean; furthest?: number } | null | undefined,
+  posisi: number,
+  kini: { diServer: number; tersimpan: number },
+): { diServer: number; tersimpan: number } {
+  if (!hasil?.ok) return { diServer: kini.diServer, tersimpan: kini.diServer };
+  const f = Number.isFinite(hasil.furthest) ? (hasil.furthest as number) : posisi;
+  const diServer = Math.max(kini.diServer, f);
+  return { diServer, tersimpan: Math.max(kini.tersimpan, diServer) };
+}
+
+/** W5. «Posisi bacaan tersimpan.» is said of the page on screen only when the server holds it. */
+export function posisiDiServer(halaman: number, diServer: number): boolean {
+  return Number.isFinite(diServer) && diServer >= posisiTersimpan(halaman);
+}
+
+/** A lesson counts as read when the learner reached its last page. */
 export function lessonRead(l: Pick<LessonEntry, "furthest_position" | "total_positions">): boolean {
   const total = l.total_positions ?? 0;
   return total > 0 && l.furthest_position >= total;
@@ -93,18 +162,23 @@ export function posisi(state: CycleState, lessons: readonly LessonEntry[]): Posi
 /**
  * The ranking behind "the one thing".
  *
- * THE ORDER IS THE DESIGN, stated in the approved concept and reproduced here
- * exactly: an in-progress session outranks an unstarted mapping, which
- * outranks unread lessons, which outranks an untaken Mastery Check. A finished
- * cycle ranks last — it is not work, it is a result to collect.
+ * THE ORDER IS YAZID'S RULING (D-088(d), W18): continue what the learner is
+ * doing before asking them to begin something new. A running session first
+ * (`peringkat` below); then the lesson they are reading (PELAJARAN), then a
+ * chapter whose mapping is done and whose lessons wait (PETA); then the
+ * Mastery Check of a chapter whose lessons are all read (PENGUASAAN); then the
+ * next chapter's Pemetaan Awal (PEMETAAN). A finished cycle ranks last -- it is
+ * not work, it is a result to collect. Until W18 an untaken Mastery Check led
+ * and a new chapter's mapping came before unread lessons, so one chapter's
+ * test displaced another chapter's reading merely because the test existed.
  *
  * Lower is more urgent, so the caller sorts ascending and takes the first.
  */
 export const URUTAN: Record<Langkah, number> = {
-  PENGUASAAN: 0,
-  PEMETAAN: 1,
-  PETA: 2,
-  PELAJARAN: 3,
+  PELAJARAN: 0,
+  PETA: 1,
+  PENGUASAAN: 2,
+  PEMETAAN: 3,
   HASIL: 4,
 };
 
@@ -153,4 +227,48 @@ export function statusKey(p: Posisi): string {
     case "PENGUASAAN": return "siklus.di.penguasaan";
     case "HASIL": return "siklus.di.hasil";
   }
+}
+
+/**
+ * D-085 M3 (W4), with the school's sealed mark (D-088(b), BOB-49): COMPLETION AND MASTERY ARE TWO TRUTHS. A finished
+ * Uji Penguasaan is completion; whether the mastery target was met is the session's own verdict (`session_outcome.lulus`,
+ * from the mark sealed on the attempt). Null when there is no verdict to tell: a Pemetaan Awal, or no mark sealed.
+ */
+export type Ketuntasan = "TERCAPAI" | "BELUM";
+
+export function ketuntasan(o: { diagnostik?: boolean | null; lulus?: boolean | null } | null | undefined): Ketuntasan | null {
+  if (!o || o.diagnostik !== false || typeof o.lulus !== "boolean") return null;
+  return o.lulus ? "TERCAPAI" : "BELUM";
+}
+
+/** A part below the target, and the lesson to read again for it (when the reading map names one). */
+export type BagianUlang = { kode: string; nama: string; penguasaan: number; lessonId: string | null; pelajaran: string | null };
+
+/**
+ * M3: below target, PINTAR points at what to review. The objectives whose own mastery is under the sealed mark, lowest
+ * first, each with its name and the lesson the reading map ties it to. Pure; nothing is invented: an objective the map
+ * does not name keeps its code and no lesson.
+ */
+export function bagianUlang(
+  perDomain: Record<string, { penguasaan: number } | undefined> | null | undefined,
+  ambang: number | null | undefined,
+  peta: ReadonlyArray<{ kode: string; pernyataan: string; pelajaran: string }>,
+  lessons: ReadonlyArray<{ lesson_id: string; judul: string }>,
+): BagianUlang[] {
+  if (ambang == null || !perDomain) return [];
+  const kartu = new Map(peta.map((k) => [k.kode, k]));
+  const idPelajaran = new Map(lessons.map((l) => [l.judul, l.lesson_id]));
+  return Object.entries(perDomain)
+    .filter(([, v]) => v && typeof v.penguasaan === "number" && v.penguasaan < ambang)
+    .map(([kode, v]) => {
+      const k = kartu.get(kode);
+      return {
+        kode,
+        nama: k?.pernyataan || kode,
+        penguasaan: (v as { penguasaan: number }).penguasaan,
+        lessonId: k ? idPelajaran.get(k.pelajaran) ?? null : null,
+        pelajaran: k?.pelajaran ?? null,
+      };
+    })
+    .sort((a, b) => a.penguasaan - b.penguasaan || a.kode.localeCompare(b.kode));
 }

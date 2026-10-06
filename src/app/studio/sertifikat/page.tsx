@@ -1,6 +1,8 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions } from "../_lib";
 import { saveCertificateTemplateAction } from "../actions";
+import TombolKirim from "@/components/TombolKirim";
+import HasilDi from "@/components/HasilDi";
 
 /**
  * Certificate template manager (§10).
@@ -11,7 +13,7 @@ import { saveCertificateTemplateAction } from "../actions";
  * the same thing. Nothing here touches the public verification payload, which
  * stays fixed at {pass, predikat, institution, date, validity}.
  */
-type Search = Promise<{ hasil?: string; detail?: string; bagian?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
 export default async function Sertifikat({ searchParams }: { searchParams: Search }) {
   const sp = await searchParams;
@@ -24,18 +26,18 @@ export default async function Sertifikat({ searchParams }: { searchParams: Searc
     supabase.from("courses").select("id, title, institution_id").order("title"),
   ]);
 
-  const banner = outcomeLine(sp.hasil, sp.detail);
+  const banner = outcomeLine(sp);
 
   return (
     <div className="grid gap-4" id="sertifikat">
       <h2 className="text-lg font-medium">{s("studio.sertifikat.judul")}</h2>
       <p className="text-sm text-ink-2">{s("studio.sertifikat.identitas")}</p>
-      {banner ? <p className={card}>{banner}</p> : null}
 
       <section className={card}>
         <form action={saveCertificateTemplateAction} className="grid gap-2">
           <label className={label}>
-            <span>{s("config.section.roles")}</span>
+            {/* Polish batch 2 (UX-04): a school picker, labelled as one */}
+            <span>{s("studio.sekolah")}</span>
             <select className={field} name="institution" defaultValue={institutions[0]?.id ?? ""} required>
               {institutions.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
             </select>
@@ -57,8 +59,9 @@ export default async function Sertifikat({ searchParams }: { searchParams: Searc
             <span>{s("studio.sertifikat.awalan")}</span>
             <input className={field} name="awalan" placeholder="PNT/2026" required />
           </label>
-          <button className={button} type="submit">{s("studio.sertifikat.simpan")}</button>
+          <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.sertifikat.simpan")}</TombolKirim>
         </form>
+        <HasilDi q={sp} bagian="sertifikat" kalimat={banner} />
       </section>
 
       {(templates ?? []).length > 0 ? (

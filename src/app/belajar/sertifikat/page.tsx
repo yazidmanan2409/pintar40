@@ -9,6 +9,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import { BarisLingkup } from "@/components/bukti";
 import { myCertificates, institutionNames, type CertificateRow } from "@/lib/sertifikat";
 import KakiPintar from "@/components/KakiPintar";
+import { petaSesi } from "@/components/sertifikat/asalSertifikat";
 
 /**
  * Sertifikat Anda — the learner's certificate list.
@@ -41,23 +42,24 @@ export default async function DaftarSertifikat() {
   const s = (k: HleEvent) => t(k, "learner", { locale });
 
   const rows = await myCertificates();
-  const [institutions, assignments] = await Promise.all([
-    institutionNames(rows.map((r) => r.institution_id)),
-    engine.myAssignments((await supabaseServer()) as unknown as engine.EngineClient),
-  ]);
+  const db = (await supabaseServer()) as unknown as engine.EngineClient;
 
-  // The list page titles a row from the learner's own assignments. A row whose
-  // assignment this learner can no longer read keeps its date and its status
-  // and loses only its title — it is still their certificate.
-  const bySession = new Map<string, { subject: string; grade: string; title: string; tugas: string }>();
-  for (const a of assignments) {
-    bySession.set(a.learning_assignment_id, {
-      subject: a.subject,
-      grade: a.grade_label,
-      title: a.title,
-      tugas: a.learning_assignment_id,
-    });
-  }
+  // DAISY-40: a row is titled and linked through ITS SESSION, by the read the
+  // certificate page itself uses: each of the learner's assignments' Uji
+  // Penguasaan session (my_cycle_state), mapped back to that assignment. A row
+  // whose assignment this learner can no longer read, or whose session is no
+  // assignment's current one, keeps its date and its status, loses only its
+  // title, and is not a link: there is no page that would open it.
+  const [institutions, bySession] = await Promise.all([
+    institutionNames(rows.map((r) => r.institution_id)),
+    rows.length === 0
+      ? Promise.resolve(petaSesi([]))
+      : engine.myAssignments(db).then(async (assignments) =>
+          petaSesi(await Promise.all(assignments.filter((a) => a.post_test_assignment).map(async (assignment) => ({
+            assignment,
+            postSession: (await engine.cycleState(db, assignment.learning_assignment_id).catch(() => null))?.post_session ?? null,
+          }))))),
+  ]);
 
   const institution = rows.length > 0 ? institutions.get(rows[0].institution_id) ?? null : null;
 
@@ -88,12 +90,8 @@ export default async function DaftarSertifikat() {
                 row.status === "ELIGIBLE"
                   ? `${s("sertifikat.daftar.selesai")} · ${format.date(row.issued_at_iso, locale)}`
                   : `${s("sertifikat.daftar.terbit")} ${format.date(row.issued_at_iso, locale)}`;
-              return (
-                <Link
-                  key={row.id}
-                  className="pin-row"
-                  href={`/belajar/${meta?.tugas ?? row.session_id}/sertifikat`}
-                >
+              const isi = (
+                <>
                   <span className="pin-eyebrow">
                     {meta ? `${meta.subject} · ${meta.grade}` : s("sertifikat.judul")}
                   </span>
@@ -103,7 +101,12 @@ export default async function DaftarSertifikat() {
                     {pill}
                   </span>
                   {pill}
-                </Link>
+                </>
+              );
+              return meta ? (
+                <Link key={row.id} className="pin-row" href={`/belajar/${meta.tugas}/sertifikat`}>{isi}</Link>
+              ) : (
+                <div key={row.id} className="pin-row pin-row-diam">{isi}</div>
               );
             })}
           </div>

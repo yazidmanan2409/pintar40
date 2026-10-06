@@ -68,7 +68,7 @@ enabled = true
 # Specifies an ordered list of seed files to load during db reset.
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"
 # synthetic.sql first: learning_cycle.sql attaches to the institution it creates.
-sql_paths = ["./seed/00_local_fixtures.sql", "./seed/synthetic.sql", "./seed/learning_cycle.sql", "./seed/official_bootstrap.sql", "./seed/human_evaluation.sql"]
+sql_paths = ["./seed/00_local_fixtures.sql", "./seed/synthetic.sql", "./seed/learning_cycle.sql", "./seed/official_bootstrap.sql", "./seed/human_evaluation.sql", "./seed/activated_staff.sql"]
 
 [db.network_restrictions]
 # Enable management of network restrictions.
@@ -179,7 +179,8 @@ enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
 enable_manual_linking = false
 # Passwords shorter than this value will be rejected as weak. Minimum 6, recommended 8 or more.
-minimum_password_length = 6
+# BOB-26: the canonical value is supabase/auth-identitas.json (a static test holds them equal).
+minimum_password_length = 8
 # Passwords that do not meet the following requirements will be rejected as weak. Supported values
 # are: `letters_digits`, `lower_upper_letters_digits`, `lower_upper_letters_digits_symbols`
 password_requirements = ""
@@ -225,13 +226,15 @@ double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
 enable_confirmations = false
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
-secure_password_change = false
+# BOB-26: on, from supabase/auth-identitas.json; PINTAR's password write permit refuses a direct change regardless.
+secure_password_change = true
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
 max_frequency = "1s"
 # Number of characters used in the email OTP.
 otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
-otp_expiry = 3600
+# BOB-26 (D-079): 10 minutes, from supabase/auth-identitas.json; the code emails state it from there.
+otp_expiry = 600
 
 # Use a production-ready SMTP server
 # [auth.email.smtp]
@@ -269,13 +272,15 @@ max_frequency = "5s"
 # 4152127777 = "123456"
 
 # Configure logged in session timeouts.
-# FABLE-01 §2: idle auth sessions expire after 24h. Enforced by the Auth
-# server (local stack honours this file; the hosted project takes it via
-# `supabase config push` / the Dashboard Auth settings — a Pro-plan feature,
-# recorded as an external gate in docs/CHECKPOINT-FABLE-01.md).
+# FABLE-01 §2 set 24h for every session. D-009 (BOB-05) supersedes it: an email
+# account stays signed in for 7 days idle, a classroom card for 60 minutes. Auth
+# has one project-wide setting, so it carries the longer limit as the server-
+# side backstop, and the card's 60 minutes is enforced by the auth cookies'
+# lifetime (src/lib/sesi.ts, src/proxy.ts). The hosted project takes this via
+# the Dashboard or Management API (a Pro-plan feature).
 [auth.sessions]
 # Force log out if the user has been inactive longer than the specified duration.
-inactivity_timeout = "24h"
+inactivity_timeout = "168h"
 
 # This hook runs before a new user is created and allows developers to reject the request based on the incoming user object.
 # [auth.hook.before_user_created]

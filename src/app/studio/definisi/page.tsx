@@ -2,6 +2,9 @@ import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions } from "../_lib";
 import { saveDefinitionAction } from "../actions";
+import { kunciKode } from "@/lib/galat-kontrak";
+import TombolKirim from "@/components/TombolKirim";
+import HasilDi from "@/components/HasilDi";
 
 /**
  * Assessment Definition builder (§10).
@@ -14,7 +17,7 @@ import { saveDefinitionAction } from "../actions";
  * A change that alters how a result is read saves as a NEW version and says so
  * in plain language; a change of name alone says that instead (INV-29).
  */
-type Search = Promise<{ hasil?: string; detail?: string; bagian?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
 export default async function Definisi({ searchParams }: { searchParams: Search }) {
   const sp = await searchParams;
@@ -29,16 +32,14 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
     supabase.from("courses").select("id, title, institution_id").order("title"),
   ]);
 
-  const banner = sp.detail === "versi-baru"
-    ? s("studio.definisi.versi_baru")
-    : sp.detail === "tetap"
-      ? s("studio.definisi.tetap")
-      : outcomeLine(sp.hasil, sp.detail);
+  // the definition's two outcomes are whole sentences of their own
+  const banner = sp.hasil === "ok" && (sp.kode === "DEFINITION_NEW_VERSION" || sp.kode === "DEFINITION_KEPT")
+    ? s(kunciKode(sp.kode))
+    : outcomeLine(sp);
 
   return (
     <div className="grid gap-6">
       <h2 className="text-lg font-medium">{s("studio.definisi.judul")}</h2>
-      {banner ? <p className={card}>{banner}</p> : null}
 
       <section className={card}>
         <h3 className="font-medium">{s("studio.definisi.batas")}</h3>
@@ -55,7 +56,8 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
       <section className={card} id="definisi">
         <form action={saveDefinitionAction} className="grid gap-2">
           <label className={label}>
-            <span>{s("config.section.roles")}</span>
+            {/* Polish batch 2 (UX-04): a school picker, labelled as one */}
+            <span>{s("studio.sekolah")}</span>
             <select className={field} name="institution" defaultValue={institutions[0]?.id ?? ""} required>
               {institutions.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
             </select>
@@ -91,8 +93,9 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
           <input className={field} name="komposisi" placeholder='komposisi, mis. {"MUDAH":3,"SEDANG":2}' />
           <input className={field} name="kelulusan" placeholder='kelulusan, mis. {"mastery_min":0.6}' />
           <input type="hidden" name="definisi" value="" />
-          <button className={button} type="submit">{s("studio.definisi.simpan")}</button>
+          <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
         </form>
+        <HasilDi q={sp} bagian="definisi" kalimat={banner} />
       </section>
 
       <section className="grid gap-2">
@@ -105,7 +108,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
                 <input type="hidden" name="definisi" value={d.id} />
                 <input className={field} name="judul" defaultValue={d.title} />
                 <input className={field} name="jumlah" type="number" defaultValue={d.item_count} />
-                <button className={button} type="submit">{s("studio.definisi.simpan")}</button>
+                <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
               </form>
             </li>
           ))}

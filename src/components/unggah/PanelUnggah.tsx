@@ -13,8 +13,11 @@ import { konfirmasiPaketAksi, unggahBukuKerjaAksi } from "@/app/studio/actions";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { NAMA_BERKAS_TEMPLAT, templatPelajaran } from "./templat";
 import { lokasiMasalah } from "./lokasi";
+import BarisHasil from "@/components/BarisHasil";
 
 type Sekolah = { id: string; name: string };
+/** D-085 M10: a locked course, newest of its line, that a corrected workbook may correct. */
+type Koreksi = { id: string; sekolah: string; judul: string; versi: string | null };
 type StatusMedia = "belum" | "siap" | "naik" | "selesai" | "gagal";
 type Sibuk = null | "periksa" | "media" | "simpan";
 
@@ -43,19 +46,34 @@ export const MASALAH_TAMPIL = 50;
  *
  * Every word comes from the copy table; a problem is its code's sentence and
  * never the database's text (D-011).
+ *
+ * D-085 M10, A CORRECTION. When the school has locked courses, step 1 asks
+ * whether this workbook corrects one, and if so what changed and why. Both go
+ * with the file; the database checks them with the rest of the package, and
+ * the saved course is the next version of the one it corrects. Changing either
+ * starts again, as changing the file does.
  */
 export default function PanelUnggah({
   locale,
   sekolah,
   batasMb,
+  koreksi = [],
+  revisiAwal = null,
 }: {
   locale: Locale;
   sekolah: Sekolah[];
   /** The workbook's size limit, in MB (BATAS_PAKET.berkasMaks). */
   batasMb: number;
+  /** D-085 M10: the courses a correction may correct, in the schools offered. */
+  koreksi?: Koreksi[];
+  /** D-085 M10: the course a course page sent the reader here to correct (`?revisi=`). */
+  revisiAwal?: string | null;
 }) {
   const s = (k: HleEvent) => t(k, "staff", { locale });
-  const [pilihan, setPilihan] = useState(sekolah[0]?.id ?? "");
+  const awal = koreksi.find((k) => k.id === revisiAwal && sekolah.some((x) => x.id === k.sekolah));
+  const [pilihan, setPilihan] = useState(awal?.sekolah ?? sekolah[0]?.id ?? "");
+  const [revisi, setRevisi] = useState(awal?.id ?? "");
+  const [ringkasan, setRingkasan] = useState("");
   const [berkas, setBerkas] = useState<File | null>(null);
   const [periksa, setPeriksa] = useState<HasilPaket | null>(null);
   const [simpan, setSimpan] = useState<HasilPaket | null>(null);
@@ -67,6 +85,7 @@ export default function PanelUnggah({
     setPeriksa(null); setSimpan(null); setMedia({}); setStatus({});
   };
 
+  const koreksiSekolah = koreksi.filter((k) => k.sekolah === pilihan);
   const perluMedia: MediaPaket[] = periksa?.ok ? periksa.media : [];
   const mediaTerunggah = perluMedia.filter((m) => status[m.path] === "selesai").length;
   const mediaLengkap = perluMedia.length === mediaTerunggah;
@@ -94,6 +113,10 @@ export default function PanelUnggah({
     const fd = new FormData();
     fd.set("institusi", pilihan);
     fd.set("berkas", berkas);
+    if (revisi) {
+      fd.set("revisi", revisi);
+      fd.set("ringkasan", ringkasan);
+    }
     try {
       const h = await unggahBukuKerjaAksi(null, fd);
       setPeriksa(h);
@@ -204,7 +227,7 @@ export default function PanelUnggah({
             name="institusi"
             className="pin-input"
             value={pilihan}
-            onChange={(e) => { setPilihan(e.target.value); mulaiLagi(); }}
+            onChange={(e) => { setPilihan(e.target.value); setRevisi(""); mulaiLagi(); }}
             disabled={sibuk !== null}
           >
             {sekolah.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
@@ -222,6 +245,39 @@ export default function PanelUnggah({
           />
           <p className="pin-hint">{s("studio.unggah.berkas_batas")} {format.number(batasMb, locale)} MB.</p>
         </div>
+        {koreksiSekolah.length > 0 && (
+          <div className="pin-ung-isian">
+            <label htmlFor="ung-revisi">{s("studio.unggah.revisi")}</label>
+            <select
+              id="ung-revisi"
+              name="revisi"
+              className="pin-input"
+              value={revisi}
+              onChange={(e) => { setRevisi(e.target.value); mulaiLagi(); }}
+              disabled={sibuk !== null}
+            >
+              <option value="">{s("studio.unggah.revisi_bukan")}</option>
+              {koreksiSekolah.map((k) => <option key={k.id} value={k.id}>{k.judul}{k.versi ? ` · ${k.versi}` : ""}</option>)}
+            </select>
+            {revisi && <p className="pin-hint">{s("studio.unggah.revisi_arti")}</p>}
+          </div>
+        )}
+        {revisi && (
+          <div className="pin-ung-isian">
+            <label htmlFor="ung-ringkasan">{s("studio.unggah.ringkasan")}</label>
+            <textarea
+              id="ung-ringkasan"
+              name="ringkasan"
+              className="pin-input"
+              rows={3}
+              maxLength={1000}
+              value={ringkasan}
+              onChange={(e) => { setRingkasan(e.target.value); mulaiLagi(); }}
+              disabled={sibuk !== null}
+            />
+            <p className="pin-hint">{s("studio.unggah.ringkasan_arti")}</p>
+          </div>
+        )}
         <button
           type="button"
           className="pin-btn pin-primary"
@@ -278,14 +334,14 @@ export default function PanelUnggah({
           )}
           <div aria-live="polite">
             {simpan?.ok && (
-              <div className="pin-ung-hasil" role="status">
+              <BarisHasil nada="ok" kelas="pin-ung-hasil">
                 <p className="pin-ung-lolos">{s("studio.unggah.tersimpan")}</p>
                 <Hitungan counts={simpan.counts} locale={locale} />
                 <p className="pin-ung-tautan">
                   {simpan.courses?.[0] && <a className="pin-btn pin-primary" href={`/studio/paket/${simpan.courses[0]}`}>{s("studio.unggah.buka_kursus")}</a>}
                   <button type="button" className="pin-btn" onClick={() => { setBerkas(null); mulaiLagi(); }}>{s("studio.unggah.ulang")}</button>
                 </p>
-              </div>
+              </BarisHasil>
             )}
             {simpan && !simpan.ok && <HasilPeriksa hasil={simpan} locale={locale} />}
           </div>
@@ -316,15 +372,15 @@ function HasilPeriksa({ hasil, locale }: { hasil: HasilPaket; locale: Locale }) 
   const s = (k: HleEvent) => t(k, "staff", { locale });
   if (hasil.ok) {
     return (
-      <div className="pin-ung-hasil" role="status">
+      <BarisHasil nada="ok" kelas="pin-ung-hasil">
         <p className="pin-ung-lolos">{s("studio.unggah.lolos")}</p>
         <Hitungan counts={hasil.counts} locale={locale} />
-      </div>
+      </BarisHasil>
     );
   }
   const masalah = hasil.problems ?? [];
   return (
-    <div className="pin-ung-hasil pin-ung-gagal" role="alert">
+    <BarisHasil nada="gagal" kelas="pin-ung-hasil pin-ung-gagal">
       <p className="pin-ung-judul-masalah">
         {s(kunciKodePaket(hasil.code))}
         {hasil.ref ? ` ${s("studio.unggah.rujukan")} ${hasil.ref}` : ""}
@@ -348,6 +404,6 @@ function HasilPeriksa({ hasil, locale }: { hasil: HasilPaket; locale: Locale }) 
           )}
         </>
       )}
-    </div>
+    </BarisHasil>
   );
 }

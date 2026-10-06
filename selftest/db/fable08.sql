@@ -79,7 +79,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   v_inst uuid; v_other uuid; v_period uuid; v_fac uuid; v_dep uuid; v_prog uuid;
-  v_coh uuid; v_cls uuid; v_tag text;
+  v_coh uuid; v_cls uuid; v_tag text; v_bag uuid; v_tahun text; m_direct int := 0;
   v_adm_u uuid; v_dean_u uuid; v_adm2_u uuid; v_guru_u uuid;
   v_tpl uuid; v_tpl_again uuid; v_cat text; v_m1 text; v_m2 text; v_v1 text; v_v2 text;
   v_body jsonb; v_msg text; v_raised boolean; v_big jsonb;
@@ -90,6 +90,8 @@ declare
   m_entries int := 0; m_version int := 0; m_cfg_denied int := 0; m_audit int := 0;
   m_boot_denied int := 0; v_first_u uuid; v_first uuid; v_second_u uuid; v_second uuid;
   m_wait_denied int := 0; v_fresh_u uuid; v_fresh uuid; v_sysadmin_u uuid;
+  m_d093 int := 0; v_audit_before bigint;
+  m_t2 int := 0; v_ra uuid; v_b_tutup uuid; v_sum jsonb;
 begin
   perform selftest.as_owner();
   begin
@@ -145,12 +147,26 @@ begin
           'the ladder helper is not executable by a client, so a fresh session building an org node is refused');
       end if;
 
+      -- RESTATED FOR BOB-08 (a). The school builds through BOB-01's structure
+      -- functions, the one way in; a direct write to org_nodes is refused.
+      v_tahun := public.structure_current_year_start()::text || '/' || (public.structure_current_year_start() + 1)::text;
       perform selftest.as_user('f08-admin-' || v_tag || '@local.invalid');
       begin
         insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
-        values (v_inst, v_prog, 'COHORT', 'Angkatan 2026', v_period) returning org_nodes.id into v_coh;
-        insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
-        values (v_inst, v_coh, 'CLASS', '7A', v_period) returning org_nodes.id into v_cls;
+        values (v_inst, v_prog, 'COHORT', 'Langsung', v_period);
+        v_probs := selftest.f08_note(v_probs, 'F08-P01', 'an administrator still writes org_nodes directly');
+      exception when insufficient_privilege then m_direct := m_direct + 1;
+      end;
+      begin
+        insert into public.academic_periods (institution_id, name, starts_on, ends_on)
+        values (v_inst, 'Langsung', current_date, current_date + 1);
+        v_probs := selftest.f08_note(v_probs, 'F08-P01', 'an administrator still writes academic_periods directly');
+      exception when insufficient_privilege then m_direct := m_direct + 1;
+      end;
+      begin
+        v_bag := public.create_bagian(v_inst, 'Bagian ' || v_tag);
+        v_coh := public.create_tingkat(v_bag, 'Kelas 7', v_tahun);
+        v_cls := public.create_kelas(v_coh, '7A', v_tahun);
       exception when others then
         v_probs := selftest.f08_note(v_probs, 'F08-P01',
           'an institution administrator could not build their own org tree: ' || left(sqlerrm, 120));
@@ -171,8 +187,9 @@ begin
         end if;
       end if;
 
-      -- THE RULES ARE UNCHANGED. A grant is not a licence: the ladder still
-      -- refuses a step that is not a step.
+      -- THE RULES ARE UNCHANGED. The ladder still refuses a step that is not a
+      -- step, even to the table's owner.
+      perform selftest.as_owner();
       for r in select * from unnest(array['CLASS', 'PROGRAMME'], array[v_fac, v_inst]) as t(kind, parent) loop
         begin
           insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
@@ -188,8 +205,7 @@ begin
       for r in select * from unnest(array['f08-dekan-', 'f08-guru-', 'f08-admin2-']) as t(who) loop
         begin
           perform selftest.as_user(r.who || v_tag || '@local.invalid');
-          insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
-          values (v_inst, v_prog, 'COHORT', 'tak berwenang', v_period);
+          perform public.create_bagian(v_inst, 'tak berwenang');
           v_probs := selftest.f08_note(v_probs, 'F08-P01',
             r.who || 'built an org node in a school they do not administer');
         exception when others then m_build_denied := m_build_denied + 1;
@@ -751,10 +767,10 @@ begin
       end if;
 
       -- (d) AND ORDINARY ONBOARDING CONTINUES from that grant
+      -- (restated for BOB-08 (a): through the structure functions)
       perform selftest.as_user('f08-fresh-' || v_tag || '@local.invalid');
       begin
-        insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
-        values (v_inst, v_prog, 'COHORT', 'Angkatan baru ' || v_tag, v_period);
+        perform public.create_bagian(v_inst, 'Bagian baru ' || v_tag);
       exception when others then
         v_probs := selftest.f08_note(v_probs, 'F08-P08',
           'the newly granted administrator cannot onboard their school: ' || left(sqlerrm, 120));
@@ -795,6 +811,228 @@ begin
       begin perform selftest.as_owner(); exception when others then null; end;
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F08-P09  D-093 T1 (owner ruling 3 Oct, O4): AN OPERATIONAL STATE HAS ONE PATH.
+    -- A teacher may not move an assignment window or close it by writing the table, a school's administrator may
+    -- not change the school's own is_synthetic (which decides whether its evidence is OFFICIAL) or is_active, and
+    -- nobody signed in writes classes.status: each is refused by privilege (42501), not merely filtered to zero
+    -- rows. The posture of the installation is the deployment system's alone, and its change is on the record from
+    -- and to. The governed paths stay: assign_release and launch_quick_assessment keep opening windows as SECURITY
+    -- DEFINER functions a teacher may call (walked as the teacher in F13 and Q12).
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_user('f08-guru-' || v_tag || '@local.invalid');
+      if not public.can_in_institution('CAN_ASSIGN_LEARNING', v_inst) then
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'the fixture teacher cannot assign here, so the refusals below would prove nothing');
+      end if;
+      begin
+        update public.assessment_assignments set closes_at = now() + interval '30 days' where institution_id = v_inst;
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a teacher still moves an assessment window by writing the table');
+      exception when insufficient_privilege then m_d093 := m_d093 + 1; end;
+      begin
+        update public.assessment_assignments set status = 'CLOSED' where institution_id = v_inst;
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a teacher still closes an assessment by writing the table');
+      exception when insufficient_privilege then m_d093 := m_d093 + 1; end;
+      begin
+        update public.learning_assignments set available_until = now() where institution_id = v_inst;
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a teacher still ends a lesson window by writing the table');
+      exception when insufficient_privilege then m_d093 := m_d093 + 1; end;
+      begin
+        insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id, academic_period_id)
+        values (v_inst, gen_random_uuid(), gen_random_uuid(), v_prog, v_period);
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a teacher still inserts an assignment row directly');
+      exception
+        when insufficient_privilege then m_d093 := m_d093 + 1;
+        when others then
+          v_probs := selftest.f08_note(v_probs, 'F08-P09',
+            'a teacher''s direct insert reached the row checks instead of a privilege refusal: ' || left(sqlerrm, 80));
+      end;
+
+      perform selftest.as_user('f08-admin-' || v_tag || '@local.invalid');
+      begin
+        update public.institutions set is_synthetic = not is_synthetic where institutions.id = v_inst;
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a school administrator still changes the school''s is_synthetic directly');
+      exception
+        when insufficient_privilege then m_d093 := m_d093 + 1;
+        when others then   -- a row guard, not the privilege: outside production the bootstrap guard can refuse it
+          v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a school administrator still changes the school''s is_synthetic directly (stopped only by a row guard: ' || left(sqlerrm, 60) || ')');
+      end;
+      begin
+        update public.institutions set is_active = false where institutions.id = v_inst;
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a school administrator still changes the school''s is_active directly');
+      exception
+        when insufficient_privilege then m_d093 := m_d093 + 1;
+        when others then   -- a row guard, not the privilege: outside production the bootstrap guard can refuse it
+          v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a school administrator still changes the school''s is_active directly (stopped only by a row guard: ' || left(sqlerrm, 60) || ')');
+      end;
+      begin
+        update public.classes set status = 'ENDED' where node_id = v_prog;
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a school administrator still writes classes.status directly');
+      exception
+        when insufficient_privilege then m_d093 := m_d093 + 1;
+        when others then   -- a row guard, not the privilege: outside production the bootstrap guard can refuse it
+          v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a school administrator still writes classes.status directly (stopped only by a row guard: ' || left(sqlerrm, 60) || ')');
+      end;
+      perform selftest.as_owner();
+
+      -- the grants themselves, as a fresh session meets them, and the posture's
+      foreach v_msg in array array['learning_assignments','assessment_assignments','institutions','classes'] loop
+        if has_table_privilege('authenticated', 'public.' || v_msg, 'insert')
+           or has_table_privilege('authenticated', 'public.' || v_msg, 'update') then
+          v_probs := selftest.f08_note(v_probs, 'F08-P09', format('authenticated still holds a write grant on %s', v_msg));
+        end if;
+        if not has_table_privilege('authenticated', 'public.' || v_msg, 'select') then
+          v_probs := selftest.f08_note(v_probs, 'F08-P09', format('authenticated lost its read of %s', v_msg));
+        end if;
+      end loop;
+      if has_table_privilege('service_role', 'public.platform_environment', 'update')
+         or has_table_privilege('service_role', 'public.platform_environment', 'insert')
+         or has_table_privilege('service_role', 'public.platform_environment', 'delete') then
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'service_role can still change the installation''s posture');
+      end if;
+      -- the governed paths are intact: definer functions a teacher may call
+      if not (select bool_and(p.prosecdef and has_function_privilege('authenticated', p.oid, 'execute'))
+                from pg_proc p join pg_namespace ns on ns.oid = p.pronamespace
+               where ns.nspname = 'public' and p.proname in ('assign_release', 'launch_quick_assessment')) then
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', 'a governed assignment path is no longer a definer function a teacher may call');
+      end if;
+
+      -- the deployment system's change of posture is recorded, from and to; a save that changes nothing is not
+      select coalesce(max(audit_log.id), 0) into v_audit_before from public.audit_log;
+      update public.platform_environment set environment = environment;
+      update public.platform_environment
+         set local_fixtures_enabled = not local_fixtures_enabled;
+      select count(*) into n from public.audit_log a
+       where a.id > v_audit_before and a.action = 'platform_environment.changed'
+         and a.summary -> 'from' ->> 'local_fixtures_enabled' is distinct from a.summary -> 'to' ->> 'local_fixtures_enabled'
+         and a.summary ->> 'database_role' is not null;
+      if n <> 1 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P09', format('the posture change was recorded %s time(s), expected once with from and to', n));
+      end if;
+      update public.platform_environment set local_fixtures_enabled = not local_fixtures_enabled;   -- back as it was
+    exception when others then
+      v_probs := selftest.f08_note(v_probs, 'F08-P09', 'the test could not run: ' || left(sqlerrm, 150));
+      begin perform selftest.as_owner(); exception when others then null; end;
+    end;
+
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F08-P10  D-093 T2 (D-097): AN OPERATIONAL CHANGE SAYS WHAT IT WAS.
+    -- A revocation and a deactivation are refused without a reason (D-097(a)) and, given one, are on the record with
+    -- what they changed from and to, the reason, and the role the administrator acted under -- the deactivation naming
+    -- every place it closed. A revocation is not written twice. The inert switches record from and to, and a save that
+    -- changes nothing writes nothing.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      select ra.id into v_ra from public.role_assignments ra
+        join public.accounts ac on ac.person_id = ra.person_id
+       where ac.auth_user_id = v_guru_u and ra.role = 'EDUCATOR' and ra.revoked_at is null limit 1;
+      perform selftest.as_user('f08-admin-' || v_tag || '@local.invalid');
+      -- 1. role revoke: no reason, no revocation
+      begin
+        execute format('select public.revoke_role(%L::uuid, %L)', v_ra, '   ');
+        v_probs := selftest.f08_note(v_probs, 'F08-P10', 'a role was revoked without a reason');
+      exception when others then
+        if sqlerrm ~ 'reason' then m_t2 := m_t2 + 1;
+        else v_probs := selftest.f08_note(v_probs, 'F08-P10', 'a role revocation without a reason was refused for something else: ' || left(sqlerrm, 80)); end if;
+      end;
+      execute format('select public.revoke_role(%L::uuid, %L)', v_ra, 'pindah tugas ke sekolah lain');
+      begin
+        execute format('select public.revoke_role(%L::uuid, %L)', v_ra, 'kedua kali');
+        v_probs := selftest.f08_note(v_probs, 'F08-P10', 'a revoked role was revoked a second time');
+      exception when others then m_t2 := m_t2 + 1; end;
+      perform selftest.as_owner();
+      select a.summary into v_sum from public.audit_log a
+       where a.action = 'role.revoked' and a.target_id = v_ra::text order by a.id desc limit 1;
+      if (select count(*) from public.audit_log a where a.action = 'role.revoked' and a.target_id = v_ra::text) <> 1 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10', 'the revocation is not on the record exactly once');
+      end if;
+      if v_sum ->> 'reason' is distinct from 'pindah tugas ke sekolah lain'
+         or v_sum -> 'from' ->> 'state' is distinct from 'ACTIVE' or v_sum -> 'to' ->> 'state' is distinct from 'REVOKED'
+         or v_sum ->> 'actor_role' is distinct from 'INSTITUTION_ADMIN' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10',
+          'the revocation''s record lacks its reason, from and to, or the actor''s role: ' || left(coalesce(v_sum::text, 'none'), 160));
+      end if;
+      if (select ra.revoked_reason from public.role_assignments ra where ra.id = v_ra) is distinct from 'pindah tugas ke sekolah lain' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10', 'the assignment does not keep why it was revoked');
+      end if;
+
+      -- 2. structure deactivation: no reason, no deactivation; given one, every closed place is named
+      perform selftest.as_user('f08-admin-' || v_tag || '@local.invalid');
+      v_b_tutup := public.create_bagian(v_inst, 'Bagian tutup ' || v_tag);
+      begin
+        execute format('select public.deactivate_school_node(%L::uuid, %L)', v_b_tutup, '');
+        v_probs := selftest.f08_note(v_probs, 'F08-P10', 'a place was deactivated without a reason');
+      exception when others then
+        if sqlerrm ~ 'reason' then m_t2 := m_t2 + 1;
+        else v_probs := selftest.f08_note(v_probs, 'F08-P10', 'a deactivation without a reason was refused for something else: ' || left(sqlerrm, 80)); end if;
+      end;
+      execute format('select public.deactivate_school_node(%L::uuid, %L)', v_b_tutup, 'digabung dengan Bagian lain');
+      perform selftest.as_owner();
+      -- G1, closed in audit_write: a row whose writer names no role still names the acting administrator's
+      select a.summary into v_sum from public.audit_log a
+       where a.action = 'structure.bagian_created' and a.target_id = v_b_tutup::text order by a.id desc limit 1;
+      if v_sum ->> 'actor_role' is distinct from 'INSTITUTION_ADMIN' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10',
+          'a row written by the school administrator does not name their role (G1): ' || left(coalesce(v_sum::text, 'none'), 120));
+      end if;
+      select a.summary into v_sum from public.audit_log a
+       where a.action = 'structure.deactivated' and a.target_id = v_b_tutup::text order by a.id desc limit 1;
+      if v_sum ->> 'reason' is distinct from 'digabung dengan Bagian lain'
+         or (v_sum -> 'from' ->> 'is_active') is distinct from 'true' or (v_sum -> 'to' ->> 'is_active') is distinct from 'false'
+         or v_sum ->> 'actor_role' is distinct from 'INSTITUTION_ADMIN'
+         or coalesce(jsonb_array_length(v_sum -> 'deactivated'), 0) <> 2 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10',
+          'the deactivation''s record lacks its reason, from and to, the actor''s role or the places it closed (a Bagian and its hidden Reguler): '
+          || left(coalesce(v_sum::text, 'none'), 160));
+      end if;
+
+      -- 3. the inert switches: from and to, and nothing for a save that changes nothing
+      perform selftest.as_owner();
+      -- (the states T1 left to the owner: a school's active flag and a class's status, recorded from and to)
+      select coalesce(max(audit_log.id), 0) into v_audit_before from public.audit_log;
+      update public.institutions set is_active = is_active where institutions.id = v_inst;
+      update public.institutions set is_active = false where institutions.id = v_inst;
+      insert into public.classes (node_id, subject) values (v_cls, 'F08 kelas') on conflict (node_id) do nothing;
+      update public.classes set status = 'ACTIVE' where node_id = v_cls and status = 'SCHEDULED';
+      select count(*) into n from public.audit_log a
+       where a.id > v_audit_before and a.action in ('institution.state_changed', 'class.status_changed')
+         and a.summary -> 'from' is not null and a.summary -> 'to' is not null and a.summary -> 'from' <> a.summary -> 'to'
+         and a.summary ->> 'database_role' is not null;
+      if n <> 2 then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10',
+          format('a school''s active flag and a class''s status changed by the owner were recorded %s time(s), expected 2 with from and to', n));
+      end if;
+      update public.institutions set is_active = true where institutions.id = v_inst;
+      select coalesce(max(audit_log.id), 0) into v_audit_before from public.audit_log;
+      update public.platform_config set value = value where key = 'maintenance_mode';
+      update public.platform_config set value = to_jsonb(not (value::text)::boolean) where key = 'maintenance_mode';
+      select count(*) into n from public.audit_log a where a.id > v_audit_before and a.action = 'platform_config.updated';
+      select a.summary into v_sum from public.audit_log a
+       where a.id > v_audit_before and a.action = 'platform_config.updated' order by a.id desc limit 1;
+      if n <> 1 or v_sum -> 'from' is null or v_sum -> 'to' is null or v_sum -> 'from' = v_sum -> 'to' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10',
+          format('a platform setting change wrote %s row(s); expected one, from and to: %s', n, left(coalesce(v_sum::text, 'none'), 120)));
+      end if;
+      perform selftest.as_user('f08-admin-' || v_tag || '@local.invalid');
+      select coalesce(max(audit_log.id), 0) into v_audit_before from public.audit_log;
+      insert into public.feature_flags (key, institution_id, enabled) values ('f08.d093.' || v_tag, v_inst, true);
+      update public.feature_flags set enabled = true where key = 'f08.d093.' || v_tag and institution_id = v_inst;
+      update public.feature_flags set enabled = false where key = 'f08.d093.' || v_tag and institution_id = v_inst;
+      perform selftest.as_owner();
+      select count(*) into n from public.audit_log a where a.id > v_audit_before and a.target_table = 'feature_flags';
+      select a.summary into v_sum from public.audit_log a
+       where a.id > v_audit_before and a.action = 'feature_flag.UPDATE' order by a.id desc limit 1;
+      if n <> 2 or (v_sum -> 'from' ->> 'enabled') is distinct from 'true' or (v_sum -> 'to' ->> 'enabled') is distinct from 'false'
+         or v_sum ->> 'actor_role' is distinct from 'INSTITUTION_ADMIN' then
+        v_probs := selftest.f08_note(v_probs, 'F08-P10',
+          format('a feature flag''s three saves (one unchanged) wrote %s row(s), expected 2 with from, to and the actor''s role: %s',
+                 n, left(coalesce(v_sum::text, 'none'), 120)));
+      end if;
+    exception when others then
+      v_probs := selftest.f08_note(v_probs, 'F08-P10', 'the test could not run: ' || left(sqlerrm, 150));
+      begin perform selftest.as_owner(); exception when others then null; end;
+    end;
+
     raise exception 'F08_UNDO';
 
   exception when others then
@@ -806,7 +1044,7 @@ begin
   ------------------------------------------------------------------- verdicts
   for r in
     select * from unnest(
-      array['F08-P01','F08-P02','F08-P03','F08-P04','F08-P05','F08-P06','F08-P07','F08-P08'],
+      array['F08-P01','F08-P02','F08-P03','F08-P04','F08-P05','F08-P06','F08-P07','F08-P08','F08-P09','F08-P10'],
       array['WP8 -- a school can build its own shape, signed in',
             'WP8 -- no client-writable table runs a trigger the client cannot execute',
             'WP8 -- an institution assembles a report and the engine runs on it',
@@ -814,18 +1052,17 @@ begin
             'WP8 -- authorization is the first gate on the new endpoint',
             'WP8 -- a retired metric, and a grant that could never work',
             'WP8 -- the first administrator, and the door that shuts behind them',
-            'WP8 -- a person with no past can be given their first role'],
+            'WP8 -- a person with no past can be given their first role',
+            'D-093 -- an operational state has one path',
+            'D-093 -- an operational change says what it was'],
       array[
-        format('an institution administrator signs in and builds a cohort and a class in their own '
-            || 'school -- which is what a missing EXECUTE grant on the ladder trigger''s own helper made '
-            || 'impossible for everyone but the table owner -- and the node they wrote carries a jalur %s '
-            || 'deep, so the trigger ran with their rights rather than being skipped. The grant is also '
-            || 'asserted directly, because plpgsql checks function-execute permission when it builds a '
-            || 'plan and caches it: a write after an owner-built fixture can reuse a plan the owner was '
-            || 'cleared for, and the fresh session a real school arrives in cannot. The rules did not '
-            || 'move with the grant: %s ladder violation(s) are still refused, and %s actor(s) without '
-            || 'administration here -- a dean, an educator and the neighbouring school''s administrator '
-            || '-- are still refused', m_depth, m_ladder_refusals, m_build_denied),
+        format('an institution administrator signs in and builds a Bagian, a Tingkat and a Kelas in their '
+            || 'own school through BOB-01''s structure functions, and the Kelas carries a jalur %s deep; '
+            || 'restated for BOB-08 (a), the same administrator''s direct writes to org_nodes and '
+            || 'academic_periods are refused (%s of 2). The ladder helper stays executable by a client. '
+            || 'The rules did not move: %s ladder violation(s) are refused even to the owner, and %s '
+            || 'actor(s) without administration here -- a dean, an educator and the neighbouring school''s '
+            || 'administrator -- are refused', m_depth, m_direct, m_ladder_refusals, m_build_denied),
         format('the standing assertion holds across %s client-writable table(s) and the %s '
             || 'invoker-rights trigger(s) on them, and it is owner-run: a client-executable assertion '
             || 'about client executability would be answering about itself', m_tables, m_triggers),
@@ -870,7 +1107,21 @@ begin
             || 'build their own cohort. %s refusals -- an institution administrator, a dean, an '
             || 'educator and an anonymous caller -- each by the SYSTEM_ADMIN name. Visibility was '
             || 'not widened to do any of it: the read defers to person_visible_to_me and that '
-            || 'predicate knows nothing about this list', m_wait_denied)
+            || 'predicate knows nothing about this list', m_wait_denied),
+        format('%s of 7 direct writes refused by privilege: a teacher who may assign cannot move or close an '
+            || 'assessment window, end a lesson window or insert an assignment by writing the table; a school''s '
+            || 'administrator cannot change the school''s is_synthetic (which decides whether its evidence is '
+            || 'OFFICIAL) or is_active, or write classes.status. Reads are unchanged, the governed paths '
+            || '(assign_release, launch_quick_assessment) are still definer functions a teacher may call, '
+            || 'service_role cannot change the installation''s posture, and the deployment system''s change of '
+            || 'posture is on the record once, from and to, while a save that changes nothing is not', m_d093),
+        format('%s of 3 refusals: a role revocation and a deactivation without a reason, and a second revocation of '
+            || 'the same role. Given a reason, each is on the record once with what it changed from and to, the '
+            || 'reason and the role the administrator acted under (INSTITUTION_ADMIN); the assignment keeps why it '
+            || 'was revoked; the deactivation names both places it closed (the Bagian and its hidden Reguler). The '
+            || 'inert switches record from and to, and a save that changes nothing writes nothing (D-097). Every row '
+            || 'written while a person acts names their role, including from writers that do not name it (G1). The '
+            || 'states T1 left to the owner -- a school''s active flag, a class''s status -- are recorded from and to', m_t2)
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

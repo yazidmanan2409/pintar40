@@ -189,7 +189,7 @@ language plpgsql set search_path = public, pg_temp as $$
 declare
   v_guru uuid; v_hod uuid; v_course uuid; v_mod uuid; v_les uuid; v_rel uuid;
   ob1 uuid; spec jsonb; entry jsonb; opt jsonb; it uuid; t text;
-  v_status text; v_blockers text[];
+  v_status text; v_blockers jsonb;
 begin
   v_guru := selftest.f05_actor('qac-own-guru@synthetic.pintar.test', 'EDUCATOR', p_institution);
   v_hod  := selftest.f05_actor('qac-own-hod@synthetic.pintar.test', 'HEAD_OF_DEPARTMENT', p_institution);
@@ -274,7 +274,7 @@ begin
   select pr.status, pr.blockers into v_status, v_blockers from public.publish_readiness(v_course) pr;
   if v_status <> 'READY' then
     raise exception 'the school-owned fixture is not publishable (%): % -- fix the fixture, never the gate',
-      v_status, array_to_string(v_blockers, '; ');
+      v_status, v_blockers::text;
   end if;
 
   -- the release exists and is NOT published: the ordinary mid-authoring state,
@@ -347,6 +347,9 @@ begin
    where e.institution_id = v_c and n.kind = 'CLASS' and m.valid_to is null limit 1;
 
   select * into f from selftest.qac_unsealed_fixture(v_b);
+  -- D-088(b): each school sets its pass mark for the lessons it launches from, before any launch
+  perform selftest.pass_mark(v_b, p.course); perform selftest.pass_mark(v_c, p.course); perform selftest.pass_mark(v_a, p.course);
+  perform selftest.pass_mark(v_b, f.course);
 
   v_guru_b := selftest.f05_actor('qac-guru-b@synthetic.pintar.test', 'EDUCATOR', v_b);
   v_guru_c := selftest.f05_actor('qac-guru-c@synthetic.pintar.test', 'EDUCATOR', v_c);
@@ -823,6 +826,7 @@ begin
   v_hod   := selftest.f05_actor('qac-own-hod@synthetic.pintar.test', 'HEAD_OF_DEPARTMENT', v_b);
   v_admin := selftest.f05_actor('qac-own-admin@synthetic.pintar.test', 'INSTITUTION_ADMIN', v_b);
   select * into own from selftest.qac_own_package(v_b, v_tag);
+  perform selftest.pass_mark(v_b, own.course);
 
   -- (a) release INGESTED, course NOT sealed -- the case that was wrong
   if public.content_is_sealed(own.course) then
@@ -998,6 +1002,7 @@ begin
   -- =========================================================================
   ok := true; detail := '';
   select * into can2 from selftest.canonical_package('QAC Supersede ' || v_tag);
+  perform selftest.pass_mark(v_b, can2.course);
   perform selftest.as_user('kanonik-admin@pintar.test');
   v_dist2 := public.grant_release_distribution(can2.rel, v_b, 'task 1 supersession probe');
   perform selftest.as_owner();

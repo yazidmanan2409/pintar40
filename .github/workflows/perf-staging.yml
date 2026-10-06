@@ -1,0 +1,237 @@
+name: perf · staging (U-PERF, D-046)
+
+# Measures staging as a person uses it (D-046). Dispatch only. Synthetic staff only (D-046(c)); the one
+# write is a rename of the synthetic school's Bagian and its rename back.
+#   probe: where the server code actually runs (Vercel's x-vercel-id: edge::function::id) and the
+#          time to first byte of a few server-rendered pages, three times each (the first may be a cold start).
+#   region: what Vercel says each project is configured with, and which regions the latest staging
+#          deployment was built for (read-only API; only fields whose names mention "region" are printed).
+#   journey: the synthetic admin and teacher sign in, click through and save, timed per step with its
+#          window, for request counts from Supabase's log (audit/perf/journey.mjs).
+#   sessions30: 30 active sessions for `minutes` (D-046(b)): 3 jobs of 10 sessions, half admin, half
+#          teacher, clicking with 3-8 s of reading between clicks; red on any failed click, 5xx or page
+#          error (audit/perf/concurrency.mjs).
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "What to measure"
+        type: choice
+        options: [probe, region, journey, sessions30]
+        default: probe
+      reps:
+        description: "journey: repetitions per role (the first may include cold starts)"
+        type: number
+        default: 2
+      minutes:
+        description: "sessions30: minutes of clicking after the one-minute sign-in ramp"
+        type: number
+        default: 10
+
+permissions:
+  contents: read
+
+concurrency:
+  group: perf-staging
+  cancel-in-progress: false
+
+env:
+  STAGING_ORIGIN: https://staging.pintarselalu.com
+
+jobs:
+  probe:
+    if: ${{ inputs.mode == 'probe' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Where the server code runs, and how long the first byte takes
+        run: |
+          set -euo pipefail
+          printf '%-22s %-4s %-9s %-9s %s\n' path http ttfb_s total_s x-vercel-id
+          for path in /masuk "/masuk?peran=staf" /; do
+            for i in 1 2 3; do
+              out=$(curl -sS -o /dev/null -D /tmp/h -w '%{http_code} %{time_starttransfer} %{time_total}' "$STAGING_ORIGIN$path")
+              id=$(grep -i '^x-vercel-id:' /tmp/h | cut -d' ' -f2 | tr -d '\r' || true)
+              read -r code ttfb total <<<"$out"
+              printf '%-22s %-4s %-9s %-9s %s\n' "$path" "$code" "$ttfb" "$total" "${id:-none}"
+            done
+          done
+          echo
+          echo "x-vercel-id reads edge::function::request. A function region of sin1 means the server code runs in Singapore, beside Supabase."
+
+  region:
+    if: ${{ inputs.mode == 'region' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      PROJECTS: pintar40-staging pintar40
+    steps:
+      - name: Region settings per project, and the latest staging deployment's regions
+        run: |
+          set -euo pipefail
+          [ -n "${VERCEL_TOKEN:-}" ] || { echo "::error::VERCEL_TOKEN is not set"; exit 1; }
+          python3 - <<'PY'
+          import json, os, urllib.request
+          tok = os.environ['VERCEL_TOKEN']
+          def get(path):
+              req = urllib.request.Request('https://api.vercel.com' + path, headers={'Authorization': 'Bearer ' + tok})
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  return json.load(r)
+          def regions(o, path=''):
+              out = []
+              if isinstance(o, dict):
+                  for k, v in o.items():
+                      p = f'{path}.{k}' if path else k
+                      if 'region' in k.lower() and not isinstance(v, dict):
+                          out.append((p, v))
+                      out += regions(v, p)
+              elif isinstance(o, list):
+                  for i, v in enumerate(o):
+                      out += regions(v, f'{path}[{i}]')
+              return out
+          for proj in os.environ['PROJECTS'].split():
+              p = get(f'/v9/projects/{proj}')
+              print(f'== project {proj} (framework {p.get("framework")}, fluid {p.get("resourceConfig", {}).get("fluid")})')
+              for k, v in regions(p):
+                  print(f'   {k} = {v}')
+              d = get(f'/v6/deployments?projectId={p["id"]}&limit=1').get('deployments', [])
+              if d:
+                  dep = get(f'/v13/deployments/{d[0]["uid"]}')
+                  print(f'   latest deployment {dep.get("id")} created {dep.get("createdAt")} target {dep.get("target")} state {dep.get("readyState")}')
+                  for k, v in regions(dep):
+                      print(f'   deployment.{k} = {v}')
+          PY
+
+  journey:
+    if: ${{ inputs.mode == 'journey' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+      PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+      STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      ADMIN_EMAIL: uji-kinerja-admin@example.co
+      GURU_EMAIL: uji-kinerja-guru@example.com
+      REPS: ${{ inputs.reps }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Playwright (the audit harness's version)
+        working-directory: audit/perf
+        run: |
+          npm init -y >/dev/null
+          npm i --no-save --no-audit --no-fund playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Staging's keys (masked)
+        run: |
+          set -euo pipefail
+          [ "$STAGING_SUPABASE_PROJECT_REF" != "$PRODUCTION_SUPABASE_PROJECT_REF" ]
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, os, urllib.request
+          ref = os.environ['STAGING_SUPABASE_PROJECT_REF']
+          req = urllib.request.Request(f'https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true',
+                                       headers={'Authorization': 'Bearer ' + os.environ['STAGING_SUPABASE_ACCESS_TOKEN']})
+          keys = json.load(urllib.request.urlopen(req, timeout=30))
+          svc = next(k['api_key'] for k in keys if k.get('name') == 'service_role' and (k.get('api_key') or '').startswith('eyJ'))
+          import sys
+          print('::add-mask::' + svc, file=sys.stderr, flush=True)
+          print(f'SERVICE_KEY={svc}')
+          anon = next(k['api_key'] for k in keys if k.get('name') == 'anon' and (k.get('api_key') or '').startswith('eyJ'))
+          print('::add-mask::' + anon, file=sys.stderr, flush=True)
+          print(f'ANON_KEY={anon}')
+          print(f'SUPABASE_URL=https://{ref}.supabase.co')
+          PY
+      - name: Which build staging is serving (read-only)
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, urllib.request
+          def get(path):
+              req = urllib.request.Request('https://api.vercel.com' + path, headers={'Authorization': 'Bearer ' + os.environ['VERCEL_TOKEN']})
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  return json.load(r)
+          p = get('/v9/projects/pintar40-staging')
+          d = get(f'/v6/deployments?projectId={p["id"]}&limit=1&state=READY&target=production').get('deployments', [])
+          if d:
+              m = d[0].get('meta') or {}
+              print(f'staging serves {(m.get("githubCommitSha") or "?")[:7]} ({m.get("githubCommitRef")}), deployment ready at {d[0].get("ready") or d[0].get("created")}')
+          else:
+              print('no ready production deployment found for pintar40-staging')
+          PY
+      - name: The journey, timed
+        working-directory: audit/perf
+        run: node journey.mjs
+
+  sessions30:
+    if: ${{ inputs.mode == 'sessions30' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
+    env:
+      STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+      PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+      STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      ADMIN_EMAIL: uji-kinerja-admin@example.co
+      GURU_EMAIL: uji-kinerja-guru@example.com
+      SHARD: ${{ matrix.shard }}
+      SHARDS: 3
+      SESSIONS: 10
+      MINUTES: ${{ inputs.minutes }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Playwright (the audit harness's version)
+        working-directory: audit/perf
+        run: |
+          npm init -y >/dev/null
+          npm i --no-save --no-audit --no-fund playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Staging's keys (masked)
+        run: |
+          set -euo pipefail
+          [ "$STAGING_SUPABASE_PROJECT_REF" != "$PRODUCTION_SUPABASE_PROJECT_REF" ]
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, os, urllib.request
+          ref = os.environ['STAGING_SUPABASE_PROJECT_REF']
+          req = urllib.request.Request(f'https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true',
+                                       headers={'Authorization': 'Bearer ' + os.environ['STAGING_SUPABASE_ACCESS_TOKEN']})
+          keys = json.load(urllib.request.urlopen(req, timeout=30))
+          svc = next(k['api_key'] for k in keys if k.get('name') == 'service_role' and (k.get('api_key') or '').startswith('eyJ'))
+          import sys
+          print('::add-mask::' + svc, file=sys.stderr, flush=True)
+          print(f'SERVICE_KEY={svc}')
+          anon = next(k['api_key'] for k in keys if k.get('name') == 'anon' and (k.get('api_key') or '').startswith('eyJ'))
+          print('::add-mask::' + anon, file=sys.stderr, flush=True)
+          print(f'ANON_KEY={anon}')
+          print(f'SUPABASE_URL=https://{ref}.supabase.co')
+          PY
+      - name: Which build staging is serving (read-only)
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, urllib.request
+          def get(path):
+              req = urllib.request.Request('https://api.vercel.com' + path, headers={'Authorization': 'Bearer ' + os.environ['VERCEL_TOKEN']})
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  return json.load(r)
+          p = get('/v9/projects/pintar40-staging')
+          d = get(f'/v6/deployments?projectId={p["id"]}&limit=1&state=READY&target=production').get('deployments', [])
+          if d:
+              m = d[0].get('meta') or {}
+              print(f'staging serves {(m.get("githubCommitSha") or "?")[:7]} ({m.get("githubCommitRef")}), deployment ready at {d[0].get("ready") or d[0].get("created")}')
+          else:
+              print('no ready production deployment found for pintar40-staging')
+          PY
+      - name: Ten sessions of thirty, clicking
+        working-directory: audit/perf
+        run: node concurrency.mjs

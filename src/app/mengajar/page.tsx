@@ -10,6 +10,7 @@ import Tur from "@/components/tur/Tur";
 import { PARAM_BANTUAN } from "@/components/tur/TombolBantuan";
 import { bolehTampilOtomatis, turPengajarBerlaku, TUR_PENGAJAR } from "@/lib/tur";
 import { keadaanTur, peranSaya } from "@/lib/tur-negara";
+import { kataAnggota } from "@/lib/mengajar";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +62,8 @@ export default async function BerandaPengajar({
     ajar.berjalan(konteks.kelas.map((k) => k.id)),
   ]);
 
+  // W16: with no suggestion, a class that has no material at all while the school has published some
+  const baru = satu ? null : await ajar.kelasTanpaMateri(konteks.kelas);
   const sekarang = ajar.waktu();
   const nama = new Map(konteks.kelas.map((k) => [k.id, k.nama]));
 
@@ -134,6 +137,21 @@ export default async function BerandaPengajar({
               </Link>
             </div>
           </div>
+        ) : baru ? (
+          <div className="pin-lanjut" data-tur="layak">
+            <p className="pin-where">{s("mengajar.layak.eyebrow")}</p>
+            <h2>
+              {s("mengajar.layak.kelas_baru")} {baru.kelasNama}
+            </h2>
+            <div className="pin-actions">
+              <Link className="pin-btn pin-primary" href={`/mengajar/${baru.kelasId}/siapkan`}>
+                {s("mengajar.siap.eyebrow")}
+              </Link>
+              <Link className="pin-btn" href={`/mengajar/${baru.kelasId}`}>
+                {s("mengajar.aksi.lihat")} {baru.kelasNama}
+              </Link>
+            </div>
+          </div>
         ) : (
           <p className="pin-empty" data-tur="layak">{s("mengajar.layak.kosong")}</p>
         )}
@@ -150,7 +168,7 @@ export default async function BerandaPengajar({
                 const jalan = buka.filter((b) => b.nodeId === k.id);
                 const meta = [
                   r?.mapel,
-                  `${format.number(r?.murid ?? 0, locale)} ${s("mengajar.bukti.murid")}`,
+                  `${format.number(r?.murid ?? 0, locale)} ${s(kataAnggota("mengajar.bukti.murid", k.jenis))}`,
                   ...jalan.map(
                     (b) =>
                       `${b.judul} · ${format.number(b.mengumpulkan, locale)}/${format.number(r?.murid ?? 0, locale)} ${s("mengajar.bukti.kumpul").toLowerCase()}`,

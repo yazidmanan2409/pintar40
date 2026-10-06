@@ -1,0 +1,56 @@
+# GitHub Actions spend, by workflow (D-090, D-091; whole-system efficiency audit, 2 Oct).
+#
+# READ ONLY. Once a day it counts the billed minutes of the previous UTC day's runs, by workflow (each job rounded
+# up to the whole minute, as GitHub bills), and writes the table to the run summary. It reads the Actions API with
+# the workflow's own token and writes nothing anywhere.
+#
+# RED when the day's billed minutes exceed the budget (repository variable ACTIONS_DAILY_MINUTES_BUDGET; 600 when
+# unset), so a rise in spend is seen the next morning and not on the bill. Between 18 Sep and 2 Oct the bill went
+# from about $10 to about $100 a fortnight and nothing in the repository said so.
+#
+# The controlled red: dispatch with budget=1, and any day with a run must read as over budget.
+
+name: actions · daily spend (D-090)
+
+on:
+  schedule:
+    - cron: '41 1 * * *'   # 08:41 WIB, the previous UTC day complete
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "UTC day YYYY-MM-DD (default: yesterday)"
+        default: ""
+      budget:
+        description: "Billed minutes a day (default: the repository variable, else 600); 1 is the controlled red"
+        default: ""
+  push:
+    branches:
+      - claude/awesome-rubin-bqxp6p
+    paths:
+      - .github/workflows/actions-spend.yml
+      - audit/ci/actions-spend.mjs
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: actions-spend
+  cancel-in-progress: false
+
+jobs:
+  spend:
+    name: yesterday's billed minutes, by workflow
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: audit/ci
+      - name: Count and judge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          DAY: ${{ inputs.day }}
+          BUDGET: ${{ inputs.budget || vars.ACTIONS_DAILY_MINUTES_BUDGET || '600' }}
+        run: node audit/ci/actions-spend.mjs

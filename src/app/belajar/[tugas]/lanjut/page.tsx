@@ -4,7 +4,7 @@ import { t, format, type HleEvent } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
-import { posisi, peringkat, statusKey, type Kandidat } from "@/lib/siklus";
+import { ketuntasan, posisi, peringkat, statusKey, type Kandidat } from "@/lib/siklus";
 import { rendersCredential, type CertificateStatus } from "@/lib/sertifikat-kontrak";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
@@ -40,8 +40,11 @@ export default async function Lanjut({ params }: { params: Promise<{ tugas: stri
   const state = await engine.cycleState(db, tugas);
   if (!state.post_session || state.post_status !== "FINALIZED") notFound();
 
-  // The certificate for the session just finished, if one exists yet.
-  const sertifikat = await engine.myCertificate(db, state.post_session);
+  // The certificate for the session just finished, if one exists yet; and (D-085 M3) whether its target was met.
+  const [sertifikat, target] = await Promise.all([
+    engine.myCertificate(db, state.post_session),
+    engine.outcome(db, state.post_session).then(ketuntasan).catch(() => null),
+  ]);
 
   // What else is genuinely mid-cycle, ranked the same way the home ranks it.
   const lain = await Promise.all(
@@ -82,6 +85,14 @@ export default async function Lanjut({ params }: { params: Promise<{ tugas: stri
           <h1 className="pin-h1">{s("siklus.berikutnya")}</h1>
           {adaSesuatu ? <p className="pin-intro">{s("siklus.terbuka_kini")}</p> : null}
         </div>
+
+        {/* M3 (W4): a learner below the target is never told only that everything is done */}
+        {target === "BELUM" ? (
+          <div className="pin-banner pin-attention pin-target" role="status" data-target="belum">
+            <p><strong>{s("hasil.target.belum")}</strong> {s("siklus.target.lanjut_belum")}</p>
+            <p><Link href={`/belajar/${tugas}/hasil#ulang`}>{s("siklus.target.lihat_ulang")}</Link></p>
+          </div>
+        ) : null}
 
         {adaSesuatu ? (
           <div className="pin-next">

@@ -17,6 +17,8 @@
 --            is not frozen, and its findings stay for the author to fix
 --   F12-N03  releases change only through their functions (D-041): no direct
 --            insert or update by a signed-in client; reading stays
+--   F12-P04  BOB-17: every readiness rule is its own code with its parameters,
+--            and the codes met are exactly the catalogue's
 --
 -- EVERY ROW IS ROLLED BACK: one subtransaction, verdicts collected in a jsonb
 -- of problems, a sentinel to undo the lot, and the findings emitted afterwards.
@@ -114,6 +116,7 @@ declare
   v_course uuid; v_rel uuid; v_rev uuid; v_rel2 uuid; v_course_k uuid; v_rel_k uuid; v_course_x uuid; v_rel_x uuid;
   v_probs jsonb := '{}'::jsonb; v_fatal text := '';
   m_steps int := 0; m_refused int := 0;
+  v_c4 uuid; v_d4 uuid; v_les uuid; v_les_t text; v_item uuid; v_item_d uuid; v_rel4 uuid; v_seen text[] := '{}'; v_exp jsonb;
 begin
   perform selftest.as_owner();
   begin
@@ -427,6 +430,178 @@ begin
       v_probs := selftest.f11_note(v_probs, 'F12-N03', 'the test could not run: ' || left(sqlerrm, 150));
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F12-P04  BOB-17 (D-011): EVERY READINESS RULE IS ITS OWN CODE, with its
+    --          parameters -- never a sentence. Planted findings for the four
+    --          findings rules, then the package walked through the five states
+    --          studio_package_state reports. Blockers are read through
+    --          to_jsonb, so today's text[] of sentences shows up as strings.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_user_uid(v_guru);
+      v_c4 := selftest.f12_course(v_a, selftest.f12_paket('Kode Kesiapan ' || v_tag,
+        'Berapakah dua ditambah dua?', 'Empat', 'Lima'));
+      perform selftest.as_owner();
+      delete from public.coaching_findings where course_id = v_c4;
+      delete from public.mcq_quality_findings where course_id = v_c4;
+      select l.id, l.title into v_les, v_les_t from public.lessons l join public.modules m on m.id = l.module_id
+       where m.course_id = v_c4 order by m.ordinal, l.ordinal limit 1;
+      select i.id into v_item from public.items i where i.lesson_id = v_les order by i.id limit 1;
+      insert into public.coaching_findings (institution_id, course_id, target_table, target_id, target_field, severity,
+                                            lokasi, masalah, mengapa_penting, cara_memperbaiki) values
+        (v_a, v_c4, 'lessons', v_les, 'body_markdown', 'ERROR', 'uji', 'uji', 'uji', 'uji'),
+        (v_a, v_c4, 'items', v_item, 'stem', 'WARNING', 'uji', 'uji', 'uji', 'uji'),
+        (v_a, v_c4, 'courses', v_c4, 'title', 'WARNING', 'uji', 'uji', 'uji', 'uji');
+      insert into public.mcq_quality_findings (institution_id, course_id, item_id, pattern_class, severity,
+                                               lokasi, masalah, mengapa_penting, cara_memperbaiki) values
+        (v_a, v_c4, v_item, 'POLA_UJI_GALAT', 'ERROR', 'uji', 'uji', 'uji', 'uji'),
+        (v_a, v_c4, v_item, 'POLA_UJI_PERINGATAN', 'WARNING', 'uji', 'uji', 'uji', 'uji'),
+        (v_a, v_c4, v_item, 'POLA_UJI_PERINGATAN', 'WARNING', 'uji', 'uji', 'uji', 'uji');
+
+      -- the four findings rules: one blocker per lesson (and pattern), with its count
+      select p.status, to_jsonb(p.blockers) into v_state, v from public.publish_readiness(v_c4) p;
+      v_exp := jsonb_build_array(
+        jsonb_build_object('code', 'READINESS_TEXT_ERROR', 'count', 1, 'lesson_id', v_les, 'lesson', v_les_t),
+        jsonb_build_object('code', 'READINESS_TEXT_WARNING', 'count', 1, 'lesson_id', v_les, 'lesson', v_les_t),
+        jsonb_build_object('code', 'READINESS_TEXT_WARNING', 'count', 1),
+        jsonb_build_object('code', 'READINESS_ITEM_ERROR', 'count', 1, 'lesson_id', v_les, 'lesson', v_les_t, 'pattern', 'POLA_UJI_GALAT'),
+        jsonb_build_object('code', 'READINESS_ITEM_WARNING', 'count', 2, 'lesson_id', v_les, 'lesson', v_les_t, 'pattern', 'POLA_UJI_PERINGATAN'));
+      if v_state is distinct from 'BLOCKED'
+         or (select jsonb_agg(e order by e::text) from jsonb_array_elements(v) e)
+            is distinct from (select jsonb_agg(e order by e::text) from jsonb_array_elements(v_exp) e) then
+        v_probs := selftest.f11_note(v_probs, 'F12-P04', format('with every findings rule planted, readiness was %s with %s', v_state, left(v::text, 300)));
+      end if;
+      v_seen := v_seen || array(select e ->> 'code' from jsonb_array_elements(v) e);
+      -- errors acknowledged by the head of department (CAN_REVIEW): only warnings are
+      -- left, which need action but do not block
+      perform selftest.as_user_uid(v_kajur);
+      update public.coaching_findings set acknowledged_at = now(), acknowledged_by_person_id = v_kajur_p where course_id = v_c4 and severity = 'ERROR';
+      update public.mcq_quality_findings set acknowledged_at = now(), acknowledged_by_person_id = v_kajur_p where course_id = v_c4 and severity = 'ERROR';
+      perform selftest.as_owner();
+      select p.status, to_jsonb(p.blockers) into v_state, v from public.publish_readiness(v_c4) p;
+      if v_state is distinct from 'ACTION_REQUIRED' or jsonb_array_length(v) <> 3 then
+        v_probs := selftest.f11_note(v_probs, 'F12-P04', format('with only warnings left, readiness was %s with %s', v_state, left(v::text, 200)));
+      end if;
+      perform selftest.as_user_uid(v_kajur);
+      update public.coaching_findings set acknowledged_at = now(), acknowledged_by_person_id = v_kajur_p where course_id = v_c4;
+      update public.mcq_quality_findings set acknowledged_at = now(), acknowledged_by_person_id = v_kajur_p where course_id = v_c4;
+      perform selftest.as_owner();
+      select p.status, to_jsonb(p.blockers) into v_state, v from public.publish_readiness(v_c4) p;
+      if v_state is distinct from 'READY' or v <> '[]'::jsonb then
+        v_probs := selftest.f11_note(v_probs, 'F12-P04', format('with everything acknowledged, readiness was %s with %s', v_state, left(v::text, 200)));
+      end if;
+
+      -- the package's own state: in review with no release, then approved with an unsealed release
+      perform selftest.as_user_uid(v_adm);
+      select p.surface_state, to_jsonb(p.reasons) into v_state, v from public.studio_package_state(v_c4) p;
+      v_seen := v_seen || array(select e ->> 'code' from jsonb_array_elements(v) e);
+      if v_state is distinct from 'ACTION_REQUIRED'
+         or not (v @> '[{"code": "READINESS_AWAITING_REVIEW"}]' and v @> '[{"code": "READINESS_NO_RELEASE"}]') then
+        v_probs := selftest.f11_note(v_probs, 'F12-P04', format('a course in review with no release reads %s: %s', v_state, left(v::text, 200)));
+      end if;
+      perform selftest.as_user_uid(v_kajur);
+      perform selftest.f12_advance(v_c4, 'APPROVED');
+      perform selftest.as_user_uid(v_adm);
+      v := public.create_release(v_c4);
+      select p.surface_state, to_jsonb(p.reasons) into v_state, v from public.studio_package_state(v_c4) p;
+      v_seen := v_seen || array(select e ->> 'code' from jsonb_array_elements(v) e);
+      if v <> '[{"code": "READINESS_NOT_SEALED"}]'::jsonb then
+        v_probs := selftest.f11_note(v_probs, 'F12-P04', format('an approved course with an unsealed release reads %s: %s', v_state, left(v::text, 200)));
+      end if;
+
+      -- and a package still short of validation, then with a question returned to be fixed
+      perform selftest.as_user_uid(v_guru);
+      v_d4 := (public.confirm_ingest_batch(selftest.f11_batch(v_a, 'STRUCTURED_PACKAGE',
+                 selftest.f12_paket('Kode Kesiapan Dua ' || v_tag, 'Berapakah tiga ditambah tiga?', 'Enam', 'Tujuh'))) -> 'courses' ->> 0)::uuid;
+      perform selftest.f12_advance(v_d4, 'STRUCTURED');
+      perform selftest.as_user_uid(v_adm);
+      select p.surface_state, to_jsonb(p.reasons) into v_state, v from public.studio_package_state(v_d4) p;
+      v_seen := v_seen || array(select e ->> 'code' from jsonb_array_elements(v) e);
+      if not (v @> '[{"code": "READINESS_NOT_VALIDATED"}]') then
+        v_probs := selftest.f11_note(v_probs, 'F12-P04', 'a structured package does not say it is short of validation: ' || left(v::text, 200));
+      end if;
+      perform selftest.as_user_uid(v_guru);
+      select i.id into v_item_d from public.items i join public.lessons l on l.id = i.lesson_id
+        join public.modules m on m.id = l.module_id where m.course_id = v_d4 limit 1;
+      update public.items set status = 'VALIDATED' where items.id = v_item_d;
+      update public.items set status = 'VALIDATION_FAILED' where items.id = v_item_d;
+      perform selftest.as_user_uid(v_adm);
+      select p.surface_state, to_jsonb(p.reasons) into v_state, v from public.studio_package_state(v_d4) p;
+      v_seen := v_seen || array(select e ->> 'code' from jsonb_array_elements(v) e);
+      if v_state is distinct from 'BLOCKED' or not (v @> '[{"code": "READINESS_RETURNED", "count": 1}]') then
+        v_probs := selftest.f11_note(v_probs, 'F12-P04', format('a returned question reads %s: %s', v_state, left(v::text, 200)));
+      end if;
+      perform selftest.as_owner();
+
+      -- every rule was met, and every code met is the catalogue's (terbitan-kontrak.ts KODE_HAMBATAN).
+      -- Sorted in C order to match the literal: under a linguistic collation, as
+      -- on Supabase's stack, "_" weighs almost nothing and NO_RELEASE sorts before NOT_*.
+      if (select array_agg(x order by x collate "C") from (select distinct x from unnest(v_seen) x) d) is distinct from array[
+          'READINESS_AWAITING_REVIEW', 'READINESS_ITEM_ERROR', 'READINESS_ITEM_WARNING', 'READINESS_NOT_SEALED',
+          'READINESS_NOT_VALIDATED', 'READINESS_NO_RELEASE', 'READINESS_RETURNED', 'READINESS_TEXT_ERROR',
+          'READINESS_TEXT_WARNING'] then
+        v_probs := selftest.f11_note(v_probs, 'F12-P04', 'the walk met ' || coalesce(array_to_string(
+          (select array_agg(distinct coalesce(x, '(not a code)') order by coalesce(x, '(not a code)')) from unnest(v_seen) x), ', '), 'nothing'));
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f11_note(v_probs, 'F12-P04', 'the test could not run: ' || left(sqlerrm, 200));
+    end;
+
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F12-P05  BOB-17 gate review: publish_readiness IS INTERNAL. It asks no
+    --          permission and its answer names lessons, so nobody signed in
+    --          calls it directly -- neither a learner nor another school's
+    --          staff -- while studio_package_state and freeze_release, which
+    --          ask their own permission and read it as its owner, still work
+    --          for the school's staff.
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_user_uid(v_guru);
+      v_course := selftest.f12_course(v_a, selftest.f12_paket('Hak Baca Kesiapan ' || v_tag,
+        'Apa yang terjadi pada benda diam bila didorong?', 'Benda itu mulai bergerak', 'Benda itu tetap diam'));
+      -- a learner of another school, and another school's administrator
+      perform selftest.as_user('alpha-siswa-1@synthetic.pintar.test');
+      v_code := selftest.f12_code(format('select to_jsonb(p) from public.publish_readiness(%L) p', v_course));
+      perform selftest.as_user_uid(v_adm_b);
+      v_code2 := selftest.f12_code(format('select to_jsonb(p) from public.publish_readiness(%L) p', v_course));
+      perform selftest.as_owner();
+      if v_code is null or v_code not like '42501 %' then
+        v_probs := selftest.f11_note(v_probs, 'F12-P05', 'a learner calling publish_readiness on another school''s course answered '
+          || coalesce(v_code, 'ok -- its lessons and findings were read'));
+      end if;
+      if v_code2 is null or v_code2 not like '42501 %' then
+        v_probs := selftest.f11_note(v_probs, 'F12-P05', 'another school''s administrator calling publish_readiness answered '
+          || coalesce(v_code2, 'ok -- its lessons and findings were read'));
+      end if;
+      if has_function_privilege('authenticated', 'public.publish_readiness(uuid)', 'execute') then
+        v_probs := selftest.f11_note(v_probs, 'F12-P05', 'publish_readiness is executable by authenticated');
+      end if;
+      if exists (select 1 from public.client_rpc_registry g where g.function_name = 'publish_readiness') then
+        v_probs := selftest.f11_note(v_probs, 'F12-P05', 'publish_readiness is still offered to clients in client_rpc_registry');
+      end if;
+
+      -- the school's own staff: the package's state, then the whole release path
+      perform selftest.as_user_uid(v_adm);
+      select p.surface_state into v_state from public.studio_package_state(v_course) p;
+      if v_state is null then
+        v_probs := selftest.f11_note(v_probs, 'F12-P05', 'the school''s administrator could not read the package''s state');
+      end if;
+      perform selftest.as_user_uid(v_kajur);
+      perform selftest.f12_advance(v_course, 'APPROVED');
+      perform selftest.as_user_uid(v_adm);
+      v_rel := (public.create_release(v_course) ->> 'release')::uuid;
+      perform selftest.as_user_uid(v_kajur);
+      v := public.freeze_release(v_rel);
+      perform selftest.as_owner();
+      if (v ->> 'ok')::boolean is not true or not public.content_is_sealed(v_course) then
+        v_probs := selftest.f11_note(v_probs, 'F12-P05', 'the head of department''s freeze, which reads readiness inside, did not seal: ' || left(v::text, 160));
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f11_note(v_probs, 'F12-P05', 'the test could not run: ' || left(sqlerrm, 200));
+    end;
+
     raise exception 'F12_UNDO';
   exception when others then
     begin perform selftest.as_owner(); exception when others then null; end;
@@ -437,13 +612,15 @@ begin
   ------------------------------------------------------------------- verdicts
   for r in
     select * from unnest(
-      array['F12-P01', 'F12-P02', 'F12-P03', 'F12-N01', 'F12-N02', 'F12-N03'],
+      array['F12-P01', 'F12-P02', 'F12-P03', 'F12-N01', 'F12-N02', 'F12-N03', 'F12-P04', 'F12-P05'],
       array['BOB-03 -- a school''s course goes approve, create, freeze, publish, and the teacher sees it',
             'BOB-03 -- a correction is a revision whose release is the next minor version',
             'BOB-03 -- the release is the course''s: its author cannot freeze it',
             'BOB-03 -- every refusal on the release path is its stable code',
             'BOB-03 -- readiness is measured at the seal; a blocked course is not frozen',
-            'BOB-03 -- releases change only through their functions (D-041)'],
+            'BOB-03 -- releases change only through their functions (D-041)',
+            'BOB-17 -- every readiness rule is its own code with its parameters (D-011)',
+            'BOB-17 -- publish_readiness is internal: nobody signed in reads it directly'],
       array[
         format('a teacher''s package became a course; the head of department approved it; the school''s admin created '
           || 'release 1.0.0, authored by the teacher; the head of department froze it (approved by them, content hash '
@@ -464,7 +641,18 @@ begin
           || 'INGESTED and the course unsealed, and kept the finding for the author',
         'a teacher''s direct insert of a release naming the head of department as author and an admin''s direct update '
           || 'of a published release were both refused by the database (42501, no grant), no write policy remains on '
-          || 'plp_releases, and the teacher still reads the school''s releases'
+          || 'plp_releases, and the teacher still reads the school''s releases',
+        'publish_readiness answered every planted findings rule as its own code -- READINESS_TEXT_ERROR and '
+          || 'READINESS_TEXT_WARNING per lesson (and one for the course as a whole), READINESS_ITEM_ERROR and '
+          || 'READINESS_ITEM_WARNING per lesson and pattern -- each with its count, lesson and pattern and no sentence; '
+          || 'BLOCKED for an error, ACTION_REQUIRED for warnings alone, READY and [] once all were acknowledged; '
+          || 'studio_package_state added READINESS_AWAITING_REVIEW and READINESS_NO_RELEASE in review, '
+          || 'READINESS_NOT_SEALED once approved and released, READINESS_NOT_VALIDATED for a structured package and '
+          || 'READINESS_RETURNED (BLOCKED) for a returned question; the nine codes met are exactly the catalogue''s',
+        'a learner of another school and another school''s administrator calling publish_readiness on a school''s '
+          || 'draft course were each refused 42501 (no grant) and read nothing; authenticated holds no execute on it and '
+          || 'client_rpc_registry no longer offers it; the school''s administrator still read the package''s state '
+          || 'through studio_package_state, and the head of department''s freeze, which reads readiness inside, sealed the course'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

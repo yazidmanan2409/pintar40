@@ -31,6 +31,15 @@ export function serviceRoleKey(): string {
 }
 
 /** Server-only pepper for classroom-card PIN derivation. ≥32 chars outside development. */
+/**
+ * BOB-26: the pepper when it is set, else null. For the one reader that must
+ * not throw: the proxy's set-up cookie (src/lib/penahan-aktivasi.ts), which
+ * simply remembers nothing without one.
+ */
+export function cardPepperJikaAda(): string | null {
+  return process.env.CARD_PEPPER || null;
+}
+
 export function cardPepper(): string {
   const v = process.env.CARD_PEPPER;
   if (!v) throw new Error("CARD_PEPPER is not set (server-only)");

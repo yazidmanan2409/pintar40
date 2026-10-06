@@ -115,6 +115,25 @@ export default async function RincianMuridPimpinan({
                 <dd>{rincian.placement.map((p) => p.name).join(" / ")}</dd>
               </div>
             ) : null}
+            {/* D-088(i): the places the learner has left, as history and never as current: each with its year, the
+                day it ended and why. Authority follows where the learner is now; this only says where they were. */}
+            {(rincian.placement_history ?? []).length > 0 ? (
+              <div>
+                <dt>{s("pimpinan.rincian.riwayat")}</dt>
+                <dd>
+                  <ul className="pin-riwayat-penempatan">
+                    {(rincian.placement_history ?? []).map((h) => (
+                      <li key={`${h.node_id}-${h.until}`}>
+                        {h.academic_year ? `${h.name} (${h.academic_year})` : h.name}
+                        {" · "}{s("pimpinan.rincian.sampai")} {format.date(h.until, locale)}
+                        {h.reason && ["MOVED", "PERIOD_ROLLOVER", "ENROLLMENT_ENDED"].includes(h.reason)
+                          ? <> · {s(`pimpinan.rincian.alasan.${h.reason}` as HleEvent)}</> : null}
+                      </li>
+                    ))}
+                  </ul>
+                </dd>
+              </div>
+            ) : null}
           </dl>
         </section>
 

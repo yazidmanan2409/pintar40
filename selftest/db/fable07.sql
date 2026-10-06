@@ -130,8 +130,11 @@ begin
     values (v_inst, v_inst, 'FACULTY', 'Fakultas') returning org_nodes.id into v_fac;
     insert into public.org_nodes (institution_id, parent_id, kind, name)
     values (v_inst, v_fac, 'DEPARTMENT', 'Jurusan A') returning org_nodes.id into v_dep;
-    insert into public.org_nodes (institution_id, parent_id, kind, name)
-    values (v_inst, v_fac, 'DEPARTMENT', 'Jurusan B') returning org_nodes.id into v_dep2;
+    -- RESTATED FOR BOB-43 (a changed requirement, D-069(d)): the professional-development
+    -- branch is a Bagian that says so; its Programme, Angkatan and Kelas inherit it, and
+    -- an academic Bagian would now refuse the assignment below
+    insert into public.org_nodes (institution_id, parent_id, kind, name, learning_context)
+    values (v_inst, v_fac, 'DEPARTMENT', 'Jurusan B', 'PROFESSIONAL_DEVELOPMENT') returning org_nodes.id into v_dep2;
     insert into public.org_nodes (institution_id, parent_id, kind, name)
     values (v_inst, v_dep, 'PROGRAMME', 'Program A') returning org_nodes.id into v_prog;
     insert into public.org_nodes (institution_id, parent_id, kind, name)
@@ -1336,7 +1339,7 @@ begin
      where ra.person_id = v_e2 and ra.role = 'EDUCATOR' and ra.scope_node_id = v_k2
        and ra.revoked_at is null;
     perform selftest.as_user_uid(v_adm_u);
-    perform public.revoke_role(v_one);
+    perform public.revoke_role(v_one, 'selftest: D-097');
     perform selftest.as_owner();
     perform selftest.as_user_uid(v_dean_u);
     select count(*) into n from public.feedback_subjects_for_class(v_k2);
@@ -1606,6 +1609,8 @@ begin
   alter table public.org_nodes disable trigger org_nodes_no_delete;
   alter table public.academic_periods disable trigger academic_periods_append_only;
   alter table public.institutions disable trigger institutions_no_delete;
+  -- BOB-06: every school now carries PINTAR's standard report templates
+  alter table public.report_templates disable trigger report_templates_guard;
 
   delete from public.feedback_results fr where fr.institution_id = any (v_inst);
   delete from public.feedback_responses fr where fr.institution_id = any (v_inst);
@@ -1618,8 +1623,10 @@ begin
   delete from public.role_assignments ra where ra.institution_id = any (v_inst);
   delete from public.org_nodes n where n.institution_id = any (v_inst);
   delete from public.academic_periods ap where ap.institution_id = any (v_inst);
+  delete from public.report_templates t where t.institution_id = any (v_inst);
   delete from public.institutions i where i.id = any (v_inst);
 
+  alter table public.report_templates enable trigger report_templates_guard;
   alter table public.institutions enable trigger institutions_no_delete;
   alter table public.academic_periods enable trigger academic_periods_append_only;
   alter table public.org_nodes enable trigger org_nodes_no_delete;

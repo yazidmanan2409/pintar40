@@ -1,0 +1,1805 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Matematika Kelas X · Bab 3: Perbandingan Trigonometri",
+   "subject": "Matematika",
+   "stage": "SMA",
+   "grade_label": "Kelas X",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Perbandingan Trigonometri",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Sisi-Sisi Segitiga Siku-Siku",
+       "summary": "Teorema Pythagoras, rasio, dan kesebangunan menjadi bekal trigonometri; sisi segitiga siku-siku diberi nama menurut sudut yang diperhatikan.",
+       "body_markdown": "## Mengukur tanpa menyentuh\n\nTinggi gunung atau gedung pencakar langit tidak diukur langsung dengan meteran. Para ahli memakai trigonometri. **Trigonometri** merupakan suatu metode mengukur secara tidak langsung yang memanfaatkan pola perbandingan antara sudut dan sisi segitiga. Kata trigonometri berasal dari bahasa Yunani dan berarti pengukuran segitiga.\n\n## Teorema Pythagoras dan rasio\n\nPada segitiga siku-siku ABC dengan sudut siku-siku di C, sisi a dan b mengapit sudut siku-siku, dan sisi c berada di seberangnya. Berlaku\n\na² + b² = c²\n\nContoh: jika a = 3 cm dan b = 4 cm, maka c² = 9 + 16 = 25, jadi c = 5 cm.\n\n**Rasio** adalah nilai atau bilangan yang menjelaskan keterkaitan antara dua hal. Misalnya, perbandingan tinggi penggaris dengan tinggi pohon adalah 1/100. Jika tinggi penggaris 3 cm, tinggi pohon 3 × 100 = 300 cm.\n\n## Segitiga sebangun\n\nDua segitiga sebangun jika:\n\n- setiap pasang sudut yang berpadanan sama besar, atau\n- setiap pasang sisi yang berpadanan sebanding (nilai rasionya sama), atau\n- dua pasang sisi yang berpadanan sebanding dan sudut apit kedua sisi itu sama besar.\n\nContoh: segitiga dengan sisi 3 cm, 4 cm, 5 cm sebangun dengan segitiga bersisi 6 cm, 8 cm, 10 cm, karena 6 : 3 = 8 : 4 = 10 : 5 = 2.\n\n## Nama sisi segitiga siku-siku\n\nNama sisi ditentukan oleh sudut lancip θ yang sedang diperhatikan:\n\n- **sisi depan**: sisi yang berada tepat di depan sudut θ;\n- **sisi samping**: sisi yang berada di samping sudut θ, selain sisi miring;\n- **sisi miring** (hipotenusa): sisi yang berada di seberang sudut siku-siku.\n\nSisi miring selalu sisi yang terpanjang, karena c² = a² + b² lebih besar daripada a² dan b². Sisi depan dan sisi samping bertukar jika sudut yang diperhatikan berganti. Pada segitiga siku-siku dengan sudut 30° dan 60°, sisi depan sudut 30° adalah sisi samping sudut 60°.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 3._",
+       "objective": {
+        "statement": "Kamu dapat memakai teorema Pythagoras dan menamai sisi depan, sisi samping, dan sisi miring sebuah segitiga siku-siku.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua sisi yang mengapit sudut siku-siku sebuah segitiga panjangnya 6 cm dan 8 cm. Panjang sisi miringnya adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "10 cm",
+           "is_correct": true,
+           "rationale": "Benar. c² = 6² + 8² = 36 + 64 = 100, jadi c = 10 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "14 cm",
+           "is_correct": false,
+           "rationale": "Kedua sisi dijumlahkan tanpa dikuadratkan. Kuadratkan dahulu: 36 + 64 = 100."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "100 cm",
+           "is_correct": false,
+           "rationale": "Itu nilai c². Panjang sisi miringnya √100 = 10 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "√28 cm",
+           "is_correct": false,
+           "rationale": "Kuadratnya dikurangkan (64 − 36). Untuk mencari sisi miring, kuadrat kedua sisi dijumlahkan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah papan landai berbentuk segitiga siku-siku. Sisi-sisi yang mengapit sudut siku-sikunya 7 dm dan 24 dm. Panjang sisi miringnya adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "31 dm",
+           "is_correct": false,
+           "rationale": "Kedua sisi dijumlahkan tanpa dikuadratkan (7 + 24)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "25 dm",
+           "is_correct": true,
+           "rationale": "Benar. c² = 7² + 24² = 49 + 576 = 625, jadi c = 25 dm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "625 dm",
+           "is_correct": false,
+           "rationale": "Itu nilai c². Sisi miringnya √625 = 25 dm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "17 dm",
+           "is_correct": false,
+           "rationale": "Kedua sisi dikurangkan (24 − 7). Kuadrat keduanya dijumlahkan, lalu diakarkan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Segitiga KLM siku-siku di M. Sisi depan sudut K adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "KM",
+           "is_correct": false,
+           "rationale": "KM mengapit sudut K; itu sisi samping sudut K."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "KL",
+           "is_correct": false,
+           "rationale": "KL berada di seberang sudut siku-siku M; itu sisi miring."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "tidak ada",
+           "is_correct": false,
+           "rationale": "Setiap sudut lancip segitiga siku-siku mempunyai sisi depan: sisi yang tidak menyentuh sudut itu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "LM",
+           "is_correct": true,
+           "rationale": "Benar. LM berada tepat di depan sudut K (tidak menyentuh titik K)."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sisi miring sebuah segitiga siku-siku 26 cm dan salah satu sisi lainnya 10 cm. Panjang sisi ketiga adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "36 cm",
+           "is_correct": false,
+           "rationale": "Kedua sisi dijumlahkan. Sisi ketiga pasti lebih pendek dari sisi miring."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "24 cm",
+           "is_correct": true,
+           "rationale": "Benar. b² = 26² − 10² = 676 − 100 = 576, jadi b = 24 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "16 cm",
+           "is_correct": false,
+           "rationale": "Kedua sisi dikurangkan tanpa dikuadratkan (26 − 10)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "√776 cm",
+           "is_correct": false,
+           "rationale": "Kuadratnya dijumlahkan, seolah 26 bukan sisi miring. Sisi miringnya diketahui, jadi dikurangkan: 676 − 100."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tiga bilangan manakah yang dapat menjadi panjang sisi sebuah segitiga siku-siku?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "9, 40, 41",
+           "is_correct": true,
+           "rationale": "Benar. 9² + 40² = 81 + 1.600 = 1.681 = 41²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "10, 20, 30",
+           "is_correct": false,
+           "rationale": "10² + 20² = 500, bukan 900. Selisih yang sama tidak membuat segitiga siku-siku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "4, 5, 6",
+           "is_correct": false,
+           "rationale": "4² + 5² = 41, bukan 36."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "6, 7, 8",
+           "is_correct": false,
+           "rationale": "6² + 7² = 85, bukan 64."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah segitiga siku-siku mempunyai sudut 35° dan 55°. Sisi depan sudut 35° bagi sudut 55° adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "sisi depan juga",
+           "is_correct": false,
+           "rationale": "Nama sisi bergantung pada sudut yang diperhatikan. Sisi depan sudut 35° menyentuh sudut 55°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "sisi miring",
+           "is_correct": false,
+           "rationale": "Sisi miring berada di seberang sudut siku-siku dan sama bagi kedua sudut lancip."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "sisi samping",
+           "is_correct": true,
+           "rationale": "Benar. Sisi di depan sudut 35° mengapit sudut 55°, jadi bagi sudut 55° sisi itu sisi samping."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "tidak mempunyai nama",
+           "is_correct": false,
+           "rationale": "Setiap sisi segitiga siku-siku mempunyai nama terhadap setiap sudut lancipnya."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Perbandingan Tangen",
+       "summary": "Tangen sebuah sudut adalah perbandingan sisi depan terhadap sisi samping; nilainya hanya ditentukan oleh besar sudut.",
+       "body_markdown": "## Bayangan dan tinggi badan\n\nPada suatu saat, seorang anak setinggi 114 cm mempunyai bayangan sepanjang 200 cm. Tubuh anak, bayangannya, dan garis dari ujung kepala ke ujung bayangan membentuk segitiga siku-siku. Nilai perbandingan tinggi badan terhadap panjang bayangan:\n\n114 : 200 = 0,57\n\nOrang lain yang berdiri di tempat yang sama pada saat yang sama membentuk segitiga yang sebangun, dengan sudut θ yang sama, jadi nilai perbandingannya juga 0,57.\n\n## Tangen\n\nNilai perbandingan sisi depan terhadap sisi samping disebut **tangen**, disingkat tan:\n\ntan θ = sisi depan/sisi samping\n\nNilai tan hanya ditentukan oleh besarnya sudut; besar kecilnya segitiga tidak berpengaruh. Jika sudutnya berubah, nilai tan juga berubah.\n\nPada contoh bayangan tadi, tan θ = 0,57, dan sudut θ-nya sekitar 30°.\n\n## Contoh: bayangan remaja\n\nPada saat yang sama, seorang remaja setinggi 148 cm berdiri di tempat itu. Berapa panjang bayangannya? Misalkan panjangnya x cm.\n\n1. Dengan segitiga sebangun: 114/200 = 148/x, jadi x = 148 × 200 : 114 = 29.600 : 114 ≈ 259,65.\n2. Dengan tangen: tan θ = 148/x = 0,57, jadi x = 148 : 0,57 ≈ 259,65.\n\nKedua cara memberi hasil yang sama: panjang bayangan remaja sekitar **259,65 cm**.\n\n## Contoh: tinggi pohon\n\nPada suatu sore, nilai tan θ untuk sudut antara bayangan dan sinar matahari adalah 0,75. Bayangan sebuah pohon panjangnya 12 m. Berapa tinggi pohon itu?\n\n1. Tinggi pohon adalah sisi depan, dan bayangannya sisi samping.\n2. tan θ = tinggi/12 = 0,75, jadi tinggi = 0,75 × 12 = **9 m**.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 3._",
+       "objective": {
+        "statement": "Kamu dapat menentukan nilai tan θ dan memakainya untuk mencari panjang sisi yang tidak diketahui.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada sebuah segitiga siku-siku, sisi depan sudut θ panjangnya 9 cm, sisi sampingnya 12 cm, dan sisi miringnya 15 cm. Nilai tan θ adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "4/3",
+           "is_correct": false,
+           "rationale": "Pembilang dan penyebut tertukar (12/9). tan θ = sisi depan/sisi samping."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "3/4",
+           "is_correct": true,
+           "rationale": "Benar. tan θ = sisi depan/sisi samping = 9/12 = 3/4."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "3/5",
+           "is_correct": false,
+           "rationale": "Itu sisi depan/sisi miring = 9/15, yaitu sin θ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "4/5",
+           "is_correct": false,
+           "rationale": "Itu sisi samping/sisi miring = 12/15, yaitu cos θ."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada suatu siang, tiang setinggi 3 m mempunyai bayangan 4 m. Pada saat yang sama, bayangan sebuah gedung panjangnya 20 m. Tinggi gedung itu adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "≈ 26,7 m",
+           "is_correct": false,
+           "rationale": "Perbandingannya terbalik (4/3 × 20). Tinggi dibagi bayangan: 3/4 = t/20."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "19 m",
+           "is_correct": false,
+           "rationale": "Selisih tinggi dan bayangan (1 m) dianggap tetap. Pada segitiga sebangun yang tetap adalah perbandingannya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "60 m",
+           "is_correct": false,
+           "rationale": "Bayangan dikalikan 3 tanpa dibagi 4. Tinggi = 3/4 × 20."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "15 m",
+           "is_correct": true,
+           "rationale": "Benar. Nilai tan θ sama untuk keduanya: 3/4 = t/20, jadi t = 3/4 × 20 = 15 m."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Nilai tan θ pada segitiga siku-siku adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "sisi depan dibagi sisi samping",
+           "is_correct": true,
+           "rationale": "Benar. Tangen suatu sudut ditentukan dengan membagi panjang sisi depan dengan sisi samping."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "sisi samping dibagi sisi depan",
+           "is_correct": false,
+           "rationale": "Pembilang dan penyebut tertukar; itu cot θ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "sisi depan dibagi sisi miring",
+           "is_correct": false,
+           "rationale": "Itu sin θ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "sisi samping dibagi sisi miring",
+           "is_correct": false,
+           "rationale": "Itu cos θ."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada sebuah segitiga siku-siku, sisi depan sudut θ panjangnya 5 cm dan sisi sampingnya 12 cm. Nilai tan θ adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "12/5",
+           "is_correct": false,
+           "rationale": "Pembilang dan penyebut tertukar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "5/13",
+           "is_correct": false,
+           "rationale": "Sisi miringnya 13 (5² + 12² = 13²), dan 5/13 adalah sin θ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "12/13",
+           "is_correct": false,
+           "rationale": "Itu cos θ = sisi samping/sisi miring."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "5/12",
+           "is_correct": true,
+           "rationale": "Benar. tan θ = sisi depan/sisi samping = 5/12."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua segitiga siku-siku sebangun mempunyai sudut θ yang sama besar. Setiap sisi segitiga kedua dua kali panjang sisi segitiga pertama. Nilai tan θ pada segitiga kedua ... nilai tan θ pada segitiga pertama.",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "dua kali",
+           "is_correct": false,
+           "rationale": "Pembilang dan penyebut sama-sama dikali 2, jadi hasil baginya tidak berubah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "setengah dari",
+           "is_correct": false,
+           "rationale": "Segitiga yang lebih besar tidak mengubah nilai tan untuk sudut yang sama."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "sama dengan",
+           "is_correct": true,
+           "rationale": "Benar. Sisi depan dan sisi samping sama-sama dikali 2, jadi perbandingannya tetap. Nilai tan hanya ditentukan oleh besar sudut."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "empat kali",
+           "is_correct": false,
+           "rationale": "Luasnya menjadi empat kali, tetapi tan adalah perbandingan dua sisi, bukan luas."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Nilai tan θ untuk sudut antara bayangan dan sinar matahari adalah 0,4. Bayangan sebuah pohon panjangnya 15 m. Tinggi pohon itu adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "37,5 m",
+           "is_correct": false,
+           "rationale": "Bayangan dibagi 0,4. Tinggi ada di pembilang, jadi dikalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "6 m",
+           "is_correct": true,
+           "rationale": "Benar. tan θ = tinggi/bayangan, jadi tinggi = 0,4 × 15 = 6 m."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "15,4 m",
+           "is_correct": false,
+           "rationale": "0,4 ditambahkan pada panjang bayangan. tan θ adalah perbandingan, jadi dikalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "0,4 m",
+           "is_correct": false,
+           "rationale": "Nilai tan θ belum dikalikan panjang bayangan."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Sinus dan Cosinus",
+       "summary": "Sinus adalah perbandingan sisi depan terhadap sisi miring, dan cosinus perbandingan sisi samping terhadap sisi miring.",
+       "body_markdown": "## Tiga perbandingan trigonometri\n\nSelain tangen, ada dua perbandingan lain yang memakai sisi miring:\n\n- **sinus**: sin θ = sisi depan/sisi miring\n- **cosinus**: cos θ = sisi samping/sisi miring\n- **tangen**: tan θ = sisi depan/sisi samping\n\nContoh: sebuah segitiga siku-siku bersisi 6, 8, dan 10, dan sisi depan sudut θ adalah 6. Maka sin θ = 6/10 = 0,6, cos θ = 8/10 = 0,8, dan tan θ = 6/8 = 0,75.\n\n## Contoh: piramida\n\nSebuah piramida digambarkan dengan segitiga siku-siku: tinggi piramida (sisi depan θ), setengah diagonal alas (sisi samping), dan rusuk piramida (sisi miring). Misalkan θ = 41° dan panjang rusuknya 600 m. Berapa tinggi piramida dan panjang setengah diagonal alasnya?\n\n1. Dengan kalkulator, sin 41° ≈ 0,66. Tinggi = 0,66 × 600 = **396 m**.\n2. Dengan kalkulator, cos 41° ≈ 0,75. Setengah diagonal alas = 0,75 × 600 = **450 m**.\n\nPeriksa dengan Pythagoras: 396² + 450² = 359.316, dekat dengan 600² = 360.000. Selisihnya muncul karena nilai sin dan cos dibulatkan.\n\n## Makin besar sudutnya\n\n- θ = 30° → sin θ = 0,50 dan cos θ ≈ 0,87\n- θ = 41° → sin θ ≈ 0,66 dan cos θ ≈ 0,75\n- θ = 60° → sin θ ≈ 0,87 dan cos θ = 0,50\n\nUntuk sudut lancip, makin besar θ, nilai sin θ makin besar dan nilai cos θ makin kecil.\n\n## Contoh: tali layangan\n\nWanimbo menaikkan layangan sampai ketinggian 3,5 m sambil memegang ujung tali pada ketinggian 60 cm dari tanah. Tali membentuk sudut 20° dengan garis mendatar. Berapa panjang tali yang sudah diulurkan?\n\nSeorang siswa menghitung 3,5 : sin 20° ≈ 3,5 : 0,34 ≈ 10,29 m. Jawaban itu keliru: 3,5 m diukur dari tanah, padahal segitiga siku-sikunya dimulai dari tangan Wanimbo.\n\n1. Sisi depan sudut 20° adalah 3,5 m − 0,6 m = 2,9 m. Tali adalah sisi miring, jadi dipakai sinus.\n2. sin 20° ≈ 0,34, jadi panjang tali ≈ 2,9 : 0,34 ≈ **8,5 m**.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 3._",
+       "objective": {
+        "statement": "Kamu dapat menentukan nilai sin θ dan cos θ serta memilih perbandingan yang tepat untuk mencari panjang sisi.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada segitiga siku-siku, nilai sin θ adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "sisi samping dibagi sisi miring",
+           "is_correct": false,
+           "rationale": "Itu cos θ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "sisi depan dibagi sisi samping",
+           "is_correct": false,
+           "rationale": "Itu tan θ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "sisi depan dibagi sisi miring",
+           "is_correct": true,
+           "rationale": "Benar. Nilai perbandingan sisi depan terhadap sisi miring disebut sinus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "sisi miring dibagi sisi depan",
+           "is_correct": false,
+           "rationale": "Pembilang dan penyebut tertukar; itu csc θ."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah tangga sepanjang 10 m bersandar pada dinding. Sudut θ antara tangga dan tanah memenuhi sin θ = 0,8. Tinggi ujung atas tangga dari tanah adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "12,5 m",
+           "is_correct": false,
+           "rationale": "Panjang tangga dibagi 0,8. Sisi depan = sin θ × sisi miring. Lagi pula, tinggi tidak mungkin melebihi panjang tangga."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "6 m",
+           "is_correct": false,
+           "rationale": "Itu jarak kaki tangga ke dinding (√(100 − 64) = 6), yaitu sisi samping."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "8 m",
+           "is_correct": true,
+           "rationale": "Benar. Tinggi adalah sisi depan θ dan tangga sisi miring: tinggi = 0,8 × 10 = 8 m."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "0,8 m",
+           "is_correct": false,
+           "rationale": "Nilai sin θ belum dikalikan panjang tangga."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 22
+         },
+         "ref": "LT9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah segitiga siku-siku bersisi 7, 24, dan 25, dan sisi depan sudut θ adalah 7. Nilai cos θ adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 82
+           },
+           "label": "A",
+           "body": "24/25",
+           "is_correct": true,
+           "rationale": "Benar. cos θ = sisi samping/sisi miring = 24/25."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 83
+           },
+           "label": "B",
+           "body": "7/25",
+           "is_correct": false,
+           "rationale": "Itu sin θ = sisi depan/sisi miring."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 84
+           },
+           "label": "C",
+           "body": "7/24",
+           "is_correct": false,
+           "rationale": "Itu tan θ = sisi depan/sisi samping."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 85
+           },
+           "label": "D",
+           "body": "25/24",
+           "is_correct": false,
+           "rationale": "Pembilang dan penyebut tertukar; itu sec θ."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 23
+         },
+         "ref": "LT10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada segitiga siku-siku, sisi miringnya 50 m dan cos θ ≈ 0,64. Panjang sisi samping sudut θ kira-kira ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 86
+           },
+           "label": "A",
+           "body": "78,1 m",
+           "is_correct": false,
+           "rationale": "Sisi miring dibagi 0,64. Sisi samping tidak mungkin lebih panjang dari sisi miring."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 87
+           },
+           "label": "B",
+           "body": "50,64 m",
+           "is_correct": false,
+           "rationale": "0,64 ditambahkan. Nilai cos adalah perbandingan, jadi dikalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 88
+           },
+           "label": "C",
+           "body": "32 m",
+           "is_correct": true,
+           "rationale": "Benar. cos θ = sisi samping/sisi miring, jadi sisi samping ≈ 0,64 × 50 = 32 m."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 89
+           },
+           "label": "D",
+           "body": "0,64 m",
+           "is_correct": false,
+           "rationale": "Nilai cos θ belum dikalikan sisi miring."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "LT11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah layangan terbang 5,2 m di atas tanah. Ujung talinya dipegang 1,2 m di atas tanah, dan tali membentuk sudut θ dengan garis mendatar, dengan sin θ = 0,5. Panjang tali yang terulur adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "10,4 m",
+           "is_correct": false,
+           "rationale": "Tinggi tangan tidak dikurangkan (5,2 : 0,5). Segitiganya dimulai dari tangan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "12,8 m",
+           "is_correct": false,
+           "rationale": "Tinggi tangan malah ditambahkan ((5,2 + 1,2) : 0,5). Tinggi tangan dikurangkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "2 m",
+           "is_correct": false,
+           "rationale": "Sisi depan dikalikan 0,5. Tali adalah sisi miring, jadi 4 dibagi sin θ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "8 m",
+           "is_correct": true,
+           "rationale": "Benar. Sisi depan = 5,2 − 1,2 = 4 m, dan tali sisi miring: 4 : 0,5 = 8 m."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 25
+         },
+         "ref": "LT12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Untuk sudut lancip θ, jika θ makin besar, nilai cos θ ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 94
+           },
+           "label": "A",
+           "body": "makin besar",
+           "is_correct": false,
+           "rationale": "Itu berlaku untuk sin θ. Sisi samping makin pendek dibanding sisi miring, jadi cos θ makin kecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 95
+           },
+           "label": "B",
+           "body": "makin kecil",
+           "is_correct": true,
+           "rationale": "Benar. Misalnya cos 30° ≈ 0,87, cos 41° ≈ 0,75, dan cos 60° = 0,5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 96
+           },
+           "label": "C",
+           "body": "tetap",
+           "is_correct": false,
+           "rationale": "Nilai perbandingan berubah jika sudutnya berubah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 97
+           },
+           "label": "D",
+           "body": "selalu 1",
+           "is_correct": false,
+           "rationale": "cos θ = 1 hanya jika sisi samping sama dengan sisi miring, yang tidak terjadi untuk sudut lancip."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Hubungan Antarperbandingan Trigonometri",
+       "summary": "Teorema Pythagoras memberi sin² α + cos² α = 1; tan α = sin α/cos α; sec, csc, dan cot adalah kebalikan cos, sin, dan tan.",
+       "body_markdown": "## Pythagoras dalam bentuk trigonometri\n\nPada segitiga siku-siku, sisi a berada di depan sudut α, sisi b di samping sudut α, dan c sisi miring. Dari a² + b² = c², bagi kedua ruas dengan c²:\n\n(a/c)² + (b/c)² = 1\n\nKarena a/c = sin α dan b/c = cos α, diperoleh\n\nsin² α + cos² α = 1\n\nContoh: segitiga bersisi 8, 15, dan 17 (8² + 15² = 64 + 225 = 289 = 17²). Untuk sudut α di depan sisi 8: sin α = 8/17 dan cos α = 15/17, dan (8/17)² + (15/17)² = 64/289 + 225/289 = 1.\n\n## Tangen dari sinus dan cosinus\n\nsin α/cos α = a/c × c/b = a/b, jadi\n\ntan α = sin α/cos α\n\nPada segitiga tadi: tan α = (8/17) : (15/17) = 8/15.\n\n## Tiga perbandingan kebalikan\n\nAda tiga perbandingan lain yang jarang digunakan:\n\n- **secan**: sec α = c/b = 1/cos α\n- **cosecan**: csc α = c/a = 1/sin α\n- **cotangen**: cot α = b/a = 1/tan α\n\nPada segitiga tadi: sec α = 17/15, csc α = 17/8, dan cot α = 15/8.\n\n## Sudut komplemen\n\nPada segitiga siku-siku dengan sudut lancip α dan β berlaku α + β = 90°; β disebut **komplemen** dari sudut α. Sisi depan α adalah sisi samping β, sehingga\n\n- sin α = cos β\n- cos α = sin β\n- tan α = cot β\n\nIstilah co- pada cosinus, cosecan, dan cotangen berkaitan dengan komplemen sudut. Contoh: sin 30° = cos 60°, karena 30° + 60° = 90°.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 3._",
+       "objective": {
+        "statement": "Kamu dapat memakai hubungan antarperbandingan trigonometri untuk menentukan nilai perbandingan yang lain.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Diketahui α sudut lancip dan sin α = 12/37. Nilai cos α adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "35/37",
+           "is_correct": true,
+           "rationale": "Benar. cos² α = 1 − (12/37)² = (1.369 − 144)/1.369 = 1.225/1.369, jadi cos α = 35/37."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "25/37",
+           "is_correct": false,
+           "rationale": "Dipakai cos α = 1 − sin α. Yang benar cos² α = 1 − sin² α."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "12/35",
+           "is_correct": false,
+           "rationale": "Itu tan α = sisi depan/sisi samping."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "37/35",
+           "is_correct": false,
+           "rationale": "Itu sec α = 1/cos α."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada segitiga siku-siku, α dan β adalah kedua sudut lancipnya, dan sin α = 0,6. Nilai cos β adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "0,8",
+           "is_correct": false,
+           "rationale": "Itu cos α. Yang ditanya cos β, dan sisi samping β adalah sisi depan α."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "0,4",
+           "is_correct": false,
+           "rationale": "Dihitung 1 − 0,6. Sudut komplemen tidak berarti nilainya saling melengkapi menjadi 1."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "0,6",
+           "is_correct": true,
+           "rationale": "Benar. α + β = 90°, dan sisi depan α adalah sisi samping β, jadi cos β = sin α = 0,6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "0,36",
+           "is_correct": false,
+           "rationale": "Itu sin² α. Tidak ada yang perlu dikuadratkan: cos β = sin α."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 26
+         },
+         "ref": "LT13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Diketahui θ sudut lancip dan cos θ = 0,6. Nilai sin θ adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 98
+           },
+           "label": "A",
+           "body": "0,4",
+           "is_correct": false,
+           "rationale": "Dipakai sin θ = 1 − cos θ. Yang benar sin² θ = 1 − cos² θ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 99
+           },
+           "label": "B",
+           "body": "0,64",
+           "is_correct": false,
+           "rationale": "Itu sin² θ. Akarnya belum ditarik."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 100
+           },
+           "label": "C",
+           "body": "0,8",
+           "is_correct": true,
+           "rationale": "Benar. sin² θ = 1 − 0,6² = 1 − 0,36 = 0,64, jadi sin θ = 0,8."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 101
+           },
+           "label": "D",
+           "body": "1,6",
+           "is_correct": false,
+           "rationale": "Dihitung 1 + 0,6. Nilai sin θ untuk sudut lancip selalu kurang dari 1."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 27
+         },
+         "ref": "LT14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Diketahui sin θ = 3/5 dan cos θ = 4/5. Nilai tan θ adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 102
+           },
+           "label": "A",
+           "body": "4/3",
+           "is_correct": false,
+           "rationale": "Pembagiannya terbalik (cos θ/sin θ); itu cot θ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 103
+           },
+           "label": "B",
+           "body": "12/25",
+           "is_correct": false,
+           "rationale": "sin θ dan cos θ dikalikan. tan θ adalah hasil bagi keduanya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 104
+           },
+           "label": "C",
+           "body": "7/5",
+           "is_correct": false,
+           "rationale": "sin θ dan cos θ dijumlahkan. tan θ adalah hasil bagi keduanya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 105
+           },
+           "label": "D",
+           "body": "3/4",
+           "is_correct": true,
+           "rationale": "Benar. tan θ = sin θ/cos θ = (3/5) : (4/5) = 3/4."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 28
+         },
+         "ref": "LT15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Diketahui cos θ = 2/3. Nilai sec θ adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 106
+           },
+           "label": "A",
+           "body": "3/2",
+           "is_correct": true,
+           "rationale": "Benar. sec θ = 1/cos θ = 3/2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 107
+           },
+           "label": "B",
+           "body": "1/3",
+           "is_correct": false,
+           "rationale": "Dihitung 1 − 2/3. Kebalikan berarti 1 dibagi 2/3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 108
+           },
+           "label": "C",
+           "body": "√5/3",
+           "is_correct": false,
+           "rationale": "Itu sin θ (sisi depan √(9 − 4) = √5). sec θ adalah kebalikan cos θ."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 109
+           },
+           "label": "D",
+           "body": "−2/3",
+           "is_correct": false,
+           "rationale": "Kebalikan bukan lawan tanda. sec θ = 1/cos θ."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "LT16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "sin 25° sama dengan ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "cos 25°",
+           "is_correct": false,
+           "rationale": "sin dan cos sudut yang sama umumnya berbeda. Pasangan komplemen 25° adalah 65°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "cos 65°",
+           "is_correct": true,
+           "rationale": "Benar. 25° + 65° = 90°, jadi sin 25° = cos 65°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "cos 155°",
+           "is_correct": false,
+           "rationale": "Komplemen dihitung dari 180°. Pada segitiga siku-siku, α + β = 90°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "cos 115°",
+           "is_correct": false,
+           "rationale": "25° ditambahkan pada 90°. Komplemen 25° adalah 90° − 25° = 65°."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "Sudut Istimewa",
+       "summary": "Nilai sin, cos, dan tan untuk sudut 30°, 45°, dan 60° dapat ditentukan secara eksak dari segitiga sama sisi dan segitiga siku-siku sama kaki.",
+       "body_markdown": "## Sudut 30° dan 60°\n\nSudut 30°, 45°, dan 60° disebut **sudut istimewa**, karena nilai perbandingan trigonometrinya dapat ditentukan secara eksak dari segitiga sederhana.\n\nGambar segitiga sama sisi dengan panjang setiap sisi 2 satuan; semua sudutnya 60°. Belah dua dengan garis tinggi. Setiap bagian adalah segitiga siku-siku dengan sudut 30° dan 60°, sisi miring 2, sisi terpendek 1, dan tinggi √(2² − 1²) = √3.\n\n- sin 30° = 1/2, cos 30° = √3/2, tan 30° = 1/√3 = √3/3\n- sin 60° = √3/2, cos 60° = 1/2, tan 60° = √3/1 = √3\n\n## Sudut 45°\n\nGambar segitiga siku-siku sama kaki dengan kaki 1 satuan. Kedua sudut lancipnya 45°, dan sisi miringnya √(1² + 1²) = √2.\n\n- sin 45° = 1/√2 = √2/2\n- cos 45° = √2/2\n- tan 45° = 1/1 = 1\n\n## Nilai-nilai sudut istimewa\n\n- 30° → sin = 1/2, cos = √3/2, tan = √3/3\n- 45° → sin = √2/2, cos = √2/2, tan = 1\n- 60° → sin = √3/2, cos = 1/2, tan = √3\n\nNilai desimalnya: √2/2 ≈ 0,71, √3/2 ≈ 0,87, √3/3 ≈ 0,58, dan √3 ≈ 1,73. Perhatikan bahwa sin 30° = cos 60° dan sin 60° = cos 30°, karena 30° dan 60° saling berkomplemen.\n\n## Contoh: tangga\n\nSebuah tangga sepanjang 6 m bersandar pada dinding dan membentuk sudut 60° dengan tanah. Berapa tinggi ujung atas tangga, dan berapa jarak kaki tangga ke dinding?\n\n1. Tinggi adalah sisi depan sudut 60°, dan tangga sisi miring: tinggi = 6 × sin 60° = 6 × √3/2 = **3√3 m** ≈ 5,20 m.\n2. Jarak kaki tangga adalah sisi samping: 6 × cos 60° = 6 × 1/2 = **3 m**.\n\nPeriksa dengan Pythagoras: (3√3)² + 3² = 27 + 9 = 36 = 6².\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 3._",
+       "objective": {
+        "statement": "Kamu dapat menurunkan dan memakai nilai perbandingan trigonometri sudut 30°, 45°, dan 60°.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Nilai sin 30° adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "√3/2",
+           "is_correct": false,
+           "rationale": "Itu cos 30° (sisi samping √3 dibagi sisi miring 2)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "√3/3",
+           "is_correct": false,
+           "rationale": "Itu tan 30° (1/√3)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "1/3",
+           "is_correct": false,
+           "rationale": "30° adalah 1/3 dari 90°, tetapi nilai sinus berasal dari perbandingan sisi, bukan dari besar sudut."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "1/2",
+           "is_correct": true,
+           "rationale": "Benar. Pada separuh segitiga sama sisi bersisi 2, sisi depan sudut 30° adalah 1 dan sisi miringnya 2, jadi sin 30° = 1/2."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dari titik di tanah yang berjarak 12 m dari kaki sebuah tiang, sudut elevasi ke puncak tiang 30°. Tinggi tiang itu adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "4√3 m",
+           "is_correct": true,
+           "rationale": "Benar. tan 30° = t/12, jadi t = 12 × √3/3 = 4√3 m (sekitar 6,93 m)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "12√3 m",
+           "is_correct": false,
+           "rationale": "Dipakai tan 60° = √3. Sudutnya 30°, dan tan 30° = √3/3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "6 m",
+           "is_correct": false,
+           "rationale": "Dipakai sin 30° = 1/2. Jarak 12 m adalah sisi samping, bukan sisi miring, jadi dipakai tan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "8√3 m",
+           "is_correct": false,
+           "rationale": "Itu 12 : cos 30°, panjang garis pandang ke puncak (sisi miring), bukan tinggi tiang."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 30
+         },
+         "ref": "LT17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Nilai tan 45° adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 114
+           },
+           "label": "A",
+           "body": "√2/2",
+           "is_correct": false,
+           "rationale": "Itu sin 45° atau cos 45°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 115
+           },
+           "label": "B",
+           "body": "√2",
+           "is_correct": false,
+           "rationale": "Itu panjang sisi miringnya, bukan perbandingan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 116
+           },
+           "label": "C",
+           "body": "1",
+           "is_correct": true,
+           "rationale": "Benar. Pada segitiga siku-siku sama kaki, sisi depan dan sisi samping sama panjang, jadi tan 45° = 1/1 = 1."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 117
+           },
+           "label": "D",
+           "body": "1/2",
+           "is_correct": false,
+           "rationale": "45° adalah setengah dari 90°, tetapi nilai tan berasal dari perbandingan sisi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 31
+         },
+         "ref": "LT18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Nilai cos 30° adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 118
+           },
+           "label": "A",
+           "body": "1/2",
+           "is_correct": false,
+           "rationale": "Itu sin 30° atau cos 60°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 119
+           },
+           "label": "B",
+           "body": "√3/3",
+           "is_correct": false,
+           "rationale": "Itu tan 30°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 120
+           },
+           "label": "C",
+           "body": "√3",
+           "is_correct": false,
+           "rationale": "Itu tan 60°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 121
+           },
+           "label": "D",
+           "body": "√3/2",
+           "is_correct": true,
+           "rationale": "Benar. Pada separuh segitiga sama sisi bersisi 2, sisi samping sudut 30° adalah √3 dan sisi miring 2."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 32
+         },
+         "ref": "LT19",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Segitiga sama sisi bersisi 2 satuan dibelah dua oleh garis tingginya. Panjang garis tinggi itu adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 122
+           },
+           "label": "A",
+           "body": "√3",
+           "is_correct": true,
+           "rationale": "Benar. Sisi miring 2 dan alas separuhnya 1, jadi tinggi = √(2² − 1²) = √3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 123
+           },
+           "label": "B",
+           "body": "√5",
+           "is_correct": false,
+           "rationale": "Kuadratnya dijumlahkan (1² + 2²). Sisi 2 adalah sisi miring, jadi dikurangkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 124
+           },
+           "label": "C",
+           "body": "1",
+           "is_correct": false,
+           "rationale": "Itu separuh alasnya, bukan tingginya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 125
+           },
+           "label": "D",
+           "body": "2",
+           "is_correct": false,
+           "rationale": "Itu panjang sisi segitiga, yang menjadi sisi miring."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "Menerapkan Perbandingan Trigonometri",
+       "summary": "Pilih sin, cos, atau tan menurut sisi yang diketahui dan dicari; sudut elevasi dipakai untuk mengukur tinggi benda.",
+       "body_markdown": "## Memilih perbandingan yang tepat\n\nTandai dahulu sudut θ dan nama setiap sisi, lalu pilih perbandingan yang memuat sisi yang diketahui dan sisi yang dicari:\n\n- sisi depan dan sisi miring → sin θ\n- sisi samping dan sisi miring → cos θ\n- sisi depan dan sisi samping → tan θ\n\nJika sisi yang dicari berada di pembilang, kalikan; jika berada di penyebut, bagi.\n\n## Sudut elevasi\n\n**Sudut elevasi** adalah sudut antara garis mendatar dan garis pandang ke atas, ke arah benda yang dilihat. Alat seperti klinometer atau teodolit dipakai untuk mengukurnya. Jika jarak mendatar ke benda diketahui, tinggi benda dapat dihitung dengan tan θ.\n\n## Contoh: tinggi menara air\n\nRina berdiri 20 m dari kaki sebuah menara air. Sudut elevasi dari matanya ke puncak menara 45°, dan matanya 1,5 m di atas tanah. Berapa tinggi menara itu?\n\n1. Jarak mendatar 20 m adalah sisi samping, dan bagian menara di atas mata Rina adalah sisi depan: tan 45° = sisi depan/20.\n2. Sisi depan = 20 × tan 45° = 20 × 1 = 20 m.\n3. Garis mendatar itu setinggi mata Rina, jadi tambahkan 1,5 m: tinggi menara = 20 + 1,5 = **21,5 m**.\n\n## Rangkuman Bab 3\n\n- Sisi depan, sisi samping, dan sisi miring dinamai menurut sudut θ yang diperhatikan.\n- sin θ = sisi depan/sisi miring, cos θ = sisi samping/sisi miring, tan θ = sisi depan/sisi samping.\n- sin² θ + cos² θ = 1 dan tan θ = sin θ/cos θ; sec, csc, dan cot adalah kebalikan cos, sin, dan tan.\n- sin 30° = 1/2, sin 45° = √2/2, sin 60° = √3/2; tan 45° = 1.\n- Nilai perbandingan trigonometri hanya ditentukan oleh besar sudut, bukan oleh ukuran segitiga.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 3._",
+       "objective": {
+        "statement": "Kamu dapat memilih perbandingan trigonometri yang tepat dan memakainya untuk menyelesaikan masalah sehari-hari.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Seutas kawat penahan menara diikat ke tanah 9 m dari kaki menara dan membentuk sudut 60° dengan tanah. Panjang kawat itu adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "4,5 m",
+           "is_correct": false,
+           "rationale": "Jarak dikalikan cos 60°. Kawat berada di penyebut, jadi 9 dibagi cos 60°. Kawat (sisi miring) juga tidak mungkin lebih pendek dari 9 m."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "9√3 m",
+           "is_correct": false,
+           "rationale": "Itu 9 × tan 60°, yaitu tinggi titik ikat kawat pada menara, bukan panjang kawat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "6√3 m",
+           "is_correct": false,
+           "rationale": "Dipakai sin 60°. Jarak 9 m adalah sisi samping sudut 60°, jadi dipakai cos."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "18 m",
+           "is_correct": true,
+           "rationale": "Benar. Jarak 9 m adalah sisi samping dan kawat sisi miring: cos 60° = 9/k, jadi k = 9 : 1/2 = 18 m."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Panjang sebuah papan landai dan sudutnya terhadap tanah diketahui. Untuk menghitung tinggi ujung atas papan, perbandingan yang paling tepat dipakai adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "cosinus",
+           "is_correct": false,
+           "rationale": "cos θ memakai sisi samping, yaitu jarak mendatar, bukan tinggi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "sinus",
+           "is_correct": true,
+           "rationale": "Benar. Tinggi adalah sisi depan sudut dan papan sisi miring, jadi dipakai sin θ = sisi depan/sisi miring."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "tangen",
+           "is_correct": false,
+           "rationale": "tan θ memakai sisi depan dan sisi samping, padahal yang diketahui sisi miring."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "secan",
+           "is_correct": false,
+           "rationale": "sec θ = sisi miring/sisi samping, dan tidak memuat tinggi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 33
+         },
+         "ref": "LT20",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah perosotan lurus sepanjang 4 m membentuk sudut 30° dengan tanah. Tinggi puncak perosotan adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 126
+           },
+           "label": "A",
+           "body": "2√3 m",
+           "is_correct": false,
+           "rationale": "Dipakai cos 30°. Itu jarak mendatar kaki perosotan, bukan tingginya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 127
+           },
+           "label": "B",
+           "body": "2 m",
+           "is_correct": true,
+           "rationale": "Benar. Tinggi adalah sisi depan dan perosotan sisi miring: 4 × sin 30° = 4 × 1/2 = 2 m."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 128
+           },
+           "label": "C",
+           "body": "8 m",
+           "is_correct": false,
+           "rationale": "4 dibagi sin 30°. Perosotan adalah sisi miring, jadi dikalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 129
+           },
+           "label": "D",
+           "body": "4√3/3 m",
+           "is_correct": false,
+           "rationale": "Dipakai tan 30°, padahal 4 m adalah sisi miring, bukan sisi samping."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

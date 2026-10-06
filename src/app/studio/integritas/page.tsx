@@ -2,6 +2,8 @@ import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, card, field, label, outcomeLine, s, short, studioInstitutions, when } from "../_lib";
 import { recordIntegrityReviewAction } from "../actions";
+import TombolKirim from "@/components/TombolKirim";
+import HasilDi from "@/components/HasilDi";
 
 /**
  * Integrity review centre (§10).
@@ -12,7 +14,7 @@ import { recordIntegrityReviewAction } from "../actions";
  * onto the signal, the session or the result. There is no surveillance control
  * to configure here because none exists to configure.
  */
-type Search = Promise<{ hasil?: string; detail?: string; bagian?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
 export default async function Integritas({ searchParams }: { searchParams: Search }) {
   const sp = await searchParams;
@@ -34,7 +36,7 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
   const bySession = new Map<string, typeof rows>();
   for (const r of rows) bySession.set(r.session_id, [...(bySession.get(r.session_id) ?? []), r]);
 
-  const banner = outcomeLine(sp.hasil, sp.detail);
+  const banner = outcomeLine(sp);
 
   return (
     <div className="grid gap-4" id="integritas">
@@ -42,7 +44,8 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
         <h2 className="text-lg font-medium">{s("studio.integritas.judul")}</h2>
         <p className="mt-1 text-sm text-ink-2">{s("studio.integritas.penjelasan")}</p>
       </div>
-      {banner ? <p className={card}>{banner}</p> : null}
+      {/* DAISY-18: one form per item; the answer heads the list it came from */}
+      <HasilDi q={sp} bagian="integritas" kalimat={banner} />
 
       {bySession.size === 0 ? (
         <p className={card}>{s("studio.integritas.kosong")}</p>
@@ -65,7 +68,7 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
                   </select>
                 </label>
                 <input className={field} name="catatan" placeholder="catatan" />
-                <button className={button} type="submit">{s("studio.integritas.catat")}</button>
+                <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.integritas.catat")}</TombolKirim>
               </form>
             </li>
           ))}

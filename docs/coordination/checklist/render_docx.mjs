@@ -71,6 +71,16 @@ function statusPara(b) {
   if (rest) kids.push(run(rest, { size: 16 }));
   return para(kids, { after: 20 });
 }
+// the row's status now (v2.1), or its baseline marked unchanged
+function nowPara(id, b) {
+  const nw = (d.CURRENT || {})[id];
+  if (nw === undefined) {
+    const s = status(b);
+    return para([run(s, { bold: true, color: STATUS_COLOR[s], size: 16 }), run(" (unchanged)", { size: 16, color: MUTED })], { after: 20 });
+  }
+  return statusPara(nw);
+}
+const nowOf = (id, b) => ((d.CURRENT || {})[id] ?? b);
 function h1(text) {
   return new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun({ text, font: FONT })], keepNext: true, pageBreakBefore: false });
 }
@@ -83,8 +93,15 @@ const add = (...xs) => children.push(...xs);
 add(
   para([run(d.META.title.toUpperCase(), { bold: true, color: ACCENT, size: 20 })], { after: 40 }),
   para([run(d.META.subtitle, { bold: true, size: 40 })], { after: 60 }),
-  para([run(d.META.version, { color: MUTED, size: 18 })], { after: 200 }),
+  para([run(d.META.version, { color: MUTED, size: 18 })], { after: d.RETIRED_NOTICE ? 120 : 200 }),
 );
+// D-084: the checklist is engineering detail, not the readiness measure; said before anything else is read
+if (d.RETIRED_NOTICE) {
+  add(para([run(d.RETIRED_NOTICE, { bold: true, size: 18, color: "B42318" })], {
+    after: 200, shading: { fill: "FEF3F2", type: ShadingType.CLEAR, color: "auto" },
+    border: { left: { style: BorderStyle.SINGLE, size: 18, color: "B42318", space: 8 } }, indent: { left: 200 },
+  }));
+}
 add(new Table({
   width: { size: USABLE, type: WidthType.DXA }, columnWidths: [2200, USABLE - 2200],
   rows: d.META.rows.map(([k, v]) => new TableRow({
@@ -97,35 +114,46 @@ add(para([run(d.META.principle, { italics: true, color: ACCENT, size: 19 })], {
   border: { left: { style: BorderStyle.SINGLE, size: 18, color: ACCENT, space: 8 } },
 }));
 
-// Baseline at a glance
-add(h1(`Baseline at a glance — main ${d.BASELINE.sha}, ${d.BASELINE.date}`));
-add(para("P0 checks only. Every one must be PASS on the release candidate before any push to live. Counts come from the Baseline column below.", { color: MUTED }));
-add(para([run("Evidence: ", { bold: true }), run(d.BASELINE.evidence)], { after: 120 }));
+// Status at a glance (v2.1): counted from the Now column; the baseline's PASS count beside it
+add(h1(`Status at a glance — ${d.NOW.label} ${d.NOW.sha}, ${d.NOW.date}`));
+add(para(`P0 checks only. Every one must be PASS on the release candidate before any push to live. Counts come from the Now column below; the baseline of ${d.BASELINE.date} (main ${d.BASELINE.sha}) is kept beside each row.`, { color: MUTED }));
+add(para([run("Evidence now: ", { bold: true }), run(d.NOW.evidence)], { after: 120 }));
 const secs = d.ROLE_SECTIONS.map((s) => [s.title.split(" — ")[0], s.rows]);
 secs.push(["Universal checks", d.UNIVERSAL.map(([i, c, g, b]) => [i, c, "", "", g, b])]);
 const tot = Object.fromEntries(ORDER.map((s) => [s, 0]));
+const totBase = Object.fromEntries(ORDER.map((s) => [s, 0]));
 let n = 0;
 const sumRows = secs.map(([title, rows]) => {
   const p0 = rows.filter((r) => r[4].startsWith("P0"));
   n += p0.length;
   const c = Object.fromEntries(ORDER.map((s) => [s, 0]));
-  p0.forEach((r) => { c[status(r[5])] += 1; tot[status(r[5])] += 1; });
-  return [title, String(p0.length), ...ORDER.map((s) => String(c[s]))];
+  let basePass = 0;
+  p0.forEach((r) => {
+    const sn = status(nowOf(r[0], r[5])); c[sn] += 1; tot[sn] += 1;
+    const sb = status(r[5]); totBase[sb] += 1; if (sb === "PASS") basePass += 1;
+  });
+  return [title, String(p0.length), ...ORDER.map((s) => String(c[s])), String(basePass)];
 });
-const sw = [5140, 1400, 1433, 1433, 1433, 1433, 1433, 1433];
+const sw = [4200, 1200, 1333, 1333, 1333, 1333, 1333, 1333, 1740];
+const heads = ["Section", "P0 checks", ...ORDER, "PASS at baseline"];
 add(new Table({
   width: { size: USABLE, type: WidthType.DXA }, columnWidths: sw,
   rows: [
-    new TableRow({ tableHeader: true, children: ["Section", "P0 checks", ...ORDER].map((h, i) =>
+    new TableRow({ tableHeader: true, children: heads.map((h, i) =>
       cell(h, sw[i], { bold: true, fill: HEAD_FILL, color: STATUS_COLOR[h], align: i ? AlignmentType.CENTER : undefined })) }),
     ...sumRows.map((r) => new TableRow({ children: r.map((v, i) => cell(v, sw[i], { align: i ? AlignmentType.CENTER : undefined })) })),
-    new TableRow({ children: ["Total", String(n), ...ORDER.map((s) => String(tot[s]))].map((v, i) =>
+    new TableRow({ children: ["Total", String(n), ...ORDER.map((s) => String(tot[s])), String(totBase.PASS)].map((v, i) =>
       cell(v, sw[i], { bold: true, fill: "F4F6F9", align: i ? AlignmentType.CENTER : undefined })) }),
   ],
 }));
 add(para([
-  run("Verdict on this baseline: ", { bold: true, size: 18 }),
-  run(`${tot.PASS} of ${n} P0 checks pass. NO-GO for any new release until the sprint 1 tickets land and the full run below is repeated on the release candidate. The live release (5b5b68d) stays as it is.`, { size: 18 }),
+  run("Baseline, for comparison: ", { bold: true, size: 18 }),
+  run(ORDER.map((s) => `${totBase[s]} ${s}`).join(" · ") + ". ", { size: 18 }),
+  run("Evidence at baseline: ", { bold: true, size: 18 }), run(d.BASELINE.evidence, { size: 18 }),
+], { before: 120 }));
+add(para([
+  run("Verdict now: ", { bold: true, size: 18 }),
+  run(`${tot.PASS} of ${n} P0 checks pass (baseline ${totBase.PASS}). ${d.VERDICT_NOW}`, { size: 18 }),
 ], { before: 120, after: 120 }));
 
 // 1. How to use
@@ -142,28 +170,28 @@ add(table([2600, 2600, 5000, 4938], ["Role", "Lands on (D-010)", "Purpose", "Aut
 add(para(d.ROLES_NOTE, { color: MUTED, before: 80 }));
 
 // 3..10 role journeys
-const rw = [780, 2200, 3300, 900, 760, 5398, 1800];
+const rw = [700, 1900, 2600, 800, 700, 3600, 3638, 1200];
 d.ROLE_SECTIONS.forEach((s, idx) => {
   add(h1(`${idx + 3}. ${s.title}`));
   add(para(s.intro, { color: MUTED }));
-  add(table(rw, ["ID", "Checkpoint", "Expected", "How", "Gate", `Baseline (main ${d.BASELINE.sha})`, "Release candidate"],
+  add(table(rw, ["ID", "Checkpoint", "Expected", "How", "Gate", `Baseline (main ${d.BASELINE.sha})`, `Now (${d.NOW.sha})`, "Release candidate"],
     s.rows.map(([i, c, e, how, g, b]) => [
       cell(i, rw[0], { bold: true }), c, e, how,
       cell(g, rw[4], { bold: g.startsWith("P0"), color: g.startsWith("P0") ? "B42318" : INK }),
-      cell([statusPara(b)], rw[5]), cell(resultBoxes(), rw[6]),
+      cell([statusPara(b)], rw[5]), cell([nowPara(i, b)], rw[6]), cell(resultBoxes(), rw[7]),
     ])));
 });
 
 let sec = 3 + d.ROLE_SECTIONS.length;
-const uw = [1100, 5500, 900, 5838, 1800];
+const uw = [900, 4200, 700, 4000, 4138, 1200];
 add(h1(`${sec}. Universal checks (every flow)`));
-add(table(uw, ["ID", "Check", "Gate", "Baseline", "Release candidate"],
-  d.UNIVERSAL.map(([i, c, g, b]) => [cell(i, uw[0], { bold: true }), c, g, cell([statusPara(b)], uw[3]), cell(resultBoxes(), uw[4])])));
+add(table(uw, ["ID", "Check", "Gate", "Baseline", `Now (${d.NOW.sha})`, "Release candidate"],
+  d.UNIVERSAL.map(([i, c, g, b]) => [cell(i, uw[0], { bold: true }), c, g, cell([statusPara(b)], uw[3]), cell([nowPara(i, b)], uw[4]), cell(resultBoxes(), uw[5])])));
 
 add(h1(`${sec + 1}. Release-day checks (production, read-only)`));
 add(para("Run after the migrations and the deploy of the release candidate. None of them writes to production.", { color: MUTED }));
-add(table(uw, ["ID", "Check", "Gate", "Status today", "Release day"],
-  d.RELEASE.map(([i, c, g, b]) => [cell(i, uw[0], { bold: true }), c, g, cell([statusPara(b)], uw[3]), cell(resultBoxes(), uw[4])])));
+add(table(uw, ["ID", "Check", "Gate", "At baseline", `Now (${d.NOW.sha})`, "Release day"],
+  d.RELEASE.map(([i, c, g, b]) => [cell(i, uw[0], { bold: true }), c, g, cell([statusPara(b)], uw[3]), cell([nowPara(i, b)], uw[4]), cell(resultBoxes(), uw[5])])));
 
 add(h1(`${sec + 2}. Known findings and where they are fixed`));
 add(table([1600, 5000, 5538, 3000], ["Ref", "Finding", "Fix", "State"], d.FINDINGS));
@@ -178,6 +206,8 @@ add(h1("Appendix A — sources"));
 d.SOURCES.forEach((t) => add(para(t, { numbering: { reference: "bullets", level: 0 }, size: 18 })));
 add(h1("Appendix B — what changed from the 24 September draft"));
 d.CHANGES_FROM_DRAFT.forEach((t) => add(para(t, { numbering: { reference: "bullets", level: 0 }, size: 18 })));
+add(h1(`Appendix C — what changed after v2 (v2.1 to ${d.META.version.split(" — ")[0]})`));
+d.CHANGES_V21.forEach((t) => add(para(t, { numbering: { reference: "bullets", level: 0 }, size: 18 })));
 
 const doc = new Document({
   creator: "PINTAR coordinator",
@@ -202,7 +232,7 @@ const doc = new Document({
       default: new Footer({ children: [new Paragraph({
         alignment: AlignmentType.RIGHT,
         children: [
-          new TextRun({ text: "PINTAR 4.0 · End-to-end user flow & release checklist v2 · page ", font: FONT, size: 15, color: MUTED }),
+          new TextRun({ text: `PINTAR 4.0 · End-to-end user flow & release checklist ${d.META.version.split(" — ")[0]} · page `, font: FONT, size: 15, color: MUTED }),
           new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 15, color: MUTED }),
           new TextRun({ text: " of ", font: FONT, size: 15, color: MUTED }),
           new TextRun({ children: [PageNumber.TOTAL_PAGES], font: FONT, size: 15, color: MUTED }),

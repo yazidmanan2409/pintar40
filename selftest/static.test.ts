@@ -11,11 +11,83 @@ import { join, relative, basename } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 import { experienceTests } from "./experience.test";
+import { emailTests } from "./email.test";
+import { aktifkanTests } from "./aktifkan.test";
+import { daisy40Tests } from "./daisy40.test";
 import { loginTests } from "./login.test";
 import { strukturTests } from "./struktur.test";
 import { unggahTests } from "./unggah.test";
 import { terbitanTests } from "./terbitan.test";
 import { penugasanTests } from "./penugasan.test";
+import { sesiTests } from "./sesi.test";
+import { bob06Tests } from "./bob06.test";
+import { galatTests } from "./galat.test";
+import { bob08Tests } from "./bob08.test";
+import { bob09Tests } from "./bob09.test";
+import { bob18Tests } from "./bob18.test";
+import { bob17Tests } from "./bob17.test";
+import { bob22Tests } from "./bob22.test";
+import { bob23Tests } from "./bob23.test";
+import { w2Tests } from "./w2.test";
+import { w3Tests } from "./w3.test";
+import { w5Tests } from "./w5.test";
+import { w8Tests } from "./w8.test";
+import { w9Tests } from "./w9.test";
+import { w10Tests } from "./w10.test";
+import { w11Tests } from "./w11.test";
+import { m7Tests } from "./m7.test";
+import { w9bTests } from "./w9b.test";
+import { edu23Tests } from "./edu23.test";
+import { hod05Tests } from "./hod05.test";
+import { hod09Tests } from "./hod09.test";
+import { m4Tests } from "./m4.test";
+import { adm06Tests } from "./adm06.test";
+import { m9Tests } from "./m9.test";
+import { adm19Tests } from "./adm19.test";
+import { adm02Tests } from "./adm02.test";
+import { adm09Tests } from "./adm09.test";
+import { d088iTests } from "./d088i.test";
+import { d088hTests } from "./d088h.test";
+import { d088gTests } from "./d088g.test";
+import { d088kTests } from "./d088k.test";
+import { bob49Tests } from "./bob49.test";
+import { m3Tests } from "./m3.test";
+import { m6Tests } from "./m6.test";
+import { t2Tests } from "./t2.test";
+import { kolomTests } from "./kolom.test";
+import { m10Tests } from "./m10.test";
+import { m3rTests } from "./m3r.test";
+import { c1Tests } from "./c1.test";
+import { j613Tests } from "./j613.test";
+import { j614Tests } from "./j614.test";
+import { effTests } from "./eff.test";
+import { pitaTests } from "./pita.test";
+import { d006Tests } from "./d006.test";
+import { w16Tests } from "./w16.test";
+import { bob12Tests } from "./bob12.test";
+import { bob32Tests } from "./bob32.test";
+import { bob34Tests } from "./bob34.test";
+import { bob38Tests } from "./bob38.test";
+import { bob39Tests } from "./bob39.test";
+import { bob40Tests } from "./bob40.test";
+import { bob41Tests } from "./bob41.test";
+import { bob25Tests } from "./bob25.test";
+import { bob42Tests } from "./bob42.test";
+import { bob26Tests } from "./bob26.test";
+import { bob50Tests } from "./bob50.test";
+import { bob51Tests } from "./bob51.test";
+import { emailJujurTests } from "./emailjujur.test";
+import { bob27Tests } from "./bob27.test";
+import { bob28Tests } from "./bob28.test";
+import { bob29Tests } from "./bob29.test";
+import { bob43Tests } from "./bob43.test";
+import { bob15Tests } from "./bob15.test";
+import { m148Tests } from "./m148.test";
+import { fu1921Tests } from "./fu1921.test";
+import { d101Tests } from "./d101.test";
+import { d102Tests } from "./d102.test";
+import { c12Tests } from "./c12.test";
+import { dr150Tests } from "./dr150.test";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
 
@@ -111,7 +183,11 @@ export const staticTests: SelfTest[] = [
       if (!c.expect(existsSync(staticDir), ".next/static missing — production build required before the static runner")) {
         return c.verdict("");
       }
-      const forbidden = ["SUPABASE_SERVICE_ROLE_KEY", "service_role", "CARD_PEPPER", "supabaseService", "deriveCardSecret"];
+      const forbidden = ["SUPABASE_SERVICE_ROLE_KEY", "service_role", "CARD_PEPPER", "supabaseService", "deriveCardSecret",
+        // BOB-12: the Auth forwarding key is a secret API key (service-role strength)
+        "SUPABASE_AUTH_FORWARDING_KEY",
+        // BOB-25: PINTAR's SMTP settings, and the mailer itself, are server-only
+        "PINTAR_SMTP_HOST", "PINTAR_SMTP_PORT", "PINTAR_SMTP_USER", "PINTAR_SMTP_PASSWORD", "nodemailer"];
       const jwtLike = /eyJ[A-Za-z0-9_-]{10,}\.(eyJ[A-Za-z0-9_-]{10,})\./g;
       let scanned = 0;
       for (const f of walk(staticDir).filter((f) => /\.(js|mjs|json|txt)$/.test(f))) {
@@ -158,6 +234,23 @@ export const staticTests: SelfTest[] = [
             /^\s*import\s+["']server-only["']/m.test(text),
             `${rel} reads a certificate signing key without the server-only guard`,
           );
+        }
+        // BOB-12 (design condition 1): the Auth forwarding key has one reader,
+        // a server-only module, and it is not env.ts (client components import it).
+        if (/SUPABASE_AUTH_FORWARDING_KEY/.test(code(text))) {
+          c.expect(rel === join("src", "lib", "auth-forwarding.ts"),
+            `${rel} names the Auth forwarding key; only src/lib/auth-forwarding.ts may`);
+          c.expect(/^\s*import\s+["']server-only["']/m.test(text), `${rel} reads the Auth forwarding key without the server-only guard`);
+        }
+        // BOB-25 (GATE-0-FACTS §2): the four SMTP variables have one reader, a
+        // server-only module under src/app/api/_email/.
+        if (/PINTAR_SMTP_/.test(code(text))) {
+          c.expect(rel === join("src", "app", "api", "_email", "pengaturan.ts"),
+            `${rel} names a PINTAR_SMTP_ variable; only src/app/api/_email/pengaturan.ts may`);
+          c.expect(/^\s*import\s+["']server-only["']/m.test(text), `${rel} reads the SMTP settings without the server-only guard`);
+        }
+        if (/from\s+["']nodemailer["']/.test(text)) {
+          c.expect(rel === join("src", "app", "api", "_email", "kirim.ts"), `${rel} imports the mailer; only src/app/api/_email/kirim.ts may`);
         }
         if (/from\s+["']@\/lib\/supabase\/service["']/.test(text)) {
           c.expect(/^src[\\/]app[\\/]api[\\/]/.test(rel), `${rel} imports the service-role client outside src/app/api/`);
@@ -864,7 +957,18 @@ export const staticTests: SelfTest[] = [
         .flatMap((m) => [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]));
       const prefixes = [...proxy.matchAll(/PUBLIC_PREFIXES = \[([^\]]*)\]/g)]
         .flatMap((m) => [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]));
-      const expectedPaths = ["/", "/masuk", "/masuk/kartu", "/auth/callback", "/keluar"];
+      // RESTATED FOR BOB-26 (Gate 3, a changed requirement): activation starts
+      // signed out, so /aktifkan and its two POST-only doors are anonymous, and
+      // so is the password sign-in's door. Each door is declared in
+      // public_surface_registry with its rewrite target as its child (the card
+      // route's shape), which the registry check below also asks; nothing else
+      // joined the list.
+      // RESTATED FOR BOB-27 (Gate 4, a changed requirement): «Lupa password?» starts signed out too, at /masuk/lupa
+      // and its three POST-only doors, each declared with its handler as Gate 3's are.
+      // RESTATED FOR BOB-28 (Gate 5, a changed requirement): its fourth door, recovery by PINTAR ID + PIN, declared the same way.
+      const expectedPaths = ["/", "/masuk", "/masuk/kartu", "/masuk/password", "/aktifkan", "/aktifkan/kode",
+                             "/aktifkan/periksa", "/masuk/lupa", "/masuk/lupa/kode", "/masuk/lupa/periksa",
+                             "/masuk/lupa/password", "/masuk/lupa/pin", "/auth/callback", "/keluar"];
       c.expect(
         JSON.stringify(paths.slice().sort()) === JSON.stringify(expectedPaths.slice().sort()),
         `the anonymous path list changed: ${JSON.stringify(paths)}`,
@@ -873,8 +977,10 @@ export const staticTests: SelfTest[] = [
       // endpoint it fetches anonymously, registered as its child in
       // public_surface_registry. The endpoint was missing, so every QR scan read
       // "not found"; F01-R07 proves both against the running middleware.
+      // RESTATED FOR BOB-28 (IDENTITY-4.0 §5): "/id/", the page a PINTAR card's QR opens; it reads nothing and is its own
+      // surface in public_surface_registry (identity_page).
       c.expect(
-        JSON.stringify(prefixes) === JSON.stringify(["/verifikasi/", "/api/verifikasi/"]),
+        JSON.stringify(prefixes) === JSON.stringify(["/verifikasi/", "/api/verifikasi/", "/id/"]),
         `the anonymous prefix list changed: ${JSON.stringify(prefixes)}`,
       );
       c.expect(/matcher: \["\/\(\(\?!/.test(proxy), "the proxy matcher is no longer catch-all");
@@ -893,8 +999,18 @@ export const staticTests: SelfTest[] = [
           `${r} is reachable without a session`,
         );
       }
+      // BOB-26: every POST door on the list is a declared surface, with the
+      // handler it is rewritten to as its child, in the migrations themselves.
+      const migTeks = readdirSync(join(repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql"))
+        .map((f) => readFileSync(join(repoRoot, "supabase", "migrations", f), "utf8")).join("\n");
+      for (const pintu of ["/masuk/kartu", "/masuk/password", "/aktifkan/kode", "/aktifkan/periksa",
+                           "/masuk/lupa/kode", "/masuk/lupa/periksa", "/masuk/lupa/password", "/masuk/lupa/pin"]) {
+        c.expect(new RegExp(`'ROUTE',\\s*'${pintu}'`).test(migTeks) && new RegExp(`'ENDPOINT',\\s*'/api${pintu}'`).test(migTeks),
+          `${pintu} is anonymous but not declared in public_surface_registry with /api${pintu} as its child`);
+      }
       c.note(`${routes.length} routes, ${studio.length} in Studio, ${paths.length + prefixes.length} anonymous`);
-      return c.verdict("the anonymous surface did not grow and every Studio route sits behind the proxy");
+      c.expect(/'ROUTE',\s*'\/id\/\[pintarId\]'/.test(migTeks), "/id/ is anonymous but not declared in public_surface_registry");
+      return c.verdict("the anonymous surface did not grow beyond its declared doors (Gate 3's three, Gate 4's three and Gate 5's one, each registered with its handler, and the declared ID page) and every Studio route sits behind the proxy");
     },
   },
   {
@@ -1848,6 +1964,9 @@ export const staticTests: SelfTest[] = [
   // file so that every line this session wrote is reviewable in one place, and
   // no case that existed at the frozen baseline is touched by appending them.
   ...experienceTests,
+  ...emailTests,
+  ...aktifkanTests,
+  ...daisy40Tests,
   // LOGIN CONTRACT — L-1 and L-2. Same rule as the Experience cases above:
   // appended in their own file, so nothing that existed at the baseline is
   // edited to make room for them.
@@ -1859,4 +1978,73 @@ export const staticTests: SelfTest[] = [
   ...unggahTests,
   ...terbitanTests,
   ...penugasanTests,
+  ...sesiTests,
+  ...bob06Tests,
+  ...galatTests,
+  ...bob08Tests,
+  ...bob09Tests,
+  ...bob18Tests,
+  ...bob17Tests,
+  ...bob22Tests,
+  ...w2Tests,
+  ...w3Tests,
+  ...w5Tests,
+  ...w8Tests,
+  ...w9Tests,
+  ...w10Tests,
+  ...w11Tests,
+  ...m7Tests,
+  ...w9bTests,
+  ...edu23Tests,
+  ...hod05Tests,
+  ...hod09Tests,
+  ...m4Tests,
+  ...adm06Tests,
+  ...m9Tests,
+  ...adm19Tests,
+  ...adm02Tests,
+  ...adm09Tests,
+  ...d088iTests,
+  ...d088hTests,
+  ...d088gTests,
+  ...d088kTests,
+  ...bob49Tests,
+  ...m3Tests,
+  ...m6Tests,
+  ...t2Tests,
+  ...kolomTests,
+  ...m10Tests,
+  ...m3rTests,
+  ...c1Tests,
+  ...j613Tests,
+  ...j614Tests,
+  ...effTests,
+  ...pitaTests,
+  ...d006Tests,
+  ...w16Tests,
+  ...bob23Tests,
+  ...bob12Tests,
+  ...bob32Tests,
+  ...bob34Tests,
+  ...bob38Tests,
+  ...bob39Tests,
+  ...bob40Tests,
+  ...bob41Tests,
+  ...bob25Tests,
+  ...bob42Tests,
+  ...bob26Tests,
+  ...bob50Tests,
+  ...bob51Tests,
+  ...emailJujurTests,
+  ...bob27Tests,
+  ...bob28Tests,
+  ...bob29Tests,
+  ...bob43Tests,
+  ...bob15Tests,
+  ...m148Tests,
+  ...fu1921Tests,
+  ...d101Tests,
+  ...d102Tests,
+  ...c12Tests,
+  ...dr150Tests,
 ];

@@ -5,6 +5,7 @@ import type { Envelope } from "@/components/bukti";
 import type {
   HasilKeputusan, KeadaanKeputusan, KeluargaKeputusan, Keputusan,
 } from "@/lib/pimpinan-kontrak";
+import { jenisTerlihat } from "@/lib/struktur-kontrak";
 
 /**
  * THE MANAGEMENT DATA LAYER — WP4.
@@ -90,10 +91,26 @@ export type SimpulPimpinan = {
  * one refusal page for it. It does not mean "no data".
  */
 export async function lingkupPimpinan(): Promise<SimpulPimpinan[]> {
-  const c = await db();
+  return lingkupPimpinanDari(await db());
+}
+
+/**
+ * `lingkupPimpinan` over a given client (BOB-08: driven in selftest/bob08.test.ts).
+ *
+ * BOB-08 (Daisy, 25 Sep): THE CANDIDATES ARE THE GRANTS STILL IN FORCE. A
+ * revoked or expired grant decided nothing -- management_scope_over_node
+ * refuses it -- but its node was still offered in the picker, which then led
+ * to the one refusal page. The same window the database applies is asked for
+ * here: not revoked, begun, and not yet ended.
+ */
+export async function lingkupPimpinanDari(c: Db, kini: Date = new Date()): Promise<SimpulPimpinan[]> {
+  const sekarang = kini.toISOString();
   const { data: hibah } = await c
     .from("role_assignments")
-    .select("scope_node_id");
+    .select("scope_node_id")
+    .is("revoked_at", null)
+    .lte("valid_from", sekarang)
+    .gt("valid_until", sekarang);
   const kandidat = [
     ...new Set(
       rows<{ scope_node_id: string | null }>(hibah)
@@ -166,7 +183,21 @@ export async function simpulDalamLingkup(node: string): Promise<SimpulPimpinan |
  */
 export async function cabang(scopes: readonly string[]): Promise<SimpulPimpinan[]> {
   if (scopes.length === 0) return [];
-  const c = await db();
+  return cabangDari(await db(), scopes);
+}
+
+/** `cabang` over a given client (BOB-06: so the evidence planner can be driven in a test). */
+/**
+ * W11 (MGT-J05, D-006, D-027): WHERE A READER CAN GO FROM A NODE. The parts below
+ * it that a screen may show (Bagian, Tingkat, Kelas), never the node itself and
+ * never the hidden Jenjang or Reguler, which `cabang` returns with the rest.
+ */
+export function bagianDiBawah<T extends { id: string; kind: string }>(node: string, bawah: readonly T[]): T[] {
+  return bawah.filter((n) => n.id !== node && jenisTerlihat(n.kind));
+}
+
+export async function cabangDari(c: Db, scopes: readonly string[]): Promise<SimpulPimpinan[]> {
+  if (scopes.length === 0) return [];
   const { data } = await c
     .from("org_nodes")
     .select("id, name, kind, institution_id, jalur, is_active")
@@ -306,8 +337,22 @@ function terbaca(e: Envelope): boolean {
 }
 
 export async function buktiPimpinan(node: string, institusi: string): Promise<Envelope[]> {
-  const c = await db();
-  const minta = async (metric: string, p_node: string) => {
+  return buktiPimpinanDari(await db(), node, institusi);
+}
+
+/**
+ * BOB-06 (audit B6c): A CLASS FIGURE IS ASKED OF A CLASS. The class
+ * calculators count the sessions whose class is exactly the node asked, so a
+ * class figure asked at a department or a faculty is structurally empty and
+ * read as "not enough evidence yet". At a class node the class figures are
+ * asked of it, as before; anywhere else only the school's figures are asked
+ * here, and the classes of the branch each answer for themselves through
+ * `buktiPerKelas`. Scope is unchanged: every figure is still decided per
+ * reader by `metric_evaluate`, and the classes come from `cabang`, which
+ * throws on a node outside the reader's scope.
+ */
+function mintaDari(c: Db, institusi: string) {
+  return async (metric: string, p_node: string): Promise<Envelope> => {
     const { data, error } = await c.rpc("metric_evaluate", {
       p_metric_id: metric,
       p_node,
@@ -316,11 +361,53 @@ export async function buktiPimpinan(node: string, institusi: string): Promise<En
     if (error) return { status: "unavailable" } as Envelope;
     return (data ?? { status: "unavailable" }) as Envelope;
   };
+}
+
+/** `buktiPimpinan` over a given client (BOB-06: driven in selftest/bob06.test.ts). */
+export async function buktiPimpinanDari(c: Db, node: string, institusi: string): Promise<Envelope[]> {
+  const minta = mintaDari(c, institusi);
+  const { data: simpul } = await c.from("org_nodes").select("kind").eq("id", node).maybeSingle();
+  const diKelas = (simpul as { kind?: string } | null)?.kind === "CLASS";
   const out = await Promise.all([
-    ...METRIK_SIMPUL.map((m) => minta(m, node)),
+    ...(diKelas ? METRIK_SIMPUL.map((m) => minta(m, node)) : []),
     ...METRIK_INSTITUSI.map((m) => minta(m, institusi)),
   ]);
   return out.filter(terbaca);
+}
+
+/**
+ * One class of the reader's branch and the class figures it answers for itself.
+ * HOD-J05: `murid` is how many learners the class has now (its roster, the same
+ * read as «Murid pada bagian ini»), so «Peserta» is read against the class; null
+ * when the roster could not be read. Never subtracted from a figure: the
+ * figures pool every official session, the roster is today's.
+ */
+export type BuktiKelas = { kelas: SimpulPimpinan; bukti: Envelope[]; murid: number | null };
+
+/**
+ * BOB-06 (B6c): THE CLASS FIGURES OF EACH CLASS IN THIS BRANCH, asked of that
+ * class. The node itself when it is a class; otherwise every active class
+ * below it that `cabang` returns, in its order. A class none of whose figures
+ * the reader may see comes back with an empty list, so a screen can say so
+ * per class rather than count what was withheld. Nothing is summed across
+ * classes (WP7C: nothing here adds two classes together).
+ */
+export async function buktiPerKelas(node: string): Promise<BuktiKelas[]> {
+  return buktiPerKelasDari(await db(), node);
+}
+
+export async function buktiPerKelasDari(c: Db, node: string): Promise<BuktiKelas[]> {
+  const kelas = (await cabangDari(c, [node])).filter((n) => n.kind === "CLASS");
+  return Promise.all(
+    kelas.map(async (k) => {
+      const minta = mintaDari(c, k.institusi);
+      const [bukti, murid] = await Promise.all([
+        Promise.all(METRIK_SIMPUL.map((m) => minta(m, k.id))),
+        daftarMuridDari(c, k.id).then((d) => d.length, () => null),
+      ]);
+      return { kelas: k, bukti: bukti.filter(terbaca), murid };
+    }),
+  );
 }
 
 // ═══════════════════════════════════════════════════════ 4. roster, then one
@@ -342,13 +429,32 @@ export type MuridDalamLingkup = { id: string; nama: string; simpul: string };
  * list, which is why nothing here touches `management_learner_detail`.
  */
 export async function daftarMurid(node: string): Promise<MuridDalamLingkup[]> {
-  const c = await db();
+  return daftarMuridDari(await db(), node);
+}
+
+/**
+ * W10 (HOD-J06): THE ROSTER OF A PART OF THE SCHOOL IS EVERY CLASS BELOW IT.
+ * Learners are members of classes, never of a department, so a roster that
+ * matched the node exactly read «Belum ada murid…» for every department. The
+ * branch comes from `cabangDari`, which throws on a node outside the reader's
+ * scope; the reads stay RLS-bounded as above, and a learner in two classes of
+ * the branch is listed once. Only open memberships count, as on the teacher's
+ * roster (pengajar.ts) and Aktivasi.
+ */
+export async function daftarMuridDari(c: Db, node: string): Promise<MuridDalamLingkup[]> {
+  const simpul = [...new Set([node, ...(await cabangDari(c, [node])).map((n) => n.id)])];
+  // a closed membership (valid_to set) is a class the learner has left. BOB-45 (D-069(b)G): «Murid pada bagian ini»
+  // lists learners only -- a place for educators' professional learning holds participants, who are seen on its
+  // professional-learning record instead (D-070(a)); the place's kind is the database's (member_kind)
   const { data: anggota } = await c
     .from("memberships")
-    .select("enrollment_id, node_id")
-    .eq("node_id", node);
+    .select("enrollment_id, node_id, node:org_nodes(member_kind)")
+    .in("node_id", simpul)
+    .is("valid_to", null);
   const enrolIds = [
-    ...new Set(rows<{ enrollment_id: string }>(anggota).map((m) => String(m.enrollment_id))),
+    ...new Set(rows<{ enrollment_id: string; node: { member_kind: string | null } | null }>(anggota)
+      .filter((m) => m.node?.member_kind !== "PARTICIPANT")
+      .map((m) => String(m.enrollment_id))),
   ];
   if (enrolIds.length === 0) return [];
 
@@ -356,8 +462,9 @@ export async function daftarMurid(node: string): Promise<MuridDalamLingkup[]> {
     .from("enrollments")
     .select("id, person_id, status")
     .in("id", enrolIds);
+  // still enrolled: PENDING (recorded, not yet signed in) or ACTIVE, as the teacher's roster counts them
   const aktif = rows<{ id: string; person_id: string; status: string }>(daftar)
-    .filter((e) => e.status === "ACTIVE");
+    .filter((e) => e.status === "PENDING" || e.status === "ACTIVE");
   const orangIds = [...new Set(aktif.map((e) => String(e.person_id)))];
   if (orangIds.length === 0) return [];
 
@@ -379,6 +486,11 @@ export type RincianMurid = {
   academic_period: string | null;
   programme: string | null;
   placement: Array<{ node_id: string; kind: string; name: string }>;
+  /**
+   * D-088(i): the places the learner has left, each with its year, dates and why it ended. `placement` above is
+   * where the learner is now (open placements only); an ended one is never shown as current.
+   */
+  placement_history?: Array<{ node_id: string; kind: string; name: string; academic_year: string | null; from: string; until: string; reason: string | null }>;
   official_results: Array<{ mode?: string; mastery?: number | null; safety_gate_passed?: boolean | null }>;
   /** R5, carried by the record too, computed against the same governed minimum. */
   official_results_readiness?: string;

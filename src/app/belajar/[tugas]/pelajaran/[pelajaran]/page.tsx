@@ -8,7 +8,8 @@ import { lessonRead } from "@/lib/siklus";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import LessonPlayer from "../../../_components/LessonPlayer";
-import { saveLessonProgress } from "../../../actions";
+import { saveLessonProgress, tandaiBacaUlang } from "../../../actions";
+import { TeksBaris } from "@/components/teks/Teks";
 
 export const dynamic = "force-dynamic";
 
@@ -23,12 +24,20 @@ export const dynamic = "force-dynamic";
  *
  * READING POSITION IS SAVED, AND THE LEARNER IS TOLD ONCE. There is no save
  * button and no prompt: the position is the product's job to remember, and
- * asking somebody to remember it for us would be the complexity leaking.
+ * asking somebody to remember it for us would be the complexity leaking. The
+ * telling is true or absent (W5): the player shows it only while the server
+ * holds the page on screen, never because a save was attempted.
  */
 export default async function Pelajaran(
-  { params }: { params: Promise<{ tugas: string; pelajaran: string }> },
+  { params, searchParams }: {
+    params: Promise<{ tugas: string; pelajaran: string }>;
+    searchParams: Promise<{ ulang?: string }>;
+  },
 ) {
   const { tugas, pelajaran } = await params;
+  // D-085 M3 (J5.12): opened from a teacher's request to read again; the database checks the request is this learner's
+  const { ulang: ulangMentah } = await searchParams;
+  const ulang = ulangMentah && /^[0-9a-f-]{36}$/i.test(ulangMentah) ? ulangMentah : null;
   const locale = await currentLocale();
   const db = (await supabaseServer()) as unknown as engine.EngineClient;
   const s = (k: HleEvent) => t(k, "learner", { locale });
@@ -38,10 +47,13 @@ export default async function Pelajaran(
   if (!lesson) notFound();
 
   const supabase = await supabaseServer();
+  // W2 (T1): the player keys what this device remembers by the person, never the device
+  const { data: orang } = await supabase.rpc("current_person_id");
   const media = await Promise.all(
     (lesson.media ?? []).map(async (m) => {
       const { data } = await supabase.rpc("may_read_lesson_media", { p_path: m.path });
-      return { ...m, url: data === true ? `/api/assets/read-url?path=${encodeURIComponent(m.path)}` : null };
+      // BOB-11: `alih=1` answers with the file itself (a redirect), which a <video> or <audio> can play
+      return { ...m, url: data === true ? `/api/assets/read-url?path=${encodeURIComponent(m.path)}&alih=1` : null };
     }),
   );
 
@@ -63,7 +75,7 @@ export default async function Pelajaran(
             {format.number(all.length, locale)} · {lesson.modul}
           </p>
           <h1 className="pin-h1">{lesson.judul}</h1>
-          {lesson.ringkasan ? <p className="pin-intro">{lesson.ringkasan}</p> : null}
+          {lesson.ringkasan ? <p className="pin-intro"><TeksBaris teks={lesson.ringkasan} /></p> : null}
           {lesson.halaman ? (
             <p className="pin-meta">
               {s("map.page")} {lesson.halaman}
@@ -80,10 +92,13 @@ export default async function Pelajaran(
             workedExamples={(lesson.contoh ?? []) as Array<{ judul?: string; langkah?: string[] }>}
             media={media}
             startAt={lesson.furthest_position}
+            personId={typeof orang === "string" ? orang : null}
             saveProgress={saveLessonProgress}
+            savedNote={s("lesson.saved")}
+            locale={locale}
+            ulang={ulang}
+            tandaiUlang={ulang ? tandaiBacaUlang : null}
           />
-
-          <p className="pin-meta">{s("lesson.saved")}</p>
 
           <div className="pin-actions">
             {next ? (

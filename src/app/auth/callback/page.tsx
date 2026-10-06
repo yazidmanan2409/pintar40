@@ -36,7 +36,8 @@ export default async function Callback({
   // this route that nothing in PINTAR has held since it was written -- so it
   // is narrowed here as well as where the link was built. A link forged by
   // hand never passed through the builder.
-  const lanjut = tujuanInternal(sp.lanjut);
+  // BOB-06 (D-010): an absent destination stays absent, so the role's home wins.
+  const lanjut = tujuanInternal(sp.lanjut, "");
   // A link the provider itself already refused, or a URL with nothing to
   // exchange: there is no request to make, so S14 is rendered directly rather
   // than after a round trip that cannot succeed.

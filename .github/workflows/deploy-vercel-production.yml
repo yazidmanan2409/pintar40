@@ -22,6 +22,18 @@
 # invalidate every classroom-card PIN derived from it. Both are therefore
 # added only when absent.
 #
+# ABSENT IS NOT THE SAME AS NEW (#150 G5). An emptied or rebuilt Vercel project
+# looks exactly like a first deployment, and minting then would silently break
+# every card and every certificate already made. So a guard
+# (scripts/release/durable-secrets.mjs, taken from the commit this workflow runs
+# from) decides first, from what Vercel holds, the fingerprints recorded in
+# docs/recovery/durable-secrets.json and what production holds: a secret is
+# kept only when it matches its record and (the certificate key) opens an issued
+# certificate's seal, and minted only into a production holding no card, no
+# sealed certificate, no school and nobody beyond the first administrator.
+# Anything else, or anything it cannot establish, stops the deploy before a
+# single variable is written: the secret is then recovered, never replaced.
+#
 # It deploys the frozen release and configures Auth. It creates no PINTAR
 # data, no identity and no role.
 
@@ -290,6 +302,24 @@ jobs:
           PY
           echo "SERVICE_ROLE_KEY_FILE=$KEYFILE" >> "$GITHUB_ENV"
 
+      # #150 G5: see the header. Reads only (Vercel's listing and the two values,
+      # production's counts and one certificate's seal); prints verdicts and
+      # fingerprints, never a value. A REFUSE stops the deploy here, before any
+      # variable is written.
+      - name: Decide the durable secrets (keep, mint only into an empty production, or refuse)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          # The guard and the record come from the commit this workflow runs
+          # from, not from the frozen release, which predates them.
+          git fetch --no-tags --depth=1 origin "$GITHUB_SHA"
+          git show FETCH_HEAD:scripts/release/durable-secrets.mjs > "$RUNNER_TEMP/durable-secrets.mjs"
+          git show FETCH_HEAD:docs/recovery/durable-secrets.json > "$RUNNER_TEMP/durable-secrets.json"
+          node "$RUNNER_TEMP/durable-secrets.mjs" guard "$RUNNER_TEMP/durable-secrets.json" "$RUNNER_TEMP/durable-verdict"
+          echo "DURABLE_VERDICT_FILE=$RUNNER_TEMP/durable-verdict" >> "$GITHUB_ENV"
+          echo "DURABLE_GUARD=$RUNNER_TEMP/durable-secrets.mjs" >> "$GITHUB_ENV"
+
       - name: Set the production environment
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -328,10 +358,18 @@ jobs:
           # Replaceable configuration: rewritten every deploy so the origin and
           # the build stamp always match what is actually deployed.
           put() { write_env "$1" "$2"; echo "set $1"; }
-          # Durable secrets: written once, never rewritten. See the header.
-          keep() {
-            if has "$1"; then echo "kept $1 (already present)"; return; fi
-            write_env "$1" "$2"; echo "minted $1"
+          # Durable secrets: written once, never rewritten, and minted only where
+          # the guard said MINT. See the header (#150 G5).
+          durable() {
+            case "$(awk -v n="$1" '$1 == n { print $2 }' "${DURABLE_VERDICT_FILE:-/nonexistent}" 2>/dev/null)" in
+              KEEP) has "$1" || { echo "::error::$1 vanished from Vercel after the guard kept it; nothing is minted"; exit 1; }
+                    echo "kept $1 (verified by the guard)";;
+              MINT) has "$1" && { echo "::error::$1 appeared in Vercel after the guard found it absent; nothing is minted"; exit 1; }
+                    v="$(openssl rand -hex 32)"; write_env "$1" "$v"
+                    echo "minted $1, fingerprint $(printf %s "$v" | node "$DURABLE_GUARD" fingerprint "$1"): record it in docs/recovery/durable-secrets.json"
+                    unset v;;
+              *)    echo "::error::the durable-secret guard gave no verdict for $1; nothing is minted"; exit 1;;
+            esac
           }
 
           put NEXT_PUBLIC_SUPABASE_URL      "$SUPABASE_URL"
@@ -340,8 +378,8 @@ jobs:
           put CARD_EMAIL_DOMAIN             "$CARD_EMAIL_DOMAIN"
           put PINTAR_BUILD_SHA              "$RELEASE_SHA"
 
-          keep CARD_PEPPER        "$(openssl rand -hex 32)"
-          keep CERT_SECRET_KEY_V1 "$(openssl rand -hex 32)"
+          durable CARD_PEPPER
+          durable CERT_SECRET_KEY_V1
 
           # Always the key proven in the previous step. There is no branch that
           # keeps whatever Vercel already holds: that is how a bad key survived.

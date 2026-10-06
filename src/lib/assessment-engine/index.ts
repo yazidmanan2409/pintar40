@@ -239,6 +239,21 @@ export async function openAssessments(db: EngineClient): Promise<OpenAssessment[
   return rows<OpenAssessment>(await call(db, "my_open_assessments"));
 }
 
+/** D-085 M3 (J5.12): a teacher's open request to this learner to read lessons of a chapter again. */
+export type PermintaanUlang = {
+  request_id: string;
+  learning_assignment_id: string;
+  course_title: string;
+  requested_at: string;
+  requested_by: string | null;
+  lessons: Array<{ lesson_id: string; title: string; read: boolean }> | null;
+};
+
+/** The learner's open requests to read again, oldest first; one closes when every lesson in it has been read. */
+export async function lessonReviews(db: EngineClient): Promise<PermintaanUlang[]> {
+  return rows<PermintaanUlang>(await call(db, "my_lesson_reviews"));
+}
+
 /**
  * Orientation BEFORE the act that starts an assessment. Null means the learner
  * may not start this one — the RPC is gated by `may_start_assessment()` and

@@ -1,0 +1,3 @@
+D-088(a), run 1, 2 Oct ~00:55 UTC: the recorded platform admin appoints the staging Platform Operator by PINTAR's screens; the operator signs in by the real email link (one email; walk 007 used one at ~00:32).
+D-088(a), run 2, 2 Oct ~01:15 UTC: read back with the reason (O5 found the grant but not its grantor or audit row in run 1); no sign-in email (run 1 proved it).
+D-088(a), run 3, 2 Oct ~01:25 UTC: O5 reads the text form of a boolean (run 2 showed the grant is the recorded admin's and audited); no sign-in email.

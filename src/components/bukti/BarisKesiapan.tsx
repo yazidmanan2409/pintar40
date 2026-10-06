@@ -10,15 +10,22 @@ import { t, format, type HleEvent, type Locale } from "@/lib/hle";
  * the distribution reads as a shape rather than as an alarm.
  *
  * The tier word comes from an HLE key (`kesiapan.*`), never from the enum.
+ *
+ * DAISY-25: A TOPIC IS NAMED BY THE CONTENT, NOT BY THE COPY TABLE. The same row
+ * draws a class's mastery per topic (`calc_class_topic_mastery`). Its keys are
+ * the content's own labels, not copy keys: looked up in the copy table they all
+ * read "—", so a topic row passes `label`, shown as the content gives it.
+ * (Corrected in POLISH3: those keys were learning-objective CODES. Since MC-4,
+ * D-088(g), a topic row is the objective's own statement, one row per objective.)
  */
 export default function BarisKesiapan({
   tierKey,
+  label,
   count,
   total,
   locale = "id",
   persona = "educator",
-}: {
-  tierKey: string;
+}: ({ tierKey: string; label?: never } | { label: string; tierKey?: never }) & {
   count: number;
   total: number;
   locale?: Locale;
@@ -27,7 +34,7 @@ export default function BarisKesiapan({
   const share = total > 0 ? (count / total) * 100 : 0;
   return (
     <div className="pin-rrow">
-      <span>{t(tierKey as HleEvent, persona, { locale })}</span>
+      <span>{label !== undefined ? label : t(tierKey as HleEvent, persona, { locale })}</span>
       <span className="pin-num" style={{ textAlign: "right" }}>
         {format.number(count, locale)}
       </span>

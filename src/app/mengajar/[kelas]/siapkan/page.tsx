@@ -1,14 +1,18 @@
 import Link from "next/link";
-import { t, format, TIMEZONE, type HleEvent } from "@/lib/hle";
+import { t, format, hariIniSekolah, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
 import { sediakanMateri } from "../../actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
 import { kodePenugasanDari, kunciKodePenugasan } from "@/lib/penugasan-kontrak";
+import { batasPelajaran } from "@/lib/batas-ketuntasan";
+import { supabaseServer } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -39,12 +43,6 @@ export const dynamic = "force-dynamic";
  * database draws. The copy says "dipilih" for exactly that reason and claims no
  * enforcement it cannot point at.
  */
-function hariIni(): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    year: "numeric", month: "2-digit", day: "2-digit", timeZone: TIMEZONE,
-  }).format(new Date());
-}
-
 export default async function Siapkan({
   params,
   searchParams,
@@ -61,18 +59,22 @@ export default async function Siapkan({
   // BOB-04 (D-008): a refused "Sediakan" comes back here with its code, and the
   // teacher reads what the lesson is missing -- never the database's words
   const galat = kodePenugasanDari(kode);
-  const tolakan = galat ? <p className="pin-intro" role="alert">{s(kunciKodePenugasan(galat))}</p> : null;
+  const tolakan = galat ? <BarisHasil nada="gagal">{s(kunciKodePenugasan(galat))}</BarisHasil> : null;
   if (!ctx) {
     return <HalamanPenolakan locale={locale} persona="educator" backHref="/mengajar" backKey="mengajar.kembali" />;
   }
 
-  const [semua, tugas, fakta] = await Promise.all([
-    ajar.terbitan(ctx.ini.institusi),
+  const [semua, tugas, fakta, akar] = await Promise.all([
+    ajar.terbitan(ctx.ini.institusi, id),
     ajar.penugasan(id),
     ajar.faktaKelas(id),
+    ajar.garisSekolah(ctx.ini.institusi),
   ]);
   const punya = new Set(tugas.map((x) => x.releaseId));
-  const calon = semua.filter((r) => !punya.has(r.id));
+  // D-085 M10: a class already given a release of a chapter's line is not offered that line again; a corrected release
+  // reaches it through «Koreksi» (before anyone starts), or stays with the release it was given
+  const garisPunya = new Set(tugas.filter((x) => x.status === "ACTIVE").map((x) => akar.get(x.courseId) ?? x.courseId));
+  const calon = semua.filter((r) => !punya.has(r.id) && !garisPunya.has(akar.get(r.courseId) ?? r.courseId));
   const dipilih = pilihan ? calon.find((r) => r.id === pilihan) ?? null : null;
 
   const lingkup = (
@@ -112,8 +114,10 @@ export default async function Siapkan({
               {calon.map((r) => (
                 <Link key={r.id} className="pin-row" href={`/mengajar/${id}/siapkan?terbitan=${r.id}`}>
                   <span className="pin-title">{r.kursus}</span>
+                  {/* D-085 M6: where the material comes from, said */}
+                  <span className="pin-asal" data-asal={r.asal}>{s(r.asal === "PINTAR" ? "mengajar.siap.asal.pintar" : "mengajar.siap.asal.sekolah")}</span>
+                  {/* DAISY-26 (UX-20): the date says which release; its version number means nothing to a teacher */}
                   <span className="pin-rowmeta">
-                    <span>{s("mengajar.siap.terbitan")} {r.versi}</span>
                     {r.terbitPada ? (
                       <span>{s("mengajar.siap.diterbitkan")} {format.date(r.terbitPada, locale)}</span>
                     ) : null}
@@ -130,9 +134,11 @@ export default async function Siapkan({
   }
 
   // ──────────────────────────────── stage 2: review, then the one commitment
-  const [isi, alat] = await Promise.all([
-    ajar.isiTerbitan(dipilih.courseId),
-    ajar.instrumen(dipilih.courseId),
+  // D-088(b), DAISY-38: the school's pass mark for this lesson, read-only; unset, the lesson cannot be given yet
+  const [isi, alat, batas] = await Promise.all([
+    ajar.isiTerbitan(dipilih),
+    ajar.instrumen(dipilih),
+    supabaseServer().then((c) => batasPelajaran(c, ctx.ini.institusi, dipilih.courseId)),
   ]);
 
   return (
@@ -141,7 +147,6 @@ export default async function Siapkan({
       <main className="pin-col">
         <Link className="pin-back" href={`/mengajar/${id}/siapkan`}>← {s("mengajar.siap.kembali")}</Link>
         {lingkup}
-        {tolakan}
         <TahapKomitmen tahap={1} nama={langkah} locale={locale} />
 
         <div className="pin-head">
@@ -153,14 +158,22 @@ export default async function Siapkan({
         <div className="pin-paket">
           <div className="pin-prow">
             <h2>{dipilih.kursus}</h2>
+            <span className="pin-asal" data-asal={dipilih.asal}>{s(dipilih.asal === "PINTAR" ? "mengajar.siap.asal.pintar" : "mengajar.siap.asal.sekolah")}</span>
             <span className="pin-pill pin-neutral">{s("mengajar.status.belum")}</span>
           </div>
           <p className="pin-meta">
-            {s("mengajar.siap.terbitan")} {dipilih.versi}
-            {dipilih.terbitPada ? ` · ${s("mengajar.siap.diterbitkan")} ${format.date(dipilih.terbitPada, locale)}` : ""}
-            {` · ${format.number(isi.pelajaran, locale)} ${s("mengajar.siap.pelajaran")}`}
+            {/* DAISY-26 (UX-20): no version number; the date says which release */}
+            {dipilih.terbitPada ? `${s("mengajar.siap.diterbitkan")} ${format.date(dipilih.terbitPada, locale)} · ` : ""}
+            {`${format.number(isi.pelajaran, locale)} ${s("mengajar.siap.pelajaran")}`}
             {` · ${format.number(isi.soal, locale)} ${s("mengajar.siap.soal")}`}
           </p>
+          {batas === null ? (
+            <p className="pin-meta pin-batas" data-batas="belum">{s("mengajar.sedia.batas_belum")}</p>
+          ) : batas !== undefined ? (
+            <p className="pin-meta pin-batas" data-batas={batas}>
+              {s("mengajar.sedia.batas")} <span className="pin-num">{format.percent(batas / 100, locale)}</span>
+            </p>
+          ) : null}
           <ol className="pin-terima">
             {alat.map((a, i) => (
               <li key={`${a.mode}-${i}`}>
@@ -200,7 +213,7 @@ export default async function Siapkan({
               <div>
                 <dt><label htmlFor="pin-mulai">{s("mengajar.siap.mulai")}</label></dt>
                 <dd>
-                  <input className="pin-input" id="pin-mulai" type="date" name="mulai" defaultValue={hariIni()} />
+                  <input className="pin-input" id="pin-mulai" type="date" name="mulai" defaultValue={hariIniSekolah()} />
                 </dd>
               </div>
               <div>
@@ -231,10 +244,12 @@ export default async function Siapkan({
                 </b>{" "}
                 {s("mengajar.siap.akibat.2")} {s("mengajar.siap.akibat.3")}
               </p>
+              {/* DAISY-18: a refused "Sediakan" answers at the button that sent it */}
+              {tolakan}
               <div className="pin-actions">
-                <button type="submit" className="pin-btn pin-primary">
+                <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.menyediakan")}>
                   {s("mengajar.siap.komit")} {dipilih.kursus} {s("mengajar.untuk")} {ctx.ini.nama}
-                </button>
+                </TombolKirim>
                 <Link className="pin-btn" href={`/mengajar/${id}/siapkan`}>
                   {s("mengajar.siap.kembali")}
                 </Link>

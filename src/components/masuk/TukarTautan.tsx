@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { tukarKode } from "@/app/auth/callback/actions";
+import { sesudahTukar } from "@/lib/tukar-kontrak";
 import { useSiap } from "./siap";
 
 /**
@@ -44,9 +45,18 @@ export default function TukarTautan({
   useEffect(() => {
     if (kode === null || sudah.current) return;
     sudah.current = true;
-    // On success the action redirects and this component goes away with the
-    // page; the only thing that returns is a refusal.
-    void tukarKode(kode, lanjut).then(() => setMati(true)).catch(() => setMati(true));
+    // BOB-38: success is an answer, not a redirect (a redirect from a server
+    // action rejects this promise, which is how every successful sign-in used
+    // to reach S14). On success S13 stays up while the page leaves for the
+    // destination, replacing the used callback in history; a refusal, or a
+    // request that never came back, is S14.
+    void tukarKode(kode, lanjut)
+      .then((hasil) => {
+        const lanjutan = sesudahTukar(hasil);
+        if ("pergi" in lanjutan) window.location.replace(lanjutan.pergi);
+        else setMati(true);
+      })
+      .catch(() => setMati(true));
   }, [kode, lanjut]);
 
   useEffect(() => {

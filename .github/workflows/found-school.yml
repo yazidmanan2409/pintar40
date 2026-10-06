@@ -1,0 +1,85 @@
+# D-084 C1, D-085 M1 (J1.1): A SCHOOL IS FOUNDED BY ONE VERSIONED, AUDITED STEP.
+#
+# The only caller of public.operator_found_school (migration 20261108100000), which makes the minimum foundation:
+# the school, its root place and its current school year, audited as school.founded with this run's reference.
+# After it the product takes over: the platform admin adds the school's first administrator in the app.
+#
+# Dispatch only, with the school's details as inputs. STAGING ONLY: staging's database URL is checked to name
+# staging's project and never production's. A school's birth on production is a product decision Yazid approves
+# (M1), and this workflow has no production target.
+#
+# NEVER: hand-written SQL beyond the one call; an input spliced into SQL (each is a psql variable); any other write.
+
+name: operator · found a school (C1, staging)
+
+on:
+  workflow_dispatch:
+    inputs:
+      nama:
+        description: "The school's name (3 to 120 characters)"
+        required: true
+      slug:
+        description: "Its slug: lower-case letters, digits and hyphens"
+        required: true
+      tahun:
+        description: "Its current school year, e.g. 2026/2027"
+        required: true
+        default: "2026/2027"
+      mulai:
+        description: "The school year's first day (YYYY-MM-DD)"
+        required: true
+        default: "2026-07-13"
+      selesai:
+        description: "The school year's last day (YYYY-MM-DD)"
+        required: true
+        default: "2027-06-30"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+
+jobs:
+  found:
+    name: the school's foundation, on staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Staging's database, checked (never printed)
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          [ "$STAGING_SUPABASE_PROJECT_REF" != "$PRODUCTION_SUPABASE_PROJECT_REF" ]
+          case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_SUPABASE_PROJECT_REF"*) echo "::error::the database URL names production"; exit 1;; esac
+          case "$STAGING_SUPABASE_DB_URL" in *"$STAGING_SUPABASE_PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::the database URL does not name staging's project"; exit 1;; esac
+      - name: The founding (one call; the inputs are psql variables)
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          NAMA: ${{ inputs.nama }}
+          SLUG: ${{ inputs.slug }}
+          TAHUN: ${{ inputs.tahun }}
+          MULAI: ${{ inputs.mulai }}
+          SELESAI: ${{ inputs.selesai }}
+          RUJUKAN: "found-school.yml run ${{ github.run_id }} by ${{ github.actor }}"
+        run: |
+          set -euo pipefail
+          id=$(psql "$STAGING_SUPABASE_DB_URL" -qAt -v ON_ERROR_STOP=1 \
+            -v nama="$NAMA" -v slug="$SLUG" -v tahun="$TAHUN" -v mulai="$MULAI" -v selesai="$SELESAI" -v rujukan="$RUJUKAN" <<'SQL'
+          select public.operator_found_school(:'nama', :'slug', :'tahun', :'mulai'::date, :'selesai'::date, :'rujukan');
+          SQL
+          )
+          echo "founded: $id"
+          {
+            echo "### A school founded on staging (C1)"
+            echo "- school: $NAMA ($SLUG), id \`$id\`"
+            echo "- school year: $TAHUN, $MULAI to $SELESAI"
+            echo "- audited as school.founded with: $RUJUKAN"
+            echo "- next, in the app: the platform admin adds the school's first administrator"
+          } >> "$GITHUB_STEP_SUMMARY"

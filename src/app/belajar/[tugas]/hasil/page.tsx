@@ -6,6 +6,9 @@ import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import PerTujuan from "@/components/siklus/PerTujuan";
+import { TeksBaris } from "@/components/teks/Teks";
+import { bagianUlang, ketuntasan } from "@/lib/siklus";
 
 export const dynamic = "force-dynamic";
 
@@ -35,13 +38,22 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
   const state = await engine.cycleState(db, tugas);
   if (!state.post_session || state.post_status !== "FINALIZED") notFound();
 
-  const [outcome, review, delta, mine] = await Promise.all([
+  const [outcome, review, delta, mine, peta, pelajaran] = await Promise.all([
     engine.outcome(db, state.post_session),
     engine.review(db, state.post_session),
     engine.delta(db, tugas),
     engine.myAssignments(db).then((a) => a.find((x) => x.learning_assignment_id === tugas)),
+    // UX-26: the objectives' names, from this learner's own session. Only
+    // names hang on it, so a failed read leaves the rows on their codes
+    // rather than the result unreadable.
+    engine.readingMap(db, state.post_session).catch(() => []),
+    // M3: the chapter's lessons, so a part below the target links to the lesson to read again
+    engine.lessons(db, tugas).catch(() => []),
   ]);
   if (!outcome) notFound();
+  // D-085 M3 (W4): finishing is not mastering. The verdict is the session's own, from the mark sealed on it (D-088(b)).
+  const target = ketuntasan(outcome);
+  const ulang = target === "BELUM" ? bagianUlang(outcome.per_domain, outcome.ambang, peta, pelajaran) : [];
 
   const pct = outcome.penguasaan == null ? null : outcome.penguasaan;
   const gate = outcome.gerbang_keselamatan;
@@ -72,9 +84,37 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
             {format.number(review.length, locale)} {s("siklus.soal")}.
             {outcome.ambang != null
               ? ` ${s("siklus.ambang")} ${format.percent(outcome.ambang, locale)}.`
-              : ""}
+              // D-088(b): a result judged against a mark sets one; with none sealed PINTAR says so and assumes nothing
+              : outcome.diagnostik === false ? ` ${s("siklus.ambang_belum")}` : ""}
           </p>
         </section>
+
+        {/* M3: whether the target was met, said plainly; below it, what to read again. */}
+        {target === "TERCAPAI" ? (
+          <div className="pin-banner pin-ok pin-target" role="status" data-target="tercapai">
+            <p><strong>{s("hasil.target.tercapai")}</strong> {s("hasil.target.tercapai_arti")}</p>
+          </div>
+        ) : target === "BELUM" ? (
+          <div className="pin-banner pin-attention pin-target" role="status" data-target="belum" id="ulang">
+            <p><strong>{s("hasil.target.belum")}</strong> {s("hasil.target.belum_arti")}</p>
+            {ulang.length > 0 ? (
+              <>
+                <p className="pin-ulang-judul">{s("hasil.target.ulang")}</p>
+                <ul className="pin-ulang">
+                  {ulang.map((u) => (
+                    <li key={u.kode}>
+                      {u.lessonId ? (
+                        <Link href={`/belajar/${tugas}/pelajaran/${u.lessonId}`}>{u.pelajaran}</Link>
+                      ) : null}
+                      {u.lessonId ? " · " : ""}<TeksBaris teks={u.nama} />
+                      {" · "}<span className="pin-num">{format.percent(u.penguasaan, locale)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+          </div>
+        ) : null}
 
         {/* The feedback on the safety gate, when there is one. */}
         {gate != null ? (
@@ -83,22 +123,9 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
           </div>
         ) : null}
 
-        {/* The observation: how it went, section by section. */}
-        {Object.keys(outcome.per_domain ?? {}).length > 0 ? (
-          <section className="pin-sec">
-            <h2>{s("hasil.domain")}</h2>
-            <div className="pin-domain">
-              {Object.entries(outcome.per_domain ?? {}).map(([code, d]) => (
-                <div className="pin-drow" key={code}>
-                  <span>{code}</span>
-                  <span className="pin-cnt pin-num">
-                    {format.number(d.benar, locale)}/{format.number(d.total, locale)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null}
+        {/* The observation: how it went, objective by objective, each by its
+            name (UX-26). */}
+        <PerTujuan perDomain={outcome.per_domain} peta={peta} locale={locale} />
 
         {/* The evidence: the items themselves. A wrong safety-critical item is
             pinned open — it is the one thing on this page a learner must not
@@ -114,21 +141,21 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
               >
                 <summary className="pin-ihead">
                   <span className="pin-pos">{format.number(r.posisi, locale)}</span>
-                  <span className="pin-q">{r.stem}</span>
+                  <span className="pin-q"><TeksBaris teks={r.stem} /></span>
                   <span className={`pin-pill ${r.benar ? "pin-ok" : "pin-neutral"}`}>
                     {r.benar ? s("hasil.answer_right") : s("hasil.answer_notyet")}
                   </span>
                 </summary>
                 {r.jawaban_teks ? (
                   <span className="pin-mine">
-                    {s("hasil.answer_yours")}: {r.jawaban_teks}
+                    {s("hasil.answer_yours")}: <TeksBaris teks={r.jawaban_teks} />
                   </span>
                 ) : null}
                 {r.alasan || r.arah ? (
                   <span className="pin-why">
-                    {r.alasan}
+                    <TeksBaris teks={r.alasan} />
                     {r.alasan && r.arah ? " " : ""}
-                    {r.arah}
+                    <TeksBaris teks={r.arah} />
                   </span>
                 ) : null}
               </details>

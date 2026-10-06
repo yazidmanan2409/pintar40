@@ -1,0 +1,5 @@
+# The assistance check and the offline notice, in a real browser (owner, 3 Oct)
+# 3 Oct, first walk, staging on 18da25b (run 37094556110: 8 PASS; B5 red on the walk's counting window; B7 red: the held answer is not resent when the recovery check clears the notice)
+# 3 Oct, second walk (run 37095049799: 9 PASS, 1 NOTE: the held answer not resent on probe-found recovery; item 17)
+# 3 Oct, third walk: after D-096, staging on cfe1b7a (run 37096773688: 9 PASS; B5 red on the walk: one help check's answer not read)
+# 3 Oct, fourth walk: help checks also known by their action id

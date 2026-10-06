@@ -6,7 +6,8 @@ import { actionText, omissionText } from "../../../_intel";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
-import { AngkaBerdiri, BarisKesiapan, BarisLingkup, KartuKetiadaan } from "@/components/bukti";
+import { AngkaBerdiri, BarisKesiapan, BarisLingkup, KartuKetiadaan, KeadaanHariIni } from "@/components/bukti";
+import { nilaiMetrik, urutkanPita } from "@/lib/nilai-metrik";
 
 export const dynamic = "force-dynamic";
 
@@ -59,15 +60,6 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
     ajar.minimumMetrik(),
   ]);
 
-  // The assessment the class is closest to finishing: the one still open with
-  // the nearest close, else the one that closed most recently.
-  const urut = [...asesmen].sort((a, b) => {
-    if (a.keadaan !== b.keadaan) return a.keadaan === "OPEN" ? -1 : 1;
-    return String(a.ditutup ?? "").localeCompare(String(b.ditutup ?? "")) * (a.keadaan === "OPEN" ? 1 : -1);
-  });
-  const fokus = urut[0] ?? null;
-  const belum = fokus ? Math.max(0, fakta.murid.length - fokus.mengumpulkan) : 0;
-
   const byId = new Map(ajar.METRIK_KELAS.map((m, i) => [m, amplop[i]]));
   const paham = byId.get("class.comprehension");
   const naik = byId.get("class.net_gain");
@@ -97,14 +89,15 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
 
   const sebaran =
     siap && siap.status === "ok" && siap.value && typeof siap.value === "object"
-      ? Object.entries(siap.value as Record<string, number>)
+      ? urutkanPita(Object.entries(siap.value as Record<string, number>)) // D-095: band order, not key order
       : [];
   const totalSiap = sebaran.reduce((n, [, c]) => n + Number(c), 0);
 
-  const bagian =
-    topik && topik.status === "ok" && topik.value && typeof topik.value === "object"
-      ? Object.entries(topik.value as Record<string, number>).sort((a, b) => Number(a[1]) - Number(b[1]))
-      : [];
+  // D-088(g), MC-4: one row per objective, named by its statement (what was learned), never by a code that two
+  // chapters share; the evaluator's own order (lowest mastery first) is kept
+  type Bagian = { objective_id: string | null; code: string; competency: string; mean_score: number; learners: number };
+  const bagian: Bagian[] =
+    topik && topik.status === "ok" && Array.isArray(topik.value) ? (topik.value as Bagian[]) : [];
 
   type Keliru = { code: string; label: string; remediation: string | null; occurrences: number };
   const salahPaham =
@@ -134,39 +127,17 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
 
         <div className="pin-sec">
           <h2>{s("mengajar.bukti.keadaan")}</h2>
-          {!fokus ? (
-            <p className="pin-empty">{s("mengajar.bukti.kosong")}</p>
-          ) : (
-            <dl className="pin-facts">
-              <div>
-                <dt>{s("mengajar.bukti.kumpul")}</dt>
-                <dd className="pin-num">
-                  {format.number(fokus.mengumpulkan, locale)} / {format.number(fakta.murid.length, locale)}
-                  <small>{fokus.judul}</small>
-                </dd>
-              </div>
-              <div>
-                <dt>{s("mengajar.bukti.jendela")}</dt>
-                <dd>{fokus.ditutup ? format.date(fokus.ditutup, locale) : "—"}</dd>
-              </div>
-              <div>
-                <dt>{s("mengajar.bukti.belum")}</dt>
-                <dd className="pin-num">
-                  {format.number(belum, locale)}
-                  <small>{s("mengajar.bukti.murid")}</small>
-                </dd>
-              </div>
-            </dl>
-          )}
+          {/* DAISY-26 (UX-06): every open test of the class, each with its own
+              counts, rather than one "focus" test standing for all of them. */}
+          <KeadaanHariIni asesmen={asesmen} murid={fakta.murid.length} locale={locale} kelas={id} jenis={ctx.ini.jenis} />
         </div>
 
         <div className="pin-sec">
           <h2>{s("mengajar.bukti.simpulan")}</h2>
           <div className="pin-grid2">
-            {angka(paham, "class.comprehension", (v) => format.percent(v, locale))}
-            {angka(naik, "class.net_gain", (v) =>
-              `${v > 0 ? "+" : ""}${format.number(Math.round(v * 100), locale)} ${s("mengajar.bukti.poin")}`,
-            )}
+            {/* W9: the same reading as /pimpinan's, from one rule */}
+            {angka(paham, "class.comprehension", (v) => nilaiMetrik("class.comprehension", v, locale))}
+            {angka(naik, "class.net_gain", (v) => nilaiMetrik("class.net_gain", v, locale))}
           </div>
 
           {/* Mastery by part: an ORDER, not a verdict. The evaluator returns a
@@ -177,11 +148,11 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
             <div className="pin-metric">
               <span className="pin-ml">{s("mengajar.bukti.bagian")}</span>
               <div className="pin-readiness">
-                {bagian.map(([nama, nilai]) => (
+                {bagian.map((b) => (
                   <BarisKesiapan
-                    key={nama}
-                    tierKey={nama}
-                    count={Math.round(Number(nilai) * 100)}
+                    key={b.objective_id ?? b.code}
+                    label={b.competency}
+                    count={Math.round(Number(b.mean_score) * 100)}
                     total={100}
                     locale={locale}
                   />
@@ -223,12 +194,13 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
           {siap && siap.status === "ok" && sebaran.length > 0 ? (
             <div className="pin-metric">
               <span className="pin-ml">{siap.label_key ? t(siap.label_key as HleEvent, "educator", { locale }) : ""}</span>
-              <span className="pin-ms">{s("mengajar.murid.sub")}</span>
               <div className="pin-readiness">
                 {sebaran.map(([tier, n]) => (
                   <BarisKesiapan key={tier} tierKey={tier} count={Number(n)} total={totalSiap} locale={locale} />
                 ))}
               </div>
+              {/* D-095: PINTAR's fixed bands, not the school's mastery threshold; they decide no certificate */}
+              <span className="pin-mm">{s("kesiapan.catatan")}</span>
               <span className="pin-ma">{actionText(siap, locale)}</span>
             </div>
           ) : siap ? (

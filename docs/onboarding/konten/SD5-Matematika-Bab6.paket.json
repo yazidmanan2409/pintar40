@@ -1,0 +1,1702 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Matematika Kelas 5 · Bab 6: Sudut",
+   "subject": "Matematika",
+   "stage": "SD",
+   "grade_label": "Kelas 5",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Sudut",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Sudut Siku-Siku",
+       "summary": "Sudut siku-siku seperti pojok bingkai atau pojok buku; kita dapat memeriksanya dengan kertas yang dilipat.",
+       "body_markdown": "## Pojok bingkai\n\nPerhatikan pojok bingkai foto, pojok buku, atau pojok jendela. Pojok-pojok itu membentuk **sudut siku-siku**.\n\nTukang kayu memakai **penggaris siku-siku** untuk memastikan pojok bingkai yang dibuatnya benar-benar siku-siku.\n\n## Membuat alat pemeriksa\n\nKalian dapat membuat alat seperti penggaris siku-siku dari selembar kertas bekas:\n\n1. Lipat kertas menjadi dua.\n2. Lipat sekali lagi sehingga garis lipatan pertama bertemu dengan dirinya sendiri.\n3. Pojok yang terbentuk di tengah lipatan adalah sudut siku-siku.\n\nUntuk memeriksa sebuah pojok, tempelkan pojok kertas itu. Satu sisi kertas harus **berimpit** tepat dengan satu tepi benda.\n\n- Bila tepi yang lain juga berimpit, pojok itu siku-siku.\n- Bila tepi yang lain masuk ke dalam kertas, sudutnya lebih kecil dari siku-siku.\n- Bila tepi yang lain berada di luar kertas, sudutnya lebih besar dari siku-siku.\n\n## Posisinya boleh apa saja\n\nSudut siku-siku tidak harus mempunyai satu sisi yang mendatar. Pojok buku yang diletakkan miring di atas meja tetap siku-siku. Pojok ubin yang dilihat dari samping juga tetap siku-siku.\n\nYang menentukan hanyalah besar bukaannya, bukan arahnya.\n\n**Coba:** berapa sudut siku-siku pada sebuah persegi panjang?\n_Periksa: 4, satu di setiap pojok._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
+       "objective": {
+        "statement": "Kalian dapat menemukan sudut siku-siku di sekitarnya dan memeriksanya dengan alat sederhana.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pojok manakah yang membentuk sudut siku-siku?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "Ujung gunting yang terbuka sedikit",
+           "is_correct": false,
+           "rationale": "Gunting yang terbuka sedikit membentuk sudut yang lebih kecil dari siku-siku, yaitu lancip."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "Pojok halaman buku",
+           "is_correct": true,
+           "rationale": "Benar. Pojok buku seperti pojok bingkai: siku-siku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "Kipas yang terbuka lebar",
+           "is_correct": false,
+           "rationale": "Kipas yang terbuka lebar membentuk sudut yang lebih besar dari siku-siku, yaitu tumpul."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "Pojok kotak pensil yang membulat",
+           "is_correct": false,
+           "rationale": "Pojok yang membulat tidak mempunyai dua kaki lurus yang bertemu di satu titik, jadi bukan sudut."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah buku diletakkan miring di atas meja. Pojok buku itu membentuk sudut ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "lancip, karena bukunya miring",
+           "is_correct": false,
+           "rationale": "Memiringkan buku tidak mengubah besar pojoknya. Arah tidak menentukan jenis sudut."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "tumpul, karena bukunya miring",
+           "is_correct": false,
+           "rationale": "Memiringkan buku tidak mengubah besar pojoknya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "siku-siku",
+           "is_correct": true,
+           "rationale": "Benar. Pojok buku tetap siku-siku walaupun bukunya miring."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "bukan sudut, karena tidak ada sisi yang mendatar",
+           "is_correct": false,
+           "rationale": "Sudut tidak harus mempunyai kaki yang mendatar. Pojok buku tetap mempunyai dua kaki lurus dan titik sudut."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bangun manakah yang dapat mempunyai tepat 2 sudut yang besarnya 90°?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "Trapesium siku-siku",
+           "is_correct": true,
+           "rationale": "Benar. Trapesium siku-siku yang sisi sejajarnya hanya sepasang mempunyai tepat 2 sudut 90°, di kedua ujung sisi tegaknya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "Persegi panjang",
+           "is_correct": false,
+           "rationale": "Persegi panjang mempunyai 4 sudut siku-siku, satu di setiap pojok."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "Segitiga sama sisi",
+           "is_correct": false,
+           "rationale": "Semua sudut segitiga sama sisi lancip; tidak ada yang siku-siku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "Jajargenjang yang miring",
+           "is_correct": false,
+           "rationale": "Sisi jajargenjang yang miring membentuk dua sudut lancip dan dua sudut tumpul, tidak ada yang siku-siku."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Pengertian dan Jenis Sudut",
+       "summary": "Sudut dibentuk oleh dua kaki sudut yang bertemu di satu titik sudut; sudut lancip lebih kecil dan sudut tumpul lebih besar dari sudut siku-siku.",
+       "body_markdown": "## Bagian-bagian sudut\n\nSebuah **sudut** dibentuk oleh dua garis lurus yang bertemu di satu titik.\n\n- Kedua garis lurus itu disebut **kaki sudut**.\n- Titik tempat keduanya bertemu disebut **titik sudut**.\n\nPojok meja yang tajam adalah sudut: ada dua tepi lurus yang bertemu di satu titik.\n\n## Pojok yang bukan sudut\n\nPojok kotak pensil yang **membulat** bukan sudut. Di situ tidak ada dua garis lurus yang bertemu tepat di satu titik; tepinya melengkung.\n\nJadi tidak semua pojok adalah sudut. Periksa dahulu: adakah dua kaki lurus dan satu titik sudut?\n\n## Lancip, siku-siku, tumpul\n\nBandingkan sebuah sudut dengan sudut siku-siku:\n\n| Jenis | Dibandingkan dengan sudut siku-siku | Contoh |\n|---|---|---|\n| Sudut lancip | lebih kecil | gunting yang terbuka sedikit |\n| Sudut siku-siku | sama | pojok jendela |\n| Sudut tumpul | lebih besar | kipas yang terbuka lebar |\n\n## Sudut pada jarum jam\n\nJarum pendek dan jarum panjang jam juga membentuk sudut. Titik sudutnya adalah poros di tengah jam.\n\n- Pukul 03.00: siku-siku.\n- Pukul 11.00: lebih kecil dari siku-siku, jadi **lancip**.\n- Pukul 08.00: lebih besar dari siku-siku, jadi **tumpul**.\n\n**Coba:** pukul 01.00 membentuk sudut apa?\n_Periksa: lancip, lebih kecil dari pukul 03.00._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
+       "objective": {
+        "statement": "Kalian dapat menyebutkan bagian-bagian sudut dan mengelompokkan sudut menjadi lancip, siku-siku, dan tumpul.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sudut yang lebih kecil dari sudut siku-siku disebut sudut ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "tumpul",
+           "is_correct": false,
+           "rationale": "Sudut tumpul justru lebih besar dari sudut siku-siku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "lurus",
+           "is_correct": false,
+           "rationale": "Sudut lurus besarnya 180°, dua kali sudut siku-siku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "refleks",
+           "is_correct": false,
+           "rationale": "Sudut refleks lebih besar dari sudut lurus, jauh lebih besar dari siku-siku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "lancip",
+           "is_correct": true,
+           "rationale": "Benar. Sudut lancip lebih kecil dari sudut siku-siku."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pojok manakah yang merupakan sudut?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "Pojok kotak pensil yang membulat",
+           "is_correct": false,
+           "rationale": "Tepinya melengkung; tidak ada dua kaki lurus yang bertemu di satu titik."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "Tepi piring yang melengkung",
+           "is_correct": false,
+           "rationale": "Tepi piring melengkung, tidak ada kaki lurus maupun titik sudut."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "Ujung penghapus yang membulat",
+           "is_correct": false,
+           "rationale": "Ujung yang membulat tidak mempunyai titik sudut."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "Pojok meja persegi yang tajam",
+           "is_correct": true,
+           "rationale": "Benar. Dua tepi lurus meja bertemu di satu titik."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada pukul 05.00, jarum jam membentuk sudut ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "lancip",
+           "is_correct": false,
+           "rationale": "Dari angka 12 ke angka 5 lebih jauh daripada ke angka 3, jadi sudutnya lebih besar dari siku-siku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "tumpul",
+           "is_correct": true,
+           "rationale": "Benar. Sudutnya lebih besar dari pukul 03.00 (siku-siku), yaitu 150°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "siku-siku",
+           "is_correct": false,
+           "rationale": "Siku-siku terbentuk pukul 03.00 atau 09.00. Pukul 05.00 lebih lebar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "lurus",
+           "is_correct": false,
+           "rationale": "Sudut lurus terbentuk pukul 06.00, saat kedua jarum berseberangan."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Mengukur Sudut dengan Busur Derajat",
+       "summary": "Besar sudut diukur dalam derajat dengan busur derajat; yang dibaca adalah skala yang dimulai dari 0 pada salah satu kaki sudut.",
+       "body_markdown": "## Satuan derajat\n\nBesar sudut diukur dalam **derajat**, ditulis dengan tanda °.\n\n- Satu putaran penuh besarnya **360°**.\n- Setengah putaran (sudut lurus) besarnya **180°**.\n- Seperempat putaran (sudut siku-siku) besarnya **90°**.\n\nAlat untuk mengukurnya disebut **busur derajat**. Busur berbentuk setengah lingkaran, dengan angka 0 sampai 180.\n\n## Langkah mengukur\n\n1. Letakkan **titik pusat** busur tepat di titik sudut.\n2. Impitkan **garis dasar** busur dengan salah satu kaki sudut.\n3. Lihat skala yang angka **0**-nya ada di kaki itu.\n4. Ikuti skala itu sampai kaki sudut yang lain, lalu baca angkanya.\n\n## Dua skala\n\nBusur mempunyai dua deret angka: skala dalam dan skala luar. Keduanya berjalan berlawanan arah. Di tempat skala dalam menunjukkan 50, skala luar menunjukkan 130, karena 50 + 130 = 180.\n\nMana yang dibaca? Yang **0-nya berada di kaki pertama**. Bila kaki pertama ada di angka 0 skala dalam dan kaki kedua melewati 50 (dalam) dan 130 (luar), sudutnya **50°**.\n\nPeriksa dengan jenisnya: sudut itu tampak lebih kecil dari siku-siku, jadi lancip, dan 50° memang lancip. Bila kalian membaca 130°, itu tumpul, tidak cocok.\n\n## Posisi busur\n\nBusur tidak harus selalu mendatar. Putar busurnya mengikuti arah kaki sudut, sampai garis dasarnya berimpit dengan salah satu kaki.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
+       "objective": {
+        "statement": "Kalian dapat mengukur besar sudut dengan busur derajat dan membaca skalanya dengan tepat.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah sudut diukur dengan busur. Kaki pertama berimpit dengan garis dasar di angka 0 pada skala dalam. Kaki kedua melewati angka 65 pada skala dalam dan 115 pada skala luar. Berapa besar sudut itu?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "115°",
+           "is_correct": false,
+           "rationale": "Ini dibaca pada skala luar, yang 0-nya tidak berada di kaki pertama. 115° = 180° − 65°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "295°",
+           "is_correct": false,
+           "rationale": "Ini sudut refleks di baliknya (360° − 65°). Busur mengukur bagian yang kecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "25°",
+           "is_correct": false,
+           "rationale": "65° dikurangkan dari 90°. Besar sudut dibaca langsung pada skala yang 0-nya di kaki pertama."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "65°",
+           "is_correct": true,
+           "rationale": "Benar. Angka 0 skala dalam ada di kaki pertama, jadi yang dibaca skala dalam: 65°."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kaki pertama sebuah sudut berimpit dengan garis dasar busur di angka 0 pada skala luar. Kaki kedua melewati angka 40 pada skala dalam dan 140 pada skala luar. Berapa besar sudutnya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "140°",
+           "is_correct": true,
+           "rationale": "Benar. Angka 0 skala luar ada di kaki pertama, jadi dibaca pada skala luar: 140°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "40°",
+           "is_correct": false,
+           "rationale": "Ini dibaca pada skala dalam, yang 0-nya tidak di kaki pertama."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "220°",
+           "is_correct": false,
+           "rationale": "Ini refleks dari 140°. Busur mengukur sudut hingga 180°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "320°",
+           "is_correct": false,
+           "rationale": "Ini refleks dari 40°, dan 40° pun dibaca pada skala yang lain."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Langkah pertama mengukur sudut dengan busur derajat adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "meletakkan angka 90 busur di salah satu kaki",
+           "is_correct": false,
+           "rationale": "Yang diimpitkan dengan kaki adalah garis dasar (angka 0), bukan angka 90."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "mengukur panjang kedua kaki sudut dengan penggaris",
+           "is_correct": false,
+           "rationale": "Panjang kaki tidak diperlukan; besar sudut tidak bergantung padanya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "meletakkan titik pusat busur tepat di titik sudut",
+           "is_correct": true,
+           "rationale": "Benar. Titik pusat busur harus berada di titik sudut, baru garis dasarnya diimpitkan dengan satu kaki."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "memutar gambar sampai satu kaki mendatar",
+           "is_correct": false,
+           "rationale": "Busurnya yang diputar mengikuti kaki sudut; gambarnya tidak perlu diputar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Satu putaran penuh besarnya ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "180°",
+           "is_correct": false,
+           "rationale": "180° adalah setengah putaran (sudut lurus)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "90°",
+           "is_correct": false,
+           "rationale": "90° adalah seperempat putaran (sudut siku-siku)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "100°",
+           "is_correct": false,
+           "rationale": "Derajat bukan persen; satu putaran penuh dibagi menjadi 360 derajat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "360°",
+           "is_correct": true,
+           "rationale": "Benar. Satu putaran penuh 360°."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Jenis Sudut Menurut Besarnya dan Membandingkan Sudut",
+       "summary": "Sudut dikelompokkan menurut besarnya dalam derajat; besar sudut ditentukan oleh bukaannya, bukan oleh panjang kakinya.",
+       "body_markdown": "## Jenis sudut menurut besarnya\n\n| Jenis | Besar |\n|---|---|\n| Sudut nol | 0° |\n| Sudut lancip | lebih dari 0° dan kurang dari 90° |\n| Sudut siku-siku | tepat 90° |\n| Sudut tumpul | lebih dari 90° dan kurang dari 180° |\n| Sudut lurus | tepat 180° |\n| Sudut refleks | lebih dari 180° dan kurang dari 360° |\n| Satu putaran | 360° |\n\nPerhatikan batasnya: 90° adalah siku-siku, bukan lancip dan bukan tumpul. 180° adalah sudut lurus, bukan tumpul.\n\n## Sudut refleks\n\nDua kaki sudut selalu membentuk dua sudut: bagian yang kecil dan bagian yang besar di baliknya. Keduanya bersama-sama membentuk satu putaran, 360°.\n\nBila bagian yang kecil 120°, bagian yang besar adalah 360° − 120° = **240°**. Sudut 240° disebut sudut **refleks**.\n\nBusur hanya sampai 180°, jadi sudut refleks dihitung dengan mengurangkan dari 360°.\n\n## Membandingkan sudut\n\nTari pakarena dari Sulawesi Selatan memakai kipas. Kipas yang terbuka paling lebar adalah kipas yang **sudutnya paling besar**.\n\nPanjang bilah kipas tidak menentukan besar sudut. Kipas kecil yang dibuka 120° lebih lebar bukaannya daripada kipas besar yang dibuka 90°.\n\nBegitu juga dua sudut yang sama besar, misalnya 40°, tetap sama besar walaupun kaki yang satu 10 cm dan yang lain 3 cm. Jarak antara ujung-ujung kakinya memang berbeda, tetapi bukaannya sama.\n\n## Mengurutkan\n\nUrutkan 95°, 180°, 45°, dan 270° dari yang terkecil: **45°; 95°; 180°; 270°**. Lancip, tumpul, lurus, lalu refleks.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
+       "objective": {
+        "statement": "Kalian dapat menentukan jenis sudut dari besarnya, menghitung sudut refleks, dan membandingkan besar sudut.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sudut A mempunyai kaki sepanjang 10 cm dan sudut B kaki sepanjang 3 cm. Keduanya dibuka tepat sebesar sudut siku-siku. Manakah yang lebih besar?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "Sudut A, karena kakinya lebih panjang",
+           "is_correct": false,
+           "rationale": "Kaki yang panjang membuat ujungnya lebih berjauhan, tetapi bukaannya tetap sama."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "Sudut B, karena kakinya lebih pendek",
+           "is_correct": false,
+           "rationale": "Kaki yang pendek tidak membuat bukaan lebih kecil atau lebih besar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "Sama besar",
+           "is_correct": true,
+           "rationale": "Benar. Keduanya dibuka sebesar sudut siku-siku; panjang kaki tidak memengaruhi besar sudut."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "Tidak dapat dibandingkan",
+           "is_correct": false,
+           "rationale": "Besar sudut dapat dibandingkan dari bukaannya, walaupun panjang kakinya berbeda."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sudut yang besarnya 118° termasuk sudut ...",
+         "use": "POST_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "lancip",
+           "is_correct": false,
+           "rationale": "Sudut lancip kurang dari 90°. 118° lebih dari 90°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "tumpul",
+           "is_correct": true,
+           "rationale": "Benar. 118° lebih dari 90° dan kurang dari 180°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "refleks",
+           "is_correct": false,
+           "rationale": "Sudut refleks lebih dari 180°. 118° masih kurang dari 180°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "lurus",
+           "is_correct": false,
+           "rationale": "Sudut lurus tepat 180°. 118° kurang dari itu."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua kaki sudut membentuk sudut lancip 70°. Berapa besar sudut refleks di baliknya?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "110°",
+           "is_correct": false,
+           "rationale": "70° dikurangkan dari 180°. Sudut dan refleksnya bersama membentuk satu putaran, 360°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "290°",
+           "is_correct": true,
+           "rationale": "Benar. Keduanya bersama membentuk satu putaran: 360° − 70° = 290°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "250°",
+           "is_correct": false,
+           "rationale": "70° ditambahkan ke 180°. Sudut refleks didapat dari 360° − 70°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "20°",
+           "is_correct": false,
+           "rationale": "70° dikurangkan dari 90°. Sudut refleks lebih dari 180°."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sudut P besarnya 70° dengan kaki sepanjang 2 cm. Sudut Q besarnya 65° dengan kaki sepanjang 8 cm. Pernyataan manakah yang tepat?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "P lebih besar 5° daripada Q",
+           "is_correct": true,
+           "rationale": "Benar. 70° − 65° = 5°. Panjang kaki tidak memengaruhi besar sudut."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "Q lebih besar karena kakinya lebih panjang",
+           "is_correct": false,
+           "rationale": "Kaki yang panjang tidak membuat sudut lebih besar. Yang dibandingkan besar bukaannya: 70° dan 65°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "Sama besar karena keduanya lancip",
+           "is_correct": false,
+           "rationale": "Keduanya memang lancip, tetapi besarnya berbeda: 70° dan 65°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "Tidak dapat dibandingkan karena kakinya berbeda",
+           "is_correct": false,
+           "rationale": "Sudut dapat dibandingkan dari besarnya walaupun panjang kakinya berbeda."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah sudut besarnya 135°. Berapa besar sudut refleks di baliknya?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "45°",
+           "is_correct": false,
+           "rationale": "135° dikurangkan dari 180°. Sudut dan refleksnya bersama 360°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "225°",
+           "is_correct": true,
+           "rationale": "Benar. 360° − 135° = 225°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "135°",
+           "is_correct": false,
+           "rationale": "Ini sudut yang diketahui, bukan refleksnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "495°",
+           "is_correct": false,
+           "rationale": "135° ditambahkan ke 360°. Refleks didapat dengan mengurangkan dari 360°."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 22
+         },
+         "ref": "LT9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sudut yang besarnya tepat 180° disebut sudut ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 82
+           },
+           "label": "A",
+           "body": "tumpul",
+           "is_correct": false,
+           "rationale": "Sudut tumpul kurang dari 180°. Tepat 180° adalah sudut lurus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 83
+           },
+           "label": "B",
+           "body": "refleks",
+           "is_correct": false,
+           "rationale": "Sudut refleks lebih dari 180°. Tepat 180° adalah sudut lurus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 84
+           },
+           "label": "C",
+           "body": "lurus",
+           "is_correct": true,
+           "rationale": "Benar. Kedua kakinya membentuk satu garis lurus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 85
+           },
+           "label": "D",
+           "body": "satu putaran",
+           "is_correct": false,
+           "rationale": "Satu putaran 360°. 180° baru setengah putaran."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 23
+         },
+         "ref": "LT10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Urutan sudut 95°, 180°, 45°, dan 270° dari yang terkecil adalah ...",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 86
+           },
+           "label": "A",
+           "body": "45°; 95°; 180°; 270°",
+           "is_correct": true,
+           "rationale": "Benar. Lancip, tumpul, lurus, lalu refleks."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 87
+           },
+           "label": "B",
+           "body": "270°; 180°; 95°; 45°",
+           "is_correct": false,
+           "rationale": "Ini urutan dari yang terbesar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 88
+           },
+           "label": "C",
+           "body": "45°; 95°; 270°; 180°",
+           "is_correct": false,
+           "rationale": "Sudut refleks 270° dianggap lebih kecil dari sudut lurus. Refleks selalu lebih dari 180°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 89
+           },
+           "label": "D",
+           "body": "45°; 180°; 95°; 270°",
+           "is_correct": false,
+           "rationale": "Sudut lurus dianggap lebih kecil dari sudut tumpul. Tumpul selalu kurang dari 180°."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "Sudut pada Jam",
+       "summary": "Jarak antara dua angka yang berdekatan pada jam adalah 30°; jarum pendek ikut bergerak saat menit berjalan.",
+       "body_markdown": "## Setiap angka 30°\n\nAngka 1 sampai 12 pada jam membagi satu putaran penuh (360°) menjadi 12 bagian yang sama. Jadi dari satu angka ke angka berikutnya besarnya **360° : 12 = 30°**.\n\nPukul 04.00: jarum panjang di angka 12, jarum pendek di angka 4. Ada 4 langkah angka di antaranya: 4 × 30° = **120°**.\n\n## Sudut terkecil\n\nDari jarum yang satu ke jarum yang lain dapat dihitung ke dua arah. Yang biasa ditanyakan adalah **sudut terkecil**.\n\nPukul 10.00: dari angka 10 ke angka 12 ada 2 langkah, 2 × 30° = **60°**. Arah yang lain, 10 langkah, memberi 300°. Itu sudut refleksnya, bukan sudut terkecil.\n\n## Jarum pendek ikut bergerak\n\nPada pukul 04.30, jarum panjang di angka 6. Jarum pendek **tidak** tepat di angka 4: setengah jam sudah lewat, jadi ia berada di tengah-tengah angka 4 dan 5.\n\n1. Dari angka 4 ke angka 6 ada 2 langkah: 60°.\n2. Jarum pendek sudah maju setengah langkah (15°) ke arah angka 6.\n3. Jadi sudutnya 60° − 15° = **45°**.\n\nBila jarum pendek dianggap tetap di angka 4, hasilnya 60°, terlalu besar.\n\n**Coba:** pukul 01.30.\n_Periksa: dari angka 1 ke 6 ada 5 langkah (150°), jarum pendek sudah maju 15° ke arah angka 6, jadi 150° − 15° = 135°._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
+       "objective": {
+        "statement": "Kalian dapat menghitung besar sudut yang dibentuk jarum jam pada waktu tertentu.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada pukul 09.00, jarum pendek dan jarum panjang jam membentuk sudut ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "siku-siku",
+           "is_correct": true,
+           "rationale": "Benar. Dari angka 9 ke angka 12 ada 3 langkah, 3 × 30° = 90°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "lancip, lebih kecil dari 90°",
+           "is_correct": false,
+           "rationale": "Sudutnya tepat seperempat putaran (90°), bukan lebih kecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "tumpul",
+           "is_correct": false,
+           "rationale": "Sudutnya tepat 90°, bukan lebih besar dari siku-siku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "lurus",
+           "is_correct": false,
+           "rationale": "Sudut lurus terbentuk bila kedua jarum berseberangan, misalnya pukul 06.00."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Berapa besar sudut terkecil yang dibentuk jarum jam pada pukul 02.00?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "120°",
+           "is_correct": false,
+           "rationale": "Setiap langkah angka dihitung 60°. Satu langkah angka jam 30° (360° : 12)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "30°",
+           "is_correct": false,
+           "rationale": "Hanya satu langkah yang dihitung. Dari angka 12 ke angka 2 ada 2 langkah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "60°",
+           "is_correct": true,
+           "rationale": "Benar. Dari angka 12 ke angka 2 ada 2 langkah, 2 × 30° = 60°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "300°",
+           "is_correct": false,
+           "rationale": "Ini sudut refleks, lewat arah yang panjang. Yang ditanyakan sudut terkecil."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Berapa besar sudut terkecil yang dibentuk jarum jam pada pukul 03.30?",
+         "petunjuk": "Ingat bahwa jarum pendek ikut bergerak selama setengah jam itu.",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "75°",
+           "is_correct": true,
+           "rationale": "Benar. Dari angka 3 ke angka 6 ada 90°, tetapi jarum pendek sudah maju 15° ke arah angka 4, jadi 90° − 15° = 75°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "90°",
+           "is_correct": false,
+           "rationale": "Jarum pendek dianggap tetap di angka 3. Setengah jam kemudian ia sudah di tengah angka 3 dan 4."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "285°",
+           "is_correct": false,
+           "rationale": "Ini sudut refleksnya. Yang ditanyakan sudut terkecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "105°",
+           "is_correct": false,
+           "rationale": "Ini sudut jarum pendek dari angka 12, bukan sudut di antara kedua jarum."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "LT11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Berapa besar sudut terkecil yang dibentuk jarum jam pada pukul 05.00?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "300°",
+           "is_correct": false,
+           "rationale": "Setiap langkah dihitung 60°. Satu langkah angka jam 30°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "210°",
+           "is_correct": false,
+           "rationale": "Ini sudut refleksnya (7 langkah ke arah lain). Yang ditanyakan sudut terkecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "50°",
+           "is_correct": false,
+           "rationale": "Setiap langkah dihitung 10°. Satu langkah angka jam 30°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "150°",
+           "is_correct": true,
+           "rationale": "Benar. Dari angka 12 ke angka 5 ada 5 langkah, 5 × 30° = 150°."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 25
+         },
+         "ref": "LT12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Berapa besar sudut terkecil yang dibentuk jarum jam pada pukul 06.30?",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 94
+           },
+           "label": "A",
+           "body": "0°",
+           "is_correct": false,
+           "rationale": "Jarum pendek dianggap tetap di angka 6, sehingga kedua jarum berimpit. Setengah jam kemudian ia sudah maju 15°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 95
+           },
+           "label": "B",
+           "body": "15°",
+           "is_correct": true,
+           "rationale": "Benar. Jarum panjang di angka 6, jarum pendek sudah setengah jalan ke angka 7: 30° : 2 = 15°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 96
+           },
+           "label": "C",
+           "body": "345°",
+           "is_correct": false,
+           "rationale": "Ini sudut refleksnya. Yang ditanyakan sudut terkecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 97
+           },
+           "label": "D",
+           "body": "30°",
+           "is_correct": false,
+           "rationale": "Jarum pendek dianggap sudah sampai di angka 7. Pada pukul 06.30 ia baru di tengah angka 6 dan 7."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 26
+         },
+         "ref": "LT13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada pukul berapa jarum jam membentuk sudut lurus?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 98
+           },
+           "label": "A",
+           "body": "06.00",
+           "is_correct": true,
+           "rationale": "Benar. Jarum panjang di angka 12 dan jarum pendek di angka 6, berseberangan: 180°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 99
+           },
+           "label": "B",
+           "body": "03.00",
+           "is_correct": false,
+           "rationale": "Pukul 03.00 membentuk sudut siku-siku (90°), bukan sudut lurus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 100
+           },
+           "label": "C",
+           "body": "12.00",
+           "is_correct": false,
+           "rationale": "Pukul 12.00 kedua jarum berimpit: sudut nol."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 101
+           },
+           "label": "D",
+           "body": "09.00",
+           "is_correct": false,
+           "rationale": "Pukul 09.00 membentuk sudut siku-siku (90°)."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 31
+         },
+         "ref": "LT18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Nina menghitung sudut jarum jam pada pukul 02.30 sebagai berikut: dari angka 2 ke angka 6 ada 4 langkah, jadi 4 × 30° = 120°. Mengapa jawabannya belum tepat?",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 118
+           },
+           "label": "A",
+           "body": "Satu langkah angka jam seharusnya 60°",
+           "is_correct": false,
+           "rationale": "Satu langkah angka jam memang 30° (360° : 12). Langkah Nina sudah tepat di bagian ini."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 119
+           },
+           "label": "B",
+           "body": "Yang ditanyakan sudut refleksnya, 255°",
+           "is_correct": false,
+           "rationale": "Yang biasa ditanyakan sudut terkecil. Kekurangan Nina ada pada posisi jarum pendek."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 120
+           },
+           "label": "C",
+           "body": "Jarum pendek sudah maju 15°, jadi 105°",
+           "is_correct": true,
+           "rationale": "Benar. Setengah jam kemudian jarum pendek berada di tengah angka 2 dan 3, sehingga sudutnya 120° − 15° = 105°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 121
+           },
+           "label": "D",
+           "body": "Jarum panjang pada pukul 02.30 berada di angka 3",
+           "is_correct": false,
+           "rationale": "Pada menit ke-30 jarum panjang berada di angka 6, sudah tepat."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "Melukis Sudut dan Memecahkan Masalah",
+       "summary": "Sudut dilukis dengan busur derajat; sudut-sudut di sekeliling satu titik berjumlah 360° dan sudut-sudut pada garis lurus berjumlah 180°.",
+       "body_markdown": "## Langkah melukis sudut\n\nMelukis sudut 120°:\n\n1. Gambar satu garis lurus sebagai kaki pertama. Salah satu ujungnya akan menjadi titik sudut.\n2. Letakkan titik pusat busur di ujung itu, dan impitkan garis dasar busur dengan garisnya.\n3. Cari skala yang angka **0**-nya ada di garis itu. Ikuti skala itu sampai angka 120, lalu beri titik.\n4. Hubungkan titik sudut dengan titik tadi. Itulah kaki kedua.\n\nPeriksa: 120° harus tumpul. Bila yang terlukis lancip, kalian membaca skala yang lain dan melukis 60°.\n\n## Arah bebas\n\nKaki pertama tidak harus mendatar. Garisnya boleh miring ke mana saja; putar busurnya mengikuti garis itu. Besar sudutnya tetap sama.\n\n## Sudut di sekeliling satu titik\n\nSudut-sudut yang mengelilingi satu titik tanpa celah dan tanpa tumpang tindih berjumlah **360°**.\n\nTukang keramik memasang satu ubin persegi (sudutnya 90°) dan dua ubin segi lima beraturan (sudutnya 108°) di satu titik. Berapa besar celah yang tersisa?\n\n360° − 90° − 108° − 108° = **54°**. Celah itu dapat diisi dengan potongan ubin yang sudutnya 54°.\n\n## Sudut pada garis lurus\n\nSudut-sudut yang bersama-sama membentuk garis lurus berjumlah **180°**. Bila satu bagiannya 35°, bagian yang lain 180° − 35° = **145°**.\n\n## Rangkuman Bab 6\n\n- **Sudut** dibentuk oleh dua kaki lurus yang bertemu di titik sudut. Pojok yang membulat bukan sudut.\n- Lancip < 90° = siku-siku < tumpul < 180° = lurus < refleks < 360° = satu putaran.\n- Mengukur dan melukis: titik pusat busur di titik sudut, baca skala yang 0-nya di kaki pertama, lalu periksa jenisnya.\n- Besar sudut ditentukan oleh bukaannya, bukan panjang kakinya.\n- Pada jam, satu angka = 30°; jarum pendek ikut bergerak.\n- Di sekeliling satu titik 360°; pada garis lurus 180°.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 6._",
+       "objective": {
+        "statement": "Kalian dapat melukis sudut dengan besar tertentu dan memecahkan masalah dengan sudut di sekeliling satu titik.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua sudut bersama-sama membentuk sudut lurus. Salah satunya 128°. Berapa besar sudut yang lain?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "232°",
+           "is_correct": false,
+           "rationale": "128° dikurangkan dari 360°. Sudut lurus besarnya 180°, bukan satu putaran."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "38°",
+           "is_correct": false,
+           "rationale": "128° dikurangi 90°. Keduanya membentuk sudut lurus (180°), bukan siku-siku."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "308°",
+           "is_correct": false,
+           "rationale": "128° ditambahkan ke 180°. Kedua sudut bersama berjumlah 180°, jadi dikurangkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "52°",
+           "is_correct": true,
+           "rationale": "Benar. Sudut lurus 180°, jadi 180° − 128° = 52°."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Di satu titik lantai bertemu dua ubin persegi (sudut 90°) dan satu ubin segi enam beraturan (sudut 120°). Berapa besar sudut potongan ubin yang dapat mengisi celah di titik itu?",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "300°",
+           "is_correct": false,
+           "rationale": "Ini jumlah sudut ketiga ubin. Yang ditanyakan sisa celahnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "150°",
+           "is_correct": false,
+           "rationale": "Hanya satu ubin persegi yang dikurangkan. Ada dua ubin persegi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "60°",
+           "is_correct": true,
+           "rationale": "Benar. Di sekeliling satu titik 360°, jadi 360° − 90° − 90° − 120° = 60°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "240°",
+           "is_correct": false,
+           "rationale": "Hanya ubin segi enam yang dikurangkan; kedua ubin persegi terlewat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 27
+         },
+         "ref": "LT14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Rani akan melukis sudut 120°. Titik pusat busur sudah di ujung garis dan garis dasarnya sudah berimpit dengan garis itu. Apa langkah berikutnya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 102
+           },
+           "label": "A",
+           "body": "Memberi titik di angka 120 pada skala mana saja, dalam atau luar",
+           "is_correct": false,
+           "rationale": "Bila skala yang lain dipakai, yang terlukis 60° (180° − 120°), sudut lancip."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 103
+           },
+           "label": "B",
+           "body": "Memberi titik di angka 60 karena 60 + 120 = 180",
+           "is_correct": false,
+           "rationale": "Angka 60 pada skala yang benar menghasilkan sudut 60°, bukan 120°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 104
+           },
+           "label": "C",
+           "body": "Memutar kertas sampai garisnya mendatar",
+           "is_correct": false,
+           "rationale": "Garis tidak harus mendatar; busurnya sudah mengikuti arah garis."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 105
+           },
+           "label": "D",
+           "body": "Memberi titik di angka 120 pada skala yang 0-nya di garis itu",
+           "is_correct": true,
+           "rationale": "Benar. Skala yang dimulai dari 0 pada garis itulah yang menunjukkan 120° yang benar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 28
+         },
+         "ref": "LT15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dodi ingin melukis sudut 120°, tetapi sudut yang terlukis ternyata lancip. Apa yang kemungkinan terjadi?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 106
+           },
+           "label": "A",
+           "body": "Kaki sudut yang ia gambar terlalu pendek",
+           "is_correct": false,
+           "rationale": "Panjang kaki tidak memengaruhi besar sudut."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 107
+           },
+           "label": "B",
+           "body": "Garis pertamanya tidak mendatar",
+           "is_correct": false,
+           "rationale": "Garis pertama boleh miring; besar sudut tidak berubah karena arahnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 108
+           },
+           "label": "C",
+           "body": "Ia membaca skala yang 0-nya tidak di garis pertama",
+           "is_correct": true,
+           "rationale": "Benar. Pada skala yang lain, angka 120 berada di tempat 60° yang sebenarnya, jadi yang dilukis 60°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 109
+           },
+           "label": "D",
+           "body": "Busur yang ia pakai lebih kecil dari busur temannya",
+           "is_correct": false,
+           "rationale": "Busur kecil dan besar menunjukkan derajat yang sama."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "LT16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tiga sudut bersama-sama membentuk sudut lurus. Dua di antaranya 40° dan 75°. Berapa besar sudut ketiga?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "245°",
+           "is_correct": false,
+           "rationale": "Dikurangkan dari 360°. Ketiga sudut membentuk sudut lurus, 180°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "65°",
+           "is_correct": true,
+           "rationale": "Benar. 180° − 40° − 75° = 65°."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "115°",
+           "is_correct": false,
+           "rationale": "Ini jumlah dua sudut yang diketahui. Yang ditanyakan sudut ketiga."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "105°",
+           "is_correct": false,
+           "rationale": "Hanya 75° yang dikurangkan dari 180°; sudut 40° terlewat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 30
+         },
+         "ref": "LT17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Ubin segi enam beraturan mempunyai sudut 120° di setiap pojok. Berapa ubin segi enam yang dapat bertemu di satu titik tanpa celah?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 114
+           },
+           "label": "A",
+           "body": "3 ubin",
+           "is_correct": true,
+           "rationale": "Benar. 3 × 120° = 360°, satu putaran penuh."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 115
+           },
+           "label": "B",
+           "body": "2 ubin",
+           "is_correct": false,
+           "rationale": "Di sekeliling satu titik dianggap 180°. Satu putaran penuh 360°, jadi 360° : 120° = 3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 116
+           },
+           "label": "C",
+           "body": "4 ubin",
+           "is_correct": false,
+           "rationale": "4 ubin memerlukan 480°, lebih dari satu putaran; ubinnya akan bertumpuk."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 117
+           },
+           "label": "D",
+           "body": "6 ubin",
+           "is_correct": false,
+           "rationale": "Angka 6 diambil dari nama segi enam. Banyak ubin dihitung dari 360° : 120°."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

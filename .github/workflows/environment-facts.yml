@@ -1,0 +1,198 @@
+# Environment facts (Phase 2, D-087): what each environment actually runs.
+#
+# READ ONLY. For staging and production it reads, by machine:
+#   - the app: the Vercel deployment the public domain points at, and the git
+#     commit it was built from;
+#   - staging's database: the migration versions applied (one SELECT on
+#     supabase_migrations.schema_migrations, inside a READ ONLY transaction).
+#     Production's database is not read here: that needs Yazid's permission.
+# It writes nothing anywhere.
+#
+# RED when an environment disagrees with itself or with what it should run:
+#   - the applied migrations differ from the migration files at the app's
+#     commit (app and database out of step), on either environment;
+#   - staging's app commit differs from main's code (anything outside docs/,
+#     .github/ and audit/), or staging's migrations differ from main's;
+#   - a fact cannot be read (an unreadable fact is not a green one).
+# Production running an older release than main is reported, not red: a
+# production release is a deliberate step (D-004).
+#
+# The controlled red: dispatch with plant=true and the expected main commit is
+# replaced by an empty tree, so staging must read as drifted.
+
+name: facts · environments (read only)
+
+on:
+  schedule:
+    - cron: '17 19 * * *'   # 02:17 WIB nightly
+  workflow_dispatch:
+    inputs:
+      plant:
+        description: "Controlled red: pretend main is empty, so staging must read as drifted"
+        type: boolean
+        default: false
+  push:
+    branches:
+      - claude/awesome-rubin-bqxp6p
+    paths:
+      - .github/workflows/environment-facts.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: environment-facts
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  STAGING_DOMAIN: staging.pintarselalu.com
+  PRODUCTION_DOMAIN: app.pintarselalu.com
+
+jobs:
+  facts:
+    name: app commit and migrations, staging and production
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Read and compare
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          STAGING_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          PLANT: ${{ inputs.plant || 'false' }}
+        run: |
+          set -euo pipefail
+          git fetch --quiet origin main
+          python3 - <<'PY'
+          import json, os, subprocess, sys, urllib.error, urllib.request
+
+          out = open(os.environ['GITHUB_STEP_SUMMARY'], 'a')
+          red = []
+          def say(s=''):
+              print(s); out.write(s + '\n')
+          def git(*a):
+              return subprocess.run(['git', *a], capture_output=True, text=True)
+          def http(url, token, body=None):
+              req = urllib.request.Request(url, data=json.dumps(body).encode() if body is not None else None,
+                    headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'User-Agent': 'pintar-facts'},
+                    method='POST' if body is not None else 'GET')
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  return json.loads(r.read() or b'null')
+
+          def migrations_at(commit):
+              r = git('ls-tree', '--name-only', commit, 'supabase/migrations/')
+              if r.returncode:
+                  return None
+              return sorted(os.path.basename(p).split('_', 1)[0] for p in r.stdout.split() if p.endswith('.sql'))
+
+          def code_diff(a, b):
+              r = git('diff', '--name-only', a, b)
+              if r.returncode:
+                  return None
+              return [p for p in r.stdout.split() if not p.startswith(('docs/', '.github/', 'audit/')) and not p.endswith('.md')]
+
+          def app_commit(domain):
+              alias = http('https://api.vercel.com/v4/aliases/' + domain, os.environ['VERCEL_TOKEN'])
+              dep_id = alias.get('deploymentId') or (alias.get('alias') or {}).get('deploymentId')
+              dep = http('https://api.vercel.com/v13/deployments/' + dep_id, os.environ['VERCEL_TOKEN'])
+              meta = dep.get('meta') or {}
+              git_src = dep.get('gitSource') or {}
+              sha = meta.get('githubCommitSha') or git_src.get('sha') or meta.get('gitCommitSha')
+              return {'deployment': dep_id, 'project': dep.get('name'), 'state': dep.get('readyState'),
+                      'created': dep.get('createdAt'), 'sha': sha, 'meta_keys': sorted(meta), 'source': dep.get('source')}
+
+          def applied(url):
+              r = subprocess.run(['psql', url, '-qAtX', '-v', 'ON_ERROR_STOP=1',
+                                  '-c', 'begin transaction read only',
+                                  '-c', 'select version from supabase_migrations.schema_migrations order by version',
+                                  '-c', 'rollback'], capture_output=True, text=True, timeout=60)
+              if r.returncode:
+                  raise RuntimeError((r.stderr.strip().splitlines() or ['psql failed'])[-1][:200])
+              return sorted(v for v in r.stdout.split() if v.isdigit())
+
+          main = git('rev-parse', 'origin/main').stdout.strip()
+          main_mig = migrations_at(main)
+          if os.environ.get('PLANT') == 'true':
+              main = git('hash-object', '-t', 'tree', '/dev/null').stdout.strip()
+              main_mig = []
+              say('**PLANTED:** main is replaced by an empty tree; staging must read as drifted.')
+          say('### Environment facts')
+          say()
+          say('main: `%s`, %d migrations' % (main[:12], len(main_mig)))
+          say()
+          envs = [('staging', os.environ['STAGING_DOMAIN'], os.environ['STAGING_DB_URL']),
+                  ('production', os.environ['PRODUCTION_DOMAIN'], None)]
+          prod_note = None
+          staging_project = None
+          say('| Environment | App deployment | App commit | Migrations applied | Migrations at the app commit | Verdict |')
+          say('|---|---|---|---|---|---|')
+          for name, domain, db_url in envs:
+              notes = []
+              try:
+                  app = app_commit(domain)
+              except Exception as e:
+                  app = None
+                  notes.append('app not readable: %s' % e)
+              mig = None
+              if db_url:
+                  try:
+                      mig = applied(db_url)
+                  except Exception as e:
+                      notes.append('migrations not readable: %s' % e)
+              sha = app and app['sha']
+              if app and not sha:
+                  notes.append('the deployment carries no commit (meta keys: %s; source: %s)' % (', '.join(app['meta_keys']) or 'none', app['source']))
+              at = migrations_at(sha) if sha else None
+              if sha and at is None:
+                  notes.append('commit %s is not in this repository' % sha[:12])
+              if mig is not None and at is not None and mig != at:
+                  extra = sorted(set(mig) - set(at)); missing = sorted(set(at) - set(mig))
+                  notes.append('database and app out of step: applied but not in the app %s; in the app but not applied %s' % (extra[:5], missing[:5]))
+              if name == 'staging':
+                  if sha and at is not None:
+                      d = code_diff(sha, main)
+                      if d is None or d:
+                          notes.append('staging app is not main\'s code (%s)' % ('unreadable diff' if d is None else '%d file(s) differ, e.g. %s' % (len(d), ', '.join(d[:3]))))
+                  if mig is not None and mig != main_mig:
+                      notes.append('staging migrations are not main\'s (%d applied, %d on main)' % (len(mig), len(main_mig)))
+              elif sha and at is not None:
+                  d = code_diff(sha, main)
+                  prod_note = ('%d code file(s) differ from main' % len(d)) if d else 'the same code as main'
+              verdict = 'RED' if notes else 'GREEN'
+              if notes:
+                  red.extend('%s: %s' % (name, n) for n in notes)
+              dep = '%s (%s)' % (app['deployment'], app['state']) if app else '-'
+              say('| %s | %s | `%s` | %s | %s | %s |' % (name, dep, (sha or '-')[:12], len(mig) if mig is not None else ('not read' if not db_url else '-'), len(at) if at is not None else '-', verdict))
+              if name == 'staging':
+                  staging_project = app and app.get('project')
+          say()
+          # BOB-25 / Gate 3: the app's own email (activation codes, the card, recovery) needs the four
+          # sending settings on staging's Vercel project, Production target. NAMES ONLY: the listing is
+          # read with decrypt=false and only each entry's key and targets are looked at; no value is
+          # read, compared or printed. Production gets them at the Gate 8 release (GATE-0-FACTS §2).
+          perlu = ['PINTAR_SMTP_HOST', 'PINTAR_SMTP_PORT', 'PINTAR_SMTP_USER', 'PINTAR_SMTP_PASSWORD']
+          try:
+              if not staging_project:
+                  raise RuntimeError('the staging app project is not known')
+              listing = http('https://api.vercel.com/v9/projects/%s/env?decrypt=false' % staging_project, os.environ['VERCEL_TOKEN'])
+              ada = {e.get('key') for e in (listing or {}).get('envs', []) if 'production' in (e.get('target') or [])}
+              kurang = [k for k in perlu if k not in ada]
+              say('Staging email settings (%s, Production target, names only): %s' % (staging_project,
+                  'all four present' if not kurang else 'MISSING ' + ', '.join(kurang)))
+              if kurang:
+                  red.append('staging: the app cannot send its own email; missing %s' % ', '.join(kurang))
+          except Exception as e:
+              red.append('staging: email settings not readable: %s' % str(e)[:200])
+          say()
+          if prod_note:
+              say('Production runs %s (a production release is a deliberate step, D-004; not red). Its database is not read by this check: that needs Yazid\'s permission.' % prod_note)
+          for r in red:
+              say('- RED ' + r)
+          if red:
+              sys.exit(1)
+          say('GREEN: both environments run what they should.')
+          PY

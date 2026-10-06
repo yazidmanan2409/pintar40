@@ -46,7 +46,7 @@ export default async function Langkah({ params }: { params: Promise<{ kelas: str
   const [buka, tugas, terbit, fakta] = await Promise.all([
     ajar.berjalan([id]),
     ajar.penugasan(id),
-    ajar.terbitan(ctx.ini.institusi),
+    ajar.terbitan(ctx.ini.institusi, id),
     ajar.faktaKelas(id),
   ]);
 

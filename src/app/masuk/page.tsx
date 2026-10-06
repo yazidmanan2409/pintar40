@@ -7,6 +7,7 @@ import MerekPintar from "@/components/MerekPintar";
 import LayarMasuk from "@/components/masuk/LayarMasuk";
 import PanelPernyataan, { KalimatPonsel } from "@/components/masuk/PanelPernyataan";
 import FokusAwal from "@/components/masuk/FokusAwal";
+import TombolKirim from "@/components/TombolKirim";
 import { keluarDariSesi, lanjutkanSesi } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -39,14 +40,16 @@ export const dynamic = "force-dynamic";
 export default async function Masuk({
   searchParams,
 }: {
-  searchParams: Promise<{ peran?: string; lanjut?: string }>;
+  searchParams: Promise<{ peran?: string; lanjut?: string; sesi?: string }>;
 }) {
   const sp = await searchParams;
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "public", { locale });
   // L-1. Narrowed here as well, because this value is written into a hidden
   // field and posted straight back; the actions narrow it again on receipt.
-  const lanjut = tujuanInternal(sp.lanjut);
+  // BOB-06 (D-010): no destination stays NO destination. Narrowed to "/" it
+  // was posted back as if asked for, and beat the role's home.
+  const lanjut = tujuanInternal(sp.lanjut, "");
   // S15. Asked before anything is drawn: arriving here with a live session is
   // a different screen, not a variation of this one.
   const viewer = await currentViewer();
@@ -74,15 +77,19 @@ export default async function Masuk({
               <div className="pin-stack">
                 <form action={lanjutkanSesi}>
                   <input type="hidden" name="lanjut" value={lanjut} />
-                  <button type="submit" className="pin-mbtn pin-mbtn-1">{s("auth.in_go")}</button>
+                  <TombolKirim className="pin-mbtn pin-mbtn-1" sibuk={s("tombol.memproses")}>{s("auth.in_go")}</TombolKirim>
                 </form>
                 <form action={keluarDariSesi}>
-                  <button type="submit" className="pin-mbtn pin-mbtn-2">{s("auth.in_out")}</button>
+                  <TombolKirim className="pin-mbtn pin-mbtn-2" sibuk={s("tombol.memproses")}>{s("auth.in_out")}</TombolKirim>
                 </form>
               </div>
             </div>
           ) : (
-            <LayarMasuk locale={locale} lanjut={lanjut} />
+            <>
+              {/* BOB-29: the proxy sends an ended session here (3 wrong PINs, 60 minutes locked, signed out elsewhere) */}
+              {sp.sesi === "berakhir" ? <p className="pin-msg pin-msg-note" role="status">{s("masuk.sesi_berakhir")}</p> : null}
+              <LayarMasuk locale={locale} lanjut={lanjut} />
+            </>
           )}
 
           <KalimatPonsel locale={locale} />

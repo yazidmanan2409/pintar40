@@ -40,6 +40,11 @@ export type SimpulStruktur = {
   is_active: boolean;
   /** Students placed now, for a Tingkat or Kelas; null for a Bagian. */
   active_members: number | null;
+  /**
+   * BOB-45: the kind a member of this place is -- LEARNER (the school's teaching) or PARTICIPANT (educators'
+   * professional learning, BOB-43), set on the Bagian when it is made and never changed. Never the context (R10).
+   */
+  member_kind?: string | null;
 };
 
 export type KelasTersusun = SimpulStruktur & { level: "KELAS" };
@@ -68,6 +73,105 @@ export function susunStruktur(rows: readonly SimpulStruktur[]): BagianTersusun[]
       tingkat: tingkat.filter((t) => t.parent_id === b.node_id).sort(urut),
     }))
     .sort(urut);
+}
+
+// ═════════════════════════════════════════════════════════ the pickers
+
+/** One `org_nodes` row as a picker reads it. `jalur` is root first and ends with the node itself. */
+export type SimpulPohon = {
+  id: string;
+  name: string;
+  kind: string;
+  parent_id?: string | null;
+  jalur?: readonly string[] | null;
+  academic_period_id?: string | null;
+  is_active?: boolean | null;
+};
+
+/** One place a picker may offer (BOB-09). */
+export type PilihanTempat = {
+  id: string;
+  level: TingkatanStruktur;
+  /** "SMA · Kelas X · X IPS 1 · 2026/2027": the visible path, then the year. */
+  label: string;
+  /** The visible names, outermost first, ending with this one. */
+  jalur: string[];
+  /** For a Bagian: its hidden Reguler, the value a programme field takes. */
+  program?: string;
+};
+
+const TINGKATAN_JENIS: Record<string, TingkatanStruktur> = {
+  DEPARTMENT: "BAGIAN",
+  COHORT: "TINGKAT",
+  CLASS: "KELAS",
+};
+
+/** D-006: whether a node of this kind is one a screen may show (Bagian, Tingkat, Kelas); never Jenjang or Reguler. */
+export function jenisTerlihat(kind: string): boolean {
+  return Object.prototype.hasOwnProperty.call(TINGKATAN_JENIS, kind);
+}
+
+/**
+ * BOB-09 — THE PLACES A PICKER OFFERS (D-006). Only Bagian, Tingkat and Kelas,
+ * never the school root nor the hidden Jenjang or Reguler. Each is labelled by
+ * its visible path, and a Tingkat or Kelas by its year too, so two "1A" in two
+ * years are told apart. A place that is deactivated, or stands under one, is
+ * not offered. Tree order: a Bagian, then each Tingkat (by name, then year)
+ * followed by its Kelas.
+ */
+export function pilihanTempat(
+  simpul: readonly SimpulPohon[],
+  tahun: ReadonlyMap<string, string>,
+): PilihanTempat[] {
+  const menurutId = new Map(simpul.map((n) => [String(n.id), n]));
+  const jalurDari = (n: SimpulPohon): string[] => {
+    if (n.jalur && n.jalur.length > 0) return n.jalur.map(String);
+    const naik: string[] = [];
+    for (let x: SimpulPohon | undefined = n; x && naik.length < 16; x = x.parent_id ? menurutId.get(String(x.parent_id)) : undefined) {
+      naik.unshift(String(x.id));
+    }
+    return naik;
+  };
+  const program = new Map<string, string>();
+  for (const n of simpul) {
+    if (n.kind === "PROGRAMME" && n.is_active !== false && n.parent_id && !program.has(String(n.parent_id))) {
+      program.set(String(n.parent_id), String(n.id));
+    }
+  }
+
+  const keluar: Array<PilihanTempat & { kunci: string[] }> = [];
+  for (const n of simpul) {
+    const level = TINGKATAN_JENIS[n.kind];
+    if (!level) continue;
+    const leluhur = jalurDari(n).map((id) => menurutId.get(id)).filter((x): x is SimpulPohon => !!x);
+    if (n.is_active === false || leluhur.some((x) => x.is_active === false)) continue;
+    const terlihat = leluhur.filter((x) => TINGKATAN_JENIS[x.kind]);
+    if (terlihat.at(-1) !== n) terlihat.push(n);
+    const nama = terlihat.map((x) => String(x.name));
+    const thn = level === "BAGIAN" || !n.academic_period_id ? undefined : tahun.get(String(n.academic_period_id));
+    keluar.push({
+      id: String(n.id),
+      level,
+      label: [...nama, ...(thn ? [thn] : [])].join(" · "),
+      jalur: nama,
+      ...(level === "BAGIAN" && program.has(String(n.id)) ? { program: program.get(String(n.id)) } : {}),
+      // a Tingkat's segment carries its year, so each Tingkat is followed by its own Kelas
+      kunci: terlihat.map((x) =>
+        TINGKATAN_JENIS[x.kind] === "TINGKAT" && x.academic_period_id
+          ? `${x.name} ${tahun.get(String(x.academic_period_id)) ?? ""}`
+          : String(x.name)),
+    });
+  }
+  const banding = (a: string[], b: string[]) => {
+    for (let i = 0; i < Math.min(a.length, b.length); i++) {
+      const d = a[i].localeCompare(b[i], "id", { numeric: true, sensitivity: "base" });
+      if (d) return d;
+    }
+    return a.length - b.length;
+  };
+  return keluar
+    .sort((a, b) => banding(a.kunci, b.kunci) || a.label.localeCompare(b.label) || a.id.localeCompare(b.id))
+    .map((p) => ({ id: p.id, level: p.level, label: p.label, jalur: p.jalur, ...(p.program ? { program: p.program } : {}) }));
 }
 
 // ═════════════════════════════════════════════════════ the academic year
@@ -107,6 +211,12 @@ export const KODE_STRUKTUR_DB = [
   "STRUCTURE_HAS_ACTIVE_CHILDREN",
   "STRUCTURE_HAS_MEMBERS",
   "STRUCTURE_HAS_STAFF",
+  // BOB-08
+  "STRUCTURE_NOT_A_SCHOOL",
+  "STRUCTURE_YEAR_OUT_OF_RANGE",
+  "STRUCTURE_PLACE_INACTIVE",
+  // D-093 T2 (D-097(a)): a deactivation states its reason
+  "STRUCTURE_REASON_REQUIRED",
 ] as const;
 
 /**
@@ -158,6 +268,10 @@ export const KUNCI_GALAT_STRUKTUR: Record<KodeStruktur, HleEvent> = {
   STRUCTURE_HAS_ACTIVE_CHILDREN: "config.struktur.galat.masih_ada_anak",
   STRUCTURE_HAS_MEMBERS: "config.struktur.galat.masih_ada_murid",
   STRUCTURE_HAS_STAFF: "config.struktur.galat.masih_ada_staf",
+  STRUCTURE_NOT_A_SCHOOL: "config.struktur.galat.bukan_sekolah",
+  STRUCTURE_YEAR_OUT_OF_RANGE: "config.struktur.galat.tahun_di_luar",
+  STRUCTURE_PLACE_INACTIVE: "config.struktur.galat.tempat_nonaktif",
+  STRUCTURE_REASON_REQUIRED: "config.struktur.galat.alasan_kosong",
   STRUCTURE_INPUT_INVALID: "config.struktur.galat.isian_kurang",
   STRUCTURE_FAILED: "config.struktur.galat.gagal",
 };

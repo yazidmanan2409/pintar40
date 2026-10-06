@@ -8,15 +8,16 @@
 #   2. Sets staging's sign-in boundary and email in one write, then reads it
 #      back and asserts it: site_url is the staging origin, the one callback
 #      is allowed, sign-up is off, and mail goes through PINTAR's own sender
-#      under the name "PINTAR Staging".
+#      under the name "PINTAR Staging". BOB-26: also Gate 3's identity
+#      settings, written from and asserted against supabase/auth-identitas.json.
 #   3. Only when dispatched with `initialise`, and only after Gladys has been
 #      bootstrapped on staging by hand: the database's environment is set to
 #      production with sample data off (D-038: real schools and official
 #      evidence need it, so reports work), and SD and SMA are created with their
 #      2026/2027 year, if they are not there yet.
 #   4. Verifies it live, sending no email: the sign-in page loads, a stranger's
-#      sign-up is refused, there is exactly one platform admin and it is the
-#      recorded person (by digest), and a sign-in link generated on the server
+#      sign-up is refused, the platform admins are the recorded person and at most
+#      the recorded staging Platform Operator (D-088(a)) (by digest), and a sign-in link generated on the server
 #      lands on staging's own /auth/callback. Opening that link counts as one
 #      sign-in for the admin; its token is never printed.
 #
@@ -39,6 +40,7 @@ on:
       - main
     paths:
       - "supabase/migrations/**"
+      - "supabase/auth-identitas.json"
       - ".github/workflows/staging.yml"
   workflow_dispatch:
     inputs:
@@ -192,6 +194,21 @@ jobs:
           PINTAR_SMTP_PASSWORD: ${{ secrets.PINTAR_SMTP_PASSWORD }}
         run: |
           set -euo pipefail
+          # Never overwrite blindly (Phase 2, D-087): the secret must open the
+          # mailbox before it is written. A stale secret once replaced staging's
+          # working password and broke its sign-in email; now it turns this run
+          # red and leaves staging's current setting untouched.
+          python3 - <<'PY'
+          import os, smtplib, ssl, sys
+          try:
+              with smtplib.SMTP_SSL(os.environ['SMTP_HOST'], int(os.environ['SMTP_PORT']), context=ssl.create_default_context(), timeout=30) as s:
+                  s.login(os.environ['SMTP_SENDER'], os.environ['PINTAR_SMTP_PASSWORD'])
+                  s.quit()
+          except smtplib.SMTPAuthenticationError as e:
+              print('::error::PINTAR_SMTP_PASSWORD does not open %s (%s). Staging\'s email setting was NOT changed. Update the GitHub secret to the mailbox\'s current password.' % (os.environ['SMTP_SENDER'], e.smtp_code))
+              sys.exit(1)
+          print('the secret opens %s (login only, no email sent)' % os.environ['SMTP_SENDER'])
+          PY
           python3 - <<'PY' > /tmp/body.json
           import json, os
           print(json.dumps({
@@ -210,6 +227,36 @@ jobs:
           rm -f /tmp/body.json
           echo "PATCH (email) -> HTTP $CODE"
           test "$CODE" = "200" || { echo "::error::the email write was refused"; python3 -c "import json;d=json.load(open('/tmp/write.json'));print(d.get('message') or d)"; exit 1; }
+
+      # BOB-26 (Gate 3, D-079 addendum): the Auth settings Gate 3 needs, from
+      # the ONE canonical source, supabase/auth-identitas.json: codes of 6
+      # digits valid 10 minutes, the password policy and the leaked-password
+      # check, the direct-change safeguards, TOTP enrolment off. Written as the
+      # file says, then read back with the file (the step after this one).
+      - name: Identity settings — write (Gate 3, from supabase/auth-identitas.json)
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 scripts/auth-identitas-banding.py --body > /tmp/body.json
+          CODE=$(curl -sS -o /tmp/write.json -w '%{http_code}' -X PATCH \
+            -H "Authorization: Bearer ${STAGING_SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' --data-binary @/tmp/body.json \
+            "https://api.supabase.com/v1/projects/${STAGING_SUPABASE_PROJECT_REF}/config/auth")
+          echo "PATCH (identity settings) -> HTTP $CODE"
+          test "$CODE" = "200" || { echo "::error::the identity settings write was refused"; python3 -c "import json;d=json.load(open('/tmp/write.json'));print(d.get('message') or d)"; exit 1; }
+          # the leaked-password check, on its own: on only if the plan provides it (D-082(a))
+          python3 scripts/auth-identitas-banding.py --body-hibp > /tmp/body.json
+          CODE=$(curl -sS -o /tmp/write.json -w '%{http_code}' -X PATCH \
+            -H "Authorization: Bearer ${STAGING_SUPABASE_ACCESS_TOKEN}" \
+            -H 'Content-Type: application/json' --data-binary @/tmp/body.json \
+            "https://api.supabase.com/v1/projects/${STAGING_SUPABASE_PROJECT_REF}/config/auth")
+          echo "PATCH (leaked-password check) -> HTTP $CODE"
+          if [ "$CODE" != "200" ]; then
+            echo "::warning::the plan did not accept the leaked-password check; it stays off"
+            python3 -c "import json;d=json.load(open('/tmp/write.json'));print(d.get('message') or d)"
+            touch /tmp/hibp-unavailable
+          fi
 
       - name: Sign-in boundary and email — read back and assert
         if: ${{ always() && !cancelled() }}
@@ -237,6 +284,8 @@ jobs:
           print('smtp_pass          (never read, never printed)')
           if bad: print('::error::not as written: ' + ', '.join(bad)); sys.exit(1)
           PY
+          # BOB-26: and Gate 3's identity settings, against the canonical file
+          python3 scripts/auth-identitas-banding.py /tmp/after.json staging $( [ -f /tmp/hibp-unavailable ] && echo --hibp-unavailable )
 
 
       - name: Verify — the live sign-in round trip and the front door (no email is sent)
@@ -244,6 +293,9 @@ jobs:
           STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
           DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
           ADMIN_SHA256: 52e5bbccb4be604c12b16dd38de06b0e1aa53f08d44f9356bb0759e0e47dd2a4
+          # D-088(a): the staging Platform Operator (goldenschool+operator@, a staging test-mailbox address),
+          # granted by the recorded admin through PINTAR's own screens (staging-platform-operator.yml)
+          OPERATOR_SHA256: be074e31ebbdf85596af003152304dce1f920c07468c45ab8dd75f7652e1966d
         run: |
           set -euo pipefail
           python3 - <<'PY'
@@ -288,16 +340,22 @@ jobs:
           refused = code in (400, 403, 422) and b'signup' in raw.lower()
           print(f'self sign-up -> HTTP {code} ({"refused" if refused else "NOT refused"})'); refused or bad.append('sign-up is not refused')
 
-          # 3. the one platform admin is the recorded person (by digest; the address is never printed)
+          # 3. the platform admins are the recorded person and, at most, the recorded staging Platform Operator
+          #    (D-088(a)); nobody else (by digest; the addresses are never printed)
           email = subprocess.check_output(['psql', os.environ['DB'], '-At', '-c',
               "select u.email from auth.users u join public.accounts a on a.auth_user_id = u.id "
               "join public.role_assignments r on r.person_id = a.person_id "
               "where r.role = 'SYSTEM_ADMIN' and r.revoked_at is null and now() < r.valid_until"]).decode().split()
           for e in email: print('::add-mask::' + e)
-          print(f'active platform admins: {len(email)}'); len(email) == 1 or bad.append('there is not exactly one platform admin')
+          digest = lambda e: {hashlib.sha256(e.encode()).hexdigest(), hashlib.sha256(e.strip().lower().encode()).hexdigest()}
+          admin = [e for e in email if os.environ['ADMIN_SHA256'] in digest(e)]
+          operator = [e for e in email if os.environ['OPERATOR_SHA256'] in digest(e)]
+          print(f'active platform admins: {len(email)} (the recorded admin: {len(admin)}; the staging Platform Operator: {len(operator)})')
+          len(admin) == 1 or bad.append('the recorded admin is not exactly once a platform admin')
+          len(operator) <= 1 or bad.append('the staging Platform Operator holds more than one platform-admin grant')
+          len(email) == len(admin) + len(operator) or bad.append('a platform admin is neither the recorded admin nor the staging Platform Operator')
+          email = admin
           if email:
-              same = os.environ['ADMIN_SHA256'] in (hashlib.sha256(email[0].encode()).hexdigest(), hashlib.sha256(email[0].strip().lower().encode()).hexdigest())
-              print(f'the admin is the recorded person (digest): {same}'); same or bad.append('the admin is not the recorded person')
 
               # 4. a sign-in link, generated on the server (no email), lands on staging's own callback
               code, _, raw = call(base + '/auth/v1/admin/generate_link', 'POST',
@@ -328,5 +386,5 @@ jobs:
                       print(f'asked to return to {prev}/auth/callback, the link sends the browser to {loc.scheme}://{loc.netloc}{loc.path}')
                       loc.netloc == urllib.parse.urlparse(prev).netloc and bad.append('the previous address is still an allowed sign-in destination')
           if bad: print('::error::' + '; '.join(bad)); sys.exit(1)
-          print('VERIFIED: sign-in page, sign-up refused, one recorded admin, sign-in link lands on ' + o + '/auth/callback, and the previous address is refused')
+          print('VERIFIED: sign-in page, sign-up refused, the recorded admin (and at most the staging operator), sign-in link lands on ' + o + '/auth/callback, and the previous address is refused')
           PY

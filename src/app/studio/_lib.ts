@@ -1,5 +1,7 @@
+import { cache } from "react";
 import { supabaseServer } from "@/lib/supabase/server";
 import { t, type HleEvent } from "@/lib/hle";
+import { kalimatHasil, type QueryHasil } from "@/lib/galat-kontrak";
 
 /**
  * Studio shared helpers (FABLE-05).
@@ -31,52 +33,47 @@ const STUDIO_CAPABILITIES = [
 
 /**
  * The institutions this viewer may act in, with the capabilities they actually
- * hold in each — asked of the database one capability at a time rather than
- * inferred from a role name, because the role-to-capability map is the
- * database's and may change without this file.
+ * hold in each — asked of the database rather than inferred from a role name,
+ * because the role-to-capability map is the database's and may change without
+ * this file.
+ *
+ * ONE CALL, ONCE PER REQUEST (BOB-18, D-046). `studio_capabilities` asks
+ * `can_in_institution` for every school and capability inside one statement,
+ * under this viewer's own RLS -- the loop that used to make 8 round trips per
+ * school, one after another. React's `cache` shares the answer between the
+ * Studio layout and its page within one render. A failed call is no
+ * capability anywhere, which the layout turns into the refusal, as before.
  */
-export async function studioInstitutions(): Promise<StudioInstitution[]> {
-  const supabase = await supabaseServer();
-  const { data: rows } = await supabase
-    .from("role_assignments")
-    .select("institution_id")
-    .is("revoked_at", null)
-    .gt("valid_until", new Date().toISOString());
-  const ids = Array.from(new Set((rows ?? []).map((r) => r.institution_id).filter(Boolean))) as string[];
+export const studioInstitutions = cache(async (): Promise<StudioInstitution[]> =>
+  studioInstitutionsDari(await supabaseServer()));
 
-  const { data: isSys } = await supabase.rpc("is_system_admin");
-  let all = ids;
-  if (isSys === true) {
-    const { data: every } = await supabase.from("institutions").select("id");
-    all = Array.from(new Set([...ids, ...((every ?? []).map((r) => r.id as string))]));
-  }
-
-  const named = await supabase.from("institutions").select("id, name").in("id", all.length ? all : [
-    "00000000-0000-0000-0000-000000000000",
-  ]);
-  const names = new Map((named.data ?? []).map((r) => [r.id as string, r.name as string]));
-
-  const out: StudioInstitution[] = [];
-  for (const id of all) {
-    const held: string[] = [];
-    for (const cap of STUDIO_CAPABILITIES) {
-      const { data } = await supabase.rpc("can_in_institution", { p_capability: cap, p_institution: id });
-      if (data === true) held.push(cap);
-    }
-    if (held.length > 0) out.push({ id, name: names.get(id) ?? id, capabilities: held });
-  }
-  return out.sort((a, b) => a.name.localeCompare(b.name));
+/** `studioInstitutions` over a given client (BOB-18: driven in selftest/bob18.test.ts). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function studioInstitutionsDari(c: any): Promise<StudioInstitution[]> {
+  const { data, error } = await c.rpc("studio_capabilities", { p_capabilities: [...STUDIO_CAPABILITIES] });
+  if (error || !Array.isArray(data)) return [];
+  return (data as Array<{ institution_id: string; name: string | null; capabilities: string[] | null }>)
+    .map((r) => ({
+      id: String(r.institution_id),
+      name: r.name ?? String(r.institution_id),
+      capabilities: (r.capabilities ?? []).filter((x) => (STUDIO_CAPABILITIES as readonly string[]).includes(x)),
+    }))
+    .filter((r) => r.capabilities.length > 0)
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export function can(inst: StudioInstitution | undefined, capability: string): boolean {
   return inst?.capabilities.includes(capability) ?? false;
 }
 
-/** A result banner carried back from a server action, never an exception page. */
-export function outcomeLine(hasil?: string, detail?: string): string | null {
-  if (!hasil) return null;
-  if (hasil === "ok") return detail ? detail : s("studio.hasil.ok");
-  return detail ? `${s("studio.hasil.gagal")} ${detail}` : s("studio.hasil.gagal");
+/**
+ * A result banner carried back from a server action, never an exception page.
+ * BOB-07 (D-011): the action sends a code (and a reference for a failure
+ * nobody named); the sentence is the copy table's. Nothing typed into the
+ * address reaches the banner: an unknown code, reference or count is dropped.
+ */
+export function outcomeLine(q: QueryHasil): string | null {
+  return kalimatHasil(q, s, { ok: "studio.hasil.ok", gagal: "studio.hasil.gagal" });
 }
 
 export const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "—");

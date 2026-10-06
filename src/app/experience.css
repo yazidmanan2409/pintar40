@@ -201,6 +201,9 @@
 }
 .pin-row:first-child { border-top: 0; }
 .pin-row:hover { background: var(--surface-0); text-decoration: none; }
+/* DAISY-40: a certificate with no page to open is a row, not a link. */
+.pin-row.pin-row-diam { cursor: default; }
+.pin-row.pin-row-diam:hover { background: none; }
 .pin-row .pin-eyebrow { grid-column: 1; }
 .pin-row .pin-title {
   grid-column: 1; font-size: var(--type-card); font-weight: var(--weight-strong);
@@ -409,6 +412,24 @@
 .pin-rrow { display: grid; grid-template-columns: 1fr 40px; gap: var(--space-3); align-items: center; font-size: var(--type-meta); }
 .pin-rbar { grid-column: 1 / -1; height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
 .pin-rbar i { display: block; height: 100%; background: var(--ink-3); }
+
+/* «Keadaan hari ini» (DAISY-26, UX-06): one block per open test, each named. */
+.pin-keadaan { display: grid; gap: var(--space-5); }
+.pin-keadaan-baris + .pin-keadaan-baris { border-top: 1px solid var(--line); padding-top: var(--space-5); }
+.pin-keadaan-judul { margin: 0 0 var(--space-3); font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-keadaan-siapa { margin: var(--space-3) 0 0; font-size: var(--type-meta); }
+
+/* «Lihat per soal» (D-088(k), M5): the class's questions, hardest first, with who may need help. */
+.pin-soal-kelas { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+.pin-soal-baris { display: grid; gap: var(--space-3); }
+.pin-soal-tanya { margin: 0; font-size: var(--type-body); color: var(--ink-1); }
+.pin-soal-tepat { margin: 0; font-size: var(--type-meta); font-weight: var(--weight-strong); font-variant-numeric: tabular-nums; }
+.pin-soal-opsi { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: var(--type-meta); }
+.pin-soal-opsi li { color: var(--ink-2); }
+.pin-soal-opsi li.pin-opsi-kunci { color: var(--ink-1); }
+.pin-soal-bantuan { border-top: 1px solid var(--line); padding-top: var(--space-3); font-size: var(--type-meta); }
+.pin-soal-bantuan .pin-ml { margin: 0 0 6px; font-weight: var(--weight-strong); }
+.pin-soal-bantuan ul { margin: 0; padding-left: var(--space-5); display: grid; gap: 4px; }
 
 /* --------------------------------------------------- commitment and refusal */
 .pin-commit {
@@ -691,6 +712,15 @@
 .pin-prose > * + * { margin-top: var(--space-4); }
 .pin-lp { margin: 0; }
 .pin-lh3 { font-size: var(--type-course); font-weight: var(--weight-strong); margin: 0; }
+/* DAISY-30: a lesson's own list and table (TeksBlok). The table scrolls inside
+   its frame, never the page: SD5's place-value table has eight columns, and a
+   320px screen must still hold the page still. Figures line up in columns. */
+.pin-tdaftar { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-1); }
+.pin-tdaftar .pin-tdaftar { margin-top: var(--space-1); }
+.pin-ttabel { max-width: 100%; overflow-x: auto; }
+.pin-ttabel table { border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: var(--type-meta); }
+.pin-ttabel th, .pin-ttabel td { border: 1px solid var(--line); padding: var(--space-2) var(--space-3); text-align: left; vertical-align: top; }
+.pin-ttabel th { font-weight: var(--weight-strong); background: var(--surface-2); }
 .pin-lmedia { width: 100%; max-width: 360px; border-radius: var(--radius-1); margin: var(--space-4) 0; }
 /* Reading position: dots rather than a bar, because a page of a lesson is a
    place and not a percentage. */
@@ -813,6 +843,9 @@
   border-radius: var(--radius-1); background: var(--surface-1); font-size: var(--type-meta);
 }
 .pin-drow .pin-cnt { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+/* UX-26: the label is an objective's whole statement, so it wraps, and a long
+   word breaks rather than pushing the count off a 320px screen. */
+.pin-drow > span:first-child { min-width: 0; overflow-wrap: anywhere; }
 .pin-tinjau { display: grid; gap: var(--space-2); }
 /* A <details> is NOT a grid container worth trusting: the summary is a grid
    item and what follows it is laid out by rules that differ between engines.
@@ -1398,7 +1431,12 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 }
 .pin-authtop { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
 .pin-authbody { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: var(--space-6) 0 var(--space-2); }
-.pin-form { display: grid; gap: var(--space-3); align-content: start; }
+/* ONE COLUMN THAT MAY BE NARROWER THAN ITS WIDEST FIELD'S NATURAL WIDTH
+   (DAISY-20). An implicit grid column is sized to its content's minimum, and
+   a big field's input (20 characters of 20 px type, no size attribute) plus a
+   44 px reveal needs 336 px: at 320 px the PIN step, and the class card's PIN
+   before it, scrolled sideways. The fields fill the column and shrink with it. */
+.pin-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); align-content: start; }
 .pin-mh1 {
   font-size: 26px; font-weight: var(--weight-strong);
   letter-spacing: var(--tracking-tight); line-height: var(--leading-heading);
@@ -1470,6 +1508,9 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   color: var(--pintar-primary); text-decoration: underline; text-underline-offset: 3px;
   cursor: pointer; min-height: 44px;
 }
+/* The same target as a link (DAISY-20: «Aktifkan akun», «Masuk ke PINTAR»):
+   min-height does nothing on an inline box, so a link sat 18 px tall. */
+a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-kembali {
   justify-self: start;
   background: none; border: 0; padding: var(--space-2) 0;
@@ -1818,6 +1859,24 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-data-pilot li + li { border-top: 1px solid var(--line); }
 .pin-data-pilot .pin-mono { font-family: var(--font-mono); font-size: var(--type-fine); color: var(--ink-2); }
 
+/* D-077(3): EVERY NAME, BEFORE THE ONE APPROVAL. A long intake scrolls inside
+   its own box, which takes keyboard focus so it can be scrolled without a
+   pointer, and the approval stays one scroll below it. */
+.pin-data-nama {
+  max-height: 340px; overflow-y: auto; margin: var(--space-3) 0 var(--space-4);
+  background: var(--surface-0); border: 1px solid var(--line); border-radius: var(--radius-1);
+}
+.pin-data-nama:focus-visible { outline: 2px solid var(--pintar-primary); outline-offset: 2px; }
+.pin-data-nama ol { list-style: none; margin: 0; padding: 0; }
+.pin-data-nama li {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3); align-items: baseline; padding: var(--space-2) var(--space-4);
+}
+.pin-data-nama li + li { border-top: 1px solid var(--line); }
+.pin-data-nama .pin-num { color: var(--ink-3); font-size: var(--type-fine); }
+.pin-data-nama-nama { overflow-wrap: anywhere; }
+.pin-data-nama-peran { font-size: var(--type-fine); color: var(--ink-2); text-align: end; }
+
 /* -------------------------------------------------------------- progress */
 /* THE WIDTH IS A COMMITTED COUNT. There is no keyframe moving it and no
    indeterminate state: a bar that animated on its own would be claiming
@@ -1859,6 +1918,8 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   .pin-data-periksa { padding: var(--space-4); }
   .pin-data-pilot li { grid-template-columns: auto minmax(0, 1fr); }
   .pin-data-pilot .pin-mono { grid-column: 2; }
+  .pin-data-nama li { grid-template-columns: auto minmax(0, 1fr); }
+  .pin-data-nama-peran { grid-column: 2; text-align: start; }
 }
 
 /* Reduced motion stops the one thing that moves without being asked to. The
@@ -2086,6 +2147,10 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-str-isian-tahun { flex: 0 1 20ch; }
 .pin-str-isian label { font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2); }
 .pin-str-isian .pin-input { width: 100%; min-width: 0; }
+/* BOB-43 / DAISY-32: what a new Bagian is for -- two choices, the school's teaching preselected, each a whole row */
+.pin-str-untuk { border: 0; padding: 0; margin: 0; flex: 1 1 100%; }
+.pin-str-untuk legend { padding: 0; font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-str-pilih { display: flex; align-items: center; gap: var(--space-2); min-height: var(--control-h); font-size: var(--type-body); }
 .pin-str-pesan { margin: 0; font-size: var(--type-meta); color: var(--status-ok); }
 .pin-str-ubah { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); flex: 1 1 20ch; min-width: 0; }
 .pin-str-ubah .pin-input { flex: 1 1 20ch; min-width: 0; }
@@ -2131,6 +2196,9 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-ung-isian { display: grid; gap: var(--space-1); min-width: 0; width: 100%; }
 .pin-ung-isian label { font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2); }
 .pin-ung-isian input[type="file"], .pin-ung-isian select { width: 100%; min-width: 0; font-size: var(--type-meta); }
+/* D-085 M10: what a correction changed, and the line it belongs to */
+.pin-ung-isian textarea { width: 100%; min-width: 0; font-size: var(--type-meta); }
+.pin-riwayat { display: grid; gap: var(--space-1); }
 .pin-ung-catatan { margin: 0; font-size: var(--type-meta); color: var(--ink-2); }
 .pin-ung-hasil { display: grid; gap: var(--space-2); }
 .pin-ung-lolos { margin: 0; font-weight: var(--weight-strong); color: var(--status-ok); }
@@ -2174,3 +2242,277 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-akt-isian .pin-input { width: 100%; min-width: 0; }
 .pin-akt-hasil { display: grid; gap: var(--space-1); }
 .pin-akt-hasil p { margin: 0; }
+
+/* W9: a report figure's rows (a distribution, a list), drawn by NilaiLaporan */
+.pin-lap-satu { margin: var(--space-1) 0 0; font-size: var(--type-subhead); font-weight: var(--weight-strong); }
+.pin-lap-isi { display: grid; gap: var(--space-1); margin: var(--space-1) 0 0; font-size: var(--type-meta); }
+.pin-lap-isi > div { display: flex; justify-content: space-between; gap: var(--space-4); }
+.pin-lap-isi dd { margin: 0; }
+.pin-lap-baris { list-style: none; margin: var(--space-1) 0 0; padding: 0; display: grid; gap: var(--space-2); font-size: var(--type-meta); }
+.pin-lap-baris > li {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-1) var(--space-4);
+  border: 1px solid var(--line); border-radius: var(--radius-1); padding: var(--space-2) var(--space-3);
+}
+
+/* BOB-28 (D-088(e)): «Kartu hilang atau rusak» — why, asked inline on the learner's row */
+.pin-akt-alasan { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
+.pin-akt-alasan > legend { padding: 0; margin-bottom: var(--space-1); }
+
+/* M7: a whole class's cards, and the printable class set (two across, none split; only the set prints) */
+.pin-akt-kelas { margin-top: var(--space-5); }
+.pin-akt-lembar { margin-top: var(--space-5); display: grid; gap: var(--space-3); }
+.pin-akt-lembar > h2 { margin: 0; font-size: var(--type-card); font-weight: var(--weight-strong); }
+.pin-akt-kartu-set { list-style: none; margin: 0; padding: 0; }
+.pin-akt-kartu {
+  border: 1px dashed var(--line-strong); border-radius: var(--radius-1);
+  padding: var(--space-4); display: grid; gap: var(--space-2); background: var(--surface-1);
+}
+.pin-akt-kartu p { margin: 0; }
+.pin-akt-kartu-isi { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2); margin: 0; }
+.pin-akt-kartu-isi dt { font-size: var(--type-meta); color: var(--ink-2); }
+.pin-akt-kartu-isi dd { margin: 0; font-size: var(--type-card); font-weight: var(--weight-strong); }
+.pin-akt-gagal { margin: var(--space-2) 0 0; padding-left: var(--space-5); font-size: var(--type-meta); }
+@media print {
+  /* while a class set is on the page, the paper carries the set and nothing else */
+  body:has(.pin-akt-lembar) *:not(:has(.pin-akt-lembar)):not(.pin-akt-lembar):not(.pin-akt-lembar *) { display: none !important; }
+  .pin-akt-lembar { margin-top: 0; }
+  .pin-akt-lembar .pin-grid2 { grid-template-columns: repeat(2, 1fr); }
+  .pin-akt-kartu { break-inside: avoid; }
+}
+
+/* DAISY-20 × D-077(2): a new person's name, checked before it is made. It sits
+   on the attention ground, as the intake's checkpoint does, because somebody
+   is being asked to look before PINTAR acts. */
+.pin-akt-periksa {
+  display: grid; gap: var(--space-2); min-width: 0; padding: var(--space-4);
+  background: var(--status-attention-soft); border: 1px solid var(--status-attention); border-radius: var(--radius-2);
+}
+.pin-akt-periksa h3 { margin: 0; font-size: var(--type-card); font-weight: var(--weight-strong); }
+.pin-akt-periksa h3:focus:not(:focus-visible) { outline: none; }
+.pin-akt-periksa p { margin: 0; overflow-wrap: anywhere; }
+.pin-akt-periksa .pin-actions { margin-top: var(--space-1); }
+
+/* ------------------------------------------ «Aktifkan akun PINTAR Anda» (DAISY-20)
+   The activation screens are the sign-in page's grammar: one column, one
+   primary action, labels above controls. What is new is the step line, the
+   rules shown before typing, and the name shown the way it will be read. */
+.pin-akt-langkah {
+  margin: 0; font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-akt-aturan {
+  margin: 0; padding: var(--space-3) var(--space-3) var(--space-3) var(--space-6);
+  display: grid; gap: var(--space-1);
+  background: var(--surface-2); border-radius: var(--radius-1);
+  font-size: var(--type-meta); color: var(--ink-2);
+}
+/* THE NAME AS IT WILL BE READ (D-077): large, whole, and never truncated, so
+   a misspelling is seen before it is confirmed. A long name wraps. */
+.pin-akt-nama {
+  margin: 0; padding: var(--space-3) var(--space-4);
+  background: var(--surface-2); border-radius: var(--radius-1);
+  font-size: var(--type-subhead); font-weight: var(--weight-strong); line-height: var(--leading-heading);
+  color: var(--ink-1); overflow-wrap: anywhere;
+}
+.pin-akt-hitung { margin: 0; text-align: center; font-variant-numeric: tabular-nums; }
+.pin-akt-selamat .pin-disc { justify-self: start; }
+.pin-akt-keluar { display: flex; justify-content: center; margin-top: var(--space-5); }
+
+/* THE PINTAR ID, 4 + 4, with its QR (Akun saya and the welcome). The ID never
+   breaks across its space; the QR is the certificate page's own box. On the
+   narrowest phones the QR goes under the text rather than squeezing it. */
+.pin-idn {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-4); align-items: start;
+  padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+}
+.pin-idn-teks { display: grid; gap: var(--space-1); min-width: 0; }
+.pin-idn-teks p { margin: 0; }
+.pin-idn-nama { font-size: var(--type-card); font-weight: var(--weight-strong); overflow-wrap: anywhere; }
+.pin-idn-id {
+  font-family: var(--font-mono); font-size: var(--type-subhead); font-weight: var(--weight-strong);
+  font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink-1);
+}
+.pin-idn-konteks { margin: 0; padding: 0; list-style: none; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-idn-qr { flex: none; }
+@media (max-width: 360px) {
+  .pin-idn { grid-template-columns: minmax(0, 1fr); }
+  /* With «Akun saya» beside «Keluar», a 320 px row left the staff name «Na…»,
+     and the strip exists so the name can be read. On the narrowest phones the
+     name takes the whole line and the two doors sit together under it, on the
+     right; from 361 px the strip stays one row. */
+  .pin-top .pin-sesi { flex-wrap: wrap; }
+  .pin-top .pin-sesi-ket { flex: 1 1 100%; }
+}
+
+/* The door to Akun saya in the session strip: a link, 44px tall like the
+   button beside it, kept with that button on a phone's own row. */
+.pin-sesi-akun {
+  display: inline-flex; align-items: center; flex: none; min-height: 44px; padding: 0 var(--space-2);
+  margin-inline-start: auto;
+  font-size: var(--type-fine); font-weight: var(--weight-strong); white-space: nowrap;
+  color: var(--pintar-primary); text-decoration: underline; text-underline-offset: 3px;
+}
+
+/* DAISY-06, the Terbit step: seven named steps to publication on the package
+   page, the current one open, each with who takes it. Built like the upload
+   panel's steps so the two read as one journey. */
+.pin-lt {
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); min-width: 0;
+  padding: var(--space-4) var(--space-5); border: 1px solid var(--line); border-radius: var(--radius-2);
+  background: var(--surface-1);
+}
+.pin-lt-kepala { margin: 0; font-size: var(--type-card); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-lt-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); }
+.pin-lt-langkah {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); align-items: start;
+  padding: var(--space-2) var(--space-3); border: 1px solid transparent; border-radius: var(--radius-1);
+}
+.pin-lt-langkah.pin-lt-kini { border-color: var(--line-strong); background: var(--surface-0); }
+.pin-lt-no {
+  display: inline-grid; place-items: center; width: var(--space-6); height: var(--space-6);
+  border-radius: var(--radius-pill); border: 1px solid var(--line-strong);
+  font-size: var(--type-fine); font-weight: var(--weight-strong); color: var(--ink-3);
+}
+.pin-lt-kini .pin-lt-no { background: var(--pintar-primary); border-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pin-lt-selesai .pin-lt-no { background: var(--pintar-primary-soft); border-color: var(--pintar-primary-soft); color: var(--pintar-primary); }
+.pin-lt-isi { display: grid; gap: var(--space-1); min-width: 0; }
+.pin-lt-judul {
+  margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-2);
+  font-size: var(--type-body); color: var(--ink-2);
+}
+.pin-lt-kini .pin-lt-judul, .pin-lt-selesai .pin-lt-judul { color: var(--ink-1); }
+.pin-lt-kini .pin-lt-judul { font-weight: var(--weight-strong); }
+.pin-lt-tanda { font-size: var(--type-fine); font-weight: var(--weight-strong); color: var(--ink-3); }
+.pin-lt-kini .pin-lt-tanda { color: var(--pintar-primary); }
+.pin-lt-oleh { margin: 0; font-size: var(--type-meta); color: var(--ink-3); }
+.pin-lt-kerja { display: grid; gap: var(--space-2); justify-items: start; margin-top: var(--space-1); min-width: 0; }
+.pin-lt-kerja > * { max-width: 100%; }
+.pin-lt-kerja p { margin: 0; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-lt-catatan { font-weight: var(--weight-strong); }
+.pin-lt-hambatan { font-weight: var(--weight-strong); }
+.pin-lt-tarik { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); width: 100%; }
+.pin-lt-isian { display: grid; gap: var(--space-1); flex: 1 1 auto; min-width: 0; }
+.pin-lt-isian .pin-input { width: 100%; min-width: 0; }
+
+/* DAISY-07: Pimpinan, class by class. Each class is a disclosure the reader
+   opens; the summary line names the class and whether it has figures yet. */
+.pin-kelas-bukti {
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+  margin-top: var(--space-2); min-width: 0;
+}
+.pin-kelas-bukti > summary {
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-1) var(--space-3);
+  padding: var(--space-3) var(--space-4); cursor: pointer; list-style-position: inside;
+}
+/* a flex summary loses the browser's own triangle; this one turns when open */
+.pin-kelas-bukti > summary::-webkit-details-marker { display: none; }
+.pin-kelas-bukti > summary::before { content: "\25B8"; color: var(--ink-3); }
+.pin-kelas-bukti[open] > summary::before { content: "\25BE"; }
+.pin-kelas-nama { flex: 1 1 auto; font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-kelas-tanda { font-size: var(--type-meta); color: var(--ink-3); }
+.pin-kelas-isi { display: grid; gap: var(--space-3); padding: 0 var(--space-4) var(--space-4); min-width: 0; }
+.pin-kelas-isi > .pin-btn { justify-self: start; }
+
+/* ── DAISY-18 (D-047): PINTAR shows it heard you ─────────────────────────── */
+/* The loading shell: the brand, one sentence, the shape of a page. */
+.pin-memuat .pin-col { display: grid; gap: var(--space-4); padding-block: var(--space-6); }
+.pin-memuat-kata { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
+.pin-memuat-bingkai { display: grid; gap: var(--space-4); }
+.pin-memuat-bentuk { display: grid; gap: var(--space-3); }
+.pin-memuat-bentuk span { display: block; height: 18px; border-radius: var(--radius-1); background: var(--surface-2); }
+.pin-memuat-bentuk span:nth-child(1) { width: 50%; height: 28px; }
+.pin-memuat-bentuk span:nth-child(2) { width: 100%; }
+.pin-memuat-bentuk span:nth-child(3) { width: 72%; }
+@media (prefers-reduced-motion: no-preference) {
+  .pin-memuat-bentuk span { animation: pin-denyut 1.2s ease-in-out infinite; }
+}
+@keyframes pin-denyut { 50% { opacity: 0.4; } }
+
+/* A menu link's working dot: no room at rest, so nothing shifts; still
+   drawn (not pulsing) under reduced motion. */
+.pin-tanda-tautan { display: inline-block; position: relative; width: 0; vertical-align: middle; }
+.pin-tanda-tautan-sibuk::after {
+  content: ""; position: absolute; left: 4px; top: -3px;
+  width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pin-tanda-tautan-sibuk::after { animation: pin-denyut 0.9s ease-in-out infinite; }
+}
+
+/* The result line of a save, next to its form. */
+.pin-hasil { margin-top: var(--space-2); }
+.pin-msg.pin-hasil-ok { background: var(--status-ok-soft); color: var(--status-ok); }
+.pin-msg.pin-hasil-gagal { background: var(--status-blocked-soft); color: var(--status-blocked); }
+.pin-msg.pin-hasil-netral { background: var(--surface-2); color: var(--ink-2); }
+
+/* ── BOB-19: the Konfigurasi health card, judged by F01-T13's own rule ───── */
+.pin-sehat { display: grid; gap: var(--space-1); justify-items: start; align-content: start; }
+.pin-sehat-label { margin: 0; font-size: var(--type-meta); color: var(--ink-3); }
+.pin-sehat-kata { margin: 0; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-sehat-gagal { margin: 0; font-size: var(--type-meta); color: var(--status-blocked); }
+.pin-sehat-tanda { margin: 0; padding: 2px var(--space-2); border-radius: var(--radius-1); font-size: var(--type-meta); }
+.pin-sehat-tanda.pin-ok { background: var(--status-ok-soft); color: var(--status-ok); }
+.pin-sehat-tanda.pin-perhatian { background: var(--status-blocked-soft); color: var(--status-blocked); }
+.pin-sehat-daftar { margin: 0; padding-left: var(--space-5); font-size: var(--type-meta); color: var(--ink-2); }
+
+/* ── DAISY-16: what holds a release, one blocker per line ──────────────── */
+.pin-lt-hambatan-daftar { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-1); list-style: disc; }
+
+/* D-085 M3 (W4): the result says whether the target was met; below it, the parts to read again. */
+.pin-target p + p, .pin-target .pin-ulang-judul { margin-top: var(--space-2); }
+.pin-ulang-judul { margin: 0; font-weight: var(--weight-strong); }
+.pin-ulang { margin: var(--space-2) 0 0; padding-left: var(--space-5); display: grid; gap: 4px; }
+
+/* D-085 M6: the origin of a release on «Siapkan materi» — PINTAR's standard material or the school's own. */
+.pin-asal { font-size: var(--type-meta); color: var(--ink-3); }
+
+/* D-085 T2: the Uji Cepat's questions, ticked by the teacher; the stem is the checkbox's label */
+.pin-cepat-centang { display: grid; grid-template-columns: auto 1fr; gap: var(--space-3); align-items: start; cursor: pointer; }
+.pin-cepat-centang input { margin-top: 4px; width: 18px; height: 18px; }
+/* D-085 M3 (J5.12): «Minta membaca lagi», and the learner's «Diminta guru Anda» */
+.pin-ulang fieldset { border: 0; padding: 0; margin: 0 0 var(--space-4); }
+.pin-ulang legend { font-weight: var(--weight-strong); margin-bottom: var(--space-2); }
+.pin-ulang ul, .pin-ulang ol { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-2); }
+.pin-ulang small[data-status="bawah"] { color: var(--status-blocked); }
+.pin-ulang-tautan { display: block; margin-top: var(--space-1); font-size: var(--type-meta); }
+.pin-diminta-pelajaran { margin: var(--space-2) 0 0; padding-left: var(--space-4); display: grid; gap: var(--space-1); }
+.pin-cepat-pilih .pin-soal-opsi, .pin-cepat-pilih .pin-meta { padding-left: calc(18px + var(--space-3)); }
+.pin-cepat-terakhir a { color: var(--pintar-primary); }
+
+/* BOB-29 (Gate 6): «Komputer siapa ini?», two whole-row choices; and the shared computer's 4-minute warning, above
+   everything, at the foot of the screen */
+.pin-perangkat { border: 0; margin: 0 0 var(--space-3); padding: 0; display: grid; gap: var(--space-2); }
+.pin-perangkat-pilihan {
+  display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-3);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1); cursor: pointer;
+}
+.pin-perangkat-pilihan > span { display: grid; gap: var(--space-1); }
+.pin-perangkat-pilihan input { margin-top: var(--space-1); }
+.pin-perangkat-dipilih { border-color: var(--pintar-primary); box-shadow: inset 0 0 0 1px var(--pintar-primary); }
+.pin-jaga {
+  position: fixed; inset: auto var(--space-3) var(--space-3) var(--space-3); z-index: 60; margin: 0 auto; max-width: var(--measure-read);
+  display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); align-items: center; justify-content: space-between;
+  padding: var(--space-3); background: var(--surface-1); color: var(--ink-1);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1); box-shadow: 0 0 0 4px var(--pintar-primary-soft);
+}
+.pin-jaga > p { margin: 0; flex: 1 1 var(--measure-guide-tip); }
+
+/* --------------------------------------------------------- laporkan masalah */
+/* BOB-15 / DAISY-12 (D-037 step 2): three questions, one box, an optional picture; and the reports themselves as a
+   plain list, each with its status and the next step written to the reporter. */
+.pin-lapor { display: grid; gap: var(--space-4); max-width: var(--measure-read); }
+.pin-lapor-isian { display: grid; gap: var(--space-1); }
+.pin-lapor-isian > span { font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-lapor textarea {
+  width: 100%; min-height: calc(var(--control-h) + var(--space-6)); font: inherit; resize: vertical;
+  padding: var(--space-2) var(--space-3); color: var(--ink-1); background: var(--surface-0);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+}
+.pin-lapor-pilih { display: flex; align-items: center; gap: var(--space-2); min-height: var(--control-h); }
+.pin-lapor-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.pin-lapor-satu {
+  display: grid; gap: var(--space-2); padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+}
+.pin-lapor-satu p { margin: 0; }
+.pin-lapor-langkah { color: var(--ink-1); }

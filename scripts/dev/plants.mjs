@@ -52,7 +52,8 @@ const dbUrl = flag("db-url") ?? process.env.PINTAR_PLANT_DB_URL ?? process.env.D
 
 /**
  * A digest of everything a plant can plausibly change: function bodies,
- * columns, policies, and the grants on both tables and functions. It is the
+ * columns, policies, the grants on tables, columns and functions, and the
+ * triggers (public and auth; BOB-26). It is the
  * harness's evidence that a mutation LANDED and, after the rollback, that it
  * is GONE — without asking each plant to describe itself, and without
  * trusting that a `replace()` found its match.
@@ -75,6 +76,20 @@ select md5(string_agg(x, '|' order by x)) from (
   union all
   select 'facl ' || p.oid::regprocedure::text || ' ' || coalesce(array_to_string(p.proacl, ','), '')
     from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'
+  union all
+  -- BOB-26: column grants (a revoked display_name update) and triggers (the
+  -- password write guard on auth.users) are schema too
+  select 'cacl ' || c.relname || '.' || a.attname || ' ' || array_to_string(a.attacl, ',')
+    from pg_attribute a join pg_class c on c.oid = a.attrelid join pg_namespace n on n.oid = c.relnamespace
+   where n.nspname = 'public' and a.attnum > 0 and not a.attisdropped and a.attacl is not null
+  union all
+  select 'trg ' || t.tgrelid::regclass::text || '.' || t.tgname || ' ' || t.tgenabled::text
+    from pg_trigger t join pg_class c on c.oid = t.tgrelid join pg_namespace n on n.oid = c.relnamespace
+   where not t.tgisinternal and n.nspname in ('public', 'auth')
+  union all
+  -- BOB-50: the mode policy is data the lint treats as schema (which mode
+  -- certifies), so a policy row that changes is a moved schema too
+  select 'mode ' || m.mode::text || ' ' || md5(to_jsonb(m)::text) from public.mode_policy m
 ) s`;
 
 function psql(args, input) {
@@ -111,7 +126,7 @@ if (selected.length === 0) die(`no plants selected${gate ? ` for gate ${gate}` :
 // ------------------------------------------------------------------ define
 // Every suite file, because each assumes the helpers the ones before it
 // install. Defining is cheap; running is what a targeted plant avoids.
-for (const f of ["fable01", "fable02", "fable03", "fable04", "fable05", "fable05t1_quick_canonical", "fable05t2_evaluation", "fable06", "fable07", "fable08", "fable09", "fable10", "fable11", "fable12", "fable13"]) {
+for (const f of ["fable01", "fable02", "fable03", "fable04", "fable05", "fable05t1_quick_canonical", "fable05t2_evaluation", "fable06", "fable07", "fable08", "fable09", "fable10", "fable11", "fable12", "fable13", "fable14", "fable15", "fable16", "fable17", "fable18", "fable19"]) {
   const r = psql(["-q", "-1", "-f", join(repoRoot, "selftest", "db", `${f}.sql`)]);
   if (r.code !== 0) die(`${f}.sql did not load: ${r.err.split("\n").pop()}`);
 }

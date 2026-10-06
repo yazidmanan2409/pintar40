@@ -171,7 +171,10 @@ jobs:
         case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
                static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,
                db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
-               db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates, db-bob04-gates]
+               db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates, db-bob04-gates,
+               db-bob06-gates, db-bob12-gates, db-bob24-gates,
+               db-bob35-gates, db-bob36-gates, db-bob39-gates, db-bob37-gates, db-bob25-gates,
+               db-bob26-gates, db-bob50-gates]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -196,7 +199,7 @@ jobs:
               mkdir -p "src/app/verifikasi-ulang/[token]"
               printf -- "export default function P() {\n  return null;\n}\n" > "src/app/verifikasi-ulang/[token]/page.tsx" ;;
             db-fable04-gates)
-              echo "the four FABLE-04 gate defects are planted in SQL against the running stack, below" ;;
+              echo "the five FABLE-04 gate defects are planted in SQL against the running stack, below" ;;
             db-fable05-gates)
               echo "the five FABLE-05 gate defects are planted in SQL against the running stack, below" ;;
             db-task1-gates)
@@ -220,13 +223,33 @@ jobs:
             db-r1-gates)
               echo "the six systemic-repair defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob01-gates)
-              echo "the eleven school-structure and intake defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+              echo "the twenty-four school-structure, intake, staff-visibility and grant defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob02-gates)
-              echo "the ten lesson-package defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+              echo "the eleven lesson-package and media-preview defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob03-gates)
-              echo "the nine release-path defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+              echo "the eleven release-path and readiness-code defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
             db-bob04-gates)
               echo "the nine learning-cycle defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob06-gates)
+              echo "the six standard-report defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob12-gates)
+              echo "the nine card-cooldown defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob24-gates)
+              echo "the fourteen identity-foundation defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob35-gates)
+              echo "the five session-provenance defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob39-gates)
+              echo "the integrity-referral defect declared in selftest/plants/plants.json is planted against the running stack, below" ;;
+            db-bob37-gates)
+              echo "the three per-topic mastery defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob25-gates)
+              echo "the five send-log and limit defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob26-gates)
+              echo "the eight activation defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob50-gates)
+              echo "the four Uji Cepat certificate defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
+            db-bob36-gates)
+              echo "the four Uji Cepat rule defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
       - name: Static contract must go red for the right reason
         if: matrix.case == 'static-permissive-policy'
@@ -286,6 +309,34 @@ jobs:
           grep -E '^F06-S07 +FAIL' r4.txt
           grep -F 'zz_rogue_fixture.sql' r4.txt
           rm -f supabase/seed/zz_rogue_fixture.sql
+
+          # 5. BOB-16: a reader that returns Google Sheets' stored N.0 as it is.
+          #    BOB02-X01 must go red on the Google Sheets copy of the sample.
+          node -e 'const fs=require("fs");const f="src/lib/xlsx.ts";const s=fs.readFileSync(f,"utf8");const t=s.split("\n").filter(l=>!(l.includes("jenis === null") && l.includes("teks.replace"))).join("\n");if(t===s)process.exit(3);fs.writeFileSync(f,t)'
+          set +e; npx tsx selftest/run.ts --accept-justified-skips --only=BOB02-X01 | tee r5.txt; code=${PIPESTATUS[0]}; set -e
+          [ "$code" -ne 0 ] || { echo "::error::BOB02-X01 stayed green with a reader that keeps N.0"; exit 1; }
+          grep -E '^BOB02-X01 +FAIL' r5.txt
+          grep -F "contoh-gsheets.xlsx's Bab sheet does not hold the cells" r5.txt
+          git checkout -- src/lib/xlsx.ts
+
+          # 6. BOB-07: a server action that sends the database's words back in a
+          #    redirect. BOB07-K01 must go red and name the file.
+          mkdir -p src/app/redcase3
+          printf '"use server";\nexport async function a() { const { error } = await x(); back("s", { ok: false, detail: error.message }); }\n' > src/app/redcase3/actions.ts
+          set +e; npx tsx selftest/run.ts --accept-justified-skips --only=BOB07-K01 | tee r6.txt; code=${PIPESTATUS[0]}; set -e
+          [ "$code" -ne 0 ] || { echo "::error::BOB07-K01 stayed green with database words sent back in a redirect"; exit 1; }
+          grep -E '^BOB07-K01 +FAIL' r6.txt
+          grep -F 'src/app/redcase3/actions.ts:2 lets .message leave the server' r6.txt
+          rm -rf src/app/redcase3
+
+          # 7. BOB-09: a picker that treats the hidden Reguler as a Bagian.
+          #    BOB09-K01 must go red and name the hidden node it was offered.
+          node -e 'const fs=require("fs");const f="src/lib/struktur-kontrak.ts";const s=fs.readFileSync(f,"utf8");const t=s.replace("  DEPARTMENT: \"BAGIAN\",\n","  DEPARTMENT: \"BAGIAN\",\n  PROGRAMME: \"BAGIAN\",\n");if(t===s)process.exit(3);fs.writeFileSync(f,t)'
+          set +e; npx tsx selftest/run.ts --accept-justified-skips --only=BOB09-K01 | tee r7.txt; code=${PIPESTATUS[0]}; set -e
+          [ "$code" -ne 0 ] || { echo "::error::BOB09-K01 stayed green with the hidden Reguler offered as a place"; exit 1; }
+          grep -E '^BOB09-K01 +FAIL' r7.txt
+          grep -F 'the intake offers a hidden node: ["SD · Reguler","SMA · Reguler"]' r7.txt
+          git checkout -- src/lib/struktur-kontrak.ts
       - name: The INV-20 lint must catch a planted raw-evidence read
         if: matrix.case == 'static-raw-evidence-read'
         run: |
@@ -419,6 +470,26 @@ jobs:
           rollback;
           SQL
           red F04-T09 'plp_release_id' /tmp/rc4.sql
+
+          # 5. D-093 T2: a revoked certificate is revoked again, and the second revocation rewrites the first
+          cat > /tmp/rc5.sql <<'SQL'
+          begin;
+          do $d$
+          declare src text; orig text;
+          begin
+            orig := pg_get_functiondef('public.revoke_certificate(uuid,text)'::regprocedure);
+            src := replace(orig, 'if v_cert.status = ''REVOKED'' then', 'if false then');
+            if src = orig then raise exception 'the plant did not reach the second-revocation refusal'; end if;
+            execute src;
+            orig := pg_get_functiondef('public.enforce_certificate_write()'::regprocedure);
+            src := replace(orig, 'if old.status = ''REVOKED'' and (new.revoked_at', 'if false and (new.revoked_at');
+            if src = orig then raise exception 'the plant did not reach the guard'; end if;
+            execute src;
+          end $d$;
+          select test_id, case when ok then 't' else 'f' end, detail from selftest.run_fable04() where test_id = 'F04-T10';
+          rollback;
+          SQL
+          red F04-T10 'a revoked certificate was revoked again' /tmp/rc5.sql
 
       # FABLE-05 §10.6's five red cases. One stack, same discipline as the
       # FABLE-04 leg: each defect is planted inside its own transaction and
@@ -1522,33 +1593,40 @@ jobs:
           #    formality.
           cat > /tmp/wp1-8.sql <<'SQL'
           begin;
-          insert into public.metric_catalogue (version, note) values ('MC-99','red case');
-          update public.metric_catalogue set superseded_by = 'MC-99' where version = 'MC-2';
-          insert into public.metric_definitions
-            (catalogue_version, metric_id, label_key, meaning_key, scope, evidence_class, minimum_sample,
-             allowed_visualizations, allowed_audiences, calculation_key, deprecated, deprecation_note_key)
-          select 'MC-99', d.metric_id, d.label_key, d.meaning_key, d.scope, d.evidence_class,
-                 d.minimum_sample, d.allowed_visualizations,
-                 case when d.metric_id = 'learner.result'
-                      then array['STUDENT','EDUCATOR','HEAD_OF_DEPARTMENT','DEAN','INSTITUTION_ADMIN']::public.app_role[]
-                      else d.allowed_audiences end,
-                 d.calculation_key, d.deprecated, d.deprecation_note_key
-            from public.metric_definitions d where d.catalogue_version = 'MC-2';
-          insert into public.readiness_tiers
-            (catalogue_version, tier_key, ordinal, min_mastery, max_mastery, requires_safety_gate, applies_without_post_test)
-          select 'MC-99', t.tier_key, t.ordinal, t.min_mastery, t.max_mastery, t.requires_safety_gate, t.applies_without_post_test
-            from public.readiness_tiers t where t.catalogue_version = 'MC-2';
-          insert into public.metric_sources (catalogue_version, source_relation, why)
-          select 'MC-99', s.source_relation, s.why from public.metric_sources s where s.catalogue_version = 'MC-2';
-          -- carried forward because `publish_metric_catalogue` does NOT carry
-          -- them and a version without them is refused by
-          -- assert_question_health_observes_only. That gap is a recorded
-          -- residual; here it just has to be worked around so the plant plants
-          -- the thing it means to.
-          insert into public.question_health_thresholds
-            (catalogue_version, signal_key, min_evidence, low_watermark, high_watermark, unwired_reason_key)
-          select 'MC-99', q.signal_key, q.min_evidence, q.low_watermark, q.high_watermark, q.unwired_reason_key
-            from public.question_health_thresholds q where q.catalogue_version = 'MC-2';
+          -- The rogue version supersedes WHICHEVER catalogue is live (MC-3 since
+          -- BOB-37), read rather than named, so a later catalogue does not turn
+          -- this plant into a refused no-op that leaves F06-P12 green.
+          do $w$
+          declare v text := public.current_metric_catalogue();
+          begin
+            insert into public.metric_catalogue (version, note) values ('MC-99','red case');
+            update public.metric_catalogue set superseded_by = 'MC-99' where version = v;
+            insert into public.metric_definitions
+              (catalogue_version, metric_id, label_key, meaning_key, scope, evidence_class, minimum_sample,
+               allowed_visualizations, allowed_audiences, calculation_key, deprecated, deprecation_note_key)
+            select 'MC-99', d.metric_id, d.label_key, d.meaning_key, d.scope, d.evidence_class,
+                   d.minimum_sample, d.allowed_visualizations,
+                   case when d.metric_id = 'learner.result'
+                        then array['STUDENT','EDUCATOR','HEAD_OF_DEPARTMENT','DEAN','INSTITUTION_ADMIN']::public.app_role[]
+                        else d.allowed_audiences end,
+                   d.calculation_key, d.deprecated, d.deprecation_note_key
+              from public.metric_definitions d where d.catalogue_version = v;
+            insert into public.readiness_tiers
+              (catalogue_version, tier_key, ordinal, min_mastery, max_mastery, requires_safety_gate, applies_without_post_test)
+            select 'MC-99', t.tier_key, t.ordinal, t.min_mastery, t.max_mastery, t.requires_safety_gate, t.applies_without_post_test
+              from public.readiness_tiers t where t.catalogue_version = v;
+            insert into public.metric_sources (catalogue_version, source_relation, why)
+            select 'MC-99', s.source_relation, s.why from public.metric_sources s where s.catalogue_version = v;
+            -- carried forward because `publish_metric_catalogue` does NOT carry
+            -- them and a version without them is refused by
+            -- assert_question_health_observes_only. That gap is a recorded
+            -- residual; here it just has to be worked around so the plant plants
+            -- the thing it means to.
+            insert into public.question_health_thresholds
+              (catalogue_version, signal_key, min_evidence, low_watermark, high_watermark, unwired_reason_key)
+            select 'MC-99', q.signal_key, q.min_evidence, q.low_watermark, q.high_watermark, q.unwired_reason_key
+              from public.question_health_thresholds q where q.catalogue_version = v;
+          end $w$;
           SQL
           case_of /tmp/wp1-8.sql F06-P12
           red F06-P12 'metric route' /tmp/wp1-8.sql
@@ -1684,6 +1762,125 @@ jobs:
           DB_URL: ${{ steps.gatesBob04.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob04-gates
 
+      # BOB-06's gates: every school carries PINTAR's standard class and school
+      # reports from creation, and PINTAR's rows and the provisioning pass are
+      # nobody else's. Same harness, same four proofs, on F14.
+      - name: Local stack (standard-report gates)
+        if: matrix.case == 'db-bob06-gates'
+        id: gatesBob06
+        uses: ./.github/actions/local-stack
+      - name: Each planted standard-report defect must turn its own F14 test red
+        if: matrix.case == 'db-bob06-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob06.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob06-gates
+
+      # BOB-12's gates: a class card waits after failures (5 free in 15 minutes,
+      # then 30 s doubling to a 5-minute cap), a sign-in clears it, an attempt
+      # Auth never judged counts for nothing, and the cooldown is the sign-in
+      # route's alone. Same harness, same four proofs, on F15.
+      - name: Local stack (card-cooldown gates)
+        if: matrix.case == 'db-bob12-gates'
+        id: gatesBob12
+        uses: ./.github/actions/local-stack
+      - name: Each planted card-cooldown defect must turn its own F15 test red
+        if: matrix.case == 'db-bob12-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob12.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob12-gates
+
+      # BOB-24's gates: the PINTAR ID never changes and is read as ruled, a
+      # username is claimed once and never renamed but by the platform admin,
+      # the PIN is blocklisted and set once, set-up needs both, the recovery
+      # ladder locks 1 h, then 4 h, then suspends for good, a restore forces a
+      # new PIN, and the tables and recovery functions are nobody's but the
+      # routes'. Same harness, same four proofs, on F16.
+      - name: Local stack (identity-foundation gates)
+        if: matrix.case == 'db-bob24-gates'
+        id: gatesBob24
+        uses: ./.github/actions/local-stack
+      - name: Each planted identity-foundation defect must turn its own F16 test red
+        if: matrix.case == 'db-bob24-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob24.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob24-gates
+
+      # BOB-35's gates: a session records a release of its definition's course,
+      # a corrected-release move carries the cycle or is refused, and never
+      # once a learner has started. BOB-36's: a sat Uji Cepat keeps its rules.
+      # Same harness, same four proofs, on F05 and F04.
+      - name: Local stack (session-provenance gates)
+        if: matrix.case == 'db-bob35-gates'
+        id: gatesBob35
+        uses: ./.github/actions/local-stack
+      - name: Each planted session-provenance defect must turn its own F05 test red
+        if: matrix.case == 'db-bob35-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob35.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob35-gates
+      - name: Local stack (Uji Cepat rule gates)
+        if: matrix.case == 'db-bob36-gates'
+        id: gatesBob36
+        uses: ./.github/actions/local-stack
+      - name: Each planted Uji Cepat rule defect must turn its own F04 test red
+        if: matrix.case == 'db-bob36-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob36.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob36-gates
+
+      # BOB-39's gate: «Diteruskan ke pihak sekolah» reaches the decision queue.
+      - name: Local stack (integrity-referral gate)
+        if: matrix.case == 'db-bob39-gates'
+        id: gatesBob39
+        uses: ./.github/actions/local-stack
+      - name: The planted integrity-referral defect must turn F06-P22 red
+        if: matrix.case == 'db-bob39-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob39.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob39-gates
+
+      # BOB-37's gate: per-topic mastery reads the recorded per-objective objects.
+      - name: Local stack (per-topic mastery gate)
+        if: matrix.case == 'db-bob37-gates'
+        id: gatesBob37
+        uses: ./.github/actions/local-stack
+      - name: Each planted per-topic mastery defect must turn F06-P23 red
+        if: matrix.case == 'db-bob37-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob37.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob37-gates
+
+      # BOB-25's gate: the send log and the send limits.
+      - name: Local stack (send log and limits gate)
+        if: matrix.case == 'db-bob25-gates'
+        id: gatesBob25
+        uses: ./.github/actions/local-stack
+      - name: Each planted send-log or limit defect must turn its own F17 test red
+        if: matrix.case == 'db-bob25-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob25.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob25-gates
+      - name: Local stack (activation gate)
+        if: matrix.case == 'db-bob26-gates'
+        id: gatesBob26
+        uses: ./.github/actions/local-stack
+      - name: Each planted activation defect must turn its own F18 test red
+        if: matrix.case == 'db-bob26-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob26.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob26-gates
+
+      # BOB-50's gate: a single Uji Cepat does not issue a certificate (D-082(d)).
+      - name: Local stack (Uji Cepat certificate gate)
+        if: matrix.case == 'db-bob50-gates'
+        id: gatesBob50
+        uses: ./.github/actions/local-stack
+      - name: Each planted Uji Cepat certificate defect must turn its own F19 test red
+        if: matrix.case == 'db-bob50-gates'
+        env:
+          DB_URL: ${{ steps.gatesBob50.outputs.db-url }}
+        run: node scripts/dev/plants.mjs run --gate=db-bob50-gates
+
       - name: Each planted anonymity defect must turn its own F07 test red
         if: matrix.case == 'db-wp7-gates'
         env:
@@ -1726,6 +1923,15 @@ jobs:
       - run: npm ci
       - id: stack
         uses: ./.github/actions/local-stack
+      # BOB-25: every CI send goes to this sink and nowhere else. Its chaos API
+      # lets BOB25-S01 make the host refuse a send (451) and prove it is
+      # reported as not sent. Loopback only; SMTP 54325, API 54324, as locally.
+      - name: Mailpit sink (BOB-25)
+        run: |
+          docker run -d --name mailpit -p 127.0.0.1:54325:1025 -p 127.0.0.1:54324:8025 axllent/mailpit:v1.31.3 \
+            --enable-chaos --smtp-auth-accept-any --smtp-auth-allow-insecure --disable-version-check
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:54324/api/v1/info >/dev/null && break; sleep 1; done
+          curl -sf http://127.0.0.1:54324/api/v1/info >/dev/null
       - name: Build against the local stack and run the whole manifest
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ steps.stack.outputs.api-url }}
@@ -1738,6 +1944,13 @@ jobs:
           # Not a secret: a CI-only signing key, exactly as CARD_PEPPER above.
           # The certificates it signs exist for the length of one job.
           CERT_SECRET_KEY_V1: synthetic-certificate-key-fable04-32plus
+          # BOB-26: the app's own sends (activation codes, the card) go to the
+          # Mailpit sink above and nowhere else. Not secrets: the sink accepts
+          # any login, and loopback is the only plain connection allowed.
+          PINTAR_SMTP_HOST: 127.0.0.1
+          PINTAR_SMTP_PORT: "54325"
+          PINTAR_SMTP_USER: noreply@pintarselalu.test
+          PINTAR_SMTP_PASSWORD: sink-accepts-any
           PINTAR_BUILD_SHA: ${{ github.sha }}
           SELFTEST_APP_PORT: 3999
           SELFTEST_CI_UPSTREAM: >-

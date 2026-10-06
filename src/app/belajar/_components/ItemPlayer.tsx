@@ -28,12 +28,11 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { t, type HleEvent } from "@/lib/hle";
+import { t, type HleEvent, type Locale } from "@/lib/hle";
 import type { PaperEntry, AssistanceState, AssistanceLevel } from "@/lib/assessment-engine";
-
-type Answer = { posisi: number } | { posisi: number[] };
-/** One answer the learner took and the server has not yet acknowledged. */
-type Entry = { presentedItemId: string; clientSeq: number; value: Answer };
+import { TeksBaris } from "@/components/teks/Teks";
+import { belumDisimpan, sameAnswer, soalAwal, type Answer, type Entry } from "@/lib/kumpulkan";
+import { ALAMAT_PERIKSA, dijawabDiHalaman, jedaAwal, jedaBantuan, periksaSaatLuring } from "@/lib/bantuan-terjadwal";
 
 export type ItemPlayerProps = {
   sessionId: string;
@@ -43,15 +42,25 @@ export type ItemPlayerProps = {
   /** Highest client_seq the server has per presented item. */
   seqs: Record<string, number>;
   mode: "PEMETAAN" | "PENGUASAAN";
+  /**
+   * BOB-50 (D-082(d)): whether this session is the cycle's Uji Penguasaan
+   * (assessment mode POST_TEST), the one sitting that asks for a certificate.
+   * An Uji Cepat borrows the PENGUASAAN treatment but never certifies.
+   */
+  memintaSertifikat: boolean;
   stage: string | null;
   allowsPause: boolean;
   startedAt: string | null;
+  /** The assessment's hesitation window in seconds, from the server (session_state); null: it offers no help. */
+  assistanceWindow: number | null;
   finishHref: string;
+  /** J6.14 (STU-20): the reader's language for the player's own words; questions and options are never translated. */
+  locale: Locale;
   actions: {
     submitAnswer: (presentedItemId: string, clientSeq: number, value: Answer,
                    receiptMode?: "LIVE" | "REPLAYED" | "LATE_SYNC") =>
       Promise<{ ok: true; outcome: string } | { ok: false; message: string; code: string | null; detail: string | null }>;
-    noteView: (presentedItemId: string) => Promise<{ ok: boolean }>;
+    noteView: (presentedItemId: string) => Promise<{ ok: true; dwellSeconds: number | null } | { ok: false }>;
     assistance: (presentedItemId: string) =>
       Promise<{ ok: true; state: AssistanceState } | { ok: false; message: string }>;
     openAssistance: (presentedItemId: string, level: number) =>
@@ -144,20 +153,14 @@ function dropEntry(sessionId: string, e: Entry) {
 /** What one delivery attempt came to. */
 type Delivery = "acked" | "pending" | "offline" | "closed";
 
-function sameAnswer(a: Answer | undefined, b: Answer): boolean {
-  if (!a) return false;
-  const norm = (x: Answer) => (Array.isArray((x as { posisi: number[] }).posisi)
-    ? [...(x as { posisi: number[] }).posisi].sort((p, q) => p - q).join(",")
-    : String((x as { posisi: number }).posisi));
-  return norm(a) === norm(b);
-}
-
 export default function ItemPlayer(props: ItemPlayerProps) {
-  const { sessionId, paper, mode, stage, allowsPause, actions, finishHref } = props;
+  const { sessionId, paper, mode, stage, allowsPause, actions, finishHref, memintaSertifikat } = props;
   const router = useRouter();
   const formal = mode === "PENGUASAAN";
+  const kata = (k: HleEvent) => t(k, "learner", { locale: props.locale });
 
-  const [index, setIndex] = useState(0);
+  // W3: a reload opens the first question without a saved answer, not question 1
+  const [index, setIndex] = useState(() => soalAwal(paper.map((p) => p.presentedItemId), props.accepted));
   const [accepted, setAccepted] = useState<Record<string, Answer>>(props.accepted);
   const [draft, setDraft] = useState<Record<string, Answer>>({});
   const [flagged, setFlagged] = useState<Record<string, boolean>>({});
@@ -178,6 +181,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   const [notice, setNotice] = useState<HleEvent | null>(null);
   const [closed, setClosed] = useState(false);
   const [finishing, setFinishing] = useState(false);
+  // W3: «Kumpulkan» asks once before it hands the test in (posttest.submit_confirm)
+  const [asking, setAsking] = useState(false);
   // THE SEQUENCE RULE (R1, F-07). Two sources of truth, never one:
   //   serverSeqs — the highest client_seq the server is known to hold per item
   //                (the page's read, raised by every acknowledgement);
@@ -264,21 +269,28 @@ export default function ItemPlayer(props: ItemPlayerProps) {
     return result;
   }, [deliver, sessionId]);
 
+  // ONE RECOVERY (owner ruling, 3 Oct, item 17). The browser's `online` and a successful offline probe (below)
+  // take the same path: the notice clears and every held answer is sent at once. «Tersimpan» still shows only on
+  // the server's acknowledgement (deliver), and a resend that does not arrive keeps the answer and turns offline
+  // mode, and with it the probe, back on (flush).
+  const pulihkan = useCallback(() => { setOnline(true); void flush(); }, [flush]);
+  const pulihkanRef = useRef(pulihkan);
+  useEffect(() => { pulihkanRef.current = pulihkan; }, [pulihkan]);
+
   useEffect(() => {
     // The mount replay is deferred by a tick rather than run in the effect
     // body: it settles state, and a synchronous settle here would cascade a
     // render before the first paint for no benefit.
     const first = window.setTimeout(() => { void flush(); }, 0);
-    const on = () => { setOnline(true); void flush(); };
     const off = () => setOnline(false);
-    window.addEventListener("online", on);
+    window.addEventListener("online", pulihkan);
     window.addEventListener("offline", off);
     return () => {
       window.clearTimeout(first);
-      window.removeEventListener("online", on);
+      window.removeEventListener("online", pulihkan);
       window.removeEventListener("offline", off);
     };
-  }, [flush]);
+  }, [flush, pulihkan]);
 
   const send = useCallback(async (entry: PaperEntry, value: Answer) => {
     const item = entry.presentedItemId;
@@ -294,16 +306,21 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   }, [accepted, deliver, nextSeq, sessionId]);
 
   /*
-   * FINISH NEVER OUTRUNS THE LEARNER'S WORK (R1, F-08). Replay everything held;
-   * if anything is still held, do not finish — say so. Otherwise send the
-   * manifest (the highest seq taken per item), and the database refuses (PR006)
-   * if it does not hold every one of them, whatever this page believed.
+   * FINISH NEVER OUTRUNS THE LEARNER'S WORK (R1, F-08). A choice still on the
+   * screen and not yet taken (W3: chosen, «Simpan jawaban ini» not pressed) is
+   * taken first, into the same outbox. Then replay everything held; if anything
+   * is still held, do not finish — say so. Otherwise send the manifest (the
+   * highest seq taken per item), and the database refuses (PR006) if it does
+   * not hold every one of them, whatever this page believed.
    */
   const finish = useCallback(async () => {
     if (finishing) return;
     setFinishing(true);
     setNotice(null);
     try {
+      for (const u of belumDisimpan(paper.map((p) => p.presentedItemId), draft, accepted, readEntries(sessionId))) {
+        putEntry(sessionId, { presentedItemId: u.presentedItemId, clientSeq: nextSeq(u.presentedItemId), value: u.value });
+      }
       const f = await flush();
       if (f === "offline") { setNotice("sync.belum_terkirim"); return; }
       if (readEntries(sessionId).length > 0) { setNotice("sync.belum_tersimpan"); return; }
@@ -322,8 +339,9 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       if (r.ok || r.code === "PR002") {
         // doc 04 §7: the system issues a certificate for a certifying pass. Asked
         // at once, never awaited: the results view must not wait on issuance,
-        // and the certificate page asks again on every load.
-        if (formal) {
+        // and the certificate page asks again on every load. BOB-50 (D-082(d)):
+        // only the cycle's Uji Penguasaan asks; an Uji Cepat never does.
+        if (memintaSertifikat) {
           void fetch("/api/certificates/issue", {
             method: "POST", keepalive: true, headers: { "content-type": "application/json" },
             body: JSON.stringify({ session_id: sessionId }),
@@ -336,7 +354,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
     } finally {
       setFinishing(false);
     }
-  }, [actions, finishHref, finishing, flush, formal, paper, router, sessionId]);
+  }, [accepted, actions, draft, finishHref, finishing, flush, memintaSertifikat, nextSeq, paper, router, sessionId]);
 
   // ---------------------------------------- integrity observations (F-09)
   /*
@@ -376,21 +394,83 @@ export default function ItemPlayer(props: ItemPlayerProps) {
   }, [observe]);
 
   // -------------------------------------------------- the server's own clock
+  /*
+   * HELP IS ASKED FOR WHEN IT COULD BE DUE (owner ruling, 2 Oct). The server decides whether help is due
+   * (assistance_state: the window against the time since the first view, and never once answered). The player asks
+   * at the point the server's own figures say help could become due (bantuan-terjadwal.ts), never on a timer of its
+   * own, and not at all where the assessment offers no help. It asks again only when the server's answer could have
+   * changed: after the learner opens a level, or when an answer is taken while help is on screen. «Tutup» closes the
+   * offer on this question for this page: nothing reopens it (dismiss_assistance records the close and changes no
+   * eligibility). The offline notice no longer rides on this: a refusal is not the network (option A, below).
+   */
+  const jendelaBantuan = props.assistanceWindow;
+  const ditutup = useRef<Set<string>>(new Set());
+  const tanyaBantuan = useRef<(() => void) | null>(null);
+  const diterima = useRef(accepted);
+  useEffect(() => { diterima.current = accepted; }, [accepted]);
   useEffect(() => {
     if (!current) return;
     let alive = true;
+    let timer: number | undefined;
     const itemId = current.presentedItemId;
-    void actions.noteView(current.presentedItemId);
-    const ask = async () => {
-      const r = await actions.assistance(itemId);
-      if (!alive) return;
-      if (r.ok) { setAssist({ itemId, state: r.state }); setOnline(true); }
-      else { setAssist(null); setOnline(false); }
+    const jadwalkan = (ms: number | null) => {
+      if (timer !== undefined) window.clearTimeout(timer);
+      // item 17: an answer this page holds (acknowledged, or held for sending) cannot become due: no check is sent
+      timer = ms === null ? undefined : window.setTimeout(() => {
+        if (dijawabDiHalaman(diterima.current, readEntries(sessionId), itemId)) return;
+        void tanya();
+      }, ms);
     };
-    void ask();
-    const timer = window.setInterval(ask, 5000);
-    return () => { alive = false; window.clearInterval(timer); };
-  }, [actions, current]);
+    const tanya = async () => {
+      if (!alive || ditutup.current.has(itemId)) return;
+      let r: Awaited<ReturnType<typeof actions.assistance>>;
+      try {
+        r = await actions.assistance(itemId);
+      } catch {
+        // the request never arrived: offline mode, and the probe below looks for the network
+        if (alive) setOnline(false);
+        return;
+      }
+      if (!alive || ditutup.current.has(itemId)) return;
+      // a refusal (the session closed under the page, say) is not the network: the notice stays as it was
+      if (!r.ok) { setAssist(null); return; }
+      setAssist({ itemId, state: r.state });
+      jadwalkan(jedaBantuan(r.state));
+    };
+    tanyaBantuan.current = () => { void tanya(); };
+    // the first view, on the server's clock; the action says how long the question has been on screen
+    const terjawab = diterima.current[itemId] !== undefined;
+    void actions.noteView(itemId).then(
+      (v) => { if (alive) jadwalkan(jedaAwal(jendelaBantuan, v.ok ? v.dwellSeconds : null, terjawab)); },
+      () => { if (alive) jadwalkan(jedaAwal(jendelaBantuan, null, terjawab)); },
+    );
+    return () => {
+      alive = false;
+      tanyaBantuan.current = null;
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, [actions, current, jendelaBantuan, sessionId]);
+
+  // an answer the server holds ends the hesitation: while help is on screen, ask once so the offer follows the server
+  const terimaKini = current ? accepted[current.presentedItemId] : undefined;
+  const bantuanTampil = Boolean(current && assist?.itemId === current.presentedItemId && assist.state.due);
+  useEffect(() => {
+    if (bantuanTampil && terimaKini !== undefined) tanyaBantuan.current?.();
+  }, [bantuanTampil, terimaKini]);
+
+  // OFFLINE ONLY (owner ruling, option A): while the page believes the learner is offline (a browser `offline`
+  // event, or a request that never arrived), a light probe asks whether the network is back; on the first yes the
+  // notice clears and the probe stops. Nothing runs while online. The probe is a static file the proxy does not
+  // see: no session check, no database, no decision but the notice.
+  useEffect(() => {
+    if (online) return;
+    // item 17: the first success takes the same recovery as the browser's `online`, sending the held answers
+    return periksaSaatLuring(
+      () => fetch(`${ALAMAT_PERIKSA}?periksa=${Date.now()}`, { method: "HEAD", cache: "no-store" }).then((r) => r.ok),
+      () => pulihkanRef.current(),
+      5000,
+    );
+  }, [online]);
 
   // counting up, never down (§4). The server owns the deadline; this is display.
   useEffect(() => {
@@ -432,6 +512,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
     if (to < 0 || to >= paper.length) return;
     setIndex(to);
     setNavOpen(false);
+    setAsking(false);
   }, [paper.length]);
 
   // ------------------------------------------------------------- keyboard nav
@@ -471,6 +552,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       setLevels((l) => (l.itemId === itemId
         ? { itemId, opened: [...l.opened, r.level] }
         : { itemId, opened: [r.level] }));
+      // the server's next level follows the one just opened: ask once
+      tanyaBantuan.current?.();
     }
   };
 
@@ -480,12 +563,12 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       <div className="pin-soalbar">
         {formal ? (
           <span className="pin-time" aria-live="off">
-            {t("posttest.elapsed", "learner")} {String(Math.floor(elapsed / 60)).padStart(2, "0")}:
+            {kata("posttest.elapsed")} {String(Math.floor(elapsed / 60)).padStart(2, "0")}:
             {String(elapsed % 60).padStart(2, "0")}
           </span>
         ) : (
           // §1: dots, never a percent bar and never a countdown-feeling timer
-          <span className="pin-dots" aria-label={`${t("pretest.progress", "learner")} ${index + 1}/${paper.length}`}>
+          <span className="pin-dots" aria-label={`${kata("pretest.progress")} ${index + 1}/${paper.length}`}>
             {paper.map((p, i) => (
               <span
                 key={p.presentedItemId}
@@ -495,8 +578,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
           </span>
         )}
         <span className="pin-sbchrome">
-          {!online && <span className="pin-luring">{t("sync.offline", "learner")}</span>}
-          {online && pending > 0 && <span className="pin-meta">{t("sync.pending", "learner")}</span>}
+          {!online && <span className="pin-luring">{kata("sync.offline")}</span>}
+          {online && pending > 0 && <span className="pin-meta">{kata("sync.pending")}</span>}
           {formal && allowsPause && (
             <button
               type="button"
@@ -511,13 +594,13 @@ export default function ItemPlayer(props: ItemPlayerProps) {
               }}
               className="pin-btn"
             >
-              {paused ? t("posttest.resume", "learner") : t("posttest.pause", "learner")}
+              {paused ? kata("posttest.resume") : kata("posttest.pause")}
             </button>
           )}
           {formal && (
             <button type="button" onClick={() => setNavOpen((o) => !o)}
               className="pin-btn">
-              {t("posttest.navigator", "learner")}
+              {kata("posttest.navigator")}
             </button>
           )}
         </span>
@@ -529,7 +612,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
             <li key={p.presentedItemId}>
               <button type="button" onClick={() => go(i)}
                 className={`pin-num-btn${accepted[p.presentedItemId] ? " pin-ans" : ""}${flagged[p.presentedItemId] ? " pin-flag" : ""}${i === index ? " pin-at" : ""}`}
-                aria-label={`${i + 1} — ${accepted[p.presentedItemId] ? t("posttest.answered", "learner") : t("posttest.unanswered", "learner")}`}>
+                aria-label={`${i + 1} — ${accepted[p.presentedItemId] ? kata("posttest.answered") : kata("posttest.unanswered")}`}>
                 {i + 1}
               </button>
             </li>
@@ -539,15 +622,15 @@ export default function ItemPlayer(props: ItemPlayerProps) {
 
       {paused ? (
         <p className="pin-pending">
-          {t("posttest.resume", "learner")}
+          {kata("posttest.resume")}
         </p>
       ) : (
         <>
           {/* ------------------------------------------------------- the item */}
           <article className="pin-soal">
-            <h2 className="pin-stem">{current.item.stem}</h2>
+            <h2 className="pin-stem"><TeksBaris teks={current.item.stem} /></h2>
             {current.item.stimulus && (
-              <p className="pin-stimulus">{current.item.stimulus}</p>
+              <p className="pin-stimulus"><TeksBaris teks={current.item.stimulus} /></p>
             )}
 
             <ul className="pin-opsi">
@@ -564,7 +647,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
                     className="pin-op"
                   >
                     <span className="pin-k">{String.fromCharCode(64 + o.posisi)}</span>
-                    <span>{o.teks}</span>
+                    <span><TeksBaris teks={o.teks} /></span>
                   </button>
                 </li>
               ))}
@@ -578,14 +661,14 @@ export default function ItemPlayer(props: ItemPlayerProps) {
                   onClick={() => chosen && void send(current, chosen)}
                   className="pin-btn pin-primary"
                 >
-                  {committed ? t("posttest.confirmed", "learner") : t("posttest.confirm", "learner")}
+                  {committed ? kata("posttest.confirmed") : kata("posttest.confirm")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setFlagged((f) => ({ ...f, [current.presentedItemId]: !f[current.presentedItemId] }))}
                   className="pin-btn"
                 >
-                  {flagged[current.presentedItemId] ? t("posttest.flagged", "learner") : t("posttest.flag", "learner")}
+                  {flagged[current.presentedItemId] ? kata("posttest.flagged") : kata("posttest.flag")}
                 </button>
               </div>
             )}
@@ -594,24 +677,24 @@ export default function ItemPlayer(props: ItemPlayerProps) {
           {/* ------------------------------------------------ assistance pill */}
           {state?.due && (
             <section className="pin-bantuan">
-              <p className="pin-lvl">{t(stageKey(stage), "learner")}</p>
+              <p className="pin-lvl">{kata(stageKey(stage))}</p>
               {opened.map((l) => (
                 <p key={l.level}>
-                  <span className="pin-lvl">{t(`assist.level.${l.kode}` as HleEvent, "learner")}</span>
-                  <span>{l.isi}</span>
+                  <span className="pin-lvl">{kata(`assist.level.${l.kode}` as HleEvent)}</span>
+                  <span><TeksBaris teks={l.isi} /></span>
                 </p>
               ))}
               <div className="pin-actions">
                 {state.nextLevel !== null && (
                   <button type="button" onClick={() => void openLevel(state.nextLevel as number)}
                     className="pin-btn">
-                    {opened.length === 0 ? t(stageKey(stage), "learner") : t("assist.more", "learner")}
+                    {opened.length === 0 ? kata(stageKey(stage)) : kata("assist.more")}
                   </button>
                 )}
                 <button type="button"
-                  onClick={() => { void actions.dismissAssistance(itemId); setAssist(null); }}
+                  onClick={() => { ditutup.current.add(itemId); void actions.dismissAssistance(itemId); setAssist(null); }}
                   className="pin-btn pin-quiet">
-                  {t("assist.close", "learner")}
+                  {kata("assist.close")}
                 </button>
               </div>
             </section>
@@ -622,19 +705,41 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       {/* ------------------------------------------------------ move / finish */}
       {(notice || closed) && (
         <p className="pin-pending" role="status">
-          {t(closed ? "sync.sesi_ditutup" : (notice as HleEvent), "learner")}
+          {kata(closed ? "sync.sesi_ditutup" : (notice as HleEvent))}
         </p>
+      )}
+      {formal && asking && (
+        <div className="pin-pending" role="group" aria-labelledby="kumpulkan-tanya">
+          <p id="kumpulkan-tanya">{kata("posttest.submit_confirm")}</p>
+          <div className="pin-actions">
+            <button type="button" onClick={() => void finish()} disabled={finishing}
+              className="pin-btn pin-primary">
+              {kata("posttest.submit")}
+            </button>
+            {/* the button that asked is gone: focus lands on the safe answer, so the question is read out */}
+            <button type="button" onClick={() => setAsking(false)} className="pin-btn" autoFocus>
+              {kata("komitmen.kembali")}
+            </button>
+          </div>
+        </div>
       )}
       <nav className="pin-actions pin-between">
         <button type="button" onClick={() => go(index - 1)} disabled={index === 0}
           className="pin-btn">
-          {t(formal ? "pretest.back" : "pretest.back", "learner")}
+          {kata(formal ? "pretest.back" : "pretest.back")}
         </button>
         {index < paper.length - 1 ? (
           <button type="button" onClick={() => go(index + 1)}
             className="pin-btn pin-primary">
-            {t("pretest.next", "learner")}
+            {kata("pretest.next")}
           </button>
+        ) : formal ? (
+          !asking && (
+            <button type="button" onClick={() => { setNotice(null); setAsking(true); }}
+              className="pin-btn pin-primary">
+              {kata("posttest.submit")}
+            </button>
+          )
         ) : (
           <button
             type="button"
@@ -642,7 +747,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
             disabled={finishing}
             className="pin-btn pin-primary"
           >
-            {t(formal ? "posttest.submit" : "pretest.finish", "learner")}
+            {kata("pretest.finish")}
           </button>
         )}
       </nav>

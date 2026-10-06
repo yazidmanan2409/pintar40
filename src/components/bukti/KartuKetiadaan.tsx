@@ -1,5 +1,6 @@
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import type { Envelope } from "./types";
+import { kunciMuncul } from "./muncul";
 
 /**
  * KartuKetiadaan — the absence card, in four variants.
@@ -21,6 +22,11 @@ import type { Envelope } from "./types";
  *
  * The variant is DERIVED from the envelope's status, never passed in, so a
  * surface cannot choose a gentler sentence than the fact deserves.
+ *
+ * DAISY-07: A FIGURE SHORT OF EVIDENCE ALSO SAYS WHAT WILL MAKE IT APPEAR --
+ * "setelah cukup murid menyelesaikan Cek penguasaan" -- from the evidence its
+ * calculator counts (./muncul.ts). Only then: a refusal, a retired measure or
+ * an uncomputable figure is not waiting on students.
  */
 export type Variant = "belum_cukup" | "tidak_untuk_anda" | "diganti" | "menunggu";
 
@@ -57,6 +63,7 @@ export default function KartuKetiadaan({
   // The envelope's own statement key wins when it carries one: the evaluator
   // knows more about why this particular figure is missing than a variant map.
   const base = s(entry.statement_key ?? STATEMENT[variant]);
+  const muncul = kunciMuncul(entry);
   const counted =
     variant === "belum_cukup" && entry.needed != null
       ? `${base} (${format.number(entry.have ?? 0, locale)}/${format.number(entry.needed, locale)})`
@@ -69,6 +76,7 @@ export default function KartuKetiadaan({
         <span className="pin-ml">{s(entry.label_key)}</span>
       ) : null}
       <span className="pin-abs">{counted}</span>
+      {muncul ? <span className="pin-ma">{s(muncul)}</span> : null}
       {action ? <span className="pin-ma">{action}</span> : null}
     </div>
   );

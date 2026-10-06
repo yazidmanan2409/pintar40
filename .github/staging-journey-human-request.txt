@@ -1,0 +1,17 @@
+Staging: the teacher → student journey with the teacher signing in like a person.
+
+Editing this file on claude/awesome-rubin-bqxp6p runs
+.github/workflows/staging-journey-human.yml once. One sign-in email per run
+(staging allows 2 an hour, shared with Yazid's own sign-ins).
+
+attempt:  005   (main d08f1b1 on staging: ADM-J06/J07 intake copy; the same journey as 004, re-walked after the push)
+          004   (main 3aba2a7 on staging: W2, W3, W5, W8, W9, W10, W11, W16, M7, M4, EDU-J23/24, HOD-J05/J09; student 4 now expected 8 of 8)
+          003   W3 before-picture on main 28d3015: J13 student 4 read 7 of 8 (run 36831200188)
+          002   PASS (run 36826806100)
+          001   the setup's server-made teacher check started the 60 s window; the real request was refused 429 and the screen said "Periksa email Anda" by D2
+attempt 006: main 89c1d2d on staging (batches 3+4: M9, rollover fix, setup panel; 134 migrations, environment facts run 36933136726 GREEN), re-walked after the push
+attempt 007: main 17add37 on staging (batch 5: M5, MC-4, BOB-49 school pass mark, M3, M6, M3 grant fix; 140 migrations, environment facts run 36946153615 GREEN), re-walked after the push
+attempt 008: main 8dd506a on staging (batch 6: T2 Uji Cepat question choice, M10 corrections in their line; 143 migrations, environment facts run 36949805301 GREEN), re-walked after the push; Q3 now takes this walk's own chapter
+attempt 009: main 38944b5 on staging (batch 7: M3 read-again and C1 founding migrations 144-145, J6.13 honest end, X.6 320 px, D-006 role scopes, J6.14 players in the reader's language; 145 migrations), re-walked after the push; J14 now checks that «Keadaan hari ini» lists only open Uji Cepat (EDU-09)
+attempt 010: main 6d2412d on staging (efficiency audit: the draw reads its marks by index, migration 146; one assistance check at a time in the question player), re-walked after the push as the regression walk before the 50-student browser proof
+attempt 011: main 7d84637 on staging (owner ruling 2 Oct: the assistance check asked for when it could be due, none where no help is configured; the offline probe only while offline, option A; «Tutup» stays closed), re-walked after the push as the regression walk before the comparable sitting is measured

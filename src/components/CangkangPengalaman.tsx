@@ -1,4 +1,5 @@
 import Link from "next/link";
+import TandaTautan from "@/components/TandaTautan";
 import { t, type Locale } from "@/lib/hle";
 import { peranSaya } from "@/lib/tur-negara";
 import { currentViewer } from "@/lib/auth";
@@ -6,6 +7,7 @@ import { konteksPembelajaran } from "@/lib/pembelajaran";
 import PengalihBahasa from "./PengalihBahasa";
 import MerekPintar from "./MerekPintar";
 import TombolBantuan from "./tur/TombolBantuan";
+import TautanLapor from "@/components/lapor/TautanLapor";
 import SesiSaya from "./SesiSaya";
 import TabTempat, { tempatDariPeran, tawarkanStudio } from "./TabTempat";
 
@@ -132,6 +134,7 @@ export default async function CangkangPengalaman({
         <nav className="pin-tabs" aria-label={t("app.name", "educator", { locale })}>
           <Link href="/mengajar" aria-current={current === "kelas" ? "page" : undefined}>
             {t("nav.kelas", "educator", { locale })}
+            <TandaTautan />
           </Link>
           {/* Always here, never conditional on there being something behind it.
               A tab that appeared the day somebody was enrolled would be
@@ -140,11 +143,14 @@ export default async function CangkangPengalaman({
               rather than to no door. */}
           <Link href="/belajar" aria-current={undefined}>
             {t("nav.pembelajaran", "educator", { locale })}
+            <TandaTautan />
           </Link>
           <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} />
         </nav>
         <span className="pin-spacer" />
         <TombolBantuan locale={locale} persona="educator" beranda="/mengajar" />
+        {/* DAISY-12 (D-037 step 2): beside Bantuan on every staff shell */}
+        <TautanLapor locale={locale} persona="educator" />
         <PengalihBahasa locale={locale} />
         <SesiSaya locale={locale} persona="educator" viewer={viewer} peran={peran} />
       </header>
@@ -158,10 +164,12 @@ export default async function CangkangPengalaman({
         <nav className="pin-tabs" aria-label={t("app.name", "staff", { locale })}>
           <Link href="/pimpinan" aria-current={current === "pimpinan" ? "page" : undefined}>
             {t("nav.pimpinan", "staff", { locale })}
+            <TandaTautan />
           </Link>
           <TabTempat tempat={tempat} kecuali={["/pimpinan"]} locale={locale} persona="staff" studio={studio} />
         </nav>
         <span className="pin-spacer" />
+        <TautanLapor locale={locale} />
         <PengalihBahasa locale={locale} />
         <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />
       </header>
@@ -175,15 +183,18 @@ export default async function CangkangPengalaman({
         <nav className="pin-tabs" aria-label={t("app.name", "staff", { locale })}>
           <Link href="/pendataan" aria-current={current === "pendataan" ? "page" : undefined}>
             {t("nav.pendataan", "staff", { locale })}
+            <TandaTautan />
           </Link>
           {/* Aktivasi is the same audience's next step -- recorded people who
               cannot sign in yet -- and was reachable only by typing it (M3). */}
           <Link href="/aktivasi" aria-current={current === "aktivasi" ? "page" : undefined}>
             {t("nav.aktivasi", "staff", { locale })}
+            <TandaTautan />
           </Link>
           <TabTempat tempat={tempat} locale={locale} persona="staff" studio={studio} />
         </nav>
         <span className="pin-spacer" />
+        <TautanLapor locale={locale} />
         <PengalihBahasa locale={locale} />
         <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />
       </header>
@@ -211,6 +222,7 @@ export default async function CangkangPengalaman({
         <nav className="pin-tabs" aria-label={t("app.name", "educator", { locale })}>
           <Link href="/mengajar" aria-current={undefined}>
             {t("nav.kelas", "educator", { locale })}
+            <TandaTautan />
           </Link>
           {/* Their certificates live under this tab rather than beside it: the
               learner's shell gives Sertifikat top billing because learning is
@@ -219,10 +231,12 @@ export default async function CangkangPengalaman({
               page, which is the same choice WP5B made about a job. */}
           <Link href="/belajar" aria-current={current ? "page" : undefined}>
             {t("nav.pembelajaran", "educator", { locale })}
+            <TandaTautan />
           </Link>
           <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} />
         </nav>
         <span className="pin-spacer" />
+        <TautanLapor locale={locale} persona="educator" />
         <PengalihBahasa locale={locale} />
         <SesiSaya locale={locale} persona="educator" viewer={viewer} peran={peran} />
       </header>
@@ -235,6 +249,7 @@ export default async function CangkangPengalaman({
       <nav className="pin-tabs" aria-label={t("app.name", "learner", { locale })}>
         <Link href="/belajar" aria-current={current === "belajar" ? "page" : undefined}>
           {t("nav.belajar", "learner", { locale })}
+          <TandaTautan />
         </Link>
         {/* A stable anchor for the tour's certificate step. It names a place,
             and naming a place grants nothing: what is behind this tab is
@@ -245,6 +260,7 @@ export default async function CangkangPengalaman({
           aria-current={current === "sertifikat" ? "page" : undefined}
         >
           {t("nav.sertifikat", "learner", { locale })}
+          <TandaTautan />
         </Link>
       </nav>
       <span className="pin-spacer" />

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
+import BarisHasil from "@/components/BarisHasil";
 import { KUNCI_BUKA, sudahAdaPutaran, type SebabBuka } from "@/lib/umpanbalik-kontrak";
 import type { SubjekKelas } from "@/lib/umpanbalik";
 
@@ -81,12 +82,7 @@ export default function MulaiPutaran({
             <li key={o.id}>
               <span className="pin-ml">{o.nama}</span>
               {sebab ? (
-                <span
-                  className={`pin-msg ${selesai ? "pin-msg-note" : "pin-msg-err"}`}
-                  role="status"
-                >
-                  {s(KUNCI_BUKA[sebab])}
-                </span>
+                <BarisHasil nada={selesai ? "netral" : "gagal"}>{s(KUNCI_BUKA[sebab])}</BarisHasil>
               ) : null}
               {/* Once this class has been asked about this educator, there is
                   nothing further to offer for them — and a second start is not

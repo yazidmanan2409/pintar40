@@ -2,11 +2,12 @@
 
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
+import { keluarPerangkatIni } from "@/lib/keluar";
 import { currentViewer } from "@/lib/auth";
-import { cardEmail, deriveCardSecret } from "@/lib/card";
 import { appUrl } from "@/lib/env";
 import { berandaPeran } from "@/lib/beranda";
 import { tujuanInternal } from "@/lib/tujuan";
+import { TAUTAN_MASUK_CADANGAN } from "@/lib/aktivasi-kontrak";
 
 /**
  * WHAT THE SIGN-IN SCREEN IS TOLD, AND WHAT IT IS NOT.
@@ -28,8 +29,11 @@ export async function sendMagicLink(formData: FormData): Promise<HasilKirim> {
   // L-1. Narrowed BEFORE it is embedded in the email, so a poisoned
   // destination never reaches a learner's inbox at all. The callback narrows
   // it again on the way back, for the link nobody here built.
-  const next = tujuanInternal(formData.get("lanjut"));
+  // BOB-06 (D-010): none asked for stays none, and the link then carries none.
+  const next = tujuanInternal(formData.get("lanjut"), "");
   if (!email) return "gagal";
+  // BOB-26 (C14): the magic link is the fallback behind one switch; off, nothing is sent
+  if (!TAUTAN_MASUK_CADANGAN) return "gagal";
   const supabase = await supabaseServer();
   const origin = appUrl();
   const { error } = await supabase.auth.signInWithOtp({
@@ -43,7 +47,7 @@ export async function sendMagicLink(formData: FormData): Promise<HasilKirim> {
       // gives it a `persons` row and an `accounts` row -- a stranger
       // self-provisioning a PINTAR identity from the sign-in form.
       shouldCreateUser: false,
-      emailRedirectTo: `${origin}/auth/callback?lanjut=${encodeURIComponent(next)}`,
+      emailRedirectTo: next ? `${origin}/auth/callback?lanjut=${encodeURIComponent(next)}` : `${origin}/auth/callback`,
     },
   });
   // AND THE ANSWER IS THE SAME EITHER WAY. With creation off, an unknown
@@ -69,6 +73,13 @@ export async function sendMagicLink(formData: FormData): Promise<HasilKirim> {
   // The fold is honest as well as safe. The throttle fires BECAUSE a link went
   // out recently, so "if that address is linked, a sign-in link has been sent
   // there" is describing the one already in the person's inbox.
+  //
+  // D-057(d) (29 Sep) AMENDS D2 NARROWLY: a resend countdown is allowed ONLY on
+  // the verification and recovery CODE screens (Gate 3's /aktifkan, Gate 4 and
+  // 5's recovery), and there it is one number for everybody, whether or not
+  // the identity exists: `kirimUlangDalam` from BOB-25's limit table, never a
+  // per-address state (src/app/api/aktifkan/kode, src/lib/aktivasi.ts). This
+  // screen keeps D2 whole: no countdown, no held state, one answer.
   if (!error || tidakTerdaftar(error) || terlaluSering(error)) return "terkirim";
   return "gagal";
 }
@@ -94,37 +105,19 @@ function tidakTerdaftar(error: { code?: string; status?: number; message?: strin
  * state back through the other door.
  *
  * No timer, no countdown, no cooldown, no retry-after and no policy lives in
- * this codebase. The condition is the provider's; the screen's answer to it is
- * the same answer it gives everybody.
+ * this screen's sign-in link. The condition is the provider's; the screen's
+ * answer to it is the same answer it gives everybody. (The code screens' one
+ * uniform countdown, D-057(d), is theirs and is described above.)
  */
 function terlaluSering(error: { code?: string; status?: number }): boolean {
   if (error.code === "over_email_send_rate_limit" || error.code === "over_request_rate_limit") return true;
   return error.status === 429;
 }
 
-/** What the card path reports back. Exactly one failure, for every refusal. */
-export type HasilKartu = "gagal";
-
-export async function signInWithCard(formData: FormData): Promise<HasilKartu> {
-  const card = String(formData.get("kartu") ?? "").replace(/\D/g, "");
-  const pin = String(formData.get("pin") ?? "").replace(/\D/g, "");
-  // L-1. A server action is reachable by a caller that never rendered the
-  // form, so the hidden field is untrusted input however it was drawn.
-  const raw = formData.get("lanjut");
-  if (!card || !pin) return "gagal";
-  const supabase = await supabaseServer();
-  const { error } = await supabase.auth.signInWithPassword({
-    email: cardEmail(card),
-    password: deriveCardSecret(card, pin),
-  });
-  // ONE FAILURE FOR EVERY REFUSAL, and the collapse happens here rather than in
-  // the screen so there is nothing for a later caller to un-collapse. A missing
-  // card and a mistyped PIN are the same `invalid_credentials` at the layer
-  // (verification task 4), and even if they ever stopped being, this function
-  // returns the same value for both.
-  if (error) return "gagal";
-  redirect(await tujuanMasuk(raw));
-}
+// BOB-12: the class card signs in through POST /masuk/kartu
+// (src/app/api/masuk/kartu/route.ts), which counts every card's failed
+// attempts before Auth is asked. The server action that did it before is gone:
+// an action is a public endpoint, and it would have walked around that count.
 
 /**
  * Where a newly signed-in person goes.
@@ -135,9 +128,15 @@ export async function signInWithCard(formData: FormData): Promise<HasilKartu> {
  * nothing about what it accepts -- only what a refusal falls back to, which
  * §7.3 of the handoff rules is the role's home and NOT an error the person
  * never chose and cannot act on.
+ *
+ * BOB-06 (D-010): "/" is not a destination. It is the entry page, which no
+ * interruption produces (the proxy never sends a visitor away from it), and
+ * links written before this fix carry it for "none"; taken as asked for, it
+ * beat the role's home and management looped back to the sign-in screen.
  */
 export async function tujuanMasuk(raw: unknown): Promise<string> {
   const viewer = await currentViewer();
+  if (tujuanInternal(raw, "") === "/") raw = null;
   return tujuanInternal(raw, berandaPeran(viewer?.displayRole ?? null));
 }
 
@@ -154,7 +153,8 @@ export async function tujuanMasuk(raw: unknown): Promise<string> {
 export async function keluarDariSesi(): Promise<void> {
   const supabase = await supabaseServer();
   await supabase.rpc("exit_persona");
-  await supabase.auth.signOut();
+  // this device only (D-009, BOB-05), exactly as /keluar
+  await keluarPerangkatIni(supabase);
   redirect("/masuk");
 }
 

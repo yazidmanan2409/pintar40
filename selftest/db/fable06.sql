@@ -531,6 +531,46 @@ end $$;
 revoke all on function selftest.wp2_session(uuid,uuid,uuid,uuid,uuid) from public;
 grant execute on function selftest.wp2_session(uuid,uuid,uuid,uuid,uuid) to authenticated;
 
+-- BOB-37's learner: one more person in a class, with a FINALIZED Cek penguasaan
+-- copied from a real one, whose result carries the per-objective objects the
+-- scoring writes (`{benar, total, penguasaan}`, 20260913091500) exactly as
+-- given. The person is enrolled in the template's programme and made a member
+-- of the class, as wp2_school does, so the boundary sees them where they sit.
+create or replace function selftest.bob37_learner(
+  p_template uuid, p_class uuid, p_name text, p_per_domain jsonb)
+returns uuid language plpgsql set search_path = public, pg_temp as $$
+declare s record; v_person uuid; v_e uuid; v_new uuid := gen_random_uuid();
+begin
+  select x.institution_id, x.academic_period_id, x.cohort_node_id, e.programme_id into s
+    from public.assessment_sessions x join public.enrollments e on e.id = x.enrollment_id
+   where x.id = p_template;
+  insert into public.persons (display_name) values (p_name) returning persons.id into v_person;
+  insert into public.enrollments (person_id, institution_id, academic_period_id, programme_id, status)
+  values (v_person, s.institution_id, s.academic_period_id, s.programme_id, 'ACTIVE') returning enrollments.id into v_e;
+  insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_e, p_class, s.academic_period_id);
+  insert into public.assessment_sessions
+    (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, cohort_node_id,
+     plp_release_id, assessment_definition_id, assessment_definition_version, engine_version,
+     scoring_policy_version, evidence_channel, evidence_class, mode, status, shuffle_seed,
+     started_at, submitted_at, finalized_at, deadline_extended_count)
+  select v_new, v_person, x.institution_id, v_e, x.academic_period_id, p_class, x.cohort_node_id,
+         x.plp_release_id, x.assessment_definition_id, x.assessment_definition_version, x.engine_version,
+         x.scoring_policy_version, x.evidence_channel, x.evidence_class, x.mode, 'CREATED', x.shuffle_seed,
+         x.started_at, x.submitted_at, x.finalized_at, 0
+    from public.assessment_sessions x where x.id = p_template;
+  update public.assessment_sessions set status='IN_PROGRESS' where id=v_new;
+  update public.assessment_sessions set status='SUBMITTED'   where id=v_new;
+  update public.assessment_sessions set status='FINALIZED'   where id=v_new;
+  insert into public.assessment_results
+    (id, session_id, institution_id, person_id, evidence_class, engine_version, scoring_policy_version,
+     mastery, per_domain, safety_gate_passed, delta_inputs, computed_at)
+  select gen_random_uuid(), v_new, r.institution_id, v_person, r.evidence_class, r.engine_version,
+         r.scoring_policy_version, r.mastery, p_per_domain, r.safety_gate_passed, r.delta_inputs, now()
+    from public.assessment_results r where r.session_id = p_template limit 1;
+  return v_new;
+end $$;
+revoke all on function selftest.bob37_learner(uuid,uuid,text,jsonb) from public;
+
 -- One R6 cell: how many of a named session's results can this reader see?
 create or replace function selftest.r6_case(
   p_label text, p_reader uuid, p_session uuid, p_expect int)
@@ -589,8 +629,12 @@ begin
   -- ASSIGNMENT is made at the department and the educator's MEMBERSHIP sits
   -- at the class beneath it -- which is how every other learner reaches an
   -- assignment made above them.
-  insert into public.org_nodes (institution_id, parent_id, kind, name)
-  values (p_inst, p_parent, 'DEPARTMENT', 'Pengembangan Profesi') returning org_nodes.id into v_node;
+  -- RESTATED FOR BOB-43 (a changed requirement, D-069(d)): the place says what it
+  -- is for, on the Bagian, and every node below inherits it; an academic Bagian
+  -- would now refuse this professional-development assignment
+  insert into public.org_nodes (institution_id, parent_id, kind, name, learning_context)
+  values (p_inst, p_parent, 'DEPARTMENT', 'Pengembangan Profesi', 'PROFESSIONAL_DEVELOPMENT')
+  returning org_nodes.id into v_node;
   insert into public.org_nodes (institution_id, parent_id, kind, name)
   values (p_inst, v_node, 'PROGRAMME', 'Program Pengembangan') returning org_nodes.id into v_prog;
   insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
@@ -616,8 +660,10 @@ begin
     (institution_id, plp_release_id, course_id, node_id, academic_period_id)
   values (p_inst, v_rel, v_course, v_node, v_period)
   returning learning_assignments.id into v_la;
-  -- assigning learning is a capability, not a side effect of editing a row
+  -- assigning learning is a capability, not a side effect of editing a row. D-093 T1: no client writes the table,
+  -- so it is asked as assign_release meets it, with the person's claims and the owner's role
   perform selftest.as_user_uid(p_admin_uid);
+  perform selftest.as_release_writer();
   update public.learning_assignments set status = 'ACTIVE' where learning_assignments.id = v_la;
   perform selftest.as_owner();
 
@@ -634,21 +680,65 @@ end $$;
 revoke all on function selftest.wp6_pd(uuid,uuid,uuid,uuid) from public;
 grant execute on function selftest.wp6_pd(uuid,uuid,uuid,uuid) to authenticated;
 
+-- BOB-35: the definition a copied session cites when it is pointed at another
+-- release. A session records a release of its definition's course, or none is
+-- opened (SESSION_RELEASE_MISMATCH), so a copy onto another course's release
+-- cites a definition of THAT course: the template's own when it already is
+-- one, else the template's definition copied field for field into the
+-- release's course, made once per course and reused.
+create or replace function selftest.wp6_definition_for(p_template uuid, p_release uuid, out def uuid, out ver int)
+language plpgsql set search_path = public, pg_temp as $$
+declare v_course uuid;
+begin
+  select r.course_id into v_course from public.plp_releases r where r.id = p_release;
+  select d.id, d.version into def, ver
+    from public.assessment_sessions s
+    join public.assessment_definitions d on d.id = s.assessment_definition_id
+    left join public.modules m on m.id = d.module_id
+   where s.id = p_template and coalesce(d.course_id, m.course_id) = v_course;
+  if def is not null then return; end if;
+  select d.id, d.version into def, ver from public.assessment_definitions d
+   where d.course_id = v_course and d.title = 'wp6 copied definition' order by d.created_at limit 1;
+  if def is not null then return; end if;
+  insert into public.assessment_definitions (institution_id, course_id, title, mode, bank_type, item_count,
+    safety_critical_minimum, difficulty_mix, passing_rules, attempt_limit, allows_pause, offline_tolerant,
+    late_sync_grace_seconds, hesitation_window_seconds, shuffle_policy, author_person_id)
+  select r.institution_id, v_course, 'wp6 copied definition', d.mode, d.bank_type, d.item_count,
+         d.safety_critical_minimum, d.difficulty_mix, d.passing_rules, d.attempt_limit, d.allows_pause, d.offline_tolerant,
+         d.late_sync_grace_seconds, d.hesitation_window_seconds, d.shuffle_policy, d.author_person_id
+    from public.assessment_sessions s
+    join public.assessment_definitions d on d.id = s.assessment_definition_id
+    join public.plp_releases r on r.id = p_release
+   where s.id = p_template
+  returning id, version into def, ver;
+end $$;
+revoke all on function selftest.wp6_definition_for(uuid, uuid) from public;
+grant execute on function selftest.wp6_definition_for(uuid, uuid) to authenticated;
+
 -- One FINALIZED professional-development session with a result, for the
 -- educator, copied from a real session's provenance but pointed at the PD
 -- release so its course says what it is.
+--
+-- RESTATED FOR BOB-35 (a changed requirement): the copy kept the template's
+-- definition, which belongs to another course than the PD release, and a
+-- session whose release is not its definition's course is now refused at
+-- insert (SESSION_RELEASE_MISMATCH). It now cites wp6_definition_for's
+-- definition of the PD release's own course, the template's copied field for
+-- field, so the provenance is one course and every figure the tests read is
+-- what it was.
 create or replace function selftest.wp6_pd_session(
   p_template uuid, p_person uuid, p_enrolment uuid, p_release uuid)
 returns uuid language plpgsql set search_path = public, pg_temp as $$
-declare v_new uuid := gen_random_uuid();
+declare v_new uuid := gen_random_uuid(); v_def uuid; v_ver int;
 begin
+  select f.def, f.ver into v_def, v_ver from selftest.wp6_definition_for(p_template, p_release) f;
   insert into public.assessment_sessions
     (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, cohort_node_id,
      plp_release_id, assessment_definition_id, assessment_definition_version, engine_version,
      scoring_policy_version, evidence_channel, evidence_class, mode, status, shuffle_seed,
      started_at, submitted_at, finalized_at, deadline_extended_count)
   select v_new, p_person, s.institution_id, p_enrolment, s.academic_period_id, null, null,
-         p_release, s.assessment_definition_id, s.assessment_definition_version, s.engine_version,
+         p_release, v_def, v_ver, s.engine_version,
          s.scoring_policy_version, s.evidence_channel, s.evidence_class, s.mode, 'CREATED', s.shuffle_seed,
          s.started_at, s.submitted_at, s.finalized_at, 0
     from public.assessment_sessions s where s.id = p_template;
@@ -685,30 +775,41 @@ grant execute on function selftest.wp6_counts(uuid,uuid) to authenticated;
 -- One FINALIZED session, for any person, at any class, optionally pointed at
 -- a different release -- which is how the crown test makes an academic
 -- control and a professional-development stream that differ ONLY in context.
+drop function if exists selftest.wp6_evidence_session(uuid, uuid, uuid, uuid);
+-- D-088(b): `p_assignment`, when given, is the class's assessment assignment the sitting is given under, so it carries
+-- the pass mark that assignment sealed, as every product attempt does; without one it carries none and certifies nothing.
 create or replace function selftest.wp6_evidence_session(
-  p_template uuid, p_person uuid, p_class uuid, p_release uuid)
+  p_template uuid, p_person uuid, p_class uuid, p_release uuid, p_assignment uuid default null)
 returns uuid language plpgsql set search_path = public, pg_temp as $$
-declare v_new uuid := gen_random_uuid(); v_enr uuid;
+declare v_new uuid := gen_random_uuid(); v_enr uuid; v_def uuid; v_ver int;
 begin
+  -- RESTATED FOR BOB-35 (a changed requirement): pointed at another release,
+  -- the copy cites a definition of that release's course (wp6_definition_for),
+  -- or its insert would be refused SESSION_RELEASE_MISMATCH
+  if p_release is not null then
+    select f.def, f.ver into v_def, v_ver from selftest.wp6_definition_for(p_template, p_release) f;
+  end if;
   select e.id into v_enr from public.enrollments e
     join public.assessment_sessions s on s.institution_id = e.institution_id
    where s.id = p_template and e.person_id = p_person order by e.created_at desc limit 1;
   insert into public.assessment_sessions
     (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id, cohort_node_id,
+     assessment_assignment_id,
      plp_release_id, assessment_definition_id, assessment_definition_version, engine_version,
      scoring_policy_version, evidence_channel, evidence_class, mode, status, shuffle_seed,
      started_at, submitted_at, finalized_at, deadline_extended_count)
   select v_new, p_person, s.institution_id, coalesce(v_enr, s.enrollment_id), s.academic_period_id,
-         p_class, null, coalesce(p_release, s.plp_release_id),
-         s.assessment_definition_id, s.assessment_definition_version, s.engine_version,
+         p_class, null, p_assignment,
+         coalesce(p_release, s.plp_release_id),
+         coalesce(v_def, s.assessment_definition_id), coalesce(v_ver, s.assessment_definition_version), s.engine_version,
          s.scoring_policy_version, s.evidence_channel, s.evidence_class, s.mode, 'CREATED',
          s.shuffle_seed, s.started_at, s.submitted_at, s.finalized_at, 0
     from public.assessment_sessions s where s.id = p_template;
   update public.assessment_sessions set status='IN_PROGRESS' where id=v_new;
   return v_new;
 end $$;
-revoke all on function selftest.wp6_evidence_session(uuid,uuid,uuid,uuid) from public;
-grant execute on function selftest.wp6_evidence_session(uuid,uuid,uuid,uuid) to authenticated;
+revoke all on function selftest.wp6_evidence_session(uuid,uuid,uuid,uuid,uuid) from public;
+grant execute on function selftest.wp6_evidence_session(uuid,uuid,uuid,uuid,uuid) to authenticated;
 
 -- One presented item and one final answer, then the session is finalized with
 -- a result -- the ordinary lifecycle, walked rather than asserted.
@@ -2835,7 +2936,10 @@ begin
       bad := bad || selftest.f06p12_metric('dean, metric route', v_dean_u, v_la, v_inst, v_cat, false);
       bad := bad || selftest.f06p12_metric('institution admin, metric route', v_adm_u, v_la, v_inst, v_cat, false);
 
-      -- THE PAYLOAD IS BOUNDED. Ten fields since R5, not nine: this tripwire
+      -- THE PAYLOAD IS BOUNDED. Eleven since D-088(i) (2 Oct): `placement_history`, the
+      -- places the learner has left, each with its year, dates and close reason, kept
+      -- apart from `placement` so an ended place is never shown as current; it carries
+      -- no result, no mastery and nothing outside the boundary. Ten fields since R5, not nine: this tripwire
       -- fired when `official_results_readiness` was added and the field was
       -- read before the number moved. It is the R5 answer for this consumer --
       -- whether the official-results list is empty because nothing qualifying
@@ -2847,7 +2951,7 @@ begin
       r := public.management_learner_detail(v_la, v_inst);
       select count(*) into n from jsonb_object_keys(r) k
        where k not in ('person_id','display_name','institution_id','enrolment_status',
-                       'academic_period','programme','placement','official_results',
+                       'academic_period','programme','placement','placement_history','official_results',
                        'official_results_readiness','catalogue_version');
       if n <> 0 then bad := bad || array[format('the payload carries %s undeclared field(s)', n)]; end if;
       if (r ->> 'official_results_readiness') is null then
@@ -4692,7 +4796,11 @@ begin
       v_rows := jsonb_build_array(
         jsonb_build_object('display_name', 'Murid Baru Satu', 'node_id', c.cls_a),
         jsonb_build_object('display_name', 'Murid Baru Dua',  'node_id', c.cls_a),
-        jsonb_build_object('display_name', 'Guru Baru',       'node_id', c.cls_a, 'role', 'EDUCATOR'));
+        -- RESTATED FOR BOB-10 (M5b, interim; a changed requirement, recorded on
+        -- the board): this row was an EDUCATOR placed in cls_a, which recording
+        -- quietly made a student of that class. A staff row is refused at
+        -- validation now, and a teacher is recorded without a role or a place.
+        jsonb_build_object('display_name', 'Guru Baru'));
 
       -- AP/AQ/AR/AS. NOT MANAGEMENT, NOT TEACHING, NOT THE LEARNER.
       foreach v_who in array array['head of department', 'dean', 'educator', 'learner'] loop
@@ -5433,7 +5541,7 @@ begin
     v_item uuid; v_opt record; v_tmpl uuid; v_pdclass uuid; v_ok_opt text;
     v_before jsonb := '{}'::jsonb; v_after jsonb := '{}'::jsonb;
     v_sess uuid; v_pi uuid; v_cert uuid; v_tok text; e record; cp record;
-    m text; v_arg uuid; v_reader uuid; n int; v_acad_sess uuid; v_acad_pi uuid;
+    m text; v_arg uuid; v_reader uuid; n int; v_acad_sess uuid; v_acad_pi uuid; v_acad_aa uuid; v_pd_def uuid; v_pd_aa uuid;
     v_pdc uuid; v_acc uuid; v_rev uuid; v_rev2 uuid; v_batch uuid; v_caught boolean;
   begin
     begin
@@ -5467,7 +5575,13 @@ begin
       -- A REAL ACADEMIC CONTROL STATE. The item metrics must have academic
       -- evidence to report, or "unchanged" would again mean "never asked":
       -- a student in the taught class answers the same item CORRECTLY.
-      v_acad_sess := selftest.wp6_evidence_session(v_tmpl, c.la, c.cls_a, null);
+      -- D-088(b): the control is a sitting of an assessment its class was given, so it carries the school's sealed
+      -- mark (the demonstration school set its own for this lesson) and can be certified as a real one is
+      insert into public.assessment_assignments (institution_id, assessment_definition_id, node_id, academic_period_id)
+      select t.institution_id, t.assessment_definition_id, c.cls_a, t.academic_period_id
+        from public.assessment_sessions t where t.id = v_tmpl
+      returning assessment_assignments.id into v_acad_aa;
+      v_acad_sess := selftest.wp6_evidence_session(v_tmpl, c.la, c.cls_a, null, v_acad_aa);
       v_acad_pi := selftest.wp6_answer(v_acad_sess, v_item, c.inst, v_ok_opt, 1::smallint);
       -- AND AN ACADEMIC CERTIFICATE, so the credential metric is reading
       -- something before the professional development arrives. Without it
@@ -5527,7 +5641,16 @@ begin
       end if;
 
       -- ───────── the educator's genuine professional development ─────────
-      v_sess := selftest.wp6_evidence_session(v_tmpl, c.edu, v_pdclass, pd.release);
+      -- D-088(b): a sitting of an assessment the professional-development class was given, so it carries the
+      -- school's sealed mark for that course, as the academic control does
+      select f.def into v_pd_def from selftest.wp6_definition_for(v_tmpl, pd.release) f;
+      perform selftest.pass_mark(c.inst, pd.course);
+      insert into public.assessment_assignments (institution_id, assessment_definition_id, node_id, academic_period_id)
+      select c.inst, v_pd_def, v_pdclass,
+             coalesce(n.academic_period_id, (select la.academic_period_id from public.learning_assignments la where la.id = pd.assignment))
+        from public.org_nodes n where n.id = v_pdclass
+      returning assessment_assignments.id into v_pd_aa;
+      v_sess := selftest.wp6_evidence_session(v_tmpl, c.edu, v_pdclass, pd.release, v_pd_aa);
       v_pi := selftest.wp6_answer(v_sess, v_item, c.inst, v_opt.label, 1::smallint);
       -- a certificate through the ORDINARY machinery, not a PD-only engine
       select * into e from public.certificate_eligibility(v_sess);
@@ -5834,6 +5957,8 @@ begin
               3, '{"MUDAH":2,"SEDANG":1}'::jsonb, 0, '{}'::jsonb, 25, 'ITEMS_AND_OPTIONS',
               true, true, 120, 2)
       returning assessment_definitions.id into v_def;
+      perform selftest.pass_mark(c.inst, pk.course);   -- D-088(b): the school's mark before the class is given it
+      perform selftest.as_release_writer();   -- D-093 T1: as assign_release writes it, with the admin's claims
       insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id,
                                                academic_period_id)
       values (c.inst, v_rel, pk.course, v_cls, v_period)
@@ -6039,6 +6164,284 @@ begin
         || 'test builds anything, which is the check that would catch this repair locking out a '
         || 'learner already mid-journey. Quick Assessment''s own rule and its '
         || 'live-release ordering are read from the function and unchanged. Every row rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P22 -- BOB-39 (post-login review #2, D-061): «DITERUSKAN KE PIHAK
+  -- SEKOLAH» REACHES THE DECISION QUEUE. The Studio's integrity review records
+  -- REFERRED_TO_INSTITUTION through record_integrity_review, which created
+  -- nothing, so /pimpinan's «Keputusan» could never fill. The review now raises
+  -- the INTEGRITY_REFERRAL decision through refer_integrity_signal in the same
+  -- transaction. Counted here through the same RLS-bounded read /pimpinan's
+  -- keputusanSaya makes. Every row rolled back.
+  -- =========================================================================
+  declare
+    c record; bad text[] := array[]::text[]; v_why text := ''; n int; n2 int; v_d uuid; v_hod_b uuid; v_caught boolean;
+  begin
+    begin
+      perform selftest.as_owner();
+      select * into c from selftest.wp2_school();
+
+      -- the two reviews that are not referrals create nothing
+      perform selftest.as_user_uid(c.hod_u);
+      perform public.record_integrity_review(c.signal_a, 'NO_CONCERN', 'sudah dilihat');
+      perform public.record_integrity_review(c.signal_a, 'DISCUSSED_WITH_LEARNER', 'sudah dibicarakan');
+      perform selftest.as_owner();
+      select count(*) into n from public.management_decisions m where m.source_id = c.signal_a;
+      if n <> 0 then bad := bad || array[format('NO_CONCERN or DISCUSSED_WITH_LEARNER created %s decision(s)', n)]; end if;
+
+      -- the referral, as the Studio records it
+      perform selftest.as_user_uid(c.hod_u);
+      perform public.record_integrity_review(c.signal_a, 'REFERRED_TO_INSTITUTION', 'perlu dibahas pimpinan');
+      perform selftest.as_owner();
+      select count(*), min(m.id::text)::uuid into n, v_d from public.management_decisions m
+       where m.family = 'INTEGRITY_REFERRAL' and m.source_table = 'integrity_signals' and m.source_id = c.signal_a
+         and m.state = 'AWAITING_REVIEW' and m.scope_node_id = c.cls_a and m.raised_note = 'perlu dibahas pimpinan'
+         and m.raised_by_person_id = c.hod;
+      if n <> 1 then
+        bad := bad || array[format('a referral through the review left %s AWAITING_REVIEW decision(s) on the signal''s class with the reviewer''s note, expected 1', n)];
+      end if;
+      select count(*) into n from public.audit_log l
+       where l.action = 'INTEGRITY_SIGNAL_REVIEWED' and l.target_id = c.signal_a::text and l.summary ->> 'decision' = 'REFERRED_TO_INSTITUTION';
+      if n <> 1 then bad := bad || array[format('the referral''s review wrote %s audit row(s), expected 1', n)]; end if;
+
+      -- on that Head of Department's /pimpinan: the queue read, through RLS
+      perform selftest.as_user_uid(c.hod_u);
+      select count(*) into n from public.management_decisions m where m.state <> 'DECIDED' and m.source_id = c.signal_a;
+      perform selftest.as_owner();
+      if n <> 1 then bad := bad || array[format('the Head of Department''s decision queue shows %s referral(s), expected 1', n)]; end if;
+
+      -- a second referral of the same open signal is the same decision
+      perform selftest.as_user_uid(c.hod_u);
+      perform public.record_integrity_review(c.signal_a, 'REFERRED_TO_INSTITUTION', 'sekali lagi');
+      perform selftest.as_owner();
+      select count(*) into n from public.management_decisions m where m.source_id = c.signal_a;
+      if n <> 1 then bad := bad || array[format('a second referral of the same open signal left %s decision(s)', n)]; end if;
+
+      -- no review without its referral: a Head of Department whose department
+      -- the signal's class is not in may see the signal (the Studio lists them
+      -- school-wide) but its referral is refused whole, review included
+      declare v_sig_b uuid; n_aud int;
+      begin
+        insert into public.integrity_signals (session_id, institution_id, category)
+        values (c.sess_b, c.inst, 'NAVIGATION') returning integrity_signals.id into v_sig_b;
+        v_caught := false;
+        perform selftest.as_user_uid(c.hod_u);
+        begin perform public.record_integrity_review(v_sig_b, 'REFERRED_TO_INSTITUTION', 'departemen lain');
+        exception when others then v_caught := true; end;
+        perform public.record_integrity_review(v_sig_b, 'NO_CONCERN', 'hanya dilihat');
+        perform selftest.as_owner();
+        select count(*) into n from public.management_decisions m where m.source_id = v_sig_b;
+        select count(*) into n_aud from public.audit_log l
+         where l.action = 'INTEGRITY_SIGNAL_REVIEWED' and l.target_id = v_sig_b::text and l.summary ->> 'decision' = 'REFERRED_TO_INSTITUTION';
+        if not v_caught or n <> 0 or n_aud <> 0 then
+          bad := bad || array[format('a referral outside the reviewer''s department was %s, leaving %s decision(s) and %s review row(s)',
+                                     case when v_caught then 'refused' else 'accepted' end, n, n_aud)];
+        end if;
+        select count(*) into n_aud from public.audit_log l
+         where l.action = 'INTEGRITY_SIGNAL_REVIEWED' and l.target_id = v_sig_b::text and l.summary ->> 'decision' = 'NO_CONCERN';
+        if n_aud <> 1 then bad := bad || array['a NO_CONCERN review outside the reviewer''s department is no longer recorded']; end if;
+      end;
+
+      -- a Head of Department over the other department does not see it. Made
+      -- the way wp2_school makes its people (fable06's own helper), so this
+      -- file stands alone, as the red-case jobs load it.
+      v_hod_b := selftest.f06p10_person('f06-p22-hod-b-' || substr(md5(random()::text), 1, 6));
+      perform set_config('app.seed_intent', 'synthetic', true);
+      insert into public.role_assignments (person_id, role, scope_node_id, valid_until)
+      select a.person_id, 'HEAD_OF_DEPARTMENT', c.dept_b, now() + interval '1 year'
+        from public.accounts a where a.auth_user_id = v_hod_b;
+      perform set_config('app.seed_intent', '', true);
+      perform selftest.as_user_uid(v_hod_b);
+      select count(*) into n from public.management_decisions m where m.source_id = c.signal_a;
+      perform selftest.as_owner();
+      if n <> 0 then bad := bad || array['a Head of Department over another department sees the referral']; end if;
+
+      -- the review's capability is unchanged: a teacher records nothing and raises nothing
+      v_caught := false;
+      perform selftest.as_user_uid(c.edu_u);
+      begin perform public.record_integrity_review(c.signal_a, 'REFERRED_TO_INSTITUTION', 'bukan wewenang');
+      exception when others then v_caught := true; end;
+      perform selftest.as_owner();
+      if not v_caught then bad := bad || array['a teacher without CAN_REVIEW_INTEGRITY recorded a referral']; end if;
+
+      -- «Saya yang menangani» and «Catat keputusan» work on it unchanged
+      perform selftest.as_user_uid(c.hod_u);
+      begin
+        perform public.advance_management_decision(v_d, 'UNDER_REVIEW', null, null);
+        select count(*) into n2 from public.management_decisions m where m.id = v_d and m.state = 'UNDER_REVIEW';
+        if n2 <> 1 then bad := bad || array['«Saya yang menangani» did not take the referral up']; end if;
+        perform public.advance_management_decision(v_d, 'DECIDED', (enum_range(null::public.management_decision_outcome))[1], 'diputuskan');
+        select count(*) into n2 from public.management_decisions m where m.id = v_d and m.state = 'DECIDED';
+        if n2 <> 1 then bad := bad || array['«Catat keputusan» did not record a decision on the referral']; end if;
+      exception when others then
+        bad := bad || array['the referral could not be taken up or decided: ' || left(sqlerrm, 120)];
+      end;
+      perform selftest.as_owner();
+
+      raise exception 'F06_P22_UNDO';
+    exception when others then
+      perform selftest.as_owner();
+      if sqlerrm <> 'F06_P22_UNDO' then v_why := 'the probe itself failed: ' || left(sqlerrm, 220); end if;
+    end;
+
+    id := 'F06-P22'; area := 'BOB-39 -- a referral reaches the decision queue';
+    if v_why <> '' then ok := false; detail := v_why;
+    elsif array_length(bad,1) is not null then
+      ok := false; detail := format('%s problem(s): %s', array_length(bad,1), array_to_string(bad,'; '));
+    else
+      ok := true;
+      detail := 'a Head of Department recording «Diteruskan ke pihak sekolah» in the Studio''s integrity review raised one '
+        || 'AWAITING_REVIEW INTEGRITY_REFERRAL on the signal''s class, with the reviewer''s note as its raised_note, beside the '
+        || 'review''s own audit row, and it shows in that Head of Department''s decision queue (read through RLS as /pimpinan '
+        || 'reads it); NO_CONCERN and DISCUSSED_WITH_LEARNER created nothing; a second referral of the open signal is the same '
+        || 'decision; a referral of a signal outside the reviewer''s department is refused whole, leaving no decision and no '
+        || 'review row, while NO_CONCERN there is still recorded; a Head of Department over the other department does not see it; '
+        || 'a teacher is still refused the review; '
+        || 'and «Saya yang menangani» and «Catat keputusan» take it up and decide it. Every row rolled back';
+    end if;
+    return next;
+  end;
+
+  -- =========================================================================
+  -- F06-P23 -- BOB-37: PER-TOPIC MASTERY CAN SHOW. `per_domain` holds one
+  -- object per objective, `{benar, total, penguasaan}` (the scoring's own shape,
+  -- 20260913091500), and calc_class_topic_mastery and
+  -- calc_institution_competency_outcomes kept only values whose JSON type is a
+  -- number, so both answered nothing whatever the class had sat. Five learners
+  -- in a class of their own sit the Cek penguasaan with two objectives used
+  -- nowhere else, so every figure below is exact. The class figure is asked
+  -- the way the teacher's «Penguasaan per bagian» asks it (metric_evaluate, as
+  -- the Head of Department over that class); the school's figure is read from
+  -- its calculator inside the school's bound boundary, because its minimum
+  -- sample (10) is above five learners, and the evaluator is asked too, for
+  -- what it has. D-060: the figures come from catalogue MC-4 (D-088(g)), a copy
+  -- of MC-3 that names each topic by its objective. Every row rolled back.
+  -- =========================================================================
+  declare
+    c record; bad text[] := array[]::text[]; v_why text := ''; v_cls uuid; v_coh uuid; v jsonb; x jsonb;
+    v_cat text;
+  begin
+    begin
+      perform selftest.as_owner();
+      select * into c from selftest.wp2_school();
+      select s.cohort_node_id into v_coh from public.assessment_sessions s where s.id = c.sess_a;
+      insert into public.org_nodes (institution_id, parent_id, kind, name, academic_period_id)
+      select c.inst, v_coh, 'CLASS', 'Kelas BOB-37', n.academic_period_id from public.org_nodes n where n.id = v_coh
+      returning org_nodes.id into v_cls;
+
+      -- A: 1, 0.5, 0, 0.25, 1 -> 0.55 over five (pooled benar/total would be 6/12 = 0.5);
+      -- B (four sat it): 1, 0.5, 0.75, 0.25 -> 0.625
+      perform selftest.bob37_learner(c.sess_a, v_cls, 'Murid BOB-37 1',
+        '{"BOB37-A": {"benar": 2, "total": 2, "penguasaan": 1.0000}, "BOB37-B": {"benar": 4, "total": 4, "penguasaan": 1.0000}}');
+      perform selftest.bob37_learner(c.sess_a, v_cls, 'Murid BOB-37 2',
+        '{"BOB37-A": {"benar": 1, "total": 2, "penguasaan": 0.5000}, "BOB37-B": {"benar": 2, "total": 4, "penguasaan": 0.5000}}');
+      perform selftest.bob37_learner(c.sess_a, v_cls, 'Murid BOB-37 3',
+        '{"BOB37-A": {"benar": 0, "total": 2, "penguasaan": 0.0000}, "BOB37-B": {"benar": 3, "total": 4, "penguasaan": 0.7500}}');
+      perform selftest.bob37_learner(c.sess_a, v_cls, 'Murid BOB-37 4',
+        '{"BOB37-A": {"benar": 1, "total": 4, "penguasaan": 0.2500}}');
+
+      -- the minimum sample is unchanged: four learners are below it
+      perform selftest.as_user_uid(c.hod_u);
+      v := public.metric_evaluate('class.topic_mastery', v_cls, c.inst, null);
+      perform selftest.as_owner();
+      if v ->> 'status' is distinct from 'below_minimum' or (v ->> 'needed')::int is distinct from 5
+         or (v ->> 'have')::int is distinct from 4 then
+        bad := bad || array[format('four learners should be below the minimum of 5 with 4 counted, the teacher''s figure said %s', v)];
+      end if;
+
+      perform selftest.bob37_learner(c.sess_a, v_cls, 'Murid BOB-37 5',
+        '{"BOB37-A": {"benar": 2, "total": 2, "penguasaan": 1.0000}, "BOB37-B": {"benar": 1, "total": 4, "penguasaan": 0.2500}}');
+
+      -- the teacher's «Penguasaan per bagian», as the evaluator answers it
+      perform selftest.as_user_uid(c.hod_u);
+      v := public.metric_evaluate('class.topic_mastery', v_cls, c.inst, null);
+      perform selftest.as_owner();
+      if v ->> 'status' is distinct from 'ok' then
+        bad := bad || array[format('the class''s per-topic mastery did not show for five learners: %s', v)];
+      -- D-088(g), MC-4: one row per objective, named by its statement; these synthetic codes have no objective in
+      -- the session's chapter, so each keeps its code as its name and is never merged or dropped
+      elsif (v -> 'value') is distinct from '[{"objective_id": null, "code": "BOB37-A", "competency": "BOB37-A", "mean_score": 0.5500, "learners": 5},
+                                              {"objective_id": null, "code": "BOB37-B", "competency": "BOB37-B", "mean_score": 0.6250, "learners": 4}]'::jsonb
+            or (v ->> 'sample')::int is distinct from 5 then
+        bad := bad || array[format('the class''s per-topic mastery is %s over %s, expected BOB37-A 0.55 over 5 and BOB37-B 0.625 over 4, one row each',
+                                   v -> 'value', v -> 'sample')];
+      end if;
+
+      -- the school's competency outcomes, from its calculator inside the school's boundary
+      v_cat := public.current_metric_catalogue();
+      perform set_config('pintar.metric_boundary_node', c.inst::text, true);
+      v := public.calc_institution_competency_outcomes(c.inst, c.inst, v_cat);
+      perform set_config('pintar.metric_boundary_node', '', true);
+      select jsonb_agg(e order by e ->> 'competency') into x
+        from jsonb_array_elements(coalesce(v -> 'value', '[]'::jsonb)) e
+       where e ->> 'competency' like 'BOB37-%';
+      if x is distinct from '[{"objective_id": null, "code": "BOB37-A", "competency": "BOB37-A", "mean_score": 0.5500, "learners": 5},
+                               {"objective_id": null, "code": "BOB37-B", "competency": "BOB37-B", "mean_score": 0.6250, "learners": 4}]'::jsonb then
+        bad := bad || array[format('the school''s competency outcomes hold %s for the two objectives, expected BOB37-A 0.55 over 5 and BOB37-B 0.625 over 4',
+                                   coalesce(x::text, 'nothing'))];
+      end if;
+      -- and the evaluator counts them against the school's unchanged minimum
+      perform selftest.as_user_uid(c.adm_u);
+      v := public.metric_evaluate('institution.competency_outcomes', c.inst, c.inst, null);
+      perform selftest.as_owner();
+      if v ->> 'status' is distinct from 'below_minimum' or (v ->> 'needed')::int is distinct from 10
+         or coalesce((v ->> 'have')::int, 0) < 5 then
+        bad := bad || array[format('the school''s competency outcomes should count at least the five learners against the minimum of 10, they said %s', v)];
+      end if;
+
+      -- D-060: MC-4 (D-088(g)) is MC-3 copied forward with every definition, minimum sample and audience
+      -- identical, its sources MC-3's plus the three content relations. RESTATED FOR BOB-47 (a changed requirement,
+      -- D-069(b), D-060(a)): the live catalogue is MC-5, MC-4 copied forward unchanged (asserted by its migration
+      -- and BOB47-D01); MC-4 itself stays as it was (D-060(e)), so its relation to MC-3 is still checked here
+      if v_cat is distinct from 'MC-5' then
+        bad := bad || array[format('the live metric catalogue is %s, not MC-5', coalesce(v_cat, 'none'))];
+      else
+        if exists (select 1 from (select * from public.metric_definitions where catalogue_version = 'MC-4') d4
+                    full join (select * from public.metric_definitions where catalogue_version = 'MC-3') d3
+                      on d3.metric_id = d4.metric_id
+                   where (d4.metric_id is null or d3.metric_id is null
+                          or (d4.label_key, d4.meaning_key, d4.scope, d4.evidence_class, d4.minimum_sample,
+                              d4.allowed_visualizations, d4.allowed_audiences, d4.calculation_key, d4.deprecated,
+                              d4.deprecation_note_key)
+                             is distinct from
+                             (d3.label_key, d3.meaning_key, d3.scope, d3.evidence_class, d3.minimum_sample,
+                              d3.allowed_visualizations, d3.allowed_audiences, d3.calculation_key, d3.deprecated,
+                              d3.deprecation_note_key))) then
+          bad := bad || array['MC-4''s metric definitions are not MC-3''s, column by column (minimum sample and audiences included)'];
+        end if;
+        if (select count(*) from public.readiness_tiers where catalogue_version = 'MC-4')
+             <> (select count(*) from public.readiness_tiers where catalogue_version = 'MC-3')
+           or (select count(*) from public.question_health_thresholds where catalogue_version = 'MC-4')
+             <> (select count(*) from public.question_health_thresholds where catalogue_version = 'MC-3')
+           or (select count(*) from public.metric_sources where catalogue_version = 'MC-4')
+             <> (select count(*) from public.metric_sources where catalogue_version = 'MC-3') + 3 then
+          bad := bad || array['MC-4 did not carry MC-3''s readiness tiers, question-health thresholds and sources forward (plus three content sources)'];
+        end if;
+      end if;
+
+      raise exception 'F06_P23_UNDO';
+    exception when others then
+      perform selftest.as_owner();
+      perform set_config('pintar.metric_boundary_node', '', true);
+      if sqlerrm <> 'F06_P23_UNDO' then v_why := 'the probe itself failed: ' || left(sqlerrm, 220); end if;
+    end;
+
+    id := 'F06-P23'; area := 'BOB-37 -- per-topic mastery can show';
+    if v_why <> '' then ok := false; detail := v_why;
+    elsif array_length(bad,1) is not null then
+      ok := false; detail := format('%s problem(s): %s', array_length(bad,1), array_to_string(bad,'; '));
+    else
+      ok := true;
+      detail := 'five learners in a class of their own sat the Cek penguasaan and their results hold the scoring''s own '
+        || '{benar, total, penguasaan} objects: the teacher''s «Penguasaan per bagian» (class.topic_mastery, asked through '
+        || 'metric_evaluate by the Head of Department over the class) shows one row per objective, BOB37-A 0.55 over five and BOB37-B 0.625 over four, '
+        || 'the average of each learner''s recorded penguasaan (not the pooled benar/total, 0.5); with four learners it is below the unchanged minimum of 5; the '
+        || 'school''s competency outcomes hold BOB37-A 0.55 over 5 and BOB37-B 0.625 over 4, and the evaluator counts them against '
+        || 'the unchanged minimum of 10; and the live catalogue is MC-4 (D-088(g)), MC-3 copied forward with every definition, minimum '
+        || 'sample and audience identical and three content sources added (D-060). Every row rolled back';
     end if;
     return next;
   end;

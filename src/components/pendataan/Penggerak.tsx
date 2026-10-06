@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
-import { bolehLanjut, type Kemajuan } from "@/lib/pendataan-kontrak";
+import { bisaDilanjutkan, bolehLanjut, type Kemajuan } from "@/lib/pendataan-kontrak";
+import { adaNiat, ambilNiat } from "./niatMencatat";
 
 /**
  * THE THING THAT ASKS FOR THE NEXT CHUNK, AND THE NUMBERS IT SHOWS.
@@ -21,10 +22,17 @@ import { bolehLanjut, type Kemajuan } from "@/lib/pendataan-kontrak";
  *
  * §10 says continuation must never be triggered merely because a page stayed
  * open, and the cleanest way to honour that is to have nothing at all happen
- * without a press. So there is no effect here and no auto-run: an
- * administrator who returns to an interrupted job sees where it stands and
- * presses Continue. That is also why a closed laptop is uneventful — the job
- * was never being driven by the page, only asked by it.
+ * without a press. So there is no auto-run: an administrator who returns to an
+ * interrupted job sees where it stands and presses Continue. That is also why
+ * a closed laptop is uneventful — the job was never being driven by the page,
+ * only asked by it.
+ *
+ * POLISH3 (UX-08): THE APPROVING PRESS COUNTS AS THAT PRESS. «Ya, catat
+ * orang-orang ini» and «Sudah saya periksa, lanjutkan sisanya» both say that
+ * recording follows, so they leave a note (niatMencatat) as they submit, and
+ * this driver, drawn by the redirect, takes it once on arrival and starts.
+ * The one effect below does only that. A reload, another tab, another person
+ * or a later visit finds no note and sees the button, as before.
  *
  * ═══ AND IT CANNOT CROSS THE FIFTY ═══
  *
@@ -59,7 +67,9 @@ export default function Penggerak({
   const s = (k: string) => t(k as HleEvent, "staff", { locale });
   const router = useRouter();
   const [kini, setKini] = useState<Kemajuan>(awal);
-  const [jalan, setJalan] = useState(false);
+  // Running from the first frame when an approval has just asked for it, so
+  // the button it replaces never flashes. Only the browser holds a note.
+  const [jalan, setJalan] = useState(() => bolehLanjut(awal) && adaNiat(pekerjaan));
   const [putus, setPutus] = useState(false);
   // A ref rather than state for the loop's own condition: pausing must take
   // effect on the next iteration, and a state read inside a running async
@@ -98,6 +108,14 @@ export default function Penggerak({
     hidup.current = false;
     setJalan(false);
   }
+
+  // UX-08: the approval's own press, carried across the redirect. Taken once;
+  // without a fresh note for this job nothing starts.
+  useEffect(() => {
+    if (ambilNiat(pekerjaan) && bolehLanjut(awal)) void jalankan();
+    else if (!hidup.current) setJalan(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on arrival: the note belongs to the press that drew this driver
+  }, []);
 
   const bisa = bolehLanjut(kini);
   const lebar = kini.total > 0 ? Math.round((kini.completed / kini.total) * 100) : 0;
@@ -138,7 +156,11 @@ export default function Penggerak({
         </p>
       ) : null}
 
-      {putus ? (
+      {/* STOPPED PART-WAY is said only while nothing is running: after a lost
+          connection, a pause, or on arriving at a job that has recorded some.
+          UX-08: never while the rest is being recorded straight after the
+          fifty were checked, which the page used to say above this driver. */}
+      {!jalan && (putus || bisaDilanjutkan(kini)) ? (
         <p className="pin-msg pin-msg-note" role="status">{s("pendataan.maju.terputus")}</p>
       ) : null}
 

@@ -289,7 +289,7 @@ export const AKUN_AKTIF = 0;
 // ═══════════════════════════════════════ 4. a refusal, as a sentence
 
 /**
- * WP5A'S VALIDATION PROBLEMS (TWELVE SINCE M5a), EACH AS A COPY KEY.
+ * WP5A'S VALIDATION PROBLEMS (THIRTEEN SINCE BOB-10), EACH AS A COPY KEY.
  *
  * `import_row_problems` returns phrases written for a developer —
  * "display_name is missing or too long", "node_id is outside your provisioning
@@ -317,6 +317,8 @@ export const MASALAH: Record<string, string> = {
   "role is not a role this platform has": "pendataan.masalah.peran_asing",
   "this role is not granted by bulk provisioning": "pendataan.masalah.peran_dilarang",
   "a role needs an organizational node to be scoped to": "pendataan.masalah.peran_tanpa_tempat",
+  // BOB-10 (M5b, interim): a staff row, refused until the intake has a staff path
+  "a staff row is not recorded by the bulk intake yet": "pendataan.masalah.staf",
   "duplicate row within this import": "pendataan.masalah.ganda",
 };
 
@@ -331,8 +333,11 @@ export function kunciMasalah(teks: string): string {
  * THE ROLES A BULK INTAKE MAY GRANT.
  *
  * `import_row_problems` refuses SYSTEM_ADMIN and INSTITUTION_ADMIN by name —
- * administrative authority is granted one person at a time, deliberately — so
- * the mapping screen offers the four that remain rather than offering six and
- * letting two of them fail validation.
+ * administrative authority is granted one person at a time, deliberately — and,
+ * since BOB-10 (M5b, interim), every staff role too: EDUCATOR,
+ * HEAD_OF_DEPARTMENT and DEAN rows are refused at "Periksa" until the intake
+ * has a staff path. So the mapping screen offers only what it accepts, a
+ * learner, rather than offering three roles that fail every row they are
+ * chosen for. The three come back with M5b.
  */
-export const PERAN_PENDATAAN = ["STUDENT", "EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN"] as const;
+export const PERAN_PENDATAAN = ["STUDENT"] as const;

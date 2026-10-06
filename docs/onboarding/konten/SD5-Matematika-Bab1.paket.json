@@ -26,10 +26,10 @@
        },
        "ordinal": "1",
        "title": "Membaca, Menulis, dan Nilai Tempat",
-       "summary": "Bilangan sampai 100.000 dibaca per kelompok ribuan, dan setiap angka punya nilai tempatnya sendiri.",
-       "body_markdown": "## Bilangan di sekitar kita\n\nHarga di toko, jumlah penduduk, dan jarak antarkota sering ditulis dengan lima angka.\nHarga sebotol jus mangga **Rp6.375**. Jumlah penduduk Kecamatan Kayu Tanam **26.932** jiwa.\n\n## Nilai tempat\n\nSetiap angka menempati satu tempat. Untuk bilangan lima angka, dari kiri ke kanan:\n**puluh ribuan, ribuan, ratusan, puluhan, satuan**.\n\nPada bilangan **26.932**:\n\n- 2 di tempat puluh ribuan, nilainya 20.000\n- 6 di tempat ribuan, nilainya 6.000\n- 9 di tempat ratusan, nilainya 900\n- 3 di tempat puluhan, nilainya 30\n- 2 di tempat satuan, nilainya 2\n\nJadi 26.932 = 20.000 + 6.000 + 900 + 30 + 2.\n\n## Cara membaca\n\nTitik memisahkan kelompok ribuan. Baca dulu bagian di depan titik, tambahkan kata **ribu**, lalu baca sisanya.\n\n- 26.932 dibaca **dua puluh enam ribu** sembilan ratus tiga puluh dua\n- 15.229 dibaca lima belas ribu dua ratus dua puluh sembilan\n- 72.135 dibaca tujuh puluh dua ribu seratus tiga puluh lima\n\nJangan membaca angkanya satu per satu, seperti \"dua enam sembilan tiga dua\".\n\n## Cara menulis\n\n\"Lima puluh ribu tiga ratus tiga\" ditulis **50.303**.\nTidak ada ribuan selain lima puluh, dan tidak ada puluhan, jadi tempat itu diisi **0**.\nAngka 0 tetap ditulis supaya setiap angka lain berada di tempatnya.\n\n## Ayo mencoba\n\nCari struk belanja di rumahmu. Bacalah harga-harganya dengan suara keras, lalu sebutkan nilai tempat setiap angkanya.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Bab 1 (Kemendikbudristek, 2022)._",
+       "summary": "Bilangan sampai 100.000 dibaca per kelompok ribuan, dan setiap angka bernilai sesuai tempatnya.",
+       "body_markdown": "## Bilangan lima angka di sekitar kita\n\nCoba perhatikan harga di toko, jumlah penduduk, atau jarak antarkota. Banyak yang ditulis dengan lima angka.\n\n- Harga sebotol jus mangga **Rp6.375**. Bilangan ini punya empat angka.\n- Penduduk Kecamatan Kayu Tanam ada **26.932** jiwa. Bilangan ini punya lima angka.\n\nDi bab ini kalian belajar bilangan sampai **100.000** (seratus ribu). Bilangan 100.000 sendiri punya enam angka.\n\n**Coba:** cari satu bilangan lima angka di rumah kalian, misalnya di struk belanja atau kemasan makanan.\n\n## Nilai tempat\n\nSetiap angka dalam bilangan menempati satu **tempat**. Tempat itu menentukan **nilai** angkanya.\n\n| Puluh ribuan | Ribuan | Ratusan | Puluhan | Satuan |\n|---|---|---|---|---|\n| 2 | 6 | 9 | 3 | 2 |\n\nPada 26.932:\n\n- 2 di tempat puluh ribuan, nilainya 20.000\n- 6 di tempat ribuan, nilainya 6.000\n- 9 di tempat ratusan, nilainya 900\n- 3 di tempat puluhan, nilainya 30\n- 2 di tempat satuan, nilainya 2\n\nJadi 26.932 = 20.000 + 6.000 + 900 + 30 + 2.\n\n## Angka sama, nilai berbeda\n\nLihat bilangan **22.222**. Semua angkanya 2, tetapi nilainya berbeda-beda: 20.000, 2.000, 200, 20, dan 2.\n\nMengapa? Karena setiap tempat bernilai sepuluh kali tempat di kanannya. Makin ke kiri, makin besar nilainya.\n\n**Coba:** pada 43.518, berapa nilai angka 3?\n_Periksa: 3 ada di tempat ribuan (tepat di depan titik), jadi nilainya 3.000._\n\n## Membaca bilangan\n\nTitik memisahkan kelompok ribuan. Bacalah dengan tiga langkah:\n\n1. Baca bagian **di depan titik**.\n2. Tambahkan kata **ribu**.\n3. Baca tiga angka **di belakang titik** seperti biasa.\n\nContoh 26.932:\n\n1. Di depan titik ada 26: dua puluh enam.\n2. Tambahkan ribu: dua puluh enam ribu.\n3. Di belakang titik ada 932: sembilan ratus tiga puluh dua.\n\nJadi 26.932 dibaca **dua puluh enam ribu sembilan ratus tiga puluh dua**.\n\nBila di depan titik hanya ada angka 1, bacalah **seribu**: 1.250 dibaca seribu dua ratus lima puluh.\n\nJangan membaca angkanya satu per satu, seperti \"dua enam sembilan tiga dua\". Cara itu tidak menunjukkan nilai bilangannya.\n\n## Menulis bilangan dengan angka\n\nTulis \"lima puluh ribu tiga ratus tiga\" dengan angka.\n\n1. Bagian ribunya: lima puluh, ditulis **50**, lalu titik.\n2. Bagian sesudahnya: tiga ratus tiga. Ada 3 ratusan, **0 puluhan**, dan 3 satuan, jadi **303**.\n3. Gabungkan: **50.303**.\n\nAngka 0 tetap ditulis. Tanpa 0 itu, angka 3 terakhir bergeser ke tempat lain dan bilangannya menjadi 5.033 (lima ribu tiga puluh tiga), jauh lebih kecil.\n\n**Coba:** tulis \"dua puluh ribu empat puluh\" dengan angka.\n_Periksa: 20.040. Tidak ada ratusan dan satuan, jadi kedua tempat itu diisi 0._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 1._",
        "objective": {
-        "statement": "Murid dapat membaca, menulis, dan menentukan nilai tempat bilangan cacah sampai 100.000.",
+        "statement": "Kalian dapat membaca, menulis, dan menentukan nilai tempat bilangan cacah sampai 100.000.",
         "bloom": "UNDERSTAND"
        },
        "media": [],
@@ -51,9 +51,9 @@
             "row": 2
            },
            "label": "A",
-           "body": "Enam ribu tiga ratus tujuh puluh lima",
-           "is_correct": true,
-           "rationale": "Benar. Bagian di depan titik (6) dibaca enam ribu, lalu 375 dibaca tiga ratus tujuh puluh lima."
+           "body": "Enam tiga tujuh lima",
+           "is_correct": false,
+           "rationale": "Angkanya dibaca satu per satu. Setiap angka harus dibaca menurut tempatnya: 6 di ribuan dibaca enam ribu."
           },
           {
            "_row": {
@@ -61,9 +61,9 @@
             "row": 3
            },
            "label": "B",
-           "body": "Enam tiga tujuh lima",
-           "is_correct": false,
-           "rationale": "Angkanya dibaca satu per satu. Setiap angka harus dibaca sesuai nilai tempatnya."
+           "body": "Enam ribu tiga ratus tujuh puluh lima",
+           "is_correct": true,
+           "rationale": "Benar. Di depan titik ada 6, dibaca enam ribu; 375 dibaca tiga ratus tujuh puluh lima."
           },
           {
            "_row": {
@@ -73,7 +73,7 @@
            "label": "C",
            "body": "Enam puluh tiga ribu tujuh ratus lima",
            "is_correct": false,
-           "rationale": "Itu cara membaca 63.705. Titik ada setelah angka 6, jadi hanya 6 yang menjadi ribuan."
+           "rationale": "Itu cara membaca 63.705. Titiknya ada sesudah angka 6, jadi hanya 6 yang menjadi ribuan."
           },
           {
            "_row": {
@@ -83,7 +83,7 @@
            "label": "D",
            "body": "Enam ratus tiga puluh tujuh ribu lima",
            "is_correct": false,
-           "rationale": "Itu terlalu besar. Bilangan ini hanya punya empat angka, jadi paling besar ribuan."
+           "rationale": "Seluruh bilangan dianggap bagian ribuan. Bilangan ini hanya punya empat angka, jadi paling besar ribuan."
           }
          ]
         },
@@ -106,7 +106,7 @@
            "label": "A",
            "body": "satuan",
            "is_correct": false,
-           "rationale": "Satuan adalah angka paling kanan, yaitu 6."
+           "rationale": "Tempat dihitung dari kiri. Satuan adalah angka paling kanan, yaitu 6."
           },
           {
            "_row": {
@@ -116,7 +116,7 @@
            "label": "B",
            "body": "puluhan",
            "is_correct": false,
-           "rationale": "Puluhan adalah angka kedua dari kanan, yaitu 5."
+           "rationale": "Tempat bergeser satu. Puluhan adalah angka kedua dari kanan, yaitu 5."
           },
           {
            "_row": {
@@ -136,7 +136,7 @@
            "label": "D",
            "body": "ribuan",
            "is_correct": false,
-           "rationale": "Ribuan adalah angka di depan titik, yaitu 8."
+           "rationale": "Ribuan adalah angka di depan titik, yaitu 8. Angka 4 ada tepat sesudah titik."
           }
          ]
         },
@@ -147,7 +147,7 @@
          },
          "ref": "PB1",
          "item_type": "MCQ_SINGLE",
-         "stem": "Bagaimana cara membaca 84.216?",
+         "stem": "Jarak yang ditempuh sebuah bus dalam setahun adalah 84.216 km. Bagaimana cara membaca bilangan itu?",
          "use": "POST_TEST",
          "difficulty": "0.3",
          "options": [
@@ -157,9 +157,9 @@
             "row": 18
            },
            "label": "A",
-           "body": "Delapan puluh empat ribu dua ratus enam belas",
-           "is_correct": true,
-           "rationale": "Benar. 84 di depan titik dibaca delapan puluh empat ribu, lalu 216 dibaca dua ratus enam belas."
+           "body": "Delapan empat ribu dua ratus enam belas",
+           "is_correct": false,
+           "rationale": "84 dibaca angka demi angka. Bagian di depan titik dibaca delapan puluh empat."
           },
           {
            "_row": {
@@ -167,9 +167,9 @@
             "row": 19
            },
            "label": "B",
-           "body": "Delapan empat ribu dua ratus enam belas",
+           "body": "Delapan ratus empat puluh dua ribu enam belas",
            "is_correct": false,
-           "rationale": "84 adalah delapan puluh empat, bukan delapan empat."
+           "rationale": "Titiknya digeser: itu cara membaca 842.016. Titik ada sesudah 84."
           },
           {
            "_row": {
@@ -177,9 +177,9 @@
             "row": 20
            },
            "label": "C",
-           "body": "Delapan ratus empat puluh dua ribu enam belas",
-           "is_correct": false,
-           "rationale": "Itu cara membaca 842.016. Titik ada setelah 84."
+           "body": "Delapan puluh empat ribu dua ratus enam belas",
+           "is_correct": true,
+           "rationale": "Benar. 84 di depan titik dibaca delapan puluh empat ribu, lalu 216 dibaca dua ratus enam belas."
           },
           {
            "_row": {
@@ -189,7 +189,7 @@
            "label": "D",
            "body": "Delapan puluh empat dua ratus enam belas",
            "is_correct": false,
-           "rationale": "Kata ribu terlupa. 84 di depan titik adalah delapan puluh empat ribu."
+           "rationale": "Kata ribu terlupa, jadi titiknya diabaikan. 84 di depan titik bernilai delapan puluh empat ribu."
           }
          ]
         },
@@ -200,9 +200,9 @@
          },
          "ref": "PB2",
          "item_type": "MCQ_SINGLE",
-         "stem": "Angka 7 pada bilangan 57.689 menempati nilai tempat ...",
+         "stem": "Pada bilangan 57.689, angka 7 bernilai ...",
          "use": "POST_TEST",
-         "difficulty": "0.3",
+         "difficulty": "0.5",
          "options": [
           {
            "_row": {
@@ -210,9 +210,9 @@
             "row": 22
            },
            "label": "A",
-           "body": "puluh ribuan",
+           "body": "7 (tujuh)",
            "is_correct": false,
-           "rationale": "Puluh ribuan adalah angka paling kiri, yaitu 5."
+           "rationale": "Nilai angka disamakan dengan angkanya. Angka 7 ada di tempat ribuan, jadi nilainya 7 × 1.000."
           },
           {
            "_row": {
@@ -220,9 +220,9 @@
             "row": 23
            },
            "label": "B",
-           "body": "ribuan",
+           "body": "7.000 (tujuh ribu)",
            "is_correct": true,
-           "rationale": "Benar. 5 puluh ribuan, 7 ribuan, 6 ratusan, 8 puluhan, 9 satuan."
+           "rationale": "Benar. 7 ada di tempat ribuan (tepat di depan titik), jadi nilainya 7.000."
           },
           {
            "_row": {
@@ -230,9 +230,9 @@
             "row": 24
            },
            "label": "C",
-           "body": "ratusan",
+           "body": "700 (tujuh ratus)",
            "is_correct": false,
-           "rationale": "Ratusan adalah angka pertama setelah titik, yaitu 6."
+           "rationale": "Tempat dihitung satu kurang. 700 adalah nilai 7 bila berada di ratusan, tetapi di sini 7 ada di depan titik."
           },
           {
            "_row": {
@@ -240,9 +240,9 @@
             "row": 25
            },
            "label": "D",
-           "body": "puluhan",
+           "body": "70.000 (tujuh puluh ribu)",
            "is_correct": false,
-           "rationale": "Puluhan adalah angka kedua dari kanan, yaitu 8."
+           "rationale": "70.000 adalah nilai 7 di tempat puluh ribuan. Angka paling kiri di sini adalah 5."
           }
          ]
         },
@@ -253,9 +253,9 @@
          },
          "ref": "PB5",
          "item_type": "MCQ_SINGLE",
-         "stem": "\"Tujuh puluh ribu dua ratus delapan\" ditulis ...",
+         "stem": "\"Tujuh puluh ribu dua ratus delapan\" ditulis dengan angka ...",
          "use": "POST_TEST",
-         "difficulty": "0.3",
+         "difficulty": "0.5",
          "options": [
           {
            "_row": {
@@ -263,9 +263,9 @@
             "row": 34
            },
            "label": "A",
-           "body": "70.208",
-           "is_correct": true,
-           "rationale": "Benar. Tujuh puluh ribu (70.000), dua ratus (200), delapan (8); tempat ribuan dan puluhan diisi 0."
+           "body": "7.208",
+           "is_correct": false,
+           "rationale": "Tempat bernilai nol terlewat: tujuh puluh ribu ditulis 70 di depan titik, bukan 7."
           },
           {
            "_row": {
@@ -273,9 +273,9 @@
             "row": 35
            },
            "label": "B",
-           "body": "7.208",
-           "is_correct": false,
-           "rationale": "Itu tujuh ribu dua ratus delapan. Tujuh puluh ribu ditulis 70 di depan titik."
+           "body": "70.208",
+           "is_correct": true,
+           "rationale": "Benar. 70 di depan titik, lalu 208: dua ratus, nol puluhan, delapan satuan."
           },
           {
            "_row": {
@@ -285,7 +285,7 @@
            "label": "C",
            "body": "70.280",
            "is_correct": false,
-           "rationale": "Itu tujuh puluh ribu dua ratus delapan puluh. Delapan di sini adalah satuan, bukan puluhan."
+           "rationale": "Angka 8 digeser ke puluhan. Delapan di sini adalah satuan, dan puluhannya 0."
           },
           {
            "_row": {
@@ -293,9 +293,9 @@
             "row": 37
            },
            "label": "D",
-           "body": "72.008",
+           "body": "70.000.208",
            "is_correct": false,
-           "rationale": "Itu tujuh puluh dua ribu delapan. Dua ratus ada di tempat ratusan, setelah titik."
+           "rationale": "Setiap bagian ditulis lengkap lalu disambung: 70.000 dan 208. Bagian ribu cukup ditulis 70 di depan titik."
           }
          ]
         },
@@ -315,9 +315,9 @@
             "row": 50
            },
            "label": "A",
-           "body": "Lima belas ribu lima ratus sembilan puluh rupiah",
-           "is_correct": true,
-           "rationale": "Benar. 15 di depan titik dibaca lima belas ribu, lalu 590 dibaca lima ratus sembilan puluh."
+           "body": "seratus lima puluh lima ribu sembilan puluh rupiah",
+           "is_correct": false,
+           "rationale": "Titiknya digeser: itu 155.090. Di depan titik hanya ada 15."
           },
           {
            "_row": {
@@ -325,9 +325,9 @@
             "row": 51
            },
            "label": "B",
-           "body": "Seratus lima puluh lima ribu sembilan puluh rupiah",
+           "body": "lima belas ribu lima sembilan puluh rupiah",
            "is_correct": false,
-           "rationale": "Itu 155.090. Titik ada setelah 15."
+           "rationale": "Kata ratus terlupa: 5 di tempat ratusan dibaca lima ratus."
           },
           {
            "_row": {
@@ -335,9 +335,9 @@
             "row": 52
            },
            "label": "C",
-           "body": "Lima belas ribu lima sembilan puluh rupiah",
+           "body": "lima belas ribu lima ratus sembilan rupiah",
            "is_correct": false,
-           "rationale": "5 di tempat ratusan dibaca lima ratus."
+           "rationale": "90 dibaca sembilan, seolah 9 ada di satuan. 9 ada di puluhan, jadi dibaca sembilan puluh."
           },
           {
            "_row": {
@@ -345,9 +345,9 @@
             "row": 53
            },
            "label": "D",
-           "body": "Lima belas ribu lima ratus sembilan rupiah",
-           "is_correct": false,
-           "rationale": "90 dibaca sembilan puluh, bukan sembilan."
+           "body": "lima belas ribu lima ratus sembilan puluh rupiah",
+           "is_correct": true,
+           "rationale": "Benar. 15 di depan titik dibaca lima belas ribu, lalu 590 dibaca lima ratus sembilan puluh."
           }
          ]
         },
@@ -359,7 +359,7 @@
          "ref": "LT2",
          "item_type": "MCQ_SINGLE",
          "stem": "Pada bilangan 56.786, angka 7 bernilai ...",
-         "petunjuk": "Tentukan dulu tempat angka 7, lalu tuliskan nilainya.",
+         "petunjuk": "Tentukan dahulu tempat angka 7, lalu tuliskan nilainya.",
          "difficulty": "0.3",
          "options": [
           {
@@ -370,7 +370,7 @@
            "label": "A",
            "body": "7",
            "is_correct": false,
-           "rationale": "7 berada di tempat ratusan, jadi nilainya lebih dari 7."
+           "rationale": "Nilai angka disamakan dengan angkanya. 7 ada di tempat ratusan, jadi nilainya 7 × 100."
           },
           {
            "_row": {
@@ -380,7 +380,7 @@
            "label": "B",
            "body": "70",
            "is_correct": false,
-           "rationale": "70 adalah nilai bila 7 berada di tempat puluhan."
+           "rationale": "Tempat dihitung satu kurang: 70 adalah nilai 7 di puluhan. Puluhannya di sini 8."
           },
           {
            "_row": {
@@ -390,7 +390,7 @@
            "label": "C",
            "body": "700",
            "is_correct": true,
-           "rationale": "Benar. 7 berada di tempat ratusan, jadi nilainya 700."
+           "rationale": "Benar. 7 ada di tempat ratusan (angka pertama sesudah titik), jadi nilainya 700."
           },
           {
            "_row": {
@@ -400,7 +400,7 @@
            "label": "D",
            "body": "7.000",
            "is_correct": false,
-           "rationale": "7.000 adalah nilai bila 7 berada di tempat ribuan."
+           "rationale": "7.000 adalah nilai 7 di ribuan. Angka di depan titik di sini 6, bukan 7."
           }
          ]
         },
@@ -411,7 +411,7 @@
          },
          "ref": "LT3",
          "item_type": "MCQ_SINGLE",
-         "stem": "Bilangan yang terdiri atas 2 puluh ribuan, 6 ribuan, 9 ratusan, 3 puluhan, dan 2 satuan adalah ...",
+         "stem": "Bilangan yang terdiri atas 4 puluh ribuan, 0 ribuan, 7 ratusan, 5 puluhan, dan 1 satuan adalah ...",
          "difficulty": "0.3",
          "options": [
           {
@@ -420,9 +420,9 @@
             "row": 58
            },
            "label": "A",
-           "body": "26.932",
-           "is_correct": true,
-           "rationale": "Benar. 20.000 + 6.000 + 900 + 30 + 2 = 26.932."
+           "body": "4.751",
+           "is_correct": false,
+           "rationale": "0 ribuan tidak ditulis, sehingga 4 bergeser dari puluh ribuan ke ribuan."
           },
           {
            "_row": {
@@ -430,9 +430,9 @@
             "row": 59
            },
            "label": "B",
-           "body": "29.632",
-           "is_correct": false,
-           "rationale": "Ribuan dan ratusan tertukar. Ribuannya 6, ratusannya 9."
+           "body": "40.751",
+           "is_correct": true,
+           "rationale": "Benar. 40.000 + 0 + 700 + 50 + 1 = 40.751."
           },
           {
            "_row": {
@@ -440,9 +440,9 @@
             "row": 60
            },
            "label": "C",
-           "body": "62.932",
+           "body": "47.051",
            "is_correct": false,
-           "rationale": "Puluh ribuan dan ribuan tertukar. Puluh ribuannya 2."
+           "rationale": "Ribuan dan ratusan tertukar: ribuannya 0 dan ratusannya 7."
           },
           {
            "_row": {
@@ -450,9 +450,9 @@
             "row": 61
            },
            "label": "D",
-           "body": "2.693",
+           "body": "40.715",
            "is_correct": false,
-           "rationale": "Satu tempat hilang. Bilangan ini punya lima angka."
+           "rationale": "Puluhan dan satuan tertukar: puluhannya 5 dan satuannya 1."
           }
          ]
         }
@@ -465,10 +465,10 @@
        },
        "ordinal": "2",
        "title": "Membandingkan dan Mengurutkan",
-       "summary": "Bandingkan dua bilangan mulai dari angka paling kiri, lalu urutkan dari yang terkecil atau terbesar.",
-       "body_markdown": "## Tiga tanda\n\n- **>** artinya lebih besar dari\n- **<** artinya lebih kecil dari\n- **=** artinya sama dengan\n\n## Mulai dari kiri\n\nBandingkan angka pada nilai tempat **tertinggi** lebih dulu, yaitu angka paling kiri.\n\n- 76.675 **>** 67.765, karena di tempat puluh ribuan 7 lebih besar dari 6.\n- 45.867 **<** 55.876, karena di tempat puluh ribuan 4 lebih kecil dari 5.\n\nBila angka paling kiri sama, pindah ke tempat berikutnya:\n\n- 86.567 **<** 86.576. Puluh ribuan sama (8), ribuan sama (6), ratusan sama (5), lalu di puluhan 6 lebih kecil dari 7.\n\nHati-hati: jangan memulai dari angka paling belakang. Angka satuan yang besar tidak membuat bilangannya lebih besar.\n\n## Mana yang lebih murah?\n\nRobot seharga Rp45.500 dan boneka seharga Rp42.000. Di tempat puluh ribuan keduanya 4. Di tempat ribuan, 2 lebih kecil dari 5. Jadi **boneka lebih murah**, selisihnya Rp3.500.\n\n## Pola bilangan\n\n- 15.500, 16.500, 17.500, 18.500, ... (bertambah 1.000)\n- 85.350, 85.400, 85.450, 85.500, ... (bertambah 50)\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Bab 1 (Kemendikbudristek, 2022)._",
+       "summary": "Dua bilangan dibandingkan mulai dari angka paling kiri; dengan cara itu beberapa bilangan juga dapat diurutkan.",
+       "body_markdown": "## Tiga tanda\n\n- **>** artinya lebih besar dari\n- **<** artinya lebih kecil dari\n- **=** artinya sama dengan\n\nCara mengingatnya: ujung lancip tanda selalu menunjuk ke bilangan yang **lebih kecil**. Pada 5 > 3, ujung lancipnya menunjuk ke 3.\n\n## Mulai dari angka paling kiri\n\nBandingkan 76.675 dan 67.765.\n\n1. Lihat tempat paling kiri, yaitu puluh ribuan: 7 dan 6.\n2. 7 lebih besar dari 6.\n3. Jadi **76.675 > 67.765**.\n\nKita tidak perlu melihat angka lainnya. Mengapa? Angka 7 di puluh ribuan saja sudah bernilai 70.000, lebih besar dari seluruh 67.765.\n\nHati-hati: jangan memulai dari angka paling belakang. Angka satuan yang besar tidak membuat bilangannya lebih besar.\n\n## Bila angka depannya sama\n\nBandingkan 86.567 dan 86.576. Periksa tempat demi tempat dari kiri:\n\n| Tempat | 86.567 | 86.576 |\n|---|---|---|\n| Puluh ribuan | 8 | 8 (sama) |\n| Ribuan | 6 | 6 (sama) |\n| Ratusan | 5 | 5 (sama) |\n| Puluhan | 6 | 7 (berbeda) |\n\nAngka pertama yang berbeda ada di puluhan: 6 lebih kecil dari 7. Jadi **86.567 < 86.576**.\n\nBila semua tempat sama, kedua bilangan itu sama: 13.234 = 13.234.\n\n## Mengurutkan\n\nTiga mainan dijual dengan harga Rp45.500 (robot), Rp42.000 (boneka), dan Rp38.500 (mobil-mobilan). Urutkan dari yang **termurah**.\n\n1. Bandingkan puluh ribuan: 4, 4, dan 3. Yang 3 paling kecil, jadi **Rp38.500** pertama.\n2. Sisanya 45.500 dan 42.000. Puluh ribuannya sama, lalu di ribuan 2 lebih kecil dari 5. Jadi **Rp42.000** berikutnya.\n3. Terakhir **Rp45.500**.\n\nUrutan dari termurah: Rp38.500; Rp42.000; Rp45.500. Urutan dari **termahal** adalah kebalikannya.\n\n## Pola bilangan\n\nPerhatikan 85.350; 85.400; 85.450; ...\n\n1. Cari selisih dua bilangan yang berdekatan: 85.400 − 85.350 = 50.\n2. Periksa pasangan berikutnya: 85.450 − 85.400 = 50. Sama, jadi polanya **bertambah 50**.\n3. Bilangan berikutnya: 85.450 + 50 = **85.500**.\n\n**Coba:** apa bilangan sesudah 85.500?\n_Periksa: 85.550._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 1._",
        "objective": {
-        "statement": "Murid dapat membandingkan dan mengurutkan bilangan cacah sampai 100.000.",
+        "statement": "Kalian dapat membandingkan dan mengurutkan bilangan cacah sampai 100.000.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -490,9 +490,9 @@
             "row": 10
            },
            "label": "A",
-           "body": ">",
+           "body": "lebih besar dari (>)",
            "is_correct": false,
-           "rationale": "Ribuannya sama (4). Di ratusan, 5 lebih kecil dari 8, jadi 4.587 lebih kecil."
+           "rationale": "Perbandingan dimulai dari belakang: puluhan 8 lebih besar dari 5. Mulailah dari kiri; di ratusan 5 lebih kecil dari 8."
           },
           {
            "_row": {
@@ -500,9 +500,9 @@
             "row": 11
            },
            "label": "B",
-           "body": "<",
-           "is_correct": true,
-           "rationale": "Benar. Ribuannya sama, lalu di ratusan 5 lebih kecil dari 8."
+           "body": "sama dengan (=)",
+           "is_correct": false,
+           "rationale": "Angka-angkanya memang sama (4, 5, 8, 7), tetapi letaknya berbeda, jadi nilainya berbeda."
           },
           {
            "_row": {
@@ -510,9 +510,9 @@
             "row": 12
            },
            "label": "C",
-           "body": "=",
+           "body": "tidak dapat dibandingkan",
            "is_correct": false,
-           "rationale": "Kedua bilangan memakai angka yang sama, tetapi letaknya berbeda, jadi nilainya berbeda."
+           "rationale": "Dua bilangan cacah selalu dapat dibandingkan, juga bila angka-angkanya sama tetapi letaknya berbeda."
           },
           {
            "_row": {
@@ -520,9 +520,9 @@
             "row": 13
            },
            "label": "D",
-           "body": "Tidak dapat dibandingkan",
-           "is_correct": false,
-           "rationale": "Dua bilangan cacah selalu dapat dibandingkan, mulai dari angka paling kiri."
+           "body": "lebih kecil dari (<)",
+           "is_correct": true,
+           "rationale": "Benar. Ribuannya sama (4); di ratusan 5 lebih kecil dari 8."
           }
          ]
         },
@@ -543,9 +543,9 @@
             "row": 26
            },
            "label": "A",
-           "body": ">",
-           "is_correct": false,
-           "rationale": "Di tempat puluh ribuan, 3 lebih kecil dari 6, jadi 36.954 lebih kecil."
+           "body": "lebih kecil dari (<)",
+           "is_correct": true,
+           "rationale": "Benar. Mulai dari kiri: di puluh ribuan 3 lebih kecil dari 6."
           },
           {
            "_row": {
@@ -553,9 +553,9 @@
             "row": 27
            },
            "label": "B",
-           "body": "<",
-           "is_correct": true,
-           "rationale": "Benar. Mulai dari kiri: di puluh ribuan 3 lebih kecil dari 6."
+           "body": "lebih besar dari (>)",
+           "is_correct": false,
+           "rationale": "Yang dilihat angka 9 yang besar di tengah bilangan. Besar bilangan ditentukan mulai dari angka paling kiri: 3 dan 6."
           },
           {
            "_row": {
@@ -563,9 +563,9 @@
             "row": 28
            },
            "label": "C",
-           "body": "=",
+           "body": "sama dengan (=)",
            "is_correct": false,
-           "rationale": "Angka paling kirinya sudah berbeda (3 dan 6), jadi keduanya tidak sama."
+           "rationale": "Kedua bilangan memakai angka 3, 4, 5, 6, 9, tetapi letaknya berbeda, jadi nilainya berbeda."
           },
           {
            "_row": {
@@ -573,9 +573,9 @@
             "row": 29
            },
            "label": "D",
-           "body": "Tidak dapat dibandingkan",
+           "body": "tidak dapat dibandingkan",
            "is_correct": false,
-           "rationale": "Dua bilangan cacah selalu dapat dibandingkan, mulai dari angka paling kiri."
+           "rationale": "Dua bilangan cacah selalu dapat dibandingkan, juga bila angka-angkanya sama tetapi letaknya berbeda."
           }
          ]
         },
@@ -607,7 +607,7 @@
            "label": "B",
            "body": "89.876; 78.897; 43.217",
            "is_correct": false,
-           "rationale": "Ini urutan dari yang terbesar ke yang terkecil."
+           "rationale": "Ini urutan dari yang terbesar ke yang terkecil, terbalik dari yang diminta."
           },
           {
            "_row": {
@@ -615,9 +615,9 @@
             "row": 64
            },
            "label": "C",
-           "body": "78.897; 43.217; 89.876",
+           "body": "78.897; 89.876; 43.217",
            "is_correct": false,
-           "rationale": "43.217 lebih kecil dari 78.897, jadi harus di depan."
+           "rationale": "Yang dilihat angka satuannya (7, 6, 7) atau angka belakang, bukan angka paling kiri."
           },
           {
            "_row": {
@@ -627,7 +627,7 @@
            "label": "D",
            "body": "43.217; 89.876; 78.897",
            "is_correct": false,
-           "rationale": "89.876 lebih besar dari 78.897, jadi harus di belakang."
+           "rationale": "Hanya bilangan terkecil yang diperiksa. 89.876 lebih besar dari 78.897, jadi harus paling belakang."
           }
          ]
         },
@@ -648,9 +648,9 @@
             "row": 66
            },
            "label": "A",
-           "body": ">",
+           "body": "sama dengan (=)",
            "is_correct": false,
-           "rationale": "Angka satuan 7 memang lebih besar, tetapi kita mulai dari kiri. Di puluhan, 6 lebih kecil dari 7."
+           "rationale": "Kedua bilangan memakai angka yang sama, tetapi puluhan dan satuannya bertukar tempat, jadi nilainya berbeda."
           },
           {
            "_row": {
@@ -658,7 +658,7 @@
             "row": 67
            },
            "label": "B",
-           "body": "<",
+           "body": "lebih kecil dari (<)",
            "is_correct": true,
            "rationale": "Benar. Puluh ribuan, ribuan, dan ratusannya sama; di puluhan 6 lebih kecil dari 7."
           },
@@ -668,9 +668,9 @@
             "row": 68
            },
            "label": "C",
-           "body": "=",
+           "body": "lebih besar dari (>)",
            "is_correct": false,
-           "rationale": "Angka puluhan dan satuannya berbeda, jadi nilainya berbeda."
+           "rationale": "Perbandingan dimulai dari satuan (7 lebih besar dari 6). Mulailah dari kiri dan berhenti di angka pertama yang berbeda."
           },
           {
            "_row": {
@@ -678,9 +678,9 @@
             "row": 69
            },
            "label": "D",
-           "body": "Tidak dapat dibandingkan",
+           "body": "tidak dapat dibandingkan",
            "is_correct": false,
-           "rationale": "Dua bilangan cacah selalu dapat dibandingkan."
+           "rationale": "Dua bilangan cacah selalu dapat dibandingkan, walaupun angka-angkanya sama."
           }
          ]
         },
@@ -691,7 +691,7 @@
          },
          "ref": "LT6",
          "item_type": "MCQ_SINGLE",
-         "stem": "Lanjutkan polanya: 15.500, 16.500, 17.500, ...",
+         "stem": "Lanjutkan polanya: 15.500; 16.500; 17.500; ...",
          "difficulty": "0.3",
          "options": [
           {
@@ -700,9 +700,9 @@
             "row": 70
            },
            "label": "A",
-           "body": "18.500",
-           "is_correct": true,
-           "rationale": "Benar. Setiap langkah bertambah 1.000."
+           "body": "17.600",
+           "is_correct": false,
+           "rationale": "Lompatannya ditebak 100. Hitung selisihnya: 16.500 − 15.500 = 1.000."
           },
           {
            "_row": {
@@ -710,9 +710,9 @@
             "row": 71
            },
            "label": "B",
-           "body": "17.600",
+           "body": "18.000",
            "is_correct": false,
-           "rationale": "Polanya bertambah 1.000, bukan 100."
+           "rationale": "Lompatannya dibuat 500. Setiap langkah bertambah 1.000."
           },
           {
            "_row": {
@@ -720,9 +720,9 @@
             "row": 72
            },
            "label": "C",
-           "body": "18.000",
-           "is_correct": false,
-           "rationale": "Tambahkan 1.000 ke 17.500, hasilnya 18.500."
+           "body": "18.500",
+           "is_correct": true,
+           "rationale": "Benar. Setiap langkah bertambah 1.000: 17.500 + 1.000 = 18.500."
           },
           {
            "_row": {
@@ -730,9 +730,9 @@
             "row": 73
            },
            "label": "D",
-           "body": "19.500",
+           "body": "27.500",
            "is_correct": false,
-           "rationale": "Itu dua langkah sesudahnya. Bilangan berikutnya 18.500."
+           "rationale": "Lompatannya dibuat 10.000, seolah angka di puluh ribuan yang berubah. Yang berubah angka ribuan."
           }
          ]
         },
@@ -743,8 +743,8 @@
          },
          "ref": "LT7",
          "item_type": "MCQ_SINGLE",
-         "stem": "Robot seharga Rp45.500 dan boneka seharga Rp42.000. Mana yang lebih murah, dan berapa selisihnya?",
-         "difficulty": "0.5",
+         "stem": "Lanjutkan polanya: 30.000; 50.000; 70.000; ...",
+         "difficulty": "0.3",
          "options": [
           {
            "_row": {
@@ -752,9 +752,9 @@
             "row": 74
            },
            "label": "A",
-           "body": "Boneka, selisihnya Rp3.500",
+           "body": "90.000",
            "is_correct": true,
-           "rationale": "Benar. 42.000 < 45.500, dan 45.500 − 42.000 = 3.500."
+           "rationale": "Benar. Selisihnya 50.000 − 30.000 = 20.000, jadi 70.000 + 20.000 = 90.000."
           },
           {
            "_row": {
@@ -762,9 +762,9 @@
             "row": 75
            },
            "label": "B",
-           "body": "Robot, selisihnya Rp3.500",
+           "body": "80.000",
            "is_correct": false,
-           "rationale": "Selisihnya benar, tetapi robot lebih mahal: di ribuan 5 lebih besar dari 2."
+           "rationale": "Lompatannya dianggap 10.000, padahal dari 30.000 ke 50.000 bertambah 20.000."
           },
           {
            "_row": {
@@ -772,9 +772,9 @@
             "row": 76
            },
            "label": "C",
-           "body": "Boneka, selisihnya Rp4.500",
+           "body": "72.000",
            "is_correct": false,
-           "rationale": "Boneka memang lebih murah, tetapi 45.500 − 42.000 = 3.500."
+           "rationale": "Yang ditambahkan 2.000, seolah angka 2 dari selisih ada di ribuan. Selisihnya 20.000."
           },
           {
            "_row": {
@@ -782,9 +782,61 @@
             "row": 77
            },
            "label": "D",
-           "body": "Boneka, selisihnya Rp13.500",
+           "body": "100.000",
            "is_correct": false,
-           "rationale": "Periksa pengurangannya lagi: 45.500 − 42.000 = 3.500."
+           "rationale": "Lompatannya dibuat 30.000, dari angka pertama pola. Hitung selisih dua bilangan yang berdekatan: 20.000."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Robot seharga Rp45.500 dan boneka seharga Rp42.000. Mana yang lebih murah, dan berapa selisih harganya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "Robot, selisihnya Rp3.500",
+           "is_correct": false,
+           "rationale": "Selisihnya benar, tetapi robot lebih mahal: di ribuan 5 lebih besar dari 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "Boneka, selisihnya Rp87.500",
+           "is_correct": false,
+           "rationale": "Kedua harga dijumlahkan. Selisih dicari dengan pengurangan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "Boneka, selisihnya Rp3.000",
+           "is_correct": false,
+           "rationale": "Hanya ribuannya yang dikurangkan (45 − 42 = 3 ribu); 500 pada harga robot terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "Boneka, selisihnya Rp3.500",
+           "is_correct": true,
+           "rationale": "Benar. 42.000 < 45.500, dan 45.500 − 42.000 = 3.500."
           }
          ]
         }
@@ -798,9 +850,9 @@
        "ordinal": "3",
        "title": "Komposisi dan Dekomposisi",
        "summary": "Menyusun bilangan dari bagian-bagiannya dan menguraikannya kembali, misalnya dengan uang.",
-       "body_markdown": "## Komposisi: menyusun\n\nKomposisi adalah menyusun beberapa bagian menjadi satu bilangan.\n\n- 3 lembar sepuluh ribuan dan 4 lembar seribuan: 30.000 + 4.000 = **34.000**\n- 3 lembar sepuluh ribuan, 7 lembar seribuan, dan 10 keping seratusan: 30.000 + 7.000 + 1.000 = **38.000**\n\nIngat: 10 keping seratusan sama dengan 1.000.\n\n## Dekomposisi: menguraikan\n\nDekomposisi adalah menguraikan satu bilangan menjadi bagian-bagiannya. Satu bilangan bisa diuraikan dengan lebih dari satu cara.\n\nRp59.000 dapat dibayar dengan:\n\n- 20.000 + 20.000 + 10.000 + 5.000 + 2.000 + 2.000\n- 20.000 + 10.000 + 10.000 + 10.000 + 5.000 + 2.000 + 2.000\n\n## Uang pas\n\nSaat membayar dengan uang pas, pilih lembaran terbesar dulu, lalu lengkapi sisanya dengan lembaran yang lebih kecil. Periksa lagi dengan menjumlahkan semuanya.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Bab 1 (Kemendikbudristek, 2022)._",
+       "body_markdown": "## Menyusun bilangan (komposisi)\n\n**Komposisi** berarti menyusun beberapa bagian menjadi satu bilangan.\n\nKalian punya 3 lembar uang sepuluh ribuan dan 4 lembar seribuan. Berapa jumlahnya?\n\n1. 3 lembar sepuluh ribuan: 3 × 10.000 = 30.000\n2. 4 lembar seribuan: 4 × 1.000 = 4.000\n3. Jumlahkan: 30.000 + 4.000 = **34.000**\n\n## Hitung nilainya, bukan banyaknya\n\n3 lembar sepuluh ribuan, 7 lembar seribuan, dan **10 keping seratusan**. Berapa jumlahnya?\n\n1. 3 × 10.000 = 30.000\n2. 7 × 1.000 = 7.000\n3. 10 × 100 = **1.000**. Sepuluh keping seratusan bernilai seribu, bukan seratus dan bukan sepuluh.\n4. 30.000 + 7.000 + 1.000 = **38.000**\n\nYang dijumlahkan adalah **nilai** uangnya, bukan banyak lembar atau kepingnya.\n\n**Coba:** 2 lembar sepuluh ribuan dan 15 keping seratusan. Berapa jumlahnya?\n_Periksa: 20.000 + 1.500 = 21.500._\n\n## Menguraikan bilangan (dekomposisi)\n\n**Dekomposisi** berarti menguraikan satu bilangan menjadi bagian-bagiannya. Satu bilangan bisa diuraikan dengan lebih dari satu cara.\n\nRp25.000 bisa berupa:\n\n- 20.000 + 5.000\n- 10.000 + 10.000 + 5.000\n- 5.000 + 5.000 + 5.000 + 5.000 + 5.000\n\nSemua cara itu benar karena jumlahnya sama: 25.000.\n\n## Membayar dengan uang pas\n\nIbu Saga berbelanja Rp59.000. Di dompetnya ada 2 lembar Rp20.000, 3 lembar Rp10.000, 2 lembar Rp5.000, dan 5 lembar Rp2.000. Bagaimana ia bisa membayar dengan uang pas?\n\n1. Perhatikan 59.000. Lembar Rp20.000, Rp10.000, dan Rp2.000 selalu menghasilkan ribuan yang **genap**. Supaya muncul 9.000 yang ganjil, harus ada **tepat satu** lembar Rp5.000.\n2. Sisanya 59.000 − 5.000 = 54.000, dibayar dengan lembar lain.\n3. Cara 1: 20.000 + 20.000 + 10.000 + 2.000 + 2.000 = 54.000.\n4. Cara 2: 20.000 + 10.000 + 10.000 + 10.000 + 2.000 + 2.000 = 54.000.\n\nJadi ada **2 cara**. Setiap kali selesai, jumlahkan lagi semua lembarnya untuk memeriksa.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 1._",
        "objective": {
-        "statement": "Murid dapat menyusun (komposisi) dan menguraikan (dekomposisi) bilangan cacah sampai 100.000, termasuk dengan uang.",
+        "statement": "Kalian dapat menyusun (komposisi) dan menguraikan (dekomposisi) bilangan cacah sampai 100.000, termasuk jumlah uang.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -812,7 +864,7 @@
          },
          "ref": "PB6",
          "item_type": "MCQ_SINGLE",
-         "stem": "3 lembar sepuluh ribuan, 7 lembar seribuan, dan 10 keping seratusan jumlahnya ...",
+         "stem": "Di celengan Dimas ada 4 lembar uang sepuluh ribuan, 6 lembar seribuan, dan 20 keping seratusan. Berapa jumlah uangnya?",
          "use": "POST_TEST",
          "difficulty": "0.5",
          "options": [
@@ -822,9 +874,9 @@
             "row": 38
            },
            "label": "A",
-           "body": "Rp38.000",
-           "is_correct": true,
-           "rationale": "Benar. 30.000 + 7.000 + 1.000 (10 keping seratusan) = 38.000."
+           "body": "Rp46.200",
+           "is_correct": false,
+           "rationale": "20 keping seratusan dihitung sebagai 200. Nilainya 20 × 100 = 2.000."
           },
           {
            "_row": {
@@ -832,9 +884,9 @@
             "row": 39
            },
            "label": "B",
-           "body": "Rp37.100",
+           "body": "Rp46.020",
            "is_correct": false,
-           "rationale": "10 keping seratusan bernilai 10 × 100 = 1.000, bukan 100."
+           "rationale": "20 keping seratusan dihitung sebagai 20. Nilainya 20 × 100 = 2.000."
           },
           {
            "_row": {
@@ -842,9 +894,9 @@
             "row": 40
            },
            "label": "C",
-           "body": "Rp37.010",
-           "is_correct": false,
-           "rationale": "10 keping seratusan bernilai 1.000, bukan 10."
+           "body": "Rp48.000",
+           "is_correct": true,
+           "rationale": "Benar. 40.000 + 6.000 + 2.000 (20 × 100) = 48.000."
           },
           {
            "_row": {
@@ -852,61 +904,9 @@
             "row": 41
            },
            "label": "D",
-           "body": "Rp3.710",
+           "body": "Rp42.000",
            "is_correct": false,
-           "rationale": "Tiga lembar sepuluh ribuan bernilai 30.000, bukan 3.000."
-          }
-         ]
-        },
-        {
-         "_row": {
-          "sheet": "Soal",
-          "row": 21
-         },
-         "ref": "LT8",
-         "item_type": "MCQ_SINGLE",
-         "stem": "Uang Rp34.000 dapat disusun dari ...",
-         "difficulty": "0.3",
-         "options": [
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 78
-           },
-           "label": "A",
-           "body": "3 lembar Rp10.000 dan 4 lembar Rp1.000",
-           "is_correct": true,
-           "rationale": "Benar. 30.000 + 4.000 = 34.000."
-          },
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 79
-           },
-           "label": "B",
-           "body": "4 lembar Rp10.000 dan 3 lembar Rp1.000",
-           "is_correct": false,
-           "rationale": "Itu 43.000. Banyak lembarannya tertukar."
-          },
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 80
-           },
-           "label": "C",
-           "body": "3 lembar Rp10.000 dan 4 keping Rp100",
-           "is_correct": false,
-           "rationale": "Itu 30.400. Seribuan dan seratusan berbeda nilainya."
-          },
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 81
-           },
-           "label": "D",
-           "body": "34 keping Rp100",
-           "is_correct": false,
-           "rationale": "Itu hanya 3.400."
+           "rationale": "6 lembar seribuan terlewat: 40.000 + 2.000. Semua uang di celengan harus dijumlahkan, 40.000 + 6.000 + 2.000."
           }
          ]
         },
@@ -917,8 +917,8 @@
          },
          "ref": "LT9",
          "item_type": "MCQ_SINGLE",
-         "stem": "Ibu Saga berbelanja Rp59.000. Di dompetnya ada 2 lembar Rp20.000, 3 lembar Rp10.000, 2 lembar Rp5.000, dan 5 lembar Rp2.000. Ada berapa cara membayar dengan uang pas?",
-         "difficulty": "0.7",
+         "stem": "Uang Rp52.000 dapat disusun dari ...",
+         "difficulty": "0.3",
          "options": [
           {
            "_row": {
@@ -926,9 +926,9 @@
             "row": 82
            },
            "label": "A",
-           "body": "1 cara",
+           "body": "2 lembar Rp10.000 dan 5 lembar Rp1.000",
            "is_correct": false,
-           "rationale": "Ada cara lain: satu lembar Rp20.000 diganti dua lembar Rp10.000."
+           "rationale": "Banyak lembarnya tertukar; jumlahnya 25.000. Angka 5 di puluh ribuan berarti 5 lembar sepuluh ribuan."
           },
           {
            "_row": {
@@ -936,9 +936,9 @@
             "row": 83
            },
            "label": "B",
-           "body": "2 cara",
+           "body": "5 lembar Rp10.000 dan 2 lembar Rp1.000",
            "is_correct": true,
-           "rationale": "Benar. 20.000 + 20.000 + 10.000 + 5.000 + 2.000 + 2.000, atau 20.000 + 10.000 + 10.000 + 10.000 + 5.000 + 2.000 + 2.000."
+           "rationale": "Benar. 50.000 + 2.000 = 52.000."
           },
           {
            "_row": {
@@ -946,9 +946,9 @@
             "row": 84
            },
            "label": "C",
-           "body": "3 cara",
+           "body": "5 lembar Rp10.000 dan 2 keping Rp100",
            "is_correct": false,
-           "rationale": "Tanpa tepat satu lembar Rp5.000, jumlahnya tidak bisa pas, jadi hanya ada 2 cara."
+           "rationale": "Seribuan diganti seratusan; jumlahnya 50.200. Dua lembar seribuan bernilai 2.000."
           },
           {
            "_row": {
@@ -956,9 +956,9 @@
             "row": 85
            },
            "label": "D",
-           "body": "4 cara",
+           "body": "52 keping Rp100",
            "is_correct": false,
-           "rationale": "Coba daftarkan semua cara. Tanpa tepat satu lembar Rp5.000, jumlahnya tidak bisa pas."
+           "rationale": "Banyak keping disamakan dengan nilainya; 52 × 100 = 5.200, bukan 52.000."
           }
          ]
         },
@@ -969,7 +969,8 @@
          },
          "ref": "LT10",
          "item_type": "MCQ_SINGLE",
-         "stem": "Harga belanjaan Rp56.900. Susunan uang pas yang tepat adalah ...",
+         "stem": "Kakak berbelanja Rp35.000. Di dompetnya ada 1 lembar Rp20.000, 2 lembar Rp10.000, dan 3 lembar Rp5.000. Ada berapa cara membayar dengan uang pas?",
+         "petunjuk": "Mulailah dari cara yang memakai lembar Rp20.000, lalu cari cara tanpa lembar itu.",
          "difficulty": "0.7",
          "options": [
           {
@@ -978,9 +979,9 @@
             "row": 86
            },
            "label": "A",
-           "body": "2 × Rp20.000, 1 × Rp10.000, 1 × Rp5.000, 1 × Rp1.000, 1 × Rp500, 4 × Rp100",
-           "is_correct": true,
-           "rationale": "Benar. 40.000 + 10.000 + 5.000 + 1.000 + 500 + 400 = 56.900."
+           "body": "1 cara",
+           "is_correct": false,
+           "rationale": "Berhenti setelah menemukan cara pertama (20.000 + 10.000 + 5.000). Masih ada cara lain."
           },
           {
            "_row": {
@@ -988,9 +989,9 @@
             "row": 87
            },
            "label": "B",
-           "body": "2 × Rp20.000, 1 × Rp10.000, 1 × Rp5.000, 1 × Rp1.000, 1 × Rp500, 2 × Rp100",
+           "body": "2 cara",
            "is_correct": false,
-           "rationale": "Jumlahnya 56.700, kurang 200."
+           "rationale": "Cara tanpa lembar Rp20.000 terlewat: 10.000 + 10.000 + 5.000 + 5.000 + 5.000."
           },
           {
            "_row": {
@@ -998,9 +999,9 @@
             "row": 88
            },
            "label": "C",
-           "body": "2 × Rp20.000, 1 × Rp10.000, 1 × Rp5.000, 1 × Rp500, 4 × Rp100",
-           "is_correct": false,
-           "rationale": "Jumlahnya 55.900, kurang 1.000."
+           "body": "3 cara",
+           "is_correct": true,
+           "rationale": "Benar. 20.000 + 10.000 + 5.000; 20.000 + 5.000 + 5.000 + 5.000; dan 10.000 + 10.000 + 5.000 + 5.000 + 5.000."
           },
           {
            "_row": {
@@ -1008,9 +1009,61 @@
             "row": 89
            },
            "label": "D",
-           "body": "3 × Rp20.000",
+           "body": "4 cara",
            "is_correct": false,
-           "rationale": "Jumlahnya 60.000. Itu lebih dari harganya, jadi bukan uang pas."
+           "rationale": "Satu cara terhitung dua kali karena urutan lembarnya diubah. Urutan membayar tidak membuat cara baru."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "LT11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Belanjaan Ibu Lukas Rp56.900. Susunan uang manakah yang pas?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "2 × Rp20.000, 1 × Rp10.000, 1 × Rp5.000, 1 × Rp1.000, 1 × Rp500, 2 × Rp100",
+           "is_correct": false,
+           "rationale": "Jumlahnya 56.700, kurang 200. Keping Rp100 yang dibutuhkan ada 4."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "2 × Rp20.000, 1 × Rp10.000, 1 × Rp5.000, 1 × Rp500, 4 × Rp100",
+           "is_correct": false,
+           "rationale": "Lembar Rp1.000 terlewat, jadi jumlahnya 55.900, kurang 1.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "2 × Rp20.000, 1 × Rp10.000, 1 × Rp5.000, 1 × Rp1.000, 1 × Rp500, 4 × Rp200",
+           "is_correct": false,
+           "rationale": "4 keping dianggap 400 apa pun kepingnya. 4 keping Rp200 bernilai 800, jadi jumlahnya 57.300."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "2 × Rp20.000, 1 × Rp10.000, 1 × Rp5.000, 1 × Rp1.000, 1 × Rp500, 4 × Rp100",
+           "is_correct": true,
+           "rationale": "Benar. 40.000 + 10.000 + 5.000 + 1.000 + 500 + 400 = 56.900."
           }
          ]
         }
@@ -1022,11 +1075,11 @@
         "row": 5
        },
        "ordinal": "4",
-       "title": "Operasi Hitung dan Soal Cerita",
-       "summary": "Menjumlah, mengurang, mengali, dan membagi bilangan sampai 100.000, lalu memakainya untuk masalah sehari-hari.",
-       "body_markdown": "## Penjumlahan bersusun\n\nSusun angka sesuai nilai tempatnya, lalu jumlahkan dari kanan.\n\n76.598 + 12.456:\n\n- satuan: 8 + 6 = 14, tulis 4, simpan 1\n- puluhan: 9 + 5 + 1 = 15, tulis 5, simpan 1\n- ratusan: 5 + 4 + 1 = 10, tulis 0, simpan 1\n- ribuan: 6 + 2 + 1 = 9\n- puluh ribuan: 7 + 1 = 8\n\nHasilnya **89.054**.\n\n## Pengurangan bersusun\n\n67.987 − 13.453 = **54.534**. Kurangkan dari kanan, tempat demi tempat.\n\n## Perkalian\n\n567 × 107 = 567 × 100 + 567 × 7 = 56.700 + 3.969 = **60.669**\n\n## Pembagian\n\n67.032 : 147 = **456**. Periksa dengan perkalian: 147 × 456 = 67.032.\n\n## Soal cerita\n\n1. Baca soalnya dua kali.\n2. Tentukan operasinya: menambah, mengurangi, mengali, atau membagi.\n3. Hitung dengan teliti.\n4. Periksa apakah jawabanmu masuk akal.\n\nContoh: Nisa memiliki Rp100.000 dan berbelanja Rp53.000. Sisanya 100.000 − 53.000 = **Rp47.000**.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Bab 1 (Kemendikbudristek, 2022)._",
+       "title": "Operasi Hitung Bilangan sampai 100.000",
+       "summary": "Menjumlah, mengurang, mengali, dan membagi bilangan sampai 100.000 dengan langkah yang teratur, lalu memeriksa hasilnya.",
+       "body_markdown": "## Penjumlahan bersusun\n\nHitung 76.598 + 12.456. Susun angka sesuai tempatnya, lalu jumlahkan dari kanan.\n\n1. Satuan: 8 + 6 = 14. Tulis 4, **simpan 1** ke puluhan.\n2. Puluhan: 9 + 5 + 1 = 15. Tulis 5, simpan 1.\n3. Ratusan: 5 + 4 + 1 = 10. Tulis 0, simpan 1.\n4. Ribuan: 6 + 2 + 1 = 9.\n5. Puluh ribuan: 7 + 1 = 8.\n\nHasilnya **89.054**.\n\nMengapa menyimpan? 14 satuan sama dengan 1 puluhan dan 4 satuan. Puluhan itu harus ikut dijumlahkan di tempat puluhan.\n\n## Pengurangan bersusun\n\nHitung 45.362 − 17.548. Kurangkan dari kanan.\n\n1. Satuan: 2 − 8 tidak bisa. **Pinjam** 1 puluhan, jadi 12 − 8 = 4. Puluhan tinggal 5.\n2. Puluhan: 5 − 4 = 1.\n3. Ratusan: 3 − 5 tidak bisa. Pinjam 1 ribuan: 13 − 5 = 8. Ribuan tinggal 4.\n4. Ribuan: 4 − 7 tidak bisa. Pinjam 1 puluh ribuan: 14 − 7 = 7. Puluh ribuan tinggal 3.\n5. Puluh ribuan: 3 − 1 = 2.\n\nHasilnya **27.814**. Periksa dengan penjumlahan: 27.814 + 17.548 = 45.362. Cocok.\n\nMengapa meminjam? 1 puluhan sama dengan 10 satuan, jadi satuannya bertambah 10.\n\n## Perkalian\n\nHitung 567 × 107. Pecah 107 menjadi 100 + 7.\n\n1. 567 × 100 = 56.700\n2. 567 × 7 = 3.969\n3. Jumlahkan: 56.700 + 3.969 = **60.669**\n\nContoh lain, 1.245 × 24. Pecah 24 menjadi 20 + 4.\n\n1. 1.245 × 20 = 24.900\n2. 1.245 × 4 = 4.980\n3. 24.900 + 4.980 = **29.880**\n\nKedua hasil kali harus dijumlahkan. Bila hanya satu yang dihitung, jawabannya kurang.\n\n## Pembagian bersusun\n\nHitung 67.032 : 147.\n\n1. Ambil angka dari kiri sampai cukup untuk dibagi 147. 6 dan 67 terlalu kecil, jadi ambil 670. 147 masuk ke 670 sebanyak **4** kali (4 × 147 = 588). Sisa 670 − 588 = 82.\n2. Turunkan angka berikutnya (3): 823. 147 masuk **5** kali (5 × 147 = 735). Sisa 88.\n3. Turunkan angka terakhir (2): 882. 147 masuk **6** kali (6 × 147 = 882). Sisa 0.\n\nHasilnya **456**.\n\n## Periksa jawaban kalian\n\nSetiap operasi punya \"kebalikan\" untuk memeriksa:\n\n- Hasil pengurangan diperiksa dengan penjumlahan.\n- Hasil pembagian diperiksa dengan perkalian: 147 × 456 = 67.032. Cocok.\n\nBila hasil pemeriksaannya tidak cocok, pasti ada langkah yang keliru. Ulangi dari langkah pertama.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 1._",
        "objective": {
-        "statement": "Murid dapat menghitung operasi bilangan cacah sampai 100.000 dan memecahkan masalah sehari-hari.",
+        "statement": "Kalian dapat menghitung penjumlahan, pengurangan, perkalian, dan pembagian bilangan cacah sampai 100.000.",
         "bloom": "APPLY"
        },
        "media": [],
@@ -1060,7 +1113,7 @@
            "label": "B",
            "body": "7.733",
            "is_correct": false,
-           "rationale": "Angka yang disimpan terlupa. 8 + 5 = 13 dan 6 + 7 = 13 masing-masing menyimpan 1 ke tempat berikutnya."
+           "rationale": "Tidak ada yang disimpan: 8 + 5 = 13 dan 6 + 7 = 13 masing-masing seharusnya menyimpan 1 ke tempat berikutnya."
           },
           {
            "_row": {
@@ -1070,7 +1123,7 @@
            "label": "C",
            "body": "7.743",
            "is_correct": false,
-           "rationale": "Simpanan dari satuan sudah dipakai, tetapi simpanan dari puluhan ke ratusan terlupa."
+           "rationale": "Simpanan dari satuan sudah dipakai, tetapi simpanan dari puluhan ke ratusan (6 + 7 + 1 = 14) terlupa."
           },
           {
            "_row": {
@@ -1080,7 +1133,7 @@
            "label": "D",
            "body": "3.093",
            "is_correct": false,
-           "rationale": "Ini hasil pengurangan 5.468 − 2.375. Soalnya meminta penjumlahan."
+           "rationale": "Ini hasil pengurangan 5.468 − 2.375. Tanda + berarti dijumlahkan."
           }
          ]
         },
@@ -1091,7 +1144,7 @@
          },
          "ref": "PB4",
          "item_type": "MCQ_SINGLE",
-         "stem": "42.458 + 35.687 = ...",
+         "stem": "Sebuah perpustakaan memiliki 42.458 buku cerita dan 35.687 buku pelajaran. Berapa banyak buku seluruhnya?",
          "use": "POST_TEST",
          "difficulty": "0.5",
          "options": [
@@ -1101,9 +1154,9 @@
             "row": 30
            },
            "label": "A",
-           "body": "78.145",
-           "is_correct": true,
-           "rationale": "Benar. Tiga kali menyimpan: dari satuan, puluhan, dan ratusan."
+           "body": "77.035 buku",
+           "is_correct": false,
+           "rationale": "Tidak ada yang disimpan. 8 + 7 = 15 seharusnya menyimpan 1 ke puluhan, begitu juga di puluhan dan ratusan."
           },
           {
            "_row": {
@@ -1111,9 +1164,9 @@
             "row": 31
            },
            "label": "B",
-           "body": "77.035",
+           "body": "6.771 buku",
            "is_correct": false,
-           "rationale": "Tidak ada angka yang disimpan. 8 + 7 = 15 menyimpan 1 ke puluhan, dan seterusnya."
+           "rationale": "Kedua bilangan dikurangkan. Kata seluruhnya berarti keduanya digabung, jadi dijumlahkan."
           },
           {
            "_row": {
@@ -1121,7 +1174,7 @@
             "row": 32
            },
            "label": "C",
-           "body": "77.145",
+           "body": "77.145 buku",
            "is_correct": false,
            "rationale": "Simpanan dari ratusan ke ribuan terlupa: 4 + 6 + 1 = 11, jadi 1 disimpan ke ribuan."
           },
@@ -1131,9 +1184,9 @@
             "row": 33
            },
            "label": "D",
-           "body": "6.771",
-           "is_correct": false,
-           "rationale": "Ini hasil pengurangan 42.458 − 35.687. Soalnya meminta penjumlahan."
+           "body": "78.145 buku",
+           "is_correct": true,
+           "rationale": "Benar. 42.458 + 35.687 = 78.145, dengan tiga kali menyimpan: dari satuan, puluhan, dan ratusan."
           }
          ]
         },
@@ -1144,9 +1197,10 @@
          },
          "ref": "PB7",
          "item_type": "MCQ_SINGLE",
-         "stem": "67.032 : 147 = ...",
+         "stem": "58.344 : 136 = ...",
+         "petunjuk": "Setelah membagi, kalikan hasilnya dengan 136 untuk memeriksa.",
          "use": "POST_TEST",
-         "difficulty": "0.7",
+         "difficulty": "0.5",
          "options": [
           {
            "_row": {
@@ -1154,9 +1208,9 @@
             "row": 42
            },
            "label": "A",
-           "body": "456",
-           "is_correct": true,
-           "rationale": "Benar. Periksa: 147 × 456 = 67.032."
+           "body": "924",
+           "is_correct": false,
+           "rationale": "Angka hasil bagi ditulis terbalik. Periksa: 136 × 924 = 125.664, jauh lebih dari 58.344."
           },
           {
            "_row": {
@@ -1164,9 +1218,9 @@
             "row": 43
            },
            "label": "B",
-           "body": "546",
+           "body": "4.290",
            "is_correct": false,
-           "rationale": "Angkanya tertukar. 147 × 546 = 80.262, bukan 67.032."
+           "rationale": "Ada 0 berlebih, sehingga nilai tempatnya bergeser. Periksa: 136 × 4.290 = 583.440."
           },
           {
            "_row": {
@@ -1174,9 +1228,9 @@
             "row": 44
            },
            "label": "C",
-           "body": "4.560",
+           "body": "492",
            "is_correct": false,
-           "rationale": "Terlalu besar: 147 × 4.560 lebih dari 600.000."
+           "rationale": "Dua angka terakhir tertukar. Periksa: 136 × 492 = 66.912, bukan 58.344."
           },
           {
            "_row": {
@@ -1184,114 +1238,9 @@
             "row": 45
            },
            "label": "D",
-           "body": "465",
-           "is_correct": false,
-           "rationale": "147 × 465 = 68.355, bukan 67.032. Periksa hasil bagi dengan perkalian."
-          }
-         ]
-        },
-        {
-         "_row": {
-          "sheet": "Soal",
-          "row": 13
-         },
-         "ref": "PB8",
-         "item_type": "MCQ_SINGLE",
-         "stem": "Zafran dan Ula masing-masing memiliki Rp35.000. Mereka membeli satu Paket B seharga Rp53.000 dan membayarnya sama rata. Berapa sisa uang masing-masing?",
-         "use": "POST_TEST",
-         "difficulty": "0.7",
-         "options": [
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 46
-           },
-           "label": "A",
-           "body": "Rp8.500",
+           "body": "429",
            "is_correct": true,
-           "rationale": "Benar. Masing-masing membayar 53.000 : 2 = 26.500, jadi sisanya 35.000 − 26.500 = 8.500."
-          },
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 47
-           },
-           "label": "B",
-           "body": "Rp17.000",
-           "is_correct": false,
-           "rationale": "Itu sisa uang mereka berdua (70.000 − 53.000). Soal menanyakan sisa masing-masing."
-          },
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 48
-           },
-           "label": "C",
-           "body": "Rp26.500",
-           "is_correct": false,
-           "rationale": "Itu yang dibayar masing-masing, bukan sisanya."
-          },
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 49
-           },
-           "label": "D",
-           "body": "Rp18.000",
-           "is_correct": false,
-           "rationale": "Coba hitung lagi: masing-masing membayar 26.500 dari uang 35.000."
-          }
-         ]
-        },
-        {
-         "_row": {
-          "sheet": "Soal",
-          "row": 24
-         },
-         "ref": "LT11",
-         "item_type": "MCQ_SINGLE",
-         "stem": "67.987 − 13.453 = ...",
-         "difficulty": "0.3",
-         "options": [
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 90
-           },
-           "label": "A",
-           "body": "54.534",
-           "is_correct": true,
-           "rationale": "Benar. Kurangkan dari kanan: 7−3, 8−5, 9−4, 7−3, 6−1."
-          },
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 91
-           },
-           "label": "B",
-           "body": "81.440",
-           "is_correct": false,
-           "rationale": "Ini hasil penjumlahan. Soalnya meminta pengurangan."
-          },
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 92
-           },
-           "label": "C",
-           "body": "54.543",
-           "is_correct": false,
-           "rationale": "Angka puluhan dan satuan tertukar."
-          },
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 93
-           },
-           "label": "D",
-           "body": "53.534",
-           "is_correct": false,
-           "rationale": "Periksa tempat ribuan: 7 − 3 = 4."
+           "rationale": "Benar. 583 : 136 = 4 sisa 39; 394 : 136 = 2 sisa 122; 1.224 : 136 = 9. Periksa: 136 × 429 = 58.344."
           }
          ]
         },
@@ -1302,8 +1251,8 @@
          },
          "ref": "LT12",
          "item_type": "MCQ_SINGLE",
-         "stem": "567 × 107 = ...",
-         "difficulty": "0.7",
+         "stem": "67.987 − 13.453 = ...",
+         "difficulty": "0.3",
          "options": [
           {
            "_row": {
@@ -1311,9 +1260,9 @@
             "row": 94
            },
            "label": "A",
-           "body": "60.669",
-           "is_correct": true,
-           "rationale": "Benar. 567 × 100 + 567 × 7 = 56.700 + 3.969 = 60.669."
+           "body": "81.440",
+           "is_correct": false,
+           "rationale": "Kedua bilangan dijumlahkan. Tanda − berarti dikurangkan."
           },
           {
            "_row": {
@@ -1321,9 +1270,9 @@
             "row": 95
            },
            "label": "B",
-           "body": "56.700",
+           "body": "53.534",
            "is_correct": false,
-           "rationale": "Itu baru 567 × 100. Tambahkan juga 567 × 7."
+           "rationale": "Satu dipinjam dari ribuan padahal tidak perlu (7 − 3 bisa langsung). Ribuannya 7 − 3 = 4."
           },
           {
            "_row": {
@@ -1331,9 +1280,9 @@
             "row": 96
            },
            "label": "C",
-           "body": "3.969",
-           "is_correct": false,
-           "rationale": "Itu baru 567 × 7. Tambahkan juga 567 × 100."
+           "body": "54.534",
+           "is_correct": true,
+           "rationale": "Benar. Kurangkan dari kanan: 7 − 3, 8 − 5, 9 − 4, 7 − 3, 6 − 1. Tidak perlu meminjam."
           },
           {
            "_row": {
@@ -1341,9 +1290,9 @@
             "row": 97
            },
            "label": "D",
-           "body": "55.566",
+           "body": "54.543",
            "is_correct": false,
-           "rationale": "Itu hasil 567 × 98, bukan 567 × 107."
+           "rationale": "Puluhan dan satuan hasilnya tertukar tempat. Satuan 7 − 3 = 4 dan puluhan 8 − 5 = 3."
           }
          ]
         },
@@ -1354,8 +1303,9 @@
          },
          "ref": "LT13",
          "item_type": "MCQ_SINGLE",
-         "stem": "Yohana membeli dua bungkus mangga seharga Rp45.000 (untuk kedua bungkus) dan satu bungkus jeruk seharga Rp4.000. Berapa yang harus ia bayar?",
-         "difficulty": "0.3",
+         "stem": "61.205 − 28.437 = ...",
+         "petunjuk": "Mulailah dari satuan. Bila angka atas lebih kecil, pinjam 1 dari tempat di sebelah kirinya.",
+         "difficulty": "0.5",
          "options": [
           {
            "_row": {
@@ -1363,9 +1313,9 @@
             "row": 98
            },
            "label": "A",
-           "body": "Rp49.000",
+           "body": "32.768",
            "is_correct": true,
-           "rationale": "Benar. 45.000 + 4.000 = 49.000."
+           "rationale": "Benar. Meminjam di satuan, puluhan, ratusan, dan ribuan. Periksa: 32.768 + 28.437 = 61.205."
           },
           {
            "_row": {
@@ -1373,9 +1323,9 @@
             "row": 99
            },
            "label": "B",
-           "body": "Rp94.000",
+           "body": "47.232",
            "is_correct": false,
-           "rationale": "Rp45.000 sudah harga kedua bungkus mangga, jadi tidak dikali 2."
+           "rationale": "Di setiap tempat angka kecil dikurangkan dari angka besar tanpa meminjam (misalnya 7 − 5 di satuan)."
           },
           {
            "_row": {
@@ -1383,9 +1333,9 @@
             "row": 100
            },
            "label": "C",
-           "body": "Rp41.000",
+           "body": "33.768",
            "is_correct": false,
-           "rationale": "Belanjaan dijumlahkan, bukan dikurangkan."
+           "rationale": "Sudah meminjam dari ribuan, tetapi ribuannya tidak dikurangi 1 (1 − 8 dihitung sebagai 11 − 8)."
           },
           {
            "_row": {
@@ -1393,9 +1343,9 @@
             "row": 101
            },
            "label": "D",
-           "body": "Rp49.500",
+           "body": "89.642",
            "is_correct": false,
-           "rationale": "Periksa lagi: 45.000 + 4.000 = 49.000."
+           "rationale": "Kedua bilangan dijumlahkan. Tanda − berarti dikurangkan."
           }
          ]
         },
@@ -1406,8 +1356,8 @@
          },
          "ref": "LT14",
          "item_type": "MCQ_SINGLE",
-         "stem": "Ibu mempunyai Rp100.000 dan membagikannya sama rata kepada dua anaknya. Berapa yang diterima setiap anak?",
-         "difficulty": "0.3",
+         "stem": "438 × 105 = ...",
+         "difficulty": "0.5",
          "options": [
           {
            "_row": {
@@ -1415,9 +1365,9 @@
             "row": 102
            },
            "label": "A",
-           "body": "Rp50.000",
-           "is_correct": true,
-           "rationale": "Benar. 100.000 : 2 = 50.000."
+           "body": "43.800",
+           "is_correct": false,
+           "rationale": "Baru 438 × 100 yang dihitung. 105 = 100 + 5, jadi 438 × 5 juga harus ditambahkan."
           },
           {
            "_row": {
@@ -1425,9 +1375,9 @@
             "row": 103
            },
            "label": "B",
-           "body": "Rp200.000",
+           "body": "6.570",
            "is_correct": false,
-           "rationale": "Membagikan sama rata berarti membagi, bukan mengali."
+           "rationale": "Nol di 105 terlewat sehingga dihitung 438 × 15."
           },
           {
            "_row": {
@@ -1435,9 +1385,9 @@
             "row": 104
            },
            "label": "C",
-           "body": "Rp98.000",
+           "body": "2.190",
            "is_correct": false,
-           "rationale": "Membagi dua bukan berarti mengurangi 2."
+           "rationale": "Baru 438 × 5 yang dihitung. 438 × 100 juga harus ditambahkan."
           },
           {
            "_row": {
@@ -1445,9 +1395,9 @@
             "row": 105
            },
            "label": "D",
-           "body": "Rp25.000",
-           "is_correct": false,
-           "rationale": "Itu bila dibagi empat. Anaknya ada dua."
+           "body": "45.990",
+           "is_correct": true,
+           "rationale": "Benar. 438 × 100 + 438 × 5 = 43.800 + 2.190 = 45.990."
           }
          ]
         },
@@ -1458,8 +1408,8 @@
          },
          "ref": "LT15",
          "item_type": "MCQ_SINGLE",
-         "stem": "Nisa memiliki Rp100.000. Ia berbelanja buah seharga Rp53.000. Berapa sisa uangnya?",
-         "difficulty": "0.3",
+         "stem": "2.316 × 32 = ...",
+         "difficulty": "0.5",
          "options": [
           {
            "_row": {
@@ -1467,9 +1417,9 @@
             "row": 106
            },
            "label": "A",
-           "body": "Rp47.000",
-           "is_correct": true,
-           "rationale": "Benar. 100.000 − 53.000 = 47.000."
+           "body": "69.480",
+           "is_correct": false,
+           "rationale": "Baru 2.316 × 30 yang dihitung. 2.316 × 2 juga harus ditambahkan."
           },
           {
            "_row": {
@@ -1477,9 +1427,9 @@
             "row": 107
            },
            "label": "B",
-           "body": "Rp153.000",
-           "is_correct": false,
-           "rationale": "Sisa uang dihitung dengan mengurangi, bukan menjumlahkan."
+           "body": "74.112",
+           "is_correct": true,
+           "rationale": "Benar. 2.316 × 30 + 2.316 × 2 = 69.480 + 4.632 = 74.112."
           },
           {
            "_row": {
@@ -1487,9 +1437,9 @@
             "row": 108
            },
            "label": "C",
-           "body": "Rp57.000",
+           "body": "11.580",
            "is_correct": false,
-           "rationale": "Periksa pengurangan dengan meminjam: 100.000 − 53.000 = 47.000."
+           "rationale": "Angka 3 di puluhan dikalikan sebagai 3, bukan 30: 6.948 + 4.632. Hasil kali puluhan harus bergeser satu tempat."
           },
           {
            "_row": {
@@ -1497,61 +1447,9 @@
             "row": 109
            },
            "label": "D",
-           "body": "Rp53.000",
+           "body": "4.632",
            "is_correct": false,
-           "rationale": "Itu harga belanjaannya, bukan sisa uangnya."
-          }
-         ]
-        },
-        {
-         "_row": {
-          "sheet": "Soal",
-          "row": 29
-         },
-         "ref": "LT16",
-         "item_type": "MCQ_SINGLE",
-         "stem": "Paket A (1 ayam goreng, 1 nasi, 1 teh manis) harganya Rp27.500. Zafran dan Ula masing-masing membeli 1 Paket A. Berapa jumlah yang dibayar?",
-         "difficulty": "0.5",
-         "options": [
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 110
-           },
-           "label": "A",
-           "body": "Rp55.000",
-           "is_correct": true,
-           "rationale": "Benar. 2 × 27.500 = 55.000."
-          },
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 111
-           },
-           "label": "B",
-           "body": "Rp27.500",
-           "is_correct": false,
-           "rationale": "Itu harga satu paket. Mereka membeli dua."
-          },
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 112
-           },
-           "label": "C",
-           "body": "Rp54.000",
-           "is_correct": false,
-           "rationale": "Periksa lagi: 27.500 + 27.500 = 55.000."
-          },
-          {
-           "_row": {
-            "sheet": "Pilihan",
-            "row": 113
-           },
-           "label": "D",
-           "body": "Rp53.000",
-           "is_correct": false,
-           "rationale": "Itu harga Paket B, bukan dua Paket A."
+           "rationale": "Baru 2.316 × 2 yang dihitung. 2.316 × 30 juga harus ditambahkan."
           }
          ]
         }
@@ -1563,49 +1461,277 @@
         "row": 6
        },
        "ordinal": "5",
-       "title": "Rangkuman Bab 1: Video, Infografik, dan Ringkasan",
-       "summary": "Mengulang seluruh Bab 1 lewat video podcast dengan contoh sehari-hari, infografik, dan ringkasan tertulis.",
-       "body_markdown": "## Mengulang Bab 1\n\nKamu sudah belajar membaca, menulis, membandingkan, menyusun, dan menghitung bilangan sampai 100.000. Sekarang ulangi semuanya dengan cara yang berbeda.\n\n1. **Tonton video podcast.** Dua orang membahas Bab 1 dengan contoh sehari-hari: harga di toko, uang kembalian, dan data penduduk. Transkripnya ada di bawah video.\n2. **Lihat infografik** \"Petualangan Angka\". Coba baca setiap bilangan di dalamnya dengan suara keras.\n3. **Baca ringkasan (PDF).** Kerjakan kuis latihannya lebih dulu, baru periksa kunci jawabannya.\n\nSetelah itu, kerjakan **Cek penguasaan** untuk melihat seberapa jauh kamu sudah menguasai Bab 1.\n\n_Media rangkuman disiapkan oleh sekolah dengan NotebookLM._",
+       "title": "Memecahkan Masalah Sehari-hari",
+       "summary": "Memilih operasi yang tepat untuk soal cerita tentang uang dan belanja, termasuk soal yang perlu dua langkah.",
+       "body_markdown": "## Empat langkah soal cerita\n\n1. **Baca** soalnya dua kali. Apa yang diketahui? Apa yang ditanyakan?\n2. **Pilih operasinya.** Digabung atau dibeli bersama: tambah. Sisa atau selisih: kurang. Beberapa kali yang sama: kali. Dibagi sama rata: bagi.\n3. **Hitung** dengan teliti.\n4. **Periksa**: apakah jawaban kalian menjawab pertanyaannya, dan apakah masuk akal?\n\n## Satu langkah: mencari sisa\n\nNisa memiliki Rp100.000. Ia berbelanja buah seharga Rp53.000. Berapa sisa uangnya?\n\n1. Ditanyakan **sisa**, jadi operasinya pengurangan.\n2. 100.000 − 53.000 = 47.000.\n3. Periksa: 47.000 + 53.000 = 100.000. Cocok.\n\nSisa uang Nisa **Rp47.000**.\n\n## Dua langkah: memilih paket makan\n\nDi warung, Paket A (1 ayam goreng, 1 nasi, 1 teh manis) harganya Rp27.500. Paket B (2 ayam, 2 nasi, 2 teh manis) harganya Rp53.000. Zafran dan Ula ingin makan siang berdua.\n\n**Bila masing-masing membeli Paket A:** 2 × 27.500 = 55.000.\n\n**Mana yang lebih hemat?** Paket B isinya sama dengan dua Paket A, tetapi harganya Rp53.000. Selisihnya 55.000 − 53.000 = 2.000. Jadi Paket B lebih hemat Rp2.000.\n\n**Bila mereka membeli Paket B dan membayar sama rata**, dan masing-masing membawa Rp35.000:\n\n1. Bagian masing-masing: 53.000 : 2 = 26.500.\n2. Sisa masing-masing: 35.000 − 26.500 = **8.500**.\n\nPerhatikan pertanyaannya: sisa **masing-masing**, bukan sisa berdua. Hasil langkah 1 (26.500) juga bukan jawabannya, itu baru bagian yang dibayar.\n\n## Rangkuman Bab 1\n\n- Bilangan sampai 100.000 dibaca per kelompok: bagian di depan titik ditambah kata **ribu**.\n- Nilai sebuah angka bergantung pada **tempatnya**.\n- Bandingkan bilangan mulai dari angka **paling kiri**.\n- Komposisi menyusun bilangan dari bagian-bagiannya; dekomposisi menguraikannya, dan sering ada lebih dari satu cara.\n- Saat menjumlah, jangan lupa **menyimpan**; saat mengurang, jangan lupa **meminjam**.\n- Pada soal cerita, tentukan dahulu apa yang **ditanyakan**, lalu pilih operasinya.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 1._",
        "objective": {
-        "statement": "Murid dapat menghubungkan membaca, nilai tempat, membandingkan, komposisi, dan operasi hitung bilangan sampai 100.000 dengan kehidupan sehari-hari.",
-        "bloom": "UNDERSTAND"
+        "statement": "Kalian dapat memecahkan masalah sehari-hari yang berkaitan dengan bilangan cacah sampai 100.000.",
+        "bloom": "APPLY"
        },
-       "media": [
+       "media": [],
+       "items": [
         {
-         "file": "sd5_matematika_1_video.mp4",
-         "transcript": "[Draf transkrip mesin, belum diperiksa guru. Berkas: sd5_matematika_1_video.mp4. Model faster-whisper medium, bahasa id.]\n\nHalo teman-teman, selamat datang di sesi penjelasan visual kita hari ini. Wah, kita bakal mulai sebuah perjalanan yang seru banget nih, yaitu petualangan angka. Target utama kita hari ini menjadi seorang pembeli pintar. Yap, kalian bakal jadi orang yang udah gak bakal kebingungan atau panik lagi kalau lihat angka-angka gede dan panjang di mesin kasir. Siap-siap ya, karena hari ini kita bakal menaklukkan angka-angka raksasa itu bareng-bareng. Sekarang, coba deh kalian ingat-ingat sebentar. Pernah gak sih kalian ngelihat deretan angka yang puanjang banget di TV atau di internet? Mungkin rasanya kayak lagi ngelihat kode rahasia alien yang susah banget dipecahin, ya kan?\n\nNah, ini bukti nyata loh kalau angka-angka gede itu beneran ada di luar sana, gak cuma ngumpet di dalam buku matematika kita aja. Ini contohnya, data asli dari statistik Covid-19 beberapa waktu lalu. Ada puluhan ribu, bahkan sampai ratusan ribu di situ. Jadi, ngerti angka sampai 100 ribu itu penting banget, bukan cuma buat dapet nilai bagus di sekolah, tapi juga biar kita ngerti apa yang lagi terjadi di dunia sekitar kita. Tapi, yuk kita tinggalin dulu berita-berita serius tadi, dan kita beralih ke sesuatu yang jauh lebih segar. Bayangin kalian lagi kepanasan banget, terus rasanya pengen pesen jus buah online.\n\nWah, ada jus mangga, jeruk, sama alpukat yang kelihatan enak banget tuh. Tapi, ya gitu, buat bisa minum jusnya, kita harus kembali berhadapan sama yang namanya angka. Biar petualang kita makin asyik, ini dia peta jalan kita hari ini. Pertama, kita bakal bahas angka besar di sekitar kita. Kedua, nilai tempat sebuah bilangan. Ketiga, membandingkan dan mengurutkan harga. Keempat, komposisi pecahan uang. Dan kelima, operasi hitung sehari-hari. Yuk, kita mulai petualangannya. Oke, perhentian pertama kita, angka besar di sekitar kita. Percaya nggak? Hal simpel kayak jajan jus favoritnya Nisa aja ternyata butuh kemampuan baca angka ribuan lho.\n\nCoba perhatikan harga jus ini. Nisa mau beli jus mangga harganya Rp6.375, terus jus yang lain juga harganya ribuan. Kalau Nisa nggak bisa baca angka 4 digit ini, dia pasti bakal bingung harus siapin uang berapa kan? Lanjut ke perhentian kedua kita, nilai tempat sebuah bilangan. Wah, coba lihat angka yang lemayan bikin pusing ini. Rp15.590. Pas kalian lihat harga 5 digit kayak gini di menu makanan, gimana sih caranya kita bisa mecah angka yang keliatannya gede banget ini, jadi bagian-bagian kecil yang gampang dibaca. Ibaratnya gini, tiap angka itu punya kamarnya masing-masing. Angka 1 santai di kamar puluh ribuan, nah angka 5 yang pertama ada di ribuan. Disinilah kita pasang titik pemisah ajaib itu.\n\nTitik ini itu bertugas misahin ribuan dari ratusan, jadi angka 15.590 ini gampang banget dibaca tanpa bikin mata kita muter-muter. Nah, ini dia kunci rahasianya. Nilai tempat itu sebenarnya cuma posisi suatu angka yang nentuin nilai aslinya. Ngerti konsep ini itu ibarat kalian punya alat canggih pas lagi belanja. Pokoknya kalian gak bakal deh ketipu atau bingung lagi pas ngelihat deratan angka panjang di layar kasir. Sekarang kita masuk ke perhentian ketiga, membandingkan dan mengurutkan harga. Coba deh bandingin dua harga ini. Kiri 15590, yang kanan 16667. Trik andalan jadi pembeli pintar adalah selalu bandingin angka dari paling kiri.\n\nPuluh ribuannya kan sama-sama satu tuh. Tapi geser dikit ke posisi ribuan, lima kan lebih kecil dari enam. Jadi, cuma dalam hitungan detik kita udah langsung tahu kalau harga yang awalnya 16 pasti lebih mahal. Gampang banget kan? Nah kerennya lagi nih, kalau kalian udah jago ngebandingin dua harga, ngurutin banyak harga sekaligus bakal kerasa cetek banget. Coba lihat deretan harga ini, rapi banget kan? Ngurut dari yang paling murah 15.500, terus naik pelan-pelan sampai yang paling mahal 19.500. Enak banget dilihatnya. Kita sampai di perhentian keempat, Komposisi Pecahan Uang Yuk, sekarang kita bantu Ibu Saga dari cerita di buku kita.\n\nIbu Saga lagi asyik belanja di pasar nih. Terus total tagihannya tuh pas banget di angka 59 ribu rupiah. Tantangannya adalah gimana caranya kita bantu Ibu Saga milih dan gabungin uang di dompetnya biar jumlahnya bisa pas. Mari kita racik uangnya pelan-pelan. Langkah pertama kita keluarin 2 lembar 20 ribuan. Itu berarti kita udah megang 40 ribu. Terus tambah selembar 10 ribuan, Oke, sekarang jadi 50 ribu. Nah, kita kan masih butuh 9 ribu lagi ya. Berarti tinggal tambah 1 lembar 5 ribuan dan 2 lembar 2 ribuan. Sempurna, totalnya pas banget 59 ribu. Ini nih yang namanya komposisi uang. Akhirnya kita tiba di perhentian terakhir kita,\n\noperasi hitung sehari-hari. Coba becahin tekat-teki belanja Johanna ini. Dia kan mau beli 2 jus mangga sama 1 jus jeruk nih. Buat tahu totalnya, kita pakai saja operasi hitung biasa. Harga manga kita kali dua dulu, baru deh ditambahin sama harga jeruk. Ingat ya temen-temen, matematika itu bukan musuh yang bikin pusing. Malah matematika itu alat yang super berguna buat bantuin kita dapetin jus buah yang kita pengen. Dan ini dia momen yang paling ditunggu-tunggu. Puncak dari materi kita kali ini. Sambutlah sang Raja Uang Saku, uang 100 ribu rupiah. Kalau kalian tidak bisa naklukin angka dan hitung pecahan pakai uang sebesar ini,\n\nwah, itu artinya kalian udah sah jadi pembeli pintar sejati. Yuk, kita uji skill baru kalian. Bayangin Nisa ngasih selembar 100 ribu ini ke kasir buat bayar jus buahnya. Biar Nisa nggak dikasih kembalian yang kurang, kita tinggal kurangin aja 100 ribu tadi sama total belanjaannya. Kalau kita ngurangnya teliti, kita bakal tahu persis berapa kembalian yang harus diterima Nisa. Jangan sampai ada yang kurang sepeser pun lho ya. Nah, buat nutup sesi kita, aku punya satu teka-teki seru nih, buat kalian pecahin sendiri. Kalau nota belanja kalian besarnya Rp56.900, gimana caranya kalian mecah uang Rp100.000 yang kalian punya\n\nbuat bayar itu secara pas? Coba deh kalian pikirin dan praktekin pas lagi jajan hari ini. Teruslah main-main sama angka, jadilah pembeli pintar. Dan sampai ketemu lagi di petualangan seru kita berikutnya."
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dina dan Rafi masing-masing membawa Rp40.000. Mereka membeli satu hadiah seharga Rp62.000 untuk ibu guru dan membayarnya sama rata. Berapa sisa uang masing-masing?",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "Rp9.000",
+           "is_correct": true,
+           "rationale": "Benar. Masing-masing membayar 62.000 : 2 = 31.000, jadi sisanya 40.000 − 31.000 = 9.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "Rp18.000",
+           "is_correct": false,
+           "rationale": "Itu sisa uang mereka berdua (80.000 − 62.000). Yang ditanyakan sisa masing-masing."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "Rp31.000",
+           "is_correct": false,
+           "rationale": "Itu bagian yang dibayar masing-masing, hasil langkah pertama. Sisanya masih harus dihitung."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "Rp22.000",
+           "is_correct": false,
+           "rationale": "Harga hadiah dikurangi uang satu orang (62.000 − 40.000). Harga hadiah dibagi dua dahulu, baru dikurangkan dari 40.000."
+          }
+         ]
         },
         {
-         "file": "sd5_matematika_1_doc.jpg",
-         "transcript": "[Draf transkrip mesin, belum diperiksa guru. Berkas: sd5_matematika_1_video.mp4. Model faster-whisper medium, bahasa id.]\n\nHalo teman-teman, selamat datang di sesi penjelasan visual kita hari ini. Wah, kita bakal mulai sebuah perjalanan yang seru banget nih, yaitu petualangan angka. Target utama kita hari ini menjadi seorang pembeli pintar. Yap, kalian bakal jadi orang yang udah gak bakal kebingungan atau panik lagi kalau lihat angka-angka gede dan panjang di mesin kasir. Siap-siap ya, karena hari ini kita bakal menaklukkan angka-angka raksasa itu bareng-bareng. Sekarang, coba deh kalian ingat-ingat sebentar. Pernah gak sih kalian ngelihat deretan angka yang puanjang banget di TV atau di internet? Mungkin rasanya kayak lagi ngelihat kode rahasia alien yang susah banget dipecahin, ya kan?\n\nNah, ini bukti nyata loh kalau angka-angka gede itu beneran ada di luar sana, gak cuma ngumpet di dalam buku matematika kita aja. Ini contohnya, data asli dari statistik Covid-19 beberapa waktu lalu. Ada puluhan ribu, bahkan sampai ratusan ribu di situ. Jadi, ngerti angka sampai 100 ribu itu penting banget, bukan cuma buat dapet nilai bagus di sekolah, tapi juga biar kita ngerti apa yang lagi terjadi di dunia sekitar kita. Tapi, yuk kita tinggalin dulu berita-berita serius tadi, dan kita beralih ke sesuatu yang jauh lebih segar. Bayangin kalian lagi kepanasan banget, terus rasanya pengen pesen jus buah online.\n\nWah, ada jus mangga, jeruk, sama alpukat yang kelihatan enak banget tuh. Tapi, ya gitu, buat bisa minum jusnya, kita harus kembali berhadapan sama yang namanya angka. Biar petualang kita makin asyik, ini dia peta jalan kita hari ini. Pertama, kita bakal bahas angka besar di sekitar kita. Kedua, nilai tempat sebuah bilangan. Ketiga, membandingkan dan mengurutkan harga. Keempat, komposisi pecahan uang. Dan kelima, operasi hitung sehari-hari. Yuk, kita mulai petualangannya. Oke, perhentian pertama kita, angka besar di sekitar kita. Percaya nggak? Hal simpel kayak jajan jus favoritnya Nisa aja ternyata butuh kemampuan baca angka ribuan lho.\n\nCoba perhatikan harga jus ini. Nisa mau beli jus mangga harganya Rp6.375, terus jus yang lain juga harganya ribuan. Kalau Nisa nggak bisa baca angka 4 digit ini, dia pasti bakal bingung harus siapin uang berapa kan? Lanjut ke perhentian kedua kita, nilai tempat sebuah bilangan. Wah, coba lihat angka yang lemayan bikin pusing ini. Rp15.590. Pas kalian lihat harga 5 digit kayak gini di menu makanan, gimana sih caranya kita bisa mecah angka yang keliatannya gede banget ini, jadi bagian-bagian kecil yang gampang dibaca. Ibaratnya gini, tiap angka itu punya kamarnya masing-masing. Angka 1 santai di kamar puluh ribuan, nah angka 5 yang pertama ada di ribuan. Disinilah kita pasang titik pemisah ajaib itu.\n\nTitik ini itu bertugas misahin ribuan dari ratusan, jadi angka 15.590 ini gampang banget dibaca tanpa bikin mata kita muter-muter. Nah, ini dia kunci rahasianya. Nilai tempat itu sebenarnya cuma posisi suatu angka yang nentuin nilai aslinya. Ngerti konsep ini itu ibarat kalian punya alat canggih pas lagi belanja. Pokoknya kalian gak bakal deh ketipu atau bingung lagi pas ngelihat deratan angka panjang di layar kasir. Sekarang kita masuk ke perhentian ketiga, membandingkan dan mengurutkan harga. Coba deh bandingin dua harga ini. Kiri 15590, yang kanan 16667. Trik andalan jadi pembeli pintar adalah selalu bandingin angka dari paling kiri.\n\nPuluh ribuannya kan sama-sama satu tuh. Tapi geser dikit ke posisi ribuan, lima kan lebih kecil dari enam. Jadi, cuma dalam hitungan detik kita udah langsung tahu kalau harga yang awalnya 16 pasti lebih mahal. Gampang banget kan? Nah kerennya lagi nih, kalau kalian udah jago ngebandingin dua harga, ngurutin banyak harga sekaligus bakal kerasa cetek banget. Coba lihat deretan harga ini, rapi banget kan? Ngurut dari yang paling murah 15.500, terus naik pelan-pelan sampai yang paling mahal 19.500. Enak banget dilihatnya. Kita sampai di perhentian keempat, Komposisi Pecahan Uang Yuk, sekarang kita bantu Ibu Saga dari cerita di buku kita.\n\nIbu Saga lagi asyik belanja di pasar nih. Terus total tagihannya tuh pas banget di angka 59 ribu rupiah. Tantangannya adalah gimana caranya kita bantu Ibu Saga milih dan gabungin uang di dompetnya biar jumlahnya bisa pas. Mari kita racik uangnya pelan-pelan. Langkah pertama kita keluarin 2 lembar 20 ribuan. Itu berarti kita udah megang 40 ribu. Terus tambah selembar 10 ribuan, Oke, sekarang jadi 50 ribu. Nah, kita kan masih butuh 9 ribu lagi ya. Berarti tinggal tambah 1 lembar 5 ribuan dan 2 lembar 2 ribuan. Sempurna, totalnya pas banget 59 ribu. Ini nih yang namanya komposisi uang. Akhirnya kita tiba di perhentian terakhir kita,\n\noperasi hitung sehari-hari. Coba becahin tekat-teki belanja Johanna ini. Dia kan mau beli 2 jus mangga sama 1 jus jeruk nih. Buat tahu totalnya, kita pakai saja operasi hitung biasa. Harga manga kita kali dua dulu, baru deh ditambahin sama harga jeruk. Ingat ya temen-temen, matematika itu bukan musuh yang bikin pusing. Malah matematika itu alat yang super berguna buat bantuin kita dapetin jus buah yang kita pengen. Dan ini dia momen yang paling ditunggu-tunggu. Puncak dari materi kita kali ini. Sambutlah sang Raja Uang Saku, uang 100 ribu rupiah. Kalau kalian tidak bisa naklukin angka dan hitung pecahan pakai uang sebesar ini,\n\nwah, itu artinya kalian udah sah jadi pembeli pintar sejati. Yuk, kita uji skill baru kalian. Bayangin Nisa ngasih selembar 100 ribu ini ke kasir buat bayar jus buahnya. Biar Nisa nggak dikasih kembalian yang kurang, kita tinggal kurangin aja 100 ribu tadi sama total belanjaannya. Kalau kita ngurangnya teliti, kita bakal tahu persis berapa kembalian yang harus diterima Nisa. Jangan sampai ada yang kurang sepeser pun lho ya. Nah, buat nutup sesi kita, aku punya satu teka-teki seru nih, buat kalian pecahin sendiri. Kalau nota belanja kalian besarnya Rp56.900, gimana caranya kalian mecah uang Rp100.000 yang kalian punya\n\nbuat bayar itu secara pas? Coba deh kalian pikirin dan praktekin pas lagi jajan hari ini. Teruslah main-main sama angka, jadilah pembeli pintar. Dan sampai ketemu lagi di petualangan seru kita berikutnya."
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "LT16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Yohana membeli 2 bungkus mangga seharga Rp18.500 per bungkus dan 1 bungkus jeruk seharga Rp12.000. Berapa yang harus ia bayar?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "Rp30.500",
+           "is_correct": false,
+           "rationale": "Mangga hanya dihitung satu bungkus. Yohana membeli 2 bungkus: 2 × 18.500 = 37.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "Rp61.000",
+           "is_correct": false,
+           "rationale": "Jeruk ikut dikali 2, padahal jeruknya hanya 1 bungkus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "Rp49.000",
+           "is_correct": true,
+           "rationale": "Benar. 2 × 18.500 = 37.000, lalu 37.000 + 12.000 = 49.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "Rp25.000",
+           "is_correct": false,
+           "rationale": "Harga jeruk dikurangkan. Semua belanjaan dibayar, jadi dijumlahkan."
+          }
+         ]
         },
         {
-         "file": "sd5_matematika_1_text.pdf",
-         "transcript": "[Draf transkrip mesin, belum diperiksa guru. Berkas: sd5_matematika_1_video.mp4. Model faster-whisper medium, bahasa id.]\n\nHalo teman-teman, selamat datang di sesi penjelasan visual kita hari ini. Wah, kita bakal mulai sebuah perjalanan yang seru banget nih, yaitu petualangan angka. Target utama kita hari ini menjadi seorang pembeli pintar. Yap, kalian bakal jadi orang yang udah gak bakal kebingungan atau panik lagi kalau lihat angka-angka gede dan panjang di mesin kasir. Siap-siap ya, karena hari ini kita bakal menaklukkan angka-angka raksasa itu bareng-bareng. Sekarang, coba deh kalian ingat-ingat sebentar. Pernah gak sih kalian ngelihat deretan angka yang puanjang banget di TV atau di internet? Mungkin rasanya kayak lagi ngelihat kode rahasia alien yang susah banget dipecahin, ya kan?\n\nNah, ini bukti nyata loh kalau angka-angka gede itu beneran ada di luar sana, gak cuma ngumpet di dalam buku matematika kita aja. Ini contohnya, data asli dari statistik Covid-19 beberapa waktu lalu. Ada puluhan ribu, bahkan sampai ratusan ribu di situ. Jadi, ngerti angka sampai 100 ribu itu penting banget, bukan cuma buat dapet nilai bagus di sekolah, tapi juga biar kita ngerti apa yang lagi terjadi di dunia sekitar kita. Tapi, yuk kita tinggalin dulu berita-berita serius tadi, dan kita beralih ke sesuatu yang jauh lebih segar. Bayangin kalian lagi kepanasan banget, terus rasanya pengen pesen jus buah online.\n\nWah, ada jus mangga, jeruk, sama alpukat yang kelihatan enak banget tuh. Tapi, ya gitu, buat bisa minum jusnya, kita harus kembali berhadapan sama yang namanya angka. Biar petualang kita makin asyik, ini dia peta jalan kita hari ini. Pertama, kita bakal bahas angka besar di sekitar kita. Kedua, nilai tempat sebuah bilangan. Ketiga, membandingkan dan mengurutkan harga. Keempat, komposisi pecahan uang. Dan kelima, operasi hitung sehari-hari. Yuk, kita mulai petualangannya. Oke, perhentian pertama kita, angka besar di sekitar kita. Percaya nggak? Hal simpel kayak jajan jus favoritnya Nisa aja ternyata butuh kemampuan baca angka ribuan lho.\n\nCoba perhatikan harga jus ini. Nisa mau beli jus mangga harganya Rp6.375, terus jus yang lain juga harganya ribuan. Kalau Nisa nggak bisa baca angka 4 digit ini, dia pasti bakal bingung harus siapin uang berapa kan? Lanjut ke perhentian kedua kita, nilai tempat sebuah bilangan. Wah, coba lihat angka yang lemayan bikin pusing ini. Rp15.590. Pas kalian lihat harga 5 digit kayak gini di menu makanan, gimana sih caranya kita bisa mecah angka yang keliatannya gede banget ini, jadi bagian-bagian kecil yang gampang dibaca. Ibaratnya gini, tiap angka itu punya kamarnya masing-masing. Angka 1 santai di kamar puluh ribuan, nah angka 5 yang pertama ada di ribuan. Disinilah kita pasang titik pemisah ajaib itu.\n\nTitik ini itu bertugas misahin ribuan dari ratusan, jadi angka 15.590 ini gampang banget dibaca tanpa bikin mata kita muter-muter. Nah, ini dia kunci rahasianya. Nilai tempat itu sebenarnya cuma posisi suatu angka yang nentuin nilai aslinya. Ngerti konsep ini itu ibarat kalian punya alat canggih pas lagi belanja. Pokoknya kalian gak bakal deh ketipu atau bingung lagi pas ngelihat deratan angka panjang di layar kasir. Sekarang kita masuk ke perhentian ketiga, membandingkan dan mengurutkan harga. Coba deh bandingin dua harga ini. Kiri 15590, yang kanan 16667. Trik andalan jadi pembeli pintar adalah selalu bandingin angka dari paling kiri.\n\nPuluh ribuannya kan sama-sama satu tuh. Tapi geser dikit ke posisi ribuan, lima kan lebih kecil dari enam. Jadi, cuma dalam hitungan detik kita udah langsung tahu kalau harga yang awalnya 16 pasti lebih mahal. Gampang banget kan? Nah kerennya lagi nih, kalau kalian udah jago ngebandingin dua harga, ngurutin banyak harga sekaligus bakal kerasa cetek banget. Coba lihat deretan harga ini, rapi banget kan? Ngurut dari yang paling murah 15.500, terus naik pelan-pelan sampai yang paling mahal 19.500. Enak banget dilihatnya. Kita sampai di perhentian keempat, Komposisi Pecahan Uang Yuk, sekarang kita bantu Ibu Saga dari cerita di buku kita.\n\nIbu Saga lagi asyik belanja di pasar nih. Terus total tagihannya tuh pas banget di angka 59 ribu rupiah. Tantangannya adalah gimana caranya kita bantu Ibu Saga milih dan gabungin uang di dompetnya biar jumlahnya bisa pas. Mari kita racik uangnya pelan-pelan. Langkah pertama kita keluarin 2 lembar 20 ribuan. Itu berarti kita udah megang 40 ribu. Terus tambah selembar 10 ribuan, Oke, sekarang jadi 50 ribu. Nah, kita kan masih butuh 9 ribu lagi ya. Berarti tinggal tambah 1 lembar 5 ribuan dan 2 lembar 2 ribuan. Sempurna, totalnya pas banget 59 ribu. Ini nih yang namanya komposisi uang. Akhirnya kita tiba di perhentian terakhir kita,\n\noperasi hitung sehari-hari. Coba becahin tekat-teki belanja Johanna ini. Dia kan mau beli 2 jus mangga sama 1 jus jeruk nih. Buat tahu totalnya, kita pakai saja operasi hitung biasa. Harga manga kita kali dua dulu, baru deh ditambahin sama harga jeruk. Ingat ya temen-temen, matematika itu bukan musuh yang bikin pusing. Malah matematika itu alat yang super berguna buat bantuin kita dapetin jus buah yang kita pengen. Dan ini dia momen yang paling ditunggu-tunggu. Puncak dari materi kita kali ini. Sambutlah sang Raja Uang Saku, uang 100 ribu rupiah. Kalau kalian tidak bisa naklukin angka dan hitung pecahan pakai uang sebesar ini,\n\nwah, itu artinya kalian udah sah jadi pembeli pintar sejati. Yuk, kita uji skill baru kalian. Bayangin Nisa ngasih selembar 100 ribu ini ke kasir buat bayar jus buahnya. Biar Nisa nggak dikasih kembalian yang kurang, kita tinggal kurangin aja 100 ribu tadi sama total belanjaannya. Kalau kita ngurangnya teliti, kita bakal tahu persis berapa kembalian yang harus diterima Nisa. Jangan sampai ada yang kurang sepeser pun lho ya. Nah, buat nutup sesi kita, aku punya satu teka-teki seru nih, buat kalian pecahin sendiri. Kalau nota belanja kalian besarnya Rp56.900, gimana caranya kalian mecah uang Rp100.000 yang kalian punya\n\nbuat bayar itu secara pas? Coba deh kalian pikirin dan praktekin pas lagi jajan hari ini. Teruslah main-main sama angka, jadilah pembeli pintar. Dan sampai ketemu lagi di petualangan seru kita berikutnya."
-        }
-       ],
-       "items": []
-      },
-      {
-       "_row": {
-        "sheet": "Pelajaran",
-        "row": 7
-       },
-       "ordinal": "6",
-       "title": "Diskusi Bab 1 (Audio)",
-       "summary": "Mendengarkan diskusi tentang Bab 1 dan mengikuti transkripnya.",
-       "body_markdown": "## Dengarkan diskusinya\n\nDengarkan diskusi tentang Bab 1. Kamu boleh berhenti kapan saja dan mengulang bagian yang belum jelas. Transkripnya ada di bawah audio, untuk dibaca sambil mendengarkan atau bila kamu tidak dapat memutar suara.\n\nSaat mendengarkan, catat:\n\n- satu bilangan besar yang disebut, lalu tulis dengan angka;\n- satu contoh membandingkan dua bilangan;\n- satu soal cerita, lalu hitung jawabannya sendiri.\n\n_Media diskusi disiapkan oleh sekolah dengan NotebookLM._",
-       "objective": {
-        "statement": "Murid dapat mengikuti penjelasan lisan tentang bilangan cacah sampai 100.000 dan mengenali konsep Bab 1 di dalamnya.",
-        "bloom": "UNDERSTAND"
-       },
-       "media": [
+         "_row": {
+          "sheet": "Soal",
+          "row": 30
+         },
+         "ref": "LT17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kakak menabung Rp84.000 dan membaginya sama rata ke dalam 3 celengan. Berapa isi setiap celengan?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 114
+           },
+           "label": "A",
+           "body": "Rp28.000",
+           "is_correct": true,
+           "rationale": "Benar. 84.000 : 3 = 28.000. Periksa: 3 × 28.000 = 84.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 115
+           },
+           "label": "B",
+           "body": "Rp252.000",
+           "is_correct": false,
+           "rationale": "Tabungan dikali 3. Dibagi sama rata berarti dibagi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 116
+           },
+           "label": "C",
+           "body": "Rp42.000",
+           "is_correct": false,
+           "rationale": "Tabungan dibagi 2, seperti membagi dua. Celengannya ada 3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 117
+           },
+           "label": "D",
+           "body": "Rp2.800",
+           "is_correct": false,
+           "rationale": "Satu 0 hilang dari hasil bagi, sehingga nilainya bergeser satu tempat. Periksa: 3 × 2.800 = 8.400, bukan 84.000."
+          }
+         ]
+        },
         {
-         "file": "sd5_matematika_1_audio.m4a",
-         "transcript": "[Draf transkrip mesin, belum diperiksa guru. Berkas: sd5_matematika_1_audio.m4a. Model faster-whisper medium, bahasa id.]\n\nCoba deh, kamu bayangin, eh kamu lagi jalan-jalan di mall nih. Terus kamu melihat sepasang sepatu yang keren banget. Pasti langsung pengen ngecek harga kan biasanya. Bener banget. Kamu deketin tuh sepatunya, kamu lihat label harganya. Dan tiba-tiba matamu terbelalak. Ada angka satu, terus diikutin sama 5 angka 0 berbaris panjang banget. 100 ribu rupiah ya? Iya, 100 ribu rupiah. Buat kamu yang mungkin masih duduk di kelas 5 SD, ngelihat rentetan angka sepanjang itu, seringkali bikin otak rasanya kayak corset sementara gitu. Sebenarnya wajar sih kalau otak kita tuh ngerasa corset. Otak kita pas ngadepin rentetan simbol yang panjang,\n\nbakal langsung mengaktifkan semacam mode panik ringan lah. Mode panik ringan gimana tuh maksudnya? Karena kita dipaksa melompat dari memikirkan benda fisik yang bisa disentuh. Kayak menghitung jumlah jari, menjadi konsep abstrak yang ukurannya benar-benar masif. Oh, paham-paham. Dan itulah persisnya alasan kita ada di sini sekarang. Di obrolan bedah materi kita kali ini, kita bakal membongkar tuntas bab satu dari buku panduan guru matematika untuk SD kelas 5 dari Kementerian Pendidikan. Topiknya tentang bilangan cacah sampai 100 ribu, kan? Tepat. Dan buat kamu yang kebetulan lagi dengerin ini, ya, kamu yang usianya 11 tahun\n\nDan mungkin lagi pakai seragam sekarang, ini tuh ibarat panduan bertahan hidupmu. Kita bakal ngebongkar kenapa angka besar itu sama sekali nggak menakutkan sebenarnya. Betul. Dan gimana hal-hal di sekitarmu, kayak daftar Hargajus Alpukat misalnya, bisa jadi senjata rahasiamu buat menaklukan matematika. Matematika itu kan dasarnya alat pemecah masalah ya, bukan cuma sekedar tugas ngebosenin di papan tulis. Dan buku panduan ini tuh, sadar banget soal itu. Iya, kelihatan sih dari materinya. Makanya mereka mendesain pendekatannya biar nggak menjauhkan anak-anak dari realitas sehari-hari. Tapi jujur aja nih, pas aku buka buku panduan ini,\n\naku sendiri sempat kaget lho. Kaget kenapa? Ada 9 tujuan pembelajaran yang harus dikuasai sama siswa kelas 5 SD. 9 lho. Maksudku, baca daftarnya aja rasanya udah kayak kayak baca instruksi merakit mesin pesawat terbang. Wah, iya juga ya. Kalau dibaca sekaligus emang panjang. Mulai dari membaca bilangan, nuliskan, nentuin nilai tempat, ngebandingin, ngurutin, ngelakuin komposisi, lalu dekomposisi, lanjut ke operasi hitung, dan terakhir memecahkan masalah. Lumayan padat ya? Pertanyaanku nih, bukannya 9 langkah ini terlalu brutal ya buat dijejalkan ke kepala anak usia 11 tahun? Kenapa nggak diringkas aja, eh jadi 2 gitu, baca angka, dan kerjain soal?\n\nNah, kalau kamu langsung lompat dari sekedar ngenalin angka terus tiba-tiba ngerjain soal, itu tuh ibarat nyuruh orang tanding lari marathon padahal mereka baru aja belajar jalan. Oh, malah jadi kualahan ya? Benar banget. Sembilan langkah ini tuh bukan daftar tugas yang harus dihapalmati. Ini sebenarnya sebuah siklus kerja otak. Siklus kerja otak? Iya. Kita kan nggak bisa nuntut anak paham cara mecahin masalah utang-piutang ibunya misalnya. kalau mereka aja nggak ngerti bobot dari tiap digit angka yang mereka lihat. Oh, oke-oke. Jadi maksudmu 9 langkah ini tuh kayak tahapan pas kita baru dapet kotak perkakas gitu ya?\n\nNah, analogi yang bagus tuh. Jadi kita kenalan dulu nih sama palunya di tahap membaca dan nulis, terus kita belajar cara megangnya di tahap nilai tempat. Dan baru deh di tahap akhir kita pakai palu itu buat ngebangun rumah. Tepat banget. Otak manusia kan ngebangun pemahaman itu pelan-pelan, bertahap. Tiga langkah pertama tadi, membaca, menulis, dan nilai tempat, itu tuh fasa pengenalan identitas. Fasa pengenalan ya? Iya. Terus, langkah berikutnya, membandingkan dan mengurutkan, itu masuk ke fasa evaluasi. Dan langkah-langkah yang terakhir, barulah fasa eksekusi. Jadi kalau tahap awalnya aja bolong-bolong gimana tuh?\n\nNah itu dia. Kalau fondasi awalnya aja bolong, pas mereka sampai di langkah ke-9, yaitu ngerjain soal cerita, Ya udah, pasti mereka bakal hancur lebur, bingung sendiri. Masuk akal sih logikanya. Tapi mari kita uji langsung nih. Di buku ini, ada saran buat memulai fase pengenalan identitas itu pakai aplikasi pesan antarmakanan. Oh, yang cerita beli minuman online itu ya? Iya. Terus jus jeruk 5950 rupiah dan jus alpukat 9050 rupiah. Terus masalahnya dimana? Nah, pertanyaanku. Di layar hape itu kan gak ada tabel garis-garis yang ada tulisannya ini ribuan atau ini ratusan. Benar, cuma angka polos saja kan? Betul. Otak kita tuh cuma ngeliat deretan angka 6 375.\n\nApa bedanya sih ngebaca harga jus mangga itu sama ngebaca nomor telefon? Kenapa kita gak sebut aja harganya 6 375? Nah, ini dia nih. Ini masuk ke akar masalah kenapa konsep nilai tempat itu krusial banget. Waktu kamu ngebaca nomor telepon atau plat nomor mobil, kamu tuh sebenarnya cuma lagi ngebaca sebuah label. Label doang ya? Nggak ada nilainya? Betul! Angka di sana tuh nggak punya bobot. Angka 9 di nomor telepon nggak berarti nilainya lebih besar dari angka 1. Mereka cuma, ya, cuma posisi berjejer aja. Oh, oke. Terus kalau harga? Tapi ketika simbol 6 375 itu dikasih konteks harga, atau dalam hal ini uang yang harus kamu bayar ke abang Ojek online, otakmu tuh dipaksa buat ngubah label itu jadi sebuah kuantitas.\n\nAh, jadi kita harus masukin nilai tukar ke dalam angka-angka itu. Bener banget. Kalau kamu ngebacanya sebagai 6 375, kamu tuh seolah ngasih nyawa ke angka 6 itu. Ngasih nyawa gimana maksudnya? Kamu jadi sadar kalau angka 6 di depan itu bukan sekedar coretan tinta melengkung, tapi dia itu mewakili 6 lembar uang seribuan. Wah, mind blowing juga ya. Makanya, buku ini menyoroti kalau miskonsepsi terbesar siswa kelas 5 itu mereka sering banget memperlakukan angka besar kayak nomor urut biasa. Ya, karena secara visual di HP emang nggak ada bedanya. Berarti ini semacam sistem hirarki ya? Aku jadi ngebayangin nilai tempat ini tuh kayak membagian kursi VIP di sebuah konser musik yang gede banget.\n\nGimana tuh pembagiannya? Jadi gini, puluh ribuan itu tiket kelas VVIP. Duduknya paling depan, dapat makanan enak, bisa salaman sama artisnya. Terus ribuan itu tiket VIP biasa. Terus yang ke belakang-belakangnya? Nah, makin ke belakang ada ratusan, puluhan, dan yang tiketnya paling endes tuh satuan. Dia duduk di tribun yang paling ujung belakang, sampai panggungnya aja nyaris nggak keliatan. Haha, analogi kursi konser ini ngambarin struktur kekuasaan di dalam matematika dengan sangat akurat loh. Kan? Coba aja kamu bayangin kalau ada penonton yang tiketnya cuma satuan, tapi dia tiba-tiba nyelonong duduk santai di kursi puluh ribuan.\n\nKonsernya pasti langsung kacau balau itu. Kacau banget, nilai angkanya rusak total. Makanya, eh, itu sebabnya buku ini kemudian naikin level pembahasannya. Dari yang awalnya ngomongin harga jus, tiba-tiba mereka beralih pake data kependudukan. Yang kecamatan kayu tanam itu ya? Iya, yang total populasinya 26.932 jiwa. Tiba-tiba angka 2 itu duduk manis di kursi VIP puluh ribuan. Kenapa sih harus ganti topik dari jus ke populasi penduduk segala? Ini tuh soal skala. Kamu kan jarang banget ya nemu jus seharga puluhan ribu rupiah kecuali kalau belinya di kafe yang fancy banget. Iya sih, mahal banget itu jus. Tapi kamu bisa binain gampang nemuin puluhan ribu orang di sebuah kecamatan.\n\nBuku panduan ini tuh pengen ngasih lihat kalau kursi VVIP yang kamu sebutin tadi itu sifatnya universal. Universal maksudnya bisa dipakai di mana aja. Betul. Berlaku buat ngitung uang, berlaku buat populasi manusia, berlaku buat ngukur jarak antarkota. Ini tuh ngajarin anak kalau sistem nilai tempat adalah semacam hukum fisikanya matematika. Dimanapun kamu berada, aturan main tiket konsernya tetap sama. Oke, jadi setelah kita tahu persis siapa yang berhak duduk di kursi mana, tantangan berikutnya muncul nih. Di langkah keempat dan kelima, kita diminta buat ngebandingin dan ngurutin angka-angka itu. Nah, ini mulai masuk ke fase evaluasi.\n\nDan jujur aja ya, di bagian ini, bukunya nyatet ada jebakan batman yang sering banget makan korban anak-anak kelas 5. Oh, jebakan ngeliat digit terakhir kan? Iya, ini masalah psikologis yang klasik banget di matematika. Nah coba nih, aku mau posisikan diriku sebagai anak kelas lima yang lagi buru-buru ngerjain soal ujian matematika. Misalnya aku disuruh nyari mana harga yang lebih mahal antara Rp16.667 dan Rp15.590. Terus apa yang kamu lihat pertama kali? Otaku yang males ini yang terbiasa membaca sekilas dari kiri ke kanan mungkin bakal langsung melihat angka-angka yang ada di ujung belakang. Aku ngeliat ujung dari 15.590 itu adalah angka 0 yang bulet dan kayaknya nggak ada nilainya.\n\nTerus angka yang satunya. Tapi di angka 16.667, ujungnya itu angka 7. Rasanya tajam dan kelihatan besar. Secara impulsif, aku mungkin bakal langsung nyimpulin kalau yang belakangnya 7 itu jauh lebih gede. Padahal aku sama sekali nggak ngeliat penentu utamanya yang lagi duduk di kursi ribuan belakang. Ini tuh gara-gara ada benturan dua kebiasaan di dalam otak kita. Waktu kita belajar ngejumlahin angka pakai cara bersusun ke bawah, guru selalu ngajarin kita mulanya dari mana. Dari kanan, dari angka satuan, terus gerak ke kiri, kan? Eh, bener nggak ya? Hitung dari belakang, terus kalau ada sisa, simpan di depannya?\n\nNah, itu dia. Kebiasaan hitung bersusun itu bikin alam bawah sadar siswa sering kali mikir kalau... ...semua aksi matematika itu bermula dan berpusat di sebelah kanan. Oh, jadi kebawa-bawa ke materi lain, ya? Benar, tapi saat ngebandingin nilai dua bilangan, kita justru harus memindainya dari kiri ke kanan. Dari kursi VIP dulu, baru perlahan turun kasta ke kursi di belakangnya. Pantesangan aja. Konflik arah membaca ini loh, kapan harus dari kanan ke kiri buat ngitung, dan kapan harus dari kiri ke kanan buat ngebandingin, ini yang bikin otak-anak sering ngalamin disorientasi atau kebingungan kognitif. Wah, ini masuk akal banget sumpah.\n\nKita nyuruh anak-anak mengitung mundur dari kanan ke kiri, tapi giliran ngebandingin kita suruh mereka dari kiri ke kanan. Pantesan aja mereka pada bingung. Berarti kemampuan membandingkan ini tuh bukan cuma soal, eh bisa nulis simbol lebih besar atau lebih kecil di atas kertas doang dong? Oh tentu enggak. Ini tuh simulasi pengambilan keputusan di dunia nyata. Buku guru ini ngasih contoh yang sangat praktis banget. Contoh yang mana tuh? milih paket makanan A seharga 27.500 rupiah atau paket B seharga 53.000 rupiah. Ngebandingin angka itu sebenarnya lagi ngajarin siswa untuk jadi konsumen yang rasional. Biar mereka nggak gampang ditipu trik harga ya intinya.\n\nTapi tunggu dulu, emangnya selalu sesederhana itu? Pokoknya pilih aja angka yang lebih kecil biar dompet aman, gitu. Nah, justru itu poin penting yang ditekankan buku panduan kepada para guru. Guru diminta buat ngingetin kalau matematika itu ngasih faktanya, tapi kualitas di dunia nyata itu kadang urusan lain. Maksudnya gimana tuh urusan lain? Gini, paket B yang harganya Rp 53.000 mungkin emang kelihatan lebih mahal secara matematis. Tapi gimana kalau ternyata isinya bisa buat makan tiga orang? Oh, bener juga. Sementara paket A yang murah itu ternyata porsinya cuma cukup buat satu orang. Nah, matematika ngasih kamu fakta berupa angka,\n\ntapi pemikiran kritis kamu lah yang mutusin mana yang sebenarnya lebih murah secara nilainya, secara value. Gila, jadi matematika cuma ngasih senjatanya, kita yang harus ngarahin bidikanya secara bijak ya. Keren banget ini. Nah, sekarang anggaplah aku udah jago nih. Aku udah tahu kalau paket A itu lebih murah dan aku mau jalan buat bayar di kasir. Oke, terus kenapa? Ini bawa kita ke bagian yang namanya itu bikin merinding banget kalau dengar istilah akademisnya. Komposisi dan dekomposisi bilangan. Waktu aku baca bagian itu, aku ngerasa ini tuh kayak lagi belajar istilah kimia gitu loh. Hahaha... Komposisi kedengerannya berat ya?\n\nIya. Tapi pas aku lihat contoh soalnya, ternyata ini tuh cuma soal ngebonggar isi dompet ibu. Karena istilah akademis emang suka nakut-nakutin di awal, padahal prakteknya di lapang itu sangat membumi. Banget, contoh di buku ini nyeritain Ibu Saga yang habis belanja di pasar totalnya 59 ribu rupiah Terus dompetnya dibuka dan kondisinya itu persis banget kayak dompet emak-emak pada umumnya Berantakan Isinya campur aduk ya pecahan uangnya Iya, ada 2 lembar 20 ribuan, 3 lembar 10 ribuan, 2 lembar 5 ribuan sama 5 lembar 2 ribuan Terus si anak diminta buat nyusun total 59 ribu dari tumpukan uang acak itu Dan ada contoh pengayaannya juga loh yang nuntut siswa\n\nNewsun 56.900 dengan berbagai macam cara yang beda Berbagai macam cara gimana tuh? Ya, cara pertama misalnya bisa pakai pecahan uang yang gede-gede Terus cara kedua, eh, mengganti pecahan puluh ribuan itu pakai tumpukan uang ribuan yang banyak banget Jujur ya, waktu aku ngelihat latihan ini pikiranku langsung refleks lari ke mainan lego Mecalbilangan ini tuh persis banget kayak ngebongkar pasang lego Coba ceritain gimana analogi legonya Kalau kita mau bikin pesawat luar angkasa seharga Rp 56.900, kita kan bisa pakai 2 balok lego warna hijau yang gede, yang nilainya Rp 20.000, ditambah 1 balok unguh Rp 10.000, dan seterusnya.\n\nAtau kita bisa aja ngamuk, ancurin balok gede itu, dan merakit pesawat yang sama persis, tapi murni pakai 56 balok lego kecil warna abu-abu yang nilainya Rp 1.000. Bener, dan hasil akhirnya tetap sama kan? Iya, hasil akhirnya sama persis bentuk pesawatnya, cuma jarang ngebangunnya aja yang beda. Pake Lego sebagai kerangka berfikir itu visualisasi yang sangat akurat buat ngejelasin dekomposisi ini. Tapi nih, sebagai pihak yang suka protes, aku mau nanya deh, buat apa sih maksudku kalau kamu umurnya masih 11 tahun dan kamu lagi ngantri di kasir minimarket, kamu kan sebenarnya cuma butuh satu kombinasi uang yang pas buat bayar kan?\n\nLogikanya sih gitu ya, kalau lagi buru-buru. Nah, kalau kamu udah ngasih selembar Rp50.000 dan selembar Rp10.000 buat bayar belanjaan Rp59.000, ya udah, kelar urusannya, kelar. Ngapain buku ini repot-repot nyuruh anak nyari dua, tiga, atau bahkan empat cara beda buat nyusun angka yang sama? Ini kan ujung-ujungnya cuma nambahin PR anak aja. Kalau kita hidup di dunia yang ideal, emang satu cara aja tuh udah cukup. Tapi masalahnya, dunia nyata tuh gak si ideal itu. Emang skenario buruknya apa? Bayangin skenario gini. Kamu lagi di Kasir, belanjaanmu totalnya Rp12.000, terus kamu nyerahin selembar uang Rp20.000.\n\nTiba-tiba Kasirnya bilang, eh maaf deh, gak ada kembalian Rp8.000, ada uang pas gak? Atau ada uang Rp2.000 gak? Waduh, itu momen horror banget sumpah buat anak SD. Aku inget banget pernah sampai keringet dingin digituin sama Kasir minimarket. Nah, kenapa coba? Kamu sampai keringat dingin? Karena otakmu saat itu kaku. Kamu cuma tahu satu jalan tol aja. Bayar 20 ribu, kembaliannya 8 ribu. Titik, nggak ada rencana B. Wah, benar juga ya. Makanya, latihan dekomposisi ini tuh tujuannya buat ngebangun apa yang di psikologi disebut flexibilitas kognitif. Otak tuh dilatih sengaja supaya punya banyak rutet cadangan.\n\nRute cadangan buat nyadepin kasir. Betul. Ketika kasir tiba-tiba minta uang 2000, anak yang otak matematikanya udah lentur tuh bakal langsung eh, merekonstruksi nilai uang di dompetnya secara real time. Jadi dia nggak bakal ngebleng ya? Nggak bakal. Dia langsung mikir, oh, kalau aku bayar 22 ribu pakai pecahan ini-ini, nanti kembaliannya jadi 10 ribu utuh. Jadi latihan mecah bilangan ini tuh bukan sekedar bikin PR matematika makin banyak, Ini tuh ibarat peregangan otot-otak, biar kamu nggak freeze saat situasi di lapangan tiba-tiba berubah. Wow! Gila! Jadi dekomposisi itu secara nggak langsung adalah trik buat meretas sistem kasir minimarket ya?\n\nSupaya kita nggak panik. Berarti kelenturan otak ini juga yang bakal jadi modal penting banget saat kita masuk ke babak paling brutal dari materi kelas 5 ini, dong? Ujian terakhir, ya? Iya, ujian terakhir. Tujuan pembelajaran 1.8 dan 1.9 yaitu operasi hitung dan pemecahan masalah. Kita kan tadi udah pinter milih kursi VIP nilai tempat, kita udah tahu mana paket makanan yang lebih murah, dan kita jago main lego pakai pecahan uang. Sekarang, semua skill itu diuji dalam wujud yang paling menakutkan sepanjang masa. Soal cerita. Ah, soal cerita. Monster yang selalu ngintai di halaman terakhir setiap bab matematika.\n\nBenar-benar monster itu. Mari kita bedah contoh dari buku ini ya. Ada cerita, ibu punya uang 100 ribu rupiah. Uang itu harus dibagi sama rata pada dua anaknya. Berarti kita harus ngelakuin pembagian dulu nih, kan? 100 ribu bagi dua, setiap anak otomatis dapet 50 ribu. Lumayan gampang tuh tahap pertamanya. Tapi masalahnya nggak berhenti di situ. Setiap anak diwajibkan buat beli 1 bungkus jeruk dan 2 bungkus buah naga dari uang 50 ribu itu. Ini berarti ada perkalian dari harga buah naganya, terus ada pengurangan juga dari total uang sakunya tadi. Sebuah kombinasi operasi hitung yang lumayan intens lho ini buat anak kelas 5.\n\nAda pembagian, perkalian, sama pengurangan dalam satu tarikan napas. Sangat intens. Dan buku panduan ini tuh sangat jujur mengakui satu fakta lapangan. Siswa kelas 5 tuh sering banget kesandung berulang kali di bagian soal cerita. Emang itu keluhan abadi guru-guru SD sih? Pertanyaanku gini, kenapa sih anak-anak itu bisa lancar jaya kalau cuma dikasih soal langsung kayak 50 ribu dikurangi 20 ribu. Tapi begitu soalnya diubah jadi kalimat teks panjang lebar, otak mereka langsung ngeblank total. Apa yang salah sih sama teks bahasa Indonesia? Ini tuh sebenarnya murni masalah translasi atau penderjemahan di otak anak.\n\nSoal cerita itu hakikatnya terdiri dari dua lapis bahasa yang harus diproses barengan. Dua lapis gimana maksudnya? Lapis pertama itu bahasa lingwistik, yaitu bahasa Indonesia nya itu sendiri. Lapis kedua adalah bahasa logika, yaitu matematikanya. Saat anak disuguhin satu paragraf panjang, beban kognitif mereka terkuras habis cuma buat ngebaca dan mengahamin jalan ceritanya aja. Oh, energinya keburu habis duluan ya? Benar. Begitu mereka sampai di titik dimana mereka harus ngubekat tadi bagi sama rata, menjadi simbol bagi secara matematis, energi otak mereka udah dibatas merah. Teksi yang kepanjangan itu malah kerasa kaya bahasa alien yang ngeburin instruksi matematiknya.\n\nKasian juga ya. Jadi energinya keburu abis di jalan sebelum mereka sempet sampai ke medan pertempuran aslinya. Terus, gimana cara buku ini nyiasatin bahasa alien itu biar anak nggak nyerah duluan? Dengan menjadikan persoalan itu hal yang sangat pribadi buat si anak, buku ini nyaranin guru buat pakai teknik roleplay. Jangan biarin anak ngebaca tekst itu sebagai orang ketiga yang nggak peduli. Terus, harusnya gimana? Guru bisa ngomong gini di kelas. Coba bayangin ini hari Minggu ya, ini tuh uang jajan kamu dan uang jajan adikmu. Kalau kamu sampai salah ngitung kembalian pas beli buah naganya, uang sisa buat kamu beli es krim bakal melayang masuk ke kasir.\n\nHaha, wah, kalau udah diseret-seret keurusan uang saku melayang, mereka pasti mendadak melek semua tuh matanya. Ya pastilah, kepentingan pribadi itu selalu ampuh ngebah informasi pasif, jadi motivasi aktif. Saat soal cerita itu kerasa benar-benar nyata dan ngancem mereka, mereka bakal berusaha keras mecahin kode bahasanya demi, ya, nyelamatin uang jajan mereka sendiri. Keren banget pendekatannya. Tapi, eh, ada satu lagi nih tantangan teknis yang bikin pusing setengah mati kalau lagi ngerjain operasi bilangan besar gini. Buku ini secara khusus nguanti-wanti soal bahaya teknik menyimpan. Oh, yang carrying over waktu nambah atau ngurangin persusun itu ya?\n\nIya. Kenapa sih teknik yang kelihatannya sepele ini tuh bisa jadi sangat mematikan efeknya pas angkanya udah nyentuh 100 ribu? Coba kita ingat lagi soal kursi VIP nilai tempat tadi. Kalau kamu lagi ngitung angka puluhan biasa, terus kamu salah atau lupa naruh angka simpanan satu di atasnya, paling-paling hasil akhirmu meleset cuma 10 poin. Kamu masih bisa ngira-ngira jawabannya masuk akal gak? Masih bisa ditoleransi lah ya salah 10 poin? Betul. Tapi pas kamu udah main di rentan puluhan ribu, kesalahan kecil lupa naruh simpanan angka satu dari kolom ratusan ke kolom ribuannya, itu bakal memicu efek domino yang massif banget.\n\nWah, iya juga ya. Melesetnya jadi gede banget. Banget. Hasil akhir hitunganmu bisa meleset sejauh belasan ribu rupiah. Kalau kita balik ke simulasi kasir minimarket tadi, meleset belasan ribu itu artinya kamu harus ninggalin belanjaanmu di meja kasir karena uangmu kurang. Nah, itu dia. Matematika di level bilangan cacah besar ini tuh sebenarnya lagi ngasih latihan ketelitian tingkat tinggi ke anak. Ngajarin kalau satu detail sekecil apapun yang kamu abain di awal, bisa ngancurin keseluruhan sistem pas di akhir. Melatih tanggung jawab terhadap hal detail ya berarti. Luar biasa loh ini. Berawal dari sekedar ngebaca harga jus mangga di layar HP, ujung-ujungnya jadi latihan tanggung jawab terhadap detail.\n\nMari kita rangkum perjalanan luar biasa ini buat kamu yang dari tadi dengerin. Ternyata angka 100 ribu yang pas awal tadi keliatannya nyeremin banget, kayak monster raksasa dengan enam kepala itu sebenarnya bisa ditaklukkan dengan gampang. Dan kita naklukkinnya pelan-pelan dengan cara memahami anatominya perlangkah. Tepat banget, kita mulai dari natakursi VIP konser lewat nilai tempat supaya setiap angka tahu posisinya dimana dan gak bikin kekacauan. Lalu kita belajar menghindari jebakan mata yang sering ketipu sama angkat tajam di belakang yang bikin kita jadi calon konsumen yang lebih rasional. Dan ingat, yang pas jadi arsitek Lego uang itu?\n\nOh iya, pastinya. Kita jadi arsitek Lego yang ngebongkar pasang isi dompet kita supaya otak kita cukup lentur buat ngadepin kasir minimarket yang tiba-tiba nggak punya kebelian. Dan sebagai puncaknya, kita berhasil ngebantai monster soal cerita dengan mengubah teks bahasa alien jadi urusan uang jajan kita sendiri. Kalau dipikir-pikir, kemampuan-kemampuan ini tuh yang nantinya jadi fondasi penting buat literasi finansial loh. Besok pagi. Ujian sekolah itu cuma bonusnya. Iya, kemampuan membaca dan memanipulasi angka besar ini tuh adalah perisainmu. Ini tuh caramu nanti waktu baca berita populasi penduduk,\n\ncaramu supaya nggak ketipu promo palsu pas belanja online, dan caramu buat ngambil keputusan logis ketika dunia nanti nyoba ngecoh kamu pake rentetan angka yang membingungkan. Matematika sebagai perisai kehidupan nyata, ya? Aku jujur suka banget sama konsep perisai itu, dan sebagai penutup dari obrolan deep dive kita hari ini, aku mau ninggalin kamu dengan satu pemikiran provokatif nih. Dan ini ada hubungannya sama teori bongkar pasang Lego atau dekomposisi tadi. Pemikiran apa tuh? Tuba deh, kamu pikirin ini baik-baik. Kalau selembar uang 100 ribu rupiah yang tadinya kaku banget, itu ternyata bisa dibongkar, dipecah,\n\nDan dirakit lagi jadi puluhan kombinasi uang kertas dan koin yang beda-beda, tapi nilainya tetap utuh. Coba bayangin, ada berapa banyak kemungkinan kombinasi cara yang bisa kamu pilih buat ngatur waktu belajarmu hari ini? Atau kombinasi cara buat ngatur anggaran liburan? Atau bahkan sekedar milih jalur mana yang mau kamu ambil buat mecahin suatu masalah di hidupmu? Ya, matematika itu nyatanya bukan diktator yang selalu maksa kita mentok di satu jawaban kaku aja. Matematika justru ngebuktiin ke kita kalau, eh, selalu ada puluhan cara beda buat sampai ketujuan yang sama selama kamu emang paham nilai dasarnya.\n\nJadi, lautan angka 0 yang di awal tadi sempat bikin otak korslet, aku yakin sekarang kamu udah bisa ngeliatnya sesanteng ngeliat tumpukan mainan lego yang siap kamu bongkar pasang kapan aja. Teruslah bermain dengan angka, teruslah nyari cara baru buat mecahin masalahmu, dan sampai jumpa di sesi bedah materi kita yang selanjutnya."
+         "_row": {
+          "sheet": "Soal",
+          "row": 31
+         },
+         "ref": "LT18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Rafi memiliki Rp75.000. Ia membeli sepatu seharga Rp48.500. Berapa sisa uangnya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 118
+           },
+           "label": "A",
+           "body": "Rp123.500",
+           "is_correct": false,
+           "rationale": "Kedua bilangan dijumlahkan. Sisa dicari dengan pengurangan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 119
+           },
+           "label": "B",
+           "body": "Rp33.500",
+           "is_correct": false,
+           "rationale": "Di setiap tempat angka kecil dikurangkan dari angka besar tanpa meminjam (misalnya 8 − 5 di ribuan)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 120
+           },
+           "label": "C",
+           "body": "Rp27.500",
+           "is_correct": false,
+           "rationale": "Sudah meminjam dari ribuan, tetapi ribuannya tidak dikurangi 1 (5 − 8 dihitung sebagai 15 − 8)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 121
+           },
+           "label": "D",
+           "body": "Rp26.500",
+           "is_correct": true,
+           "rationale": "Benar. 75.000 − 48.500 = 26.500. Periksa: 26.500 + 48.500 = 75.000."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 32
+         },
+         "ref": "LT19",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Harga tiket kereta mini Rp12.500 per anak. Berapa harga tiket untuk 4 anak?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 122
+           },
+           "label": "A",
+           "body": "Rp48.000",
+           "is_correct": false,
+           "rationale": "Hanya 12.000 yang dikali 4; bagian 500 terlewat. 4 × 500 = 2.000 juga harus ditambahkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 123
+           },
+           "label": "B",
+           "body": "Rp50.000",
+           "is_correct": true,
+           "rationale": "Benar. 4 × 12.500 = 50.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 124
+           },
+           "label": "C",
+           "body": "Rp48.500",
+           "is_correct": false,
+           "rationale": "12.000 sudah dikali 4, tetapi 500 hanya ditambahkan sekali. Setiap anak membayar 500 itu: 4 × 500 = 2.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 125
+           },
+           "label": "D",
+           "body": "Rp3.125",
+           "is_correct": false,
+           "rationale": "Harga tiket dibagi 4. Setiap anak membayar Rp12.500, jadi dikali 4."
+          }
+         ]
         }
-       ],
-       "items": []
+       ]
       }
      ]
     }

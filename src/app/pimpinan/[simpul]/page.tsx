@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { t, format, type HleEvent } from "@/lib/hle";
+import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as pim from "@/lib/pimpinan";
+import { berstruktur, nilaiMetrik } from "@/lib/nilai-metrik";
+import NilaiLaporan from "@/components/bukti/NilaiLaporan";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
@@ -60,8 +62,8 @@ export default async function SimpulPimpinan({
   const angka = bukti.filter((e) => e.status === "ok");
   const absen = bukti.filter((e) => e.status !== "ok");
   // The node itself comes back from its own subtree; it is where the reader
-  // already is, not somewhere to go.
-  const lain = bawah.filter((n) => n.id !== node.id);
+  // already is, not somewhere to go. W11: nor are the hidden Jenjang and Reguler.
+  const lain = pim.bagianDiBawah(node.id, bawah);
 
   return (
     <>
@@ -88,7 +90,8 @@ export default async function SimpulPimpinan({
                   <AngkaTerkelola
                     key={e.metric_id ?? `angka-${i}`}
                     entry={e}
-                    value={nilai(e.value, locale)}
+                    value={nilaiMetrik(e.metric_id, e.value, locale)}
+                    rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} /> : undefined}
                     locale={locale}
                   />
                 ))}
@@ -145,16 +148,3 @@ export default async function SimpulPimpinan({
   );
 }
 
-/** Same reading as the home's: a value rendered without a unit being invented. */
-function nilai(value: unknown, locale: "id" | "en"): string {
-  if (typeof value === "number") {
-    return value > 0 && value <= 1 && !Number.isInteger(value)
-      ? format.percent(value, locale)
-      : format.number(value, locale);
-  }
-  if (Array.isArray(value)) return format.number(value.length, locale);
-  if (value !== null && typeof value === "object") {
-    return format.number(Object.keys(value as Record<string, unknown>).length, locale);
-  }
-  return "—";
-}

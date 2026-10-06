@@ -2,15 +2,20 @@ import Link from "next/link";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as data from "@/lib/pendataan";
-import { AKUN_AKTIF, bisaDilanjutkan, bolehLanjut, percontohanMenunggu, tahap } from "@/lib/pendataan-kontrak";
+import { AKUN_AKTIF, bolehLanjut, percontohanMenunggu, tahap } from "@/lib/pendataan-kontrak";
 import {
   kemajuanAksi, konfirmasiAksi, majukanAksi, periksaAksi, periksaPercontohanAksi,
 } from "../actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import PeriksaDaftar from "@/components/pendataan/PeriksaDaftar";
 import Penggerak from "@/components/pendataan/Penggerak";
+import IsianSetuju from "@/components/pendataan/IsianSetuju";
+import DaftarNama from "@/components/pendataan/DaftarNama";
+import { semuaNama } from "../nama";
 
 export const dynamic = "force-dynamic";
 
@@ -73,6 +78,11 @@ export default async function SatuPendataan({
     ? await data.barisPekerjaan(pekerjaan, { keadaan: "FAILED" })
     : [];
   const pratinjau = fase === "menunggu_konfirmasi" ? await data.pratinjau(pekerjaan) : null;
+  // D-077(3): the approval is given on every name, or not offered. The list
+  // must be complete (`semuaNama` is null otherwise) and as long as WP5A's
+  // own count of rows.
+  const nama = pratinjau ? await semuaNama(pekerjaan) : null;
+  const namaLengkap = nama !== null && nama.length === Number(pratinjau?.row_count ?? -1);
 
   return (
     <>
@@ -96,9 +106,7 @@ export default async function SatuPendataan({
         {fase === "menunggu_konfirmasi" && pratinjau ? (
           <section className="pin-sec" aria-labelledby="pin-pratinjau">
             <h2 id="pin-pratinjau">{s("pendataan.pratinjau.judul")}</h2>
-            {sp.galat === "konfirmasi" ? (
-              <p className="pin-msg pin-msg-err" role="alert">{s("pendataan.konfirmasi.gagal")}</p>
-            ) : null}
+            {sp.galat === "konfirmasi" ? <BarisHasil nada="gagal">{s("pendataan.konfirmasi.gagal")}</BarisHasil> : null}
 
             {/* WP5A'S OWN NUMBERS. Nothing here is recomputed from the rows:
                 the preview is what a human is deciding on, so it has to be the
@@ -154,13 +162,23 @@ export default async function SatuPendataan({
               <p className="pin-msg pin-msg-note">{s("pendataan.percontohan.arti")}</p>
             ) : null}
 
-            <p className="pin-mm">{s("pendataan.pratinjau.tanya")}</p>
-            {/* A PLAIN FORM. The consequential act needs no script to work, and
-                it calls WP5A's confirmation rather than moving a flag here. */}
-            <form action={konfirmasiAksi}>
-              <input type="hidden" name="pekerjaan" value={pekerjaan} />
-              <button type="submit" className="pin-btn pin-go pin-data-btn">{s("pendataan.pratinjau.setuju")}</button>
-            </form>
+            {/* D-077(3): EVERY NAME, THEN ONE APPROVAL. With no complete
+                list there is nothing to approve on, so no form is drawn. */}
+            {namaLengkap ? (
+              <>
+                <DaftarNama locale={locale} nama={nama!} />
+                <p className="pin-mm">{s("pendataan.pratinjau.tanya")}</p>
+                {/* A PLAIN FORM. The consequential act needs no script to work, and
+                    it calls WP5A's confirmation rather than moving a flag here.
+                    UX-08: its press also starts the recording (IsianSetuju). */}
+                <form action={konfirmasiAksi}>
+                  <IsianSetuju pekerjaan={pekerjaan} />
+                  <TombolKirim className="pin-btn pin-go pin-data-btn" sibuk={s("tombol.memproses")}>{s("pendataan.pratinjau.setuju")}</TombolKirim>
+                </form>
+              </>
+            ) : (
+              <BarisHasil nada="gagal">{s("pendataan.nama.gagal")}</BarisHasil>
+            )}
           </section>
         ) : null}
 
@@ -170,9 +188,7 @@ export default async function SatuPendataan({
             <h2 id="pin-pilot">{s("pendataan.percontohan.judul")}</h2>
             <p className="pin-lede">{s("pendataan.percontohan.nyata")}</p>
             <p className="pin-mm">{s("pendataan.percontohan.arti")}</p>
-            {sp.galat === "percontohan" ? (
-              <p className="pin-msg pin-msg-err" role="alert">{s("pendataan.percontohan.gagal")}</p>
-            ) : null}
+            {sp.galat === "percontohan" ? <BarisHasil nada="gagal">{s("pendataan.percontohan.gagal")}</BarisHasil> : null}
 
             {/* THE CHECK IS ONLY REAL IF THERE IS SOMETHING TO CHECK. Each of
                 the fifty with the identity number PINTAR generated for them. */}
@@ -191,27 +207,25 @@ export default async function SatuPendataan({
               {s("pendataan.percontohan.sisa")}
             </p>
 
+            {/* UX-08: «lanjutkan sisanya» continues the recording itself. */}
             <form action={periksaPercontohanAksi}>
-              <input type="hidden" name="pekerjaan" value={pekerjaan} />
-              <button type="submit" className="pin-btn pin-go pin-data-btn">{s("pendataan.percontohan.tanya")}</button>
+              <IsianSetuju pekerjaan={pekerjaan} />
+              <TombolKirim className="pin-btn pin-go pin-data-btn" sibuk={s("tombol.memeriksa")}>{s("pendataan.percontohan.tanya")}</TombolKirim>
             </form>
           </section>
         ) : null}
 
         {/* ── PROVISIONING, OR WAITING TO BE CONTINUED ──────────────────── */}
+        {/* The driver says itself whether the job stopped part-way: only it
+            knows whether it is running now (UX-08). */}
         {bolehLanjut(kemajuan) ? (
-          <>
-            {bisaDilanjutkan(kemajuan) ? (
-              <p className="pin-msg pin-msg-note">{s("pendataan.maju.terputus")}</p>
-            ) : null}
-            <Penggerak
-              awal={kemajuan}
-              pekerjaan={pekerjaan}
-              majukan={majukanAksi}
-              bacaUlang={kemajuanAksi}
-              locale={locale}
-            />
-          </>
+          <Penggerak
+            awal={kemajuan}
+            pekerjaan={pekerjaan}
+            majukan={majukanAksi}
+            bacaUlang={kemajuanAksi}
+            locale={locale}
+          />
         ) : null}
 
         {kemajuan.pilot_verified && fase !== "periksa_percontohan" ? (

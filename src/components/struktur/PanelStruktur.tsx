@@ -2,6 +2,8 @@
 
 import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
+import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import type {
   HasilStruktur,
@@ -168,20 +170,16 @@ function Pesan({ jejak, apa, locale }: { jejak: Jejak; apa: Apa; locale: Locale 
   const s = (k: HleEvent) => t(k, "staff", { locale });
   if (jejak.hasil.ok) {
     return apa === "diubah" ? (
-      <p className="pin-str-pesan" role="status">
+      <BarisHasil nada="ok">
         {s("config.struktur.ok.diubah")} <strong>{jejak.nama}</strong>.
-      </p>
+      </BarisHasil>
     ) : (
-      <p className="pin-str-pesan" role="status">
+      <BarisHasil nada="ok">
         <strong>{jejak.nama}</strong> {s(apa === "dibuat" ? "config.struktur.ok.dibuat" : "config.struktur.ok.dinonaktifkan")}
-      </p>
+      </BarisHasil>
     );
   }
-  return (
-    <p className="pin-msg pin-msg-err" role="alert">
-      {kalimatGagal(jejak.hasil.code, jejak.hasil.ref, locale)}
-    </p>
-  );
+  return <BarisHasil nada="gagal">{kalimatGagal(jejak.hasil.code, jejak.hasil.ref, locale)}</BarisHasil>;
 }
 
 /** "Tambah Bagian / Tingkat / Kelas" under its parent. The name field stays filled after a refusal. */
@@ -207,8 +205,9 @@ function FormTambah({
   // action, and a refusal must not wipe what was typed.
   const [nama, setNama] = useState("");
   const [tahun, setTahun] = useState(tahunBawaan ?? "");
+  const [untuk, setUntuk] = useState<"murid" | "guru">("murid");
   const [jejak, kirim, sibuk] = useAksi(aksi, (h) => {
-    if (h.ok) setNama("");
+    if (h.ok) { setNama(""); setUntuk("murid"); }
   });
   const idNama = `str-nama-${tingkatan}-${induk.id}`;
   const idTahun = `str-tahun-${induk.id}`;
@@ -230,6 +229,21 @@ function FormTambah({
             autoComplete="off"
           />
         </div>
+        {/* BOB-43 / DAISY-32 (D-069(d)): what a new Bagian is for, asked once; its Tingkat and Kelas follow it */}
+        {tingkatan === "BAGIAN" && (
+          <fieldset className="pin-str-untuk">
+            <legend>{s("config.struktur.untuk")}</legend>
+            <label className="pin-str-pilih">
+              <input type="radio" name="untuk" value="murid" checked={untuk === "murid"} onChange={() => setUntuk("murid")} />
+              {s("config.struktur.untuk.murid")}
+            </label>
+            <label className="pin-str-pilih">
+              <input type="radio" name="untuk" value="guru" checked={untuk === "guru"} onChange={() => setUntuk("guru")} />
+              {s("config.struktur.untuk.guru")}
+            </label>
+            <p className="pin-hint">{s("config.struktur.untuk.arti")}</p>
+          </fieldset>
+        )}
         {tahunBawaan !== undefined && (
           <div className="pin-str-isian pin-str-isian-tahun">
             <label htmlFor={idTahun}>{s("config.struktur.tahun")}</label>
@@ -245,9 +259,9 @@ function FormTambah({
             />
           </div>
         )}
-        <button type="submit" className="pin-btn pin-primary" disabled={sibuk}>
-          {sibuk ? s("config.struktur.sibuk") : s(KUNCI_TAMBAH[tingkatan])}
-        </button>
+        <TombolKirim className="pin-btn pin-primary" disabled={sibuk} sibuk={s("config.struktur.sibuk")}>
+          {s(KUNCI_TAMBAH[tingkatan])}
+        </TombolKirim>
       </form>
       {tahunIkut ? (
         <p className="pin-hint">
@@ -278,7 +292,7 @@ function BarisSimpul({ simpul, locale }: { simpul: SimpulStruktur; locale: Local
     setTerakhir("dinonaktifkan");
     if (h.ok) setMode("lihat");
   });
-  const murid = jumlahMurid(simpul.active_members, locale);
+  const murid = jumlahMurid(simpul.active_members, locale, simpul.member_kind);
   const jejak = terakhir === "diubah" ? jejakUbah : jejakNonaktif;
 
   return (
@@ -299,9 +313,9 @@ function BarisSimpul({ simpul, locale }: { simpul: SimpulStruktur; locale: Local
               required
               autoComplete="off"
             />
-            <button type="submit" className="pin-btn pin-primary" disabled={sibukUbah}>
-              {sibukUbah ? s("config.struktur.sibuk") : s("config.struktur.simpan")}
-            </button>
+            <TombolKirim className="pin-btn pin-primary" disabled={sibukUbah} sibuk={s("config.struktur.sibuk")}>
+              {s("config.struktur.simpan")}
+            </TombolKirim>
             <button type="button" className="pin-btn" onClick={() => setMode("lihat")}>
               {s("config.struktur.batal")}
             </button>
@@ -311,6 +325,8 @@ function BarisSimpul({ simpul, locale }: { simpul: SimpulStruktur; locale: Local
         )}
         {simpul.academic_year && <span className="pin-num pin-str-tahun">{simpul.academic_year}</span>}
         {murid && <span className="pin-str-murid">{murid}</span>}
+        {/* DAISY-32: shown, never changed, on the Bagian and every Tingkat and Kelas under it */}
+        {simpul.member_kind === "PARTICIPANT" && <span className="pin-str-tanda">{s("config.struktur.untuk_guru")}</span>}
         {!simpul.is_active && <span className="pin-str-tanda">{s("config.struktur.nonaktif")}</span>}
         {bolehDiubah(simpul) && mode === "lihat" && (
           <span className="pin-str-aksi">
@@ -363,10 +379,22 @@ export function KonfirmasiNonaktif({
         {s("config.struktur.konfirmasi.tanya")} {s(KUNCI_JENIS[simpul.level])} <strong>{simpul.name}</strong>?
       </p>
       <p className="pin-hint">{s("config.struktur.konfirmasi.arti")}</p>
+      {/* D-097(a): a deactivation states why; it is kept with the record of what was closed */}
+      <div className="pin-str-isian">
+        <label htmlFor={`str-alasan-${simpul.node_id}`}>{s("config.label.reason")}</label>
+        <input
+          id={`str-alasan-${simpul.node_id}`}
+          name="alasan"
+          className="pin-input"
+          maxLength={300}
+          required
+          autoComplete="off"
+        />
+      </div>
       <div className="pin-str-tanya-aksi">
-        <button type="submit" className="pin-btn pin-str-bahaya" disabled={sibuk}>
-          {sibuk ? s("config.struktur.sibuk") : s("config.struktur.konfirmasi.ya")}
-        </button>
+        <TombolKirim className="pin-btn pin-str-bahaya" disabled={sibuk} sibuk={s("config.struktur.sibuk")}>
+          {s("config.struktur.konfirmasi.ya")}
+        </TombolKirim>
         <button type="button" className="pin-btn" onClick={batal}>
           {s("config.struktur.batal")}
         </button>

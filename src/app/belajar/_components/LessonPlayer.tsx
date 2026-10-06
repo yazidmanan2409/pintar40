@@ -20,8 +20,12 @@
  * which the data layer already requires (FABLE-02 §6's CHECK), so there is
  * never a track here without one.
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { t } from "@/lib/hle";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { t, type HleEvent, type Locale } from "@/lib/hle";
+import { halamanMulai, menjadiDibaca, perluDisimpan, posisiDiServer, setelahSimpan } from "@/lib/siklus";
+import { bacaDetik, bacaHalaman, penyimpananPerangkat, simpanDetik, simpanHalaman } from "@/lib/posisi-perangkat";
+import TeksBlok, { TeksBaris } from "@/components/teks/Teks";
 
 export type LessonPlayerProps = {
   learningAssignmentId: string;
@@ -31,8 +35,20 @@ export type LessonPlayerProps = {
   workedExamples: Array<{ judul?: string; langkah?: string[] }>;
   media: Array<{ jenis: string; path: string; transcript?: string; url?: string | null }>;
   startAt: number;
+  /** W2 (T1): the signed-in person; what this device remembers is keyed by them, never by the device. */
+  personId: string | null;
   saveProgress: (learningAssignmentId: string, lessonId: string, position: number, total: number)
-    => Promise<{ ok: boolean }>;
+    => Promise<{ ok: boolean; furthest?: number }>;
+  /** W5: «Posisi bacaan tersimpan.» in the reader's language, shown only while the server holds the page on screen. */
+  savedNote: string;
+  /** J6.14 (STU-20): the reader's language for the player's own words; the lesson's text is never translated. */
+  locale: Locale;
+  /**
+   * D-085 M3 (J5.12): opened from a teacher's request to read again. The lesson starts at its first page, whatever
+   * was reached before, and its last page marks the lesson read again, once.
+   */
+  ulang?: string | null;
+  tandaiUlang?: ((permintaan: string, pelajaran: string) => Promise<{ ok: boolean }>) | null;
 };
 
 /** `[[visual:pecahan|3/8]]` → a drawn diagram. Unknown directives render as text. */
@@ -58,15 +74,19 @@ function Visual({ spec }: { spec: string }) {
   return <p className="pin-meta">{spec}</p>;
 }
 
-function renderBlock(line: string, key: number) {
+/**
+ * DAISY-30: a page's lines are drawn by the shared renderer (TeksBlok), which
+ * reads the lesson's own marks (**bold**, "- " lists, pipe tables, ^{…}/_{…})
+ * and keeps a line a line. The one directive only the player knows, a drawn
+ * diagram, is handed back to it here.
+ */
+function sisipVisual(line: string) {
   const visual = /^\[\[visual:(.+)\]\]$/.exec(line.trim());
-  if (visual) return <Visual key={key} spec={visual[1]} />;
-  if (line.startsWith("## ")) return <h3 key={key} className="pin-lh3">{line.slice(3)}</h3>;
-  if (line.trim() === "") return null;
-  return <p key={key} className="pin-lp">{line}</p>;
+  return visual ? <Visual spec={visual[1]} /> : null;
 }
 
 export default function LessonPlayer(props: LessonPlayerProps) {
+  const kata = (k: HleEvent) => t(k, "learner", { locale: props.locale });
   const pages = useMemo(() => {
     const body = props.bodyMarkdown ?? "";
     const out: string[][] = [];
@@ -82,32 +102,73 @@ export default function LessonPlayer(props: LessonPlayerProps) {
     return out.length ? out : [[""]];
   }, [props.bodyMarkdown]);
 
-  const localKey = `pintar.lesson.${props.lessonId}`;
   const [page, setPage] = useState(() => {
-    let local = 0;
-    try { local = Number(window.localStorage.getItem(localKey) ?? 0); } catch { /* unavailable */ }
-    // never resume behind what the server already recorded
-    return Math.min(pages.length - 1, Math.max(props.startAt, Number.isFinite(local) ? local : 0));
+    // W2: this person's page on this device, never another learner's
+    const local = bacaHalaman(penyimpananPerangkat(), props.personId, props.lessonId);
+    // never resume behind what the server already recorded. The server keeps
+    // a count of pages reached (BOB-22); this device keeps the page index.
+    // D-085 M3: a lesson to read again starts at its beginning
+    if (props.ulang) return 0;
+    return Math.min(pages.length - 1, Math.max(halamanMulai(props.startAt, pages.length), local));
   });
   const [steps, setSteps] = useState(1);
 
-  const record = useCallback((p: number) => {
-    try { window.localStorage.setItem(localKey, String(Math.max(p, Number(window.localStorage.getItem(localKey) ?? 0)))); }
-    catch { /* unavailable */ }
-    void props.saveProgress(props.learningAssignmentId, props.lessonId, p, pages.length);
-  }, [localKey, pages.length, props]);
+  // BOB-23: ONE SAVE PER PAGE NEWLY REACHED. The save ran in an effect that
+  // depended on the whole props object; each save re-rendered the page, the
+  // new props re-ran the effect, and a learner reading one page saved about
+  // twenty times a second. Now the effect depends on the page alone, reads
+  // the save function and ids through a ref, and saves only beyond what is
+  // already saved (the server's startAt, then each save) -- as pages reached
+  // (BOB-22), so the last page of N saves N.
+  // Round 2: the save that makes the lesson read (N of N) asks the page for
+  // one refresh, so its closing action -- the Uji Penguasaan link once every
+  // lesson is read -- is decided again. That save only, never one per page.
+  const router = useRouter();
+  const simpan = useRef({ save: props.saveProgress, tugas: props.learningAssignmentId, pelajaran: props.lessonId,
+    total: pages.length, orang: props.personId, segarkan: () => router.refresh() });
+  useEffect(() => {
+    simpan.current = { save: props.saveProgress, tugas: props.learningAssignmentId, pelajaran: props.lessonId,
+      total: pages.length, orang: props.personId, segarkan: () => router.refresh() };
+  });
+  const tersimpan = useRef(props.startAt);
+  // W5: what the server holds, from its own answers; the note follows this, never the attempt
+  const server = useRef(props.startAt);
+  const [diServer, setDiServer] = useState(props.startAt);
 
-  useEffect(() => { record(page); }, [page, record]);
+  useEffect(() => {
+    const { save, tugas, pelajaran, total, orang, segarkan } = simpan.current;
+    simpanHalaman(penyimpananPerangkat(), orang, pelajaran, page);
+    const posisi = perluDisimpan(page, tersimpan.current);
+    if (posisi === null) return;
+    tersimpan.current = posisi;
+    const selesai = (hasil: { ok: boolean; furthest?: number } | null) => {
+      const s = setelahSimpan(hasil, posisi, { diServer: server.current, tersimpan: tersimpan.current });
+      server.current = s.diServer;
+      tersimpan.current = s.tersimpan;
+      setDiServer(s.diServer);
+      if (menjadiDibaca(hasil, total)) segarkan();
+    };
+    void save(tugas, pelajaran, posisi, total).then(selesai, () => selesai(null));
+  }, [page]);
+
+  // D-085 M3 (J5.12): the last page of a lesson opened from a request marks it read again, once
+  const ulangDitandai = useRef(false);
+  useEffect(() => {
+    const { ulang, tandaiUlang, lessonId } = props;
+    if (!ulang || !tandaiUlang || ulangDitandai.current || page < pages.length - 1) return;
+    ulangDitandai.current = true;
+    void tandaiUlang(ulang, lessonId).then((h) => { if (!h.ok) ulangDitandai.current = false; }, () => { ulangDitandai.current = false; });
+  }, [page]); // eslint-disable-line react-hooks/exhaustive-deps -- once per page reached, as the save above
 
   const example = props.workedExamples[0];
   const langkah = example?.langkah ?? [];
 
   return (
     <div>
-      <article className="pin-prose">{pages[page].map(renderBlock)}</article>
+      <article className="pin-prose"><TeksBlok teks={pages[page].join("\n")} sisip={sisipVisual} /></article>
 
       <p className="pin-lpos">
-        <span>{t("lesson.page_of", "learner")} {page + 1}/{pages.length}</span>
+        <span>{kata("lesson.page_of")} {page + 1}/{pages.length}</span>
         <span className="pin-dots">
           {pages.map((_, i) => (
             <span key={i} className={`pin-ldot${i === page ? " pin-at" : i < page ? " pin-done" : ""}`} />
@@ -118,30 +179,30 @@ export default function LessonPlayer(props: LessonPlayerProps) {
       <nav className="pin-actions pin-between">
         <button type="button" disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}
           className="pin-btn">
-          {t("lesson.prev", "learner")}
+          {kata("lesson.prev")}
         </button>
         <button type="button" disabled={page >= pages.length - 1}
           onClick={() => setPage((p) => Math.min(pages.length - 1, p + 1))}
           className="pin-btn pin-primary">
-          {t("lesson.next", "learner")}
+          {kata("lesson.next")}
         </button>
       </nav>
 
       {langkah.length > 0 && (
         <section className="pin-contoh">
-          <h3 className="pin-lh3">{example?.judul}</h3>
+          <h3 className="pin-lh3"><TeksBaris teks={example?.judul} /></h3>
           <ol className="pin-steps">
             {langkah.slice(0, steps).map((s, i) => (
-              <li key={i} className="pin-langkah"><span className="pin-n">{i + 1}</span><span>{s}</span></li>
+              <li key={i} className="pin-langkah"><span className="pin-n">{i + 1}</span><span><TeksBaris teks={s} /></span></li>
             ))}
           </ol>
           {steps < langkah.length ? (
             <button type="button" onClick={() => setSteps((s) => s + 1)}
               className="pin-btn">
-              {t("lesson.example.reveal", "learner")}
+              {kata("lesson.example.reveal")}
             </button>
           ) : (
-            <p className="pin-meta">{t("lesson.example.done", "learner")}</p>
+            <p className="pin-meta">{kata("lesson.example.done")}</p>
           )}
         </section>
       )}
@@ -149,36 +210,34 @@ export default function LessonPlayer(props: LessonPlayerProps) {
       {props.media.length > 0 && (
         <section className="pin-lmediaset">
           {props.media.map((m) => (
-            <MediaEntry key={m.path} entry={m} />
+            <MediaEntry key={m.path} entry={m} personId={props.personId} locale={props.locale} />
           ))}
         </section>
       )}
+
+      {posisiDiServer(page, diServer) && <p className="pin-meta">{props.savedNote}</p>}
     </div>
   );
 }
 
-function MediaEntry({ entry }: { entry: LessonPlayerProps["media"][number] }) {
+function MediaEntry({ entry, personId, locale }: { entry: LessonPlayerProps["media"][number]; personId: string | null; locale: Locale }) {
+  const kata = (k: HleEvent) => t(k, "learner", { locale });
   const [rate, setRate] = useState(1);
   const [showTranscript, setShowTranscript] = useState(false);
-  const positionKey = `pintar.media.${entry.path}`;
-
   const attach = (el: HTMLMediaElement | null) => {
     if (!el) return;
     el.playbackRate = rate;
-    try {
-      const at = Number(window.localStorage.getItem(positionKey) ?? 0);
-      if (Number.isFinite(at) && at > 0 && at > el.currentTime) el.currentTime = at;
-    } catch { /* unavailable */ }
-    el.ontimeupdate = () => {
-      try { window.localStorage.setItem(positionKey, String(Math.floor(el.currentTime))); } catch { /* unavailable */ }
-    };
+    // W2: this person's place in the recording on this device, never another learner's
+    const at = bacaDetik(penyimpananPerangkat(), personId, entry.path);
+    if (at > 0 && at > el.currentTime) el.currentTime = at;
+    el.ontimeupdate = () => simpanDetik(penyimpananPerangkat(), personId, entry.path, el.currentTime);
   };
 
   if (entry.jenis === "pdf") {
     return entry.url ? (
       <a href={entry.url} target="_blank" rel="noreferrer"
          className="pin-lcard pin-llink">
-        {t("lesson.pdf", "learner")}
+        {kata("lesson.pdf")}
       </a>
     ) : null;
   }
@@ -191,7 +250,7 @@ function MediaEntry({ entry }: { entry: LessonPlayerProps["media"][number] }) {
       {entry.url && entry.jenis === "audio" && <audio ref={attach} controls src={entry.url} className="pin-laudio" />}
       <div className="pin-lctl">
         <label className="pin-lrate">
-          {t("lesson.speed", "learner")}
+          {kata("lesson.speed")}
           <select value={rate} onChange={(e) => setRate(Number(e.target.value))}
             className="pin-lselect">
             {[0.75, 1, 1.25, 1.5, 2].map((r) => <option key={r} value={r}>{r}×</option>)}
@@ -199,7 +258,7 @@ function MediaEntry({ entry }: { entry: LessonPlayerProps["media"][number] }) {
         </label>
         {entry.transcript && (
           <button type="button" onClick={() => setShowTranscript((s) => !s)} className="pin-btn pin-quiet">
-            {t("lesson.transcript", "learner")}
+            {kata("lesson.transcript")}
           </button>
         )}
       </div>

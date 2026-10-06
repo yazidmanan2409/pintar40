@@ -34,7 +34,7 @@ declare
   src uuid; srcv uuid; course uuid; modul uuid; les uuid;
   ob1 uuid; ob2 uuid; tag text; rel uuid; defn uuid; la uuid; aa uuid;
   spec jsonb; entry jsonb; opt jsonb; it uuid; t text;
-  v_status text; v_blockers text[]; n int;
+  v_status text; v_blockers jsonb; n int;
 begin
   select environment into v_env from public.platform_environment;
   -- L3-F01: fail-closed. This seed creates credential-bearing auth.users
@@ -274,7 +274,7 @@ begin
   select status, blockers into v_status, v_blockers from public.publish_readiness(course);
   if v_status <> 'READY' then
     raise exception 'bootstrap content is not publishable (%): % — fix the fixture, never the gate',
-      v_status, array_to_string(v_blockers, '; ');
+      v_status, v_blockers::text;
   end if;
 
   insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
@@ -293,6 +293,9 @@ begin
   -- CAN_ASSIGN_LEARNING in the owning institution
 
   -- assignments walk their own lifecycle: created at DRAFT, then moved
+  -- D-088(b), BOB-49: the school sets the lesson's pass mark (as its admin, through the product's own function)
+  -- before the class is given it; 60 is this local fixture's choice, recorded with its reason, never a product default
+  perform public.set_school_pass_mark(inst, course, 60, 'Contoh lokal (seed): batas ketuntasan sekolah contoh');
   insert into public.learning_assignments (institution_id, plp_release_id, course_id, node_id,
     academic_period_id, is_required, learning_cycle, assigned_by_person_id, assigned_at)
   values (inst, rel, course, cls, period, true,

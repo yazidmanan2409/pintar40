@@ -793,6 +793,11 @@ async function j6outbox() {
         await page.locator("button.pin-op").nth(0).click(); await confirm(); await page.waitForTimeout(500);
       }
       await page.getByRole("button", { name: /^Kumpulkan$|^Submit$/ }).click();
+      // W3: «Kumpulkan» asks first; the question's own «Kumpulkan» hands in
+      const tanya = page.locator('[aria-labelledby="kumpulkan-tanya"]');
+      if (await tanya.waitFor({ timeout: 3000 }).then(() => true, () => false)) {
+        await tanya.getByRole("button", { name: /^Kumpulkan$|^Submit$/ }).click();
+      }
       await page.waitForTimeout(3000);
       const st = psql(`select status from public.assessment_sessions where id='${session}'`);
       const item2 = psql(`select coalesce(string_agg(r.client_seq||'='||r.value::text||' '||r.receipt_mode::text, ' ; ' order by r.client_seq),'none') from public.responses r join public.presented_items pi on pi.id=r.presented_item_id where r.session_id='${session}' and pi.position=2`);

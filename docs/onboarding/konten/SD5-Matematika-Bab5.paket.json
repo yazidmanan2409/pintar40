@@ -1,0 +1,1702 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Matematika Kelas 5 · Bab 5: Luas Daerah Bangun Datar",
+   "subject": "Matematika",
+   "stage": "SD",
+   "grade_label": "Kelas 5",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Luas Daerah Bangun Datar",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Apakah Luas Daerah Itu?",
+       "summary": "Luas daerah adalah ukuran besar kecilnya daerah yang dibatasi sebuah bangun datar, dihitung dengan banyaknya persegi satuan yang menutupinya.",
+       "body_markdown": "## Memasang ubin\n\nLantai sebuah dapur akan dipasangi ubin berukuran 1 m × 1 m. Ubin dipasang rapat, tidak ada yang renggang atau bertumpuk. Dapurnya 3 m panjang dan 2 m lebar, jadi ada 2 baris, masing-masing 3 ubin: **6 ubin**.\n\nKamar tidurnya 3 m × 3 m, jadi 3 baris, masing-masing 3 ubin: **9 ubin**.\n\nMakin luas lantainya, makin banyak ubin yang diperlukan. Dua lantai yang sama luas memerlukan ubin yang sama banyak.\n\n## Arti luas daerah\n\n**Luas daerah** adalah ukuran besar kecilnya daerah yang dibatasi oleh sebuah bangun datar. Luas diukur dengan banyaknya **persegi satuan** yang menutupi daerah itu dengan rapat.\n\n- Persegi satuan 1 cm × 1 cm luasnya **1 cm²**, dibaca satu sentimeter persegi.\n- Persegi satuan 1 m × 1 m luasnya **1 m²**, dibaca satu meter persegi.\n\nJadi lantai dapur tadi luasnya 6 m² dan kamar tidurnya 9 m².\n\nBedakan dengan keliling: keliling mengukur **tepi** (satuannya m atau cm), luas mengukur **daerah di dalamnya** (satuannya m² atau cm²).\n\n## Petak yang tidak utuh\n\nKadang sebuah bangun tidak menutupi petak secara utuh. Misalnya sebuah bangun menutupi 8 petak utuh dan 2 petak yang masing-masing terisi setengah.\n\nDua potongan setengah dapat disatukan menjadi satu petak utuh:\nLuas = 8 + 1/2 + 1/2 = **9 satuan luas**.\n\nMemindahkan potongan tidak mengubah luasnya, karena tidak ada bagian yang hilang atau bertambah.\n\nHati-hati: petak yang tidak utuh tetap harus dihitung, tetapi setengah petak bernilai setengah, bukan satu.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 5._",
+       "objective": {
+        "statement": "Kalian dapat mengenali masalah yang melibatkan luas daerah dan menghitung luas dengan persegi satuan.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Manakah yang dihitung dengan luas daerah?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "Panjang pagar di sekeliling kebun",
+           "is_correct": false,
+           "rationale": "Pagar mengikuti tepi kebun. Itu keliling, bukan luas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "Panjang pita untuk tepi bingkai foto",
+           "is_correct": false,
+           "rationale": "Pita dipasang di tepi. Itu keliling, bukan luas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "Banyak ubin untuk menutup lantai kamar",
+           "is_correct": true,
+           "rationale": "Benar. Ubin menutup seluruh daerah lantai, jadi yang dihitung luas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "Jarak berlari satu kali mengelilingi lapangan",
+           "is_correct": false,
+           "rationale": "Berlari mengelilingi lapangan menyusuri tepinya. Itu keliling."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Lantai teras dipasangi ubin 1 m × 1 m sebanyak 6 baris, dan setiap baris berisi 4 ubin. Berapa luas lantai teras?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "24 m²",
+           "is_correct": true,
+           "rationale": "Benar. 6 baris × 4 ubin = 24 ubin, masing-masing 1 m²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "10 m²",
+           "is_correct": false,
+           "rationale": "Banyak baris dan banyak ubin setiap baris dijumlahkan. Setiap baris berisi 4 ubin, jadi dikalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "20 m²",
+           "is_correct": false,
+           "rationale": "Ini keliling teras, (2 × 6) + (2 × 4). Luas menghitung semua ubin di dalamnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "16 m²",
+           "is_correct": false,
+           "rationale": "Hanya ubin di tepi yang dihitung. Ubin di bagian dalam juga menutupi lantai."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah bangun pada kertas berpetak menutupi 10 petak utuh dan 4 petak yang masing-masing terisi setengah. Berapa luasnya?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "10 satuan luas",
+           "is_correct": false,
+           "rationale": "Hanya petak utuh yang dihitung. Potongan setengah juga menutupi daerah bangun itu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "12 satuan luas",
+           "is_correct": true,
+           "rationale": "Benar. Empat setengah petak sama dengan 2 petak utuh, jadi 10 + 2 = 12."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "14 satuan luas",
+           "is_correct": false,
+           "rationale": "Setiap potongan setengah dihitung sebagai satu petak utuh."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "18 satuan luas",
+           "is_correct": false,
+           "rationale": "Setiap potongan setengah dihitung dua petak. Dua potongan setengah baru sama dengan satu petak."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah rumah mempunyai dua kamar tidur, masing-masing 3 m × 3 m, dan dapur 3 m × 2 m. Berapa ubin 1 m × 1 m yang diperlukan untuk semua ruangan itu?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "15 ubin",
+           "is_correct": false,
+           "rationale": "Hanya satu kamar tidur yang dihitung. Ada dua kamar tidur."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "18 ubin",
+           "is_correct": false,
+           "rationale": "Dapurnya terlewat; 18 ubin baru untuk dua kamar tidur."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "24 ubin",
+           "is_correct": true,
+           "rationale": "Benar. Dua kamar 2 × 9 = 18 ubin, dapur 6 ubin, jadi 24 ubin."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "6 ubin",
+           "is_correct": false,
+           "rationale": "Itu baru ubin untuk dapur. Kamar tidur juga harus dipasangi ubin."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Luas Persegi Panjang dan Persegi",
+       "summary": "Luas persegi panjang adalah panjang dikali lebar; persegi adalah persegi panjang yang panjang dan lebarnya sama.",
+       "body_markdown": "## Menemukan pola\n\nHitung petak pada beberapa persegi panjang:\n\n| Panjang | Lebar | Banyak petak |\n|---|---|---|\n| 2 | 1 | 2 |\n| 5 | 2 | 10 |\n| 4 | 3 | 12 |\n| 2 | 3 | 6 |\n\nBanyak barisnya sama dengan lebarnya, dan setiap baris berisi petak sebanyak panjangnya. Jadi banyak petak = panjang × lebar.\n\n**Luas persegi panjang = panjang × lebar**\n\n## Contoh\n\nSebuah papan panjangnya 5 m dan lebarnya 4 m.\n\n1. Ada 4 baris persegi satuan.\n2. Setiap baris berisi 5 persegi satuan.\n3. Luas = 5 × 4 = **20 m²**.\n\nBandingkan dengan kelilingnya: 5 + 4 + 5 + 4 = 18 m. Luas dan keliling adalah dua ukuran yang berbeda.\n\n## Persegi\n\nPersegi adalah persegi panjang yang panjang dan lebarnya sama. Keduanya disebut **sisi**.\n\n**Luas persegi = sisi × sisi**\n\nPersegi dengan sisi 6 cm: Luas = 6 × 6 = **36 cm²**.\n\nJangan menulis 6 × 2 atau 6 × 4. Itu bukan luas: 6 × 4 adalah keliling persegi.\n\n## Mencari sisi dari luas\n\nLuas sebuah persegi panjang 72 m² dan lebarnya 8 m. Berapa panjangnya?\n\nLuas = panjang × 8, jadi panjang = 72 : 8 = **9 m**. Periksa: 9 × 8 = 72.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 5._",
+       "objective": {
+        "statement": "Kalian dapat menghitung luas persegi panjang dan persegi, serta mencari sisi yang belum diketahui dari luasnya.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah persegi mempunyai sisi 7 cm. Berapa luasnya?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "28 cm²",
+           "is_correct": false,
+           "rationale": "Sisi dikali 4. Itu keliling persegi, bukan luasnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "14 cm²",
+           "is_correct": false,
+           "rationale": "Sisi dikali 2. Luas persegi adalah sisi dikali sisi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "21 cm²",
+           "is_correct": false,
+           "rationale": "Sisi dikali 3. Luas persegi adalah sisi dikali sisi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "49 cm²",
+           "is_correct": true,
+           "rationale": "Benar. Luas persegi = sisi × sisi = 7 × 7 = 49 cm²."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah kebun sayur berbentuk persegi panjang dengan panjang 13 m dan lebar 7 m. Berapa luas kebun itu?",
+         "use": "POST_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "40 m²",
+           "is_correct": false,
+           "rationale": "Ini keliling kebun, (2 × 13) + (2 × 7). Luas adalah panjang × lebar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "20 m²",
+           "is_correct": false,
+           "rationale": "Panjang dan lebar dijumlahkan. Luas didapat dengan mengalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "91 m²",
+           "is_correct": true,
+           "rationale": "Benar. 13 × 7 = 91 m²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "49 m²",
+           "is_correct": false,
+           "rationale": "Lebar dikali lebar (7 × 7). Yang dikalikan adalah panjang dan lebar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah lapangan bulu tangkis mini berukuran 25 m × 12 m. Berapa luasnya?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "300 m²",
+           "is_correct": true,
+           "rationale": "Benar. 25 × 12 = 300 m²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "74 m²",
+           "is_correct": false,
+           "rationale": "Ini keliling lapangan, (2 × 25) + (2 × 12)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "37 m²",
+           "is_correct": false,
+           "rationale": "Panjang dan lebar dijumlahkan. Luas didapat dengan mengalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "144 m²",
+           "is_correct": false,
+           "rationale": "Lebar dikali lebar (12 × 12). Yang dikalikan panjang dan lebar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah taplak meja berbentuk persegi dengan sisi 9 dm. Berapa luasnya?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "36 dm²",
+           "is_correct": false,
+           "rationale": "Sisi dikali 4. Itu keliling taplak."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "18 dm²",
+           "is_correct": false,
+           "rationale": "Sisi dikali 2. Luas persegi adalah sisi × sisi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "27 dm²",
+           "is_correct": false,
+           "rationale": "Sisi dikali 3. Luas persegi adalah sisi × sisi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "81 dm²",
+           "is_correct": true,
+           "rationale": "Benar. 9 × 9 = 81 dm²."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Luas sebuah persegi panjang 72 cm² dan panjangnya 9 cm. Berapa lebarnya?",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "63 cm",
+           "is_correct": false,
+           "rationale": "Luas dikurangi panjang. Luas = panjang × lebar, jadi lebar didapat dengan membagi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "8 cm",
+           "is_correct": true,
+           "rationale": "Benar. 9 × lebar = 72, jadi lebar = 72 : 9 = 8 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "648 cm",
+           "is_correct": false,
+           "rationale": "Luas dikali panjang. Lebar pasti lebih kecil dari luasnya, jadi dibagi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "27 cm",
+           "is_correct": false,
+           "rationale": "Luas diperlakukan seperti keliling (72 : 2 − 9). Luas adalah panjang × lebar."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Luas Segitiga dan Jajargenjang",
+       "summary": "Segitiga dan jajargenjang dapat dipotong dan disusun ulang menjadi persegi panjang, sehingga luasnya dapat dihitung dari alas dan tingginya.",
+       "body_markdown": "## Jajargenjang menjadi persegi panjang\n\nSebuah jajargenjang mempunyai alas 8 cm. **Tingginya** adalah jarak tegak lurus dari alas ke sisi di seberangnya, yaitu 5 cm.\n\nPotong segitiga kecil di ujung kiri jajargenjang dan tempelkan di ujung kanan. Hasilnya persegi panjang dengan panjang 8 cm (alasnya) dan lebar 5 cm (tingginya). Tidak ada bagian yang hilang, jadi luasnya sama.\n\nLuas = 8 × 5 = **40 cm²**.\n\n**Luas jajargenjang = alas × tinggi**\n\n## Tinggi, bukan sisi samping\n\nPada jajargenjang tadi, sisi sampingnya 6 cm. Sisi samping **bukan** tinggi: sisi samping lebih panjang daripada jarak tegak lurusnya.\n\n8 × 6 = 48 cm² terlalu besar. Yang dikalikan dengan alas adalah tingginya, 5 cm.\n\n## Segitiga\n\nSebuah segitiga mempunyai alas 10 cm dan tinggi 6 cm.\n\nPotong segitiga itu setengah tingginya, lalu pindahkan bagian atasnya ke samping. Terbentuk persegi panjang dengan panjang 10 cm (alas) dan lebar 3 cm (setengah tinggi).\n\nLuas = 10 × 3 = **30 cm²**.\n\n**Luas segitiga = 1/2 × alas × tinggi**\n\n## Mengapa setengah?\n\nDua segitiga yang sama dapat disusun menjadi satu persegi panjang (atau jajargenjang) dengan alas dan tinggi yang sama. Jadi satu segitiga adalah setengahnya.\n\nSegitiga tadi: 10 × 6 = 60 cm² adalah luas **dua** segitiga. Satu segitiga: 60 : 2 = **30 cm²**.\n\n**Coba:** segitiga dengan alas 7 cm dan tinggi 4 cm.\n_Periksa: 1/2 × 7 × 4 = 14 cm²._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 5._",
+       "objective": {
+        "statement": "Kalian dapat menghitung luas segitiga dan jajargenjang dengan alas dan tinggi.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah segitiga mempunyai alas 10 cm dan tinggi 6 cm. Berapa luasnya?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "60 cm²",
+           "is_correct": false,
+           "rationale": "Setengahnya terlupa. 10 × 6 adalah luas dua segitiga yang sama."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "30 cm²",
+           "is_correct": true,
+           "rationale": "Benar. 1/2 × 10 × 6 = 30 cm²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "16 cm²",
+           "is_correct": false,
+           "rationale": "Alas dan tinggi dijumlahkan. Luas didapat dengan mengalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "8 cm²",
+           "is_correct": false,
+           "rationale": "Alas dan tinggi dijumlahkan lalu dibagi dua. Keduanya harus dikalikan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah segitiga mempunyai alas 14 cm dan tinggi 9 cm. Sisi miringnya 11 cm. Berapa luas segitiga itu?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "63 cm²",
+           "is_correct": true,
+           "rationale": "Benar. 1/2 × 14 × 9 = 63 cm². Sisi miring tidak dipakai."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "126 cm²",
+           "is_correct": false,
+           "rationale": "Setengahnya terlupa: 14 × 9 adalah luas dua segitiga."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "77 cm²",
+           "is_correct": false,
+           "rationale": "Sisi miring 11 cm dipakai sebagai tinggi. Tinggi adalah jarak tegak lurus, yaitu 9 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "34 cm²",
+           "is_correct": false,
+           "rationale": "Ketiga ukuran dijumlahkan. Luas segitiga adalah 1/2 × alas × tinggi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah jajargenjang mempunyai alas 12 cm, tinggi 7 cm, dan sisi samping 9 cm. Berapa luasnya?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "108 cm²",
+           "is_correct": false,
+           "rationale": "Sisi miring 9 cm dipakai sebagai tinggi. Tinggi adalah jarak tegak lurus, 7 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "42 cm²",
+           "is_correct": false,
+           "rationale": "Dikali setengah seperti segitiga. Jajargenjang disusun ulang menjadi persegi panjang utuh, tanpa setengah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "38 cm²",
+           "is_correct": false,
+           "rationale": "Ini keliling bila tinggi dianggap sisi, (2 × 12) + (2 × 7). Luas adalah alas × tinggi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "84 cm²",
+           "is_correct": true,
+           "rationale": "Benar. Luas jajargenjang = alas × tinggi = 12 × 7 = 84 cm²."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah segitiga mempunyai alas 12 cm dan tinggi 5 cm. Berapa luasnya?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "60 cm²",
+           "is_correct": false,
+           "rationale": "Setengahnya terlupa: 12 × 5 adalah luas dua segitiga."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "17 cm²",
+           "is_correct": false,
+           "rationale": "Alas dan tinggi dijumlahkan. Luas didapat dengan mengalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "30 cm²",
+           "is_correct": true,
+           "rationale": "Benar. 1/2 × 12 × 5 = 30 cm²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "15 cm²",
+           "is_correct": false,
+           "rationale": "Setengah dipakai dua kali (1/2 × 12 × 1/2 × 5). Cukup satu kali setengah."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah segitiga siku-siku mempunyai alas 8 cm, tinggi 6 cm, dan sisi miring 10 cm. Berapa luasnya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "24 cm²",
+           "is_correct": true,
+           "rationale": "Benar. 1/2 × 8 × 6 = 24 cm². Sisi miring tidak dipakai."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "40 cm²",
+           "is_correct": false,
+           "rationale": "Sisi miring 10 cm dipakai sebagai tinggi. Tingginya 6 cm, tegak lurus dengan alas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "80 cm²",
+           "is_correct": false,
+           "rationale": "Alas dikali sisi miring tanpa setengah. Yang dipakai alas dan tinggi, dengan setengah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "48 cm²",
+           "is_correct": false,
+           "rationale": "Setengahnya terlupa: 8 × 6 adalah luas dua segitiga."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah jajargenjang mempunyai alas 15 cm, tinggi 8 cm, dan sisi samping 10 cm. Berapa luasnya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "150 cm²",
+           "is_correct": false,
+           "rationale": "Sisi miring dipakai sebagai tinggi. Tingginya 8 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "60 cm²",
+           "is_correct": false,
+           "rationale": "Dikali setengah seperti segitiga. Jajargenjang tidak memakai setengah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "50 cm²",
+           "is_correct": false,
+           "rationale": "Ini keliling jajargenjang, (2 × 15) + (2 × 10). Luas adalah alas × tinggi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "120 cm²",
+           "is_correct": true,
+           "rationale": "Benar. 15 × 8 = 120 cm²."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Luas Trapesium, Belah Ketupat, dan Layang-Layang",
+       "summary": "Trapesium dihitung dari kedua sisi sejajar dan tingginya; belah ketupat dan layang-layang dari kedua diagonalnya.",
+       "body_markdown": "## Trapesium\n\nSebuah trapesium mempunyai dua sisi sejajar, 6 cm dan 10 cm, dan tinggi 4 cm.\n\nPotong trapesium itu setengah tingginya, lalu putar bagian atasnya dan tempelkan di samping. Terbentuk jajargenjang dengan alas 6 + 10 = 16 cm dan tinggi 2 cm (setengah tinggi).\n\nLuas = 16 × 2 = **32 cm²**.\n\n**Luas trapesium = 1/2 × (sisi sejajar 1 + sisi sejajar 2) × tinggi**\n\nKedua sisi sejajar **dijumlahkan** dahulu, baru dikali tinggi dan dibagi dua.\n\n## Belah ketupat\n\nBelah ketupat mempunyai dua **diagonal**, yaitu garis yang menghubungkan pojok-pojok yang berhadapan. Keduanya berpotongan tegak lurus.\n\nBelah ketupat dengan diagonal 8 cm dan 6 cm dapat dipotong dan disusun menjadi persegi panjang 8 cm × 3 cm.\n\nLuas = 8 × 3 = **24 cm²**, atau 1/2 × 8 × 6 = 24 cm².\n\n**Luas belah ketupat = 1/2 × diagonal 1 × diagonal 2**\n\n## Layang-layang\n\nDiagonal layang-layang juga berpotongan tegak lurus, jadi luasnya dihitung dengan cara yang sama.\n\nLayang-layang dengan diagonal 10 cm dan 4 cm:\nLuas = 1/2 × 10 × 4 = **20 cm²**.\n\n**Luas layang-layang = 1/2 × diagonal 1 × diagonal 2**\n\nUntuk kedua bangun ini, yang dipakai adalah **diagonal**, bukan sisi.\n\n## Rangkuman rumus\n\n| Bangun | Luas |\n|---|---|\n| Persegi panjang | panjang × lebar |\n| Persegi | sisi × sisi |\n| Jajargenjang | alas × tinggi |\n| Segitiga | 1/2 × alas × tinggi |\n| Trapesium | 1/2 × (jumlah sisi sejajar) × tinggi |\n| Belah ketupat, layang-layang | 1/2 × diagonal 1 × diagonal 2 |\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 5._",
+       "objective": {
+        "statement": "Kalian dapat menghitung luas trapesium, belah ketupat, dan layang-layang.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah trapesium mempunyai sisi sejajar 10 cm dan 6 cm, dengan tinggi 5 cm. Berapa luasnya?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "80 cm²",
+           "is_correct": false,
+           "rationale": "Setengahnya terlupa: (10 + 6) × 5 adalah luas dua trapesium."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "40 cm²",
+           "is_correct": true,
+           "rationale": "Benar. 1/2 × (10 + 6) × 5 = 1/2 × 16 × 5 = 40 cm²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "300 cm²",
+           "is_correct": false,
+           "rationale": "Kedua sisi sejajar dan tingginya dikalikan semuanya. Sisi sejajar dijumlahkan dahulu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "25 cm²",
+           "is_correct": false,
+           "rationale": "Hanya sisi sejajar 10 cm yang dipakai. Kedua sisi sejajar harus dijumlahkan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah layang-layang mempunyai diagonal 16 cm dan 10 cm. Berapa luasnya?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "160 cm²",
+           "is_correct": false,
+           "rationale": "Setengahnya terlupa: 16 × 10 adalah luas persegi panjang di sekeliling layang-layang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "26 cm²",
+           "is_correct": false,
+           "rationale": "Kedua diagonal dijumlahkan. Luas didapat dengan mengalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "80 cm²",
+           "is_correct": true,
+           "rationale": "Benar. 1/2 × 16 × 10 = 80 cm²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "40 cm²",
+           "is_correct": false,
+           "rationale": "Setengah dipakai dua kali (1/2 × 16 × 1/2 × 10). Cukup satu kali setengah."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 22
+         },
+         "ref": "LT9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah trapesium mempunyai sisi sejajar 7 cm dan 13 cm, dengan tinggi 6 cm. Berapa luasnya?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 82
+           },
+           "label": "A",
+           "body": "60 cm²",
+           "is_correct": true,
+           "rationale": "Benar. 1/2 × (7 + 13) × 6 = 1/2 × 20 × 6 = 60 cm²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 83
+           },
+           "label": "B",
+           "body": "120 cm²",
+           "is_correct": false,
+           "rationale": "Setengahnya terlupa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 84
+           },
+           "label": "C",
+           "body": "546 cm²",
+           "is_correct": false,
+           "rationale": "Semua ukuran dikalikan. Kedua sisi sejajar dijumlahkan dahulu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 85
+           },
+           "label": "D",
+           "body": "39 cm²",
+           "is_correct": false,
+           "rationale": "Hanya sisi sejajar 13 cm yang dipakai. Kedua sisi sejajar dijumlahkan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 23
+         },
+         "ref": "LT10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah belah ketupat mempunyai diagonal 12 cm dan 9 cm. Berapa luasnya?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 86
+           },
+           "label": "A",
+           "body": "108 cm²",
+           "is_correct": false,
+           "rationale": "Setengahnya terlupa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 87
+           },
+           "label": "B",
+           "body": "21 cm²",
+           "is_correct": false,
+           "rationale": "Kedua diagonal dijumlahkan. Luas didapat dengan mengalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 88
+           },
+           "label": "C",
+           "body": "54 cm²",
+           "is_correct": true,
+           "rationale": "Benar. 1/2 × 12 × 9 = 54 cm²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 89
+           },
+           "label": "D",
+           "body": "27 cm²",
+           "is_correct": false,
+           "rationale": "Setengah dipakai dua kali. Cukup satu kali."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "LT11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Nia membuat layang-layang dengan bilah bambu sepanjang 20 dm dan 14 dm sebagai diagonalnya. Berapa luas kertas yang menutupinya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "280 dm²",
+           "is_correct": false,
+           "rationale": "Setengahnya terlupa: 20 × 14 adalah luas persegi panjang di sekeliling layang-layang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "140 dm²",
+           "is_correct": true,
+           "rationale": "Benar. 1/2 × 20 × 14 = 140 dm²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "34 dm²",
+           "is_correct": false,
+           "rationale": "Kedua bilah dijumlahkan. Luas didapat dengan mengalikan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "70 dm²",
+           "is_correct": false,
+           "rationale": "Setengah dipakai dua kali. Cukup satu kali."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 25
+         },
+         "ref": "LT12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sawah Pak Budi berbentuk trapesium. Sisi sejajarnya 40 m dan 60 m, dan jarak antara kedua sisi itu 25 m. Berapa luas sawahnya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 94
+           },
+           "label": "A",
+           "body": "2.500 m²",
+           "is_correct": false,
+           "rationale": "Setengahnya terlupa."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 95
+           },
+           "label": "B",
+           "body": "60.000 m²",
+           "is_correct": false,
+           "rationale": "Semua ukuran dikalikan. Kedua sisi sejajar dijumlahkan dahulu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 96
+           },
+           "label": "C",
+           "body": "750 m²",
+           "is_correct": false,
+           "rationale": "Hanya sisi 60 m yang dipakai. Kedua sisi sejajar dijumlahkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 97
+           },
+           "label": "D",
+           "body": "1.250 m²",
+           "is_correct": true,
+           "rationale": "Benar. 1/2 × (40 + 60) × 25 = 1/2 × 100 × 25 = 1.250 m²."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "Luas Bangun Gabungan",
+       "summary": "Luas bangun gabungan dihitung dengan membaginya menjadi bangun-bangun yang dikenal, atau dengan mengurangkan bagian yang tidak termasuk.",
+       "body_markdown": "## Membagi menjadi bangun yang dikenal\n\nSebuah denah berbentuk huruf L. Mulai dari pojok kiri atas, tepinya:\nke kanan 8 m, ke bawah 3 m, ke kiri 5 m, ke bawah 4 m, ke kiri 3 m, lalu naik 7 m kembali ke titik awal.\n\nBagi denah itu dengan garis mendatar:\n\n1. Bagian atas: persegi panjang 8 m × 3 m = 24 m².\n2. Bagian bawah: persegi panjang 3 m × 4 m = 12 m².\n3. Luas = 24 + 12 = **36 m²**.\n\nSetiap bagian hanya dihitung **sekali**. Bagian bawah lebarnya 3 m, bukan 8 m.\n\n## Cara lain: mengurangkan\n\nDenah L tadi dapat dilihat sebagai persegi panjang besar 8 m × 7 m yang pojok kanan bawahnya (5 m × 4 m) tidak termasuk.\n\nLuas = (8 × 7) − (5 × 4) = 56 − 20 = **36 m²**. Hasilnya sama.\n\nPilih cara yang paling mudah, lalu periksa dengan cara yang lain.\n\n## Jalan di sekeliling kolam\n\nSebuah kolam berukuran 8 m × 4 m dikelilingi jalan selebar 1 m. Berapa luas jalannya?\n\n1. Jalan ada di **semua** sisi. Panjang daerah luar = 1 + 8 + 1 = 10 m, lebarnya = 1 + 4 + 1 = 6 m.\n2. Luas daerah luar = 10 × 6 = 60 m².\n3. Luas jalan = daerah luar − kolam = 60 − 32 = **28 m²**.\n\nLebar jalan ditambahkan **dua kali** pada setiap ukuran, karena jalannya ada di kiri dan kanan, juga di atas dan bawah.\n\n## Segitiga di atas persegi\n\nGambar sebuah rumah terdiri atas persegi 6 cm × 6 cm dan atap segitiga dengan alas 6 cm dan tinggi 4 cm.\n\nLuas = (6 × 6) + (1/2 × 6 × 4) = 36 + 12 = **48 cm²**.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 5._",
+       "objective": {
+        "statement": "Kalian dapat menguraikan bangun gabungan dan menghitung luasnya dengan menjumlahkan atau mengurangkan luas bangun penyusunnya.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah ruangan berbentuk huruf L. Mulai dari pojok kiri atas, tepinya: ke kanan 9 m, ke bawah 3 m, ke kiri 5 m, ke bawah 4 m, ke kiri 4 m, lalu naik 7 m kembali ke titik awal. Berapa luas lantai ruangan itu?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "32 m²",
+           "is_correct": false,
+           "rationale": "Ini keliling ruangan (jumlah semua langkah). Luas menghitung daerah di dalamnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "63 m²",
+           "is_correct": false,
+           "rationale": "Ini luas persegi panjang 9 m × 7 m di sekelilingnya. Pojok kanan bawah 5 m × 4 m tidak termasuk ruangan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "55 m²",
+           "is_correct": false,
+           "rationale": "Bagian kiri dihitung setinggi 7 m (4 × 7) padahal 3 m teratasnya sudah termasuk bagian atas; bagian itu terhitung dua kali."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "43 m²",
+           "is_correct": true,
+           "rationale": "Benar. Bagian atas 9 × 3 = 27 m², bagian bawah 4 × 4 = 16 m², jadi 27 + 16 = 43 m²."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah kolam berukuran 10 m × 4 m dikelilingi jalan selebar 1 m di semua sisinya. Berapa luas jalan itu?",
+         "petunjuk": "Hitung dahulu ukuran daerah luar, termasuk jalan di kedua sisi.",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "32 m²",
+           "is_correct": true,
+           "rationale": "Benar. Daerah luar (1 + 10 + 1) × (1 + 4 + 1) = 12 × 6 = 72 m², dikurangi kolam 40 m² = 32 m²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "15 m²",
+           "is_correct": false,
+           "rationale": "Lebar jalan hanya ditambahkan sekali (11 × 5). Jalan ada di kedua sisi, jadi setiap ukuran bertambah 2 m."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "72 m²",
+           "is_correct": false,
+           "rationale": "Ini luas daerah luar seluruhnya. Kolamnya bukan jalan dan harus dikurangkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "28 m²",
+           "is_correct": false,
+           "rationale": "Keliling kolam dikali lebar jalan (28 × 1). Keempat pojok jalan (masing-masing 1 m²) terlewat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 26
+         },
+         "ref": "LT13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dinding depan sebuah rumah terdiri atas persegi panjang 10 m × 8 m dan di atasnya segitiga dengan alas 10 m dan tinggi 6 m. Berapa luas dinding itu?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 98
+           },
+           "label": "A",
+           "body": "110 m²",
+           "is_correct": true,
+           "rationale": "Benar. 10 × 8 = 80 m² ditambah 1/2 × 10 × 6 = 30 m², jadi 110 m²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 99
+           },
+           "label": "B",
+           "body": "140 m²",
+           "is_correct": false,
+           "rationale": "Setengah pada segitiga terlupa: 10 × 6 = 60, padahal segitiga luasnya 30 m²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 100
+           },
+           "label": "C",
+           "body": "80 m²",
+           "is_correct": false,
+           "rationale": "Hanya persegi panjangnya yang dihitung; segitiga di atasnya terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 101
+           },
+           "label": "D",
+           "body": "30 m²",
+           "is_correct": false,
+           "rationale": "Hanya segitiganya yang dihitung; persegi panjang di bawahnya terlewat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 27
+         },
+         "ref": "LT14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah taman berukuran 20 m × 15 m. Di tengahnya ada kolam 6 m × 4 m. Bagian taman selain kolam ditanami rumput. Berapa luas rumputnya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 102
+           },
+           "label": "A",
+           "body": "324 m²",
+           "is_correct": false,
+           "rationale": "Luas kolam ditambahkan. Kolam tidak ditanami rumput, jadi dikurangkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 103
+           },
+           "label": "B",
+           "body": "300 m²",
+           "is_correct": false,
+           "rationale": "Kolamnya tidak dikurangkan. Rumput hanya ditanam di luar kolam."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 104
+           },
+           "label": "C",
+           "body": "276 m²",
+           "is_correct": true,
+           "rationale": "Benar. 20 × 15 = 300 m², dikurangi kolam 6 × 4 = 24 m², jadi 276 m²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 105
+           },
+           "label": "D",
+           "body": "24 m²",
+           "is_correct": false,
+           "rationale": "Itu luas kolamnya. Yang ditanyakan luas rumput."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 28
+         },
+         "ref": "LT15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah papan berbentuk huruf U. Mulai dari pojok kiri atas, tepinya: ke kanan 3 cm, ke bawah 4 cm, ke kanan 2 cm, ke atas 4 cm, ke kanan 3 cm, ke bawah 6 cm, ke kiri 8 cm, lalu naik 6 cm. Berapa luas papan itu?",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 106
+           },
+           "label": "A",
+           "body": "48 cm²",
+           "is_correct": false,
+           "rationale": "Lekukan 2 cm × 4 cm di tengah atas tidak dikurangkan. Lekukan itu bukan bagian papan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 107
+           },
+           "label": "B",
+           "body": "36 cm²",
+           "is_correct": false,
+           "rationale": "Ini keliling papan (jumlah semua langkah). Luas menghitung daerah di dalamnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 108
+           },
+           "label": "C",
+           "body": "32 cm²",
+           "is_correct": false,
+           "rationale": "Lekukan dikurangkan dua kali (48 − 16). Lekukannya hanya satu, 2 × 4 = 8 cm²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 109
+           },
+           "label": "D",
+           "body": "40 cm²",
+           "is_correct": true,
+           "rationale": "Benar. Persegi panjang 8 × 6 = 48 cm², dikurangi lekukan 2 × 4 = 8 cm², jadi 40 cm²."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "Hubungan Keliling dan Luas",
+       "summary": "Bangun-bangun dengan keliling yang sama dapat mempunyai luas yang berbeda, dan sebaliknya.",
+       "body_markdown": "## Kawat 24 cm\n\nBapak mempunyai kawat 24 cm untuk membuat kerangka persegi panjang. Panjang + lebar harus 24 : 2 = 12 cm. Beberapa kemungkinannya:\n\n| Panjang | Lebar | Keliling | Luas |\n|---|---|---|---|\n| 11 cm | 1 cm | 24 cm | 11 cm² |\n| 10 cm | 2 cm | 24 cm | 20 cm² |\n| 8 cm | 4 cm | 24 cm | 32 cm² |\n| 7 cm | 5 cm | 24 cm | 35 cm² |\n| 6 cm | 6 cm | 24 cm | 36 cm² |\n\nKelilingnya **sama**, tetapi luasnya **berbeda**.\n\n## Mana yang paling luas?\n\nDari tabel tadi, luas terbesar adalah 6 cm × 6 cm = **36 cm²**. Makin mendekati persegi, makin besar luasnya. Makin panjang dan kurus, makin kecil luasnya.\n\nPersegi juga termasuk persegi panjang: panjang dan lebarnya kebetulan sama. Jadi 6 cm × 6 cm boleh dipilih.\n\n## Luas sama, keliling berbeda\n\nTiga persegi panjang mempunyai luas yang sama, 12 cm²:\n\n- 3 cm × 4 cm, kelilingnya 14 cm\n- 2 cm × 6 cm, kelilingnya 16 cm\n- 1 cm × 12 cm, kelilingnya 26 cm\n\nLuasnya **sama**, tetapi kelilingnya **berbeda**. Jadi dari luas saja kita tidak dapat mengetahui kelilingnya, dan sebaliknya.\n\n## Rangkuman Bab 5\n\n- **Luas** adalah banyaknya persegi satuan yang menutupi daerah; satuannya cm² atau m².\n- Persegi panjang: panjang × lebar. Persegi: sisi × sisi.\n- Jajargenjang: alas × tinggi. Segitiga: 1/2 × alas × tinggi. Tinggi selalu diukur tegak lurus; sisi samping jajargenjang dan sisi miring segitiga bukan tinggi.\n- Trapesium: 1/2 × (jumlah sisi sejajar) × tinggi. Belah ketupat dan layang-layang: 1/2 × diagonal 1 × diagonal 2.\n- Bangun gabungan: bagi menjadi bangun yang dikenal, atau kurangkan bagian yang tidak termasuk.\n- Keliling yang sama tidak berarti luas yang sama.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 5._",
+       "objective": {
+        "statement": "Kalian dapat membandingkan keliling dan luas persegi panjang dan menentukan ukuran dengan luas terbesar bila kelilingnya diketahui.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pak Tani mempunyai tali 36 m untuk membatasi kebun berbentuk persegi panjang. Berapa luas kebun terbesar yang dapat ia buat, bila panjang dan lebarnya bilangan cacah meter?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "80 m²",
+           "is_correct": false,
+           "rationale": "10 m × 8 m dipilih karena persegi dianggap bukan persegi panjang. 9 m × 9 m boleh dan lebih luas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "81 m²",
+           "is_correct": true,
+           "rationale": "Benar. Panjang + lebar = 18 m. Yang paling luas 9 m × 9 m = 81 m²; persegi juga persegi panjang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "324 m²",
+           "is_correct": false,
+           "rationale": "Setengah keliling (18 m) dipakai sebagai sisi. 18 m adalah panjang dan lebar bersama."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "17 m²",
+           "is_correct": false,
+           "rationale": "Ini luas yang paling kecil (17 m × 1 m). Keliling yang sama tidak berarti luas yang sama."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "LT16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Persegi panjang P berukuran 8 cm × 4 cm dan persegi Q bersisi 6 cm. Keliling keduanya 24 cm. Pernyataan manakah yang tepat?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "Luasnya sama karena kelilingnya sama",
+           "is_correct": false,
+           "rationale": "Keliling yang sama tidak berarti luas yang sama: 36 cm² dan 32 cm²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "Q lebih luas: 36 cm² dibanding 32 cm²",
+           "is_correct": true,
+           "rationale": "Benar. Keliling sama, tetapi luas Q = 36 cm² dan luas P = 32 cm²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "P lebih luas karena lebih panjang",
+           "is_correct": false,
+           "rationale": "P memang lebih panjang, tetapi juga lebih kurus. Luasnya 32 cm², lebih kecil dari 36 cm²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "Tidak dapat dibandingkan karena Q persegi",
+           "is_correct": false,
+           "rationale": "Persegi juga persegi panjang, dan luas keduanya dapat dihitung lalu dibandingkan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 30
+         },
+         "ref": "LT17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tiga persegi panjang mempunyai luas yang sama, 36 cm²: 3 cm × 12 cm, 4 cm × 9 cm, dan 6 cm × 6 cm. Manakah yang kelilingnya paling panjang?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 114
+           },
+           "label": "A",
+           "body": "3 cm × 12 cm",
+           "is_correct": true,
+           "rationale": "Benar. Kelilingnya 30 cm, lebih panjang dari 26 cm (4 × 9) dan 24 cm (6 × 6)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 115
+           },
+           "label": "B",
+           "body": "6 cm × 6 cm",
+           "is_correct": false,
+           "rationale": "Persegi justru kelilingnya paling pendek di antara ketiganya, 24 cm. Persegi tidak selalu paling besar dalam segala hal."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 116
+           },
+           "label": "C",
+           "body": "Kelilingnya sama karena luasnya sama",
+           "is_correct": false,
+           "rationale": "Luas yang sama tidak berarti keliling yang sama: 30 cm, 26 cm, dan 24 cm."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 117
+           },
+           "label": "D",
+           "body": "4 cm × 9 cm",
+           "is_correct": false,
+           "rationale": "Kelilingnya 26 cm, masih lebih pendek dari 3 cm × 12 cm yang 30 cm. Makin kurus, makin panjang kelilingnya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 31
+         },
+         "ref": "LT18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kawat sepanjang 32 cm dibentuk menjadi persegi panjang dengan ukuran bilangan cacah sentimeter. Berapa luas terbesar yang dapat dibuat?",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 118
+           },
+           "label": "A",
+           "body": "63 cm²",
+           "is_correct": false,
+           "rationale": "9 cm × 7 cm dipilih karena persegi dianggap bukan persegi panjang. 8 cm × 8 cm boleh dan lebih luas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 119
+           },
+           "label": "B",
+           "body": "256 cm²",
+           "is_correct": false,
+           "rationale": "Setengah keliling (16 cm) dipakai sebagai sisi. 16 cm adalah panjang dan lebar bersama."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 120
+           },
+           "label": "C",
+           "body": "64 cm²",
+           "is_correct": true,
+           "rationale": "Benar. Panjang + lebar = 16 cm; yang paling luas 8 cm × 8 cm = 64 cm²."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 121
+           },
+           "label": "D",
+           "body": "15 cm²",
+           "is_correct": false,
+           "rationale": "Ini luas yang paling kecil (15 cm × 1 cm)."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

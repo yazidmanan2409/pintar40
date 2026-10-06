@@ -1,12 +1,18 @@
 import Link from "next/link";
-import { t, type HleEvent } from "@/lib/hle";
+import TandaTautan from "@/components/TandaTautan";
+import { t, format, type HleEvent } from "@/lib/hle";
+import { kalimatHasil, rujukan } from "@/lib/galat-kontrak";
+import { nilaiSkema } from "@/lib/kesehatan-skema";
+import KartuKesehatan, { type KeadaanKesehatan } from "@/components/konfigurasi/KartuKesehatan";
 import { currentViewer } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
-  grantRoleAction, revokeRoleAction, rolloverAction, saveReportTemplateAction, setFlagAction,
-  setPlatformConfigAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction,
-  transferRequestAction,
+  daftarkanPesertaAction, grantRoleAction, hentikanSekarangAction, jadwalkanPemeliharaanAction, pindahKelasAction,
+  revokeRoleAction, rolloverAction, saveReportTemplateAction, tarikPengumumanAction, terbitkanPengumumanAction,
+  tetapkanBatasAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction, transferRequestAction,
+  ubahPemeliharaanAction,
 } from "./actions";
+import { pelajaranDanBatas } from "@/lib/batas-ketuntasan";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
 import SesiSaya from "@/components/SesiSaya";
@@ -15,7 +21,18 @@ import { peranSaya } from "@/lib/tur-negara";
 import { bacaStruktur } from "@/lib/struktur";
 import { tahunAjaranPada } from "@/lib/struktur-kontrak";
 import PanelStruktur from "@/components/struktur/PanelStruktur";
+import TombolKirim from "@/components/TombolKirim";
+import BarisHasil from "@/components/BarisHasil";
+import { sekolahPendataan } from "@/lib/pendataan";
 import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
+import { asalPindah, muridDiKelas, namaKelas, tujuanPindah } from "@/lib/pindah-kelas";
+import { jumlahAdminSekolah, persiapanSekolah, type PeranTerbaca } from "@/lib/persiapan-sekolah";
+import { lingkupPeran } from "@/lib/lingkup-peran";
+import { alamatCatatan, formulirPeserta, tempatCatatan } from "@/lib/pengembangan";
+import TautanLapor from "@/components/lapor/TautanLapor";
+import { kunciKodeLaporan, kunciStatusLaporan, langkahBerikut, laporanTriase, type KodeLaporan } from "@/lib/lapor-masalah";
+import { pindahkanLaporanAksi } from "@/app/lapor/actions";
+import { daftarKelola, KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan";
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -26,8 +43,14 @@ import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
  *
  * Phase-1 surfaces wired here call only RPCs and tables that already exist:
  * period rollover, transfer request/authorize/execute/reject (policy hooks
- * only — OD-9), role grant/revoke, audit reader, feature flags and the two
- * platform switches. Every read is the signed-in user's own RLS view.
+ * only — OD-9), role grant/revoke and the audit reader. Every read is the
+ * signed-in user's own RLS view.
+ *
+ * D-093 O3 (owner ruling, 3 Oct): no control here claims an operational change
+ * PINTAR does not enforce. «Mode pemeliharaan», «Kunci pendaftaran» and the
+ * feature-flag form were saved and audited but read by nothing, so they are
+ * gone from this page. Their tables stay; #148 builds the real maintenance
+ * control when its behaviour exists.
  */
 
 const s = (event: HleEvent) => t(event, "staff");
@@ -53,7 +76,13 @@ type MetricDefinition = {
   deprecated: boolean;
 };
 
-type SearchParams = Promise<{ bagian?: string; hasil?: string; detail?: string; sekolah?: string }>;
+type SearchParams = Promise<{
+  bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; sekolah?: string; periksa?: string; dari?: string; lapor?: string;
+  // #148: the first step of scheduling, asked by a plain GET so the second step can show what the window would meet
+  pm_cek?: string; pm_platform?: string; pm_sekolah?: string | string[]; pm_mulai?: string; pm_selesai?: string;
+  // D-101 (2): «Admin sekolah» named on Peran & akses, waiting for its second press
+  angkat?: string; lingkup?: string; sampai?: string;
+}>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
   // One parallel read of the viewer and their roles (DAISY-02/03).
@@ -83,21 +112,64 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     );
   }
 
+  // A school administrator's enrolments and audit trail are their own schools'. The policies return exactly those
+  // rows (has_scope('INSTITUTION_ADMIN', ...) holds only for a school the viewer administers), but asked without the
+  // schools named the database checks the policy on every row of every school, and the cost grows with the whole
+  // platform's history. Named, it reads the (institution_id, ...) indexes. Measured as gs-001's administrator on
+  // staging (whole-system efficiency audit, 2 Oct): the audit trail 1,979 ms -> 15 ms, the enrolments 490 -> 6 ms,
+  // the same rows. The platform administrator's reads are unchanged.
+  // BOB-45: member_kind (a computed field) says whether an enrolment is a learner's or a professional-learning
+  // participant's; the transfer picker lists learners' only
+  const enrolmen = supabase.from("enrollments").select("id, person_id, institution_id, academic_period_id, status, member_kind").eq("status", "ACTIVE");
+  const jejak = supabase.from("audit_log").select("id, at, action, target_table, target_id, institution_id, build_sha");
+
   const [
     { data: institutions }, { data: periods }, { data: nodes }, { data: enrollments }, { data: transfers },
-    { data: assignments }, { data: audit }, { data: flags }, { data: platformConfig }, { data: lint }, { data: env },
+    { data: assignments }, { data: audit }, { data: lint, error: lintError }, { data: env },
+    { data: awaiting }, [{ data: reportTemplates }, { data: templateMetrics }, { data: metricDefs }],
   ] = await Promise.all([
     supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
     supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").order("starts_on"),
-    supabase.from("org_nodes").select("id, institution_id, kind, name, academic_period_id, is_active").order("name"),
-    supabase.from("enrollments").select("id, person_id, institution_id, academic_period_id, status").eq("status", "ACTIVE").order("created_at"),
+    supabase.from("org_nodes").select("id, institution_id, kind, name, academic_period_id, is_active, jalur").order("name"),
+    (isSys === true ? enrolmen : enrolmen.in("institution_id", adminInstitutionIds)).order("created_at"),
     supabase.from("transfers").select("id, person_id, from_institution_id, to_institution_id, status, reason, created_at").order("created_at", { ascending: false }).limit(50),
     supabase.from("role_assignments").select("id, person_id, role, scope_node_id, institution_id, valid_until, revoked_at").is("revoked_at", null).order("created_at", { ascending: false }),
-    supabase.from("audit_log").select("id, at, action, target_table, target_id, institution_id, build_sha").order("at", { ascending: false }).limit(50),
-    supabase.from("feature_flags").select("key, institution_id, enabled, note").order("key"),
-    supabase.from("platform_config").select("key, value"),
-    isSys ? supabase.rpc("platform_schema_lint") : Promise.resolve({ data: null }),
+    (isSys === true ? jejak : jejak.in("institution_id", adminInstitutionIds)).order("at", { ascending: false }).limit(50),
+    // BOB-18 (D-046): the schema lint runs when an operator asks for it, never
+    // on an ordinary load -- it reads the whole catalogue, and every sign-in of
+    // the platform admin lands here.
+    isSys && sp.periksa === "skema" ? supabase.rpc("platform_schema_lint") : Promise.resolve({ data: null, error: null }),
     isSys ? supabase.from("platform_environment").select("environment").maybeSingle() : Promise.resolve({ data: null }),
+    // FINAL DELTA 2. The people the three sources above cannot reach: no active
+    // role, no enrolment, no transfer. The platform administrator asks the
+    // platform's list, which refuses everyone else (the school administrator's
+    // asking was 338 refusals in U-PERF's 30-session run on staging).
+    // BOB-20 (D-048): a school administrator asks each school they administer
+    // for its own list -- the people it has recorded who hold nothing there
+    // yet, such as a newly recorded teacher. The database decides again who
+    // may ask; a school it refuses simply adds nobody.
+    isSys === true
+      ? supabase.rpc("persons_awaiting_first_role")
+      : Promise.all(adminInstitutionIds.map((sekolah) => supabase.rpc("persons_awaiting_first_role_at", { p_institution: sekolah })))
+          .then((jawaban) => ({ data: jawaban.flatMap((j) => (j.data ?? []) as Array<{ person_id: string; display_name: string }>) })),
+    // W8-02. The institution's own templates, and the catalogue they may select
+    // from. Both are ordinary reads under this viewer's own RLS: the template
+    // rows are their school's, and the catalogue is PINTAR's, readable by anyone
+    // signed in and writable by nobody through this surface.
+    // BOB-18 (e): read beside everything above rather than after it, so the
+    // page a save returns to costs one round trip here instead of three.
+    Promise.all([
+      supabase.from("report_templates").select("id, institution_id, template_version, standard_report, title_key").order("title_key"),
+      supabase.from("report_template_metrics").select("template_id, metric_id, ordinal, visualization").order("ordinal"),
+      (async (): Promise<{ data: MetricDefinition[] }> => {
+        const liveCatalogue = (await supabase.rpc("current_metric_catalogue")).data as string | null;
+        if (!liveCatalogue) return { data: [] };
+        const { data } = await supabase.from("metric_definitions")
+          .select("metric_id, label_key, scope, allowed_visualizations, deprecated")
+          .eq("catalogue_version", liveCatalogue).eq("deprecated", false).order("metric_id");
+        return { data: (data ?? []) as MetricDefinition[] };
+      })(),
+    ]),
   ]);
 
   // DAISY-05. The school whose structure is shown: an active, real school the
@@ -108,28 +180,13 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const sekolahKu = sekolahDitawarkan(institutions ?? [], (id) => isSys === true || adminInstitutionIds.includes(id));
   const sekolahStruktur = sekolahDipilih(sekolahKu, sp.sekolah);
   const bacaanStruktur = sekolahStruktur ? bacaStruktur(sekolahStruktur.id) : Promise.resolve(null);
+  // DAISY-07 (B6b): the school's own root node, for its school summary
+  const bacaanAkar = sekolahStruktur
+    ? supabase.from("org_nodes").select("id").eq("institution_id", sekolahStruktur.id).eq("kind", "INSTITUTION").limit(1).maybeSingle()
+    : Promise.resolve({ data: null });
 
-  // FINAL DELTA 2. The people the three sources above cannot reach: no active
-  // role, no enrolment, no transfer. The database decides who may ask and who
-  // may be seen -- a non-SYSTEM_ADMIN is refused by the endpoint and gets an
-  // error rather than rows, which is why nothing here checks a role first.
-  const { data: awaiting } = await supabase.rpc("persons_awaiting_first_role");
-  const awaitingPersons = (awaiting ?? []) as Array<{ person_id: string; display_name: string }>;
-
-  // W8-02. The institution's own templates, and the catalogue they may select
-  // from. Both are ordinary reads under this viewer's own RLS: the template
-  // rows are their school's, and the catalogue is PINTAR's, readable by anyone
-  // signed in and writable by nobody through this surface.
-  const liveCatalogue = (await supabase.rpc("current_metric_catalogue")).data as string | null;
-  const [{ data: reportTemplates }, { data: templateMetrics }, { data: metricDefs }] = await Promise.all([
-    supabase.from("report_templates").select("id, institution_id, template_version, standard_report, title_key").order("title_key"),
-    supabase.from("report_template_metrics").select("template_id, metric_id, ordinal, visualization").order("ordinal"),
-    liveCatalogue
-      ? supabase.from("metric_definitions")
-          .select("metric_id, label_key, scope, allowed_visualizations, deprecated")
-          .eq("catalogue_version", liveCatalogue).eq("deprecated", false).order("metric_id")
-      : Promise.resolve({ data: [] as MetricDefinition[] }),
-  ]);
+  const awaitingPersons = Array.from(new Map(((awaiting ?? []) as Array<{ person_id: string; display_name: string }>)
+    .map((p) => [p.person_id, p])).values());
 
   // Names for the people this viewer may see (RLS decides who that is).
   const personIds = Array.from(new Set([
@@ -142,12 +199,28 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const institutionName = new Map((institutions ?? []).map((i) => [i.id, i.name]));
   const periodName = new Map((periods ?? []).map((p) => [p.id, p.name]));
   const nodeName = new Map((nodes ?? []).map((n) => [n.id, `${n.name}`]));
+  // D-101 (2): a School Admin's «Admin sekolah» comes back here once, to be confirmed by a second press; the
+  // database decides again on that press (role_assignments_guard: at the school itself, a person the school has)
+  const uuidSah = (v: string | undefined) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v ?? "");
+  const angkat = uuidSah(sp.angkat) && uuidSah(sp.lingkup) && /^\d{4}-\d{2}-\d{2}$/.test(sp.sampai ?? "")
+    ? {
+        person: sp.angkat!, scope: sp.lingkup!, sampai: sp.sampai!,
+        nama: personName.get(sp.angkat!) ?? awaitingPersons.find((p) => p.person_id === sp.angkat)?.display_name ?? short(sp.angkat),
+        tempat: nodeName.get(sp.lingkup!) ?? institutionName.get(sp.lingkup!) ?? short(sp.lingkup),
+      }
+    : null;
 
   const activeClassCount = (nodes ?? []).filter((n) => n.kind === "CLASS" && n.is_active).length;
-  const lintOk = lint
-    ? Object.entries(lint as Record<string, unknown>).every(([k, v]) => k === "environment" || k === "migrations_applied" || v === 0)
-    : null;
-  const configValue = (key: string) => (platformConfig ?? []).find((r) => r.key === key)?.value === true;
+  // BOB-19: the card judges each check by the one rule F01-T13 uses
+  // (src/lib/kesehatan-skema), never "anything but 0 is a problem"
+  let kesehatan: KeadaanKesehatan;
+  if (isSys !== true) kesehatan = { jenis: "bukan_admin" };
+  else if (sp.periksa !== "skema") kesehatan = { jenis: "belum" };
+  else if (lintError || !lint || typeof lint !== "object") {
+    const ref = rujukan();
+    console.error(`[konfigurasi ${ref}] platform_schema_lint failed`, lintError?.code, lintError?.message);
+    kesehatan = { jenis: "gagal", rujukan: ref };
+  } else kesehatan = { jenis: "diperiksa", hasil: nilaiSkema(lint as Record<string, unknown>) };
   const myInstitutions = (institutions ?? []).filter((i) => isSys || adminInstitutionIds.includes(i.id));
   const myInstitutionIds = myInstitutions.map((i) => i.id);
   const myTemplates = (reportTemplates ?? []).filter((t) => myInstitutionIds.includes(t.institution_id));
@@ -159,22 +232,72 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   }
   const rollNodes = (nodes ?? []).filter((n) => (n.kind === "COHORT" || n.kind === "CLASS") && n.academic_period_id);
 
+  // DAISY-18: the result sits under the form it answers, in the shared line.
   const result = (section: string) =>
     sp.bagian === section && sp.hasil ? (
-      <p className={`mt-3 inline-block rounded px-2 py-0.5 text-sm ${sp.hasil === "ok" ? "bg-ok-soft text-ok" : "bg-blocked-soft text-blocked"}`}>
-        {sp.hasil === "ok" ? s("config.result.ok") : s("config.result.failed")}{sp.detail ? ` ${sp.detail}` : ""}
-      </p>
+      <BarisHasil nada={sp.hasil === "ok" ? "ok" : "gagal"}>
+        {kalimatHasil(sp, s, { ok: "config.result.ok", gagal: "config.result.failed" })}
+      </BarisHasil>
     ) : null;
 
-  const [struktur, locale] = await Promise.all([bacaanStruktur, currentLocale()]);
+  // DAISY-17: "Menambahkan orang" is offered only to a reader /pendataan
+  // admits -- the same predicate it asks on arrival. A platform administrator
+  // holds no school's CAN_PROVISION_PEOPLE and was sent to a refusal.
+  // D-088(b): the lessons the school can give, each with its pass mark (or none) and its history
+  // BOB-44 / DAISY-32: the enrol form's places and people, and (DAISY-34) the records this administrator may open
+  // BOB-15 (D-037 tier 1 and 2): the problem reports of the schools this reader administers, or every one for Admin
+  // platform; row security decides the set
+  // #148: the maintenance windows and notices this reader may act on; and, at the first step of scheduling, the
+  // assessments the proposed window would meet (D-094(g)), asked of the database for exactly that scope and time
+  const pmSekolah = (Array.isArray(sp.pm_sekolah) ? sp.pm_sekolah : sp.pm_sekolah ? [sp.pm_sekolah] : [])
+    .filter((x) => /^[0-9a-f-]{36}$/i.test(x));
+  const pmPlatform = isSys === true && sp.pm_platform === "1";
+  const pmMulai = sp.pm_mulai ? waktuWib(sp.pm_mulai) : null;
+  const pmSelesai = waktuWib(sp.pm_selesai);
+  const pmCek = sp.pm_cek === "1" && (pmPlatform || pmSekolah.length > 0) && (!sp.pm_mulai || pmMulai !== null);
+  const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan, peserta, catatanPd, laporan, kelola, { data: tabrakan }] = await Promise.all([
+    bacaanStruktur, currentLocale(), bacaanAkar, sekolahPendataan().then((x) => x.length > 0).catch(() => false),
+    sekolahStruktur ? pelajaranDanBatas(supabase, sekolahStruktur.id) : Promise.resolve(null),
+    sekolahStruktur ? formulirPeserta(sekolahStruktur.id) : Promise.resolve(null),
+    tempatCatatan(),
+    laporanTriase(isSys === true ? null : adminInstitutionIds),
+    daftarKelola(),
+    pmCek
+      ? supabase.rpc("maintenance_collisions", { p_platform: pmPlatform, p_institutions: pmPlatform ? [] : pmSekolah, p_starts_at: pmMulai, p_ends_at: pmSelesai })
+      : Promise.resolve({ data: null }),
+  ]);
+  const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
+  // M9: the Kelas whose students «Pindah kelas» lists, if one was chosen, and
+  // where they may go; J3.6: or a Tingkat whose learners are not yet in a Kelas.
+  // Read only when asked: a plain visit costs nothing.
+  const asal = asalPindah(struktur?.ok ? struktur.rows : []);
+  const kelasDari = [...asal.kelas, ...asal.tingkat].find((k) => k.node_id === sp.dari) ?? null;
+  const tujuan = kelasDari && struktur?.ok ? tujuanPindah(struktur.rows, kelasDari.node_id) : [];
+  const muridDari = kelasDari ? await muridDiKelas(supabase, kelasDari.node_id) : [];
   const sl = (event: HleEvent) => t(event, "staff", { locale });
+  // J3.2 (ADM-02): what setup remains at the school shown, from what this page already read
+  const persiapan = struktur?.ok
+    ? persiapanSekolah(struktur.rows, (assignments ?? []) as PeranTerbaca[],
+        new Map((nodes ?? []).map((n) => [n.id as string, ((n as { jalur?: string[] }).jalur ?? []) as string[]])), new Date().valueOf())
+    : null;
+  // D-101(e): one School Admin is never an error; a second is recommended quietly, as recovery cover
+  const satuAdmin = sekolahStruktur
+    ? jumlahAdminSekolah((assignments ?? []) as Array<PeranTerbaca & { institution_id: string | null; person_id: string }>,
+        sekolahStruktur.id, new Date().valueOf()) === 1
+    : false;
 
   const nav: Array<[string, string]> = [
     ["struktur", s("config.section.struktur")],
+    ["ketuntasan", s("config.section.ketuntasan")],
+    ["pindah", s("config.section.pindah")],
+    ["peserta", s("config.section.peserta")],
+    ["laporan-masalah", s("config.section.laporan_masalah")],
+    ["pemeliharaan", s("config.section.pemeliharaan")],
+    ["laporan", s("config.laporan.judul")],
     ["system", s("config.section.system")], ["rollover", s("config.section.rollover")], ["transfers", s("config.section.transfers")],
-    ["roles", s("config.section.roles")], ["audit", s("config.section.audit")], ["flags", s("config.section.flags")],
-    ["content", s("config.section.content")], ["assessment", s("config.section.assessment")],
-    ["certificates", s("config.section.certificates")], ["intelligence", s("config.section.intelligence")],
+    ["roles", s("config.section.roles")], ["audit", s("config.section.audit")],
+    // Polish batch 2 (UX-30): no menu item for a section that does not exist yet
+    ["intelligence", s("config.section.intelligence")],
   ];
 
   return (
@@ -200,9 +323,16 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           administrator's other places (D-010) after them. Every one of these
           asks its own gate on arrival; a link here decides nothing. */}
       <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2" aria-label={t("nav.tempat", "staff", { locale: await currentLocale() })}>
-        <Link href="/pendataan" className={tautanTempat}>{s("pendataan.judul")}</Link>
-        <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}</Link>
-        <Link href="/studio" className={tautanTempat}>{s("nav.studio")}</Link>
+        {bolehPendataan ? <Link href="/pendataan" className={tautanTempat}>{s("pendataan.judul")}<TandaTautan /></Link> : null}
+        <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}<TandaTautan /></Link>
+        <Link href="/studio" className={tautanTempat}>{s("nav.studio")}<TandaTautan /></Link>
+        {/* DAISY-12 (D-037 step 2): «Laporkan masalah», as on every staff shell */}
+        <TautanLapor locale={await currentLocale()} kelas={tautanTempat} />
+        {/* BOB-51: the platform admin's delivery proof, a click rather than a console */}
+        {isSys === true ? <Link href="/konfigurasi/email-uji" className={tautanTempat}>{s("emailuji.judul")}<TandaTautan /></Link> : null}
+        {/* BOB-28, D-101 (1): the assisted PIN-recovery reset (a School Admin's for their school's people), and for the
+            platform admin the security record */}
+        {(isSys === true || adminInstitutionIds.length > 0) ? <Link href="/konfigurasi/keamanan" className={tautanTempat}>{s("keamanan.judul")}<TandaTautan /></Link> : null}
         <TabTempat
           tempat={tempatDariPeran(peran)}
           kecuali={["/konfigurasi"]}
@@ -213,14 +343,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
       </nav>
 
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
-        <div className={card}>
-          <p className="text-sm text-ink-3">{s("config.card.health")}</p>
-          {lintOk === null ? <p className="mt-1 text-ink-2">—</p> : (
-            <p className={`mt-1 inline-block rounded px-2 py-0.5 ${lintOk ? "bg-ok-soft text-ok" : "bg-blocked-soft text-blocked"}`}>
-              {lintOk ? "Semua pemeriksaan lolos" : "Perlu perhatian"}
-            </p>
-          )}
-        </div>
+        <KartuKesehatan locale={await currentLocale()} keadaan={kesehatan} kelas={card} tautan={tautanTempat} />
         <div className={card}>
           <p className="text-sm text-ink-3">{s("config.card.cohorts")}</p>
           <p className="mt-1 text-ink-2">{activeClassCount}</p>
@@ -286,6 +409,501 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             )}
           </section>
 
+          {/* J3.2 (ADM-02, P1). PERSIAPAN SEKOLAH: what is done and what remains
+              at the school shown, each with the place it is done, right after
+              the structure that comes first (DAISY-05). Read only;
+              the facts are the structure, its placements and its roles, as
+              this reader already sees them. */}
+          {sekolahStruktur && persiapan ? (
+            <section id="persiapan" className={card} aria-labelledby="pin-persiapan">
+              <h2 id="pin-persiapan" className="font-medium">{sl("config.persiapan.judul")}</h2>
+              <p className="mt-1 text-sm text-ink-2">{sl("config.persiapan.arti")}</p>
+              <ul className="mt-3 grid gap-2 text-sm">
+                {persiapan.map((l) => (
+                  <li key={l.kunci} data-langkah={l.kunci} data-selesai={l.selesai ? "ya" : "belum"}
+                    className="grid gap-1 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
+                    <span className="text-ink-1">
+                      <strong>{sl(l.selesai ? "config.persiapan.sudah" : "config.persiapan.belum")}</strong>
+                      {" · "}{sl(`config.persiapan.${l.kunci}` as HleEvent)}
+                      {l.kunci !== "guru" ? <> · <span className="pin-num">{l.jumlah}</span></> : null}
+                    </span>
+                    {l.kunci === "guru" && l.tanpaGuru.length > 0 ? (
+                      <span className="text-ink-2">{sl("config.persiapan.guru.kurang")} {l.tanpaGuru.join(", ")}</span>
+                    ) : null}
+                    {/* the way to each step: the section on this page, or for students
+                        Pendataan, whose one link is in the places above (DAISY-17) */}
+                    {!l.selesai ? (
+                      l.kunci === "murid" ? (
+                        <span className="text-ink-2">{sl("config.persiapan.murid.cara")}</span>
+                      ) : (
+                        <a href={l.kunci === "guru" ? "#roles" : "#struktur"} className={tautanTempat}>{sl(`config.persiapan.${l.kunci}.cara` as HleEvent)}</a>
+                      )
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+              {satuAdmin ? <p className="mt-3 text-sm text-ink-2">{sl("config.persiapan.admin_kedua")}</p> : null}
+            </section>
+          ) : null}
+
+          {/* D-088(b), BOB-49 / DAISY-38. BATAS KETUNTASAN: each lesson the school can give, with its pass mark or
+              «Batas ketuntasan belum ditetapkan», its history, and a form to set it. A teacher cannot give a lesson
+              to a class until its mark is set; a change applies to what is given afterwards. set_school_pass_mark
+              decides who may set it (the school's admin), keeps every change and audits it. */}
+          <section id="ketuntasan" className={card} aria-labelledby="pin-ketuntasan">
+            <h2 id="pin-ketuntasan" className="font-medium">{sl("config.section.ketuntasan")}</h2>
+            {sekolahStruktur ? (
+              <>
+                <p className="mt-1 text-sm text-ink-2">{sl("config.ketuntasan.arti")}</p>
+                {ketuntasan && ketuntasan.length > 0 ? (
+                  <ul className="mt-3 grid gap-2 text-sm">
+                    {ketuntasan.map((p) => (
+                      <li key={p.course_id} data-pelajaran={p.course_id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
+                        <span className="text-ink-1">
+                          <strong>{p.title}</strong> · {p.subject} · {p.grade_label}
+                          {p.canonical ? <> · <span className="text-ink-3">{sl("config.ketuntasan.materi_pintar")}</span></> : null}
+                        </span>
+                        <span className="pin-batas text-ink-2">
+                          {p.percent === null
+                            ? sl("config.ketuntasan.belum")
+                            : <>{sl("config.ketuntasan.sekarang")} <span className="pin-num">{format.percent(p.percent / 100, locale)}</span></>}
+                        </span>
+                        <form action={tetapkanBatasAction} className="flex flex-wrap items-end gap-2">
+                          <input type="hidden" name="sekolah" value={sekolahStruktur.id} />
+                          <input type="hidden" name="pelajaran" value={p.course_id} />
+                          <label className={label}>{sl("config.ketuntasan.nilai")}
+                            <input name="persen" type="number" inputMode="numeric" min={0} max={100} step={1} required
+                              defaultValue={p.percent ?? undefined} className={`${field} w-24`} />
+                          </label>
+                          <label className={label}>{sl("config.ketuntasan.alasan")}
+                            <input name="alasan" type="text" required maxLength={300} placeholder={sl("config.ketuntasan.alasan_contoh")} className={field} />
+                          </label>
+                          <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.ketuntasan.tombol")}</TombolKirim>
+                        </form>
+                        {p.history.length > 0 ? (
+                          <details>
+                            <summary className="cursor-pointer text-ink-3">{sl("config.ketuntasan.riwayat")}</summary>
+                            <ul className="mt-1 grid gap-1 text-ink-2">
+                              {p.history.map((h, i) => (
+                                <li key={`${h.set_at}-${i}`}>
+                                  <span className="pin-num">{format.percent(h.percent / 100, locale)}</span>
+                                  {" · "}{format.date(h.set_at, locale)}
+                                  {h.set_by ? <> · {sl("config.ketuntasan.oleh")} {h.set_by}</> : null}
+                                  {" · "}{h.reason}
+                                </li>
+                              ))}
+                            </ul>
+                          </details>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-3 text-sm text-ink-3">{sl("config.ketuntasan.kosong")}</p>
+                )}
+                {result("ketuntasan")}
+              </>
+            ) : (
+              <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
+            )}
+          </section>
+
+          {/* D-085 M9 (J3.12, ADM-J13). PINDAH KELAS: the administrator opens
+              the Kelas a student is in, finds them, and moves them to another
+              Kelas of the same year. move_learner_to_class decides each move
+              again as this administrator, in one transaction; what was done in
+              the old Kelas stays recorded there. */}
+          <section id="pindah" className={card}>
+            <h2 className="font-medium">{sl("config.section.pindah")}</h2>
+            {sekolahStruktur && struktur ? (
+              <>
+                <p className="mt-1 text-sm text-ink-2">{sl("config.pindah.arti")}</p>
+                {asal.kelas.length > 0 ? (
+                  <form method="get" action="/konfigurasi#pindah" className="mt-3 flex flex-wrap items-end gap-2">
+                    {sekolahKu.length > 1 ? <input type="hidden" name="sekolah" value={sekolahStruktur.id} /> : null}
+                    <label className={label}>{sl("config.pindah.dari")}
+                      <select id="pin-pindah-dari" name="dari" className={field} required defaultValue={kelasDari?.node_id ?? ""}>
+                        <option value="" disabled>—</option>
+                        <optgroup label={sl("config.pindah.grup_kelas")}>
+                          {asal.kelas.map((k) => <option key={k.node_id} value={k.node_id}>{namaKelas(k)}</option>)}
+                        </optgroup>
+                        {asal.tingkat.length > 0 ? (
+                          <optgroup label={sl("config.pindah.grup_tingkat")}>
+                            {asal.tingkat.map((k) => <option key={k.node_id} value={k.node_id}>{namaKelas(k)}</option>)}
+                          </optgroup>
+                        ) : null}
+                      </select>
+                    </label>
+                    <button type="submit" className={button}>{sl("config.pindah.lihat")}</button>
+                  </form>
+                ) : (
+                  <p className="mt-3 text-sm text-ink-3">{sl("config.pindah.tanpa_kelas")}</p>
+                )}
+                {kelasDari ? (
+                  <div className="mt-3 grid gap-2">
+                    <p className="text-sm font-medium text-ink-1">{namaKelas(kelasDari)}</p>
+                    {tujuan.length === 0 ? <p className="text-sm text-ink-3">{sl("config.pindah.tanpa_tujuan")}</p> : null}
+                    {muridDari.length > 0 ? (
+                      <ul className="grid gap-1 text-sm text-ink-2">
+                        {muridDari.map((m) => (
+                          <li key={m.penempatan} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 sm:grid-cols-[1fr_auto] sm:items-center">
+                            <span className="text-ink-1">{m.nama}</span>
+                            {tujuan.length > 0 ? (
+                              <form action={pindahKelasAction} className="flex flex-wrap items-center gap-2">
+                                <input type="hidden" name="penempatan" value={m.penempatan} />
+                                <input type="hidden" name="dari" value={kelasDari.node_id} />
+                                <input type="hidden" name="sekolah" value={sekolahStruktur.id} />
+                                <select name="kelas" className={field} required defaultValue="" aria-label={`${m.nama}: ${sl("config.pindah.ke")}`}>
+                                  <option value="" disabled>{sl("config.pindah.ke")}</option>
+                                  {tujuan.map((k) => <option key={k.node_id} value={k.node_id}>{namaKelas(k)}</option>)}
+                                </select>
+                                <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.pindah.tombol")}</TombolKirim>
+                              </form>
+                            ) : null}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-ink-3">{sl("config.pindah.kosong")}</p>
+                    )}
+                  </div>
+                ) : null}
+                {result("pindah")}
+              </>
+            ) : (
+              <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
+            )}
+          </section>
+
+          {/* BOB-44 / DAISY-32 (D-069(e), D-070(c)). PESERTA PENGEMBANGAN PROFESI: an existing teacher or staff member of
+              this school is enrolled as a participant in a professional-learning Kelas. The people offered are those the
+              database says hold a staff role here now; the places, this school's professional-learning Kelas and
+              Tingkat. enrol_for_professional_learning decides again, creates no person, account or number, and audits.
+              DAISY-34: the records this administrator may open are linked here, read-only, never as a figure. */}
+          <section id="peserta" className={card} aria-labelledby="pin-peserta">
+            <h2 id="pin-peserta" className="font-medium">{sl("config.section.peserta")}</h2>
+            {sekolahStruktur && peserta ? (
+              <>
+                <p className="mt-1 text-sm text-ink-2">{sl("config.peserta.arti")}</p>
+                {peserta.tempat.length > 0 ? (
+                  <form action={daftarkanPesertaAction} className="mt-3 flex flex-wrap items-end gap-2">
+                    <input type="hidden" name="sekolah" value={sekolahStruktur.id} />
+                    <label className={label}>{sl("config.peserta.orang")}
+                      <select name="orang" className={field} required defaultValue="">
+                        <option value="" disabled>—</option>
+                        {peserta.calon.map((o) => <option key={o.id} value={o.id}>{o.nama}</option>)}
+                      </select>
+                    </label>
+                    <label className={label}>{sl("config.peserta.tempat")}
+                      <select name="tempat" className={field} required defaultValue="">
+                        <option value="" disabled>—</option>
+                        {peserta.tempat.map((k) => (
+                          <option key={k.id} value={k.id}>{[k.tingkat, k.nama].filter(Boolean).join(" · ")}{k.tahun ? ` (${k.tahun})` : ""}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.peserta.daftarkan")}</TombolKirim>
+                  </form>
+                ) : (
+                  <p className="mt-3 text-sm text-ink-3">{sl("config.peserta.tanpa_tempat")}</p>
+                )}
+                {result("peserta")}
+                {catatanPd.length > 0 ? (
+                  <nav className="mt-3 text-sm" aria-label={sl("config.peserta.catatan")}>
+                    <p className="text-ink-3">{sl("config.peserta.catatan")}</p>
+                    <ul className="mt-1 grid gap-1">
+                      {catatanPd.map((k) => (
+                        <li key={k.id}>
+                          <Link href={alamatCatatan(k.id)} className={tautanTempat}>
+                            {k.nama}{k.tahun ? ` (${k.tahun})` : ""}<TandaTautan />
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                ) : null}
+              </>
+            ) : (
+              <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
+            )}
+          </section>
+
+          {/* BOB-15 + DAISY-12 (D-037 step 2; D-101(f)). LAPORAN MASALAH: the school resolves what it can (tier 1), the
+              PINTAR team reads every school's (tier 2). Open reports first, a stopped class first among them. Each is
+              moved forward once at a time with the next step written to its reporter; move_support_report decides
+              who may, and audits it. */}
+          <section id="laporan-masalah" className={card} aria-labelledby="pin-laporan-masalah">
+            <h2 id="pin-laporan-masalah" className="font-medium">{sl("config.section.laporan_masalah")}</h2>
+            <p className="mt-1 text-sm text-ink-2">{sl("lapor.triase.arti")}</p>
+            {sp.bagian === "laporan-masalah" && sp.lapor ? (
+              <BarisHasil nada={sp.lapor === "MOVED" ? "ok" : "gagal"}>
+                {sl(sp.lapor === "MOVED" ? "lapor.triase.ok" : kunciKodeLaporan(sp.lapor as KodeLaporan))}
+              </BarisHasil>
+            ) : null}
+            {laporan.length === 0 ? (
+              <p className="mt-3 text-sm text-ink-3">{sl("lapor.triase.kosong")}</p>
+            ) : (
+              <ul className="mt-3 grid gap-2 text-sm">
+                {laporan.map((l) => (
+                  <li key={l.id} data-laporan={l.id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
+                    <span className="text-ink-1">
+                      <strong>{sl(kunciStatusLaporan(l.status))}</strong>
+                      {l.hentikanKelas ? <> · <strong>{sl("lapor.hentikan.singkat")}</strong></> : null}
+                      {" · "}{format.date(l.dibuat, locale)} · {l.pelapor} · {roleLabel(l.peran)}{l.sekolah ? ` · ${l.sekolah}` : ""}
+                    </span>
+                    <span className="text-ink-2">
+                      <span className="pin-num">{l.halaman}</span>
+                      {l.rujukan ? <> · {sl("lapor.rujukan")} <span className="pin-num">{l.rujukan}</span></> : null}
+                      {l.build ? <> · <span className="pin-num">{l.build.slice(0, 7)}</span></> : null}
+                    </span>
+                    <span className="text-ink-2">{sl("lapor.lakukan")} {l.lakukan}</span>
+                    <span className="text-ink-2">{sl("lapor.harapan")} {l.harapan}</span>
+                    <span className="text-ink-2">{sl("lapor.terjadi")} {l.terjadi}</span>
+                    {l.perangkat ? <span className="text-xs text-ink-3">{l.perangkat}</span> : null}
+                    {l.tangkapan ? (
+                      <a className={tautanTempat} href={`/api/assets/read-url?alih=1&path=${encodeURIComponent(l.tangkapan)}`}>{sl("lapor.triase.tangkapan")}</a>
+                    ) : null}
+                    {l.langkah ? <span className="text-ink-1">{sl("lapor.langkah")} {l.langkah}</span> : null}
+                    {langkahBerikut(l.status).length > 0 ? (
+                      <form action={pindahkanLaporanAksi} className="flex flex-wrap items-end gap-2">
+                        <input type="hidden" name="laporan" value={l.id} />
+                        <label className={label}>{sl("lapor.triase.ubah")}
+                          <select name="status" className={field} required defaultValue={langkahBerikut(l.status)[0]}>
+                            {langkahBerikut(l.status).map((x) => <option key={x} value={x}>{sl(kunciStatusLaporan(x))}</option>)}
+                          </select>
+                        </label>
+                        <label className={label}>{sl("lapor.triase.langkah")}
+                          <input name="langkah" className={field} required maxLength={500} autoComplete="off" />
+                        </label>
+                        <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("lapor.triase.simpan")}</TombolKirim>
+                      </form>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {/* #148 (D-094(a)(b)(g)(h), D-100). PEMELIHARAAN DAN PENGUMUMAN. Scheduling is two steps: the scope and the
+              time are checked first (a plain GET), and the second step shows the assessments that window would meet,
+              with the latest one's end, before anything is saved (D-094(g)); it warns, it does not forbid. The list
+              ends or starts a window with a reason; «Hentikan sekarang» is Admin platform's alone, separate, and
+              confirmed by the typed phrase. The database decides who may do each, and audits it (D-093). */}
+          <section id="pemeliharaan" className={card} aria-labelledby="pin-pemeliharaan">
+            <h2 id="pin-pemeliharaan" className="font-medium">{sl("config.section.pemeliharaan")}</h2>
+            <p className="mt-1 text-sm text-ink-2">{sl("config.pemeliharaan.arti")}</p>
+            {result("pemeliharaan")}
+            <form method="get" action="/konfigurasi#pemeliharaan" className="mt-3 grid gap-2">
+              <input type="hidden" name="pm_cek" value="1" />
+              <fieldset className="grid gap-1 text-sm">
+                <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
+                {isSys === true ? (
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" name="pm_platform" value="1" defaultChecked={pmPlatform} /> {sl("config.pemeliharaan.platform")}
+                  </label>
+                ) : null}
+                {sekolahKu.map((i) => (
+                  <label key={i.id} className="flex items-center gap-2">
+                    <input type="checkbox" name="pm_sekolah" value={i.id} defaultChecked={pmSekolah.includes(i.id)} /> {i.name}
+                  </label>
+                ))}
+              </fieldset>
+              <div className="flex flex-wrap items-end gap-2">
+                <label className={label}>{sl("config.pemeliharaan.mulai")}
+                  <input type="datetime-local" name="pm_mulai" className={field} defaultValue={sp.pm_mulai ?? ""} />
+                </label>
+                <label className={label}>{sl("config.pemeliharaan.selesai")}
+                  <input type="datetime-local" name="pm_selesai" className={field} defaultValue={sp.pm_selesai ?? ""} />
+                </label>
+                <button type="submit" className={button}>{sl("config.pemeliharaan.periksa")}</button>
+              </div>
+            </form>
+            {pmCek ? (
+              <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 text-sm" data-tabrakan="1">
+                {tabrakan && Number((tabrakan as { asesmen?: number }).asesmen) > 0 ? (
+                  <p role="status">
+                    <strong>{sl("config.pemeliharaan.tabrakan.perhatian")}</strong>{" "}
+                    {Number((tabrakan as { asesmen: number }).asesmen)} {sl("config.pemeliharaan.tabrakan.jumlah")}{" "}
+                    {(tabrakan as { terakhir_selesai?: string | null }).terakhir_selesai ? (
+                      <>
+                        {sl("config.pemeliharaan.tabrakan.terakhir")} {when((tabrakan as { terakhir_selesai: string }).terakhir_selesai)} {sl("pemeliharaan.zona")}.{" "}
+                        {sl("config.pemeliharaan.tabrakan.saran")} {when((tabrakan as { terakhir_selesai: string }).terakhir_selesai)} {sl("pemeliharaan.zona")}.
+                      </>
+                    ) : null}
+                  </p>
+                ) : tabrakan ? (
+                  <p role="status">{sl("config.pemeliharaan.tabrakan.nihil")}</p>
+                ) : null}
+                <form action={jadwalkanPemeliharaanAction} className="grid gap-2">
+                  {pmPlatform ? <input type="hidden" name="platform" value="1" /> : null}
+                  {pmPlatform ? null : pmSekolah.map((id) => <input key={id} type="hidden" name="sekolah" value={id} />)}
+                  <input type="hidden" name="mulai" value={sp.pm_mulai ?? ""} />
+                  <input type="hidden" name="selesai" value={sp.pm_selesai ?? ""} />
+                  <label className={label}>{sl("config.pemeliharaan.pesan")}
+                    <textarea name="pesan" className={field} maxLength={500} rows={2} />
+                  </label>
+                  <label className={label}>{sl("config.pemeliharaan.alasan")}
+                    <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
+                  </label>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input type="checkbox" name="umumkan" value="1" /> {sl("config.pemeliharaan.umumkan")}
+                  </label>
+                  <div><TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.jadwalkan")}</TombolKirim></div>
+                </form>
+              </div>
+            ) : null}
+
+            <h3 className="mt-4 text-sm font-medium">{sl("config.pemeliharaan.daftar")}</h3>
+            {kelola && kelola.pemeliharaan.length > 0 ? (
+              <ul className="mt-2 grid gap-2 text-sm">
+                {kelola.pemeliharaan.map((w) => (
+                  <li key={w.id} data-jendela={w.id} className="grid gap-1 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
+                    <span className="text-ink-1">
+                      <strong>{sl(`config.pemeliharaan.keadaan.${w.keadaan}` as HleEvent)}</strong>
+                      {" · "}{sl(`config.pemeliharaan.jenis.${w.jenis}` as HleEvent)}
+                      {" · "}{w.platform ? sl("config.pemeliharaan.platform") : w.sekolah.join(", ")}
+                    </span>
+                    <span className="text-ink-2">
+                      {when(w.mulai)} {w.selesai ? <>{sl("config.pemeliharaan.hingga")} {when(w.selesai)}</> : <>· {sl("config.pemeliharaan.tanpa_akhir")}</>}
+                    </span>
+                    {w.pesan ? <span className="text-ink-2">{w.pesan}</span> : null}
+                    <span className="text-xs text-ink-3">{sl("config.pemeliharaan.alasan")}: {w.alasan}</span>
+                    {w.menguasai && w.keadaan !== "BERAKHIR" ? (
+                      <form action={ubahPemeliharaanAction} className="flex flex-wrap items-end gap-2">
+                        <input type="hidden" name="jendela" value={w.id} />
+                        <label className={label}>{sl("config.pemeliharaan.alasan")}
+                          <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
+                        </label>
+                        {w.keadaan !== "AKTIF" ? (
+                          <TombolKirim className={button} name="aksi" value="MULAI" sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.mulai_sekarang")}</TombolKirim>
+                        ) : null}
+                        <TombolKirim className={button} name="aksi" value="AKHIRI" sibuk={s("tombol.memproses")}>
+                          {sl(w.keadaan === "AKTIF" ? "config.pemeliharaan.akhiri" : "config.pemeliharaan.batalkan")}
+                        </TombolKirim>
+                      </form>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.kosong")}</p>
+            )}
+
+            <h3 className="mt-4 text-sm font-medium">{sl("config.pemeliharaan.pengumuman")}</h3>
+            <p className="mt-1 text-sm text-ink-2">{sl("config.pemeliharaan.pengumuman.arti")}</p>
+            <form action={terbitkanPengumumanAction} className="mt-2 grid gap-2">
+              <fieldset className="grid gap-1 text-sm">
+                <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
+                {isSys === true ? (
+                  <label className="flex items-center gap-2"><input type="checkbox" name="platform" value="1" /> {sl("config.pemeliharaan.platform")}</label>
+                ) : null}
+                {sekolahKu.map((i) => (
+                  <label key={i.id} className="flex items-center gap-2"><input type="checkbox" name="sekolah" value={i.id} /> {i.name}</label>
+                ))}
+              </fieldset>
+              <label className={label}>{sl("config.pemeliharaan.pengumuman.pesan")}
+                <input name="pesan" className={field} required maxLength={500} autoComplete="off" />
+              </label>
+              <div className="flex flex-wrap items-end gap-2">
+                <label className={label}>{sl("config.pemeliharaan.pengumuman.terbit")}
+                  <input type="datetime-local" name="terbit" className={field} />
+                </label>
+                <label className={label}>{sl("config.pemeliharaan.pengumuman.sampai")}
+                  <input type="datetime-local" name="sampai" className={field} required />
+                </label>
+                <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.pengumuman.terbitkan")}</TombolKirim>
+              </div>
+            </form>
+            {kelola && kelola.pengumuman.length > 0 ? (
+              <ul className="mt-2 grid gap-2 text-sm">
+                {kelola.pengumuman.map((n) => (
+                  <li key={n.id} data-pengumuman={n.id} className="grid gap-1 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
+                    <span className="text-ink-1">{n.pesan}</span>
+                    <span className="text-ink-2">
+                      {when(n.terbit)} {sl("config.pemeliharaan.hingga")} {when(n.sampai)}
+                      {n.platform ? <> · {sl("config.pemeliharaan.platform")}</> : null}
+                      {n.ditarik ? <> · <strong>{sl("config.pemeliharaan.pengumuman.ditarik")}</strong></> : null}
+                    </span>
+                    {n.boleh && !n.ditarik ? (
+                      <form action={tarikPengumumanAction} className="flex flex-wrap items-end gap-2">
+                        <input type="hidden" name="pengumuman" value={n.id} />
+                        <label className={label}>{sl("config.pemeliharaan.alasan")}
+                          <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
+                        </label>
+                        <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.pengumuman.tarik")}</TombolKirim>
+                      </form>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.pengumuman.kosong")}</p>
+            )}
+
+            {isSys === true ? (
+              <div className="mt-4 grid gap-2 rounded-[var(--radius-1)] border border-line-1 px-3 py-2" data-hentikan="1">
+                <h3 className="text-sm font-medium">{sl("config.pemeliharaan.darurat.judul")}</h3>
+                <p className="text-sm text-ink-2">{sl("config.pemeliharaan.darurat.arti")}</p>
+                <form action={hentikanSekarangAction} className="grid gap-2">
+                  <fieldset className="grid gap-1 text-sm">
+                    <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
+                    <label className="flex items-center gap-2"><input type="checkbox" name="platform" value="1" /> {sl("config.pemeliharaan.platform")}</label>
+                    {sekolahKu.map((i) => (
+                      <label key={i.id} className="flex items-center gap-2"><input type="checkbox" name="sekolah" value={i.id} /> {i.name}</label>
+                    ))}
+                  </fieldset>
+                  <label className={label}>{sl("config.pemeliharaan.alasan")}
+                    <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
+                  </label>
+                  <label className={label}>{sl("config.pemeliharaan.darurat.ketik")}
+                    <input name="konfirmasi" className={field} required autoComplete="off" pattern={KONFIRMASI_HENTIKAN} />
+                  </label>
+                  <div><TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.darurat.tombol")}</TombolKirim></div>
+                </form>
+              </div>
+            ) : null}
+          </section>
+
+          {/* DAISY-07 (B6b). THE SCHOOL'S REPORTS, one click away. BOB-06 gave
+              every school PINTAR's standard class and school reports; nothing
+              linked to them, so an administrator had to type an id. The school
+              summary is read at the school's own root node and each class's at
+              that class, for the school chosen above. A link decides nothing:
+              generate_report decides every figure for this reader. */}
+          <section id="laporan" className={card}>
+            <h2 className="font-medium">{sl("config.laporan.judul")}</h2>
+            {sekolahStruktur ? (
+              <>
+                <p className="mt-1 text-sm text-ink-2">{sl("config.laporan.arti")}</p>
+                <nav className="mt-3 grid gap-2 text-sm" aria-label={sl("config.laporan.judul")}>
+                  {akar ? (
+                    <Link href={`/dekan/ringkasan?simpul=${(akar as { id: string }).id}`} className={tautanTempat}>
+                      {sl("config.laporan.sekolah")} · {sekolahStruktur.name}
+                      <TandaTautan />
+                    </Link>
+                  ) : null}
+                  <span className="text-ink-3">{sl("config.laporan.kelas")}</span>
+                  {kelasAktif.length > 0 ? (
+                    <ul className="flex flex-wrap gap-x-4 gap-y-1">
+                      {kelasAktif.map((k) => (
+                        <li key={k.node_id}>
+                          <Link href={`/edukator/ringkasan?kelas=${k.node_id}`} className={tautanTempat}>
+                            {k.name}{k.academic_year ? ` (${k.academic_year})` : ""}
+                            <TandaTautan />
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-ink-3">{sl("config.laporan.tanpa_kelas")}</p>
+                  )}
+                </nav>
+              </>
+            ) : (
+              <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
+            )}
+          </section>
+
           {/* System & Configuration: institutions and periods */}
           <section id="system" className={card}>
             <h2 className="font-medium">{s("config.section.system")}</h2>
@@ -333,7 +951,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   </div>
                   <div className="grid gap-1">
                     {instNodes.map((n) => (
-                      <label key={n.id} className="flex items-center justify-between gap-2 text-sm text-ink-2">
+                      <label key={n.id} className="flex flex-wrap items-center justify-between gap-2 text-sm text-ink-2">
                         <span>{n.name} <span className="text-ink-3">· {periodName.get(n.academic_period_id!) ?? ""}</span></span>
                         <select name={`map[${n.id}]`} className={field} defaultValue="">
                           <option value="">{s("config.label.not_rolled")}</option>
@@ -344,7 +962,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                       </label>
                     ))}
                   </div>
-                  <div><button className={button}>{s("config.action.rollover")}</button></div>
+                  <div><TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.rollover")}</TombolKirim></div>
                 </form>
               );
             })}
@@ -366,15 +984,15 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   {(x.status === "REQUESTED" || x.status === "AUTHORIZED") && (
                     <div className="flex flex-wrap gap-2">
                       {x.status === "REQUESTED" && (
-                        <form action={transferAuthorizeAction}><input type="hidden" name="transfer" value={x.id} /><button className={button}>{s("config.action.authorize")}</button></form>
+                        <form action={transferAuthorizeAction}><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.authorize")}</TombolKirim></form>
                       )}
                       {x.status === "AUTHORIZED" && (
-                        <form action={transferExecuteAction}><input type="hidden" name="transfer" value={x.id} /><button className={button}>{s("config.action.execute")}</button></form>
+                        <form action={transferExecuteAction}><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.execute")}</TombolKirim></form>
                       )}
                       <form action={transferRejectAction} className="flex gap-1">
                         <input type="hidden" name="transfer" value={x.id} />
                         <input name="reason" className={field} placeholder={s("config.label.reason")} />
-                        <button className={button}>{s("config.action.reject")}</button>
+                        <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.reject")}</TombolKirim>
                       </form>
                     </div>
                   )}
@@ -386,7 +1004,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <label className={`${label} sm:col-span-2`}>{s("config.label.enrollment")}
                 <select name="from_enrollment" className={field} required defaultValue="">
                   <option value="" disabled>—</option>
-                  {(enrollments ?? []).filter((e) => isSys || adminInstitutionIds.includes(e.institution_id)).map((e) => (
+                  {(enrollments ?? []).filter((e) => (isSys || adminInstitutionIds.includes(e.institution_id))
+                    && e.member_kind !== "PARTICIPANT").map((e) => (
                     <option key={e.id} value={e.id}>
                       {personName.get(e.person_id) ?? short(e.person_id)} · {institutionName.get(e.institution_id) ?? short(e.institution_id)} · {periodName.get(e.academic_period_id) ?? ""}
                     </option>
@@ -398,7 +1017,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <label className={label}>{s("config.label.destination_programme")}<input name="to_programme" className={field} /></label>
               <label className={label}>{s("config.label.reason")}<input name="reason" className={field} /></label>
               <p className="text-xs text-ink-3 sm:col-span-2">{s("config.label.destination_help")}</p>
-              <div><button className={button}>{s("config.action.request_transfer")}</button></div>
+              <div><TombolKirim className={button} sibuk={s("tombol.mengirim")}>{s("config.action.request_transfer")}</TombolKirim></div>
             </form>
             {result("transfers")}
           </section>
@@ -414,12 +1033,35 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? short(a.scope_node_id) : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {a.valid_until.slice(0, 10)}</span>
                   </span>
                   {a.person_id !== viewer.personId && (
-                    <form action={revokeRoleAction}><input type="hidden" name="assignment" value={a.id} /><button className={button}>{s("config.action.revoke")}</button></form>
+                    // D-097(a): a revocation states why
+                    <form action={revokeRoleAction} className="flex flex-wrap items-center gap-2">
+                      <input type="hidden" name="assignment" value={a.id} />
+                      <label className="flex items-center gap-1 text-xs text-ink-3">{s("config.label.reason")}
+                        <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
+                      </label>
+                      <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.revoke")}</TombolKirim>
+                    </form>
                   )}
                 </li>
               ))}
               {(assignments ?? []).length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
+            {angkat ? (
+              <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" role="group" aria-labelledby="pin-angkat">
+                <h3 id="pin-angkat" className="font-medium">{s("config.angkat.judul")}</h3>
+                <p className="text-sm text-ink-1"><strong>{angkat.nama}</strong> · {roleLabel("INSTITUTION_ADMIN")} · {angkat.tempat}</p>
+                <p className="text-sm text-ink-2">{s("config.angkat.arti")}</p>
+                <form action={grantRoleAction} className="flex flex-wrap items-center gap-3">
+                  <input type="hidden" name="person" value={angkat.person} />
+                  <input type="hidden" name="role" value="INSTITUTION_ADMIN" />
+                  <input type="hidden" name="scope" value={angkat.scope} />
+                  <input type="hidden" name="valid_until" value={angkat.sampai} />
+                  <input type="hidden" name="yakin" value="ya" />
+                  <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.angkat.ya")}</TombolKirim>
+                  <Link href="/konfigurasi?bagian=roles#roles" className={tautanTempat}>{s("config.angkat.batal")}</Link>
+                </form>
+              </div>
+            ) : null}
             <form action={grantRoleAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2">
               <label className={label}>{s("config.label.person")}
                 <select name="person" className={field} required defaultValue="">
@@ -442,7 +1084,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               </label>
               <label className={label}>{s("config.label.role")}
                 <select name="role" className={field} required defaultValue="EDUCATOR">
-                  {(["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", ...(isSys ? ["INSTITUTION_ADMIN", "SYSTEM_ADMIN"] : [])]).map((r) => (
+                  {/* D-101 (2): a School Admin may appoint another, at the school itself; Admin platform stays the platform's */}
+                  {(["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", ...(isSys || adminInstitutionIds.length > 0 ? ["INSTITUTION_ADMIN"] : []), ...(isSys ? ["SYSTEM_ADMIN"] : [])]).map((r) => (
                     <option key={r} value={r}>{roleLabel(r)}</option>
                   ))}
                 </select>
@@ -450,11 +1093,11 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <label className={label}>{s("config.label.scope")}
                 <select name="scope" className={field} defaultValue="">
                   <option value="">—</option>
-                  {(nodes ?? []).map((n) => <option key={n.id} value={n.id}>{institutionName.get(n.institution_id) ?? ""} · {n.name}</option>)}
+                  {lingkupPeran(nodes ?? [], institutionName).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
                 </select>
               </label>
               <label className={label}>{s("config.label.valid_until")}<input type="date" name="valid_until" className={field} required /></label>
-              <div><button className={button}>{s("config.action.grant")}</button></div>
+              <div><TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.action.grant")}</TombolKirim></div>
             </form>
             {result("roles")}
           </section>
@@ -480,47 +1123,6 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 </tbody>
               </table>
             </div>
-          </section>
-
-          {/* Feature flags and platform switches (doc 16 §8) */}
-          <section id="flags" className={card}>
-            <h2 className="font-medium">{s("config.section.flags")}</h2>
-            {isSys && (
-              <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                {(["maintenance_mode", "registration_lock"] as const).map((key) => (
-                  <form key={key} action={setPlatformConfigAction} className="flex items-center justify-between gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 text-sm">
-                    <input type="hidden" name="key" value={key} />
-                    <label className="flex items-center gap-2">
-                      <input type="checkbox" name="value" defaultChecked={configValue(key)} />
-                      {key === "maintenance_mode" ? s("config.label.maintenance") : s("config.label.registration_lock")}
-                    </label>
-                    <button className={button}>{s("config.action.save")}</button>
-                  </form>
-                ))}
-              </div>
-            )}
-            <ul className="mt-2 grid gap-1 text-sm text-ink-2">
-              {(flags ?? []).map((f) => (
-                <li key={`${f.key}:${f.institution_id}`} className="flex items-center justify-between rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
-                  <span>{f.key} <span className="text-ink-3">· {institutionName.get(f.institution_id) ?? short(f.institution_id)}</span></span>
-                  <span className="text-ink-3">{f.enabled ? "aktif" : "nonaktif"}</span>
-                </li>
-              ))}
-              {(flags ?? []).length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
-            </ul>
-            {myInstitutions.length > 0 && (
-              <form action={setFlagAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-[1fr_1fr_auto_auto] sm:items-end">
-                <label className={label}>{s("config.section.system")}
-                  <select name="institution" className={field} required defaultValue={myInstitutions[0].id}>
-                    {myInstitutions.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
-                  </select>
-                </label>
-                <label className={label}>{s("config.label.flag_key")}<input name="key" className={field} required pattern="[a-z][a-z0-9_.]{1,80}" /></label>
-                <label className="flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" name="enabled" />{s("config.label.enabled")}</label>
-                <button className={button}>{s("config.action.save")}</button>
-              </form>
-            )}
-            {result("flags")}
           </section>
 
           {/* W8-02 — REPORT CONFIGURATION.
@@ -590,19 +1192,11 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     </label>
                   ))}
                 </fieldset>
-                <button className={button}>{s("laporan.templat.simpan")}</button>
+                <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("laporan.templat.simpan")}</TombolKirim>
               </form>
             )}
             {result("intelligence")}
           </section>
-
-          {/* Placeholders for later phases — nothing faked */}
-          {(["content", "assessment", "certificates"] as const).map((key) => (
-            <section key={key} id={key} className={card}>
-              <h2 className="font-medium">{s(`config.section.${key}` as HleEvent)}</h2>
-              <p className="mt-2 text-sm text-ink-3">{s("config.placeholder")}</p>
-            </section>
-          ))}
         </div>
       </div>
     </main>

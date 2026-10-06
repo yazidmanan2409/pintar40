@@ -1,0 +1,1805 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Matematika Kelas X · Bab 4: Sistem Persamaan dan Pertidaksamaan Linear",
+   "subject": "Matematika",
+   "stage": "SMA",
+   "grade_label": "Kelas X",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Sistem Persamaan dan Pertidaksamaan Linear",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Sistem Persamaan Linear Dua Variabel",
+       "summary": "Sistem persamaan linear adalah gabungan beberapa persamaan linear; penyelesaiannya memenuhi semua persamaan sekaligus.",
+       "body_markdown": "## Sistem persamaan linear\n\n**Sistem persamaan linear** adalah gabungan beberapa persamaan linear. Penyelesaiannya (solusinya) adalah nilai yang memenuhi semua persamaan linear itu sekaligus.\n\nPada persamaan linear, setiap variabel berpangkat satu dan variabel-variabel tidak saling dikalikan. Contoh: 5x + 2y = 18 adalah persamaan linear, sedangkan x² + y = 5 dan xy = 6 bukan.\n\n## Contoh: paket alat tulis\n\nSebuah toko menjual Paket A berisi lima buku tulis dan dua pensil seharga Rp18.000, dan Paket B berisi sebuah buku tulis dan dua pensil seharga Rp10.000. Berapa harga sebuah buku tulis dan sebuah pensil?\n\nMisalkan x harga sebuah buku tulis dan y harga sebuah pensil (dalam rupiah):\n\n- 5x + 2y = 18.000 … (1)\n- x + 2y = 10.000 … (2)\n\n## Eliminasi dan substitusi\n\n1. **Eliminasi y:** kurangkan (2) dari (1): 4x = 8.000, jadi x = 2.000.\n2. **Substitusi** x = 2.000 ke (2): 2.000 + 2y = 10.000, jadi 2y = 8.000 dan y = 4.000.\n3. **Periksa** di kedua persamaan: 5 × 2.000 + 2 × 4.000 = 18.000 dan 2.000 + 2 × 4.000 = 10.000.\n\nJadi harga sebuah buku tulis **Rp2.000** dan sebuah pensil **Rp4.000**.\n\nSaat mengeliminasi, kedua ruas persamaan harus dikalikan atau dikurangkan bersama-sama, bukan hanya ruas kirinya.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 4._",
+       "objective": {
+        "statement": "Kamu dapat memodelkan masalah dengan sistem persamaan linear dua variabel dan menyelesaikannya dengan eliminasi dan substitusi.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Penyelesaian sistem x + y = 10 dan x − y = 4 adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "x = 7, y = 3",
+           "is_correct": true,
+           "rationale": "Benar. Jumlahkan kedua persamaan: 2x = 14, jadi x = 7 dan y = 10 − 7 = 3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "x = 3, y = 7",
+           "is_correct": false,
+           "rationale": "Nilai x dan y tertukar. Periksa: 3 − 7 = −4, bukan 4."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "x = 14, y = −4",
+           "is_correct": false,
+           "rationale": "2x = 14 belum dibagi 2. x = 7."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "x = 6, y = 4",
+           "is_correct": false,
+           "rationale": "Hanya memenuhi x + y = 10; 6 − 4 = 2, bukan 4."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Harga 2 kg apel dan 3 kg jeruk Rp58.000, sedangkan harga 1 kg apel dan 2 kg jeruk Rp32.000. Harga 1 kg jeruk adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "Rp20.000",
+           "is_correct": false,
+           "rationale": "Itu harga 1 kg apel (a = 32.000 − 2 × 6.000). Yang ditanya jeruk."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "Rp26.000",
+           "is_correct": false,
+           "rationale": "Kedua persamaan dikurangkan tanpa menyamakan koefisien, sehingga yang didapat a + j = 26.000, bukan harga jeruk."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "Rp6.000",
+           "is_correct": true,
+           "rationale": "Benar. Kalikan persamaan kedua dengan 2: 2a + 4j = 64.000. Kurangkan persamaan pertama: j = 6.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "Rp13.000",
+           "is_correct": false,
+           "rationale": "a + j = 26.000 dibagi 2, seolah apel dan jeruk sama harganya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Penyelesaian sebuah sistem persamaan linear adalah nilai yang ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "memenuhi satu persamaan saja",
+           "is_correct": false,
+           "rationale": "Nilai yang hanya memenuhi satu persamaan belum tentu memenuhi yang lain."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "memenuhi semua persamaan",
+           "is_correct": true,
+           "rationale": "Benar. Penyelesaiannya adalah nilai yang memenuhi semua persamaan linear dalam sistem."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "membuat semua persamaan bernilai nol",
+           "is_correct": false,
+           "rationale": "Yang dicari nilai variabel yang membuat setiap persamaan benar, bukan bernilai nol."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "sama untuk setiap variabel",
+           "is_correct": false,
+           "rationale": "Nilai setiap variabel boleh berbeda, seperti buku Rp2.000 dan pensil Rp4.000."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Diketahui x + y = 7 dan x − y = 1. Nilai x adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "3",
+           "is_correct": false,
+           "rationale": "Itu nilai y."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "8",
+           "is_correct": false,
+           "rationale": "Itu nilai 2x. Masih dibagi 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "6",
+           "is_correct": false,
+           "rationale": "Hasil 7 − 1 = 6 langsung dianggap nilai x. Jumlahkan kedua persamaan: 2x = 8, jadi x = 4."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "4",
+           "is_correct": true,
+           "rationale": "Benar. Jumlahkan kedua persamaan: 2x = 8, jadi x = 4 (dan y = 3)."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Diketahui y = 2x dan x + y = 12. Nilai y adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "8",
+           "is_correct": true,
+           "rationale": "Benar. Substitusi: x + 2x = 12, jadi x = 4 dan y = 2 × 4 = 8."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "4",
+           "is_correct": false,
+           "rationale": "Itu nilai x."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "6",
+           "is_correct": false,
+           "rationale": "12 dibagi 2, seolah x = y. Padahal y = 2x."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "24",
+           "is_correct": false,
+           "rationale": "12 dikalikan 2. Substitusikan y = 2x ke x + y = 12 lebih dahulu."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Misalkan b harga sebuah buku dan p harga sebuah pena. «Harga 2 buku dan 1 pena Rp13.000» ditulis ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "b + 2p = 13.000",
+           "is_correct": false,
+           "rationale": "Koefisiennya tertukar: 2 untuk buku, 1 untuk pena."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "2bp = 13.000",
+           "is_correct": false,
+           "rationale": "Harga dijumlahkan, bukan dikalikan; 2bp juga bukan bentuk linear."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "2b + p = 13.000",
+           "is_correct": true,
+           "rationale": "Benar. Dua buku seharga 2b, ditambah satu pena seharga p."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "2b + p < 13.000",
+           "is_correct": false,
+           "rationale": "Harganya tepat Rp13.000, jadi dipakai persamaan."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Sistem Persamaan Linear Tiga Variabel",
+       "summary": "Sistem tiga variabel diselesaikan dengan mengeliminasi satu variabel sehingga menjadi sistem dua variabel, lalu mensubstitusi kembali.",
+       "body_markdown": "## Menimbang bola\n\nKinan menimbang bola di lemari sekolah tiga kali:\n\n- dua bola basket, sebuah bola kaki, dan tiga bola voli: 2.500 g;\n- sebuah bola basket, dua bola kaki, dan dua bola voli: 2.050 g;\n- dua bola basket dan sebuah bola voli: 1.550 g.\n\nBerapa berat setiap jenis bola? Misalkan x berat bola basket, y berat bola kaki, dan z berat bola voli (dalam gram):\n\n- 2x + y + 3z = 2.500 … (1)\n- x + 2y + 2z = 2.050 … (2)\n- 2x + z = 1.550 … (3)\n\nGabungan (1), (2), dan (3) adalah sistem persamaan linear tiga variabel. Persamaan (3) tidak memuat y, tetapi sistemnya tetap sistem tiga variabel.\n\n## Menjadikan dua variabel\n\nPersamaan (3) tidak memuat y, jadi y dieliminasi dari (1) dan (2). Kalikan (1) dengan 2, lalu kurangkan (2):\n\n(4x + 2y + 6z) − (x + 2y + 2z) = 5.000 − 2.050, jadi 3x + 4z = 2.950 … (4)\n\nSekarang (3) dan (4) membentuk sistem dua variabel, x dan z.\n\n## Menyelesaikan dan memeriksa\n\n1. Dari (3): z = 1.550 − 2x. Substitusi ke (4): 3x + 4(1.550 − 2x) = 2.950, jadi 6.200 − 5x = 2.950 dan x = 650.\n2. z = 1.550 − 2 × 650 = 250.\n3. Dari (1): y = 2.500 − 2 × 650 − 3 × 250 = 450.\n4. Periksa (2): 650 + 2 × 450 + 2 × 250 = 2.050.\n\nJadi bola basket **650 g**, bola kaki **450 g**, dan bola voli **250 g**.\n\nSolusi harus memenuhi **semua** persamaan. Nilai yang memenuhi satu atau dua persamaan saja bukan solusi sistem.\n\n## Coba pikirkan\n\nMengapa Kinan perlu menimbang tiga kali? Apa yang terjadi jika ia hanya menimbang dua kali?\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 4._",
+       "objective": {
+        "statement": "Kamu dapat memodelkan dan menyelesaikan sistem persamaan linear tiga variabel.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Penyelesaian sistem x + y + z = 9, 2x − y + z = 5, dan x + 2y − z = 4 adalah (x, y, z) = ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "(2, 3, 4)",
+           "is_correct": true,
+           "rationale": "Benar. 2 + 3 + 4 = 9, 4 − 3 + 4 = 5, dan 2 + 6 − 4 = 4: ketiga persamaan terpenuhi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "(3, 2, 4)",
+           "is_correct": false,
+           "rationale": "Hanya memenuhi persamaan pertama: 2 × 3 − 2 + 4 = 8, bukan 5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "(4, 3, 2)",
+           "is_correct": false,
+           "rationale": "Hanya memenuhi persamaan pertama: 2 × 4 − 3 + 2 = 7, bukan 5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "(2, 4, 3)",
+           "is_correct": false,
+           "rationale": "Hanya memenuhi persamaan pertama: 2 × 2 − 4 + 3 = 3, bukan 5."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Persamaan manakah yang merupakan persamaan linear tiga variabel?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "x² + y + z = 3",
+           "is_correct": false,
+           "rationale": "x² berpangkat dua, jadi bukan linear."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "xy + z = 5",
+           "is_correct": false,
+           "rationale": "xy adalah perkalian dua variabel, jadi bukan linear."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "2x − y + 4z = 7",
+           "is_correct": true,
+           "rationale": "Benar. Setiap variabel berpangkat satu dan tidak dikalikan dengan variabel lain."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "x + y + 1/z = 2",
+           "is_correct": false,
+           "rationale": "1/z memuat variabel di penyebut, jadi bukan linear."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Diketahui x = 1 dan y = 2 merupakan bagian dari penyelesaian x + y + z = 6. Nilai z adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "3",
+           "is_correct": true,
+           "rationale": "Benar. 1 + 2 + z = 6, jadi z = 3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "6",
+           "is_correct": false,
+           "rationale": "Itu ruas kanan persamaan. x dan y belum dikurangkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "9",
+           "is_correct": false,
+           "rationale": "x dan y ditambahkan ke 6. Pindahkan ke ruas kanan dengan mengurangkan: 6 − 1 − 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "−3",
+           "is_correct": false,
+           "rationale": "Tandanya terbalik (1 + 2 − 6). z = 6 − 1 − 2 = 3."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dari x + y + z = 10 dan x + y − z = 4, nilai z adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "6",
+           "is_correct": false,
+           "rationale": "Itu nilai 2z. Masih dibagi 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "7",
+           "is_correct": false,
+           "rationale": "Itu nilai x + y = 10 − 3."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "14",
+           "is_correct": false,
+           "rationale": "Kedua persamaan dijumlahkan, sehingga z hilang: 2x + 2y = 14. Untuk mencari z, kurangkan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "3",
+           "is_correct": true,
+           "rationale": "Benar. Kurangkan persamaan kedua dari yang pertama: 2z = 6, jadi z = 3."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Agar sistem persamaan linear tiga variabel mempunyai tepat satu solusi, diperlukan setidaknya ... persamaan.",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "dua",
+           "is_correct": false,
+           "rationale": "Dua persamaan hanya cukup untuk dua variabel. Pada tiga variabel, satu variabel tersisa bebas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "tiga",
+           "is_correct": true,
+           "rationale": "Benar. Dengan hanya dua persamaan, satu variabel selalu tersisa bebas, sehingga solusinya tidak tunggal. Karena itu Kinan menimbang tiga kali."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "satu",
+           "is_correct": false,
+           "rationale": "Satu persamaan tiga variabel mempunyai banyak sekali solusi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "enam",
+           "is_correct": false,
+           "rationale": "Tiga persamaan sudah dapat cukup; tidak perlu dua persamaan untuk setiap variabel."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Banyaknya Solusi",
+       "summary": "Sistem persamaan linear dapat mempunyai satu solusi, tidak mempunyai solusi, atau mempunyai banyak solusi; hasil eliminasi menunjukkannya.",
+       "body_markdown": "## Tiga kemungkinan\n\nSistem persamaan linear dua variabel mempunyai satu dari tiga kemungkinan:\n\n- **satu solusi**: grafiknya dua garis yang berpotongan, dan solusinya titik potong kedua garis;\n- **tidak ada solusi**: grafiknya dua garis yang sejajar;\n- **banyak solusi**: grafiknya dua garis yang berimpit, dan semua titik pada garis itu solusi.\n\n## Contohnya\n\n1. 2x − y = −4 dan x + 2y = 3. Kalikan persamaan pertama dengan 2 lalu jumlahkan: 5x = −5, jadi x = −1 dan y = 2. Hanya ada satu pasangan nilai, (−1, 2), dan kedua garis berpotongan di titik itu.\n2. 3x − 2y = 1 dan 6x − 4y = 7. Kalikan persamaan pertama dengan 2: 6x − 4y = 2. Kurangkan dari persamaan kedua: 0 = 5. Pernyataan ini tidak pernah benar, jadi sistem **tidak mempunyai solusi**; kedua garis sejajar.\n3. 2x + 3y = 1 dan 4x + 6y = 2. Kalikan persamaan pertama dengan 2 lalu kurangkan: 0 = 0. Pernyataan ini selalu benar, berapa pun nilai variabelnya, jadi sistem mempunyai **banyak solusi**; kedua garis berimpit.\n\n## Tanpa menggambar grafik\n\nPersamaan linear tiga variabel memerlukan grafik tiga dimensi, jadi banyaknya solusi lebih mudah dilihat dari hasil eliminasi:\n\n- muncul pernyataan yang tidak pernah benar, seperti 0 = 5 → tidak ada solusi;\n- muncul pernyataan yang selalu benar, seperti 0 = 0 → banyak solusi (jika tidak ada pernyataan yang tidak benar);\n- semua variabel mendapat satu nilai → satu solusi.\n\nContoh: x + y + z = 6 dan 2x + 2y + 2z = 10. Kalikan yang pertama dengan 2 lalu kurangkan: 0 = −2. Tidak ada solusi.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 4._",
+       "objective": {
+        "statement": "Kamu dapat menentukan banyaknya solusi sistem persamaan linear dari grafik dan dari hasil eliminasi.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Saat menyelesaikan sebuah sistem persamaan linear dengan eliminasi, diperoleh 0 = 5. Artinya ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "sistem mempunyai banyak solusi",
+           "is_correct": false,
+           "rationale": "Banyak solusi ditandai pernyataan yang selalu benar, seperti 0 = 0."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "solusinya x = 0",
+           "is_correct": false,
+           "rationale": "0 = 5 tidak memuat x. Pernyataan itu tidak benar untuk semua nilai."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "sistem tidak mempunyai solusi",
+           "is_correct": true,
+           "rationale": "Benar. 0 = 5 tidak pernah benar, berapa pun nilai variabelnya, jadi tidak ada solusi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "solusinya 5",
+           "is_correct": false,
+           "rationale": "0 = 5 bukan nilai variabel, melainkan pernyataan yang tidak pernah benar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sistem x + 3y = 5 dan 2x + 6y = 10 mempunyai ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "tepat satu solusi",
+           "is_correct": false,
+           "rationale": "Satu solusi memerlukan dua garis berpotongan. Persamaan kedua adalah persamaan pertama dikali 2, jadi garisnya berimpit."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "tidak ada solusi",
+           "is_correct": false,
+           "rationale": "Eliminasi memberi 0 = 0, bukan pernyataan yang tidak benar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "tepat dua solusi",
+           "is_correct": false,
+           "rationale": "Sistem persamaan linear tidak mungkin mempunyai tepat dua solusi: satu, tidak ada, atau banyak."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "banyak solusi",
+           "is_correct": true,
+           "rationale": "Benar. Kalikan persamaan pertama dengan 2 lalu kurangkan: 0 = 0, selalu benar. Kedua garis berimpit."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Grafik persamaan 2x − y = 3 dan 4x − 2y = 8 berupa ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "dua garis berimpit",
+           "is_correct": false,
+           "rationale": "Garis berimpit memberi 0 = 0. Di sini eliminasi memberi 0 = 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "dua garis sejajar",
+           "is_correct": true,
+           "rationale": "Benar. Kalikan yang pertama dengan 2: 4x − 2y = 6. Kurangkan dari yang kedua: 0 = 2, tidak pernah benar. Tidak ada titik bersama, jadi garisnya sejajar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "dua garis berpotongan di satu titik",
+           "is_correct": false,
+           "rationale": "Kedua persamaan mempunyai koefisien x dan y yang sebanding (4 : 2 = −2 : −1), jadi garisnya tidak berpotongan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "dua garis yang saling tegak lurus",
+           "is_correct": false,
+           "rationale": "Garis tegak lurus pasti berpotongan. Eliminasi memberi 0 = 2, jadi tidak ada titik bersama."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 22
+         },
+         "ref": "LT9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Saat mengeliminasi sebuah sistem persamaan linear dua variabel, diperoleh 0 = 0. Sistem itu mempunyai ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 82
+           },
+           "label": "A",
+           "body": "tidak ada solusi",
+           "is_correct": false,
+           "rationale": "Tidak ada solusi ditandai pernyataan yang tidak pernah benar, seperti 0 = 5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 83
+           },
+           "label": "B",
+           "body": "satu solusi, yaitu x = 0",
+           "is_correct": false,
+           "rationale": "0 = 0 tidak memuat x, jadi bukan nilai x."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 84
+           },
+           "label": "C",
+           "body": "satu solusi, yaitu x = 0 dan y = 0",
+           "is_correct": false,
+           "rationale": "0 = 0 bukan nilai variabel; pernyataan itu benar untuk semua nilai."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 85
+           },
+           "label": "D",
+           "body": "banyak solusi",
+           "is_correct": true,
+           "rationale": "Benar. 0 = 0 selalu benar, berapa pun nilai variabelnya; kedua garis berimpit."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 23
+         },
+         "ref": "LT10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Jika grafik sistem persamaan linear dua variabel berupa dua garis berpotongan, solusinya adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 86
+           },
+           "label": "A",
+           "body": "semua titik pada kedua garis",
+           "is_correct": false,
+           "rationale": "Titik pada satu garis saja hanya memenuhi satu persamaan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 87
+           },
+           "label": "B",
+           "body": "titik potong kedua garis",
+           "is_correct": true,
+           "rationale": "Benar. Hanya titik potong yang terletak pada kedua garis sekaligus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 88
+           },
+           "label": "C",
+           "body": "titik potong garis dengan sumbu x",
+           "is_correct": false,
+           "rationale": "Titik pada sumbu x belum tentu terletak pada garis yang lain."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 89
+           },
+           "label": "D",
+           "body": "tidak ada",
+           "is_correct": false,
+           "rationale": "Tidak ada solusi terjadi pada garis sejajar. Garis yang berpotongan mempunyai satu titik bersama."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "LT11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sistem 3x + y = 5 dan 6x + 2y = 12 mempunyai ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "banyak solusi",
+           "is_correct": false,
+           "rationale": "Banyak solusi memerlukan 0 = 0. Di sini diperoleh 0 = 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "tepat satu solusi",
+           "is_correct": false,
+           "rationale": "Koefisien x dan y sebanding (6 : 3 = 2 : 1), jadi garisnya tidak berpotongan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "tidak ada solusi",
+           "is_correct": true,
+           "rationale": "Benar. Kalikan yang pertama dengan 2: 6x + 2y = 10. Kurangkan: 0 = 2, tidak pernah benar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "tepat dua solusi",
+           "is_correct": false,
+           "rationale": "Tepat dua solusi tidak mungkin terjadi."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 25
+         },
+         "ref": "LT12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sistem manakah yang mempunyai tepat satu solusi?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 94
+           },
+           "label": "A",
+           "body": "x + y = 4 dan x − y = 2",
+           "is_correct": true,
+           "rationale": "Benar. Jumlahkan: 2x = 6, jadi x = 3 dan y = 1, satu-satunya solusi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 95
+           },
+           "label": "B",
+           "body": "x + y = 4 dan 2x + 2y = 8",
+           "is_correct": false,
+           "rationale": "Persamaan kedua sama dengan yang pertama dikali 2: banyak solusi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 96
+           },
+           "label": "C",
+           "body": "x + y = 4 dan x + y = 6",
+           "is_correct": false,
+           "rationale": "x + y tidak mungkin 4 dan 6 sekaligus: tidak ada solusi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 97
+           },
+           "label": "D",
+           "body": "x − y = 2 dan 3x − 3y = 6",
+           "is_correct": false,
+           "rationale": "Persamaan kedua sama dengan yang pertama dikali 3: banyak solusi."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Pertidaksamaan Linear dan Daerah Hasil",
+       "summary": "Penyelesaian sistem pertidaksamaan linear adalah daerah pada bidang koordinat yang membuat semua pertidaksamaan bernilai benar.",
+       "body_markdown": "## Menimbang buah\n\nPak Eko menimbang buah. Dua apel dan lima jeruk beratnya kurang dari 1 kg, sedangkan enam apel dan dua jeruk beratnya lebih dari 1 kg. Setiap apel sama beratnya, dan setiap jeruk sama beratnya. Berapa berat setiap buah?\n\nMisalkan x berat sebuah apel dan y berat sebuah jeruk, dalam ons (1 kg = 10 ons):\n\n- 2x + 5y < 10\n- 6x + 2y > 10\n\nIni **sistem pertidaksamaan linear**. Penyelesaiannya membuat semua pertidaksamaannya bernilai benar sekaligus.\n\n## Garis batas\n\nUbah setiap tanda pertidaksamaan menjadi tanda sama dengan, lalu gambar garisnya: 2x + 5y = 10 dan 6x + 2y = 10.\n\n- Untuk < atau >, garis digambar **putus-putus**: garis itu hanya batas dan tidak termasuk daerah hasil.\n- Untuk ≤ atau ≥, garis digambar **utuh**: garis itu termasuk daerah hasil.\n\nPada soal Pak Eko, kedua garis putus-putus. Keduanya berpotongan di (15/13, 20/13), kira-kira (1,15; 1,54).\n\n## Uji titik\n\nPilih sebuah titik yang tidak terletak pada garis, misalnya (0, 0), lalu substitusikan:\n\n- 2 × 0 + 5 × 0 = 0 < 10 benar → daerah yang memuat (0, 0) adalah daerah hasil 2x + 5y < 10;\n- 6 × 0 + 2 × 0 = 0 > 10 tidak benar → daerah hasil 6x + 2y > 10 adalah sisi garis yang **tidak** memuat (0, 0).\n\nPenyelesaian sistem adalah **irisan** semua daerah hasil: titik yang memenuhi kedua pertidaksamaan.\n\n## Satu kemungkinan jawaban\n\nApel 2 ons dan jeruk 1 ons: 2 × 2 + 5 × 1 = 9 < 10 dan 6 × 2 + 2 × 1 = 14 > 10. Keduanya benar, jadi (2, 1) termasuk penyelesaian. Titik (1, 2) tidak: 2 × 1 + 5 × 2 = 12, tidak kurang dari 10.\n\nJawabannya bukan satu pasangan nilai, melainkan sebuah daerah: banyak pasangan berat yang mungkin.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 4._",
+       "objective": {
+        "statement": "Kamu dapat menggambar daerah hasil pertidaksamaan linear dengan garis batas dan uji titik.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Titik manakah yang memenuhi pertidaksamaan 3x + 2y < 12?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "(4, 0)",
+           "is_correct": false,
+           "rationale": "3 × 4 + 2 × 0 = 12, dan 12 < 12 tidak benar. Titik ini terletak pada garis batas yang putus-putus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "(0, 0)",
+           "is_correct": true,
+           "rationale": "Benar. 3 × 0 + 2 × 0 = 0, dan 0 < 12 benar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "(2, 4)",
+           "is_correct": false,
+           "rationale": "3 × 2 + 2 × 4 = 14, tidak kurang dari 12."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "(4, 1)",
+           "is_correct": false,
+           "rationale": "3 × 4 + 2 × 1 = 14, tidak kurang dari 12."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Titik manakah yang termasuk penyelesaian sistem 2x + y ≤ 8 dan x − y > 1?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "(4, 1)",
+           "is_correct": false,
+           "rationale": "x − y = 3 > 1 benar, tetapi 2 × 4 + 1 = 9, lebih dari 8. Kedua syarat harus dipenuhi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "(3, 1)",
+           "is_correct": true,
+           "rationale": "Benar. 2 × 3 + 1 = 7 ≤ 8 dan 3 − 1 = 2 > 1: kedua pertidaksamaan benar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "(2, 1)",
+           "is_correct": false,
+           "rationale": "x − y = 1, dan 1 > 1 tidak benar. Titik ini terletak pada garis batas putus-putus, yang tidak termasuk."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "(0, 0)",
+           "is_correct": false,
+           "rationale": "2 × 0 + 0 ≤ 8 benar, tetapi 0 − 0 = 0 > 1 tidak benar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Saat menggambar daerah hasil x + 2y ≥ 6, garis x + 2y = 6 digambar ...",
+         "use": "POST_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "putus-putus, karena titik pada garis tidak termasuk daerah hasil",
+           "is_correct": false,
+           "rationale": "Garis putus-putus dipakai untuk < dan >. Tanda ≥ memuat «sama dengan»."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "utuh, karena semua garis batas digambar utuh",
+           "is_correct": false,
+           "rationale": "Tidak semua: garis untuk < dan > digambar putus-putus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "putus-putus, karena garis hanya batas",
+           "is_correct": false,
+           "rationale": "Itu berlaku untuk < dan >. Untuk ≥, garisnya termasuk daerah hasil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "utuh, karena titik pada garis termasuk daerah hasil",
+           "is_correct": true,
+           "rationale": "Benar. Tanda ≥ membolehkan x + 2y = 6, jadi garisnya termasuk dan digambar utuh."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 26
+         },
+         "ref": "LT13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Apakah titik (0, 0) termasuk daerah hasil 4x + 3y < 12?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 98
+           },
+           "label": "A",
+           "body": "ya, karena 0 < 12 benar",
+           "is_correct": true,
+           "rationale": "Benar. 4 × 0 + 3 × 0 = 0, dan 0 < 12 benar, jadi daerah yang memuat (0, 0) adalah daerah hasil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 99
+           },
+           "label": "B",
+           "body": "tidak, karena 0 < 12 tidak benar",
+           "is_correct": false,
+           "rationale": "0 < 12 justru benar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 100
+           },
+           "label": "C",
+           "body": "tidak, karena (0, 0) terletak pada garis batas",
+           "is_correct": false,
+           "rationale": "Pada garis batas 4x + 3y = 12. Di (0, 0) nilainya 0, jadi titik itu tidak pada garis."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 101
+           },
+           "label": "D",
+           "body": "hanya jika garisnya digambar utuh",
+           "is_correct": false,
+           "rationale": "Jenis garis hanya menentukan titik pada garis batas. (0, 0) tidak pada garis."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 27
+         },
+         "ref": "LT14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Titik manakah yang memenuhi x + y > 5?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 102
+           },
+           "label": "A",
+           "body": "(2, 2)",
+           "is_correct": false,
+           "rationale": "2 + 2 = 4, tidak lebih dari 5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 103
+           },
+           "label": "B",
+           "body": "(5, 0)",
+           "is_correct": false,
+           "rationale": "5 + 0 = 5, dan 5 > 5 tidak benar. Titik ini terletak pada garis batas putus-putus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 104
+           },
+           "label": "C",
+           "body": "(4, 3)",
+           "is_correct": true,
+           "rationale": "Benar. 4 + 3 = 7 > 5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 105
+           },
+           "label": "D",
+           "body": "(0, 0)",
+           "is_correct": false,
+           "rationale": "0 + 0 = 0, tidak lebih dari 5."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 28
+         },
+         "ref": "LT15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Garis batas daerah hasil 3x − y < 6 digambar sebagai ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 106
+           },
+           "label": "A",
+           "body": "garis utuh",
+           "is_correct": false,
+           "rationale": "Garis utuh dipakai untuk ≤ dan ≥."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 107
+           },
+           "label": "B",
+           "body": "garis putus-putus",
+           "is_correct": true,
+           "rationale": "Benar. Tanda < tidak memuat «sama dengan», jadi titik pada garis tidak termasuk."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 108
+           },
+           "label": "C",
+           "body": "garis utuh yang diarsir",
+           "is_correct": false,
+           "rationale": "Yang diarsir adalah daerahnya, dan garis untuk < digambar putus-putus."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 109
+           },
+           "label": "D",
+           "body": "tidak perlu digambar",
+           "is_correct": false,
+           "rationale": "Garis batas diperlukan untuk memisahkan daerah hasil dari yang bukan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "LT16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Daerah penyelesaian sebuah sistem pertidaksamaan linear adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "gabungan semua daerah hasil",
+           "is_correct": false,
+           "rationale": "Gabungan memuat titik yang hanya memenuhi satu pertidaksamaan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "daerah hasil pertidaksamaan pertama saja",
+           "is_correct": false,
+           "rationale": "Setiap pertidaksamaan dalam sistem harus dipenuhi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "titik potong garis-garis batasnya",
+           "is_correct": false,
+           "rationale": "Penyelesaiannya sebuah daerah, bukan hanya satu titik."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "irisan semua daerah hasil",
+           "is_correct": true,
+           "rationale": "Benar. Solusinya adalah daerah yang merupakan irisan semua daerah jawab."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "Sistem Pertidaksamaan Linear dalam Masalah",
+       "summary": "Masalah dengan batasan seperti anggaran dan jumlah minimum dimodelkan dengan sistem pertidaksamaan linear; solusinya irisan semua daerah hasil.",
+       "body_markdown": "## Perayaan hari kemerdekaan\n\nKiki adalah panitia perayaan hari kemerdekaan di RT. Dari kas RT ada Rp500.000 yang dapat digunakan. Penyelenggaraan perlombaan membutuhkan Rp20.000 per anak, dan hadiah dianggarkan Rp40.000 untuk setiap jenis perlombaan. Diharapkan ada lebih dari 13 anak yang berpartisipasi. Apa saja kemungkinannya?\n\nMisalkan x banyak anak dan y banyak jenis perlombaan. Dalam ribuan rupiah:\n\n- 20x + 40y ≤ 500 (biaya tidak melebihi kas)\n- x > 13 (lebih dari 13 anak)\n\nKarena x dan y banyaknya anak dan perlombaan, keduanya bilangan cacah, dan paling sedikit ada satu perlombaan (y ≥ 1).\n\n## Membaca daerah hasil\n\nGaris 20x + 40y = 500 digambar utuh (tanda ≤), dan garis x = 13 putus-putus (tanda >). Uji (0, 0): 0 ≤ 500 benar, tetapi 0 > 13 tidak benar. Daerah hasil adalah irisan: di bawah atau pada garis pertama, dan di sebelah kanan garis x = 13.\n\n## Kemungkinannya\n\nPertidaksamaan pertama dapat disederhanakan menjadi x + 2y ≤ 25.\n\n- y = 1 → x dari 14 sampai 23\n- y = 3 → x dari 14 sampai 19\n- y = 5 → x = 14 atau 15\n\nJadi paling banyak 5 jenis perlombaan. Contoh: 20 anak dan 2 perlombaan memerlukan 20 × 20 + 40 × 2 = 480 ribu rupiah, masih cukup. 16 anak dan 5 perlombaan memerlukan 520 ribu rupiah, tidak cukup.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 4._",
+       "objective": {
+        "statement": "Kamu dapat memodelkan masalah dengan sistem pertidaksamaan linear dan menafsirkan daerah hasilnya.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kelas menyewa meja seharga Rp30.000 per meja dan tenda seharga Rp50.000 per tenda. Anggarannya tidak lebih dari Rp300.000, dan diperlukan setidaknya 2 meja dan 1 tenda. Pilihan manakah yang mungkin?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "6 meja dan 3 tenda",
+           "is_correct": false,
+           "rationale": "Banyak meja dan tenda cukup, tetapi biayanya 180 + 150 = 330 ribu, melebihi anggaran."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "1 meja dan 5 tenda",
+           "is_correct": false,
+           "rationale": "Biayanya 280 ribu, masih cukup, tetapi mejanya kurang dari 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "5 meja dan 2 tenda",
+           "is_correct": true,
+           "rationale": "Benar. 30 × 5 + 50 × 2 = 250 ribu ≤ 300 ribu, 5 ≥ 2, dan 2 ≥ 1: semua syarat terpenuhi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "5 meja dan tanpa tenda",
+           "is_correct": false,
+           "rationale": "Biayanya cukup, tetapi diperlukan setidaknya 1 tenda."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 30
+         },
+         "ref": "LT17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada soal Kiki, 20x + 40y ≤ 500 (dalam ribuan rupiah) dan x > 13, dengan x banyak anak dan y banyak perlombaan. Pasangan manakah yang mungkin?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 114
+           },
+           "label": "A",
+           "body": "13 anak dan 5 lomba",
+           "is_correct": false,
+           "rationale": "Biayanya 460 ribu, cukup, tetapi 13 > 13 tidak benar: harus lebih dari 13 anak."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 115
+           },
+           "label": "B",
+           "body": "16 anak dan 5 lomba",
+           "is_correct": false,
+           "rationale": "Biayanya 320 + 200 = 520 ribu, melebihi 500 ribu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 116
+           },
+           "label": "C",
+           "body": "20 anak dan 3 lomba",
+           "is_correct": false,
+           "rationale": "Biayanya 400 + 120 = 520 ribu, melebihi 500 ribu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 117
+           },
+           "label": "D",
+           "body": "15 anak dan 5 lomba",
+           "is_correct": true,
+           "rationale": "Benar. 20 × 15 + 40 × 5 = 500 ≤ 500, dan 15 > 13."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "Memodelkan Masalah",
+       "summary": "Kata seperti setidaknya, paling banyak, dan tidak lebih dari menentukan tanda pertidaksamaan; pilih persamaan atau pertidaksamaan menurut masalahnya.",
+       "body_markdown": "## Langkah memodelkan\n\n1. Tentukan variabelnya: apa yang dicari? Tulis artinya dan satuannya.\n2. Terjemahkan setiap keterangan menjadi persamaan atau pertidaksamaan.\n3. Selesaikan, lalu periksa jawabannya pada masalah awal.\n\nJika keterangannya berupa jumlah yang tepat («seharga», «beratnya»), gunakan persamaan. Jika berupa batasan («paling banyak», «lebih dari»), gunakan pertidaksamaan.\n\n## Menerjemahkan kata-kata\n\n- «lebih dari 13» → x > 13\n- «kurang dari 1 kg» → … < 10 (dalam ons)\n- «setidaknya 5» atau «paling sedikit 5» → y ≥ 5\n- «tidak lebih dari 10» atau «paling banyak 10» → x + y ≤ 10\n- «tidak kurang dari 2» → x ≥ 2\n\n## Contoh\n\nRina punya Rp60.000 untuk membeli buku seharga Rp8.000 dan pena seharga Rp3.000. Ia ingin membeli setidaknya 2 buku. Apakah 3 buku dan 10 pena mungkin? Bagaimana dengan 6 buku dan 5 pena?\n\nMisalkan x banyak buku dan y banyak pena. Dalam ribuan rupiah: 8x + 3y ≤ 60 dan x ≥ 2.\n\n- 3 buku dan 10 pena: 8 × 3 + 3 × 10 = 54 ≤ 60 dan 3 ≥ 2. **Mungkin.**\n- 6 buku dan 5 pena: 8 × 6 + 3 × 5 = 63, lebih dari 60. **Tidak mungkin.**\n\n## Rangkuman Bab 4\n\n- Sistem persamaan linear: solusinya memenuhi semua persamaan; diselesaikan dengan eliminasi dan substitusi.\n- Sistem tiga variabel dijadikan sistem dua variabel dengan mengeliminasi satu variabel.\n- Hasil eliminasi 0 = (bilangan bukan nol) berarti tidak ada solusi; 0 = 0 berarti banyak solusi.\n- Sistem pertidaksamaan linear: garis batas putus-putus untuk < dan >, utuh untuk ≤ dan ≥; uji titik; solusinya irisan semua daerah hasil.\n\n_Diadaptasi dari Matematika untuk SMA/MA/SMK/MAK Kelas X (Edisi Revisi), Dicky Susanto dkk., Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2023, Bab 4._",
+       "objective": {
+        "statement": "Kamu dapat menerjemahkan masalah sehari-hari menjadi sistem persamaan atau pertidaksamaan linear.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Banyak jam kerja x tidak lebih dari 10 jam. Pertidaksamaan yang tepat adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "x < 10",
+           "is_correct": false,
+           "rationale": "Tanda < tidak membolehkan tepat 10 jam, padahal 10 jam tidak lebih dari 10."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "x ≥ 10",
+           "is_correct": false,
+           "rationale": "Arahnya terbalik: x ≥ 10 berarti setidaknya 10 jam."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "x > 10",
+           "is_correct": false,
+           "rationale": "Itu berarti lebih dari 10 jam, kebalikan dari yang diminta."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "x ≤ 10",
+           "is_correct": true,
+           "rationale": "Benar. «Tidak lebih dari 10» berarti 10 atau kurang, jadi 10 sendiri boleh."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah aula dapat menampung paling banyak 60 kursi. Panitia memakai x kursi lipat dan y kursi plastik, dengan paling sedikit 20 kursi lipat. Model yang tepat adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "x + y ≤ 60 dan x ≥ 20",
+           "is_correct": true,
+           "rationale": "Benar. «Paling banyak 60» berarti x + y ≤ 60, dan «paling sedikit 20» berarti x ≥ 20."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "x + y < 60 dan x > 20",
+           "is_correct": false,
+           "rationale": "Tanda < dan > tidak membolehkan tepat 60 kursi atau tepat 20 kursi lipat, padahal keduanya boleh."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "x + y ≥ 60 dan x ≤ 20",
+           "is_correct": false,
+           "rationale": "Kedua tanda terbalik: «paling banyak» memakai ≤ dan «paling sedikit» memakai ≥."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "x + y = 60 dan x = 20",
+           "is_correct": false,
+           "rationale": "Masalahnya berupa batasan, bukan jumlah yang tepat, jadi dipakai pertidaksamaan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 31
+         },
+         "ref": "LT18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Nova ingin membeli setidaknya 5 tanaman. Jika y banyak tanaman, pertidaksamaannya ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 118
+           },
+           "label": "A",
+           "body": "y > 5",
+           "is_correct": false,
+           "rationale": "Tanda > tidak membolehkan tepat 5 tanaman, padahal 5 tanaman sudah memenuhi."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 119
+           },
+           "label": "B",
+           "body": "y ≥ 5",
+           "is_correct": true,
+           "rationale": "Benar. «Setidaknya 5» berarti 5 atau lebih."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 120
+           },
+           "label": "C",
+           "body": "y ≤ 5",
+           "is_correct": false,
+           "rationale": "Arahnya terbalik: itu berarti paling banyak 5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 121
+           },
+           "label": "D",
+           "body": "y < 5",
+           "is_correct": false,
+           "rationale": "Itu berarti kurang dari 5, kebalikan dari yang diminta."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 32
+         },
+         "ref": "LT19",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sari berlatih renang x jam dan lari y jam setiap minggu, paling banyak 8 jam seluruhnya. Pertidaksamaannya ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 122
+           },
+           "label": "A",
+           "body": "x + y < 8",
+           "is_correct": false,
+           "rationale": "Tanda < tidak membolehkan tepat 8 jam."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 123
+           },
+           "label": "B",
+           "body": "x + y ≥ 8",
+           "is_correct": false,
+           "rationale": "Arahnya terbalik: itu berarti paling sedikit 8 jam."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 124
+           },
+           "label": "C",
+           "body": "x + y ≤ 8",
+           "is_correct": true,
+           "rationale": "Benar. «Paling banyak 8» berarti jumlahnya 8 atau kurang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 125
+           },
+           "label": "D",
+           "body": "x + y = 8",
+           "is_correct": false,
+           "rationale": "«Paling banyak» adalah batasan, bukan jumlah yang tepat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 33
+         },
+         "ref": "LT20",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Masalah manakah yang dimodelkan dengan pertidaksamaan?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 126
+           },
+           "label": "A",
+           "body": "anggaran paling banyak Rp50.000 untuk buku dan pena",
+           "is_correct": true,
+           "rationale": "Benar. «Paling banyak» adalah batasan, jadi dipakai pertidaksamaan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 127
+           },
+           "label": "B",
+           "body": "2 buku dan 1 pena seharga Rp13.000, berapa harga masing-masing",
+           "is_correct": false,
+           "rationale": "Harganya tepat, jadi dipakai persamaan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 128
+           },
+           "label": "C",
+           "body": "tiga bola beratnya 1.550 g, berapa berat setiap bola",
+           "is_correct": false,
+           "rationale": "Beratnya tepat, jadi dipakai persamaan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 129
+           },
+           "label": "D",
+           "body": "jumlah dua bilangan 20 dan selisihnya 4",
+           "is_correct": false,
+           "rationale": "Jumlah dan selisihnya tepat, jadi dipakai persamaan."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -524,16 +524,18 @@ begin
         v_probs := selftest.f09_note(v_probs, 'F09-A02', 'an institution administrator could create a person outside the intake');
       else m_act_denied := m_act_denied + 1; end if;
 
-      -- the real request is authorized and audited
+      -- the real request is authorized. D-093 T3: an authorization is an intention, not an event -- nothing is on
+      -- the audit record until the account exists
       select count(*) into n from public.authorize_account_activation(v_p, 'EMAIL', 'murid-' || v_tag || '@local.invalid');
       perform selftest.as_owner();
       if n <> 1 then
         v_probs := selftest.f09_note(v_probs, 'F09-A02', 'the administrator''s activation was not authorized');
       end if;
       select count(*) into n from public.audit_log l
-       where l.action = 'account.activation_authorized' and l.target_id = v_p::text;
-      if n <> 1 then
-        v_probs := selftest.f09_note(v_probs, 'F09-A02', format('%s audit row(s) for one activation', n));
+       where l.action like 'account.%' and (l.target_id = v_p::text or l.summary ->> 'person_id' = v_p::text);
+      if n <> 0 then
+        v_probs := selftest.f09_note(v_probs, 'F09-A02',
+          format('%s audit row(s) say an account was activated before any account existed (D-093 T3)', n));
       end if;
 
       -- what Auth then inserts when the route asks it to: GoTrue's shape, with
@@ -545,6 +547,16 @@ begin
       select count(*) into n from public.accounts a where a.auth_user_id = v_u and a.person_id = v_p;
       if n <> 1 then
         v_probs := selftest.f09_note(v_probs, 'F09-A02', 'the activated identity is not the provisioned person');
+      end if;
+      -- now it has happened: once, naming the person, who authorized it and as what
+      select count(*) into n from public.audit_log l
+       where l.action = 'account.activated' and l.target_id = v_p::text and l.institution_id = v_inst
+         and l.summary ->> 'outcome' = 'ACCOUNT_CREATED' and l.summary ->> 'kind' = 'EMAIL'
+         and l.summary ->> 'authorized_by' = (select a.person_id::text from public.accounts a where a.auth_user_id = v_adm_u)
+         and l.summary ->> 'actor_role' = 'INSTITUTION_ADMIN';
+      if n <> 1 then
+        v_probs := selftest.f09_note(v_probs, 'F09-A02',
+          format('%s record(s) of the account''s creation naming the person, the authorizer and their role; expected 1 (D-093 T3)', n));
       end if;
       select e.status::text into v_state from public.enrollments e where e.id = v_enr;
       if v_state <> 'ACTIVE' then
@@ -577,6 +589,23 @@ begin
         v_probs := selftest.f09_note(v_probs, 'F09-A02', 'a SYSTEM_ADMIN could not authorize a new person: ' || (v_err ->> 'message'));
       end if;
       perform selftest.as_owner();
+      -- D-093 T3: no record of a person who does not exist yet; when Auth creates them, the record names them
+      select count(*) into n from public.audit_log l
+       where l.action like 'account.%' and l.summary ->> 'display_name' = 'Admin Sekolah Baru';
+      if n <> 0 then
+        v_probs := selftest.f09_note(v_probs, 'F09-A02', 'a new person was recorded as created before they existed (D-093 T3)');
+      end if;
+      insert into auth.users (id, email, raw_app_meta_data)
+      values (gen_random_uuid(), 'admin-sekolah-' || v_tag || '@local.invalid', '{"provider":"email","providers":["email"]}')
+      returning auth.users.id into v_u;
+      select count(*) into n from public.audit_log l
+       join public.accounts a on a.person_id::text = l.target_id and a.auth_user_id = v_u
+       where l.action = 'account.activated' and (l.summary ->> 'new_person')::boolean
+         and l.summary ->> 'actor_role' = 'SYSTEM_ADMIN';
+      if n <> 1 then
+        v_probs := selftest.f09_note(v_probs, 'F09-A02',
+          format('%s record(s) of the new person''s creation naming them and the SYSTEM_ADMIN; expected 1 (D-093 T3)', n));
+      end if;
     exception when others then
       perform selftest.as_owner();
       v_probs := selftest.f09_note(v_probs, 'F09-A02', 'the test could not run: ' || left(sqlerrm, 150));

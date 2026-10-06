@@ -1,6 +1,8 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions, when } from "../_lib";
 import { launchQuickAssessmentAction } from "../actions";
+import TombolKirim from "@/components/TombolKirim";
+import HasilDi from "@/components/HasilDi";
 
 /**
  * Quick Assessment (ADR-0018).
@@ -23,7 +25,7 @@ import { launchQuickAssessmentAction } from "../actions";
  * history — and says so in a sentence a teacher can act on. Work already
  * finished stays finished (ADR-0018, INV-27).
  */
-type Search = Promise<{ hasil?: string; detail?: string; kelas?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; kelas?: string }>;
 
 export default async function Kuis({ searchParams }: { searchParams: Search }) {
   const sp = await searchParams;
@@ -94,7 +96,6 @@ export default async function Kuis({ searchParams }: { searchParams: Search }) {
   return (
     <div className="grid gap-6">
       <h2 className="text-lg font-medium">{s("studio.kuis.judul")}</h2>
-      {outcomeLine(sp.hasil, sp.detail) ? <p className={card}>{outcomeLine(sp.hasil, sp.detail)}</p> : null}
       <p className="text-sm text-ink-2">{s("studio.kuis.pengantar")}</p>
 
       <section className={card} id="kuis">
@@ -141,9 +142,10 @@ export default async function Kuis({ searchParams }: { searchParams: Search }) {
                 <input className={field} name="menit" type="number" defaultValue={15} required />
               </label>
             </div>
-            <button className={button} type="submit">{s("studio.kuis.luncurkan")}</button>
+            <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.kuis.luncurkan")}</TombolKirim>
           </form>
         )}
+        <HasilDi q={sp} bagian="kuis" kalimat={outcomeLine(sp)} />
       </section>
 
       <section className="grid gap-2">

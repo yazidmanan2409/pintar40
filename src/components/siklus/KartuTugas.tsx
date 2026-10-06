@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { t, format, type Locale } from "@/lib/hle";
-import { statusKey, type Posisi } from "@/lib/siklus";
+import { statusKey, type Ketuntasan, type Posisi } from "@/lib/siklus";
 import type { AssignmentEntry } from "@/lib/assessment-engine/types";
 import JejakSiklus from "./JejakSiklus";
 
@@ -17,12 +17,15 @@ export default function KartuTugas({
   posisi,
   locale,
   aksi,
+  target = null,
 }: {
   tugas: AssignmentEntry;
   posisi: Posisi;
   locale: Locale;
   /** Where this card leads, and what the button says. */
   aksi: { href: string; labelKey: Parameters<typeof t>[0] } | null;
+  /** D-085 M3: on a finished chapter, whether the target was met (the session's own verdict); null when there is none */
+  target?: Ketuntasan | null;
 }) {
   const s = (k: Parameters<typeof t>[0]) => t(k, "learner", { locale });
   // "Sedang di Pelajaran — 3 dari 5 selesai". The counts are only meaningful
@@ -45,6 +48,10 @@ export default function KartuTugas({
         <span className="pin-tstatus">
           {s(statusKey(posisi) as Parameters<typeof t>[0])}
           {hitung}
+          {/* M3: «Selesai» alone would say a finished chapter was mastered; it says which holds */}
+          {posisi.langkah === "HASIL" && target
+            ? ` · ${s(target === "TERCAPAI" ? "siklus.target.tercapai" : "siklus.target.belum")}`
+            : ""}
         </span>
         {aksi ? (
           <Link className="pin-btn" href={aksi.href}>

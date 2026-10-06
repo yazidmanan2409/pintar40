@@ -294,15 +294,192 @@ begin
 end $$;
 revoke all on function selftest.adversarial_bank(text) from public;
 
+-- F04-T04d, BOB-36 (INV-29): a launched Uji Cepat keeps its rules. Its own
+-- function, so run_fable04 and the plant gate's run_bob36 run the same test,
+-- and everything it creates (two launches, a sitting) is undone before it
+-- returns: a rerun in the same clock minute never meets its launches, whose
+-- titles F04-T04c reads.
+create or replace function selftest.f04_quick_rules(v_inst uuid, p_modul uuid, out ok boolean, out detail text)
+language plpgsql set search_path = public, pg_temp as $f04d$
+begin
+  ok := true; detail := '';
+  declare
+    v_q record; v_s uuid; v_lulus1 jsonb; v_lulus2 jsonb; v_rows int; v_field text; v_set text;
+    v_through text := ''; v_other text := ''; v_q2 record; v_hist1 text; v_hist2 text; v_det text; v_mod2 uuid;
+  begin
+    perform selftest.as_user('boot-guru@bootstrap.pintar.test');
+    select * into v_q from public.launch_quick_assessment(v_inst, p_modul, 3, 20);
+    perform selftest.as_owner();
+    perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+    v_s := public.start_learning_session(v_q.assessment_assignment_id);
+    perform selftest.answer_paper(v_s, true);
+    perform public.finish_my_session(v_s);
+    v_lulus1 := public.session_outcome(v_s);
+    perform selftest.as_owner();
+    select md5(coalesce(string_agg(x, '|' order by x), '')) into v_hist1 from (
+      select to_jsonb(ss)::text x from public.assessment_sessions ss where ss.id = v_s
+      union all select to_jsonb(ar)::text from public.assessment_results ar where ar.session_id = v_s) q;
+    if (v_lulus1 ->> 'lulus') is null then
+      ok := false; detail := detail || format('the finished Uji Cepat has no verdict to protect (%s); ', v_lulus1::text);
+    end if;
+
+    -- the teacher who launched it, straight at the table: a pass mark nobody can reach
+    perform selftest.as_user('boot-guru@bootstrap.pintar.test');
+    begin
+      update public.assessment_definitions
+         set passing_rules = jsonb_set(coalesce(passing_rules, '{}'::jsonb), '{mastery_min}', '1.01'::jsonb)
+       where id = v_q.assessment_definition_id;
+      get diagnostics v_rows = row_count;
+      if v_rows = 1 then v_through := v_through || 'passing_rules, '; end if;
+    exception when others then null; end;
+    perform selftest.as_owner();
+    perform selftest.as_user('boot-siswa@bootstrap.pintar.test');
+    v_lulus2 := public.session_outcome(v_s);
+    perform selftest.as_owner();
+    if v_lulus2 is distinct from v_lulus1 then
+      ok := false; detail := detail || format('an edit after the sitting changed the finished session''s verdict from %s to %s; ',
+        coalesce(v_lulus1 ->> 'lulus', 'none'), coalesce(v_lulus2 ->> 'lulus', 'none'));
+    end if;
+
+    -- another chapter of the same school to point it at: made here as the
+    -- owner (the bootstrap school has one), and undone with the rest
+    insert into public.courses (institution_id, subject, stage, grade_label, title)
+    select m0.institution_id, 'Matematika', 'SD', '5', 'F04-T04d bab lain' from public.modules m0 where m0.id = p_modul
+    returning id into v_mod2;
+    insert into public.modules (course_id, institution_id, ordinal, title)
+    select v_mod2, c.institution_id, 1, 'F04-T04d bab lain' from public.courses c where c.id = v_mod2
+    returning id into v_mod2;
+    -- every other interpretive field, one at a time, each in its own undo
+    foreach v_field in array array['mode','bank_type','item_count','difficulty_mix','safety_critical_minimum',
+                                   'shuffle_policy','hesitation_window_seconds','allows_pause','offline_tolerant',
+                                   'late_sync_grace_seconds','attempt_limit','status','module_id','course_id'] loop
+      v_set := case v_field
+        when 'mode' then 'mode = ''POST_TEST'''
+        when 'bank_type' then 'bank_type = case when bank_type = ''PRACTICE'' then ''TEST''::public.bank_type else ''PRACTICE''::public.bank_type end'
+        when 'item_count' then 'item_count = item_count + 1'
+        when 'difficulty_mix' then 'difficulty_mix = coalesce(difficulty_mix, ''{}''::jsonb) || ''{"f04_t04d": 1}''::jsonb'
+        when 'safety_critical_minimum' then 'safety_critical_minimum = case when safety_critical_minimum > 0 then 0 else 1 end'
+        when 'shuffle_policy' then 'shuffle_policy = case when shuffle_policy = ''NONE'' then ''ITEMS'' else ''NONE'' end'
+        when 'hesitation_window_seconds' then 'hesitation_window_seconds = coalesce(hesitation_window_seconds, 10) % 3000 + 1'
+        when 'allows_pause' then 'allows_pause = not allows_pause'
+        when 'offline_tolerant' then 'offline_tolerant = not offline_tolerant'
+        when 'late_sync_grace_seconds' then 'late_sync_grace_seconds = late_sync_grace_seconds + 1'
+        when 'attempt_limit' then 'attempt_limit = coalesce(attempt_limit, 1) + 1'
+        -- no product path moves an Uji Cepat's status, so none continues once it is sat
+        when 'status' then 'status = ''STRUCTURED'''
+        -- where it was sat: another chapter of the same school, or the course itself
+        when 'module_id' then format('module_id = %L', v_mod2)
+        when 'course_id' then format('course_id = (select m.course_id from public.modules m where m.id = %L), module_id = null', p_modul) end;
+      perform selftest.as_user('boot-guru@bootstrap.pintar.test');
+      begin
+        execute format('update public.assessment_definitions set %s where id = %L', v_set, v_q.assessment_definition_id);
+        get diagnostics v_rows = row_count;
+        if v_rows = 1 then v_through := v_through || v_field || ', '; end if;
+        raise exception 'F04_T04D_UNDO';
+      exception when others then
+        get stacked diagnostics v_det = pg_exception_detail;
+        if sqlerrm <> 'F04_T04D_UNDO' and v_det is distinct from 'QUICK_RULES_FIXED' then
+          v_other := v_other || v_field || ' (' || left(sqlerrm, 60) || '), ';
+        end if;
+      end;
+      perform selftest.as_owner();
+    end loop;
+    if v_through <> '' then
+      ok := false; detail := detail || format('after a session exists the teacher rewrote in place: %s; ', rtrim(v_through, ', '));
+    end if;
+    if v_other <> '' then
+      ok := false; detail := detail || format('refused for a reason other than INV-29: %s; ', rtrim(v_other, ', '));
+    end if;
+    -- every role, the owner included
+    begin
+      update public.assessment_definitions set passing_rules = '{"mastery_min": 0.1}'::jsonb where id = v_q.assessment_definition_id;
+      ok := false; detail := detail || 'the owner rewrote a sat Uji Cepat''s passing_rules; ';
+    exception when others then
+      get stacked diagnostics v_det = pg_exception_detail;
+      if v_det is distinct from 'QUICK_RULES_FIXED' then
+        ok := false; detail := detail || format('the owner''s edit was refused for another reason: %s; ', left(sqlerrm, 80));
+      end if;
+    end;
+    -- and deletion: the sessions' foreign key already refuses it
+    begin
+      delete from public.assessment_definitions where id = v_q.assessment_definition_id;
+      ok := false; detail := detail || 'a sat Uji Cepat was deleted; ';
+    exception when foreign_key_violation then null;
+      when others then ok := false; detail := detail || format('deleting a sat Uji Cepat was refused for another reason: %s; ', left(sqlerrm, 80));
+    end;
+
+    -- the finished sitting itself is untouched
+    select md5(coalesce(string_agg(x, '|' order by x), '')) into v_hist2 from (
+      select to_jsonb(ss)::text x from public.assessment_sessions ss where ss.id = v_s
+      union all select to_jsonb(ar)::text from public.assessment_results ar where ar.session_id = v_s) q;
+    if v_hist2 is distinct from v_hist1 then
+      ok := false; detail := detail || 'the finished session or its result was rewritten; ';
+    end if;
+
+    -- what legitimately continues: the title still changes, and a definition
+    -- nobody has sat is still the teacher's to edit
+    perform selftest.as_user('boot-guru@bootstrap.pintar.test');
+    begin
+      update public.assessment_definitions set title = title || ' (dikoreksi)' where id = v_q.assessment_definition_id;
+      get diagnostics v_rows = row_count;
+      if v_rows <> 1 then ok := false; detail := detail || 'the title of a sat Uji Cepat can no longer be corrected; '; end if;
+    exception when others then
+      ok := false; detail := detail || format('the title of a sat Uji Cepat can no longer be corrected: %s; ', left(sqlerrm, 80));
+    end;
+    select * into v_q2 from public.launch_quick_assessment(v_inst, p_modul, 3, 20);
+    begin
+      update public.assessment_definitions set shuffle_policy = 'NONE' where id = v_q2.assessment_definition_id;
+      get diagnostics v_rows = row_count;
+      if v_rows <> 1 then ok := false; detail := detail || 'an Uji Cepat nobody has sat can no longer be edited; '; end if;
+    exception when others then
+      ok := false; detail := detail || format('an Uji Cepat nobody has sat can no longer be edited: %s; ', left(sqlerrm, 80));
+    end;
+    perform selftest.as_owner();
+    raise exception 'F04_T04D_ALL_UNDO';
+  exception when others then
+    perform selftest.as_owner();
+    if sqlerrm = 'F04_T04D_ALL_UNDO' then return; end if;
+    ok := false; detail := detail || 'the test could not run: ' || left(sqlerrm, 150) || '; ';
+  end;
+end $f04d$;
+revoke all on function selftest.f04_quick_rules(uuid, uuid) from public;
+
+-- The plant gate for BOB-36 (db-bob36-gates): F04-T04d alone, over the same
+-- seeded class F04-T04 teaches in.
+create or replace function selftest.run_bob36()
+returns table (test_id text, invariant text, ok boolean, detail text)
+language plpgsql set search_path = public, pg_temp as $f04g$
+declare f record; v_inst uuid;
+begin
+  perform selftest.as_owner();
+  select * into f from selftest.boot_fixture();
+  select n.id into v_inst from public.org_nodes n where n.institution_id = f.inst and n.kind = 'CLASS'
+   order by n.created_at, n.id limit 1;
+  select q.ok, q.detail into ok, detail from selftest.f04_quick_rules(v_inst, f.modul) q;
+  test_id := 'F04-T04d'; invariant := 'BOB-36 / INV-29';
+  if ok then detail := 'once a learner had sat a launched Uji Cepat, its teacher''s direct edits of passing_rules and of the other eleven '
+    || 'interpretive fields (mode, bank_type, item_count, difficulty_mix, safety_critical_minimum, shuffle_policy, '
+    || 'hesitation_window_seconds, allows_pause, offline_tolerant, late_sync_grace_seconds, attempt_limit) and of its status '
+    || '(no status change continues once sat), and of where it was sat (module_id, course_id) were each refused PR061 '
+    || 'QUICK_RULES_FIXED, the owner''s too; deleting it is refused '
+    || 'by the sessions'' foreign key; the finished verdict stayed as it was and the session and its result are unchanged; the '
+    || 'title can still be corrected and an Uji Cepat nobody has sat is still editable'; end if;
+  return next;
+  test_id := 'BOB36-DONE'; invariant := '-'; ok := true; detail := 'BOB-36 gate suite complete; nothing left behind';
+  return next;
+end $f04g$;
+revoke all on function selftest.run_bob36() from public;
+
 create or replace function selftest.run_fable04()
 returns table (test_id text, invariant text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   f record; s uuid; c record; n int; n2 int; v_ok boolean; v_detail text;
-  v_tok text; v_cert uuid; e record; v record; v_row record;
+  v_tok text; v_cert uuid; e record; v record; v_row record; v_tok_rev text;
   v_before text; v_after text; v_pos int; v_inst uuid; v_sess uuid;
-  bad text; v_def2 uuid; v_course uuid; v_status text; v_blockers text[];
+  bad text; v_def2 uuid; v_course uuid; v_status text; v_blockers jsonb;
   v_demo uuid; v_enr uuid; v_taught uuid;
+  v_judul_cepat text;  -- BOB-33 (F04-T04c)
   t0 timestamptz := clock_timestamp();
 begin
   perform selftest.as_owner();
@@ -471,6 +648,76 @@ begin
   test_id := 'F04-T04'; invariant := 'doc 07 §5 / INV-12';
   if ok then detail := 'an in-scope educator launches in one call at the TEST tier and a second launch in the same minute succeeds with its own title (0049); '
     || 'a DEAN, an out-of-scope educator and an out-of-bounds size are each refused'; end if;
+  return next;
+
+  -- =========================================================================
+  -- F04-T04c BOB-33: an Uji Cepat is dated in Jakarta time, in numbers. The
+  -- two launches above are titled by quick_assessment_label(now()); a launch at
+  -- 23:30 UTC carries the next day's Jakarta date; no month name appears in any
+  -- month; and no client can call the helper.
+  -- =========================================================================
+  ok := true; detail := '';
+  -- the titles, judged against Jakarta time computed here, not by the helper
+  v_judul_cepat := 'Uji Cepat — ' || to_char(now() at time zone 'Asia/Jakarta', 'YYYY-MM-DD HH24:MI');
+  if v_cert is not null then
+    select title into v_after from public.assessment_definitions where id = v_cert;
+    if v_after is distinct from v_judul_cepat then
+      ok := false; detail := detail || format('a launch now is titled «%s», expected «%s» (Jakarta time, numeric date); ', v_after, v_judul_cepat);
+    end if;
+    if v_after ~ '(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)' then
+      ok := false; detail := detail || 'the title carries an English month name; ';
+    end if;
+  else
+    ok := false; detail := detail || 'F04-T04 launched nothing to read the title of; ';
+  end if;
+  if v_def2 is not null
+     and (select title from public.assessment_definitions where id = v_def2) is distinct from v_judul_cepat || ' (2)' then
+    ok := false; detail := detail || 'the second launch in the minute is not the same label with (2); ';
+  end if;
+  -- and the helper that makes the moment testable
+  begin
+    v_before := public.quick_assessment_label('2026-09-29 23:30:00+00'::timestamptz);
+    if v_before is distinct from '2026-09-30 06:30' then
+      ok := false; detail := detail || format('a launch at 23:30 UTC is labelled %s, expected 2026-09-30 06:30 (Jakarta); ', v_before);
+    end if;
+    select string_agg(x, ', ') into bad from (
+      select public.quick_assessment_label(make_timestamptz(2026, m, 15, 12, 0, 0, 'UTC')) x
+        from generate_series(1, 12) m) q where x !~ '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$';
+    if bad is not null then ok := false; detail := detail || 'a label carries more than the numeric date and time: ' || bad || '; '; end if;
+    if has_function_privilege('anon', 'public.quick_assessment_label(timestamptz)', 'EXECUTE')
+       or has_function_privilege('authenticated', 'public.quick_assessment_label(timestamptz)', 'EXECUTE') then
+      ok := false; detail := detail || 'a client can call quick_assessment_label; ';
+    end if;
+  exception when others then
+    ok := false; detail := detail || 'no label for a given moment (quick_assessment_label): ' || left(sqlerrm, 100) || '; ';
+  end;
+  test_id := 'F04-T04c'; invariant := 'BOB-33';
+  if ok then detail := 'a quick assessment launched now is titled Uji Cepat — <Jakarta YYYY-MM-DD HH24:MI>, and the second in the '
+    || 'minute the same with (2); a launch at 23:30 UTC reads the next day, 2026-09-30 06:30; no month of the year carries a '
+    || 'name; and neither anon nor authenticated can call quick_assessment_label'; end if;
+  return next;
+
+  -- =========================================================================
+  -- F04-T04d BOB-36: A LAUNCHED UJI CEPAT KEEPS ITS RULES (INV-29). Once any
+  -- assessment session references an ad-hoc/Uji Cepat definition, fields that
+  -- affect historical interpretation or verdict must no longer be mutable in
+  -- place; a change needs a new definition rather than rewriting history.
+  -- A learner finishes a launched Uji Cepat; its CAN_DRAFT teacher then edits
+  -- the definition's row directly, as the table's update policy allows. The
+  -- verdict session_outcome reads live from passing_rules must not move, and
+  -- none of the twelve interpretive fields save_assessment_definition names may
+  -- be rewritten. A definition nobody has sat stays editable, and the fields
+  -- that do not interpret a sitting (title) still change.
+  -- =========================================================================
+  select q.ok, q.detail into ok, detail from selftest.f04_quick_rules(v_inst, f.modul) q;
+  test_id := 'F04-T04d'; invariant := 'BOB-36 / INV-29';
+  if ok then detail := 'once a learner had sat a launched Uji Cepat, its teacher''s direct edits of passing_rules and of the other eleven '
+    || 'interpretive fields (mode, bank_type, item_count, difficulty_mix, safety_critical_minimum, shuffle_policy, '
+    || 'hesitation_window_seconds, allows_pause, offline_tolerant, late_sync_grace_seconds, attempt_limit) and of its status '
+    || '(no status change continues once sat), and of where it was sat (module_id, course_id) were each refused PR061 '
+    || 'QUICK_RULES_FIXED, the owner''s too; deleting it is refused '
+    || 'by the sessions'' foreign key; the finished verdict stayed as it was and the session and its result are unchanged; the '
+    || 'title can still be corrected and an Uji Cepat nobody has sat is still editable'; end if;
   return next;
 
   -- =========================================================================
@@ -724,9 +971,32 @@ begin
   if v.validity <> 'DICABUT' then ok := false; detail := detail || 'revocation did not change the public response; '; end if;
   select count(*) into n from public.certificates where id = v_cert;
   if n <> 1 then ok := false; detail := detail || 'revocation removed the row; '; end if;
+  -- D-093 T2: the revocation is on the record from and to, with its reason and the actor's role; a second revocation
+  -- is refused and neither the row nor the record changes -- the first stands as recorded, whatever the path
+  select summary into v_row from public.audit_log l
+   where l.action = 'certificate.revoked' and l.target_id = v_cert::text order by l.id desc limit 1;
+  if ((v_row.summary) -> 'from' ->> 'status') is distinct from 'ISSUED' or ((v_row.summary) -> 'to' ->> 'status') is distinct from 'REVOKED'
+     or (v_row.summary) ->> 'reason' is distinct from 'selftest probe' or (v_row.summary) ->> 'actor_role' is null then
+    ok := false; detail := detail || 'the revocation''s record lacks from, to, reason or the actor''s role; ';
+  end if;
+  select ce.revoked_at::text || '|' || ce.revoked_reason into v_tok_rev from public.certificates ce where ce.id = v_cert;
+  perform selftest.as_user('boot-admin@bootstrap.pintar.test');
+  begin
+    perform public.revoke_certificate(v_cert, 'a second, different reason');
+    ok := false; detail := detail || 'a revoked certificate was revoked again; ';
+  exception when others then null; end;
+  perform selftest.as_owner();
+  begin
+    update public.certificates set revoked_at = now() + interval '1 day', revoked_reason = 'rewritten' where id = v_cert;
+    ok := false; detail := detail || 'a revocation''s time and reason were rewritten in place; ';
+  exception when others then null; end;
+  if (select ce.revoked_at::text || '|' || ce.revoked_reason from public.certificates ce where ce.id = v_cert) is distinct from v_tok_rev
+     or (select count(*) from public.audit_log l where l.action = 'certificate.revoked' and l.target_id = v_cert::text) <> 1 then
+    ok := false; detail := detail || 'a second revocation overwrote or added to the first; ';
+  end if;
   test_id := 'F04-T10'; invariant := 'D3a / D3b / INV-38';
   if ok then detail := 'the token is opaque and derivable from nothing; the public payload is exactly the five enumerated fields and reads no identity column; '
-    || 'an unknown token yields no row; revocation changes the answer and keeps the row; the anonymous principal executes nothing at all and cannot reach the signed payload'; end if;
+    || 'an unknown token yields no row; revocation changes the answer and keeps the row, is on the record from and to with its reason and the actor''s role, and is not revoked or rewritten a second time (D-093); the anonymous principal executes nothing at all and cannot reach the signed payload'; end if;
   return next;
 
   -- =========================================================================
@@ -888,9 +1158,12 @@ begin
     end if;
     -- named, and named uniquely: a bank that trips all four would satisfy a
     -- "contains" assertion and prove nothing about which detector fired
-    if not exists (select 1 from unnest(v_blockers) b where b like 'mutu soal: ' || bad || '%') then
+    -- RESTATED FOR BOB-17 (D-011; a changed requirement): the blocker names the
+    -- pattern as a parameter of its code, not inside a sentence ("mutu soal: X")
+    if not exists (select 1 from jsonb_array_elements(v_blockers) b
+                    where b ->> 'code' in ('READINESS_ITEM_ERROR', 'READINESS_ITEM_WARNING') and b ->> 'pattern' = bad) then
       ok := false; detail := detail || format('%s was not named in the blockers (%s); ',
-                                              bad, array_to_string(v_blockers, ' | '));
+                                              bad, v_blockers::text);
     end if;
     select count(distinct mf.pattern_class) into n from public.mcq_quality_findings mf
      where mf.course_id = v_course and mf.acknowledged_at is null;
@@ -930,7 +1203,7 @@ begin
     select p.status, p.blockers into v_status, v_blockers from public.publish_readiness(v_course) p;
     if v_status <> 'READY' then
       ok := false; detail := detail || format('%s did not clear to READY after the repair (%s: %s); ',
-                                              bad, v_status, array_to_string(v_blockers, ' | '));
+                                              bad, v_status, v_blockers::text);
     end if;
   end loop;
 

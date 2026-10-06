@@ -55,7 +55,8 @@ export function actionText(e: Entry, locale: Locale = "id"): string {
       if (Number.isFinite(v)) return v <= 0 ? s("tindakan.ulangi", "educator", locale) : s("tindakan.lanjut", "educator", locale);
       break;
     case "metrik.kesiapan.label":
-      return s("tindakan.fokus", "educator", locale);
+      // D-095: the bands' own sentence names them; the safety-gate figure keeps tindakan.fokus
+      return s("tindakan.fokus_pita", "educator", locale);
     case "metrik.gerbang_keselamatan.label":
       if (Number.isFinite(v)) return v < 1 ? s("tindakan.fokus", "educator", locale) : s("tindakan.lanjut", "educator", locale);
       break;

@@ -25,11 +25,20 @@ export const penugasanTests: SelfTest[] = [
 
       // the codes assign_refuse knows for assigning are exactly the contract's, and each is raised
       const tolak = /create function public\.assign_refuse[\s\S]*?\$\$;/.exec(sql)?.[0] ?? "";
-      const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).filter((k) => k.startsWith("ASSIGN_")).sort();
-      c.expect(JSON.stringify(dariDb) === JSON.stringify([...KODE_PENUGASAN_DB].sort()),
-        `assign_refuse knows ${dariDb.join(",")} and the contract names ${KODE_PENUGASAN_DB.join(",")}`);
+      const dariDb = [...tolak.matchAll(/when '([A-Z_]+)'/g)].map((m) => m[1]).filter((k) => k.startsWith("ASSIGN_"));
+      // D-088(b), BOB-49: one more code, raised with the same SQLSTATE and DETAIL by the assignment's seal, which every
+      // path that gives a class an assessment passes through (supabase/migrations/20261102100000)
+      const segel = readFileSync(join(root, "supabase", "migrations", "20261102100000_a_school_sets_its_own_pass_mark.sql"), "utf8");
+      const dariSegel = /create or replace function public\.seal_assignment_pass_mark[\s\S]*?errcode = 'PR050', detail = '(ASSIGN_[A-Z_]+)'/.exec(segel)?.[1];
+      // RESTATED FOR BOB-43 (a changed requirement, D-069(d)): one more, raised by the assignment boundary on both
+      // assignment tables (enforce_assignment_context), which every path that gives a place material passes through
+      const batas = readFileSync(join(root, "supabase", "migrations", "20261118100000_an_educator_learns_as_a_participant.sql"), "utf8");
+      const dariBatas = /create or replace function public\.enforce_assignment_context[\s\S]*?assign_refuse\('(ASSIGN_[A-Z_]+)'\)/.exec(batas)?.[1];
+      const semuaDb = [...dariDb, ...(dariSegel ? [dariSegel] : []), ...(dariBatas ? [dariBatas] : [])].sort();
+      c.expect(JSON.stringify(semuaDb) === JSON.stringify([...KODE_PENUGASAN_DB].sort()),
+        `assign_refuse and the assignment's seal know ${semuaDb.join(",")} and the contract names ${KODE_PENUGASAN_DB.join(",")}`);
       const assign = /create function public\.assign_release[\s\S]*?end \$\$;/.exec(sql)?.[0] ?? "";
-      for (const k of KODE_PENUGASAN_DB) {
+      for (const k of KODE_PENUGASAN_DB.filter((x) => x !== dariSegel && x !== dariBatas)) {
         c.expect(assign.includes(`assign_refuse('${k}')`), `the contract names ${k} and assign_release never raises it`);
       }
       c.expect(/assign_refuse\('CYCLE_NOT_ASSIGNED'\)/.test(

@@ -1,0 +1,78 @@
+# Staging: one human user (Yazid, 1 Oct). Runs audit/staging/human-setup.mjs once per edit of
+# .github/staging-human-request.txt on the coordinator's branch.
+#
+# In the synthetic school only, through PINTAR's own operations, performed by that school's existing
+# synthetic admin with the same server-made session the staging journey uses: a teacher Yazid signs in to
+# with the ordinary email link, holding Guru at the class, and two students with class cards.
+#
+# NEVER: production (staging's ref and database URL are checked first); any change to the product, its
+# sign-in or its settings. The database is only read directly, in read-only transactions; every write is
+# one of PINTAR's own operations.
+
+name: staging · one human user (setup)
+
+on:
+  push:
+    branches:
+      - claude/awesome-rubin-bqxp6p
+    paths:
+      - .github/staging-human-request.txt
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  STAGING_ORIGIN: https://staging.pintarselalu.com
+  ADMIN_EMAIL: uji-kinerja-admin@example.co
+  TEACHER_EMAIL: yazidmanan2904+guru@gmail.com
+  TEACHER_NAME: Yazid (Guru uji)
+
+jobs:
+  setup:
+    name: a teacher for Yazid, and two students with class cards
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Playwright (the audit harness's version)
+        working-directory: audit/staging
+        run: |
+          npm init -y >/dev/null
+          npm i --no-save --no-audit --no-fund playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+      - name: Staging's keys (masked) and database URL (checked, never printed)
+        env:
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          [ "$STAGING_SUPABASE_PROJECT_REF" != "$PRODUCTION_SUPABASE_PROJECT_REF" ]
+          case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_SUPABASE_PROJECT_REF"*) echo "::error::the database URL names production"; exit 1;; esac
+          case "$STAGING_SUPABASE_DB_URL" in *"$STAGING_SUPABASE_PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::the database URL does not name staging's project"; exit 1;; esac
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, os, sys, urllib.request
+          ref = os.environ['STAGING_SUPABASE_PROJECT_REF']
+          req = urllib.request.Request(f'https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true',
+                                       headers={'Authorization': 'Bearer ' + os.environ['STAGING_SUPABASE_ACCESS_TOKEN']})
+          keys = json.load(urllib.request.urlopen(req, timeout=30))
+          for name, var in (('service_role', 'SERVICE_KEY'), ('anon', 'ANON_KEY')):
+              k = next(k['api_key'] for k in keys if k.get('name') == name and (k.get('api_key') or '').startswith('eyJ'))
+              print('::add-mask::' + k, file=sys.stderr, flush=True)
+              print(f'{var}={k}')
+          print(f'SUPABASE_URL=https://{ref}.supabase.co')
+          PY
+      - name: Prepare the teacher and two students
+        working-directory: audit/staging
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          RUN_TAG: ${{ github.run_number }}
+        run: node human-setup.mjs

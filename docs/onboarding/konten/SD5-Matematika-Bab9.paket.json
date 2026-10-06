@@ -1,0 +1,1598 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Matematika Kelas 5 · Bab 9: Bilangan Cacah sampai 1.000.000",
+   "subject": "Matematika",
+   "stage": "SD",
+   "grade_label": "Kelas 5",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Bilangan Cacah sampai 1.000.000",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Membaca dan Menulis Bilangan sampai 1.000.000",
+       "summary": "Bilangan enam angka dibaca per kelompok tiga angka: kelompok ribuan dahulu dengan kata ribu, lalu kelompok sisanya.",
+       "body_markdown": "## Harga sebuah lemari\n\nNisa dan Ibu membeli lemari di Jepara, Jawa Tengah, kota yang terkenal dengan mebel berukir. Harga lemari yang dipilih Nisa **Rp979.875**.\n\nBilangan seperti ini sering kita temui pada harga, nota, atau jumlah penduduk. Bagaimana membacanya?\n\n## Kelompok tiga angka\n\nTitik memisahkan bilangan menjadi kelompok tiga angka, dihitung dari kanan:\n\n979.875 → **979** | **875**\n\n1. Baca kelompok kiri seperti bilangan ratusan biasa, lalu tambahkan kata **ribu**: sembilan ratus tujuh puluh sembilan ribu.\n2. Baca kelompok kanan: delapan ratus tujuh puluh lima.\n\nJadi 979.875 dibaca **sembilan ratus tujuh puluh sembilan ribu delapan ratus tujuh puluh lima**.\n\nKata \"ribu\" hanya diucapkan **satu kali**, sesudah kelompok kiri. Membaca 296.575 sebagai \"dua ratus ribu sembilan puluh enam ribu ...\" tidak tepat; yang tepat **dua ratus sembilan puluh enam ribu lima ratus tujuh puluh lima**.\n\n## Angka nol\n\nAngka nol tidak diucapkan, tetapi tempatnya tetap ada.\n\n- 550.303 dibaca lima ratus lima puluh ribu tiga ratus tiga.\n- 406.250 dibaca empat ratus enam ribu dua ratus lima puluh.\n\nWaktu menulis dari kata-kata, setiap kelompok harus tetap tiga angka. \"Lima ratus lima puluh ribu tiga ratus tiga\" ditulis 550.**303**, bukan 550.33.\n\n## Menulis dari kata-kata\n\nTulis \"seratus empat puluh sembilan ribu enam ratus empat puluh satu\":\n\n1. Yang sebelum \"ribu\": seratus empat puluh sembilan → 149.\n2. Yang sesudah \"ribu\": enam ratus empat puluh satu → 641.\n3. Gabungkan: **149.641**.\n\n## Satu juta\n\nSesudah 999.999 datang **1.000.000**, dibaca **satu juta** atau sejuta. Bilangan ini mempunyai tujuh angka: satu angka 1 dan enam angka 0.\n\n**Coba:** tulislah \"tiga ratus empat puluh lima ribu enam ratus tujuh puluh lima\".\n_Periksa: 345.675._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
+       "objective": {
+        "statement": "Kalian dapat membaca dan menulis bilangan cacah sampai 1.000.000.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bilangan 406.250 dibaca ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "empat puluh enam ribu dua ratus lima puluh",
+           "is_correct": false,
+           "rationale": "Ini bacaan 46.250; angka 0 di puluh ribuan terlewat, sehingga 4 bergeser ke puluh ribuan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "empat ratus enam ribu dua ratus lima puluh",
+           "is_correct": true,
+           "rationale": "Benar. Kelompok kiri 406 (empat ratus enam) ribu, kelompok kanan 250 (dua ratus lima puluh)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "empat ratus ribu enam ribu dua ratus lima puluh",
+           "is_correct": false,
+           "rationale": "Kata ribu diucapkan dua kali. Kelompok 406 dibaca utuh, lalu satu kali ribu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "empat ratus enam ribu dua puluh lima",
+           "is_correct": false,
+           "rationale": "Ini bacaan 406.025. Kelompok kanan adalah 250, dua ratus lima puluh."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bilangan \"enam ratus delapan ribu empat puluh\" ditulis ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "680.040",
+           "is_correct": false,
+           "rationale": "Delapan ribu ditulis di puluh ribuan. Enam ratus delapan adalah 608."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "608.400",
+           "is_correct": false,
+           "rationale": "Empat puluh ditulis di ratusan. Kelompok kanan 040."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "608.040",
+           "is_correct": true,
+           "rationale": "Benar. Sebelum ribu: 608; sesudah ribu: 040."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "6.008.040",
+           "is_correct": false,
+           "rationale": "Enam ratus dan delapan ribu ditulis terpisah (600 lalu 8.040). Keduanya satu kelompok: 608 ribu."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "LT1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bilangan 320.018 dibaca ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "tiga ratus dua puluh ribu delapan belas",
+           "is_correct": true,
+           "rationale": "Benar. 320 ribu dan 018, yaitu delapan belas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "tiga ratus dua puluh ribu delapan puluh",
+           "is_correct": false,
+           "rationale": "Ini bacaan 320.080. Kelompok kanan 018: delapan belas."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "tiga ribu dua ratus delapan belas",
+           "is_correct": false,
+           "rationale": "Ini bacaan 3.218; semua angka 0 terlewat."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "tiga ratus dua ribu delapan belas",
+           "is_correct": false,
+           "rationale": "Ini bacaan 302.018. Kelompok kiri 320: tiga ratus dua puluh."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "LT2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bilangan \"sembilan ratus ribu lima puluh\" ditulis ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "950.000",
+           "is_correct": false,
+           "rationale": "Ini sembilan ratus lima puluh ribu. Lima puluh datang sesudah kata ribu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "9.050",
+           "is_correct": false,
+           "rationale": "Nol di ratus ribuan dan puluh ribuan terlewat; 9 harus di ratus ribuan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "900.050",
+           "is_correct": true,
+           "rationale": "Benar. Sebelum ribu: 900; sesudah ribu: 050."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "900.500",
+           "is_correct": false,
+           "rationale": "Lima puluh ditulis di ratusan. Kelompok kanan 050."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "LT3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Satu juta ditulis ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "100.000",
+           "is_correct": false,
+           "rationale": "Ini seratus ribu. Satu juta adalah sepuluh kali seratus ribu."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "1.000.000",
+           "is_correct": true,
+           "rationale": "Benar. Angka 1 diikuti enam angka 0."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "10.000.000",
+           "is_correct": false,
+           "rationale": "Ini sepuluh juta; ada tujuh angka 0."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "1.000",
+           "is_correct": false,
+           "rationale": "Ini seribu. Satu juta adalah seribu kali seribu."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Nilai Tempat",
+       "summary": "Setiap angka dalam bilangan mempunyai tempat (satuan sampai ratus ribuan) dan nilai: angka itu dikalikan dengan nilai tempatnya.",
+       "body_markdown": "## Enam tempat\n\nBilangan enam angka mempunyai enam tempat. Dari kiri ke kanan:\n\n**ratus ribuan, puluh ribuan, ribuan, ratusan, puluhan, satuan**\n\nHarga beberapa barang di toko komputer:\n\n| Barang | Harga (Rp) | Ratus ribuan | Puluh ribuan | Ribuan | Ratusan | Puluhan | Satuan |\n|---|---|---|---|---|---|---|---|\n| Speaker aktif | 296.575 | 2 | 9 | 6 | 5 | 7 | 5 |\n| Mouse | 179.500 | 1 | 7 | 9 | 5 | 0 | 0 |\n| Hardisk eksternal | 834.759 | 8 | 3 | 4 | 7 | 5 | 9 |\n| Headset | 159.899 | 1 | 5 | 9 | 8 | 9 | 9 |\n| Kabel USB | 132.795 | 1 | 3 | 2 | 7 | 9 | 5 |\n\n## Tempat sebuah angka\n\nDi mana angka 9 pada harga speaker aktif, 296.575? Angka 9 berada di tempat **puluh ribuan**.\n\nPada harga headset, 159.899, angka 9 muncul tiga kali: di tempat ribuan, puluhan, dan satuan. Angka yang sama dapat menempati tempat yang berbeda.\n\n## Nilai sebuah angka\n\n**Nilai** angka adalah angka itu dikalikan dengan nilai tempatnya.\n\n- Pada 296.575, angka 9 di puluh ribuan: nilainya 9 × 10.000 = **90.000**.\n- Pada 159.899, angka 9 di ribuan bernilai 9.000, di puluhan bernilai 90, di satuan bernilai 9.\n\nBedakan tiga hal ini: **angkanya** (9), **tempatnya** (puluh ribuan), dan **nilainya** (90.000).\n\n## Nilai tempat berlipat sepuluh\n\nSetiap tempat bernilai sepuluh kali tempat di sebelah kanannya:\n\n1 → 10 → 100 → 1.000 → 10.000 → 100.000 → 1.000.000\n\nKarena itu, memindahkan sebuah angka satu tempat ke kiri membuat nilainya sepuluh kali lebih besar.\n\n**Coba:** berapa nilai angka 8 pada 834.759?\n_Periksa: angka 8 di ratus ribuan, jadi 800.000._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
+       "objective": {
+        "statement": "Kalian dapat menentukan nilai tempat dan nilai angka pada bilangan cacah sampai 1.000.000.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada bilangan 583.194, angka 8 menempati nilai tempat ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "ribuan",
+           "is_correct": false,
+           "rationale": "Ribuan ditempati angka 3. Angka 8 satu tempat lebih ke kiri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "ratus ribuan",
+           "is_correct": false,
+           "rationale": "Ratus ribuan ditempati angka 5, yang paling kiri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "80.000",
+           "is_correct": false,
+           "rationale": "80.000 adalah nilai angka 8. Yang ditanyakan nama tempatnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "puluh ribuan",
+           "is_correct": true,
+           "rationale": "Benar. Dari kanan: 4 satuan, 9 puluhan, 1 ratusan, 3 ribuan, 8 puluh ribuan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Berapa nilai angka 7 pada bilangan 472.315?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "70.000",
+           "is_correct": true,
+           "rationale": "Benar. Angka 7 di puluh ribuan: 7 × 10.000 = 70.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "Puluh ribuan",
+           "is_correct": false,
+           "rationale": "Ini nama tempat angka 7. Yang ditanyakan nilainya: 7 × 10.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "7.000",
+           "is_correct": false,
+           "rationale": "Angka 7 dianggap di ribuan. Ribuan ditempati angka 2."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "700.000",
+           "is_correct": false,
+           "rationale": "Angka 7 dianggap di ratus ribuan. Ratus ribuan ditempati angka 4."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "LT4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada bilangan 316.924, angka 6 menempati nilai tempat ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "puluh ribuan",
+           "is_correct": false,
+           "rationale": "Puluh ribuan ditempati angka 1."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "ratusan",
+           "is_correct": false,
+           "rationale": "Ratusan ditempati angka 9."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "6.000",
+           "is_correct": false,
+           "rationale": "6.000 adalah nilai angka 6. Yang ditanyakan nama tempatnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "ribuan",
+           "is_correct": true,
+           "rationale": "Benar. Dari kanan: 4, 2, 9, lalu 6 di ribuan."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "LT5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Berapa nilai angka 5 pada bilangan 158.203?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "50.000",
+           "is_correct": true,
+           "rationale": "Benar. 5 di puluh ribuan: 5 × 10.000 = 50.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "5.000",
+           "is_correct": false,
+           "rationale": "Angka 5 dianggap di ribuan. Ribuan ditempati angka 8."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "Puluh ribuan",
+           "is_correct": false,
+           "rationale": "Ini nama tempat angka 5. Yang ditanyakan nilainya: 5 × 10.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "500.000",
+           "is_correct": false,
+           "rationale": "Angka 5 dianggap di ratus ribuan. Ratus ribuan ditempati angka 1."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "LT6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada bilangan manakah angka 4 bernilai 400.000?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "245.108",
+           "is_correct": false,
+           "rationale": "Angka 4 di puluh ribuan, bernilai 40.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "154.208",
+           "is_correct": false,
+           "rationale": "Angka 4 di ribuan, bernilai 4.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "452.108",
+           "is_correct": true,
+           "rationale": "Benar. Angka 4 di ratus ribuan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "128.504",
+           "is_correct": false,
+           "rationale": "Angka 4 di satuan, bernilai 4."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Membandingkan Bilangan",
+       "summary": "Bandingkan banyak angkanya dahulu; bila sama, bandingkan angka demi angka mulai dari yang paling kiri.",
+       "body_markdown": "## Tiga tanda\n\n- **<** artinya lebih kecil dari: 445.000 < 545.000.\n- **>** artinya lebih besar dari: 876.000 > 867.000.\n- **=** artinya sama dengan: 126.789 = 126.789.\n\nUjung lancip tanda selalu menunjuk ke bilangan yang lebih kecil.\n\n## Langkah 1: banyak angkanya\n\nBilangan yang angkanya lebih banyak selalu lebih besar.\n\n99.999 mempunyai lima angka, 100.000 mempunyai enam angka. Jadi 99.999 < 100.000, walaupun angka pertamanya 9 dan angka pertama 100.000 hanya 1.\n\n## Langkah 2: dari kiri\n\nBila banyak angkanya sama, bandingkan angka demi angka **mulai dari kiri** (ratus ribuan), sampai menemukan angka yang berbeda.\n\n657.000 dan 675.000:\n\n1. Ratus ribuan: 6 dan 6, sama.\n2. Puluh ribuan: 5 dan 7, berbeda. 5 < 7.\n\nJadi 657.000 < 675.000. Angka-angka sesudahnya tidak perlu diperiksa lagi.\n\n## Jangan mulai dari belakang\n\n876.987 dan 876.789: ratus ribuan, puluh ribuan, dan ribuan sama (8, 7, 6). Pada ratusan, 9 > 7. Jadi **876.987 > 876.789**.\n\nBila dibandingkan dari belakang, angka satuannya 7 dan 9, seolah-olah 876.789 yang lebih besar. Angka belakang bernilai paling kecil, jadi tidak menentukan.\n\nBegitu pula 900.052 > 900.025: yang menentukan adalah puluhan, 5 > 2.\n\n**Coba:** 900.025 ... 900.052, tanda apa yang tepat?\n_Periksa: <, karena pada puluhan 2 < 5._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
+       "objective": {
+        "statement": "Kalian dapat membandingkan dua bilangan cacah sampai 1.000.000 dengan tanda <, >, atau =.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pernyataan manakah yang tepat tentang 99.870 dan 100.200?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "99.870 < 100.200",
+           "is_correct": true,
+           "rationale": "Benar. 99.870 mempunyai lima angka, 100.200 enam angka, jadi 99.870 lebih kecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "99.870 > 100.200",
+           "is_correct": false,
+           "rationale": "Angka pertama 9 dianggap menentukan. Hitung dahulu banyak angkanya: lima dan enam."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "99.870 = 100.200",
+           "is_correct": false,
+           "rationale": "Kedua bilangan berbeda; 100.200 lebih besar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "Tidak dapat dibandingkan",
+           "is_correct": false,
+           "rationale": "Bilangan dengan banyak angka berbeda tetap dapat dibandingkan: yang angkanya lebih banyak lebih besar."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pernyataan manakah yang tepat?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "806.591 < 806.519",
+           "is_correct": false,
+           "rationale": "Yang dibandingkan angka satuannya (1 dan 9). Mulailah dari kiri; puluhanlah yang pertama berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "806.591 = 806.519",
+           "is_correct": false,
+           "rationale": "Angka-angkanya sama, tetapi tempatnya berbeda, jadi nilainya berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "95.910 > 806.519",
+           "is_correct": false,
+           "rationale": "Angka pertama 9 dianggap menentukan. 95.910 hanya mempunyai lima angka."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "806.591 > 806.519",
+           "is_correct": true,
+           "rationale": "Benar. Ratus ribuan sampai ratusan sama; pada puluhan 9 > 1."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 20
+         },
+         "ref": "LT7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pernyataan manakah yang tepat tentang 700.009 dan 699.999?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 74
+           },
+           "label": "A",
+           "body": "700.009 < 699.999",
+           "is_correct": false,
+           "rationale": "Yang dibandingkan angka-angka belakangnya (banyak 9 pada 699.999). Mulailah dari kiri: 7 > 6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 75
+           },
+           "label": "B",
+           "body": "700.009 > 699.999",
+           "is_correct": true,
+           "rationale": "Benar. Ratus ribuan 7 > 6, jadi 700.009 lebih besar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 76
+           },
+           "label": "C",
+           "body": "700.009 = 699.999",
+           "is_correct": false,
+           "rationale": "Kedua bilangan berbeda; ratus ribuannya 7 dan 6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 77
+           },
+           "label": "D",
+           "body": "Tidak dapat dibandingkan",
+           "is_correct": false,
+           "rationale": "Keduanya mempunyai enam angka dan dapat dibandingkan dari kiri."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 21
+         },
+         "ref": "LT8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua bilangan enam angka dibandingkan mulai dari ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 78
+           },
+           "label": "A",
+           "body": "angka paling kanan, yaitu satuan",
+           "is_correct": false,
+           "rationale": "Satuan bernilai paling kecil, jadi tidak menentukan bila angka di kirinya berbeda."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 79
+           },
+           "label": "B",
+           "body": "angka yang paling besar di setiap bilangan",
+           "is_correct": false,
+           "rationale": "Yang dibandingkan angka pada tempat yang sama, mulai dari kiri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 80
+           },
+           "label": "C",
+           "body": "jumlah semua angka pada setiap bilangan",
+           "is_correct": false,
+           "rationale": "Jumlah angka tidak menentukan: 900.000 (jumlah 9) lebih besar dari 199.999 (jumlah 46)."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 81
+           },
+           "label": "D",
+           "body": "angka paling kiri, yaitu ratus ribuan",
+           "is_correct": true,
+           "rationale": "Benar. Angka paling kiri bernilai paling besar."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Mengurutkan Bilangan dan Pola Bilangan",
+       "summary": "Mengurutkan berarti membandingkan beberapa bilangan sekaligus; pada pola bilangan, selisih dua bilangan yang berurutan selalu sama.",
+       "body_markdown": "## Dari yang termurah\n\nUrutkan harga barang dari yang termurah: Rp296.575, Rp179.500, Rp834.759, Rp159.899, Rp132.795.\n\n1. Semua mempunyai enam angka. Lihat ratus ribuannya: 2, 1, 8, 1, 1.\n2. Yang ratus ribuannya 1 ada tiga: 179.500, 159.899, 132.795. Bandingkan puluh ribuannya: 7, 5, 3.\n3. Urutannya: **132.795; 159.899; 179.500; 296.575; 834.759**.\n\nTermurah kabel USB (Rp132.795), termahal hardisk eksternal (Rp834.759).\n\n## Naik atau turun\n\n- Urutan **naik**: dari yang terkecil ke yang terbesar.\n- Urutan **turun**: dari yang terbesar ke yang terkecil.\n\nBaca pertanyaannya dengan teliti, lalu periksa bilangan pertama: pada urutan naik, bilangan pertama harus yang terkecil.\n\n## Pola bilangan\n\n978.500; 979.500; 980.500; ...\n\nSelisih dua bilangan yang berurutan: 979.500 − 978.500 = 1.000. Setiap langkah bertambah 1.000, jadi berikutnya **981.500**, lalu 982.500.\n\nPerhatikan loncatan dari 979.500 ke 980.500: angka ribuan 9 menjadi 0, dan puluh ribuan bertambah satu.\n\n## Pola dengan langkah kecil\n\n462.350; 462.370; 462.390; ...\n\nSetiap langkah bertambah 20, jadi berikutnya **462.410**, lalu 462.430. Yang berubah hanya puluhan dan ratusan.\n\n**Coba:** pola 300.000; 500.000; 700.000; ... Berapa bilangan berikutnya?\n_Periksa: bertambah 200.000, jadi 900.000._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
+       "objective": {
+        "statement": "Kalian dapat mengurutkan bilangan cacah sampai 1.000.000 dan melanjutkan pola bilangan.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Urutan 540.812; 504.089; 548.005; 540.083 dari yang terkecil adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "548.005; 540.812; 540.083; 504.089",
+           "is_correct": false,
+           "rationale": "Ini urutan dari yang terbesar."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "504.089; 540.083; 540.812; 548.005",
+           "is_correct": true,
+           "rationale": "Benar. Puluh ribuan 0 paling kecil (504.089); lalu 540.083 dan 540.812 dibedakan di ratusan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "540.812; 540.083; 548.005; 504.089",
+           "is_correct": false,
+           "rationale": "Bilangan diurutkan dari angka belakangnya. Mulailah dari angka paling kiri."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "504.089; 540.812; 540.083; 548.005",
+           "is_correct": false,
+           "rationale": "540.812 dan 540.083 tertukar: pada ratusan 0 < 8, jadi 540.083 lebih kecil."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "PB5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pola bilangan: 725.400; 725.650; 725.900; ... Bilangan berikutnya adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "725.150",
+           "is_correct": false,
+           "rationale": "900 + 250 = 1.150; seribunya tidak disimpan ke ribuan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "725.950",
+           "is_correct": false,
+           "rationale": "Langkahnya dianggap 50. Selisih dua bilangan yang berurutan adalah 250."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "726.150",
+           "is_correct": true,
+           "rationale": "Benar. Setiap langkah bertambah 250: 725.900 + 250 = 726.150."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "726.900",
+           "is_correct": false,
+           "rationale": "Langkahnya dianggap 1.000. Selisih dua bilangan yang berurutan adalah 250."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 22
+         },
+         "ref": "LT9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Di toko ada empat sepeda dengan harga berbeda. Harga manakah yang termurah?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 82
+           },
+           "label": "A",
+           "body": "Rp251.000",
+           "is_correct": false,
+           "rationale": "Ini harga termahal. Yang ditanyakan termurah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 83
+           },
+           "label": "B",
+           "body": "Rp215.900",
+           "is_correct": false,
+           "rationale": "Hanya ribuan yang dibandingkan. Pada puluh ribuan, 209.990 mempunyai 0."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 84
+           },
+           "label": "C",
+           "body": "Rp209.990",
+           "is_correct": true,
+           "rationale": "Benar. Ratus ribuan keempat harga sama, 2; puluh ribuannya 1, 0, 5, 1. Yang 0 paling kecil."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 85
+           },
+           "label": "D",
+           "body": "Rp219.500",
+           "is_correct": false,
+           "rationale": "Angka-angka belakangnya yang dibandingkan. Mulailah dari angka paling kiri."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 23
+         },
+         "ref": "LT10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pola bilangan: 300.500; 300.750; 301.000; ... Bilangan berikutnya adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 86
+           },
+           "label": "A",
+           "body": "301.250",
+           "is_correct": true,
+           "rationale": "Benar. Setiap langkah bertambah 250."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 87
+           },
+           "label": "B",
+           "body": "301.500",
+           "is_correct": false,
+           "rationale": "Langkahnya dianggap 500. Selisih yang berurutan 250."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 88
+           },
+           "label": "C",
+           "body": "302.000",
+           "is_correct": false,
+           "rationale": "Langkahnya dianggap 1.000. Selisih yang berurutan 250."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 89
+           },
+           "label": "D",
+           "body": "301.025",
+           "is_correct": false,
+           "rationale": "250 ditulis di tempat yang bergeser. 301.000 + 250 = 301.250."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 6
+       },
+       "ordinal": "5",
+       "title": "Komposisi dan Dekomposisi Bilangan",
+       "summary": "Menyusun bilangan dari nilai-nilai tempatnya (komposisi) dan menguraikan bilangan menjadi nilai-nilai tempatnya (dekomposisi); uang pecahan membantu.",
+       "body_markdown": "## Menguraikan bilangan\n\n**Dekomposisi** berarti menguraikan bilangan menurut nilai tempatnya.\n\n678.987 = 600.000 + 70.000 + 8.000 + 900 + 80 + 7\n\nArtinya 678.987 terdiri atas 6 ratus ribuan, 7 puluh ribuan, 8 ribuan, 9 ratusan, 8 puluhan, dan 7 satuan.\n\n## Menyusun bilangan\n\n**Komposisi** berarti menyusun bilangan dari bagian-bagiannya.\n\n2 ratus ribuan, 3 ribuan, 3 puluhan, dan 5 satuan:\n\n| Ratus ribuan | Puluh ribuan | Ribuan | Ratusan | Puluhan | Satuan |\n|---|---|---|---|---|---|\n| 2 | 0 | 3 | 0 | 3 | 5 |\n\nHasilnya **203.035**. Tempat yang kosong diisi 0. Hati-hati: bukan 203.305, karena 3 puluhan berada di tempat puluhan, bukan ratusan.\n\n## Dengan uang pecahan\n\nIbu mempunyai 4 lembar seratus ribuan, 4 lembar sepuluh ribuan, dan 3 lembar seribuan.\n\n- 4 × 100.000 = 400.000\n- 4 × 10.000 = 40.000\n- 3 × 1.000 = 3.000\n\nJumlahnya **Rp443.000**. Banyak lembar (4, 4, 3) bukan nilai uangnya; setiap lembar dikalikan dengan nilainya.\n\n## Banyak cara\n\nSatu jumlah uang dapat disusun dengan berbagai cara. Rp250.000 dapat berupa:\n\n- 2 lembar seratus ribuan dan 1 lembar lima puluh ribuan;\n- 2 lembar seratus ribuan dan 5 lembar sepuluh ribuan;\n- 5 lembar lima puluh ribuan.\n\n**Coba:** uraikan 550.303.\n_Periksa: 500.000 + 50.000 + 300 + 3._\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
+       "objective": {
+        "statement": "Kalian dapat menyusun dan menguraikan bilangan cacah sampai 1.000.000, termasuk dengan pecahan uang.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bilangan yang terdiri atas 3 ratus ribuan, 5 puluh ribuan, 2 ratusan, dan 7 satuan adalah ...",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "3.527",
+           "is_correct": false,
+           "rationale": "Angka-angka ditulis berjajar tanpa 0 untuk tempat yang kosong."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "350.720",
+           "is_correct": false,
+           "rationale": "2 ratusan dan 7 satuan ditulis di tempat yang bergeser: 7 di ratusan, 2 di puluhan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "350.207",
+           "is_correct": true,
+           "rationale": "Benar. Ribuan dan puluhan kosong, jadi diisi 0: 350.207."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "35.207",
+           "is_correct": false,
+           "rationale": "Ratus ribuan ditulis sebagai puluh ribuan; satu tempat 0 terlewat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "PB6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bentuk uraian (dekomposisi) 704.036 adalah ...",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "700.000 + 4.000 + 30 + 6",
+           "is_correct": true,
+           "rationale": "Benar. 7 ratus ribuan, 4 ribuan, 3 puluhan, 6 satuan; puluh ribuan dan ratusan 0."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "700.000 + 40.000 + 30 + 6",
+           "is_correct": false,
+           "rationale": "Angka 4 di ribuan, bukan di puluh ribuan. Puluh ribuannya 0."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "70.000 + 4.000 + 300 + 6",
+           "is_correct": false,
+           "rationale": "Setiap angka digeser satu tempat ke kanan; angka 7 berada di ratus ribuan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "7 + 4 + 3 + 6",
+           "is_correct": false,
+           "rationale": "Ini angka-angkanya saja; nilainya belum dikalikan dengan nilai tempat."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "PB7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Ayah membayar dengan 6 lembar seratus ribuan, 3 lembar sepuluh ribuan, dan 8 lembar seribuan. Berapa uang yang dibayarkan?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "Rp63.800",
+           "is_correct": false,
+           "rationale": "Setiap jenis uang ditulis satu tempat terlalu ke kanan. Seratus ribuan menempati ratus ribuan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "Rp683.000",
+           "is_correct": false,
+           "rationale": "Sepuluh ribuan dan seribuan tertukar: 3 lembar sepuluh ribuan bernilai 30.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "Rp17.000",
+           "is_correct": false,
+           "rationale": "Banyak lembarnya dijumlahkan (6 + 3 + 8). Setiap lembar dikalikan dengan nilainya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "Rp638.000",
+           "is_correct": true,
+           "rationale": "Benar. 600.000 + 30.000 + 8.000 = 638.000."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 24
+         },
+         "ref": "LT11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bilangan yang terdiri atas 5 ratus ribuan, 6 ribuan, dan 4 ratusan adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 90
+           },
+           "label": "A",
+           "body": "564",
+           "is_correct": false,
+           "rationale": "Angka-angka ditulis berjajar tanpa 0 untuk tempat yang kosong."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 91
+           },
+           "label": "B",
+           "body": "560.400",
+           "is_correct": false,
+           "rationale": "6 ribuan ditulis di puluh ribuan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 92
+           },
+           "label": "C",
+           "body": "56.400",
+           "is_correct": false,
+           "rationale": "Nol di puluh ribuan terlewat, sehingga 5 turun ke puluh ribuan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 93
+           },
+           "label": "D",
+           "body": "506.400",
+           "is_correct": true,
+           "rationale": "Benar. Puluh ribuan, puluhan, dan satuan diisi 0."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 25
+         },
+         "ref": "LT12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bentuk uraian 680.090 adalah ...",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 94
+           },
+           "label": "A",
+           "body": "600.000 + 8.000 + 90",
+           "is_correct": false,
+           "rationale": "Angka 8 di puluh ribuan, bernilai 80.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 95
+           },
+           "label": "B",
+           "body": "600.000 + 80.000 + 90",
+           "is_correct": true,
+           "rationale": "Benar. 6 ratus ribuan, 8 puluh ribuan, 9 puluhan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 96
+           },
+           "label": "C",
+           "body": "600.000 + 80.000 + 900",
+           "is_correct": false,
+           "rationale": "Angka 9 di puluhan, bernilai 90."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 97
+           },
+           "label": "D",
+           "body": "6 + 8 + 9",
+           "is_correct": false,
+           "rationale": "Ini angka-angkanya saja; kalikan dengan nilai tempatnya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 26
+         },
+         "ref": "LT13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Susunan uang manakah yang nilainya Rp250.000?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 98
+           },
+           "label": "A",
+           "body": "2 lembar seratus ribuan dan 5 lembar seribuan",
+           "is_correct": false,
+           "rationale": "5 lembar seribuan hanya 5.000, jadi jumlahnya 205.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 99
+           },
+           "label": "B",
+           "body": "25 lembar seribuan",
+           "is_correct": false,
+           "rationale": "25 lembar seribuan hanya 25.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 100
+           },
+           "label": "C",
+           "body": "2 lembar seratus ribuan dan 5 lembar sepuluh ribuan",
+           "is_correct": true,
+           "rationale": "Benar. 200.000 + 50.000 = 250.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 101
+           },
+           "label": "D",
+           "body": "5 lembar lima puluh ribuan dan 2 lembar sepuluh ribuan",
+           "is_correct": false,
+           "rationale": "5 × 50.000 sudah 250.000; ditambah 20.000 menjadi 270.000."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 7
+       },
+       "ordinal": "6",
+       "title": "Memecahkan Masalah dengan Bilangan sampai 1.000.000",
+       "summary": "Pada soal cerita, tentukan dahulu yang ditanyakan, pilih operasinya, lalu hitung dengan teliti, termasuk saat meminjam.",
+       "body_markdown": "## Uangnya kurang berapa?\n\nIbu akan membeli seragam seharga Rp450.000. Uang Ibu Rp443.000 (4 lembar seratus ribuan, 4 lembar sepuluh ribuan, 3 lembar seribuan).\n\n1. Yang ditanyakan: kekurangannya.\n2. Operasinya: pengurangan, harga dikurangi uang yang ada.\n3. 450.000 − 443.000 = **Rp7.000**.\n\n## Harga dari kembalian\n\nNisa membawa Rp250.000 untuk membeli buku dan menerima kembalian Rp15.400.\n\nHarga buku = uang yang dibayarkan − kembalian = 250.000 − 15.400 = **Rp234.600**.\n\nPeriksa: 234.600 + 15.400 = 250.000. Cocok.\n\n## Meminjam dengan teliti\n\n250.000 − 15.400, dihitung dari kanan:\n\n1. Satuan dan puluhan: 0 − 0 = 0.\n2. Ratusan: 0 − 4 tidak bisa. Pinjam dari tempat di kirinya. Ribuan juga 0, jadi pinjaman diambil dari puluh ribuan: 5 menjadi 4, ribuan menjadi 9, ratusan menjadi 10.\n3. Ratusan: 10 − 4 = 6. Ribuan: 9 − 5 = 4. Puluh ribuan: 4 − 1 = 3. Ratus ribuan: 2.\n4. Hasilnya 234.600.\n\nJangan mengurangkan angka yang kecil dari yang besar di setiap tempat (misalnya 4 − 0 pada ratusan). Cara itu tidak meminjam dan memberi hasil yang keliru.\n\n## Mana yang lebih banyak?\n\nKelompok Yohana mengumpulkan Rp345.600, kelompok Komang Rp354.500.\n\nRatus ribuannya sama (3). Puluh ribuannya 4 dan 5. Jadi dana kelompok Komang, **Rp354.500**, lebih banyak. Selisihnya 354.500 − 345.600 = Rp8.900.\n\n## Rangkuman Bab 9\n\n- Bilangan dibaca per kelompok tiga angka; kata \"ribu\" diucapkan sekali. Angka nol tetap menempati tempatnya.\n- Nilai angka = angka × nilai tempatnya. Setiap tempat bernilai sepuluh kali tempat di kanannya.\n- Membandingkan: banyak angka dahulu, lalu angka demi angka dari kiri.\n- Pola bilangan: cari selisih yang tetap.\n- Komposisi dan dekomposisi: tempat yang kosong diisi 0; banyak lembar uang dikalikan dengan nilainya.\n- Soal cerita: tentukan yang ditanyakan, pilih operasi, periksa kembali.\n\n_Diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V, Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi, 2022, Bab 9._",
+       "objective": {
+        "statement": "Kalian dapat memecahkan masalah sehari-hari yang berkaitan dengan bilangan sampai 1.000.000.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "PB8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Harga sepeda Rp875.000. Doni sudah menabung Rp628.500. Berapa lagi yang harus ditabung Doni?",
+         "petunjuk": "Periksa jawaban kalian dengan menjumlahkannya kembali dengan tabungan Doni.",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "Rp1.503.500",
+           "is_correct": false,
+           "rationale": "Kedua bilangan dijumlahkan. Kekurangan dicari dengan pengurangan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "Rp246.500",
+           "is_correct": true,
+           "rationale": "Benar. 875.000 − 628.500 = 246.500. Periksa: 628.500 + 246.500 = 875.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "Rp253.500",
+           "is_correct": false,
+           "rationale": "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "Rp247.500",
+           "is_correct": false,
+           "rationale": "Pinjaman dari ribuan tidak dikurangkan. Periksa: 628.500 + 247.500 = 876.000."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 27
+         },
+         "ref": "LT14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Harga tas Rp320.000. Rina mempunyai 2 lembar seratus ribuan, 9 lembar sepuluh ribuan, dan 5 lembar seribuan. Berapa kekurangan uang Rina?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 102
+           },
+           "label": "A",
+           "body": "Rp25.000",
+           "is_correct": true,
+           "rationale": "Benar. Uang Rina 295.000; 320.000 − 295.000 = 25.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 103
+           },
+           "label": "B",
+           "body": "Rp615.000",
+           "is_correct": false,
+           "rationale": "Harga dan uang dijumlahkan. Kekurangan dicari dengan pengurangan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 104
+           },
+           "label": "C",
+           "body": "Rp175.000",
+           "is_correct": false,
+           "rationale": "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 105
+           },
+           "label": "D",
+           "body": "Rp295.000",
+           "is_correct": false,
+           "rationale": "Ini uang yang dimiliki Rina. Yang ditanyakan kekurangannya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 28
+         },
+         "ref": "LT15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Nisa membayar Rp500.000 dan menerima kembalian Rp62.300. Berapa harga barang yang dibelinya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 106
+           },
+           "label": "A",
+           "body": "Rp562.300",
+           "is_correct": false,
+           "rationale": "Uang dan kembalian dijumlahkan. Harga = uang yang dibayarkan − kembalian."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 107
+           },
+           "label": "B",
+           "body": "Rp447.700",
+           "is_correct": false,
+           "rationale": "Pinjaman pada puluh ribuan terlupa. Periksa: 447.700 + 62.300 = 510.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 108
+           },
+           "label": "C",
+           "body": "Rp62.300",
+           "is_correct": false,
+           "rationale": "Ini kembaliannya. Yang ditanyakan harga barang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 109
+           },
+           "label": "D",
+           "body": "Rp437.700",
+           "is_correct": true,
+           "rationale": "Benar. 500.000 − 62.300 = 437.700. Periksa: 437.700 + 62.300 = 500.000."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 29
+         },
+         "ref": "LT16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kelompok A mengumpulkan dana Rp405.750, kelompok B Rp450.570. Berapa selisih dana kedua kelompok?",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 110
+           },
+           "label": "A",
+           "body": "Rp856.320",
+           "is_correct": false,
+           "rationale": "Kedua dana dijumlahkan. Selisih dicari dengan pengurangan."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 111
+           },
+           "label": "B",
+           "body": "Rp44.820",
+           "is_correct": true,
+           "rationale": "Benar. 450.570 − 405.750 = 44.820."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 112
+           },
+           "label": "C",
+           "body": "Rp55.220",
+           "is_correct": false,
+           "rationale": "Di setiap tempat angka kecil dikurangkan dari angka besar, tanpa meminjam."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 113
+           },
+           "label": "D",
+           "body": "Rp450.570",
+           "is_correct": false,
+           "rationale": "Ini dana yang lebih banyak. Yang ditanyakan selisihnya."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

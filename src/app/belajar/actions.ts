@@ -10,6 +10,7 @@ import { tujuanInternal } from "@/lib/tujuan";
 import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
 import type { LearnerAnswer } from "@/lib/assessment-engine";
+import { galatPemeliharaan, HALAMAN_PEMELIHARAAN } from "@/lib/pemeliharaan-kontrak";
 
 async function db() {
   return (await supabaseServer()) as unknown as engine.EngineClient;
@@ -39,7 +40,11 @@ function refusal(e: unknown): { message: string; code: string | null; detail: st
 
 export async function noteView(presentedItemId: string) {
   try {
-    return { ok: true as const, at: await engine.noteItemView(await db(), presentedItemId) };
+    const at = await engine.noteItemView(await db(), presentedItemId);
+    // how long the question has been on screen since its first view (the database's clock), measured here on the
+    // server rather than by the learner's clock, so the player can ask about help when it could become due
+    const sejak = Date.parse(at);
+    return { ok: true as const, at, dwellSeconds: Number.isFinite(sejak) ? Math.max(0, (Date.now() - sejak) / 1000) : null };
   } catch (e) {
     return { ok: false as const, message: (e as Error).message };
   }
@@ -117,9 +122,27 @@ export async function saveLessonProgress(
   learningAssignmentId: string, lessonId: string, position: number, total: number,
 ) {
   try {
-    return { ok: true as const, furthest: await engine.recordProgress(await db(), learningAssignmentId, lessonId, position, total) };
+    // BOB-23: a page turn saves and nothing else. The session is written back
+    // only if it changed, so the save does not re-render the lesson page (nine
+    // Supabase calls, and a new round of props for the player).
+    const klien = (await supabaseServer({ tulisJikaBerubah: true })) as unknown as engine.EngineClient;
+    return { ok: true as const, furthest: await engine.recordProgress(klien, learningAssignmentId, lessonId, position, total) };
   } catch (e) {
     return { ok: false as const, message: (e as Error).message };
+  }
+}
+
+/**
+ * D-085 M3 (J5.12): a lesson the teacher asked this learner to read again, read to its last page. The database
+ * checks the request is theirs and marks the lesson once; a failure only leaves it unmarked.
+ */
+export async function tandaiBacaUlang(permintaan: string, pelajaran: string) {
+  try {
+    const klien = (await supabaseServer({ tulisJikaBerubah: true })) as unknown as engine.EngineClient;
+    const { error } = await klien.rpc("record_lesson_review_read", { p_request: permintaan, p_lesson: pelajaran });
+    return { ok: !error };
+  } catch {
+    return { ok: false };
   }
 }
 
@@ -150,6 +173,16 @@ export async function mulaiAsesmen(formData: FormData) {
   // No eligibility check here: `start_learning_session()` asks
   // `may_start_assessment()` itself, inside the database, from the JWT. A check
   // in this process would be a second opinion that can drift from the first.
-  await engine.startSession(await db(), penugasan);
+  // #148 (D-094(c)): from 15 minutes before planned maintenance no new sitting
+  // starts (PR110), and during a window the database answers PT503; either way
+  // the learner is told so on the maintenance page rather than shown an error.
+  try {
+    await engine.startSession(await db(), penugasan);
+  } catch (e) {
+    const err = e as Partial<engine.EngineError>;
+    if (err.code === "PR110" && err.detail === "MAINTENANCE_NO_NEW_START") redirect(`${HALAMAN_PEMELIHARAAN}?mulai=ditolak`);
+    if (galatPemeliharaan({ code: err.code ?? null, message: (e as Error).message })) redirect(HALAMAN_PEMELIHARAAN);
+    throw e;
+  }
   redirect(kembali);
 }

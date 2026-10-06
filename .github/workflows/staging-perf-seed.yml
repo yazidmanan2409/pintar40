@@ -1,0 +1,116 @@
+name: staging · synthetic school for U-PERF (D-046)
+
+# D-046(c): the synthetic staff for the U-PERF runs live in "Sekolah Uji Kinerja (sintetis)" on staging,
+# never in SD or SMA. INV-16 holds: nothing here is written as an operator. The synthetic school admin
+# (created and made Admin sekolah by Gladys on her own screens) signs in with a server-generated link and
+# builds the structure and grants Guru through PINTAR's own functions, which check authority and audit.
+# Idempotent: what exists is reused, never made twice. Staging only.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-perf-seed
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  SCHOOL_SLUG: uji-kinerja
+  # as created on Gladys's screen, 27 Sep (a typo for example.com); deactivated with the synthetic school after U-PERF
+  ADMIN_EMAIL: uji-kinerja-admin@example.co
+  GURU_NAME: Uji Kinerja Guru (sintetis)
+  YEAR: 2026/2027
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+    steps:
+      - name: Structure and the Guru grant, as the synthetic school admin
+        run: |
+          set -euo pipefail
+          [ -n "${STAGING_SUPABASE_ACCESS_TOKEN:-}" ] || { echo "::error::STAGING_SUPABASE_ACCESS_TOKEN is not set"; exit 1; }
+          python3 - <<'PY'
+          import json, os, sys, urllib.parse, urllib.request, urllib.error
+          ref = os.environ['STAGING_SUPABASE_PROJECT_REF']
+          assert ref != os.environ['PRODUCTION_SUPABASE_PROJECT_REF']
+          base = f'https://{ref}.supabase.co'
+          def call(url, method='GET', headers=None, body=None):
+              data = json.dumps(body).encode() if body is not None else None
+              h = {'Content-Type': 'application/json', **(headers or {})}
+              req = urllib.request.Request(url, data=data, method=method, headers=h)
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as r:
+                      raw = r.read(); return r.status, (json.loads(raw) if raw else None)
+              except urllib.error.HTTPError as e:
+                  raw = e.read(); return e.code, (json.loads(raw) if raw else None)
+          code, keys = call(f'https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true',
+                            headers={'Authorization': 'Bearer ' + os.environ['STAGING_SUPABASE_ACCESS_TOKEN']})
+          if code != 200: print(f'::error::project keys: HTTP {code}'); sys.exit(1)
+          for k in keys:
+              if k.get('api_key'): print('::add-mask::' + k['api_key'])
+          pick = lambda n: next((k['api_key'] for k in keys if k.get('name') == n and (k.get('api_key') or '').startswith('eyJ')), None)
+          anon, service = pick('anon'), pick('service_role')
+          svc = {'apikey': service, 'Authorization': 'Bearer ' + service}
+          q = urllib.parse.quote
+
+          # the school must be the synthetic one
+          code, rows = call(f'{base}/rest/v1/institutions?slug=eq.{os.environ["SCHOOL_SLUG"]}&select=id,is_synthetic,is_active,tenant_kind', headers=svc)
+          if code != 200 or len(rows) != 1 or not rows[0]['is_synthetic'] or not rows[0]['is_active']:
+              print(f'::error::the synthetic school is missing or not synthetic and active: {rows}'); sys.exit(1)
+          inst = rows[0]['id']
+
+          # the synthetic admin's own session (no email is sent)
+          code, gl = call(f'{base}/auth/v1/admin/generate_link', 'POST', svc, {'type': 'magiclink', 'email': os.environ['ADMIN_EMAIL']})
+          th = (gl or {}).get('hashed_token') or ((gl or {}).get('properties') or {}).get('hashed_token')
+          if code != 200 or not th: print(f'::error::sign-in link for the synthetic admin: HTTP {code}'); sys.exit(1)
+          code, sess = call(f'{base}/auth/v1/verify', 'POST', {'apikey': anon}, {'type': 'magiclink', 'token_hash': th})
+          at = (sess or {}).get('access_token')
+          if code != 200 or not at: print(f'::error::verify: HTTP {code}'); sys.exit(1)
+          print('::add-mask::' + at)
+          me = {'apikey': anon, 'Authorization': 'Bearer ' + at}
+          code, prof = call(f'{base}/rest/v1/my_profile?select=display_name,display_role', headers=me)
+          print(f'signed in as: {prof}')
+          if not prof or 'sintetis' not in (prof[0].get('display_name') or ''):
+              print('::error::the session is not the synthetic admin'); sys.exit(1)
+
+          def rpc(fn, args):
+              code, out = call(f'{base}/rest/v1/rpc/{fn}', 'POST', me, args)
+              if code not in (200, 201): print(f'::error::{fn}: HTTP {code} {out}'); sys.exit(1)
+              return out
+          def node(kind, name):
+              code, rows = call(f'{base}/rest/v1/org_nodes?institution_id=eq.{inst}&kind=eq.{kind}&is_active=eq.true&name=eq.{q(name)}&select=id', headers=svc)
+              return rows[0]['id'] if rows else None
+
+          bagian = node('DEPARTMENT', 'Bagian Uji Kinerja') or rpc('create_bagian', {'p_institution': inst, 'p_name': 'Bagian Uji Kinerja'})
+          tingkat = node('COHORT', 'Tingkat Uji Kinerja') or rpc('create_tingkat', {'p_bagian_node': bagian, 'p_name': 'Tingkat Uji Kinerja', 'p_academic_year': os.environ['YEAR']})
+          kelas = node('CLASS', 'Kelas Uji Kinerja A') or rpc('create_kelas', {'p_tingkat_node': tingkat, 'p_name': 'Kelas Uji Kinerja A'})
+          print(f'structure: Bagian {bagian}, Tingkat {tingkat}, Kelas {kelas}')
+
+          code, ppl = call(f'{base}/rest/v1/persons?display_name=eq.{q(os.environ["GURU_NAME"])}&select=id', headers=svc)
+          if len(ppl or []) != 1: print(f'::error::expected one person named {os.environ["GURU_NAME"]}, found {len(ppl or [])}'); sys.exit(1)
+          guru = ppl[0]['id']
+          code, g = call(f'{base}/rest/v1/role_assignments?person_id=eq.{guru}&role=eq.EDUCATOR&scope_node_id=eq.{kelas}&revoked_at=is.null&select=id,valid_until', headers=svc)
+          if g:
+              print(f'Guru grant already in place: {g}')
+          else:
+              # D-049 / BOB-21: a school admin grants only to a person who already has a relationship with THIS
+              # school (its number, a role or a learner enrolment there). A teacher made elsewhere has none, and
+              # the grant would be refused (42501 GRANT_NO_SCHOOL_RELATIONSHIP). Stop with the reason instead of
+              # working around it: the legitimate path for a fresh reset is the school's intake (which issues the
+              # school's number) and account activation before the grant -- built with the staging reset (C-07).
+              linked = any(call(f'{base}/rest/v1/{t}?person_id=eq.{guru}&institution_id=eq.{inst}{f}&select=person_id&limit=1', headers=svc)[1]
+                           for t, f in (('institutional_identities', ''), ('role_assignments', '&revoked_at=is.null'), ('enrollments', '')))
+              if not linked:
+                  print('::error::the synthetic teacher has no relationship with the synthetic school (no number, role or enrolment there), '
+                        'so its admin may not grant them Guru (D-049). Record the teacher through the school\'s intake first (C-07 re-seed).')
+                  sys.exit(1)
+              gid = rpc('grant_role', {'p_person': guru, 'p_role': 'EDUCATOR', 'p_scope_node': kelas, 'p_valid_until': '2027-06-30T16:59:59Z'})
+              print(f'Guru granted at Kelas Uji Kinerja A: {gid}')
+          print('READY: the synthetic school has Bagian, Tingkat and Kelas Uji Kinerja A; the synthetic teacher is Guru there.')
+          PY

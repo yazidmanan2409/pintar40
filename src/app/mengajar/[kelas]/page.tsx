@@ -4,10 +4,13 @@ import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import BarisHasil from "@/components/BarisHasil";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import PemilihKelas from "@/components/mengajar/PemilihKelas";
 import DaftarMurid from "@/components/mengajar/DaftarMurid";
+import { kataAnggota } from "@/lib/mengajar";
+import { alamatCatatan } from "@/lib/pengembangan-kontrak";
 
 export const dynamic = "force-dynamic";
 
@@ -32,8 +35,15 @@ export const dynamic = "force-dynamic";
  * would be a fact no row carries. The rows are therefore the material the
  * school actually released, with the window the assignment actually holds.
  */
-export default async function Kelas({ params }: { params: Promise<{ kelas: string }> }) {
+export default async function Kelas({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ kelas: string }>;
+  searchParams: Promise<{ sedia?: string }>;
+}) {
   const { kelas: id } = await params;
+  const { sedia } = await searchParams;
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "educator", { locale });
 
@@ -53,17 +63,11 @@ export default async function Kelas({ params }: { params: Promise<{ kelas: strin
     ajar.faktaKelas(id),
     ajar.penugasan(id),
     ajar.berjalan([id]),
-    ajar.terbitan(ctx.ini.institusi),
+    ajar.terbitan(ctx.ini.institusi, id),
   ]);
 
   const punya = new Set(tugas.map((x) => x.releaseId));
   const aktif = tugas.filter((x) => x.status === "ACTIVE" && !x.berakhir);
-
-  function status(x: ajar.Penugasan): HleEvent {
-    if (x.status !== "ACTIVE") return "mengajar.status.belum";
-    if (x.berakhir) return "mengajar.status.selesai";
-    return "mengajar.status.tersedia";
-  }
 
   return (
     <>
@@ -95,7 +99,7 @@ export default async function Kelas({ params }: { params: Promise<{ kelas: strin
             <dd>{fakta.mapel ?? "—"}</dd>
           </div>
           <div>
-            <dt>{s("mengajar.fakta.murid")}</dt>
+            <dt>{s(kataAnggota("mengajar.fakta.murid", ctx.ini.jenis))}</dt>
             <dd className="pin-num">{format.number(fakta.murid.length, locale)}</dd>
           </div>
           <div>
@@ -118,6 +122,12 @@ export default async function Kelas({ params }: { params: Promise<{ kelas: strin
           <Link className="pin-btn" href={`/mengajar/${id}/bukti`}>
             {s("mengajar.aksi.bukti")}
           </Link>
+          {/* DAISY-34 (D-070(a)): a professional-learning Kelas's record, for its facilitator; the database decides again */}
+          {ctx.ini.jenis === "PARTICIPANT" ? (
+            <Link className="pin-btn" href={alamatCatatan(id)}>
+              {s("mengajar.kelas.catatan_pengembangan")}
+            </Link>
+          ) : null}
           <Link className="pin-btn" href={`/mengajar/${id}/langkah`}>
             {s("mengajar.aksi.langkah")}
           </Link>
@@ -158,6 +168,8 @@ export default async function Kelas({ params }: { params: Promise<{ kelas: strin
         <div className="pin-sec">
           <h2>{s("mengajar.materi.judul")}</h2>
           <p className="pin-sub">{s("mengajar.materi.sub")}</p>
+          {/* DAISY-18: "Sediakan" lands here, beside the material it made available */}
+          {sedia === "ok" ? <BarisHasil nada="ok">{s("mengajar.sedia.ok")}</BarisHasil> : null}
           {tugas.length === 0 && terbit.length === 0 ? (
             <p className="pin-empty">{s("mengajar.materi.kosong")}</p>
           ) : (
@@ -169,7 +181,7 @@ export default async function Kelas({ params }: { params: Promise<{ kelas: strin
                     {x.mulai ? <span>{format.date(x.mulai, locale)}</span> : null}
                     {x.sampai ? <span>{format.date(x.sampai, locale)}</span> : null}
                   </span>
-                  <span className="pin-pill pin-neutral">{s(status(x))}</span>
+                  <span className="pin-pill pin-neutral">{s(ajar.statusMateri(x))}</span>
                 </div>
               ))}
               {terbit
@@ -181,10 +193,8 @@ export default async function Kelas({ params }: { params: Promise<{ kelas: strin
                     href={`/mengajar/${id}/siapkan?terbitan=${r.id}`}
                   >
                     <span className="pin-title">{r.kursus}</span>
+                    {/* DAISY-26 (UX-20): the date says which release; its version number means nothing to a teacher */}
                     <span className="pin-rowmeta">
-                      <span>
-                        {s("mengajar.siap.terbitan")} {r.versi}
-                      </span>
                       {r.terbitPada ? (
                         <span>
                           {s("mengajar.siap.diterbitkan")} {format.date(r.terbitPada, locale)}
@@ -199,15 +209,15 @@ export default async function Kelas({ params }: { params: Promise<{ kelas: strin
         </div>
 
         <div className="pin-sec">
-          <h2>{s("mengajar.murid.judul")}</h2>
+          <h2>{s(kataAnggota("mengajar.murid.judul", ctx.ini.jenis))}</h2>
           <p className="pin-sub">
-            {format.number(fakta.murid.length, locale)} {s("mengajar.fakta.murid").toLowerCase()}.{" "}
+            {format.number(fakta.murid.length, locale)} {s(kataAnggota("mengajar.fakta.murid", ctx.ini.jenis)).toLowerCase()}.{" "}
             {s("mengajar.murid.sub")}
             {fakta.rosterBerubah
               ? ` ${s("mengajar.fakta.berubah")} ${format.date(fakta.rosterBerubah, locale)}.`
               : ""}
           </p>
-          <DaftarMurid murid={fakta.murid} locale={locale} />
+          <DaftarMurid murid={fakta.murid} locale={locale} kelas={id} kosong={kataAnggota("mengajar.murid.kosong", ctx.ini.jenis)} />
         </div>
 
         <KakiPintar />

@@ -1,0 +1,4 @@
+# Golden School: the students, in one run (GS-07 cards, GS-12 to GS-16)
+# 2 Oct, first walk
+# 5 Oct: Sekolah Emas Uji 2026-10-05 after run 37287437383 (GS-04 to GS-11 green, 12 PASS); the admin signs in with their password (masuk.mjs)
+slug: sekolah-emas-uji-20261005

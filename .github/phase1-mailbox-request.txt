@@ -1,0 +1,11 @@
+PINTAR Phase 1 exit: staging test mailbox check (Golden School C2)
+
+Editing this file on claude/awesome-rubin-bqxp6p runs
+.github/workflows/phase1-mailbox-check.yml once. It sends one email from the
+test mailbox to itself and reads it back. It touches no staging, production,
+Supabase, Vercel or identity setting.
+
+attempt:  001   (Yazid reported both setup steps done, 1 Oct)
+mailbox:  goldenschool@pintarselalu.com
+secret:   GS_MAILBOX_PASSWORD (repository secret)
+host:     pintarselalu.com : 993 IMAP and 465 SMTP, implicit TLS

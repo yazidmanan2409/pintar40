@@ -7,11 +7,12 @@ import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import DaftarMurid from "@/components/mengajar/DaftarMurid";
+import { kataAnggota } from "@/lib/mengajar";
 
 export const dynamic = "force-dynamic";
 
 /**
- * WHO HAS SUBMITTED — two lists of names, and nothing else.
+ * WHO HAS SUBMITTED — three lists of names, and nothing else.
  *
  * OBSERVATION IS NOT JUDGMENT, and this is the page where the difference is
  * easiest to lose. Everything the design could have reached for here — a red
@@ -22,8 +23,10 @@ export const dynamic = "force-dynamic";
  * they simply have not opened PINTAR today, and the note under the lists says
  * exactly that.
  *
- * So there are two headings and two alphabetical lists. No colour, no order but
- * the alphabet, no reason, and nothing attached to any single name.
+ * So there are three headings and three alphabetical lists: submitted, started
+ * and not submitted, not started (EDU-J23, EDU-J24; the states «Lihat bukti»
+ * counts, W8). No colour, no order but the alphabet, no reason, and nothing
+ * attached to any single name.
  *
  * THE NAMES ARE BOUNDED BY THE DATABASE, THE SESSIONS ARE NOT.
  * `persons_select` runs through `person_visible_to_me()`, whose educator branch
@@ -59,7 +62,7 @@ export default async function Siapa({
     return <HalamanPenolakan locale={locale} persona="educator" backHref={`/mengajar/${id}`} backKey="mengajar.kembali" />;
   }
 
-  const { sudah, belum } = await ajar.siapa(tugasId, fakta.murid);
+  const { sudah, sedang, belum } = await ajar.siapa(tugasId, fakta.murid);
 
   return (
     <>
@@ -84,14 +87,21 @@ export default async function Siapa({
           <h2>
             {s("mengajar.siapa.sudah")} · {format.number(sudah.length, locale)}
           </h2>
-          <DaftarMurid murid={sudah} locale={locale} />
+          <DaftarMurid murid={sudah} locale={locale} kelas={id} kosong={kataAnggota("mengajar.siapa.kosong", ctx.ini.jenis)} />
+        </div>
+
+        <div className="pin-sec">
+          <h2>
+            {s("mengajar.siapa.sedang")} · {format.number(sedang.length, locale)}
+          </h2>
+          <DaftarMurid murid={sedang} locale={locale} kelas={id} kosong={kataAnggota("mengajar.siapa.kosong", ctx.ini.jenis)} />
         </div>
 
         <div className="pin-sec">
           <h2>
             {s("mengajar.siapa.belum")} · {format.number(belum.length, locale)}
           </h2>
-          <DaftarMurid murid={belum} locale={locale} />
+          <DaftarMurid murid={belum} locale={locale} kelas={id} kosong={kataAnggota("mengajar.siapa.kosong", ctx.ini.jenis)} />
         </div>
 
         <p className="pin-foot">{s("mengajar.cepat.hidup.catatan")}</p>

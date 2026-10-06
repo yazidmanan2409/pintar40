@@ -111,6 +111,11 @@ begin
      and c.title like p_prefix || '%';
   delete from public.learning_assignments la using public.courses c
    where la.course_id = c.id and c.title like p_prefix || '%';
+  -- D-088(b): a school's pass marks are append-only; a probe course's are removed with it, the guard paused for it
+  alter table public.school_pass_marks disable trigger school_pass_marks_append_only;
+  delete from public.school_pass_marks spm using public.courses c
+   where spm.course_id = c.id and c.title like p_prefix || '%';
+  alter table public.school_pass_marks enable trigger school_pass_marks_append_only;
   delete from public.ingest_batches ib
    where ib.raw_payload::text like '%' || p_prefix || '%';
   delete from public.coaching_findings f using public.courses c
@@ -234,7 +239,7 @@ declare
   v_enr uuid; v_sess uuid; v_rel2 uuid; v_pi uuid; v_class public.evidence_class; v_seed bigint;
   v_r1 uuid; v_r2 uuid; v_out text; v_res1 uuid; v_res2 uuid; v_res3 uuid;
   v_hes uuid; v_sig uuid; v_real uuid; v_real_enr uuid; v_osess uuid; v_ap uuid;
-  v_rel3 uuid; v_status text; v_blockers text[]; v_find uuid;
+  v_rel3 uuid; v_status text; v_blockers jsonb; v_find uuid;
   v_la uuid; v_aa uuid; v_rel4 uuid; v_batch uuid; v_map jsonb; v_node uuid;
   v_pre uuid; v_ie2 uuid; v_grp uuid; v_cohort uuid;
   v_frozen timestamptz; v_published timestamptz;
@@ -685,7 +690,7 @@ begin
   if n <> 1 then ok := false; detail := detail || 'the course did not stay in its own institution; '; end if;
 
   perform selftest.as_user('sysadmin@synthetic.pintar.test');
-  perform public.revoke_role(v_hop);
+  perform public.revoke_role(v_hop, 'selftest: D-097');
   perform selftest.as_owner();
   test_id := 'F02-T10'; invariant := 'INV-01 (tenant isolation)';
   if ok then detail := 'institution_id is immutable on content and releases; a caller privileged in two institutions cannot carry a record across, with or without a seal in the same statement'; end if;
@@ -1261,7 +1266,8 @@ begin
   if v_status <> 'BLOCKED' then
     ok := false; detail := detail || format('readiness was %s with an ERROR finding; ', v_status);
   end if;
-  if array_length(v_blockers, 1) is null then
+  -- BOB-17: the blockers are codes (jsonb), no longer sentences
+  if jsonb_array_length(coalesce(v_blockers, '[]'::jsonb)) = 0 then
     ok := false; detail := detail || 'readiness reported no blocker; ';
   end if;
 
@@ -1348,14 +1354,23 @@ begin
     values (v_inst, v_rel3, v_course2, v_node,
             (select academic_period_id from public.enrollments where id = v_enr))
     returning id into v_la;
-  -- an EDUCATOR holds CAN_ASSIGN_LEARNING; a plain reviewer does not
+  -- an EDUCATOR holds CAN_ASSIGN_LEARNING; a plain reviewer does not. D-093 T1: no signed-in client writes the
+  -- table any more (assign_release does, as its owner, with the caller's identity), so the capability is asked
+  -- the way the function meets it -- the D-041 writer pattern: the person's claims stay, the client role goes --
+  -- and the teacher's own direct write is refused by privilege.
   perform selftest.as_user('alpha-dean@synthetic.pintar.test');
+  perform selftest.as_release_writer();
   begin
     update public.learning_assignments set status = 'ACTIVE' where id = v_la;
     get diagnostics n = row_count;
     if n > 0 then ok := false; detail := detail || 'a DEAN activated an assignment; '; end if;
   exception when others then null; end;
   perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+  begin
+    update public.learning_assignments set status = 'ACTIVE' where id = v_la;
+    ok := false; detail := detail || 'a teacher activated an assignment by writing the table (D-093 T1); ';
+  exception when insufficient_privilege then null; end;
+  perform selftest.as_release_writer();
   update public.learning_assignments set status = 'ACTIVE' where id = v_la;
   get diagnostics n = row_count;
   perform selftest.as_owner();
@@ -1383,11 +1398,13 @@ begin
   if n < 1 then ok := false; detail := detail || 'the release move was not audited; '; end if;
 
   -- INV-27: closing an assessment assignment touches no session
+  perform selftest.pass_mark_def(v_inst, v_def_p);   -- D-088(b): the school's mark before the class is given it
   insert into public.assessment_assignments (institution_id, assessment_definition_id, node_id,
                                              academic_period_id)
     values (v_inst, v_def_p, v_node, (select academic_period_id from public.enrollments where id = v_enr))
     returning id into v_aa;
   perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+  perform selftest.as_release_writer();   -- D-093 T1: as the assigning function writes it
   update public.assessment_assignments set status = 'SCHEDULED' where id = v_aa;
   update public.assessment_assignments set status = 'OPEN' where id = v_aa;
   perform selftest.as_owner();
@@ -1401,7 +1418,7 @@ begin
     ok := false; detail := detail || 'a CLOSED assignment reopened; ';
   exception when others then null; end;
   test_id := 'F02-T20'; invariant := 'INV-27 / doc 04 §4';
-  if ok then detail := 'assigning needs CAN_ASSIGN_LEARNING and is stamped; a release move is recorded and audited before it applies; CLOSED is terminal and touches no running session'; end if;
+  if ok then detail := 'assigning needs CAN_ASSIGN_LEARNING and is stamped, and a teacher cannot do it by writing the table (D-093 T1); a release move is recorded and audited before it applies; CLOSED is terminal and touches no running session'; end if;
   return next;
 
   -- F02-T21 §11: provenance lands before rows, and Easy Upload never guesses.

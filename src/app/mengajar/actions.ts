@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { kelas as kelasKonteks } from "@/lib/pengajar";
 import { kodeGalatPenugasan } from "@/lib/penugasan-kontrak";
+import { batasHari } from "@/lib/hle";
+import { alamatTolakUjiCepat, kodeUjiCepat } from "@/lib/ujicepat-kontrak";
+import { rujukan } from "@/lib/galat-kontrak";
+import { kodeUlang } from "@/lib/ulang-kontrak";
 
 /**
  * THE EDUCATOR'S COMMITMENTS — every write the Slice-3 surface can make, and
@@ -62,6 +66,9 @@ function ke(kelasId: string, sisa = ""): never {
   redirect(`/mengajar/${encodeURIComponent(kelasId)}${sisa}`);
 }
 
+/** The shape of an id; anything else from a form is dropped before it reaches the database. */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 // ────────────────────────────────────────────────────────── make material available
 export async function sediakanMateri(formData: FormData): Promise<void> {
   const kelasId = bersih(formData.get("kelas"));
@@ -84,8 +91,9 @@ export async function sediakanMateri(formData: FormData): Promise<void> {
   const { data, error } = await db.rpc("assign_release", {
     p_release: terbitan,
     p_node: kelasId,
-    p_from: mulai ? `${mulai}T00:00:00Z` : null,
-    p_until: sampai ? `${sampai}T23:59:59Z` : null,
+    // DAISY-14 (M10): the teacher's days on the school's clock, not London's
+    p_from: mulai ? batasHari(mulai, "awal") : null,
+    p_until: sampai ? batasHari(sampai, "akhir") : null,
   });
   if (error || !data?.ok) {
     const kode = kodeGalatPenugasan(error);
@@ -100,25 +108,71 @@ export async function sediakanMateri(formData: FormData): Promise<void> {
 export async function sediakanUjiCepat(formData: FormData): Promise<void> {
   const kelasId = bersih(formData.get("kelas"));
   const bab = bersih(formData.get("bab"));
-  const soal = Number(bersih(formData.get("soal")));
+  // D-085 T2: the questions the teacher ticked and reviewed, comma-joined; the database checks each one again
+  const butir = bersih(formData.get("butir")).split(",").map((x) => x.trim()).filter((x) => UUID.test(x));
   const menit = Number(bersih(formData.get("menit")));
   if (!kelasId) redirect("/mengajar");
 
   const ctx = await kelasKonteks(kelasId);
-  if (!ctx || !bab || !Number.isInteger(soal) || !Number.isInteger(menit)) {
+  if (!ctx || !bab || !Number.isInteger(menit)) {
     ke(kelasId, "/uji-cepat");
   }
 
   const db = (await supabaseServer()) as any;
-  // One call. It creates the definition, draws against the bank, opens the
-  // assignment and writes the audit line as one transaction — so a refusal
+  // One call. It launches as launch_quick_assessment always did, checks every chosen question against the
+  // instrument's own eligible set, stores the choice and writes the audit lines as one transaction, so a refusal
   // leaves nothing half-built and this function has no cleanup to get wrong.
-  const { error } = await db.rpc("launch_quick_assessment", {
+  const { error } = await db.rpc("launch_selected_quick_assessment", {
     p_node: kelasId,
     p_module: bab,
-    p_item_count: soal,
+    p_items: butir,
     p_minutes: menit,
   });
-  if (error) ke(kelasId, "/uji-cepat?cepat=gagal");
-  ke(kelasId, "/uji-cepat");
+  // BOB-32 (UX-03, D-011): the refusal's cause as a code, so the page can say
+  // which it was; one nobody named also carries a reference, logged here.
+  // BOB-34: and the teacher's own choices, as they sent them, so the form
+  // reopens with them instead of resetting.
+  if (error) {
+    const kode = kodeUjiCepat(error);
+    const pilihan = { bab, butir: bersih(formData.get("butir")), menit: bersih(formData.get("menit")) };
+    if (kode !== "QUICK_FAILED") ke(kelasId, alamatTolakUjiCepat(kode, pilihan));
+    const ref = rujukan();
+    console.error(`[uji-cepat ${ref}] launch_selected_quick_assessment failed`, error.code, error.message);
+    ke(kelasId, alamatTolakUjiCepat(kode, pilihan, ref));
+  }
+  ke(kelasId, "/uji-cepat?cepat=ok");
+}
+
+/**
+ * D-085 M3 (J5.12): «Minta membaca lagi». The learners and lessons the teacher ticked go to request_lesson_review,
+ * which decides again: the class's own teacher, learners placed in the class now, lessons of that chapter. A refusal
+ * comes back as its code (PR050 with REVIEW_* in DETAIL), one nobody named with a reference the server log carries.
+ */
+export async function mintaBacaUlang(formData: FormData): Promise<void> {
+  const kelasId = bersih(formData.get("kelas"));
+  const penugasan = bersih(formData.get("penugasan"));
+  const tugas = bersih(formData.get("tugas"));
+  if (!kelasId) redirect("/mengajar");
+  if (!UUID.test(tugas) || !UUID.test(penugasan)) ke(kelasId, "/bukti");
+  const pilih = (k: string) => [...new Set(formData.getAll(k).map((v) => bersih(v)).filter((x) => UUID.test(x)))];
+  const murid = pilih("murid");
+  const pelajaran = pilih("pelajaran");
+
+  const db = (await supabaseServer()) as any;
+  const { data, error } = await db.rpc("request_lesson_review", { p_learning_assignment: tugas, p_people: murid, p_lessons: pelajaran });
+  const q = new URLSearchParams({ penugasan });
+  if (error) {
+    const kode = kodeUlang(error);
+    q.set("ulang", "gagal");
+    q.set("kode", kode);
+    if (kode === "REVIEW_FAILED") {
+      const ref = rujukan();
+      console.error(`[ulang ${ref}] request_lesson_review failed`, error.code, error.message);
+      q.set("ref", ref);
+    }
+  } else {
+    q.set("ulang", "ok");
+    q.set("n", String(Number(data) || 0));
+  }
+  ke(kelasId, `/ulang?${q.toString()}`);
 }

@@ -9,9 +9,12 @@ import {
   type HasilPaket, type HitunganPaket, type KodePaket, type MasalahPaket, type MediaPaket,
 } from "@/lib/unggah-kontrak";
 import {
-  kodeGalatTerbitan, kunciKodeTerbitan, type HasilTerbitan, type KesiapanTerbit,
+  KODE_HAMBATAN,
+  kodeGalatTerbitan, type Hambatan, type HasilTerbitan, type KesiapanTerbit,
 } from "@/lib/terbitan-kontrak";
-import { s } from "./_lib";
+import {
+  kodeGalat, kodeGalatKonten, queryHasil, rujukan, type HasilAksi, type KodeGalat, type KodeKonten,
+} from "@/lib/galat-kontrak";
 
 /**
  * Studio actions (FABLE-05).
@@ -24,12 +27,22 @@ import { s } from "./_lib";
  * trace (§4: "Every validator and quality finding shown as coaching").
  */
 
-type Outcome = { ok: boolean; detail?: string };
+/**
+ * BOB-07 (D-011): the page is told a CODE (`kode`, and `ref` for a failure
+ * nobody named), and draws its sentence from the copy table. The database's
+ * own words go to the server log beside the same reference, never to the page.
+ */
+function back(path: string, section: string, h: HasilAksi): never {
+  redirect(`${path}?${queryHasil(section, h).toString()}#${section}`);
+}
 
-function back(path: string, section: string, outcome: Outcome): never {
-  const q = new URLSearchParams({ bagian: section, hasil: outcome.ok ? "ok" : "gagal" });
-  if (outcome.detail) q.set("detail", outcome.detail.slice(0, 300));
-  redirect(`${path}?${q.toString()}#${section}`);
+/** A refusal as its code; one nobody named is logged with the reference the page shows. */
+function ditolak(fn: string, error: { code?: string | null; details?: string | null; message?: string | null } | null,
+                 kode: KodeGalat | KodeKonten = kodeGalat(error)): HasilAksi {
+  if (kode !== "ACTION_FAILED") return { ok: false, kode };
+  const ref = rujukan();
+  console.error(`[studio ${ref}] ${fn} failed`, error?.code, error?.message);
+  return { ok: false, kode, ref };
 }
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
@@ -46,19 +59,16 @@ const uuidOrNull = (v: string): string | null =>
  * nothing had changed. Every table write here reads back what it touched and
  * compares it with what it meant to touch; a shortfall is a refusal.
  */
-const TIDAK_BERUBAH = "tidak ada yang berubah — perubahan ini di luar wewenang Anda atau sudah tidak berlaku";
-
-/** The database's message is the coaching text; it is written for a human. */
-function detailOf(error: { message?: string } | null): string | undefined {
-  return error?.message?.replace(/^ERROR:\s*/i, "").slice(0, 300);
-}
+const TIDAK_BERUBAH: HasilAksi = { ok: false, kode: "ACTION_UNCHANGED" };
+const TIDAK_DIKENALI: HasilAksi = { ok: false, kode: "ACTION_NOT_FOUND" };
+const KURANG: HasilAksi = { ok: false, kode: "ACTION_INPUT_INVALID" };
 
 // ---------------------------------------------------------------- lifecycle
 
 export async function advanceContentAction(fd: FormData): Promise<void> {
   const course = uuidOrNull(str(fd, "course"));
   const to = str(fd, "to");
-  if (!course || !to) back("/studio", "paket", { ok: false, detail: "paket tidak dikenali" });
+  if (!course || !to) back("/studio", "paket", TIDAK_DIKENALI);
 
   const supabase = await supabaseServer();
   const { data: mods } = await supabase.from("modules").select("id").eq("course_id", course);
@@ -90,38 +100,39 @@ export async function advanceContentAction(fd: FormData): Promise<void> {
     const { data, error } = table === "assessment_definitions"
       ? await q.eq("is_ad_hoc", false).select("id")
       : await q.select("id");
-    if (error) back(`/studio/paket/${course}`, "paket", { ok: false, detail: detailOf(error) });
+    // BOB-07: the content step's refusal, named (DAISY-06's step list shows it)
+    if (error) back(`/studio/paket/${course}`, "paket", ditolak(`${table} status`, error, kodeGalatKonten(error)));
     if (expected >= 0 && (data ?? []).length !== expected) {
-      back(`/studio/paket/${course}`, "paket", { ok: false, detail: TIDAK_BERUBAH });
+      back(`/studio/paket/${course}`, "paket", TIDAK_BERUBAH);
     }
   }
   const { data: changed, error } = await supabase.from("courses").update(patch).eq("id", course).select("id");
-  if (error) back(`/studio/paket/${course}`, "paket", { ok: false, detail: detailOf(error) });
-  if ((changed ?? []).length !== 1) back(`/studio/paket/${course}`, "paket", { ok: false, detail: TIDAK_BERUBAH });
-  back(`/studio/paket/${course}`, "paket", { ok: true });
+  if (error) back(`/studio/paket/${course}`, "paket", ditolak("courses status", error, kodeGalatKonten(error)));
+  if ((changed ?? []).length !== 1) back(`/studio/paket/${course}`, "paket", TIDAK_BERUBAH);
+  back(`/studio/paket/${course}`, "paket", { ok: true, kode: "STEP_TAKEN" });
 }
 
 export async function runValidationAction(fd: FormData): Promise<void> {
   const course = uuidOrNull(str(fd, "course"));
-  if (!course) back("/studio", "paket", { ok: false, detail: "paket tidak dikenali" });
+  if (!course) back("/studio", "paket", TIDAK_DIKENALI);
   const supabase = await supabaseServer();
   const a = await supabase.rpc("validate_course_content", { p_course: course });
-  if (a.error) back(`/studio/paket/${course}`, "paket", { ok: false, detail: detailOf(a.error) });
+  if (a.error) back(`/studio/paket/${course}`, "temuan", ditolak("validate_course_content", a.error));
   const b = await supabase.rpc("run_mcq_quality", { p_course: course });
-  if (b.error) back(`/studio/paket/${course}`, "paket", { ok: false, detail: detailOf(b.error) });
-  back(`/studio/paket/${course}`, "paket", { ok: true });
+  if (b.error) back(`/studio/paket/${course}`, "temuan", ditolak("run_mcq_quality", b.error));
+  back(`/studio/paket/${course}`, "temuan", { ok: true, kode: "CHECK_RUN" });
 }
 
 export async function acknowledgeFindingAction(fd: FormData): Promise<void> {
   const course = uuidOrNull(str(fd, "course"));
   const finding = uuidOrNull(str(fd, "finding"));
   const kind = str(fd, "kind");
-  if (!course || !finding) back("/studio", "temuan", { ok: false, detail: "temuan tidak dikenali" });
+  if (!course || !finding) back("/studio", "temuan", TIDAK_DIKENALI);
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("acknowledge_finding", {
     p_kind: kind, p_finding: finding, p_note: str(fd, "catatan") || null,
   });
-  back(`/studio/paket/${course}`, "temuan", { ok: !error, detail: detailOf(error) });
+  back(`/studio/paket/${course}`, "temuan", error ? ditolak("acknowledge_finding", error) : { ok: true, kode: "FINDING_ACKNOWLEDGED" });
 }
 
 // ---------------------------------------------------------------- releases
@@ -155,11 +166,20 @@ async function kunciTerbitan(release: string | null): Promise<HasilTerbitan> {
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("freeze_release", { p_release: release });
   if (error || !data) return gagalTerbitan("freeze_release", error, release);
-  const r = data as { ok: boolean; readiness: KesiapanTerbit; blockers: string[] | null };
+  const r = data as { ok: boolean; readiness: KesiapanTerbit; blockers: Hambatan[] | null };
   revalidatePath("/studio", "layout");
   // a blocked course is not sealed: the result carries why, and the findings
   // the validators just wrote are on the package page
-  if (!r.ok) return { ok: false, code: "RELEASE_NOT_READY", release, kesiapan: r.readiness, hambatan: r.blockers ?? [] };
+  if (!r.ok) {
+    // DAISY-16: a blocker code the catalogue does not know is logged under a
+    // reference the Terbit step shows beside the general line; the code itself
+    // never reaches the page
+    const hambatan = r.blockers ?? [];
+    const asing = hambatan.filter((x) => !(KODE_HAMBATAN as readonly string[]).includes(x?.code));
+    const ref = asing.length > 0 ? rujukan() : undefined;
+    if (ref) console.error(`[studio ${ref}] freeze_release returned blocker code(s) the catalogue does not know`, asing.map((x) => x?.code));
+    return { ok: false, code: "RELEASE_NOT_READY", release, kesiapan: r.readiness, hambatan, ref };
+  }
   return { ok: true, release, status: "FROZEN", kesiapan: r.readiness, hambatan: r.blockers ?? [] };
 }
 
@@ -181,36 +201,6 @@ async function tarikTerbitan(release: string | null, alasan: string): Promise<Ha
   revalidatePath("/studio", "layout");
   revalidatePath("/mengajar", "layout");
   return { ok: true, release, status: "SUPERSEDED" };
-}
-
-/** A result, as the calm line today's page shows: the code's sentence, never the database's words. */
-function ringkasTerbitan(h: HasilTerbitan): string | undefined {
-  if (h.ok) return undefined;
-  return [s(kunciKodeTerbitan(h.code)), ...(h.hambatan ?? []).slice(0, 3), h.ref].filter(Boolean).join(" · ");
-}
-
-export async function createReleaseAction(fd: FormData): Promise<void> {
-  const course = uuidOrNull(str(fd, "course"));
-  const h = await buatTerbitan(course);
-  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", { ok: h.ok, detail: ringkasTerbitan(h) });
-}
-
-export async function freezeReleaseAction(fd: FormData): Promise<void> {
-  const course = uuidOrNull(str(fd, "course"));
-  const h = await kunciTerbitan(uuidOrNull(str(fd, "release")));
-  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", { ok: h.ok, detail: ringkasTerbitan(h) });
-}
-
-export async function publishReleaseAction(fd: FormData): Promise<void> {
-  const course = uuidOrNull(str(fd, "course"));
-  const h = await terbitkan(uuidOrNull(str(fd, "release")));
-  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", { ok: h.ok, detail: ringkasTerbitan(h) });
-}
-
-export async function withdrawReleaseAction(fd: FormData): Promise<void> {
-  const course = uuidOrNull(str(fd, "course"));
-  const h = await tarikTerbitan(uuidOrNull(str(fd, "release")), str(fd, "alasan"));
-  back(course ? `/studio/paket/${course}` : "/studio", "terbitan", { ok: h.ok, detail: ringkasTerbitan(h) });
 }
 
 /**
@@ -240,23 +230,23 @@ export async function tarikTerbitanAksi(_prev: HasilTerbitan | null, fd: FormDat
 
 export async function createRevisionAction(fd: FormData): Promise<void> {
   const course = uuidOrNull(str(fd, "course"));
-  if (!course) back("/studio", "paket", { ok: false, detail: "paket tidak dikenali" });
+  if (!course) back("/studio", "paket", TIDAK_DIKENALI);
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("create_course_revision", { p_course: course });
-  if (error || !data) back(`/studio/paket/${course}`, "paket", { ok: false, detail: detailOf(error) });
-  back(`/studio/paket/${data as string}`, "paket", { ok: true });
+  if (error || !data) back(`/studio/paket/${course}`, "revisi", ditolak("create_course_revision", error));
+  back(`/studio/paket/${data as string}`, "paket", { ok: true, kode: "REVISION_CREATED" });
 }
 
 export async function moveReleaseAction(fd: FormData): Promise<void> {
   const course = uuidOrNull(str(fd, "course"));
   const assignment = uuidOrNull(str(fd, "assignment"));
   const release = uuidOrNull(str(fd, "release"));
-  if (!course || !assignment || !release) back("/studio", "koreksi", { ok: false, detail: "data tidak lengkap" });
+  if (!course || !assignment || !release) back("/studio", "koreksi", KURANG);
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("move_learning_assignment_release", {
     p_assignment: assignment, p_to_release: release, p_reason: str(fd, "alasan"),
   });
-  back(`/studio/paket/${course}`, "koreksi", { ok: !error, detail: detailOf(error) });
+  back(`/studio/paket/${course}`, "koreksi", error ? ditolak("move_learning_assignment_release", error) : { ok: true, kode: "ASSIGNMENT_MOVED" });
 }
 
 // ------------------------------------------------------------- distribution
@@ -264,22 +254,22 @@ export async function moveReleaseAction(fd: FormData): Promise<void> {
 export async function grantDistributionAction(fd: FormData): Promise<void> {
   const release = uuidOrNull(str(fd, "release"));
   const institution = uuidOrNull(str(fd, "institution"));
-  if (!release || !institution) back("/studio/kanonik", "izin", { ok: false, detail: "data tidak lengkap" });
+  if (!release || !institution) back("/studio/kanonik", "izin", KURANG);
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("grant_release_distribution", {
     p_release: release, p_institution: institution, p_reason: str(fd, "alasan") || null,
   });
-  back("/studio/kanonik", "izin", { ok: !error, detail: detailOf(error) });
+  back("/studio/kanonik", "izin", error ? ditolak("grant_release_distribution", error) : { ok: true, kode: "DISTRIBUTION_GRANTED" });
 }
 
 export async function withdrawDistributionAction(fd: FormData): Promise<void> {
   const distribution = uuidOrNull(str(fd, "distribusi"));
-  if (!distribution) back("/studio/kanonik", "izin", { ok: false, detail: "izin tidak dikenali" });
+  if (!distribution) back("/studio/kanonik", "izin", TIDAK_DIKENALI);
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("withdraw_release_distribution", {
     p_distribution: distribution, p_reason: str(fd, "alasan"),
   });
-  back("/studio/kanonik", "izin", { ok: !error, detail: detailOf(error) });
+  back("/studio/kanonik", "izin", error ? ditolak("withdraw_release_distribution", error) : { ok: true, kode: "DISTRIBUTION_WITHDRAWN" });
 }
 
 // ----------------------------------------------------------------- ingestion
@@ -340,6 +330,10 @@ function gagal(fn: string, error: { code?: string | null; details?: string | nul
 async function siapkan(fd: FormData, kind: Asal): Promise<HasilPaket> {
   const institution = uuidOrNull(str(fd, "institution") || str(fd, "institusi"));
   if (!institution) return { ok: false, code: "PACKAGE_INPUT_INVALID" };
+  // D-085 M10: a correction names the course it corrects and says what changed; the database checks both
+  // (package_revision_problems). A value that is not a course reference is refused, never dropped into a new course.
+  const revisi = uuidOrNull(str(fd, "revisi"));
+  if (str(fd, "revisi") && !revisi) return { ok: false, code: "PACKAGE_INPUT_INVALID" };
   const paket = await paketDari(fd);
   if (!paket.ok) return { ok: false, code: paket.code, problems: paket.problems };
   const supabase = await supabaseServer();
@@ -347,6 +341,7 @@ async function siapkan(fd: FormData, kind: Asal): Promise<HasilPaket> {
     .from("ingest_batches")
     .insert({
       institution_id: institution, source_kind: kind, raw_payload: paket.paket,
+      revises_course_id: revisi, change_summary: revisi ? str(fd, "ringkasan").slice(0, 4000) || null : null,
       producer_identifier: str(fd, "produsen") || (paket.asal === "WORKBOOK" ? "pintar-buku-kerja" : null),
       capability_contract: str(fd, "kontrak") || null,
       request_id: str(fd, "permintaan") || null,
@@ -375,27 +370,27 @@ async function konfirmasi(batch: string | null): Promise<HasilPaket> {
 }
 
 /** A result, as the calm line today's page shows: codes, never the database's words. */
-function ringkas(h: HasilPaket): string | undefined {
-  if (h.ok) return h.batch;
-  const kode = (h.problems ?? []).slice(0, 5)
-    .map((p) => p.code + (p.sheet ? ` (${p.sheet}${p.row ? ` ${p.row}` : ""})` : "")).join(", ");
-  return [h.code, kode, h.ref].filter(Boolean).join(": ");
+function ringkas(h: HasilPaket): HasilAksi {
+  if (h.ok) return { ok: true };
+  return { ok: false, kode: h.code, ref: h.ref,
+           masalah: (h.problems ?? []).slice(0, 5).map((p) => ({ code: p.code, sheet: p.sheet, row: p.row })) };
 }
 
 export async function easyUploadAction(fd: FormData): Promise<void> {
   const h = await siapkan(fd, "EASY_UPLOAD");
-  back("/studio/unggah", h.ok ? "pertanyaan" : "mudah", { ok: h.ok, detail: ringkas(h) });
+  back("/studio/unggah", h.ok ? "pertanyaan" : "mudah", ringkas(h));
 }
 
 export async function structuredImportAction(fd: FormData): Promise<void> {
   const h = await siapkan(fd, "STRUCTURED_PACKAGE");
-  back("/studio/unggah", h.ok ? "pertanyaan" : "terstruktur", { ok: h.ok, detail: ringkas(h) });
+  back("/studio/unggah", h.ok ? "pertanyaan" : "terstruktur", ringkas(h));
 }
 
 export async function confirmMappingAction(fd: FormData): Promise<void> {
   const h = await konfirmasi(uuidOrNull(str(fd, "batch")));
-  if (h.ok && h.courses && h.courses[0]) redirect(`/studio/paket/${h.courses[0]}`);
-  back("/studio/unggah", "pertanyaan", { ok: h.ok, detail: ringkas(h) });
+  // BOB-19 (coordinator, 28 Sep): the new course's page says the package was made
+  if (h.ok && h.courses && h.courses[0]) back(`/studio/paket/${h.courses[0]}`, "paket", { ok: true, kode: "DRAFT_CREATED" });
+  back("/studio/unggah", "pertanyaan", ringkas(h));
 }
 
 /**
@@ -455,37 +450,34 @@ export async function saveDefinitionAction(fd: FormData): Promise<void> {
     p_definition: existing, p_payload: payload,
   });
   const row = Array.isArray(data) ? data[0] : data;
-  const detail = error
-    ? detailOf(error)
-    : row?.created_new_version
-      ? "versi-baru"
-      : "tetap";
-  back("/studio/definisi", "definisi", { ok: !error, detail });
+  back("/studio/definisi", "definisi", error
+    ? ditolak("save_assessment_definition", error)
+    : { ok: true, kode: row?.created_new_version ? "DEFINITION_NEW_VERSION" : "DEFINITION_KEPT" });
 }
 
 export async function recordIntegrityReviewAction(fd: FormData): Promise<void> {
   const signal = uuidOrNull(str(fd, "sinyal"));
-  if (!signal) back("/studio/integritas", "integritas", { ok: false, detail: "catatan tidak dikenali" });
+  if (!signal) back("/studio/integritas", "integritas", TIDAK_DIKENALI);
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("record_integrity_review", {
     p_signal: signal, p_decision: str(fd, "keputusan"), p_note: str(fd, "catatan") || null,
   });
-  back("/studio/integritas", "integritas", { ok: !error, detail: detailOf(error) });
+  back("/studio/integritas", "integritas", error ? ditolak("record_integrity_review", error) : { ok: true, kode: "REVIEW_RECORDED" });
 }
 
 export async function recordQuestionHealthReviewAction(fd: FormData): Promise<void> {
   const item = uuidOrNull(str(fd, "soal"));
-  if (!item) back("/studio/bank", "kesehatan", { ok: false, detail: "soal tidak dikenali" });
+  if (!item) back("/studio/bank", "kesehatan", TIDAK_DIKENALI);
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("record_question_health_review", {
     p_item: item, p_decision: str(fd, "keputusan"), p_note: str(fd, "catatan") || null,
   });
-  back("/studio/bank", "kesehatan", { ok: !error, detail: detailOf(error) });
+  back("/studio/bank", "kesehatan", error ? ditolak("record_question_health_review", error) : { ok: true, kode: "REVIEW_RECORDED" });
 }
 
 export async function saveCertificateTemplateAction(fd: FormData): Promise<void> {
   const institution = uuidOrNull(str(fd, "institution"));
-  if (!institution) back("/studio/sertifikat", "sertifikat", { ok: false, detail: "pilih sekolah" });
+  if (!institution) back("/studio/sertifikat", "sertifikat", { ok: false, kode: "SCHOOL_REQUIRED" });
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("save_certificate_template", {
     p_institution: institution,
@@ -494,7 +486,7 @@ export async function saveCertificateTemplateAction(fd: FormData): Promise<void>
     p_layout: str(fd, "tata_letak"),
     p_number_prefix: str(fd, "awalan"),
   });
-  back("/studio/sertifikat", "sertifikat", { ok: !error, detail: detailOf(error) });
+  back("/studio/sertifikat", "sertifikat", error ? ditolak("save_certificate_template", error) : { ok: true, kode: "CERTIFICATE_SAVED" });
 }
 
 // ------------------------------------------------------------ quick assessment
@@ -512,11 +504,11 @@ export async function launchQuickAssessmentAction(fd: FormData): Promise<void> {
   const modul = uuidOrNull(str(fd, "modul"));
   const items = num(fd, "jumlah");
   const minutes = num(fd, "menit");
-  if (!node || !modul) back("/studio/kuis", "kuis", { ok: false, detail: "kelas atau bab tidak dikenali" });
+  if (!node || !modul) back("/studio/kuis", "kuis", TIDAK_DIKENALI);
 
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("launch_quick_assessment", {
     p_node: node, p_module: modul, p_item_count: items, p_minutes: minutes,
   });
-  back("/studio/kuis", "kuis", { ok: !error, detail: detailOf(error) });
+  back("/studio/kuis", "kuis", error ? ditolak("launch_quick_assessment", error) : { ok: true, kode: "QUICK_CHECK_LAUNCHED" });
 }

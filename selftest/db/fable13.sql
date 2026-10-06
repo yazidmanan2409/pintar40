@@ -191,6 +191,16 @@ begin
 
       perform selftest.as_user('siklus-admin@synthetic.pintar.test');
       perform public.publish_release(v_rel);
+      -- D-088(b), BOB-49: published, but the school has not set this lesson's pass mark: not yet assignable either
+      perform selftest.as_user('siklus-guru@synthetic.pintar.test');
+      v_code := selftest.f13_code(format('select public.assign_release(%L, %L, null, null)', v_rel, v_cls));
+      perform selftest.as_owner();
+      if v_code is distinct from 'ASSIGN_PASS_MARK_MISSING' then
+        v_probs := selftest.f11_note(v_probs, 'F13-N01', 'a lesson with no school pass mark answered ' || coalesce(v_code, 'ok -- it was assigned'));
+      else m_refused := m_refused + 1; end if;
+      -- the school's admin sets it, as on Konfigurasi
+      perform selftest.as_user('siklus-admin@synthetic.pintar.test');
+      perform public.set_school_pass_mark(v_inst, v_course, 70, 'F13: ketetapan sekolah');
       perform selftest.as_user('siklus-guru@synthetic.pintar.test');
       v := public.assign_release(v_rel, v_cls, null, now() + interval '30 days');
       perform selftest.as_owner();
@@ -411,7 +421,8 @@ begin
         'each test may draw exactly the questions marked for it (3 and 2, no practice question); the class''s learner '
           || 'saw both in their cycle, took the pre-test (3 pre-test questions presented), the lesson and the post-test '
           || '(2 post-test questions presented), and has an outcome with both sessions FINALIZED',
-        format('%s refusal(s), each PR050 with its code: a frozen, unpublished release; a second assignment; a window '
+        format('%s refusal(s), each PR050 with its code: a frozen, unpublished release; a published lesson whose pass '
+          || 'mark the school has not set (ASSIGN_PASS_MARK_MISSING, D-088(b)); a second assignment; a window '
           || 'that closes before it opens; the school instead of a class; an unknown release; a DEAN; another school''s '
           || 'class; a lesson with no pre-test (ASSIGN_PRE_TEST_MISSING); and a post-test sharing every parallel group '
           || 'with the pre-test (ASSIGN_CYCLE_OVERLAP, INV-24) -- the last two leaving no learning assignment', m_refused),
