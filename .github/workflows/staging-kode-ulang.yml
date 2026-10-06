@@ -1,0 +1,52 @@
+# STAGING ONLY. CR-18 (J2.18): the resend countdown on the code screens, side by side for a real account (a Golden
+# School specimen's teacher) and a name nobody holds; «Aktifkan akun»'s countdown; and none on the sign-in screen.
+# Runs audit/staging/kode-ulang-walk.mjs once per edit of .github/staging-kode-ulang-request.txt on the coordinator's
+# branch; the request's last line names the specimen's slug ("slug: <slug>"), whose teacher is the real account.
+#
+# NEVER: production (the origin is staging's, checked by the script); the database (nothing is read or written there:
+# every step is a press of PINTAR's buttons). One run sends the teacher's address two recovery codes.
+
+name: staging · the resend countdown (CR-18)
+
+on:
+  push:
+    branches:
+      - claude/awesome-rubin-bqxp6p
+    paths:
+      - .github/staging-kode-ulang-request.txt
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+env:
+  STAGING_ORIGIN: https://staging.pintarselalu.com
+
+jobs:
+  hitung:
+    name: the countdown, a real account beside nobody
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Playwright (the audit harness's version)
+        working-directory: audit/staging
+        run: |
+          npm init -y >/dev/null
+          npm i --no-save --no-audit --no-fund playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+      - name: The specimen
+        run: |
+          set -euo pipefail
+          slug=$(tail -n 1 .github/staging-kode-ulang-request.txt | sed -n 's/^slug: *\([a-z0-9][a-z0-9-]*\) *$/\1/p')
+          [ -n "$slug" ] || { echo "::error::the request's last line is not 'slug: <slug>'"; exit 1; }
+          echo "GS_KNOWN=goldenschool+${slug}-guru@pintarselalu.com" >> "$GITHUB_ENV"
+      - name: The countdown, in a real browser
+        working-directory: audit/staging
+        run: node kode-ulang-walk.mjs
