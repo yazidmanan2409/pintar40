@@ -140,14 +140,14 @@ export type Keputusan = {
    * CR-76: for the reader's own open integrity referral, whether anyone else may decide it now
    * (`management_decision_independent_decider`); null when the question was not asked.
    */
-  pemutusLain: boolean | null;
+  adaPemutus: boolean | null;
 };
 
 /**
  * CR-76 (D-123(4)): THE REFERRER WAITS. «The person who refers an integrity case cannot make its final decision»,
  * so a reader's own open integrity referral offers them no move: `advance_management_decision` refuses both.
  */
-export function menungguPemutusLain(k: Pick<Keputusan, "olehSaya" | "keluarga" | "keadaan">): boolean {
+export function menungguOrangLain(k: Pick<Keputusan, "olehSaya" | "keluarga" | "keadaan">): boolean {
   return k.olehSaya && k.keluarga === "INTEGRITY_REFERRAL" && k.keadaan !== "DECIDED";
 }
 

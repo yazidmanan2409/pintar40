@@ -209,11 +209,11 @@ export const penutupanTests: SelfTest[] = [
       const tiada = t("pimpinan.belum_ada_pemutus_lain", "staff", { locale: "id" });
       const dasar = { id: "d1", keluarga: "INTEGRITY_REFERRAL", keadaan: "AWAITING_REVIEW", hasil: null, simpul: "n", simpulNama: "Kelas 1A",
         institusi: "i", subjek: null, sumberTabel: "integrity_signals", diangkatPada: "2026-10-07T00:00:00Z", catatan: "catatan perujuk",
-        diputuskanPada: null, olehSaya: false, pemutusLain: null };
+        diputuskanPada: null, olehSaya: false, adaPemutus: null };
       const kasus = [
-        { keputusan: { ...dasar, olehSaya: true, pemutusLain: true }, denganAksi: true },
-        { keputusan: { ...dasar, olehSaya: true, pemutusLain: false }, denganAksi: true },
-        { keputusan: { ...dasar, keadaan: "UNDER_REVIEW", olehSaya: true, pemutusLain: true }, denganAksi: true },
+        { keputusan: { ...dasar, olehSaya: true, adaPemutus: true }, denganAksi: true },
+        { keputusan: { ...dasar, olehSaya: true, adaPemutus: false }, denganAksi: true },
+        { keputusan: { ...dasar, keadaan: "UNDER_REVIEW", olehSaya: true, adaPemutus: true }, denganAksi: true },
         { keputusan: { ...dasar }, denganAksi: true },
         { keputusan: { ...dasar, keadaan: "DECIDED", hasil: "NO_FURTHER_ACTION", diputuskanPada: "2026-10-07T01:00:00Z", olehSaya: true }, denganAksi: true },
       ];

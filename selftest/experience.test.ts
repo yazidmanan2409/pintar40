@@ -5159,7 +5159,7 @@ export const experienceTests: SelfTest[] = [
       const k = (id: string, keadaan: Keputusan["keadaan"], at: string): Keputusan => ({
         id, keluarga: "INTEGRITY_REFERRAL", keadaan, hasil: null, simpul: "n", simpulNama: null,
         institusi: "i", subjek: null, sumberTabel: "integrity_signals", diangkatPada: at,
-        catatan: null, diputuskanPada: null, olehSaya: false, pemutusLain: null,
+        catatan: null, diputuskanPada: null, olehSaya: false, adaPemutus: null,
       });
       const diurut = urutan([
         k("d", "DECIDED", "2026-01-01T00:00:00Z"),

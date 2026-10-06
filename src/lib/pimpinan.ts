@@ -300,7 +300,7 @@ export async function keputusanSaya(): Promise<Keputusan[]> {
     catatan: r.raised_note ? String(r.raised_note) : null,
     diputuskanPada: r.decided_at ? String(r.decided_at) : null,
     olehSaya: milikSaya(r),
-    pemutusLain: lain.get(String(r.id)) ?? null,
+    adaPemutus: lain.get(String(r.id)) ?? null,
   }));
 }
 
