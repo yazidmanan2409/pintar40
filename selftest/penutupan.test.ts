@@ -280,6 +280,70 @@ export const penutupanTests: SelfTest[] = [
         + "with the bands and while they are withheld (CR-81, D-123(3))");
     },
   },
+  {
+    id: "PENUTUPAN-R01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const KOMPONEN = "src/components/KolomRahasia.tsx";
+      const semua: string[] = [];
+      const jalan = (d: string) => {
+        for (const e of readdirSync(join(ctx.repoRoot, d), { withFileTypes: true })) {
+          const p = `${d}/${e.name}`;
+          if (e.isDirectory()) jalan(p);
+          else if (/\.tsx$/.test(e.name)) semua.push(p);
+        }
+      };
+      jalan("src");
+      // 1. NO SECRET IS TYPED OUTSIDE THE ONE FIELD: no input anywhere in src/ is a password-type input of its own
+      const masked = /type=(?:"password"|'password'|\{[^}]*["']password["'][^}]*\})/;
+      const di = semua.filter((f) => f !== KOMPONEN && masked.test(readFileSync(join(ctx.repoRoot, f), "utf8")));
+      c.expect(di.length === 0, `a secret is typed outside KolomRahasia: ${di.join(", ")}`);
+      // 2. every place that asks for a password or a PIN asks through it, each secret with its own field
+      const pakai: Record<string, number> = {
+        "src/components/masuk/LayarMasuk.tsx": 2,      // the card's PIN; the password
+        "src/components/aktifkan/Langkah.tsx": 4,      // the new password and its confirmation; the new PIN and its confirmation
+        "src/components/aktifkan/LupaPassword.tsx": 1, // the PIN of the PINTAR ID + PIN way back (its new password is Langkah's)
+        "src/components/aktifkan/PinBaru.tsx": 2,      // Akun saya's new PIN and its confirmation
+        "src/components/sesi/LayarTerkunci.tsx": 1,    // the lock's PIN
+      };
+      for (const [f, n] of Object.entries(pakai)) {
+        const x = (readFileSync(join(ctx.repoRoot, f), "utf8").match(/<KolomRahasia\b/g) ?? []).length;
+        c.expect(x === n, `${f} asks for ${n} secret(s) through KolomRahasia, but ${x} do`);
+      }
+      // 3. emailed one-time codes stay readable (D-127 Q10): never a secret field
+      for (const f of semua) {
+        const src = readFileSync(join(ctx.repoRoot, f), "utf8");
+        for (const m of src.matchAll(/<(\w+)\b[^>]*autoComplete="one-time-code"/g)) {
+          c.expect(m[1] === "input", `${f}: a one-time code is typed in <${m[1]}>, not a plain readable field`);
+        }
+      }
+      // 4. the field itself: masked by default, its own labelled toggle naming the field it controls, re-masked by the
+      //    person's own submit, and no timer
+      const k = readFileSync(join(ctx.repoRoot, KOMPONEN), "utf8");
+      c.expect(/useState\(false\)/.test(k) && /type=\{tampil \? "text" : "password"\}/.test(k), "the secret is not masked by default");
+      c.expect(/aria-pressed=\{tampil\}/.test(k) && /aria-label=\{tampil \? sembunyikan : tampilkan\}/.test(k) && /aria-controls=\{input\.id\}/.test(k),
+        "the reveal is not a labelled pressed-state toggle naming its own field");
+      c.expect(/form\.addEventListener\("submit", tutup\)/.test(k), "a submit does not re-mask the secret");
+      c.expect(!/setTimeout|setInterval/.test(k), "the secret field runs a timer");
+      // 5. rendered: two secrets in one form are two fields with two toggles, each naming its own field, both masked
+      const r = gambar(ctx.repoRoot, KOMPONEN, [
+        { id: "password", name: "password", bungkus: "pin-inp", tampilkan: "Tampilkan password", sembunyikan: "Sembunyikan password" },
+        { id: "ulang", name: "ulang", bungkus: "pin-inp", tampilkan: "Tampilkan password", sembunyikan: "Sembunyikan password" },
+      ]);
+      c.expect(r.galat === "", `KolomRahasia does not render: ${r.galat}`);
+      for (const [i, id] of [[0, "password"], [1, "ulang"]] as const) {
+        const html = r.html[i] ?? "";
+        c.expect(/<input[^>]*type="password"/.test(html) && (html.match(/aria-pressed="false"/g) ?? []).length === 1
+          && new RegExp(`aria-controls="${id}"`).test(html) && /aria-label="Tampilkan password"/.test(html),
+          `the rendered field #${id} is not masked with one toggle of its own: ${html.slice(0, 200)}`);
+      }
+      return c.verdict("no input in src/ is a password-type input outside src/components/KolomRahasia.tsx; the sign-in password and "
+        + "card PIN, activation's password, PIN and both confirmations, the PIN way back, Akun saya's new PIN and its confirmation, "
+        + "and the lock's PIN each ask through it (2, 4, 1, 2, 1); emailed one-time codes stay plain fields; the field is masked by "
+        + "default, its reveal a labelled pressed-state toggle naming its own field, re-masked by the person's submit, with no timer; "
+        + "rendered twice in one form it is two masked fields with a toggle each (CR-86, D-127 Q6, Q10)");
+    },
+  },
 ];
 
 export const penutupanAppTests: SelfTest[] = [

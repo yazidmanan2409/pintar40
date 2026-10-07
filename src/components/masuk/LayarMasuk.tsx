@@ -7,6 +7,7 @@ import { sendMagicLink, type HasilKirim } from "@/app/masuk/actions";
 import { kirimKartu, kalimatKartu, menunggu, type GagalKartu } from "./kartu";
 import { kirim as kirimRute, kalimat, menunggu as menungguRute, tujuanAman, type Gagal } from "@/components/aktifkan/jawaban";
 import { HALAMAN_PEMULIHAN, TAUTAN_MASUK_CADANGAN } from "@/components/aktifkan/kontrak";
+import KolomRahasia from "@/components/KolomRahasia";
 
 /**
  * THE SIGN-IN SCREEN'S TWELVE INTERACTIVE STATES (S1–S12 of the handoff).
@@ -83,8 +84,6 @@ export default function LayarMasuk({
   );
 
   const [layar, setLayar] = useState<Layar>({ k: "password" });
-  const [pinTampil, setPinTampil] = useState(false);
-  const [pwTampil, setPwTampil] = useState(false);
   // A token rather than a derived value: two different transitions can land on
   // the same surface and want focus in different places.
   const [fokus, setFokus] = useState<{ ke: Fokus; n: number }>({ ke: null, n: 0 });
@@ -140,13 +139,12 @@ export default function LayarMasuk({
   function kePassword() {
     // Anything typed on the other surfaces is left behind, the PIN included.
     formKartuRef.current?.reset();
-    setPinTampil(false);
+    // the PIN's field leaves with its surface, so it comes back masked (CR-86)
     setLayar({ k: "password" });
     pindahFokus("identitas");
   }
 
   function keTautan() {
-    setPwTampil(false);
     setLayar({ k: "email" });
     pindahFokus("email");
   }
@@ -211,7 +209,6 @@ export default function LayarMasuk({
 
   // ────────────────────────────────────────────────────────── the card path
   function keKartu() {
-    setPinTampil(false);
     setLayar({ k: "kartu" });
     // Unlike first arrival, this surface was reached by a deliberate choice:
     // the person has read where they are and the next act is transcription.
@@ -301,31 +298,21 @@ export default function LayarMasuk({
         </span>
 
         <label className="pin-lbl" htmlFor="pin">{s("auth.card_pin")}</label>
-        <span className={tidakCocok ? "pin-inp pin-inp-big pin-inp-salah" : "pin-inp pin-inp-big"}>
-          <input
-            id="pin" name="pin"
-            type={pinTampil ? "text" : "password"}
-            inputMode="numeric" autoComplete="off"
-            readOnly={layar.sibuk}
-            /* BOTH fields carry it, pointing at ONE message. Marking only the
-               PIN invalid tells a screen-reader user that the card number was
-               accepted — precisely the fact the visible copy withholds. */
-            aria-invalid={tidakCocok ? "true" : undefined}
-            aria-describedby={layar.gagal ? "kartu-err" : undefined}
-            required
-          />
-          {/* Controlled by the person and by nothing else: no timer re-masks
-              it. A PIN that re-hides itself while a child is comparing it
-              against a printed card is a small cruelty. */}
-          <button
-            type="button" className="pin-lihat"
-            aria-pressed={pinTampil}
-            aria-label={s(pinTampil ? "auth.card_hide" : "auth.card_show")}
-            onClick={() => setPinTampil((v) => !v)}
-          >
-            <span aria-hidden="true">{pinTampil ? "🚫" : "👁"}</span>
-          </button>
-        </span>
+        {/* CR-86 (D-127 Q6): the one secret field. Controlled by the person and by nothing else: no timer re-masks
+            it (a PIN that re-hides itself while a child is comparing it against a printed card is a small cruelty);
+            the person's own submit does. BOTH fields carry aria-invalid, pointing at ONE message: marking only the
+            PIN invalid tells a screen-reader user that the card number was accepted, precisely the fact the visible
+            copy withholds. */}
+        <KolomRahasia
+          bungkus={tidakCocok ? "pin-inp pin-inp-big pin-inp-salah" : "pin-inp pin-inp-big"}
+          tampilkan={s("auth.card_show")} sembunyikan={s("auth.card_hide")}
+          id="pin" name="pin"
+          inputMode="numeric" autoComplete="off"
+          readOnly={layar.sibuk}
+          aria-invalid={tidakCocok ? "true" : undefined}
+          aria-describedby={layar.gagal ? "kartu-err" : undefined}
+          required
+        />
 
         {layar.gagal ? (
           <p className={menunggu(layar.gagal) ? "pin-msg pin-msg-note" : "pin-msg pin-msg-err"} role="alert" id="kartu-err">
@@ -414,25 +401,16 @@ export default function LayarMasuk({
       </span>
 
       <label className="pin-lbl" htmlFor="password">{s("auth.pw_password")}</label>
-      <span className={pwSalah ? "pin-inp pin-inp-salah" : "pin-inp"}>
-        <input
-          id="password" name="password"
-          type={pwTampil ? "text" : "password"} autoComplete="current-password"
-          readOnly={layar.sibuk}
-          aria-invalid={pwSalah ? "true" : undefined}
-          aria-describedby={layar.gagal || layar.kosong ? "pw-err" : undefined}
-          required
-        />
-        {/* The person's own control; nothing re-masks it. */}
-        <button
-          type="button" className="pin-lihat"
-          aria-pressed={pwTampil}
-          aria-label={s(pwTampil ? "auth.pw_hide" : "auth.pw_show")}
-          onClick={() => setPwTampil((v) => !v)}
-        >
-          <span aria-hidden="true">{pwTampil ? "🚫" : "👁"}</span>
-        </button>
-      </span>
+      {/* CR-86: the one secret field; its reveal is the person's own, re-masked by their submit. */}
+      <KolomRahasia
+        bungkus={pwSalah ? "pin-inp pin-inp-salah" : "pin-inp"}
+        tampilkan={s("auth.pw_show")} sembunyikan={s("auth.pw_hide")}
+        id="password" name="password" autoComplete="current-password"
+        readOnly={layar.sibuk}
+        aria-invalid={pwSalah ? "true" : undefined}
+        aria-describedby={layar.gagal || layar.kosong ? "pw-err" : undefined}
+        required
+      />
 
       {/* One line for both refusals, tied to both fields: nothing typed, or the route's sentence. */}
       {layar.kosong || layar.gagal ? (

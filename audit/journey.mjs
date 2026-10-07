@@ -10,7 +10,7 @@
 //
 // Runs on a GitHub runner against a local Supabase stack. Never production.
 
-import { chromium } from "playwright";
+import { chromium, firefox, webkit } from "playwright";
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -3857,6 +3857,79 @@ await step("P3", "U-LOC: an unknown page shows PINTAR's own localized page, not 
   const kartu = await p.goto(`${APP}/masuk/kartu`, { waitUntil: "networkidle" });
   const kartuDi = new URL(p.url()).pathname;
   return `HTTP ${resp?.status()} | framework default page: ${frameworkDefault} | text: ${txt.slice(0, 120)} | GET /masuk/kartu ends at ${kartuDi} (HTTP ${kartu?.status()})`;
+});
+
+// CR-90 (D-127, D-128; BD-11, J2.9 «the next person never continues as the last»; DG-19's security half). Browser
+// Back after «Keluar», in three engines, on a computer declared personal and on one declared shared: the page of the
+// session that ended must not come back, and after the next person signs in, Back shows only what that person may see.
+await step("BD11", "BD-11: on a personal and on a shared computer, in Chromium, Firefox and WebKit, the school admin signs out with «Keluar» and presses Back twice: no page of the ended session comes back; the teacher then signs in on the same browser and presses Back: nothing of the admin's session shows (CR-90, J2.9)", async (rec) => {
+  const A = people.sdAdmin, B = people.guru;
+  for (const x of [A, B]) if (!sudahAktif.has(x.email)) { rec.verdict = "BLOCKED"; return `${x.name} was never activated earlier in the walk`; }
+  const masuk = async (page, email, mode) => {
+    await page.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+    await page.locator("#identitas").fill(email);
+    await page.locator("#password").fill(sandiDari(email));
+    await page.getByRole("button", { name: "Masuk", exact: true }).click();
+    await page.waitForURL((u) => u.pathname !== "/masuk", { timeout: SLOW }).catch(() => {});
+    await page.waitForLoadState("networkidle");
+    if (new URL(page.url()).pathname === "/perangkat") {
+      await page.locator(`input[type="radio"][name="mode"][value="${mode}"]`).check();
+      await page.getByRole("button", { name: "Simpan pilihan" }).click();
+      await page.waitForURL((u) => u.pathname !== "/perangkat", { timeout: SLOW }).catch(() => {});
+      await page.waitForLoadState("networkidle");
+    }
+  };
+  const mundur = async (page) => {
+    await page.goBack({ waitUntil: "load", timeout: SLOW }).catch(() => null);
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(800);
+    return { di: new URL(page.url()).pathname, teks: await bodyText(page) };
+  };
+  const hasil = [];
+  for (const [nama, mesin] of [["chromium", chromium], ["firefox", firefox], ["webkit", webkit]]) {
+    let br;
+    try { br = await mesin.launch(); } catch (e) {
+      rec.verdict = "BLOCKED"; hasil.push(`${nama}: cannot start (${String(e?.message ?? e).split("\n")[0]})`); continue;
+    }
+    for (const mode of ["PERSONAL", "SHARED"]) {
+      const kc = await br.newContext({ viewport: { width: 1280, height: 900 }, locale: "id-ID", timezoneId: "Asia/Jakarta" });
+      const p = await kc.newPage();
+      const catat = [];
+      try {
+        // the admin's session: a page that is theirs, then «Keluar»
+        await masuk(p, A.email, mode);
+        await p.goto(`${APP}/konfigurasi`, { waitUntil: "networkidle" });
+        const sebelum = await bodyText(p);
+        if (!sebelum.includes(A.name)) { rec.verdict = "BLOCKED"; catat.push(`the admin's page does not name ${A.name} before sign-out`); }
+        await p.getByRole("button", { name: "Keluar", exact: true }).first().click();
+        await p.waitForURL((u) => u.pathname === "/", { timeout: SLOW }).catch(() => {});
+        await p.waitForLoadState("networkidle");
+        // Back, twice: no page of the ended session comes back
+        for (const kali of [1, 2]) {
+          const m = await mundur(p);
+          const bocor = m.teks.includes(A.name);
+          catat.push(`back ${kali} → ${m.di}${bocor ? ` SHOWS ${A.name}` : ""}`);
+          if (bocor) { rec.verdict = "FAIL"; rec.shots.push(await shot(p, `bd11-${nama}-${mode}-back${kali}`)); }
+        }
+        // the next person signs in on the same browser; Back shows nothing of the admin's session
+        await masuk(p, B.email, mode);
+        const rumahB = new URL(p.url()).pathname;
+        for (const kali of [1, 2, 3]) {
+          const m = await mundur(p);
+          const bocor = m.teks.includes(A.name);
+          catat.push(`next person, back ${kali} → ${m.di}${bocor ? ` SHOWS ${A.name}` : ""}`);
+          if (bocor) { rec.verdict = "FAIL"; rec.shots.push(await shot(p, `bd11-${nama}-${mode}-next-back${kali}`)); }
+        }
+        catat.unshift(`teacher's home ${rumahB}`);
+      } catch (e) {
+        rec.verdict = "FAIL"; catat.push(`error: ${String(e?.message ?? e).split("\n")[0]}`);
+      }
+      hasil.push(`${nama}/${mode}: ${catat.join("; ")}`);
+      await kc.close();
+    }
+    await br.close();
+  }
+  return hasil.join(" | ");
 });
 
 // The controlled red (EVIDENCE-MODEL §5): AUDIT_PLANT=journey adds one step

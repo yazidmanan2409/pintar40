@@ -4381,11 +4381,11 @@ export const experienceTests: SelfTest[] = [
         [/pilih.?institusi|institution.?select|pilih.?peran|role.?select/i, "an institution or role picker"],
       ];
       for (const f of files) {
-        // The PIN is the one masked field, and it is a transcription from a
-        // card rather than a password somebody chose.
-        const src = code(readFileSync(join(repoRoot, f), "utf8"))
-          .replace(/type=\{pinTampil \? "text" : "password"\}/g, " ")
-          .replace(/type=\{pwTampil \? "text" : "password"\}/g, " ");
+        // RESTATED FOR CR-86 (D-127 Q6, D-128): the card's PIN and the
+        // password are typed in the one secret field (KolomRahasia, held by
+        // PENUTUPAN-R01), so no sign-in file holds a password-type input of
+        // its own; one would be a second password field.
+        const src = code(readFileSync(join(repoRoot, f), "utf8"));
         for (const [re, apa] of TIDAK_ADA) {
           const m = re.exec(src);
           c.expect(m === null, `${f} offers ${apa}: ${m?.[0]}`);
@@ -4397,8 +4397,9 @@ export const experienceTests: SelfTest[] = [
       // filled as the current password, sent only through the contract's
       // route; and the email link offered only behind the fallback switch.
       const layarPw = code(readFileSync(join(repoRoot, "src", "components", "masuk", "LayarMasuk.tsx"), "utf8"));
-      c.expect((layarPw.match(/type=\{pwTampil \? "text" : "password"\}/g) ?? []).length === 1
-        && /autoComplete="current-password"/.test(layarPw) && /name="identitas"/.test(layarPw),
+      // RESTATED FOR CR-86: the password is one secret field (KolomRahasia), filled as the current password.
+      c.expect((layarPw.match(/<KolomRahasia\b[^>]*autoComplete="current-password"/g) ?? []).length === 1
+        && (layarPw.match(/autoComplete="current-password"/g) ?? []).length === 1 && /name="identitas"/.test(layarPw),
         "the password door is not one email-or-username field and one current-password field");
       c.expect(/kirimRute<"masukPassword", \{ tujuan: string \}>\("masukPassword", fd\)/.test(layarPw)
         && !/fetch\(/.test(layarPw),
@@ -4725,10 +4726,12 @@ export const experienceTests: SelfTest[] = [
         "a field is disabled rather than readonly in flight");
       c.expect(/aria-busy=\{layar\.sibuk \? "true" : undefined\}/.test(layar), "a busy control does not say so");
 
-      // 2. THE REVEAL IS A LABELLED TOGGLE, and nothing re-masks it.
-      c.expect(/aria-pressed=\{pinTampil\}/.test(layar), "the reveal control is not a pressed-state toggle");
-      c.expect(/aria-label=\{s\(pinTampil \? "auth\.card_hide" : "auth\.card_show"\)\}/.test(layar),
-        "the reveal control does not swap its label with its state");
+      // 2. THE REVEAL IS A LABELLED TOGGLE, and nothing re-masks it while it is read.
+      //    RESTATED FOR CR-86 (D-127 Q6, D-128): the toggle is the one secret field's (src/components/KolomRahasia.tsx,
+      //    held by PENUTUPAN-R01: a pressed-state toggle whose name swaps with its state, no timer); the person's own
+      //    submit re-masks it. Here: the card's PIN asks through it, named by the card's own show/hide words.
+      c.expect(/<KolomRahasia\b[\s\S]{0,200}tampilkan=\{s\("auth\.card_show"\)\} sembunyikan=\{s\("auth\.card_hide"\)\}[\s\S]{0,80}id="pin"/.test(layar),
+        "the card's PIN is not the one secret field with the PIN's own show and hide words");
       const timers = [...layar.matchAll(/setTimeout\(([^;]*?)\)/g)].map((m) => m[0]);
       c.expect(timers.length === 0,
         `the sign-in surface runs a timer: ${timers.join("; ")} — a PIN that re-hides itself while a child is ` +
@@ -4745,8 +4748,8 @@ export const experienceTests: SelfTest[] = [
       c.expect(/setLayar\(\{ k: "password", kosong: true \}\);\s*\n\s*pindahFokus\("identitas"\);/.test(layar)
         && /setLayar\(\{ k: "password", gagal: jawaban \}\);[\s\S]{0,120}pindahFokus\("identitas"\);/.test(layar),
         "a password refusal does not send focus to the first field");
-      c.expect(/aria-pressed=\{pwTampil\}/.test(layar) && /aria-label=\{s\(pwTampil \? "auth\.pw_hide" : "auth\.pw_show"\)\}/.test(layar),
-        "the password reveal is not a labelled pressed-state toggle");
+      c.expect(/<KolomRahasia\b[\s\S]{0,200}tampilkan=\{s\("auth\.pw_show"\)\} sembunyikan=\{s\("auth\.pw_hide"\)\}[\s\S]{0,80}id="password"/.test(layar),
+        "the password is not the one secret field with the password's own show and hide words");
       for (const [dari, ke] of [["bentuk", "email"], ["kirim", "kirim"]] as const) {
         c.expect(new RegExp(`salah: "${dari}"[\\s\\S]{0,80}pindahFokus\\("${ke}"\\)`).test(layar),
           `the ${dari} error does not send focus to ${ke}`);

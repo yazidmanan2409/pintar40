@@ -7,7 +7,10 @@
 //    outcome is DEFERRED · NOT PROVEN: this run cancels itself before it queues anything. Dispatch again when the
 //    queue has cleared.
 //
-// 2. IS THIS CODE ALREADY PROVEN? On a working branch only (never on main: every release candidate runs in full). The
+// 2. IS THIS CODE ALREADY PROVEN? On a working branch, as below. On main (E1, D-128) only for the IDENTICAL commit: a
+//    fast-forward of main to a commit whose full run already succeeded proves nothing new, and the deploy gates read
+//    any successful ci.yml run on that exact head_sha. A main commit that differs even in an unread document runs in
+//    full, so every commit main runs keeps a successful run of its own exact head. Elsewhere the
 //    outcome is ALREADY PROVEN, and the run cancels itself, naming the earlier run that is the evidence. It applies
 //    when that run is authoritative and its code is identical:
 //      - it ran on a push or a dispatch, so it tested its head commit itself (a pull request run tests the merge of its
@@ -55,7 +58,9 @@ export function starved(jobs, now, minutes = 10) {
  * candidate: { run, selftestConclusion, changed }
  */
 export function reusable({ onMain, run, selftestConclusion, changed, now, maxAgeHours = 72 }) {
-  if (onMain) return { ok: false, why: "main: every run is in full" };
+  // E1 (D-128): on main, only the identical commit. A commit that differs even in an unread document runs in full, so
+  // every commit main runs keeps a successful run on its own exact head_sha, the one the deploy gates look for.
+  if (onMain && !(Array.isArray(changed) && changed.length === 0)) return { ok: false, why: "main: only the identical commit, already proven, is not run again" };
   if (!run || run.conclusion !== "success") return { ok: false, why: "the candidate run did not succeed" };
   if (!HEAD_EVENTS.includes(run.event)) return { ok: false, why: "the candidate did not test its own head (a pull request run tests a merge)" };
   if (selftestConclusion !== "success") return { ok: false, why: "the candidate's strict selftest did not run and succeed" };
@@ -109,10 +114,11 @@ async function main() {
     await cancelSelf();
   }
 
-  // 2. already proven
+  // 2. already proven. On main (E1, D-128) only a successful run on this exact commit qualifies; elsewhere, as before.
   const onMain = GITHUB_REF_NAME === "main";
-  if (onMain) { say("On main every run is in full."); return; }
-  const done = await api(`/actions/workflows/ci.yml/runs?status=success&per_page=30`);
+  const done = await api(onMain
+    ? `/actions/workflows/ci.yml/runs?status=success&head_sha=${GITHUB_SHA}&per_page=30`
+    : `/actions/workflows/ci.yml/runs?status=success&per_page=30`);
   for (const run of done.workflow_runs) {
     if (String(run.id) === String(GITHUB_RUN_ID)) continue;
     const runJobs = (await api(`/actions/runs/${run.id}/jobs?per_page=100`)).jobs;

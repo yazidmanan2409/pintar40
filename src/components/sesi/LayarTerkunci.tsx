@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { bacaJawabanBuka, pinSahUntuk } from "@/lib/penjaga-sesi-kontrak";
+import KolomRahasia from "@/components/KolomRahasia";
 
 /**
  * THE PIN ON «PINTAR TERKUNCI» (BOB-29; IDENTITY-4.0 §3, C4; T1). The same person's PIN opens this computer's
@@ -107,12 +108,12 @@ export default function LayarTerkunci(p: {
         {p.nama ? <p className="pin-meta">{s("kunci.untuk")} <strong>{p.nama}</strong></p> : null}
         <p className="pin-lede-m">{s(k("kunci.lede"))}</p>
         <label className="pin-lbl" htmlFor="pin">{s(k("kunci.pin_label"))}</label>
-        <span className={salah ? "pin-inp pin-inp-big pin-inp-salah" : "pin-inp pin-inp-big"}>
-          <input
-            id="pin" name="pin" ref={pinRef} type="password" inputMode="numeric" autoComplete="off" maxLength={p.kartu ? 32 : 4}
-            readOnly={sibuk} aria-invalid={salah ? "true" : undefined} aria-describedby={pesan ? "kunci-err" : undefined} required
-          />
-        </span>
+        {/* CR-86 (D-127 Q6): the one secret field, with its own reveal */}
+        <KolomRahasia
+          bungkus={salah ? "pin-inp pin-inp-big pin-inp-salah" : "pin-inp pin-inp-big"} tampilkan={s("auth.card_show")} sembunyikan={s("auth.card_hide")}
+          id="pin" name="pin" ref={pinRef} inputMode="numeric" autoComplete="off" maxLength={p.kartu ? 32 : 4}
+          readOnly={sibuk} aria-invalid={salah ? "true" : undefined} aria-describedby={pesan ? "kunci-err" : undefined} required
+        />
         {pesan ? <p className={salah ? "pin-msg pin-msg-err" : "pin-msg pin-msg-note"} role="alert" id="kunci-err">{pesan.teks}</p> : null}
         <button type="submit" className="pin-mbtn pin-mbtn-1" disabled={sibuk} aria-busy={sibuk ? "true" : undefined}>
           {sibuk ? <><span className="pin-putar" aria-hidden="true" />{s("kunci.memeriksa")}</> : s("kunci.lanjut")}

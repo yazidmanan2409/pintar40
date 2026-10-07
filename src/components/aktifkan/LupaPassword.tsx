@@ -6,6 +6,7 @@ import { useSiap } from "@/components/masuk/siap";
 import { hanyaAngka, kalimat, kirim, menunggu, tujuanAman } from "./jawaban";
 import { LangkahPassword, type Pesan } from "./Langkah";
 import type { AturanPassword } from "./kontrak";
+import KolomRahasia from "@/components/KolomRahasia";
 
 /**
  * «LUPA PASSWORD?» (BOB-27 with DAISY-21's place in the sign-in screen's grammar; Gate 4).
@@ -267,12 +268,12 @@ export default function LupaPassword({ locale, aturan, idAwal = null }: { locale
           />
         </span>
         <label className="pin-lbl" htmlFor="pin">{s("lupa.pin.pin_label")}</label>
-        <span className={salah ? "pin-inp pin-inp-big pin-inp-salah" : "pin-inp pin-inp-big"}>
-          <input
-            id="pin" name="pin" ref={pinRef} type="password" inputMode="numeric" autoComplete="off" maxLength={4}
-            readOnly={layar.sibuk} aria-invalid={salah ? "true" : undefined} aria-describedby={layar.pesan ? "pin-err" : undefined} required
-          />
-        </span>
+        {/* CR-86 (D-127 Q6): the one secret field, with its own reveal */}
+        <KolomRahasia
+          bungkus={salah ? "pin-inp pin-inp-big pin-inp-salah" : "pin-inp pin-inp-big"} tampilkan={s("auth.card_show")} sembunyikan={s("auth.card_hide")}
+          id="pin" name="pin" ref={pinRef} inputMode="numeric" autoComplete="off" maxLength={4}
+          readOnly={layar.sibuk} aria-invalid={salah ? "true" : undefined} aria-describedby={layar.pesan ? "pin-err" : undefined} required
+        />
         {layar.pesan ? (
           <p className={layar.pesan.tunggu ? "pin-msg pin-msg-note" : "pin-msg pin-msg-err"} role="alert" id="pin-err">{layar.pesan.teks}</p>
         ) : null}

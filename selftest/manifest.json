@@ -2270,6 +2270,11 @@
       "proves": "CR-81 (D-123(3)), the rendered components PopulasiKelas, NilaiLaporan and BarisKesiapan (src/components/bukti/): the population reads «30 murid di kelas ini · 6 sudah mengerjakan Uji Penguasaan · 24 belum mengerjakan Uji Penguasaan» and is absent where a figure has none; a report entry lists the three bands, none of them «Belum mengerjakan», then the population; a band of 3 among 6 assessed is drawn as half; read from the source file src/app/mengajar/[kelas]/bukti/page.tsx, the class's evidence page sums the bands alone and says the population with the bands and while they are withheld."
     },
     {
+      "id": "PENUTUPAN-R01",
+      "runner": "static",
+      "proves": "CR-86 (D-127 Q6, Q10; DG-37), the source files of src/ and the rendered component KolomRahasia (src/components/KolomRahasia.tsx): no input outside it is a password-type input; the sign-in password and card PIN, activation's password, PIN and both confirmations, the PIN way back, Akun saya's new PIN and its confirmation, and the lock's PIN each ask through it; emailed one-time codes stay plain readable fields; it is masked by default, its reveal a labelled pressed-state toggle naming its own field, re-masked by the person's submit, with no timer; rendered twice in one form it is two masked fields with one toggle each."
+    },
+    {
       "id": "PENUTUPAN-A01",
       "runner": "app",
       "proves": "CR-13 (D-120 QN1, J2.21 without SQL) through the route /api/akun/email of the running app, Auth, the Mailpit sink and the audit log: a staff member provisioned at a wrong address whose inbox opened the set-up with a code; the platform admin's correction with no reason is ALASAN_WAJIB, with one it answers sudahAktif false, the wrong inbox's set-up stops, and the person activates at the corrected address; a second person's unused code sent to a wrong address opens the account at neither address after the correction; after activation a teacher is refused (DITOLAK), the platform admin's correction answers sudahAktif true, the same password signs in at the new address only, the old and the new address each receive one notice carrying no address, and both corrections are audited with their branch and addresses.",

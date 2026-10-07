@@ -209,7 +209,8 @@ jobs:
         working-directory: harness/audit
         run: |
           npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          # CR-90 (BD-11): the walk's BD11 step presses Back in all three engines, so job B installs them
+          npx playwright install --with-deps chromium firefox webkit
       - name: Walk Gladys's path
         working-directory: harness/audit
         env:

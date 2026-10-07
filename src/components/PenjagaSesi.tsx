@@ -19,7 +19,8 @@ import { BATAS_SESI, COOKIE_JAGA, HALAMAN_TERKUNCI } from "@/lib/penjaga-sesi-ko
  *  - THE LOCK at 5 minutes, measured on this computer's clock (so a laptop that slept locks when it wakes): the
  *    session is locked on the server first (/api/sesi/kunci; the server's record can trail by up to the minute),
  *    then the page goes to «PINTAR terkunci» with a full load, so nothing of the person stays on screen.
- *  - BACK AND FORWARD: a page restored from the browser's back-forward cache is reloaded, so the proxy decides again.
+ *  - BACK AND FORWARD (every computer, CR-90): a page restored from the browser's back-forward cache is reloaded, so
+ *    the proxy decides again.
  *
  * Nothing here unlocks; nothing here needs a phone or any other device (owner, 4 Oct).
  */
@@ -36,6 +37,16 @@ export default function PenjagaSesi({ locale }: { locale: Locale }) {
   // the warning, when it shows, carries the session's mode (whose words: a learner's or a staff person's)
   const [peringatan, setPeringatan] = useState<"SHARED" | "CARD" | null>(null);
   const aktifRef = useRef<() => void>(() => undefined);
+
+  // CR-90 (BD-11, J2.9 «the next person never continues as the last»): a page restored from the browser's back-forward
+  // cache is reloaded on EVERY computer, whatever its mode, so the proxy decides again with today's cookies. Until 7 Oct
+  // only a shared or card session did this, so on a computer declared personal, Back after «Keluar» could show a page
+  // of the session that had ended. Every page is sent no-store as well; this does not depend on how a browser honours it.
+  useEffect(() => {
+    const pulih = (e: PageTransitionEvent) => { if (e.persisted) window.location.reload(); };
+    window.addEventListener("pageshow", pulih);
+    return () => window.removeEventListener("pageshow", pulih);
+  }, []);
 
   useEffect(() => {
     const m = modeLayar();
@@ -100,15 +111,12 @@ export default function PenjagaSesi({ locale }: { locale: Locale }) {
     for (const e of PERISTIWA) window.addEventListener(e, aktif, { passive: true, capture: true });
     const jam = window.setInterval(periksa, 5_000);
     document.addEventListener("visibilitychange", periksa);
-    const pulih = (e: PageTransitionEvent) => { if (e.persisted) window.location.reload(); };
-    window.addEventListener("pageshow", pulih);
     const pesan = (e: MessageEvent) => { if (e.data === "kunci") void keTerkunci(false); };
     kanal?.addEventListener("message", pesan);
     return () => {
       for (const e of PERISTIWA) window.removeEventListener(e, aktif, { capture: true });
       window.clearInterval(jam);
       document.removeEventListener("visibilitychange", periksa);
-      window.removeEventListener("pageshow", pulih);
       kanal?.removeEventListener("message", pesan);
       kanal?.close();
     };

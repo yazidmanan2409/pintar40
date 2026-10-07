@@ -297,12 +297,17 @@ export const aktifkanTests: SelfTest[] = [
           `password (${locale}): the rules do not follow the setting (a planted 12, two kinds, no leak check)`);
         c.expect(/aria-describedby="password-aturan"/.test(L("password")), `password (${locale}): the field is not described by its rules`);
 
-        // 4. THE REVEALS ARE LABELLED TOGGLES, one per secret
+        // 4. THE REVEALS ARE LABELLED TOGGLES, one per secret FIELD.
+        //    RESTATED FOR CR-86 (D-127 Q6, D-128; DG-37): until 7 Oct one toggle in the first field also revealed the
+        //    confirmation beneath it, which had none of its own. Each secret field now has its own toggle, naming the
+        //    field it controls; no control reveals another field.
         c.expect(/<button type="button" class="pin-lihat" aria-pressed="false" aria-label="[^"]+"/.test(L("password")) && terlihat(L("password")).includes(s("auth.pw_show"))
           && terlihat(L("PIN")).includes(s("auth.card_show")),
           `(${locale}) a reveal is not a labelled pressed-state toggle saying what it shows`);
-        c.expect((L("password").match(/aria-pressed=/g) ?? []).length === 1 && (L("PIN").match(/aria-pressed=/g) ?? []).length === 1,
-          `(${locale}) a secret has more than one reveal, or none`);
+        c.expect((L("password").match(/aria-pressed=/g) ?? []).length === 2 && (L("PIN").match(/aria-pressed=/g) ?? []).length === 2
+          && /aria-controls="password"/.test(L("password")) && /aria-controls="ulang"/.test(L("password"))
+          && /aria-controls="pin"/.test(L("PIN")) && /aria-controls="pin-ulang"/.test(L("PIN")),
+          `(${locale}) a secret field has no reveal of its own, or a reveal controls another field`);
 
         // 5. A JUDGED FIELD IS MARKED AND DESCRIBED; a form that cannot submit says why
         const tolak = L("username refused");

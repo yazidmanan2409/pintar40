@@ -1,10 +1,10 @@
 "use client";
 
 import type { FormEvent, ReactNode, RefObject } from "react";
-import { useState } from "react";
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import { LANGKAH, type AturanPassword, type DataKartu, type Langkah, type StatusKartu } from "./kontrak";
 import IdentitasSaya from "./IdentitasSaya";
+import KolomRahasia from "@/components/KolomRahasia";
 
 /**
  * THE ACTIVATION WIZARD'S STEPS, AS THEY ARE DRAWN (DAISY-20, D-054(b), D-077).
@@ -113,7 +113,6 @@ export function LangkahPassword({ locale, siap, sibuk, pesan, judulRef, aturan, 
   onKirim: (password: string, ulang: string) => void;
 }) {
   const s = kata(locale);
-  const [tampil, setTampil] = useState(false);
   const salah = Boolean(pesan?.salah);
   return (
     <form className="pin-form" noValidate onSubmit={(e) => { e.preventDefault(); onKirim(ambil(e, "password"), ambil(e, "ulang")); }}>
@@ -129,26 +128,20 @@ export function LangkahPassword({ locale, siap, sibuk, pesan, judulRef, aturan, 
         {aturanPassword(aturan, s, locale).map((b) => <li key={b}>{b}</li>)}
       </ul>
       <label className="pin-lbl" htmlFor="password">{s("aktifkan.p_label")}</label>
-      <span className={salah ? "pin-inp pin-inp-salah" : "pin-inp"}>
-        <input
-          id="password" name="password" type={tampil ? "text" : "password"} autoComplete="new-password"
-          readOnly={sibuk} aria-invalid={salah ? "true" : undefined}
-          aria-describedby={pesan ? "password-aturan password-err" : "password-aturan"} required
-        />
-        {/* One control for both fields, in the person's hands only: nothing re-masks it. */}
-        <button type="button" className="pin-lihat" aria-pressed={tampil}
-          aria-label={s(tampil ? "auth.pw_hide" : "auth.pw_show")} onClick={() => setTampil((v) => !v)}>
-          <span aria-hidden="true">{tampil ? "🚫" : "👁"}</span>
-        </button>
-      </span>
+      {/* CR-86 (D-127 Q6): each secret its own field and its own reveal; one control never reveals another field */}
+      <KolomRahasia
+        bungkus={salah ? "pin-inp pin-inp-salah" : "pin-inp"} tampilkan={s("auth.pw_show")} sembunyikan={s("auth.pw_hide")}
+        id="password" name="password" autoComplete="new-password"
+        readOnly={sibuk} aria-invalid={salah ? "true" : undefined}
+        aria-describedby={pesan ? "password-aturan password-err" : "password-aturan"} required
+      />
       <label className="pin-lbl" htmlFor="ulang">{s("aktifkan.p_ulang")}</label>
-      <span className={salah ? "pin-inp pin-inp-salah" : "pin-inp"}>
-        <input
-          id="ulang" name="ulang" type={tampil ? "text" : "password"} autoComplete="new-password"
-          readOnly={sibuk} aria-invalid={salah ? "true" : undefined}
-          aria-describedby={pesan ? "password-err" : undefined} required
-        />
-      </span>
+      <KolomRahasia
+        bungkus={salah ? "pin-inp pin-inp-salah" : "pin-inp"} tampilkan={s("auth.pw_show")} sembunyikan={s("auth.pw_hide")}
+        id="ulang" name="ulang" autoComplete="new-password"
+        readOnly={sibuk} aria-invalid={salah ? "true" : undefined}
+        aria-describedby={pesan ? "password-err" : undefined} required
+      />
       <PesanLangkah pesan={pesan} id="password-err" />
       <Kirim locale={locale} siap={siap} sibuk={sibuk} label="aktifkan.p_simpan" />
     </form>
@@ -160,31 +153,24 @@ export function LangkahPin({ locale, siap, sibuk, pesan, judulRef, onKirim }: Um
   onKirim: (pin: string, ulang: string) => void;
 }) {
   const s = kata(locale);
-  const [tampil, setTampil] = useState(false);
   const salah = Boolean(pesan?.salah);
   return (
     <form className="pin-form" noValidate onSubmit={(e) => { e.preventDefault(); onKirim(ambil(e, "pin"), ambil(e, "ulang")); }}>
       <KepalaLangkah locale={locale} langkah="PIN" judul="aktifkan.n_judul" lede="aktifkan.n_lede" judulRef={judulRef} />
       <label className="pin-lbl" htmlFor="pin">{s("aktifkan.n_label")}</label>
-      <span className={salah ? "pin-inp pin-inp-big pin-inp-salah" : "pin-inp pin-inp-big"}>
-        <input
-          id="pin" name="pin" type={tampil ? "text" : "password"} inputMode="numeric" autoComplete="off" maxLength={4}
-          readOnly={sibuk} aria-invalid={salah ? "true" : undefined}
-          aria-describedby={pesan ? "pin-aturan pin-err" : "pin-aturan"} required
-        />
-        <button type="button" className="pin-lihat" aria-pressed={tampil}
-          aria-label={s(tampil ? "auth.card_hide" : "auth.card_show")} onClick={() => setTampil((v) => !v)}>
-          <span aria-hidden="true">{tampil ? "🚫" : "👁"}</span>
-        </button>
-      </span>
+      <KolomRahasia
+        bungkus={salah ? "pin-inp pin-inp-big pin-inp-salah" : "pin-inp pin-inp-big"} tampilkan={s("auth.card_show")} sembunyikan={s("auth.card_hide")}
+        id="pin" name="pin" inputMode="numeric" autoComplete="off" maxLength={4}
+        readOnly={sibuk} aria-invalid={salah ? "true" : undefined}
+        aria-describedby={pesan ? "pin-aturan pin-err" : "pin-aturan"} required
+      />
       <p className="pin-msg pin-msg-note" id="pin-aturan">{s("aktifkan.n_aturan")}</p>
       <label className="pin-lbl" htmlFor="pin-ulang">{s("aktifkan.n_ulang")}</label>
-      <span className={salah ? "pin-inp pin-inp-big pin-inp-salah" : "pin-inp pin-inp-big"}>
-        <input
-          id="pin-ulang" name="ulang" type={tampil ? "text" : "password"} inputMode="numeric" autoComplete="off" maxLength={4}
-          readOnly={sibuk} aria-invalid={salah ? "true" : undefined} aria-describedby={pesan ? "pin-err" : undefined} required
-        />
-      </span>
+      <KolomRahasia
+        bungkus={salah ? "pin-inp pin-inp-big pin-inp-salah" : "pin-inp pin-inp-big"} tampilkan={s("auth.card_show")} sembunyikan={s("auth.card_hide")}
+        id="pin-ulang" name="ulang" inputMode="numeric" autoComplete="off" maxLength={4}
+        readOnly={sibuk} aria-invalid={salah ? "true" : undefined} aria-describedby={pesan ? "pin-err" : undefined} required
+      />
       <PesanLangkah pesan={pesan} id="pin-err" />
       <Kirim locale={locale} siap={siap} sibuk={sibuk} label="aktifkan.n_simpan" />
     </form>

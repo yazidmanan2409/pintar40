@@ -133,8 +133,14 @@ export const ciwasteTests: SelfTest[] = [
       const now = Date.parse("2026-10-06T12:00:00Z");
       const ok = { onMain: false, run: { conclusion: "success", event: "workflow_dispatch", created_at: "2026-10-06T10:00:00Z" }, selftestConclusion: "success", changed: ["docs/reports/a.md"], now };
       c.expect(m.reusable(ok).ok, `an authoritative recent run with only an unread change is not reusable: ${m.reusable(ok).why}`);
+      // E1 (D-128): on main, the identical commit only. Main's run of a commit already proven in full on a branch proves
+      // nothing new (the deploy gates read any successful ci.yml run on that exact head_sha), so it names that run and
+      // cancels. A commit that differs even in an unread document runs in full on main, so every commit main runs keeps
+      // a green run of its own exact head for the deploy gates.
+      const sameOnMain = { ...ok, onMain: true, changed: [] as string[] };
+      c.expect(m.reusable(sameOnMain).ok, `on main, an authoritative recent run on the identical commit is not reusable: ${m.reusable(sameOnMain).why}`);
       for (const [label, over] of [
-        ["on main", { onMain: true }],
+        ["on main, a commit that differs in an unread document", { onMain: true }],
         ["a failed run", { run: { conclusion: "failure", event: "workflow_dispatch", created_at: "2026-10-06T10:00:00Z" } }],
         ["a cancelled run (DEFERRED or ALREADY PROVEN)", { run: { conclusion: "cancelled", event: "workflow_dispatch", created_at: "2026-10-06T10:00:00Z" } }],
         ["a run whose selftest was skipped", { selftestConclusion: "skipped" }],
@@ -147,6 +153,8 @@ export const ciwasteTests: SelfTest[] = [
         ["a code change", { changed: ["docs/reports/a.md", "src/x.ts"] }],
       ] as const) {
         c.expect(!m.reusable({ ...ok, ...over }).ok, `${label} was accepted as evidence`);
+        // E1: the identical commit on main never excuses any other condition
+        if (!("onMain" in over)) c.expect(!m.reusable({ ...sameOnMain, ...over }).ok, `on main, ${label} was accepted as evidence`);
       }
 
       // 3. starvation: a queued job of another run over 10 minutes old; never a younger or a running one

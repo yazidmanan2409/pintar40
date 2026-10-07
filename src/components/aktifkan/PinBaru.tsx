@@ -5,6 +5,7 @@ import { t, type HleEvent, type Locale } from "@/lib/hle";
 import BarisHasil from "@/components/BarisHasil";
 import { hanyaAngka, kalimat, kirim, type Gagal } from "./jawaban";
 import type { KeadaanAktivasi } from "./kontrak";
+import KolomRahasia from "@/components/KolomRahasia";
 
 /**
  * A NEW PIN, ON AKUN SAYA (BOB-28 with DAISY-22; C5).
@@ -57,14 +58,18 @@ export default function PinBaru({ locale }: { locale: Locale }) {
         <>
           <p className="pin-meta">{s("akun.pin.arti")}</p>
           <form className="pin-actions" onSubmit={simpan} noValidate>
-            <label className="pin-akt-isian">
-              <span className="pin-meta">{s("akun.pin.label")}</span>
-              <input name="pin" className="pin-input" type="password" inputMode="numeric" autoComplete="new-password" maxLength={4} required readOnly={layar.sibuk} />
-            </label>
-            <label className="pin-akt-isian">
-              <span className="pin-meta">{s("akun.pin.ulang")}</span>
-              <input name="ulang" className="pin-input" type="password" inputMode="numeric" autoComplete="new-password" maxLength={4} required readOnly={layar.sibuk} />
-            </label>
+            {/* CR-86 (D-127 Q6): each PIN its own secret field with its own reveal; a label names each by id, since a
+                reveal control cannot sit inside a <label> beside the field it labels */}
+            <div className="pin-akt-isian">
+              <label className="pin-meta" htmlFor="pin-baru">{s("akun.pin.label")}</label>
+              <KolomRahasia bungkus="pin-inp" tampilkan={s("auth.card_show")} sembunyikan={s("auth.card_hide")}
+                id="pin-baru" name="pin" inputMode="numeric" autoComplete="new-password" maxLength={4} required readOnly={layar.sibuk} />
+            </div>
+            <div className="pin-akt-isian">
+              <label className="pin-meta" htmlFor="pin-baru-ulang">{s("akun.pin.ulang")}</label>
+              <KolomRahasia bungkus="pin-inp" tampilkan={s("auth.card_show")} sembunyikan={s("auth.card_hide")}
+                id="pin-baru-ulang" name="ulang" inputMode="numeric" autoComplete="new-password" maxLength={4} required readOnly={layar.sibuk} />
+            </div>
             <button type="submit" className="pin-btn pin-primary" disabled={layar.sibuk} aria-busy={layar.sibuk ? "true" : undefined}>
               {layar.sibuk ? s("akun.pin.menyimpan") : s("akun.pin.simpan")}
             </button>
