@@ -147,6 +147,17 @@ Next: your walk of J1–J7 and the stripe; then Daisy's corrections and APPLICAT
 - CR-92 («Komputer siapa ini?»'s default) is a separate minor defect.
 - The six missing expressions stay placeholders for Daisy and Dr Gladys.
 
+**D-132 (7 Oct):**
+- L3's design is **GREEN WITH MODIFICATIONS**, and L3 implementation is **GO**.
+- C1, C2, C3, C7, C8 and C10: APPROVE.
+- C4: APPROVE with an ambiguity guard.
+- C5: the 4.0 behaviour is approved, but the sign-out mark is a stale-continuation guard, not context.
+- C6: presentation only; CR-91 stays separate.
+- C9: MODIFY. No door and several purposes go to the chooser; ranking never chooses.
+- §2.11: context-bound human actions only; never a fabricated device session.
+- Terminology: semantic keys, never invented copy. L3 does not wait for Dr Gladys, CR-91 or CR-92.
+- The proof burden is unchanged.
+
 ## 1. The register
 
 ### Certificates
