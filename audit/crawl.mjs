@@ -164,6 +164,17 @@ async function crawl(browser, p) {
       }
       await page.setViewportSize({ width: 1280, height: 900 });
       if (n === 0) result.landing = rec.finalPath;
+      // Gate 6 (BOB-29): a staff browser is first asked «Komputer siapa ini?». The persona answers as the walks do
+      // («Komputer pribadi saya»), so the crawl reads the screens behind the question rather than the question alone
+      if (n === 0 && new URL(page.url()).pathname === "/perangkat") {
+        await page.locator('input[type="radio"][name="mode"][value="PERSONAL"]').check();
+        await page.getByRole("button", { name: "Simpan pilihan" }).click();
+        await page.waitForURL((u) => u.pathname !== "/perangkat", { timeout: 20000 }).catch(() => {});
+        await page.waitForLoadState("networkidle");
+        result.perangkat = "PERSONAL";
+        const lu = new URL(page.url());
+        result.landing = lu.pathname + lu.search;
+      }
       // L3 (D-132 C3): signed in, `/` is the chooser and visiting it changes nothing. The persona chooses its door as
       // a person does (its role's purpose; Admin platform, «Seluruh platform»), and the walk goes on from where the
       // choice lands, in that working context
@@ -210,7 +221,7 @@ for (const p of PERSONAS) {
   const r = await crawl(browser, p);
   all.push(r);
   const bad = r.pages.filter((x) => x.errorPage || (x.status ?? 0) >= 500 || x.error || x.consoleErrors.some((c) => c.text.startsWith("PAGEERROR")));
-  console.log(`${p.key.padEnd(15)} ${p.role.padEnd(19)} landing=${r.landing ?? "-"}${r.dipilih ? ` (chose ${r.dipilih} of ${r.pintu.length})` : ""} pages=${r.pages.length} refusals=${r.pages.filter((x) => x.refusal).length} broken=${bad.length}${r.error ? " ERROR " + r.error : ""}`);
+  console.log(`${p.key.padEnd(15)} ${p.role.padEnd(19)} landing=${r.landing ?? "-"}${r.perangkat ? " (answered «Komputer siapa ini?»)" : ""}${r.dipilih ? ` (chose ${r.dipilih} of ${r.pintu.length})` : ""} pages=${r.pages.length} refusals=${r.pages.filter((x) => x.refusal).length} broken=${bad.length}${r.error ? " ERROR " + r.error : ""}`);
 }
 await browser.close();
 writeFileSync(join(OUT, "crawl.json"), JSON.stringify(all, null, 2));
