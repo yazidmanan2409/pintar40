@@ -79,6 +79,11 @@ CR-28 and CR-37 are not in batch 3, as D-120 ruled:
 - CR-76 (W-2) and CR-81 landed: CI 37549911642, 18/18, 620 tests; main bd4c0fa; staging 173.
 - CR-52 is an A item for S7 (D-123(1)).
 
+**D-124 (7 Oct):**
+- Batch 3b GREEN.
+- Engineering closure work held; the baton passes to Daisy.
+- Her brief: `docs/coordination/briefs/DAISY-BATCH-4-2026-10-07.md`.
+
 Next: batch 4 (Daisy's gate), in D-122(7)'s order.
 
 ## 1. The register
