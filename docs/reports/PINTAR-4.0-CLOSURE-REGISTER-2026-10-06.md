@@ -131,6 +131,16 @@ Next: your walk of J1–J7 and the stripe; then Daisy's corrections and APPLICAT
 - **Allowance:** 848 of 1,900 spent (L2 112). Re-forecast: 984–1,183 for the work that remains, against 1,052.
 - **Stopped for the Second Eye.** Next: L3's one-page Working Context design, before any L3 code.
 
+**D-130 (7 Oct):**
+- L2 GREEN. FD-5 CLOSED under Option A.
+- E1 PROVEN and retained: it is operationally established.
+- CR-84, CR-87 and L2's CR-89 work are accepted, subject to the final integrated regression.
+- S23q (CR-52) is a known outstanding item.
+- Bank Soal's opposite scales go to the Human Interface work (CR-85, Daisy, terminology).
+- The daily spend check, red since before L2, is recorded.
+- E3 HOLD; production untouched.
+- **L3 is design only:** the one-page Working Context design (`PINTAR-4.0-L3-WORKING-CONTEXT-DESIGN-2026-10-07.md`) goes to the Second Eye before any L3 code.
+
 ## 1. The register
 
 ### Certificates
