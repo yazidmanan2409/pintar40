@@ -148,7 +148,8 @@ async function crawl(browser, p) {
       rec.h1 = (await page.locator("h1").first().textContent({ timeout: 2000 }).catch(() => null))?.trim() ?? null;
       rec.refusal = (await page.locator(".pin-refusal").count()) > 0;
       const body = (await page.locator("body").innerText().catch(() => "")) ?? "";
-      rec.errorPage = /Application error|server-side exception|This page could not be found|Internal Server Error|404/i.test(body.slice(0, 600));
+      // «404» as a word only: a page that shows an id («…-6102404a13d3») is not the framework's error page
+      rec.errorPage = /Application error|server-side exception|This page could not be found|Internal Server Error|\b404\b/i.test(body.slice(0, 600));
       rec.text = body.replace(/\s+/g, " ").slice(0, 700);
       rec.mentah = body.match(MENTAH)?.[0] ?? null; // W9: read over the whole page, not the 700 characters kept
       rec.shot = `${String(n).padStart(2, "0")}${path.replace(/[^a-z0-9]+/gi, "_").slice(0, 60)}.png`;
