@@ -7,7 +7,8 @@ import HasilDi from "@/components/HasilDi";
 /**
  * Certificate template manager (§10).
  *
- * Layouts and numbering prefixes only. Identity presentation is name-only and
+ * Layouts only: the number prefix («Awalan nomor») is retired, a certificate number being the holder's PINTAR ID and
+ * their own sequence (D-080(2), D-120 Q1). Identity presentation is name-only and
  * is not offered as a choice, because OD-10 has not been answered — the
  * database refuses any other value, so the absent control and the refusal say
  * the same thing. Nothing here touches the public verification payload, which
@@ -22,7 +23,7 @@ export default async function Sertifikat({ searchParams }: { searchParams: Searc
 
   const [{ data: templates }, { data: courses }] = await Promise.all([
     supabase.from("certificate_templates")
-      .select("id, institution_id, course_id, module_id, layout, number_prefix, identity_presentation"),
+      .select("id, institution_id, course_id, module_id, layout, identity_presentation"),
     supabase.from("courses").select("id, title, institution_id").order("title"),
   ]);
 
@@ -55,10 +56,6 @@ export default async function Sertifikat({ searchParams }: { searchParams: Searc
               {["CLASSIC", "MODERN", "MINIMAL"].map((l) => <option key={l} value={l}>{l}</option>)}
             </select>
           </label>
-          <label className={label}>
-            <span>{s("studio.sertifikat.awalan")}</span>
-            <input className={field} name="awalan" placeholder="PNT/2026" required />
-          </label>
           <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.sertifikat.simpan")}</TombolKirim>
         </form>
         <HasilDi q={sp} bagian="sertifikat" kalimat={banner} />
@@ -68,8 +65,7 @@ export default async function Sertifikat({ searchParams }: { searchParams: Searc
         <ul className="grid gap-2">
           {(templates ?? []).map((t) => (
             <li key={t.id} className={card}>
-              <p className="font-medium">{t.number_prefix}</p>
-              <p className="mt-1 text-sm text-ink-3">{t.layout}</p>
+              <p className="text-sm text-ink-3">{t.layout}</p>
             </li>
           ))}
         </ul>

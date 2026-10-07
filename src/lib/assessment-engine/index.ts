@@ -283,6 +283,10 @@ export async function myCertificate(client: EngineClient, sessionId: string) {
     issued_at_iso: string;
     predikat: string | null;
     name_as_issued: string;
+    institution_as_issued: string | null;
+    course_subject_as_issued: string | null;
+    course_title_as_issued: string | null;
+    language_as_issued: string | null;
   }>(await call(client, "my_certificate", { p_session: sessionId }));
   return found[0] ?? null;
 }

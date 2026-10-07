@@ -37,6 +37,12 @@ export function adalahAlamatKartu(email: string | null | undefined): boolean {
   return at > 0 && /^card-\d+$/.test(e.slice(0, at)) && e.slice(at + 1) === domainKartu();
 }
 
+/** BOB-29: the card number inside a classroom card's Auth address, or null for any other address. */
+export function nomorKartuDariAlamat(email: string | null | undefined): string | null {
+  if (!email || !adalahAlamatKartu(email)) return null;
+  return email.toLowerCase().slice("card-".length, email.lastIndexOf("@"));
+}
+
 /** The idle lifetime, in seconds, of a session signed in as this address. */
 export function umurSesi(email: string | null | undefined): number {
   return adalahAlamatKartu(email) ? UMUR_SESI.kartu : UMUR_SESI.email;

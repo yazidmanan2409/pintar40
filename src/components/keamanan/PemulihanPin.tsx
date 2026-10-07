@@ -7,13 +7,14 @@ import { bacaJawabanPemulihanAdmin, type JawabanStatusPemulihan, type StatusPemu
 import BarisHasil from "@/components/BarisHasil";
 
 /**
- * THE PLATFORM ADMIN'S PIN-RECOVERY RESET (BOB-28 with DAISY-22; C5 path (2)).
+ * THE ASSISTED PIN-RECOVERY RESET (BOB-28 with DAISY-22; C5 path (2); D-101 (1)).
  *
  * Look one PINTAR ID up, see its state (available, locked until, stopped; a
  * new PIN awaited), then reset it with a stated reason. The reason is required
  * and recorded; the reset always forces a new PIN, so the old one never works
- * again. `/api/keamanan/pemulihan` asks the database with this reader's own
- * authority, which refuses anyone but the platform admin.
+ * again, and ends the person's sessions. `/api/keamanan/pemulihan` asks the
+ * database with this reader's own authority: the Platform Admin, or a School
+ * Admin for a person their school has; never one's own ID.
  */
 type Gagal = Extract<JawabanStatusPemulihan, { ok: false }>;
 

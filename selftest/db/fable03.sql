@@ -760,6 +760,77 @@ begin
     v_scoreA, v_inv08, v_guard); end if;
   return next;
 
+  -- =========================================================================
+  -- F03-T11 J6.7 / STU-08 (CR-29): pause and resume only where the rules
+  -- permit. Doc 04 §2: IN_PROGRESS ⇄ PAUSED by the learner, with continue
+  -- permission, freezing the clock "if definition allows pause". The cycle's
+  -- Uji Penguasaan allows it and its Pemetaan Awal does not: the first pauses
+  -- and resumes, the second is refused; another learner can neither pause nor
+  -- resume someone's sitting; a sitting past its deadline cannot pause.
+  -- =========================================================================
+  perform selftest.as_owner();
+  perform selftest.purge_cycle_evidence();
+  ok := true; detail := '';
+  perform selftest.as_user('siklus-email@synthetic.pintar.test');
+  s_pre := public.start_learning_session(f.aa_pre);
+  s_post := public.start_learning_session(f.aa_post);
+  -- a pause is from IN_PROGRESS (doc 04 §2: CREATED → IN_PROGRESS at the first accepted answer), so each sitting is
+  -- begun with one answer, as the learner does; an untouched sitting is refused by the transition allow-list
+  v_pi := selftest.first_presented_of_type(s_post, 'MCQ_SINGLE');
+  perform public.record_answer(v_pi, 1, jsonb_build_object('posisi', selftest.pick_position(s_post, v_pi, true)));
+  v_pi2 := selftest.first_presented_of_type(s_pre, 'MCQ_SINGLE');
+  perform public.record_answer(v_pi2, 1, jsonb_build_object('posisi', selftest.pick_position(s_pre, v_pi2, true)));
+  begin
+    perform public.pause_session(s_pre);
+    ok := false; detail := detail || 'the Pemetaan Awal, whose definition does not allow pausing, was paused; ';
+  exception when others then
+    if sqlerrm not like '%does not allow pausing%' then
+      ok := false; detail := detail || 'the Pemetaan Awal''s pause was refused for another reason: ' || left(sqlerrm, 80) || '; ';
+    end if;
+  end;
+  begin
+    v_txt := public.pause_session(s_post)::text;
+    if v_txt <> 'PAUSED' then ok := false; detail := detail || format('pausing the Uji Penguasaan answered %s; ', v_txt); end if;
+  exception when others then
+    ok := false; detail := detail || 'the Uji Penguasaan, whose definition allows pausing, refused a pause: ' || left(sqlerrm, 80) || '; ';
+  end;
+  -- another learner reaches neither side of it
+  perform selftest.as_user('card-7002@cards.synthetic.pintar.test');
+  begin
+    perform public.resume_session(s_post);
+    ok := false; detail := detail || 'another learner resumed the sitting; ';
+  exception when others then null; end;
+  perform selftest.as_owner();
+  select status::text into v_txt from public.assessment_sessions where id = s_post;
+  if v_txt <> 'PAUSED' then ok := false; detail := detail || format('the paused sitting reads %s; ', v_txt); end if;
+  -- its owner resumes it
+  perform selftest.as_user('siklus-email@synthetic.pintar.test');
+  begin
+    v_txt := public.resume_session(s_post)::text;
+    if v_txt <> 'IN_PROGRESS' then ok := false; detail := detail || format('resuming answered %s; ', v_txt); end if;
+  exception when others then
+    ok := false; detail := detail || 'its owner could not resume it: ' || left(sqlerrm, 80) || '; ';
+  end;
+  perform selftest.as_user('card-7002@cards.synthetic.pintar.test');
+  begin
+    perform public.pause_session(s_post);
+    ok := false; detail := detail || 'another learner paused the sitting; ';
+  exception when others then null; end;
+  -- past its deadline, no pause
+  perform selftest.as_owner();
+  update public.assessment_sessions set authoritative_deadline = now() - interval '3 hours' where id = s_post;
+  perform selftest.as_user('siklus-email@synthetic.pintar.test');
+  begin
+    perform public.pause_session(s_post);
+    ok := false; detail := detail || 'a sitting past its deadline was paused; ';
+  exception when others then null; end;
+  perform selftest.as_owner();
+  select status::text into v_txt from public.assessment_sessions where id = s_post;
+  test_id := 'F03-T11'; invariant := 'J6.7 / STU-08 / doc 04 §2';
+  if ok then detail := format('the Uji Penguasaan (allows_pause) paused and its owner resumed it; the Pemetaan Awal (no pause) was refused '
+    || '"does not allow pausing"; another learner could neither resume nor pause it; past its deadline it could not pause (it reads %s)', v_txt); end if;
+  return next;
+
   perform selftest.as_owner();
   test_id := 'F03-DONE'; invariant := '-'; ok := true;
   detail := format('elapsed %s ms', round(extract(epoch from clock_timestamp() - t0) * 1000));

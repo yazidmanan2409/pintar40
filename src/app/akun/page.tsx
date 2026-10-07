@@ -6,6 +6,9 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import KakiPintar from "@/components/KakiPintar";
 import AkunSaya from "@/components/aktifkan/AkunSaya";
+import KeluarSemua from "@/components/sesi/KeluarSemua";
+import { supabaseServer } from "@/lib/supabase/server";
+import { bacaPenjagaan, HALAMAN_PERANGKAT } from "@/lib/penjaga-sesi-kontrak";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +32,9 @@ export default async function Akun() {
   if (!staf) {
     return <HalamanPenolakan messageKey="auth.not_yet" persona="public" locale={locale} backHref="/" backKey="entry.title" />;
   }
+  // BOB-29 (C11): what this browser was declared for this person, to show and to change
+  const { data: sesi } = await (await supabaseServer()).rpc("sesi_periksa");
+  const mode = bacaPenjagaan(sesi)?.mode;
   const kind = peran!.includes("EDUCATOR") ? "pengajar"
     : peran!.some((p) => p === "HEAD_OF_DEPARTMENT" || p === "DEAN") ? "pimpinan"
       : "pendataan";
@@ -42,6 +48,16 @@ export default async function Akun() {
           <p className="pin-intro">{s("akun.intro")}</p>
         </div>
         <AkunSaya locale={locale} />
+        {mode === "SHARED" || mode === "PERSONAL" ? (
+          <section className="pin-sec" aria-labelledby="pin-akun-perangkat">
+            <h2 id="pin-akun-perangkat">{s("akun.perangkat.judul")}</h2>
+            <p className="pin-meta">{s(mode === "SHARED" ? "akun.perangkat.SHARED" : "akun.perangkat.PERSONAL")}</p>
+            <div className="pin-actions">
+              <a className="pin-btn" href={`${HALAMAN_PERANGKAT}?lanjut=%2Fakun`}>{s("akun.perangkat.ubah")}</a>
+            </div>
+          </section>
+        ) : null}
+        <KeluarSemua locale={locale} />
         <KakiPintar />
       </main>
     </>

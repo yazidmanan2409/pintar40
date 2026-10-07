@@ -4,4 +4,8 @@
 # 2 Oct, fifth walk: the fourth was refused its sign-in email (429; 2 an hour then); staging now allows 30 an hour (D-092)
 # 2 Oct, sixth walk: GS-09 (the head of department reviews, makes and locks the release; the school admin publishes)
 # 2 Oct, seventh walk: GS-10 (the teacher signs in, lands on Mengajar) and GS-11 (Siapkan → Sediakan for Kelas 5A)
-slug: gs-001
+# 5 Oct: Sekolah Emas Uji 2026-10-05 after run 37287063109 (GS-01 to GS-03 green); staff sign in as Gate 3 has it (masuk.mjs)
+# 6 Oct: Sekolah Demo PINTAR after run 37431385287 (GS-02, GS-03 green), for Dr Gladys's walkthrough (D-116); staging at 165 migrations
+# 6 Oct, closure batch 0 (D-118): Sekolah Uji Penutupan B0 after run 37462648562 (GS-02/03 green; G4 observed D-054(b)'s order)
+# run 2: after run 37463105684 (A3: the school code «G00» derived from the slug was already Sekolah Demo PINTAR's; the walk now takes a free code)
+slug: sekolah-uji-b0

@@ -1076,12 +1076,16 @@ begin
       if v_got not like '%lacks INSTITUTION_ADMIN scope%' then
         v_probs := selftest.f10_note(v_probs, 'F10-V03', 'the school''s admin granted a role at another school''s node: ' || v_got);
       end if;
-      foreach v_label in array array['INSTITUTION_ADMIN', 'SYSTEM_ADMIN'] loop
-        v_got := selftest.f10_code(format('select public.grant_role(%L::uuid, %L::public.app_role, %L::uuid, now() + interval ''30 days'')', v20_t_a_p, v_label, v_a));
-        if v_got not like '%only an active SYSTEM_ADMIN may grant%' then
-          v_probs := selftest.f10_note(v_probs, 'F10-V03', 'the school''s admin granted ' || v_label || ' to a teacher it can now see');
-        end if;
-      end loop;
+      v_got := selftest.f10_code(format('select public.grant_role(%L::uuid, %L::public.app_role, %L::uuid, now() + interval ''30 days'')', v20_t_a_p, 'SYSTEM_ADMIN', v_a));
+      if v_got not like '%only an active SYSTEM_ADMIN may grant%' then
+        v_probs := selftest.f10_note(v_probs, 'F10-V03', 'the school''s admin granted SYSTEM_ADMIN to a teacher it can now see');
+      end if;
+      -- D-101 (2): INSTITUTION_ADMIN at its own school is the admin's to appoint (selftest/d101.test.ts); at another
+      -- school it is refused by the scope, like any role there
+      v_got := selftest.f10_code(format('select public.grant_role(%L::uuid, %L::public.app_role, %L::uuid, now() + interval ''30 days'')', v20_t_a_p, 'INSTITUTION_ADMIN', v_b));
+      if v_got not like '%lacks INSTITUTION_ADMIN scope%' then
+        v_probs := selftest.f10_note(v_probs, 'F10-V03', 'the school''s admin granted INSTITUTION_ADMIN at another school: ' || v_got);
+      end if;
       perform selftest.as_owner();
       if exists (select 1 from public.role_assignments ra
                   where ra.person_id in (v20_t_a_p, v20_t_b_p) and ra.role in ('INSTITUTION_ADMIN', 'SYSTEM_ADMIN')) then
@@ -1267,8 +1271,9 @@ begin
           || 'person_visible_to_me or by id from persons; its own waiting list named none of them and another '
           || 'school''s waiting list refused it; a learner of the school saw none of the school''s staff and was '
           || 'refused the waiting list',
-        'the school''s admin was still refused a grant at another school''s node and a grant of INSTITUTION_ADMIN '
-          || 'or SYSTEM_ADMIN to a teacher it can see; no refused grant left a role behind',
+        'the school''s admin was still refused a grant at another school''s node, INSTITUTION_ADMIN there, and '
+          || 'SYSTEM_ADMIN to a teacher it can see (D-101 (2): INSTITUTION_ADMIN at its own school is its own); no '
+          || 'refused grant left a role behind',
         'School B''s admin granting a School-B role by internal id to a teacher who belongs only to School A was '
           || 'refused 42501 GRANT_NO_SCHOOL_RELATIONSHIP, identically to an id that does not exist; no School-B role, '
           || 'number or enrolment was created and the teacher stayed invisible to School B''s admin',

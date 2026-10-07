@@ -1,0 +1,107 @@
+# #150 G10 (owner, 6 Oct): THE SMALLEST WATCH ON PRODUCTION THAT NEEDS NO NEW SERVICE AND NO NEW PERSON.
+#
+# Until now a production failure was noticed when somebody reported it. This job looks at production from outside,
+# as a visitor would, and READS ONLY:
+#   1. the sign-in page on the production origin answers 200 and is PINTAR's;
+#   2. Supabase Auth's health endpoint for production answers 200 (with the public anon key);
+#   3. the origin's TLS certificate has at least 14 days left;
+#   4. the latest COMPLETED backup is no older than 26 hours (D-103), read with C1 only (#150 WP-A):
+#      PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN, which can read production's backups and nothing else. C1 exists to read
+#      them, so a refusal means it was revoked or has expired, and is a failure; only its absence, before the owner
+#      creates it, is reported as a note.
+# On a failure it opens one GitHub issue (or comments on the open one); when everything is green again it closes it.
+# GitHub notifies the repository's watchers of that issue: no paid alerting service and no named person is assumed.
+#
+# OFF BY DEFAULT. The hourly schedule does nothing (the job is skipped, which costs no runner minutes) until the owner
+# turns it on with the repository variable PINTAR_PRODUCTION_WATCH = on. How often, and who watches the repository,
+# are the owner's decisions (#150 G10). A dispatch runs it once, on demand.
+
+name: watch · production (read only)
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: production-watch
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  APP_ORIGIN: https://app.pintarselalu.com
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  SUPABASE_URL: https://trtlvibiybwixfumjrrx.supabase.co
+  # Public by construction (it ships in the browser bundle), as in deploy-vercel-production.yml.
+  SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRydGx2aWJpeWJ3aXhmdW1qcnJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxMDAxNDksImV4cCI6MjEwNTY3NjE0OX0.9QTwBrToGkL8XCORvbO6XtlbvvLmEwilXtgQaLQYjoE
+  ISSUE_TITLE: "Production watch: PINTAR production is failing a check"
+
+jobs:
+  watch:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || vars.PINTAR_PRODUCTION_WATCH == 'on')
+    name: production, from outside, read only
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/release
+
+      - name: Look at production (GET only)
+        id: look
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN }}
+        run: |
+          # GitHub runs a step under bash -e; a check that exits non-zero must be
+          # reported, never end the step (run 37389383812 died at the backups here).
+          set +e -uo pipefail
+          bad=""; note=""
+          # 1. the sign-in page, strictly (no redirect followed: a login wall or a parked page is not PINTAR)
+          code=$(curl -sS -o /tmp/masuk.html -w '%{http_code}' --max-time 20 "$APP_ORIGIN/masuk" || echo 000)
+          if [ "$code" = 200 ] && grep -q 'PINTAR' /tmp/masuk.html; then echo "app: $APP_ORIGIN/masuk answers 200 and is PINTAR's"
+          else bad="$bad; the sign-in page answered HTTP $code"; echo "app: HTTP $code"; fi
+          # 2. Supabase Auth
+          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 -H "apikey: $SUPABASE_ANON_KEY" "$SUPABASE_URL/auth/v1/health" || echo 000)
+          if [ "$code" = 200 ]; then echo "auth: healthy"; else bad="$bad; Supabase Auth's health answered HTTP $code"; echo "auth: HTTP $code"; fi
+          # 3. the certificate
+          end=$(echo | openssl s_client -connect "${APP_ORIGIN#https://}:443" -servername "${APP_ORIGIN#https://}" 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)
+          if [ -n "$end" ]; then days=$(( ( $(date -d "$end" +%s) - $(date +%s) ) / 86400 )); echo "tls: $days days left"
+            [ "$days" -ge 14 ] || bad="$bad; the TLS certificate has $days days left"
+          else bad="$bad; the TLS certificate could not be read"; fi
+          # 4. the restore point (D-103), with the backups-read token C1; a refusal is a failure (see the header)
+          if [ -n "${SUPABASE_ACCESS_TOKEN:-}" ]; then
+            node scripts/release/restore-point.mjs check /tmp/backup.json > /tmp/backup.txt 2>&1; rc=$?
+            why=$(jq -r '(.reasons // []) | join("; ")' /tmp/backup.json 2>/dev/null)
+            if [ "$rc" = 0 ]; then echo "backups: $why"
+            else why="${why:-the backup check could not run: $(tail -1 /tmp/backup.txt | cut -c1-200)}"; bad="$bad; $why"; echo "backups: $why"; fi
+          else note="no backups-read token (C1, PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN): the backups were not asked"; echo "backups: $note"; fi
+          bad="${bad#; }"
+          { echo "bad=$bad"; echo "note=$note"; } >> "$GITHUB_OUTPUT"
+          { echo "### Production watch"; echo; echo "- failing: ${bad:-nothing}"; echo "- note: ${note:-none}"; } >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Open, update or close the one watch issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BAD: ${{ steps.look.outputs.bad }}
+        run: |
+          set -euo pipefail
+          api() { curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$@"; }
+          repo="https://api.github.com/repos/${{ github.repository }}"
+          open=$(api "$repo/issues?state=open&per_page=100" | jq -r --arg t "$ISSUE_TITLE" '[.[] | select(.title == $t and (.pull_request | not))][0].number // empty')
+          run="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          if [ -n "$BAD" ]; then
+            body=$(jq -n --arg b "Failing at $(date -u +%FT%TZ): $BAD. Run: $run" '{body: $b}')
+            if [ -n "$open" ]; then api -X POST "$repo/issues/$open/comments" -d "$body" > /dev/null; echo "commented on #$open"
+            else n=$(api -X POST "$repo/issues" -d "$(jq -n --arg t "$ISSUE_TITLE" --arg b "Failing at $(date -u +%FT%TZ): $BAD. Run: $run. This issue closes itself when every check is green again (.github/workflows/production-watch.yml)." '{title: $t, body: $b}')" | jq -r .number)
+                 echo "opened #$n"; fi
+            echo "::error::production is failing: $BAD"; exit 1
+          fi
+          if [ -n "$open" ]; then
+            api -X POST "$repo/issues/$open/comments" -d "$(jq -n --arg b "Green again at $(date -u +%FT%TZ). Run: $run" '{body: $b}')" > /dev/null
+            api -X PATCH "$repo/issues/$open" -d '{"state":"closed","state_reason":"completed"}' > /dev/null; echo "closed #$open"
+          fi
+          echo "production: every check green"

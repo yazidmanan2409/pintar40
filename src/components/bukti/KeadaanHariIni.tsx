@@ -1,4 +1,5 @@
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
+import { kataAnggota, type JenisAnggota } from "@/lib/mengajar";
 
 /** What a row needs of an assessment assignment: a subset of `Berjalan` (src/lib/pengajar.ts). */
 export type AsesmenKelas = {
@@ -62,10 +63,13 @@ export default function KeadaanHariIni({
   murid,
   locale,
   kelas,
+  jenis = "LEARNER",
 }: {
   asesmen: readonly AsesmenKelas[];
   /** Learners in the class. */
   murid: number;
+  /** BOB-45 / DAISY-33: «murid» or «peserta», as the class's kind says. */
+  jenis?: JenisAnggota;
   locale: Locale;
   /**
    * EDU-J23: the class, so each test's counts lead to the names behind them
@@ -97,14 +101,14 @@ export default function KeadaanHariIni({
               <dt>{s("mengajar.bukti.mulai")}</dt>
               <dd className="pin-num">
                 {n(k.sedang)}
-                <small>{s("mengajar.bukti.murid")}</small>
+                <small>{s(kataAnggota("mengajar.bukti.murid", jenis))}</small>
               </dd>
             </div>
             <div>
               <dt>{s("mengajar.bukti.belum")}</dt>
               <dd className="pin-num">
                 {n(k.belum)}
-                <small>{s("mengajar.bukti.murid")}</small>
+                <small>{s(kataAnggota("mengajar.bukti.murid", jenis))}</small>
               </dd>
             </div>
           </dl>

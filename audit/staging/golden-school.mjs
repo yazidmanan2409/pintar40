@@ -1,21 +1,21 @@
-// STAGING ONLY. The Golden School's first steps (docs/recovery/GOLDEN-SCHOOL-CONTRACT.md §5), before Gate 3:
+// STAGING ONLY. The Golden School's first steps (docs/recovery/GOLDEN-SCHOOL-CONTRACT.md §5), under Gate 3 and Gate 6:
 //
 //   G0  read only: the school GS_SLUG exists, real (never synthetic), founded by the C1 step from found-school.yml
 //       (its school.founded audit row names that run), with its root place and its school year.
-//   G1  SETUP, not a person's act: a server-made session for the staging Platform Operator (D-088(a)), whose own
-//       sign-in by the email link was proven in run 36948198799. Each sign-in spends one of staging's two emails
-//       an hour, and this run's one email belongs to the school admin (G4).
+//   G1  The staging Platform Operator (D-088(a)) signs in as a person does (masuk.mjs, C2): the password set at their
+//       activation, or «Lupa password?» by a code from the staging test mailbox when the walk does not know it.
 //   G2  GS-02 (J1.4): the operator records the school's first administrator on Aktivasi → «Orang baru di luar
-//       pendataan» (name, and the staging test mailbox's plus-address), and reads what the screen says.
+//       pendataan» (name, and the staging test mailbox's plus-address), confirms it («Sudah benar, buat dan
+//       aktifkan», DAISY-20), and reads what the screen says.
 //   G3  GS-02: the operator gives «Admin sekolah» at the school's root on Konfigurasi → Peran & akses, ending with
 //       the school year.
-//   G4  GS-03 (before Gate 3, the magic link main has): the school admin signs in like a person: /masuk, the real
-//       email in the staging test mailbox, the same browser. Lands on Konfigurasi, on their own school, whose
-//       «Persiapan sekolah» says nothing is set up yet. ONE sign-in email.
+//   G4  GS-03: the school admin activates as a person does: «Aktifkan akun», the code PINTAR emails to the staging
+//       test mailbox, a username, a PIN, a password and their name, then «Komputer siapa ini?». Lands on Konfigurasi,
+//       on their own school, whose «Persiapan sekolah» says nothing is set up yet. Already active: the password.
 //   G5  read back, read only: one active «Admin sekolah» grant for the admin at the school's root, made by the
 //       operator, audited; the school still has no other role.
 //
-// A step already done (the admin recorded, the grant made, the admin signed in) is a NOTE, never repeated.
+// A step already done (the admin recorded, the grant made) is a NOTE, never repeated.
 // NEVER: production (staging's ref, database URL and origin are checked first); a direct write (the database is
 // read in read-only transactions; every write is a press of PINTAR's buttons); any change to the product, its
 // sign-in or its settings.
@@ -23,7 +23,8 @@ import { chromium } from "playwright";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
-import { APP, SLOW, closeTour, signIn } from "../perf/lib.mjs";
+import { APP, SLOW, closeTour } from "../perf/lib.mjs";
+import { keadaanDari, masukStaf } from "./masuk.mjs";
 
 const env = (k) => { const v = process.env[k]; if (!v) throw new Error(`${k} is not set`); return v; };
 const DB = env("STAGING_SUPABASE_DB_URL");
@@ -73,6 +74,8 @@ const hibah = (inst) => sql(`select count(*) from public.role_assignments r join
   where r.institution_id = '${inst}' and r.role = 'INSTITUTION_ADMIN' and r.scope_node_id = '${inst}'
     and r.revoked_at is null and now() < r.valid_until and lower(u.email) = lower(${lit(ADMIN_EMAIL)})`);
 
+const keadaan = keadaanDari(sql, lit);
+
 const browser = await chromium.launch();
 const newPage = async () => (await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "id-ID", timezoneId: "Asia/Jakarta" })).newPage();
 
@@ -89,10 +92,10 @@ await step("G0", `read only: the school «${SLUG}» was founded by the C1 step (
 if (!S) { await browser.close(); log("RED: G0"); process.exit(1); }
 
 const O = await newPage();
-await step("G1", "SETUP, not a person's act: a server-made session for the staging Platform Operator (its own email sign-in proven in run 36948198799)", async () => {
-  const r = await signIn(O, OPERATOR_EMAIL, "/konfigurasi");
-  await closeTour(O);
-  return `setup; ${r}`;
+await step("G1", "the staging Platform Operator signs in as a person does (C2): the password, or «Lupa password?» by the emailed code", async (rec) => {
+  const r = await masukStaf(O, OPERATOR_EMAIL, keadaan);
+  if (r.di !== "/konfigurasi") rec.verdict = "FAIL";
+  return `by ${r.jalan}${r.lewat.length ? ` (${r.lewat.join(" → ")})` : ""}; landed on ${r.di}`;
 });
 
 await step("G2", "GS-02 (J1.4): the operator records the school's first administrator on Aktivasi → «Orang baru di luar pendataan»", async (rec) => {
@@ -104,6 +107,8 @@ await step("G2", "GS-02 (J1.4): the operator records the school's first administ
   await bagian.getByLabel("Nama").fill(ADMIN_NAME);
   await bagian.locator('input[type="email"]').fill(ADMIN_EMAIL);
   await bagian.getByRole("button", { name: "Buat dan aktifkan", exact: true }).click();
+  // DAISY-20 (D-077): the first press shows what will be made; «Sudah benar, buat dan aktifkan» makes it
+  await bagian.getByRole("button", { name: "Sudah benar, buat dan aktifkan", exact: true }).click();
   const jawab = bagian.locator('[role="status"]').first();
   await jawab.waitFor({ timeout: SLOW });
   const teks = norm(await jawab.innerText());
@@ -139,28 +144,25 @@ await step("G3", "GS-02: the operator gives «Admin sekolah» at the school's ro
 await O.context().close();
 
 const A = await newPage();
-const sudahMasuk = () => sql(`select count(*) from auth.users u where lower(u.email) = lower(${lit(ADMIN_EMAIL)}) and u.last_sign_in_at is not null`) !== "0";
-await step("G4", "GS-03 (before Gate 3): the school admin signs in like a person: /masuk, the real email in the staging test mailbox; lands on Konfigurasi, on their own school, nothing set up yet", async (rec) => {
+// D-054(b)'s order (and the server's, src/lib/aktivasi-kontrak.ts URUTAN_LANGKAH): the screens are read as they come and
+// the order is asserted, not assumed (6 Oct: this title said «PIN → password», which no run had observed)
+const URUTAN_D054 = ["username", "password", "pin", "nama"];
+await step("G4", "GS-03: the school admin activates as a person does (the code from the staging test mailbox → username → password → PIN → name, D-054(b), as observed → «Komputer siapa ini?») and lands on Konfigurasi, on their own school, nothing set up yet", async (rec) => {
   if (hibah(S.id) !== "1") { rec.verdict = "FAIL"; return "the administrator holds no «Admin sekolah» here (G3)"; }
-  if (sudahMasuk()) { rec.verdict = "NOTE"; return "the administrator already signed in by the email link; not spending another of staging's two emails an hour"; }
-  const t0 = Date.now() / 1000 - 60;
-  await A.goto(`${APP}/masuk`, { timeout: SLOW, waitUntil: "networkidle" });
-  await A.locator("#email").fill(ADMIN_EMAIL);
-  await A.getByRole("button", { name: "Kirim tautan masuk" }).click();
-  await A.getByRole("heading", { name: "Periksa email Anda" }).waitFor({ timeout: SLOW });
-  const link = execFileSync("python3", ["mailbox_link.py", ADMIN_EMAIL, String(t0), "180"], { encoding: "utf8" }).trim();
-  console.log(`::add-mask::${link}`);
-  await A.goto(link, { timeout: SLOW, waitUntil: "networkidle" });
-  await A.waitForURL((u) => !u.pathname.startsWith("/auth/"), { timeout: SLOW }).catch(() => {});
-  await A.waitForLoadState("networkidle");
-  await closeTour(A);
-  const di = new URL(A.url()).pathname;
+  const r = await masukStaf(A, ADMIN_EMAIL, keadaan);
+  if (new URL(A.url()).pathname !== "/konfigurasi") {
+    await A.goto(`${APP}/konfigurasi`, { timeout: SLOW, waitUntil: "networkidle" });
+    await closeTour(A);
+  }
+  const di = r.di;
   const halaman = norm(await A.locator("main").innerText().catch(() => ""));
   const persiapan = norm(await A.locator("#persiapan").innerText().catch(() => ""));
   await shot(A, "g4-admin-sekolah");
-  const ok = di === "/konfigurasi" && halaman.includes(S.nama) && /Belum/.test(persiapan);
+  const wizard = r.lewat.filter((x) => URUTAN_D054.includes(x));
+  const urutan = JSON.stringify(wizard) === JSON.stringify(URUTAN_D054);
+  const ok = di === "/konfigurasi" && halaman.includes(S.nama) && /Belum/.test(persiapan) && urutan;
   if (!ok) rec.verdict = "FAIL";
-  return `signed in by the email link, landed on ${di}; their school named ${halaman.includes(S.nama)}; «Persiapan sekolah»: "${persiapan.slice(0, 220)}"`;
+  return `${r.jalan} (${r.lewat.join(" → ") || "no steps recorded"}; D-054(b)'s order ${urutan}), landed on ${di}; their school named ${halaman.includes(S.nama)}; «Persiapan sekolah»: "${persiapan.slice(0, 220)}"`;
 });
 
 await step("G5", "read back: one active «Admin sekolah» at the school's root, made by the operator, audited; no other role in the school", async (rec) => {

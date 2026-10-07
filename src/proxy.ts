@@ -1,8 +1,15 @@
 import { createServerClient, DEFAULT_COOKIE_OPTIONS } from "@supabase/ssr";
-import { adalahAlamatKartu, adalahCookieSesi, COOKIE_GESER, perluGeserSesi, umurSesi } from "@/lib/sesi";
+import { adalahAlamatKartu, adalahCookieSesi, COOKIE_GESER, perluGeserSesi } from "@/lib/sesi";
 import { COOKIE_SIAP, jalurBebasSaatAktivasi, nilaiSiap, siapTersimpan } from "@/lib/penahan-aktivasi";
 import { HALAMAN_AKTIVASI } from "@/lib/aktivasi-kontrak";
 import { alamatKlien, fetchBerpenerus } from "@/lib/auth-forwarding";
+import {
+  adalahPrefetch, bacaPenjagaan, COOKIE_JAGA, COOKIE_PERANGKAT, COOKIE_PRIBADI, HALAMAN_PERANGKAT, HALAMAN_TERKUNCI,
+  hashPerangkat, idSesiDariToken, jalurBebasPilih, jalurSaatTerkunci, mintaHalaman, navigasiHalaman, nilaiPribadi,
+  perangkatBaru, pribadiTersimpan, umurSesiMode, UMUR_PERANGKAT, type ModeSesi,
+} from "@/lib/penjaga-sesi";
+import { keluarPerangkatIni } from "@/lib/keluar";
+import { galatPemeliharaan, HALAMAN_PEMELIHARAAN, jalurSaatPemeliharaan } from "@/lib/pemeliharaan-kontrak";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
@@ -80,6 +87,76 @@ export async function proxy(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
+  const aman = request.nextUrl.protocol === "https:";
+
+  // BOB-29 (Gate 6; IDENTITY-4.0 C4, C11; T1): THE LOCK. Where this session stands is the database's answer
+  // (sesi_periksa; src/lib/penjaga-sesi.ts), asked on every signed-in request but a prefetch, and skipped only for a
+  // session this server signed as PERSONAL. Locked: a page goes to «PINTAR terkunci», anything else is refused 423;
+  // the data itself is refused by the database whatever happens here. Ended: this device is signed out. A staff
+  // person's browser gets its device value the first time, for «Komputer siapa ini?».
+  // None of its cookies is written on a server action: there every cookie makes Next redraw the page (BOB-23).
+  let mode: ModeSesi | null = null;
+  let perluPilih = false;
+  const aksi = Boolean(request.headers.get("next-action"));
+  if (user) {
+    const kartu = adalahAlamatKartu(user.email);
+    const idSesi = idSesiDariToken((await supabase.auth.getSession()).data.session?.access_token);
+    let alat = request.cookies.get(COOKIE_PERANGKAT)?.value;
+    if (!kartu && !aksi && !hashPerangkat(alat)) {
+      alat = perangkatBaru();
+      response.cookies.set(COOKIE_PERANGKAT, alat, { path: "/", sameSite: "lax", httpOnly: true, secure: aman, maxAge: UMUR_PERANGKAT });
+    }
+    if (!kartu && pribadiTersimpan(idSesi, request.cookies.get(COOKIE_PRIBADI)?.value)) {
+      mode = "PERSONAL";
+    } else if (!adalahPrefetch(request.headers)) {
+      const { data, error } = await supabase.rpc("sesi_periksa", {
+        p_perangkat: kartu ? null : hashPerangkat(alat), p_navigasi: navigasiHalaman(request.method, request.headers) });
+      const jaga = error ? null : bacaPenjagaan(data);
+      // #148 (D-094, D-100): a maintenance window that stops this person answers the session check itself (PT503).
+      // A page goes to /pemeliharaan, which says what stops them and what next; anything else is refused 503.
+      const henti = galatPemeliharaan(error);
+      if (henti && !jalurSaatPemeliharaan(path)) {
+        const tutup = mintaHalaman(path, request.headers)
+          ? NextResponse.redirect(new URL(HALAMAN_PEMELIHARAAN, request.url))
+          : NextResponse.json({ error: henti === "EMERGENCY" ? "pintar_dihentikan" : "pemeliharaan" },
+              { status: 503, headers: { "cache-control": "no-store" } });
+        for (const k of response.cookies.getAll()) tutup.cookies.set(k);
+        return tutup;
+      }
+      if (jaga?.keadaan === "TERKUNCI" && !jalurSaatTerkunci(path)) {
+        const tahan = mintaHalaman(path, request.headers)
+          ? NextResponse.redirect(alamatTerkunci(request))
+          : NextResponse.json({ error: "sesi_terkunci" }, { status: 423, headers: { "cache-control": "no-store" } });
+        for (const k of response.cookies.getAll()) tahan.cookies.set(k);
+        return tahan;
+      }
+      if (jaga?.keadaan === "BERAKHIR") {
+        await keluarPerangkatIni(supabase);
+        const akhir = mintaHalaman(path, request.headers)
+          ? NextResponse.redirect(new URL("/masuk?sesi=berakhir", request.url))
+          : NextResponse.json({ error: "sesi_berakhir" }, { status: 401, headers: { "cache-control": "no-store" } });
+        for (const k of response.cookies.getAll()) akhir.cookies.set(k);
+        akhir.cookies.set(COOKIE_PRIBADI, "", { path: "/", maxAge: 0 });
+        akhir.cookies.set(COOKIE_JAGA, "", { path: "/", maxAge: 0 });
+        return akhir;
+      }
+      mode = jaga?.mode ?? null;
+      perluPilih = jaga?.keadaan === "BUKA" && jaga.perluPilih;
+      const tanda = mode === "PERSONAL" && idSesi ? nilaiPribadi(idSesi) : null;
+      if (tanda && !aksi) response.cookies.set(COOKIE_PRIBADI, tanda, { path: "/", sameSite: "lax", httpOnly: true, secure: aman, maxAge: umurSesiMode("PERSONAL", user.email) });
+    } else {
+      // a prefetch asks nothing; the cookies keep the lifetime the last page load gave them
+      const j = request.cookies.get(COOKIE_JAGA)?.value;
+      mode = j === "SHARED" || j === "CARD" ? j : null;
+    }
+    // what the screen needs for its inactivity clock (src/components/PenjagaSesi.tsx)
+    const jagaLayar = mode === "SHARED" || mode === "CARD" ? mode : null;
+    if ((request.cookies.get(COOKIE_JAGA)?.value ?? null) !== jagaLayar && !aksi && !adalahPrefetch(request.headers)) {
+      response.cookies.set(COOKIE_JAGA, jagaLayar ?? "", { path: "/", sameSite: "lax", httpOnly: false, secure: aman, maxAge: jagaLayar ? umurSesiMode(jagaLayar, user.email) : 0 });
+    }
+  } else if (request.cookies.get(COOKIE_JAGA) && !aksi) {
+    response.cookies.set(COOKIE_JAGA, "", { path: "/", maxAge: 0 });
+  }
 
   // BOB-05 (D-009): the idle limit slides with activity. Each signed-in
   // request re-sends the auth cookies with this account's lifetime -- 60
@@ -93,7 +170,8 @@ export async function proxy(request: NextRequest) {
   // the whole page. A page request always re-sends, and so does any request
   // whose session this proxy has just refreshed.
   if (user) {
-    const umur = umurSesi(user.email);
+    // BOB-29: by the session's mode (penjaga-sesi.ts): a personal computer 7 days, a shared one and a card 60 minutes
+    const umur = umurSesiMode(mode, user.email);
     const baru = new Map(response.cookies.getAll().map((k) => [k.name, k]));
     const sekarang = Math.floor(Date.now() / 1000);
     const disegarkan = [...baru.keys()].some(adalahCookieSesi);
@@ -135,8 +213,21 @@ export async function proxy(request: NextRequest) {
     const nilai = !error && (keadaan === "COMPLETE" || keadaan === "NOT_APPLICABLE") ? nilaiSiap(user.id) : null;
     if (nilai) {
       response.cookies.set(COOKIE_SIAP, nilai, {
-        path: "/", sameSite: "lax", httpOnly: true, secure: request.nextUrl.protocol === "https:", maxAge: umurSesi(user.email) });
+        path: "/", sameSite: "lax", httpOnly: true, secure: request.nextUrl.protocol === "https:", maxAge: umurSesiMode(mode, user.email) });
     }
+  }
+
+  // BOB-29 (C11): «Komputer siapa ini?», asked of a staff person on a browser that has not answered it, once the
+  // set-up is done, before any other page. Until it is answered the computer is SHARED (the safer default).
+  // Asked of a browser's page load only (Sec-Fetch-Dest: document): a script or a data request is never redirected.
+  if (user && perluPilih && !jalurBebasPilih(path) && navigasiHalaman(request.method, request.headers)) {
+    const tanya = request.nextUrl.clone();
+    tanya.pathname = HALAMAN_PERANGKAT;
+    tanya.search = "";
+    tanya.searchParams.set("lanjut", `${path}${request.nextUrl.search}`);
+    const alih = NextResponse.redirect(tanya);
+    for (const k of response.cookies.getAll()) alih.cookies.set(k);
+    return alih;
   }
 
   if (!user && !isPublic) {
@@ -149,6 +240,16 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
   return response;
+}
+
+/** «PINTAR terkunci», returning afterwards to the page that was asked for. */
+function alamatTerkunci(request: NextRequest): URL {
+  const url = request.nextUrl.clone();
+  const lanjut = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+  url.pathname = HALAMAN_TERKUNCI;
+  url.search = "";
+  if (request.method === "GET" && lanjut !== "/") url.searchParams.set("lanjut", lanjut);
+  return url;
 }
 
 // public/brand and public/fonts are what the anonymous pages themselves load.

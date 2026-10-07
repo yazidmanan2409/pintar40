@@ -47,7 +47,7 @@
     },
     "db-bob24-gates": {
       "suite": "selftest.run_fable16()",
-      "control_green": 6,
+      "control_green": 7,
       "what": "BOB-24's identity foundation: a PINTAR ID random, well-formed, distinct and immutable, read as ruled; usernames under C9 with reserved names, claimed once, never renamed but by the platform admin's audited correction; a blocklisted, bcrypt-hashed personal PIN set once; set-up state for staff EMAIL accounts only; the recovery ladder 1 h, 4 h, suspended, decaying but never lifting a suspension, restored only with a new PIN; the tables and recovery functions nobody's but the routes'"
     },
     "db-bob39-gates": {
@@ -677,6 +677,7 @@
     { "name": "bob36-3", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "the owner rewrote a sat Uji Cepat's passing_rules" },
     { "name": "bob36-4", "gate": "db-bob36-gates", "expect_red": "F04-T04d", "expect_detail": "after a session exists the teacher rewrote in place: module_id, course_id" },
     { "name": "bob39-1", "gate": "db-bob39-gates", "expect_red": "F06-P22", "expect_detail": "a referral through the review left 0 AWAITING_REVIEW decision(s)" },
+    { "name": "bob39-2", "gate": "db-bob39-gates", "expect_red": "F06-P22", "expect_detail": "the person who referred took up or decided their own referral" },
     { "name": "bob37-1", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the class's per-topic mastery did not show for five learners" },
     { "name": "bob37-2", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the school's competency outcomes hold nothing for the two objectives" },
     { "name": "bob37-3", "gate": "db-bob37-gates", "expect_red": "F06-P23", "expect_detail": "the class's per-topic mastery is [{\"code\": \"BOB37-A\", \"learners\": 5, \"competency\": \"BOB37-A\", \"mean_score\": 0.5000" },

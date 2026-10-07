@@ -1,0 +1,208 @@
+# #150, backup and disaster recovery: a restore rehearsal from STAGING. Never production.
+#
+# READ ONLY on staging. It reads what Supabase holds for staging (its backups and whether point-in-time recovery is
+# on), takes a logical backup of staging's database by Supabase's documented CLI procedure (roles, schema, data, and
+# the migration history), restores it into an EMPTY Supabase stack on this runner by the documented psql procedure,
+# and compares the two, table by table and fact by fact. It answers:
+#   - which backups Supabase holds for staging, of which kind, and whether point-in-time recovery is enabled;
+#   - whether the documented logical restore reproduces every table (row count and content hash) of public, auth,
+#     storage, telemetry and the migration history;
+#   - whether it reproduces what PINTAR keeps outside its own tables: the triggers on auth.users (account creation,
+#     the password-write guard, the card-email guard), PostgREST's pre-request on the authenticator role (session
+#     ends, the shared-computer lock), the functions, their grants, the policies, and the launch-readiness checks;
+#   - what it cannot restore: Storage files (counted from their metadata) and the secrets kept outside the database;
+#   - how long the backup and the restore took, and how large the backup is.
+#
+# The backup never leaves the runner: it is not uploaded, printed or kept, and the runner is discarded. Only counts,
+# content hashes, names of tables and yes/no facts are printed (staging's data is synthetic, D-064, and even so no
+# value is shown). Dispatch only, from main.
+
+name: rehearsal · restore staging's backup into an empty stack (read only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: restore-rehearsal
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  SUPABASE_CLI: "2.117.0"
+
+jobs:
+  rehearsal:
+    if: github.ref == 'refs/heads/main'
+    name: staging → logical backup → empty stack → compare
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Credentials present, and they are staging's
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          for n in STAGING_SUPABASE_DB_URL STAGING_SUPABASE_ACCESS_TOKEN; do
+            if [ -n "${!n:-}" ]; then echo "$n: present"; else echo "::error::$n is not set"; exit 1; fi
+          done
+          case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_SUPABASE_PROJECT_REF"*) echo "::error::the database URL names the production project"; exit 1;; esac
+          case "$STAGING_SUPABASE_DB_URL" in *"$STAGING_SUPABASE_PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::the database URL does not name staging's project"; exit 1;; esac
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $STAGING_SUPABASE_ACCESS_TOKEN" "https://api.supabase.com/v1/projects/$PRODUCTION_SUPABASE_PROJECT_REF")
+          if [ "$code" = 200 ]; then echo "::error::the staging token can reach production; refusing to continue"; exit 1; fi
+          echo "production refuses this token: HTTP $code"
+
+      - name: What Supabase holds for staging (backups, point-in-time recovery, the database)
+        env:
+          TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -uo pipefail
+          api() { curl -sS -w '\n%{http_code}' -H "Authorization: Bearer $TOKEN" "https://api.supabase.com/v1/projects/$STAGING_SUPABASE_PROJECT_REF$1"; }
+          r=$(api /database/backups); code=$(printf '%s' "$r" | tail -1); body=$(printf '%s' "$r" | sed '$d')
+          echo "backups list: HTTP $code"
+          if [ "$code" = 200 ]; then
+            printf '%s' "$body" | jq -r '"region \(.region // "-"); point-in-time recovery enabled: \(.pitr_enabled); WAL-G enabled: \(.walg_enabled); backups held: \(.backups | length)",
+              (.backups | sort_by(.inserted_at) | if length > 0 then "earliest \(.[0].inserted_at), latest \(.[-1].inserted_at)" else "none" end),
+              (.backups | group_by(.status) | map("status \(.[0].status): \(length)") | join("; ")),
+              (.backups | group_by(.is_physical_backup) | map("physical \(.[0].is_physical_backup): \(length)") | join("; ")),
+              (.physical_backup_data // {} | "physical backup data: \(tostring)")'
+          fi
+          r=$(api ''); code=$(printf '%s' "$r" | tail -1); body=$(printf '%s' "$r" | sed '$d')
+          echo "project: HTTP $code"
+          [ "$code" = 200 ] && printf '%s' "$body" | jq -r '"status \(.status); region \(.region); database \(.database.version // "-") (\(.database.postgres_engine // "-") \(.database.release_channel // "-"))"'
+          r=$(api /billing/addons); code=$(printf '%s' "$r" | tail -1); body=$(printf '%s' "$r" | sed '$d')
+          echo "add-ons: HTTP $code"
+          [ "$code" = 200 ] && printf '%s' "$body" | jq -r '(.selected_addons // []) | map("\(.type)=\(.variant.identifier // .variant.id // "-")") | "selected: " + (if length > 0 then join(", ") else "none" end)'
+          exit 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install the pinned Supabase CLI
+        run: npm i -g supabase@${SUPABASE_CLI}
+
+      - name: An empty Supabase stack on this runner (Postgres 17, as staging and production)
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/leer" && cd "$RUNNER_TEMP/leer"
+          printf 'n\nn\n' | supabase init --force >/dev/null
+          sed -i 's/^major_version = .*/major_version = 17/' supabase/config.toml
+          grep -n '^major_version' supabase/config.toml
+          supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit
+          supabase status -o env > "$RUNNER_TEMP/leer.env"
+          val() { grep -E "^$1=" "$RUNNER_TEMP/leer.env" | head -1 | cut -d= -f2- | tr -d '"'; }
+          echo "LOKAL_DB=$(val DB_URL)" >> "$GITHUB_ENV"
+          psql "$(val DB_URL)" -At -c "select 'empty: public tables ' || count(*) from information_schema.tables where table_schema = 'public'"
+
+      - name: Facts on staging, before the backup (read only)
+        env:
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          PGOPTIONS='-c default_transaction_read_only=on' psql "$DB" -At -F '|' -v ON_ERROR_STOP=1 -f audit/restore/fakta.sql > "$RUNNER_TEMP/sebelum.txt"
+          echo "tables read: $(grep -c '^T|' "$RUNNER_TEMP/sebelum.txt")"
+
+      - name: The logical backup (Supabase's documented procedure)
+        env:
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/cadangan" && cd "$RUNNER_TEMP/cadangan"
+          t0=$(date +%s)
+          supabase db dump --db-url "$DB" -f roles.sql --role-only
+          supabase db dump --db-url "$DB" -f schema.sql
+          supabase db dump --db-url "$DB" -f data.sql --use-copy --data-only -x "storage.buckets_vectors" -x "storage.vector_indexes"
+          supabase db dump --db-url "$DB" -f history_schema.sql --schema supabase_migrations
+          supabase db dump --db-url "$DB" -f history_data.sql --use-copy --data-only --schema supabase_migrations
+          t1=$(date +%s)
+          echo "backup took $((t1 - t0)) s; sizes (bytes): $(wc -c roles.sql schema.sql data.sql history_schema.sql history_data.sql | awk '{printf "%s=%s ", $2, $1}')"
+          # what the schema backup carries of PINTAR's additions outside its own schemas (names only)
+          echo "the schema backup creates triggers on auth.users: $(grep -cE 'CREATE (OR REPLACE )?TRIGGER .* ON "?auth"?\."?users"?' schema.sql || true)"
+          echo "the backup sets the authenticator role's pre-request: $(grep -c 'pgrst.db_pre_request' roles.sql schema.sql | tr '\n' ' ')"
+          echo "BACKUP_SECONDS=$((t1 - t0))" >> "$GITHUB_ENV"
+
+      - name: Facts on staging, after the backup (read only)
+        env:
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          PGOPTIONS='-c default_transaction_read_only=on' psql "$DB" -At -F '|' -v ON_ERROR_STOP=1 -f audit/restore/fakta.sql > "$RUNNER_TEMP/sesudah.txt"
+          echo "tables that changed on staging while it was backed up: $(diff <(grep '^T|' "$RUNNER_TEMP/sebelum.txt") <(grep '^T|' "$RUNNER_TEMP/sesudah.txt") | grep -c '^>' || true)"
+
+      - name: The restore into the empty stack (Supabase's documented procedure)
+        run: |
+          # the runner's shell stops at the first failing command (bash -e); a failed restore is a finding to read, not the end
+          set +e -uo pipefail
+          cd "$RUNNER_TEMP/cadangan"
+          # psql's own errors only: the statement's error line, never DETAIL lines (which can quote values)
+          saring() { grep -E '^psql:.*(ERROR|FATAL)' | sed -E 's/(DETAIL|Key \().*//' | cut -c1-220 | head -${1:-15}; }
+          t0=$(date +%s)
+          psql --single-transaction --variable ON_ERROR_STOP=1 --file roles.sql --file schema.sql \
+            --command 'SET session_replication_role = replica' --file data.sql --dbname "$LOKAL_DB" > /dev/null 2> pulih.err
+          rc=$?
+          psql --single-transaction --variable ON_ERROR_STOP=1 --file history_schema.sql --file history_data.sql --dbname "$LOKAL_DB" > /dev/null 2> riwayat.err
+          rh=$?
+          t1=$(date +%s)
+          echo "documented restore: exit $rc (database), $rh (migration history); took $((t1 - t0)) s"
+          if [ "$rc" != 0 ]; then
+            echo "the documented single-transaction restore stopped at:"; saring 5 < pulih.err
+            echo "a diagnostic restore without a single transaction, every error it meets (each statement's own line):"
+            d0=$(date +%s)
+            psql --file roles.sql --file schema.sql --command 'SET session_replication_role = replica' --file data.sql --dbname "$LOKAL_DB" > /dev/null 2> diag.err
+            echo "errors: $(grep -cE '^psql:.*ERROR' diag.err); the tolerant restore took $(( $(date +%s) - d0 )) s"; saring 25 < diag.err
+          fi
+          [ "$rh" = 0 ] || { echo "the history restore stopped at:"; saring 5 < riwayat.err; }
+          echo "RESTORE_RC=$rc" >> "$GITHUB_ENV"; echo "HISTORY_RC=$rh" >> "$GITHUB_ENV"; echo "RESTORE_SECONDS=$((t1 - t0))" >> "$GITHUB_ENV"
+          exit 0
+
+      - name: Compare the restored copy with staging
+        env:
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set +e -uo pipefail
+          PGOPTIONS='-c default_transaction_read_only=on' psql "$LOKAL_DB" -At -F '|' -f audit/restore/fakta.sql > "$RUNNER_TEMP/pulih.txt" 2> "$RUNNER_TEMP/pulih-fakta.err"
+          bash audit/restore/banding.sh "$RUNNER_TEMP/sesudah.txt" "$RUNNER_TEMP/sebelum.txt" "$RUNNER_TEMP/pulih.txt"
+          # launch readiness, by row: a line begins with its verdict (PASS | FAIL); the
+          # measured text is names and counts only. (Until 6 Oct this counted '| FAIL',
+          # which no line contains, and read 0 whatever happened.)
+          kesiapan() { out=$(PGOPTIONS='-c default_transaction_read_only=on' psql "$2" -At -F ' | ' -f docs/audit/launch-readiness.sql 2>&1)
+            echo "launch readiness on $1: $(printf '%s\n' "$out" | grep -c '^PASS') PASS, $(printf '%s\n' "$out" | grep -c '^FAIL') FAIL"
+            printf '%s\n' "$out" | grep -E '^FAIL|ERROR' | cut -c1-240; }
+          kesiapan staging "$DB"; kesiapan "the restored copy" "$LOKAL_DB"
+          echo "restore exit $RESTORE_RC (history $HISTORY_RC); backup ${BACKUP_SECONDS} s, documented restore ${RESTORE_SECONDS} s"
+          echo "NOT in any database backup: Storage files (see 'storage objects' above: metadata only), CERT_SECRET_KEY_V1 and CARD_PEPPER (Vercel), Auth settings and SMTP (the Supabase project), API keys"
+
+      - name: The corrected step - PINTAR's triggers on auth.users, recreated from staging's own catalog, then compared again
+        env:
+          DB: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set +e -uo pipefail
+          # the definitions, read from staging (read only): PINTAR's additions to a schema the logical backup leaves out
+          PGOPTIONS='-c default_transaction_read_only=on' psql "$DB" -At -c "select pg_get_triggerdef(t.oid) || ';' from pg_trigger t
+            where t.tgrelid = 'auth.users'::regclass and not t.tgisinternal order by t.tgname" > "$RUNNER_TEMP/pemicu.sql"
+          echo "trigger definitions read from staging: $(grep -c ';$' "$RUNNER_TEMP/pemicu.sql")"
+          psql --single-transaction --variable ON_ERROR_STOP=1 --file "$RUNNER_TEMP/pemicu.sql" --dbname "$LOKAL_DB" > /dev/null 2> "$RUNNER_TEMP/pemicu.err"
+          echo "recreated on the copy: exit $?"; grep -E 'ERROR' "$RUNNER_TEMP/pemicu.err" | cut -c1-200 | head -5
+          PGOPTIONS='-c default_transaction_read_only=on' psql "$LOKAL_DB" -At -F '|' -f audit/restore/fakta.sql > "$RUNNER_TEMP/pulih2.txt" 2>/dev/null
+          # a function whose definition differs: the difference itself (PINTAR's own code, in the repository; no data)
+          for f in $(awk -F'|' 'FNR==NR && $1=="P" {d[$2]=$3; next} $1=="P" && ($2 in d) && d[$2]!=$3 {print $2}' "$RUNNER_TEMP/sesudah.txt" "$RUNNER_TEMP/pulih.txt" | head -3 | tr -d ' '); do
+            q="select pg_get_functiondef('public.$f'::regprocedure)"
+            echo "definition difference, staging -> copy, for $f:"
+            diff <(PGOPTIONS='-c default_transaction_read_only=on' psql "$DB" -At -c "$q") <(psql "$LOKAL_DB" -At -c "$q") | head -20 | cut -c1-200
+          done
+          echo "after the corrected step:"
+          bash audit/restore/banding.sh "$RUNNER_TEMP/sesudah.txt" "$RUNNER_TEMP/sebelum.txt" "$RUNNER_TEMP/pulih2.txt" | grep -E 'auth.users triggers|^functions:|^table rights|^tables:'
+          out=$(psql "$LOKAL_DB" -At -F ' | ' -f docs/audit/launch-readiness.sql 2>&1)
+          echo "launch readiness on the copy after the corrected step: $(printf '%s\n' "$out" | grep -c '^PASS') PASS, $(printf '%s\n' "$out" | grep -c '^FAIL') FAIL"
+          printf '%s\n' "$out" | grep -E '^FAIL|ERROR' | cut -c1-240
+
+      - name: Discard the backup
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/cadangan" "$RUNNER_TEMP"/sebelum.txt "$RUNNER_TEMP"/sesudah.txt "$RUNNER_TEMP"/pulih*.txt "$RUNNER_TEMP"/pemicu.*; echo discarded

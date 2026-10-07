@@ -60,6 +60,15 @@ create table auth.identities (
   updated_at timestamptz default now(),
   unique (provider_id, provider)
 );
+-- GoTrue's sessions (a subset): one row per signed-in device; deleting it makes that session's refresh fail.
+create table auth.sessions (
+  id uuid primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  not_after timestamptz,
+  refreshed_at timestamp
+);
 create function auth.uid() returns uuid language sql stable as $fn$
   select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid
 $fn$;

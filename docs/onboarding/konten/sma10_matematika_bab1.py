@@ -905,9 +905,11 @@ def tulis(path):
            [[1, p["no"], p["judul"], p["ringkasan"], p["isi"], p["tujuan"], p["bloom"], "", ""] for p in PELAJARAN])
     lembar("Soal", ["Kode soal", "No bab", "No pelajaran", "Jenis soal", "Pertanyaan", "Bacaan", "Petunjuk", "Kegunaan", "Tingkat kesulitan", "Kelompok paralel"],
            [[s["ref"], 1, s["pel"], "Pilihan ganda", s["tanya"], "", s["petunjuk"], s["guna"], s["sulit"], ""] for s in S])
-    # Kode miskonsepsi stays empty: no code is registered yet, and an unknown code fails the upload.
+    # every distractor names its misconception's code, defined on the «Miskonsepsi» sheet (CR-50, D-063 M5, D-120 Q9)
     lembar("Pilihan", ["Kode soal", "Pilihan", "Teks pilihan", "Benar", "Alasan", "Kode miskonsepsi"],
-           [[s["ref"], "ABCD"[i], p[0], "Ya" if p[1] else "Tidak", p[2], ""] for s in S for i, p in enumerate(s["pilihan"])])
+           [[s["ref"], "ABCD"[i], p[0], "Ya" if p[1] else "Tidak", p[2], p[3]] for s in S for i, p in enumerate(s["pilihan"])])
+    lembar("Miskonsepsi", ["Kode", "Nama", "Penjelasan", "Cara membantu"],
+           [[k, label, desk, rem] for k, (label, desk, rem) in MISKONSEPSI.items()])
     wb.save(path)
 
 

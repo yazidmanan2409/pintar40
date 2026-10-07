@@ -53,7 +53,8 @@
            "label": "A",
            "body": "50 m",
            "is_correct": false,
-           "rationale": "Hanya panjang dan lebar yang dijumlahkan; dua sisi lainnya terlewat."
+           "rationale": "Hanya panjang dan lebar yang dijumlahkan; dua sisi lainnya terlewat.",
+           "misconception_code": "SD5-M-B4-02"
           },
           {
            "_row": {
@@ -63,7 +64,8 @@
            "label": "B",
            "body": "600 m",
            "is_correct": false,
-           "rationale": "Panjang dan lebar dikalikan. Itu luas taman, bukan panjang jalan di tepinya."
+           "rationale": "Panjang dan lebar dikalikan. Itu luas taman, bukan panjang jalan di tepinya.",
+           "misconception_code": "SD5-M-B4-03"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "200 m",
            "is_correct": false,
-           "rationale": "Keliling dihitung dua kali. Rani berjalan satu kali putaran."
+           "rationale": "Keliling dihitung dua kali. Rani berjalan satu kali putaran.",
+           "misconception_code": "SD5-M-B4-10"
           }
          ]
         },
@@ -106,7 +109,8 @@
            "label": "A",
            "body": "Banyak ubin untuk menutup lantai kelas",
            "is_correct": false,
-           "rationale": "Ubin menutup seluruh bagian dalam lantai. Itu luas, bukan keliling."
+           "rationale": "Ubin menutup seluruh bagian dalam lantai. Itu luas, bukan keliling.",
+           "misconception_code": "SD5-M-B4-03"
           },
           {
            "_row": {
@@ -126,7 +130,8 @@
            "label": "C",
            "body": "Banyak cat untuk mengecat seluruh permukaan meja",
            "is_correct": false,
-           "rationale": "Cat menutup seluruh permukaan meja. Itu luas, bukan keliling."
+           "rationale": "Cat menutup seluruh permukaan meja. Itu luas, bukan keliling.",
+           "misconception_code": "SD5-M-B4-03"
           },
           {
            "_row": {
@@ -136,7 +141,8 @@
            "label": "D",
            "body": "Panjang tali dari ujung ke ujung satu sisi lapangan",
            "is_correct": false,
-           "rationale": "Itu hanya satu sisi. Keliling menyusuri semua sisi sampai kembali ke titik awal."
+           "rationale": "Itu hanya satu sisi. Keliling menyusuri semua sisi sampai kembali ke titik awal.",
+           "misconception_code": "SD5-M-B4-02"
           }
          ]
         },
@@ -158,7 +164,8 @@
            "label": "A",
            "body": "200 m",
            "is_correct": false,
-           "rationale": "Itu satu putaran. Dodi berlari 2 kali."
+           "rationale": "Itu satu putaran. Dodi berlari 2 kali.",
+           "misconception_code": "SD5-M-B4-09"
           },
           {
            "_row": {
@@ -178,7 +185,8 @@
            "label": "C",
            "body": "100 m",
            "is_correct": false,
-           "rationale": "Hanya panjang dan lebar yang dijumlahkan, dan hanya untuk satu putaran."
+           "rationale": "Hanya panjang dan lebar yang dijumlahkan, dan hanya untuk satu putaran.",
+           "misconception_code": "SD5-M-B4-02"
           },
           {
            "_row": {
@@ -188,7 +196,8 @@
            "label": "D",
            "body": "4.800 m",
            "is_correct": false,
-           "rationale": "Panjang dikali lebar (luas), lalu dikali 2. Berlari mengelilingi berarti menjumlahkan sisi-sisinya."
+           "rationale": "Panjang dikali lebar (luas), lalu dikali 2. Berlari mengelilingi berarti menjumlahkan sisi-sisinya.",
+           "misconception_code": "SD5-M-B4-03"
           }
          ]
         },
@@ -210,7 +219,8 @@
            "label": "A",
            "body": "Berlari bolak-balik di sepanjang satu sisi lapangan",
            "is_correct": false,
-           "rationale": "Bolak-balik di satu sisi melewati sisi yang sama berulang kali; sisi lainnya tidak dilewati."
+           "rationale": "Bolak-balik di satu sisi melewati sisi yang sama berulang kali; sisi lainnya tidak dilewati.",
+           "misconception_code": "SD5-M-B4-10"
           },
           {
            "_row": {
@@ -220,7 +230,8 @@
            "label": "B",
            "body": "Berlari melintasi tengah lapangan dari sudut ke sudut",
            "is_correct": false,
-           "rationale": "Bagian tengah bukan tepi lapangan. Keliling hanya menyusuri tepinya."
+           "rationale": "Bagian tengah bukan tepi lapangan. Keliling hanya menyusuri tepinya.",
+           "misconception_code": "SD5-M-B4-01"
           },
           {
            "_row": {
@@ -230,7 +241,8 @@
            "label": "C",
            "body": "Menyusuri dua sisi lapangan, lalu berhenti",
            "is_correct": false,
-           "rationale": "Baru dua sisi yang dilewati. Keliling menyusuri semua sisi sampai kembali ke titik awal."
+           "rationale": "Baru dua sisi yang dilewati. Keliling menyusuri semua sisi sampai kembali ke titik awal.",
+           "misconception_code": "SD5-M-B4-02"
           },
           {
            "_row": {
@@ -290,7 +302,8 @@
            "label": "B",
            "body": "18 cm",
            "is_correct": false,
-           "rationale": "Hanya dua sisi yang dijumlahkan (7 + 11); sisi 9 cm terlewat."
+           "rationale": "Hanya dua sisi yang dijumlahkan (7 + 11); sisi 9 cm terlewat.",
+           "misconception_code": "SD5-M-B4-02"
           },
           {
            "_row": {
@@ -300,7 +313,8 @@
            "label": "C",
            "body": "21 cm",
            "is_correct": false,
-           "rationale": "Sisi 7 cm dikali 3, seolah ketiga sisinya sama panjang. Sisinya berbeda, jadi dijumlahkan satu per satu."
+           "rationale": "Sisi 7 cm dikali 3, seolah ketiga sisinya sama panjang. Sisinya berbeda, jadi dijumlahkan satu per satu.",
+           "misconception_code": "SD5-M-B4-06"
           },
           {
            "_row": {
@@ -310,7 +324,8 @@
            "label": "D",
            "body": "33 cm",
            "is_correct": false,
-           "rationale": "Sisi 11 cm dikali 3, seolah segitiga sama sisi. Sisinya berbeda panjang."
+           "rationale": "Sisi 11 cm dikali 3, seolah segitiga sama sisi. Sisinya berbeda panjang.",
+           "misconception_code": "SD5-M-B4-06"
           }
          ]
         },
@@ -333,7 +348,8 @@
            "label": "A",
            "body": "19 cm",
            "is_correct": false,
-           "rationale": "Alas yang dikali 2 (2 × 5 + 9). Yang ada dua adalah kakinya."
+           "rationale": "Alas yang dikali 2 (2 × 5 + 9). Yang ada dua adalah kakinya.",
+           "misconception_code": "SD5-M-B4-05"
           },
           {
            "_row": {
@@ -353,7 +369,8 @@
            "label": "C",
            "body": "14 cm",
            "is_correct": false,
-           "rationale": "Hanya satu kaki dan alas yang dijumlahkan; kaki yang lain terlewat."
+           "rationale": "Hanya satu kaki dan alas yang dijumlahkan; kaki yang lain terlewat.",
+           "misconception_code": "SD5-M-B4-02"
           },
           {
            "_row": {
@@ -363,7 +380,8 @@
            "label": "D",
            "body": "27 cm",
            "is_correct": false,
-           "rationale": "Kaki dikali 3, seolah segitiga sama sisi. Alasnya berbeda panjang."
+           "rationale": "Kaki dikali 3, seolah segitiga sama sisi. Alasnya berbeda panjang.",
+           "misconception_code": "SD5-M-B4-06"
           }
          ]
         },
@@ -395,7 +413,8 @@
            "label": "B",
            "body": "20 cm",
            "is_correct": false,
-           "rationale": "Hanya dua sisi yang dijumlahkan; sisi 15 cm terlewat."
+           "rationale": "Hanya dua sisi yang dijumlahkan; sisi 15 cm terlewat.",
+           "misconception_code": "SD5-M-B4-02"
           },
           {
            "_row": {
@@ -405,7 +424,8 @@
            "label": "C",
            "body": "24 cm",
            "is_correct": false,
-           "rationale": "Sisi 8 cm dikali 3, seolah ketiga sisinya sama. Pada segitiga sembarang, sisinya dijumlahkan."
+           "rationale": "Sisi 8 cm dikali 3, seolah ketiga sisinya sama. Pada segitiga sembarang, sisinya dijumlahkan.",
+           "misconception_code": "SD5-M-B4-06"
           },
           {
            "_row": {
@@ -415,7 +435,8 @@
            "label": "D",
            "body": "45 cm",
            "is_correct": false,
-           "rationale": "Sisi 15 cm dikali 3, seolah ketiga sisinya sama. Sisinya berbeda panjang."
+           "rationale": "Sisi 15 cm dikali 3, seolah ketiga sisinya sama. Sisinya berbeda panjang.",
+           "misconception_code": "SD5-M-B4-06"
           }
          ]
         },
@@ -437,7 +458,8 @@
            "label": "A",
            "body": "22 dm",
            "is_correct": false,
-           "rationale": "Dikali 2. Segitiga mempunyai 3 sisi."
+           "rationale": "Dikali 2. Segitiga mempunyai 3 sisi.",
+           "misconception_code": "SD5-M-B4-04"
           },
           {
            "_row": {
@@ -447,7 +469,8 @@
            "label": "B",
            "body": "121 dm",
            "is_correct": false,
-           "rationale": "Sisi dikali dirinya sendiri (11 × 11). Pengalinya banyak sisi, yaitu 3."
+           "rationale": "Sisi dikali dirinya sendiri (11 × 11). Pengalinya banyak sisi, yaitu 3.",
+           "misconception_code": "SD5-M-B4-04"
           },
           {
            "_row": {
@@ -467,7 +490,8 @@
            "label": "D",
            "body": "44 dm",
            "is_correct": false,
-           "rationale": "Dikali 4, seperti persegi. Segitiga mempunyai 3 sisi."
+           "rationale": "Dikali 4, seperti persegi. Segitiga mempunyai 3 sisi.",
+           "misconception_code": "SD5-M-B4-04"
           }
          ]
         },
@@ -490,7 +514,8 @@
            "label": "A",
            "body": "22 cm",
            "is_correct": false,
-           "rationale": "22 cm adalah panjang kedua kaki bersama, hasil langkah pertama. Satu kaki = 22 : 2."
+           "rationale": "22 cm adalah panjang kedua kaki bersama, hasil langkah pertama. Satu kaki = 22 : 2.",
+           "misconception_code": "SD5-M-B4-09"
           },
           {
            "_row": {
@@ -510,7 +535,8 @@
            "label": "C",
            "body": "10 cm",
            "is_correct": false,
-           "rationale": "Keliling dibagi 3, seolah ketiga sisinya sama. Alasnya berbeda, 8 cm."
+           "rationale": "Keliling dibagi 3, seolah ketiga sisinya sama. Alasnya berbeda, 8 cm.",
+           "misconception_code": "SD5-M-B4-06"
           },
           {
            "_row": {
@@ -520,7 +546,8 @@
            "label": "D",
            "body": "15 cm",
            "is_correct": false,
-           "rationale": "Keliling dibagi 2 tanpa mengurangi alasnya lebih dahulu."
+           "rationale": "Keliling dibagi 2 tanpa mengurangi alasnya lebih dahulu.",
+           "misconception_code": "SD5-M-B4-02"
           }
          ]
         }
@@ -560,7 +587,8 @@
            "label": "A",
            "body": "25 dm",
            "is_correct": false,
-           "rationale": "Hanya panjang dan lebar yang dijumlahkan; dua sisi yang berhadapan terlewat."
+           "rationale": "Hanya panjang dan lebar yang dijumlahkan; dua sisi yang berhadapan terlewat.",
+           "misconception_code": "SD5-M-B4-02"
           },
           {
            "_row": {
@@ -570,7 +598,8 @@
            "label": "B",
            "body": "144 dm",
            "is_correct": false,
-           "rationale": "Panjang dikali lebar. Itu luas papan tulis, bukan kelilingnya."
+           "rationale": "Panjang dikali lebar. Itu luas papan tulis, bukan kelilingnya.",
+           "misconception_code": "SD5-M-B4-03"
           },
           {
            "_row": {
@@ -580,7 +609,8 @@
            "label": "C",
            "body": "100 dm",
            "is_correct": false,
-           "rationale": "Keliling dihitung dua kali: (2 × 16) + (2 × 9) sudah memuat keempat sisi."
+           "rationale": "Keliling dihitung dua kali: (2 × 16) + (2 × 9) sudah memuat keempat sisi.",
+           "misconception_code": "SD5-M-B4-10"
           },
           {
            "_row": {
@@ -623,7 +653,8 @@
            "label": "B",
            "body": "19 cm",
            "is_correct": false,
-           "rationale": "Hanya sisi alas dan sisi samping yang dijumlahkan; dua sisi di seberangnya terlewat."
+           "rationale": "Hanya sisi alas dan sisi samping yang dijumlahkan; dua sisi di seberangnya terlewat.",
+           "misconception_code": "SD5-M-B4-02"
           },
           {
            "_row": {
@@ -633,7 +664,8 @@
            "label": "C",
            "body": "84 cm",
            "is_correct": false,
-           "rationale": "Kedua sisi dikalikan. Keliling adalah jumlah panjang sisinya."
+           "rationale": "Kedua sisi dikalikan. Keliling adalah jumlah panjang sisinya.",
+           "misconception_code": "SD5-M-B4-03"
           },
           {
            "_row": {
@@ -643,7 +675,8 @@
            "label": "D",
            "body": "48 cm",
            "is_correct": false,
-           "rationale": "Sisi alas dikali 4, seolah keempat sisinya sama. Sisi samping lebih pendek."
+           "rationale": "Sisi alas dikali 4, seolah keempat sisinya sama. Sisi samping lebih pendek.",
+           "misconception_code": "SD5-M-B4-06"
           }
          ]
         },
@@ -676,7 +709,8 @@
            "label": "B",
            "body": "74 m",
            "is_correct": false,
-           "rationale": "Itu keliling seluruh kebun. Pintu selebar 3 m tidak dipagari."
+           "rationale": "Itu keliling seluruh kebun. Pintu selebar 3 m tidak dipagari.",
+           "misconception_code": "SD5-M-B4-09"
           },
           {
            "_row": {
@@ -686,7 +720,8 @@
            "label": "C",
            "body": "297 m",
            "is_correct": false,
-           "rationale": "Panjang dikali lebar (luas) lalu dikurangi 3. Pagar mengikuti tepi kebun."
+           "rationale": "Panjang dikali lebar (luas) lalu dikurangi 3. Pagar mengikuti tepi kebun.",
+           "misconception_code": "SD5-M-B4-03"
           },
           {
            "_row": {
@@ -696,7 +731,8 @@
            "label": "D",
            "body": "34 m",
            "is_correct": false,
-           "rationale": "Hanya panjang dan lebar yang dijumlahkan (25 + 12 − 3); dua sisi lainnya terlewat."
+           "rationale": "Hanya panjang dan lebar yang dijumlahkan (25 + 12 − 3); dua sisi lainnya terlewat.",
+           "misconception_code": "SD5-M-B4-02"
           }
          ]
         },
@@ -718,7 +754,8 @@
            "label": "A",
            "body": "25 dm",
            "is_correct": false,
-           "rationale": "Hanya panjang dan lebar yang dijumlahkan; dua sisi di seberangnya terlewat."
+           "rationale": "Hanya panjang dan lebar yang dijumlahkan; dua sisi di seberangnya terlewat.",
+           "misconception_code": "SD5-M-B4-02"
           },
           {
            "_row": {
@@ -728,7 +765,8 @@
            "label": "B",
            "body": "126 dm",
            "is_correct": false,
-           "rationale": "Panjang dikali lebar. Itu luas meja."
+           "rationale": "Panjang dikali lebar. Itu luas meja.",
+           "misconception_code": "SD5-M-B4-03"
           },
           {
            "_row": {
@@ -748,7 +786,8 @@
            "label": "D",
            "body": "43 dm",
            "is_correct": false,
-           "rationale": "Panjang dikali 2, tetapi lebar hanya dihitung sekali. Ada dua sisi lebar."
+           "rationale": "Panjang dikali 2, tetapi lebar hanya dihitung sekali. Ada dua sisi lebar.",
+           "misconception_code": "SD5-M-B4-02"
           }
          ]
         },
@@ -780,7 +819,8 @@
            "label": "B",
            "body": "14 dm",
            "is_correct": false,
-           "rationale": "Hanya satu sisi pendek dan satu sisi panjang yang dijumlahkan."
+           "rationale": "Hanya satu sisi pendek dan satu sisi panjang yang dijumlahkan.",
+           "misconception_code": "SD5-M-B4-02"
           },
           {
            "_row": {
@@ -790,7 +830,8 @@
            "label": "C",
            "body": "45 dm",
            "is_correct": false,
-           "rationale": "Kedua sisi dikalikan. Keliling adalah jumlah sisinya."
+           "rationale": "Kedua sisi dikalikan. Keliling adalah jumlah sisinya.",
+           "misconception_code": "SD5-M-B4-03"
           },
           {
            "_row": {
@@ -800,7 +841,8 @@
            "label": "D",
            "body": "20 dm",
            "is_correct": false,
-           "rationale": "Sisi pendek dikali 4, seolah keempat sisinya sama. Dua sisinya lebih panjang."
+           "rationale": "Sisi pendek dikali 4, seolah keempat sisinya sama. Dua sisinya lebih panjang.",
+           "misconception_code": "SD5-M-B4-06"
           }
          ]
         },
@@ -822,7 +864,8 @@
            "label": "A",
            "body": "28 cm",
            "is_correct": false,
-           "rationale": "Keliling hanya dikurangi satu panjang. Persegi panjang mempunyai dua sisi panjang."
+           "rationale": "Keliling hanya dikurangi satu panjang. Persegi panjang mempunyai dua sisi panjang.",
+           "misconception_code": "SD5-M-B4-02"
           },
           {
            "_row": {
@@ -832,7 +875,8 @@
            "label": "B",
            "body": "16 cm",
            "is_correct": false,
-           "rationale": "16 cm adalah panjang kedua lebar bersama. Satu lebar = 16 : 2."
+           "rationale": "16 cm adalah panjang kedua lebar bersama. Satu lebar = 16 : 2.",
+           "misconception_code": "SD5-M-B4-09"
           },
           {
            "_row": {
@@ -842,7 +886,8 @@
            "label": "C",
            "body": "10 cm",
            "is_correct": false,
-           "rationale": "Keliling dibagi 4, seolah persegi. Panjang dan lebarnya berbeda."
+           "rationale": "Keliling dibagi 4, seolah persegi. Panjang dan lebarnya berbeda.",
+           "misconception_code": "SD5-M-B4-06"
           },
           {
            "_row": {
@@ -874,7 +919,8 @@
            "label": "A",
            "body": "86 cm",
            "is_correct": false,
-           "rationale": "Itu kayu untuk satu bingkai. Ayah membuat 3 bingkai."
+           "rationale": "Itu kayu untuk satu bingkai. Ayah membuat 3 bingkai.",
+           "misconception_code": "SD5-M-B4-09"
           },
           {
            "_row": {
@@ -894,7 +940,8 @@
            "label": "C",
            "body": "129 cm",
            "is_correct": false,
-           "rationale": "Setiap bingkai hanya dihitung panjang + lebar; dua sisi lainnya terlewat."
+           "rationale": "Setiap bingkai hanya dihitung panjang + lebar; dua sisi lainnya terlewat.",
+           "misconception_code": "SD5-M-B4-02"
           },
           {
            "_row": {
@@ -904,7 +951,8 @@
            "label": "D",
            "body": "450 cm",
            "is_correct": false,
-           "rationale": "Panjang dikali lebar (luas satu bingkai). Kayu bingkai mengikuti tepinya."
+           "rationale": "Panjang dikali lebar (luas satu bingkai). Kayu bingkai mengikuti tepinya.",
+           "misconception_code": "SD5-M-B4-03"
           }
          ]
         },
@@ -926,7 +974,8 @@
            "label": "A",
            "body": "15 pohon",
            "is_correct": false,
-           "rationale": "Ditambah satu seperti menanam di sepanjang garis lurus. Pada tepi yang tertutup, titik akhir sama dengan titik awal."
+           "rationale": "Ditambah satu seperti menanam di sepanjang garis lurus. Pada tepi yang tertutup, titik akhir sama dengan titik awal.",
+           "misconception_code": "SD5-M-B4-12"
           },
           {
            "_row": {
@@ -936,7 +985,8 @@
            "label": "B",
            "body": "70 pohon",
            "is_correct": false,
-           "rationale": "70 adalah keliling taman dalam meter, bukan banyak pohon. Pohon ditanam setiap 5 m."
+           "rationale": "70 adalah keliling taman dalam meter, bukan banyak pohon. Pohon ditanam setiap 5 m.",
+           "misconception_code": "SD5-M-B4-09"
           },
           {
            "_row": {
@@ -956,7 +1006,8 @@
            "label": "D",
            "body": "60 pohon",
            "is_correct": false,
-           "rationale": "Yang dibagi 5 adalah luas taman (300). Pohon ditanam di tepi, jadi yang dibagi keliling."
+           "rationale": "Yang dibagi 5 adalah luas taman (300). Pohon ditanam di tepi, jadi yang dibagi keliling.",
+           "misconception_code": "SD5-M-B4-03"
           }
          ]
         }
@@ -996,7 +1047,8 @@
            "label": "A",
            "body": "36 cm",
            "is_correct": false,
-           "rationale": "Sisi dikali sisi (6 × 6). Itu luas persegi, bukan kelilingnya."
+           "rationale": "Sisi dikali sisi (6 × 6). Itu luas persegi, bukan kelilingnya.",
+           "misconception_code": "SD5-M-B4-03"
           },
           {
            "_row": {
@@ -1006,7 +1058,8 @@
            "label": "B",
            "body": "12 cm",
            "is_correct": false,
-           "rationale": "Sisi dikali 2. Persegi mempunyai 4 sisi, jadi dikali 4."
+           "rationale": "Sisi dikali 2. Persegi mempunyai 4 sisi, jadi dikali 4.",
+           "misconception_code": "SD5-M-B4-04"
           },
           {
            "_row": {
@@ -1016,7 +1069,8 @@
            "label": "C",
            "body": "18 cm",
            "is_correct": false,
-           "rationale": "Sisi dikali 3, seperti segitiga sama sisi. Persegi mempunyai 4 sisi."
+           "rationale": "Sisi dikali 3, seperti segitiga sama sisi. Persegi mempunyai 4 sisi.",
+           "misconception_code": "SD5-M-B4-04"
           },
           {
            "_row": {
@@ -1049,7 +1103,8 @@
            "label": "A",
            "body": "27 cm",
            "is_correct": false,
-           "rationale": "Sisi miring hanya dihitung satu. Ada dua sisi miring yang masing-masing 5 cm."
+           "rationale": "Sisi miring hanya dihitung satu. Ada dua sisi miring yang masing-masing 5 cm.",
+           "misconception_code": "SD5-M-B4-02"
           },
           {
            "_row": {
@@ -1059,7 +1114,8 @@
            "label": "B",
            "body": "56 cm",
            "is_correct": false,
-           "rationale": "Sisi 14 cm dikali 4, seolah keempat sisinya sama. Sisi trapesium berbeda-beda."
+           "rationale": "Sisi 14 cm dikali 4, seolah keempat sisinya sama. Sisi trapesium berbeda-beda.",
+           "misconception_code": "SD5-M-B4-06"
           },
           {
            "_row": {
@@ -1079,7 +1135,8 @@
            "label": "D",
            "body": "22 cm",
            "is_correct": false,
-           "rationale": "Hanya dua sisi sejajar yang dijumlahkan; kedua sisi miring terlewat."
+           "rationale": "Hanya dua sisi sejajar yang dijumlahkan; kedua sisi miring terlewat.",
+           "misconception_code": "SD5-M-B4-02"
           }
          ]
         },
@@ -1101,7 +1158,8 @@
            "label": "A",
            "body": "26 cm",
            "is_correct": false,
-           "rationale": "Dikali 2. Persegi mempunyai 4 sisi sama panjang."
+           "rationale": "Dikali 2. Persegi mempunyai 4 sisi sama panjang.",
+           "misconception_code": "SD5-M-B4-04"
           },
           {
            "_row": {
@@ -1121,7 +1179,8 @@
            "label": "C",
            "body": "169 cm",
            "is_correct": false,
-           "rationale": "Sisi dikali sisi. Itu luas persegi."
+           "rationale": "Sisi dikali sisi. Itu luas persegi.",
+           "misconception_code": "SD5-M-B4-03"
           },
           {
            "_row": {
@@ -1131,7 +1190,8 @@
            "label": "D",
            "body": "39 cm",
            "is_correct": false,
-           "rationale": "Dikali 3, seperti segitiga sama sisi. Persegi mempunyai 4 sisi."
+           "rationale": "Dikali 3, seperti segitiga sama sisi. Persegi mempunyai 4 sisi.",
+           "misconception_code": "SD5-M-B4-04"
           }
          ]
         },
@@ -1153,7 +1213,8 @@
            "label": "A",
            "body": "90 cm",
            "is_correct": false,
-           "rationale": "Dikali 2. Belah ketupat mempunyai 4 sisi sama panjang."
+           "rationale": "Dikali 2. Belah ketupat mempunyai 4 sisi sama panjang.",
+           "misconception_code": "SD5-M-B4-04"
           },
           {
            "_row": {
@@ -1163,7 +1224,8 @@
            "label": "B",
            "body": "2.025 cm",
            "is_correct": false,
-           "rationale": "Sisi dikali sisi. Renda dipasang di tepi, jadi yang dihitung keliling."
+           "rationale": "Sisi dikali sisi. Renda dipasang di tepi, jadi yang dihitung keliling.",
+           "misconception_code": "SD5-M-B4-03"
           },
           {
            "_row": {
@@ -1183,7 +1245,8 @@
            "label": "D",
            "body": "135 cm",
            "is_correct": false,
-           "rationale": "Dikali 3; ada satu sisi yang terlewat. Belah ketupat mempunyai 4 sisi."
+           "rationale": "Dikali 3; ada satu sisi yang terlewat. Belah ketupat mempunyai 4 sisi.",
+           "misconception_code": "SD5-M-B4-04"
           }
          ]
         },
@@ -1205,7 +1268,8 @@
            "label": "A",
            "body": "24 cm",
            "is_correct": false,
-           "rationale": "Sisi pertama dikali 4, seolah persegi. Sisi-sisinya berbeda."
+           "rationale": "Sisi pertama dikali 4, seolah persegi. Sisi-sisinya berbeda.",
+           "misconception_code": "SD5-M-B4-06"
           },
           {
            "_row": {
@@ -1215,7 +1279,8 @@
            "label": "B",
            "body": "44 cm",
            "is_correct": false,
-           "rationale": "Sisi terpanjang dikali 4. Sisi-sisinya berbeda, jadi dijumlahkan satu per satu."
+           "rationale": "Sisi terpanjang dikali 4. Sisi-sisinya berbeda, jadi dijumlahkan satu per satu.",
+           "misconception_code": "SD5-M-B4-06"
           },
           {
            "_row": {
@@ -1225,7 +1290,8 @@
            "label": "C",
            "body": "19 cm",
            "is_correct": false,
-           "rationale": "Sisi 11 cm terlewat. Segi empat mempunyai 4 sisi."
+           "rationale": "Sisi 11 cm terlewat. Segi empat mempunyai 4 sisi.",
+           "misconception_code": "SD5-M-B4-02"
           },
           {
            "_row": {
@@ -1275,7 +1341,8 @@
            "label": "A",
            "body": "35 cm",
            "is_correct": false,
-           "rationale": "Dikali 5, seperti segi lima. Segi enam mempunyai 6 sisi."
+           "rationale": "Dikali 5, seperti segi lima. Segi enam mempunyai 6 sisi.",
+           "misconception_code": "SD5-M-B4-04"
           },
           {
            "_row": {
@@ -1285,7 +1352,8 @@
            "label": "B",
            "body": "56 cm",
            "is_correct": false,
-           "rationale": "Dikali 8, seperti segi delapan. Segi enam mempunyai 6 sisi."
+           "rationale": "Dikali 8, seperti segi delapan. Segi enam mempunyai 6 sisi.",
+           "misconception_code": "SD5-M-B4-04"
           },
           {
            "_row": {
@@ -1295,7 +1363,8 @@
            "label": "C",
            "body": "49 cm",
            "is_correct": false,
-           "rationale": "Sisi dikali dirinya sendiri (7 × 7). Pengalinya adalah banyak sisi, yaitu 6."
+           "rationale": "Sisi dikali dirinya sendiri (7 × 7). Pengalinya adalah banyak sisi, yaitu 6.",
+           "misconception_code": "SD5-M-B4-04"
           },
           {
            "_row": {
@@ -1328,7 +1397,8 @@
            "label": "A",
            "body": "225 cm",
            "is_correct": false,
-           "rationale": "Keliling dikali 5. Satu sisi pasti lebih pendek dari kelilingnya, jadi dibagi 5."
+           "rationale": "Keliling dikali 5. Satu sisi pasti lebih pendek dari kelilingnya, jadi dibagi 5.",
+           "misconception_code": "SD5-M-B4-11"
           },
           {
            "_row": {
@@ -1348,7 +1418,8 @@
            "label": "C",
            "body": "40 cm",
            "is_correct": false,
-           "rationale": "Keliling dikurangi 5. Keliling = 5 × sisi, jadi sisi didapat dengan membagi."
+           "rationale": "Keliling dikurangi 5. Keliling = 5 × sisi, jadi sisi didapat dengan membagi.",
+           "misconception_code": "SD5-M-B4-11"
           },
           {
            "_row": {
@@ -1358,7 +1429,8 @@
            "label": "D",
            "body": "15 cm",
            "is_correct": false,
-           "rationale": "Dibagi 3, seperti segitiga sama sisi. Segi lima mempunyai 5 sisi."
+           "rationale": "Dibagi 3, seperti segitiga sama sisi. Segi lima mempunyai 5 sisi.",
+           "misconception_code": "SD5-M-B4-04"
           }
          ]
         },
@@ -1390,7 +1462,8 @@
            "label": "B",
            "body": "36 dm",
            "is_correct": false,
-           "rationale": "Dikali 6, seperti segi enam. Segi delapan mempunyai 8 sisi."
+           "rationale": "Dikali 6, seperti segi enam. Segi delapan mempunyai 8 sisi.",
+           "misconception_code": "SD5-M-B4-04"
           },
           {
            "_row": {
@@ -1400,7 +1473,8 @@
            "label": "C",
            "body": "30 dm",
            "is_correct": false,
-           "rationale": "Dikali 5, seperti segi lima. Segi delapan mempunyai 8 sisi."
+           "rationale": "Dikali 5, seperti segi lima. Segi delapan mempunyai 8 sisi.",
+           "misconception_code": "SD5-M-B4-04"
           },
           {
            "_row": {
@@ -1410,7 +1484,8 @@
            "label": "D",
            "body": "24 dm",
            "is_correct": false,
-           "rationale": "Dikali 4, seperti persegi. Segi delapan mempunyai 8 sisi."
+           "rationale": "Dikali 4, seperti persegi. Segi delapan mempunyai 8 sisi.",
+           "misconception_code": "SD5-M-B4-04"
           }
          ]
         },
@@ -1432,7 +1507,8 @@
            "label": "A",
            "body": "324 cm",
            "is_correct": false,
-           "rationale": "Keliling dikali 6. Satu sisi pasti lebih pendek dari keliling, jadi dibagi."
+           "rationale": "Keliling dikali 6. Satu sisi pasti lebih pendek dari keliling, jadi dibagi.",
+           "misconception_code": "SD5-M-B4-11"
           },
           {
            "_row": {
@@ -1442,7 +1518,8 @@
            "label": "B",
            "body": "48 cm",
            "is_correct": false,
-           "rationale": "Keliling dikurangi 6. Keliling = 6 × sisi, jadi sisi didapat dengan membagi."
+           "rationale": "Keliling dikurangi 6. Keliling = 6 × sisi, jadi sisi didapat dengan membagi.",
+           "misconception_code": "SD5-M-B4-11"
           },
           {
            "_row": {
@@ -1462,7 +1539,8 @@
            "label": "D",
            "body": "27 cm",
            "is_correct": false,
-           "rationale": "Dibagi 2. Segi enam mempunyai 6 sisi, jadi dibagi 6."
+           "rationale": "Dibagi 2. Segi enam mempunyai 6 sisi, jadi dibagi 6.",
+           "misconception_code": "SD5-M-B4-04"
           }
          ]
         }
@@ -1502,7 +1580,8 @@
            "label": "A",
            "body": "29 m",
            "is_correct": false,
-           "rationale": "Sisi terakhir yang naik kembali tidak dihitung. Panjangnya 4 + 5 = 9 m."
+           "rationale": "Sisi terakhir yang naik kembali tidak dihitung. Panjangnya 4 + 5 = 9 m.",
+           "misconception_code": "SD5-M-B4-08"
           },
           {
            "_row": {
@@ -1512,7 +1591,8 @@
            "label": "B",
            "body": "46 m",
            "is_correct": false,
-           "rationale": "Keliling dua persegi panjang penyusunnya (28 + 18) dijumlahkan; sisi di dalam kebun ikut terhitung."
+           "rationale": "Keliling dua persegi panjang penyusunnya (28 + 18) dijumlahkan; sisi di dalam kebun ikut terhitung.",
+           "misconception_code": "SD5-M-B4-01"
           },
           {
            "_row": {
@@ -1532,7 +1612,8 @@
            "label": "D",
            "body": "60 m",
            "is_correct": false,
-           "rationale": "Itu luas kebun (40 + 20). Keliling adalah panjang tepinya."
+           "rationale": "Itu luas kebun (40 + 20). Keliling adalah panjang tepinya.",
+           "misconception_code": "SD5-M-B4-03"
           }
          ]
         },
@@ -1554,7 +1635,8 @@
            "label": "A",
            "body": "42 cm",
            "is_correct": false,
-           "rationale": "Keliling persegi (24) dan keliling segitiga (18) dijumlahkan; sisi di antara keduanya terhitung dua kali."
+           "rationale": "Keliling persegi (24) dan keliling segitiga (18) dijumlahkan; sisi di antara keduanya terhitung dua kali.",
+           "misconception_code": "SD5-M-B4-01"
           },
           {
            "_row": {
@@ -1574,7 +1656,8 @@
            "label": "C",
            "body": "36 cm",
            "is_correct": false,
-           "rationale": "Sisi di antara dinding dan atap ikut dihitung. Sisi itu ada di dalam gambar, bukan di tepi."
+           "rationale": "Sisi di antara dinding dan atap ikut dihitung. Sisi itu ada di dalam gambar, bukan di tepi.",
+           "misconception_code": "SD5-M-B4-01"
           },
           {
            "_row": {
@@ -1584,7 +1667,8 @@
            "label": "D",
            "body": "24 cm",
            "is_correct": false,
-           "rationale": "Hanya keliling persegi yang dihitung; dua sisi atap terlewat."
+           "rationale": "Hanya keliling persegi yang dihitung; dua sisi atap terlewat.",
+           "misconception_code": "SD5-M-B4-02"
           }
          ]
         },
@@ -1606,7 +1690,8 @@
            "label": "A",
            "body": "21 m",
            "is_correct": false,
-           "rationale": "Dua sisi yang tidak tertulis (bawah dan kiri) tidak dihitung. Panjangnya bisa dicari dari sisi seberangnya."
+           "rationale": "Dua sisi yang tidak tertulis (bawah dan kiri) tidak dihitung. Panjangnya bisa dicari dari sisi seberangnya.",
+           "misconception_code": "SD5-M-B4-08"
           },
           {
            "_row": {
@@ -1616,7 +1701,8 @@
            "label": "B",
            "body": "93 m",
            "is_correct": false,
-           "rationale": "Itu luas lantai (21 + 72). Keliling adalah panjang tepinya."
+           "rationale": "Itu luas lantai (21 + 72). Keliling adalah panjang tepinya.",
+           "misconception_code": "SD5-M-B4-03"
           },
           {
            "_row": {
@@ -1626,7 +1712,8 @@
            "label": "C",
            "body": "30 m",
            "is_correct": false,
-           "rationale": "Sisi kiri 9 m sudah dicari, tetapi sisi bawah 12 m belum ikut dijumlahkan."
+           "rationale": "Sisi kiri 9 m sudah dicari, tetapi sisi bawah 12 m belum ikut dijumlahkan.",
+           "misconception_code": "SD5-M-B4-08"
           },
           {
            "_row": {
@@ -1668,7 +1755,8 @@
            "label": "B",
            "body": "32 m",
            "is_correct": false,
-           "rationale": "Dihitung dengan persegi panjang pelingkup 10 m × 6 m. Kolam ini mempunyai lekukan, jadi dua dinding lekukan (3 m dan 3 m) tidak terhitung."
+           "rationale": "Dihitung dengan persegi panjang pelingkup 10 m × 6 m. Kolam ini mempunyai lekukan, jadi dua dinding lekukan (3 m dan 3 m) tidak terhitung.",
+           "misconception_code": "SD5-M-B4-07"
           },
           {
            "_row": {
@@ -1678,7 +1766,8 @@
            "label": "C",
            "body": "48 m",
            "is_correct": false,
-           "rationale": "Itu luas kolam. Keliling adalah panjang tepinya."
+           "rationale": "Itu luas kolam. Keliling adalah panjang tepinya.",
+           "misconception_code": "SD5-M-B4-03"
           },
           {
            "_row": {
@@ -1688,7 +1777,8 @@
            "label": "D",
            "body": "35 m",
            "is_correct": false,
-           "rationale": "Hanya satu dinding lekukan yang ditambahkan ke keliling pelingkup. Lekukan mempunyai dua dinding."
+           "rationale": "Hanya satu dinding lekukan yang ditambahkan ke keliling pelingkup. Lekukan mempunyai dua dinding.",
+           "misconception_code": "SD5-M-B4-07"
           }
          ]
         }
@@ -1697,6 +1787,128 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SD5-M-B4-01",
+   "label": "Sisi dalam ikut dihitung",
+   "description": "Keliling bangun gabungan dianggap sama dengan jumlah keliling bangun-bangun penyusunnya, sehingga sisi yang ada di dalam ikut dihitung.",
+   "remediation": "Minta murid menelusuri tepi terluar dengan jari dan mencentang setiap sisi yang dilewati; sisi yang tidak tersentuh jari tidak termasuk keliling."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SD5-M-B4-02",
+   "label": "Ada sisi yang terlewat",
+   "description": "Hanya sisi yang tertulis angkanya yang dijumlahkan, misalnya keliling persegi panjang dianggap panjang + lebar.",
+   "remediation": "Hitung banyak sisi bangun lebih dulu, lalu pastikan banyak bilangan yang dijumlahkan sama dengan banyak sisinya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SD5-M-B4-03",
+   "label": "Keliling tertukar dengan luas",
+   "description": "Panjang sisi dikalikan (misalnya panjang × lebar), padahal yang ditanyakan panjang tepi.",
+   "remediation": "Bedakan dengan pertanyaan: apakah yang diukur tepinya (pagar, bingkai, pita) atau yang menutup bagian dalamnya (ubin, cat lantai)?"
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SD5-M-B4-04",
+   "label": "Pengali tidak sesuai banyak sisi",
+   "description": "Panjang sisi dikalikan dengan bilangan yang bukan banyak sisinya yang sama panjang, misalnya segi enam dikali 5 atau persegi dikali 2.",
+   "remediation": "Sebut nama bangunnya dan hitung sisinya bersama; nama segi-n memberi tahu pengalinya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SD5-M-B4-05",
+   "label": "Sisi kembar segitiga sama kaki tertukar",
+   "description": "Pada segitiga sama kaki, alas yang dikalikan 2, bukan kakinya.",
+   "remediation": "Tandai dua sisi yang sama panjang dengan garis kecil; yang bertanda itulah yang dikali 2."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SD5-M-B4-06",
+   "label": "Semua sisi dianggap sama",
+   "description": "Bangun yang sisinya berbeda panjang dihitung seolah-olah beraturan, dengan mengalikan satu sisi dengan banyak sisi.",
+   "remediation": "Periksa dulu apakah semua sisi sama panjang; bila tidak, jumlahkan sisi satu per satu."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SD5-M-B4-07",
+   "label": "Persegi panjang pelingkup dipakai pada lekukan",
+   "description": "Keliling bangun yang mempunyai lekukan ke dalam dihitung dengan keliling persegi panjang pelingkupnya, sehingga dinding lekukan tidak terhitung.",
+   "remediation": "Tunjukkan dua dinding lekukan yang tidak ada pada persegi panjang pelingkup, lalu jumlahkan semua sisi satu per satu."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SD5-M-B4-08",
+   "label": "Sisi tak tertulis tidak dicari",
+   "description": "Pada bangun gabungan, sisi yang panjangnya tidak tertulis diabaikan, padahal dapat dicari dari sisi di seberangnya.",
+   "remediation": "Minta murid menandai setiap sisi tanpa angka dan mencari panjangnya dari sisi seberang (atas = semua sisi mendatar di bawahnya)."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SD5-M-B4-09",
+   "label": "Jawaban bukan yang ditanyakan",
+   "description": "Hasil satu langkah diberikan sebagai jawaban akhir, atau ada syarat soal yang terlewat (banyak putaran, pintu gerbang, banyak bingkai).",
+   "remediation": "Minta murid menggarisbawahi yang ditanyakan dan setiap syarat, lalu mencentang syarat itu setelah dipakai."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SD5-M-B4-10",
+   "label": "Sisi dilewati lebih dari sekali",
+   "description": "Keliling dianggap sama dengan rute bolak-balik atau dihitung dua kali, padahal setiap sisi dilewati tepat satu kali.",
+   "remediation": "Ulangi arti keliling dengan berjalan menyusuri tepi meja atau lapangan: mulai dan berhenti di titik yang sama, tiap sisi satu kali."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SD5-M-B4-11",
+   "label": "Operasi terbalik keliru",
+   "description": "Saat mencari panjang sisi dari keliling, keliling dikalikan atau dikurangi, bukan dibagi dengan pengalinya.",
+   "remediation": "Tulis rumusnya (keliling = 5 × sisi), lalu tanyakan: 5 dikali berapa sama dengan kelilingnya? Periksa jawaban dengan mengalikannya kembali."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 13
+   },
+   "code": "SD5-M-B4-12",
+   "label": "Lintasan tertutup dihitung seperti garis",
+   "description": "Banyak titik di sekeliling bangun dihitung seperti pada garis lurus (ditambah satu), padahal titik awal dan akhir lintasan tertutup sama.",
+   "remediation": "Gambar titik-titiknya di sekeliling persegi panjang kecil dan hitung bersama; titik terakhir kembali ke titik pertama."
   }
  ]
 }

@@ -14,8 +14,13 @@ import { bacaJawabanKartu } from "../src/components/masuk/kartu";
 import { bob26AppTests } from "./bob26.test";
 import { bob27AppTests } from "./bob27.test";
 import { bob28AppTests } from "./bob28.test";
+import { bob29AppTests } from "./bob29.test";
+import { d101AppTests } from "./d101.test";
+import { d102AppTests } from "./d102.test";
 import { bob50AppTests } from "./bob50.test";
 import { bob51AppTests } from "./bob51.test";
+import { dr150cAppTests } from "./dr150c.test";
+import { penutupanAppTests } from "./penutupan.test";
 
 /** Synthetic personas (supabase/seed/synthetic.sql). Passwords are seed constants, not secrets. */
 const PERSONA = {
@@ -132,6 +137,14 @@ const ROUTE_INVENTORY = [
   "/konfigurasi/keamanan",
   // BOB-51. The platform admin's «Kirim email uji», a static route under Konfigurasi.
   "/konfigurasi/email-uji",
+  // BOB-29 (Gate 6). «PINTAR terkunci» and «Komputer siapa ini?» render through the copy table.
+  "/terkunci",
+  "/perangkat",
+  // BOB-15 + DAISY-12 (D-037 step 2). «Laporkan masalah» and «Laporan saya» render through the copy table.
+  "/lapor",
+  "/lapor/saya",
+  // #148 (D-094, D-100). Where a person the maintenance stops is sent; it renders through the copy table.
+  "/pemeliharaan",
 ] as const;
 
 type Session = { cookie: string; accessToken: string; refreshToken: string };
@@ -607,11 +620,27 @@ export const appTests: SelfTest[] = [
       // each account kind's lifetime, as the running proxy writes it
       const umurDari = (r: Response) => r.headers.getSetCookie().filter((sc) => /^sb-[^=]+-auth-token(\.\d+)?=/.test(sc))
         .map((sc) => Number(/Max-Age=(\d+)/i.exec(sc)?.[1] ?? NaN));
+      // RESTATED FOR BOB-29 (Gate 6; IDENTITY-4.0 C4, C11): an email account's lifetime is its computer's. On a
+      // browser that has not answered «Komputer siapa ini?» it is a shared computer, 60 minutes; once this browser is
+      // declared the person's own, D-009's 7 days.
       const guru = await signIn(ctx, PERSONA.alphaAdmin);
       const rEmail = await get(`${base}/konfigurasi`, { headers: { cookie: guru.cookie } });
       const uEmail = umurDari(rEmail);
-      c.expect(uEmail.length > 0 && uEmail.every((u) => u === 604800),
-        `an email account's auth cookies came back with Max-Age ${JSON.stringify(uEmail)}, expected 604800 (7 days)`);
+      c.expect(uEmail.length > 0 && uEmail.every((u) => u === 3600),
+        `an email account on an undeclared computer got auth cookies with Max-Age ${JSON.stringify(uEmail)}, expected 3600 (a shared computer, 60 minutes)`);
+      const alat = rEmail.headers.getSetCookie().map((sc) => /^pintar_perangkat=([^;]+)/.exec(sc)?.[1]).find(Boolean);
+      c.expect(Boolean(alat), "the proxy gave a staff browser no device value for «Komputer siapa ini?»");
+      const pribadi = new FormData();
+      pribadi.set("mode", "PERSONAL");
+      const rPilih = await get(`${base}/api/sesi/perangkat`, {
+        method: "POST", body: pribadi, headers: { cookie: `${guru.cookie}; pintar_perangkat=${alat}`, origin: base } });
+      const tanda = rPilih.headers.getSetCookie().map((sc) => /^pintar_pribadi=([^;]+)/.exec(sc)?.[1]).find(Boolean);
+      c.expect(rPilih.status === 200, `declaring this computer personal → ${rPilih.status}, expected 200`);
+      const rPribadi = await get(`${base}/konfigurasi`, {
+        headers: { cookie: `${guru.cookie}; pintar_perangkat=${alat}${tanda ? `; pintar_pribadi=${tanda}` : ""}` } });
+      const uPribadi = umurDari(rPribadi);
+      c.expect(uPribadi.length > 0 && uPribadi.every((u) => u === 604800),
+        `an email account on a computer declared personal got auth cookies with Max-Age ${JSON.stringify(uPribadi)}, expected 604800 (7 days)`);
       const host = process.env.CARD_EMAIL_DOMAIN ?? "cards.pintar.internal";
       const kartu = await signIn(ctx, { email: `card-7001@${host}`, password: productionDerivation("7001", "2468") });
       const rKartu = await get(`${base}/belajar`, { headers: { cookie: kartu.cookie } });
@@ -620,7 +649,8 @@ export const appTests: SelfTest[] = [
         `a classroom card's auth cookies came back with Max-Age ${JSON.stringify(uKartu)}, expected 3600 (60 minutes)`);
 
       return c.verdict("signing out one device revokes its session and leaves the same person's other session alive; " +
-        "the running proxy gives an email account's auth cookies 7 days and a classroom card's 60 minutes");
+        "the running proxy gives an email account's auth cookies 60 minutes on a shared computer and 7 days on one declared " +
+        "personal, and a classroom card's 60 minutes");
     },
   },
   {
@@ -2075,9 +2105,11 @@ export const appTests: SelfTest[] = [
           nama: m[2].replace(/&amp;/g, "&").trim(),
           dipilih: /\sselected(=""|\s|$)/.test(m[1]),
         }));
-      for (const [peran, orang, harap] of [
-        ["INSTITUTION_ADMIN", PERSONA.alphaAdmin, "Sekolah Sintetis Alpha"],
-        ["SYSTEM_ADMIN", PERSONA.sysadmin, null],
+      // RESTATED FOR CR-51 (D-120 Q7, a changed requirement): the platform administrator is also offered the national
+      // library, as the picker's LAST option, so that it still starts on a real school; a school role never sees it
+      for (const [peran, orang, harap, pustaka] of [
+        ["INSTITUTION_ADMIN", PERSONA.alphaAdmin, "Sekolah Sintetis Alpha", false],
+        ["SYSTEM_ADMIN", PERSONA.sysadmin, null, true],
       ] as const) {
         const sesi = await signIn(ctx, orang);
         const res = await get(`${base}/studio/unggah`, { headers: { cookie: sesi.cookie } });
@@ -2104,13 +2136,19 @@ export const appTests: SelfTest[] = [
         c.expect(pilihan.length > 0, `${peran}: the Sekolah picker offers no school`);
         c.expect(awal !== undefined && awal.nama !== kanon, `${peran}: the Sekolah picker starts on "${awal?.nama ?? "(nothing)"}"`);
         if (harap) c.expect(awal?.nama === harap, `${peran}: the Sekolah picker starts on "${awal?.nama ?? "(nothing)"}", expected "${harap}"`);
-        c.expect(!opsi(html).some((o) => o.nama === kanon), `${peran}: a school picker on the page offers the national library`);
+        if (pustaka) {
+          c.expect(pilihan.at(-1)?.nama === kanon && pilihan.filter((o) => o.nama === kanon).length === 1,
+            `${peran}: the Sekolah picker does not offer the national library once, last (${pilihan.map((o) => o.nama).join(", ")})`);
+        } else {
+          c.expect(!opsi(html).some((o) => o.nama === kanon), `${peran}: a school picker on the page offers the national library`);
+        }
         c.note(`${peran}: ${pilihan.length} school(s) offered, starting on "${awal?.nama ?? ""}"`);
       }
       return c.verdict(
         "Studio's upload opens, for Alpha's school administrator and for the platform administrator, on the workbook: the template " +
         "to download, three steps with the first current, and one file input that takes an .xlsx. Its Sekolah picker starts on a " +
-        "real school (Alpha for Alpha's administrator), and no picker on the page offers the national library (audit S14)",
+        "real school (Alpha for Alpha's administrator); no picker on Alpha's administrator's page offers the national library "
+        + "(audit S14), and the platform administrator's offers it once, last (CR-51, D-120 Q7)",
       );
     },
   },
@@ -2972,8 +3010,14 @@ export const appTests: SelfTest[] = [
   },
   // BOB-26 (Gate 3): activation and password sign-in, through the running app
   ...bob26AppTests,
+  ...dr150cAppTests,
   ...bob27AppTests,
   ...bob28AppTests,
+  ...bob29AppTests,
+  ...d101AppTests,
+  ...d102AppTests,
+  // CR-13 (D-120 QN1): a wrong staff email corrected, through the running app, Auth and the mail sink
+  ...penutupanAppTests,
   // BOB-50 (D-082(d)): a single Uji Cepat issues no certificate, through the running app
   ...bob50AppTests,
   // BOB-51 (D-057, REL-08): «Kirim email uji», the platform admin's delivery proof, through the running app

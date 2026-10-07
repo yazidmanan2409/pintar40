@@ -119,7 +119,7 @@ The walks now leave student 4's last post-test answer unsaved before «Kumpulkan
 | 1 | Real-school provisioning on staging | (a) A staging-only Platform Operator identity the automation can sign in as, audited, never in production | **Built** (`96c994b`); runs on staging once `main` carries `staging.yml`'s new check; then the operator appoints SD ZPS's first school admin by the screens |
 | 2 | Pass mark | (b) The school sets one sealed mark before publishing what depends on mastery; prospective changes only; unset says «Batas ketuntasan belum ditetapkan»; no default | **Built** (BOB-49 with DAISY-38: design note §8; walk S17b, S18, staging J05b) |
 | 3 | D2 | (c) Not fixed separately; Gate 3 replaces the path | Held with Gate 3 |
-| 5 | W18, the student's home order | (d) Running session → current lesson → the post-test when ready → the next chapter's Pemetaan Awal: continue before beginning | **Built** (`7873124`); the two-chapter browser walk still to add |
+| 5 | W18, the student's home order | (d) Running session → current lesson → the post-test when ready → the next chapter's Pemetaan Awal: continue before beginning | **Built** (`7873124`); the two-chapter browser walk is S26d (green in audit runs 36943034831 and 37262466524) |
 | 6 | Card re-issue | (e) A new card revokes the old; same identity and history; who, when and why recorded | Held with Gate 3 |
 | 7 | BOB-50, DAISY-40 | (f) Approved as built; land through the Gate 3 batch; walk the certificate journey then | Held with Gate 3 |
 | 8 | Topic names on class figures | (g) Option (a): group by the session's objective, show its statement; `learning_objectives` a metric source in MC-4 | **Built** (`0bece02`, `2d9a05e`, `4681f01`) |
@@ -134,7 +134,7 @@ Gate 3 stays held; the coordinator does not merge it.
 
 **What else waits on Gate 3 (2 Oct), so it is not built around:**
 - **M8, email operational truth (J1.9; OPS-J06, OPS-J09, RS-23).** Staff sign-in mail goes through Supabase's mailer, not PINTAR's send log (`email_send_log`, BOB-25), so no PINTAR screen can say what happened to it. D-088(c) keeps the sign-in screen's frozen anti-enumeration wording until Gate 3 replaces the path. The operations view belongs with that replacement.
-- **J8.8, the student's profile photo (T4, D-086(e)).** The upload path (`profile/<person>/…`) and `persons.photo_path` exist; there is no screen. But `certificate_prepare` still copies `photo_path` and its hash into the certificate snapshot, which T4 forbids («certificate issuance never requests or consumes it»). No photo can be set today, so no certificate carries one. A photo screen built first would make every new certificate snapshot the photo. The issuer is in the certificate journey that lands with Gate 3 (BOB-50, DAISY-40, D-088(f)), so the issuer stops reading the photo there first, and the profile screen follows.
+- **[Superseded 6 Oct by item 47 (CR-10): the issuer no longer reads the photo; ADM18-K01 proves a certificate's snapshot holds none.]** **J8.8, the student's profile photo (T4, D-086(e)).** The upload path (`profile/<person>/…`) and `persons.photo_path` exist; there is no screen. But `certificate_prepare` still copies `photo_path` and its hash into the certificate snapshot, which T4 forbids («certificate issuance never requests or consumes it»). No photo can be set today, so no certificate carries one. A photo screen built first would make every new certificate snapshot the photo. The issuer is in the certificate journey that lands with Gate 3 (BOB-50, DAISY-40, D-088(f)), so the issuer stops reading the photo there first, and the profile screen follows.
 
 **Open, 2 Oct: how PINTAR's own chapters are authored (M6 against D-029).** M6 (D-085) has PINTAR prepare standard content once and distribute it; the teacher side is built (M6 row above). But nothing can put a whole chapter into PINTAR's library: D-029 refuses every package or workbook addressed to it, for every role, and leaves authoring there as backlog ("one mistaken upload into it would be the widest-reaching mistake the product can make"). So no PINTAR chapter can carry a Pemetaan Awal and Uji Penguasaan, and giving one to a class end to end is unproven. Lifting or narrowing D-029 is not mine to do. **Options:** (a, recommended) the workbook and package import may target the library for a platform operator only, with the existing review → freeze → publish → distribute steps as the only way out of it; (b) PINTAR chapters are authored in a school-like staging tenant and promoted to the library by a governed copy; (c) keep D-029; M6 stays limited to what the library already holds. Nothing is built around it meanwhile.
 
@@ -174,10 +174,484 @@ Gate 3 stays held; the coordinator does not merge it.
     - **Not started.**
     - **Ruled 3 Oct (D-097):** O1 a reason only for consequential negative or reversal actions; O2 no refused attempts in D-093 for 4.0; O3 remove the inert controls, keep the schema; O4 close the direct-write paths after a dependency trace. **T1 and O3 done** (`43f9b07`, migration `20261110100000`): client writes on the four tables revoked, `service_role`'s writes on `platform_environment` withdrawn (deployment configuration: only the deployment system changes it, now on the record), «Fitur & saklar» gone from Konfigurasi. F08-P09 red on the old grants (13 of 13 locally), green after; four plants turn it red (wp8-11..14). CI run 37100797372 on `13d2df1` green, 33/33 (the first run, 37100337054, was red only on the WP8 gate's row count, fixed). On `main` `ac56678`; staging migrated by run 37101563285 (147 migrations, equal to the repository; the migration's own verification block asserted the grants on the hosted stack), Vercel deployed. The Konfigurasi change was verified by build and static tests, not walked in a browser. Details in the design note §8. T2 and T3 not started.
     - **T2 + T3 done 3 Oct; D-093 CLOSED on main** (design note §9–§10; migration `20261111100000`, commits `37b2105`, `dc838fa`, `dda0cdd`). Revocations and deactivations ask for a reason (D-097(a)); every writer records from and to; a revoked certificate is not revoked again and its revocation is never rewritten; activation is recorded only when the account exists (`account.activated`, in Auth's own transaction); every row written while a person acts names their role (G1, in `audit_write`); a school's state and a class's status changed by the owner are recorded. F08-P10 (new), F04-T10 and F09-A02 red on the old writers, green after; plants wp8-15..19, r1-4, r1-5, rc5. Local full manifest 460 pass (7 app-route rows need a running server). CI run 37103569263 on `dda0cdd`: green, 33/33 (two earlier runs on this ticket were cancelled by me to fold in G1 and the owner-only triggers before spending a full run). On `main` `fd22772`; staging migrated by run 37104300486 (148 migrations, equal to the repository; the migration's verification ran on the hosted stack); Vercel deployed. The reason fields were verified by build, static tests and the updated journey harness source, not walked in a browser. Carried forward, not blockers: Gate 3's card re-issue/revoke and #148 must meet D-093 when built.
-19. **A rejected transfer loses its request reason (follow-up finding from D-093, 3 Oct; not D-093, not started).** `transfer_reject` writes `reason = coalesce(p_reason, reason)` (`20260912004527:168`), so a rejection with its own reason overwrites the reason the request was made with, and `transfers_audit` records no reason at all. The request's why then exists nowhere. Smallest likely fix: keep the request reason and record the rejection reason separately (and in the audit summary). To be ticketed when transfers are next worked on.
-20. **Re-saving a report template erases the earlier metric selection (follow-up finding from D-093, 3 Oct; not D-093, not started).** `save_report_template` (`20261002120000`) bumps `template_version` but deletes and re-inserts `report_template_metrics`, and its audit row records only a count. Which figures an earlier version of a school's report showed cannot be reconstructed. Smallest likely fix: keep each version's selection (rows keyed by version) or record the metric ids in the audit summary. To be ticketed with the reports journey.
-21. **Studio content status steps write no audit row (follow-up observation from D-093, 3 Oct; not started).** The «langkah» steps (`advanceContentAction`) are direct UPDATEs of `status` on items, lessons, modules, courses and definitions, stamped only with `reviewed_by`/`reviewed_at`. Release freeze, publish and withdraw are audited; the content steps before them are not. To examine later, without expanding D-093 into an audit of everything.
+19. **A rejected transfer loses its request reason (follow-up finding from D-093, 3 Oct; not D-093, not started).** `transfer_reject` writes `reason = coalesce(p_reason, reason)` (`20260912004527:168`), so a rejection with its own reason overwrites the reason the request was made with, and `transfers_audit` records no reason at all. The request's why then exists nowhere. Smallest likely fix: keep the request reason and record the rejection reason separately (and in the audit summary). To be ticketed when transfers are next worked on. **RESOLVED 5 Oct (log 30):** the rejection keeps its own reason; the request's is never touched; both are on the audit row.
+20. **Re-saving a report template erases the earlier metric selection (follow-up finding from D-093, 3 Oct; not D-093, not started).** `save_report_template` (`20261002120000`) bumps `template_version` but deletes and re-inserts `report_template_metrics`, and its audit row records only a count. Which figures an earlier version of a school's report showed cannot be reconstructed. Smallest likely fix: keep each version's selection (rows keyed by version) or record the metric ids in the audit summary. To be ticketed with the reports journey. **RESOLVED 5 Oct (log 30):** each save's audit row names the selection saved and the one a revision replaced.
+21. **Studio content status steps write no audit row (follow-up observation from D-093, 3 Oct; not started).** The «langkah» steps (`advanceContentAction`) are direct UPDATEs of `status` on items, lessons, modules, courses and definitions, stamped only with `reviewed_by`/`reviewed_at`. Release freeze, publish and withdraw are audited; the content steps before them are not. To examine later, without expanding D-093 into an audit of everything. **RESOLVED 5 Oct (log 30):** a course's status change, which ends every step, writes one audit row with its from and to states.
 22. **Gate 3 landed, 4 Oct (D-098).** Activation and password sign-in (BOB-26, DAISY-20), a single Uji Cepat no longer certifies (BOB-50, DAISY-39), the learner's certificate list opens each certificate (DAISY-40), «Kirim email uji» (BOB-51). Migrations renumbered to `20261112100000` and `20261113100000`. Local: 485 pass (7 app-route rows need a running server); plants bob26 8/8, bob50 4/4, bob24 14/14, wp8 19/19, r1 8/8, bob01 24/24. CI 37179821129 on `26185e6`: green, 35/35. Golden School walk: next.
 23. **A refused email is never called sent, 4 Oct (D-098(c), J1.9).** Before a code request is answered, PINTAR asks two things that do not depend on whether the address has an account: can it send now (its hourly limit, or the mail server refused in the last ten minutes) and was a code asked for this address too often (counted for every address). Either way the person is told no code was sent and how long to wait; otherwise the screen says PINTAR *is sending*, not that it has sent. The platform admin can look up what happened to an email on «Kirim email uji». Migration `20261114100000`. EMAILJUJUR-K01/L01 red on the old code, D01 red on the old schema, all green after; CI 37181536329 on `c108b6f`: green, 35/35. The old email-link fallback (Supabase's own mailer) is retired with Gate 4 (C14). Staging's four email settings: present (names only; environment facts run 37180843026). **Golden School walk: temporarily blocked by test-harness authentication** (the walk scripts sign staff in the pre-Gate-3 way; adapting them needs access the permission boundary refuses). Not a Gate 3 product failure.
 24. **A forgotten password is recovered by email, 4 Oct (Gate 4, BOB-27 + DAISY-21).** «Lupa password?» on the sign-in page opens `/masuk/lupa`: an email address or a username, then a code carried by PINTAR's own email, then a new password. Checking the code signs nobody in; it gives the browser a single-use, ten-minute recovery grant (httpOnly cookie, SHA-256 stored). The new password is written only through BOB-26's permit door (purpose RECOVERY), ends every session of the person, signs this browser in, and the owner is told by email after the answer. Every name is answered alike, after D-098(c)'s waits. The Supabase email-link fallback is off (C14). Migration `20261115100000`. BOB27-K01/S01 red on the old code, D01 red on the old schema, all green after; BOB27-A01 (the journey in a real browser) runs in CI only. CI 37182666266 on `b1e4d11`: green, 35/35.
 25. **Recovery by PINTAR ID + PIN, and a lost class card re-issued, 4 Oct (Gate 5, BOB-28 + DAISY-22, D-088(e)).** «Lupa password?» gains a PINTAR ID + PIN way in: the ladder is the typed ID's (3 wrong: 1 hour, then 4 hours, then suspended), so nobody's ID answers as a real one; the caller's address is counted too; a match gives Gate 4's grant and the new password goes through Gate 4's door. The owner and admin_gt@pintarselalu.com are emailed at each threshold and on a recovery (a person's ID only; never a secret); a security notice counts only under the GLOBAL send limit. An email recovery during a suspension restores PIN recovery, the old PIN stays dead and a new PIN is set on Akun saya; the platform admin's reset (Konfigurasi › Keamanan akun, with the security record) needs a reason, is audited and forces another new PIN. `/id/<ID>`, the card's QR page, is the same page for every ID and reads nothing. The school admin re-issues a lost or damaged class card on Aktivasi: a new number and PIN on the same account, the old card dead and its sessions ended, reason, actor and both numbers audited. Choices where the spec was silent: email recovery restores only a suspension (a lock expires by itself); no email for an ID nobody holds. Migration `20261116100000`. BOB28-K01/S01/D01 red on `b562cbf` and a 152-migration DB, green after; F17-L01 restated (a notice still goes when the address's hour is used up). CI 37185453776 failed BOB28-A02 only (the test asked for a recovery code by address within the minute of its activation code; D-098(c)'s pace rightly held it); fixed to ask by username. CI 37186314414 on `c0b2320`: green, 35/35. GS-21 (re-issue, email and PIN recovery) can now be walked.
+26. **A shared computer locks and resumes with the PIN, 4 Oct (Gate 6, BOB-29; IDENTITY-4.0 C4, C11, §7; D-085 T1; D-099).** Every staff session on a computer not declared personal, and every class-card session, locks after 5 minutes without activity; the same person's PIN resumes it (a card with its card PIN, checked as at sign-in); 3 wrong PINs end that session only; 60 minutes locked end it. The database enforces it: PostgREST's pre-request (`pintar_permintaan.periksa`) refuses a locked session's every request with 423 and an ended one's with 401, a refreshed token too; only the lock screen's two questions pass. The proxy sends a locked page to «PINTAR terkunci» and refuses any other request with 423. «Komputer siapa ini?» is asked once per browser of a staff person after set-up, «Komputer bersama» the default; «Komputer pribadi saya» keeps D-009's 7 days; class cards and personas are never asked. The inactivity clock is on every page (one clock across tabs, a warning at 4 minutes, a playing video counts, the server is locked before the screen moves). Akun saya gains «Komputer ini» and «Keluar dari semua perangkat». Nothing needs a phone (D-099, recorded today: SD/SMP students have no phone at school; the shared computer is the normal case). Choices where the spec was silent: class cards take the same 5 + 60 minutes; a staff account with no PIN yet (still activating) can only sign out from the lock screen; a staff browser's cookies live 60 minutes until it is declared personal. Migration `20261117100000`. BOB29-K01/S01 red on `e9ccfd6`, D01 red on the 153-migration DB, all green after; restated BOB05-K01/R01 (lifetime by mode), DAISY-18-DENGAR-01, the UX1 baselines (MOVED 153 → 154) and the route and surface inventories. CI 37240206642 on `5c4386f`: green, 35/35 (551 tests, BOB29-A01–A03 against the real stack). **Golden School:** GS-20 can now be walked; the walk scripts will meet «Komputer siapa ini?» on a staff browser's first page when they are next adapted (the walk stays blocked by test-harness authentication). Daisy's PINTAR Design System foundation study is in progress: prepare only, no propagation until approved.
+27. **An educator learns as a participant, never as a «Murid», 5 Oct (BOB-43 to BOB-47, DAISY-32 to DAISY-34; D-069, D-070; D-100(d) item 1).**
+    - **Place.** A Bagian is made for the school's teaching or for educators' professional learning, once, in «Struktur sekolah». Its Tingkat and Kelas inherit the purpose; it never changes and nothing moves across it.
+    - **Boundary.** Material of the other purpose is refused at every write path on both assignment tables (PR050 `ASSIGN_CONTEXT_MISMATCH`). Siapkan offers only matching releases, through one database read.
+    - **Enrolment.** Admin sekolah places an existing staff member as a participant from Konfigurasi («Peserta pengembangan profesi»). Their enrolment for the year is reused, ACTIVE or PENDING; no person, account or number is made. A person without a current staff role is refused on every membership path. An enrolment is never both a student's and a participant's.
+    - **Words.** The teacher's counts and lists say «Peserta» from the kind the database returns. «Murid pada bagian ini», the transfer picker, Management's learner record and the class briefing count learners only.
+    - **Evidence.** Closed by default:
+      - sessions reach the participant, the facilitator, the PD Bagian's head, the Dekan and Admin sekolah;
+      - progress reaches the same, without Admin sekolah;
+      - answers and integrity signals reach no school role;
+      - referral is refused for everyone.
+      Every academic row reads exactly as before: the equivalence is checked over ten readers and five tables.
+    - **Record.** One read-only professional-learning record per place, `/pengembangan/[simpul]`, gives the ruled audiences their columns. The result comes through learner.result in catalogue **MC-5** (MC-4 copied, D-060). Admin sekolah sees completion only.
+    - **Code.** Migration `20261118100000`.
+    - **Pre-check.** 0 mismatched assignments on the local seed and on staging (read-only). Production was not inspected; the migration reports its own count there.
+    - **Tests.**
+      - BOB43-K01/S01/D01. D01 was red on the 154-migration DB: mismatches accepted, a move across accepted, a Murid placed, the briefing counting 1, the learner record listing the PD place, other Guru and heads reading PD sessions, answers and signals, a PD signal referred. All green after.
+      - Restated: the fable06/fable07 PD fixtures (the Bagian says what it is for), MC-4 → MC-5 (F06-P23, D088G-S01), M4-K01, EDU23-K01, DAISY-26-MENGAJAR-01, BOB04-K01, and the UX1 baselines (MOVED 154 → 155).
+      - Local suite: green apart from the six environmental failures and F06-R01 (the local app answers 500).
+    - **CI:** 37253478720 on `61d4e0f`, green: 35/35 jobs, 554/554 tests.
+    - **Choices where the specification was silent.** None needs a decision before acceptance:
+      - an enrolment keeps one purpose (it protects student enrolments, BOB-44's stop condition);
+      - school roles cannot review a PD signal either;
+      - the record's verdict is the sealed pass mark's «Tercapai / Belum tercapai», not a certificate predikat;
+      - Admin platform keeps its raw read and is not an audience of the record;
+      - a rollover that would re-place a participant whose staff role has lapsed is refused as a whole (D-070(g): new placements are refused).
+    - **Not done here:**
+      - C-12, the audit-harness proof in «SD Zayd»;
+      - C-13, the staging walk with Lana's packages;
+      - DAISY-35, the polish in the UI/UX pass;
+      - the screenshots, which belong to the UI/UX pass.
+    - **Also recorded today:** D-101, school self-service and recovery authority. Its conformance check is in `docs/coordination/reviews/D-101-RECOVERY-AUTHORITY-CONFORMANCE.md`: student card re-issue meets it; staff recovery by a peer School Admin, a self-reset guard, ending sessions on replacement and a second-admin recommendation are gaps, with three questions for Yazid.
+28. **«Laporkan masalah»: a member of staff reports a problem and PINTAR acknowledges it, 5 Oct (BOB-15, DAISY-12; D-037 step 2; D-100(d) item 2; D-101(f)).**
+    - **Receive.** «Laporkan masalah» is on every staff shell, in Studio and in Konfigurasi. It asks three things: what you did, what you expected, what happened. Also «this stops my class» and an optional screenshot.
+    - **What PINTAR attaches itself.** The page, any error reference, the reporter's role and school, the build and the device. A student is not offered the form and is refused by the database (PR100 `REPORT_NOT_STAFF`); the page tells them to tell their teacher.
+    - **Acknowledge.** The reporter lands on «Laporan saya» with the report received (Diterima) at once.
+    - **Status and next step.** Diterima → Ditangani → Selesai, forward only, and every move writes the next step to the reporter. Tier 1 is the school's Admin sekolah, for their own school's reports, in Konfigurasi «Laporan masalah». Tier 2 is Admin platform, for every report. Each submit and move is audited.
+    - **Privacy.** Reports stay inside PINTAR under row security, because they may name students: the reporter, the school's Admin sekolah and Admin platform. A screenshot is uploaded into the reporter's own folder and read only by whoever may read its report.
+    - **Not a ticket platform:** one table, one way in, one way forward.
+    - **Code.** Migration `20261119100000`.
+    - **Tests.**
+      - BOB15-K01/S01/D01. D01 was red on the 155-migration DB (no table); green after.
+      - UX1 baselines MOVED 155 → 156; route and surface inventories.
+      - Local suite: green apart from the environmental failures.
+    - **CI:** 37255470051 on `027b8a4`, green: 35/35 jobs, 557/557 tests.
+29. **#148: planned maintenance is announced and drains; an emergency stops at once, 5 Oct (D-094, D-100(b)(c); D-093 §5; D-100(d) item 3).**
+    - **Who.**
+      - Admin sekolah schedules planned maintenance for their own school.
+      - Admin platform schedules it for chosen schools or the whole platform.
+      - «Hentikan sekarang» is Admin platform's alone: the typed phrase HENTIKAN SEKARANG and a reason. It is a separate control from planned maintenance.
+    - **Planned, as people meet it.**
+      - From T−60 the people the window reaches see one line, timed T−60/30/15 by the browser against the database's clock. The status is read once per page; there is no polling.
+      - The line fits the surface. On an assessment it says a sitting under way can still be finished and handed in, and that an answer counts once «Tersimpan» shows. Elsewhere it says to finish and leave.
+      - From T−15 no new assessment sitting starts. The database refuses it on the insert itself (PR110 `MAINTENANCE_NO_NEW_START`), and the learner is sent to the maintenance page.
+      - From T=0 PostgREST's pre-request answers PT503 `PINTAR_PEMELIHARAAN`, and a page goes to `/pemeliharaan`. Three things still pass: the status read, leaving, and the window's own administrators.
+    - **Drain (D-100(b)).**
+      - A learner whose sitting is under way (opened, running or paused) is not stopped. Their sitting continues, answers are kept and they hand it in.
+      - A timed sitting drains until its late-sync grace has passed, so an answer still travelling arrives as it would have without maintenance.
+      - Once handed in, they are stopped too. `/pemeliharaan` acknowledges the hand-in with its time.
+    - **Emergency (D-100(c)).**
+      - It stops the people it reaches at once, running sittings included (PT503 `PINTAR_DIHENTIKAN`).
+      - Nothing is submitted, finalised or discarded: the sitting stays as it was, its received answers kept.
+      - The page says so, says that an answer not shown as «Tersimpan» did not arrive, and gives the next step: open the assessment again when PINTAR is back, and tell the teacher if its time ran out.
+      - Only Admin platform ends it.
+    - **Collisions (D-094(g)).** Before scheduling, Konfigurasi shows how many assessments the window would meet and when the last one ends, and suggests a later start. It warns; it does not forbid.
+    - **Notices (D-094(b)).** One line for a school, chosen schools or the platform, from a publication time to an expiry, withdrawable. A window can publish its matching notice; ending the window withdraws it. This is not a messaging system.
+    - **Audit (D-093).** Every schedule, start, end, cancellation, emergency stop, notice and withdrawal is a row with its from and to states and its reason. The automatic start and end are recorded as SYSTEM, with no person.
+    - **Code.** Migration `20261120100000`. src: proxy, `/pemeliharaan`, the root layout's line, `mulaiAsesmen`, Konfigurasi «Pemeliharaan dan pengumuman». Current components only.
+    - **Tests.**
+      - M148-K01/S01; M148-D01 (planned) and M148-D02 (emergency), tested apart. Both were red on the 156-migration DB and are green after.
+      - UX1 baselines MOVED 156 → 157; route and surface inventories.
+      - The audit crawl of every role's screens was green on `577b4cd` (run 37258286723, job A).
+    - **CI:**
+      - 37257573565 on `577b4cd` was red on one row: DAISY-05-STRUKTUR-02. The new section listed the national library to Admin platform. Fixed in `91eae17` to the school picker's own schools.
+      - 37258599735 on `91eae17`, green: 35/35 jobs, 561/561 tests.
+    - **Choices where the ruling was silent.** None needs a decision before acceptance:
+      - a sitting opened but not yet answered counts as under way;
+      - a timed sitting drains through its late-sync grace;
+      - a draining learner's other requests pass too;
+      - at T=0 the browser moves a stopped reader to the maintenance page;
+      - the warning copy keeps D-094(e)'s «Tersimpan» sentence and says the sitting can still be finished, as D-100(b) rules.
+30. **Follow-ups 19–21: a record keeps what it said, 5 Oct (D-100(d) item 5).** Each fix is the smallest one its own entry names.
+    - **19.** A rejected transfer keeps the reason it was requested with. The rejection's reason has its own column, and the transfer's audit row carries both reasons with the state it moved from and to.
+    - **20.** A report template's save names, on its audit row, the metrics it shows. A revision also names the version and selection it replaced, so what an earlier version showed survives the next save. No schema change; the version bump and the capability gate are as before.
+    - **21.** A Studio content step is on the record. The course's status change, which ends every step, writes one `content.status_changed` row with its from and to states and the reviewer of record. Not an audit of every row.
+    - **Code.** Migration `20261121100000`.
+    - **Tests.**
+      - FU1921-S01/D01. D01 was red on the 157-migration DB: the request's reason was replaced by the rejection's. Green after.
+      - UX1 baselines MOVED 157 → 158.
+      - Local suite: green apart from the seven environmental app-route failures.
+    - **CI:** 37259724961 on `d6935f8`, green: 35/35 jobs, 563/563 tests.
+31. **The five recorded unwalked checks are walked, 5 Oct (D-100(d) item 4).** Each is walked against its own checklist requirement, on the journeys as they are. No adjacent journey changed.
+    - **STU-16, review feedback (S21h).** Ani comes back to her finished Bab 1 from her home by «Lihat hasil» and reaches `/belajar/{tugas}/hasil`. The review shows the 8 questions of her Uji Penguasaan, with her own answers and each question's explanation. It shows no other learner, no internal word and no identifier.
+    - **STU-17, certificate state (S21i).**
+      - Above the target: Ani's certificate list shows the chapter, and its page opens issued with its actions (print or save as PDF, verification). Opening the list creates nothing.
+      - Below the target: Eka's list says she has none. Her certificate page shows no credential, and opening it twice leaves her with no certificate. Rendering never issues one.
+    - **HOD-07 and X-11, integrity observations (S23i).** The head of department opens Studio → «Tinjauan Integritas» for Kelas 1A.
+      - The page frames them as material for a person's judgement, not a conclusion. It carries no verdict word and names each observation by its category.
+      - The head records the review (no concern, with a note). The audit gains `INTEGRITY_SIGNAL_REVIEWED` with that decision, and every score in the class is unchanged.
+      - The student sees none of it: not on /belajar, not on her result, and not on /studio/integritas.
+    - **HOD-08, Uji Cepat within scope (S27h).**
+      - The platform administrator appoints the head «Kepala departemen» at Kelas Rendah again, as in S16. Mengajar then offers exactly that department's active Kelas.
+      - Why not the school admin: S24 revoked the head's only role. She was made by the platform administrator («Orang baru») and has no record at the school, so the school admin no longer sees her (BOB-20, D-048's visibility). That is the existing boundary, unchanged. A teacher the school itself records (an institutional identity there) stays on its «Belum memiliki peran» list after a revocation.
+      - An Uji Cepat draws only on what the class was given (D-085 T2). Eka's current Kelas was given nothing after her move, and Kelas 1A's Uji Cepat from S26e is still running.
+      - So the head first gives Bab 1 to Eka's Kelas on Siapkan, recorded as given by the head. She then launches three of its questions as an Uji Cepat there, recorded as assigned by her.
+      - Eka finds the Uji Cepat on /belajar.
+      - Outside the department: no other class exists in this world to ask. The refusals outside a scope are S24 and S26b, green in the same run.
+    - **W18.** The WAITING FOR OWNER table said the two-chapter walk was still to add. It is S26d, green since run 36943034831; corrected.
+    - **The walk under Gate 3 and Gate 6.** The audit walk had stopped at its first sign-in, since sign-in by email link is gone (Gate 3). It now signs people in as they do:
+      - The workflow runs a local Mailpit sink and gives the app its SMTP settings, so PINTAR's own activation email arrives there.
+      - A new account is activated by the emailed code and finishes the setup wizard (username, password, PIN, name, device) [order corrected 6 Oct: the server asks the password before the PIN, D-054(b)]; later sign-ins use the password.
+      - S3 reads Gate 3's «Orang baru» answer; Aktivasi's per-person button is «Aktifkan dengan email».
+      - These are synthetic local identities on the CI stack. Nothing on staging was touched, and the Golden School walk on staging stays blocked by harness authentication.
+    - **A finding fixed on the way.** A shared computer's locked or ended session (PT423/PT401) made every page log the maintenance status read as a failure. It is expected, and is no longer logged; M148-S01 holds it. `97bb170`, CI 37262509335 green: 35/35 jobs, 563/563 tests.
+    - **Evidence.**
+      - Audit run 37267985806 (walk `2d5e0bc`, app `97bb170`), green.
+        - Job B, from an empty production-like database: 57 PASS, none failed or blocked, S21h, S21i, S23i, S26d and S27h among them.
+        - Job A, every role's screens: green.
+      - On the way:
+        - 37262466524: 54 PASS, 2 FAIL, 1 BLOCKED.
+        - 37264373758: 54 PASS, 3 FAIL.
+        - 37266092326: 56 PASS, 1 FAIL.
+      - Each failure was the walk's, not the product's:
+        - it read a part of the page the certificate pages do not have, or read a page while it still said «Memuat halaman…»;
+        - it looked for a class by a name S26 had changed;
+        - it asked the school admin to see a person the school had never recorded;
+        - it launched an Uji Cepat for a class that had been given nothing.
+      - Checklist v2.5: STU-16, STU-17, HOD-07, HOD-08 and X-11 N-T → PASS. All are P1, so the P0 count is unchanged.
+32. **D-101: the nearest safe authority recovers a credential, and a replaced credential ends its sessions, 5 Oct (D-101 and its answers of 5 Oct).** Built as `docs/coordination/reviews/D-101-RECOVERY-AUTHORITY-CONFORMANCE.md` §5 proposed, and no wider.
+    - **Assisted recovery (answer 1).**
+      - The PIN-recovery lookup and reset («Keamanan akun») are now open to a School Admin as well as the Platform Admin.
+      - A School Admin may assist a person their school has: its number, a role there other than Platform Admin, or a learner there. This is BOB-21's own definition, not a new one.
+      - A person outside the school answers as an ID nobody holds, so there is no existence oracle.
+      - Nobody resets their own recovery with an administrator's authority, the Platform Admin included: `RECOVERY_SELF`, shown as «Pemulihan akun Anda sendiri dibantu oleh admin lain».
+      - A Platform Admin is never assisted by a school, even one that has them; only by another Platform Admin.
+      - Each reset is audited with its reason, the actor and, for a School Admin, the school and `INSTITUTION_ADMIN`.
+      - Learners on a class card keep their recovery journey: the card's re-issue, already the School Admin's.
+    - **A second School Admin (answer 2).**
+      - An active School Admin may appoint a person the school has as School Admin, at the school itself only.
+      - On Peran & akses the choice comes back once, saying what it does, and is granted on a second press. The grant is audited as every grant is (`role.granted`, the grantor and their role).
+      - Below a school, `SYSTEM_ADMIN` anywhere, and an unscoped grant stay the Platform Admin's; self-grant stays refused.
+      - The Platform Admin's own grants are unchanged (no extra press), so existing journeys walk as before.
+      - Persiapan sekolah adds one quiet line when a school has a single School Admin, recommending a second as recovery cover (D-101(e)). It is never shown as an error.
+    - **Sessions end with a replaced credential (answer 3).**
+      - The gap: Auth ended its own sessions on a password change, so pages went to sign-in. But PINTAR's session record stayed open, and PostgREST's pre-request refuses only an ended record. An access token issued before the change was still served for direct data requests for up to an hour.
+      - Now one core (`sesi_akhiri_orang`) records and ends every session of the person, in the change's own transaction:
+        - a recovered password (by email or by PINTAR ID + PIN);
+        - a re-issued class card;
+        - an assisted reset.
+      - An activation, «Keluar» and «Keluar dari semua perangkat» are unchanged. Identity, roles, history and records are untouched.
+    - **Code.**
+      - Migration `20261122100000`:
+        - `recovery_assist_school`, `recovery_may_assist` and `sesi_akhiri_orang` (internal);
+        - `recovery_status` and `admin_reset_recovery`, declared SCOPE `INSTITUTION_ADMIN`;
+        - the restore's audit naming the school;
+        - the password guard;
+        - one branch of the role guard;
+        - the session record's new reason `KREDENSIAL_DIGANTI`.
+      - src (existing components only): the recovery route (`SENDIRI`), «Keamanan akun» (open to a School Admin, the security record still the Platform Admin's), Konfigurasi (the link, «Admin sekolah» and its second press, the quiet line), and copy.
+    - **Tests.**
+      - D101-S01 (source) and D101-D01 (database, rolled back), both red on the 158-migration database and green after. On 158, PostgREST's own pre-request still passed:
+        - a card's session after its re-issue;
+        - a staff member's after a recovered password.
+        - The School Admin was refused every lookup and reset, the Platform Admin could reset herself, and no School Admin could be appointed.
+      - D101-A01, against the running app (CI), is the HTTP-level red and green on one stack. A token a browser already held answered a direct PostgREST request (200).
+        - With the session-ending core planted away for one step, a re-issued card's old token was still served (200): the gap.
+        - With the fix, the old token was refused at once (401) after a card's re-issue, after a recovery by PINTAR ID + PIN, and after the Platform Admin's reset.
+      - D101-A02, against the running app: a School Admin's lookup and reset of her school's teacher (the teacher's token then 401), herself refused `SENDIRI`, another school's learner refused 404, and her Konfigurasi.
+      - Restated, because the ruling changes what they pinned:
+        - F01-T04 and F10-V03: a School Admin is still refused School Admin below the school and at another school, and Platform Admin everywhere.
+        - BOB28-A02: the person is refused the reset before it, and their session ends with it.
+      - UX1 baselines MOVED 158 → 159.
+      - Every plant on the redefined functions still reaches its clause.
+    - **CI:**
+      - 37274005721 on `03451db`: red on one row, D101-A02's page step (307). The test's browser had not answered Gate 6's «Komputer siapa ini?», which a staff browser meets before its first page. That was a harness omission, not a product failure; its lookup, reset and refusals had passed.
+      - Fixed in `4cc7169` (the browser declares its computer first, as BOB29-A01 does).
+      - 37275342877 on `4cc7169`, green: 35/35 jobs, 567/567 tests.
+    - **Main and staging.**
+      - Main is `6b85254`.
+      - Staging run 37276745601 applied it: 159 migrations, latest `20261122100000`.
+      - Read-only verification on staging:
+        - only the lookup and the reset are a client's, and both are declared SCOPE `INSTITUTION_ADMIN`;
+        - the three internal functions are no client's;
+        - the session record accepts `KREDENSIAL_DIGANTI`;
+        - the password guard ends sessions on RECOVERY and CARD_REISSUE;
+        - the role guard carries the school-itself branch;
+        - the reset refuses oneself and ends sessions.
+33. **The Golden School walks end to end on staging under Gate 3 and Gate 6, 5 Oct (GS-01 to GS-21; D-098(e); the harness-authentication block of item 23 is lifted).** A fresh school, «Sekolah Emas Uji 2026-10-05» (`sekolah-emas-uji-20261005`), was founded by the C1 step (`found-school.yml` run 37286047274). Every person in it signed in as a person does. No server-made session was used, no password was set behind the scenes, and nothing was written to the database except by pressing PINTAR's buttons (C2).
+    - **How the walk signs in (`audit/staging/masuk.mjs`).**
+      - A person's first sign-in is their activation. On «Aktifkan akun», PINTAR emails a code to the staging test mailbox; `mailbox_link.py --kode` reads it. The walk then answers the wizard: username, password, PIN, name [order corrected 6 Oct: the server asks the password before the PIN, D-054(b)], and «Komputer siapa ini?».
+      - Every later sign-in uses the password set then. When the walk does not know an account's password, it recovers the account as its owner would: «Lupa password?» by the emailed code.
+      - The username, PIN and password are derived from the mailbox's own secret (`GS_MAILBOX_PASSWORD`, CI only). They are masked in the log and never stored. The derived PIN rule equals `public.pin_weakness` over all 10,000 PINs.
+      - The Platform Operator signs in the same way. The four workflows no longer reveal the service-role key.
+    - **GS-01 to GS-03** (run 37287063109): 6/6 PASS.
+      - The operator activated by the emailed code and landed on Konfigurasi.
+      - The operator recorded the first administrator («Buat dan aktifkan», then «Sudah benar, buat dan aktifkan») and gave «Admin sekolah» at the school's root (ROLE_GRANTED).
+      - The administrator activated by their own code and landed on Konfigurasi, with «Persiapan sekolah» all «Belum».
+      - Two walk defects first (runs 37286096260, 37286615445): the walk pressed into a field the wizard holds read-only while it saves. Staging saves a password more slowly than CI does (Auth's leaked-password check). The walk now waits until nothing is busy.
+    - **GS-04 to GS-11** (run 37287437383): 12/12 PASS.
+      - The admin signed in with their password and set the school up: the structure, the school code «G05», the three staff with accounts and roles, the five students placed, and the chapter uploaded (5 lessons, 31 questions).
+      - The admin set the pass mark at 70%, audited.
+      - The head of department activated by their code, read 31/31 questions with their keys and reasons, approved the chapter, and made and locked the release. They reviewed the 31 WEAK_MISCONCEPTION_LINKAGE warnings (item 13). The admin published 1.0.0.
+      - The teacher activated and gave «Kelas 5A» the chapter, sealed at 70% (SCHOOL).
+    - **GS-07 cards, GS-12 to GS-16** (run 37288637571): 8/8 PASS.
+      - One press made the class set of five cards.
+      - Utama sat the Pemetaan Awal, read every lesson to its last page and passed 8/8.
+      - The four others sat both tests to plan: Bunga 75% and Dimas 100% pass; Citra 63% and Eka 50% do not.
+    - **GS-17 to GS-21** (run 37295261257): 15/15 PASS.
+      - Two runs before it, each red on the walk only:
+        - Run 37289554356: 13 PASS. U1 opened the lesson by «Buka pelajarannya», which the reading map shows only while a lesson is unread. After «Keluar» the walk waited for the public front page to go quiet; every sign-out had in fact ended its session (KELUAR).
+        - Run 37291018301: 12 PASS, GS-20 green. R2's code never came. PINTAR sends one address at most six emails an hour (`email_send_limits`). The rerun had to recover the teacher by email first, because the earlier run's R3 had left them on another password. R3 now sets the activation's password again; each run spends three of the address's six.
+      - **GS-17.** The teacher, the head of department, the dean and the school admin each signed in with their password and read their own report. Every figure equalled what the walk computed from the raw official results: Pemahaman 78% (from 5), Kenaikan +38 poin, the bands Mantap 2 · Berkembang 2 · Perlu penguatan 1, Peserta 5, «Sertifikat terbit» 3. Each role's scope held.
+      - **GS-21, the cards (R1).** On Aktivasi «Kartu hilang atau rusak», the school admin re-issued Utama's card as lost and Bunga's as damaged.
+        - Each account now holds the new card.
+        - `account.card_reissued` records HILANG or RUSAK, by INSTITUTION_ADMIN, at this school.
+        - Each student's official results are unchanged (2 → 2).
+        - Where a card still had an open session (the earlier runs: the students' walk's, the first U1's), it went 1 → 0 with the re-issue, its Auth session too (D-101(3)).
+      - **GS-18 (C1–C3).** Utama, Bunga and Dimas each hold one ISSUED certificate on their Uji Penguasaan (`PINTAR/SEKOLAH-EMAS-UJI-20261005/2026/00001`–`00003`); Citra and Eka hold none.
+        - **The holder sees hers, walked for the first time (J8.3).** With her new card, Utama went /belajar → «Sertifikat» → the chapter. The page shows «Sertifikat Penguasaan», its number, the name as issued, «Cetak atau simpan PDF» and the verification link, equal to the record.
+        - The teacher's browser shows no certificate.
+      - **GS-20 (U1), one class computer, two real 5-minute waits.**
+        - Utama opened her lesson at page 5/5. «Saya masih di sini» appeared at 241 s.
+        - «PINTAR terkunci» came at 303 s. It named nobody and asked nothing about the computer; one locked session was recorded.
+        - Her card's PIN resumed the same lesson at page 5/5.
+        - The screen locked again at 302 s. «Bukan akun Anda?» → «Keluar» followed, and her lesson's address then went to /masuk.
+        - Bunga's new card on the same browser opened the same lesson at page 1/5: she inherited nothing. She signed out.
+        - Both sessions ended KELUAR.
+      - **GS-21, the teacher (R2, R3).**
+        - By email (J2.11): «Lupa password?» → the code → a new password → /mengajar. The L1 browser went to /masuk, its sessions ended KREDENSIAL_DIGANTI. «Akun saya» showed the PINTAR ID, equal to the record.
+        - By PINTAR ID + PIN (J2.12), on a third browser, with that ID and the PIN set at activation: the R2 browser went to /masuk (KREDENSIAL_DIGANTI). The teacher signed out.
+      - **GS-19 (V1, V2).** Each certificate verifies «Berlaku», «Memenuhi capaian», «Sekolah Emas Uji 2026-10-05», 5 Oktober 2026, with no holder's name. Utama's opens by the link on her own page. A random and a malformed code give the private not-found; the endpoint answers 404 `{"found":false}`.
+      - **Everyone signed out (X1).** Every session this run opened is ended: KELUAR, or KREDENSIAL_DIGANTI by the teacher's recoveries. None is left open.
+    - **Observation for the owner, not changed (D-101(3) covers replaced credentials, not a first password).** When the activation wizard sets the first password, Auth ends the wizard's own session and PINTAR signs the person straight back in. That session's PINTAR record is never marked ended (seen on the dean's first sign-in, run 37289554356: a SHARED record still open, its Auth session gone), so its access token would still pass the pre-request until it expires (at most an hour). It is the person's own token, on the same browser, and the new session's cookies replace it. X1 reports such a record as «record open, Auth session gone», never as an open session. Closing it would mean adding ACTIVATION to the session-ending purposes: the owner's call.
+    - **Spend.** Today was over budget before the walk: 1,178 of 600 billed minutes, almost all CI. This walk's nine runs (founding included) billed 82 minutes, 53 of them the report walk with its two real idle waits. Today stands at 1,260.
+34. **D-102: an activation ends its own first session, 5 Oct (owner ruling: close item 33's finding before C-12).** Bounded to the one gap; no other session rule changed.
+    - **The gap.** The activation wizard runs in the session the emailed code began. At the first password, Auth ended that session and the route signed the person straight back in (`src/app/api/aktifkan/password/route.ts`, unchanged). PINTAR's record of the wizard's session stayed open, and PostgREST's pre-request refuses only an ended record, so a token issued before the first password was still served for up to an hour (seen on staging, run 37289554356).
+    - **The change.** Migration `20261123100000`:
+      - When the password guard takes an ACTIVATION write, it ends every session of the person through D-101's own core (`sesi_akhiri_orang`). This happens in the same transaction as the hash, with a reason of its own, `PASSWORD_PERTAMA`: a first password, not a replaced credential (D-101(3)).
+      - The route's sign-in right after is the new session, so the move stays seamless.
+      - A write that does not happen ends nothing: no permit or an expired one (refused by the guard, rolled back), a password Auth refuses (never written), or a step before the password.
+      - Everything else in the guard is `20261122100000`'s. No route, screen or other function changed.
+    - **Tests.**
+      - D102-S01 (source) and D102-D01 (database, rolled back), both red on the 159-migration database and green after.
+        - On 159: after the first password, the wizard's two sessions (one recorded, one PINTAR had not yet seen) still passed PostgREST's pre-request, nothing was recorded, and both Auth rows stayed.
+        - After: both refused (PT401), recorded `PASSWORD_PERTAMA`, Auth's rows gone, audited. Nobody else's session was touched. A write with no permit or an expired one is refused and ends nothing. The session begun after the password passes. A recovery still ends as `KREDENSIAL_DIGANTI`.
+      - D102-A01, against the running app (CI), red and green on one stack:
+        - With the guard's activation branch planted away, the wizard's token is still served after the first password (200, the gap).
+        - With the fix, the token is served through the username step and a refused password (no clean-up there). The first password then moves the browser to a new session, served (200), while the old token is refused (401) and its refresh too. The wizard then takes the PIN, the name and the finish on the new session, and the home opens or asks «Komputer siapa ini?» (Gate 6).
+      - Restated: D101-D01's activation case (it pinned "an activation ends nothing"). UX1 baselines MOVED 159 → 160.
+      - Gate 3 and Gate 6 unchanged: BOB26-A01..A04, BOB27-A01, BOB28-A01..A03, BOB29-A01..A03 and D101-A01/A02 in the same CI.
+    - **CI:** 37299581260 on `a8027d3`: green, 35/35 jobs, 570/570 tests (D102-A01 with its planted gap among them).
+    - **Staging:** run 37300944500 on `main` `ed9c408` migrated staging to 160. Verified read-only:
+      - the latest migration is `20261123100000`;
+      - the guard ends an activation's first password as `PASSWORD_PERTAMA` and a recovery or a re-issue as `KREDENSIAL_DIGANTI`;
+      - `device_sessions` accepts the new reason;
+      - the guard is no client's, and its trigger on `auth.users` is enabled.
+
+35. **C-12, the machine proof of educator-as-learner (D-069, D-070(f)), 5 Oct: PASS on audit run 37366709177 (`514d826`); one genuine defect found and closed on the way.** Audit job B, after S23i, «SD Zayd» in production posture, two original filler packages marked [UJI INTERNAL], product path only (`audit/c12.mjs`, `audit/c12-potret.mjs`).
+    - **The walk (C12a–C12k).**
+      - C12a: baseline: 16 MC-5 metrics, 231 readings as the Guru, the Kepala departemen and the Dekan at Kelas 1A, its Bagian and the school; the protected sources; rosters and «Murid» lists; the Guru's identity; the screens (Pemahaman 75% and Kenaikan +35 poin, each «Dari 5 murid»).
+      - C12b: the school admin built «Pengembangan Guru» (for educators) → Tingkat → two Kelas on Struktur sekolah, recorded and appointed a facilitator, a responsible Kepala departemen and another Guru, and enrolled Pak Guru Budi as «Peserta» on Konfigurasi (C1: PD_ENROLLED; no person, account or number made).
+      - C12c: Gladys uploaded both packages (Konteks «Pengembangan profesi»), the PD Kepala departemen reviewed every question and made and locked each release, Gladys published; pass marks 60%; the facilitator assigned Bab 1, then Bab 2 (sealed POST_TEST 0.60 SCHOOL).
+      - C12d: the Guru from /mengajar → «Pembelajaran Saya» → both Bab: Pemetaan Awal → both lessons → Uji Penguasaan (the network dropped and returned in Bab 1's) → Hasil (4/4 and 3/4, «Target tercapai.»); two certificates, each verified anonymously by its token («Berlaku», API 200, holder's name hidden).
+      - C12e P4: four FINALIZED OFFICIAL sessions and results, nothing superseded; two sealed certificates held by the Guru; a place's and a sealed course's context change refused by the database.
+      - C12f P5: each role by its own login and on screen, per D-069(b): facilitator, PD Kepala departemen and Dekan read the full record; Admin sekolah completion only; another Guru, another Kepala departemen, a Guru of SMA Zayd and a student refused; no reader but the participant sees an answer or an integrity row; the facilitator's «Lihat per soal» in the PD Kelas is refused.
+      - C12g P6: the RECONNECT observation is recorded; no school role sees it in Tinjauan Integritas; referral refused to every school role and to the platform (PD_SIGNAL_NOT_REFERRED); no referral row.
+      - C12h P7: no new row outside SD Zayd or in the canonical tenant. C12i P8: refused: an academic release into the PD Kelas and a PD release into Kelas 1A (ASSIGN_CONTEXT_MISMATCH), C1 into Kelas 1A (PD_PLACE_NOT_FOR_EDUCATORS), the intake with the Guru's person id (already holds an identity); Kelas 1A may be given the academic release only. C12j P9: [UJI INTERNAL] on all 12 titles; absent from Pustaka PINTAR.
+      - C12k P1–P3, **the hard gate**: the after snapshot is byte-identical to the baseline (every reading, every protected source, every roster and «Murid» list) and the screens are identical; the Guru is one person, one account, one number, still EDUCATOR, home /mengajar, Kelas 1A's tab opens with its «Murid».
+    - **The defect C-12 exposed (run 37353180694, C12f).** The facilitator of the PD Kelas read the participant's individual answers on «Lihat per soal» (his name, chosen option, right or not), against D-069(b). Cause: `teacher_question_evidence` (20261101100000) is SECURITY DEFINER and authorized "an active EDUCATOR over the class"; BOB-46 narrowed the tables, not this function. Fix: migration `20261124100000` re-emits it verbatim with one rule, an academic place only (fail closed, its own 42501), grants as they were (ADR-0021). No route or screen changed: the page shows its refusal there. Tests C12-S01 and C12-D01, red on the 160-migration database (the facilitator was given «wp2-guru» and his option) and green after; D088K-S01/K01 and F06 green; baselines MOVED 160 → 161.
+    - **The walk's own misreads, corrected on the way (no product change):** a Tingkat sits under its Bagian's hidden Reguler; «Peserta» is each figure's «Dari 5 murid»; section headings are drawn in capitals; a client-side navigation was read before it rendered; Siapkan leaves out what a class already has; the home's «Siapkan» card starts with the class's address; the certificate loop looked for Bab 2's link on Bab 1's certificate page. Each check stayed as strict or became stricter.
+    - **Runs:** audit 37348856438 (C12a/b, walk), 37353180694 (the defect; hard gate already byte-identical), 37363240451 (fix verified on screen; C12d loop), 37366709177 on `514d826`: **all 68 journey steps PASS, C12a–C12k included, no FAIL or BLOCKED** (job A of that run lost its runner before starting; it is not part of C-12). CI 37366706051 on `514d826`: **green, 35/35 jobs, 572/572 tests** (C12-S01 and C12-D01 among them; three of its attempts re-ran only jobs GitHub never gave a runner, "not acquired by Runner of type hosted", 0 steps run; no test failed in any attempt). (CI 37363201857 cancelled after a lint error in the new test, fixed; CI 37363672848 lost its runners before any test ran.)
+    - **Reported, not changed:** the PD Kelas's «Lihat bukti» still links «Lihat per soal», which now opens the refusal page (how that page presents is DAISY-35's, R9).
+    - **Evidence kept:** the run's artifact `audit-production-posture` (14 days) holds `c12-sebelum.json` and `c12-sesudah.json` (the snapshot before and after) and every screen; the catalogue readings' md5 is the same before and after (`067a8c26f3b9…`).
+    - **ENGINEERING COMPLETE is declared, 5 Oct (D-070(f): BOB-43 to BOB-47 landed, item 27; C-12 passed, this item).** Next, by the owner's order: #150, the backup and disaster-recovery review (mandatory before production, D-098(d)); UI/UX polish only on the owner's approval after it.
+
+36. **#150, the backup and disaster-recovery review, 5 Oct (owner's order after C-12; D-098(d)): examined, rehearsed on staging, reported. Production not read or touched; no product change.** The review: `docs/recovery/BACKUP-DR-REVIEW-2026-10-05.md`.
+    - **The examination.** The hosted architecture and every asset in it, what is and is not backed up, frequency and retention, RPO and RTO as configured, the recovery sequence, single points of failure, from the repository's record and Supabase's documentation.
+    - **The rehearsal** (`restore-rehearsal.yml`, read-only on staging, the backup discarded with the runner; runs 37377017030, 37377920733, 37378809242, 37379973507): Supabase's documented logical backup works (157 tables, 224–288 s, about 25 MB), but:
+      - Supabase's documented restore **fails outright** (a reserved role parameter; its single transaction restores nothing);
+      - tolerated, it restores **150 of 157 tables byte-identically** (all of PINTAR's data);
+      - it **drops PINTAR's three `auth.users` triggers** (the password-write guard among them), restored by a corrected step from the source's catalog (proven);
+      - it **opens every privilege**: all 137 `public` tables and views to `anon` and `authenticated`, all 490 functions to `anon` (280 internal), through the new project's default privileges; row security, policies and `launch-readiness.sql` (0 FAIL) do not see it;
+      - one function's definition loses its 11 column-0 comment lines (CLI rewriting; behaviour unchanged).
+    - **Also found.** Production has no off-platform copy (deleting a project deletes its backups); Storage (staging: 28 objects, 206 MB) is in no backup; the two durable secrets have no verified copy and the deploy workflow would re-mint them silently on a rebuilt Vercel project; no restore point before a production migration; no machine can read the backup list (staging token: HTTP 403); one person holds every account.
+    - **Proposed, not implemented:** G1–G10; G1, G2, G3 with G4, G5, G6 and G7 must close before production. Waiting on the owner. UI/UX polish not started.
+37. **#150 closing work, 6 Oct (owner's order: G1–G10, C-12's evidence standard): G5, G6, G7 and G10 built and proven; G8 recorded (D-103); G3/G4 designed; G1 partly established; G2 waits on the owner's dashboard.** CI 37387791073 on `0cc7db4`: 35/35, 579/579 (the run before it, 37386101891, was red on one contract test, F06-S04: four new `proves` texts named no artefact; restated). **Final CI on the complete candidate: 37390261594 on `683edd9`, 35/35, 579/579; the fixed watch re-verified on `main`, run 37391618155: green, the 403 reported as a note, no issue opened.** Evidence and verdict: `docs/recovery/BACKUP-DR-REVIEW-2026-10-05.md` Part I.
+    - **G5** (`b4bd543`): the production deploy decides each durable secret before writing anything: KEEP a verified value (its recorded fingerprint; the certificate key must open an issued seal), MINT only into a production with no card, no sealed certificate, no school and nobody beyond the first administrator, REFUSE everything else. DR-S01..S03.
+    - **G6** (`870fdac`): no production apply without a COMPLETED backup no older than 26 hours, recorded with the WAL archiver and the facts before the apply (artifact, 90 days). DR-S04, DR-S05. Until the production token may read backups, every production apply is refused.
+    - **G7** (`870fdac`): `launch-readiness.sql` 17 → 24 rows, the seven G7 rows pinned by name and checked on hosted staging first. DR-D01 plants the 5 Oct restore's drift and sees each one FAIL by name. **Two defects found:** the rehearsal counted `'| FAIL'` (no line has it) and read 0 whatever happened; two rows had pinned the anonymous surface at its first size and FAILed since `20261019100000` (restated).
+    - **G10** (`7ffbacc`): `production-watch.yml`, GET only, one self-closing issue, off until the owner sets `PINTAR_PRODUCTION_WATCH`. DR-S06.
+    - **The watch's first run found a defect in itself** (run 37389383812): the sign-in page answered 200, Auth was healthy and TLS had 77 days left, then the step died at the backup check, because `bash -e` ended it on `restore-point.mjs`'s exit before the expected 403 could be reported; no issue was opened. DR-S06 now executes the step under `bash -e` against a local stand-in: red (exit 1 after TLS, as in the run), green after `set +e` (`babafd5`).
+    - **Recovery verification rerun** (rehearsal 37389380945, `main` `6de0b9c`): staging's readiness **24 PASS, 0 FAIL**. The copy restored by Supabase's documented procedure: **7 FAIL**, each one restore drift named (anon's 490 functions and 138 relations, `authenticated`'s 280 extra functions and 223 table-right differences, 0 of 3 `auth.users` triggers, no `assets` bucket, `audit_log`'s 9 write grants); 6 FAIL after the corrected trigger step. No PINTAR data lost (150/157 tables identical; the rest Supabase's version tables and the bucket row lost to the rehearsal stack's older Storage). H4–H6 reproduced. No new defect.
+    - **Verdict: NOT PASS.** A (PINTAR's own controls) is built and proven; B (provider and owner actions) is not done: G2, G1 (and so G6's applies), G3/G4 with G5's escrow; G9 and G10 are open decisions.
+    - **Waiting on the owner:** G2's two dashboard actions; the production token's backup permission (G1, G6); G3/G4's decisions (`docs/recovery/OFFSITE-BACKUP-DESIGN.md`); G9's people; G10's switch.
+    - **6 Oct rulings (D-104, D-105):** NOT PASS and the A/B distinction accepted; #150 gates PRODUCTION READY, not staging human acceptance. The review is corrected: G3/G4 are design only, and their implementation is not a condition of the current scope (a later owner ruling may set the intended-scale requirement). G1 Part 2 is on hold, with no credential change; G6 stays fail-closed. G1 Part 1 and G2 are approved as owner actions, with the recovery time measured as T0–T3. Instructions: `docs/recovery/OWNER-INSTRUCTIONS-G1-G2.md`.
+38. **#150 G1 Part 1 and G2, 6 Oct (D-105; owner actions, read-only verification).**
+    - **G1 Part 1 (owner screenshots):** production lists 7 scheduled physical backups (the latest 05 Oct 19:24:09 UTC, "Last backup 5 hours ago", none visibly failed, no status column); PITR not enabled; Storage objects not included. G1 Part 2 on hold.
+    - **G2:** "Restore to a New Project" from `pintar-staging` (backup 05 Oct 23:34:27 UTC) to `pintar-g2-rehearsal-DELETE-ME` (`rzphxkmbsunmedxmxwsz`).
+      - Timings: T0 00:48:02, T1 ≤00:51:39, T2 00:51:48, T3 00:56:05; **8 min 03 s** restore-to-verified, on the current staging dataset.
+      - Same as staging: all 157 tables byte-identical; schema, rights, owners, row security, policies, `auth.users` triggers, pre-request, audit protections, roles and settings identical; readiness **24/24 PASS**; nothing repaired.
+      - Not reproduced: API keys, and Auth settings (leaked-password protection off).
+      - Not verified: Storage files (metadata identical).
+      - The copy came up on Postgres 17.11.0.002 (staging 17.6.1.166).
+      - The copy was deleted by the owner; the deletion was confirmed at 01:05:56.
+    - **Second Eye:** "PINTAR's native Supabase database recovery path is proven at current staging scale… This does not establish production-scale RTO. Auth/platform configuration and actual Storage objects require separate reconstruction/recovery procedures."
+    - Evidence: `docs/recovery/evidence/150/`.
+39. **#150 closure under D-106 and D-107, WP-A (B3), 6 Oct: the backups-read token's code built and proven; waiting for the owner's O2.**
+    - **Decided first (D-107):** revision 2 approved; D1–D8 decided (D8: no sealed plaintext copy); A7 recorded
+      (`pintar_backup`'s confidentiality risk, guarded in `CLOSURE-PLAN-150.md` § A7).
+    - **Supabase's side (docs):** scoped tokens have a Database → Backups: Read permission, separate from API Keys,
+      Auth Config, Project Settings, Edge Function Secrets, Projects and Organizations.
+    - **Built (`e6cb045`):**
+      - G6, the watch and the facts job read the backups with C1 (`PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN`) only; the
+        deploy token left all three;
+      - the watch fails on a refused C1;
+      - `restore-point.mjs isolation` proves, with GET only, that C1 is refused seven probes. It fails closed.
+    - **Tests:** DR-S05 and DR-S06 restated, DR-S07 new: red on `d7f47f1`, green on `e6cb045`.
+    - **CI 37401454517 on `e6cb045`:** 35/35 jobs, 580/580 tests.
+    - **Next:** the owner's O2 (`docs/recovery/OWNER-INSTRUCTIONS-150.md`), then a `recovery-facts` run as the evidence.
+40. **#150 WP-B, 6 Oct: stopped for a ruling. Supabase's extension manager lets any database login create and drop allow-listed extensions.**
+    - **Approved (owner):** WP-B's code, migration 162 and its tests, against local and test stand-ins only, while O2 is
+      pending.
+    - **Measured on the local Supabase stack** (this container, and CI's), the same Postgres 17.6 image family as
+      hosted:
+      - the read-only profile (`pg_read_all_data` + BYPASSRLS, nothing else) makes all five dumps **byte-identical** to
+        `postgres`'s, so no further privilege is needed for a complete dump;
+      - it can execute none of PINTAR's 490 functions;
+      - staging's catalog, read-only, shows the same write paths.
+    - **Finding:** `supautils` performs CREATE and DROP of its allow-listed extensions as `supabase_admin` for **any**
+      login, even a bare one. So `pintar_backup` could create extensions (one test run really created `hstore` in
+      `public`; removed) and could drop `pgcrypto` or `uuid-ossp` with CASCADE (rolled back).
+    - **Tried and failed:** a `postgres`-owned event trigger does not stop it.
+    - **Record:** `CLOSURE-PLAN-150.md` § A7.
+    - Nothing hosted was changed; migration 162 was applied to the local stack only and is **not** on `main` (a push to
+      `main` that touches `supabase/migrations/` applies it to staging, through `staging.yml`).
+41. **#150 WP-B, 6 Oct: the independent backup, its logical restore and the escrow, built and proven against local stand-ins (D-107, D-108).**
+    - **Ruled first (D-108):** A + B. The `supautils` extension residual is recorded in canonical wording, with
+      compensating controls 1-9; the readiness deviation approved; a provider question for Supabase; C rejected.
+    - **Built** on the branch `claude/awesome-rubin-bqxp6p` at `9133ffc`, **not on `main`** (its migration 162 would
+      reach staging through `staging.yml`):
+      - `pintar_backup`;
+      - `scripts/recovery/` (backup, restore, escrow, drill, credential, S3);
+      - the AWS template;
+      - six workflows (all `main` only, all schedules off);
+      - the deploy no longer mints.
+    - **Found and fixed on the way:**
+      - the CLI's schema filter deletes comment lines inside function bodies (the 5 Oct finding): the bundle keeps them,
+        so a restored definition is byte-identical;
+      - `acl.sql` must restore column rights after table rights.
+    - **Tests:** DR-S08, S09, S10, S11, S14, S15, D02 new, and DR-S02 restated. All were red on `80b7f10` and are
+      green now. The logical path restores into an empty Supabase stack with 0 differences, every Storage file's hash,
+      the extension baseline and readiness, in 3 s on CI.
+    - **CI 37409454539 on `9133ffc`:** 35/35 jobs, 587/587 tests.
+    - **Nothing hosted:** no AWS, no real credential, no key, no escrow, no hosted apply.
+    - **Next, the owner's:** authorise migration 162 for staging (the landing), then O3-O7
+      (`OWNER-INSTRUCTIONS-150.md`, prepared). O2 (C1) is still open.
+
+42. **#150 WP-B accepted and D-109 built in, 6 Oct; migration 162 authorised for hosted STAGING only.**
+    - **D-109 in the code:** production bundles, the escrow and a mint go to R1 and R2, never R1 alone, and are refused
+      before anything is read until two separate custodians have each proven possession (`docs/recovery/custody.json`,
+      both still unproven); the success record carries the bundle's share of the 5 GiB single upload, warned of from
+      80 % (its own backup-size issue) and refused above it.
+    - **Staging's backup path, checked read only before any backup credential exists:** `staging-backup-path.yml`
+      (`scripts/recovery/path-check.mjs`): the session pooler only where Supabase's own configuration and staging's
+      apply agree, `verify-full`, the backup's snapshot shared through the pooler, and `pintar_backup`'s profile
+      against the proven local one (`docs/recovery/pintar-backup-profile.expected`).
+    - **Tests:** DR-S09, S10, S11, S14 restated and DR-S16 new, red on `d1e5664` and green now (local 54/54).
+      **CI 37412506567 on `cc2307e`: 35/35.**
+    - **Staging before the apply (read only, Supabase connector):** 161 migrations, no `pintar_backup`, the extensions
+      equal to the baseline, no test-harness schema, PostgreSQL 17.6.
+    - **Landed on `main` with this record;** `staging.yml` is dispatched next to apply migration 162 to staging; then
+      the read-only verification. Production untouched.
+
+43. **#150 migration 162 on hosted staging, 6 Oct (D-109(a)): applied and verified read only; the path check stopped
+    at the pooler, as ruled.**
+    - **Applied:** `staging.yml` run 37414019844 on `main` `29337de`: migrations before 161, after 162 (last
+      `20261125100000`), equal to the repository. The migration's own assertions (ADR-0014) ran on staging and passed,
+      or the apply would have failed. Production untouched; nothing else was dispatched.
+    - **The catalog, read only (Supabase connector):** `pintar_backup`'s profile on staging, printed by
+      `scripts/recovery/backup-profile.sql`, **equals the proven local profile on all 16 lines**
+      (`docs/recovery/pintar-backup-profile.expected`): LOGIN, BYPASSRLS, INHERIT, nothing else; the five defaults;
+      member of `pg_read_all_data` alone, without admin; nobody can become it; owns nothing; named in no grant;
+      creates nowhere; writes nothing; advances no sequence; executes no SECURITY DEFINER and no PINTAR function;
+      reads every backup table. Extensions equal staging's baseline; no test-harness schema. No password exists for
+      it (C2 is O6), so nobody can sign in as it.
+    - **The path check (`staging-backup-path.yml` run 37414154468): stopped at step 1.** Supabase refused staging's
+      access token the pooler configuration (`/v1/projects/{ref}/config/database/pooler`: HTTP 403). The endpoint is
+      therefore **not resolved and not guessed** (D-109(a)); `verify-full`, the shared snapshot and the profile
+      through the pooler did not run. **Waiting for the owner's dashboard value** (staging project → Connect → Session
+      pooler: host, port, user).
+
+44. **#150 Second-Eye checkpoint, 6 Oct (D-111): GREEN to proceed from engineering proof into owner-controlled
+    infrastructure setup; not PASS, not PRODUCTION READY.**
+    - Reviewed: `docs/recovery/EVIDENCE-INDEX-150.md` (every ruling D-103 to D-110 traced to code, tests and hosted
+      evidence; the consistency check fixed four stale statements: the owner-action table, the 5 Oct design note, the
+      closure plan's status of migration 162, and J8.7).
+    - **Ruled:** no interim R1-only production escrow (D-109(c) stands). Before O3: the staging pooler proof with the
+      dashboard's value, and C1 `ISOLATED` (O2). Every first use of real infrastructure is a stop point.
+    - **CI on the way:** 37415061854 on `c13589f` was 34/35: DR-D02's empty stack could not bind port 55322 (inside
+      Linux's ephemeral range, held on the runner). The test now takes free ports below that range; reproduced red
+      and green locally with the port held. **Rerun 37416489180 on `df7c170`: 35/35**; landed on `main` (D-111(h)).
+
+45. **#150 WP-C.1, 6 Oct: the reconstruction runbook and its tooling, built and proven against stand-ins (D-107(a)
+    order; D-111(g)).**
+    - **The runbook** `docs/recovery/RUNBOOK-NATIVE-RESTORE.md`: nine steps (restore to a new project; new credentials;
+      repoint; Auth and email re-applied and read back; files put back; durable secrets kept or recovered; redeploy;
+      verify; reopen), each with who, the tool, its check and when to stop; B8's sentence mapped clause by clause; the
+      rehearsal (O8) on a copy of staging, never production.
+    - **One guarded record** of the projects the workflows point at (`docs/recovery/projects.json`): 29 workflows name
+      production's reference, 23 staging's, 2 carry production's public key; `scripts/recovery/repoint.mjs` keeps them
+      equal (`check`), moves an environment in one reviewed rewrite with its decision (`apply`), and verifies the live
+      project before anything is written (`verify`).
+    - **The Auth read-back** (`scripts/recovery/auth-state.mjs`): the declared sign-in and email settings, read back
+      field by field anywhere; written only to a rehearsal copy (staging and production keep their own workflows).
+    - **Files after a native restore:** `restore-bundle.mjs --files-only` puts back each file whose row the restored
+      database holds, by hash, and names rows the bundle has no file for.
+    - **Tests:** DR-S12 and DR-S13 new, DR-D02 restated: red on `178e915`, green on `f49280e` (CI 37421222152, 35/35 jobs,
+      590 tests passed). **Not built yet (WP-C.2):** the
+      rehearsal's one-off preview deployment and its functional checks (3 items PENDING in the runbook, counted by
+      DR-S13).
+46. **#150 WP-C.2, 6 Oct: the rehearsal's workflow and the functional checks, built and proven against stand-ins and the
+    running app (D-107(a) order; D-111(g); D-113).**
+    - **D-113 (owner):** the card check re-issues a learner's card, so it runs on a rehearsal copy only; after a real
+      production recovery the card path is proven by `CARD_PEPPER`'s recorded fingerprint (step 6) with the rehearsal's
+      check, and the first real card sign-in after reopening is recorded; no test identity is ever made in production.
+    - **The functional checks** `scripts/recovery/functional.mjs`, through the application's own routes as a browser would:
+      F1 a staff sign-in; F2 a card re-issued as damaged and signed in (rehearsal only); F3 a certificate BERLAKU by its
+      token (the app recomputes the seal with its own key); F4 a file signed by the app and served with the bundle's
+      SHA-256. `certificate` runs F3 alone, with no sign-in and no write, for production's step 8.
+    - **The rehearsal** `.github/workflows/recovery-rehearsal.yml` (dispatch only, `main`, `staging-recovery-drill`):
+      `preflight` (read only: the copy and C10 guarded, staging's Vercel project read for preview protection and for
+      the card and certificate values reaching a preview, the secrets present by name), `reconstruct` (facts equal and
+      readiness 24/24, the copy's keys, Auth applied and read back, files put back from the staging bundle, a one-off
+      preview of staging's Vercel project aimed at the copy, F1–F4 through it), `teardown` (the preview removed and
+      confirmed). Its guards are `scripts/recovery/rehearsal.mjs`. No Vercel setting changes; where one would be needed
+      (a protected preview, a value not reaching previews) the run stops for the owner.
+    - **Tests:** DR-S17 and DR-D03 new; DR-S11 (C5 and C8 also in the rehearsal, in their own environment) and DR-S13
+      (nothing left PENDING; the rehearsal's workflow tied to its steps) restated: red on `f707464`, green on `9631bf6`
+      (CI 37425505226, 35/35, 592 tests passed). The
+      runbook's three PENDING items are cleared; owner instructions O8 written (prepared, not yet to be done).
+    - **Not done:** the hosted rehearsal (O8), after WP-B's first staging bundle. Every part of it is a first use of real
+      infrastructure (EVIDENCE-INDEX §6).
+47. **4.0 release checklist, 6 Oct: the open rows re-checked, and three certificate and hint fixes landed (v2.6).**
+    - Every row not PASS re-read against `main` (code, manifest, this log, the audit and the staging walk); P0 PASS 76 → 77
+      (X-09), NO-GO stands on media (out of scope, D-050), capacity (the owner's compute decision, D-089), the release-day rows
+      and #150.
+    - **ADM-18:** certificate numbers never collide (one preparation at a time per school; N8), carry no photo (D-085 T4) and
+      carry the school's saved prefix (`20261126100000`, `20261128100000`; ADM18-K01, ADM18-K02).
+    - **STU-12 (N5):** a hint may name a variable; an option is still refused, and nothing is refused that was not before
+      (`20261127100000`; STU12-K01).
+    - Red on `808ae6e`, green on `3a7501b` (CI 37430770665, 35/35, 595 tests). Migrations 165.
+
+
+48. **Sekolah Demo PINTAR, 6 Oct: the Golden School walked end to end on staging for Dr Gladys's walkthrough (D-116).**
+    - Founded by `found-school.yml` (run 37431278133); staging on `main` with 165 migrations. Every step a press of PINTAR's
+      buttons; the database read only.
+    - **GS-02, GS-03** (run 37431385287): the first «Admin sekolah» recorded and signed in.
+    - **GS-04 to GS-11** (run 37432707928, 12 PASS): «Kelas Tinggi» → «Kelas 5» → «Kelas 5A»; teacher, head of department and
+      dean with their roles; five students; the chapter (5 lessons, 31 questions) composed by the admin, reviewed and locked by
+      the head of department, published; the pass mark 70%; the teacher gave it to «Kelas 5A» until 5 Nov.
+    - **GS-12 to GS-16** (run 37433910433, 8 PASS): the class set of cards; all five sat both tests; Utama, Bunga and Dimas
+      reached 70%, Citra and Eka did not.
+      The four extra students reach their tests by typed address. The walk declares it (contract §4), and the evidence
+      model counts it as a bypass (noted 6 Oct; GOLDEN-SCHOOL-CONTRACT «Status»).
+    - **GS-17 to GS-21** (run 37434862707, 15 PASS): the teacher, head of department, dean and admin read the same figures
+      (Peserta 5, Pemahaman 78%, Kenaikan +38 poin, Mantap 2 · Berkembang 2 · Perlu penguatan 1, Sertifikat terbit 3);
+      exactly three certificates (PINTAR/SEKOLAH-DEMO-PINTAR/2026/00001 to 00003), each «Berlaku» to an anonymous visitor;
+      two cards re-issued; the class computer's lock and hand-over; the teacher's two password recoveries; every session ended.
+    - Her one-page guide: `docs/onboarding/PINTAR-Panduan-Walkthrough-Sekolah-Demo.md`. Her account is the owner's to add on
+      staging (Aktivasi → «Orang baru di luar pendataan», then «Admin sekolah» at the school on Peran & akses).
+    - **Staging stays as it is until she has walked:** it deploys from `main`, so nothing lands on `main` before then.
+    - Re-confirmed after Supabase's Management API outage (HTTP 500 "FGA Authentication Error" on run 37432544176; nothing
+      changed then): `staging.yml` run 37437241796 green (migrations 165, the sign-in boundary, the email sender, the identity
+      settings read back); `environment-facts.yml` run 37437396764 GREEN, staging serving `a64b9b6` with 165 of 165.

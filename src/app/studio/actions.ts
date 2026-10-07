@@ -484,7 +484,6 @@ export async function saveCertificateTemplateAction(fd: FormData): Promise<void>
     p_course: uuidOrNull(str(fd, "course")),
     p_module: uuidOrNull(str(fd, "module")),
     p_layout: str(fd, "tata_letak"),
-    p_number_prefix: str(fd, "awalan"),
   });
   back("/studio/sertifikat", "sertifikat", error ? ditolak("save_certificate_template", error) : { ok: true, kode: "CERTIFICATE_SAVED" });
 }

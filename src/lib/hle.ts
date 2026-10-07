@@ -60,6 +60,7 @@ export type HleEvent =
   | "metrik.hasil_murid.label" | "metrik.hasil_murid.arti"
   | "kesiapan.belum_post_test" | "kesiapan.butuh_pendampingan"
   | "kesiapan.perlu_review" | "kesiapan.siap_sertifikasi" | "kesiapan.catatan"
+  | "kesiapan.populasi.murid" | "kesiapan.populasi.sudah" | "kesiapan.populasi.belum"
   | "kesehatan.judul" | "kesehatan.diamati" | "kesehatan.ditandai"
   | "kesehatan.belum_cukup" | "kesehatan.belum_diperiksa"
   | "kesehatan.catatan_paparan" | "kesehatan.belum_dikalibrasi"
@@ -96,6 +97,7 @@ export type HleEvent =
   | "pimpinan.tentang" | "pimpinan.sejak" | "pimpinan.diputuskan"
   | "pimpinan.aksi.ambil" | "pimpinan.aksi.putuskan" | "pimpinan.aksi.pilih"
   | "pimpinan.aksi.catatan" | "pimpinan.aksi.gagal" | "pimpinan.aksi.tercatat"
+  | "pimpinan.menunggu_pemutus_lain" | "pimpinan.belum_ada_pemutus_lain"
   | "pimpinan.kesiapan.judul" | "pimpinan.kesiapan.catatan"
   | "pimpinan.kesiapan.cukup" | "pimpinan.kesiapan.belum_cukup" | "pimpinan.kesiapan.belum_ada"
   | "pimpinan.bukti.judul" | "pimpinan.bukti.kosong" | "pimpinan.bukti.di_kelas" | "pimpinan.bukti.dari"
@@ -318,6 +320,11 @@ export type HleEvent =
   | "config.persiapan.guru"
   | "config.persiapan.guru.kurang"
   | "config.persiapan.guru.cara"
+  | "config.persiapan.admin_kedua"
+  | "config.angkat.judul"
+  | "config.angkat.arti"
+  | "config.angkat.ya"
+  | "config.angkat.batal"
   | "config.pindah.arti"
   | "config.pindah.dari"
   | "config.pindah.lihat"
@@ -400,6 +407,10 @@ export type HleEvent =
   | "config.struktur.contoh.KELAS"
   | "config.struktur.tahun"
   | "config.struktur.tahun_ikut"
+  | "config.struktur.untuk" | "config.struktur.untuk.murid" | "config.struktur.untuk.guru" | "config.struktur.untuk.arti" | "config.struktur.untuk_guru" | "config.struktur.peserta.satu" | "config.struktur.peserta.banyak" | "config.section.peserta" | "config.peserta.arti" | "config.peserta.orang" | "config.peserta.tempat" | "config.peserta.daftarkan" | "config.peserta.tanpa_tempat" | "config.peserta.catatan" | "galat.pd_not_allowed" | "galat.pd_place_invalid" | "galat.pd_place_not_for_educators" | "galat.pd_person_not_staff" | "galat.pd_already_enrolled" | "galat.pd_other_purpose" | "galat.pd_input_incomplete" | "galat.pd_enrolled" | "mengajar.sedia.kode.assign_context_mismatch" | "mengajar.cepat.tolak.konteks" | "mengajar.fakta.peserta" | "mengajar.peserta.judul" | "mengajar.peserta.kosong" | "mengajar.bukti.peserta" | "mengajar.siap.terdaftar_peserta" | "mengajar.siapa.kosong_peserta" | "mengajar.kelas.catatan_pengembangan" | "pengembangan.eyebrow" | "pengembangan.judul" | "pengembangan.arti" | "pengembangan.arti_terbatas" | "pengembangan.kosong" | "pengembangan.paket_kosong" | "pengembangan.kolom.paket" | "pengembangan.kolom.mulai" | "pengembangan.kolom.pelajaran" | "pengembangan.kolom.pemetaan" | "pengembangan.kolom.penguasaan" | "pengembangan.kolom.selesai" | "pengembangan.kolom.hasil" | "pengembangan.status.BELUM" | "pengembangan.status.SEDANG" | "pengembangan.status.SELESAI" | "pengembangan.ya" | "pengembangan.belum" | "pengembangan.tercapai" | "pengembangan.belum_tercapai" | "pengembangan.daftar.ACTIVE" | "pengembangan.daftar.PENDING" | "pengembangan.buka" | "pengembangan.kembali"
+  | "nav.lapor" | "lapor.eyebrow" | "lapor.judul" | "lapor.arti" | "lapor.murid" | "lapor.kembali" | "lapor.halaman" | "lapor.rujukan" | "lapor.lakukan" | "lapor.harapan" | "lapor.terjadi" | "lapor.hentikan" | "lapor.hentikan.singkat" | "lapor.tangkapan" | "lapor.tangkapan.arti" | "lapor.tangkapan.naik" | "lapor.tangkapan.siap" | "lapor.tangkapan.gagal" | "lapor.tangkapan.besar" | "lapor.kirim" | "lapor.privasi" | "lapor.diterima" | "lapor.saya.judul" | "lapor.saya.arti" | "lapor.saya.kosong" | "lapor.saya.buka" | "lapor.langkah" | "lapor.langkah.awal" | "lapor.langkah.awal_kelas" | "lapor.status.DITERIMA" | "lapor.status.DITANGANI" | "lapor.status.SELESAI" | "lapor.kode.report_not_staff" | "lapor.kode.report_input_invalid" | "lapor.kode.report_not_allowed" | "lapor.kode.report_status_invalid" | "lapor.kode.report_next_step_required" | "lapor.kode.report_failed" | "config.section.laporan_masalah" | "lapor.triase.arti" | "lapor.triase.kosong" | "lapor.triase.ubah" | "lapor.triase.langkah" | "lapor.triase.simpan" | "lapor.triase.tangkapan" | "lapor.triase.ok"
+  // #148 (D-094, D-100): maintenance and notices
+  | "pemeliharaan.zona" | "pemeliharaan.pita.dalam" | "pemeliharaan.pita.menit" | "pemeliharaan.pita.pukul" | "pemeliharaan.pita.selesai_kira" | "pemeliharaan.pita.asesmen" | "pemeliharaan.pita.biasa" | "pemeliharaan.pita.asesmen_baru" | "pemeliharaan.pita.berlangsung" | "pemeliharaan.pita.berjalan" | "pemeliharaan.pita.menguasai" | "pemeliharaan.pita.pengumuman" | "pemeliharaan.judul" | "pemeliharaan.sejak" | "pemeliharaan.kira" | "pemeliharaan.kira_belum" | "pemeliharaan.pesan" | "pemeliharaan.terkumpul" | "pemeliharaan.aman" | "pemeliharaan.langkah" | "pemeliharaan.menjelang.judul" | "pemeliharaan.menjelang.arti" | "pemeliharaan.darurat.judul" | "pemeliharaan.darurat.arti" | "pemeliharaan.darurat.aman" | "pemeliharaan.darurat.asesmen" | "pemeliharaan.darurat.langkah" | "pemeliharaan.kembali.judul" | "pemeliharaan.kembali.arti" | "pemeliharaan.kembali.tautan" | "config.section.pemeliharaan" | "config.pemeliharaan.arti" | "config.pemeliharaan.cakupan" | "config.pemeliharaan.platform" | "config.pemeliharaan.mulai" | "config.pemeliharaan.selesai" | "config.pemeliharaan.periksa" | "config.pemeliharaan.tabrakan.perhatian" | "config.pemeliharaan.tabrakan.jumlah" | "config.pemeliharaan.tabrakan.terakhir" | "config.pemeliharaan.tabrakan.saran" | "config.pemeliharaan.tabrakan.nihil" | "config.pemeliharaan.pesan" | "config.pemeliharaan.alasan" | "config.pemeliharaan.umumkan" | "config.pemeliharaan.jadwalkan" | "config.pemeliharaan.daftar" | "config.pemeliharaan.kosong" | "config.pemeliharaan.keadaan.TERJADWAL" | "config.pemeliharaan.keadaan.MENJELANG" | "config.pemeliharaan.keadaan.AKTIF" | "config.pemeliharaan.keadaan.BERAKHIR" | "config.pemeliharaan.jenis.PLANNED" | "config.pemeliharaan.jenis.EMERGENCY" | "config.pemeliharaan.hingga" | "config.pemeliharaan.tanpa_akhir" | "config.pemeliharaan.mulai_sekarang" | "config.pemeliharaan.akhiri" | "config.pemeliharaan.batalkan" | "config.pemeliharaan.pengumuman" | "config.pemeliharaan.pengumuman.arti" | "config.pemeliharaan.pengumuman.pesan" | "config.pemeliharaan.pengumuman.terbit" | "config.pemeliharaan.pengumuman.sampai" | "config.pemeliharaan.pengumuman.terbitkan" | "config.pemeliharaan.pengumuman.tarik" | "config.pemeliharaan.pengumuman.ditarik" | "config.pemeliharaan.pengumuman.kosong" | "config.pemeliharaan.darurat.judul" | "config.pemeliharaan.darurat.arti" | "config.pemeliharaan.darurat.ketik" | "config.pemeliharaan.darurat.tombol" | "galat.maintenance_not_allowed" | "galat.maintenance_input_invalid" | "galat.maintenance_not_open" | "galat.maintenance_confirmation" | "galat.maintenance_no_new_start" | "galat.notice_input_invalid" | "galat.notice_not_open" | "galat.maintenance_active" | "galat.maintenance_scheduled" | "galat.maintenance_started" | "galat.maintenance_ended" | "galat.maintenance_stopped" | "galat.notice_published" | "galat.notice_withdrawn"
   | "config.struktur.murid.satu"
   | "config.struktur.murid.banyak"
   | "config.struktur.nonaktif"
@@ -470,6 +481,10 @@ export type HleEvent =
   | "studio.paket.masalah.option_reason_missing"
   | "studio.paket.masalah.option_correct_invalid"
   | "studio.paket.masalah.option_misconception_unknown"
+  | "studio.paket.masalah.misconception_code_invalid"
+  | "studio.paket.masalah.misconception_text_missing"
+  | "studio.paket.masalah.misconception_repeated"
+  | "studio.paket.masalah.misconception_definition_differs"
   | "studio.paket.masalah.text_too_long"
   | "studio.paket.masalah.package_could_not_be_saved"
   | "studio.paket.masalah.revision_course_unknown"
@@ -934,7 +949,6 @@ export type HleEvent =
   | "studio.integritas.catat"
   | "studio.sertifikat.judul"
   | "studio.sertifikat.tata_letak"
-  | "studio.sertifikat.awalan"
   | "studio.sertifikat.identitas"
   | "studio.sertifikat.simpan"
   | "studio.bank.judul"
@@ -1610,6 +1624,51 @@ export type HleEvent =
   | "keamanan.gagal.ALASAN_KOSONG"
   | "keamanan.gagal.DITOLAK"
   | "keamanan.gagal.BELUM_MASUK"
+  | "keamanan.gagal.SENDIRI"
+  // BOB-29 (Gate 6): the shared-computer lock, «Komputer siapa ini?», «Keluar dari semua perangkat»
+  | "kunci.judul"
+  | "kunci.untuk"
+  | "kunci.lede"
+  | "kunci.lede.kartu"
+  | "kunci.pin_label"
+  | "kunci.pin_label.kartu"
+  | "kunci.kosong"
+  | "kunci.kosong.kartu"
+  | "kunci.lanjut"
+  | "kunci.memeriksa"
+  | "kunci.tidak_cocok.2"
+  | "kunci.tidak_cocok.1"
+  | "kunci.berakhir"
+  | "kunci.masuk"
+  | "kunci.tanpa_pin"
+  | "kunci.lupa"
+  | "kunci.lupa.kartu"
+  | "kunci.bukan_anda.arti"
+  | "kunci.gagal"
+  | "jaga.peringatan"
+  | "jaga.masih"
+  | "perangkat.judul"
+  | "perangkat.lede"
+  | "perangkat.bersama"
+  | "perangkat.bersama.arti"
+  | "perangkat.pribadi"
+  | "perangkat.pribadi.arti"
+  | "perangkat.catatan"
+  | "perangkat.simpan"
+  | "perangkat.menyimpan"
+  | "perangkat.gagal"
+  | "akun.perangkat.judul"
+  | "akun.perangkat.SHARED"
+  | "akun.perangkat.PERSONAL"
+  | "akun.perangkat.ubah"
+  | "akun.semua.judul"
+  | "akun.semua.arti"
+  | "akun.semua.tombol"
+  | "akun.semua.yakin"
+  | "akun.semua.ya"
+  | "akun.semua.batal"
+  | "akun.semua.gagal"
+  | "masuk.sesi_berakhir"
   | "keamanan.gagal.PERMINTAAN_DITOLAK"
   | "keamanan.gagal.LAYANAN_TIDAK_TERSEDIA"
   | "keamanan.catatan_judul"
@@ -1656,6 +1715,12 @@ export type HleEvent =
   | "email.aman.diatur_ulang.bukan_anda"
   | "email.aman.diatur_ulang.subjek_admin"
   | "email.aman.diatur_ulang.isi_admin"
+  | "email.aman.email_dikoreksi.subjek"
+  | "email.aman.email_dikoreksi.judul"
+  | "email.aman.email_dikoreksi.isi"
+  | "email.aman.email_dikoreksi.bukan_anda"
+  | "email.aman.email_dikoreksi.subjek_admin"
+  | "email.aman.email_dikoreksi.isi_admin"
   | "aktifkan.email_tertahan"
   | "aktifkan.tidak_tersedia"
   | "aktifkan.rujukan_arti"
@@ -1985,6 +2050,10 @@ const table: Table = {
   "kesiapan.butuh_pendampingan": { default: "Perlu penguatan", en: "Needs strengthening" },
   "kesiapan.perlu_review": { default: "Berkembang", en: "Developing" },
   "kesiapan.siap_sertifikasi": { default: "Mantap", en: "Strong" },
+  // CR-81 (D-123(3)): the class's population, said apart from the bands
+  "kesiapan.populasi.murid": { default: "murid di kelas ini", en: "learners in this class" },
+  "kesiapan.populasi.sudah": { default: "sudah mengerjakan Uji Penguasaan", en: "have taken the Mastery Check" },
+  "kesiapan.populasi.belum": { default: "belum mengerjakan Uji Penguasaan", en: "have not taken the Mastery Check yet" },
   "kesiapan.catatan": { default: "Pita tetap PINTAR: 80% ke atas, 60–79%, dan di bawah 60% atau soal wajib belum tepat. Bukan batas ketuntasan sekolah dan tidak menentukan sertifikat.", en: "PINTAR's fixed bands: 80% and above, 60–79%, and below 60% or a required item not yet right. Not the school's mastery threshold, and they do not decide certificates." },
 
   "kesehatan.judul": { default: "Butir yang perlu dilihat", en: "Items worth a look" },
@@ -2100,6 +2169,9 @@ const table: Table = {
   "pimpinan.aksi.putuskan": { default: "Catat keputusan", en: "Record the decision" },
   "pimpinan.aksi.pilih": { default: "Hasil", en: "Outcome" },
   "pimpinan.aksi.catatan": { default: "Catatan (boleh dikosongkan)", en: "Note (may be left empty)" },
+  // CR-76 (D-123(4)): whoever referred an integrity case does not decide it
+  "pimpinan.menunggu_pemutus_lain": { default: "Anda yang meneruskan kasus ini, jadi keputusannya diambil oleh pimpinan lain. Kasus ini menunggu keputusan mereka.", en: "You referred this case, so another leader decides it. It is waiting for their decision." },
+  "pimpinan.belum_ada_pemutus_lain": { default: "Belum ada pimpinan lain yang berwenang memutuskan di bagian ini. Minta Admin sekolah menunjuk kepala program atau dekan.", en: "No other leader can decide here yet. Ask the school admin to appoint a head of department or a dean." },
   "pimpinan.aksi.gagal": { default: "Keputusan belum tercatat. Coba sekali lagi.", en: "The decision has not been recorded. Try once more." },
   "pimpinan.aksi.tercatat": { default: "Tercatat. Keadaan keputusan ini sudah diperbarui.", en: "Recorded. This decision’s state has been updated." },
 
@@ -2541,6 +2613,13 @@ const table: Table = {
   "config.persiapan.guru": { default: "Setiap Kelas punya guru", en: "Every class has a teacher" },
   "config.persiapan.guru.kurang": { default: "Kelas yang belum punya guru:", en: "Classes without a teacher yet:" },
   "config.persiapan.guru.cara": { default: "Beri peran Guru untuk Kelas itu di Peran & akses.", en: "Give the Guru role for that class under Roles & access." },
+  // D-101(e): a quiet recommendation, never an error
+  "config.persiapan.admin_kedua": { default: "Sekolah ini punya satu admin sekolah. Admin sekolah kedua dapat membantu memulihkan akun bila yang satu berhalangan; tambahkan di Peran & akses.", en: "This school has one school administrator. A second can help recover accounts when the first is away; add one in Roles & access." },
+  // D-101 (2): appointing another school administrator is confirmed by a second press
+  "config.angkat.judul": { default: "Jadikan admin sekolah?", en: "Make a school administrator?" },
+  "config.angkat.arti": { default: "Admin sekolah mengatur seluruh sekolah ini: struktur, data, peran, dan pemulihan akun. Penunjukan ini tercatat.", en: "A school administrator manages this whole school: its structure, data, roles and account recovery. The appointment is recorded." },
+  "config.angkat.ya": { default: "Ya, jadikan admin sekolah", en: "Yes, make them a school administrator" },
+  "config.angkat.batal": { default: "Batal", en: "Cancel" },
   "config.pindah.arti": { default: "Pindahkan seorang murid ke Kelas lain di sekolah ini, pada tahun ajaran yang sama, atau tempatkan murid yang dicatat di sebuah Tingkat ke salah satu Kelasnya. Ia tetap murid yang sama. Apa yang sudah ia kerjakan tetap tercatat di kelas tempat ia mengerjakannya, dan kelas lamanya tidak lagi menghitungnya sebagai muridnya sekarang.", en: "Move a student to another Kelas in this school, in the same academic year, or place a student recorded in a Tingkat into one of its classes. They stay the same student. What they have already done stays recorded with the class where they did it, and their old class no longer counts them as a current student." },
   "config.pindah.dari": { default: "Kelas murid sekarang", en: "The student's class now" },
   "config.pindah.lihat": { default: "Tampilkan murid", en: "Show students" },
@@ -2628,6 +2707,194 @@ const table: Table = {
   "config.struktur.contoh.KELAS": { default: "Misalnya 1A", en: "For example 1A" },
   "config.struktur.tahun": { default: "Tahun ajaran", en: "School year" },
   "config.struktur.tahun_ikut": { default: "Tahun ajaran mengikuti Tingkat:", en: "School year, from the Tingkat:" },
+  "config.struktur.untuk": { default: "Untuk", en: "For" },
+  "config.struktur.untuk.murid": { default: "Murid (pembelajaran sekolah)", en: "Students (the school's teaching)" },
+  "config.struktur.untuk.guru": { default: "Guru dan staf (pengembangan profesi)", en: "Teachers and staff (professional learning)" },
+  "config.struktur.untuk.arti": { default: "Pilihan ini berlaku untuk Bagian ini dan semua Tingkat serta Kelas di bawahnya, dan tidak dapat diubah kemudian.", en: "This choice applies to this Bagian and every Tingkat and Kelas under it, and cannot be changed later." },
+  "config.struktur.untuk_guru": { default: "Pengembangan profesi guru", en: "Educators' professional learning" },
+  "config.struktur.peserta.satu": { default: "peserta", en: "participant" },
+  "config.struktur.peserta.banyak": { default: "peserta", en: "participants" },
+  "config.section.peserta": { default: "Peserta pengembangan profesi", en: "Professional-learning participants" },
+  "config.peserta.arti": { default: "Daftarkan guru atau staf sekolah ini sebagai peserta di Kelas pengembangan profesi. Tidak ada orang, akun atau nomor baru yang dibuat.", en: "Enrol a teacher or staff member of this school as a participant in a professional-learning Kelas. No new person, account or number is created." },
+  "config.peserta.orang": { default: "Guru atau staf", en: "Teacher or staff member" },
+  "config.peserta.tempat": { default: "Kelas pengembangan profesi", en: "Professional-learning Kelas" },
+  "config.peserta.daftarkan": { default: "Daftarkan sebagai peserta", en: "Enrol as participant" },
+  "config.peserta.tanpa_tempat": { default: "Belum ada Kelas pengembangan profesi. Buat Bagian untuk guru dan staf di Struktur sekolah, lalu Tingkat dan Kelasnya.", en: "There is no professional-learning Kelas yet. Create a Bagian for teachers and staff under School structure, then its Tingkat and Kelas." },
+  "config.peserta.catatan": { default: "Catatan pengembangan profesi", en: "Professional-learning records" },
+  "galat.pd_not_allowed": { default: "Anda tidak berwenang mendaftarkan peserta di sekolah ini.", en: "You are not authorised to enrol participants at this school." },
+  "galat.pd_place_invalid": { default: "Pilih Kelas atau Tingkat pengembangan profesi yang masih aktif.", en: "Choose a professional-learning Kelas or Tingkat that is still active." },
+  "galat.pd_place_not_for_educators": { default: "Tempat itu bukan untuk pengembangan profesi guru. Murid ditempatkan melalui Pendataan.", en: "That place is not for educators' professional learning. Students are placed through Data intake." },
+  "galat.pd_person_not_staff": { default: "Hanya orang yang saat ini memegang peran staf di sekolah ini yang dapat menjadi peserta.", en: "Only a person who currently holds a staff role at this school can be a participant." },
+  "galat.pd_already_enrolled": { default: "Orang itu sudah menjadi peserta di sana.", en: "That person is already a participant there." },
+  "galat.pd_other_purpose": { default: "Pendaftaran orang itu untuk tahun ini adalah pendaftaran murid, jadi tidak dapat dipakai untuk pengembangan profesi.", en: "That person's enrolment for this year is a student enrolment, so it cannot be used for professional learning." },
+  "galat.pd_input_incomplete": { default: "Pilih orangnya dan Kelasnya terlebih dahulu.", en: "Choose the person and the Kelas first." },
+  "galat.pd_enrolled": { default: "Terdaftar sebagai peserta.", en: "Enrolled as a participant." },
+  "mengajar.sedia.kode.assign_context_mismatch": { default: "Materi ini bukan untuk kelas ini: materi pengembangan profesi hanya untuk Kelas pengembangan profesi, dan materi murid hanya untuk kelas murid.", en: "This material is not for this class: professional-learning material is only for a professional-learning Kelas, and students' material only for a students' class." },
+  "mengajar.cepat.tolak.konteks": { default: "Bab itu bukan untuk kelas ini: materi pengembangan profesi hanya untuk Kelas pengembangan profesi, dan materi murid hanya untuk kelas murid.", en: "That chapter is not for this class: professional-learning material is only for a professional-learning Kelas, and students' material only for a students' class." },
+  "mengajar.fakta.peserta": { default: "Peserta terdaftar", en: "Enrolled participants" },
+  "mengajar.peserta.judul": { default: "Peserta", en: "Participants" },
+  "mengajar.peserta.kosong": { default: "Belum ada peserta terdaftar di kelas ini.", en: "No participant is enrolled in this class yet." },
+  "mengajar.bukti.peserta": { default: "peserta", en: "participants" },
+  "mengajar.siap.terdaftar_peserta": { default: "peserta terdaftar hari ini", en: "participants enrolled today" },
+  "mengajar.siapa.kosong_peserta": { default: "Tidak ada peserta dalam daftar ini.", en: "No participant in this list." },
+  "mengajar.kelas.catatan_pengembangan": { default: "Catatan pengembangan profesi kelas ini", en: "This class's professional-learning record" },
+  "pengembangan.eyebrow": { default: "Pengembangan profesi guru", en: "Educators' professional learning" },
+  "pengembangan.judul": { default: "Catatan pengembangan profesi", en: "Professional-learning record" },
+  "pengembangan.arti": { default: "Catatan baca-saja per peserta dan paket. Bukan penilaian kinerja dan bukan peringkat.", en: "A read-only record per participant and package. It is not a performance appraisal and not a ranking." },
+  "pengembangan.arti_terbatas": { default: "Anda melihat pendaftaran, keikutsertaan dan penyelesaian. Kemajuan dan hasil hanya untuk fasilitator, Kepala departemen dan Dekan.", en: "You see enrolment, participation and completion. Progress and results are for the facilitator, the head of department and the dean only." },
+  "pengembangan.kosong": { default: "Belum ada peserta di tempat ini.", en: "There is no participant here yet." },
+  "pengembangan.paket_kosong": { default: "Belum ada paket yang diberikan.", en: "No package has been given yet." },
+  "pengembangan.kolom.paket": { default: "Paket", en: "Package" },
+  "pengembangan.kolom.mulai": { default: "Sudah mulai", en: "Started" },
+  "pengembangan.kolom.pelajaran": { default: "Pelajaran selesai", en: "Lessons finished" },
+  "pengembangan.kolom.pemetaan": { default: "Pemetaan Awal", en: "Initial Mapping" },
+  "pengembangan.kolom.penguasaan": { default: "Uji Penguasaan", en: "Mastery Check" },
+  "pengembangan.kolom.selesai": { default: "Selesai", en: "Completed" },
+  "pengembangan.kolom.hasil": { default: "Hasil", en: "Result" },
+  "pengembangan.status.BELUM": { default: "Belum dikerjakan", en: "Not started" },
+  "pengembangan.status.SEDANG": { default: "Sedang dikerjakan", en: "In progress" },
+  "pengembangan.status.SELESAI": { default: "Sudah dikumpulkan", en: "Handed in" },
+  "pengembangan.ya": { default: "Ya", en: "Yes" },
+  "pengembangan.belum": { default: "Belum", en: "Not yet" },
+  "pengembangan.tercapai": { default: "Tercapai", en: "Reached" },
+  "pengembangan.belum_tercapai": { default: "Belum tercapai", en: "Not reached yet" },
+  "pengembangan.daftar.ACTIVE": { default: "Terdaftar", en: "Enrolled" },
+  "pengembangan.daftar.PENDING": { default: "Terdaftar, akun belum diaktifkan", en: "Enrolled, account not activated yet" },
+  "pengembangan.kembali": { default: "Kembali", en: "Back" },
+  "pengembangan.buka": { default: "Buka catatan", en: "Open the record" },
+  "nav.lapor": { default: "Laporkan masalah", en: "Report a problem" },
+  "lapor.eyebrow": { default: "Bantuan", en: "Help" },
+  "lapor.judul": { default: "Laporkan masalah", en: "Report a problem" },
+  "lapor.arti": { default: "Ceritakan apa yang terjadi. PINTAR menyertakan halaman ini, peran dan sekolah Anda, versi aplikasi, waktu dan perangkat Anda secara otomatis.", en: "Tell us what happened. PINTAR attaches this page, your role and school, the app version, the time and your device automatically." },
+  "lapor.murid": { default: "Murid menceritakan masalah kepada gurunya, dan guru dapat melaporkannya di sini.", en: "Students tell their teacher about a problem, and the teacher can report it here." },
+  "lapor.kembali": { default: "Kembali", en: "Back" },
+  "lapor.halaman": { default: "Halaman:", en: "Page:" },
+  "lapor.rujukan": { default: "Kode rujukan:", en: "Reference:" },
+  "lapor.lakukan": { default: "Apa yang Anda lakukan?", en: "What did you do?" },
+  "lapor.harapan": { default: "Apa yang Anda harapkan terjadi?", en: "What did you expect to happen?" },
+  "lapor.terjadi": { default: "Apa yang terjadi?", en: "What happened?" },
+  "lapor.hentikan": { default: "Masalah ini menghentikan kelas saya sekarang", en: "This problem is stopping my class now" },
+  "lapor.hentikan.singkat": { default: "Menghentikan kelas", en: "Stopping a class" },
+  "lapor.tangkapan": { default: "Tangkapan layar (tidak wajib)", en: "Screenshot (optional)" },
+  "lapor.tangkapan.arti": { default: "PNG, JPG atau WebP, paling besar 5 MB. Sertakan hanya yang perlu dilihat.", en: "PNG, JPG or WebP, at most 5 MB. Include only what needs to be seen." },
+  "lapor.tangkapan.naik": { default: "Mengunggah tangkapan layar…", en: "Uploading the screenshot…" },
+  "lapor.tangkapan.siap": { default: "Tangkapan layar terlampir.", en: "Screenshot attached." },
+  "lapor.tangkapan.gagal": { default: "Tangkapan layar tidak dapat diunggah. Laporan tetap dapat dikirim tanpanya.", en: "The screenshot could not be uploaded. The report can still be sent without it." },
+  "lapor.tangkapan.besar": { default: "Tangkapan layar lebih dari 5 MB. Pilih yang lebih kecil, atau kirim tanpanya.", en: "The screenshot is over 5 MB. Choose a smaller one, or send without it." },
+  "lapor.kirim": { default: "Kirim laporan", en: "Send report" },
+  "lapor.privasi": { default: "Laporan disimpan di dalam PINTAR dan hanya dibaca oleh Anda, Admin sekolah Anda dan tim PINTAR.", en: "Reports stay inside PINTAR and are read only by you, your school admin and the PINTAR team." },
+  "lapor.diterima": { default: "Laporan Anda diterima. Statusnya dapat diikuti di sini.", en: "Your report has been received. You can follow its status here." },
+  "lapor.saya.judul": { default: "Laporan saya", en: "My reports" },
+  "lapor.saya.arti": { default: "Setiap laporan Anda, dengan statusnya dan langkah berikutnya.", en: "Each of your reports, with its status and the next step." },
+  "lapor.saya.kosong": { default: "Anda belum pernah mengirim laporan.", en: "You have not sent a report yet." },
+  "lapor.saya.buka": { default: "Laporan saya", en: "My reports" },
+  "lapor.langkah": { default: "Langkah berikutnya:", en: "Next step:" },
+  "lapor.langkah.awal": { default: "Admin sekolah atau tim PINTAR akan melihatnya dalam satu hari sekolah.", en: "Your school admin or the PINTAR team will look at it within one school day." },
+  "lapor.langkah.awal_kelas": { default: "Karena menghentikan kelas, laporan ini dijawab pada hari sekolah yang sama.", en: "Because it is stopping a class, this report is answered the same school day." },
+  "lapor.status.DITERIMA": { default: "Diterima", en: "Received" },
+  "lapor.status.DITANGANI": { default: "Ditangani", en: "Being handled" },
+  "lapor.status.SELESAI": { default: "Selesai", en: "Resolved" },
+  "lapor.kode.report_not_staff": { default: "Laporan dikirim oleh staf sekolah. Murid menceritakan masalah kepada gurunya.", en: "Reports are sent by school staff. Students tell their teacher about a problem." },
+  "lapor.kode.report_input_invalid": { default: "Isi ketiga pertanyaan, masing-masing paling banyak 2000 karakter.", en: "Answer all three questions, each in at most 2000 characters." },
+  "lapor.kode.report_not_allowed": { default: "Laporan ini ditangani oleh Admin sekolahnya atau oleh tim PINTAR.", en: "This report is handled by its school admin or by the PINTAR team." },
+  "lapor.kode.report_status_invalid": { default: "Status laporan hanya maju: Diterima, Ditangani, lalu Selesai.", en: "A report's status only moves forward: Received, Being handled, then Resolved." },
+  "lapor.kode.report_next_step_required": { default: "Tuliskan langkah berikutnya untuk pelapor, paling banyak 500 karakter.", en: "Write the next step for the reporter, in at most 500 characters." },
+  "lapor.kode.report_failed": { default: "Laporan belum dapat disimpan. Coba kirim lagi.", en: "The report could not be saved yet. Try sending it again." },
+  "config.section.laporan_masalah": { default: "Laporan masalah", en: "Problem reports" },
+  "lapor.triase.arti": { default: "Laporan dari staf sekolah Anda, yang menghentikan kelas lebih dahulu. Selesaikan yang dapat diselesaikan sekolah; tim PINTAR juga membacanya.", en: "Reports from your school's staff, those stopping a class first. Resolve what the school can; the PINTAR team reads them too." },
+  "lapor.triase.kosong": { default: "Belum ada laporan.", en: "No reports yet." },
+  "lapor.triase.ubah": { default: "Ubah status", en: "Change status" },
+  "lapor.triase.langkah": { default: "Langkah berikutnya untuk pelapor", en: "Next step for the reporter" },
+  "lapor.triase.simpan": { default: "Simpan", en: "Save" },
+  "lapor.triase.tangkapan": { default: "Lihat tangkapan layar", en: "View the screenshot" },
+  "lapor.triase.ok": { default: "Status laporan diperbarui.", en: "The report's status has been updated." },
+  // #148 (D-094, D-100): maintenance and notices; WIB is the zone the copy speaks (D-094(e))
+  "pemeliharaan.zona": { default: "WIB", en: "WIB" },
+  "pemeliharaan.pita.dalam": { default: "Pemeliharaan dalam", en: "Maintenance in" },
+  "pemeliharaan.pita.menit": { default: "menit", en: "minutes" },
+  "pemeliharaan.pita.pukul": { default: "PINTAR akan menjalani pemeliharaan pukul", en: "PINTAR goes into maintenance at" },
+  "pemeliharaan.pita.selesai_kira": { default: "Perkiraan selesai pukul", en: "Expected to end at" },
+  "pemeliharaan.pita.asesmen": { default: "Asesmen yang sedang Anda kerjakan tetap dapat diselesaikan dan dikumpulkan. Pastikan jawaban terakhir sudah «Tersimpan» sebelum mengumpulkan asesmen.", en: "An assessment you are working on can still be finished and submitted. Make sure your last answer shows «Saved» before you submit it." },
+  "pemeliharaan.pita.biasa": { default: "Selesaikan aktivitas Anda dan keluar sebelum pemeliharaan dimulai.", en: "Finish what you are doing and sign out before maintenance begins." },
+  "pemeliharaan.pita.asesmen_baru": { default: "Asesmen baru tidak dapat dimulai sampai pemeliharaan selesai.", en: "No new assessment can be started until maintenance ends." },
+  "pemeliharaan.pita.berlangsung": { default: "Pemeliharaan sedang berlangsung.", en: "Maintenance is under way." },
+  "pemeliharaan.pita.berjalan": { default: "Asesmen yang sedang Anda kerjakan tetap dapat diselesaikan dan dikumpulkan. Setelah itu PINTAR tidak dapat dipakai sampai pemeliharaan selesai.", en: "The assessment you are working on can still be finished and submitted. After that, PINTAR cannot be used until maintenance ends." },
+  "pemeliharaan.pita.menguasai": { default: "Anda tetap dapat memakai PINTAR untuk mengakhiri pemeliharaan ini di Konfigurasi.", en: "You can still use PINTAR to end this maintenance in Configuration." },
+  "pemeliharaan.pita.pengumuman": { default: "Pengumuman", en: "Notice" },
+  "pemeliharaan.judul": { default: "PINTAR sedang dalam pemeliharaan", en: "PINTAR is under maintenance" },
+  "pemeliharaan.sejak": { default: "Pemeliharaan dimulai pukul", en: "Maintenance began at" },
+  "pemeliharaan.kira": { default: "Perkiraan selesai pukul", en: "It is expected to end at" },
+  "pemeliharaan.kira_belum": { default: "Perkiraan waktu selesai belum ditentukan.", en: "No end time has been estimated yet." },
+  "pemeliharaan.pesan": { default: "Pesan dari pengelola PINTAR:", en: "Message from PINTAR's administrators:" },
+  "pemeliharaan.terkumpul": { default: "Asesmen Anda sudah terkumpul pukul", en: "Your assessment was submitted at" },
+  "pemeliharaan.aman": { default: "Apa pun yang sudah tersimpan di PINTAR tetap aman.", en: "Everything already saved in PINTAR is safe." },
+  "pemeliharaan.langkah": { default: "Silakan kembali setelah pemeliharaan selesai, lalu buka PINTAR lagi.", en: "Please come back after maintenance ends, then open PINTAR again." },
+  "pemeliharaan.menjelang.judul": { default: "Asesmen baru belum dapat dimulai", en: "A new assessment cannot be started now" },
+  "pemeliharaan.menjelang.arti": { default: "Mulai 15 menit sebelum pemeliharaan, asesmen baru tidak dapat dimulai, supaya tidak ada yang terputus di tengah jalan. Mulailah asesmen ini setelah pemeliharaan selesai.", en: "From 15 minutes before maintenance, no new assessment can be started, so that nobody is cut off halfway. Start this assessment after maintenance ends." },
+  "pemeliharaan.darurat.judul": { default: "PINTAR dihentikan sementara", en: "PINTAR has been stopped for now" },
+  "pemeliharaan.darurat.arti": { default: "Admin platform menghentikan PINTAR karena ada masalah yang harus ditangani lebih dulu agar data tetap aman.", en: "The platform administrator stopped PINTAR because a problem has to be dealt with first to keep data safe." },
+  "pemeliharaan.darurat.aman": { default: "Apa pun yang sudah tersimpan tetap aman dan tidak dihapus. Jawaban yang belum tampil «Tersimpan» belum diterima PINTAR.", en: "Everything already saved is safe and has not been deleted. An answer that did not show «Saved» has not reached PINTAR." },
+  "pemeliharaan.darurat.asesmen": { default: "Penghentian ini tidak mengumpulkan asesmen yang sedang dikerjakan. Setelah PINTAR kembali, buka lagi asesmen tersebut. Bila waktunya habis selama penghentian, beri tahu guru Anda.", en: "This stop does not submit an assessment that was in progress. When PINTAR is back, open that assessment again. If its time ran out during the stop, tell your teacher." },
+  "pemeliharaan.darurat.langkah": { default: "Buka lagi halaman ini nanti untuk melihat apakah PINTAR sudah kembali.", en: "Open this page again later to see whether PINTAR is back." },
+  "pemeliharaan.kembali.judul": { default: "PINTAR dapat digunakan", en: "PINTAR is available" },
+  "pemeliharaan.kembali.arti": { default: "Tidak ada pemeliharaan yang menghentikan Anda saat ini.", en: "No maintenance is stopping you right now." },
+  "pemeliharaan.kembali.tautan": { default: "Kembali ke PINTAR", en: "Back to PINTAR" },
+  "config.section.pemeliharaan": { default: "Pemeliharaan dan pengumuman", en: "Maintenance and notices" },
+  "config.pemeliharaan.arti": { default: "Jadwalkan pemeliharaan supaya orang di sekolah tahu lebih dulu. Mulai 60 menit sebelumnya mereka diberi tahu; mulai 15 menit sebelumnya asesmen baru tidak dapat dimulai; saat pemeliharaan dimulai PINTAR tidak dapat mereka pakai, kecuali murid yang sedang mengerjakan asesmen: mereka tetap dapat menyelesaikan dan mengumpulkannya.", en: "Schedule maintenance so that people at the school know in advance. From 60 minutes before, they are told; from 15 minutes before, no new assessment can be started; once it begins they cannot use PINTAR, except students already working on an assessment, who can still finish and submit it." },
+  "config.pemeliharaan.cakupan": { default: "Untuk", en: "For" },
+  "config.pemeliharaan.platform": { default: "Seluruh platform", en: "The whole platform" },
+  "config.pemeliharaan.mulai": { default: "Mulai (WIB; kosongkan untuk sekarang)", en: "Start (WIB; leave empty for now)" },
+  "config.pemeliharaan.selesai": { default: "Perkiraan selesai (WIB)", en: "Expected end (WIB)" },
+  "config.pemeliharaan.periksa": { default: "Periksa waktu ini", en: "Check this time" },
+  "config.pemeliharaan.tabrakan.perhatian": { default: "Perhatian.", en: "Please note." },
+  "config.pemeliharaan.tabrakan.jumlah": { default: "asesmen dijadwalkan berlangsung selama periode ini.", en: "assessments are scheduled to run during this period." },
+  "config.pemeliharaan.tabrakan.terakhir": { default: "Asesmen terakhir diperkirakan selesai pukul", en: "The last assessment is expected to finish at" },
+  "config.pemeliharaan.tabrakan.saran": { default: "Pertimbangkan memulai pemeliharaan setelah pukul", en: "Consider starting maintenance after" },
+  "config.pemeliharaan.tabrakan.nihil": { default: "Tidak ada asesmen yang dijadwalkan selama periode ini.", en: "No assessment is scheduled during this period." },
+  "config.pemeliharaan.pesan": { default: "Pesan untuk pengguna (pilihan)", en: "Message for users (optional)" },
+  "config.pemeliharaan.alasan": { default: "Alasan (dicatat)", en: "Reason (recorded)" },
+  "config.pemeliharaan.umumkan": { default: "Terbitkan juga sebagai pengumuman", en: "Also publish it as a notice" },
+  "config.pemeliharaan.jadwalkan": { default: "Jadwalkan pemeliharaan", en: "Schedule maintenance" },
+  "config.pemeliharaan.daftar": { default: "Pemeliharaan", en: "Maintenance" },
+  "config.pemeliharaan.kosong": { default: "Belum ada pemeliharaan.", en: "No maintenance yet." },
+  "config.pemeliharaan.keadaan.TERJADWAL": { default: "Terjadwal", en: "Scheduled" },
+  "config.pemeliharaan.keadaan.MENJELANG": { default: "Segera dimulai", en: "Starting soon" },
+  "config.pemeliharaan.keadaan.AKTIF": { default: "Berlangsung", en: "Under way" },
+  "config.pemeliharaan.keadaan.BERAKHIR": { default: "Berakhir", en: "Ended" },
+  "config.pemeliharaan.jenis.PLANNED": { default: "Terencana", en: "Planned" },
+  "config.pemeliharaan.jenis.EMERGENCY": { default: "Penghentian darurat", en: "Emergency stop" },
+  "config.pemeliharaan.hingga": { default: "sampai", en: "until" },
+  "config.pemeliharaan.tanpa_akhir": { default: "waktu selesai belum ditentukan", en: "no end time set" },
+  "config.pemeliharaan.mulai_sekarang": { default: "Mulai sekarang", en: "Start now" },
+  "config.pemeliharaan.akhiri": { default: "Akhiri sekarang", en: "End now" },
+  "config.pemeliharaan.batalkan": { default: "Batalkan", en: "Cancel it" },
+  "config.pemeliharaan.pengumuman": { default: "Pengumuman", en: "Notices" },
+  "config.pemeliharaan.pengumuman.arti": { default: "Satu baris untuk orang di sekolah yang dipilih, dari waktu terbit sampai kedaluwarsa. Bukan sistem pesan.", en: "One line for the people of the chosen schools, from its publication to its expiry. Not a messaging system." },
+  "config.pemeliharaan.pengumuman.pesan": { default: "Isi pengumuman", en: "The notice" },
+  "config.pemeliharaan.pengumuman.terbit": { default: "Terbit (WIB; kosongkan untuk sekarang)", en: "Publish (WIB; leave empty for now)" },
+  "config.pemeliharaan.pengumuman.sampai": { default: "Sampai (WIB)", en: "Until (WIB)" },
+  "config.pemeliharaan.pengumuman.terbitkan": { default: "Terbitkan pengumuman", en: "Publish the notice" },
+  "config.pemeliharaan.pengumuman.tarik": { default: "Tarik", en: "Withdraw" },
+  "config.pemeliharaan.pengumuman.ditarik": { default: "Ditarik", en: "Withdrawn" },
+  "config.pemeliharaan.pengumuman.kosong": { default: "Belum ada pengumuman.", en: "No notices yet." },
+  "config.pemeliharaan.darurat.judul": { default: "Hentikan sekarang", en: "Stop now" },
+  "config.pemeliharaan.darurat.arti": { default: "Hanya untuk masalah keamanan, integritas atau infrastruktur yang membuat PINTAR tidak aman dilanjutkan. Semua kegiatan yang terdampak berhenti seketika, termasuk asesmen yang sedang dikerjakan. Tidak ada yang dikumpulkan, dinilai atau dihapus: yang sudah tersimpan tetap seperti adanya. Akhiri dari daftar pemeliharaan bila sudah aman.", en: "Only for a security, integrity or infrastructure problem that makes continuing unsafe. All affected activity stops at once, assessments in progress included. Nothing is submitted, scored or deleted: what was saved stays as it is. End it from the maintenance list once it is safe." },
+  "config.pemeliharaan.darurat.ketik": { default: "Ketik HENTIKAN SEKARANG untuk mengonfirmasi", en: "Type HENTIKAN SEKARANG to confirm" },
+  "config.pemeliharaan.darurat.tombol": { default: "Hentikan PINTAR sekarang", en: "Stop PINTAR now" },
+  "galat.maintenance_not_allowed": { default: "Anda tidak berwenang mengatur pemeliharaan atau pengumuman untuk cakupan itu. Admin sekolah mengatur sekolahnya sendiri; Admin platform mengatur sekolah mana pun dan seluruh platform.", en: "You are not authorised to set maintenance or notices for that scope. A school admin sets their own school's; the platform admin sets any school's and the whole platform's." },
+  "galat.maintenance_input_invalid": { default: "Lengkapi cakupan, waktu mulai yang belum lewat, waktu selesai setelah waktu mulai, dan alasannya.", en: "Fill in the scope, a start that has not passed, an end after the start, and the reason." },
+  "galat.maintenance_not_open": { default: "Pemeliharaan ini sudah berakhir.", en: "This maintenance has already ended." },
+  "galat.maintenance_confirmation": { default: "Untuk menghentikan PINTAR seketika, pilih cakupan, tulis alasannya dan ketik HENTIKAN SEKARANG persis seperti itu.", en: "To stop PINTAR at once, choose the scope, write the reason and type HENTIKAN SEKARANG exactly." },
+  "galat.maintenance_no_new_start": { default: "Pemeliharaan segera dimulai, jadi asesmen baru tidak dapat dimulai sekarang. Mulailah setelah pemeliharaan selesai.", en: "Maintenance is about to begin, so no new assessment can be started now. Start it after maintenance ends." },
+  "galat.notice_input_invalid": { default: "Lengkapi cakupan, isi pengumuman, dan waktu kedaluwarsa setelah waktu terbit.", en: "Fill in the scope, the notice, and an expiry after its publication." },
+  "galat.notice_not_open": { default: "Pengumuman ini sudah ditarik.", en: "This notice has already been withdrawn." },
+  "galat.maintenance_active": { default: "PINTAR sedang dalam pemeliharaan, jadi ini belum dapat disimpan. Coba lagi setelah pemeliharaan selesai.", en: "PINTAR is under maintenance, so this cannot be saved yet. Try again after maintenance ends." },
+  "galat.maintenance_scheduled": { default: "Pemeliharaan dijadwalkan.", en: "Maintenance scheduled." },
+  "galat.maintenance_started": { default: "Pemeliharaan dimulai.", en: "Maintenance started." },
+  "galat.maintenance_ended": { default: "Pemeliharaan diakhiri.", en: "Maintenance ended." },
+  "galat.maintenance_stopped": { default: "PINTAR dihentikan untuk cakupan itu. Akhiri dari daftar pemeliharaan bila sudah aman.", en: "PINTAR is stopped for that scope. End it from the maintenance list once it is safe." },
+  "galat.notice_published": { default: "Pengumuman diterbitkan.", en: "Notice published." },
+  "galat.notice_withdrawn": { default: "Pengumuman ditarik.", en: "Notice withdrawn." },
   "config.struktur.murid.satu": { default: "murid", en: "student" },
   "config.struktur.murid.banyak": { default: "murid", en: "students" },
   "config.struktur.nonaktif": { default: "Nonaktif", en: "Inactive" },
@@ -2699,7 +2966,11 @@ const table: Table = {
   "studio.paket.masalah.option_text_missing": { default: "Teks pilihan belum diisi.", en: "The option text is empty." },
   "studio.paket.masalah.option_reason_missing": { default: "Alasan pilihan belum diisi. Setiap pilihan perlu alasannya.", en: "The option's reason is empty. Every option needs its reason." },
   "studio.paket.masalah.option_correct_invalid": { default: "Kolom Benar harus Ya atau Tidak.", en: "The Benar column must be Ya or Tidak." },
-  "studio.paket.masalah.option_misconception_unknown": { default: "Kode miskonsepsi ini belum terdaftar.", en: "This misconception code is not registered." },
+  "studio.paket.masalah.option_misconception_unknown": { default: "Kode miskonsepsi ini tidak ada di lembar Miskonsepsi berkas ini.", en: "This misconception code is not on this file's Miskonsepsi sheet." },
+  "studio.paket.masalah.misconception_code_invalid": { default: "Kode miskonsepsi hanya boleh huruf besar, angka dan tanda hubung, 3 sampai 40 karakter.", en: "A misconception code may use only capital letters, digits and hyphens, 3 to 40 characters." },
+  "studio.paket.masalah.misconception_text_missing": { default: "Nama, penjelasan dan cara membantu wajib diisi untuk setiap miskonsepsi.", en: "Every misconception needs a name, an explanation and a way to help." },
+  "studio.paket.masalah.misconception_repeated": { default: "Kode miskonsepsi ini muncul lebih dari sekali di lembar Miskonsepsi.", en: "This misconception code appears more than once on the Miskonsepsi sheet." },
+  "studio.paket.masalah.misconception_definition_differs": { default: "Sekolah Anda sudah memakai kode ini dengan teks lain. Pakai teks yang sama, atau beri kode baru.", en: "Your school already uses this code with a different text. Use the same text, or give it a new code." },
   "studio.paket.masalah.text_too_long": { default: "Teks di kolom ini terlalu panjang.", en: "The text in this column is too long." },
   "studio.paket.masalah.package_could_not_be_saved": { default: "Paket ini belum bisa disimpan. Coba lagi, atau hubungi admin platform.", en: "This package could not be saved. Try again, or contact the platform administrator." },
   "studio.paket.masalah.revision_course_unknown": { default: "Kursus yang mau diperbaiki tidak ada di sekolah ini.", en: "The course being corrected is not in this school." },
@@ -3212,7 +3483,6 @@ const table: Table = {
   "studio.integritas.catat": { default: "Catat tinjauan", en: "Record the review" },
   "studio.sertifikat.judul": { default: "Tata Letak Sertifikat", en: "Certificate Layout" },
   "studio.sertifikat.tata_letak": { default: "Tata letak", en: "Layout" },
-  "studio.sertifikat.awalan": { default: "Awalan nomor", en: "Number prefix" },
   "studio.sertifikat.identitas": { default: "Sertifikat menampilkan nama pemegang saja.", en: "The certificate shows the holder's name only." },
   "studio.sertifikat.simpan": { default: "Simpan", en: "Save" },
   "studio.bank.judul": { default: "Bank Soal", en: "Item Bank" },
@@ -3510,8 +3780,8 @@ const table: Table = {
   "aktivasi.ulang.rujukan": { default: "Rujukan", en: "Reference" },
   "keamanan.eyebrow": { default: "Konfigurasi", en: "Configuration" },
   "keamanan.judul": { default: "Keamanan akun", en: "Account security" },
-  "keamanan.intro": { default: "Pemulihan dengan PIN: lihat keadaan satu PINTAR ID, lalu atur ulang dengan alasan yang tercatat. Di bawahnya, catatan keamanan terbaru.", en: "Recovery with a PIN: see the state of one PINTAR ID, then reset it with a recorded reason. Below, the latest security record." },
-  "keamanan.ditolak": { default: "Halaman ini hanya untuk admin platform.", en: "This page is for the platform administrator only." },
+  "keamanan.intro": { default: "Pemulihan dengan PIN: lihat keadaan satu PINTAR ID, lalu atur ulang dengan alasan yang tercatat.", en: "Recovery with a PIN: see the state of one PINTAR ID, then reset it with a recorded reason." },
+  "keamanan.ditolak": { default: "Halaman ini untuk admin sekolah dan admin platform.", en: "This page is for school administrators and the platform administrator." },
   "keamanan.cari_judul": { default: "Pemulihan dengan PIN", en: "Recovery with a PIN" },
   "keamanan.id_label": { default: "PINTAR ID", en: "PINTAR ID" },
   "keamanan.lihat": { default: "Lihat", en: "Look up" },
@@ -3524,12 +3794,58 @@ const table: Table = {
   "keamanan.alasan_label": { default: "Alasan atur ulang (wajib, tercatat)", en: "Reason for the reset (required, recorded)" },
   "keamanan.atur_ulang": { default: "Atur ulang pemulihan PIN", en: "Reset PIN recovery" },
   "keamanan.mengatur": { default: "Mengatur ulang…", en: "Resetting…" },
-  "keamanan.selesai": { default: "Pemulihan dengan PIN sudah diatur ulang. Pemiliknya harus membuat PIN baru di Akun saya; pemiliknya dan penerima keamanan PINTAR dikirimi email.", en: "Recovery with a PIN has been reset. Its owner must make a new PIN in My account; the owner and PINTAR's security recipient are sent an email." },
+  "keamanan.selesai": { default: "Pemulihan dengan PIN sudah diatur ulang, dan semua sesi pemiliknya diakhiri. Pemiliknya harus membuat PIN baru di Akun saya; pemiliknya dan penerima keamanan PINTAR dikirimi email.", en: "Recovery with a PIN has been reset, and all its owner's sessions have ended. Its owner must make a new PIN in My account; the owner and PINTAR's security recipient are sent an email." },
   "keamanan.gagal.ID_TIDAK_SAH": { default: "Periksa PINTAR ID: 8 huruf dan angka.", en: "Check the PINTAR ID: 8 letters and digits." },
-  "keamanan.gagal.TIDAK_ADA": { default: "Tidak ada orang dengan PINTAR ID ini.", en: "Nobody has this PINTAR ID." },
+  "keamanan.gagal.TIDAK_ADA": { default: "Tidak ada orang dengan PINTAR ID ini yang bisa Anda bantu.", en: "Nobody you can help has this PINTAR ID." },
   "keamanan.gagal.ALASAN_KOSONG": { default: "Tulis alasannya. Alasan ini tercatat.", en: "Write the reason. It is recorded." },
-  "keamanan.gagal.DITOLAK": { default: "Hanya admin platform yang bisa melakukan ini.", en: "Only the platform administrator can do this." },
+  "keamanan.gagal.DITOLAK": { default: "Hanya admin sekolah dan admin platform yang bisa melakukan ini.", en: "Only a school administrator or the platform administrator can do this." },
   "keamanan.gagal.BELUM_MASUK": { default: "Sesi Anda sudah berakhir. Masuk lagi.", en: "Your session has ended. Sign in again." },
+  // D-101 (1): one's own recovery is assisted by another administrator, never by oneself
+  "keamanan.gagal.SENDIRI": { default: "Pemulihan akun Anda sendiri dibantu oleh admin lain, bukan dari sini.", en: "Your own account's recovery is done by another administrator, not here." },
+  // BOB-29 (Gate 6): a class card (.kartu) is never named and types the card's PIN; staff type their personal PIN
+  "kunci.judul": { default: "PINTAR terkunci", en: "PINTAR is locked" },
+  "kunci.untuk": { default: "Terkunci untuk", en: "Locked for" },
+  "kunci.lede": { default: "Komputer ini tidak dipakai selama 5 menit, jadi PINTAR menutup layar ini agar data Anda aman. Ketik PIN pribadi Anda untuk melanjutkan.", en: "This computer wasn't used for 5 minutes, so PINTAR closed this screen to keep your information safe. Type your personal PIN to continue." },
+  "kunci.lede.kartu": { default: "Komputer ini tidak dipakai selama 5 menit, jadi PINTAR menutup layar ini. Ketik PIN kartu Anda untuk melanjutkan.", en: "This computer wasn't used for 5 minutes, so PINTAR closed this screen. Type your card's PIN to continue." },
+  "kunci.pin_label": { default: "PIN pribadi (4 angka)", en: "Personal PIN (4 digits)" },
+  "kunci.pin_label.kartu": { default: "PIN kartu", en: "Card PIN" },
+  "kunci.kosong": { default: "Ketik PIN Anda: 4 angka.", en: "Type your PIN: 4 digits." },
+  "kunci.kosong.kartu": { default: "Ketik PIN kartu Anda.", en: "Type your card's PIN." },
+  "kunci.lanjut": { default: "Lanjutkan", en: "Continue" },
+  "kunci.memeriksa": { default: "Memeriksa…", en: "Checking…" },
+  "kunci.tidak_cocok.2": { default: "PIN tidak cocok. Anda bisa mencoba 2 kali lagi.", en: "That PIN doesn't match. You can try 2 more times." },
+  "kunci.tidak_cocok.1": { default: "PIN tidak cocok. Anda bisa mencoba 1 kali lagi; jika tidak cocok lagi, Anda perlu masuk lagi.", en: "That PIN doesn't match. You can try once more; if it doesn't match again, you'll need to sign in again." },
+  "kunci.berakhir": { default: "Sesi di komputer ini sudah berakhir. Masuk lagi untuk melanjutkan.", en: "The session on this computer has ended. Sign in again to continue." },
+  "kunci.masuk": { default: "Masuk", en: "Sign in" },
+  "kunci.tanpa_pin": { default: "Akun ini belum punya PIN, jadi layar ini tidak bisa dibuka dengan PIN. Keluar, lalu masuk lagi.", en: "This account has no PIN yet, so this screen can't be opened with a PIN. Sign out, then sign in again." },
+  "kunci.lupa": { default: "Lupa PIN? Keluar, lalu masuk lagi dengan password Anda.", en: "Forgot your PIN? Sign out, then sign in again with your password." },
+  "kunci.lupa.kartu": { default: "Lupa PIN? Keluar, lalu minta bantuan guru Anda.", en: "Forgot your PIN? Sign out, then ask your teacher for help." },
+  "kunci.bukan_anda.arti": { default: "Keluar dulu, supaya Anda bisa masuk dengan akun Anda sendiri.", en: "Sign out first, so you can sign in with your own account." },
+  "kunci.gagal": { default: "PINTAR belum bisa memeriksa PIN. Coba lagi sebentar lagi.", en: "PINTAR couldn't check the PIN. Try again in a moment." },
+  "jaga.peringatan": { default: "Komputer ini belum dipakai selama 4 menit. Sebentar lagi PINTAR menutup layar ini; Anda bisa membukanya lagi dengan PIN.", en: "This computer hasn't been used for 4 minutes. In a moment PINTAR will close this screen; you can open it again with your PIN." },
+  "jaga.masih": { default: "Saya masih di sini", en: "I'm still here" },
+  "perangkat.judul": { default: "Komputer siapa ini?", en: "Whose computer is this?" },
+  "perangkat.lede": { default: "PINTAR menjaga akun Anda sesuai komputer yang Anda pakai. Anda bisa mengubah pilihan ini nanti di Akun saya.", en: "PINTAR looks after your account to suit the computer you use. You can change this later in My account." },
+  "perangkat.bersama": { default: "Komputer bersama", en: "A shared computer" },
+  "perangkat.bersama.arti": { default: "Dipakai bergantian, seperti komputer sekolah atau lab. Setelah 5 menit tidak dipakai, PINTAR menutup layar dan Anda membukanya lagi dengan PIN. Ini pilihan yang lebih aman.", en: "Used by others too, like a school or lab computer. After 5 minutes without use, PINTAR closes the screen and you open it again with your PIN. This is the safer choice." },
+  "perangkat.pribadi": { default: "Komputer pribadi saya", en: "My personal computer" },
+  "perangkat.pribadi.arti": { default: "Hanya Anda yang memakainya. Anda tetap masuk hingga 7 hari tanpa dipakai.", en: "Only you use it. You stay signed in for up to 7 days without use." },
+  "perangkat.catatan": { default: "Ini pilihan Anda untuk browser ini, bukan bukti kepemilikan.", en: "This is your choice for this browser, not proof of ownership." },
+  "perangkat.simpan": { default: "Simpan pilihan", en: "Save my choice" },
+  "perangkat.menyimpan": { default: "Menyimpan…", en: "Saving…" },
+  "perangkat.gagal": { default: "Pilihan ini belum tersimpan. Coba lagi.", en: "This choice wasn't saved. Try again." },
+  "akun.perangkat.judul": { default: "Komputer ini", en: "This computer" },
+  "akun.perangkat.SHARED": { default: "Komputer bersama: layar ditutup setelah 5 menit tidak dipakai.", en: "A shared computer: the screen closes after 5 minutes without use." },
+  "akun.perangkat.PERSONAL": { default: "Komputer pribadi Anda: Anda tetap masuk hingga 7 hari.", en: "Your personal computer: you stay signed in for up to 7 days." },
+  "akun.perangkat.ubah": { default: "Ubah", en: "Change" },
+  "akun.semua.judul": { default: "Keluar dari semua perangkat", en: "Sign out of every device" },
+  "akun.semua.arti": { default: "Akun Anda keluar dari setiap komputer dan perangkat tempat Anda masuk, termasuk yang ini. Setelah itu Anda masuk lagi di perangkat yang Anda pakai.", en: "Your account is signed out of every computer and device where you're signed in, including this one. Then you sign in again on the device you use." },
+  "akun.semua.tombol": { default: "Keluar dari semua perangkat", en: "Sign out of every device" },
+  "akun.semua.yakin": { default: "Keluar dari semua perangkat sekarang?", en: "Sign out of every device now?" },
+  "akun.semua.ya": { default: "Ya, keluar dari semua", en: "Yes, sign out everywhere" },
+  "akun.semua.batal": { default: "Batal", en: "Cancel" },
+  "akun.semua.gagal": { default: "PINTAR belum bisa mengeluarkan akun Anda dari semua perangkat. Coba lagi.", en: "PINTAR couldn't sign you out everywhere yet. Try again." },
+  "masuk.sesi_berakhir": { default: "Sesi di komputer ini sudah berakhir. Masuk lagi untuk melanjutkan.", en: "The session on this computer has ended. Sign in again to continue." },
   "keamanan.gagal.PERMINTAAN_DITOLAK": { default: "Muat ulang halaman ini, lalu coba lagi.", en: "Reload this page, then try again." },
   "keamanan.gagal.LAYANAN_TIDAK_TERSEDIA": { default: "PINTAR belum bisa menjawab. Coba lagi sebentar lagi.", en: "PINTAR can't answer yet. Try again in a moment." },
   "keamanan.catatan_judul": { default: "Catatan keamanan terbaru", en: "Latest security record" },
@@ -3572,10 +3888,17 @@ const table: Table = {
   "email.aman.pulih_pin.isi_admin": { default: "PINTAR ID dan PIN yang cocok dipakai untuk mulai memulihkan akun ini.", en: "A matching PINTAR ID and PIN were used to start recovering this account." },
   "email.aman.diatur_ulang.subjek": { default: "Pemulihan dengan PIN untuk akun PINTAR Anda diatur ulang", en: "Recovery with a PIN for your PINTAR account was reset" },
   "email.aman.diatur_ulang.judul": { default: "Buat PIN baru", en: "Make a new PIN" },
-  "email.aman.diatur_ulang.isi": { default: "Admin platform PINTAR mengatur ulang pemulihan dengan PIN untuk akun Anda. PIN lama Anda tidak berlaku lagi: masuk ke PINTAR, lalu buat PIN baru di Akun saya.", en: "PINTAR's platform administrator reset recovery with a PIN for your account. Your old PIN no longer works: sign in to PINTAR, then make a new PIN in My account." },
+  "email.aman.diatur_ulang.isi": { default: "Admin PINTAR mengatur ulang pemulihan dengan PIN untuk akun Anda. PIN lama Anda tidak berlaku lagi, dan Anda sudah dikeluarkan dari semua perangkat: masuk ke PINTAR, lalu buat PIN baru di Akun saya.", en: "A PINTAR administrator reset recovery with a PIN for your account. Your old PIN no longer works, and you have been signed out of every device: sign in to PINTAR, then make a new PIN in My account." },
   "email.aman.diatur_ulang.bukan_anda": { default: "Jika Anda tidak memintanya, hubungi admin sekolah Anda.", en: "If you didn't ask for this, contact your school's administrator." },
   "email.aman.diatur_ulang.subjek_admin": { default: "Pemulihan dengan PIN diatur ulang", en: "PIN recovery reset" },
-  "email.aman.diatur_ulang.isi_admin": { default: "Pemulihan dengan PIN untuk PINTAR ID ini diatur ulang oleh admin platform. Pemiliknya harus membuat PIN baru.", en: "The platform administrator reset recovery with a PIN for this PINTAR ID. Its owner must make a new PIN." },
+  "email.aman.diatur_ulang.isi_admin": { default: "Pemulihan dengan PIN untuk PINTAR ID ini diatur ulang oleh admin sekolah atau admin platform. Pemiliknya harus membuat PIN baru.", en: "A school administrator or the platform administrator reset recovery with a PIN for this PINTAR ID. Its owner must make a new PIN." },
+  // CR-13 (D-120 QN1): an email corrected after activation, told to the old and the new address (DAISY: copy to review)
+  "email.aman.email_dikoreksi.subjek": { default: "Alamat email akun PINTAR Anda dikoreksi", en: "The email address of your PINTAR account was corrected" },
+  "email.aman.email_dikoreksi.judul": { default: "Alamat email dikoreksi", en: "Email address corrected" },
+  "email.aman.email_dikoreksi.isi": { default: "Admin PINTAR mengoreksi alamat email untuk masuk ke akun PINTAR dengan PINTAR ID ini. Mulai sekarang email dari PINTAR dikirim ke alamat yang baru, dan semua sesi yang terbuka sudah ditutup. Password dan PIN tidak berubah.", en: "A PINTAR administrator corrected the sign-in email address of the PINTAR account with this PINTAR ID. From now on, email from PINTAR goes to the new address, and every open session has been closed. The password and PIN have not changed." },
+  "email.aman.email_dikoreksi.bukan_anda": { default: "Jika Anda tidak meminta koreksi ini, segera hubungi admin sekolah Anda.", en: "If you didn't ask for this correction, contact your school's administrator straight away." },
+  "email.aman.email_dikoreksi.subjek_admin": { default: "Alamat email sebuah akun dikoreksi", en: "An account's email address was corrected" },
+  "email.aman.email_dikoreksi.isi_admin": { default: "Alamat email untuk masuk ke akun dengan PINTAR ID ini dikoreksi oleh admin platform setelah aktivasi. Alasannya dan kedua alamat ada di catatan keamanan.", en: "The platform administrator corrected the sign-in email address of the account with this PINTAR ID after activation. The reason and both addresses are in the security record." },
   "aktifkan.minta_sering": { default: "Kode untuk alamat ini sudah terlalu sering diminta, jadi kode tidak dikirim.", en: "A code has been asked for this address too often, so no code was sent." },
   "aktifkan.email_tertahan": { default: "PINTAR belum bisa mengirim email saat ini, jadi kode tidak dikirim.", en: "PINTAR can't send email right now, so no code was sent." },
   "aktifkan.tidak_tersedia": { default: "PINTAR sedang tidak dapat memproses ini. Coba lagi sebentar lagi.", en: "PINTAR can't handle this right now. Try again in a little while." },

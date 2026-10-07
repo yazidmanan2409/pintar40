@@ -51,7 +51,12 @@ export const TINGKAT_BERPIKIR = [
 export const YA_TIDAK = [["Ya", "true"], ["Tidak", "false"]] as const;
 
 export const LEMBAR = ["Kursus", "Bab", "Pelajaran", "Soal", "Pilihan"] as const;
-export type NamaLembar = (typeof LEMBAR)[number];
+/**
+ * CR-50 (D-063 M5): sheets a workbook MAY carry. «Miskonsepsi» registers the misconceptions its options name, as the
+ * importing school's own (D-120 Q9); a workbook without it is read as before, its options then naming none.
+ */
+export const LEMBAR_BOLEH = ["Miskonsepsi"] as const;
+export type NamaLembar = (typeof LEMBAR)[number] | (typeof LEMBAR_BOLEH)[number];
 
 export const KOLOM: Record<NamaLembar, readonly Kolom[]> = {
   Kursus: [
@@ -94,7 +99,13 @@ export const KOLOM: Record<NamaLembar, readonly Kolom[]> = {
     { kunci: "body", judul: "Teks pilihan", wajib: true, arti: "" },
     { kunci: "is_correct", judul: "Benar", wajib: true, pilihan: YA_TIDAK, arti: "Ya untuk jawaban yang benar." },
     { kunci: "rationale", judul: "Alasan", wajib: true, arti: "Mengapa pilihan ini benar atau salah. Wajib untuk setiap pilihan." },
-    { kunci: "misconception_code", judul: "Kode miskonsepsi", wajib: false, arti: "Kode yang sudah terdaftar, bila ada." },
+    { kunci: "misconception_code", judul: "Kode miskonsepsi", wajib: false, arti: "Kode dari lembar Miskonsepsi, bila pilihan ini menandai miskonsepsi." },
+  ],
+  Miskonsepsi: [
+    { kunci: "code", judul: "Kode", wajib: true, arti: "Huruf besar, angka dan tanda hubung, misalnya SD5-M-B1-01. Tidak boleh kembar." },
+    { kunci: "label", judul: "Nama", wajib: true, arti: "Nama singkat miskonsepsi." },
+    { kunci: "description", judul: "Penjelasan", wajib: true, arti: "Apa yang dipikirkan murid." },
+    { kunci: "remediation", judul: "Cara membantu", wajib: true, arti: "Langkah yang membantu murid memperbaikinya." },
   ],
 };
 
@@ -131,8 +142,11 @@ export const BATAS_PAKET = {
   },
   /** Every sound or video file carries its own transcript. */
   transkripWajib: { nilai: ["audio", "video"], kode: "MEDIA_TRANSCRIPT_MISSING" },
-  /** An option's misconception must be a code already in the taxonomy; none is created by a package. */
-  miskonsepsi: { nilai: "misconception_taxonomy", kode: "OPTION_MISCONCEPTION_UNKNOWN" },
+  /**
+   * CR-50 (D-063 M5): an option's misconception must be defined in the same package («Miskonsepsi», `misconceptions`),
+   * whatever the school already holds; the package registers it as the importing school's own.
+   */
+  miskonsepsi: { nilai: "misconceptions", kode: "OPTION_MISCONCEPTION_UNKNOWN" },
   /** Characters per text. */
   teksMaks: {
     nilai: {
@@ -164,6 +178,8 @@ export const KODE_MASALAH_PAKET = [
   "ITEM_CORRECT_MISSING", "ITEM_CORRECT_TOO_MANY",
   "OPTION_LABEL_INVALID", "OPTION_LABEL_REPEATED", "OPTION_TEXT_MISSING", "OPTION_REASON_MISSING",
   "OPTION_CORRECT_INVALID", "OPTION_MISCONCEPTION_UNKNOWN",
+  // CR-50 (D-063 M5): the «Miskonsepsi» sheet's definitions
+  "MISCONCEPTION_CODE_INVALID", "MISCONCEPTION_TEXT_MISSING", "MISCONCEPTION_REPEATED", "MISCONCEPTION_DEFINITION_DIFFERS",
   "TEXT_TOO_LONG", "PACKAGE_COULD_NOT_BE_SAVED",
   // D-085 M10: a workbook that corrects a course already locked (package_revision_problems)
   "REVISION_COURSE_UNKNOWN", "REVISION_NOT_RELEASED", "REVISION_NOT_LATEST", "REVISION_ONE_COURSE", "REVISION_SUMMARY_MISSING",
@@ -242,9 +258,12 @@ export function bukuKerjaKePaket(lembar: readonly Lembar[]): HasilKonversi {
   const masalah: MasalahPaket[] = [];
   const tabel = {} as Record<NamaLembar, BarisData[]>;
 
-  for (const nama of LEMBAR) {
+  for (const nama of [...LEMBAR, ...LEMBAR_BOLEH]) {
     const l = lembar.find((x) => kunciJudul(x.nama) === kunciJudul(nama));
-    if (!l) { masalah.push({ code: "WORKBOOK_SHEET_MISSING", sheet: nama }); tabel[nama] = []; continue; }
+    if (!l) {
+      if ((LEMBAR as readonly string[]).includes(nama)) masalah.push({ code: "WORKBOOK_SHEET_MISSING", sheet: nama });
+      tabel[nama] = []; continue;
+    }
     const kepala = (l.baris[0] ?? []).map(kunciJudul);
     const posisi = new Map<string, number>();
     for (const k of KOLOM[nama]) {
@@ -344,5 +363,10 @@ export function bukuKerjaKePaket(lembar: readonly Lembar[]): HasilKonversi {
     ...baris(k, "Kursus"), title: k.nilai.title, subject: k.nilai.subject, stage: k.nilai.stage,
     grade_label: k.nilai.grade_label, konteks: kosong(k.nilai.konteks), modules: bab,
   };
-  return { ok: true, paket: { courses: [JSON.parse(JSON.stringify(course))] }, media: [...new Set(semuaMedia)] };
+  // CR-50 (D-063 M5): the definitions the options name, carried with the package (the database judges each)
+  const misconceptions = tabel.Miskonsepsi.map((m) => ({
+    ...baris(m, "Miskonsepsi"), code: m.nilai.code, label: m.nilai.label, description: m.nilai.description, remediation: m.nilai.remediation,
+  }));
+  const paket = { courses: [JSON.parse(JSON.stringify(course))], ...(misconceptions.length > 0 ? { misconceptions } : {}) };
+  return { ok: true, paket, media: [...new Set(semuaMedia)] };
 }

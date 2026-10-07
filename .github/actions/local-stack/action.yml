@@ -3,6 +3,11 @@ description: >
   Starts the local Supabase stack (pinned CLI from package-lock via npx),
   applies every migration in the given directory to a clean database and runs
   the synthetic seed. Exposes the stack's URL, keys and DB URL as outputs.
+  When the job already runs a stack (the red cases share one per group, D-119
+  S4), it reuses it: booting is most of a red case's cost. Every use still
+  resets the database, and every reset is fingerprinted; a fingerprint that
+  differs from the job's first fresh database fails the step, so a case never
+  starts from what an earlier case left.
 inputs:
   working-directory:
     description: Directory containing supabase/config.toml to start from
@@ -25,7 +30,11 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         npx --no-install supabase --version
-        npx --no-install supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit
+        if [ -n "$(docker ps -q --filter name=supabase_db_)" ]; then
+          echo "The job's stack is running: reused. The reset below gives this use a fresh database."
+        else
+          npx --no-install supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit
+        fi
     - name: Reset database (clean install of every migration + synthetic seed)
       shell: bash
       working-directory: ${{ inputs.working-directory }}
@@ -43,3 +52,18 @@ runs:
         for v in api anon svc db; do [ -n "${!v}" ] || { echo "::error::supabase status did not yield $v"; cat "$RUNNER_TEMP/stack.env" | sed 's/=.*/=…/'; exit 1; }; done
         echo "::add-mask::$svc"
         { echo "api-url=$api"; echo "anon-key=$anon"; echo "service-role-key=$svc"; echo "db-url=$db"; } >> "$GITHUB_OUTPUT"
+    - name: Fresh database fingerprint (a shared stack never carries one case into the next)
+      shell: bash
+      env:
+        DB_URL: ${{ steps.status.outputs.db-url }}
+      run: |
+        fp="$(psql -Atq -v ON_ERROR_STOP=1 -f "$GITHUB_ACTION_PATH/fingerprint.sql" "$DB_URL")"
+        [ -n "$fp" ] || { echo "::error::the fresh database could not be fingerprinted"; exit 1; }
+        first="$RUNNER_TEMP/fresh-database.fingerprint"
+        if [ -f "$first" ]; then
+          [ "$fp" = "$(cat "$first")" ] || { echo "::error::this database is not the job's fresh database ($fp, not $(cat "$first")): an earlier use left something a reset did not clear"; exit 1; }
+          echo "fresh: the same fingerprint as the job's first fresh database ($fp)"
+        else
+          echo "$fp" > "$first"
+          echo "the job's first fresh database: $fp"
+        fi

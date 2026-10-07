@@ -1,15 +1,16 @@
 // STAGING ONLY. The Golden School's spine past the first administrator (docs/recovery/GOLDEN-SCHOOL-CONTRACT.md §5),
-// the school admin's own screens, before Gate 3:
+// the school admin's own screens, under Gate 3 and Gate 6 (staff sign in as masuk.mjs says, C2):
 //
 //   A0  read only: the school GS_SLUG exists, real, founded by C1, and its first administrator holds «Admin sekolah»
 //       at its root (GS-01 to GS-03, staging-golden-school.yml).
-//   A1  GS-03 again, as a person: the school admin signs in by the real email link from the staging test mailbox
-//       (/masuk, the same browser) and lands on Konfigurasi. ONE sign-in email (staging allows 30 an hour, D-092, shared).
+//   A1  GS-03 again, as a person: the school admin signs in with the password set at their activation (G4) and
+//       lands on Konfigurasi.
 //   A2  GS-04 (J3.3): on Konfigurasi → Struktur sekolah, the same page, the admin builds the recipe's structure:
 //       Bagian «Kelas Tinggi» → Tingkat «Kelas 5» (this school year) → Kelas «Kelas 5A». No hidden level shows;
 //       «Persiapan sekolah» then says the Kelas is there and students and a teacher remain.
 //   A3  GS-06 (J3.5): the teacher, the head of department and the dean: their names on Pendataan (after the
-//       school's code, which a new school sets there first), an account by email on Aktivasi, and their roles on
+//       school's code, which a new school sets there first), an account by email on Aktivasi («Aktifkan dengan
+//       email»: no email is sent; each activates at «Aktifkan akun»), and their roles on
 //       Peran & akses: Guru at «Kelas 5A», Kepala departemen at «Kelas Tinggi», Dekan at the school.
 //   A4  GS-07, its first half (J3.6): the five students recorded on Pendataan into «Kelas 5A» as Murid. The class
 //       set of cards (J3.7, M7) is issued in the run that signs the students in (GS-12), and read from the
@@ -21,15 +22,15 @@
 //   A7  GS-05 (J3.8): back to Konfigurasi by Studio's own link; on Batas ketuntasan the chapter reads «Batas
 //       ketuntasan belum ditetapkan» (no default, D-081); the admin sets 70% with a reason; the page reads it back,
 //       the database holds it, by them, audited.
-//   A8  GS-09, the reviewer: the head of department signs in by the real email link, in their own browser (a second
-//       sign-in email).
+//   A8  GS-09, the reviewer: the head of department activates, in their own browser (the code from the staging test
+//       mailbox, then the wizard), or signs in with their password if already active.
 //   A9  GS-09 (J4.3–J4.5): the package page's seven steps by two people. The admin, who uploaded the chapter, composes,
 //       checks and submits it; the head of department finds it in «Antrean Tinjauan», reads every question with its key
 //       and reasons (D-088(h)), approves, makes and locks the release, and reviews any WARNING finding; the author is
 //       never offered the second person's steps; the admin publishes. Read back: PUBLISHED, sealed, reviewed by the
 //       head of department, its three release steps in the audit log.
-//   A10 GS-10 (J2): the teacher signs in by the real email link, in their own browser (a third sign-in email), and
-//       lands on Mengajar with the class there.
+//   A10 GS-10 (J2): the teacher activates (or signs in) the same way, in their own browser, and lands on Mengajar
+//       with the class there.
 //   A11 GS-11 (J5.4): Mengajar → the class → «Siapkan» → the published chapter; the school's pass mark read-only; an
 //       end day 30 days ahead; «Sediakan». Read back: the class's learning assignment, both tests, the post-test sealed
 //       at the school's mark (SCHOOL), the pre-test without one.
@@ -43,8 +44,11 @@ import { chromium } from "playwright";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, appendFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { APP, SLOW, closeTour } from "../perf/lib.mjs";
+import { keadaanDari, masukStaf } from "./masuk.mjs";
+import { catat as catatDi } from "./pendataan.mjs";
 
 const env = (k) => { const v = process.env[k]; if (!v) throw new Error(`${k} is not set`); return v; };
 const DB = env("STAGING_SUPABASE_DB_URL");
@@ -60,7 +64,12 @@ mkdirSync(join(OUT, "shots"), { recursive: true });
 // the recipe (§4): fabricated test identities on the staging test mailbox's plus-addresses (D-084)
 const mail = (who) => `goldenschool+${SLUG}-${who}@pintarselalu.com`;
 const ADMIN_EMAIL = mail("admin");
-const KODE = `G${(SLUG.replace(/\D/g, "") || "0").slice(-2).padStart(2, "0")}`;
+// the school's three-character code: «G» and two characters from the slug. Codes are globally unique (a school's
+// people are numbered under it), so the walk takes the first one no other school holds, as a person choosing one would
+// (6 Oct: «sekolah-uji-b0» and «sekolah-demo-pintar» both gave «G00», and the screen rightly saved nothing)
+const KODE_CALON = [`G${(SLUG.replace(/\D/g, "") || "0").slice(-2).padStart(2, "0")}`,
+  ...Array.from({ length: 24 }, (_, i) => `G${(parseInt(createHash("sha256").update(`${SLUG}:${i}`).digest("hex").slice(0, 8), 16) % 1296).toString(36).toUpperCase().padStart(2, "0")}`)];
+let KODE = KODE_CALON[0];
 const BAGIAN = "Kelas Tinggi", TINGKAT = "Kelas 5", KELAS = "Kelas 5A";
 const STAF = [
   { kunci: "guru", nama: `Guru ${SLUG.toUpperCase()}`, peran: "EDUCATOR", tempat: KELAS },
@@ -120,21 +129,14 @@ async function klikTautan(page, href) {
   await page.waitForLoadState("networkidle");
   await closeTour(page);
 }
-// /masuk by the real email link from the staging test mailbox, in this page's own browser; where it lands
+// a person signs in as Gate 3 has it (masuk.mjs): activation the first time, the password after; where it lands
+const setelan = keadaanDari(sql, lit);
 async function masukSurel(page, email) {
-  const t0 = Date.now() / 1000 - 60;
-  await page.goto(`${APP}/masuk`, { timeout: SLOW, waitUntil: "networkidle" });
-  await page.locator("#email").fill(email);
-  await page.getByRole("button", { name: "Kirim tautan masuk" }).click();
-  await page.getByRole("heading", { name: "Periksa email Anda" }).waitFor({ timeout: SLOW });
-  const link = execFileSync("python3", ["mailbox_link.py", email, String(t0), "180"], { encoding: "utf8" }).trim();
-  console.log(`::add-mask::${link}`);
-  await page.goto(link, { timeout: SLOW, waitUntil: "networkidle" });
-  await page.waitForURL((u) => !u.pathname.startsWith("/auth/"), { timeout: SLOW }).catch(() => {});
-  await page.waitForLoadState("networkidle");
-  await closeTour(page);
-  return new URL(page.url()).pathname;
+  const r = await masukStaf(page, email, setelan);
+  jalanMasuk.set(email, `${r.jalan}${r.lewat.length ? ` (${r.lewat.join(" → ")})` : ""}`);
+  return r.di;
 }
+const jalanMasuk = new Map();
 // Konfigurasi from wherever the admin is: by a link to it, or a reload when already there (the page has no link to itself)
 async function keKonfigurasi(page) {
   if (new URL(page.url()).pathname === "/konfigurasi") { await page.reload({ waitUntil: "networkidle" }); await closeTour(page); }
@@ -160,41 +162,8 @@ async function tambah(page, tingkatan, nama) {
   await page.waitForLoadState("networkidle");
 }
 // Pendataan: a pasted list, its place and role for every row, checked, confirmed, until «Selesai» (ADM-J08)
-async function catat(page, nama, { kelas = null, peran = null } = {}) {
-  const jejak = [];
-  await page.locator("#pin-tempel").fill(["nama", ...nama].join("\n"));
-  await page.locator("#pin-medan-node_id").waitFor({ timeout: SLOW });
-  if (kelas) {
-    const tempat = await page.locator("#pin-medan-node_id option").evaluateAll((os) => os.map((o) => ({ v: o.value, t: (o.textContent ?? "").trim() })));
-    const k = tempat.find((o) => o.v.startsWith("t:") && o.t.includes(kelas));
-    if (!k) throw new Error(`«${kelas}» is not offered as a place: ${JSON.stringify(tempat.map((o) => o.t))}`);
-    await page.locator("#pin-medan-node_id").selectOption(k.v);
-    jejak.push(`Tempat «${k.t}»`);
-  }
-  if (peran) await page.locator("#pin-medan-role").selectOption(`t:${peran}`);
-  await page.getByRole("button", { name: "Lanjut ke pemeriksaan", exact: true }).click();
-  await page.waitForURL((u) => /^\/pendataan\/[^/]+$/.test(u.pathname), { timeout: SLOW });
-  await page.getByRole("button", { name: "Periksa daftar ini", exact: true }).click();
-  await page.getByRole("button", { name: "Ya, catat orang-orang ini", exact: true }).waitFor({ timeout: SLOW });
-  await shot(page, "pendataan-pratinjau");
-  await page.getByRole("button", { name: "Ya, catat orang-orang ini", exact: true }).click();
-  for (let i = 0; i < 60; i++) {
-    await page.waitForLoadState("networkidle");
-    if (/· Selesai\b/.test(norm(await page.locator("main").innerText().catch(() => "")))) { jejak.push("«Selesai»"); break; }
-    for (const tombol of ["Sudah saya periksa, lanjutkan sisanya", "Mulai mencatat", "Lanjutkan"]) {
-      const b = page.getByRole("button", { name: tombol, exact: true });
-      if (await b.count() && await b.first().isEnabled()) { await b.first().click(); jejak.push(`«${tombol}»`); break; }
-    }
-    await page.waitForTimeout(1000);
-    if (i % 5 === 4) await page.reload({ waitUntil: "networkidle" });
-  }
-  await shot(page, "pendataan-selesai");
-  // back to the list by the page's own link
-  await page.locator('a.pin-back[href="/pendataan"]').first().click();
-  await page.waitForURL((u) => u.pathname === "/pendataan", { timeout: SLOW });
-  await page.waitForLoadState("networkidle");
-  return `${nama.length} name(s) pasted; ${jejak.join(" → ")}`;
-}
+// Pendataan (pendataan.mjs, shared with the report walk's GS-22), with this walk's screenshots
+const catat = (page, nama, opsi = {}) => catatDi(page, nama, opsi, { shot });
 // Peran & akses on Konfigurasi: person, role, place, until the school year ends; «Berikan peran»
 async function beriPeran(page, nama, peran, tempatNama) {
   const form = page.locator("form").filter({ has: page.locator('select[name="person"]') });
@@ -240,12 +209,12 @@ await step("A0", `read only: «${SLUG}» exists, real, founded by C1, and its fi
 if (!S) { await browser.close(); log("RED: A0"); process.exit(1); }
 
 let masuk = false;
-await step("A1", "GS-03, as a person: the school admin signs in by the real email link (/masuk, the staging test mailbox, the same browser) and lands on Konfigurasi", async (rec) => {
+await step("A1", "GS-03, as a person: the school admin signs in with the password set at their activation and lands on Konfigurasi", async (rec) => {
   const di = await masukSurel(A, ADMIN_EMAIL);
   await shot(A, "a1-konfigurasi");
   masuk = di === "/konfigurasi" && norm(await A.locator("main").innerText().catch(() => "")).includes(S.nama);
   if (!masuk) rec.verdict = "FAIL";
-  return `signed in by the email link, landed on ${di}; their school named ${masuk}`;
+  return `signed in by ${jalanMasuk.get(ADMIN_EMAIL)}, landed on ${di}; their school named ${masuk}`;
 });
 if (!masuk) { await browser.close(); log("RED: A1"); process.exit(1); }
 
@@ -285,6 +254,7 @@ await step("A3", "GS-06 (J3.5): the teacher, the head of department and the dean
   // 1. names on Pendataan; a new school sets its three-letter code there first
   await klikTautan(A, "/pendataan");
   if (sql(`select coalesce(namespace, '') from public.institutions where id = '${S.id}'`) === "") {
+    KODE = KODE_CALON.find((k) => sql(`select count(*) from public.institutions where upper(namespace) = upper(${lit(k)})`) === "0") ?? KODE;
     await A.locator("#pin-kode-isi").fill(KODE);
     await A.getByRole("button", { name: "Simpan kode", exact: true }).click();
     await A.locator("#pin-tempel").waitFor({ timeout: SLOW }).catch(() => {});
@@ -297,14 +267,14 @@ await step("A3", "GS-06 (J3.5): the teacher, the head of department and the dean
   if (belum.length) jejak.push(`Pendataan: ${await catat(A, belum)}`);
   const tercatat = STAF.filter((p) => orang(p.nama)).length;
   jejak.push(`staff recorded ${tercatat}/3`);
-  // 2. an account by email on Aktivasi (no email is sent; each signs in later through /masuk)
+  // 2. an account by email on Aktivasi (no email is sent; each activates later at «Aktifkan akun»)
   await klikTautan(A, "/aktivasi");
   for (const p of STAF) {
     if (akunSurel(mail(p.kunci))) continue;
     const baris = A.locator("li.pin-akt-orang", { hasText: p.nama }).first();
     if (!(await baris.count())) { jejak.push(`«${p.nama}» not on Aktivasi`); continue; }
     await baris.locator('input[type="email"]').fill(mail(p.kunci));
-    await baris.getByRole("button", { name: "Aktifkan dengan surel", exact: true }).click();
+    await baris.getByRole("button", { name: "Aktifkan dengan email", exact: true }).click();
     await baris.locator('input[type="email"]').waitFor({ state: "detached", timeout: SLOW }).catch(() => {});
   }
   await shot(A, "a3-aktivasi");
@@ -516,14 +486,14 @@ const langkahPage = async (page) => { const t = norm(await page.locator("main").
 
 const H = await (await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "id-ID", timezoneId: "Asia/Jakarta" })).newPage();
 let kabagMasuk = false;
-await step("A8", `GS-09, the reviewer: the head of department «${KABAG.nama}» signs in by the real email link (/masuk, the staging test mailbox, their own browser)`, async (rec) => {
+await step("A8", `GS-09, the reviewer: the head of department «${KABAG.nama}» activates in their own browser (the code from the staging test mailbox, then the wizard), or signs in with their password`, async (rec) => {
   if (!kursus) { rec.verdict = "FAIL"; return "no chapter in the school (A6)"; }
   if (keadaan().terbitan === "PUBLISHED") { rec.verdict = "NOTE"; return "the chapter is already published; no review to do"; }
   const di = await masukSurel(H, mail(KABAG.kunci));
   await shot(H, "a8-kabag-masuk");
   kabagMasuk = di !== "/masuk" && !di.startsWith("/auth/");
   if (!kabagMasuk) rec.verdict = "FAIL";
-  return `signed in by the email link, landed on ${di}`;
+  return `${jalanMasuk.get(mail(KABAG.kunci))}, landed on ${di}`;
 });
 
 await step("A9", "GS-09 (J4.3–J4.5): the seven steps by two people. The admin, its author, composes, checks and submits it; the head of department finds it in «Antrean Tinjauan», reads every question with its key and reasons, approves, makes and locks the release and reviews any finding; the admin is never offered the second person's steps; the admin publishes", async (rec) => {
@@ -609,13 +579,13 @@ const tugasKelas = () => {
 };
 const G = await (await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "id-ID", timezoneId: "Asia/Jakarta" })).newPage();
 let guruMasuk = false;
-await step("A10", `GS-10 (J2): the teacher «${GURU.nama}» signs in by the real email link, in their own browser, and lands on Mengajar with «${KELAS}» there`, async (rec) => {
+await step("A10", `GS-10 (J2): the teacher «${GURU.nama}» activates (or signs in) in their own browser and lands on Mengajar with «${KELAS}» there`, async (rec) => {
   const di = await masukSurel(G, mail(GURU.kunci));
   await shot(G, "a10-mengajar");
   const teks = norm(await G.locator("main").innerText().catch(() => ""));
   guruMasuk = di === "/mengajar";
   if (!guruMasuk || !teks.includes(KELAS)) rec.verdict = "FAIL";
-  return `signed in by the email link, landed on ${di}; «${KELAS}» on the page ${teks.includes(KELAS)}`;
+  return `${jalanMasuk.get(mail(GURU.kunci))}, landed on ${di}; «${KELAS}» on the page ${teks.includes(KELAS)}`;
 });
 
 await step("A11", `GS-11 (J5.4): Mengajar → «${KELAS}» → «Siapkan» → the published chapter; the school's pass mark is shown read-only (${BATAS.persen}%); until a day 30 days ahead; «Sediakan». The class has the chapter with both tests, the post-test sealed at the school's mark`, async (rec) => {

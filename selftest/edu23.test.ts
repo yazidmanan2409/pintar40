@@ -88,7 +88,8 @@ export const edu23Tests: SelfTest[] = [
       const buang = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
       const page = buang(readFileSync(join(ctx.repoRoot, "src", "app", "mengajar", "[kelas]", "siapa", "page.tsx"), "utf8"));
       // each list says it is empty in its own words: nobody in it, not a class without learners
-      const urut = ["sudah", "sedang", "belum"].map((x) => page.indexOf(`<DaftarMurid murid={${x}} locale={locale} kelas={id} kosong="mengajar.siapa.kosong" />`));
+      // RESTATED FOR DAISY-33 (a changed requirement, D-069(k)): the empty sentence says «murid» or «peserta» by the class's kind
+      const urut = ["sudah", "sedang", "belum"].map((x) => page.indexOf(`<DaftarMurid murid={${x}} locale={locale} kelas={id} kosong={kataAnggota("mengajar.siapa.kosong", ctx.ini.jenis)} />`));
       c.expect(/const \{ sudah, sedang, belum \} = await ajar\.siapa\(tugasId, fakta\.murid\);/.test(page) && urut.every((x, i) => x > 0 && (i === 0 || x > urut[i - 1])),
         "/siapa does not draw the three lists, handed in, started, not started, in that order, each with its own empty sentence");
       for (const locale of ["id", "en"] as const) {
@@ -98,7 +99,8 @@ export const edu23Tests: SelfTest[] = [
       }
       const lib = buang(readFileSync(join(ctx.repoRoot, "src", "lib", "pengajar.ts"), "utf8"));
       c.expect(/return pisahSiapa\(roster, rows</.test(lib), "ajar.siapa does not split by pisahSiapa");
-      c.expect(/<KeadaanHariIni asesmen=\{asesmen\} murid=\{fakta\.murid\.length\} locale=\{locale\} kelas=\{id\} \/>/
+      // RESTATED FOR DAISY-33 (a changed requirement, D-069(k)): the block also takes the class's kind
+      c.expect(/<KeadaanHariIni asesmen=\{asesmen\} murid=\{fakta\.murid\.length\} locale=\{locale\} kelas=\{id\}(?: jenis=\{ctx\.ini\.jenis\})? \/>/
         .test(buang(readFileSync(join(ctx.repoRoot, "src", "app", "mengajar", "[kelas]", "bukti", "page.tsx"), "utf8"))),
         "«Lihat bukti» does not give its counts the way to the names");
 

@@ -30,7 +30,11 @@ export type CertificateRow = {
   supersedes_certificate_id: string | null;
 };
 
-/** What `my_certificate(p_session)` returns: seven fields, no key material. */
+/**
+ * What `my_certificate(p_session)` returns: eleven fields, no key material. CR-02 (D-078(c)): the school's name, the
+ * course and the language are the certificate's own, sealed when it was prepared (20261201100000); a certificate issued
+ * before the seal reads what it read before.
+ */
 export type CertificateDetail = {
   certificate_id: string;
   certificate_number: string;
@@ -39,6 +43,10 @@ export type CertificateDetail = {
   issued_at_iso: string;
   predikat: string | null;
   name_as_issued: string;
+  institution_as_issued: string | null;
+  course_subject_as_issued: string | null;
+  course_title_as_issued: string | null;
+  language_as_issued: string | null;
 };
 
 /**

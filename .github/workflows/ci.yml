@@ -11,15 +11,45 @@ on:
     # main, where the coordinator merges. A lane dispatches this workflow itself,
     # exactly once per hand-off, on its head commit. The deploy still requires a
     # green run on the exact commit it ships; the coordinator dispatches one on
-    # main when the release commit has none. Documentation-only pushes do not
-    # start CI, except the frozen documents that baseline parity guards.
+    # main when the release commit has none. A push that changes only inert
+    # documents nothing reads does not start CI (D-119; audit/ci/proof-reuse.mjs
+    # UNREAD_DIRS x INERT; kept true by CI-W02). Code files are never skipped,
+    # wherever they lie: tsconfig compiles every **/*.ts and **/*.mts and lint
+    # reads every script, docs/ included. docs/audit and docs/onboarding are
+    # never skipped: tests read them, and until 6 Oct this filter wrongly did.
     branches: [main]
     paths:
       - "**"
-      - "!docs/coordination/**"
-      - "!docs/audit/**"
-      - "!docs/deployment/**"
-      - "!docs/onboarding/**"
+      - "!docs/coordination/**/*.md"
+      - "!docs/coordination/**/*.pdf"
+      - "!docs/coordination/**/*.png"
+      - "!docs/coordination/**/*.jpg"
+      - "!docs/coordination/**/*.jpeg"
+      - "!docs/coordination/**/*.docx"
+      - "!docs/coordination/**/*.xlsx"
+      - "!docs/coordination/**/*.csv"
+      - "!docs/coordination/**/*.txt"
+      - "!docs/coordination/**/*.html"
+      - "!docs/reports/**/*.md"
+      - "!docs/reports/**/*.pdf"
+      - "!docs/reports/**/*.png"
+      - "!docs/reports/**/*.jpg"
+      - "!docs/reports/**/*.jpeg"
+      - "!docs/reports/**/*.docx"
+      - "!docs/reports/**/*.xlsx"
+      - "!docs/reports/**/*.csv"
+      - "!docs/reports/**/*.txt"
+      - "!docs/reports/**/*.html"
+      - "!docs/deployment/**/*.md"
+      - "!docs/deployment/**/*.pdf"
+      - "!docs/deployment/**/*.png"
+      - "!docs/deployment/**/*.jpg"
+      - "!docs/deployment/**/*.jpeg"
+      - "!docs/deployment/**/*.docx"
+      - "!docs/deployment/**/*.xlsx"
+      - "!docs/deployment/**/*.csv"
+      - "!docs/deployment/**/*.txt"
+      - "!docs/deployment/**/*.html"
   pull_request:
   # A phase is not done until this workflow is green on a pushed commit, and
   # until now it could only run on main or on a pull request — so work on a
@@ -27,8 +57,11 @@ on:
   # two triggers above are unchanged.
   workflow_dispatch:
 
+# A newer run supersedes an older one on the same branch, whichever trigger
+# started it (a dispatch on the branch and its pull request share the group), so
+# an obsolete commit never waits in the queue (CI efficiency gate, 6 Oct).
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
@@ -38,8 +71,40 @@ env:
   NODE_VERSION: 22
 
 jobs:
+  # CI efficiency gate (D-119). Before anything is queued: are runners starved
+  # (DEFERRED · NOT PROVEN: the run cancels itself), and is this code already
+  # proven by an earlier authoritative run, on a working branch only (ALREADY
+  # PROVEN: the run cancels itself and names that run)? Neither outcome is ever
+  # green; `verdict` below fails any run in which a job did not succeed.
+  reuse:
+    name: proof · runners free, code not already proven
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      # write only to cancel its own run (DEFERRED or ALREADY PROVEN); it never
+      # makes a run green
+      actions: write
+      contents: read
+    outputs:
+      proven: ${{ steps.r.outputs.proven }}
+      proven_by: ${{ steps.r.outputs.proven_by }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - id: r
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: node audit/ci/proof-reuse.mjs
+
   check:
     name: install · lint · typecheck · build
+    needs: [reuse]
+    if: needs.reuse.outputs.proven != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -59,8 +124,11 @@ jobs:
           PINTAR_BUILD_SHA: ${{ github.sha }}
         run: npm run build
 
+  # The expensive jobs start only after the cheap gate passes (S1, efficiency
+  # audit 28 Sep and 2 Oct): a lint, type or build failure queues nothing else.
   migrations-clean:
     name: migrations · clean database + seed
+    needs: [check]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -83,6 +151,7 @@ jobs:
 
   migrations-upgrade-path:
     name: migrations · previous schema → HEAD (upgrade path)
+    needs: [check]
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -162,19 +231,40 @@ jobs:
           ! grep -E '\| f \|' upgraded.txt
 
   red-case:
-    name: red case · ${{ matrix.case }}
+    name: red case · ${{ matrix.group }}
+    needs: [check]
     runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
       fail-fast: false
+      # at most 15 at once: CI never floods the account's runners (5 Oct: 35 jobs
+      # queued together, most never started); every case still runs
+      max-parallel: 15
+      # S4 (D-091(e), approved 6 Oct, QN7): booting a local stack was about 2.5
+      # of each database red case's 3 minutes, 25 times a run. The database cases
+      # now share one stack per group, and each case still starts from its own
+      # fresh database: its local-stack step resets the database, and the reset is
+      # fingerprinted against the job's first fresh database (schema, grants,
+      # roles and memberships, row counts), failing the case if anything an
+      # earlier case left survived. Every plant runs exactly as before, with the
+      # same four proofs; a case's steps run even after an earlier case in its
+      # group failed, so one red case never hides another. db-table-without-rls
+      # stays alone: it plants a migration, which every later reset would apply.
+      # The static cases boot no stack and stay one job each. CI-W02 keeps the
+      # set of cases equal to the 30 there were, each in exactly one group.
       matrix:
-        case: [static-permissive-policy, db-table-without-rls, static-raw-evidence-read, static-duplicate-engine,
-               static-second-verification-route, db-fable04-gates, db-fable05-gates, db-task1-gates,
-               db-task2-gates, db-fable06-gates, static-fable06-gates, db-tour-gates, db-wp1-gates,
-               db-wp7-gates, db-wp8-gates, db-r1-gates, db-bob01-gates, db-bob02-gates, db-bob03-gates, db-bob04-gates,
-               db-bob06-gates, db-bob12-gates, db-bob24-gates,
-               db-bob35-gates, db-bob36-gates, db-bob39-gates, db-bob37-gates, db-bob25-gates,
-               db-bob26-gates, db-bob50-gates]
+        include:
+          - { group: "static-permissive-policy", cases: " static-permissive-policy " }
+          - { group: "static-raw-evidence-read", cases: " static-raw-evidence-read " }
+          - { group: "static-duplicate-engine", cases: " static-duplicate-engine " }
+          - { group: "static-second-verification-route", cases: " static-second-verification-route " }
+          - { group: "static-fable06-gates", cases: " static-fable06-gates " }
+          - { group: "db-table-without-rls", cases: " db-table-without-rls " }
+          - { group: "db · fable06 task2 bob06 bob50 bob25", cases: " db-fable06-gates db-task2-gates db-bob06-gates db-bob50-gates db-bob25-gates " }
+          - { group: "db · wp1 task1 bob36 bob02 wp8", cases: " db-wp1-gates db-task1-gates db-bob36-gates db-bob02-gates db-wp8-gates " }
+          - { group: "db · tour r1 fable05 bob12 bob03", cases: " db-tour-gates db-r1-gates db-fable05-gates db-bob12-gates db-bob03-gates " }
+          - { group: "db · bob37 bob24 bob39 bob04 fable04", cases: " db-bob37-gates db-bob24-gates db-bob39-gates db-bob04-gates db-fable04-gates " }
+          - { group: "db · bob01 bob35 wp7 bob26", cases: " db-bob01-gates db-bob35-gates db-wp7-gates db-bob26-gates " }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -184,7 +274,8 @@ jobs:
       - run: npm ci
       - name: Inject the deliberate defect
         run: |
-          case "${{ matrix.case }}" in
+          for c in ${{ matrix.cases }}; do
+          case "$c" in
             static-permissive-policy)
               printf -- "create policy red_case on public.persons for select to anon using (true);\n" > supabase/migrations/20990101000000_red_case.sql ;;
             db-table-without-rls)
@@ -251,8 +342,9 @@ jobs:
             db-bob36-gates)
               echo "the four Uji Cepat rule defects declared in selftest/plants/plants.json are planted against the running stack, below" ;;
           esac
+          done
       - name: Static contract must go red for the right reason
-        if: matrix.case == 'static-permissive-policy'
+        if: ${{ !cancelled() && contains(matrix.cases, ' static-permissive-policy ') }}
         run: |
           set +e
           npx tsx selftest/run.ts --accept-justified-skips --only=F01-S01,F01-S02 | tee red.txt
@@ -269,7 +361,7 @@ jobs:
       # failing -- a derived check that has never rejected anything is the same
       # unverified guarantee the lists were.
       - name: The FABLE-06 derived checks must each catch their own defect
-        if: matrix.case == 'static-fable06-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' static-fable06-gates ') }}
         run: |
           set -e
           # 1. a route the application serves with no output-level coverage.
@@ -338,7 +430,7 @@ jobs:
           grep -F 'the intake offers a hidden node: ["SD · Reguler","SMA · Reguler"]' r7.txt
           git checkout -- src/lib/struktur-kontrak.ts
       - name: The INV-20 lint must catch a planted raw-evidence read
-        if: matrix.case == 'static-raw-evidence-read'
+        if: ${{ !cancelled() && contains(matrix.cases, ' static-raw-evidence-read ') }}
         run: |
           set +e
           npx tsx selftest/run.ts --accept-justified-skips --only=F02-S01 | tee red.txt
@@ -353,7 +445,7 @@ jobs:
       # knows works, so this plants a route that scores a session without
       # going through the engine and requires F03-S01 to catch it by name.
       - name: The INV-26 check must catch a second engine
-        if: matrix.case == 'static-duplicate-engine'
+        if: ${{ !cancelled() && contains(matrix.cases, ' static-duplicate-engine ') }}
         run: |
           set +e
           npx tsx selftest/run.ts --accept-justified-skips --only=F03-S01 | tee red.txt
@@ -367,7 +459,7 @@ jobs:
       # A second page that also verifies is the defect the invariant names, and
       # a check that has never been watched fail is a check nobody knows works.
       - name: The INV-38 check must catch a second verification route
-        if: matrix.case == 'static-second-verification-route'
+        if: ${{ !cancelled() && contains(matrix.cases, ' static-second-verification-route ') }}
         run: |
           set +e
           npx tsx selftest/run.ts --accept-justified-skips --only=F04-S01 | tee red.txt
@@ -378,11 +470,11 @@ jobs:
           grep -F 'verifikasi-ulang' red.txt
 
       - name: Start stack with the defective migration applied
-        if: matrix.case == 'db-table-without-rls'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-table-without-rls ') }}
         id: stack
         uses: ./.github/actions/local-stack
       - name: DB contract must go red on F01-T13 (schema lint)
-        if: matrix.case == 'db-table-without-rls'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-table-without-rls ') }}
         env:
           DB_URL: ${{ steps.stack.outputs.db-url }}
         run: |
@@ -396,11 +488,11 @@ jobs:
       # and proven individually -- inside its own transaction, which is rolled
       # back before the next one, so no defect can mask or rescue another.
       - name: Start a clean seeded stack for the FABLE-04 gate defects
-        if: matrix.case == 'db-fable04-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-fable04-gates ') }}
         id: gates
         uses: ./.github/actions/local-stack
       - name: Each planted FABLE-04 defect must turn its own gate red
-        if: matrix.case == 'db-fable04-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-fable04-gates ') }}
         env:
           DB_URL: ${{ steps.gates.outputs.db-url }}
         run: |
@@ -496,11 +588,11 @@ jobs:
       # rolled back before the next, so no defect can mask or rescue another.
       # A probe that never fails proves nothing.
       - name: Start a clean seeded stack for the FABLE-05 gate defects
-        if: matrix.case == 'db-fable05-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-fable05-gates ') }}
         id: gates05
         uses: ./.github/actions/local-stack
       - name: Each planted FABLE-05 defect must turn its own gate red
-        if: matrix.case == 'db-fable05-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-fable05-gates ') }}
         env:
           DB_URL: ${{ steps.gates05.outputs.db-url }}
         run: |
@@ -622,11 +714,11 @@ jobs:
       # second institution's item and require negative 3 or 4 to fail BY NAME;
       # plant a two-owner paper and require negative 7 to fail by name".
       - name: Start a clean seeded stack for the ADR-0018 gate defects
-        if: matrix.case == 'db-task1-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-task1-gates ') }}
         id: gatesT1
         uses: ./.github/actions/local-stack
       - name: Each planted ADR-0018 defect must turn its own gate red
-        if: matrix.case == 'db-task1-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-task1-gates ') }}
         env:
           DB_URL: ${{ steps.gatesT1.outputs.db-url }}
         run: |
@@ -711,11 +803,11 @@ jobs:
       # inside its own transaction, rolled back before the next, and the suite
       # proven green before anything is planted.
       - name: Start a clean seeded stack for the ADR-0020 gate defects
-        if: matrix.case == 'db-task2-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-task2-gates ') }}
         id: gatesT2
         uses: ./.github/actions/local-stack
       - name: Each planted ADR-0020 defect must turn its own gate red
-        if: matrix.case == 'db-task2-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-task2-gates ') }}
         env:
           DB_URL: ${{ steps.gatesT2.outputs.db-url }}
         run: |
@@ -800,11 +892,11 @@ jobs:
       # inside its own transaction, rolled back before the next, and the suite
       # proven green before anything is planted.
       - name: Start a clean seeded stack for the FABLE-06 gate defects
-        if: matrix.case == 'db-fable06-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-fable06-gates ') }}
         id: gatesF06
         uses: ./.github/actions/local-stack
       - name: Each planted FABLE-06 defect must turn its own gate red
-        if: matrix.case == 'db-fable06-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-fable06-gates ') }}
         env:
           DB_URL: ${{ steps.gatesF06.outputs.db-url }}
         run: |
@@ -915,7 +1007,8 @@ jobs:
           do $d$
           declare orig text; src text;
           begin
-            orig := pg_get_functiondef('public.save_certificate_template(uuid,uuid,uuid,text,text)'::regprocedure);
+            -- CR-01 (20261201100000) retired the number prefix: the template is saved by its four-argument form
+            orig := pg_get_functiondef('public.save_certificate_template(uuid,uuid,uuid,text)'::regprocedure);
             src := replace(orig,
               '  if not public.can_in_institution(''CAN_PUBLISH'', p_institution) then' || chr(10) ||
               '    raise exception ''the certificate template manager requires CAN_PUBLISH in the owning institution'';' || chr(10) ||
@@ -1083,11 +1176,11 @@ jobs:
           red F06-N05 'fail-open again' /tmp/f06-5.sql
 
       - name: Start a clean seeded stack for the first-login tour gate defects
-        if: matrix.case == 'db-tour-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-tour-gates ') }}
         id: gatesTour
         uses: ./.github/actions/local-stack
       - name: Each planted tour defect must turn its own gate red
-        if: matrix.case == 'db-tour-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-tour-gates ') }}
         env:
           DB_URL: ${{ steps.gatesTour.outputs.db-url }}
         run: |
@@ -1283,11 +1376,11 @@ jobs:
           red F04-T04 'losing the label' /tmp/tour-8.sql
 
       - name: Local stack (WP1 authorization-boundary gates)
-        if: matrix.case == 'db-wp1-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-wp1-gates ') }}
         id: gatesWp1
         uses: ./.github/actions/local-stack
       - name: Each planted boundary defect must turn F06-P10 red for its own reason
-        if: matrix.case == 'db-wp1-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-wp1-gates ') }}
         env:
           DB_URL: ${{ steps.gatesWp1.outputs.db-url }}
         run: |
@@ -1639,18 +1732,28 @@ jobs:
       # transaction, rolled back before the next, and the whole suite proven
       # green before anything is planted.
       - name: Local stack (WP7B anonymity gates)
-        if: matrix.case == 'db-wp7-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-wp7-gates ') }}
         id: gatesWp7
         uses: ./.github/actions/local-stack
+      - name: Each planted anonymity defect must turn its own F07 test red
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-wp7-gates ') }}
+        env:
+          DB_URL: ${{ steps.gatesWp7.outputs.db-url }}
+        # The defects themselves live in selftest/plants/, declared once in
+        # selftest/plants/plants.json and run by the same harness a developer
+        # runs against a clone of the golden database. They used to be
+        # heredocs here as well, and the two copies drifted over nothing more
+        # than this file's indentation.
+        run: node scripts/dev/plants.mjs run --gate=db-wp7-gates
       # WP8's gates: the onboarding repair, the standing client-write
       # reachability assertion, and report configuration. Same harness, same
       # declarations, same four things every plant has to prove.
       - name: Local stack (WP8 gates)
-        if: matrix.case == 'db-wp8-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-wp8-gates ') }}
         id: gatesWp8
         uses: ./.github/actions/local-stack
       - name: Each planted WP8 defect must turn its own F08 test red
-        if: matrix.case == 'db-wp8-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-wp8-gates ') }}
         env:
           DB_URL: ${{ steps.gatesWp8.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-wp8-gates
@@ -1659,11 +1762,11 @@ jobs:
       # and a provisioned person can sign in while a stranger cannot provision
       # themselves (F-01..F-03). Same harness, same four proofs.
       - name: Local stack (systemic-repair gates)
-        if: matrix.case == 'db-r1-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-r1-gates ') }}
         id: gatesR1
         uses: ./.github/actions/local-stack
       - name: Each planted systemic-repair defect must turn its own F09 test red
-        if: matrix.case == 'db-r1-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-r1-gates ') }}
         env:
           DB_URL: ${{ steps.gatesR1.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-r1-gates
@@ -1672,7 +1775,7 @@ jobs:
       # fresh-connection test F09-C01: green before, red with the defect
       # restored (for the declared reason), green again after restoration.
       - name: NEW-1 restored must turn the fresh-connection test F09-C01 red
-        if: matrix.case == 'db-r1-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-r1-gates ') }}
         env:
           SUPABASE_DB_URL: ${{ steps.gatesR1.outputs.db-url }}
         run: |
@@ -1693,11 +1796,11 @@ jobs:
       # stable code on every refusal, and the intake's M5a place and year rules.
       # Same harness, same four proofs, against F10.
       - name: Local stack (school-structure gates)
-        if: matrix.case == 'db-bob01-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob01-gates ') }}
         id: gatesBob01
         uses: ./.github/actions/local-stack
       - name: Each planted school-structure defect must turn its own F10 test red
-        if: matrix.case == 'db-bob01-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob01-gates ') }}
         env:
           DB_URL: ${{ steps.gatesBob01.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob01-gates
@@ -1706,7 +1809,7 @@ jobs:
       # F10-C01: green before, red with the stale-row defect (for the declared
       # reason), green again after restoration.
       - name: The stale-row defect must turn the race test F10-C01 red
-        if: matrix.case == 'db-bob01-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob01-gates ') }}
         env:
           SUPABASE_DB_URL: ${{ steps.gatesBob01.outputs.db-url }}
         run: |
@@ -1727,11 +1830,11 @@ jobs:
       # package's confirmation, coded problems, who may prepare or confirm, and
       # media upload authority. Same harness, same four proofs, against F11.
       - name: Local stack (lesson-package gates)
-        if: matrix.case == 'db-bob02-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob02-gates ') }}
         id: gatesBob02
         uses: ./.github/actions/local-stack
       - name: Each planted lesson-package defect must turn its own F11 test red
-        if: matrix.case == 'db-bob02-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob02-gates ') }}
         env:
           DB_URL: ${{ steps.gatesBob02.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob02-gates
@@ -1740,11 +1843,11 @@ jobs:
       # release, its author, readiness at the seal, versions and refusals.
       # Same harness, same four proofs, against F12.
       - name: Local stack (release-path gates)
-        if: matrix.case == 'db-bob03-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob03-gates ') }}
         id: gatesBob03
         uses: ./.github/actions/local-stack
       - name: Each planted release-path defect must turn its own F12 test red
-        if: matrix.case == 'db-bob03-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob03-gates ') }}
         env:
           DB_URL: ${{ steps.gatesBob03.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob03-gates
@@ -1753,11 +1856,11 @@ jobs:
       # tests, one assignment making both, the draw following the marks, INV-24
       # at assignment, refusals by code. Same harness, same four proofs, on F13.
       - name: Local stack (learning-cycle gates)
-        if: matrix.case == 'db-bob04-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob04-gates ') }}
         id: gatesBob04
         uses: ./.github/actions/local-stack
       - name: Each planted learning-cycle defect must turn its own F13 test red
-        if: matrix.case == 'db-bob04-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob04-gates ') }}
         env:
           DB_URL: ${{ steps.gatesBob04.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob04-gates
@@ -1766,11 +1869,11 @@ jobs:
       # reports from creation, and PINTAR's rows and the provisioning pass are
       # nobody else's. Same harness, same four proofs, on F14.
       - name: Local stack (standard-report gates)
-        if: matrix.case == 'db-bob06-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob06-gates ') }}
         id: gatesBob06
         uses: ./.github/actions/local-stack
       - name: Each planted standard-report defect must turn its own F14 test red
-        if: matrix.case == 'db-bob06-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob06-gates ') }}
         env:
           DB_URL: ${{ steps.gatesBob06.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob06-gates
@@ -1780,11 +1883,11 @@ jobs:
       # Auth never judged counts for nothing, and the cooldown is the sign-in
       # route's alone. Same harness, same four proofs, on F15.
       - name: Local stack (card-cooldown gates)
-        if: matrix.case == 'db-bob12-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob12-gates ') }}
         id: gatesBob12
         uses: ./.github/actions/local-stack
       - name: Each planted card-cooldown defect must turn its own F15 test red
-        if: matrix.case == 'db-bob12-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob12-gates ') }}
         env:
           DB_URL: ${{ steps.gatesBob12.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob12-gates
@@ -1796,11 +1899,11 @@ jobs:
       # new PIN, and the tables and recovery functions are nobody's but the
       # routes'. Same harness, same four proofs, on F16.
       - name: Local stack (identity-foundation gates)
-        if: matrix.case == 'db-bob24-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob24-gates ') }}
         id: gatesBob24
         uses: ./.github/actions/local-stack
       - name: Each planted identity-foundation defect must turn its own F16 test red
-        if: matrix.case == 'db-bob24-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob24-gates ') }}
         env:
           DB_URL: ${{ steps.gatesBob24.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob24-gates
@@ -1810,87 +1913,76 @@ jobs:
       # once a learner has started. BOB-36's: a sat Uji Cepat keeps its rules.
       # Same harness, same four proofs, on F05 and F04.
       - name: Local stack (session-provenance gates)
-        if: matrix.case == 'db-bob35-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob35-gates ') }}
         id: gatesBob35
         uses: ./.github/actions/local-stack
       - name: Each planted session-provenance defect must turn its own F05 test red
-        if: matrix.case == 'db-bob35-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob35-gates ') }}
         env:
           DB_URL: ${{ steps.gatesBob35.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob35-gates
       - name: Local stack (Uji Cepat rule gates)
-        if: matrix.case == 'db-bob36-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob36-gates ') }}
         id: gatesBob36
         uses: ./.github/actions/local-stack
       - name: Each planted Uji Cepat rule defect must turn its own F04 test red
-        if: matrix.case == 'db-bob36-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob36-gates ') }}
         env:
           DB_URL: ${{ steps.gatesBob36.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob36-gates
 
       # BOB-39's gate: «Diteruskan ke pihak sekolah» reaches the decision queue.
       - name: Local stack (integrity-referral gate)
-        if: matrix.case == 'db-bob39-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob39-gates ') }}
         id: gatesBob39
         uses: ./.github/actions/local-stack
       - name: The planted integrity-referral defect must turn F06-P22 red
-        if: matrix.case == 'db-bob39-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob39-gates ') }}
         env:
           DB_URL: ${{ steps.gatesBob39.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob39-gates
 
       # BOB-37's gate: per-topic mastery reads the recorded per-objective objects.
       - name: Local stack (per-topic mastery gate)
-        if: matrix.case == 'db-bob37-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob37-gates ') }}
         id: gatesBob37
         uses: ./.github/actions/local-stack
       - name: Each planted per-topic mastery defect must turn F06-P23 red
-        if: matrix.case == 'db-bob37-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob37-gates ') }}
         env:
           DB_URL: ${{ steps.gatesBob37.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob37-gates
 
       # BOB-25's gate: the send log and the send limits.
       - name: Local stack (send log and limits gate)
-        if: matrix.case == 'db-bob25-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob25-gates ') }}
         id: gatesBob25
         uses: ./.github/actions/local-stack
       - name: Each planted send-log or limit defect must turn its own F17 test red
-        if: matrix.case == 'db-bob25-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob25-gates ') }}
         env:
           DB_URL: ${{ steps.gatesBob25.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob25-gates
       - name: Local stack (activation gate)
-        if: matrix.case == 'db-bob26-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob26-gates ') }}
         id: gatesBob26
         uses: ./.github/actions/local-stack
       - name: Each planted activation defect must turn its own F18 test red
-        if: matrix.case == 'db-bob26-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob26-gates ') }}
         env:
           DB_URL: ${{ steps.gatesBob26.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob26-gates
 
       # BOB-50's gate: a single Uji Cepat does not issue a certificate (D-082(d)).
       - name: Local stack (Uji Cepat certificate gate)
-        if: matrix.case == 'db-bob50-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob50-gates ') }}
         id: gatesBob50
         uses: ./.github/actions/local-stack
       - name: Each planted Uji Cepat certificate defect must turn its own F19 test red
-        if: matrix.case == 'db-bob50-gates'
+        if: ${{ !cancelled() && contains(matrix.cases, ' db-bob50-gates ') }}
         env:
           DB_URL: ${{ steps.gatesBob50.outputs.db-url }}
         run: node scripts/dev/plants.mjs run --gate=db-bob50-gates
-
-      - name: Each planted anonymity defect must turn its own F07 test red
-        if: matrix.case == 'db-wp7-gates'
-        env:
-          DB_URL: ${{ steps.gatesWp7.outputs.db-url }}
-        # The defects themselves live in selftest/plants/, declared once in
-        # selftest/plants/plants.json and run by the same harness a developer
-        # runs against a clone of the golden database. They used to be
-        # heredocs here as well, and the two copies drifted over nothing more
-        # than this file's indentation.
-        run: node scripts/dev/plants.mjs run --gate=db-wp7-gates
 
   baseline-parity:
     name: baseline · frozen documents are what they say they are
@@ -1961,3 +2053,26 @@ jobs:
         run: |
           npm run build
           npm run selftest
+
+  # The run is green only when every job ran and succeeded (D-119): a skipped,
+  # failed or cancelled job makes this fail. On a cancelled run (superseded,
+  # DEFERRED or ALREADY PROVEN) it does not run and the run stays cancelled. So
+  # `success`, the only conclusion the deploy gates and the reuse search accept,
+  # always means the full proof ran.
+  verdict:
+    name: verdict · green only when every job ran and succeeded
+    needs: [reuse, check, migrations-clean, migrations-upgrade-path, red-case, baseline-parity, selftest]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every job ran and succeeded
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          node -e '
+            const n = JSON.parse(process.env.RESULTS);
+            const bad = Object.entries(n).filter(([, v]) => v.result !== "success");
+            for (const [k, v] of bad) console.log(`::error::${k}: ${v.result}`);
+            if (bad.length) process.exit(1);
+            console.log(`all ${Object.keys(n).length} jobs ran and succeeded`);'

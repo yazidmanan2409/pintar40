@@ -53,7 +53,8 @@
            "label": "A",
            "body": "produsen",
            "is_correct": false,
-           "rationale": "Produsen mengubah zat anorganik menjadi zat organik, seperti tumbuhan hijau, alga, dan lumut."
+           "rationale": "Produsen mengubah zat anorganik menjadi zat organik, seperti tumbuhan hijau, alga, dan lumut.",
+           "misconception_code": "SMA11-G-B3-01"
           },
           {
            "_row": {
@@ -73,7 +74,8 @@
            "label": "C",
            "body": "konsumen",
            "is_correct": false,
-           "rationale": "Konsumen tidak dapat membuat makanannya sendiri, seperti manusia dan hewan."
+           "rationale": "Konsumen tidak dapat membuat makanannya sendiri, seperti manusia dan hewan.",
+           "misconception_code": "SMA11-G-B3-01"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "lingkungan abiotik",
            "is_correct": false,
-           "rationale": "Bakteri, jamur, dan cacing tanah adalah makhluk hidup, jadi termasuk unsur biotik."
+           "rationale": "Bakteri, jamur, dan cacing tanah adalah makhluk hidup, jadi termasuk unsur biotik.",
+           "misconception_code": "SMA11-G-B3-02"
           }
          ]
         },
@@ -106,7 +109,8 @@
            "label": "A",
            "body": "bakteri, jamur, dan cacing tanah",
            "is_correct": false,
-           "rationale": "Mereka adalah pengurai, yang menguraikan bahan organik dari organisme mati."
+           "rationale": "Mereka adalah pengurai, yang menguraikan bahan organik dari organisme mati.",
+           "misconception_code": "SMA11-G-B3-01"
           },
           {
            "_row": {
@@ -116,7 +120,8 @@
            "label": "B",
            "body": "manusia dan hewan",
            "is_correct": false,
-           "rationale": "Manusia dan hewan adalah konsumen, karena tidak dapat membuat makanannya sendiri."
+           "rationale": "Manusia dan hewan adalah konsumen, karena tidak dapat membuat makanannya sendiri.",
+           "misconception_code": "SMA11-G-B3-01"
           },
           {
            "_row": {
@@ -136,7 +141,8 @@
            "label": "D",
            "body": "air, tanah, udara, dan cahaya matahari",
            "is_correct": false,
-           "rationale": "Ini lingkungan abiotik, yaitu benda tak hidup, sehingga tidak dapat berperan sebagai produsen."
+           "rationale": "Ini lingkungan abiotik, yaitu benda tak hidup, sehingga tidak dapat berperan sebagai produsen.",
+           "misconception_code": "SMA11-G-B3-02"
           }
          ]
         },
@@ -168,7 +174,8 @@
            "label": "B",
            "body": "mampu mengubah zat anorganik menjadi zat organik",
            "is_correct": false,
-           "rationale": "Ini peran produsen."
+           "rationale": "Ini peran produsen.",
+           "misconception_code": "SMA11-G-B3-01"
           },
           {
            "_row": {
@@ -178,7 +185,8 @@
            "label": "C",
            "body": "mendapatkan energi dari menguraikan bahan organik",
            "is_correct": false,
-           "rationale": "Ini peran pengurai."
+           "rationale": "Ini peran pengurai.",
+           "misconception_code": "SMA11-G-B3-01"
           },
           {
            "_row": {
@@ -188,7 +196,8 @@
            "label": "D",
            "body": "berfungsi secara dinamis tanpa campur tangan manusia",
            "is_correct": false,
-           "rationale": "Ini ciri lingkungan alami, bukan peran makhluk hidup."
+           "rationale": "Ini ciri lingkungan alami, bukan peran makhluk hidup.",
+           "misconception_code": "SMA11-G-B3-03"
           }
          ]
         },
@@ -210,7 +219,8 @@
            "label": "A",
            "body": "bangunan, karya seni, dan sistem kepercayaan",
            "is_correct": false,
-           "rationale": "Ini lingkungan budaya, hasil daya cipta manusia."
+           "rationale": "Ini lingkungan budaya, hasil daya cipta manusia.",
+           "misconception_code": "SMA11-G-B3-02"
           },
           {
            "_row": {
@@ -220,7 +230,8 @@
            "label": "B",
            "body": "tumbuhan hijau, alga, dan lumut",
            "is_correct": false,
-           "rationale": "Ini makhluk hidup (produsen), jadi termasuk unsur biotik."
+           "rationale": "Ini makhluk hidup (produsen), jadi termasuk unsur biotik.",
+           "misconception_code": "SMA11-G-B3-02"
           },
           {
            "_row": {
@@ -240,7 +251,8 @@
            "label": "D",
            "body": "bakteri, jamur, dan cacing tanah",
            "is_correct": false,
-           "rationale": "Ini makhluk hidup (pengurai), jadi termasuk unsur biotik."
+           "rationale": "Ini makhluk hidup (pengurai), jadi termasuk unsur biotik.",
+           "misconception_code": "SMA11-G-B3-02"
           }
          ]
         },
@@ -262,7 +274,8 @@
            "label": "A",
            "body": "lingkungan hidup darat",
            "is_correct": false,
-           "rationale": "Lingkungan hidup darat terdiri atas bukit, gunung, hutan, lembah, dan padang rumput."
+           "rationale": "Lingkungan hidup darat terdiri atas bukit, gunung, hutan, lembah, dan padang rumput.",
+           "misconception_code": "SMA11-G-B3-03"
           },
           {
            "_row": {
@@ -282,7 +295,8 @@
            "label": "C",
            "body": "lingkungan buatan",
            "is_correct": false,
-           "rationale": "Lingkungan buatan dibuat manusia, misalnya jalan, sekolah, dan taman."
+           "rationale": "Lingkungan buatan dibuat manusia, misalnya jalan, sekolah, dan taman.",
+           "misconception_code": "SMA11-G-B3-03"
           },
           {
            "_row": {
@@ -292,7 +306,8 @@
            "label": "D",
            "body": "lingkungan sosial",
            "is_correct": false,
-           "rationale": "Lingkungan sosial adalah lingkungan antarmanusia atau antarkelompok."
+           "rationale": "Lingkungan sosial adalah lingkungan antarmanusia atau antarkelompok.",
+           "misconception_code": "SMA11-G-B3-02"
           }
          ]
         }
@@ -342,7 +357,8 @@
            "label": "B",
            "body": "kesehatan, pendidikan, dan kesejahteraan penduduk",
            "is_correct": false,
-           "rationale": "Ini indikator kualitas SDM, yang diringkas dalam Indeks Pembangunan Manusia."
+           "rationale": "Ini indikator kualitas SDM, yang diringkas dalam Indeks Pembangunan Manusia.",
+           "misconception_code": "SMA11-G-B3-05"
           },
           {
            "_row": {
@@ -352,7 +368,8 @@
            "label": "C",
            "body": "jumlah, komposisi, distribusi, dan karakteristik penduduk",
            "is_correct": false,
-           "rationale": "Ini data yang disediakan sensus penduduk."
+           "rationale": "Ini data yang disediakan sensus penduduk.",
+           "misconception_code": "SMA11-G-B3-05"
           },
           {
            "_row": {
@@ -362,7 +379,8 @@
            "label": "D",
            "body": "kesehatan dan gizi masyarakat, kecerdasan dan mental",
            "is_correct": false,
-           "rationale": "Ini aspek fisik dan nonfisik kualitas SDM."
+           "rationale": "Ini aspek fisik dan nonfisik kualitas SDM.",
+           "misconception_code": "SMA11-G-B3-14"
           }
          ]
         },
@@ -384,7 +402,8 @@
            "label": "A",
            "body": "tempat berkebun, berladang, dan mendirikan rumah",
            "is_correct": false,
-           "rationale": "Ini manfaat tanah bagi manusia."
+           "rationale": "Ini manfaat tanah bagi manusia.",
+           "misconception_code": "SMA11-G-B3-04"
           },
           {
            "_row": {
@@ -394,7 +413,8 @@
            "label": "B",
            "body": "sumber daya alam seperti gas alam dan minyak bumi",
            "is_correct": false,
-           "rationale": "Ini manfaat lingkungan sebagai penyedia sumber daya alam."
+           "rationale": "Ini manfaat lingkungan sebagai penyedia sumber daya alam.",
+           "misconception_code": "SMA11-G-B3-04"
           },
           {
            "_row": {
@@ -404,7 +424,8 @@
            "label": "C",
            "body": "oksigen untuk bernapas bagi makhluk hidup",
            "is_correct": false,
-           "rationale": "Ini manfaat lingkungan sebagai penyedia oksigen, bukan manfaat mikroorganisme."
+           "rationale": "Ini manfaat lingkungan sebagai penyedia oksigen, bukan manfaat mikroorganisme.",
+           "misconception_code": "SMA11-G-B3-04"
           },
           {
            "_row": {
@@ -446,7 +467,8 @@
            "label": "B",
            "body": "68,71 poin",
            "is_correct": false,
-           "rationale": "68,71 adalah target RPJMN, bukan kenaikannya."
+           "rationale": "68,71 adalah target RPJMN, bukan kenaikannya.",
+           "misconception_code": "SMA11-G-B3-05"
           },
           {
            "_row": {
@@ -456,7 +478,8 @@
            "label": "C",
            "body": "1,56 poin",
            "is_correct": false,
-           "rationale": "Ini selisih nilai 2020 dengan target RPJMN (70,27 − 68,71)."
+           "rationale": "Ini selisih nilai 2020 dengan target RPJMN (70,27 − 68,71).",
+           "misconception_code": "SMA11-G-B3-05"
           },
           {
            "_row": {
@@ -466,7 +489,8 @@
            "label": "D",
            "body": "2,16 poin",
            "is_correct": false,
-           "rationale": "Ini selisih target RPJMN dengan nilai 2019 (68,71 − 66,55)."
+           "rationale": "Ini selisih target RPJMN dengan nilai 2019 (68,71 − 66,55).",
+           "misconception_code": "SMA11-G-B3-05"
           }
          ]
         },
@@ -488,7 +512,8 @@
            "label": "A",
            "body": "ilmu pengetahuan dan teknologi",
            "is_correct": false,
-           "rationale": "Ini faktor sosial budaya yang lain: kemampuan merespons dan meningkatkan kualitas lingkungan."
+           "rationale": "Ini faktor sosial budaya yang lain: kemampuan merespons dan meningkatkan kualitas lingkungan.",
+           "misconception_code": "SMA11-G-B3-06"
           },
           {
            "_row": {
@@ -498,7 +523,8 @@
            "label": "B",
            "body": "aktivitas gunung api",
            "is_correct": false,
-           "rationale": "Ini faktor alam."
+           "rationale": "Ini faktor alam.",
+           "misconception_code": "SMA11-G-B3-06"
           },
           {
            "_row": {
@@ -518,7 +544,8 @@
            "label": "D",
            "body": "erosi yang menurunkan daya dukung",
            "is_correct": false,
-           "rationale": "Ini faktor alam."
+           "rationale": "Ini faktor alam.",
+           "misconception_code": "SMA11-G-B3-06"
           }
          ]
         }
@@ -558,7 +585,8 @@
            "label": "A",
            "body": "pemanasan global",
            "is_correct": false,
-           "rationale": "Pemanasan global adalah naiknya suhu bumi karena gas rumah kaca."
+           "rationale": "Pemanasan global adalah naiknya suhu bumi karena gas rumah kaca.",
+           "misconception_code": "SMA11-G-B3-07"
           },
           {
            "_row": {
@@ -568,7 +596,8 @@
            "label": "B",
            "body": "penipisan lapisan ozon",
            "is_correct": false,
-           "rationale": "Penipisan lapisan ozon antara lain disebabkan gas klorin dari CFC."
+           "rationale": "Penipisan lapisan ozon antara lain disebabkan gas klorin dari CFC.",
+           "misconception_code": "SMA11-G-B3-07"
           },
           {
            "_row": {
@@ -578,7 +607,8 @@
            "label": "C",
            "body": "pencemaran air",
            "is_correct": false,
-           "rationale": "Pencemaran air terjadi akibat industri, permukiman, dan teknologi yang kurang ramah lingkungan."
+           "rationale": "Pencemaran air terjadi akibat industri, permukiman, dan teknologi yang kurang ramah lingkungan.",
+           "misconception_code": "SMA11-G-B3-07"
           },
           {
            "_row": {
@@ -611,7 +641,8 @@
            "label": "A",
            "body": "melestarikan hutan bakau dan terumbu karang",
            "is_correct": false,
-           "rationale": "Ini upaya mengatasi permasalahan laut dan pantai."
+           "rationale": "Ini upaya mengatasi permasalahan laut dan pantai.",
+           "misconception_code": "SMA11-G-B3-08"
           },
           {
            "_row": {
@@ -621,7 +652,8 @@
            "label": "B",
            "body": "pengurangan emisi pembuangan gas sisa pembakaran",
            "is_correct": false,
-           "rationale": "Ini upaya pelestarian udara."
+           "rationale": "Ini upaya pelestarian udara.",
+           "misconception_code": "SMA11-G-B3-08"
           },
           {
            "_row": {
@@ -631,7 +663,8 @@
            "label": "C",
            "body": "meminimalkan polusi plastik",
            "is_correct": false,
-           "rationale": "Ini cara mengatasi masalah lingkungan air."
+           "rationale": "Ini cara mengatasi masalah lingkungan air.",
+           "misconception_code": "SMA11-G-B3-08"
           },
           {
            "_row": {
@@ -663,7 +696,8 @@
            "label": "A",
            "body": "air hujan mengandung sulfur dioksida dan oksida nitrogen",
            "is_correct": false,
-           "rationale": "Ini ciri hujan asam, dampak pencemaran udara."
+           "rationale": "Ini ciri hujan asam, dampak pencemaran udara.",
+           "misconception_code": "SMA11-G-B3-07"
           },
           {
            "_row": {
@@ -683,7 +717,8 @@
            "label": "C",
            "body": "kontaminasi logam berat",
            "is_correct": false,
-           "rationale": "Ini salah satu penyebab pencemaran tanah."
+           "rationale": "Ini salah satu penyebab pencemaran tanah.",
+           "misconception_code": "SMA11-G-B3-07"
           },
           {
            "_row": {
@@ -693,7 +728,8 @@
            "label": "D",
            "body": "gas-gas beracun dari letusan gunung berapi di dasar laut",
            "is_correct": false,
-           "rationale": "Ini faktor alami penyebab kerusakan laut."
+           "rationale": "Ini faktor alami penyebab kerusakan laut.",
+           "misconception_code": "SMA11-G-B3-07"
           }
          ]
         },
@@ -715,7 +751,8 @@
            "label": "A",
            "body": "letusan gunung berapi di dasar laut",
            "is_correct": false,
-           "rationale": "Ini faktor alami, yang bersumber dari alam."
+           "rationale": "Ini faktor alami, yang bersumber dari alam.",
+           "misconception_code": "SMA11-G-B3-07"
           },
           {
            "_row": {
@@ -725,7 +762,8 @@
            "label": "B",
            "body": "melestarikan hutan bakau di sekitar pantai",
            "is_correct": false,
-           "rationale": "Ini upaya mengatasi permasalahan laut dan pantai, bukan penyebabnya."
+           "rationale": "Ini upaya mengatasi permasalahan laut dan pantai, bukan penyebabnya.",
+           "misconception_code": "SMA11-G-B3-08"
           },
           {
            "_row": {
@@ -735,7 +773,8 @@
            "label": "C",
            "body": "tanaman penutup tanah",
            "is_correct": false,
-           "rationale": "Ini upaya mengatasi pemanasan global."
+           "rationale": "Ini upaya mengatasi pemanasan global.",
+           "misconception_code": "SMA11-G-B3-08"
           },
           {
            "_row": {
@@ -777,7 +816,8 @@
            "label": "B",
            "body": "pembakaran bahan bakar fosil",
            "is_correct": false,
-           "rationale": "Menurut buku, ini penyebab pencemaran udara."
+           "rationale": "Menurut buku, ini penyebab pencemaran udara.",
+           "misconception_code": "SMA11-G-B3-07"
           },
           {
            "_row": {
@@ -787,7 +827,8 @@
            "label": "C",
            "body": "penggunaan bahan pestisida atau bahan industri lainnya",
            "is_correct": false,
-           "rationale": "Ini penyebab pencemaran tanah."
+           "rationale": "Ini penyebab pencemaran tanah.",
+           "misconception_code": "SMA11-G-B3-07"
           },
           {
            "_row": {
@@ -797,7 +838,8 @@
            "label": "D",
            "body": "industri dan permukiman",
            "is_correct": false,
-           "rationale": "Ini penyebab pencemaran air."
+           "rationale": "Ini penyebab pencemaran air.",
+           "misconception_code": "SMA11-G-B3-07"
           }
          ]
         }
@@ -847,7 +889,8 @@
            "label": "B",
            "body": "245 jiwa",
            "is_correct": false,
-           "rationale": "Kelahiran dan kematian dijumlahkan. Kematian mengurangi penduduk, jadi dikurangkan."
+           "rationale": "Kelahiran dan kematian dijumlahkan. Kematian mengurangi penduduk, jadi dikurangkan.",
+           "misconception_code": "SMA11-G-B3-09"
           },
           {
            "_row": {
@@ -857,7 +900,8 @@
            "label": "C",
            "body": "−115 jiwa",
            "is_correct": false,
-           "rationale": "Pengurangannya terbalik (M − L). Rumusnya P = L − M."
+           "rationale": "Pengurangannya terbalik (M − L). Rumusnya P = L − M.",
+           "misconception_code": "SMA11-G-B3-09"
           },
           {
            "_row": {
@@ -867,7 +911,8 @@
            "label": "D",
            "body": "180 jiwa",
            "is_correct": false,
-           "rationale": "Ini hanya jumlah kelahiran; kematiannya belum dikurangkan."
+           "rationale": "Ini hanya jumlah kelahiran; kematiannya belum dikurangkan.",
+           "misconception_code": "SMA11-G-B3-09"
           }
          ]
         },
@@ -890,7 +935,8 @@
            "label": "A",
            "body": "910 jiwa",
            "is_correct": false,
-           "rationale": "Ini baru pertumbuhan alami (L − M). Migrasinya (I − E) belum dihitung."
+           "rationale": "Ini baru pertumbuhan alami (L − M). Migrasinya (I − E) belum dihitung.",
+           "misconception_code": "SMA11-G-B3-09"
           },
           {
            "_row": {
@@ -910,7 +956,8 @@
            "label": "C",
            "body": "1.080 jiwa",
            "is_correct": false,
-           "rationale": "Tanda migrasi terbalik: I − E = 210 − 380 = −170, jadi mengurangi, bukan menambah."
+           "rationale": "Tanda migrasi terbalik: I − E = 210 − 380 = −170, jadi mengurangi, bukan menambah.",
+           "misconception_code": "SMA11-G-B3-09"
           },
           {
            "_row": {
@@ -920,7 +967,8 @@
            "label": "D",
            "body": "1.500 jiwa",
            "is_correct": false,
-           "rationale": "Imigran dan emigran sama-sama ditambahkan. Emigran keluar dari daerah, jadi dikurangkan."
+           "rationale": "Imigran dan emigran sama-sama ditambahkan. Emigran keluar dari daerah, jadi dikurangkan.",
+           "misconception_code": "SMA11-G-B3-09"
           }
          ]
         },
@@ -942,7 +990,8 @@
            "label": "A",
            "body": "130 jiwa",
            "is_correct": false,
-           "rationale": "Pengurangannya terbalik (E − I). Rumusnya P = I − E."
+           "rationale": "Pengurangannya terbalik (E − I). Rumusnya P = I − E.",
+           "misconception_code": "SMA11-G-B3-09"
           },
           {
            "_row": {
@@ -952,7 +1001,8 @@
            "label": "B",
            "body": "770 jiwa",
            "is_correct": false,
-           "rationale": "Imigran dan emigran dijumlahkan. Emigran dikurangkan."
+           "rationale": "Imigran dan emigran dijumlahkan. Emigran dikurangkan.",
+           "misconception_code": "SMA11-G-B3-09"
           },
           {
            "_row": {
@@ -972,7 +1022,8 @@
            "label": "D",
            "body": "−450 jiwa",
            "is_correct": false,
-           "rationale": "Hanya emigran yang dihitung; 320 imigran belum ditambahkan."
+           "rationale": "Hanya emigran yang dihitung; 320 imigran belum ditambahkan.",
+           "misconception_code": "SMA11-G-B3-09"
           }
          ]
         },
@@ -994,7 +1045,8 @@
            "label": "A",
            "body": "de facto",
            "is_correct": false,
-           "rationale": "Sensus de facto mencacah semua orang yang ditemui petugas ketika sensus."
+           "rationale": "Sensus de facto mencacah semua orang yang ditemui petugas ketika sensus.",
+           "misconception_code": "SMA11-G-B3-10"
           },
           {
            "_row": {
@@ -1014,7 +1066,8 @@
            "label": "C",
            "body": "canvasser",
            "is_correct": false,
-           "rationale": "Canvasser adalah cara pengisian: petugas mendatangi penduduk."
+           "rationale": "Canvasser adalah cara pengisian: petugas mendatangi penduduk.",
+           "misconception_code": "SMA11-G-B3-10"
           },
           {
            "_row": {
@@ -1024,7 +1077,8 @@
            "label": "D",
            "body": "householder",
            "is_correct": false,
-           "rationale": "Householder adalah cara pengisian: penduduk mengisi sendiri."
+           "rationale": "Householder adalah cara pengisian: penduduk mengisi sendiri.",
+           "misconception_code": "SMA11-G-B3-10"
           }
          ]
         },
@@ -1056,7 +1110,8 @@
            "label": "B",
            "body": "pengisian daftar pertanyaan dilakukan oleh penduduk sendiri",
            "is_correct": false,
-           "rationale": "Ini metode householder."
+           "rationale": "Ini metode householder.",
+           "misconception_code": "SMA11-G-B3-10"
           },
           {
            "_row": {
@@ -1066,7 +1121,8 @@
            "label": "C",
            "body": "pencacahan semua orang yang ditemui oleh petugas",
            "is_correct": false,
-           "rationale": "Ini sensus de facto."
+           "rationale": "Ini sensus de facto.",
+           "misconception_code": "SMA11-G-B3-10"
           },
           {
            "_row": {
@@ -1076,7 +1132,8 @@
            "label": "D",
            "body": "tidak menghitung seluruh responden, melainkan penarikan sampel",
            "is_correct": false,
-           "rationale": "Ini survei penduduk, bukan sensus."
+           "rationale": "Ini survei penduduk, bukan sensus.",
+           "misconception_code": "SMA11-G-B3-10"
           }
          ]
         },
@@ -1098,7 +1155,8 @@
            "label": "A",
            "body": "sensus penduduk",
            "is_correct": false,
-           "rationale": "Sensus mencacah penduduk untuk menyediakan data jumlah, komposisi, distribusi, dan karakteristiknya."
+           "rationale": "Sensus mencacah penduduk untuk menyediakan data jumlah, komposisi, distribusi, dan karakteristiknya.",
+           "misconception_code": "SMA11-G-B3-10"
           },
           {
            "_row": {
@@ -1108,7 +1166,8 @@
            "label": "B",
            "body": "registrasi penduduk",
            "is_correct": false,
-           "rationale": "Registrasi adalah pencatatan terus-menerus oleh pemerintah, mulai dari desa atau kelurahan."
+           "rationale": "Registrasi adalah pencatatan terus-menerus oleh pemerintah, mulai dari desa atau kelurahan.",
+           "misconception_code": "SMA11-G-B3-10"
           },
           {
            "_row": {
@@ -1118,7 +1177,8 @@
            "label": "C",
            "body": "sensus de facto",
            "is_correct": false,
-           "rationale": "Sensus de facto mencacah semua orang yang ditemui petugas."
+           "rationale": "Sensus de facto mencacah semua orang yang ditemui petugas.",
+           "misconception_code": "SMA11-G-B3-10"
           },
           {
            "_row": {
@@ -1178,7 +1238,8 @@
            "label": "B",
            "body": "tingkat kelahiran tinggi dan banyak bayi lahir",
            "is_correct": false,
-           "rationale": "Ini ciri piramida muda, yang dasarnya lebar."
+           "rationale": "Ini ciri piramida muda, yang dasarnya lebar.",
+           "misconception_code": "SMA11-G-B3-13"
           },
           {
            "_row": {
@@ -1188,7 +1249,8 @@
            "label": "C",
            "body": "tingkat kelahiran dan kematian relatif seimbang",
            "is_correct": false,
-           "rationale": "Ini ciri piramida stasioner, yang dasar dan puncaknya relatif seimbang."
+           "rationale": "Ini ciri piramida stasioner, yang dasar dan puncaknya relatif seimbang.",
+           "misconception_code": "SMA11-G-B3-13"
           },
           {
            "_row": {
@@ -1198,7 +1260,8 @@
            "label": "D",
            "body": "fertilitas tinggi dan kemajuan kesehatan belum merata",
            "is_correct": false,
-           "rationale": "Ini ciri negara berpiramida muda, seperti Nigeria dan Uganda."
+           "rationale": "Ini ciri negara berpiramida muda, seperti Nigeria dan Uganda.",
+           "misconception_code": "SMA11-G-B3-13"
           }
          ]
         },
@@ -1221,7 +1284,8 @@
            "label": "A",
            "body": "individu yang bekerja dan menjadi anggota suatu perusahaan",
            "is_correct": false,
-           "rationale": "Ini pengertian SDM secara mikro."
+           "rationale": "Ini pengertian SDM secara mikro.",
+           "misconception_code": "SMA11-G-B3-14"
           },
           {
            "_row": {
@@ -1231,7 +1295,8 @@
            "label": "B",
            "body": "jumlah sumber daya manusia",
            "is_correct": false,
-           "rationale": "Ini pengertian kuantitas SDM."
+           "rationale": "Ini pengertian kuantitas SDM.",
+           "misconception_code": "SMA11-G-B3-14"
           },
           {
            "_row": {
@@ -1241,7 +1306,8 @@
            "label": "C",
            "body": "mutu sumber daya manusia yang menyangkut kemampuan fisik dan non fisik",
            "is_correct": false,
-           "rationale": "Ini pengertian kualitas SDM."
+           "rationale": "Ini pengertian kualitas SDM.",
+           "misconception_code": "SMA11-G-B3-14"
           },
           {
            "_row": {
@@ -1273,7 +1339,8 @@
            "label": "A",
            "body": "95",
            "is_correct": false,
-           "rationale": "Pembagiannya terbalik (perempuan : laki-laki). Rasio jenis kelamin adalah laki-laki untuk setiap 100 perempuan."
+           "rationale": "Pembagiannya terbalik (perempuan : laki-laki). Rasio jenis kelamin adalah laki-laki untuk setiap 100 perempuan.",
+           "misconception_code": "SMA11-G-B3-12"
           },
           {
            "_row": {
@@ -1283,7 +1350,8 @@
            "label": "B",
            "body": "2.300",
            "is_correct": false,
-           "rationale": "Ini selisih laki-laki dan perempuan, bukan rasio."
+           "rationale": "Ini selisih laki-laki dan perempuan, bukan rasio.",
+           "misconception_code": "SMA11-G-B3-12"
           },
           {
            "_row": {
@@ -1303,7 +1371,8 @@
            "label": "D",
            "body": "51",
            "is_correct": false,
-           "rationale": "Ini persentase laki-laki dari seluruh penduduk (sekitar 51%), bukan rasio."
+           "rationale": "Ini persentase laki-laki dari seluruh penduduk (sekitar 51%), bukan rasio.",
+           "misconception_code": "SMA11-G-B3-12"
           }
          ]
         },
@@ -1325,7 +1394,8 @@
            "label": "A",
            "body": "Pulau Sumatra",
            "is_correct": false,
-           "rationale": "Penduduk Sumatra 21,68%."
+           "rationale": "Penduduk Sumatra 21,68%.",
+           "misconception_code": "SMA11-G-B3-11"
           },
           {
            "_row": {
@@ -1345,7 +1415,8 @@
            "label": "C",
            "body": "Pulau Sulawesi",
            "is_correct": false,
-           "rationale": "Penduduk Sulawesi 7,36%."
+           "rationale": "Penduduk Sulawesi 7,36%.",
+           "misconception_code": "SMA11-G-B3-11"
           },
           {
            "_row": {
@@ -1355,7 +1426,8 @@
            "label": "D",
            "body": "Pulau Kalimantan",
            "is_correct": false,
-           "rationale": "Penduduk Kalimantan 6,15%."
+           "rationale": "Penduduk Kalimantan 6,15%.",
+           "misconception_code": "SMA11-G-B3-11"
           }
          ]
         },
@@ -1387,7 +1459,8 @@
            "label": "B",
            "body": "jumlah persentase penduduk usia 60 tahun ke atas lebih dari 10%",
            "is_correct": false,
-           "rationale": "Ini ciri era ageing population, yang sedang dituju Indonesia."
+           "rationale": "Ini ciri era ageing population, yang sedang dituju Indonesia.",
+           "misconception_code": "SMA11-G-B3-11"
           },
           {
            "_row": {
@@ -1397,7 +1470,8 @@
            "label": "C",
            "body": "rasio jenis kelamin tertinggi pada usia 0–9 tahun",
            "is_correct": false,
-           "rationale": "Ini keterangan rasio jenis kelamin menurut umur."
+           "rationale": "Ini keterangan rasio jenis kelamin menurut umur.",
+           "misconception_code": "SMA11-G-B3-11"
           },
           {
            "_row": {
@@ -1407,7 +1481,8 @@
            "label": "D",
            "body": "tingkat kelahiran yang rendah",
            "is_correct": false,
-           "rationale": "Ini ciri piramida tua."
+           "rationale": "Ini ciri piramida tua.",
+           "misconception_code": "SMA11-G-B3-13"
           }
          ]
         }
@@ -1447,7 +1522,8 @@
            "label": "A",
            "body": "penyebaran budaya hidup sehat",
            "is_correct": false,
-           "rationale": "Ini kebijakan pembangunan kesehatan menurut Mulyadi."
+           "rationale": "Ini kebijakan pembangunan kesehatan menurut Mulyadi.",
+           "misconception_code": "SMA11-G-B3-08"
           },
           {
            "_row": {
@@ -1457,7 +1533,8 @@
            "label": "B",
            "body": "mendistribusikan kepadatan penduduk melalui transmigrasi",
            "is_correct": false,
-           "rationale": "Ini kebijakan untuk persebaran penduduk."
+           "rationale": "Ini kebijakan untuk persebaran penduduk.",
+           "misconception_code": "SMA11-G-B3-08"
           },
           {
            "_row": {
@@ -1477,7 +1554,8 @@
            "label": "D",
            "body": "pencatatan identitas penduduk secara terus menerus",
            "is_correct": false,
-           "rationale": "Ini pengertian registrasi penduduk."
+           "rationale": "Ini pengertian registrasi penduduk.",
+           "misconception_code": "SMA11-G-B3-10"
           }
          ]
         },
@@ -1499,7 +1577,8 @@
            "label": "A",
            "body": "gerakan keluarga berencana dan transmigrasi",
            "is_correct": false,
-           "rationale": "Ini kebijakan untuk laju pertumbuhan dan kepadatan penduduk."
+           "rationale": "Ini kebijakan untuk laju pertumbuhan dan kepadatan penduduk.",
+           "misconception_code": "SMA11-G-B3-08"
           },
           {
            "_row": {
@@ -1509,7 +1588,8 @@
            "label": "B",
            "body": "perluasan jangkauan pelayanan kesehatan masyarakat",
            "is_correct": false,
-           "rationale": "Ini kebijakan pembangunan kesehatan."
+           "rationale": "Ini kebijakan pembangunan kesehatan.",
+           "misconception_code": "SMA11-G-B3-08"
           },
           {
            "_row": {
@@ -1529,7 +1609,8 @@
            "label": "D",
            "body": "intensifikasi, ekstensifikasi, dan diversifikasi",
            "is_correct": false,
-           "rationale": "Ini cara meningkatkan hasil pertanian."
+           "rationale": "Ini cara meningkatkan hasil pertanian.",
+           "misconception_code": "SMA11-G-B3-08"
           }
          ]
         },
@@ -1551,7 +1632,8 @@
            "label": "A",
            "body": "pengembangan sumber daya manusia",
            "is_correct": false,
-           "rationale": "Ini proses peningkatan pengetahuan, keterampilan, dan kapasitas penduduk."
+           "rationale": "Ini proses peningkatan pengetahuan, keterampilan, dan kapasitas penduduk.",
+           "misconception_code": "SMA11-G-B3-14"
           },
           {
            "_row": {
@@ -1561,7 +1643,8 @@
            "label": "B",
            "body": "angka harapan hidup",
            "is_correct": false,
-           "rationale": "Ini rata-rata perkiraan tahun yang dapat ditempuh seseorang selama hidupnya."
+           "rationale": "Ini rata-rata perkiraan tahun yang dapat ditempuh seseorang selama hidupnya.",
+           "misconception_code": "SMA11-G-B3-14"
           },
           {
            "_row": {
@@ -1571,7 +1654,8 @@
            "label": "C",
            "body": "Indeks Pembangunan Manusia",
            "is_correct": false,
-           "rationale": "Ini ukuran kualitas penduduk dari aspek kesehatan, pendidikan, dan kesejahteraan."
+           "rationale": "Ini ukuran kualitas penduduk dari aspek kesehatan, pendidikan, dan kesejahteraan.",
+           "misconception_code": "SMA11-G-B3-14"
           },
           {
            "_row": {
@@ -1621,7 +1705,8 @@
            "label": "A",
            "body": "mengurangi laju pertumbuhan penduduk",
            "is_correct": false,
-           "rationale": "Menurut Mulyadi, laju pertumbuhan dikurangi dengan keluarga berencana; transmigrasi menyebarkan kepadatan penduduk."
+           "rationale": "Menurut Mulyadi, laju pertumbuhan dikurangi dengan keluarga berencana; transmigrasi menyebarkan kepadatan penduduk.",
+           "misconception_code": "SMA11-G-B3-08"
           },
           {
            "_row": {
@@ -1631,7 +1716,8 @@
            "label": "B",
            "body": "peningkatan hasil pertanian",
            "is_correct": false,
-           "rationale": "Hasil pertanian ditingkatkan melalui intensifikasi, ekstensifikasi, dan diversifikasi."
+           "rationale": "Hasil pertanian ditingkatkan melalui intensifikasi, ekstensifikasi, dan diversifikasi.",
+           "misconception_code": "SMA11-G-B3-08"
           },
           {
            "_row": {
@@ -1651,7 +1737,8 @@
            "label": "D",
            "body": "penyebaran budaya hidup sehat",
            "is_correct": false,
-           "rationale": "Ini kebijakan di bidang kesehatan."
+           "rationale": "Ini kebijakan di bidang kesehatan.",
+           "misconception_code": "SMA11-G-B3-08"
           }
          ]
         },
@@ -1674,7 +1761,8 @@
            "label": "A",
            "body": "1961–1971",
            "is_correct": false,
-           "rationale": "Laju periode ini 2,10%, lebih rendah dari 2,31%."
+           "rationale": "Laju periode ini 2,10%, lebih rendah dari 2,31%.",
+           "misconception_code": "SMA11-G-B3-15"
           },
           {
            "_row": {
@@ -1694,7 +1782,8 @@
            "label": "C",
            "body": "2000–2010",
            "is_correct": false,
-           "rationale": "Laju periode ini 1,49%."
+           "rationale": "Laju periode ini 1,49%.",
+           "misconception_code": "SMA11-G-B3-15"
           },
           {
            "_row": {
@@ -1704,7 +1793,8 @@
            "label": "D",
            "body": "2010–2020",
            "is_correct": false,
-           "rationale": "Periode ini justru yang terendah, 1,25%."
+           "rationale": "Periode ini justru yang terendah, 1,25%.",
+           "misconception_code": "SMA11-G-B3-15"
           }
          ]
         },
@@ -1726,7 +1816,8 @@
            "label": "A",
            "body": "Belanda",
            "is_correct": false,
-           "rationale": "Laju pertumbuhan Belanda 0,3%."
+           "rationale": "Laju pertumbuhan Belanda 0,3%.",
+           "misconception_code": "SMA11-G-B3-15"
           },
           {
            "_row": {
@@ -1746,7 +1837,8 @@
            "label": "C",
            "body": "Finlandia",
            "is_correct": false,
-           "rationale": "Laju pertumbuhan Finlandia 0,2%."
+           "rationale": "Laju pertumbuhan Finlandia 0,2%.",
+           "misconception_code": "SMA11-G-B3-15"
           },
           {
            "_row": {
@@ -1756,7 +1848,8 @@
            "label": "D",
            "body": "Jepang",
            "is_correct": false,
-           "rationale": "Jepang disebut sebagai contoh negara berpiramida tua; laju pertumbuhannya tidak disebut buku."
+           "rationale": "Jepang disebut sebagai contoh negara berpiramida tua; laju pertumbuhannya tidak disebut buku.",
+           "misconception_code": "SMA11-G-B3-15"
           }
          ]
         }
@@ -1765,6 +1858,158 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SMA11-G-B3-01",
+   "label": "Peran biotik tertukar",
+   "description": "Produsen, konsumen, dan pengurai tertukar, misalnya jamur dikira produsen.",
+   "remediation": "Tanyakan dari mana makhluk itu mendapat makanan atau energinya: membuat sendiri, memakan yang lain, atau menguraikan yang mati."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SMA11-G-B3-02",
+   "label": "Unsur lingkungan tertukar",
+   "description": "Unsur biotik, abiotik, dan sosial budaya tertukar.",
+   "remediation": "Minta murid memeriksa: hidup atau tidak hidup? hasil ciptaan manusia atau bukan?"
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SMA11-G-B3-03",
+   "label": "Lingkungan alami dan buatan tertukar",
+   "description": "Lingkungan alami (air atau darat) dan lingkungan buatan tertukar.",
+   "remediation": "Tanyakan apakah lingkungan itu dibuat manusia dengan teknologi atau terbentuk tanpa campur tangan manusia."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SMA11-G-B3-04",
+   "label": "Manfaat lingkungan tertukar",
+   "description": "Manfaat satu unsur lingkungan dipakai untuk unsur lain.",
+   "remediation": "Buat daftar enam manfaat lingkungan dan cocokkan dengan contohnya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SMA11-G-B3-05",
+   "label": "Angka atau indikator kualitas lingkungan tertukar",
+   "description": "Nilai IKLH, targetnya, atau selisihnya tertukar, atau indikator IKLH tertukar dengan indeks lain.",
+   "remediation": "Tuliskan nilai tahun 2019, 2020, dan targetnya berdampingan, lalu tentukan selisih yang ditanyakan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SMA11-G-B3-06",
+   "label": "Faktor kualitas lingkungan tertukar",
+   "description": "Faktor alam dan faktor sosial budaya yang memengaruhi kualitas lingkungan tertukar.",
+   "remediation": "Tanyakan apakah faktor itu berasal dari alam atau dari cara hidup dan berpikir masyarakat."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SMA11-G-B3-07",
+   "label": "Penyebab masalah lingkungan tertukar",
+   "description": "Penyebab atau ciri satu masalah lingkungan dipakai untuk masalah lain.",
+   "remediation": "Buat peta konsep: setiap masalah dengan penyebab dan akibatnya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SMA11-G-B3-08",
+   "label": "Upaya pengelolaan tertukar",
+   "description": "Upaya untuk satu masalah lingkungan atau kependudukan dipakai untuk masalah lain.",
+   "remediation": "Pasangkan setiap upaya dengan masalah yang diatasinya dan minta murid menjelaskan alasannya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SMA11-G-B3-09",
+   "label": "Rumus pertumbuhan penduduk keliru",
+   "description": "Hanya sebagian rumus dipakai, tanda imigrasi dan emigrasi tertukar, atau semua angka dijumlahkan.",
+   "remediation": "Tulis rumus P = (L − M) + (I − E), isi setiap huruf, dan hitung dua kurung secara terpisah."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SMA11-G-B3-10",
+   "label": "Cara pengumpulan data penduduk tertukar",
+   "description": "Sensus, registrasi, dan survei, atau de facto dan de jure, atau canvasser dan householder, tertukar.",
+   "remediation": "Buat tabel: siapa yang dicacah, siapa yang mengisi, seluruh penduduk atau sampel, sekali atau terus-menerus."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SMA11-G-B3-11",
+   "label": "Data komposisi atau distribusi tertukar",
+   "description": "Persentase atau angka milik kelompok atau wilayah lain dipakai sebagai jawaban.",
+   "remediation": "Minta murid membaca kembali keterangan setiap angka: wilayah, kelompok umur, atau tahun."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 13
+   },
+   "code": "SMA11-G-B3-12",
+   "label": "Rasio jenis kelamin keliru dihitung",
+   "description": "Rasio dihitung terbalik (perempuan per 100 laki-laki), atau yang dihitung selisih atau persentase.",
+   "remediation": "Ingatkan arti rasio 102: banyak laki-laki untuk setiap 100 perempuan. Bagi laki-laki dengan perempuan, lalu kalikan 100."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 14
+   },
+   "code": "SMA11-G-B3-13",
+   "label": "Jenis piramida penduduk tertukar",
+   "description": "Ciri piramida muda, tua, dan stasioner tertukar.",
+   "remediation": "Hubungkan dasar piramida dengan kelahiran dan puncaknya dengan penduduk usia tua."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 15
+   },
+   "code": "SMA11-G-B3-14",
+   "label": "Konsep SDM tertukar",
+   "description": "SDM mikro dan makro, kuantitas dan kualitas, atau aspek fisik dan nonfisik tertukar.",
+   "remediation": "Minta murid menyebut contoh untuk setiap istilah sebelum memilih."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 16
+   },
+   "code": "SMA11-G-B3-15",
+   "label": "Data laju pertumbuhan tertukar",
+   "description": "Laju pertumbuhan satu periode atau satu negara dipakai untuk periode atau negara lain.",
+   "remediation": "Tuliskan tabel laju pertumbuhan satu baris per periode, lalu cari nilai tertinggi dan terendahnya."
   }
  ]
 }

@@ -1,0 +1,101 @@
+# #150 WP-B (D-109(a)): STAGING'S BACKUP PATH, CHECKED READ ONLY.
+#
+# Before any backup credential exists (C2 is O6), this shows on hosted staging, through the very path the backup will
+# use, what backup-offsite.yml takes for granted (scripts/recovery/path-check.mjs):
+#   1. the session pooler's endpoint, from Supabase's own configuration for the project or, where Supabase refuses it
+#      to the token (run 37414154468: HTTP 403), from the owner's dashboard value given as this run's inputs
+#      (staging -> Connect -> Session pooler); the connection staging's apply already uses must agree; never guessed;
+#   2. TLS verify-full against the committed Supabase Root 2021 CA;
+#   3. one exported snapshot shared with a second session and with pg_dump through the pooler (a schema dump, hashed
+#      and deleted; no row of data leaves the database);
+#   4. pintar_backup's security profile equal, line for line, to the proven local one, and the extensions equal to
+#      staging's approved baseline.
+# Read only: as the administrative user staging's apply already uses, every statement in a read-only transaction.
+# Nothing is written, granted or configured; no password, token or connection string is printed. By hand only.
+
+name: backup · staging's path, read only
+
+on:
+  workflow_dispatch:
+    inputs:
+      pooler_host:
+        description: "Session pooler host, from the dashboard (staging -> Connect -> Session pooler); empty: Supabase's API only"
+        type: string
+        default: ""
+      pooler_port:
+        description: "its port (the session pooler's is 5432)"
+        type: string
+        default: "5432"
+      pooler_user:
+        description: "its user (postgres.keijhmdtsgrfvnvocfvk)"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-backup-path
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+
+jobs:
+  path:
+    if: github.ref == 'refs/heads/main'
+    name: pooler, verify-full, shared snapshot, pintar_backup's profile
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/recovery
+            docs/recovery
+            .github/workflows
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: PostgreSQL 17's client and pg_dump (the server's major version)
+        run: |
+          set -euo pipefail
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y > /dev/null
+          sudo apt-get install -y -qq postgresql-client-17 > /dev/null
+          /usr/lib/postgresql/17/bin/pg_dump --version
+      - name: 1. The session pooler, from Supabase's configuration and staging's apply
+        id: pooler
+        env:
+          SUPABASE_PROJECT_REF: ${{ env.STAGING_SUPABASE_PROJECT_REF }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
+          ADMIN_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          OWNER_POOLER_HOST: ${{ inputs.pooler_host }}
+          OWNER_POOLER_PORT: ${{ inputs.pooler_port }}
+          OWNER_POOLER_USER: ${{ inputs.pooler_user }}
+        run: |
+          set -euo pipefail
+          # the backup workflow's own value, read from its file: it must be the one Supabase reports
+          export EXPECTED_POOLER_HOST=$(sed -n 's/^  STAGING_POOLER_HOST: *//p' .github/workflows/backup-offsite.yml)
+          node scripts/recovery/path-check.mjs pooler
+      - name: 2. TLS verify-full against Supabase Root 2021 CA
+        if: always() && steps.pooler.outputs.host != ''
+        env:
+          POOLER_HOST: ${{ steps.pooler.outputs.host }}
+          ADMIN_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          PATH_PREFIX: /usr/lib/postgresql/17/bin
+        run: PATH="$PATH_PREFIX:$PATH" node scripts/recovery/path-check.mjs tls
+      - name: 3. One snapshot, shared through the pooler
+        if: always() && steps.pooler.outputs.host != ''
+        env:
+          POOLER_HOST: ${{ steps.pooler.outputs.host }}
+          ADMIN_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          PINTAR_PG_BIN: /usr/lib/postgresql/17/bin
+          PATH_PREFIX: /usr/lib/postgresql/17/bin
+        run: PATH="$PATH_PREFIX:$PATH" node scripts/recovery/path-check.mjs snapshot
+      - name: 4. pintar_backup's profile, and the extensions
+        if: always() && steps.pooler.outputs.host != ''
+        env:
+          POOLER_HOST: ${{ steps.pooler.outputs.host }}
+          ADMIN_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          PATH_PREFIX: /usr/lib/postgresql/17/bin
+        run: PATH="$PATH_PREFIX:$PATH" node scripts/recovery/path-check.mjs profile

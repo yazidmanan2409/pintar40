@@ -1,0 +1,20 @@
+# #150 WP-B (D-107 A7, D-108, D-109(a)): pintar_backup's PROVEN security profile, as scripts/recovery/backup-profile.sql
+# prints it on the local stack and on CI's database after migration 20261125100000, where selftest DR-S15 tries every
+# write and finds each refused. Hosted staging must print exactly these lines (scripts/recovery/path-check.mjs profile);
+# any difference is a stop point (D-109(a)). Lines starting with # are not part of the profile.
+attributes|super=f inherit=t createrole=f createdb=f login=t replication=f bypassrls=t connlimit=3 validuntil=none
+defaults|default_transaction_read_only=on,idle_in_transaction_session_timeout=15min,idle_session_timeout=15min,lock_timeout=30s,statement_timeout=15min
+defaults_in_one_database|0
+member_of|pg_read_all_data admin=f inherit=t set=t
+become_or_inherit_it|nobody
+can_set_role_to|pg_read_all_data
+owns|0
+named_in_a_grant|0
+creates_in_schema|none
+database|create=f temporary=t connect=t
+writes_to|nothing
+advances_sequences|0
+executes_security_definer|nothing
+executes_pintar_function|0
+cannot_read_backup_table|0
+cannot_use_schema|none

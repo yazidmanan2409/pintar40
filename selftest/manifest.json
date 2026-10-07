@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 177,
+  "version": 185,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -428,6 +428,11 @@
       "id": "F03-T10",
       "runner": "db",
       "proves": "INV-08 / INV-09 — a second learner is refused on both paths, the stored score equals a fresh recomputation, and a duplicate finalize observes one root result. SCOPE: the RPC exposure contract re-run here (assert_engine_takes_no_identity) is a SIGNATURE TRIPWIRE, not the INV-08 proof — it inspects argument names and types and cannot tell a resource id from an identity, so p_session uuid passes and correctly so. INV-08's actual guarantee is the ownership check in session_is_mine and the definer bodies, which the behavioural half of this id exercises. It also asserts every client-executable SECDEF function carries an exposure class, so an unregistered new RPC fails rather than being skipped."
+    },
+    {
+      "id": "F03-T11",
+      "runner": "db",
+      "proves": "J6.7 / STU-08 (CR-29), doc 04 §2's pause rule, measured in selftest/db/fable03.sql against pause_session and resume_session (20260913090000): the learning cycle's Uji Penguasaan, whose definition allows pausing, is paused by its learner and resumed by them; its Pemetaan Awal, whose definition does not, is refused «does not allow pausing»; another learner can neither resume nor pause someone's sitting; a sitting past its authoritative deadline cannot be paused."
     },
     {
       "id": "F03-S01",
@@ -1821,7 +1826,7 @@
     {
       "id": "F10-V03",
       "runner": "db",
-      "proves": "BOB-20 (D-048). In the suite selftest/db/fable10.sql, seeing grants nothing: the school's admin is still refused a grant at another school's node (INSTITUTION_ADMIN scope) and a grant of INSTITUTION_ADMIN or SYSTEM_ADMIN to a teacher it can see, and no refused grant leaves a role behind."
+      "proves": "BOB-20 (D-048). In the suite selftest/db/fable10.sql, seeing grants nothing: the school's admin is still refused a grant at another school's node (INSTITUTION_ADMIN scope), INSTITUTION_ADMIN at another school, and SYSTEM_ADMIN to a teacher it can see (D-101 (2): INSTITUTION_ADMIN at its own school is its own to appoint), and no refused grant leaves a role behind."
     },
     {
       "id": "F10-G01",
@@ -1871,7 +1876,7 @@
     {
       "id": "F11-N02",
       "runner": "db",
-      "proves": "BOB-02 (M8). Only someone who may draft in the batch's school prepares or confirms it: a DEAN and another school's admin are PR030 PACKAGE_NOT_ALLOWED, a foreign and an unknown batch answer identically, an anonymous caller cannot execute confirm_ingest_batch, and a package for the platform's canonical library is PACKAGE_SCHOOL_NOT_ALLOWED."
+      "proves": "BOB-02 (M8). Only someone who may draft in the batch's school prepares or confirms it: a DEAN and another school's admin are PR030 PACKAGE_NOT_ALLOWED, a foreign and an unknown batch answer identically, an anonymous caller cannot execute confirm_ingest_batch, and a package for the platform's canonical library from a school role holding CAN_DRAFT there is PACKAGE_SCHOOL_NOT_ALLOWED, while the platform admin's is accepted (RESTATED for CR-51, D-120 Q7)."
     },
     {
       "id": "F11-N03",
@@ -1906,7 +1911,7 @@
     {
       "id": "F12-N01",
       "runner": "db",
-      "proves": "BOB-03 (D-011). Every refusal on the release path is PR040 with its code and changes nothing: a course in review (RELEASE_COURSE_NOT_APPROVED), a second release (RELEASE_EXISTS), a teacher, a DEAN, another school's admin and an unknown course (RELEASE_NOT_ALLOWED, the last two identical), the platform library (RELEASE_SCHOOL_NOT_ALLOWED, D-029), a second freeze and publishing an unfrozen release (RELEASE_STATE_INVALID), a teacher's freeze, a head of department's and another school's withdrawal (RELEASE_PUBLISH_NOT_ALLOWED) and a withdrawal without a reason (RELEASE_REASON_REQUIRED); a second click on publish publishes and audits nothing twice."
+      "proves": "BOB-03 (D-011). Every refusal on the release path is PR040 with its code and changes nothing: a course in review (RELEASE_COURSE_NOT_APPROVED), a second release (RELEASE_EXISTS), a teacher, a DEAN, another school's admin and an unknown course (RELEASE_NOT_ALLOWED, the last two identical), a school role's release of the platform library (RELEASE_SCHOOL_NOT_ALLOWED, D-029; the platform admin's answers the course's own state, RESTATED for CR-51, D-120 Q7), a second freeze and publishing an unfrozen release (RELEASE_STATE_INVALID), a teacher's freeze, a head of department's and another school's withdrawal (RELEASE_PUBLISH_NOT_ALLOWED) and a withdrawal without a reason (RELEASE_REASON_REQUIRED); a second click on publish publishes and audits nothing twice."
     },
     {
       "id": "F12-N02",
@@ -2042,7 +2047,7 @@
     {
       "id": "F06-P22",
       "runner": "db",
-      "proves": "BOB-39 (post-login review #2, D-061), migration 20261024100000 measured in selftest/db/fable06.sql: a Head of Department recording REFERRED_TO_INSTITUTION through record_integrity_review raises, in the same transaction, one AWAITING_REVIEW INTEGRITY_REFERRAL on the signal's class node with the reviewer's note as raised_note, beside the review's audit row, and it is in that Head of Department's decision queue read through RLS as /pimpinan reads it; NO_CONCERN and DISCUSSED_WITH_LEARNER create nothing; a second referral of the open signal is the same decision; a referral of a signal outside the reviewer's department is refused whole, leaving no decision and no review row, while NO_CONCERN there is still recorded; a Head of Department over another department does not see it; a teacher is still refused; advance_management_decision takes it up and decides it."
+      "proves": "BOB-39 (post-login review #2, D-061), migration 20261024100000 measured in selftest/db/fable06.sql: a Head of Department recording REFERRED_TO_INSTITUTION through record_integrity_review raises, in the same transaction, one AWAITING_REVIEW INTEGRITY_REFERRAL on the signal's class node with the reviewer's note as raised_note, beside the review's audit row, and it is in that Head of Department's decision queue read through RLS as /pimpinan reads it; NO_CONCERN and DISCUSSED_WITH_LEARNER create nothing; a second referral of the open signal is the same decision; a referral of a signal outside the reviewer's department is refused whole, leaving no decision and no review row, while NO_CONCERN there is still recorded; a Head of Department over another department does not see it; a teacher is still refused; advance_management_decision takes it up and decides it. RESTATED FOR CR-76 (W-2, D-123(4), migration 20261205100000): the Head of Department who referred it is refused «Saya yang menangani» and «Catat keputusan» (REFERRER_CANNOT_DECIDE) and told by management_decision_independent_decider that another may decide it, or that nobody else can while no other Management role stands over the class; another department's Head of Department is told nothing; the dean takes it up and decides it; the table refuses a referral decided by its referrer."
     },
     {
       "id": "F06-P23",
@@ -2186,7 +2191,12 @@
     {
       "id": "F16-N01",
       "runner": "db",
-      "proves": "BOB-24, storage and surfaces of migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: the six identity tables have RLS on, no policies and no grant for anon, authenticated or service_role; recovery_attempt, recovery_restore, identity_attempt and identity_attempt_settle execute for service_role only and are no client RPC; pin_matches, the ID generator and normaliser and the rule functions execute for nobody; the seven client functions are in client_rpc_registry, the four self-service ones as LEARNER noted as the caller's own and the platform admin's as SYSTEM_ADMIN; a teacher and a visitor are refused 42501 by the database; and security_events gives the platform admin identity events only."
+      "proves": "BOB-24, storage and surfaces of migration 20261021100000 (an identity foundation), measured in selftest/db/fable16.sql: the six identity tables have RLS on, no policies and no grant for anon, authenticated or service_role; recovery_attempt, recovery_restore, identity_attempt and identity_attempt_settle execute for service_role only and are no client RPC; pin_matches, the ID generator and normaliser and the rule functions execute for nobody; the seven client functions are in client_rpc_registry, the four self-service ones as LEARNER noted as the caller's own, correct_username and security_events as SYSTEM_ADMIN and admin_reset_recovery as SCOPE INSTITUTION_ADMIN (D-101 (1)); a teacher and a visitor are refused 42501 by the database; and security_events gives the platform admin identity events only."
+    },
+    {
+      "id": "F16-X01",
+      "runner": "db",
+      "proves": "C13 / J1.8 (CR-19), the persona clause of identity, measured in selftest/db/fable16.sql against the live functions: an evaluation persona is given, and rolled back, a set-up row, a personal PIN and a username, as a staff person would have, and every surface still refuses it by its own persona clause. No permit to set a password at activation; signed in it reads NOT_APPLICABLE, the wizard shows no PINTAR ID, my_identity_card and set_my_pin are IDENTITY_NOT_ELIGIBLE; its address and username resolve to nothing for a password sign-in or a recovery code; its PINTAR ID with the right PIN answers NOT_ELIGIBLE with no grant, no notice and no owner, and a grant for it is refused; the platform admin's recovery look-up by PINTAR ID finds nobody. Activation (F18-L01), the username claim (F16-U01) and the device question (BOB29) are proven where they are built."
     },
     {
       "id": "F16-C01",
@@ -2223,6 +2233,47 @@
       "id": "BOB07-K02",
       "runner": "static",
       "proves": "BOB-07 (D-011). Each refusal enforce_content_status raises, read from the migration source that defines it last, maps to its own CONTENT_ code in the source file src/lib/galat-kontrak.ts, and a message that only quotes one does not; any action's refusal becomes its code by SQLSTATE and wording, else ACTION_FAILED; every code of the catalogue has a sentence in the copy table in both languages naming no machinery; the banner shows a code's sentence, a count, a package problem at its place and a failure's reference, while a planted legacy detail, unknown code, bad reference and unknown problem never reach it; Studio's shared outcome line and Konfigurasi's result line read only the code."
+    },
+    {
+      "id": "BOB07-K03",
+      "runner": "static",
+      "proves": "J10.2 (CR-45), D-011, executed: the real src/app/error.tsx and src/app/global-error.tsx are rendered as Next draws them before any script runs, with a failure whose own words are a database sentence, a table name and a source path, and with one that has no digest. Each shows PINTAR's sentence, a way to try again and back to the start, an alert role and «Rujukan: <digest>», and none of the failure's words or Next's default text; with no digest, no reference is made up; the root-error page brings its own <html lang>; the shared panel reads the same in English. The not-found page is DAISY-04's app test (a 404 over HTTP)."
+    },
+    {
+      "id": "PENUTUPAN-Q10",
+      "runner": "static",
+      "proves": "D-121(a), executed: rendered from the real src/components/sertifikat/KartuSertifikat.tsx on screen and on the A4 sheet, a certificate with no PINTAR descriptor (a learner who passed a school mark below 70%) has no «Predikat» line and no dash, while «Baik» and «Cukup» are read; the public check (src/app/verifikasi/[token]/page.tsx) draws the descriptor line only when there is one."
+    },
+    {
+      "id": "PENUTUPAN-S01",
+      "runner": "static",
+      "proves": "CR-02 (D-078(c), D-077(d)), read from the source file src/app/belajar/[tugas]/sertifikat/page.tsx: the learner's certificate page takes the school's name and the course from the certificate's own seal (my_certificate's institution_as_issued, course_*_as_issued) before anything live, and draws the certificate on screen and on the A4 sheet in the language it was issued in (language_as_issued); CertificateDetail carries the four sealed fields. The database half is F20-S01."
+    },
+    {
+      "id": "PENUTUPAN-M04",
+      "runner": "static",
+      "proves": "CR-50 (D-063 M5, D-120 Q9), executed: each PINTAR chapter workbook in docs/onboarding/konten, read and converted by the upload page's own reader and converter (src/lib/xlsx.ts, src/lib/unggah-kontrak.ts), is byte for byte its committed .paket.json, so the package imported is the file reviewed; every wrong option names a misconception code, every code it names is defined on the same file's «Miskonsepsi» sheet, and every definition is used; a problem on the «Miskonsepsi» sheet is placed by its column's header (src/components/unggah/lokasi.ts). The database half (the definitions become the importing owner's own, and a different definition of a held code is refused) is F20-M01..M03."
+    },
+    {
+      "id": "PENUTUPAN-E03",
+      "runner": "static",
+      "proves": "CR-13 (D-120 QN1), read from the source file src/app/api/akun/email/route.ts and the migration 20261203100000: the route refuses another origin and a signed-out caller, asks authorize_email_correction with the caller's own client before Auth is touched, moves exactly the granted address (no password, no new identity), maps every refusal the database names to its own code with a status, and tells the old and the new address only after activation, after the answer; the notice's six texts (email.aman.email_dikoreksi.*) read in both languages and carry no address."
+    },
+    {
+      "id": "PENUTUPAN-W01",
+      "runner": "static",
+      "proves": "CR-76 (W-2, D-123(4)), the rendered component KartuKeputusan (src/components/pimpinan/KartuKeputusan.tsx): the referrer's own open integrity referral, awaiting or under review, carries no form and says another leader decides it; with nobody else able to decide it also says so and that the school admin can appoint one; another decider's card offers «Saya yang menangani» and «Catat keputusan» and no waiting line; a decided referral says nothing of waiting; read from the source file src/lib/pimpinan.ts, the loader asks management_decision_independent_decider for the reader's own open integrity referrals only; both texts read in both languages."
+    },
+    {
+      "id": "PENUTUPAN-K01",
+      "runner": "static",
+      "proves": "CR-81 (D-123(3)), the rendered components PopulasiKelas, NilaiLaporan and BarisKesiapan (src/components/bukti/): the population reads «30 murid di kelas ini · 6 sudah mengerjakan Uji Penguasaan · 24 belum mengerjakan Uji Penguasaan» and is absent where a figure has none; a report entry lists the three bands, none of them «Belum mengerjakan», then the population; a band of 3 among 6 assessed is drawn as half; read from the source file src/app/mengajar/[kelas]/bukti/page.tsx, the class's evidence page sums the bands alone and says the population with the bands and while they are withheld."
+    },
+    {
+      "id": "PENUTUPAN-A01",
+      "runner": "app",
+      "proves": "CR-13 (D-120 QN1, J2.21 without SQL) through the route /api/akun/email of the running app, Auth, the Mailpit sink and the audit log: a staff member provisioned at a wrong address whose inbox opened the set-up with a code; the platform admin's correction with no reason is ALASAN_WAJIB, with one it answers sudahAktif false, the wrong inbox's set-up stops, and the person activates at the corrected address; a second person's unused code sent to a wrong address opens the account at neither address after the correction; after activation a teacher is refused (DITOLAK), the platform admin's correction answers sudahAktif true, the same password signs in at the new address only, the old and the new address each receive one notice carrying no address, and both corrections are audited with their branch and addresses.",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
     },
     {
       "id": "BOB07-R01",
@@ -2318,7 +2369,7 @@
     {
       "id": "DAISY-06-UNGGAH-01",
       "runner": "static",
-      "proves": "DAISY-06: the upload panel is RENDERED to html in a child process in both languages: the template download; three steps named for what they do with the first current; a Sekolah picker offering exactly the given schools with the first selected; an .xlsx file input; a check that waits for a file; no upload when no school is on offer. From the COPY TABLE, every package problem and refusal code reads as its own sentence in both languages, and a problem's place is OUTPUT as sheet, row and the column's KOLOM header. From the SOURCE, /studio/unggah reads each drafting school's tenant_kind and is_active and offers them through the shared school rule (never the national library) to the panel and the JSON forms, labelled Sekolah; the workbook panel comes first; and the panel reaches the server only through BOB-02's two typed actions and the signed-upload route, to the path the check returned."
+      "proves": "DAISY-06: the upload panel is RENDERED to html in a child process in both languages: the template download; three steps named for what they do with the first current; a Sekolah picker offering exactly the given schools with the first selected; an .xlsx file input; a check that waits for a file; no upload when no school is on offer. From the COPY TABLE, every package problem and refusal code reads as its own sentence in both languages, and a problem's place is OUTPUT as sheet, row and the column's KOLOM header. From the SOURCE, /studio/unggah reads each drafting school's tenant_kind and is_active and offers them through the shared school rule (never the national library) and, to the platform admin alone, the national library as well, last (tujuanUnggah, RESTATED for CR-51, D-120 Q7), to the panel and the JSON forms, labelled Sekolah; the workbook panel comes first; and the panel reaches the server only through BOB-02's two typed actions and the signed-upload route, to the path the check returned."
     },
     {
       "id": "DAISY-06-UNGGAH-02",
@@ -2328,7 +2379,7 @@
         "network"
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator and the platform administrator and reads the rendered /studio/unggah against the seed. CI has both facilities, so it never skips there",
-      "proves": "DAISY-06 over real HTTP against the seeded database (audit S14). The RENDERED html of /studio/unggah, for Alpha's school administrator and for the platform administrator, opens with the workbook section before the JSON forms and without a refusal: the template download, the three named steps with exactly one current, and exactly one file input in the first step, which accepts .xlsx. Its Sekolah picker offers at least one school and starts on a real one -- Sekolah Sintetis Alpha for Alpha's administrator, never 'PINTAR Kurikulum Nasional' -- and no school picker anywhere on the page offers the national library. Read only."
+      "proves": "DAISY-06 over real HTTP against the seeded database (audit S14). The RENDERED html of /studio/unggah, for Alpha's school administrator and for the platform administrator, opens with the workbook section before the JSON forms and without a refusal: the template download, the three named steps with exactly one current, and exactly one file input in the first step, which accepts .xlsx. Its Sekolah picker offers at least one school and starts on a real one -- Sekolah Sintetis Alpha for Alpha's administrator, never 'PINTAR Kurikulum Nasional' -- and no school picker anywhere on Alpha's administrator's page offers the national library, while the platform administrator's offers it exactly once, as the picker's last option (RESTATED for CR-51, D-120 Q7). Read only."
     },
     {
       "id": "DAISY-09-AKTIVASI-01",
@@ -2922,6 +2973,78 @@
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
+      "id": "F20-Q10",
+      "runner": "db",
+      "proves": "D-121(a)(b), Q10 Alternative 4, measured in selftest/db/fable20.sql: the current scoring version names Sangat Baik ≥ 90%, Baik ≥ 80% and Cukup ≥ 70% and nothing below 70%; the engine version is pintar-engine/2 (D-060(b)); a published version's descriptors cannot be edited in place and the next publication carries them forward; an official Uji Penguasaan at a school mark of 60% is not eligible at 55%, eligible with no descriptor at 65%, Cukup at 70% and 79%, Baik at 80%, Sangat Baik at 90% and 100%; the certificate at 65% carries passed, no descriptor, its score and the version, and the attempt keeps the 60% it was judged against; an attempt started under pintar-scoring/1 at 65% still reads «Perlu Pendampingan» (prospective only, issued certificates unaltered).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-F01",
+      "runner": "db",
+      "proves": "D-121(a), INV-29, measured in selftest/db/fable20.sql: a Uji Penguasaan started under one scoring version, with a newer version published before the learner finishes, is stamped with the version it was started under (finalize_session), not the newer one.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-N01",
+      "runner": "db",
+      "proves": "D-121(c), D-095(c)(g), review F5 / T4; RESTATED FOR CR-81 (D-123(3)), measured in selftest/db/fable20.sql against calc_class_readiness_distribution with the boundary bound to the class: five learners placed in an official class, two never started (one enrolment still PENDING) and one with an unfinished sitting, add 3 to the population's «Belum mengerjakan Uji Penguasaan» and to no band; one assessed at 45% and one at 95% whose safety gate failed add 2 to the lowest band and nothing elsewhere; the population counts 5 more placed and 2 more assessed; the sample, which the floor reads, grows by 2 (the assessed); a learner assessed at 100% is in the top band, never not yet; a learner moved out of the class counts there neither as not yet nor as placed.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-N02",
+      "runner": "db",
+      "proves": "CR-81, D-123(3), measured in selftest/db/fable20.sql through metric_evaluate as the platform admin: with three learners assessed among more placed the class's readiness distribution is below the floor of 5 with have equal to the assessed, shows no band, and its population still says how many have not sat the Uji Penguasaan; with five assessed it is ok and its bands add up to the assessed alone; another school's admin is answered not_permitted with no population.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-S01",
+      "runner": "db",
+      "proves": "CR-02, D-078(c), D-077(d), D-076(e), measured in selftest/db/fable20.sql: a certificate is prepared and sealed for the bootstrap learner, then the school is renamed; the public check (verify_certificate) and the learner's my_certificate still read the school's name as issued, the course its own release teaches and the language id; an update of the sealed school name is refused.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-C01",
+      "runner": "db",
+      "proves": "CR-01, D-080(2)(9), D-120 Q1, measured in selftest/db/fable20.sql: the holder's certificate is numbered <PINTAR ID>/<five digits>; their next certificate takes the next number of their own; the per-person counter (certificate_number_counters) can be neither deleted nor set back; save_certificate_template no longer takes a number prefix («Awalan nomor» retired).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-M01",
+      "runner": "db",
+      "proves": "CR-50, D-063 M1/M5, D-120 Q9, measured in selftest/db/fable20.sql through prepare_ingest_batch and confirm_ingest_batch: two schools import the same chapter carrying its «Miskonsepsi» definition and both succeed, each owning its own row under the code, each option naming its own school's row; the same school re-imports the same text and it is reused as one row; a different text under a held code is refused MISCONCEPTION_DEFINITION_DIFFERS and nothing changes; an option naming a code its package does not define is refused OPTION_MISCONCEPTION_UNKNOWN even when the school holds it.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-M02",
+      "runner": "db",
+      "proves": "CR-50, D-063 M2/M3/M4, measured in selftest/db/fable20.sql: school B's author cannot insert an option naming a definition only school A holds (the composite foreign key); a school's author cannot edit a definition in place (append-only); session_misconceptions, reading_map and service_cohort_misconceptions join a definition on the option's own school.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-M03",
+      "runner": "db",
+      "proves": "CR-50 closure evidence, measured in selftest/db/fable20.sql: a chapter imported with every wrong option carrying a defined misconception is reviewed by run_mcq_quality with no WEAK_MISCONCEPTION_LINKAGE finding.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-E01",
+      "runner": "db",
+      "proves": "CR-13 (D-120 QN1), measured in selftest/db/fable20.sql: before activation a teacher and another school's admin are refused and the person's school admin (CAN_PROVISION_PEOPLE there) is granted exactly the new address for two minutes, nothing changed yet; a blank reason, a malformed or card-shaped address, the unchanged address and another account's address are refused by name; after activation the school's admin is refused and only the platform admin is granted; a class-card holder has no email to correct; anon reaches nothing and the grants are read by nobody.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-E02",
+      "runner": "db",
+      "proves": "CR-13 (D-120 QN1), measured in selftest/db/fable20.sql against auth.users itself: an email account's address does not move without a grant, to another address than the granted one, or twice (EMAIL_CHANGE_REFUSED). After activation the platform admin's grant moves it in Auth's own transaction, the outstanding one-time code and the open session die, the password and the set-up stay, and identity.email_corrected records the reason, both addresses, the branch and who. Before activation the school admin's grant moves it and also clears the password, sets the PIN to be chosen again and the name to be confirmed again, and an activation code now goes to the new address only.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F20-K01",
+      "runner": "db",
+      "proves": "CR-51 (D-120 Q7), measured in selftest/db/fable20.sql: a platform admin imports a chapter into the PINTAR library (PLATFORM_CANONICAL) through the same package import a school uses and is recorded as its author; that admin's approval is refused and their freeze answers RELEASE_SAME_PERSON, so a second platform admin approves and freezes it; the release is published, distributed to a school by grant_release_distribution, and the school's teacher finds it exactly once in distributed_releases. Every school role stays refused at the library (F11-N02, F12-N01).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
       "id": "BOB50-A01",
       "runner": "app",
       "proves": "BOB-50 (D-082(d)), selftest/bob50.test.ts: the route POST /api/certificates/issue executes against the running app for a real, all-correct Uji Cepat asked by its own learner (signed in through /masuk/password): not_eligible, and no certificate row exists for the session.",
@@ -3035,7 +3158,7 @@
     {
       "id": "BOB28-D01",
       "runner": "static",
-      "proves": "BOB-28 (Gate 5), migration 20261116100000 against the database, rolled back (selftest/bob28.test.ts with selftest/db/fable01.sql's personas): recovery_by_pin answers MALFORMED for a short ID; nobody's ID walks WRONG, WRONG, LOCKED 3600 with no notice; a person's ID (any case, hyphenated) gives a PIN grant on the right PIN (audited identity.recovery_verified via PIN, ladder reset, notice PULIH_PIN to the owner); an unfinished account's right PIN is NOT_ELIGIBLE; three wrong lock 3600 with TERKUNCI, three more 14400 with TERKUNCI, three more SUSPENDED with DITANGGUHKAN and the PIN dead, the right PIN then SUSPENDED with no notice; an EMAIL recovery's password write restores the ladder (audited EMAIL_RECOVERY) and the old PIN stays WRONG; recovery_status, security_event_list and admin_reset_recovery refuse a teacher (42501) and serve the platform admin, nothing for nobody's ID; after six sends to an address a code is refused by ADDRESS and a security notice goes, twice; card_holders and authorize_card_reissue refuse a teacher and serve the school's administrator (last four digits only), refuse a wrong reason, a person without a card and a taken number, and write a CARD_REISSUE permit; the auth.users guard refuses any other address, moves the card number to the grant's own, audits account.card_reissued (reason, both numbers, the administrator and INSTITUTION_ADMIN), refuses a second change, and leaves email accounts alone; no client role reaches recovery_by_pin, card_holders as anon, or the re-issue table, and RECOVERY_PIN is a known scope."
+      "proves": "BOB-28 (Gate 5), migration 20261116100000 against the database, rolled back (selftest/bob28.test.ts with selftest/db/fable01.sql's personas): recovery_by_pin answers MALFORMED for a short ID; nobody's ID walks WRONG, WRONG, LOCKED 3600 with no notice; a person's ID (any case, hyphenated) gives a PIN grant on the right PIN (audited identity.recovery_verified via PIN, ladder reset, notice PULIH_PIN to the owner); an unfinished account's right PIN is NOT_ELIGIBLE; three wrong lock 3600 with TERKUNCI, three more 14400 with TERKUNCI, three more SUSPENDED with DITANGGUHKAN and the PIN dead, the right PIN then SUSPENDED with no notice; an EMAIL recovery's password write restores the ladder (audited EMAIL_RECOVERY) and the old PIN stays WRONG; recovery_status, security_event_list and admin_reset_recovery refuse a teacher (42501) and serve the platform admin, nothing for nobody's ID; after six sends to an address a code is refused by ADDRESS and a security notice goes, twice; card_holders and authorize_card_reissue refuse a teacher and serve the school's administrator (last four digits only), refuse a wrong reason, a person without a card and a taken number, and write a CARD_REISSUE permit; the auth.users guard refuses any other address, moves the card number to the grant's own, audits account.card_reissued (reason, both numbers, the administrator and INSTITUTION_ADMIN), refuses a second change, and leaves email accounts to their own guard (RESTATED for CR-13, D-120 QN1: an email account's address changed with no correction is refused EMAIL_CHANGE_REFUSED, F20-E02); no client role reaches recovery_by_pin, card_holders as anon, or the re-issue table, and RECOVERY_PIN is a known scope."
     },
     {
       "id": "BOB28-A01",
@@ -3046,7 +3169,7 @@
     {
       "id": "BOB28-A02",
       "runner": "app",
-      "proves": "BOB-28 (Gate 5) against the running app, Auth and the Mailpit sink: three wrong PINs give 400, 400, 423 PIN_TERKUNCI 3600 and the right PIN stays locked; after the lock passes three more give 14400; then three more give PIN_DITANGGUHKAN and the right PIN stays suspended; a session on another device is untouched; the owner's mail holds two lock notices and one suspension notice; email recovery during the suspension (asked by username, answered 200) sets a new password and the database's ladder returns to 0 while the old PIN answers PIN_TIDAK_COCOK; /akun renders, /api/akun/pin sets a new PIN once (a second is 409) and the new PIN recovers; the platform admin (uji.sysadmin) resets through /api/keamanan/pemulihan only with a reason (400 without), the answer says a new PIN is awaited, the PIN stops recovering, a staff member who is not the platform admin is refused 403, the audit log holds identity.recovery_restored ADMIN_RESET with the reason, and the owner's mail holds the reset notice.",
+      "proves": "BOB-28 (Gate 5) against the running app, Auth and the Mailpit sink: three wrong PINs give 400, 400, 423 PIN_TERKUNCI 3600 and the right PIN stays locked; after the lock passes three more give 14400; then three more give PIN_DITANGGUHKAN and the right PIN stays suspended; a session on another device is untouched; the owner's mail holds two lock notices and one suspension notice; email recovery during the suspension (asked by username, answered 200) sets a new password and the database's ladder returns to 0 while the old PIN answers PIN_TIDAK_COCOK; /akun renders, /api/akun/pin sets a new PIN once (a second is 409) and the new PIN recovers; the platform admin (uji.sysadmin) resets through /api/keamanan/pemulihan only with a reason (400 without), the answer says a new PIN is awaited, the PIN stops recovering, the person's own session is then sent to sign-in (D-101 (3)), a staff member who is no administrator is refused 403 (asked before the reset), the audit log holds identity.recovery_restored ADMIN_RESET with the reason, and the owner's mail holds the reset notice.",
       "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
     },
     {
@@ -3054,6 +3177,278 @@
       "runner": "app",
       "proves": "BOB-28 (D-088(e)) against the running app and Auth: a learner provisioned in the synthetic school gets a class card from the platform admin and signs in with it; /aktivasi lists them under «Kartu hilang atau rusak» in its rendered html; /api/akun/kartu-kelas refuses an unknown reason (400) and re-issues with HILANG: a new ten-digit number and six-digit PIN; the old card's session is sent to /masuk and the old card is refused; the new card signs in and opens /belajar; the account row and its Auth user are the same and its card number is the new one; the audit log holds account.card_reissued with HILANG and both numbers; a teacher is refused.",
       "skip_justification": "needs the running app and the local stack (Auth, PostgREST)"
+    },
+    {
+      "id": "D101-A01",
+      "runner": "app",
+      "proves": "D-101 answer (3) against the running app's routes, Auth and PostgREST (selftest/d101.test.ts): an access token a browser already holds answers a direct PostgREST request (200); with the session-ending core planted away a re-issued card's old token is still served (200, the gap shown on the same stack); with it, the old token is refused at once (401) after a card's re-issue, after a recovery by PINTAR ID + PIN (the person's other browser) and after the Platform Admin's assisted reset (the recovering browser too); every ended session is audited as a replaced credential.",
+      "skip_justification": "needs the running app and the local stack (Auth, PostgREST, the mail sink)"
+    },
+    {
+      "id": "D101-A02",
+      "runner": "app",
+      "proves": "D-101 answer (1) against the running app's route and rendered html (selftest/d101.test.ts): a teacher is refused a recovery lookup; a School Admin looks up and resets a teacher of her school through the route /api/keamanan/pemulihan, the teacher's token is then refused (401), and the reset is recorded with her, INSTITUTION_ADMIN and the school; she is refused herself (SENDIRI) and another school's learner (404, as an ID nobody holds); Konfigurasi links her to Keamanan akun without the security record and offers Admin sekolah, never Admin platform.",
+      "skip_justification": "needs the running app and the local stack (Auth, PostgREST, the mail sink)"
+    },
+    {
+      "id": "D102-A01",
+      "runner": "app",
+      "proves": "D-102 against the running app's routes, Auth and PostgREST (selftest/d102.test.ts): the activation wizard's token answers a direct PostgREST request; with the guard's activation branch planted away the first password leaves it served (200, the gap shown on the same stack); with it, the username step and a refused password leave it served (no clean-up there), and the first password moves the browser to a new session that is served (200) while the old token is refused (401) and its refresh too, recorded and audited PASSWORD_PERTAMA; the wizard then takes the PIN, the name and the finish on the new session and the home opens (or asks «Komputer siapa ini?», Gate 6).",
+      "skip_justification": "needs the running app and the local stack (Auth, PostgREST, the mail sink)"
+    },
+    {
+      "id": "BOB29-K01",
+      "runner": "static",
+      "proves": "BOB-29 (Gate 6). Runs src/lib/penjaga-sesi.ts: bacaPenjagaan reads sesi_periksa's answer and nothing else; jalurSaatTerkunci lets a locked session reach only /terkunci, /api/sesi/buka and /keluar; jalurBebasPilih; navigasiHalaman is a browser's GET document that is not a prefetch; mintaHalaman; idSesiDariToken; the device value and its SHA-256; the PERSONAL mark verifies only for its own session with this server's pepper and is not made without one; umurSesiMode gives 7 days on a personal computer and 60 minutes on a shared one and a card; pinSahUntuk; bacaJawabanBuka; BATAS_SESI matches migration 20261117100000's 5 and 60 minutes; every hle line of the lock, the warning, «Komputer siapa ini?» and Akun saya has words in id and en, asks for no phone or message, and a card's forgotten PIN goes to the teacher."
+    },
+    {
+      "id": "BOB29-S01",
+      "runner": "static",
+      "proves": "BOB-29 (Gate 6), the source: src/proxy.ts asks sesi_periksa, sends a locked page to /terkunci and refuses anything else with 423, signs an ended session out to /masuk?sesi=berakhir, asks «Komputer siapa ini?» of a browser's page load only and writes no cookie on a server action; migration 20261117100000 sets pintar_permintaan.periksa as PostgREST's pre-request (PT423, PT401; only sesi_periksa and sesi_akhiri_saya pass); src/lib/keluar.ts ends PINTAR's record before Auth's; /api/sesi/buka asks sesi_buka for the verified token's own session with a card secret derived as at sign-in; src/components/PenjagaSesi.tsx is in the root layout, locks the server first, shares one clock across tabs, counts a playing video and reloads a restored page; «PINTAR terkunci» never names a learner; no phone, message or code in any of it."
+    },
+    {
+      "id": "BOB29-D01",
+      "runner": "static",
+      "proves": "BOB-29 (Gate 6), migration 20261117100000 against the database, rolled back (selftest/bob29.test.ts): authenticator's pgrst.db_pre_request is pintar_permintaan.periksa; sesi_periksa makes a staff person's first session SHARED and asks, a card's CARD, a persona's nothing; no client reads device_sessions or calls sesi_buka, and a card declares no computer; sesi_tetapkan_perangkat makes this browser PERSONAL for the person and the session and the next one follow; a personal session 6 days idle passes the pre-request; a shared one 5 minutes idle is refused PT423 except sesi_periksa and sesi_akhiri_saya, other sessions untouched; activity never unlocks; sesi_buka counts a wrong PIN, opens with the right staff PIN or card secret, never for another person, and the third wrong ends it (PIN_GAGAL, auth.sessions row deleted, PT401); 60 minutes locked end it (KUNCI_HABIS) and an abandoned one is ended on another's request; sesi_kunci_saya; sesi_akhiri_saya (KELUAR) and sesi_akhiri_semua; audit_log rows for each."
+    },
+    {
+      "id": "BOB43-K01",
+      "runner": "static",
+      "proves": "BOB-43..47 / DAISY-32..34 (D-069, D-070), the contracts run (selftest/bob43.test.ts executes them, and reads the copy table): src/lib/mengajar.ts maps a place's returned kind to «Murid» or «Peserta» for every count and list key, both languages, an unknown kind failing safe to LEARNER; the structure counts say peserta; ASSIGN_CONTEXT_MISMATCH is read by Siapkan and as QUICK_CONTEXT_MISMATCH by Uji Cepat; PR090's six PD_* codes are read by DETAIL only and each has its sentence; the record read (src/lib/pengembangan-kontrak.ts) keeps exactly the columns the database returned; «Pindah kelas» never offers a place of the other purpose."
+    },
+    {
+      "id": "BOB43-S01",
+      "runner": "static",
+      "proves": "BOB-43..47 / DAISY-32..34, the source (selftest/bob43.test.ts): the Konfigurasi Bagian form passes one boolean with the school's teaching preselected and shows the purpose read-only; Siapkan, the class page and «Langkah» ask releases_matching_place for their class; the teacher's counts and lists use the returned kind; «Murid pada bagian ini» and the transfer picker list learners only; the enrol form makes one database call on two database reads; the record route /pengembangan/[simpul] is one database read linked from the facilitator's Kelas and /pimpinan outside the decision queue; no new src file names the learning context; the boundary and the membership rule are triggers in migration 20261118100000."
+    },
+    {
+      "id": "BOB43-D01",
+      "runner": "static",
+      "proves": "BOB-43..47, migration 20261118100000 against the database, rolled back (selftest/bob43.test.ts): a place's kind is set on the Bagian (create_bagian's boolean too), inherited, never changed or moved across; ASSIGN_CONTEXT_MISMATCH refuses PD material in an academic Kelas, academic material in a PD Kelas, any above a Bagian and an Uji Cepat across; Siapkan is offered matching releases only; enrol_for_professional_learning enrols a staff member ACTIVE or PENDING, reuses the enrolment, makes no person, account or number, and refuses an academic Kelas, a Murid (also by direct membership), a duplicate, another school's teacher and callers without CAN_PROVISION_PEOPLE; the briefing and Management's learner record count no PD; PD sessions, progress, answers and integrity signals reach only the ruled audiences, referral is refused for everyone; every academic row of five tables is read exactly as the previous policies admit for ten readers; professional_learning_record gives the facilitator, Dekan and PD head progress and the result through catalogue MC-5, Admin sekolah completion only, and refuses everyone else."
+    },
+    {
+      "id": "BOB15-K01",
+      "runner": "static",
+      "proves": "BOB-15 + DAISY-12 (D-037 step 2), the contract (selftest/bob15.test.ts executes src/lib/lapor-masalah-kontrak.ts and reads the copy table): PR100's codes are read by DETAIL only, each with its sentence in both languages; a report only moves forward; the page and reference keep their shape; a screenshot is named by a fresh id and its kind; no new line promises an email or a notification."
+    },
+    {
+      "id": "BOB15-S01",
+      "runner": "static",
+      "proves": "BOB-15 + DAISY-12, the source (selftest/bob15.test.ts): sending and moving a report are one database call each (submit_support_report, move_support_report); the /lapor form asks its three questions, attaches the page and device, sends once and tells a student to tell their teacher; reports are read under row security; «Laporkan masalah» is on every staff shell, Studio and Konfigurasi; the upload route chooses the screenshot's folder and the read route asks may_read_support_screenshot; Konfigurasi carries the triage list."
+    },
+    {
+      "id": "BOB15-D01",
+      "runner": "static",
+      "proves": "BOB-15, migration 20261119100000 against the database, rolled back (selftest/bob15.test.ts): a Guru's report is received with role, school, build, device, reference and stops-a-class attached; a student, empty answers, a page outside PINTAR, another's screenshot and any direct write are refused; the reporter, the school's admin and Admin platform read it and nobody else; it moves forward only, with the next step, by the school's admin or Admin platform; a screenshot is read by whoever reads its report; audit_log records each receipt and move."
+    },
+    {
+      "id": "M148-K01",
+      "runner": "static",
+      "proves": "#148 (D-094, D-100), the contract (selftest/m148.test.ts executes src/lib/pemeliharaan-kontrak.ts and galat-kontrak.ts and reads the copy table): the status is read back trusting nothing, an emergency first; PT503 is read as PLANNED or EMERGENCY only; the browser's notices fall at T-60, T-30, T-15 and T=0 against the database's clock; times are WIB both ways; a stopped reader keeps /pemeliharaan and /keluar; PR110's codes are read by DETAIL only and PT503 as MAINTENANCE_ACTIVE, each with a sentence in both languages; no new line promises a message PINTAR does not send."
+    },
+    {
+      "id": "M148-S01",
+      "runner": "static",
+      "proves": "#148, the source (selftest/m148.test.ts): the proxy sends a page the window stops to /pemeliharaan and refuses the rest 503; the root layout reads pintar_status_saya once and the browser times the notices without asking again, never sending a draining learner or the window's admin away; a start refused before maintenance lands on the maintenance page, which tells planned from emergency, acknowledges a handed-in sitting and offers Keluar; Konfigurasi asks maintenance_collisions before scheduling and offers «Hentikan sekarang» to Admin platform only; the migration's pre-request checks maintenance first and the insert refuses a new sitting from T-15."
+    },
+    {
+      "id": "M148-D01",
+      "runner": "static",
+      "proves": "#148 planned maintenance, migration 20261120100000 against the database, rolled back (selftest/m148.test.ts): only the school's admin schedules for their school; T-20 told and a start allowed; from T-15 a new sitting refused (MAINTENANCE_NO_NEW_START); at T=0 the school's people are refused PT503 PINTAR_PEMELIHARAAN but for the status read and leaving, while a learner whose sitting runs drains and hands it in, then is stopped and told it was received; the admin and another school pass; ended by its admin or by the clock, nobody is stopped; the notice reaches its school only; every step is audited, the automatic ones as SYSTEM."
+    },
+    {
+      "id": "M148-D02",
+      "runner": "static",
+      "proves": "#148 emergency interruption, migration 20261120100000 against the database, rolled back (selftest/m148.test.ts): only Admin platform, with HENTIKAN SEKARANG and a reason; the school is stopped at once (PT503 PINTAR_DIHENTIKAN), the learner mid-assessment and the school's admin included, while the status read and leaving pass and say EMERGENCY; the running sitting stays IN_PROGRESS, not handed in or finalised, its answer kept; a school admin cannot end it; once ended the learner carries on; audited with reason and actor."
+    },
+    {
+      "id": "FU1921-S01",
+      "runner": "static",
+      "proves": "Follow-ups 19-21, the source (selftest/fu1921.test.ts): migration 20261121100000 gives a transfer's rejection its own reason and leaves the request's alone, the transfer's audit row carrying both with its states; the template's audit row names the selection saved and the one a revision replaced; a course's status change writes one content.status_changed row."
+    },
+    {
+      "id": "FU1921-D01",
+      "runner": "static",
+      "proves": "Follow-ups 19-21, migration 20261121100000 against the database, rolled back (selftest/fu1921.test.ts): a rejected transfer keeps its request's reason and records its own, both on the audit row with REQUESTED to REJECTED; two saves of a report template leave each version's selection on the record; a Studio step on a course writes one audit row with its from and to states, and an update that moves no status writes none."
+    },
+    {
+      "id": "D101-S01",
+      "runner": "static",
+      "proves": "D-101 answers (5 Oct), the source (selftest/d101.test.ts): migration 20261122100000 asks one authority question for the recovery lookup and reset -- the Platform Admin, or an active School Admin of a school that has the person by its number, a role there or a learner there; never oneself; a Platform Admin only by another -- audits the reset with the school that acted, ends every session of the person on a recovery, a card's re-issue and an assisted reset but not an activation (D-102 adds the activation in 20261123100000), and lets a School Admin appoint another at the school itself only; every function revoked from public and the two declared as the School Admin's scope; the route answers oneself SENDIRI; Keamanan akun and Admin sekolah (confirmed by a second press) are a School Admin's, the security record and Admin platform the Platform Admin's; Persiapan sekolah carries the quiet second-admin line."
+    },
+    {
+      "id": "D101-D01",
+      "runner": "static",
+      "proves": "D-101 answers, migration 20261122100000 against the database, rolled back (selftest/d101.test.ts): PostgREST's own pre-request with a session's claims passes a teacher's sessions before her School Admin's reset and refuses them after (PT401, KREDENSIAL_DIGANTI, Auth's rows gone, audited), and likewise a class card's after its re-issue and a recovered password's, and (D-102) an activation's first password ends the wizard's session too, as PASSWORD_PERTAMA; the School Admin assists the school's teacher and email learner (audited with her, INSTITUTION_ADMIN and the school) and is refused another school's learner, a Platform Admin the school has, herself (RECOVERY_SELF) and a reset without a reason; the Platform Admin is refused only herself; a dean nothing; a School Admin appoints a teacher School Admin at the school itself (audited) and is refused below it, at another school, for a stranger, as Admin platform and for herself; the internal functions are no client's."
+    },
+    {
+      "id": "D102-S01",
+      "runner": "static",
+      "proves": "D-102 (owner ruling, 5 Oct), the source (selftest/d102.test.ts): migration 20261123100000 ends every session of the person when the password guard takes an activation's first password, through D-101's core with the reason PASSWORD_PERTAMA; the replaced credential's branch and the refusal of a write without a live permit stay as they were; the guard is revoked from public; device_sessions accepts the new reason beside its five; the activation route signs the person back in right after Auth has set the password, and only then."
+    },
+    {
+      "id": "D102-D01",
+      "runner": "static",
+      "proves": "D-102, migration 20261123100000 against the database, rolled back (selftest/d102.test.ts): a person mid-activation has the wizard's session recorded and one not yet seen, both passed by PostgREST's own pre-request; a password write with no permit or an expired one is refused (PASSWORD_WRITE_REFUSED) and ends nothing; the activation's first password, through its own permit, is taken as the step and ends both (PT401, PASSWORD_PERTAMA, Auth's rows gone, audited) and nobody else's; a session begun after it passes; a recovery still ends with KREDENSIAL_DIGANTI; the guard is no client's."
+    },
+    {
+      "id": "C12-S01",
+      "runner": "static",
+      "proves": "C-12's finding (D-069(b)), the source (selftest/c12.test.ts): migration 20261124100000 re-emits teacher_question_evidence with one rule added, an academic place only (fail closed, 42501, between the teacher check and the first read), and keeps D-088(k)'s teacher check, class binding, handed-in-only rule and teaching-evidence-only reads; «Lihat per soal» reads through that function alone and shows the refusal page when refused."
+    },
+    {
+      "id": "C12-D01",
+      "runner": "static",
+      "proves": "C-12's finding (D-069(b)), migration 20261124100000 against the database, rolled back (selftest/c12.test.ts): in a professional-learning Kelas holding the Guru's finished Uji Penguasaan and its answer, the facilitator is refused (42501) and given no name and no option, as are another Guru and the participant himself; in the academic Kelas the class's teacher still reads the handed-in sitting question by question and learner by learner, and another Guru is still refused."
+    },
+    {
+      "id": "DR-S01",
+      "runner": "static",
+      "proves": "#150 G5, the decision: executes scripts/release/durable-secrets.mjs (selftest/dr150.test.ts): the production deploy keeps CARD_PEPPER or CERT_SECRET_KEY_V1 only when Vercel holds a readable value of at least 32 characters that matches its recorded fingerprint and, for the certificate key, opens an issued certificate's seal; mints one only when it is absent, was never recorded, and production holds no classroom card, no sealed certificate, no school and nobody beyond the first administrator; and refuses everything else, an unknown count included. The guard's seal is src/lib/certificates/sign.ts's, byte for byte; a fingerprint is HMAC-SHA256 under its own label and says nothing of the value."
+    },
+    {
+      "id": "DR-S02",
+      "runner": "static",
+      "proves": "#150 G5, the deploy (selftest/dr150.test.ts): .github/workflows/deploy-vercel-production.yml runs the durable-secret guard, taken from the workflow's own commit, after the service-role key is proven and before any variable is written; RESTATED FOR #150 WP-B, the deploy never mints a durable secret: a MINT verdict stops it and names escrow-durable-secrets.yml, which escrows the secret before writing it; a missing verdict stops the deploy; docs/recovery/durable-secrets.json names both secrets with well-formed fingerprints (or null: not recorded yet)."
+    },
+    {
+      "id": "DR-S03",
+      "runner": "static",
+      "proves": "#150 G5, end to end (selftest/dr150.test.ts): executes the guard's command line against a local stand-in for Vercel's env API and PostgREST mints into an empty production; refuses, writing no verdict, when Vercel has lost both secrets and production holds classroom cards, or when a count cannot be read; keeps held, recorded secrets whose certificate key opens the issued seal; refuses a certificate key that does not open it; and never prints a value."
+    },
+    {
+      "id": "DR-S04",
+      "runner": "static",
+      "proves": "#150 G6, the restore-point check: executes scripts/release/restore-point.mjs (selftest/dr150.test.ts): a production apply proceeds only when Supabase lists a COMPLETED backup no older than 26 hours (D-103's 24-hour RPO plus slack), and the check names that backup and its age; it refuses an unreadable list (a 403 names the permission the token needs), no completed backup, an older one, one dated in the future and a malformed answer; end to end against a stand-in for the Management API it asks with GET only, writes the record and never prints the token."
+    },
+    {
+      "id": "DR-S05",
+      "runner": "static",
+      "proves": "#150 G6, the wiring (selftest/dr150.test.ts): .github/workflows/deploy-supabase-production.yml runs the restore-point check, from the workflow's own commit with the backups-read token C1 (RESTATED FOR #150 WP-A: it was the deploy token), after the state before and before any migration, records the WAL archiver's state and the database's facts before the apply (read only; counts, hashes and names) and keeps the record as an artifact for 90 days; .github/workflows/restore-rehearsal.yml counts readiness FAIL rows by the verdict each line begins with."
+    },
+    {
+      "id": "DR-S06",
+      "runner": "static",
+      "proves": "#150 G10, the minimum watch (selftest/dr150.test.ts): .github/workflows/production-watch.yml runs only from main and, on its hourly schedule, only once the owner sets PINTAR_PRODUCTION_WATCH = on (skipped at no cost until then); it looks at production from outside with GET only (the sign-in page without following a redirect, Supabase Auth's health, the TLS certificate's remaining days, and the restore point through scripts/release/restore-point.mjs with the backups-read token C1), holds no database, service-role or Vercel credential, opens or updates one GitHub issue on a failure and closes it when every check is green again; and its look step executes under bash -e, as GitHub runs it, against a local stand-in for the app, Auth and the Management API: RESTATED FOR #150 WP-A, C1 refused (403) is named as a failure and only C1's absence is a note; a sign-in page answering 500 and a backup 30 hours old are named as failures, and a fresh backup leaves nothing to say (run 37389383812 died at the backup check because bash -e ended the step first)."
+    },
+    {
+      "id": "DR-S07",
+      "runner": "static",
+      "proves": "#150 WP-A, B3: the backups-read token can do nothing else (selftest/dr150.test.ts): in the workflow files, C1 (secrets.PRODUCTION_SUPABASE_BACKUPS_READ_TOKEN) is held by exactly G6's step in deploy-supabase-production.yml, the look step of production-watch.yml and recovery-facts.yml, by nothing in src/, and none of them still holds the deploy token or tries one project's token on another; it executes scripts/release/restore-point.mjs's isolation command against a local stand-in for the Management API, GET only: a token that reads production's backups and is refused the API keys, the Auth configuration, the project's settings, the Edge Function secrets, another project's backups and the account's projects and organisations is ISOLATED; one handed the API keys is TOO BROAD, and the keys are never read or printed; one refused the backups, or a probe answering 500 or 400, is UNPROVEN; the token is never printed."
+    },
+    {
+      "id": "DR-S08",
+      "runner": "static",
+      "proves": "#150 WP-B, exact rights after a logical restore (selftest/dr150b.test.ts): executes the acl.sql that scripts/recovery/backup.mjs writes into every bundle, on CI's database in a transaction rolled back, after the drift the 5 Oct logical restore produced (every table, sequence and function given to anon and authenticated, CREATE on public given to anon) and a right taken away: each PINTAR object's rights for anon, authenticated, service_role and PUBLIC are again exactly what they were, and the readiness rows read as before."
+    },
+    {
+      "id": "DR-S09",
+      "runner": "static",
+      "proves": "#150 WP-B, encryption with public keys only (A1; selftest/dr150b.test.ts): executes scripts/recovery/backup.mjs's seal with throwaway OpenPGP keys: a production bundle goes to exactly R1 and R2, read from its packets without decrypting; their private keys open it while R3's and the job's own public-only keyring do not; production may never name R3, staging must, R1 is always required; a key file holding a private key, a 2048-bit RSA key and a ciphertext missing a recipient or carrying an extra one are refused. RESTATED FOR D-109(c): a production bundle to R1 alone, one custodian's key, is refused."
+    },
+    {
+      "id": "DR-S10",
+      "runner": "static",
+      "proves": "#150 WP-B, B5 escrow and recovery (A4; selftest/dr150b.test.ts): executes scripts/recovery/escrow.mjs against local stand-ins for Vercel's env API and S3: escrow uploads each durable secret, encrypted to R1 and R2 only (R3 cannot open it), with its SHA-256 checksum and an Object Lock legal hold, and only when its fingerprint equals docs/recovery/durable-secrets.json's record (a mismatch or a missing record escrows nothing); mint escrows first and writes to Vercel only afterwards, and writes nothing when the escrow is refused; recover writes back only the recorded value and only where Vercel holds none (a different value in Vercel, or an escrow holding another value, writes nothing); no value is printed. The AWS template infra/aws/pintar-backup.json keeps Object Lock, versioning and the public-access block, gives no lifecycle rule to the escrow prefix (35-day daily and 12-month monthly expiry otherwise), lets the writer only put and the reader only read, and is TLS-only. RESTATED FOR D-109(b)(c): an escrow or a mint to R1 alone, or before both custodians have proven possession, uploads nothing and writes nothing to Vercel."
+    },
+    {
+      "id": "DR-S11",
+      "runner": "static",
+      "proves": "#150 WP-B, the wiring and controls D-108(c)(1)-(4) (selftest/dr150b.test.ts): the workflow files backup-offsite, backup-credential, escrow-durable-secrets, recover-durable-secret, restore-drill and key-possession-check run from main only; the 03:00 WIB backup, the monthly drill and the quarterly possession check do nothing until the owner switches them on; each job runs in its own environment; every credential of the inventory (C2-C5, C8, a custodian's key) appears in exactly the workflows the inventory names, and C2 nowhere in src/ (RESTATED FOR #150 WP-C.2: the staging drill's key C8 and the bucket reader C5 are also held by recovery-rehearsal.yml, which runs in their own environment, staging-recovery-drill, to put the staging bundle's files back on the rehearsal copy); the backup reaches the database with verify-full against the committed Supabase Root 2021 CA and never through a URL; a failed production backup raises the production watch's issue; production bundles are never decrypted by the drill. It executes scripts/recovery/drill.mjs (only a bundle with its success record is taken; one whose bytes differ from its record is refused; the possession message opens only with its custodian's key, to the phrase whose SHA-256 it printed) and scripts/recovery/credential.mjs against CI's database (C2 set as a SCRAM verifier, pintar_backup then signs in read-only by default; revoked at once, a sign-in refused; a short password refused). RESTATED FOR D-109: production's backup, escrow and drill name R1 R2 fixed, never a variable; a bundle at 80 % of the 5 GiB limit raises its own backup-size issue from both jobs."
+    },
+    {
+      "id": "DR-S14",
+      "runner": "static",
+      "proves": "#150 WP-B, A5 fail closed (selftest/dr150b.test.ts): executes scripts/recovery/backup.mjs run as pintar_backup against CI's database and Storage (through its S3 API) and a stand-in for AWS S3 that checks every checksum: a clean run uploads the daily and the monthly copy, each with its SHA-256 checksum and its Object Lock retention (35 and 366 days) and its success record after it; the bundle opens with R3's private key, matches its manifest, holds every Storage object with its hash and the extension set, carries no readiness.txt (D-108(d)) and never the password, which appears in no output either. Each planted failure is red and uploads no success record: a table missing from the data dump, a Storage object that is not there, one whose size differs from its metadata, a staging bundle not going to R3, a production bundle going to R3, a checksum S3 rejects, an extension pintar_backup itself added through supautils (D-108(c)(7)) and a production backup with no approved extension baseline. RESTATED FOR D-109: a production bundle going to R1 alone is red too, and so is a production backup before R1 and R2 are held by two separate custodians who have each proven possession (docs/recovery/custody.json), refused before anything is read; the success record carries the bundle's share of the 5 GiB one upload may carry, warned of from 80 % and refused above 5 GiB before any upload."
+    },
+    {
+      "id": "DR-S15",
+      "runner": "static",
+      "proves": "#150 WP-B, the backup credential (A7; selftest/dr150b.test.ts): migration 20261125100000 against CI's database: pintar_backup is LOGIN, BYPASSRLS, INHERIT, a member of pg_read_all_data alone without admin, owns nothing, may create in no schema nor the database, holds no write privilege, may advance no sequence and may execute no SECURITY DEFINER function and none of PINTAR's functions, and no role can become it; it executes, signed in as it: a fresh session is read-only by default with 15-minute statement and idle timeouts and a 30-second lock timeout; its facts (every table's rows and content hash, row security bypassed) equal postgres's; scripts/recovery/backup.mjs's five dumps made by it on one shared snapshot are byte-identical to postgres's; with its read-only default switched off (a safety default, not a security boundary) every ordinary INSERT, UPDATE, DELETE, TRUNCATE, COPY FROM, sequence advance, CREATE, ALTER, DROP, COMMENT, policy, trigger, role grant, CREATE ROLE, ALTER ROLE and SET ROLE and an extension off Supabase's allow-list are refused and a GRANT or REVOKE moves no right; RESTATED FOR D-108, an allow-listed extension is shown to be created by supautils as supabase_admin (the documented platform residual, rolled back); a fourth connection is refused."
+    },
+    {
+      "id": "DR-S16",
+      "runner": "static",
+      "proves": "#150 WP-B, staging's backup path checked read only (D-109(a); selftest/dr150b.test.ts): .github/workflows/staging-backup-path.yml runs by hand from main only with contents: read and only the two credentials staging's apply already holds; scripts/recovery/path-check.mjs takes the session pooler only where Supabase's own pooler configuration and staging's apply agree (the apply on another host, two hosts, none, the transaction port, another project's user or only a read replica's pooler each stop it; an unreadable configuration stops it and asks the owner for the dashboard's value, never guessing) and checks backup-offsite.yml's value against it; every connection off this machine is verify-full against the committed Supabase Root 2021 CA; executed on CI's database, backup.mjs's own exported snapshot is imported by another session with the exporter's view and pg_dump --snapshot dumps the schema from it; pintar_backup's profile (scripts/recovery/backup-profile.sql) equals docs/recovery/pintar-backup-profile.expected, and an INSERT and a CREATE planted for it inside a rolled-back transaction are differences. RESTATED after Supabase refused its pooler configuration to staging's token (run 37414154468): scripts/recovery/path-check.mjs also takes the owner's dashboard value (the dispatch's inputs, passed only through the environment) where it is a <name>.pooler.supabase.com host on port 5432 for postgres.<this project> and staging's apply agrees; a malformed or smuggled value, the transaction port, another project's user, or Supabase and the owner disagreeing each stop it; hosted checks always connect on the session port 5432."
+    },
+    {
+      "id": "DR-S12",
+      "runner": "static",
+      "proves": "#150 WP-C, the guarded repointing and the Auth read-back (B8; selftest/dr150c.test.ts): docs/recovery/projects.json is the one record of the Supabase projects the workflows point at and of each one's sign-in and email settings; scripts/recovery/repoint.mjs check finds every workflow's project reference, address, pooler user, public key and settings literal equal to it and names a planted drift; repoint.mjs moves production to a new project in one rewrite of the record and every workflow (every occurrence moved, no other file changed, the result clean, the old reference retired in its history) and refuses staging's reference, a malformed, the current or a retired one, a move without its decision, and a missing or foreign public key; repoint.mjs verify refuses, against a stand-in Management API, a live project of another name, region or health and one it cannot read. scripts/recovery/auth-state.mjs, executed against the stand-in: apply writes a rehearsal copy only (staging's and production's projects and a missing --rehearsal or address are refused with no write), in four writes (address, sender, Gate 3's settings, the leaked-password check), then reads back every declared field; the sender password is written and never printed; a field that does not land is named; a plan without the leaked-password check is a warning; verify of production leaves Gate 3's settings out until supabase/auth-identitas.json says production carries them."
+    },
+    {
+      "id": "DR-S13",
+      "runner": "static",
+      "proves": "#150 WP-C, the reconstruction runbook (B8; selftest/dr150c.test.ts): docs/recovery/RUNBOOK-NATIVE-RESTORE.md has nine steps in order, each naming who acts, an owner action or workflows and scripts that exist, a check naming tests that exist in this manifest (or a command), and a stop condition; every job of a workflow it names that holds a production credential runs from main only; each clause of B8's sentence (reconstructed, verified, restored, connected, proved) maps to steps; no PENDING item lacks its work package. RESTATED FOR WP-C.2: nothing is left marked PENDING WP-C.2 (the rehearsal's preview deployment and the functional checks are built), and the rehearsal's workflow recovery-rehearsal.yml is tied to a step."
+    },
+    {
+      "id": "DR-S17",
+      "runner": "static",
+      "proves": "#150 WP-C.2, the rehearsal on a copy of staging (O8; B8; selftest/dr150c.test.ts), executed against stand-ins for Supabase's Management API and Vercel's API: scripts/recovery/rehearsal.mjs guard admits only a copy named ...-DELETE-ME, in staging's recorded region and ACTIVE_HEALTHY, asked with GET only, and refuses staging's, production's, a retired and a malformed reference, another name, region or health, a token (C10) that reads staging's or production's project (TOO BROAD), a database address that names a recorded project or another project, and a copy it cannot read; keys takes only the anon and service_role keys issued for the copy (keys issued for staging are refused), into the job's environment, masked and never printed; vercel reads staging's Vercel project with GET only and says a protected preview needs the owner's temporary bypass and a preview that would not carry staging's CARD_PEPPER, CERT_SECRET_KEY_V1 or CARD_EMAIL_DOMAIN needs the owner; facts compares two fakta.sql outputs line for line and names each differing table and fact. .github/workflows/recovery-rehearsal.yml runs by hand only, from main only, in staging-recovery-drill; names no production reference or credential and holds only the listed secrets; runs the guard before every write; writes (Auth with --rehearsal and the preview's address, the files, the preview, its alias, the picks and the checks with --rehearsal) only in the reconstruct stage; deploys only a preview of staging's Vercel project (pintar40-staging, never --prod, no vercel env, domains or project command, no Vercel API write); and its teardown removes the preview's address and deployments and confirms none remains."
+    },
+    {
+      "id": "ADM18-K01",
+      "runner": "static",
+      "proves": "ADM-18, D-085 T4, restated for CR-01 (D-080(2)): two certificates of one holder prepared at the same moment get consecutive numbers of the holder's own, <PINTAR ID>/<n>, and both are prepared (the holder's sequence row is locked); one session prepared twice at the same moment gives one certificate; a learner with a profile photo gets a certificate whose snapshot holds no photo, its hash the name's alone."
+    },
+    {
+      "id": "ADM18-K02",
+      "runner": "static",
+      "proves": "ADM-18, restated for CR-01 (D-080(2)(9), D-120 Q1): «Awalan nomor» is retired; save_certificate_template takes no number prefix, and the holder's certificates are numbered <PINTAR ID>/<five digits>, consecutive, whether no template, the school's or the course's is saved."
+    },
+    {
+      "id": "STU12-K01",
+      "runner": "static",
+      "proves": "Release checklist STU-12 (N5): executes hint_reveals_answer_shape as migration 20261127100000 leaves it (selftest/rilis40.test.ts): hints that name an option are still refused (a capital letter after 'jawabannya adalah' or 'the answer is', a bracketed letter, 'bukan A', 'not D', 'selain E', 'A atau C', '(a) atau (b)', 'pilihan a atau b', 'kunci: (b)'); nothing is refused that the old patterns did not refuse, so no stored hint stops saving; ordinary hints are not (small-letter variables in 'nilai a atau b', 'whether c or d is larger', 'a + b = c', 'a = 2b', and the article in 'the answer is a whole number', 'it is not a fraction'); an empty or missing hint is not refused."
+    },
+    {
+      "id": "DR-D01",
+      "runner": "static",
+      "proves": "#150 G7, the readiness check: executes docs/audit/launch-readiness.sql against CI's database and its schema (selftest/dr150.test.ts): 24 rows with no unplanted FAIL (the five live-content rows reported, not required), the two rows restated for G7 among them; with the 5 Oct restore rehearsal's drift planted in a transaction and rolled back (every right granted to anon and authenticated through default privileges, the password-write guard dropped from auth.users, the PostgREST pre-request lost) and two more (the assets bucket public, a function under another owner), each G7 row and the anonymous-surface row FAIL and name what differs, while the untouched rows stay PASS."
+    },
+    {
+      "id": "DR-D02",
+      "runner": "static",
+      "proves": "#150 WP-B, the secondary logical path end to end (D-106(j); selftest/dr150b.test.ts): a bundle collected by scripts/recovery/backup.mjs as pintar_backup from CI's database and Storage executes through scripts/recovery/restore-bundle.mjs into a second, empty Supabase stack (a new project's stand-in, with its own default privileges): 0 differences in every table's rows and content hash, every function's definition, owner and execute rights, the table rights, the auth.users triggers, the pre-request and the policies; every Storage file put back and read back with its hash; anon's reach equal to its source's; the extension baseline held; readiness as its source; SAFE TO REOPEN. An extension added on the copy afterwards makes its verification refuse to call it safe (D-108(c)(8)), and removing it makes it safe again. RESTATED FOR #150 WP-C (B9 after a native restore): with a file lost on the copy while its storage.objects row stays, scripts/recovery/restore-bundle.mjs --files-only puts the file back from the bundle, read back by SHA-256, changes no row, and the copy verifies SAFE TO REOPEN again; a row the bundle has no file for is named and the run is red."
+    },
+    {
+      "id": "DR-D03",
+      "runner": "app",
+      "proves": "#150 WP-C.2, step 8 of the runbook, \"proved that it worked\" (B8; selftest/dr150c.test.ts), against the running app and the local stack, through the application's own routes as a browser would: scripts/recovery/functional.mjs check --rehearsal passes all four checks, F1 a staff sign-in with a password (the page it sends them to opens), F2 the staff person re-issues a learner's card as damaged and the new card signs in and opens /belajar (its number and PIN never printed), F3 a certificate issued by the app with its own key verifies by its token as BERLAKU and the public page says Berlaku, F4 a file is signed by /api/assets/read-url for a signed-in person and served with the SHA-256 the bundle recorded; without --rehearsal it refuses and no card is re-issued; functional.mjs certificate (F3 alone, no sign-in and no write, production's form under D-113) passes on the sealed certificate and fails on the altered seal; each planted fault fails its own check and only that one: a wrong password (F1), a learner without a card (F2), the certificate's stored seal altered (F3, TIDAK SAH; restored after), a bundle record whose hash differs from the file (F4); pick reads, in one read-only transaction, the newest school admin matching an address pattern, a card learner of that school and an issued certificate.",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST, Storage) and the database"
+    },
+    {
+      "id": "BOB29-A01",
+      "runner": "app",
+      "proves": "BOB-29 (Gate 6) against the running app, Auth and PostgREST: a teacher's unknown browser is sent to /perangkat («Komputer siapa ini?», shared chosen) before /mengajar; declared shared, 5 minutes without activity send /mengajar to /terkunci, /api/sesi/detak to 423 and PostgREST's /rest/v1 to 423, a refreshed token too, while the same person's other computer is served; the rendered html of /terkunci has the PIN field and a form to /keluar; a wrong PIN leaves 2 tries and the right one (2817) serves the page and the data again.",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the database"
+    },
+    {
+      "id": "BOB29-A02",
+      "runner": "app",
+      "proves": "BOB-29 (Gate 6; T1) against the running app: card 7001 is never asked about the computer and gets the CARD mark; 5 minutes idle send /belajar to /terkunci, whose html asks for the card's PIN and never holds the learner's name, and PostgREST refuses the token; a wrong card PIN counts and 2468 opens /belajar; «Bukan akun Anda?» (POST /keluar) ends the session (device_sessions KELUAR) and its refresh; three wrong PINs end that session (BERAKHIR, /belajar sent to /masuk, refresh and data refused) while the same card on another computer carries on.",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the database"
+    },
+    {
+      "id": "BOB29-A03",
+      "runner": "app",
+      "proves": "BOB-29 (Gate 6) against the running app: the platform admin's shared session locked 60 minutes is ended on its next page, whose route the proxy answers with /masuk?sesi=berakhir (device_sessions KUNCI_HABIS, the refresh refused); a computer declared personal through /api/sesi/perangkat is served after 6 days without use; /api/sesi/keluar-semua from one computer ends that session and another computer's (both refreshes refused, the other's token refused by PostgREST).",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the database"
+    },
+    {
+      "id": "CI-W01",
+      "runner": "static",
+      "proves": "The CI efficiency gate (6 Oct): executes audit/ci/actions-spend.mjs's classify, judge and report on jobs shaped as GitHub's API returns them (selftest/ciwaste.test.ts). A job that never got a runner (no runner, no step) counts as queue time and costs nothing: the 5 Oct shape, 26 minutes queued, is 0 billable where the old measure said 26. A job that ran counts its runner minutes, rounded up per job for the estimate, and its wait as queue; a cancelled job that had started counts as cancelled after start; a skipped job counts for nothing. The waste alarm is red at 10 jobs that never got a runner after waiting over 5 minutes (not at 9), while 17 jobs a newer run superseded before a runner (0.6 minutes, no cost) are counted apart and are not waste, at a 16-minute wait, at a third attempt and at one commit run twice, even when it costs nothing, and not for a superseded (cancelled) run; the cost alarm is red only over the budget; the report gives compute, queue and the estimate apart."
+    },
+    {
+      "id": "CI-W02",
+      "runner": "static",
+      "proves": "The CI efficiency gate (D-119), that neither guard can make CI falsely green or falsely proven: executes audit/ci/proof-reuse.mjs's sameCode, DIFF_ARGS, reusable and starved, and reads the module and .github/workflows/ci.yml (selftest/ciwaste.test.ts). Only inert documents in docs/coordination, docs/reports and docs/deployment, and the staging request files, count as the same code; a code file there (.mts, .mjs, .ts, .json) never does, because tsconfig compiles every **/*.mts and lint reads every script; changed paths are listed with --no-renames, so a rename counts as both paths. Reuse needs a successful run on a branch, started by a push or a dispatch so that it tested its own head, whose strict selftest ran and succeeded, at most 72 hours old: never on main, never a pull request run (it tests a merge) or a run of unknown event, never a failed, cancelled or skipped-proof run, never a commit outside the history or a code change. A queued job of another run over 10 minutes old is starvation; a younger or running one is not. DEFERRED (starved) and ALREADY PROVEN both cancel the run, and a cancellation that does not take hold ends in exit 1, so neither is ever success. No file CI executes reads an unread path outside a comment. ci.yml runs the guard first (able to cancel its run), gates migrations and red cases on lint, typecheck and build, caps red cases at 15, supersedes per branch, filters exactly the inert unread documents, and ends in a verdict that needs every job and fails unless each succeeded."
+    },
+    {
+      "id": "CI-W03",
+      "runner": "static",
+      "proves": "S4 (D-091(e), approved by the owner 6 Oct as QN7): the database red cases share one local stack per group without losing a case or its isolation, read in .github/workflows/ci.yml, .github/actions/local-stack/action.yml, .github/actions/local-stack/fingerprint.sql and selftest/plants/plants.json (selftest/ciwaste.test.ts). The red-case matrix holds exactly the 30 cases of 6 Oct, each in one group, and every plant gate in plants.json is one of them; every case has its steps and every step's case is in the matrix; each case's steps are contiguous, so no other case's stack step (and its reset) falls between a case's reset and its plants; each step runs on !cancelled(), so a failed case never skips a later case in its group; db-table-without-rls, which plants a migration, is alone, and a shared group holds database cases only; the defects are injected per case of the group. The local-stack action boots only when no stack runs, resets the database on every use, and fails the use when the fresh database's fingerprint (functions, column and relation grants, policies, triggers, extensions, roles, memberships, role settings, row counts) differs from the job's first; the fingerprint only reads."
     }
   ]
 }

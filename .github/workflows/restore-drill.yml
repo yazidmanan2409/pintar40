@@ -1,0 +1,95 @@
+# #150 WP-B (D-106(b), (j); D-107 D3, D5; closure plan A5 condition 10): THE MONTHLY RECOVERY DRILL, OWNER-APPROVED.
+#
+#   staging     the newest staging bundle that has its success record (never one without) is fetched (C5, the reader),
+#               its SHA-256 checked against its record and S3's checksum, decrypted with R3 (the staging drill key, the
+#               `staging-recovery-drill` environment's), and restored by scripts/recovery/restore-bundle.mjs into an
+#               EMPTY Supabase stack on this runner, Storage files included: 0 differences, every file's hash, the
+#               extension baseline, 24/24 readiness, SAFE TO REOPEN; the time it took is the logical path's measure.
+#   production  never decrypted on a runner (D-107 D5): its newest complete bundle's checksum, its retention lock, and
+#               its recipients exactly R1 and R2, read from the ciphertext's packets.
+# OFF BY DEFAULT: the monthly schedule does nothing until PINTAR_RECOVERY_DRILL = on. Every run of the environment is
+# approved by the owner.
+
+name: drill · restore the newest backup, monthly
+
+on:
+  schedule:
+    - cron: '41 21 1 * *'   # the 2nd of each month, 04:41 WIB
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DRILL_S3_REGION: ap-southeast-1
+  SUPABASE_CLI: "2.117.0"
+
+jobs:
+  staging:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || vars.PINTAR_RECOVERY_DRILL == 'on')
+    name: staging, restored into an empty stack
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: staging-recovery-drill
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install the pinned Supabase CLI
+        run: npm i -g supabase@${SUPABASE_CLI}
+      - name: An empty Supabase stack (Postgres 17, as staging)
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/leer" && cd "$RUNNER_TEMP/leer"
+          printf 'n\nn\n' | supabase init --force > /dev/null
+          sed -i 's/^major_version = .*/major_version = 17/' supabase/config.toml
+          supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta,mailpit
+          supabase status -o env > "$RUNNER_TEMP/leer.env"
+      - name: Fetch, decrypt and restore the newest complete staging bundle, then verify it
+        env:
+          DRILL_S3_BUCKET: ${{ vars.PINTAR_BACKUP_BUCKET }}
+          DRILL_S3_KEY_ID: ${{ secrets.AWS_BACKUP_READER_KEY_ID }}
+          DRILL_S3_SECRET: ${{ secrets.AWS_BACKUP_READER_SECRET }}
+          DRILL_KEY: ${{ secrets.STAGING_DRILL_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          umask 077
+          D="$RUNNER_TEMP/drill"; t0=$(date +%s)
+          node scripts/recovery/drill.mjs fetch staging "$D"
+          H=$(mktemp -d); trap 'gpgconf --homedir "$H" --kill all 2>/dev/null || true; rm -rf "$H"' EXIT
+          printf '%s\n' "$DRILL_KEY" | gpg --homedir "$H" --batch --import 2> /dev/null; unset DRILL_KEY
+          gpg --homedir "$H" --batch --pinentry-mode loopback --passphrase '' --output "$D/bundle.tar.gz" --decrypt "$D/bundle.tar.gz.gpg"
+          mkdir "$D/bundle" && tar -xzf "$D/bundle.tar.gz" -C "$D/bundle"
+          val() { grep -E "^$1=" "$RUNNER_TEMP/leer.env" | head -1 | cut -d= -f2- | tr -d '"'; }
+          url="$(val DB_URL)"
+          export PGHOST=$(node -e 'console.log(new URL(process.argv[1]).hostname)' "$url") PGPORT=$(node -e 'console.log(new URL(process.argv[1]).port)' "$url")
+          export PGUSER=postgres PGPASSWORD=postgres PGDATABASE=postgres
+          export TARGET_STORAGE_S3_ENDPOINT="$(val STORAGE_S3_URL)" TARGET_STORAGE_S3_REGION="$(val S3_PROTOCOL_REGION)"
+          export TARGET_STORAGE_S3_KEY_ID="$(val S3_PROTOCOL_ACCESS_KEY_ID)" TARGET_STORAGE_S3_SECRET="$(val S3_PROTOCOL_ACCESS_KEY_SECRET)"
+          RESTORE_TARGET=staging node scripts/recovery/restore-bundle.mjs "$D/bundle" --storage
+          echo "the logical path, fetch to SAFE TO REOPEN: $(( $(date +%s) - t0 )) s" | tee -a "$GITHUB_STEP_SUMMARY"
+
+  production:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || vars.PINTAR_RECOVERY_DRILL == 'on')
+    name: production, checked without decrypting
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: staging-recovery-drill
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/recovery
+            scripts/release
+            docs/recovery
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: "Production's newest complete bundle: checksum, lock and recipients (exactly production's)"
+        env:
+          DRILL_PRODUCTION_RECIPIENTS: R1 R2   # D-109(c)
+          DRILL_S3_BUCKET: ${{ vars.PINTAR_BACKUP_BUCKET }}
+          DRILL_S3_KEY_ID: ${{ secrets.AWS_BACKUP_READER_KEY_ID }}
+          DRILL_S3_SECRET: ${{ secrets.AWS_BACKUP_READER_SECRET }}
+        run: node scripts/recovery/drill.mjs check-production

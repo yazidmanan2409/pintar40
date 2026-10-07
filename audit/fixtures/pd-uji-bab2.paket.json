@@ -1,0 +1,251 @@
+{
+ "courses": [
+  {
+   "title": "[UJI INTERNAL] Praktik Mengajar · Bab 2: Umpan Balik yang Menggerakkan",
+   "subject": "Pengembangan Profesi",
+   "stage": "Guru",
+   "grade_label": "Semua jenjang",
+   "konteks": "Pengembangan profesi",
+   "modules": [
+    {
+     "ordinal": "1",
+     "title": "[UJI INTERNAL] Umpan Balik yang Menggerakkan",
+     "lessons": [
+      {
+       "ordinal": "1",
+       "title": "[UJI INTERNAL] Ciri umpan balik yang berguna",
+       "summary": "Umpan balik yang berguna menunjuk satu langkah berikutnya yang dapat dicoba murid.",
+       "objective": {
+        "statement": "Peserta mengenali ciri umpan balik yang membantu murid melangkah.",
+        "bloom": "UNDERSTAND"
+       },
+       "body_markdown": "## Menunjuk langkah berikutnya\n\nUmpan balik yang berguna menyebut apa yang sudah berhasil, apa yang perlu diperbaiki, dan satu langkah yang dapat dicoba murid sekarang.\n\n## Spesifik dan tepat waktu\n\nKomentar umum seperti «bagus» atau «perbaiki lagi» jarang membantu. Komentar yang menunjuk bagian tertentu dari pekerjaan murid lebih mudah ditindaklanjuti.\n\n## Catatan uji\n\nMateri ini bahan uji internal PINTAR, ditulis untuk pemeriksaan otomatis. Tidak diambil dari buku mana pun.",
+       "items": [
+        {
+         "ref": "PB1",
+         "item_type": "MCQ_SINGLE",
+         "use": "PRE_TEST",
+         "stem": "Komentar mana yang paling membantu murid memperbaiki tulisannya?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Paragraf kedua perlu contoh; tambahkan satu peristiwa nyata",
+           "is_correct": true,
+           "rationale": "Tepat. Komentar ini menunjuk bagian dan langkah yang jelas."
+          },
+          {
+           "label": "B",
+           "body": "Bagus sekali, pertahankan semangatmu selalu",
+           "is_correct": false,
+           "rationale": "Belum tepat: pujian umum tidak menunjukkan langkah berikutnya."
+          },
+          {
+           "label": "C",
+           "body": "Tulisan ini masih perlu diperbaiki sekali lagi",
+           "is_correct": false,
+           "rationale": "Belum tepat: komentar ini tidak menyebut bagian mana yang perlu diubah."
+          }
+         ]
+        },
+        {
+         "ref": "PB2",
+         "item_type": "MCQ_SINGLE",
+         "use": "PRE_TEST",
+         "stem": "Kapan umpan balik formatif paling berdampak?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Ketika tugas masih sedang dikerjakan",
+           "is_correct": true,
+           "rationale": "Tepat. Murid masih dapat langsung memakainya."
+          },
+          {
+           "label": "B",
+           "body": "Setelah rapor semester dibagikan",
+           "is_correct": false,
+           "rationale": "Belum tepat: kesempatan memperbaiki sudah lewat."
+          },
+          {
+           "label": "C",
+           "body": "Hanya pada akhir tahun pelajaran",
+           "is_correct": false,
+           "rationale": "Belum tepat: umpan balik formatif diberikan selama proses."
+          }
+         ]
+        },
+        {
+         "ref": "UB1",
+         "item_type": "MCQ_SINGLE",
+         "use": "POST_TEST",
+         "stem": "Apa yang sebaiknya disebut dalam umpan balik yang berguna?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Satu langkah yang dapat dicoba murid sekarang",
+           "is_correct": true,
+           "rationale": "Tepat. Langkah yang jelas membuat murid dapat bertindak."
+          },
+          {
+           "label": "B",
+           "body": "Nilai akhir dan peringkat murid di kelas",
+           "is_correct": false,
+           "rationale": "Belum tepat: peringkat tidak menunjukkan arah perbaikan."
+          },
+          {
+           "label": "C",
+           "body": "Daftar semua kekurangan pekerjaan sekaligus",
+           "is_correct": false,
+           "rationale": "Belum tepat: daftar panjang sulit ditindaklanjuti."
+          }
+         ]
+        },
+        {
+         "ref": "UB2",
+         "item_type": "MCQ_SINGLE",
+         "use": "POST_TEST",
+         "stem": "Mengapa komentar «bagus» saja kurang membantu?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Tidak menunjuk bagian pekerjaan yang dimaksud",
+           "is_correct": true,
+           "rationale": "Tepat. Murid tidak tahu bagian mana yang sudah baik."
+          },
+          {
+           "label": "B",
+           "body": "Karena murid sebenarnya tidak suka dipuji",
+           "is_correct": false,
+           "rationale": "Belum tepat: masalahnya ada pada isi komentar, bukan pujian."
+          },
+          {
+           "label": "C",
+           "body": "Karena komentarnya terlalu panjang untuk dibaca",
+           "is_correct": false,
+           "rationale": "Belum tepat: komentar itu justru sangat pendek."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "ordinal": "2",
+       "title": "[UJI INTERNAL] Murid memakai umpan balik",
+       "summary": "Umpan balik bermakna jika murid diberi waktu untuk memakainya.",
+       "objective": {
+        "statement": "Peserta merencanakan waktu bagi murid untuk menindaklanjuti umpan balik.",
+        "bloom": "APPLY"
+       },
+       "body_markdown": "## Waktu untuk menindaklanjuti\n\nUmpan balik baru bermakna jika murid diberi waktu untuk memakainya, misalnya sepuluh menit di awal pertemuan berikutnya untuk merevisi pekerjaan.\n\n## Umpan balik dari teman\n\nDengan kriteria yang jelas, murid dapat saling memberi komentar yang membantu. Guru menyiapkan kriteria itu bersama murid.\n\n## Catatan uji\n\nMateri ini bahan uji internal PINTAR, ditulis untuk pemeriksaan otomatis. Tidak diambil dari buku mana pun.",
+       "items": [
+        {
+         "ref": "PB3",
+         "item_type": "MCQ_SINGLE",
+         "use": "PRE_TEST",
+         "stem": "Apa syarat agar umpan balik benar-benar dipakai murid?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Murid diberi waktu untuk merevisi pekerjaannya",
+           "is_correct": true,
+           "rationale": "Tepat. Tanpa waktu, umpan balik tidak sempat dipakai."
+          },
+          {
+           "label": "B",
+           "body": "Komentar ditulis dengan tinta berwarna cerah",
+           "is_correct": false,
+           "rationale": "Belum tepat: warna tinta tidak membuat komentar dipakai."
+          },
+          {
+           "label": "C",
+           "body": "Nilai diumumkan di depan seluruh kelas",
+           "is_correct": false,
+           "rationale": "Belum tepat: pengumuman nilai tidak membantu murid memperbaiki."
+          }
+         ]
+        },
+        {
+         "ref": "PB4",
+         "item_type": "MCQ_SINGLE",
+         "use": "PRE_TEST",
+         "stem": "Apa yang dibutuhkan agar murid dapat saling memberi komentar?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Kriteria jelas yang disusun bersama guru",
+           "is_correct": true,
+           "rationale": "Tepat. Kriteria membuat komentar teman terarah."
+          },
+          {
+           "label": "B",
+           "body": "Murid yang paling pandai menilai semuanya",
+           "is_correct": false,
+           "rationale": "Belum tepat: setiap murid dapat memberi komentar dengan kriteria."
+          },
+          {
+           "label": "C",
+           "body": "Waktu ujian yang dibuat lebih panjang",
+           "is_correct": false,
+           "rationale": "Belum tepat: lamanya ujian tidak berkaitan dengan komentar teman."
+          }
+         ]
+        },
+        {
+         "ref": "UB3",
+         "item_type": "MCQ_SINGLE",
+         "use": "POST_TEST",
+         "stem": "Kapan waktu yang baik bagi murid untuk menindaklanjuti umpan balik?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Di awal pertemuan berikutnya, sebelum materi baru",
+           "is_correct": true,
+           "rationale": "Tepat. Murid masih ingat tugasnya dan sempat merevisi."
+          },
+          {
+           "label": "B",
+           "body": "Setelah semua bab selesai diajarkan guru",
+           "is_correct": false,
+           "rationale": "Belum tepat: terlalu lama, tugasnya sudah lewat."
+          },
+          {
+           "label": "C",
+           "body": "Hanya saat liburan sekolah berlangsung",
+           "is_correct": false,
+           "rationale": "Belum tepat: tindak lanjut sebaiknya terjadi di kelas."
+          }
+         ]
+        },
+        {
+         "ref": "UB4",
+         "item_type": "MCQ_SINGLE",
+         "use": "POST_TEST",
+         "stem": "Peran guru dalam umpan balik antarteman adalah?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Menyiapkan kriteria bersama murid",
+           "is_correct": true,
+           "rationale": "Tepat. Kriteria bersama menjadi pegangan murid."
+          },
+          {
+           "label": "B",
+           "body": "Menilai ulang semua komentar murid",
+           "is_correct": false,
+           "rationale": "Belum tepat: guru memandu, tidak menggantikan komentar teman."
+          },
+          {
+           "label": "C",
+           "body": "Melarang murid saling berkomentar",
+           "is_correct": false,
+           "rationale": "Belum tepat: komentar teman justru tujuan kegiatan ini."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

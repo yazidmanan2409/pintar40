@@ -199,7 +199,11 @@ begin
   perform selftest.as_user('alpha-admin@synthetic.pintar.test');
   begin perform public.grant_role(p_aguru, 'SYSTEM_ADMIN', null, now() + interval '1 day'); ok := false; detail := detail || 'inst-admin granted SYSTEM_ADMIN; ';
   exception when others then null; end;
-  begin perform public.grant_role(p_aguru, 'INSTITUTION_ADMIN', alpha, now() + interval '1 day'); ok := false; detail := detail || 'inst-admin granted INSTITUTION_ADMIN; ';
+  -- D-101 (2): a School Admin appoints another at the school itself (selftest/d101.test.ts); below it, or at
+  -- another school, INSTITUTION_ADMIN stays out of their reach
+  begin perform public.grant_role(p_aguru, 'INSTITUTION_ADMIN', a_dept, now() + interval '1 day'); ok := false; detail := detail || 'inst-admin granted INSTITUTION_ADMIN below the school; ';
+  exception when others then null; end;
+  begin perform public.grant_role(p_aguru, 'INSTITUTION_ADMIN', beta, now() + interval '1 day'); ok := false; detail := detail || 'inst-admin granted INSTITUTION_ADMIN at another school; ';
   exception when others then null; end;
   begin perform public.grant_role(p_aguru, 'EDUCATOR', b_cls, now() + interval '1 day'); ok := false; detail := detail || 'cross-tenant grant succeeded; ';
   exception when others then null; end;

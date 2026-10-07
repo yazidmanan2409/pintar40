@@ -2,7 +2,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { t } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { BATAS_PAKET } from "@/lib/unggah-kontrak";
-import { sekolahDitawarkan } from "@/components/sekolah";
+import { tujuanUnggah } from "@/components/sekolah";
 import PanelUnggah from "@/components/unggah/PanelUnggah";
 import { bisaDikoreksi } from "@/lib/pengajar";
 import { button, can, card, field, label, outcomeLine, s, studioInstitutions } from "../_lib";
@@ -42,12 +42,13 @@ type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string;
 export default async function Unggah({ searchParams }: { searchParams: Search }) {
   const sp = await searchParams;
   const supabase = await supabaseServer();
-  const [boleh, locale] = await Promise.all([studioInstitutions(), currentLocale()]);
+  const [boleh, locale, { data: adminPlatform }] = await Promise.all([studioInstitutions(), currentLocale(), supabase.rpc("is_system_admin")]);
   const menyusun = new Set(boleh.filter((i) => can(i, "CAN_DRAFT")).map((i) => i.id));
   const { data: tenant } = menyusun.size
     ? await supabase.from("institutions").select("id, name, tenant_kind, is_active").in("id", [...menyusun]).order("name")
     : { data: [] as Array<{ id: string; name: string; tenant_kind: string | null; is_active: boolean | null }> };
-  const institutions = sekolahDitawarkan(tenant ?? [], (id) => menyusun.has(id)).map(({ id, name }) => ({ id, name }));
+  // CR-51 (D-120 Q7): the platform admin may also send a workbook to the PINTAR library
+  const institutions = tujuanUnggah(tenant ?? [], (id) => menyusun.has(id), adminPlatform === true).map(({ id, name }) => ({ id, name }));
 
   // D-085 M10: what a corrected workbook may correct, in the schools offered
   const ids = institutions.map((i) => i.id);

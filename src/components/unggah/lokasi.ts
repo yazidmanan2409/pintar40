@@ -1,5 +1,5 @@
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
-import { KOLOM, LEMBAR, type MasalahPaket } from "@/lib/unggah-kontrak";
+import { KOLOM, LEMBAR, LEMBAR_BOLEH, type MasalahPaket } from "@/lib/unggah-kontrak";
 
 /**
  * WHERE A PACKAGE PROBLEM IS (DAISY-06): "Lembar Soal, baris 4, kolom
@@ -13,7 +13,7 @@ export function lokasiMasalah(p: MasalahPaket, locale: Locale): string {
   if (p.sheet) bagian.push(`${s("studio.unggah.lokasi.lembar")} ${p.sheet}`);
   if (p.row) bagian.push(`${s("studio.unggah.lokasi.baris")} ${format.number(p.row, locale)}`);
   if (p.field) {
-    const lembar = LEMBAR.find((l) => l === p.sheet);
+    const lembar = [...LEMBAR, ...LEMBAR_BOLEH].find((l) => l === p.sheet);
     const judul = lembar ? KOLOM[lembar].find((k) => k.kunci === p.field)?.judul : undefined;
     bagian.push(`${s("studio.unggah.lokasi.kolom")} ${judul ?? p.field}`);
   }

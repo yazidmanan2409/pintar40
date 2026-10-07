@@ -14,7 +14,7 @@
 **Rules:**
 - Every line cites an existing source.
 - A line with no source is not 4.0 scope. It is listed in §11 or §12 for Yazid.
-- A line's current evidence state is in `PHASE-1-STATUS.md`; this file is the scope only.
+- A line's current evidence state is on `RECOVERY-BOARD.md` and, line by line, in `docs/reports/PINTAR-4.0-COMPLETE-STATUS-2026-10-06.md` (from 6 Oct; `PHASE-1-STATUS.md` is the 1 Oct record). This file is the scope only; the bracketed notes added on 6 Oct correct stale state wording and change no scope.
 
 **Gate column:**
 - **P0, P1, P2:** the checklist's levels (D-028): P0 blocks go-live; P1 is fixed or accepted in writing; P2 comes after go-live.
@@ -39,7 +39,7 @@
 | J1.3 | Let the platform admin sign in, land on Konfigurasi and see the platform's state (health, environment, schools) | D-010; SYS-01; SYS-02 | P0 / P1 |
 | J1.4 | Let the platform admin create a school's first admin and give the role, audited | ADM-01; X-01; D-017 | P0 |
 | J1.5 | Prepare PINTAR standard content once, govern and version it centrally, and make the applicable release available to every relevant school. A school consumes the authorised central release, never an unrelated copy that can drift. A school sees only what it may use | D-085 (M6); SYS-05; D-029 as amended by M6 (conflict CF11) | EC (was P2 under SYS-05; conflict CF12) |
-| J1.6 | Keep platform-only controls restricted and audited; audit and feature flags discoverable | SYS-06; SYS-07 | P1 |
+| J1.6 | Keep platform-only controls restricted and audited; audit and feature flags discoverable [6 Oct: the flag controls were removed by D-097(c); the audit reader remains] | SYS-06; SYS-07 | P1 |
 | J1.7 | Give the sole production platform admin a documented, tested break-glass procedure before the production release | D-054(e); C10 | REL |
 | J1.8 | Keep evaluation personas out of identity (password, PIN, username, PINTAR ID, activation, device question), with the evaluation boundary assert passing | C13; REL-04 | P0 |
 | J1.9 | Keep the operational truth of every important staff and transactional email: requested → accepted for sending → sent or handed off → refused or failed, with stuck flows identifiable. Platform Operations can answer "what happened to this email?". What a user is told reflects what PINTAR knows; it never says sent when PINTAR's evidence says refused, throttled or failed. No inbox-delivery guarantee | D-085 (M8); D-057(b); X.3 | EC |
@@ -114,7 +114,7 @@
 | J5.4 | Prepare and assign a published lesson (Siapkan → Sediakan) to the right class, release and dates, enforced in WIB, from both the applicable PINTAR standard content and the school's own published content, with the origin clear | EDU-05; EDU-06; ADM-13; X-05; D-042; D-085 (M6) | P0 |
 | J5.5 | Run Uji Cepat as a fast formative check (about one minute): choose the question bank or topic → see the authorised questions → select them (the teacher controls which) → review → launch → students answer. Questions come from the authorised bank and content available to the teacher; no authoring in the flow. Refusals in their own words; an expired window never blocks a new one; the eligible learner finds and takes it | D-085 (T2); EDU-07; EDU-08; D-015; D-067 | P1 |
 | J5.6 | Show the Uji Cepat score where designed | EDU-10 | P1 |
-| J5.7 | Never let a single Uji Cepat issue a certificate | D-082(d) | EC (a DEFECT on `main` today) |
+| J5.7 | Never let a single Uji Cepat issue a certificate | D-082(d) | EC [fixed on `main` 4 Oct: BOB-50, D-098(a); BOB50-A01, F19-Q01] |
 | J5.8 | Show progress and participation without judgment, with no integrity or Question Health access for teachers | EDU-09 | P0 |
 | J5.9 | Extend a deadline with a reason and an audit trail, within scope | EDU-11 | P2 |
 | J5.10 | Suggest what next: assistive, and fitting the class's subject and grade | EDU-13; D-061 (#3) | P2; the #3 correction is EC |
@@ -153,7 +153,7 @@
 | J7.4 | Let the school admin reach the school report by clicking, with correct figures | ADM-16; X-12 | P0 |
 | J7.5 | Give the management decision queue and briefing honest states, fed by referrals | DEA-04; D-061 (#2) | P2; the #2 correction is EC |
 | J7.6 | Have a human review integrity signals, which never change a score and are never visible to learners. Referral stays class- and department-scoped | HOD-07; X-11; D-062(d) | P1 |
-| J7.7 | Word the readiness tiers so they claim no pass, readiness or certificate. Thresholds unchanged; the words are pending | D-082(e); D-068 | POL |
+| J7.7 | Word the readiness tiers so they claim no pass, readiness or certificate. Thresholds unchanged; the words are pending [6 Oct: ruled by D-095 and built (PITA-K01); walked in GS-17; the «not yet» band waits on D-095(g)] | D-082(e); D-068 | POL |
 | J7.8 | Change a metric's version label only when its meaning changes | D-060 | EC |
 | J7.9 | Give the dean certificate aggregates and verification information only | DEA-05 | P2 |
 
@@ -167,7 +167,7 @@
 | J8.4 | Implement the certificate as designed (the frozen refinement) | D-076; D-078(d); D-080 | EC |
 | J8.5 | Support a certificate template and revocation; numbers never collide | ADM-18 | P1 |
 | J8.6 | Verify anonymously: a valid token shows the status first, then only the bounded facts. A random token gets the private not-found; eligible-but-not-issued exposes nothing; nothing leaks | PUB-03 to PUB-06 | P0 / P1 |
-| J8.7 | Establish the production card pepper and signing key, with verified offline copies, before the first production card or certificate. Keys are versioned | D-066; REL-09 | REL |
+| J8.7 | Establish the production card pepper and signing key, with verified offline copies, before the first production card or certificate. Keys are versioned. **Superseded in part (6 Oct): no offline plaintext copy; the dual-recipient encrypted escrow (R1 and R2) is the recovery path (D-107 D8, D-109(c))** | D-066; REL-09; D-107 | REL |
 | J8.8 | Provide a profile-photo capability on the student's profile. The photo appears only on the profile: never on the PINTAR class card or the certificate. Certificate issuance never requests or consumes it, and a student's choice of image never alters the identity or evidence meaning of a card or certificate | D-085 (T4); D-086 (G1) | EC |
 
 ## J9. Educator as learner (a bounded 4.0 capability, D-069(j))
@@ -181,7 +181,7 @@
 | J9.5 | Keep professional-learning integrity recorded but not surfaced to leadership; no HR judgement | D-069(c) | EC |
 | J9.6 | Change no academic reading through professional learning (a hard gate, proven byte-identical) | D-069(l) | EC |
 | J9.7 | Issue and verify a professional-learning certificate through the existing engine | D-069(i) | EC |
-| J9.8 | Use demonstration content at the demonstration bar: two [UJI INTERNAL] chapters, never on `main` or production | D-069(g); D-070(e); D-082(c) | EC (demo) |
+| J9.8 | Use demonstration content at the demonstration bar: two [UJI INTERNAL] chapters, never on `main` or production [6 Oct: this means Lana's LANA-22/23; C-12's own filler packages under `audit/fixtures/` are test fixtures] | D-069(g); D-070(e); D-082(c) | EC (demo) |
 
 ## J10. Help and support
 
@@ -217,7 +217,7 @@
 | R.4 | Pass the capacity levels L1–L5 with D-031's scenario and pass criteria, sized by D-035. Onboarding never exceeds the last level passed; L5 records the breaking point | D-031; D-035; CAP-01 to CAP-08 | P0 (L1); later levels gate onboarding |
 | R.5 | Keep hot paths index-backed; lists that grow with schools page | CAP-09; CAP-10 | P1 |
 | R.6 | Reassess mail capacity for the pilot | D-052(d); D-053 | REL (pilot readiness) |
-| R.7 | Follow the readiness gates in order: ENGINEERING COMPLETE → UI/UX POLISHED → Yazid → Dr Gladys → educator pilot. No dates | D-052; D-083; D-084 | — |
+| R.7 | Follow the readiness gates in order: ENGINEERING COMPLETE → UI/UX POLISHED → Yazid → Dr Gladys → educator pilot. No dates [6 Oct: D-116 and D-117 bring an early human walkthrough forward, before UI/UX POLISHED; the owner reconciles the order, D-116(d)] | D-052; D-083; D-084 | — |
 | R.8 | Release once, controlled: one production release → 3–5 educators → a pilot of about 20–30 → wider testing | D-058(b); IDENTITY-4.0 §8; D-052(b) | — |
 
 ---

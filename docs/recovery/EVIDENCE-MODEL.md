@@ -41,6 +41,7 @@
 - **"Confirmed by a machine read".** DEPLOYED needs a machine read of the app's build commit and of the applied migration set, both at the time of the run.
   - Phase 2's environment-facts check will do this.
   - Until then, DEPLOYED can be claimed only with an equivalent recorded read. Today none exists for the app's commit.
+  - [6 Oct: the check exists. `environment-facts.yml` runs nightly and on dispatch, for example run 37438389611.]
 - **Universal rows** (navigation, truthfulness, language, and others) cannot be proven by examples. They are TESTED only when a test covers the rule, not a sample.
 - **Partly tested.** A row is TESTED only when its whole expected behaviour was run. Otherwise it stays BUILT, with the tested part named.
 - **Clicking (K3, 1 Oct).** A Level 2 slice and the Golden School reach each page by clicking from the previous one.
@@ -53,7 +54,9 @@
 |---|---|---|---|
 | **1** | Component and security tests (lint, typecheck, build, unit, RLS, tenancy, authorization, concurrency, integrity, cryptography) | Every relevant change, before merge | CI, local stack |
 | **2** | A browser slice of each journey the change touches. A file-to-journey map decides which; if unclear, all slices run | Before merge | CI, local stack (branches are not deployed, D-062(a)) |
-| **3** | The complete Golden School (`GOLDEN-SCHOOL-CONTRACT.md`) | Every merge to `main` that changes `src/` or `supabase/`; nightly; before a release. Documentation-only merges never trigger it | Deployed staging; it first asserts the commit and migration set |
+| **3** | The complete Golden School (`GOLDEN-SCHOOL-CONTRACT.md`) | **On dispatch, at the controlled points (D-120, QN6):** after each closure slice that changes what a Golden School step covers (the affected steps), before each gate (the whole walk), and before a release. Never automatically on a merge and never nightly. Documentation-only changes never trigger it | Deployed staging. The commit and migration set are read before and after the run (GOLDEN-SCHOOL-CONTRACT «Status»); asserting them inside the run is CR-60 |
+
+[6 Oct, corrected by D-120: this row said «every merge to `main` that changes `src/` or `supabase/`; nightly». Level 3 never ran that way. It runs on dispatch, by editing a request file, and the model now says so rather than claim evidence that is not produced.]
 
 ## 5. Trusting a test or an instrument
 

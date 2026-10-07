@@ -245,7 +245,7 @@ export async function keputusanSaya(): Promise<Keputusan[]> {
     .from("management_decisions")
     .select(
       "id, family, state, outcome, scope_node_id, institution_id, subject_person_id, " +
-        "source_table, raised_at, raised_note, decided_at",
+        "source_table, raised_at, raised_note, decided_at, raised_by_person_id",
     )
     .order("raised_at", { ascending: true });
   if (error) throw new PimpinanError("the decision queue could not be read");
@@ -254,12 +254,22 @@ export async function keputusanSaya(): Promise<Keputusan[]> {
     id: string; family: string; state: string; outcome: string | null;
     scope_node_id: string; institution_id: string; subject_person_id: string | null;
     source_table: string; raised_at: string; raised_note: string | null; decided_at: string | null;
+    raised_by_person_id: string;
   };
   const baris = rows<Baris>(data);
   if (baris.length === 0) return [];
 
   const simpulIds = [...new Set(baris.map((r) => r.scope_node_id))];
   const orangIds = [...new Set(baris.map((r) => r.subject_person_id).filter((x): x is string => !!x))];
+
+  // CR-76 (D-123(4)): the reader's own open integrity referrals wait for another person; ask whether anyone else may decide
+  const { data: saya } = await c.rpc("current_person_id");
+  const milikSaya = (r: Baris) => saya != null && String(r.raised_by_person_id) === String(saya);
+  const tunggu = baris.filter((r) => milikSaya(r) && r.family === "INTEGRITY_REFERRAL" && r.state !== "DECIDED");
+  const lain = new Map<string, boolean | null>(await Promise.all(tunggu.map(async (r) => {
+    const { data } = await c.rpc("management_decision_independent_decider", { p_decision: r.id });
+    return [String(r.id), typeof data === "boolean" ? data : null] as [string, boolean | null];
+  })));
 
   const [{ data: simpul }, orang] = await Promise.all([
     c.from("org_nodes").select("id, name").in("id", simpulIds),
@@ -289,6 +299,8 @@ export async function keputusanSaya(): Promise<Keputusan[]> {
     diangkatPada: String(r.raised_at),
     catatan: r.raised_note ? String(r.raised_note) : null,
     diputuskanPada: r.decided_at ? String(r.decided_at) : null,
+    olehSaya: milikSaya(r),
+    adaPemutus: lain.get(String(r.id)) ?? null,
   }));
 }
 
@@ -443,14 +455,18 @@ export async function daftarMurid(node: string): Promise<MuridDalamLingkup[]> {
  */
 export async function daftarMuridDari(c: Db, node: string): Promise<MuridDalamLingkup[]> {
   const simpul = [...new Set([node, ...(await cabangDari(c, [node])).map((n) => n.id)])];
-  // a closed membership (valid_to set) is a class the learner has left
+  // a closed membership (valid_to set) is a class the learner has left. BOB-45 (D-069(b)G): «Murid pada bagian ini»
+  // lists learners only -- a place for educators' professional learning holds participants, who are seen on its
+  // professional-learning record instead (D-070(a)); the place's kind is the database's (member_kind)
   const { data: anggota } = await c
     .from("memberships")
-    .select("enrollment_id, node_id")
+    .select("enrollment_id, node_id, node:org_nodes(member_kind)")
     .in("node_id", simpul)
     .is("valid_to", null);
   const enrolIds = [
-    ...new Set(rows<{ enrollment_id: string }>(anggota).map((m) => String(m.enrollment_id))),
+    ...new Set(rows<{ enrollment_id: string; node: { member_kind: string | null } | null }>(anggota)
+      .filter((m) => m.node?.member_kind !== "PARTICIPANT")
+      .map((m) => String(m.enrollment_id))),
   ];
   if (enrolIds.length === 0) return [];
 

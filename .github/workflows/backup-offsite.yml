@@ -1,0 +1,187 @@
+# #150 WP-B (D-106(b) B4 and B9; D-107 D1, D4, D7; D-108): PINTAR'S INDEPENDENT BACKUP, FAIL CLOSED.
+#
+# Each night at 03:00 WIB, production and staging are each backed up by scripts/recovery/backup.mjs: the database
+# (one snapshot, read as pintar_backup, C2) and every Storage file (C3, Supabase Storage's S3 API, NOT AWS), encrypted
+# to recovery keys whose private halves this job never holds (A1), uploaded with its checksum and its retention to the
+# owner's own bucket outside Supabase and Vercel (C4, AWS S3, the writer: put only), its success record last. A run is
+# green only when all ten A5 conditions hold, the extension set among them (D-108(c)(5)-(7)); otherwise it is red, no
+# success record is written, and a failed PRODUCTION backup raises the production watch's one issue.
+#
+# D-109: production is encrypted to R1 AND R2, never one custodian's key alone, and not at all until both custodians
+# have proven possession (docs/recovery/custody.json; backup.mjs refuses before it reads anything). One upload carries
+# at most 5 GiB (a known 4.0 limit, refused above it); from 80 % of it either job raises the backup-size issue, so the
+# limit is seen well before it is reached.
+#
+# OFF BY DEFAULT. The schedule does nothing until the owner sets the repository variable PINTAR_OFFSITE_BACKUP = on,
+# after O3-O7 (docs/recovery/OWNER-INSTRUCTIONS-150.md). A dispatch runs it once. C2, C3 and C4 live only in the
+# `backup` environment (main only); the application never holds them (D-108(c)(1)). The database is reached through the
+# session pooler with verify-full against Supabase's root CA, so C2 never crosses an unverified connection.
+
+name: backup · offsite, encrypted, fail closed
+
+on:
+  schedule:
+    - cron: '0 20 * * *'   # 03:00 WIB (D-107 D7)
+  workflow_dispatch:
+    inputs:
+      target:
+        description: which database
+        type: choice
+        options: [both, production, staging]
+        default: both
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: backup-offsite
+  cancel-in-progress: false
+
+env:
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  # The session pooler, port 5432 (IPv4: a runner has no IPv6). Production's is the apply's own. Staging's is NOT yet
+  # seen: it is taken to be the same, and its first run fails closed if it is not.
+  PRODUCTION_POOLER_HOST: aws-0-ap-southeast-1.pooler.supabase.com
+  STAGING_POOLER_HOST: aws-0-ap-southeast-1.pooler.supabase.com
+  SUPABASE_REGION: ap-southeast-1
+  BACKUP_S3_REGION: ap-southeast-1
+  ISSUE_TITLE: "Production watch: PINTAR production is failing a check"
+  SIZE_ISSUE_TITLE: "Backup size: a PINTAR backup is nearing the 5 GiB single-upload limit"
+
+jobs:
+  production:
+    if: github.ref == 'refs/heads/main' && ((github.event_name == 'workflow_dispatch' && inputs.target != 'staging') || (github.event_name == 'schedule' && vars.PINTAR_OFFSITE_BACKUP == 'on'))
+    name: production, encrypted to R1 and R2
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    environment: backup
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/recovery
+            scripts/release
+            audit/restore
+            docs/recovery
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: PostgreSQL 17's pg_dump (the server's major version)
+        run: |
+          set -euo pipefail
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y > /dev/null
+          sudo apt-get install -y -qq postgresql-client-17 > /dev/null
+          /usr/lib/postgresql/17/bin/pg_dump --version
+      - name: The backup (A5's ten conditions, or red with no success record)
+        id: backup
+        env:
+          BACKUP_TARGET: production
+          BACKUP_RECIPIENTS: R1 R2   # D-109(c): both custodians' keys, never one alone
+          PGHOST: ${{ env.PRODUCTION_POOLER_HOST }}
+          PGPORT: "5432"
+          PGDATABASE: postgres
+          PGUSER: pintar_backup.${{ env.PRODUCTION_SUPABASE_PROJECT_REF }}
+          PGPASSWORD: ${{ secrets.PRODUCTION_DB_BACKUP_PASSWORD }}
+          PGSSLMODE: verify-full
+          PGSSLROOTCERT: docs/recovery/supabase-root-2021-ca.crt
+          PINTAR_PG_BIN: /usr/lib/postgresql/17/bin
+          STORAGE_S3_ENDPOINT: https://${{ env.PRODUCTION_SUPABASE_PROJECT_REF }}.supabase.co/storage/v1/s3
+          STORAGE_S3_REGION: ${{ env.SUPABASE_REGION }}
+          STORAGE_S3_KEY_ID: ${{ secrets.PRODUCTION_SUPABASE_STORAGE_S3_KEY_ID }}
+          STORAGE_S3_SECRET: ${{ secrets.PRODUCTION_SUPABASE_STORAGE_S3_SECRET }}
+          BACKUP_S3_BUCKET: ${{ vars.PINTAR_BACKUP_BUCKET }}
+          BACKUP_S3_KEY_ID: ${{ secrets.AWS_BACKUP_WRITER_KEY_ID }}
+          BACKUP_S3_SECRET: ${{ secrets.AWS_BACKUP_WRITER_SECRET }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: node scripts/recovery/backup.mjs run
+      - name: A bundle at 80 % of the 5 GiB limit or more raises the backup-size issue (D-109(d))
+        if: always() && steps.backup.outputs.size_warning != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WHICH: production
+          WARNING: ${{ steps.backup.outputs.size_warning }}
+        run: |
+          set -euo pipefail
+          api() { curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$@"; }
+          repo="https://api.github.com/repos/${{ github.repository }}"
+          run="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          open=$(api "$repo/issues?state=open&per_page=100" | jq -r --arg t "$SIZE_ISSUE_TITLE" '[.[] | select(.title == $t and (.pull_request | not))][0].number // empty')
+          msg="The $WHICH backup at $(date -u +%FT%TZ): $WARNING. Above 5 GiB a backup is refused (fail closed). Run: $run"
+          if [ -n "$open" ]; then api -X POST "$repo/issues/$open/comments" -d "$(jq -n --arg b "$msg" '{body: $b}')" > /dev/null; echo "commented on #$open"
+          else api -X POST "$repo/issues" -d "$(jq -n --arg t "$SIZE_ISSUE_TITLE" --arg b "$msg" '{title: $t, body: $b}')" | jq -r '"opened #\(.number)"'; fi
+      - name: A failed production backup raises the production watch's one issue (D-108(c)(7))
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          api() { curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$@"; }
+          repo="https://api.github.com/repos/${{ github.repository }}"
+          run="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          open=$(api "$repo/issues?state=open&per_page=100" | jq -r --arg t "$ISSUE_TITLE" '[.[] | select(.title == $t and (.pull_request | not))][0].number // empty')
+          msg="The production backup failed at $(date -u +%FT%TZ) and wrote no success record (an extension change counts, D-108). Run: $run"
+          if [ -n "$open" ]; then api -X POST "$repo/issues/$open/comments" -d "$(jq -n --arg b "$msg" '{body: $b}')" > /dev/null; echo "commented on #$open"
+          else api -X POST "$repo/issues" -d "$(jq -n --arg t "$ISSUE_TITLE" --arg b "$msg" '{title: $t, body: $b}')" | jq -r '"opened #\(.number)"'; fi
+
+  staging:
+    if: github.ref == 'refs/heads/main' && ((github.event_name == 'workflow_dispatch' && inputs.target != 'production') || (github.event_name == 'schedule' && vars.PINTAR_OFFSITE_BACKUP == 'on'))
+    name: staging, encrypted to R1, R2 and the drill key R3
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    environment: backup
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/recovery
+            scripts/release
+            audit/restore
+            docs/recovery
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: PostgreSQL 17's pg_dump (the server's major version)
+        run: |
+          set -euo pipefail
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y > /dev/null
+          sudo apt-get install -y -qq postgresql-client-17 > /dev/null
+          /usr/lib/postgresql/17/bin/pg_dump --version
+      - name: The backup (A5's ten conditions, or red with no success record)
+        id: backup
+        env:
+          BACKUP_TARGET: staging
+          BACKUP_RECIPIENTS: ${{ vars.PINTAR_BACKUP_RECIPIENTS_STAGING }}
+          PGHOST: ${{ env.STAGING_POOLER_HOST }}
+          PGPORT: "5432"
+          PGDATABASE: postgres
+          PGUSER: pintar_backup.${{ env.STAGING_SUPABASE_PROJECT_REF }}
+          PGPASSWORD: ${{ secrets.STAGING_DB_BACKUP_PASSWORD }}
+          PGSSLMODE: verify-full
+          PGSSLROOTCERT: docs/recovery/supabase-root-2021-ca.crt
+          PINTAR_PG_BIN: /usr/lib/postgresql/17/bin
+          STORAGE_S3_ENDPOINT: https://${{ env.STAGING_SUPABASE_PROJECT_REF }}.supabase.co/storage/v1/s3
+          STORAGE_S3_REGION: ${{ env.SUPABASE_REGION }}
+          STORAGE_S3_KEY_ID: ${{ secrets.STAGING_SUPABASE_STORAGE_S3_KEY_ID }}
+          STORAGE_S3_SECRET: ${{ secrets.STAGING_SUPABASE_STORAGE_S3_SECRET }}
+          BACKUP_S3_BUCKET: ${{ vars.PINTAR_BACKUP_BUCKET }}
+          BACKUP_S3_KEY_ID: ${{ secrets.AWS_BACKUP_WRITER_KEY_ID }}
+          BACKUP_S3_SECRET: ${{ secrets.AWS_BACKUP_WRITER_SECRET }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: node scripts/recovery/backup.mjs run
+      - name: A bundle at 80 % of the 5 GiB limit or more raises the backup-size issue (D-109(d))
+        if: always() && steps.backup.outputs.size_warning != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WHICH: staging
+          WARNING: ${{ steps.backup.outputs.size_warning }}
+        run: |
+          set -euo pipefail
+          api() { curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$@"; }
+          repo="https://api.github.com/repos/${{ github.repository }}"
+          run="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          open=$(api "$repo/issues?state=open&per_page=100" | jq -r --arg t "$SIZE_ISSUE_TITLE" '[.[] | select(.title == $t and (.pull_request | not))][0].number // empty')
+          msg="The $WHICH backup at $(date -u +%FT%TZ): $WARNING. Above 5 GiB a backup is refused (fail closed). Run: $run"
+          if [ -n "$open" ]; then api -X POST "$repo/issues/$open/comments" -d "$(jq -n --arg b "$msg" '{body: $b}')" > /dev/null; echo "commented on #$open"
+          else api -X POST "$repo/issues" -d "$(jq -n --arg t "$SIZE_ISSUE_TITLE" --arg b "$msg" '{title: $t, body: $b}')" | jq -r '"opened #\(.number)"'; fi

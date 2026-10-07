@@ -74,9 +74,13 @@ export function kalimatGagalBaca(kode: KodeStruktur, ref: string | undefined, lo
 }
 
 /** "12 murid" / "1 student"; nothing for a Bagian, which places nobody itself. */
-export function jumlahMurid(n: number | null, locale: Locale): string | null {
+export function jumlahMurid(n: number | null, locale: Locale, jenis?: string | null): string | null {
   if (n === null) return null;
-  return `${format.number(n, locale)} ${s(n === 1 ? "config.struktur.murid.satu" : "config.struktur.murid.banyak", locale)}`;
+  // BOB-45 / DAISY-33: a place for educators' professional learning counts participants, never «murid»
+  const [satu, banyak]: [HleEvent, HleEvent] = jenis === "PARTICIPANT"
+    ? ["config.struktur.peserta.satu", "config.struktur.peserta.banyak"]
+    : ["config.struktur.murid.satu", "config.struktur.murid.banyak"];
+  return `${format.number(n, locale)} ${s(n === 1 ? satu : banyak, locale)}`;
 }
 
 /** The words for a level, for an action on it, and for its example. */

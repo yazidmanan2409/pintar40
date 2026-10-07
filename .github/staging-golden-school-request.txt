@@ -2,4 +2,10 @@
 # The last line names the school, founded first by found-school.yml (C1, GS-01). One sign-in email per run.
 #
 # run 001: SD Golden School GS-001, founded by found-school.yml run 36959472214 on main 38944b5 (GS-01)
-slug: gs-001
+# run 002, 5 Oct: Sekolah Emas Uji 2026-10-05, founded by found-school.yml run 37286047274 (GS-01); every person signs in as Gate 3 has it (masuk.mjs)
+# run 003, 5 Oct: again, after run 37286096260 (the operator's activation stopped at a field on the next screen; masuk.mjs now records where)
+# run 004, 5 Oct: again, after run 37286615445 (the walk pressed on while the wizard was still saving the password; it now waits)
+# 6 Oct: Sekolah Demo PINTAR (found-school.yml run 37431278133), the demo school for Dr Gladys's walkthrough on 7 Oct (owner's direction)
+# run 2, 6 Oct: the request again, its commit without [skip ci] (that marker skips this push-triggered walk)
+# 6 Oct, closure batch 0 (D-118): Sekolah Uji Penutupan B0 (found-school.yml run 37462555196, GS-00 green inside it); G4 now asserts D-054(b)'s activation order
+slug: sekolah-uji-b0

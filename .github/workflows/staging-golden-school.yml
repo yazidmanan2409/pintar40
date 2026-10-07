@@ -1,13 +1,14 @@
-# STAGING ONLY. The Golden School's first steps (docs/recovery/GOLDEN-SCHOOL-CONTRACT.md §5, GS-02 and GS-03 before
-# Gate 3): the staging Platform Operator records the school's first administrator and gives «Admin sekolah» at its
-# root through PINTAR's own screens (in a server-made session: SETUP, reported as such, never as a person's act), and
-# the administrator then signs in like a person, with the real email link from the staging test mailbox (ONE sign-in
-# email; staging allows 30 an hour, D-092, shared). Runs audit/staging/golden-school.mjs once per edit of
+# STAGING ONLY. The Golden School's first steps (docs/recovery/GOLDEN-SCHOOL-CONTRACT.md §5, GS-02 and GS-03): the
+# staging Platform Operator signs in as a person does under Gate 3 (audit/staging/masuk.mjs: activation by the emailed
+# code the first time, the password after), records the school's first administrator and gives «Admin sekolah» at its
+# root through PINTAR's own screens; the administrator then signs in the same way (their activation: ONE code email;
+# staging allows 30 an hour, D-092, shared). Runs audit/staging/golden-school.mjs once per edit of
 # .github/staging-golden-school-request.txt on the coordinator's branch; the request's last line names the school's
 # slug ("slug: <slug>"), a school founded first by found-school.yml (C1, GS-01).
 #
 # NEVER: production (staging's ref and database URL are checked first; production's keys are never read); any direct
-# write to the database (it is read in read-only transactions); any change to the product, its sign-in or settings.
+# write to the database (it is read in read-only transactions); a service-role key or a server-made session; any change
+# to the product, its sign-in or settings.
 
 name: staging · Golden School, first administrator (GS-02, GS-03)
 
@@ -32,8 +33,19 @@ env:
   OPERATOR_EMAIL: goldenschool+operator@pintarselalu.com
 
 jobs:
+  gs00:
+    # GS-00 (CR-60): staging runs main's code and main's migrations, read by machine inside this run; red stops the walk
+    name: GS-00 · staging runs main's commit and migrations
+    uses: ./.github/workflows/environment-facts.yml
+    with:
+      scope: staging
+    secrets:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+
   first-admin:
     name: the school's first administrator, appointed by the operator and signing in like a person
+    needs: [gs00]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -54,33 +66,22 @@ jobs:
           npm init -y >/dev/null
           npm i --no-save --no-audit --no-fund playwright@1.55.0 >/dev/null
           npx playwright install --with-deps chromium >/dev/null
-      - name: Staging's keys (masked) and database URL (checked, never printed)
+      - name: Staging's database URL (checked, never printed)
         env:
-          STAGING_SUPABASE_ACCESS_TOKEN: ${{ secrets.STAGING_SUPABASE_ACCESS_TOKEN }}
           STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
         run: |
           set -euo pipefail
           [ "$STAGING_SUPABASE_PROJECT_REF" != "$PRODUCTION_SUPABASE_PROJECT_REF" ]
           case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_SUPABASE_PROJECT_REF"*) echo "::error::the database URL names production"; exit 1;; esac
           case "$STAGING_SUPABASE_DB_URL" in *"$STAGING_SUPABASE_PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::the database URL does not name staging's project"; exit 1;; esac
-          python3 - <<'PY' >> "$GITHUB_ENV"
-          import json, os, sys, urllib.request
-          ref = os.environ['STAGING_SUPABASE_PROJECT_REF']
-          req = urllib.request.Request(f'https://api.supabase.com/v1/projects/{ref}/api-keys?reveal=true',
-                                       headers={'Authorization': 'Bearer ' + os.environ['STAGING_SUPABASE_ACCESS_TOKEN']})
-          keys = json.load(urllib.request.urlopen(req, timeout=30))
-          for name, var in (('service_role', 'SERVICE_KEY'), ('anon', 'ANON_KEY')):
-              k = next(k['api_key'] for k in keys if k.get('name') == name and (k.get('api_key') or '').startswith('eyJ'))
-              print('::add-mask::' + k, file=sys.stderr, flush=True)
-              print(f'{var}={k}')
-          print(f'SUPABASE_URL=https://{ref}.supabase.co')
-          PY
-      - name: The first administrator (setup session for the operator; the administrator's own sign-in by email)
+      - name: The first administrator (the operator and the administrator each signed in as Gate 3 has it)
         working-directory: audit/staging
         env:
           STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
           GS_MAILBOX_PASSWORD: ${{ secrets.GS_MAILBOX_PASSWORD }}
           OUT_DIR: ${{ github.workspace }}/out
+          # read by ../perf/lib.mjs at import (its server-made session is never used here, and no key is given)
+          SUPABASE_URL: https://${{ env.STAGING_SUPABASE_PROJECT_REF }}.supabase.co
         run: node golden-school.mjs
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}

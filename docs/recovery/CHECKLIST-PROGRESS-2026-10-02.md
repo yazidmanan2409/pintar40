@@ -1,5 +1,9 @@
 # PINTAR 4.0: progress against the release checklist
 
+> **Historical record (noted 6 Oct 2026).** This is the progress report of 2 Oct; it is kept unchanged as evidence. The current
+> status is `docs/reports/PINTAR-4.0-COMPLETE-STATUS-2026-10-06.md`, the operational board is `docs/recovery/RECOVERY-BOARD.md`,
+> and the engineering rows are `docs/coordination/RELEASE-CHECKLIST.md` (v2.7).
+
 **As of 2 Oct 2026, 01:55 UTC.** Baseline: checklist v2.3 (1 Oct, main `28d3015`).
 
 **P0: 66 of 84 pass with evidence in hand. On 1 Oct the count was 63.** Four more rows have browser walks written and running on the branch head `39806c7`: STU-09, HOD-03, DEA-02 and U-DEVICE. If those come back green, the count is 70. The verdict stays **NO-GO**. Still open:

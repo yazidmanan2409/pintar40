@@ -63,7 +63,8 @@
            "label": "B",
            "body": "14 cm",
            "is_correct": false,
-           "rationale": "Kedua sisi dijumlahkan tanpa dikuadratkan. Kuadratkan dahulu: 36 + 64 = 100."
+           "rationale": "Kedua sisi dijumlahkan tanpa dikuadratkan. Kuadratkan dahulu: 36 + 64 = 100.",
+           "misconception_code": "SMA10-M-B3-01"
           },
           {
            "_row": {
@@ -73,7 +74,8 @@
            "label": "C",
            "body": "100 cm",
            "is_correct": false,
-           "rationale": "Itu nilai c². Panjang sisi miringnya √100 = 10 cm."
+           "rationale": "Itu nilai c². Panjang sisi miringnya √100 = 10 cm.",
+           "misconception_code": "SMA10-M-B3-01"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "√28 cm",
            "is_correct": false,
-           "rationale": "Kuadratnya dikurangkan (64 − 36). Untuk mencari sisi miring, kuadrat kedua sisi dijumlahkan."
+           "rationale": "Kuadratnya dikurangkan (64 − 36). Untuk mencari sisi miring, kuadrat kedua sisi dijumlahkan.",
+           "misconception_code": "SMA10-M-B3-01"
           }
          ]
         },
@@ -106,7 +109,8 @@
            "label": "A",
            "body": "31 dm",
            "is_correct": false,
-           "rationale": "Kedua sisi dijumlahkan tanpa dikuadratkan (7 + 24)."
+           "rationale": "Kedua sisi dijumlahkan tanpa dikuadratkan (7 + 24).",
+           "misconception_code": "SMA10-M-B3-01"
           },
           {
            "_row": {
@@ -126,7 +130,8 @@
            "label": "C",
            "body": "625 dm",
            "is_correct": false,
-           "rationale": "Itu nilai c². Sisi miringnya √625 = 25 dm."
+           "rationale": "Itu nilai c². Sisi miringnya √625 = 25 dm.",
+           "misconception_code": "SMA10-M-B3-01"
           },
           {
            "_row": {
@@ -136,7 +141,8 @@
            "label": "D",
            "body": "17 dm",
            "is_correct": false,
-           "rationale": "Kedua sisi dikurangkan (24 − 7). Kuadrat keduanya dijumlahkan, lalu diakarkan."
+           "rationale": "Kedua sisi dikurangkan (24 − 7). Kuadrat keduanya dijumlahkan, lalu diakarkan.",
+           "misconception_code": "SMA10-M-B3-01"
           }
          ]
         },
@@ -158,7 +164,8 @@
            "label": "A",
            "body": "KM",
            "is_correct": false,
-           "rationale": "KM mengapit sudut K; itu sisi samping sudut K."
+           "rationale": "KM mengapit sudut K; itu sisi samping sudut K.",
+           "misconception_code": "SMA10-M-B3-02"
           },
           {
            "_row": {
@@ -168,7 +175,8 @@
            "label": "B",
            "body": "KL",
            "is_correct": false,
-           "rationale": "KL berada di seberang sudut siku-siku M; itu sisi miring."
+           "rationale": "KL berada di seberang sudut siku-siku M; itu sisi miring.",
+           "misconception_code": "SMA10-M-B3-02"
           },
           {
            "_row": {
@@ -178,7 +186,8 @@
            "label": "C",
            "body": "tidak ada",
            "is_correct": false,
-           "rationale": "Setiap sudut lancip segitiga siku-siku mempunyai sisi depan: sisi yang tidak menyentuh sudut itu."
+           "rationale": "Setiap sudut lancip segitiga siku-siku mempunyai sisi depan: sisi yang tidak menyentuh sudut itu.",
+           "misconception_code": "SMA10-M-B3-02"
           },
           {
            "_row": {
@@ -210,7 +219,8 @@
            "label": "A",
            "body": "36 cm",
            "is_correct": false,
-           "rationale": "Kedua sisi dijumlahkan. Sisi ketiga pasti lebih pendek dari sisi miring."
+           "rationale": "Kedua sisi dijumlahkan. Sisi ketiga pasti lebih pendek dari sisi miring.",
+           "misconception_code": "SMA10-M-B3-01"
           },
           {
            "_row": {
@@ -230,7 +240,8 @@
            "label": "C",
            "body": "16 cm",
            "is_correct": false,
-           "rationale": "Kedua sisi dikurangkan tanpa dikuadratkan (26 − 10)."
+           "rationale": "Kedua sisi dikurangkan tanpa dikuadratkan (26 − 10).",
+           "misconception_code": "SMA10-M-B3-01"
           },
           {
            "_row": {
@@ -240,7 +251,8 @@
            "label": "D",
            "body": "√776 cm",
            "is_correct": false,
-           "rationale": "Kuadratnya dijumlahkan, seolah 26 bukan sisi miring. Sisi miringnya diketahui, jadi dikurangkan: 676 − 100."
+           "rationale": "Kuadratnya dijumlahkan, seolah 26 bukan sisi miring. Sisi miringnya diketahui, jadi dikurangkan: 676 − 100.",
+           "misconception_code": "SMA10-M-B3-01"
           }
          ]
         },
@@ -272,7 +284,8 @@
            "label": "B",
            "body": "10, 20, 30",
            "is_correct": false,
-           "rationale": "10² + 20² = 500, bukan 900. Selisih yang sama tidak membuat segitiga siku-siku."
+           "rationale": "10² + 20² = 500, bukan 900. Selisih yang sama tidak membuat segitiga siku-siku.",
+           "misconception_code": "SMA10-M-B3-01"
           },
           {
            "_row": {
@@ -282,7 +295,8 @@
            "label": "C",
            "body": "4, 5, 6",
            "is_correct": false,
-           "rationale": "4² + 5² = 41, bukan 36."
+           "rationale": "4² + 5² = 41, bukan 36.",
+           "misconception_code": "SMA10-M-B3-01"
           },
           {
            "_row": {
@@ -292,7 +306,8 @@
            "label": "D",
            "body": "6, 7, 8",
            "is_correct": false,
-           "rationale": "6² + 7² = 85, bukan 64."
+           "rationale": "6² + 7² = 85, bukan 64.",
+           "misconception_code": "SMA10-M-B3-01"
           }
          ]
         },
@@ -314,7 +329,8 @@
            "label": "A",
            "body": "sisi depan juga",
            "is_correct": false,
-           "rationale": "Nama sisi bergantung pada sudut yang diperhatikan. Sisi depan sudut 35° menyentuh sudut 55°."
+           "rationale": "Nama sisi bergantung pada sudut yang diperhatikan. Sisi depan sudut 35° menyentuh sudut 55°.",
+           "misconception_code": "SMA10-M-B3-02"
           },
           {
            "_row": {
@@ -324,7 +340,8 @@
            "label": "B",
            "body": "sisi miring",
            "is_correct": false,
-           "rationale": "Sisi miring berada di seberang sudut siku-siku dan sama bagi kedua sudut lancip."
+           "rationale": "Sisi miring berada di seberang sudut siku-siku dan sama bagi kedua sudut lancip.",
+           "misconception_code": "SMA10-M-B3-02"
           },
           {
            "_row": {
@@ -344,7 +361,8 @@
            "label": "D",
            "body": "tidak mempunyai nama",
            "is_correct": false,
-           "rationale": "Setiap sisi segitiga siku-siku mempunyai nama terhadap setiap sudut lancipnya."
+           "rationale": "Setiap sisi segitiga siku-siku mempunyai nama terhadap setiap sudut lancipnya.",
+           "misconception_code": "SMA10-M-B3-02"
           }
          ]
         }
@@ -384,7 +402,8 @@
            "label": "A",
            "body": "4/3",
            "is_correct": false,
-           "rationale": "Pembilang dan penyebut tertukar (12/9). tan θ = sisi depan/sisi samping."
+           "rationale": "Pembilang dan penyebut tertukar (12/9). tan θ = sisi depan/sisi samping.",
+           "misconception_code": "SMA10-M-B3-03"
           },
           {
            "_row": {
@@ -404,7 +423,8 @@
            "label": "C",
            "body": "3/5",
            "is_correct": false,
-           "rationale": "Itu sisi depan/sisi miring = 9/15, yaitu sin θ."
+           "rationale": "Itu sisi depan/sisi miring = 9/15, yaitu sin θ.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -414,7 +434,8 @@
            "label": "D",
            "body": "4/5",
            "is_correct": false,
-           "rationale": "Itu sisi samping/sisi miring = 12/15, yaitu cos θ."
+           "rationale": "Itu sisi samping/sisi miring = 12/15, yaitu cos θ.",
+           "misconception_code": "SMA10-M-B3-04"
           }
          ]
         },
@@ -437,7 +458,8 @@
            "label": "A",
            "body": "≈ 26,7 m",
            "is_correct": false,
-           "rationale": "Perbandingannya terbalik (4/3 × 20). Tinggi dibagi bayangan: 3/4 = t/20."
+           "rationale": "Perbandingannya terbalik (4/3 × 20). Tinggi dibagi bayangan: 3/4 = t/20.",
+           "misconception_code": "SMA10-M-B3-03"
           },
           {
            "_row": {
@@ -447,7 +469,8 @@
            "label": "B",
            "body": "19 m",
            "is_correct": false,
-           "rationale": "Selisih tinggi dan bayangan (1 m) dianggap tetap. Pada segitiga sebangun yang tetap adalah perbandingannya."
+           "rationale": "Selisih tinggi dan bayangan (1 m) dianggap tetap. Pada segitiga sebangun yang tetap adalah perbandingannya.",
+           "misconception_code": "SMA10-M-B3-13"
           },
           {
            "_row": {
@@ -457,7 +480,8 @@
            "label": "C",
            "body": "60 m",
            "is_correct": false,
-           "rationale": "Bayangan dikalikan 3 tanpa dibagi 4. Tinggi = 3/4 × 20."
+           "rationale": "Bayangan dikalikan 3 tanpa dibagi 4. Tinggi = 3/4 × 20.",
+           "misconception_code": "SMA10-M-B3-06"
           },
           {
            "_row": {
@@ -499,7 +523,8 @@
            "label": "B",
            "body": "sisi samping dibagi sisi depan",
            "is_correct": false,
-           "rationale": "Pembilang dan penyebut tertukar; itu cot θ."
+           "rationale": "Pembilang dan penyebut tertukar; itu cot θ.",
+           "misconception_code": "SMA10-M-B3-03"
           },
           {
            "_row": {
@@ -509,7 +534,8 @@
            "label": "C",
            "body": "sisi depan dibagi sisi miring",
            "is_correct": false,
-           "rationale": "Itu sin θ."
+           "rationale": "Itu sin θ.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -519,7 +545,8 @@
            "label": "D",
            "body": "sisi samping dibagi sisi miring",
            "is_correct": false,
-           "rationale": "Itu cos θ."
+           "rationale": "Itu cos θ.",
+           "misconception_code": "SMA10-M-B3-04"
           }
          ]
         },
@@ -541,7 +568,8 @@
            "label": "A",
            "body": "12/5",
            "is_correct": false,
-           "rationale": "Pembilang dan penyebut tertukar."
+           "rationale": "Pembilang dan penyebut tertukar.",
+           "misconception_code": "SMA10-M-B3-03"
           },
           {
            "_row": {
@@ -551,7 +579,8 @@
            "label": "B",
            "body": "5/13",
            "is_correct": false,
-           "rationale": "Sisi miringnya 13 (5² + 12² = 13²), dan 5/13 adalah sin θ."
+           "rationale": "Sisi miringnya 13 (5² + 12² = 13²), dan 5/13 adalah sin θ.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -561,7 +590,8 @@
            "label": "C",
            "body": "12/13",
            "is_correct": false,
-           "rationale": "Itu cos θ = sisi samping/sisi miring."
+           "rationale": "Itu cos θ = sisi samping/sisi miring.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -593,7 +623,8 @@
            "label": "A",
            "body": "dua kali",
            "is_correct": false,
-           "rationale": "Pembilang dan penyebut sama-sama dikali 2, jadi hasil baginya tidak berubah."
+           "rationale": "Pembilang dan penyebut sama-sama dikali 2, jadi hasil baginya tidak berubah.",
+           "misconception_code": "SMA10-M-B3-05"
           },
           {
            "_row": {
@@ -603,7 +634,8 @@
            "label": "B",
            "body": "setengah dari",
            "is_correct": false,
-           "rationale": "Segitiga yang lebih besar tidak mengubah nilai tan untuk sudut yang sama."
+           "rationale": "Segitiga yang lebih besar tidak mengubah nilai tan untuk sudut yang sama.",
+           "misconception_code": "SMA10-M-B3-05"
           },
           {
            "_row": {
@@ -623,7 +655,8 @@
            "label": "D",
            "body": "empat kali",
            "is_correct": false,
-           "rationale": "Luasnya menjadi empat kali, tetapi tan adalah perbandingan dua sisi, bukan luas."
+           "rationale": "Luasnya menjadi empat kali, tetapi tan adalah perbandingan dua sisi, bukan luas.",
+           "misconception_code": "SMA10-M-B3-05"
           }
          ]
         },
@@ -645,7 +678,8 @@
            "label": "A",
            "body": "37,5 m",
            "is_correct": false,
-           "rationale": "Bayangan dibagi 0,4. Tinggi ada di pembilang, jadi dikalikan."
+           "rationale": "Bayangan dibagi 0,4. Tinggi ada di pembilang, jadi dikalikan.",
+           "misconception_code": "SMA10-M-B3-06"
           },
           {
            "_row": {
@@ -665,7 +699,8 @@
            "label": "C",
            "body": "15,4 m",
            "is_correct": false,
-           "rationale": "0,4 ditambahkan pada panjang bayangan. tan θ adalah perbandingan, jadi dikalikan."
+           "rationale": "0,4 ditambahkan pada panjang bayangan. tan θ adalah perbandingan, jadi dikalikan.",
+           "misconception_code": "SMA10-M-B3-13"
           },
           {
            "_row": {
@@ -675,7 +710,8 @@
            "label": "D",
            "body": "0,4 m",
            "is_correct": false,
-           "rationale": "Nilai tan θ belum dikalikan panjang bayangan."
+           "rationale": "Nilai tan θ belum dikalikan panjang bayangan.",
+           "misconception_code": "SMA10-M-B3-06"
           }
          ]
         }
@@ -715,7 +751,8 @@
            "label": "A",
            "body": "sisi samping dibagi sisi miring",
            "is_correct": false,
-           "rationale": "Itu cos θ."
+           "rationale": "Itu cos θ.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -725,7 +762,8 @@
            "label": "B",
            "body": "sisi depan dibagi sisi samping",
            "is_correct": false,
-           "rationale": "Itu tan θ."
+           "rationale": "Itu tan θ.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -745,7 +783,8 @@
            "label": "D",
            "body": "sisi miring dibagi sisi depan",
            "is_correct": false,
-           "rationale": "Pembilang dan penyebut tertukar; itu csc θ."
+           "rationale": "Pembilang dan penyebut tertukar; itu csc θ.",
+           "misconception_code": "SMA10-M-B3-03"
           }
          ]
         },
@@ -768,7 +807,8 @@
            "label": "A",
            "body": "12,5 m",
            "is_correct": false,
-           "rationale": "Panjang tangga dibagi 0,8. Sisi depan = sin θ × sisi miring. Lagi pula, tinggi tidak mungkin melebihi panjang tangga."
+           "rationale": "Panjang tangga dibagi 0,8. Sisi depan = sin θ × sisi miring. Lagi pula, tinggi tidak mungkin melebihi panjang tangga.",
+           "misconception_code": "SMA10-M-B3-06"
           },
           {
            "_row": {
@@ -778,7 +818,8 @@
            "label": "B",
            "body": "6 m",
            "is_correct": false,
-           "rationale": "Itu jarak kaki tangga ke dinding (√(100 − 64) = 6), yaitu sisi samping."
+           "rationale": "Itu jarak kaki tangga ke dinding (√(100 − 64) = 6), yaitu sisi samping.",
+           "misconception_code": "SMA10-M-B3-02"
           },
           {
            "_row": {
@@ -798,7 +839,8 @@
            "label": "D",
            "body": "0,8 m",
            "is_correct": false,
-           "rationale": "Nilai sin θ belum dikalikan panjang tangga."
+           "rationale": "Nilai sin θ belum dikalikan panjang tangga.",
+           "misconception_code": "SMA10-M-B3-06"
           }
          ]
         },
@@ -830,7 +872,8 @@
            "label": "B",
            "body": "7/25",
            "is_correct": false,
-           "rationale": "Itu sin θ = sisi depan/sisi miring."
+           "rationale": "Itu sin θ = sisi depan/sisi miring.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -840,7 +883,8 @@
            "label": "C",
            "body": "7/24",
            "is_correct": false,
-           "rationale": "Itu tan θ = sisi depan/sisi samping."
+           "rationale": "Itu tan θ = sisi depan/sisi samping.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -850,7 +894,8 @@
            "label": "D",
            "body": "25/24",
            "is_correct": false,
-           "rationale": "Pembilang dan penyebut tertukar; itu sec θ."
+           "rationale": "Pembilang dan penyebut tertukar; itu sec θ.",
+           "misconception_code": "SMA10-M-B3-03"
           }
          ]
         },
@@ -872,7 +917,8 @@
            "label": "A",
            "body": "78,1 m",
            "is_correct": false,
-           "rationale": "Sisi miring dibagi 0,64. Sisi samping tidak mungkin lebih panjang dari sisi miring."
+           "rationale": "Sisi miring dibagi 0,64. Sisi samping tidak mungkin lebih panjang dari sisi miring.",
+           "misconception_code": "SMA10-M-B3-06"
           },
           {
            "_row": {
@@ -882,7 +928,8 @@
            "label": "B",
            "body": "50,64 m",
            "is_correct": false,
-           "rationale": "0,64 ditambahkan. Nilai cos adalah perbandingan, jadi dikalikan."
+           "rationale": "0,64 ditambahkan. Nilai cos adalah perbandingan, jadi dikalikan.",
+           "misconception_code": "SMA10-M-B3-13"
           },
           {
            "_row": {
@@ -902,7 +949,8 @@
            "label": "D",
            "body": "0,64 m",
            "is_correct": false,
-           "rationale": "Nilai cos θ belum dikalikan sisi miring."
+           "rationale": "Nilai cos θ belum dikalikan sisi miring.",
+           "misconception_code": "SMA10-M-B3-06"
           }
          ]
         },
@@ -924,7 +972,8 @@
            "label": "A",
            "body": "10,4 m",
            "is_correct": false,
-           "rationale": "Tinggi tangan tidak dikurangkan (5,2 : 0,5). Segitiganya dimulai dari tangan."
+           "rationale": "Tinggi tangan tidak dikurangkan (5,2 : 0,5). Segitiganya dimulai dari tangan.",
+           "misconception_code": "SMA10-M-B3-07"
           },
           {
            "_row": {
@@ -934,7 +983,8 @@
            "label": "B",
            "body": "12,8 m",
            "is_correct": false,
-           "rationale": "Tinggi tangan malah ditambahkan ((5,2 + 1,2) : 0,5). Tinggi tangan dikurangkan."
+           "rationale": "Tinggi tangan malah ditambahkan ((5,2 + 1,2) : 0,5). Tinggi tangan dikurangkan.",
+           "misconception_code": "SMA10-M-B3-07"
           },
           {
            "_row": {
@@ -944,7 +994,8 @@
            "label": "C",
            "body": "2 m",
            "is_correct": false,
-           "rationale": "Sisi depan dikalikan 0,5. Tali adalah sisi miring, jadi 4 dibagi sin θ."
+           "rationale": "Sisi depan dikalikan 0,5. Tali adalah sisi miring, jadi 4 dibagi sin θ.",
+           "misconception_code": "SMA10-M-B3-06"
           },
           {
            "_row": {
@@ -976,7 +1027,8 @@
            "label": "A",
            "body": "makin besar",
            "is_correct": false,
-           "rationale": "Itu berlaku untuk sin θ. Sisi samping makin pendek dibanding sisi miring, jadi cos θ makin kecil."
+           "rationale": "Itu berlaku untuk sin θ. Sisi samping makin pendek dibanding sisi miring, jadi cos θ makin kecil.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -996,7 +1048,8 @@
            "label": "C",
            "body": "tetap",
            "is_correct": false,
-           "rationale": "Nilai perbandingan berubah jika sudutnya berubah."
+           "rationale": "Nilai perbandingan berubah jika sudutnya berubah.",
+           "misconception_code": "SMA10-M-B3-05"
           },
           {
            "_row": {
@@ -1006,7 +1059,8 @@
            "label": "D",
            "body": "selalu 1",
            "is_correct": false,
-           "rationale": "cos θ = 1 hanya jika sisi samping sama dengan sisi miring, yang tidak terjadi untuk sudut lancip."
+           "rationale": "cos θ = 1 hanya jika sisi samping sama dengan sisi miring, yang tidak terjadi untuk sudut lancip.",
+           "misconception_code": "SMA10-M-B3-09"
           }
          ]
         }
@@ -1056,7 +1110,8 @@
            "label": "B",
            "body": "25/37",
            "is_correct": false,
-           "rationale": "Dipakai cos α = 1 − sin α. Yang benar cos² α = 1 − sin² α."
+           "rationale": "Dipakai cos α = 1 − sin α. Yang benar cos² α = 1 − sin² α.",
+           "misconception_code": "SMA10-M-B3-10"
           },
           {
            "_row": {
@@ -1066,7 +1121,8 @@
            "label": "C",
            "body": "12/35",
            "is_correct": false,
-           "rationale": "Itu tan α = sisi depan/sisi samping."
+           "rationale": "Itu tan α = sisi depan/sisi samping.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -1076,7 +1132,8 @@
            "label": "D",
            "body": "37/35",
            "is_correct": false,
-           "rationale": "Itu sec α = 1/cos α."
+           "rationale": "Itu sec α = 1/cos α.",
+           "misconception_code": "SMA10-M-B3-11"
           }
          ]
         },
@@ -1099,7 +1156,8 @@
            "label": "A",
            "body": "0,8",
            "is_correct": false,
-           "rationale": "Itu cos α. Yang ditanya cos β, dan sisi samping β adalah sisi depan α."
+           "rationale": "Itu cos α. Yang ditanya cos β, dan sisi samping β adalah sisi depan α.",
+           "misconception_code": "SMA10-M-B3-12"
           },
           {
            "_row": {
@@ -1109,7 +1167,8 @@
            "label": "B",
            "body": "0,4",
            "is_correct": false,
-           "rationale": "Dihitung 1 − 0,6. Sudut komplemen tidak berarti nilainya saling melengkapi menjadi 1."
+           "rationale": "Dihitung 1 − 0,6. Sudut komplemen tidak berarti nilainya saling melengkapi menjadi 1.",
+           "misconception_code": "SMA10-M-B3-12"
           },
           {
            "_row": {
@@ -1129,7 +1188,8 @@
            "label": "D",
            "body": "0,36",
            "is_correct": false,
-           "rationale": "Itu sin² α. Tidak ada yang perlu dikuadratkan: cos β = sin α."
+           "rationale": "Itu sin² α. Tidak ada yang perlu dikuadratkan: cos β = sin α.",
+           "misconception_code": "SMA10-M-B3-10"
           }
          ]
         },
@@ -1151,7 +1211,8 @@
            "label": "A",
            "body": "0,4",
            "is_correct": false,
-           "rationale": "Dipakai sin θ = 1 − cos θ. Yang benar sin² θ = 1 − cos² θ."
+           "rationale": "Dipakai sin θ = 1 − cos θ. Yang benar sin² θ = 1 − cos² θ.",
+           "misconception_code": "SMA10-M-B3-10"
           },
           {
            "_row": {
@@ -1161,7 +1222,8 @@
            "label": "B",
            "body": "0,64",
            "is_correct": false,
-           "rationale": "Itu sin² θ. Akarnya belum ditarik."
+           "rationale": "Itu sin² θ. Akarnya belum ditarik.",
+           "misconception_code": "SMA10-M-B3-10"
           },
           {
            "_row": {
@@ -1181,7 +1243,8 @@
            "label": "D",
            "body": "1,6",
            "is_correct": false,
-           "rationale": "Dihitung 1 + 0,6. Nilai sin θ untuk sudut lancip selalu kurang dari 1."
+           "rationale": "Dihitung 1 + 0,6. Nilai sin θ untuk sudut lancip selalu kurang dari 1.",
+           "misconception_code": "SMA10-M-B3-10"
           }
          ]
         },
@@ -1203,7 +1266,8 @@
            "label": "A",
            "body": "4/3",
            "is_correct": false,
-           "rationale": "Pembagiannya terbalik (cos θ/sin θ); itu cot θ."
+           "rationale": "Pembagiannya terbalik (cos θ/sin θ); itu cot θ.",
+           "misconception_code": "SMA10-M-B3-03"
           },
           {
            "_row": {
@@ -1213,7 +1277,8 @@
            "label": "B",
            "body": "12/25",
            "is_correct": false,
-           "rationale": "sin θ dan cos θ dikalikan. tan θ adalah hasil bagi keduanya."
+           "rationale": "sin θ dan cos θ dikalikan. tan θ adalah hasil bagi keduanya.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -1223,7 +1288,8 @@
            "label": "C",
            "body": "7/5",
            "is_correct": false,
-           "rationale": "sin θ dan cos θ dijumlahkan. tan θ adalah hasil bagi keduanya."
+           "rationale": "sin θ dan cos θ dijumlahkan. tan θ adalah hasil bagi keduanya.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -1265,7 +1331,8 @@
            "label": "B",
            "body": "1/3",
            "is_correct": false,
-           "rationale": "Dihitung 1 − 2/3. Kebalikan berarti 1 dibagi 2/3."
+           "rationale": "Dihitung 1 − 2/3. Kebalikan berarti 1 dibagi 2/3.",
+           "misconception_code": "SMA10-M-B3-11"
           },
           {
            "_row": {
@@ -1275,7 +1342,8 @@
            "label": "C",
            "body": "√5/3",
            "is_correct": false,
-           "rationale": "Itu sin θ (sisi depan √(9 − 4) = √5). sec θ adalah kebalikan cos θ."
+           "rationale": "Itu sin θ (sisi depan √(9 − 4) = √5). sec θ adalah kebalikan cos θ.",
+           "misconception_code": "SMA10-M-B3-11"
           },
           {
            "_row": {
@@ -1285,7 +1353,8 @@
            "label": "D",
            "body": "−2/3",
            "is_correct": false,
-           "rationale": "Kebalikan bukan lawan tanda. sec θ = 1/cos θ."
+           "rationale": "Kebalikan bukan lawan tanda. sec θ = 1/cos θ.",
+           "misconception_code": "SMA10-M-B3-11"
           }
          ]
         },
@@ -1307,7 +1376,8 @@
            "label": "A",
            "body": "cos 25°",
            "is_correct": false,
-           "rationale": "sin dan cos sudut yang sama umumnya berbeda. Pasangan komplemen 25° adalah 65°."
+           "rationale": "sin dan cos sudut yang sama umumnya berbeda. Pasangan komplemen 25° adalah 65°.",
+           "misconception_code": "SMA10-M-B3-12"
           },
           {
            "_row": {
@@ -1327,7 +1397,8 @@
            "label": "C",
            "body": "cos 155°",
            "is_correct": false,
-           "rationale": "Komplemen dihitung dari 180°. Pada segitiga siku-siku, α + β = 90°."
+           "rationale": "Komplemen dihitung dari 180°. Pada segitiga siku-siku, α + β = 90°.",
+           "misconception_code": "SMA10-M-B3-12"
           },
           {
            "_row": {
@@ -1337,7 +1408,8 @@
            "label": "D",
            "body": "cos 115°",
            "is_correct": false,
-           "rationale": "25° ditambahkan pada 90°. Komplemen 25° adalah 90° − 25° = 65°."
+           "rationale": "25° ditambahkan pada 90°. Komplemen 25° adalah 90° − 25° = 65°.",
+           "misconception_code": "SMA10-M-B3-12"
           }
          ]
         }
@@ -1377,7 +1449,8 @@
            "label": "A",
            "body": "√3/2",
            "is_correct": false,
-           "rationale": "Itu cos 30° (sisi samping √3 dibagi sisi miring 2)."
+           "rationale": "Itu cos 30° (sisi samping √3 dibagi sisi miring 2).",
+           "misconception_code": "SMA10-M-B3-08"
           },
           {
            "_row": {
@@ -1387,7 +1460,8 @@
            "label": "B",
            "body": "√3/3",
            "is_correct": false,
-           "rationale": "Itu tan 30° (1/√3)."
+           "rationale": "Itu tan 30° (1/√3).",
+           "misconception_code": "SMA10-M-B3-08"
           },
           {
            "_row": {
@@ -1397,7 +1471,8 @@
            "label": "C",
            "body": "1/3",
            "is_correct": false,
-           "rationale": "30° adalah 1/3 dari 90°, tetapi nilai sinus berasal dari perbandingan sisi, bukan dari besar sudut."
+           "rationale": "30° adalah 1/3 dari 90°, tetapi nilai sinus berasal dari perbandingan sisi, bukan dari besar sudut.",
+           "misconception_code": "SMA10-M-B3-09"
           },
           {
            "_row": {
@@ -1440,7 +1515,8 @@
            "label": "B",
            "body": "12√3 m",
            "is_correct": false,
-           "rationale": "Dipakai tan 60° = √3. Sudutnya 30°, dan tan 30° = √3/3."
+           "rationale": "Dipakai tan 60° = √3. Sudutnya 30°, dan tan 30° = √3/3.",
+           "misconception_code": "SMA10-M-B3-08"
           },
           {
            "_row": {
@@ -1450,7 +1526,8 @@
            "label": "C",
            "body": "6 m",
            "is_correct": false,
-           "rationale": "Dipakai sin 30° = 1/2. Jarak 12 m adalah sisi samping, bukan sisi miring, jadi dipakai tan."
+           "rationale": "Dipakai sin 30° = 1/2. Jarak 12 m adalah sisi samping, bukan sisi miring, jadi dipakai tan.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -1460,7 +1537,8 @@
            "label": "D",
            "body": "8√3 m",
            "is_correct": false,
-           "rationale": "Itu 12 : cos 30°, panjang garis pandang ke puncak (sisi miring), bukan tinggi tiang."
+           "rationale": "Itu 12 : cos 30°, panjang garis pandang ke puncak (sisi miring), bukan tinggi tiang.",
+           "misconception_code": "SMA10-M-B3-02"
           }
          ]
         },
@@ -1482,7 +1560,8 @@
            "label": "A",
            "body": "√2/2",
            "is_correct": false,
-           "rationale": "Itu sin 45° atau cos 45°."
+           "rationale": "Itu sin 45° atau cos 45°.",
+           "misconception_code": "SMA10-M-B3-08"
           },
           {
            "_row": {
@@ -1492,7 +1571,8 @@
            "label": "B",
            "body": "√2",
            "is_correct": false,
-           "rationale": "Itu panjang sisi miringnya, bukan perbandingan."
+           "rationale": "Itu panjang sisi miringnya, bukan perbandingan.",
+           "misconception_code": "SMA10-M-B3-02"
           },
           {
            "_row": {
@@ -1512,7 +1592,8 @@
            "label": "D",
            "body": "1/2",
            "is_correct": false,
-           "rationale": "45° adalah setengah dari 90°, tetapi nilai tan berasal dari perbandingan sisi."
+           "rationale": "45° adalah setengah dari 90°, tetapi nilai tan berasal dari perbandingan sisi.",
+           "misconception_code": "SMA10-M-B3-09"
           }
          ]
         },
@@ -1534,7 +1615,8 @@
            "label": "A",
            "body": "1/2",
            "is_correct": false,
-           "rationale": "Itu sin 30° atau cos 60°."
+           "rationale": "Itu sin 30° atau cos 60°.",
+           "misconception_code": "SMA10-M-B3-08"
           },
           {
            "_row": {
@@ -1544,7 +1626,8 @@
            "label": "B",
            "body": "√3/3",
            "is_correct": false,
-           "rationale": "Itu tan 30°."
+           "rationale": "Itu tan 30°.",
+           "misconception_code": "SMA10-M-B3-08"
           },
           {
            "_row": {
@@ -1554,7 +1637,8 @@
            "label": "C",
            "body": "√3",
            "is_correct": false,
-           "rationale": "Itu tan 60°."
+           "rationale": "Itu tan 60°.",
+           "misconception_code": "SMA10-M-B3-08"
           },
           {
            "_row": {
@@ -1596,7 +1680,8 @@
            "label": "B",
            "body": "√5",
            "is_correct": false,
-           "rationale": "Kuadratnya dijumlahkan (1² + 2²). Sisi 2 adalah sisi miring, jadi dikurangkan."
+           "rationale": "Kuadratnya dijumlahkan (1² + 2²). Sisi 2 adalah sisi miring, jadi dikurangkan.",
+           "misconception_code": "SMA10-M-B3-01"
           },
           {
            "_row": {
@@ -1606,7 +1691,8 @@
            "label": "C",
            "body": "1",
            "is_correct": false,
-           "rationale": "Itu separuh alasnya, bukan tingginya."
+           "rationale": "Itu separuh alasnya, bukan tingginya.",
+           "misconception_code": "SMA10-M-B3-02"
           },
           {
            "_row": {
@@ -1616,7 +1702,8 @@
            "label": "D",
            "body": "2",
            "is_correct": false,
-           "rationale": "Itu panjang sisi segitiga, yang menjadi sisi miring."
+           "rationale": "Itu panjang sisi segitiga, yang menjadi sisi miring.",
+           "misconception_code": "SMA10-M-B3-02"
           }
          ]
         }
@@ -1656,7 +1743,8 @@
            "label": "A",
            "body": "4,5 m",
            "is_correct": false,
-           "rationale": "Jarak dikalikan cos 60°. Kawat berada di penyebut, jadi 9 dibagi cos 60°. Kawat (sisi miring) juga tidak mungkin lebih pendek dari 9 m."
+           "rationale": "Jarak dikalikan cos 60°. Kawat berada di penyebut, jadi 9 dibagi cos 60°. Kawat (sisi miring) juga tidak mungkin lebih pendek dari 9 m.",
+           "misconception_code": "SMA10-M-B3-06"
           },
           {
            "_row": {
@@ -1666,7 +1754,8 @@
            "label": "B",
            "body": "9√3 m",
            "is_correct": false,
-           "rationale": "Itu 9 × tan 60°, yaitu tinggi titik ikat kawat pada menara, bukan panjang kawat."
+           "rationale": "Itu 9 × tan 60°, yaitu tinggi titik ikat kawat pada menara, bukan panjang kawat.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -1676,7 +1765,8 @@
            "label": "C",
            "body": "6√3 m",
            "is_correct": false,
-           "rationale": "Dipakai sin 60°. Jarak 9 m adalah sisi samping sudut 60°, jadi dipakai cos."
+           "rationale": "Dipakai sin 60°. Jarak 9 m adalah sisi samping sudut 60°, jadi dipakai cos.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -1709,7 +1799,8 @@
            "label": "A",
            "body": "cosinus",
            "is_correct": false,
-           "rationale": "cos θ memakai sisi samping, yaitu jarak mendatar, bukan tinggi."
+           "rationale": "cos θ memakai sisi samping, yaitu jarak mendatar, bukan tinggi.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -1729,7 +1820,8 @@
            "label": "C",
            "body": "tangen",
            "is_correct": false,
-           "rationale": "tan θ memakai sisi depan dan sisi samping, padahal yang diketahui sisi miring."
+           "rationale": "tan θ memakai sisi depan dan sisi samping, padahal yang diketahui sisi miring.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -1739,7 +1831,8 @@
            "label": "D",
            "body": "secan",
            "is_correct": false,
-           "rationale": "sec θ = sisi miring/sisi samping, dan tidak memuat tinggi."
+           "rationale": "sec θ = sisi miring/sisi samping, dan tidak memuat tinggi.",
+           "misconception_code": "SMA10-M-B3-11"
           }
          ]
         },
@@ -1761,7 +1854,8 @@
            "label": "A",
            "body": "2√3 m",
            "is_correct": false,
-           "rationale": "Dipakai cos 30°. Itu jarak mendatar kaki perosotan, bukan tingginya."
+           "rationale": "Dipakai cos 30°. Itu jarak mendatar kaki perosotan, bukan tingginya.",
+           "misconception_code": "SMA10-M-B3-04"
           },
           {
            "_row": {
@@ -1781,7 +1875,8 @@
            "label": "C",
            "body": "8 m",
            "is_correct": false,
-           "rationale": "4 dibagi sin 30°. Perosotan adalah sisi miring, jadi dikalikan."
+           "rationale": "4 dibagi sin 30°. Perosotan adalah sisi miring, jadi dikalikan.",
+           "misconception_code": "SMA10-M-B3-06"
           },
           {
            "_row": {
@@ -1791,7 +1886,8 @@
            "label": "D",
            "body": "4√3/3 m",
            "is_correct": false,
-           "rationale": "Dipakai tan 30°, padahal 4 m adalah sisi miring, bukan sisi samping."
+           "rationale": "Dipakai tan 30°, padahal 4 m adalah sisi miring, bukan sisi samping.",
+           "misconception_code": "SMA10-M-B3-04"
           }
          ]
         }
@@ -1800,6 +1896,138 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SMA10-M-B3-01",
+   "label": "Teorema Pythagoras keliru",
+   "description": "Sisi-sisinya dijumlahkan tanpa dikuadratkan, akarnya lupa ditarik, atau sisi miring dikira sisi yang lain.",
+   "remediation": "Kuadratkan kedua sisi yang mengapit sudut siku-siku, jumlahkan, lalu tarik akarnya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SMA10-M-B3-02",
+   "label": "Nama sisi tertukar",
+   "description": "Sisi depan, sisi samping, dan sisi miring tertukar, atau nama sisi dianggap tidak bergantung pada sudut.",
+   "remediation": "Tandai sudut θ dahulu; sisi miring di seberang sudut siku-siku, sisi depan di seberang θ."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SMA10-M-B3-03",
+   "label": "Perbandingan terbalik",
+   "description": "Pembilang dan penyebut tertukar, misalnya tan θ ditulis sisi samping dibagi sisi depan.",
+   "remediation": "Hafalkan urutannya: sin = depan/miring, cos = samping/miring, tan = depan/samping."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SMA10-M-B3-04",
+   "label": "Sinus, cosinus, dan tangen tertukar",
+   "description": "Perbandingan yang dipakai tidak sesuai dengan sisi yang diketahui dan dicari.",
+   "remediation": "Tulis nama sisi yang diketahui dan yang dicari, lalu pilih perbandingan yang memuat keduanya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SMA10-M-B3-05",
+   "label": "Nilai perbandingan dikira bergantung pada ukuran segitiga",
+   "description": "Segitiga yang lebih besar dikira mempunyai nilai sin, cos, atau tan yang lebih besar.",
+   "remediation": "Bandingkan dua segitiga sebangun: sisi-sisinya berubah dengan faktor yang sama, jadi perbandingannya tetap."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SMA10-M-B3-06",
+   "label": "Mengali dan membagi tertukar",
+   "description": "Sisi yang diketahui dikalikan dengan nilai perbandingan padahal seharusnya dibagi, atau sebaliknya.",
+   "remediation": "Tulis persamaan perbandingannya lengkap, lalu selesaikan untuk sisi yang dicari."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SMA10-M-B3-07",
+   "label": "Tinggi pengamat terlupa",
+   "description": "Segitiga siku-siku dianggap dimulai dari tanah, padahal dimulai dari mata atau tangan pengamat.",
+   "remediation": "Gambar garis mendatar dari mata atau tangan, lalu tambahkan atau kurangkan tingginya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SMA10-M-B3-08",
+   "label": "Nilai sudut istimewa tertukar",
+   "description": "Nilai sin, cos, dan tan untuk 30°, 45°, dan 60° tertukar satu sama lain.",
+   "remediation": "Turunkan lagi dari segitiga bersisi 1, √3, 2 dan segitiga bersisi 1, 1, √2."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SMA10-M-B3-09",
+   "label": "Besar sudut dianggap nilai perbandingan",
+   "description": "Nilai perbandingan dikira sebanding dengan besar sudut, misalnya 30° dianggap 1/3 dari 90°.",
+   "remediation": "Nilai perbandingan berasal dari sisi-sisi segitiga, bukan dari membagi besar sudut."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SMA10-M-B3-10",
+   "label": "Hubungan sin² + cos² = 1 keliru",
+   "description": "Dipakai sin θ = 1 − cos θ, atau akarnya lupa ditarik.",
+   "remediation": "Kuadratkan dahulu: sin² θ = 1 − cos² θ, lalu tarik akarnya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SMA10-M-B3-11",
+   "label": "Perbandingan kebalikan keliru",
+   "description": "sec, csc, dan cot dipasangkan dengan perbandingan yang salah, atau kebalikan dikira bilangan negatif.",
+   "remediation": "sec = 1/cos, csc = 1/sin, cot = 1/tan: tukar pembilang dan penyebutnya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 13
+   },
+   "code": "SMA10-M-B3-12",
+   "label": "Sudut komplemen keliru",
+   "description": "Komplemen dihitung dari 180°, atau sin α dikira sama dengan sin β.",
+   "remediation": "Pada segitiga siku-siku α + β = 90°, dan sisi depan α adalah sisi samping β."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 14
+   },
+   "code": "SMA10-M-B3-13",
+   "label": "Perbandingan diganti selisih",
+   "description": "Pada segitiga sebangun, selisih sisi dianggap tetap, padahal yang tetap adalah perbandingannya.",
+   "remediation": "Bagi, jangan kurangkan: periksa bahwa kedua pecahan bernilai sama."
   }
  ]
 }

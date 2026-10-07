@@ -1,7 +1,7 @@
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import {
   HASIL_KUNCI, HASIL_SEMUA, KEADAAN_KUNCI, KELUARGA_KUNCI, RANTAI,
-  langkahBerikut, nada, type Keputusan,
+  langkahBerikut, menungguOrangLain, nada, type Keputusan,
 } from "@/lib/pimpinan-kontrak";
 import TombolKirim from "@/components/TombolKirim";
 import BarisHasil from "@/components/BarisHasil";
@@ -50,7 +50,9 @@ export default function KartuKeputusan({
 }) {
   const s = (key: string) => t(key as HleEvent, "staff", { locale });
   const rantai = RANTAI[k.keluarga];
-  const berikut = langkahBerikut(k.keadaan);
+  // CR-76 (D-123(4)): the reader's own open integrity referral offers no move; another person decides it
+  const tunggu = menungguOrangLain(k);
+  const berikut = tunggu ? [] : langkahBerikut(k.keadaan);
   const sumberKunci = SUMBER[k.sumberTabel];
 
   return (
@@ -101,6 +103,13 @@ export default function KartuKeputusan({
               </span>
             ) : null}
           </p>
+        ) : null}
+
+        {tunggu ? (
+          <>
+            <p className="pin-meta">{s("pimpinan.menunggu_pemutus_lain")}</p>
+            {k.adaPemutus === false ? <p className="pin-meta">{s("pimpinan.belum_ada_pemutus_lain")}</p> : null}
+          </>
         ) : null}
 
         {galat ? (

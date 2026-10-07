@@ -65,7 +65,7 @@ export default async function Siapkan({
   }
 
   const [semua, tugas, fakta, akar] = await Promise.all([
-    ajar.terbitan(ctx.ini.institusi),
+    ajar.terbitan(ctx.ini.institusi, id),
     ajar.penugasan(id),
     ajar.faktaKelas(id),
     ajar.garisSekolah(ctx.ini.institusi),

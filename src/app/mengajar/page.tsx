@@ -10,6 +10,7 @@ import Tur from "@/components/tur/Tur";
 import { PARAM_BANTUAN } from "@/components/tur/TombolBantuan";
 import { bolehTampilOtomatis, turPengajarBerlaku, TUR_PENGAJAR } from "@/lib/tur";
 import { keadaanTur, peranSaya } from "@/lib/tur-negara";
+import { kataAnggota } from "@/lib/mengajar";
 
 export const dynamic = "force-dynamic";
 
@@ -167,7 +168,7 @@ export default async function BerandaPengajar({
                 const jalan = buka.filter((b) => b.nodeId === k.id);
                 const meta = [
                   r?.mapel,
-                  `${format.number(r?.murid ?? 0, locale)} ${s("mengajar.bukti.murid")}`,
+                  `${format.number(r?.murid ?? 0, locale)} ${s(kataAnggota("mengajar.bukti.murid", k.jenis))}`,
                   ...jalan.map(
                     (b) =>
                       `${b.judul} · ${format.number(b.mengumpulkan, locale)}/${format.number(r?.murid ?? 0, locale)} ${s("mengajar.bukti.kumpul").toLowerCase()}`,

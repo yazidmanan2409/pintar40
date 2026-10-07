@@ -16,6 +16,7 @@ import AngkaTerkelola from "@/components/pimpinan/AngkaTerkelola";
 import BarisHasil from "@/components/BarisHasil";
 import TandaTautan from "@/components/TandaTautan";
 import { lingkupAwal } from "@/components/pimpinan/lingkup";
+import { alamatCatatan, tempatCatatan } from "@/lib/pengembangan";
 
 export const dynamic = "force-dynamic";
 
@@ -79,10 +80,12 @@ export default async function Pimpinan({
   // classes, each class of the branch answers for itself (BOB-06's
   // buktiPerKelas), never summed; standing at a class, buktiPimpinan asks it.
   const diKelas = dipilih.kind === "CLASS";
-  const [keputusan, bukti, perKelas] = await Promise.all([
+  const [keputusan, bukti, perKelas, catatanPd] = await Promise.all([
     pim.keputusanSaya(),
     pim.buktiPimpinan(dipilih.id, dipilih.institusi),
     diKelas ? Promise.resolve([] as pim.BuktiKelas[]) : pim.buktiPerKelas(dipilih.id).catch(() => [] as pim.BuktiKelas[]),
+    // DAISY-34 (D-070(a)): the professional-learning records this reader may open; links only, never a figure
+    tempatCatatan(),
   ]);
 
   const tertib = urutan(keputusan);
@@ -287,6 +290,21 @@ export default async function Pimpinan({
             ) : null}
           </div>
         </section>
+
+        {/* ── F. EDUCATORS' PROFESSIONAL LEARNING (DAISY-34, D-069(b)G) ──── *
+            Outside the decision queue and the figures: a link to each record, read-only. */}
+        {catatanPd.length > 0 ? (
+          <section className="pin-sec" aria-labelledby="pin-pengembangan">
+            <h2 id="pin-pengembangan">{s("config.peserta.catatan")}</h2>
+            <div className="pin-actions">
+              {catatanPd.map((k) => (
+                <Link key={k.id} className="pin-btn" href={alamatCatatan(k.id)}>
+                  {k.nama}{k.tahun ? ` (${k.tahun})` : ""}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
       </main>
       <KakiPintar className="pin-noprint" />
     </>

@@ -53,7 +53,8 @@
            "label": "A",
            "body": "Ujung gunting yang terbuka sedikit",
            "is_correct": false,
-           "rationale": "Gunting yang terbuka sedikit membentuk sudut yang lebih kecil dari siku-siku, yaitu lancip."
+           "rationale": "Gunting yang terbuka sedikit membentuk sudut yang lebih kecil dari siku-siku, yaitu lancip.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -73,7 +74,8 @@
            "label": "C",
            "body": "Kipas yang terbuka lebar",
            "is_correct": false,
-           "rationale": "Kipas yang terbuka lebar membentuk sudut yang lebih besar dari siku-siku, yaitu tumpul."
+           "rationale": "Kipas yang terbuka lebar membentuk sudut yang lebih besar dari siku-siku, yaitu tumpul.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "Pojok kotak pensil yang membulat",
            "is_correct": false,
-           "rationale": "Pojok yang membulat tidak mempunyai dua kaki lurus yang bertemu di satu titik, jadi bukan sudut."
+           "rationale": "Pojok yang membulat tidak mempunyai dua kaki lurus yang bertemu di satu titik, jadi bukan sudut.",
+           "misconception_code": "SD5-M-B6-02"
           }
          ]
         },
@@ -105,7 +108,8 @@
            "label": "A",
            "body": "lancip, karena bukunya miring",
            "is_correct": false,
-           "rationale": "Memiringkan buku tidak mengubah besar pojoknya. Arah tidak menentukan jenis sudut."
+           "rationale": "Memiringkan buku tidak mengubah besar pojoknya. Arah tidak menentukan jenis sudut.",
+           "misconception_code": "SD5-M-B6-01"
           },
           {
            "_row": {
@@ -115,7 +119,8 @@
            "label": "B",
            "body": "tumpul, karena bukunya miring",
            "is_correct": false,
-           "rationale": "Memiringkan buku tidak mengubah besar pojoknya."
+           "rationale": "Memiringkan buku tidak mengubah besar pojoknya.",
+           "misconception_code": "SD5-M-B6-01"
           },
           {
            "_row": {
@@ -135,7 +140,8 @@
            "label": "D",
            "body": "bukan sudut, karena tidak ada sisi yang mendatar",
            "is_correct": false,
-           "rationale": "Sudut tidak harus mempunyai kaki yang mendatar. Pojok buku tetap mempunyai dua kaki lurus dan titik sudut."
+           "rationale": "Sudut tidak harus mempunyai kaki yang mendatar. Pojok buku tetap mempunyai dua kaki lurus dan titik sudut.",
+           "misconception_code": "SD5-M-B6-01"
           }
          ]
         },
@@ -167,7 +173,8 @@
            "label": "B",
            "body": "Persegi panjang",
            "is_correct": false,
-           "rationale": "Persegi panjang mempunyai 4 sudut siku-siku, satu di setiap pojok."
+           "rationale": "Persegi panjang mempunyai 4 sudut siku-siku, satu di setiap pojok.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -177,7 +184,8 @@
            "label": "C",
            "body": "Segitiga sama sisi",
            "is_correct": false,
-           "rationale": "Semua sudut segitiga sama sisi lancip; tidak ada yang siku-siku."
+           "rationale": "Semua sudut segitiga sama sisi lancip; tidak ada yang siku-siku.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -187,7 +195,8 @@
            "label": "D",
            "body": "Jajargenjang yang miring",
            "is_correct": false,
-           "rationale": "Sisi jajargenjang yang miring membentuk dua sudut lancip dan dua sudut tumpul, tidak ada yang siku-siku."
+           "rationale": "Sisi jajargenjang yang miring membentuk dua sudut lancip dan dua sudut tumpul, tidak ada yang siku-siku.",
+           "misconception_code": "SD5-M-B6-03"
           }
          ]
         }
@@ -227,7 +236,8 @@
            "label": "A",
            "body": "tumpul",
            "is_correct": false,
-           "rationale": "Sudut tumpul justru lebih besar dari sudut siku-siku."
+           "rationale": "Sudut tumpul justru lebih besar dari sudut siku-siku.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -237,7 +247,8 @@
            "label": "B",
            "body": "lurus",
            "is_correct": false,
-           "rationale": "Sudut lurus besarnya 180°, dua kali sudut siku-siku."
+           "rationale": "Sudut lurus besarnya 180°, dua kali sudut siku-siku.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -247,7 +258,8 @@
            "label": "C",
            "body": "refleks",
            "is_correct": false,
-           "rationale": "Sudut refleks lebih besar dari sudut lurus, jauh lebih besar dari siku-siku."
+           "rationale": "Sudut refleks lebih besar dari sudut lurus, jauh lebih besar dari siku-siku.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -279,7 +291,8 @@
            "label": "A",
            "body": "Pojok kotak pensil yang membulat",
            "is_correct": false,
-           "rationale": "Tepinya melengkung; tidak ada dua kaki lurus yang bertemu di satu titik."
+           "rationale": "Tepinya melengkung; tidak ada dua kaki lurus yang bertemu di satu titik.",
+           "misconception_code": "SD5-M-B6-02"
           },
           {
            "_row": {
@@ -289,7 +302,8 @@
            "label": "B",
            "body": "Tepi piring yang melengkung",
            "is_correct": false,
-           "rationale": "Tepi piring melengkung, tidak ada kaki lurus maupun titik sudut."
+           "rationale": "Tepi piring melengkung, tidak ada kaki lurus maupun titik sudut.",
+           "misconception_code": "SD5-M-B6-02"
           },
           {
            "_row": {
@@ -299,7 +313,8 @@
            "label": "C",
            "body": "Ujung penghapus yang membulat",
            "is_correct": false,
-           "rationale": "Ujung yang membulat tidak mempunyai titik sudut."
+           "rationale": "Ujung yang membulat tidak mempunyai titik sudut.",
+           "misconception_code": "SD5-M-B6-02"
           },
           {
            "_row": {
@@ -331,7 +346,8 @@
            "label": "A",
            "body": "lancip",
            "is_correct": false,
-           "rationale": "Dari angka 12 ke angka 5 lebih jauh daripada ke angka 3, jadi sudutnya lebih besar dari siku-siku."
+           "rationale": "Dari angka 12 ke angka 5 lebih jauh daripada ke angka 3, jadi sudutnya lebih besar dari siku-siku.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -351,7 +367,8 @@
            "label": "C",
            "body": "siku-siku",
            "is_correct": false,
-           "rationale": "Siku-siku terbentuk pukul 03.00 atau 09.00. Pukul 05.00 lebih lebar."
+           "rationale": "Siku-siku terbentuk pukul 03.00 atau 09.00. Pukul 05.00 lebih lebar.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -361,7 +378,8 @@
            "label": "D",
            "body": "lurus",
            "is_correct": false,
-           "rationale": "Sudut lurus terbentuk pukul 06.00, saat kedua jarum berseberangan."
+           "rationale": "Sudut lurus terbentuk pukul 06.00, saat kedua jarum berseberangan.",
+           "misconception_code": "SD5-M-B6-09"
           }
          ]
         }
@@ -401,7 +419,8 @@
            "label": "A",
            "body": "115°",
            "is_correct": false,
-           "rationale": "Ini dibaca pada skala luar, yang 0-nya tidak berada di kaki pertama. 115° = 180° − 65°."
+           "rationale": "Ini dibaca pada skala luar, yang 0-nya tidak berada di kaki pertama. 115° = 180° − 65°.",
+           "misconception_code": "SD5-M-B6-04"
           },
           {
            "_row": {
@@ -411,7 +430,8 @@
            "label": "B",
            "body": "295°",
            "is_correct": false,
-           "rationale": "Ini sudut refleks di baliknya (360° − 65°). Busur mengukur bagian yang kecil."
+           "rationale": "Ini sudut refleks di baliknya (360° − 65°). Busur mengukur bagian yang kecil.",
+           "misconception_code": "SD5-M-B6-08"
           },
           {
            "_row": {
@@ -421,7 +441,8 @@
            "label": "C",
            "body": "25°",
            "is_correct": false,
-           "rationale": "65° dikurangkan dari 90°. Besar sudut dibaca langsung pada skala yang 0-nya di kaki pertama."
+           "rationale": "65° dikurangkan dari 90°. Besar sudut dibaca langsung pada skala yang 0-nya di kaki pertama.",
+           "misconception_code": "SD5-M-B6-09"
           },
           {
            "_row": {
@@ -463,7 +484,8 @@
            "label": "B",
            "body": "40°",
            "is_correct": false,
-           "rationale": "Ini dibaca pada skala dalam, yang 0-nya tidak di kaki pertama."
+           "rationale": "Ini dibaca pada skala dalam, yang 0-nya tidak di kaki pertama.",
+           "misconception_code": "SD5-M-B6-04"
           },
           {
            "_row": {
@@ -473,7 +495,8 @@
            "label": "C",
            "body": "220°",
            "is_correct": false,
-           "rationale": "Ini refleks dari 140°. Busur mengukur sudut hingga 180°."
+           "rationale": "Ini refleks dari 140°. Busur mengukur sudut hingga 180°.",
+           "misconception_code": "SD5-M-B6-08"
           },
           {
            "_row": {
@@ -483,7 +506,8 @@
            "label": "D",
            "body": "320°",
            "is_correct": false,
-           "rationale": "Ini refleks dari 40°, dan 40° pun dibaca pada skala yang lain."
+           "rationale": "Ini refleks dari 40°, dan 40° pun dibaca pada skala yang lain.",
+           "misconception_code": "SD5-M-B6-08"
           }
          ]
         },
@@ -505,7 +529,8 @@
            "label": "A",
            "body": "meletakkan angka 90 busur di salah satu kaki",
            "is_correct": false,
-           "rationale": "Yang diimpitkan dengan kaki adalah garis dasar (angka 0), bukan angka 90."
+           "rationale": "Yang diimpitkan dengan kaki adalah garis dasar (angka 0), bukan angka 90.",
+           "misconception_code": "SD5-M-B6-04"
           },
           {
            "_row": {
@@ -515,7 +540,8 @@
            "label": "B",
            "body": "mengukur panjang kedua kaki sudut dengan penggaris",
            "is_correct": false,
-           "rationale": "Panjang kaki tidak diperlukan; besar sudut tidak bergantung padanya."
+           "rationale": "Panjang kaki tidak diperlukan; besar sudut tidak bergantung padanya.",
+           "misconception_code": "SD5-M-B6-05"
           },
           {
            "_row": {
@@ -535,7 +561,8 @@
            "label": "D",
            "body": "memutar gambar sampai satu kaki mendatar",
            "is_correct": false,
-           "rationale": "Busurnya yang diputar mengikuti kaki sudut; gambarnya tidak perlu diputar."
+           "rationale": "Busurnya yang diputar mengikuti kaki sudut; gambarnya tidak perlu diputar.",
+           "misconception_code": "SD5-M-B6-01"
           }
          ]
         },
@@ -557,7 +584,8 @@
            "label": "A",
            "body": "180°",
            "is_correct": false,
-           "rationale": "180° adalah setengah putaran (sudut lurus)."
+           "rationale": "180° adalah setengah putaran (sudut lurus).",
+           "misconception_code": "SD5-M-B6-09"
           },
           {
            "_row": {
@@ -567,7 +595,8 @@
            "label": "B",
            "body": "90°",
            "is_correct": false,
-           "rationale": "90° adalah seperempat putaran (sudut siku-siku)."
+           "rationale": "90° adalah seperempat putaran (sudut siku-siku).",
+           "misconception_code": "SD5-M-B6-09"
           },
           {
            "_row": {
@@ -577,7 +606,8 @@
            "label": "C",
            "body": "100°",
            "is_correct": false,
-           "rationale": "Derajat bukan persen; satu putaran penuh dibagi menjadi 360 derajat."
+           "rationale": "Derajat bukan persen; satu putaran penuh dibagi menjadi 360 derajat.",
+           "misconception_code": "SD5-M-B6-09"
           },
           {
            "_row": {
@@ -627,7 +657,8 @@
            "label": "A",
            "body": "Sudut A, karena kakinya lebih panjang",
            "is_correct": false,
-           "rationale": "Kaki yang panjang membuat ujungnya lebih berjauhan, tetapi bukaannya tetap sama."
+           "rationale": "Kaki yang panjang membuat ujungnya lebih berjauhan, tetapi bukaannya tetap sama.",
+           "misconception_code": "SD5-M-B6-05"
           },
           {
            "_row": {
@@ -637,7 +668,8 @@
            "label": "B",
            "body": "Sudut B, karena kakinya lebih pendek",
            "is_correct": false,
-           "rationale": "Kaki yang pendek tidak membuat bukaan lebih kecil atau lebih besar."
+           "rationale": "Kaki yang pendek tidak membuat bukaan lebih kecil atau lebih besar.",
+           "misconception_code": "SD5-M-B6-05"
           },
           {
            "_row": {
@@ -657,7 +689,8 @@
            "label": "D",
            "body": "Tidak dapat dibandingkan",
            "is_correct": false,
-           "rationale": "Besar sudut dapat dibandingkan dari bukaannya, walaupun panjang kakinya berbeda."
+           "rationale": "Besar sudut dapat dibandingkan dari bukaannya, walaupun panjang kakinya berbeda.",
+           "misconception_code": "SD5-M-B6-05"
           }
          ]
         },
@@ -680,7 +713,8 @@
            "label": "A",
            "body": "lancip",
            "is_correct": false,
-           "rationale": "Sudut lancip kurang dari 90°. 118° lebih dari 90°."
+           "rationale": "Sudut lancip kurang dari 90°. 118° lebih dari 90°.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -700,7 +734,8 @@
            "label": "C",
            "body": "refleks",
            "is_correct": false,
-           "rationale": "Sudut refleks lebih dari 180°. 118° masih kurang dari 180°."
+           "rationale": "Sudut refleks lebih dari 180°. 118° masih kurang dari 180°.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -710,7 +745,8 @@
            "label": "D",
            "body": "lurus",
            "is_correct": false,
-           "rationale": "Sudut lurus tepat 180°. 118° kurang dari itu."
+           "rationale": "Sudut lurus tepat 180°. 118° kurang dari itu.",
+           "misconception_code": "SD5-M-B6-03"
           }
          ]
         },
@@ -733,7 +769,8 @@
            "label": "A",
            "body": "110°",
            "is_correct": false,
-           "rationale": "70° dikurangkan dari 180°. Sudut dan refleksnya bersama membentuk satu putaran, 360°."
+           "rationale": "70° dikurangkan dari 180°. Sudut dan refleksnya bersama membentuk satu putaran, 360°.",
+           "misconception_code": "SD5-M-B6-09"
           },
           {
            "_row": {
@@ -753,7 +790,8 @@
            "label": "C",
            "body": "250°",
            "is_correct": false,
-           "rationale": "70° ditambahkan ke 180°. Sudut refleks didapat dari 360° − 70°."
+           "rationale": "70° ditambahkan ke 180°. Sudut refleks didapat dari 360° − 70°.",
+           "misconception_code": "SD5-M-B6-08"
           },
           {
            "_row": {
@@ -763,7 +801,8 @@
            "label": "D",
            "body": "20°",
            "is_correct": false,
-           "rationale": "70° dikurangkan dari 90°. Sudut refleks lebih dari 180°."
+           "rationale": "70° dikurangkan dari 90°. Sudut refleks lebih dari 180°.",
+           "misconception_code": "SD5-M-B6-09"
           }
          ]
         },
@@ -796,7 +835,8 @@
            "label": "B",
            "body": "Q lebih besar karena kakinya lebih panjang",
            "is_correct": false,
-           "rationale": "Kaki yang panjang tidak membuat sudut lebih besar. Yang dibandingkan besar bukaannya: 70° dan 65°."
+           "rationale": "Kaki yang panjang tidak membuat sudut lebih besar. Yang dibandingkan besar bukaannya: 70° dan 65°.",
+           "misconception_code": "SD5-M-B6-05"
           },
           {
            "_row": {
@@ -806,7 +846,8 @@
            "label": "C",
            "body": "Sama besar karena keduanya lancip",
            "is_correct": false,
-           "rationale": "Keduanya memang lancip, tetapi besarnya berbeda: 70° dan 65°."
+           "rationale": "Keduanya memang lancip, tetapi besarnya berbeda: 70° dan 65°.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -816,7 +857,8 @@
            "label": "D",
            "body": "Tidak dapat dibandingkan karena kakinya berbeda",
            "is_correct": false,
-           "rationale": "Sudut dapat dibandingkan dari besarnya walaupun panjang kakinya berbeda."
+           "rationale": "Sudut dapat dibandingkan dari besarnya walaupun panjang kakinya berbeda.",
+           "misconception_code": "SD5-M-B6-05"
           }
          ]
         },
@@ -838,7 +880,8 @@
            "label": "A",
            "body": "45°",
            "is_correct": false,
-           "rationale": "135° dikurangkan dari 180°. Sudut dan refleksnya bersama 360°."
+           "rationale": "135° dikurangkan dari 180°. Sudut dan refleksnya bersama 360°.",
+           "misconception_code": "SD5-M-B6-09"
           },
           {
            "_row": {
@@ -858,7 +901,8 @@
            "label": "C",
            "body": "135°",
            "is_correct": false,
-           "rationale": "Ini sudut yang diketahui, bukan refleksnya."
+           "rationale": "Ini sudut yang diketahui, bukan refleksnya.",
+           "misconception_code": "SD5-M-B6-08"
           },
           {
            "_row": {
@@ -868,7 +912,8 @@
            "label": "D",
            "body": "495°",
            "is_correct": false,
-           "rationale": "135° ditambahkan ke 360°. Refleks didapat dengan mengurangkan dari 360°."
+           "rationale": "135° ditambahkan ke 360°. Refleks didapat dengan mengurangkan dari 360°.",
+           "misconception_code": "SD5-M-B6-08"
           }
          ]
         },
@@ -890,7 +935,8 @@
            "label": "A",
            "body": "tumpul",
            "is_correct": false,
-           "rationale": "Sudut tumpul kurang dari 180°. Tepat 180° adalah sudut lurus."
+           "rationale": "Sudut tumpul kurang dari 180°. Tepat 180° adalah sudut lurus.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -900,7 +946,8 @@
            "label": "B",
            "body": "refleks",
            "is_correct": false,
-           "rationale": "Sudut refleks lebih dari 180°. Tepat 180° adalah sudut lurus."
+           "rationale": "Sudut refleks lebih dari 180°. Tepat 180° adalah sudut lurus.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -920,7 +967,8 @@
            "label": "D",
            "body": "satu putaran",
            "is_correct": false,
-           "rationale": "Satu putaran 360°. 180° baru setengah putaran."
+           "rationale": "Satu putaran 360°. 180° baru setengah putaran.",
+           "misconception_code": "SD5-M-B6-09"
           }
          ]
         },
@@ -952,7 +1000,8 @@
            "label": "B",
            "body": "270°; 180°; 95°; 45°",
            "is_correct": false,
-           "rationale": "Ini urutan dari yang terbesar."
+           "rationale": "Ini urutan dari yang terbesar.",
+           "misconception_code": "SD5-M-B6-10"
           },
           {
            "_row": {
@@ -962,7 +1011,8 @@
            "label": "C",
            "body": "45°; 95°; 270°; 180°",
            "is_correct": false,
-           "rationale": "Sudut refleks 270° dianggap lebih kecil dari sudut lurus. Refleks selalu lebih dari 180°."
+           "rationale": "Sudut refleks 270° dianggap lebih kecil dari sudut lurus. Refleks selalu lebih dari 180°.",
+           "misconception_code": "SD5-M-B6-08"
           },
           {
            "_row": {
@@ -972,7 +1022,8 @@
            "label": "D",
            "body": "45°; 180°; 95°; 270°",
            "is_correct": false,
-           "rationale": "Sudut lurus dianggap lebih kecil dari sudut tumpul. Tumpul selalu kurang dari 180°."
+           "rationale": "Sudut lurus dianggap lebih kecil dari sudut tumpul. Tumpul selalu kurang dari 180°.",
+           "misconception_code": "SD5-M-B6-03"
           }
          ]
         }
@@ -1022,7 +1073,8 @@
            "label": "B",
            "body": "lancip, lebih kecil dari 90°",
            "is_correct": false,
-           "rationale": "Sudutnya tepat seperempat putaran (90°), bukan lebih kecil."
+           "rationale": "Sudutnya tepat seperempat putaran (90°), bukan lebih kecil.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -1032,7 +1084,8 @@
            "label": "C",
            "body": "tumpul",
            "is_correct": false,
-           "rationale": "Sudutnya tepat 90°, bukan lebih besar dari siku-siku."
+           "rationale": "Sudutnya tepat 90°, bukan lebih besar dari siku-siku.",
+           "misconception_code": "SD5-M-B6-03"
           },
           {
            "_row": {
@@ -1042,7 +1095,8 @@
            "label": "D",
            "body": "lurus",
            "is_correct": false,
-           "rationale": "Sudut lurus terbentuk bila kedua jarum berseberangan, misalnya pukul 06.00."
+           "rationale": "Sudut lurus terbentuk bila kedua jarum berseberangan, misalnya pukul 06.00.",
+           "misconception_code": "SD5-M-B6-09"
           }
          ]
         },
@@ -1065,7 +1119,8 @@
            "label": "A",
            "body": "120°",
            "is_correct": false,
-           "rationale": "Setiap langkah angka dihitung 60°. Satu langkah angka jam 30° (360° : 12)."
+           "rationale": "Setiap langkah angka dihitung 60°. Satu langkah angka jam 30° (360° : 12).",
+           "misconception_code": "SD5-M-B6-07"
           },
           {
            "_row": {
@@ -1075,7 +1130,8 @@
            "label": "B",
            "body": "30°",
            "is_correct": false,
-           "rationale": "Hanya satu langkah yang dihitung. Dari angka 12 ke angka 2 ada 2 langkah."
+           "rationale": "Hanya satu langkah yang dihitung. Dari angka 12 ke angka 2 ada 2 langkah.",
+           "misconception_code": "SD5-M-B6-07"
           },
           {
            "_row": {
@@ -1095,7 +1151,8 @@
            "label": "D",
            "body": "300°",
            "is_correct": false,
-           "rationale": "Ini sudut refleks, lewat arah yang panjang. Yang ditanyakan sudut terkecil."
+           "rationale": "Ini sudut refleks, lewat arah yang panjang. Yang ditanyakan sudut terkecil.",
+           "misconception_code": "SD5-M-B6-08"
           }
          ]
         },
@@ -1129,7 +1186,8 @@
            "label": "B",
            "body": "90°",
            "is_correct": false,
-           "rationale": "Jarum pendek dianggap tetap di angka 3. Setengah jam kemudian ia sudah di tengah angka 3 dan 4."
+           "rationale": "Jarum pendek dianggap tetap di angka 3. Setengah jam kemudian ia sudah di tengah angka 3 dan 4.",
+           "misconception_code": "SD5-M-B6-06"
           },
           {
            "_row": {
@@ -1139,7 +1197,8 @@
            "label": "C",
            "body": "285°",
            "is_correct": false,
-           "rationale": "Ini sudut refleksnya. Yang ditanyakan sudut terkecil."
+           "rationale": "Ini sudut refleksnya. Yang ditanyakan sudut terkecil.",
+           "misconception_code": "SD5-M-B6-08"
           },
           {
            "_row": {
@@ -1149,7 +1208,8 @@
            "label": "D",
            "body": "105°",
            "is_correct": false,
-           "rationale": "Ini sudut jarum pendek dari angka 12, bukan sudut di antara kedua jarum."
+           "rationale": "Ini sudut jarum pendek dari angka 12, bukan sudut di antara kedua jarum.",
+           "misconception_code": "SD5-M-B6-10"
           }
          ]
         },
@@ -1171,7 +1231,8 @@
            "label": "A",
            "body": "300°",
            "is_correct": false,
-           "rationale": "Setiap langkah dihitung 60°. Satu langkah angka jam 30°."
+           "rationale": "Setiap langkah dihitung 60°. Satu langkah angka jam 30°.",
+           "misconception_code": "SD5-M-B6-07"
           },
           {
            "_row": {
@@ -1181,7 +1242,8 @@
            "label": "B",
            "body": "210°",
            "is_correct": false,
-           "rationale": "Ini sudut refleksnya (7 langkah ke arah lain). Yang ditanyakan sudut terkecil."
+           "rationale": "Ini sudut refleksnya (7 langkah ke arah lain). Yang ditanyakan sudut terkecil.",
+           "misconception_code": "SD5-M-B6-08"
           },
           {
            "_row": {
@@ -1191,7 +1253,8 @@
            "label": "C",
            "body": "50°",
            "is_correct": false,
-           "rationale": "Setiap langkah dihitung 10°. Satu langkah angka jam 30°."
+           "rationale": "Setiap langkah dihitung 10°. Satu langkah angka jam 30°.",
+           "misconception_code": "SD5-M-B6-07"
           },
           {
            "_row": {
@@ -1223,7 +1286,8 @@
            "label": "A",
            "body": "0°",
            "is_correct": false,
-           "rationale": "Jarum pendek dianggap tetap di angka 6, sehingga kedua jarum berimpit. Setengah jam kemudian ia sudah maju 15°."
+           "rationale": "Jarum pendek dianggap tetap di angka 6, sehingga kedua jarum berimpit. Setengah jam kemudian ia sudah maju 15°.",
+           "misconception_code": "SD5-M-B6-06"
           },
           {
            "_row": {
@@ -1243,7 +1307,8 @@
            "label": "C",
            "body": "345°",
            "is_correct": false,
-           "rationale": "Ini sudut refleksnya. Yang ditanyakan sudut terkecil."
+           "rationale": "Ini sudut refleksnya. Yang ditanyakan sudut terkecil.",
+           "misconception_code": "SD5-M-B6-08"
           },
           {
            "_row": {
@@ -1253,7 +1318,8 @@
            "label": "D",
            "body": "30°",
            "is_correct": false,
-           "rationale": "Jarum pendek dianggap sudah sampai di angka 7. Pada pukul 06.30 ia baru di tengah angka 6 dan 7."
+           "rationale": "Jarum pendek dianggap sudah sampai di angka 7. Pada pukul 06.30 ia baru di tengah angka 6 dan 7.",
+           "misconception_code": "SD5-M-B6-06"
           }
          ]
         },
@@ -1285,7 +1351,8 @@
            "label": "B",
            "body": "03.00",
            "is_correct": false,
-           "rationale": "Pukul 03.00 membentuk sudut siku-siku (90°), bukan sudut lurus."
+           "rationale": "Pukul 03.00 membentuk sudut siku-siku (90°), bukan sudut lurus.",
+           "misconception_code": "SD5-M-B6-09"
           },
           {
            "_row": {
@@ -1295,7 +1362,8 @@
            "label": "C",
            "body": "12.00",
            "is_correct": false,
-           "rationale": "Pukul 12.00 kedua jarum berimpit: sudut nol."
+           "rationale": "Pukul 12.00 kedua jarum berimpit: sudut nol.",
+           "misconception_code": "SD5-M-B6-09"
           },
           {
            "_row": {
@@ -1305,7 +1373,8 @@
            "label": "D",
            "body": "09.00",
            "is_correct": false,
-           "rationale": "Pukul 09.00 membentuk sudut siku-siku (90°)."
+           "rationale": "Pukul 09.00 membentuk sudut siku-siku (90°).",
+           "misconception_code": "SD5-M-B6-09"
           }
          ]
         },
@@ -1327,7 +1396,8 @@
            "label": "A",
            "body": "Satu langkah angka jam seharusnya 60°",
            "is_correct": false,
-           "rationale": "Satu langkah angka jam memang 30° (360° : 12). Langkah Nina sudah tepat di bagian ini."
+           "rationale": "Satu langkah angka jam memang 30° (360° : 12). Langkah Nina sudah tepat di bagian ini.",
+           "misconception_code": "SD5-M-B6-07"
           },
           {
            "_row": {
@@ -1337,7 +1407,8 @@
            "label": "B",
            "body": "Yang ditanyakan sudut refleksnya, 255°",
            "is_correct": false,
-           "rationale": "Yang biasa ditanyakan sudut terkecil. Kekurangan Nina ada pada posisi jarum pendek."
+           "rationale": "Yang biasa ditanyakan sudut terkecil. Kekurangan Nina ada pada posisi jarum pendek.",
+           "misconception_code": "SD5-M-B6-08"
           },
           {
            "_row": {
@@ -1357,7 +1428,8 @@
            "label": "D",
            "body": "Jarum panjang pada pukul 02.30 berada di angka 3",
            "is_correct": false,
-           "rationale": "Pada menit ke-30 jarum panjang berada di angka 6, sudah tepat."
+           "rationale": "Pada menit ke-30 jarum panjang berada di angka 6, sudah tepat.",
+           "misconception_code": "SD5-M-B6-06"
           }
          ]
         }
@@ -1397,7 +1469,8 @@
            "label": "A",
            "body": "232°",
            "is_correct": false,
-           "rationale": "128° dikurangkan dari 360°. Sudut lurus besarnya 180°, bukan satu putaran."
+           "rationale": "128° dikurangkan dari 360°. Sudut lurus besarnya 180°, bukan satu putaran.",
+           "misconception_code": "SD5-M-B6-09"
           },
           {
            "_row": {
@@ -1407,7 +1480,8 @@
            "label": "B",
            "body": "38°",
            "is_correct": false,
-           "rationale": "128° dikurangi 90°. Keduanya membentuk sudut lurus (180°), bukan siku-siku."
+           "rationale": "128° dikurangi 90°. Keduanya membentuk sudut lurus (180°), bukan siku-siku.",
+           "misconception_code": "SD5-M-B6-09"
           },
           {
            "_row": {
@@ -1417,7 +1491,8 @@
            "label": "C",
            "body": "308°",
            "is_correct": false,
-           "rationale": "128° ditambahkan ke 180°. Kedua sudut bersama berjumlah 180°, jadi dikurangkan."
+           "rationale": "128° ditambahkan ke 180°. Kedua sudut bersama berjumlah 180°, jadi dikurangkan.",
+           "misconception_code": "SD5-M-B6-10"
           },
           {
            "_row": {
@@ -1450,7 +1525,8 @@
            "label": "A",
            "body": "300°",
            "is_correct": false,
-           "rationale": "Ini jumlah sudut ketiga ubin. Yang ditanyakan sisa celahnya."
+           "rationale": "Ini jumlah sudut ketiga ubin. Yang ditanyakan sisa celahnya.",
+           "misconception_code": "SD5-M-B6-10"
           },
           {
            "_row": {
@@ -1460,7 +1536,8 @@
            "label": "B",
            "body": "150°",
            "is_correct": false,
-           "rationale": "Hanya satu ubin persegi yang dikurangkan. Ada dua ubin persegi."
+           "rationale": "Hanya satu ubin persegi yang dikurangkan. Ada dua ubin persegi.",
+           "misconception_code": "SD5-M-B6-10"
           },
           {
            "_row": {
@@ -1480,7 +1557,8 @@
            "label": "D",
            "body": "240°",
            "is_correct": false,
-           "rationale": "Hanya ubin segi enam yang dikurangkan; kedua ubin persegi terlewat."
+           "rationale": "Hanya ubin segi enam yang dikurangkan; kedua ubin persegi terlewat.",
+           "misconception_code": "SD5-M-B6-10"
           }
          ]
         },
@@ -1502,7 +1580,8 @@
            "label": "A",
            "body": "Memberi titik di angka 120 pada skala mana saja, dalam atau luar",
            "is_correct": false,
-           "rationale": "Bila skala yang lain dipakai, yang terlukis 60° (180° − 120°), sudut lancip."
+           "rationale": "Bila skala yang lain dipakai, yang terlukis 60° (180° − 120°), sudut lancip.",
+           "misconception_code": "SD5-M-B6-04"
           },
           {
            "_row": {
@@ -1512,7 +1591,8 @@
            "label": "B",
            "body": "Memberi titik di angka 60 karena 60 + 120 = 180",
            "is_correct": false,
-           "rationale": "Angka 60 pada skala yang benar menghasilkan sudut 60°, bukan 120°."
+           "rationale": "Angka 60 pada skala yang benar menghasilkan sudut 60°, bukan 120°.",
+           "misconception_code": "SD5-M-B6-04"
           },
           {
            "_row": {
@@ -1522,7 +1602,8 @@
            "label": "C",
            "body": "Memutar kertas sampai garisnya mendatar",
            "is_correct": false,
-           "rationale": "Garis tidak harus mendatar; busurnya sudah mengikuti arah garis."
+           "rationale": "Garis tidak harus mendatar; busurnya sudah mengikuti arah garis.",
+           "misconception_code": "SD5-M-B6-01"
           },
           {
            "_row": {
@@ -1554,7 +1635,8 @@
            "label": "A",
            "body": "Kaki sudut yang ia gambar terlalu pendek",
            "is_correct": false,
-           "rationale": "Panjang kaki tidak memengaruhi besar sudut."
+           "rationale": "Panjang kaki tidak memengaruhi besar sudut.",
+           "misconception_code": "SD5-M-B6-05"
           },
           {
            "_row": {
@@ -1564,7 +1646,8 @@
            "label": "B",
            "body": "Garis pertamanya tidak mendatar",
            "is_correct": false,
-           "rationale": "Garis pertama boleh miring; besar sudut tidak berubah karena arahnya."
+           "rationale": "Garis pertama boleh miring; besar sudut tidak berubah karena arahnya.",
+           "misconception_code": "SD5-M-B6-01"
           },
           {
            "_row": {
@@ -1584,7 +1667,8 @@
            "label": "D",
            "body": "Busur yang ia pakai lebih kecil dari busur temannya",
            "is_correct": false,
-           "rationale": "Busur kecil dan besar menunjukkan derajat yang sama."
+           "rationale": "Busur kecil dan besar menunjukkan derajat yang sama.",
+           "misconception_code": "SD5-M-B6-05"
           }
          ]
         },
@@ -1606,7 +1690,8 @@
            "label": "A",
            "body": "245°",
            "is_correct": false,
-           "rationale": "Dikurangkan dari 360°. Ketiga sudut membentuk sudut lurus, 180°."
+           "rationale": "Dikurangkan dari 360°. Ketiga sudut membentuk sudut lurus, 180°.",
+           "misconception_code": "SD5-M-B6-09"
           },
           {
            "_row": {
@@ -1626,7 +1711,8 @@
            "label": "C",
            "body": "115°",
            "is_correct": false,
-           "rationale": "Ini jumlah dua sudut yang diketahui. Yang ditanyakan sudut ketiga."
+           "rationale": "Ini jumlah dua sudut yang diketahui. Yang ditanyakan sudut ketiga.",
+           "misconception_code": "SD5-M-B6-10"
           },
           {
            "_row": {
@@ -1636,7 +1722,8 @@
            "label": "D",
            "body": "105°",
            "is_correct": false,
-           "rationale": "Hanya 75° yang dikurangkan dari 180°; sudut 40° terlewat."
+           "rationale": "Hanya 75° yang dikurangkan dari 180°; sudut 40° terlewat.",
+           "misconception_code": "SD5-M-B6-10"
           }
          ]
         },
@@ -1668,7 +1755,8 @@
            "label": "B",
            "body": "2 ubin",
            "is_correct": false,
-           "rationale": "Di sekeliling satu titik dianggap 180°. Satu putaran penuh 360°, jadi 360° : 120° = 3."
+           "rationale": "Di sekeliling satu titik dianggap 180°. Satu putaran penuh 360°, jadi 360° : 120° = 3.",
+           "misconception_code": "SD5-M-B6-09"
           },
           {
            "_row": {
@@ -1678,7 +1766,8 @@
            "label": "C",
            "body": "4 ubin",
            "is_correct": false,
-           "rationale": "4 ubin memerlukan 480°, lebih dari satu putaran; ubinnya akan bertumpuk."
+           "rationale": "4 ubin memerlukan 480°, lebih dari satu putaran; ubinnya akan bertumpuk.",
+           "misconception_code": "SD5-M-B6-10"
           },
           {
            "_row": {
@@ -1688,7 +1777,8 @@
            "label": "D",
            "body": "6 ubin",
            "is_correct": false,
-           "rationale": "Angka 6 diambil dari nama segi enam. Banyak ubin dihitung dari 360° : 120°."
+           "rationale": "Angka 6 diambil dari nama segi enam. Banyak ubin dihitung dari 360° : 120°.",
+           "misconception_code": "SD5-M-B6-10"
           }
          ]
         }
@@ -1697,6 +1787,108 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SD5-M-B6-01",
+   "label": "Sudut hanya dikenali pada posisi biasa",
+   "description": "Sudut siku-siku (atau sudut lain) dianggap harus mempunyai kaki yang mendatar; sudut yang miring dinilai keliru.",
+   "remediation": "Tunjukkan sudut yang sama dalam berbagai posisi dan periksa dengan kertas lipat atau busur yang diputar mengikuti kakinya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SD5-M-B6-02",
+   "label": "Pojok melengkung dianggap sudut",
+   "description": "Setiap pojok benda dianggap sudut, termasuk pojok yang membulat tanpa dua kaki lurus dan titik sudut.",
+   "remediation": "Minta murid menunjuk dua kaki lurus dan titik sudutnya; bila tidak ada, itu bukan sudut."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SD5-M-B6-03",
+   "label": "Jenis sudut keliru",
+   "description": "Lancip, siku-siku, tumpul, lurus, dan refleks tertukar, terutama di sekitar batas 90° dan 180°.",
+   "remediation": "Pakai sudut siku-siku (90°) dan sudut lurus (180°) sebagai patokan, lalu bandingkan dengan tabel jenis sudut."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SD5-M-B6-04",
+   "label": "Skala busur terbalik",
+   "description": "Angka dibaca dari skala yang 0-nya tidak berada di kaki pertama, sehingga hasilnya 180° dikurangi besar yang sebenarnya.",
+   "remediation": "Sebelum membaca, tunjuk angka 0 yang berada di kaki pertama dan ikuti skala itu; periksa hasilnya dengan jenis sudut."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SD5-M-B6-05",
+   "label": "Panjang kaki dianggap menentukan",
+   "description": "Sudut dengan kaki yang lebih panjang, atau ujung kaki yang lebih berjauhan, dianggap lebih besar.",
+   "remediation": "Gambar dua sudut sama besar dengan kaki berbeda panjang dan ukur keduanya dengan busur."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SD5-M-B6-06",
+   "label": "Jarum pendek dianggap diam",
+   "description": "Pada waktu seperti 04.30, jarum pendek dianggap masih tepat di angka jam, padahal ia ikut bergerak.",
+   "remediation": "Amati jam sungguhan pada pukul 04.00 dan 04.30; tunjukkan bahwa jarum pendek sudah berada di tengah angka 4 dan 5."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SD5-M-B6-07",
+   "label": "Derajat per angka jam keliru",
+   "description": "Jarak satu angka jam dianggap bukan 30°, misalnya 60° atau 10°.",
+   "remediation": "Hitung bersama: satu putaran 360° dibagi 12 angka = 30° untuk setiap langkah angka."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SD5-M-B6-08",
+   "label": "Sudut refleks tertukar",
+   "description": "Sudut terkecil tertukar dengan sudut refleksnya (bagian yang besar di baliknya), atau sudut refleks dihitung tanpa mengurangkan dari 360°.",
+   "remediation": "Tunjukkan kedua bagian di antara dua kaki yang sama dan jumlahkan: keduanya selalu 360°."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SD5-M-B6-09",
+   "label": "Sudut istimewa keliru",
+   "description": "Besar sudut istimewa tertukar: satu putaran dianggap 180°, sudut lurus dianggap 360°, atau siku-siku dianggap bagian dari 180° yang lain.",
+   "remediation": "Peragakan dengan berputar: seperempat putaran 90°, setengah putaran 180°, satu putaran 360°."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SD5-M-B6-10",
+   "label": "Jawaban bukan yang ditanyakan",
+   "description": "Jumlah sudut yang diketahui atau hasil satu langkah diberikan sebagai jawaban, atau ada bagian soal yang terlewat.",
+   "remediation": "Minta murid menulis yang ditanyakan dan memeriksa apakah jawabannya bersama sudut-sudut lain memenuhi 180° atau 360°."
   }
  ]
 }

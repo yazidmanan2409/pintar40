@@ -103,7 +103,7 @@ export async function konteks(): Promise<Konteks> {
 
   const { data: simpul } = await c
     .from("org_nodes")
-    .select("id, name, kind, jalur, is_active, institution_id, academic_period_id")
+    .select("id, name, kind, jalur, is_active, institution_id, academic_period_id, member_kind")
     .eq("kind", "CLASS")
     .overlaps("jalur", lingkup);
 
@@ -235,8 +235,11 @@ export type Penugasan = {
   belumMulai: boolean;
 };
 
-/** Published releases this school may teach, newest first. */
-export async function terbitan(institusi: string): Promise<Terbitan[]> {
+/**
+ * Published releases this school may teach, newest first. BOB-43: given a class, only those that class may be given --
+ * the database answers which (releases_matching_place), so this file never compares a release with a place itself.
+ */
+export async function terbitan(institusi: string, kelas?: string): Promise<Terbitan[]> {
   const c = await db();
   const { data } = await c
     .from("plp_releases")
@@ -267,7 +270,14 @@ export async function terbitan(institusi: string): Promise<Terbitan[]> {
   // the school's own, its origin said. `distributed_releases` answers the school's staff only (CAN_ASSIGN_LEARNING or
   // CAN_DRAFT where it is distributed), and assign_release decides again whether it may be given.
   const { data: dist } = await c.rpc("distributed_releases");
-  return [...out, ...pintarDariDistribusi(rows<Distribusi>(dist), institusi)];
+  const semua = [...out, ...pintarDariDistribusi(rows<Distribusi>(dist), institusi)];
+  if (!kelas || semua.length === 0) return semua;
+  const { data: cocok, error } = await c.rpc("releases_matching_place", { p_node: kelas, p_releases: semua.map((t) => t.id) });
+  // unread is none offered: assign_release would refuse a mismatch anyway, and offering it would be the lie
+  if (error) return [];
+  const boleh = new Set(rows<string | { releases_matching_place: string }>(cocok)
+    .map((r) => (typeof r === "string" ? r : r.releases_matching_place)));
+  return semua.filter((t) => boleh.has(t.id));
 }
 
 /**
@@ -921,6 +931,8 @@ export type Amplop = {
   sample?: number;
   have?: number;
   needed?: number;
+  /** CR-81 (D-123(3)): the class's population beside the readiness bands (placed, assessed, not yet). */
+  population?: { placed: number; assessed: number; not_yet: number };
 };
 
 /**

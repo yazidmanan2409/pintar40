@@ -34,6 +34,22 @@ export function sekolahDitawarkan<T extends SekolahBaris>(
   return semua.filter((s) => s.tenant_kind === "INSTITUTION" && s.is_active === true && dikelola(s.id));
 }
 
+/**
+ * CR-51 (D-120 Q7): WHERE A WORKBOOK MAY BE SENT. «The platform admin prepares and approves standard content, through
+ * the same package and workbook import aimed at the library.» The schools on offer, and for the platform admin only the
+ * PINTAR library (PLATFORM_CANONICAL, active), listed last so that a school stays where the picker starts. Every other
+ * reader is offered the schools alone; the database refuses a school role at the library as well (package_batch).
+ */
+export function tujuanUnggah<T extends SekolahBaris>(
+  semua: readonly T[],
+  dikelola: (id: string) => boolean,
+  adminPlatform: boolean,
+): T[] {
+  const sekolah = sekolahDitawarkan(semua, dikelola);
+  if (!adminPlatform) return sekolah;
+  return [...sekolah, ...semua.filter((s) => s.tenant_kind === "PLATFORM_CANONICAL" && s.is_active === true)];
+}
+
 /** The school asked for, if it is on offer; otherwise the first on offer; otherwise none. */
 export function sekolahDipilih<T extends { id: string }>(
   ditawarkan: readonly T[],

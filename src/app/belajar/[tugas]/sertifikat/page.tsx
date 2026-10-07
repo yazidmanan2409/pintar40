@@ -76,13 +76,21 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
 
   const all = await myCertificates();
   const row = detail ? all.find((c) => c.id === detail!.certificate_id) ?? null : null;
-  const institutions = await institutionNames(row ? [row.institution_id] : []);
-  const institution = row ? institutions.get(row.institution_id) ?? null : null;
   if (row) await layoutFor(row.institution_id);
 
+  // CR-02 (D-078(c), D-077(d)): the school and the course are the certificate's own, sealed when it was prepared, never
+  // read from today's school or today's assignment. Before a certificate exists (the pending page) the course is the
+  // assignment's, which is what the learner is waiting on.
   const assignments = await engine.myAssignments(db);
   const assignment = assignments.find((a) => a.learning_assignment_id === tugas);
-  const course = assignment ? `${assignment.subject} · ${assignment.title}` : s("sertifikat.judul");
+  const sealedCourse = detail?.course_title_as_issued
+    ? [detail.course_subject_as_issued, detail.course_title_as_issued].filter(Boolean).join(" · ")
+    : null;
+  const course = sealedCourse ?? (assignment ? `${assignment.subject} · ${assignment.title}` : s("sertifikat.judul"));
+  const institution = detail?.institution_as_issued
+    ?? (row ? (await institutionNames([row.institution_id])).get(row.institution_id) ?? null : null);
+  // the certificate's language is fixed at issuance; the page around it stays in the reader's
+  const bahasaSertifikat = detail?.language_as_issued === "en" ? "en" : "id";
 
   const back = (
     <Link className="pin-back pin-noprint" href="/belajar/sertifikat">
@@ -174,7 +182,7 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
           </div>
         ) : null}
 
-        <KartuSertifikat cred={cred} locale={locale} />
+        <KartuSertifikat cred={cred} locale={bahasaSertifikat} />
 
         {issued ? (
           <>
@@ -189,7 +197,7 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
               <p className="pin-intro pin-noprint">{s("sertifikat.cetak.arti")}</p>
             </div>
             <LembarA4>
-              <KartuSertifikat cred={cred} locale={locale} variant="sheet" />
+              <KartuSertifikat cred={cred} locale={bahasaSertifikat} variant="sheet" />
             </LembarA4>
           </>
         ) : null}

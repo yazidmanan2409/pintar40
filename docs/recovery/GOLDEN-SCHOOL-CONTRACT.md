@@ -4,6 +4,41 @@
 
 The Golden School is PINTAR's primary integration truth. It is one deliberate school on staging that proves PINTAR works as PINTAR: one school, one admin, one teacher, one student, from the front door.
 
+## Status, 6 Oct 2026
+
+**Built and run.** C1 (`found-school.yml`), the C2 mailbox reader and the four walks (`staging-golden-school{,-admin,-murid,-laporan}.yml`, `audit/staging/golden-school*.mjs`) exist and run on staging.
+
+**The latest run is green end to end, with one declared bypass.**
+- **Unaided:** GS-01 to GS-15, and GS-17 to GS-21.
+- **GS-16, the bypass:** the four extra students open their two tests by typed address. The walk declares it, since they "only sit the tests" (§4). EVIDENCE-MODEL §3 counts a typed address in Level 3 as a bypass, and so a FAIL. GS-16 maps to no inventory line.
+- **Current break:** none in the spine.
+- **School:** «Sekolah Demo PINTAR», 6 Oct, 41 of 41 steps PASS (JOURNEY-LOG 48).
+- **The one before it:** «Sekolah Emas Uji 2026-10-05», runs 37287063109 to 37295261257.
+
+| Step | Walk step(s) | Run | Result |
+|---|---|---|---|
+| GS-00 | Not an in-run step. Machine reads bracket the walk: 07:38 UTC `808ae6e` 162/162 (run 37430955533); 07:54 staging's migrations 165 = the repository (`staging.yml` 37432544176); 08:37 `a64b9b6` 165/165 (37437396764); 08:46 `12b480b` 165/165 (37438389611). The application code (`src`) is identical across all four | — | GREEN by bracketing reads |
+| GS-01 | C1 | 37431278133 | PASS (read back by G0) |
+| GS-02 | G1, G2, G3 (the operator signs in with their own password) | 37431385287 | PASS |
+| GS-03 | G4, G5 | 37431385287 | PASS. GS-01 to GS-03 ran on the 162-migration set (`808ae6e`). The three later migrations touch certificate numbers and hints only, but under D-034 only `docs/coordination/` differences count as the same code. So J1.1 and J1.4 are JOURNEY-PROVEN on `808ae6e`, not on `12b480b` |
+| GS-04 to GS-11 | A0 to A11 | 37432707928 | 12 PASS |
+| GS-07 (cards), GS-12 to GS-16 | M0 to M7 | 37433910433 | 8 PASS (GS-16 by the declared bypass above) |
+| GS-17 to GS-21 | L0 to L4, C1 to C3, R1 to R3, U1, V1, V2, X1 | 37434862707 | 15 PASS |
+
+**Gaps in the instrument (recorded, not repaired during the D-117 freeze):**
+- **Corrected in batch 0 of the closure gate (D-118, 6 Oct), proven by the next full walk:**
+  - the §5 map: GS-18 is J8.1 and J8.2 (J8.3 is not built, BOB-48); GS-13 is J6.2, J6.5, J6.6 and J6.9 (J6.7 pause and J6.8 network loss are not exercised); the head of department is J7.2 and the dean J7.3;
+  - **the activation order:** an earlier note here said «PINTAR asks for the PIN first». That came from G4's title, never from an observed run. The server asks username → password → PIN → name (`URUTAN_LANGKAH`), which is D-054(b) and the inventory's J2.3. The note was wrong, not the inventory. G4 now records the screens in the order they come and asserts D-054(b)'s order;
+  - GS-00 is asserted inside each run (§2);
+  - GS-16 is walked by clicking, no longer by typed address;
+  - added: J6.2 and J6.11 in GS-13 and GS-15; a staff member on a shared computer in GS-20; the security notice in GS-21; GS-22.
+- Roles beyond the spine (the review queue's signals, the dean's queue, Uji Cepat, educator-as-learner, support) are not yet further Level 3 journeys (§5).
+
+**Human acceptance (§6, Phase 6):**
+- Dr Gladys walks this school on 7 Oct under D-117.
+- Yazid makes his own pass the evening before.
+- Nothing is HUMAN-ACCEPTED yet.
+
 ## 1. Rules
 
 The Golden School never uses:
@@ -28,6 +63,8 @@ Before any step, the run asserts by machine read that:
 - staging's applied migration set equals `main`'s.
 
 A mismatch is red, and nothing else runs.
+
+**Asserted inside every run since 6 Oct (CR-60):** each walk's workflow (C1 and the four walks) runs `environment-facts.yml` as its first job, `GS-00 · staging runs main's commit and migrations`, scoped to staging, and the walk job needs it. Red stops the walk.
 
 Today `main` moves by a `[skip ci]` fast-forward, which suppresses push-triggered workflows. Staging's migrations are therefore applied by a manual dispatch.
 
@@ -76,10 +113,10 @@ Today `main` moves by a `[skip ci]` fast-forward, which suppresses push-triggere
 
 | Step | What a person does | Inventory |
 |---|---|---|
-| GS-00 | (machine) Staging runs `main`'s commit and migrations | R |
+| GS-00 | (machine, the walk's first job) Staging runs `main`'s commit and migrations | R |
 | GS-01 | (operator, C1) The school is born | J1.1 |
 | GS-02 | The platform admin signs in and creates the first school admin, with the role | J1.4, J2 |
-| GS-03 | The school admin activates (code from the mailbox → username → password → PIN → card) and lands on Konfigurasi | J2.3–J2.8 |
+| GS-03 | The school admin activates (code from the mailbox → username → password → PIN → name → card; D-054(b)'s order, asserted by G4) and lands on Konfigurasi | J2.3–J2.8 |
 | GS-04 | The school admin builds the structure | J3.3 |
 | GS-05 | The school admin sets the lesson's minimum passing mark | J3.8 |
 | GS-06 | The school admin adds the teacher, the head of department and the dean, and gives their roles | J3.5 |
@@ -89,15 +126,16 @@ Today `main` moves by a `[skip ci]` fast-forward, which suppresses push-triggere
 | GS-10 | The teacher activates, signs in and lands on Mengajar | J2 |
 | GS-11 | The teacher prepares and assigns the chapter (Siapkan → Sediakan) | J5.4 |
 | GS-12 | The primary student signs in with the class card | J2.19 |
-| GS-13 | Pre-test: orientation → the explicit start → answers → finish | J6.5–J6.9 |
+| GS-13 | Pre-test: orientation (no sitting yet) → the explicit start → answers → finish | J6.2, J6.5, J6.6, J6.9 (J6.7 pause and J6.8 network loss are not exercised) |
 | GS-14 | Every lesson is read to its last page, by clicking | J6.3 |
-| GS-15 | The post-test is reached by its link and completed; the result says whether the mastery target was achieved (M3) | J6.10, J6.11, J6.15 |
-| GS-16 | The four other students sit both tests | (recipe) |
-| GS-17 | The teacher reads the class evidence; the head of department, the dean and the school admin read their reports | J7.1–J7.4 |
-| GS-18 | The primary student's certificate: eligible at the school's mark → issued → shown | J8.1–J8.3 |
+| GS-15 | The post-test is reached by its link (no sitting before its start) and completed; the result says whether the mastery target was achieved (M3), with the learner's own growth and no rank, class average or other learner | J6.2, J6.10, J6.11, J6.15 |
+| GS-16 | The four other students, by clicking as the primary student does, sit both tests and read the lessons between them | (recipe) |
+| GS-17 | The teacher reads the class evidence (J7.1); the head of department (J7.2), the dean (J7.3) and the school admin (J7.4) read their reports | J7.1–J7.4 |
+| GS-18 | The primary student's certificate: eligible at the school's mark → issued → shown | J8.1, J8.2 (J8.3, sealing at issuance, is not built: BOB-48) |
 | GS-19 | An anonymous visitor verifies the certificate; a random token gives the private not-found | J8.6 |
-| GS-20 | On a shared device: the student's session locks when idle and resumes with their PIN (T1); «Bukan akun Anda?» switches safely; the next learner inherits no lesson position or state. Everyone signs out | J2.9, J2.20 |
-| GS-21 | Recovery: the school admin re-issues a lost card; a staff member recovers by email, then by PINTAR ID + PIN | J2.11, J2.12, J2.21 |
+| GS-20 | On a shared device: the student's session locks when idle and resumes with their PIN (T1); «Bukan akun Anda?» switches safely; the next learner inherits no lesson position or state. A staff member on «Komputer bersama» is locked by the server after 5 idle minutes and resumes with their PIN (the 60-minute end: BOB29-A03). Everyone signs out | J2.9, J2.10, J2.20 |
+| GS-21 | Recovery: the school admin re-issues a lost card; a staff member recovers by email, then by PINTAR ID + PIN; the owner's security notice arrives (PINTAR ID, never the PIN) and the platform admin's is sent | J2.11, J2.12, J2.13, J2.21 |
+| GS-22 | A learner added after the chapter was given: the school admin records one student into the class and makes the class's cards (one, hers); she signs in, finds the class's existing chapter and begins its Pemetaan Awal by clicking | J3.6, J3.7, J2.19, J6.5 (D-118 §8) |
 
 - **The status headline** is the last step passed unaided, then "current break: GS-nn".
 - **Roles beyond the spine** (the head of department's review queue and signals, the dean's queue, Uji Cepat, educator-as-learner, support) attach as further Level 3 journeys in Phase 5.
@@ -110,7 +148,7 @@ Today `main` moves by a `[skip ci]` fast-forward, which suppresses push-triggere
 
 ## 7. Not in Phase 1
 
-None of these is built in Phase 1:
+None of these was built in Phase 1 (all built since; see «Status, 6 Oct 2026» above):
 - the C1 script and workflow;
 - the mailbox and its reader;
 - the Level 3 runner;

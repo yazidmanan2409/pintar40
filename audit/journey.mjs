@@ -15,6 +15,7 @@ import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { jalankanC12 } from "./c12.mjs";
 
 const APP = process.env.APP_URL;
 const SB = process.env.SUPABASE_URL;
@@ -76,19 +77,116 @@ async function mailCount(email) {
   return ((await r.json().catch(() => ({}))).messages ?? []).length;
 }
 
-// sign in the way a person does: type the address, press the button, open the email
+// The activation code in the newest PINTAR email to this address after `after` (BOB-26: «482 913», grouped).
+async function latestCode(email, after) {
+  for (let i = 0; i < 30; i++) {
+    const r = await fetch(`${MAIL}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`);
+    const j = await r.json().catch(() => ({}));
+    const msgs = (j.messages ?? []).filter((m) => new Date(m.Created) > after);
+    if (msgs.length) {
+      const m = await (await fetch(`${MAIL}/api/v1/message/${msgs[0].ID}`)).json();
+      const kode = /class="pin-kode"[^>]*>([\d\s]+)</.exec(m.HTML ?? "")?.[1]?.replace(/\s+/g, "") ?? null;
+      return { kode, subject: m.Subject };
+    }
+    await new Promise((res) => setTimeout(res, 1000));
+  }
+  return { kode: null, subject: null };
+}
+
+// SIGNING A PERSON IN, AS GATE 3 HAS IT (BOB-26, BOB-27; the email link's switch is off). The first time, a person
+// activates their account: «Aktifkan akun» asks for the address, PINTAR emails a code (read from this local stack's
+// sink), and the wizard below sets the name, a username, a PIN and a password. Afterwards they sign in on /masuk with
+// their address and that password. The name is kept for the walk's existing calls.
+const sudahAktif = new Set();
+const lokalDari = (email) => email.split("@")[0].replace(/[^a-z0-9._]/g, "").slice(0, 16);
+// a username the rules accept for every walk person: «admin.sd» is reserved (it begins with «admin.»), so all take a prefix
+const usernameDari = (email) => `jalan_${lokalDari(email)}`.slice(0, 20).replace(/[._]+$/, "");
+const sandiDari = (email) => `Audit-Jalan-${lokalDari(email)}-2026!Qz`;
 async function magicSignIn(page, email) {
-  const t0 = new Date(Date.now() - 1000);
+  if (!sudahAktif.has(email)) {
+    const t0 = new Date(Date.now() - 1000);
+    await page.goto(`${APP}/aktifkan`, { waitUntil: "networkidle" });
+    await page.locator("#email").fill(email);
+    await page.getByRole("button", { name: "Kirim kode" }).click();
+    await page.locator("#kode").waitFor({ timeout: 20000 });
+    const { kode, subject } = await latestCode(email, t0);
+    if (!kode) throw new Error("no activation code arrived");
+    await page.locator("#kode").fill(kode);
+    await page.getByRole("button", { name: "Lanjut", exact: true }).click();
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(1500);
+    const lewat = await selesaikanMasuk(page, email);
+    sudahAktif.add(email);
+    return { landed: new URL(page.url()).pathname, subject, lewat };
+  }
   await page.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
-  await page.locator("#email").fill(email);
-  await page.getByRole("button", { name: "Kirim tautan masuk" }).click();
-  await page.getByRole("heading", { name: "Periksa email Anda" }).waitFor({ timeout: 15000 });
-  const { link, subject } = await latestLink(email, t0);
-  if (!link) throw new Error("no sign-in email arrived");
-  await page.goto(link, { waitUntil: "networkidle" });
-  await page.waitForURL((u) => !u.pathname.startsWith("/auth/"), { timeout: 20000 }).catch(() => {});
+  await page.locator("#identitas").fill(email);
+  await page.locator("#password").fill(sandiDari(email));
+  await page.getByRole("button", { name: "Masuk", exact: true }).click();
+  await page.waitForURL((u) => u.pathname !== "/masuk", { timeout: 20000 }).catch(() => {});
   await page.waitForLoadState("networkidle");
-  return { landed: new URL(page.url()).pathname, subject };
+  const lewat = await selesaikanMasuk(page, email);
+  return { landed: new URL(page.url()).pathname, subject: null, lewat };
+}
+
+// Gate 3 (BOB-26, DAISY-20) and Gate 6 (BOB-29): a person's first sign-in is held in the activation wizard until
+// their set-up is done, and a staff browser is then asked «Komputer siapa ini?». Both are answered here by their own
+// screens, as the person would: the name confirmed, a username, a PIN and a password; and «Komputer pribadi saya»,
+// so that the walk's long-lived staff browsers are not locked by the shared-computer rule between its steps (that
+// rule is walked by BOB29-A01..A03). The username, PIN and password are this local stack's synthetic values.
+async function selesaikanMasuk(page, email) {
+  const lewat = [];
+  for (let putaran = 0; putaran < 12; putaran++) {
+    const jalur = new URL(page.url()).pathname;
+    if (jalur === "/aktifkan") {
+      await page.locator("h1").first().waitFor({ timeout: 20000 });
+      await page.waitForLoadState("networkidle");
+      if (await page.getByRole("link", { name: "Masuk ke PINTAR" }).count()) {
+        lewat.push("selesai");
+        await page.getByRole("link", { name: "Masuk ke PINTAR" }).click();
+        await page.waitForURL((u) => u.pathname !== "/aktifkan", { timeout: 20000 }).catch(() => {});
+        await page.waitForLoadState("networkidle");
+        continue;
+      }
+      if (await page.locator("#username").count()) {
+        lewat.push("username");
+        await page.locator("#username").fill(usernameDari(email));
+        await page.getByRole("button", { name: "Simpan username" }).click();
+      } else if (await page.locator("#pin").count()) {
+        lewat.push("pin");
+        await page.locator("#pin").fill("2817");
+        await page.locator("#pin-ulang").fill("2817");
+        await page.getByRole("button", { name: "Simpan PIN" }).click();
+      } else if (await page.locator("#password").count()) {
+        lewat.push("password");
+        const sandi = sandiDari(email);
+        await page.locator("#password").fill(sandi);
+        await page.locator("#ulang").fill(sandi);
+        await page.getByRole("button", { name: "Simpan password" }).click();
+      } else if (await page.getByRole("button", { name: "Sudah benar" }).count()) {
+        lewat.push("nama");
+        await page.getByRole("button", { name: "Sudah benar" }).click();
+      } else {
+        throw new Error(`the activation wizard shows nothing the walk can answer: ${(await bodyText(page)).slice(0, 200)}`);
+      }
+      await page.waitForTimeout(1500);
+      await page.waitForLoadState("networkidle");
+      // a step the wizard refused says so in its alert; the walk stops there rather than pressing again
+      const tolak = page.locator('.pin-msg-err[role="alert"]');
+      if (await tolak.count()) throw new Error(`the activation wizard refused the ${lewat.at(-1)} step: ${norm(await tolak.first().innerText())}`);
+      continue;
+    }
+    if (jalur === "/perangkat") {
+      lewat.push("perangkat");
+      await page.locator('input[type="radio"][name="mode"][value="PERSONAL"]').check();
+      await page.getByRole("button", { name: "Simpan pilihan" }).click();
+      await page.waitForURL((u) => u.pathname !== "/perangkat", { timeout: 20000 }).catch(() => {});
+      await page.waitForLoadState("networkidle");
+      continue;
+    }
+    break;
+  }
+  return lewat;
 }
 // a separate API session for the same person, for the steps whose screen is a server action
 async function apiSession(email) {
@@ -108,6 +206,10 @@ async function newPerson(page, name, email) {
   await baru.getByLabel("Nama").fill(name);
   await baru.locator('input[type="email"]').fill(email);
   await baru.getByRole("button", { name: "Buat dan aktifkan" }).click();
+  // DAISY-20 (D-077): the first press shows what will be made; «Sudah benar, buat dan aktifkan» makes it
+  const yakin = baru.getByRole("button", { name: "Sudah benar, buat dan aktifkan" });
+  await yakin.waitFor({ timeout: 15000 }).catch(() => {});
+  if (await yakin.count()) await yakin.click();
   const jawab = baru.locator('[role="status"]').first();
   await jawab.waitFor({ timeout: 20000 });
   const teks = norm(await jawab.innerText());
@@ -186,32 +288,27 @@ await g.addInitScript(() => {
   document.addEventListener("DOMContentLoaded", periksa);
 });
 
-await step("S1", "Gladys signs in with the email link (same browser)", async (rec) => {
+await step("S1", "Gladys activates her account by the emailed code and the wizard, and lands on her home (Gate 3, BOB-26)", async (rec) => {
   const r = await magicSignIn(g, GLADYS);
   rec.shots.push(await shot(g, "gladys-after-signin"));
   if (!["/konfigurasi", "/"].includes(r.landed)) rec.verdict = "FAIL";
   if (s14Terlihat.length) rec.verdict = "FAIL";
-  return `landed on ${r.landed}; email subject "${r.subject}"; S14 shown on the way: ${s14Terlihat.length ? `yes, at ${s14Terlihat.join(", ")}` : "no"}`;
+  return `landed on ${r.landed} after ${r.lewat.join(" → ")}; email subject "${r.subject}"; S14 shown on the way: ${s14Terlihat.length ? `yes, at ${s14Terlihat.join(", ")}` : "no"}`;
 });
 
-await step("S1b", "the same link opened in a different browser", async (rec) => {
+// Gate 3 retired the sign-in link this step used to open in a second browser (BOB-27: the link's switch is off). Its
+// question now: the same person, in a different browser, signs in with their address and password.
+await step("S1b", "Gladys signs in again in a different browser, with her address and password", async (rec) => {
   const other = await ctx();
   const p = await other.newPage();
-  const t0 = new Date(Date.now() - 1000);
-  const asker = await (await ctx()).newPage();
-  await asker.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
-  await asker.locator("#email").fill(GLADYS);
-  await asker.getByRole("button", { name: "Kirim tautan masuk" }).click();
-  await asker.getByRole("heading", { name: "Periksa email Anda" }).waitFor({ timeout: 15000 });
-  const { link } = await latestLink(GLADYS, t0);
-  await p.goto(link, { waitUntil: "networkidle" });
-  await p.waitForTimeout(3000);
-  rec.shots.push(await shot(p, "link-in-other-browser"));
-  const t = await bodyText(p);
-  const signedIn = !/masuk|tautan/i.test(new URL(p.url()).pathname) && !/tidak berlaku/i.test(t);
-  if (!signedIn) rec.verdict = "NOTE";
-  await other.close();
-  return `ended at ${new URL(p.url()).pathname}; screen says: ${t.slice(0, 200)}`;
+  try {
+    const r = await magicSignIn(p, GLADYS);
+    rec.shots.push(await shot(p, "gladys-other-browser"));
+    if (!["/konfigurasi", "/"].includes(r.landed)) rec.verdict = "FAIL";
+    return `landed on ${r.landed}${r.lewat.length ? ` after ${r.lewat.join(" → ")}` : ""}`;
+  } finally {
+    await other.close();
+  }
 });
 
 await step("S2", "Gladys finds her way to account activation from Konfigurasi, and reads the platform's state there: its environment and, on «Jalankan pemeriksaan», its health (J1.3, SYS-01, SYS-02)", async (rec) => {
@@ -247,7 +344,8 @@ await step("S3", "Gladys creates the school admin on Aktivasi by the screen: «O
   rec.shots.push(await shot(g, "aktivasi-orang-baru"));
   const after = await mailCount(people.sdAdmin.email);
   // the screen says what happens next: no email now; the person types the address on /masuk, and the role is given on Konfigurasi
-  const arahan = /tidak mengirim surel/.test(r.teks) && /Konfigurasi/.test(r.teks);
+  // Gate 3 (BOB-26): the person activates on /aktifkan by the address, once the role is given
+  const arahan = /tidak mengirim (surel|email)/.test(r.teks) && /Konfigurasi/.test(r.teks) && /aktifkan/.test(r.teks);
   if (!r.ok || !arahan) rec.verdict = "FAIL";
   return `pressed «Buat dan aktifkan» on «Orang baru di luar pendataan»; the screen answered "${r.teks.slice(0, 300)}"; ` +
     `it says what comes next ${arahan}; emails sent to the new admin: ${after - before}`;
@@ -473,7 +571,7 @@ await step("S12", "the school admin adds the teacher: by name on Pendataan, an a
     return `${jejak.join(" | ")}; ${people.guru.name} is not on Aktivasi: ${norm(await bodyText(a)).slice(0, 300)}`;
   }
   await baris.locator('input[type="email"]').fill(people.guru.email);
-  await baris.getByRole("button", { name: "Aktifkan dengan surel", exact: true }).click();
+  await baris.getByRole("button", { name: "Aktifkan dengan email", exact: true }).click();
   await baris.locator('input[type="email"]').waitFor({ state: "detached", timeout: SLOW }).catch(() => {});
   rec.shots.push(await shot(a, "aktivasi-guru"));
   const akun = sql(`select count(*) from public.accounts ac join public.persons p on p.id = ac.person_id where p.display_name='${people.guru.name}'`).trim();
@@ -692,20 +790,24 @@ await step("S15", "Gladys uploads a lesson: Paket Terstruktur", async (rec) => {
   return notes.join("; ");
 });
 
-await step("S15b", "D-029: a package addressed to the canonical library is refused", async (rec) => {
+await step("S15b", "D-029, D-120 Q7: the canonical library is offered to the platform admin only, last, and nothing is sent", async (rec) => {
+  // RESTATED FOR CR-51 (D-120 Q7, a changed requirement): the platform admin now prepares the library's standard content
+  // through this page, so a package sent here would be accepted and would add a course to this database's library. The
+  // step reads the picker instead and sends nothing: the library is offered once, last, and never preselected. That every
+  // SCHOOL role is still refused at the library is the database's (F11-N02, F12-N01 in CI).
   const inst = sql(`select id from public.institutions where tenant_kind='PLATFORM_CANONICAL' limit 1`).trim();
   if (!inst) { rec.verdict = "NOTE"; return "no canonical tenant in this database"; }
   const before = hitung(inst);
-  // Since DAISY-06 the page no longer offers the library at all (M8), so the server's own
-  // refusal is proved with a request the page would never build.
   await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
-  const offered = (await g.locator("select option").filter({ hasText: "Kurikulum Nasional" }).count()) > 0;
-  const r = offered ? await kirimPaket("Kurikulum Nasional", paketContoh ?? paketLama)
-                    : await kirimPaket("Kurikulum Nasional", paketContoh ?? paketLama, inst);
+  const sel = g.locator("#ung-sekolah");
+  const nama = (await sel.count()) ? (await sel.locator("option").allTextContents()).map((x) => x.trim()) : [];
+  const dipilih = (await sel.count()) ? ((await sel.locator("option:checked").textContent().catch(() => "")) ?? "").trim() : "";
+  const kali = nama.filter((x) => /Kurikulum Nasional/.test(x)).length;
   const after = hitung(inst);
-  if (!r.chosen) rec.verdict = "NOTE";
-  else if (after.courses !== before.courses || r.hasil === "ok") rec.verdict = "FAIL";
-  return `offered on the page: ${offered}; ${offered ? "chosen" : "forged request"} → hasil=${r.hasil} detail=${r.detail}; canonical courses ${before.courses} → ${after.courses}`;
+  if (!nama.length) rec.verdict = "NOTE";
+  else if (kali !== 1 || !/Kurikulum Nasional/.test(nama.at(-1) ?? "") || /Kurikulum Nasional/.test(dipilih)
+           || after.courses !== before.courses) rec.verdict = "FAIL";
+  return `the platform admin's picker: ${JSON.stringify(nama)}, preselected "${dipilih}"; the library offered ${kali} time(s), last ${/Kurikulum Nasional/.test(nama.at(-1) ?? "")}; canonical courses ${before.courses} → ${after.courses} (nothing sent)`;
 });
 
 // Real content: SD Kelas 5 Matematika Bab 1, from docs/onboarding/konten/SD5-Matematika-Bab1.xlsx,
@@ -738,7 +840,13 @@ await step("S15c", "SD 5 Matematika Bab 1 (real content) imports whole into SD",
   const items = course ? sql(`select count(*) from public.items i join public.lessons l on l.id=i.lesson_id join public.modules m on m.id=l.module_id where m.course_id='${course}'`).trim() : "0";
   const tags = course ? sql(`select coalesce(string_agg(r||':'||n, ', '),'-') from (select coalesce(i.cycle_role::text,'LATIHAN') r, count(*) n from public.items i join public.lessons l on l.id=i.lesson_id join public.modules m on m.id=l.module_id where m.course_id='${course}' group by 1 order by 1) x`).trim() : "-";
   notes.push(`SD courses ${before.courses} → ${after.courses}, lessons ${before.lessons} → ${after.lessons}; this course: items ${items} (${tags})`);
-  if (!course || Number(items) !== 28) rec.verdict = "FAIL";
+  // the chapter as its package has it (CR-82: the fixture is today's PINTAR content, so nothing here is a written-in number)
+  const paketBab1 = JSON.parse(readFileSync(f, "utf8"));
+  const nSoal = paketBab1.courses.reduce((n, c) => n + c.modules.reduce((m, md) => m + md.lessons.reduce((k, l) => k + (l.items ?? []).length, 0), 0), 0);
+  const kodeMis = (paketBab1.misconceptions ?? []).map((x) => x.code);
+  const misSd = kodeMis.length ? Number(sql(`select count(*) from public.misconception_taxonomy where institution_id='${ids.sd}' and code in (${kodeMis.map((k) => `'${k}'`).join(",")})`).trim()) : 0;
+  notes.push(`the package: ${nSoal} question(s), ${kodeMis.length} misconception definition(s); SD now holds ${misSd} of them (CR-50: a package carries its own definitions)`);
+  if (!course || Number(items) !== nSoal || kodeMis.length === 0 || misSd !== kodeMis.length) rec.verdict = "FAIL";
   return notes.join("; ");
 });
 
@@ -785,7 +893,10 @@ const siap = (c) => sql(`select status || ' | ' || coalesce(blockers::text, '') 
 // (the reason is in `notes`, the verdict set).
 // `peninjau` (HOD-04, GS-09): the page that takes the reviewer's steps (approve, make and lock the release) and reads the
 // questions first; the school admin by default.
-async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama = "Bab 1", awalan = "", antrean = null, peninjau = null } = {}) {
+// `tanpaLemah` (CR-50, CR-82): the chapter is PINTAR's own regenerated content, every wrong option naming a misconception
+// its package defines (PENUTUPAN-M04), so its review must raise no WEAK_MISCONCEPTION_LINKAGE finding (F20-M03 in the
+// database; here through the screens).
+async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama = "Bab 1", awalan = "", antrean = null, peninjau = null, tanpaLemah = false } = {}) {
   const pen = peninjau ?? a;
   const siapaPen = peninjau ? "the head of department" : "the school admin";
   // press a step's button as `page`; the state it moved to, or null when nothing moved
@@ -830,6 +941,11 @@ async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama 
         from (select severity::text, pattern_class, count(*) n from public.mcq_quality_findings where course_id='${course}' group by 1, 2) x`).trim();
       const teks = sql(`select coalesce(string_agg(severity || ' x' || n, ', '), 'none') from (select severity::text, count(*) n from public.coaching_findings where course_id='${course}' group by 1) x`).trim();
       notes.push(`findings on ${nama}: question quality ${mutu}; student text ${teks}`);
+      if (tanpaLemah) {
+        const lemah = Number(sql(`select count(*) from public.mcq_quality_findings where course_id='${course}' and pattern_class = 'WEAK_MISCONCEPTION_LINKAGE'`).trim());
+        notes.push(`CR-50/CR-82: WEAK_MISCONCEPTION_LINKAGE findings on ${nama}: ${lemah} (must be 0 on PINTAR's regenerated content)`);
+        if (lemah !== 0) rec.verdict = "FAIL";
+      }
       const r0 = siap(course);
       notes.push(`readiness: ${r0}`);
       if (!r0.startsWith("READY")) {
@@ -928,7 +1044,7 @@ await step("S17", "Studio to Terbit with two people: Bab 1 through the seven ste
   const kaprodi = await lihatAntreanKaprodi(course);
   antreanKaprodi = kaprodi.hasil;
   // HOD-04, GS-09: the head of department reviews (reading every question first), makes and locks the release
-  const jadi = await terbitkanLewatLayar(course, rec, notes, { bacaSoal: true, antrean: kaprodi.fase, peninjau: kaprodi.halaman() });
+  const jadi = await terbitkanLewatLayar(course, rec, notes, { bacaSoal: true, antrean: kaprodi.fase, peninjau: kaprodi.halaman(), tanpaLemah: true });
   await kaprodi.tutup();
   if (!jadi) return notes.join("; ");
   terbitBab = keadaanBab(course).endsWith("|PUBLISHED");
@@ -1688,6 +1804,138 @@ await step("S21g", "a student switches the screens to English with «EN» and ba
     return `stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`;
   }
 });
+// ───────────────────────── the recorded unwalked checks (D-100(d) item 4): STU-16, STU-17, HOD-07, X-11, HOD-08
+async function masukKartu(page, k) {
+  await page.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: "Gunakan kartu kelas" }).click();
+  await page.locator("#kartu").fill(k.number);
+  await page.locator("#pin").fill(k.pin);
+  await page.getByRole("button", { name: "Masuk dengan kartu" }).click();
+  await page.waitForURL((u) => u.pathname !== "/masuk", { timeout: SLOW });
+}
+const KATA_INTERNAL = /\b(PINTAR 4\.0|FROZEN|SUPERSEDED|VALIDATION_FAILED|IN_REVIEW|INGESTED|STRUCTURED|SYNTHETIC|PUBLIC_DEMO|PREVIEW|OFFICIAL|evidence_class|per_domain|is_correct)\b/;
+const UUID = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/;
+
+// STU-16 (J6.12): a student comes back to a finished chapter and reviews it. The review is her own: each question of
+// the Uji Penguasaan with whether she had it and her own answer, and the explanation the chapter gives; nothing of the
+// machinery (no internal word, no identifier, no weighting) and nobody else's answers.
+await step("S21h", "a student comes back to her finished chapter from her home («Lihat hasil») and reviews it: her own answers, each question's explanation, nothing internal and nobody else's (STU-16, J6.12)", async (rec) => {
+  if (!terbitBab || kartuKelas.length < MURID.length) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "class cards missing (S20)"; }
+  const tugas = tugasBab();
+  const k = kartuKelas[0];
+  const sc = await ctx();
+  const s = await sc.newPage();
+  try {
+    await masukKartu(s, k);
+    await s.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+    await tutupTur(s);
+    const lihat = s.locator(`a[href="/belajar/${tugas}/hasil"]`);
+    if (!(await lihat.count())) { rec.verdict = "FAIL"; return `her home offers no way back to the finished chapter's result: ${(await bodyText(s)).slice(0, 240)}`; }
+    await lihat.first().click();
+    await s.waitForURL((u) => u.pathname === `/belajar/${tugas}/hasil`, { timeout: SLOW });
+    await s.locator("h1").first().waitFor({ timeout: SLOW });
+    await tutupTur(s);
+    const butir = s.locator(".pin-tinjau details.pin-item");
+    const n = await butir.count();
+    // the questions of her latest Uji Penguasaan sitting on this chapter
+    const harap = Number(sql(`select count(*) from public.presented_items pi where pi.session_id = (
+      select ss.id from public.assessment_sessions ss join public.assessment_definitions d on d.id = ss.assessment_definition_id
+        join public.persons p on p.id = ss.person_id
+       where ss.learning_assignment_id = '${tugas}' and d.mode::text = 'POST_TEST' and p.display_name = '${k.nama}'
+       order by ss.created_at desc limit 1)`).trim() || 0);
+    for (let i = 0; i < n; i++) await butir.nth(i).locator("summary").click();
+    const teks = norm(await s.locator("main").innerText());
+    rec.shots.push(await shot(s, "stu16-tinjau"));
+    const milikSendiri = (await s.locator(".pin-tinjau .pin-mine").count()) > 0;
+    const orangLain = MURID.filter((m) => m !== k.nama && teks.includes(m));
+    const internal = KATA_INTERNAL.exec(teks)?.[0] ?? null;
+    const pengenal = UUID.exec(teks)?.[0] ?? null;
+    if (n === 0 || n !== harap || !milikSendiri || orangLain.length || internal || pengenal) rec.verdict = "FAIL";
+    return `${k.nama} reached «${norm(await s.locator("h1").first().innerText())}» from her home; ${n} question(s) under review (her Uji Penguasaan had ${harap}); ` +
+      `her own answers shown ${milikSendiri}; other learners named ${orangLain.length ? orangLain.join(", ") : "none"}; internal word ${internal ?? "none"}; identifier ${pengenal ?? "none"}`;
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(s, "stu16-berhenti"));
+    return `stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`;
+  } finally {
+    await sc.close();
+  }
+});
+
+// STU-17: the certificate's state as a student meets it. Above the school's target (Ani, 7 of 8 against 60%) her
+// certificate is listed and, issued, opens with its actions; below it (Eka, 4 of 8) there is none, and opening the
+// chapter's certificate page, which asks the system on the learner's behalf, creates none: rendering never issues one.
+await step("S21i", "the certificate as students meet it: above the target it is listed and opens issued with its actions; below the target there is none, and opening the certificate page creates none (STU-17)", async (rec) => {
+  if (!terbitBab || kartuKelas.length < MURID.length) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "class cards missing (S20)"; }
+  const tugas = tugasBab();
+  const sertifikatDari = (nama) => sql(`select coalesce(string_agg(c.status::text, ','), '') from public.certificates c
+    join public.persons p on p.id = c.person_id where p.display_name = '${nama}' and c.institution_id = '${ids.sd}'`).trim();
+  const notes = [];
+  const lulus = kartuKelas.find((k) => k.nama === MURID[0]);
+  const belum = kartuKelas.find((k) => k.nama === MURID[4]);
+  // above the target
+  const ac = await ctx();
+  const a1 = await ac.newPage();
+  try {
+    await masukKartu(a1, lulus);
+    const sebelum = sertifikatDari(lulus.nama);
+    await a1.goto(`${APP}/belajar/sertifikat`, { waitUntil: "networkidle" });
+    await tutupTur(a1);
+    const daftar = norm(await bodyText(a1));
+    const baris = a1.locator(`a[href="/belajar/${tugas}/sertifikat"]`);
+    const setelahDaftar = sertifikatDari(lulus.nama);
+    rec.shots.push(await shot(a1, "stu17-daftar"));
+    notes.push(`${lulus.nama}: certificates before ${sebelum || "none"}; the list shows ${/Berlaku/.test(daftar) ? "«Berlaku»" : /Sedang disiapkan/.test(daftar) ? "«Sedang disiapkan»" : "no state"} and links the chapter ${await baris.count()} time(s); after rendering the list ${setelahDaftar || "none"}`);
+    if (!(await baris.count()) || setelahDaftar !== sebelum) { rec.verdict = "FAIL"; }
+    else {
+      await baris.first().click();
+      await a1.waitForURL((u) => u.pathname === `/belajar/${tugas}/sertifikat`, { timeout: SLOW });
+      // a click is a client-side move: the address changes while the page still says «Memuat halaman…», and the load
+      // state was reached long before, so the certificate is read once its own actions or its state are on screen
+      await a1.getByText(/Cetak atau simpan PDF|disiapkan/i).first().waitFor({ timeout: SLOW }).catch(() => {});
+      const isi = norm(await bodyText(a1));
+      rec.shots.push(await shot(a1, "stu17-sertifikat"));
+      const terbit = sertifikatDari(lulus.nama).split(",").includes("ISSUED");
+      const aksi = /Cetak atau simpan PDF/.test(isi) && /Periksa keaslian|Tautan verifikasi|Salin tautan verifikasi/.test(isi);
+      const disiapkan = !terbit && /disiapkan/i.test(isi);
+      notes.push(`opened: ${terbit ? `issued, with its actions ${aksi}` : `not yet issued, «being prepared» shown ${disiapkan}`}`);
+      if (terbit ? !aksi : !disiapkan) rec.verdict = "FAIL";
+    }
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(a1, "stu17-berhenti"));
+    notes.push(`stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`);
+  } finally {
+    await ac.close();
+  }
+  // below the target
+  const bc = await ctx();
+  const b1 = await bc.newPage();
+  try {
+    await masukKartu(b1, belum);
+    const sebelum = sertifikatDari(belum.nama);
+    await b1.goto(`${APP}/belajar/sertifikat`, { waitUntil: "networkidle" });
+    await tutupTur(b1);
+    const daftar = norm(await bodyText(b1));
+    await b1.goto(`${APP}/belajar/${tugas}/sertifikat`, { waitUntil: "networkidle" });
+    const halaman = norm(await bodyText(b1));
+    await b1.goto(`${APP}/belajar/${tugas}/sertifikat`, { waitUntil: "networkidle" });
+    rec.shots.push(await shot(b1, "stu17-belum"));
+    const setelah = sertifikatDari(belum.nama);
+    const kosong = /Belum ada sertifikat untuk Anda di sini/.test(daftar);
+    const tanpaKredensial = !/Cetak atau simpan PDF|Tautan verifikasi|Berlaku/.test(halaman);
+    notes.push(`${belum.nama}: certificates before ${sebelum || "none"}, after opening the certificate page twice ${setelah || "none"}; the list says none ${kosong}; the chapter's page shows no credential ${tanpaKredensial}`);
+    if (sebelum !== "" || setelah !== "" || !kosong || !tanpaKredensial) rec.verdict = "FAIL";
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(b1, "stu17-belum-berhenti"));
+    notes.push(`stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`);
+  } finally {
+    await bc.close();
+  }
+  return notes.join("; ");
+});
+
 
 await step("S22", "the teacher reaches Lihat bukti by clicking and reads the class figures from official evidence, follows «Lihat per soal» to the questions the class found hard (M5, D-088(k)), then opens a student's record from the roster (EDU-12, X-10, EDU-J03, M4)", async (rec) => {
   if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
@@ -2012,7 +2260,7 @@ await step("S23d", "the dean: the school admin adds the dean by the screens; the
   const baris = a.locator("li.pin-akt-orang", { hasText: people.dekan.name }).first();
   if (!(await baris.count())) { rec.verdict = "FAIL"; return `${jejak.join(" | ")}; ${people.dekan.name} is not on Aktivasi`; }
   await baris.locator('input[type="email"]').fill(people.dekan.email);
-  await baris.getByRole("button", { name: "Aktifkan dengan surel", exact: true }).click();
+  await baris.getByRole("button", { name: "Aktifkan dengan email", exact: true }).click();
   await baris.locator('input[type="email"]').waitFor({ state: "detached", timeout: SLOW }).catch(() => {});
   const r = await grantViaForm(a, people.dekan.name, "DEAN", "SD Zayd");
   jejak.push(`«Dekan» at the school's root: ${JSON.stringify(r)}`);
@@ -2047,7 +2295,7 @@ await step("S23d", "the dean: the school admin adds the dean by the screens; the
     for (const jalan of ["/konfigurasi", "/aktivasi", "/studio", "/pendataan"]) {
       await d.goto(`${APP}${jalan}`, { waitUntil: "networkidle" });
       const ditolak = (await d.locator(".pin-refusal").count()) > 0 || new URL(d.url()).pathname !== jalan;
-      const tombolTulis = await d.locator('button:has-text("Berikan peran"), button:has-text("Aktifkan dengan surel"), button:has-text("Simpan")').count();
+      const tombolTulis = await d.locator('button:has-text("Berikan peran"), button:has-text("Aktifkan dengan email"), button:has-text("Simpan")').count();
       tolak[jalan] = ditolak ? "refused" : `opened (${tombolTulis} write button(s))`;
     }
     rec.shots.push(await shot(d, "j7-3-dekan-ditolak"));
@@ -2061,6 +2309,649 @@ await step("S23d", "the dean: the school admin adds the dean by the screens; the
     await dc.close();
     return `${jejak.join(" | ")} | stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`;
   }
+});
+// HOD-07 and X-11: the head of department reviews the class's integrity observations. S21's network drop leaves one
+// («Terputus lalu tersambung lagi») on the sitting it happened in. They read as material for a human, never a verdict;
+// recording a review writes the reviewer's decision to the audit and changes no score; the student never sees them.
+await step("S23i", "the head of department reviews Kelas 1A's integrity observations in Studio → «Tinjauan Integritas»: observations, never a verdict; the review is recorded and changes no score; the student sees none of it (HOD-07, X-11)", async (rec) => {
+  const kelas = kelasSatuA();
+  const sinyal = kelas ? sql(`select s.id||'|'||p.display_name from public.integrity_signals s join public.assessment_sessions ss on ss.id = s.session_id
+    join public.persons p on p.id = ss.person_id where ss.class_node_id = '${kelas}' order by s.observed_at limit 1`).trim() : "";
+  if (!sinyal) { rec.verdict = "BLOCKED"; return "no integrity observation in Kelas 1A to review (S21's network drop raises one)"; }
+  const [idSinyal, namaMurid] = sinyal.split("|");
+  const skor = () => sql(`select coalesce(string_agg(r.session_id::text||':'||r.mastery::text, ',' order by r.session_id::text), '')
+    from public.assessment_results r join public.assessment_sessions ss on ss.id = r.session_id where ss.class_node_id = '${kelas}'`).trim();
+  const sebelum = skor();
+  const dulu = Number(sql(`select coalesce(max(id), 0) from public.audit_log`).trim());
+  const notes = [];
+  const hc = await ctx();
+  const h = await hc.newPage();
+  try {
+    await magicSignIn(h, people.kaprodi.email);
+    await h.goto(`${APP}/studio`, { waitUntil: "networkidle" });
+    await tutupTur(h);
+    await h.getByRole("link", { name: "Tinjauan Integritas" }).first().click();
+    await h.waitForURL((u) => u.pathname === "/studio/integritas", { timeout: SLOW });
+    // the page's own heading, not Studio's nav link of the same name: until it shows, the page says «Memuat halaman…»
+    await h.getByRole("heading", { name: "Tinjauan Integritas", exact: true }).waitFor({ timeout: SLOW }).catch(() => {});
+    const teks = norm(await bodyText(h));
+    rec.shots.push(await shot(h, "hod07-integritas"));
+    const bingkai = /bahan pertimbangan manusia, bukan kesimpulan/i.test(teks);
+    const vonis = /curang|kecurangan|menyontek|mencontek|pelanggaran|bersalah|dihukum|cheat/i.test(teks);
+    const kategori = /Terputus lalu tersambung lagi|Berpindah dari layar penilaian/.test(teks);
+    const namaTampak = teks.includes(namaMurid);
+    notes.push(`the page frames them as material for a human ${bingkai}, carries a verdict word ${vonis}, names the observation ${kategori}, names the student ${namaTampak}`);
+    if (!bingkai || !kategori) notes.push(`the page at ${new URL(h.url()).pathname} says: «${teks.slice(0, 400)}»`);
+    const form = h.locator("form").filter({ has: h.locator(`input[name="sinyal"][value="${idSinyal}"]`) }).first();
+    if (!(await form.count()) || !bingkai || vonis || !kategori) { rec.verdict = "FAIL"; return notes.join("; "); }
+    await form.locator('select[name="keputusan"]').selectOption("NO_CONCERN");
+    await form.locator('input[name="catatan"]').fill("Koneksi terputus sebentar; tidak ada yang perlu ditindaklanjuti.");
+    await form.getByRole("button", { name: "Catat tinjauan" }).click();
+    await h.getByText("Tinjauan Anda dicatat.").first().waitFor({ timeout: SLOW });
+    rec.shots.push(await shot(h, "hod07-dicatat"));
+    const tinjauan = sql(`select a.summary->>'decision' from public.audit_log a where a.id > ${dulu} and a.action = 'INTEGRITY_SIGNAL_REVIEWED' and a.target_id = '${idSinyal}'`).trim();
+    const sesudah = skor();
+    notes.push(`the review «Tidak ada yang perlu ditindaklanjuti» is on the record as ${tinjauan || "nothing"}; the class's scores unchanged ${sesudah === sebelum}`);
+    if (tinjauan !== "NO_CONCERN" || sesudah !== sebelum) rec.verdict = "FAIL";
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(h, "hod07-berhenti"));
+    notes.push(`stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`);
+  } finally {
+    await hc.close();
+  }
+  // the student whose sitting it was: nothing of it on her home, her result, or Studio's review
+  const k = kartuKelas.find((x) => x.nama === namaMurid);
+  if (!k) { rec.verdict = "FAIL"; notes.push(`no class card for ${namaMurid}`); return notes.join("; "); }
+  const sc = await ctx();
+  const s = await sc.newPage();
+  try {
+    await masukKartu(s, k);
+    const halaman = [];
+    for (const jalur of ["/belajar", `/belajar/${tugasBab()}/hasil`, "/studio/integritas"]) {
+      await s.goto(`${APP}${jalur}`, { waitUntil: "networkidle" });
+      await tutupTur(s);
+      halaman.push([jalur, new URL(s.url()).pathname, norm(await bodyText(s))]);
+    }
+    rec.shots.push(await shot(s, "x11-murid-studio"));
+    const bocor = halaman.filter(([, , t]) => /integritas|Terputus lalu tersambung lagi|Berpindah dari layar penilaian|Tinjauan Integritas/i.test(t)).map(([j]) => j);
+    notes.push(`${namaMurid} sees it on ${bocor.length ? bocor.join(", ") : "none of"} /belajar, her result and /studio/integritas (which ends at ${halaman[2][1]})`);
+    if (bocor.length) rec.verdict = "FAIL";
+  } catch (e) {
+    rec.verdict = "FAIL";
+    notes.push(`the student's check stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`);
+  } finally {
+    await sc.close();
+  }
+  return notes.join("; ");
+});
+
+
+// C-12 (D-069, D-070, design/EDUCATOR-AS-LEARNER-TICKETS.md §7): Kelas 1A's teacher learns as a participant in a
+// professional-learning place, here, while he still teaches Kelas 1A and its figures are settled (before S24 changes
+// who leads it). The walk and its snapshot live in c12.mjs and c12-potret.mjs.
+await jalankanC12({ step, sql, ctx, magicSignIn, apiSession, grantViaForm, catatLewatLayar, kirimPaket, terbitkanLewatLayar, keadaanBab, jawab,
+  tutupTur, masukKartu, shot, bodyText, norm, people, ids, a, g, kartuKelas, KUNCI, kelasSatuA, babSatu, SLOW, APP, DB, GLADYS, newPerson, OUT });
+
+// ═══ the closure's batch 2 walks (D-118): CR-38, CR-44, CR-40 and CR-39 through the screens, after C-12's block (its
+// baseline and after-snapshot stay around its own writes) and before S24 (which revokes the head of department).
+// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// INSERT AFTER step "C12k" (the `await jalankanC12({...});` call, journey.mjs:2379-2380), before step "S24".
+// CR-38 (DEA-04, BOB-39): the decision queue, walked. S23i recorded «Tidak ada yang perlu ditindaklanjuti» on Kelas 1A's
+// observation; a review is an audit row and changes nothing on the signal, so the same observation can still be
+// referred. The head of department refers it in Studio → «Tinjauan Integritas» («Diteruskan ke pihak sekolah»), which
+// raises one INTEGRITY_REFERRAL in management_decisions (record_integrity_review → refer_integrity_signal,
+// 20261024100000 / 20261118100000:794-883); pressed again while it is open, the review is recorded again and the
+// decision is the same one (idempotent while open). The dean (DEAN at the school's root, S23d) finds it under
+// «Keputusan» on /pimpinan, takes it («Saya yang menangani») and records «Tidak ada tindakan lanjutan» with «Catat
+// keputusan» (putuskanAksi → advance_management_decision). The referrer sees it decided; no score and no signal row
+// moves; the student sees none of it.
+await step("S23r", "the head of department refers Kelas 1A's integrity observation to the school in Studio → «Tinjauan Integritas» («Diteruskan ke pihak sekolah»), and pressing again makes no second decision; the dean finds it under «Keputusan» on /pimpinan, takes it («Saya yang menangani») and records «Tidak ada tindakan lanjutan» with «Catat keputusan»; the referrer sees it decided; no score moves and the student sees none of it (CR-38: DEA-04, BOB-39)", async (rec) => {
+  const kelas = kelasSatuA();
+  // the observation S23i reviewed (S23i's own query, journey.mjs:2304-2305)
+  const sinyal = kelas ? sql(`select s.id||'|'||p.display_name from public.integrity_signals s join public.assessment_sessions ss on ss.id = s.session_id
+    join public.persons p on p.id = ss.person_id where ss.class_node_id = '${kelas}' order by s.observed_at limit 1`).trim() : "";
+  if (!sinyal) { rec.verdict = "BLOCKED"; return "no integrity observation in Kelas 1A to refer (S21's network drop raises one)"; }
+  const [idSinyal, namaMurid] = sinyal.split("|");
+  const RUJUK = "Koneksi terputus saat Uji Penguasaan; mohon dipertimbangkan pihak sekolah.";
+  const RUJUK_LAGI = "Diteruskan sekali lagi dari Tinjauan Integritas.";
+  const PUTUS = "Sudah dibicarakan dengan wali kelas; koneksi sekolah sedang diperbaiki.";
+  const dekanId = sql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${people.dekan.email}'`).trim();
+  const skor = () => sql(`select coalesce(string_agg(r.session_id::text||':'||r.mastery::text, ',' order by r.session_id::text), '')
+    from public.assessment_results r join public.assessment_sessions ss on ss.id = r.session_id where ss.class_node_id = '${kelas}'`).trim();
+  const sidik = () => sql(`select md5(to_jsonb(s)::text) from public.integrity_signals s where s.id = '${idSinyal}'`).trim();
+  const skorAwal = skor();
+  const sidikAwal = sidik();
+  const dulu = Number(sql(`select coalesce(max(id), 0) from public.audit_log`).trim());
+  const audit = (aksi, sasaran, lagi = "") => Number(sql(`select count(*) from public.audit_log where id > ${dulu} and action = '${aksi}' and target_id = '${sasaran}' ${lagi}`).trim());
+  // every referral of this observation: id|state|at Kelas 1A|raised by|raised note|about|outcome|decided by|decision note
+  const rujukan = () => sql(`select coalesce(string_agg(d.id || '|' || d.state::text || '|' || (d.scope_node_id = '${kelas}')::text || '|' || r.display_name || '|' ||
+      coalesce(d.raised_note, '') || '|' || coalesce(s.display_name, '-') || '|' || coalesce(d.outcome::text, '-') || '|' || coalesce(k.display_name, '-') || '|' ||
+      coalesce(d.decision_note, ''), chr(10) order by d.raised_at), '')
+    from public.management_decisions d join public.persons r on r.id = d.raised_by_person_id
+    left join public.persons s on s.id = d.subject_person_id left join public.persons k on k.id = d.decided_by_person_id
+   where d.family = 'INTEGRITY_REFERRAL' and d.source_table = 'integrity_signals' and d.source_id = '${idSinyal}'`).split("\n").filter(Boolean).map((b) => b.split("|"));
+  // the card, found by the referrer's note it quotes (KartuKeputusan.tsx:57 article.pin-kp, :89 blockquote.pin-kp-catatan), in every state
+  const kartu = (page) => page.locator("article.pin-kp").filter({ has: page.locator("blockquote.pin-kp-catatan", { hasText: RUJUK }) });
+  // textContent, not innerText: the card's state sits in .pin-eyebrow, drawn in capitals (experience.css:108-111)
+  const teks = async (loc) => norm(await loc.first().textContent().catch(() => ""));
+  const MENTAH = /INTEGRITY_REFERRAL|AWAITING_REVIEW|UNDER_REVIEW|NO_FURTHER_ACTION|REFERRED_TO_INSTITUTION|integrity_signals|management_decisions/;
+  const notes = [`S23i's «Tidak ada yang perlu ditindaklanjuti» on record for this observation: ${sql(`select count(*) from public.audit_log where action = 'INTEGRITY_SIGNAL_REVIEWED' and target_id = '${idSinyal}' and summary->>'decision' = 'NO_CONCERN'`).trim()}`];
+  const hc = await ctx();
+  const h = await hc.newPage();
+  const dc = await ctx();
+  const d = await dc.newPage();
+  try {
+    // 1. the head of department refers it from Studio, the way S23i reached the page
+    await magicSignIn(h, people.kaprodi.email);
+    const teruskan = async (catatan) => {
+      await h.goto(`${APP}/studio`, { waitUntil: "networkidle" });
+      await tutupTur(h);
+      await h.getByRole("link", { name: "Tinjauan Integritas" }).first().click();                          // studio/layout.tsx:54; hle.ts:3298
+      await h.waitForURL((u) => u.pathname === "/studio/integritas", { timeout: SLOW });
+      await h.getByRole("heading", { name: "Tinjauan Integritas", exact: true }).waitFor({ timeout: SLOW }).catch(() => {});
+      const form = h.locator("form").filter({ has: h.locator(`input[name="sinyal"][value="${idSinyal}"]`) }).first();   // studio/integritas/page.tsx:60-61
+      if (!(await form.count())) return false;
+      const n0 = audit("INTEGRITY_SIGNAL_REVIEWED", idSinyal);
+      await form.locator('select[name="keputusan"]').selectOption({ label: "Diteruskan ke pihak sekolah" });  // page.tsx:64-66; hle.ts:3473
+      await form.locator('input[name="catatan"]').fill(catatan);                                            // page.tsx:70
+      await form.getByRole("button", { name: "Catat tinjauan" }).click();                                    // page.tsx:71; hle.ts:3474
+      for (let i = 0; i < 40 && audit("INTEGRITY_SIGNAL_REVIEWED", idSinyal) === n0; i++) await h.waitForTimeout(500);
+      await h.getByText("Tinjauan Anda dicatat.").first().waitFor({ timeout: SLOW }).catch(() => {});        // hle.ts:3531
+      return true;
+    };
+    if (!(await teruskan(RUJUK))) {
+      rec.verdict = "FAIL";
+      notes.push(`no «Catat tinjauan» form for the observation S23i reviewed: ${norm(await bodyText(h)).slice(0, 300)}`);
+      return notes.join("; ");
+    }
+    rec.shots.push(await shot(h, "cr38-diteruskan"));
+    const r1 = rujukan();
+    const idKeputusan = r1[0]?.[0] ?? "";
+    const diangkat = idKeputusan ? audit("management_decision.raised", idKeputusan) : 0;
+    notes.push(`«Diteruskan ke pihak sekolah» → referrals of it: ${JSON.stringify(r1.map((x) => x.slice(1, 6)))}; raised on the record ${diangkat}`);
+    if (r1.length !== 1 || r1[0][1] !== "AWAITING_REVIEW" || r1[0][2] !== "true" || r1[0][3] !== people.kaprodi.name || r1[0][4] !== RUJUK
+        || r1[0][5] !== namaMurid || diangkat !== 1) { rec.verdict = "FAIL"; return notes.join("; "); }
+    // the same press again while it is open: a second review on the record, never a second decision (BOB-39)
+    const lagi = await teruskan(RUJUK_LAGI);
+    const r2 = rujukan();
+    const ditinjau = audit("INTEGRITY_SIGNAL_REVIEWED", idSinyal, "and summary->>'decision' = 'REFERRED_TO_INSTITUTION'");
+    notes.push(`pressed again (${lagi ? "pressed" : "no form"}): referrals ${r2.length}, its note still the first ${r2[0]?.[4] === RUJUK}, ` +
+      `raised on the record ${audit("management_decision.raised", idKeputusan)}, reviews «Diteruskan» on the record ${ditinjau}`);
+    if (!lagi || r2.length !== 1 || r2[0][4] !== RUJUK || audit("management_decision.raised", idKeputusan) !== 1 || ditinjau !== 2) rec.verdict = "FAIL";
+
+    // 2. the referrer finds it under «Keputusan» on /pimpinan, waiting
+    await h.goto(`${APP}/pimpinan`, { waitUntil: "networkidle" });
+    await tutupTur(h);
+    const diKaprodi = await teks(kartu(h));
+    notes.push(`the head of department's /pimpinan card: «${diKaprodi.slice(0, 220)}»`);
+    if (!/Menunggu tinjauan/.test(diKaprodi) || !/Tinjauan integritas/.test(diKaprodi) || !/Kelas 1A/.test(diKaprodi)      // hle.ts:2131, 2127
+        || !/Berasal dari satu catatan integritas\./.test(diKaprodi) || UUID.test(diKaprodi) || MENTAH.test(diKaprodi)) rec.verdict = "FAIL";  // hle.ts:2156
+    // CR-76 (D-123(4)): whoever referred it does not decide it. Her card offers neither move and says another leader
+    // decides it; the dean stands over Kelas 1A, so it does not say that nobody else can (KartuKeputusan.tsx; hle.ts
+    // pimpinan.menunggu_pemutus_lain, pimpinan.belum_ada_pemutus_lain)
+    const tombolPerujuk = await kartu(h).first().getByRole("button", { name: /Saya yang menangani|Catat keputusan/ }).count();
+    const menungguLain = /keputusannya diambil oleh pimpinan lain/.test(diKaprodi);
+    const tiadaLain = /Belum ada pimpinan lain yang berwenang/.test(diKaprodi);
+    notes.push(`CR-76: the referrer is offered ${tombolPerujuk} move(s); the card says another leader decides it ${menungguLain}; says nobody else can ${tiadaLain}`);
+    if (tombolPerujuk !== 0 || !menungguLain || tiadaLain) rec.verdict = "FAIL";
+
+    // 3. the dean takes it, then decides it
+    await magicSignIn(d, people.dekan.email);
+    await d.goto(`${APP}/pimpinan`, { waitUntil: "networkidle" });
+    await tutupTur(d);
+    const antrean = await teks(d.locator('section[aria-labelledby="pin-antre"]'));                          // pimpinan/page.tsx:143-157
+    if (!(await kartu(d).count())) {
+      rec.verdict = "FAIL";
+      rec.shots.push(await shot(d, "cr38-dekan-tanpa-kartu"));
+      notes.push(`the dean's «Keputusan» has no card for it: «${antrean.slice(0, 300)}»`);
+      return notes.join("; ");
+    }
+    const diDekan = await teks(kartu(d));
+    rec.shots.push(await shot(d, "cr38-dekan-antrean"));
+    notes.push(`the dean's «Keputusan» says «${antrean.slice(0, 60)}»; the card names ${namaMurid}: ${diDekan.includes(`Tentang ${namaMurid}`)}`);  // KartuKeputusan.tsx:67-71
+    if (/Tidak ada keputusan yang menunggu Anda/.test(antrean) || !/Menunggu tinjauan/.test(diDekan) || UUID.test(diDekan) || MENTAH.test(diDekan)) rec.verdict = "FAIL";  // hle.ts:2105
+    await kartu(d).first().getByRole("button", { name: "Saya yang menangani", exact: true }).click();        // KartuKeputusan.tsx:113-118; hle.ts:2162
+    await d.waitForURL((u) => u.searchParams.get("hasil") === "ok" && u.searchParams.get("keputusan") === idKeputusan, { timeout: SLOW }).catch(() => {});  // pimpinan/actions.ts:66
+    for (let i = 0; i < 20 && rujukan()[0]?.[1] !== "UNDER_REVIEW"; i++) await d.waitForTimeout(500);
+    await kartu(d).first().getByText("Sedang ditangani").waitFor({ timeout: SLOW }).catch(() => {});        // hle.ts:2132
+    const ditangani = rujukan()[0]?.[1];
+    notes.push(`«Saya yang menangani» → ${ditangani}`);
+    if (ditangani !== "UNDER_REVIEW") rec.verdict = "FAIL";
+    const k2 = kartu(d).first();
+    await k2.locator('select[name="hasil"]').selectOption({ label: "Tidak ada tindakan lanjutan" });         // KartuKeputusan.tsx:127-137 («Hasil», hle.ts:2164); hle.ts:2138
+    await k2.locator('textarea[name="catatan"]').fill(PUTUS);                                              // KartuKeputusan.tsx:140-141; hle.ts:2165
+    await k2.getByRole("button", { name: "Catat keputusan", exact: true }).click();                        // KartuKeputusan.tsx:143-145; hle.ts:2163
+    // the answer's address is the same as after «Saya yang menangani» (pimpinan/actions.ts:66), so the move is awaited in the database
+    for (let i = 0; i < 40 && rujukan()[0]?.[1] !== "DECIDED"; i++) await d.waitForTimeout(500);
+    await kartu(d).first().getByText("Sudah diputuskan").waitFor({ timeout: SLOW }).catch(() => {});       // hle.ts:2133
+    const diputus = await teks(kartu(d));
+    const tombolSisa = await kartu(d).first().locator("button").count();
+    rec.shots.push(await shot(d, "cr38-dekan-diputuskan"));
+    const r3 = rujukan()[0] ?? [];
+    const maju = audit("management_decision.advanced", idKeputusan, `and actor_person_id = '${dekanId}'`);
+    const jalan = sql(`select coalesce(string_agg((summary->>'to_state') || ':' || coalesce(summary->>'outcome', '-'), ',' order by id), '') from public.audit_log
+      where id > ${dulu} and action = 'management_decision.advanced' and target_id = '${idKeputusan}'`).trim();
+    notes.push(`«Catat keputusan» → ${r3.slice(1).join(" | ")}; the card «${diputus.slice(0, 220)}», controls left ${tombolSisa}; advanced on the record by the dean ${maju} (${jalan})`);
+    if (r3[1] !== "DECIDED" || r3[6] !== "NO_FURTHER_ACTION" || r3[7] !== people.dekan.name || r3[8] !== PUTUS || maju !== 2
+        || jalan !== "UNDER_REVIEW:-,DECIDED:NO_FURTHER_ACTION" || !/Sudah diputuskan/.test(diputus) || !/Tidak ada tindakan lanjutan/.test(diputus)
+        || !/Tercatat\. Keadaan keputusan ini sudah diperbarui\./.test(diputus) || tombolSisa !== 0) rec.verdict = "FAIL";  // hle.ts:2167; KartuKeputusan.tsx:94-110
+
+    // 4. the referrer sees what became of it
+    await h.goto(`${APP}/pimpinan`, { waitUntil: "networkidle" });
+    const nanti = await teks(kartu(h));
+    notes.push(`the head of department's card now «${nanti.slice(0, 160)}»`);
+    if (!/Sudah diputuskan/.test(nanti) || !/Tidak ada tindakan lanjutan/.test(nanti)) rec.verdict = "FAIL";
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(d, "cr38-berhenti"));
+    notes.push(`stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`);
+  } finally {
+    await hc.close();
+    await dc.close();
+  }
+  // 5. nothing moved but the decision: the class's scores, and the observation's own row
+  const skorAkhir = skor();
+  const sidikAkhir = sidik();
+  notes.push(`the class's scores unchanged ${skorAkhir === skorAwal}; the observation's row unchanged ${sidikAkhir === sidikAwal}`);
+  if (skorAkhir !== skorAwal || sidikAkhir !== sidikAwal) rec.verdict = "FAIL";
+  // 6. the student whose sitting it was: nothing of it on her home, her result, or /pimpinan
+  const kk = kartuKelas.find((x) => x.nama === namaMurid);
+  if (!kk) { rec.verdict = "FAIL"; notes.push(`no class card for ${namaMurid}`); return notes.join("; "); }
+  const sc = await ctx();
+  const s = await sc.newPage();
+  try {
+    await masukKartu(s, kk);
+    const bocor = [];
+    const jejak = [RUJUK, RUJUK_LAGI, PUTUS, "Tinjauan integritas", "Diteruskan ke pihak sekolah", "Tidak ada tindakan lanjutan", "Saya yang menangani"].map((x) => x.toLowerCase());
+    for (const jalur of ["/belajar", `/belajar/${tugasBab()}/hasil`, "/pimpinan"]) {
+      await s.goto(`${APP}${jalur}`, { waitUntil: "networkidle" });
+      await tutupTur(s);
+      const t = norm(await bodyText(s)).toLowerCase();
+      if (jejak.some((x) => t.includes(x))) bocor.push(jalur);
+      if (jalur === "/pimpinan" && new URL(s.url()).pathname === "/pimpinan" && !(await s.locator(".pin-refusal").count())) bocor.push("/pimpinan opened");  // HalamanPenolakan.tsx:39
+    }
+    rec.shots.push(await shot(s, "cr38-murid"));
+    notes.push(`${namaMurid} sees it on ${bocor.length ? bocor.join(", ") : "none of"} /belajar, her result and /pimpinan`);
+    if (bocor.length) rec.verdict = "FAIL";
+  } catch (e) {
+    rec.verdict = "FAIL";
+    notes.push(`the student's check stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`);
+  } finally {
+    await sc.close();
+  }
+  return notes.join("; ");
+});
+
+// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// INSERT AFTER step "S23r" (or, without it, after the jalankanC12 call), before step "S24". Must run before S26b, which
+// revokes Pak Guru Budi's only role (submit_support_report refuses REPORT_NOT_STAFF without one).
+// CR-44 (REL-13): «Laporkan masalah», walked. The teacher, on /mengajar, follows «Laporkan masalah» in the header to
+// /lapor?dari=/mengajar, answers the three questions and presses «Kirim laporan»; «Laporan saya» says it was received.
+// The school admin finds it on Konfigurasi → «Laporan masalah» and moves it to «Ditangani» with a next step; the
+// reporter reads that; the platform admin finds it on her own Konfigurasi (tier 2) and moves it to «Selesai»; the
+// reporter reads that too. Checked against support_reports (20261119100000) and its audit rows.
+await step("S23l", "«Laporkan masalah»: the teacher reports a problem from /mengajar and «Laporan saya» says it was received; the school admin moves it to «Ditangani» on Konfigurasi → «Laporan masalah» with a next step, and the reporter reads it; the platform admin, who sees every school's reports, moves it to «Selesai», and the reporter reads that (CR-44: REL-13)", async (rec) => {
+  const LAKUKAN = "Membuka Kelas 1A dari halaman Mengajar untuk melihat bukti kelas.";
+  const HARAPAN = "Halaman Lihat bukti terbuka dengan angka kelas.";
+  const TERJADI = "Halaman memuat lama sekali sebelum angka kelas muncul (laporan uji jalan CR-44).";
+  const LANGKAH_SEKOLAH = "Admin sekolah sedang memeriksanya; jawaban paling lambat besok pagi.";
+  const LANGKAH_PINTAR = "Sudah diperbaiki oleh tim PINTAR; silakan muat ulang halaman Mengajar.";
+  const namaSd = sql(`select name from public.institutions where id='${ids.sd}'`).trim();
+  const orang = (email) => sql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${email}'`).trim();
+  const adminId = orang(people.sdAdmin.email);
+  const gladysId = orang(GLADYS);
+  const dulu = Number(sql(`select coalesce(max(id), 0) from public.audit_log`).trim());
+  // the report as the database holds it: id|status|reporter|role|school|page|stops a class|device attached|next step|handled by
+  const laporan = () => sql(`select coalesce((select r.id || '|' || r.status::text || '|' || p.display_name || '|' || r.reporter_role::text || '|' ||
+      coalesce(i.name, '-') || '|' || r.page || '|' || r.stops_class::text || '|' || (r.device is not null)::text || '|' || coalesce(r.next_step, '') || '|' ||
+      coalesce(r.handled_by_person_id::text, '-')
+    from public.support_reports r join public.persons p on p.id = r.reporter_person_id left join public.institutions i on i.id = r.institution_id
+   where r.happened = '${TERJADI}' order by r.created_at desc limit 1), '')`).trim().split("|");
+  const teks = async (loc) => norm(await loc.first().textContent().catch(() => ""));
+  const notes = [];
+  let id = "";
+  const tc = await ctx();
+  const t = await tc.newPage();
+  // the reporter's own line on «Laporan saya»: its status and the next step written to them
+  const bacaSaya = async () => {
+    const li = t.locator("li.pin-lapor-satu").filter({ hasText: TERJADI });                             // lapor/saya/page.tsx:193, 198
+    return { ada: await li.count(), status: await teks(li.locator("strong")),                           // :195; hle.ts:2785-2787
+      langkah: await teks(li.locator("p.pin-lapor-langkah")) };                                         // :199-201; hle.ts:2782
+  };
+  // the triage on Konfigurasi, as the school admin or the platform admin: the report's line, moved on with a next step
+  const pindahkan = async (page, ke, langkah) => {
+    await page.goto(`${APP}/konfigurasi?muat=${Date.now()}#laporan-masalah`, { waitUntil: "networkidle" });
+    await tutupTur(page);
+    const li = page.locator(`#laporan-masalah li[data-laporan="${id}"]`);                              // konfigurasi/page.tsx:635, 648
+    if (!(await li.count())) return { ada: false, bagian: await teks(page.locator("#laporan-masalah")) };
+    const status = await teks(li.locator("strong"));                                                   // :650
+    const isi = await teks(li);
+    await li.locator('select[name="status"]').selectOption({ label: ke });                             // :670-673; hle.ts:2786-2787
+    await li.locator('input[name="langkah"]').fill(langkah);                                           // :675-676
+    await li.getByRole("button", { name: "Simpan", exact: true }).click();                              // :678; hle.ts:2799
+    await page.waitForURL((u) => u.searchParams.get("bagian") === "laporan-masalah" && u.searchParams.has("lapor"), { timeout: SLOW }).catch(() => {});  // lapor/actions.ts:139, 150
+    await page.waitForLoadState("networkidle");
+    return { ada: true, status, isi, jawab: new URL(page.url()).searchParams.get("lapor"), kalimat: await teks(page.locator("#laporan-masalah")) };
+  };
+  try {
+    // 1. the teacher reports it from the page it happened on
+    await magicSignIn(t, people.guru.email);
+    await t.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
+    await tutupTur(t);
+    await t.locator('a[data-lapor="1"]').first().click();                    // components/lapor/TautanLapor.tsx:18 (CangkangPengalaman.tsx:153); «Laporkan masalah», hle.ts:2756
+    await t.waitForURL((u) => u.pathname === "/lapor", { timeout: SLOW });
+    await t.locator('textarea[name="lakukan"]').waitFor({ timeout: SLOW });
+    const dari = new URL(t.url()).searchParams.get("dari");
+    const halaman = await teks(t.locator("form.pin-lapor .pin-meta"));    // lapor/page.tsx:48, 51-53; «Halaman:», hle.ts:2762
+    await t.locator('textarea[name="lakukan"]').fill(LAKUKAN);            // lapor/page.tsx:55-57; «Apa yang Anda lakukan?», hle.ts:2764
+    await t.locator('textarea[name="harapan"]').fill(HARAPAN);            // :59-61; «Apa yang Anda harapkan terjadi?», hle.ts:2765
+    await t.locator('textarea[name="terjadi"]').fill(TERJADI);            // :63-65; «Apa yang terjadi?», hle.ts:2766
+    rec.shots.push(await shot(t, "cr44-lapor"));
+    await t.getByRole("button", { name: "Kirim laporan", exact: true }).click();   // :73; hle.ts:2775
+    await t.waitForURL((u) => u.pathname === "/lapor/saya", { timeout: SLOW });    // lapor/actions.ts:130
+    await t.waitForLoadState("networkidle");
+    const diterima = (await t.getByText("Laporan Anda diterima. Statusnya dapat diikuti di sini.").count()) > 0;  // saya/page.tsx:187; hle.ts:2777
+    const saya1 = await bacaSaya();
+    rec.shots.push(await shot(t, "cr44-laporan-saya"));
+    const r0 = laporan();
+    id = r0[0] ?? "";
+    const diterimaAudit = id ? Number(sql(`select count(*) from public.audit_log where id > ${dulu} and action = 'support_report.received' and target_id = '${id}' and institution_id = '${ids.sd}'`).trim()) : 0;
+    notes.push(`«Laporkan masalah» from /mengajar → /lapor?dari=${dari}, the form says «${halaman}»; «Kirim laporan» → received said ${diterima}, «Laporan saya» reads ` +
+      `«${saya1.status}» «${saya1.langkah}»; in the database ${r0.slice(1, 8).join(" | ")}, audited ${diterimaAudit}`);
+    if (dari !== "/mengajar" || !halaman.includes("/mengajar") || !diterima || saya1.ada !== 1 || saya1.status !== "Diterima"
+        || !saya1.langkah.includes("Admin sekolah atau tim PINTAR akan melihatnya dalam satu hari sekolah.")        // hle.ts:2783
+        || r0[1] !== "DITERIMA" || r0[2] !== people.guru.name || r0[3] !== "EDUCATOR" || r0[4] !== namaSd || r0[5] !== "/mengajar"
+        || r0[6] !== "false" || r0[7] !== "true" || diterimaAudit !== 1) { rec.verdict = "FAIL"; if (!id) return notes.join("; "); }
+
+    // 2. the school admin (tier 1) moves it to «Ditangani» with the next step
+    const p1 = await pindahkan(a, "Ditangani", LANGKAH_SEKOLAH);
+    rec.shots.push(await shot(a, "cr44-admin-ditangani"));
+    const r1 = laporan();
+    notes.push(p1.ada ? `the school admin's «Laporan masalah» lists it «${p1.status}» with «${people.guru.name} · Guru · ${namaSd}» ${p1.isi.includes(`${people.guru.name} · Guru · ${namaSd}`)}, ` +
+      `the three answers ${[LAKUKAN, HARAPAN, TERJADI].every((x) => p1.isi.includes(x))}; «Simpan» → lapor=${p1.jawab}; in the database ${r1[1]}, next step set ${r1[8] === LANGKAH_SEKOLAH}, by the school admin ${r1[9] === adminId}`
+      : `the school admin's «Laporan masalah» does not list it: «${p1.bagian.slice(0, 200)}»`);
+    if (!p1.ada || p1.status !== "Diterima" || !p1.isi.includes(`${people.guru.name} · Guru · ${namaSd}`) || !p1.isi.includes("/mengajar")   // konfigurasi/page.tsx:652, 655; role.EDUCATOR «Guru», hle.ts:3085
+        || ![LAKUKAN, HARAPAN, TERJADI].every((x) => p1.isi.includes(x)) || p1.jawab !== "MOVED" || !p1.kalimat.includes("Status laporan diperbarui.")   // hle.ts:2801
+        || r1[1] !== "DITANGANI" || r1[8] !== LANGKAH_SEKOLAH || r1[9] !== adminId) rec.verdict = "FAIL";
+
+    // 3. the reporter reads the new status (by the address: no screen links to «Laporan saya», see the notes)
+    await t.goto(`${APP}/lapor/saya`, { waitUntil: "networkidle" });
+    const saya2 = await bacaSaya();
+    notes.push(`«Laporan saya» now «${saya2.status}» «${saya2.langkah}»`);
+    if (saya2.status !== "Ditangani" || !saya2.langkah.includes(LANGKAH_SEKOLAH)) rec.verdict = "FAIL";
+
+    // 4. the platform admin (tier 2) sees it among every school's, and closes it
+    const p2 = await pindahkan(g, "Selesai", LANGKAH_PINTAR);
+    rec.shots.push(await shot(g, "cr44-gladys-selesai"));
+    const r2 = laporan();
+    notes.push(p2.ada ? `the platform admin's «Laporan masalah» lists it «${p2.status}» of ${namaSd} ${p2.isi.includes(namaSd)}; «Simpan» → lapor=${p2.jawab}; in the database ${r2[1]}, by the platform admin ${r2[9] === gladysId}`
+      : `the platform admin's «Laporan masalah» does not list it: «${p2.bagian.slice(0, 200)}»`);
+    if (!p2.ada || p2.status !== "Ditangani" || !p2.isi.includes(namaSd) || !p2.isi.includes(LANGKAH_SEKOLAH) || p2.jawab !== "MOVED"
+        || r2[1] !== "SELESAI" || r2[8] !== LANGKAH_PINTAR || r2[9] !== gladysId) rec.verdict = "FAIL";
+
+    // 5. the reporter reads that it is done
+    await t.goto(`${APP}/lapor/saya`, { waitUntil: "networkidle" });
+    const saya3 = await bacaSaya();
+    rec.shots.push(await shot(t, "cr44-laporan-saya-selesai"));
+    const pindahAudit = Number(sql(`select count(*) from public.audit_log where id > ${dulu} and action = 'support_report.moved' and target_id = '${id}' and institution_id = '${ids.sd}'`).trim());
+    notes.push(`«Laporan saya» finally «${saya3.status}» «${saya3.langkah}»; moves audited ${pindahAudit}`);
+    if (saya3.status !== "Selesai" || !saya3.langkah.includes(LANGKAH_PINTAR) || pindahAudit !== 2) rec.verdict = "FAIL";
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(t, "cr44-berhenti"));
+    notes.push(`stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`);
+  } finally {
+    await tc.close();
+  }
+  return notes.join("; ");
+});
+
+// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// INSERT AFTER step "S23l" (or, without it, after the jalankanC12 call), before step "S24": the head of department reads
+// the class summary, and S24 revokes that role.
+// CR-40 (J3.9, ADM-17): a report template, walked to where it is used. Every school starts with PINTAR's standard class
+// report (BOB-06, 20261011100000). The head of department opens Kelas 1A's summary from /pimpinan («Buka ringkasan kelas
+// ini», as in S23) and reads the standard assembly; the school admin assembles the school's own class report on
+// Konfigurasi → «Templat laporan» (two metrics, the last drawing each permits) with «Simpan templat»; the head of
+// department reads the same summary again and it is the school's assembly: those two, in that order, from that template
+// (generated_reports names the template each reading was drawn from). PINTAR's standard template is untouched.
+await step("S23t", "the school admin assembles the school's own class report on Konfigurasi → «Templat laporan» («Simpan templat»); the head of department's Kelas 1A summary, opened from /pimpinan before and after, changes from PINTAR's standard assembly to exactly the school's (CR-40: J3.9, ADM-17)", async (rec) => {
+  const kelas = kelasSatuA();
+  const baku = sql(`select id from public.report_templates where institution_id='${ids.sd}' and standard_report='class_learning_intelligence' and is_standard`).trim();
+  if (!kelas || !baku) { rec.verdict = "BLOCKED"; return !kelas ? "no Kelas 1A" : "SD has no standard class report (BOB-06)"; }
+  // the school's own class template, if any: id|version|title key|made by|metric:drawing in order
+  const sendiri = () => sql(`select coalesce((select t.id || '|' || t.template_version || '|' || t.title_key || '|' || coalesce(p.display_name, '-') || '|' ||
+      coalesce((select string_agg(m.metric_id || ':' || m.visualization, ',' order by m.ordinal) from public.report_template_metrics m where m.template_id = t.id), '')
+    from public.report_templates t left join public.persons p on p.id = t.created_by_person_id
+   where t.institution_id='${ids.sd}' and t.standard_report='class_learning_intelligence' and not t.is_standard order by t.created_at desc limit 1), '')`).trim();
+  // the screen makes only a first own template (version 1, no template chosen: see the notes); a walk that met one already says so
+  if (sendiri()) { rec.verdict = "BLOCKED"; return `SD already has its own class report template (${sendiri()}); the screen offers no way to revise it`; }
+  const isiBaku = () => sql(`select coalesce(string_agg(metric_id || ':' || visualization, ',' order by ordinal), '') from public.report_template_metrics where template_id='${baku}'`).trim();
+  const bakuAwal = isiBaku();
+  const kaprodiId = sql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${people.kaprodi.email}'`).trim();
+  // the class report the head of department was last shown at Kelas 1A: template|version|entries|metrics in order (one withheld is unnamed)
+  const terakhir = () => sql(`select coalesce((select r.template_id || '|' || r.template_version || '|' || jsonb_array_length(r.body->'entries') || '|' ||
+      (select coalesce(string_agg(coalesce(e->>'metric_id', '(ditahan)'), ',' order by (e->>'ordinal')::int), '') from jsonb_array_elements(r.body->'entries') e)
+    from public.generated_reports r where r.generated_by_person_id = '${kaprodiId}' and r.scope_node_id = '${kelas}' and r.standard_report = 'class_learning_intelligence'
+   order by r.generated_at desc limit 1), '')`).trim().split("|");
+  const PILIH = ["class.comprehension", "class.net_gain"];   // labels «Pemahaman», «Kenaikan» (hle.ts:2009, 2011)
+  const notes = [];
+  const hc = await ctx();
+  const h = await hc.newPage();
+  // the summary as drawn: one article per entry of the template, each permitted one headed by its label
+  const bacaRingkasan = async () => {
+    await h.getByRole("heading", { name: "Ringkasan Kelas", exact: true }).waitFor({ timeout: SLOW });   // edukator/ringkasan/page.tsx:78; hle.ts:2077
+    await h.waitForLoadState("networkidle");
+    return { n: await h.locator("main > section > article").count(),                                    // edukator/ringkasan/page.tsx:97-99
+      judul: (await h.locator("main > section > article > h2").allTextContents()).map(norm) };           // :102-104
+  };
+  try {
+    // 1. before: the head of department opens Kelas 1A's summary from /pimpinan (S23's path, journey.mjs:2145-2167)
+    await magicSignIn(h, people.kaprodi.email);
+    await h.goto(`${APP}/pimpinan`, { waitUntil: "networkidle" });
+    await tutupTur(h);
+    const panel = h.locator("details.pin-kelas-bukti").filter({ has: h.locator("summary", { hasText: "Kelas 1A" }) }).first();   // pimpinan/page.tsx:234-240
+    await panel.locator("summary").click();
+    await panel.getByRole("link", { name: "Buka ringkasan kelas ini" }).click();                          // pimpinan/page.tsx:258-260; hle.ts:3006
+    await h.waitForURL((u) => u.pathname === "/edukator/ringkasan", { timeout: SLOW });
+    const alamat = h.url();
+    const awal = await bacaRingkasan();
+    const lapAwal = terakhir();
+    rec.shots.push(await shot(h, "cr40-ringkasan-sebelum"));
+    const nBaku = bakuAwal ? bakuAwal.split(",").length : 0;
+    notes.push(`before: Kelas 1A's summary shows ${awal.n} entr(ies) ${JSON.stringify(awal.judul)}, drawn from PINTAR's standard template ${lapAwal[0] === baku} (its ${nBaku}: ${bakuAwal})`);
+    if (lapAwal[0] !== baku || awal.n !== nBaku) rec.verdict = "FAIL";
+
+    // 2. the school admin assembles the school's own class report
+    await a.goto(`${APP}/konfigurasi?muat=${Date.now()}#intelligence`, { waitUntil: "networkidle" });
+    await tutupTur(a);
+    const daftarSebelum = await a.locator("#intelligence ul > li").count();                            // konfigurasi/page.tsx:1144-1153
+    const form = a.locator("#intelligence form").first();                                              // :1137, 1160
+    await form.locator('select[name="institution"]').selectOption(ids.sd);                              // :1161-1164
+    await form.locator('select[name="standard_report"]').selectOption("class_learning_intelligence");   // :1166-1169 (the option's text is the raw value)
+    await form.locator('input[name="title_key"]').fill("laporan.kelas.judul");                         // :1171-1173 (a raw copy key; pattern [a-z][a-z0-9_.]+)
+    const tampilan = {};
+    for (const m of PILIH) {
+      const pilih = form.locator(`select[name="metric[${m}]"]`);                                       // :1188-1191; "" = left out
+      tampilan[m] = (await pilih.locator("option").evaluateAll((os) => os.map((o) => o.value))).filter(Boolean).at(-1) ?? "";
+      if (tampilan[m]) await pilih.selectOption(tampilan[m]);
+    }
+    rec.shots.push(await shot(a, "cr40-templat-isi"));
+    await form.getByRole("button", { name: "Simpan templat", exact: true }).click();                    // :1195; hle.ts:2542
+    await a.waitForURL((u) => u.searchParams.get("bagian") === "intelligence" && u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});  // konfigurasi/actions.ts:24-25, 264
+    await a.waitForLoadState("networkidle");
+    const u = new URL(a.url());
+    const bagian = norm(await a.locator("#intelligence").textContent().catch(() => ""));
+    const daftarSesudah = await a.locator("#intelligence ul > li").count();
+    rec.shots.push(await shot(a, "cr40-templat-disimpan"));
+    const milik = sendiri().split("|");
+    const harapIsi = PILIH.map((m) => `${m}:${tampilan[m]}`).join(",");
+    const barisDaftar = PILIH.map((m) => `${m} (${tampilan[m]})`).join(", ");                        // konfigurasi/page.tsx:1150
+    const diaudit = milik[0] ? Number(sql(`select count(*) from public.audit_log where action = 'report_template.saved' and target_id = '${milik[0]}' and institution_id = '${ids.sd}'`).trim()) : 0;
+    notes.push(`«Simpan templat» → hasil=${u.searchParams.get("hasil")} kode=${u.searchParams.get("kode")} n=${u.searchParams.get("n")}; the section lists ${daftarSebelum} → ${daftarSesudah} template(s), ` +
+      `the new one «${barisDaftar}» ${bagian.includes(barisDaftar)}; in the database ${milik.slice(1).join(" | ") || "nothing"}, audited ${diaudit}`);
+    if (u.searchParams.get("hasil") !== "ok" || u.searchParams.get("kode") !== "TEMPLATE_SAVED" || u.searchParams.get("n") !== String(PILIH.length)
+        || !bagian.includes(`Metrik dalam templat laporan ini: ${PILIH.length}.`) || daftarSesudah !== daftarSebelum + 1 || !bagian.includes(barisDaftar)   // hle.ts:3516
+        || milik[1] !== "1" || milik[2] !== "laporan.kelas.judul" || milik[3] !== people.sdAdmin.name || milik[4] !== harapIsi || diaudit !== 1) {
+      rec.verdict = "FAIL";
+      return notes.join("; ");
+    }
+
+    // 3. after: the same summary, read again, is the school's own assembly
+    await h.goto(alamat, { waitUntil: "networkidle" });
+    const akhir = await bacaRingkasan();
+    const lapAkhir = terakhir();
+    rec.shots.push(await shot(h, "cr40-ringkasan-sesudah"));
+    const bakuAkhir = isiBaku();
+    notes.push(`after: the summary shows ${akhir.n} entr(ies) ${JSON.stringify(akhir.judul)} from the school's own template ${lapAkhir[0] === milik[0]} ` +
+      `(version ${lapAkhir[1]}, ${lapAkhir[3]}); PINTAR's standard template unchanged ${bakuAkhir === bakuAwal}`);
+    if (lapAkhir[0] !== milik[0] || lapAkhir[1] !== "1" || lapAkhir[3] !== PILIH.join(",") || akhir.n !== PILIH.length
+        || JSON.stringify(akhir.judul) !== JSON.stringify(["Pemahaman", "Kenaikan"]) || bakuAkhir !== bakuAwal) rec.verdict = "FAIL";
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(h, "cr40-berhenti"));
+    notes.push(`stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`);
+  } finally {
+    await hc.close();
+  }
+  return notes.join("; ");
+});
+
+// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// INSERT AFTER step "S23t" (or anywhere after the jalankanC12 call; read only, it changes nothing). Last of the block so
+// the trail it reads holds S23r's, S23l's and S23t's rows.
+// CR-39 (J1.6, SYS-07): the audit reader, walked. Konfigurasi → «Jejak audit» (#audit) lists the newest 50 audit rows
+// the reader may see (konfigurasi/page.tsx:124, 134): the school admin's are asked for their own school only; the
+// platform admin's are not filtered. Each reader's table is compared with the database's newest 50 for the same
+// filter; the school admin's carries no row of another school or of none, the platform admin's carries rows beyond SD.
+await step("S23j", "the audit reader: on Konfigurasi → «Jejak audit» the school admin reads exactly their own school's newest 50 audit rows and none of another school's; the platform admin reads the platform's newest 50, across schools (CR-39: J1.6, SYS-07)", async (rec) => {
+  const namaSd = sql(`select name from public.institutions where id='${ids.sd}'`).trim();
+  // a reader's «Jejak audit», row by row: action|table|the target's first 8 characters|school (empty when the row names none)
+  const bacaJejak = async (page, nama) => {
+    await page.goto(`${APP}/konfigurasi?muat=${Date.now()}#audit`, { waitUntil: "networkidle" });
+    await tutupTur(page);
+    await page.locator("#audit table").waitFor({ timeout: SLOW });                                    // konfigurasi/page.tsx:1106-1110; «Jejak audit», hle.ts:2625
+    rec.shots.push(await shot(page, nama));
+    const baris = await page.locator("#audit tbody tr").evaluateAll((trs) => trs                        // :1114-1121 (when, action, target, build); the empty line is one cell, :1122
+      .filter((tr) => tr.children.length === 4)
+      .map((tr) => [...tr.children].map((td) => (td.textContent ?? "").replace(/\s+/g, " ").trim())));
+    // the target cell is «table · id[0..8] · school» (:1118), «—» for no id (short(), konfigurasi/page.tsx:57)
+    return baris.map(([, aksi, sasaran]) => {
+      const [tabel = "", id = "", sekolah = ""] = sasaran.split(" · ");
+      return `${aksi}|${tabel}|${id === "—" ? "" : id}|${sekolah}`;
+    });
+  };
+  // the database's newest 50 for the same filter, newest first; the rows sharing the 50th row's moment (one transaction
+  // writes several) may fall either side of the cut, so they are allowed on the screen, not required
+  const harapan = (saring) => {
+    const baris = sql(`with t as (select l.at from public.audit_log l where ${saring} order by l.at desc limit 50)
+      select coalesce(string_agg(l.action || '|' || l.target_table || '|' || coalesce(left(l.target_id, 8), '') || '|' || coalesce(i.name, '') || '#' ||
+             (l.at > (select min(at) from t))::text, chr(10)), '')
+        from public.audit_log l left join public.institutions i on i.id = l.institution_id
+       where ${saring} and l.at >= (select min(at) from t)`).split("\n").filter(Boolean);
+    return {
+      semua: Number(sql(`select count(*) from public.audit_log l where ${saring}`).trim()),
+      pasti: baris.filter((b) => b.endsWith("#true")).map((b) => b.replace(/#true$/, "")),
+      boleh: baris.map((b) => b.replace(/#(true|false)$/, "")),
+    };
+  };
+  const ganda = (xs) => xs.reduce((m, x) => m.set(x, (m.get(x) ?? 0) + 1), new Map());
+  const dalam = (kecil, besar) => { const b = ganda(besar); return [...ganda(kecil)].every(([x, n]) => (b.get(x) ?? 0) >= n); };
+  const sama = (layar, hr) => layar.length === Math.min(50, hr.semua) && dalam(hr.pasti, layar) && dalam(layar, hr.boleh);
+  const sekolahDi = (xs) => [...new Set(xs.map((k) => k.split("|")[3] || "(no school)"))];
+  // the school admin: read, then asked of the database at once (nothing runs between)
+  const layarAdmin = await bacaJejak(a, "cr39-jejak-admin");
+  const hAdmin = harapan(`l.institution_id = '${ids.sd}'`);
+  // the platform admin
+  const layarGladys = await bacaJejak(g, "cr39-jejak-gladys");
+  const hGladys = harapan("true");
+  const asingAdmin = layarAdmin.filter((k) => !k.endsWith(`|${namaSd}`));
+  const diluarSd = layarGladys.filter((k) => !k.endsWith(`|${namaSd}`));
+  const langkahIni = ["management_decision.advanced", "support_report.moved", "report_template.saved"].filter((x) => layarAdmin.some((k) => k.startsWith(`${x}|`)));
+  const okAdmin = layarAdmin.length > 0 && sama(layarAdmin, hAdmin) && asingAdmin.length === 0;
+  const okGladys = sama(layarGladys, hGladys) && diluarSd.length > 0;
+  if (!okAdmin || !okGladys) rec.verdict = "FAIL";
+  return `the school admin's «Jejak audit»: ${layarAdmin.length} row(s) (the database's newest for SD: ${Math.min(50, hAdmin.semua)} of ${hAdmin.semua}), the same rows ${sama(layarAdmin, hAdmin)}, ` +
+    `schools named ${JSON.stringify(sekolahDi(layarAdmin))}, rows of another school or of none ${asingAdmin.length}${asingAdmin.length ? ` (${asingAdmin.slice(0, 3).join(", ")})` : ""}; ` +
+    `this block's own rows among them: ${langkahIni.join(", ") || "none"}; the platform admin's: ${layarGladys.length} row(s) (the database's newest overall: ${Math.min(50, hGladys.semua)} of ${hGladys.semua}), ` +
+    `the same rows ${sama(layarGladys, hGladys)}, schools named ${JSON.stringify(sekolahDi(layarGladys))}, rows beyond SD ${diluarSd.length}; ` +
+    `the actions as printed: ${JSON.stringify([...new Set(layarAdmin.map((k) => k.split("|")[0]))].slice(0, 8))}`;
+});
+
+// CR-52 (J4.8 EC; D-050(a)(d)): the Question Bank, walked against QN5 as D-120 ruled it: «4.0's Question Bank means
+// browse, filter and review with the answer key and reason; no additional authoring workflow». Read only; before S24,
+// which revokes the head of department. The head of department reviews question health (CAN_REVIEW_QUESTION_HEALTH,
+// role_capabilities, 20260912004158:59-60) and reaches Studio → «Bank Soal» by clicking (studio/layout.tsx:53).
+// Each of QN5's four parts is recorded on its own and judged as QN5 words it. Whether a chapter's package page, where
+// the reviewer reads every question with its key and reason (D-088(h), S17), counts as the bank's review is the
+// owner's call, not this step's: the step says whether the bank shows them or leads to them.
+await step("S23q", "the Question Bank as QN5 rules it (CR-52): the head of department opens Studio → «Bank Soal» by clicking; browse (the school's questions, no other school's), filter (a way to narrow the list), review with the answer key and reason (on the bank, or a link from a question to them), and no authoring on the bank", async (rec) => {
+  const hc = await ctx();
+  const h = await hc.newPage();
+  const notes = [];
+  try {
+    await magicSignIn(h, people.kaprodi.email);
+    await h.goto(`${APP}/studio`, { waitUntil: "networkidle" });
+    await tutupTur(h);
+    await h.getByRole("link", { name: "Bank Soal" }).first().click();                                  // studio/layout.tsx:53; hle.ts:3300
+    await h.waitForURL((u) => u.pathname === "/studio/bank", { timeout: SLOW });
+    await h.waitForLoadState("networkidle");
+    await tutupTur(h);
+    await h.getByRole("heading", { name: "Bank Soal", exact: true }).waitFor({ timeout: SLOW });        // studio/bank/page.tsx:73; hle.ts:3479
+    rec.shots.push(await shot(h, "cr52-bank-soal"));
+
+    // 1. BROWSE: every listed question is one of SD's; the newest 40 of SD's at least (bank/page.tsx:50, li[data-soal] :86)
+    const layar = await h.locator("li[data-soal]").evaluateAll((ls) => ls.map((l) => l.getAttribute("data-soal") ?? ""));
+    const pemilik = new Map(sql(`select coalesce(string_agg(left(i.id::text, 8) || '|' || coalesce(n.slug, '-') || '|' || coalesce(n.tenant_kind::text, '-'), chr(10)), '')
+      from public.items i left join public.institutions n on n.id = i.institution_id`).split("\n").filter(Boolean).map((b) => { const [k, slug, jenis] = b.split("|"); return [k, { slug, jenis }]; }));
+    const slugSd = sql(`select slug from public.institutions where id='${ids.sd}'`).trim();
+    const nSd = Number(sql(`select count(*) from public.items where institution_id='${ids.sd}'`).trim());
+    const milikSd = layar.filter((k) => pemilik.get(k)?.slug === slugSd).length;
+    const sekolahLain = layar.filter((k) => { const p = pemilik.get(k); return p && p.slug !== slugSd && p.jenis === "INSTITUTION"; });
+    const pustaka = layar.filter((k) => pemilik.get(k)?.jenis === "PLATFORM_CANONICAL").length;
+    const telusur = layar.length > 0 && milikSd >= Math.min(40, nSd) && sekolahLain.length === 0;
+    notes.push(`browse: ${layar.length} question(s) listed, ${milikSd} of them SD's (SD holds ${nSd}; the page lists the newest 40 and every one waiting on a reviewer), ` +
+      `${sekolahLain.length} of another school${sekolahLain.length ? ` (${sekolahLain.slice(0, 3).map((k) => pemilik.get(k)?.slug).join(", ")})` : ""}, ${pustaka} of the PINTAR library; no paging (${nSd > 40 ? `${nSd - 40} older question(s) not reachable here` : "all fit"})`);
+
+    // 2. FILTER: a control that narrows the list: a search or text field, a select or a link that is not a question's
+    //    review form (each review form carries input[name=soal], :99), or a query string the page reads to narrow it
+    //    (a form with no field of its own, such as signing out, narrows nothing and is not counted)
+    const kendali = (await h.locator("main form").evaluateAll((fs) => fs.filter((f) => !f.querySelector("input[name=soal]"))
+      .map((f) => [...f.querySelectorAll("input:not([type=hidden]):not([type=submit]), select, textarea")].map((x) => x.getAttribute("name") ?? x.tagName.toLowerCase()).join(","))))
+      .filter((f) => f.length > 0);
+    const cari = await h.locator("main input[type=search], main [role=search]").count();
+    const saringan = await h.locator("main a[href*='/studio/bank?']").count();
+    const ada = kendali.length + cari + saringan;
+    notes.push(`filter: ${ada} control(s) on the bank (forms other than a question's review: ${kendali.length}${kendali.length ? ` ${JSON.stringify(kendali)}` : ""}; search fields ${cari}; narrowing links ${saringan})`);
+
+    // 3. REVIEW WITH KEY AND REASON: on the bank, or one link from a question to them (the package page marks the key
+    //    li.pin-opsi-kunci and gives each option its reason li.pin-opsi, studio/paket/[course]/page.tsx:256-262)
+    const kunciDiBank = await h.locator("li[data-soal] .pin-opsi-kunci").count();
+    const alasanDiBank = await h.locator("li[data-soal] .pin-opsi").count();
+    const keSoal = await h.locator("li[data-soal] a[href]").count();
+    notes.push(`review: on the bank ${kunciDiBank} key(s) and ${alasanDiBank} option(s) with a reason are shown; ${keSoal} link(s) from a question to anywhere; ` +
+      `each listed question shows its text, its bank and its predicted difficulty (:89-94). A chapter's package page shows every question with its key and reason (D-088(h), S17), reached from the chapter, not from the bank`);
+
+    // 4. NO AUTHORING: nothing on the bank writes a question; its forms are a question's health review (:96-109)
+    const tulis = await h.locator("main textarea, main input[name=stem], main input[name=opsi], main input[name=kunci]").count();
+    const tombolTulis = await h.locator("main button, main a").filter({ hasText: /tambah soal|buat soal|ubah soal|sunting soal/i }).count();
+    const tanpaTulis = tulis === 0 && tombolTulis === 0;
+    const caraUbah = /unggah buku kerja yang sudah diperbaiki/i.test(await bodyText(h));                // hle.ts:3481, «Untuk mengubah soal …»
+    notes.push(`no authoring: ${tanpaTulis ? "nothing on the bank writes a question" : `${tulis} writing field(s), ${tombolTulis} control(s) offering to write a question`}; the page says a question is changed by a corrected workbook: ${caraUbah}`);
+
+    // the verdict, as QN5 words it: all four parts on the bank
+    const kurang = [];
+    if (!telusur) kurang.push("browse");
+    if (ada === 0) kurang.push("filter");
+    if (kunciDiBank === 0 && keSoal === 0) kurang.push("review with the answer key and reason");
+    if (!tanpaTulis) kurang.push("no authoring");
+    if (kurang.length) rec.verdict = "FAIL";
+    notes.push(kurang.length ? `QN5 not met on the bank: ${kurang.join(", ")}` : "QN5 met on the bank");
+  } finally {
+    await hc.close();
+  }
+  return notes.join("; ");
 });
 
 await step("S24", "the school admin revokes the head of department's role on Konfigurasi → Peran & akses; the head of department is then refused /pimpinan (ADM-J14)", async (rec) => {
@@ -2226,7 +3117,7 @@ await step("S26b", "a new teacher replaces the old one mid-year: the school admi
   const baris = a.locator("li.pin-akt-orang", { hasText: people.guru2.name }).first();
   if (!(await baris.count())) { rec.verdict = "FAIL"; return `${jejak.join(" | ")}; ${people.guru2.name} is not on Aktivasi`; }
   await baris.locator('input[type="email"]').fill(people.guru2.email);
-  await baris.getByRole("button", { name: "Aktifkan dengan surel", exact: true }).click();
+  await baris.getByRole("button", { name: "Aktifkan dengan email", exact: true }).click();
   await baris.locator('input[type="email"]').waitFor({ state: "detached", timeout: SLOW }).catch(() => {});
   const g = await grantViaForm(a, people.guru2.name, "EDUCATOR", "Kelas 1A");
   jejak.push(`Sari: Guru at Kelas 1A ${g.ok}`);
@@ -2354,7 +3245,7 @@ await step("S26d", "two chapters: Gita, part-way through Bab 1, finds her home c
   if (!bab2) { rec.verdict = "FAIL"; return notes.join("; "); }
 
   // 2. the seven steps, two people, as Bab 1 went (S17)
-  if (!(await terbitkanLewatLayar(bab2, rec, notes, { nama: "Bab 2", awalan: "bab2-" }))) return notes.join("; ");
+  if (!(await terbitkanLewatLayar(bab2, rec, notes, { nama: "Bab 2", awalan: "bab2-", tanpaLemah: true }))) return notes.join("; ");
   if (!keadaanBab(bab2).endsWith("|PUBLISHED")) { rec.verdict = "FAIL"; notes.push(`Bab 2 ended ${keadaanBab(bab2)}`); return notes.join("; "); }
 
   // 3. the school admin sets Bab 2's pass mark on Konfigurasi → Batas ketuntasan
@@ -2375,6 +3266,15 @@ await step("S26d", "two chapters: Gita, part-way through Bab 1, finds her home c
   const tc = await ctx();
   const t = await tc.newPage();
   await magicSignIn(t, people.guru2.email);
+  // CR-35: before Bab 2 is given, her home names it «Layak dikerjakan lebih dulu», published for Kelas 1A, with the way
+  // to prepare it for that class (the card is the one thing worth doing; Bab 1 is given already)
+  await t.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
+  await tutupTur(t);
+  const layak = t.locator('[data-tur="layak"]');
+  const layakTeks = (await layak.count()) ? (await layak.innerText()).replace(/\s+/g, " ").trim() : "";
+  const layakKe = (await layak.count()) ? await layak.locator(`a[href*="/mengajar/${kelas}/siapkan?terbitan="]`).count() : 0;
+  notes.push(`her home before Bab 2 is given: «${layakTeks.slice(0, 180)}»; a way to prepare it for Kelas 1A: ${layakKe > 0}`);
+  if (!/Layak dikerjakan lebih dulu/.test(layakTeks) || !/Bab 2/.test(layakTeks) || layakKe < 1) rec.verdict = "FAIL";
   await t.goto(`${APP}/mengajar/${kelas}/siapkan`, { waitUntil: "networkidle" });
   await tutupTur(t);
   const row = t.locator("a.pin-row").filter({ hasText: "Bab 2" }).first();
@@ -2797,6 +3697,126 @@ await step("S27", "a new school year: the school admin makes next year's Tingkat
     `kode=${u.searchParams.get("kode")} n=${u.searchParams.get("n")}; the screen says "${kalimat.slice(-140)}"; left in 1A: ${tinggal}; in 2A: ${di2A}; ` +
     `Fajar (not yet signed in) carried over: ${fajar}; sessions still recorded in 1A: ${sesi}`;
 });
+// HOD-08: a head of department assigns and runs an Uji Cepat within their scope. S24 took Bu Kepala Dept's role away;
+// the platform administrator appoints her head of Kelas Rendah again, as in S16. She finds on /mengajar exactly the
+// Kelas of her department, gives Bab 1 to Eka's Kelas (Kelas 1A's Uji Cepat is S26e's), launches an Uji Cepat of three
+// of its questions there, and Eka finds it on her home. A class outside the department is not hers to open.
+await step("S27h", "a head of department assigns and runs an Uji Cepat within their department: Mengajar offers exactly its Kelas; the head gives Bab 1 to Eka's Kelas and launches three of its questions there, and she finds it; a class outside it is refused (HOD-08)", async (rec) => {
+  // the Kelas Eka was moved to in S25 (S26 renamed it «Kelas 1 Biru»), where she is placed now
+  const satuB = sql(`select m.node_id from public.memberships m join public.enrollments e on e.id = m.enrollment_id
+    join public.persons p on p.id = e.person_id join public.org_nodes o on o.id = m.node_id
+   where p.display_name = '${MURID[4]}' and e.institution_id = '${ids.sd}' and o.kind = 'CLASS' and o.is_active
+     and (m.valid_to is null or m.valid_to > now()) order by m.valid_from desc limit 1`).trim();
+  const bab1 = babSatu();
+  const modul = bab1 ? sql(`select id from public.modules where course_id='${bab1}' order by ordinal limit 1`).trim() : "";
+  const siswa = kartuKelas.find((x) => x.nama === MURID[4]);
+  if (!terbitBab || !satuB || !modul || !siswa) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "no Kelas for Eka (S25), Bab 1 chapter or card for her"; }
+  const notes = [];
+  // S24 revoked her only role. She was made by the platform administrator («Orang baru», S16) and has no record at the
+  // school, so the school admin no longer sees her (BOB-20, D-048); the platform administrator appoints her again, as in S16
+  const beri = await grantViaForm(g, people.kaprodi.name, "HEAD_OF_DEPARTMENT", "Kelas Rendah");
+  notes.push(`the platform administrator gives ${people.kaprodi.name} Kepala departemen at Kelas Rendah again: ${beri.ok}`);
+  if (beri.ok !== "ok") { rec.verdict = "FAIL"; return notes.join("; "); }
+  // the Kelas a head of Kelas Rendah stands over, current and active
+  const lingkup = sql(`select coalesce(string_agg(c.id::text, ',' order by c.id::text), '') from public.org_nodes c
+    join public.org_nodes b on b.institution_id = c.institution_id and b.kind = 'DEPARTMENT' and b.name = 'Kelas Rendah'
+   where c.institution_id = '${ids.sd}' and c.kind = 'CLASS' and c.is_active and b.id = any (c.jalur)`).trim();
+  const hc = await ctx();
+  const h = await hc.newPage();
+  try {
+    await magicSignIn(h, people.kaprodi.email);
+    await h.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
+    await tutupTur(h);
+    const ditawarkan = await h.locator('a[href^="/mengajar/"]').evaluateAll((els) =>
+      [...new Set(els.map((e) => /^\/mengajar\/([0-9a-f-]{36})(?:$|\/)/.exec(e.getAttribute("href") ?? "")?.[1]).filter(Boolean))].sort());
+    rec.shots.push(await shot(h, "hod08-mengajar"));
+    const sama = ditawarkan.join(",") === lingkup;
+    notes.push(`Mengajar offers ${ditawarkan.length} Kelas, exactly the department's ${sama}`);
+    if (!sama || !ditawarkan.includes(satuB)) { rec.verdict = "FAIL"; return notes.join("; "); }
+    // an Uji Cepat draws on what the class was given (D-085 T2). Eka's Kelas was given nothing after her move (S25,
+    // S26d2), and Kelas 1A's own Uji Cepat from S26e is still running, so the head first gives Bab 1 to Eka's Kelas
+    await h.goto(`${APP}/mengajar/${satuB}/siapkan`, { waitUntil: "networkidle" });
+    await tutupTur(h);
+    const barisBab1 = h.locator("a.pin-row").filter({ hasText: "Matematika Kelas 5" }).filter({ hasText: "Bab 1:" }).first();
+    if (!(await barisBab1.count())) { rec.verdict = "FAIL"; notes.push(`Siapkan does not offer Bab 1: ${(await bodyText(h)).slice(0, 200)}`); return notes.join("; "); }
+    await barisBab1.click();
+    const sediakan = h.locator('form:has(input[name="terbitan"]) button[type="submit"]').first();
+    await sediakan.waitFor({ timeout: SLOW });
+    const sampai = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" })
+      .format(new Date(Date.now() + 30 * 86400000));
+    await h.locator("#pin-sampai").fill(sampai).catch(() => {});
+    await sediakan.click();
+    await h.waitForLoadState("networkidle");
+    let diberi = "";
+    for (let i = 0; i < 20 && !diberi; i++) {
+      diberi = sql(`select coalesce(p.display_name, '-') from public.learning_assignments la left join public.persons p on p.id = la.assigned_by_person_id
+        where la.course_id='${bab1}' and la.node_id='${satuB}' order by la.created_at desc limit 1`).trim();
+      if (!diberi) await h.waitForTimeout(500);
+    }
+    notes.push(`Bab 1 given to Eka's Kelas on Siapkan by ${diberi || "nobody"}`);
+    if (diberi !== people.kaprodi.name) { rec.verdict = "FAIL"; return notes.join("; "); }
+    await h.goto(`${APP}/mengajar/${satuB}/uji-cepat`, { waitUntil: "networkidle" });
+    await tutupTur(h);
+    if (!(await h.locator("#pin-bab").count())) { rec.verdict = "FAIL"; notes.push(`no chapter to choose: ${(await bodyText(h)).slice(0, 200)}`); return notes.join("; "); }
+    await h.locator("#pin-bab").selectOption(modul);
+    await h.getByRole("button", { name: "Tampilkan soal bab ini", exact: true }).click();
+    await h.waitForURL((u) => u.searchParams.get("bab") === modul, { timeout: SLOW });
+    await h.waitForLoadState("networkidle");
+    const baris = h.locator("ol.pin-cepat-pilih > li");
+    const dicentang = [];
+    for (let i = 0; i < (await baris.count()) && dicentang.length < 3; i++) {
+      const li = baris.nth(i);
+      if (/Juga di (Pemetaan Awal|Uji Penguasaan)/.test(norm(await li.innerText()))) continue;
+      const kotak = li.locator('input[type="checkbox"][name="butir"]');
+      await kotak.check();
+      dicentang.push(await kotak.getAttribute("value"));
+    }
+    if (dicentang.length !== 3) { rec.verdict = "FAIL"; notes.push(`ticked ${dicentang.length}`); return notes.join("; "); }
+    await h.getByRole("button", { name: "Lanjut ke tinjauan", exact: true }).click();
+    await h.waitForURL((u) => u.searchParams.get("tahap") === "tinjau", { timeout: SLOW });
+    await h.getByRole("button", { name: "Sediakan Uji Cepat sekarang", exact: true }).click();
+    await h.getByText("Uji Cepat sedang berjalan").first().waitFor({ timeout: SLOW });
+    rec.shots.push(await shot(h, "hod08-berjalan"));
+    const aa = sql(`select aa.id from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
+      where aa.node_id='${satuB}' and d.mode::text = 'QUICK' order by aa.created_at desc limit 1`).trim();
+    const oleh = aa ? sql(`select p.display_name from public.assessment_assignments aa join public.persons p on p.id = aa.assigned_by_person_id where aa.id='${aa}'`).trim() : "";
+    notes.push(`launched for Eka's Kelas by ${oleh || "nobody"}`);
+    if (!aa || oleh !== people.kaprodi.name) { rec.verdict = "FAIL"; return notes.join("; "); }
+    // outside the department: Kelas 1A's next-year Kelas from S27 is in it too, so the refusal is asked of a class of
+    // another school, which this head stands over in no way
+    const lain = sql(`select id from public.org_nodes where kind='CLASS' and institution_id <> '${ids.sd}' limit 1`).trim();
+    if (lain) {
+      await h.goto(`${APP}/mengajar/${lain}/uji-cepat`, { waitUntil: "networkidle" });
+      const tolak = !(await h.locator("#pin-bab").count());
+      notes.push(`another school's class is refused ${tolak}`);
+      if (!tolak) rec.verdict = "FAIL";
+    } else {
+      notes.push("no class outside the school exists to ask (the refusal outside a scope is S24's and S26b's)");
+    }
+    // Eka, placed in that Kelas, finds it
+    const sc = await ctx();
+    const sp = await sc.newPage();
+    try {
+      await masukKartu(sp, siswa);
+      await sp.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+      await tutupTur(sp);
+      const ada = await sp.locator(`a[href="/belajar/asesmen/${aa}"]`).count();
+      rec.shots.push(await shot(sp, "hod08-murid"));
+      notes.push(`${siswa.nama} finds it on /belajar ${ada > 0}`);
+      if (!ada) rec.verdict = "FAIL";
+    } finally {
+      await sc.close();
+    }
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.shots.push(await shot(h, "hod08-berhenti"));
+    notes.push(`stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 200)}`);
+  } finally {
+    await hc.close();
+  }
+  return notes.join("; ");
+});
+
 
 await step("P1", "PUB-04: a random certificate token answers the closed not-found, anonymously", async (rec) => {
   const tok = `acak${Date.now()}`;

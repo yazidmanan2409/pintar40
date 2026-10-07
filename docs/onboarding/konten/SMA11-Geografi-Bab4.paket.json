@@ -53,7 +53,8 @@
            "label": "A",
            "body": "berlangsung cepat dan wilayahnya sempit",
            "is_correct": false,
-           "rationale": "Ini ciri cuaca."
+           "rationale": "Ini ciri cuaca.",
+           "misconception_code": "SMA11-G-B4-01"
           },
           {
            "_row": {
@@ -73,7 +74,8 @@
            "label": "C",
            "body": "berubah sewaktu-waktu",
            "is_correct": false,
-           "rationale": "Ini ciri cuaca."
+           "rationale": "Ini ciri cuaca.",
+           "misconception_code": "SMA11-G-B4-01"
           },
           {
            "_row": {
@@ -83,7 +85,8 @@
            "label": "D",
            "body": "perubahan suhu rata-rata udara, pola hujan, dan angin",
            "is_correct": false,
-           "rationale": "Ini pengertian perubahan iklim, bukan iklim."
+           "rationale": "Ini pengertian perubahan iklim, bukan iklim.",
+           "misconception_code": "SMA11-G-B4-01"
           }
          ]
         },
@@ -115,7 +118,8 @@
            "label": "B",
            "body": "cuaca",
            "is_correct": false,
-           "rationale": "Cuaca berlangsung cepat dan wilayahnya sempit."
+           "rationale": "Cuaca berlangsung cepat dan wilayahnya sempit.",
+           "misconception_code": "SMA11-G-B4-01"
           },
           {
            "_row": {
@@ -125,7 +129,8 @@
            "label": "C",
            "body": "perubahan iklim",
            "is_correct": false,
-           "rationale": "Perubahan iklim adalah perubahan suhu, pola hujan, dan angin dalam waktu yang panjang."
+           "rationale": "Perubahan iklim adalah perubahan suhu, pola hujan, dan angin dalam waktu yang panjang.",
+           "misconception_code": "SMA11-G-B4-01"
           },
           {
            "_row": {
@@ -135,7 +140,8 @@
            "label": "D",
            "body": "musim hujan",
            "is_correct": false,
-           "rationale": "Musim hujan umumnya berlangsung pada Oktober–April."
+           "rationale": "Musim hujan umumnya berlangsung pada Oktober–April.",
+           "misconception_code": "SMA11-G-B4-01"
           }
          ]
         },
@@ -157,7 +163,8 @@
            "label": "A",
            "body": "pergeseran musim",
            "is_correct": false,
-           "rationale": "Pergeseran musim memengaruhi pola tanam, panen, dan migrasi hewan."
+           "rationale": "Pergeseran musim memengaruhi pola tanam, panen, dan migrasi hewan.",
+           "misconception_code": "SMA11-G-B4-02"
           },
           {
            "_row": {
@@ -167,7 +174,8 @@
            "label": "B",
            "body": "peningkatan intensitas cuaca ekstrem",
            "is_correct": false,
-           "rationale": "Gejala ini berupa badai tropis, topan, banjir, dan kekeringan yang lebih sering."
+           "rationale": "Gejala ini berupa badai tropis, topan, banjir, dan kekeringan yang lebih sering.",
+           "misconception_code": "SMA11-G-B4-02"
           },
           {
            "_row": {
@@ -177,7 +185,8 @@
            "label": "C",
            "body": "permukaan laut meningkat",
            "is_correct": false,
-           "rationale": "Gejala ini terjadi karena es di kutub mencair dan air laut memperluas volumenya."
+           "rationale": "Gejala ini terjadi karena es di kutub mencair dan air laut memperluas volumenya.",
+           "misconception_code": "SMA11-G-B4-02"
           },
           {
            "_row": {
@@ -209,7 +218,8 @@
            "label": "A",
            "body": "pemutihan terumbu karang dan penurunan keanekaragaman hayati",
            "is_correct": false,
-           "rationale": "Ini gejala kerusakan ekosistem."
+           "rationale": "Ini gejala kerusakan ekosistem.",
+           "misconception_code": "SMA11-G-B4-02"
           },
           {
            "_row": {
@@ -219,7 +229,8 @@
            "label": "B",
            "body": "peningkatan penyakit menular dan perubahan pola alergi",
            "is_correct": false,
-           "rationale": "Ini gejala dampak perubahan iklim pada kesehatan."
+           "rationale": "Ini gejala dampak perubahan iklim pada kesehatan.",
+           "misconception_code": "SMA11-G-B4-02"
           },
           {
            "_row": {
@@ -239,7 +250,8 @@
            "label": "D",
            "body": "badai tropis, topan, banjir, dan kekeringan lebih sering",
            "is_correct": false,
-           "rationale": "Ini gejala peningkatan intensitas cuaca ekstrem."
+           "rationale": "Ini gejala peningkatan intensitas cuaca ekstrem.",
+           "misconception_code": "SMA11-G-B4-02"
           }
          ]
         }
@@ -289,7 +301,8 @@
            "label": "B",
            "body": "sulfur dioksida, nitrogen dioksida, dan hidrogen sulfida",
            "is_correct": false,
-           "rationale": "Ini gas vulkanik yang mencemari udara saat gunung meletus."
+           "rationale": "Ini gas vulkanik yang mencemari udara saat gunung meletus.",
+           "misconception_code": "SMA11-G-B4-03"
           },
           {
            "_row": {
@@ -299,7 +312,8 @@
            "label": "C",
            "body": "lahar, bom, dan awan panas",
            "is_correct": false,
-           "rationale": "Ini material erupsi gunung berapi, bukan gas rumah kaca."
+           "rationale": "Ini material erupsi gunung berapi, bukan gas rumah kaca.",
+           "misconception_code": "SMA11-G-B4-03"
           },
           {
            "_row": {
@@ -309,7 +323,8 @@
            "label": "D",
            "body": "debu vulkanik dan lapili",
            "is_correct": false,
-           "rationale": "Ini material erupsi gunung berapi, bukan gas rumah kaca."
+           "rationale": "Ini material erupsi gunung berapi, bukan gas rumah kaca.",
+           "misconception_code": "SMA11-G-B4-03"
           }
          ]
         },
@@ -332,7 +347,8 @@
            "label": "A",
            "body": "penggunaan pupuk sintetis dalam pertanian",
            "is_correct": false,
-           "rationale": "Ini sumber utama nitrous oksida (N₂O)."
+           "rationale": "Ini sumber utama nitrous oksida (N₂O).",
+           "misconception_code": "SMA11-G-B4-03"
           },
           {
            "_row": {
@@ -342,7 +358,8 @@
            "label": "B",
            "body": "refrigerasi dan pendinginan",
            "is_correct": false,
-           "rationale": "Di sini dipakai hydrofluorocarbon (HFC)."
+           "rationale": "Di sini dipakai hydrofluorocarbon (HFC).",
+           "misconception_code": "SMA11-G-B4-03"
           },
           {
            "_row": {
@@ -352,7 +369,8 @@
            "label": "C",
            "body": "aktivitas industri, pembakaran hutan, dan perubahan penggunaan lahan",
            "is_correct": false,
-           "rationale": "Ini sumber karbon dioksida (CO₂)."
+           "rationale": "Ini sumber karbon dioksida (CO₂).",
+           "misconception_code": "SMA11-G-B4-03"
           },
           {
            "_row": {
@@ -384,7 +402,8 @@
            "label": "A",
            "body": "memicu pencairan es di Kutub Utara dan Selatan dan perubahan pola cuaca",
            "is_correct": false,
-           "rationale": "Pencairan es adalah akibat peningkatan suhu global, bukan cara kerja gas rumah kaca."
+           "rationale": "Pencairan es adalah akibat peningkatan suhu global, bukan cara kerja gas rumah kaca.",
+           "misconception_code": "SMA11-G-B4-04"
           },
           {
            "_row": {
@@ -404,7 +423,8 @@
            "label": "C",
            "body": "dihasilkan dari pembakaran bahan bakar fosil",
            "is_correct": false,
-           "rationale": "Ini sumber karbon dioksida, bukan cara gas rumah kaca menaikkan suhu."
+           "rationale": "Ini sumber karbon dioksida, bukan cara gas rumah kaca menaikkan suhu.",
+           "misconception_code": "SMA11-G-B4-04"
           },
           {
            "_row": {
@@ -414,7 +434,8 @@
            "label": "D",
            "body": "pertumbuhan awan Cumulonimbus akibat intensifnya pemanasan",
            "is_correct": false,
-           "rationale": "Ini proses terjadinya angin puting beliung."
+           "rationale": "Ini proses terjadinya angin puting beliung.",
+           "misconception_code": "SMA11-G-B4-04"
           }
          ]
         },
@@ -446,7 +467,8 @@
            "label": "B",
            "body": "produksi dan transportasi gas alam",
            "is_correct": false,
-           "rationale": "Ini salah satu sumber metana."
+           "rationale": "Ini salah satu sumber metana.",
+           "misconception_code": "SMA11-G-B4-03"
           },
           {
            "_row": {
@@ -456,7 +478,8 @@
            "label": "C",
            "body": "refrigerasi dan pendinginan",
            "is_correct": false,
-           "rationale": "Di sini dipakai hydrofluorocarbon (HFC)."
+           "rationale": "Di sini dipakai hydrofluorocarbon (HFC).",
+           "misconception_code": "SMA11-G-B4-03"
           },
           {
            "_row": {
@@ -466,7 +489,8 @@
            "label": "D",
            "body": "pembakaran hutan dan perubahan penggunaan lahan",
            "is_correct": false,
-           "rationale": "Ini sumber karbon dioksida."
+           "rationale": "Ini sumber karbon dioksida.",
+           "misconception_code": "SMA11-G-B4-03"
           }
          ]
         }
@@ -516,7 +540,8 @@
            "label": "B",
            "body": "pola musim tanam yang dapat menurunkan produksi panen",
            "is_correct": false,
-           "rationale": "Ini dampak musim hujan yang bergeser."
+           "rationale": "Ini dampak musim hujan yang bergeser.",
+           "misconception_code": "SMA11-G-B4-05"
           },
           {
            "_row": {
@@ -526,7 +551,8 @@
            "label": "C",
            "body": "kerusakan infrastruktur jalan dan bangunan perkampungan",
            "is_correct": false,
-           "rationale": "Ini dampak naiknya permukaan air laut di pesisir."
+           "rationale": "Ini dampak naiknya permukaan air laut di pesisir.",
+           "misconception_code": "SMA11-G-B4-05"
           },
           {
            "_row": {
@@ -536,7 +562,8 @@
            "label": "D",
            "body": "kehilangan hutan mangrove, tambak ikan, dan udang",
            "is_correct": false,
-           "rationale": "Ini dampak kenaikan permukaan air laut di pesisir."
+           "rationale": "Ini dampak kenaikan permukaan air laut di pesisir.",
+           "misconception_code": "SMA11-G-B4-05"
           }
          ]
         },
@@ -558,7 +585,8 @@
            "label": "A",
            "body": "pegunungan Cycloop di Jayapura",
            "is_correct": false,
-           "rationale": "Gundulnya pegunungan Cycloop disebut sebagai penyebab banjir bandang di Sentani."
+           "rationale": "Gundulnya pegunungan Cycloop disebut sebagai penyebab banjir bandang di Sentani.",
+           "misconception_code": "SMA11-G-B4-06"
           },
           {
            "_row": {
@@ -568,7 +596,8 @@
            "label": "B",
            "body": "lereng Gunung Wilis, Madiun",
            "is_correct": false,
-           "rationale": "Lereng Gunung Wilis disebut buku sebagai lokasi hujan deras yang memicu tanah longsor di Madiun."
+           "rationale": "Lereng Gunung Wilis disebut buku sebagai lokasi hujan deras yang memicu tanah longsor di Madiun.",
+           "misconception_code": "SMA11-G-B4-06"
           },
           {
            "_row": {
@@ -578,7 +607,8 @@
            "label": "C",
            "body": "Kabupaten Purbalingga",
            "is_correct": false,
-           "rationale": "Purbalingga disebut buku sebagai wilayah yang berpotensi tanah longsor."
+           "rationale": "Purbalingga disebut buku sebagai wilayah yang berpotensi tanah longsor.",
+           "misconception_code": "SMA11-G-B4-06"
           },
           {
            "_row": {
@@ -610,7 +640,8 @@
            "label": "A",
            "body": "pola tanam, panen, dan migrasi hewan",
            "is_correct": false,
-           "rationale": "Ini dampak pergeseran musim."
+           "rationale": "Ini dampak pergeseran musim.",
+           "misconception_code": "SMA11-G-B4-05"
           },
           {
            "_row": {
@@ -620,7 +651,8 @@
            "label": "B",
            "body": "buruknya sanitasi lingkungan dan harga tanah menurun",
            "is_correct": false,
-           "rationale": "Ini kerugian akibat tanah longsor."
+           "rationale": "Ini kerugian akibat tanah longsor.",
+           "misconception_code": "SMA11-G-B4-05"
           },
           {
            "_row": {
@@ -640,7 +672,8 @@
            "label": "D",
            "body": "kekurangan air di berbagai kegiatan",
            "is_correct": false,
-           "rationale": "Ini akibat bencana kekeringan."
+           "rationale": "Ini akibat bencana kekeringan.",
+           "misconception_code": "SMA11-G-B4-05"
           }
          ]
         }
@@ -680,7 +713,8 @@
            "label": "A",
            "body": "ancaman",
            "is_correct": false,
-           "rationale": "Ancaman adalah peristiwa yang berpotensi menimbulkan kerugian, kerusakan lingkungan, dan korban jiwa."
+           "rationale": "Ancaman adalah peristiwa yang berpotensi menimbulkan kerugian, kerusakan lingkungan, dan korban jiwa.",
+           "misconception_code": "SMA11-G-B4-07"
           },
           {
            "_row": {
@@ -690,7 +724,8 @@
            "label": "B",
            "body": "kapasitas masyarakat",
            "is_correct": false,
-           "rationale": "Kapasitas adalah kemampuan masyarakat untuk mencegah, menanggulangi, dan memulihkan kondisi akibat bencana."
+           "rationale": "Kapasitas adalah kemampuan masyarakat untuk mencegah, menanggulangi, dan memulihkan kondisi akibat bencana.",
+           "misconception_code": "SMA11-G-B4-07"
           },
           {
            "_row": {
@@ -710,7 +745,8 @@
            "label": "D",
            "body": "mitigasi",
            "is_correct": false,
-           "rationale": "Mitigasi adalah serangkaian kegiatan untuk mengurangi risiko bencana."
+           "rationale": "Mitigasi adalah serangkaian kegiatan untuk mengurangi risiko bencana.",
+           "misconception_code": "SMA11-G-B4-11"
           }
          ]
         },
@@ -733,7 +769,8 @@
            "label": "A",
            "body": "fisik",
            "is_correct": false,
-           "rationale": "Kerentanan fisik menyangkut benda berharga yang dapat hilang atau rusak."
+           "rationale": "Kerentanan fisik menyangkut benda berharga yang dapat hilang atau rusak.",
+           "misconception_code": "SMA11-G-B4-08"
           },
           {
            "_row": {
@@ -743,7 +780,8 @@
            "label": "B",
            "body": "lingkungan",
            "is_correct": false,
-           "rationale": "Kerentanan lingkungan dikaitkan dengan sumber daya alam, seperti hutan dan rawa."
+           "rationale": "Kerentanan lingkungan dikaitkan dengan sumber daya alam, seperti hutan dan rawa.",
+           "misconception_code": "SMA11-G-B4-08"
           },
           {
            "_row": {
@@ -763,7 +801,8 @@
            "label": "D",
            "body": "ekonomi",
            "is_correct": false,
-           "rationale": "Kerentanan ekonomi menyangkut rumah tangga di sektor rentan dan yang ekonominya rendah."
+           "rationale": "Kerentanan ekonomi menyangkut rumah tangga di sektor rentan dan yang ekonominya rendah.",
+           "misconception_code": "SMA11-G-B4-08"
           }
          ]
         },
@@ -785,7 +824,8 @@
            "label": "A",
            "body": "kepadatan penduduk dan pertumbuhan penduduk",
            "is_correct": false,
-           "rationale": "Ini aspek kerentanan sosial."
+           "rationale": "Ini aspek kerentanan sosial.",
+           "misconception_code": "SMA11-G-B4-08"
           },
           {
            "_row": {
@@ -805,7 +845,8 @@
            "label": "C",
            "body": "penyadaran, pembangunan fisik, dan peningkatan kemampuan",
            "is_correct": false,
-           "rationale": "Ini cara melakukan mitigasi."
+           "rationale": "Ini cara melakukan mitigasi.",
+           "misconception_code": "SMA11-G-B4-11"
           },
           {
            "_row": {
@@ -815,7 +856,8 @@
            "label": "D",
            "body": "pencegahan, mengurangi kekuatan ancaman, dan mengurangi kerentanan",
            "is_correct": false,
-           "rationale": "Ini cara meningkatkan kapasitas."
+           "rationale": "Ini cara meningkatkan kapasitas.",
+           "misconception_code": "SMA11-G-B4-07"
           }
          ]
         },
@@ -847,7 +889,8 @@
            "label": "B",
            "body": "manusia memiliki kapasitas dan tidak dalam kondisi rentan",
            "is_correct": false,
-           "rationale": "Dalam keadaan ini ancaman tidak akan menjadi bencana."
+           "rationale": "Dalam keadaan ini ancaman tidak akan menjadi bencana.",
+           "misconception_code": "SMA11-G-B4-07"
           },
           {
            "_row": {
@@ -857,7 +900,8 @@
            "label": "C",
            "body": "datangnya secara tiba-tiba dan sulit diprediksi",
            "is_correct": false,
-           "rationale": "Ini sifat datangnya bencana, bukan syarat ancaman menjadi bencana."
+           "rationale": "Ini sifat datangnya bencana, bukan syarat ancaman menjadi bencana.",
+           "misconception_code": "SMA11-G-B4-07"
           },
           {
            "_row": {
@@ -867,7 +911,8 @@
            "label": "D",
            "body": "anak-anak dan orang tua mendapat perhatian khusus",
            "is_correct": false,
-           "rationale": "Ini contoh kelompok yang rentan saat evakuasi."
+           "rationale": "Ini contoh kelompok yang rentan saat evakuasi.",
+           "misconception_code": "SMA11-G-B4-08"
           }
          ]
         },
@@ -889,7 +934,8 @@
            "label": "A",
            "body": "kerentanan",
            "is_correct": false,
-           "rationale": "Kerentanan yang naik justru memperbesar dampak bencana."
+           "rationale": "Kerentanan yang naik justru memperbesar dampak bencana.",
+           "misconception_code": "SMA11-G-B4-07"
           },
           {
            "_row": {
@@ -899,7 +945,8 @@
            "label": "B",
            "body": "ancaman",
            "is_correct": false,
-           "rationale": "Ancaman adalah peristiwa yang berpotensi merugikan; yang berubah di sini kemampuan masyarakat."
+           "rationale": "Ancaman adalah peristiwa yang berpotensi merugikan; yang berubah di sini kemampuan masyarakat.",
+           "misconception_code": "SMA11-G-B4-07"
           },
           {
            "_row": {
@@ -909,7 +956,8 @@
            "label": "C",
            "body": "curah hujan",
            "is_correct": false,
-           "rationale": "Curah hujan lebat adalah penyebab banjir, bukan kemampuan masyarakat."
+           "rationale": "Curah hujan lebat adalah penyebab banjir, bukan kemampuan masyarakat.",
+           "misconception_code": "SMA11-G-B4-10"
           },
           {
            "_row": {
@@ -959,7 +1007,8 @@
            "label": "A",
            "body": "kekeringan",
            "is_correct": false,
-           "rationale": "Kekeringan adalah kelangkaan air dari hujan pada periode tertentu."
+           "rationale": "Kekeringan adalah kelangkaan air dari hujan pada periode tertentu.",
+           "misconception_code": "SMA11-G-B4-09"
           },
           {
            "_row": {
@@ -979,7 +1028,8 @@
            "label": "C",
            "body": "tanah longsor",
            "is_correct": false,
-           "rationale": "Tanah longsor dipicu lereng terjal, hujan tinggi, dan tanah yang kurang padat."
+           "rationale": "Tanah longsor dipicu lereng terjal, hujan tinggi, dan tanah yang kurang padat.",
+           "misconception_code": "SMA11-G-B4-09"
           },
           {
            "_row": {
@@ -989,7 +1039,8 @@
            "label": "D",
            "body": "tsunami",
            "is_correct": false,
-           "rationale": "Tsunami terjadi bila gempa bumi berasal dari laut dangkal."
+           "rationale": "Tsunami terjadi bila gempa bumi berasal dari laut dangkal.",
+           "misconception_code": "SMA11-G-B4-09"
           }
          ]
         },
@@ -1012,7 +1063,8 @@
            "label": "A",
            "body": "awan Cumulonimbus yang muncul akibat intensifnya pemanasan",
            "is_correct": false,
-           "rationale": "Ini proses terjadinya angin puting beliung."
+           "rationale": "Ini proses terjadinya angin puting beliung.",
+           "misconception_code": "SMA11-G-B4-10"
           },
           {
            "_row": {
@@ -1022,7 +1074,8 @@
            "label": "B",
            "body": "lereng terjal dan tutupan vegetasi yang berkurang",
            "is_correct": false,
-           "rationale": "Ini kondisi yang memicu tanah longsor."
+           "rationale": "Ini kondisi yang memicu tanah longsor.",
+           "misconception_code": "SMA11-G-B4-10"
           },
           {
            "_row": {
@@ -1032,7 +1085,8 @@
            "label": "C",
            "body": "fenomena el nino yang membuat curah hujan berkurang",
            "is_correct": false,
-           "rationale": "Ini kondisi yang membuat suatu wilayah rentan kebakaran hutan dan lahan."
+           "rationale": "Ini kondisi yang membuat suatu wilayah rentan kebakaran hutan dan lahan.",
+           "misconception_code": "SMA11-G-B4-10"
           },
           {
            "_row": {
@@ -1064,7 +1118,8 @@
            "label": "A",
            "body": "lepas pantai selatan Nusa Tenggara, selatan Jawa, dan barat Sumatra",
            "is_correct": false,
-           "rationale": "Di sini zona lempeng Indo-Australia dan Eurasia."
+           "rationale": "Di sini zona lempeng Indo-Australia dan Eurasia.",
+           "misconception_code": "SMA11-G-B4-06"
           },
           {
            "_row": {
@@ -1074,7 +1129,8 @@
            "label": "B",
            "body": "Sumatra bagian selatan dan kepulauan Maluku",
            "is_correct": false,
-           "rationale": "Ini wilayah yang berisiko tsunami tinggi."
+           "rationale": "Ini wilayah yang berisiko tsunami tinggi.",
+           "misconception_code": "SMA11-G-B4-06"
           },
           {
            "_row": {
@@ -1094,7 +1150,8 @@
            "label": "D",
            "body": "Kabupaten Bogor, Cianjur, dan Bandung",
            "is_correct": false,
-           "rationale": "Ini wilayah yang berpotensi tanah longsor."
+           "rationale": "Ini wilayah yang berpotensi tanah longsor.",
+           "misconception_code": "SMA11-G-B4-06"
           }
          ]
         },
@@ -1116,7 +1173,8 @@
            "label": "A",
            "body": "lahar",
            "is_correct": false,
-           "rationale": "Lahar adalah salah satu material yang dikeluarkan saat erupsi."
+           "rationale": "Lahar adalah salah satu material yang dikeluarkan saat erupsi.",
+           "misconception_code": "SMA11-G-B4-09"
           },
           {
            "_row": {
@@ -1136,7 +1194,8 @@
            "label": "C",
            "body": "gelombang seismik",
            "is_correct": false,
-           "rationale": "Gelombang seismik dihasilkan oleh energi gempa bumi."
+           "rationale": "Gelombang seismik dihasilkan oleh energi gempa bumi.",
+           "misconception_code": "SMA11-G-B4-09"
           },
           {
            "_row": {
@@ -1146,7 +1205,8 @@
            "label": "D",
            "body": "patahan",
            "is_correct": false,
-           "rationale": "Patahan adalah penyebab sebagian besar gempa bumi."
+           "rationale": "Patahan adalah penyebab sebagian besar gempa bumi.",
+           "misconception_code": "SMA11-G-B4-09"
           }
          ]
         },
@@ -1178,7 +1238,8 @@
            "label": "B",
            "body": "lahan yang mampu meloloskan air",
            "is_correct": false,
-           "rationale": "Ini kondisi daerah yang terancam kekeringan."
+           "rationale": "Ini kondisi daerah yang terancam kekeringan.",
+           "misconception_code": "SMA11-G-B4-10"
           },
           {
            "_row": {
@@ -1188,7 +1249,8 @@
            "label": "C",
            "body": "hunian di bantaran sungai",
            "is_correct": false,
-           "rationale": "Ini perilaku manusia yang menyebabkan banjir."
+           "rationale": "Ini perilaku manusia yang menyebabkan banjir.",
+           "misconception_code": "SMA11-G-B4-10"
           },
           {
            "_row": {
@@ -1198,7 +1260,8 @@
            "label": "D",
            "body": "gempa bumi berasal dari laut dangkal",
            "is_correct": false,
-           "rationale": "Ini penyebab tsunami."
+           "rationale": "Ini penyebab tsunami.",
+           "misconception_code": "SMA11-G-B4-10"
           }
          ]
         },
@@ -1220,7 +1283,8 @@
            "label": "A",
            "body": "pengikisan tanah yang tinggi dan tanah yang kurang padat",
            "is_correct": false,
-           "rationale": "Ini kondisi yang memicu tanah longsor."
+           "rationale": "Ini kondisi yang memicu tanah longsor.",
+           "misconception_code": "SMA11-G-B4-10"
           },
           {
            "_row": {
@@ -1230,7 +1294,8 @@
            "label": "B",
            "body": "fenomena el nino yang membuat curah hujan berkurang",
            "is_correct": false,
-           "rationale": "Ini kondisi yang membuat wilayah rentan kebakaran hutan dan lahan."
+           "rationale": "Ini kondisi yang membuat wilayah rentan kebakaran hutan dan lahan.",
+           "misconception_code": "SMA11-G-B4-10"
           },
           {
            "_row": {
@@ -1240,7 +1305,8 @@
            "label": "C",
            "body": "penggunaan pupuk sintetis dalam pertanian",
            "is_correct": false,
-           "rationale": "Ini sumber utama emisi N₂O."
+           "rationale": "Ini sumber utama emisi N₂O.",
+           "misconception_code": "SMA11-G-B4-10"
           },
           {
            "_row": {
@@ -1272,7 +1338,8 @@
            "label": "A",
            "body": "hunian di bantaran sungai",
            "is_correct": false,
-           "rationale": "Ini perilaku manusia yang menyebabkan banjir."
+           "rationale": "Ini perilaku manusia yang menyebabkan banjir.",
+           "misconception_code": "SMA11-G-B4-10"
           },
           {
            "_row": {
@@ -1282,7 +1349,8 @@
            "label": "B",
            "body": "anomali cuaca dan curah hujan dengan intensitas tinggi",
            "is_correct": false,
-           "rationale": "Ini penyebab banjir Kalimantan Selatan tahun 2021."
+           "rationale": "Ini penyebab banjir Kalimantan Selatan tahun 2021.",
+           "misconception_code": "SMA11-G-B4-10"
           },
           {
            "_row": {
@@ -1302,7 +1370,8 @@
            "label": "D",
            "body": "intensitas hujan tinggi dan gundulnya pegunungan Cycloop",
            "is_correct": false,
-           "rationale": "Ini penyebab banjir bandang di Sentani tahun 2019."
+           "rationale": "Ini penyebab banjir bandang di Sentani tahun 2019.",
+           "misconception_code": "SMA11-G-B4-10"
           }
          ]
         }
@@ -1352,7 +1421,8 @@
            "label": "B",
            "body": "mitigasi struktural",
            "is_correct": false,
-           "rationale": "Mitigasi struktural berupa pembangunan fisik atau prasarana."
+           "rationale": "Mitigasi struktural berupa pembangunan fisik atau prasarana.",
+           "misconception_code": "SMA11-G-B4-13"
           },
           {
            "_row": {
@@ -1362,7 +1432,8 @@
            "label": "C",
            "body": "adaptasi sosial",
            "is_correct": false,
-           "rationale": "Adaptasi sosial terhadap banjir berupa gotong royong dan solidaritas antarwarga."
+           "rationale": "Adaptasi sosial terhadap banjir berupa gotong royong dan solidaritas antarwarga.",
+           "misconception_code": "SMA11-G-B4-11"
           },
           {
            "_row": {
@@ -1372,7 +1443,8 @@
            "label": "D",
            "body": "adaptasi ekonomi masyarakat",
            "is_correct": false,
-           "rationale": "Adaptasi ekonomi terhadap banjir antara lain bantuan dari lembaga sosial."
+           "rationale": "Adaptasi ekonomi terhadap banjir antara lain bantuan dari lembaga sosial.",
+           "misconception_code": "SMA11-G-B4-11"
           }
          ]
         },
@@ -1395,7 +1467,8 @@
            "label": "A",
            "body": "pembangunan tanggul untuk menahan lahar",
            "is_correct": false,
-           "rationale": "Ini mitigasi letusan gunung berapi."
+           "rationale": "Ini mitigasi letusan gunung berapi.",
+           "misconception_code": "SMA11-G-B4-12"
           },
           {
            "_row": {
@@ -1405,7 +1478,8 @@
            "label": "B",
            "body": "membuat terasering dengan sistem drainase yang tepat",
            "is_correct": false,
-           "rationale": "Ini mitigasi tanah longsor."
+           "rationale": "Ini mitigasi tanah longsor.",
+           "misconception_code": "SMA11-G-B4-12"
           },
           {
            "_row": {
@@ -1425,7 +1499,8 @@
            "label": "D",
            "body": "pembangunan waduk untuk mencegah terjadinya banjir",
            "is_correct": false,
-           "rationale": "Ini mitigasi banjir."
+           "rationale": "Ini mitigasi banjir.",
+           "misconception_code": "SMA11-G-B4-12"
           }
          ]
         },
@@ -1447,7 +1522,8 @@
            "label": "A",
            "body": "pembersihan sampah dan pengerukan endapan sungai",
            "is_correct": false,
-           "rationale": "Ini mitigasi banjir."
+           "rationale": "Ini mitigasi banjir.",
+           "misconception_code": "SMA11-G-B4-12"
           },
           {
            "_row": {
@@ -1467,7 +1543,8 @@
            "label": "C",
            "body": "melakukan sosialisasi untuk penghematan air",
            "is_correct": false,
-           "rationale": "Ini mitigasi kekeringan."
+           "rationale": "Ini mitigasi kekeringan.",
+           "misconception_code": "SMA11-G-B4-12"
           },
           {
            "_row": {
@@ -1477,7 +1554,8 @@
            "label": "D",
            "body": "penyelidikan gunung berapi dengan metode geologi",
            "is_correct": false,
-           "rationale": "Ini mitigasi letusan gunung berapi."
+           "rationale": "Ini mitigasi letusan gunung berapi.",
+           "misconception_code": "SMA11-G-B4-12"
           }
          ]
         },
@@ -1509,7 +1587,8 @@
            "label": "B",
            "body": "mengurangi tingkat keterjalan lereng",
            "is_correct": false,
-           "rationale": "Ini mitigasi tanah longsor."
+           "rationale": "Ini mitigasi tanah longsor.",
+           "misconception_code": "SMA11-G-B4-12"
           },
           {
            "_row": {
@@ -1519,7 +1598,8 @@
            "label": "C",
            "body": "penataan daerah aliran sungai",
            "is_correct": false,
-           "rationale": "Ini mitigasi banjir."
+           "rationale": "Ini mitigasi banjir.",
+           "misconception_code": "SMA11-G-B4-12"
           },
           {
            "_row": {
@@ -1529,7 +1609,8 @@
            "label": "D",
            "body": "pembangunan tanggul untuk menahan lahar",
            "is_correct": false,
-           "rationale": "Ini mitigasi letusan gunung berapi."
+           "rationale": "Ini mitigasi letusan gunung berapi.",
+           "misconception_code": "SMA11-G-B4-12"
           }
          ]
         }
@@ -1569,7 +1650,8 @@
            "label": "A",
            "body": "serangkaian kegiatan untuk mengurangi risiko bencana",
            "is_correct": false,
-           "rationale": "Ini pengertian mitigasi bencana."
+           "rationale": "Ini pengertian mitigasi bencana.",
+           "misconception_code": "SMA11-G-B4-11"
           },
           {
            "_row": {
@@ -1579,7 +1661,8 @@
            "label": "B",
            "body": "penguasaan sumber daya dan kemampuan untuk mempersiapkan diri",
            "is_correct": false,
-           "rationale": "Ini pengertian kapasitas."
+           "rationale": "Ini pengertian kapasitas.",
+           "misconception_code": "SMA11-G-B4-11"
           },
           {
            "_row": {
@@ -1589,7 +1672,8 @@
            "label": "C",
            "body": "peristiwa yang berpotensi mengakibatkan kerugian dan korban jiwa",
            "is_correct": false,
-           "rationale": "Ini pengertian ancaman."
+           "rationale": "Ini pengertian ancaman.",
+           "misconception_code": "SMA11-G-B4-07"
           },
           {
            "_row": {
@@ -1622,7 +1706,8 @@
            "label": "A",
            "body": "pasif",
            "is_correct": false,
-           "rationale": "Adaptasi pasif misalnya mengetahui prakiraan bulan hujan yang berisiko banjir."
+           "rationale": "Adaptasi pasif misalnya mengetahui prakiraan bulan hujan yang berisiko banjir.",
+           "misconception_code": "SMA11-G-B4-14"
           },
           {
            "_row": {
@@ -1642,7 +1727,8 @@
            "label": "C",
            "body": "sosial",
            "is_correct": false,
-           "rationale": "Adaptasi sosial berupa gotong royong dan solidaritas antarwarga."
+           "rationale": "Adaptasi sosial berupa gotong royong dan solidaritas antarwarga.",
+           "misconception_code": "SMA11-G-B4-14"
           },
           {
            "_row": {
@@ -1652,7 +1738,8 @@
            "label": "D",
            "body": "budaya",
            "is_correct": false,
-           "rationale": "Adaptasi budaya misalnya tahlilan dan istighosah."
+           "rationale": "Adaptasi budaya misalnya tahlilan dan istighosah.",
+           "misconception_code": "SMA11-G-B4-14"
           }
          ]
         },
@@ -1674,7 +1761,8 @@
            "label": "A",
            "body": "kekeringan",
            "is_correct": false,
-           "rationale": "Adaptasi kekeringan antara lain irigasi hemat air dan kampanye hemat air."
+           "rationale": "Adaptasi kekeringan antara lain irigasi hemat air dan kampanye hemat air.",
+           "misconception_code": "SMA11-G-B4-15"
           },
           {
            "_row": {
@@ -1684,7 +1772,8 @@
            "label": "B",
            "body": "kebakaran hutan dan lahan",
            "is_correct": false,
-           "rationale": "Adaptasinya antara lain sekat kanal dan embung."
+           "rationale": "Adaptasinya antara lain sekat kanal dan embung.",
+           "misconception_code": "SMA11-G-B4-15"
           },
           {
            "_row": {
@@ -1694,7 +1783,8 @@
            "label": "C",
            "body": "tanah longsor",
            "is_correct": false,
-           "rationale": "Adaptasinya antara lain menanam pohon di lokasi longsor."
+           "rationale": "Adaptasinya antara lain menanam pohon di lokasi longsor.",
+           "misconception_code": "SMA11-G-B4-15"
           },
           {
            "_row": {
@@ -1726,7 +1816,8 @@
            "label": "A",
            "body": "adaptation by reaction",
            "is_correct": false,
-           "rationale": "Adaptation by reaction dilakukan dengan menanam pohon di lokasi longsor."
+           "rationale": "Adaptation by reaction dilakukan dengan menanam pohon di lokasi longsor.",
+           "misconception_code": "SMA11-G-B4-14"
           },
           {
            "_row": {
@@ -1736,7 +1827,8 @@
            "label": "B",
            "body": "adaptation by adjustment",
            "is_correct": false,
-           "rationale": "Adaptation by adjustment adalah perubahan perilaku masyarakat terhadap lingkungan."
+           "rationale": "Adaptation by adjustment adalah perubahan perilaku masyarakat terhadap lingkungan.",
+           "misconception_code": "SMA11-G-B4-14"
           },
           {
            "_row": {
@@ -1756,7 +1848,8 @@
            "label": "D",
            "body": "adaptasi fisik",
            "is_correct": false,
-           "rationale": "Menurut buku, perubahan konstruksi rumah terhadap gempa bumi adalah adaptasi fisik."
+           "rationale": "Menurut buku, perubahan konstruksi rumah terhadap gempa bumi adalah adaptasi fisik.",
+           "misconception_code": "SMA11-G-B4-14"
           }
          ]
         },
@@ -1778,7 +1871,8 @@
            "label": "A",
            "body": "fisik",
            "is_correct": false,
-           "rationale": "Adaptasi fisik mereka berupa sekat kanal dan embung."
+           "rationale": "Adaptasi fisik mereka berupa sekat kanal dan embung.",
+           "misconception_code": "SMA11-G-B4-14"
           },
           {
            "_row": {
@@ -1798,7 +1892,8 @@
            "label": "C",
            "body": "ekonomi",
            "is_correct": false,
-           "rationale": "Adaptasi ekonomi mereka berupa beberapa pekerjaan sebagai sumber pendapatan."
+           "rationale": "Adaptasi ekonomi mereka berupa beberapa pekerjaan sebagai sumber pendapatan.",
+           "misconception_code": "SMA11-G-B4-14"
           },
           {
            "_row": {
@@ -1808,7 +1903,8 @@
            "label": "D",
            "body": "struktural",
            "is_correct": false,
-           "rationale": "Adaptasi struktural mereka berupa aktivitas ramah gambut dan kerja sama dengan pemerintah."
+           "rationale": "Adaptasi struktural mereka berupa aktivitas ramah gambut dan kerja sama dengan pemerintah.",
+           "misconception_code": "SMA11-G-B4-14"
           }
          ]
         }
@@ -1817,6 +1913,158 @@
      ]
     }
    ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SMA11-G-B4-01",
+   "label": "Iklim, cuaca, dan perubahan iklim tertukar",
+   "description": "Ciri cuaca dipakai untuk iklim, atau pengertian iklim tertukar dengan perubahan iklim.",
+   "remediation": "Bandingkan lamanya (lebih dari 30 tahun atau sewaktu-waktu) dan luas wilayahnya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SMA11-G-B4-02",
+   "label": "Gejala perubahan iklim tertukar",
+   "description": "Satu gejala perubahan iklim disebut dengan nama atau penjelasan gejala lain.",
+   "remediation": "Buat daftar gejala dengan satu contoh untuk setiap gejala."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SMA11-G-B4-03",
+   "label": "Gas rumah kaca dan sumbernya tertukar",
+   "description": "Gas lain dikira gas rumah kaca, atau sumber satu gas dipakai untuk gas lain.",
+   "remediation": "Pasangkan setiap gas rumah kaca dengan sumber utamanya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SMA11-G-B4-04",
+   "label": "Cara kerja gas rumah kaca keliru",
+   "description": "Sumber gas atau akibat pemanasan dikira cara gas rumah kaca menaikkan suhu.",
+   "remediation": "Pisahkan tiga pertanyaan: dari mana gasnya, apa yang dilakukan gas itu, dan apa akibatnya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SMA11-G-B4-05",
+   "label": "Dampak perubahan iklim tertukar",
+   "description": "Dampak di satu wilayah atau dari satu gejala dipakai untuk wilayah atau gejala lain.",
+   "remediation": "Kelompokkan dampak menurut penyebabnya: suhu naik, musim bergeser, atau air laut naik."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SMA11-G-B4-06",
+   "label": "Lokasi terdampak atau sebaran tertukar",
+   "description": "Tempat yang disebut untuk satu peristiwa atau zona dipakai untuk yang lain.",
+   "remediation": "Minta murid menyebut peristiwa yang terkait dengan setiap tempat."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SMA11-G-B4-07",
+   "label": "Unsur dinamika bencana tertukar",
+   "description": "Kerentanan, ancaman, dan kapasitas tertukar.",
+   "remediation": "Tanyakan: apakah ini keadaan manusia, peristiwa yang berpotensi merugikan, atau kemampuan masyarakat?"
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SMA11-G-B4-08",
+   "label": "Jenis kerentanan tertukar",
+   "description": "Kerentanan sosial, fisik, lingkungan, dan ekonomi tertukar.",
+   "remediation": "Cocokkan aspek yang diukur dengan jenis kerentanannya: penduduk, benda, alam, atau rumah tangga."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SMA11-G-B4-09",
+   "label": "Pengertian jenis bencana tertukar",
+   "description": "Pengertian atau istilah satu bencana dipakai untuk bencana lain.",
+   "remediation": "Minta murid menyebut ciri pembeda setiap bencana sebelum memilih."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 11
+   },
+   "code": "SMA11-G-B4-10",
+   "label": "Penyebab atau tanda bencana tertukar",
+   "description": "Penyebab atau tanda satu bencana dipakai untuk bencana lain.",
+   "remediation": "Buat peta konsep: setiap bencana dengan penyebab, tanda, dan contohnya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 12
+   },
+   "code": "SMA11-G-B4-11",
+   "label": "Mitigasi, adaptasi, dan kapasitas tertukar",
+   "description": "Pengertian mitigasi, adaptasi, dan kapasitas tertukar.",
+   "remediation": "Tanyakan apakah kegiatannya mengurangi risiko, menyesuaikan cara hidup, atau kemampuan yang dimiliki."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 13
+   },
+   "code": "SMA11-G-B4-12",
+   "label": "Mitigasi per bencana tertukar",
+   "description": "Kegiatan mitigasi satu bencana dipakai untuk bencana lain.",
+   "remediation": "Pasangkan setiap kegiatan dengan bahaya yang dicegahnya: gelombang, lahar, guncangan, lereng, atau air."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 14
+   },
+   "code": "SMA11-G-B4-13",
+   "label": "Mitigasi struktural dan nonstruktural tertukar",
+   "description": "Pembangunan fisik dan penyadaran atau pendidikan tertukar.",
+   "remediation": "Tanyakan apakah kegiatannya membangun sesuatu atau menambah pengetahuan dan kesadaran."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 15
+   },
+   "code": "SMA11-G-B4-14",
+   "label": "Bentuk adaptasi tertukar",
+   "description": "Bentuk adaptasi (aktif, pasif, sosial, ekonomi, budaya, fisik, kultural, reaction, adjustment, withdrawal) tertukar.",
+   "remediation": "Minta murid mencocokkan contoh dengan pengertian setiap bentuk adaptasi."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 16
+   },
+   "code": "SMA11-G-B4-15",
+   "label": "Adaptasi per bencana tertukar",
+   "description": "Bentuk adaptasi satu bencana dipakai untuk bencana lain.",
+   "remediation": "Tanyakan bahaya apa yang ditahan atau disiasati oleh bentuk adaptasi itu."
   }
  ]
 }

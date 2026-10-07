@@ -14,8 +14,13 @@ import { PENERIMA_KEAMANAN } from "./pengaturan";
  * GLOBAL limit (the migration's email_send_reserve), so other email to the
  * same address can never silence it. Called only for an ID that is a
  * person's, at a threshold or a recovery, after the answer has gone.
+ *
+ * CR-13 (D-120 QN1): an email corrected after activation is told to both the
+ * old and the new address. Auth already holds the new one (the owner's); the
+ * old one, given here, is told in the owner's voice too.
  */
-export async function kirimPemberitahuanKeamanan(peristiwa: PeristiwaKeamanan, pintarId: string, pemilik: string | null): Promise<void> {
+export async function kirimPemberitahuanKeamanan(peristiwa: PeristiwaKeamanan, pintarId: string, pemilik: string | null,
+  alamatLama: string | null = null): Promise<void> {
   const waktu = new Date().toISOString();
   const tautanLupa = `${appUrl()}${HALAMAN_PEMULIHAN}`;
   const kirim = async (ke: string, untuk: "PEMILIK" | "ADMIN") => {
@@ -32,6 +37,7 @@ export async function kirimPemberitahuanKeamanan(peristiwa: PeristiwaKeamanan, p
     const alamat = data?.user?.email ? normalisasiAlamat(data.user.email) : null;
     if (alamat) tugas.push(kirim(alamat, "PEMILIK"));
   }
+  if (alamatLama) tugas.push(Promise.resolve().then(() => kirim(normalisasiAlamat(alamatLama), "PEMILIK")));
   const hasil = await Promise.allSettled(tugas);
   for (const r of hasil) {
     if (r.status === "rejected") console.error(`[keamanan] a security notice (${peristiwa}) failed: ${r.reason instanceof Error ? r.reason.name : "unknown"}`);

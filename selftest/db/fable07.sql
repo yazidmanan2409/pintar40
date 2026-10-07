@@ -130,8 +130,11 @@ begin
     values (v_inst, v_inst, 'FACULTY', 'Fakultas') returning org_nodes.id into v_fac;
     insert into public.org_nodes (institution_id, parent_id, kind, name)
     values (v_inst, v_fac, 'DEPARTMENT', 'Jurusan A') returning org_nodes.id into v_dep;
-    insert into public.org_nodes (institution_id, parent_id, kind, name)
-    values (v_inst, v_fac, 'DEPARTMENT', 'Jurusan B') returning org_nodes.id into v_dep2;
+    -- RESTATED FOR BOB-43 (a changed requirement, D-069(d)): the professional-development
+    -- branch is a Bagian that says so; its Programme, Angkatan and Kelas inherit it, and
+    -- an academic Bagian would now refuse the assignment below
+    insert into public.org_nodes (institution_id, parent_id, kind, name, learning_context)
+    values (v_inst, v_fac, 'DEPARTMENT', 'Jurusan B', 'PROFESSIONAL_DEVELOPMENT') returning org_nodes.id into v_dep2;
     insert into public.org_nodes (institution_id, parent_id, kind, name)
     values (v_inst, v_dep, 'PROGRAMME', 'Program A') returning org_nodes.id into v_prog;
     insert into public.org_nodes (institution_id, parent_id, kind, name)

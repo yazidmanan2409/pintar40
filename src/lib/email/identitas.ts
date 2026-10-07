@@ -33,8 +33,11 @@ export type DataEmailPasswordDiubah = {
   tautanLupa: string;
 };
 
-/** PEMBERITAHUAN_KEAMANAN (BOB-28, C7): what happened to a PINTAR ID's PIN recovery. */
-export type PeristiwaKeamanan = "TERKUNCI" | "DITANGGUHKAN" | "PULIH_PIN" | "DIATUR_ULANG";
+/**
+ * PEMBERITAHUAN_KEAMANAN (BOB-28, C7): what happened to a PINTAR ID's PIN recovery; and (CR-13, D-120 QN1) its sign-in
+ * email corrected after activation, told to the old and the new address.
+ */
+export type PeristiwaKeamanan = "TERKUNCI" | "DITANGGUHKAN" | "PULIH_PIN" | "DIATUR_ULANG" | "EMAIL_DIKOREKSI";
 
 /**
  * A security notice, to the account's owner or to the platform admin (C7). The

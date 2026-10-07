@@ -7,6 +7,7 @@ import { konteksPembelajaran } from "@/lib/pembelajaran";
 import PengalihBahasa from "./PengalihBahasa";
 import MerekPintar from "./MerekPintar";
 import TombolBantuan from "./tur/TombolBantuan";
+import TautanLapor from "@/components/lapor/TautanLapor";
 import SesiSaya from "./SesiSaya";
 import TabTempat, { tempatDariPeran, tawarkanStudio } from "./TabTempat";
 
@@ -148,6 +149,8 @@ export default async function CangkangPengalaman({
         </nav>
         <span className="pin-spacer" />
         <TombolBantuan locale={locale} persona="educator" beranda="/mengajar" />
+        {/* DAISY-12 (D-037 step 2): beside Bantuan on every staff shell */}
+        <TautanLapor locale={locale} persona="educator" />
         <PengalihBahasa locale={locale} />
         <SesiSaya locale={locale} persona="educator" viewer={viewer} peran={peran} />
       </header>
@@ -166,6 +169,7 @@ export default async function CangkangPengalaman({
           <TabTempat tempat={tempat} kecuali={["/pimpinan"]} locale={locale} persona="staff" studio={studio} />
         </nav>
         <span className="pin-spacer" />
+        <TautanLapor locale={locale} />
         <PengalihBahasa locale={locale} />
         <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />
       </header>
@@ -190,6 +194,7 @@ export default async function CangkangPengalaman({
           <TabTempat tempat={tempat} locale={locale} persona="staff" studio={studio} />
         </nav>
         <span className="pin-spacer" />
+        <TautanLapor locale={locale} />
         <PengalihBahasa locale={locale} />
         <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />
       </header>
@@ -231,6 +236,7 @@ export default async function CangkangPengalaman({
           <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} />
         </nav>
         <span className="pin-spacer" />
+        <TautanLapor locale={locale} persona="educator" />
         <PengalihBahasa locale={locale} />
         <SesiSaya locale={locale} persona="educator" viewer={viewer} peran={peran} />
       </header>

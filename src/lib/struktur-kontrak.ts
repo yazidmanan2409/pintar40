@@ -40,6 +40,11 @@ export type SimpulStruktur = {
   is_active: boolean;
   /** Students placed now, for a Tingkat or Kelas; null for a Bagian. */
   active_members: number | null;
+  /**
+   * BOB-45: the kind a member of this place is -- LEARNER (the school's teaching) or PARTICIPANT (educators'
+   * professional learning, BOB-43), set on the Bagian when it is made and never changed. Never the context (R10).
+   */
+  member_kind?: string | null;
 };
 
 export type KelasTersusun = SimpulStruktur & { level: "KELAS" };

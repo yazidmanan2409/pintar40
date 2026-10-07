@@ -6,13 +6,13 @@
 //       raw official results (assessment_results), not from PINTAR's calculators: participants, comprehension (the
 //       mean post-test mastery), net gain (post − pre, per learner with both), the readiness tiers, each student's
 //       mastery against the sealed mark, and the certificates the school has issued.
-//   L1  GS-17, the teacher (J7.1, J7.2): signs in by the real email link → Mengajar → «Kelas 5A» → «Lihat bukti»: the
+//   L1  GS-17, the teacher (J7.1): signs in with their password (masuk.mjs) → Mengajar → «Kelas 5A» → «Lihat bukti»: the
 //       day's counts and the class's conclusions equal L0's; each student's «Hasil resmi» shows their mastery and
 //       whether it is under the school's target. Scope: another school's class is refused; /pimpinan is refused; the
 //       school's summary shows the teacher no school figure.
-//   L2  GS-17, the head of department (J7.3): signs in → /pimpinan → «Per kelas» → «Kelas 5A»: the same figures. Scope:
+//   L2  GS-17, the head of department (J7.2): signs in → /pimpinan → «Per kelas» → «Kelas 5A»: the same figures. Scope:
 //       no school figures and no «Buka ringkasan sekolah»; the school's root and another school's node are refused.
-//   L3  GS-17, the dean (J7.4): signs in (the dean's first sign-in) → /pimpinan: the school's figures; «Kelas 5A» the
+//   L3  GS-17, the dean (J7.3): signs in (the dean's first sign-in) → /pimpinan: the school's figures; «Kelas 5A» the
 //       same as above; «Buka ringkasan sekolah»: «Sertifikat terbit» equals the certificates issued. Scope: another
 //       school's root is refused; its summary shows the dean nothing.
 //   L4  GS-17, the school admin (J7.4): signs in → Konfigurasi → «Laporan»: the school summary and «Kelas 5A»'s summary
@@ -21,23 +21,55 @@
 //   C1  GS-18 (J8.1, J8.2), read only: eligibility computed here (official, a sealed mark, the safety gate, mastery at
 //       or above the mark) against what was issued: exactly one ISSUED certificate per eligible student, on their
 //       Uji Penguasaan, none for the others and none for a Pemetaan Awal; numbers in sequence; the name as issued.
-//   C2  GS-18 (J8.3): the holder sees the certificate. NOT RUN on this school: a class card's PIN is shown once, the
-//       cards were made and used in one run (golden-school-murid.mjs), and main has no card re-issue (GS-21, held
-//       with Gate 3). The student cannot sign in again without it; a server-made session is never journey evidence.
+//   R1  GS-21 (J2.21): the school admin signs in → Aktivasi → «Kartu hilang atau rusak»: the primary student's card
+//       is re-issued as lost and Bunga's as damaged, each by «Terbitkan kartu baru», the reason and «Ya, terbitkan
+//       kartu baru»; the walk reads each new card from its sheet (never printed). Read back: the account's card is
+//       the new one, `account.card_reissued` says why, the results stay, and no session of the old card is open
+//       (D-101(3)). This is how the students sign in again: a card's PIN is shown once (golden-school-murid.mjs).
+//   C2  GS-18 (J8.3): on the class computer, the holder signs in with the new card → «Sertifikat» → the chapter:
+//       «Sertifikat Penguasaan», its number, the name as issued and the verification link, equal to the record.
+//   U1  GS-20 (J2.9, J2.20), the same class computer: the holder opens a lesson past its first page; 5 minutes
+//       without touching anything and the screen goes to «PINTAR terkunci» (no name, no question about the
+//       computer); the new card's PIN resumes the lesson at the same page. Idle again: «Bukan akun Anda?» → «Keluar»;
+//       her lesson's address now asks for a sign-in. Bunga signs in on the same browser: her own session, the same
+//       lesson at her own saved place (the record's furthest page for her, never the holder's). She signs out. Two real
+//       5-minute waits: nothing is shortened or simulated.
+//   U2  GS-20 (J2.10), staff on a shared computer (CR-17): before U1, the head of department signs in on a new browser
+//       and answers «Komputer siapa ini?» with «Komputer bersama»; after U1's waits (more than 5 idle minutes), the
+//       server sends that browser's page to «PINTAR terkunci», her PIN resumes the same page, and she signs out. The
+//       60-minute end is not walked (it would hold a runner for an hour): BOB29-A03 proves it on the local stack.
 //   C3  GS-18: staff never open a certificate; the teacher's browser at the holder's certificate page shows none.
+//   R2  GS-21 (J2.11): the teacher, on another browser, «Lupa password?» → the emailed code → a new password; the
+//       browser of L1 is signed out (D-101(3)); the teacher reads their PINTAR ID on «Akun saya».
+//   R3  GS-21 (J2.12): on a third browser, «Lupa password?» → «Pakai PINTAR ID dan PIN» with that ID and the PIN set
+//       at activation → a new password (the activation's again); R2's browser is signed out. The teacher signs out.
+//       J2.13 (CR-20): the teacher's own notice «PINTAR ID dan PIN Anda dipakai untuk memulihkan akun» arrives in
+//       the staging mailbox with the PINTAR ID and never the PIN, and PINTAR's send log holds that notice and the
+//       platform admin's as sent (read only, by the address's hash; the admin's mailbox is not the walk's).
 //   V1  GS-19 (J8.6): an anonymous visitor (a fresh browser, no sign-in) opens each issued certificate's verification
 //       link, as the certificate page builds it (<app>/verifikasi/<token>): «Berlaku», the result, the school, the
-//       date; never the holder's name. The token is read from the database because C2 cannot be walked here.
+//       date; never the holder's name. The holder's link is the one C2 read on her page; the others, from the record.
 //   V2  GS-19: a random and a malformed code give the private not-found and reveal nothing; the endpoint says 404.
+//   N1  GS-22 (CR-16, D-118 §8): a learner added after the chapter was given. The school admin records one new
+//       student on Pendataan into «Kelas 5A» and, on Aktivasi, makes the class's cards: one card, for the one learner
+//       without an account. The learner signs in with it, finds the class's existing chapter on /belajar, opens its
+//       Pemetaan Awal by clicking (no sitting before the press), sits it and reaches the reading map; signs out.
+//   X1  GS-20, everyone signs out, read only: every session this run opened is ended (by «Keluar», or by the
+//       credential's replacement), none left open; the new learner of N1 and the shared browser of U2 included.
 //
-// NEVER: production; a direct write (the database is read in read-only transactions); a server-made session as a
-// person's act. The walk changes nothing in PINTAR: it signs four staff in and reads.
+// NEVER: production; a direct write (the database is read in read-only transactions; every write is a press of
+// PINTAR's buttons); a server-made session as a person's act; a card number, PIN or password in the log. The walk
+// changes two cards and the teacher's password, as their owners' journeys do, and leaves the teacher on the password
+// set at activation. Each run spends four emails of the teacher's address (R2's code, two «password diganti» notices
+// and R3's security notice) of the six PINTAR sends one address an hour, so runs an hour apart stay inside it.
 import { chromium } from "playwright";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { APP, SLOW, closeTour } from "../perf/lib.mjs";
+import { keadaanDari, kredensial, masukStaf, pulihkanDenganEmail, pulihkanDenganPin, selesaikan, tutupi } from "./masuk.mjs";
+import { catat } from "./pendataan.mjs";
 
 const env = (k) => { const v = process.env[k]; if (!v) throw new Error(`${k} is not set`); return v; };
 const DB = env("STAGING_SUPABASE_DB_URL");
@@ -69,7 +101,7 @@ const ANGKA = new Intl.NumberFormat("id-ID");
 const persen = (v) => PERSEN.format(v);
 const poin = (v) => { const p = Math.round(v * 100); return `${p > 0 ? "+" : ""}${ANGKA.format(p)} poin`; };
 // PINTAR's fixed performance bands (D-095, 3 Oct): band words in band order, never certificate readiness
-const TIER = { siap: "Mantap", review: "Berkembang", dampingi: "Perlu penguatan" };
+const TIER = { siap: "Mantap", review: "Berkembang", dampingi: "Perlu penguatan", belum: "Belum mengerjakan Uji Penguasaan" };
 const PITA = "Sebaran hasil Uji Penguasaan";
 
 const results = [];
@@ -99,19 +131,49 @@ async function buka(page, path) {
   await page.goto(`${APP}${path}`, { timeout: SLOW, waitUntil: "networkidle" });
   await closeTour(page);
 }
+// a person signs in as Gate 3 has it (masuk.mjs): activation the first time, the password after; where it lands
+const jalanMasuk = new Map();
 async function masukSurel(page, email) {
-  const t0 = Date.now() / 1000 - 60;
+  const r = await masukStaf(page, email, keadaanDari(sql, lit));
+  jalanMasuk.set(email, `${r.jalan}${r.lewat.length ? ` (${r.lewat.join(" → ")})` : ""}`);
+  return r.di;
+}
+async function masukKartu(page, k) {
   await page.goto(`${APP}/masuk`, { timeout: SLOW, waitUntil: "networkidle" });
-  await page.locator("#email").fill(email);
-  await page.getByRole("button", { name: "Kirim tautan masuk" }).click();
-  await page.getByRole("heading", { name: "Periksa email Anda" }).waitFor({ timeout: SLOW });
-  const link = execFileSync("python3", ["mailbox_link.py", email, String(t0), "180"], { encoding: "utf8" }).trim();
-  console.log(`::add-mask::${link}`);
-  await page.goto(link, { timeout: SLOW, waitUntil: "networkidle" });
-  await page.waitForURL((u) => !u.pathname.startsWith("/auth/"), { timeout: SLOW }).catch(() => {});
+  await page.getByRole("button", { name: "Gunakan kartu kelas" }).click();
+  await page.locator("#kartu").fill(k.number);
+  await page.locator("#pin").fill(k.pin);
+  await page.getByRole("button", { name: "Masuk dengan kartu" }).click();
+  await page.waitForURL((u) => u.pathname !== "/masuk" && u.pathname !== "/masuk/kartu", { timeout: SLOW });
   await page.waitForLoadState("networkidle");
   await closeTour(page);
   return new URL(page.url()).pathname;
+}
+// «Keluar» on the session strip, as a person leaves; where it went
+async function keluar(page) {
+  const dari = new URL(page.url()).pathname;
+  await page.getByRole("button", { name: "Keluar", exact: true }).first().click();
+  await page.waitForURL((u) => u.pathname !== dari, { timeout: SLOW });
+  // the public front it lands on never goes network-idle (run 37289554356); the sign-out itself is X1's to judge
+  await page.waitForLoadState("load");
+  return new URL(page.url()).pathname;
+}
+// read only: the sessions one person opened since `sejak` (epoch seconds), each «MODE:ended reason» or «MODE:OPEN»
+const sesiSejak = (auth, sejak) => sql(`select coalesce(string_agg(d.mode || ':' || coalesce(d.ended_reason, 'OPEN'), ',' order by d.created_at), '')
+    from public.device_sessions d where d.auth_user_id = '${uuid(auth)}' and d.created_at >= to_timestamp(${Number(sejak)})`);
+const authDari = (email) => uuid(sql(`select u.id from auth.users u where lower(u.email) = lower(${lit(email)}) limit 1`));
+const kini = () => Number(sql("select floor(extract(epoch from clock_timestamp()))"));
+const MULAI = kini();
+// a person done with their part goes home and signs out; how it went is X1's to judge, not the step's
+const pamitan = new Map();
+async function pamit(page, siapa, rumah) {
+  try {
+    await buka(page, rumah);
+    pamitan.set(siapa, `«Keluar» → ${await keluar(page)}`);
+  } catch (e) {
+    pamitan.set(siapa, `«Keluar» failed: ${String(e.message ?? e).split("\n")[0].slice(0, 120)}`);
+  }
+  await page.context().close();
 }
 
 // Every figure on a page, as a person reads it: its label, its value, its sample line, and any rows (a readiness
@@ -128,7 +190,7 @@ async function angka(scope) {
   }));
 }
 // one figure, by its label, must read as expected; returns a line for the log, or throws
-function harus(figs, label, { nilai, sampel, tingkat, kurang, pita } = {}) {
+function harus(figs, label, { nilai, sampel, tingkat, kurang, pita, belum } = {}) {
   const f = figs.find((x) => x.label === label);
   if (!f) throw new Error(`no «${label}» on the page (labels: ${figs.map((x) => x.label).filter(Boolean).join(", ") || "none"})`);
   const salah = [];
@@ -140,6 +202,9 @@ function harus(figs, label, { nilai, sampel, tingkat, kurang, pita } = {}) {
     for (const [k, n] of Object.entries(ada)) if (!(k in tingkat) && n !== 0) salah.push(`unexpected «${k}» ${n}`);
   }
   if (kurang && !/Belum cukup data|Belum ada bukti/.test(f.teks)) salah.push(`expected withheld below its minimum, got «${f.teks.slice(0, 120)}»`);
+  // CR-81 (D-123(3)): the class's population is said apart from the bands, «… · N belum mengerjakan Uji Penguasaan»
+  if (belum !== undefined && !new RegExp(`(^|\\D)${belum} belum mengerjakan Uji Penguasaan`).test(f.teks))
+    salah.push(`the population does not say ${belum} have not sat the Uji Penguasaan («${f.teks.slice(0, 200)}»)`);
   if (pita) {
     // D-095: the bands drawn in band order, with the line that they are PINTAR's fixed bands, not the school's threshold
     const urut = f.baris.map(([k]) => k).filter((k) => Object.values(TIER).includes(k));
@@ -209,26 +274,37 @@ await step("L0", `read only: «${SLUG}», «${KELAS}», «${BAB}», and the figu
   const semua = [...murid.values()];
   const posts = semua.filter((x) => x.post);
   const kedua = semua.filter((x) => x.post && x.pre);
+  // D-095(c): below 60% or a required item missed is «Perlu penguatan»; 60–79% «Berkembang»; 80% and above «Mantap»
+  // CR-81 (D-123(3)): the bands are the assessed alone; «Belum mengerjakan» is the class's population, never a band
   const tingkat = { [TIER.siap]: 0, [TIER.review]: 0, [TIER.dampingi]: 0 };
-  for (const x of posts) tingkat[x.post.m < 0.6 ? TIER.dampingi : x.post.m < 0.8 || !x.post.gerbang ? TIER.review : TIER.siap]++;
+  for (const x of posts) tingkat[x.post.m < 0.6 || !x.post.gerbang ? TIER.dampingi : x.post.m < 0.8 ? TIER.review : TIER.siap]++;
+  // D-121(c): a learner placed in the class now (an open placement of a PENDING or ACTIVE enrolment) with no official
+  // Uji Penguasaan result there is «Belum mengerjakan Uji Penguasaan», never a band
+  const belum = Number(sql(`select count(distinct e.person_id) from public.memberships m
+      join public.enrollments e on e.id = m.enrollment_id
+     where m.node_id = '${uuid(kelas)}' and m.valid_to is null and e.status in ('PENDING', 'ACTIVE')
+       and not exists (select 1 from public.assessment_sessions s
+                         join public.assessment_results r on r.session_id = s.id and r.supersedes_result_id is null
+                        where s.person_id = e.person_id and s.class_node_id = '${uuid(kelas)}' and s.mode = 'POST_TEST'
+                          and s.status = 'FINALIZED' and public.effective_evidence_class(s.id) = 'OFFICIAL')`));
   const terbit = Number(sql(`select count(*) from public.academic_certificates c where c.institution_id = '${uuid(id)}' and c.status = 'ISSUED'`));
   S = {
     id, nama, kelas, bagian, akar, tugas, kursus, kelasLain, akarLain, murid: semua, terbit,
     peserta: semua.length,
     paham: posts.reduce((t, x) => t + x.post.m, 0) / posts.length,
     naik: kedua.reduce((t, x) => t + (x.post.m - x.pre.m), 0) / kedua.length,
-    nPost: posts.length, nKedua: kedua.length, tingkat,
+    nPost: posts.length, nKedua: kedua.length, tingkat, belum,
   };
   if (S.peserta !== MURID.length || posts.length !== MURID.length) { rec.verdict = "FAIL"; return `${S.peserta} learners with official results, ${posts.length} post-tests; the recipe has ${MURID.length}`; }
   return `${nama}: ${S.peserta} learners; expected Pemahaman ${persen(S.paham)} (from ${S.nPost}), Kenaikan ${poin(S.naik)} (from ${S.nKedua}), ` +
-    `tiers ${Object.entries(tingkat).map(([k, n]) => `${k} ${n}`).join(", ")}; certificates issued ${terbit}; ` +
+    `tiers ${Object.entries(tingkat).map(([k, n]) => `${k} ${n}`).join(", ")}; not yet assessed ${belum}; certificates issued ${terbit}; ` +
     semua.map((x) => `${x.nama.split(" ")[0]} pre ${x.pre ? persen(x.pre.m) : "-"} post ${persen(x.post.m)}${x.post.batas != null ? ` (mark ${persen(x.post.batas)})` : ""}`).join("; ");
 });
 
 const KELAS_ANGKA = () => ({
   paham: [`Pemahaman`, { nilai: persen(S.paham), sampel: S.nPost }],
   naik: [`Kenaikan`, { nilai: poin(S.naik), sampel: S.nKedua }],
-  siap: [PITA, { tingkat: S.tingkat, pita: true }],
+  siap: [PITA, { tingkat: S.tingkat, pita: true, belum: S.belum }],
 });
 
 // ── GS-17: the teacher
@@ -303,7 +379,7 @@ await step("L2", `GS-17 the head of department («${BAGIAN}»): signs in → /pi
   out.push("no school figure, no «Buka ringkasan sekolah»");
   out.push(await ditolak(p, `/pimpinan/${S.akar}`));
   out.push(await ditolak(p, `/pimpinan/${S.akarLain}`));
-  await p.context().close();
+  await pamit(p, "the head of department", "/pimpinan");
   return out.join("; ");
 });
 
@@ -322,7 +398,7 @@ async function kelasDiPimpinan(p, nama) {
   out.push(harus(figs, "Peserta", { nilai: ANGKA.format(S.peserta) }));
   out.push(harus(figs, "Pemahaman", { nilai: persen(S.paham) }));
   out.push(harus(figs, "Kenaikan", { nilai: poin(S.naik) }));
-  out.push(harus(figs, PITA, { tingkat: S.tingkat, pita: true }));
+  out.push(harus(figs, PITA, { tingkat: S.tingkat, pita: true, belum: S.belum }));
   return out;
 }
 
@@ -348,7 +424,7 @@ await step("L3", "GS-17 the dean: signs in (first time) → /pimpinan: the schoo
   out.push(`summary: ${harus(lap, "Peserta", { nilai: ANGKA.format(S.peserta) })}, ${harus(lap, "Sertifikat terbit", { nilai: ANGKA.format(S.terbit) })}`);
   out.push(await ditolak(p, `/pimpinan/${S.akarLain}`));
   out.push(await tanpaAngka(p, `/dekan/ringkasan?simpul=${S.akarLain}`));
-  await p.context().close();
+  await pamit(p, "the dean", "/pimpinan");
   return out.join("; ");
 });
 
@@ -368,10 +444,10 @@ await step("L4", "GS-17 the school admin: signs in → Konfigurasi → «Laporan
   const kls = await angka(p.locator("main"));
   await shot(p, "l4-admin-kelas");
   out.push(`«${KELAS}» summary: ${[harus(kls, "Peserta", { nilai: ANGKA.format(S.peserta) }),
-    ...Object.values(KELAS_ANGKA()).map(([label, h]) => harus(kls, label, { nilai: h.nilai, tingkat: h.tingkat, pita: h.pita }))].join(", ")}`);
+    ...Object.values(KELAS_ANGKA()).map(([label, h]) => harus(kls, label, { nilai: h.nilai, tingkat: h.tingkat, pita: h.pita, belum: h.belum }))].join(", ")}`);
   out.push(await ditolak(p, "/pimpinan"));
   out.push(await tanpaAngka(p, `/edukator/ringkasan?kelas=${S.kelasLain}`));
-  await p.context().close();
+  await pamit(p, "the school admin (L4)", "/konfigurasi");
   return out.join("; ");
 });
 
@@ -381,15 +457,22 @@ await step("C1", "GS-18 read only: who is eligible (official, sealed mark, safet
   if (!S) { rec.verdict = "NOT RUN"; return "L0 did not read the school"; }
   SERT = sql(`select c.person_id || '|' || c.session_id || '|' || s.mode::text || '|' || c.status::text || '|' || c.certificate_number || '|' ||
         c.verification_token || '|' || sn.name_as_issued || '|' || (c.signature is not null and c.signature <> '')::text || '|' ||
-        (c.revoked_at is null)::text || '|' || c.issued_at_iso
+        (c.revoked_at is null)::text || '|' || c.issued_at_iso || '|' || p.pintar_id || '|' ||
+        coalesce(cc.institution_as_issued, '')
       from public.academic_certificates c join public.assessment_sessions s on s.id = c.session_id
       join public.certificate_identity_snapshots sn on sn.id = c.snapshot_id
+      join public.persons p on p.id = c.person_id
+      join public.certificates cc on cc.id = c.id
      where c.institution_id = '${uuid(S.id)}' order by c.certificate_number`).split("\n").filter(Boolean).map((l) => {
-    const [orang, sesi, mode, status, nomor, token, nama, bertanda, berlaku, terbit] = l.split("|");
-    return { orang, sesi, mode, status, nomor, token, nama, bertanda: bertanda === "true", berlaku: berlaku === "true", terbit };
+    const [orang, sesi, mode, status, nomor, token, nama, bertanda, berlaku, terbit, pintarId, sekolahSegel] = l.split("|");
+    return { orang, sesi, mode, status, nomor, token, nama, bertanda: bertanda === "true", berlaku: berlaku === "true", terbit, pintarId, sekolahSegel };
   });
   const out = [];
-  const nomor = new RegExp(`^PINTAR/${SLUG.toUpperCase()}/\\d{4}/\\d{5}$`);
+  // CR-01 (D-080(2)(9)): the holder's PINTAR ID and their own five-digit sequence, sealed with the school's name as
+  // issued (CR-02). A certificate issued before 20261201100000 keeps its PINTAR/<school>/<year>/<n> number and has no seal.
+  const lama = new RegExp(`^PINTAR/${SLUG.toUpperCase()}/\\d{4}/\\d{5}$`);
+  const sah = (c) => (c.sekolahSegel ? new RegExp(`^${c.pintarId}/\\d{5}$`).test(c.nomor) && c.sekolahSegel === S.nama : lama.test(c.nomor));
+  const nomor = { test: (n) => SERT.some((c) => c.nomor === n && sah(c)) };
   for (const m of S.murid) {
     const layak = m.post.batas != null && m.post.gerbang && m.post.m >= m.post.batas;
     const milik = SERT.filter((c) => c.orang === m.orang);
@@ -404,12 +487,231 @@ await step("C1", "GS-18 read only: who is eligible (official, sealed mark, safet
   if (SERT.length !== S.terbit) { rec.verdict = "FAIL"; out.push(`${SERT.length} certificates, ${S.terbit} ISSUED`); }
   return out.join("; ");
 });
-await step("C2", "GS-18 the holder sees the certificate («Sertifikat» → «Sertifikat Penguasaan», its number and verification link)", async (rec) => {
-  rec.verdict = "NOT RUN";
-  return "the primary student cannot sign in again on this school: a card's PIN is shown once, the cards were made and used in one run, " +
-    "and main has no card re-issue (GS-21, held with Gate 3); a server-made session is never journey evidence. To walk on the next Golden School " +
-    "instance inside its students' one run (after «Kumpulkan»: «Lihat sertifikat»), and again when Gate 3 lands (D-088(f))";
+// ── GS-21: a lost card and a damaged one, re-issued by the school admin
+const kartuBaru = new Map(); // a student's name → the new card's number and PIN, read from its sheet (masked, never logged)
+const orangDari = (nama) => S?.murid.find((m) => m.nama === nama)?.orang;
+// read only: a learner's account: its card's last four digits, their official results, its open sessions, its Auth user
+const akunMurid = (orang) => {
+  const [akhir, hasil, terbuka, auth, sesiAuth] = sql(`select right(coalesce(a.card_number, ''), 4) || '|' ||
+      (select count(*) from public.assessment_results r join public.assessment_sessions s on s.id = r.session_id where s.person_id = a.person_id) || '|' ||
+      (select count(*) from public.device_sessions d where d.auth_user_id = a.auth_user_id and d.ended_at is null) || '|' || a.auth_user_id || '|' ||
+      (select count(*) from auth.sessions x where x.user_id = a.auth_user_id)
+    from public.accounts a where a.person_id = '${uuid(orang)}' limit 1`).split("|");
+  return { akhir, hasil: Number(hasil), terbuka: Number(terbuka), auth, sesiAuth: Number(sesiAuth) };
+};
+await step("R1", "GS-21 (J2.21) the school admin re-issues the primary student's lost card and Bunga's damaged one on Aktivasi «Kartu hilang atau rusak»; the old card stops, the account and its results stay", async (rec) => {
+  if (!S) { rec.verdict = "NOT RUN"; return "L0 did not read the school"; }
+  const A = await (await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "id-ID", timezoneId: "Asia/Jakarta" })).newPage();
+  const out = [];
+  const di = await masukSurel(A, mail("admin"));
+  if (di !== "/konfigurasi") throw new Error(`the admin landed on ${di}, not /konfigurasi`);
+  await klikTautan(A, "/aktivasi");
+  const bagian = A.locator('section[aria-labelledby="pin-akt-ulang"]');
+  await bagian.waitFor({ timeout: SLOW });
+  for (const [nama, alasan, kata] of [[MURID[0], "HILANG", "Kartunya hilang"], [MURID[1], "RUSAK", "Kartunya rusak"]]) {
+    const orang = orangDari(nama);
+    if (!orang) throw new Error(`${nama} has no official result (L0)`);
+    const sebelum = akunMurid(orang);
+    const jejak = Number(sql("select coalesce(max(id), 0) from public.audit_log"));
+    await bagian.locator('input[type="search"]').fill(nama);
+    const baris = bagian.locator("ul.pin-lap-baris > li").filter({ hasText: nama });
+    await baris.first().waitFor({ timeout: SLOW });
+    if ((await baris.count()) !== 1) throw new Error(`«${nama}» matches ${await baris.count()} rows`);
+    const akhiranLama = norm(await baris.innerText()).match(/Kartu berakhiran\s*(\d{4})/i)?.[1] ?? "";
+    await baris.getByRole("button", { name: "Terbitkan kartu baru", exact: true }).click();
+    await baris.getByRole("radio", { name: kata }).check();
+    await shot(A, `r1-${alasan.toLowerCase()}-konfirmasi`);
+    await baris.getByRole("button", { name: "Ya, terbitkan kartu baru", exact: true }).click();
+    // the new card's sheet (no screenshot: it carries the live PIN)
+    const lembar = bagian.locator("li.pin-akt-kartu").filter({ hasText: nama });
+    try { await lembar.waitFor({ timeout: SLOW }); } catch { throw new Error(`no new card for ${nama}: ${norm(await baris.innerText()).slice(0, 200)}`); }
+    const [number, pin] = await lembar.locator("dd.pin-num").evaluateAll((ds) => ds.map((d) => (d.textContent ?? "").trim()));
+    if (!/^\d{10}$/.test(number ?? "") || !/^\d{6}$/.test(pin ?? "")) throw new Error(`the new card's sheet for ${nama} does not read as a 10-digit number and a 6-digit PIN`);
+    kartuBaru.set(nama, { number: tutupi(number), pin: tutupi(pin) });
+    const sesudah = akunMurid(orang);
+    const [sebab, peran, sekolah] = sql(`select coalesce(l.summary->>'reason', '') || '|' || coalesce(l.summary->>'actor_role', '') || '|' || coalesce(l.institution_id::text, '')
+        from public.audit_log l where l.id > ${jejak} and l.action = 'account.card_reissued' and l.target_id = ${lit(orang)} order by l.id desc limit 1`).split("|");
+    const baru = sesudah.akhir === number.slice(-4) && sesudah.akhir !== sebelum.akhir;
+    const ok = akhiranLama === sebelum.akhir && baru && String(sebab).toUpperCase() === alasan && sekolah === S.id &&
+      sesudah.hasil === sebelum.hasil && sesudah.terbuka === 0 && sesudah.sesiAuth === 0;
+    if (!ok) rec.verdict = "FAIL";
+    out.push(`${nama.split(" ")[0]} («${kata}»): the list showed the card's last four digits ${akhiranLama === sebelum.akhir ? "as recorded" : "NOT as recorded"}; ` +
+      `the account's card is the new one ${baru}; audit ${sebab || "none"} by ${peran || "?"} at this school ${sekolah === S.id}; ` +
+      `official results ${sebelum.hasil} → ${sesudah.hasil}; open sessions ${sebelum.terbuka} → ${sesudah.terbuka}, Auth sessions ${sebelum.sesiAuth} → ${sesudah.sesiAuth}`);
+  }
+  await pamit(A, "the school admin (R1)", "/konfigurasi");
+  return out.join("; ");
 });
+
+// ── GS-18 and GS-20 on one class computer: the browser the students share
+let kelas = null;
+let TAUTAN = null; // the holder's verification link, as her certificate page shows it
+let tKelas = MULAI; // when the class computer's first sign-in began (R1's re-issue ends, and may record, older sessions)
+await step("C2", "GS-18 (J8.3) the holder signs in with her new card and sees the certificate: «Sertifikat» → the chapter → «Sertifikat Penguasaan», its number, the name as issued, its verification link", async (rec) => {
+  const k = kartuBaru.get(MURID[0]);
+  const c = SERT.find((x) => x.orang === orangDari(MURID[0]));
+  if (!k || !c) { rec.verdict = "NOT RUN"; return !k ? "R1 gave the primary student no new card" : "the primary student has no certificate (C1)"; }
+  tKelas = kini();
+  kelas = await (await ctx()).newPage();
+  const di = await masukKartu(kelas, k);
+  if (di !== "/belajar") throw new Error(`the new card landed on ${di}, not /belajar`);
+  const menu = kelas.locator('a[href="/belajar/sertifikat"]').first();
+  const lewatMenu = await menu.isVisible().catch(() => false);
+  if (lewatMenu) await klikTautan(kelas, "/belajar/sertifikat"); else await buka(kelas, "/belajar/sertifikat");
+  const tautanBab = kelas.locator(`a[href="/belajar/${S.tugas}/sertifikat"]`).first();
+  await tautanBab.waitFor({ timeout: SLOW });
+  await tautanBab.click();
+  await kelas.waitForURL((u) => u.pathname === `/belajar/${S.tugas}/sertifikat`, { timeout: SLOW });
+  await kelas.getByText(/Cetak atau simpan PDF/).first().waitFor({ timeout: SLOW });
+  await shot(kelas, "c2-sertifikat-pemegang");
+  const teks = norm(await kelas.locator("body").innerText());
+  TAUTAN = norm(await kelas.locator("code.pin-chip").first().innerText().catch(() => ""));
+  const harap = `/verifikasi/${encodeURIComponent(c.token)}`;
+  const salah = [];
+  if (!/Sertifikat Penguasaan/i.test(teks)) salah.push("no «Sertifikat Penguasaan»");
+  if (!teks.includes(c.nomor)) salah.push(`not its number ${c.nomor}`);
+  if (!teks.includes(c.nama)) salah.push("not the name as issued");
+  if (!TAUTAN.startsWith("https://") || !TAUTAN.endsWith(harap)) salah.push("a verification link that is not the record's");
+  if (salah.length) throw new Error(salah.join("; "));
+  return `the new card → /belajar → «Sertifikat» (${lewatMenu ? "its menu link" : "by address"}) → the chapter: «Sertifikat Penguasaan» ${c.nomor}, ` +
+    "the name as issued, «Cetak atau simpan PDF», and its verification link, the record's";
+});
+
+// ── GS-20, staff on a shared computer (CR-17): the head of department signs in now and is left alone; U1's two
+// 5-minute waits pass meanwhile, so her lock costs no extra wait. U2 reads it afterwards.
+let bersama = null, tBersama = 0, rumahBersama = null;
+await step("U2a", "GS-20 (J2.10) the head of department, on a new browser: signs in and answers «Komputer siapa ini?» with «Komputer bersama»; then is left alone", async (rec) => {
+  bersama = await (await ctx()).newPage();
+  const r = await masukStaf(bersama, mail("kabag"), keadaanDari(sql, lit), { perangkat: "SHARED" });
+  rumahBersama = r.di;
+  tBersama = kini();
+  const mode = sql(`select coalesce(string_agg(d.mode, ',' order by d.created_at), '') from public.device_sessions d
+     where d.auth_user_id = '${authDari(mail("kabag"))}' and d.ended_at is null and d.created_at >= to_timestamp(${MULAI})`);
+  if (!r.lewat.includes("perangkat bersama") || !/SHARED/.test(mode)) rec.verdict = "FAIL";
+  return `${r.jalan}${r.lewat.length ? ` (${r.lewat.join(" → ")})` : ""} → ${r.di}; open sessions this run: ${mode || "none"}`;
+});
+await step("U1", "GS-20 (J2.9, J2.20) the class computer: her lesson locks after 5 idle minutes and her card's PIN resumes it at the same page; idle again, «Bukan akun Anda?» → «Keluar»; Bunga signs in on the same browser to her own session and the lesson at her own saved place; she signs out", async (rec) => {
+  const ku = kartuBaru.get(MURID[0]), kb = kartuBaru.get(MURID[1]);
+  if (!kelas || !ku || !kb) { rec.verdict = "NOT RUN"; return !kelas ? "C2 did not sign the holder in" : "R1 gave the two students no new cards"; }
+  const p = kelas, out = [];
+  const authU = akunMurid(orangDari(MURID[0])).auth, authB = akunMurid(orangDari(MURID[1])).auth;
+  const posisi = async () => {
+    const m = norm(await p.locator("p.pin-lpos").first().innerText().catch(() => "")).match(/(\d+)\s*\/\s*(\d+)/);
+    return m ? [Number(m[1]), Number(m[2])] : [0, 0];
+  };
+  // the chapter's page → its first lesson in the list («Buka pelajarannya» on the reading map is there only while a
+  // lesson is unread, and the holder has read them all)
+  const bukaPelajaran = async () => {
+    await buka(p, `/belajar/${S.tugas}`);
+    await p.locator(`a.pin-row[href^="/belajar/${S.tugas}/pelajaran/"]`).first().click();
+    await p.waitForURL((u) => u.pathname.includes("/pelajaran/"), { timeout: SLOW });
+    await p.locator("p.pin-lpos").first().waitFor({ timeout: SLOW });
+    await p.waitForLoadState("networkidle");
+    return new URL(p.url()).pathname;
+  };
+  const pelajaran = await bukaPelajaran();
+  let [hal, dari] = await posisi();
+  if (hal === 1 && dari > 1) {
+    await p.getByRole("button", { name: "Halaman berikutnya", exact: true }).click();
+    await p.waitForFunction(() => /\b2\s*\//.test(document.querySelector("p.pin-lpos")?.textContent ?? ""), null, { timeout: SLOW });
+    [hal, dari] = await posisi();
+  }
+  await p.waitForTimeout(1500); // the page reached is saved on view
+  // 5 minutes without a key, a click or a move: the screen itself goes to «PINTAR terkunci»
+  const t0 = Date.now();
+  const tanda = await p.getByRole("button", { name: "Saya masih di sini" }).waitFor({ timeout: 5 * 60_000 })
+    .then(() => Math.round((Date.now() - t0) / 1000), () => null);
+  await p.waitForURL((u) => u.pathname === "/terkunci", { timeout: 7 * 60_000 });
+  const dikunci = Math.round((Date.now() - t0) / 1000);
+  await p.locator("#pin").waitFor({ timeout: SLOW });
+  await shot(p, "u1-terkunci");
+  const layar = norm(await p.locator("body").innerText());
+  const bernama = MURID.filter((n) => layar.includes(n));
+  const tanya = /Komputer siapa ini/.test(layar);
+  const kunciDb = sql(`select count(*) from public.device_sessions d where d.auth_user_id = '${uuid(authU)}' and d.ended_at is null and d.locked_at is not null`);
+  if (bernama.length || tanya || kunciDb !== "1") rec.verdict = "FAIL";
+  out.push(`her lesson at page ${hal}/${dari}; ${tanda != null ? `«Saya masih di sini» at ${tanda}s, ` : "no «Saya masih di sini» seen, "}` +
+    `«PINTAR terkunci» at ${dikunci}s (${bernama.length ? `names ${bernama.join(", ")}` : "no name"}, ${tanya ? "asks about the computer" : "no question about the computer"}; ` +
+    `${kunciDb} locked session recorded)`);
+  await p.locator("#pin").fill(ku.pin);
+  await p.getByRole("button", { name: "Lanjutkan", exact: true }).click();
+  await p.waitForURL((u) => u.pathname !== "/terkunci", { timeout: SLOW });
+  await p.locator("p.pin-lpos").first().waitFor({ timeout: SLOW }).catch(() => {});
+  const kembali = new URL(p.url()).pathname;
+  const [hal2] = await posisi();
+  if (kembali !== pelajaran || hal2 !== hal) rec.verdict = "FAIL";
+  out.push(`the card's PIN → ${kembali === pelajaran ? "her lesson" : kembali.replace(/[0-9a-f-]{36}/g, "<id>")} at page ${hal2}/${dari}`);
+  // idle again; the next learner's «Bukan akun Anda?» → «Keluar»
+  const t1 = Date.now();
+  await p.waitForURL((u) => u.pathname === "/terkunci", { timeout: 7 * 60_000 });
+  const dikunci2 = Math.round((Date.now() - t1) / 1000);
+  const bukan = p.getByRole("button", { name: "Keluar", exact: true });
+  await bukan.waitFor({ timeout: SLOW });
+  await shot(p, "u1-bukan-akun-anda");
+  await bukan.click();
+  await p.waitForURL((u) => u.pathname !== "/terkunci", { timeout: SLOW });
+  await p.waitForLoadState("load");
+  await p.goto(`${APP}${pelajaran}`, { timeout: SLOW, waitUntil: "networkidle" });
+  const tanpa = new URL(p.url()).pathname;
+  const sesiU = sesiSejak(authU, tKelas);
+  if (tanpa !== "/masuk" || sesiU !== "CARD:KELUAR") rec.verdict = "FAIL";
+  out.push(`locked again at ${dikunci2}s; «Bukan akun Anda?» → «Keluar»: her lesson's address → ${tanpa}; her session ${sesiU || "not recorded"}`);
+  // Bunga, on the same browser
+  const diB = await masukKartu(p, kb);
+  const pelajaranB = await bukaPelajaran();
+  const [halB] = await posisi();
+  await shot(p, "u1-bunga-pelajaran");
+  // her own place: the furthest page the record holds for her (BOB-23), the first page if none; never the holder's.
+  // Every learner read the whole chapter in the murid walk, so both may hold its last page, and then the page alone
+  // cannot tell the two apart: her own session (below) is what does
+  const idPelajaran = pelajaran.split("/").pop();
+  const jauh = (orang) => Number(sql(`select coalesce(max(lp.furthest_position), 0) from public.lesson_progress lp
+     where lp.person_id = '${uuid(orang)}' and lp.lesson_id = '${uuid(idPelajaran)}'`));
+  const milikB = Math.min(dari, Math.max(1, jauh(orangDari(MURID[1]))));
+  const milikU = Math.min(dari, Math.max(1, jauh(orangDari(MURID[0]))));
+  if (diB !== "/belajar" || pelajaranB !== pelajaran || (dari > 1 && halB !== milikB)) rec.verdict = "FAIL";
+  const pergi = await keluar(p);
+  const sesiB = sesiSejak(authB, tKelas);
+  if (sesiB !== "CARD:KELUAR") rec.verdict = "FAIL";
+  out.push(`Bunga's new card on the same browser → ${diB}; the same lesson opens at page ${halB}/${dari}, her own saved place ` +
+    `${milikB}/${dari} (the holder's ${milikU}/${dari}${milikB === milikU ? ": the same page, so the page alone cannot tell them apart; her own session does" : ""}); ` +
+    `she signs out → ${pergi}; her session ${sesiB || "not recorded"}`);
+  await p.context().close();
+  kelas = null;
+  if (rec.verdict === "PASS" && dari < 2) { rec.verdict = "NOTE"; out.push("the lesson has one page: whose position it opens at cannot be told apart"); }
+  return out.join("; ");
+});
+if (kelas) await kelas.context().close();
+
+await step("U2", "GS-20 (J2.10) the shared browser, after more than 5 idle minutes: the server sends its page to «PINTAR terkunci»; her PIN resumes the same page; «Keluar»", async (rec) => {
+  if (!bersama) { rec.verdict = "NOT RUN"; return "U2a did not sign the head of department in"; }
+  const p = bersama, k = kredensial(mail("kabag")), auth = authDari(mail("kabag"));
+  const diam = kini() - tBersama;
+  // a fresh load asks the server, so what it shows is the server's lock, whatever the page's own timer did
+  await p.reload({ timeout: SLOW, waitUntil: "networkidle" });
+  const terkunci = new URL(p.url()).pathname;
+  const kunci = sql(`select coalesce(string_agg(d.mode || ':' || (d.locked_at is not null)::text, ','), '') from public.device_sessions d
+     where d.auth_user_id = '${auth}' and d.ended_at is null and d.created_at >= to_timestamp(${tBersama - 120})`);
+  await shot(p, "u2-terkunci");
+  if (terkunci !== "/terkunci" || kunci !== "SHARED:true") rec.verdict = "FAIL";
+  const out = [`after ${diam}s untouched, a fresh load → ${terkunci}; the session SHARED and locked: ${kunci || "none"}`];
+  if (terkunci === "/terkunci") {
+    await p.locator("#pin").fill(k.pin);
+    await p.getByRole("button", { name: "Lanjutkan", exact: true }).click();
+    await p.waitForURL((u) => u.pathname !== "/terkunci", { timeout: SLOW });
+    await p.waitForLoadState("networkidle");
+    const kembali = new URL(p.url()).pathname;
+    const buka = sql(`select coalesce(string_agg((d.locked_at is null)::text, ','), '') from public.device_sessions d
+       where d.auth_user_id = '${auth}' and d.ended_at is null and d.created_at >= to_timestamp(${tBersama - 120})`);
+    if (kembali !== rumahBersama || buka !== "true") rec.verdict = "FAIL";
+    out.push(`her PIN → ${kembali} (she was on ${rumahBersama}); unlocked in the record: ${buka}`);
+  }
+  await pamit(p, "the head of department (U2, shared)", rumahBersama ?? "/pimpinan");
+  bersama = null;
+  return out.join("; ");
+});
+if (bersama) await bersama.context().close();
+
 await step("C3", "GS-18 staff never open a certificate: the teacher's browser at the holder's certificate page shows none", async (rec) => {
   if (!guru || !SERT.length) { rec.verdict = "NOT RUN"; return "no teacher session or no certificate"; }
   await buka(guru, `/belajar/${S.tugas}/sertifikat`);
@@ -418,16 +720,84 @@ await step("C3", "GS-18 staff never open a certificate: the teacher's browser at
   if (bocor.length || /Nomor sertifikat/.test(teks)) throw new Error(`the teacher sees ${bocor.map((c) => c.nomor).join(", ") || "a certificate"}`);
   return `the teacher at /belajar/<chapter>/sertifikat: no certificate (landed ${new URL(guru.url()).pathname.replace(/[0-9a-f-]{36}/g, "<id>")})`;
 });
-if (guru) await guru.context().close();
+
+// ── GS-21: the teacher recovers by email, then by PINTAR ID + PIN
+let pulih = null;   // R2's browser, signed in by the recovery
+let pintarId = null;
+await step("R2", "GS-21 (J2.11) the teacher, on another browser: «Lupa password?» → the emailed code → a new password; the browser of L1 is signed out (D-101(3)); «Akun saya» shows their PINTAR ID", async (rec) => {
+  if (!guru) { rec.verdict = "NOT RUN"; return "L1 did not sign the teacher in"; }
+  const email = mail("guru"), auth = authDari(email);
+  const t = kini();
+  pulih = await (await ctx()).newPage();
+  await pulihkanDenganEmail(pulih, email, kredensial(email, 1).password);
+  const lewat = await selesaikan(pulih, kredensial(email));
+  const di = new URL(pulih.url()).pathname;
+  await buka(guru, "/mengajar");
+  const lama = new URL(guru.url()).pathname;
+  const berakhir = sql(`select coalesce(string_agg(d.ended_reason, ',' order by d.ended_at), '') from public.device_sessions d
+     where d.auth_user_id = '${auth}' and d.ended_at >= to_timestamp(${t})`);
+  await klikTautan(pulih, "/akun");
+  await pulih.locator(".pin-idn-id").first().waitFor({ timeout: SLOW });
+  pintarId = norm(await pulih.locator(".pin-idn-id").first().innerText()).replace(/\s+/g, "");
+  const tercatat = sql(`select p.pintar_id from public.persons p join public.accounts a on a.person_id = p.id where a.auth_user_id = '${auth}'`);
+  if (di !== "/mengajar" || lama !== "/masuk" || !berakhir.split(",").includes("KREDENSIAL_DIGANTI") || pintarId !== tercatat) rec.verdict = "FAIL";
+  await guru.context().close();
+  guru = null;
+  return `«Lupa password?» → the emailed code → a new password → «Lanjut» → ${di}${lewat.length ? ` (${lewat.join(" → ")})` : ""}; ` +
+    `the L1 browser now → ${lama}; sessions ended by it: ${berakhir || "none"}; «Akun saya» shows the PINTAR ID, the record's: ${pintarId === tercatat}`;
+});
+await step("R3", "GS-21 (J2.12) on a third browser: «Lupa password?» → «Pakai PINTAR ID dan PIN» with the ID from «Akun saya» and the PIN set at activation → a new password; R2's browser is signed out; the teacher signs out", async (rec) => {
+  if (!pulih || !pintarId) { rec.verdict = "NOT RUN"; return "R2 did not recover the teacher or read the PINTAR ID"; }
+  const email = mail("guru"), auth = authDari(email), k = kredensial(email);
+  const t = kini();
+  const p = await (await ctx()).newPage();
+  // the new password is the activation's again (R2 set another), so a later run signs the teacher in with it and spends
+  // none of the address's emails: PINTAR sends one address at most six an hour (email_send_limits; run 37291018301)
+  await pulihkanDenganPin(p, pintarId, k.pin, k.password);
+  const lewat = await selesaikan(p, k);
+  const di = new URL(p.url()).pathname;
+  await buka(pulih, "/mengajar");
+  const lama = new URL(pulih.url()).pathname;
+  const berakhir = sql(`select coalesce(string_agg(d.ended_reason, ',' order by d.ended_at), '') from public.device_sessions d
+     where d.auth_user_id = '${auth}' and d.ended_at >= to_timestamp(${t})`);
+  if (di !== "/mengajar" || lama !== "/masuk" || !berakhir.split(",").includes("KREDENSIAL_DIGANTI")) rec.verdict = "FAIL";
+  await pulih.context().close();
+  pulih = null;
+  await pamit(p, "the teacher", "/mengajar");
+  // J2.13: the notice to the owner (read in the staging mailbox) and to the platform admin (PINTAR's send log only)
+  let surat = null;
+  try {
+    surat = JSON.parse(execFileSync("python3", ["mailbox_link.py", email, String(t - 30), "180", "--pemberitahuan", "PINTAR ID dan PIN Anda dipakai"],
+      { encoding: "utf8", env: { ...process.env, NOTICE_PINTAR_ID: pintarId, NOTICE_PIN: k.pin } }).trim());
+  } catch { surat = null; }
+  const hash = (a) => createHash("sha256").update(a.trim().toLowerCase(), "utf8").digest("hex");
+  let catatan = "";
+  for (let i = 0; i < 12; i++) {
+    catatan = sql(`select coalesce(string_agg(case s.recipient_hash when '${hash(email)}' then 'owner' when '${hash("admin_gt@pintarselalu.com")}' then 'admin' else 'other' end
+        || ':' || s.outcome, ',' order by s.requested_at), '') from public.email_send_log s
+       where s.kind = 'PEMBERITAHUAN_KEAMANAN' and s.requested_at >= to_timestamp(${t - 30})
+         and s.recipient_hash in ('${hash(email)}', '${hash("admin_gt@pintarselalu.com")}')`);
+    if (/owner:SENT/.test(catatan) && /admin:SENT/.test(catatan)) break;
+    await new Promise((ok) => setTimeout(ok, 5000));
+  }
+  if (!surat || !surat.pintar_id || surat.pin || !/owner:SENT/.test(catatan) || !/admin:SENT/.test(catatan)) rec.verdict = "FAIL";
+  return `«Pakai PINTAR ID dan PIN» → a new password → «Lanjut» → ${di}${lewat.length ? ` (${lewat.join(" → ")})` : ""}; ` +
+    `R2's browser now → ${lama}; sessions ended by it: ${berakhir || "none"}; the teacher ${pamitan.get("the teacher")}; ` +
+    `J2.13: the owner's mailbox ${surat ? `«${surat.subject}», the PINTAR ID ${surat.pintar_id}, the PIN ${surat.pin}` : "has no notice"}; the send log: ${catatan || "no notice"}`;
+});
+for (const x of [guru, pulih]) if (x) await x.context().close().catch(() => {});
 
 // ── GS-19: the public check
 await step("V1", "GS-19 an anonymous visitor opens each issued certificate's verification link", async (rec) => {
   if (!SERT.length) { rec.verdict = "NOT RUN"; return "no certificate"; }
   const c = await browser.newContext({ locale: "id-ID", timezoneId: "Asia/Jakarta" });
   const out = [];
+  const pemegang = orangDari(MURID[0]);
   for (const s of SERT) {
     const p = await c.newPage();
-    const path = `/verifikasi/${encodeURIComponent(s.token)}`;
+    // the holder's link as her certificate page showed it (C2); the others as that page builds it, from the record
+    const dariHalaman = s.orang === pemegang && TAUTAN ? new URL(TAUTAN).pathname : null;
+    const path = dariHalaman ?? `/verifikasi/${encodeURIComponent(s.token)}`;
     const resp = await p.goto(`${APP}${path}`, { timeout: SLOW, waitUntil: "networkidle" });
     const di = new URL(p.url()).pathname;
     // as written (textContent): the facts' labels are set in capitals by the stylesheet
@@ -437,7 +807,7 @@ await step("V1", "GS-19 an anonymous visitor opens each issued certificate's ver
       /Memenuhi capaian/.test(teks) && teks.includes(S.nama) && /Tanggal terbit/i.test(teks) && /Diterbitkan oleh/i.test(teks) && !pemilik;
     if (!ok) { rec.verdict = "FAIL"; await shot(p, `v1-${s.nomor.slice(-5)}`); }
     const tanggal = teks.match(/Tanggal terbit\s*([0-9]{1,2} [A-Za-z]+ [0-9]{4})/i)?.[1];
-    out.push(`${s.nomor}: HTTP ${resp?.status()} ${ok ? `«Berlaku», «Memenuhi capaian», «${S.nama}», ${tanggal ?? "dated"}` : `MISMATCH (at ${di}; ${teks.slice(0, 400)})`}${pemilik ? `; shows the holder's name ${pemilik}` : ""}`);
+    out.push(`${s.nomor}${dariHalaman ? " (the link on the holder's page)" : ""}: HTTP ${resp?.status()} ${ok ? `«Berlaku», «Memenuhi capaian», «${S.nama}», ${tanggal ?? "dated"}` : `MISMATCH (at ${di}; ${teks.slice(0, 400)})`}${pemilik ? `; shows the holder's name ${pemilik}` : ""}`);
     if (s === SERT[0]) await shot(p, "v1-berlaku");
     await p.close();
   }
@@ -461,6 +831,98 @@ await step("V2", "GS-19 a random and a malformed code: the private not-found, no
   }
   if (rec.verdict === "PASS") await shot(p, "v2-tidak-ditemukan");
   await c.close();
+  return out.join("; ");
+});
+
+// ── GS-20: everyone signs out
+// ── GS-22 (CR-16): a learner added after the chapter was given
+const BARU = `Fajar Murid ${SLUG.toUpperCase()}`;
+await step("N1", `GS-22 a learner added after the chapter was given: the school admin records «${BARU}» on Pendataan into «${KELAS}», makes the class's cards on Aktivasi (one card, hers); she signs in, finds the chapter, opens its Pemetaan Awal by clicking (no sitting before the press), sits it and reaches the reading map`, async (rec) => {
+  if (!S) { rec.verdict = "NOT RUN"; return "L0 did not read the school"; }
+  if (sql(`select count(*) from public.persons p where p.display_name = ${lit(BARU)}`) !== "0") { rec.verdict = "FAIL"; return `«${BARU}» already exists: GS-22 runs once, on a new Golden School (C1)`; }
+  const out = [];
+  const A = await (await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "id-ID", timezoneId: "Asia/Jakarta" })).newPage();
+  const di = await masukSurel(A, mail("admin"));
+  if (di !== "/konfigurasi") throw new Error(`the admin landed on ${di}, not /konfigurasi`);
+  await klikTautan(A, "/pendataan");
+  out.push(`Pendataan: ${await catat(A, [BARU], { kelas: KELAS, peran: "STUDENT" }, { shot })}`);
+  const tempat = sql(`select count(*) from public.memberships m join public.enrollments e on e.id = m.enrollment_id join public.persons p on p.id = e.person_id
+     join public.org_nodes k on k.id = m.node_id where p.display_name = ${lit(BARU)} and k.name = ${lit(KELAS)} and k.institution_id = '${S.id}' and m.valid_to is null`);
+  await klikTautan(A, "/aktivasi");
+  const pilih = A.locator("section.pin-akt-kelas select");
+  await pilih.waitFor({ timeout: SLOW });
+  const opsi = await pilih.locator("option").evaluateAll((os) => os.map((o) => ({ v: o.value, t: o.textContent ?? "" })));
+  const k = opsi.find((o) => o.t.includes(KELAS));
+  if (!k) throw new Error(`«${KELAS}» is not offered: ${JSON.stringify(opsi.map((o) => o.t))}`);
+  await pilih.selectOption(k.v);
+  await A.getByRole("button", { name: "Buat kartu untuk kelas ini", exact: true }).click();
+  await A.locator("section.pin-akt-lembar").waitFor({ timeout: 120000 });
+  const set = await A.locator("li.pin-akt-kartu").evaluateAll((ls) => ls.map((l) => ({
+    nama: (l.querySelector("strong")?.textContent ?? "").replace(/\s+/g, " ").trim(),
+    nilai: [...l.querySelectorAll("dd.pin-num")].map((d) => (d.textContent ?? "").trim()),
+  })));
+  await pamit(A, "the school admin (N1)", "/konfigurasi");
+  const kartu = set.length === 1 && set[0].nama === BARU ? { number: tutupi(set[0].nilai[0]), pin: tutupi(set[0].nilai[1]) } : null;
+  out.push(`«${KELAS}» offered as «${norm(k.t)}»; one press made ${set.length} card(s) for ${JSON.stringify(set.map((c) => c.nama))}; placed in «${KELAS}»: ${tempat}`);
+  if (!kartu || tempat !== "1") { rec.verdict = "FAIL"; return out.join("; "); }
+  const p = await (await ctx()).newPage();
+  const diB = await masukKartu(p, kartu);
+  const ada = (await p.locator(`a[href^="/belajar/${S.tugas}"]`).count()) > 0;
+  await shot(p, "n1-belajar");
+  if (await p.locator(`a[href="/belajar/${S.tugas}/pemetaan"]`).count()) await klikTautan(p, `/belajar/${S.tugas}/pemetaan`);
+  else { await klikTautan(p, `/belajar/${S.tugas}`); await klikTautan(p, `/belajar/${S.tugas}/pemetaan`); }
+  const sesi = (mode) => sql(`select coalesce(string_agg(s.status::text, ','), '') from public.assessment_sessions s join public.persons q on q.id = s.person_id
+     where s.learning_assignment_id = '${S.tugas}' and s.mode = '${mode}' and q.display_name = ${lit(BARU)}`);
+  const sebelum = sesi("PRE_TEST");
+  await p.getByRole("button", { name: "Mulai Pemetaan Awal", exact: true }).click();
+  // she answers as she can (no key needed here): each question's first option, then «Selesaikan pemetaan»
+  let dijawab = 0;
+  for (let i = 0; i < 40; i++) {
+    const stem = p.locator("h2.pin-stem").first();
+    await stem.waitFor({ state: "visible", timeout: SLOW });
+    const sebelumnya = await stem.innerText();
+    await p.locator("ul.pin-opsi button.pin-op").first().click();
+    dijawab++;
+    await p.waitForTimeout(400);
+    const next = p.getByRole("button", { name: "Berikutnya", exact: true });
+    if (await next.count()) {
+      await next.click();
+      await p.waitForFunction((prev) => document.querySelector("h2.pin-stem")?.innerText !== prev, sebelumnya, { timeout: SLOW });
+      continue;
+    }
+    await p.getByRole("button", { name: "Selesaikan pemetaan", exact: true }).click();
+    await p.waitForURL((u) => u.pathname.endsWith("/peta") || u.pathname === "/belajar", { timeout: 60000 });
+    break;
+  }
+  await p.waitForLoadState("networkidle");
+  const diPeta = new URL(p.url()).pathname;
+  const sesudah = sesi("PRE_TEST");
+  await shot(p, "n1-peta");
+  await pamit(p, "the new learner (N1)", "/belajar");
+  if (diB !== "/belajar" || !ada || sebelum !== "" || sesudah !== "FINALIZED" || !diPeta.endsWith("/peta")) rec.verdict = "FAIL";
+  out.push(`she signed in with the card → ${diB}; the class's chapter linked there ${ada}; sittings before «Mulai Pemetaan Awal»: ${sebelum || "none"}; ` +
+    `answered ${dijawab}; → ${diPeta.replace(/[0-9a-f-]{36}/g, "<id>")}; the Pemetaan Awal in the record: ${sesudah || "none"}`);
+  return out.join("; ");
+});
+
+await step("X1", "GS-20 everyone signs out, read only: every session this run opened is ended («Keluar», or the credential's replacement), none left open", async (rec) => {
+  const orang = [["the teacher", "guru"], ["the head of department", "kabag"], ["the dean", "dekan"], ["the school admin", "admin"]]
+    .map(([siapa, who]) => [siapa, authDari(mail(who))]);
+  for (const nama of MURID.slice(0, 2)) { const o = orangDari(nama); if (o) orang.push([nama.split(" ")[0], akunMurid(o).auth]); }
+  const baru = sql(`select a.auth_user_id from public.accounts a join public.persons p on p.id = a.person_id where p.display_name = ${lit(BARU)} limit 1`);
+  if (baru) orang.push(["Fajar (N1)", uuid(baru)]);
+  const out = [];
+  // a record still open whose Auth session is gone (Auth ended it, as it ends the activation wizard's own session
+  // when the password is first set, and PINTAR signs the person straight back in) is reported as such, not as open
+  for (const [siapa, auth] of orang) {
+    const s = sql(`select coalesce(string_agg(d.mode || ':' || coalesce(d.ended_reason, case when exists (select 1 from auth.sessions x
+        where x.id = d.session_id) then 'OPEN' else 'RECORD_OPEN_AUTH_GONE' end), ',' order by d.created_at), '')
+      from public.device_sessions d where d.auth_user_id = '${uuid(auth)}' and d.created_at >= to_timestamp(${MULAI})`);
+    const sesiAuth = Number(sql(`select count(*) from auth.sessions x where x.user_id = '${uuid(auth)}' and x.created_at >= to_timestamp(${MULAI})`));
+    if (!s || /:OPEN(,|$)/.test(s) || sesiAuth) rec.verdict = "FAIL";
+    out.push(`${siapa}: ${s || "no session this run"}${sesiAuth ? `, ${sesiAuth} Auth session(s) still open` : ""}`);
+  }
+  out.push(...[...pamitan].map(([siapa, r]) => `${siapa} ${r}`));
   return out.join("; ");
 });
 

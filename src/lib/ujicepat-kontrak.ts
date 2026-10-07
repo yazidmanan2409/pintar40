@@ -26,6 +26,7 @@ export const KODE_UJI_CEPAT = [
   "QUICK_SELECTION_COUNT",      // D-085 T2: fewer or more questions chosen than an Uji Cepat carries, or one twice (PR050)
   "QUICK_SELECTION_NOT_OFFERED", // D-085 T2: a chosen question the chapter does not offer an Uji Cepat (PR050)
   "QUICK_SELECTION_SIBLINGS",   // D-085 T2: two chosen questions are versions of one question (PR050)
+  "QUICK_CONTEXT_MISMATCH",     // BOB-43: the chapter is for another kind of place than this class (PR050 ASSIGN_CONTEXT_MISMATCH)
   "QUICK_FAILED",               // anything else: the teacher is given a reference to quote
 ] as const;
 export type KodeUjiCepat = (typeof KODE_UJI_CEPAT)[number];
@@ -47,6 +48,8 @@ type GalatDb = { code?: string | null; details?: string | null; message?: string
 export function kodeUjiCepat(e: GalatDb): KodeUjiCepat {
   // D-088(b): the assignment's seal refuses a lesson with no school pass mark, by SQLSTATE and DETAIL, not by words
   if (e?.code === "PR050" && e?.details === "ASSIGN_PASS_MARK_MISSING") return "QUICK_PASS_MARK_MISSING";
+  // BOB-43: the assignment boundary refuses material of another context, by SQLSTATE and DETAIL
+  if (e?.code === "PR050" && e?.details === "ASSIGN_CONTEXT_MISMATCH") return "QUICK_CONTEXT_MISMATCH";
   // D-085 T2: the chosen launch's own refusals, by SQLSTATE and DETAIL
   if (e?.code === "PR050" && (e?.details === "QUICK_SELECTION_COUNT" || e?.details === "QUICK_SELECTION_NOT_OFFERED"
       || e?.details === "QUICK_SELECTION_SIBLINGS")) return e.details;

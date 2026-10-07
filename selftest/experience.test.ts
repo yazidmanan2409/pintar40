@@ -100,7 +100,7 @@ import { LANGKAH_TERBITAN, KODE_TERBITAN_DB, kunciKodeTerbitan, type KodeTerbita
 import { namaUntukStrip, namaSapaan, PERAN_STAF } from "../src/components/sesi";
 import { pohonStruktur, bolehDiubah, bolehDitambahi, kalimatGagal, kalimatGagalBaca } from "../src/components/struktur/tampilan";
 import { KODE_STRUKTUR_DB, type KodeStruktur, type SimpulStruktur } from "../src/lib/struktur-kontrak";
-import { sekolahDitawarkan, sekolahDipilih, type SekolahBaris } from "../src/components/sekolah";
+import { sekolahDitawarkan, sekolahDipilih, tujuanUnggah, type SekolahBaris } from "../src/components/sekolah";
 import { KODE_SUKSES, kunciKode } from "../src/lib/galat-kontrak";
 import { kunciGagal, isianKurang, surelLengkap, GALAT_RUTE, type ModeAktivasi, type JawabanAktivasi } from "../src/components/aktivasi/hasil";
 import { SYARAT_METRIK, kunciMuncul } from "../src/components/bukti/muncul";
@@ -312,6 +312,16 @@ const RESET_SURFACES = [
   "src/app/konfigurasi/keamanan/page.tsx",
   // BOB-51: the platform admin's «Kirim email uji», on the same shell and pin-* classes as Aktivasi.
   "src/app/konfigurasi/email-uji/page.tsx",
+  // BOB-29 (Gate 6): «PINTAR terkunci» and «Komputer siapa ini?», on the sign-in stage, built on the token set.
+  "src/app/terkunci/page.tsx",
+  "src/app/perangkat/page.tsx",
+  // DAISY-34 (D-070(a)): the professional-learning record, on the staff shell and the existing pin-* list classes.
+  "src/app/pengembangan/[simpul]/page.tsx",
+  // BOB-15 + DAISY-12 (D-037 step 2): «Laporkan masalah» and «Laporan saya», on the staff shells and the pin-lapor classes.
+  "src/app/lapor/page.tsx",
+  "src/app/lapor/saya/page.tsx",
+  // #148 (D-094, D-100): the maintenance page, on the sign-in shell's pin-* classes as «PINTAR terkunci» is.
+  "src/app/pemeliharaan/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */
@@ -1355,6 +1365,55 @@ export const experienceTests: SelfTest[] = [
       // (password_write_permits), two set-up columns (password_set_at, name_confirmed_at), the identity
       // functions and a trigger on auth.users; no colour, mark or brand surface.
       //
+      // MOVED 170 -> 171 for CR-51 (D-120 Q7). 20261204100000 replaces package_batch's and create_release's bodies (the
+      // platform admin alone at the PINTAR library) and two refusal sentences; no colour, mark or brand surface.
+      //
+      // MOVED 169 -> 170 for CR-13 (D-120 QN1). 20261203100000 adds the email-correction grant table, its RPC and a guard
+      // trigger on auth.users; no colour, mark or brand surface.
+      //
+      // MOVED 165 -> 169 for the closure's batch 3 (D-118, D-120, D-121). 20261129100000 publishes pintar-scoring/2 and
+      // makes a version's descriptors immutable (Q10); 20261130100000 counts a learner not yet assessed as such (CR-47);
+      // 20261201100000 seals a certificate at issuance and numbers it by its holder (CR-02, CR-01); 20261202100000 gives a
+      // misconception definition its content's owner (CR-50). Columns and replaced function bodies; no colour, mark or
+      // brand surface.
+      //
+      // MOVED 164 -> 165 for ADM-18's template half. 20261128100000 replaces certificate_prepare's body again (the
+      // number carries the school's saved prefix); no relation, column or new function; no colour, mark or brand surface.
+      //
+      // MOVED 162 -> 164 for the release checklist's ADM-18 and STU-12. 20261126100000 replaces certificate_prepare's
+      // body (one number per certificate, no photo in it) and 20261127100000 hint_reveals_answer_shape's (a variable is
+      // not an option); no relation, column or new function; no colour, mark or brand surface.
+      //
+      // MOVED 161 -> 162 for #150 WP-B, a backup reads everything and writes nothing. 20261125100000 creates one role
+      // (pintar_backup) and no relation, column or function; no colour, mark or brand surface.
+      //
+      // MOVED 160 -> 161 for C-12's finding, a professional-learning answer stays the participant's own.
+      // 20261124100000 replaces teacher_question_evidence (an academic place only); no colour, mark or brand surface.
+      //
+      // MOVED 159 -> 160 for D-102, an activation ends its own first session. 20261123100000 replaces the password guard
+      // and adds a device_sessions reason; no colour, mark or brand surface.
+      //
+      // MOVED 158 -> 159 for D-101, the nearest authority recovers. 20261122100000 adds the recovery authority functions,
+      // the session-ending core and a device_sessions reason, and replaces the lookup, the reset, the password guard and
+      // the role guard; no colour, mark or brand surface.
+      //
+      // MOVED 157 -> 158 for follow-ups 19-21. 20261121100000 adds a transfer's rejection reason, the template's audit
+      // selection and a course status audit trigger; no colour, mark or brand surface.
+      //
+      // MOVED 156 -> 157 for #148, maintenance and notices. 20261120100000 adds maintenance_windows, broadcast_notices,
+      // the maintenance check in PostgREST's pre-request and the controls; no colour, mark or brand surface.
+      //
+      // MOVED 155 -> 156 for BOB-15 + DAISY-12, «Laporkan masalah». 20261119100000 adds support_reports and its three
+      // functions; no colour, mark or brand surface.
+      //
+      // MOVED 154 -> 155 for BOB-43..47, an educator learns as a participant. 20261118100000 adds a place's learning
+      // context and member kind, the assignment boundary, enrolment for professional learning, the PD evidence policies,
+      // catalogue MC-5 and the professional-learning record; no colour, mark or brand surface.
+      //
+      // MOVED 153 -> 154 for BOB-29 (Gate 6), a shared computer locks and resumes with the PIN. 20261117100000 adds
+      // device_sessions and device_contexts (session state and «Komputer siapa ini?», no colour, mark or brand), the
+      // sesi_* functions and PostgREST's pre-request refusal; no colour, mark or brand surface.
+      //
       // MOVED 152 -> 153 for BOB-28 (Gate 5), recovery by PINTAR ID + PIN and the card re-issue. 20261116100000 adds
       // recovery_by_pin, the card re-issue's grant table and guard on auth.users, the platform admin's lookup and
       // record, and redefines the send reserve and the password guard; no colour, mark or brand surface.
@@ -1606,7 +1665,10 @@ export const experienceTests: SelfTest[] = [
       // this number moved -- there is no new relation for a mark to live in and
       // no column of any kind, so the Q-7 source still does not exist and the
       // sweep below asserts over one more file without its answer changing.
-      c.expect(migrations.length === 153, `${migrations.length} migrations; the frozen baseline has 153`);
+      // MOVED 171 -> 173 for batch 3b (D-123): 20261205100000 adds a constraint, a function and a registry row on the
+      // decision queue, and 20261206100000 copies the catalogue to MC-7 and replaces two function bodies; neither adds a
+      // table or a column, so the sweep below still asserts over files without its answer changing. Re-read first.
+      c.expect(migrations.length === 173, `${migrations.length} migrations; the frozen baseline has 173`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3301,7 +3363,21 @@ export const experienceTests: SelfTest[] = [
       const migDir = join(repoRoot, "supabase", "migrations");
       const migs = walk(migDir).filter((f) => f.endsWith(".sql"));
       // The count is a drift guard on the tree this case reads its contract
-      // from, not a claim about the tour. MOVED 152 -> 153 for BOB-28's PIN recovery and card re-issue
+      // from, not a claim about the tour. MOVED 170 -> 171 for CR-51's library import (20261204100000), not a tour RPC
+      // (D-024). MOVED 169 -> 170 for CR-13's email correction (20261203100000), not a tour RPC
+      // (D-024). MOVED 165 -> 169 for the closure's batch 3 (20261129100000 Q10, 20261130100000
+      // CR-47, 20261201100000 CR-02/CR-01, 20261202100000 CR-50), not a tour RPC (D-024). MOVED 164 -> 165 for ADM-18's prefix (20261128100000, a replaced function body), not a
+      // tour RPC (D-024). MOVED 162 -> 164 for ADM-18 and STU-12 (20261126100000, 20261127100000: two
+      // replaced function bodies), not a tour RPC (D-024). MOVED 161 -> 162 for #150 WP-B's backup role (20261125100000), not a tour RPC
+      // (D-024). MOVED 160 -> 161 for C-12's finding, «Lihat per soal» an academic place only
+      // (20261124100000), not a tour RPC (D-024). MOVED 159 -> 160 for D-102's activation session (20261123100000), not a tour
+      // RPC (D-024). MOVED 158 -> 159 for D-101's recovery authority (20261122100000), not a tour
+      // RPC (D-024). MOVED 157 -> 158 for follow-ups 19-21 (20261121100000), not a tour RPC (D-024).
+      // MOVED 156 -> 157 for #148's maintenance and notices (20261120100000), not a
+      // tour RPC (D-024). MOVED 155 -> 156 for BOB-15's «Laporkan masalah» (20261119100000), not a tour
+      // RPC (D-024). MOVED 154 -> 155 for BOB-43..47's educator as learner (20261118100000), not a
+      // tour RPC (D-024). MOVED 153 -> 154 for BOB-29's shared-computer lock (20261117100000), not a
+      // tour RPC (D-024). MOVED 152 -> 153 for BOB-28's PIN recovery and card re-issue
       // (20261116100000), not a tour RPC (D-024). MOVED 151 -> 152 for BOB-27's email recovery
       // (20261115100000), not a tour RPC (D-024). MOVED 150 -> 151 for D-098(c)'s email waits
       // (20261114100000), not a tour RPC (D-024). MOVED 149 -> 150 for BOB-50's Uji Cepat certificate rule
@@ -3386,7 +3462,8 @@ export const experienceTests: SelfTest[] = [
       // neither adds nor alters a tour RPC -- so the four signatures asserted
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
-      c.expect(migs.length === 153, `${migs.length} migrations; the baseline has 153`);
+      // MOVED 171 -> 173 for batch 3b (D-123): the decision queue's referrer rule and catalogue MC-7 touch no tour RPC.
+      c.expect(migs.length === 173, `${migs.length} migrations; the baseline has 173`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -5082,7 +5159,7 @@ export const experienceTests: SelfTest[] = [
       const k = (id: string, keadaan: Keputusan["keadaan"], at: string): Keputusan => ({
         id, keluarga: "INTEGRITY_REFERRAL", keadaan, hasil: null, simpul: "n", simpulNama: null,
         institusi: "i", subjek: null, sumberTabel: "integrity_signals", diangkatPada: at,
-        catatan: null, diputuskanPada: null,
+        catatan: null, diputuskanPada: null, olehSaya: false, adaPemutus: null,
       });
       const diurut = urutan([
         k("d", "DECIDED", "2026-01-01T00:00:00Z"),
@@ -8976,8 +9053,9 @@ export const experienceTests: SelfTest[] = [
       /**
        * THE PAGE AND THE FLOW, FROM THE SOURCE.
        *   - /studio/unggah reads each drafting school's tenant_kind and
-       *     is_active and offers them through sekolah.ts -- never the national
-       *     library (audit S14; D-029) -- to the panel AND the JSON forms, and
+       *     is_active and offers them through sekolah.ts -- the national
+       *     library to the platform admin alone (CR-51, D-120 Q7; audit S14,
+       *     D-029 for every school role) -- to the panel AND the JSON forms, and
        *     labels the JSON forms' picker "Sekolah" (it said "Peran & akses").
        *   - The panel comes before the JSON forms.
        *   - The panel talks to the server only through BOB-02's two typed
@@ -8987,7 +9065,22 @@ export const experienceTests: SelfTest[] = [
       const halaman = code(readFileSync(join(repoRoot, "src", "app", "studio", "unggah", "page.tsx"), "utf8"));
       c.expect(/from\("institutions"\)\.select\("[^"]*\btenant_kind\b[^"]*\bis_active\b[^"]*"\)/.test(halaman) || /from\("institutions"\)\.select\("[^"]*\bis_active\b[^"]*\btenant_kind\b[^"]*"\)/.test(halaman),
         "the upload page reads the schools without their kind or state");
-      c.expect(/const institutions = sekolahDitawarkan\(tenant \?\? \[\], \(id\) => menyusun\.has\(id\)\)/.test(halaman), "the upload page does not offer its schools through the shared rule");
+      // RESTATED FOR CR-51 (D-120 Q7, a changed requirement): the schools through the shared rule, and the PINTAR library
+      // for the platform admin alone (tujuanUnggah), asked of the database rather than inferred
+      c.expect(/const institutions = tujuanUnggah\(tenant \?\? \[\], \(id\) => menyusun\.has\(id\), adminPlatform === true\)/.test(halaman)
+        && /\{ data: adminPlatform \}\] = await Promise\.all\(\[[^\]]*supabase\.rpc\("is_system_admin"\)\]\)/.test(halaman),
+        "the upload page does not offer its schools through the shared rule, or the library to the platform admin alone");
+      {
+        const T: SekolahBaris[] = [
+          { id: "kanon", name: "PINTAR Kurikulum Nasional", tenant_kind: "PLATFORM_CANONICAL", is_active: true },
+          { id: "sma", name: "SMA Contoh", tenant_kind: "INSTITUTION", is_active: true },
+          { id: "tutup", name: "Sekolah Tutup", tenant_kind: "INSTITUTION", is_active: false },
+        ];
+        const ids = (xs: SekolahBaris[]) => xs.map((x) => x.id).join(",");
+        c.expect(ids(tujuanUnggah(T, () => true, false)) === "sma", `a school role is offered ${ids(tujuanUnggah(T, () => true, false))} to upload to`);
+        c.expect(ids(tujuanUnggah(T, () => true, true)) === "sma,kanon", `the platform admin is offered ${ids(tujuanUnggah(T, () => true, true))}; the library comes last`);
+        c.expect(ids(tujuanUnggah(T.map((x) => ({ ...x, is_active: x.id === "sma" })), () => true, true)) === "sma", "an inactive library is offered");
+      }
       c.expect(!/config\.section\.roles/.test(halaman) && /<span>\{s\("studio\.unggah\.sekolah"\)\}<\/span>/.test(halaman), "the JSON forms' school picker is not labelled Sekolah");
       c.expect(/<PanelUnggah locale=\{locale\} sekolah=\{institutions\}/.test(halaman) && halaman.indexOf("<PanelUnggah") < halaman.indexOf("easyUploadAction}"),
         "the workbook panel is not the first way in, or it is not given the offered schools");
@@ -10264,6 +10357,9 @@ export const experienceTests: SelfTest[] = [
         // RESTATED FOR BOB-27: «Lupa password?» has the same two lines as MintaKode (the name, the code).
         // RESTATED FOR BOB-28: and one more, the PINTAR ID + PIN step's line.
         "src/components/aktifkan/LupaPassword.tsx": 3,
+        // RESTATED FOR BOB-29: «PINTAR terkunci» has one line, the PIN's, tied to its field (a wrong PIN and the tries
+        // left); the device question and «Keluar dari semua perangkat» answer through BarisHasil.
+        "src/components/sesi/LayarTerkunci.tsx": 1,
         "src/components/struktur/PanelStruktur.tsx": 1,
         "src/components/pendataan/Penggerak.tsx": 1,
       };
@@ -11244,7 +11340,8 @@ export const experienceTests: SelfTest[] = [
           "with nothing open or finished, «Keadaan hari ini» does not say so");
       }
       const bukti = code(baca("src", "app", "mengajar", "[kelas]", "bukti", "page.tsx"));
-      c.expect(/<KeadaanHariIni asesmen=\{asesmen\} murid=\{fakta\.murid\.length\} locale=\{locale\}(?: kelas=\{id\})? \/>/.test(bukti) && !/\bfokus\b/.test(bukti),
+      // RESTATED FOR DAISY-33 (a changed requirement, D-069(k)): the block also takes the class's kind, for «murid» or «peserta»
+      c.expect(/<KeadaanHariIni asesmen=\{asesmen\} murid=\{fakta\.murid\.length\} locale=\{locale\}(?: kelas=\{id\})?(?: jenis=\{ctx\.ini\.jenis\})? \/>/.test(bukti) && !/\bfokus\b/.test(bukti),
         "«Lihat bukti» still shows one focus test rather than every open one");
 
       /**

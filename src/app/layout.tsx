@@ -3,6 +3,8 @@ import "./globals.css";
 import { t } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import EvaluationBanner from "./_evaluation-banner";
+import PenjagaSesi from "@/components/PenjagaSesi";
+import PitaPemeliharaan from "@/components/pemeliharaan/PitaPemeliharaan";
 
 export const metadata: Metadata = {
   title: t("app.name", "public"),
@@ -24,7 +26,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         {/* Rendered from the evaluation session on every page, so the indicator
             cannot be lost on refresh or dismissed (ADR-0020). */}
         <EvaluationBanner />
+        {/* #148: planned maintenance from T-60 and live notices, read once per page; the browser times the rest */}
+        <PitaPemeliharaan locale={locale} />
         {children}
+        {/* BOB-29: the inactivity clock of a shared computer or a class card; nothing for anybody else. */}
+        <PenjagaSesi locale={locale} />
       </body>
     </html>
   );

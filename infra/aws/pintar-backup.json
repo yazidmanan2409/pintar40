@@ -1,0 +1,228 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "#150 WP-B (D-106, D-107 D1, D4; closure plan A3, A4): PINTAR's independent backup bucket in the owner's own AWS account, outside Supabase and Vercel. Object Lock and versioning on; public access blocked; TLS only. Ordinary backups expire by lifecycle (35 days daily, 12 months monthly); production/escrow/ has NO lifecycle rule and every escrow object carries a legal hold (A4). Two IAM users: the writer (C4) may only put objects with their retention or legal hold; the reader (C5) may only get and list. No access key is created here: the owner makes them in IAM (O3), so no secret ever sits in a stack output.",
+  "Parameters": {
+    "BucketName": {
+      "Type": "String",
+      "AllowedPattern": "^pintar-backup-[a-z0-9-]{3,40}$",
+      "Description": "A globally unique name, e.g. pintar-backup-<a random suffix>"
+    }
+  },
+  "Resources": {
+    "BackupBucket": {
+      "Type": "AWS::S3::Bucket",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "BucketName": {
+          "Ref": "BucketName"
+        },
+        "ObjectLockEnabled": true,
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true
+        },
+        "OwnershipControls": {
+          "Rules": [
+            {
+              "ObjectOwnership": "BucketOwnerEnforced"
+            }
+          ]
+        },
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        },
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "Id": "production-daily",
+              "Status": "Enabled",
+              "Prefix": "production/daily/",
+              "ExpirationInDays": 36,
+              "NoncurrentVersionExpiration": {
+                "NoncurrentDays": 1
+              }
+            },
+            {
+              "Id": "production-monthly",
+              "Status": "Enabled",
+              "Prefix": "production/monthly/",
+              "ExpirationInDays": 367,
+              "NoncurrentVersionExpiration": {
+                "NoncurrentDays": 1
+              }
+            },
+            {
+              "Id": "staging-daily",
+              "Status": "Enabled",
+              "Prefix": "staging/daily/",
+              "ExpirationInDays": 36,
+              "NoncurrentVersionExpiration": {
+                "NoncurrentDays": 1
+              }
+            },
+            {
+              "Id": "staging-monthly",
+              "Status": "Enabled",
+              "Prefix": "staging/monthly/",
+              "ExpirationInDays": 367,
+              "NoncurrentVersionExpiration": {
+                "NoncurrentDays": 1
+              }
+            },
+            {
+              "Id": "abandoned-uploads",
+              "Status": "Enabled",
+              "AbortIncompleteMultipartUpload": {
+                "DaysAfterInitiation": 1
+              }
+            }
+          ]
+        }
+      }
+    },
+    "BackupBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "BackupBucket"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "TlsOnly",
+              "Effect": "Deny",
+              "Principal": "*",
+              "Action": "s3:*",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "BackupBucket",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Sub": "${BackupBucket.Arn}/*"
+                }
+              ],
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "WriterUser": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "UserName": "pintar-backup-writer",
+        "Policies": [
+          {
+            "PolicyName": "put-with-retention-only",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "PutOnly",
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:PutObject",
+                    "s3:PutObjectRetention",
+                    "s3:PutObjectLegalHold"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "${BackupBucket.Arn}/production/*"
+                    },
+                    {
+                      "Fn::Sub": "${BackupBucket.Arn}/staging/*"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "ReaderUser": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "UserName": "pintar-backup-reader",
+        "Policies": [
+          {
+            "PolicyName": "get-and-list-only",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "GetOnly",
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:GetObject",
+                    "s3:GetObjectVersion",
+                    "s3:GetObjectRetention",
+                    "s3:GetObjectLegalHold",
+                    "s3:GetObjectAttributes"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "${BackupBucket.Arn}/*"
+                    }
+                  ]
+                },
+                {
+                  "Sid": "ListOnly",
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:ListBucket"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::GetAtt": [
+                        "BackupBucket",
+                        "Arn"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "Bucket": {
+      "Value": {
+        "Ref": "BackupBucket"
+      }
+    },
+    "Writer": {
+      "Value": {
+        "Ref": "WriterUser"
+      }
+    },
+    "Reader": {
+      "Value": {
+        "Ref": "ReaderUser"
+      }
+    }
+  }
+}

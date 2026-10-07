@@ -1,0 +1,251 @@
+{
+ "courses": [
+  {
+   "title": "[UJI INTERNAL] Praktik Mengajar · Bab 1: Merencanakan Tujuan Pembelajaran",
+   "subject": "Pengembangan Profesi",
+   "stage": "Guru",
+   "grade_label": "Semua jenjang",
+   "konteks": "Pengembangan profesi",
+   "modules": [
+    {
+     "ordinal": "1",
+     "title": "[UJI INTERNAL] Merencanakan Tujuan Pembelajaran",
+     "lessons": [
+      {
+       "ordinal": "1",
+       "title": "[UJI INTERNAL] Tujuan yang dapat diamati",
+       "summary": "Tujuan pembelajaran menyebut perilaku murid yang dapat diamati di akhir pertemuan.",
+       "objective": {
+        "statement": "Peserta merumuskan tujuan pembelajaran dengan kata kerja yang dapat diamati.",
+        "bloom": "APPLY"
+       },
+       "body_markdown": "## Mulai dari yang terlihat\n\nTujuan pembelajaran yang baik menyebut perilaku murid yang dapat diamati di akhir pertemuan. Kata kerja seperti *menjelaskan*, *membandingkan*, atau *menyusun* membantu guru dan murid melihat kapan tujuan itu tercapai.\n\n## Dari kata kerja ke bukti\n\nSetelah kata kerjanya dipilih, tentukan bukti yang akan dikumpulkan: jawaban lisan, lembar kerja singkat, atau hasil diskusi kelompok. Bukti itu menjadi dasar keputusan langkah berikutnya.\n\n## Catatan uji\n\nMateri ini bahan uji internal PINTAR, ditulis untuk pemeriksaan otomatis. Tidak diambil dari buku mana pun.",
+       "items": [
+        {
+         "ref": "PA1",
+         "item_type": "MCQ_SINGLE",
+         "use": "PRE_TEST",
+         "stem": "Manakah rumusan tujuan pembelajaran yang paling mudah dinilai di akhir pertemuan?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Murid dapat membandingkan dua jenis pecahan dengan gambar",
+           "is_correct": true,
+           "rationale": "Tepat. Membandingkan adalah perilaku yang dapat diamati."
+          },
+          {
+           "label": "B",
+           "body": "Murid memahami konsep pecahan dengan lebih baik",
+           "is_correct": false,
+           "rationale": "Belum tepat: «memahami» sulit diamati, jadi tidak jelas kapan tercapai."
+          },
+          {
+           "label": "C",
+           "body": "Guru menyampaikan materi pecahan secara lengkap",
+           "is_correct": false,
+           "rationale": "Belum tepat: rumusan ini menyebut kegiatan guru, bukan kemampuan murid."
+          }
+         ]
+        },
+        {
+         "ref": "PA2",
+         "item_type": "MCQ_SINGLE",
+         "use": "PRE_TEST",
+         "stem": "Apa fungsi bukti belajar yang ditentukan sejak awal perencanaan?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Menjadi dasar keputusan langkah berikutnya",
+           "is_correct": true,
+           "rationale": "Tepat. Bukti membantu guru memilih langkah berikutnya."
+          },
+          {
+           "label": "B",
+           "body": "Menambah jumlah nilai di buku rapor",
+           "is_correct": false,
+           "rationale": "Belum tepat: bukti dikumpulkan untuk mengambil keputusan mengajar."
+          },
+          {
+           "label": "C",
+           "body": "Mengganti kegiatan diskusi di kelas",
+           "is_correct": false,
+           "rationale": "Belum tepat: bukti dapat berasal dari diskusi itu sendiri."
+          }
+         ]
+        },
+        {
+         "ref": "UP1",
+         "item_type": "MCQ_SINGLE",
+         "use": "POST_TEST",
+         "stem": "Seorang guru menulis: «Murid mengerti pecahan.» Perbaikan apa yang paling membantu?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Memakai kata kerja yang hasilnya dapat diamati",
+           "is_correct": true,
+           "rationale": "Tepat. Kata kerja yang teramati membuat ketercapaian dapat dinilai."
+          },
+          {
+           "label": "B",
+           "body": "Menambahkan kata «sangat» di depan kata kerja",
+           "is_correct": false,
+           "rationale": "Belum tepat: tambahan itu tidak membuat tujuan lebih teramati."
+          },
+          {
+           "label": "C",
+           "body": "Menghapus nama mata pelajaran dari tujuannya",
+           "is_correct": false,
+           "rationale": "Belum tepat: nama mata pelajaran tidak memengaruhi ketercapaian."
+          }
+         ]
+        },
+        {
+         "ref": "UP2",
+         "item_type": "MCQ_SINGLE",
+         "use": "POST_TEST",
+         "stem": "Bukti belajar apa yang paling cocok untuk tujuan «murid dapat menyusun kalimat tanya»?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Murid membuat tiga pertanyaan sendiri tentang gambar",
+           "is_correct": true,
+           "rationale": "Tepat. Hasil karya murid menunjukkan tujuan itu langsung."
+          },
+          {
+           "label": "B",
+           "body": "Murid mendengarkan penjelasan guru sampai selesai",
+           "is_correct": false,
+           "rationale": "Belum tepat: mendengarkan tidak menunjukkan kemampuan menyusun."
+          },
+          {
+           "label": "C",
+           "body": "Murid menyalin contoh dari papan tulis ke buku",
+           "is_correct": false,
+           "rationale": "Belum tepat: menyalin tidak menunjukkan kemampuan murid sendiri."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "ordinal": "2",
+       "title": "[UJI INTERNAL] Menyusun langkah pertemuan",
+       "summary": "Langkah pertemuan disusun dari tujuan: pembuka, kegiatan inti, dan penutup.",
+       "objective": {
+        "statement": "Peserta menyusun langkah pertemuan yang selaras dengan tujuan.",
+        "bloom": "APPLY"
+       },
+       "body_markdown": "## Urutan yang masuk akal\n\nLangkah pertemuan disusun dari tujuan: pembuka yang mengaitkan pengalaman murid, kegiatan inti yang memberi kesempatan berlatih, dan penutup yang memeriksa ketercapaian.\n\n## Waktu untuk berlatih\n\nSediakan waktu yang cukup bagi murid untuk mencoba sendiri. Penjelasan guru yang terlalu panjang mengurangi kesempatan itu.\n\n## Catatan uji\n\nMateri ini bahan uji internal PINTAR, ditulis untuk pemeriksaan otomatis. Tidak diambil dari buku mana pun.",
+       "items": [
+        {
+         "ref": "PA3",
+         "item_type": "MCQ_SINGLE",
+         "use": "PRE_TEST",
+         "stem": "Bagian pertemuan mana yang paling tepat untuk memeriksa ketercapaian tujuan?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Penutup, melalui tugas singkat atau pertanyaan",
+           "is_correct": true,
+           "rationale": "Tepat. Penutup memberi kesempatan memeriksa ketercapaian."
+          },
+          {
+           "label": "B",
+           "body": "Pembuka, sebelum materi baru diperkenalkan",
+           "is_correct": false,
+           "rationale": "Belum tepat: di awal, materi baru belum dipelajari."
+          },
+          {
+           "label": "C",
+           "body": "Istirahat, ketika murid sedang bermain bersama",
+           "is_correct": false,
+           "rationale": "Belum tepat: istirahat bukan bagian dari kegiatan belajar."
+          }
+         ]
+        },
+        {
+         "ref": "PA4",
+         "item_type": "MCQ_SINGLE",
+         "use": "PRE_TEST",
+         "stem": "Apa akibat penjelasan guru yang terlalu panjang?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Waktu murid untuk berlatih sendiri berkurang",
+           "is_correct": true,
+           "rationale": "Tepat. Waktu berlatih murid ikut berkurang."
+          },
+          {
+           "label": "B",
+           "body": "Murid selalu lebih cepat menguasai materi",
+           "is_correct": false,
+           "rationale": "Belum tepat: penguasaan tumbuh dari berlatih, bukan dari mendengar saja."
+          },
+          {
+           "label": "C",
+           "body": "Tujuan pembelajaran otomatis tercapai semua",
+           "is_correct": false,
+           "rationale": "Belum tepat: tujuan tercapai lewat bukti, bukan lamanya penjelasan."
+          }
+         ]
+        },
+        {
+         "ref": "UP3",
+         "item_type": "MCQ_SINGLE",
+         "use": "POST_TEST",
+         "stem": "Kegiatan inti sebaiknya memberi murid kesempatan untuk apa?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Mencoba dan berlatih dengan bimbingan guru",
+           "is_correct": true,
+           "rationale": "Tepat. Kegiatan inti adalah waktu murid berlatih."
+          },
+          {
+           "label": "B",
+           "body": "Mendengarkan ceramah tanpa bertanya apa pun",
+           "is_correct": false,
+           "rationale": "Belum tepat: kegiatan inti memberi ruang untuk mencoba."
+          },
+          {
+           "label": "C",
+           "body": "Menunggu giliran dinilai satu per satu",
+           "is_correct": false,
+           "rationale": "Belum tepat: menunggu tidak memberi kesempatan berlatih."
+          }
+         ]
+        },
+        {
+         "ref": "UP4",
+         "item_type": "MCQ_SINGLE",
+         "use": "POST_TEST",
+         "stem": "Pembuka yang baik biasanya melakukan apa?",
+         "options": [
+          {
+           "label": "A",
+           "body": "Mengaitkan materi dengan pengalaman murid",
+           "is_correct": true,
+           "rationale": "Tepat. Pengalaman murid membuat materi baru lebih bermakna."
+          },
+          {
+           "label": "B",
+           "body": "Langsung memberikan ulangan harian kepada murid",
+           "is_correct": false,
+           "rationale": "Belum tepat: ulangan bukan cara membuka pertemuan."
+          },
+          {
+           "label": "C",
+           "body": "Membagikan nilai ulangan minggu sebelumnya",
+           "is_correct": false,
+           "rationale": "Belum tepat: nilai tidak menyiapkan murid untuk materi baru."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -46,7 +46,15 @@ export type Envelope = {
   sample?: number;
   have?: number;
   needed?: number;
+  /**
+   * CR-81 (D-123(3)): the class's population beside its performance bands -- the learners placed in it now, those
+   * assessed there, and those placed with no result yet. Who is in a class is no performance figure, so the evaluator
+   * passes it through below the floor too; only the readiness distribution reports one.
+   */
+  population?: Populasi;
 };
+
+export type Populasi = { placed: number; assessed: number; not_yet: number };
 
 /** Every evidence component is told the language; none of them guesses it. */
 export type BuktiProps = { locale?: Locale };

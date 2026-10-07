@@ -12,8 +12,9 @@
 # is also what keliling means; `jalan()` below checks that every walk closes and computes its
 # perimeter, and `pelingkup()` checks whether the bounding-rectangle shortcut holds for it.
 #
-# Text lessons only (D-050). The workbook's "Kode miskonsepsi" column stays empty; the proposed
-# codes go to SD5-Matematika-Bab4-miskonsepsi.csv.
+# Text lessons only (D-050). The workbook's "Kode miskonsepsi" column names each distractor's code,
+# defined on its "Miskonsepsi" sheet (CR-50, D-063 M5); SD5-Matematika-Bab4-miskonsepsi.csv lists
+# the same codes with the questions using them.
 #
 # Run: python3 docs/onboarding/konten/sd5_matematika_bab4.py
 import csv
@@ -734,9 +735,11 @@ def tulis(path):
            [[1, p["no"], p["judul"], p["ringkasan"], p["isi"], p["tujuan"], p["bloom"], "", ""] for p in PELAJARAN])
     lembar("Soal", ["Kode soal", "No bab", "No pelajaran", "Jenis soal", "Pertanyaan", "Bacaan", "Petunjuk", "Kegunaan", "Tingkat kesulitan", "Kelompok paralel"],
            [[s["ref"], 1, s["pel"], "Pilihan ganda", s["tanya"], "", s["petunjuk"], s["guna"], s["sulit"], ""] for s in S])
-    # Kode miskonsepsi stays empty: no code is registered yet, and an unknown code fails the upload.
+    # every distractor names its misconception's code, defined on the «Miskonsepsi» sheet (CR-50, D-063 M5, D-120 Q9)
     lembar("Pilihan", ["Kode soal", "Pilihan", "Teks pilihan", "Benar", "Alasan", "Kode miskonsepsi"],
-           [[s["ref"], "ABCD"[i], t, "Ya" if b else "Tidak", alasan, ""] for s in S for i, (t, b, alasan, _) in enumerate(s["pilihan"])])
+           [[s["ref"], "ABCD"[i], t, "Ya" if b else "Tidak", alasan, kode] for s in S for i, (t, b, alasan, kode) in enumerate(s["pilihan"])])
+    lembar("Miskonsepsi", ["Kode", "Nama", "Penjelasan", "Cara membantu"],
+           [[k, label, desk, rem] for k, (label, desk, rem) in MISKONSEPSI.items()])
     wb.save(path)
 
 

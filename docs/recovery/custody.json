@@ -1,0 +1,5 @@
+{
+  "what": "#150 D-109(c): who holds each production recovery key, by role only (no person's details here), and when each custodian proved possession and decryption (key-possession-check.yml, the answer's SHA-256 matching). Until R1 and R2 are held by two separate custodians and both have proven it, scripts/recovery/backup.mjs refuses every production backup and scripts/recovery/escrow.mjs every escrow and mint. The coordinator records a proof here only after the custodian's answer matched; possession_proven is { \"at\": \"YYYY-MM-DD\", \"run\": \"<the possession check's run URL>\" }.",
+  "R1": { "custodian": "A (the owner)", "possession_proven": null },
+  "R2": { "custodian": null, "possession_proven": null }
+}

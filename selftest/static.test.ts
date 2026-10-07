@@ -79,6 +79,20 @@ import { bob51Tests } from "./bob51.test";
 import { emailJujurTests } from "./emailjujur.test";
 import { bob27Tests } from "./bob27.test";
 import { bob28Tests } from "./bob28.test";
+import { bob29Tests } from "./bob29.test";
+import { bob43Tests } from "./bob43.test";
+import { bob15Tests } from "./bob15.test";
+import { m148Tests } from "./m148.test";
+import { fu1921Tests } from "./fu1921.test";
+import { d101Tests } from "./d101.test";
+import { d102Tests } from "./d102.test";
+import { c12Tests } from "./c12.test";
+import { dr150Tests } from "./dr150.test";
+import { dr150bTests } from "./dr150b.test";
+import { dr150cTests } from "./dr150c.test";
+import { rilis40Tests } from "./rilis40.test";
+import { ciwasteTests } from "./ciwaste.test";
+import { penutupanTests } from "./penutupan.test";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".git", "coverage", "out", "build", ".vercel"]);
 
@@ -2029,4 +2043,18 @@ export const staticTests: SelfTest[] = [
   ...emailJujurTests,
   ...bob27Tests,
   ...bob28Tests,
+  ...bob29Tests,
+  ...bob43Tests,
+  ...bob15Tests,
+  ...m148Tests,
+  ...fu1921Tests,
+  ...d101Tests,
+  ...d102Tests,
+  ...c12Tests,
+  ...dr150Tests,
+  ...dr150bTests,
+  ...dr150cTests,
+  ...rilis40Tests,
+  ...ciwasteTests,
+  ...penutupanTests,
 ];
