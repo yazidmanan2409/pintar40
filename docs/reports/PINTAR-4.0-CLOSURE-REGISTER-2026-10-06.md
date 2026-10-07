@@ -141,6 +141,12 @@ Next: your walk of J1–J7 and the stripe; then Daisy's corrections and APPLICAT
 - E3 HOLD; production untouched.
 - **L3 is design only:** the one-page Working Context design (`PINTAR-4.0-L3-WORKING-CONTEXT-DESIGN-2026-10-07.md`) goes to the Second Eye before any L3 code.
 
+**D-131 (7 Oct):**
+- L3 implementation is on HARD HOLD until the Second Eye has reviewed the design page itself and ruled on C1–C10 (APPROVE, MODIFY or REJECT each) and on L3 GO or NO-GO.
+- CR-91 (the class-card trust boundary) needs its own ruling and is not fixed in L3.
+- CR-92 («Komputer siapa ini?»'s default) is a separate minor defect.
+- The six missing expressions stay placeholders for Daisy and Dr Gladys.
+
 ## 1. The register
 
 ### Certificates
@@ -248,6 +254,15 @@ Fix the root, never the DG item. The full conditions are in `PINTAR-4.0-D127-WOR
 | CR-88 | **Shared Collection and Content Grammar** (RC-6; D-127 Q9) | Unbounded lists with an edit form per row; question review unstyled; the lesson preview flattens what the player renders; no example workbook | Collection with explicit edit; Question review; the preview through the player's components; a separate marked example workbook | G, U | yes | P1 | D-127 Q9 | No list beyond one page or with a form per row; preview = player test. DG-25, 26, 30 (UX), 33 (UX), 36 | **A** · CLAUDE + DAISY |
 | CR-89 | **Functional and Data Correctness** (FD-4, FD-5, FD-6, FD-7, FD-9) | Names lost at platform scale; Mudah/Sulit inverted; preview ≠ player; reviewed integrity items never leave; saved rules may never become effective | Each finding's condition (record §3); **FD-5 provenance first** (record §4) | G, U (teachers: FD-5) | yes | P0 | D-127 (FD-5 approach; Q8 for FD-9) | FD-5: an author's word round-trips; FD-4: names at 10× staging. DG-26, 30, 32, 33, Konfigurasi fragments | **FD-5, FD-7, FD-9 landed in L2** (0387286; F21-D01, F21-I01, F21-R01). FD-5 by Option A (D-129(c)), the round trip proven; staging 176: 27 sealed releases' hashes unchanged, 881 difficulties unchanged, the author's 0.3 now MUDAH. Open: FD-4, FD-6 · CLAUDE |
 | CR-90 | **Browser Session Proof** (RC-8; BD-11; J2.9) | Server sign-out proven (F01-R05); browser Back after «Keluar» never run; the reload-on-restore guard runs only on shared or card devices | The BD-11 walk in Chrome, Edge and Safari, shared and personal; a fix only if it fails | every shared-computer user | yes | P0 | none (J2.9, BD-11) | BD-11 passes; a stale `lanjut` never carries the next sign-in. DG-19 (security part) | **BD-11 closed in L1** (8ee3585; journeys 37581007813, BD11 PASS in Chromium, Firefox and WebKit, personal and shared). Evidence class (D-129): preventive hardening added; no pre-change browser reproduction obtained. **Open: the stale `lanjut`**, moved into L3's design (routing, behind L3's hard stop) · CLAUDE |
+
+### Added by D-131 (7 Oct): found while mapping L3, held outside it
+
+Both were found reading the code for L3's design (§8 of `PINTAR-4.0-L3-WORKING-CONTEXT-DESIGN-2026-10-07.md`). Neither is part of the Working Context, and neither is fixed inside L3.
+
+| ID | Item (source) | State now | What is missing | Who meets it | FI | PR | Ruling | Closure evidence | Bucket → destination |
+|---|---|---|---|---|---|---|---|---|---|
+| CR-91 | **The class-card trust boundary** (L3 design §8; D-131) | A class-card account (a card number and its PIN) can be activated for **any** person waiting for an account, staff included. The activation form offers «kartu» to everyone (`src/components/aktivasi/FormAktivasi.tsx:197-212`), and `authorize_account_activation` checks the activator's authority and the card number's shape, not the person's role or enrolment. So a staff-entitled person signed in by card would have their staff acts authorized by the database through that session | **An authentication-assurance question, not a UI one.** First establish the intended class-card trust boundary, then a specific ruling on it | — (only if a staff person is activated by card) | no | to be ruled | **Required** (D-131: held for a specific ruling) | The ruled boundary, proven where the database authenticates and authorizes | **Held** · not L3, not fixed casually |
+| CR-92 | **«Komputer siapa ini?» opened from Akun saya preselects «shared»** (L3 design §8; D-131) | On a computer already declared personal, the screen opens with «shared» chosen. `/perangkat` asks `sesi_periksa` without this browser's identity, so `perlu_pilih` is always true there (`src/app/perangkat/page.tsx:28, 40`). The stored choice is unaffected | The screen preselects the choice this browser holds | U (staff reviewing their computer from Akun saya) | no | — | none (D-131: a separate minor defect) | A test that the screen opens on the stored choice | **Minor defect** · for closure, outside L3 |
 
 ### Experience: Daisy's design system (the threshold of D-118(c))
 
