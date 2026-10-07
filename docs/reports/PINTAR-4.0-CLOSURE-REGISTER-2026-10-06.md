@@ -84,7 +84,12 @@ CR-28 and CR-37 are not in batch 3, as D-120 ruled:
 - Engineering closure work held; the baton passes to Daisy.
 - Her brief: `docs/coordination/briefs/DAISY-BATCH-4-2026-10-07.md`.
 
-Next: batch 4 (Daisy's gate), in D-122(7)'s order.
+**Batch 4 (7 Oct):**
+- Daisy: READY FOR REVIEW on `7c6aefe` (`HANDOFF-DAISY-41.md`, lane `d226fef`).
+- The coordinator re-ran her three checks with the same results, and confirmed the four journey mismatches in the code.
+- Your walk sheet: `docs/reports/PINTAR-4.0-BATCH-4-WALK-SHEET-2026-10-07.md`.
+
+Next: your walk of J1–J7 and the stripe; then Daisy's corrections and APPLICATION READY (D-122(7)).
 
 ## 1. The register
 
@@ -184,7 +189,7 @@ Next: batch 4 (Daisy's gate), in D-122(7)'s order.
 | ID | Item (source) | State now | What is missing | Who meets it | FI | PR | Ruling | Closure evidence | Bucket → destination |
 |---|---|---|---|---|---|---|---|---|---|
 | CR-54 | **The UI/UX polish pass** (X.12 POL; D-052(b), D-068(f); D-098(b)) | NOT BUILT: the application wears the pre-design screens | Daisy's approved grammar on every screen, in slices (§2) | G everywhere, U | **highest** | POL | none (approved in principle; questions 1–17 ruled) | Each slice: CI → staging → visual check → regression | **A** · DAISY |
-| CR-55 | **Daisy's validation** (11-validation.md): the owner walks J1–J7; the stripe on three school displays | NOT STARTED | Your walk and the display test | — | — | — | **owner actions** | Findings ruled; A stands or moves to A+ | **A** (owner) |
+| CR-55 | **Daisy's validation** (11-validation.md): the owner walks J1–J7; the stripe on three school displays | READY FOR YOUR WALK: J1–J7 composed on `7c6aefe` (HANDOFF-DAISY-41); her checks re-run by the coordinator, same results | Your walk, your rulings (walk sheet of 7 Oct), and the display test | — | — | — | **owner actions** | Findings ruled; A stands or moves to A+ | **A** (owner) |
 | CR-56 | **The wordmark master** (Helvetica Neue 65 Medium, licence; DAISY-RESUME) | Pending | The font licence and the outlined master | G (header, card, certificate) | yes | — | owner action (licence) | The master in the design system | **A** (owner + Daisy) |
 | CR-57 | **Educator-as-learner polish** (DAISY-35; J9.3) | TODO | Inside the propagation slices | U (participants) | low | EC | none | Slice visual check | **A** · DAISY (within slices) |
 | CR-58 | **Responsiveness re-measured** (X.10; U-PERF, last measured 28 Sep) | Not re-measured on current code | Measure after propagation (the design changes what loads) | G, U | yes (slowness is a first impression) | P0 | none | U-PERF on the final specimen | **B** |
