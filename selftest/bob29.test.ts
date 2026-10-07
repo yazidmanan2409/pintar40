@@ -19,6 +19,7 @@ import { join } from "node:path";
 import { stringFromBase64URL } from "@supabase/ssr";
 import { Checks, type SelfTest } from "./lib";
 import { ipUji, lit, Peramban, psql } from "./bob26.test";
+import { pilihKonteksPeramban } from "./konteks-uji";
 import { t, LOCALES, type HleEvent } from "../src/lib/hle";
 import {
   adalahPrefetch, bacaJawabanBuka, bacaPenjagaan, BATAS_SESI, hashPerangkat, idSesiDariToken, jalurBebasPilih,
@@ -417,6 +418,8 @@ export const bob29AppTests: SelfTest[] = [
       await pribadi.jsonDari("/masuk/password", { form: { identitas: "uji.sysadmin", password: "Sintetis-Sys-91!" } });
       await pribadi.halaman("/konfigurasi");
       const p = await pribadi.jsonDari("/api/sesi/perangkat", { form: { mode: "PERSONAL" } });
+      // L3 (D-132 C3, C7): the platform admin holds several places, so Konfigurasi opens once one is chosen
+      await pilihKonteksPeramban(pribadi, "MENGELOLA:PLATFORM");
       const sp = pribadi.sesi()!;
       psql(`update public.device_sessions set last_activity_at = now() - interval '6 days' where session_id = ${lit(sp.id)}`);
       c.expect(p.status === 200 && (await pribadi.halaman("/konfigurasi")).status === 200 && await postgrest(url, anon, sp.access) === 200,

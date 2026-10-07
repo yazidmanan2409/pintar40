@@ -9,6 +9,8 @@ import AkunSaya from "@/components/aktifkan/AkunSaya";
 import KeluarSemua from "@/components/sesi/KeluarSemua";
 import { supabaseServer } from "@/lib/supabase/server";
 import { bacaPenjagaan, HALAMAN_PERANGKAT } from "@/lib/penjaga-sesi-kontrak";
+import { konteksSaya } from "@/lib/konteks-server";
+import { berandaPasangan } from "@/lib/konteks";
 
 export const dynamic = "force-dynamic";
 
@@ -21,8 +23,10 @@ export const dynamic = "force-dynamic";
  * data is never requested for them. The route refuses them too
  * (`403 TIDAK_BERLAKU`); this is the page not asking.
  *
- * The shell is the reader's own: a teacher's, Management's, or the
- * administrators'.
+ * L3 (CR-83; D-127 Q1, D-132 §2.6): AKUN SAYA KEEPS THE WORKING CONTEXT. It is a neutral surface: it changes no
+ * context and wears the active one's shell, whose tabs include that context's home, so Dr Gladys in Mengajar · SD B
+ * opens Akun saya and comes back to Mengajar · SD B (DG-20). Without a context (an evaluation persona, C10) the shell
+ * is read from the roles, as before.
  */
 export default async function Akun() {
   const locale = await currentLocale();
@@ -35,9 +39,13 @@ export default async function Akun() {
   // BOB-29 (C11): what this browser was declared for this person, to show and to change
   const { data: sesi } = await (await supabaseServer()).rpc("sesi_periksa");
   const mode = bacaPenjagaan(sesi)?.mode;
-  const kind = peran!.includes("EDUCATOR") ? "pengajar"
-    : peran!.some((p) => p === "HEAD_OF_DEPARTMENT" || p === "DEAN") ? "pimpinan"
-      : "pendataan";
+  const k = await konteksSaya();
+  const kind = k?.keadaan === "ADA"
+    ? (k.tujuan === "BELAJAR" ? "learner" : k.tujuan === "MENGAJAR" ? "pengajar"
+        : berandaPasangan(k) === "/pimpinan" ? "pimpinan" : "pendataan")
+    : peran!.includes("EDUCATOR") ? "pengajar"
+      : peran!.some((p) => p === "HEAD_OF_DEPARTMENT" || p === "DEAN") ? "pimpinan"
+        : "pendataan";
 
   return (
     <>

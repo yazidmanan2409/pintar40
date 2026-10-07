@@ -28,6 +28,7 @@ import { Checks, type SelfTest } from "./lib";
 import { daftar, ipUji, lit, Peramban, psql, sandiBagas } from "./bob26.test";
 import { aktifkan, cobaPin, pintarIdDari } from "./bob28.test";
 import { Komputer, postgrest } from "./bob29.test";
+import { pilihKonteksPeramban } from "./konteks-uji";
 
 const MIGRASI = "supabase/migrations/20261122100000_a_school_resolves_its_own_recovery.sql";
 const tanpaKomentar = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
@@ -279,9 +280,11 @@ export const d101Tests: SelfTest[] = [
       c.expect(/"INSTITUTION_ADMIN"/.test(halaman) && /security_event_list/.test(halaman) && /sistem === true \? \(/.test(halaman),
         "Keamanan akun is not open to a School Admin, or shows a School Admin the security record");
       const konf = tanpaKomentar(baca("src/app/konfigurasi/page.tsx"));
-      c.expect(/\(isSys === true \|\| adminInstitutionIds\.length > 0\) \? <Link href="\/konfigurasi\/keamanan"/.test(konf),
+      // L3 (D-132 C7): Keamanan in «Seluruh platform» (the Platform Admin) and in a school's context (its School Admin)
+      c.expect(/\(platformIni \|\| sekolahIni\.length > 0\) \? <Link href="\/konfigurasi\/keamanan"/.test(konf),
         "Konfigurasi does not link a School Admin to Keamanan akun");
-      c.expect(/\.\.\.\(isSys \|\| adminInstitutionIds\.length > 0 \? \["INSTITUTION_ADMIN"\] : \[\]\), \.\.\.\(isSys \? \["SYSTEM_ADMIN"\] : \[\]\)/.test(konf),
+      // L3: «Admin sekolah» in a school's context (an evaluation persona as before); Admin platform in «Seluruh platform» alone
+      c.expect(/\.\.\.\(sekolahIni\.length > 0 \|\| \(lama && isSys === true\) \? \["INSTITUTION_ADMIN"\] : \[\]\), \.\.\.\(platformIni \? \["SYSTEM_ADMIN"\] : \[\]\)/.test(konf),
         "Peran & akses does not offer «Admin sekolah» to a School Admin, or offers Admin platform to anyone but the Platform Admin");
       c.expect(/sp\.angkat/.test(konf) && /name="yakin" value="ya"/.test(konf) && /config\.angkat\.ya/.test(konf),
         "Peran & akses has no confirming step for «Admin sekolah»");
@@ -418,6 +421,8 @@ export const d101AppTests: SelfTest[] = [
       const sys = new Peramban(asal, ipUji());
       if (!c.expect((await sys.jsonDari("/masuk/password", { form: { identitas: "uji.sysadmin", password: "Sintetis-Sys-91!" } })).status === 200,
         "the Platform Admin could not sign in")) return c.verdict("");
+      // L3 (D-132 C7): the platform admin's acts across schools are «Seluruh platform»'s, chosen on the chooser
+      await pilihKonteksPeramban(sys, "MENGELOLA:PLATFORM");
 
       // 1. the gap, shown on this very stack: the fix withdrawn, a re-issued card's old token is still served
       const satu = await muridBerkartu(c, asal, sys, `${tag}a`);

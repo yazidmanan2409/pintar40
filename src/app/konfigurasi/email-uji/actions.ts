@@ -11,6 +11,9 @@ import { GalatEmail, hashAlamat, normalisasiAlamat } from "@/lib/email/alamat";
  * asked about: the send log holds no address, and nothing here writes the
  * typed address anywhere. email_send_history refuses anyone but the platform
  * admin itself (42501), so this action decides nothing about access.
+ *
+ * L3 (D-132(k)): explicitly platform-scoped, governed by email_send_history's own scope (the platform admin), not by a
+ * session's working context; its page is shown in «Seluruh platform» only.
  */
 export type BarisRiwayat = {
   id: string;

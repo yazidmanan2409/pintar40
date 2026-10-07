@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
+import { wajibDalamKonteks } from "@/lib/konteks-server";
 import type { Kemajuan } from "@/lib/pendataan-kontrak";
 
 /**
@@ -38,11 +39,20 @@ async function progress(pekerjaan: string): Promise<Kemajuan | null> {
   return data as Kemajuan;
 }
 
+/**
+ * §2.11 (D-132(k)): AN INTAKE'S ACT, ITS SCHOOL IN THE ACTIVE CONTEXT. The job's school is `import_progress`'s own
+ * answer; a job this person may not see has none, and the endpoint refuses it as before.
+ */
+async function pekerjaanDalamKonteks(pekerjaan: string): Promise<void> {
+  await wajibDalamKonteks({ sekolah: (await progress(pekerjaan))?.institution_id ?? null });
+}
+
 /** The school's three-character code. Refused once one ID has been issued. */
 export async function simpanKodeAksi(formData: FormData): Promise<void> {
   const institusi = String(formData.get("institusi") ?? "").trim();
   const kode = String(formData.get("kode") ?? "").trim();
   if (!institusi || !kode) redirect("/pendataan?galat=kode");
+  await wajibDalamKonteks({ sekolah: institusi });
 
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("reserve_institution_namespace", {
@@ -76,6 +86,7 @@ export async function bukaPendataanAksi(formData: FormData): Promise<void> {
     redirect("/pendataan?galat=baris");
   }
   if (!Array.isArray(baris) || baris.length === 0) redirect("/pendataan?galat=baris");
+  await wajibDalamKonteks({ sekolah: institusi });
 
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("import_open", {
@@ -104,6 +115,7 @@ export type HasilPeriksa = {
  * starts a new intake rather than silently provisioning the survivors.
  */
 export async function periksaAksi(pekerjaan: string): Promise<HasilPeriksa> {
+  await pekerjaanDalamKonteks(pekerjaan);
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("import_validate", { p_job: pekerjaan });
   if (error || !data) return { ok: false, galat: "tak_terbaca", rows: [] };
@@ -125,6 +137,7 @@ export async function periksaAksi(pekerjaan: string): Promise<HasilPeriksa> {
 export async function konfirmasiAksi(formData: FormData): Promise<void> {
   const pekerjaan = String(formData.get("pekerjaan") ?? "").trim();
   if (!pekerjaan) redirect("/pendataan");
+  await pekerjaanDalamKonteks(pekerjaan);
 
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("import_confirm", { p_job: pekerjaan });
@@ -148,6 +161,7 @@ export async function konfirmasiAksi(formData: FormData): Promise<void> {
 export async function periksaPercontohanAksi(formData: FormData): Promise<void> {
   const pekerjaan = String(formData.get("pekerjaan") ?? "").trim();
   if (!pekerjaan) redirect("/pendataan");
+  await pekerjaanDalamKonteks(pekerjaan);
 
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("import_verify_pilot", { p_job: pekerjaan });
@@ -176,13 +190,14 @@ export async function periksaPercontohanAksi(formData: FormData): Promise<void> 
  * import gets.
  */
 export async function majukanAksi(pekerjaan: string): Promise<Kemajuan | null> {
+  await pekerjaanDalamKonteks(pekerjaan);
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("import_advance", { p_job: pekerjaan, p_max_rows: 25 });
   if (error || !data) return progress(pekerjaan);
   return data as Kemajuan;
 }
 
-/** A plain re-read, for the driver to settle on after an uncertain outcome. */
+/** A plain re-read, for the driver to settle on after an uncertain outcome. It acts on nothing (§2.11 is for acts). */
 export async function kemajuanAksi(pekerjaan: string): Promise<Kemajuan | null> {
   return progress(pekerjaan);
 }

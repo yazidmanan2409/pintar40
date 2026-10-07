@@ -519,7 +519,7 @@ export const bob43Tests: SelfTest[] = [
       c.expect(/node:org_nodes\(member_kind\)/.test(pim) && /\.filter\(\(m\) => m\.node\?\.member_kind !== "PARTICIPANT"\)/.test(pim),
         "«Murid pada bagian ini» still lists professional-learning participants");
       const konf = baca("src", "app", "konfigurasi", "page.tsx");
-      c.expect(/status, member_kind"\)\.eq\("status", "ACTIVE"\)/.test(konf) && /&& e\.member_kind !== "PARTICIPANT"\)\.map\(\(e\) => \(/.test(konf),
+      c.expect(/status, member_kind, persons\(display_name\)"\)\.eq\("status", "ACTIVE"\)/.test(konf) && /&& e\.member_kind !== "PARTICIPANT"\)\.map\(\(e\) => \(/.test(konf),
         "the transfer picker still lists professional-learning enrolments");
       c.expect(/<section id="peserta"/.test(konf) && /formulirPeserta\(sekolahStruktur\.id\)/.test(konf) && /action=\{daftarkanPesertaAction\}/.test(konf),
         "Konfigurasi has no enrol form on the database's two reads");

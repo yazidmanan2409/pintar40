@@ -28,7 +28,7 @@ export type JawabanAktivasi = {
 };
 
 /** The words the route itself writes into `error`. */
-export const GALAT_RUTE = ["mode", "unauthenticated", "email", "person_id", "refused", "create_failed"] as const;
+export const GALAT_RUTE = ["mode", "unauthenticated", "email", "person_id", "refused", "create_failed", "CONTEXT_OTHER_PLACE"] as const;
 
 /**
  * The same permissive shape check as /masuk (LayarMasuk): it catches a missing

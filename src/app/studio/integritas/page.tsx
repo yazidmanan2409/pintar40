@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
-import { button, card, field, label, outcomeLine, s, short, when, tabSaya } from "../_lib";
+import { button, card, field, label, outcomeLine, s, short, studioInstitutions, when, tabSaya } from "../_lib";
 import { recordIntegrityReviewAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
@@ -32,10 +32,12 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
   const pemilik = (await currentViewer())?.personId ?? "";
   const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
   const { data: signals } = await supabase.rpc("integrity_signals_awaiting_review");
+  // L3 (D-127 Q2): the working context's school only (studioInstitutions is narrowed to it)
+  const sekolah = new Set((await studioInstitutions()).map((i) => i.id));
 
   const rows = ((signals ?? []) as Array<{
     signal_id: string; session_id: string; institution_id: string; category: string; observed_at: string; may_refer: boolean;
-  }>).map((r) => ({ ...r, id: r.signal_id }));
+  }>).filter((r) => sekolah.has(r.institution_id)).map((r) => ({ ...r, id: r.signal_id }));
   const bySession = new Map<string, typeof rows>();
   for (const r of rows) bySession.set(r.session_id, [...(bySession.get(r.session_id) ?? []), r]);
 

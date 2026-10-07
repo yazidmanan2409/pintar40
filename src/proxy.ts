@@ -10,6 +10,8 @@ import {
 } from "@/lib/penjaga-sesi";
 import { keluarPerangkatIni } from "@/lib/keluar";
 import { galatPemeliharaan, HALAMAN_PEMELIHARAAN, jalurSaatPemeliharaan } from "@/lib/pemeliharaan-kontrak";
+import { HEADER_JALUR } from "@/lib/konteks";
+import { aturTanda, COOKIE_HADIR, COOKIE_SELESAI, opsiTanda } from "@/lib/tanda-keluar";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
@@ -64,7 +66,7 @@ const PUBLIC_PATHS = new Set(["/", "/masuk", "/masuk/kartu", "/masuk/password", 
 const PUBLIC_PREFIXES = ["/verifikasi/", "/api/verifikasi/", "/id/"];
 
 export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  let response = NextResponse.next({ request: { headers: denganJalur(request) } });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -78,7 +80,7 @@ export async function proxy(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
+          response = NextResponse.next({ request: { headers: denganJalur(request) } });
           cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
         },
       },
@@ -138,6 +140,9 @@ export async function proxy(request: NextRequest) {
         for (const k of response.cookies.getAll()) akhir.cookies.set(k);
         akhir.cookies.set(COOKIE_PRIBADI, "", { path: "/", maxAge: 0 });
         akhir.cookies.set(COOKIE_JAGA, "", { path: "/", maxAge: 0 });
+        // L3 (D-132(e)): the session ended on this browser, so the next sign-in here carries no destination from it
+        akhir.cookies.set(COOKIE_HADIR, "", { path: "/", maxAge: 0 });
+        akhir.cookies.set(COOKIE_SELESAI, "1", opsiTanda(aman));
         return akhir;
       }
       mode = jaga?.mode ?? null;
@@ -190,6 +195,15 @@ export async function proxy(request: NextRequest) {
         path: "/", sameSite: "lax", httpOnly: true, secure: request.nextUrl.protocol === "https:", maxAge: umur });
     }
   }
+  // L3 (D-132(e)), 4.0'S STALE-CONTINUATION GUARD (src/lib/tanda-keluar.ts): a browser that held a session and
+  // arrives without one had it end here, by «Keluar», expiry, or from elsewhere. It is marked, and while it is no
+  // `lanjut` is minted: the next sign-in lands by that person's own door and context, never on the last one's page.
+  const tanda = aturTanda({ masuk: Boolean(user), berakhir: false, aksi,
+                            hadir: request.cookies.has(COOKIE_HADIR), selesai: request.cookies.has(COOKIE_SELESAI) });
+  if (tanda.pasangHadir) response.cookies.set(COOKIE_HADIR, "1", opsiTanda(aman));
+  if (tanda.hapusHadir) response.cookies.set(COOKIE_HADIR, "", { path: "/", maxAge: 0 });
+  if (tanda.pasangSelesai) response.cookies.set(COOKIE_SELESAI, "1", opsiTanda(aman));
+
   // /api/dev/* is decided by its own handler: a plain 404 outside development
   // (FABLE-01 §11) — a 401 here would reveal that the namespace exists.
   const isDevNamespace = path === "/api/dev" || path.startsWith("/api/dev/");
@@ -236,10 +250,27 @@ export async function proxy(request: NextRequest) {
     }
     const url = request.nextUrl.clone();
     url.pathname = "/masuk";
-    url.searchParams.set("lanjut", path);
-    return NextResponse.redirect(url);
+    if (tanda.tandai) url.search = "";
+    else url.searchParams.set("lanjut", path);
+    const masuk = NextResponse.redirect(url);
+    for (const k of response.cookies.getAll()) masuk.cookies.set(k);
+    return masuk;
   }
   return response;
+}
+
+/**
+ * L3: the request's own headers, with the path it is for (and its query, less Next's own `_rsc`), so a surface's
+ * layout can offer to continue here (src/lib/konteks-server.ts). Always overwritten: a value a client sent is never
+ * passed on, and the layout narrows it again (tujuanInternal) because it becomes a link.
+ */
+function denganJalur(request: NextRequest): Headers {
+  const h = new Headers(request.headers);
+  const q = new URLSearchParams(request.nextUrl.search);
+  q.delete("_rsc");
+  const cari = q.toString();
+  h.set(HEADER_JALUR, `${request.nextUrl.pathname}${cari ? `?${cari}` : ""}`);
+  return h;
 }
 
 /** «PINTAR terkunci», returning afterwards to the page that was asked for. */

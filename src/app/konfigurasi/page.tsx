@@ -17,6 +17,9 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
 import SesiSaya from "@/components/SesiSaya";
 import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
+import { navKonteks } from "@/components/NavKonteks";
+import { konteksHalaman } from "@/lib/konteks-server";
+import { melayani } from "@/lib/konteks";
 import { peranSaya } from "@/lib/tur-negara";
 import { bacaStruktur } from "@/lib/struktur";
 import { tahunAjaranPada } from "@/lib/struktur-kontrak";
@@ -55,6 +58,13 @@ import { daftarKelola, KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan"
 
 const s = (event: HleEvent) => t(event, "staff");
 const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "—");
+// FD-4: each person's name travels with the row that names them (the foreign key says which person)
+const KOLOM_PINDAH = "id, person_id, from_institution_id, to_institution_id, status, reason, created_at, persons!transfers_person_id_fkey(display_name)";
+const KOLOM_PERAN = "id, person_id, role, scope_node_id, institution_id, valid_until, revoked_at, persons!role_assignments_person_id_fkey(display_name)";
+const namaDari = (v: unknown): string | null => {
+  const o = (Array.isArray(v) ? v[0] : v) as { display_name?: unknown } | null | undefined;
+  return typeof o?.display_name === "string" ? o.display_name : null;
+};
 const tautanTempat = "text-ink-2 underline underline-offset-4 hover:text-ink-1";
 const when = (iso: string) => new Date(iso).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jakarta" });
 const roleLabel = (r: string) => (["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"].includes(r) ? s(`role.${r}` as HleEvent) : r);
@@ -112,6 +122,21 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     );
   }
 
+  // L3 (CR-83; D-127 Q2, Q11; D-132 C7): KONFIGURASI IS THE WORKING CONTEXT'S. Mengelola · a school: that school's
+  // structure, people, roles, reports and audit, and nothing of another, whoever the reader is (an Admin platform
+  // included: platform-wide authority does not imply platform-wide presentation). Mengelola · «Seluruh platform»: the
+  // deliberately platform-wide parts alone (the system check, platform maintenance, the platform's audit, every
+  // school's problem reports, Admin platform's own grants); the school-shaped sections are not drawn. The gate above
+  // is unchanged and the database decides every act. An evaluation persona keeps the page as it was (C10).
+  const kh = await konteksHalaman();
+  const lama = kh === "TANPA_KONTEKS";
+  const platformKonteks = !lama && kh?.platform === true;
+  const platformIni = lama ? isSys === true : platformKonteks && isSys === true;
+  const sekolahIni: string[] = lama ? adminInstitutionIds : kh && !kh.platform && kh.tempat ? [kh.tempat] : [];
+  const dikelola = (id: string) => (lama && isSys === true) || sekolahIni.includes(id);
+  const satuSekolah = !lama && sekolahIni.length === 1 ? sekolahIni[0] : null;
+  const adminPlatformDiSekolah = !lama && isSys === true && kh !== null && !kh.platform && kh.peran.includes("SYSTEM_ADMIN");
+
   // A school administrator's enrolments and audit trail are their own schools'. The policies return exactly those
   // rows (has_scope('INSTITUTION_ADMIN', ...) holds only for a school the viewer administers), but asked without the
   // schools named the database checks the policy on every row of every school, and the cost grows with the whole
@@ -120,7 +145,16 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   // the same rows. The platform administrator's reads are unchanged.
   // BOB-45: member_kind (a computed field) says whether an enrolment is a learner's or a professional-learning
   // participant's; the transfer picker lists learners' only
-  const enrolmen = supabase.from("enrollments").select("id, person_id, institution_id, academic_period_id, status, member_kind").eq("status", "ACTIVE");
+  //
+  // FD-4 (CR-89): NOTHING HERE GROWS WITH THE PLATFORM. A school's context reads that school's rows; «Seluruh platform»
+  // reads no school-shaped rows at all (it draws no school-shaped section); only an evaluation persona keeps the
+  // platform-wide reads it had (C10). And each person's name comes back WITH the row that names them, under the same
+  // row security as before, instead of a second request listing every id, whose address outgrew what the server
+  // accepts at platform scale (staging's 400s, and every name an 8-character fragment).
+  const semuaSekolah = lama && isSys === true;
+  const tanpaBaris = Promise.resolve({ data: [] as never[] });
+  const enrolmen = supabase.from("enrollments")
+    .select("id, person_id, institution_id, academic_period_id, status, member_kind, persons(display_name)").eq("status", "ACTIVE");
   const jejak = supabase.from("audit_log").select("id, at, action, target_table, target_id, institution_id, build_sha");
 
   const [
@@ -128,18 +162,37 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     { data: assignments }, { data: audit }, { data: lint, error: lintError }, { data: env },
     { data: awaiting }, [{ data: reportTemplates }, { data: templateMetrics }, { data: metricDefs }],
   ] = await Promise.all([
-    supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
-    supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").order("starts_on"),
-    supabase.from("org_nodes").select("id, institution_id, kind, name, academic_period_id, is_active, jalur").order("name"),
-    (isSys === true ? enrolmen : enrolmen.in("institution_id", adminInstitutionIds)).order("created_at"),
-    supabase.from("transfers").select("id, person_id, from_institution_id, to_institution_id, status, reason, created_at").order("created_at", { ascending: false }).limit(50),
-    supabase.from("role_assignments").select("id, person_id, role, scope_node_id, institution_id, valid_until, revoked_at").is("revoked_at", null).order("created_at", { ascending: false }),
-    (isSys === true ? jejak : jejak.in("institution_id", adminInstitutionIds)).order("at", { ascending: false }).limit(50),
+    satuSekolah
+      ? supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").eq("id", satuSekolah)
+      : supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
+    satuSekolah
+      ? supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").eq("institution_id", satuSekolah).order("starts_on")
+      : supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").order("starts_on"),
+    satuSekolah
+      ? supabase.from("org_nodes").select("id, institution_id, kind, name, academic_period_id, is_active, jalur").eq("institution_id", satuSekolah).order("name")
+      : platformKonteks
+        ? tanpaBaris
+        : supabase.from("org_nodes").select("id, institution_id, kind, name, academic_period_id, is_active, jalur").order("name"),
+    semuaSekolah ? enrolmen.order("created_at")
+      : sekolahIni.length > 0 ? enrolmen.in("institution_id", sekolahIni).order("created_at") : tanpaBaris,
+    satuSekolah
+      ? supabase.from("transfers").select(KOLOM_PINDAH)
+          .or(`from_institution_id.eq.${satuSekolah},to_institution_id.eq.${satuSekolah}`).order("created_at", { ascending: false }).limit(50)
+      : platformKonteks
+        ? tanpaBaris
+        : supabase.from("transfers").select(KOLOM_PINDAH).order("created_at", { ascending: false }).limit(50),
+    (satuSekolah
+      ? supabase.from("role_assignments").select(KOLOM_PERAN).eq("institution_id", satuSekolah)
+      : platformKonteks
+        ? supabase.from("role_assignments").select(KOLOM_PERAN).eq("role", "SYSTEM_ADMIN")
+        : supabase.from("role_assignments").select(KOLOM_PERAN))
+      .is("revoked_at", null).order("created_at", { ascending: false }),
+    (platformIni ? jejak : jejak.in("institution_id", sekolahIni)).order("at", { ascending: false }).limit(50),
     // BOB-18 (D-046): the schema lint runs when an operator asks for it, never
     // on an ordinary load -- it reads the whole catalogue, and every sign-in of
     // the platform admin lands here.
-    isSys && sp.periksa === "skema" ? supabase.rpc("platform_schema_lint") : Promise.resolve({ data: null, error: null }),
-    isSys ? supabase.from("platform_environment").select("environment").maybeSingle() : Promise.resolve({ data: null }),
+    platformIni && sp.periksa === "skema" ? supabase.rpc("platform_schema_lint") : Promise.resolve({ data: null, error: null }),
+    platformIni ? supabase.from("platform_environment").select("environment").maybeSingle() : Promise.resolve({ data: null }),
     // FINAL DELTA 2. The people the three sources above cannot reach: no active
     // role, no enrolment, no transfer. The platform administrator asks the
     // platform's list, which refuses everyone else (the school administrator's
@@ -148,10 +201,12 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     // for its own list -- the people it has recorded who hold nothing there
     // yet, such as a newly recorded teacher. The database decides again who
     // may ask; a school it refuses simply adds nobody.
-    isSys === true
-      ? supabase.rpc("persons_awaiting_first_role")
-      : Promise.all(adminInstitutionIds.map((sekolah) => supabase.rpc("persons_awaiting_first_role_at", { p_institution: sekolah })))
-          .then((jawaban) => ({ data: jawaban.flatMap((j) => (j.data ?? []) as Array<{ person_id: string; display_name: string }>) })),
+    // L3 (D-132 C7; J1.4): in Mengelola · a school, Admin platform asks the platform's list as well: a school's first
+    // administrator is somebody no school has recorded yet, and only Admin platform appoints them there
+    Promise.all([
+      platformIni || adminPlatformDiSekolah ? supabase.rpc("persons_awaiting_first_role") : Promise.resolve({ data: [] }),
+      ...(platformIni ? [] : sekolahIni.map((sekolah) => supabase.rpc("persons_awaiting_first_role_at", { p_institution: sekolah }))),
+    ]).then((jawaban) => ({ data: jawaban.flatMap((j) => (j.data ?? []) as Array<{ person_id: string; display_name: string }>) })),
     // W8-02. The institution's own templates, and the catalogue they may select
     // from. Both are ordinary reads under this viewer's own RLS: the template
     // rows are their school's, and the catalogue is PINTAR's, readable by anyone
@@ -177,7 +232,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   // (audit S7b) -- the one asked for if it is on offer, else the first. Its
   // read starts now and runs beside the reads below; `school_structure`
   // decides again who may see it.
-  const sekolahKu = sekolahDitawarkan(institutions ?? [], (id) => isSys === true || adminInstitutionIds.includes(id));
+  const sekolahKu = sekolahDitawarkan(institutions ?? [], dikelola);
   const sekolahStruktur = sekolahDipilih(sekolahKu, sp.sekolah);
   const bacaanStruktur = sekolahStruktur ? bacaStruktur(sekolahStruktur.id) : Promise.resolve(null);
   // DAISY-07 (B6b): the school's own root node, for its school summary
@@ -188,14 +243,12 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const awaitingPersons = Array.from(new Map(((awaiting ?? []) as Array<{ person_id: string; display_name: string }>)
     .map((p) => [p.person_id, p])).values());
 
-  // Names for the people this viewer may see (RLS decides who that is).
-  const personIds = Array.from(new Set([
-    ...(enrollments ?? []).map((e) => e.person_id), ...(transfers ?? []).map((x) => x.person_id), ...(assignments ?? []).map((a) => a.person_id),
-  ]));
-  const { data: persons } = personIds.length
-    ? await supabase.from("persons").select("id, display_name").in("id", personIds)
-    : { data: [] as Array<{ id: string; display_name: string }> };
-  const personName = new Map((persons ?? []).map((p) => [p.id, p.display_name]));
+  // Names for the people this viewer may see (RLS decides who that is), each read with its row (FD-4)
+  const persons = Array.from(new Map([...(enrollments ?? []), ...(transfers ?? []), ...(assignments ?? [])]
+    .map((r) => [String(r.person_id), namaDari(r.persons)] as const)
+    .filter((x): x is readonly [string, string] => typeof x[1] === "string")).entries())
+    .map(([id, display_name]) => ({ id, display_name }));
+  const personName = new Map(persons.map((p) => [p.id, p.display_name]));
   const institutionName = new Map((institutions ?? []).map((i) => [i.id, i.name]));
   const periodName = new Map((periods ?? []).map((p) => [p.id, p.name]));
   const nodeName = new Map((nodes ?? []).map((n) => [n.id, `${n.name}`]));
@@ -214,14 +267,14 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   // BOB-19: the card judges each check by the one rule F01-T13 uses
   // (src/lib/kesehatan-skema), never "anything but 0 is a problem"
   let kesehatan: KeadaanKesehatan;
-  if (isSys !== true) kesehatan = { jenis: "bukan_admin" };
+  if (!platformIni) kesehatan = { jenis: "bukan_admin" };
   else if (sp.periksa !== "skema") kesehatan = { jenis: "belum" };
   else if (lintError || !lint || typeof lint !== "object") {
     const ref = rujukan();
     console.error(`[konfigurasi ${ref}] platform_schema_lint failed`, lintError?.code, lintError?.message);
     kesehatan = { jenis: "gagal", rujukan: ref };
   } else kesehatan = { jenis: "diperiksa", hasil: nilaiSkema(lint as Record<string, unknown>) };
-  const myInstitutions = (institutions ?? []).filter((i) => isSys || adminInstitutionIds.includes(i.id));
+  const myInstitutions = (institutions ?? []).filter((i) => dikelola(i.id));
   const myInstitutionIds = myInstitutions.map((i) => i.id);
   const myTemplates = (reportTemplates ?? []).filter((t) => myInstitutionIds.includes(t.institution_id));
   const metricsByTemplate = new Map<string, Array<{ metric_id: string; visualization: string }>>();
@@ -251,21 +304,29 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   // assessments the proposed window would meet (D-094(g)), asked of the database for exactly that scope and time
   const pmSekolah = (Array.isArray(sp.pm_sekolah) ? sp.pm_sekolah : sp.pm_sekolah ? [sp.pm_sekolah] : [])
     .filter((x) => /^[0-9a-f-]{36}$/i.test(x));
-  const pmPlatform = isSys === true && sp.pm_platform === "1";
+  const pmPlatform = platformIni && sp.pm_platform === "1";
   const pmMulai = sp.pm_mulai ? waktuWib(sp.pm_mulai) : null;
   const pmSelesai = waktuWib(sp.pm_selesai);
   const pmCek = sp.pm_cek === "1" && (pmPlatform || pmSekolah.length > 0) && (!sp.pm_mulai || pmMulai !== null);
-  const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan, peserta, catatanPd, laporan, kelola, { data: tabrakan }] = await Promise.all([
-    bacaanStruktur, currentLocale(), bacaanAkar, sekolahPendataan().then((x) => x.length > 0).catch(() => false),
+  const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan, peserta, catatanPd, laporan, kelolaSemua, { data: tabrakan }] = await Promise.all([
+    bacaanStruktur, currentLocale(), bacaanAkar,
+    // L3: sekolahPendataan is already the working context's school (none in «Seluruh platform»), /pendataan's own rule
+    sekolahPendataan().then((x) => x.length > 0).catch(() => false),
     sekolahStruktur ? pelajaranDanBatas(supabase, sekolahStruktur.id) : Promise.resolve(null),
     sekolahStruktur ? formulirPeserta(sekolahStruktur.id) : Promise.resolve(null),
     tempatCatatan(),
-    laporanTriase(isSys === true ? null : adminInstitutionIds),
+    laporanTriase(platformIni ? null : sekolahIni),
     daftarKelola(),
     pmCek
       ? supabase.rpc("maintenance_collisions", { p_platform: pmPlatform, p_institutions: pmPlatform ? [] : pmSekolah, p_starts_at: pmMulai, p_ends_at: pmSelesai })
       : Promise.resolve({ data: null }),
   ]);
+  // L3: maintenance windows and notices of this context: the school's own in Mengelola · a school; every one the
+  // reader may act on in «Seluruh platform» (and before L3, for an evaluation persona)
+  const kelola = kelolaSemua && !lama && !platformKonteks
+    ? { pemeliharaan: kelolaSemua.pemeliharaan.filter((w) => w.sekolah.some((x) => sekolahIni.includes(x))),
+        pengumuman: kelolaSemua.pengumuman.filter((n) => !n.platform) }
+    : kelolaSemua;
   const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
   // M9: the Kelas whose students «Pindah kelas» lists, if one was chosen, and
   // where they may go; J3.6: or a Tingkat whose learners are not yet in a Kelas.
@@ -286,7 +347,10 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         sekolahStruktur.id, new Date().valueOf()) === 1
     : false;
 
-  const nav: Array<[string, string]> = [
+  // L3: «Seluruh platform» draws no school-shaped section, and lists none
+  const BAGIAN_SEKOLAH = ["struktur", "persiapan", "ketuntasan", "pindah", "peserta", "laporan", "rollover", "transfers", "intelligence"];
+  const tampil = (bagian: string) => !(platformKonteks && BAGIAN_SEKOLAH.includes(bagian));
+  const navSemua: Array<[string, string]> = [
     ["struktur", s("config.section.struktur")],
     ["ketuntasan", s("config.section.ketuntasan")],
     ["pindah", s("config.section.pindah")],
@@ -299,6 +363,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     // Polish batch 2 (UX-30): no menu item for a section that does not exist yet
     ["intelligence", s("config.section.intelligence")],
   ];
+  const nav = navSemua.filter(([bagian]) => tampil(bagian));
 
   return (
     <main className="py-6">
@@ -324,22 +389,26 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           asks its own gate on arrival; a link here decides nothing. */}
       <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2" aria-label={t("nav.tempat", "staff", { locale: await currentLocale() })}>
         {bolehPendataan ? <Link href="/pendataan" className={tautanTempat}>{s("pendataan.judul")}<TandaTautan /></Link> : null}
-        <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}<TandaTautan /></Link>
-        <Link href="/studio" className={tautanTempat}>{s("nav.studio")}<TandaTautan /></Link>
+        {lama || (kh && melayani(kh, "/aktivasi")) ? <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}<TandaTautan /></Link> : null}
+        {lama || (kh && melayani(kh, "/studio")) ? <Link href="/studio" className={tautanTempat}>{s("nav.studio")}<TandaTautan /></Link> : null}
         {/* DAISY-12 (D-037 step 2): «Laporkan masalah», as on every staff shell */}
         <TautanLapor locale={await currentLocale()} kelas={tautanTempat} />
         {/* BOB-51: the platform admin's delivery proof, a click rather than a console */}
-        {isSys === true ? <Link href="/konfigurasi/email-uji" className={tautanTempat}>{s("emailuji.judul")}<TandaTautan /></Link> : null}
+        {platformIni ? <Link href="/konfigurasi/email-uji" className={tautanTempat}>{s("emailuji.judul")}<TandaTautan /></Link> : null}
         {/* BOB-28, D-101 (1): the assisted PIN-recovery reset (a School Admin's for their school's people), and for the
             platform admin the security record */}
-        {(isSys === true || adminInstitutionIds.length > 0) ? <Link href="/konfigurasi/keamanan" className={tautanTempat}>{s("keamanan.judul")}<TandaTautan /></Link> : null}
-        <TabTempat
-          tempat={tempatDariPeran(peran)}
-          kecuali={["/konfigurasi"]}
-          locale={await currentLocale()}
-          persona="staff"
-          kelas={tautanTempat}
-        />
+        {(platformIni || sekolahIni.length > 0) ? <Link href="/konfigurasi/keamanan" className={tautanTempat}>{s("keamanan.judul")}<TandaTautan /></Link> : null}
+        {lama ? (
+          <TabTempat
+            tempat={tempatDariPeran(peran)}
+            kecuali={["/konfigurasi"]}
+            locale={await currentLocale()}
+            persona="staff"
+            kelas={tautanTempat}
+          />
+        ) : (
+          await navKonteks({ locale: await currentLocale(), persona: "staff", kecuali: ["/konfigurasi", "/pendataan", "/aktivasi", "/studio"], kelas: tautanTempat })
+        )}
       </nav>
 
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -365,7 +434,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           {/* DAISY-05 (D-006, D-022). Struktur sekolah: first, because a new
               school cannot place a student or assign a teacher until it has a
               Kelas, and until now nothing here could make one. */}
-          <section id="struktur" className={card}>
+          <section id="struktur" hidden={!tampil("struktur") || undefined} className={card}>
             <h2 className="font-medium">{sl("config.section.struktur")}</h2>
             {sekolahStruktur && struktur ? (
               <>
@@ -415,7 +484,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               the facts are the structure, its placements and its roles, as
               this reader already sees them. */}
           {sekolahStruktur && persiapan ? (
-            <section id="persiapan" className={card} aria-labelledby="pin-persiapan">
+            <section id="persiapan" hidden={!tampil("persiapan") || undefined} className={card} aria-labelledby="pin-persiapan">
               <h2 id="pin-persiapan" className="font-medium">{sl("config.persiapan.judul")}</h2>
               <p className="mt-1 text-sm text-ink-2">{sl("config.persiapan.arti")}</p>
               <ul className="mt-3 grid gap-2 text-sm">
@@ -450,7 +519,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               «Batas ketuntasan belum ditetapkan», its history, and a form to set it. A teacher cannot give a lesson
               to a class until its mark is set; a change applies to what is given afterwards. set_school_pass_mark
               decides who may set it (the school's admin), keeps every change and audits it. */}
-          <section id="ketuntasan" className={card} aria-labelledby="pin-ketuntasan">
+          <section id="ketuntasan" hidden={!tampil("ketuntasan") || undefined} className={card} aria-labelledby="pin-ketuntasan">
             <h2 id="pin-ketuntasan" className="font-medium">{sl("config.section.ketuntasan")}</h2>
             {sekolahStruktur ? (
               <>
@@ -513,7 +582,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               Kelas of the same year. move_learner_to_class decides each move
               again as this administrator, in one transaction; what was done in
               the old Kelas stays recorded there. */}
-          <section id="pindah" className={card}>
+          <section id="pindah" hidden={!tampil("pindah") || undefined} className={card}>
             <h2 className="font-medium">{sl("config.section.pindah")}</h2>
             {sekolahStruktur && struktur ? (
               <>
@@ -580,7 +649,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               database says hold a staff role here now; the places, this school's professional-learning Kelas and
               Tingkat. enrol_for_professional_learning decides again, creates no person, account or number, and audits.
               DAISY-34: the records this administrator may open are linked here, read-only, never as a figure. */}
-          <section id="peserta" className={card} aria-labelledby="pin-peserta">
+          <section id="peserta" hidden={!tampil("peserta") || undefined} className={card} aria-labelledby="pin-peserta">
             <h2 id="pin-peserta" className="font-medium">{sl("config.section.peserta")}</h2>
             {sekolahStruktur && peserta ? (
               <>
@@ -697,7 +766,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <input type="hidden" name="pm_cek" value="1" />
               <fieldset className="grid gap-1 text-sm">
                 <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
-                {isSys === true ? (
+                {platformIni ? (
                   <label className="flex items-center gap-2">
                     <input type="checkbox" name="pm_platform" value="1" defaultChecked={pmPlatform} /> {sl("config.pemeliharaan.platform")}
                   </label>
@@ -794,7 +863,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             <form action={terbitkanPengumumanAction} className="mt-2 grid gap-2">
               <fieldset className="grid gap-1 text-sm">
                 <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
-                {isSys === true ? (
+                {platformIni ? (
                   <label className="flex items-center gap-2"><input type="checkbox" name="platform" value="1" /> {sl("config.pemeliharaan.platform")}</label>
                 ) : null}
                 {sekolahKu.map((i) => (
@@ -840,7 +909,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.pengumuman.kosong")}</p>
             )}
 
-            {isSys === true ? (
+            {platformIni ? (
               <div className="mt-4 grid gap-2 rounded-[var(--radius-1)] border border-line-1 px-3 py-2" data-hentikan="1">
                 <h3 className="text-sm font-medium">{sl("config.pemeliharaan.darurat.judul")}</h3>
                 <p className="text-sm text-ink-2">{sl("config.pemeliharaan.darurat.arti")}</p>
@@ -870,7 +939,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               summary is read at the school's own root node and each class's at
               that class, for the school chosen above. A link decides nothing:
               generate_report decides every figure for this reader. */}
-          <section id="laporan" className={card}>
+          <section id="laporan" hidden={!tampil("laporan") || undefined} className={card}>
             <h2 className="font-medium">{sl("config.laporan.judul")}</h2>
             {sekolahStruktur ? (
               <>
@@ -924,7 +993,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           </section>
 
           {/* Period rollover (INV-23) */}
-          <section id="rollover" className={card}>
+          <section id="rollover" hidden={!tampil("rollover") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.rollover")}</h2>
             <p className="mt-1 text-sm text-ink-3">{s("config.label.mapping_help")}</p>
             {myInstitutions.map((inst) => {
@@ -1004,7 +1073,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <label className={`${label} sm:col-span-2`}>{s("config.label.enrollment")}
                 <select name="from_enrollment" className={field} required defaultValue="">
                   <option value="" disabled>—</option>
-                  {(enrollments ?? []).filter((e) => (isSys || adminInstitutionIds.includes(e.institution_id))
+                  {(enrollments ?? []).filter((e) => (platformIni || sekolahIni.includes(e.institution_id))
                     && e.member_kind !== "PARTICIPANT").map((e) => (
                     <option key={e.id} value={e.id}>
                       {personName.get(e.person_id) ?? short(e.person_id)} · {institutionName.get(e.institution_id) ?? short(e.institution_id)} · {periodName.get(e.academic_period_id) ?? ""}
@@ -1085,7 +1154,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <label className={label}>{s("config.label.role")}
                 <select name="role" className={field} required defaultValue="EDUCATOR">
                   {/* D-101 (2): a School Admin may appoint another, at the school itself; Admin platform stays the platform's */}
-                  {(["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", ...(isSys || adminInstitutionIds.length > 0 ? ["INSTITUTION_ADMIN"] : []), ...(isSys ? ["SYSTEM_ADMIN"] : [])]).map((r) => (
+                  {(["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", ...(sekolahIni.length > 0 || (lama && isSys === true) ? ["INSTITUTION_ADMIN"] : []), ...(platformIni ? ["SYSTEM_ADMIN"] : [])]).map((r) => (
                     <option key={r} value={r}>{roleLabel(r)}</option>
                   ))}
                 </select>
@@ -1093,7 +1162,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <label className={label}>{s("config.label.scope")}
                 <select name="scope" className={field} defaultValue="">
                   <option value="">—</option>
-                  {lingkupPeran(nodes ?? [], institutionName).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+                  {lingkupPeran(platformKonteks ? [] : nodes ?? [], institutionName).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
                 </select>
               </label>
               <label className={label}>{s("config.label.valid_until")}<input type="date" name="valid_until" className={field} required /></label>
@@ -1134,7 +1203,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               CAN_MANAGE_REPORT_TEMPLATES before it resolves anything, and the
               row guards ask again on every write — this panel is a form, not
               an authority. */}
-          <section id="intelligence" className={card}>
+          <section id="intelligence" hidden={!tampil("intelligence") || undefined} className={card}>
             <h2 className="font-medium">{s("laporan.templat.judul")}</h2>
             <p className="mt-2 text-sm text-ink-3">{s("laporan.templat.penjelasan")}</p>
 

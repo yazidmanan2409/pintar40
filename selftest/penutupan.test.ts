@@ -42,6 +42,7 @@ import { lokasiMasalah } from "../src/components/unggah/lokasi";
 import { KODE_DARI_DB, STATUS_KOREKSI_EMAIL } from "../src/lib/koreksi-email-kontrak";
 import { aktifkan } from "./bob28.test";
 import { daftar, ipUji, kodeDari, lit, Peramban, psql, sinkTunggu } from "./bob26.test";
+import { pilihKonteksPeramban } from "./konteks-uji";
 
 function gambarKartu(repoRoot: string, kasus: { predikat: string | null; variant: "screen" | "sheet" }[]): { html: string[]; galat: string } {
   const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
@@ -470,7 +471,11 @@ export const penutupanTests: SelfTest[] = [
         "the operator's parts are not Admin platform's alone");
       // 3. the layout draws the tabs from the table, and Studio's own launcher and certificate layout are gone
       const layout = baca("src/app/studio/layout.tsx");
-      c.expect(/const nav = tabStudio\(new Set\(institutions\.flatMap\(\(i\) => i\.capabilities\)\), peran \?\? \[\]\)\.map\(\(t\) => TAB\[t\]\);/.test(layout),
+      // RESTATED FOR L3 (D-132 C8): the table is read through tabSaya over the working context's own grants there
+      // (peranStudio: the pair's roles; studioInstitutions: its place's capabilities), the same answer the pages read
+      const lib = baca("src/app/studio/_lib.ts");
+      c.expect(/const nav = \(await tabSaya\(\)\)\.map\(\(t\) => TAB\[t\]\);/.test(layout)
+        && /const \[institutions, peran\] = await Promise\.all\(\[studioInstitutions\(\), peranStudio\(\)\]\);\s*return tabStudio\(new Set\(institutions\.flatMap\(\(i\) => i\.capabilities\)\), peran\);/.test(lib),
         "Studio's layout does not draw its tabs from the role table");
       c.expect(!/\/studio\/(?:kuis|sertifikat)\b/.test(layout), "Studio still offers its own Uji Cepat launcher or the certificate layout");
       for (const hilang of ["src/app/studio/kuis/page.tsx", "src/app/studio/sertifikat/page.tsx"]) {
@@ -497,7 +502,8 @@ export const penutupanTests: SelfTest[] = [
       const c = new Checks();
       const halaman = readFileSync(join(ctx.repoRoot, "src", "app", "studio", "unggah", "page.tsx"), "utf8");
       const aksi = readFileSync(join(ctx.repoRoot, "src", "app", "studio", "actions.ts"), "utf8");
-      const i = halaman.indexOf("{adminPlatform === true ? (");
+      // L3 (D-132 C8): the operator is Admin platform whose grant is part of the working context
+      const i = /const operator = adminPlatform === true && peran\.includes\("SYSTEM_ADMIN"\);/.test(halaman) ? halaman.indexOf("{operator ? (") : -1;
       const j = halaman.indexOf('<details className="grid gap-4" id="sistem-lain"');
       const k = halaman.indexOf(") : null}", j);
       c.expect(i >= 0 && j > i && k > halaman.indexOf("</details>", j) && halaman.indexOf("</details>", j) > j,
@@ -515,7 +521,9 @@ export const penutupanTests: SelfTest[] = [
       const c = new Checks();
       const h = readFileSync(join(ctx.repoRoot, "src", "app", "studio", "kanonik", "page.tsx"), "utf8")
         .replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
-      c.expect(/const mayGrant = isSys === true;/.test(h), "the grant form is not Admin platform's alone");
+      // L3 (D-132 C7, C8): Admin platform in Pustaka PINTAR's own context (its grant part of the context, the place the library)
+      c.expect(/const mayGrant = isSys === true && peran\.includes\("SYSTEM_ADMIN"\) && pustakaIni\.length > 0;/.test(h),
+        "the grant form is not Admin platform's alone");
       c.expect(!/placeholder="id|id sekolah|id izin|\.slice\(0, 8\)/.test(h), "the grant form still asks for an id or shows an id fragment");
       c.expect(/<select className=\{field\} name="release"[\s\S]*?paketPustaka\.map/.test(h)
         && /<select className=\{field\} name="institution"[\s\S]*?sekolahTujuan\.map/.test(h)
@@ -649,6 +657,8 @@ export const penutupanAppTests: SelfTest[] = [
       const sys = new Peramban(asal, ipUji());
       c.expect((await sys.jsonDari("/masuk/password", { form: { identitas: "uji.sysadmin", password: "Sintetis-Sys-91!" } })).status === 200,
         "the platform admin could not sign in");
+      // L3 (D-132 C7): the platform admin's acts across schools are «Seluruh platform»'s, chosen on the chooser
+      await pilihKonteksPeramban(sys, "MENGELOLA:PLATFORM");
 
       // BEFORE ACTIVATION: whoever holds the wrong inbox has a code and an open set-up when the address is corrected
       const asing = new Peramban(asal, ipUji());

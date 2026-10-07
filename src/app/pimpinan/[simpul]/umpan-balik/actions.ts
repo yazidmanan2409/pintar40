@@ -1,6 +1,7 @@
 "use server";
 
 import { supabaseServer } from "@/lib/supabase/server";
+import { sekolahDari, wajibDalamKonteks } from "@/lib/konteks-server";
 import { siklus } from "@/lib/umpanbalik";
 import { sebabBuka, sebabTutup, type SebabBuka, type SebabTutup } from "@/lib/umpanbalik-kontrak";
 
@@ -46,8 +47,12 @@ import { sebabBuka, sebabTutup, type SebabBuka, type SebabTutup } from "@/lib/um
  * request token and no client-side idempotency: WP7B's own `state <> 'OPEN'`
  * refusal is the only exactly-once mechanism, and a second one could only
  * disagree with it.
+ *
+ * The one thing asked before the call is not authorization either: §2.11 (D-132(k)), the round's school is the active
+ * context's, or the act is not taken in this context. It narrows; it never permits.
  */
 export async function tutupPutaranAksi(siklusId: string): Promise<SebabTutup> {
+  await wajibDalamKonteks({ sekolah: await sekolahDari("siklus", siklusId) });
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   const c = (await supabaseServer()) as any;
   // The return value is not destructured, not inspected and not returned. The
@@ -103,6 +108,8 @@ export async function bukaPutaranAksi(
   kelas: string,
   subjek: string,
 ): Promise<SebabBuka> {
+  // §2.11 (D-132(k)): the class's school is the active context's; a narrowing, the database still decides
+  await wajibDalamKonteks({ sekolah: await sekolahDari("simpul", kelas) });
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   const c = (await supabaseServer()) as any;
   const { error } = await c.rpc("open_feedback_cycle", {

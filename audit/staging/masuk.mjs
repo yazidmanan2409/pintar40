@@ -245,3 +245,28 @@ export const keadaanDari = (sql, lit) => (email) => {
       where a.auth_user_id = u.id limit 1), 'NONE') from auth.users u where lower(u.email) = lower(${lit(email)}) limit 1`);
   return r === "" ? null : r;
 };
+
+/**
+ * L3 (D-132 C3): the chooser (`/`) is the one place a working context changes, and visiting it changes nothing. A
+ * person picks a door, a purpose and a place as the screen names them: { tujuan, nama } or «Seluruh platform»
+ * ({ tujuan, platform: true }). On a chooser the app has already sent the person to (with a page to continue to),
+ * that one is used. Returns where the choice landed.
+ */
+export async function pilihKonteks(page, { tujuan, nama = null, platform = false }) {
+  const diPemilih = new URL(page.url()).pathname === "/" && (await page.locator('[data-pemilih="konteks"]').count()) > 0;
+  if (!diPemilih) await page.goto(`${APP}/`, { timeout: SLOW, waitUntil: "networkidle" });
+  const pintu = page.locator('[data-pemilih="konteks"] button[data-konteks]');
+  await pintu.first().waitFor({ timeout: SLOW });
+  const semua = await pintu.evaluateAll((bs) => bs.map((b) => ({ k: b.getAttribute("data-konteks"), t: b.innerText })));
+  const cocok = semua.filter((x) => (platform ? x.k === `${tujuan}:PLATFORM`
+    : x.k.split(":")[0] === tujuan && x.k !== `${tujuan}:PLATFORM` && (!nama || x.t.includes(nama))));
+  if (cocok.length !== 1) {
+    throw new Error(`the chooser offers ${cocok.length} door(s) for ${tujuan}${platform ? " · Seluruh platform" : nama ? ` · ${nama}` : ""}: `
+      + semua.map((x) => `«${String(x.t).replace(/\s+/g, " ").trim()}»`).join(" / "));
+  }
+  await page.locator(`[data-pemilih="konteks"] button[data-konteks="${cocok[0].k}"]`).click();
+  await page.waitForURL((u) => u.pathname !== "/", { timeout: SLOW }).catch(() => {});
+  await page.waitForLoadState("networkidle");
+  await closeTour(page).catch(() => {});
+  return new URL(page.url()).pathname;
+}

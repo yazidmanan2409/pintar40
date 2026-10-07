@@ -76,25 +76,4 @@ export function tawarkanStudio(peran: readonly string[] | null): boolean {
   return !!peran && peran.some((p) => PERAN_STUDIO.includes(p));
 }
 
-/** A door on the home page: the learner's place or one of the staff places. */
-export type Pintu = "/belajar" | Tempat;
 
-/**
- * THE HOME PAGE'S DOORS FOR SOMEBODY SIGNED IN (DAISY-03, D-010): only the
- * places the reader actually holds.
- *
- * STAFF PLACES COME FROM ACTIVE ROLES ONLY, never from `display_role`, which is
- * "the most senior thing about this person" (pembelajaran.ts) and can outlive
- * the assignment behind it. A staff door therefore means a role held today.
- * BELAJAR is the learner's: `role_assignments` forbids STUDENT and a learner
- * is an enrolment, so it is the display role that says so. A student is
- * therefore never sent to /mengajar, and no door leads to a page that would
- * refuse its reader.
- *
- * FAILS CLOSED. Roles that could not be read (null) open no staff door. An
- * empty list is an honest answer: the page says so instead of guessing.
- */
-export function pintuMasuk(displayRole: string | null, peran: readonly string[] | null): Pintu[] {
-  const belajar: Pintu[] = displayRole === "STUDENT" ? ["/belajar"] : [];
-  return [...belajar, ...tempatDariPeran(peran)];
-}

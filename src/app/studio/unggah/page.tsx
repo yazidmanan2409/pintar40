@@ -7,7 +7,8 @@ import { BATAS_PAKET } from "@/lib/unggah-kontrak";
 import { tujuanUnggah } from "@/components/sekolah";
 import PanelUnggah from "@/components/unggah/PanelUnggah";
 import { bisaDikoreksi } from "@/lib/pengajar";
-import { button, can, card, field, label, outcomeLine, s, studioInstitutions, tabSaya } from "../_lib";
+import { button, can, card, field, label, outcomeLine, peranStudio, s, studioInstitutions, tabSaya } from "../_lib";
+import { konteksHalaman } from "@/lib/konteks-server";
 import { confirmMappingAction, easyUploadAction, structuredImportAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
@@ -50,13 +51,22 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
   // CR-84 (3): what a refused form sent comes back to it, for the same person only (src/lib/isian.ts)
   const pemilik = (await currentViewer())?.personId ?? "";
   const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
-  const [boleh, locale, { data: adminPlatform }] = await Promise.all([studioInstitutions(), currentLocale(), supabase.rpc("is_system_admin")]);
+  const [boleh, locale, { data: adminPlatform }, peran, kh] = await Promise.all([
+    studioInstitutions(), currentLocale(), supabase.rpc("is_system_admin"), peranStudio(), konteksHalaman(),
+  ]);
+  // L3 (D-132 C8): the platform operator's parts (the JSON import, D-127 Q7) only where Admin platform's grant is part
+  // of the working context; the database and the action refuse a JSON package from anyone else either way (CR-87)
+  const operator = adminPlatform === true && peran.includes("SYSTEM_ADMIN");
   const menyusun = new Set(boleh.filter((i) => can(i, "CAN_DRAFT")).map((i) => i.id));
   const { data: tenant } = menyusun.size
     ? await supabase.from("institutions").select("id, name, tenant_kind, is_active").in("id", [...menyusun]).order("name")
     : { data: [] as Array<{ id: string; name: string; tenant_kind: string | null; is_active: boolean | null }> };
   // CR-51 (D-120 Q7): the platform admin may also send a workbook to the PINTAR library
-  const institutions = tujuanUnggah(tenant ?? [], (id) => menyusun.has(id), adminPlatform === true).map(({ id, name }) => ({ id, name }));
+  // L3 (D-127 Q2, Q11): in a working context the schools read above are its place alone (studioInstitutions), so an
+  // upload is never aimed at an unnamed or unintended school; the library stays CR-51's, offered only where Admin
+  // platform's grant is part of the context (Pustaka PINTAR). An evaluation persona keeps CR-51's offer (C10).
+  const institutions = tujuanUnggah(tenant ?? [], (id) => menyusun.has(id), kh === "TANPA_KONTEKS" ? adminPlatform === true : operator)
+    .map(({ id, name }) => ({ id, name }));
 
   // D-085 M10: what a corrected workbook may correct, in the schools offered
   const ids = institutions.map((i) => i.id);
@@ -77,6 +87,8 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
   const { data: batches } = await supabase
     .from("ingest_batches")
     .select("id, source_kind, status, open_questions, mapping_confidence, confirmed_at, created_at, institution_id")
+    // L3: the uploads of the place(s) offered here, nobody else's school
+    .in("institution_id", ids)
     .order("created_at", { ascending: false })
     .limit(10);
 
@@ -124,7 +136,7 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
           system produces, so they wait in one closed disclosure below the
           workbook, each form with its own button. CR-87 (D-127 Q7): they are the
           platform operator's alone; a school's people import the workbook. */}
-      {adminPlatform === true ? (
+      {operator ? (
       <details className="grid gap-4" id="sistem-lain" open={sistemLainTerbuka}>
         <summary className="cursor-pointer text-lg font-medium">{s("studio.unggah.json_judul")}</summary>
         <p className="mt-2 text-sm text-ink-2">{s("studio.unggah.json_arti")}</p>

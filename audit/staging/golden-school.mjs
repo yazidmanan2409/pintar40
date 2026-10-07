@@ -24,7 +24,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 import { APP, SLOW, closeTour } from "../perf/lib.mjs";
-import { keadaanDari, masukStaf } from "./masuk.mjs";
+import { keadaanDari, masukStaf, pilihKonteks } from "./masuk.mjs";
 
 const env = (k) => { const v = process.env[k]; if (!v) throw new Error(`${k} is not set`); return v; };
 const DB = env("STAGING_SUPABASE_DB_URL");
@@ -92,14 +92,16 @@ await step("G0", `read only: the school «${SLUG}» was founded by the C1 step (
 if (!S) { await browser.close(); log("RED: G0"); process.exit(1); }
 
 const O = await newPage();
-await step("G1", "the staging Platform Operator signs in as a person does (C2): the password, or «Lupa password?» by the emailed code", async (rec) => {
+await step("G1", "the staging Platform Operator signs in as a person does (C2): the password, or «Lupa password?» by the emailed code; holding every school and «Seluruh platform», they land on the chooser (L3, D-132(i))", async (rec) => {
   const r = await masukStaf(O, OPERATOR_EMAIL, keadaan);
-  if (r.di !== "/konfigurasi") rec.verdict = "FAIL";
+  if (r.di !== "/") rec.verdict = "FAIL";
   return `by ${r.jalan}${r.lewat.length ? ` (${r.lewat.join(" → ")})` : ""}; landed on ${r.di}`;
 });
 
 await step("G2", "GS-02 (J1.4): the operator records the school's first administrator on Aktivasi → «Orang baru di luar pendataan»", async (rec) => {
   if (adminRow()) { rec.verdict = "NOTE"; return "the administrator already has an account; nothing to record"; }
+  // L3 (D-132 C7): making a person outside intake is «Seluruh platform»'s, chosen on the chooser
+  await pilihKonteks(O, { tujuan: "MENGELOLA", platform: true });
   await O.goto(`${APP}/aktivasi`, { waitUntil: "networkidle", timeout: SLOW });
   await closeTour(O);
   const bagian = O.locator("section.pin-akt-baru");
@@ -121,6 +123,8 @@ await step("G2", "GS-02 (J1.4): the operator records the school's first administ
 await step("G3", "GS-02: the operator gives «Admin sekolah» at the school's root on Konfigurasi → Peran & akses, ending with the school year", async (rec) => {
   if (!adminRow()) { rec.verdict = "FAIL"; return "the administrator has no account (G2)"; }
   if (hibah(S.id) !== "0") { rec.verdict = "NOTE"; return "the administrator already holds «Admin sekolah» here; nothing to grant"; }
+  // L3 (D-132 C7; J1.4): the school's first administrator is appointed in the school's own context, chosen on the chooser
+  await pilihKonteks(O, { tujuan: "MENGELOLA", nama: S.nama });
   await O.goto(`${APP}/konfigurasi?muat=${Date.now()}#roles`, { waitUntil: "networkidle", timeout: SLOW });
   await closeTour(O);
   const form = O.locator("form").filter({ has: O.locator('select[name="person"]') });

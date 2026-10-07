@@ -22,6 +22,8 @@ export default async function Tinjau() {
     supabase.from("courses")
       .select("id, title, subject, grade_label, institution_id, author_person_id, created_at")
       .eq("status", "IN_REVIEW")
+      // L3 (FD-4): read for the working context's place alone, not every school's queue
+      .in("institution_id", institutions.map((i) => i.id))
       .order("created_at", { ascending: true }),
   ]);
 

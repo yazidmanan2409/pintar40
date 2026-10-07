@@ -1,5 +1,7 @@
 import "server-only";
 import { supabaseServer } from "@/lib/supabase/server";
+import { alamatPilih } from "@/lib/konteks";
+import { alihkan, jalurIni, konteksHalaman, tempatSaya } from "@/lib/konteks-server";
 import {
   kelasDalamLingkup, nodeLingkup,
   type Hibah, type KelasMengajar, type Simpul,
@@ -93,12 +95,26 @@ export async function konteks(): Promise<Konteks> {
   const { data: me } = await c.rpc("current_person_id");
   if (!me) return { kelas: [], lingkup: [], institusi: null, periode: null };
 
+  // L3 (CR-83; D-132 C2): THE CLASSES OF THE WORKING CONTEXT. Mengajar · a school shows that school's classes from
+  // the person's TEACHING appointments there (Guru; Kepala departemen, HOD-08), never from administrative authority:
+  // an Admin sekolah's grant at the school's root no longer brings every class in. No context that serves Mengajar,
+  // no classes. An evaluation persona keeps the pre-L3 reading (C10). The database decides every act either way.
+  const kh = await konteksHalaman();
+  if (kh === null || (kh !== "TANPA_KONTEKS" && (kh.tujuan !== "MENGAJAR" || kh.tempat === null))) {
+    return { kelas: [], lingkup: [], institusi: null, periode: null };
+  }
+
   const { data: hibah } = await c
     .from("role_assignments")
-    .select("scope_node_id, institution_id, valid_from, valid_until, revoked_at")
+    .select("role, scope_node_id, institution_id, valid_from, valid_until, revoked_at")
     .eq("person_id", me);
 
-  const lingkup = nodeLingkup(rows<Hibah>(hibah));
+  const mengajar = kh === "TANPA_KONTEKS"
+    ? rows<Hibah>(hibah)
+    : rows<Hibah & { role?: string }>(hibah).filter((h) =>
+        // the pair's roles are the database's: exactly the teaching appointments that give Mengajar here
+        h.institution_id === kh.tempat && typeof h.role === "string" && kh.peran.includes(h.role));
+  const lingkup = nodeLingkup(mengajar);
   if (lingkup.length === 0) return { kelas: [], lingkup: [], institusi: null, periode: null };
 
   const { data: simpul } = await c
@@ -108,7 +124,8 @@ export async function konteks(): Promise<Konteks> {
     .overlaps("jalur", lingkup);
 
   const kelas = kelasDalamLingkup(rows<Simpul>(simpul), lingkup);
-  const institusiId = kelas[0]?.institusi ?? null;
+  // the school named is the context's own; every class listed is in it (L3: no longer the first class's school)
+  const institusiId = kh === "TANPA_KONTEKS" ? kelas[0]?.institusi ?? null : kh.tempat;
 
   let institusi: Konteks["institusi"] = null;
   let periode: string | null = null;
@@ -137,7 +154,18 @@ export async function konteks(): Promise<Konteks> {
 export async function kelas(id: string): Promise<{ konteks: Konteks; ini: KelasMengajar } | null> {
   const k = await konteks();
   const ini = k.kelas.find((x) => x.id === id);
-  return ini ? { konteks: k, ini } : null;
+  if (ini) return { konteks: k, ini };
+  // L3 (§2.6, §2.11): a class of another school this person teaches is never opened, or acted on, in this context,
+  // and the context is never switched silently: the chooser offers that school's Mengajar and continues here.
+  // Anything else is the same refusal as before: a slug is not an existence oracle.
+  if (/^[0-9a-f-]{36}$/.test(id)) {
+    const { data } = await (await db()).from("org_nodes").select("institution_id").eq("id", id).eq("kind", "CLASS").limit(1);
+    const sekolah = rows<{ institution_id: string }>(data)[0]?.institution_id;
+    if (sekolah && (await tempatSaya()).some((p) => p.tujuan === "MENGAJAR" && p.tempat === sekolah)) {
+      await alihkan(alamatPilih({ untuk: "MENGAJAR", tempat: sekolah, alasan: "lain", lanjut: await jalurIni() }));
+    }
+  }
+  return null;
 }
 
 // ═════════════════════════════════════════════════════ 2. one class's facts

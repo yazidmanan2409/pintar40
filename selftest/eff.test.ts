@@ -144,14 +144,21 @@ export const effTests: SelfTest[] = [
       for (const [nama, tabel] of [["enrolmen", "enrollments"], ["jejak", "audit_log"]] as const) {
         c.expect(new RegExp(`const ${nama} = supabase\\.from\\("${tabel}"\\)`).test(halaman),
           `Konfigurasi does not read ${tabel} through «${nama}»`);
-        c.expect(new RegExp(`\\(isSys === true \\? ${nama} : ${nama}\\.in\\("institution_id", adminInstitutionIds\\)\\)`).test(halaman),
-          `Konfigurasi reads ${tabel} without naming the administrator's schools`);
         c.expect((halaman.match(new RegExp(`from\\("${tabel}"\\)`, "g")) ?? []).length === 1,
           `Konfigurasi reads ${tabel} more than once`);
       }
+      // RESTATED FOR L3 (D-132 C7) and FD-4: named by the working context's school (sekolahIni). The enrolments are
+      // read for no school at all in «Seluruh platform», whose sections are not school-shaped, and unnamed only for an
+      // evaluation persona as before (C10); the platform's audit stays the platform administrator's, its newest 50
+      c.expect(/semuaSekolah \? enrolmen\.order\("created_at"\)\s*: sekolahIni\.length > 0 \? enrolmen\.in\("institution_id", sekolahIni\)\.order\("created_at"\) : tanpaBaris,/.test(halaman)
+        && /const semuaSekolah = lama && isSys === true;/.test(halaman),
+        "Konfigurasi reads enrollments without naming the administrator's schools");
+      c.expect(/\(platformIni \? jejak : jejak\.in\("institution_id", sekolahIni\)\)\.order\("at", \{ ascending: false \}\)\.limit\(50\)/.test(halaman),
+        "Konfigurasi reads audit_log without naming the administrator's schools");
       return c.verdict(
         "reads Konfigurasi (src/app/konfigurasi/page.tsx): a school administrator's enrolments and audit trail are read " +
-          "for the schools they administer, named (the platform administrator's unchanged), each read once",
+          "for the working context's school, named (the platform's audit for the platform administrator in «Seluruh platform»; " +
+          "no enrolments there), each read once",
       );
     },
   },

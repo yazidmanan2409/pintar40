@@ -1,11 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { COOKIE_HADIR, COOKIE_SELESAI, opsiTanda } from "@/lib/tanda-keluar";
 import { supabaseServer } from "@/lib/supabase/server";
 import { keluarPerangkatIni } from "@/lib/keluar";
-import { currentViewer } from "@/lib/auth";
 import { appUrl } from "@/lib/env";
-import { berandaPeran } from "@/lib/beranda";
 import { tujuanInternal } from "@/lib/tujuan";
 import { TAUTAN_MASUK_CADANGAN } from "@/lib/aktivasi-kontrak";
 
@@ -135,9 +135,14 @@ function terlaluSering(error: { code?: string; status?: number }): boolean {
  * beat the role's home and management looped back to the sign-in screen.
  */
 export async function tujuanMasuk(raw: unknown): Promise<string> {
-  const viewer = await currentViewer();
-  if (tujuanInternal(raw, "") === "/") raw = null;
-  return tujuanInternal(raw, berandaPeran(viewer?.displayRole ?? null));
+  // L3 (CR-83; D-132): EVERY ARRIVAL GOES THROUGH /mulai. It runs once the proxy has made this session's row, takes
+  // the door (carried here as /mulai?pintu=…) or the page asked for, and sets the working context by C4, C5 and C9.
+  // D-010's ranking no longer chooses among several purposes (D-132(i)); /mulai keeps it only for an evaluation
+  // persona, which has no context (C10).
+  const lanjut = tujuanInternal(raw, "");
+  if (lanjut === "" || lanjut === "/") return "/mulai";
+  if (lanjut === "/mulai" || lanjut.startsWith("/mulai?")) return lanjut;
+  return `/mulai?lanjut=${encodeURIComponent(lanjut)}`;
 }
 
 /**
@@ -155,6 +160,10 @@ export async function keluarDariSesi(): Promise<void> {
   await supabase.rpc("exit_persona");
   // this device only (D-009, BOB-05), exactly as /keluar
   await keluarPerangkatIni(supabase);
+  // L3 (D-132(e)): marked as /keluar marks it, so the person signing in next carries nothing of this session
+  const toples = await cookies();
+  toples.set(COOKIE_HADIR, "", { path: "/", maxAge: 0 });
+  toples.set(COOKIE_SELESAI, "1", opsiTanda(appUrl().startsWith("https:")));
   redirect("/masuk");
 }
 

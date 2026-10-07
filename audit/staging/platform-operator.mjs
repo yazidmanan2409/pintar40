@@ -9,7 +9,8 @@
 //       OPERATOR_UNTIL, so it ends by itself. Skipped when an active grant exists. The grant is the admin's,
 //       audited as every grant is.
 //   O4  the operator signs in like a person: /masuk, the real email in the staging test mailbox, the same browser.
-//       Lands on Konfigurasi with both schools offered: a platform admin's view. ONE sign-in email.
+//       Holding the platform and every school, they arrive on the chooser (L3, D-132 C9), choose «Seluruh
+//       platform» (C7) and land on Konfigurasi with both schools offered: a platform admin's view. ONE sign-in email.
 //   O5  read back, read only: the operator holds exactly one active platform-admin grant, made by the recorded
 //       admin, ending OPERATOR_UNTIL, with its audit row; the recorded admin's own grant is untouched.
 //
@@ -22,6 +23,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync, appendFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { APP, SLOW, closeTour, signIn } from "../perf/lib.mjs";
+import { pilihKonteks } from "./masuk.mjs";
 
 const env = (k) => { const v = process.env[k]; if (!v) throw new Error(`${k} is not set`); return v; };
 const DB = env("STAGING_SUPABASE_DB_URL");
@@ -77,9 +79,11 @@ const newPage = async () => (await browser.newContext({ viewport: { width: 1280,
 const A = await newPage();
 
 await step("O1", "SETUP on Yazid's authorisation (D-088(a)): a server-made session for staging's recorded platform admin", async () => {
-  const r = await signIn(A, ADMIN_EMAIL, "/konfigurasi");
-  await closeTour(A);
-  return `setup, not a person's sign-in; ${r}; active platform admins before: ${admins.length}`;
+  // L3 (D-132 C3, C7): the recorded admin holds the platform and every school, so the session starts on the chooser;
+  // recording a person outside the intake and granting «Admin platform» are «Seluruh platform»'s
+  const r = await signIn(A, ADMIN_EMAIL, "/");
+  const ke = await pilihKonteks(A, { tujuan: "MENGELOLA", platform: true });
+  return `setup, not a person's sign-in; ${r}; chose «Seluruh platform» → ${ke}; active platform admins before: ${admins.length}`;
 });
 
 await step("O2", "the platform admin records the operator on Aktivasi → «Orang baru di luar pendataan»", async (rec) => {
@@ -145,14 +149,16 @@ await step("O4", "the operator signs in like a person: /masuk, the real email in
   await O.waitForLoadState("networkidle");
   await closeTour(O);
   const at = new URL(O.url()).pathname;
+  // L3 (D-132 C9): several purposes · places held, so the chooser asks; «Seluruh platform» is chosen there (C7)
+  const ke = at === "/" ? await pilihKonteks(O, { tujuan: "MENGELOLA", platform: true }) : at;
   await O.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle", timeout: SLOW });
   await closeTour(O);
   const sekolah = await O.locator("select[name='sekolah'] option, select#pin-sekolah option").allTextContents().catch(() => []);
   const halaman = norm(await O.locator("main").innerText().catch(() => ""));
   await shot(O, "o4-operator");
   const platform = /SD Zayd Pintar Selalu/.test(halaman + sekolah.join(" ")) && /SMA Zayd Pintar Selalu/.test(halaman + sekolah.join(" "));
-  if (at !== "/konfigurasi" || !platform) rec.verdict = "FAIL";
-  return `signed in by the email link, landed on ${at}; both schools offered (a platform admin's view): ${platform}`;
+  if (at !== "/" || ke !== "/konfigurasi" || !platform) rec.verdict = "FAIL";
+  return `signed in by the email link, landed on ${at}, chose «Seluruh platform» → ${ke}; both schools offered (a platform admin's view): ${platform}`;
 });
 
 await step("O5", "read back: one active platform-admin grant for the operator, by the recorded admin, ending by itself, audited", async (rec) => {

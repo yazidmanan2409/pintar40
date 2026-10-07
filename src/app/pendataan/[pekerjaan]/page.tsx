@@ -16,6 +16,7 @@ import Penggerak from "@/components/pendataan/Penggerak";
 import IsianSetuju from "@/components/pendataan/IsianSetuju";
 import DaftarNama from "@/components/pendataan/DaftarNama";
 import { semuaNama } from "../nama";
+import { tawarkanSekolahLain } from "@/lib/konteks-server";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +65,8 @@ export default async function SatuPendataan({
       />
     );
   }
+  // L3 (§2.6): an intake of another school the reader provisions for is never shown in this context; the chooser offers it
+  await tawarkanSekolahLain(kemajuan.institution_id);
 
   const fase = tahap(kemajuan);
   const menungguPercontohan = percontohanMenunggu(kemajuan);

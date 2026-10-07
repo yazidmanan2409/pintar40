@@ -1,4 +1,5 @@
 import type { HleEvent } from "@/lib/hle";
+import { istilah } from "@/lib/istilah-menunggu";
 import { KODE_TERBITAN_DB, kunciKodeTerbitan, type KodeTerbitan } from "@/lib/terbitan-kontrak";
 import {
   KODE_MASALAH_PAKET, KODE_TOLAK_PAKET, LEMBAR, kunciKodePaket, kunciMasalahPaket, type KodePaket,
@@ -142,6 +143,16 @@ export const KODE_SUKSES = [
   "MAINTENANCE_SCHEDULED", "MAINTENANCE_STARTED", "MAINTENANCE_ENDED", "MAINTENANCE_STOPPED", "NOTICE_PUBLISHED", "NOTICE_WITHDRAWN",
 ] as const;
 
+/**
+ * L3 (D-132 §2.11, (m)): A CONTEXT-BOUND HUMAN ACTION WHOSE TARGET IS OUTSIDE THE ACTIVE WORKING CONTEXT. Not a
+ * database refusal: the action never reached the database. It travels like one, so the form's values are kept for
+ * the person (CR-84 (3)) when they return through the chooser. Its own sentence is the semantic key
+ * context.other_school, awaiting Dr Gladys's words (src/lib/istilah-menunggu.ts): until then the banner says only the
+ * surface's own «not saved», which is true, and nothing invented.
+ */
+export const KODE_KONTEKS = ["CONTEXT_OTHER_PLACE"] as const;
+export type KodeKonteks = (typeof KODE_KONTEKS)[number];
+
 export type KodePindah = (typeof KODE_PINDAH)[number];
 export type KodePindahKelas = (typeof KODE_PINDAH_KELAS)[number];
 export type KodeKetuntasan = (typeof KODE_KETUNTASAN)[number];
@@ -154,7 +165,7 @@ export type KodeIsian = (typeof KODE_ISIAN)[number];
 export type KodeSukses = (typeof KODE_SUKSES)[number];
 
 /** Every code a banner may carry: these and the domain contracts' own. */
-export type KodeHasil = KodeGalat | KodeKonten | KodeIsian | KodeSukses | KodeTerbitan | KodePaket;
+export type KodeHasil = KodeGalat | KodeKonten | KodeIsian | KodeSukses | KodeTerbitan | KodePaket | KodeKonteks;
 
 /** A problem of a package upload, at its sheet and row. */
 export type MasalahHasil = { code: string; sheet?: string; row?: number };
@@ -286,7 +297,7 @@ export function rujukan(): string {
 
 const SEMUA_KODE = new Set<string>([
   ...KODE_GALAT, ...KODE_PINDAH, ...KODE_PINDAH_KELAS, ...KODE_KETUNTASAN, ...KODE_PESERTA, ...KODE_PEMELIHARAAN, ...KODE_KONTEN,
-  ...KODE_ISIAN, ...KODE_SUKSES,
+  ...KODE_ISIAN, ...KODE_SUKSES, ...KODE_KONTEKS,
   ...KODE_TERBITAN_DB, "RELEASE_INPUT_INVALID", "RELEASE_FAILED",
   ...KODE_TOLAK_PAKET, "PACKAGE_HAS_PROBLEMS", "PACKAGE_INPUT_INVALID", "PACKAGE_FAILED",
 ]);
@@ -361,7 +372,9 @@ export function kalimatHasil(
   const h = bacaHasil(q);
   if (!h) return null;
   const bagian = [s(h.ok ? awal.ok : awal.gagal)];
-  if (h.kode) bagian.push(s(kunciKode(h.kode)) + (h.n !== null ? ` ${h.n}.` : ""));
+  // L3: a code whose words are still Dr Gladys's says nothing of its own (src/lib/istilah-menunggu.ts)
+  const menunggu = h.kode === "CONTEXT_OTHER_PLACE" ? istilah("context.other_school") : undefined;
+  if (h.kode && menunggu !== null) bagian.push((menunggu ?? s(kunciKode(h.kode))) + (h.n !== null ? ` ${h.n}.` : ""));
   for (const m of h.masalah) {
     bagian.push(s(kunciMasalahPaket(m.code)) + (m.sheet ? ` (${m.sheet}${m.row ? ` ${m.row}` : ""})` : ""));
   }

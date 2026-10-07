@@ -8,6 +8,7 @@ import { rujukan } from "@/lib/galat-kontrak";
 import { ALASAN_KARTU_ULANG, STATUS_KARTU_ULANG, type JawabanKartuUlang, type KodeKartuUlang } from "@/lib/kartu-ulang-kontrak";
 import { jawab } from "@/app/api/aktifkan/_jawab";
 import { detailPr040 } from "@/app/api/aktifkan/_wizard";
+import { sasaranDalamKonteks, sekolahOrang } from "@/lib/konteks-server";
 
 /**
  * BOB-28 (D-088(e)): RE-ISSUE A LOST OR DAMAGED CLASS CARD.
@@ -22,6 +23,10 @@ import { detailPr040 } from "@/app/api/aktifkan/_wizard";
  * move accounts.card_number and audit the re-issue in Auth's own transaction.
  * The same account stays: the same person, sign-in identity and history.
  * The PIN leaves once, in this answer, and is never stored.
+ *
+ * §2.11 (D-132(k)): first, the learner is of the working context's school (any school's under «Seluruh platform»). A
+ * narrowing, never a permit. Otherwise the route's own «reload this page» (PERMINTAAN_DITOLAK), which is what brings
+ * the page into the context the session is in now, marked CONTEXT_OTHER_PLACE; nothing is asked or written.
  */
 export const dynamic = "force-dynamic";
 
@@ -46,6 +51,9 @@ export async function POST(request: NextRequest) {
   const person = String(body?.person_id ?? "");
   const alasan = String(body?.alasan ?? "");
   if (!UUID.test(person) || !(ALASAN_KARTU_ULANG as readonly string[]).includes(alasan)) return gagal("ALASAN_TIDAK_SAH");
+  if (!(await sasaranDalamKonteks({ sekolah: await sekolahOrang(person), atauPlatform: true }))) {
+    return jawab({ status: STATUS_KARTU_ULANG.PERMINTAAN_DITOLAK, body: { ok: false, code: "PERMINTAAN_DITOLAK", sebab: "CONTEXT_OTHER_PLACE" } });
+  }
 
   const layanan = supabaseService();
   // a fresh number until one is free; each is granted before Auth is asked

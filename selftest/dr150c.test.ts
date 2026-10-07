@@ -46,6 +46,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { ipUji, lit, Peramban, psql } from "./bob26.test";
 import { Checks, type SelfTest } from "./lib";
+import { pilihKonteksPeramban } from "./konteks-uji";
 
 type Record_ = { production: Env; staging: Env; history?: { from: string }[] };
 type Env = { ref: string; name: string; region: string; url: string; anon_key: string | null; auth: Record<string, unknown>; email: Record<string, string> };
@@ -429,6 +430,8 @@ export const dr150cAppTests: SelfTest[] = [
       const sys = new Peramban(asal, ipUji());
       if (!c.expect((await sys.jsonDari("/masuk/password", { form: { identitas: "uji.sysadmin", password: "Sintetis-Sys-91!" } })).status === 200,
         "the platform admin could not sign in")) return c.verdict("");
+      // L3 (D-132 C7): the platform admin's acts across schools are «Seluruh platform»'s, chosen on the chooser
+      await pilihKonteksPeramban(sys, "MENGELOLA:PLATFORM");
       const adminEmail = `dr-d03-${tag}-admin@synthetic.pintar.test`;
       c.expect((await sys.jsonDari("/api/akun/aktivasi", { json: { mode: "NEW_PERSON", email: adminEmail, display_name: `Admin DR-D03 ${tag}` } })).status === 200,
         "«Orang baru» refused the school's admin");

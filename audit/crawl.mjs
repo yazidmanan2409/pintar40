@@ -43,6 +43,11 @@ const PERSONAS = [
 ];
 
 const MAX_PAGES = Number(process.env.MAX_PAGES ?? 45);
+// L3: the door each role's persona chooses on `/` (a purpose; for Admin platform, «Seluruh platform»)
+const TUJUAN_PERAN = {
+  SYSTEM_ADMIN: "MENGELOLA:PLATFORM", INSTITUTION_ADMIN: "MENGELOLA", DEAN: "MENGELOLA", HEAD_OF_DEPARTMENT: "MENGELOLA",
+  EDUCATOR: "MENGAJAR", STUDENT: "BELAJAR",
+};
 const SKIP = [/^\/keluar/, /^\/api\//, /^\/_next\//, /^\/auth\//, /\.(png|jpe?g|svg|woff2?|css|js|pdf|csv|xlsx?)$/i];
 
 async function sessionCookies(p) {
@@ -159,6 +164,25 @@ async function crawl(browser, p) {
       }
       await page.setViewportSize({ width: 1280, height: 900 });
       if (n === 0) result.landing = rec.finalPath;
+      // L3 (D-132 C3): signed in, `/` is the chooser and visiting it changes nothing. The persona chooses its door as
+      // a person does (its role's purpose; Admin platform, «Seluruh platform»), and the walk goes on from where the
+      // choice lands, in that working context
+      if (n === 0) {
+        const pintu = page.locator('[data-pemilih="konteks"] button[data-konteks]');
+        if (await pintu.count()) {
+          const kunci = await pintu.evaluateAll((bs) => bs.map((b) => b.getAttribute("data-konteks")));
+          const mau = TUJUAN_PERAN[p.role];
+          const pilih = kunci.find((k) => k === mau) ?? kunci.find((k) => k.split(":")[0] === mau.split(":")[0]) ?? kunci[0];
+          result.pintu = kunci;
+          result.dipilih = pilih;
+          await page.locator(`[data-pemilih="konteks"] button[data-konteks="${pilih}"]`).click();
+          await page.waitForURL((u) => u.pathname !== "/", { timeout: 20000 }).catch(() => {});
+          await page.waitForLoadState("networkidle");
+          const lu = new URL(page.url());
+          result.landing = lu.pathname + lu.search;
+          if (!seen.has(result.landing)) { seen.add(result.landing); queue.unshift({ path: result.landing, depth: 0, from: path }); }
+        }
+      }
       if (depth < 3) {
         const hrefs = await page.$$eval("a[href]", (as) => as.map((a) => a.getAttribute("href")));
         for (const h of hrefs) {
@@ -186,7 +210,7 @@ for (const p of PERSONAS) {
   const r = await crawl(browser, p);
   all.push(r);
   const bad = r.pages.filter((x) => x.errorPage || (x.status ?? 0) >= 500 || x.error || x.consoleErrors.some((c) => c.text.startsWith("PAGEERROR")));
-  console.log(`${p.key.padEnd(15)} ${p.role.padEnd(19)} landing=${r.landing ?? "-"} pages=${r.pages.length} refusals=${r.pages.filter((x) => x.refusal).length} broken=${bad.length}${r.error ? " ERROR " + r.error : ""}`);
+  console.log(`${p.key.padEnd(15)} ${p.role.padEnd(19)} landing=${r.landing ?? "-"}${r.dipilih ? ` (chose ${r.dipilih} of ${r.pintu.length})` : ""} pages=${r.pages.length} refusals=${r.pages.filter((x) => x.refusal).length} broken=${bad.length}${r.error ? " ERROR " + r.error : ""}`);
 }
 await browser.close();
 writeFileSync(join(OUT, "crawl.json"), JSON.stringify(all, null, 2));

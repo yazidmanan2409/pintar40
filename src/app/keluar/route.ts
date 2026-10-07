@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { keluarPerangkatIni } from "@/lib/keluar";
+import { COOKIE_HADIR, COOKIE_SELESAI, opsiTanda } from "@/lib/tanda-keluar";
 
 /**
  * Sign out. CHANGED FOR ADR-0020: if the signer-out is currently a persona,
@@ -20,5 +21,10 @@ export async function POST(request: NextRequest) {
   await supabase.rpc("exit_persona");
   // this device only (D-009, BOB-05): the person's other sessions stay
   await keluarPerangkatIni(supabase);
-  return NextResponse.redirect(new URL("/", request.url), { status: 303 });
+  // L3 (D-132(e)): the sign-out mark. The session's context ended with its row (sesi_akhiri_inti); the mark keeps a
+  // stale continuation from this session out of the next sign-in on this browser (src/lib/tanda-keluar.ts).
+  const ke = NextResponse.redirect(new URL("/", request.url), { status: 303 });
+  ke.cookies.set(COOKIE_HADIR, "", { path: "/", maxAge: 0 });
+  ke.cookies.set(COOKIE_SELESAI, "1", opsiTanda(request.nextUrl.protocol === "https:"));
+  return ke;
 }

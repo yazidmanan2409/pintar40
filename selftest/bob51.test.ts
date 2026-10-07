@@ -23,6 +23,7 @@ import { createServerClient } from "@supabase/ssr";
 import { Checks, visibleText, type Context, type SelfTest } from "./lib";
 import { INTERNAL_WORDS, t, TANPA_SALINAN, type HleEvent } from "../src/lib/hle";
 import { bacaHasilUji } from "../src/components/email-uji/hasil";
+import { pilihKonteksCookie } from "./konteks-uji";
 
 const SINK_API = "http://127.0.0.1:54324/api/v1";
 const tanpaKomentar = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
@@ -87,6 +88,8 @@ export const bob51AppTests: SelfTest[] = [
       try {
         const sys = await masuk(ctx, ADMIN_PLATFORM);
         const sekolah = await masuk(ctx, ADMIN_SEKOLAH);
+        // L3 (D-132 C7): the page is «Seluruh platform»'s, which the platform admin chooses on the chooser
+        await pilihKonteksCookie(asal, sys, "MENGELOLA:PLATFORM");
 
         // the way in: Konfigurasi links the page for the platform admin only
         const konf = await (await fetch(`${asal}/konfigurasi`, { headers: { cookie: sys } })).text();
@@ -225,7 +228,8 @@ export const bob51Tests: SelfTest[] = [
       c.expect(/rpc\("is_system_admin"\)/.test(halaman) && /if \(sistem !== true\) \{[\s\S]*?HalamanPenolakan/.test(halaman),
         "the page does not ask is_system_admin and refuse everyone else");
       const konf = baca("src/app/konfigurasi/page.tsx");
-      c.expect(/\{isSys === true \? <Link href="\/konfigurasi\/email-uji"/.test(konf), "Konfigurasi does not link the page for the platform admin alone");
+      // L3 (D-132 C7): the link is «Seluruh platform»'s (platformIni: Admin platform in that context; a persona as before)
+      c.expect(/\{platformIni \? <Link href="\/konfigurasi\/email-uji"/.test(konf), "Konfigurasi does not link the page for the platform admin alone");
       return c.verdict(`every answer the route can give (${galatRute.length} codes, ${alasan.length} reasons, ${kodePengaturan.length} setting codes, a sent proof, `
         + `no answer) reads as its own sentence, in both languages (${kunci.size} sentences); a setting is shown by name only, one of the five the `
         + "sending module reads, and a value in its place is never shown; a reference is shown only as a send-log id; the form makes one "

@@ -21,6 +21,9 @@ export const runtime = "nodejs";
  * THE ANSWER says whether the email was sent, and why not. Only a platform
  * admin reads it: a configuration error answers its code and the variable's
  * name, never an error message or a value.
+ *
+ * L3 (D-132(k)): AN EXPLICITLY PLATFORM-SCOPED OPERATION, governed by its own scope (the platform administrator, asked
+ * of the database above), not by a session's working context. Its page is shown in «Seluruh platform» only.
  */
 export async function POST(request: NextRequest) {
   const asal = request.headers.get("origin");

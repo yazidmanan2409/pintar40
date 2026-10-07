@@ -159,8 +159,11 @@ export const bob27AppTests: SelfTest[] = [
       c.expect(pendek.status === 422 && pendek.body?.code === "PASSWORD_LEMAH", `a short password was not PASSWORD_LEMAH (${JSON.stringify(pendek.body)})`);
       const baru = sandiBagas();
       const ganti = await z.jsonDari("/masuk/lupa/password", { form: { password: baru } });
-      c.expect(ganti.status === 200 && ganti.body?.tujuan === "/mengajar" && !z.kue.has("pintar_pulih"),
+      // RESTATED FOR L3 (D-132 C4, C9): the recovery's sign-in arrives through /mulai, which sets the one pair held
+      c.expect(ganti.status === 200 && ganti.body?.tujuan === "/mulai" && !z.kue.has("pintar_pulih"),
         `the new password was not set and the grant not spent (${ganti.status} ${JSON.stringify(ganti.body)})`);
+      const tiba = await z.kirim("/mulai");
+      c.expect(new URL(tiba.headers.get("location") ?? "", asal).pathname === "/mengajar", `arriving did not land on the Guru's home (${tiba.status} ${tiba.headers.get("location")})`);
       c.expect((await z.kirim("/mengajar")).status === 200, "this browser is not signed in with the new password");
       for (const [nama, b] of [["the first", x], ["the second", y]] as const) {
         const r = await b.kirim("/mengajar");

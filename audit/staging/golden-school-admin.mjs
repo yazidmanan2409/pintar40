@@ -47,7 +47,7 @@ import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { APP, SLOW, closeTour } from "../perf/lib.mjs";
-import { keadaanDari, masukStaf } from "./masuk.mjs";
+import { keadaanDari, masukStaf, pilihKonteks } from "./masuk.mjs";
 import { catat as catatDi } from "./pendataan.mjs";
 
 const env = (k) => { const v = process.env[k]; if (!v) throw new Error(`${k} is not set`); return v; };
@@ -491,9 +491,12 @@ await step("A8", `GS-09, the reviewer: the head of department «${KABAG.nama}» 
   if (keadaan().terbitan === "PUBLISHED") { rec.verdict = "NOTE"; return "the chapter is already published; no review to do"; }
   const di = await masukSurel(H, mail(KABAG.kunci));
   await shot(H, "a8-kabag-masuk");
-  kabagMasuk = di !== "/masuk" && !di.startsWith("/auth/");
+  // L3 (D-132(i), HOD-08): a head of department holds Mengajar and Mengelola in the school, so they land on the chooser
+  // and choose Mengelola, whose Studio reviews
+  const ke = di === "/" ? await pilihKonteks(H, { tujuan: "MENGELOLA" }) : di;
+  kabagMasuk = di === "/" && ke === "/pimpinan";
   if (!kabagMasuk) rec.verdict = "FAIL";
-  return `${jalanMasuk.get(mail(KABAG.kunci))}, landed on ${di}`;
+  return `${jalanMasuk.get(mail(KABAG.kunci))}, landed on ${di}; chose Mengelola → ${ke}`;
 });
 
 await step("A9", "GS-09 (J4.3–J4.5): the seven steps by two people. The admin, its author, composes, checks and submits it; the head of department finds it in «Antrean Tinjauan», reads every question with its key and reasons, approves, makes and locks the release and reviews any finding; the admin is never offered the second person's steps; the admin publishes", async (rec) => {

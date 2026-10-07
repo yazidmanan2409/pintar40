@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { isSystemAdmin } from "@/lib/auth";
+import { sekolahDari, wajibDalamKonteks } from "@/lib/konteks-server";
 import { BATAS, bacaBukuKerja } from "@/lib/xlsx";
 import {
   bukuKerjaKePaket, kodeGalatPaket,
@@ -70,6 +71,8 @@ export async function advanceContentAction(fd: FormData): Promise<void> {
   const course = uuidOrNull(str(fd, "course"));
   const to = str(fd, "to");
   if (!course || !to) back("/studio", "paket", TIDAK_DIKENALI);
+  // L3 (§2.11): the chapter is the working context's, or the chooser offers its school's (values kept)
+  await wajibDalamKonteks({ sekolah: await sekolahDari("kursus", course) }, "paket");
 
   const supabase = await supabaseServer();
   const { data: mods } = await supabase.from("modules").select("id").eq("course_id", course);
@@ -124,6 +127,7 @@ export async function advanceContentAction(fd: FormData): Promise<void> {
 export async function runValidationAction(fd: FormData): Promise<void> {
   const course = uuidOrNull(str(fd, "course"));
   if (!course) back("/studio", "paket", TIDAK_DIKENALI);
+  await wajibDalamKonteks({ sekolah: await sekolahDari("kursus", course) }, "temuan");
   const supabase = await supabaseServer();
   const a = await supabase.rpc("validate_course_content", { p_course: course });
   if (a.error) back(`/studio/paket/${course}`, "temuan", ditolak("validate_course_content", a.error));
@@ -137,6 +141,7 @@ export async function acknowledgeFindingAction(fd: FormData): Promise<void> {
   const finding = uuidOrNull(str(fd, "finding"));
   const kind = str(fd, "kind");
   if (!course || !finding) back("/studio", "temuan", TIDAK_DIKENALI);
+  await wajibDalamKonteks({ sekolah: await sekolahDari("kursus", course) }, "temuan");
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("acknowledge_finding", {
     p_kind: kind, p_finding: finding, p_note: str(fd, "catatan") || null,
@@ -161,6 +166,7 @@ function gagalTerbitan(fn: string, error: { code?: string | null; details?: stri
 }
 
 async function buatTerbitan(course: string | null): Promise<HasilTerbitan> {
+  await wajibDalamKonteks({ sekolah: await sekolahDari("kursus", course) });
   if (!course) return { ok: false, code: "RELEASE_INPUT_INVALID" };
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("create_release", { p_course: course });
@@ -171,6 +177,7 @@ async function buatTerbitan(course: string | null): Promise<HasilTerbitan> {
 }
 
 async function kunciTerbitan(release: string | null): Promise<HasilTerbitan> {
+  await wajibDalamKonteks({ sekolah: await sekolahDari("terbitan", release) });
   if (!release) return { ok: false, code: "RELEASE_INPUT_INVALID" };
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("freeze_release", { p_release: release });
@@ -193,6 +200,7 @@ async function kunciTerbitan(release: string | null): Promise<HasilTerbitan> {
 }
 
 async function terbitkan(release: string | null): Promise<HasilTerbitan> {
+  await wajibDalamKonteks({ sekolah: await sekolahDari("terbitan", release) });
   if (!release) return { ok: false, code: "RELEASE_INPUT_INVALID" };
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("publish_release", { p_release: release });
@@ -203,6 +211,7 @@ async function terbitkan(release: string | null): Promise<HasilTerbitan> {
 }
 
 async function tarikTerbitan(release: string | null, alasan: string): Promise<HasilTerbitan> {
+  await wajibDalamKonteks({ sekolah: await sekolahDari("terbitan", release) });
   if (!release) return { ok: false, code: "RELEASE_INPUT_INVALID" };
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("withdraw_release", { p_release: release, p_reason: alasan });
@@ -240,6 +249,7 @@ export async function tarikTerbitanAksi(_prev: HasilTerbitan | null, fd: FormDat
 export async function createRevisionAction(fd: FormData): Promise<void> {
   const course = uuidOrNull(str(fd, "course"));
   if (!course) back("/studio", "paket", TIDAK_DIKENALI);
+  await wajibDalamKonteks({ sekolah: await sekolahDari("kursus", course) }, "revisi");
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("create_course_revision", { p_course: course });
   if (error || !data) back(`/studio/paket/${course}`, "revisi", ditolak("create_course_revision", error));
@@ -251,6 +261,7 @@ export async function moveReleaseAction(fd: FormData): Promise<void> {
   const assignment = uuidOrNull(str(fd, "assignment"));
   const release = uuidOrNull(str(fd, "release"));
   if (!course || !assignment || !release) back("/studio", "koreksi", KURANG);
+  await wajibDalamKonteks({ sekolah: await sekolahDari("kursus", course) }, `koreksi-${assignment}`);
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("move_learning_assignment_release", {
     p_assignment: assignment, p_to_release: release, p_reason: str(fd, "alasan"),
@@ -264,6 +275,8 @@ export async function grantDistributionAction(fd: FormData): Promise<void> {
   const release = uuidOrNull(str(fd, "release"));
   const institution = uuidOrNull(str(fd, "institution"));
   if (!release || !institution) back("/studio/kanonik", "izin", KURANG);
+  // L3 (§2.11, C7): giving the library is the library's act, in Pustaka PINTAR's context; the school is named here
+  await wajibDalamKonteks({ sekolah: await sekolahDari("terbitan", release) }, "izin-beri");
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("grant_release_distribution", {
     p_release: release, p_institution: institution, p_reason: str(fd, "alasan") || null,
@@ -274,6 +287,10 @@ export async function grantDistributionAction(fd: FormData): Promise<void> {
 export async function withdrawDistributionAction(fd: FormData): Promise<void> {
   const distribution = uuidOrNull(str(fd, "distribusi"));
   if (!distribution) back("/studio/kanonik", "izin", TIDAK_DIKENALI);
+  {
+    const { data: izin } = await (await supabaseServer()).from("release_distributions").select("plp_release_id").eq("id", distribution).limit(1);
+    await wajibDalamKonteks({ sekolah: await sekolahDari("terbitan", (izin?.[0] as { plp_release_id?: string } | undefined)?.plp_release_id) }, "izin-tarik");
+  }
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("withdraw_release_distribution", {
     p_distribution: distribution, p_reason: str(fd, "alasan"),
@@ -338,6 +355,8 @@ function gagal(fn: string, error: { code?: string | null; details?: string | nul
 /** Insert the batch and prepare it: problems, media paths, counts. */
 async function siapkan(fd: FormData, kind: Asal): Promise<HasilPaket> {
   const institution = uuidOrNull(str(fd, "institution") || str(fd, "institusi"));
+  // L3 (§2.11; D-127 Q11): an upload is aimed at the working context's own place, never an unnamed or unintended one
+  await wajibDalamKonteks({ sekolah: institution }, kind === "STRUCTURED_PACKAGE" ? "terstruktur" : "mudah");
   if (!institution) return { ok: false, code: "PACKAGE_INPUT_INVALID" };
   // D-085 M10: a correction names the course it corrects and says what changed; the database checks both
   // (package_revision_problems). A value that is not a course reference is refused, never dropped into a new course.
@@ -370,6 +389,7 @@ async function siapkan(fd: FormData, kind: Asal): Promise<HasilPaket> {
 }
 
 async function konfirmasi(batch: string | null): Promise<HasilPaket> {
+  await wajibDalamKonteks({ sekolah: await sekolahDari("batch", batch) }, "pertanyaan");
   if (!batch) return { ok: false, code: "PACKAGE_INPUT_INVALID" };
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("confirm_ingest_batch", { p_batch: batch });
@@ -441,9 +461,11 @@ export async function saveDefinitionAction(fd: FormData): Promise<void> {
   // CR-84 (4): the school is the chapter's own, never a second choice that could disagree with it (INV-13)
   const course = uuidOrNull(str(fd, "course"));
   if (!existing && !course) back("/studio/definisi", "definisi", KURANG);
+  if (existing && !course) await wajibDalamKonteks({ sekolah: await sekolahDari("definisi", existing) }, "definisi");
   if (course) {
     const { data: bab } = await supabase.from("courses").select("institution_id").eq("id", course).maybeSingle();
     if (!bab) back("/studio/definisi", "definisi", TIDAK_DIKENALI);
+    await wajibDalamKonteks({ sekolah: bab.institution_id as string }, "definisi");
     put("institution_id", bab.institution_id);
   }
   put("course_id", course);
@@ -476,6 +498,7 @@ export async function saveDefinitionAction(fd: FormData): Promise<void> {
 export async function recordIntegrityReviewAction(fd: FormData): Promise<void> {
   const signal = uuidOrNull(str(fd, "sinyal"));
   if (!signal) back("/studio/integritas", "integritas", TIDAK_DIKENALI);
+  await wajibDalamKonteks({ sekolah: await sekolahDari("sinyal", signal) }, "integritas");
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("record_integrity_review", {
     p_signal: signal, p_decision: str(fd, "keputusan"), p_note: str(fd, "catatan") || null,
@@ -486,6 +509,7 @@ export async function recordIntegrityReviewAction(fd: FormData): Promise<void> {
 export async function recordQuestionHealthReviewAction(fd: FormData): Promise<void> {
   const item = uuidOrNull(str(fd, "soal"));
   if (!item) back("/studio/bank", "kesehatan", TIDAK_DIKENALI);
+  await wajibDalamKonteks({ sekolah: await sekolahDari("soal", item) }, "kesehatan");
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("record_question_health_review", {
     p_item: item, p_decision: str(fd, "keputusan"), p_note: str(fd, "catatan") || null,

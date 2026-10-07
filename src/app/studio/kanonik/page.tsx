@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
-import { button, card, field, label, outcomeLine, s, studioInstitutions, when, tabSaya } from "../_lib";
+import { button, card, field, label, outcomeLine, peranStudio, s, studioInstitutions, when, tabSaya } from "../_lib";
 import { grantDistributionAction, withdrawDistributionAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
@@ -33,17 +33,25 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
   const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
   const institutions = await studioInstitutions();
 
-  const [{ data: rows }, { data: isSys }] = await Promise.all([
+  const [{ data: rows }, { data: isSys }, peran] = await Promise.all([
     supabase.rpc("distributed_releases"),
     supabase.rpc("is_system_admin"),
+    peranStudio(),
   ]);
+  // L3 (D-127 Q2; D-132 C7): the working context's place (studioInstitutions is narrowed to it): in a school, what
+  // the library gives that school; in Pustaka PINTAR, that library's packages wherever they were given
+  const ids = new Set(institutions.map((i) => i.id));
+  const { data: jenisTempat } = ids.size
+    ? await supabase.from("institutions").select("id, tenant_kind").in("id", [...ids])
+    : { data: [] as Array<{ id: string; tenant_kind: string }> };
+  const pustakaIni = (jenisTempat ?? []).filter((t) => t.tenant_kind === "PLATFORM_CANONICAL").map((t) => t.id as string);
 
-  const catalogue = (rows ?? []) as Array<{
+  const catalogue = ((rows ?? []) as Array<{
     plp_release_id: string; version_label: string; published_at: string | null;
     course_id: string; course_title: string; subject: string; stage: string; grade_label: string;
     owner_institution_id: string; owner_name: string; consuming_institution_id: string;
     distribution_status: string; authorized_at: string; withdrawn_at: string | null;
-  }>;
+  }>).filter((r) => ids.has(r.consuming_institution_id) || ids.has(r.owner_institution_id));
 
   const banner = outcomeLine(sp);
 
@@ -51,15 +59,16 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
   // Every school admin was shown the form (CAN_PUBLISH in their own school), which the database refused, and it asked
   // for «id sekolah» and an «id izin» no screen shows. Now only Admin platform sees it, and every choice is a name: the
   // library's published packages, the schools, and the grants still open, each read for this form.
-  const mayGrant = isSys === true;
+  // L3 (D-132 C7, C8): and in the library's own context, Pustaka PINTAR, by Admin platform's grant there; the receiving
+  // school is named in the form (Q11). The database decides the grant either way (grant_release_distribution).
+  const mayGrant = isSys === true && peran.includes("SYSTEM_ADMIN") && pustakaIni.length > 0;
   type Pilihan = { id: string; nama: string };
   let paketPustaka: Pilihan[] = [];
   let sekolahTujuan: Pilihan[] = [];
   let izinBerlaku: Pilihan[] = [];
   if (mayGrant) {
-    const ids = institutions.map((i) => i.id);
-    const { data: tenant } = await supabase.from("institutions").select("id, name, tenant_kind, is_active").in("id", ids).order("name");
-    const pustaka = (tenant ?? []).filter((t) => t.tenant_kind === "PLATFORM_CANONICAL").map((t) => t.id as string);
+    const { data: tenant } = await supabase.from("institutions").select("id, name, tenant_kind, is_active").order("name");
+    const pustaka = pustakaIni;
     sekolahTujuan = (tenant ?? []).filter((t) => t.tenant_kind === "INSTITUTION" && t.is_active !== false)
       .map((t) => ({ id: t.id as string, nama: t.name as string }));
     const [{ data: rilis }, { data: izin }] = await Promise.all([

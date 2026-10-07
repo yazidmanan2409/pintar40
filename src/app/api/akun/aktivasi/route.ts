@@ -4,6 +4,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseService } from "@/lib/supabase/service";
 import { cardEmail, deriveCardSecret } from "@/lib/card";
 import { rujukan } from "@/lib/galat-kontrak";
+import { sasaranDalamKonteks, sekolahOrang } from "@/lib/konteks-server";
 
 /**
  * ACCOUNT ACTIVATION (F-01). The one place an Auth identity is created for a
@@ -29,6 +30,10 @@ import { rujukan } from "@/lib/galat-kontrak";
  *                   grant is for the card's own sign-in address.
  *   NEW_PERSON      a SYSTEM_ADMIN's path to someone no institution has
  *                   provisioned yet — a school's first administrator.
+ *
+ * §2.11 (D-132(k)): BEFORE ANY OF IT, THE ACT'S TARGET IS IN THE WORKING CONTEXT: a person of the context's school, or
+ * any school's under «Seluruh platform», and a new person only there. A narrowing, never a permit; otherwise
+ * CONTEXT_OTHER_PLACE (409), and nothing is asked or created.
  */
 type Body = {
   mode?: "EMAIL" | "CLASSROOM_CARD" | "NEW_PERSON";
@@ -52,6 +57,7 @@ export async function POST(request: Request) {
 
   if (body.mode === "NEW_PERSON") {
     if (!email) return NextResponse.json({ ok: false, error: "email" }, { status: 400 });
+    if (!(await sasaranDalamKonteks({ platform: true }))) return lainKonteks();
     const { data: name, error } = await caller.rpc("authorize_new_person", {
       p_display_name: body.display_name ?? "", p_email: email,
     });
@@ -65,6 +71,7 @@ export async function POST(request: Request) {
 
   const person = String(body.person_id ?? "");
   if (!UUID.test(person)) return NextResponse.json({ ok: false, error: "person_id" }, { status: 400 });
+  if (!(await sasaranDalamKonteks({ sekolah: await sekolahOrang(person), atauPlatform: true }))) return lainKonteks();
   const authorize = async (kind: "EMAIL" | "CLASSROOM_CARD", address: string, card: string | null) => {
     const { data, error } = await caller.rpc("authorize_account_activation", {
       p_person: person, p_kind: kind, p_email: address, p_card_number: card,
@@ -118,4 +125,9 @@ function gagalBuat(created: { code?: string | null; status?: number; message?: s
   const ref = rujukan();
   console.error(`[aktivasi ${ref}] auth.admin.createUser failed`, created.code ?? created.status, created.message);
   return NextResponse.json({ ok: false, error: "create_failed", ref }, { status: 409 });
+}
+
+/** §2.11: the target is outside the working context; the route's own word, and nothing was asked. */
+function lainKonteks() {
+  return NextResponse.json({ ok: false, error: "CONTEXT_OTHER_PLACE" }, { status: 409 });
 }

@@ -68,7 +68,7 @@ import { mkdirSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 import { createHash, randomBytes } from "node:crypto";
 import { APP, SLOW, closeTour } from "../perf/lib.mjs";
-import { keadaanDari, kredensial, masukStaf, pulihkanDenganEmail, pulihkanDenganPin, selesaikan, tutupi } from "./masuk.mjs";
+import { keadaanDari, kredensial, masukStaf, pilihKonteks, pulihkanDenganEmail, pulihkanDenganPin, selesaikan, tutupi } from "./masuk.mjs";
 import { catat } from "./pendataan.mjs";
 
 const env = (k) => { const v = process.env[k]; if (!v) throw new Error(`${k} is not set`); return v; };
@@ -370,8 +370,10 @@ await step("L2", `GS-17 the head of department («${BAGIAN}»): signs in → /pi
   if (!S) { rec.verdict = "NOT RUN"; return "L0 did not read the school"; }
   const p = await (await ctx()).newPage();
   const out = [];
-  const di = await masukSurel(p, mail("kabag"));
-  if (di !== "/pimpinan") throw new Error(`landed on ${di}, not /pimpinan`);
+  const tiba = await masukSurel(p, mail("kabag"));
+  // L3 (D-132(i), HOD-08): Mengajar and Mengelola in the school, so the chooser; she chooses Mengelola
+  const di = tiba === "/" ? await pilihKonteks(p, { tujuan: "MENGELOLA" }) : tiba;
+  if (tiba !== "/" || di !== "/pimpinan") throw new Error(`landed on ${tiba} and chose ${di}, not the chooser and then /pimpinan`);
   out.push(...await kelasDiPimpinan(p, "l2-kabag"));
   if (await p.getByRole("link", { name: "Buka ringkasan sekolah" }).count()) throw new Error("the head of department is offered the school summary");
   const bukti = await angka(p.locator('section[aria-labelledby="pin-bukti"]'));
@@ -583,7 +585,8 @@ let bersama = null, tBersama = 0, rumahBersama = null;
 await step("U2a", "GS-20 (J2.10) the head of department, on a new browser: signs in and answers «Komputer siapa ini?» with «Komputer bersama»; then is left alone", async (rec) => {
   bersama = await (await ctx()).newPage();
   const r = await masukStaf(bersama, mail("kabag"), keadaanDari(sql, lit), { perangkat: "SHARED" });
-  rumahBersama = r.di;
+  // L3: the chooser, then Mengelola, whose page she is left on
+  rumahBersama = r.di === "/" ? await pilihKonteks(bersama, { tujuan: "MENGELOLA" }) : r.di;
   tBersama = kini();
   const mode = sql(`select coalesce(string_agg(d.mode, ',' order by d.created_at), '') from public.device_sessions d
      where d.auth_user_id = '${authDari(mail("kabag"))}' and d.ended_at is null and d.created_at >= to_timestamp(${MULAI})`);

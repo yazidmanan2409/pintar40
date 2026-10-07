@@ -1429,7 +1429,7 @@
         "network"
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as three real personas and compares each page with what my_learning_assignments answers for that same token. CI has both facilities, so it never skips there",
-      "proves": "an educator's own learning is a second context and never a second identity, measured over HTTP as three real people. The teaching header gains exactly ONE neighbour, Pembelajaran Saya, and keeps Kelas, so the way in is one press and the way back is always on screen. WHAT AN EDUCATOR IS OFFERED IS THEIR ENROLMENT AND NEVER THEIR ROLE, proved on two educators rather than argued: my_learning_assignments is asked directly with each persona's own token and its answer is compared with the rendered page, so the expectation comes from the contract rather than from the test's idea of the fixture. The enrolled educator holds at least one entitlement -- asserted, because an educator offered nothing would make every assertion after it vacuously true -- every row of it appears on their page, and it is the SAME course their own class's learner is doing rather than a second educator-shaped one. The educator holding the same role with no enrolment holds nothing by the database's own answer, is told so in the agreed sentence, and is offered none of the other educator's rows -- on a page that carries the surface's own name and its own reassurance and reads as neither a refusal, a permission problem nor a fault. NOBODY BECAME A STUDENT: the learner first-login tour is not mounted for either educator, so it cannot be opened by any means; neither is offered it by name; neither is addressed as a learner; and neither is given a Help entry leading to a map that is not theirs. A learner keeps their own two tabs, their own tour and their own Help, and is offered no way into a teaching context. An educator reading their own certificates stays in their own shell, on the one certificate surface that already existed. Internal words are swept from every page fetched"
+      "proves": "an educator's own learning is a second context and never a second identity, measured over HTTP as three real people. RESTATED FOR L3 (D-132 C1, §2.4): the teaching header keeps Kelas and offers the chooser, whose doors are exactly Mengajar and Belajar, and the learning page offers the same chooser and no tab into teaching, so the way in is the chooser's door and the way back is always on screen. WHAT AN EDUCATOR IS OFFERED IS THEIR ENROLMENT AND NEVER THEIR ROLE, proved on two educators rather than argued: my_learning_assignments is asked directly with each persona's own token and its answer is compared with the rendered page, so the expectation comes from the contract rather than from the test's idea of the fixture. The enrolled educator holds at least one entitlement -- asserted, because an educator offered nothing would make every assertion after it vacuously true -- every row of it appears on their page, and it is the SAME course their own class's learner is doing rather than a second educator-shaped one. The educator holding the same role with no enrolment holds nothing by the database's own answer, is told so in the agreed sentence, and is offered none of the other educator's rows -- on a page that carries the surface's own name and its own reassurance and reads as neither a refusal, a permission problem nor a fault. NOBODY BECAME A STUDENT: the learner first-login tour is not mounted for either educator, so it cannot be opened by any means; neither is offered it by name; neither is addressed as a learner; and neither is given a Help entry leading to a map that is not theirs. A learner keeps their own two tabs, their own tour and their own Help, and is offered no way into a teaching context. An educator reading their own certificates stays in their own shell, on the one certificate surface that already existed. Internal words are swept from every page fetched"
     },
     {
       "id": "F07-P01",
@@ -1761,7 +1761,7 @@
     {
       "id": "DAISY-03-TEMPAT-01",
       "runner": "static",
-      "proves": "DAISY-03 (D-010; M3, M15 UI), every role reaches its places by clicking, and only places they hold. The places a shell offers are D-010's map read through berandaPeran, checked against it for every display role and a three-role person. The list the tabs are drawn from is OUTPUT by the pure helper -- the places less the calling shell's own, with their labels in both languages -- and the component SOURCE draws one link per entry and nothing else; Pimpinan is not called Beranda. The home page's doors for a signed-in reader are OUTPUT by the pure helper over every display role and every roles answer: the staff doors equal the roles held today, Belajar is a learner's alone, a student is never sent to /mengajar and an unreadable answer opens no staff door; the greeting helper OUTPUTS a learner's first name and staff in full (D-020). From the SOURCE: the home page draws exactly that list with each door's own words from the COPY TABLE, an honest line when it is empty, the greeting through the helper and never the raw name, the anonymous three doors unchanged, one parallel read; every staff shell offers the other places from one roles answer, the intake shell reaches Aktivasi, neither the public page, an assessment in focus nor a learner's shell offers any, Konfigurasi links Pendataan, Aktivasi and Studio, and Studio links back. From the stylesheet FILE: on a phone the tab strip wraps."
+      "proves": "DAISY-03 (D-010; M3, M15 UI), every role reaches its places by clicking, and only places they hold. The places a shell offers are D-010's map read through berandaPeran, checked against it for every display role and a three-role person. The list the tabs are drawn from is OUTPUT by the pure helper -- the places less the calling shell's own, with their labels in both languages -- and the component SOURCE draws one link per entry and nothing else; Pimpinan is not called Beranda. RESTATED FOR L3 (D-132 C3): the home page's doors for a signed-in reader are the chooser's, the purpose · place pairs held today (F22-P01, F22-P04, F22-K01); the greeting helper OUTPUTS a learner's first name and staff in full (D-020). From the SOURCE: the home page draws exactly the held pairs (pintuPilihan over tempatSaya), one form each posting pilihKonteks, each labelled in its purpose's own words from the COPY TABLE, an honest line when there are none, the greeting through the helper and never the raw name, the anonymous three doors carrying a purpose (/masuk?pintu=…), one parallel read; every staff shell offers the other places (in a working context the context's own surfaces and the chooser, NavKonteks; without one the roles' places), the intake shell reaches Aktivasi, neither the public page, an assessment in focus nor a learner's shell offers any, Konfigurasi links Pendataan, Aktivasi and Studio, and Studio links back. From the stylesheet FILE: on a phone the tab strip wraps."
     },
     {
       "id": "DAISY-04-GALAT-01",
@@ -1791,7 +1791,7 @@
         "network"
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator and the platform administrator and reads the rendered Konfigurasi against the seed. CI has both facilities, so it never skips there",
-      "proves": "DAISY-05 over real HTTP against the seeded database: the RENDERED html of /konfigurasi for Alpha's school administrator opens with the Struktur sekolah section, read through school_structure without a refusal; the seeded Bagian (Matematika), Tingkat (Kelas 5 and Kelas 6) and Kelas (5A, 6B) are drawn as places with their school years and the way to add each level; the seed's hidden Jenjang (Sekolah Dasar) and Reguler (SD Reguler) are nowhere in the section; nothing offers a deactivation before the question. Read only. As the seeded platform administrator, who reads every tenant: the RENDERED section opens on a real school and never offers or opens 'PINTAR Kurikulum Nasional', by default, for an unknown id, or for the library's own id read from the institutions table (audit S7b)."
+      "proves": "DAISY-05 over real HTTP against the seeded database: the RENDERED html of /konfigurasi for Alpha's school administrator opens with the Struktur sekolah section, read through school_structure without a refusal; the seeded Bagian (Matematika), Tingkat (Kelas 5 and Kelas 6) and Kelas (5A, 6B) are drawn as places with their school years and the way to add each level; the seed's hidden Jenjang (Sekolah Dasar) and Reguler (SD Reguler) are nowhere in the section; nothing offers a deactivation before the question. Read only. As the seeded platform administrator, who reads every tenant, in a school's working context chosen on the chooser (L3, D-132 C7): the RENDERED section opens on that school and never offers or opens 'PINTAR Kurikulum Nasional', by default, for an unknown id, or for the library's own id read from the institutions table (audit S7b); in «Seluruh platform» the RENDERED page draws and offers no school's structure."
     },
     {
       "id": "F10-S07",
@@ -2429,7 +2429,7 @@
         "network"
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator and the platform administrator and reads the rendered /studio/unggah against the seed. CI has both facilities, so it never skips there",
-      "proves": "DAISY-06 over real HTTP against the seeded database (audit S14). The RENDERED html of /studio/unggah, for Alpha's school administrator and for the platform administrator, opens with the workbook section before the JSON forms and without a refusal: the template download, the three named steps with exactly one current, and exactly one file input in the first step, which accepts .xlsx. Its Sekolah picker offers at least one school and starts on a real one -- Sekolah Sintetis Alpha for Alpha's administrator, never 'PINTAR Kurikulum Nasional' -- and no school picker anywhere on Alpha's administrator's page offers the national library, while the platform administrator's offers it exactly once, as the picker's last option (RESTATED for CR-51, D-120 Q7). Read only. RESTATED FOR CR-87 (D-127 Q7): only the platform administrator is drawn the JSON package forms after the workbook; the school administrator's page ends with it."
+      "proves": "DAISY-06 over real HTTP against the seeded database (audit S14). The RENDERED html of /studio/unggah, for Alpha's school administrator and for the platform administrator in Alpha's working context, opens with the workbook section before the JSON forms and without a refusal: the template download, the three named steps with exactly one current, and exactly one file input in the first step, which accepts .xlsx. Its Sekolah picker offers at least one school and starts on a real one -- Sekolah Sintetis Alpha for Alpha's administrator, never 'PINTAR Kurikulum Nasional' -- and no school picker anywhere on either page offers the national library; RESTATED FOR L3 (D-132 C7, C8): the platform administrator works in a context chosen on the chooser, Alpha's for this check, and is offered the library alone in Pustaka PINTAR's own context (CR-51, D-120 Q7). Read only. RESTATED FOR CR-87 (D-127 Q7): only the platform administrator is drawn the JSON package forms after the workbook; the school administrator's page ends with it."
     },
     {
       "id": "DAISY-09-AKTIVASI-01",
@@ -3111,6 +3111,67 @@
       "runner": "db",
       "proves": "FD-9 (D-127 Q8; DG-30), measured in selftest/db/fable21.sql through save_assessment_definition, Studio's step and the release: a chapter's own Uji Penguasaan rule changed while the chapter is still being drafted is saved as a new version (INV-29) and a draft, moves with the chapter to approval by a second person, and is the released chapter's Uji Penguasaan rule (release_cycle_definition); once the chapter has moved on, a new rule and a new version are each refused by name («a rule is set while its chapter is still being drafted») and nothing is saved.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F22-K01",
+      "runner": "db",
+      "proves": "L3 (D-127 Q1, Q2; D-132 C1, C2, C6, C7), measured in selftest/db/fable22.sql through konteks_tempat_saya: the purpose · place pairs derive from the grants. A learner holds Belajar; a Guru, Mengajar in their school only; an enrolled Guru, both; a Kepala departemen, Mengajar and Mengelola there; a Dekan and an Admin sekolah, Mengelola only and never Mengajar; a library author, Mengajar in the library; a class card, Belajar only; Admin platform, Mengelola in every active school, the library and «Seluruh platform», with no Mengajar of its own; and Admin platform who is also a Guru in two schools, Mengajar in exactly those two besides.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F22-K02",
+      "runner": "db",
+      "proves": "L3 (D-132 C4), measured in selftest/db/fable22.sql through konteks_tetapkan: the one writer writes only the caller's own current session and only a pair they hold. A pair not held is refused by name (KONTEKS_TIDAK_DIPEGANG) and nothing is written; a door sets a context only where none is, and a second door or a requested page over it is refused (KONTEKS_SUDAH_ADA) while the person's own choice changes it; a token without a session, an ended session, and a token naming another person's session are refused (KONTEKS_TANPA_SESI).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F22-K03",
+      "runner": "db",
+      "proves": "L3 (D-132 §2.10; the Dr Gladys scenario), measured in selftest/db/fable22.sql: one Admin platform on two browsers holds Mengajar · beta on the laptop and Mengelola · alpha on the phone, each read back from its own session; moving the phone to «Seluruh platform» leaves the laptop unchanged; in Mengajar · beta she is still Admin platform, and her role assignments are identical before and after.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F22-K04",
+      "runner": "db",
+      "proves": "L3 (D-132 §2.7), measured in selftest/db/fable22.sql through konteks_saya: a Guru's Mengajar whose grant is revoked, and a Mengajar resting on a Guru grant that has already expired, read TIDAK_BERLAKU and are cleared from the session row, never moved to another purpose or place; neither pair can be set again, and the person with the expired grant holds Belajar alone.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F22-K05",
+      "runner": "db",
+      "proves": "L3 (D-132 §2.8), measured in selftest/db/fable22.sql through sesi_akhiri_saya and sesi_akhiri_semua: «Keluar» ends the session row and leaves no context on it; the ended session reads BERAKHIR and is refused a context; «Keluar dari semua perangkat» leaves none of the person's sessions open or holding a context.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F22-K06",
+      "runner": "db",
+      "proves": "L3 (D-132 §2.11; CR-83(4)), measured in selftest/db/fable22.sql: context never widens authority. Renaming the school's class (an Admin sekolah's act) is refused to a Kepala departemen in Mengajar and in Mengelola, to a Dekan in Mengelola, and to a Guru with Mengelola forged straight onto the row (which the next read clears); the authorization primitives answer false in every context; the Admin sekolah renames it with no context at all; and no RLS policy and no function but the context's own reads the context.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F22-P01",
+      "runner": "static",
+      "proves": "L3 (design §4; D-132 C4, C5, C9), its OUTPUT driven through the source file src/lib/konteks.ts (rencanaMasuk) with recorded people: the door × person table row by row (learner, class card, teacher, teacher + Admin sekolah, learner + Admin sekolah, Kepala departemen, Admin platform, Admin platform + teacher in two schools × three doors and no door); one pair is selected and several are asked, the ranking never choosing; each «not held» and «several» chooser offers exactly what §4 says; a page asked for sets a context only when exactly one held pair fits it; a door with another context's page lands at the door's home; after a sign-out the carried destination is ignored."
+    },
+    {
+      "id": "F22-P02",
+      "runner": "static",
+      "proves": "L3 (D-132 C2, C7, C8; §2.4, §2.6), its OUTPUT driven through the source file src/lib/konteks.ts: the surface → purpose table and its neutral pages; which pair serves which surface (Mengajar only from teaching grants and never in a library; «Seluruh platform» only Konfigurasi and Aktivasi; Studio by the pair's capabilities); the shell's tabs are the context's own (Mengajar · B never offers Konfigurasi); each pair's home; a pair round-trips as a form value; only the database's four shapes are read as a context."
+    },
+    {
+      "id": "F22-P03",
+      "runner": "static",
+      "proves": "L3 (D-132(e): the sign-out mark, a 4.0 stale-continuation guard), driven through src/lib/tanda-keluar.ts aturTanda and read from the sources: an end found by the proxy and an end elsewhere set the mark, a fresh browser is never marked (a new request stays usable), a server action writes no cookie; «Keluar», «Keluar dari semua perangkat» and S15's sign-out set it; /mulai ignores the carried destination under it and removes it; it holds no identity."
+    },
+    {
+      "id": "F22-P04",
+      "runner": "static",
+      "proves": "L3 (D-132 C3, C4), read from the sources and driven through pintuPilihan: visiting the chooser (src/app/page.tsx) writes nothing and its doors are POSTs to pilihKonteks, the one switch; konteks_tetapkan is called only by /mulai and src/lib/konteks-server.ts, whose writer only a surface page's C4 (konteksSaya, never in a server action) and the person's choice (PILIHAN) call; nothing else names the context's columns; the chooser narrows to the purpose, place or page asked for without ever stranding anybody, and accepts no outside destination. And D-132(m): the six expressions awaiting Dr Gladys's terminology review stay semantic keys -- each is placed in the source, draws nothing, and has no words in the copy table."
+    },
+    {
+      "id": "F22-P05",
+      "runner": "static",
+      "proves": "L3 §2.11 (D-132(k)), read from the source files: every exported server action of the six context-bound files (Studio, Konfigurasi, Pendataan, Pimpinan, umpan balik, Mengajar) checks its target against the active context before its first database act (the one re-read exempt by name), and the four context-bound API routes (activation, class-card re-issue, PIN recovery reset, media upload) before their act, each saying CONTEXT_OTHER_PLACE; every other server-action file and API route is exempt by name with its reason (signing in, the chooser, Belajar's own work, a person's own account, personas, public pages, and the explicitly platform-scoped test email and its history); the checker catches a removed check and a check moved after its act; the check uses no service key and makes no device session."
     },
     {
       "id": "BOB50-A01",

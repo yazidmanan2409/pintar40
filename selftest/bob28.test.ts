@@ -27,6 +27,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { daftar, ipUji, kodeDari, lit, Peramban, psql, sandiBagas, sinkTunggu } from "./bob26.test";
+import { pilihKonteksPeramban } from "./konteks-uji";
 
 const tanpaKomentar = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
 const PENERIMA_KEAMANAN = "admin_gt@pintarselalu.com";
@@ -367,6 +368,8 @@ export const bob28AppTests: SelfTest[] = [
       c.expect(bukanAdmin.status === 403, `a staff member who is not an administrator reset recovery (${bukanAdmin.status})`);
       const sys = new Peramban(asal, ipUji());
       c.expect((await sys.jsonDari("/masuk/password", { form: { identitas: "uji.sysadmin", password: "Sintetis-Sys-91!" } })).status === 200, "the platform admin could not sign in");
+      // L3 (D-132 C7): the platform admin's acts across schools are «Seluruh platform»'s, chosen on the chooser
+      await pilihKonteksPeramban(sys, "MENGELOLA:PLATFORM");
       const tanpaAlasan = await sys.jsonDari("/api/keamanan/pemulihan", { json: { id, alasan: "  " } });
       const reset = await sys.jsonDari("/api/keamanan/pemulihan", { json: { id, alasan: "Pemilik kehilangan PIN (uji)" } });
       const s = (reset.body as { status?: { pinBaruDitunggu?: boolean; keadaan?: string } }).status;
@@ -412,6 +415,8 @@ export const bob28AppTests: SelfTest[] = [
         select id from public.persons where display_name = ${lit(nama)};`).split("\n").pop()!;
       const sys = new Peramban(asal, ipUji());
       c.expect((await sys.jsonDari("/masuk/password", { form: { identitas: "uji.sysadmin", password: "Sintetis-Sys-91!" } })).status === 200, "the platform admin could not sign in");
+      // L3 (D-132 C7): the platform admin's acts across schools are «Seluruh platform»'s, chosen on the chooser
+      await pilihKonteksPeramban(sys, "MENGELOLA:PLATFORM");
       const buat = await sys.jsonDari("/api/akun/aktivasi", { json: { mode: "CLASSROOM_CARD", person_id: murid } });
       const k1 = buat.body as { card?: string; pin?: string };
       if (!c.expect(buat.status === 200 && /^\d{10}$/.test(k1.card ?? ""), `the first card could not be made (${buat.status})`)) return c.verdict("");

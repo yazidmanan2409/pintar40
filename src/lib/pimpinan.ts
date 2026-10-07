@@ -1,5 +1,7 @@
 import "server-only";
 import { supabaseServer } from "@/lib/supabase/server";
+import { alamatPilih, melayani } from "@/lib/konteks";
+import { alihkan, jalurIni, konteksHalaman, tempatSaya } from "@/lib/konteks-server";
 import { dalamLingkup, type Simpul } from "@/lib/mengajar";
 import type { Envelope } from "@/components/bukti";
 import type {
@@ -91,7 +93,12 @@ export type SimpulPimpinan = {
  * one refusal page for it. It does not mean "no data".
  */
 export async function lingkupPimpinan(): Promise<SimpulPimpinan[]> {
-  return lingkupPimpinanDari(await db());
+  // L3 (CR-83; D-127 Q2): the places of the working context's school only. No context that serves Pimpinan, none;
+  // an evaluation persona keeps every place it stands over (C10). The database still decides each node.
+  const kh = await konteksHalaman();
+  if (kh === null || (kh !== "TANPA_KONTEKS" && kh.tempat === null)) return [];
+  const semua = await lingkupPimpinanDari(await db());
+  return kh === "TANPA_KONTEKS" ? semua : semua.filter((n) => n.institusi === kh.tempat);
 }
 
 /**
@@ -161,6 +168,15 @@ export async function simpulDalamLingkup(node: string): Promise<SimpulPimpinan |
     .limit(1);
   const row = rows<{ id: string; name: string; kind: string; institution_id: string; jalur: string[] | null }>(n)[0];
   if (!row) return null;
+  // L3 (§2.6): a place of another school is never opened in this context and the context never switches silently;
+  // the chooser offers that school's Mengelola when the reader holds it there, and continues here
+  const kh = await konteksHalaman();
+  if (kh !== "TANPA_KONTEKS" && (kh === null || kh.tempat !== String(row.institution_id))) {
+    const jalur = await jalurIni();
+    const di = (await tempatSaya()).find((p) => p.tempat === String(row.institution_id) && melayani(p, jalur));
+    if (di) await alihkan(alamatPilih({ untuk: di.tujuan, tempat: di.tempat, alasan: "lain", lanjut: jalur }));
+    return null;
+  }
   return {
     id: String(row.id),
     nama: String(row.name),
@@ -256,7 +272,11 @@ export async function keputusanSaya(): Promise<Keputusan[]> {
     source_table: string; raised_at: string; raised_note: string | null; decided_at: string | null;
     raised_by_person_id: string;
   };
-  const baris = rows<Baris>(data);
+  // L3 (D-127 Q2): the decisions of the working context's school only (presentation; the policy still decides which
+  // this reader may see at all). An evaluation persona keeps them all (C10).
+  const kh = await konteksHalaman();
+  const baris = rows<Baris>(data).filter((r) =>
+    kh === "TANPA_KONTEKS" || (kh !== null && kh.tempat !== null && r.institution_id === kh.tempat));
   if (baris.length === 0) return [];
 
   const simpulIds = [...new Set(baris.map((r) => r.scope_node_id))];

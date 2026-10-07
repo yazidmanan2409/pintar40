@@ -157,6 +157,8 @@ export async function mintaBacaUlang(formData: FormData): Promise<void> {
   const pilih = (k: string) => [...new Set(formData.getAll(k).map((v) => bersih(v)).filter((x) => UUID.test(x)))];
   const murid = pilih("murid");
   const pelajaran = pilih("pelajaran");
+  // §2.11 (D-132(k)): the class is the active context's, as for the two acts above; the database still decides
+  if (!(await kelasKonteks(kelasId))) ke(kelasId, "/bukti");
 
   const db = (await supabaseServer()) as any;
   const { data, error } = await db.rpc("request_lesson_review", { p_learning_assignment: tugas, p_people: murid, p_lessons: pelajaran });

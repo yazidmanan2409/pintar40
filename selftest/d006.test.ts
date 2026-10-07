@@ -45,7 +45,8 @@ export const d006Tests: SelfTest[] = [
       // the first entry naming the school is the school itself, as a person (and the walk) would pick it
       c.expect(daftar.find((o) => o.label.includes("SD Zayd"))?.id === "sd-akar", "the first «SD Zayd…» entry is not the school");
       const halaman = readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8");
-      c.expect(/<select name="scope"[^>]*>[\s\S]{0,200}lingkupPeran\(nodes \?\? \[\], institutionName\)\.map\(/.test(halaman),
+      // L3 (D-132 C7): «Seluruh platform» grants no school-scoped role, so it is offered no school's places
+      c.expect(/<select name="scope"[^>]*>[\s\S]{0,200}lingkupPeran\(platformKonteks \? \[\] : nodes \?\? \[\], institutionName\)\.map\(/.test(halaman),
         "Peran & akses does not offer its scopes through lingkupPeran");
       return c.verdict(
         "executes lingkupPeran on two schools' trees with their hidden Jenjang and Reguler: none is offered; each school comes " +

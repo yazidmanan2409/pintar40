@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
+import { sekolahDari, wajibDalamKonteks } from "@/lib/konteks-server";
 
 /**
  * THE ONE WRITE THE MANAGEMENT SURFACE MAKES.
@@ -47,6 +48,8 @@ export async function putuskanAksi(formData: FormData): Promise<void> {
   // DAISY-18: the answer names the card it belongs to, which the reader sent
   const kartu = `keputusan=${encodeURIComponent(id)}`;
   if (!bentukBenar) redirect(`/pimpinan?galat=1&${kartu}`);
+  // §2.11 (D-132(k)): a decision of the active context's school only; a narrowing, the database still decides
+  await wajibDalamKonteks({ sekolah: await sekolahDari("keputusan", id) });
 
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("advance_management_decision", {

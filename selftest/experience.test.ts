@@ -94,7 +94,7 @@ import { lokasiMasalah } from "../src/components/unggah/lokasi";
 import { bacaBukuKerja } from "../src/lib/xlsx";
 import { KEGUNAAN, BATAS_PAKET, KOLOM, LEMBAR, bukuKerjaKePaket, KODE_MASALAH_PAKET, KODE_TOLAK_PAKET, kunciMasalahPaket, kunciKodePaket } from "../src/lib/unggah-kontrak";
 import { crc32 as zlibCrc32 } from "node:zlib";
-import { tempatDariPeran, daftarTempat, pintuMasuk, tawarkanStudio, PERAN_STUDIO } from "../src/components/tempat";
+import { tempatDariPeran, daftarTempat, tawarkanStudio, PERAN_STUDIO } from "../src/components/tempat";
 import { LANGKAH as LANGKAH_PAKET, posisiPaket, keadaanLangkah, bolehMengambil, kunciSalinan, type KunciLangkah } from "../src/components/studio/langkah";
 import { LANGKAH_TERBITAN, KODE_TERBITAN_DB, kunciKodeTerbitan, type KodeTerbitan } from "../src/lib/terbitan-kontrak";
 import { namaUntukStrip, namaSapaan, PERAN_STAF } from "../src/components/sesi";
@@ -237,6 +237,15 @@ const RESET_SURFACES = [
   "src/app/pendataan/loading.tsx",
   "src/app/pimpinan/loading.tsx",
   "src/app/studio/loading.tsx",
+  // L3 (D-132 §2.6): each surface's working-context guard, which draws nothing of its own (its children only)
+  "src/app/aktivasi/layout.tsx",
+  "src/app/belajar/layout.tsx",
+  "src/app/dekan/layout.tsx",
+  "src/app/edukator/layout.tsx",
+  "src/app/konfigurasi/layout.tsx",
+  "src/app/mengajar/layout.tsx",
+  "src/app/pendataan/layout.tsx",
+  "src/app/pimpinan/layout.tsx",
   // DAISY-04: PINTAR's own error and not-found pages, on the token vocabulary
   "src/app/error.tsx",
   "src/app/global-error.tsx",
@@ -1669,7 +1678,10 @@ export const experienceTests: SelfTest[] = [
       // MOVED 173 -> 176 for L2 (D-128, D-129): 20261207100000 replaces difficulty_band's body (FD-5), 20261208100000 adds
       // the integrity waiting list's read and its registry row (FD-7), 20261209100000 replaces save_assessment_definition's
       // body (FD-9); none adds a table or a column, so the sweep below still asserts over files without its answer changing.
-      c.expect(migrations.length === 176, `${migrations.length} migrations; the frozen baseline has 176`);
+      // MOVED 176 -> 177 for L3 (D-132): 20261210100000 adds five columns to device_sessions (konteks_tujuan,
+      // konteks_tempat, konteks_platform, konteks_sebab, konteks_pada: a session's working context) and four functions.
+      // Read against §3 first: none is a mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
+      c.expect(migrations.length === 177, `${migrations.length} migrations; the frozen baseline has 177`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3465,7 +3477,8 @@ export const experienceTests: SelfTest[] = [
       // identity. Re-read before the number moved.
       // MOVED 171 -> 173 for batch 3b (D-123): the decision queue's referrer rule and catalogue MC-7 touch no tour RPC.
       // MOVED 173 -> 176 for L2: a band's reading, the integrity waiting list and a rule's save touch no tour RPC.
-      c.expect(migs.length === 176, `${migs.length} migrations; the baseline has 176`);
+      // MOVED 176 -> 177 for L3 (D-132): a session's working context touches no tour RPC.
+      c.expect(migs.length === 177, `${migs.length} migrations; the baseline has 177`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -4653,8 +4666,14 @@ export const experienceTests: SelfTest[] = [
 
       // 2. THE FALLBACK IS THE ROLE'S HOME (§7.3), and it is passed as the
       //    helper's own parameter rather than decided after it.
+      // RESTATED FOR L3 (D-132 C4, C9, C10): every arrival goes through /mulai, which sets the working context; the
+      // helper still narrows the carried destination with its own parameter (none: ""), and the role's home is the
+      // fallback only where a session has no context to land by (an evaluation persona, C10), on /mulai itself
       const aksi = code(readFileSync(join(repoRoot, "src", "app", "masuk", "actions.ts"), "utf8"));
-      c.expect(/tujuanInternal\(raw, berandaPeran\(viewer\?\.displayRole \?\? null\)\)/.test(aksi),
+      const mulai = code(readFileSync(join(repoRoot, "src", "app", "mulai", "route.ts"), "utf8"));
+      c.expect(/const lanjut = tujuanInternal\(raw, ""\);/.test(aksi) && /return "\/mulai";/.test(aksi)
+        && /ke = lanjut \|\| berandaPeran\(viewer\?\.displayRole \?\? null\);/.test(mulai)
+        && /ke = lanjut \|\| berandaPasangan\(k\);/.test(mulai),
         "the post-authentication destination does not fall back to the role's home through the helper's own parameter");
       // A refused destination is not an error the person never chose.
       for (const f of ["src/app/masuk/actions.ts", "src/app/auth/callback/page.tsx", "src/components/masuk/TukarTautan.tsx"]) {
@@ -7991,18 +8010,33 @@ export const experienceTests: SelfTest[] = [
         const j = i < 0 ? -1 : cangkang.indexOf("</header>", i);
         return i >= 0 && j > i ? cangkang.slice(i, j) : "";
       };
-      const tab = (b: string) => b.match(/<TabTempat[^>]*\/>/)?.[0] ?? "";
-      c.expect(/kecuali=\{\["\/mengajar"\]\}/.test(tab(cabang("pengajar"))), `the teaching shell does not offer the other places: ${tab(cabang("pengajar")) || "none"}`);
-      c.expect(/kecuali=\{\["\/pimpinan"\]\}/.test(tab(cabang("pimpinan"))), `the management shell does not offer the other places: ${tab(cabang("pimpinan")) || "none"}`);
-      c.expect(tab(cabang("pendataan")).length > 0 && !/kecuali/.test(tab(cabang("pendataan"))), "the intake shell does not offer the reader's places");
+      // RESTATED FOR L3 (CR-83; D-132 §2.4): with a working context a staff shell's other tabs are that context's own
+      // surfaces (navKonteks, F22-P02, awaited in the shell's own render), and its one way to change it is the chooser;
+      // without one (an evaluation persona, C10) the roles' places, as before (TabTempat). Each shell keeps its own tab
+      // out of either.
+      const tabs = (b: string) => b.match(/<TabTempat[^>]*\/>|navKonteks\(\{[^}]*\}\)/g) ?? [];
+      const tab = (b: string) => tabs(b).join(" ");
+      const keduanya = (b: string, sendiri: string) => {
+        const nav = tabs(b).find((x) => x.startsWith("navKonteks")) ?? "";
+        const peran = tabs(b).find((x) => x.startsWith("<TabTempat")) ?? "";
+        return nav.includes(`kecuali: ["${sendiri}"]`) && peran.includes(`kecuali={["${sendiri}"]}`);
+      };
+      c.expect(keduanya(cabang("pengajar"), "/mengajar"), `the teaching shell does not offer the other places: ${tab(cabang("pengajar")) || "none"}`);
+      c.expect(/navKonteks\(\{[^}]*kecuali: \["\/pimpinan"\]/.test(tab(cabang("pimpinan"))), `the management shell does not offer the other places: ${tab(cabang("pimpinan")) || "none"}`);
+      c.expect(/navKonteks\(\{[^}]*kecuali: \["\/pendataan", "\/aktivasi"\]/.test(tab(cabang("pendataan")))
+        && /<TabTempat (?![^>]*kecuali)/.test(tab(cabang("pendataan"))), "the intake shell does not offer the reader's places");
       c.expect(/href="\/aktivasi"/.test(cabang("pendataan")), "the intake shell has no way to Aktivasi");
       c.expect(!tab(cabang("public")) && !tab(cabang("focus")), "the public page or an assessment in focus offers other places");
       const iBelajar = cangkang.indexOf("const { mengajar } = konteksPembelajaran(peran)");
       c.expect(iBelajar > 0, "the learning branch no longer decides its context from the one roles answer");
       const belajar = iBelajar > 0 ? cangkang.slice(iBelajar) : "";
       const iMurid = belajar.lastIndexOf("return (");
-      c.expect(/kecuali=\{\["\/mengajar"\]\}/.test(tab(belajar.slice(0, iMurid))), "an educator's own learning does not offer the other places");
-      c.expect(!tab(belajar.slice(iMurid)), "a learner's own shell offers staff places");
+      c.expect(/<TabTempat [^>]*kecuali=\{\["\/mengajar"\]\}/.test(tab(belajar.slice(0, iMurid)))
+        && /navKonteks\(\{[^}]*kecuali: \["\/belajar"\]/.test(tab(belajar.slice(0, iMurid))),
+        "an educator's own learning does not offer the other places");
+      // a learner's own shell offers no staff place: in a context, only the chooser (Belajar's surfaces are its own)
+      c.expect(!/<TabTempat/.test(tab(belajar.slice(iMurid))) && /^(?:navKonteks\(\{[^}]*kecuali: \["\/belajar"\] \}\))?$/.test(tab(belajar.slice(iMurid))),
+        "a learner's own shell offers staff places");
 
       const aktivasi = code(readFileSync(join(repoRoot, "src", "app", "aktivasi", "page.tsx"), "utf8"));
       c.expect(/<CangkangPengalaman[^>]*current="aktivasi"/.test(aktivasi), "Aktivasi does not mark its own tab");
@@ -8016,43 +8050,23 @@ export const experienceTests: SelfTest[] = [
       for (const h of ["/pendataan", "/aktivasi", "/studio"]) {
         c.expect(new RegExp(`<Link href="${h}"`).test(konfig), `Konfigurasi has no link to ${h}`);
       }
-      c.expect(/<TabTempat[\s\S]*?kecuali=\{\["\/konfigurasi"\]\}/.test(konfig), "Konfigurasi does not offer the administrator's other places");
+      // L3: in a context, the context's own surfaces and the chooser (navKonteks); without one, the roles' places
+      c.expect(/navKonteks\(\{[^}]*kecuali: \["\/konfigurasi"[^\]]*\]/.test(konfig) && /<TabTempat[\s\S]*?kecuali=\{\["\/konfigurasi"\]\}/.test(konfig),
+        "Konfigurasi does not offer the administrator's other places");
       const studio = code(readFileSync(join(repoRoot, "src", "app", "studio", "layout.tsx"), "utf8"));
-      c.expect(/<TabTempat /.test(studio) && /tempatDariPeran\(peran\)/.test(studio), "Studio offers no way back to the person's places");
+      c.expect(/navKonteks\(\{/.test(studio), "Studio offers no way back to the person's places");
 
       /**
        * 5. THE HOME PAGE: A SIGNED-IN READER'S DOORS ARE ONLY THE PLACES THEY
-       *    HOLD (M15 UI; the gate on the first round). That version pointed
-       *    three fixed doors somewhere plausible, so a student was offered
-       *    /mengajar and a teacher a staff door that refused them.
+       *    HOLD (M15 UI; the gate on the first round).
        *
-       *    a) THE RULE, OVER EVERY DISPLAY ROLE AND EVERY ROLES ANSWER: the
-       *       staff doors are exactly tempatDariPeran of the roles held today
-       *       (never the display role, which can outlive its assignment), and
-       *       Belajar is there exactly for a learner. So a student is never
-       *       sent to /mengajar, and a failed roles read opens no staff door.
+       *    a) RESTATED FOR L3 (CR-83; D-132 C3): signed in, the home page is the
+       *       chooser, and its doors are the purpose · place pairs the reader
+       *       holds today (konteks_tempat_saya, from active grants and
+       *       participation, never the display role), narrowed by pintuPilihan.
+       *       The rule over people is F22-P01 and F22-P04; F22-K01 proves the
+       *       pairs. pintuMasuk, the roles' door list it replaces, is gone.
        */
-      const TAMPIL: Array<DisplayRole> = [...ROLES, null];
-      const JAWABAN: Array<string[] | null> = [
-        null, [], ["STUDENT"], ["NOT_A_ROLE"], ...ROLES.filter((r) => r !== "STUDENT").map((r) => [String(r)]),
-        ["EDUCATOR", "HEAD_OF_DEPARTMENT"], ["EDUCATOR", "DEAN", "SYSTEM_ADMIN"],
-      ];
-      for (const tampil of TAMPIL) {
-        for (const peran of JAWABAN) {
-          const pintu = pintuMasuk(tampil, peran);
-          const staf = pintu.filter((x) => x !== "/belajar");
-          c.expect(JSON.stringify(staf) === JSON.stringify(tempatDariPeran(peran)),
-            `${tampil} holding ${JSON.stringify(peran)}: staff doors ${JSON.stringify(staf)}, held ${JSON.stringify(tempatDariPeran(peran))}`);
-          c.expect(pintu.includes("/belajar") === (tampil === "STUDENT"),
-            `${tampil} holding ${JSON.stringify(peran)}: Belajar ${pintu.includes("/belajar") ? "offered" : "withheld"}`);
-          c.expect(new Set(pintu).size === pintu.length, `${tampil} holding ${JSON.stringify(peran)}: a door twice`);
-        }
-      }
-      c.expect(JSON.stringify(pintuMasuk("STUDENT", [])) === JSON.stringify(["/belajar"]), "a student is not offered exactly Belajar");
-      c.expect(!pintuMasuk("STUDENT", null).includes("/mengajar") && !pintuMasuk("STUDENT", []).includes("/mengajar"),
-        "a student is sent to /mengajar");
-      c.expect(pintuMasuk("EDUCATOR", null).length === 0, "an unreadable roles answer still opens a staff door from the display role");
-
       /**
        *    b) GREETED BY FIRST NAME (D-020). A learner -- or anybody holding no
        *       staff role -- by their first name, staff in full, nobody named by
@@ -8076,20 +8090,25 @@ export const experienceTests: SelfTest[] = [
       c.expect(iMasuk > 0 && /if \(!viewer\) \{/.test(beranda.slice(0, iMasuk)), "could not isolate the home page's signed-in half");
       const anonim = beranda.slice(0, iMasuk);
       const masuk = beranda.slice(iMasuk);
+      // RESTATED FOR L3 (D-127 Q1, D-132): the three doors carry a PURPOSE to the sign-in, never a role
       c.expect(JSON.stringify(anonim.match(/<Link href="[^"]+"/g)) ===
-        JSON.stringify(['<Link href="/belajar"', '<Link href="/masuk?peran=guru"', '<Link href="/masuk?peran=staf"']),
+        JSON.stringify(['<Link href="/masuk?pintu=belajar"', '<Link href="/masuk?pintu=mengajar"', '<Link href="/masuk?pintu=mengelola"']),
         `the anonymous doors changed: ${anonim.match(/<Link href="[^"]+"/g)}`);
       c.expect(!/\/masuk/.test(masuk), "a signed-in reader is offered a door to /masuk");
-      c.expect(/const pintu = pintuMasuk\(viewer\.displayRole, peran\);/.test(masuk) && /pintu\.map\(\(href\) => \(\s*<Link key=\{href\} href=\{href\}/.test(masuk),
-        "the signed-in doors are not exactly pintuMasuk's list");
-      c.expect((masuk.match(/<Link\b/g) ?? []).length === 1, "the signed-in half draws a door that is not from pintuMasuk's list");
+      c.expect(/const pintu = pintuPilihan\(tempat, minta\);/.test(masuk) && /const \[k, tempat\] = await Promise\.all\(\[konteksSaya\(\), tempatSaya\(\)\]\);/.test(masuk)
+        && /pintu\.map\(\(p\) => \{[\s\S]*?<form key=\{kunciPasangan\(p\)\} action=\{pilihKonteks\}>/.test(masuk),
+        "the signed-in doors are not exactly the held pairs' list");
+      c.expect((masuk.match(/<Link\b/g) ?? []).length === 0 && (masuk.match(/<form\b/g) ?? []).length === 1,
+        "the signed-in half draws a door that is not one of the held pairs");
       c.expect(/s\("entry\.kosong"\)/.test(masuk), "a signed-in reader holding no place is not told so");
       c.expect(!/viewer\.displayName\s*[}?`]/.test(beranda) && /\{nama \? `, \$\{nama\}` : ""\}/.test(masuk),
         "the home page greets with the raw display name instead of namaSapaan's");
       c.expect(/await Promise\.all\(\[currentViewer\(\), peranSaya\(\), currentLocale\(\)\]\)/.test(beranda), "the home page reads the viewer, roles and language in sequence");
-      const LABEL = /const LABEL_PINTU: Record<Pintu, HleEvent> = \{([^}]*)\}/.exec(beranda)?.[1] ?? "";
-      for (const [pintu, kunci] of [["/belajar", "entry.learner"], ["/mengajar", "entry.educator"], ["/pimpinan", "entry.pimpinan"], ["/konfigurasi", "entry.staff"]]) {
-        c.expect(new RegExp(`"${pintu}": "${kunci.replace(".", "\\.")}"`).test(LABEL), `the ${pintu} door is not labelled ${kunci}`);
+      // L3 (D-128(g)): each door in the words the signed-out doors already use, by its purpose and home
+      const LABEL = /function labelPintu\([^)]*\): string \{([\s\S]*?)\n\}/.exec(beranda)?.[1] ?? "";
+      c.expect(/p\.tujuan === "BELAJAR" \? "entry\.learner"\s*: p\.tujuan === "MENGAJAR" \? "entry\.educator"\s*: berandaPasangan\(p\) === "\/pimpinan" \? "entry\.pimpinan" : "entry\.staff"/.test(LABEL),
+        "the chooser's doors are not labelled with the purpose's own words (entry.learner, entry.educator, entry.pimpinan, entry.staff)");
+      for (const kunci of ["entry.learner", "entry.educator", "entry.pimpinan", "entry.staff"]) {
         for (const locale of LOCALES) c.expect(t(kunci as HleEvent, "public", { locale }) !== TANPA_SALINAN, `(${locale}) ${kunci} has no copy`);
       }
       for (const locale of LOCALES) c.expect(t("entry.kosong", "public", { locale }) !== TANPA_SALINAN, `(${locale}) entry.kosong has no copy`);
@@ -8113,11 +8132,11 @@ export const experienceTests: SelfTest[] = [
         "called Pimpinan beside the others. Every staff shell offers the other places " +
         "from one roles answer, the intake shell reaches Aktivasi, and neither the public page, an assessment in " +
         "focus nor a learner's own shell offers any. Konfigurasi links Pendataan, Aktivasi and Studio and the " +
-        "administrator's other places, and Studio links back. On the home page a signed-in reader's doors are exactly " +
-        "the places they hold -- over every display role and roles answer the staff doors equal the roles held today " +
-        "and Belajar is a learner's alone, so a student is never sent to /mengajar and an unreadable answer opens no " +
-        "staff door -- drawn one link each with their own words and an honest line when there are none; a learner is " +
-        "greeted by first name and staff in full, never by the raw display name; the anonymous doors are unchanged. On " +
+        "administrator's other places, and Studio links back; with a working context (L3) each shell's other tabs are " +
+        "the context's own and the chooser, without one the roles' places. On the home page a signed-in reader's doors " +
+        "are exactly the purpose · place pairs they hold (the chooser, L3), one form each posting the person's choice, " +
+        "labelled in the purpose's own words, with an honest line when there are none; a learner is greeted by first " +
+        "name and staff in full, never by the raw display name; the anonymous doors carry a purpose to the sign-in. On " +
         "a phone the tab strip wraps rather than overflowing",
       );
     },
@@ -8554,9 +8573,13 @@ export const experienceTests: SelfTest[] = [
        *    does.
        */
       const konfig = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
-      c.expect(/const nav: Array<\[string, string\]> = \[\s*\["struktur"/.test(konfig), "Struktur sekolah is not the first entry in Konfigurasi's menu");
+      // L3: the menu is every section's entry (navSemua), less the school-shaped ones in «Seluruh platform»
+      c.expect(/const navSemua: Array<\[string, string\]> = \[\s*\["struktur"/.test(konfig) && /const nav = navSemua\.filter\(\(\[bagian\]\) => tampil\(bagian\)\);/.test(konfig),
+        "Struktur sekolah is not the first entry in Konfigurasi's menu");
       c.expect(/<div className="grid gap-4">\s*(?:\{\s*\}\s*)*<section id="struktur"/.test(konfig), "Struktur sekolah is not the first section");
-      c.expect(/const sekolahKu = sekolahDitawarkan\(institutions \?\? \[\], \(id\) => isSys === true \|\| adminInstitutionIds\.includes\(id\)\);/.test(konfig)
+      // L3 (D-132 C7): on offer is the working context's school (an evaluation persona: as before, C10)
+      c.expect(/const dikelola = \(id: string\) => \(lama && isSys === true\) \|\| sekolahIni\.includes\(id\);/.test(konfig)
+        && /const sekolahKu = sekolahDitawarkan\(institutions \?\? \[\], dikelola\);/.test(konfig)
         && /const sekolahStruktur = sekolahDipilih\(sekolahKu, sp\.sekolah\);/.test(konfig)
         && /bacaStruktur\(sekolahStruktur\.id\)/.test(konfig), "the structure shown is not read through bacaStruktur for a school on offer to the reader");
       // the picker's rule needs the tenant's kind and state, so the read must carry both
@@ -9072,8 +9095,10 @@ export const experienceTests: SelfTest[] = [
         "the upload page reads the schools without their kind or state");
       // RESTATED FOR CR-51 (D-120 Q7, a changed requirement): the schools through the shared rule, and the PINTAR library
       // for the platform admin alone (tujuanUnggah), asked of the database rather than inferred
-      c.expect(/const institutions = tujuanUnggah\(tenant \?\? \[\], \(id\) => menyusun\.has\(id\), adminPlatform === true\)/.test(halaman)
-        && /\{ data: adminPlatform \}\] = await Promise\.all\(\[[^\]]*supabase\.rpc\("is_system_admin"\)\]\)/.test(halaman),
+      // L3 (D-132 C7, C8): in a working context the library only where Admin platform's grant is part of it
+      c.expect(/const institutions = tujuanUnggah\(tenant \?\? \[\], \(id\) => menyusun\.has\(id\), kh === "TANPA_KONTEKS" \? adminPlatform === true : operator\)/.test(halaman)
+        && /const operator = adminPlatform === true && peran\.includes\("SYSTEM_ADMIN"\);/.test(halaman)
+        && /\{ data: adminPlatform \}, peran, kh\] = await Promise\.all\(\[[^\]]*supabase\.rpc\("is_system_admin"\), peranStudio\(\), konteksHalaman\(\),?\s*\]\)/.test(halaman),
         "the upload page does not offer its schools through the shared rule, or the library to the platform admin alone");
       {
         const T: SekolahBaris[] = [
@@ -9475,14 +9500,22 @@ export const experienceTests: SelfTest[] = [
         const j = i < 0 ? -1 : cangkang.indexOf("</header>", i);
         return i >= 0 && j > i ? cangkang.slice(i, j) : "";
       };
-      const tab = (b: string) => b.match(/<TabTempat[^>]*\/>/)?.[0] ?? "";
+      // RESTATED FOR L3 (D-132 C8, §2.4): in a working context the shell's tabs are NavKonteks, which offers Studio when
+      // the context's own grants carry a Studio tab (melayani, F22-P02); without one, the roles' rule as before, either
+      // passed here (studio={studio}) or drawn by NavKonteks's own fallback from the same roles answer
+      const tab = (b: string) => (b.match(/<TabTempat[^>]*\/>|navKonteks\(\{[^}]*\}\)/g) ?? []).join(" ");
+      const nav = code(readFileSync(join(repoRoot, "src", "components", "NavKonteks.tsx"), "utf8"));
+      c.expect(/studio=\{tawarkanStudio\(peran\) && !kecuali\.includes\("\/studio"\)\}/.test(nav) && /permukaanKonteks\(k\)/.test(nav),
+        "NavKonteks does not offer Studio by the context's grants, or by role without a context");
       for (const k of ["pengajar", "pimpinan", "pendataan"]) {
-        c.expect(/studio=\{studio\}/.test(tab(cabang(k))), `the ${k} shell does not offer Studio by role`);
+        c.expect(/navKonteks\(\{/.test(tab(cabang(k))) && (k === "pimpinan" || /<TabTempat [^>]*studio=\{studio\}/.test(tab(cabang(k)))),
+          `the ${k} shell does not offer Studio by role`);
       }
       const iBelajar = cangkang.indexOf("const { mengajar } = konteksPembelajaran(peran)");
       const belajar = iBelajar > 0 ? cangkang.slice(iBelajar) : "";
       const iMurid = belajar.lastIndexOf("return (");
-      c.expect(/studio=\{studio\}/.test(tab(belajar.slice(0, iMurid))), "an educator's own learning does not offer Studio");
+      c.expect(/<TabTempat [^>]*studio=\{studio\}/.test(tab(belajar.slice(0, iMurid))) && /navKonteks\(\{/.test(tab(belajar.slice(0, iMurid))),
+        "an educator's own learning does not offer Studio");
       c.expect(!/studio|\/studio/.test(belajar.slice(iMurid)) && !/\/studio|studio=/.test(cabang("public") + cabang("focus")),
         "a learner's own shell, the public page or an assessment in focus offers Studio");
       c.expect((cangkang.match(/href="\/studio"/g) ?? []).length === 0, "a shell draws a Studio link of its own beside the rule");
@@ -10188,8 +10221,13 @@ export const experienceTests: SelfTest[] = [
           ? /^import MemuatHalaman from "@\/components\/MemuatHalaman"; export default function \w+\(\) \{ return <MemuatHalaman dalamBingkai \/>; \}$/.test(k)
           : k === 'export { default } from "@/components/MemuatHalaman";';
       };
+      // L3: a section's working-context guard (a layout.tsx that renders its children alone) draws no frame
+      const penjagaSaja = (src: string) =>
+        /export default async function \w+\(\{ children \}: \{ children: ReactNode \}\) \{ await konteksHalaman\(\); return <>\{children\}<\/>; \}/
+          .test(code(src).replace(/\s+/g, " "));
       for (const b of BAGIAN) {
-        const bingkai = existsSync(join(repoRoot, "src", "app", b, "layout.tsx"));
+        const tata = baca("src", "app", b, "layout.tsx");
+        const bingkai = tata !== "" && !penjagaSaja(tata);
         const src = baca("src", "app", b, "loading.tsx");
         c.expect(src !== "" && cangkang(src, bingkai),
           `/${b} ${src === "" ? "has no loading.tsx, so a menu click shows nothing until the page is ready" : `has a loading screen of its own, not the shared shell${bingkai ? " inside its frame" : ""}`}`);
@@ -10770,9 +10808,15 @@ export const experienceTests: SelfTest[] = [
       // administrator now asks their own school's list,
       // persons_awaiting_first_role_at, once per school they administer. The
       // platform's list is still asked only for the platform administrator.
-      c.expect(/isSys === true\s*\?\s*supabase\.rpc\("persons_awaiting_first_role"\)\s*:/.test(konf)
+      // RESTATED FOR L3 (D-132 C7): the platform's list in «Seluruh platform» (platformIni: Admin platform there), the
+      // working context's school's list in Mengelola · a school (sekolahIni); an evaluation persona as before (C10)
+      // and in Mengelola · a school, Admin platform asks the platform's list too (J1.4: a school's first administrator)
+      c.expect(/platformIni \|\| adminPlatformDiSekolah \? supabase\.rpc\("persons_awaiting_first_role"\) : Promise\.resolve\(\{ data: \[\] \}\)/.test(konf)
         && (konf.match(/"persons_awaiting_first_role"/g) ?? []).length === 1
-        && /adminInstitutionIds\.map\(\(sekolah\) => supabase\.rpc\("persons_awaiting_first_role_at", \{ p_institution: sekolah \}\)\)/.test(konf),
+        && /const adminPlatformDiSekolah = !lama && isSys === true && kh !== null && !kh\.platform && kh\.peran\.includes\("SYSTEM_ADMIN"\);/.test(konf)
+        && /\.\.\.\(platformIni \? \[\] : sekolahIni\.map\(\(sekolah\) => supabase\.rpc\("persons_awaiting_first_role_at", \{ p_institution: sekolah \}\)\)\)/.test(konf)
+        && /const platformIni = lama \? isSys === true : platformKonteks && isSys === true;/.test(konf)
+        && /const sekolahIni: string\[\] = lama \? adminInstitutionIds : kh && !kh\.platform && kh\.tempat \? \[kh\.tempat\] : \[\];/.test(konf),
         "Konfigurasi asks persons_awaiting_first_role for a reader the database refuses, or asks a school's list for a school the reader does not administer");
       const studio = code(baca("src", "app", "studio", "actions.ts"));
       c.expect(/if \(h\.ok && h\.courses && h\.courses\[0\]\) back\(`\/studio\/paket\/\$\{h\.courses\[0\]\}`, "paket", \{ ok: true, kode: "DRAFT_CREATED" \}\);/.test(studio)
@@ -11606,7 +11650,8 @@ export const experienceTests: SelfTest[] = [
        *    every menu item leads to a section on the page.
        */
       const konf = baca("src", "app", "konfigurasi", "page.tsx");
-      const menu = [...(/const nav: Array<\[string, string\]> = \[([\s\S]*?)\n\s*\];/.exec(konf)?.[1] ?? "").matchAll(/\["([a-z]+)", s\(/g)].map((m) => m[1]);
+      // L3: every section's entry (navSemua); «Seluruh platform» draws fewer of them (tampil), never another
+      const menu = [...(/const navSemua: Array<\[string, string\]> = \[([\s\S]*?)\n\s*\];/.exec(konf)?.[1] ?? "").matchAll(/\["([a-z-]+)", s\(/g)].map((m) => m[1]);
       c.expect(menu.length >= 5 && !menu.some((x) => ["content", "assessment", "certificates"].includes(x)),
         `the Konfigurasi menu still offers a section that does not exist yet: ${menu.join(", ")}`);
       const tanpaTujuan = menu.filter((x) => !konf.includes(`id="${x}"`));

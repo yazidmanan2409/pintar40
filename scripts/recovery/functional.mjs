@@ -4,7 +4,8 @@
 // RUNBOOK-NATIVE-RESTORE.md step 8, the clause "proved that it worked". Each check goes through the application's own
 // routes, as a person's browser would (same origin, its own cookies), never around it:
 //   F1  a staff sign-in: /masuk/password with the person's own name or address and password, then the page it sends
-//       them to opens (no way back to /masuk)
+//       them to opens, through /mulai's own redirect (no way back to /masuk); a person holding several purposes ·
+//       places answers the chooser as they would for this work («Seluruh platform» when held, else its one door)
 //   F2  a class-card sign-in: the staff person re-issues one learner's card as damaged («Kartu hilang atau rusak»,
 //       /api/akun/kartu-kelas), and the new card signs in at /masuk/kartu and opens /belajar. REHEARSAL ONLY: on a
 //       real school it would retire a child's printed card, so `check` refuses it without --rehearsal
@@ -71,14 +72,52 @@ const sha256 = (b) => createHash("sha256").update(b).digest("hex");
 const DIBACA = [/^profile\/[0-9a-f-]{36}\/[a-z0-9_.-]{1,120}$/i, /^pelajaran\/(?:[0-9a-f-]{36}\/[0-9a-f-]{36}\/)?[a-z0-9_.-]{1,160}$/i,
   /^laporan\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.(?:png|jpg|jpeg|webp)$/];
 
+// L3 (D-132 C3, C7): a person who holds several purposes · places is asked on the chooser (`/`) what they are here to
+// do, and the check answers as that person would for this work, by pressing the door's own form: «Seluruh platform»
+// when it is held (re-issuing a learner's card is the platform's work there), else the one door offered. A person
+// holding one pair (a school's admin, as `pick` chooses) is never asked.
+const nilaiAtribut = (tag, nama) => (new RegExp(`\\b${nama}="([^"]*)"`).exec(tag)?.[1] ?? "")
+  .replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#x27;/g, "'");
+function pintuPemilih(html) {
+  const pintu = [];
+  for (const bagian of html.split(/<form\b/).slice(1)) {
+    const isi = bagian.split(/<\/form>/)[0];
+    const kunci = /<button\b[^>]*\bdata-konteks="([^"]*)"/.exec(isi)?.[1];
+    if (!kunci) continue;
+    pintu.push({ kunci, isian: Object.fromEntries([...isi.matchAll(/<input\b[^>]*\btype="hidden"[^>]*>/g)]
+      .map((m) => [nilaiAtribut(m[0], "name"), nilaiAtribut(m[0], "value")])) });
+  }
+  return pintu.find((p) => p.kunci === "MENGELOLA:PLATFORM") ?? (pintu.length === 1 ? pintu[0] : null);
+}
+
 export async function f1(asal, opsi, { staf, password }) {
   const b = new Peramban(asal, opsi);
   const m = await b.json("/masuk/password", { form: { identitas: staf, password } });
   if (m.status !== 200 || m.body?.ok !== true) return { ok: false, line: `/masuk/password answered ${m.status} ${m.body?.code ?? ""}`.trim() };
-  const tujuan = typeof m.body.tujuan === "string" && m.body.tujuan.startsWith("/") ? m.body.tujuan : "/";
-  const r = await b.kirim(tujuan);
+  let tujuan = typeof m.body.tujuan === "string" && m.body.tujuan.startsWith("/") ? m.body.tujuan : "/";
+  // every sign-in arrives through /mulai, which sets the working context and sends the person on (L3, D-132 C4, C9):
+  // the application's own redirects are followed, a few hops at most and never to /masuk. Only their path is taken
+  // and asked of this same origin (the application names its own host, which behind a proxy is not this address)
+  let r = await b.kirim(tujuan);
+  for (let hop = 0; hop < 3 && r.status >= 300 && r.status < 400 && !keMasuk(r, asal); hop++) {
+    const ke = new URL(r.headers.get("location") ?? "/", asal);
+    tujuan = ke.pathname + ke.search;
+    r = await b.kirim(tujuan);
+  }
   if (r.status !== 200 || keMasuk(r, asal)) return { ok: false, line: `signed in, but ${tujuan.replace(/[0-9a-f-]{36}/g, "<id>")} answered ${r.status}` };
-  return { ok: true, line: `the staff person signed in with their password and ${tujuan.replace(/[0-9a-f-]{36}/g, "<id>")} opened`, b };
+  let dipilih = "";
+  if (new URL(tujuan, asal).pathname === "/") {
+    const pintu = pintuPemilih(await r.text());
+    if (!pintu) return { ok: false, line: "signed in, but the chooser offers no door this check can answer for" };
+    const p = await b.kirim("/", { form: pintu.isian });
+    const ke = new URL(p.headers.get("location") ?? "/", asal);
+    const di = await b.kirim(ke.pathname + ke.search);
+    if (p.status < 300 || p.status >= 400 || di.status !== 200 || keMasuk(di, asal)) {
+      return { ok: false, line: `signed in, but choosing on the chooser answered ${p.status} and its page ${di.status}` };
+    }
+    dipilih = `; on the chooser chose ${pintu.kunci === "MENGELOLA:PLATFORM" ? "«Seluruh platform»" : "the one door"} and ${ke.pathname.replace(/[0-9a-f-]{36}/g, "<id>")} opened`;
+  }
+  return { ok: true, line: `the staff person signed in with their password and ${tujuan.replace(/[0-9a-f-]{36}/g, "<id>")} opened${dipilih}`, b };
 }
 
 export async function f2(asal, opsi, staf, learner) {

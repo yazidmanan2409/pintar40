@@ -45,7 +45,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
     supabase.from("assessment_definition_bounds").select("*").order("mode"),
     supabase.from("assessment_definitions")
       .select("id, title, mode, version, item_count, institution_id, course_id, module_id, is_ad_hoc, status")
-      .eq("is_ad_hoc", false).order("title"),
+      .eq("is_ad_hoc", false).in("institution_id", institutions.map((i) => i.id)).order("title"),
     supabase.from("courses").select("id, title, institution_id, status")
       .in("institution_id", institutions.map((i) => i.id)).order("title"),
   ]);

@@ -200,6 +200,8 @@ async function apiSession(email) {
 // D-084 J1.4: the platform admin makes a school's first person by the screen, «Orang baru di luar pendataan» on
 // Aktivasi: types the name and the address, presses «Buat dan aktifkan», and reads what the screen answers
 async function newPerson(page, name, email) {
+  // L3 (D-132 C7): making a person outside intake is «Seluruh platform»'s, chosen on the chooser first
+  await keKonteks(page, { tujuan: "MENGELOLA", platform: true });
   await page.goto(`${APP}/aktivasi?muat=${Date.now()}`, { waitUntil: "networkidle" });
   const baru = page.locator("section.pin-akt-baru");
   await baru.getByRole("heading", { name: "Orang baru di luar pendataan" }).waitFor({ timeout: 15000 });
@@ -234,6 +236,27 @@ async function grantViaForm(page, personName, roleValue, scopeLabelPart, until =
   await page.waitForLoadState("networkidle");
   const u = new URL(page.url());
   return { ok: u.searchParams.get("hasil"), detail: u.searchParams.get("detail"), url: u.pathname + u.search, scopesOffered: scopes.length };
+}
+// L3 (D-132 C3): the chooser (`/`) is the one place a working context changes, and visiting it changes nothing. A person
+// picks a door, a purpose and a place as the screen names them: { tujuan, nama } or «Seluruh platform» ({ tujuan,
+// platform: true }). On a chooser the app has already sent the person to (with a page to continue to), that one is used.
+// Returns where the choice landed.
+async function keKonteks(page, { tujuan, nama = null, platform = false }) {
+  const diPemilih = new URL(page.url()).pathname === "/" && (await page.locator('[data-pemilih="konteks"]').count()) > 0;
+  if (!diPemilih) await page.goto(`${APP}/`, { waitUntil: "networkidle" });
+  const pintu = page.locator('[data-pemilih="konteks"] button[data-konteks]');
+  await pintu.first().waitFor({ timeout: SLOW });
+  const semua = await pintu.evaluateAll((bs) => bs.map((b) => ({ k: b.getAttribute("data-konteks"), t: b.innerText })));
+  const cocok = semua.filter((x) => (platform ? x.k === `${tujuan}:PLATFORM`
+    : x.k.split(":")[0] === tujuan && x.k !== `${tujuan}:PLATFORM` && (!nama || x.t.includes(nama))));
+  if (cocok.length !== 1) {
+    throw new Error(`the chooser offers ${cocok.length} door(s) for ${tujuan}${platform ? " · Seluruh platform" : nama ? ` · ${nama}` : ""}: `
+      + semua.map((x) => `${x.k} «${norm(x.t)}»`).join(" / "));
+  }
+  await page.locator(`[data-pemilih="konteks"] button[data-konteks="${cocok[0].k}"]`).click();
+  await page.waitForURL((u) => u.pathname !== "/", { timeout: SLOW }).catch(() => {});
+  await page.waitForLoadState("networkidle");
+  return new URL(page.url()).pathname;
 }
 async function hasSignOut(page) {
   return (await page.locator('form[action="/keluar"], a[href="/keluar"], button:has-text("Keluar")').count()) > 0;
@@ -312,6 +335,9 @@ await step("S1b", "Gladys signs in again in a different browser, with her addres
 });
 
 await step("S2", "Gladys finds her way to account activation from Konfigurasi, and reads the platform's state there: its environment and, on «Jalankan pemeriksaan», its health (J1.3, SYS-01, SYS-02)", async (rec) => {
+  // RESTATED FOR L3 (D-132 C7): the platform's state is «Seluruh platform»'s, which Gladys chooses on the chooser where
+  // she landed; Studio is a school's or the library's, so this context links no Studio
+  await keKonteks(g, { tujuan: "MENGELOLA", platform: true });
   await g.goto(`${APP}/konfigurasi`, { waitUntil: "networkidle" });
   rec.shots.push(await shot(g, "konfigurasi-gladys"));
   const links = await g.$$eval("a[href]", (as) => as.map((a) => a.getAttribute("href")));
@@ -331,8 +357,8 @@ await step("S2", "Gladys finds her way to account activation from Konfigurasi, a
     rec.shots.push(await shot(g, "j1-3-kesehatan"));
   }
   const lolos = /Semua pemeriksaan lolos/.test(sehat);
-  if (!toAktivasi || !toStudio || !lingkungan || !lolos) rec.verdict = "FAIL";
-  return `link to /aktivasi: ${toAktivasi}; link to /studio: ${toStudio}; sign-out control: ${await hasSignOut(g)}; ` +
+  if (!toAktivasi || toStudio || !lingkungan || !lolos) rec.verdict = "FAIL";
+  return `in «Seluruh platform»: link to /aktivasi: ${toAktivasi}; link to /studio: ${toStudio} (a school's or the library's); sign-out control: ${await hasSignOut(g)}; ` +
     `J1.3: environment production shown ${lingkungan}; health after «Jalankan pemeriksaan»: "${sehat}"`;
 });
 
@@ -352,6 +378,8 @@ await step("S3", "Gladys creates the school admin on Aktivasi by the screen: «O
 });
 
 await step("S4", "Gladys grants Admin sekolah at SD's root (Konfigurasi → Peran & akses)", async (rec) => {
+  // L3 (D-132 C7): Admin sekolah is given in the school's own context, Mengelola · SD, chosen first
+  await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
   const r = await grantViaForm(g, people.sdAdmin.name, "INSTITUTION_ADMIN", "SD Zayd");
   rec.shots.push(await shot(g, "grant-admin-result"));
   if (r.ok !== "ok") rec.verdict = "FAIL";
@@ -436,6 +464,8 @@ await step("S7", "the school admin builds SD's structure on a screen (Bagian, Ti
 });
 
 await step("S7b", "Gladys (platform admin) opens Struktur sekolah: which school is chosen first?", async (rec) => {
+  // L3: in Mengelola · SD the structure is SD's alone (never the library's, never another school's)
+  await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
   await g.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
   if (!(await g.locator("div.pin-str-tambah-bagian form").count())) { rec.verdict = "NOTE"; return "no Struktur sekolah panel"; }
   const chosen = (await g.locator('#struktur [aria-current="page"]').first().textContent().catch(() => null)) ?? "(single school)";
@@ -624,6 +654,7 @@ function hitungSd() {
 // stand-ins carrying the names the workbook gives them. A candidate without the panel
 // gets the old Unggah Mudah probe, which fails as B2 recorded.
 await step("S14", "Gladys uploads a lesson: the Excel workbook (DAISY-06)", async (rec) => {
+  await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
   await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
   rec.shots.push(await shot(g, "studio-unggah"));
   const panel = g.locator("#ung-berkas");
@@ -710,6 +741,8 @@ async function kirimPaket(schoolText, isi, forgedId = null) {
   // Since BOB-07 the redirect carries no batch id (codes only), so the new batch is read from the database.
   const newest = () => sql(`select coalesce((select id::text from public.ingest_batches order by created_at desc, id desc limit 1), '')`).trim();
   const sebelum = newest();
+  // L3 (D-132 C8): a package is aimed at the working context's school, chosen on the chooser first
+  await keKonteks(g, { tujuan: "MENGELOLA", nama: schoolText });
   await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
   // Since polish batch 2 (UX-12) the two JSON forms wait in a closed disclosure
   // below the workbook, as a person finds them; open it the way they would.
@@ -853,6 +886,7 @@ await step("S15c", "SD 5 Matematika Bab 1 (real content) imports whole into SD",
 await step("S16", "Head of department: sees reports on /pimpinan", async (rec) => {
   const np = await newPerson(g, people.kaprodi.name, people.kaprodi.email);
   if (!np.ok) throw new Error(`«Buat dan aktifkan» answered: ${np.teks.slice(0, 200)}`);
+  await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
   const r = await grantViaForm(g, people.kaprodi.name, "HEAD_OF_DEPARTMENT", "Kelas Rendah");
   const hc = await ctx();
   const h = await hc.newPage();
@@ -999,6 +1033,8 @@ async function lihatAntreanKaprodi(course) {
   };
   try {
     await magicSignIn(h, people.kaprodi.email);
+    // L3: the head of department reviews as Mengelola · SD (HOD-08: Mengajar is their own classes)
+    await keKonteks(h, { tujuan: "MENGELOLA" });
   } catch (e) {
     hasil.gagal = `the head of department could not sign in: ${String(e.message ?? e).split("\n")[0].slice(0, 160)}`;
   }
@@ -1036,6 +1072,7 @@ const rec_shots_kaprodi = [];
 await step("S17", "Studio to Terbit with two people: Bab 1 through the seven steps; the head of department reviews, reading every question, key and reason before approving, then makes and locks the release; Gladys publishes (DAISY-06, BOB-03, D-088(h), HOD-04, HOD-05, GS-09)", async (rec) => {
   const course = babSatu();
   if (!course) { rec.verdict = "BLOCKED"; return "S15c left no Bab 1 course"; }
+  await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
   await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
   if (!(await g.getByRole("button", { name: TERBIT[0][1] }).count()) && !/Langkah menuju terbit/i.test(await bodyText(g))) {
     rec.verdict = "NOTE"; return `this candidate has no Langkah menuju terbit on the package page (state ${keadaanBab(course)})`;
@@ -2677,6 +2714,8 @@ await step("S23l", "«Laporkan masalah»: the teacher reports a problem from /me
     if (saya2.status !== "Ditangani" || !saya2.langkah.includes(LANGKAH_SEKOLAH)) rec.verdict = "FAIL";
 
     // 4. the platform admin (tier 2) sees it among every school's, and closes it
+    // L3 (D-132 C7): every school's reports are «Seluruh platform»'s
+    await keKonteks(g, { tujuan: "MENGELOLA", platform: true });
     const p2 = await pindahkan(g, "Selesai", LANGKAH_PINTAR);
     rec.shots.push(await shot(g, "cr44-gladys-selesai"));
     const r2 = laporan();
@@ -2858,7 +2897,8 @@ await step("S23j", "the audit reader: on Konfigurasi → «Jejak audit» the sch
   // the school admin: read, then asked of the database at once (nothing runs between)
   const layarAdmin = await bacaJejak(a, "cr39-jejak-admin");
   const hAdmin = harapan(`l.institution_id = '${ids.sd}'`);
-  // the platform admin
+  // the platform admin, in «Seluruh platform» (L3, D-132 C7: the platform's audit)
+  await keKonteks(g, { tujuan: "MENGELOLA", platform: true });
   const layarGladys = await bacaJejak(g, "cr39-jejak-gladys");
   const hGladys = harapan("true");
   const asingAdmin = layarAdmin.filter((k) => !k.endsWith(`|${namaSd}`));
@@ -3709,6 +3749,8 @@ await step("S27h", "a head of department assigns and runs an Uji Cepat within th
   const notes = [];
   // S24 revoked her only role. She was made by the platform administrator («Orang baru», S16) and has no record at the
   // school, so the school admin no longer sees her (BOB-20, D-048); the platform administrator appoints her again, as in S16
+  // L3 (J1.4): in Mengelola · SD, Admin platform is offered the people no school has recorded (D-132 C7)
+  await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
   const beri = await grantViaForm(g, people.kaprodi.name, "HEAD_OF_DEPARTMENT", "Kelas Rendah");
   notes.push(`the platform administrator gives ${people.kaprodi.name} Kepala departemen at Kelas Rendah again: ${beri.ok}`);
   if (beri.ok !== "ok") { rec.verdict = "FAIL"; return notes.join("; "); }
@@ -3857,11 +3899,12 @@ await step("P3", "U-LOC: an unknown page shows PINTAR's own localized page, not 
 // CR-90 (D-127, D-128; BD-11, J2.9 «the next person never continues as the last»; DG-19's security half). Browser
 // Back after «Keluar», in three engines, on a computer declared personal and on one declared shared: the page of the
 // session that ended must not come back, and after the next person signs in, Back shows only what that person may see.
-await step("BD11", "BD-11: on a personal and on a shared computer, in Chromium, Firefox and WebKit, the school admin signs out with «Keluar» and presses Back twice: no page of the ended session comes back; the teacher then signs in on the same browser and presses Back: nothing of the admin's session shows (CR-90, J2.9)", async (rec) => {
+await step("BD11", "BD-11: on a personal and on a shared computer, in Chromium, Firefox and WebKit, the school admin signs out with «Keluar» from deep in Konfigurasi and presses Back twice: no page of the ended session comes back, and no context is left on it; the teacher then signs in on the screen Back left and lands on their own home in their own context, never the admin's page, and presses Back: nothing of the admin's session shows (CR-90, J2.9; L3, D-132(e))", async (rec) => {
   const A = people.sdAdmin, B = people.guru;
   for (const x of [A, B]) if (!sudahAktif.has(x.email)) { rec.verdict = "BLOCKED"; return `${x.name} was never activated earlier in the walk`; }
-  const masuk = async (page, email, mode) => {
-    await page.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
+  // L3 (D-132(e)): `diSini` signs in on the sign-in screen Back left this browser on, with whatever it carries
+  const masuk = async (page, email, mode, diSini = false) => {
+    if (!(diSini && new URL(page.url()).pathname === "/masuk")) await page.goto(`${APP}/masuk`, { waitUntil: "networkidle" });
     await page.locator("#identitas").fill(email);
     await page.locator("#password").fill(sandiDari(email));
     await page.getByRole("button", { name: "Masuk", exact: true }).click();
@@ -3891,9 +3934,9 @@ await step("BD11", "BD-11: on a personal and on a shared computer, in Chromium, 
       const p = await kc.newPage();
       const catat = [];
       try {
-        // the admin's session: a page that is theirs, then «Keluar»
+        // the admin's session: a page that is theirs, deep in Konfigurasi, then «Keluar»
         await masuk(p, A.email, mode);
-        await p.goto(`${APP}/konfigurasi`, { waitUntil: "networkidle" });
+        await p.goto(`${APP}/konfigurasi?bagian=roles#roles`, { waitUntil: "networkidle" });
         const sebelum = await bodyText(p);
         if (!sebelum.includes(A.name)) { rec.verdict = "BLOCKED"; catat.push(`the admin's page does not name ${A.name} before sign-out`); }
         await p.getByRole("button", { name: "Keluar", exact: true }).first().click();
@@ -3906,9 +3949,22 @@ await step("BD11", "BD-11: on a personal and on a shared computer, in Chromium, 
           catat.push(`back ${kali} → ${m.di}${bocor ? ` SHOWS ${A.name}` : ""}`);
           if (bocor) { rec.verdict = "FAIL"; rec.shots.push(await shot(p, `bd11-${nama}-${mode}-back${kali}`)); }
         }
-        // the next person signs in on the same browser; Back shows nothing of the admin's session
-        await masuk(p, B.email, mode);
+        // L3 (D-132(e), §2.9): the admin's session ended with no context left on any of their rows
+        const sisa = sql(`select count(*) from public.device_sessions d join auth.users u on u.id = d.auth_user_id
+          where u.email = '${A.email}' and (d.ended_at is null or d.konteks_tujuan is not null)`).trim();
+        catat.push(`the admin's open or context-holding sessions after «Keluar»: ${sisa}`);
+        if (sisa !== "0") rec.verdict = "FAIL";
+        // the next person signs in on the same browser, on the screen Back left it on; they land by their own door and
+        // context, never on the admin's page (the stale continuation is not inherited), and Back shows nothing of it
+        const tempatSebelum = new URL(p.url());
+        await masuk(p, B.email, mode, true);
         const rumahB = new URL(p.url()).pathname;
+        // the session this browser just made: the teacher's newest
+        const konteksB = sql(`select coalesce(d.konteks_tujuan, '-') || ':' || coalesce(i.slug, case when d.konteks_platform then 'PLATFORM' else '-' end)
+          from public.device_sessions d join auth.users u on u.id = d.auth_user_id left join public.institutions i on i.id = d.konteks_tempat
+          where u.email = '${B.email}' and d.ended_at is null order by d.created_at desc limit 1`).trim();
+        catat.push(`signed in from ${tempatSebelum.pathname}${tempatSebelum.search}; the teacher's own context ${konteksB}`);
+        if (rumahB !== "/mengajar" || konteksB !== "MENGAJAR:sd-zps") rec.verdict = "FAIL";
         for (const kali of [1, 2, 3]) {
           const m = await mundur(p);
           const bocor = m.teks.includes(A.name);
@@ -3925,6 +3981,180 @@ await step("BD11", "BD-11: on a personal and on a shared computer, in Chromium, 
     await br.close();
   }
   return hasil.join(" | ");
+});
+
+// ───────────────────────────── L3: the working context (CR-83; D-127 Q1, Q2; D-132)
+// Signs in through a door (`/masuk?pintu=…`) or none, with the address and password as the person would, the first
+// «Komputer siapa ini?» answered as before (selesaikanMasuk). Returns where the sign-in landed, with its query.
+async function masukLewat(page, email, pintu = null) {
+  await page.goto(`${APP}/masuk${pintu ? `?pintu=${pintu}` : ""}`, { waitUntil: "networkidle" });
+  await page.locator("#identitas").fill(email);
+  await page.locator("#password").fill(sandiDari(email));
+  await page.getByRole("button", { name: "Masuk", exact: true }).click();
+  await page.waitForURL((u) => u.pathname !== "/masuk", { timeout: SLOW }).catch(() => {});
+  await page.waitForLoadState("networkidle");
+  await selesaikanMasuk(page, email);
+  const u = new URL(page.url());
+  return u.pathname + u.search;
+}
+// the chooser's doors as their pair keys, the places by short names; none when the page is not the chooser
+const pintuDi = async (page) => new URL(page.url()).pathname !== "/" ? []
+  : (await page.locator('[data-pemilih="konteks"] button[data-konteks]').evaluateAll((bs) => bs.map((b) => b.getAttribute("data-konteks"))))
+      .map((k) => k.replace(ids.sd, "SD").replace(ids.sma, "SMA").replace(/[0-9a-f]{8}-[0-9a-f-]{27}/, "PUSTAKA")).sort();
+const pilihAlamat = (q) => `/?${new URLSearchParams(q).toString()}`;
+const sesiKonteks = (email) => sql(`select coalesce(string_agg(coalesce(d.konteks_tujuan, '-') || ':' || coalesce(i.slug, case when d.konteks_platform then 'PLATFORM' else '-' end), ',' order by d.created_at), '')
+  from public.device_sessions d join auth.users u on u.id = d.auth_user_id left join public.institutions i on i.id = d.konteks_tempat
+  where u.email = '${email}' and d.ended_at is null`).trim();
+
+// Design §4, row by row, for each person this world holds: a fresh browser each, the door pressed, signed in. With no
+// door, one purpose · place is selected and several are asked (D-132(i)); a door whose purpose is not held lands on
+// the chooser, which offers what is (its sentence is a semantic key awaiting Dr Gladys's words, so the address carries
+// why: alasan=tidak_dipegang).
+await step("L3D", "L3 (design §4; D-132 C4, C9): each door, for each person this world holds, lands where the door × person table says; with no door one purpose · place is selected and several are asked, never ranked", async (rec) => {
+  const baris = [];
+  const cek = async (label, masuk, harap, harapPintu = null) => {
+    const kc = await ctx();
+    const p = await kc.newPage();
+    try {
+      const di = await masuk(p);
+      const pintu = await pintuDi(p);
+      const ok = di === harap && (!harapPintu || JSON.stringify(pintu) === JSON.stringify([...harapPintu].sort()));
+      if (!ok) { rec.verdict = "FAIL"; rec.shots.push(await shot(p, `l3d-${label.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}`)); }
+      baris.push(`${label} → ${di}${pintu.length ? ` [${pintu.join(" ")}]` : ""}${ok ? "" : ` ✗ (expected ${harap}${harapPintu ? ` [${harapPintu.join(" ")}]` : ""})`}`);
+    } catch (e) {
+      rec.verdict = "FAIL";
+      baris.push(`${label}: ${String(e?.message ?? e).split("\n")[0].slice(0, 160)}`);
+    } finally {
+      await kc.close();
+    }
+  };
+  const TIDAK = (untuk) => pilihAlamat({ untuk, alasan: "tidak_dipegang" });
+  const kartu = kartuKelas[1] ?? kartuKelas[0];
+  if (!kartu) { rec.verdict = "BLOCKED"; return "no class card in this walk"; }
+  const lewatKartu = (pintu) => async (p) => {
+    await p.goto(`${APP}/masuk${pintu ? `?pintu=${pintu}` : ""}`, { waitUntil: "networkidle" });
+    await p.getByRole("button", { name: "Gunakan kartu kelas" }).click();
+    await p.locator("#kartu").fill(kartu.number);
+    await p.locator("#pin").fill(kartu.pin);
+    await p.getByRole("button", { name: "Masuk dengan kartu" }).click();
+    await p.waitForURL((u) => u.pathname !== "/masuk", { timeout: SLOW });
+    await p.waitForLoadState("networkidle");
+    const u = new URL(p.url());
+    return u.pathname + u.search;
+  };
+  // a learner (this walk's learners hold class cards: Belajar alone, the same pair an email learner holds, F22-K01)
+  await cek("learner (card), «Saya mau belajar»", lewatKartu("belajar"), "/belajar");
+  await cek("learner (card), «Saya mengajar»", lewatKartu("mengajar"), TIDAK("MENGAJAR"), ["BELAJAR"]);
+  await cek("learner (card), «Saya mengelola sekolah»", lewatKartu("mengelola"), TIDAK("MENGELOLA"), ["BELAJAR"]);
+  await cek("learner (card), no door", lewatKartu(null), "/belajar");
+  // a teacher of one school: Bu Guru Sari, Kelas 1A's teacher since S26b
+  const S = people.guru2.email;
+  await cek("teacher, «Saya mau belajar»", (p) => masukLewat(p, S, "belajar"), "/belajar");
+  await cek("teacher, «Saya mengajar»", (p) => masukLewat(p, S, "mengajar"), "/mengajar");
+  await cek("teacher, «Saya mengelola sekolah»", (p) => masukLewat(p, S, "mengelola"), TIDAK("MENGELOLA"), ["MENGAJAR:SD"]);
+  await cek("teacher, no door", (p) => masukLewat(p, S), "/mengajar");
+  // a head of department (Mengajar and Mengelola in SD, HOD-08), appointed again in S27h
+  const K = people.kaprodi.email;
+  await cek("head of department, «Saya mengajar»", (p) => masukLewat(p, K, "mengajar"), "/mengajar");
+  await cek("head of department, «Saya mengelola sekolah»", (p) => masukLewat(p, K, "mengelola"), "/pimpinan");
+  await cek("head of department, no door", (p) => masukLewat(p, K), "/", ["MENGAJAR:SD", "MENGELOLA:SD"]);
+  // Admin platform with no teaching appointment
+  const pustaka = sql(`select id from public.institutions where tenant_kind='PLATFORM_CANONICAL' and is_active limit 1`).trim();
+  const kelolaGladys = ["MENGELOLA:SD", "MENGELOLA:SMA", ...(pustaka ? ["MENGELOLA:PUSTAKA"] : []), "MENGELOLA:PLATFORM"];
+  await cek("Admin platform, «Saya mau belajar»", (p) => masukLewat(p, GLADYS, "belajar"), "/belajar");
+  await cek("Admin platform, «Saya mengajar»", (p) => masukLewat(p, GLADYS, "mengajar"), TIDAK("MENGAJAR"), kelolaGladys);
+  await cek("Admin platform, «Saya mengelola sekolah»", (p) => masukLewat(p, GLADYS, "mengelola"), pilihAlamat({ untuk: "MENGELOLA" }), kelolaGladys);
+  await cek("Admin platform, no door", (p) => masukLewat(p, GLADYS), "/", kelolaGladys);
+  // a teacher who is also Admin sekolah: the platform admin makes the school admin Kelas 1 Biru's Guru on the screen
+  // (Kelas 1A stays Bu Guru Sari's)
+  await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
+  const guru = await grantViaForm(g, people.sdAdmin.name, "EDUCATOR", "Kelas 1 Biru");
+  baris.push(`Bu Admin SD made Guru of Kelas 1 Biru: ${guru.ok}`);
+  if (guru.ok !== "ok") rec.verdict = "FAIL";
+  const A = people.sdAdmin.email;
+  await cek("teacher + Admin sekolah, «Saya mengajar»", (p) => masukLewat(p, A, "mengajar"), "/mengajar");
+  await cek("teacher + Admin sekolah, «Saya mengelola sekolah»", (p) => masukLewat(p, A, "mengelola"), "/konfigurasi");
+  await cek("teacher + Admin sekolah, no door", (p) => masukLewat(p, A), "/", ["MENGAJAR:SD", "MENGELOLA:SD"]);
+  return baris.join("; ") + " (a learner who is also Admin sekolah is not in this world: F22-P01 holds that row)";
+});
+
+// Design §3, scenario A: Dr Gladys is Admin platform and also teaches in SD and SMA. On the laptop she works as
+// «Saya mengajar · SMA», which stays through Akun saya and back; on the phone, at the same time, «Saya mengelola sekolah ·
+// SD», then «Seluruh platform». Neither session ever moves the other; a page of another context is offered through the
+// chooser and never switched to silently.
+await step("L3A", "L3 scenario A (design §3; D-132 C3, C4): Admin platform who teaches in SD and SMA works as Mengajar · SMA on a laptop, kept through Akun saya and back, while her phone is Mengelola · SD and then «Seluruh platform»; neither session moves the other, and another context's page goes through the chooser", async (rec) => {
+  const notes = [];
+  const orang = (email) => sql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${email}'`).trim();
+  const gladysId = orang(GLADYS);
+  const akar = (inst) => sql(`select id from public.org_nodes where institution_id='${inst}' and kind='INSTITUTION' limit 1`).trim();
+  // her teaching appointments, granted by each school's own administrator through the database's grant (the screen's
+  // own call, grant_role; nobody grants themselves, INV-16). SMA has no administrator yet: Gladys makes one on the
+  // screens, as she did SD's in S3 and S4
+  const smaAdmin = { name: "Bu Admin SMA", email: "admin.sma@audit.pintar.test" };
+  const np = await newPerson(g, smaAdmin.name, smaAdmin.email);
+  notes.push(`«Orang baru» ${smaAdmin.name}: ${np.ok}`);
+  await keKonteks(g, { tujuan: "MENGELOLA", nama: "SMA Zayd" });
+  const angkat = await grantViaForm(g, smaAdmin.name, "INSTITUTION_ADMIN", "SMA Zayd");
+  notes.push(`Admin sekolah of SMA: ${angkat.ok}`);
+  const smaApi = await apiSession(smaAdmin.email);
+  const sampai = "2027-06-30T23:59:59+07:00";
+  const g1 = await adminApi.rpc("grant_role", { p_person: gladysId, p_role: "EDUCATOR", p_scope_node: akar(ids.sd), p_valid_until: sampai });
+  const g2 = await smaApi.rpc("grant_role", { p_person: gladysId, p_role: "EDUCATOR", p_scope_node: akar(ids.sma), p_valid_until: sampai });
+  notes.push(`Guru in SD by SD's admin: ${g1.error ? `refused (${g1.error.message})` : "granted"}; in SMA by SMA's admin: ${g2.error ? `refused (${g2.error.message})` : "granted"}`);
+  if (!np.ok || angkat.ok !== "ok" || g1.error || g2.error) { rec.verdict = "BLOCKED"; return notes.join("; "); }
+
+  const laptopCtx = await ctx();
+  const phoneCtx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, locale: "id-ID", timezoneId: "Asia/Jakarta" });
+  try {
+    const L = await laptopCtx.newPage();
+    const P = await phoneCtx.newPage();
+    const tempat = async (page) => norm(await page.locator("[data-konteks-tempat]").first().innerText().catch(() => ""));
+    // the laptop: no door, several held, so the chooser; she chooses Mengajar · SMA
+    const tibaL = await masukLewat(L, GLADYS);
+    const pintuL = await pintuDi(L);
+    const keL = await keKonteks(L, { tujuan: "MENGAJAR", nama: "SMA Zayd" });
+    notes.push(`laptop: signed in → ${tibaL} [${pintuL.join(" ")}]; chose Mengajar · SMA → ${keL}, the shell names «${await tempat(L)}»`);
+    const adaMengajar = pintuL.includes("MENGAJAR:SD") && pintuL.includes("MENGAJAR:SMA") && pintuL.includes("MENGELOLA:PLATFORM");
+    // the phone, at the same time: «Saya mengelola sekolah», several schools, so the chooser; she chooses SD
+    const tibaP = await masukLewat(P, GLADYS, "mengelola");
+    const keP = await keKonteks(P, { tujuan: "MENGELOLA", nama: "SD Zayd" });
+    notes.push(`phone: «Saya mengelola sekolah» → ${tibaP}; chose Mengelola · SD → ${keP}, «${await tempat(P)}»`);
+    // the laptop through Akun saya and back: still Mengajar · SMA
+    await L.goto(`${APP}/akun`, { waitUntil: "networkidle" });
+    const diAkun = await tempat(L);
+    await L.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
+    const kembali = await tempat(L);
+    notes.push(`laptop on Akun saya: «${diAkun}»; back on Mengajar: «${kembali}»`);
+    // the phone moves to «Seluruh platform»; the laptop does not move
+    const keP2 = await keKonteks(P, { tujuan: "MENGELOLA", platform: true });
+    await L.reload({ waitUntil: "networkidle" });
+    const setelah = await tempat(L);
+    notes.push(`phone chose «Seluruh platform» → ${keP2}; the laptop reloaded reads «${setelah}»`);
+    // a page of another context on the laptop: offered through the chooser, the laptop's context unchanged
+    await L.goto(`${APP}/konfigurasi`, { waitUntil: "networkidle" });
+    const lain = new URL(L.url());
+    const pintuLain = await pintuDi(L);
+    const sesi = sesiKonteks(GLADYS);
+    notes.push(`laptop asks /konfigurasi → ${lain.pathname}${lain.search} [${pintuLain.join(" ")}]; Gladys's open sessions: ${sesi}`);
+    rec.shots.push(await shot(L, "l3a-laptop-pemilih"), await shot(P, "l3a-phone"));
+    const ok = tibaL === "/" && adaMengajar && keL === "/mengajar" && /SMA Zayd/.test(diAkun) && /SMA Zayd/.test(kembali) && /SMA Zayd/.test(setelah)
+      && tibaP === pilihAlamat({ untuk: "MENGELOLA" }) && keP === "/konfigurasi" && keP2 === "/konfigurasi"
+      && lain.pathname === "/" && lain.searchParams.get("lanjut") === "/konfigurasi" && !pintuLain.some((k) => k.startsWith("MENGAJAR"))
+      && sesi.split(",").includes("MENGAJAR:sma-zps") && sesi.split(",").includes("MENGELOLA:PLATFORM");
+    if (!ok) rec.verdict = "FAIL";
+    // the Admin platform + teacher row of §4: the teaching door asks where; with no door, the chooser
+    const kc = await ctx();
+    const q = await kc.newPage();
+    const pintuAjar = await masukLewat(q, GLADYS, "mengajar");
+    const ajar = await pintuDi(q);
+    await kc.close();
+    notes.push(`§4 «Saya mengajar» → ${pintuAjar} [${ajar.join(" ")}]`);
+    if (pintuAjar !== pilihAlamat({ untuk: "MENGAJAR" }) || JSON.stringify(ajar) !== JSON.stringify(["MENGAJAR:SD", "MENGAJAR:SMA"])) rec.verdict = "FAIL";
+  } finally {
+    await laptopCtx.close();
+    await phoneCtx.close();
+  }
+  return notes.join("; ");
 });
 
 // The controlled red (EVIDENCE-MODEL §5): AUDIT_PLANT=journey adds one step

@@ -2,6 +2,7 @@ import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { currentViewer } from "@/lib/auth";
 import { tujuanInternal } from "@/lib/tujuan";
+import { bacaPintu, namaPintu } from "@/lib/konteks";
 import PengalihBahasa from "@/components/PengalihBahasa";
 import MerekPintar from "@/components/MerekPintar";
 import LayarMasuk from "@/components/masuk/LayarMasuk";
@@ -22,14 +23,11 @@ export const dynamic = "force-dynamic";
  * offering two equal doors or asking a person to classify themselves before
  * they can act.
  *
- * `?peran=` CHANGES NOTHING ON THIS SCREEN, and that is deliberate rather than
- * an omission. The parameter selects wording elsewhere and confers no role, no
- * permission and no scope; here there is nobody to word anything for. The
- * screen has not met this person yet and should not pretend it has, so a child
- * with a card and a head teacher with an email see the same welcome. It is
- * carried to the authentication boundary and dropped there: a presentation
- * hint that outlives the moment it was for invites later code to read it as an
- * assertion about who somebody is.
+ * THE DOOR (`?pintu=`, L3, D-127 Q1, D-132) CHANGES NOTHING ON THIS SCREEN, and confers no role, no permission and
+ * no scope. The screen has not met this person yet and should not pretend it has, so a child with a card and a head
+ * teacher with an email see the same welcome. It is a PURPOSE, carried through the sign-in as the destination
+ * `/mulai?pintu=…`, where the session's working context is set from what this person holds for it (§2.2). It
+ * replaces `?peran=`, which was dropped here and so made «Saya mengajar» and «Saya mengelola sekolah» one door.
  *
  * THE LANGUAGE CONTROL IS HERE, BEFORE ANYONE SIGNS IN, for the reason it is
  * on the public verification page: a person who cannot read the screen cannot
@@ -40,7 +38,7 @@ export const dynamic = "force-dynamic";
 export default async function Masuk({
   searchParams,
 }: {
-  searchParams: Promise<{ peran?: string; lanjut?: string; sesi?: string }>;
+  searchParams: Promise<{ pintu?: string; lanjut?: string; sesi?: string }>;
 }) {
   const sp = await searchParams;
   const locale = await currentLocale();
@@ -49,7 +47,12 @@ export default async function Masuk({
   // field and posted straight back; the actions narrow it again on receipt.
   // BOB-06 (D-010): no destination stays NO destination. Narrowed to "/" it
   // was posted back as if asked for, and beat the role's home.
-  const lanjut = tujuanInternal(sp.lanjut, "");
+  const asal = tujuanInternal(sp.lanjut, "");
+  // L3: a door rides as the destination /mulai?pintu=…, with any page asked for after it (§2.2)
+  const pintu = bacaPintu(sp.pintu);
+  const lanjut = pintu
+    ? `/mulai?pintu=${namaPintu(pintu)}${asal ? `&lanjut=${encodeURIComponent(asal)}` : ""}`
+    : asal;
   // S15. Asked before anything is drawn: arriving here with a live session is
   // a different screen, not a variation of this one.
   const viewer = await currentViewer();

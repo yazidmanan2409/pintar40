@@ -37,6 +37,7 @@ import { randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
+import { pilihKonteksPeramban } from "./konteks-uji";
 
 const SINK_API = "http://127.0.0.1:54324/api/v1";
 const tanpaKomentar = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
@@ -106,6 +107,8 @@ export async function daftar(asal: string, nama: string, email: string): Promise
   const admin = new Peramban(asal, ipUji());
   const m = await admin.jsonDari("/masuk/password", { form: { identitas: "uji.sysadmin", password: "Sintetis-Sys-91!" } });
   if (m.status !== 200) throw new Error(`the platform admin could not sign in by username (${m.status} ${JSON.stringify(m.body)})`);
+  // L3 (D-132 C7): «Orang baru» is «Seluruh platform»'s, chosen on the chooser
+  await pilihKonteksPeramban(admin, "MENGELOLA:PLATFORM");
   const a = await admin.jsonDari("/api/akun/aktivasi", { json: { mode: "NEW_PERSON", email, display_name: nama } });
   if (a.status !== 200) throw new Error(`«Orang baru» refused (${a.status})`);
   return psql(`
@@ -193,8 +196,17 @@ export const bob26AppTests: SelfTest[] = [
       const nm2 = await b.jsonDari("/api/aktifkan/nama", { form: { nama: "Ironman" } });
       c.expect(nm2.status === 409 && nm2.body?.code === "NAMA_SUDAH_DIKONFIRMASI", "the name could be changed after its confirmation");
       const sl = await b.jsonDari("/api/aktifkan/selesai", { form: {} });
-      c.expect(sl.status === 200 && sl.body?.tujuan === "/mengajar" && sl.body.kartu === "TERKIRIM",
-        `finishing did not send the card and go to the Guru's home (${JSON.stringify(sl.body)})`);
+      // RESTATED FOR L3 (D-132 C4, C9): every arrival goes through /mulai, which sets the one pair a Guru of one school
+      // holds (Mengajar there) and lands on its home
+      const tiba = async (br: Peramban, tujuan: unknown) => {
+        if (typeof tujuan !== "string" || !tujuan.startsWith("/mulai")) return `(${JSON.stringify(tujuan)})`;
+        const r = await br.kirim(tujuan);
+        return r.headers.get("location") ?? `(${r.status})`;
+      };
+      c.expect(sl.status === 200 && sl.body?.tujuan === "/mulai" && sl.body.kartu === "TERKIRIM",
+        `finishing did not send the card and arrive through /mulai (${JSON.stringify(sl.body)})`);
+      const ke = await tiba(b, sl.body?.tujuan);
+      c.expect(new URL(ke, asal).pathname === "/mengajar", `arriving did not land on the Guru's home (${ke})`);
       const kartu = (await sinkTunggu(email, 2)).find((p) => p.Subject !== surat[0]?.Subject);
       const pintarId = String(k.body?.pintarId ?? "");
       c.expect(!!kartu && kartu.Text.includes("Bagas Saputra") && kartu.Text.includes(`${pintarId.slice(0, 4)} ${pintarId.slice(4)}`),
@@ -214,7 +226,9 @@ export const bob26AppTests: SelfTest[] = [
       for (const identitas of [`BAGAS.${tag}`, email]) {
         const baru = new Peramban(asal, ipUji());
         const m = await baru.jsonDari("/masuk/password", { form: { identitas, password: sandi, lanjut: "/mengajar" } });
-        c.expect(m.status === 200 && m.body?.tujuan === "/mengajar", `signing in with ${identitas.includes("@") ? "the email" : "the username"} failed (${m.status} ${JSON.stringify(m.body)})`);
+        c.expect(m.status === 200 && m.body?.tujuan === "/mulai?lanjut=%2Fmengajar", `signing in with ${identitas.includes("@") ? "the email" : "the username"} failed (${m.status} ${JSON.stringify(m.body)})`);
+        const di = await tiba(baru, m.body?.tujuan);
+        c.expect(new URL(di, asal).pathname === "/mengajar", `signing in did not continue to the page asked for (${di})`);
         c.expect((await baru.kirim("/mengajar")).status === 200, "the signed-in session does not open the home");
       }
       c.expect(psql(`select count(*) from public.persons where display_name in ('Bagas Saputro', 'Bagas Saputra') and id = ${lit(pid)}`) === "1"
@@ -225,8 +239,9 @@ export const bob26AppTests: SelfTest[] = [
         + `in the sink stating «berlaku ${PENGATURAN.berlakuMenit} menit» from the canonical setting; a wrong code was KODE_TIDAK_COCOK and the right one, `
         + "typed with a space, signed in to /aktifkan; the session was held there (a page redirects, an API answers setup_required); a taken and a "
         + "reserved username, a short password and a weak PIN were refused by their codes; finishing before the name said NAMA was missing; «Ubah nama» "
-        + "made it «Bagas Saputra», once; finishing sent the card (the confirmed name, the PINTAR ID 4+4) and went to /mengajar, which then opened; "
-        + "Akun saya's card reads the current identity; the wizard is closed afterwards; the username and the email each sign in; one person, one account");
+        + "made it «Bagas Saputra», once; finishing sent the card (the confirmed name, the PINTAR ID 4+4) and arrived through /mulai at /mengajar, which then opened; "
+        + "Akun saya's card reads the current identity; the wizard is closed afterwards; the username and the email each sign in and continue through /mulai to "
+        + "the page asked for; one person, one account");
     },
   },
   {

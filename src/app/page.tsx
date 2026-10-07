@@ -1,19 +1,15 @@
 import Link from "next/link";
-import { t, type HleEvent } from "@/lib/hle";
+import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { currentViewer } from "@/lib/auth";
 import { currentLocale } from "@/lib/locale";
 import { peranSaya } from "@/lib/tur-negara";
 import SesiSaya from "@/components/SesiSaya";
+import TombolKirim from "@/components/TombolKirim";
 import { namaSapaan } from "@/components/sesi";
-import { pintuMasuk, type Pintu } from "@/components/tempat";
-
-/** Each door's words, for somebody signed in. */
-const LABEL_PINTU: Record<Pintu, HleEvent> = {
-  "/belajar": "entry.learner",
-  "/mengajar": "entry.educator",
-  "/pimpinan": "entry.pimpinan",
-  "/konfigurasi": "entry.staff",
-};
+import { berandaPasangan, bacaPermintaan, kunciPasangan, pintuPilihan, samaPasangan, type Pasangan } from "@/lib/konteks";
+import { konteksSaya, tempatSaya } from "@/lib/konteks-server";
+import { istilah } from "@/lib/istilah-menunggu";
+import { pilihKonteks } from "./konteks-actions";
 
 const PINTU = "rounded-[var(--radius-2)] border border-line-1 bg-surface-1 px-5 py-4 text-lg hover:bg-surface-2";
 
@@ -21,12 +17,15 @@ const PINTU = "rounded-[var(--radius-2)] border border-line-1 bg-surface-1 px-5 
  * Entry by purpose, not a homepage (FABLE-00 "Entry is by purpose"). One
  * screen, one question.
  *
- * SIGNED IN, THE DOORS ARE THE READER'S OWN (DAISY-03, D-010). The first
- * version kept three fixed doors and pointed them somewhere plausible, so a
- * student was offered /mengajar and a teacher a staff door that refused them.
- * Now the doors are exactly the places the reader holds (`pintuMasuk`: Belajar
- * for a learner, and one staff door per active role), and nobody holding none
- * is told so plainly instead of being handed a door to a refusal.
+ * SIGNED IN, THIS IS THE CHOOSER (L3; D-127 Q1, Q2; D-132 C3): «what do you want to do, and where?». The one place
+ * a working context changes after arriving, and there is no other switch. Its doors are exactly the purpose · place
+ * pairs the reader holds now (konteks_tempat_saya: Belajar with learning participation; Mengajar from teaching
+ * appointments; Mengelola from leadership and administration, Admin platform everywhere and «Seluruh platform»),
+ * the current one marked. VISITING IT CHANGES NOTHING: a door is a form, and only its POST (pilihKonteks) sets the
+ * context. Sent here from a page of another context, from sign-in with several places, or after a context stopped
+ * being held, it offers what serves that page and continues there once chosen. Nobody holding none is told so
+ * plainly (entry.kosong). The sentences saying why the reader was sent here are semantic keys awaiting Dr Gladys's
+ * words (D-132(m)) and draw nothing until then.
  *
  * GREETED BY FIRST NAME (D-020), so the next child on a shared tablet does not
  * read a full name; staff may be greeted in full. The session strip is here too
@@ -34,7 +33,11 @@ const PINTU = "rounded-[var(--radius-2)] border border-line-1 bg-surface-1 px-5 
  *
  * One parallel read: viewer, roles and language together.
  */
-export default async function Entry() {
+export default async function Entry({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const [viewer, peran, locale] = await Promise.all([currentViewer(), peranSaya(), currentLocale()]);
   const s = (k: HleEvent) => t(k, "public", { locale });
 
@@ -44,16 +47,16 @@ export default async function Entry() {
         <p className="text-sm text-ink-3">{s("app.name")}</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight">{s("entry.title")}</h1>
         <div className="mt-8 grid gap-3">
-          {/* The learner route, not the sign-in form: the proxy sends an
-              anonymous visitor to /masuk and back again, so the QR-code arrival
-              in FABLE-03's cycle lands on the learning surface either way. */}
-          <Link href="/belajar" className={PINTU}>
+          {/* L3 (D-127 Q1, D-132): each door carries a PURPOSE to the sign-in, never a role. After signing in, the
+              session's working context is that purpose in a place this person holds for it (/mulai); the door
+              itself grants nothing. */}
+          <Link href="/masuk?pintu=belajar" className={PINTU}>
             {s("entry.learner")}
           </Link>
-          <Link href="/masuk?peran=guru" className={PINTU}>
+          <Link href="/masuk?pintu=mengajar" className={PINTU}>
             {s("entry.educator")}
           </Link>
-          <Link href="/masuk?peran=staf" className={PINTU}>
+          <Link href="/masuk?pintu=mengelola" className={PINTU}>
             {s("entry.staff")}
           </Link>
         </div>
@@ -62,7 +65,15 @@ export default async function Entry() {
   }
 
   const nama = namaSapaan(viewer.displayName, peran);
-  const pintu = pintuMasuk(viewer.displayRole, peran);
+  const [k, tempat] = await Promise.all([konteksSaya(), tempatSaya()]);
+  const minta = bacaPermintaan(await searchParams);
+  const pintu = pintuPilihan(tempat, minta);
+  const kini = k?.keadaan === "ADA" ? k : null;
+  // D-132(m): the sentence for why the person is here is a semantic key awaiting Dr Gladys's words; until then none
+  const kalimat = minta.alasan === "tidak_dipegang" ? istilah("context.not_held")
+    : minta.alasan === "tidak_berlaku" ? istilah("context.invalid")
+    : minta.alasan === "lain" ? istilah("context.other_context")
+    : minta.untuk && pintu.length > 1 ? istilah("context.choose_place") : null;
 
   return (
     <main className="mx-auto max-w-xl py-16">
@@ -75,18 +86,40 @@ export default async function Entry() {
         {s("entry.halo")}
         {nama ? `, ${nama}` : ""}.
       </p>
+      {kalimat ? <p className="mt-4 text-ink-2" role="status">{kalimat}</p> : null}
 
       {pintu.length > 0 ? (
-        <div className="mt-8 grid gap-3">
-          {pintu.map((href) => (
-            <Link key={href} href={href} className={PINTU}>
-              {s(LABEL_PINTU[href])}
-            </Link>
-          ))}
+        <div className="mt-8 grid gap-3" data-pemilih="konteks">
+          {pintu.map((p) => {
+            const di = kini !== null && samaPasangan(kini, p);
+            return (
+              <form key={kunciPasangan(p)} action={pilihKonteks}>
+                <input type="hidden" name="pasangan" value={kunciPasangan(p)} />
+                {minta.lanjut ? <input type="hidden" name="lanjut" value={minta.lanjut} /> : null}
+                <TombolKirim className={`${PINTU} w-full text-left${di ? " font-semibold" : ""}`} sibuk={s("tombol.memproses")}
+                  aria-current={di ? "true" : undefined} data-konteks={kunciPasangan(p)}>
+                  {labelPintu(p, locale)}
+                </TombolKirim>
+              </form>
+            );
+          })}
         </div>
       ) : (
         <p className="mt-8 text-ink-2">{s("entry.kosong")}</p>
       )}
     </main>
   );
+}
+
+/**
+ * A door's words: the purpose's own door, in the words the signed-out doors already use, and the place by its name
+ * (data), or «Seluruh platform» (D-128(g): no new words; the purpose's short name in the shell is
+ * context.manage_label's, still Dr Gladys's).
+ */
+function labelPintu(p: Pasangan, locale: Locale): string {
+  const kata = p.tujuan === "BELAJAR" ? "entry.learner"
+    : p.tujuan === "MENGAJAR" ? "entry.educator"
+    : berandaPasangan(p) === "/pimpinan" ? "entry.pimpinan" : "entry.staff";
+  const tempat = p.platform ? t("config.pemeliharaan.platform", "staff", { locale }) : p.nama;
+  return tempat ? `${t(kata, "public", { locale })} · ${tempat}` : t(kata, "public", { locale });
 }

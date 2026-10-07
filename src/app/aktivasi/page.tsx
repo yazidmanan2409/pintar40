@@ -2,6 +2,7 @@ import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
 import { sekolahPendataan } from "@/lib/pendataan";
+import { konteksHalaman } from "@/lib/konteks-server";
 import { pilihanTempat, type SimpulPohon } from "@/lib/struktur-kontrak";
 import { kelasUntukKartu, type KelasKartu } from "@/components/aktivasi/kelas";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
@@ -39,11 +40,25 @@ export default async function Aktivasi() {
     // BOB-28 (D-088(e)): the class-card holders a lost or damaged card can be re-issued for
     supabase.rpc("card_holders"),
   ]);
-  const orang = (Array.isArray(menunggu) ? menunggu : []) as Array<{
+  const orangSemua = (Array.isArray(menunggu) ? menunggu : []) as Array<{
     person_id: string; display_name: string; institutional_id: string; institution_id: string;
   }>;
   const adminSistem = sistem === true;
-  const pemegang = (Array.isArray(berkartu) ? berkartu : []) as PemegangKartu[];
+  const pemegangSemua = (Array.isArray(berkartu) ? berkartu : []) as PemegangKartu[];
+  // L3 (CR-83; D-127 Q2; D-132 C7): Aktivasi is the working context's. Mengelola · a school: that school's people
+  // waiting for an account and its card holders, whoever the reader is. «Seluruh platform»: every school's, and the
+  // platform's own act of making a person outside intake. An evaluation persona keeps the page as it was (C10). The
+  // database decides each activation either way.
+  const kh = await konteksHalaman();
+  const lama = kh === "TANPA_KONTEKS";
+  const platformIni = lama ? adminSistem : kh?.platform === true && adminSistem;
+  const sekolahIni = !lama && kh && !kh.platform ? kh.tempat : null;
+  const orang = lama || platformIni ? orangSemua : orangSemua.filter((o) => sekolahIni !== null && o.institution_id === sekolahIni);
+  const diSekolah = sekolahIni && pemegangSemua.length > 0
+    ? new Set(((await supabase.from("enrollments").select("person_id").eq("institution_id", sekolahIni)
+        .in("person_id", pemegangSemua.map((p) => p.person_id))).data ?? []).map((e) => String(e.person_id)))
+    : null;
+  const pemegang = lama || platformIni ? pemegangSemua : pemegangSemua.filter((p) => diSekolah?.has(p.person_id) ?? false);
 
   // who may use this screen at all: a SYSTEM_ADMIN, or anyone the intake
   // already recognises as provisioning for a school (the same predicate)
@@ -68,7 +83,7 @@ export default async function Aktivasi() {
           {/* Polish batch 2 (UX-11): the sign-in address, not the path /masuk */}
           <p className="pin-intro">{s("aktivasi.intro")} <KeAktifkan s={s} sebelum="aktivasi.intro.buka" /></p>
         </div>
-        <FormAktivasi locale={locale} orang={orang} adminSistem={adminSistem} kelas={kelas} />
+        <FormAktivasi locale={locale} orang={orang} adminSistem={platformIni} kelas={kelas} />
         <KartuUlang locale={locale} pemegang={pemegang} />
         <KakiPintar />
       </main>

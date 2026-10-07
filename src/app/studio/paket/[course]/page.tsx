@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
@@ -16,6 +17,8 @@ import SimpanIsian from "@/components/SimpanIsian";
 import { TeksBaris } from "@/components/teks/Teks";
 import { soalPaket } from "@/lib/soal-tinjauan";
 import { akarGaris } from "@/lib/pengajar";
+import { jalurIni, konteksHalaman, tempatSaya } from "@/lib/konteks-server";
+import { alamatPilih, melayani } from "@/lib/konteks";
 
 /**
  * Package detail — Publish Readiness (§5), freeze & publish (§6), release
@@ -102,6 +105,13 @@ export default async function Paket({ params, searchParams }: { params: Params; 
     studioInstitutions(), currentLocale(), supabase.rpc("current_person_id"),
   ]);
   const inst = institutions.find((i) => i.id === course.institution_id);
+  // L3 (§2.6): a package of another school is never worked on in this context, and the context never switches
+  // silently: the chooser offers that school's Studio when the reader holds it there, and continues here
+  if (!inst && (await konteksHalaman()) !== "TANPA_KONTEKS") {
+    const jalur = await jalurIni();
+    const di = (await tempatSaya()).find((p) => p.tempat === course.institution_id && melayani(p, jalur));
+    if (di) redirect(alamatPilih({ untuk: di.tujuan, tempat: di.tempat, alasan: "lain", lanjut: jalur }));
+  }
 
   const [{ data: stateRows }, { data: releases }, { data: mcq }, { data: coach }, { data: garisRows }] =
     await Promise.all([

@@ -1,4 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { tawarkanSekolahLain } from "@/lib/konteks-server";
 import { namaTempat, templatUntuk } from "@/lib/laporan";
 import { currentLocale } from "@/lib/locale";
 import SesiSaya from "@/components/SesiSaya";
@@ -29,6 +30,11 @@ export default async function RingkasanSekolah({
 }) {
   const { simpul } = await searchParams;
   const supabase = await supabaseServer();
+  // L3 (§2.6): a report of another school's place is never shown in this context; the chooser offers that school
+  if (simpul) {
+    const { data: tempat } = await supabase.from("org_nodes").select("institution_id").eq("id", simpul).limit(1);
+    await tawarkanSekolahLain((tempat?.[0] as { institution_id?: string } | undefined)?.institution_id);
+  }
 
   // BOB-06 (B6b): the template of the school this node belongs to -- its own
   // latest assembly, else PINTAR's standard one -- never another school's.

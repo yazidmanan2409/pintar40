@@ -1,13 +1,13 @@
 import Link from "next/link";
 import TandaTautan from "@/components/TandaTautan";
 import { currentViewer } from "@/lib/auth";
-import { s, studioInstitutions } from "./_lib";
-import { tabStudio, type TabStudio } from "@/lib/studio-tab";
+import { s, studioInstitutions, tabSaya } from "./_lib";
+import { type TabStudio } from "@/lib/studio-tab";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
 import SesiSaya from "@/components/SesiSaya";
 import TautanLapor from "@/components/lapor/TautanLapor";
-import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
+import { navKonteks } from "@/components/NavKonteks";
 import { peranSaya } from "@/lib/tur-negara";
 import { t } from "@/lib/hle";
 
@@ -41,8 +41,8 @@ export default async function StudioLayout({ children }: { children: React.React
   }
 
   // DAISY-03: Studio was a dead end -- no way back to the person's own places
-  // but the browser's back button. Offered, never granted (D-010).
-  const tempat = tempatDariPeran(peran);
+  // but the browser's back button. Offered, never granted (D-010). L3: the active
+  // context's other surfaces and the chooser (NavKonteks), never every role's.
 
   // CR-87 (D-127 Q4, Q8; D-129(g)): each tab only for the people its canon names (src/lib/studio-tab.ts). Studio's own
   // Uji Cepat launcher and the certificate layout are gone (CR-84): the class's Uji Cepat is the one human journey.
@@ -55,7 +55,8 @@ export default async function StudioLayout({ children }: { children: React.React
     bank: ["/studio/bank", s("studio.nav.bank")],
     integritas: ["/studio/integritas", s("studio.nav.integritas")],
   };
-  const nav = tabStudio(new Set(institutions.flatMap((i) => i.capabilities)), peran ?? []).map((t) => TAB[t]);
+  // L3 (D-132 C8): the tabs of the grants that give the active purpose, in the active place (studio/_lib.ts)
+  const nav = (await tabSaya()).map((t) => TAB[t]);
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
@@ -68,12 +69,10 @@ export default async function StudioLayout({ children }: { children: React.React
           </div>
           <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />
         </div>
-        {tempat.length > 0 ? (
-          <nav className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm" aria-label={t("nav.tempat", "staff", { locale })}>
-            <TabTempat tempat={tempat} locale={locale} persona="staff" kelas="text-ink-2 underline underline-offset-4 hover:text-ink-1" />
-            <TautanLapor locale={locale} kelas="text-ink-2 underline underline-offset-4 hover:text-ink-1" />
-          </nav>
-        ) : null}
+        <nav className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm" aria-label={t("nav.tempat", "staff", { locale })}>
+          {await navKonteks({ locale, persona: "staff", kecuali: ["/studio"], kelas: "text-ink-2 underline underline-offset-4 hover:text-ink-1" })}
+          <TautanLapor locale={locale} kelas="text-ink-2 underline underline-offset-4 hover:text-ink-1" />
+        </nav>
         <nav className="mt-4 flex flex-wrap gap-3 text-sm">
           {nav.map(([href, text]) => (
             <Link key={href} href={href} className="text-ink-2 underline-offset-4 hover:underline">{text}<TandaTautan /></Link>

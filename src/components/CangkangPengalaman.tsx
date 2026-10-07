@@ -10,6 +10,9 @@ import TombolBantuan from "./tur/TombolBantuan";
 import TautanLapor from "@/components/lapor/TautanLapor";
 import SesiSaya from "./SesiSaya";
 import TabTempat, { tempatDariPeran, tawarkanStudio } from "./TabTempat";
+import { navKonteks } from "./NavKonteks";
+import { konteksSaya } from "@/lib/konteks-server";
+import { melayani } from "@/lib/konteks";
 
 /**
  * The Experience shell: the mark, where you are, and the language switch.
@@ -110,6 +113,11 @@ export default async function CangkangPengalaman({
   // DAISY-11 (D-021): the Studio tab, from the same roles, for every staff
   // shell. Studio itself still asks the database on arrival.
   const studio = tawarkanStudio(peran);
+  // L3 (CR-83; D-132 §2.4): with a working context, every staff shell's tabs are that context's own surfaces and the
+  // one way to change it is the chooser (NavKonteks); no tab leads into another context. Without one (an evaluation
+  // persona, C10) the shells read the roles as before.
+  const k = kind === "public" ? null : await konteksSaya();
+  const adaKonteks = k?.keadaan === "ADA";
 
   // FOCUS. During an assessment the shell keeps the mark and the language and
   // drops the tabs. The engine survives navigating away — a session is server
@@ -141,11 +149,17 @@ export default async function CangkangPengalaman({
               announcing the enrolment to anyone watching the header, and an
               educator who has no learning is entitled to the plain answer
               rather than to no door. */}
-          <Link href="/belajar" aria-current={undefined}>
-            {t("nav.pembelajaran", "educator", { locale })}
-            <TandaTautan />
-          </Link>
-          <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} />
+          {adaKonteks ? (
+            await navKonteks({ locale, persona: "educator", kecuali: ["/mengajar"] })
+          ) : (
+            <>
+              <Link href="/belajar" aria-current={undefined}>
+                {t("nav.pembelajaran", "educator", { locale })}
+                <TandaTautan />
+              </Link>
+              <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} />
+            </>
+          )}
         </nav>
         <span className="pin-spacer" />
         <TombolBantuan locale={locale} persona="educator" beranda="/mengajar" />
@@ -166,7 +180,7 @@ export default async function CangkangPengalaman({
             {t("nav.pimpinan", "staff", { locale })}
             <TandaTautan />
           </Link>
-          <TabTempat tempat={tempat} kecuali={["/pimpinan"]} locale={locale} persona="staff" studio={studio} />
+          {await navKonteks({ locale, persona: "staff", kecuali: ["/pimpinan"] })}
         </nav>
         <span className="pin-spacer" />
         <TautanLapor locale={locale} />
@@ -181,17 +195,25 @@ export default async function CangkangPengalaman({
       <header className="pin-top pin-shell pin-noprint">
         <MerekPintar />
         <nav className="pin-tabs" aria-label={t("app.name", "staff", { locale })}>
-          <Link href="/pendataan" aria-current={current === "pendataan" ? "page" : undefined}>
-            {t("nav.pendataan", "staff", { locale })}
-            <TandaTautan />
-          </Link>
+          {!adaKonteks || (k?.keadaan === "ADA" && melayani(k, "/pendataan")) ? (
+            <Link href="/pendataan" aria-current={current === "pendataan" ? "page" : undefined}>
+              {t("nav.pendataan", "staff", { locale })}
+              <TandaTautan />
+            </Link>
+          ) : null}
           {/* Aktivasi is the same audience's next step -- recorded people who
               cannot sign in yet -- and was reachable only by typing it (M3). */}
-          <Link href="/aktivasi" aria-current={current === "aktivasi" ? "page" : undefined}>
-            {t("nav.aktivasi", "staff", { locale })}
-            <TandaTautan />
-          </Link>
-          <TabTempat tempat={tempat} locale={locale} persona="staff" studio={studio} />
+          {!adaKonteks || (k?.keadaan === "ADA" && melayani(k, "/aktivasi")) ? (
+            <Link href="/aktivasi" aria-current={current === "aktivasi" ? "page" : undefined}>
+              {t("nav.aktivasi", "staff", { locale })}
+              <TandaTautan />
+            </Link>
+          ) : null}
+          {adaKonteks ? (
+            await navKonteks({ locale, persona: "staff", kecuali: ["/pendataan", "/aktivasi"] })
+          ) : (
+            <TabTempat tempat={tempat} locale={locale} persona="staff" studio={studio} />
+          )}
         </nav>
         <span className="pin-spacer" />
         <TautanLapor locale={locale} />
@@ -220,10 +242,12 @@ export default async function CangkangPengalaman({
       <header className="pin-top pin-shell pin-noprint">
         <MerekPintar />
         <nav className="pin-tabs" aria-label={t("app.name", "educator", { locale })}>
-          <Link href="/mengajar" aria-current={undefined}>
-            {t("nav.kelas", "educator", { locale })}
-            <TandaTautan />
-          </Link>
+          {adaKonteks ? null : (
+            <Link href="/mengajar" aria-current={undefined}>
+              {t("nav.kelas", "educator", { locale })}
+              <TandaTautan />
+            </Link>
+          )}
           {/* Their certificates live under this tab rather than beside it: the
               learner's shell gives Sertifikat top billing because learning is
               the whole of their product, and for somebody who also teaches it
@@ -233,7 +257,11 @@ export default async function CangkangPengalaman({
             {t("nav.pembelajaran", "educator", { locale })}
             <TandaTautan />
           </Link>
-          <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} />
+          {adaKonteks ? (
+            await navKonteks({ locale, persona: "educator", kecuali: ["/belajar"] })
+          ) : (
+            <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} />
+          )}
         </nav>
         <span className="pin-spacer" />
         <TautanLapor locale={locale} persona="educator" />
@@ -262,6 +290,9 @@ export default async function CangkangPengalaman({
           {t("nav.sertifikat", "learner", { locale })}
           <TandaTautan />
         </Link>
+        {/* L3: a person who also holds another context (an admin who learns, DG-20) has the chooser here, the one
+            way to change it; a learner who holds only Belajar sees nothing new */}
+        {adaKonteks ? await navKonteks({ locale, persona: "learner", kecuali: ["/belajar"] }) : null}
       </nav>
       <span className="pin-spacer" />
       <TombolBantuan locale={locale} persona="learner" beranda="/belajar" />

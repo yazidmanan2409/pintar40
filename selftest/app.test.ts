@@ -5,6 +5,7 @@
  * never a superuser connection (FABLE-01 §6). R01 needs no network. R04 is
  * evidence forwarded from the CI workflow's own jobs.
  */
+import { pilihKonteksCookie, pintuDi } from "./konteks-uji";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { createServerClient } from "@supabase/ssr";
@@ -695,15 +696,23 @@ export const appTests: SelfTest[] = [
         for (const [n, v] of form) fd.set(n, v);
         const r = await get(`${base}${alamat}`, { method: "POST", body: fd, headers: { cookie, origin: base } });
         const loc = r.headers.get("location") ?? "";
-        return [302, 303, 307, 308].includes(r.status) && loc ? new URL(loc, base).pathname : `(${r.status}, no redirect)`;
+        if (![302, 303, 307, 308].includes(r.status) || !loc) return `(${r.status}, no redirect)`;
+        // RESTATED FOR L3 (D-132 C4, C9): every arrival goes through /mulai, which sets the working context and
+        // sends the person on; its own redirect is the landing
+        const u = new URL(loc, base);
+        if (u.pathname !== "/mulai") return `(went to ${u.pathname}, not /mulai)`;
+        const m = await get(`${base}${u.pathname}${u.search}`, { headers: { cookie } });
+        const ke = m.headers.get("location") ?? "";
+        return [302, 303, 307, 308].includes(m.status) && ke ? new URL(ke, base).pathname : `(/mulai ${m.status}, no redirect)`;
       };
+      // D-010's homes for a person of one purpose · place; several, the chooser, which the ranking never replaces (D-132(i))
       const RUMAH: Array<[string, { email: string; password: string }, string]> = [
         ["learner", PERSONA.cycleLearner, "/belajar"],
         ["educator", PERSONA.alphaGuru, "/mengajar"],
-        ["head of department", PERSONA.alphaHod, "/pimpinan"],
+        ["head of department (Mengajar and Mengelola)", PERSONA.alphaHod, "/"],
         ["dean", PERSONA.dean, "/pimpinan"],
         ["school admin", PERSONA.alphaAdmin, "/konfigurasi"],
-        ["platform admin", PERSONA.sysadmin, "/konfigurasi"],
+        ["platform admin (every school and «Seluruh platform»)", PERSONA.sysadmin, "/"],
       ];
       for (const [peran, persona, rumah] of RUMAH) {
         const { cookie } = await signIn(ctx, persona);
@@ -718,8 +727,8 @@ export const appTests: SelfTest[] = [
       const diminta = await lanjutkan(cookie, "/masuk?lanjut=%2Fbelajar%2Fsertifikat");
       c.expect(diminta === "/belajar/sertifikat", `a requested destination was replaced by ${diminta}`);
       return c.verdict("signed in, each of the six roles posts the sign-in screen's Lanjutkan with no destination and " +
-        "is redirected by the running route to its D-010 home, also when the link carried only \"/\"; a requested " +
-        "page still wins");
+        "arrives through /mulai at its D-010 home when it holds one purpose · place, and at the chooser when it holds " +
+        "several (D-132(i)), also when the link carried only \"/\"; a requested page still wins");
     },
   },
   {
@@ -1090,6 +1099,12 @@ export const appTests: SelfTest[] = [
       const tabSertifikat = t("nav.sertifikat", "learner");
       const turBelajar = t("tur.nama.belajar", "learner");
       const murid = t("role.STUDENT", "learner");
+      const pemilih = t("entry.title", "public");
+      // the shell's own navigation, where a way between contexts would be
+      const navDari = (raw: string) => /<nav class="pin-tabs"[^>]*>([\s\S]*?)<\/nav>/.exec(raw)?.[1] ?? "";
+      // the chooser this session is offered, by its doors' pair keys
+      const pintuSesi = async (cookie: string) =>
+        pintuDi(await (await get(`${base}/`, { headers: { cookie } })).text()).map((p) => p.kunci.split(":")[0]);
 
       const lihat = async (persona: { email: string; password: string }, path: string) => {
         const sesi = await signIn(ctx, persona);
@@ -1098,14 +1113,20 @@ export const appTests: SelfTest[] = [
         return { res, raw, html: visibleText(raw), sesi };
       };
 
-      // 1. THE DOOR, AND IT IS ONE DOOR. The educator's header gains exactly one
-      //    neighbour and keeps the tab it had: this is a second context, not a
-      //    redesigned navigation and not a switch between identities.
+      // 1. THE DOOR, AND IT IS ONE DOOR. RESTATED FOR L3 (D-132 C1, C3, §2.4; CR-83): the educator who also learns
+      //    holds two contexts, Mengajar at their school and Belajar. The teaching header keeps the tab it had and
+      //    offers the one way between contexts, the chooser, whose doors are exactly those two: a second context,
+      //    not a redesigned navigation, not a switch between identities, and no tab that leads into another context.
       const ajar = await lihat(PERSONA.cycleEducator, "/mengajar");
       c.expect(ajar.res.status === 200, `EDUCATOR /mengajar → ${ajar.res.status}`);
-      c.expect(ajar.html.includes(pembelajaran), "the teaching header offers no way to the educator's own learning");
+      const navAjar = navDari(ajar.raw);
+      c.expect(/href="\/"/.test(navAjar) && visibleText(navAjar).includes(pemilih),
+        "the teaching header offers no way to the educator's own learning (the chooser)");
       c.expect(ajar.html.includes(kelas), "the teaching tab is gone from the teaching header");
-      c.expect(/href="\/belajar"/.test(ajar.raw), "the entry names Pembelajaran Saya but leads nowhere");
+      c.expect(!/href="\/belajar"/.test(navAjar), "the teaching header has a tab into another context");
+      const pintuAjar = await pintuSesi(ajar.sesi.cookie);
+      c.expect(JSON.stringify([...pintuAjar].sort()) === JSON.stringify(["BELAJAR", "MENGAJAR"]),
+        `the entry names Pembelajaran Saya but leads nowhere: the chooser offers ${JSON.stringify(pintuAjar)}`);
 
       // 2. WHAT IS ON THE PAGE IS WHAT THE DATABASE SAID, ASKED SEPARATELY.
       //    `my_learning_assignments` is called directly with each persona's own
@@ -1151,9 +1172,11 @@ export const appTests: SelfTest[] = [
       c.expect(tugasPunya.every((a) => tugasMurid.some((b) => b.title === a.title)),
         "the educator's learning is not the learning their own class is doing");
       c.expect(!punya.html.includes(kosong), "an educator WITH learning was told they have none");
-      //    …and they never left their teaching context to read it.
-      c.expect(/href="\/mengajar"/.test(punya.raw), "the educator's learning page strands them away from their classes");
-      c.expect(punya.html.includes(kelas), "the educator's learning page drops the teaching tab");
+      //    …and the way back to their teaching is always on screen: the chooser, never a tab into it (L3, §2.4)
+      const navPunya = navDari(punya.raw);
+      c.expect(/href="\/"/.test(navPunya) && visibleText(navPunya).includes(pemilih) && (await pintuSesi(punya.sesi.cookie)).includes("MENGAJAR"),
+        "the educator's learning page strands them away from their classes");
+      c.expect(!/href="\/mengajar"/.test(navPunya), "the educator's learning page has a tab into another context");
 
       // 3. THE SAME ROLE WITHOUT AN ENROLMENT IS OFFERED NOTHING. This is the
       //    one that would catch entitlement being manufactured here: both
@@ -1200,7 +1223,7 @@ export const appTests: SelfTest[] = [
       //    does not put an educator back into a learner's shell.
       const sert = await lihat(PERSONA.cycleEducator, "/belajar/sertifikat");
       c.expect(sert.res.status === 200, `EDUCATOR /belajar/sertifikat → ${sert.res.status}`);
-      c.expect(sert.html.includes(pembelajaran) && sert.html.includes(kelas),
+      c.expect(sert.html.includes(pembelajaran) && /href="\/"/.test(navDari(sert.raw)),
         "an educator reading their own certificates is put into the learner's shell");
       c.expect(!sert.html.includes(tabBelajar) || sert.html.includes(pembelajaran),
         "the educator's certificate page shows the learner navigation");
@@ -1209,8 +1232,9 @@ export const appTests: SelfTest[] = [
       c.note(`${tugasPunya.length} entitlement(s) for the enrolled educator, ${tugasTanpa.length} for the unenrolled one`);
       return c.verdict(
         "an educator's own learning is a second context and never a second identity: the teaching header " +
-        "gains exactly one neighbour, Pembelajaran Saya, and keeps Kelas -- so the way in is one press " +
-        "and the way back is always on screen. WHAT THEY ARE OFFERED IS THEIR ENROLMENT AND NEVER THEIR " +
+        "keeps Kelas and offers the chooser, whose doors are exactly Mengajar and Belajar, and the learning " +
+        "page offers the same chooser and no tab into teaching -- so the way in is the chooser's door and " +
+        "the way back is always on screen (L3, D-132 C1, §2.4). WHAT THEY ARE OFFERED IS THEIR ENROLMENT AND NEVER THEIR " +
         "ROLE, proved on two educators rather than argued: `my_learning_assignments` is asked directly " +
         "with each persona's own token and its answer is compared with the page, so the expectation " +
         "comes from the contract and not from this file's idea of the fixture. The enrolled educator " +
@@ -1893,6 +1917,8 @@ export const appTests: SelfTest[] = [
       psql("update public.platform_environment set local_fixtures_enabled = false");
       try {
         const admin = await signIn(ctx, PERSONA.alphaAdmin);
+        // L3 (D-132 C3, §2.11): the administrator of two schools now works in this one, chosen on the chooser
+        await pilihKonteksCookie(base, admin.cookie, `MENGELOLA:${inst}`);
         const post = (body: object, cookie?: string) =>
           get(`${base}/api/akun/aktivasi`, {
             method: "POST",
@@ -2049,8 +2075,11 @@ export const appTests: SelfTest[] = [
       // the national library's name sorts first, so the section used to open
       // inside "PINTAR Kurikulum Nasional". It must open on a real school and
       // never offer the library, whatever the address asks for.
+      // RESTATED FOR L3 (D-132 C7): they work in one school's context at a time, chosen on the chooser; there the
+      // section is that school's whatever the address asks for, and «Seluruh platform» draws no school's structure
       const kanon = "PINTAR Kurikulum Nasional";
       const sys = await signIn(ctx, PERSONA.sysadmin);
+      await pilihKonteksCookie(base, sys.cookie, { tujuan: "MENGELOLA", nama: "Sekolah Sintetis Alpha" });
       for (const alamat of ["/konfigurasi", "/konfigurasi?sekolah=00000000-0000-0000-0000-000000000000"]) {
         const r = await get(`${base}${alamat}`, { headers: { cookie: sys.cookie } });
         c.expect(r.status === 200, `SYSTEM_ADMIN ${alamat} → ${r.status}`);
@@ -2072,11 +2101,16 @@ export const appTests: SelfTest[] = [
         const sec = a >= 0 ? html.slice(a, html.indexOf('id="system"', a)) : "";
         c.expect(sec.length > 0 && !visibleText(sec).includes(kanon), "asking for the national library by address opens it in the structure section");
       }
+      await pilihKonteksCookie(base, sys.cookie, "MENGELOLA:PLATFORM");
+      const platform = await (await get(`${base}/konfigurasi`, { headers: { cookie: sys.cookie } })).text();
+      c.expect(/<section id="struktur" hidden=""/.test(platform) && !/<a [^>]*href="#struktur"/.test(platform),
+        "«Seluruh platform» draws or offers a school's structure");
       return c.verdict(
         "the school administrator's Konfigurasi opens on their school's structure, read from the database: the seeded Bagian, " +
         "Tingkat and Kelas are drawn with their school years and the way to add each level, the hidden Jenjang and Reguler are not, " +
-        "and nothing can be deactivated without the question. The platform administrator's opens on a real school and never offers " +
-        "or opens the national library, even when its id is asked for by address",
+        "and nothing can be deactivated without the question. The platform administrator's, in a school's working context, opens on " +
+        "that school and never offers or opens the national library, even when its id is asked for by address; in «Seluruh " +
+        "platform» no school's structure is drawn or offered (L3, D-132 C7)",
       );
     },
   },
@@ -2103,11 +2137,14 @@ export const appTests: SelfTest[] = [
         }));
       // RESTATED FOR CR-51 (D-120 Q7, a changed requirement): the platform administrator is also offered the national
       // library, as the picker's LAST option, so that it still starts on a real school; a school role never sees it
+      // RESTATED FOR L3 (D-132 C7, C8): Studio is a working context's place; the platform administrator in a school's
+      // context is offered that school alone, and the library only in Pustaka PINTAR's own context (below)
       for (const [peran, orang, harap, pustaka] of [
         ["INSTITUTION_ADMIN", PERSONA.alphaAdmin, "Sekolah Sintetis Alpha", false],
-        ["SYSTEM_ADMIN", PERSONA.sysadmin, null, true],
+        ["SYSTEM_ADMIN", PERSONA.sysadmin, "Sekolah Sintetis Alpha", false],
       ] as const) {
         const sesi = await signIn(ctx, orang);
+        if (peran === "SYSTEM_ADMIN") await pilihKonteksCookie(base, sesi.cookie, { tujuan: "MENGELOLA", nama: "Sekolah Sintetis Alpha" });
         const res = await get(`${base}/studio/unggah`, { headers: { cookie: sesi.cookie } });
         if (!c.expect(res.status === 200, `${peran} /studio/unggah → ${res.status}`)) continue;
         const html = await res.text();
@@ -2145,12 +2182,20 @@ export const appTests: SelfTest[] = [
         }
         c.note(`${peran}: ${pilihan.length} school(s) offered, starting on "${awal?.nama ?? ""}"`);
       }
+      // the platform administrator in Pustaka PINTAR's own context: the library, and nothing else
+      const sysPustaka = await signIn(ctx, PERSONA.sysadmin);
+      await pilihKonteksCookie(base, sysPustaka.cookie, { tujuan: "MENGELOLA", nama: kanon });
+      const hp = await (await get(`${base}/studio/unggah`, { headers: { cookie: sysPustaka.cookie } })).text();
+      const selP = hp.match(/<select[^>]*id="ung-sekolah"[^>]*>([\s\S]*?)<\/select>/);
+      const pilihanP = selP ? opsi(selP[1]).map((o) => o.nama) : [];
+      c.expect(JSON.stringify(pilihanP) === JSON.stringify([kanon]), `in Pustaka PINTAR the Sekolah picker offers ${JSON.stringify(pilihanP)}, not the library alone`);
       return c.verdict(
         "Studio's upload opens, for Alpha's school administrator and for the platform administrator, on the workbook, and only the " +
         "platform administrator is drawn the JSON package forms after it (D-127 Q7): the template " +
         "to download, three steps with the first current, and one file input that takes an .xlsx. Its Sekolah picker starts on a " +
-        "real school (Alpha for Alpha's administrator); no picker on Alpha's administrator's page offers the national library "
-        + "(audit S14), and the platform administrator's offers it once, last (CR-51, D-120 Q7)",
+        "real school (Alpha, for Alpha's administrator and for the platform administrator in Alpha's working context); no picker on " +
+        "either page offers the national library (audit S14), which the platform administrator is offered alone in Pustaka " +
+        "PINTAR's own context (CR-51, D-120 Q7; L3, D-132 C7)",
       );
     },
   },
@@ -2265,6 +2310,9 @@ export const appTests: SelfTest[] = [
         ["HEAD_OF_DEPARTMENT", PERSONA.cycleHod, false],
       ] as const) {
         const sesi = await signIn(ctx, orang);
+        // L3 (D-132 C3, C8): the head of department holds Mengajar and Mengelola there, so Studio asks which; they review
+        // as Mengelola (the school administrator holds one pair, set by the page itself, C4)
+        if (peran === "HEAD_OF_DEPARTMENT") await pilihKonteksCookie(base, sesi.cookie, { tujuan: "MENGELOLA" });
         const rest = (q: string) => fetch(`${ctx.supabaseUrl}/rest/v1/${q}`, {
           headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${sesi.accessToken}` },
         }).then((r) => r.json() as Promise<Array<Record<string, string | null>>>).catch(() => []);
@@ -2421,6 +2469,8 @@ export const appTests: SelfTest[] = [
       const ditolak = visibleText(`<p>${t("pendataan.ditolak", "staff")}</p>`);
       for (const [nama, orang] of [["SYSTEM_ADMIN", PERSONA.sysadmin], ["INSTITUTION_ADMIN", PERSONA.alphaAdmin]] as const) {
         const sesi = await signIn(ctx, orang);
+        // L3 (D-132 C7): the platform administrator in «Seluruh platform», which records nobody
+        if (nama === "SYSTEM_ADMIN") await pilihKonteksCookie(base, sesi.cookie, "MENGELOLA:PLATFORM");
         const k = await get(`${base}/konfigurasi`, { headers: { cookie: sesi.cookie } });
         const html = await k.text();
         c.expect(k.status === 200, `${nama} /konfigurasi → ${k.status}`);
@@ -2481,11 +2531,16 @@ export const appTests: SelfTest[] = [
         c.expect(k.n("/rest/v1/rpc/is_system_admin") <= 1, `${peran} ${jalan} asked is_system_admin ${k.n("/rest/v1/rpc/is_system_admin")} times`);
         const peranku = k.n("/rest/v1/role_assignments", "role,valid_from,valid_until,revoked_at");
         c.expect(peranku <= 1, `${peran} ${jalan} read the viewer's own roles ${peranku} times`);
+        // L3: the working context is read once a click (twice only on the click that sets it, C4), the pairs at most once
+        c.expect(k.n("/rest/v1/rpc/konteks_saya") <= 2 && k.n("/rest/v1/rpc/konteks_tempat_saya") <= 1,
+          `${peran} ${jalan} read the context ${k.n("/rest/v1/rpc/konteks_saya")} times and the pairs ${k.n("/rest/v1/rpc/konteks_tempat_saya")} times`);
       };
 
       const sys = await signIn(ctx, PERSONA.sysadmin);
       const admin = await signIn(ctx, PERSONA.alphaAdmin);
       const guru = await signIn(ctx, PERSONA.alphaGuru);
+      // L3 (D-132 C7): the platform administrator's Studio is a school's working context's, chosen on the chooser
+      await pilihKonteksCookie(base, sys.cookie, { tujuan: "MENGELOLA", nama: "Sekolah Sintetis Alpha" });
 
       // (c) Studio: one capability call, shared by the layout and the page
       for (const [peran, sesi, jalan] of [
@@ -2501,7 +2556,8 @@ export const appTests: SelfTest[] = [
         c.expect(k.n("/rest/v1/role_assignments") <= 1, `${peran} ${jalan} read role_assignments ${k.n("/rest/v1/role_assignments")} times`);
       }
 
-      // (b) Konfigurasi: the lint only when asked
+      // (b) Konfigurasi: the lint only when asked, and the platform's checks are «Seluruh platform»'s (L3, D-132 C7)
+      await pilihKonteksCookie(base, sys.cookie, "MENGELOLA:PLATFORM");
       for (const [peran, sesi] of [["SYSTEM_ADMIN", sys], ["INSTITUTION_ADMIN", admin]] as const) {
         const k = await klik(sesi.cookie, "/konfigurasi");
         sekali(peran, "/konfigurasi", k);
@@ -2526,7 +2582,8 @@ export const appTests: SelfTest[] = [
         "counted through the running app, a Studio click asks studio_capabilities once and can_in_institution never; Konfigurasi, " +
         "including the page a saved grant returns to, runs the schema lint only when the platform admin asks for it; and on every click counted the user is asked of Auth at " +
         "most twice (the proxy's check and the page's), the profile read at most once, is_system_admin asked at most once and " +
-        "the viewer's own roles read at most once (a Studio page reads role_assignments for nothing else). Calls per click: " + catatan.join("; "),
+        "the viewer's own roles read at most once (a Studio page reads role_assignments for nothing else); the working context is " +
+        "read at most twice a click and the pairs held at most once (L3). Calls per click: " + catatan.join("; "),
       );
     },
   },
@@ -2690,6 +2747,8 @@ export const appTests: SelfTest[] = [
       };
       const sys = await signIn(ctx, PERSONA.sysadmin);
       const admin = await signIn(ctx, PERSONA.alphaAdmin);
+      // L3 (D-132 C7): the platform's checks and its list of people holding nothing are «Seluruh platform»'s
+      await pilihKonteksCookie(base, sys.cookie, "MENGELOLA:PLATFORM");
 
       const periksa = await klik(sys.cookie, "/konfigurasi?periksa=skema");
       const k1 = kartu(periksa.html);
@@ -2707,6 +2766,8 @@ export const appTests: SelfTest[] = [
       c.expect(kartu(sekolah.html).includes(s("config.kesehatan.bukan_admin")) && sekolah.n("/rest/v1/rpc/platform_schema_lint") === 0,
         "the school administrator's card does not say who runs the checks");
 
+      // and Studio is a school's: the platform administrator's, in the learning-cycle school's working context
+      await pilihKonteksCookie(base, sys.cookie, { tujuan: "MENGELOLA", nama: "Sekolah Sintetis Siklus" });
       const studio = await klik(sys.cookie, "/studio");
       const kursus = /href="\/studio\/paket\/([0-9a-f-]{36})"/.exec(studio.html)?.[1];
       if (c.expect(Boolean(kursus), "the platform administrator's Studio lists no course to return to")) {
@@ -2876,7 +2937,13 @@ export const appTests: SelfTest[] = [
         };
 
         // 1. Konfigurasi names the school's own teacher in the grant list and
-        //    offers the newly recorded one in the person picker
+        //    offers the newly recorded one in the person picker. The admin now
+        //    holds two schools, so the page asks which (D-132 C4) and the
+        //    admin chooses this one on the chooser.
+        const tanya = await get(`${base}/konfigurasi?sekolah=${S}`, { headers: { cookie: admin.cookie } });
+        c.expect(tanya.status === 307 && (tanya.headers.get("location") ?? "").startsWith("/?lanjut="),
+          `with two schools held, /konfigurasi did not ask which (${tanya.status} ${tanya.headers.get("location")})`);
+        await pilihKonteksCookie(base, admin.cookie, `MENGELOLA:${S}`);
         const hal = await get(`${base}/konfigurasi?sekolah=${S}`, { headers: { cookie: admin.cookie } });
         const html = await hal.text();
         const teks = visibleText(html);
@@ -2974,9 +3041,14 @@ export const appTests: SelfTest[] = [
         c.expect(tercatat() === "-1", `a sign-in left the card's record (${tercatat()} attempt(s))`);
         if (typeof benar.body?.tujuan === "string" && kue.length) {
           const cookie = kue.map((k) => k.split(";")[0]).join("; ");
-          const rumah = await get(`${base}${benar.body.tujuan}`, { headers: { cookie } });
-          c.expect(rumah.status === 200 && benar.body.tujuan === "/belajar",
-            `the card went to ${benar.body.tujuan}, which answered ${rumah.status}; expected the learner's home /belajar`);
+          // RESTATED FOR L3 (D-132 C6, C9): every arrival goes through /mulai, which gives a card session Belajar (its
+          // one pair) and sends it to the learner's home
+          const mulai = await get(`${base}${benar.body.tujuan}`, { headers: { cookie } });
+          const ke = mulai.headers.get("location") ?? "";
+          const rumahJalur = ke ? new URL(ke, base).pathname : "";
+          const rumah = await get(`${base}${rumahJalur || "/"}`, { headers: { cookie } });
+          c.expect(benar.body.tujuan === "/mulai" && [302, 303, 307, 308].includes(mulai.status) && rumahJalur === "/belajar" && rumah.status === 200,
+            `the card went to ${benar.body.tujuan} (${mulai.status} → ${ke || "nowhere"}), whose page answered ${rumah.status}; expected /mulai → the learner's home /belajar`);
         }
 
         // five failures already in the window: the sixth waits, and Auth is not asked

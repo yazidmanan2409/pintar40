@@ -7,6 +7,7 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import FormEmailUji from "@/components/email-uji/FormEmailUji";
 import RiwayatEmail from "@/components/email-uji/RiwayatEmail";
 import { NAMA_PENGATURAN_EMAIL } from "@/app/api/_email/pengaturan";
+import { tawarkanPlatform } from "@/lib/konteks-server";
 
 export const dynamic = "force-dynamic";
 
@@ -19,12 +20,16 @@ export const dynamic = "force-dynamic";
  * (`POST /api/email/uji`, BOB-25, unchanged) asks again, applies the limits and
  * writes the send log. Under it, J1.9's answer to "what happened to this
  * email?" (D-098(c)): the send log for one address or reference.
+ *
+ * L3 (§2.6): the platform's own page, so it is shown in «Seluruh platform» only; in a school's context the chooser
+ * offers «Seluruh platform» and continues here.
  */
 export default async function EmailUji() {
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const supabase = await supabaseServer();
   const { data: sistem } = await supabase.rpc("is_system_admin");
+  if (sistem === true) await tawarkanPlatform();
   if (sistem !== true) {
     return (
       <HalamanPenolakan messageKey="emailuji.ditolak" persona="staff" locale={locale}

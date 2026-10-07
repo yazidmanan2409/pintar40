@@ -23,6 +23,21 @@
  * Pure: the layout and each page ask it, and the tests drive it with nothing else loaded.
  */
 
+/**
+ * The capabilities that are Studio's: the ones Studio asks the database about (studio_capabilities, src/app/studio/_lib.ts)
+ * and the only ones that can give a Studio tab. A grant's other capabilities (a dean's CAN_VIEW_LEARNER_ROSTER) give
+ * none, so a shell never offers Studio to someone Studio would refuse (D-021).
+ */
+export const KEMAMPUAN_STUDIO = [
+  "CAN_DRAFT", "CAN_REVIEW", "CAN_FREEZE_RELEASE", "CAN_PUBLISH",
+  "CAN_ASSIGN_LEARNING", "CAN_REVIEW_QUESTION_HEALTH", "CAN_REVIEW_INTEGRITY",
+  // ADDED for ADR-0018: the Quick Assessment affordance asks the database
+  // whether this viewer may launch one, the same way every other Studio
+  // control does. The RPC re-asks it per class node, so this only decides
+  // whether the page is worth showing.
+  "CAN_QUICK_ASSESSMENT",
+] as const;
+
 export const TAB_STUDIO = ["beranda", "unggah", "tinjau", "kanonik", "definisi", "bank", "integritas"] as const;
 export type TabStudio = (typeof TAB_STUDIO)[number];
 

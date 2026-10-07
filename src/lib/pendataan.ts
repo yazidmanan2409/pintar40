@@ -1,5 +1,6 @@
 import "server-only";
 import { supabaseServer } from "@/lib/supabase/server";
+import { konteksHalaman } from "@/lib/konteks-server";
 import type { Kemajuan } from "@/lib/pendataan-kontrak";
 import { pilihanTempat, type SimpulPohon } from "@/lib/struktur-kontrak";
 
@@ -58,6 +59,15 @@ export type Sekolah = {
  * route renders the one refusal page for it.
  */
 export async function sekolahPendataan(): Promise<Sekolah[]> {
+  // L3 (CR-83; D-127 Q2): the working context's school only (a place, not «Seluruh platform», which records nobody);
+  // an evaluation persona keeps every school it provisions for (C10). The database decides each act.
+  const kh = await konteksHalaman();
+  if (kh === null || (kh !== "TANPA_KONTEKS" && kh.tempat === null)) return [];
+  const semua = await sekolahPendataanSemua();
+  return kh === "TANPA_KONTEKS" ? semua : semua.filter((x) => x.id === kh.tempat);
+}
+
+async function sekolahPendataanSemua(): Promise<Sekolah[]> {
   const c = await db();
   const { data: hibah } = await c.from("role_assignments").select("institution_id");
   const kandidat = [

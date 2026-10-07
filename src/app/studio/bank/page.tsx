@@ -54,7 +54,9 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
   const kolom = "id, stem, bank_type, predicted_difficulty, empirical_difficulty, empirical_discrimination, empirical_evidence_count, institution_id, supersedes_item_id";
   type Sehat = { item_id: string; state: string; evidence_count: number };
   const [{ data: terbaru }, { data: menunggu }] = await Promise.all([
-    supabase.from("items").select(kolom).order("created_at", { ascending: false }).limit(40),
+    // L3 (D-127 Q2): the working context's school only (studioInstitutions is narrowed to it)
+    supabase.from("items").select(kolom).in("institution_id", institutions.map((i) => i.id))
+      .order("created_at", { ascending: false }).limit(40),
     // BOB-41: every item waiting on a reviewer in their schools, whatever its age
     mayReview.length
       ? supabase.from("question_health").select("item_id, state, evidence_count, note")

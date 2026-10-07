@@ -3,7 +3,8 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { t, type HleEvent } from "@/lib/hle";
 import { kalimatHasil, type QueryHasil } from "@/lib/galat-kontrak";
 import { peranSaya } from "@/lib/tur-negara";
-import { tabStudio, type TabStudio } from "@/lib/studio-tab";
+import { KEMAMPUAN_STUDIO, tabStudio, type TabStudio } from "@/lib/studio-tab";
+import { konteksHalaman } from "@/lib/konteks-server";
 
 /**
  * Studio shared helpers (FABLE-05).
@@ -23,15 +24,8 @@ export const label = "grid gap-1 text-sm text-ink-2";
 
 export type StudioInstitution = { id: string; name: string; capabilities: string[] };
 
-const STUDIO_CAPABILITIES = [
-  "CAN_DRAFT", "CAN_REVIEW", "CAN_FREEZE_RELEASE", "CAN_PUBLISH",
-  "CAN_ASSIGN_LEARNING", "CAN_REVIEW_QUESTION_HEALTH", "CAN_REVIEW_INTEGRITY",
-  // ADDED for ADR-0018: the Quick Assessment affordance asks the database
-  // whether this viewer may launch one, the same way every other Studio
-  // control does. The RPC re-asks it per class node, so this only decides
-  // whether the page is worth showing.
-  "CAN_QUICK_ASSESSMENT",
-] as const;
+// The capabilities Studio asks about: one list, which the shell's Studio tab also reads (src/lib/studio-tab.ts).
+const STUDIO_CAPABILITIES = KEMAMPUAN_STUDIO;
 
 /**
  * The institutions this viewer may act in, with the capabilities they actually
@@ -46,8 +40,30 @@ const STUDIO_CAPABILITIES = [
  * Studio layout and its page within one render. A failed call is no
  * capability anywhere, which the layout turns into the refusal, as before.
  */
-export const studioInstitutions = cache(async (): Promise<StudioInstitution[]> =>
-  studioInstitutionsDari(await supabaseServer()));
+export const studioInstitutions = cache(async (): Promise<StudioInstitution[]> => {
+  const semua = await studioInstitutionsDari(await supabaseServer());
+  // L3 (CR-83; D-132 C8): STUDIO FOLLOWS THE WORKING CONTEXT. One place, the context's, and of the capabilities the
+  // database answers there only those the grants giving the active purpose carry (konteks_tempat_saya.kemampuan): in
+  // Mengajar · SD B an Admin platform who teaches there sees Buat Paket and Pustaka for SD B, not review, publishing
+  // or the JSON import, which she still holds. No context that serves Studio, nothing. An evaluation persona keeps
+  // the pre-L3 reading (C10). Narrowing only: the database decides every act from all of the person's grants.
+  const kh = await konteksHalaman();
+  if (kh === "TANPA_KONTEKS") return semua;
+  if (!kh || kh.tempat === null) return [];
+  const di = semua.find((i) => i.id === kh.tempat);
+  const kemampuan = di ? di.capabilities.filter((c) => kh.kemampuan.includes(c)) : [];
+  return di && kemampuan.length > 0 ? [{ ...di, capabilities: kemampuan }] : [];
+});
+
+/**
+ * L3: the roles Studio reads to decide its tabs and its operator parts: the grants that give the active purpose in the
+ * active place (C8), never all of the person's roles. An evaluation persona keeps its own roles (C10).
+ */
+export const peranStudio = cache(async (): Promise<string[]> => {
+  const kh = await konteksHalaman();
+  if (kh === "TANPA_KONTEKS") return (await peranSaya()) ?? [];
+  return kh ? kh.peran : [];
+});
 
 /** `studioInstitutions` over a given client (BOB-18: driven in selftest/bob18.test.ts). */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -70,8 +86,8 @@ export async function studioInstitutionsDari(c: any): Promise<StudioInstitution[
  * decides every action.
  */
 export const tabSaya = cache(async (): Promise<TabStudio[]> => {
-  const [institutions, peran] = await Promise.all([studioInstitutions(), peranSaya()]);
-  return tabStudio(new Set(institutions.flatMap((i) => i.capabilities)), peran ?? []);
+  const [institutions, peran] = await Promise.all([studioInstitutions(), peranStudio()]);
+  return tabStudio(new Set(institutions.flatMap((i) => i.capabilities)), peran);
 });
 
 export function can(inst: StudioInstitution | undefined, capability: string): boolean {

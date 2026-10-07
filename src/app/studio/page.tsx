@@ -14,12 +14,17 @@ export default async function StudioBeranda() {
   const institutions = await studioInstitutions();
   const byId = new Map(institutions.map((i) => [i.id, i.name]));
 
+  // L3 (D-127 Q2): the working context's place only; studioInstitutions is already narrowed to it (an evaluation
+  // persona keeps every school, C10), so what is shown here is read for those places alone
+  const ids = institutions.map((i) => i.id);
   const [{ data: buckets }, { data: courses }] = await Promise.all([
     supabase.rpc("studio_home"),
-    supabase.from("courses").select("id, title, subject, grade_label, institution_id").order("created_at", { ascending: false }).limit(30),
+    supabase.from("courses").select("id, title, subject, grade_label, institution_id").in("institution_id", ids)
+      .order("created_at", { ascending: false }).limit(30),
   ]);
 
-  const rows = (buckets ?? []) as Array<{ bucket: string; institution_id: string; count: number }>;
+  const rows = ((buckets ?? []) as Array<{ bucket: string; institution_id: string; count: number }>)
+    .filter((r) => byId.has(r.institution_id));
 
   return (
     <div className="grid gap-6">

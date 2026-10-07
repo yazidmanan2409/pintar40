@@ -206,7 +206,7 @@ export const bob15Tests: SelfTest[] = [
       c.expect(/rpc\("may_read_support_screenshot", \{ p_path: path \}\)/.test(baca("src", "app", "api", "assets", "read-url", "route.ts")),
         "a screenshot is read without asking whether its report may be read");
       const konf = baca("src", "app", "konfigurasi", "page.tsx");
-      c.expect(/<section id="laporan-masalah"/.test(konf) && /laporanTriase\(isSys === true \? null : adminInstitutionIds\)/.test(konf)
+      c.expect(/<section id="laporan-masalah"/.test(konf) && /laporanTriase\(platformIni \? null : sekolahIni\)/.test(konf)
         && /action=\{pindahkanLaporanAksi\}/.test(konf), "Konfigurasi has no triage list for the school's and the platform's admins");
       return c.verdict("the source: sending is one database call (submit_support_report) with the page, reference, the request's device and the " +
         "screenshot path, landing on «Laporan saya»; moving is one (move_support_report); the form asks three questions and whether a class " +

@@ -8,6 +8,7 @@ import { STATUS_PEMULIHAN_ADMIN, type KodePemulihanAdmin, type StatusPemulihan }
 import { kirimPemberitahuanKeamanan } from "@/app/api/_email/keamanan";
 import { jawab } from "@/app/api/aktifkan/_jawab";
 import { detailPr040 } from "@/app/api/aktifkan/_wizard";
+import { sasaranDalamKonteks, sekolahOrang } from "@/lib/konteks-server";
 
 /**
  * BOB-28 (C5 path (2)), D-101 (1)(3): THE NEAREST AUTHORITY'S AUDITED RESET OF
@@ -19,6 +20,10 @@ import { detailPr040 } from "@/app/api/aktifkan/_wizard";
  * their school has, and refuses one's own ID (SENDIRI). The
  * service key reads one thing after a reset: the owner's account, to tell them
  * (C7); the security recipient is told too.
+ *
+ * §2.11 (D-132(k)): the reset's person is of the working context's school (any school's under «Seluruh platform»).
+ * A narrowing, never a permit. Otherwise the route's own «reload this page» (PERMINTAAN_DITOLAK), marked
+ * CONTEXT_OTHER_PLACE, and nothing is reset.
  */
 export const dynamic = "force-dynamic";
 
@@ -72,6 +77,9 @@ export async function POST(request: NextRequest) {
   if (!alasan || alasan.length > 500) return gagal("ALASAN_KOSONG");
   const s = await status(caller, pintarId);
   if (typeof s === "string") return gagal(s, s === "LAYANAN_TIDAK_TERSEDIA" ? "recovery_status could not be asked" : undefined);
+  if (!(await sasaranDalamKonteks({ sekolah: await sekolahOrang(s.personId), atauPlatform: true }))) {
+    return jawab({ status: STATUS_PEMULIHAN_ADMIN.PERMINTAAN_DITOLAK, body: { ok: false, code: "PERMINTAAN_DITOLAK", sebab: "CONTEXT_OTHER_PLACE" } });
+  }
   const { error } = await caller.rpc("admin_reset_recovery", { p_person: s.personId, p_reason: alasan });
   if (error) {
     if (error.code === "42501") return gagal("DITOLAK");
