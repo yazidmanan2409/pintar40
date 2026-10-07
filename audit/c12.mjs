@@ -199,19 +199,25 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
 
   // ───────────────────────────── C12c
   C.halaman = {};
-  async function masuk(kunci, email) {
+  // L3 (D-132 C4, C9): a person holding several purposes · places chooses one on the chooser before a page both serve
+  async function masuk(kunci, email, pilih = null) {
     if (C.halaman[kunci]) return C.halaman[kunci];
     const c = await ctx();
     const p = await c.newPage();
     const m = await magicSignIn(p, email);
+    if (pilih) await keKonteks(p, pilih);
     C.halaman[kunci] = p;
     C[`mendarat_${kunci}`] = m.landed;
     return p;
   }
+  // the PD Kepala departemen holds Mengajar and Mengelola at SD; reviewing and reading the school is Mengelola's.
+  // The Guru, once enrolled as «Peserta», holds Mengajar and Belajar
+  const KELOLA_SD = { tujuan: "MENGELOLA", nama: "SD Zayd" };
+  const AJAR_SD = { tujuan: "MENGAJAR", nama: "SD Zayd" };
   await step("C12c", "C-12 the content: Gladys uploads the two original filler packages [UJI INTERNAL] (Konteks «Pengembangan profesi»); the PD Kepala departemen reviews, makes and locks each release, Gladys publishes; the school admin sets each pass mark; the facilitator assigns Bab 1, then Bab 2", async (rec) => {
     const notes = [];
     C.kursus = [];
-    const kepala = await masuk("kepalaPd", ORANG_PD.kepalaPd.email);
+    const kepala = await masuk("kepalaPd", ORANG_PD.kepalaPd.email, KELOLA_SD);
     for (let i = 0; i < 2; i++) {
       const r = await kirimPaket("SD Zayd", JSON.stringify(PAKET[i]));
       if (!r.batch) { rec.verdict = "FAIL"; notes.push(`Bab ${i + 1}: no batch (hasil=${r.hasil} detail=${r.detail})`); return notes.join("; "); }
@@ -282,11 +288,15 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
   }
   await step("C12d", "C-12 the Guru's journey: from /mengajar, «Pembelajaran Saya»; both Bab: Pemetaan Awal → every lesson → Uji Penguasaan (the network drops and returns once in Bab 1's) → Hasil; two certificates, each verified by its token", async (rec) => {
     const notes = [];
-    const b = await masuk("guru", people.guru.email);
+    // RESTATED FOR L3 (D-132 C1, C9, §2.4): the Guru now also learns, so she holds Mengajar and Belajar and arrives on the
+    // chooser; she works as Mengajar · SD, and her own learning is the chooser's Belajar door, never a tab from teaching
+    const b = await masuk("guru", people.guru.email, AJAR_SD);
     notes.push(`signed in, landed ${C.mendarat_guru}`);
     await b.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
     await tutupTur(b);
-    await b.getByRole("link", { name: "Pembelajaran Saya" }).first().click();
+    await b.locator("a[data-konteks-pilih]").first().click();
+    await b.waitForURL((u) => u.pathname === "/", { timeout: SLOW });
+    await keKonteks(b, { tujuan: "BELAJAR" });
     await b.waitForURL((u) => u.pathname === "/belajar", { timeout: SLOW });
     // a client-side navigation: the load state was reached by /mengajar already, so wait for the home's own list
     await b.locator('section[data-tur="daftar"]').first().waitFor({ timeout: SLOW }).catch(() => {});
@@ -495,7 +505,7 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => /^\d+\|/.tes
     await f.goto(`${APP}/mengajar/${C.kelasA}`, { waitUntil: "networkidle" });
     const kelasTeks = norm(await f.locator("main").innerText().catch(() => ""));
     const judulKelas = (await f.locator("main h2").allInnerTexts()).map((x) => norm(x).toLowerCase());
-    const kp = await masuk("kepalaPd", ORANG_PD.kepalaPd.email);
+    const kp = await masuk("kepalaPd", ORANG_PD.kepalaPd.email, KELOLA_SD);
     const kepala = await bukaCatatan(kp, "/pimpinan", kelasPd);
     rec.shots.push(await shot(kp, "c12-catatan-kepala"));
     const dc = await ctx(); const dk = await dc.newPage(); await magicSignIn(dk, people.dekan.email);
@@ -555,7 +565,7 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => /^\d+\|/.tes
     const [id, kategori] = sinyal.split("|");
     notes.push(`recorded: ${kategori}`);
     for (const [siapa, kunci, email] of [["the PD Kepala departemen", "kepalaPd", ORANG_PD.kepalaPd.email], ["the school admin", null, null]]) {
-      const p = kunci ? await masuk(kunci, email) : a;
+      const p = kunci ? await masuk(kunci, email, KELOLA_SD) : a;
       await p.goto(`${APP}/studio/integritas`, { waitUntil: "networkidle" });
       await tutupTur(p);
       const teks = norm(await bodyText(p));
@@ -623,6 +633,8 @@ end $y$;`);
       || !intakeDitolak || tambahan !== "0") rec.verdict = "FAIL";
     // Siapkan in Kelas 1A, as its teacher
     const b = await masuk("guru", people.guru.email);
+    // L3: she last worked in her own learning (C12d); Kelas 1A is Mengajar's, chosen on the chooser
+    await keKonteks(b, AJAR_SD);
     await b.goto(`${APP}/mengajar/${kelasSatuA()}/siapkan`, { waitUntil: "networkidle" });
     await tutupTur(b);
     await b.locator("main h1").first().waitFor({ timeout: SLOW }).catch(() => {});
@@ -670,6 +682,7 @@ end $y$;`);
     const api = await apiSession(people.guru.email);
     const profil = (await api.from("my_profile").select("display_role").maybeSingle()).data?.display_role;
     const b = await masuk("guru", people.guru.email);
+    await keKonteks(b, AJAR_SD);
     await b.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
     await tutupTur(b);
     // the class itself, by its exact address (the home's «Siapkan …» card also starts with it)
