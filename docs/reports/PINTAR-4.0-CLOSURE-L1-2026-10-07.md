@@ -2,7 +2,7 @@
 
 **7 October 2026.** The first of the four landings D-128 authorised. L1 is privacy and correctness: E1, CR-86 and CR-90. FD-5 left L1 under D-128(e), and its count and design are in §4.
 
-**This report is a stop.** L2 does not start until the Second Eye has read it.
+**This report was a stop.** The Second Eye read it and ruled L1 GREEN, with L2 GO (D-129).
 
 No screen was redesigned. The secret fields keep their frames, sizes and copy-table words; what changed is how each one hides and reveals. Daisy's presentation of the Secret field is her batch 4b lane.
 
@@ -28,7 +28,7 @@ No screen was redesigned. The secret fields keep their frames, sizes and copy-ta
 
 E1 holds, and stays. Main's run cost an estimated **3 minutes instead of about 70**.
 
-**One wording slip, not new.** In the line quoted above, «this commit the same commit» is missing «is». The phrase has been there since CE-8 (6 Oct). This is the first time it has printed, because the identical commit had never been re-run before. It is cosmetic, but it is in the evidence line, so §6 asks whether to fix it.
+**One wording slip, not new.** In the line quoted above, «this commit the same commit» is missing «is». The phrase has been there since CE-8 (6 Oct). This is the first time it has printed, because the identical commit had never been re-run before. It is cosmetic, but it is in the evidence line, so §8 asks whether to fix it. **Fixed in L2** (D-129).
 
 ### BD-11, three engines × two kinds of computer
 
@@ -49,7 +49,7 @@ In each engine and mode, the walk runs these steps:
 
 **PASS therefore means all six combinations ran and none leaked.** The log line itself stops after the Chromium part: the harness shortens long observations. The verdict is the evidence.
 
-**There is no red-before proof for the reload.** BD-11 was never run on the old code (§3.1).
+**Evidence class (D-129, to be kept as worded):** *preventive hardening added; no pre-change browser reproduction obtained.* BD-11 was never run on the old code (§3.1). This is not a red → green proof, and no later record may call it one.
 
 ## 3. Choices and deviations
 
@@ -63,7 +63,9 @@ The change is small: one effect moved out of the shared-and-card branch.
 
 **What pins it:**
 - BD11 in the journeys;
-- BOB29's static pin, which checks that the reload exists, **but not that it runs on every computer**. §6 proposes a one-line pin.
+- BOB29's static pin, which checks that the reload exists, **but not that it runs on every computer**. §8 proposed a pin of that invariant; D-129 approved it to ride L2.
+
+**The evidence class, as D-129 rules it to stay:** preventive hardening added; no pre-change browser reproduction obtained. BD11's PASS is behavioural evidence after the change, in three engines and both modes.
 
 ### 3.2 The stale `lanjut` moves to L3
 

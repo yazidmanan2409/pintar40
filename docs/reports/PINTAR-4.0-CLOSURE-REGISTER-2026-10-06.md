@@ -118,6 +118,11 @@ Next: your walk of J1–J7 and the stripe; then Daisy's corrections and APPLICAT
 - **Allowance:** 734 of 1,900 spent (L1 113). Re-forecast: 1,097–1,310 for the work that remains, against 1,166.
 - **Stopped for the Second Eye before L2.**
 
+**D-129 (7 Oct):**
+- L1 GREEN; E1 PROVEN and active.
+- L2 GO, with FD-5 Option A (the reading fixed, sealed content unchanged, the full round trip proven) and the two instrument fixes.
+- The stale `lanjut` belongs to L3's context model. E3 held.
+
 ## 1. The register
 
 ### Certificates
@@ -224,7 +229,7 @@ Fix the root, never the DG item. The full conditions are in `PINTAR-4.0-D127-WOR
 | CR-87 | **Studio Purpose and Role Boundaries** (RC-5; FD-8; D-127 Q7, Q8) | Nine Studio tabs shown to everyone Studio admits; the JSON import open to teachers; Aturan Penilaian and the library grant form exposed without a ruled purpose | Tabs by role; JSON import operator-only; Aturan Penilaian not teacher UI, its owner named; the grant form usable by the operator alone | G, U | yes | P1 | D-127 Q7, Q8; CR-52, 75, 77 as ruled | Each tab states its question and next action. DG-32 (purpose), 33, 35 | **A** · CLAUDE + DAISY (S7) |
 | CR-88 | **Shared Collection and Content Grammar** (RC-6; D-127 Q9) | Unbounded lists with an edit form per row; question review unstyled; the lesson preview flattens what the player renders; no example workbook | Collection with explicit edit; Question review; the preview through the player's components; a separate marked example workbook | G, U | yes | P1 | D-127 Q9 | No list beyond one page or with a form per row; preview = player test. DG-25, 26, 30 (UX), 33 (UX), 36 | **A** · CLAUDE + DAISY |
 | CR-89 | **Functional and Data Correctness** (FD-4, FD-5, FD-6, FD-7, FD-9) | Names lost at platform scale; Mudah/Sulit inverted; preview ≠ player; reviewed integrity items never leave; saved rules may never become effective | Each finding's condition (record §3); **FD-5 provenance first** (record §4) | G, U (teachers: FD-5) | yes | P0 | D-127 (FD-5 approach; Q8 for FD-9) | FD-5: an author's word round-trips; FD-4: names at 10× staging. DG-26, 30, 32, 33, Konfigurasi fragments | **A** · CLAUDE |
-| CR-90 | **Browser Session Proof** (RC-8; BD-11; J2.9) | Server sign-out proven (F01-R05); browser Back after «Keluar» never run; the reload-on-restore guard runs only on shared or card devices | The BD-11 walk in Chrome, Edge and Safari, shared and personal; a fix only if it fails | every shared-computer user | yes | P0 | none (J2.9, BD-11) | BD-11 passes; a stale `lanjut` never carries the next sign-in. DG-19 (security part) | **BD-11 closed in L1** (8ee3585; journeys 37581007813, BD11 PASS in Chromium, Firefox and WebKit, personal and shared). **Open: the stale `lanjut`**, moved into L3's design (routing, behind L3's hard stop) · CLAUDE |
+| CR-90 | **Browser Session Proof** (RC-8; BD-11; J2.9) | Server sign-out proven (F01-R05); browser Back after «Keluar» never run; the reload-on-restore guard runs only on shared or card devices | The BD-11 walk in Chrome, Edge and Safari, shared and personal; a fix only if it fails | every shared-computer user | yes | P0 | none (J2.9, BD-11) | BD-11 passes; a stale `lanjut` never carries the next sign-in. DG-19 (security part) | **BD-11 closed in L1** (8ee3585; journeys 37581007813, BD11 PASS in Chromium, Firefox and WebKit, personal and shared). Evidence class (D-129): preventive hardening added; no pre-change browser reproduction obtained. **Open: the stale `lanjut`**, moved into L3's design (routing, behind L3's hard stop) · CLAUDE |
 
 ### Experience: Daisy's design system (the threshold of D-118(c))
 
