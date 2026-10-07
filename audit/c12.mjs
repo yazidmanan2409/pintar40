@@ -668,7 +668,7 @@ end $y$;`);
   });
 
   // ───────────────────────────── C12k (P1, P2, P3)
-  await step("C12k", "C-12 the hard gate and identity: the after snapshot is byte-identical to the baseline (every reading, every protected source, every roster and «Murid» list, the screens); the Guru is one person, still EDUCATOR, home /mengajar, the Kelas tab works (P1, P2, P3)", async (rec) => {
+  await step("C12k", "C-12 the hard gate and identity: the after snapshot is byte-identical to the baseline (every reading, every protected source, every roster and «Murid» list, the screens); the Guru is one person, still EDUCATOR, arrives on the chooser holding Mengajar and Belajar (D-132 C9) and Mengajar's home /mengajar opens Kelas 1A (P1, P2, P3)", async (rec) => {
     const notes = [];
     C.akhir = ambilPotret(DB, param());
     writeFileSync(join(OUT, "c12-sesudah.json"), JSON.stringify(C.akhir, null, 1));
@@ -702,7 +702,10 @@ end $y$;`);
       || '|' || (select count(*) from public.assessment_sessions s where s.id in ('${C.sesi.join("','")}') and s.person_id <> '${C.guru}')`);
     notes.push(`the Guru: display role ${profil}; landed on ${C.mendarat_guru}; Kelas 1A opens from /mengajar ${tab}; one person on every row (membership|sessions|certificates|others): ${satuOrang}; ` +
       `persons ${C.awal.orang.persons_named} → ${C.akhir.orang.persons_named}, accounts ${C.awal.orang.accounts} → ${C.akhir.orang.accounts}, numbers ${C.awal.orang.numbers} → ${C.akhir.orang.numbers}, roles ${C.akhir.orang.roles_aktif}`);
-    if (profil !== "EDUCATOR" || C.mendarat_guru !== "/mengajar" || !tab || satuOrang !== "1|1|1|0") rec.verdict = "FAIL";
+    // RESTATED BY D-132 C9 (the owner's ruling, not a new criterion here): «home /mengajar» was D-010's ranking choosing
+    // for him. Since C12b he holds Mengajar and Belajar, and with no door several purposes are asked on the chooser
+    // («No door + multiple available purposes = ask»); Mengajar's home is still /mengajar, where Kelas 1A opens (above)
+    if (profil !== "EDUCATOR" || C.mendarat_guru !== "/" || !tab || satuOrang !== "1|1|1|0") rec.verdict = "FAIL";
     for (const p of Object.values(C.halaman)) await p.context().close().catch(() => {});
     return notes.join("; ");
   });
