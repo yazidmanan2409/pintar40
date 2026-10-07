@@ -86,9 +86,14 @@ Then threat-model and red-case it before implementation: tests red first, plants
 - 4.1 closes it properly through an authoritative attempt controller with device binding.
 - Failed-device EXAM recovery stays a separate high-risk design and proof gate (D-125(d)).
 
-**The every-state-changing-boundary invariant (D-125(e)).** Approved; its wording is pending from Yazid. The coordinator's reading until then:
-- every boundary that changes an attempt's state checks the authoritative controller and its generation in the same transaction;
-- those boundaries are start, answer, resume, submit, finish, and any recovery or handoff;
-- so no path can write as a stale or second device.
+**The canonical 4.1 invariant (D-125(e), confirmed by Yazid, 7 Oct):**
 
-The 4.1 investigation (§4) enumerates those boundaries from the frozen 4.0 code and red-cases each one.
+> In 4.1, every boundary that changes an attempt's state checks the authoritative controller and its generation in the same transaction, so no path can write as a stale or second device. Those boundaries are start, answer, resume, submit, finish, and any recovery or handoff.
+
+**The proof requirement (D-125(f)):**
+
+> The 4.1 investigation must enumerate every state-changing attempt boundary from the frozen 4.0 implementation and prove controller enforcement at each boundary, including red cases for stale, superseded and concurrent controllers.
+
+The six named boundaries are the minimum known set:
+- the investigation discovers the complete list from the code;
+- any other state-changing path it finds is covered too, never ignored.
