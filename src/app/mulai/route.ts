@@ -56,7 +56,10 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const res = NextResponse.redirect(new URL(tujuanInternal(ke, "/"), request.url));
+  // A relative Location, resolved by the browser against the address it used. `request.url` names the server's own
+  // host (behind `next start`, localhost): another origin, holding none of this session's cookies, where the arrival
+  // would look signed out (the proxy's own redirects are relative for the same reason)
+  const res = new NextResponse(null, { status: 307, headers: { location: tujuanInternal(ke, "/") } });
   if (tanda) res.cookies.set(COOKIE_SELESAI, "", { path: "/", maxAge: 0 });
   res.headers.set("cache-control", "no-store");
   return res;

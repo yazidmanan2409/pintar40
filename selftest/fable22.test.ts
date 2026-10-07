@@ -415,6 +415,10 @@ export const fable22Tests: SelfTest[] = [
       c.expect(/const tanda = request\.cookies\.has\(COOKIE_SELESAI\)/.test(mulai) && /const lanjut = tanda \? "" :/.test(mulai)
         && /cookies\.set\(COOKIE_SELESAI, "", \{[^}]*maxAge: 0/.test(mulai),
         "/mulai does not ignore a carried destination under the mark, or does not remove the mark");
+      // every arrival goes through /mulai, so where it sends the browser must be this same origin: a relative Location,
+      // never one built from request.url (which names the server's own host, not the address the browser used)
+      c.expect(!/request\.url/.test(mulai) && /headers: \{ location: tujuanInternal\(ke, "\/"\) \}/.test(mulai),
+        "/mulai builds where it sends the browser from the server's own host, not as a relative address");
       const proxy = b("src/proxy.ts");
       c.expect(/aturTanda\(/.test(proxy) && /tanda\.tandai/.test(proxy), "the proxy does not apply the sign-out mark");
       // the mark holds no identity
@@ -425,7 +429,7 @@ export const fable22Tests: SelfTest[] = [
       return c.verdict(`the sign-out mark (D-132(e), a 4.0 stale-continuation guard): ${kasus.length} cases as designed (an end `
         + "found by the proxy and an end elsewhere both set it; a fresh browser is never marked, so a new request stays usable; "
         + "a server action writes no cookie); «Keluar», «Keluar dari semua perangkat» and S15's sign-out set it; /mulai ignores "
-        + "the carried destination under it and removes it; it holds no identity");
+        + "the carried destination under it and removes it, sending the browser on by a relative address; it holds no identity");
     },
   },
   {

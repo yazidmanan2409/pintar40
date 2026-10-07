@@ -823,24 +823,34 @@ await step("S15", "Gladys uploads a lesson: Paket Terstruktur", async (rec) => {
   return notes.join("; ");
 });
 
-await step("S15b", "D-029, D-120 Q7: the canonical library is offered to the platform admin only, last, and nothing is sent", async (rec) => {
+await step("S15b", "D-029, D-120 Q7, L3 C7: the canonical library is the platform admin's own place: never offered in a school's context, offered alone once she chooses Pustaka PINTAR, and nothing is sent", async (rec) => {
   // RESTATED FOR CR-51 (D-120 Q7, a changed requirement): the platform admin now prepares the library's standard content
   // through this page, so a package sent here would be accepted and would add a course to this database's library. The
-  // step reads the picker instead and sends nothing: the library is offered once, last, and never preselected. That every
-  // SCHOOL role is still refused at the library is the database's (F11-N02, F12-N01 in CI).
+  // step reads the picker instead and sends nothing. That every SCHOOL role is still refused at the library is the
+  // database's (F11-N02, F12-N01 in CI).
+  // RESTATED FOR L3 (D-132 C7, C8): the library is a place of its own, chosen deliberately on the chooser. In a school's
+  // context the picker offers that school alone and the library never (no upload reaches it by default); in Pustaka
+  // PINTAR's it offers the library alone. D-120 Q7's «never preselected» becomes «never offered until chosen».
   const inst = sql(`select id from public.institutions where tenant_kind='PLATFORM_CANONICAL' limit 1`).trim();
   if (!inst) { rec.verdict = "NOTE"; return "no canonical tenant in this database"; }
   const before = hitung(inst);
-  await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
-  const sel = g.locator("#ung-sekolah");
-  const nama = (await sel.count()) ? (await sel.locator("option").allTextContents()).map((x) => x.trim()) : [];
-  const dipilih = (await sel.count()) ? ((await sel.locator("option:checked").textContent().catch(() => "")) ?? "").trim() : "";
-  const kali = nama.filter((x) => /Kurikulum Nasional/.test(x)).length;
+  const pemilih = async () => {
+    await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
+    const sel = g.locator("#ung-sekolah");
+    return (await sel.count()) ? (await sel.locator("option").allTextContents()).map((x) => x.trim()) : [];
+  };
+  const diSekolah = await pemilih();
+  await keKonteks(g, { tujuan: "MENGELOLA", nama: "Kurikulum Nasional" });
+  const diPustaka = await pemilih();
+  rec.shots.push(await shot(g, "studio-pustaka"));
+  // back to the school's context the walk works in
+  await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
   const after = hitung(inst);
-  if (!nama.length) rec.verdict = "NOTE";
-  else if (kali !== 1 || !/Kurikulum Nasional/.test(nama.at(-1) ?? "") || /Kurikulum Nasional/.test(dipilih)
+  const pustaka = (xs) => xs.filter((x) => /Kurikulum Nasional/.test(x)).length;
+  if (!diSekolah.length && !diPustaka.length) rec.verdict = "NOTE";
+  else if (pustaka(diSekolah) !== 0 || diSekolah.length !== 1 || diPustaka.length !== 1 || pustaka(diPustaka) !== 1
            || after.courses !== before.courses) rec.verdict = "FAIL";
-  return `the platform admin's picker: ${JSON.stringify(nama)}, preselected "${dipilih}"; the library offered ${kali} time(s), last ${/Kurikulum Nasional/.test(nama.at(-1) ?? "")}; canonical courses ${before.courses} → ${after.courses} (nothing sent)`;
+  return `in Mengelola · SD the picker offers ${JSON.stringify(diSekolah)} (the library ${pustaka(diSekolah)} time(s)); in Pustaka PINTAR ${JSON.stringify(diPustaka)}; canonical courses ${before.courses} → ${after.courses} (nothing sent)`;
 });
 
 // Real content: SD Kelas 5 Matematika Bab 1, from docs/onboarding/konten/SD5-Matematika-Bab1.xlsx,
