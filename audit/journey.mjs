@@ -2381,6 +2381,8 @@ await step("S23i", "the head of department reviews Kelas 1A's integrity observat
   const h = await hc.newPage();
   try {
     await magicSignIn(h, people.kaprodi.email);
+    // L3 (D-132 C4, C8): she holds Mengajar and Mengelola at SD, so Studio asks which; reviewing integrity is Mengelola's
+    await keKonteks(h, { tujuan: "MENGELOLA", nama: "SD Zayd" });
     await h.goto(`${APP}/studio`, { waitUntil: "networkidle" });
     await tutupTur(h);
     await h.getByRole("link", { name: "Tinjauan Integritas" }).first().click();
