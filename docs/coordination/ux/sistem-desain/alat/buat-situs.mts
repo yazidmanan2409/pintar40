@@ -64,8 +64,11 @@ const BUNDLE_JS = baca("components/bundle.js");
 if (/<\/script/i.test(BUNDLE_JS)) throw new Error("bundle.js holds «</script»: it cannot be inlined");
 
 // ── the components ────────────────────────────────────────────────────────────
-const NAMA: Record<string, string> = { DateTime: "Date and time", TableRows: "Table rows", PinInput: "PIN input", CodeInput: "Code input", TextField: "Text field", SegmentedControl: "Segmented control", ActionFeedback: "Action feedback", EmptyState: "Empty state", AppShell: "App shell", LearnerShell: "Learner shell", LockScreen: "Lock screen", DeviceChoice: "Device choice", IdleWarning: "Idle warning", PasswordField: "Password field", ActivationFlow: "Activation flow", FormLayout: "Form layout", LayoutGrid: "Layout grid", InteractionStates: "Interaction states" };
+const NAMA: Record<string, string> = { DateTime: "Date and time", TableRows: "Table rows", PinInput: "PIN input", CodeInput: "Code input", TextField: "Text field", SegmentedControl: "Segmented control", ActionFeedback: "Action feedback", EmptyState: "Empty state", AppShell: "App shell", LearnerShell: "Learner shell", LockScreen: "Lock screen", DeviceChoice: "Device choice", IdleWarning: "Idle warning", PasswordField: "Password field", ActivationFlow: "Activation flow", FormLayout: "Form layout", LayoutGrid: "Layout grid", InteractionStates: "Interaction states",
+  J1Terbit: "J1 · Publish, then make available", J2Kelas: "J2 · A whole class, one learner", J3MengajarBelajar: "J3 · Teaching and learning", J4Murid: "J4 · A lesson, a question, a result", J5Jendela: "J5 · The window's dates", J6Peragaan: "J6 · MODE PERAGAAN", J7Kunci: "J7 · Stepping away" };
 const GRUP = ["Brand", "Foundations", "Actions", "Inputs", "Navigation", "Containers", "Feedback", "Data", "Identity"];
+// The composed journeys (11-validation.md §1) are cards too, but they are not components: they have their own category.
+const JALAN = "Journeys";
 type Komp = { nama: string; label: string; grup: string; lebar: number; tinggi: number; subjudul: string; pratinjau: string; panduan: string; status: string };
 const KOMP: Komp[] = readdirSync(join(proyek, "components"), { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => {
   const pratinjau = baca(`components/${d.name}/preview.html`);
@@ -79,7 +82,7 @@ const KOMP: Komp[] = readdirSync(join(proyek, "components"), { withFileTypes: tr
     status: panduan.split(/\n\s*\n/).map((p) => p.trim()).find((p) => p.startsWith("**Status")) ?? "",
   };
 });
-for (const k of KOMP) if (k.grup && !GRUP.includes(k.grup)) throw new Error(`${k.nama}: group «${k.grup}» has no place in the navigation`);
+for (const k of KOMP) if (k.grup && !GRUP.includes(k.grup) && k.grup !== JALAN) throw new Error(`${k.nama}: group «${k.grup}» has no place in the navigation`);
 // The status tag, read the way the boards read it.
 function tandaStatus(teks: string): string {
   const m = /Status:\s*([A-Z][A-Z ,]+?)(?:\*\*|\.|\s\(|$)/.exec(teks);
@@ -143,7 +146,7 @@ ${md(baca("assets/Logos/README.md"))}
 // ── the pages and the navigation ──────────────────────────────────────────────
 // `kat` is the main category in the left column (collapsible); `sub` a quiet label inside Components; `bagian` the page's eyebrow.
 type Halaman = { id: string; kat: string; sub?: string; bagian: string; judul: string; lede?: string; isi: string; komp?: string };
-const KATEGORI: Array<[string, string]> = [["foundations", "Foundations"], ["components", "Components"], ["rulings", "Rulings and validation"], ["assets", "Assets"]];
+const KATEGORI: Array<[string, string]> = [["foundations", "Foundations"], ["components", "Components"], ["rulings", "Rulings and validation"], ["journeys", "Composed journeys"], ["assets", "Assets"]];
 const SUB: Record<string, string> = { Foundations: "Foundations in use" };
 const dok = (berkas: string) => {
   const s = baca(berkas);
@@ -162,6 +165,9 @@ for (const g of GRUP) {
   }
 }
 for (const [id, f] of [["proposal", "07-proposal.md"], ["validation", "11-validation.md"], ["migration", "08-migration.md"], ["references", "09-references.md"]] as const) HAL.push({ id, kat: "rulings", bagian: "Rulings and validation", ...dok(f) });
+for (const k of KOMP.filter((x) => x.grup === JALAN).sort((a, b) => a.nama.localeCompare(b.nama))) {
+  HAL.push({ id: `c/${k.nama}`, kat: "journeys", bagian: "Composed journeys · for owner validation", judul: k.label, lede: k.subjudul, isi: k.panduan, komp: k.nama });
+}
 HAL.push({ id: "assets", kat: "assets", bagian: "Assets", judul: "Assets", lede: "The tab icon and the wordmark's master files.", isi: halamanAset() });
 
 const tautan = (h: Halaman) => `<li><a href="#/${h.id}" data-id="${h.id}">${esc(h.judul)}</a></li>`;
@@ -312,8 +318,9 @@ function ukurBingkai(f, cadangan) {
 }
 function pratinjau(nama, alat) {
   const k = DATA.komp[nama];
-  const lebar = [k.lebar, 820, 390].filter((v, i, a) => a.indexOf(v) === i);
-  const tombol = lebar.map((w, i) => '<button type="button" data-lebar="' + w + '" aria-pressed="' + (i === 0) + '">' + (i === 0 ? "Card · " : w === 820 ? "Tablet · " : "Phone · ") + w + ' px</button>').join("") + '<button type="button" data-lebar="pas" aria-pressed="false">Fit the window</button>';
+  // A journey is checked at 1280, 1024 and 390 px (11-validation.md §1); a component at its card, 820 and 390.
+  const lebar = [k.lebar, k.grup === "Journeys" ? 1024 : 820, 390].filter((v, i, a) => a.indexOf(v) === i);
+  const tombol = lebar.map((w, i) => '<button type="button" data-lebar="' + w + '" aria-pressed="' + (i === 0) + '">' + (i === 0 ? "Card · " : w === 820 ? "Tablet · " : w === 1024 ? "Laptop · " : "Phone · ") + w + ' px</button>').join("") + '<button type="button" data-lebar="pas" aria-pressed="false">Fit the window</button>';
   return '<div class="pratinjau">' + (alat ? '<div class="alat" role="group" aria-label="Preview width"><span class="label">Width</span>' + tombol + '<button type="button" class="sendiri" data-sendiri>Open alone in a new tab</button></div>' : "") +
     '<div class="panggung"><iframe title="' + esc("Live preview: " + k.label) + '" style="width:' + k.lebar + 'px" loading="eager"></iframe></div>' +
     (alat ? '<p class="catatan-pratinjau">Live: hover, click, type and tab through it. It runs with the same tokens, styles and behaviour as the Design System page.</p>' : "") + "</div>";

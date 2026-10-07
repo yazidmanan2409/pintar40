@@ -1,0 +1,30 @@
+- region "Minta membaca lagi · Kelas 5A":
+  - link "Langsung ke isi":
+    - /url: "#j2-b-isi"
+  - img "PINTAR"
+  - button "Keluar"
+  - button "Buka menu"
+  - main:
+    - paragraph:
+      - link "Bab 3 · Pecahan senilai":
+        - /url: "#"
+    - heading "Minta membaca lagi" [level=1]
+    - paragraph: Pilih murid yang perlu bantuan dan pelajaran yang perlu mereka baca lagi. Mereka akan menemukan permintaan ini di beranda mereka.
+    - group "Murid":
+      - text: Murid
+      - checkbox "Ayu Lestari Sudah mulai, belum mengumpulkan" [checked]
+      - text: Ayu Lestari Sudah mulai, belum mengumpulkan
+      - checkbox "Bagus Santoso belum menyelesaikan Uji Penguasaan"
+      - text: Bagus Santoso belum menyelesaikan Uji Penguasaan
+    - group "Pelajaran untuk dibaca lagi":
+      - text: Pelajaran untuk dibaca lagi
+      - checkbox "Pelajaran 1 · Apa itu pecahan senilai"
+      - text: Pelajaran 1 · Apa itu pecahan senilai
+      - checkbox "Pelajaran 2 · Mengalikan pembilang dan penyebut"
+      - text: Pelajaran 2 · Mengalikan pembilang dan penyebut
+      - checkbox "Pelajaran 3 · Menyederhanakan pecahan" [checked]
+      - text: Pelajaran 3 · Menyederhanakan pecahan
+      - checkbox "Pelajaran 4 · Membandingkan pecahan"
+      - text: Pelajaran 4 · Membandingkan pecahan
+    - paragraph: Hasil murid tidak berubah, dan tidak ada tes baru.
+    - button "Minta membaca lagi"

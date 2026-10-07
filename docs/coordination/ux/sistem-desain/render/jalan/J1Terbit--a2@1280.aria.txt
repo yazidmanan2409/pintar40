@@ -1,0 +1,45 @@
+- region "Matematika · Bab 3 · Pecahan senilai · Studio":
+  - link "Langsung ke isi":
+    - /url: "#j1-a2-isi"
+  - navigation "Tempat kerja Anda":
+    - img "PINTAR"
+    - button "Ciutkan navigasi" [expanded]
+    - list:
+      - listitem:
+        - link "Konfigurasi":
+          - /url: "#"
+      - listitem:
+        - link "Pendataan":
+          - /url: "#"
+      - listitem:
+        - link "Aktivasi akun":
+          - /url: "#"
+      - listitem:
+        - link "Studio":
+          - /url: "#"
+    - 'button "Akun: Maya Kusuma"':
+      - strong: Maya Kusuma
+      - text: Admin sekolah · SDN Kaliandra 1
+    - button "Keluar"
+  - main:
+    - paragraph:
+      - link "Studio":
+        - /url: "#"
+    - heading "Matematika · Bab 3 · Pecahan senilai" [level=1]
+    - region "Langkah menuju terbit":
+      - heading "Langkah menuju terbit" [level=2]
+      - paragraph: Tujuh langkah dari unggahan sampai terbit, dalam urutan yang dijalankan PINTAR. Tombol hanya muncul untuk orang yang boleh mengambil langkah itu.
+      - list "Langkah menuju terbit":
+        - listitem: Susun isi (Selesai)
+        - listitem: Periksa isi (Selesai)
+        - listitem: Ajukan untuk ditinjau (Selesai)
+        - listitem: Setujui isi (Selesai)
+        - listitem: Buat terbitan (Selesai)
+        - listitem: Kunci terbitan (Selesai)
+        - listitem: Terbitkan
+      - region "Terbitkan":
+        - paragraph: Sekarang
+        - heading "Terbitkan" [level=3]
+        - paragraph: Setelah terbit, guru dapat menugaskannya ke kelas.
+        - paragraph: "Oleh: Admin sekolah atau Admin platform"
+        - button "Terbitkan"

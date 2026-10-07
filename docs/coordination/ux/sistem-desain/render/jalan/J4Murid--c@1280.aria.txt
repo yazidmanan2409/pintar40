@@ -1,0 +1,33 @@
+- region "Uji Penguasaan · Bab 3 · Pecahan senilai":
+  - link "Langsung ke isi":
+    - /url: "#j4-c-isi"
+  - img "PINTAR"
+  - radiogroup "Bahasa":
+    - radio "ID" [checked]
+    - text: ID
+    - radio "EN"
+    - text: EN
+  - text: Bukan akun Anda?
+  - button "Keluar"
+  - main:
+    - paragraph: Uji Penguasaan · Bab 3 · Pecahan senilai
+    - heading "Pertanyaan 7 dari 10" [level=1]
+    - paragraph: Kerjakan dengan tenang. Anda bisa menandai soal dan kembali lagi.
+    - group "Pecahan manakah yang tidak senilai dengan 2/3?":
+      - text: Pecahan manakah yang
+      - strong: tidak
+      - text: senilai dengan 2/3?
+      - radio "2/3"
+      - text: 2/3
+      - radio "4/6"
+      - text: 4/6
+      - radio "6/8" [checked]
+      - text: 6/8
+      - radio "8/12"
+      - text: 8/12
+    - button "Simpan jawaban ini"
+    - button "Tandai"
+    - region "Kumpulkan":
+      - heading "Kumpulkan" [level=2]
+      - paragraph: Kumpulkan sekarang? Setelah dikumpulkan, jawaban tidak bisa diubah.
+      - button "Kumpulkan"

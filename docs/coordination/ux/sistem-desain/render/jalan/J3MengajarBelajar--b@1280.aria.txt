@@ -1,0 +1,40 @@
+- region "Pembelajaran Saya · PINTAR":
+  - link "Langsung ke isi":
+    - /url: "#j3-b-isi"
+  - navigation "Tempat kerja Anda":
+    - img "PINTAR"
+    - button "Ciutkan navigasi" [expanded]
+    - list:
+      - listitem:
+        - text: Mengajar
+        - list "Mengajar":
+          - listitem:
+            - link "Kelas":
+              - /url: "#"
+          - listitem:
+            - link "Studio":
+              - /url: "#"
+      - listitem:
+        - text: Belajar
+        - list "Belajar":
+          - listitem:
+            - link "Pembelajaran Saya":
+              - /url: "#"
+    - link "Bantuan":
+      - /url: "#"
+    - 'button "Akun: Rina Kartika"':
+      - strong: Rina Kartika
+      - text: Guru · SDN Kaliandra 1
+    - button "Keluar"
+  - main:
+    - paragraph: Pembelajaran Saya
+    - heading "Pembelajaran Anda" [level=1]
+    - paragraph: Ini pembelajaran Anda sendiri, terpisah dari kelas yang Anda ajar.
+    - region "Bisa dikerjakan sekarang":
+      - heading "Bisa dikerjakan sekarang" [level=2]
+      - list:
+        - listitem:
+          - link "Pengembangan Profesi · Merancang Asesmen Formatif di Kelas Sedang di Pelajaran 2 dari 5 selesai":
+            - /url: "#"
+            - strong: Pengembangan Profesi · Merancang Asesmen Formatif di Kelas
+            - text: Sedang di Pelajaran 2 dari 5 selesai

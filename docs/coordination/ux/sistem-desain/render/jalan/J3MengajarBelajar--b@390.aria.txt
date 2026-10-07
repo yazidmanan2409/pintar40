@@ -1,0 +1,18 @@
+- region "Pembelajaran Saya · PINTAR":
+  - link "Langsung ke isi":
+    - /url: "#j3-b-isi"
+  - img "PINTAR"
+  - button "Keluar"
+  - button "Buka menu"
+  - main:
+    - paragraph: Pembelajaran Saya
+    - heading "Pembelajaran Anda" [level=1]
+    - paragraph: Ini pembelajaran Anda sendiri, terpisah dari kelas yang Anda ajar.
+    - region "Bisa dikerjakan sekarang":
+      - heading "Bisa dikerjakan sekarang" [level=2]
+      - list:
+        - listitem:
+          - link "Pengembangan Profesi · Merancang Asesmen Formatif di Kelas Sedang di Pelajaran 2 dari 5 selesai":
+            - /url: "#"
+            - strong: Pengembangan Profesi · Merancang Asesmen Formatif di Kelas
+            - text: Sedang di Pelajaran 2 dari 5 selesai

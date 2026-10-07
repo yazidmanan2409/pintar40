@@ -1,0 +1,145 @@
+J6Peragaan: the keyboard walk (alat/jalani.mts). Chromium, locale id-ID. Focus after a screen change is the walk's runner (the screen's heading); the product's own focus rules are in the journey's README.
+
+── 1280 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. a «Lihat sebagai Murid · Kelas 5A»  ring
+   3. a «Lihat sebagai Guru · Kelas 5A»  ring
+   4. a «Lihat sebagai Kepala departemen · Matematika»  ring
+   5. a «Lihat sebagai Dekan»  ring
+   6. a «Lihat sebagai Admin sekolah»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. a «Ganti sudut pandang»  ring
+   3. button «Keluar dari peragaan»  ring
+   4. a «Belajar»  ring
+   5. a «Sertifikat»  ring
+   6. button «Bantuan»  ring
+   7. input «ID»  ring
+   8. button «Keluar»  ring
+   9. a «Lanjutkan pelajaran»  ring
+[c]
+   1. a «Langsung ke isi»  ring
+   2. a «Pilih sudut pandang»  ring
+
+── 1280 px · motion on: the walk (9 Tab presses in all)
+  Tab ×2 → a «Lihat sebagai Murid · Kelas 5A»
+  Enter
+  → screen b: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  Shift+Tab ×6 → button «Keluar dari peragaan»
+  Enter
+  → screen c: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
+  Tab ×1 → a «Pilih sudut pandang»
+  Enter
+  → screen a: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
+  motion seen: pds-denyut 0.9s on pds-dot; transition background-color 0.12s on button; pds-muncul 0.16s on pds-result
+  no finding
+
+── 1024 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. a «Lihat sebagai Murid · Kelas 5A»  ring
+   3. a «Lihat sebagai Guru · Kelas 5A»  ring
+   4. a «Lihat sebagai Kepala departemen · Matematika»  ring
+   5. a «Lihat sebagai Dekan»  ring
+   6. a «Lihat sebagai Admin sekolah»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. a «Ganti sudut pandang»  ring
+   3. button «Keluar dari peragaan»  ring
+   4. a «Belajar»  ring
+   5. a «Sertifikat»  ring
+   6. button «Bantuan»  ring
+   7. input «ID»  ring
+   8. button «Keluar»  ring
+   9. a «Lanjutkan pelajaran»  ring
+[c]
+   1. a «Langsung ke isi»  ring
+   2. a «Pilih sudut pandang»  ring
+
+── 1024 px · motion on: the walk (9 Tab presses in all)
+  Tab ×2 → a «Lihat sebagai Murid · Kelas 5A»
+  Enter
+  → screen b: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  Shift+Tab ×6 → button «Keluar dari peragaan»
+  Enter
+  → screen c: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
+  Tab ×1 → a «Pilih sudut pandang»
+  Enter
+  → screen a: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
+  motion seen: pds-denyut 0.9s on pds-dot; transition background-color 0.12s on button; pds-muncul 0.16s on pds-result
+  no finding
+
+── 390 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. a «Lihat sebagai Murid · Kelas 5A»  ring
+   3. a «Lihat sebagai Guru · Kelas 5A»  ring
+   4. a «Lihat sebagai Kepala departemen · Matematika»  ring
+   5. a «Lihat sebagai Dekan»  ring
+   6. a «Lihat sebagai Admin sekolah»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. a «Ganti sudut pandang»  ring
+   3. button «Keluar dari peragaan»  ring
+   4. a «Belajar»  ring
+   5. a «Sertifikat»  ring
+   6. button «Bantuan»  ring
+   7. input «ID»  ring
+   8. button «Keluar»  ring
+   9. a «Lanjutkan pelajaran»  ring
+[c]
+   1. a «Langsung ke isi»  ring
+   2. a «Pilih sudut pandang»  ring
+
+── 390 px · motion on: the walk (9 Tab presses in all)
+  Tab ×2 → a «Lihat sebagai Murid · Kelas 5A»
+  Enter
+  → screen b: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  Shift+Tab ×6 → button «Keluar dari peragaan»
+  Enter
+  → screen c: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
+  Tab ×1 → a «Pilih sudut pandang»
+  Enter
+  → screen a: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
+  motion seen: pds-denyut 0.9s on pds-dot; transition background-color 0.12s on button; pds-muncul 0.16s on pds-result
+  no finding
+
+── 1280 px · motion reduced: the walk (9 Tab presses in all)
+  Tab ×2 → a «Lihat sebagai Murid · Kelas 5A»
+  Enter
+  → screen b: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  Shift+Tab ×6 → button «Keluar dari peragaan»
+  Enter
+  → screen c: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
+  Tab ×1 → a «Pilih sudut pandang»
+  Enter
+  → screen a: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
+  motion seen: none
+  no finding
+
+── 1024 px · motion reduced: the walk (9 Tab presses in all)
+  Tab ×2 → a «Lihat sebagai Murid · Kelas 5A»
+  Enter
+  → screen b: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  Shift+Tab ×6 → button «Keluar dari peragaan»
+  Enter
+  → screen c: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
+  Tab ×1 → a «Pilih sudut pandang»
+  Enter
+  → screen a: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
+  motion seen: none
+  no finding
+
+── 390 px · motion reduced: the walk (9 Tab presses in all)
+  Tab ×2 → a «Lihat sebagai Murid · Kelas 5A»
+  Enter
+  → screen b: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  Shift+Tab ×6 → button «Keluar dari peragaan»
+  Enter
+  → screen c: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
+  Tab ×1 → a «Pilih sudut pandang»
+  Enter
+  → screen a: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
+  motion seen: none
+  no finding

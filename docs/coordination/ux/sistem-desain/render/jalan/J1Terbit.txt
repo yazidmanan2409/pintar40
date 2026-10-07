@@ -1,0 +1,443 @@
+J1Terbit: the keyboard walk (alat/jalani.mts). Chromium, locale id-ID. Focus after a screen change is the walk's runner (the screen's heading); the product's own focus rules are in the journey's README.
+
+── 1280 px · motion on: Tab stops, screen by screen
+[a1]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Konfigurasi»  ring
+   4. a «Pendataan»  ring
+   5. a «Aktivasi akun»  ring
+   6. a «Studio»  ring
+   7. button «Akun: Maya Kusuma»  ring
+   8. button «Keluar»  ring
+   9. a «Beranda»  ring
+  10. a «Buat Paket»  ring
+  11. a «Antrean Tinjauan»  ring
+  12. a «Bank Soal»  ring
+  13. a «Uji Cepat»  ring
+  14. a «Matematika · Bab 3 · Pecahan senilaiSekarang: Te»  ring
+  15. a «Matematika · Bab 4 · Pecahan campuranSekarang: S»  ring
+[a2]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Konfigurasi»  ring
+   4. a «Pendataan»  ring
+   5. a «Aktivasi akun»  ring
+   6. a «Studio»  ring
+   7. button «Akun: Maya Kusuma»  ring
+   8. button «Keluar»  ring
+   9. a «Studio»  ring
+  10. button «Terbitkan»  ring
+[a1b]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Konfigurasi»  ring
+   4. a «Pendataan»  ring
+   5. a «Aktivasi akun»  ring
+   6. a «Studio»  ring
+   7. button «Akun: Maya Kusuma»  ring
+   8. button «Keluar»  ring
+   9. a «Beranda»  ring
+  10. a «Buat Paket»  ring
+  11. a «Antrean Tinjauan»  ring
+  12. a «Bank Soal»  ring
+  13. a «Uji Cepat»  ring
+  14. a «Matematika · Bab 3 · Pecahan senilaiTerbitTerbit»  ring
+  15. a «Matematika · Bab 4 · Pecahan campuranSekarang: S»  ring
+  16. a «Continue as the teacher (review step)»  ring
+[b1]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kelas 5A · Matematika31 murid terdaftar hari ini»  ring
+  10. a «Kelas 5B · Matematika29 murid terdaftar hari ini»  ring
+[b2]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kelas»  ring
+  10. a «Siapkan»  ring
+[b3]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kembali ke pilihan materi»  ring
+  10. input «Mulai»  ring
+  11. input «Mulai»  ring
+  12. input «Mulai»  ring
+  13. input «Mulai»  the browser's own ring (the calendar button)
+  14. input «Sampai (opsional)»  ring
+  15. input «Sampai (opsional)»  ring
+  16. input «Sampai (opsional)»  ring
+  17. input «Sampai (opsional)»  the browser's own ring (the calendar button)
+  18. button «Sediakan»  ring
+[b4]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kelas»  ring
+
+── 1280 px · motion on: the walk (36 Tab presses in all)
+  Tab ×14 → a «Matematika · Bab 3 · Pecahan senilaiSekarang: Te»
+  Enter
+  → screen a2: focus on «Matematika · Bab 3 · Pecahan senilai», title «Matematika · Bab 3 · Pecahan senilai · Studio»
+  Tab ×1 → button «Terbitkan»
+  Enter
+  shown: [data-layar="a2"] button[data-aksi][aria-busy="true"] («Menerbitkan…» at once)
+  shown: [data-layar="a2"] button[data-keadaan="selesai"] («✓ Diterbitkan»)
+  shown: #j1-a2-hasil
+  Tab ×1 → a «Paket Pembelajaran»
+  Enter
+  → screen a1b: focus on «Studio», title «Studio · PINTAR»
+  Tab ×8 → a «Continue as the teacher (review step)»
+  Enter
+  → screen b1: focus on «Kelas dalam lingkup mengajar Anda», title «Kelas · PINTAR»
+  Tab ×1 → a «Kelas 5A · Matematika31 murid terdaftar hari ini»
+  Enter
+  → screen b2: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  Tab ×1 → a «Siapkan»
+  Enter
+  → screen b3: focus on «Yang akan diterima murid», title «Siapkan materi · Kelas 5A»
+  Tab ×9 → button «Sediakan»
+  Enter
+  shown: [data-layar="b3"] button[aria-busy="true"] («Menyediakan…» at once)
+  shown: #j1-b3-hasil
+  Tab ×1 → a «Kelas 5A»
+  Enter
+  → screen b4: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  motion seen: pds-denyut 0.9s on pds-dot; transition background-color 0.12s on button; transition background-color 0.12s, 0.12s, 0.12s on pds-btn; transition color 0.12s, 0.12s, 0.12s on pds-btn; pds-muncul 0.16s on pds-result; transition border-bottom-color 0.12s on pds-input; transition border-left-color 0.12s on pds-input; transition border-right-color 0.12s on pds-input; transition border-top-color 0.12s on pds-input
+  no finding
+
+── 1024 px · motion on: Tab stops, screen by screen
+[a1]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Konfigurasi»  ring
+   4. a «Pendataan»  ring
+   5. a «Aktivasi akun»  ring
+   6. a «Studio»  ring
+   7. button «Akun: Maya Kusuma»  ring
+   8. button «Keluar»  ring
+   9. a «Beranda»  ring
+  10. a «Buat Paket»  ring
+  11. a «Antrean Tinjauan»  ring
+  12. a «Bank Soal»  ring
+  13. a «Uji Cepat»  ring
+  14. a «Matematika · Bab 3 · Pecahan senilaiSekarang: Te»  ring
+  15. a «Matematika · Bab 4 · Pecahan campuranSekarang: S»  ring
+[a2]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Konfigurasi»  ring
+   4. a «Pendataan»  ring
+   5. a «Aktivasi akun»  ring
+   6. a «Studio»  ring
+   7. button «Akun: Maya Kusuma»  ring
+   8. button «Keluar»  ring
+   9. a «Studio»  ring
+  10. button «Terbitkan»  ring
+[a1b]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Konfigurasi»  ring
+   4. a «Pendataan»  ring
+   5. a «Aktivasi akun»  ring
+   6. a «Studio»  ring
+   7. button «Akun: Maya Kusuma»  ring
+   8. button «Keluar»  ring
+   9. a «Beranda»  ring
+  10. a «Buat Paket»  ring
+  11. a «Antrean Tinjauan»  ring
+  12. a «Bank Soal»  ring
+  13. a «Uji Cepat»  ring
+  14. a «Matematika · Bab 3 · Pecahan senilaiTerbitTerbit»  ring
+  15. a «Matematika · Bab 4 · Pecahan campuranSekarang: S»  ring
+  16. a «Continue as the teacher (review step)»  ring
+[b1]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kelas 5A · Matematika31 murid terdaftar hari ini»  ring
+  10. a «Kelas 5B · Matematika29 murid terdaftar hari ini»  ring
+[b2]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kelas»  ring
+  10. a «Siapkan»  ring
+[b3]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kembali ke pilihan materi»  ring
+  10. input «Mulai»  ring
+  11. input «Mulai»  ring
+  12. input «Mulai»  ring
+  13. input «Mulai»  the browser's own ring (the calendar button)
+  14. input «Sampai (opsional)»  ring
+  15. input «Sampai (opsional)»  ring
+  16. input «Sampai (opsional)»  ring
+  17. input «Sampai (opsional)»  the browser's own ring (the calendar button)
+  18. button «Sediakan»  ring
+[b4]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kelas»  ring
+
+── 1024 px · motion on: the walk (36 Tab presses in all)
+  Tab ×14 → a «Matematika · Bab 3 · Pecahan senilaiSekarang: Te»
+  Enter
+  → screen a2: focus on «Matematika · Bab 3 · Pecahan senilai», title «Matematika · Bab 3 · Pecahan senilai · Studio»
+  Tab ×1 → button «Terbitkan»
+  Enter
+  shown: [data-layar="a2"] button[data-aksi][aria-busy="true"] («Menerbitkan…» at once)
+  shown: [data-layar="a2"] button[data-keadaan="selesai"] («✓ Diterbitkan»)
+  shown: #j1-a2-hasil
+  Tab ×1 → a «Paket Pembelajaran»
+  Enter
+  → screen a1b: focus on «Studio», title «Studio · PINTAR»
+  Tab ×8 → a «Continue as the teacher (review step)»
+  Enter
+  → screen b1: focus on «Kelas dalam lingkup mengajar Anda», title «Kelas · PINTAR»
+  Tab ×1 → a «Kelas 5A · Matematika31 murid terdaftar hari ini»
+  Enter
+  → screen b2: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  Tab ×1 → a «Siapkan»
+  Enter
+  → screen b3: focus on «Yang akan diterima murid», title «Siapkan materi · Kelas 5A»
+  Tab ×9 → button «Sediakan»
+  Enter
+  shown: [data-layar="b3"] button[aria-busy="true"] («Menyediakan…» at once)
+  shown: #j1-b3-hasil
+  Tab ×1 → a «Kelas 5A»
+  Enter
+  → screen b4: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  motion seen: pds-denyut 0.9s on pds-dot; transition background-color 0.12s on button; transition background-color 0.12s, 0.12s, 0.12s on pds-btn; transition color 0.12s, 0.12s, 0.12s on pds-btn; pds-muncul 0.16s on pds-result; transition border-bottom-color 0.12s on pds-input; transition border-left-color 0.12s on pds-input; transition border-right-color 0.12s on pds-input; transition border-top-color 0.12s on pds-input
+  no finding
+
+── 390 px · motion on: Tab stops, screen by screen
+[a1]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. a «Beranda»  ring
+   5. a «Buat Paket»  ring
+   6. a «Antrean Tinjauan»  ring
+   7. a «Bank Soal»  ring
+   8. a «Uji Cepat»  ring
+   9. a «Matematika · Bab 3 · Pecahan senilaiSekarang: Te»  ring
+  10. a «Matematika · Bab 4 · Pecahan campuranSekarang: S»  ring
+[a2]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. a «Studio»  ring
+   5. button «Terbitkan»  ring
+[a1b]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. a «Beranda»  ring
+   5. a «Buat Paket»  ring
+   6. a «Antrean Tinjauan»  ring
+   7. a «Bank Soal»  ring
+   8. a «Uji Cepat»  ring
+   9. a «Matematika · Bab 3 · Pecahan senilaiTerbitTerbit»  ring
+  10. a «Matematika · Bab 4 · Pecahan campuranSekarang: S»  ring
+  11. a «Continue as the teacher (review step)»  ring
+[b1]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. a «Kelas 5A · Matematika31 murid terdaftar hari ini»  ring
+   5. a «Kelas 5B · Matematika29 murid terdaftar hari ini»  ring
+[b2]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. a «Kelas»  ring
+   5. a «Siapkan»  ring
+[b3]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. a «Kembali ke pilihan materi»  ring
+   5. input «Mulai»  ring
+   6. input «Mulai»  ring
+   7. input «Mulai»  ring
+   8. input «Mulai»  the browser's own ring (the calendar button)
+   9. input «Sampai (opsional)»  ring
+  10. input «Sampai (opsional)»  ring
+  11. input «Sampai (opsional)»  ring
+  12. input «Sampai (opsional)»  the browser's own ring (the calendar button)
+  13. button «Sediakan»  ring
+[b4]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. a «Kelas»  ring
+
+── 390 px · motion on: the walk (31 Tab presses in all)
+  Tab ×9 → a «Matematika · Bab 3 · Pecahan senilaiSekarang: Te»
+  Enter
+  → screen a2: focus on «Matematika · Bab 3 · Pecahan senilai», title «Matematika · Bab 3 · Pecahan senilai · Studio»
+  Tab ×1 → button «Terbitkan»
+  Enter
+  shown: [data-layar="a2"] button[data-aksi][aria-busy="true"] («Menerbitkan…» at once)
+  shown: [data-layar="a2"] button[data-keadaan="selesai"] («✓ Diterbitkan»)
+  shown: #j1-a2-hasil
+  Tab ×1 → a «Paket Pembelajaran»
+  Enter
+  → screen a1b: focus on «Studio», title «Studio · PINTAR»
+  Tab ×8 → a «Continue as the teacher (review step)»
+  Enter
+  → screen b1: focus on «Kelas dalam lingkup mengajar Anda», title «Kelas · PINTAR»
+  Tab ×1 → a «Kelas 5A · Matematika31 murid terdaftar hari ini»
+  Enter
+  → screen b2: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  Tab ×1 → a «Siapkan»
+  Enter
+  → screen b3: focus on «Yang akan diterima murid», title «Siapkan materi · Kelas 5A»
+  Tab ×9 → button «Sediakan»
+  Enter
+  shown: [data-layar="b3"] button[aria-busy="true"] («Menyediakan…» at once)
+  shown: #j1-b3-hasil
+  Tab ×1 → a «Kelas 5A»
+  Enter
+  → screen b4: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  motion seen: pds-denyut 0.9s on pds-dot; transition background-color 0.12s on button; transition background-color 0.12s, 0.12s, 0.12s on pds-btn; transition color 0.12s, 0.12s, 0.12s on pds-btn; pds-muncul 0.16s on pds-result; transition border-bottom-color 0.12s, 0.12s on pds-check; transition border-left-color 0.12s, 0.12s on pds-check; transition border-right-color 0.12s, 0.12s on pds-check; transition border-top-color 0.12s, 0.12s on pds-check; transition border-bottom-color 0.12s on pds-input; transition border-left-color 0.12s on pds-input; transition border-right-color 0.12s on pds-input; transition border-top-color 0.12s on pds-input
+  no finding
+
+── 1280 px · motion reduced: the walk (36 Tab presses in all)
+  Tab ×14 → a «Matematika · Bab 3 · Pecahan senilaiSekarang: Te»
+  Enter
+  → screen a2: focus on «Matematika · Bab 3 · Pecahan senilai», title «Matematika · Bab 3 · Pecahan senilai · Studio»
+  Tab ×1 → button «Terbitkan»
+  Enter
+  shown: [data-layar="a2"] button[data-aksi][aria-busy="true"] («Menerbitkan…» at once)
+  shown: [data-layar="a2"] button[data-keadaan="selesai"] («✓ Diterbitkan»)
+  shown: #j1-a2-hasil
+  Tab ×1 → a «Paket Pembelajaran»
+  Enter
+  → screen a1b: focus on «Studio», title «Studio · PINTAR»
+  Tab ×8 → a «Continue as the teacher (review step)»
+  Enter
+  → screen b1: focus on «Kelas dalam lingkup mengajar Anda», title «Kelas · PINTAR»
+  Tab ×1 → a «Kelas 5A · Matematika31 murid terdaftar hari ini»
+  Enter
+  → screen b2: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  Tab ×1 → a «Siapkan»
+  Enter
+  → screen b3: focus on «Yang akan diterima murid», title «Siapkan materi · Kelas 5A»
+  Tab ×9 → button «Sediakan»
+  Enter
+  shown: [data-layar="b3"] button[aria-busy="true"] («Menyediakan…» at once)
+  shown: #j1-b3-hasil
+  Tab ×1 → a «Kelas 5A»
+  Enter
+  → screen b4: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  motion seen: none
+  no finding
+
+── 1024 px · motion reduced: the walk (36 Tab presses in all)
+  Tab ×14 → a «Matematika · Bab 3 · Pecahan senilaiSekarang: Te»
+  Enter
+  → screen a2: focus on «Matematika · Bab 3 · Pecahan senilai», title «Matematika · Bab 3 · Pecahan senilai · Studio»
+  Tab ×1 → button «Terbitkan»
+  Enter
+  shown: [data-layar="a2"] button[data-aksi][aria-busy="true"] («Menerbitkan…» at once)
+  shown: [data-layar="a2"] button[data-keadaan="selesai"] («✓ Diterbitkan»)
+  shown: #j1-a2-hasil
+  Tab ×1 → a «Paket Pembelajaran»
+  Enter
+  → screen a1b: focus on «Studio», title «Studio · PINTAR»
+  Tab ×8 → a «Continue as the teacher (review step)»
+  Enter
+  → screen b1: focus on «Kelas dalam lingkup mengajar Anda», title «Kelas · PINTAR»
+  Tab ×1 → a «Kelas 5A · Matematika31 murid terdaftar hari ini»
+  Enter
+  → screen b2: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  Tab ×1 → a «Siapkan»
+  Enter
+  → screen b3: focus on «Yang akan diterima murid», title «Siapkan materi · Kelas 5A»
+  Tab ×9 → button «Sediakan»
+  Enter
+  shown: [data-layar="b3"] button[aria-busy="true"] («Menyediakan…» at once)
+  shown: #j1-b3-hasil
+  Tab ×1 → a «Kelas 5A»
+  Enter
+  → screen b4: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  motion seen: none
+  no finding
+
+── 390 px · motion reduced: the walk (31 Tab presses in all)
+  Tab ×9 → a «Matematika · Bab 3 · Pecahan senilaiSekarang: Te»
+  Enter
+  → screen a2: focus on «Matematika · Bab 3 · Pecahan senilai», title «Matematika · Bab 3 · Pecahan senilai · Studio»
+  Tab ×1 → button «Terbitkan»
+  Enter
+  shown: [data-layar="a2"] button[data-aksi][aria-busy="true"] («Menerbitkan…» at once)
+  shown: [data-layar="a2"] button[data-keadaan="selesai"] («✓ Diterbitkan»)
+  shown: #j1-a2-hasil
+  Tab ×1 → a «Paket Pembelajaran»
+  Enter
+  → screen a1b: focus on «Studio», title «Studio · PINTAR»
+  Tab ×8 → a «Continue as the teacher (review step)»
+  Enter
+  → screen b1: focus on «Kelas dalam lingkup mengajar Anda», title «Kelas · PINTAR»
+  Tab ×1 → a «Kelas 5A · Matematika31 murid terdaftar hari ini»
+  Enter
+  → screen b2: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  Tab ×1 → a «Siapkan»
+  Enter
+  → screen b3: focus on «Yang akan diterima murid», title «Siapkan materi · Kelas 5A»
+  Tab ×9 → button «Sediakan»
+  Enter
+  shown: [data-layar="b3"] button[aria-busy="true"] («Menyediakan…» at once)
+  shown: #j1-b3-hasil
+  Tab ×1 → a «Kelas 5A»
+  Enter
+  → screen b4: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  motion seen: none
+  no finding

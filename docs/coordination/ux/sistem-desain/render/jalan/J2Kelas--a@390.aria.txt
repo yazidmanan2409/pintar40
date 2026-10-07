@@ -1,0 +1,254 @@
+- region "Siapa yang sudah mengumpulkan · Kelas 5A":
+  - link "Langsung ke isi":
+    - /url: "#j2-a-isi"
+  - img "PINTAR"
+  - button "Keluar"
+  - button "Buka menu"
+  - main:
+    - list "Lokasi":
+      - listitem:
+        - link "Kelas":
+          - /url: "#"
+      - listitem:
+        - link "Kelas 5A":
+          - /url: "#"
+      - listitem: Bab 3 · Pecahan senilai
+    - heading "Siapa yang sudah mengumpulkan · Bab 3 · Pecahan senilai" [level=1]
+    - paragraph: Nama diurutkan abjad; tidak ada peringkat.
+    - searchbox "Cari murid"
+    - combobox "Tampilkan":
+      - option "Semua" [selected]
+      - option "Sudah mengumpulkan"
+      - option "Sudah mulai, belum mengumpulkan"
+      - option "Belum mengerjakan"
+    - region "Murid Kelas 5A":
+      - table "Murid Kelas 5A · Bab 3 · Pecahan senilai · Nama diurutkan abjad; tidak ada peringkat.":
+        - caption: Murid Kelas 5A · Bab 3 · Pecahan senilai · Nama diurutkan abjad; tidak ada peringkat.
+        - rowgroup:
+          - row "Murid Bab 3 · Pecahan senilai Tindakan":
+            - columnheader "Murid"
+            - columnheader "Bab 3 · Pecahan senilai"
+            - columnheader "Tindakan"
+        - rowgroup:
+          - row "Adi Pratama Sudah mengumpulkan Lihat Adi Pratama Opsi untuk Adi Pratama":
+            - rowheader "Adi Pratama"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Adi Pratama Opsi untuk Adi Pratama":
+              - link "Lihat Adi Pratama":
+                - /url: "#"
+              - button "Opsi untuk Adi Pratama"
+          - row "Agus Salim Sudah mulai, belum mengumpulkan Lihat Agus Salim Opsi untuk Agus Salim":
+            - rowheader "Agus Salim"
+            - cell "Sudah mulai, belum mengumpulkan"
+            - cell "Lihat Agus Salim Opsi untuk Agus Salim":
+              - link "Lihat Agus Salim":
+                - /url: "#"
+              - button "Opsi untuk Agus Salim"
+          - row "Ayu Lestari Sudah mengumpulkan Lihat Ayu Lestari Opsi untuk Ayu Lestari":
+            - rowheader "Ayu Lestari"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Ayu Lestari Opsi untuk Ayu Lestari":
+              - link "Lihat Ayu Lestari":
+                - /url: "#"
+              - button "Opsi untuk Ayu Lestari"
+          - row "Bagus Santoso Belum mengerjakan Lihat Bagus Santoso Opsi untuk Bagus Santoso":
+            - rowheader "Bagus Santoso"
+            - cell "Belum mengerjakan"
+            - cell "Lihat Bagus Santoso Opsi untuk Bagus Santoso":
+              - link "Lihat Bagus Santoso":
+                - /url: "#"
+              - button "Opsi untuk Bagus Santoso"
+          - row "Bayu Aji Sudah mengumpulkan Lihat Bayu Aji Opsi untuk Bayu Aji":
+            - rowheader "Bayu Aji"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Bayu Aji Opsi untuk Bayu Aji":
+              - link "Lihat Bayu Aji":
+                - /url: "#"
+              - button "Opsi untuk Bayu Aji"
+          - row "Citra Dewi Belum mengerjakan Lihat Citra Dewi Opsi untuk Citra Dewi":
+            - rowheader "Citra Dewi"
+            - cell "Belum mengerjakan"
+            - cell "Lihat Citra Dewi Opsi untuk Citra Dewi":
+              - link "Lihat Citra Dewi":
+                - /url: "#"
+              - button "Opsi untuk Citra Dewi"
+          - row "Dewi Kusuma Sudah mulai, belum mengumpulkan Lihat Dewi Kusuma Opsi untuk Dewi Kusuma":
+            - rowheader "Dewi Kusuma"
+            - cell "Sudah mulai, belum mengumpulkan"
+            - cell "Lihat Dewi Kusuma Opsi untuk Dewi Kusuma":
+              - link "Lihat Dewi Kusuma":
+                - /url: "#"
+              - button "Opsi untuk Dewi Kusuma"
+          - row "Dimas Anggara Sudah mengumpulkan Lihat Dimas Anggara Opsi untuk Dimas Anggara":
+            - rowheader "Dimas Anggara"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Dimas Anggara Opsi untuk Dimas Anggara":
+              - link "Lihat Dimas Anggara":
+                - /url: "#"
+              - button "Opsi untuk Dimas Anggara"
+          - row "Eka Putri Sudah mengumpulkan Lihat Eka Putri Opsi untuk Eka Putri":
+            - rowheader "Eka Putri"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Eka Putri Opsi untuk Eka Putri":
+              - link "Lihat Eka Putri":
+                - /url: "#"
+              - button "Opsi untuk Eka Putri"
+          - row "Fajar Nugroho Sudah mengumpulkan Lihat Fajar Nugroho Opsi untuk Fajar Nugroho":
+            - rowheader "Fajar Nugroho"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Fajar Nugroho Opsi untuk Fajar Nugroho":
+              - link "Lihat Fajar Nugroho":
+                - /url: "#"
+              - button "Opsi untuk Fajar Nugroho"
+          - row "Fitri Handayani Belum mengerjakan Lihat Fitri Handayani Opsi untuk Fitri Handayani":
+            - rowheader "Fitri Handayani"
+            - cell "Belum mengerjakan"
+            - cell "Lihat Fitri Handayani Opsi untuk Fitri Handayani":
+              - link "Lihat Fitri Handayani":
+                - /url: "#"
+              - button "Opsi untuk Fitri Handayani"
+          - row "Gita Maharani Sudah mulai, belum mengumpulkan Lihat Gita Maharani Opsi untuk Gita Maharani":
+            - rowheader "Gita Maharani"
+            - cell "Sudah mulai, belum mengumpulkan"
+            - cell "Lihat Gita Maharani Opsi untuk Gita Maharani":
+              - link "Lihat Gita Maharani":
+                - /url: "#"
+              - button "Opsi untuk Gita Maharani"
+          - row "Hendra Wijaya Sudah mengumpulkan Lihat Hendra Wijaya Opsi untuk Hendra Wijaya":
+            - rowheader "Hendra Wijaya"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Hendra Wijaya Opsi untuk Hendra Wijaya":
+              - link "Lihat Hendra Wijaya":
+                - /url: "#"
+              - button "Opsi untuk Hendra Wijaya"
+          - row "Indah Permatasari Sudah mengumpulkan Lihat Indah Permatasari Opsi untuk Indah Permatasari":
+            - rowheader "Indah Permatasari"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Indah Permatasari Opsi untuk Indah Permatasari":
+              - link "Lihat Indah Permatasari":
+                - /url: "#"
+              - button "Opsi untuk Indah Permatasari"
+          - row "Intan Permata Sudah mengumpulkan Lihat Intan Permata Opsi untuk Intan Permata":
+            - rowheader "Intan Permata"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Intan Permata Opsi untuk Intan Permata":
+              - link "Lihat Intan Permata":
+                - /url: "#"
+              - button "Opsi untuk Intan Permata"
+          - row "Joko Susilo Sudah mengumpulkan Lihat Joko Susilo Opsi untuk Joko Susilo":
+            - rowheader "Joko Susilo"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Joko Susilo Opsi untuk Joko Susilo":
+              - link "Lihat Joko Susilo":
+                - /url: "#"
+              - button "Opsi untuk Joko Susilo"
+          - row "Kartika Sari Belum mengerjakan Lihat Kartika Sari Opsi untuk Kartika Sari":
+            - rowheader "Kartika Sari"
+            - cell "Belum mengerjakan"
+            - cell "Lihat Kartika Sari Opsi untuk Kartika Sari":
+              - link "Lihat Kartika Sari":
+                - /url: "#"
+              - button "Opsi untuk Kartika Sari"
+          - row "Lukman Hakim Belum mengerjakan Lihat Lukman Hakim Opsi untuk Lukman Hakim":
+            - rowheader "Lukman Hakim"
+            - cell "Belum mengerjakan"
+            - cell "Lihat Lukman Hakim Opsi untuk Lukman Hakim":
+              - link "Lihat Lukman Hakim":
+                - /url: "#"
+              - button "Opsi untuk Lukman Hakim"
+          - row "Maya Anggraini Sudah mengumpulkan Lihat Maya Anggraini Opsi untuk Maya Anggraini":
+            - rowheader "Maya Anggraini"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Maya Anggraini Opsi untuk Maya Anggraini":
+              - link "Lihat Maya Anggraini":
+                - /url: "#"
+              - button "Opsi untuk Maya Anggraini"
+          - row "Muhammad Rizky Ramadhan Saputra Nugraha Sudah mengumpulkan Lihat Muhammad Rizky Ramadhan Saputra Nugraha Opsi untuk Muhammad Rizky Ramadhan Saputra Nugraha":
+            - rowheader "Muhammad Rizky Ramadhan Saputra Nugraha"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Muhammad Rizky Ramadhan Saputra Nugraha Opsi untuk Muhammad Rizky Ramadhan Saputra Nugraha":
+              - link "Lihat Muhammad Rizky Ramadhan Saputra Nugraha":
+                - /url: "#"
+              - button "Opsi untuk Muhammad Rizky Ramadhan Saputra Nugraha"
+          - row "Nanda Pratiwi Sudah mengumpulkan Lihat Nanda Pratiwi Opsi untuk Nanda Pratiwi":
+            - rowheader "Nanda Pratiwi"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Nanda Pratiwi Opsi untuk Nanda Pratiwi":
+              - link "Lihat Nanda Pratiwi":
+                - /url: "#"
+              - button "Opsi untuk Nanda Pratiwi"
+          - row "Nur Aisyah Sudah mulai, belum mengumpulkan Lihat Nur Aisyah Opsi untuk Nur Aisyah":
+            - rowheader "Nur Aisyah"
+            - cell "Sudah mulai, belum mengumpulkan"
+            - cell "Lihat Nur Aisyah Opsi untuk Nur Aisyah":
+              - link "Lihat Nur Aisyah":
+                - /url: "#"
+              - button "Opsi untuk Nur Aisyah"
+          - row "Oki Setiawan Sudah mengumpulkan Lihat Oki Setiawan Opsi untuk Oki Setiawan":
+            - rowheader "Oki Setiawan"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Oki Setiawan Opsi untuk Oki Setiawan":
+              - link "Lihat Oki Setiawan":
+                - /url: "#"
+              - button "Opsi untuk Oki Setiawan"
+          - row "Putri Ramadhani Sudah mengumpulkan Lihat Putri Ramadhani Opsi untuk Putri Ramadhani":
+            - rowheader "Putri Ramadhani"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Putri Ramadhani Opsi untuk Putri Ramadhani":
+              - link "Lihat Putri Ramadhani":
+                - /url: "#"
+              - button "Opsi untuk Putri Ramadhani"
+          - row "Rahmat Hidayat Belum mengerjakan Lihat Rahmat Hidayat Opsi untuk Rahmat Hidayat":
+            - rowheader "Rahmat Hidayat"
+            - cell "Belum mengerjakan"
+            - cell "Lihat Rahmat Hidayat Opsi untuk Rahmat Hidayat":
+              - link "Lihat Rahmat Hidayat":
+                - /url: "#"
+              - button "Opsi untuk Rahmat Hidayat"
+          - row "Rina Marlina Sudah mengumpulkan Lihat Rina Marlina Opsi untuk Rina Marlina":
+            - rowheader "Rina Marlina"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Rina Marlina Opsi untuk Rina Marlina":
+              - link "Lihat Rina Marlina":
+                - /url: "#"
+              - button "Opsi untuk Rina Marlina"
+          - row "Sari Wulandari Sudah mulai, belum mengumpulkan Lihat Sari Wulandari Opsi untuk Sari Wulandari":
+            - rowheader "Sari Wulandari"
+            - cell "Sudah mulai, belum mengumpulkan"
+            - cell "Lihat Sari Wulandari Opsi untuk Sari Wulandari":
+              - link "Lihat Sari Wulandari":
+                - /url: "#"
+              - button "Opsi untuk Sari Wulandari"
+          - row "Teguh Prasetyo Belum mengerjakan Lihat Teguh Prasetyo Opsi untuk Teguh Prasetyo":
+            - rowheader "Teguh Prasetyo"
+            - cell "Belum mengerjakan"
+            - cell "Lihat Teguh Prasetyo Opsi untuk Teguh Prasetyo":
+              - link "Lihat Teguh Prasetyo":
+                - /url: "#"
+              - button "Opsi untuk Teguh Prasetyo"
+          - row "Umar Faruq Sudah mengumpulkan Lihat Umar Faruq Opsi untuk Umar Faruq":
+            - rowheader "Umar Faruq"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Umar Faruq Opsi untuk Umar Faruq":
+              - link "Lihat Umar Faruq":
+                - /url: "#"
+              - button "Opsi untuk Umar Faruq"
+          - row "Wulan Safitri Sudah mengumpulkan Lihat Wulan Safitri Opsi untuk Wulan Safitri":
+            - rowheader "Wulan Safitri"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Wulan Safitri Opsi untuk Wulan Safitri":
+              - link "Lihat Wulan Safitri":
+                - /url: "#"
+              - button "Opsi untuk Wulan Safitri"
+          - row "Yoga Firmansyah Sudah mengumpulkan Lihat Yoga Firmansyah Opsi untuk Yoga Firmansyah":
+            - rowheader "Yoga Firmansyah"
+            - cell "Sudah mengumpulkan"
+            - cell "Lihat Yoga Firmansyah Opsi untuk Yoga Firmansyah":
+              - link "Lihat Yoga Firmansyah":
+                - /url: "#"
+              - button "Opsi untuk Yoga Firmansyah"
+    - navigation "Halaman daftar murid":
+      - text: Menampilkan 1–31 dari 31 murid
+      - button "Halaman sebelumnya" [disabled]
+      - text: Halaman 1 dari 1
+      - button "Halaman berikutnya" [disabled]

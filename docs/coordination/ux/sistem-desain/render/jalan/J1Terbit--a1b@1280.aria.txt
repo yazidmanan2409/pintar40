@@ -1,0 +1,52 @@
+- region "Studio · PINTAR":
+  - link "Langsung ke isi":
+    - /url: "#j1-a1b-isi"
+  - navigation "Tempat kerja Anda":
+    - img "PINTAR"
+    - button "Ciutkan navigasi" [expanded]
+    - list:
+      - listitem:
+        - link "Konfigurasi":
+          - /url: "#"
+      - listitem:
+        - link "Pendataan":
+          - /url: "#"
+      - listitem:
+        - link "Aktivasi akun":
+          - /url: "#"
+      - listitem:
+        - link "Studio":
+          - /url: "#"
+    - 'button "Akun: Maya Kusuma"':
+      - strong: Maya Kusuma
+      - text: Admin sekolah · SDN Kaliandra 1
+    - button "Keluar"
+  - main:
+    - heading "Studio" [level=1]
+    - navigation "Studio":
+      - link "Beranda":
+        - /url: "#"
+      - link "Buat Paket":
+        - /url: "#"
+      - link "Antrean Tinjauan":
+        - /url: "#"
+      - link "Bank Soal":
+        - /url: "#"
+      - link "Uji Cepat":
+        - /url: "#"
+    - region "Paket Pembelajaran":
+      - heading "Paket Pembelajaran" [level=2]
+      - list:
+        - listitem:
+          - link "Matematika · Bab 3 · Pecahan senilai Terbit Terbit sejak 7 Okt 2026, 09.12 WIB":
+            - /url: "#"
+            - strong: Matematika · Bab 3 · Pecahan senilai
+            - text: Terbit Terbit sejak 7 Okt 2026, 09.12 WIB
+        - listitem:
+          - 'link "Matematika · Bab 4 · Pecahan campuran Sekarang: Setujui isi"':
+            - /url: "#"
+            - strong: Matematika · Bab 4 · Pecahan campuran
+            - text: "Sekarang: Setujui isi"
+    - paragraph: Urutan mengikuti kurikulum sekolah. Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah.
+    - link "Continue as the teacher (review step)":
+      - /url: "#"

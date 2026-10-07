@@ -1,0 +1,30 @@
+- region "Kelas 5A · PINTAR":
+  - link "Langsung ke isi":
+    - /url: "#j1-b2-isi"
+  - img "PINTAR"
+  - button "Keluar"
+  - button "Buka menu"
+  - main:
+    - paragraph:
+      - link "Kelas":
+        - /url: "#"
+    - heading "Kelas 5A · Matematika" [level=1]
+    - paragraph: Kelas ini tampil karena sekolah menugaskan Anda ke lingkup yang mencakupnya. Daftar murid berasal dari pendaftaran sekolah, bukan dari PINTAR.
+    - link "Siapkan":
+      - /url: "#"
+    - term: Mata pelajaran
+    - definition: Matematika
+    - term: Murid terdaftar
+    - definition: "31"
+    - term: Materi tersedia
+    - definition: Belum ada
+    - region "Materi untuk kelas ini":
+      - heading "Materi untuk kelas ini" [level=2]
+      - paragraph: Urutan mengikuti kurikulum sekolah. Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah.
+      - list:
+        - listitem:
+          - strong: Bab 3 · Pecahan senilai
+          - text: Siap disediakan Diterbitkan sekolah · Materi sekolah
+        - listitem:
+          - strong: Bab 4 · Pecahan campuran
+          - text: Belum disediakan Materi sekolah

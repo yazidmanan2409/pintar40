@@ -107,7 +107,8 @@
         btn.removeAttribute("aria-busy");
         btn.setAttribute("data-keadaan", "selesai");
         btn.innerHTML = ikon("check") + esc(btn.getAttribute("data-selesai") || "Selesai");
-        tampil(hasil, "pds-result-ok", ikon("circle-check") + "<span>" + esc(btn.getAttribute("data-hasil-teks") || "Perubahan tersimpan.") + (lanjut ? ' <a class="pds-link" href="#">' + esc(lanjut) + "</a>" : "") + "</span>");
+        var lanjutKe = btn.getAttribute("data-lanjut-ke");
+        tampil(hasil, "pds-result-ok", ikon("circle-check") + "<span>" + esc(btn.getAttribute("data-hasil-teks") || "Perubahan tersimpan.") + (lanjut ? ' <a class="pds-link" href="#"' + (lanjutKe ? ' data-ke="' + esc(lanjutKe) + '"' : "") + ">" + esc(lanjut) + "</a>" : "") + "</span>");
       }, WAKTU[mode] || WAKTU.normal);
     });
 
@@ -505,6 +506,7 @@
 
   function shell(host) {
     var s = host.querySelector(".pds-shell");
+    var statis = host.hasAttribute("data-shell-statis");
     var navDaftar = host.querySelectorAll("[data-shell-nav]");
     var identitas = host.querySelectorAll("[data-shell-identitas]");
     var tempatBar = host.querySelector(".pds-bar-tempat");
@@ -571,7 +573,7 @@
       ciut.setAttribute("aria-expanded", ya ? "false" : "true");
       ciut.innerHTML = ikon(ya ? "panel-left-open" : "panel-left-close");
     });
-    host.addEventListener("click", function (e) {
+    if (!statis) host.addEventListener("click", function (e) {
       var a = e.target.closest(".pds-nav-item[data-tempat]");
       if (!a) return;
       e.preventDefault();
@@ -590,8 +592,70 @@
         if (d) d.close();
       }, 700);
     });
+    if (statis) { tipRail(); return; }
     var awal = host.querySelector("[data-shell-persona]:checked");
     pasang(awal ? awal.value : "guru");
+  }
+
+  /* ──────────────────────── A COMPOSED JOURNEY (specimen only, 11-validation.md §1)
+     Not product behaviour: in PINTAR each screen is its own page. Here the screens
+     of one journey sit in one card, [data-layar="id"], and anything carrying
+     data-ke="id" moves to that screen the way a page change would: heard at once
+     (the working dot), then the new screen, its title, and focus on its heading.
+     The review bar above the screens ([data-lompat]) jumps straight to a step, and
+     «Mark new words» outlines every word that is not in the copy table yet. */
+  function perjalanan(host) {
+    var layar = host.querySelectorAll("[data-layar]");
+    var lompat = host.querySelectorAll("[data-lompat]");
+    var catatan = host.querySelector("[data-jalan-catatan]");
+    var pertama = layar.length ? layar[0].getAttribute("data-layar") : "";
+    function pergi(id, fokus) {
+      var tujuan = host.querySelector('[data-layar="' + id + '"]');
+      if (!tujuan) return;
+      host.querySelectorAll("dialog[open]").forEach(function (d) { d.close(); });
+      host.querySelectorAll(".pds-menu:not([hidden])").forEach(function (m) { m.hidden = true; });
+      layar.forEach(function (l) { l.hidden = l !== tujuan; });
+      lompat.forEach(function (b) {
+        if (b.getAttribute("data-lompat") === id) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+      });
+      if (catatan) catatan.hidden = true;
+      if (tujuan.getAttribute("data-judul-hal")) document.title = tujuan.getAttribute("data-judul-hal");
+      window.scrollTo(0, 0);
+      var h = tujuan.querySelector("h1");
+      if (fokus && h) { h.setAttribute("tabindex", "-1"); h.focus(); }
+    }
+    host.addEventListener("click", function (e) {
+      var a = e.target.closest("[data-ke]");
+      if (a && host.contains(a)) {
+        e.preventDefault();
+        if (a.getAttribute("aria-busy") === "true") return;
+        var ke = a.getAttribute("data-ke");
+        if (a.hasAttribute("data-segera")) { pergi(ke, true); return; }
+        // Heard at once: the working dot on what was clicked, until the next screen is there.
+        a.setAttribute("aria-busy", "true");
+        a.insertAdjacentHTML("beforeend", '<span class="pds-dot" aria-hidden="true"></span>');
+        setTimeout(function () {
+          a.removeAttribute("aria-busy");
+          var d = a.querySelector(".pds-dot"); if (d) d.remove();
+          pergi(ke, true);
+        }, 450);
+        return;
+      }
+      var b = e.target.closest("[data-lompat]");
+      if (b && host.contains(b)) { pergi(b.getAttribute("data-lompat"), true); return; }
+      // A real place or link that this journey does not walk: say so in the review bar, change nothing.
+      var luar = e.target.closest("[data-layar] a[href='#']:not([data-ke]):not([data-dialog-buka]), [data-layar] .pds-nav-item:not([data-ke]):not([data-shell-ciut])");
+      if (luar && catatan) {
+        e.preventDefault();
+        catatan.hidden = false;
+        catatan.textContent = "«" + (luar.getAttribute("aria-label") || luar.textContent).trim() + "» is outside this journey; nothing changes.";
+      }
+    });
+    var tandai = host.querySelector("[data-tandai-baru]");
+    if (tandai) tandai.addEventListener("change", function () { host.classList.toggle("pds-tandai-baru", tandai.checked); });
+    var ulang = host.querySelector("[data-jalan-ulang]");
+    if (ulang) ulang.addEventListener("click", function () { location.reload(); });
+    pergi(pertama, false);
   }
 
   /* ─────────────────────────────────────────────────────── siapkan */
@@ -642,6 +706,7 @@
     akar = akar || document;
     isiIkon(akar);
     akar.querySelectorAll("[data-shell]").forEach(shell);
+    akar.querySelectorAll("[data-perjalanan]").forEach(perjalanan);
     akar.querySelectorAll("form[data-validasi]").forEach(siapValidasi);
     akar.querySelectorAll("[data-aksi]").forEach(aksi);
     akar.querySelectorAll('[role="tablist"]').forEach(tabs);

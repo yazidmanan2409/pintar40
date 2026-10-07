@@ -1,0 +1,222 @@
+J7Kunci: the keyboard walk (alat/jalani.mts). Chromium, locale id-ID. Focus after a screen change is the walk's runner (the screen's heading); the product's own focus rules are in the journey's README.
+
+── 1280 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kelas»  ring
+  10. button «Leave the computer for 4 minutes (review step)»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. button «Saya masih di sini»  ring
+  10. a «Kelas»  ring
+  11. button «Let the fifth minute pass (review step)»  ring
+[c]
+   1. a «Langsung ke isi»  ring
+   2. input «PIN pribadi (4 angka)»  ring
+   3. button «Tampilkan PIN»  ring
+   4. button «Lanjutkan»  ring
+   5. button «Keluar»  ring
+[d]
+   1. a «Langsung ke isi»  ring
+   2. input «PIN pribadi (4 angka)»  ring
+   3. button «Tampilkan PIN»  ring
+   4. button «Lanjutkan»  ring
+   5. button «Keluar»  ring
+
+── 1280 px · motion on: the walk (20 Tab presses in all)
+  Tab ×10 → button «Leave the computer for 4 minutes (review step)»
+  Enter
+  → screen b: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  Shift+Tab ×2 → button «Saya masih di sini» («Saya masih di sini» is reachable)
+  Tab ×2 → button «Let the fifth minute pass (review step)»
+  Enter
+  → screen c: focus on «PINTAR terkunci», title «PINTAR terkunci»
+  Tab ×1 → input[password] «PIN pribadi (4 angka)»
+  type «4721»
+  Tab ×2 → button «Lanjutkan»
+  Enter
+  → screen d: focus on «PINTAR terkunci», title «PINTAR terkunci»
+  shown: #j7-d-galat
+  Tab ×3 → button «Lanjutkan»
+  Enter
+  → screen a: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  motion seen: transition background-color 0.12s on button; transition border-bottom-color 0.12s on pds-input; transition border-left-color 0.12s on pds-input; transition border-right-color 0.12s on pds-input; transition border-top-color 0.12s on pds-input; pds-denyut 0.9s on pds-dot
+  no finding
+
+── 1024 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kelas»  ring
+  10. button «Leave the computer for 4 minutes (review step)»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. button «Saya masih di sini»  ring
+  10. a «Kelas»  ring
+  11. button «Let the fifth minute pass (review step)»  ring
+[c]
+   1. a «Langsung ke isi»  ring
+   2. input «PIN pribadi (4 angka)»  ring
+   3. button «Tampilkan PIN»  ring
+   4. button «Lanjutkan»  ring
+   5. button «Keluar»  ring
+[d]
+   1. a «Langsung ke isi»  ring
+   2. input «PIN pribadi (4 angka)»  ring
+   3. button «Tampilkan PIN»  ring
+   4. button «Lanjutkan»  ring
+   5. button «Keluar»  ring
+
+── 1024 px · motion on: the walk (20 Tab presses in all)
+  Tab ×10 → button «Leave the computer for 4 minutes (review step)»
+  Enter
+  → screen b: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  Shift+Tab ×2 → button «Saya masih di sini» («Saya masih di sini» is reachable)
+  Tab ×2 → button «Let the fifth minute pass (review step)»
+  Enter
+  → screen c: focus on «PINTAR terkunci», title «PINTAR terkunci»
+  Tab ×1 → input[password] «PIN pribadi (4 angka)»
+  type «4721»
+  Tab ×2 → button «Lanjutkan»
+  Enter
+  → screen d: focus on «PINTAR terkunci», title «PINTAR terkunci»
+  shown: #j7-d-galat
+  Tab ×3 → button «Lanjutkan»
+  Enter
+  → screen a: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  motion seen: transition background-color 0.12s on button; transition border-bottom-color 0.12s on pds-input; transition border-left-color 0.12s on pds-input; transition border-right-color 0.12s on pds-input; transition border-top-color 0.12s on pds-input; pds-denyut 0.9s on pds-dot
+  no finding
+
+── 390 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. a «Kelas»  ring
+   5. button «Leave the computer for 4 minutes (review step)»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. button «Saya masih di sini»  ring
+   5. a «Kelas»  ring
+   6. button «Let the fifth minute pass (review step)»  ring
+[c]
+   1. a «Langsung ke isi»  ring
+   2. input «PIN pribadi (4 angka)»  ring
+   3. button «Tampilkan PIN»  ring
+   4. button «Lanjutkan»  ring
+   5. button «Keluar»  ring
+[d]
+   1. a «Langsung ke isi»  ring
+   2. input «PIN pribadi (4 angka)»  ring
+   3. button «Tampilkan PIN»  ring
+   4. button «Lanjutkan»  ring
+   5. button «Keluar»  ring
+
+── 390 px · motion on: the walk (15 Tab presses in all)
+  Tab ×5 → button «Leave the computer for 4 minutes (review step)»
+  Enter
+  → screen b: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  Shift+Tab ×2 → button «Saya masih di sini» («Saya masih di sini» is reachable)
+  Tab ×2 → button «Let the fifth minute pass (review step)»
+  Enter
+  → screen c: focus on «PINTAR terkunci», title «PINTAR terkunci»
+  Tab ×1 → input[password] «PIN pribadi (4 angka)»
+  type «4721»
+  Tab ×2 → button «Lanjutkan»
+  Enter
+  → screen d: focus on «PINTAR terkunci», title «PINTAR terkunci»
+  shown: #j7-d-galat
+  Tab ×3 → button «Lanjutkan»
+  Enter
+  → screen a: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  motion seen: transition background-color 0.12s on button; transition border-bottom-color 0.12s, 0.12s on pds-check; transition border-left-color 0.12s, 0.12s on pds-check; transition border-right-color 0.12s, 0.12s on pds-check; transition border-top-color 0.12s, 0.12s on pds-check; transition border-bottom-color 0.12s on pds-input; transition border-left-color 0.12s on pds-input; transition border-right-color 0.12s on pds-input; transition border-top-color 0.12s on pds-input; pds-denyut 0.9s on pds-dot
+  no finding
+
+── 1280 px · motion reduced: the walk (20 Tab presses in all)
+  Tab ×10 → button «Leave the computer for 4 minutes (review step)»
+  Enter
+  → screen b: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  Shift+Tab ×2 → button «Saya masih di sini» («Saya masih di sini» is reachable)
+  Tab ×2 → button «Let the fifth minute pass (review step)»
+  Enter
+  → screen c: focus on «PINTAR terkunci», title «PINTAR terkunci»
+  Tab ×1 → input[password] «PIN pribadi (4 angka)»
+  type «4721»
+  Tab ×2 → button «Lanjutkan»
+  Enter
+  → screen d: focus on «PINTAR terkunci», title «PINTAR terkunci»
+  shown: #j7-d-galat
+  Tab ×3 → button «Lanjutkan»
+  Enter
+  → screen a: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  motion seen: none
+  no finding
+
+── 1024 px · motion reduced: the walk (20 Tab presses in all)
+  Tab ×10 → button «Leave the computer for 4 minutes (review step)»
+  Enter
+  → screen b: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  Shift+Tab ×2 → button «Saya masih di sini» («Saya masih di sini» is reachable)
+  Tab ×2 → button «Let the fifth minute pass (review step)»
+  Enter
+  → screen c: focus on «PINTAR terkunci», title «PINTAR terkunci»
+  Tab ×1 → input[password] «PIN pribadi (4 angka)»
+  type «4721»
+  Tab ×2 → button «Lanjutkan»
+  Enter
+  → screen d: focus on «PINTAR terkunci», title «PINTAR terkunci»
+  shown: #j7-d-galat
+  Tab ×3 → button «Lanjutkan»
+  Enter
+  → screen a: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  motion seen: none
+  no finding
+
+── 390 px · motion reduced: the walk (15 Tab presses in all)
+  Tab ×5 → button «Leave the computer for 4 minutes (review step)»
+  Enter
+  → screen b: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  Shift+Tab ×2 → button «Saya masih di sini» («Saya masih di sini» is reachable)
+  Tab ×2 → button «Let the fifth minute pass (review step)»
+  Enter
+  → screen c: focus on «PINTAR terkunci», title «PINTAR terkunci»
+  Tab ×1 → input[password] «PIN pribadi (4 angka)»
+  type «4721»
+  Tab ×2 → button «Lanjutkan»
+  Enter
+  → screen d: focus on «PINTAR terkunci», title «PINTAR terkunci»
+  shown: #j7-d-galat
+  Tab ×3 → button «Lanjutkan»
+  Enter
+  → screen a: focus on «Kelas 5A · Matematika», title «Kelas 5A · PINTAR»
+  motion seen: none
+  no finding

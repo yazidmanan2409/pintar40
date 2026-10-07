@@ -634,6 +634,8 @@ a.pds-list-row:active, .pds-list-row.is-pressed { background: var(--surface-3); 
 .pds-dialog-isi h2 { font-size: 18px; line-height: 26px; font-weight: 600; }
 .pds-dialog-isi p { color: var(--ink-2); }
 .pds-dialog .pds-actions { justify-content: flex-end; margin-top: var(--space-2); }
+/* Under 640 px the actions stack, full width, the safe one last (Dialog). The markup keeps the safe one first. */
+@media (max-width: 639px) { .pds-dialog .pds-actions { flex-direction: column-reverse; align-items: stretch; } }
 @media (prefers-reduced-motion: no-preference) {
   .pds-dialog[open] { animation: pds-masuk var(--duration-slow) var(--ease-standard); }
   .pds-dialog[open]::backdrop { animation: pds-muncul var(--duration-slow) var(--ease-standard); }
@@ -726,7 +728,8 @@ a.pds-list-row:active, .pds-list-row.is-pressed { background: var(--surface-3); 
 .pds-scope { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); align-items: center; list-style: none; padding: 0; font-size: 14px; line-height: 20px; color: var(--ink-3); }
 .pds-scope li { display: inline-flex; align-items: center; gap: var(--space-2); }
 /* The separator ends a line rather than starting one, as the middle dot binds to the word before it. */
-.pds-scope li:not(:last-child)::after { content: "/"; color: var(--line-control); }
+/* The separator is drawn, not read: empty alternative text (the plain value first, for a browser without it). */
+.pds-scope li:not(:last-child)::after { content: "/"; content: "/" / ""; color: var(--line-control); }
 .pds-scope a { display: inline-flex; align-items: center; min-height: 24px; color: var(--ink-2); text-decoration: none; border-radius: 2px; }
 .pds-scope a:hover { color: var(--ink-1); text-decoration: underline; text-underline-offset: 3px; }
 .pds-scope [aria-current="page"] { color: var(--ink-1); }
@@ -787,7 +790,7 @@ a.pds-list-row:active, .pds-list-row.is-pressed { background: var(--surface-3); 
 button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; cursor: pointer; text-align: left; }
 .pds-nav-bawah { margin-top: auto; display: grid; gap: var(--space-2); padding-top: var(--space-3); border-top: var(--border-hairline) solid var(--line); }
 
-.pds-main { min-width: 0; display: grid; align-content: start; }
+.pds-main { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; }
 .pds-main-isi { width: 100%; max-width: var(--measure-stage); margin-inline: auto; padding: var(--space-7) var(--space-6) var(--space-9); display: grid; gap: var(--space-6); }
 .pds-main-isi.pds-baca { max-width: calc(var(--measure-read) + 2 * var(--space-6)); }
 
@@ -914,3 +917,45 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
 .pds-demo-catatan { font-size: 14px; line-height: 20px; color: var(--ink-3); max-width: var(--measure-prose); }
 .pds-demo-garis { display: grid; gap: var(--space-2); }
 .pds-demo-batang { height: 28px; border-radius: var(--radius-sm); background: var(--pintar-primary-soft); display: flex; align-items: center; padding: 0 var(--space-3); font-size: 14px; line-height: 20px; color: var(--ink-1); white-space: nowrap; overflow: hidden; }
+
+/* ────────────────────────────── the skip link (approved, question 10)
+   The first focusable thing on every page with a shell: «Langsung ke isi». Out of sight until it
+   has focus, then a plain button-like link at the top left that takes focus to the page's content. */
+.pds-lewati { position: absolute; left: var(--space-3); top: var(--space-3); z-index: var(--z-modal); display: inline-flex; align-items: center; min-height: var(--control-md); padding: 0 var(--space-4); border-radius: var(--radius-md); background: var(--surface-1); color: var(--pintar-primary); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; box-shadow: var(--shadow-overlay); transform: translateY(calc(-100% - var(--space-4))); }
+.pds-lewati:focus { transform: none; outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+/* The parent clips, so the hidden link never shows above it (it waits just outside the top edge). */
+.pds-lewati-induk { position: relative; overflow: clip; }
+
+/* ─────────────────────────── the context band (approved, question 12)
+   A mode that changes what the whole screen means (MODE PERAGAAN, ADR-0020): one full-width
+   band in deep ink at the top of every page while the mode lasts, with its way out on it.
+   It reads as neither a status nor an action. */
+.pds-konteks { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); min-height: var(--control-md); padding: var(--space-2) var(--space-4); background: var(--context); color: var(--context-ink); border-radius: var(--radius-md); font-size: 14px; line-height: 20px; }
+.pds-konteks strong { font-weight: 600; letter-spacing: 0.04em; }
+.pds-konteks a, .pds-konteks button { color: var(--context-ink); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-md); padding: 0; border: 0; background: none; cursor: pointer; }
+.pds-konteks a:focus-visible, .pds-konteks button:focus-visible { outline: var(--border-focus) solid var(--context-ink); outline-offset: 2px; }
+.pds-konteks-kanan { margin-left: auto; display: flex; gap: var(--space-4); flex-wrap: wrap; }
+.pds-konteks.pds-konteks-halaman { border-radius: 0; padding-inline: var(--space-5); }
+
+/* ───────────── A COMPOSED JOURNEY (specimen only; 11-validation.md §1)
+   The review bar is not PINTAR: dashed, in English, above the screens. Each screen below it
+   fills the window edge to edge, so the shells answer to the real width (1280, 1024, 390). */
+.pds.pds-jalan { padding: 0; gap: 0; }
+.pds-jalan-kepala { display: grid; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--surface-2); border-bottom: 2px dashed var(--line-control); font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.pds-jalan-kepala p { margin: 0; }
+.pds-jalan-judul { color: var(--ink-1); font-weight: 600; }
+.pds-jalan-langkah { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); list-style: none; margin: 0; padding: 0; }
+.pds-jalan-langkah button { min-height: 32px; padding: 0 var(--space-3); border: var(--border-hairline) solid var(--line-strong); border-radius: var(--radius-md); background: var(--surface-1); color: var(--ink-1); font: inherit; font-size: 14px; cursor: pointer; transition: background-color var(--duration-fast) var(--ease-standard); }
+.pds-jalan-langkah button:hover { background: var(--surface-3); }
+.pds-jalan-langkah button[aria-current="step"] { background: var(--pintar-primary-soft); border-color: var(--pintar-primary); font-weight: 600; }
+.pds-jalan-alat { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+.pds-jalan-alat label { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 32px; cursor: pointer; }
+.pds-jalan-alat button { min-height: 32px; padding: 0 var(--space-3); border: 0; border-radius: var(--radius-md); background: none; color: var(--pintar-primary); font: inherit; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.pds-jalan-catatan { color: var(--ink-1); }
+.pds-jalan .pds-shell, .pds-jalan .pds-topshell { border: 0; border-radius: 0; }
+.pds-jalan .pds-nav { border-radius: 0; }
+.pds-jalan .pds-topshell { min-height: 640px; }
+/* A review step moves the walk on (time passes, the other person takes over). It is not PINTAR: dashed, and in English. */
+.pds-btn.pds-jalan-tinjau { white-space: normal; text-align: start; padding-block: var(--space-2); border-style: dashed; border-color: var(--line-control); }
+.pds-tandai-baru [data-kata-baru] { outline: 2px dashed var(--status-attention); outline-offset: 2px; }
+

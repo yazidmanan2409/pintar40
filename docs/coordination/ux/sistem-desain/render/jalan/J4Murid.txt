@@ -1,0 +1,247 @@
+J4Murid: the keyboard walk (alat/jalani.mts). Chromium, locale id-ID. Focus after a screen change is the walk's runner (the screen's heading); the product's own focus rules are in the journey's README.
+
+── 1280 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. a «Belajar»  ring
+   3. a «Sertifikat»  ring
+   4. button «Bantuan»  ring
+   5. input «ID»  ring
+   6. button «Keluar»  ring
+   7. a «Lanjutkan pelajaran»  ring
+   8. a «Lihat semua langkah»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. a «Belajar»  ring
+   3. a «Sertifikat»  ring
+   4. button «Bantuan»  ring
+   5. input «ID»  ring
+   6. button «Keluar»  ring
+   7. button «Tampilkan langkah berikutnya»  ring
+   8. a «Halaman sebelumnya»  ring
+   9. a «Halaman berikutnya»  ring
+[c]
+   1. a «Langsung ke isi»  ring
+   2. input «ID»  ring
+   3. button «Keluar»  ring
+   4. input «6/8»  ring
+   5. button «Simpan jawaban ini»  ring
+   6. button «Tandai»  ring
+   7. button «Kumpulkan»  ring
+[d]
+   1. a «Langsung ke isi»  ring
+   2. a «Belajar»  ring
+   3. a «Sertifikat»  ring
+   4. button «Bantuan»  ring
+   5. input «ID»  ring
+   6. button «Keluar»  ring
+   7. a «Beranda»  ring
+   8. a «Tinjau kembali»  ring
+
+── 1280 px · motion on: the walk (15 Tab presses in all)
+  Tab ×7 → a «Lanjutkan pelajaran»
+  Enter
+  → screen b: focus on «Menyederhanakan pecahan», title «Pelajaran · Bab 3 · Pecahan senilai»
+  Tab ×3 → a «Halaman berikutnya»
+  Enter
+  → screen c: focus on «Pertanyaan 7 dari 10», title «Uji Penguasaan · Bab 3 · Pecahan senilai»
+  Tab ×1 → input[radio] «6/8»
+  ArrowDown
+  focus ok: input[radio] «8/12» (arrows move the choice)
+  Tab ×1 → button «Simpan jawaban ini»
+  Enter
+  shown: #j4-c-hasil
+  Tab ×2 → button «Kumpulkan»
+  Enter
+  → screen d: focus on «Target tercapai.», title «Hasil · Bab 3 · Pecahan senilai»
+  Tab ×1 → a «Beranda»
+  Enter
+  → screen a: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  motion seen: pds-denyut 0.9s on pds-dot; transition background-color 0.12s on button; transition border-bottom-color 0.12s, 0.12s on pds-radio; transition border-left-color 0.12s, 0.12s on pds-radio; transition border-right-color 0.12s, 0.12s on pds-radio; transition border-top-color 0.12s, 0.12s on pds-radio; transition background-color 0.12s, 0.12s, 0.12s on pds-btn; transition color 0.12s, 0.12s, 0.12s on pds-btn; pds-muncul 0.16s on pds-result
+  no finding
+
+── 1024 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. a «Belajar»  ring
+   3. a «Sertifikat»  ring
+   4. button «Bantuan»  ring
+   5. input «ID»  ring
+   6. button «Keluar»  ring
+   7. a «Lanjutkan pelajaran»  ring
+   8. a «Lihat semua langkah»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. a «Belajar»  ring
+   3. a «Sertifikat»  ring
+   4. button «Bantuan»  ring
+   5. input «ID»  ring
+   6. button «Keluar»  ring
+   7. button «Tampilkan langkah berikutnya»  ring
+   8. a «Halaman sebelumnya»  ring
+   9. a «Halaman berikutnya»  ring
+[c]
+   1. a «Langsung ke isi»  ring
+   2. input «ID»  ring
+   3. button «Keluar»  ring
+   4. input «6/8»  ring
+   5. button «Simpan jawaban ini»  ring
+   6. button «Tandai»  ring
+   7. button «Kumpulkan»  ring
+[d]
+   1. a «Langsung ke isi»  ring
+   2. a «Belajar»  ring
+   3. a «Sertifikat»  ring
+   4. button «Bantuan»  ring
+   5. input «ID»  ring
+   6. button «Keluar»  ring
+   7. a «Beranda»  ring
+   8. a «Tinjau kembali»  ring
+
+── 1024 px · motion on: the walk (15 Tab presses in all)
+  Tab ×7 → a «Lanjutkan pelajaran»
+  Enter
+  → screen b: focus on «Menyederhanakan pecahan», title «Pelajaran · Bab 3 · Pecahan senilai»
+  Tab ×3 → a «Halaman berikutnya»
+  Enter
+  → screen c: focus on «Pertanyaan 7 dari 10», title «Uji Penguasaan · Bab 3 · Pecahan senilai»
+  Tab ×1 → input[radio] «6/8»
+  ArrowDown
+  focus ok: input[radio] «8/12» (arrows move the choice)
+  Tab ×1 → button «Simpan jawaban ini»
+  Enter
+  shown: #j4-c-hasil
+  Tab ×2 → button «Kumpulkan»
+  Enter
+  → screen d: focus on «Target tercapai.», title «Hasil · Bab 3 · Pecahan senilai»
+  Tab ×1 → a «Beranda»
+  Enter
+  → screen a: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  motion seen: pds-denyut 0.9s on pds-dot; transition background-color 0.12s on button; transition border-bottom-color 0.12s, 0.12s on pds-radio; transition border-left-color 0.12s, 0.12s on pds-radio; transition border-right-color 0.12s, 0.12s on pds-radio; transition border-top-color 0.12s, 0.12s on pds-radio; transition background-color 0.12s, 0.12s, 0.12s on pds-btn; transition color 0.12s, 0.12s, 0.12s on pds-btn; pds-muncul 0.16s on pds-result
+  no finding
+
+── 390 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. a «Belajar»  ring
+   3. a «Sertifikat»  ring
+   4. button «Bantuan»  ring
+   5. input «ID»  ring
+   6. button «Keluar»  ring
+   7. a «Lanjutkan pelajaran»  ring
+   8. a «Lihat semua langkah»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. a «Belajar»  ring
+   3. a «Sertifikat»  ring
+   4. button «Bantuan»  ring
+   5. input «ID»  ring
+   6. button «Keluar»  ring
+   7. button «Tampilkan langkah berikutnya»  ring
+   8. a «Halaman sebelumnya»  ring
+   9. a «Halaman berikutnya»  ring
+[c]
+   1. a «Langsung ke isi»  ring
+   2. input «ID»  ring
+   3. button «Keluar»  ring
+   4. input «6/8»  ring
+   5. button «Simpan jawaban ini»  ring
+   6. button «Tandai»  ring
+   7. button «Kumpulkan»  ring
+[d]
+   1. a «Langsung ke isi»  ring
+   2. a «Belajar»  ring
+   3. a «Sertifikat»  ring
+   4. button «Bantuan»  ring
+   5. input «ID»  ring
+   6. button «Keluar»  ring
+   7. a «Beranda»  ring
+   8. a «Tinjau kembali»  ring
+
+── 390 px · motion on: the walk (15 Tab presses in all)
+  Tab ×7 → a «Lanjutkan pelajaran»
+  Enter
+  → screen b: focus on «Menyederhanakan pecahan», title «Pelajaran · Bab 3 · Pecahan senilai»
+  Tab ×3 → a «Halaman berikutnya»
+  Enter
+  → screen c: focus on «Pertanyaan 7 dari 10», title «Uji Penguasaan · Bab 3 · Pecahan senilai»
+  Tab ×1 → input[radio] «6/8»
+  ArrowDown
+  focus ok: input[radio] «8/12» (arrows move the choice)
+  Tab ×1 → button «Simpan jawaban ini»
+  Enter
+  shown: #j4-c-hasil
+  Tab ×2 → button «Kumpulkan»
+  Enter
+  → screen d: focus on «Target tercapai.», title «Hasil · Bab 3 · Pecahan senilai»
+  Tab ×1 → a «Beranda»
+  Enter
+  → screen a: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  motion seen: pds-denyut 0.9s on pds-dot; transition background-color 0.12s on button; transition border-bottom-color 0.12s, 0.12s on pds-radio; transition border-left-color 0.12s, 0.12s on pds-radio; transition border-right-color 0.12s, 0.12s on pds-radio; transition border-top-color 0.12s, 0.12s on pds-radio; transition background-color 0.12s, 0.12s, 0.12s on pds-btn; transition color 0.12s, 0.12s, 0.12s on pds-btn; pds-muncul 0.16s on pds-result
+  no finding
+
+── 1280 px · motion reduced: the walk (15 Tab presses in all)
+  Tab ×7 → a «Lanjutkan pelajaran»
+  Enter
+  → screen b: focus on «Menyederhanakan pecahan», title «Pelajaran · Bab 3 · Pecahan senilai»
+  Tab ×3 → a «Halaman berikutnya»
+  Enter
+  → screen c: focus on «Pertanyaan 7 dari 10», title «Uji Penguasaan · Bab 3 · Pecahan senilai»
+  Tab ×1 → input[radio] «6/8»
+  ArrowDown
+  focus ok: input[radio] «8/12» (arrows move the choice)
+  Tab ×1 → button «Simpan jawaban ini»
+  Enter
+  shown: #j4-c-hasil
+  Tab ×2 → button «Kumpulkan»
+  Enter
+  → screen d: focus on «Target tercapai.», title «Hasil · Bab 3 · Pecahan senilai»
+  Tab ×1 → a «Beranda»
+  Enter
+  → screen a: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  motion seen: none
+  no finding
+
+── 1024 px · motion reduced: the walk (15 Tab presses in all)
+  Tab ×7 → a «Lanjutkan pelajaran»
+  Enter
+  → screen b: focus on «Menyederhanakan pecahan», title «Pelajaran · Bab 3 · Pecahan senilai»
+  Tab ×3 → a «Halaman berikutnya»
+  Enter
+  → screen c: focus on «Pertanyaan 7 dari 10», title «Uji Penguasaan · Bab 3 · Pecahan senilai»
+  Tab ×1 → input[radio] «6/8»
+  ArrowDown
+  focus ok: input[radio] «8/12» (arrows move the choice)
+  Tab ×1 → button «Simpan jawaban ini»
+  Enter
+  shown: #j4-c-hasil
+  Tab ×2 → button «Kumpulkan»
+  Enter
+  → screen d: focus on «Target tercapai.», title «Hasil · Bab 3 · Pecahan senilai»
+  Tab ×1 → a «Beranda»
+  Enter
+  → screen a: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  motion seen: none
+  no finding
+
+── 390 px · motion reduced: the walk (15 Tab presses in all)
+  Tab ×7 → a «Lanjutkan pelajaran»
+  Enter
+  → screen b: focus on «Menyederhanakan pecahan», title «Pelajaran · Bab 3 · Pecahan senilai»
+  Tab ×3 → a «Halaman berikutnya»
+  Enter
+  → screen c: focus on «Pertanyaan 7 dari 10», title «Uji Penguasaan · Bab 3 · Pecahan senilai»
+  Tab ×1 → input[radio] «6/8»
+  ArrowDown
+  focus ok: input[radio] «8/12» (arrows move the choice)
+  Tab ×1 → button «Simpan jawaban ini»
+  Enter
+  shown: #j4-c-hasil
+  Tab ×2 → button «Kumpulkan»
+  Enter
+  → screen d: focus on «Target tercapai.», title «Hasil · Bab 3 · Pecahan senilai»
+  Tab ×1 → a «Beranda»
+  Enter
+  → screen a: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  motion seen: none
+  no finding

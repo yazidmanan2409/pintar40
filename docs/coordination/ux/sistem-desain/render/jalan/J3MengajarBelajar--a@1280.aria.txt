@@ -1,0 +1,42 @@
+- region "Kelas · PINTAR":
+  - link "Langsung ke isi":
+    - /url: "#j3-a-isi"
+  - navigation "Tempat kerja Anda":
+    - img "PINTAR"
+    - button "Ciutkan navigasi" [expanded]
+    - list:
+      - listitem:
+        - text: Mengajar
+        - list "Mengajar":
+          - listitem:
+            - link "Kelas":
+              - /url: "#"
+          - listitem:
+            - link "Studio":
+              - /url: "#"
+      - listitem:
+        - text: Belajar
+        - list "Belajar":
+          - listitem:
+            - link "Pembelajaran Saya":
+              - /url: "#"
+    - link "Bantuan":
+      - /url: "#"
+    - 'button "Akun: Rina Kartika"':
+      - strong: Rina Kartika
+      - text: Guru · SDN Kaliandra 1
+    - button "Keluar"
+  - main:
+    - heading "Kelas dalam lingkup mengajar Anda" [level=1]
+    - paragraph: Berdasarkan penugasan dari sekolah. PINTAR tidak menandai kelas sebagai milik seseorang; yang tampil adalah kelas yang tercakup dalam penugasan Anda.
+    - list:
+      - listitem:
+        - link "Kelas 5A · Matematika Berjalan Bab 3 · Pecahan senilai · 31 murid terdaftar hari ini":
+          - /url: "#"
+          - strong: Kelas 5A · Matematika
+          - text: Berjalan Bab 3 · Pecahan senilai · 31 murid terdaftar hari ini
+      - listitem:
+        - link "Kelas 5B · Matematika Tidak ada yang sedang berjalan. · 29 murid terdaftar hari ini":
+          - /url: "#"
+          - strong: Kelas 5B · Matematika
+          - text: Tidak ada yang sedang berjalan. · 29 murid terdaftar hari ini

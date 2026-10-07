@@ -270,5 +270,739 @@
         }
       ]
     }
+  ],
+  "J1Terbit": [
+    {
+      "nama": "a1@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a1\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a1@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a1\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a1@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a1\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a2@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a2\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a2@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a2\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a2@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a2\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a1b@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a1b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a1b@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a1b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a1b@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a1b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b1@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b1\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b1@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b1\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b1@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b1\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b2@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b2\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b2@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b2\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b2@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b2\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b3@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b3\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b3@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b3\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b3@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b3\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b4@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b4\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b4@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b4\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b4@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b4\"]",
+          "tunggu": 250
+        }
+      ]
+    }
+  ],
+  "J2Kelas": [
+    {
+      "nama": "a@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    }
+  ],
+  "J3MengajarBelajar": [
+    {
+      "nama": "a@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "c@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"c\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "c@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"c\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "c@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"c\"]",
+          "tunggu": 250
+        }
+      ]
+    }
+  ],
+  "J4Murid": [
+    {
+      "nama": "a@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "c@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"c\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "c@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"c\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "c@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"c\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "d@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"d\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "d@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"d\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "d@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"d\"]",
+          "tunggu": 250
+        }
+      ]
+    }
+  ],
+  "J5Jendela": [
+    {
+      "nama": "a@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    }
+  ],
+  "J6Peragaan": [
+    {
+      "nama": "a@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "c@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"c\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "c@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"c\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "c@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"c\"]",
+          "tunggu": 250
+        }
+      ]
+    }
+  ],
+  "J7Kunci": [
+    {
+      "nama": "a@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "a@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"a\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "b@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"b\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "c@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"c\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "c@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"c\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "c@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"c\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "d@1280",
+      "lebar": 1280,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"d\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "d@1024",
+      "lebar": 1024,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"d\"]",
+          "tunggu": 250
+        }
+      ]
+    },
+    {
+      "nama": "d@390",
+      "lebar": 390,
+      "langkah": [
+        {
+          "klik": "[data-lompat=\"d\"]",
+          "tunggu": 250
+        }
+      ]
+    }
   ]
 }

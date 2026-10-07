@@ -1,0 +1,23 @@
+- region "Kelas 5A · PINTAR":
+  - link "Langsung ke isi":
+    - /url: "#j7-b-isi"
+  - img "PINTAR"
+  - button "Keluar"
+  - button "Buka menu"
+  - main:
+    - alert:
+      - heading "PINTAR akan terkunci dalam 1 menit" [level=2]
+      - paragraph: Komputer ini belum dipakai selama 4 menit. Sebentar lagi PINTAR menutup layar ini; Anda bisa membukanya lagi dengan PIN.
+      - button "Saya masih di sini"
+    - paragraph:
+      - link "Kelas":
+        - /url: "#"
+    - heading "Kelas 5A · Matematika" [level=1]
+    - paragraph: Kelas ini tampil karena sekolah menugaskan Anda ke lingkup yang mencakupnya. Daftar murid berasal dari pendaftaran sekolah, bukan dari PINTAR.
+    - term: Mata pelajaran
+    - definition: Matematika
+    - term: Murid terdaftar
+    - definition: "31"
+    - term: Materi tersedia
+    - definition: "1"
+    - button "Let the fifth minute pass (review step)"

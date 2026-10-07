@@ -1,0 +1,61 @@
+- region "Siapkan materi · Kelas 5A":
+  - link "Langsung ke isi":
+    - /url: "#j1-b3-isi"
+  - navigation "Tempat kerja Anda":
+    - img "PINTAR"
+    - button "Ciutkan navigasi" [expanded]
+    - list:
+      - listitem:
+        - text: Mengajar
+        - list "Mengajar":
+          - listitem:
+            - link "Kelas":
+              - /url: "#"
+          - listitem:
+            - link "Studio":
+              - /url: "#"
+      - listitem:
+        - text: Belajar
+        - list "Belajar":
+          - listitem:
+            - link "Pembelajaran Saya":
+              - /url: "#"
+    - link "Bantuan":
+      - /url: "#"
+    - 'button "Akun: Rina Kartika"':
+      - strong: Rina Kartika
+      - text: Guru · SDN Kaliandra 1
+    - button "Keluar"
+  - main:
+    - paragraph:
+      - link "Kembali ke pilihan materi":
+        - /url: "#"
+    - paragraph: Siapkan materi · Kelas 5A
+    - heading "Yang akan diterima murid" [level=1]
+    - paragraph: Belum ada yang berubah untuk murid. Semua di bawah ini baru berlaku setelah Anda menekan tombol sediakan di bagian akhir.
+    - region "Bab 3 · Pecahan senilai":
+      - heading "Bab 3 · Pecahan senilai" [level=2]
+      - paragraph: Diterbitkan sekolah · 4 pelajaran · 20 soal
+    - group "Jendela":
+      - text: Jendela
+      - paragraph: Murid melihat materi ini di halaman Belajar selama jendela terbuka.
+      - text: Mulai
+      - textbox "Mulai": 2026-10-07
+      - paragraph: Rabu, 7 Okt 2026
+      - text: Sampai (opsional)
+      - textbox "Sampai (opsional)"
+      - paragraph: Tanpa batas akhir
+    - region "Tinjauan sebelum disediakan":
+      - heading "Tinjauan sebelum disediakan" [level=2]
+      - paragraph:
+        - text: Disediakan untuk
+        - strong: Kelas 5A
+        - text: · 31 murid terdaftar hari ini
+      - paragraph:
+        - text: "Jendela:"
+        - strong: Mulai Rabu, 7 Okt 2026 · Tanpa batas akhir
+      - paragraph:
+        - text: Setelah disediakan,
+        - strong: 31 murid Kelas 5A
+        - text: akan melihat materi ini di halaman Belajar mereka. Anda bisa mengubah jendelanya nanti, tetapi tidak bisa menarik kembali pekerjaan yang sudah dimulai murid.
+    - button "Sediakan"

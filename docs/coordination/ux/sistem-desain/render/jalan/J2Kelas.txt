@@ -1,0 +1,470 @@
+J2Kelas: the keyboard walk (alat/jalani.mts). Chromium, locale id-ID. Focus after a screen change is the walk's runner (the screen's heading); the product's own focus rules are in the journey's README.
+
+── 1280 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kelas»  ring
+  10. a «Kelas 5A»  ring
+  11. input «Cari murid»  ring
+  12. input «Semua»  ring
+  13. div[region] «Murid Kelas 5A»  ring
+  14. a «Lihat Adi Pratama»  ring
+  15. button «Opsi untuk Adi Pratama»  ring
+  16. a «Lihat Agus Salim»  ring
+  17. button «Opsi untuk Agus Salim»  ring
+  18. a «Lihat Ayu Lestari»  ring
+  19. button «Opsi untuk Ayu Lestari»  ring
+  20. a «Lihat Bagus Santoso»  ring
+  21. button «Opsi untuk Bagus Santoso»  ring
+  22. a «Lihat Bayu Aji»  ring
+  23. button «Opsi untuk Bayu Aji»  ring
+  24. a «Lihat Citra Dewi»  ring
+  25. button «Opsi untuk Citra Dewi»  ring
+  26. a «Lihat Dewi Kusuma»  ring
+  27. button «Opsi untuk Dewi Kusuma»  ring
+  28. a «Lihat Dimas Anggara»  ring
+  29. button «Opsi untuk Dimas Anggara»  ring
+  30. a «Lihat Eka Putri»  ring
+  31. button «Opsi untuk Eka Putri»  ring
+  32. a «Lihat Fajar Nugroho»  ring
+  33. button «Opsi untuk Fajar Nugroho»  ring
+  34. a «Lihat Fitri Handayani»  ring
+  35. button «Opsi untuk Fitri Handayani»  ring
+  36. a «Lihat Gita Maharani»  ring
+  37. button «Opsi untuk Gita Maharani»  ring
+  38. a «Lihat Hendra Wijaya»  ring
+  39. button «Opsi untuk Hendra Wijaya»  ring
+  40. a «Lihat Indah Permatasari»  ring
+  41. button «Opsi untuk Indah Permatasari»  ring
+  42. a «Lihat Intan Permata»  ring
+  43. button «Opsi untuk Intan Permata»  ring
+  44. a «Lihat Joko Susilo»  ring
+  45. button «Opsi untuk Joko Susilo»  ring
+  46. a «Lihat Kartika Sari»  ring
+  47. button «Opsi untuk Kartika Sari»  ring
+  48. a «Lihat Lukman Hakim»  ring
+  49. button «Opsi untuk Lukman Hakim»  ring
+  50. a «Lihat Maya Anggraini»  ring
+  51. button «Opsi untuk Maya Anggraini»  ring
+  52. a «Lihat Muhammad Rizky Ramadhan Saputra Nugraha»  ring
+  53. button «Opsi untuk Muhammad Rizky Ramadhan Saputra Nugra»  ring
+  54. a «Lihat Nanda Pratiwi»  ring
+  55. button «Opsi untuk Nanda Pratiwi»  ring
+  56. a «Lihat Nur Aisyah»  ring
+  57. button «Opsi untuk Nur Aisyah»  ring
+  58. a «Lihat Oki Setiawan»  ring
+  59. button «Opsi untuk Oki Setiawan»  ring
+  60. a «Lihat Putri Ramadhani»  ring
+  61. button «Opsi untuk Putri Ramadhani»  ring
+  62. a «Lihat Rahmat Hidayat»  ring
+  63. button «Opsi untuk Rahmat Hidayat»  ring
+  64. a «Lihat Rina Marlina»  ring
+  65. button «Opsi untuk Rina Marlina»  ring
+  66. a «Lihat Sari Wulandari»  ring
+  67. button «Opsi untuk Sari Wulandari»  ring
+  68. a «Lihat Teguh Prasetyo»  ring
+  69. button «Opsi untuk Teguh Prasetyo»  ring
+  70. a «Lihat Umar Faruq»  ring
+  71. button «Opsi untuk Umar Faruq»  ring
+  72. a «Lihat Wulan Safitri»  ring
+  73. button «Opsi untuk Wulan Safitri»  ring
+  74. a «Lihat Yoga Firmansyah»  ring
+  75. button «Opsi untuk Yoga Firmansyah»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Bab 3 · Pecahan senilai»  ring
+  10. input «Ayu LestariSudah mulai, belum mengumpulkan»  ring
+  11. input «Bagus Santosobelum menyelesaikan Uji Penguasaan»  ring
+  12. input «Pelajaran 1 · Apa itu pecahan senilai»  ring
+  13. input «Pelajaran 2 · Mengalikan pembilang dan penyebut»  ring
+  14. input «Pelajaran 3 · Menyederhanakan pecahan»  ring
+  15. input «Pelajaran 4 · Membandingkan pecahan»  ring
+  16. button «Minta membaca lagi»  ring
+
+── 1280 px · motion on: the walk (28 Tab presses in all)
+  Tab ×11 → input[search] «Cari murid»
+  type «Ayu»
+  shown: [data-layar="a"] tr[data-cari="Ayu Lestari"]
+  hidden: [data-layar="a"] tr[data-cari="Adi Pratama"] (the search filters as typed)
+  Tab ×5 → button «Opsi untuk Ayu Lestari»
+  Enter
+  focus ok: a[menuitem] «Lihat bukti» (the menu opens on its first item)
+  ArrowDown
+  focus ok: a[menuitem] «Minta membaca lagi»
+  Enter
+  → screen b: focus on «Minta membaca lagi», title «Minta membaca lagi · Kelas 5A»
+  Tab ×7 → button «Minta membaca lagi»
+  Enter
+  shown: [data-layar="b"] button[aria-busy="true"]
+  shown: #j2-b-hasil
+  Tab ×1 → a «Siapa yang sudah mengumpulkan»
+  Enter
+  → screen a: focus on «Siapa yang sudah mengumpulkan · Bab 3 · Pecahan senilai», title «Siapa yang sudah mengumpulkan · Kelas 5A»
+  Shift+Tab ×4 → button «Akun: Rina Kartika»
+  Enter
+  End
+  focus ok: button[menuitem] «Keluar dari semua perangkat…»
+  Enter
+  shown: #j2-semua[open]
+  focus ok: button «Batal» (the dialog opens on «Batal»)
+  Escape
+  hidden: #j2-semua[open]
+  focus ok: button «Akun: Rina Kartika» (Esc returns focus to the account button)
+  motion seen: transition background-color 0.12s on button; transition border-bottom-color 0.12s on pds-input; transition border-left-color 0.12s on pds-input; transition border-right-color 0.12s on pds-input; transition border-top-color 0.12s on pds-input; pds-turun 0.24s on pds-menu; pds-denyut 0.9s on pds-dot; transition background-color 0.12s, 0.12s, 0.12s on pds-btn; transition color 0.12s, 0.12s, 0.12s on pds-btn; pds-muncul 0.16s on pds-result; pds-muncul 0.24s on pds-menu; pds-masuk 0.24s on pds-dialog; pds-muncul 0.24s on pds-dialog
+  no finding
+
+── 1024 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kelas»  ring
+  10. a «Kelas 5A»  ring
+  11. input «Cari murid»  ring
+  12. input «Semua»  ring
+  13. div[region] «Murid Kelas 5A»  ring
+  14. a «Lihat Adi Pratama»  ring
+  15. button «Opsi untuk Adi Pratama»  ring
+  16. a «Lihat Agus Salim»  ring
+  17. button «Opsi untuk Agus Salim»  ring
+  18. a «Lihat Ayu Lestari»  ring
+  19. button «Opsi untuk Ayu Lestari»  ring
+  20. a «Lihat Bagus Santoso»  ring
+  21. button «Opsi untuk Bagus Santoso»  ring
+  22. a «Lihat Bayu Aji»  ring
+  23. button «Opsi untuk Bayu Aji»  ring
+  24. a «Lihat Citra Dewi»  ring
+  25. button «Opsi untuk Citra Dewi»  ring
+  26. a «Lihat Dewi Kusuma»  ring
+  27. button «Opsi untuk Dewi Kusuma»  ring
+  28. a «Lihat Dimas Anggara»  ring
+  29. button «Opsi untuk Dimas Anggara»  ring
+  30. a «Lihat Eka Putri»  ring
+  31. button «Opsi untuk Eka Putri»  ring
+  32. a «Lihat Fajar Nugroho»  ring
+  33. button «Opsi untuk Fajar Nugroho»  ring
+  34. a «Lihat Fitri Handayani»  ring
+  35. button «Opsi untuk Fitri Handayani»  ring
+  36. a «Lihat Gita Maharani»  ring
+  37. button «Opsi untuk Gita Maharani»  ring
+  38. a «Lihat Hendra Wijaya»  ring
+  39. button «Opsi untuk Hendra Wijaya»  ring
+  40. a «Lihat Indah Permatasari»  ring
+  41. button «Opsi untuk Indah Permatasari»  ring
+  42. a «Lihat Intan Permata»  ring
+  43. button «Opsi untuk Intan Permata»  ring
+  44. a «Lihat Joko Susilo»  ring
+  45. button «Opsi untuk Joko Susilo»  ring
+  46. a «Lihat Kartika Sari»  ring
+  47. button «Opsi untuk Kartika Sari»  ring
+  48. a «Lihat Lukman Hakim»  ring
+  49. button «Opsi untuk Lukman Hakim»  ring
+  50. a «Lihat Maya Anggraini»  ring
+  51. button «Opsi untuk Maya Anggraini»  ring
+  52. a «Lihat Muhammad Rizky Ramadhan Saputra Nugraha»  ring
+  53. button «Opsi untuk Muhammad Rizky Ramadhan Saputra Nugra»  ring
+  54. a «Lihat Nanda Pratiwi»  ring
+  55. button «Opsi untuk Nanda Pratiwi»  ring
+  56. a «Lihat Nur Aisyah»  ring
+  57. button «Opsi untuk Nur Aisyah»  ring
+  58. a «Lihat Oki Setiawan»  ring
+  59. button «Opsi untuk Oki Setiawan»  ring
+  60. a «Lihat Putri Ramadhani»  ring
+  61. button «Opsi untuk Putri Ramadhani»  ring
+  62. a «Lihat Rahmat Hidayat»  ring
+  63. button «Opsi untuk Rahmat Hidayat»  ring
+  64. a «Lihat Rina Marlina»  ring
+  65. button «Opsi untuk Rina Marlina»  ring
+  66. a «Lihat Sari Wulandari»  ring
+  67. button «Opsi untuk Sari Wulandari»  ring
+  68. a «Lihat Teguh Prasetyo»  ring
+  69. button «Opsi untuk Teguh Prasetyo»  ring
+  70. a «Lihat Umar Faruq»  ring
+  71. button «Opsi untuk Umar Faruq»  ring
+  72. a «Lihat Wulan Safitri»  ring
+  73. button «Opsi untuk Wulan Safitri»  ring
+  74. a «Lihat Yoga Firmansyah»  ring
+  75. button «Opsi untuk Yoga Firmansyah»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Bab 3 · Pecahan senilai»  ring
+  10. input «Ayu LestariSudah mulai, belum mengumpulkan»  ring
+  11. input «Bagus Santosobelum menyelesaikan Uji Penguasaan»  ring
+  12. input «Pelajaran 1 · Apa itu pecahan senilai»  ring
+  13. input «Pelajaran 2 · Mengalikan pembilang dan penyebut»  ring
+  14. input «Pelajaran 3 · Menyederhanakan pecahan»  ring
+  15. input «Pelajaran 4 · Membandingkan pecahan»  ring
+  16. button «Minta membaca lagi»  ring
+
+── 1024 px · motion on: the walk (28 Tab presses in all)
+  Tab ×11 → input[search] «Cari murid»
+  type «Ayu»
+  shown: [data-layar="a"] tr[data-cari="Ayu Lestari"]
+  hidden: [data-layar="a"] tr[data-cari="Adi Pratama"] (the search filters as typed)
+  Tab ×5 → button «Opsi untuk Ayu Lestari»
+  Enter
+  focus ok: a[menuitem] «Lihat bukti» (the menu opens on its first item)
+  ArrowDown
+  focus ok: a[menuitem] «Minta membaca lagi»
+  Enter
+  → screen b: focus on «Minta membaca lagi», title «Minta membaca lagi · Kelas 5A»
+  Tab ×7 → button «Minta membaca lagi»
+  Enter
+  shown: [data-layar="b"] button[aria-busy="true"]
+  shown: #j2-b-hasil
+  Tab ×1 → a «Siapa yang sudah mengumpulkan»
+  Enter
+  → screen a: focus on «Siapa yang sudah mengumpulkan · Bab 3 · Pecahan senilai», title «Siapa yang sudah mengumpulkan · Kelas 5A»
+  Shift+Tab ×4 → button «Akun: Rina Kartika»
+  Enter
+  End
+  focus ok: button[menuitem] «Keluar dari semua perangkat…»
+  Enter
+  shown: #j2-semua[open]
+  focus ok: button «Batal» (the dialog opens on «Batal»)
+  Escape
+  hidden: #j2-semua[open]
+  focus ok: button «Akun: Rina Kartika» (Esc returns focus to the account button)
+  motion seen: transition background-color 0.12s on button; transition border-bottom-color 0.12s on pds-input; transition border-left-color 0.12s on pds-input; transition border-right-color 0.12s on pds-input; transition border-top-color 0.12s on pds-input; pds-turun 0.24s on pds-menu; pds-denyut 0.9s on pds-dot; transition background-color 0.12s, 0.12s, 0.12s on pds-btn; transition color 0.12s, 0.12s, 0.12s on pds-btn; pds-muncul 0.16s on pds-result; pds-muncul 0.24s on pds-menu; pds-masuk 0.24s on pds-dialog; pds-muncul 0.24s on pds-dialog
+  no finding
+
+── 390 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. a «Kelas»  ring
+   5. a «Kelas 5A»  ring
+   6. input «Cari murid»  ring
+   7. select «Tampilkan»  ring
+   8. div[region] «Murid Kelas 5A»  ring
+   9. a «Lihat Adi Pratama»  ring
+  10. button «Opsi untuk Adi Pratama»  ring
+  11. a «Lihat Agus Salim»  ring
+  12. button «Opsi untuk Agus Salim»  ring
+  13. a «Lihat Ayu Lestari»  ring
+  14. button «Opsi untuk Ayu Lestari»  ring
+  15. a «Lihat Bagus Santoso»  ring
+  16. button «Opsi untuk Bagus Santoso»  ring
+  17. a «Lihat Bayu Aji»  ring
+  18. button «Opsi untuk Bayu Aji»  ring
+  19. a «Lihat Citra Dewi»  ring
+  20. button «Opsi untuk Citra Dewi»  ring
+  21. a «Lihat Dewi Kusuma»  ring
+  22. button «Opsi untuk Dewi Kusuma»  ring
+  23. a «Lihat Dimas Anggara»  ring
+  24. button «Opsi untuk Dimas Anggara»  ring
+  25. a «Lihat Eka Putri»  ring
+  26. button «Opsi untuk Eka Putri»  ring
+  27. a «Lihat Fajar Nugroho»  ring
+  28. button «Opsi untuk Fajar Nugroho»  ring
+  29. a «Lihat Fitri Handayani»  ring
+  30. button «Opsi untuk Fitri Handayani»  ring
+  31. a «Lihat Gita Maharani»  ring
+  32. button «Opsi untuk Gita Maharani»  ring
+  33. a «Lihat Hendra Wijaya»  ring
+  34. button «Opsi untuk Hendra Wijaya»  ring
+  35. a «Lihat Indah Permatasari»  ring
+  36. button «Opsi untuk Indah Permatasari»  ring
+  37. a «Lihat Intan Permata»  ring
+  38. button «Opsi untuk Intan Permata»  ring
+  39. a «Lihat Joko Susilo»  ring
+  40. button «Opsi untuk Joko Susilo»  ring
+  41. a «Lihat Kartika Sari»  ring
+  42. button «Opsi untuk Kartika Sari»  ring
+  43. a «Lihat Lukman Hakim»  ring
+  44. button «Opsi untuk Lukman Hakim»  ring
+  45. a «Lihat Maya Anggraini»  ring
+  46. button «Opsi untuk Maya Anggraini»  ring
+  47. a «Lihat Muhammad Rizky Ramadhan Saputra Nugraha»  ring
+  48. button «Opsi untuk Muhammad Rizky Ramadhan Saputra Nugra»  ring
+  49. a «Lihat Nanda Pratiwi»  ring
+  50. button «Opsi untuk Nanda Pratiwi»  ring
+  51. a «Lihat Nur Aisyah»  ring
+  52. button «Opsi untuk Nur Aisyah»  ring
+  53. a «Lihat Oki Setiawan»  ring
+  54. button «Opsi untuk Oki Setiawan»  ring
+  55. a «Lihat Putri Ramadhani»  ring
+  56. button «Opsi untuk Putri Ramadhani»  ring
+  57. a «Lihat Rahmat Hidayat»  ring
+  58. button «Opsi untuk Rahmat Hidayat»  ring
+  59. a «Lihat Rina Marlina»  ring
+  60. button «Opsi untuk Rina Marlina»  ring
+  61. a «Lihat Sari Wulandari»  ring
+  62. button «Opsi untuk Sari Wulandari»  ring
+  63. a «Lihat Teguh Prasetyo»  ring
+  64. button «Opsi untuk Teguh Prasetyo»  ring
+  65. a «Lihat Umar Faruq»  ring
+  66. button «Opsi untuk Umar Faruq»  ring
+  67. a «Lihat Wulan Safitri»  ring
+  68. button «Opsi untuk Wulan Safitri»  ring
+  69. a «Lihat Yoga Firmansyah»  ring
+  70. button «Opsi untuk Yoga Firmansyah»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. a «Bab 3 · Pecahan senilai»  ring
+   5. input «Ayu LestariSudah mulai, belum mengumpulkan»  ring
+   6. input «Bagus Santosobelum menyelesaikan Uji Penguasaan»  ring
+   7. input «Pelajaran 1 · Apa itu pecahan senilai»  ring
+   8. input «Pelajaran 2 · Mengalikan pembilang dan penyebut»  ring
+   9. input «Pelajaran 3 · Menyederhanakan pecahan»  ring
+  10. input «Pelajaran 4 · Membandingkan pecahan»  ring
+  11. button «Minta membaca lagi»  ring
+
+── 390 px · motion on: the walk (28 Tab presses in all)
+  Tab ×6 → input[search] «Cari murid»
+  type «Ayu»
+  shown: [data-layar="a"] tr[data-cari="Ayu Lestari"]
+  hidden: [data-layar="a"] tr[data-cari="Adi Pratama"] (the search filters as typed)
+  Tab ×5 → button «Opsi untuk Ayu Lestari»
+  Enter
+  focus ok: a[menuitem] «Lihat bukti» (the menu opens on its first item)
+  ArrowDown
+  focus ok: a[menuitem] «Minta membaca lagi»
+  Enter
+  → screen b: focus on «Minta membaca lagi», title «Minta membaca lagi · Kelas 5A»
+  Tab ×7 → button «Minta membaca lagi»
+  Enter
+  shown: [data-layar="b"] button[aria-busy="true"]
+  shown: #j2-b-hasil
+  Tab ×1 → a «Siapa yang sudah mengumpulkan»
+  Enter
+  → screen a: focus on «Siapa yang sudah mengumpulkan · Bab 3 · Pecahan senilai», title «Siapa yang sudah mengumpulkan · Kelas 5A»
+  Shift+Tab ×3 → button «Buka menu»
+  Enter
+  Tab ×6 → button «Keluar dari semua perangkat…»
+  Enter
+  shown: #j2-semua[open]
+  focus ok: button «Batal» (the dialog opens on «Batal»)
+  Escape
+  hidden: #j2-semua[open]
+  focus ok: button «Keluar dari semua perangkat…» (Esc returns focus to the drawer row)
+  Escape
+  focus ok: button «Buka menu» (Esc closes the drawer and returns focus to «Buka menu»)
+  motion seen: transition border-bottom-color 0.12s on pds-input; transition border-left-color 0.12s on pds-input; transition border-right-color 0.12s on pds-input; transition border-top-color 0.12s on pds-input; transition border-bottom-color 0.12s on select; transition border-left-color 0.12s on select; transition border-right-color 0.12s on select; transition border-top-color 0.12s on select; pds-turun 0.24s on pds-menu; transition background-color 0.12s on button; pds-denyut 0.9s on pds-dot; transition background-color 0.12s, 0.12s, 0.12s on pds-btn; transition color 0.12s, 0.12s, 0.12s on pds-btn; pds-muncul 0.16s on pds-result; transition background-color 0.12s, 0.12s on pds-nav-item; transition color 0.12s, 0.12s on pds-nav-item; pds-geser-kiri 0.24s on pds-drawer; pds-muncul 0.24s on pds-drawer; pds-masuk 0.24s on pds-dialog; pds-muncul 0.24s on pds-dialog
+  no finding
+
+── 1280 px · motion reduced: the walk (28 Tab presses in all)
+  Tab ×11 → input[search] «Cari murid»
+  type «Ayu»
+  shown: [data-layar="a"] tr[data-cari="Ayu Lestari"]
+  hidden: [data-layar="a"] tr[data-cari="Adi Pratama"] (the search filters as typed)
+  Tab ×5 → button «Opsi untuk Ayu Lestari»
+  Enter
+  focus ok: a[menuitem] «Lihat bukti» (the menu opens on its first item)
+  ArrowDown
+  focus ok: a[menuitem] «Minta membaca lagi»
+  Enter
+  → screen b: focus on «Minta membaca lagi», title «Minta membaca lagi · Kelas 5A»
+  Tab ×7 → button «Minta membaca lagi»
+  Enter
+  shown: [data-layar="b"] button[aria-busy="true"]
+  shown: #j2-b-hasil
+  Tab ×1 → a «Siapa yang sudah mengumpulkan»
+  Enter
+  → screen a: focus on «Siapa yang sudah mengumpulkan · Bab 3 · Pecahan senilai», title «Siapa yang sudah mengumpulkan · Kelas 5A»
+  Shift+Tab ×4 → button «Akun: Rina Kartika»
+  Enter
+  End
+  focus ok: button[menuitem] «Keluar dari semua perangkat…»
+  Enter
+  shown: #j2-semua[open]
+  focus ok: button «Batal» (the dialog opens on «Batal»)
+  Escape
+  hidden: #j2-semua[open]
+  focus ok: button «Akun: Rina Kartika» (Esc returns focus to the account button)
+  motion seen: none
+  no finding
+
+── 1024 px · motion reduced: the walk (28 Tab presses in all)
+  Tab ×11 → input[search] «Cari murid»
+  type «Ayu»
+  shown: [data-layar="a"] tr[data-cari="Ayu Lestari"]
+  hidden: [data-layar="a"] tr[data-cari="Adi Pratama"] (the search filters as typed)
+  Tab ×5 → button «Opsi untuk Ayu Lestari»
+  Enter
+  focus ok: a[menuitem] «Lihat bukti» (the menu opens on its first item)
+  ArrowDown
+  focus ok: a[menuitem] «Minta membaca lagi»
+  Enter
+  → screen b: focus on «Minta membaca lagi», title «Minta membaca lagi · Kelas 5A»
+  Tab ×7 → button «Minta membaca lagi»
+  Enter
+  shown: [data-layar="b"] button[aria-busy="true"]
+  shown: #j2-b-hasil
+  Tab ×1 → a «Siapa yang sudah mengumpulkan»
+  Enter
+  → screen a: focus on «Siapa yang sudah mengumpulkan · Bab 3 · Pecahan senilai», title «Siapa yang sudah mengumpulkan · Kelas 5A»
+  Shift+Tab ×4 → button «Akun: Rina Kartika»
+  Enter
+  End
+  focus ok: button[menuitem] «Keluar dari semua perangkat…»
+  Enter
+  shown: #j2-semua[open]
+  focus ok: button «Batal» (the dialog opens on «Batal»)
+  Escape
+  hidden: #j2-semua[open]
+  focus ok: button «Akun: Rina Kartika» (Esc returns focus to the account button)
+  motion seen: none
+  no finding
+
+── 390 px · motion reduced: the walk (28 Tab presses in all)
+  Tab ×6 → input[search] «Cari murid»
+  type «Ayu»
+  shown: [data-layar="a"] tr[data-cari="Ayu Lestari"]
+  hidden: [data-layar="a"] tr[data-cari="Adi Pratama"] (the search filters as typed)
+  Tab ×5 → button «Opsi untuk Ayu Lestari»
+  Enter
+  focus ok: a[menuitem] «Lihat bukti» (the menu opens on its first item)
+  ArrowDown
+  focus ok: a[menuitem] «Minta membaca lagi»
+  Enter
+  → screen b: focus on «Minta membaca lagi», title «Minta membaca lagi · Kelas 5A»
+  Tab ×7 → button «Minta membaca lagi»
+  Enter
+  shown: [data-layar="b"] button[aria-busy="true"]
+  shown: #j2-b-hasil
+  Tab ×1 → a «Siapa yang sudah mengumpulkan»
+  Enter
+  → screen a: focus on «Siapa yang sudah mengumpulkan · Bab 3 · Pecahan senilai», title «Siapa yang sudah mengumpulkan · Kelas 5A»
+  Shift+Tab ×3 → button «Buka menu»
+  Enter
+  Tab ×6 → button «Keluar dari semua perangkat…»
+  Enter
+  shown: #j2-semua[open]
+  focus ok: button «Batal» (the dialog opens on «Batal»)
+  Escape
+  hidden: #j2-semua[open]
+  focus ok: button «Keluar dari semua perangkat…» (Esc returns focus to the drawer row)
+  Escape
+  focus ok: button «Buka menu» (Esc closes the drawer and returns focus to «Buka menu»)
+  motion seen: none
+  no finding

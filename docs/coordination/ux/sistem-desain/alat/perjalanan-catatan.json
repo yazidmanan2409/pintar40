@@ -1,0 +1,658 @@
+{
+  "_": "The composed journeys' records (11-validation.md §1), walked 7 Oct by Daisy. buat-perjalanan.mts writes each into its journey's README. Evidence: render/laporan.txt (axe, targets, sideways scroll, every screen at 1280, 1024 and 390 px) and render/jalan/ (the keyboard walk at three widths, motion on and reduced, the Tab stops of every screen, and each screen's accessibility tree). The screen-reader check is a review of the accessibility tree, not a screen reader.",
+  "J1": {
+    "periksa": [
+      {
+        "cek": "One obvious next action",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "One primary per screen: «Terbitkan», «Siapkan», «Sediakan». Studio and Kelas are lists; their next action is the row."
+      },
+      {
+        "cek": "Where am I",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "The navigation's current place, the heading and the page title agree on every screen (the walk checks the title). Back links name their destination."
+      },
+      {
+        "cek": "Every action answered, then its result in words",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "«Menerbitkan…» at once, then «✓ Diterbitkan» and «Terbit sejak …»; «Menyediakan…», then «✓ Disediakan» and «Materi disediakan untuk kelas ini.», each with the way on."
+      },
+      {
+        "cek": "Nothing by colour alone",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "Every state is a word («Selesai», «Sekarang», «Terbit», «Tersedia»); the current step also carries aria-current."
+      },
+      {
+        "cek": "Targets 44 px (24 px floor)",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "Nothing under 24 px. At 390 the top bar's «Keluar» is the 36 px small button the Button rule allows."
+      },
+      {
+        "cek": "No sideways scroll at 390 px",
+        "hasil": {
+          "390": "pass"
+        },
+        "catatan": "Studio's five tabs scroll inside their row (Tabs rule); see finding F10."
+      },
+      {
+        "cek": "Keyboard order and focus",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "Walked by Tab and Enter alone: 36 presses at 1280 and 1024, 31 at 390. The skip link is first, shows on focus and lands on the main region; every stop shows the ring; nothing hides under the sticky bar. A date field is three stops and the browser's own calendar button."
+      },
+      {
+        "cek": "Screen reader (the accessibility tree)",
+        "hasil": {
+          "1280": "pass",
+          "390": "pass"
+        },
+        "catatan": "Landmarks: the navigation «Tempat kerja Anda» and main. The working button is aria-busy; the result is a status. A real screen reader is still owed."
+      },
+      {
+        "cek": "Reduced motion",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "Nothing moves under reduced motion. With motion on: 120, 160 and 240 ms only, 8 px of travel at most; the working dot pulses and stops under reduced motion."
+      },
+      {
+        "cek": "Anything that fights the content",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "finding"
+        },
+        "catatan": "At 390, Studio's tabs hide «Bank Soal» and «Uji Cepat» beyond the edge with no sign that more follow (F10)."
+      }
+    ],
+    "temuan": [
+      "F1 · JQ1: the definition's teacher who publishes is two people in PINTAR.",
+      "C2: the publishing copy says «Siswa» and «menugaskan» where the teacher's screens say «murid» and «Sediakan».",
+      "F5: the App shell, Confirmation, Specimen and Action feedback specimens have a teacher publish to a class.",
+      "F10: Studio's tabs at 390 px.",
+      "F11: «Tinjauan sebelum disediakan» is a review before the act, not a Confirmation."
+    ]
+  },
+  "J2": {
+    "periksa": [
+      {
+        "cek": "One obvious next action",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "The class table is for reading: no primary button, the search field leads. «Minta membaca lagi» is the one primary of its form."
+      },
+      {
+        "cek": "Where am I",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "Three levels, so the scope line «Kelas / Kelas 5A / Bab 3»; Kelas is current in the navigation; the title follows."
+      },
+      {
+        "cek": "Every action answered, then its result in words",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "The search filters as typed and the count says «Menampilkan … dari 31 murid»; the menu opens on its first item; «Mengirim…», then «✓ Terkirim» and «Permintaan dikirim kepada Ayu Lestari.» (a request inside PINTAR, not an email)."
+      },
+      {
+        "cek": "Nothing by colour alone",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "Each state is a badge with its words; the stripe is never a state."
+      },
+      {
+        "cek": "Targets 44 px (24 px floor)",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "Nothing under 24 px. «Lihat» in each row is the 36 px small button for rows."
+      },
+      {
+        "cek": "No sideways scroll at 390 px",
+        "hasil": {
+          "390": "finding"
+        },
+        "catatan": "The page does not scroll sideways; the table scrolls in its frame with the name held still, as the Table rule says. But the state is cut at the frame's edge and the row's actions are only reached by scrolling the table (F7)."
+      },
+      {
+        "cek": "Keyboard order and focus",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "28 presses for the whole walk. Arrows move in the menu, Enter takes the item; the dialog opens on «Batal»; Esc closes it and gives focus back to the account button, or the drawer row at 390; Esc closes the drawer back to «Buka menu»."
+      },
+      {
+        "cek": "Screen reader (the accessibility tree)",
+        "hasil": {
+          "1280": "pass",
+          "390": "pass"
+        },
+        "catatan": "The table has a caption; each row action carries the learner's name («Lihat Adi Pratama», «Opsi untuk Adi Pratama»); the filter is a radio group."
+      },
+      {
+        "cek": "Reduced motion",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "The menu, the drawer and the dialog appear without moving; with motion on they enter in 240 ms with 4 to 8 px of travel."
+      },
+      {
+        "cek": "Anything that fights the content",
+        "hasil": {
+          "1280": "finding",
+          "1024": "finding",
+          "390": "finding"
+        },
+        "catatan": "The dialog's confirm reads «Ya, keluar dari semua» (C1)."
+      }
+    ],
+    "temuan": [
+      "F1 · JQ2: a teacher has no consequential act on one learner; the dialog is met on «Keluar dari semua perangkat», and the product's three lists are one table here.",
+      "C1: «Ya, …» on a confirm button.",
+      "F2: the Table and Table rows specimens offer acts a teacher cannot do, and «Kirim pengingat».",
+      "F7: the table at 390 px."
+    ]
+  },
+  "J3": {
+    "periksa": [
+      {
+        "cek": "One obvious next action",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "Kelas is a list; Pembelajaran Saya leads to the one open course; the course has one primary."
+      },
+      {
+        "cek": "Where am I",
+        "hasil": {
+          "1280": "pass",
+          "1024": "finding",
+          "390": "pass"
+        },
+        "catatan": "At 1280 and in the drawer the group labels «Mengajar» and «Belajar» say which context is open. At 1024 the rail drops them and the two contexts become one column of icons (F8)."
+      },
+      {
+        "cek": "Every action answered, then its result in words",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "A place's link shows the working dot until the page is there."
+      },
+      {
+        "cek": "Nothing by colour alone",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        }
+      },
+      {
+        "cek": "Targets 44 px (24 px floor)",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "36 px «Keluar» in the 390 top bar."
+      },
+      {
+        "cek": "No sideways scroll at 390 px",
+        "hasil": {
+          "390": "pass"
+        },
+        "catatan": "Found and corrected: the top bar was 3 px too wide with «Pembelajaran Saya» (the App shell's main column now holds its width)."
+      },
+      {
+        "cek": "Keyboard order and focus",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "13 presses at 1280 and 1024 (through the navigation), 10 at 390 (through the drawer)."
+      },
+      {
+        "cek": "Screen reader (the accessibility tree)",
+        "hasil": {
+          "1280": "pass",
+          "390": "pass"
+        },
+        "catatan": "Each group is a list named by its label; the course's steps are a list with the current step marked."
+      },
+      {
+        "cek": "Reduced motion",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        }
+      },
+      {
+        "cek": "Anything that fights the content",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        }
+      }
+    ],
+    "temuan": [
+      "JQ3: an educator's own learning stays in the staff shell.",
+      "F8 · JQ7: the rail at 1024 px loses the two contexts."
+    ]
+  },
+  "J4": {
+    "periksa": [
+      {
+        "cek": "One obvious next action",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "«Lanjutkan pelajaran», «Berikutnya», «Simpan jawaban ini», then «Beranda». «Kumpulkan» stands apart, secondary, with its consequence in words."
+      },
+      {
+        "cek": "Where am I",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "«Belajar» is the current tab; inside the assessment the focus shell hides the tabs and the eyebrow says «Uji Penguasaan · Bab 3»."
+      },
+      {
+        "cek": "Every action answered, then its result in words",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "«Menyimpan…», then «✓ Tersimpan» and «Sudah dijawab: 7 dari 10.»"
+      },
+      {
+        "cek": "Nothing by colour alone",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        }
+      },
+      {
+        "cek": "Targets 44 px (24 px floor)",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "Every choice is a 44 px row."
+      },
+      {
+        "cek": "No sideways scroll at 390 px",
+        "hasil": {
+          "390": "pass"
+        }
+      },
+      {
+        "cek": "Keyboard order and focus",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "15 presses; the arrows move the choice inside the question."
+      },
+      {
+        "cek": "Screen reader (the accessibility tree)",
+        "hasil": {
+          "1280": "pass",
+          "390": "pass"
+        },
+        "catatan": "The stem is the choices' legend, so each choice is read with its question."
+      },
+      {
+        "cek": "Reduced motion",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        }
+      },
+      {
+        "cek": "Anything that fights the content",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        }
+      }
+    ],
+    "temuan": [
+      "F11: the assessment's «Kumpulkan» panel is a review before the act, not a Confirmation.",
+      "F12: the shell documents say a learner is never named; D-020 greets by first name here («Halo, Bagas»)."
+    ]
+  },
+  "J5": {
+    "periksa": [
+      {
+        "cek": "One obvious next action",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "«Sediakan»."
+      },
+      {
+        "cek": "Where am I",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        }
+      },
+      {
+        "cek": "Every action answered, then its result in words",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "The mistake is told under «Sampai» in the server's own sentence and focus goes there; correcting the date clears it; then «Menyediakan…», «✓ Disediakan» and the window in words."
+      },
+      {
+        "cek": "Nothing by colour alone",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "The error has its icon and words, and the field is marked invalid as well as outlined."
+      },
+      {
+        "cek": "Targets 44 px (24 px floor)",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        }
+      },
+      {
+        "cek": "No sideways scroll at 390 px",
+        "hasil": {
+          "390": "pass"
+        },
+        "catatan": "The two date fields stack."
+      },
+      {
+        "cek": "Keyboard order and focus",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "22 presses at 1280 and 1024, 17 at 390. A native date field is three stops and the browser's own calendar button, which draws its own ring. Its order of day, month and year follows the device's language: on a device set to English it reads mm/dd/yyyy, which is why the date in words sits beneath (question 15)."
+      },
+      {
+        "cek": "Screen reader (the accessibility tree)",
+        "hasil": {
+          "1280": "pass",
+          "390": "pass"
+        },
+        "catatan": "The error and the date in words are tied to their field."
+      },
+      {
+        "cek": "Reduced motion",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "Field outlines change at 120 ms with motion on, at once under reduced motion."
+      },
+      {
+        "cek": "Anything that fights the content",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        }
+      }
+    ],
+    "temuan": [
+      "F1 · JQ5: an Uji Cepat has no opening date; the window of «Siapkan» is composed instead.",
+      "F3: the Date and time specimen says «Uji Cepat dibuka»."
+    ]
+  },
+  "J6": {
+    "periksa": [
+      {
+        "cek": "One obvious next action",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "The room is a choice between points of view, so its «Lihat sebagai» buttons are equal; inside, «Lanjutkan pelajaran»."
+      },
+      {
+        "cek": "Where am I",
+        "hasil": {
+          "1280": "finding",
+          "1024": "finding",
+          "390": "finding"
+        },
+        "catatan": "The band says «MODE PERAGAAN · Sedang melihat sebagai: Murid · Kelas 5A» on the screen, but the page title is the learner's own «Belajar · PINTAR» (F9)."
+      },
+      {
+        "cek": "Every action answered, then its result in words",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "Leaving says «Anda sudah keluar dari peragaan.» (new words)."
+      },
+      {
+        "cek": "Nothing by colour alone",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "The deep ink says «MODE PERAGAAN» in words; its links are underlined."
+      },
+      {
+        "cek": "Targets 44 px (24 px floor)",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "«Lihat sebagai» is the 36 px small button for rows."
+      },
+      {
+        "cek": "No sideways scroll at 390 px",
+        "hasil": {
+          "390": "pass"
+        },
+        "catatan": "The band wraps to two lines."
+      },
+      {
+        "cek": "Keyboard order and focus",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "The band's two ways out are the first stops after the skip link."
+      },
+      {
+        "cek": "Screen reader (the accessibility tree)",
+        "hasil": {
+          "1280": "pass",
+          "390": "pass"
+        },
+        "catatan": "The band is a region named «MODE PERAGAAN»."
+      },
+      {
+        "cek": "Reduced motion",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        }
+      },
+      {
+        "cek": "Anything that fights the content",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        }
+      }
+    ],
+    "temuan": [
+      "F1 · JQ6: MODE PERAGAAN is the evaluator's demonstration room, not a teacher's mode.",
+      "F9: the page title inside the room.",
+      "F12: «Halo, Bagas» under the band follows D-020, against the shell documents' wording."
+    ]
+  },
+  "J7": {
+    "periksa": [
+      {
+        "cek": "One obvious next action",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "«Saya masih di sini» in the warning; «Lanjutkan» on the lock."
+      },
+      {
+        "cek": "Where am I",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "The lock says «PINTAR terkunci» and «Terkunci untuk Rina Kartika»; the title follows."
+      },
+      {
+        "cek": "Every action answered, then its result in words",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "A wrong PIN is told under its field (kunci.tidak_cocok.2)."
+      },
+      {
+        "cek": "Nothing by colour alone",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        }
+      },
+      {
+        "cek": "Targets 44 px (24 px floor)",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "36 px «Keluar» in the 390 top bar."
+      },
+      {
+        "cek": "No sideways scroll at 390 px",
+        "hasil": {
+          "390": "pass"
+        },
+        "catatan": "Found and corrected: a review step's long English label pushed the page to 450 px; review steps now wrap."
+      },
+      {
+        "cek": "Keyboard order and focus",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        },
+        "catatan": "20 presses at 1280 and 1024, 15 at 390. The warning is announced (an alert) wherever focus is, and «Saya masih di sini» is reached from the page. The walk puts focus on each new screen's heading; the product's lock puts it on the PIN field when a PIN can be used (LayarTerkunci), and that rule stands."
+      },
+      {
+        "cek": "Screen reader (the accessibility tree)",
+        "hasil": {
+          "1280": "pass",
+          "390": "pass"
+        },
+        "catatan": "The warning is an alert with its own heading; the wrong-PIN line is an alert tied to the field."
+      },
+      {
+        "cek": "Reduced motion",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        }
+      },
+      {
+        "cek": "Anything that fights the content",
+        "hasil": {
+          "1280": "pass",
+          "1024": "pass",
+          "390": "pass"
+        }
+      }
+    ],
+    "temuan": [
+      "F4: the Lock screen and Idle warning specimens predate Gate 6."
+    ]
+  }
+}

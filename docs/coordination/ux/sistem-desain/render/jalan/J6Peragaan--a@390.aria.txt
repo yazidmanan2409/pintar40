@@ -1,0 +1,35 @@
+- region "Ruang Peragaan · PINTAR":
+  - link "Langsung ke isi":
+    - /url: "#j6-a-isi"
+  - main:
+    - img "PINTAR"
+    - heading "Ruang Peragaan" [level=1]
+    - paragraph: Lihat PINTAR dari sudut pandang orang yang berbeda di satu sekolah peragaan. Pilih satu sudut pandang untuk mulai.
+    - region "Pilih sudut pandang":
+      - heading "Pilih sudut pandang" [level=2]
+      - list:
+        - listitem:
+          - strong: Murid · Kelas 5A
+          - link "Lihat sebagai Murid · Kelas 5A":
+            - /url: "#"
+          - text: Sekolah Peragaan PINTAR
+        - listitem:
+          - strong: Guru · Kelas 5A
+          - link "Lihat sebagai Guru · Kelas 5A":
+            - /url: "#"
+          - text: Sekolah Peragaan PINTAR
+        - listitem:
+          - strong: Kepala departemen · Matematika
+          - link "Lihat sebagai Kepala departemen · Matematika":
+            - /url: "#"
+          - text: Sekolah Peragaan PINTAR
+        - listitem:
+          - strong: Dekan
+          - link "Lihat sebagai Dekan":
+            - /url: "#"
+          - text: Sekolah Peragaan PINTAR
+        - listitem:
+          - strong: Admin sekolah
+          - link "Lihat sebagai Admin sekolah":
+            - /url: "#"
+          - text: Sekolah Peragaan PINTAR

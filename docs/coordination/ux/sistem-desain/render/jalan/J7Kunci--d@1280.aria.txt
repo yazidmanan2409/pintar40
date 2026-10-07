@@ -1,0 +1,20 @@
+- region "PINTAR terkunci":
+  - link "Langsung ke isi":
+    - /url: "#j7-d-isi"
+  - main:
+    - form "PINTAR terkunci":
+      - img "PINTAR"
+      - heading "PINTAR terkunci" [level=1]
+      - paragraph:
+        - text: Terkunci untuk
+        - strong: Rina Kartika
+      - paragraph: Komputer ini tidak dipakai selama 5 menit, jadi PINTAR menutup layar ini agar data Anda aman. Ketik PIN pribadi Anda untuk melanjutkan.
+      - text: PIN pribadi (4 angka)
+      - textbox "PIN pribadi (4 angka)": "4721"
+      - button "Tampilkan PIN"
+      - alert: PIN tidak cocok. Anda bisa mencoba 2 kali lagi.
+      - button "Lanjutkan"
+      - paragraph: Lupa PIN? Keluar, lalu masuk lagi dengan password Anda.
+      - strong: Bukan akun Anda?
+      - text: Keluar dulu, supaya Anda bisa masuk dengan akun Anda sendiri.
+      - button "Keluar"

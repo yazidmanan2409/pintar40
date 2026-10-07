@@ -1,0 +1,41 @@
+- region "Kelas 5A · PINTAR":
+  - link "Langsung ke isi":
+    - /url: "#j7-a-isi"
+  - navigation "Tempat kerja Anda":
+    - img "PINTAR"
+    - button "Ciutkan navigasi" [expanded]
+    - list:
+      - listitem:
+        - text: Mengajar
+        - list "Mengajar":
+          - listitem:
+            - link "Kelas":
+              - /url: "#"
+          - listitem:
+            - link "Studio":
+              - /url: "#"
+      - listitem:
+        - text: Belajar
+        - list "Belajar":
+          - listitem:
+            - link "Pembelajaran Saya":
+              - /url: "#"
+    - link "Bantuan":
+      - /url: "#"
+    - 'button "Akun: Rina Kartika"':
+      - strong: Rina Kartika
+      - text: Guru · SDN Kaliandra 1
+    - button "Keluar"
+  - main:
+    - paragraph:
+      - link "Kelas":
+        - /url: "#"
+    - heading "Kelas 5A · Matematika" [level=1]
+    - paragraph: Kelas ini tampil karena sekolah menugaskan Anda ke lingkup yang mencakupnya. Daftar murid berasal dari pendaftaran sekolah, bukan dari PINTAR.
+    - term: Mata pelajaran
+    - definition: Matematika
+    - term: Murid terdaftar
+    - definition: "31"
+    - term: Materi tersedia
+    - definition: "1"
+    - button "Leave the computer for 4 minutes (review step)"

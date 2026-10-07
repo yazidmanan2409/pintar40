@@ -1,0 +1,10 @@
+- region "Ruang Peragaan · PINTAR":
+  - link "Langsung ke isi":
+    - /url: "#j6-c-isi"
+  - main:
+    - img "PINTAR"
+    - heading "Ruang Peragaan" [level=1]
+    - paragraph: Lihat PINTAR dari sudut pandang orang yang berbeda di satu sekolah peragaan. Pilih satu sudut pandang untuk mulai.
+    - status: Anda sudah keluar dari peragaan.
+    - link "Pilih sudut pandang":
+      - /url: "#"

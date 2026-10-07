@@ -1,0 +1,23 @@
+- region "Pengembangan Profesi · Merancang Asesmen Formatif di Kelas · PINTAR":
+  - link "Langsung ke isi":
+    - /url: "#j3-c-isi"
+  - img "PINTAR"
+  - button "Keluar"
+  - button "Buka menu"
+  - main:
+    - paragraph:
+      - link "Pembelajaran Saya":
+        - /url: "#"
+    - paragraph: Langkah Anda sekarang
+    - heading "Pengembangan Profesi · Merancang Asesmen Formatif di Kelas" [level=1]
+    - paragraph: Lima langkah.
+    - list "Peta bacaan Anda":
+      - listitem: Mulai dari Pemetaan Awal (selesai)
+      - listitem: Peta bacaan sudah siap (selesai)
+      - listitem: Sedang di Pelajaran
+      - listitem: Siap untuk Uji Penguasaan
+      - listitem: Selesai
+    - paragraph: Langkah berikutnya
+    - heading "Pelajaran 3 · Umpan balik yang membantu" [level=2]
+    - link "Lanjutkan pelajaran":
+      - /url: "#"

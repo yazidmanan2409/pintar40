@@ -1,0 +1,32 @@
+- region "Hasil · Bab 3 · Pecahan senilai":
+  - link "Langsung ke isi":
+    - /url: "#j4-d-isi"
+  - img "PINTAR"
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: "#"
+    - link "Sertifikat":
+      - /url: "#"
+  - button "Bantuan"
+  - radiogroup "Bahasa":
+    - radio "ID" [checked]
+    - text: ID
+    - radio "EN"
+    - text: EN
+  - button "Keluar"
+  - main:
+    - paragraph: Hasil · Bab 3 · Pecahan senilai
+    - heading "Target tercapai." [level=1]
+    - paragraph: Penguasaan bab ini memenuhi targetnya.
+    - term: Penguasaan
+    - definition: 9 dari 10
+    - term: "Target untuk bab ini:"
+    - definition: 7 dari 10
+    - status: Semua soal penting sudah dijawab dengan tepat.
+    - region "Apa berikutnya":
+      - heading "Apa berikutnya" [level=2]
+      - paragraph: Yang terbuka untuk Anda sekarang.
+      - link "Beranda":
+        - /url: "#"
+      - link "Tinjau kembali":
+        - /url: "#"

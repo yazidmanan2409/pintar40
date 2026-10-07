@@ -1,0 +1,33 @@
+- region "Belajar · PINTAR":
+  - link "Langsung ke isi":
+    - /url: "#j6-b-isi"
+  - region "MODE PERAGAAN":
+    - strong: MODE PERAGAAN
+    - text: "Sedang melihat sebagai:"
+    - strong: Murid · Kelas 5A
+    - link "Ganti sudut pandang":
+      - /url: "#"
+    - button "Keluar dari peragaan"
+  - img "PINTAR"
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: "#"
+    - link "Sertifikat":
+      - /url: "#"
+  - button "Bantuan"
+  - radiogroup "Bahasa":
+    - radio "ID" [checked]
+    - text: ID
+    - radio "EN"
+    - text: EN
+  - text: Bukan akun Anda?
+  - button "Keluar"
+  - main:
+    - paragraph: Beranda
+    - heading "Halo, Bagas" [level=1]
+    - paragraph: Ini yang sedang berjalan hari ini.
+    - region "Matematika · Bab 3 · Pecahan senilai":
+      - paragraph: Langkah berikutnya
+      - heading "Matematika · Bab 3 · Pecahan senilai" [level=2]
+      - link "Lanjutkan pelajaran":
+        - /url: "#"

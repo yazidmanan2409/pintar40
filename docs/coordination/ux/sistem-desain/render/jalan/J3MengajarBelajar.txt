@@ -1,0 +1,174 @@
+J3MengajarBelajar: the keyboard walk (alat/jalani.mts). Chromium, locale id-ID. Focus after a screen change is the walk's runner (the screen's heading); the product's own focus rules are in the journey's README.
+
+── 1280 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kelas 5A · MatematikaBerjalanBab 3 · Pecahan sen»  ring
+  10. a «Kelas 5B · MatematikaTidak ada yang sedang berja»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Pengembangan Profesi · Merancang Asesmen Formati»  ring
+[c]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Pembelajaran Saya»  ring
+  10. a «Lanjutkan pelajaran»  ring
+
+── 1280 px · motion on: the walk (13 Tab presses in all)
+  Tab ×5 → a «Pembelajaran Saya»
+  Enter
+  → screen b: focus on «Pembelajaran Anda», title «Pembelajaran Saya · PINTAR»
+  Tab ×1 → a «Pengembangan Profesi · Merancang Asesmen Formati»
+  Enter
+  → screen c: focus on «Pengembangan Profesi · Merancang Asesmen Formatif di Kelas», title «Pengembangan Profesi · Merancang Asesmen Formatif di Kelas · PINTAR»
+  Shift+Tab ×7 → a «Kelas»
+  Enter
+  → screen a: focus on «Kelas dalam lingkup mengajar Anda», title «Kelas · PINTAR»
+  motion seen: pds-denyut 0.9s on pds-dot; transition background-color 0.12s on button
+  no finding
+
+── 1024 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kelas 5A · MatematikaBerjalanBab 3 · Pecahan sen»  ring
+  10. a «Kelas 5B · MatematikaTidak ada yang sedang berja»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Pengembangan Profesi · Merancang Asesmen Formati»  ring
+[c]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Pembelajaran Saya»  ring
+  10. a «Lanjutkan pelajaran»  ring
+
+── 1024 px · motion on: the walk (13 Tab presses in all)
+  Tab ×5 → a «Pembelajaran Saya»
+  Enter
+  → screen b: focus on «Pembelajaran Anda», title «Pembelajaran Saya · PINTAR»
+  Tab ×1 → a «Pengembangan Profesi · Merancang Asesmen Formati»
+  Enter
+  → screen c: focus on «Pengembangan Profesi · Merancang Asesmen Formatif di Kelas», title «Pengembangan Profesi · Merancang Asesmen Formatif di Kelas · PINTAR»
+  Shift+Tab ×7 → a «Kelas»
+  Enter
+  → screen a: focus on «Kelas dalam lingkup mengajar Anda», title «Kelas · PINTAR»
+  motion seen: pds-denyut 0.9s on pds-dot; transition background-color 0.12s on button
+  no finding
+
+── 390 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. a «Kelas 5A · MatematikaBerjalanBab 3 · Pecahan sen»  ring
+   5. a «Kelas 5B · MatematikaTidak ada yang sedang berja»  ring
+[b]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. a «Pengembangan Profesi · Merancang Asesmen Formati»  ring
+[c]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. a «Pembelajaran Saya»  ring
+   5. a «Lanjutkan pelajaran»  ring
+
+── 390 px · motion on: the walk (10 Tab presses in all)
+  Tab ×3 → button «Buka menu»
+  Enter
+  Tab ×3 → a «Pembelajaran Saya»
+  Enter
+  → screen b: focus on «Pembelajaran Anda», title «Pembelajaran Saya · PINTAR»
+  Tab ×1 → a «Pengembangan Profesi · Merancang Asesmen Formati»
+  Enter
+  → screen c: focus on «Pengembangan Profesi · Merancang Asesmen Formatif di Kelas», title «Pengembangan Profesi · Merancang Asesmen Formatif di Kelas · PINTAR»
+  Shift+Tab ×2 → button «Buka menu»
+  Enter
+  Tab ×1 → a «Kelas»
+  Enter
+  → screen a: focus on «Kelas dalam lingkup mengajar Anda», title «Kelas · PINTAR»
+  motion seen: transition background-color 0.12s on button; pds-geser-kiri 0.24s on pds-drawer; pds-muncul 0.24s on pds-drawer; pds-denyut 0.9s on pds-dot
+  no finding
+
+── 1280 px · motion reduced: the walk (13 Tab presses in all)
+  Tab ×5 → a «Pembelajaran Saya»
+  Enter
+  → screen b: focus on «Pembelajaran Anda», title «Pembelajaran Saya · PINTAR»
+  Tab ×1 → a «Pengembangan Profesi · Merancang Asesmen Formati»
+  Enter
+  → screen c: focus on «Pengembangan Profesi · Merancang Asesmen Formatif di Kelas», title «Pengembangan Profesi · Merancang Asesmen Formatif di Kelas · PINTAR»
+  Shift+Tab ×7 → a «Kelas»
+  Enter
+  → screen a: focus on «Kelas dalam lingkup mengajar Anda», title «Kelas · PINTAR»
+  motion seen: none
+  no finding
+
+── 1024 px · motion reduced: the walk (13 Tab presses in all)
+  Tab ×5 → a «Pembelajaran Saya»
+  Enter
+  → screen b: focus on «Pembelajaran Anda», title «Pembelajaran Saya · PINTAR»
+  Tab ×1 → a «Pengembangan Profesi · Merancang Asesmen Formati»
+  Enter
+  → screen c: focus on «Pengembangan Profesi · Merancang Asesmen Formatif di Kelas», title «Pengembangan Profesi · Merancang Asesmen Formatif di Kelas · PINTAR»
+  Shift+Tab ×7 → a «Kelas»
+  Enter
+  → screen a: focus on «Kelas dalam lingkup mengajar Anda», title «Kelas · PINTAR»
+  motion seen: none
+  no finding
+
+── 390 px · motion reduced: the walk (10 Tab presses in all)
+  Tab ×3 → button «Buka menu»
+  Enter
+  Tab ×3 → a «Pembelajaran Saya»
+  Enter
+  → screen b: focus on «Pembelajaran Anda», title «Pembelajaran Saya · PINTAR»
+  Tab ×1 → a «Pengembangan Profesi · Merancang Asesmen Formati»
+  Enter
+  → screen c: focus on «Pengembangan Profesi · Merancang Asesmen Formatif di Kelas», title «Pengembangan Profesi · Merancang Asesmen Formatif di Kelas · PINTAR»
+  Shift+Tab ×2 → button «Buka menu»
+  Enter
+  Tab ×1 → a «Kelas»
+  Enter
+  → screen a: focus on «Kelas dalam lingkup mengajar Anda», title «Kelas · PINTAR»
+  motion seen: none
+  no finding

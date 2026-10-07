@@ -1,0 +1,31 @@
+- region "Pelajaran · Bab 3 · Pecahan senilai":
+  - link "Langsung ke isi":
+    - /url: "#j4-b-isi"
+  - img "PINTAR"
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: "#"
+    - link "Sertifikat":
+      - /url: "#"
+  - button "Bantuan"
+  - radiogroup "Bahasa":
+    - radio "ID" [checked]
+    - text: ID
+    - radio "EN"
+    - text: EN
+  - text: Bukan akun Anda?
+  - button "Keluar"
+  - main:
+    - paragraph: Pelajaran 3 · Halaman 2 dari 3
+    - heading "Menyederhanakan pecahan" [level=1]
+    - paragraph: Pecahan disederhanakan dengan membagi pembilang dan penyebut dengan bilangan yang sama. Pecahan yang baru tetap senilai dengan pecahan semula.
+    - paragraph:
+      - strong: Contoh.
+      - text: "6/8: pembilang dan penyebut sama-sama dapat dibagi 2."
+    - paragraph: "6 : 2 = 3 dan 8 : 2 = 4, jadi 6/8 = 3/4."
+    - button "Tampilkan langkah berikutnya"
+    - link "Halaman sebelumnya":
+      - /url: "#"
+    - link "Halaman berikutnya":
+      - /url: "#"
+    - paragraph: Posisi bacaan tersimpan.

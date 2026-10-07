@@ -27,8 +27,8 @@
   },
   "lastChange": {
     "by": "Yazid",
-    "at": "2026-10-05T22:51:50Z",
+    "at": "2026-10-07T02:59:45Z",
     "via": "Claude Code",
-    "note": "Approved in principle (5 Oct): questions 1 to 15 ruled and recorded in tokens, docs and component guidelines. Publishing ends «✓ Diterbitkan»; the approved motion vocabulary is applied in the components (hover 120 ms, entering layers 240 ms with 8 px travel at most, the chevron turns); the stripe is A provisionally, A+ only if A fails on real displays. New: 11-validation.md, the next validation state (composed journeys J1 to J7, the stripe on three displays). Nothing applied to PINTAR."
+    "note": "Batch 4 (7 Oct): READY FOR REVIEW. J1 to J7 composed as cards in the new group «Journeys» from the design system's components only, with words from the copy table (new words marked), invented people; each drawn at 1280, 1024 and 390 px and walked by keyboard and with reduced motion, records in their READMEs. Validation now holds the records, findings F2 to F15, C1 and C2, questions JQ1 to JQ7 and GQ1 to GQ5, the grammar-gap table for the closure register, the copy owed (CR-50, CR-13, CR-76, CR-81) and the stripe check's record, unfilled. Corrected at source: the breadcrumb's separator is no longer read, the App shell's main column holds its width, the dialog's actions stack under 640 px, the skip link stays hidden until focused. Nothing applied to PINTAR."
   }
 }

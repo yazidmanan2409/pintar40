@@ -1,4 +1,4 @@
-**Status: approved in principle (token set v3, 5 Oct).** Yazid has ruled on all seventeen questions; «Proposal and rulings» records each ruling, and «Validation» says what is checked next. The product still runs token set v2 (`src/app/globals.css`): nothing here is applied to PINTAR until the authorised UI/UX stage begins.
+**Status: approved in principle (token set v3, 5 Oct).** Yazid has ruled on all seventeen questions; «Proposal and rulings» records each ruling. **Validation: READY FOR REVIEW (7 Oct).** J1 to J7 are composed («Composed journeys»), walked and recorded for Yazid's walk; «Validation» holds their records, findings and questions. The product still runs token set v2 (`src/app/globals.css`): nothing here is applied to PINTAR until the authorised UI/UX stage begins.
 
 ## The intent
 

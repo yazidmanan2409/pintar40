@@ -1,0 +1,29 @@
+- region "Belajar · PINTAR":
+  - link "Langsung ke isi":
+    - /url: "#j4-a-isi"
+  - img "PINTAR"
+  - navigation "Belajar":
+    - link "Belajar":
+      - /url: "#"
+    - link "Sertifikat":
+      - /url: "#"
+  - button "Bantuan"
+  - radiogroup "Bahasa":
+    - radio "ID" [checked]
+    - text: ID
+    - radio "EN"
+    - text: EN
+  - button "Keluar"
+  - main:
+    - paragraph: Beranda
+    - heading "Halo, Bagas" [level=1]
+    - paragraph: Ini yang sedang berjalan hari ini.
+    - region "Matematika · Bab 3 · Pecahan senilai":
+      - paragraph: Langkah berikutnya
+      - heading "Matematika · Bab 3 · Pecahan senilai" [level=2]
+      - paragraph: Sedang di Pelajaran · 2 dari 4 selesai
+      - link "Lanjutkan pelajaran":
+        - /url: "#"
+    - paragraph:
+      - link "Lihat semua langkah":
+        - /url: "#"

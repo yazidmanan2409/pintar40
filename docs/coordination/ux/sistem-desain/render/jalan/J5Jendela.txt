@@ -1,0 +1,143 @@
+J5Jendela: the keyboard walk (alat/jalani.mts). Chromium, locale id-ID. Focus after a screen change is the walk's runner (the screen's heading); the product's own focus rules are in the journey's README.
+
+── 1280 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kembali ke pilihan materi»  ring
+  10. input «Mulai»  ring
+  11. input «Mulai»  ring
+  12. input «Mulai»  ring
+  13. input «Mulai»  the browser's own ring (the calendar button)
+  14. input «Sampai (opsional)»  ring
+  15. input «Sampai (opsional)»  ring
+  16. input «Sampai (opsional)»  ring
+  17. input «Sampai (opsional)»  the browser's own ring (the calendar button)
+  18. button «Sediakan»  ring
+
+── 1280 px · motion on: the walk (22 Tab presses in all)
+  Tab ×18 → button «Sediakan»
+  Enter
+  shown: #j5-a-sampai-galat
+  focus ok: input[date] «Sampai (opsional)» (the mistake is told under its field and focus goes there)
+  set #j5-a-sampai to 2026-10-20
+  hidden: #j5-a-sampai-galat (correcting the date clears it)
+  Tab ×4 → button «Sediakan»
+  Enter
+  shown: #j5-a-kirim[aria-busy="true"]
+  shown: #j5-a-hasil
+  motion seen: transition border-bottom-color 0.12s on pds-input; transition border-left-color 0.12s on pds-input; transition border-right-color 0.12s on pds-input; transition border-top-color 0.12s on pds-input; pds-denyut 0.9s on pds-dot; transition background-color 0.12s, 0.12s, 0.12s on pds-btn; transition color 0.12s, 0.12s, 0.12s on pds-btn; pds-muncul 0.16s on pds-result
+  no finding
+
+── 1024 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. button «Ciutkan navigasi»  ring
+   3. a «Kelas»  ring
+   4. a «Studio»  ring
+   5. a «Pembelajaran Saya»  ring
+   6. a «Bantuan»  ring
+   7. button «Akun: Rina Kartika»  ring
+   8. button «Keluar»  ring
+   9. a «Kembali ke pilihan materi»  ring
+  10. input «Mulai»  ring
+  11. input «Mulai»  ring
+  12. input «Mulai»  ring
+  13. input «Mulai»  the browser's own ring (the calendar button)
+  14. input «Sampai (opsional)»  ring
+  15. input «Sampai (opsional)»  ring
+  16. input «Sampai (opsional)»  ring
+  17. input «Sampai (opsional)»  the browser's own ring (the calendar button)
+  18. button «Sediakan»  ring
+
+── 1024 px · motion on: the walk (22 Tab presses in all)
+  Tab ×18 → button «Sediakan»
+  Enter
+  shown: #j5-a-sampai-galat
+  focus ok: input[date] «Sampai (opsional)» (the mistake is told under its field and focus goes there)
+  set #j5-a-sampai to 2026-10-20
+  hidden: #j5-a-sampai-galat (correcting the date clears it)
+  Tab ×4 → button «Sediakan»
+  Enter
+  shown: #j5-a-kirim[aria-busy="true"]
+  shown: #j5-a-hasil
+  motion seen: transition border-bottom-color 0.12s on pds-input; transition border-left-color 0.12s on pds-input; transition border-right-color 0.12s on pds-input; transition border-top-color 0.12s on pds-input; pds-denyut 0.9s on pds-dot; transition background-color 0.12s, 0.12s, 0.12s on pds-btn; transition color 0.12s, 0.12s, 0.12s on pds-btn; pds-muncul 0.16s on pds-result
+  no finding
+
+── 390 px · motion on: Tab stops, screen by screen
+[a]
+   1. a «Langsung ke isi»  ring
+   2. button «Keluar»  ring
+   3. button «Buka menu»  ring
+   4. a «Kembali ke pilihan materi»  ring
+   5. input «Mulai»  ring
+   6. input «Mulai»  ring
+   7. input «Mulai»  ring
+   8. input «Mulai»  the browser's own ring (the calendar button)
+   9. input «Sampai (opsional)»  ring
+  10. input «Sampai (opsional)»  ring
+  11. input «Sampai (opsional)»  ring
+  12. input «Sampai (opsional)»  the browser's own ring (the calendar button)
+  13. button «Sediakan»  ring
+
+── 390 px · motion on: the walk (17 Tab presses in all)
+  Tab ×13 → button «Sediakan»
+  Enter
+  shown: #j5-a-sampai-galat
+  focus ok: input[date] «Sampai (opsional)» (the mistake is told under its field and focus goes there)
+  set #j5-a-sampai to 2026-10-20
+  hidden: #j5-a-sampai-galat (correcting the date clears it)
+  Tab ×4 → button «Sediakan»
+  Enter
+  shown: #j5-a-kirim[aria-busy="true"]
+  shown: #j5-a-hasil
+  motion seen: transition border-bottom-color 0.12s on pds-input; transition border-left-color 0.12s on pds-input; transition border-right-color 0.12s on pds-input; transition border-top-color 0.12s on pds-input; pds-denyut 0.9s on pds-dot; transition background-color 0.12s, 0.12s, 0.12s on pds-btn; transition color 0.12s, 0.12s, 0.12s on pds-btn; pds-muncul 0.16s on pds-result
+  no finding
+
+── 1280 px · motion reduced: the walk (22 Tab presses in all)
+  Tab ×18 → button «Sediakan»
+  Enter
+  shown: #j5-a-sampai-galat
+  focus ok: input[date] «Sampai (opsional)» (the mistake is told under its field and focus goes there)
+  set #j5-a-sampai to 2026-10-20
+  hidden: #j5-a-sampai-galat (correcting the date clears it)
+  Tab ×4 → button «Sediakan»
+  Enter
+  shown: #j5-a-kirim[aria-busy="true"]
+  shown: #j5-a-hasil
+  motion seen: none
+  no finding
+
+── 1024 px · motion reduced: the walk (22 Tab presses in all)
+  Tab ×18 → button «Sediakan»
+  Enter
+  shown: #j5-a-sampai-galat
+  focus ok: input[date] «Sampai (opsional)» (the mistake is told under its field and focus goes there)
+  set #j5-a-sampai to 2026-10-20
+  hidden: #j5-a-sampai-galat (correcting the date clears it)
+  Tab ×4 → button «Sediakan»
+  Enter
+  shown: #j5-a-kirim[aria-busy="true"]
+  shown: #j5-a-hasil
+  motion seen: none
+  no finding
+
+── 390 px · motion reduced: the walk (17 Tab presses in all)
+  Tab ×13 → button «Sediakan»
+  Enter
+  shown: #j5-a-sampai-galat
+  focus ok: input[date] «Sampai (opsional)» (the mistake is told under its field and focus goes there)
+  set #j5-a-sampai to 2026-10-20
+  hidden: #j5-a-sampai-galat (correcting the date clears it)
+  Tab ×4 → button «Sediakan»
+  Enter
+  shown: #j5-a-kirim[aria-busy="true"]
+  shown: #j5-a-hasil
+  motion seen: none
+  no finding
