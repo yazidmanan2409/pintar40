@@ -3980,16 +3980,17 @@ await step("BD11", "BD-11: on a personal and on a shared computer, in Chromium, 
         const tempatSebelum = new URL(p.url());
         await masuk(p, B.email, mode, true);
         const tiba = new URL(p.url()).pathname;
-        // L3 (D-132 C9): a teacher who also learns (C-12 enrolled her as «Peserta») holds Mengajar and Belajar, so she
-        // arrives on the chooser with no context and chooses; a teacher with one pair lands on its home directly
+        // L3 (D-132 C9): what she holds decides where she arrives. Holding several (Mengajar, and Belajar once C-12 made
+        // her a «Peserta»), she arrives on the chooser with no context and chooses; holding one, she lands on its home in
+        // it directly: after S26b gave Kelas 1A to Bu Sari, that is Belajar. Never the admin's page or context
         let pintuB = [];
         if (tiba === "/") {
           pintuB = await p.locator('[data-pemilih="konteks"] button[data-konteks]').evaluateAll((bs) => bs.map((b) => b.getAttribute("data-konteks").split(":")[0]));
           const k0 = sql(`select count(*) from public.device_sessions d join auth.users u on u.id = d.auth_user_id
             where u.email = '${B.email}' and d.ended_at is null and d.created_at >= '${t0}' and d.konteks_tujuan is not null`).trim();
           catat.push(`arrived on the chooser (doors ${JSON.stringify(pintuB)}; a context already set: ${k0 !== "0"})`);
-          if (k0 !== "0" || !pintuB.includes("MENGAJAR")) rec.verdict = "FAIL";
-          await keKonteks(p, { tujuan: "MENGAJAR", nama: "SD Zayd" });
+          if (k0 !== "0" || pintuB.length < 2 || pintuB.includes("MENGELOLA")) rec.verdict = "FAIL";
+          await keKonteks(p, pintuB.includes("MENGAJAR") ? { tujuan: "MENGAJAR", nama: "SD Zayd" } : { tujuan: "BELAJAR" });
         }
         const rumahB = new URL(p.url()).pathname;
         // the session this browser just made: the teacher's newest
@@ -3997,7 +3998,8 @@ await step("BD11", "BD-11: on a personal and on a shared computer, in Chromium, 
           from public.device_sessions d join auth.users u on u.id = d.auth_user_id left join public.institutions i on i.id = d.konteks_tempat
           where u.email = '${B.email}' and d.ended_at is null order by d.created_at desc limit 1`).trim();
         catat.push(`signed in from ${tempatSebelum.pathname}${tempatSebelum.search}; the teacher's own context ${konteksB}`);
-        if (rumahB !== "/mengajar" || konteksB !== "MENGAJAR:sd-zps") rec.verdict = "FAIL";
+        const sendiri = (rumahB === "/mengajar" && konteksB === "MENGAJAR:sd-zps") || (rumahB === "/belajar" && konteksB === "BELAJAR:-");
+        if (!sendiri) rec.verdict = "FAIL";
         for (const kali of [1, 2, 3]) {
           const m = await mundur(p);
           const bocor = m.teks.includes(A.name);
