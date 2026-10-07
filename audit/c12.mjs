@@ -35,7 +35,7 @@ const RENCANA_PD = [{ pre: 2, post: 4 }, { pre: 1, post: 3 }];
 
 export async function jalankanC12(d) {
   const { step, sql, ctx, magicSignIn, apiSession, grantViaForm, catatLewatLayar, kirimPaket, terbitkanLewatLayar, keadaanBab, jawab, tutupTur,
-    masukKartu, shot, bodyText, norm, people, ids, a, g, kartuKelas, KUNCI, kelasSatuA, babSatu, SLOW, APP, DB, GLADYS, newPerson, OUT } = d;
+    masukKartu, shot, bodyText, norm, people, ids, a, g, kartuKelas, KUNCI, kelasSatuA, babSatu, SLOW, APP, DB, GLADYS, newPerson, OUT, keKonteks } = d;
   const C = {};
   const q = (s) => sql(s).trim();
   const orangDari = (email) => q(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${email}'`);
@@ -156,7 +156,11 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
     notes.push(`another Guru (facilitator of the other PD Kelas): ${await stafBaru(ORANG_PD.guruLain, "EDUCATOR", PD.kelasB, rec.shots)}`);
     // a Guru of the second school, by the platform administrator (that school has no admin of its own)
     const np = await newPerson(g, ORANG_PD.guruSma.name, ORANG_PD.guruSma.email);
+    // L3 (D-132 C7): «Orang baru» is «Seluruh platform»'s, a role at SMA is given in SMA's own context; then back to SD,
+    // where the walk goes on working
+    if (np.ok) await keKonteks(g, { tujuan: "MENGELOLA", nama: "SMA Zayd" });
     const rs = np.ok ? await grantViaForm(g, ORANG_PD.guruSma.name, "EDUCATOR", "SMA Zayd") : { ok: "no person" };
+    await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
     notes.push(`a Guru of SMA Zayd: ${rs.ok}`);
     if (rs.ok !== "ok") rec.verdict = "FAIL";
     // the two who only read later activate now, as staff do (Gate 3), so what they are refused is refused to them

@@ -467,6 +467,8 @@ await step("S7b", "Gladys (platform admin) opens Struktur sekolah: which school 
   // L3: in Mengelola · SD the structure is SD's alone (never the library's, never another school's)
   await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
   await g.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
+  // the choice already landed on /konfigurasi, so this is a hash change, not a load: wait for the panel itself
+  await g.locator("div.pin-str-tambah-bagian form").first().waitFor({ timeout: SLOW }).catch(() => {});
   if (!(await g.locator("div.pin-str-tambah-bagian form").count())) { rec.verdict = "NOTE"; return "no Struktur sekolah panel"; }
   const chosen = (await g.locator('#struktur [aria-current="page"]').first().textContent().catch(() => null)) ?? "(single school)";
   const offered = await g.locator("#struktur nav a").allTextContents().catch(() => []);
@@ -2454,7 +2456,7 @@ await step("S23i", "the head of department reviews Kelas 1A's integrity observat
 // professional-learning place, here, while he still teaches Kelas 1A and its figures are settled (before S24 changes
 // who leads it). The walk and its snapshot live in c12.mjs and c12-potret.mjs.
 await jalankanC12({ step, sql, ctx, magicSignIn, apiSession, grantViaForm, catatLewatLayar, kirimPaket, terbitkanLewatLayar, keadaanBab, jawab,
-  tutupTur, masukKartu, shot, bodyText, norm, people, ids, a, g, kartuKelas, KUNCI, kelasSatuA, babSatu, SLOW, APP, DB, GLADYS, newPerson, OUT });
+  tutupTur, masukKartu, shot, bodyText, norm, people, ids, a, g, kartuKelas, KUNCI, kelasSatuA, babSatu, SLOW, APP, DB, GLADYS, newPerson, OUT, keKonteks });
 
 // ═══ the closure's batch 2 walks (D-118): CR-38, CR-44, CR-40 and CR-39 through the screens, after C-12's block (its
 // baseline and after-snapshot stay around its own writes) and before S24 (which revokes the head of department).
@@ -2516,12 +2518,15 @@ await step("S23r", "the head of department's referral of Kelas 1A's integrity ob
     notes.push(`S23i's «Diteruskan ke pihak sekolah» → referrals of it: ${JSON.stringify(r1.map((x) => x.slice(1, 6)))}; raised on the record ${diangkat}`);
     if (r1.length !== 1 || r1[0][1] !== "AWAITING_REVIEW" || r1[0][2] !== "true" || r1[0][3] !== people.kaprodi.name || r1[0][4] !== RUJUK
         || r1[0][5] !== namaMurid || diangkat !== 1) { rec.verdict = "FAIL"; return notes.join("; "); }
+    // L3 (D-132 C4): Studio asks which of her two contexts; asked in Mengelola, so «not offered» is the list's own answer
+    await keKonteks(h, { tujuan: "MENGELOLA", nama: "SD Zayd" });
     await h.goto(`${APP}/studio/integritas`, { waitUntil: "networkidle" });
     await tutupTur(h);
     await h.getByRole("heading", { name: "Tinjauan Integritas", exact: true }).waitFor({ timeout: SLOW }).catch(() => {});
     const lagi = await h.locator(`input[name="sinyal"][value="${idSinyal}"]`).count();
-    notes.push(`FD-7: Studio still offers the referred sitting to her ${lagi > 0}`);
-    if (lagi > 0) rec.verdict = "FAIL";
+    const diHalaman = new URL(h.url()).pathname === "/studio/integritas";
+    notes.push(`FD-7: Studio still offers the referred sitting to her ${lagi > 0} (on ${new URL(h.url()).pathname})`);
+    if (lagi > 0 || !diHalaman) rec.verdict = "FAIL";
     rec.shots.push(await shot(h, "cr38-diteruskan"));
 
     // 2. the referrer finds it under «Keputusan» on /pimpinan, waiting
@@ -2939,6 +2944,8 @@ await step("S23q", "the Question Bank as QN5 rules it (CR-52): the head of depar
   const notes = [];
   try {
     await magicSignIn(h, people.kaprodi.email);
+    // L3 (D-132 C4, C8): she holds Mengajar and Mengelola at SD, so Studio asks which; Bank Soal is Mengelola's
+    await keKonteks(h, { tujuan: "MENGELOLA", nama: "SD Zayd" });
     await h.goto(`${APP}/studio`, { waitUntil: "networkidle" });
     await tutupTur(h);
     await h.getByRole("link", { name: "Bank Soal" }).first().click();                                  // studio/layout.tsx:53; hle.ts:3300
@@ -3946,7 +3953,9 @@ await step("BD11", "BD-11: on a personal and on a shared computer, in Chromium, 
       const p = await kc.newPage();
       const catat = [];
       try {
-        // the admin's session: a page that is theirs, deep in Konfigurasi, then «Keluar»
+        // the admin's session: a page that is theirs, deep in Konfigurasi, then «Keluar». Only this browser's sessions
+        // are read below: the walk's own long-lived admin browser stays signed in elsewhere
+        const t0 = sql("select now()::text").trim();
         await masuk(p, A.email, mode);
         await p.goto(`${APP}/konfigurasi?bagian=roles#roles`, { waitUntil: "networkidle" });
         const sebelum = await bodyText(p);
@@ -3963,13 +3972,25 @@ await step("BD11", "BD-11: on a personal and on a shared computer, in Chromium, 
         }
         // L3 (D-132(e), §2.9): the admin's session ended with no context left on any of their rows
         const sisa = sql(`select count(*) from public.device_sessions d join auth.users u on u.id = d.auth_user_id
-          where u.email = '${A.email}' and (d.ended_at is null or d.konteks_tujuan is not null)`).trim();
+          where u.email = '${A.email}' and d.created_at >= '${t0}' and (d.ended_at is null or d.konteks_tujuan is not null)`).trim();
         catat.push(`the admin's open or context-holding sessions after «Keluar»: ${sisa}`);
         if (sisa !== "0") rec.verdict = "FAIL";
         // the next person signs in on the same browser, on the screen Back left it on; they land by their own door and
         // context, never on the admin's page (the stale continuation is not inherited), and Back shows nothing of it
         const tempatSebelum = new URL(p.url());
         await masuk(p, B.email, mode, true);
+        const tiba = new URL(p.url()).pathname;
+        // L3 (D-132 C9): a teacher who also learns (C-12 enrolled her as «Peserta») holds Mengajar and Belajar, so she
+        // arrives on the chooser with no context and chooses; a teacher with one pair lands on its home directly
+        let pintuB = [];
+        if (tiba === "/") {
+          pintuB = await p.locator('[data-pemilih="konteks"] button[data-konteks]').evaluateAll((bs) => bs.map((b) => b.getAttribute("data-konteks").split(":")[0]));
+          const k0 = sql(`select count(*) from public.device_sessions d join auth.users u on u.id = d.auth_user_id
+            where u.email = '${B.email}' and d.ended_at is null and d.created_at >= '${t0}' and d.konteks_tujuan is not null`).trim();
+          catat.push(`arrived on the chooser (doors ${JSON.stringify(pintuB)}; a context already set: ${k0 !== "0"})`);
+          if (k0 !== "0" || !pintuB.includes("MENGAJAR")) rec.verdict = "FAIL";
+          await keKonteks(p, { tujuan: "MENGAJAR", nama: "SD Zayd" });
+        }
         const rumahB = new URL(p.url()).pathname;
         // the session this browser just made: the teacher's newest
         const konteksB = sql(`select coalesce(d.konteks_tujuan, '-') || ':' || coalesce(i.slug, case when d.konteks_platform then 'PLATFORM' else '-' end)
@@ -4109,6 +4130,13 @@ await step("L3A", "L3 scenario A (design §3; D-132 C3, C4): Admin platform who 
   const angkat = await grantViaForm(g, smaAdmin.name, "INSTITUTION_ADMIN", "SMA Zayd");
   notes.push(`Admin sekolah of SMA: ${angkat.ok}`);
   const smaApi = await apiSession(smaAdmin.email);
+  // SETUP (OPERATOR, declared, as W1): each school first has her as its own person, by an institutional ID as its
+  // intake records a teacher, because a school-scoped role is granted only to a person the school already has (D-049).
+  // SMA reserves its namespace here if no screen has yet
+  sql(`update public.institutions set namespace = 'SMZ' where id = '${ids.sma}' and namespace is null
+         and not exists (select 1 from public.institutions t where upper(t.namespace) = 'SMZ')`);
+  const nomor = [ids.sd, ids.sma].map((inst) => sql(`select public.issue_institutional_id('${gladysId}', '${inst}')`).trim());
+  notes.push(`SETUP (operator): her institutional IDs at SD and SMA: ${nomor.every((x) => /^[A-Z]{3}\d{6}[A-Z0-9]{2}$/.test(x))}`);
   const sampai = "2027-06-30T23:59:59+07:00";
   const g1 = await adminApi.rpc("grant_role", { p_person: gladysId, p_role: "EDUCATOR", p_scope_node: akar(ids.sd), p_valid_until: sampai });
   const g2 = await smaApi.rpc("grant_role", { p_person: gladysId, p_role: "EDUCATOR", p_scope_node: akar(ids.sma), p_valid_until: sampai });
