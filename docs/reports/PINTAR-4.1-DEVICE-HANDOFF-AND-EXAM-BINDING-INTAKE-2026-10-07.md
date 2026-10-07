@@ -1,6 +1,6 @@
 # PINTAR 4.1 intake · Device handoff, and Exam Mode device binding (7 Oct)
 
-**Status: preserved for 4.1. Nothing here is built in 4.0 (D-125).** No migration and no code before a focused architecture investigation is run against the frozen 4.0 implementation, threat-modelled and red-cased.
+**Status: preserved for 4.1; D-125 approved (7 Oct). Nothing here is built in 4.0.** No migration and no code before a focused architecture investigation is run against the frozen 4.0 implementation, threat-modelled and red-cased.
 
 ## 1. The requests (Dr Gladys, relayed by Yazid)
 
@@ -79,11 +79,16 @@ One focused architecture investigation against the **frozen** 4.0 answers these 
 
 Then threat-model and red-case it before implementation: tests red first, plants for each invariant, and the failure cases as walks. Estimates come from that investigation, not before it. «The QR is the easy part»; equally, nothing here calls for rebuilding authentication.
 
-## 5. 4.0's residual
+## 5. 4.0's residual: ACCEPTED (D-125(c), 7 Oct)
 
-**An attempt is not bound to a device in 4.0** (§3, fact 1). Recommendation: **accept it as a known 4.0 residual and disclose it.** Three reasons:
-- 4.0's official assessments are the learning cycle's Uji Penguasaan and the Uji Cepat, and EXAM is not assignable.
-- A second device needs the learner's own sign-in, and its card PIN.
-- 4.1's controller with a generation closes it properly.
+**Two signed-in devices of one learner can write to one attempt in progress. This is a known 4.0 limitation, not a closure blocker.**
+- There is no 4.0 engineering change and no opportunistic device-id patch.
+- 4.1 closes it properly through an authoritative attempt controller with device binding.
+- Failed-device EXAM recovery stays a separate high-risk design and proof gate (D-125(d)).
 
-**This is the owner's call;** D-125(c) asks it. It is not added to the 4.0 closure gate unless the owner rules it in.
+**The every-state-changing-boundary invariant (D-125(e)).** Approved; its wording is pending from Yazid. The coordinator's reading until then:
+- every boundary that changes an attempt's state checks the authoritative controller and its generation in the same transaction;
+- those boundaries are start, answer, resume, submit, finish, and any recovery or handoff;
+- so no path can write as a stale or second device.
+
+The 4.1 investigation (§4) enumerates those boundaries from the frozen 4.0 code and red-cases each one.
