@@ -1,9 +1,12 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
-import { button, card, field, label, outcomeLine, s, studioInstitutions, when } from "../_lib";
+import { currentViewer } from "@/lib/auth";
+import { button, card, field, label, outcomeLine, s, studioInstitutions, when, tabSaya } from "../_lib";
 import { grantDistributionAction, withdrawDistributionAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
+import SimpanIsian from "@/components/SimpanIsian";
 
 /**
  * The PINTAR library — distributed canonical content (this phase's §5.3).
@@ -21,15 +24,18 @@ import HasilDi from "@/components/HasilDi";
 type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
 export default async function Kanonik({ searchParams }: { searchParams: Search }) {
+  // CR-87: a tab not this person's sends them to Studio's home (src/lib/studio-tab.ts); the database still decides
+  if (!(await tabSaya()).includes("kanonik")) redirect("/studio");
   const sp = await searchParams;
   const supabase = await supabaseServer();
+  // CR-84 (3): what a refused form sent comes back to it, for the same person only (src/lib/isian.ts)
+  const pemilik = (await currentViewer())?.personId ?? "";
+  const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
   const institutions = await studioInstitutions();
 
-  const [{ data: rows }, { data: isSys }, { data: canonicalReleases }] = await Promise.all([
+  const [{ data: rows }, { data: isSys }] = await Promise.all([
     supabase.rpc("distributed_releases"),
     supabase.rpc("is_system_admin"),
-    supabase.from("plp_releases").select("id, version_label, status, course_id, institution_id")
-      .eq("status", "PUBLISHED"),
   ]);
 
   const catalogue = (rows ?? []) as Array<{
@@ -41,10 +47,40 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
 
   const banner = outcomeLine(sp);
 
-  // The grant form appears only for a caller the database would accept: a
-  // system administrator, or a publisher in a canonical tenant.
-  const canonicalOwners = institutions.filter((i) => i.capabilities.includes("CAN_PUBLISH"));
-  const mayGrant = isSys === true || canonicalOwners.length > 0;
+  // CR-87 (4), FD-8 (D-127; ADR-0015): granting and withdrawing the library is the platform operator's alone, by names.
+  // Every school admin was shown the form (CAN_PUBLISH in their own school), which the database refused, and it asked
+  // for «id sekolah» and an «id izin» no screen shows. Now only Admin platform sees it, and every choice is a name: the
+  // library's published packages, the schools, and the grants still open, each read for this form.
+  const mayGrant = isSys === true;
+  type Pilihan = { id: string; nama: string };
+  let paketPustaka: Pilihan[] = [];
+  let sekolahTujuan: Pilihan[] = [];
+  let izinBerlaku: Pilihan[] = [];
+  if (mayGrant) {
+    const ids = institutions.map((i) => i.id);
+    const { data: tenant } = await supabase.from("institutions").select("id, name, tenant_kind, is_active").in("id", ids).order("name");
+    const pustaka = (tenant ?? []).filter((t) => t.tenant_kind === "PLATFORM_CANONICAL").map((t) => t.id as string);
+    sekolahTujuan = (tenant ?? []).filter((t) => t.tenant_kind === "INSTITUTION" && t.is_active !== false)
+      .map((t) => ({ id: t.id as string, nama: t.name as string }));
+    const [{ data: rilis }, { data: izin }] = await Promise.all([
+      pustaka.length
+        ? supabase.from("plp_releases").select("id, version_label, course_id").eq("status", "PUBLISHED").in("institution_id", pustaka)
+        : Promise.resolve({ data: [] as Array<{ id: string; version_label: string; course_id: string }> }),
+      supabase.from("release_distributions").select("id, plp_release_id, institution_id").eq("status", "ACTIVE"),
+    ]);
+    const rilisSemua = (rilis ?? []) as Array<{ id: string; version_label: string; course_id: string }>;
+    const { data: kursus } = rilisSemua.length
+      ? await supabase.from("courses").select("id, title").in("id", [...new Set(rilisSemua.map((r) => r.course_id))])
+      : { data: [] as Array<{ id: string; title: string }> };
+    const judul = new Map((kursus ?? []).map((k) => [k.id as string, k.title as string]));
+    const namaRilis = new Map(rilisSemua.map((r) => [r.id, `${judul.get(r.course_id) ?? "—"} · ${r.version_label}`]));
+    const namaSekolah = new Map(sekolahTujuan.map((x) => [x.id, x.nama]));
+    paketPustaka = rilisSemua.map((r) => ({ id: r.id, nama: namaRilis.get(r.id)! })).sort((a, b) => a.nama.localeCompare(b.nama));
+    izinBerlaku = ((izin ?? []) as Array<{ id: string; plp_release_id: string; institution_id: string }>)
+      .filter((d) => namaRilis.has(d.plp_release_id) && namaSekolah.has(d.institution_id))
+      .map((d) => ({ id: d.id, nama: `${namaRilis.get(d.plp_release_id)} · ${namaSekolah.get(d.institution_id)}` }))
+      .sort((a, b) => a.nama.localeCompare(b.nama));
+  }
 
   return (
     <div className="grid gap-6">
@@ -82,25 +118,45 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
       {mayGrant ? (
         <section className={card} id="izin">
           <h3 className="font-medium">{s("studio.kanonik.judul")}</h3>
-          <form action={grantDistributionAction} className="mt-3 flex flex-wrap items-end gap-2">
+          <form action={grantDistributionAction} id="izin-beri" className="mt-3 flex flex-wrap items-end gap-2">
             <label className={label}>
-              <span>{s("studio.paket.terbitkan")}</span>
+              <span>{s("studio.paket.judul")}</span>
               <select className={field} name="release" defaultValue="" required>
                 <option value="" disabled>—</option>
-                {(canonicalReleases ?? []).map((r) => (
-                  <option key={r.id} value={r.id}>{r.id.slice(0, 8)}</option>
-                ))}
+                {paketPustaka.map((r) => <option key={r.id} value={r.id}>{r.nama}</option>)}
               </select>
             </label>
-            <input className={field} name="institution" placeholder="id sekolah" required />
-            <input className={field} name="alasan" placeholder="alasan" />
+            <label className={label}>
+              <span>{s("studio.sekolah")}</span>
+              <select className={field} name="institution" defaultValue="" required>
+                <option value="" disabled>—</option>
+                {sekolahTujuan.map((x) => <option key={x.id} value={x.id}>{x.nama}</option>)}
+              </select>
+            </label>
+            <label className={label}>
+              <span>{s("config.ketuntasan.alasan")}</span>
+              <input className={field} name="alasan" />
+            </label>
             <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
           </form>
-          <form action={withdrawDistributionAction} className="mt-3 flex flex-wrap items-end gap-2">
-            <input className={field} name="distribusi" placeholder="id izin" required />
-            <input className={field} name="alasan" placeholder="alasan" required />
-            <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.paket.tarik")}</TombolKirim>
-          </form>
+          <SimpanIsian form="izin-beri" ditolak={ditolak("izin")} pemilik={pemilik} />
+          {izinBerlaku.length > 0 ? (
+            <form action={withdrawDistributionAction} id="izin-tarik" className="mt-3 flex flex-wrap items-end gap-2">
+              <label className={label}>
+                <span>{s("studio.paket.judul")}</span>
+                <select className={field} name="distribusi" defaultValue="" required>
+                  <option value="" disabled>—</option>
+                  {izinBerlaku.map((d) => <option key={d.id} value={d.id}>{d.nama}</option>)}
+                </select>
+              </label>
+              <label className={label}>
+                <span>{s("studio.langkah.tarik.alasan")}</span>
+                <input className={field} name="alasan" required />
+              </label>
+              <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.paket.tarik")}</TombolKirim>
+            </form>
+          ) : null}
+          {izinBerlaku.length > 0 ? <SimpanIsian form="izin-tarik" ditolak={ditolak("izin")} pemilik={pemilik} /> : null}
           <HasilDi q={sp} bagian="izin" kalimat={banner} />
         </section>
       ) : null}

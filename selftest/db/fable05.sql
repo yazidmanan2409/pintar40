@@ -134,30 +134,33 @@ begin
      'Hitung tingkatnya satu per satu sambil menunjuk gambarnya.')
   on conflict do nothing;
 
+  -- RESTATED FOR FD-5 (D-129(c)): predicted_difficulty is the author's difficulty, the higher the harder (Mudah 0.3,
+  -- Sedang 0.5, Sulit 0.7). These values were written as p-values; each is now 1.1 - its old value, which keeps every
+  -- question in the band it was in (old MUDAH >= 0.7 is now <= 0.4, old SULIT <= 0.4 is now >= 0.7, SEDANG between).
   spec := jsonb_build_array(
-    jsonb_build_object('d',0.20,'sc',false,'o',ob1,'stem','Berapa cm dalam 3 m?','ans','B',
+    jsonb_build_object('d',0.90,'sc',false,'o',ob1,'stem','Berapa cm dalam 3 m?','ans','B',
       'opts', jsonb_build_array('30 cm','300 cm','3.000 cm','0,03 cm')),
-    jsonb_build_object('d',0.22,'sc',false,'o',ob1,'stem','Berapa mm dalam 4 cm?','ans','C',
+    jsonb_build_object('d',0.88,'sc',false,'o',ob1,'stem','Berapa mm dalam 4 cm?','ans','C',
       'opts', jsonb_build_array('0,4 mm','4 mm','40 mm','400 mm')),
-    jsonb_build_object('d',0.24,'sc',false,'o',ob1,'stem','Berapa dm dalam 7 m?','ans','A',
+    jsonb_build_object('d',0.86,'sc',false,'o',ob1,'stem','Berapa dm dalam 7 m?','ans','A',
       'opts', jsonb_build_array('70 dm','7 dm','700 dm','0,7 dm')),
-    jsonb_build_object('d',0.26,'sc',true ,'o',ob1,'stem','Berapa cm dalam 1 m?','ans','D',
+    jsonb_build_object('d',0.84,'sc',true ,'o',ob1,'stem','Berapa cm dalam 1 m?','ans','D',
       'opts', jsonb_build_array('10 cm','1.000 cm','0,1 cm','100 cm')),
-    jsonb_build_object('d',0.48,'sc',false,'o',ob2,'stem','Berapa mm dalam 2 m?','ans','B',
+    jsonb_build_object('d',0.62,'sc',false,'o',ob2,'stem','Berapa mm dalam 2 m?','ans','B',
       'opts', jsonb_build_array('200 mm','2.000 cm','20 mm','20.000 mm')),
-    jsonb_build_object('d',0.50,'sc',false,'o',ob2,'stem','Berapa km dalam 5.000 m?','ans','A',
+    jsonb_build_object('d',0.60,'sc',false,'o',ob2,'stem','Berapa km dalam 5.000 m?','ans','A',
       'opts', jsonb_build_array('5 km','50 km','0,5 km','500 km')),
-    jsonb_build_object('d',0.52,'sc',false,'o',ob2,'stem','Berapa m dalam 250 cm?','ans','C',
+    jsonb_build_object('d',0.58,'sc',false,'o',ob2,'stem','Berapa m dalam 250 cm?','ans','C',
       'opts', jsonb_build_array('25 m','0,25 m','2,5 m','250 m')),
-    jsonb_build_object('d',0.54,'sc',true ,'o',ob2,'stem','Berapa m dalam 3 km?','ans','D',
+    jsonb_build_object('d',0.56,'sc',true ,'o',ob2,'stem','Berapa m dalam 3 km?','ans','D',
       'opts', jsonb_build_array('30 m','300 m','30.000 m','3.000 m')),
-    jsonb_build_object('d',0.76,'sc',false,'o',ob2,'stem','Berapa mm dalam 1,5 m?','ans','A',
+    jsonb_build_object('d',0.34,'sc',false,'o',ob2,'stem','Berapa mm dalam 1,5 m?','ans','A',
       'opts', jsonb_build_array('1.500 mm','150 mm','15 mm','15.000 mm')),
-    jsonb_build_object('d',0.78,'sc',false,'o',ob2,'stem','Berapa cm dalam 0,4 km?','ans','B',
+    jsonb_build_object('d',0.32,'sc',false,'o',ob2,'stem','Berapa cm dalam 0,4 km?','ans','B',
       'opts', jsonb_build_array('4.000 cm','40.000 cm','400 cm','400.000 cm')),
-    jsonb_build_object('d',0.80,'sc',false,'o',ob2,'stem','Berapa dm dalam 6,5 m?','ans','C',
+    jsonb_build_object('d',0.30,'sc',false,'o',ob2,'stem','Berapa dm dalam 6,5 m?','ans','C',
       'opts', jsonb_build_array('6,5 dm','650 dm','65 dm','0,65 dm')),
-    jsonb_build_object('d',0.82,'sc',false,'o',ob2,'stem','Berapa m dalam 12.500 cm?','ans','D',
+    jsonb_build_object('d',0.28,'sc',false,'o',ob2,'stem','Berapa m dalam 12.500 cm?','ans','D',
       'opts', jsonb_build_array('1,25 m','1.250 m','12,5 m','125 m')));
 
   for entry in select * from jsonb_array_elements(spec) loop

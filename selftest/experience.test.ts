@@ -339,10 +339,8 @@ const PENDING_SURFACES: Record<string, string> = {
   "src/app/studio/integritas/page.tsx": "Slice 5 — Studio",
   "src/app/studio/kanonik/page.tsx": "Slice 5 — Studio",
   "src/app/studio/kanonik/[terbitan]/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/kuis/page.tsx": "Slice 5 — Studio",
   "src/app/studio/paket/[course]/page.tsx": "Slice 5 — Studio",
   "src/app/studio/pratinjau/[pelajaran]/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/sertifikat/page.tsx": "Slice 5 — Studio",
   "src/app/studio/tinjau/page.tsx": "Slice 5 — Studio",
   "src/app/studio/unggah/page.tsx": "Slice 5 — Studio",
 };
@@ -1668,7 +1666,10 @@ export const experienceTests: SelfTest[] = [
       // MOVED 171 -> 173 for batch 3b (D-123): 20261205100000 adds a constraint, a function and a registry row on the
       // decision queue, and 20261206100000 copies the catalogue to MC-7 and replaces two function bodies; neither adds a
       // table or a column, so the sweep below still asserts over files without its answer changing. Re-read first.
-      c.expect(migrations.length === 173, `${migrations.length} migrations; the frozen baseline has 173`);
+      // MOVED 173 -> 176 for L2 (D-128, D-129): 20261207100000 replaces difficulty_band's body (FD-5), 20261208100000 adds
+      // the integrity waiting list's read and its registry row (FD-7), 20261209100000 replaces save_assessment_definition's
+      // body (FD-9); none adds a table or a column, so the sweep below still asserts over files without its answer changing.
+      c.expect(migrations.length === 176, `${migrations.length} migrations; the frozen baseline has 176`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3463,7 +3464,8 @@ export const experienceTests: SelfTest[] = [
       // below still come from the tour's own migration and still take no
       // identity. Re-read before the number moved.
       // MOVED 171 -> 173 for batch 3b (D-123): the decision queue's referrer rule and catalogue MC-7 touch no tour RPC.
-      c.expect(migs.length === 173, `${migs.length} migrations; the baseline has 173`);
+      // MOVED 173 -> 176 for L2: a band's reading, the integrity waiting list and a rule's save touch no tour RPC.
+      c.expect(migs.length === 176, `${migs.length} migrations; the baseline has 176`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -10329,7 +10331,7 @@ export const experienceTests: SelfTest[] = [
         const langsung = [...src.matchAll(/outcomeLine\(sp\)/g)].filter((m) => !/const \w+ = [^;]*$/.test(src.slice(Math.max(0, m.index! - 200), m.index!)));
         c.expect(langsung.every((m) => src.slice(m.index! - 9, m.index!) === "kalimat={"), `${f}: outcomeLine reaches the screen other than through HasilDi`);
       }
-      c.expect(!berkasBagian("src/app/studio/kuis/page.tsx", "bukan-bagian"), "the control: a section no line names is found");
+      c.expect(!berkasBagian("src/app/studio/bank/page.tsx", "bukan-bagian"), "the control: a section no line names is found");
 
       const konf = jawaban(code(baca("src", "app", "konfigurasi", "actions.ts")), true);
       const konfHal = code(baca("src", "app", "konfigurasi", "page.tsx"));
@@ -11424,14 +11426,18 @@ export const experienceTests: SelfTest[] = [
       }
 
       /**
-       * 2. UX-04: A SCHOOL PICKER IS LABELLED «SEKOLAH», on Aturan Penilaian
-       *    and on Sertifikat, as on Buat Paket; never «Peran & akses».
+       * 2. UX-04: A SCHOOL PICKER IS LABELLED «SEKOLAH», as on Buat Paket; never «Peran & akses». RESTATED FOR CR-84
+       *    and FD-9 (a changed requirement): Sertifikat's layout picker left with its page (CR-06), and Aturan
+       *    Penilaian takes the school from the chapter chosen, so neither asks for a school; Pustaka PINTAR's grant does,
+       *    labelled the same.
        */
-      for (const f of [["src", "app", "studio", "definisi", "page.tsx"], ["src", "app", "studio", "sertifikat", "page.tsx"]]) {
+      for (const f of [["src", "app", "studio", "kanonik", "page.tsx"]]) {
         const src = baca(...f);
         c.expect(/<span>\{s\("studio\.sekolah"\)\}<\/span>\s*<select className=\{field\} name="institution"/.test(src) && !/config\.section\.roles/.test(src),
           `${f.slice(2).join("/")}: the school picker is not labelled «Sekolah»`);
       }
+      c.expect(!/name="institution"/.test(baca("src", "app", "studio", "definisi", "page.tsx")),
+        "Aturan Penilaian asks for a school apart from the chapter it is for");
       for (const locale of LOCALES) {
         c.expect(t("studio.sekolah", "staff", { locale }) === t("studio.unggah.sekolah", "staff", { locale }),
           `(${locale}) Studio's school pickers are not labelled alike`);

@@ -2313,7 +2313,13 @@ await step("S23d", "the dean: the school admin adds the dean by the screens; the
 // HOD-07 and X-11: the head of department reviews the class's integrity observations. S21's network drop leaves one
 // («Terputus lalu tersambung lagi») on the sitting it happened in. They read as material for a human, never a verdict;
 // recording a review writes the reviewer's decision to the audit and changes no score; the student never sees them.
-await step("S23i", "the head of department reviews Kelas 1A's integrity observations in Studio → «Tinjauan Integritas»: observations, never a verdict; the review is recorded and changes no score; the student sees none of it (HOD-07, X-11)", async (rec) => {
+// RESTATED FOR FD-7 (D-127, D-128 L2; DG-32): a reviewed sitting leaves the waiting list, so the one observation can be
+// reviewed once. The head of department's review is the referral S23r follows («Diteruskan ke pihak sekolah», with
+// S23r's note), and the sitting then leaves her list; until L2 S23i recorded «Tidak ada yang perlu ditindaklanjuti» and
+// S23r pressed the same observation twice more.
+// S23i's review is the referral S23r follows; its note is how S23r and /pimpinan find it (KartuKeputusan quotes it)
+const RUJUK_S23 = "Koneksi terputus saat Uji Penguasaan; mohon dipertimbangkan pihak sekolah.";
+await step("S23i", "the head of department reviews Kelas 1A's integrity observations in Studio → «Tinjauan Integritas»: observations, never a verdict; her review («Diteruskan ke pihak sekolah») is recorded and changes no score, and the reviewed sitting leaves her waiting list (FD-7); the student sees none of it (HOD-07, X-11)", async (rec) => {
   const kelas = kelasSatuA();
   const sinyal = kelas ? sql(`select s.id||'|'||p.display_name from public.integrity_signals s join public.assessment_sessions ss on ss.id = s.session_id
     join public.persons p on p.id = ss.person_id where ss.class_node_id = '${kelas}' order by s.observed_at limit 1`).trim() : "";
@@ -2344,15 +2350,23 @@ await step("S23i", "the head of department reviews Kelas 1A's integrity observat
     if (!bingkai || !kategori) notes.push(`the page at ${new URL(h.url()).pathname} says: «${teks.slice(0, 400)}»`);
     const form = h.locator("form").filter({ has: h.locator(`input[name="sinyal"][value="${idSinyal}"]`) }).first();
     if (!(await form.count()) || !bingkai || vonis || !kategori) { rec.verdict = "FAIL"; return notes.join("; "); }
-    await form.locator('select[name="keputusan"]').selectOption("NO_CONCERN");
-    await form.locator('input[name="catatan"]').fill("Koneksi terputus sebentar; tidak ada yang perlu ditindaklanjuti.");
+    await form.locator('select[name="keputusan"]').selectOption({ label: "Diteruskan ke pihak sekolah" });
+    await form.locator('input[name="catatan"]').fill(RUJUK_S23);
     await form.getByRole("button", { name: "Catat tinjauan" }).click();
     await h.getByText("Tinjauan Anda dicatat.").first().waitFor({ timeout: SLOW });
     rec.shots.push(await shot(h, "hod07-dicatat"));
     const tinjauan = sql(`select a.summary->>'decision' from public.audit_log a where a.id > ${dulu} and a.action = 'INTEGRITY_SIGNAL_REVIEWED' and a.target_id = '${idSinyal}'`).trim();
     const sesudah = skor();
-    notes.push(`the review «Tidak ada yang perlu ditindaklanjuti» is on the record as ${tinjauan || "nothing"}; the class's scores unchanged ${sesudah === sebelum}`);
-    if (tinjauan !== "NO_CONCERN" || sesudah !== sebelum) rec.verdict = "FAIL";
+    notes.push(`the review «Diteruskan ke pihak sekolah» is on the record as ${tinjauan || "nothing"}; the class's scores unchanged ${sesudah === sebelum}`);
+    if (tinjauan !== "REFERRED_TO_INSTITUTION" || sesudah !== sebelum) rec.verdict = "FAIL";
+    // FD-7: the reviewed sitting has left her waiting list; with nothing else waiting, the list says so, truly
+    await h.goto(`${APP}/studio/integritas`, { waitUntil: "networkidle" });
+    await h.getByRole("heading", { name: "Tinjauan Integritas", exact: true }).waitFor({ timeout: SLOW }).catch(() => {});
+    const masih = await h.locator(`input[name="sinyal"][value="${idSinyal}"]`).count();
+    const formLain = await h.locator('form:has(input[name="sinyal"])').count();
+    const kosong = /Tidak ada catatan yang menunggu tinjauan\./.test(norm(await bodyText(h)));
+    notes.push(`FD-7: after her review the sitting is still offered ${masih > 0}; ${formLain} other sitting(s) wait; the list says nothing waits ${kosong}`);
+    if (masih > 0 || (formLain === 0 && !kosong)) rec.verdict = "FAIL";
   } catch (e) {
     rec.verdict = "FAIL";
     rec.shots.push(await shot(h, "hod07-berhenti"));
@@ -2406,15 +2420,16 @@ await jalankanC12({ step, sql, ctx, magicSignIn, apiSession, grantViaForm, catat
 // «Keputusan» on /pimpinan, takes it («Saya yang menangani») and records «Tidak ada tindakan lanjutan» with «Catat
 // keputusan» (putuskanAksi → advance_management_decision). The referrer sees it decided; no score and no signal row
 // moves; the student sees none of it.
-await step("S23r", "the head of department refers Kelas 1A's integrity observation to the school in Studio → «Tinjauan Integritas» («Diteruskan ke pihak sekolah»), and pressing again makes no second decision; the dean finds it under «Keputusan» on /pimpinan, takes it («Saya yang menangani») and records «Tidak ada tindakan lanjutan» with «Catat keputusan»; the referrer sees it decided; no score moves and the student sees none of it (CR-38: DEA-04, BOB-39)", async (rec) => {
+// RESTATED FOR FD-7 (DG-32): S23i's review is the referral; the sitting has left the head of department's waiting list,
+// so no second referral can be pressed from Studio (the database's own idempotency stays F06-P22's).
+await step("S23r", "the head of department's referral of Kelas 1A's integrity observation (S23i, «Diteruskan ke pihak sekolah») is one waiting decision, and Studio no longer offers the sitting (FD-7); the dean finds it under «Keputusan» on /pimpinan, takes it («Saya yang menangani») and records «Tidak ada tindakan lanjutan» with «Catat keputusan»; the referrer sees it decided; no score moves and the student sees none of it (CR-38: DEA-04, BOB-39)", async (rec) => {
   const kelas = kelasSatuA();
   // the observation S23i reviewed (S23i's own query, journey.mjs:2304-2305)
   const sinyal = kelas ? sql(`select s.id||'|'||p.display_name from public.integrity_signals s join public.assessment_sessions ss on ss.id = s.session_id
     join public.persons p on p.id = ss.person_id where ss.class_node_id = '${kelas}' order by s.observed_at limit 1`).trim() : "";
   if (!sinyal) { rec.verdict = "BLOCKED"; return "no integrity observation in Kelas 1A to refer (S21's network drop raises one)"; }
   const [idSinyal, namaMurid] = sinyal.split("|");
-  const RUJUK = "Koneksi terputus saat Uji Penguasaan; mohon dipertimbangkan pihak sekolah.";
-  const RUJUK_LAGI = "Diteruskan sekali lagi dari Tinjauan Integritas.";
+  const RUJUK = RUJUK_S23;
   const PUTUS = "Sudah dibicarakan dengan wali kelas; koneksi sekolah sedang diperbaiki.";
   const dekanId = sql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${people.dekan.email}'`).trim();
   const skor = () => sql(`select coalesce(string_agg(r.session_id::text||':'||r.mastery::text, ',' order by r.session_id::text), '')
@@ -2436,49 +2451,29 @@ await step("S23r", "the head of department refers Kelas 1A's integrity observati
   // textContent, not innerText: the card's state sits in .pin-eyebrow, drawn in capitals (experience.css:108-111)
   const teks = async (loc) => norm(await loc.first().textContent().catch(() => ""));
   const MENTAH = /INTEGRITY_REFERRAL|AWAITING_REVIEW|UNDER_REVIEW|NO_FURTHER_ACTION|REFERRED_TO_INSTITUTION|integrity_signals|management_decisions/;
-  const notes = [`S23i's «Tidak ada yang perlu ditindaklanjuti» on record for this observation: ${sql(`select count(*) from public.audit_log where action = 'INTEGRITY_SIGNAL_REVIEWED' and target_id = '${idSinyal}' and summary->>'decision' = 'NO_CONCERN'`).trim()}`];
+  const notes = [`S23i's «Diteruskan ke pihak sekolah» on record for this observation: ${sql(`select count(*) from public.audit_log where action = 'INTEGRITY_SIGNAL_REVIEWED' and target_id = '${idSinyal}' and summary->>'decision' = 'REFERRED_TO_INSTITUTION'`).trim()}`];
   const hc = await ctx();
   const h = await hc.newPage();
   const dc = await ctx();
   const d = await dc.newPage();
   try {
-    // 1. the head of department refers it from Studio, the way S23i reached the page
+    // 1. S23i's review raised one referral of it, waiting, with her note, about the student; and Studio no longer offers
+    //    the sitting to her, so no second referral can be pressed (FD-7)
     await magicSignIn(h, people.kaprodi.email);
-    const teruskan = async (catatan) => {
-      await h.goto(`${APP}/studio`, { waitUntil: "networkidle" });
-      await tutupTur(h);
-      await h.getByRole("link", { name: "Tinjauan Integritas" }).first().click();                          // studio/layout.tsx:54; hle.ts:3298
-      await h.waitForURL((u) => u.pathname === "/studio/integritas", { timeout: SLOW });
-      await h.getByRole("heading", { name: "Tinjauan Integritas", exact: true }).waitFor({ timeout: SLOW }).catch(() => {});
-      const form = h.locator("form").filter({ has: h.locator(`input[name="sinyal"][value="${idSinyal}"]`) }).first();   // studio/integritas/page.tsx:60-61
-      if (!(await form.count())) return false;
-      const n0 = audit("INTEGRITY_SIGNAL_REVIEWED", idSinyal);
-      await form.locator('select[name="keputusan"]').selectOption({ label: "Diteruskan ke pihak sekolah" });  // page.tsx:64-66; hle.ts:3473
-      await form.locator('input[name="catatan"]').fill(catatan);                                            // page.tsx:70
-      await form.getByRole("button", { name: "Catat tinjauan" }).click();                                    // page.tsx:71; hle.ts:3474
-      for (let i = 0; i < 40 && audit("INTEGRITY_SIGNAL_REVIEWED", idSinyal) === n0; i++) await h.waitForTimeout(500);
-      await h.getByText("Tinjauan Anda dicatat.").first().waitFor({ timeout: SLOW }).catch(() => {});        // hle.ts:3531
-      return true;
-    };
-    if (!(await teruskan(RUJUK))) {
-      rec.verdict = "FAIL";
-      notes.push(`no «Catat tinjauan» form for the observation S23i reviewed: ${norm(await bodyText(h)).slice(0, 300)}`);
-      return notes.join("; ");
-    }
-    rec.shots.push(await shot(h, "cr38-diteruskan"));
     const r1 = rujukan();
     const idKeputusan = r1[0]?.[0] ?? "";
-    const diangkat = idKeputusan ? audit("management_decision.raised", idKeputusan) : 0;
-    notes.push(`«Diteruskan ke pihak sekolah» → referrals of it: ${JSON.stringify(r1.map((x) => x.slice(1, 6)))}; raised on the record ${diangkat}`);
+    const diangkat = idKeputusan
+      ? Number(sql(`select count(*) from public.audit_log where action = 'management_decision.raised' and target_id = '${idKeputusan}'`).trim()) : 0;
+    notes.push(`S23i's «Diteruskan ke pihak sekolah» → referrals of it: ${JSON.stringify(r1.map((x) => x.slice(1, 6)))}; raised on the record ${diangkat}`);
     if (r1.length !== 1 || r1[0][1] !== "AWAITING_REVIEW" || r1[0][2] !== "true" || r1[0][3] !== people.kaprodi.name || r1[0][4] !== RUJUK
         || r1[0][5] !== namaMurid || diangkat !== 1) { rec.verdict = "FAIL"; return notes.join("; "); }
-    // the same press again while it is open: a second review on the record, never a second decision (BOB-39)
-    const lagi = await teruskan(RUJUK_LAGI);
-    const r2 = rujukan();
-    const ditinjau = audit("INTEGRITY_SIGNAL_REVIEWED", idSinyal, "and summary->>'decision' = 'REFERRED_TO_INSTITUTION'");
-    notes.push(`pressed again (${lagi ? "pressed" : "no form"}): referrals ${r2.length}, its note still the first ${r2[0]?.[4] === RUJUK}, ` +
-      `raised on the record ${audit("management_decision.raised", idKeputusan)}, reviews «Diteruskan» on the record ${ditinjau}`);
-    if (!lagi || r2.length !== 1 || r2[0][4] !== RUJUK || audit("management_decision.raised", idKeputusan) !== 1 || ditinjau !== 2) rec.verdict = "FAIL";
+    await h.goto(`${APP}/studio/integritas`, { waitUntil: "networkidle" });
+    await tutupTur(h);
+    await h.getByRole("heading", { name: "Tinjauan Integritas", exact: true }).waitFor({ timeout: SLOW }).catch(() => {});
+    const lagi = await h.locator(`input[name="sinyal"][value="${idSinyal}"]`).count();
+    notes.push(`FD-7: Studio still offers the referred sitting to her ${lagi > 0}`);
+    if (lagi > 0) rec.verdict = "FAIL";
+    rec.shots.push(await shot(h, "cr38-diteruskan"));
 
     // 2. the referrer finds it under «Keputusan» on /pimpinan, waiting
     await h.goto(`${APP}/pimpinan`, { waitUntil: "networkidle" });
@@ -2563,7 +2558,7 @@ await step("S23r", "the head of department refers Kelas 1A's integrity observati
   try {
     await masukKartu(s, kk);
     const bocor = [];
-    const jejak = [RUJUK, RUJUK_LAGI, PUTUS, "Tinjauan integritas", "Diteruskan ke pihak sekolah", "Tidak ada tindakan lanjutan", "Saya yang menangani"].map((x) => x.toLowerCase());
+    const jejak = [RUJUK, PUTUS, "Tinjauan integritas", "Diteruskan ke pihak sekolah", "Tidak ada tindakan lanjutan", "Saya yang menangani"].map((x) => x.toLowerCase());
     for (const jalur of ["/belajar", `/belajar/${tugasBab()}/hasil`, "/pimpinan"]) {
       await s.goto(`${APP}${jalur}`, { waitUntil: "networkidle" });
       await tutupTur(s);

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
+import { currentViewer } from "@/lib/auth";
 import { currentLocale } from "@/lib/locale";
 import LangkahTerbit from "@/components/studio/LangkahTerbit";
 import { enumLabel, format, t, type HleEvent } from "@/lib/hle";
@@ -11,6 +12,7 @@ import {
 } from "../../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
+import SimpanIsian from "@/components/SimpanIsian";
 import { TeksBaris } from "@/components/teks/Teks";
 import { soalPaket } from "@/lib/soal-tinjauan";
 import { akarGaris } from "@/lib/pengajar";
@@ -52,8 +54,8 @@ type Finding = {
   mengapa_penting: string; cara_memperbaiki: string; acknowledged_at: string | null;
 };
 
-function FindingCard({ f, courseId, kind, showAck }: {
-  f: Finding; courseId: string; kind: "MCQ_QUALITY" | "COACHING"; showAck: boolean;
+function FindingCard({ f, courseId, kind, showAck, pemilik, ditolak }: {
+  f: Finding; courseId: string; kind: "MCQ_QUALITY" | "COACHING"; showAck: boolean; pemilik: string; ditolak: boolean;
 }) {
   return (
     <li className={card}>
@@ -62,7 +64,7 @@ function FindingCard({ f, courseId, kind, showAck }: {
       <p className="mt-2 text-sm text-ink-2">{s("studio.temuan.mengapa")}: {f.mengapa_penting}</p>
       <p className="mt-1 text-sm text-ink-2">{s("studio.temuan.cara")}: {f.cara_memperbaiki}</p>
       {showAck && f.severity === "WARNING" && f.acknowledged_at === null ? (
-        <form action={acknowledgeFindingAction} className="mt-3 flex flex-wrap items-end gap-2">
+        <form action={acknowledgeFindingAction} id={`temuan-${f.id}`} className="mt-3 flex flex-wrap items-end gap-2">
           <input type="hidden" name="course" value={courseId} />
           <input type="hidden" name="finding" value={f.id} />
           <input type="hidden" name="kind" value={kind} />
@@ -73,6 +75,8 @@ function FindingCard({ f, courseId, kind, showAck }: {
           <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.temuan.akui")}</TombolKirim>
         </form>
       ) : null}
+      {showAck && f.severity === "WARNING" && f.acknowledged_at === null
+        ? <SimpanIsian form={`temuan-${f.id}`} ditolak={ditolak} pemilik={pemilik} /> : null}
     </li>
   );
 }
@@ -81,6 +85,9 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   const { course: courseId } = await params;
   const sp = await searchParams;
   const supabase = await supabaseServer();
+  // CR-84 (3): what a refused form sent comes back to it, for the same person only (src/lib/isian.ts)
+  const pemilik = (await currentViewer())?.personId ?? "";
+  const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
 
   const { data: course } = await supabase
     .from("courses")
@@ -300,10 +307,10 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         ) : (
           <ul className="grid gap-2">
             {findings.map((f) => (
-              <FindingCard key={f.id} f={f} courseId={courseId} kind="MCQ_QUALITY" showAck={can(inst, "CAN_REVIEW")} />
+              <FindingCard key={f.id} f={f} courseId={courseId} kind="MCQ_QUALITY" showAck={can(inst, "CAN_REVIEW")} pemilik={pemilik} ditolak={ditolak("temuan")} />
             ))}
             {coaching.map((f) => (
-              <FindingCard key={f.id} f={f} courseId={courseId} kind="COACHING" showAck={can(inst, "CAN_REVIEW")} />
+              <FindingCard key={f.id} f={f} courseId={courseId} kind="COACHING" showAck={can(inst, "CAN_REVIEW")} pemilik={pemilik} ditolak={ditolak("temuan")} />
             ))}
           </ul>
         )}
@@ -364,7 +371,8 @@ export default async function Paket({ params, searchParams }: { params: Params; 
           <h3 className="text-lg font-medium">{s("studio.paket.pindah.judul")}</h3>
           <HasilDi q={sp} bagian="koreksi" kalimat={banner} />
           {(assignments ?? []).map((a) => (
-            <form action={moveReleaseAction} key={a.id} className="mt-3 flex flex-wrap items-end gap-2">
+            <div key={a.id}>
+            <form action={moveReleaseAction} id={`koreksi-${a.id}`} className="mt-3 flex flex-wrap items-end gap-2">
               <input type="hidden" name="course" value={courseId} />
               <input type="hidden" name="assignment" value={a.id} />
               <p className="w-full text-sm text-ink-2">
@@ -388,6 +396,8 @@ export default async function Paket({ params, searchParams }: { params: Params; 
               </label>
               <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.paket.pindah.tombol")}</TombolKirim>
             </form>
+            <SimpanIsian form={`koreksi-${a.id}`} ditolak={ditolak("koreksi")} pemilik={pemilik} />
+            </div>
           ))}
         </section>
       ) : null}

@@ -167,6 +167,49 @@ export type HasilAksi =
 type GalatDb = { code?: string | null; details?: string | null; message?: string | null } | null | undefined;
 
 /**
+ * CR-84 (D-127, D-128 L2): THE STUDIO REFUSALS WITH A KNOWN CAUSE, NAMED. The database functions behind Studio's forms
+ * raise these in their own words, with no code (P0001), so each reached the screen as «Ada kendala» and a reference.
+ * Each is read here to the existing code whose existing sentence is true of it; no new words (D-128(g): Daisy's words
+ * for any refusal that needs its own sentence come later). Anchored at the start of the database's message, so a
+ * message that only quotes one cannot be taken for it. BOB32-K02 reads every refusal of every function behind a
+ * Studio form and fails on any that is still the catch-all, except the platform's own state («no scoring policy»).
+ */
+const POLA_STUDIO: ReadonlyArray<readonly [RegExp, KodeGalat]> = [
+  // who is asking: no person in the session, an author acknowledging their own finding, a release whose assignment does
+  // not allow a correction, an ad-hoc paper (launched, never configured), another school's chapter (INV-13)
+  [/\brequires an authenticated actor\b/, "ACTION_NOT_ALLOWED"],
+  [/^the author of the content does not acknowledge their own finding/, "ACTION_NOT_ALLOWED"],
+  [/^this assignment does not permit a release correction/, "ACTION_NOT_ALLOWED"],
+  [/^an ad-hoc instrument is launched, not configured/, "ACTION_NOT_ALLOWED"],
+  [/^that (?:course|module) belongs to another institution/, "ACTION_NOT_ALLOWED"],
+  [/^(?:authorizing|withdrawing) a distribution requires SYSTEM_ADMIN or CAN_PUBLISH/, "ACTION_NOT_ALLOWED"],
+  // already there
+  [/^this release is already distributed to this institution/, "ACTION_ALREADY_EXISTS"],
+  [/^an open revision of this course already exists/, "ACTION_ALREADY_EXISTS"],
+  // nothing changed: the thing has already moved on
+  [/^this distribution is already /, "ACTION_UNCHANGED"],
+  [/^a release move applies to an ACTIVE assignment/, "ACTION_UNCHANGED"],
+  [/^a Question Health record does not move from /, "ACTION_UNCHANGED"],
+  // no longer available to choose
+  [/^distribution is downstream of publication/, "ACTION_NOT_FOUND"],
+  [/^the target release belongs to another institution/, "ACTION_NOT_FOUND"],
+  [/^this question has no health record yet/, "ACTION_NOT_FOUND"],
+  // a field is empty or not right: a reason left out, a choice outside what the form offers, a value outside the bounds
+  [/^a withdrawal records why/, "ACTION_INPUT_INVALID"],
+  [/^a distribution is granted to a school, not to another/, "ACTION_INPUT_INVALID"],
+  [/^the target release is not another release of this course/, "ACTION_INPUT_INVALID"],
+  [/^a reviewer records UNDER_REVIEW, ACKNOWLEDGED_OK or ACTION_TAKEN/, "ACTION_INPUT_INVALID"],
+  [/^a new definition names its institution and its mode/, "ACTION_INPUT_INVALID"],
+  [/^a definition is scoped to exactly one of a course or a module/, "ACTION_INPUT_INVALID"],
+  [/^a definition carries a title a teacher can recognise/, "ACTION_INPUT_INVALID"],
+  [/^no platform bounds are published for mode /, "ACTION_INPUT_INVALID"],
+  [/^mode \S+ (?:carries between|permits at most|does not pause|does not tolerate an offline client)/, "ACTION_INPUT_INVALID"],
+  [/^the (?:hesitation window|late-sync grace) for mode /, "ACTION_INPUT_INVALID"],
+  [/^the difficulty mix totals /, "ACTION_INPUT_INVALID"],
+  [/^the safety-critical minimum /, "ACTION_INPUT_INVALID"],
+];
+
+/**
  * Any action's refusal, from the database's error: its SQLSTATE first, then
  * the few shapes the database words its own refusals in. Everything else is
  * ACTION_FAILED, which the caller logs with a reference.
@@ -185,6 +228,8 @@ export function kodeGalat(e: GalatDb): KodeGalat {
   if (state === "PR070") {
     return (KODE_PINDAH_KELAS as readonly string[]).includes(e?.details ?? "") ? e!.details as KodePindahKelas : "ACTION_FAILED";
   }
+  // CR-84: a professional-learning observation is recorded, never referred (D-069(c)); the form offers no referral for one
+  if (state === "PR090" && e?.details === "PD_SIGNAL_NOT_REFERRED") return "ACTION_NOT_ALLOWED";
   // BOB-44: professional learning's refusals by their DETAIL, and no other PR090
   if (state === "PR090") {
     return (KODE_PESERTA as readonly string[]).includes(e?.details ?? "") ? e!.details as KodePeserta : "ACTION_FAILED";
@@ -194,6 +239,8 @@ export function kodeGalat(e: GalatDb): KodeGalat {
     return (KODE_PEMELIHARAAN as readonly string[]).includes(e?.details ?? "") ? e!.details as KodePemeliharaan : "ACTION_FAILED";
   }
   if (state === "PT503") return "MAINTENANCE_ACTIVE";
+  const disebut = POLA_STUDIO.find(([pola]) => pola.test(pesan.replace(/^ERROR:\s*/i, "")));
+  if (disebut) return disebut[1];
   if (state === "42501" || /permission denied|\brequires CAN_[A-Z_]+|\bnot allowed\b|\bmay not\b|\bonly (?:a|an|the) [A-Z_]+/i.test(pesan)) {
     return "ACTION_NOT_ALLOWED";
   }
@@ -220,6 +267,9 @@ const POLA_KONTEN: ReadonlyArray<readonly [RegExp, KodeKonten]> = [
   [/^publishing requires CAN_PUBLISH/, "CONTENT_PUBLISH_NOT_ALLOWED"],
   [/^withdrawing published content requires CAN_PUBLISH/, "CONTENT_WITHDRAW_NOT_ALLOWED"],
   [/^author_person_id is immutable/, "CONTENT_AUTHOR_IMMUTABLE"],
+  // FD-9 (D-127 Q8): a rule for a chapter that has moved on starts again from the chapter's correction, an upload
+  // (save_assessment_definition, 20261209100000); the sentence names that next action
+  [/^a rule is set while its chapter is still being drafted/, "CONTENT_CREATED_NOT_INGESTED"],
 ];
 
 /** A content step's refusal: the trigger's own, else any action's. */

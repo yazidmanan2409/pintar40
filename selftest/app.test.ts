@@ -101,8 +101,6 @@ const ROUTE_INVENTORY = [
   "/studio/definisi",
   "/studio/integritas",
   "/studio/kanonik",
-  "/studio/kuis",
-  "/studio/sertifikat",
   "/studio/tinjau",
   "/studio/unggah",
   // UX-1 Slice 3. The educator's home is the one static route the teaching
@@ -925,8 +923,6 @@ export const appTests: SelfTest[] = [
         "/studio/definisi",
         "/studio/bank",
         "/studio/integritas",
-        "/studio/sertifikat",
-        "/studio/kuis",
         "/studio/paket/00000000-0000-0000-0000-000000000000",
         "/studio/kanonik/00000000-0000-0000-0000-000000000000",
         "/studio/pratinjau/00000000-0000-0000-0000-000000000000",
@@ -2116,7 +2112,12 @@ export const appTests: SelfTest[] = [
         if (!c.expect(res.status === 200, `${peran} /studio/unggah → ${res.status}`)) continue;
         const html = await res.text();
         const a = html.indexOf('id="buku-kerja"');
-        const b = html.indexOf('id="mudah"', a);
+        // RESTATED FOR CR-87 (D-127 Q7, a changed requirement): the JSON package forms are the platform operator's alone,
+        // so the school administrator's page ends with the workbook; the platform administrator's has them after it
+        const b0 = html.indexOf('id="mudah"', a);
+        c.expect((a >= 0 && b0 > a) === (peran === "SYSTEM_ADMIN"),
+          `${peran}: the JSON package forms are ${b0 > a ? "" : "not "}drawn, but they are Admin platform's alone (D-127 Q7)`);
+        const b = b0 > a ? b0 : html.length;
         const panel = a >= 0 && b > a ? html.slice(a, b) : "";
         if (!c.expect(panel.length > 0, `${peran}: the page has no workbook section before the JSON forms`)) continue;
         const teks = visibleText(panel);
@@ -2145,7 +2146,8 @@ export const appTests: SelfTest[] = [
         c.note(`${peran}: ${pilihan.length} school(s) offered, starting on "${awal?.nama ?? ""}"`);
       }
       return c.verdict(
-        "Studio's upload opens, for Alpha's school administrator and for the platform administrator, on the workbook: the template " +
+        "Studio's upload opens, for Alpha's school administrator and for the platform administrator, on the workbook, and only the " +
+        "platform administrator is drawn the JSON package forms after it (D-127 Q7): the template " +
         "to download, three steps with the first current, and one file input that takes an .xlsx. Its Sekolah picker starts on a " +
         "real school (Alpha for Alpha's administrator); no picker on Alpha's administrator's page offers the national library "
         + "(audit S14), and the platform administrator's offers it once, last (CR-51, D-120 Q7)",

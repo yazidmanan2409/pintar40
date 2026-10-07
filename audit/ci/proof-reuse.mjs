@@ -67,7 +67,7 @@ export function reusable({ onMain, run, selftestConclusion, changed, now, maxAge
   if ((now - Date.parse(run.created_at)) / 3600000 > maxAgeHours) return { ok: false, why: `the candidate is older than ${maxAgeHours} h` };
   if (!Array.isArray(changed)) return { ok: false, why: "the candidate's commit is not in this history" };
   if (!sameCode(changed)) return { ok: false, why: "a changed path is code, or a document something reads" };
-  return { ok: true, why: changed.length ? `differs only in ${changed.length} unread document(s)` : "the same commit" };
+  return { ok: true, why: changed.length ? `differs only in ${changed.length} unread document(s)` : "is the same commit" };
 }
 
 async function main() {

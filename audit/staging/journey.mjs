@@ -781,7 +781,22 @@ async function bank(page, who) {
   return { t, n: await shown.count(), ids, foreign: ids.filter((x) => !mine.has(x)).length, ofCourse: ids.filter((x) => thisCourse.has(x)).length,
            noEvidence: (t.match(/Belum cukup bukti untuk menilai soal ini\./g) ?? []).length, shot: await shot(page, `bank-${who}`) };
 }
-for (const [id, who, page] of [["Q1", "teacher", G], ["Q2", "admin", A]]) {
+// RESTATED FOR CR-87 (D-127; D-129(g), a changed requirement): Bank Soal as built is Question Health, which a teacher
+// does not reach (J5.8, EDU-09; src/lib/studio-tab.ts). The teacher is offered no Bank Soal tab, and the page sends them
+// to Studio's home; the school admin still reads the bank.
+await step("Q1", "Bank Soal as the teacher: no tab is offered, and the page sends the teacher to Studio's home (CR-87; J5.8, EDU-09)", ["D-050 bank", "CR-87"], async (rec) => {
+  rec.page = G;
+  if (!course) return blocked(rec, "no course");
+  await G.goto(`${APP}/studio/bank`, { timeout: SLOW });
+  await G.waitForURL((u) => u.pathname !== "/studio/bank", { timeout: SLOW, waitUntil: "commit" }).catch(() => {});
+  await G.locator("h1").first().waitFor({ state: "visible", timeout: SLOW }).catch(() => {});
+  const di = new URL(G.url()).pathname;
+  const tab = await G.getByRole("link", { name: "Bank Soal" }).count();
+  rec.shots.push(await shot(G, "bank-teacher"));
+  if (di !== "/studio" || tab !== 0) rec.verdict = "FAIL";
+  return `the teacher asking for /studio/bank lands on ${di}; Bank Soal tabs offered: ${tab}`;
+});
+for (const [id, who, page] of [["Q2", "admin", A]]) {
   await step(id, `Bank Soal as the ${who}: the uploaded questions are listed, and nothing from another school`, ["D-050 bank"], async (rec) => {
     rec.page = page;
     if (!course) return blocked(rec, "no course");

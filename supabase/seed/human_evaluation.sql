@@ -198,30 +198,33 @@ begin
      'Peserta didik menambahkan bilangan yang sama ke pembilang dan penyebut.',
      'Bandingkan hasilnya dengan gambar; nilainya berubah.');
 
+  -- RESTATED FOR FD-5 (D-129(c)): predicted_difficulty is the author's difficulty, the higher the harder (Mudah 0.3,
+  -- Sedang 0.5, Sulit 0.7). These values were written as p-values; each is now 1.1 - its old value, which keeps every
+  -- question in the band it was in (old MUDAH >= 0.7 is now <= 0.4, old SULIT <= 0.4 is now >= 0.7, SEDANG between).
   spec := jsonb_build_array(
-    jsonb_build_object('d',0.20,'sc',false,'o',ob1,'stem','Pecahan senilai dengan 1/2 adalah?','ans','B',
+    jsonb_build_object('d',0.90,'sc',false,'o',ob1,'stem','Pecahan senilai dengan 1/2 adalah?','ans','B',
       'opts', jsonb_build_array('1/4 saja','2/4 dan 3/6','1/3 dan 1/5','2/3 dan 3/4')),
-    jsonb_build_object('d',0.22,'sc',false,'o',ob1,'stem','1/3 senilai dengan pecahan mana?','ans','C',
+    jsonb_build_object('d',0.88,'sc',false,'o',ob1,'stem','1/3 senilai dengan pecahan mana?','ans','C',
       'opts', jsonb_build_array('1/6 saja','3/1 saja','2/6 dan 3/9','2/5 dan 3/7')),
-    jsonb_build_object('d',0.24,'sc',false,'o',ob1,'stem','2/5 dikali dua menjadi?','ans','A',
+    jsonb_build_object('d',0.86,'sc',false,'o',ob1,'stem','2/5 dikali dua menjadi?','ans','A',
       'opts', jsonb_build_array('4/10','4/5','2/10','6/15')),
-    jsonb_build_object('d',0.26,'sc',true ,'o',ob1,'stem','3/4 senilai dengan?','ans','D',
+    jsonb_build_object('d',0.84,'sc',true ,'o',ob1,'stem','3/4 senilai dengan?','ans','D',
       'opts', jsonb_build_array('3/8 saja','6/4 saja','3/12 saja','6/8 dan 9/12')),
-    jsonb_build_object('d',0.48,'sc',false,'o',ob2,'stem','6/8 disederhanakan menjadi?','ans','B',
+    jsonb_build_object('d',0.62,'sc',false,'o',ob2,'stem','6/8 disederhanakan menjadi?','ans','B',
       'opts', jsonb_build_array('2/4 saja','3/4 tepat','6/4 tepat','8/6 tepat')),
-    jsonb_build_object('d',0.50,'sc',false,'o',ob2,'stem','10/15 disederhanakan menjadi?','ans','A',
+    jsonb_build_object('d',0.60,'sc',false,'o',ob2,'stem','10/15 disederhanakan menjadi?','ans','A',
       'opts', jsonb_build_array('2/3 tepat','5/3 tepat','1/5 tepat','3/2 tepat')),
-    jsonb_build_object('d',0.52,'sc',false,'o',ob2,'stem','12/16 disederhanakan menjadi?','ans','C',
+    jsonb_build_object('d',0.58,'sc',false,'o',ob2,'stem','12/16 disederhanakan menjadi?','ans','C',
       'opts', jsonb_build_array('6/4 tepat','4/3 tepat','3/4 tepat','2/8 tepat')),
-    jsonb_build_object('d',0.54,'sc',true ,'o',ob2,'stem','9/12 disederhanakan menjadi?','ans','D',
+    jsonb_build_object('d',0.56,'sc',true ,'o',ob2,'stem','9/12 disederhanakan menjadi?','ans','D',
       'opts', jsonb_build_array('9/4 tepat','3/12 saja','4/3 tepat','3/4 tepat')),
-    jsonb_build_object('d',0.76,'sc',false,'o',ob2,'stem','Mana yang TIDAK senilai dengan 2/3?','ans','A',
+    jsonb_build_object('d',0.34,'sc',false,'o',ob2,'stem','Mana yang TIDAK senilai dengan 2/3?','ans','A',
       'opts', jsonb_build_array('3/4 jelas','4/6 jelas','6/9 jelas','8/12 jelas')),
-    jsonb_build_object('d',0.78,'sc',false,'o',ob2,'stem','20/25 disederhanakan menjadi?','ans','B',
+    jsonb_build_object('d',0.32,'sc',false,'o',ob2,'stem','20/25 disederhanakan menjadi?','ans','B',
       'opts', jsonb_build_array('5/4 tepat','4/5 tepat','2/5 tepat','5/2 tepat')),
-    jsonb_build_object('d',0.80,'sc',false,'o',ob2,'stem','Mana yang senilai dengan 5/10?','ans','C',
+    jsonb_build_object('d',0.30,'sc',false,'o',ob2,'stem','Mana yang senilai dengan 5/10?','ans','C',
       'opts', jsonb_build_array('5/2 jelas','2/5 jelas','1/2 jelas','10/5 jelas')),
-    jsonb_build_object('d',0.82,'sc',false,'o',ob2,'stem','18/24 disederhanakan menjadi?','ans','D',
+    jsonb_build_object('d',0.28,'sc',false,'o',ob2,'stem','18/24 disederhanakan menjadi?','ans','D',
       'opts', jsonb_build_array('4/3 tepat','6/4 tepat','2/8 tepat','3/4 tepat')));
 
   for entry in select * from jsonb_array_elements(spec) loop

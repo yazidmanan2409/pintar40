@@ -1,9 +1,12 @@
+import { redirect } from "next/navigation";
 import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
-import { button, card, field, label, outcomeLine, s, short, studioInstitutions, when } from "../_lib";
+import { currentViewer } from "@/lib/auth";
+import { button, card, field, label, outcomeLine, s, short, when, tabSaya } from "../_lib";
 import { recordIntegrityReviewAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
+import SimpanIsian from "@/components/SimpanIsian";
 
 /**
  * Integrity review centre (§10).
@@ -12,27 +15,27 @@ import HasilDi from "@/components/HasilDi";
  * a verdict. The three decisions describe what the REVIEWER did; none of them
  * says anything about the learner, and none of them writes an outcome back
  * onto the signal, the session or the result. There is no surveillance control
- * to configure here because none exists to configure.
+ * to configure here because none exists to configure. *
+ * FD-7 (DG-32): the list is the observations still WAITING (integrity_signals_awaiting_review): a sitting leaves once
+ * a review is recorded on it, so «Tidak ada catatan yang menunggu tinjauan» is true when it is said; and «Diteruskan
+ * ke pihak sekolah» is offered only where the server accepts it (never for a professional-learning sitting, and only
+ * over the reviewer's own classes).
  */
 type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
 export default async function Integritas({ searchParams }: { searchParams: Search }) {
+  // CR-87: a tab not this person's sends them to Studio's home (src/lib/studio-tab.ts); the database still decides
+  if (!(await tabSaya()).includes("integritas")) redirect("/studio");
   const sp = await searchParams;
   const supabase = await supabaseServer();
-  const institutions = (await studioInstitutions())
-    .filter((i) => i.capabilities.includes("CAN_REVIEW_INTEGRITY"));
+  // CR-84 (3): what a refused form sent comes back to it, for the same person only (src/lib/isian.ts)
+  const pemilik = (await currentViewer())?.personId ?? "";
+  const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
+  const { data: signals } = await supabase.rpc("integrity_signals_awaiting_review");
 
-  const { data: signals } = institutions.length
-    ? await supabase.from("integrity_signals")
-        .select("id, session_id, institution_id, category, observed_at")
-        .in("institution_id", institutions.map((i) => i.id))
-        .order("observed_at", { ascending: false })
-        .limit(50)
-    : { data: [] as Array<Record<string, never>> };
-
-  const rows = (signals ?? []) as Array<{
-    id: string; session_id: string; institution_id: string; category: string; observed_at: string;
-  }>;
+  const rows = ((signals ?? []) as Array<{
+    signal_id: string; session_id: string; institution_id: string; category: string; observed_at: string; may_refer: boolean;
+  }>).map((r) => ({ ...r, id: r.signal_id }));
   const bySession = new Map<string, typeof rows>();
   for (const r of rows) bySession.set(r.session_id, [...(bySession.get(r.session_id) ?? []), r]);
 
@@ -57,12 +60,12 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
               <ul className="mt-2 grid gap-1 text-sm text-ink-2">
                 {group.map((g) => <li key={g.id}>{enumLabel("integritas", g.category)} · {when(g.observed_at)}</li>)}
               </ul>
-              <form action={recordIntegrityReviewAction} className="mt-3 flex flex-wrap items-end gap-2">
+              <form action={recordIntegrityReviewAction} id={`integritas-${session}`} className="mt-3 flex flex-wrap items-end gap-2">
                 <input type="hidden" name="sinyal" value={group[0].id} />
                 <label className={label}>
                   <span>{s("studio.integritas.catat")}</span>
                   <select className={field} name="keputusan" defaultValue="NO_CONCERN">
-                    {["NO_CONCERN", "DISCUSSED_WITH_LEARNER", "REFERRED_TO_INSTITUTION"].map((d) => (
+                    {["NO_CONCERN", "DISCUSSED_WITH_LEARNER", ...(group[0].may_refer ? ["REFERRED_TO_INSTITUTION"] : [])].map((d) => (
                       <option key={d} value={d}>{s(`studio.integritas.${d}` as never)}</option>
                     ))}
                   </select>
@@ -70,6 +73,7 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
                 <input className={field} name="catatan" placeholder="catatan" />
                 <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.integritas.catat")}</TombolKirim>
               </form>
+              <SimpanIsian form={`integritas-${session}`} ditolak={ditolak("integritas")} pemilik={pemilik} />
             </li>
           ))}
         </ul>

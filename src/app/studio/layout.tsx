@@ -2,6 +2,7 @@ import Link from "next/link";
 import TandaTautan from "@/components/TandaTautan";
 import { currentViewer } from "@/lib/auth";
 import { s, studioInstitutions } from "./_lib";
+import { tabStudio, type TabStudio } from "@/lib/studio-tab";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
 import SesiSaya from "@/components/SesiSaya";
@@ -43,17 +44,18 @@ export default async function StudioLayout({ children }: { children: React.React
   // but the browser's back button. Offered, never granted (D-010).
   const tempat = tempatDariPeran(peran);
 
-  const nav: Array<[string, string]> = [
-    ["/studio", s("studio.nav.beranda")],
-    ["/studio/unggah", s("studio.nav.unggah")],
-    ["/studio/tinjau", s("studio.nav.tinjau")],
-    ["/studio/kanonik", s("studio.nav.kanonik")],
-    ["/studio/kuis", s("studio.nav.kuis")],
-    ["/studio/definisi", s("studio.nav.definisi")],
-    ["/studio/bank", s("studio.nav.bank")],
-    ["/studio/integritas", s("studio.nav.integritas")],
-    ["/studio/sertifikat", s("studio.nav.sertifikat")],
-  ];
+  // CR-87 (D-127 Q4, Q8; D-129(g)): each tab only for the people its canon names (src/lib/studio-tab.ts). Studio's own
+  // Uji Cepat launcher and the certificate layout are gone (CR-84): the class's Uji Cepat is the one human journey.
+  const TAB: Record<TabStudio, [string, string]> = {
+    beranda: ["/studio", s("studio.nav.beranda")],
+    unggah: ["/studio/unggah", s("studio.nav.unggah")],
+    tinjau: ["/studio/tinjau", s("studio.nav.tinjau")],
+    kanonik: ["/studio/kanonik", s("studio.nav.kanonik")],
+    definisi: ["/studio/definisi", s("studio.nav.definisi")],
+    bank: ["/studio/bank", s("studio.nav.bank")],
+    integritas: ["/studio/integritas", s("studio.nav.integritas")],
+  };
+  const nav = tabStudio(new Set(institutions.flatMap((i) => i.capabilities)), peran ?? []).map((t) => TAB[t]);
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">

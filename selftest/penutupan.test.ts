@@ -10,6 +10,19 @@
  * makes of its workbook, and each wrong option names a misconception the same file defines on its «Miskonsepsi» sheet.
  * PENUTUPAN-E03 — CR-13 (D-120 QN1): the correction route asks the caller's authority before Auth is touched, maps
  * every refusal to its own code, and tells the old and the new address only after activation.
+ * PENUTUPAN-D01 — FD-5 (D-129(c)), the half of the round trip outside the database: the workbook's «Mudah», «Sedang» and
+ * «Sulit» become 0.3, 0.5 and 0.7 in the package; the band reads them back as their words, and its migration writes no row;
+ * the teacher's Uji Cepat choice is labelled with the copy table's word for its band (F21-D01 is the database's half).
+ * PENUTUPAN-B01 — CR-90 (D-129(f)): the back-forward reload runs on every computer, whatever its mode. An instrument pin of
+ * the invariant L1 landed; its evidence class stays D-129(d)'s («preventive hardening; no pre-change browser reproduction»).
+ * PENUTUPAN-T01 — CR-87 (D-127 Q4, Q8; D-129(g)): Studio's tabs by role, from canon; the Uji Cepat launcher and the
+ * certificate layout gone (CR-84); a page not the person's sends them to Studio's home.
+ * PENUTUPAN-J01 — CR-87 (D-127 Q7): the JSON package import is the platform operator's alone, on the page and in the action.
+ * PENUTUPAN-P01 — CR-87 (4), FD-8: Pustaka PINTAR's grant and withdrawal are the operator's alone, chosen by names.
+ * PENUTUPAN-I01 — FD-7 (DG-32): Tinjauan Integritas lists what still waits, and offers no referral the server refuses.
+ * PENUTUPAN-F01 — FD-9 (D-127 Q8): Aturan Penilaian sets a rule on a chapter still being drafted, in a mode the cycle
+ * reads, with the school the chapter's own; the rules move with their chapter; a late rule is refused by name.
+ * PENUTUPAN-V01 — CR-84 (3): a refused Studio form reopens with what the person sent.
  * PENUTUPAN-A01 — CR-13 (D-120 QN1), against the running app, Auth and the mail sink: a wrong email corrected before
  * and after activation, as the platform admin does it, without SQL.
  */
@@ -20,7 +33,11 @@ import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { t, LOCALES, type HleEvent } from "../src/lib/hle";
 import { bacaBukuKerja } from "../src/lib/xlsx";
-import { bukuKerjaKePaket } from "../src/lib/unggah-kontrak";
+import { KOLOM, LEMBAR, bukuKerjaKePaket } from "../src/lib/unggah-kontrak";
+import { tulisBukuKerja } from "../src/components/unggah/templat";
+import { tabStudio, operatorPintar, TAB_STUDIO } from "../src/lib/studio-tab";
+import { isianDari, pulihkanIsian, bacaIsian, type Bidang } from "../src/lib/isian";
+import { kodeGalatKonten, kunciKode } from "../src/lib/galat-kontrak";
 import { lokasiMasalah } from "../src/components/unggah/lokasi";
 import { KODE_DARI_DB, STATUS_KOREKSI_EMAIL } from "../src/lib/koreksi-email-kontrak";
 import { aktifkan } from "./bob28.test";
@@ -342,6 +359,279 @@ export const penutupanTests: SelfTest[] = [
         + "and the lock's PIN each ask through it (2, 4, 1, 2, 1); emailed one-time codes stay plain fields; the field is masked by "
         + "default, its reveal a labelled pressed-state toggle naming its own field, re-masked by the person's submit, with no timer; "
         + "rendered twice in one form it is two masked fields with a toggle each (CR-86, D-127 Q6, Q10)");
+    },
+  },
+  {
+    id: "PENUTUPAN-D01",
+    run: async (ctx) => {
+      const c = new Checks();
+      // 1. THE AUTHOR'S WORD, AS THE WORKBOOK WRITES IT: three questions marked Mudah, Sedang and Sulit
+      const ISI: Record<string, Array<Record<string, string>>> = {
+        Kursus: [{ title: "Satuan Panjang", subject: "Matematika", stage: "SD", grade_label: "Kelas 5", konteks: "Akademik" }],
+        Bab: [{ ordinal: "1", title: "Satuan panjang" }],
+        Pelajaran: [{ module: "1", ordinal: "1", title: "Tangga satuan", body_markdown: "Turun satu anak tangga: dikali sepuluh.",
+          objective: "Murid mengubah satuan panjang", bloom: "Menerapkan" }],
+        Soal: (["Mudah", "Sedang", "Sulit"] as const).map((kata, i) => ({ ref: `S${i + 1}`, module: "1", lesson: "1",
+          item_type: "Pilihan ganda", stem: `Berapa cm dalam ${i + 3} m?`, use: "Cek penguasaan", difficulty: kata })),
+        Pilihan: [1, 2, 3].flatMap((i) => [
+          { ref: `S${i}`, label: "A", body: `${(i + 2) * 100} cm`, is_correct: "Ya", rationale: "Dua anak tangga: dikali seratus." },
+          { ref: `S${i}`, label: "B", body: `${(i + 2) * 10} cm`, is_correct: "Tidak", rationale: "Baru satu anak tangga." },
+        ]),
+      };
+      const berkas = tulisBukuKerja(LEMBAR.map((l) => ({ nama: l, baris: [KOLOM[l].map((k) => k.judul),
+        ...(ISI[l] ?? []).map((r) => KOLOM[l].map((k) => r[k.kunci] ?? ""))] })));
+      const baca = bacaBukuKerja(berkas);
+      const paket = baca.ok ? bukuKerjaKePaket(baca.lembar) : null;
+      if (c.expect(paket?.ok === true, `the workbook does not convert: ${JSON.stringify(paket && !paket.ok ? paket.problems : baca)}`) && paket?.ok) {
+        const soal = (((paket.paket.courses as Array<Record<string, unknown>>)[0].modules as Array<Record<string, unknown>>)[0]
+          .lessons as Array<Record<string, unknown>>)[0].items as Array<Record<string, unknown>>;
+        c.expect(JSON.stringify(soal.map((x) => x.difficulty)) === JSON.stringify(["0.3", "0.5", "0.7"]),
+          `the author's Mudah, Sedang and Sulit reach the package as ${JSON.stringify(soal.map((x) => x.difficulty))}, not 0.3, 0.5 and 0.7`);
+      }
+      // 2. THE BAND reads the stored value as its author wrote it: the last migration that defines it, and that migration
+      //    writes no row (D-129(c): no sealed hash changes, nothing is resealed)
+      const dir = join(ctx.repoRoot, "supabase", "migrations");
+      const terakhir = readdirSync(dir).filter((f) => f.endsWith(".sql")).sort()
+        .filter((f) => /create (?:or replace )?function public\.difficulty_band\(/i.test(readFileSync(join(dir, f), "utf8"))).pop() ?? "";
+      const sql = terakhir ? readFileSync(join(dir, terakhir), "utf8") : "";
+      const fungsi = /create (?:or replace )?function public\.difficulty_band\([\s\S]*?\$\$;/i.exec(sql)?.[0] ?? "";
+      c.expect(/when p <= 0\.4 then 'MUDAH'/.test(fungsi) && /when p >= 0\.7 then 'SULIT'/.test(fungsi),
+        `${terakhir || "no migration"} does not read at most 0.4 as MUDAH and at least 0.7 as SULIT`);
+      const tanpaKomentar = sql.replace(/--[^\n]*/g, "").replace(/\$\$[\s\S]*?\$\$/g, "");
+      c.expect(!/\b(?:insert\s+into|update\s+\w|delete\s+from|truncate|alter\s+table|drop\s+table)\b/i.test(tanpaKomentar),
+        `${terakhir} writes a row or changes a table: the reading is corrected, never the sealed data (D-129(c))`);
+      // 3. THE TEACHER'S SCREEN: each choice is labelled with the copy table's word for its band, and the words are the author's
+      const halaman = readFileSync(join(ctx.repoRoot, "src", "app", "mengajar", "[kelas]", "uji-cepat", "page.tsx"), "utf8");
+      const pengajar = readFileSync(join(ctx.repoRoot, "src", "lib", "pengajar.ts"), "utf8");
+      c.expect(/s\(`mengajar\.cepat\.tingkat\.\$\{x\.tingkat\}`/.test(halaman) && /tingkat: b\.band\b/.test(pengajar),
+        "the teacher's Uji Cepat choice is not labelled with its band's word (mengajar.cepat.tingkat.<band>)");
+      for (const [band, kata] of [["MUDAH", "Mudah"], ["SEDANG", "Sedang"], ["SULIT", "Sulit"]] as const) {
+        c.expect(t(`mengajar.cepat.tingkat.${band}` as HleEvent, "staff", { locale: "id" }) === kata,
+          `the teacher reads ${band} as «${t(`mengajar.cepat.tingkat.${band}` as HleEvent, "staff", { locale: "id" })}», not «${kata}»`);
+      }
+      return c.verdict(`a workbook whose author marked three questions Mudah, Sedang and Sulit becomes a package carrying 0.3, 0.5 and `
+        + `0.7; ${terakhir} reads at most 0.4 as MUDAH and at least 0.7 as SULIT and writes no row; the teacher's Uji Cepat choice `
+        + "is labelled with the copy table's word for its band, Mudah, Sedang or Sulit (FD-5, D-129(c); the database's half is F21-D01)");
+    },
+  },
+  {
+    id: "PENUTUPAN-B01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const jaga = readFileSync(join(ctx.repoRoot, "src", "components", "PenjagaSesi.tsx"), "utf8")
+        .replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+      const pasang = [...jaga.matchAll(/addEventListener\("pageshow"/g)];
+      c.expect(pasang.length === 1, `PenjagaSesi listens for a restored page ${pasang.length} time(s), not once`);
+      const di = pasang[0]?.index ?? -1;
+      const awal = di < 0 ? -1 : jaga.lastIndexOf("useEffect(() => {", di);
+      const sebelum = awal < 0 ? "" : jaga.slice(awal, di);
+      const akhir = di < 0 ? -1 : jaga.indexOf("useEffect(", di);
+      const sesudah = di < 0 ? "" : jaga.slice(di, akhir < 0 ? undefined : akhir);
+      c.expect(awal >= 0 && !/modeLayar\(|\breturn\b/.test(sebelum),
+        "the restored-page reload is reached only on some computers: its effect asks the mode, or returns, before it listens");
+      c.expect(/\(e: PageTransitionEvent\) => \{ if \(e\.persisted\) window\.location\.reload\(\); \}/.test(sebelum + sesudah)
+        && /\}, \[\]\);/.test(sesudah), "the listener does not reload a page restored from the back-forward cache, once per page");
+      return c.verdict("PenjagaSesi listens for a restored page once, in an effect of its own that asks no mode and returns before "
+        + "nothing, and reloads a page restored from the back-forward cache: on every computer, personal, shared or card (CR-90; "
+        + "evidence class D-129(d): preventive hardening, no pre-change browser reproduction)");
+    },
+  },
+  {
+    id: "PENUTUPAN-T01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const baca = (f: string) => { try { return readFileSync(join(ctx.repoRoot, f), "utf8"); } catch { return ""; } };
+      // 1. each role's Studio capabilities, from the latest role_capabilities
+      const dir = join(ctx.repoRoot, "supabase", "migrations");
+      const berkas = readdirSync(dir).filter((f) => f.endsWith(".sql")).sort()
+        .filter((f) => /function public\.role_capabilities\(/i.test(readFileSync(join(dir, f), "utf8"))).pop() ?? "";
+      const sql = berkas ? readFileSync(join(dir, berkas), "utf8") : "";
+      const badan = sql.slice(sql.search(/function public\.role_capabilities\(/i));
+      const STUDIO = ["CAN_DRAFT", "CAN_REVIEW", "CAN_FREEZE_RELEASE", "CAN_PUBLISH", "CAN_ASSIGN_LEARNING",
+        "CAN_REVIEW_QUESTION_HEALTH", "CAN_REVIEW_INTEGRITY", "CAN_QUICK_ASSESSMENT"];
+      const kemampuan = (peran: string) => {
+        const m = new RegExp(`when '${peran}' then array\\[([^\\]]*)\\]`).exec(badan);
+        return new Set([...(m?.[1] ?? "").matchAll(/'([A-Z_]+)'/g)].map((x) => x[1]).filter((k) => STUDIO.includes(k)));
+      };
+      // 2. the canon's table (src/lib/studio-tab.ts cites each row)
+      const HARAP: Record<string, string[]> = {
+        SYSTEM_ADMIN: [...TAB_STUDIO],
+        INSTITUTION_ADMIN: [...TAB_STUDIO],
+        HEAD_OF_DEPARTMENT: ["beranda", "unggah", "tinjau", "kanonik", "bank", "integritas"],
+        EDUCATOR: ["beranda", "unggah", "kanonik"],
+        DEAN: [],
+        STUDENT: [],
+      };
+      for (const [peran, tab] of Object.entries(HARAP)) {
+        const dapat = tabStudio(kemampuan(peran), [peran]);
+        c.expect(JSON.stringify(dapat) === JSON.stringify(tab), `${peran} is shown ${JSON.stringify(dapat)}, not ${JSON.stringify(tab)}`);
+      }
+      c.expect(operatorPintar(["SYSTEM_ADMIN"]) && !operatorPintar(["INSTITUTION_ADMIN", "HEAD_OF_DEPARTMENT"]) && !operatorPintar(null),
+        "the operator's parts are not Admin platform's alone");
+      // 3. the layout draws the tabs from the table, and Studio's own launcher and certificate layout are gone
+      const layout = baca("src/app/studio/layout.tsx");
+      c.expect(/const nav = tabStudio\(new Set\(institutions\.flatMap\(\(i\) => i\.capabilities\)\), peran \?\? \[\]\)\.map\(\(t\) => TAB\[t\]\);/.test(layout),
+        "Studio's layout does not draw its tabs from the role table");
+      c.expect(!/\/studio\/(?:kuis|sertifikat)\b/.test(layout), "Studio still offers its own Uji Cepat launcher or the certificate layout");
+      for (const hilang of ["src/app/studio/kuis/page.tsx", "src/app/studio/sertifikat/page.tsx"]) {
+        c.expect(baca(hilang) === "", `${hilang} still exists (D-127 Q4, CR-06)`);
+      }
+      const aksi = baca("src/app/studio/actions.ts");
+      c.expect(!/rpc\("launch_quick_assessment"|rpc\("save_certificate_template"/.test(aksi),
+        "a Studio action still launches an Uji Cepat or saves a certificate layout");
+      // 4. a tab's page sends a person it is not for to Studio's home
+      for (const t of TAB_STUDIO.filter((x) => x !== "beranda")) {
+        const halaman = baca(`src/app/studio/${t}/page.tsx`);
+        c.expect(new RegExp(`if \\(!\\(await tabSaya\\(\\)\\)\\.includes\\("${t}"\\)\\) redirect\\("/studio"\\);`).test(halaman),
+          `/studio/${t} does not send a person it is not for to Studio's home`);
+      }
+      return c.verdict(`from ${berkas}: Admin platform and Admin sekolah see all seven Studio tabs, the Kepala departemen all but `
+        + "Aturan Penilaian, the Guru Beranda, Buat Paket and Pustaka PINTAR, the Dekan and the student none; the operator's parts "
+        + "are Admin platform's alone; the layout draws the tabs from that table; Studio's own Uji Cepat launcher and certificate "
+        + "layout are gone, page, tab and action; each tab's page sends a person it is not for to Studio's home (CR-87, CR-84)");
+    },
+  },
+  {
+    id: "PENUTUPAN-J01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const halaman = readFileSync(join(ctx.repoRoot, "src", "app", "studio", "unggah", "page.tsx"), "utf8");
+      const aksi = readFileSync(join(ctx.repoRoot, "src", "app", "studio", "actions.ts"), "utf8");
+      const i = halaman.indexOf("{adminPlatform === true ? (");
+      const j = halaman.indexOf('<details className="grid gap-4" id="sistem-lain"');
+      const k = halaman.indexOf(") : null}", j);
+      c.expect(i >= 0 && j > i && k > halaman.indexOf("</details>", j) && halaman.indexOf("</details>", j) > j,
+        "the JSON forms are not drawn for the platform operator alone");
+      c.expect(/if \(paket\.asal === "JSON" && !\(await isSystemAdmin\(\)\)\) return \{ ok: false, code: "PACKAGE_NOT_ALLOWED" \};/.test(aksi)
+        && aksi.indexOf('paket.asal === "JSON"') < aksi.indexOf('.from("ingest_batches")'),
+        "a JSON package from someone other than the platform operator still reaches the database");
+      return c.verdict("Buat Paket draws the two JSON forms for Admin platform alone, and a JSON package from anyone else is refused "
+        + "PACKAGE_NOT_ALLOWED before any batch is written; the workbook stays every drafter's (CR-87, D-127 Q7)");
+    },
+  },
+  {
+    id: "PENUTUPAN-P01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const h = readFileSync(join(ctx.repoRoot, "src", "app", "studio", "kanonik", "page.tsx"), "utf8")
+        .replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+      c.expect(/const mayGrant = isSys === true;/.test(h), "the grant form is not Admin platform's alone");
+      c.expect(!/placeholder="id|id sekolah|id izin|\.slice\(0, 8\)/.test(h), "the grant form still asks for an id or shows an id fragment");
+      c.expect(/<select className=\{field\} name="release"[\s\S]*?paketPustaka\.map/.test(h)
+        && /<select className=\{field\} name="institution"[\s\S]*?sekolahTujuan\.map/.test(h)
+        && /<select className=\{field\} name="distribusi"[\s\S]*?izinBerlaku\.map/.test(h),
+        "the package, the school and the grant to withdraw are not chosen by name");
+      c.expect(/from\("release_distributions"\)\.select\("id, plp_release_id, institution_id"\)\.eq\("status", "ACTIVE"\)/.test(h)
+        && /tenant_kind === "PLATFORM_CANONICAL"/.test(h) && /tenant_kind === "INSTITUTION"/.test(h),
+        "the choices are not the library's published packages, the schools and the open grants");
+      return c.verdict("Pustaka PINTAR's grant and withdrawal are drawn for Admin platform alone; the library's published package, "
+        + "the school and the open grant to withdraw are each chosen by name from a read made for the form, and no field asks "
+        + "for an id (CR-87 (4), FD-8)");
+    },
+  },
+  {
+    id: "PENUTUPAN-I01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const h = readFileSync(join(ctx.repoRoot, "src", "app", "studio", "integritas", "page.tsx"), "utf8");
+      c.expect(/rpc\("integrity_signals_awaiting_review"\)/.test(h) && !/from\("integrity_signals"\)/.test(h),
+        "Tinjauan Integritas does not read the waiting list");
+      c.expect(/\.\.\.\(group\[0\]\.may_refer \? \["REFERRED_TO_INSTITUTION"\] : \[\]\)/.test(h),
+        "«Diteruskan ke pihak sekolah» is offered where the server refuses it");
+      c.expect(/bySession\.size === 0 \? \(\s*<p className=\{card\}>\{s\("studio\.integritas\.kosong"\)\}<\/p>/.test(h),
+        "the empty sentence is not drawn from the waiting list");
+      return c.verdict("Tinjauan Integritas lists integrity_signals_awaiting_review (a reviewed sitting leaves it), says «Tidak ada "
+        + "catatan yang menunggu tinjauan» exactly when it is empty, and offers «Diteruskan ke pihak sekolah» only where the read "
+        + "says the server accepts it (FD-7; the database's half is F21-I01)");
+    },
+  },
+  {
+    id: "PENUTUPAN-F01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const h = readFileSync(join(ctx.repoRoot, "src", "app", "studio", "definisi", "page.tsx"), "utf8");
+      const aksi = readFileSync(join(ctx.repoRoot, "src", "app", "studio", "actions.ts"), "utf8");
+      c.expect(/const draf = \(courses \?\? \[\]\)\.filter\(\(c\) => c\.status === "INGESTED"\);/.test(h) && /\{draf\.map\(\(c\) =>/.test(h),
+        "Aturan Penilaian offers chapters that are no longer being drafted");
+      c.expect(!/name="institution"/.test(h), "Aturan Penilaian still asks for a school apart from the chapter");
+      c.expect(!/name="kelulusan"/.test(h), "Aturan Penilaian still asks for a passing rule no verdict reads");
+      c.expect(/const MODE_SIKLUS = \["PRE_TEST", "POST_TEST"\];/.test(h) && /filter\(\(b\) => MODE_SIKLUS\.includes\(b\.mode\)\)/.test(h),
+        "Aturan Penilaian offers modes the learning cycle never reads");
+      c.expect(/\{bab\?\.status === "INGESTED" \? \(\s*<form action=\{saveDefinitionAction\}/.test(h),
+        "a saved rule can be changed after its chapter has moved on");
+      c.expect(/const \{ data: bab \} = await supabase\.from\("courses"\)\.select\("institution_id"\)\.eq\("id", course\)\.maybeSingle\(\);/.test(aksi)
+        && /put\("institution_id", bab\.institution_id\);/.test(aksi), "the rule's school is not the chapter's own");
+      c.expect(/\.or\(`course_id\.eq\.\$\{course\}\$\{moduleIds\.length \? `,module_id\.in\.\(\$\{moduleIds\.join\(","\)\}\)` : ""\}`\)/.test(aksi)
+        && /\.eq\("is_ad_hoc", false\)\.eq\("status", \(bab\?\.status as string \| undefined\) \?\? ""\)/.test(aksi),
+        "Studio's step does not move the chapter's rules, its modules' among them, standing where the chapter stands");
+      c.expect(/ditolak\("save_assessment_definition", error, kodeGalatKonten\(error\)\)/.test(aksi)
+        && kodeGalatKonten({ code: "P0001", message: "a rule is set while its chapter is still being drafted; this chapter is APPROVED" }) === "CONTENT_CREATED_NOT_INGESTED",
+        "a late rule's refusal is not named");
+      c.expect(/unggah|Unggah/.test(t(kunciKode("CONTENT_CREATED_NOT_INGESTED"), "staff", { locale: "id" })),
+        "the late rule's sentence does not name the next action, an upload");
+      return c.verdict("Aturan Penilaian offers only chapters still being drafted, with the school the chapter's own, in the two "
+        + "modes the learning cycle reads, and no passing rule; a saved rule is changed only while its chapter is a draft; "
+        + "Studio's step moves the chapter's rules, its modules' among them, standing where the chapter stands; a late rule's "
+        + "refusal is named, its sentence the upload that starts the chapter's correction (FD-9, D-127 Q8; the database's half "
+        + "is F21-R01)");
+    },
+  },
+  {
+    id: "PENUTUPAN-V01",
+    run: async (ctx) => {
+      const c = new Checks();
+      // 1. the rule, driven: kept for one press, put back for the same person into the same form, never a file or a secret
+      const bentuk = (sinyal: string): Bidang[] => [
+        { name: "sinyal", type: "hidden", value: sinyal },
+        { name: "keputusan", type: "select-one", value: "NO_CONCERN" },
+        { name: "catatan", type: "text", value: "" },
+        { name: "jeda", type: "checkbox", value: "on", checked: false },
+        { name: "berkas", type: "file", value: "C:\\fakepath\\a.xlsx" },
+        { name: "sandi", type: "password", value: "rahasia" },
+      ];
+      const kirim = bentuk("S1");
+      kirim[1].value = "DISCUSSED_WITH_LEARNER"; kirim[2].value = "Sudah dibicarakan."; kirim[3].checked = true;
+      const isian = bacaIsian(JSON.stringify(isianDari(kirim, "P1")));
+      c.expect(isian !== null && !("berkas" in isian.nilai) && !("sandi" in isian.nilai), "a file or a secret is kept");
+      const baru = bentuk("S1");
+      c.expect(pulihkanIsian(baru, isian, "P1") === 3 && baru[1].value === "DISCUSSED_WITH_LEARNER" && baru[2].value === "Sudah dibicarakan."
+        && baru[3].checked === true && baru[0].value === "S1", "what was sent is not put back into the same form");
+      const lain = bentuk("S1");
+      c.expect(pulihkanIsian(lain, isian, "P2") === 0 && lain[2].value === "", "another person is given what was sent");
+      const itemLain = bentuk("S2");
+      c.expect(pulihkanIsian(itemLain, isian, "P1") === 0 && itemLain[2].value === "", "another item's form is given what was sent");
+      c.expect(bacaIsian("{\"pemilik\":1}") === null && bacaIsian("bukan json") === null, "a malformed stored value is read");
+      // 2. every Studio form a person types into or chooses in keeps it, bound to its own result line
+      const semua: string[] = [];
+      const jalan = (d: string) => {
+        for (const e of readdirSync(join(ctx.repoRoot, d), { withFileTypes: true })) {
+          const p = `${d}/${e.name}`;
+          if (e.isDirectory()) jalan(p); else if (e.name === "page.tsx") semua.push(p);
+        }
+      };
+      jalan("src/app/studio");
+      let n = 0;
+      for (const f of semua) {
+        const src = readFileSync(join(ctx.repoRoot, f), "utf8");
+        for (const m of src.matchAll(/<form action=\{(\w+)\}([^>]*)>([\s\S]*?)<\/form>/g)) {
+          const isi = m[3].replace(/<input[^>]*type="hidden"[^>]*\/>/g, "");
+          if (!/<(?:input|select|textarea)\b/.test(isi)) continue;
+          n++;
+          const id = /\bid=(\{`[^`]+`\}|"[^"]+")/.exec(m[2])?.[1];
+          c.expect(!!id, `${f}: the ${m[1]} form has no id to keep what was sent`);
+          if (!id) continue;
+          const nama = id.startsWith('"') ? id : id;
+          c.expect(src.includes(`<SimpanIsian form=${nama} ditolak={`), `${f}: the ${m[1]} form ${nama} does not keep what was sent`);
+        }
+      }
+      c.expect(n >= 9, `only ${n} Studio form(s) with a field found`);
+      const komponen = readFileSync(join(ctx.repoRoot, "src", "components", "SimpanIsian.tsx"), "utf8");
+      c.expect(/window\.sessionStorage\.removeItem\(kunci\)/.test(komponen) && /if \(ditolak\) pulihkanIsian\(/.test(komponen)
+        && !/localStorage|document\.cookie|fetch\(/.test(komponen), "what was sent is not kept for one press in the tab alone");
+      return c.verdict(`each of the ${n} Studio forms a person types into or chooses in keeps what was sent for one press in the tab's `
+        + "own session storage (never the address, a cookie or the server) and, when its page says that submission was refused, puts "
+        + "it back for the same person into the same form; a file or a secret is never kept, another person or another item's form "
+        + "is given nothing, and a malformed stored value is ignored (CR-84 (3))");
     },
   },
 ];

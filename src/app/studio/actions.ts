@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
+import { isSystemAdmin } from "@/lib/auth";
 import { BATAS, bacaBukuKerja } from "@/lib/xlsx";
 import {
   bukuKerjaKePaket, kodeGalatPaket,
@@ -83,7 +84,10 @@ export async function advanceContentAction(fd: FormData): Promise<void> {
   const itemCount = (itemRows ?? []).length;
 
   // The reviewer of record is the caller; the database refuses anything else.
-  const { data: me } = await supabase.rpc("current_person_id");
+  const [{ data: me }, { data: bab }] = await Promise.all([
+    supabase.rpc("current_person_id"),
+    supabase.from("courses").select("status").eq("id", course).maybeSingle(),
+  ]);
   const patch: Record<string, unknown> = { status: to };
   if (to === "APPROVED") patch.reviewed_by_person_id = me;
 
@@ -96,10 +100,15 @@ export async function advanceContentAction(fd: FormData): Promise<void> {
     ["assessment_definitions", "course_id", [course], -1],
   ] as const) {
     if (ids.length === 0) continue;
-    const q = supabase.from(table).update(patch).in(column, ids as string[]);
-    const { data, error } = table === "assessment_definitions"
-      ? await q.eq("is_ad_hoc", false).select("id")
-      : await q.select("id");
+    // FD-9 (D-127 Q8): the chapter's rules move with it, its modules' rules among them, but only those standing where
+    // the chapter stands: a rule saved once the chapter had moved on (before L2) stays behind as a draft instead of
+    // making the chapter's own step illegal
+    const q = table === "assessment_definitions"
+      ? supabase.from(table).update(patch)
+          .or(`course_id.eq.${course}${moduleIds.length ? `,module_id.in.(${moduleIds.join(",")})` : ""}`)
+          .eq("is_ad_hoc", false).eq("status", (bab?.status as string | undefined) ?? "")
+      : supabase.from(table).update(patch).in(column, ids as string[]);
+    const { data, error } = await q.select("id");
     // BOB-07: the content step's refusal, named (DAISY-06's step list shows it)
     if (error) back(`/studio/paket/${course}`, "paket", ditolak(`${table} status`, error, kodeGalatKonten(error)));
     if (expected >= 0 && (data ?? []).length !== expected) {
@@ -336,6 +345,8 @@ async function siapkan(fd: FormData, kind: Asal): Promise<HasilPaket> {
   if (str(fd, "revisi") && !revisi) return { ok: false, code: "PACKAGE_INPUT_INVALID" };
   const paket = await paketDari(fd);
   if (!paket.ok) return { ok: false, code: paket.code, problems: paket.problems };
+  // CR-87 (D-127 Q7): the JSON package is the platform operator's alone; a school's people send the workbook
+  if (paket.asal === "JSON" && !(await isSystemAdmin())) return { ok: false, code: "PACKAGE_NOT_ALLOWED" };
   const supabase = await supabaseServer();
   const { data: batch, error } = await supabase
     .from("ingest_batches")
@@ -427,8 +438,15 @@ export async function saveDefinitionAction(fd: FormData): Promise<void> {
   const existing = uuidOrNull(str(fd, "definisi"));
   const payload: Record<string, unknown> = {};
   const put = (k: string, v: unknown) => { if (v !== null && v !== "" && v !== undefined) payload[k] = v; };
-  put("institution_id", uuidOrNull(str(fd, "institution")));
-  put("course_id", uuidOrNull(str(fd, "course")));
+  // CR-84 (4): the school is the chapter's own, never a second choice that could disagree with it (INV-13)
+  const course = uuidOrNull(str(fd, "course"));
+  if (!existing && !course) back("/studio/definisi", "definisi", KURANG);
+  if (course) {
+    const { data: bab } = await supabase.from("courses").select("institution_id").eq("id", course).maybeSingle();
+    if (!bab) back("/studio/definisi", "definisi", TIDAK_DIKENALI);
+    put("institution_id", bab.institution_id);
+  }
+  put("course_id", course);
   put("module_id", uuidOrNull(str(fd, "module")));
   put("title", str(fd, "judul"));
   put("mode", str(fd, "mode"));
@@ -443,15 +461,15 @@ export async function saveDefinitionAction(fd: FormData): Promise<void> {
   payload.offline_tolerant = str(fd, "luring") === "on";
   const mix = str(fd, "komposisi");
   if (mix) { try { payload.difficulty_mix = JSON.parse(mix); } catch { /* refused below by the server */ } }
-  const rules = str(fd, "kelulusan");
-  if (rules) { try { payload.passing_rules = JSON.parse(rules); } catch { /* refused below by the server */ } }
+  // FD-9: no passing rule is taken here; a definition's passing rule is no longer read for a verdict, the school's
+  // own pass mark is (20261102100000; D-081, D-088(b))
 
   const { data, error } = await supabase.rpc("save_assessment_definition", {
     p_definition: existing, p_payload: payload,
   });
   const row = Array.isArray(data) ? data[0] : data;
   back("/studio/definisi", "definisi", error
-    ? ditolak("save_assessment_definition", error)
+    ? ditolak("save_assessment_definition", error, kodeGalatKonten(error))
     : { ok: true, kode: row?.created_new_version ? "DEFINITION_NEW_VERSION" : "DEFINITION_KEPT" });
 }
 
@@ -475,39 +493,8 @@ export async function recordQuestionHealthReviewAction(fd: FormData): Promise<vo
   back("/studio/bank", "kesehatan", error ? ditolak("record_question_health_review", error) : { ok: true, kode: "REVIEW_RECORDED" });
 }
 
-export async function saveCertificateTemplateAction(fd: FormData): Promise<void> {
-  const institution = uuidOrNull(str(fd, "institution"));
-  if (!institution) back("/studio/sertifikat", "sertifikat", { ok: false, kode: "SCHOOL_REQUIRED" });
-  const supabase = await supabaseServer();
-  const { error } = await supabase.rpc("save_certificate_template", {
-    p_institution: institution,
-    p_course: uuidOrNull(str(fd, "course")),
-    p_module: uuidOrNull(str(fd, "module")),
-    p_layout: str(fd, "tata_letak"),
-  });
-  back("/studio/sertifikat", "sertifikat", error ? ditolak("save_certificate_template", error) : { ok: true, kode: "CERTIFICATE_SAVED" });
-}
-
-// ------------------------------------------------------------ quick assessment
-
-/**
- * One action, one RPC (ADR-0018). Every authority question — may this person
- * quick-assess this class, is this chapter theirs or authorized to them, does
- * the paper resolve to one content owner, are there enough drawable questions
- * — is the database's, asked inside `launch_quick_assessment` as the signed-in
- * user. Nothing is pre-decided here, and the refusal a teacher reads is the
- * database's own sentence.
- */
-export async function launchQuickAssessmentAction(fd: FormData): Promise<void> {
-  const node = uuidOrNull(str(fd, "kelas"));
-  const modul = uuidOrNull(str(fd, "modul"));
-  const items = num(fd, "jumlah");
-  const minutes = num(fd, "menit");
-  if (!node || !modul) back("/studio/kuis", "kuis", TIDAK_DIKENALI);
-
-  const supabase = await supabaseServer();
-  const { error } = await supabase.rpc("launch_quick_assessment", {
-    p_node: node, p_module: modul, p_item_count: items, p_minutes: minutes,
-  });
-  back("/studio/kuis", "kuis", error ? ditolak("launch_quick_assessment", error) : { ok: true, kode: "QUICK_CHECK_LAUNCHED" });
-}
+// CR-84 (D-127 Q4): Studio's own Uji Cepat launcher and its certificate layout picker left the human UI with their
+// pages. The one human Uji Cepat journey is the class's own (/mengajar/[kelas]/uji-cepat, D-085 T2), which launches
+// through launch_selected_quick_assessment and so through launch_quick_assessment, kept with its proofs. The
+// certificate is the one frozen design (CR-06, D-073(b)), and its number the holder's own (D-120 Q1): Studio had
+// nothing left to set there; save_certificate_template stays in the database.

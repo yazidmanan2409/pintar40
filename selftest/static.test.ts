@@ -1101,46 +1101,50 @@ export const staticTests: SelfTest[] = [
     id: "QAC-S01",
     requires: [],
     run: async ({ repoRoot }) => {
-      // ADR-0018 §5: the Quick Assessment affordance offers an authorized
-      // canonical chapter, and its copy never names a tenant kind or a
-      // distribution status AS SUCH. A teacher is told what they may teach,
-      // not which enum value made it so.
+      // ADR-0018 §5, RESTATED FOR D-127 Q4 (CR-84, a changed requirement): there is one human Uji Cepat journey, the
+      // class's own (D-085 T2: choose → select → review → launch). Studio's own launcher has left the human UI; the
+      // launch function and its automated proofs stay. What ADR-0018 §5 asked of the surface now holds of that one: it
+      // offers authorized canonical chapters through the named accessors, and its copy names no tenant kind or
+      // distribution status AS SUCH.
       const c = new Checks();
-      const page = join(repoRoot, "src", "app", "studio", "kuis", "page.tsx");
-      c.expect(existsSync(page), "the Quick Assessment surface is missing");
-      const text = readFileSync(page, "utf8");
-      const actions = readFileSync(join(repoRoot, "src", "app", "studio", "actions.ts"), "utf8");
+      const baca = (...p: string[]) => { try { return readFileSync(join(repoRoot, ...p), "utf8"); } catch { return ""; } };
+      c.expect(!existsSync(join(repoRoot, "src", "app", "studio", "kuis")), "Studio's own Uji Cepat launcher is still a page");
+      c.expect(!/\/studio\/kuis/.test(baca("src", "app", "studio", "layout.tsx")), "Studio still offers its own Uji Cepat tab");
+      c.expect(!/rpc\("launch_quick_assessment"/.test(baca("src", "app", "studio", "actions.ts")), "a Studio action still launches an Uji Cepat");
 
-      // it really offers the canonical source, through the accessors rather
-      // than by reading another tenant's tables directly
-      c.expect(/distributed_releases/.test(text), "the surface offers no canonical chapter at all");
-      c.expect(/distributed_release_outline/.test(text),
-        "the canonical chapters are not read through the named accessor");
+      // the launch function stays, and the class's journey reaches it
+      const dir = join(repoRoot, "supabase", "migrations");
+      const mig = readdirSync(dir).filter((f) => f.endsWith(".sql")).sort();
+      const terakhir = (pola: RegExp) => mig.filter((f) => pola.test(readFileSync(join(dir, f), "utf8"))).pop() ?? "";
+      c.expect(terakhir(/create (?:or replace )?function public\.launch_quick_assessment\(/i) !== "", "launch_quick_assessment is gone");
+      const pilih = terakhir(/create (?:or replace )?function public\.launch_selected_quick_assessment\(/i);
+      c.expect(pilih !== "" && /public\.launch_quick_assessment\(/.test(readFileSync(join(dir, pilih), "utf8")),
+        "the class's Uji Cepat does not launch through launch_quick_assessment");
+      const aksiKelas = baca("src", "app", "mengajar", "actions.ts");
+      c.expect(/rpc\("launch_selected_quick_assessment"/.test(aksiKelas), "the class's Uji Cepat is not launched from its own page");
 
-      // the launch is one RPC call and re-decides nothing
-      c.expect(/launch_quick_assessment/.test(actions), "no action calls the launcher");
-      c.expect(!/@\/lib\/supabase\/service/.test(text), "the surface holds a privileged client");
+      // the class's page offers the authorized chapters through the named accessors, never another tenant's tables
+      const pengajar = baca("src", "lib", "pengajar.ts");
+      const halaman = baca("src", "app", "mengajar", "[kelas]", "uji-cepat", "page.tsx");
+      c.expect(/rpc\("distributed_releases"\)/.test(pengajar) && /rpc\("distributed_release_outline"/.test(pengajar),
+        "the canonical chapters are not read through the named accessors");
+      c.expect(/rpc\("quick_assessment_choices"/.test(pengajar), "the chapter's questions are not read through their own accessor");
+      c.expect(!/@\/lib\/supabase\/service/.test(halaman), "the surface holds a privileged client");
 
-      // no internal vocabulary in the copy this page renders
-      const hle = readFileSync(join(repoRoot, "src", "lib", "hle.ts"), "utf8");
-      const kuisCopy = [...hle.matchAll(/"studio\.(?:kuis|nav\.kuis)[^"]*":\s*\{[^}]*default:\s*"([^"]*)"/g)]
-        .map((m) => m[1]);
-      c.expect(kuisCopy.length >= 10, `only ${kuisCopy.length} Quick Assessment copy strings found`);
+      // and no internal vocabulary in the copy the class's Uji Cepat renders
+      const hle = baca("src", "lib", "hle.ts");
+      const salinan = [...hle.matchAll(/"mengajar\.cepat\.[^"]*":\s*\{[^}]*default:\s*"([^"]*)"/g)].map((m) => m[1]);
+      c.expect(salinan.length >= 10, `only ${salinan.length} Uji Cepat copy strings found`);
       const INTERNAL = /(PLATFORM_CANONICAL|INSTITUTION\b|tenant|ACTIVE|WITHDRAWN|distribusi|distribution|is_ad_hoc|ad.hoc|release|plp_)/i;
-      for (const line of kuisCopy) {
+      for (const line of salinan) {
         const m = INTERNAL.exec(line);
-        c.expect(m === null, `Quick Assessment copy names an internal concept: "${line}" (${m?.[0]})`);
+        c.expect(m === null, `Uji Cepat copy names an internal concept: "${line}" (${m?.[0]})`);
       }
-
-      // and the keys the page renders are declared staff-only, like the rest
-      // of Studio
-      const used = [...text.matchAll(/s\("(studio\.[a-zA-Z0-9_.]+)"\)/g)].map((m) => m[1]);
-      c.expect(used.length >= 8, `only ${used.length} copy keys rendered by the surface`);
-      for (const k of used) {
-        c.expect(hle.includes(`"${k}"`), `the surface renders an undeclared copy key: ${k}`);
-      }
-      c.note(`${kuisCopy.length} copy strings, ${used.length} keys rendered`);
-      return c.verdict("the Quick Assessment surface offers authorized canonical chapters through the named accessors and names no tenant kind, distribution status or internal flag in its copy");
+      c.note(`${salinan.length} copy strings of the class's Uji Cepat`);
+      return c.verdict("Studio's own Uji Cepat launcher has left the human UI (no page, tab or action) and launch_quick_assessment stays; "
+        + "the class's Uji Cepat, the one human journey, launches through launch_selected_quick_assessment, which calls it; its page "
+        + "offers authorized canonical chapters through the named accessors and names no tenant kind, distribution status or "
+        + "internal flag in its copy (D-127 Q4, ADR-0018 §5)");
     },
   },
   {

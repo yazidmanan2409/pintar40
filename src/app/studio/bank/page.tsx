@@ -1,9 +1,12 @@
+import { redirect } from "next/navigation";
 import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
-import { button, card, field, label, outcomeLine, s, short, studioInstitutions } from "../_lib";
+import { currentViewer } from "@/lib/auth";
+import { button, card, field, label, outcomeLine, s, short, studioInstitutions, tabSaya } from "../_lib";
 import { recordQuestionHealthReviewAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
+import SimpanIsian from "@/components/SimpanIsian";
 import { TeksBaris } from "@/components/teks/Teks";
 import { pilihanTinjauan, SEDANG_DITINJAU } from "@/lib/kesehatan-soal";
 
@@ -38,8 +41,13 @@ const LABEL_TINJAUAN = {
 type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
 export default async function Bank({ searchParams }: { searchParams: Search }) {
+  // CR-87: a tab not this person's sends them to Studio's home (src/lib/studio-tab.ts); the database still decides
+  if (!(await tabSaya()).includes("bank")) redirect("/studio");
   const sp = await searchParams;
   const supabase = await supabaseServer();
+  // CR-84 (3): what a refused form sent comes back to it, for the same person only (src/lib/isian.ts)
+  const pemilik = (await currentViewer())?.personId ?? "";
+  const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
   const institutions = await studioInstitutions();
   const mayReview = institutions.filter((i) => i.capabilities.includes("CAN_REVIEW_QUESTION_HEALTH"));
 
@@ -98,7 +106,7 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
                   </p>
                 ) : null}
                 {pilihan.length > 0 && mayReview.some((m) => m.id === i.institution_id) ? (
-                  <form action={recordQuestionHealthReviewAction} className="mt-3 flex flex-wrap items-end gap-2">
+                  <form action={recordQuestionHealthReviewAction} id={`kesehatan-${i.id}`} className="mt-3 flex flex-wrap items-end gap-2">
                     <input type="hidden" name="soal" value={i.id} />
                     <label className={label}>
                       <span>{s("studio.bank.kesehatan")}</span>
@@ -112,6 +120,8 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
                     <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.integritas.catat")}</TombolKirim>
                   </form>
                 ) : null}
+                {pilihan.length > 0 && mayReview.some((m) => m.id === i.institution_id)
+                  ? <SimpanIsian form={`kesehatan-${i.id}`} ditolak={ditolak("kesehatan")} pemilik={pemilik} /> : null}
               </li>
             );
           })}

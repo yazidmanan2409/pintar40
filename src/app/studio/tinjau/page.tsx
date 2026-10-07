@@ -1,6 +1,7 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
-import { card, s, studioInstitutions, when } from "../_lib";
+import { card, s, studioInstitutions, when, tabSaya } from "../_lib";
 
 /**
  * Review queue (§4). A reviewer never sees an "approve" affordance for their
@@ -10,6 +11,8 @@ import { card, s, studioInstitutions, when } from "../_lib";
  * on the page or not.
  */
 export default async function Tinjau() {
+  // CR-87: a tab not this person's sends them to Studio's home (src/lib/studio-tab.ts); the database still decides
+  if (!(await tabSaya()).includes("tinjau")) redirect("/studio");
   const supabase = await supabaseServer();
   const institutions = await studioInstitutions();
   const byId = new Map(institutions.map((i) => [i.id, i.name]));

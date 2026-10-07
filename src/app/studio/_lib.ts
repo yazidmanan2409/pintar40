@@ -2,6 +2,8 @@ import { cache } from "react";
 import { supabaseServer } from "@/lib/supabase/server";
 import { t, type HleEvent } from "@/lib/hle";
 import { kalimatHasil, type QueryHasil } from "@/lib/galat-kontrak";
+import { peranSaya } from "@/lib/tur-negara";
+import { tabStudio, type TabStudio } from "@/lib/studio-tab";
 
 /**
  * Studio shared helpers (FABLE-05).
@@ -61,6 +63,16 @@ export async function studioInstitutionsDari(c: any): Promise<StudioInstitution[
     .filter((r) => r.capabilities.length > 0)
     .sort((a, b) => a.name.localeCompare(b.name));
 }
+
+/**
+ * CR-87: the Studio tabs this person sees (src/lib/studio-tab.ts), from the same once-per-request capability answer
+ * and roles the layout reads. A page that is not this person's sends them to Studio's home; the database still
+ * decides every action.
+ */
+export const tabSaya = cache(async (): Promise<TabStudio[]> => {
+  const [institutions, peran] = await Promise.all([studioInstitutions(), peranSaya()]);
+  return tabStudio(new Set(institutions.flatMap((i) => i.capabilities)), peran ?? []);
+});
 
 export function can(inst: StudioInstitution | undefined, capability: string): boolean {
   return inst?.capabilities.includes(capability) ?? false;

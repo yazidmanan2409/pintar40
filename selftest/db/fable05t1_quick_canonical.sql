@@ -66,14 +66,15 @@ begin
   if v_course is null then
     insert into public.courses (institution_id, subject, stage, grade_label, title)
     values (v_canon, 'Matematika', 'SD', 'Kelas 5', 'QAC dua pemilik') returning id into v_course;
-    -- module 1: canonical content only, for the is_ad_hoc gate
+    -- module 1: canonical content only, for the is_ad_hoc gate. RESTATED FOR FD-5 (D-129(c)): the two Mudah are the
+    -- author's 0.3 (1.1 - the p-value 0.8 they were written as; the higher, the harder)
     insert into public.modules (course_id, institution_id, ordinal, title)
     values (v_course, v_canon, 1, 'modul kanonik') returning id into v_mod;
     insert into public.lessons (module_id, institution_id, ordinal, title, body_markdown)
     values (v_mod, v_canon, 1, 'pelajaran kanonik', 'isi') returning id into v_les;
     insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, predicted_difficulty)
     select v_les, v_canon, 'MCQ_SINGLE', 'PRACTICE', 'soal kanonik ' || g,
-           case when g <= 2 then 0.8 else null end
+           case when g <= 2 then 0.3 else null end
       from generate_series(1, 4) g;
 
     -- module 2: the two-owner condition itself -- the school's own item inside
@@ -84,10 +85,10 @@ begin
     values (v_mod2, v_canon, 1, 'pelajaran campuran', 'isi') returning id into v_les2;
     insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, predicted_difficulty)
     select v_les2, v_canon, 'MCQ_SINGLE', 'PRACTICE', 'soal kanonik campuran ' || g,
-           case when g <= 2 then 0.8 else null end
+           case when g <= 2 then 0.3 else null end
       from generate_series(1, 4) g;
     insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, predicted_difficulty)
-    values (v_les2, p_school, 'MCQ_SINGLE', 'PRACTICE', 'soal sekolah di pelajaran kanonik', 0.8);
+    values (v_les2, p_school, 'MCQ_SINGLE', 'PRACTICE', 'soal sekolah di pelajaran kanonik', 0.3);
 
     perform selftest.as_release_writer();  -- D-041
     insert into public.plp_releases (institution_id, course_id, version_label)
@@ -214,15 +215,17 @@ begin
           'Gambar tangganya lebih dulu, lalu tentukan arahnya sebelum menghitung.')
   on conflict do nothing;
 
-  -- the mix a 3-question quick assessment asks for: two MUDAH, one SEDANG
+  -- the mix a 3-question quick assessment asks for: two MUDAH, one SEDANG. RESTATED FOR FD-5 (D-129(c)): the value is
+  -- the author's difficulty, the higher the harder (Mudah 0.3); written as p-values, each is now 1.1 - its old value,
+  -- which keeps every question in its band (the two MUDAH 0.36 and 0.34, SEDANG 0.55, SULIT 0.75)
   spec := jsonb_build_array(
-    jsonb_build_object('d',0.74,'stem','Berapa cm dalam 3 m?','ans','A',
+    jsonb_build_object('d',0.36,'stem','Berapa cm dalam 3 m?','ans','A',
       'opts',jsonb_build_array('300 cm','30 cm','3.000 cm','0,3 cm')),
-    jsonb_build_object('d',0.76,'stem','Berapa mm dalam 1,5 m?','ans','A',
+    jsonb_build_object('d',0.34,'stem','Berapa mm dalam 1,5 m?','ans','A',
       'opts',jsonb_build_array('1.500 mm','150 mm','15 mm','15.000 mm')),
     jsonb_build_object('d',0.55,'stem','Berapa cm dalam 0,4 km?','ans','B',
       'opts',jsonb_build_array('4.000 cm','40.000 cm','400 cm','400.000 cm')),
-    jsonb_build_object('d',0.35,'stem','Berapa dm dalam 6,5 m?','ans','C',
+    jsonb_build_object('d',0.75,'stem','Berapa dm dalam 6,5 m?','ans','C',
       'opts',jsonb_build_array('6,5 dm','650 dm','65 dm','0,65 dm')));
   for entry in select * from jsonb_array_elements(spec) loop
     insert into public.items (lesson_id, institution_id, item_type, bank_type, stem, petunjuk,

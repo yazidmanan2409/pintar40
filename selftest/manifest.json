@@ -807,7 +807,7 @@
     {
       "id": "QAC-S01",
       "runner": "static",
-      "proves": "ADR-0018 §5: the Quick Assessment surface offers authorized canonical chapters through the named accessors. Inspects the SOURCE of src/app/studio/actions.ts and studio/kuis/page.tsx, and the COPY TABLE in src/lib/hle.ts -- not the rendered page"
+      "proves": "ADR-0018 §5, RESTATED FOR D-127 Q4 (CR-84): Studio's own Uji Cepat launcher has left the human UI (no studio/kuis page, no tab, no action calling launch_quick_assessment) while the launch function stays in the migrations; the one human Uji Cepat journey is the class's own, whose page offers the authorized chapters through the named accessors (distributed_releases, distributed_release_outline via src/lib/pengajar.ts) and launches through launch_selected_quick_assessment, which calls launch_quick_assessment; its copy names no tenant kind or distribution status. Inspects the SOURCE and the COPY TABLE in src/lib/hle.ts -- not the rendered page"
     },
     {
       "id": "QAC-T11",
@@ -2045,6 +2045,11 @@
       "proves": "BOB-32 (UX-03's server half, D-011): every refusal launch_quick_assessment raises, read from the migration that defines it, is read by src/lib/ujicepat-kontrak.ts to its code (QUICK_BANK_TOO_SMALL, QUICK_COUNT_OUT_OF_RANGE, QUICK_MINUTES_OUT_OF_RANGE, QUICK_NOT_ALLOWED, QUICK_NOT_FOUND, else QUICK_FAILED); a reworded refusal fails; the page's reader drops a forged code or reference; and the source of sediakanUjiCepat in src/app/mengajar/actions.ts passes ?cepat=gagal&kode=, with a logged reference only for QUICK_FAILED."
     },
     {
+      "id": "BOB32-K02",
+      "runner": "static",
+      "proves": "CR-84 (D-127; DG-23, DG-31), the source of src/app/studio/actions.ts and the migrations: for every Studio action some page or component submits to, every refusal of every database function it answers through ditolak (and the referral record_integrity_review raises in the same transaction), read from the latest migration defining it, is read by kodeGalat to a named code whose sentence the reader sees, never ACTION_FAILED («Ada kendala» and a reference); the one exception, no scoring policy in force, is the platform's own state and stays on the reference line by name; an unnamed refusal still gets the catch-all."
+    },
+    {
       "id": "F06-P22",
       "runner": "db",
       "proves": "BOB-39 (post-login review #2, D-061), migration 20261024100000 measured in selftest/db/fable06.sql: a Head of Department recording REFERRED_TO_INSTITUTION through record_integrity_review raises, in the same transaction, one AWAITING_REVIEW INTEGRITY_REFERRAL on the signal's class node with the reviewer's note as raised_note, beside the review's audit row, and it is in that Head of Department's decision queue read through RLS as /pimpinan reads it; NO_CONCERN and DISCUSSED_WITH_LEARNER create nothing; a second referral of the open signal is the same decision; a referral of a signal outside the reviewer's department is refused whole, leaving no decision and no review row, while NO_CONCERN there is still recorded; a Head of Department over another department does not see it; a teacher is still refused; advance_management_decision takes it up and decides it. RESTATED FOR CR-76 (W-2, D-123(4), migration 20261205100000): the Head of Department who referred it is refused «Saya yang menangani» and «Catat keputusan» (REFERRER_CANNOT_DECIDE) and told by management_decision_independent_decider that another may decide it, or that nobody else can while no other Management role stands over the class; another department's Head of Department is told nothing; the dean takes it up and decides it; the table refuses a referral decided by its referrer."
@@ -2275,6 +2280,46 @@
       "proves": "CR-86 (D-127 Q6, Q10; DG-37), the source files of src/ and the rendered component KolomRahasia (src/components/KolomRahasia.tsx): no input outside it is a password-type input; the sign-in password and card PIN, activation's password, PIN and both confirmations, the PIN way back, Akun saya's new PIN and its confirmation, and the lock's PIN each ask through it; emailed one-time codes stay plain readable fields; it is masked by default, its reveal a labelled pressed-state toggle naming its own field, re-masked by the person's submit, with no timer; rendered twice in one form it is two masked fields with one toggle each."
     },
     {
+      "id": "PENUTUPAN-D01",
+      "runner": "static",
+      "proves": "FD-5 (D-127 §4, D-129(c)), the half of the author's-difficulty round trip outside the database: a workbook whose author marked three questions Mudah, Sedang and Sulit, written by the template's own writer and read by the upload page's reader, becomes a package carrying 0.3, 0.5 and 0.7; the last migration defining difficulty_band reads at most 0.4 as MUDAH and at least 0.7 as SULIT, and writes no row (no sealed value or hash changes); the teacher's Uji Cepat choice is labelled with the copy table's word for its band, Mudah, Sedang or Sulit. F21-D01 is the database's half."
+    },
+    {
+      "id": "PENUTUPAN-B01",
+      "runner": "static",
+      "proves": "CR-90 (D-129(f)), the source of src/components/PenjagaSesi.tsx: the restored-page listener is registered once, in an effect of its own that neither asks the computer's mode nor returns before it listens, and reloads a page restored from the back-forward cache, so the reload runs on every computer, personal, shared or card. An instrument pin of the invariant L1 landed; CR-90's evidence class stays D-129(d)'s: preventive hardening added, no pre-change browser reproduction obtained."
+    },
+    {
+      "id": "PENUTUPAN-T01",
+      "runner": "static",
+      "proves": "CR-87 (D-127 Q4, Q8; D-129(g)), the source of src/lib/studio-tab.ts, src/app/studio/layout.tsx and each Studio page, and the latest role_capabilities migration: driven from each role's Studio capabilities, Admin platform and Admin sekolah see all seven tabs, the Kepala departemen all but Aturan Penilaian, the Guru Beranda, Buat Paket and Pustaka PINTAR, the Dekan and the student none; the operator's parts are Admin platform's alone; the layout draws its tabs from that table; Studio's own Uji Cepat launcher and certificate layout picker are gone, page, tab and action (CR-84, D-127 Q4, CR-06); each tab's page sends a person it is not for to Studio's home."
+    },
+    {
+      "id": "PENUTUPAN-J01",
+      "runner": "static",
+      "proves": "CR-87 (D-127 Q7), the source of src/app/studio/unggah/page.tsx and src/app/studio/actions.ts: the two JSON package forms are drawn for Admin platform alone, and the action refuses a JSON package from anyone else (PACKAGE_NOT_ALLOWED) before any ingest batch is written; the workbook stays every drafter's."
+    },
+    {
+      "id": "PENUTUPAN-P01",
+      "runner": "static",
+      "proves": "CR-87 (4), FD-8 (DG-34), the source of src/app/studio/kanonik/page.tsx: Pustaka PINTAR's grant and withdrawal are drawn for Admin platform alone; the library's published package, the school and the open grant to withdraw are each chosen by name from a read made for the form, and no field asks for an id or shows an id fragment."
+    },
+    {
+      "id": "PENUTUPAN-I01",
+      "runner": "static",
+      "proves": "FD-7 (DG-32), the source of src/app/studio/integritas/page.tsx: Tinjauan Integritas lists integrity_signals_awaiting_review (a reviewed sitting leaves it), draws «Tidak ada catatan yang menunggu tinjauan» exactly when that list is empty, and offers «Diteruskan ke pihak sekolah» only where the read says the server accepts it. F21-I01 is the database's half."
+    },
+    {
+      "id": "PENUTUPAN-F01",
+      "runner": "static",
+      "proves": "FD-9 (D-127 Q8; DG-30), the source of src/app/studio/definisi/page.tsx, src/app/studio/actions.ts and the copy table: Aturan Penilaian offers only chapters still being drafted, takes the school from the chapter (no second choice that could disagree with it), offers the two modes the learning cycle reads and no passing rule; a saved rule is changed only while its chapter is a draft; Studio's step moves the chapter's rules, its modules' among them, only where they stand with the chapter; a late rule's refusal is read to CONTENT_CREATED_NOT_INGESTED, whose sentence names the upload that starts the chapter's correction. F21-R01 is the database's half."
+    },
+    {
+      "id": "PENUTUPAN-V01",
+      "runner": "static",
+      "proves": "CR-84 (3) (DG-24), src/lib/isian.ts driven and the source of every Studio page and src/components/SimpanIsian.tsx: what a form sent is kept for one press in the tab's own session storage, never the address, a cookie or the server, and put back when the page says that submission was refused, for the same person into the same form (its hidden identity unchanged); a file or a secret is never kept, another person or another item's form is given nothing, a malformed stored value is ignored; every Studio form a person types into or chooses in has an id bound to SimpanIsian and its own result line."
+    },
+    {
       "id": "PENUTUPAN-A01",
       "runner": "app",
       "proves": "CR-13 (D-120 QN1, J2.21 without SQL) through the route /api/akun/email of the running app, Auth, the Mailpit sink and the audit log: a staff member provisioned at a wrong address whose inbox opened the set-up with a code; the platform admin's correction with no reason is ALASAN_WAJIB, with one it answers sudahAktif false, the wrong inbox's set-up stops, and the person activates at the corrected address; a second person's unused code sent to a wrong address opens the account at neither address after the correction; after activation a teacher is refused (DITOLAK), the platform admin's correction answers sudahAktif true, the same password signs in at the new address only, the old and the new address each receive one notice carrying no address, and both corrections are audited with their branch and addresses.",
@@ -2384,7 +2429,7 @@
         "network"
       ],
       "skip_justification": "needs the running application and the Supabase project: it signs in as Alpha's school administrator and the platform administrator and reads the rendered /studio/unggah against the seed. CI has both facilities, so it never skips there",
-      "proves": "DAISY-06 over real HTTP against the seeded database (audit S14). The RENDERED html of /studio/unggah, for Alpha's school administrator and for the platform administrator, opens with the workbook section before the JSON forms and without a refusal: the template download, the three named steps with exactly one current, and exactly one file input in the first step, which accepts .xlsx. Its Sekolah picker offers at least one school and starts on a real one -- Sekolah Sintetis Alpha for Alpha's administrator, never 'PINTAR Kurikulum Nasional' -- and no school picker anywhere on Alpha's administrator's page offers the national library, while the platform administrator's offers it exactly once, as the picker's last option (RESTATED for CR-51, D-120 Q7). Read only."
+      "proves": "DAISY-06 over real HTTP against the seeded database (audit S14). The RENDERED html of /studio/unggah, for Alpha's school administrator and for the platform administrator, opens with the workbook section before the JSON forms and without a refusal: the template download, the three named steps with exactly one current, and exactly one file input in the first step, which accepts .xlsx. Its Sekolah picker offers at least one school and starts on a real one -- Sekolah Sintetis Alpha for Alpha's administrator, never 'PINTAR Kurikulum Nasional' -- and no school picker anywhere on Alpha's administrator's page offers the national library, while the platform administrator's offers it exactly once, as the picker's last option (RESTATED for CR-51, D-120 Q7). Read only. RESTATED FOR CR-87 (D-127 Q7): only the platform administrator is drawn the JSON package forms after the workbook; the school administrator's page ends with it."
     },
     {
       "id": "DAISY-09-AKTIVASI-01",
@@ -2529,7 +2574,7 @@
     {
       "id": "POLISH2-STUDIO-01",
       "runner": "static",
-      "proves": "Polish batch 2 (UI/UX POLISHED, D-052), the Studio register rows, read from the SOURCE and the copy table. (1) UX-02: Bank Soal says once, at the top, in both languages, what the page is for and that a question is changed by a corrected workbook in Buat Paket (named by the tab's own word); no «Belum cukup bukti» under every question, no database id shown (the short id stays on each row as data-soal, for the staging journey's school check), no word outside the copy table (today every question reads «Belum cukup bukti…» beside an 8-character id). (2) UX-04: Aturan Penilaian and Sertifikat label their school picker «Sekolah», as Buat Paket does, never «Peran & akses». (3) UX-12: the two JSON forms sit in one closed disclosure below the workbook that opens when one of them has just answered, each with its own checking button (neither says it makes a package), with no server/browser note and no field label outside the copy table. (4) UX-14: the findings section is headed «Temuan» / Findings, the name both steps (Periksa isi, Setujui isi) send the reader to, in each language (today it is headed «Masalah»). (5) UX-16: the form that moves a class's assignment to another release is headed «Pindahkan penugasan ke terbitan lain», its picker «Terbitan tujuan», its button «Pindahkan», and each form names the class it moves"
+      "proves": "Polish batch 2 (UI/UX POLISHED, D-052), the Studio register rows, read from the SOURCE and the copy table. (1) UX-02: Bank Soal says once, at the top, in both languages, what the page is for and that a question is changed by a corrected workbook in Buat Paket (named by the tab's own word); no «Belum cukup bukti» under every question, no database id shown (the short id stays on each row as data-soal, for the staging journey's school check), no word outside the copy table (today every question reads «Belum cukup bukti…» beside an 8-character id). (2) UX-04: a Studio school picker is labelled «Sekolah», as Buat Paket does, never «Peran & akses»; RESTATED FOR CR-84 and FD-9: Sertifikat's picker left with its page and Aturan Penilaian takes the school from its chapter, so Pustaka PINTAR's grant is the picker read, and Aturan Penilaian asks for no school. (3) UX-12: the two JSON forms sit in one closed disclosure below the workbook that opens when one of them has just answered, each with its own checking button (neither says it makes a package), with no server/browser note and no field label outside the copy table. (4) UX-14: the findings section is headed «Temuan» / Findings, the name both steps (Periksa isi, Setujui isi) send the reader to, in each language (today it is headed «Masalah»). (5) UX-16: the form that moves a class's assignment to another release is headed «Pindahkan penugasan ke terbitan lain», its picker «Terbitan tujuan», its button «Pindahkan», and each form names the class it moves"
     },
     {
       "id": "POLISH2-ADMIN-01",
@@ -3047,6 +3092,24 @@
       "id": "F20-K01",
       "runner": "db",
       "proves": "CR-51 (D-120 Q7), measured in selftest/db/fable20.sql: a platform admin imports a chapter into the PINTAR library (PLATFORM_CANONICAL) through the same package import a school uses and is recorded as its author; that admin's approval is refused and their freeze answers RELEASE_SAME_PERSON, so a second platform admin approves and freezes it; the release is published, distributed to a school by grant_release_distribution, and the school's teacher finds it exactly once in distributed_releases. Every school role stays refused at the library (F11-N02, F12-N01).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F21-D01",
+      "runner": "db",
+      "proves": "FD-5 (D-127 §4, D-129(c)), measured in selftest/db/fable21.sql: a chapter whose author marked two questions Mudah, one Sedang and two Sulit is imported through the package path with each question stored exactly as 0.3, 0.5 and 0.7 (no conversion on the way in); difficulty_band reads each as MUDAH, SEDANG and SULIT; published and given to a school, the teacher's Uji Cepat choices (quick_assessment_choices) name each by its author's word; and a paper launched for three questions, which asks for two MUDAH and one SEDANG, draws the author's two Mudah and the Sedang for the learner, never a Sulit.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F21-I01",
+      "runner": "db",
+      "proves": "FD-7 (DG-32), measured in selftest/db/fable21.sql through integrity_signals_awaiting_review: two observations of one sitting in an Alpha class wait for the school admin, each referable, and for a Kepala departemen of another department with no referral offered, which record_integrity_review indeed refuses for her; the sitting's own learner is shown none; once the admin records a review on the sitting both leave the list for every reviewer, the observations themselves unchanged (doc 16); an observation made after the review waits again.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F21-R01",
+      "runner": "db",
+      "proves": "FD-9 (D-127 Q8; DG-30), measured in selftest/db/fable21.sql through save_assessment_definition, Studio's step and the release: a chapter's own Uji Penguasaan rule changed while the chapter is still being drafted is saved as a new version (INV-29) and a draft, moves with the chapter to approval by a second person, and is the released chapter's Uji Penguasaan rule (release_cycle_definition); once the chapter has moved on, a new rule and a new version are each refused by name («a rule is set while its chapter is still being drafted») and nothing is saved.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {

@@ -1,14 +1,17 @@
+import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
+import { currentViewer } from "@/lib/auth";
 import { t } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { BATAS_PAKET } from "@/lib/unggah-kontrak";
 import { tujuanUnggah } from "@/components/sekolah";
 import PanelUnggah from "@/components/unggah/PanelUnggah";
 import { bisaDikoreksi } from "@/lib/pengajar";
-import { button, can, card, field, label, outcomeLine, s, studioInstitutions } from "../_lib";
+import { button, can, card, field, label, outcomeLine, s, studioInstitutions, tabSaya } from "../_lib";
 import { confirmMappingAction, easyUploadAction, structuredImportAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
+import SimpanIsian from "@/components/SimpanIsian";
 
 /**
  * Content Factory (§2). Two paths, both landing at INGESTED and converging on
@@ -40,8 +43,13 @@ import HasilDi from "@/components/HasilDi";
 type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; revisi?: string }>;
 
 export default async function Unggah({ searchParams }: { searchParams: Search }) {
+  // CR-87: a tab not this person's sends them to Studio's home (src/lib/studio-tab.ts); the database still decides
+  if (!(await tabSaya()).includes("unggah")) redirect("/studio");
   const sp = await searchParams;
   const supabase = await supabaseServer();
+  // CR-84 (3): what a refused form sent comes back to it, for the same person only (src/lib/isian.ts)
+  const pemilik = (await currentViewer())?.personId ?? "";
+  const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
   const [boleh, locale, { data: adminPlatform }] = await Promise.all([studioInstitutions(), currentLocale(), supabase.rpc("is_system_admin")]);
   const menyusun = new Set(boleh.filter((i) => can(i, "CAN_DRAFT")).map((i) => i.id));
   const { data: tenant } = menyusun.size
@@ -114,7 +122,9 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
 
       {/* Polish batch 2 (UX-12): the two JSON forms are for packages another
           system produces, so they wait in one closed disclosure below the
-          workbook, each form with its own button. */}
+          workbook, each form with its own button. CR-87 (D-127 Q7): they are the
+          platform operator's alone; a school's people import the workbook. */}
+      {adminPlatform === true ? (
       <details className="grid gap-4" id="sistem-lain" open={sistemLainTerbuka}>
         <summary className="cursor-pointer text-lg font-medium">{s("studio.unggah.json_judul")}</summary>
         <p className="mt-2 text-sm text-ink-2">{s("studio.unggah.json_arti")}</p>
@@ -122,7 +132,7 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
         <section className={`${card} mt-4`} id="mudah">
           <h3 className="font-medium">{s("studio.unggah.mudah")}</h3>
           <p className="mt-1 text-sm text-ink-2">{s("studio.unggah.mudah_penjelasan")}</p>
-          <form action={easyUploadAction} className="mt-3 grid gap-2">
+          <form action={easyUploadAction} id="form-mudah" className="mt-3 grid gap-2">
             {institutionField}
             <label className={label}>
               <span>{s("studio.unggah.isi_json")}</span>
@@ -131,13 +141,14 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
             {bidangSistem}
             <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.unggah.periksa_mudah")}</TombolKirim>
           </form>
+          <SimpanIsian form="form-mudah" ditolak={ditolak("mudah")} pemilik={pemilik} />
           <HasilDi q={sp} bagian="mudah" kalimat={banner} />
         </section>
 
         <section className={`${card} mt-4`} id="terstruktur">
           <h3 className="font-medium">{s("studio.unggah.terstruktur")}</h3>
           <p className="mt-1 text-sm text-ink-2">{s("studio.unggah.terstruktur_penjelasan")}</p>
-          <form action={structuredImportAction} className="mt-3 grid gap-2">
+          <form action={structuredImportAction} id="form-terstruktur" className="mt-3 grid gap-2">
             {institutionField}
             <label className={label}>
               <span>{s("studio.unggah.isi_json")}</span>
@@ -146,9 +157,11 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
             {bidangSistem}
             <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.unggah.periksa_terstruktur")}</TombolKirim>
           </form>
+          <SimpanIsian form="form-terstruktur" ditolak={ditolak("terstruktur")} pemilik={pemilik} />
           <HasilDi q={sp} bagian="terstruktur" kalimat={banner} />
         </section>
       </details>
+      ) : null}
 
       {/* DAISY-18: a workbook that was read, or a mapping confirmed, answers here
           -- drawn whether or not questions are still open below. */}
