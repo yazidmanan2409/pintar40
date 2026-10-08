@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
-import { card, s, short, studioInstitutions } from "./_lib";
+import { card, s, studioInstitutions } from "./_lib";
 
 /**
  * Studio home — "Beranda" (FABLE-05 §1).
@@ -34,7 +34,7 @@ export default async function StudioBeranda() {
         <section className="grid gap-3 sm:grid-cols-2">
           {rows.map((r) => (
             <div key={`${r.bucket}:${r.institution_id}`} className={card}>
-              <p className="text-sm text-ink-3">{byId.get(r.institution_id) ?? short(r.institution_id)}</p>
+              <p className="text-sm text-ink-3">{byId.get(r.institution_id) ?? "\u2014"}</p>
               <p className="mt-1 font-medium">{s(`studio.bucket.${r.bucket}` as never)}</p>
               <p className="mt-2 text-2xl tabular-nums">{r.count}</p>
             </div>
@@ -54,7 +54,7 @@ export default async function StudioBeranda() {
                   {c.title}
                 </Link>
                 <p className="mt-1 text-sm text-ink-3">
-                  {c.subject} · {c.grade_label} · {byId.get(c.institution_id) ?? short(c.institution_id)}
+                  {c.subject} · {c.grade_label} · {byId.get(c.institution_id) ?? "\u2014"}
                 </p>
               </li>
             ))}

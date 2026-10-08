@@ -1,6 +1,6 @@
 import Link from "next/link";
 import TandaTautan from "@/components/TandaTautan";
-import { t, format, type HleEvent } from "@/lib/hle";
+import { t, format, allKeys, type HleEvent } from "@/lib/hle";
 import { kalimatHasil, rujukan } from "@/lib/galat-kontrak";
 import { nilaiSkema } from "@/lib/kesehatan-skema";
 import KartuKesehatan, { type KeadaanKesehatan } from "@/components/konfigurasi/KartuKesehatan";
@@ -59,6 +59,8 @@ import { daftarKelola, KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan"
 
 const s = (event: HleEvent) => t(event, "staff");
 const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "—");
+// L4 (CR-85, investigation §E item 15): a name this reader cannot resolve shows the dash, never a fragment of an id
+const TANPA_NAMA = "\u2014";
 // FD-4: each person's name travels with the row that names them (the foreign key says which person)
 const KOLOM_PINDAH = "id, person_id, from_institution_id, to_institution_id, status, reason, created_at, persons!transfers_person_id_fkey(display_name)";
 const KOLOM_PERAN = "id, person_id, role, scope_node_id, institution_id, valid_until, revoked_at, persons!role_assignments_person_id_fkey(display_name)";
@@ -250,7 +252,19 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     .filter((x): x is readonly [string, string] => typeof x[1] === "string")).entries())
     .map(([id, display_name]) => ({ id, display_name }));
   const personName = new Map(persons.map((p) => [p.id, p.display_name]));
-  const institutionName = new Map((institutions ?? []).map((i) => [i.id, i.name]));
+  // L4 (CR-85): a transfer names the other school too; in a school's context only that school was read above
+  const sekolahPindah = [...new Set(((transfers ?? []) as Array<{ from_institution_id: string; to_institution_id: string }>)
+    .flatMap((x) => [x.from_institution_id, x.to_institution_id]))]
+    .filter((id) => !(institutions ?? []).some((i) => i.id === id));
+  const { data: sekolahLain } = sekolahPindah.length > 0
+    ? await supabase.from("institutions").select("id, name").in("id", sekolahPindah)
+    : { data: [] as Array<{ id: string; name: string }> };
+  const institutionName = new Map([...(institutions ?? []), ...(sekolahLain ?? [])].map((i) => [i.id, i.name]));
+  // L4 (CR-85, §E item 13): a metric and a report title in PINTAR's own words, from the key the catalogue already
+  // carries (label_key, title_key); the metric id stays beside it, secondary
+  const kunciSalinan = new Set<string>(allKeys());
+  const kata = (k: string | null | undefined) => (k && kunciSalinan.has(k) ? s(k as HleEvent) : null);
+  const namaMetrik = new Map(((metricDefs ?? []) as MetricDefinition[]).map((d) => [d.metric_id, kata(d.label_key)]));
   const periodName = new Map((periods ?? []).map((p) => [p.id, p.name]));
   const nodeName = new Map((nodes ?? []).map((n) => [n.id, `${n.name}`]));
   // D-101 (2): a School Admin's «Admin sekolah» comes back here once, to be confirmed by a second press; the
@@ -259,8 +273,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const angkat = uuidSah(sp.angkat) && uuidSah(sp.lingkup) && /^\d{4}-\d{2}-\d{2}$/.test(sp.sampai ?? "")
     ? {
         person: sp.angkat!, scope: sp.lingkup!, sampai: sp.sampai!,
-        nama: personName.get(sp.angkat!) ?? awaitingPersons.find((p) => p.person_id === sp.angkat)?.display_name ?? short(sp.angkat),
-        tempat: nodeName.get(sp.lingkup!) ?? institutionName.get(sp.lingkup!) ?? short(sp.lingkup),
+        nama: personName.get(sp.angkat!) ?? awaitingPersons.find((p) => p.person_id === sp.angkat)?.display_name ?? TANPA_NAMA,
+        tempat: nodeName.get(sp.lingkup!) ?? institutionName.get(sp.lingkup!) ?? TANPA_NAMA,
       }
     : null;
   // BOB19-K01 (Option B): a school with no active Admin sekolah, in Admin platform's hands, is offered its first
@@ -731,7 +745,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     <span className="text-ink-2">
                       <span className="pin-num">{l.halaman}</span>
                       {l.rujukan ? <> · {sl("lapor.rujukan")} <span className="pin-num">{l.rujukan}</span></> : null}
-                      {l.build ? <> · <span className="pin-num">{l.build.slice(0, 7)}</span></> : null}
+                      {/* L4 (CR-85): the build, the kept technical exception, in the platform operator's triage only (investigation §E item 22) */}
+                      {platformIni && l.build ? <> · <span className="pin-num">{l.build.slice(0, 7)}</span></> : null}
                     </span>
                     <span className="text-ink-2">{sl("lapor.lakukan")} {l.lakukan}</span>
                     <span className="text-ink-2">{sl("lapor.harapan")} {l.harapan}</span>
@@ -1053,8 +1068,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               {(transfers ?? []).map((x) => (
                 <li key={x.id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 sm:grid-cols-[1fr_auto] sm:items-center">
                   <div>
-                    <span>{personName.get(x.person_id) ?? short(x.person_id)}</span>
-                    <span className="text-ink-3"> · {institutionName.get(x.from_institution_id) ?? short(x.from_institution_id)} → {institutionName.get(x.to_institution_id) ?? short(x.to_institution_id)}</span>
+                    <span>{personName.get(x.person_id) ?? TANPA_NAMA}</span>
+                    <span className="text-ink-3"> · {institutionName.get(x.from_institution_id) ?? TANPA_NAMA} → {institutionName.get(x.to_institution_id) ?? TANPA_NAMA}</span>
                     <span className="ml-2 rounded bg-info-soft px-1.5 text-xs text-info">{transferLabel(x.status)}</span>
                     {x.reason ? <p className="text-xs text-ink-3">{x.reason}</p> : null}
                   </div>
@@ -1084,7 +1099,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   {(enrollments ?? []).filter((e) => (platformIni || sekolahIni.includes(e.institution_id))
                     && e.member_kind !== "PARTICIPANT").map((e) => (
                     <option key={e.id} value={e.id}>
-                      {personName.get(e.person_id) ?? short(e.person_id)} · {institutionName.get(e.institution_id) ?? short(e.institution_id)} · {periodName.get(e.academic_period_id) ?? ""}
+                      {personName.get(e.person_id) ?? TANPA_NAMA} · {institutionName.get(e.institution_id) ?? TANPA_NAMA} · {periodName.get(e.academic_period_id) ?? ""}
                     </option>
                   ))}
                 </select>
@@ -1107,8 +1122,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 // CR-94: below 640 px the revoke form wraps below the name instead of past the window; wider, as before
                 <li key={a.id} className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
                   <span>
-                    {personName.get(a.person_id) ?? short(a.person_id)} · {roleLabel(a.role)}
-                    <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? short(a.scope_node_id) : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {a.valid_until.slice(0, 10)}</span>
+                    {personName.get(a.person_id) ?? TANPA_NAMA} · {roleLabel(a.role)}
+                    <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? TANPA_NAMA : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {a.valid_until.slice(0, 10)}</span>
                   </span>
                   {a.person_id !== viewer.personId && (
                     // D-097(a): a revocation states why
@@ -1147,7 +1162,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 {pertama ? (
                   <form action={tunjukAdminPertamaAction} className="flex flex-wrap items-center gap-3">
                     <p className="w-full text-sm text-ink-1">{s("config.pertama.yakin")}</p>
-                    <p className="w-full text-sm text-ink-1"><strong>{pertama.display_name}</strong> · {roleLabel("INSTITUTION_ADMIN")} · {institutionName.get(satuSekolah) ?? short(satuSekolah)}</p>
+                    <p className="w-full text-sm text-ink-1"><strong>{pertama.display_name}</strong> · {roleLabel("INSTITUTION_ADMIN")} · {institutionName.get(satuSekolah) ?? TANPA_NAMA}</p>
                     <input type="hidden" name="person" value={pertama.person_id} />
                     <input type="hidden" name="sekolah" value={satuSekolah} />
                     <input type="hidden" name="valid_until" value={sp.sampai} />
@@ -1223,7 +1238,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     <tr key={r.id} className="border-t border-line-1">
                       <td className="py-1 pr-3 whitespace-nowrap">{when(r.at)}</td>
                       <td className="py-1 pr-3">{r.action}</td>
-                      <td className="py-1 pr-3 text-ink-3">{r.target_table} · {short(r.target_id)}{r.institution_id ? ` · ${institutionName.get(r.institution_id) ?? short(r.institution_id)}` : ""}</td>
+                      <td className="py-1 pr-3 text-ink-3">{r.target_table} · {short(r.target_id)}{r.institution_id ? ` · ${institutionName.get(r.institution_id) ?? TANPA_NAMA}` : ""}</td>
                       <td className="py-1 pr-3 text-ink-3">{short(r.build_sha)}</td>
                     </tr>
                   ))}
@@ -1252,10 +1267,10 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <ul className="mt-3 grid gap-2 text-sm">
                 {myTemplates.map((tpl) => (
                   <li key={tpl.id} className="rounded-[var(--radius-1)] border border-line-1 p-2">
-                    <span className="font-medium">{tpl.title_key}</span>
+                    <span className="font-medium">{kata(tpl.title_key) ?? tpl.title_key}</span>
                     <span className="text-ink-3"> · {tpl.standard_report} · {s("laporan.templat.versi")} {tpl.template_version}</span>
                     <p className="mt-1 text-ink-2">
-                      {(metricsByTemplate.get(tpl.id) ?? []).map((m) => `${m.metric_id} (${m.visualization})`).join(", ")}
+                      {(metricsByTemplate.get(tpl.id) ?? []).map((m) => `${namaMetrik.get(m.metric_id) ?? m.metric_id} (${m.visualization})`).join(", ")}
                     </p>
                   </li>
                 ))}
@@ -1289,7 +1304,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                           already carries its scope ("class.", "institution.").
                           The scope column itself is an enum and §7 does not
                           let one be rendered raw to a human. */}
-                      <span className="min-w-[14rem] text-ink-2">{d.metric_id}</span>
+                      <span className="min-w-[14rem] text-ink-2">{namaMetrik.get(d.metric_id) ?? d.metric_id}
+                        {namaMetrik.get(d.metric_id) ? <span className="ml-2 text-xs text-ink-3">{d.metric_id}</span> : null}</span>
                       {/* No selection is the default: an empty visualization
                           is how a metric is left out, so the form cannot
                           silently include one nobody ticked. */}

@@ -184,9 +184,11 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
           {pending.map((b) => (
             <div key={b.id} className={card}>
               <ul className="list-disc pl-5 text-sm text-ink-2">
-                {(b.open_questions as Array<Record<string, unknown>>).map((q, i) => (
-                  <li key={i}>{typeof q === "string" ? q : String(q.question ?? JSON.stringify(q))}</li>
-                ))}
+                {/* L4 (CR-85, §E item 20): a question in words, or nothing; never the stored object as JSON */}
+                {(b.open_questions as Array<Record<string, unknown> | string>)
+                  .map((q) => (typeof q === "string" ? q : typeof q?.question === "string" ? q.question : null))
+                  .filter((q): q is string => !!q)
+                  .map((q, i) => <li key={i}>{q}</li>)}
               </ul>
               <form action={confirmMappingAction} className="mt-3">
                 <input type="hidden" name="batch" value={b.id} />
