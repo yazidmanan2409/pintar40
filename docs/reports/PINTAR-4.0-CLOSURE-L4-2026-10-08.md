@@ -56,7 +56,7 @@ Scope, from D-127 and its investigation (`PINTAR-4.0-DG-19-37-INVESTIGATION-2026
   - Aturan Penilaian (read a page at a time);
   - Konfigurasi's transfers;
   - Jejak audit (a page at a time instead of a fixed newest 50).
-- **Explicit edit.** A rule's edit form opens by «Ubah», one row at a time. A refused save shows the forms again, so what was typed comes back (CR-84 (3) kept).
+- **Explicit edit.** A rule's edit form opens by «Ubah», one row at a time. A refused edit returns to the row's own page with that row open, so what was typed comes back (CR-84 (3) kept); a saved edit opens no row.
 - **The example workbook (Q9). WITHDRAWN from serving after the Second Eye's review (§7, finding 1).** As first landed:
   - **The file:** `public/contoh/contoh-buku-kerja-pintar.xlsx` is PINTAR's own SD 5 Matematika Bab 1. Its only change is a course title that begins «Contoh — ».
   - **How it is built:** from its source by `npm run contoh:buku-kerja`.
@@ -131,15 +131,28 @@ The independent review (8 Oct, overnight) read the code and the evidence, not th
 | # | Finding | Severity | Done |
 |---|---|---|---|
 | 1 | The example workbook in `public/` let **any signed-in person, learners included, download SD5 Bab 1's live Pemetaan Awal and Uji Penguasaan questions with their keys and reasons** (served on staging at e7fb612; production never had it) | MAJOR | **Withdrawn:** no file served, no link. The build is kept beside its source in `docs/onboarding/konten/` (not served). L4-C01 now asserts that `public/` serves no workbook or data file and nothing links one. **Owner:** Q9 says «if canonically suitable»: example-only questions, or who may download the live set, by which governed route |
-| 2 | A refused edit on page 2 or later lost what was typed (CR-84 (3)); any refusal reopened every row's form | MAJOR | `saveDefinitionAction` returns to the row's own page with only that row open (`hal`, `ubah`); a new rule returns to page 1. «Ubah» is a `pin-tautan` link that acknowledges the click |
+| 2 | A refused edit on page 2 or later lost what was typed (CR-84 (3)); any refusal reopened every row's form | MAJOR | `saveDefinitionAction` returns to the row's own page (`hal`); a refused edit also reopens only that row (`ubah`; after the re-review's N2, a saved one opens none); a new rule returns to page 1. «Ubah» is a `pin-tautan` link that acknowledges the click |
 | 3 | The upload panel (a client component) pulled the xlsx reader's Node polyfills into the browser bundle for one constant | MINOR | Gone with finding 1: the panel imports nothing of it |
 | 4 | The preview showed every worked example, the player only the first; the canonical preview showed none; L4-P01 did not render one | MINOR | One rule, `contohPelajaran`, for both; the canonical branch reads the examples its RPC already returns; L4-P01 renders the player's example through the shared component |
-| 5 | Transfers were a slice of the newest 50; page links dropped every other parameter; a page past the end was blank | MINOR | Transfers have their own paged read (every one reachable); `tautanHalaman` keeps the section, the school and the other list's page; an empty page says «Belum ada.» |
+| 5 | Transfers were a slice of the newest 50; page links dropped every other parameter; a page past the end was blank | MINOR | Transfers have their own paged read (every one reachable, and after the re-review's N1 named from its own row); `tautanHalaman` keeps the section, the school and the lists' pages, and after N4 nothing else; an empty page says «Belum ada.» |
 | 6 | The Peran & akses role list is unbounded, with a revoke form per row | MINOR | **Open, recorded:** the journeys find their row on it (S24); it waits for Daisy's Collection with an explicit action, then a bounded list |
 | 7 | The guard read `src/app` only, had no rule for bare units, and matched register entries loosely | MINOR | L4-G01 reads `src/components` too, catches `{n}s` / `{n}×`, and each register entry admits an exact count; the limits line is registered, and the media player's playback speeds are kept on purpose |
 | 8 | Claims stated more strongly than the code | MINOR | §1 rows 13 and 15, §2's example and §5 restated above; L4-P01's preview is read as source, not rendered (its verdict says so) |
 
 **Terminology (the owner, 8 Oct: «Dr Gladys will need more time; in the meantime, use the previously approved terminology»).** Terminology v1 (D-068) is applied to the words L4 was waiting for: the modes A1–A5 («Pemetaan Awal», «Uji Penguasaan», «Uji Cepat», «Asesmen Mandiri», «Tes di Kertas»), N1 (the TEST mode «Tes»), N2 (the bank TEST «Asesmen») and N9 («Aturan Asesmen»). The rest of v1's approved change set stays with Daisy's polish (D-068). Words v1 does not have stay on Dr Gladys's list (§4): the shuffle, the limits line's units, the audit codes and tables, visualizations, the measured difficulty, one misconception.
+
+### 7.1 The re-review: AMBER (light), and the corrections
+
+The Second Eye re-read the corrections (e1f8736..6d0eac7). Findings 1–4 resolved; the eight Terminology v1 strings match the frozen package exactly, and no test or walk depends on the old words. Four new MINOR findings, all corrected with a check that is red on the code before and green after:
+
+| # | Finding | Done |
+|---|---|---|
+| N1 | A transfer past the newest 50 showed «—» for its person and schools (names were still built from the newest-50 read) | Each listed transfer is named from its own row; its schools are read with the rest. L4-K01 checks it |
+| N2 | A successful edit kept its row open, after a new version the old version's form | Only a refused edit reopens the row; the page is kept. L4-K01 checks it |
+| N3 | The guard's two non-render exclusions let drawn text through (`({d.metric_id})`, `{nama}, {r.action}`, `[{x}]`, a template in `title` or `aria-label`) | An object literal is known by its key shape; only templates in `name`, `key`, `id`, `href`, `className` are set aside. Five planted controls added (16 leaks caught, 7 non-renders passed); today's source has no new match |
+| N4 | A page link carried Konfigurasi's pending steps (`lapor`, `periksa`, `angkat`/`lingkup`/`sampai`/`pertama`, `pm_*`) | `tautanHalaman` keeps an allowlist: `bagian`, `sekolah`, `hal`, `hal_*`. L4-K01 executes it |
+
+The re-review also notes that v1 row A9 (`metrik.pemahaman.arti`, «penilaian akhir») is not applied under D-134, so «Uji Penguasaan» and «penilaian akhir» sit side by side until Daisy's polish lands.
 
 ## 8. For the owner
 
