@@ -11,7 +11,7 @@
 | Shell | Who | What it carries |
 |---|---|---|
 | **Staff** (App shell) | Guru, Kepala departemen, Dekan, Admin sekolah, Admin platform | A sticky left navigation: the PINTAR wordmark, the person's places, Bantuan where a tour exists, and at the bottom the identity block (their own name, role and school, a menu with Akun saya and the language) with «Keluar» visible under it. |
-| **Learner** (Learner shell) | Murid | A top bar at every width: Belajar and Sertifikat, Bantuan, the language, «Bukan akun Anda?» and «Keluar». No name: a learner is never named on a shared screen (S15, D-020). A child's screen belongs to the lesson; two places do not earn a sidebar. |
+| **Learner** (Learner shell) | Murid | A top bar at every width: Belajar and Sertifikat, Bantuan, the language, «Bukan akun Anda?» and «Keluar». No name in the bar: a learner is never named in the bar of a shared screen (S15), and is greeted by first name only on Belajar and the home page (D-020). A child's screen belongs to the lesson; two places do not earn a sidebar. |
 | **Focus** | A learner inside an assessment | The wordmark, the language, «Bukan akun Anda?» and «Keluar». No other way out of a timed task. |
 | **Public** | Anyone holding a verification link | The wordmark, «Pemeriksaan sertifikat» and the language. No way into PINTAR. |
 
@@ -49,7 +49,7 @@ What changes is where the places are drawn: the top-bar tabs become the left nav
 ## «Keluar» and the name
 
 - «Keluar» is visible on every signed-in screen, without opening anything: at the bottom of the navigation, as an icon (with its name) in the rail, and in the top bar under 1024 px (D-009, DAISY-02).
-- Staff see their own name in the identity block. A learner is never named on any screen, because school computers are shared (S15, D-020): the learner's bar says «Bukan akun Anda?» beside «Keluar».
+- Staff see their own name in the identity block. A learner is never named in the bar, because school computers are shared (S15); the first-name greeting on Belajar and the home page is the one exception (D-020): the learner's bar says «Bukan akun Anda?» beside «Keluar».
 
 ## Small screens
 

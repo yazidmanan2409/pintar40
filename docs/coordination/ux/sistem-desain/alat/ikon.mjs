@@ -9,7 +9,7 @@ export const IKON = [
   "user-check", "square-pen", "shield", "mail", "circle-help", "id-card", "log-out", "languages", "user",
   "chevron-down", "chevron-left", "chevron-right", "check", "x", "menu", "search", "ellipsis",
   "arrow-up-down", "arrow-up", "arrow-down", "info", "circle-alert", "triangle-alert", "circle-check",
-  "calendar", "clock", "eye", "eye-off", "list-filter", "panel-left-close", "panel-left-open", "plus", "trash-2",
+  "calendar", "clock", "eye", "eye-off", "list-filter", "panel-left-close", "panel-left-open", "plus", "trash-2", "upload", "file",
 ];
 
 const dir = process.argv[2];

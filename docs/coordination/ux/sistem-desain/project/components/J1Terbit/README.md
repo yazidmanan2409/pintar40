@@ -1,13 +1,13 @@
 Bab 3 published by the school, then made available to Kelas 5A: a composed journey for owner validation (11-validation.md §1).
 
-**Status: SPECIMEN, ready for owner validation.** Not PINTAR, and not applied: it shows the approved grammar working together.
+**Status: SPECIMEN, APPLICATION READY (8 Oct).** Not PINTAR, and not applied: it shows the approved grammar working together; its findings are corrected at source.
 
 **Who.** Two people: Maya Kusuma, Admin sekolah, publishes in Studio; Rina Kartika, Guru, makes it available to Kelas 5A.
 
 **What it validates.** The staff shell and its places (1, 11); the publishing words (2); the type ladder (4); motion on the result (8).
 
 **Composed against the product**
-- 11-validation.md defined J1 as a teacher who publishes a chapter to a class. In PINTAR those are two acts by two people: the school publishes (CAN_PUBLISH is held only by Admin sekolah and Admin platform; «Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah», mengajar.materi.sub), and a teacher then makes it available to a class («Siapkan», then «Sediakan»). J1 is composed as both, in order; question JQ1 asks you to confirm.
+- 11-validation.md defined J1 as a teacher who publishes a chapter to a class. In PINTAR those are two acts by two people: the school publishes (CAN_PUBLISH is held only by Admin sekolah and Admin platform; «Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah», mengajar.materi.sub), and a teacher then makes it available to a class («Siapkan», then «Sediakan»). J1 is composed as both, in order; confirmed 8 Oct (JQ1).
 - The seven steps of «Langkah menuju terbit» are the product's (studio.langkah.*). They are drawn as Progress's named steps, steps 1 to 6 done, with the current step alone in a panel below; the product lists all seven, each with its own text.
 - The result line names what happened, as question 2 asks: the chapter and «Terbit sejak» with the time, then the product's own reminder that publishing is not making available (studio.paket.terbit_bukan_tugas). That reminder says «Siswa» and «menugaskan» where the teacher's screens say «murid» and «Sediakan»: finding C2.
 - «Menerbitkan…» and «✓ Diterbitkan» are question 2's ruled words. They are not in the copy table yet: today the step shows «Memproses…» (studio.langkah.sibuk).
@@ -46,11 +46,11 @@ Bab 3 published by the school, then made available to Kelas 5A: a composed journ
 | Keyboard order and focus | pass | pass | pass | Walked by Tab and Enter alone: 36 presses at 1280 and 1024, 31 at 390. The skip link is first, shows on focus and lands on the main region; every stop shows the ring; nothing hides under the sticky bar. A date field is three stops and the browser's own calendar button. |
 | Screen reader (the accessibility tree) | pass | — | pass | Landmarks: the navigation «Tempat kerja Anda» and main. The working button is aria-busy; the result is a status. A real screen reader is still owed. |
 | Reduced motion | pass | pass | pass | Nothing moves under reduced motion. With motion on: 120, 160 and 240 ms only, 8 px of travel at most; the working dot pulses and stops under reduced motion. |
-| Anything that fights the content | pass | pass | finding | At 390, Studio's tabs hide «Bank Soal» and «Uji Cepat» beyond the edge with no sign that more follow (F10). |
+| Anything that fights the content | pass | pass | finding, corrected | At 390, Studio's tabs hide «Bank Soal» and «Uji Cepat» beyond the edge with no sign that more follow (F10). |
 
 **Findings**
-- F1 · JQ1: the definition's teacher who publishes is two people in PINTAR.
-- C2: the publishing copy says «Siswa» and «menugaskan» where the teacher's screens say «murid» and «Sediakan».
-- F5: the App shell, Confirmation, Specimen and Action feedback specimens have a teacher publish to a class.
-- F10: Studio's tabs at 390 px.
-- F11: «Tinjauan sebelum disediakan» is a review before the act, not a Confirmation.
+- F1 · JQ1: the definition's teacher who publishes is two people in PINTAR. Corrected or decided, 8 Oct.
+- C2: the publishing copy says «Siswa» and «menugaskan» where the teacher's screens say «murid» and «Sediakan». Corrected or decided, 8 Oct.
+- F5: the App shell, Confirmation, Specimen and Action feedback specimens have a teacher publish to a class. Corrected or decided, 8 Oct.
+- F10: Studio's tabs at 390 px. Corrected or decided, 8 Oct.
+- F11: «Tinjauan sebelum disediakan» is a review before the act, not a Confirmation. Corrected or decided, 8 Oct.

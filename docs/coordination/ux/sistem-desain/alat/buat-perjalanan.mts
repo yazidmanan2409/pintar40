@@ -111,7 +111,7 @@ function shellStaf(o: { id: string; orang: Orang; grup: Grup[]; kini: string; is
     </nav>
     <div class="pds-main">
       <header class="pds-bar">${merek()}<span class="pds-bar-tempat" aria-hidden="true">${tempat}</span>
-        <button type="button" class="pds-btn pds-btn-secondary pds-btn-sm">${keluar}</button>
+        <button type="button" class="pds-btn pds-btn-secondary">${keluar}</button>
         <button type="button" class="pds-btn pds-btn-icon" aria-label="${baruAttr("Buka menu", "the top bar's menu button under 1024 px (question 1)")}" data-tip="Buka menu" data-dialog-buka="${id}-laci">${ikon("menu")}</button>
       </header>
       <main class="pds-main-isi" id="${id}-isi" tabindex="-1">${o.isi}</main>
@@ -175,7 +175,7 @@ function kartu(p: Perjalanan): string {
 ${p.gaya ? `<style>${p.gaya}</style>\n` : ""}<div class="pds pds-jalan" data-perjalanan>
   <div class="pds-jalan-kepala" lang="en">
     <p class="pds-jalan-judul">${esc(p.kode)} · ${esc(p.judul)}</p>
-    <p>${esc(p.siapa)}. A specimen for owner validation (11-validation.md §1), not PINTAR: invented people, and every word on the screens from the copy table, with new words marked. Walk it by clicking the screens themselves; the steps below jump.</p>
+    <p>${esc(p.siapa)}. A specimen of the approved grammar (11-validation.md §1), not PINTAR: invented people, and every word on the screens from the copy table, with new words marked. Walk it by clicking the screens themselves; the steps below jump.</p>
     <ol class="pds-jalan-langkah" aria-label="Steps">${langkah}</ol>
     <div class="pds-jalan-alat"><label><input type="checkbox" class="pds-check" data-tandai-baru> Mark new words</label><button type="button" data-jalan-ulang>Start again</button></div>
     <p class="pds-jalan-catatan" data-jalan-catatan role="status" hidden></p>
@@ -309,7 +309,7 @@ function j1(): Perjalanan {
       { id: "b4", langkah: "Tersedia", judulHal: `${KELAS} · PINTAR`, html: b4 },
     ],
     catatanKomposisi: [
-      "11-validation.md defined J1 as a teacher who publishes a chapter to a class. In PINTAR those are two acts by two people: the school publishes (CAN_PUBLISH is held only by Admin sekolah and Admin platform; «Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah», mengajar.materi.sub), and a teacher then makes it available to a class («Siapkan», then «Sediakan»). J1 is composed as both, in order; question JQ1 asks you to confirm.",
+      "11-validation.md defined J1 as a teacher who publishes a chapter to a class. In PINTAR those are two acts by two people: the school publishes (CAN_PUBLISH is held only by Admin sekolah and Admin platform; «Menyediakan materi tidak sama dengan menerbitkannya; penerbitan dilakukan sekolah», mengajar.materi.sub), and a teacher then makes it available to a class («Siapkan», then «Sediakan»). J1 is composed as both, in order; confirmed 8 Oct (JQ1).",
       "The seven steps of «Langkah menuju terbit» are the product's (studio.langkah.*). They are drawn as Progress's named steps, steps 1 to 6 done, with the current step alone in a panel below; the product lists all seven, each with its own text.",
       "The result line names what happened, as question 2 asks: the chapter and «Terbit sejak» with the time, then the product's own reminder that publishing is not making available (studio.paket.terbit_bukan_tugas). That reminder says «Siswa» and «menugaskan» where the teacher's screens say «murid» and «Sediakan»: finding C2.",
       "«Menerbitkan…» and «✓ Diterbitkan» are question 2's ruled words. They are not in the copy table yet: today the step shows «Memproses…» (studio.langkah.sibuk).",
@@ -407,11 +407,11 @@ function j2(): Perjalanan {
     ],
     catatanKomposisi: [
       "The table is the class's «Siapa yang sudah mengumpulkan» for Bab 3: every learner, alphabetical, with the three states the product names (mengajar.siapa.*). Search, the state filter and the stripe (option A) come from the Table and Table rows components.",
-      "The product shows this page as three lists of names («Tiga daftar nama…», mengajar.siapa.catatan). 11-validation.md asks for the long table with a state filter, so here the three lists are one alphabetical table with the state in words, and the filter gives each list back; the intro is therefore the table's own true line (mengajar.murid.sub), not «Tiga daftar». Question JQ2 asks which you want.",
+      "The product shows this page as three lists of names («Tiga daftar nama…», mengajar.siapa.catatan). 11-validation.md asks for the long table with a state filter, so here the three lists are one alphabetical table with the state in words, and the filter gives each list back; the intro is therefore the table's own true line (mengajar.murid.sub), not «Tiga daftar». Decided 8 Oct (JQ2): the one table.",
       "A row's menu holds what a teacher really can do for one learner: «Lihat bukti» and «Minta membaca lagi» (D-085 M3). Neither is consequential. 11-validation.md asked for «a consequential action asked in a dialog» on one learner, but a teacher has no consequential act on a learner in 4.0: enrolment, the class card and its reissue (aktivasi.ulang.*) are the school admin's.",
-      "The one dialog (question 6: a consequential question started from a menu) is therefore met where a teacher can meet it: «Keluar dari semua perangkat» (akun.semua.*, Gate 6), started from the account menu at the bottom of the navigation, or from the drawer under 1024 px. Today the product has it on «Akun saya» as an in-page confirmation (src/components/sesi/KeluarSemua.tsx), which question 6 keeps as the default; the menu is where the shell (question 1) puts account actions. Question JQ2 asks which you want validated.",
+      "The one dialog (question 6: a consequential question started from a menu) is therefore met where a teacher can meet it: «Keluar dari semua perangkat» (akun.semua.*, Gate 6), started from the account menu at the bottom of the navigation, or from the drawer under 1024 px. Today the product has it on «Akun saya» as an in-page confirmation (src/components/sesi/KeluarSemua.tsx), which question 6 keeps as the default; the menu is where the shell (question 1) puts account actions. Decided 8 Oct (JQ2): the menu, asking in the Dialog.",
       "The «…» after an item that asks before it acts is the Dialog component's own (its example is this same item).",
-      "Found while composing: the Table and Table rows components' menus and bulk bar offer «Kirim pengingat», «Pindahkan ke kelas lain» and «Keluarkan dari kelas». A teacher cannot do the last two, and PINTAR promises no notifications. Finding F2 proposes the correction.",
+      "Found while composing: the Table and Table rows components' menus and bulk bar offer «Kirim pengingat», «Pindahkan ke kelas lain» and «Keluarkan dari kelas». A teacher cannot do the last two, and PINTAR promises no notifications. Corrected 8 Oct (F2).",
       "The count under the table («Menampilkan 1–31 dari 31 murid») is written by the Table behaviour (bundle.js), not the copy table: it is new to the copy table too.",
       "The dialog's confirm button is the copy table's «Ya, keluar dari semua»; the grammar's rule is a verb and its object, never «Ya» (finding C1).",
     ],
@@ -448,7 +448,7 @@ function j3(): Perjalanan {
     ],
     catatanKomposisi: [
       "The two group labels: «Belajar» is the copy table's (nav.belajar); «Mengajar» is new (the group label approved under question 11). The places are today's: Kelas and Studio (DAISY-11), and Pembelajaran Saya for an educator (WP6B).",
-      "Her own learning wears the staff shell, as the product does today (CangkangPengalaman, current «belajar», persona educator): question JQ3 asks you to confirm that an educator learning stays in the staff shell rather than the learner's top bar.",
+      "Her own learning wears the staff shell, as the product does today (CangkangPengalaman, current «belajar», persona educator): confirmed 8 Oct (JQ3): an educator learning stays in the staff shell.",
       "Her course's five steps are the learner cycle's words (siklus.*), told to an educator exactly as to a learner (UX1-AJAR-KATA-01).",
     ],
     gaya: GAYA_BERSAMA,
@@ -521,10 +521,10 @@ function j5(): Perjalanan {
     tinggi: 1060,
     layar: [{ id: "a", langkah: "The window", judulHal: `Siapkan materi · ${KELAS}`, html: a }],
     catatanKomposisi: [
-      "11-validation.md defined J5 as setting when an Uji Cepat opens. An Uji Cepat has no opening date in PINTAR: its window is counted in minutes from the moment it is made available («Berhitung sejak disediakan», mengajar.cepat.jendela.arti). The date fields a teacher really meets are the window of «Siapkan» (Mulai, Sampai; DAISY-14). J5 is composed there; question JQ5 asks you to confirm.",
+      "11-validation.md defined J5 as setting when an Uji Cepat opens. An Uji Cepat has no opening date in PINTAR: its window is counted in minutes from the moment it is made available («Berhitung sejak disediakan», mengajar.cepat.jendela.arti). The date fields a teacher really meets are the window of «Siapkan» (Mulai, Sampai; DAISY-14). J5 is composed there; confirmed 8 Oct (JQ5).",
       "The fields are dates only, as the product's are (type=date): «Mulai» and an optional «Sampai», where empty means «Tanpa batas akhir». The echo under each says the date in words with its day.",
       "The mistake is real: «Sampai» before «Mulai». Pressing «Sediakan» shows the server's own sentence under the field (mengajar.sedia.kode.assign_window_invalid) and moves focus to it; correcting the date clears it.",
-      "Found while composing: the Date and time component's example is «Uji Cepat dibuka» with a date and a time. Finding F3 proposes rewording it to the Siapkan window.",
+      "Found while composing: the Date and time component's example is «Uji Cepat dibuka» with a date and a time. Corrected 8 Oct (F3).",
     ],
     gaya: GAYA_BERSAMA,
     skrip,
@@ -563,11 +563,11 @@ function j6(): Perjalanan {
     tinggi: 910,
     layar: [
       { id: "a", langkah: "Ruang Peragaan", judulHal: "Ruang Peragaan · PINTAR", html: a, shell: false },
-      { id: "b", langkah: "Viewing as a learner", judulHal: "Belajar · PINTAR", html: b, shell: false },
+      { id: "b", langkah: "Viewing as a learner", judulHal: "MODE PERAGAAN · Belajar · PINTAR", html: b, shell: false },
       { id: "c", langkah: "Left", judulHal: "Ruang Peragaan · PINTAR", html: c, shell: false },
     ],
     catatanKomposisi: [
-      "11-validation.md defined J6 as a teacher seeing what a learner sees. In PINTAR, MODE PERAGAAN is the demonstration room's (ADR-0020): an evaluator chooses a point of view and PINTAR shows it under a band that cannot be dismissed. A teacher has no such mode. J6 is composed with an evaluator; question JQ6 asks you to confirm.",
+      "11-validation.md defined J6 as a teacher seeing what a learner sees. In PINTAR, MODE PERAGAAN is the demonstration room's (ADR-0020): an evaluator chooses a point of view and PINTAR shows it under a band that cannot be dismissed. A teacher has no such mode. J6 is composed with an evaluator; confirmed 8 Oct (JQ6).",
       "The band's words are the product's (evaluasi.mode, .sebagai, .ganti, .keluar). Its look is the approved context band: deep ink, full width, its way out on it (question 12). Today the product draws it on surface-2 (src/app/_evaluation-banner.tsx); the application pass moves it to the band.",
       "The people in the demonstration school are shown by role only; the hub names no one.",
     ],
@@ -614,7 +614,7 @@ function j7(): Perjalanan {
       "Gate 6 is built (BOB-29, D-101), so every word is the product's: jaga.peringatan and jaga.masih for the warning, kunci.* for the lock, kunci.tidak_cocok.2 for a wrong PIN. The lock names the staff member («Terkunci untuk Rina Kartika»); for a learner's class card it names no one (src/app/terkunci).",
       "The warning's heading is new: the product has the sentence and the button only.",
       "The two time steps are review steps, not PINTAR.",
-      "Found while composing: the Lock screen and Idle warning components predate Gate 6 and use sample text («Buka PINTAR», «PIN (4 angka)», no name). Finding F4 proposes bringing them to the built words.",
+      "Found while composing: the Lock screen and Idle warning components predate Gate 6 and use sample text («Buka PINTAR», «PIN (4 angka)», no name). Corrected 8 Oct (F4).",
     ],
     gaya: GAYA_BERSAMA,
   };
@@ -650,7 +650,7 @@ function rekaman(p: Perjalanan, kunci: string[], baruDaftar: Array<[string, stri
     : "Not walked yet.";
   return `${p.judul}: a composed journey for owner validation (11-validation.md §1).
 
-**Status: SPECIMEN, ready for owner validation.** Not PINTAR, and not applied: it shows the approved grammar working together.
+**Status: SPECIMEN, APPLICATION READY (8 Oct).** Not PINTAR, and not applied: it shows the approved grammar working together; its findings are corrected at source.
 
 **Who.** ${p.siapa}.
 

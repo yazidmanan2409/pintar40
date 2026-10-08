@@ -25,7 +25,7 @@ J6Peragaan: the keyboard walk (alat/jalani.mts). Chromium, locale id-ID. Focus a
 ── 1280 px · motion on: the walk (9 Tab presses in all)
   Tab ×2 → a «Lihat sebagai Murid · Kelas 5A»
   Enter
-  → screen b: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  → screen b: focus on «Halo, Bagas», title «MODE PERAGAAN · Belajar · PINTAR»
   Shift+Tab ×6 → button «Keluar dari peragaan»
   Enter
   → screen c: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
@@ -60,7 +60,7 @@ J6Peragaan: the keyboard walk (alat/jalani.mts). Chromium, locale id-ID. Focus a
 ── 1024 px · motion on: the walk (9 Tab presses in all)
   Tab ×2 → a «Lihat sebagai Murid · Kelas 5A»
   Enter
-  → screen b: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  → screen b: focus on «Halo, Bagas», title «MODE PERAGAAN · Belajar · PINTAR»
   Shift+Tab ×6 → button «Keluar dari peragaan»
   Enter
   → screen c: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
@@ -95,7 +95,7 @@ J6Peragaan: the keyboard walk (alat/jalani.mts). Chromium, locale id-ID. Focus a
 ── 390 px · motion on: the walk (9 Tab presses in all)
   Tab ×2 → a «Lihat sebagai Murid · Kelas 5A»
   Enter
-  → screen b: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  → screen b: focus on «Halo, Bagas», title «MODE PERAGAAN · Belajar · PINTAR»
   Shift+Tab ×6 → button «Keluar dari peragaan»
   Enter
   → screen c: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
@@ -108,7 +108,7 @@ J6Peragaan: the keyboard walk (alat/jalani.mts). Chromium, locale id-ID. Focus a
 ── 1280 px · motion reduced: the walk (9 Tab presses in all)
   Tab ×2 → a «Lihat sebagai Murid · Kelas 5A»
   Enter
-  → screen b: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  → screen b: focus on «Halo, Bagas», title «MODE PERAGAAN · Belajar · PINTAR»
   Shift+Tab ×6 → button «Keluar dari peragaan»
   Enter
   → screen c: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
@@ -121,7 +121,7 @@ J6Peragaan: the keyboard walk (alat/jalani.mts). Chromium, locale id-ID. Focus a
 ── 1024 px · motion reduced: the walk (9 Tab presses in all)
   Tab ×2 → a «Lihat sebagai Murid · Kelas 5A»
   Enter
-  → screen b: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  → screen b: focus on «Halo, Bagas», title «MODE PERAGAAN · Belajar · PINTAR»
   Shift+Tab ×6 → button «Keluar dari peragaan»
   Enter
   → screen c: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»
@@ -134,7 +134,7 @@ J6Peragaan: the keyboard walk (alat/jalani.mts). Chromium, locale id-ID. Focus a
 ── 390 px · motion reduced: the walk (9 Tab presses in all)
   Tab ×2 → a «Lihat sebagai Murid · Kelas 5A»
   Enter
-  → screen b: focus on «Halo, Bagas», title «Belajar · PINTAR»
+  → screen b: focus on «Halo, Bagas», title «MODE PERAGAAN · Belajar · PINTAR»
   Shift+Tab ×6 → button «Keluar dari peragaan»
   Enter
   → screen c: focus on «Ruang Peragaan», title «Ruang Peragaan · PINTAR»

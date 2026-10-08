@@ -1,0 +1,13 @@
+<!-- @dsCard group="Inputs" height=340 subtitle="Choose a file: the native picker under a button, the chosen file named in words" -->
+<div class="pds" style="max-width: 640px">
+  <div class="pds-field">
+    <span class="pds-label" id="ff-1-label">Buku kerja (.xlsx)</span>
+    <div class="pds-berkas" data-berkas>
+      <span class="pds-berkas-tombol"><input type="file" id="ff-1" accept=".xlsx" aria-labelledby="ff-1-label" aria-describedby="ff-1-nama ff-1-batas"><label for="ff-1" class="pds-btn pds-btn-secondary"><i data-ikon="upload"></i>Pilih berkas</label></span>
+      <p class="pds-berkas-nama" id="ff-1-nama" data-berkas-nama data-kosong="Belum dipilih" aria-live="polite"><i data-ikon="file"></i><span>Belum dipilih</span></p>
+      <p class="pds-help" id="ff-1-batas">Paling besar 10 MB.</p>
+    </div>
+  </div>
+  <p class="pds-demo-catatan">The native file input does the work (keyboard, screen reader, a phone's camera or files), under a secondary button. The chosen file is named in words beneath, and the field says its limit before anything is chosen. One file or several («Pilih berkas media»); never drag-and-drop as the only way.</p>
+</div>
+<script>Pintar.siapkan();</script>

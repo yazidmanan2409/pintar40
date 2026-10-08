@@ -1,4 +1,4 @@
-**Status: approved in principle (token set v3, 5 Oct).** Yazid has ruled on all seventeen questions; «Proposal and rulings» records each ruling. **Validation: READY FOR REVIEW (7 Oct).** J1 to J7 are composed («Composed journeys»), walked and recorded for Yazid's walk; «Validation» holds their records, findings and questions. The product still runs token set v2 (`src/app/globals.css`): nothing here is applied to PINTAR until the authorised UI/UX stage begins.
+**Status: approved in principle (token set v3, 5 Oct).** Yazid has ruled on all seventeen questions; «Proposal and rulings» records each ruling. **APPLICATION READY (8 Oct).** J1 to J7 are composed («Composed journeys»), walked and recorded; every finding is corrected at source and every open question decided within the approved grammar; the stripe is A. «Validation» holds the records. The application pass begins with the authorised UI/UX stage. The product still runs token set v2 (`src/app/globals.css`): nothing here is applied to PINTAR until the authorised UI/UX stage begins.
 
 ## The intent
 
@@ -17,14 +17,14 @@ PINTAR speaks plain Bahasa Indonesia first; English is the second language of ev
 
 - **Address.** Staff are «Anda». Learner copy avoids pronouns: «Ini yang sedang berjalan hari ini.», «Lanjutkan pelajaran». Never «kamu», never a nickname, never an exclamation mark.
 - **Case.** Sentence case everywhere: «Tambah guru», not «Tambah Guru». The only capitals are `t-eyebrow`, one short line of context above a title.
-- **Actions are a verb and its object.** «Terbitkan Bab 4», «Kirim kartu», «Keluarkan dari kelas». Never «OK», «Ya» or «Submit». A destructive act names itself on its own button.
+- **Actions are a verb and its object.** «Sediakan Bab 4», «Kirim kartu», «Nonaktifkan Kelas 5C». Never «OK», «Ya» or «Submit». A bare verb is allowed only where the heading right above it names the object («Terbitkan» under the chapter's step «Terbitkan»). A destructive act names itself on its own button.
 - **The completion grammar.** One pattern, three words: the verb, its progressive with an ellipsis, then ✓ and its result.
   - Simpan → Menyimpan… → ✓ Tersimpan
   - Kirim → Mengirim… → ✓ Terkirim
   - Terbitkan → Menerbitkan… → ✓ Diterbitkan
-  The result line beside it then says what changed for whom: «Bab 3 tersedia untuk 31 murid Kelas 5A mulai sekarang.»
+  The result line beside it then says what changed for whom: «Bab 4 disediakan untuk 31 murid Kelas 5A mulai Senin, 12 Okt 2026.» Publishing is the school's, in Studio; a teacher makes published material available to a class («Siapkan materi», then «Sediakan»).
   **Email is the exception.** PINTAR cannot confirm that an email arrived, so an email action never ends in ✓ or «Terkirim»: it says PINTAR is sending («PINTAR sedang mengirim kode baru.»), D-098(c), enforced by EMAILJUJUR-L01. «✓ Terkirim» is only for a result the server confirmed.
-- **Nobody is named on a shared screen unless they are staff.** Staff see their own name; a learner sees «Bukan akun Anda?» and «Keluar» (S15, D-020). «Keluar» is visible on every signed-in screen.
+- **Nobody is named on a shared screen unless they are staff.** Staff see their own name; a learner is never named in the bar, which says «Bukan akun Anda?» and «Keluar» (S15). The one exception is the learner's first name in the greeting on Belajar and the home page (D-020). «Keluar» is visible on every signed-in screen.
 - **Words live in the copy table** (`src/lib/hle.ts`, D-014). Never an internal word («Menunggu», «Salah», "Failed"), never a promise to notify («notifikasi», «pemberitahuan»), never «dikunci» on a learner's line.
 - **Navigation is a short noun** («Kelas», «Pimpinan», «Konfigurasi»). A heading may be a question or a purpose («Apa yang sudah bisa disimpulkan»). «Kembali» names its destination when it is not obvious («Kembali ke Kelas 5A»).
 - **Numbers never stand alone.** «24 dari 31», never «77%» without its base; «Belum cukup untuk disimpulkan», never a zero standing in for an unknown.

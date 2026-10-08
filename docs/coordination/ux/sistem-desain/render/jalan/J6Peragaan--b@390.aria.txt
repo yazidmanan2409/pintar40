@@ -1,4 +1,4 @@
-- region "Belajar · PINTAR":
+- region "MODE PERAGAAN · Belajar · PINTAR":
   - link "Langsung ke isi":
     - /url: "#j6-b-isi"
   - region "MODE PERAGAAN":

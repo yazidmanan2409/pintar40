@@ -1,4 +1,4 @@
-59 previews, 0 with a failure
+60 previews, 0 with a failure
 
 ok   Accent @960 (height 760px, card 760)
 ok   Accent @390 (height 1008px, card 760)
@@ -8,7 +8,7 @@ ok   ActionFeedback @390 (height 1426px, card 1080)
       note, under 44px: button.pds-btn "Ulangi contoh" 119x36; button.pds-btn "Ulangi contoh" 119x36
 ok   ActionFeedback [memproses] @960 (height 1080px, card 1080)
       note, under 44px: button.pds-btn "Ulangi contoh" 119x36; button.pds-btn "Ulangi contoh" 119x36
-ok   ActionFeedback [tersimpan] @960 (height 1168px, card 1080)
+ok   ActionFeedback [tersimpan] @960 (height 1188px, card 1080)
       note, under 44px: button.pds-btn "Ulangi contoh" 119x36; button.pds-btn "Ulangi contoh" 119x36
 ok   ActionFeedback [lambat] @960 (height 1120px, card 1080)
       note, under 44px: button.pds-btn "Ulangi contoh" 119x36; button.pds-btn "Ulangi contoh" 119x36
@@ -22,12 +22,9 @@ ok   Alert @390 (height 980px, card 760)
       note, under 44px: a.pds-btn "Tetapkan guru" 121x36; a.pds-btn "Lihat kedua baris" 139x36
 ok   AppShell @1328 (height 1000px, card 1000)
 ok   AppShell @390 (height 1172px, card 1000)
-      note, under 44px: button.pds-btn "Keluar" 69x36
 ok   AppShell [rail-1100] @1328 (height 1000px, card 1000)
 ok   AppShell [tablet-820] @1328 (height 1000px, card 1000)
-      note, under 44px: button.pds-btn "Keluar" 69x36
 ok   AppShell [ponsel-390-laci] @1328 (height 1000px, card 1000)
-      note, under 44px: button.pds-btn "Keluar" 69x36
 ok   AppShell [admin-platform] @1328 (height 1000px, card 1000)
 ok   AppShell [menu-identitas] @1328 (height 1000px, card 1000)
 ok   AppShell [klik-tempat] @1328 (height 1000px, card 1000)
@@ -44,7 +41,7 @@ ok   Checkbox @390 (height 648px, card 440)
 ok   CodeInput @960 (height 380px, card 380)
 ok   CodeInput @390 (height 564px, card 380)
 ok   Confirmation @960 (height 620px, card 620)
-ok   Confirmation @390 (height 818px, card 620)
+ok   Confirmation @390 (height 816px, card 620)
 ok   Cover @960 (height 288px, card 288)
 ok   DateTime @960 (height 640px, card 640)
 ok   DateTime @390 (height 1054px, card 640)
@@ -62,6 +59,8 @@ ok   Drawer @390 (height 300px, card 300)
 ok   Drawer [terbuka] @960 (height 300px, card 300)
 ok   EmptyState @960 (height 680px, card 680)
 ok   EmptyState @390 (height 848px, card 680)
+ok   FileField @960 (height 340px, card 340)
+ok   FileField @390 (height 340px, card 340)
 ok   FormLayout @960 (height 900px, card 900)
 ok   FormLayout @390 (height 900px, card 900)
 ok   FormLayout [galat] @960 (height 957px, card 900)
@@ -76,93 +75,93 @@ ok   Identity @960 (height 400px, card 400)
 ok   Identity @390 (height 424px, card 400)
 ok   Identity [menu] @960 (height 400px, card 400)
 ok   IdleWarning @960 (height 300px, card 300)
-ok   IdleWarning @390 (height 372px, card 300)
+ok   IdleWarning @390 (height 412px, card 300)
 ok   InteractionStates @1100 (height 520px, card 520)
 ok   InteractionStates @390 (height 560px, card 520)
 ok   J1Terbit @1280 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 86x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit @390 (height 1086px, card 1060)
-      note, under 44px: button "1 · Studio" 86x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+      note, under 44px: button "1 · Studio" 86x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [a1@1280] @1280 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 86x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [a1@1024] @1024 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 86x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [a1@390] @390 (height 1086px, card 1060)
-      note, under 44px: button "1 · Studio" 86x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+      note, under 44px: button "1 · Studio" 86x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [a2@1280] @1280 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 107x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [a2@1024] @1024 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 107x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [a2@390] @390 (height 1180px, card 1060)
-      note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 107x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+      note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 107x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [a1b@1280] @1280 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 83x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [a1b@1024] @1024 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 83x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [a1b@390] @390 (height 1086px, card 1060)
-      note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 83x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+      note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 83x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [b1@1280] @1280 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 81x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [b1@1024] @1024 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 81x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [b1@390] @390 (height 1086px, card 1060)
-      note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 81x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+      note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 81x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [b2@1280] @1280 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 102x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [b2@1024] @1024 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 102x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [b2@390] @390 (height 1265px, card 1060)
-      note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 102x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+      note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 102x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [b3@1280] @1280 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 98x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [b3@1024] @1024 (height 1076px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 98x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [b3@390] @390 (height 1540px, card 1060)
-      note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 98x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+      note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 98x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [b4@1280] @1280 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 100x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [b4@1024] @1024 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 100x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [b4@390] @390 (height 1404px, card 1060)
-      note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 100x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+      note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 100x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J2Kelas @1280 (height 2770px, card 2770)
       note, under 44px: button "1 · The class" 102x32; button "2 · Minta membaca lagi" 176x32; input.pds-check "" 134x32; button "Start again" 95x32; a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Agus Salim" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Bayu Aji" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dewi Kusuma" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36; a.pds-btn "Lihat Fajar Nugroho" 59x36; a.pds-btn "Lihat Fitri Handayani" 59x36; a.pds-btn "Lihat Gita Maharani" 59x36; a.pds-btn "Lihat Hendra Wijaya" 59x36; a.pds-btn "Lihat Indah Permatasari" 59x36; a.pds-btn "Lihat Intan Permata" 59x36; a.pds-btn "Lihat Joko Susilo" 59x36; a.pds-btn "Lihat Kartika Sari" 59x36; a.pds-btn "Lihat Lukman Hakim" 59x36; a.pds-btn "Lihat Maya Anggraini" 59x36; a.pds-btn "Lihat Muhammad Rizky Ram" 59x36; a.pds-btn "Lihat Nanda Pratiwi" 59x36; a.pds-btn "Lihat Nur Aisyah" 59x36; a.pds-btn "Lihat Oki Setiawan" 59x36; a.pds-btn "Lihat Putri Ramadhani" 59x36; a.pds-btn "Lihat Rahmat Hidayat" 59x36; a.pds-btn "Lihat Rina Marlina" 59x36; a.pds-btn "Lihat Sari Wulandari" 59x36; a.pds-btn "Lihat Teguh Prasetyo" 59x36; a.pds-btn "Lihat Umar Faruq" 59x36; a.pds-btn "Lihat Wulan Safitri" 59x36; a.pds-btn "Lihat Yoga Firmansyah" 59x36
-ok   J2Kelas @390 (height 2960px, card 2770)
-      note, under 44px: button "1 · The class" 102x32; button "2 · Minta membaca lagi" 176x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36; a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Agus Salim" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Bayu Aji" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dewi Kusuma" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36; a.pds-btn "Lihat Fajar Nugroho" 59x36; a.pds-btn "Lihat Fitri Handayani" 59x36; a.pds-btn "Lihat Gita Maharani" 59x36; a.pds-btn "Lihat Hendra Wijaya" 59x36; a.pds-btn "Lihat Indah Permatasari" 59x36; a.pds-btn "Lihat Intan Permata" 59x36; a.pds-btn "Lihat Joko Susilo" 59x36; a.pds-btn "Lihat Kartika Sari" 59x36; a.pds-btn "Lihat Lukman Hakim" 59x36; a.pds-btn "Lihat Maya Anggraini" 59x36; a.pds-btn "Lihat Muhammad Rizky Ram" 59x36; a.pds-btn "Lihat Nanda Pratiwi" 59x36; a.pds-btn "Lihat Nur Aisyah" 59x36; a.pds-btn "Lihat Oki Setiawan" 59x36; a.pds-btn "Lihat Putri Ramadhani" 59x36; a.pds-btn "Lihat Rahmat Hidayat" 59x36; a.pds-btn "Lihat Rina Marlina" 59x36; a.pds-btn "Lihat Sari Wulandari" 59x36; a.pds-btn "Lihat Teguh Prasetyo" 59x36; a.pds-btn "Lihat Umar Faruq" 59x36; a.pds-btn "Lihat Wulan Safitri" 59x36; a.pds-btn "Lihat Yoga Firmansyah" 59x36
+ok   J2Kelas @390 (height 3060px, card 2770)
+      note, under 44px: button "1 · The class" 102x32; button "2 · Minta membaca lagi" 176x32; input.pds-check "" 134x32; button "Start again" 95x32; a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Agus Salim" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Bayu Aji" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dewi Kusuma" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36; a.pds-btn "Lihat Fajar Nugroho" 59x36; a.pds-btn "Lihat Fitri Handayani" 59x36; a.pds-btn "Lihat Gita Maharani" 59x36; a.pds-btn "Lihat Hendra Wijaya" 59x36; a.pds-btn "Lihat Indah Permatasari" 59x36; a.pds-btn "Lihat Intan Permata" 59x36; a.pds-btn "Lihat Joko Susilo" 59x36; a.pds-btn "Lihat Kartika Sari" 59x36; a.pds-btn "Lihat Lukman Hakim" 59x36; a.pds-btn "Lihat Maya Anggraini" 59x36; a.pds-btn "Lihat Muhammad Rizky Ram" 59x36; a.pds-btn "Lihat Nanda Pratiwi" 59x36; a.pds-btn "Lihat Nur Aisyah" 59x36; a.pds-btn "Lihat Oki Setiawan" 59x36; a.pds-btn "Lihat Putri Ramadhani" 59x36; a.pds-btn "Lihat Rahmat Hidayat" 59x36; a.pds-btn "Lihat Rina Marlina" 59x36; a.pds-btn "Lihat Sari Wulandari" 59x36; a.pds-btn "Lihat Teguh Prasetyo" 59x36; a.pds-btn "Lihat Umar Faruq" 59x36; a.pds-btn "Lihat Wulan Safitri" 59x36; a.pds-btn "Lihat Yoga Firmansyah" 59x36
 ok   J2Kelas [a@1280] @1280 (height 2770px, card 2770)
       note, under 44px: button "1 · The class" 102x32; button "2 · Minta membaca lagi" 176x32; input.pds-check "" 134x32; button "Start again" 95x32; a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Agus Salim" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Bayu Aji" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dewi Kusuma" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36; a.pds-btn "Lihat Fajar Nugroho" 59x36; a.pds-btn "Lihat Fitri Handayani" 59x36; a.pds-btn "Lihat Gita Maharani" 59x36; a.pds-btn "Lihat Hendra Wijaya" 59x36; a.pds-btn "Lihat Indah Permatasari" 59x36; a.pds-btn "Lihat Intan Permata" 59x36; a.pds-btn "Lihat Joko Susilo" 59x36; a.pds-btn "Lihat Kartika Sari" 59x36; a.pds-btn "Lihat Lukman Hakim" 59x36; a.pds-btn "Lihat Maya Anggraini" 59x36; a.pds-btn "Lihat Muhammad Rizky Ram" 59x36; a.pds-btn "Lihat Nanda Pratiwi" 59x36; a.pds-btn "Lihat Nur Aisyah" 59x36; a.pds-btn "Lihat Oki Setiawan" 59x36; a.pds-btn "Lihat Putri Ramadhani" 59x36; a.pds-btn "Lihat Rahmat Hidayat" 59x36; a.pds-btn "Lihat Rina Marlina" 59x36; a.pds-btn "Lihat Sari Wulandari" 59x36; a.pds-btn "Lihat Teguh Prasetyo" 59x36; a.pds-btn "Lihat Umar Faruq" 59x36; a.pds-btn "Lihat Wulan Safitri" 59x36; a.pds-btn "Lihat Yoga Firmansyah" 59x36
 ok   J2Kelas [a@1024] @1024 (height 2770px, card 2770)
       note, under 44px: button "1 · The class" 102x32; button "2 · Minta membaca lagi" 176x32; input.pds-check "" 134x32; button "Start again" 95x32; a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Agus Salim" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Bayu Aji" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dewi Kusuma" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36; a.pds-btn "Lihat Fajar Nugroho" 59x36; a.pds-btn "Lihat Fitri Handayani" 59x36; a.pds-btn "Lihat Gita Maharani" 59x36; a.pds-btn "Lihat Hendra Wijaya" 59x36; a.pds-btn "Lihat Indah Permatasari" 59x36; a.pds-btn "Lihat Intan Permata" 59x36; a.pds-btn "Lihat Joko Susilo" 59x36; a.pds-btn "Lihat Kartika Sari" 59x36; a.pds-btn "Lihat Lukman Hakim" 59x36; a.pds-btn "Lihat Maya Anggraini" 59x36; a.pds-btn "Lihat Muhammad Rizky Ram" 59x36; a.pds-btn "Lihat Nanda Pratiwi" 59x36; a.pds-btn "Lihat Nur Aisyah" 59x36; a.pds-btn "Lihat Oki Setiawan" 59x36; a.pds-btn "Lihat Putri Ramadhani" 59x36; a.pds-btn "Lihat Rahmat Hidayat" 59x36; a.pds-btn "Lihat Rina Marlina" 59x36; a.pds-btn "Lihat Sari Wulandari" 59x36; a.pds-btn "Lihat Teguh Prasetyo" 59x36; a.pds-btn "Lihat Umar Faruq" 59x36; a.pds-btn "Lihat Wulan Safitri" 59x36; a.pds-btn "Lihat Yoga Firmansyah" 59x36
-ok   J2Kelas [a@390] @390 (height 2960px, card 2770)
-      note, under 44px: button "1 · The class" 102x32; button "2 · Minta membaca lagi" 176x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36; a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Agus Salim" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Bayu Aji" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dewi Kusuma" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36; a.pds-btn "Lihat Fajar Nugroho" 59x36; a.pds-btn "Lihat Fitri Handayani" 59x36; a.pds-btn "Lihat Gita Maharani" 59x36; a.pds-btn "Lihat Hendra Wijaya" 59x36; a.pds-btn "Lihat Indah Permatasari" 59x36; a.pds-btn "Lihat Intan Permata" 59x36; a.pds-btn "Lihat Joko Susilo" 59x36; a.pds-btn "Lihat Kartika Sari" 59x36; a.pds-btn "Lihat Lukman Hakim" 59x36; a.pds-btn "Lihat Maya Anggraini" 59x36; a.pds-btn "Lihat Muhammad Rizky Ram" 59x36; a.pds-btn "Lihat Nanda Pratiwi" 59x36; a.pds-btn "Lihat Nur Aisyah" 59x36; a.pds-btn "Lihat Oki Setiawan" 59x36; a.pds-btn "Lihat Putri Ramadhani" 59x36; a.pds-btn "Lihat Rahmat Hidayat" 59x36; a.pds-btn "Lihat Rina Marlina" 59x36; a.pds-btn "Lihat Sari Wulandari" 59x36; a.pds-btn "Lihat Teguh Prasetyo" 59x36; a.pds-btn "Lihat Umar Faruq" 59x36; a.pds-btn "Lihat Wulan Safitri" 59x36; a.pds-btn "Lihat Yoga Firmansyah" 59x36
+ok   J2Kelas [a@390] @390 (height 3060px, card 2770)
+      note, under 44px: button "1 · The class" 102x32; button "2 · Minta membaca lagi" 176x32; input.pds-check "" 134x32; button "Start again" 95x32; a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Agus Salim" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Bayu Aji" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dewi Kusuma" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36; a.pds-btn "Lihat Fajar Nugroho" 59x36; a.pds-btn "Lihat Fitri Handayani" 59x36; a.pds-btn "Lihat Gita Maharani" 59x36; a.pds-btn "Lihat Hendra Wijaya" 59x36; a.pds-btn "Lihat Indah Permatasari" 59x36; a.pds-btn "Lihat Intan Permata" 59x36; a.pds-btn "Lihat Joko Susilo" 59x36; a.pds-btn "Lihat Kartika Sari" 59x36; a.pds-btn "Lihat Lukman Hakim" 59x36; a.pds-btn "Lihat Maya Anggraini" 59x36; a.pds-btn "Lihat Muhammad Rizky Ram" 59x36; a.pds-btn "Lihat Nanda Pratiwi" 59x36; a.pds-btn "Lihat Nur Aisyah" 59x36; a.pds-btn "Lihat Oki Setiawan" 59x36; a.pds-btn "Lihat Putri Ramadhani" 59x36; a.pds-btn "Lihat Rahmat Hidayat" 59x36; a.pds-btn "Lihat Rina Marlina" 59x36; a.pds-btn "Lihat Sari Wulandari" 59x36; a.pds-btn "Lihat Teguh Prasetyo" 59x36; a.pds-btn "Lihat Umar Faruq" 59x36; a.pds-btn "Lihat Wulan Safitri" 59x36; a.pds-btn "Lihat Yoga Firmansyah" 59x36
 ok   J2Kelas [b@1280] @1280 (height 2770px, card 2770)
       note, under 44px: button "1 · The class" 100x32; button "2 · Minta membaca lagi" 179x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J2Kelas [b@1024] @1024 (height 2770px, card 2770)
       note, under 44px: button "1 · The class" 100x32; button "2 · Minta membaca lagi" 179x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J2Kelas [b@390] @390 (height 2770px, card 2770)
-      note, under 44px: button "1 · The class" 100x32; button "2 · Minta membaca lagi" 179x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+      note, under 44px: button "1 · The class" 100x32; button "2 · Minta membaca lagi" 179x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J3MengajarBelajar @1280 (height 900px, card 900)
       note, under 44px: button "1 · Mengajar · Kelas" 150x32; button "2 · Belajar · Pembelajar" 223x32; button "3 · Her course" 115x32; input.pds-check "" 134x32; button "Start again" 95x32
-ok   J3MengajarBelajar @390 (height 1010px, card 900)
-      note, under 44px: button "1 · Mengajar · Kelas" 150x32; button "2 · Belajar · Pembelajar" 223x32; button "3 · Her course" 115x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+ok   J3MengajarBelajar @390 (height 1030px, card 900)
+      note, under 44px: button "1 · Mengajar · Kelas" 150x32; button "2 · Belajar · Pembelajar" 223x32; button "3 · Her course" 115x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J3MengajarBelajar [a@1280] @1280 (height 900px, card 900)
       note, under 44px: button "1 · Mengajar · Kelas" 150x32; button "2 · Belajar · Pembelajar" 223x32; button "3 · Her course" 115x32; input.pds-check "" 134x32; button "Start again" 95x32
-ok   J3MengajarBelajar [a@1024] @1024 (height 900px, card 900)
+ok   J3MengajarBelajar [a@1024] @1024 (height 914px, card 900)
       note, under 44px: button "1 · Mengajar · Kelas" 150x32; button "2 · Belajar · Pembelajar" 223x32; button "3 · Her course" 115x32; input.pds-check "" 134x32; button "Start again" 95x32
-ok   J3MengajarBelajar [a@390] @390 (height 1010px, card 900)
-      note, under 44px: button "1 · Mengajar · Kelas" 150x32; button "2 · Belajar · Pembelajar" 223x32; button "3 · Her course" 115x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+ok   J3MengajarBelajar [a@390] @390 (height 1030px, card 900)
+      note, under 44px: button "1 · Mengajar · Kelas" 150x32; button "2 · Belajar · Pembelajar" 223x32; button "3 · Her course" 115x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J3MengajarBelajar [b@1280] @1280 (height 900px, card 900)
       note, under 44px: button "1 · Mengajar · Kelas" 146x32; button "2 · Belajar · Pembelajar" 228x32; button "3 · Her course" 115x32; input.pds-check "" 134x32; button "Start again" 95x32
-ok   J3MengajarBelajar [b@1024] @1024 (height 900px, card 900)
+ok   J3MengajarBelajar [b@1024] @1024 (height 914px, card 900)
       note, under 44px: button "1 · Mengajar · Kelas" 146x32; button "2 · Belajar · Pembelajar" 228x32; button "3 · Her course" 115x32; input.pds-check "" 134x32; button "Start again" 95x32
-ok   J3MengajarBelajar [b@390] @390 (height 1010px, card 900)
-      note, under 44px: button "1 · Mengajar · Kelas" 146x32; button "2 · Belajar · Pembelajar" 228x32; button "3 · Her course" 115x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+ok   J3MengajarBelajar [b@390] @390 (height 1030px, card 900)
+      note, under 44px: button "1 · Mengajar · Kelas" 146x32; button "2 · Belajar · Pembelajar" 228x32; button "3 · Her course" 115x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J3MengajarBelajar [c@1280] @1280 (height 900px, card 900)
       note, under 44px: button "1 · Mengajar · Kelas" 146x32; button "2 · Belajar · Pembelajar" 223x32; button "3 · Her course" 117x32; input.pds-check "" 134x32; button "Start again" 95x32
-ok   J3MengajarBelajar [c@1024] @1024 (height 900px, card 900)
+ok   J3MengajarBelajar [c@1024] @1024 (height 914px, card 900)
       note, under 44px: button "1 · Mengajar · Kelas" 146x32; button "2 · Belajar · Pembelajar" 223x32; button "3 · Her course" 117x32; input.pds-check "" 134x32; button "Start again" 95x32
-ok   J3MengajarBelajar [c@390] @390 (height 1010px, card 900)
-      note, under 44px: button "1 · Mengajar · Kelas" 146x32; button "2 · Belajar · Pembelajar" 223x32; button "3 · Her course" 117x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+ok   J3MengajarBelajar [c@390] @390 (height 1030px, card 900)
+      note, under 44px: button "1 · Mengajar · Kelas" 146x32; button "2 · Belajar · Pembelajar" 223x32; button "3 · Her course" 117x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J4Murid @1280 (height 960px, card 960)
       note, under 44px: button "1 · Beranda" 98x32; button "2 · Lesson" 91x32; button "3 · Question" 105x32; button "4 · Result" 85x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J4Murid @390 (height 960px, card 960)
@@ -177,13 +176,13 @@ ok   J4Murid [b@1280] @1280 (height 960px, card 960)
       note, under 44px: button "1 · Beranda" 96x32; button "2 · Lesson" 92x32; button "3 · Question" 105x32; button "4 · Result" 85x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J4Murid [b@1024] @1024 (height 960px, card 960)
       note, under 44px: button "1 · Beranda" 96x32; button "2 · Lesson" 92x32; button "3 · Question" 105x32; button "4 · Result" 85x32; input.pds-check "" 134x32; button "Start again" 95x32
-ok   J4Murid [b@390] @390 (height 1016px, card 960)
+ok   J4Murid [b@390] @390 (height 1036px, card 960)
       note, under 44px: button "1 · Beranda" 96x32; button "2 · Lesson" 92x32; button "3 · Question" 105x32; button "4 · Result" 85x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J4Murid [c@1280] @1280 (height 960px, card 960)
       note, under 44px: button "1 · Beranda" 96x32; button "2 · Lesson" 91x32; button "3 · Question" 107x32; button "4 · Result" 85x32; input.pds-check "" 134x32; button "Start again" 95x32
-ok   J4Murid [c@1024] @1024 (height 960px, card 960)
+ok   J4Murid [c@1024] @1024 (height 976px, card 960)
       note, under 44px: button "1 · Beranda" 96x32; button "2 · Lesson" 91x32; button "3 · Question" 107x32; button "4 · Result" 85x32; input.pds-check "" 134x32; button "Start again" 95x32
-ok   J4Murid [c@390] @390 (height 1100px, card 960)
+ok   J4Murid [c@390] @390 (height 1120px, card 960)
       note, under 44px: button "1 · Beranda" 96x32; button "2 · Lesson" 91x32; button "3 · Question" 107x32; button "4 · Result" 85x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J4Murid [d@1280] @1280 (height 960px, card 960)
       note, under 44px: button "1 · Beranda" 96x32; button "2 · Lesson" 91x32; button "3 · Question" 105x32; button "4 · Result" 87x32; input.pds-check "" 134x32; button "Start again" 95x32
@@ -194,13 +193,13 @@ ok   J4Murid [d@390] @390 (height 960px, card 960)
 ok   J5Jendela @1280 (height 1060px, card 1060)
       note, under 44px: button "1 · The window" 122x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J5Jendela @390 (height 1428px, card 1060)
-      note, under 44px: button "1 · The window" 122x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+      note, under 44px: button "1 · The window" 122x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J5Jendela [a@1280] @1280 (height 1060px, card 1060)
       note, under 44px: button "1 · The window" 122x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J5Jendela [a@1024] @1024 (height 1060px, card 1060)
       note, under 44px: button "1 · The window" 122x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J5Jendela [a@390] @390 (height 1428px, card 1060)
-      note, under 44px: button "1 · The window" 122x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+      note, under 44px: button "1 · The window" 122x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J6Peragaan @1280 (height 910px, card 910)
       note, under 44px: button "1 · Ruang Peragaan" 151x32; button "2 · Viewing as a learner" 172x32; button "3 · Left" 70x32; input.pds-check "" 134x32; button "Start again" 95x32; a.pds-btn "Lihat sebagai Murid · Ke" 115x36; a.pds-btn "Lihat sebagai Guru · Kel" 115x36; a.pds-btn "Lihat sebagai Kepala dep" 115x36; a.pds-btn "Lihat sebagai Dekan" 115x36; a.pds-btn "Lihat sebagai Admin seko" 115x36
 ok   J6Peragaan @390 (height 1075px, card 910)
@@ -226,19 +225,19 @@ ok   J6Peragaan [c@390] @390 (height 950px, card 910)
 ok   J7Kunci @1280 (height 900px, card 900)
       note, under 44px: button "1 · Working" 98x32; button "2 · 4 minutes" 107x32; button "3 · Locked" 94x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J7Kunci @390 (height 1010px, card 900)
-      note, under 44px: button "1 · Working" 98x32; button "2 · 4 minutes" 107x32; button "3 · Locked" 94x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+      note, under 44px: button "1 · Working" 98x32; button "2 · 4 minutes" 107x32; button "3 · Locked" 94x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J7Kunci [a@1280] @1280 (height 900px, card 900)
       note, under 44px: button "1 · Working" 98x32; button "2 · 4 minutes" 107x32; button "3 · Locked" 94x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J7Kunci [a@1024] @1024 (height 900px, card 900)
       note, under 44px: button "1 · Working" 98x32; button "2 · 4 minutes" 107x32; button "3 · Locked" 94x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J7Kunci [a@390] @390 (height 1010px, card 900)
-      note, under 44px: button "1 · Working" 98x32; button "2 · 4 minutes" 107x32; button "3 · Locked" 94x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+      note, under 44px: button "1 · Working" 98x32; button "2 · 4 minutes" 107x32; button "3 · Locked" 94x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J7Kunci [b@1280] @1280 (height 900px, card 900)
       note, under 44px: button "1 · Working" 95x32; button "2 · 4 minutes" 110x32; button "3 · Locked" 94x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J7Kunci [b@1024] @1024 (height 900px, card 900)
       note, under 44px: button "1 · Working" 95x32; button "2 · 4 minutes" 110x32; button "3 · Locked" 94x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J7Kunci [b@390] @390 (height 1070px, card 900)
-      note, under 44px: button "1 · Working" 95x32; button "2 · 4 minutes" 110x32; button "3 · Locked" 94x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32; button.pds-btn "Keluar" 69x36
+      note, under 44px: button "1 · Working" 95x32; button "2 · 4 minutes" 110x32; button "3 · Locked" 94x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J7Kunci [c@1280] @1280 (height 900px, card 900)
       note, under 44px: button "1 · Working" 95x32; button "2 · 4 minutes" 107x32; button "3 · Locked" 95x32; button "4 · Wrong PIN" 113x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J7Kunci [c@1024] @1024 (height 900px, card 900)
@@ -259,8 +258,8 @@ ok   Link @960 (height 280px, card 280)
 ok   Link @390 (height 344px, card 280)
 ok   Loading @960 (height 540px, card 540)
 ok   Loading @390 (height 590px, card 540)
-ok   LockScreen @960 (height 760px, card 760)
-ok   LockScreen @390 (height 1310px, card 760)
+ok   LockScreen @960 (height 1410px, card 760)
+ok   LockScreen @390 (height 2211px, card 760)
 ok   Menu @960 (height 320px, card 320)
 ok   Menu @390 (height 320px, card 320)
 ok   Menu [terbuka] @960 (height 320px, card 320)
@@ -275,8 +274,8 @@ ok   PasswordField @390 (height 898px, card 780)
 ok   PinInput @960 (height 800px, card 800)
 ok   PinInput @390 (height 1024px, card 800)
 ok   PinInput [lihat] @960 (height 800px, card 800)
-ok   Progress @960 (height 480px, card 480)
-ok   Progress @390 (height 480px, card 480)
+ok   Progress @960 (height 640px, card 640)
+ok   Progress @390 (height 640px, card 640)
 ok   Radio @960 (height 300px, card 300)
 ok   Radio @390 (height 328px, card 300)
 ok   Recovery @960 (height 740px, card 740)
@@ -302,7 +301,7 @@ ok   Table @390 (height 857px, card 780)
 ok   Table [urut-bab3] @1040 (height 780px, card 780)
       note, under 44px: a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Eka Putri" 59x36; a.pds-btn "Lihat Hendra Wijaya" 59x36; a.pds-btn "Lihat Kartika Sari" 59x36; a.pds-btn "Lihat Maya Anggraini" 59x36; a.pds-btn "Lihat Putri Ramadhani" 59x36
 ok   Table [pilih] @1040 (height 780px, card 780)
-      note, under 44px: button.pds-btn "Kirim pengingat" 132x36; button.pds-btn "Batalkan pilihan" 132x36; a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36
+      note, under 44px: button.pds-btn "Minta membaca lagi" 161x36; button.pds-btn "Batalkan pilihan" 132x36; a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36
 ok   Table [menu-baris] @1040 (height 780px, card 780)
       note, under 44px: a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36
 ok   Table [kosong] @1040 (height 780px, card 780)
@@ -313,9 +312,9 @@ ok   Table [halaman-2] @1040 (height 780px, card 780)
 ok   Table [ponsel] @390 (height 857px, card 780)
       note, under 44px: a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36
 ok   TableRows @1040 (height 2660px, card 2660)
-      note, under 44px: button.pds-btn "Kirim pengingat" 132x36; button.pds-btn "Batalkan pilihan" 132x36; a.pds-baris-nama "Adi Pratama" 93x24; a.pds-baris-nama "Agus Salim" 84x24; a.pds-baris-nama "Ayu Lestari" 84x24; a.pds-baris-nama "Bagus Santoso" 115x24; a.pds-baris-nama "Bayu Aji" 61x24; a.pds-baris-nama "Citra Dewi" 80x24; a.pds-baris-nama "Dewi Kusuma" 104x24; a.pds-baris-nama "Dimas Anggara" 116x24; a.pds-baris-nama "Eka Putri" 67x24; a.pds-baris-nama "Fajar Nugroho" 108x24; a.pds-baris-nama "Fitri Handayani" 114x24; a.pds-baris-nama "Gita Maharani" 106x24; a.pds-baris-nama "Hendra Wijaya" 111x24; a.pds-baris-nama "Indah Permatasari" 138x24; a.pds-baris-nama "Intan Permata" 107x24; a.pds-baris-nama "Joko Susilo" 85x24; a.pds-baris-nama "Kartika Sari" 86x24; a.pds-baris-nama "Lukman Hakim" 112x24; a.pds-baris-nama "Maya Anggraini" 118x24; a.pds-baris-nama "Muhammad Rizky Ramadhan " 351x24; a.pds-baris-nama "Nanda Pratiwi" 106x24; a.pds-baris-nama "Nur Aisyah" 80x24; a.pds-baris-nama "Oki Setiawan" 102x24; a.pds-baris-nama "Putri Ramadhani" 125x24; a.pds-baris-nama "Rahmat Hidayat" 122x24; a.pds-baris-nama "Rina Marlina" 91x24; a.pds-baris-nama "Sari Wulandari" 109x24; a.pds-baris-nama "Teguh Prasetyo" 118x24; a.pds-baris-nama "Umar Faruq" 88x24; a.pds-baris-nama "Wulan Safitri" 96x24; a.pds-baris-nama "Yoga Firmansyah" 130x24
-ok   TableRows @390 (height 4249px, card 2660)
-      note, under 44px: button.pds-btn "Kirim pengingat" 132x36; button.pds-btn "Batalkan pilihan" 132x36; a.pds-baris-nama "Adi Pratama" 93x24; a.pds-baris-nama "Agus Salim" 84x24; a.pds-baris-nama "Ayu Lestari" 84x24; a.pds-baris-nama "Bagus Santoso" 115x24; a.pds-baris-nama "Bayu Aji" 61x24; a.pds-baris-nama "Citra Dewi" 80x24; a.pds-baris-nama "Dewi Kusuma" 104x24; a.pds-baris-nama "Dimas Anggara" 116x24; a.pds-baris-nama "Eka Putri" 67x24; a.pds-baris-nama "Fajar Nugroho" 108x24; a.pds-baris-nama "Fitri Handayani" 114x24; a.pds-baris-nama "Gita Maharani" 106x24; a.pds-baris-nama "Hendra Wijaya" 111x24; a.pds-baris-nama "Intan Permata" 107x24; a.pds-baris-nama "Joko Susilo" 85x24; a.pds-baris-nama "Kartika Sari" 86x24; a.pds-baris-nama "Lukman Hakim" 112x24; a.pds-baris-nama "Maya Anggraini" 118x24; a.pds-baris-nama "Nanda Pratiwi" 106x24; a.pds-baris-nama "Nur Aisyah" 80x24; a.pds-baris-nama "Oki Setiawan" 102x24; a.pds-baris-nama "Rina Marlina" 91x24; a.pds-baris-nama "Sari Wulandari" 109x24; a.pds-baris-nama "Teguh Prasetyo" 118x24; a.pds-baris-nama "Umar Faruq" 88x24; a.pds-baris-nama "Wulan Safitri" 96x24
+      note, under 44px: button.pds-btn "Minta membaca lagi" 161x36; button.pds-btn "Batalkan pilihan" 132x36; a.pds-baris-nama "Adi Pratama" 93x24; a.pds-baris-nama "Agus Salim" 84x24; a.pds-baris-nama "Ayu Lestari" 84x24; a.pds-baris-nama "Bagus Santoso" 115x24; a.pds-baris-nama "Bayu Aji" 61x24; a.pds-baris-nama "Citra Dewi" 80x24; a.pds-baris-nama "Dewi Kusuma" 104x24; a.pds-baris-nama "Dimas Anggara" 116x24; a.pds-baris-nama "Eka Putri" 67x24; a.pds-baris-nama "Fajar Nugroho" 108x24; a.pds-baris-nama "Fitri Handayani" 114x24; a.pds-baris-nama "Gita Maharani" 106x24; a.pds-baris-nama "Hendra Wijaya" 111x24; a.pds-baris-nama "Indah Permatasari" 138x24; a.pds-baris-nama "Intan Permata" 107x24; a.pds-baris-nama "Joko Susilo" 85x24; a.pds-baris-nama "Kartika Sari" 86x24; a.pds-baris-nama "Lukman Hakim" 112x24; a.pds-baris-nama "Maya Anggraini" 118x24; a.pds-baris-nama "Muhammad Rizky Ramadhan " 351x24; a.pds-baris-nama "Nanda Pratiwi" 106x24; a.pds-baris-nama "Nur Aisyah" 80x24; a.pds-baris-nama "Oki Setiawan" 102x24; a.pds-baris-nama "Putri Ramadhani" 125x24; a.pds-baris-nama "Rahmat Hidayat" 122x24; a.pds-baris-nama "Rina Marlina" 91x24; a.pds-baris-nama "Sari Wulandari" 109x24; a.pds-baris-nama "Teguh Prasetyo" 118x24; a.pds-baris-nama "Umar Faruq" 88x24; a.pds-baris-nama "Wulan Safitri" 96x24; a.pds-baris-nama "Yoga Firmansyah" 130x24
+ok   TableRows @390 (height 4483px, card 2660)
+      note, under 44px: button.pds-btn "Minta membaca lagi" 161x36; button.pds-btn "Batalkan pilihan" 132x36; a.pds-baris-nama "Adi Pratama" 93x24; a.pds-baris-nama "Agus Salim" 84x24; a.pds-baris-nama "Ayu Lestari" 84x24; a.pds-baris-nama "Bagus Santoso" 115x24; a.pds-baris-nama "Bayu Aji" 61x24; a.pds-baris-nama "Citra Dewi" 80x24; a.pds-baris-nama "Dewi Kusuma" 104x24; a.pds-baris-nama "Dimas Anggara" 116x24; a.pds-baris-nama "Eka Putri" 67x24; a.pds-baris-nama "Fajar Nugroho" 108x24; a.pds-baris-nama "Fitri Handayani" 114x24; a.pds-baris-nama "Gita Maharani" 106x24; a.pds-baris-nama "Hendra Wijaya" 111x24; a.pds-baris-nama "Intan Permata" 107x24; a.pds-baris-nama "Joko Susilo" 85x24; a.pds-baris-nama "Kartika Sari" 86x24; a.pds-baris-nama "Lukman Hakim" 112x24; a.pds-baris-nama "Maya Anggraini" 118x24; a.pds-baris-nama "Nanda Pratiwi" 106x24; a.pds-baris-nama "Nur Aisyah" 80x24; a.pds-baris-nama "Oki Setiawan" 102x24; a.pds-baris-nama "Rina Marlina" 91x24; a.pds-baris-nama "Sari Wulandari" 109x24; a.pds-baris-nama "Teguh Prasetyo" 118x24; a.pds-baris-nama "Umar Faruq" 88x24; a.pds-baris-nama "Wulan Safitri" 96x24
 ok   Tabs @960 (height 420px, card 420)
 ok   Tabs @390 (height 420px, card 420)
 ok   Tag @960 (height 240px, card 240)

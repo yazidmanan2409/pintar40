@@ -85,17 +85,17 @@
         "hasil": {
           "1280": "pass",
           "1024": "pass",
-          "390": "finding"
+          "390": "finding, corrected"
         },
         "catatan": "At 390, Studio's tabs hide «Bank Soal» and «Uji Cepat» beyond the edge with no sign that more follow (F10)."
       }
     ],
     "temuan": [
-      "F1 · JQ1: the definition's teacher who publishes is two people in PINTAR.",
-      "C2: the publishing copy says «Siswa» and «menugaskan» where the teacher's screens say «murid» and «Sediakan».",
-      "F5: the App shell, Confirmation, Specimen and Action feedback specimens have a teacher publish to a class.",
-      "F10: Studio's tabs at 390 px.",
-      "F11: «Tinjauan sebelum disediakan» is a review before the act, not a Confirmation."
+      "F1 · JQ1: the definition's teacher who publishes is two people in PINTAR. Corrected or decided, 8 Oct.",
+      "C2: the publishing copy says «Siswa» and «menugaskan» where the teacher's screens say «murid» and «Sediakan». Corrected or decided, 8 Oct.",
+      "F5: the App shell, Confirmation, Specimen and Action feedback specimens have a teacher publish to a class. Corrected or decided, 8 Oct.",
+      "F10: Studio's tabs at 390 px. Corrected or decided, 8 Oct.",
+      "F11: «Tinjauan sebelum disediakan» is a review before the act, not a Confirmation. Corrected or decided, 8 Oct."
     ]
   },
   "J2": {
@@ -148,7 +148,7 @@
       {
         "cek": "No sideways scroll at 390 px",
         "hasil": {
-          "390": "finding"
+          "390": "finding, corrected"
         },
         "catatan": "The page does not scroll sideways; the table scrolls in its frame with the name held still, as the Table rule says. But the state is cut at the frame's edge and the row's actions are only reached by scrolling the table (F7)."
       },
@@ -181,18 +181,18 @@
       {
         "cek": "Anything that fights the content",
         "hasil": {
-          "1280": "finding",
-          "1024": "finding",
-          "390": "finding"
+          "1280": "finding, corrected",
+          "1024": "finding, corrected",
+          "390": "finding, corrected"
         },
         "catatan": "The dialog's confirm reads «Ya, keluar dari semua» (C1)."
       }
     ],
     "temuan": [
-      "F1 · JQ2: a teacher has no consequential act on one learner; the dialog is met on «Keluar dari semua perangkat», and the product's three lists are one table here.",
-      "C1: «Ya, …» on a confirm button.",
-      "F2: the Table and Table rows specimens offer acts a teacher cannot do, and «Kirim pengingat».",
-      "F7: the table at 390 px."
+      "F1 · JQ2: a teacher has no consequential act on one learner; the dialog is met on «Keluar dari semua perangkat», and the product's three lists are one table here. Corrected or decided, 8 Oct.",
+      "C1: «Ya, …» on a confirm button. Corrected or decided, 8 Oct.",
+      "F2: the Table and Table rows specimens offer acts a teacher cannot do, and «Kirim pengingat». Corrected or decided, 8 Oct.",
+      "F7: the table at 390 px. Corrected or decided, 8 Oct."
     ]
   },
   "J3": {
@@ -210,7 +210,7 @@
         "cek": "Where am I",
         "hasil": {
           "1280": "pass",
-          "1024": "finding",
+          "1024": "finding, corrected",
           "390": "pass"
         },
         "catatan": "At 1280 and in the drawer the group labels «Mengajar» and «Belajar» say which context is open. At 1024 the rail drops them and the two contexts become one column of icons (F8)."
@@ -283,8 +283,8 @@
       }
     ],
     "temuan": [
-      "JQ3: an educator's own learning stays in the staff shell.",
-      "F8 · JQ7: the rail at 1024 px loses the two contexts."
+      "JQ3: an educator's own learning stays in the staff shell. Corrected or decided, 8 Oct.",
+      "F8 · JQ7: the rail at 1024 px loses the two contexts. Corrected or decided, 8 Oct."
     ]
   },
   "J4": {
@@ -374,8 +374,8 @@
       }
     ],
     "temuan": [
-      "F11: the assessment's «Kumpulkan» panel is a review before the act, not a Confirmation.",
-      "F12: the shell documents say a learner is never named; D-020 greets by first name here («Halo, Bagas»)."
+      "F11: the assessment's «Kumpulkan» panel is a review before the act, not a Confirmation. Corrected or decided, 8 Oct.",
+      "F12: the shell documents say a learner is never named; D-020 greets by first name here («Halo, Bagas»). Corrected or decided, 8 Oct."
     ]
   },
   "J5": {
@@ -466,8 +466,8 @@
       }
     ],
     "temuan": [
-      "F1 · JQ5: an Uji Cepat has no opening date; the window of «Siapkan» is composed instead.",
-      "F3: the Date and time specimen says «Uji Cepat dibuka»."
+      "F1 · JQ5: an Uji Cepat has no opening date; the window of «Siapkan» is composed instead. Corrected or decided, 8 Oct.",
+      "F3: the Date and time specimen says «Uji Cepat dibuka». Corrected or decided, 8 Oct."
     ]
   },
   "J6": {
@@ -484,9 +484,9 @@
       {
         "cek": "Where am I",
         "hasil": {
-          "1280": "finding",
-          "1024": "finding",
-          "390": "finding"
+          "1280": "finding, corrected",
+          "1024": "finding, corrected",
+          "390": "finding, corrected"
         },
         "catatan": "The band says «MODE PERAGAAN · Sedang melihat sebagai: Murid · Kelas 5A» on the screen, but the page title is the learner's own «Belajar · PINTAR» (F9)."
       },
@@ -559,9 +559,9 @@
       }
     ],
     "temuan": [
-      "F1 · JQ6: MODE PERAGAAN is the evaluator's demonstration room, not a teacher's mode.",
-      "F9: the page title inside the room.",
-      "F12: «Halo, Bagas» under the band follows D-020, against the shell documents' wording."
+      "F1 · JQ6: MODE PERAGAAN is the evaluator's demonstration room, not a teacher's mode. Corrected or decided, 8 Oct.",
+      "F9: the page title inside the room. Corrected or decided, 8 Oct.",
+      "F12: «Halo, Bagas» under the band follows D-020, against the shell documents' wording. Corrected or decided, 8 Oct."
     ]
   },
   "J7": {
@@ -652,7 +652,7 @@
       }
     ],
     "temuan": [
-      "F4: the Lock screen and Idle warning specimens predate Gate 6."
+      "F4: the Lock screen and Idle warning specimens predate Gate 6. Corrected or decided, 8 Oct."
     ]
   }
 }

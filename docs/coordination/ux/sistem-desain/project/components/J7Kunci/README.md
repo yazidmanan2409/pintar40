@@ -1,6 +1,6 @@
 Stepping away from a shared computer: a composed journey for owner validation (11-validation.md §1).
 
-**Status: SPECIMEN, ready for owner validation.** Not PINTAR, and not applied: it shows the approved grammar working together.
+**Status: SPECIMEN, APPLICATION READY (8 Oct).** Not PINTAR, and not applied: it shows the approved grammar working together; its findings are corrected at source.
 
 **Who.** Rina Kartika, Guru, on the staff room's shared computer.
 
@@ -10,7 +10,7 @@ Stepping away from a shared computer: a composed journey for owner validation (1
 - Gate 6 is built (BOB-29, D-101), so every word is the product's: jaga.peringatan and jaga.masih for the warning, kunci.* for the lock, kunci.tidak_cocok.2 for a wrong PIN. The lock names the staff member («Terkunci untuk Rina Kartika»); for a learner's class card it names no one (src/app/terkunci).
 - The warning's heading is new: the product has the sentence and the button only.
 - The two time steps are review steps, not PINTAR.
-- Found while composing: the Lock screen and Idle warning components predate Gate 6 and use sample text («Buka PINTAR», «PIN (4 angka)», no name). Finding F4 proposes bringing them to the built words.
+- Found while composing: the Lock screen and Idle warning components predate Gate 6 and use sample text («Buka PINTAR», «PIN (4 angka)», no name). Corrected 8 Oct (F4).
 
 **The steps**
 1. Working
@@ -43,4 +43,4 @@ Stepping away from a shared computer: a composed journey for owner validation (1
 | Anything that fights the content | pass | pass | pass |  |
 
 **Findings**
-- F4: the Lock screen and Idle warning specimens predate Gate 6.
+- F4: the Lock screen and Idle warning specimens predate Gate 6. Corrected or decided, 8 Oct.

@@ -14,7 +14,7 @@ Native date and time fields, each followed by the chosen date in words, so the d
 - **Always the echo, in words with the day:** «Jumat, 9 Okt 2026», or «Jumat, 9 Okt 2026, 07.30 WIB» when there is a time. When empty: «Belum ada tanggal.»
 - **The echo is built from the field's value** (yyyy-mm-dd, the same in every browser), never read back from what the field displays. It is always right.
 - **Every time is WIB,** and the field says so. A learner sees the same time whatever their device's clock says.
-- **The confirmation and the result line repeat the date in words** («Uji Cepat dibuka Jumat, 9 Okt 2026, 07.30 WIB»).
+- **The confirmation and the result line repeat the date in words** («Mulai Senin, 12 Okt 2026 · Sampai Selasa, 20 Okt 2026»).
 - **A far date** (a birth date, if PINTAR ever asks for one) uses three fields instead (day, the month by name, year), because a calendar is slow to reach it.
 
 **In PINTAR today.** Siapkan's «mulai» and «sampai» and Konfigurasi's «valid_until» are native date fields with no echo. On an English-language computer they show «10/09/2026» for 9 October.

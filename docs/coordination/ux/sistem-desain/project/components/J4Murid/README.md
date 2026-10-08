@@ -1,6 +1,6 @@
 A lesson, a question and its result: a composed journey for owner validation (11-validation.md §1).
 
-**Status: SPECIMEN, ready for owner validation.** Not PINTAR, and not applied: it shows the approved grammar working together.
+**Status: SPECIMEN, APPLICATION READY (8 Oct).** Not PINTAR, and not applied: it shows the approved grammar working together; its findings are corrected at source.
 
 **Who.** Bagas, a learner in Kelas 5A, on a shared school computer and on a phone.
 
@@ -38,5 +38,5 @@ A lesson, a question and its result: a composed journey for owner validation (11
 | Anything that fights the content | pass | pass | pass |  |
 
 **Findings**
-- F11: the assessment's «Kumpulkan» panel is a review before the act, not a Confirmation.
-- F12: the shell documents say a learner is never named; D-020 greets by first name here («Halo, Bagas»).
+- F11: the assessment's «Kumpulkan» panel is a review before the act, not a Confirmation. Corrected or decided, 8 Oct.
+- F12: the shell documents say a learner is never named; D-020 greets by first name here («Halo, Bagas»). Corrected or decided, 8 Oct.

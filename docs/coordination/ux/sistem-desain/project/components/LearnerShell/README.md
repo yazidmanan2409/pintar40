@@ -2,7 +2,7 @@ The learner's top bar, and the two shells with no navigation at all: focus (insi
 
 **Status: KEPT** (CangkangPengalaman's `learner`, `focus` and `public` kinds), restyled. The learner's shell stays simpler than the staff one.
 
-**Learner.** The wordmark, «Belajar» and «Sertifikat» as tabs, then Bantuan, the language (a segmented control), «Bukan akun Anda?» and «Keluar». A learner is never named on a shared screen (S15, D-020). The same at every width; under 640 px the tabs take their own row.
+**Learner.** The wordmark, «Belajar» and «Sertifikat» as tabs, then Bantuan, the language (a segmented control), «Bukan akun Anda?» and «Keluar». A learner is never named in the bar of a shared screen (S15); the first-name greeting on Belajar and the home page is the one exception (D-020). The same at every width; under 640 px the tabs take their own row.
 
 **Focus.** Inside an assessment: the wordmark, the language, «Bukan akun Anda?» and «Keluar». No other way out of a timed task.
 

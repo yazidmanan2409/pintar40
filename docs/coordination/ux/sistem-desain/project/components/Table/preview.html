@@ -23,7 +23,7 @@
     <div class="pds-bulk" hidden>
       <span data-bulk-jumlah aria-live="polite">0 dipilih</span>
       <span class="pds-row-tight">
-        <button type="button" class="pds-btn pds-btn-secondary pds-btn-sm">Kirim pengingat</button>
+        <button type="button" class="pds-btn pds-btn-secondary pds-btn-sm">Minta membaca lagi</button>
         <button type="button" class="pds-btn pds-btn-quiet pds-btn-sm" data-bulk-batal>Batalkan pilihan</button>
       </span>
     </div>
@@ -53,7 +53,7 @@
       </table>
     </div>
     <nav class="pds-pager" aria-label="Halaman daftar murid">
-      <span data-pager-ringkas></span>
+      <span data-pager-ringkas aria-live="polite"></span>
       <span class="pds-pager-gerak">
         <button type="button" class="pds-btn pds-btn-secondary" data-pager-sebelum><i data-ikon="chevron-left"></i><span class="pds-btn-teks">Sebelumnya</span><span class="pds-sr">Halaman sebelumnya</span></button>
         <span class="pds-pager-posisi" data-pager-posisi aria-live="polite"></span>
@@ -93,9 +93,8 @@
         '<td><div class="pds-row-actions"><a href="#" class="pds-btn pds-btn-quiet pds-btn-sm">Lihat<span class="pds-sr"> ' + m[0] + '</span></a>' +
         '<span class="pds-menu-host"><button type="button" class="pds-btn pds-btn-icon" aria-haspopup="menu" aria-expanded="false" aria-controls="tb-menu-' + i + '" aria-label="Opsi untuk ' + m[0] + '"><i data-ikon="ellipsis"></i></button>' +
         '<span class="pds-menu" id="tb-menu-' + i + '" role="menu" aria-label="Opsi untuk ' + m[0] + '" hidden>' +
-        '<a href="#" class="pds-menu-item" role="menuitem">Kirim pengingat</a>' +
-        '<a href="#" class="pds-menu-item" role="menuitem">Pindahkan ke kelas lain</a>' +
-        '<hr class="pds-menu-pisah"><a href="#" class="pds-menu-item pds-menu-bahaya" role="menuitem">Keluarkan dari kelas</a></span></span></div></td>';
+        '<a href="#" class="pds-menu-item" role="menuitem">Lihat bukti</a>' +
+        '<a href="#" class="pds-menu-item" role="menuitem">Minta membaca lagi</a></span></span></div></td>';
       isi.insertBefore(tr, kosong);
     });
   })();

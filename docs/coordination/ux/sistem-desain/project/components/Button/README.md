@@ -14,7 +14,7 @@ Five families of button, every one 44 px to hit, so similar acts look and behave
 **States.** Hover, pressed, focus and disabled as in Interaction states. Processing (`aria-busy="true"`) keeps the button's own colour and shows the working dot and the progressive word; completed (`data-keadaan="selesai"`) shows ✓ and the result word on the success ground. Both are driven by Action feedback, never set by hand.
 
 **Rules**
-- The label is a verb and its object: «Terbitkan Bab 4», «Kirim kartu». Never «OK», «Ya», «Submit».
+- The label is a verb and its object: «Sediakan Bab 4», «Kirim kartu». Never «OK», «Ya», «Submit». A bare verb only where the heading right above it names the object («Terbitkan» under the chapter's step «Terbitkan»; «Sediakan» at the end of «Siapkan materi»).
 - A disabled button always has its reason written beside it, or it stays enabled and explains on press.
 - A link that goes somewhere is a link, even if it looks like a button (`<a class="pds-btn …">`); a button does something.
 - No icons for decoration; a leading icon only where it speeds recognition (trash for delete).

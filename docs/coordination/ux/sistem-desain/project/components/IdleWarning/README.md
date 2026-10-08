@@ -1,6 +1,6 @@
 «Saya masih di sini»: one minute before the lock, an attention banner at the top of the page with one button.
 
-**Status: NEW** (Gate 6). Sample text.
+**Status: NEW** (Gate 6, built). The sentence and the button are the copy table's (`jaga.peringatan`, `jaga.masih`); the heading is the design system's.
 
 **Rules**
 - Attention, not error: nothing is wrong. `status-attention-soft` ground, the clock icon.

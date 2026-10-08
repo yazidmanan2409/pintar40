@@ -1,16 +1,16 @@
 When material opens and closes for a class: a composed journey for owner validation (11-validation.md §1).
 
-**Status: SPECIMEN, ready for owner validation.** Not PINTAR, and not applied: it shows the approved grammar working together.
+**Status: SPECIMEN, APPLICATION READY (8 Oct).** Not PINTAR, and not applied: it shows the approved grammar working together; its findings are corrected at source.
 
 **Who.** Rina Kartika, Guru, setting the window for Bab 4 in Kelas 5A.
 
 **What it validates.** Date fields (15); 3:1 field outlines and the error under the field (3); hover and press at 120 ms (8).
 
 **Composed against the product**
-- 11-validation.md defined J5 as setting when an Uji Cepat opens. An Uji Cepat has no opening date in PINTAR: its window is counted in minutes from the moment it is made available («Berhitung sejak disediakan», mengajar.cepat.jendela.arti). The date fields a teacher really meets are the window of «Siapkan» (Mulai, Sampai; DAISY-14). J5 is composed there; question JQ5 asks you to confirm.
+- 11-validation.md defined J5 as setting when an Uji Cepat opens. An Uji Cepat has no opening date in PINTAR: its window is counted in minutes from the moment it is made available («Berhitung sejak disediakan», mengajar.cepat.jendela.arti). The date fields a teacher really meets are the window of «Siapkan» (Mulai, Sampai; DAISY-14). J5 is composed there; confirmed 8 Oct (JQ5).
 - The fields are dates only, as the product's are (type=date): «Mulai» and an optional «Sampai», where empty means «Tanpa batas akhir». The echo under each says the date in words with its day.
 - The mistake is real: «Sampai» before «Mulai». Pressing «Sediakan» shows the server's own sentence under the field (mengajar.sedia.kode.assign_window_invalid) and moves focus to it; correcting the date clears it.
-- Found while composing: the Date and time component's example is «Uji Cepat dibuka» with a date and a time. Finding F3 proposes rewording it to the Siapkan window.
+- Found while composing: the Date and time component's example is «Uji Cepat dibuka» with a date and a time. Corrected 8 Oct (F3).
 
 **The steps**
 1. The window
@@ -40,5 +40,5 @@ When material opens and closes for a class: a composed journey for owner validat
 | Anything that fights the content | pass | pass | pass |  |
 
 **Findings**
-- F1 · JQ5: an Uji Cepat has no opening date; the window of «Siapkan» is composed instead.
-- F3: the Date and time specimen says «Uji Cepat dibuka».
+- F1 · JQ5: an Uji Cepat has no opening date; the window of «Siapkan» is composed instead. Corrected or decided, 8 Oct.
+- F3: the Date and time specimen says «Uji Cepat dibuka». Corrected or decided, 8 Oct.

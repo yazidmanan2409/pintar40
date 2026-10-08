@@ -658,6 +658,31 @@
     pergi(pertama, false);
   }
 
+  /* ──────────────────────────────────────────────── the file field */
+  function berkas(host) {
+    var input = host.querySelector('input[type="file"]'), nama = host.querySelector("[data-berkas-nama] span");
+    if (!input || !nama) return;
+    input.addEventListener("change", function () {
+      var f = Array.prototype.map.call(input.files || [], function (x) { return x.name; });
+      nama.textContent = f.length ? f.join(", ") : (nama.parentNode.getAttribute("data-kosong") || "");
+    });
+  }
+
+  /* ──────────────────────────────────────────── tabs past the edge (F10) */
+  // A row of tabs wider than its space scrolls; while more follow, its edge fades, and the
+  // current tab is kept in view.
+  function tabTepi(baris) {
+    function atur() {
+      var lebih = baris.scrollWidth > baris.clientWidth + 1 && baris.scrollLeft + baris.clientWidth < baris.scrollWidth - 1;
+      baris.classList.toggle("pds-tabs-lebih", lebih);
+    }
+    var kini = baris.querySelector('[aria-current="page"], [aria-selected="true"]');
+    if (kini && baris.scrollWidth > baris.clientWidth) baris.scrollLeft = Math.max(0, kini.offsetLeft - baris.offsetLeft - 16);
+    baris.addEventListener("scroll", atur, { passive: true });
+    if (window.ResizeObserver) new ResizeObserver(atur).observe(baris);
+    atur();
+  }
+
   /* ─────────────────────────────────────────────────────── siapkan */
   // ── dates (Dr Gladys, 5 Oct): one grammar, built from the value, never from the browser's locale ──
   var BULAN = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
@@ -710,6 +735,8 @@
     akar.querySelectorAll("form[data-validasi]").forEach(siapValidasi);
     akar.querySelectorAll("[data-aksi]").forEach(aksi);
     akar.querySelectorAll('[role="tablist"]').forEach(tabs);
+    akar.querySelectorAll(".pds-tabs").forEach(tabTepi);
+    akar.querySelectorAll("[data-berkas]").forEach(berkas);
     akar.querySelectorAll('[aria-haspopup="menu"]').forEach(menu);
     akar.querySelectorAll(".pds-switch").forEach(sakelar);
     akar.querySelectorAll("[data-pin]").forEach(pin);

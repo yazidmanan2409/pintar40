@@ -63,7 +63,7 @@ They are inspiration for the design language. They are not templates, and they r
 | Pale grey tab labels, placeholder text as the label | Below 4.5:1, and a label must stay visible once something is typed. |
 | Spinners | Nothing spins in PINTAR; it uses the working dot. |
 | Star ratings, «GOLD», prices | No points, badges or celebration (D-059(e)). |
-| Photographs of people | A learner is never pictured or named on a shared screen (S15, D-020). Staff get initials. |
+| Photographs of people | A learner is never pictured on a shared screen, and never named in the bar (S15); the first-name greeting on Belajar and the home page is the one exception (D-020). Staff get initials. |
 | Flags for languages | Languages are words. |
 | A coloured icon per event | No meaning by colour. A history is one ink with words. |
 | ⌘K search, a notification bell | No global search exists, and PINTAR promises no notifications. |
