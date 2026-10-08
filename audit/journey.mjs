@@ -264,6 +264,19 @@ async function adminPertamaViaForm(page, personName, until = "2027-06-30") {
   const u = new URL(page.url());
   return { ok: u.searchParams.get("hasil"), detail: u.searchParams.get("detail"), url: u.pathname + u.search, ditanya };
 }
+// BOB19-K01 (Option B): SMA's first administrator, made by Gladys with «Orang baru di luar pendataan» and appointed by
+// «Menunjuk admin sekolah pertama» in Mengelola · SMA. Once: C12c needs it first (a school with no role at all is
+// offered nowhere on Pendataan, so its staff cannot be recorded before it has an administrator), L3A reuses it.
+const SMA_ADMIN = { name: "Bu Admin SMA", email: "admin.sma@audit.pintar.test" };
+let adminSma = null;
+async function pastikanAdminSma() {
+  if (adminSma && adminSma.angkat.ok === "ok") return { ...adminSma, sudah: true };
+  const np = await newPerson(g, SMA_ADMIN.name, SMA_ADMIN.email);
+  await keKonteks(g, { tujuan: "MENGELOLA", nama: "SMA Zayd" });
+  const angkat = np.ok ? await adminPertamaViaForm(g, SMA_ADMIN.name) : { ok: "no person" };
+  adminSma = { np, angkat };
+  return { ...adminSma, sudah: false };
+}
 // BOB19-K01 (Option B): staff a school does not have yet are recorded with the school's own tool and activated, then
 // appointed from the school's own list (the path C12b's stafBaru walks). In the page's current context: Pendataan
 // (no Tempat, no role), then Aktivasi «Aktifkan dengan email» on the person's row.
@@ -2502,7 +2515,7 @@ await step("S23i", "the head of department reviews Kelas 1A's integrity observat
 // C-12 (D-069, D-070, design/EDUCATOR-AS-LEARNER-TICKETS.md §7): Kelas 1A's teacher learns as a participant in a
 // professional-learning place, here, while he still teaches Kelas 1A and its figures are settled (before S24 changes
 // who leads it). The walk and its snapshot live in c12.mjs and c12-potret.mjs.
-await jalankanC12({ step, sql, ctx, magicSignIn, apiSession, grantViaForm, catatDanAktifkan, catatLewatLayar, kirimPaket, terbitkanLewatLayar, keadaanBab, jawab,
+await jalankanC12({ step, sql, ctx, magicSignIn, apiSession, grantViaForm, catatDanAktifkan, pastikanAdminSma, catatLewatLayar, kirimPaket, terbitkanLewatLayar, keadaanBab, jawab,
   tutupTur, masukKartu, shot, bodyText, norm, people, ids, a, g, kartuKelas, KUNCI, kelasSatuA, babSatu, SLOW, APP, DB, GLADYS, newPerson, OUT, keKonteks });
 
 // ═══ the closure's batch 2 walks (D-118): CR-38, CR-44, CR-40 and CR-39 through the screens, after C-12's block (its
@@ -4172,14 +4185,13 @@ await step("L3A", "L3 scenario A (design §3; D-132 C3, C4): Admin platform who 
   // her teaching appointments, granted by each school's own administrator through the database's grant (the screen's
   // own call, grant_role; nobody grants themselves, INV-16). SMA has no administrator yet: Gladys makes one on the
   // screens, as she did SD's in S3 and S4
-  const smaAdmin = { name: "Bu Admin SMA", email: "admin.sma@audit.pintar.test" };
-  const np = await newPerson(g, smaAdmin.name, smaAdmin.email);
-  notes.push(`«Orang baru» ${smaAdmin.name}: ${np.ok}`);
+  // BOB19-K01 (the owner's ruling of 8 Oct, Option B): SMA's first administrator, by «Menunjuk admin sekolah pertama»,
+  // Admin sekolah at SMA's root as before; made in C12c when that ran first (pastikanAdminSma), else here
+  const smaAdmin = SMA_ADMIN;
+  const { np, angkat, sudah } = await pastikanAdminSma();
+  notes.push(`«Orang baru» ${smaAdmin.name}: ${np.ok}${sudah ? " (in C12c)" : ""}`);
   await keKonteks(g, { tujuan: "MENGELOLA", nama: "SMA Zayd" });
-  // BOB19-K01 (the owner's ruling of 8 Oct, Option B; selector only): SMA's first administrator, by «Menunjuk admin
-  // sekolah pertama», Admin sekolah at SMA's root as before
-  const angkat = await adminPertamaViaForm(g, smaAdmin.name);
-  notes.push(`Admin sekolah of SMA: ${angkat.ok}`);
+  notes.push(`Admin sekolah of SMA: ${angkat.ok}${sudah ? " (in C12c)" : ""}`);
   const smaApi = await apiSession(smaAdmin.email);
   // SETUP (OPERATOR, declared, as W1): each school first has her as its own person, by an institutional ID as its
   // intake records a teacher, because a school-scoped role is granted only to a person the school already has (D-049).

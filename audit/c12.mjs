@@ -34,7 +34,7 @@ const JUDUL = PAKET.map((p) => p.courses[0].title);
 const RENCANA_PD = [{ pre: 2, post: 4 }, { pre: 1, post: 3 }];
 
 export async function jalankanC12(d) {
-  const { step, sql, ctx, magicSignIn, apiSession, grantViaForm, catatDanAktifkan, catatLewatLayar, kirimPaket, terbitkanLewatLayar, keadaanBab, jawab, tutupTur,
+  const { step, sql, ctx, magicSignIn, apiSession, grantViaForm, catatDanAktifkan, pastikanAdminSma, catatLewatLayar, kirimPaket, terbitkanLewatLayar, keadaanBab, jawab, tutupTur,
     masukKartu, shot, bodyText, norm, people, ids, a, g, kartuKelas, KUNCI, kelasSatuA, babSatu, SLOW, APP, DB, GLADYS, newPerson, OUT, keKonteks } = d;
   const C = {};
   const q = (s) => sql(s).trim();
@@ -160,7 +160,10 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
     // role names one of the school's own people, so Gladys, in Mengelola · SMA as before, records the Guru with SMA's
     // own tool (Pendataan; SMA's code saved on that screen first if it has none) and activates her (Aktivasi), where
     // «Orang baru di luar pendataan» made her before, then grants Guru at SMA from SMA's list. Actor, school, role and
-    // assertions are unchanged
+    // assertions are unchanged. A school with no role at all is offered nowhere on Pendataan, so Gladys first gives SMA
+    // its first administrator by «Menunjuk admin sekolah pertama» (the plan's §3 alternative; L3A reuses it)
+    const pertama = await pastikanAdminSma();
+    notes.push(`SMA's first administrator by «Menunjuk admin sekolah pertama»: ${pertama.angkat.ok}`);
     await keKonteks(g, { tujuan: "MENGELOLA", nama: "SMA Zayd" });
     if (!q(`select coalesce(namespace, '') from public.institutions where id='${ids.sma}'`)) {
       await g.goto(`${APP}/pendataan`, { waitUntil: "networkidle" });
