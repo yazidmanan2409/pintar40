@@ -160,3 +160,21 @@ None of the questions first listed here meets D-135(b)'s escalation standard, so
 1. **The example workbook** stays withheld: it carries live answer keys. An example-only question set is content work for later, not a ruling.
 2. **A transfer's other school** stays «—» for Admin sekolah under the existing row security.
 3. **Report-template titles in words** join the one consolidated terminology register for Dr Gladys; nothing else waits on them.
+
+## 9. Final evidence and the verdict (8 Oct)
+
+**The Second Eye: GREEN for L4**, on the condition that the local suite, the crawl and the journeys come back green and CI follows. Each N1–N4 correction was verified in the code; nothing remained wrong. The conditions were met:
+
+| Evidence | Result |
+|---|---|
+| Full local suite (fresh seeded database) | 649 passed, 1 failed: PENUTUPAN-M04, which read the withheld example as a chapter. Root cause: the example sat in `docs/onboarding/konten/`. It moved to `docs/onboarding/contoh/` (dab5c12); M04 and L4-C01 pass |
+| Local crawl, 320 px | exit 0; no broken page |
+| Local journeys | 74 PASS, S23q FAIL (CR-52, D-123), BD11 not runnable here (one engine) |
+| CI 37775379355 on dab5c12 | 18/18 jobs green |
+| Journeys 37775382999 on dab5c12 | Crawl A GREEN; job B 75 PASS, 1 FAIL (S23q, CR-52, the governed D-123 exception; BD11 PASS on three engines) |
+| main | fast-forwarded e1f8736 → dab5c12; main's run 37782331321 stopped as already proven |
+| Staging | Vercel deployed dab5c12; facts 37782586725 (success): staging is main. The withdrawn workbook is no longer served |
+
+The journey suite is **75 PASS, 1 governed FAIL**, never «fully green».
+
+**Budget:** 1,792 of 1,900 minutes used; 108 left.
