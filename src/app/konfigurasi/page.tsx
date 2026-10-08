@@ -1276,7 +1276,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <ul className="mt-3 grid gap-2 text-sm">
                 {myTemplates.map((tpl) => (
                   <li key={tpl.id} className="rounded-[var(--radius-1)] border border-line-1 p-2">
-                    <span className="font-medium">{kata(tpl.title_key) ?? tpl.title_key}</span>
+                    <span className="font-medium">{kata(tpl.title_key) ?? TANPA_NAMA}</span>
                     <span className="text-ink-3"> · {tpl.standard_report} · {s("laporan.templat.versi")} {tpl.template_version}</span>
                     <p className="mt-1 text-ink-2">
                       {(metricsByTemplate.get(tpl.id) ?? []).map((m) => `${namaMetrik.get(m.metric_id) ?? m.metric_id} (${m.visualization})`).join(", ")}

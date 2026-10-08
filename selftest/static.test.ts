@@ -60,6 +60,7 @@ import { m3rTests } from "./m3r.test";
 import { c1Tests } from "./c1.test";
 import { j613Tests } from "./j613.test";
 import { j614Tests } from "./j614.test";
+import { l4Tests } from "./l4.test";
 import { effTests } from "./eff.test";
 import { pitaTests } from "./pita.test";
 import { d006Tests } from "./d006.test";
@@ -1675,6 +1676,110 @@ export const staticTests: SelfTest[] = [
     },
   },
   {
+    // L4 · CR-85 (D-127 Q5: the Human Interface Boundary is a 4.0 closure invariant, enforced systematically).
+    //
+    // F06-S03 catches an enum COLUMN interpolated raw. The investigation (DG-19..37, §B RC-4, §E) found what it was
+    // built to miss: an id fragment as a name (`short(id)`, `.slice(0, 8)`), enum LITERALS rendered by a .map, JSON
+    // rendered or asked for as an input, and raw key columns (an audit action, a metric id, a predicted difficulty)
+    // drawn as text. This guard looks for all four over every page in src/app.
+    //
+    // THE REGISTER. What still matches and is not a defect is named here, each with its reason and whose words it
+    // waits for: the kept technical exception (the build, in the operator's triage), a secondary identifier beside
+    // its label, and the items waiting for Dr Gladys's words (D-128(g): no word is invented). An entry that no longer
+    // matches anything fails the guard, so the register can only shrink by fixing, never by forgetting.
+    id: "F06-S05",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const KOLOM_KUNCI = "action|metric_id|target_table|target_id|visualization|standard_report|predicted_difficulty|empirical_difficulty|title_key|label_key|build_sha";
+      const ATURAN: Record<string, RegExp> = {
+        // an id fragment where a name belongs
+        id_fragment: /(?<![=\w])\{[^{}]*(?:\bshort\(|\.slice\(0,\s*[78]\))[^{}]*\}/g,
+        // an UPPER_CASE literal list drawn as its own text
+        enum_literals: /\[\s*"[A-Z][A-Z_]+"(?:\s*,\s*"[A-Z][A-Z_]+")+\s*\]\.map\(\(?(\w+)\)?\s*=>[^;]*?>\{\1\}</g,
+        // JSON drawn as text, or asked for as an input
+        json: /[>}]\s*\{[^{}]*JSON\.stringify\(|placeholder=['"][^'"]*\{"/g,
+      };
+      // a raw key column as text: {x.col}, {x.col ?? …} or ${x.col}, after string literals and every call's arguments
+      // are set aside (a lookup like s(e.label_key) or kata(tpl.title_key) is not a render; a ternary's test is not either)
+      const kolomMentah = new RegExp(`\\.(?:${KOLOM_KUNCI})\\b(?!\\s*\\(|\\s*\\.|\\s*\\?(?!\\?))`);
+      const bersihkan = (e: string) => {
+        let x = e.replace(/"(?:[^"\\\\]|\\\\.)*"|'(?:[^'\\\\]|\\\\.)*'/g, '""');
+        for (let i = 0; i < 20; i++) { const y = x.replace(/[\w.$]+\(([^()]*)\)/g, "CALL"); if (y === x) break; x = y; }
+        return x;
+      };
+      const kolomDiTeks = (text: string): string[] => {
+        const out: string[] = [];
+        for (const m of text.matchAll(/(?<![=\w$])\{([^{}]*)\}|\$\{([^{}]*)\}/g)) {
+          const e = m[1] ?? m[2] ?? "";
+          if (kolomMentah.test(bersihkan(e))) out.push(m[0]);
+        }
+        return out;
+      };
+      const REGISTER: Array<{ file: string; rule: string; contains: string; why: string }> = [
+        { file: "src/app/konfigurasi/page.tsx", rule: "id_fragment", contains: "l.build.slice(0, 7)",
+          why: "kept exception (investigation §E item 22): the build, in the platform operator's triage only (platformIni)" },
+        { file: "src/app/konfigurasi/page.tsx", rule: "raw_key_column", contains: "r.action",
+          why: "Jejak audit (DG-11): 112 action codes in three styles; waits for Dr Gladys's words and Daisy's audit reader" },
+        { file: "src/app/konfigurasi/page.tsx", rule: "raw_key_column", contains: "r.target_table",
+          why: "Jejak audit (DG-11): what a row is about; waits for words for each audited table" },
+        { file: "src/app/konfigurasi/page.tsx", rule: "id_fragment", contains: "short(r.target_id)",
+          why: "Jejak audit (DG-11): the audited row's reference, secondary once the table has words" },
+        { file: "src/app/konfigurasi/page.tsx", rule: "id_fragment", contains: "short(r.build_sha)",
+          why: "Jejak audit (DG-11): the build of each audited act, technical, kept with the audit reader's redesign" },
+        { file: "src/app/konfigurasi/page.tsx", rule: "raw_key_column", contains: "{d.metric_id}",
+          why: "a secondary identifier, drawn only after the metric's own label (metrik.*.label)" },
+        { file: "src/app/konfigurasi/page.tsx", rule: "raw_key_column", contains: "namaMetrik.get(d.metric_id) ?? d.metric_id",
+          why: "the metric's own label (metrik.*.label); its id only if the catalogue named a label the copy table lacks" },
+        { file: "src/app/konfigurasi/page.tsx", rule: "raw_key_column", contains: "namaMetrik.get(m.metric_id) ?? m.metric_id",
+          why: "as above, in a template's list of metrics" },
+        { file: "src/app/konfigurasi/page.tsx", rule: "raw_key_column", contains: "m.visualization",
+          why: "report templates: no words yet for a visualization (investigation §E item 13)" },
+        { file: "src/app/konfigurasi/page.tsx", rule: "raw_key_column", contains: "tpl.standard_report",
+          why: "report templates: no words yet for a standard report (§E item 13)" },
+        { file: "src/app/studio/definisi/page.tsx", rule: "enum_literals", contains: '"ITEMS_AND_OPTIONS"',
+          why: "Aturan Penilaian's shuffle (§E item 2): no words for what is shuffled; Aturan Penilaian is not teacher UI (Q8)" },
+        { file: "src/app/studio/bank/page.tsx", rule: "raw_key_column", contains: "i.empirical_difficulty",
+          why: "Bank Soal's measured difficulty and its evidence count (§E item 17): no words yet" },
+      ];
+      const temuan: Array<{ file: string; rule: string; text: string }> = [];
+      for (const f of walk(join(repoRoot, "src", "app")).filter((x) => /\.tsx$/.test(x))) {
+        const text = code(readFileSync(f, "utf8"));
+        const rel = relative(repoRoot, f);
+        for (const [rule, re] of Object.entries(ATURAN)) {
+          for (const m of text.matchAll(re)) temuan.push({ file: rel, rule, text: m[0].replace(/\s+/g, " ").slice(0, 140) });
+        }
+        for (const m of kolomDiTeks(text)) temuan.push({ file: rel, rule: "raw_key_column", text: m.replace(/\s+/g, " ").slice(0, 140) });
+      }
+      const dicatat = (t: { file: string; rule: string; text: string }) =>
+        REGISTER.find((r) => r.file === t.file && r.rule === t.rule && t.text.includes(r.contains));
+      const bocor = temuan.filter((t) => !dicatat(t));
+      c.expect(bocor.length === 0, "a machine value drawn where a person reads (D-127 Q5; render a name, an HLE key or "
+        + "the identifier pattern instead):\n  " + bocor.map((t) => `${t.file} [${t.rule}] ${t.text}`).join("\n  "));
+      const basi = REGISTER.filter((r) => !temuan.some((t) => dicatat(t) === r));
+      c.expect(basi.length === 0, `register entries that no longer match anything (remove them): ${basi.map((r) => `${r.file} ${r.contains}`).join("; ")}`);
+      // the controls: each rule catches what it is for
+      const tanam: Array<[string, string]> = [
+        ["id_fragment", "<p>{short(session)} · 1</p>"], ["id_fragment", "<td>{x.id.slice(0, 8)}</td>"],
+        ["enum_literals", '{["PRACTICE", "TEST"].map((b) => <option key={b} value={b}>{b}</option>)}'],
+        ["json", "<li>{String(q.question ?? JSON.stringify(q))}</li>"], ["json", `<input placeholder='mis. {"MUDAH":3}' />`],
+        ["raw_key_column", "<span>{d.metric_id}</span>"], ["raw_key_column", "<p>x: {i.predicted_difficulty ?? \"—\"}</p>"],
+        ["raw_key_column", "<p>{s(\"x\")}: {i.empirical_difficulty} · {n}</p>"],
+        ["raw_key_column", "{list.map((m) => `${m.metric_id} (${m.visualization})`)}"],
+      ];
+      const kena = (rule: string, contoh: string) => rule === "raw_key_column"
+        ? kolomDiTeks(contoh).length > 0 : new RegExp(ATURAN[rule].source, ATURAN[rule].flags).test(contoh);
+      for (const [rule, contoh] of tanam) c.expect(kena(rule, contoh), `the control: rule ${rule} misses ${contoh}`);
+      const bukan: Array<[string, string]> = [["json", "ls.setItem(k, JSON.stringify(e));"], ["id_fragment", 'key={short(x)}'],
+        ["raw_key_column", '<th>{s("config.label.action")}</th>'], ["raw_key_column", '<p>{e.label_key ? s(e.label_key) : ""}</p>'],
+        ["raw_key_column", "<b>{kata(tpl.title_key)}</b>"]];
+      for (const [rule, contoh] of bukan) c.expect(!kena(rule, contoh), `the control: rule ${rule} catches what is not drawn: ${contoh}`);
+      return c.verdict(`no src/app page draws an id fragment as a name, an enum literal list, JSON, or a raw key column; `
+        + `${temuan.length} match(es) remain, each in the register (${REGISTER.length} entries: the kept build exception, `
+        + `a secondary identifier, and the items waiting for words); the rules catch ${tanam.length} planted leaks and not ${bukan.length} non-renders`);
+    },
+  },
+  {
     // S-1, AND THE REASON IT IS A DERIVED LIST RATHER THAN A WRITTEN ONE.
     //
     // Two INTERNAL_WORDS checks already existed and they answer opposite
@@ -2028,6 +2133,7 @@ export const staticTests: SelfTest[] = [
   ...c1Tests,
   ...j613Tests,
   ...j614Tests,
+  ...l4Tests,
   ...effTests,
   ...pitaTests,
   ...d006Tests,

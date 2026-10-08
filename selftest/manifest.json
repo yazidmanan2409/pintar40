@@ -962,6 +962,11 @@
       "proves": "no src/app surface interpolates an enum-bearing value into a JSX TEXT POSITION. The enum-bearing column names are derived from every `create type ... as enum` in the migrations and the columns declared with them, so a new enum column is covered the day it is created. Complements both existing scans and catches what each was built to miss: F01-S03 skips {...} expressions by design, and F06-R01's unauthenticated fetch cannot reach a Studio route. Found five live leaks on first run -- bank_type, three renderings of mode, and integrity category -- none of which is an INTERNAL_WORD, so no word list would have caught them"
     },
     {
+      "id": "F06-S05",
+      "runner": "static",
+      "proves": "L4 · CR-85 (D-127 Q5, the Human Interface Boundary as a closure invariant): reads the SOURCE of every page in src/app and finds no id fragment drawn as a name (short(...), .slice(0, 7|8)), no UPPER_CASE literal list drawn as its own text, no JSON drawn as text or asked for as an input placeholder, and no raw key column (an audit action, a metric id, a predicted or measured difficulty, a visualization, a report or title key, a build) drawn as text, except what the register names with its reason: the kept build exception in the operator's triage, a metric id as a secondary identifier after its label, and the items waiting for Dr Gladys's words (Jejak audit, report visualizations, Aturan Penilaian's shuffle, Bank Soal's measured difficulty). A register entry that matches nothing fails, and each rule is shown to catch a planted leak and not a non-render. Red on the code before L4 (the investigation's items 1, 3, 8, 15, 16, 20 and the metric ids)."
+    },
+    {
       "id": "F06-S04",
       "runner": "static",
       "proves": "every static or app test's `proves` string in the MANIFEST FILE names the artefact its predicate inspects -- copy table, rendered output, migration text, source, live schema. L5 applied to the manifest's own metadata rather than to a test body. F05-S03's proves claimed a property of the Studio surface while testing the copy table: the completion report was honest and the machine-readable record was not, which is the inverse of the usual failure and worse, because the manifest is what a gate reads. Prose cannot be validated against a predicate, so this does the cheap half and makes scope comparable by eye. BOUNDED: covers artefact identification across static and app tests only; verb accuracy -- \"inspects\" written for something that executes -- was found by hand on eleven strings and was NOT audited across the 91 db strings"
@@ -2888,6 +2893,21 @@
       "id": "D006-K01",
       "runner": "static",
       "proves": "D-006: executes lingkupPeran (src/lib/lingkup-peran.ts) on two schools' trees with their hidden Jenjang and Reguler: no hidden level is offered as a role scope; each school comes first by its own name, then its Bagian, Tingkat and Kelas named after it; reads Peran & akses (src/app/konfigurasi/page.tsx): its scope select is exactly that list"
+    },
+    {
+      "id": "L4-C01",
+      "runner": "static",
+      "proves": "L4 · CR-88 (D-127 Q9): reads the SERVED file public/contoh/contoh-buku-kerja-pintar.xlsx and the SOURCE workbook docs/onboarding/konten/SD5-Matematika-Bab1.xlsx: the served example is the source's build byte for byte; the importer's own reader and converter accept it as one course with lessons, its title marked «Contoh — »; the upload panel's SOURCE offers it as a separate download beside the blank template; the import path's SOURCE has no case for it"
+    },
+    {
+      "id": "L4-P01",
+      "runner": "static",
+      "proves": "L4 · CR-88 (RC-6 (3), FD-6): reads the SOURCE of the lesson player and Studio's preview (both import src/components/pelajaran/Halaman.tsx and keep no renderer of their own; the preview draws every page and every worked example's steps), and RENDERS PINTAR's own SD 5 lesson with the most sections through the shared renderer and through the player: it pages at its headings, the player's page is the shared page byte for byte, and a diagram directive is drawn as an SVG figure, never printed. Red on the code before L4 (the preview drew one flattened card and printed the directive)"
+    },
+    {
+      "id": "L4-K01",
+      "runner": "static",
+      "proves": "L4 · CR-85 and CR-88 on the screens, from their SOURCE and the shared helpers EXECUTED: Aturan Penilaian asks the difficulty mix as one number per band in the band's word (no typed JSON) and its action builds the mix from them, draws the bank in its words, reads one page of rules at a time and opens a row's edit by «Ubah»; Bank Soal draws the predicted difficulty through pitaKesulitan, whose band rule (executed) is difficulty_band's; the integrity review names a sitting by learner, class and assessment and never by an id fragment; Konfigurasi's transfers and audit trail are one page at a time; the paging rule (executed) gives a page of UKURAN rows, a short last page and the first page for a bad request"
     },
     {
       "id": "J614-K01",
