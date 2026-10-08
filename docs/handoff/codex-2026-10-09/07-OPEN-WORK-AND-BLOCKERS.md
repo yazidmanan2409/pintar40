@@ -19,7 +19,7 @@ The register was not re-walked row by row for this handoff. Treat every «closed
 | S1 | **Answer keys in the repository.** The withheld example `docs/onboarding/contoh/contoh-buku-kerja-pintar.xlsx` and the source chapters `docs/onboarding/konten/*.xlsx` / `*.paket.json` carry live questions, keys and reasons. Anyone with repo read access can read them. They are not served by the app (04 §11). | D-032 (item correctness); L4 finding 1 | Fact, not ruled | Confirm who holds repo read access. Whether committed content with keys is acceptable is an owner/security question; it has not been asked under D-135(b) |
 | S2 | **CR-91: the class-card trust boundary** | CR-91 in the register («an authentication-assurance question, not a UI one») | HELD for a specific ruling | Establish the intended trust boundary of a class card, then the ruling. This is a genuine owner/security decision |
 | S3 | **SYSTEM_ADMIN may grant any school role at the database** | D-133(e) | Standing, audited authority; recorded as not a defect | None, unless the owner wants database-enforced narrowing (D-133(e) says that needs its own ruling) |
-| S4 | **#150 backup/DR verdict NOT PASS** | `docs/recovery/BACKUP-DR-REVIEW-2026-10-05.md`; D-107 … D-111 | B1–B7 with the owner. Some items built (WP-B, WP-C) | Read the review's B1–B7 table; each remaining item names its owner action (for example, the pooler value, escrow custody) |
+| S4 | **#150 backup/DR verdict NOT PASS** | `docs/recovery/BACKUP-DR-REVIEW-2026-10-05.md`; D-107 … D-111 | B1 and B2 closed 6 Oct; B3–B9 open (B4/B5 design only, D-104; B6 and B7 owner decisions; B8 and B9 restore reconstruction and Storage). Some tooling built (WP-B, WP-C) | Read the review's B-table (lines 52–65); each open item names its owner action |
 | S5 | **CR-13 staff-email correction**: four choices the coordinator made where the ruling was silent | Register CR-13; status doc §4.1 | Closed on the server and the route; the screen is in S7; the four choices were not confirmed | The owner confirms or changes them (security boundary of a credential channel); see 07 §8 |
 
 ## 2. Product defects
@@ -104,7 +104,7 @@ Each meets D-135(b): it is new, not covered, and outside the responsible agent's
 | **CI allowance beyond 1,900** | Budget authority | Local verification; no CI |
 | **CR-91: the class-card trust boundary** | Authentication assurance (security) | Everything else |
 | **CR-13: the four choices** (status doc §4.1) | A credential channel's security boundary | The server and route are built; the screen waits in S7 |
-| **#150 B1–B7** remaining items (pooler value, escrow custody and others) | Infrastructure and custody | Development; not a production release |
+| **#150 B3–B9** (`docs/recovery/BACKUP-DR-REVIEW-2026-10-05.md`) | Infrastructure and custody | Development; not a production release |
 | **The production release** (Gate 8 / D-004) | A deliberate release step | Staging work |
 | **Declaring the authorised UI/UX stage begun** (`11-validation.md` gate) | Stage authority | Engineering fixes outside the pass |
 | CR-51: the second platform admin on production; gs-001 Bab 1 as a school chapter or a library re-import (status doc §4.2) | Production access and content ownership | Everything else |
