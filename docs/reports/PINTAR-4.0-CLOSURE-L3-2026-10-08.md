@@ -187,7 +187,7 @@ A first attempt used `flex-wrap` alone. That also changed the row at 768 and 102
 
 ## 10. For the Second Eye's holds
 
-An independent, read-only audit compared every test and journey criterion changed between 886554b (before L3) and 36c89dd.
+An independent, read-only audit (`docs/reports/PINTAR-4.0-L3-CRITERIA-AUDIT-2026-10-08.md`) compared every test and journey criterion changed between 886554b (before L3) and 36c89dd.
 
 **No criterion was weakened without authority.**
 - **Restated with a cited ruling:** every changed expectation is either setup only (the test chooses its context first) or restated, citing D-132 C3, C4, C7, C8 or C9, and the ruling text supports it.
