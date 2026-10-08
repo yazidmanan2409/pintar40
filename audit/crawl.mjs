@@ -285,6 +285,20 @@ if (["crawl", "both"].includes(process.env.AUDIT_PLANT)) broken.push("PLANT: pla
 if (process.env.GITHUB_STEP_SUMMARY) {
   writeFileSync(process.env.GITHUB_STEP_SUMMARY, [`### Crawl A: ${broken.length ? `RED, ${broken.length} broken` : "GREEN"}`, "", ...all.map((r) => `- ${r.persona} (${r.role}): ${r.pages.length} pages${r.error ? `, ERROR ${r.error}` : ""}`), "", ...broken.map((b) => `- BROKEN ${b}`), ""].join("\n"), { flag: "a" });
 }
+// The same verdict as annotations: the API serves a job's annotations where its log and summary are not reachable
+if (process.env.GITHUB_ACTIONS) {
+  const esc = (t) => String(t ?? "").replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A");
+  const prop = (t) => esc(t).replace(/:/g, "%3A").replace(/,/g, "%2C");
+  console.log(`::notice title=${prop(`Crawl A ${broken.length ? `RED, ${broken.length} broken` : "GREEN"}`)}::${esc(all.map((r) => `${r.persona} ${r.pages.length} pages${r.error ? ` ERROR ${r.error}` : ""}`).join("; "))}`);
+  // the broken grouped by what broke (the same page opened from many places is one cause), at most ten
+  const sebab = new Map();
+  for (const b of broken) {
+    const k = b.replace(/^\S+ /, "").replace(/\?\S*/, "").replace(/ -> \S+/, "");
+    const kunci = k.replace(/ \(\d+ px, to \d+\)/g, "");
+    sebab.set(kunci, { n: (sebab.get(kunci)?.n ?? 0) + 1, contoh: sebab.get(kunci)?.contoh ?? b });
+  }
+  for (const { n, contoh } of [...sebab.values()].slice(0, 10)) console.log(`::error title=${prop(`Crawl A broken ×${n}`)}::${esc(contoh.slice(0, 1500))}`);
+}
 if (broken.length) {
   console.log(`\nRED: ${broken.length} broken\n  ${broken.join("\n  ")}`);
   process.exitCode = 1;

@@ -4218,6 +4218,17 @@ if (process.env.GITHUB_STEP_SUMMARY) {
   const rows = steps.map((s) => `| ${s.verdict} | ${s.id} | ${cell(s.title)} | ${cell(s.observed)} |`);
   writeFileSync(process.env.GITHUB_STEP_SUMMARY, [`### Journey B: ${red.length ? `RED, ${red.length} step(s) FAIL or BLOCKED` : "GREEN"}`, "", `Tally: ${JSON.stringify(tally)}`, "", "| Verdict | Step | Title | Observed |", "|---|---|---|---|", ...rows, ""].join("\n"), { flag: "a" });
 }
+// The same verdicts as annotations: the API serves a job's annotations where its log and summary are not reachable
+if (process.env.GITHUB_ACTIONS) {
+  const esc = (t) => String(t ?? "").replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A");
+  const prop = (t) => esc(t).replace(/:/g, "%3A").replace(/,/g, "%2C");
+  console.log(`::notice title=${prop("Journey B tally")}::${esc(JSON.stringify(tally))}`);
+  console.log(`::notice title=${prop("Journey B verdicts")}::${esc(steps.map((s) => `${s.id} ${s.verdict}`).join(", "))}`);
+  for (const s of steps.filter((x) => ["BD11", "L3D", "L3A", "C12k"].includes(x.id)))
+    console.log(`::notice title=${prop(`Journey B ${s.id} ${s.verdict}`)}::${esc(String(s.observed ?? "").slice(0, 1500))}`);
+  for (const s of red.slice(0, 10))
+    console.log(`::error title=${prop(`Journey B ${s.id} ${s.verdict}`)}::${esc(`${s.title ?? ""} | ${s.observed ?? ""}`.slice(0, 1500))}`);
+}
 if (red.length) {
   console.log(`RED: ${red.map((s) => `${s.id} ${s.verdict}`).join(", ")}`);
   process.exitCode = 1;
