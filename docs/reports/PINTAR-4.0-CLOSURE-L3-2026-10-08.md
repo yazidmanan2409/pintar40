@@ -2,7 +2,7 @@
 
 **7–8 October 2026.** The third landing: the Working Context, built to the design page as D-132 ruled it (GREEN WITH MODIFICATIONS; implementation GO). «Logging into PINTAR tells it who I am. Working Context tells it what I'm here to do right now.»
 
-**This report is a stop.** L4 waits for the Second Eye.
+**This report is a stop.** L4 waits for the Second Eye. **Updated 8 Oct** with the corrective landing for CR-93 and CR-94 (§9) and the evidence for the Second Eye's holds (§10). The verdict is the Second Eye's; this report claims no unconditional GREEN.
 
 What did not change:
 - **No authority changed.** No RLS policy, capability, grant or authorization function reads the context (F22-K06 asserts it statically and by acting).
@@ -129,7 +129,7 @@ For Daisy:
 
 ## 8. For the Second Eye
 
-### Job A is red, and it was red on main before L3
+### Job A was red, and it was red on main before L3 (resolved by §9)
 
 Corrected, the crawl reads what Gate 6 had hidden from it. Two screens are wider than a 320 px window, so X.6 (D-046: responsive is part of PASS) turns job A red. Both are on main 886554b, walked locally by the same corrected crawl. L3 did not make either, and did not fix either: each is a layout change, and layout is Daisy's (no UI/UX change without a ruling).
 
@@ -138,8 +138,84 @@ Corrected, the crawl reads what Gate 6 had hidden from it. Two screens are wider
 | «Laporkan masalah» (`/lapor`), every role, every page it is opened from | 440 px wide. The form's grid column takes the width of its widest part (`form.pin-lapor > p.pin-meta`, `label.pin-lapor-isian`: 408 px) | 144 pages | 62 pages | **CR-93**: the form's column may shrink to the window (`minmax(0, 1fr)` or equivalent; Daisy's call) |
 | Konfigurasi · the roles list (`#roles`), school admins | 374–380 px wide. The revoke form (reason field + button, 237 px) sits beside the name on one row | 3 pages | 5 pages | **CR-94**: the revoke form may wrap below the name on a narrow window (Daisy's call) |
 
-Asked: **may CR-93 and CR-94 be fixed in L4 (or a small landing of their own), or are they recorded and left?** Until then job A stays red. Nothing is relaxed in the crawl to make it green.
+Asked: may CR-93 and CR-94 be fixed? **The owner approved their correction on 8 Oct, limited to the 320 px overflow, as a small landing before L4 (§9).** Nothing was relaxed in the crawl.
 
 ### Also noted
 - `/keluar` and `/api/evaluation/assume` build redirects from `request.url`, as `/mulai` did. They predate L3 and are left unchanged. Behind `next start` they would name `localhost`; on Vercel they name the public host.
 - C12k's arrival criterion was restated by D-132 C9 (an owner ruling): a teacher who holds two purposes is asked, so she arrives at the chooser.
+
+## 9. The corrective landing: CR-93 and CR-94 (owner's ruling, 8 Oct)
+
+The ruling approves correcting both, **limited to the 320 px overflow**: no redesign; no change to content, authorization, database contracts, business logic or journeys; wider widths kept as they were. Commit **36c89dd**: two source lines and one pin test.
+
+| | Cause, measured in Chromium | Change |
+|---|---|---|
+| **CR-93** «Laporkan masalah» (`/lapor`) | The picture field (`input type=file`, in `TangkapanLayar`) set the form's grid column to its own width. Every field in the form became 408 px wide, the page 440 px at a 320 px window | `src/app/experience.css`: `.pin-lapor input[type="file"] { max-width: 100%; min-width: 0; }`. It sets no width, so where the field fits it keeps its own. This follows the existing `.pin-ung-isian input[type="file"]` rule, without its `width: 100%` |
+| **CR-94** Konfigurasi · roles list | Each row (`li.flex`) held the name and the revoke form (237 px) side by side and could not wrap: 374 px at 320 | `src/app/konfigurasi/page.tsx`, the roles row only: `flex` → `flex flex-wrap sm:flex-nowrap`. Below 640 px the revoke form wraps below the name; from 640 px up the row does not wrap, as before |
+
+A first attempt used `flex-wrap` alone. That also changed the row at 768 and 1024 px, where long rows put the revoke form below the name. This was caught by the pixel comparison below and limited to below 640 px before the commit.
+
+**Measured in the running build** (Chromium, signed in as a school admin; scripts in the coordinator's scratchpad):
+
+| Width | `/lapor`: page width, before → after | `/lapor` form vs the old rule | Konfigurasi: page width, before → after | roles list vs the old markup |
+|---|---|---|---|---|
+| 320 | 440 → **320** | taller by 21 px (the field now within its column) | 374 → **320** | rows wrap |
+| 375 | 440 → **375** | taller by 21 px | 375 → 375 | rows wrap |
+| 480 | 480 → 480 | **pixel-identical** | 480 → 480 | rows wrap |
+| 600 / 639 | unchanged | **pixel-identical** | unchanged | rows wrap |
+| 640 | 640 → 640 | **pixel-identical** | 640 → 640 | **pixel-identical** |
+| 768 / 1024 / 1280 | unchanged | **pixel-identical** | unchanged | **pixel-identical** |
+
+«Before» is the old build for 320 and 375. For the other widths it is the old rule reproduced in the same page: `/lapor` with the new rule overridden, and the roles rows with the two new classes removed. Each comparison is pixel by pixel.
+
+**Tests and runs:**
+
+| Check | Result |
+|---|---|
+| **PENUTUPAN-L01** (new, static) | Pins both rules. **Red on the old source**, naming both defects (440 px, 374 px); green on the new |
+| Full local suite, fresh seeded database, on 36c89dd | **644 passed, 0 failed** (643 + PENUTUPAN-L01; the same one justified local skip). `tsc` 0 errors; ESLint 0 errors (the same 6 warnings, each also on main) |
+| Seeded crawl, local, against the corrected build | **GREEN, EXIT 0.** The same 14 personas and the same per-persona page counts (387 pages); **0 broken**. Before: 147 broken, every one X.6 |
+| CI **37720147696** on 36c89dd | **18 of 18 jobs succeeded** |
+| Journeys **37720149799** on 36c89dd | **Job A: «Crawl A GREEN»**, 387 pages across 14 personas, 0 broken: the 147 overflows are gone and nothing new failed. **Job B: 75 PASS, 1 FAIL**, the FAIL being S23q (CR-52, unchanged; §10). BD11, L3D, L3A and C12k PASS, as in 37705723825 |
+| main **2875f7c → 36c89dd** (a fast-forward to the head CI 37720147696 proved) | CI on main **37722876255**: E1. The baseline's own check passed, and the proof-reuse step cancelled the run, the shape of 37708857395 and of L1's 37584213073 |
+| Staging | No migration in this landing (staging stays at 177). **environment-facts 37723418842 (read only): success**. Staging's app runs main's code and its database main's migrations |
+| Production | Untouched: no production request file, workflow, secret or setting |
+
+**Allowance:** 1,189 of 1,900 estimated minutes spent, 711 left. The corrective landing cost 126: one CI run, one journeys run, main's E1 and the read-only facts check.
+
+**Reconciled:** branch, main and the head CI proved are one commit, **36c89dd**. Main now also carries the audit-tooling commits that had been on the branch only: the crawl's «Komputer siapa ini?» answer and «404» match, the verdict annotations, and the Golden School request records. The corrected crawl stays in `audit/crawl.mjs` on main, and job A runs it on every journeys run.
+
+## 10. For the Second Eye's holds
+
+An independent, read-only audit compared every test and journey criterion changed between 886554b (before L3) and 36c89dd.
+
+**No criterion was weakened without authority.**
+- **Restated with a cited ruling:** every changed expectation is either setup only (the test chooses its context first) or restated, citing D-132 C3, C4, C7, C8 or C9, and the ruling text supports it.
+- **Stronger than before:** BD11, S23r, BOB20-A01, BOB18-A01, DAISY-05-STRUKTUR-02 and staging A8.
+- **Manifest:** no test removed, no runner changed, no skip added to an existing test. The new database tests F22-K01 to K06 carry the suite's standard justification for database tests («needs a reachable Postgres…», as F21-D01 does) and ran in CI.
+- **Journey verdicts:** no FAIL or BLOCKED turned into NOTE or PASS. `step()` still fails on any thrown error, and the new waits that tolerate a timeout are each followed by an assertion.
+
+**The C9-related changes, against the recorded rulings:**
+
+| Criterion | Before → after | Ruling |
+|---|---|---|
+| C12k (audit/c12.mjs) | Guru lands on `/mengajar` → lands on `/` (the chooser). Kelas 1A must still open from `/mengajar`; identity rows unchanged | D-132 C9: «No door + multiple available purposes = ask». F22-K01 shows an enrolled Guru holds Mengajar and Belajar |
+| BOB06-R01 | Head of department `/pimpinan`, Admin platform `/konfigurasi` → `/`, through `/mulai` | C9 |
+| BD11 | The teacher's home was recorded only → asserted: `/mengajar` with Mengajar · SD, or `/belajar` with Belajar, by what she holds; the chooser must not show Mengelola | C9 (with C5) |
+| BOB26 / BOB27 / BOB12 | Arrive at `/mengajar` → arrive through `/mulai`, which must still land on `/mengajar` or `/belajar` | C4, C9 |
+| Staging G1, O4, L2, U2a, A8 | Landings move to `/`, then a chosen context; A8 now exactly `/` then `/pimpinan` | C7, C9 |
+
+**For acknowledgement** (each is consistent with a ruling, but the Second Eye should see it):
+1. **C12k was restated after it went red** (commit f9ec4ff, after the local run where it failed). D-132 C9 supports the new criterion, but the C-12 acceptance text still reads «home `/mengajar`» (`docs/coordination/design/EDUCATOR-AS-LEARNER-TICKETS.md:703`), and D-132 does not name the enrolled-Guru case. C12k no longer checks that Mengajar, once chosen, lands on `/mengajar`; L3D and BD11 check that instead.
+2. **S2 was inverted.** In «Seluruh platform», Konfigurasi must now *not* link Studio. This rests on C7's list of platform views, which omits Studio, not on an explicit sentence.
+3. **One property lost its test.** The deleted `pintuMasuk` sweep proved that an unreadable roles answer opens no door. The new code fails closed (`src/lib/konteks-server.ts:42` returns no doors on error), but no test pins it now. Proposed: one static pin, in a later landing, if the Second Eye wants it.
+4. **BOB19-K01** pins that Admin platform, in a school's context, still reads the platform-wide «awaiting a first role» list (J1.4; §2 records why). No ruling names this explicitly.
+
+**CR-52 stays governed.** S23q is still a FAIL in every job B, with its verdict logic unchanged (`if (kurang.length) rec.verdict = "FAIL"`). It is recorded as an A item:
+- D-123(1): «CR-52 → A».
+- D-130(e): «a known outstanding item».
+- The closure register.
+
+**The corrected crawl stays.** The «Komputer siapa ini?» answer, the per-persona context choice and the word-only «404» are in `audit/crawl.mjs` on main. What counts as broken is unchanged: server errors, the framework's error page, navigation and page errors, W9, and X.6 at 320 px.
+- **Coverage:** each persona now walks its chosen context. Another context's pages reach the chooser and are not counted.
+- **«404»:** the change cannot hide the framework's not-found page, which still matches by its sentence and by «404» as a word.
