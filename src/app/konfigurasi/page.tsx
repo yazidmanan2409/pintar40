@@ -10,8 +10,9 @@ import {
   daftarkanPesertaAction, grantRoleAction, hentikanSekarangAction, jadwalkanPemeliharaanAction, pindahKelasAction,
   revokeRoleAction, rolloverAction, saveReportTemplateAction, tarikPengumumanAction, terbitkanPengumumanAction,
   tetapkanBatasAction, transferAuthorizeAction, transferExecuteAction, transferRejectAction, transferRequestAction,
-  ubahPemeliharaanAction,
+  tunjukAdminPertamaAction, ubahPemeliharaanAction,
 } from "./actions";
+import { adaAdminSekolah, calonAdminPertama } from "@/lib/admin-pertama";
 import { pelajaranDanBatas } from "@/lib/batas-ketuntasan";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
@@ -91,7 +92,7 @@ type SearchParams = Promise<{
   // #148: the first step of scheduling, asked by a plain GET so the second step can show what the window would meet
   pm_cek?: string; pm_platform?: string; pm_sekolah?: string | string[]; pm_mulai?: string; pm_selesai?: string;
   // D-101 (2): «Admin sekolah» named on Peran & akses, waiting for its second press
-  angkat?: string; lingkup?: string; sampai?: string;
+  angkat?: string; lingkup?: string; sampai?: string; pertama?: string;
 }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
@@ -201,10 +202,10 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     // for its own list -- the people it has recorded who hold nothing there
     // yet, such as a newly recorded teacher. The database decides again who
     // may ask; a school it refuses simply adds nobody.
-    // L3 (D-132 C7; J1.4): in Mengelola · a school, Admin platform asks the platform's list as well: a school's first
-    // administrator is somebody no school has recorded yet, and only Admin platform appoints them there
+    // BOB19-K01 (the owner's ruling, 8 Oct, Option B): a school's context never shows the platform's list; its first
+    // administrator is appointed by «Menunjuk admin sekolah pertama» below, the one exception (src/lib/admin-pertama.ts)
     Promise.all([
-      platformIni || adminPlatformDiSekolah ? supabase.rpc("persons_awaiting_first_role") : Promise.resolve({ data: [] }),
+      platformIni ? supabase.rpc("persons_awaiting_first_role") : Promise.resolve({ data: [] }),
       ...(platformIni ? [] : sekolahIni.map((sekolah) => supabase.rpc("persons_awaiting_first_role_at", { p_institution: sekolah }))),
     ]).then((jawaban) => ({ data: jawaban.flatMap((j) => (j.data ?? []) as Array<{ person_id: string; display_name: string }>) })),
     // W8-02. The institution's own templates, and the catalogue they may select
@@ -261,6 +262,13 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         nama: personName.get(sp.angkat!) ?? awaitingPersons.find((p) => p.person_id === sp.angkat)?.display_name ?? short(sp.angkat),
         tempat: nodeName.get(sp.lingkup!) ?? institutionName.get(sp.lingkup!) ?? short(sp.lingkup),
       }
+    : null;
+  // BOB19-K01 (Option B): a school with no active Admin sekolah, in Admin platform's hands, is offered its first
+  // administrator from the people recorded at no school; the action asks every condition again
+  const bukaAdminPertama = adminPlatformDiSekolah && satuSekolah !== null && !(await adaAdminSekolah(supabase, satuSekolah));
+  const calonPertama = bukaAdminPertama ? await calonAdminPertama(supabase) : [];
+  const pertama = bukaAdminPertama && uuidSah(sp.pertama) && /^\d{4}-\d{2}-\d{2}$/.test(sp.sampai ?? "")
+    ? calonPertama.find((p) => p.person_id === sp.pertama) ?? null
     : null;
 
   const activeClassCount = (nodes ?? []).filter((n) => n.kind === "CLASS" && n.is_active).length;
@@ -1130,6 +1138,36 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.angkat.ya")}</TombolKirim>
                   <Link href="/konfigurasi?bagian=roles#roles" className={tautanTempat}>{s("config.angkat.batal")}</Link>
                 </form>
+              </div>
+            ) : null}
+            {bukaAdminPertama && satuSekolah ? (
+              <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" role="group" aria-labelledby="pin-admin-pertama" data-admin-pertama="">
+                <h3 id="pin-admin-pertama" className="font-medium">{s("config.pertama.judul")}</h3>
+                <p className="text-sm text-ink-2">{s("config.pertama.arti")}</p>
+                {pertama ? (
+                  <form action={tunjukAdminPertamaAction} className="flex flex-wrap items-center gap-3">
+                    <p className="w-full text-sm text-ink-1">{s("config.pertama.yakin")}</p>
+                    <p className="w-full text-sm text-ink-1"><strong>{pertama.display_name}</strong> · {roleLabel("INSTITUTION_ADMIN")} · {institutionName.get(satuSekolah) ?? short(satuSekolah)}</p>
+                    <input type="hidden" name="person" value={pertama.person_id} />
+                    <input type="hidden" name="sekolah" value={satuSekolah} />
+                    <input type="hidden" name="valid_until" value={sp.sampai} />
+                    <input type="hidden" name="yakin" value="ya" />
+                    <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.angkat.ya")}</TombolKirim>
+                    <Link href="/konfigurasi?bagian=roles#roles" className={tautanTempat}>{s("config.angkat.batal")}</Link>
+                  </form>
+                ) : (
+                  <form action={tunjukAdminPertamaAction} className="grid gap-2 sm:grid-cols-2">
+                    <input type="hidden" name="sekolah" value={satuSekolah} />
+                    <label className={label}>{s("config.label.person")}
+                      <select name="person" className={field} required defaultValue="">
+                        <option value="" disabled>—</option>
+                        {calonPertama.map((p) => <option key={p.person_id} value={p.person_id}>{p.display_name}</option>)}
+                      </select>
+                    </label>
+                    <label className={label}>{s("config.label.valid_until")}<input type="date" name="valid_until" className={field} required /></label>
+                    <div><TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.action.grant")}</TombolKirim></div>
+                  </form>
+                )}
               </div>
             ) : null}
             <form action={grantRoleAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2">

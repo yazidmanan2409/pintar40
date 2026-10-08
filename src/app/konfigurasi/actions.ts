@@ -4,6 +4,7 @@ import { sekolahDari, wajibDalamKonteks } from "@/lib/konteks-server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
+import { adaAdminSekolah, akarSekolah, calonAdminPertama, orangSekolah } from "@/lib/admin-pertama";
 import { kodeGalatStruktur, rujukanGalat, type HasilStruktur } from "@/lib/struktur-kontrak";
 import { kodeGalat, queryHasil, type HasilAksi } from "@/lib/galat-kontrak";
 import { bacaPersen } from "@/lib/batas-ketuntasan";
@@ -141,8 +142,12 @@ export async function grantRoleAction(fd: FormData): Promise<void> {
   }
   if (role !== "SYSTEM_ADMIN" && !scope) back("roles", { ok: false, kode: "ROLE_SCOPE_REQUIRED" });
   // L3 (§2.11, C7): a school's role in that school's context; Admin platform's own, in «Seluruh platform»
-  await wajibDalamKonteks(role === "SYSTEM_ADMIN" ? { platform: true } : { sekolah: await sekolahDari("simpul", scope) }, "roles");
+  const sekolahPeran = role === "SYSTEM_ADMIN" ? null : await sekolahDari("simpul", scope);
+  await wajibDalamKonteks(role === "SYSTEM_ADMIN" ? { platform: true } : { sekolah: sekolahPeran }, "roles");
   const supabase = await supabaseServer();
+  // BOB19-K01 (the owner's ruling, 8 Oct, Option B): a school role names one of the school's own people, whoever asks.
+  // The platform's list of people without a role serves only a school's first administrator, by its own action below
+  if (sekolahPeran && !(await orangSekolah(supabase, sekolahPeran, person!))) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" });
   // D-101 (2): a School Admin appoints another explicitly. «Admin sekolah» named on the form comes back to Peran &
   // akses once, saying what it will do, and is granted on that second press; the Platform Admin's grant is as before.
   if (role === "INSTITUTION_ADMIN" && str(fd, "yakin") !== "ya") {
@@ -157,6 +162,36 @@ export async function grantRoleAction(fd: FormData): Promise<void> {
     p_role: role,
     p_scope_node: role === "SYSTEM_ADMIN" ? null : scope,
     p_valid_until: `${until}T23:59:59+07:00`,
+  });
+  back("roles", error ? ditolak("grant_role", error) : { ok: true, kode: "ROLE_GRANTED" });
+}
+
+/**
+ * BOB19-K01 (the owner's ruling of 8 Oct, Option B) — «Menunjuk admin sekolah pertama». The one place a school's
+ * context offers the platform's people: an active SYSTEM_ADMIN, in Mengelola · a school with no active Admin sekolah,
+ * appoints a person recorded at no school who holds nothing as Admin sekolah at the school's own root. The role and the
+ * place are not the form's to choose. The first press comes back to Peran & akses asking for confirmation; the second
+ * grants. Every condition is asked again here, whatever the form sent; the database decides the grant and audits it.
+ */
+export async function tunjukAdminPertamaAction(fd: FormData): Promise<void> {
+  const person = uuidOrNull(str(fd, "person"));
+  const sekolah = uuidOrNull(str(fd, "sekolah"));
+  const until = str(fd, "valid_until");
+  if (!person || !sekolah || !/^\d{4}-\d{2}-\d{2}$/.test(until)) back("roles", { ok: false, kode: "ROLE_INPUT_INCOMPLETE" });
+  await wajibDalamKonteks({ sekolah }, "roles");
+  const supabase = await supabaseServer();
+  const { data: isSys } = await supabase.rpc("is_system_admin");
+  if (isSys !== true) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" });
+  if (await adaAdminSekolah(supabase, sekolah!)) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" });
+  if (!(await calonAdminPertama(supabase)).some((p) => p.person_id === person)) back("roles", { ok: false, kode: "ACTION_NOT_ALLOWED" });
+  const akar = await akarSekolah(supabase, sekolah!);
+  if (!akar) back("roles", { ok: false, kode: "ACTION_NOT_FOUND" });
+  if (str(fd, "yakin") !== "ya") {
+    const q = new URLSearchParams({ bagian: "roles", pertama: person!, sampai: until });
+    redirect(`/konfigurasi?${q.toString()}#roles`);
+  }
+  const { error } = await supabase.rpc("grant_role", {
+    p_person: person, p_role: "INSTITUTION_ADMIN", p_scope_node: akar, p_valid_until: `${until}T23:59:59+07:00`,
   });
   back("roles", error ? ditolak("grant_role", error) : { ok: true, kode: "ROLE_GRANTED" });
 }

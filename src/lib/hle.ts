@@ -322,6 +322,9 @@ export type HleEvent =
   | "config.persiapan.guru.cara"
   | "config.persiapan.admin_kedua"
   | "config.angkat.judul"
+  | "config.pertama.judul"
+  | "config.pertama.arti"
+  | "config.pertama.yakin"
   | "config.angkat.arti"
   | "config.angkat.ya"
   | "config.angkat.batal"
@@ -2617,6 +2620,11 @@ const table: Table = {
   "config.persiapan.admin_kedua": { default: "Sekolah ini punya satu admin sekolah. Admin sekolah kedua dapat membantu memulihkan akun bila yang satu berhalangan; tambahkan di Peran & akses.", en: "This school has one school administrator. A second can help recover accounts when the first is away; add one in Roles & access." },
   // D-101 (2): appointing another school administrator is confirmed by a second press
   "config.angkat.judul": { default: "Jadikan admin sekolah?", en: "Make a school administrator?" },
+  // BOB19-K01 (the owner's ruling of 8 Oct, Option B): the approved Indonesian, word for word; the English is a
+  // translation of it awaiting the owner's confirmation
+  "config.pertama.judul": { default: "Menunjuk admin sekolah pertama", en: "Appointing the first school administrator" },
+  "config.pertama.arti": { default: "Sekolah ini belum memiliki admin sekolah. Pilih orang yang belum tercatat di sekolah mana pun untuk menjadi admin sekolah pertama di sekolah ini.", en: "This school has no school administrator yet. Choose a person not yet recorded at any school to become this school's first school administrator." },
+  "config.pertama.yakin": { default: "Jadikan orang ini admin sekolah pertama di sekolah ini?", en: "Make this person the first school administrator of this school?" },
   "config.angkat.arti": { default: "Admin sekolah mengatur seluruh sekolah ini: struktur, data, peran, dan pemulihan akun. Penunjukan ini tercatat.", en: "A school administrator manages this whole school: its structure, data, roles and account recovery. The appointment is recorded." },
   "config.angkat.ya": { default: "Ya, jadikan admin sekolah", en: "Yes, make them a school administrator" },
   "config.angkat.batal": { default: "Batal", en: "Cancel" },
