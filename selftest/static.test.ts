@@ -1699,6 +1699,9 @@ export const staticTests: SelfTest[] = [
         enum_literals: /\[\s*"[A-Z][A-Z_]+"(?:\s*,\s*"[A-Z][A-Z_]+")+\s*\]\.map\(\(?(\w+)\)?\s*=>[^;]*?>\{\1\}</g,
         // JSON drawn as text, or asked for as an input
         json: /[>}]\s*\{[^{}]*JSON\.stringify\(|placeholder=['"][^'"]*\{"/g,
+        // a number with a bare unit and no words (the Second Eye's finding 7; RC-4's «unexplained number formats»):
+        // {n}s, {n}×, ${n}s, ${n}×
+        unit_suffix: /\{[^{}]*\}(?:s|×)(?=[\s<{`·"]|$)/g,
       };
       // a raw key column as text: {x.col}, {x.col ?? …} or ${x.col}, after string literals and every call's arguments
       // are set aside (a lookup like s(e.label_key) or kata(tpl.title_key) is not a render; a ternary's test is not either)
@@ -1712,11 +1715,16 @@ export const staticTests: SelfTest[] = [
         const out: string[] = [];
         for (const m of text.matchAll(/(?<![=\w$])\{([^{}]*)\}|\$\{([^{}]*)\}/g)) {
           const e = m[1] ?? m[2] ?? "";
+          const sebelum = text.slice(0, m.index);
+          // not a render: an object literal or an argument in code (`push({ … })`, `f(a, { … })`) …
+          if (m[1] !== undefined && /[(,[]\s*$/.test(sebelum)) continue;
+          // … or a template inside an attribute (`name={`metric[${…}]`}`)
+          if (m[2] !== undefined && /=\{`[^`]*$/.test(sebelum)) continue;
           if (kolomMentah.test(bersihkan(e))) out.push(m[0]);
         }
         return out;
       };
-      const REGISTER: Array<{ file: string; rule: string; contains: string; why: string }> = [
+      const REGISTER: Array<{ file: string; rule: string; contains: string; why: string; count?: number }> = [
         { file: "src/app/konfigurasi/page.tsx", rule: "id_fragment", contains: "l.build.slice(0, 7)",
           why: "kept exception (investigation §E item 22): the build, in the platform operator's triage only (platformIni)" },
         { file: "src/app/konfigurasi/page.tsx", rule: "raw_key_column", contains: "r.action",
@@ -1737,13 +1745,21 @@ export const staticTests: SelfTest[] = [
           why: "report templates: no words yet for a visualization (investigation §E item 13)" },
         { file: "src/app/konfigurasi/page.tsx", rule: "raw_key_column", contains: "tpl.standard_report",
           why: "report templates: no words yet for a standard report (§E item 13)" },
+        { file: "src/app/belajar/_components/LessonPlayer.tsx", rule: "unit_suffix", contains: "{r}×",
+          why: "kept: the media player's playback speeds (0.75× … 2×) under its own label «Kecepatan» (lesson.speed), the convention every player uses" },
+        { file: "src/app/studio/definisi/page.tsx", rule: "unit_suffix", contains: "late_sync_grace_max}s",
+          why: "Aturan Penilaian's limits line «3–20 · 300s · 1×» (§E item 5): no words for the units yet" },
+        { file: "src/app/studio/definisi/page.tsx", rule: "unit_suffix", contains: "attempt_limit_max}×",
+          why: "as above: the attempts" },
         { file: "src/app/studio/definisi/page.tsx", rule: "enum_literals", contains: '"ITEMS_AND_OPTIONS"',
           why: "Aturan Penilaian's shuffle (§E item 2): no words for what is shuffled; Aturan Penilaian is not teacher UI (Q8)" },
         { file: "src/app/studio/bank/page.tsx", rule: "raw_key_column", contains: "i.empirical_difficulty",
           why: "Bank Soal's measured difficulty and its evidence count (§E item 17): no words yet" },
       ];
       const temuan: Array<{ file: string; rule: string; text: string }> = [];
-      for (const f of walk(join(repoRoot, "src", "app")).filter((x) => /\.tsx$/.test(x))) {
+      // every page and every shared component (the Second Eye's L4 finding 7: src/components too)
+      const berkasDipindai = [...walk(join(repoRoot, "src", "app")), ...walk(join(repoRoot, "src", "components"))].filter((x) => /\.tsx$/.test(x));
+      for (const f of berkasDipindai) {
         const text = code(readFileSync(f, "utf8"));
         const rel = relative(repoRoot, f);
         for (const [rule, re] of Object.entries(ATURAN)) {
@@ -1753,6 +1769,9 @@ export const staticTests: SelfTest[] = [
       }
       const dicatat = (t: { file: string; rule: string; text: string }) =>
         REGISTER.find((r) => r.file === t.file && r.rule === t.rule && t.text.includes(r.contains));
+      // each entry admits exactly as many matches as it names, so a second identical render in the same file is caught
+      const lebih = REGISTER.filter((r) => temuan.filter((t) => dicatat(t) === r).length > (r.count ?? 1));
+      c.expect(lebih.length === 0, `register entries matching more often than they admit: ${lebih.map((r) => `${r.file} ${r.contains} (${temuan.filter((t) => dicatat(t) === r).length} > ${r.count ?? 1})`).join("; ")}`);
       const bocor = temuan.filter((t) => !dicatat(t));
       c.expect(bocor.length === 0, "a machine value drawn where a person reads (D-127 Q5; render a name, an HLE key or "
         + "the identifier pattern instead):\n  " + bocor.map((t) => `${t.file} [${t.rule}] ${t.text}`).join("\n  "));
@@ -1765,17 +1784,19 @@ export const staticTests: SelfTest[] = [
         ["json", "<li>{String(q.question ?? JSON.stringify(q))}</li>"], ["json", `<input placeholder='mis. {"MUDAH":3}' />`],
         ["raw_key_column", "<span>{d.metric_id}</span>"], ["raw_key_column", "<p>x: {i.predicted_difficulty ?? \"—\"}</p>"],
         ["raw_key_column", "<p>{s(\"x\")}: {i.empirical_difficulty} · {n}</p>"],
+        ["unit_suffix", "<li>{a}–{b} · {c.grace}s</li>"], ["unit_suffix", "{x ? ` · ${x.limit}×` : \"\"}"],
         ["raw_key_column", "{list.map((m) => `${m.metric_id} (${m.visualization})`)}"],
       ];
       const kena = (rule: string, contoh: string) => rule === "raw_key_column"
         ? kolomDiTeks(contoh).length > 0 : new RegExp(ATURAN[rule].source, ATURAN[rule].flags).test(contoh);
       for (const [rule, contoh] of tanam) c.expect(kena(rule, contoh), `the control: rule ${rule} misses ${contoh}`);
       const bukan: Array<[string, string]> = [["json", "ls.setItem(k, JSON.stringify(e));"], ["id_fragment", 'key={short(x)}'],
+        ["raw_key_column", "list.push({ metric_id: m.metric_id });"], ["raw_key_column", "<select name={`metric[${d.metric_id}]`} />"],
         ["raw_key_column", '<th>{s("config.label.action")}</th>'], ["raw_key_column", '<p>{e.label_key ? s(e.label_key) : ""}</p>'],
         ["raw_key_column", "<b>{kata(tpl.title_key)}</b>"]];
       for (const [rule, contoh] of bukan) c.expect(!kena(rule, contoh), `the control: rule ${rule} catches what is not drawn: ${contoh}`);
-      return c.verdict(`no src/app page draws an id fragment as a name, an enum literal list, JSON, or a raw key column; `
-        + `${temuan.length} match(es) remain, each in the register (${REGISTER.length} entries: the kept build exception, `
+      return c.verdict(`no src/app page or src/components component draws an id fragment as a name, an enum literal list, JSON, a raw key column or a number with a bare unit; `
+        + `${temuan.length} match(es) remain, each admitted by its register entry exactly as often as it names (${REGISTER.length} entries: the kept build exception and playback speeds, `
         + `a secondary identifier, and the items waiting for words); the rules catch ${tanam.length} planted leaks and not ${bukan.length} non-renders`);
     },
   },
