@@ -8,4 +8,5 @@
 # 5 Oct: again after run 37291018301 (12 PASS, GS-20 walked; R2's code held by the six-an-hour limit per address); timed so R2 falls inside it
 # 6 Oct: Sekolah Demo PINTAR (D-116, Dr Gladys walks it on 7 Oct) after run 37433910433 (GS-12 to GS-16 green, 8 PASS)
 # 6 Oct, closure batch 0: Sekolah Uji Penutupan B0 after run 37465147297 (M0 to M7 green, GS-16 by clicking); adds U2 (staff shared), the J2.13 notice, GS-22
-slug: sekolah-uji-b0
+# 8 Oct, L3 (D-132): Sekolah Uji Penutupan L3 after run 37710220867 (GS-07 cards, GS-12 to GS-16 green); staging at 177, main d66485e
+slug: sekolah-uji-l3
