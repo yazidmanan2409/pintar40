@@ -9,7 +9,7 @@ Code head: **bf18bc0**, proven by CI and fast-forwarded to main under E1. Two co
 | CI **37739842180** on bf18bc0 | **18 of 18 jobs succeeded** (baseline, build, both migration paths, every red case, the strict self-test contract, the verdict) |
 | Journeys **37739845001** on bf18bc0 | Job A: **«Crawl A GREEN»**. Job B: **75 PASS, 1 FAIL**. The FAIL is **S23q (CR-52, governed by D-123)**, as in every run since D-123. The suite is not fully green, and this page does not say it is |
 | Full local suite, fresh seeded database | **646 passed, 0 failed** (1 justified local-only skip, as before); `tsc` 0 errors; ESLint 0 errors |
-| Main | Fast-forwarded to bf18bc0 (E1). Main's own `ci` run **37742974393** cancelled itself by proof reuse. Note: this time its baseline job was also cancelled before finishing (in the previous ALREADY PROVEN run, 37729629430, it had passed). The commit's full proof, baseline included, is 37739842180 |
+| Main | Fast-forwarded to bf18bc0 (E1). Main's own `ci` run **37742974393** cancelled itself by proof reuse. Note: this time its baseline job was also cancelled before finishing (in the previous ALREADY PROVEN run, 37729629430, it had passed). The commit's full proof, baseline included, is 37739842180. **Main's head is now 9a37114** (bf18bc0 plus the walk request and this report). E1 reuses proof on main only for the identical commit, and the walk-request file is not in CI's path exclusions, so main ran in full: **ci 37743909195 on 9a37114, 18 of 18 jobs succeeded**. I had expected a documents-only landing; that full run (72 estimated minutes) was my misjudgement, recorded below |
 | Staging | No migration (177 unchanged). **environment-facts 37743180546 (read only): success**: staging's app runs bf18bc0 and its database main's migrations |
 | Golden School on staging | A new school, **Sekolah Uji Penutupan BOB19**, was founded by found-school.yml **37743250063** (GS-00 green inside it). An earlier attempt, 37742992546, was refused by its own GS-00 gate because staging had not yet deployed bf18bc0; nothing was written. **staging-golden-school 37743344493 (walk 7e4d6c4 against the app at bf18bc0): success**, GS-00 included. The walk exits non-zero on any FAIL and counts any error as a FAIL, so G0–G5 all passed. **G3** made the first administrator through «Menunjuk admin sekolah pertama» and its confirmation. **G5** read back one active Admin sekolah at the root, made by the operator, audited, and no other role in the school |
 
@@ -105,7 +105,11 @@ Each change is marked in the code with the ruling. Actors, school contexts, role
 - **Other screens:** the school administrator's roles form offers what it did before, the school's own list. The platform-operator grant of SYSTEM_ADMIN in «Seluruh platform» is unchanged.
 - **Gates:** none weakened. BOB19-K01 gained conditions. F22-A02 is new and proven red. S23q stays a FAIL.
 - **Production:** untouched; no production request file, workflow, secret or setting.
-- **Allowance:** **1,445 of 1,900** estimated minutes (455 left). This landing cost 133: CI 75, journeys 47, main's E1 3, two founding runs 3, the walk 1, the facts check 1, plus the earlier small runs since the addendum
+- **Allowance:** **1,517 of 1,900** estimated minutes (383 left). This landing cost 205:
+  - CI 75 and journeys 47 on bf18bc0;
+  - main's E1 run 3;
+  - main's full run on 9a37114, 72. **Avoidable:** landing the walk request on main together with this report triggered it (§ Main above). Lesson: land a staging request file with the next proven code commit, not with a report;
+  - two founding runs 3, the walk 1 and the facts check 1, plus small runs since the addendum
 
 ## 7. For the Second Eye
 
