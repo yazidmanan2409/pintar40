@@ -153,7 +153,8 @@ export const effTests: SelfTest[] = [
       c.expect(/semuaSekolah \? enrolmen\.order\("created_at"\)\s*: sekolahIni\.length > 0 \? enrolmen\.in\("institution_id", sekolahIni\)\.order\("created_at"\) : tanpaBaris,/.test(halaman)
         && /const semuaSekolah = lama && isSys === true;/.test(halaman),
         "Konfigurasi reads enrollments without naming the administrator's schools");
-      c.expect(/\(platformIni \? jejak : jejak\.in\("institution_id", sekolahIni\)\)\.order\("at", \{ ascending: false \}\)\.limit\(50\)/.test(halaman),
+      // RESTATED FOR L4 (CR-88): the trail is read a page at a time (rentang) instead of a fixed newest 50; the schools named are unchanged
+      c.expect(/\(platformIni \? jejak : jejak\.in\("institution_id", sekolahIni\)\)\.order\("at", \{ ascending: false \}\)\.order\("id"\)\s*\.range\(\.\.\.rentang\(halamanDiminta\(sp\.hal_jejak\)\)\)/.test(halaman),
         "Konfigurasi reads audit_log without naming the administrator's schools");
       return c.verdict(
         "reads Konfigurasi (src/app/konfigurasi/page.tsx): a school administrator's enrolments and audit trail are read " +

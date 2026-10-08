@@ -567,7 +567,9 @@ export const penutupanTests: SelfTest[] = [
       c.expect(!/name="kelulusan"/.test(h), "Aturan Penilaian still asks for a passing rule no verdict reads");
       c.expect(/const MODE_SIKLUS = \["PRE_TEST", "POST_TEST"\];/.test(h) && /filter\(\(b\) => MODE_SIKLUS\.includes\(b\.mode\)\)/.test(h),
         "Aturan Penilaian offers modes the learning cycle never reads");
-      c.expect(/\{bab\?\.status === "INGESTED" \? \(\s*<form action=\{saveDefinitionAction\}/.test(h),
+      // RESTATED FOR L4 (CR-88): the row's form opens by «Ubah» (bukaUbah), and still only while the chapter is a draft
+      c.expect(/\{bab\?\.status === "INGESTED" && bukaUbah\(d\.id\) \? \(\s*<form action=\{saveDefinitionAction\}/.test(h)
+        && !/\{bab\?\.status === "INGESTED" \? \(\s*<form action=\{saveDefinitionAction\}/.test(h),
         "a saved rule can be changed after its chapter has moved on");
       c.expect(/const \{ data: bab \} = await supabase\.from\("courses"\)\.select\("institution_id"\)\.eq\("id", course\)\.maybeSingle\(\);/.test(aksi)
         && /put\("institution_id", bab\.institution_id\);/.test(aksi), "the rule's school is not the chapter's own");

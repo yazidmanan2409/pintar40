@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { t } from "@/lib/hle";
+import TandaTautan from "@/components/TandaTautan";
 
 /**
  * L4 (CR-88, investigation RC-6 (1)): NO STAFF LIST RENDERS MORE THAN ONE PAGE OF ROWS. A list shows `UKURAN` rows
@@ -18,12 +19,12 @@ export { UKURAN, halamanDiminta, satuHalaman, rentang } from "./halaman";
  */
 export default function Penomoran({ halaman, lagi, ke }: { halaman: number; lagi: boolean; ke: (n: number) => string }) {
   if (halaman <= 1 && !lagi) return null;
-  const tautan = "underline underline-offset-4";
+  // the design system's own classes (tokens only), and a menu link that acknowledges the click (DAISY-18)
   return (
-    <nav className="mt-3 flex flex-wrap items-center gap-3 text-sm" data-penomoran="">
-      {halaman > 1 ? <Link href={ke(halaman - 1)} className={tautan}>{t("koleksi.kembali", "staff")}</Link> : null}
-      <span className="text-ink-3 tabular-nums">{t("lesson.page_of", "staff")} {halaman}</span>
-      {lagi ? <Link href={ke(halaman + 1)} className={tautan}>{t("koleksi.berikutnya", "staff")}</Link> : null}
+    <nav className="pin-actions" data-penomoran="">
+      {halaman > 1 ? <Link href={ke(halaman - 1)} className="pin-tautan">{t("koleksi.kembali", "staff")}<TandaTautan /></Link> : null}
+      <span className="pin-meta">{t("lesson.page_of", "staff")} {halaman}</span>
+      {lagi ? <Link href={ke(halaman + 1)} className="pin-tautan">{t("koleksi.berikutnya", "staff")}<TandaTautan /></Link> : null}
     </nav>
   );
 }

@@ -1687,7 +1687,7 @@ export const staticTests: SelfTest[] = [
     // waits for: the kept technical exception (the build, in the operator's triage), a secondary identifier beside
     // its label, and the items waiting for Dr Gladys's words (D-128(g): no word is invented). An entry that no longer
     // matches anything fails the guard, so the register can only shrink by fixing, never by forgetting.
-    id: "F06-S05",
+    id: "L4-G01",
     requires: [],
     run: async ({ repoRoot }) => {
       const c = new Checks();
