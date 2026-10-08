@@ -1164,13 +1164,19 @@ export const appTests: SelfTest[] = [
       const tag = Date.now().toString(36).slice(-6);
       const SAMPAI = "2027-06-30";
       // the world: a school with no administrator, and three people (P1 recorded at no school and holding nothing,
-      // P2 recorded at Alpha holding nothing, P3 a teacher of Alpha)
+      // P2 recorded at another school holding nothing, P3 a teacher of Alpha)
       const S = seeding(`insert into public.institutions (name, slug, is_synthetic, is_active) values ('Sekolah Pertama ${tag}', 'sekolah-pertama-${tag}', true, true) returning id`);
       const akar = psql(`select id from public.org_nodes where institution_id = '${S}' and kind = 'INSTITUTION' limit 1`);
       const alpha = psql("select id from public.institutions where slug like 'synth-alpha-%' limit 1");
       const P1 = psql(`insert into public.persons (display_name) values ('Calon Admin ${tag}') returning id`);
-      const P2 = psql(`insert into public.persons (display_name) values ('Tercatat Alpha ${tag}') returning id`);
-      psql(`select public.issue_institutional_id('${P2}', '${alpha}')`);
+      // P2's school: another school with a namespace, so it can record a person (issue_institutional_id)
+      const lainId = seeding(`insert into public.institutions (name, slug, is_synthetic, is_active) values ('Sekolah Lain ${tag}', 'sekolah-lain-${tag}', true, true) returning id`);
+      psql("update public.institutions set namespace = (select x from generate_series(1, 500) g, " +
+        `lateral (select upper(substr(md5('${tag}${lainId}' || g), 1, 3)) x) q ` +
+        "where x ~ '^[A-Z]{3}$' and not exists (select 1 from public.institutions t where upper(t.namespace) = q.x) limit 1) " +
+        `where id = '${lainId}'`);
+      const P2 = psql(`insert into public.persons (display_name) values ('Tercatat Lain ${tag}') returning id`);
+      psql(`select public.issue_institutional_id('${P2}', '${lainId}')`);
       const orangDari = (email: string) => psql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${email}'`);
       const P3 = orangDari(PERSONA.alphaGuru.email);
       const sys = orangDari(PERSONA.sysadmin.email);
@@ -1207,7 +1213,7 @@ export const appTests: SelfTest[] = [
       const b1 = bagianPertama(h1);
       c.expect(b1.includes(judul) && b1.includes(arti), "with no administrator the school's context draws no «Menunjuk admin sekolah pertama» in the approved words");
       c.expect(pilihanDi(b1, `Calon Admin ${tag}`), "the person recorded at no school is not offered for the first appointment");
-      c.expect(!pilihanDi(b1, `Tercatat Alpha ${tag}`), "a person recorded at another school is offered for the first appointment");
+      c.expect(!pilihanDi(b1, `Tercatat Lain ${tag}`), "a person recorded at another school is offered for the first appointment");
       const umum = formIsi(h1, /name="role"/) ?? "";
       c.expect(umum !== "" && !pilihanDi(umum, `Calon Admin ${tag}`), "the ordinary roles form offers a person recorded at no school (the platform's list in a school's context)");
 
@@ -1223,7 +1229,7 @@ export const appTests: SelfTest[] = [
       // 3. forged first appointments: a person recorded at another school, a person holding a role
       const formPertama = formDengan(bagianPertama(h1), /name="sekolah"/);
       c.expect(formPertama !== null, "no first-appointment form found");
-      for (const [siapa, id] of [["recorded at Alpha", P2], ["a teacher of Alpha", P3]] as const) {
+      for (const [siapa, id] of [["recorded at another school", P2], ["a teacher of Alpha", P3]] as const) {
         const r = formPertama ? await kirim(op.cookie, formPertama, { person: id, sekolah: S, valid_until: SAMPAI, yakin: "ya" }) : "-";
         c.expect(/kode=ACTION_NOT_ALLOWED/.test(r) && peranDi() === "0", `a first appointment of a person ${siapa} answered ${r}`);
       }
@@ -1258,7 +1264,7 @@ export const appTests: SelfTest[] = [
       const lain = await signIn(ctx, PERSONA.alphaAdmin);
       await pilihKonteksCookie(base, lain.cookie, `MENGELOLA:${alpha}`);
       const formLain = formDengan(await halaman(lain.cookie), /name="role"/);
-      const silang = formLain ? await kirim(lain.cookie, formLain, { person: P2, role: "EDUCATOR", scope: akar, valid_until: SAMPAI }) : "-";
+      const silang = formLain ? await kirim(lain.cookie, formLain, { person: P3, role: "EDUCATOR", scope: akar, valid_until: SAMPAI }) : "-";
       c.expect(/hasil=gagal/.test(silang) && peranDi() === "1", `Alpha's administrator granting at this school answered ${silang}; roles at the school ${peranDi()}`);
       const daftar = await fetch(`${ctx.supabaseUrl}/rest/v1/rpc/persons_awaiting_first_role`, {
         method: "POST", headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${lain.accessToken}`, "content-type": "application/json" }, body: "{}" });
