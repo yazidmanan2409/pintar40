@@ -34,7 +34,7 @@ const JUDUL = PAKET.map((p) => p.courses[0].title);
 const RENCANA_PD = [{ pre: 2, post: 4 }, { pre: 1, post: 3 }];
 
 export async function jalankanC12(d) {
-  const { step, sql, ctx, magicSignIn, apiSession, grantViaForm, catatLewatLayar, kirimPaket, terbitkanLewatLayar, keadaanBab, jawab, tutupTur,
+  const { step, sql, ctx, magicSignIn, apiSession, grantViaForm, catatDanAktifkan, catatLewatLayar, kirimPaket, terbitkanLewatLayar, keadaanBab, jawab, tutupTur,
     masukKartu, shot, bodyText, norm, people, ids, a, g, kartuKelas, KUNCI, kelasSatuA, babSatu, SLOW, APP, DB, GLADYS, newPerson, OUT, keKonteks } = d;
   const C = {};
   const q = (s) => sql(s).trim();
@@ -155,10 +155,22 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
     notes.push(`responsible Kepala departemen: ${await stafBaru(ORANG_PD.kepalaPd, "HEAD_OF_DEPARTMENT", PD.bagian, rec.shots)}`);
     notes.push(`another Guru (facilitator of the other PD Kelas): ${await stafBaru(ORANG_PD.guruLain, "EDUCATOR", PD.kelasB, rec.shots)}`);
     // a Guru of the second school, by the platform administrator (that school has no admin of its own)
-    const np = await newPerson(g, ORANG_PD.guruSma.name, ORANG_PD.guruSma.email);
-    // L3 (D-132 C7): «Orang baru» is «Seluruh platform»'s, a role at SMA is given in SMA's own context; then back to SD,
-    // where the walk goes on working
-    if (np.ok) await keKonteks(g, { tujuan: "MENGELOLA", nama: "SMA Zayd" });
+    // L3 (D-132 C7): a role at SMA is given in SMA's own context; then back to SD, where the walk goes on working
+    // RESTATED FOR BOB19-K01 (the owner's ruling of 8 Oct, Option B, approving this procedural restatement): an ordinary
+    // role names one of the school's own people, so Gladys, in Mengelola · SMA as before, records the Guru with SMA's
+    // own tool (Pendataan; SMA's code saved on that screen first if it has none) and activates her (Aktivasi), where
+    // «Orang baru di luar pendataan» made her before, then grants Guru at SMA from SMA's list. Actor, school, role and
+    // assertions are unchanged
+    await keKonteks(g, { tujuan: "MENGELOLA", nama: "SMA Zayd" });
+    if (!q(`select coalesce(namespace, '') from public.institutions where id='${ids.sma}'`)) {
+      await g.goto(`${APP}/pendataan`, { waitUntil: "networkidle" });
+      await tutupTur(g);
+      await g.locator("#pin-kode-isi").fill("SMZ");
+      await g.getByRole("button", { name: "Simpan kode", exact: true }).click();
+      await g.locator("#pin-tempel").waitFor({ timeout: SLOW }).catch(() => {});
+    }
+    const np = await catatDanAktifkan(g, ORANG_PD.guruSma, rec.shots).then((x) => ({ ok: true, x }), (e) => ({ ok: false, x: String(e.message ?? e) }));
+    notes.push(`a Guru of SMA Zayd recorded and activated: ${np.x.slice(0, 200)}`);
     const rs = np.ok ? await grantViaForm(g, ORANG_PD.guruSma.name, "EDUCATOR", "SMA Zayd") : { ok: "no person" };
     await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
     notes.push(`a Guru of SMA Zayd: ${rs.ok}`);

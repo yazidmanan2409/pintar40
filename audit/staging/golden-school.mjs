@@ -127,23 +127,29 @@ await step("G3", "GS-02: the operator gives «Admin sekolah» at the school's ro
   await pilihKonteks(O, { tujuan: "MENGELOLA", nama: S.nama });
   await O.goto(`${APP}/konfigurasi?muat=${Date.now()}#roles`, { waitUntil: "networkidle", timeout: SLOW });
   await closeTour(O);
-  const form = O.locator("form").filter({ has: O.locator('select[name="person"]') });
-  const orang = await form.locator('select[name="person"] option').filter({ hasText: ADMIN_NAME }).first().getAttribute("value");
-  if (!orang) { rec.verdict = "FAIL"; return `«${ADMIN_NAME}» is not offered in the person list`; }
-  await form.locator('select[name="person"]').selectOption(orang);
-  await form.locator('select[name="role"]').selectOption("INSTITUTION_ADMIN");
-  const tempat = await form.locator('select[name="scope"] option').allTextContents();
-  const akar = await form.locator('select[name="scope"] option').filter({ hasText: S.nama }).first().getAttribute("value");
-  if (!akar) { rec.verdict = "FAIL"; return `no place named «${S.nama}» offered; offered: ${tempat.slice(0, 8).join(" / ")}`; }
-  await form.locator('select[name="scope"]').selectOption(akar);
+  // BOB19-K01 (the owner's ruling of 8 Oct, Option B; selectors only): a school with no administrator draws «Menunjuk
+  // admin sekolah pertama»: the person (recorded at no school), the date, «Berikan peran», and on the second step «Ya,
+  // jadikan admin sekolah». Admin sekolah at the school's root, as before
+  const bagian = O.locator("[data-admin-pertama]");
+  if (!(await bagian.count())) { rec.verdict = "FAIL"; return "«Menunjuk admin sekolah pertama» is not offered"; }
+  const form = bagian.locator("form");
+  const pilihan = form.locator('select[name="person"] option').filter({ hasText: ADMIN_NAME });
+  if (!(await pilihan.count())) { rec.verdict = "FAIL"; return `«${ADMIN_NAME}» is not offered for the first appointment`; }
+  await form.locator('select[name="person"]').selectOption(await pilihan.first().getAttribute("value"));
   await form.locator('input[name="valid_until"]').fill(S.akhir);
   await form.getByRole("button", { name: "Berikan peran" }).click();
+  await O.waitForURL(/pertama=/, { timeout: SLOW }).catch(() => {});
+  await O.waitForLoadState("networkidle");
+  const ditanya = norm(await bagian.innerText().catch(() => "")).includes("Jadikan orang ini admin sekolah pertama di sekolah ini?");
+  const ya = bagian.getByRole("button", { name: "Ya, jadikan admin sekolah" });
+  if (!(await ya.count())) { rec.verdict = "FAIL"; return `the first press did not ask for confirmation: ${new URL(O.url()).search}`; }
+  await ya.click();
   await O.waitForURL(/hasil=/, { timeout: SLOW }).catch(() => {});
   await O.waitForLoadState("networkidle");
   await shot(O, "g3-peran");
   const u = new URL(O.url());
   if (u.searchParams.get("hasil") !== "ok" || hibah(S.id) !== "1") rec.verdict = "FAIL";
-  return `after «Berikan peran»: hasil=${u.searchParams.get("hasil")} kode=${u.searchParams.get("kode")}; active grants at the root now ${hibah(S.id)}`;
+  return `after «Berikan peran» and «Ya, jadikan admin sekolah» (asked in the approved words: ${ditanya}): hasil=${u.searchParams.get("hasil")} kode=${u.searchParams.get("kode")}; active grants at the root now ${hibah(S.id)}`;
 });
 await O.context().close();
 

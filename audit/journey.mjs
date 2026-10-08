@@ -221,7 +221,9 @@ async function newPerson(page, name, email) {
 async function grantViaForm(page, personName, roleValue, scopeLabelPart, until = "2027-06-30") {
   // a real load every time: a hash-only change on the same path keeps a stale person list
   await page.goto(`${APP}/konfigurasi?muat=${Date.now()}#roles`, { waitUntil: "networkidle" });
-  const form = page.locator("form").filter({ has: page.locator('select[name="person"]') });
+  // BOB19-K01 (the owner's ruling of 8 Oct, Option B): the ordinary roles form is the one with a role picker; a school
+  // with no administrator also draws «Menunjuk admin sekolah pertama», whose form has a person picker of its own
+  const form = page.locator("form").filter({ has: page.locator('select[name="role"]') }).filter({ has: page.locator('select[name="person"]') });
   const personOpt = await form.locator('select[name="person"] option').filter({ hasText: personName }).first().getAttribute("value");
   if (!personOpt) throw new Error(`"${personName}" is not offered in the Orang list`);
   await form.locator('select[name="person"]').selectOption(personOpt);
@@ -236,6 +238,45 @@ async function grantViaForm(page, personName, roleValue, scopeLabelPart, until =
   await page.waitForLoadState("networkidle");
   const u = new URL(page.url());
   return { ok: u.searchParams.get("hasil"), detail: u.searchParams.get("detail"), url: u.pathname + u.search, scopesOffered: scopes.length };
+}
+// BOB19-K01 (the owner's ruling of 8 Oct, Option B): a school's first administrator is appointed by Admin platform, in
+// Mengelola · that school while it has no Admin sekolah, by «Menunjuk admin sekolah pertama»: a person recorded at no
+// school, a date, «Berikan peran»; the screen asks «Jadikan orang ini admin sekolah pertama di sekolah ini?» and
+// «Ya, jadikan admin sekolah» appoints Admin sekolah at the school's root. Same return shape as grantViaForm.
+async function adminPertamaViaForm(page, personName, until = "2027-06-30") {
+  await page.goto(`${APP}/konfigurasi?muat=${Date.now()}#roles`, { waitUntil: "networkidle" });
+  const bagian = page.locator("[data-admin-pertama]");
+  if (!(await bagian.count())) throw new Error("«Menunjuk admin sekolah pertama» is not offered");
+  const form = bagian.locator("form");
+  const pilihan = form.locator('select[name="person"] option').filter({ hasText: personName });
+  if (!(await pilihan.count())) throw new Error(`"${personName}" is not offered for the first appointment`);
+  await form.locator('select[name="person"]').selectOption(await pilihan.first().getAttribute("value"));
+  await form.locator('input[name="valid_until"]').fill(until);
+  await form.getByRole("button", { name: "Berikan peran" }).click();
+  await page.waitForURL(/pertama=/, { timeout: 20000 }).catch(() => {});
+  await page.waitForLoadState("networkidle");
+  const ditanya = norm(await bagian.innerText().catch(() => "")).includes("Jadikan orang ini admin sekolah pertama di sekolah ini?");
+  const ya = bagian.getByRole("button", { name: "Ya, jadikan admin sekolah" });
+  if (!(await ya.count())) throw new Error(`the first press did not ask for confirmation: ${page.url()}`);
+  await ya.click();
+  await page.waitForURL(/hasil=/, { timeout: 20000 }).catch(() => {});
+  await page.waitForLoadState("networkidle");
+  const u = new URL(page.url());
+  return { ok: u.searchParams.get("hasil"), detail: u.searchParams.get("detail"), url: u.pathname + u.search, ditanya };
+}
+// BOB19-K01 (Option B): staff a school does not have yet are recorded with the school's own tool and activated, then
+// appointed from the school's own list (the path C12b's stafBaru walks). In the page's current context: Pendataan
+// (no Tempat, no role), then Aktivasi «Aktifkan dengan email» on the person's row.
+async function catatDanAktifkan(page, orang, shots) {
+  const jejak = [await catatLewatLayar(page, [orang.name], shots, { kelas: null, peran: null })];
+  await page.goto(`${APP}/aktivasi?muat=${Date.now()}`, { waitUntil: "networkidle" });
+  const baris = page.locator("li.pin-akt-orang", { hasText: orang.name }).first();
+  if (!(await baris.count())) throw new Error(`${orang.name} is not on Aktivasi`);
+  await baris.locator('input[type="email"]').fill(orang.email);
+  await baris.getByRole("button", { name: "Aktifkan dengan email", exact: true }).click();
+  await baris.locator('input[type="email"]').waitFor({ state: "detached", timeout: SLOW }).catch(() => {});
+  jejak.push("Aktivasi «Aktifkan dengan email»");
+  return jejak.join("; ");
 }
 // L3 (D-132 C3): the chooser (`/`) is the one place a working context changes, and visiting it changes nothing. A person
 // picks a door, a purpose and a place as the screen names them: { tujuan, nama } or «Seluruh platform» ({ tujuan,
@@ -380,7 +421,9 @@ await step("S3", "Gladys creates the school admin on Aktivasi by the screen: «O
 await step("S4", "Gladys grants Admin sekolah at SD's root (Konfigurasi → Peran & akses)", async (rec) => {
   // L3 (D-132 C7): Admin sekolah is given in the school's own context, Mengelola · SD, chosen first
   await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
-  const r = await grantViaForm(g, people.sdAdmin.name, "INSTITUTION_ADMIN", "SD Zayd");
+  // BOB19-K01 (the owner's ruling of 8 Oct, Option B; selector only): SD has no administrator yet, so its first is
+  // appointed by «Menunjuk admin sekolah pertama», Admin sekolah at SD's root as before
+  const r = await adminPertamaViaForm(g, people.sdAdmin.name);
   rec.shots.push(await shot(g, "grant-admin-result"));
   if (r.ok !== "ok") rec.verdict = "FAIL";
   return JSON.stringify(r);
@@ -896,9 +939,13 @@ await step("S15c", "SD 5 Matematika Bab 1 (real content) imports whole into SD",
 });
 
 await step("S16", "Head of department: sees reports on /pimpinan", async (rec) => {
-  const np = await newPerson(g, people.kaprodi.name, people.kaprodi.email);
-  if (!np.ok) throw new Error(`«Buat dan aktifkan» answered: ${np.teks.slice(0, 200)}`);
+  // RESTATED FOR BOB19-K01 (the owner's ruling of 8 Oct, Option B, approving this procedural restatement): SD has its
+  // administrator, so its new staff are SD's own people. Gladys, Admin platform in Mengelola · SD as before, records the
+  // Kepala departemen with SD's own tool (Pendataan) and activates her (Aktivasi), where «Orang baru di luar pendataan»
+  // made her before, then grants Kepala departemen at Kelas Rendah from SD's list. Actor, school, role and assertions
+  // are unchanged.
   await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
+  await catatDanAktifkan(g, people.kaprodi, rec.shots);
   const r = await grantViaForm(g, people.kaprodi.name, "HEAD_OF_DEPARTMENT", "Kelas Rendah");
   const hc = await ctx();
   const h = await hc.newPage();
@@ -2455,7 +2502,7 @@ await step("S23i", "the head of department reviews Kelas 1A's integrity observat
 // C-12 (D-069, D-070, design/EDUCATOR-AS-LEARNER-TICKETS.md §7): Kelas 1A's teacher learns as a participant in a
 // professional-learning place, here, while he still teaches Kelas 1A and its figures are settled (before S24 changes
 // who leads it). The walk and its snapshot live in c12.mjs and c12-potret.mjs.
-await jalankanC12({ step, sql, ctx, magicSignIn, apiSession, grantViaForm, catatLewatLayar, kirimPaket, terbitkanLewatLayar, keadaanBab, jawab,
+await jalankanC12({ step, sql, ctx, magicSignIn, apiSession, grantViaForm, catatDanAktifkan, catatLewatLayar, kirimPaket, terbitkanLewatLayar, keadaanBab, jawab,
   tutupTur, masukKartu, shot, bodyText, norm, people, ids, a, g, kartuKelas, KUNCI, kelasSatuA, babSatu, SLOW, APP, DB, GLADYS, newPerson, OUT, keKonteks });
 
 // ═══ the closure's batch 2 walks (D-118): CR-38, CR-44, CR-40 and CR-39 through the screens, after C-12's block (its
@@ -3766,9 +3813,9 @@ await step("S27h", "a head of department assigns and runs an Uji Cepat within th
   const siswa = kartuKelas.find((x) => x.nama === MURID[4]);
   if (!terbitBab || !satuB || !modul || !siswa) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "no Kelas for Eka (S25), Bab 1 chapter or card for her"; }
   const notes = [];
-  // S24 revoked her only role. She was made by the platform administrator («Orang baru», S16) and has no record at the
-  // school, so the school admin no longer sees her (BOB-20, D-048); the platform administrator appoints her again, as in S16
-  // L3 (J1.4): in Mengelola · SD, Admin platform is offered the people no school has recorded (D-132 C7)
+  // S24 revoked her only role; the platform administrator appoints her again, as in S16
+  // RESTATED FOR BOB19-K01 (the owner's ruling of 8 Oct, Option B): S16 recorded her at SD, so after the revocation she
+  // is in SD's own list (recorded there, holding nothing there yet); Admin platform in Mengelola · SD appoints her from it
   await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
   const beri = await grantViaForm(g, people.kaprodi.name, "HEAD_OF_DEPARTMENT", "Kelas Rendah");
   notes.push(`the platform administrator gives ${people.kaprodi.name} Kepala departemen at Kelas Rendah again: ${beri.ok}`);
@@ -4129,7 +4176,9 @@ await step("L3A", "L3 scenario A (design §3; D-132 C3, C4): Admin platform who 
   const np = await newPerson(g, smaAdmin.name, smaAdmin.email);
   notes.push(`«Orang baru» ${smaAdmin.name}: ${np.ok}`);
   await keKonteks(g, { tujuan: "MENGELOLA", nama: "SMA Zayd" });
-  const angkat = await grantViaForm(g, smaAdmin.name, "INSTITUTION_ADMIN", "SMA Zayd");
+  // BOB19-K01 (the owner's ruling of 8 Oct, Option B; selector only): SMA's first administrator, by «Menunjuk admin
+  // sekolah pertama», Admin sekolah at SMA's root as before
+  const angkat = await adminPertamaViaForm(g, smaAdmin.name);
   notes.push(`Admin sekolah of SMA: ${angkat.ok}`);
   const smaApi = await apiSession(smaAdmin.email);
   // SETUP (OPERATOR, declared, as W1): each school first has her as its own person, by an institutional ID as its
