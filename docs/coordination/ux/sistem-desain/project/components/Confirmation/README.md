@@ -2,7 +2,7 @@ Set it up, see what will happen, then do it, in the page: the confirmation takes
 
 **Status: KEPT** (HalamanKomitmen, TahapKomitmen), restyled; the destructive form is written down.
 
-**Anatomy.** A question as the title («Sediakan Bab 4 untuk Kelas 5A?»), the consequences in plain words (who will see what, from when, what can be undone), and two actions: the act named on its button, and the way back.
+**Anatomy.** A question as the title («Jadikan admin sekolah?», after «Admin sekolah» was pressed on Peran & akses, D-101(2)), who and where it applies to, the consequences in plain words (what changes, what is recorded, what can be undone), and two actions: the act named on its button, and the way back.
 
 **Destructive.** The panel's edge and the confirm button are `status-blocked`; the confirm button names the act («Nonaktifkan Kelas 5C», never «Ya»); focus starts on «Batal».
 

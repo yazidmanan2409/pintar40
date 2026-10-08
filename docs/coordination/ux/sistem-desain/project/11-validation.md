@@ -252,7 +252,7 @@ Why the changes:
 | Key | Today | Proposed |
 |---|---|---|
 | `pimpinan.menunggu_pemutus_lain` | Anda yang meneruskan kasus ini, jadi keputusannya diambil oleh pimpinan lain. Kasus ini menunggu keputusan mereka. | Anda yang meneruskan kasus ini, jadi pimpinan lain yang memutuskannya. Kasus ini menunggu keputusan mereka. |
-| `pimpinan.belum_ada_pemutus_lain` | Belum ada pimpinan lain yang berwenang memutuskan di bagian ini. Minta Admin sekolah menunjuk kepala program atau dekan. | Belum ada pimpinan lain yang boleh memutuskan kasus di bagian ini, jadi kasus ini belum bisa diputuskan. Minta Admin sekolah menunjuk kepala program atau dekan untuk bagian ini. |
+| `pimpinan.belum_ada_pemutus_lain` | Belum ada pimpinan lain yang berwenang memutuskan dalam lingkup ini. Minta Admin sekolah menunjuk Kepala departemen atau Dekan. | Belum ada pimpinan lain yang boleh memutuskan kasus dalam lingkup ini, jadi kasus ini belum bisa diputuskan. Minta Admin sekolah menunjuk Kepala departemen atau Dekan untuk lingkup ini. |
 | new: the card's state | — | Menunggu keputusan |
 
 **CR-81, the three population labels.**
