@@ -2,7 +2,7 @@
 
 **8 October 2026.** This page answers the owner's product ruling of 8 October («Approve Option B for a narrowly scoped implementation»), point by point. It does **not** declare L3 GREEN; that verdict is the Second Eye's. No L4. No production change.
 
-Head: **bf18bc0**, the branch and main alike (main fast-forwarded under E1; the walk request that followed, 7e4d6c4, is on the branch only).
+Code head: **bf18bc0**, proven by CI and fast-forwarded to main under E1. Two commits follow it: the Golden School walk request (7e4d6c4, a staging request file) and this report (documents only). Neither touches code.
 
 | Evidence | Result |
 |---|---|
@@ -11,7 +11,7 @@ Head: **bf18bc0**, the branch and main alike (main fast-forwarded under E1; the 
 | Full local suite, fresh seeded database | **646 passed, 0 failed** (1 justified local-only skip, as before); `tsc` 0 errors; ESLint 0 errors |
 | Main | Fast-forwarded to bf18bc0 (E1). Main's own `ci` run **37742974393** cancelled itself by proof reuse. Note: this time its baseline job was also cancelled before finishing (in the previous ALREADY PROVEN run, 37729629430, it had passed). The commit's full proof, baseline included, is 37739842180 |
 | Staging | No migration (177 unchanged). **environment-facts 37743180546 (read only): success**: staging's app runs bf18bc0 and its database main's migrations |
-| Golden School on staging | GOLDEN_SCHOOL_RESULT |
+| Golden School on staging | A new school, **Sekolah Uji Penutupan BOB19**, was founded by found-school.yml **37743250063** (GS-00 green inside it). An earlier attempt, 37742992546, was refused by its own GS-00 gate because staging had not yet deployed bf18bc0; nothing was written. **staging-golden-school 37743344493 (walk 7e4d6c4 against the app at bf18bc0): success**, GS-00 included. The walk exits non-zero on any FAIL and counts any error as a FAIL, so G0–G5 all passed. **G3** made the first administrator through «Menunjuk admin sekolah pertama» and its confirmation. **G5** read back one active Admin sekolah at the root, made by the operator, audited, and no other role in the school |
 
 ## 1. No migration; the database's authorization and audit, verified
 
@@ -92,7 +92,7 @@ Each change is marked in the code with the ruling. Actors, school contexts, role
 |---|---|---|---|
 | **S4** (SD's first administrator) | General roles form | **Selectors only:** «Menunjuk admin sekolah pertama» | PASS |
 | **L3A** (SMA's first administrator, setup) | General roles form | **Selectors only:** the same path. The administrator is now made once, in C12c (below), and L3A reuses it; L3A's assertions are about Working Context, not this setup | PASS |
-| **Golden School G3** (staging) | General roles form | **Selectors only:** the same path | GOLDEN_SCHOOL_G3 |
+| **Golden School G3** (staging) | General roles form | **Selectors only:** the same path | staging-golden-school 37743344493: success |
 | **S16** (Kepala departemen) | Gladys: «Orang baru di luar pendataan», then the grant in Mengelola · SD | Gladys, in Mengelola · SD: records her with SD's own tool (Pendataan), activates her (Aktivasi «Aktifkan dengan email»), grants Kepala departemen at Kelas Rendah from SD's list | PASS |
 | **S27h** (S24's follow-up: re-appointment) | From the platform's list | From SD's own list, where S16 recorded her | PASS |
 | **C12c** (a Guru of SMA, inside C12b) | Gladys: «Orang baru», then Guru at SMA, which had no administrator | Gladys, in Mengelola · SMA: SMA's code saved on Pendataan if absent, the Guru recorded there and activated, then Guru at SMA from SMA's list | C12b PASS (notes: «SMA's first administrator by «Menunjuk admin sekolah pertama»: ok»; «a Guru of SMA Zayd: ok»; the later C-12 refusals of her unchanged) |
@@ -105,7 +105,7 @@ Each change is marked in the code with the ruling. Actors, school contexts, role
 - **Other screens:** the school administrator's roles form offers what it did before, the school's own list. The platform-operator grant of SYSTEM_ADMIN in «Seluruh platform» is unchanged.
 - **Gates:** none weakened. BOB19-K01 gained conditions. F22-A02 is new and proven red. S23q stays a FAIL.
 - **Production:** untouched; no production request file, workflow, secret or setting.
-- **Allowance:** **ALLOWANCE_LINE**
+- **Allowance:** **1,445 of 1,900** estimated minutes (455 left). This landing cost 133: CI 75, journeys 47, main's E1 3, two founding runs 3, the walk 1, the facts check 1, plus the earlier small runs since the addendum
 
 ## 7. For the Second Eye
 
