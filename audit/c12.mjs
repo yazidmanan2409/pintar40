@@ -35,7 +35,7 @@ const RENCANA_PD = [{ pre: 2, post: 4 }, { pre: 1, post: 3 }];
 
 export async function jalankanC12(d) {
   const { step, sql, ctx, magicSignIn, apiSession, grantViaForm, catatDanAktifkan, pastikanAdminSma, catatLewatLayar, kirimPaket, terbitkanLewatLayar, keadaanBab, jawab, tutupTur,
-    masukKartu, shot, bodyText, norm, people, ids, a, g, kartuKelas, KUNCI, kelasSatuA, babSatu, SLOW, APP, DB, GLADYS, newPerson, OUT, keKonteks } = d;
+    masukKartu, shot, bodyText, norm, people, ids, a, g, kartuKelas, KUNCI, kelasSatuA, babSatu, SLOW, APP, DB, GLADYS, OUT, keKonteks } = d;
   const C = {};
   const q = (s) => sql(s).trim();
   const orangDari = (email) => q(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${email}'`);
