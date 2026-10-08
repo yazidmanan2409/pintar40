@@ -3156,7 +3156,7 @@
     {
       "id": "F22-A01",
       "runner": "app",
-      "proves": "The Second Eye's hold 3 (8 Oct), D-132 §2.11, against the running app and its database: when the read of the pairs a person holds (konteks_tempat_saya, with the person's own session) is refused for real (EXECUTE taken from authenticated for the test and given back after), the chooser at / offers no door, /mulai chooses no purpose and sends the person into no surface, /mengajar lists no class, and the session holds no context. The control: before, the same teacher is offered her Mengajar door, and the same session is offered it again once the read is restored.",
+      "proves": "The Second Eye's hold 3 (8 Oct), D-132 §2.11, through the running app's rendered chooser (/) and its routes /mulai and /mengajar, and its database: when the read of the pairs a person holds (konteks_tempat_saya, with the person's own session) is refused for real (EXECUTE taken from authenticated for the test and given back after), the chooser at / offers no door, /mulai chooses no purpose and sends the person into no surface, /mengajar lists no class, and the session holds no context. The control: before, the same teacher is offered her Mengajar door, and the same session is offered it again once the read is restored.",
       "skip_justification": "needs the running app and the local stack's database (SUPABASE_DB_URL)"
     },
     {
