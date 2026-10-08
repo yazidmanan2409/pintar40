@@ -1082,6 +1082,67 @@ export const appTests: SelfTest[] = [
     },
   },
   {
+    // F22-A01 (the Second Eye's hold 3, 8 Oct; D-132 §2.11): THE CHOOSER FAILS CLOSED WHEN THE GRANTS CANNOT BE READ.
+    // The pairs a person holds come from konteks_tempat_saya, read with the person's own session. When that read is
+    // refused, the app must offer no door, set no context and narrow every surface to nothing; never guess a purpose.
+    // The read is made to fail for real in the running database (EXECUTE taken from authenticated, restored after).
+    id: "F22-A01",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const db = process.env.SUPABASE_DB_URL!;
+      const sql = (q: string) => {
+        const r = spawnSync("psql", ["-q", "-v", "ON_ERROR_STOP=1", "-At", "-c", q, db], { encoding: "utf8" });
+        if (r.status !== 0) throw new Error(`psql: ${(r.stderr || "").trim().split("\n").pop()}`);
+        return r.stdout.trim();
+      };
+      const FN = "public.konteks_tempat_saya()";
+      const bolehBaca = () => sql(`select has_function_privilege('authenticated', '${FN}', 'execute')`) === "t";
+      const sesiId = (token: string) =>
+        (JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString("utf8")) as { session_id?: string }).session_id ?? "";
+      const konteksSesi = (id: string) =>
+        sql(`select coalesce(konteks_tujuan, '-') || ':' || coalesce(konteks_tempat::text, '-') from public.device_sessions where session_id = '${id}'`) || "(no row)";
+      const pintuDari = async (cookie: string) => pintuDi(await (await get(`${base}/`, { headers: { cookie } })).text()).map((p) => p.kunci);
+      const kelasDi = (html: string) => [...html.matchAll(/href="\/mengajar\/[0-9a-f-]{36}"/g)].length;
+
+      // the control: with the grants readable, this teacher is offered her door and her classes
+      c.expect(bolehBaca(), `${FN} is not executable by authenticated before the test (left from an earlier run?)`);
+      const awal = await signIn(ctx, PERSONA.alphaGuru);
+      const pintuAwal = await pintuDari(awal.cookie);
+      c.expect(pintuAwal.some((k) => k.startsWith("MENGAJAR:")), `with the grants readable the teacher is offered ${JSON.stringify(pintuAwal)}, no Mengajar door`);
+
+      let pintu: string[] = [], mulai = "", tetap = "", kelas = -1, mengajar = 0;
+      const sesi = await signIn(ctx, PERSONA.alphaGuru);
+      sql(`revoke execute on function ${FN} from authenticated`);
+      try {
+        // the chooser: no door at all, since none can be known to be held
+        pintu = await pintuDari(sesi.cookie);
+        // the arrival: /mulai with no door chooses nothing (C9 needs exactly one held pair)
+        const r = await get(`${base}/mulai`, { headers: { cookie: sesi.cookie } });
+        mulai = `${r.status} → ${r.headers.get("location") ?? "-"}`;
+        // a surface asked for: C4 sets no context, and the page narrows to nothing
+        const m = await get(`${base}/mengajar`, { headers: { cookie: sesi.cookie } });
+        mengajar = m.status;
+        kelas = m.status === 200 ? kelasDi(await m.text()) : 0;
+        tetap = konteksSesi(sesiId(sesi.accessToken));
+      } finally {
+        sql(`grant execute on function ${FN} to authenticated`);
+      }
+      c.expect(bolehBaca(), `${FN} was not given back to authenticated`);
+      c.expect(pintu.length === 0, `with the grants unreadable the chooser still offers ${JSON.stringify(pintu)}`);
+      c.expect(!/\/(mengajar|belajar|konfigurasi|pimpinan|studio)/.test(mulai), `with the grants unreadable /mulai sends the teacher into a surface: ${mulai}`);
+      c.expect(kelas === 0, `with the grants unreadable /mengajar (${mengajar}) still lists ${kelas} class link(s)`);
+      c.expect(!/^(BELAJAR|MENGAJAR|MENGELOLA):/.test(tetap), `with the grants unreadable the session was given a context: ${tetap}`);
+      // and the same session, once the grants read again, is offered its door: the absence was the unreadable read
+      const pintuLagi = await pintuDari(sesi.cookie);
+      c.expect(pintuLagi.some((k) => k.startsWith("MENGAJAR:")), `after the read is restored the teacher is offered ${JSON.stringify(pintuLagi)}`);
+      return c.verdict(`with ${FN} refused to the person's own session, the chooser offers no door (${pintuAwal.length} before, `
+        + `${pintuLagi.length} after), /mulai chooses nothing (${mulai}), /mengajar (${mengajar}) lists no class and the session holds `
+        + `no context (${tetap}): the app fails closed when the grants cannot be read (D-132 §2.11; the Second Eye's hold 3)`);
+    },
+  },
+  {
     id: "UX1-AJAR-BELAJAR-01",
     requires: ["app", "network"],
     run: async (ctx) => {

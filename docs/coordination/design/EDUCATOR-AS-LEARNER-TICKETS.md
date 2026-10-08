@@ -700,7 +700,7 @@ The assessment's two venues (D-069(m)), with the pass conditions from assessment
 
 | # | Condition |
 |---|---|
-| P1 | **Identity:** persons +0, accounts +0, numbers +0; the same person id on every row; `display_role` EDUCATOR; roles unchanged; home `/mengajar`; the Kelas tab works |
+| P1 | **Identity:** persons +0, accounts +0, numbers +0; the same person id on every row; `display_role` EDUCATOR; roles unchanged; her teaching home is `/mengajar` and the Kelas tab works there. *Reconciled with D-132 C9 (8 Oct, the Second Eye's L3 hold 1):* enrolled as «Peserta» she holds two purposes, Mengajar and Belajar, so she arrives on the chooser (`/`) and is asked; choosing Mengajar lands her on `/mengajar`, where Kelas 1A opens. Before L3, D-010's ranking chose `/mengajar` for her; the intent kept is that learning never displaces or changes her as a teacher |
 | P2 | **Hard gate:** every reading and protected source byte-identical; on screen still «Pemahaman 75%», «+35 poin», Peserta 5 |
 | P3 | **Rosters:** Kelas 1A unchanged; the «Murid» lists unchanged; the Guru appears as «Peserta» in the PD Kelas |
 | P4 | **Evidence:** four FINALIZED sessions and their results, readable by the Guru; two sealed certificates, both verified; nothing rewritten; the context cannot be changed |

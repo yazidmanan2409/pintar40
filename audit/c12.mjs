@@ -668,7 +668,7 @@ end $y$;`);
   });
 
   // ───────────────────────────── C12k (P1, P2, P3)
-  await step("C12k", "C-12 the hard gate and identity: the after snapshot is byte-identical to the baseline (every reading, every protected source, every roster and «Murid» list, the screens); the Guru is one person, still EDUCATOR, arrives on the chooser holding Mengajar and Belajar (D-132 C9) and Mengajar's home /mengajar opens Kelas 1A (P1, P2, P3)", async (rec) => {
+  await step("C12k", "C-12 the hard gate and identity: the after snapshot is byte-identical to the baseline (every reading, every protected source, every roster and «Murid» list, the screens); the Guru is one person, still EDUCATOR, arrives on the chooser holding Mengajar and Belajar (D-132 C9), choosing Mengajar lands on its home /mengajar, and Kelas 1A opens there (P1, P2, P3)", async (rec) => {
     const notes = [];
     C.akhir = ambilPotret(DB, param());
     writeFileSync(join(OUT, "c12-sesudah.json"), JSON.stringify(C.akhir, null, 1));
@@ -682,7 +682,9 @@ end $y$;`);
     const api = await apiSession(people.guru.email);
     const profil = (await api.from("my_profile").select("display_role").maybeSingle()).data?.display_role;
     const b = await masuk("guru", people.guru.email);
-    await keKonteks(b, AJAR_SD);
+    // P1 as reconciled with D-132 C9 (the Second Eye's hold 1, 8 Oct): her teaching home is where choosing Mengajar
+    // lands her, read from the choice itself rather than reached by typing the address
+    const rumahMengajar = await keKonteks(b, AJAR_SD);
     await b.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
     await tutupTur(b);
     // the class itself, by its exact address (the home's «Siapkan …» card also starts with it)
@@ -700,12 +702,12 @@ end $y$;`);
       || '|' || (select count(distinct s.person_id) from public.assessment_sessions s where s.id in ('${C.sesi.join("','")}'))
       || '|' || (select count(distinct c.person_id) from public.certificates c where c.session_id in ('${C.sesi.join("','")}'))
       || '|' || (select count(*) from public.assessment_sessions s where s.id in ('${C.sesi.join("','")}') and s.person_id <> '${C.guru}')`);
-    notes.push(`the Guru: display role ${profil}; landed on ${C.mendarat_guru}; Kelas 1A opens from /mengajar ${tab}; one person on every row (membership|sessions|certificates|others): ${satuOrang}; ` +
+    notes.push(`the Guru: display role ${profil}; landed on ${C.mendarat_guru}; choosing Mengajar · SD Zayd lands on ${rumahMengajar}; Kelas 1A opens from /mengajar ${tab}; one person on every row (membership|sessions|certificates|others): ${satuOrang}; ` +
       `persons ${C.awal.orang.persons_named} → ${C.akhir.orang.persons_named}, accounts ${C.awal.orang.accounts} → ${C.akhir.orang.accounts}, numbers ${C.awal.orang.numbers} → ${C.akhir.orang.numbers}, roles ${C.akhir.orang.roles_aktif}`);
     // RESTATED BY D-132 C9 (the owner's ruling, not a new criterion here): «home /mengajar» was D-010's ranking choosing
     // for him. Since C12b he holds Mengajar and Belajar, and with no door several purposes are asked on the chooser
     // («No door + multiple available purposes = ask»); Mengajar's home is still /mengajar, where Kelas 1A opens (above)
-    if (profil !== "EDUCATOR" || C.mendarat_guru !== "/" || !tab || satuOrang !== "1|1|1|0") rec.verdict = "FAIL";
+    if (profil !== "EDUCATOR" || C.mendarat_guru !== "/" || rumahMengajar !== "/mengajar" || !tab || satuOrang !== "1|1|1|0") rec.verdict = "FAIL";
     for (const p of Object.values(C.halaman)) await p.context().close().catch(() => {});
     return notes.join("; ");
   });

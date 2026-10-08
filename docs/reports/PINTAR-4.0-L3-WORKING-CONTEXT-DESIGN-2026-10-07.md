@@ -122,6 +122,11 @@ At every step: role_assignments untouched; every act still authorized by the dat
   - Pustaka PINTAR → Studio;
   - «Seluruh platform» → Konfigurasi's platform sections.
 
+**Where Studio is offered (C7 and C8 made explicit; 8 Oct, at the Second Eye's L3 hold 2; for the owner's confirmation in the closure decision):**
+- Studio is the work of a **place**. It is offered only in a school's context, with the capabilities of the grants that give the active purpose there (C8), or in Pustaka PINTAR's (where Mengelola lands on Studio).
+- **«Seluruh platform» offers no Studio**: no Studio link, tab or page. Its views are C7's list, and Studio is not among them. Platform-wide content work is the library's.
+- This is presentation only. The database still decides every Studio act from all of the person's grants. Pinned by F22-P02 (in «Seluruh platform» only `/konfigurasi`, `/aktivasi` and `/akun` are served) and walked by journey S2 (Konfigurasi in «Seluruh platform» draws no Studio link).
+
 ## 5. Where canon was silent: the choices, and the rulings (D-132)
 
 | | Choice | Why | Ruling (D-132) |

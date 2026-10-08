@@ -3154,6 +3154,12 @@
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
+      "id": "F22-A01",
+      "runner": "app",
+      "proves": "The Second Eye's hold 3 (8 Oct), D-132 §2.11, against the running app and its database: when the read of the pairs a person holds (konteks_tempat_saya, with the person's own session) is refused for real (EXECUTE taken from authenticated for the test and given back after), the chooser at / offers no door, /mulai chooses no purpose and sends the person into no surface, /mengajar lists no class, and the session holds no context. The control: before, the same teacher is offered her Mengajar door, and the same session is offered it again once the read is restored.",
+      "skip_justification": "needs the running app and the local stack's database (SUPABASE_DB_URL)"
+    },
+    {
       "id": "F22-P01",
       "runner": "static",
       "proves": "L3 (design §4; D-132 C4, C5, C9), its OUTPUT driven through the source file src/lib/konteks.ts (rencanaMasuk) with recorded people: the door × person table row by row (learner, class card, teacher, teacher + Admin sekolah, learner + Admin sekolah, Kepala departemen, Admin platform, Admin platform + teacher in two schools × three doors and no door); one pair is selected and several are asked, the ranking never choosing; each «not held» and «several» chooser offers exactly what §4 says; a page asked for sets a context only when exactly one held pair fits it; a door with another context's page lands at the door's home; after a sign-out the carried destination is ignored."
