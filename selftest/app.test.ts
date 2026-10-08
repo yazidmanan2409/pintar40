@@ -1143,6 +1143,148 @@ export const appTests: SelfTest[] = [
     },
   },
   {
+    // F22-A02 (BOB19-K01; the owner's ruling of 8 Oct, Option B): A SCHOOL'S FIRST ADMINISTRATOR, AND ONLY THEN THE
+    // PLATFORM'S LIST. Through Konfigurasi's own forms, posted as a browser without script posts them: the first
+    // appointment, the exception gone once it is made, a forged ordinary grant and a forged first appointment refused,
+    // another school's administrator refused, and the exception back when the last administrator is revoked.
+    id: "F22-A02",
+    requires: ["app", "network", "db"],
+    run: async (ctx) => {
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const db = process.env.SUPABASE_DB_URL!;
+      const psql = (...sql: string[]) => {
+        const r = spawnSync("psql", ["-q", "-v", "ON_ERROR_STOP=1", "-At", ...sql.flatMap((q) => ["-c", q]), db], { encoding: "utf8" });
+        if (r.status !== 0) throw new Error(`psql: ${(r.stderr || "").trim().split("\n").pop()}`);
+        return r.stdout.trim();
+      };
+      const seeding = (q: string) =>
+        psql("begin", "select set_config('app.seed_intent', 'synthetic', true)", q, "commit")
+          .split("\n").filter((l) => l !== "synthetic").join("\n");
+      const tag = Date.now().toString(36).slice(-6);
+      const SAMPAI = "2027-06-30";
+      // the world: a school with no administrator, and three people (P1 recorded at no school and holding nothing,
+      // P2 recorded at Alpha holding nothing, P3 a teacher of Alpha)
+      const S = seeding(`insert into public.institutions (name, slug, is_synthetic, is_active) values ('Sekolah Pertama ${tag}', 'sekolah-pertama-${tag}', true, true) returning id`);
+      const akar = psql(`select id from public.org_nodes where institution_id = '${S}' and kind = 'INSTITUTION' limit 1`);
+      const alpha = psql("select id from public.institutions where slug like 'synth-alpha-%' limit 1");
+      const P1 = psql(`insert into public.persons (display_name) values ('Calon Admin ${tag}') returning id`);
+      const P2 = psql(`insert into public.persons (display_name) values ('Tercatat Alpha ${tag}') returning id`);
+      psql(`select public.issue_institutional_id('${P2}', '${alpha}')`);
+      const orangDari = (email: string) => psql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${email}'`);
+      const P3 = orangDari(PERSONA.alphaGuru.email);
+      const sys = orangDari(PERSONA.sysadmin.email);
+      const adminAktif = () => psql(`select count(*) from public.role_assignments where institution_id = '${S}' and role = 'INSTITUTION_ADMIN' and revoked_at is null`);
+      const peranDi = () => psql(`select count(*) from public.role_assignments where institution_id = '${S}'`);
+
+      // a form on a rendered page, by a marker inside it: its hidden fields (the server action's own id among them)
+      const formIsi = (html: string, penanda: RegExp) =>
+        html.split(/<form\b/).slice(1).map((bagian) => bagian.split(/<\/form>/)[0]).find((isi) => penanda.test(isi)) ?? null;
+      const formDengan = (html: string, penanda: RegExp) => {
+        const isi = formIsi(html, penanda);
+        if (isi === null) return null;
+        return [...isi.matchAll(/<input\b[^>]*\btype="hidden"[^>]*>/g)].map((m) => [
+          /\bname="([^"]*)"/.exec(m[0])?.[1] ?? "", (/\bvalue="([^"]*)"/.exec(m[0])?.[1] ?? "").replace(/&amp;/g, "&")] as [string, string]);
+      };
+      const kirim = async (cookie: string, isian: Array<[string, string]>, tambahan: Record<string, string>) => {
+        const fd = new FormData();
+        for (const [n, v] of isian) if (n.startsWith("$ACTION")) fd.set(n, v);
+        for (const [n, v] of Object.entries(tambahan)) fd.set(n, v);
+        const r = await fetch(`${base}/konfigurasi`, { method: "POST", body: fd, headers: { cookie, origin: base }, redirect: "manual" });
+        return r.headers.get("location") ?? `(${r.status})`;
+      };
+      const halaman = async (cookie: string, q = "") => (await get(`${base}/konfigurasi${q}`, { headers: { cookie } })).text();
+      // the first-appointment section: from its marker to the end of its own form
+      const bagianPertama = (html: string) => /data-admin-pertama=""/.test(html) ? html.split('data-admin-pertama=""')[1].split(/<\/form>/)[0] : "";
+      const pilihanDi = (html: string, nama: string) => new RegExp(`<option value="[^"]*">${nama}</option>`).test(html);
+      const judul = t("config.pertama.judul", "staff"), arti = t("config.pertama.arti", "staff"), yakin = t("config.pertama.yakin", "staff");
+
+      const op = await signIn(ctx, PERSONA.sysadmin);
+      await pilihKonteksCookie(base, op.cookie, `MENGELOLA:${S}`);
+
+      // 1. no administrator: the first-appointment path, in the owner's words, offering P1 only
+      const h1 = await halaman(op.cookie);
+      const b1 = bagianPertama(h1);
+      c.expect(b1.includes(judul) && b1.includes(arti), "with no administrator the school's context draws no «Menunjuk admin sekolah pertama» in the approved words");
+      c.expect(pilihanDi(b1, `Calon Admin ${tag}`), "the person recorded at no school is not offered for the first appointment");
+      c.expect(!pilihanDi(b1, `Tercatat Alpha ${tag}`), "a person recorded at another school is offered for the first appointment");
+      const umum = formIsi(h1, /name="role"/) ?? "";
+      c.expect(umum !== "" && !pilihanDi(umum, `Calon Admin ${tag}`), "the ordinary roles form offers a person recorded at no school (the platform's list in a school's context)");
+
+      // 2. forged ordinary grant: P1, a teacher, through the ordinary form's own action
+      const formUmum = formDengan(h1, /name="role"/);
+      c.expect(formUmum !== null, "no ordinary roles form found");
+      const tipuan = formUmum ? await kirim(op.cookie, formUmum, { person: P1, role: "EDUCATOR", scope: akar, valid_until: SAMPAI }) : "-";
+      c.expect(/kode=ACTION_NOT_ALLOWED/.test(tipuan) && peranDi() === "0", `a forged ordinary grant of the platform's person answered ${tipuan}; roles at the school ${peranDi()}`);
+      // the ordinary form cannot make the first administrator either
+      const tipuanAdmin = formUmum ? await kirim(op.cookie, formUmum, { person: P1, role: "INSTITUTION_ADMIN", scope: akar, valid_until: SAMPAI }) : "-";
+      c.expect(/kode=ACTION_NOT_ALLOWED/.test(tipuanAdmin) && peranDi() === "0", `the ordinary form appointing the platform's person answered ${tipuanAdmin}`);
+
+      // 3. forged first appointments: a person recorded at another school, a person holding a role
+      const formPertama = formDengan(bagianPertama(h1), /name="sekolah"/);
+      c.expect(formPertama !== null, "no first-appointment form found");
+      for (const [siapa, id] of [["recorded at Alpha", P2], ["a teacher of Alpha", P3]] as const) {
+        const r = formPertama ? await kirim(op.cookie, formPertama, { person: id, sekolah: S, valid_until: SAMPAI, yakin: "ya" }) : "-";
+        c.expect(/kode=ACTION_NOT_ALLOWED/.test(r) && peranDi() === "0", `a first appointment of a person ${siapa} answered ${r}`);
+      }
+
+      // 4. the first appointment: the first press asks in the approved words, the second appoints
+      const tekan1 = formPertama ? await kirim(op.cookie, formPertama, { person: P1, sekolah: S, valid_until: SAMPAI }) : "-";
+      c.expect(/pertama=/.test(tekan1) && peranDi() === "0", `the first press answered ${tekan1} (roles ${peranDi()})`);
+      const h2 = await halaman(op.cookie, `?bagian=roles&pertama=${P1}&sampai=${SAMPAI}`);
+      c.expect(bagianPertama(h2).includes(yakin), "the second step does not ask «Jadikan orang ini admin sekolah pertama di sekolah ini?»");
+      const formYakin = formDengan(bagianPertama(h2), /name="yakin"/);
+      const tekan2 = formYakin ? await kirim(op.cookie, formYakin, { person: P1, sekolah: S, valid_until: SAMPAI, yakin: "ya" }) : "-";
+      const hibah = psql(`select role || '|' || scope_node_id || '|' || coalesce(granted_by::text, '-') || '|' || (select count(*) from public.audit_log l where l.target_table = 'role_assignments' and l.target_id = r.id::text) from public.role_assignments r where institution_id = '${S}' and person_id = '${P1}' and revoked_at is null`);
+      c.expect(/hasil=ok/.test(tekan2) && hibah.startsWith(`INSTITUTION_ADMIN|${akar}|${sys}|`) && !hibah.endsWith("|0"),
+        `the appointment answered ${tekan2}; the grant reads ${hibah || "(none)"} (expected Admin sekolah at the root, by the operator, audited)`);
+
+      // 5. a duplicate: the same appointment again is refused by the action (an administrator now exists), and the
+      // database's own rule refuses the duplicate grant (GRANT_ALREADY_ACTIVE)
+      const lagi = formPertama ? await kirim(op.cookie, formPertama, { person: P1, sekolah: S, valid_until: SAMPAI, yakin: "ya" }) : "-";
+      c.expect(/kode=ACTION_NOT_ALLOWED/.test(lagi) && adminAktif() === "1", `a second first appointment answered ${lagi}; active administrators ${adminAktif()}`);
+      const ganda = await fetch(`${ctx.supabaseUrl}/rest/v1/rpc/grant_role`, {
+        method: "POST", headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${op.accessToken}`, "content-type": "application/json" },
+        body: JSON.stringify({ p_person: P1, p_role: "INSTITUTION_ADMIN", p_scope_node: akar, p_valid_until: `${SAMPAI}T23:59:59+07:00` }),
+      });
+      const gandaTeks = await ganda.text();
+      c.expect(ganda.status >= 400 && /GRANT_ALREADY_ACTIVE/.test(gandaTeks) && adminAktif() === "1", `the database took a duplicate active grant (${ganda.status} ${gandaTeks.slice(0, 120)})`);
+
+      // 6. the exception is gone: no first-appointment path, and the platform's person is offered nowhere else
+      const h3 = await halaman(op.cookie);
+      c.expect(!/data-admin-pertama=""/.test(h3), "with an administrator the school's context still draws the first-appointment path");
+
+      // 7. another school's administrator: refused a grant at this school, and refused the platform's list
+      const lain = await signIn(ctx, PERSONA.alphaAdmin);
+      await pilihKonteksCookie(base, lain.cookie, `MENGELOLA:${alpha}`);
+      const formLain = formDengan(await halaman(lain.cookie), /name="role"/);
+      const silang = formLain ? await kirim(lain.cookie, formLain, { person: P2, role: "EDUCATOR", scope: akar, valid_until: SAMPAI }) : "-";
+      c.expect(/hasil=gagal/.test(silang) && peranDi() === "1", `Alpha's administrator granting at this school answered ${silang}; roles at the school ${peranDi()}`);
+      const daftar = await fetch(`${ctx.supabaseUrl}/rest/v1/rpc/persons_awaiting_first_role`, {
+        method: "POST", headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${lain.accessToken}`, "content-type": "application/json" }, body: "{}" });
+      c.expect(daftar.status >= 400, `the platform's list answered a school administrator ${daftar.status}`);
+
+      // 8. recovery: the last administrator revoked, the exception is back and appoints again
+      const id = psql(`select id from public.role_assignments where institution_id = '${S}' and person_id = '${P1}' and revoked_at is null`);
+      const h4 = await halaman(op.cookie);
+      const formCabut = formDengan(h4, new RegExp(`name="assignment" value="${id}"`));
+      const cabut = formCabut ? await kirim(op.cookie, formCabut, { assignment: id, alasan: `F22-A02 ${tag}` }) : "-";
+      c.expect(/hasil=ok/.test(cabut) && adminAktif() === "0", `revoking the last administrator answered ${cabut}; active ${adminAktif()}`);
+      const h5 = await halaman(op.cookie);
+      c.expect(pilihanDi(bagianPertama(h5), `Calon Admin ${tag}`), "after the last administrator is revoked the first-appointment path is not back with its candidate");
+      const formPulih = formDengan(bagianPertama(h5), /name="sekolah"/);
+      const pulih = formPulih ? await kirim(op.cookie, formPulih, { person: P1, sekolah: S, valid_until: SAMPAI, yakin: "ya" }) : "-";
+      c.expect(/hasil=ok/.test(pulih) && adminAktif() === "1", `the recovered first appointment answered ${pulih}; active ${adminAktif()}`);
+
+      return c.verdict("in a school with no Admin sekolah, Admin platform is offered «Menunjuk admin sekolah pertama» in the approved "
+        + "words, with the people recorded at no school; the ordinary form never offers them and refuses them forged (as a teacher "
+        + "or as Admin sekolah); a person recorded at another school or holding a role is refused; the first press asks for "
+        + "confirmation and the second appoints Admin sekolah at the school's root, by the operator, audited; a second appointment "
+        + "and the database's duplicate are refused; the path is gone once an administrator exists; another school's administrator "
+        + "is refused a grant there and the platform's list; and after the last administrator is revoked the path is back and appoints again");
+    },
+  },
+  {
     id: "UX1-AJAR-BELAJAR-01",
     requires: ["app", "network"],
     run: async (ctx) => {

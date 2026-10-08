@@ -3160,6 +3160,12 @@
       "skip_justification": "needs the running app and the local stack's database (SUPABASE_DB_URL)"
     },
     {
+      "id": "F22-A02",
+      "runner": "app",
+      "proves": "BOB19-K01, the owner's ruling of 8 Oct (Option B), through the running app's rendered Konfigurasi page and its server actions (the forms posted as a browser without script posts them), PostgREST and the database: in a school with no active Admin sekolah, Admin platform is offered «Menunjuk admin sekolah pertama» in the approved words with the people recorded at no school and holding nothing; the ordinary roles form never offers them and its action refuses them forged (as a teacher and as Admin sekolah); a first appointment of a person recorded at another school or holding a role is refused; the first press asks «Jadikan orang ini admin sekolah pertama di sekolah ini?» and the second grants Admin sekolah at the school's root, granted by the operator and audited; a second first appointment, and the duplicate grant at the database (GRANT_ALREADY_ACTIVE), are refused; the path is gone once an administrator exists; another school's administrator is refused a grant at the school and refused the platform's list; and after the last administrator is revoked the path is back and appoints again.",
+      "skip_justification": "needs the running app and the local stack's database (SUPABASE_DB_URL)"
+    },
+    {
       "id": "F22-P01",
       "runner": "static",
       "proves": "L3 (design §4; D-132 C4, C5, C9), its OUTPUT driven through the source file src/lib/konteks.ts (rencanaMasuk) with recorded people: the door × person table row by row (learner, class card, teacher, teacher + Admin sekolah, learner + Admin sekolah, Kepala departemen, Admin platform, Admin platform + teacher in two schools × three doors and no door); one pair is selected and several are asked, the ranking never choosing; each «not held» and «several» chooser offers exactly what §4 says; a page asked for sets a context only when exactly one held pair fits it; a door with another context's page lands at the door's home; after a sign-out the carried destination is ignored."
