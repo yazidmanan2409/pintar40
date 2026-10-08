@@ -38,7 +38,7 @@ const RENDER =
   "  const LessonPlayer = lp.default?.default ?? lp.default;" +
   "  const H = hal.halamanPelajaran ? hal : hal.default;" +
   "  const X = xl.bacaBukuKerja ? xl : xl.default;" +
-  '  const buku = X.bacaBukuKerja(new Uint8Array(readFileSync(process.cwd() + "/docs/onboarding/konten/contoh-buku-kerja-pintar.xlsx")));' +
+  '  const buku = X.bacaBukuKerja(new Uint8Array(readFileSync(process.cwd() + "/docs/onboarding/contoh/contoh-buku-kerja-pintar.xlsx")));' +
   '  const pel = buku.lembar.find((l) => l.nama === "Pelajaran");' +
   '  const kol = pel.baris[0].indexOf("Isi pelajaran");' +
   "  const isi = pel.baris.slice(1).map((b) => b[kol]).sort((a, b) => b.split(\"\\n## \").length - a.split(\"\\n## \").length)[0];" +
