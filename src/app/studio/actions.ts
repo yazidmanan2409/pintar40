@@ -493,11 +493,14 @@ export async function saveDefinitionAction(fd: FormData): Promise<void> {
     p_definition: existing, p_payload: payload,
   });
   const row = Array.isArray(data) ? data[0] : data;
-  // L4 (CR-88, CR-84 (3)): a row's edit returns to its own page with that row open, so a refusal finds the form whose
-  // typed values SimpanIsian gives back; a new rule returns to the first page
+  // L4 (CR-88, CR-84 (3)): a row's edit returns to its own page; a refused edit also reopens that row, so the form whose
+  // typed values SimpanIsian gives back is there. A saved edit opens no row (a new version leaves the old one listed).
+  // A new rule returns to the first page.
   const hal = Number(str(fd, "hal"));
   const kembali = existing
-    ? `/studio/definisi?${new URLSearchParams({ hal: String(Number.isInteger(hal) && hal >= 1 ? hal : 1), ubah: existing }).toString()}`
+    ? `/studio/definisi?${new URLSearchParams({
+      hal: String(Number.isInteger(hal) && hal >= 1 ? hal : 1), ...(error ? { ubah: existing } : {}),
+    }).toString()}`
     : "/studio/definisi";
   back(kembali, "definisi", error
     ? ditolak("save_assessment_definition", error, kodeGalatKonten(error))

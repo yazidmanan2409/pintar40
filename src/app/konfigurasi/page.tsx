@@ -261,16 +261,9 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     .filter((x): x is readonly [string, string] => typeof x[1] === "string")).entries())
     .map(([id, display_name]) => ({ id, display_name }));
   const personName = new Map(persons.map((p) => [p.id, p.display_name]));
-  // L4 (CR-85): a transfer names the other school too; in a school's context only that school was read above
-  const sekolahPindah = [...new Set(((transfers ?? []) as Array<{ from_institution_id: string; to_institution_id: string }>)
-    .flatMap((x) => [x.from_institution_id, x.to_institution_id]))]
-    .filter((id) => !(institutions ?? []).some((i) => i.id === id));
-  const { data: sekolahLain } = sekolahPindah.length > 0
-    ? await supabase.from("institutions").select("id, name").in("id", sekolahPindah)
-    : { data: [] as Array<{ id: string; name: string }> };
-  const institutionName = new Map([...(institutions ?? []), ...(sekolahLain ?? [])].map((i) => [i.id, i.name]));
   // L4 (the Second Eye's finding 5): the transfers LIST is its own read, a page at a time, so every transfer is reachable;
-  // the newest 50 read above still feed the people the roles form knows, as before
+  // the newest 50 read above still feed the people the roles form knows, as before.
+  // Each listed transfer names its person from its own row and its schools from the read below (the re-review's N1)
   const halPindah = halamanDiminta(sp.hal_pindah);
   const { data: pindahHalaman } = satuSekolah
     ? await supabase.from("transfers").select(KOLOM_PINDAH)
@@ -281,6 +274,16 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
       : await supabase.from("transfers").select(KOLOM_PINDAH).order("created_at", { ascending: false }).order("id").range(...rentang(halPindah));
   const daftarPindah = (pindahHalaman ?? []).slice(0, UKURAN);
   const lagiPindah = (pindahHalaman ?? []).length > UKURAN;
+  const namaPindah = new Map(daftarPindah.map((x) => [String(x.person_id), namaDari(x.persons)] as const)
+    .filter((x): x is readonly [string, string] => typeof x[1] === "string"));
+  // L4 (CR-85): a transfer names the other school too; in a school's context only that school was read above
+  const sekolahPindah = [...new Set(([...(transfers ?? []), ...daftarPindah] as Array<{ from_institution_id: string; to_institution_id: string }>)
+    .flatMap((x) => [x.from_institution_id, x.to_institution_id]))]
+    .filter((id) => !(institutions ?? []).some((i) => i.id === id));
+  const { data: sekolahLain } = sekolahPindah.length > 0
+    ? await supabase.from("institutions").select("id, name").in("id", sekolahPindah)
+    : { data: [] as Array<{ id: string; name: string }> };
+  const institutionName = new Map([...(institutions ?? []), ...(sekolahLain ?? [])].map((i) => [i.id, i.name]));
   // L4 (CR-85, §E item 13): a metric and a report title in PINTAR's own words, from the key the catalogue already
   // carries (label_key, title_key); the metric id stays beside it, secondary
   const kunciSalinan = new Set<string>(allKeys());
@@ -1089,7 +1092,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               {daftarPindah.map((x) => (
                 <li key={x.id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 sm:grid-cols-[1fr_auto] sm:items-center">
                   <div>
-                    <span>{personName.get(x.person_id) ?? TANPA_NAMA}</span>
+                    <span>{namaPindah.get(x.person_id) ?? TANPA_NAMA}</span>
                     <span className="text-ink-3"> · {institutionName.get(x.from_institution_id) ?? TANPA_NAMA} → {institutionName.get(x.to_institution_id) ?? TANPA_NAMA}</span>
                     <span className="ml-2 rounded bg-info-soft px-1.5 text-xs text-info">{transferLabel(x.status)}</span>
                     {x.reason ? <p className="text-xs text-ink-3">{x.reason}</p> : null}

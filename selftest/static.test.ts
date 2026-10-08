@@ -1716,10 +1716,11 @@ export const staticTests: SelfTest[] = [
         for (const m of text.matchAll(/(?<![=\w$])\{([^{}]*)\}|\$\{([^{}]*)\}/g)) {
           const e = m[1] ?? m[2] ?? "";
           const sebelum = text.slice(0, m.index);
-          // not a render: an object literal or an argument in code (`push({ … })`, `f(a, { … })`) …
-          if (m[1] !== undefined && /[(,[]\s*$/.test(sebelum)) continue;
-          // … or a template inside an attribute (`name={`metric[${…}]`}`)
-          if (m[2] !== undefined && /=\{`[^`]*$/.test(sebelum)) continue;
+          // not a render: an object literal in code (`push({ key: … })`, `f(a, { ...x })`), known by its key shape, not
+          // by what precedes it alone (the re-review's N3: JSX text like `({d.metric_id})` or `[{x}]` is drawn) …
+          if (m[1] !== undefined && /[(,[]\s*$/.test(sebelum) && /^\s*(?:["']?[\w$]+["']?\s*:|\.\.\.)/.test(e)) continue;
+          // … or a template inside an attribute no one reads (`name={`metric[${…}]`}`); a title or an aria-label is read
+          if (m[2] !== undefined && /\b(?:name|key|id|href|className)=\{`[^`]*$/.test(sebelum)) continue;
           if (kolomMentah.test(bersihkan(e))) out.push(m[0]);
         }
         return out;
@@ -1786,6 +1787,10 @@ export const staticTests: SelfTest[] = [
         ["raw_key_column", "<p>{s(\"x\")}: {i.empirical_difficulty} · {n}</p>"],
         ["unit_suffix", "<li>{a}–{b} · {c.grace}s</li>"], ["unit_suffix", "{x ? ` · ${x.limit}×` : \"\"}"],
         ["raw_key_column", "{list.map((m) => `${m.metric_id} (${m.visualization})`)}"],
+        // the re-review's N3: drawn text after «(», «,» or «[», and a template in an attribute a person reads
+        ["raw_key_column", "<span>({d.metric_id})</span>"], ["raw_key_column", "<p>{nama}, {r.action}</p>"],
+        ["raw_key_column", "<i>[{x.visualization}]</i>"], ["raw_key_column", "<b title={`${r.action}`}>x</b>"],
+        ["raw_key_column", "<b aria-label={`Metrik ${m.metric_id}`}>x</b>"],
       ];
       const kena = (rule: string, contoh: string) => rule === "raw_key_column"
         ? kolomDiTeks(contoh).length > 0 : new RegExp(ATURAN[rule].source, ATURAN[rule].flags).test(contoh);

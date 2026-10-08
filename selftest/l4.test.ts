@@ -156,11 +156,25 @@ export const l4Tests: SelfTest[] = [
         && /tautanHalaman\("\/konfigurasi", sp, "hal_pindah", n, "transfers"\)/.test(konf) && /tautanHalaman\("\/konfigurasi", sp, "hal_jejak", n, "audit"\)/.test(konf)
         && /\.range\(\.\.\.rentang\(halamanDiminta\(sp\.hal_jejak\), UKURAN_JEJAK\)\)/.test(konf) && /const UKURAN_JEJAK = 50;/.test(konf) && !/order\("at", \{ ascending: false \}\)\.limit\(50\)/.test(konf),
         "Konfigurasi's transfers or audit trail is not one page at a time");
+      // the re-review's N1: a listed transfer past the newest 50 is named from its own row, and its schools are read
+      c.expect(/const namaPindah = new Map\(daftarPindah\.map\(\(x\) => \[String\(x\.person_id\), namaDari\(x\.persons\)\]/.test(konf)
+        && /\{namaPindah\.get\(x\.person_id\) \?\? TANPA_NAMA\}/.test(konf) && /\[\.\.\.\(transfers \?\? \[\]\), \.\.\.daftarPindah\]/.test(konf)
+        && konf.indexOf("const daftarPindah") < konf.indexOf("const sekolahPindah"),
+        "a transfer on a later page is not named from its own row, or its schools are not read");
+      // the re-review's N2: a saved edit opens no row; only a refused one reopens it
+      c.expect(/\.\.\.\(error \? \{ ubah: existing \} : \{\}\)/.test(aksi) && !/hal: String\([^)]*\)\)?, ubah: existing \}/.test(aksi),
+        "a rule's edit reopens its row after a successful save");
       // the paging itself
       const { satuHalaman, rentang, halamanDiminta, tautanHalaman, UKURAN } = await import("../src/components/koleksi/halaman");
       // a page link keeps the section, the school and the other list's page, and drops an action's one-time result
       const tautan = tautanHalaman("/konfigurasi", { bagian: "roles", sekolah: "s1", hal_jejak: "3", hasil: "ok", kode: "X", hal_pindah: "1" }, "hal_pindah", 2, "transfers");
       c.expect(tautan === "/konfigurasi?bagian=roles&sekolah=s1&hal_jejak=3&hal_pindah=2#transfers", `a page link loses or keeps the wrong parameters: ${tautan}`);
+      // the re-review's N4: a pending step (a confirmation, a check, a report, a scheduling preview) is not repeated by paging
+      const sekali = tautanHalaman("/konfigurasi", { bagian: "roles", hal_jejak: "2", lapor: "1", periksa: "skema", angkat: "a", lingkup: "b", sampai: "2026-12-31",
+        pertama: "1", pm_cek: "1", pm_sekolah: ["x", "y"], dari: "k", ubah: "d" }, "hal_jejak", 3, "audit");
+      c.expect(sekali === "/konfigurasi?bagian=roles&hal_jejak=3#audit", `a page link repeats a one-time step: ${sekali}`);
+      const def2 = tautanHalaman("/studio/definisi", { hal: "2", hasil: "ok", ubah: "d" }, "hal", 3, "definisi");
+      c.expect(def2 === "/studio/definisi?hal=3#definisi", `Aturan Penilaian's page link keeps a one-time word: ${def2}`);
       const baris = Array.from({ length: UKURAN * 2 + 3 }, (_, i) => i);
       const h1 = satuHalaman(baris, 1), h3 = satuHalaman(baris, 3);
       c.expect(h1.isi.length === UKURAN && h1.lagi && h3.isi.length === 3 && !h3.lagi && rentang(2).join() === `${UKURAN},${UKURAN * 2}`
@@ -168,7 +182,7 @@ export const l4Tests: SelfTest[] = [
       return c.verdict(`Aturan Penilaian asks the mix as one number per band in the band's word and builds it in its action, draws the `
         + `bank in its words, shows ${UKURAN} rules a page and opens a row's edit by «Ubah»; Bank Soal shows the predicted difficulty as `
         + "the author's word by difficulty_band's rule; an integrity sitting is named by its learner, class and assessment; Konfigurasi's "
-        + `transfers and audit trail are one page at a time; the paging rule holds (${UKURAN} a page, the last page short, a bad page asked for is the first)`);
+        + `transfers and audit trail are one page at a time, a transfer on any page named from its own row; a saved edit opens no row, a refused one reopens it; a page link keeps only the section, the school and the pages; the paging rule holds (${UKURAN} a page, the last page short, a bad page asked for is the first)`);
     },
   },
 ];

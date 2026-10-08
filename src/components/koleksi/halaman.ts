@@ -18,17 +18,21 @@ export function rentang(halaman: number, ukuran = UKURAN): [number, number] {
   return [(halaman - 1) * ukuran, halaman * ukuran];
 }
 
-/** One-time words a page carries back from an action: never kept when a list moves to another page. */
-const SEKALI = new Set(["hasil", "kode", "ref", "n", "masalah", "ubah"]);
+/**
+ * The words a page link carries over: the section, the school, and every list's page. Anything else in the URL is
+ * an action's one-time result or a pending step (a confirmation, a check, a report), never repeated by paging.
+ */
+const TETAP = new Set(["bagian", "sekolah"]);
+const tetap = (k: string) => TETAP.has(k) || k === "hal" || k.startsWith("hal_");
 
 /**
- * The link to page `n` of one list: everything else the URL says is kept (the section, the school, another list's
- * page), except an action's one-time result, so two lists on one page move independently.
+ * The link to page `n` of one list: the section, the school and the other lists' pages are kept, so two lists on one
+ * page move independently; nothing else is.
  */
 export function tautanHalaman(jalan: string, sp: Record<string, string | string[] | undefined>, kunci: string, n: number, jangkar = ""): string {
   const q = new URLSearchParams();
   for (const [k, v] of Object.entries(sp)) {
-    if (k === kunci || SEKALI.has(k) || v === undefined) continue;
+    if (k === kunci || !tetap(k) || v === undefined) continue;
     for (const x of Array.isArray(v) ? v : [v]) q.append(k, x);
   }
   q.set(kunci, String(n));
