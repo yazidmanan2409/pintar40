@@ -117,3 +117,61 @@ Each change is marked in the code with the ruling. Actors, school contexts, role
 - **Awaiting approval:** the three English translations (§2).
 - **Open, as before:** the database still lets an active SYSTEM_ADMIN grant any school role to anyone. The narrowing is in the application. A guard-level restriction would need a migration and a separate ruling.
 - **No L3 GREEN is claimed.** The journey suite stands at 75 PASS and 1 governed FAIL (S23q, CR-52, D-123).
+
+## 8. The Second Eye's final review: what it asked to be recorded (8 October)
+
+The Second Eye found L3 ready for conditional closure: GREEN with a documented exception for S23q (CR-52), once three things are recorded. Its findings rest on this report; it did not inspect the repository or run the tests. **L3 GREEN, if issued, is the Second Eye's verdict about this layer only, not a statement that PINTAR 4.0 is ready to launch.** L4, Daisy, the unscripted walkthroughs and final human acceptance remain ahead.
+
+### 8.1 The English copy (approved)
+
+The approved English for the three rows, replacing my translations of §2:
+
+| Key | Bahasa Indonesia (approved earlier) | English (approved in the final review) |
+|---|---|---|
+| `config.pertama.judul` | «Menunjuk admin sekolah pertama» | «Appoint the school's first administrator» |
+| `config.pertama.arti` | «Sekolah ini belum memiliki admin sekolah. Pilih orang yang belum tercatat di sekolah mana pun untuk menjadi admin sekolah pertama di sekolah ini.» | «This school does not yet have a school administrator. Choose someone who is not registered with any school to become this school's first administrator.» |
+| `config.pertama.yakin` | «Jadikan orang ini admin sekolah pertama di sekolah ini?» | «Appoint this person as the school's first administrator?» |
+
+Checked against the Indonesian: each keeps the exception's scope (a school with no administrator; a person at no school; this school's first administrator only). The review's text ran the heading and the explanation together; they are split here as the two rows they are.
+
+**Where it lives.** `src/lib/hle.ts` is code, so under E1 the change lands on main only inside a CI-proven commit. It is committed on the branch after this record. It reaches main and staging with the next proven code landing, not with a CI run of its own (§8.4). Until then main and staging show my interim English; the Indonesian, the default, is the approved wording already.
+
+### 8.2 The security boundary, stated
+
+Two layers, each enforcing a different thing. They are not meant to be identical.
+
+- **The database enforces who may grant a role, and records every grant.** `role_assignments_guard` re-authorizes each insert (no self-grant; SYSTEM_ADMIN-only roles; a school administrator only within their scope and only for the school's own people). Grants record `granted_by` and are audited. Duplicates are refused. The platform's list answers only an active SYSTEM_ADMIN.
+- **The application enforces which workflows a platform administrator may use.** In a school's context, Konfigurasi's ordinary roles form and its action accept only the school's own people. The platform's list serves only «Menunjuk admin sekolah pertama», under its three conditions.
+- **The database does not enforce the second.** An authenticated, active SYSTEM_ADMIN calling `grant_role` directly can still give any school role to anyone. That is the platform administrator's standing authority, audited like every grant. It is not a defect. **The application-level restriction is not, and must not be described as, a database-enforced restriction.**
+- **A future database restriction** of SYSTEM_ADMIN grants requires a separate product and security ruling. No migration is proposed to make the two layers identical.
+
+### 8.3 C12c's added administrator: a legitimate fixture that changes no authorization assertion
+
+(The ruling's «C12c» is the appointment of a Guru of SMA Zayd. In `audit/c12.mjs` it sits inside the step named C12b, «the place».)
+
+**The fixture is the documented path.**
+- SMA's first administrator, Bu Admin SMA, is made by the platform operator with «Orang baru di luar pendataan», the route J1.4 names for a first administrator.
+- She is appointed by «Menunjuk admin sekolah pertama».
+- This is the same person and the same route L3A had always used for its setup, and S3/S4 use for SD. Only its moment moved: C12b instead of L3A. L3A reuses her (`pastikanAdminSma`), and its notes say «(in C12c)».
+
+**Every assertion that touches SMA**, checked in the code:
+
+| Where | Asserts | Affected by an SMA administrator existing earlier? |
+|---|---|---|
+| HOD-02 (`journey.mjs`, before C-12) | The Kepala departemen is refused `/pimpinan` at SMA's root | No. It runs before C-12, and her refusal rests on her own grants, which an SMA administrator does not change |
+| C12b (the Guru of SMA) | Recorded at SMA, activated, given Guru at SMA: ok | This is the restated procedure. Same actor (Gladys, Mengelola · SMA), school and role |
+| C12f (P5 visibility) | The SMA Guru reads no session, result or answer of SD's, and is refused the record | No. It concerns the SMA Guru's own reads of SD rows. The SMA administrator holds nothing at SD and is not among the readers |
+| C12h (P7 tenancy) | Every C-12 row is SD's; the SMA Guru sees nothing and is refused on screen | No, for the same reason |
+| L3A | Working Context across SD and SMA; the SMA administrator's grant of Guru at SMA to Gladys is setup (BLOCKED, not FAIL, if it fails) | No. Same person and grant; only who made her and when |
+| L3D | Gladys holds Mengelola · SMA | No. That comes from her SYSTEM_ADMIN |
+
+No other journey step reads SMA's roles or expects SMA to have no administrator. Evidence: C12b, C12f, C12h, L3A and L3D all PASS in journeys 37739845001. The local run before the restatement (C12b FAIL at the recording, no SMA administrator) and after it (PASS) are recorded in §5.
+
+### 8.4 The avoidable run: the procedure, improved
+
+- **Cause:** a staging request file (`.github/staging-*-request.txt`) landed on main with a documents-only report. CI's path filter skips only documents, and E1 reuses proof on main only for the identical commit, so main ran in full (37743909195, 72 estimated minutes).
+- **Rule from now on:**
+  - main receives either a CI-proven commit (E1) or a commit whose every changed path is in CI's skipped documents (`docs/{coordination,reports,deployment}/**` of an inert type);
+  - a staging request file waits on the branch and reaches main inside the next proven code landing;
+  - before any landing that is not E1, `git diff --name-only origin/main HEAD` is checked against those paths.
+- **This record follows the rule:** it lands on main as a documents-only commit (no CI). The copy change of §8.1 lands with the next proven code commit.
