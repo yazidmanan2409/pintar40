@@ -10810,14 +10810,28 @@ export const experienceTests: SelfTest[] = [
       // platform's list is still asked only for the platform administrator.
       // RESTATED FOR L3 (D-132 C7): the platform's list in «Seluruh platform» (platformIni: Admin platform there), the
       // working context's school's list in Mengelola · a school (sekolahIni); an evaluation persona as before (C10)
-      // and in Mengelola · a school, Admin platform asks the platform's list too (J1.4: a school's first administrator)
-      c.expect(/platformIni \|\| adminPlatformDiSekolah \? supabase\.rpc\("persons_awaiting_first_role"\) : Promise\.resolve\(\{ data: \[\] \}\)/.test(konf)
+      // RESTATED FOR BOB19-K01 (the owner's product ruling of 8 Oct, Option B): in Mengelola · a school the general
+      // roles form no longer draws the platform's list. Admin platform asks it there only while the school has no active
+      // Admin sekolah, for its own first-appointment path (src/lib/admin-pertama.ts), which keeps only people recorded
+      // at no school; the actions refuse an ordinary grant of anyone not the school's own and a first appointment
+      // outside those conditions. F22-A02 proves the same through the running app.
+      const adminPertama = code(baca("src", "lib", "admin-pertama.ts"));
+      const aksiKonf = code(baca("src", "app", "konfigurasi", "actions.ts"));
+      c.expect(/platformIni \? supabase\.rpc\("persons_awaiting_first_role"\) : Promise\.resolve\(\{ data: \[\] \}\)/.test(konf)
         && (konf.match(/"persons_awaiting_first_role"/g) ?? []).length === 1
+        && /const bukaAdminPertama = adminPlatformDiSekolah && satuSekolah !== null && !\(await adaAdminSekolah\(supabase, satuSekolah\)\);/.test(konf)
+        && /const calonPertama = bukaAdminPertama \? await calonAdminPertama\(supabase\) : \[\];/.test(konf)
+        && (adminPertama.match(/"persons_awaiting_first_role"/g) ?? []).length === 1
+        && /\.from\("institutional_identities"\)\.select\("person_id"\)/.test(adminPertama)
+        && /return error \? true : /.test(adminPertama)
+        && /if \(sekolahPeran && !\(await orangSekolah\(supabase, sekolahPeran, person!\)\)\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}\);/.test(aksiKonf)
+        && /if \(isSys !== true\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}\);\s*if \(await adaAdminSekolah\(supabase, sekolah!\)\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}\);\s*if \(!\(await calonAdminPertama\(supabase\)\)\.some\(\(p\) => p\.person_id === person\)\) back/.test(aksiKonf)
+        && /p_role: "INSTITUTION_ADMIN", p_scope_node: akar,/.test(aksiKonf)
         && /const adminPlatformDiSekolah = !lama && isSys === true && kh !== null && !kh\.platform && kh\.peran\.includes\("SYSTEM_ADMIN"\);/.test(konf)
         && /\.\.\.\(platformIni \? \[\] : sekolahIni\.map\(\(sekolah\) => supabase\.rpc\("persons_awaiting_first_role_at", \{ p_institution: sekolah \}\)\)\)/.test(konf)
         && /const platformIni = lama \? isSys === true : platformKonteks && isSys === true;/.test(konf)
         && /const sekolahIni: string\[\] = lama \? adminInstitutionIds : kh && !kh\.platform && kh\.tempat \? \[kh\.tempat\] : \[\];/.test(konf),
-        "Konfigurasi asks persons_awaiting_first_role for a reader the database refuses, or asks a school's list for a school the reader does not administer");
+        "Konfigurasi asks persons_awaiting_first_role for a reader the database refuses or outside a school's first appointment, asks a school's list for a school the reader does not administer, or its actions accept a school role for a person not the school's own (BOB19-K01, Option B)");
       const studio = code(baca("src", "app", "studio", "actions.ts"));
       c.expect(/if \(h\.ok && h\.courses && h\.courses\[0\]\) back\(`\/studio\/paket\/\$\{h\.courses\[0\]\}`, "paket", \{ ok: true, kode: "DRAFT_CREATED" \}\);/.test(studio)
         && (KODE_SUKSES as readonly string[]).includes("DRAFT_CREATED")
@@ -10832,7 +10846,8 @@ export const experienceTests: SelfTest[] = [
         "control); each expected check planted wrong is caught and named alone, and a missing one is caught. RENDERED in both " +
         "languages: clean reads \"Semua pemeriksaan lolos\", a planted value reads \"Perlu perhatian\" and names that check " +
         "alone, a failed check gives its reference, not-yet-checked offers the check, a school administrator is told who runs " +
-        "it. Konfigurasi asks persons_awaiting_first_role only for the platform administrator, and a confirmed upload returns " +
+        "it. Konfigurasi asks persons_awaiting_first_role only for the platform administrator, in a school only for its " +
+        "first administrator (BOB19-K01, Option B), its actions refuse a school role for anyone not the school's own, and a confirmed upload returns " +
         "to its course with \"Paket dibuat.\"",
       );
     },
