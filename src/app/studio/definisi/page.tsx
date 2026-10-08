@@ -10,7 +10,7 @@ import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
 import SimpanIsian from "@/components/SimpanIsian";
 import TandaTautan from "@/components/TandaTautan";
-import Penomoran, { UKURAN, halamanDiminta, rentang } from "@/components/koleksi/Penomoran";
+import Penomoran, { UKURAN, halamanDiminta, rentang, tautanHalaman } from "@/components/koleksi/Penomoran";
 
 /**
  * Assessment Definition builder (§10).
@@ -59,7 +59,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
   // L4 (CR-88): a row's edit form opens by «Ubah», one row at a time; a refused save returns to that row's page with that
   // row open (saveDefinitionAction keeps `hal` and `ubah`), so what was typed comes back to its own form (CR-84 (3))
   const bukaUbah = (id: string) => sp.ubah === id;
-  const ke = (n: number) => `/studio/definisi?hal=${n}`;
+  const ke = (n: number) => tautanHalaman("/studio/definisi", sp, "hal", n, "definisi");
   // FD-9: a rule is set while its chapter is still being drafted, and is read only as one of the cycle's two modes
   const MODE_SIKLUS = ["PRE_TEST", "POST_TEST"];
   const draf = (courses ?? []).filter((c) => c.status === "INGESTED");
@@ -172,6 +172,8 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
             );
           })}
         </ul>
+        {/* a page past the last says so, rather than an empty list (the Second Eye's finding 5) */}
+        {definitions.length === 0 && halaman > 1 ? <p className="text-sm text-ink-3">{s("config.empty")}</p> : null}
         <Penomoran halaman={halaman} lagi={lagi} ke={ke} />
       </section>
     </div>

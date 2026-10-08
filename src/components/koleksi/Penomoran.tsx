@@ -11,7 +11,7 @@ import TandaTautan from "@/components/TandaTautan";
  * Daisy's Collection component (Table + Pagination + Search, with an explicit edit action) supersedes the look; the
  * bound is the engineering half and stays.
  */
-export { UKURAN, halamanDiminta, satuHalaman, rentang } from "./halaman";
+export { UKURAN, halamanDiminta, satuHalaman, rentang, tautanHalaman } from "./halaman";
 
 /**
  * «Kembali» · Halaman n · «Berikutnya». `ke(n)` builds the link to page n, keeping whatever else the URL says.

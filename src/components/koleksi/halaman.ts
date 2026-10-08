@@ -17,3 +17,20 @@ export function satuHalaman<T>(baris: readonly T[], halaman: number, ukuran = UK
 export function rentang(halaman: number, ukuran = UKURAN): [number, number] {
   return [(halaman - 1) * ukuran, halaman * ukuran];
 }
+
+/** One-time words a page carries back from an action: never kept when a list moves to another page. */
+const SEKALI = new Set(["hasil", "kode", "ref", "n", "masalah", "ubah"]);
+
+/**
+ * The link to page `n` of one list: everything else the URL says is kept (the section, the school, another list's
+ * page), except an action's one-time result, so two lists on one page move independently.
+ */
+export function tautanHalaman(jalan: string, sp: Record<string, string | string[] | undefined>, kunci: string, n: number, jangkar = ""): string {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(sp)) {
+    if (k === kunci || SEKALI.has(k) || v === undefined) continue;
+    for (const x of Array.isArray(v) ? v : [v]) q.append(k, x);
+  }
+  q.set(kunci, String(n));
+  return `${jalan}?${q.toString()}${jangkar ? `#${jangkar}` : ""}`;
+}

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import TandaTautan from "@/components/TandaTautan";
 import { t, format, allKeys, type HleEvent } from "@/lib/hle";
-import Penomoran, { halamanDiminta, rentang, satuHalaman } from "@/components/koleksi/Penomoran";
+import Penomoran, { UKURAN, halamanDiminta, rentang, tautanHalaman } from "@/components/koleksi/Penomoran";
 
 // L4 (CR-88): the audit trail's page is the newest 50, the size CR-39 (J1.6) reads; other staff lists are 20 a page
 const UKURAN_JEJAK = 50;
@@ -269,6 +269,18 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     ? await supabase.from("institutions").select("id, name").in("id", sekolahPindah)
     : { data: [] as Array<{ id: string; name: string }> };
   const institutionName = new Map([...(institutions ?? []), ...(sekolahLain ?? [])].map((i) => [i.id, i.name]));
+  // L4 (the Second Eye's finding 5): the transfers LIST is its own read, a page at a time, so every transfer is reachable;
+  // the newest 50 read above still feed the people the roles form knows, as before
+  const halPindah = halamanDiminta(sp.hal_pindah);
+  const { data: pindahHalaman } = satuSekolah
+    ? await supabase.from("transfers").select(KOLOM_PINDAH)
+        .or(`from_institution_id.eq.${satuSekolah},to_institution_id.eq.${satuSekolah}`).order("created_at", { ascending: false }).order("id")
+        .range(...rentang(halPindah))
+    : platformKonteks
+      ? { data: [] as NonNullable<typeof transfers> }
+      : await supabase.from("transfers").select(KOLOM_PINDAH).order("created_at", { ascending: false }).order("id").range(...rentang(halPindah));
+  const daftarPindah = (pindahHalaman ?? []).slice(0, UKURAN);
+  const lagiPindah = (pindahHalaman ?? []).length > UKURAN;
   // L4 (CR-85, §E item 13): a metric and a report title in PINTAR's own words, from the key the catalogue already
   // carries (label_key, title_key); the metric id stays beside it, secondary
   const kunciSalinan = new Set<string>(allKeys());
@@ -1074,7 +1086,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           <section id="transfers" className={card}>
             <h2 className="font-medium">{s("config.section.transfers")}</h2>
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
-              {satuHalaman(transfers ?? [], halamanDiminta(sp.hal_pindah)).isi.map((x) => (
+              {daftarPindah.map((x) => (
                 <li key={x.id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 sm:grid-cols-[1fr_auto] sm:items-center">
                   <div>
                     <span>{personName.get(x.person_id) ?? TANPA_NAMA}</span>
@@ -1099,10 +1111,9 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   )}
                 </li>
               ))}
-              {(transfers ?? []).length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
+              {daftarPindah.length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
-            <Penomoran halaman={halamanDiminta(sp.hal_pindah)} lagi={satuHalaman(transfers ?? [], halamanDiminta(sp.hal_pindah)).lagi}
-              ke={(n) => `/konfigurasi?hal_pindah=${n}#transfers`} />
+            <Penomoran halaman={halPindah} lagi={lagiPindah} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_pindah", n, "transfers")} />
             <form action={transferRequestAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2">
               <label className={`${label} sm:col-span-2`}>{s("config.label.enrollment")}
                 <select name="from_enrollment" className={field} required defaultValue="">
@@ -1258,7 +1269,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               </table>
             </div>
             <Penomoran halaman={halamanDiminta(sp.hal_jejak)} lagi={(audit ?? []).length > UKURAN_JEJAK}
-              ke={(n) => `/konfigurasi?hal_jejak=${n}#audit`} />
+              ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_jejak", n, "audit")} />
           </section>
 
           {/* W8-02 — REPORT CONFIGURATION.

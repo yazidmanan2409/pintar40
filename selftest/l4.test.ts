@@ -152,11 +152,15 @@ export const l4Tests: SelfTest[] = [
         && /namaSesi\.get\(session\)/.test(integ) && !/short\(session\)/.test(integ), "an integrity sitting is not named by its learner, class and assessment");
       // Konfigurasi: the transfers and the audit trail one page at a time
       const konf = baca("src", "app", "konfigurasi", "page.tsx");
-      c.expect(/satuHalaman\(transfers \?\? \[\], halamanDiminta\(sp\.hal_pindah\)\)\.isi\.map/.test(konf)
+      c.expect(/daftarPindah\.map\(/.test(konf) && (konf.match(/\.range\(\.\.\.rentang\(halPindah\)\)/g) ?? []).length === 2
+        && /tautanHalaman\("\/konfigurasi", sp, "hal_pindah", n, "transfers"\)/.test(konf) && /tautanHalaman\("\/konfigurasi", sp, "hal_jejak", n, "audit"\)/.test(konf)
         && /\.range\(\.\.\.rentang\(halamanDiminta\(sp\.hal_jejak\), UKURAN_JEJAK\)\)/.test(konf) && /const UKURAN_JEJAK = 50;/.test(konf) && !/order\("at", \{ ascending: false \}\)\.limit\(50\)/.test(konf),
         "Konfigurasi's transfers or audit trail is not one page at a time");
       // the paging itself
-      const { satuHalaman, rentang, halamanDiminta, UKURAN } = await import("../src/components/koleksi/halaman");
+      const { satuHalaman, rentang, halamanDiminta, tautanHalaman, UKURAN } = await import("../src/components/koleksi/halaman");
+      // a page link keeps the section, the school and the other list's page, and drops an action's one-time result
+      const tautan = tautanHalaman("/konfigurasi", { bagian: "roles", sekolah: "s1", hal_jejak: "3", hasil: "ok", kode: "X", hal_pindah: "1" }, "hal_pindah", 2, "transfers");
+      c.expect(tautan === "/konfigurasi?bagian=roles&sekolah=s1&hal_jejak=3&hal_pindah=2#transfers", `a page link loses or keeps the wrong parameters: ${tautan}`);
       const baris = Array.from({ length: UKURAN * 2 + 3 }, (_, i) => i);
       const h1 = satuHalaman(baris, 1), h3 = satuHalaman(baris, 3);
       c.expect(h1.isi.length === UKURAN && h1.lagi && h3.isi.length === 3 && !h3.lagi && rentang(2).join() === `${UKURAN},${UKURAN * 2}`
