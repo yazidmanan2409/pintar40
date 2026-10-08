@@ -17,7 +17,8 @@
     "db:clone": "bash scripts/dev/golden-db.sh clone",
     "db:status": "bash scripts/dev/golden-db.sh status",
     "plants": "node scripts/dev/plants.mjs",
-    "preflight:rpc": "node scripts/dev/reachability.mjs"
+    "preflight:rpc": "node scripts/dev/reachability.mjs",
+    "contoh:buku-kerja": "tsx scripts/contoh-buku-kerja.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

@@ -1,5 +1,6 @@
 "use client";
 
+import { BERKAS_CONTOH } from "@/lib/contoh-buku-kerja";
 import { useState } from "react";
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import {
@@ -204,6 +205,10 @@ export default function PanelUnggah({
           {s("studio.unggah.templat")}
         </button>
         <p className="pin-hint">{s("studio.unggah.templat_arti")}</p>
+        {/* L4 (CR-88; D-127 Q9): a separate, clearly marked example, PINTAR's own SD 5 Matematika Bab 1 (src/lib/contoh-buku-kerja.ts) */}
+        <a className="pin-btn pin-quiet" href={`/contoh/${BERKAS_CONTOH}`} download data-contoh-buku-kerja="">
+          {s("studio.unggah.contoh")}
+        </a>
       </div>
 
       <ol className="pin-ung-langkah" aria-label={s("studio.unggah.buku.judul")}>
