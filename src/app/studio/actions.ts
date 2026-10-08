@@ -35,7 +35,8 @@ import {
  * own words go to the server log beside the same reference, never to the page.
  */
 function back(path: string, section: string, h: HasilAksi): never {
-  redirect(`${path}?${queryHasil(section, h).toString()}#${section}`);
+  // a path may carry its own query (L4: the page and the row a refused edit came from), joined, never replaced
+  redirect(`${path}${path.includes("?") ? "&" : "?"}${queryHasil(section, h).toString()}#${section}`);
 }
 
 /** A refusal as its code; one nobody named is logged with the reference the page shows. */
@@ -492,7 +493,13 @@ export async function saveDefinitionAction(fd: FormData): Promise<void> {
     p_definition: existing, p_payload: payload,
   });
   const row = Array.isArray(data) ? data[0] : data;
-  back("/studio/definisi", "definisi", error
+  // L4 (CR-88, CR-84 (3)): a row's edit returns to its own page with that row open, so a refusal finds the form whose
+  // typed values SimpanIsian gives back; a new rule returns to the first page
+  const hal = Number(str(fd, "hal"));
+  const kembali = existing
+    ? `/studio/definisi?${new URLSearchParams({ hal: String(Number.isInteger(hal) && hal >= 1 ? hal : 1), ubah: existing }).toString()}`
+    : "/studio/definisi";
+  back(kembali, "definisi", error
     ? ditolak("save_assessment_definition", error, kodeGalatKonten(error))
     : { ok: true, kode: row?.created_new_version ? "DEFINITION_NEW_VERSION" : "DEFINITION_KEPT" });
 }

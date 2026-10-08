@@ -2897,7 +2897,7 @@
     {
       "id": "L4-C01",
       "runner": "static",
-      "proves": "L4 · CR-88 (D-127 Q9): reads the SERVED file public/contoh/contoh-buku-kerja-pintar.xlsx and the SOURCE workbook docs/onboarding/konten/SD5-Matematika-Bab1.xlsx: the served example is the source's build byte for byte; the importer's own reader and converter accept it as one course with lessons, its title marked «Contoh — »; the upload panel's SOURCE offers it as a separate download beside the blank template; the import path's SOURCE has no case for it"
+      "proves": "L4 · CR-88 (D-127 Q9), with the Second Eye's finding 1: reads every SERVED file under public/ and finds no workbook or data file; reads the upload panel's SOURCE and finds no link to the example; reads the KEPT build docs/onboarding/konten/contoh-buku-kerja-pintar.xlsx and the SOURCE workbook SD5-Matematika-Bab1.xlsx: the kept example is the source's build byte for byte; the importer's own reader and converter accept it as one course, its title marked «Contoh — »; the import path's SOURCE has no case for it. Serving waits for the owner's ruling (it carries live answer keys)"
     },
     {
       "id": "L4-P01",

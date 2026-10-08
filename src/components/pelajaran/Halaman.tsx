@@ -63,6 +63,12 @@ export function HalamanPelajaran({ baris }: { baris: string[] }) {
 
 export type ContohLangkah = { judul?: string; langkah?: string[] };
 
+/** The worked example a lesson shows: its first, when it has steps. One rule for the player and the preview. */
+export function contohPelajaran(contoh: readonly ContohLangkah[] | null | undefined): ContohLangkah | null {
+  const pertama = (contoh ?? [])[0];
+  return pertama && (pertama.langkah ?? []).length > 0 ? pertama : null;
+}
+
 /** A worked example's steps, the first `tampil` of them (the player reveals one at a time; the preview shows all). */
 export function LangkahContoh({ contoh, tampil }: { contoh: ContohLangkah; tampil: number }) {
   const langkah = contoh.langkah ?? [];

@@ -11,10 +11,16 @@
  *           in their words; an integrity sitting named by its learner, class and assessment; staff lists one page at a
  *           time; a rule's edit opened by «Ubah»
  */
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { Checks, type SelfTest } from "./lib";
+
+function walkFiles(dir: string, out: string[] = []): string[] {
+  if (!existsSync(dir)) return out;
+  for (const n of readdirSync(dir)) { const p = join(dir, n); if (statSync(p).isDirectory()) walkFiles(p, out); else out.push(p); }
+  return out;
+}
 
 function code(text: string): string {
   return text.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " ")).replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
@@ -32,20 +38,22 @@ const RENDER =
   "  const LessonPlayer = lp.default?.default ?? lp.default;" +
   "  const H = hal.halamanPelajaran ? hal : hal.default;" +
   "  const X = xl.bacaBukuKerja ? xl : xl.default;" +
-  '  const buku = X.bacaBukuKerja(new Uint8Array(readFileSync(process.cwd() + "/public/contoh/contoh-buku-kerja-pintar.xlsx")));' +
+  '  const buku = X.bacaBukuKerja(new Uint8Array(readFileSync(process.cwd() + "/docs/onboarding/konten/contoh-buku-kerja-pintar.xlsx")));' +
   '  const pel = buku.lembar.find((l) => l.nama === "Pelajaran");' +
   '  const kol = pel.baris[0].indexOf("Isi pelajaran");' +
   "  const isi = pel.baris.slice(1).map((b) => b[kol]).sort((a, b) => b.split(\"\\n## \").length - a.split(\"\\n## \").length)[0];" +
   '  const body = isi + "\\n[[visual:pecahan|3/8]]";' +
   "  const pages = H.halamanPelajaran(body);" +
   "  const bersama = pages.map((p) => renderToStaticMarkup(h(H.HalamanPelajaran, { baris: p })));" +
+  '  const contoh = [{ judul: "Contoh satu", langkah: ["Langkah pertama.", "Langkah kedua."] }, { judul: "Contoh kedua", langkah: ["Lain."] }];' +
+  "  const contohBersama = renderToStaticMarkup(h(H.LangkahContoh, { contoh: H.contohPelajaran(contoh), tampil: 1 }));" +
   "  const r = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} };" +
   "  const pemain = renderToStaticMarkup(h(AppRouterContext.Provider, { value: r }, h(LessonPlayer, {" +
   '    learningAssignmentId: "t", lessonId: "l", title: "x", bodyMarkdown: body,' +
-  "    workedExamples: [], media: [], startAt: 0, personId: null, savedNote: \"\", locale: \"id\"," +
+  "    workedExamples: contoh, media: [], startAt: 0, personId: null, savedNote: \"\", locale: \"id\"," +
   "    saveProgress: async () => ({ ok: true }) })));" +
   "  const judul = (body.match(/^## /gm) || []).length;" +
-  "  process.stdout.write(JSON.stringify({ judul, halaman: pages.length, bersama, pemain }));" +
+  "  process.stdout.write(JSON.stringify({ judul, halaman: pages.length, bersama, pemain, contohBersama }));" +
   "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });";
 
 export const l4Tests: SelfTest[] = [
@@ -54,14 +62,19 @@ export const l4Tests: SelfTest[] = [
     requires: [],
     run: async ({ repoRoot }) => {
       const c = new Checks();
-      const { BERKAS_CONTOH, SUMBER_CONTOH, TANDA_CONTOH, bukuKerjaContoh } = await import("../src/lib/contoh-buku-kerja");
+      const { HASIL_CONTOH, SUMBER_CONTOH, TANDA_CONTOH, bukuKerjaContoh } = await import("../src/lib/contoh-buku-kerja");
       const { bacaBukuKerja } = await import("../src/lib/xlsx");
       const { bukuKerjaKePaket } = await import("../src/lib/unggah-kontrak");
-      const disajikan = join(repoRoot, "public", "contoh", BERKAS_CONTOH);
-      if (!c.expect(existsSync(disajikan), `the example is not served at public/contoh/${BERKAS_CONTOH}`)) return c.verdict("");
-      const berkas = new Uint8Array(readFileSync(disajikan));
+      // WITHHELD (the Second Eye's L4 finding 1): nothing a browser can fetch is a workbook, and nothing links one
+      const disajikan = walkFiles(join(repoRoot, "public")).filter((f) => /\.(xlsx|xlsm|xls|csv|json)$/i.test(f));
+      c.expect(disajikan.length === 0, `a workbook or data file is served from public/: ${disajikan.join(", ")}`);
+      const panel = code(readFileSync(join(repoRoot, "src", "components", "unggah", "PanelUnggah.tsx"), "utf8"));
+      c.expect(!/contoh-buku-kerja|BERKAS_CONTOH|\/contoh\//.test(panel), "the upload panel links the withheld example");
+      const berkasHasil = join(repoRoot, HASIL_CONTOH);
+      if (!c.expect(existsSync(berkasHasil), `the example's build is not kept at ${HASIL_CONTOH}`)) return c.verdict("");
+      const berkas = new Uint8Array(readFileSync(berkasHasil));
       const dibangun = bukuKerjaContoh(new Uint8Array(readFileSync(join(repoRoot, SUMBER_CONTOH))));
-      c.expect(Buffer.from(berkas).equals(Buffer.from(dibangun)), `the served example is not its build from ${SUMBER_CONTOH} (run npm run contoh:buku-kerja)`);
+      c.expect(Buffer.from(berkas).equals(Buffer.from(dibangun)), `the kept example is not its build from ${SUMBER_CONTOH} (run npm run contoh:buku-kerja)`);
       const h = bacaBukuKerja(berkas);
       if (!c.expect(h.ok, "the importer's reader refuses the example")) return c.verdict("");
       const paket = bukuKerjaKePaket((h as unknown as { lembar: never[] }).lembar) as { ok: boolean; paket?: { courses: Array<{ title: string; modules: Array<{ lessons: unknown[] }> }> } };
@@ -69,16 +82,12 @@ export const l4Tests: SelfTest[] = [
       c.expect(paket.ok && kursus.length === 1 && kursus[0].modules.reduce((n, m) => n + m.lessons.length, 0) > 0,
         "the importer's converter does not turn the example into one course with lessons");
       c.expect(kursus[0]?.title.startsWith(TANDA_CONTOH), `the example's course title is not marked «${TANDA_CONTOH.trim()}»: ${kursus[0]?.title}`);
-      // a separate download, linked beside the blank template; no importer special case
-      const panel = code(readFileSync(join(repoRoot, "src", "components", "unggah", "PanelUnggah.tsx"), "utf8"));
-      c.expect(/href=\{`\/contoh\/\$\{BERKAS_CONTOH\}`\} download/.test(panel) && /s\("studio\.unggah\.contoh"\)/.test(panel),
-        "the upload panel does not offer the example as its own download");
       const pengimpor = ["src/lib/unggah-kontrak.ts", "src/lib/xlsx.ts", "src/app/studio/actions.ts"]
         .filter((f) => /TANDA_CONTOH|contoh-buku-kerja|BERKAS_CONTOH/.test(code(readFileSync(join(repoRoot, f), "utf8"))));
       c.expect(pengimpor.length === 0, `the import path treats the example specially: ${pengimpor.join(", ")}`);
-      return c.verdict(`public/contoh/${BERKAS_CONTOH} is the build of ${SUMBER_CONTOH} byte for byte; the importer's reader and `
-        + `converter accept it as one course of ${kursus[0]?.modules.reduce((n, m) => n + m.lessons.length, 0)} lesson(s), titled «${kursus[0]?.title}»; `
-        + "the upload panel offers it as a separate download beside the blank template, and the import path has no case for it");
+      return c.verdict(`the example is built from ${SUMBER_CONTOH} byte for byte into ${HASIL_CONTOH}, accepted by the importer's own `
+        + `reader and converter as one course titled «${kursus[0]?.title}», with no special case; and WITHHELD: public/ serves no `
+        + "workbook or data file and the upload panel links none, until the owner rules on Q9's «if canonically suitable» (it carries live keys)");
     },
   },
   {
@@ -92,20 +101,27 @@ export const l4Tests: SelfTest[] = [
       c.expect(dari.test(lp) && /halamanPelajaran\(props\.bodyMarkdown\)/.test(lp) && /<HalamanPelajaran baris=\{pages\[page\]\} \/>/.test(lp)
         && !/function Visual|function sisipVisual|startsWith\("## "\)/.test(lp), "the player does not draw through the shared renderer alone");
       c.expect(dari.test(pr) && /halamanPelajaran\(body\)\.map/.test(pr) && /<HalamanPelajaran baris=\{baris\} \/>/.test(pr)
-        && /<LangkahContoh contoh=\{c\} tampil=\{\(c\.langkah \?\? \[\]\)\.length\} \/>/.test(pr) && /worked_examples/.test(pr)
+        && /contohPelajaran\(contoh\)/.test(pr) && /<LangkahContoh contoh=\{contohPelajaran\(contoh\)!\}/.test(pr)
+        && (pr.match(/worked_examples/g) ?? []).length >= 3 && /contohPelajaran\(props\.workedExamples\)/.test(lp)
         && !/<TeksBlok teks=\{body\}/.test(pr), "Studio's preview does not draw the lesson's pages and worked examples through the shared renderer");
       const anak = spawnSync(process.execPath, ["--import", "tsx", "-e", RENDER], { cwd: repoRoot, encoding: "utf8" });
-      let r: { judul?: number; halaman?: number; bersama?: string[]; pemain?: string } = {};
+      let r: { judul?: number; halaman?: number; bersama?: string[]; pemain?: string; contohBersama?: string } = {};
       try { r = JSON.parse(anak.stdout); } catch { /* reported below */ }
       if (!c.expect(anak.status === 0 && Array.isArray(r.bersama), `the lesson could not be rendered: ${(anak.stderr || "").split("\n")[0]}`)) return c.verdict("");
       c.expect(r.halaman === r.judul && r.halaman! >= 2, `a real lesson does not page at its headings: ${r.judul} heading(s), ${r.halaman} page(s)`);
       c.expect(r.pemain!.includes(r.bersama![0]), "the player's first page is not the shared renderer's first page, byte for byte");
+      // the worked example: the player shows the lesson's first, through the shared component, one step at a time
+      c.expect(!!r.contohBersama && r.pemain!.includes(r.contohBersama!) && r.pemain!.includes("Contoh satu")
+        && !r.pemain!.includes("Contoh kedua") && !r.pemain!.includes("Langkah kedua."),
+        "the player's worked example is not the shared component's (the lesson's first, one step shown)");
       const terakhir = r.bersama![r.bersama!.length - 1];
       c.expect(/<svg[^>]*aria-label="3 dari 8 bagian"/.test(terakhir) && !r.bersama!.some((x) => x.includes("[[visual")),
         "a diagram directive is printed as text instead of drawn");
       return c.verdict(`the player and Studio's preview import one renderer (src/components/pelajaran/Halaman.tsx) and neither keeps its own; `
         + `rendered, PINTAR's own SD 5 lesson with the most sections pages at its ${r.judul} headings, the player's page is the shared page `
-        + "byte for byte, and a diagram directive is drawn as a figure on its page, never printed; the preview shows every worked example's steps");
+        + "byte for byte, a diagram directive is drawn as a figure on its page, never printed, and the player's worked example is the "
+        + "shared component's (the lesson's first, one step at a time); the preview shows that same example, all its steps, from both "
+        + "the school's own lesson and the canonical read (whose RPC already returns it). The preview itself is read as SOURCE, not rendered");
     },
   },
   {

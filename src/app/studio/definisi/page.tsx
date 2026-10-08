@@ -9,6 +9,7 @@ import { kunciKode } from "@/lib/galat-kontrak";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
 import SimpanIsian from "@/components/SimpanIsian";
+import TandaTautan from "@/components/TandaTautan";
 import Penomoran, { UKURAN, halamanDiminta, rentang } from "@/components/koleksi/Penomoran";
 
 /**
@@ -55,9 +56,9 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
   ]);
   const lagi = (semuaDefinisi ?? []).length > UKURAN;
   const definitions = (semuaDefinisi ?? []).slice(0, UKURAN);
-  // L4 (CR-88): a row's edit form opens by «Ubah», one row at a time; a refused save shows them again, so what was typed
-  // comes back to its form (CR-84 (3))
-  const bukaUbah = (id: string) => sp.ubah === id || ditolak("definisi");
+  // L4 (CR-88): a row's edit form opens by «Ubah», one row at a time; a refused save returns to that row's page with that
+  // row open (saveDefinitionAction keeps `hal` and `ubah`), so what was typed comes back to its own form (CR-84 (3))
+  const bukaUbah = (id: string) => sp.ubah === id;
   const ke = (n: number) => `/studio/definisi?hal=${n}`;
   // FD-9: a rule is set while its chapter is still being drafted, and is read only as one of the cycle's two modes
   const MODE_SIKLUS = ["PRE_TEST", "POST_TEST"];
@@ -155,11 +156,12 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
                   ) : null}
                 </p>
                 {bab?.status === "INGESTED" && !bukaUbah(d.id) ? (
-                  <Link href={`/studio/definisi?hal=${halaman}&ubah=${d.id}#definisi-${d.id}`} className="mt-2 inline-block text-sm underline underline-offset-4">{s("koleksi.ubah")}</Link>
+                  <Link href={`/studio/definisi?hal=${halaman}&ubah=${d.id}#definisi-${d.id}`} className="pin-tautan">{s("koleksi.ubah")}<TandaTautan /></Link>
                 ) : null}
                 {bab?.status === "INGESTED" && bukaUbah(d.id) ? (
                   <form action={saveDefinitionAction} id={`definisi-${d.id}`} className="mt-2 flex flex-wrap items-end gap-2">
                     <input type="hidden" name="definisi" value={d.id} />
+                    <input type="hidden" name="hal" value={halaman} />
                     <input className={field} name="judul" defaultValue={d.title} />
                     <input className={field} name="jumlah" type="number" defaultValue={d.item_count} />
                     <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>

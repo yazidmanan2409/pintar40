@@ -880,7 +880,7 @@ export type HleEvent =
   | "studio.unggah.buku.judul"
   | "studio.unggah.buku.arti"
   | "studio.unggah.templat"
-  | "studio.unggah.contoh" | "studio.unggah.templat_arti"
+  | "studio.unggah.templat_arti"
   | "studio.unggah.sekolah"
   | "studio.unggah.tanpa_sekolah"
   | "studio.unggah.berkas"
@@ -3423,8 +3423,6 @@ const table: Table = {
   "studio.unggah.buku.judul": { default: "Unggah buku kerja pelajaran", en: "Upload a lesson workbook" },
   "studio.unggah.buku.arti": { default: "Isi templat Excel, lalu unggah di sini. PINTAR memeriksa setiap baris lebih dulu dan tidak menyimpan apa pun sebelum semuanya benar.", en: "Fill in the Excel template, then upload it here. PINTAR checks every row first and saves nothing until everything is right." },
   "studio.unggah.templat": { default: "Unduh templat Excel", en: "Download the Excel template" },
-  // L4 (CR-88; D-127 Q9): the example workbook's download, in the copy table's own word for an example (tur.contoh)
-  "studio.unggah.contoh": { default: "Contoh", en: "Example" },
   "studio.unggah.templat_arti": { default: "Lembar Cara mengisi di dalamnya menjelaskan setiap kolom dan batasnya.", en: "Its Cara mengisi sheet explains every column and its limits." },
   "studio.unggah.sekolah": { default: "Sekolah", en: "School" },
   "studio.unggah.tanpa_sekolah": { default: "Anda belum dapat menyusun materi di sekolah mana pun.", en: "You cannot prepare material for any school yet." },

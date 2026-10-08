@@ -25,7 +25,7 @@ import { useRouter } from "next/navigation";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { halamanMulai, menjadiDibaca, perluDisimpan, posisiDiServer, setelahSimpan } from "@/lib/siklus";
 import { bacaDetik, bacaHalaman, penyimpananPerangkat, simpanDetik, simpanHalaman } from "@/lib/posisi-perangkat";
-import { HalamanPelajaran, LangkahContoh, halamanPelajaran } from "@/components/pelajaran/Halaman";
+import { HalamanPelajaran, LangkahContoh, contohPelajaran, halamanPelajaran } from "@/components/pelajaran/Halaman";
 
 export type LessonPlayerProps = {
   learningAssignmentId: string;
@@ -115,7 +115,8 @@ export default function LessonPlayer(props: LessonPlayerProps) {
     void tandaiUlang(ulang, lessonId).then((h) => { if (!h.ok) ulangDitandai.current = false; }, () => { ulangDitandai.current = false; });
   }, [page]); // eslint-disable-line react-hooks/exhaustive-deps -- once per page reached, as the save above
 
-  const example = props.workedExamples[0];
+  // L4: the example a lesson shows is one rule, shared with Studio's preview (contohPelajaran)
+  const example = contohPelajaran(props.workedExamples);
   const langkah = example?.langkah ?? [];
 
   return (

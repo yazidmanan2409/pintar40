@@ -2,7 +2,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { t } from "@/lib/hle";
 import { card, s } from "../../_lib";
 import { TeksBaris } from "@/components/teks/Teks";
-import { HalamanPelajaran, LangkahContoh, halamanPelajaran, type ContohLangkah } from "@/components/pelajaran/Halaman";
+import { HalamanPelajaran, LangkahContoh, contohPelajaran, halamanPelajaran, type ContohLangkah } from "@/components/pelajaran/Halaman";
 
 /**
  * Preview — the learner view, sanitized (§5).
@@ -34,10 +34,12 @@ export default async function Pratinjau({ params, searchParams }: { params: Para
   if (sp.kanonik === "1") {
     const { data } = await supabase.rpc("distributed_lesson_preview", { p_lesson: pelajaran });
     const row = (Array.isArray(data) ? data[0] : data) as
-      | { title: string; summary: string | null; body_markdown: string | null; objectives: Objective[] }
+      | { title: string; summary: string | null; body_markdown: string | null; worked_examples: unknown; objectives: Objective[] }
       | undefined;
     if (row) {
       title = row.title; summary = row.summary; body = row.body_markdown;
+      // L4 (the Second Eye's finding 4): the worked examples the RPC already returns, as the learner gets them
+      contoh = (Array.isArray(row.worked_examples) ? row.worked_examples : []) as ContohLangkah[];
       objectives = row.objectives ?? [];
     }
   } else {
@@ -86,11 +88,13 @@ export default async function Pratinjau({ params, searchParams }: { params: Para
           <HalamanPelajaran baris={baris} />
         </div>
       )) : null}
-      {contoh.filter((c) => (c.langkah ?? []).length > 0).map((c, i) => (
-        <section key={i} className={`${card} pin-contoh`} data-contoh="">
-          <LangkahContoh contoh={c} tampil={(c.langkah ?? []).length} />
+      {/* the worked example the player shows (its first, contohPelajaran), every step at once: the preview does not
+          step through it, as the learner does */}
+      {contohPelajaran(contoh) ? (
+        <section className={`${card} pin-contoh`} data-contoh="">
+          <LangkahContoh contoh={contohPelajaran(contoh)!} tampil={(contohPelajaran(contoh)!.langkah ?? []).length} />
         </section>
-      ))}
+      ) : null}
       {media.filter((m) => m.url).map((m) => (
         <div key={m.path} className={card}>
           {m.jenis === "video" ? <video controls preload="metadata" src={m.url!} className="w-full" /> : null}
