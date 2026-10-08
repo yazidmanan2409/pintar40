@@ -1,4 +1,4 @@
-APPLICATION READY on bb0f98a74a0d7411f584af8edcd4d12869eeb735
+APPLICATION READY on c42fecb (verified; first frozen on bb0f98a74a0d7411f584af8edcd4d12869eeb735)
 
 # Daisy · batch 4, closed: the design system is APPLICATION READY (8 Oct)
 
@@ -74,3 +74,15 @@ The screen-reader check here is a review of the accessibility tree. A pass with 
 ## Next
 
 The application pass, slice by slice, when the coordinator opens it (`08-migration.md` maps every change). Nothing is propagated to PINTAR before then.
+
+## Coordinator verification (8 Oct, D-135)
+
+An independent Second Eye review (not Daisy's own audit) checked bb0f98a against D-135(d), the walk sheet of 7 Oct, Terminology v1 and `src/`. **Verdict: AMBER → corrected.** Every settled item was done at source and no protected term was invented; four document defects would have misled the slices. The coordinator corrected them in c42fecb:
+- **D1:** the stripe still read «provisional» in TableRows, its preview, `tokens.json` and `01-colour.md`; now A, final.
+- **D2:** Confirmation's specimen modelled Siapkan's review (a Panel in the product) with a time the product has no field for; it now shows «Jadikan admin sekolah?» (D-101(2)) in the product's words. DateTime's date-and-time pair is now the maintenance window, a real field.
+- **D3:** Button's bare-verb example stripped «Sediakan»'s object; removed.
+- **D4:** CR-76's copy used «kepala program», «dekan», «bagian»; now v1's «Kepala departemen», «Dekan», «lingkup».
+
+Checks re-run by the coordinator on bb0f98a and on c42fecb: 60 previews, 0 failures; 61 pairs, 0 under the floor; 7 journeys, 0 findings; eslint 0 errors. (On bb0f98a the committed `render/laporan.txt` still carried the Lock screen's old card height; regenerated in c42fecb.)
+
+**Carried into the application slices:** C1, C2, «Tandai soal ini», «Menerbitkan…», CR-13/50/76/81 into `hle.ts` (with D4's words); UX-19 recorded as settled by D-135(d); «Lihat seperti murid» (v1 C8) with Daisy's polish; CR-13's admin notice for a correction before activation to be confirmed by engineering; the NVDA or TalkBack pass on the real screens. The Design System page (version 18) predates c42fecb; it is republished with the next design change.
