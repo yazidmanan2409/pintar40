@@ -1,0 +1,115 @@
+# PINTAR 4.0 · L3 · BOB19-K01, Option B: implementation evidence for the Second Eye
+
+**8 October 2026.** This page answers the owner's product ruling of 8 October («Approve Option B for a narrowly scoped implementation»), point by point. It does **not** declare L3 GREEN; that verdict is the Second Eye's. No L4. No production change.
+
+Head: **bf18bc0**, the branch and main alike (main fast-forwarded under E1; the walk request that followed, 7e4d6c4, is on the branch only).
+
+| Evidence | Result |
+|---|---|
+| CI **37739842180** on bf18bc0 | **18 of 18 jobs succeeded** (baseline, build, both migration paths, every red case, the strict self-test contract, the verdict) |
+| Journeys **37739845001** on bf18bc0 | Job A: **«Crawl A GREEN»**. Job B: **75 PASS, 1 FAIL**. The FAIL is **S23q (CR-52, governed by D-123)**, as in every run since D-123. The suite is not fully green, and this page does not say it is |
+| Full local suite, fresh seeded database | **646 passed, 0 failed** (1 justified local-only skip, as before); `tsc` 0 errors; ESLint 0 errors |
+| Main | Fast-forwarded to bf18bc0 (E1). Main's own `ci` run **37742974393** cancelled itself by proof reuse. Note: this time its baseline job was also cancelled before finishing (in the previous ALREADY PROVEN run, 37729629430, it had passed). The commit's full proof, baseline included, is 37739842180 |
+| Staging | No migration (177 unchanged). **environment-facts 37743180546 (read only): success**: staging's app runs bf18bc0 and its database main's migrations |
+| Golden School on staging | GOLDEN_SCHOOL_RESULT |
+
+## 1. No migration; the database's authorization and audit, verified
+
+No file under `supabase/` changed (`git diff cf72af7..bf18bc0 -- supabase` is empty). What the database already does, read from the latest definitions and exercised by F22-A02:
+
+- **`role_assignments_guard`** (latest: `20261122100000_a_school_resolves_its_own_recovery.sql`) re-authorizes every grant:
+  - no self-grant; the grantor is recorded (`granted_by`);
+  - SYSTEM_ADMIN, or an unscoped role, only by an active SYSTEM_ADMIN;
+  - INSTITUTION_ADMIN below a school's own node only by SYSTEM_ADMIN;
+  - otherwise the grantor needs INSTITUTION_ADMIN scope over the node and, unless SYSTEM_ADMIN, a person the school already has (D-049).
+- **Duplicates:** `refuse_duplicate_active_grant` raises GRANT_ALREADY_ACTIVE (23505).
+- **Audit:** `role_assignments_audit` writes every grant and revocation to `audit_log`.
+- **The platform's list:** `persons_awaiting_first_role()` raises for anyone but an active SYSTEM_ADMIN.
+
+F22-A02 observes each of these against the running app: the appointment reads `INSTITUTION_ADMIN | the school's root | the operator | audit rows > 0`; a duplicate `grant_role` through PostgREST is refused with GRANT_ALREADY_ACTIVE; another school's administrator is refused the platform's list.
+
+**The database itself was not narrowed.** As the plan said, an active SYSTEM_ADMIN may still grant any school role to anyone at the database. The exception is enforced in the application's server actions (§3), not in the guard. Tightening the guard would be a migration, which the ruling did not authorize.
+
+## 2. The first-administrator path (ruling points 2, 3 and 6)
+
+`src/app/konfigurasi/page.tsx`, with the shared rule in the new `src/lib/admin-pertama.ts`:
+
+- **Offered only** to Admin platform in Mengelola · a school **that has no active Admin sekolah** (`adaAdminSekolah`; a failed read counts as «has one», so the path stays closed).
+- **Candidates:** the platform's people who hold nothing (`persons_awaiting_first_role`) **and are recorded at no school** (no `institutional_identities` row anywhere). A failed read gives no candidates.
+- **The role and the place are not choices:** Admin sekolah at the school's own root.
+- **Two steps:** the first press returns asking for confirmation; the second appoints.
+- **The approved words**, exactly:
+  - heading `config.pertama.judul`: «Menunjuk admin sekolah pertama»;
+  - explanation `config.pertama.arti`: «Sekolah ini belum memiliki admin sekolah. Pilih orang yang belum tercatat di sekolah mana pun untuk menjadi admin sekolah pertama di sekolah ini.»;
+  - confirmation `config.pertama.yakin`: «Jadikan orang ini admin sekolah pertama di sekolah ini?»
+  - The buttons reuse existing copy: «Berikan peran», «Ya, jadikan admin sekolah», «Batal».
+- **For approval:** the copy table requires an English row. The three English sentences are my translation and await approval: «Appointing the first school administrator»; «This school has no school administrator yet. Choose a person not yet recorded at any school to become this school's first school administrator.»; «Make this person the first school administrator of this school?»
+
+## 3. Enforced on the server (ruling points 4 and 5)
+
+`src/app/konfigurasi/actions.ts`:
+
+- **`grantRoleAction` (every ordinary grant):** a school role must name one of the school's own people (`orangSekolah`): recorded there and holding nothing yet, or known there by an active role, an active enrolment or a transfer. That is exactly what the general form offers. Anyone else gets **ACTION_NOT_ALLOWED** before the database is asked, whoever posts the form, Admin platform included. The general form never draws the platform's list in a school's context any more; it asks it only in «Seluruh platform», where no school scope is offered.
+- **`tunjukAdminPertamaAction` (new):** asks every condition again, whatever the form sent:
+  - the actor is SYSTEM_ADMIN;
+  - the school has no active Admin sekolah;
+  - the person is among the candidates above.
+  - The person is then granted INSTITUTION_ADMIN at the school's root and nothing else. Any failure is ACTION_NOT_ALLOWED.
+- Both actions keep the §2.11 context guard (`wajibDalamKonteks`). F22-P05 now counts 54 guarded actions.
+- **No new refusal sentence:** ACTION_NOT_ALLOWED is an existing code with existing copy.
+
+## 4. Tests (ruling points 9 and 10)
+
+**F22-A02** (new; app runner; `selftest/app.test.ts`, `selftest/manifest.json`) runs against the running app and its database, posting Konfigurasi's own forms as a browser without script does. It sets up:
+- a new school with no administrator;
+- P1, recorded at no school and holding nothing;
+- P2, recorded at another school;
+- P3, a teacher of Alpha.
+
+| Ruling item | What F22-A02 asserts |
+|---|---|
+| Initial appointment | The section shows the approved heading and explanation and offers P1, not P2; the general form does not offer P1. The first press asks the approved confirmation; the second appoints. The grant is Admin sekolah at the school's root, granted by the operator, with audit rows |
+| Forged submission refusal | The general form's action, posted with P1 as Guru and then as Admin sekolah: ACTION_NOT_ALLOWED, 0 roles. The first-appointment action with P2 (recorded elsewhere) or P3 (holds a role): ACTION_NOT_ALLOWED |
+| Already-attached person (point 10) | P2 and P3 above |
+| Duplicate identity (point 10) | A second first appointment: ACTION_NOT_ALLOWED. The same grant through PostgREST `grant_role`: refused, GRANT_ALREADY_ACTIVE; still exactly 1 active administrator |
+| The exception disappears | Once an administrator exists the section is not drawn |
+| Cross-school refusal | Alpha's administrator, in Alpha's context, posting a grant at the new school: refused. Their call to `persons_awaiting_first_role`: refused |
+| Recovery | The last administrator revoked by the revoke form: 0 active; the section is back offering P1; appointing again: 1 active |
+
+**Red proof.** The pre-change source (cf72af7) was built with the new copy keys added so the test compiles, and F22-A02 run against it. Result: **FAIL**. Among the reasons: «a forged ordinary grant of the platform's person answered …hasil=ok&kode=ROLE_GRANTED; roles at the school 1». With the change: **PASS**, locally and in CI 37739842180.
+
+**BOB19-K01 (static)**, restated by the ruling and strengthened, not weakened. Part 4 now also asserts that:
+- the page asks the platform's list only in «Seluruh platform», or for a school's first administrator while it has none;
+- `admin-pertama.ts` keeps only people recorded at no school and fails closed;
+- the general action refuses a person not the school's own;
+- the first-appointment action re-asks all three conditions and grants only Admin sekolah at the root.
+
+## 5. Journeys (ruling points 7 and 8)
+
+Each change is marked in the code with the ruling. Actors, school contexts, roles and assertions are unchanged.
+
+| Step | Before | After | Result in 37739845001 |
+|---|---|---|---|
+| **S4** (SD's first administrator) | General roles form | **Selectors only:** «Menunjuk admin sekolah pertama» | PASS |
+| **L3A** (SMA's first administrator, setup) | General roles form | **Selectors only:** the same path. The administrator is now made once, in C12c (below), and L3A reuses it; L3A's assertions are about Working Context, not this setup | PASS |
+| **Golden School G3** (staging) | General roles form | **Selectors only:** the same path | GOLDEN_SCHOOL_G3 |
+| **S16** (Kepala departemen) | Gladys: «Orang baru di luar pendataan», then the grant in Mengelola · SD | Gladys, in Mengelola · SD: records her with SD's own tool (Pendataan), activates her (Aktivasi «Aktifkan dengan email»), grants Kepala departemen at Kelas Rendah from SD's list | PASS |
+| **S27h** (S24's follow-up: re-appointment) | From the platform's list | From SD's own list, where S16 recorded her | PASS |
+| **C12c** (a Guru of SMA, inside C12b) | Gladys: «Orang baru», then Guru at SMA, which had no administrator | Gladys, in Mengelola · SMA: SMA's code saved on Pendataan if absent, the Guru recorded there and activated, then Guru at SMA from SMA's list | C12b PASS (notes: «SMA's first administrator by «Menunjuk admin sekolah pertama»: ok»; «a Guru of SMA Zayd: ok»; the later C-12 refusals of her unchanged) |
+
+**One procedural addition in C12c, stated plainly.** Pendataan offers only schools in which some role exists (`sekolahPendataanSemua` reads the schools of visible role assignments). At C12c, SMA had none, so its own tool could not record anyone. The first local run of the restatement failed on exactly this. C12c therefore first has Gladys give SMA its first administrator by the new path. That is the alternative the impact plan's §3 named («or the walk first gives SMA its administrator»). The actor, school and role of the Guru's appointment are unchanged. The administrator is the same person L3A used to make (Bu Admin SMA), and L3A now reuses her.
+
+## 6. What did not change
+
+- **Database:** no migration; the guard, audit and RPCs are as they were.
+- **Other screens:** the school administrator's roles form offers what it did before, the school's own list. The platform-operator grant of SYSTEM_ADMIN in «Seluruh platform» is unchanged.
+- **Gates:** none weakened. BOB19-K01 gained conditions. F22-A02 is new and proven red. S23q stays a FAIL.
+- **Production:** untouched; no production request file, workflow, secret or setting.
+- **Allowance:** **ALLOWANCE_LINE**
+
+## 7. For the Second Eye
+
+- The ruling's ten points are answered above. The one judgement call is C12c's prior first-administrator appointment (§5), taken from the impact plan's own alternative.
+- **Awaiting approval:** the three English translations (§2).
+- **Open, as before:** the database still lets an active SYSTEM_ADMIN grant any school role to anyone. The narrowing is in the application. A guard-level restriction would need a migration and a separate ruling.
+- **No L3 GREEN is claimed.** The journey suite stands at 75 PASS and 1 governed FAIL (S23q, CR-52, D-123).
