@@ -2320,6 +2320,11 @@
       "proves": "CR-84 (3) (DG-24), src/lib/isian.ts driven and the source of every Studio page and src/components/SimpanIsian.tsx: what a form sent is kept for one press in the tab's own session storage, never the address, a cookie or the server, and put back when the page says that submission was refused, for the same person into the same form (its hidden identity unchanged); a file or a secret is never kept, another person or another item's form is given nothing, a malformed stored value is ignored; every Studio form a person types into or chooses in has an id bound to SimpanIsian and its own result line."
     },
     {
+      "id": "PENUTUPAN-L01",
+      "runner": "static",
+      "proves": "CR-93 and CR-94 (the owner's ruling of 8 Oct: the 320 px overflow only), the source of src/app/experience.css, src/app/lapor/page.tsx, src/components/lapor/TangkapanLayar.tsx and src/app/konfigurasi/page.tsx: the report form's file field may shrink to its column (max-width 100%, min-width 0) and sets no width, so it keeps its own width where it fits; a role's row in Konfigurasi wraps below 640 px, so its revoke form goes below the name, and from 640 px up does not wrap, as before. A source pin; the seeded crawl's X.6 (audit/crawl.mjs) measures both pages at 320 px in the browser."
+    },
+    {
       "id": "PENUTUPAN-A01",
       "runner": "app",
       "proves": "CR-13 (D-120 QN1, J2.21 without SQL) through the route /api/akun/email of the running app, Auth, the Mailpit sink and the audit log: a staff member provisioned at a wrong address whose inbox opened the set-up with a code; the platform admin's correction with no reason is ALASAN_WAJIB, with one it answers sudahAktif false, the wrong inbox's set-up stops, and the person activates at the corrected address; a second person's unused code sent to a wrong address opens the account at neither address after the correction; after activation a teacher is refused (DITOLAK), the platform admin's correction answers sudahAktif true, the same password signs in at the new address only, the old and the new address each receive one notice carrying no address, and both corrections are audited with their branch and addresses.",

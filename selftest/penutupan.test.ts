@@ -23,6 +23,8 @@
  * PENUTUPAN-F01 — FD-9 (D-127 Q8): Aturan Penilaian sets a rule on a chapter still being drafted, in a mode the cycle
  * reads, with the school the chapter's own; the rules move with their chapter; a late rule is refused by name.
  * PENUTUPAN-V01 — CR-84 (3): a refused Studio form reopens with what the person sent.
+ * PENUTUPAN-L01 — CR-93, CR-94 (the owner's ruling of 8 Oct): two layouts no longer exceed a 320 px window. A source pin;
+ * the browser's proof is the seeded crawl's X.6 (audit/crawl.mjs), which measures every page at 320 px.
  * PENUTUPAN-A01 — CR-13 (D-120 QN1), against the running app, Auth and the mail sink: a wrong email corrected before
  * and after activation, as the platform admin does it, without SQL.
  */
@@ -640,6 +642,35 @@ export const penutupanTests: SelfTest[] = [
         + "own session storage (never the address, a cookie or the server) and, when its page says that submission was refused, puts "
         + "it back for the same person into the same form; a file or a secret is never kept, another person or another item's form "
         + "is given nothing, and a malformed stored value is ignored (CR-84 (3))");
+    },
+  },
+  {
+    id: "PENUTUPAN-L01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const baca = (...p: string[]) => readFileSync(join(ctx.repoRoot, ...p), "utf8");
+      const css = baca("src", "app", "experience.css").replace(/\/\*[\s\S]*?\*\//g, "");
+      // CR-93: «Laporkan masalah» — its picture field is the form's only file field, and it may shrink to the column
+      c.expect(/className="pin-lapor"/.test(baca("src", "app", "lapor", "page.tsx")) && /<TangkapanLayar\b/.test(baca("src", "app", "lapor", "page.tsx")),
+        "the report form no longer draws the picture field inside .pin-lapor");
+      c.expect(/type="file"/.test(baca("src", "components", "lapor", "TangkapanLayar.tsx")), "the picture field is not a file field");
+      const aturan = /\.pin-lapor input\[type="file"\]\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
+      c.expect(/max-width:\s*100%/.test(aturan) && /min-width:\s*0/.test(aturan),
+        "the report form's file field may still set the form wider than its column (CR-93: 440 px at a 320 px window)");
+      c.expect(!/(^|[^-])width:/.test(aturan), "the file field's width is set, changing it where the window is wide enough");
+      // CR-94: Konfigurasi's roles list — a row may wrap, so the revoke form goes below the name, not past the window
+      const konf = baca("src", "app", "konfigurasi", "page.tsx");
+      const peran = konf.slice(konf.indexOf('<section id="roles"'), konf.indexOf("</section>", konf.indexOf('<section id="roles"')));
+      const baris = /<li key=\{a\.id\} className="([^"]*)"/.exec(peran)?.[1] ?? "";
+      const kelas = baris.split(/\s+/);
+      c.expect(kelas.includes("flex") && kelas.includes("flex-wrap"),
+        `a role's row cannot wrap («${baris}»): its revoke form runs past a 320 px window (CR-94: 374 px)`);
+      c.expect(kelas.includes("sm:flex-nowrap"), `a role's row also wraps from 640 px up («${baris}»), where it did not before`);
+      c.expect(/<form action=\{revokeRoleAction\} className="flex flex-wrap items-center gap-2">/.test(peran),
+        "the revoke form itself changed");
+      return c.verdict("the report form's file field may shrink to its column and keeps its own width where it fits (CR-93); a role's "
+        + "row in Konfigurasi wraps below 640 px, so its revoke form goes below the name, and from 640 px up stays as it was (CR-94). The seeded crawl measures both "
+        + "at 320 px (X.6, D-046)");
     },
   },
 ];

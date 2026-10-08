@@ -1096,7 +1096,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             <h2 className="font-medium">{s("config.section.roles")}</h2>
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
               {(assignments ?? []).map((a) => (
-                <li key={a.id} className="flex items-center justify-between gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
+                // CR-94: below 640 px the revoke form wraps below the name instead of past the window; wider, as before
+                <li key={a.id} className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
                   <span>
                     {personName.get(a.person_id) ?? short(a.person_id)} · {roleLabel(a.role)}
                     <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? short(a.scope_node_id) : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {a.valid_until.slice(0, 10)}</span>
