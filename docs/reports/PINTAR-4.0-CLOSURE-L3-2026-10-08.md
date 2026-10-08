@@ -2,7 +2,7 @@
 
 **7–8 October 2026.** The third landing: the Working Context, built to the design page as D-132 ruled it (GREEN WITH MODIFICATIONS; implementation GO). «Logging into PINTAR tells it who I am. Working Context tells it what I'm here to do right now.»
 
-**This report is a stop.** L4 waits for the Second Eye. **Updated 8 Oct** with the corrective landing for CR-93 and CR-94 (§9) and the evidence for the Second Eye's holds (§10). The verdict is the Second Eye's; this report claims no unconditional GREEN.
+**The Second Eye's conditional hold (L3 AMBER) is answered in `PINTAR-4.0-CLOSURE-L3-ADDENDUM-2026-10-08.md`.** **This report is a stop.** L4 waits for the Second Eye. **Updated 8 Oct** with the corrective landing for CR-93 and CR-94 (§9) and the evidence for the Second Eye's holds (§10). The verdict is the Second Eye's; this report claims no unconditional GREEN.
 
 What did not change:
 - **No authority changed.** No RLS policy, capability, grant or authorization function reads the context (F22-K06 asserts it statically and by acting).
