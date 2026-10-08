@@ -1,7 +1,8 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { t } from "@/lib/hle";
 import { card, s } from "../../_lib";
-import TeksBlok, { TeksBaris } from "@/components/teks/Teks";
+import { TeksBaris } from "@/components/teks/Teks";
+import { HalamanPelajaran, LangkahContoh, halamanPelajaran, type ContohLangkah } from "@/components/pelajaran/Halaman";
 
 /**
  * Preview — the learner view, sanitized (§5).
@@ -28,6 +29,7 @@ export default async function Pratinjau({ params, searchParams }: { params: Para
   let body: string | null = null;
   let objectives: Objective[] = [];
   let media: Media[] = [];
+  let contoh: ContohLangkah[] = [];
 
   if (sp.kanonik === "1") {
     const { data } = await supabase.rpc("distributed_lesson_preview", { p_lesson: pelajaran });
@@ -40,9 +42,10 @@ export default async function Pratinjau({ params, searchParams }: { params: Para
     }
   } else {
     const { data: lesson } = await supabase
-      .from("lessons").select("id, title, summary, body_markdown, media").eq("id", pelajaran).maybeSingle();
+      .from("lessons").select("id, title, summary, body_markdown, media, worked_examples").eq("id", pelajaran).maybeSingle();
     if (lesson) {
       title = lesson.title; summary = lesson.summary; body = lesson.body_markdown;
+      contoh = (Array.isArray(lesson.worked_examples) ? lesson.worked_examples : []) as ContohLangkah[];
       // BOB-11 (M9): the lesson's media, before release, for the school's own
       // staff. Each path is asked of the database, as the learner's are; the
       // route asks again when the file is fetched.
@@ -71,11 +74,23 @@ export default async function Pratinjau({ params, searchParams }: { params: Para
       </header>
       {objectives.length > 0 ? (
         <ul className="grid gap-1 text-sm text-ink-2">
-          {objectives.map((o) => <li key={o.code}>{o.code} — <TeksBaris teks={o.statement} /></li>)}
+          {/* L4 (CR-85): the objective in words; its code secondary */}
+          {objectives.map((o) => <li key={o.code}><TeksBaris teks={o.statement} /> <span className="text-xs text-ink-3">{o.code}</span></li>)}
         </ul>
       ) : null}
-      {/* DAISY-30: the body as the learner reads it, marks and all (TeksBlok) */}
-      {body ? <div className={card}><div className="pin-prose text-sm"><TeksBlok teks={body} /></div></div> : null}
+      {/* L4 (CR-88, FD-6): the lesson as the learner's player draws it, through the same renderer: its pages (one card
+          each, in order), its drawn diagrams and its worked examples, every step shown */}
+      {body ? halamanPelajaran(body).map((baris, i, semua) => (
+        <div key={i} className={card} data-halaman={i + 1}>
+          <p className="mb-2 text-xs text-ink-3 tabular-nums">{t("lesson.page_of", "staff")} {i + 1}/{semua.length}</p>
+          <HalamanPelajaran baris={baris} />
+        </div>
+      )) : null}
+      {contoh.filter((c) => (c.langkah ?? []).length > 0).map((c, i) => (
+        <section key={i} className={`${card} pin-contoh`} data-contoh="">
+          <LangkahContoh contoh={c} tampil={(c.langkah ?? []).length} />
+        </section>
+      ))}
       {media.filter((m) => m.url).map((m) => (
         <div key={m.path} className={card}>
           {m.jenis === "video" ? <video controls preload="metadata" src={m.url!} className="w-full" /> : null}

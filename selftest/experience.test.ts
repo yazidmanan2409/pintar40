@@ -12248,9 +12248,14 @@ export const experienceTests: SelfTest[] = [
        *    dangerouslySetInnerHTML anywhere in src, and no markdown or maths
        *    library in package.json.
        */
+      // RESTATED FOR L4 (CR-88, D-127 Q9's engineering; RC-6 (3)): the page and the worked example moved, unchanged, into
+      // the one module the player and Studio's preview both draw through (src/components/pelajaran/Halaman.tsx)
       const lp = baca("src", "app", "belajar", "_components", "LessonPlayer.tsx");
-      c.expect(/<TeksBlok teks=\{pages\[page\]\.join\("\\n"\)\} sisip=\{sisipVisual\} \/>/.test(lp) && !/renderBlock/.test(lp)
-        && /<TeksBaris teks=\{s\} \/>/.test(lp) && /<TeksBaris teks=\{example\?\.judul\} \/>/.test(lp),
+      const hal = baca("src", "components", "pelajaran", "Halaman.tsx");
+      c.expect(/<TeksBlok teks=\{baris\.join\("\\n"\)\} sisip=\{sisipVisual\} \/>/.test(hal)
+        && /<TeksBaris teks=\{s\} \/>/.test(hal) && /<TeksBaris teks=\{contoh\.judul\} \/>/.test(hal)
+        && /<HalamanPelajaran baris=\{pages\[page\]\} \/>/.test(lp) && /<LangkahContoh contoh=\{example!\} tampil=\{steps\} \/>/.test(lp)
+        && !/renderBlock/.test(lp) && !/renderBlock/.test(hal),
         "the lesson player does not draw its pages and worked example through the shared renderer");
       const ip = baca("src", "app", "belajar", "_components", "ItemPlayer.tsx");
       for (const [apa, re] of [["stem", /<h2 className="pin-stem"><TeksBaris teks=\{current\.item\.stem\} \/><\/h2>/],
@@ -12266,7 +12271,7 @@ export const experienceTests: SelfTest[] = [
         && /<TeksBaris teks=\{lesson\.ringkasan\} \/>/.test(baca("src", "app", "belajar", "[tugas]", "pelajaran", "[pelajaran]", "page.tsx")),
         "the reading map, the result's objective rows or the lesson's summary draw authored text as plain text");
       const pr = baca("src", "app", "studio", "pratinjau", "[pelajaran]", "page.tsx");
-      c.expect(/<TeksBlok teks=\{body\} \/>/.test(pr) && !/whitespace-pre-wrap text-sm">\{body\}/.test(pr)
+      c.expect(/halamanPelajaran\(body\)\.map/.test(pr) && /<HalamanPelajaran baris=\{baris\} \/>/.test(pr) && !/whitespace-pre-wrap text-sm">\{body\}/.test(pr)
         && /<TeksBaris teks=\{i\.stem\} \/>/.test(baca("src", "app", "studio", "bank", "page.tsx")),
         "Studio's preview or Bank Soal does not draw the text as the learner reads it");
       const berkas = walk(join(repoRoot, "src")).filter((f) => /\.(ts|tsx)$/.test(f));

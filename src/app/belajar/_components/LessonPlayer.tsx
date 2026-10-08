@@ -25,7 +25,7 @@ import { useRouter } from "next/navigation";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { halamanMulai, menjadiDibaca, perluDisimpan, posisiDiServer, setelahSimpan } from "@/lib/siklus";
 import { bacaDetik, bacaHalaman, penyimpananPerangkat, simpanDetik, simpanHalaman } from "@/lib/posisi-perangkat";
-import TeksBlok, { TeksBaris } from "@/components/teks/Teks";
+import { HalamanPelajaran, LangkahContoh, halamanPelajaran } from "@/components/pelajaran/Halaman";
 
 export type LessonPlayerProps = {
   learningAssignmentId: string;
@@ -51,56 +51,11 @@ export type LessonPlayerProps = {
   tandaiUlang?: ((permintaan: string, pelajaran: string) => Promise<{ ok: boolean }>) | null;
 };
 
-/** `[[visual:pecahan|3/8]]` → a drawn diagram. Unknown directives render as text. */
-function Visual({ spec }: { spec: string }) {
-  const [kind, arg] = spec.split("|");
-  if (kind === "pecahan" && arg && arg.includes("/")) {
-    const [numStr, denStr] = arg.split("/");
-    const num = Number(numStr), den = Number(denStr);
-    if (Number.isFinite(num) && Number.isFinite(den) && den > 0 && num >= 0 && num <= den) {
-      const w = 320, h = 64, cell = w / den;
-      return (
-        <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={`${num} dari ${den} bagian`}
-             className="pin-lmedia">
-          {Array.from({ length: den }, (_, i) => (
-            <rect key={i} x={i * cell} y={0} width={cell} height={h}
-              fill={i < num ? "var(--pintar-primary)" : "var(--surface-2)"}
-              stroke="var(--line-1)" strokeWidth={1} />
-          ))}
-        </svg>
-      );
-    }
-  }
-  return <p className="pin-meta">{spec}</p>;
-}
-
-/**
- * DAISY-30: a page's lines are drawn by the shared renderer (TeksBlok), which
- * reads the lesson's own marks (**bold**, "- " lists, pipe tables, ^{…}/_{…})
- * and keeps a line a line. The one directive only the player knows, a drawn
- * diagram, is handed back to it here.
- */
-function sisipVisual(line: string) {
-  const visual = /^\[\[visual:(.+)\]\]$/.exec(line.trim());
-  return visual ? <Visual spec={visual[1]} /> : null;
-}
-
 export default function LessonPlayer(props: LessonPlayerProps) {
   const kata = (k: HleEvent) => t(k, "learner", { locale: props.locale });
-  const pages = useMemo(() => {
-    const body = props.bodyMarkdown ?? "";
-    const out: string[][] = [];
-    let currentPage: string[] = [];
-    for (const line of body.split("\n")) {
-      if (line.startsWith("## ") && currentPage.some((l) => l.trim() !== "")) {
-        out.push(currentPage);
-        currentPage = [];
-      }
-      currentPage.push(line);
-    }
-    if (currentPage.some((l) => l.trim() !== "")) out.push(currentPage);
-    return out.length ? out : [[""]];
-  }, [props.bodyMarkdown]);
+  // L4 (CR-88): the pages, a page and a worked example are drawn by the shared renderer (src/components/pelajaran/Halaman.tsx),
+  // the same one Studio's preview uses
+  const pages = useMemo(() => halamanPelajaran(props.bodyMarkdown), [props.bodyMarkdown]);
 
   const [page, setPage] = useState(() => {
     // W2: this person's page on this device, never another learner's
@@ -165,7 +120,7 @@ export default function LessonPlayer(props: LessonPlayerProps) {
 
   return (
     <div>
-      <article className="pin-prose"><TeksBlok teks={pages[page].join("\n")} sisip={sisipVisual} /></article>
+      <HalamanPelajaran baris={pages[page]} />
 
       <p className="pin-lpos">
         <span>{kata("lesson.page_of")} {page + 1}/{pages.length}</span>
@@ -190,12 +145,7 @@ export default function LessonPlayer(props: LessonPlayerProps) {
 
       {langkah.length > 0 && (
         <section className="pin-contoh">
-          <h3 className="pin-lh3"><TeksBaris teks={example?.judul} /></h3>
-          <ol className="pin-steps">
-            {langkah.slice(0, steps).map((s, i) => (
-              <li key={i} className="pin-langkah"><span className="pin-n">{i + 1}</span><span><TeksBaris teks={s} /></span></li>
-            ))}
-          </ol>
+          <LangkahContoh contoh={example!} tampil={steps} />
           {steps < langkah.length ? (
             <button type="button" onClick={() => setSteps((s) => s + 1)}
               className="pin-btn">
