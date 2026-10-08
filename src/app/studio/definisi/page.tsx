@@ -9,6 +9,7 @@ import { kunciKode } from "@/lib/galat-kontrak";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
 import SimpanIsian from "@/components/SimpanIsian";
+import Penomoran, { UKURAN, halamanDiminta, rentang } from "@/components/koleksi/Penomoran";
 
 /**
  * Assessment Definition builder (§10).
@@ -28,7 +29,7 @@ import SimpanIsian from "@/components/SimpanIsian";
  * asks for no passing rule (the school's own pass mark decides, D-081, D-088(b)). Each saved rule names its chapter's
  * steps and whether it is approved; it is edited only while its chapter is still a draft.
  */
-type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; hal?: string; ubah?: string }>;
 
 export default async function Definisi({ searchParams }: { searchParams: Search }) {
   // CR-87: a tab not this person's sends them to Studio's home (src/lib/studio-tab.ts); the database still decides
@@ -41,14 +42,23 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
   const institutions = (await studioInstitutions()).filter((i) => can(i, "CAN_DRAFT"));
   const namaSekolah = new Map(institutions.map((i) => [i.id, i.name]));
 
-  const [{ data: bounds }, { data: definitions }, { data: courses }] = await Promise.all([
+  const halaman = halamanDiminta(sp.hal);
+  const [{ data: bounds }, { data: semuaDefinisi }, { data: courses }] = await Promise.all([
     supabase.from("assessment_definition_bounds").select("*").order("mode"),
+    // L4 (CR-88): one page of rules at a time (src/components/koleksi/Penomoran.tsx), one more read to know if another follows
     supabase.from("assessment_definitions")
       .select("id, title, mode, version, item_count, institution_id, course_id, module_id, is_ad_hoc, status")
-      .eq("is_ad_hoc", false).in("institution_id", institutions.map((i) => i.id)).order("title"),
+      .eq("is_ad_hoc", false).in("institution_id", institutions.map((i) => i.id)).order("title").order("id")
+      .range(...rentang(halaman)),
     supabase.from("courses").select("id, title, institution_id, status")
       .in("institution_id", institutions.map((i) => i.id)).order("title"),
   ]);
+  const lagi = (semuaDefinisi ?? []).length > UKURAN;
+  const definitions = (semuaDefinisi ?? []).slice(0, UKURAN);
+  // L4 (CR-88): a row's edit form opens by «Ubah», one row at a time; a refused save shows them again, so what was typed
+  // comes back to its form (CR-84 (3))
+  const bukaUbah = (id: string) => sp.ubah === id || ditolak("definisi");
+  const ke = (n: number) => `/studio/definisi?hal=${n}`;
   // FD-9: a rule is set while its chapter is still being drafted, and is read only as one of the cycle's two modes
   const MODE_SIKLUS = ["PRE_TEST", "POST_TEST"];
   const draf = (courses ?? []).filter((c) => c.status === "INGESTED");
@@ -144,7 +154,10 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
                     <>{" · "}<Link href={`/studio/paket/${bab.id}`} className="underline underline-offset-4">{bab.title}</Link></>
                   ) : null}
                 </p>
-                {bab?.status === "INGESTED" ? (
+                {bab?.status === "INGESTED" && !bukaUbah(d.id) ? (
+                  <Link href={`/studio/definisi?hal=${halaman}&ubah=${d.id}#definisi-${d.id}`} className="mt-2 inline-block text-sm underline underline-offset-4">{s("koleksi.ubah")}</Link>
+                ) : null}
+                {bab?.status === "INGESTED" && bukaUbah(d.id) ? (
                   <form action={saveDefinitionAction} id={`definisi-${d.id}`} className="mt-2 flex flex-wrap items-end gap-2">
                     <input type="hidden" name="definisi" value={d.id} />
                     <input className={field} name="judul" defaultValue={d.title} />
@@ -152,11 +165,12 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
                     <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
                   </form>
                 ) : null}
-                {bab?.status === "INGESTED" ? <SimpanIsian form={`definisi-${d.id}`} ditolak={ditolak("definisi")} pemilik={pemilik} /> : null}
+                {bab?.status === "INGESTED" && bukaUbah(d.id) ? <SimpanIsian form={`definisi-${d.id}`} ditolak={ditolak("definisi")} pemilik={pemilik} /> : null}
               </li>
             );
           })}
         </ul>
+        <Penomoran halaman={halaman} lagi={lagi} ke={ke} />
       </section>
     </div>
   );

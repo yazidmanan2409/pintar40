@@ -1,6 +1,7 @@
 import Link from "next/link";
 import TandaTautan from "@/components/TandaTautan";
 import { t, format, allKeys, type HleEvent } from "@/lib/hle";
+import Penomoran, { UKURAN, halamanDiminta, rentang, satuHalaman } from "@/components/koleksi/Penomoran";
 import { kalimatHasil, rujukan } from "@/lib/galat-kontrak";
 import { nilaiSkema } from "@/lib/kesehatan-skema";
 import KartuKesehatan, { type KeadaanKesehatan } from "@/components/konfigurasi/KartuKesehatan";
@@ -95,6 +96,8 @@ type SearchParams = Promise<{
   pm_cek?: string; pm_platform?: string; pm_sekolah?: string | string[]; pm_mulai?: string; pm_selesai?: string;
   // D-101 (2): «Admin sekolah» named on Peran & akses, waiting for its second press
   angkat?: string; lingkup?: string; sampai?: string; pertama?: string;
+  // L4 (CR-88): the page of each bounded list
+  hal_pindah?: string; hal_jejak?: string;
 }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
@@ -190,7 +193,9 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         ? supabase.from("role_assignments").select(KOLOM_PERAN).eq("role", "SYSTEM_ADMIN")
         : supabase.from("role_assignments").select(KOLOM_PERAN))
       .is("revoked_at", null).order("created_at", { ascending: false }),
-    (platformIni ? jejak : jejak.in("institution_id", sekolahIni)).order("at", { ascending: false }).limit(50),
+    // L4 (CR-88): one page of the trail at a time, the newest first, never a fixed 50 with no way past them
+    (platformIni ? jejak : jejak.in("institution_id", sekolahIni)).order("at", { ascending: false }).order("id")
+      .range(...rentang(halamanDiminta(sp.hal_jejak))),
     // BOB-18 (D-046): the schema lint runs when an operator asks for it, never
     // on an ordinary load -- it reads the whole catalogue, and every sign-in of
     // the platform admin lands here.
@@ -1065,7 +1070,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           <section id="transfers" className={card}>
             <h2 className="font-medium">{s("config.section.transfers")}</h2>
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
-              {(transfers ?? []).map((x) => (
+              {satuHalaman(transfers ?? [], halamanDiminta(sp.hal_pindah)).isi.map((x) => (
                 <li key={x.id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 sm:grid-cols-[1fr_auto] sm:items-center">
                   <div>
                     <span>{personName.get(x.person_id) ?? TANPA_NAMA}</span>
@@ -1092,6 +1097,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               ))}
               {(transfers ?? []).length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
+            <Penomoran halaman={halamanDiminta(sp.hal_pindah)} lagi={satuHalaman(transfers ?? [], halamanDiminta(sp.hal_pindah)).lagi}
+              ke={(n) => `/konfigurasi?hal_pindah=${n}#transfers`} />
             <form action={transferRequestAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2">
               <label className={`${label} sm:col-span-2`}>{s("config.label.enrollment")}
                 <select name="from_enrollment" className={field} required defaultValue="">
@@ -1234,7 +1241,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   <tr><th className="py-1 pr-3">{s("config.label.when")}</th><th className="py-1 pr-3">{s("config.label.action")}</th><th className="py-1 pr-3">{s("config.label.target")}</th><th className="py-1 pr-3">{s("config.label.build")}</th></tr>
                 </thead>
                 <tbody>
-                  {(audit ?? []).map((r) => (
+                  {(audit ?? []).slice(0, UKURAN).map((r) => (
                     <tr key={r.id} className="border-t border-line-1">
                       <td className="py-1 pr-3 whitespace-nowrap">{when(r.at)}</td>
                       <td className="py-1 pr-3">{r.action}</td>
@@ -1246,6 +1253,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 </tbody>
               </table>
             </div>
+            <Penomoran halaman={halamanDiminta(sp.hal_jejak)} lagi={(audit ?? []).length > UKURAN}
+              ke={(n) => `/konfigurasi?hal_jejak=${n}#audit`} />
           </section>
 
           {/* W8-02 — REPORT CONFIGURATION.

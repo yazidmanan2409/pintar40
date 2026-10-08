@@ -649,6 +649,7 @@ export type HleEvent =
   | "map.to_lesson"
   | "lesson.title"
   | "lesson.page_of"
+  | "koleksi.kembali" | "koleksi.berikutnya" | "koleksi.ubah"
   | "lesson.prev"
   | "lesson.next"
   | "lesson.transcript"
@@ -3157,6 +3158,11 @@ const table: Table = {
 
   "lesson.title": { default: "Pelajaran", en: "Lesson" },
   "lesson.page_of": { default: "Halaman", en: "Page" },
+  // L4 (CR-88): a staff list's pages, in words the copy table already has (pretest.back, pretest.next)
+  "koleksi.kembali": { default: "Kembali", en: "Back" },
+  "koleksi.berikutnya": { default: "Berikutnya", en: "Next" },
+  // L4 (CR-88): the explicit edit of a row, as Akun saya says it (akun.perangkat.ubah)
+  "koleksi.ubah": { default: "Ubah", en: "Change" },
   "lesson.prev": { default: "Halaman sebelumnya", en: "Previous page" },
   "lesson.next": { default: "Halaman berikutnya", en: "Next page" },
   "lesson.transcript": { default: "Teks lengkap", en: "Full text" },
