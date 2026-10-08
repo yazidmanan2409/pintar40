@@ -10,7 +10,17 @@ Scope, from D-127 and its investigation (`PINTAR-4.0-DG-19-37-INVESTIGATION-2026
   - the example workbook as a separate download (Q9).
 - **Constraint (D-128(g)):** no word is invented and no *Replace* term is applied. Where a fix needs words that do not exist, it is listed for Dr Gladys (§4), not written.
 
-EVIDENCE_TABLE
+**Head e7fb612,** the branch and main alike (main fast-forwarded under E1). This landing also carries the approved English for «Menunjuk admin sekolah pertama» (463dfc3, D-133(d)).
+
+| Evidence | Result |
+|---|---|
+| Full local suite, fresh seeded database | **650 passed, 0 failed** (1 justified local-only skip); `tsc` 0 errors; ESLint 0 errors (the 6 old warnings) |
+| Local journeys first, before CI | The first local pass found two journey failures and one crawl overflow, all caused by L4; each was fixed before CI (§6). The second pass: crawl GREEN, job B 74 PASS + S23q (BD11 blocked locally only, as in every local run) |
+| CI **37762170301** on e7fb612 | **18 of 18 jobs succeeded** |
+| Journeys **37762173449** on e7fb612 | Job A: **«Crawl A GREEN»**. Job B: **75 PASS, 1 FAIL**. The FAIL is S23q (CR-52, D-123), the documented exception of D-133; the suite is not fully green |
+| Main | Fast-forwarded to e7fb612. Main's `ci` **37766144556** cancelled itself by proof reuse (the identical commit). As on 37742974393, its baseline was cancelled with the rest; the commit's full proof is 37762170301 |
+| Staging | No migration (177 unchanged). Vercel deployed e7fb612. **environment-facts 37766343961 (read only): success** |
+| Golden School walk | None: L4 changes no Golden School step (D-127's estimate for L4 had none) |
 
 ## 1. What was fixed, item by item (investigation §E)
 
@@ -100,4 +110,15 @@ Each item stays as it is until its words exist. L4-G01's register holds the ones
   - the build in the operator's triage.
 - **Gates:** none weakened. S23q (CR-52, D-123) stays the one governed FAIL.
 
-ALLOWANCE_LINE
+## 6. What the local runs caught, and how each was fixed
+
+| Found | Cause | Fix |
+|---|---|---|
+| S23j FAIL | The audit trail's page became 20 rows; CR-39 (J1.6) reads the newest 50 | The audit trail's page is 50 (`UKURAN_JEJAK`), then paged; other lists are 20 a page. The criterion is unchanged |
+| S23t FAIL | The walk found the saved template by raw metric ids, which L4 replaced with their labels | **Instrument restated:** the walk now finds the template by the labels it reads from the same form. The criterion (the school's own report replaces the standard assembly) is unchanged. Marked in the walk |
+| Crawl: 3 pages 2 px wider than 320 | The metric id beside its label | The id wraps on its own line |
+| Four test failures in the first full suite | A duplicate test id; the paging links lacked tokens and click acknowledgement; PENUTUPAN-F01 and EFF-K02 pinned the old shapes | The guard renamed L4-G01; the links use the design system's classes and TandaTautan; the two checks restated, neither weakened |
+
+**Allowance: 1,645 of 1,900** estimated minutes (255 left). L4 cost 128: one CI run, one journeys run, main's E1 and the facts check. The local runs cost nothing against it.
+
+**Stopped here.** Next in D-128's order: the Second Eye's review of this report. After that, Daisy's J1–J7 correction pass and APPLICATION READY, then the full regression (D-128(d), (i)).
