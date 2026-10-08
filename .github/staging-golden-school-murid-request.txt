@@ -3,4 +3,5 @@
 # 5 Oct: Sekolah Emas Uji 2026-10-05 after run 37287437383 (GS-04 to GS-11 green, 12 PASS); the admin signs in with their password (masuk.mjs)
 # 6 Oct: Sekolah Demo PINTAR (D-116, Dr Gladys walks it on 7 Oct) after run 37432707928 (GS-04 to GS-11 green, 12 PASS)
 # 6 Oct, closure batch 0: Sekolah Uji Penutupan B0 after run 37463817245 (GS-04 to GS-11 green); GS-16 by clicking, J6.2 and J6.11 asserted
-slug: sekolah-uji-b0
+# 8 Oct, L3 (D-132): Sekolah Uji Penutupan L3 after run 37709418935 (GS-04 to GS-11 green); staging at 177, main d66485e
+slug: sekolah-uji-l3
