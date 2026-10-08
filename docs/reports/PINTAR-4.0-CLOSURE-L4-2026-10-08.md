@@ -154,8 +154,9 @@ The Second Eye re-read the corrections (e1f8736..6d0eac7). Findings 1–4 resolv
 
 The re-review also notes that v1 row A9 (`metrik.pemahaman.arti`, «penilaian akhir») is not applied under D-134, so «Uji Penguasaan» and «penilaian akhir» sit side by side until Daisy's polish lands.
 
-## 8. For the owner
+## 8. Settled without the owner (D-135)
 
-1. **Q9's example:** may the example carry the live SD5 Bab 1 assessment set with its keys (and to whom, by which route), or must it have example-only questions?
-2. **A transfer's other school:** may Admin sekolah see its name? (It needs a governed read; today it shows «—».)
-3. **Report templates' titles:** a title in words instead of a typed key is Daisy's and Dr Gladys's.
+None of the questions first listed here meets D-135(b)'s escalation standard, so none goes to the owner:
+1. **The example workbook** stays withheld: it carries live answer keys. An example-only question set is content work for later, not a ruling.
+2. **A transfer's other school** stays «—» for Admin sekolah under the existing row security.
+3. **Report-template titles in words** join the one consolidated terminology register for Dr Gladys; nothing else waits on them.
