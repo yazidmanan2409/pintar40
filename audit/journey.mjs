@@ -2883,6 +2883,13 @@ await step("S23t", "the school admin assembles the school's own class report on 
     await form.locator('select[name="standard_report"]').selectOption("class_learning_intelligence");   // :1166-1169 (the option's text is the raw value)
     await form.locator('input[name="title_key"]').fill("laporan.kelas.judul");                         // :1171-1173 (a raw copy key; pattern [a-z][a-z0-9_.]+)
     const tampilan = {};
+    // RESTATED FOR L4 (CR-85, D-127 Q5): the screen names a metric by its own label (metrik.*.label), its id secondary,
+    // so the saved template is found in the list by those labels, read from the same form, instead of by raw metric ids
+    const labelMetrik = {};
+    for (const m of PILIH) {
+      labelMetrik[m] = norm(await form.locator("label").filter({ has: a.locator(`select[name="metric[${m}]"]`) }).first()
+        .evaluate((el) => el.querySelector("span")?.firstChild?.textContent ?? "").catch(() => "")) || m;
+    }
     for (const m of PILIH) {
       const pilih = form.locator(`select[name="metric[${m}]"]`);                                       // :1188-1191; "" = left out
       tampilan[m] = (await pilih.locator("option").evaluateAll((os) => os.map((o) => o.value))).filter(Boolean).at(-1) ?? "";
@@ -2898,7 +2905,7 @@ await step("S23t", "the school admin assembles the school's own class report on 
     rec.shots.push(await shot(a, "cr40-templat-disimpan"));
     const milik = sendiri().split("|");
     const harapIsi = PILIH.map((m) => `${m}:${tampilan[m]}`).join(",");
-    const barisDaftar = PILIH.map((m) => `${m} (${tampilan[m]})`).join(", ");                        // konfigurasi/page.tsx:1150
+    const barisDaftar = PILIH.map((m) => `${labelMetrik[m]} (${tampilan[m]})`).join(", ");            // konfigurasi/page.tsx, «Templat laporan»
     const diaudit = milik[0] ? Number(sql(`select count(*) from public.audit_log where action = 'report_template.saved' and target_id = '${milik[0]}' and institution_id = '${ids.sd}'`).trim()) : 0;
     notes.push(`«Simpan templat» → hasil=${u.searchParams.get("hasil")} kode=${u.searchParams.get("kode")} n=${u.searchParams.get("n")}; the section lists ${daftarSebelum} → ${daftarSesudah} template(s), ` +
       `the new one «${barisDaftar}» ${bagian.includes(barisDaftar)}; in the database ${milik.slice(1).join(" | ") || "nothing"}, audited ${diaudit}`);

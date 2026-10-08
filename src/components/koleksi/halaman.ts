@@ -8,12 +8,12 @@ export function halamanDiminta(v: string | string[] | undefined): number {
 }
 
 /** One page of rows already read, and whether another follows. */
-export function satuHalaman<T>(baris: readonly T[], halaman: number): { isi: T[]; lagi: boolean } {
-  const dari = (halaman - 1) * UKURAN;
-  return { isi: baris.slice(dari, dari + UKURAN), lagi: baris.length > dari + UKURAN };
+export function satuHalaman<T>(baris: readonly T[], halaman: number, ukuran = UKURAN): { isi: T[]; lagi: boolean } {
+  const dari = (halaman - 1) * ukuran;
+  return { isi: baris.slice(dari, dari + ukuran), lagi: baris.length > dari + ukuran };
 }
 
 /** The range to ask the database for: one row more than a page, so the next page's existence is known. */
-export function rentang(halaman: number): [number, number] {
-  return [(halaman - 1) * UKURAN, halaman * UKURAN];
+export function rentang(halaman: number, ukuran = UKURAN): [number, number] {
+  return [(halaman - 1) * ukuran, halaman * ukuran];
 }

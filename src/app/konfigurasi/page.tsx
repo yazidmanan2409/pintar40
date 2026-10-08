@@ -1,7 +1,10 @@
 import Link from "next/link";
 import TandaTautan from "@/components/TandaTautan";
 import { t, format, allKeys, type HleEvent } from "@/lib/hle";
-import Penomoran, { UKURAN, halamanDiminta, rentang, satuHalaman } from "@/components/koleksi/Penomoran";
+import Penomoran, { halamanDiminta, rentang, satuHalaman } from "@/components/koleksi/Penomoran";
+
+// L4 (CR-88): the audit trail's page is the newest 50, the size CR-39 (J1.6) reads; other staff lists are 20 a page
+const UKURAN_JEJAK = 50;
 import { kalimatHasil, rujukan } from "@/lib/galat-kontrak";
 import { nilaiSkema } from "@/lib/kesehatan-skema";
 import KartuKesehatan, { type KeadaanKesehatan } from "@/components/konfigurasi/KartuKesehatan";
@@ -194,8 +197,9 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         : supabase.from("role_assignments").select(KOLOM_PERAN))
       .is("revoked_at", null).order("created_at", { ascending: false }),
     // L4 (CR-88): one page of the trail at a time, the newest first, never a fixed 50 with no way past them
+    // (the newest 50 a page, as CR-39 / J1.6 has read them since the audit reader was built; then the next 50)
     (platformIni ? jejak : jejak.in("institution_id", sekolahIni)).order("at", { ascending: false }).order("id")
-      .range(...rentang(halamanDiminta(sp.hal_jejak))),
+      .range(...rentang(halamanDiminta(sp.hal_jejak), UKURAN_JEJAK)),
     // BOB-18 (D-046): the schema lint runs when an operator asks for it, never
     // on an ordinary load -- it reads the whole catalogue, and every sign-in of
     // the platform admin lands here.
@@ -1241,7 +1245,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   <tr><th className="py-1 pr-3">{s("config.label.when")}</th><th className="py-1 pr-3">{s("config.label.action")}</th><th className="py-1 pr-3">{s("config.label.target")}</th><th className="py-1 pr-3">{s("config.label.build")}</th></tr>
                 </thead>
                 <tbody>
-                  {(audit ?? []).slice(0, UKURAN).map((r) => (
+                  {(audit ?? []).slice(0, UKURAN_JEJAK).map((r) => (
                     <tr key={r.id} className="border-t border-line-1">
                       <td className="py-1 pr-3 whitespace-nowrap">{when(r.at)}</td>
                       <td className="py-1 pr-3">{r.action}</td>
@@ -1253,7 +1257,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 </tbody>
               </table>
             </div>
-            <Penomoran halaman={halamanDiminta(sp.hal_jejak)} lagi={(audit ?? []).length > UKURAN}
+            <Penomoran halaman={halamanDiminta(sp.hal_jejak)} lagi={(audit ?? []).length > UKURAN_JEJAK}
               ke={(n) => `/konfigurasi?hal_jejak=${n}#audit`} />
           </section>
 
@@ -1314,7 +1318,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                           The scope column itself is an enum and §7 does not
                           let one be rendered raw to a human. */}
                       <span className="min-w-[14rem] text-ink-2">{namaMetrik.get(d.metric_id) ?? d.metric_id}
-                        {namaMetrik.get(d.metric_id) ? <span className="ml-2 text-xs text-ink-3">{d.metric_id}</span> : null}</span>
+                        {namaMetrik.get(d.metric_id) ? <span className="block break-all text-xs text-ink-3">{d.metric_id}</span> : null}</span>
                       {/* No selection is the default: an empty visualization
                           is how a metric is left out, so the form cannot
                           silently include one nobody ticked. */}

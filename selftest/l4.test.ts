@@ -137,7 +137,7 @@ export const l4Tests: SelfTest[] = [
       // Konfigurasi: the transfers and the audit trail one page at a time
       const konf = baca("src", "app", "konfigurasi", "page.tsx");
       c.expect(/satuHalaman\(transfers \?\? \[\], halamanDiminta\(sp\.hal_pindah\)\)\.isi\.map/.test(konf)
-        && /\.range\(\.\.\.rentang\(halamanDiminta\(sp\.hal_jejak\)\)\)/.test(konf) && !/order\("at", \{ ascending: false \}\)\.limit\(50\)/.test(konf),
+        && /\.range\(\.\.\.rentang\(halamanDiminta\(sp\.hal_jejak\), UKURAN_JEJAK\)\)/.test(konf) && /const UKURAN_JEJAK = 50;/.test(konf) && !/order\("at", \{ ascending: false \}\)\.limit\(50\)/.test(konf),
         "Konfigurasi's transfers or audit trail is not one page at a time");
       // the paging itself
       const { satuHalaman, rentang, halamanDiminta, UKURAN } = await import("../src/components/koleksi/halaman");
