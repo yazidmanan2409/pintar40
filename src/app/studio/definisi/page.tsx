@@ -97,7 +97,8 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
               ))}
             </select>
             <select className={field} name="bank" defaultValue="PRACTICE">
-              {["PRACTICE", "TEST", "EXAM"].map((b) => <option key={b} value={b}>{b}</option>)}
+              {/* L4 (CR-85, D-127 Q5): the bank's own words (jenis.bank.*, as Bank Soal says them), the value underneath */}
+              {["PRACTICE", "TEST", "EXAM"].map((b) => <option key={b} value={b}>{enumLabel("bank", b)}</option>)}
             </select>
             <input className={field} name="jumlah" type="number" placeholder="jumlah soal" required />
             <input className={field} name="keselamatan" type="number" placeholder="minimum keselamatan" />
@@ -112,7 +113,15 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
             <label className="flex items-center gap-1"><input type="checkbox" name="jeda" /> jeda</label>
             <label className="flex items-center gap-1"><input type="checkbox" name="luring" /> luring</label>
           </div>
-          <input className={field} name="komposisi" placeholder='komposisi, mis. {"MUDAH":3,"SEDANG":2}' />
+          {/* L4 (CR-85): how many questions of each difficulty, one number per band in the band's own word, never typed JSON */}
+          <div className="flex flex-wrap gap-2">
+            {(["MUDAH", "SEDANG", "SULIT"] as const).map((b) => (
+              <label key={b} className={label}>
+                <span>{s(`mengajar.cepat.tingkat.${b}`)}</span>
+                <input className={field} name={`komposisi_${b}`} type="number" min={0} />
+              </label>
+            ))}
+          </div>
           <input type="hidden" name="definisi" value="" />
           <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
         </form>

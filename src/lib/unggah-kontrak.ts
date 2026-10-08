@@ -42,6 +42,15 @@ export type Kolom = {
 export const JENIS_SOAL = [["Pilihan ganda", "MCQ_SINGLE"], ["Pilihan ganda banyak jawaban", "MCQ_MULTI"]] as const;
 export const KEGUNAAN = [["Latihan", ""], ["Pemetaan awal", "PRE_TEST"], ["Cek penguasaan", "POST_TEST"]] as const;
 export const KESULITAN = [["Mudah", "0.3"], ["Sedang", "0.5"], ["Sulit", "0.7"]] as const;
+/**
+ * L4 (CR-85): the author's predicted difficulty back as its band, by the database's own rule (difficulty_band,
+ * 20261207100000: at most 0.4 Mudah, at least 0.7 Sulit, otherwise Sedang). A screen shows the band's word, never the
+ * number. No prediction is no band.
+ */
+export function pitaKesulitan(p: number | null | undefined): "MUDAH" | "SEDANG" | "SULIT" | null {
+  if (p === null || p === undefined || Number.isNaN(Number(p))) return null;
+  return Number(p) <= 0.4 ? "MUDAH" : Number(p) >= 0.7 ? "SULIT" : "SEDANG";
+}
 /** Sent to the database as the label itself; the database decides what each means. */
 export const KONTEKS = [["Akademik", "Akademik"], ["Pengembangan profesi", "Pengembangan profesi"]] as const;
 export const TINGKAT_BERPIKIR = [

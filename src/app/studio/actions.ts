@@ -481,8 +481,10 @@ export async function saveDefinitionAction(fd: FormData): Promise<void> {
   put("shuffle_policy", str(fd, "acak"));
   payload.allows_pause = str(fd, "jeda") === "on";
   payload.offline_tolerant = str(fd, "luring") === "on";
-  const mix = str(fd, "komposisi");
-  if (mix) { try { payload.difficulty_mix = JSON.parse(mix); } catch { /* refused below by the server */ } }
+  // L4 (CR-85): one number per difficulty band; a band left empty is not in the mix (the server checks the rest)
+  const mix: Record<string, number> = {};
+  for (const b of ["MUDAH", "SEDANG", "SULIT"]) { const n = num(fd, `komposisi_${b}`); if (n !== null) mix[b] = n; }
+  if (Object.keys(mix).length > 0) payload.difficulty_mix = mix;
   // FD-9: no passing rule is taken here; a definition's passing rule is no longer read for a verdict, the school's
   // own pass mark is (20261102100000; D-081, D-088(b))
 

@@ -1,3 +1,4 @@
+import { pitaKesulitan } from "@/lib/unggah-kontrak";
 import { redirect } from "next/navigation";
 import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -100,7 +101,8 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
                 <p className="font-medium"><TeksBaris teks={i.stem} /></p>
                 <p className="mt-1 text-sm text-ink-3">{enumLabel("bank", i.bank_type)}</p>
                 <p className="mt-2 text-sm text-ink-2 tabular-nums">
-                  {s("studio.bank.prediksi")}: {i.predicted_difficulty ?? "—"}
+                  {/* L4 (CR-85): the author's word for it (FD-5's scale), not the number underneath */}
+                  {s("studio.bank.prediksi")}: {pitaKesulitan(i.predicted_difficulty) ? s(`mengajar.cepat.tingkat.${pitaKesulitan(i.predicted_difficulty)!}`) : "—"}
                 </p>
                 {hasEmpirical ? (
                   <p className="mt-1 text-sm text-ink-2">
