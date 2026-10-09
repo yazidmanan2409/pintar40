@@ -252,6 +252,8 @@ export const l4Tests: SelfTest[] = [
         && /const \{ isi: daftarPeran, lagi: lagiPeran \} = satuHalaman\(assignments \?\? \[\], halPeran, UKURAN_PERAN\);/.test(konf)
         && /\{daftarPeran\.map\(\(a\) => \(/.test(konf) && !/\{\(assignments \?\? \[\]\)\.map\(/.test(konf),
         "Peran & akses still draws every active role, each with a revoke form");
+      c.expect(/\.is\("revoked_at", null\)\.order\("created_at", \{ ascending: false \}\)\.order\("id"\)/.test(konf),
+        "the roles are not in a stable order, so a page boundary can repeat or drop one");
       c.expect(/<Penomoran halaman=\{halPeran\} lagi=\{lagiPeran\} ke=\{\(n\) => tautanHalaman\("\/konfigurasi", sp, "hal_peran", n, "roles"\)\} \/>/.test(konf),
         "the roles list has no way to its next page");
       c.expect(/persiapanSekolah\(struktur\.rows, \(assignments \?\? \[\]\)/.test(konf) && /jumlahAdminSekolah\(\(assignments \?\? \[\]\)/.test(konf),

@@ -197,7 +197,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
       : platformKonteks
         ? supabase.from("role_assignments").select(KOLOM_PERAN).eq("role", "SYSTEM_ADMIN")
         : supabase.from("role_assignments").select(KOLOM_PERAN))
-      .is("revoked_at", null).order("created_at", { ascending: false }),
+      // L4 finding 6: a stable order (id breaks a tie in created_at), so a page boundary never repeats or drops a role
+      .is("revoked_at", null).order("created_at", { ascending: false }).order("id"),
     // L4 (CR-88): one page of the trail at a time, the newest first, never a fixed 50 with no way past them
     // (the newest 50 a page, as CR-39 / J1.6 has read them since the audit reader was built; then the next 50)
     (platformIni ? jejak : jejak.in("institution_id", sekolahIni)).order("at", { ascending: false }).order("id")
