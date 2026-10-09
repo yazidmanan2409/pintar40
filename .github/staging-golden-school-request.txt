@@ -11,4 +11,5 @@
 # 8 Oct, L3 (D-132: one Golden School walk, because landing changes for everyone): Sekolah Uji Penutupan L3 (found-school.yml run 37709075256, GS-00 green inside it); staging at 177, main d66485e
 # 8 Oct, BOB19-K01 (the owner's ruling, Option B): G3 appoints the first administrator by «Menunjuk admin sekolah pertama»: Sekolah Uji Penutupan BOB19 (found-school.yml run 37743250063, GS-00 green inside it); staging at 177, main bf18bc0
 # 9 Oct, the baseline before the application pass (owner, 9 Oct): Sekolah Uji Baseline 894 (found-school.yml run 37879140604); staging at 177, main 894ae01 (code)
-slug: sekolah-uji-baseline-894
+# 9 Oct, the application pass before Dr Gladys's walkthrough (D-140): Sekolah Uji Daisy 885 (found-school.yml run 37911896688, GS-00 green inside it); staging at 177, main 8851988
+slug: sekolah-uji-daisy-885
