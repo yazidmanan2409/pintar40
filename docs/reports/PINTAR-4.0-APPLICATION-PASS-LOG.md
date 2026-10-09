@@ -11,14 +11,14 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
 | CI on 894ae01 | 37876327609 | 18/18 |
 | Journeys on 894ae01 | 37876329363 | crawl GREEN; 76 PASS, 0 FAIL |
 | Staging = main | facts 37878894218 | 894ae01, 177 migrations |
-| Golden School walk on 894ae01, school `sekolah-uji-baseline-894` | GS-02/03 37879198761; GS-04..11 37879701505; student step (running); reports step (next) | GS-02/03 green; GS-04..11 green |
+| Golden School walk on 894ae01, school `sekolah-uji-baseline-894` | GS-02/03 37879198761; GS-04..11 37879701505; student step 37881020645; reports step 37884383500 (running) | first three green |
 
 ## Steps
 
 | # | Step | State | Screens | Evidence |
 |---|---|---|---|---|
-| 1 | Tokens (v3 in `globals.css`, v2 names as aliases) | built and verified locally (643eb9e); not on staging | every page: the v2 type sizes now resolve to v3 (13 → 14, 17 and 20 → 18, 24 → 22) | See «Step 1» below |
-| 2 | Primitives (Button, fields, segmented control, tabs, badges, result line, alert) + target-size guard | built (26a288b, fix 3ded8bd) and verified locally; not on staging | every page with a button, field, select, segmented control, view tabs, the language switch, the question navigator, a result line | See «Step 2» below |
+| 1 | Tokens (v3 in `globals.css`, v2 names as aliases) | built and verified locally (643eb9e); not on staging | every page: the v2 type sizes now resolve to v3 (13 → 14, 17 and 20 → 18, 24 → 22), except the frozen certificate, which keeps every size (fixed in ce1ba94 after review) | See «Step 1» below |
+| 2 | Primitives (Button, fields, segmented control, tabs, badges, result line, alert) + target-size guard | built (26a288b; fixes 3ded8bd, ce1ba94, 95b1209); review AMBER, findings addressed; re-verification on 95b1209 running; not on staging | every page with a button, field, select, segmented control, view tabs, the language switch, the question navigator, a result line | See «Step 2» below |
 | 3 | Shells (staff left navigation, learner top bar) | not started | | |
 | 4a | Surfaces: learner (Belajar, lesson, assessments, result, certificates) | not started | | |
 | 4b | Surfaces: teacher (Mengajar) | not started | | |
@@ -50,7 +50,7 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
 
 - **What changed** (08-migration.md, Actions / Fields / Navigation / Feedback / Data):
   - Button at 44 px, with v3 hover, pressed, disabled, busy and completed states. The destructive confirm uses its hover and pressed tokens.
-  - Fields and selects at 44 px with the 3:1 outline.
+  - Fields and the named selects (`.pin-input`, `.pin-picker`, `.pin-lselect`, `.pin-kp-form`, `.pin-data-peta`, `.pin-ung-isian`) at 44 px or more with the 3:1 outline. Not done: the select chevron icon (step 4).
   - The segmented control and the language switch at 44 px.
   - The view switch drawn as Tabs.
   - Back links and the close controls at 44 px.
@@ -73,14 +73,32 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
   - On 26a288b: **RED**. Three lesson pages were 339 px wide at 320 px (AP-2).
   - On 3ded8bd (the fix): GREEN. 389 pages, 0 broken, 0 wider than 320 px, 0 over 3 s.
 - **Seen (1280 px, lesson page, before and after):** buttons at 44 px with 16 px labels; the disabled «Halaman sebelumnya» on surface-2 instead of faded; the language switch as a segmented control; the speed select at 44 px with the stronger outline; the section heading at t-subsection 18.
-- **Not yet:** CI, staging, independent review.
+- **Independent review (9 Oct, read-only):** verdict **AMBER**.
+  - One BLOCKING finding: step 1 had moved the frozen certificate's course line from 20 to 18 px. Fixed in ce1ba94: the certificate has its own token, and UX1-V3-TOKENS-01 now resolves every frozen certificate size (red on the old token).
+  - Notes addressed in ce1ba94 and 95b1209:
+    - three selects still in the v2 look;
+    - the form gap;
+    - the `.pin-inp` focus token;
+    - the question bar as Button, small (36 px seen, 44 px hit area; TARGET-01 red without the hit area);
+    - a completed button now outranks hover;
+    - a disabled destructive button keeps the disabled look on hover;
+    - a completed button does not resend the unchanged form;
+    - the wait line's live region is present from the start;
+    - `.pin-kembali` at t-body 16, the 08 row that names it (08 also says t-small for back links in general).
+  - Notes carried as known limits, not fixed here:
+    - TARGET-01 does not see the header tabs (step 3), inline or Tailwind heights (steps 4d–4f), or selects outside the named rules. Its manifest text now says so.
+    - FEEDBACK-01 renders on the server, so it does not render the busy state, the wait line or the return to the verb. The 3-second timer is checked in the source only.
+    - Not applied in step 2, and now not claimed: Alert (`.pin-banner`, `.pin-perhatian`), Badge shape, the written reason beside a disabled button, 44 px Radio/Checkbox rows, the select chevron. These go to step 4 with their screens.
+  - Evidence correction: the suite (656) and the journeys (75 PASS) ran on 26a288b. Only the crawl ran on 3ded8bd. A full re-run on 95b1209 is in progress.
+- **Not yet:** CI, staging.
 
 ## Unresolved defects
 
 | # | Defect | Found | State |
 |---|---|---|---|
 | AP-2 | Step 2: «Tampilkan langkah berikutnya» (t-body 16, nowrap) was 307 px in a 288 px column, so 3 lesson pages scrolled sideways at 320 px | 9 Oct, local crawl on 26a288b | Fixed in 3ded8bd (any `.pin-btn` may fold below 560 px; the 44 px floor stays); crawl GREEN on the fix |
-| AP-3 | No 320 px screenshot set: the crawl saves one only when a page fails | 9 Oct | Open: add a 320 px capture of every page before step 3 |
+| AP-3 | No 320 px screenshot set: the crawl saved one only when a page failed | 9 Oct | Fixed in 5559111 (every page); the first full set is being captured |
+| AP-4 | Step 1 moved the frozen certificate's course line 20 → 18 (review, BLOCKING) | 9 Oct, review | Fixed in ce1ba94; guarded by UX1-V3-TOKENS-01 |
 | AP-1 | Step 3 (shells): the canonical wordmark's outlined master does not exist yet; it waits on the font licence check (CR-56, outside engineering). | 9 Oct | Step 3 keeps today's logo until the master arrives, and records the gap |
 
 ## Developer-owned usability items (D-138(c))
