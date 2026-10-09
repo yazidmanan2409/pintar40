@@ -2567,3 +2567,18 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 }
 .pin-lapor-satu p { margin: 0; }
 .pin-lapor-langkah { color: var(--ink-1); }
+
+/* ON A PHONE, EVERY BUTTON MAY FOLD ITS WORDS (D-138 step 2). v3 sets button
+   text at t-body 16, two sizes up from v2's 14, and `.pin-btn` is
+   `white-space: nowrap`. The crawl measured the cost at 320 px: the lesson's
+   «Tampilkan langkah berikutnya» stood 307 px wide in a 288 px column and the
+   lesson page scrolled sideways by 19 px. A button outside an action row is
+   sized by its words, so the fold has to be the button's own, not each
+   surface's. The 44 px floor stays a floor: a folded label makes the target
+   taller, never smaller. Last in the file, so it holds over the rules above. */
+@media (max-width: 560px) {
+  .pin-btn {
+    white-space: normal; max-width: 100%; text-align: center;
+    padding-top: var(--space-2); padding-bottom: var(--space-2);
+  }
+}
