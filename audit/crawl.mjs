@@ -159,10 +159,10 @@ async function crawl(browser, p) {
       await page.setViewportSize({ width: 320, height: 720 });
       await page.waitForTimeout(200);
       rec.sempit = await page.evaluate(SEMPIT).catch((e) => ({ gagal: String(e.message ?? e).slice(0, 200) }));
-      if (rec.sempit) {
-        rec.shotSempit = rec.shot?.replace(/\.png$/, "-320.png") ?? null;
-        if (rec.shotSempit) await page.screenshot({ path: join(dir, rec.shotSempit), fullPage: true }).catch(() => (rec.shotSempit = null));
-      }
+      // The application pass (D-138) reviews every page at both widths, so the 320 px picture is kept for every
+      // page, not only for one that failed. A failing page is still named by `sempit`, as before.
+      rec.shotSempit = rec.shot?.replace(/\.png$/, "-320.png") ?? null;
+      if (rec.shotSempit) await page.screenshot({ path: join(dir, rec.shotSempit), fullPage: true }).catch(() => (rec.shotSempit = null));
       await page.setViewportSize({ width: 1280, height: 900 });
       if (n === 0) result.landing = rec.finalPath;
       // Gate 6 (BOB-29): a staff browser is first asked «Komputer siapa ini?». The persona answers as the walks do
