@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { t, LOCALES, type Locale } from "@/lib/hle";
 import { useFormStatus } from "react-dom";
 
 /**
@@ -22,12 +23,23 @@ import { useFormStatus } from "react-dom";
  * comes back (pending turns false). It never disables the button inside its
  * own click, which would cancel the very submission it is guarding.
  *
+ * v3 ActionFeedback (D-138 step 2):
+ * - A WAIT OVER 3 SECONDS IS EXPLAINED. The line under the button says PINTAR
+ *   is still working and a second press is not needed, in the page's own
+ *   language (`<html lang>`), and goes when the answer comes back.
+ * - COMPLETED ONLY WHEN THE SERVER SAYS SO. `selesai` is the result word
+ *   («Tersimpan»), passed by the page only once the server has confirmed the
+ *   act; the button then shows ✓ and that word, and returns to its verb as
+ *   soon as the form is changed. Without `selesai` nothing is claimed. An
+ *   email action never passes it (D-098(c)).
+ *
  * Pages are server components; this is the one client piece a form needs.
  * UX: a whole-form lock, so a form's every way of submitting is covered.
  */
 export default function TombolKirim({
   children,
   sibuk,
+  selesai,
   disabled,
   ...rest
 }: Omit<ButtonHTMLAttributes<HTMLButtonElement>, "type" | "children"> & {
@@ -35,10 +47,36 @@ export default function TombolKirim({
   children: ReactNode;
   /** The words while the form is being saved: "Menyimpan…" or the step's own. */
   sibuk: ReactNode;
+  /** The result word, given only once the server has confirmed the act. */
+  selesai?: ReactNode;
 }) {
   const { pending } = useFormStatus();
   const tombol = useRef<HTMLButtonElement>(null);
   const terkirim = useRef(false);
+  const [lambat, setLambat] = useState(false);
+  const [diubah, setDiubah] = useState(false);
+
+  // A wait over 3 seconds is explained; the line goes with the wait.
+  // (Both flags are cleared by the submit itself, below, so a new wait starts
+  // without the last one's line and a new result is not hidden.)
+  useEffect(() => {
+    if (!pending) return;
+    const jam = setTimeout(() => setLambat(true), 3000);
+    return () => clearTimeout(jam);
+  }, [pending]);
+
+  // A completed button returns to its verb once there is something new to do.
+  useEffect(() => {
+    const form = tombol.current?.form;
+    if (!form || selesai === undefined) return;
+    const ubah = () => setDiubah(true);
+    form.addEventListener("input", ubah);
+    form.addEventListener("change", ubah);
+    return () => {
+      form.removeEventListener("input", ubah);
+      form.removeEventListener("change", ubah);
+    };
+  }, [selesai]);
 
   useEffect(() => {
     const form = tombol.current?.form;
@@ -51,6 +89,8 @@ export default function TombolKirim({
         return;
       }
       terkirim.current = true;
+      setLambat(false);
+      setDiubah(false);
     };
     document.addEventListener("submit", jaga, true);
     return () => document.removeEventListener("submit", jaga, true);
@@ -61,9 +101,28 @@ export default function TombolKirim({
     if (!pending) terkirim.current = false;
   }, [pending]);
 
+  const tuntas = !pending && selesai !== undefined && !diubah;
   return (
-    <button {...rest} ref={tombol} type="submit" disabled={pending || disabled} aria-busy={pending ? "true" : undefined}>
-      {pending ? sibuk : children}
-    </button>
+    <>
+      <button
+        {...rest}
+        ref={tombol}
+        type="submit"
+        disabled={pending || disabled}
+        aria-busy={pending ? "true" : undefined}
+        data-keadaan={tuntas ? "selesai" : undefined}
+      >
+        {pending ? sibuk : tuntas ? <><span aria-hidden="true">✓</span> {selesai}</> : children}
+      </button>
+      {pending && lambat ? (
+        <span className="pin-lambat" role="status">{t("tombol.lambat", "learner", { locale: bahasaHalaman() })}</span>
+      ) : null}
+    </>
   );
+}
+
+/** The page's language, as the root layout writes it on `<html lang>`. */
+function bahasaHalaman(): Locale {
+  const lang = typeof document === "undefined" ? "" : document.documentElement.lang;
+  return (LOCALES as readonly string[]).includes(lang) ? (lang as Locale) : "id";
 }

@@ -15,6 +15,10 @@ import { useEffect, useRef, type ReactNode } from "react";
  * pattern, two shared pieces. The words are the caller's, from the copy
  * table; this draws them and nothing else.
  *
+ * v3 (ActionFeedback, D-138 step 2): a line that says it was done opens with
+ * ✓, so success is not told by colour alone; a line that says it was NOT done
+ * is `role="alert"`, because the reader has to act on it.
+ *
  * A result that is more than a line (the activation's card and PIN, a
  * workbook check's counts) keeps its own look through `kelas`, and is still
  * announced, placed and brought into view the same way.
@@ -37,7 +41,8 @@ export default function BarisHasil({
     baris.current?.scrollIntoView({ block: "nearest" });
   }, []);
   return (
-    <div ref={baris} id={id} className={`${kelas ?? "pin-msg pin-hasil"} pin-hasil-${nada}`} role="status">
+    <div ref={baris} id={id} className={`${kelas ?? "pin-msg pin-hasil"} pin-hasil-${nada}`} role={nada === "gagal" ? "alert" : "status"}>
+      {nada === "ok" && !kelas ? <span className="pin-centang" aria-hidden="true">✓</span> : null}
       {children}
     </div>
   );

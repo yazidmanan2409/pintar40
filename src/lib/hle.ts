@@ -182,6 +182,7 @@ export type HleEvent =
   | "memuat.halaman"
   // DAISY-17: a submit button's words while its form is being saved
   | "tombol.menyimpan"
+  | "tombol.lambat"
   | "tombol.memproses"
   | "tombol.memeriksa"
   | "tombol.mengirim"
@@ -2449,6 +2450,7 @@ const table: Table = {
   "memuat.halaman": { default: "Memuat halaman…", en: "Loading the page…" },
   // DAISY-17 (D-046(e)): what a submit button says from the click until the answer comes back
   "tombol.menyimpan": { default: "Menyimpan…", en: "Saving…" },
+  "tombol.lambat": { default: "Jaringan sedang lambat. PINTAR masih bekerja; Anda tidak perlu menekan lagi.", en: "The network is slow. PINTAR is still working; you do not need to press again." },
   "tombol.memproses": { default: "Memproses…", en: "Working…" },
   "tombol.memeriksa": { default: "Memeriksa…", en: "Checking…" },
   "tombol.mengirim": { default: "Mengirim…", en: "Sending…" },

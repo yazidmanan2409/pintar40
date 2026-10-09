@@ -111,7 +111,7 @@ await step("G2", "GS-02 (J1.4): the operator records the school's first administ
   await bagian.getByRole("button", { name: "Buat dan aktifkan", exact: true }).click();
   // DAISY-20 (D-077): the first press shows what will be made; «Sudah benar, buat dan aktifkan» makes it
   await bagian.getByRole("button", { name: "Sudah benar, buat dan aktifkan", exact: true }).click();
-  const jawab = bagian.locator('[role="status"]').first();
+  const jawab = bagian.locator('[role="status"], [role="alert"]').first();  // v3: a failed result line is an alert (D-138 step 2)
   await jawab.waitFor({ timeout: SLOW });
   const teks = norm(await jawab.innerText());
   await shot(O, "g2-orang-baru");

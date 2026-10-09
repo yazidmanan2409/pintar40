@@ -131,42 +131,68 @@
 .pin-scope .pin-mark { display: inline-flex; align-items: center; }
 
 /* ----------------------------------------------------------------- controls */
+/* Button (v3, D-138 step 2). Every button is a control-md target (44 px): a
+   MINIMUM, so a label that must fold on a phone grows the button instead of
+   being clipped. Hover and pressed are grounds, never a moving edge. */
 .pin-btn {
   display: inline-flex; align-items: center; justify-content: center;
-  gap: var(--space-2); height: 40px; padding: 0 var(--space-4);
-  border-radius: var(--radius-1);
-  font-size: var(--type-meta); font-weight: var(--weight-strong);
-  border: 1px solid var(--line-strong);
+  gap: var(--space-2); min-height: var(--control-md); padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--t-body); line-height: var(--t-body-lh); font-weight: var(--weight-strong);
+  border: var(--border-hairline) solid var(--line-strong);
   background: var(--surface-1); color: var(--ink-1);
-  white-space: nowrap; text-decoration: none;
-  transition: background-color var(--motion-fast), border-color var(--motion-fast);
+  white-space: nowrap; text-decoration: none; cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard);
 }
-.pin-btn:hover { border-color: var(--ink-2); text-decoration: none; }
+.pin-btn:hover { background: var(--surface-2); text-decoration: none; }
+.pin-btn:active { background: var(--surface-3); }
 .pin-btn.pin-primary {
   background: var(--pintar-primary); border-color: var(--pintar-primary);
   color: var(--pintar-primary-ink);
 }
-.pin-btn.pin-primary:hover { background: var(--pintar-primary-hover); }
-.pin-btn.pin-quiet { border-color: transparent; color: var(--pintar-primary); padding: 0 var(--space-1); }
+.pin-btn.pin-primary:hover { background: var(--pintar-primary-hover); border-color: var(--pintar-primary-hover); }
+.pin-btn.pin-primary:active { background: var(--pintar-primary-pressed); border-color: var(--pintar-primary-pressed); }
+.pin-btn.pin-quiet { border-color: transparent; background: transparent; color: var(--pintar-primary); padding: 0 var(--space-3); }
+.pin-btn.pin-quiet:hover { background: var(--surface-2); }
+.pin-btn.pin-quiet:active { background: var(--surface-3); }
+/* Disabled: one look for every family (surface-2 and ink-disabled, readable
+   at 3.2:1), never a faded copy of the live button. A button that is busy
+   (TombolKirim, aria-busy) is not disabled-looking: it was heard and keeps
+   its colour while it works. */
+.pin-btn:disabled:not([aria-busy="true"]),
+.pin-btn[aria-disabled="true"]:not([aria-busy="true"]) {
+  background: var(--surface-2); color: var(--ink-disabled); border-color: transparent; cursor: not-allowed;
+}
+.pin-btn[aria-busy="true"], .pin-mbtn[aria-busy="true"] { cursor: progress; }
+/* Completed: the confirmed result, said once, at the action (ActionFeedback). */
+.pin-btn[data-keadaan="selesai"] {
+  background: var(--status-ok-soft); color: var(--status-ok); border-color: transparent; cursor: default;
+}
+/* The line under a busy button after 3 seconds: still working, no second press. */
+.pin-lambat { display: block; flex-basis: 100%; margin: var(--space-1) 0 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); }
 .pin-actions { display: flex; gap: var(--space-3); margin-top: var(--space-5); flex-wrap: wrap; align-items: center; }
 .pin-back {
-  display: inline-flex; gap: var(--space-1) 6px; align-items: center;
-  font-size: var(--type-meta); font-weight: var(--weight-strong);
+  display: inline-flex; gap: var(--space-1) 6px; align-items: center; min-height: var(--control-md);
+  font-size: var(--t-small); font-weight: var(--weight-strong);
   text-decoration: none; margin-bottom: var(--space-5);
   background: none; border: 0; padding: 0; color: var(--pintar-primary);
 }
 
 /* Pengalih Bahasa Antarmuka */
 .pin-lang {
-  display: inline-flex; border: 1px solid var(--line-strong);
-  border-radius: 6px; overflow: hidden; flex: none;
+  display: inline-flex; flex: none;
+  background: var(--surface-2); border-radius: var(--radius-md);
 }
 .pin-lang button {
-  background: transparent; border: 0; padding: var(--space-1) 10px;
-  font: inherit; font-size: var(--type-eyebrow); font-weight: var(--weight-strong);
-  letter-spacing: 0.04em; color: var(--ink-2); cursor: pointer;
-  transition: background-color var(--motion-fast), color var(--motion-fast);
+  min-height: var(--control-md); min-width: var(--control-md); padding: 0 var(--space-3);
+  background: transparent; border: 3px solid transparent; border-radius: var(--radius-md); background-clip: padding-box;
+  font: inherit; font-size: var(--t-label); line-height: var(--t-label-lh); font-weight: var(--weight-strong);
+  color: var(--ink-2); cursor: pointer;
+  transition: background-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
 }
+.pin-lang button:hover:not([aria-pressed="true"]) { color: var(--ink-1); background-color: var(--surface-3); }
 .pin-lang button[aria-pressed="true"] {
   background: var(--pintar-primary); color: var(--pintar-primary-ink);
 }
@@ -449,9 +475,9 @@
 /* --------------------------------------------------------- scope picker */
 .pin-picker { display: inline-flex; align-items: center; gap: var(--space-2); }
 .pin-picker select {
-  font: inherit; font-size: var(--type-meta); color: var(--ink-1);
-  background: var(--surface-1); border: 1px solid var(--line-strong);
-  border-radius: var(--radius-1); padding: 6px 10px;
+  font: inherit; font-size: var(--t-body); color: var(--ink-1); min-height: var(--control-md);
+  background: var(--surface-1); border: var(--border-hairline) solid var(--line-control);
+  border-radius: var(--radius-md); padding: 0 var(--space-3);
 }
 
 /* ------------------------------------------------------- phone composition */
@@ -538,7 +564,7 @@
        with it. Measured at 390px: four of thirty-two rendered educator pages
        overflowed, the worst by 279px with the document scrolling to 637px.
        This rule alone returns all thirty-two to zero. */
-    white-space: normal; height: auto; min-height: 40px;
+    white-space: normal; height: auto; min-height: var(--control-md);
     padding-block: var(--space-2);
   }
   .pin-status { padding: var(--space-5); }
@@ -730,7 +756,6 @@
 .pin-ldot.pin-at { background: var(--pintar-primary); }
 .pin-ldot.pin-done { background: var(--ink-3); }
 .pin-actions.pin-between { justify-content: space-between; width: 100%; }
-.pin-actions .pin-btn:disabled { opacity: 0.4; cursor: default; }
 .pin-steps { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--space-3); }
 .pin-contoh .pin-langkah, .pin-steps .pin-langkah {
   display: grid; grid-template-columns: auto 1fr; gap: var(--space-3);
@@ -745,8 +770,8 @@
 .pin-lctl { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); font-size: var(--type-meta); margin-top: var(--space-3); }
 .pin-lrate { display: flex; align-items: center; gap: var(--space-2); }
 .pin-lselect {
-  font: inherit; font-size: var(--type-meta); border: 1px solid var(--line);
-  background: var(--surface-0); border-radius: var(--radius-1); padding: var(--space-1) var(--space-2); color: var(--ink-1);
+  font: inherit; font-size: var(--t-body); min-height: var(--control-md); border: var(--border-hairline) solid var(--line-control);
+  background: var(--surface-1); border-radius: var(--radius-md); padding: 0 var(--space-3); color: var(--ink-1);
 }
 .pin-ltrans { white-space: pre-wrap; color: var(--ink-2); font-size: var(--type-meta); margin-top: var(--space-3); }
 
@@ -762,7 +787,7 @@
 }
 .pin-soalbar .pin-sbar i { display: block; height: 100%; background: var(--pintar-primary); }
 .pin-soalbar .pin-time { font-size: var(--type-meta); color: var(--ink-3); font-variant-numeric: tabular-nums; }
-.pin-soalbar .pin-btn { height: 32px; font-size: var(--type-fine); }
+.pin-soalbar .pin-btn { min-height: var(--control-md); }
 
 .pin-stem { font-size: var(--type-stem); line-height: var(--leading-body); font-weight: var(--weight-normal); max-width: 60ch; margin: 0 0 var(--space-5); }
 .pin-opsi { display: grid; gap: var(--space-3); max-width: 60ch; }
@@ -796,7 +821,7 @@
 
 .pin-daftar { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-2); }
 .pin-num-btn {
-  width: 34px; height: 34px; border-radius: var(--radius-1); border: 1px solid var(--line);
+  width: var(--control-md); height: var(--control-md); border-radius: var(--radius-md); border: var(--border-hairline) solid var(--line-control);
   background: var(--surface-1); font: inherit; font-size: var(--type-meta);
   font-variant-numeric: tabular-nums; color: var(--ink-2); cursor: pointer;
   display: grid; place-items: center;
@@ -904,7 +929,7 @@
        screenshot: no rendered fixture reaches this card, so nothing was ever
        going to show it. A button stretched to the width of a phone must be
        allowed to fold its label. */
-    white-space: normal; height: auto; min-height: 40px;
+    white-space: normal; height: auto; min-height: var(--control-md);
     padding-block: var(--space-2);
   }
   .pin-nrow { grid-template-columns: 1fr; }
@@ -922,19 +947,26 @@
    is marked and the others are links. It carries no authority and the copy
    beside it does not say it does. */
 .pin-switch {
-  display: inline-flex; flex-wrap: wrap; overflow: hidden;
-  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  display: flex; flex-wrap: wrap; gap: 0 var(--space-5);
+  border-bottom: var(--border-hairline) solid var(--line);
   margin-bottom: var(--space-6);
 }
 .pin-switch a {
-  padding: var(--space-2) var(--space-4); border-left: 1px solid var(--line);
-  font-size: var(--type-meta); font-weight: var(--weight-strong);
+  position: relative; display: inline-flex; align-items: center;
+  min-height: var(--control-md); padding: 0 var(--space-1);
+  font-size: var(--t-body); line-height: var(--t-body-lh);
   color: var(--ink-2); text-decoration: none;
-  transition: background-color var(--motion-fast), color var(--motion-fast);
+  transition: color var(--duration-fast) var(--ease-standard);
 }
-.pin-switch a:first-child { border-left: 0; }
-.pin-switch a:hover { background: var(--surface-0); text-decoration: none; }
-.pin-switch a[aria-current="page"] { background: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pin-switch a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: calc(var(--border-hairline) * -1); height: var(--border-selected);
+  background: transparent; transition: background-color var(--duration-base) var(--ease-standard);
+}
+.pin-switch a:hover { color: var(--ink-1); text-decoration: none; }
+.pin-switch a:hover::after { background: var(--line-strong); }
+.pin-switch a[aria-current="page"] { color: var(--ink-1); font-weight: var(--weight-strong); }
+.pin-switch a[aria-current="page"]::after { background: var(--pintar-primary); }
+.pin-switch a:focus-visible { outline-offset: -2px; border-radius: var(--radius-md); }
 
 /* THE THREE STAGES OF A COMMITMENT. Set it up, look at what will happen, do it.
    Words and a rule between them — not a progress bar, because there is no
@@ -1009,22 +1041,33 @@
   letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-3);
 }
 .pin-input {
-  font: inherit; font-size: var(--type-body); height: 40px;
+  font: inherit; font-size: var(--t-body); line-height: var(--t-body-lh); min-height: var(--control-md);
   padding: 0 var(--space-3); color: var(--ink-1); background: var(--surface-1);
-  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-md);
+  transition: border-color var(--duration-fast) var(--ease-standard);
 }
+.pin-input:hover { border-color: var(--ink-3); }
+.pin-input[aria-invalid="true"] { border-color: var(--status-blocked); box-shadow: inset 0 0 0 var(--border-hairline) var(--status-blocked); }
+.pin-input:disabled { background: var(--surface-2); color: var(--ink-disabled); border-color: var(--line); cursor: not-allowed; }
+.pin-input[readonly] { background: var(--surface-2); border-color: var(--line); }
 .pin-hint { margin: 0; font-size: var(--type-meta); color: var(--ink-3); }
 .pin-value { margin: 0; font-size: var(--type-body); }
-.pin-seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--radius-1); overflow: hidden; }
-.pin-seg label { position: relative; display: block; }
+.pin-seg {
+  display: inline-flex; max-width: 100%; min-width: 0; overflow-x: auto; justify-self: start;
+  background: var(--surface-2); border-radius: var(--radius-md);
+}
+.pin-seg label { position: relative; display: block; flex: none; }
 .pin-seg input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
 .pin-seg span {
-  display: block; padding: var(--space-2) var(--space-4); border-left: 1px solid var(--line);
-  font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2);
+  display: flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: var(--control-md); padding: 0 var(--space-4);
+  border: 3px solid transparent; border-radius: var(--radius-md); background-clip: padding-box;
+  font-size: var(--t-label); line-height: var(--t-label-lh); font-weight: var(--weight-strong); color: var(--ink-2); white-space: nowrap;
+  transition: background-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
 }
-.pin-seg label:first-child span { border-left: 0; }
-.pin-seg input:checked + span { background: var(--pintar-primary); color: var(--pintar-primary-ink); }
-.pin-seg input:focus-visible + span { outline: 2px solid var(--pintar-primary); outline-offset: -2px; }
+.pin-seg label:hover input:not(:checked) + span { color: var(--ink-1); background-color: var(--surface-3); }
+.pin-seg input:checked + span { background-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pin-seg input:focus-visible + span { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 0; }
 
 /* IT IS AVAILABLE NOW. The only place in the Experience that stands on status
    green: a thing the educator just made real, said once, and then the counts
@@ -1076,11 +1119,11 @@
   /* Two columns of names need two readable measures; below this width there is
      one. The same reasoning as the compact fact summary, and the same answer. */
   .pin-roster { grid-template-columns: 1fr; }
-  .pin-switch { display: grid; grid-template-columns: 1fr; width: 100%; }
-  .pin-switch a { border-left: 0; border-top: 1px solid var(--line); }
-  .pin-switch a:first-child { border-top: 0; }
+  /* Tabs keep one row on a phone and scroll inside it (v3 Tabs); the page never does. */
+  .pin-switch { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+  .pin-switch a { flex: none; white-space: nowrap; }
   .pin-seg { display: grid; grid-template-columns: repeat(3, 1fr); }
-  .pin-seg span { border-left: 1px solid var(--line); text-align: center; }
+  .pin-seg span { text-align: center; }
   .pin-isian .pin-input { width: 100%; }
   .pin-paket, .pin-hidup { padding: var(--space-5); }
   .pin-terima li { grid-template-columns: auto 1fr; }
@@ -1170,10 +1213,12 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
    because an icon-only close is not a close anybody can read (§K-11). */
 .pin-tur-x {
   background: none; border: 0; font: inherit;
-  font-size: var(--type-fine); font-weight: var(--weight-strong); color: var(--ink-2);
-  padding: var(--space-1) var(--space-2); border-radius: 6px; cursor: pointer;
+  font-size: var(--t-small); font-weight: var(--weight-strong); color: var(--ink-2);
+  padding: 0 var(--space-3); border-radius: var(--radius-md); cursor: pointer;
+  min-height: var(--control-md);
 }
 .pin-tur-x:hover { background: var(--surface-2); }
+.pin-tur-x:active { background: var(--surface-3); }
 .pin-tur-judul {
   font-size: var(--type-course); font-weight: var(--weight-strong);
   line-height: var(--leading-heading); letter-spacing: -0.01em; margin: 0;
@@ -1297,9 +1342,9 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-bantuan-judul:focus:not(:focus-visible) { outline: none; }
 .pin-bantuan-tutup {
   background: none; border: 0; font: inherit;
-  font-size: var(--type-fine); font-weight: var(--weight-strong); color: var(--ink-2);
-  padding: var(--space-1) var(--space-2); border-radius: 6px;
-  min-height: 44px; cursor: pointer;
+  font-size: var(--t-small); font-weight: var(--weight-strong); color: var(--ink-2);
+  padding: 0 var(--space-3); border-radius: var(--radius-md);
+  min-height: var(--control-md); cursor: pointer;
 }
 .pin-bantuan-tutup:hover { background: var(--surface-1); }
 .pin-bantuan-kartu {
@@ -1362,7 +1407,6 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   .pin-tur-judul { font-size: var(--type-stem-phone); }
   .pin-tur-sd .pin-tur-judul { font-size: var(--type-stem); }
   /* A finger, not a pointer: the two quiet header controls get the full target. */
-  .pin-tur-x { min-height: 44px; }
   /* THE HEADER TAKES TWO LINES HERE. The approved phone renders are 480 wide
      and the four items fit on one; at 390 they do not, and the design's answer
      to that is to wrap rather than to truncate or shrink type (§K-9). So the
@@ -1454,7 +1498,7 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-inp {
   display: flex; align-items: center; gap: var(--space-2);
   height: var(--control-h); padding: 0 var(--space-3);
-  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-md);
   background: var(--surface-1);
 }
 .pin-inp:focus-within { outline: 2px solid var(--pintar-primary); outline-offset: 2px; }
@@ -1463,14 +1507,14 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   border: 0; background: none; font: inherit; font-size: var(--type-body); color: var(--ink-1);
 }
 .pin-inp input:focus { outline: none; }
-.pin-inp.pin-inp-salah { border-color: var(--status-blocked); }
+.pin-inp.pin-inp-salah { border-color: var(--status-blocked); box-shadow: inset 0 0 0 var(--border-hairline) var(--status-blocked); }
 /* The card path: a transcription task. Tabular figures, tracked, grouped as
    the card prints them — never reformatted, masked or auto-advanced, because
    the person is checking characters against a physical object. */
 .pin-inp.pin-inp-big { height: var(--control-h-big); }
 .pin-inp.pin-inp-big input {
   height: calc(var(--control-h-big) - 2px);
-  font-size: 20px; letter-spacing: 0.08em; font-variant-numeric: tabular-nums;
+  font-size: 22px; letter-spacing: 0.08em; font-variant-numeric: tabular-nums;
 }
 .pin-lihat {
   display: inline-flex; align-items: center; justify-content: center;
@@ -1490,9 +1534,11 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 }
 .pin-mbtn-1 { background: var(--pintar-primary); border-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
 .pin-mbtn-1:hover { background: var(--pintar-primary-hover); }
+.pin-mbtn-1:active { background: var(--pintar-primary-pressed); }
 .pin-mbtn-2:hover { background: var(--surface-2); }
+.pin-mbtn-2:active { background: var(--surface-3); }
 .pin-mbtn-big { height: var(--control-h-big); font-size: var(--type-card); }
-.pin-mbtn[disabled] { opacity: 0.4; cursor: default; }
+.pin-mbtn[disabled]:not([aria-busy="true"]) { background: var(--surface-2); color: var(--ink-disabled); border-color: transparent; cursor: not-allowed; }
 .pin-stack { display: grid; gap: var(--space-2); margin-top: var(--space-2); }
 .pin-stack form { display: grid; }
 
@@ -1514,8 +1560,8 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-kembali {
   justify-self: start;
   background: none; border: 0; padding: var(--space-2) 0;
-  font: inherit; font-size: 15px; font-weight: var(--weight-strong);
-  color: var(--pintar-primary); cursor: pointer; min-height: 44px;
+  font: inherit; font-size: var(--t-small); font-weight: var(--weight-strong);
+  color: var(--pintar-primary); cursor: pointer; min-height: var(--control-md);
 }
 
 .pin-msg { margin: 0; padding: 10px var(--space-3); border-radius: var(--radius-1); font-size: var(--type-meta); }
@@ -1729,7 +1775,7 @@ a.pin-tautan { display: inline-flex; align-items: center; }
   background: var(--surface-0); color: var(--ink-1);
 }
 .pin-kp-form textarea { min-height: calc(var(--control-h) + var(--space-5)); resize: vertical; }
-.pin-kp-form .pin-btn, .pin-kp-ambil .pin-btn { justify-self: start; min-height: 44px; }
+.pin-kp-form .pin-btn, .pin-kp-ambil .pin-btn { justify-self: start; }
 
 /* --------------------------------------------------------------- readiness */
 /* ALWAYS THE QUIET GROUND. A figure PINTAR may not yet interpret is not a
@@ -2161,7 +2207,9 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 }
 .pin-str-tanya-judul { margin: 0; font-weight: var(--weight-strong); }
 .pin-str-tanya-aksi { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.pin-btn.pin-str-bahaya { background: var(--status-blocked); border-color: var(--status-blocked); color: var(--surface-1); }
+.pin-btn.pin-str-bahaya { background: var(--status-blocked); border-color: var(--status-blocked); color: var(--pintar-primary-ink); }
+.pin-btn.pin-str-bahaya:hover { background: var(--status-blocked-hover); border-color: var(--status-blocked-hover); }
+.pin-btn.pin-str-bahaya:active { background: var(--status-blocked-pressed); border-color: var(--status-blocked-pressed); }
 .pin-str .pin-msg { margin-top: var(--space-1); }
 
 /* ---------------------------------------------- Unggah buku kerja (DAISY-06)
@@ -2442,6 +2490,7 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 /* The result line of a save, next to its form. */
 .pin-hasil { margin-top: var(--space-2); }
 .pin-msg.pin-hasil-ok { background: var(--status-ok-soft); color: var(--status-ok); }
+.pin-centang { font-weight: var(--weight-strong); margin-right: var(--space-1); }
 .pin-msg.pin-hasil-gagal { background: var(--status-blocked-soft); color: var(--status-blocked); }
 .pin-msg.pin-hasil-netral { background: var(--surface-2); color: var(--ink-2); }
 
@@ -2452,7 +2501,7 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-sehat-gagal { margin: 0; font-size: var(--type-meta); color: var(--status-blocked); }
 .pin-sehat-tanda { margin: 0; padding: 2px var(--space-2); border-radius: var(--radius-1); font-size: var(--type-meta); }
 .pin-sehat-tanda.pin-ok { background: var(--status-ok-soft); color: var(--status-ok); }
-.pin-sehat-tanda.pin-perhatian { background: var(--status-blocked-soft); color: var(--status-blocked); }
+.pin-sehat-tanda.pin-perhatian { background: var(--status-attention-soft); color: var(--status-attention); }
 .pin-sehat-daftar { margin: 0; padding-left: var(--space-5); font-size: var(--type-meta); color: var(--ink-2); }
 
 /* ── DAISY-16: what holds a release, one blocker per line ──────────────── */

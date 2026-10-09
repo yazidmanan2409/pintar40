@@ -1112,6 +1112,16 @@
       "proves": "THE APPLICATION PASS, STEP 1 (D-138): token set v3 is applied. Every token in the design system's tokens.json at its verified freeze c42fecb (vendored at selftest/fixtures/design-tokens-v3.json and sha256-pinned, so the copy cannot drift from the source) is declared in src/app/globals.css with the same value, each type style's size, leading and tracking included; every v2 token name 08-migration.md keeps is an alias pointing at its v3 token by var(), so the two can never disagree; the focus ring is drawn with --focus-ring; and no stylesheet or component references a custom property that nothing declares"
     },
     {
+      "id": "UX1-V3-TARGET-01",
+      "runner": "static",
+      "proves": "THE 44 PX TARGET GUARD (D-138 step 2; 08-migration.md, Controls under 44 px). Every rule in src/app/experience.css that sizes one of PINTAR's controls -- buttons (.pin-btn, .pin-mbtn), fields (.pin-input, .pin-inp), selects, segments, view tabs, header tabs, the language switch, the question navigator, back links and the close controls -- keeps its height or min-height at control-md (44 px) or more, resolved through the token file; a size the guard cannot resolve fails rather than passing; and each control's own base rule carries the floor, so it holds where no other rule applies. Today's 40 px .pin-btn, 34 px .pin-num-btn, 32 px question-bar button and 26 px language switch each fail it"
+    },
+    {
+      "id": "UX1-V3-FEEDBACK-01",
+      "runner": "static",
+      "proves": "ACTION FEEDBACK, RENDERED (D-138 step 2; the design system's ActionFeedback). BarisHasil and TombolKirim are rendered the way a page calls them: a result line that says something was done opens with a check mark and is role=status, so success is not told by colour alone; one that says it was not done is role=alert; a neutral line is a plain status; a block result keeps its own look; a submit button claims no completion until the page passes the server-confirmed result word, and then shows the check mark and that word (data-keadaan=selesai); and the line explaining a wait over 3 seconds is timed at 3000 ms and comes from the copy table in both languages"
+    },
+    {
       "id": "UX1-S0-CONTRAST-01",
       "runner": "static",
       "proves": "WCAG 2.1 contrast COMPUTED from the token source file src/app/globals.css: every text token against white, ivory and the well, every status token against those three and against its own soft ground, and the primary's ink against the primary and its hover; and, for token set v3 (D-138), text on the pressed and destructive grounds, the context band and the table's row grounds, plus line-control at 3:1 against every surface (WCAG 1.4.11). Nothing below 4.5:1. This is the test that makes the token lint safe to enforce -- three v1 values failed AA (ink-3 at 2.79 on white, status-ok at 4.33 on its own soft, attention at 4.16 on the well) and a lint that required their use would have enforced an unreadable screen"

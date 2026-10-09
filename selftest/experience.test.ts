@@ -419,8 +419,6 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "Line height for the display name, which is set solid." },
   { file: "src/app/experience.css", literal: "1.1",
     reason: "Line height for the verification verdict." },
-  { file: "src/app/experience.css", literal: "0.04em",
-    reason: "The language switch's tracking: two uppercase letters need less than the eyebrow." },
   { file: "src/app/experience.css", literal: "-0.01em",
     reason: "Half the display tracking, for the 22-24px headings between ladder and display." },
   { file: "src/app/experience.css", literal: "0.5",
@@ -437,10 +435,10 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "Half the 12px dot less half the 2px connector, so the line meets the dot's centre." },
   { file: "src/app/experience.css", literal: "4px",
     reason: "Detail geometry below the spacing scale: the current step's ring and the progress bar's height." },
-  { file: "src/app/experience.css", literal: "34px",
-    reason: "The question-number button: a two-digit target, sized to the finger rather than to a rhythm." },
   { file: "src/app/experience.css", literal: "23px",
     reason: "24px less the pixel a 2px border eats, so a selected option's text does not shift." },
+  { file: "src/app/experience.css", literal: "22px",
+    reason: "The class card's characters in the PIN input at control-xl (08-migration.md, PIN input: 20 to 22 px); the design system's own component writes the same literal." },
   { file: "src/app/experience.css", literal: "20px",
     reason: "The disc list's indent, which belongs to the marker rather than to the page." },
   { file: "src/app/experience.css", literal: "120px",
@@ -526,6 +524,32 @@ const V2_ALIASES: Array<[string, string]> = [
   ["--type-subhead", "--t-section"], ["--type-section", "--t-section"], ["--type-page", "--t-page"],
   ["--type-hero", "--t-display"], ["--type-stem", "--t-stem"], ["--type-stem-phone", "--t-stem-compact"],
 ];
+/** The controls the 44 px guard covers, as the last compound of a selector. */
+const TARGETS = [
+  ".pin-btn", ".pin-mbtn", ".pin-input", ".pin-inp", ".pin-num-btn", ".pin-lang button",
+  ".pin-picker select", ".pin-lselect", ".pin-seg span", ".pin-switch a", ".pin-tabs a",
+  ".pin-tur-x", ".pin-bantuan-tutup", ".pin-back", ".pin-kembali", ".pin-tautan", ".pin-lihat",
+];
+/** The controls whose own base rule must carry the floor. */
+const BASE_TARGETS = [
+  ".pin-btn", ".pin-mbtn", ".pin-input", ".pin-inp", ".pin-num-btn", ".pin-lang button",
+  ".pin-picker select", ".pin-lselect", ".pin-seg span", ".pin-switch a",
+  ".pin-tur-x", ".pin-bantuan-tutup", ".pin-back", ".pin-kembali", ".pin-tautan", ".pin-lihat",
+];
+/** Does this selector size the control itself (not something inside it)? */
+function sizesControl(sel: string, target: string): boolean {
+  // a pseudo-element draws a decoration (a tab's underline), not the target
+  if (/::?(?:before|after)\b/.test(sel)) return false;
+  const s = sel.replace(/::?[a-z-]+(\([^)]*\))?/g, "").replace(/\[[^\]]*\]/g, "").trim();
+  const parts = target.split(" ");
+  const tail = s.split(/\s*[ >+~]\s*/).slice(-parts.length);
+  if (tail.length < parts.length) return false;
+  return parts.every((p, i) => {
+    const comp = tail[i];
+    if (p.startsWith(".")) return new RegExp(`\\${p}(?![\\w-])`).test(comp);
+    return new RegExp(`^${p}(?![\\w-])`).test(comp) || comp.startsWith(p + ".") || comp === p;
+  });
+}
 const RAW_COLOUR = /#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\s*\(/g;
 const RAW_LENGTH = /(?<![\w.-])\d+(?:\.\d+)?(?:px|rem|em|ch|%)/g;
 
@@ -858,6 +882,112 @@ export const experienceTests: SelfTest[] = [
           "(vendored, sha256-pinned) is declared in src/app/globals.css with the same value, every type style's size, " +
           "leading and tracking included; each v2 token name 08-migration.md keeps is an alias pointing at its v3 token; " +
           "the focus ring is drawn with --focus-ring; and no stylesheet or component references a custom property nobody declares",
+      );
+    },
+  },
+
+  {
+    id: "UX1-V3-TARGET-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // THE 44 PX TARGET (control-md; 08-migration.md, «Controls under 44 px»).
+      // Every rule in experience.css that sizes one of PINTAR's controls may
+      // only make it 44 px or more: a height or min-height that resolves
+      // below control-md fails, and so does one this test cannot resolve, so
+      // a calc() cannot quietly shrink a target. Each control's own base rule
+      // must also set the floor, so it holds where no other rule applies.
+      const tk = tokens(readFileSync(join(repoRoot, "src", "app", "globals.css"), "utf8"));
+      const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
+      const px = (v: string): number | null => {
+        const m = /^var\((--[a-z0-9-]+)\)$/.exec(v.trim());
+        const r = m ? resolve(tk, m[1]) : v.trim();
+        const n = /^(\d+(?:\.\d+)?)px$/.exec(r ?? "");
+        return n ? Number(n[1]) : null;
+      };
+      const FLOOR = px("var(--control-md)") ?? 0;
+      c.expect(FLOOR === 44, `control-md is ${FLOOR}, not 44`);
+
+      let rules = 0;
+      for (const m of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+        const selectors = m[1].split(",").map((x) => x.trim()).filter(Boolean);
+        const target = selectors.filter((sel) => TARGETS.some((t) => sizesControl(sel, t)));
+        if (target.length === 0) continue;
+        rules++;
+        for (const d of m[2].matchAll(/(?:^|;)\s*(min-height|height)\s*:\s*([^;]+)/g)) {
+          const v = d[2].trim();
+          if (v === "auto" || v === "100%") continue;
+          const n = px(v);
+          c.expect(n !== null, `${target.join(", ")} sets ${d[1]}: ${v}, which this guard cannot resolve to a size`);
+          if (n !== null) c.expect(n >= FLOOR, `${target.join(", ")} sets ${d[1]} to ${n}px, under the ${FLOOR}px target`);
+        }
+      }
+      for (const t of BASE_TARGETS) {
+        const base = new RegExp(`(?:^|[}\\s,])${t.replace(/[.[\]="]/g, (x) => "\\" + x)}\\s*\\{([^}]*)\\}`);
+        const b = base.exec(css);
+        c.expect(b !== null, `no base rule for ${t}`);
+        if (!b) continue;
+        const h = /(?:^|;)\s*(?:min-height|height)\s*:\s*([^;]+)/.exec(b[1]);
+        const n = h ? px(h[1]) : null;
+        c.expect(n !== null && n >= FLOOR, `${t}'s own rule does not set a ${FLOOR}px floor (${h ? h[1].trim() : "none"})`);
+      }
+      c.note(`${rules} rule(s) sizing ${TARGETS.length} control(s); ${BASE_TARGETS.length} base floor(s)`);
+      return c.verdict(
+        "every rule in src/app/experience.css that sizes one of PINTAR's controls (buttons, fields, selects, segments, " +
+          "tabs, the language switch, the question navigator, back links and close controls) keeps it at control-md " +
+          "(44 px) or more, a size the guard cannot resolve fails, and each control's own rule sets the floor",
+      );
+    },
+  },
+
+  {
+    id: "UX1-V3-FEEDBACK-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // ACTION FEEDBACK (v3, D-138 step 2), RENDERED. BarisHasil and
+      // TombolKirim are called the way a page calls them and the markup read.
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const b = await import("file://" + process.cwd() + "/src/components/BarisHasil.tsx");' +
+        '  const k = await import("file://" + process.cwd() + "/src/components/TombolKirim.tsx");' +
+        "  const Baris = b.default?.default ?? b.default; const Tombol = k.default?.default ?? k.default;" +
+        "  const out = [" +
+        '    renderToStaticMarkup(h(Baris, { nada: "ok" }, "Peran diberikan.")),' +
+        '    renderToStaticMarkup(h(Baris, { nada: "gagal" }, "Belum tersimpan.")),' +
+        '    renderToStaticMarkup(h(Baris, { nada: "netral" }, "Tidak ada yang berubah.")),' +
+        '    renderToStaticMarkup(h(Baris, { nada: "ok", kelas: "pin-akt-hasil" }, "x")),' +
+        '    renderToStaticMarkup(h("form", null, h(Tombol, { className: "pin-btn", sibuk: "Menyimpan…" }, "Simpan"))),' +
+        '    renderToStaticMarkup(h("form", null, h(Tombol, { className: "pin-btn", sibuk: "Menyimpan…", selesai: "Tersimpan" }, "Simpan"))),' +
+        "  ];" +
+        "  process.stdout.write(JSON.stringify(out));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], { cwd: repoRoot, encoding: "utf8" });
+      let html: string[] = [];
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      if (c.expect(anak.status === 0 && html.length === 6, `the feedback pieces could not be rendered: ${(anak.stderr || "").trim().split("\n").slice(0, 3).join(" ")}`)) {
+        const [ok, gagal, netral, blok, diam, tuntas] = html;
+        c.expect(/role="status"/.test(ok) && /✓/.test(ok), `a success line is not a status that opens with ✓: ${ok}`);
+        c.expect(/role="alert"/.test(gagal) && !/✓/.test(gagal), `a failed line is not an alert, or claims ✓: ${gagal}`);
+        c.expect(/role="status"/.test(netral) && !/✓/.test(netral), `a neutral line is not a plain status: ${netral}`);
+        c.expect(!/✓/.test(blok), `a block result with its own look gained the line's ✓: ${blok}`);
+        c.expect(!/✓/.test(diam) && !/data-keadaan/.test(diam) && />Simpan</.test(diam), `a button with no confirmed result claims one: ${diam}`);
+        c.expect(/data-keadaan="selesai"/.test(tuntas) && /✓/.test(tuntas) && /Tersimpan/.test(tuntas), `a confirmed button does not show ✓ and its word: ${tuntas}`);
+      }
+      // the wait line: 3 seconds, in the copy table's words, never a second press
+      const src = readFileSync(join(repoRoot, "src", "components", "TombolKirim.tsx"), "utf8");
+      c.expect(/setTimeout\(\(\) => setLambat\(true\), 3000\)/.test(src), "the wait line is not timed at 3 seconds");
+      c.expect(/t\("tombol\.lambat"/.test(src), "the wait line does not come from the copy table");
+      for (const locale of LOCALES) {
+        const w = t("tombol.lambat" as HleEvent, "learner", { locale });
+        c.expect(w.length > 20 && w !== TANPA_SALINAN, `tombol.lambat has no ${locale} words`);
+      }
+      return c.verdict(
+        "action feedback is applied: rendered, a result line that says it was done opens with ✓ and is a status, one that " +
+          "says it was not done is an alert, a block result keeps its own look, a submit button claims nothing until the page " +
+          "passes the server-confirmed result word and then shows ✓ and that word, and a wait over 3 seconds is explained in " +
+          "the copy table's words in both languages",
       );
     },
   },
@@ -3115,7 +3245,8 @@ export const experienceTests: SelfTest[] = [
         // cannot wrap, and this anchor must not care which spelling it finds
         { sel: ".pin-act", base: /\.pin-act \{[^}]*grid-template-columns:\s*(?:minmax\(0, )?1fr\)? auto/ },
         { sel: ".pin-terima li", base: /\.pin-terima li \{[^}]*grid-template-columns:\s*auto 1fr auto/ },
-        { sel: ".pin-switch", base: /\.pin-switch \{[^}]*display:\s*inline-flex/ },
+        // v3 Tabs (D-138 step 2): a flex row, kept to one scrolling row on a phone
+        { sel: ".pin-switch", base: /\.pin-switch \{[^}]*display:\s*flex/ },
         { sel: ".pin-seg", base: /\.pin-seg \{[^}]*display:\s*inline-flex/ },
       ];
       for (const { sel, base } of NARROW) {
@@ -9426,7 +9557,8 @@ export const experienceTests: SelfTest[] = [
               if (k.mode === "NEW_PERSON") c.expect(x.includes(`<strong>${k.nama}</strong>`), `${label}: the new person is not named`);
             }
           } else {
-            c.expect(x === `<div class="pin-msg pin-hasil pin-hasil-gagal" role="status">${s(kunciGagal(k.mode as ModeAktivasi, k.jawaban as JawabanAktivasi | null))}</div>`,
+            // v3 ActionFeedback (D-138 step 2): a failure the reader must act on is an alert
+            c.expect(x === `<div class="pin-msg pin-hasil pin-hasil-gagal" role="alert">${s(kunciGagal(k.mode as ModeAktivasi, k.jawaban as JawabanAktivasi | null))}</div>`,
               `${label}: the failure is not its own sentence in the shared result line: ${x.slice(0, 160)}`);
             c.expect(!x.includes(DETAIL), `${label}: the server's own words reach the screen`);
           }
@@ -10260,7 +10392,7 @@ export const experienceTests: SelfTest[] = [
       c.expect(/^"use client";/.test(tkMentah.trimStart())
         && /import \{ useFormStatus \} from "react-dom";/.test(tk) && /const \{ pending \} = useFormStatus\(\);/.test(tk),
         "the button does not read its own form's status");
-      c.expect(/type="submit" disabled=\{pending \|\| disabled\} aria-busy=\{pending \? "true" : undefined\}/.test(tk) && /\{pending \? sibuk : children\}/.test(tk),
+      c.expect(/type="submit"\s+disabled=\{pending \|\| disabled\}\s+aria-busy=\{pending \? "true" : undefined\}/.test(tk) && /\{pending \? sibuk : tuntas \? /.test(tk) && /: children\}/.test(tk),
         "the button is not disabled, busy and worded while its form is being saved");
       c.expect(/sibuk: ReactNode;/.test(tk) && !/sibuk\?: ReactNode/.test(tk), "a TombolKirim may be written without its pending words");
       c.expect(/document\.addEventListener\("submit", jaga, true\)/.test(tk) && /e\.preventDefault\(\);\s*e\.stopImmediatePropagation\(\);/.test(tk)
@@ -10418,7 +10550,7 @@ export const experienceTests: SelfTest[] = [
 
       /**
        * 3. THE RESULT APPEARS WHERE THE ACTION WAS. The line is BarisHasil:
-       *    role="status", and it brings itself into view when it appears, so
+       *    role="status" (role="alert" when it failed, v3), and it brings itself into view when it appears, so
        *    after "Berikan peran" it is on screen without scrolling. Every
        *    section an action reports to has its line on the page it returns
        *    to (Studio: HasilDi naming the section, beside the form; Konfigurasi:
@@ -10426,7 +10558,8 @@ export const experienceTests: SelfTest[] = [
        *    from the address reaches the screen through nothing else.
        */
       const baris = code(baca("src", "components", "BarisHasil.tsx"));
-      c.expect(/role="status"/.test(baris) && !/role="alert"/.test(baris) && /className=\{`\$\{kelas \?\? "pin-msg pin-hasil"\} pin-hasil-\$\{nada\}`\}/.test(baris)
+      // v3 ActionFeedback (D-138 step 2): a status, except a failure, which is an alert
+      c.expect(/role=\{nada === "gagal" \? "alert" : "status"\}/.test(baris) && /className=\{`\$\{kelas \?\? "pin-msg pin-hasil"\} pin-hasil-\$\{nada\}`\}/.test(baris)
         && /useEffect\(\(\) => \{\s*baris\.current\?\.scrollIntoView\(\{ block: "nearest" \}\);\s*\}, \[\]\);/.test(baris),
         "BarisHasil is not a status that brings itself into view");
       const di = code(baca("src", "components", "HasilDi.tsx"));
