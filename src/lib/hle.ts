@@ -962,6 +962,11 @@ export type HleEvent =
   | "studio.bank.empiris"
   | "studio.bank.akui_ok"
   | "studio.bank.tindakan"
+  | "studio.bank.saring.untuk"
+  | "studio.bank.saring.semua"
+  | "studio.bank.saring.tombol"
+  | "studio.bank.saring.kosong"
+  | "studio.bank.kunci_alasan"
   | "studio.hasil.ok"
   | "studio.hasil.gagal"
   // BOB-07 (D-011): the stable codes' sentences (src/lib/galat-kontrak.ts)
@@ -1993,15 +1998,15 @@ const table: Table = {
   // terminology» while Dr Gladys's review continues): A1–A5 (the modes), N1 (TEST mode «Tes»), N2 (bank TEST «Asesmen»), N9 below
   "jenis.bank.TEST": { default: "Asesmen", en: "Assessment" },
   "jenis.bank.EXAM": { default: "Ujian", en: "Exam" },
-  "jenis.mode.PRE_TEST": { default: "Pemetaan Awal", en: "Initial mapping" },
-  "jenis.mode.POST_TEST": { default: "Uji Penguasaan", en: "Mastery check" },
-  "jenis.mode.QUICK": { default: "Uji Cepat", en: "Quick assessment" },
-  "jenis.mode.STANDALONE": { default: "Asesmen Mandiri", en: "Standalone assessment" },
+  "jenis.mode.PRE_TEST": { default: "Pemetaan Awal", en: "Initial Mapping" },
+  "jenis.mode.POST_TEST": { default: "Uji Penguasaan", en: "Mastery Check" },
+  "jenis.mode.QUICK": { default: "Uji Cepat", en: "Quick Assessment" },
+  "jenis.mode.STANDALONE": { default: "Asesmen Mandiri", en: "Standalone Assessment" },
   "jenis.mode.PRACTICE": { default: "Latihan", en: "Practice" },
   "jenis.mode.TEST": { default: "Tes", en: "Assessment" },
   "jenis.mode.EXAM": { default: "Ujian", en: "Exam" },
   "jenis.mode.PUBLIC_DEMO": { default: "Peragaan publik", en: "Public demonstration" },
-  "jenis.mode.PAPER": { default: "Tes di Kertas", en: "Paper sheet" },
+  "jenis.mode.PAPER": { default: "Tes di Kertas", en: "Paper Test" },
   "jenis.integritas.VISIBILITY_CHANGE": { default: "Berpindah dari layar penilaian", en: "Moved away from the assessment screen" },
   "jenis.integritas.NAVIGATION": { default: "Berpindah halaman", en: "Moved to another page" },
   "jenis.integritas.RECONNECT": { default: "Terputus lalu tersambung lagi", en: "Disconnected, then reconnected" },
@@ -2447,7 +2452,7 @@ const table: Table = {
   "tombol.memproses": { default: "Memproses…", en: "Working…" },
   "tombol.memeriksa": { default: "Memeriksa…", en: "Checking…" },
   "tombol.mengirim": { default: "Mengirim…", en: "Sending…" },
-  "tombol.menyediakan": { default: "Menyediakan…", en: "Assigning…" },
+  "tombol.menyediakan": { default: "Menyediakan…", en: "Making available…" },
   "tombol.memulai": { default: "Memulai…", en: "Starting…" },
   "tombol.mengaktifkan": { default: "Mengaktifkan…", en: "Activating…" },
   "tolak.kembali": { default: "Kembali ke Belajar", en: "Back to Learning" },
@@ -3509,6 +3514,12 @@ const table: Table = {
   "studio.bank.empiris": { default: "Dari pengerjaan siswa", en: "From student work" },
   "studio.bank.akui_ok": { default: "Sudah ditinjau, soal ini wajar", en: "Reviewed — this item is sound" },
   "studio.bank.tindakan": { default: "Sudah ditinjau, soal ini diperbaiki", en: "Reviewed — this item was corrected" },
+  // CR-52 (QN5, D-123): Bank Soal is browsed, narrowed and reviewed with each question's key and reasons
+  "studio.bank.saring.untuk": { default: "Dipakai untuk", en: "Used for" },
+  "studio.bank.saring.semua": { default: "Semua", en: "All" },
+  "studio.bank.saring.tombol": { default: "Tampilkan", en: "Show" },
+  "studio.bank.saring.kosong": { default: "Tidak ada soal yang cocok dengan pilihan ini.", en: "No question matches this choice." },
+  "studio.bank.kunci_alasan": { default: "Kunci dan alasan", en: "Key and reasons" },
   "studio.hasil.ok": { default: "Tersimpan.", en: "Saved." },
   "studio.hasil.gagal": { default: "Belum tersimpan.", en: "Not saved." },
   // BOB-07 (D-011): each code's sentence. Worded by Daisy (D-014) in the Studio's and Konfigurasi's own terms: a course,
@@ -4469,7 +4480,7 @@ const table: Table = {
   "mengajar.siap.kembali": { default: "Kembali ke pilihan materi", en: "Back to material choice" },
   "mengajar.instrumen.PRE_TEST": { default: "Pemetaan Awal", en: "Initial Mapping" },
   "mengajar.instrumen.POST_TEST": { default: "Uji Penguasaan", en: "Mastery Check" },
-  "mengajar.instrumen.STANDALONE": { default: "Asesmen mandiri", en: "Standalone assessment" },
+  "mengajar.instrumen.STANDALONE": { default: "Asesmen mandiri", en: "Standalone Assessment" },
   // DAISY-04. The fourth assessment mode had no label, so any class that had run an
   // Uji Cepat took the Siapkan page down with it (audit M7). D-015 names it.
   "mengajar.instrumen.QUICK": { default: "Uji Cepat", en: "Quick Assessment" },
@@ -4480,7 +4491,7 @@ const table: Table = {
   "mengajar.instrumen.TEST": { default: "Tes", en: "Test" },
   "mengajar.instrumen.EXAM": { default: "Ujian", en: "Exam" },
   "mengajar.instrumen.PUBLIC_DEMO": { default: "Demonstrasi", en: "Demonstration" },
-  "mengajar.instrumen.PAPER": { default: "Tes di kertas", en: "Paper test" },
+  "mengajar.instrumen.PAPER": { default: "Tes di kertas", en: "Paper Test" },
   // DAISY-04 (D-011): PINTAR's own error and not-found pages, never Next's English
   // defaults. Calm, no blame, no raw message; a short reference to pass on.
   "galat.judul": { default: "Maaf, halaman ini tidak bisa ditampilkan", en: "Sorry, this page could not be shown" },

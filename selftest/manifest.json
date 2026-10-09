@@ -2905,6 +2905,21 @@
       "proves": "L4 · CR-88 (RC-6 (3), FD-6): reads the SOURCE of the lesson player and Studio's preview (both import src/components/pelajaran/Halaman.tsx and keep no renderer of their own; the preview draws every page and every worked example's steps), and RENDERS PINTAR's own SD 5 lesson with the most sections through the shared renderer and through the player: it pages at its headings, the player's page is the shared page byte for byte, and a diagram directive is drawn as an SVG figure, never printed. Red on the code before L4 (the preview drew one flattened card and printed the directive)"
     },
     {
+      "id": "CR52-B01",
+      "runner": "static",
+      "proves": "CR-52 (QN5 as D-123 rules it; journey S23q) on Bank Soal, from its SOURCE and the band rule EXECUTED: a GET form narrows the list by use (bank) and by the author's difficulty band, whose stored range (rentangPita) holds exactly the values pitaKesulitan draws as that band at its edges; the newest and the waiting reads are narrowed alike; each choice is drawn in its words; each question shows its key and every option's reason only where the reader holds CAN_DRAFT in its school, read with the reader's own client under item_options' row security as the package page reads them (D-088(h)); nothing on the page writes a question. The live check is S23q."
+    },
+    {
+      "id": "CR92-P01",
+      "runner": "static",
+      "proves": "CR-92 from the SOURCE of src/app/perangkat/page.tsx and src/proxy.ts: «Komputer siapa ini?» asks sesi_periksa with this browser's identity (the pintar_perangkat cookie hashed by hashPerangkat, as the proxy asks it), so a browser already declared is found (perlu_pilih false) and the screen opens on the declared choice; «shared» is preselected only when nothing is declared. The database's own behaviour (perlu_pilih from device_contexts) is migration 20261117100000's, unchanged."
+    },
+    {
+      "id": "L4F6-K01",
+      "runner": "static",
+      "proves": "L4 finding 6 (CR-88) from the SOURCE of src/app/konfigurasi/page.tsx and the paging helper EXECUTED: Peran & akses draws 50 roles a page (satuHalaman over the whole read), each with its revoke form, with a page link (tautanHalaman, executed) that keeps the section and the other lists' pages; the school's readiness and its count of admins are still taken from every active role. The read itself stays whole; the live check is journey S24."
+    },
+    {
       "id": "L4-K01",
       "runner": "static",
       "proves": "L4 · CR-85 and CR-88 on the screens, from their SOURCE and the shared helpers EXECUTED: Aturan Penilaian asks the difficulty mix as one number per band in the band's word (no typed JSON) and its action builds the mix from them, draws the bank in its words, reads one page of rules at a time and opens a row's edit by «Ubah»; Bank Soal draws the predicted difficulty through pitaKesulitan, whose band rule (executed) is difficulty_band's; the integrity review names a sitting by learner, class and assessment and never by an id fragment; Konfigurasi's transfers and audit trail are one page at a time, a transfer on any page named from its own row (the re-review's N1); a saved rule edit opens no row and a refused one reopens it (N2); a page link (executed) keeps only the section, the school and the lists' pages, never a pending step or a one-time result (N4); the paging rule (executed) gives a page of UKURAN rows, a short last page and the first page for a bad request"

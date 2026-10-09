@@ -1,4 +1,4 @@
-import { pitaKesulitan } from "@/lib/unggah-kontrak";
+import { pitaKesulitan, rentangPita } from "@/lib/unggah-kontrak";
 import { redirect } from "next/navigation";
 import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -32,14 +32,30 @@ import { pilihanTinjauan, SEDANG_DITINJAU } from "@/lib/kesehatan-soal";
  * UNDER_REVIEW), and every item waiting on a reviewer in their schools is
  * listed whatever its age, not only when it is among the latest 40. Health is
  * read for exactly the items shown, not the first 200 rows.
+ *
+ * CR-52 (QN5, D-123): the bank is browsed, narrowed and reviewed. A plain GET
+ * form narrows the list by what a question is used for (its bank) and by the
+ * author's estimate of its difficulty (the same band pitaKesulitan draws).
+ * Each question shows its key and every option's reason, read exactly as the
+ * package page reads them (D-088(h)): with the reader's own client, under
+ * item_options' row security, and only where the reader holds CAN_DRAFT in
+ * that question's school. Nothing here writes a question.
  */
+const BANK = ["PRACTICE", "TEST", "EXAM"] as const;
+const PITA = ["MUDAH", "SEDANG", "SULIT"] as const;
+type Saringan = {
+  eq(kolom: string, nilai: string): Saringan;
+  lte(kolom: string, nilai: number): Saringan; gt(kolom: string, nilai: number): Saringan;
+  lt(kolom: string, nilai: number): Saringan; gte(kolom: string, nilai: number): Saringan;
+};
+type Opsi = { item_id: string; label: string; body: string; is_correct: boolean; rationale: string };
 const LABEL_TINJAUAN = {
   UNDER_REVIEW: "studio.bank.kesehatan",
   ACKNOWLEDGED_OK: "studio.bank.akui_ok",
   ACTION_TAKEN: "studio.bank.tindakan",
 } as const;
 
-type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; bank?: string; tingkat?: string }>;
 
 export default async function Bank({ searchParams }: { searchParams: Search }) {
   // CR-87: a tab not this person's sends them to Studio's home (src/lib/studio-tab.ts); the database still decides
@@ -52,11 +68,24 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
   const institutions = await studioInstitutions();
   const mayReview = institutions.filter((i) => i.capabilities.includes("CAN_REVIEW_QUESTION_HEALTH"));
 
+  // CR-52: the two narrowing choices, each only one of its known values
+  const bank = (BANK as readonly string[]).includes(sp.bank ?? "") ? sp.bank! : "";
+  const tingkat = (PITA as readonly string[]).includes(sp.tingkat ?? "") ? sp.tingkat! : "";
+  const pita = rentangPita(tingkat);
+  const saring = <T,>(q: T): T => {
+    let x = q as unknown as Saringan;
+    if (bank) x = x.eq("bank_type", bank);
+    if (pita?.lte !== undefined) x = x.lte("predicted_difficulty", pita.lte);
+    if (pita?.gt !== undefined) x = x.gt("predicted_difficulty", pita.gt);
+    if (pita?.lt !== undefined) x = x.lt("predicted_difficulty", pita.lt);
+    if (pita?.gte !== undefined) x = x.gte("predicted_difficulty", pita.gte);
+    return x as unknown as T;
+  };
   const kolom = "id, stem, bank_type, predicted_difficulty, empirical_difficulty, empirical_discrimination, empirical_evidence_count, institution_id, supersedes_item_id";
   type Sehat = { item_id: string; state: string; evidence_count: number };
   const [{ data: terbaru }, { data: menunggu }] = await Promise.all([
     // L3 (D-127 Q2): the working context's school only (studioInstitutions is narrowed to it)
-    supabase.from("items").select(kolom).in("institution_id", institutions.map((i) => i.id))
+    saring(supabase.from("items").select(kolom).in("institution_id", institutions.map((i) => i.id)))
       .order("created_at", { ascending: false }).limit(40),
     // BOB-41: every item waiting on a reviewer in their schools, whatever its age
     mayReview.length
@@ -68,13 +97,28 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
   const dilihat = new Set(baru.map((i) => i.id));
   const lamaIds = ((menunggu ?? []) as Sehat[]).map((h) => h.item_id).filter((id) => !dilihat.has(id));
   const { data: lama } = lamaIds.length
-    ? await supabase.from("items").select(kolom).in("id", lamaIds).order("created_at", { ascending: false })
+    ? await saring(supabase.from("items").select(kolom).in("id", lamaIds)).order("created_at", { ascending: false })
     : { data: [] };
   const items = [...baru, ...(lama ?? [])];
   // health for exactly the items shown
   const { data: health } = items.length
     ? await supabase.from("question_health").select("item_id, state, evidence_count, note").in("item_id", items.map((i) => i.id))
     : { data: [] };
+
+  // CR-52: each question's key and reasons, for the schools where this reader holds CAN_DRAFT (D-088(h)); the
+  // database's row security decides again, and reads a hundred questions at a time as the package page does
+  const bolehKunci = new Set(institutions.filter((i) => i.capabilities.includes("CAN_DRAFT")).map((i) => i.id));
+  const denganKunci = items.filter((i) => bolehKunci.has(i.institution_id)).map((i) => i.id);
+  const opsi: Opsi[] = [];
+  for (let k = 0; k < denganKunci.length; k += 100) {
+    const { data } = await supabase.from("item_options").select("item_id, label, body, is_correct, rationale")
+      .in("item_id", denganKunci.slice(k, k + 100));
+    opsi.push(...((data ?? []) as Opsi[]));
+  }
+  const opsiPerSoal = new Map<string, Opsi[]>();
+  for (const o of [...opsi].sort((a, b) => a.label.localeCompare(b.label))) {
+    opsiPerSoal.set(o.item_id, [...(opsiPerSoal.get(o.item_id) ?? []), o]);
+  }
 
   const healthByItem = new Map(((health ?? []) as Sehat[]).map((h) => [h.item_id, h]));
   const banner = outcomeLine(sp);
@@ -86,8 +130,27 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
       {/* DAISY-18: one form per item; the answer heads the list it came from */}
       <HasilDi q={sp} bagian="kesehatan" kalimat={banner} />
 
+      {/* CR-52: narrow the list; a GET form, so the choice is in the address and the list is read again */}
+      <form method="get" action="/studio/bank" className="flex flex-wrap items-end gap-2">
+        <label className={label}>
+          <span>{s("studio.bank.saring.untuk")}</span>
+          <select className={field} name="bank" defaultValue={bank}>
+            <option value="">{s("studio.bank.saring.semua")}</option>
+            {BANK.map((b) => <option key={b} value={b}>{enumLabel("bank", b)}</option>)}
+          </select>
+        </label>
+        <label className={label}>
+          <span>{s("studio.bank.prediksi")}</span>
+          <select className={field} name="tingkat" defaultValue={tingkat}>
+            <option value="">{s("studio.bank.saring.semua")}</option>
+            {PITA.map((p) => <option key={p} value={p}>{s(`mengajar.cepat.tingkat.${p}`)}</option>)}
+          </select>
+        </label>
+        <button type="submit" className={button}>{s("studio.bank.saring.tombol")}</button>
+      </form>
+
       {items.length === 0 ? (
-        <p className={card}>{s("studio.paket.kosong")}</p>
+        <p className={card}>{s(bank || tingkat ? "studio.bank.saring.kosong" : "studio.paket.kosong")}</p>
       ) : (
         <ul className="grid gap-2">
           {items.map((i) => {
@@ -104,6 +167,20 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
                   {/* L4 (CR-85): the author's word for it (FD-5's scale), not the number underneath */}
                   {s("studio.bank.prediksi")}: {pitaKesulitan(i.predicted_difficulty) ? s(`mengajar.cepat.tingkat.${pitaKesulitan(i.predicted_difficulty)!}`) : "—"}
                 </p>
+                {(opsiPerSoal.get(i.id) ?? []).length > 0 ? (
+                  <details className="mt-2">
+                    <summary className="cursor-pointer text-sm font-medium">{s("studio.bank.kunci_alasan")}</summary>
+                    <ul className="mt-2 grid gap-1">
+                      {(opsiPerSoal.get(i.id) ?? []).map((o) => (
+                        <li key={o.label} className={o.is_correct ? "pin-opsi pin-opsi-kunci" : "pin-opsi"}>
+                          <span className={o.is_correct ? "font-semibold" : undefined}>{o.label}. <TeksBaris teks={o.body} /></span>
+                          {o.is_correct ? <span className="ml-2 text-xs font-semibold">· {s("studio.soal.kunci")}</span> : null}
+                          <p className="text-sm text-ink-2">{s("studio.soal.alasan")}: <TeksBaris teks={o.rationale} /></p>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : null}
                 {hasEmpirical ? (
                   <p className="mt-1 text-sm text-ink-2">
                     {s("studio.bank.empiris")}: {i.empirical_difficulty} · {i.empirical_evidence_count}

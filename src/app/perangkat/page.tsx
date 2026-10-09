@@ -1,8 +1,10 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { t } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
-import { bacaPenjagaan } from "@/lib/penjaga-sesi-kontrak";
+import { bacaPenjagaan, COOKIE_PERANGKAT } from "@/lib/penjaga-sesi-kontrak";
+import { hashPerangkat } from "@/lib/penjaga-sesi";
 import { tujuanInternal } from "@/lib/tujuan";
 import MerekPintar from "@/components/MerekPintar";
 import PengalihBahasa from "@/components/PengalihBahasa";
@@ -25,7 +27,10 @@ export default async function Perangkat({ searchParams }: { searchParams: Promis
   const supabase = await supabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/masuk");
-  const { data, error } = await supabase.rpc("sesi_periksa");
+  // CR-92: asked with this browser's own identity, as the proxy asks, so a browser already declared opens on its choice
+  // (without it the database cannot find the declaration and answers «not chosen yet», which preselected «shared»)
+  const alat = (await cookies()).get(COOKIE_PERANGKAT)?.value;
+  const { data, error } = await supabase.rpc("sesi_periksa", { p_perangkat: hashPerangkat(alat) });
   const jaga = error ? null : bacaPenjagaan(data);
   if (!jaga || jaga.keadaan !== "BUKA" || (jaga.mode !== "SHARED" && jaga.mode !== "PERSONAL")) redirect(tujuan);
   return (

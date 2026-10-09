@@ -1,7 +1,7 @@
 import Link from "next/link";
 import TandaTautan from "@/components/TandaTautan";
 import { t, format, allKeys, type HleEvent } from "@/lib/hle";
-import Penomoran, { UKURAN, halamanDiminta, rentang, tautanHalaman } from "@/components/koleksi/Penomoran";
+import Penomoran, { UKURAN, halamanDiminta, rentang, satuHalaman, tautanHalaman } from "@/components/koleksi/Penomoran";
 
 // L4 (CR-88): the audit trail's page is the newest 50, the size CR-39 (J1.6) reads; other staff lists are 20 a page
 const UKURAN_JEJAK = 50;
@@ -67,6 +67,8 @@ const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "—");
 const TANPA_NAMA = "\u2014";
 // FD-4: each person's name travels with the row that names them (the foreign key says which person)
 const KOLOM_PINDAH = "id, person_id, from_institution_id, to_institution_id, status, reason, created_at, persons!transfers_person_id_fkey(display_name)";
+/** L4 finding 6: roles drawn a page at a time (the size the audit trail uses) */
+const UKURAN_PERAN = 50;
 const KOLOM_PERAN = "id, person_id, role, scope_node_id, institution_id, valid_until, revoked_at, persons!role_assignments_person_id_fkey(display_name)";
 const namaDari = (v: unknown): string | null => {
   const o = (Array.isArray(v) ? v[0] : v) as { display_name?: unknown } | null | undefined;
@@ -100,7 +102,7 @@ type SearchParams = Promise<{
   // D-101 (2): «Admin sekolah» named on Peran & akses, waiting for its second press
   angkat?: string; lingkup?: string; sampai?: string; pertama?: string;
   // L4 (CR-88): the page of each bounded list
-  hal_pindah?: string; hal_jejak?: string;
+  hal_pindah?: string; hal_jejak?: string; hal_peran?: string;
 }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
@@ -274,6 +276,10 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
       : await supabase.from("transfers").select(KOLOM_PINDAH).order("created_at", { ascending: false }).order("id").range(...rentang(halPindah));
   const daftarPindah = (pindahHalaman ?? []).slice(0, UKURAN);
   const lagiPindah = (pindahHalaman ?? []).length > UKURAN;
+  // L4 finding 6 (CR-88): Peran & akses draws one page of roles, each with its revoke form; the read stays whole,
+  // because the school's readiness and its count of admins below are taken from every active role
+  const halPeran = halamanDiminta(sp.hal_peran);
+  const { isi: daftarPeran, lagi: lagiPeran } = satuHalaman(assignments ?? [], halPeran, UKURAN_PERAN);
   const namaPindah = new Map(daftarPindah.map((x) => [String(x.person_id), namaDari(x.persons)] as const)
     .filter((x): x is readonly [string, string] => typeof x[1] === "string"));
   // L4 (CR-85): a transfer names the other school too; in a school's context only that school was read above
@@ -1143,7 +1149,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           <section id="roles" className={card}>
             <h2 className="font-medium">{s("config.section.roles")}</h2>
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
-              {(assignments ?? []).map((a) => (
+              {daftarPeran.map((a) => (
                 // CR-94: below 640 px the revoke form wraps below the name instead of past the window; wider, as before
                 <li key={a.id} className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
                   <span>
@@ -1162,8 +1168,9 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   )}
                 </li>
               ))}
-              {(assignments ?? []).length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
+              {daftarPeran.length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
+            <Penomoran halaman={halPeran} lagi={lagiPeran} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_peran", n, "roles")} />
             {angkat ? (
               <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" role="group" aria-labelledby="pin-angkat">
                 <h3 id="pin-angkat" className="font-medium">{s("config.angkat.judul")}</h3>

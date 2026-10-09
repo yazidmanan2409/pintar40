@@ -51,6 +51,10 @@ export function pitaKesulitan(p: number | null | undefined): "MUDAH" | "SEDANG" 
   if (p === null || p === undefined || Number.isNaN(Number(p))) return null;
   return Number(p) <= 0.4 ? "MUDAH" : Number(p) >= 0.7 ? "SULIT" : "SEDANG";
 }
+/** CR-52: the stored range of one band, as pitaKesulitan draws it, so a list can be narrowed to it in the query. */
+export function rentangPita(pita: string | null | undefined): { lte?: number; gt?: number; lt?: number; gte?: number } | null {
+  return pita === "MUDAH" ? { lte: 0.4 } : pita === "SEDANG" ? { gt: 0.4, lt: 0.7 } : pita === "SULIT" ? { gte: 0.7 } : null;
+}
 /** Sent to the database as the label itself; the database decides what each means. */
 export const KONTEKS = [["Akademik", "Akademik"], ["Pengembangan profesi", "Pengembangan profesi"]] as const;
 export const TINGKAT_BERPIKIR = [

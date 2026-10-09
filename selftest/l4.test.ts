@@ -185,4 +185,83 @@ export const l4Tests: SelfTest[] = [
         + `transfers and audit trail are one page at a time, a transfer on any page named from its own row; a saved edit opens no row, a refused one reopens it; a page link keeps only the section, the school and the pages; the paging rule holds (${UKURAN} a page, the last page short, a bad page asked for is the first)`);
     },
   },
+  {
+    // CR-52 (QN5 as D-123 rules it; journey S23q): Bank Soal is browsed, narrowed and reviewed with the key and reasons,
+    // and nothing on it writes a question
+    id: "CR52-B01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const { pitaKesulitan, rentangPita } = await import("../src/lib/unggah-kontrak");
+      // the band a list is narrowed to holds exactly the values pitaKesulitan draws as that band (executed)
+      const dalam = (v: number, r: ReturnType<typeof rentangPita>) => !!r && (r.lte === undefined || v <= r.lte)
+        && (r.gt === undefined || v > r.gt) && (r.lt === undefined || v < r.lt) && (r.gte === undefined || v >= r.gte);
+      const nilai = [0, 0.2, 0.4, 0.4001, 0.55, 0.6999, 0.7, 0.85, 1];
+      const salah = nilai.flatMap((v) => (["MUDAH", "SEDANG", "SULIT"] as const)
+        .filter((b) => dalam(v, rentangPita(b)) !== (pitaKesulitan(v) === b)).map((b) => `${v}→${b}`));
+      c.expect(salah.length === 0 && rentangPita("") === null && rentangPita("X") === null, `a band's range disagrees with pitaKesulitan: ${salah.join(", ")}`);
+      const bank = code(readFileSync(join(repoRoot, "src", "app", "studio", "bank", "page.tsx"), "utf8"));
+      // FILTER: a GET form with the two choices; both the newest list and the waiting list are narrowed the same way
+      c.expect(/<form method="get" action="\/studio\/bank"/.test(bank) && /<select className=\{field\} name="bank"/.test(bank)
+        && /<select className=\{field\} name="tingkat"/.test(bank), "Bank Soal has no way to narrow the list");
+      c.expect((bank.match(/saring\(supabase\.from\("items"\)/g) ?? []).length === 2, "the bank's two reads are not narrowed alike");
+      c.expect(/\{enumLabel\("bank", b\)\}/.test(bank) && /s\(`mengajar\.cepat\.tingkat\.\$\{p\}`\)/.test(bank), "a choice is drawn as its raw value");
+      // REVIEW: the key and every option's reason, read under the reader's row security, only where they hold CAN_DRAFT
+      c.expect(/capabilities\.includes\("CAN_DRAFT"\)/.test(bank) && /from\("item_options"\)\.select\("item_id, label, body, is_correct, rationale"\)/.test(bank)
+        && /"pin-opsi pin-opsi-kunci"/.test(bank) && /s\("studio\.soal\.alasan"\)/.test(bank),
+        "a question's key and reasons are not on the bank, or not gated as the package page's are (D-088(h))");
+      c.expect(!/service|createClient|SERVICE_ROLE/.test(bank), "the bank reads keys with anything but the reader's own client");
+      // NO AUTHORING: nothing writes a question
+      c.expect(!/<textarea/.test(bank) && !/\.(insert|update|upsert|delete)\(/.test(bank) && !/name="(stem|opsi|kunci)"/.test(bank),
+        "something on the bank writes a question");
+      return c.verdict("Bank Soal narrows its list by use and by the author's difficulty band with a GET form (the band's range "
+        + "executed against pitaKesulitan at its edges), narrows its newest and its waiting reads alike, draws each choice in "
+        + "its words, shows each question's key and every option's reason only where the reader holds CAN_DRAFT, read with "
+        + "the reader's own client under row security as the package page reads them (D-088(h)), and writes no question");
+    },
+  },
+  {
+    // CR-92: «Komputer siapa ini?» opened from Akun saya opens on the choice this browser holds
+    id: "CR92-P01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const hal = code(readFileSync(join(repoRoot, "src", "app", "perangkat", "page.tsx"), "utf8"));
+      const proxy = code(readFileSync(join(repoRoot, "src", "proxy.ts"), "utf8"));
+      // the page asks the session check with this browser's identity, read and hashed exactly as the proxy does it
+      c.expect(/\(await cookies\(\)\)\.get\(COOKIE_PERANGKAT\)\?\.value/.test(hal)
+        && /rpc\("sesi_periksa", \{ p_perangkat: hashPerangkat\(alat\) \}\)/.test(hal),
+        "/perangkat asks sesi_periksa without this browser's identity, so a browser already declared reads as not chosen yet");
+      c.expect(/request\.cookies\.get\(COOKIE_PERANGKAT\)/.test(proxy) && /p_perangkat: kartu \? null : hashPerangkat\(alat\)/.test(proxy),
+        "the proxy no longer reads the browser's identity the way the page now does");
+      // and the screen opens on that answer: «shared» only when nothing is declared yet
+      c.expect(/awal=\{jaga\.perluPilih \? "SHARED" : jaga\.mode\}/.test(hal), "the screen's preselected choice is not the declared one");
+      return c.verdict("/perangkat asks sesi_periksa with this browser's identity (the pintar_perangkat cookie, hashed by "
+        + "hashPerangkat, as src/proxy.ts asks it), so a browser already declared is found and the screen opens on its "
+        + "declared choice; «shared» is preselected only when nothing is declared");
+    },
+  },
+  {
+    // L4 finding 6 (CR-88): Peran & akses draws one page of roles, each with its revoke form; the counts stay whole
+    id: "L4F6-K01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const konf = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
+      c.expect(/const UKURAN_PERAN = 50;/.test(konf)
+        && /const \{ isi: daftarPeran, lagi: lagiPeran \} = satuHalaman\(assignments \?\? \[\], halPeran, UKURAN_PERAN\);/.test(konf)
+        && /\{daftarPeran\.map\(\(a\) => \(/.test(konf) && !/\{\(assignments \?\? \[\]\)\.map\(/.test(konf),
+        "Peran & akses still draws every active role, each with a revoke form");
+      c.expect(/<Penomoran halaman=\{halPeran\} lagi=\{lagiPeran\} ke=\{\(n\) => tautanHalaman\("\/konfigurasi", sp, "hal_peran", n, "roles"\)\} \/>/.test(konf),
+        "the roles list has no way to its next page");
+      c.expect(/persiapanSekolah\(struktur\.rows, \(assignments \?\? \[\]\)/.test(konf) && /jumlahAdminSekolah\(\(assignments \?\? \[\]\)/.test(konf),
+        "the school's readiness or its admin count is no longer taken from every active role");
+      const { tautanHalaman } = await import("../src/components/koleksi/halaman");
+      const t = tautanHalaman("/konfigurasi", { bagian: "roles", hal_jejak: "2", hasil: "ok" }, "hal_peran", 3, "roles");
+      c.expect(t === "/konfigurasi?bagian=roles&hal_jejak=2&hal_peran=3#roles", `a roles page link keeps the wrong parameters: ${t}`);
+      return c.verdict("Peran & akses draws 50 roles a page (satuHalaman over the whole read), each with its revoke form, "
+        + "with a page link that keeps the section and the other lists' pages; the school's readiness and its count of admins "
+        + "are still taken from every active role");
+    },
+  },
 ];
