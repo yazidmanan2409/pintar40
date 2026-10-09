@@ -33,7 +33,7 @@ export default async function EmailUji() {
   if (sistem !== true) {
     return (
       <HalamanPenolakan messageKey="emailuji.ditolak" persona="staff" locale={locale}
-        backHref="/" backKey="entry.title" />
+        backHref="/" backKey="galat.beranda" />
     );
   }
 

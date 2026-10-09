@@ -26,7 +26,7 @@ export default async function EvaluationHubPage({
       <main className="mx-auto max-w-md py-16">
         <h1 className="text-2xl font-semibold tracking-tight">{e("evaluasi.judul")}</h1>
         <p className="mt-4 text-ink-2">{e("evaluasi.refused")}</p>
-        <p className="mt-6"><Link href="/">← {e("entry.title")}</Link></p>
+        <p className="mt-6"><Link href="/">← {e("galat.beranda")}</Link></p>
       </main>
     );
   }

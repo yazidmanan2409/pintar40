@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Ikon from "@/components/Ikon";
 import { notFound } from "next/navigation";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -89,6 +90,7 @@ export default async function Lanjut({ params }: { params: Promise<{ tugas: stri
         {/* M3 (W4): a learner below the target is never told only that everything is done */}
         {target === "BELUM" ? (
           <div className="pin-banner pin-attention pin-target" role="status" data-target="belum">
+            <Ikon nama="triangle-alert" />
             <p><strong>{s("hasil.target.belum")}</strong> {s("siklus.target.lanjut_belum")}</p>
             <p><Link href={`/belajar/${tugas}/hasil#ulang`}>{s("siklus.target.lihat_ulang")}</Link></p>
           </div>

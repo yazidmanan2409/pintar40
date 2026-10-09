@@ -33,7 +33,7 @@ export default async function StudioLayout({ children }: { children: React.React
         persona="staff"
         locale={locale}
         backHref="/"
-        backKey="entry.title"
+        backKey="galat.beranda"
       />
     );
   }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Ikon from "@/components/Ikon";
 import { notFound } from "next/navigation";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -92,10 +93,12 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
         {/* M3: whether the target was met, said plainly; below it, what to read again. */}
         {target === "TERCAPAI" ? (
           <div className="pin-banner pin-ok pin-target" role="status" data-target="tercapai">
+            <Ikon nama="circle-check" />
             <p><strong>{s("hasil.target.tercapai")}</strong> {s("hasil.target.tercapai_arti")}</p>
           </div>
         ) : target === "BELUM" ? (
           <div className="pin-banner pin-attention pin-target" role="status" data-target="belum" id="ulang">
+            <Ikon nama="triangle-alert" />
             <p><strong>{s("hasil.target.belum")}</strong> {s("hasil.target.belum_arti")}</p>
             {ulang.length > 0 ? (
               <>
@@ -119,6 +122,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
         {/* The feedback on the safety gate, when there is one. */}
         {gate != null ? (
           <div className={`pin-banner ${gate ? "pin-ok" : "pin-attention"}`} role="status">
+            <Ikon nama={gate ? "circle-check" : "triangle-alert"} />
             <p>{gate ? s("hasil.safety.ok") : s("hasil.safety.missed")}</p>
           </div>
         ) : null}

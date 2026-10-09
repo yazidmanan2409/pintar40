@@ -80,14 +80,14 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
               <form action={recordIntegrityReviewAction} id={`integritas-${session}`} className="mt-3 flex flex-wrap items-end gap-2">
                 <input type="hidden" name="sinyal" value={group[0].id} />
                 <label className={label}>
-                  <span>{s("studio.integritas.catat")}</span>
+                  <span>{s("studio.integritas.tindak")}</span>
                   <select className={field} name="keputusan" defaultValue="NO_CONCERN">
                     {["NO_CONCERN", "DISCUSSED_WITH_LEARNER", ...(group[0].may_refer ? ["REFERRED_TO_INSTITUTION"] : [])].map((d) => (
                       <option key={d} value={d}>{s(`studio.integritas.${d}` as never)}</option>
                     ))}
                   </select>
                 </label>
-                <input className={field} name="catatan" placeholder="catatan" />
+                <label className={label}><span>{s("studio.paket.catatan")}</span><input className={field} name="catatan" /></label>
                 <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.integritas.catat")}</TombolKirim>
               </form>
               <SimpanIsian form={`integritas-${session}`} ditolak={ditolak("integritas")} pemilik={pemilik} />

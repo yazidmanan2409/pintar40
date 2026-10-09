@@ -29,14 +29,16 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
 |---|---|---|---|---|
 | 1 | Tokens (v3 in `globals.css`, v2 names as aliases) | built and verified locally (643eb9e); not on staging | every page: the v2 type sizes now resolve to v3 (13 → 14, 17 and 20 → 18, 24 → 22), except the frozen certificate, which keeps every size (fixed in ce1ba94 after review) | See «Step 1» below |
 | 2 | Primitives (Button, fields, segmented control, tabs, badges, result line, alert) + target-size guard | built (26a288b; fixes 3ded8bd, ce1ba94, 95b1209); review AMBER, findings addressed; verified locally on 95b1209; not on staging | every page with a button, field, select, segmented control, view tabs, the language switch, the question navigator, a result line | See «Step 2» below |
-| 3 | Shells (staff left navigation, learner top bar) | not started | | |
-| 4a | Surfaces: learner (Belajar, lesson, assessments, result, certificates) | not started | | |
-| 4b | Surfaces: teacher (Mengajar) | not started | | |
-| 4c | Surfaces: Pimpinan | not started | | |
-| 4d | Surfaces: Konfigurasi | not started | | |
-| 4e | Surfaces: Pendataan, Aktivasi | not started | | |
-| 4f | Surfaces: Studio | not started | | |
-| 5 | Copy (the copy owed, `11-validation.md` §4) | not started | | |
+| 3 | Shells (staff left navigation, learner top bar) | built (9fc1ca5, tests restated in the step 4–5 commit); local verification in «Steps 3–5» below; not on staging | every staff page (Mengajar, Pimpinan, Pendataan, Aktivasi, Konfigurasi and its sub-pages, Studio, an educator's own learning) | See «Steps 3–5» |
+| 4a | Surfaces: learner (Belajar, lesson, assessments, result, certificates) | PARTIAL: the v3 components their screens use (Alert with icon on result, continue and certificate banners; result line; type ladder) | as named | See «Steps 3–5» |
+| 4b | Surfaces: teacher (Mengajar) | PARTIAL: Disclosure chevron on the class evidence, pending dot, type ladder | as named | |
+| 4c | Surfaces: Pimpinan | PARTIAL: Disclosure chevron, the decision card's waiting state in words, the assessed-population heading over the readiness bands (CR-81), type ladder | as named | |
+| 4d | Surfaces: Konfigurasi | PARTIAL: Jejak audit in words (DG-11), transfers by named selects (CR-41, partial), report templates by title, «sintetis» only for the platform, data table sticky head and stripes | as named | |
+| 4e | Surfaces: Pendataan, Aktivasi | PARTIAL: the shell, the back links (F18), the data table | as named | |
+| 4f | Surfaces: Studio | PARTIAL: Aturan Asesmen labelled and in words (DG-28, DG-29), integrity «Tindak lanjut», Terbitkan's own busy word | as named | |
+| 5 | Copy (the copy owed, `11-validation.md` §4; Terminology v1 under D-134 and D-138(c)) | built: the §4 rows owed (CR-50, CR-13, CR-76, CR-81, and the four single keys) and the approved v1 change set in the copy table; OPEN items listed below | every page | See «Steps 3–5» |
+
+"PARTIAL" means the step's components are applied where their screens use them, and the pass did not redraw those screens' composition. Nothing in 08-migration.md asks for a recomposition (it is a component map); what is not applied is listed under «Deviations and open items».
 
 ## Step 1 · Tokens (643eb9e)
 
@@ -106,6 +108,20 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
   - journeys 75 PASS, BD11 BLOCKED locally (no Firefox or WebKit).
 - **320 px screenshots:** all 389 pages captured on 3ded8bd and kept (AP-3). One observation goes to step 3: at 320 px the staff header stacks into five rows (place, language switch, «Laporkan masalah», identity, tabs). That header is what the shell step replaces.
 - **Not yet:** CI, staging.
+
+## Deviations and open items (D-140(a): what cannot be closed stays open, with its reason)
+
+| # | Item | State | Reason and evidence |
+|---|---|---|---|
+| OP-1 | AppShell's icon rail at 1024–1279 px, and the reader collapsing into it | OPEN (deviation) | Step 3 draws the full 248 px navigation from 1024 px up and the top bar with its menu below. The rail needs a collapse control and its own tooltip behaviour that no PINTAR screen has yet; drawing it without them would hide the words. The navigation works at every width (crawl, 320 and 1280 px). |
+| OP-2 | Navigation group labels (AppShell draws places in labelled groups) | OPEN (deviation) | Since L3 a shell shows one working context's places only, so there is one group; a label over a single group says nothing. Recorded rather than drawn. |
+| OP-3 | The canonical wordmark's outlined master (AP-1) | BLOCKED | Waits on the font licence check (CR-56), outside engineering. Today's logo stays. |
+| OP-4 | CR-41, transfers chosen from named lists | PARTIAL | The form now offers named selects for the institutions, periods and programmes the reader may read. A school administrator cannot see other schools, so the destination school of an outgoing transfer cannot be offered by name to them. Offering it would need a cross-school directory, which is an authorization decision (D-010, L3), not a UI one. Not invented. |
+| OP-5 | Terminology v1 rows whose text lives in migrations or seeds: C29, C30 (Studio findings), D23 (a finding's location), C31 and B15/B16 (seed labels and names) | OPEN | D-068(f): strings held in migrations or seeds need a migration of their own. A copy pass does not rewrite database functions. The screens show these strings as the database returns them. |
+| OP-6 | «penilaian» strings added to the copy table after the v1 inventory (29 Sep) | OPEN | v1's change set names rows by the inventory; strings written after it have no row. Where «penilaian» means the assessment object, D-068 ruling 4 suggests «asesmen», but applying it to an unlisted string is a terminology decision. Kept for Dr Gladys's review. |
+| OP-7 | The bank's empirical-difficulty wording (Studio, Bank soal) | OPEN, for Dr Gladys | An educational-measurement term with no v1 entry. Not invented (D-140(c)). |
+| OP-8 | The tour veil | DECIDED here, recorded | Two approved instruments disagree. Sauron's ruling (§O-2) made the veil a primary-soft composite. The frozen design (08-migration.md, Containers; Yazid's question 5, 5 Oct) gives the tour Dialog's layer tokens: `scrim`, `radius-lg`, `shadow-dialog`, "the spotlight stays". The later, specific, frozen instruction is applied (D-138(c): the design is the authority). UX1-TUR-TUNTUN-01 restated, with the old composite shown red. The guidance ground and the ring are unchanged. |
+| OP-9 | Staff bar under 1024 px: the reader's name and «Akun saya» move into the menu | DECIDED here, recorded | AppShell's top bar keeps «Keluar» visible at every width (D-009). The name and «Akun saya» show when the menu opens. DAISY-02-KELUAR-01 restated: nothing may hide the strip or its way out, and only these two parts may be hidden, only on the staff bar, only where the opened menu shows them again (a planted `.pin-sesi { display: none }` is red). |
 
 ## Unresolved defects
 

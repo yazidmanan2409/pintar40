@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Ikon from "@/components/Ikon";
 import { redirect } from "next/navigation";
 import { t, type HleEvent } from "@/lib/hle";
 import { appUrl } from "@/lib/env";
@@ -149,6 +150,7 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
 
         {detail.status === "REVOKED" ? (
           <div className="pin-banner pin-neutral pin-noprint" role="status">
+            <Ikon nama="info" />
             <h2>{s("sertifikat.dicabut.judul")}</h2>
             <p>{s("sertifikat.dicabut.arti")}</p>
             <p>{s("sertifikat.dicabut.bantuan")}</p>
@@ -157,6 +159,7 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
 
         {detail.status === "SUPERSEDED" ? (
           <div className="pin-banner pin-info pin-noprint" role="status">
+            <Ikon nama="info" />
             <h2>{s("sertifikat.digantikan.judul")}</h2>
             <p>{s("sertifikat.digantikan.arti")}</p>
             {replacement?.verification_token ? (

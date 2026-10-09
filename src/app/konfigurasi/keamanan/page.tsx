@@ -35,7 +35,7 @@ export default async function Keamanan() {
       : Promise.resolve({ data: [] as Array<{ id: string }> }),
   ]);
   if (!saya || (sistem !== true && (adminSekolah ?? []).length === 0)) {
-    return <HalamanPenolakan messageKey="keamanan.ditolak" persona="staff" locale={locale} backHref="/" backKey="entry.title" />;
+    return <HalamanPenolakan messageKey="keamanan.ditolak" persona="staff" locale={locale} backHref="/" backKey="galat.beranda" />;
   }
   const { data } = sistem === true ? await supabase.rpc("security_event_list", { p_limit: 50 }) : { data: null };
   const baris = ((Array.isArray(data) ? data : []) as Array<{ at: string; action: string; pintar_id: string | null }>)

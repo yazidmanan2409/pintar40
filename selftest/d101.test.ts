@@ -281,7 +281,8 @@ export const d101Tests: SelfTest[] = [
         "Keamanan akun is not open to a School Admin, or shows a School Admin the security record");
       const konf = tanpaKomentar(baca("src/app/konfigurasi/page.tsx"));
       // L3 (D-132 C7): Keamanan in «Seluruh platform» (the Platform Admin) and in a school's context (its School Admin)
-      c.expect(/\(platformIni \|\| sekolahIni\.length > 0\) \? <Link href="\/konfigurasi\/keamanan"/.test(konf),
+      // (D-138 step 3: a place in the staff navigation is an ItemNav, a Link with its icon)
+      c.expect(/\(platformIni \|\| sekolahIni\.length > 0\) \? <(?:Link|ItemNav) href="\/konfigurasi\/keamanan"/.test(konf),
         "Konfigurasi does not link a School Admin to Keamanan akun");
       // L3: «Admin sekolah» in a school's context (an evaluation persona as before); Admin platform in «Seluruh platform» alone
       c.expect(/\.\.\.\(sekolahIni\.length > 0 \|\| \(lama && isSys === true\) \? \["INSTITUTION_ADMIN"\] : \[\]\), \.\.\.\(platformIni \? \["SYSTEM_ADMIN"\] : \[\]\)/.test(konf),

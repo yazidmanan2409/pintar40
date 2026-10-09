@@ -229,7 +229,8 @@ export const bob51Tests: SelfTest[] = [
         "the page does not ask is_system_admin and refuse everyone else");
       const konf = baca("src/app/konfigurasi/page.tsx");
       // L3 (D-132 C7): the link is «Seluruh platform»'s (platformIni: Admin platform in that context; a persona as before)
-      c.expect(/\{platformIni \? <Link href="\/konfigurasi\/email-uji"/.test(konf), "Konfigurasi does not link the page for the platform admin alone");
+      // (D-138 step 3: a place in the staff navigation is an ItemNav, a Link with its icon)
+      c.expect(/\{platformIni \? <(?:Link|ItemNav) href="\/konfigurasi\/email-uji"/.test(konf), "Konfigurasi does not link the page for the platform admin alone");
       return c.verdict(`every answer the route can give (${galatRute.length} codes, ${alasan.length} reasons, ${kodePengaturan.length} setting codes, a sent proof, `
         + `no answer) reads as its own sentence, in both languages (${kunci.size} sentences); a setting is shown by name only, one of the five the `
         + "sending module reads, and a value in its place is never shown; a reference is shown only as a send-log id; the form makes one "

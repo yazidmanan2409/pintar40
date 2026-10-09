@@ -201,6 +201,29 @@ const WORD = /\b[a-z]+\b/gi;
  * educator ones. A second copy is how the two halves start to disagree about
  * what "informal" means.
  */
+/**
+ * D-138 step 3 (the staff shell): CangkangPengalaman.tsx now carries, after the shell's own render, the staff
+ * layout every staff branch returns through (`shellStaf`) and the shell for a surface that decides its own places
+ * (`CangkangStaf`, Konfigurasi and Studio). The guards that read the shell's branches read its own render here, and
+ * the staff layout separately, so a check on one branch can never be satisfied by text in another.
+ */
+function intiCangkang(src: string): string {
+  const i = src.indexOf("\nfunction shellStaf(");
+  return i > 0 ? src.slice(0, i) : src;
+}
+function cabangCangkang(src: string, k: string): string {
+  const inti = intiCangkang(src);
+  const i = inti.indexOf(`if (kind === "${k}")`);
+  if (i < 0) return "";
+  const akhir = [inti.indexOf("\n  if (kind ===", i + 1), inti.indexOf("const { mengajar }", i)].filter((j) => j > i);
+  return inti.slice(i, akhir.length > 0 ? Math.min(...akhir) : inti.length);
+}
+function shellStafSrc(src: string): string {
+  const i = src.indexOf("\nfunction shellStaf(");
+  const j = src.indexOf("\nexport async function CangkangStaf(");
+  return i > 0 && j > i ? src.slice(i, j) : "";
+}
+
 function informal(text: string): string[] {
   const hits: string[] = [];
   for (const m of text.matchAll(WORD)) {
@@ -397,8 +420,6 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The list row's vertical padding, measured against the 17px row title." },
   { file: "src/app/experience.css", literal: "28px",
     reason: "Optical spacing inside the certificate, between rule and name." },
-  { file: "src/app/experience.css", literal: "26px",
-    reason: "The page title at phone width." },
   { file: "src/app/experience.css", literal: "32px",
     reason: "The evidence figure, and the certificate name at phone width." },
   { file: "src/app/experience.css", literal: "15px",
@@ -437,6 +458,8 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "Detail geometry below the spacing scale: the current step's ring and the progress bar's height." },
   { file: "src/app/experience.css", literal: "23px",
     reason: "24px less the pixel a 2px border eats, so a selected option's text does not shift." },
+  { file: "src/app/experience.css", literal: "0.35",
+    reason: "The working dot's pulse at its faintest (the design system's Loading keyframe, bundle.css); a step in a motion, not a colour or a size." },
   { file: "src/app/experience.css", literal: "1024px",
     reason: "The staff shell's breakpoint, bp-large (tokens.json): CSS cannot read a custom property inside @media." },
   { file: "src/app/experience.css", literal: "1023px",
@@ -471,8 +494,6 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "Where the sign-in screen becomes two columns. A container-query breakpoint is a property of the composition, not a step on a scale." },
   { file: "src/app/experience.css", literal: "561px",
     reason: "One past the phone breakpoint: where the photograph returns as a band below the form. Paired with the 560px phone rule so there is no gap." },
-  { file: "src/app/experience.css", literal: "27px",
-    reason: "The panel sentence on a wide screen: measured between the subhead and the page title, neither of which sat right over a photograph." },
   { file: "src/app/experience.css", literal: "0.08em",
     reason: "The card number's tracking. It is a transcription from a printed card, and the spacing is what makes a figure checkable against paper." },
   { file: "src/app/experience.css", literal: "60%",
@@ -493,7 +514,7 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
   { file: "src/app/experience.css", literal: "4000px",
     reason: "The spotlight's veil is one box-shadow spread larger than any viewport, so the cut-out has exactly one edge and the ring cannot drift from it. It is a shadow that must not end on screen, not a measurement." },
   { file: "src/app/experience.css", literal: "72%",
-    reason: "The Guidance veil's strength. Sauron ruled it a composite of primary-soft rather than a new token (§O-2), so it is written as a mix of the token it is made of." },
+    reason: "The loading shape's third line: a proportion of its row, drawn to look like a shorter line of text, not a measurement. (Until D-138 it was also the tour veil's strength; the veil is now the design's scrim token.)" },
   { file: "src/components/bukti/BarisKesiapan.tsx", literal: "%",
     reason: "A computed proportion of the readiness bar: data, not a design value." },
   { file: "src/components/bukti/BarisLingkup.tsx", literal: "20",
@@ -4001,10 +4022,15 @@ export const experienceTests: SelfTest[] = [
       const cangkangSrc = code(readFileSync(join(repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
       // The educator's learning branch runs from `if (mengajar)` to the plain
       // learner shell's own return, which is the last one in the file.
-      const blokAjar = cangkangSrc.slice(cangkangSrc.indexOf("if (mengajar)"), cangkangSrc.lastIndexOf("return ("));
-      c.expect(blokAjar.includes("nav.pembelajaran"), "the educator's learning shell could not be located");
-      c.expect(!/TombolBantuan/.test(blokAjar),
+      // (D-138 step 3: read in the shell's own render; the staff layout draws only the Help control it is handed)
+      const intiSrc = intiCangkang(cangkangSrc);
+      const blokAjar = intiSrc.slice(intiSrc.indexOf("if (mengajar)"), intiSrc.lastIndexOf("return ("));
+      c.expect(blokAjar.includes("nav.pembelajaran") && /return shellStaf\(/.test(blokAjar), "the educator's learning shell could not be located");
+      c.expect(!/TombolBantuan|bantuan:/.test(blokAjar),
         "the educator's learning shell carries a Help control whose tour is not theirs");
+      const tataStaf = shellStafSrc(cangkangSrc);
+      c.expect(tataStaf !== "" && !/TombolBantuan/.test(tataStaf) && /\{bantuan\}/.test(tataStaf),
+        "the staff layout draws a Help control of its own instead of only the one its branch hands it");
 
       c.note(`${TABEL.length} role combination(s), ${roles.length} enum role(s) read from the migration, ` +
         `5 window case(s), ${jangkar.length} tour anchor(s), 1 plant caught`);
@@ -4602,8 +4628,16 @@ export const experienceTests: SelfTest[] = [
       c.expect(/0 0 0 3px var\(--surface-1\)/.test(bayang), "the spotlight has no 3px white gap");
       c.expect(/0 0 0 5px var\(--pintar-primary\)/.test(bayang),
         "the spotlight's primary ring is not 2px outside the white gap");
-      c.expect(/color-mix\(in srgb, var\(--pintar-primary-soft\) 72%, transparent\)/.test(bayang),
-        "the veil is not the ruled composite of primary-soft");
+      // RESTATED FOR THE FROZEN DESIGN (D-136, D-138(c)): 08-migration.md, Containers, gives the tour Dialog's layer
+      // tokens, `scrim`, `radius-lg` and `shadow-dialog` (Yazid's question 5, 5 Oct), and keeps the spotlight. That
+      // later approval replaces Sauron's primary-soft composite (§O-2) for the veil only; the guidance ground (1.) and
+      // the ring (above) are unchanged. The tirai, the veil without a target, is the same colour.
+      c.expect(/0 0 0 4000px var\(--scrim\)/.test(bayang), "the veil is not the design's scrim");
+      const tirai = aturan.find((r) => /(?:^|[\s}])\.pin-tur-tirai$/.test(r.sel));
+      c.expect(/background:\s*var\(--scrim\)/.test(tirai?.body ?? ""), "the veil without a target is not the design's scrim");
+      const kartuTur = aturan.find((r) => /(?:^|[\s}])\.pin-tur-kartu$/.test(r.sel));
+      c.expect(/border-radius:\s*var\(--radius-lg\)/.test(kartuTur?.body ?? "") && /box-shadow:\s*var\(--shadow-dialog\)/.test(kartuTur?.body ?? ""),
+        "the tour card does not take Dialog's radius and shadow");
       c.expect(/pointer-events:\s*none/.test(sorot?.body ?? ""), "the spotlight swallows pointer events");
 
       // 5. THE PHONE SHEET IS CAPPED AND SCROLLS; nothing truncates and type
@@ -5702,8 +5736,10 @@ export const experienceTests: SelfTest[] = [
       const VERBATIM: Array<[string, string]> = [
         ["pimpinan.memutuskan", "PINTAR mengusulkan, manusia memutuskan."],
         ["pimpinan.urutan", "Urutannya: yang paling lama menunggu lebih dulu. Ini urutan, bukan peringkat."],
+        // Terminology v1 (D-068, row C28, ruling 9): «tingkat institusi» → «untuk sekolah secara keseluruhan»; the
+        // suppression itself, «Selebihnya tidak muncul.», is unchanged
         ["pimpinan.batas",
-          "Yang muncul di sini memerlukan wewenang, koordinasi, atau penafsiran tingkat institusi. Selebihnya tidak muncul."],
+          "Yang muncul di sini memerlukan wewenang, koordinasi, atau penafsiran untuk sekolah secara keseluruhan. Selebihnya tidak muncul."],
       ];
       for (const [k, teks] of VERBATIM) {
         c.expect(t(k as HleEvent, "staff") === teks, `${k} no longer reads "${teks}"`);
@@ -6621,8 +6657,16 @@ export const experienceTests: SelfTest[] = [
         c.expect(/(Anda|you)/i.test(teks), `the reassurance does not address the reader in ${l}`);
         c.expect(/(ajar|teach)/i.test(teks), `the reassurance does not say it is apart from their teaching in ${l}`);
       }
-      c.expect(t("nav.pembelajaran", "educator") !== t("nav.belajar", "learner"),
-        "the educator's own learning is named exactly what a learner's home is named");
+      // RESTATED FOR TERMINOLOGY v1 (D-068 F2, «Pembelajaran Saya» → «Belajar»; applied under D-138(c)): the tab now
+      // carries the purpose's own name, the word the chooser already uses for it (L3, D-132), so in Indonesian it is
+      // the learner's word too. What tells an educator it is theirs, and not a learner's account, is the page: its
+      // eyebrow still says it is the reader's own and the reassurance in 5. says it is apart from their teaching.
+      c.expect(t("nav.pembelajaran", "educator") === "Belajar",
+        `the educator's own learning tab is not v1 F2's «Belajar»: "${t("nav.pembelajaran", "educator")}"`);
+      c.expect(/Saya/.test(t("pembelajaran.eyebrow", "educator")) && t("pembelajaran.eyebrow", "educator") !== t("nav.belajar", "learner"),
+        "the educator's own learning page no longer says it is the reader's own");
+      c.expect(t("nav.pembelajaran", "educator", { locale: "en" }) !== t("nav.belajar", "learner", { locale: "en" }),
+        "(en) the educator's own learning is named exactly what a learner's home is named");
 
       c.note(`${KUNCI.length} key(s), ${LOCALES.length} language(s), 0 learner/educator divergence(s)`);
       return c.verdict(
@@ -7298,7 +7342,11 @@ export const experienceTests: SelfTest[] = [
       const umpan = berkas.filter((f) => /umpan-balik|umpanbalik/.test(f));
       c.expect(umpan.length >= 8, `${umpan.length} feedback file(s); the surface is not being read`);
       for (const f of berkas) {
-        const b = code(readFileSync(join(repoRoot, f), "utf8"));
+        // D-140 (Jejak Audit in words, DG-11): the copy table names each audited table for the platform admin's log, so
+        // the threshold table's NAME is a key there ("audit.tabel.feedback_thresholds"). A key is a word for a row of
+        // the log, never a read of the table; it is the only thing set aside, and only in the copy table.
+        const mentah = code(readFileSync(join(repoRoot, f), "utf8"));
+        const b = f === "src/lib/hle.ts" ? mentah.replace(/"audit\.tabel\.feedback_thresholds"/g, "") : mentah;
         c.expect(!/feedback_thresholds|minimum_responses|current_feedback_threshold/.test(b),
           `${f} reads the anonymity threshold`);
       }
@@ -8138,20 +8186,21 @@ export const experienceTests: SelfTest[] = [
       const cangkang = code(readFileSync(join(repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
       c.expect(/const \[viewer, peran\] = kind === "public" \? \[null, null\] : await Promise\.all\(\[currentViewer\(\), peranSaya\(\)\]\)/.test(cangkang),
         "the shell does not read the viewer and their roles once, in parallel");
-      const cabangKind = (k: string) => {
-        const i = cangkang.indexOf(`if (kind === "${k}")`);
-        const j = i < 0 ? -1 : cangkang.indexOf("</header>", i);
-        return i >= 0 && j > i ? cangkang.slice(i, j) : "";
-      };
+      // D-138 step 3: the staff branches return through the one staff layout, which draws the mark and the strip it is
+      // handed; the focus and public branches still draw their own header
+      const tataStaf = shellStafSrc(cangkang);
+      c.expect(/<MerekPintar \/>/.test(tataStaf) && /\{sesi\}/.test(tataStaf), "the staff layout does not draw the mark and the strip it is handed");
+      const cabangKind = (k: string) => cabangCangkang(cangkang, k);
       for (const k of ["focus", "pengajar", "pimpinan", "pendataan", "public"]) {
         const b = cabangKind(k);
-        c.expect(b.length > 0 && b.includes("<MerekPintar"), `could not isolate the shell's "${k}" branch`);
+        const staf = k === "pengajar" || k === "pimpinan" || k === "pendataan";
+        c.expect(b.length > 0 && (staf ? /return shellStaf\(/.test(b) : b.includes("<MerekPintar")), `could not isolate the shell's "${k}" branch`);
         const ada = b.match(/<SesiSaya[^>]*\/>/)?.[0] ?? "";
         if (k === "public") c.expect(!ada, "the public shell offers a sign-out; the verification page must offer no way in");
         else c.expect(/viewer=\{viewer\} peran=\{peran\}/.test(ada), `the "${k}" shell's strip reads again instead of using the shell's one read: ${ada || "no strip"}`);
       }
-      const iBelajar = cangkang.indexOf("const { mengajar } = konteksPembelajaran");
-      const strips = (iBelajar < 0 ? "" : cangkang.slice(iBelajar)).match(/<SesiSaya[^>]*\/>/g) ?? [];
+      const iBelajar = intiCangkang(cangkang).indexOf("const { mengajar } = konteksPembelajaran");
+      const strips = (iBelajar < 0 ? "" : intiCangkang(cangkang).slice(iBelajar)).match(/<SesiSaya[^>]*\/>/g) ?? [];
       c.expect(strips.length === 2 && strips.every((x) => /viewer=\{viewer\} peran=\{peran\}/.test(x)),
         `the learning shells do not both carry a strip from the one read: ${strips.join(" | ") || "none"}`);
       const tolak = code(readFileSync(join(repoRoot, "src", "components", "HalamanPenolakan.tsx"), "utf8"));
@@ -8162,11 +8211,28 @@ export const experienceTests: SelfTest[] = [
         const shell = src.match(/<CangkangPengalaman[^>]*\/>/)?.[0] ?? "";
         c.expect(shell.length > 0 && !/kind="public"/.test(shell), `${f} does not render a signed-in shell`);
       }
-      for (const f of ["page.tsx", "studio/layout.tsx", "konfigurasi/page.tsx"]) {
-        const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
-        c.expect(/<SesiSaya[^>]*viewer=\{viewer\} peran=\{peran\}[^>]*\/>/.test(src), `${f} does not show who is signed in and the way out, from its own read`);
+      {
+        const src = code(readFileSync(join(repoRoot, "src", "app", "page.tsx"), "utf8"));
+        c.expect(/<SesiSaya[^>]*viewer=\{viewer\} peran=\{peran\}[^>]*\/>/.test(src), "page.tsx does not show who is signed in and the way out, from its own read");
         c.expect(/await Promise\.all\(\[currentViewer\(\), peranSaya\(\)/.test(src) && (src.match(/currentViewer\(\)|peranSaya\(\)/g) ?? []).length === 2,
-          `${f} does not read the viewer and their roles exactly once, in parallel`);
+          "page.tsx does not read the viewer and their roles exactly once, in parallel");
+      }
+      // D-138 step 3: Studio and Konfigurasi draw the staff shell (CangkangStaf), whose strip comes from its own one
+      // parallel read; both reads are memoised for the request (React cache), so a page that also asks for them
+      // decides from the same answer the strip shows, and the database is asked once
+      const stafSendiri = cangkang.slice(cangkang.indexOf("export async function CangkangStaf("));
+      c.expect(/const \[viewer, peran\] = await Promise\.all\(\[currentViewer\(\), peranSaya\(\)\]\);/.test(stafSendiri)
+        && /<SesiSaya locale=\{locale\} persona="staff" viewer=\{viewer\} peran=\{peran\} \/>/.test(stafSendiri) && /return shellStaf\(/.test(stafSendiri),
+        "the staff shell for Studio and Konfigurasi does not show who is signed in and the way out from one parallel read");
+      c.expect(/export const currentViewer = cache\(/.test(code(readFileSync(join(repoRoot, "src", "lib", "auth.ts"), "utf8")))
+        && /export const peranSaya = cache\(/.test(code(readFileSync(join(repoRoot, "src", "lib", "tur-negara.ts"), "utf8"))),
+        "the viewer or the roles are no longer read once per request");
+      for (const f of ["studio/layout.tsx", "konfigurasi/page.tsx"]) {
+        const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
+        c.expect(/<CangkangStaf\b/.test(src), `${f} does not draw the staff shell, with who is signed in and the way out`);
+        c.expect((src.match(/currentViewer\(\)/g) ?? []).length <= 1 && (src.match(/peranSaya\(\)/g) ?? []).length <= 1
+          && (!/peranSaya\(\)/.test(src) || /await Promise\.all\(\[currentViewer\(\), peranSaya\(\)/.test(src)),
+          `${f} reads the viewer or their roles more than once, or in sequence`);
       }
       for (const f of ["edukator/ringkasan/page.tsx", "dekan/ringkasan/page.tsx"]) {
         const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
@@ -8212,7 +8278,18 @@ export const experienceTests: SelfTest[] = [
       c.expect(orderOf(sesiPonsel) < orderOf(tabsPonsel) && /width:\s*100%/.test(sesiPonsel),
         `on a phone the session strip is not a full-width row ahead of the tabs (strip: "${sesiPonsel.trim()}")`);
       c.expect(/min-height:\s*44px/.test(ruleIn(css, ".pin-sesi-keluar")), "the Keluar button has no 44px touch target");
-      c.expect(!/\.pin-sesi[^{]*\{[^}]*display:\s*none/.test(css), "a rule hides the session strip");
+      // D-138 step 3 (AppShell): under 1024 px the staff top bar keeps «Keluar» and moves the reader's name and «Akun
+      // saya» into the menu, which shows them again when opened. That is the only thing allowed to hide: nothing hides
+      // the strip or its way out at any width, and the name and «Akun saya» are hidden only on the staff bar and only
+      // where the opened menu draws them again.
+      const sembunyi = [...css.matchAll(/(?:^|[}\n])\s*([^{}@]*\.pin-sesi[^{]*)\{([^}]*)\}/g)]
+        .filter((m) => /display:\s*none/.test(m[2])).map((m) => m[1].trim());
+      const bolehSembunyi = (sel: string) => sel.split(",").every((x) => /^\.pin-staf \.pin-sesi-(?:ket|akun)$/.test(x.trim()));
+      c.expect(sembunyi.every(bolehSembunyi), `a rule hides the session strip: ${sembunyi.filter((x) => !bolehSembunyi(x)).join(" | ")}`);
+      if (sembunyi.length > 0) {
+        c.expect(/\.pin-laci-saklar:checked ~ \.pin-sesi \.pin-sesi-ket,\s*\.pin-laci-saklar:checked ~ \.pin-sesi \.pin-sesi-akun \{[^}]*display:\s*inline-flex/.test(css),
+          "the staff bar hides the reader's name without the opened menu drawing it again");
+      }
 
       return c.verdict(
         "the session strip is RENDERED in both languages as a labelled group whose way out is a POST form to /keluar " +
@@ -8290,17 +8367,15 @@ export const experienceTests: SelfTest[] = [
        *    roles are asked once, the learner branch reuses the same answer, and
        *    neither the public page nor an assessment in focus offers anywhere.
        */
-      const cangkang = code(readFileSync(join(repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
+      // D-138 step 3: the shell's own render; CangkangStaf, after it, is Studio's and Konfigurasi's (DAISY-02 reads it)
+      const cangkang = intiCangkang(code(readFileSync(join(repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8")));
       c.expect((cangkang.match(/peranSaya\(\)/g) ?? []).length === 1, "the shell asks for the reader's roles more than once, or not at all");
       // an assessment in focus reads the roles too, now, for its strip's naming rule
       // (DAISY-02); it still offers no places, below
       c.expect(/kind === "public" \? \[null, null\] : await Promise\.all\(\[currentViewer\(\), peranSaya\(\)\]\)/.test(cangkang),
         "the public page asks for the reader's roles, or the shell reads them apart from the viewer");
-      const cabang = (k: string) => {
-        const i = cangkang.indexOf(`if (kind === "${k}")`);
-        const j = i < 0 ? -1 : cangkang.indexOf("</header>", i);
-        return i >= 0 && j > i ? cangkang.slice(i, j) : "";
-      };
+      // D-138 step 3: a branch runs to the next one (the staff branches return through shellStaf, no header of their own)
+      const cabang = (k: string) => cabangCangkang(cangkang, k);
       // RESTATED FOR L3 (CR-83; D-132 §2.4): with a working context a staff shell's other tabs are that context's own
       // surfaces (navKonteks, F22-P02, awaited in the shell's own render), and its one way to change it is the chooser;
       // without one (an evaluation persona, C10) the roles' places, as before (TabTempat). Each shell keeps its own tab
@@ -8339,7 +8414,8 @@ export const experienceTests: SelfTest[] = [
        */
       const konfig = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
       for (const h of ["/pendataan", "/aktivasi", "/studio"]) {
-        c.expect(new RegExp(`<Link href="${h}"`).test(konfig), `Konfigurasi has no link to ${h}`);
+        // D-138 step 3: a place in the staff navigation is an ItemNav, which is a Link with its icon (DAISY-18 reads it)
+        c.expect(new RegExp(`<(?:Link|ItemNav) href="${h}"`).test(konfig), `Konfigurasi has no link to ${h}`);
       }
       // L3: in a context, the context's own surfaces and the chooser (navKonteks); without one, the roles' places
       c.expect(/navKonteks\(\{[^}]*kecuali: \["\/konfigurasi"[^\]]*\]/.test(konfig) && /<TabTempat[\s\S]*?kecuali=\{\["\/konfigurasi"\]\}/.test(konfig),
@@ -9784,14 +9860,15 @@ export const experienceTests: SelfTest[] = [
        *    no Studio. Studio's layout still refuses a reader with no Studio
        *    capability in any school, asked of the database, exactly as before.
        */
-      const cangkang = code(readFileSync(join(repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
+      const cangkangPenuh = code(readFileSync(join(repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
+      // D-138 step 3: the shell's own render; CangkangStaf after it draws only the places its page hands it
+      const cangkang = intiCangkang(cangkangPenuh);
       c.expect(/const studio = tawarkanStudio\(peran\);/.test(cangkang) && (cangkang.match(/peranSaya\(\)/g) ?? []).length === 1,
         "the shell does not decide the Studio tab from its one roles answer");
-      const cabang = (k: string) => {
-        const i = cangkang.indexOf(`if (kind === "${k}")`);
-        const j = i < 0 ? -1 : cangkang.indexOf("</header>", i);
-        return i >= 0 && j > i ? cangkang.slice(i, j) : "";
-      };
+      c.expect(!/studio|TabTempat|navKonteks/.test(cangkangPenuh.slice(cangkangPenuh.indexOf("\nfunction shellStaf("))),
+        "the staff layout or CangkangStaf decides a Studio tab of its own");
+      // D-138 step 3: a branch runs to the next one (the staff branches return through shellStaf, no header of their own)
+      const cabang = (k: string) => cabangCangkang(cangkang, k);
       // RESTATED FOR L3 (D-132 C8, §2.4): in a working context the shell's tabs are NavKonteks, which offers Studio when
       // the context's own grants carry a Studio tab (melayani, F22-P02); without one, the roles' rule as before, either
       // passed here (studio={studio}) or drawn by NavKonteks's own fallback from the same roles answer
@@ -9810,7 +9887,7 @@ export const experienceTests: SelfTest[] = [
         "an educator's own learning does not offer Studio");
       c.expect(!/studio|\/studio/.test(belajar.slice(iMurid)) && !/\/studio|studio=/.test(cabang("public") + cabang("focus")),
         "a learner's own shell, the public page or an assessment in focus offers Studio");
-      c.expect((cangkang.match(/href="\/studio"/g) ?? []).length === 0, "a shell draws a Studio link of its own beside the rule");
+      c.expect((cangkangPenuh.match(/href="\/studio"/g) ?? []).length === 0, "a shell draws a Studio link of its own beside the rule");
       const studio = code(readFileSync(join(repoRoot, "src", "app", "studio", "layout.tsx"), "utf8"));
       c.expect(/const institutions = viewer \? await studioInstitutions\(\) : \[\];/.test(studio)
         && /if \(!viewer \|\| institutions\.length === 0\) \{[\s\S]*?<HalamanPenolakan[\s\S]*?messageKey="studio\.refused"/.test(studio),
@@ -10051,8 +10128,13 @@ export const experienceTests: SelfTest[] = [
             const judul = t(`studio.langkah.${langkah}.judul` as HleEvent, "staff", { locale });
             c.expect(menunjuk(kalimat, judul, locale), `(${locale}) ${kode} does not send the reader to the "${judul}" step by its name: ${kalimat}`);
           }
+          // RESTATED FOR TERMINOLOGY v1 (D-068 ruling 2, rows D1–D23; applied under D-138(c)): in Indonesian the Studio
+          // object is now «Paket Pembelajaran», «paket» once the context is set, and «kursus» is the word replaced; the
+          // English copy is not part of v1 and still says "course", never "package"
           for (const k of allKeys().filter((k) => k.startsWith("studio.konten.kode."))) {
-            c.expect(!/\bpaket|\bpackage/i.test(t(k as HleEvent, "staff", { locale })), `(${locale}) ${k} calls the course a package`);
+            const v = t(k as HleEvent, "staff", { locale });
+            c.expect(locale === "id" ? !/\bkursus\b/i.test(v) : !/\bpackage/i.test(v),
+              `(${locale}) ${k} names the Studio object by a word v1 replaced: ${v}`);
           }
         }
         c.expect(!menunjuk("Minta orang yang disebut di langkah Setujui paket.", t("studio.langkah.setujui.judul", "staff"), "id"),
@@ -10221,9 +10303,18 @@ export const experienceTests: SelfTest[] = [
           c.expect(t(`laporan.muncul.${k}` as HleEvent, "staff", { locale }) !== TANPA_SALINAN, `(${locale}) laporan.muncul.${k} has no copy`);
         }
       }
-      c.expect(t("laporan.muncul.akhir", "staff").includes(nama.POST_TEST) && !t("laporan.muncul.akhir", "staff").includes(nama.PRE_TEST),
-        `the Cek penguasaan sentence does not name "${nama.POST_TEST}" alone`);
-      c.expect(t("laporan.muncul.awal_akhir", "staff").includes(nama.PRE_TEST) && t("laporan.muncul.awal_akhir", "staff").includes(nama.POST_TEST),
+      // RESTATED FOR TERMINOLOGY v1 (D-068 rows A12, A13, applied under D-138(c)): a report names the two tests by their
+      // v1 names, the modes' own labels (jenis.mode.*, D-134(b)); the workbook keeps its marks (A16–A21, retained), so
+      // the old marks must no longer appear in a report sentence either
+      c.expect(nama.PRE_TEST === "Pemetaan awal" && nama.POST_TEST === "Cek penguasaan",
+        "the workbook's marks changed; v1 retained them (A16–A21) and this restatement rests on that");
+      const v1 = { PRE_TEST: t("jenis.mode.PRE_TEST", "staff"), POST_TEST: t("jenis.mode.POST_TEST", "staff") };
+      c.expect(v1.PRE_TEST === "Pemetaan Awal" && v1.POST_TEST === "Uji Penguasaan", `the modes are not v1's names: ${JSON.stringify(v1)}`);
+      const kalimatAkhir = t("laporan.muncul.akhir", "staff");
+      const awalAkhir = t("laporan.muncul.awal_akhir", "staff");
+      c.expect(kalimatAkhir.includes(v1.POST_TEST) && !kalimatAkhir.includes(v1.PRE_TEST) && !kalimatAkhir.includes(nama.POST_TEST),
+        `the Uji Penguasaan sentence does not name "${v1.POST_TEST}" alone`);
+      c.expect(awalAkhir.includes(v1.PRE_TEST) && awalAkhir.includes(v1.POST_TEST) && !awalAkhir.includes(nama.PRE_TEST) && !awalAkhir.includes(nama.POST_TEST),
         "the gain sentence does not name both tests");
       c.expect(kunciMuncul({ status: "below_minimum", metric_id: "class.net_gain" }) === "laporan.muncul.awal_akhir"
         && kunciMuncul({ status: "not_permitted", metric_id: "class.net_gain" }) === null
@@ -10467,7 +10558,8 @@ export const experienceTests: SelfTest[] = [
         "the refusal page does not say tolak.arti in its reader's own register");
       const konf = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
       c.expect(/sekolahPendataan\(\)\.then\(\(x\) => x\.length > 0\)/.test(konf)
-        && /\{bolehPendataan \? <Link href="\/pendataan"/.test(konf) && (konf.match(/href="\/pendataan"/g) ?? []).length === 1,
+        // D-138 step 3: drawn as the staff shell's navigation item; still offered only by /pendataan's own predicate
+        && /\{bolehPendataan \? <(?:Link|ItemNav) href="\/pendataan"/.test(konf) && (konf.match(/href="\/pendataan"/g) ?? []).length === 1,
         "Konfigurasi offers Menambahkan orang to a reader /pendataan refuses");
       const pend = code(readFileSync(join(repoRoot, "src", "app", "pendataan", "page.tsx"), "utf8"));
       c.expect(/const sekolah = await data\.sekolahPendataan\(\);\s*if \(sekolah\.length === 0\)/.test(pend),
@@ -10571,6 +10663,12 @@ export const experienceTests: SelfTest[] = [
       const tab = code(baca("src", "components", "TabTempat.tsx"));
       const tabLinks = [...tab.matchAll(/<Link\b[\s\S]*?<\/Link>/g)].map((m) => m[0]);
       c.expect(tabLinks.length > 0 && tabLinks.every((l) => /<TandaTautan \/>/.test(l)), "a place tab (TabTempat) does not acknowledge a click");
+      // D-138 step 3: the staff navigation's places are ItemNav, handed to the shell's <nav> as its items; each is one
+      // Link carrying TandaTautan, so every one of them counts as a menu link here
+      const item = code(baca("src", "components", "ItemNav.tsx"));
+      const itemLinks = [...item.matchAll(/<Link\b[\s\S]*?<\/Link>/g)].map((m) => m[0]);
+      c.expect(itemLinks.length === 1 && /<TandaTautan \/>/.test(itemLinks[0]), "a staff navigation item (ItemNav) does not acknowledge a click");
+      for (const f of semua) tautan += (code(baca(f)).match(/<ItemNav\b/g) ?? []).length;
       c.expect(tautan >= 15, `only ${tautan} menu link(s) found inside <nav>; the sweep is not seeing the menus`);
       c.expect(menu(`<nav><Link href="/studio">Studio</Link></nav>`).salah.length === 1
         && menu(`<nav><Link href="/studio">Studio<TandaTautan /></Link></nav>`).salah.length === 0,
@@ -11191,7 +11289,9 @@ export const experienceTests: SelfTest[] = [
         for (const k of kunci) {
           const v = t(k, "staff", { locale });
           c.expect(v !== TANPA_SALINAN && v.trim() !== "", `(${locale}) ${k} has no words`);
-          c.expect(!MESIN.test(v) && !PAKET.test(v), `(${locale}) ${k} names the machinery or the package: ${v}`);
+          // (Terminology v1, D-068 ruling 2: in Indonesian the Studio object is «paket» and «kursus» the replaced word;
+          // English, outside v1, still says "course")
+          c.expect(!MESIN.test(v) && (locale === "id" ? !/\bkursus\b/i.test(v) : !PAKET.test(v)), `(${locale}) ${k} names the machinery or a word v1 replaced: ${v}`);
           c.expect(!INTERNAL_WORDS.some((w) => new RegExp(`\\b${w}\\b`).test(v)), `(${locale}) ${k} carries an internal word: ${v}`);
         }
         for (const [kode, langkah] of Object.entries(LANGKAH_DISEBUT)) {
@@ -12604,7 +12704,8 @@ export const experienceTests: SelfTest[] = [
        * terbitan lain, buat penugasan baru.»
        */
       const c = await cekPindah(repoRoot, "RELEASE_MOVE_STARTED", {
-        id: [/: sudah ada siswa yang mulai mengerjakannya\./, /Untuk memakai terbitan lain, buat penugasan baru\./],
+        // Terminology v1 (D-068 row C11): «siswa» → «murid»
+        id: [/: sudah ada murid yang mulai mengerjakannya\./, /Untuk memakai terbitan lain, buat penugasan baru\./],
         en: [/: a student has already started it\./, /To use another release, make a new assignment\./],
       });
       return c.verdict(

@@ -198,8 +198,17 @@ export const bob15Tests: SelfTest[] = [
       const lib = baca("src", "lib", "lapor-masalah.ts");
       c.expect(/from\("support_reports"\)/.test(lib) && !/\.rpc\("(?!current_person_id")/.test(lib) && !/supabaseService/.test(lib), "the reports are not read under row security");
       const cangkang = baca("src", "components", "CangkangPengalaman.tsx");
-      c.expect((cangkang.match(/<TautanLapor /g) ?? []).length === 4 && /<TautanLapor /.test(baca("src", "app", "studio", "layout.tsx"))
-        && /<TautanLapor /.test(baca("src", "app", "konfigurasi", "page.tsx")), "«Laporkan masalah» is not on every staff shell, Studio and Konfigurasi");
+      // D-138 step 3: the staff shells draw one staff layout (shellStaf), which carries the link once; the four staff
+      // branches (teaching, management, intake, an educator's own learning) and Studio and Konfigurasi (CangkangStaf) all
+      // return through it, and the learner's own shell carries none (a student tells their teacher)
+      const iStaf = cangkang.indexOf("\nfunction shellStaf(");
+      const inti = iStaf > 0 ? cangkang.slice(0, iStaf) : "";
+      const tata = iStaf > 0 ? cangkang.slice(iStaf, cangkang.indexOf("\nexport async function CangkangStaf(")) : "";
+      const stafSendiri = cangkang.slice(cangkang.indexOf("\nexport async function CangkangStaf("));
+      c.expect((tata.match(/<TautanLapor /g) ?? []).length === 1 && (inti.match(/return shellStaf\(/g) ?? []).length === 4
+        && !/<TautanLapor /.test(inti) && /return shellStaf\(/.test(stafSendiri)
+        && /<CangkangStaf\b/.test(baca("src", "app", "studio", "layout.tsx")) && /<CangkangStaf\b/.test(baca("src", "app", "konfigurasi", "page.tsx")),
+        "«Laporkan masalah» is not on every staff shell, Studio and Konfigurasi");
       const naik = baca("src", "app", "api", "assets", "upload-url", "route.ts");
       c.expect(/jalur = `laporan\/\$\{personId\}\/\$\{tangkapan\[1\]\}`/.test(naik) && /createSignedUploadUrl\(jalur\)/.test(naik),
         "the screenshot's folder is not the server's choice");

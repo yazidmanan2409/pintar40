@@ -67,6 +67,10 @@ export default function NilaiLaporan({ entry, locale, tempat = {} }: {
     const pita = baris.some(([k]) => k.startsWith("kesiapan."));
     return (
       <>
+      {/* CR-81 (GQ1, 11-validation.md §4): the bands' heading names the population they are drawn over */}
+      {pita && entry.population ? (
+        <p className="pin-ml">{s("kesiapan.pita.judul").replace("{n}", format.number(Number(entry.population.assessed) || 0, locale))}</p>
+      ) : null}
       <dl className="pin-lap-isi">
         {baris.map(([k, n]) => (
           <div key={k}>

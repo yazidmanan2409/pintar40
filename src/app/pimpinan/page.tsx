@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Ikon from "@/components/Ikon";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as pim from "@/lib/pimpinan";
@@ -64,7 +65,7 @@ export default async function Pimpinan({
         persona="staff"
         locale={locale}
         backHref="/"
-        backKey="entry.title"
+        backKey="galat.beranda"
       />
     );
   }
@@ -237,6 +238,7 @@ export default async function Pimpinan({
                       <span className="pin-kelas-tanda">
                         {s(bk.length === 0 ? "laporan.metrik.bukan_untuk_anda" : ada.length > 0 ? "pimpinan.kelas.ada" : "pimpinan.kelas.belum")}
                       </span>
+                      <Ikon nama="chevron-down" kelas="pin-chevron" />
                     </summary>
                     {bk.length > 0 ? (
                       <div className="pin-kelas-isi">

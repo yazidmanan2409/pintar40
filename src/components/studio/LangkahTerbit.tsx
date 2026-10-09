@@ -83,9 +83,17 @@ export default function LangkahTerbit({ locale, course, fakta, terbitan, kemampu
       <input type="hidden" name="langkah" value={l.kunci} />
       <input type="hidden" name="course" value={course} />
       {terbitan ? <input type="hidden" name="release" value={terbitan.id} /> : null}
-      <TombolKirim className="pin-btn pin-primary" disabled={sibuk} sibuk={s("studio.langkah.sibuk")}>
-        {s(kunciSalinan(l.kunci, "tombol"))}
-      </TombolKirim>
+      {/* step 7 (question 2; 11-validation.md §4): «Menerbitkan…», then «✓ Diterbitkan» once the server confirms */}
+      {l.kunci === "terbitkan" ? (
+        <TombolKirim className="pin-btn pin-primary" disabled={sibuk} sibuk={s("tombol.menerbitkan")}
+          selesai={jawaban?.langkah === "terbitkan" && jawaban.hasil.ok ? s("studio.langkah.selesai.terbitkan") : undefined}>
+          {s(kunciSalinan(l.kunci, "tombol"))}
+        </TombolKirim>
+      ) : (
+        <TombolKirim className="pin-btn pin-primary" disabled={sibuk} sibuk={s("studio.langkah.sibuk")}>
+          {s(kunciSalinan(l.kunci, "tombol"))}
+        </TombolKirim>
+      )}
     </form>
   );
 

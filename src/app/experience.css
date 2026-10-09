@@ -56,7 +56,7 @@
 .pin-tabs { display: flex; gap: var(--space-5); height: 100%; }
 .pin-tabs a {
   display: flex; align-items: center; height: 100%;
-  text-decoration: none; color: var(--ink-3); font-size: 15px;
+  text-decoration: none; color: var(--ink-3); font-size: var(--t-body);
   border-bottom: 2px solid transparent; margin-bottom: -1px;
   transition: color var(--motion-fast);
 }
@@ -292,15 +292,22 @@
 }
 
 /* banners over a retained record */
+/* Alert (v3): an icon beside the words, on its status ground; the icon is never
+   the message (the words are). */
 .pin-banner {
-  border-radius: var(--radius-2); padding: var(--space-5);
-  margin-bottom: var(--space-4); display: grid; gap: 6px;
+  border-radius: var(--radius-lg); padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-4); display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-1) var(--space-3);
 }
+.pin-banner > :not(.pin-ikon) { grid-column: 2; }
+.pin-banner > .pin-ikon { grid-row: 1 / span 3; margin-top: 2px; color: var(--ink-2); }
+.pin-banner.pin-info > .pin-ikon { color: var(--status-info); }
+.pin-banner.pin-ok > .pin-ikon { color: var(--status-ok); }
+.pin-banner.pin-attention > .pin-ikon { color: var(--status-attention); }
 .pin-banner.pin-info { background: var(--status-info-soft); }
 .pin-banner.pin-neutral { background: var(--surface-2); }
 .pin-banner.pin-ok { background: var(--status-ok-soft); }
 .pin-banner.pin-attention { background: var(--status-attention-soft); }
-.pin-banner h2 { font-size: var(--type-card); margin: 0; font-weight: var(--weight-strong); }
+.pin-banner h2 { font-size: var(--t-body); line-height: var(--t-body-lh); margin: 0; font-weight: var(--weight-strong); }
 .pin-banner p { font-size: var(--type-meta); color: var(--ink-2); margin: 0; }
 .pin-banner .pin-cta { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-top: var(--space-2); }
 .pin-banner .pin-cta .pin-mono { font-size: var(--type-fine); color: var(--ink-2); }
@@ -311,8 +318,13 @@
   padding: var(--space-6); display: grid; gap: var(--space-3); background: var(--surface-1);
 }
 .pin-pending .pin-dots { display: flex; gap: 6px; margin-bottom: var(--space-1); }
-.pin-pending .pin-dots i { width: var(--space-2); height: var(--space-2); border-radius: 50%; background: var(--line-strong); }
-.pin-pending .pin-dots i:first-child { background: var(--pintar-primary); }
+/* Loading (v3): one working dot, pulsing at duration-pulse; still under reduced motion. */
+.pin-pending .pin-dots i { width: var(--space-2); height: var(--space-2); border-radius: 50%; background: var(--pintar-primary); }
+.pin-pending .pin-dots i:not(:first-child) { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .pin-pending .pin-dots i { animation: pin-denyut var(--duration-pulse) var(--ease-standard) infinite; }
+}
+@keyframes pin-denyut { 50% { opacity: 0.35; } }
 .pin-pending h2 { font-size: var(--type-subhead); letter-spacing: -0.01em; margin: 0; font-weight: var(--weight-strong); }
 .pin-pending p { font-size: var(--type-body); color: var(--ink-2); max-width: 56ch; margin: 0; }
 
@@ -324,7 +336,7 @@
   letter-spacing: var(--tracking-tight); color: var(--status-ok);
   margin: 6px 0 var(--space-2);
 }
-.pin-status p { font-size: 15px; color: var(--ink-2); margin: 0; }
+.pin-status p { font-size: var(--t-body); color: var(--ink-2); margin: 0; }
 .pin-status.pin-neutral { background: var(--surface-2); }
 .pin-status.pin-neutral .pin-big { color: var(--ink-1); }
 .pin-status.pin-info { background: var(--status-info-soft); }
@@ -432,7 +444,7 @@
   display: grid; gap: 6px; align-content: start; background: var(--surface-1);
 }
 .pin-metric .pin-ml { font-size: var(--type-meta); font-weight: var(--weight-strong); }
-.pin-metric .pin-mv { font-size: 32px; font-weight: var(--weight-strong); letter-spacing: var(--tracking-tight); line-height: 1.1; }
+.pin-metric .pin-mv { font-size: var(--t-stat); font-weight: var(--weight-strong); letter-spacing: var(--t-stat-ls); line-height: var(--t-stat-lh); font-variant-numeric: tabular-nums; }
 .pin-metric .pin-mm { font-size: var(--type-meta); color: var(--ink-2); }
 .pin-metric .pin-ms { font-size: var(--type-eyebrow); color: var(--ink-3); }
 .pin-metric .pin-ma { font-size: var(--type-meta); border-top: 1px solid var(--line); padding-top: 10px; margin-top: var(--space-1); }
@@ -533,7 +545,7 @@
     line-height: var(--leading-body); padding-block: var(--space-1);
   }
   .pin-col { padding-block: 28px var(--space-8); padding-inline: var(--space-4); }
-  .pin-h1 { font-size: 26px; }
+  .pin-h1 { font-size: var(--t-page-compact); line-height: var(--t-page-compact-lh); letter-spacing: var(--t-page-compact-ls); }
   .pin-scope { margin-bottom: 28px; }
   .pin-row { grid-template-columns: 1fr; padding: var(--space-4); }
   .pin-row > .pin-pill { display: none; }
@@ -650,14 +662,13 @@
    which inverted the very priority the home exists to express. The section is
    ABSENT entirely when nothing needs attention — honest absence, never an
    empty container explaining that it is empty. */
+/* Alert, attention (v3): still absent when nothing needs attention. */
 .pin-perhatian {
-  background: var(--surface-1); border: 1px solid var(--line);
-  border-left: 3px solid var(--status-attention);
-  border-radius: 0 var(--radius-1) var(--radius-1) 0;
+  background: var(--status-attention-soft); border: 0; border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-5); display: grid; gap: var(--space-1); margin-bottom: var(--space-3);
 }
-.pin-perhatian .pin-what { font-weight: var(--weight-strong); font-size: var(--type-card); color: var(--ink-1); }
-.pin-perhatian .pin-why { font-size: var(--type-meta); color: var(--ink-2); }
+.pin-perhatian .pin-what { font-weight: var(--weight-strong); font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--ink-1); }
+.pin-perhatian .pin-why { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-1); }
 
 .pin-sec { margin-top: var(--space-7); }
 .pin-sec > h2 {
@@ -748,9 +759,13 @@
 .pin-tdaftar { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-1); }
 .pin-tdaftar .pin-tdaftar { margin-top: var(--space-1); }
 .pin-ttabel { max-width: 100%; overflow-x: auto; }
-.pin-ttabel table { border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: var(--type-meta); }
-.pin-ttabel th, .pin-ttabel td { border: 1px solid var(--line); padding: var(--space-2) var(--space-3); text-align: left; vertical-align: top; }
-.pin-ttabel th { font-weight: var(--weight-strong); background: var(--surface-2); }
+.pin-ttabel { border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); }
+.pin-ttabel table { border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; font-size: var(--t-small); line-height: var(--t-small-lh); }
+.pin-ttabel th, .pin-ttabel td { border-bottom: var(--border-hairline) solid var(--line); padding: var(--space-3) var(--space-4); text-align: left; vertical-align: top; }
+.pin-ttabel thead th, .pin-ttabel tr:first-child > th { position: sticky; top: 0; z-index: var(--z-sticky); font-weight: var(--weight-strong); color: var(--ink-2); background: var(--table-head); }
+.pin-ttabel tbody tr > td { background: var(--table-row); }
+.pin-ttabel tbody tr:where(:nth-child(even)) > td { background: var(--table-row-alt); }
+.pin-ttabel tbody tr:last-child > * { border-bottom: 0; }
 .pin-lmedia { width: 100%; max-width: 360px; border-radius: var(--radius-1); margin: var(--space-4) 0; }
 /* Reading position: dots rather than a bar, because a page of a lesson is a
    place and not a percentage. */
@@ -808,6 +823,8 @@
   transition: border-color var(--motion-fast), background-color var(--motion-fast);
 }
 .pin-op:hover { border-color: var(--line-strong); }
+.pin-op:active { background: var(--surface-3); }
+.pin-op:focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
 .pin-op .pin-k { font-size: var(--type-meta); color: var(--ink-3); min-width: 1.4em; flex: none; }
 /* Same trick as the reading map's first card: the heavier border eats its own
    two pixels out of the padding so a chosen option does not jump. */
@@ -1147,7 +1164,8 @@
 
    THE VALUES BELOW ARE THE APPROVED ONES, ported from the design prototype
    "PINTAR Tur Pertama" (r2.1, SHA-256 23a6fcdd…): the 420px card, the 3px
-   white gap and 2px primary ring, the 72% veil, the seven position dots, the
+   white gap and 2px primary ring, the veil (since D-138 the design's
+   `scrim`, 08-migration.md Containers), the seven position dots, the
    white miniature frame, the 78% phone sheet. Where the prototype wrote a
    value off the token scale, the nearest token is used instead — the largest
    such move is 2px, and none of them is visible.
@@ -1181,14 +1199,14 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   box-shadow:
     0 0 0 3px var(--surface-1),
     0 0 0 5px var(--pintar-primary),
-    0 0 0 4000px color-mix(in srgb, var(--pintar-primary-soft) 72%, transparent);
+    0 0 0 4000px var(--scrim);
 }
 /* A step whose target is not on this page keeps its place in the seven and
    gets the veil alone — nothing is drawn on the page to give the spotlight
    something to hold (§J-1). */
 .pin-tur-tirai {
   position: fixed; inset: 0; z-index: 40;
-  background: color-mix(in srgb, var(--pintar-primary-soft) 72%, transparent);
+  background: var(--scrim);
 }
 
 /* ------------------------------------------------------------- the tour card
@@ -1201,7 +1219,7 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   top: var(--space-7); left: 50%; translate: -50% 0;
   width: var(--measure-guide-card); max-width: calc(100% - var(--space-6));
   background: var(--surface-1);
-  border: 1px solid var(--line-strong); border-radius: var(--radius-2);
+  border: 0; border-radius: var(--radius-lg); box-shadow: var(--shadow-dialog);
   padding: var(--space-5);
   display: grid; gap: var(--space-3);
   color: var(--ink-1);
@@ -1262,7 +1280,7 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
    step's body already carries the meaning. */
 .pin-mini {
   background: var(--surface-1); border: 1px solid var(--line);
-  border-radius: var(--radius-1); padding: 10px var(--space-3) var(--space-3);
+  border-radius: var(--radius-sm); padding: 10px var(--space-3) var(--space-3);
   display: grid; gap: var(--space-2);
 }
 .pin-mini-label {
@@ -1271,7 +1289,7 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 }
 .pin-mini-bingkai {
   background: var(--surface-1); border: 1px solid var(--line-strong);
-  border-radius: var(--radius-1); padding: var(--space-3);
+  border-radius: var(--radius-sm); padding: var(--space-3);
   display: grid; gap: var(--space-2);
 }
 .pin-mini-rows, .pin-mini-soal, .pin-mini-hasil { display: grid; gap: var(--space-2); }
@@ -1393,7 +1411,7 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   top: 56px;
   width: var(--measure-guide-tip); max-width: calc(100% - var(--space-6));
   background: var(--surface-1);
-  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
+  border: 0; border-radius: var(--radius-md); box-shadow: var(--shadow-overlay);
   padding: var(--space-3) var(--space-4);
   display: grid; gap: var(--space-2); justify-items: end;
 }
@@ -1491,7 +1509,7 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
    before it, scrolled sideways. The fields fill the column and shrink with it. */
 .pin-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); align-content: start; }
 .pin-mh1 {
-  font-size: 26px; font-weight: var(--weight-strong);
+  font-size: var(--t-page-compact); font-weight: var(--weight-strong);
   letter-spacing: var(--tracking-tight); line-height: var(--leading-heading);
   text-wrap: balance; margin: 0;
 }
@@ -1609,7 +1627,7 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 }
 .pin-say-tanda { display: block; width: 40px; height: 2px; background: currentColor; opacity: var(--say-mark); }
 .pin-say-h {
-  font-size: 27px; font-weight: var(--weight-strong); line-height: var(--leading-heading);
+  font-size: var(--t-page-compact); font-weight: var(--weight-strong); line-height: var(--leading-heading);
   letter-spacing: var(--tracking-tight); max-width: 18ch; text-wrap: balance;
   white-space: pre-line; margin: 0;
 }
@@ -1657,7 +1675,7 @@ a.pin-tautan { display: inline-flex; align-items: center; }
     padding-inline: max(var(--space-7), calc((100% - var(--measure-auth-wide)) / 2));
   }
   .pin-say-h { font-size: var(--type-subhead); max-width: 26ch; }
-  .pin-say-p { font-size: 15px; max-width: 52ch; }
+  .pin-say-p { font-size: var(--t-body); max-width: 52ch; }
 }
 
 @container masuk (min-width: 1024px) {
@@ -2466,13 +2484,14 @@ a.pin-tautan { display: inline-flex; align-items: center; }
   margin-top: var(--space-2); min-width: 0;
 }
 .pin-kelas-bukti > summary {
-  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-1) var(--space-3);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-1) var(--space-3);
   padding: var(--space-3) var(--space-4); cursor: pointer; list-style-position: inside;
 }
 /* a flex summary loses the browser's own triangle; this one turns when open */
 .pin-kelas-bukti > summary::-webkit-details-marker { display: none; }
-.pin-kelas-bukti > summary::before { content: "\25B8"; color: var(--ink-3); }
-.pin-kelas-bukti[open] > summary::before { content: "\25BE"; }
+/* Disclosure (v3): the chevron icon replaces the ▸ character, and turns when open. */
+.pin-kelas-bukti > summary .pin-chevron { margin-left: auto; color: var(--ink-3); transition: transform var(--duration-base) var(--ease-standard); }
+.pin-kelas-bukti[open] > summary .pin-chevron { transform: rotate(180deg); }
 .pin-kelas-nama { flex: 1 1 auto; font-weight: var(--weight-strong); color: var(--ink-1); }
 .pin-kelas-tanda { font-size: var(--type-meta); color: var(--ink-3); }
 .pin-kelas-isi { display: grid; gap: var(--space-3); padding: 0 var(--space-4) var(--space-4); min-width: 0; }

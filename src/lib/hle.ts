@@ -1025,6 +1025,250 @@ export type HleEvent =
   | "mengajar.judul"
   | "nav.kelas" | "nav.pimpinan" | "nav.pendataan"
   | "nav.aktivasi" | "nav.konfigurasi" | "nav.studio" | "nav.tempat" | "nav.menu"
+  | "tombol.menerbitkan"
+  | "studio.langkah.selesai.terbitkan"
+  | "studio.integritas.tindak"
+  | "pimpinan.keadaan.menunggu_keputusan"
+  | "kesiapan.pita.judul"
+  | "laporan.standar.class_learning_intelligence"
+  | "laporan.standar.institution_learning_intelligence"
+  | "laporan.standar.learner_result"
+  | "laporan.tampilan.bar"
+  | "laporan.tampilan.list"
+  | "laporan.tampilan.table"
+  | "laporan.tampilan.card_list"
+  | "laporan.tampilan.distribution"
+  | "laporan.tampilan.hero_stat"
+  | "laporan.tampilan.summary"
+  | "studio.definisi.unit.soal"
+  | "studio.definisi.unit.tenggang"
+  | "studio.definisi.unit.detik"
+  | "studio.definisi.unit.percobaan"
+  | "studio.definisi.f.judul"
+  | "studio.definisi.f.mode"
+  | "studio.definisi.f.jumlah"
+  | "studio.definisi.f.keselamatan"
+  | "studio.definisi.f.ragu"
+  | "studio.definisi.f.tenggang"
+  | "studio.definisi.f.percobaan"
+  | "studio.definisi.f.acak"
+  | "studio.definisi.f.jeda"
+  | "studio.definisi.f.luring"
+  | "studio.definisi.acak.NONE"
+  | "studio.definisi.acak.ITEMS"
+  | "studio.definisi.acak.ITEMS_AND_OPTIONS"
+  | "config.sekolah.sintetis" | "config.sekolah.aktif" | "config.sekolah.nonaktif"
+  // D-138/D-140: the audit trail in words
+  | "audit.aksi.ASSESSMENT_DEFINITION_CREATED"
+  | "audit.aksi.ASSESSMENT_DEFINITION_RELABELLED"
+  | "audit.aksi.ASSESSMENT_DEFINITION_VERSIONED"
+  | "audit.aksi.CERTIFICATE_TEMPLATE_SAVED"
+  | "audit.aksi.COURSE_CORRECTION_UPLOADED"
+  | "audit.aksi.COURSE_REVISION_CREATED"
+  | "audit.aksi.EVIDENCE_RECLASSIFIED"
+  | "audit.aksi.FINDING_ACKNOWLEDGED"
+  | "audit.aksi.INTEGRITY_SIGNAL_REVIEWED"
+  | "audit.aksi.LEARNING_ASSIGNED"
+  | "audit.aksi.LEARNING_RELEASE_MOVED"
+  | "audit.aksi.QUESTION_HEALTH_REVIEWED"
+  | "audit.aksi.RELEASE_CREATED"
+  | "audit.aksi.RELEASE_DISTRIBUTION_GRANTED"
+  | "audit.aksi.RELEASE_DISTRIBUTION_WITHDRAWN"
+  | "audit.aksi.RELEASE_FROZEN"
+  | "audit.aksi.RELEASE_PUBLISHED"
+  | "audit.aksi.RELEASE_WITHDRAWN"
+  | "audit.aksi.account.activated"
+  | "audit.aksi.account.activation_authorized"
+  | "audit.aksi.account.card_reissued"
+  | "audit.aksi.account.new_person_authorized"
+  | "audit.aksi.assessment_result.recomputed"
+  | "audit.aksi.assessment_session.deadline_extended"
+  | "audit.aksi.assessment_session.terminated"
+  | "audit.aksi.briefing.holding"
+  | "audit.aksi.briefing.opened"
+  | "audit.aksi.briefing.transition"
+  | "audit.aksi.certificate.issued"
+  | "audit.aksi.certificate.prepared"
+  | "audit.aksi.certificate.revoked"
+  | "audit.aksi.class.status_changed"
+  | "audit.aksi.content.status_changed"
+  | "audit.aksi.enrollment.created"
+  | "audit.aksi.evaluation.assume"
+  | "audit.aksi.evaluation.exit"
+  | "audit.aksi.evaluator.grant"
+  | "audit.aksi.evaluator.revoke"
+  | "audit.aksi.feedback_cycle.closed"
+  | "audit.aksi.feedback_cycle.opened"
+  | "audit.aksi.feedback_question_set.published"
+  | "audit.aksi.feedback_threshold.published"
+  | "audit.aksi.identity.device_declared"
+  | "audit.aksi.identity.email_corrected"
+  | "audit.aksi.identity.name_confirmed"
+  | "audit.aksi.identity.name_corrected"
+  | "audit.aksi.identity.name_corrected_at_activation"
+  | "audit.aksi.identity.password_set"
+  | "audit.aksi.identity.pin_set"
+  | "audit.aksi.identity.recovery_locked"
+  | "audit.aksi.identity.recovery_pin_ok"
+  | "audit.aksi.identity.recovery_pin_wrong"
+  | "audit.aksi.identity.recovery_restored"
+  | "audit.aksi.identity.recovery_suspended"
+  | "audit.aksi.identity.recovery_verified"
+  | "audit.aksi.identity.session_ended"
+  | "audit.aksi.identity.session_pin_wrong"
+  | "audit.aksi.identity.session_resumed"
+  | "audit.aksi.identity.setup_completed"
+  | "audit.aksi.identity.username_claimed"
+  | "audit.aksi.identity.username_corrected"
+  | "audit.aksi.import.completed"
+  | "audit.aksi.import.confirmed"
+  | "audit.aksi.import.pilot_completed"
+  | "audit.aksi.import.pilot_verified"
+  | "audit.aksi.ingest.materialised"
+  | "audit.aksi.ingest.prepared"
+  | "audit.aksi.institution.created"
+  | "audit.aksi.institution.state_changed"
+  | "audit.aksi.institution_namespace.reserved"
+  | "audit.aksi.learner_detail.opened"
+  | "audit.aksi.lesson_review.requested"
+  | "audit.aksi.maintenance.activated"
+  | "audit.aksi.maintenance.cancelled"
+  | "audit.aksi.maintenance.deactivated"
+  | "audit.aksi.maintenance.emergency_stop"
+  | "audit.aksi.maintenance.ended_now"
+  | "audit.aksi.maintenance.scheduled"
+  | "audit.aksi.maintenance.started_now"
+  | "audit.aksi.management_decision.advanced"
+  | "audit.aksi.management_decision.raised"
+  | "audit.aksi.membership.closed"
+  | "audit.aksi.membership.created"
+  | "audit.aksi.metric_catalogue.published"
+  | "audit.aksi.mode_policy.changed"
+  | "audit.aksi.notice.published"
+  | "audit.aksi.notice.withdrawn"
+  | "audit.aksi.period.rollover"
+  | "audit.aksi.platform_config.updated"
+  | "audit.aksi.platform_environment.changed"
+  | "audit.aksi.professional_learning.enrolled"
+  | "audit.aksi.question_health.recomputed"
+  | "audit.aksi.question_health.transition"
+  | "audit.aksi.quick_assessment.launched"
+  | "audit.aksi.quick_assessment.selected"
+  | "audit.aksi.report_template.provisioned"
+  | "audit.aksi.report_template.saved"
+  | "audit.aksi.role.first_system_admin_bootstrapped"
+  | "audit.aksi.role.granted"
+  | "audit.aksi.role.revoked"
+  | "audit.aksi.school.founded"
+  | "audit.aksi.school_pass_mark.set"
+  | "audit.aksi.scoring_policy.published"
+  | "audit.aksi.structure.academic_year_created"
+  | "audit.aksi.structure.bagian_created"
+  | "audit.aksi.structure.deactivated"
+  | "audit.aksi.structure.jenjang_created"
+  | "audit.aksi.structure.kelas_created"
+  | "audit.aksi.structure.reguler_created"
+  | "audit.aksi.structure.renamed"
+  | "audit.aksi.structure.tingkat_created"
+  | "audit.aksi.support_report.moved"
+  | "audit.aksi.support_report.received"
+  | "audit.ranah.account"
+  | "audit.ranah.assessment_result"
+  | "audit.ranah.assessment_session"
+  | "audit.ranah.briefing"
+  | "audit.ranah.certificate"
+  | "audit.ranah.class"
+  | "audit.ranah.content"
+  | "audit.ranah.enrollment"
+  | "audit.ranah.evaluation"
+  | "audit.ranah.evaluator"
+  | "audit.ranah.feature_flag"
+  | "audit.ranah.feedback_cycle"
+  | "audit.ranah.feedback_question_set"
+  | "audit.ranah.feedback_threshold"
+  | "audit.ranah.identity"
+  | "audit.ranah.import"
+  | "audit.ranah.ingest"
+  | "audit.ranah.institution"
+  | "audit.ranah.institution_namespace"
+  | "audit.ranah.learner_detail"
+  | "audit.ranah.lesson_review"
+  | "audit.ranah.maintenance"
+  | "audit.ranah.management_decision"
+  | "audit.ranah.membership"
+  | "audit.ranah.metric_catalogue"
+  | "audit.ranah.mode_policy"
+  | "audit.ranah.notice"
+  | "audit.ranah.period"
+  | "audit.ranah.platform_config"
+  | "audit.ranah.platform_environment"
+  | "audit.ranah.probe"
+  | "audit.ranah.professional_learning"
+  | "audit.ranah.question_health"
+  | "audit.ranah.quick_assessment"
+  | "audit.ranah.report_template"
+  | "audit.ranah.role"
+  | "audit.ranah.school"
+  | "audit.ranah.school_pass_mark"
+  | "audit.ranah.scoring_policy"
+  | "audit.ranah.selfcheck"
+  | "audit.ranah.structure"
+  | "audit.ranah.support_report"
+  | "audit.ranah.transfer"
+  | "audit.ranah.ASSESSMENT"
+  | "audit.ranah.CERTIFICATE"
+  | "audit.ranah.COURSE"
+  | "audit.ranah.EVIDENCE"
+  | "audit.ranah.FINDING"
+  | "audit.ranah.INTEGRITY"
+  | "audit.ranah.LEARNING"
+  | "audit.ranah.QUESTION"
+  | "audit.ranah.RELEASE"
+  | "audit.tabel.academic_periods"
+  | "audit.tabel.assessment_assignments"
+  | "audit.tabel.assessment_definitions"
+  | "audit.tabel.assessment_results"
+  | "audit.tabel.assessment_sessions"
+  | "audit.tabel.audit_log"
+  | "audit.tabel.briefings"
+  | "audit.tabel.broadcast_notices"
+  | "audit.tabel.certificate_templates"
+  | "audit.tabel.certificates"
+  | "audit.tabel.classes"
+  | "audit.tabel.courses"
+  | "audit.tabel.enrollments"
+  | "audit.tabel.evaluation_evaluators"
+  | "audit.tabel.evaluation_sessions"
+  | "audit.tabel.feature_flags"
+  | "audit.tabel.feedback_cycles"
+  | "audit.tabel.feedback_question_sets"
+  | "audit.tabel.feedback_thresholds"
+  | "audit.tabel.import_jobs"
+  | "audit.tabel.ingest_batches"
+  | "audit.tabel.institutions"
+  | "audit.tabel.integrity_signals"
+  | "audit.tabel.learning_assignments"
+  | "audit.tabel.maintenance_windows"
+  | "audit.tabel.management_decisions"
+  | "audit.tabel.memberships"
+  | "audit.tabel.metric_catalogue"
+  | "audit.tabel.mode_policy"
+  | "audit.tabel.org_nodes"
+  | "audit.tabel.persons"
+  | "audit.tabel.platform_config"
+  | "audit.tabel.platform_environment"
+  | "audit.tabel.probe"
+  | "audit.tabel.plp_releases"
+  | "audit.tabel.question_health"
+  | "audit.tabel.recovery_ladder"
+  | "audit.tabel.release_distributions"
+  | "audit.tabel.report_templates"
+  | "audit.tabel.role_assignments"
+  | "audit.tabel.school_pass_marks"
+  | "audit.tabel.scoring_policy"
+  | "audit.tabel.support_reports"
+  | "audit.tabel.transfers"
+  | "audit.aksi.lain"
   // ── WP6B. The educator's own learning. These are NOT staff-only: they are
   // read by a person in their learner context, so the internal-word sweep
   // applies to them exactly as it does to the learner's own home — which is
@@ -2008,7 +2252,7 @@ const table: Table = {
   "jenis.mode.EXAM": { default: "Ujian", en: "Exam" },
   "jenis.mode.PUBLIC_DEMO": { default: "Peragaan publik", en: "Public demonstration" },
   "jenis.mode.PAPER": { default: "Tes di Kertas", en: "Paper Test" },
-  "jenis.integritas.VISIBILITY_CHANGE": { default: "Berpindah dari layar penilaian", en: "Moved away from the assessment screen" },
+  "jenis.integritas.VISIBILITY_CHANGE": { default: "Berpindah dari layar asesmen", en: "Moved away from the assessment screen" },
   "jenis.integritas.NAVIGATION": { default: "Berpindah halaman", en: "Moved to another page" },
   "jenis.integritas.RECONNECT": { default: "Terputus lalu tersambung lagi", en: "Disconnected, then reconnected" },
   "jenis.integritas.RAPID_OPTION_CHANGE": { default: "Mengubah pilihan sangat cepat", en: "Changed answer very quickly" },
@@ -2019,9 +2263,9 @@ const table: Table = {
   // omission: a status like `not_permitted` or `below_minimum` is an internal
   // word and never reaches a screen.
   "metrik.peserta.label": { default: "Peserta", en: "Students" },
-  "metrik.peserta.arti": { default: "Banyaknya murid yang mengerjakan penilaian di kelas ini.", en: "How many students took the assessment in this class." },
+  "metrik.peserta.arti": { default: "Banyaknya murid yang mengerjakan asesmen di kelas ini.", en: "How many students took the assessment in this class." },
   "metrik.pemahaman.label": { default: "Pemahaman", en: "Comprehension" },
-  "metrik.pemahaman.arti": { default: "Rata-rata penguasaan kelas pada penilaian akhir.", en: "The class's average mastery on the Mastery Check." },
+  "metrik.pemahaman.arti": { default: "Rata-rata penguasaan kelas pada Uji Penguasaan.", en: "The class's average mastery on the Mastery Check." },
   "metrik.kenaikan.label": { default: "Kenaikan", en: "Gain" },
   "metrik.kenaikan.arti": { default: "Selisih penguasaan sebelum dan sesudah pembelajaran, per murid.", en: "The difference in mastery before and after the lessons, per student." },
   // D-095: PINTAR's fixed performance bands, an independent distribution, not the school's mastery threshold
@@ -2036,11 +2280,11 @@ const table: Table = {
   "metrik.miskonsepsi.label": { default: "Pemahaman keliru yang berulang", en: "Recurring misunderstandings" },
   "metrik.miskonsepsi.arti": { default: "Pola jawaban keliru yang muncul pada banyak murid, dengan saran penanganannya.", en: "Patterns of mistaken answers shared by many students, with what to do about them." },
   "metrik.peserta_institusi.label": { default: "Peserta", en: "Students" },
-  "metrik.peserta_institusi.arti": { default: "Banyaknya murid yang mengerjakan penilaian di sekolah ini.", en: "How many students took the assessment in this school." },
+  "metrik.peserta_institusi.arti": { default: "Banyaknya murid yang mengerjakan asesmen di sekolah ini.", en: "How many students took the assessment in this school." },
   "metrik.kenaikan_institusi.label": { default: "Kenaikan", en: "Gain" },
   "metrik.kenaikan_institusi.arti": { default: "Rata-rata kenaikan penguasaan murid di sekolah ini.", en: "The average gain in mastery across this school's students." },
-  "metrik.gerbang_keselamatan.label": { default: "Butir wajib", en: "Required items" },
-  "metrik.gerbang_keselamatan.arti": { default: "Bagian murid yang menjawab benar seluruh butir wajib.", en: "The share of students who answered every required item correctly." },
+  "metrik.gerbang_keselamatan.label": { default: "Soal wajib", en: "Required items" },
+  "metrik.gerbang_keselamatan.arti": { default: "Bagian murid yang menjawab benar seluruh soal wajib.", en: "The share of students who answered every required item correctly." },
   "metrik.perbandingan_kohort.label": { default: "Perbandingan angkatan", en: "Cohort comparison" },
   "metrik.perbandingan_kohort.arti": { default: "Penguasaan rata-rata tiap angkatan di sekolah ini.", en: "The average mastery of each cohort in this school." },
   "metrik.kompetensi.label": { default: "Capaian kompetensi", en: "Competency attainment" },
@@ -2048,13 +2292,13 @@ const table: Table = {
   "metrik.kredensial.label": { default: "Sertifikat terbit", en: "Certificates issued" },
   "metrik.kredensial.arti": { default: "Banyaknya sertifikat yang berlaku dan dapat diperiksa publik.", en: "How many certificates are valid and publicly checkable." },
   "metrik.item_benar.label": { default: "Tingkat jawaban benar", en: "Correct-answer rate" },
-  "metrik.item_benar.arti": { default: "Bagian murid yang menjawab butir ini dengan benar.", en: "The share of students who answered this item correctly." },
+  "metrik.item_benar.arti": { default: "Bagian murid yang menjawab soal ini dengan benar.", en: "The share of students who answered this item correctly." },
   "metrik.pengecoh.label": { default: "Pilihan yang dipilih", en: "Options chosen" },
-  "metrik.pengecoh.arti": { default: "Sebaran pilihan yang diambil murid pada butir ini.", en: "How students' choices were distributed across this item's options." },
+  "metrik.pengecoh.arti": { default: "Sebaran pilihan yang diambil murid pada soal ini.", en: "How students' choices were distributed across this item's options." },
   "metrik.posisi.label": { default: "Letak dan waktu", en: "Position and timing" },
-  "metrik.posisi.arti": { default: "Posisi butir ini dalam lembar soal dan rata-rata waktu pengerjaannya.", en: "Where this item sits in the paper and how long it takes on average." },
+  "metrik.posisi.arti": { default: "Posisi soal ini dalam lembar soal dan rata-rata waktu pengerjaannya.", en: "Where this item sits in the paper and how long it takes on average." },
   "metrik.hasil_murid.label": { default: "Hasil murid", en: "Student results" },
-  "metrik.hasil_murid.arti": { default: "Penguasaan murid ini pada tiap penilaian.", en: "This student's mastery on each assessment." },
+  "metrik.hasil_murid.arti": { default: "Penguasaan murid ini pada tiap asesmen.", en: "This student's mastery on each assessment." },
 
   // D-095: the band words describe a level and claim no pass, target or certificate (the keys are unchanged;
   // «Siap sertifikasi» is retired). Daisy may finalise the words in context.
@@ -2065,7 +2309,7 @@ const table: Table = {
   // CR-81 (D-123(3)): the class's population, said apart from the bands
   "kesiapan.populasi.murid": { default: "murid di kelas ini", en: "learners in this class" },
   "kesiapan.populasi.sudah": { default: "sudah mengerjakan Uji Penguasaan", en: "have taken the Mastery Check" },
-  "kesiapan.populasi.belum": { default: "belum mengerjakan Uji Penguasaan", en: "have not taken the Mastery Check yet" },
+  "kesiapan.populasi.belum": { default: "belum mengerjakan", en: "have not taken it yet" },
   "kesiapan.catatan": { default: "Pita tetap PINTAR: 80% ke atas, 60–79%, dan di bawah 60% atau soal wajib belum tepat. Bukan batas ketuntasan sekolah dan tidak menentukan sertifikat.", en: "PINTAR's fixed bands: 80% and above, 60–79%, and below 60% or a required item not yet right. Not the school's mastery threshold, and they do not decide certificates." },
 
   "kesehatan.judul": { default: "Butir yang perlu dilihat", en: "Items worth a look" },
@@ -2079,7 +2323,7 @@ const table: Table = {
   // "these are my worst questions": they are simply the ones PINTAR guarantees
   // to present, so they gather evidence fastest.
   "kesehatan.catatan_paparan": {
-    default: "Butir wajib selalu disertakan dalam setiap penilaian, jadi jawabannya terkumpul lebih cepat dan butir itu lebih dulu muncul di daftar ini. Urutan ini soal seberapa sering butir ditampilkan, bukan soal mutunya.",
+    default: "Soal wajib selalu disertakan dalam setiap asesmen, jadi jawabannya terkumpul lebih cepat dan soal itu lebih dulu muncul di daftar ini. Urutan ini menunjukkan seberapa sering soal ditampilkan, bukan mutunya.",
     en: "Required items appear in every assessment, so their answers accumulate faster and they surface here sooner. This ordering is about how often an item is shown, not about its quality.",
   },
 
@@ -2112,10 +2356,10 @@ const table: Table = {
   "pimpinan.judul": { default: "Apa yang menunggu Anda", en: "What is waiting for you" },
   // The suppression line. It says why the page is short, so a reader does not
   // go looking for the rest of the school somewhere else on it.
-  "pimpinan.batas": { default: "Yang muncul di sini memerlukan wewenang, koordinasi, atau penafsiran tingkat institusi. Selebihnya tidak muncul.", en: "What appears here needs authority, coordination, or an institution-level reading. Nothing else appears." },
+  "pimpinan.batas": { default: "Yang muncul di sini memerlukan wewenang, koordinasi, atau penafsiran untuk sekolah secara keseluruhan. Selebihnya tidak muncul.", en: "What appears here needs authority, coordination, or an institution-level reading. Nothing else appears." },
   "pimpinan.urutan": { default: "Urutannya: yang paling lama menunggu lebih dulu. Ini urutan, bukan peringkat.", en: "Ordered by what has waited longest. It is an order, not a ranking." },
   "pimpinan.memutuskan": { default: "PINTAR mengusulkan, manusia memutuskan.", en: "PINTAR proposes, a human decides." },
-  "pimpinan.ditolak": { default: "Halaman ini untuk kepala program dan dekan, pada bagian sekolah yang mereka pimpin.", en: "This page is for heads of department and deans, over the part of the school they lead." },
+  "pimpinan.ditolak": { default: "Halaman ini untuk Kepala departemen dan Dekan, dalam lingkup yang mereka pimpin.", en: "This page is for heads of department and deans, over the part of the school they lead." },
   "pimpinan.kembali": { default: "Kembali", en: "Back" },
 
   // A TRUTHFUL NOTHING. An empty queue is a real and good answer, not a failure
@@ -2129,8 +2373,8 @@ const table: Table = {
   // and the reader is told that rather than left to notice it.
   "pimpinan.perlu_diketahui.sub": { default: "Hal berikut tidak menunggu keputusan siapa pun.", en: "The following waits on no one\u2019s decision." },
 
-  "pimpinan.lingkup.judul": { default: "Bagian sekolah yang Anda pimpin", en: "The part of the school you lead" },
-  "pimpinan.lingkup.pilih": { default: "Bagian sekolah", en: "Part of the school" },
+  "pimpinan.lingkup.judul": { default: "Lingkup yang Anda pimpin", en: "The part of the school you lead" },
+  "pimpinan.lingkup.pilih": { default: "Lingkup", en: "Part of the school" },
   "pimpinan.lingkup.kosong": { default: "Belum ada bagian sekolah yang tercatat untuk Anda.", en: "No part of the school is recorded for you yet." },
   "pimpinan.lingkup.semua": { default: "Seluruh lingkup Anda", en: "All of your scope" },
   "pimpinan.buka.simpul": { default: "Lihat lebih rinci", en: "Look in more detail" },
@@ -2160,10 +2404,10 @@ const table: Table = {
   "pimpinan.rantai.integritas.didukung": { default: "Seorang peninjau sudah melihat catatan itu dan memilih meneruskannya. Catatannya menyebut satu hal yang teramati, dan tidak lebih.", en: "A reviewer looked at the note and chose to refer it. The note records one observed thing, and nothing more." },
   "pimpinan.rantai.integritas.belum": { default: "Apa yang sebenarnya terjadi. Catatan ini bahan pertimbangan manusia, bukan kesimpulan tentang seorang murid.", en: "What actually happened. This note is material for a human to weigh, not a conclusion about a learner." },
   "pimpinan.rantai.integritas.langkah": { default: "Menentukan siapa yang menanganinya, atau menutupnya dengan catatan.", en: "Deciding who handles it, or closing it with a note." },
-  "pimpinan.rantai.pembelajaran.didukung": { default: "Bukti belajar yang sudah memenuhi syarat pada bagian sekolah ini.", en: "The learning evidence that already qualifies in this part of the school." },
+  "pimpinan.rantai.pembelajaran.didukung": { default: "Bukti belajar yang sudah memenuhi syarat dalam lingkup ini.", en: "The learning evidence that already qualifies in this part of the school." },
   "pimpinan.rantai.pembelajaran.belum": { default: "Apa yang menjelaskannya. Angka menunjukkan keadaan, bukan sebabnya.", en: "What accounts for it. A figure shows a state, not its cause." },
-  "pimpinan.rantai.pembelajaran.langkah": { default: "Membicarakannya dengan pendidik di bagian ini, atau mengamati satu siklus lagi sebelum menyimpulkan apa pun.", en: "Discussing it with the educators here, or observing another cycle before concluding anything." },
-  "pimpinan.rantai.program.didukung": { default: "Apa yang sudah tercatat tentang jalannya program pada bagian sekolah ini.", en: "What is already recorded about how the programme is running in this part of the school." },
+  "pimpinan.rantai.pembelajaran.langkah": { default: "Membicarakannya dengan guru dalam lingkup ini, atau mengamati satu siklus lagi sebelum menyimpulkan apa pun.", en: "Discussing it with the educators here, or observing another cycle before concluding anything." },
+  "pimpinan.rantai.program.didukung": { default: "Apa yang sudah tercatat tentang jalannya program dalam lingkup ini.", en: "What is already recorded about how the programme is running in this part of the school." },
   "pimpinan.rantai.program.belum": { default: "Apa yang ada di luar catatan itu. PINTAR hanya melihat apa yang melewati PINTAR.", en: "What lies outside that record. PINTAR sees only what passes through PINTAR." },
   "pimpinan.rantai.program.langkah": { default: "Mengoordinasikannya dengan pihak yang menjalankan program.", en: "Coordinating it with the people running the programme." },
 
@@ -2182,8 +2426,8 @@ const table: Table = {
   "pimpinan.aksi.pilih": { default: "Hasil", en: "Outcome" },
   "pimpinan.aksi.catatan": { default: "Catatan (boleh dikosongkan)", en: "Note (may be left empty)" },
   // CR-76 (D-123(4)): whoever referred an integrity case does not decide it
-  "pimpinan.menunggu_pemutus_lain": { default: "Anda yang meneruskan kasus ini, jadi keputusannya diambil oleh pimpinan lain. Kasus ini menunggu keputusan mereka.", en: "You referred this case, so another leader decides it. It is waiting for their decision." },
-  "pimpinan.belum_ada_pemutus_lain": { default: "Belum ada pimpinan lain yang berwenang memutuskan di bagian ini. Minta Admin sekolah menunjuk kepala program atau dekan.", en: "No other leader can decide here yet. Ask the school admin to appoint a head of department or a dean." },
+  "pimpinan.menunggu_pemutus_lain": { default: "Anda yang meneruskan kasus ini, jadi pimpinan lain yang memutuskannya. Kasus ini menunggu keputusan mereka.", en: "You referred this case, so another leader decides it. It is waiting for their decision." },
+  "pimpinan.belum_ada_pemutus_lain": { default: "Belum ada pimpinan lain yang boleh memutuskan kasus dalam lingkup ini, jadi kasus ini belum bisa diputuskan. Minta Admin sekolah menunjuk Kepala departemen atau Dekan untuk lingkup ini.", en: "No other leader may decide cases in this scope yet, so this case can't be decided. Ask the school admin to appoint a head of department or a dean for this scope." },
   "pimpinan.aksi.gagal": { default: "Keputusan belum tercatat. Coba sekali lagi.", en: "The decision has not been recorded. Try once more." },
   "pimpinan.aksi.tercatat": { default: "Tercatat. Keadaan keputusan ini sudah diperbarui.", en: "Recorded. This decision’s state has been updated." },
 
@@ -2198,19 +2442,19 @@ const table: Table = {
   "pimpinan.kesiapan.belum_ada": { default: "Belum ada yang memenuhi syarat", en: "Nothing qualifying yet" },
 
   "pimpinan.bukti.judul": { default: "Yang didukung bukti", en: "What the evidence supports" },
-  "pimpinan.bukti.kosong": { default: "Belum ada angka yang bisa ditampilkan untuk bagian sekolah ini.", en: "There are no figures to show for this part of the school yet." },
+  "pimpinan.bukti.kosong": { default: "Belum ada angka yang bisa ditampilkan untuk lingkup ini.", en: "There are no figures to show for this part of the school yet." },
   // W10: no school-wide figure is this reader's, but classes below have theirs
   "pimpinan.bukti.di_kelas": { default: "Angka bagian ini dihitung per kelas. Bukalah kelasnya di bagian Per kelas di bawah.", en: "This part's figures are counted class by class. Open the class under Class by class below." },
   // The evidence count travels with the figure rather than under it: a number
   // a reader can weigh is a number whose evidence they can see.
   "pimpinan.bukti.dari": { default: "dari", en: "from" },
 
-  "pimpinan.murid.judul": { default: "Murid pada bagian ini", en: "Learners here" },
+  "pimpinan.murid.judul": { default: "Murid dalam lingkup ini", en: "Learners here" },
   // The deliberateness, said plainly. No dialog, no purpose code, no
   // justification field: the ruling says the opening needs none of those, and it
   // says the opening is recorded, so the page says that instead.
   "pimpinan.murid.sub": { default: "Daftar nama menurut abjad. Membuka catatan satu murid adalah tindakan tersendiri, dan tercatat.", en: "Names in alphabetical order. Opening one learner\u2019s record is a separate act, and it is recorded." },
-  "pimpinan.murid.kosong": { default: "Belum ada murid terdaftar pada bagian ini.", en: "No learners are enrolled here yet." },
+  "pimpinan.murid.kosong": { default: "Belum ada murid terdaftar dalam lingkup ini.", en: "No learners are enrolled here yet." },
   "pimpinan.murid.buka": { default: "Buka catatan", en: "Open the record" },
 
   "pimpinan.rincian.judul": { default: "Catatan murid", en: "Learner record" },
@@ -2238,7 +2482,7 @@ const table: Table = {
   "pendataan.eyebrow": { default: "Administrasi sekolah", en: "School administration" },
   "pendataan.judul": { default: "Menambahkan orang", en: "Adding people" },
   "pendataan.intro": { default: "Unggah daftar dari spreadsheet. PINTAR memeriksanya, menunjukkan apa yang akan terjadi, lalu meminta persetujuan Anda sebelum mencatat siapa pun.", en: "Upload a list from a spreadsheet. PINTAR checks it, shows you what will happen, then asks for your approval before it records anybody." },
-  "pendataan.ditolak": { default: "Halaman ini untuk administrator sekolah.", en: "This page is for school administrators." },
+  "pendataan.ditolak": { default: "Halaman ini untuk Admin sekolah.", en: "This page is for school administrators." },
   "pendataan.kembali": { default: "Kembali", en: "Back" },
   "pendataan.sekolah": { default: "Sekolah", en: "School" },
   // §3. THE NUMBER IDENTIFIES A PERSON AT A SCHOOL AND NOTHING ELSE. Said on
@@ -2551,7 +2795,7 @@ const table: Table = {
   "config.section.system": { default: "Sistem & Konfigurasi", en: "System & Configuration" },
   "config.section.intelligence": { default: "Inteligensi & Laporan", en: "Intelligence & Reports" },
   "laporan.templat.judul": { default: "Templat laporan", en: "Report templates" },
-  "laporan.templat.institusi": { default: "Institusi", en: "Institution" },
+  "laporan.templat.institusi": { default: "Sekolah", en: "Institution" },
   "config.label.person_new": { default: "Belum memiliki peran", en: "Holds nothing yet" },
   "config.label.person_known": { default: "Sudah dikenal sistem", en: "Already known to the system" },
   "laporan.templat.penjelasan": { default: "PINTAR memiliki katalog metrik beserta rumus, makna, ambang sampel minimum dan siapa yang boleh membacanya. Sekolah memilih metrik mana yang muncul dan bagaimana digambarkan — bukan apa artinya.", en: "PINTAR owns the metric catalogue: the formulas, the meanings, the minimum samples and who may read each one. A school chooses which metrics appear and how they are drawn — never what they mean." },
@@ -2563,7 +2807,7 @@ const table: Table = {
   "laporan.templat.versi": { default: "Versi", en: "Version" },
   "laporan.templat.simpan": { default: "Simpan templat", en: "Save template" },
   "laporan.templat.pilih": { default: "Pilih metrik dari katalog PINTAR", en: "Choose metrics from the PINTAR catalogue" },
-  "laporan.templat.tak_berwenang": { default: "Menyusun templat laporan memerlukan wewenang pengelola institusi.", en: "Assembling a report template requires institution administrator authority." },
+  "laporan.templat.tak_berwenang": { default: "Menyusun templat laporan memerlukan wewenang Admin sekolah atau Admin platform.", en: "Assembling a report template requires institution administrator authority." },
   "laporan.templat.batas": { default: "Satu templat menampilkan paling banyak 12 metrik.", en: "One template shows at most 12 metrics." },
   "config.card.health": { default: "Kesehatan sistem", en: "System health" },
   "config.card.health.periksa": { default: "Jalankan pemeriksaan", en: "Run the checks" },
@@ -2599,9 +2843,9 @@ const table: Table = {
   "config.kesehatan.cek.malformed_jalur": { default: "Setiap jalur kurikulum berbentuk benar", en: "Every curriculum path is well formed" },
   "config.card.cohorts": { default: "Kelas aktif", en: "Active classes" },
   "config.environment": { default: "Lingkungan", en: "Environment" },
-  "config.refused": { default: "Halaman ini hanya untuk pengelola sistem.", en: "This page is for system administrators only." },
+  "config.refused": { default: "Halaman ini hanya untuk Admin sekolah atau Admin platform.", en: "This page is for system administrators only." },
   "config.section.rollover": { default: "Pergantian tahun ajaran", en: "Academic-year rollover" },
-  "config.section.transfers": { default: "Perpindahan peserta didik", en: "Student transfers" },
+  "config.section.transfers": { default: "Perpindahan murid", en: "Student transfers" },
   "config.section.pindah": { default: "Pindah kelas", en: "Move a student to another class" },
   "config.section.ketuntasan": { default: "Batas ketuntasan", en: "Pass marks" },
   "config.ketuntasan.arti": { default: "Nilai minimum kelulusan setiap pelajaran di sekolah ini, dalam persen bulat dari 0 sampai 100. Guru baru bisa menyediakan sebuah pelajaran untuk kelas setelah batasnya ditetapkan. Perubahan berlaku untuk pelajaran yang disediakan sesudahnya; hasil dan sertifikat yang sudah ada tidak berubah.", en: "The minimum passing mark for each lesson at this school, as a whole percentage from 0 to 100. A teacher can give a lesson to a class only once its mark is set. A change applies to what is given afterwards; results and certificates that already exist do not change." },
@@ -2664,7 +2908,7 @@ const table: Table = {
   "config.label.period_from": { default: "Dari tahun ajaran", en: "From academic year" },
   "config.label.period_to": { default: "Ke tahun ajaran", en: "To academic year" },
   "config.label.mapping_help": { default: "Pilih kelas tujuan untuk setiap kelas asal. Keanggotaan lama ditutup, yang baru dibuat; riwayat tetap utuh.", en: "Choose a destination class for each source class. Old memberships are closed and new ones created; the history stays whole." },
-  "config.label.enrollment": { default: "Peserta didik (pendaftaran aktif)", en: "Students (active enrolments)" },
+  "config.label.enrollment": { default: "Murid (pendaftaran aktif)", en: "Students (active enrolments)" },
   "config.label.destination_institution": { default: "Kode sekolah tujuan", en: "Destination school code" },
   "config.label.destination_period": { default: "Kode tahun ajaran tujuan", en: "Destination academic-year code" },
   "config.label.destination_programme": { default: "Kode program tujuan (opsional)", en: "Destination programme code (optional)" },
@@ -2984,43 +3228,43 @@ const table: Table = {
   "studio.paket.masalah.option_text_missing": { default: "Teks pilihan belum diisi.", en: "The option text is empty." },
   "studio.paket.masalah.option_reason_missing": { default: "Alasan pilihan belum diisi. Setiap pilihan perlu alasannya.", en: "The option's reason is empty. Every option needs its reason." },
   "studio.paket.masalah.option_correct_invalid": { default: "Kolom Benar harus Ya atau Tidak.", en: "The Benar column must be Ya or Tidak." },
-  "studio.paket.masalah.option_misconception_unknown": { default: "Kode miskonsepsi ini tidak ada di lembar Miskonsepsi berkas ini.", en: "This misconception code is not on this file's Miskonsepsi sheet." },
-  "studio.paket.masalah.misconception_code_invalid": { default: "Kode miskonsepsi hanya boleh huruf besar, angka dan tanda hubung, 3 sampai 40 karakter.", en: "A misconception code may use only capital letters, digits and hyphens, 3 to 40 characters." },
-  "studio.paket.masalah.misconception_text_missing": { default: "Nama, penjelasan dan cara membantu wajib diisi untuk setiap miskonsepsi.", en: "Every misconception needs a name, an explanation and a way to help." },
-  "studio.paket.masalah.misconception_repeated": { default: "Kode miskonsepsi ini muncul lebih dari sekali di lembar Miskonsepsi.", en: "This misconception code appears more than once on the Miskonsepsi sheet." },
-  "studio.paket.masalah.misconception_definition_differs": { default: "Sekolah Anda sudah memakai kode ini dengan teks lain. Pakai teks yang sama, atau beri kode baru.", en: "Your school already uses this code with a different text. Use the same text, or give it a new code." },
+  "studio.paket.masalah.option_misconception_unknown": { default: "Kode ini belum ada di lembar Miskonsepsi. Tambahkan kodenya di lembar itu, atau kosongkan kolom Kode miskonsepsi.", en: "This code is not on the Miskonsepsi sheet yet. Add the code to that sheet, or leave the Kode miskonsepsi column empty." },
+  "studio.paket.masalah.misconception_code_invalid": { default: "Kode ini tidak bisa dipakai. Pakai huruf besar, angka dan tanda hubung saja, 3 sampai 40 karakter, misalnya SD5-M-B1-01.", en: "This code can't be used. Use only capital letters, digits and hyphens, 3 to 40 characters, for example SD5-M-B1-01." },
+  "studio.paket.masalah.misconception_text_missing": { default: "Baris ini belum lengkap. Isi Nama, Penjelasan dan Cara membantu.", en: "This row is incomplete. Fill in Nama, Penjelasan and Cara membantu." },
+  "studio.paket.masalah.misconception_repeated": { default: "Kode ini tertulis lebih dari sekali di lembar Miskonsepsi. Satu kode cukup satu baris; hapus baris yang kembar.", en: "This code is written more than once on the Miskonsepsi sheet. One code needs only one row; delete the duplicate row." },
+  "studio.paket.masalah.misconception_definition_differs": { default: "Sekolah Anda sudah memakai kode ini dengan Nama, Penjelasan atau Cara membantu yang lain. Samakan teksnya, atau beri kode baru.", en: "Your school already uses this code with a different Nama, Penjelasan or Cara membantu. Make the texts the same, or give it a new code." },
   "studio.paket.masalah.text_too_long": { default: "Teks di kolom ini terlalu panjang.", en: "The text in this column is too long." },
-  "studio.paket.masalah.package_could_not_be_saved": { default: "Paket ini belum bisa disimpan. Coba lagi, atau hubungi admin platform.", en: "This package could not be saved. Try again, or contact the platform administrator." },
+  "studio.paket.masalah.package_could_not_be_saved": { default: "Paket ini belum bisa disimpan. Coba lagi, atau hubungi Admin platform.", en: "This package could not be saved. Try again, or contact the platform administrator." },
   "studio.paket.masalah.revision_course_unknown": { default: "Kursus yang mau diperbaiki tidak ada di sekolah ini.", en: "The course being corrected is not in this school." },
   "studio.paket.masalah.revision_not_released": { default: "Kursus yang mau diperbaiki belum dikunci. Hanya kursus yang sudah dikunci yang diperbaiki dengan cara ini.", en: "The course being corrected has not been locked. Only a locked course is corrected this way." },
   "studio.paket.masalah.revision_not_latest": { default: "Kursus ini sudah pernah diperbaiki. Pilih versi terbarunya.", en: "This course has already been corrected. Choose its newest version." },
   "studio.paket.masalah.revision_one_course": { default: "Buku kerja perbaikan berisi tepat satu kursus.", en: "A corrected workbook holds exactly one course." },
   "studio.paket.masalah.revision_summary_missing": { default: "Tulis apa yang diperbaiki dan mengapa, 10 sampai 1.000 huruf.", en: "Say what was corrected and why, in 10 to 1,000 characters." },
   "studio.paket.masalah.lain": { default: "Ada bagian paket yang belum bisa diterima.", en: "Part of the package cannot be accepted yet." },
-  "studio.paket.kode.package_not_allowed": { default: "Anda tidak berwenang menyusun kursus di sekolah ini.", en: "You are not allowed to author courses in this school." },
+  "studio.paket.kode.package_not_allowed": { default: "Anda tidak berwenang menyusun paket di sekolah ini.", en: "You are not allowed to author courses in this school." },
   "studio.paket.kode.package_state_invalid": { default: "Unggahan ini sudah dikonfirmasi atau ditolak.", en: "This upload has already been confirmed or rejected." },
-  "studio.paket.kode.package_school_not_allowed": { default: "Pilih sekolah. Unggahan menjadi kursus sekolah, bukan pustaka platform.", en: "Choose a school. An upload becomes a school's course, not the platform library." },
+  "studio.paket.kode.package_school_not_allowed": { default: "Pilih sekolah. Unggahan menjadi Paket Pembelajaran sekolah, bukan pustaka platform.", en: "Choose a school. An upload becomes a school's course, not the platform library." },
   "studio.paket.kode.package_has_problems": { default: "Paket ini belum bisa diterima. Perbaiki baris yang disebut lalu unggah lagi.", en: "This package cannot be accepted yet. Fix the rows listed and upload again." },
   "studio.paket.kode.package_input_invalid": { default: "Pilih sekolah dan berkasnya dulu.", en: "Choose the school and the file first." },
   "studio.paket.kode.package_failed": { default: "Unggahan belum berhasil. Coba lagi sebentar lagi.", en: "The upload did not go through. Try again in a moment." },
   // DAISY-31 (BOB-35): Studio's «Koreksi» refused, by its two causes; the second names the tests by the titles learners see
-  "studio.terbitan.kode.release_move_started": { default: "Penugasan ini tidak bisa dipindahkan: sudah ada siswa yang mulai mengerjakannya. Untuk memakai terbitan lain, buat penugasan baru.", en: "This assignment cannot be moved: a student has already started it. To use another release, make a new assignment." },
+  "studio.terbitan.kode.release_move_started": { default: "Penugasan ini tidak bisa dipindahkan: sudah ada murid yang mulai mengerjakannya. Untuk memakai terbitan lain, buat penugasan baru.", en: "This assignment cannot be moved: a student has already started it. To use another release, make a new assignment." },
   "studio.terbitan.kode.release_move_no_cycle_definition": { default: "Terbitan tujuan belum punya Pemetaan Awal dan Uji Penguasaan, jadi penugasan tidak bisa dipindahkan ke sana. Pilih terbitan lain.", en: "The target release has no Initial Mapping and Mastery Check yet, so the assignment cannot be moved there. Choose another release." },
   "studio.terbitan.kode.release_not_allowed": { default: "Anda tidak berwenang membuat atau mengunci terbitan di sekolah ini.", en: "You are not allowed to create or lock releases in this school." },
   "studio.terbitan.kode.release_publish_not_allowed": { default: "Anda tidak berwenang menerbitkan atau menarik terbitan di sekolah ini.", en: "You are not allowed to publish or withdraw releases in this school." },
-  "studio.terbitan.kode.release_school_not_allowed": { default: "Terbitan dibuat dari kursus sekolah, bukan dari pustaka nasional.", en: "A release is made from a school's course, not from the national library." },
-  "studio.terbitan.kode.release_course_not_approved": { default: "Kursus ini belum disetujui. Terbitan dibuat dari kursus yang sudah disetujui.", en: "This course has not been approved yet. A release is made from an approved course." },
-  "studio.terbitan.kode.release_exists": { default: "Kursus ini sudah punya terbitan. Untuk koreksi, buat revisi kursus.", en: "This course already has a release. To correct it, create a revision of the course." },
+  "studio.terbitan.kode.release_school_not_allowed": { default: "Terbitan dibuat dari Paket Pembelajaran sekolah, bukan dari pustaka nasional.", en: "A release is made from a school's course, not from the national library." },
+  "studio.terbitan.kode.release_course_not_approved": { default: "Paket ini belum disetujui. Terbitan dibuat dari paket yang sudah disetujui.", en: "This course has not been approved yet. A release is made from an approved course." },
+  "studio.terbitan.kode.release_exists": { default: "Paket ini sudah punya terbitan. Untuk koreksi, buat revisi paket.", en: "This course already has a release. To correct it, create a revision of the course." },
   "studio.terbitan.kode.release_state_invalid": { default: "Terbitan ini sudah melewati langkah tersebut.", en: "This release is already past that step." },
-  "studio.terbitan.kode.release_same_person": { default: "Penyusun kursus tidak bisa mengunci terbitannya sendiri. Minta rekan yang lain.", en: "The author of a course cannot lock its own release. Ask a colleague." },
-  "studio.terbitan.kode.release_not_ready": { default: "Kursus ini belum siap terbit. Selesaikan temuan yang tercantum di halaman ini.", en: "This course is not ready to publish. Resolve the findings listed on this page." },
+  "studio.terbitan.kode.release_same_person": { default: "Penyusun paket tidak bisa mengunci terbitannya sendiri. Minta rekan yang lain.", en: "The author of a course cannot lock its own release. Ask a colleague." },
+  "studio.terbitan.kode.release_not_ready": { default: "Paket ini belum siap terbit. Selesaikan temuan yang tercantum di halaman ini.", en: "This course is not ready to publish. Resolve the findings listed on this page." },
   "studio.terbitan.kode.release_reason_required": { default: "Tuliskan alasan penarikan.", en: "Write the reason for the withdrawal." },
-  "studio.terbitan.kode.release_input_invalid": { default: "Terbitan atau kursus tidak dikenali.", en: "The release or course was not recognised." },
+  "studio.terbitan.kode.release_input_invalid": { default: "Terbitan atau paket tidak dikenali.", en: "The release or course was not recognised." },
   "studio.terbitan.kode.release_failed": { default: "Langkah ini belum berhasil. Coba lagi sebentar lagi.", en: "This step did not go through. Try again in a moment." },
   "studio.paket.buat_terbitan": { default: "Buat terbitan", en: "Create release" },
-  "laporan.muncul.penilaian": { default: "Angka ini muncul setelah murid menyelesaikan penilaian pertamanya.", en: "This figure appears once a student has finished their first assessment." },
-  "laporan.muncul.akhir": { default: "Angka ini muncul setelah cukup murid menyelesaikan Cek penguasaan.", en: "This figure appears once enough students have finished the Mastery Check." },
-  "laporan.muncul.awal_akhir": { default: "Angka ini muncul setelah cukup murid menyelesaikan Pemetaan awal dan Cek penguasaan. Hanya murid yang menyelesaikan keduanya yang dihitung.", en: "This figure appears once enough students have finished both the Initial Mapping and the Mastery Check. Only students who finished both are counted." },
+  "laporan.muncul.penilaian": { default: "Angka ini muncul setelah murid menyelesaikan asesmen pertamanya.", en: "This figure appears once a student has finished their first assessment." },
+  "laporan.muncul.akhir": { default: "Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan.", en: "This figure appears once enough students have finished the Mastery Check." },
+  "laporan.muncul.awal_akhir": { default: "Angka ini muncul setelah cukup murid menyelesaikan Pemetaan Awal dan Uji Penguasaan. Hanya murid yang menyelesaikan keduanya yang dihitung.", en: "This figure appears once enough students have finished both the Initial Mapping and the Mastery Check. Only students who finished both are counted." },
   "laporan.muncul.miskonsepsi": { default: "Angka ini muncul setelah beberapa murid memilih jawaban keliru yang sama pada pilihan yang diberi kode miskonsepsi.", en: "This figure appears once several students choose the same wrong answer on an option that carries a misconception code." },
   "laporan.muncul.sertifikat": { default: "Angka ini muncul setelah sertifikat pertama sekolah ini terbit.", en: "This figure appears once this school's first certificate is issued." },
   "pimpinan.kelas.murid": { default: "Murid di kelas ini sekarang", en: "Students in this class now" },
@@ -3028,11 +3272,11 @@ const table: Table = {
   "pimpinan.kelas.arti": { default: "Angka kelas dihitung untuk tiap kelas sendiri dan tidak dijumlahkan antarkelas. Buka satu kelas untuk melihat angkanya, atau apa yang membuatnya muncul.", en: "Class figures are counted for each class on its own and never added across classes. Open a class to see its figures, or what will make them appear." },
   "pimpinan.kelas.ada": { default: "Ada angka", en: "Has figures" },
   "pimpinan.kelas.belum": { default: "Belum ada angka", en: "No figures yet" },
-  "pimpinan.kelas.kosong": { default: "Belum ada kelas di bagian ini.", en: "There are no classes in this part yet." },
+  "pimpinan.kelas.kosong": { default: "Belum ada kelas dalam lingkup ini.", en: "There are no classes in this part yet." },
   "pimpinan.laporan.sekolah": { default: "Buka ringkasan sekolah", en: "Open the school summary" },
   "pimpinan.laporan.kelas": { default: "Buka ringkasan kelas ini", en: "Open this class\u2019s summary" },
   "config.laporan.judul": { default: "Laporan", en: "Reports" },
-  "config.laporan.arti": { default: "Ringkasan dibaca dari penilaian resmi murid. Sebelum ada cukup hasil, setiap angka menjelaskan apa yang membuatnya muncul.", en: "Summaries are read from students' official assessments. Until there are enough results, each figure explains what will make it appear." },
+  "config.laporan.arti": { default: "Ringkasan dibaca dari asesmen resmi murid. Sebelum ada cukup hasil, setiap angka menjelaskan apa yang membuatnya muncul.", en: "Summaries are read from students' official assessments. Until there are enough results, each figure explains what will make it appear." },
   "config.laporan.sekolah": { default: "Ringkasan sekolah", en: "School summary" },
   "config.laporan.kelas": { default: "Ringkasan per kelas", en: "Summary by class" },
   "config.laporan.tanpa_kelas": { default: "Belum ada Kelas aktif. Buat Kelas di Struktur sekolah di atas; ringkasannya lalu muncul di sini.", en: "There is no active class yet. Create one in the school structure above; its summary then appears here." },
@@ -3040,11 +3284,11 @@ const table: Table = {
   "studio.langkah.arti": { default: "Tujuh langkah dari unggahan sampai terbit, dalam urutan yang dijalankan PINTAR. Tombol hanya muncul untuk orang yang boleh mengambil langkah itu.", en: "Seven steps from upload to publication, in the order PINTAR takes them. A button appears only for someone who may take that step." },
   "studio.langkah.oleh": { default: "Oleh:", en: "By:" },
   "studio.langkah.atau": { default: "atau", en: "or" },
-  "studio.langkah.bukan_penyusun": { default: "bukan penyusun kursus ini", en: "not this course's author" },
+  "studio.langkah.bukan_penyusun": { default: "bukan penyusun paket ini", en: "not this course's author" },
   "studio.langkah.keadaan.selesai": { default: "Selesai", en: "Done" },
   "studio.langkah.keadaan.kini": { default: "Sekarang", en: "Now" },
   "studio.langkah.keadaan.nanti": { default: "Belum", en: "Not yet" },
-  "studio.langkah.tunggu.penyusun": { default: "Anda menyusun kursus ini, jadi langkah ini diambil orang kedua. Minta rekan yang disebut di atas.", en: "You wrote this course, so a second person takes this step. Ask a colleague named above." },
+  "studio.langkah.tunggu.penyusun": { default: "Anda menyusun paket ini, jadi langkah ini diambil orang kedua. Minta rekan yang disebut di atas.", en: "You wrote this course, so a second person takes this step. Ask a colleague named above." },
   "studio.langkah.tunggu.wewenang": { default: "Langkah ini bukan wewenang Anda di sekolah ini. Minta orang yang disebut di atas.", en: "This step is not yours to take in this school. Ask someone named above." },
   "studio.langkah.dikembalikan": { default: "Isi ini dikembalikan untuk diperbaiki. Perbaiki, lalu tandai sudah tersusun lagi.", en: "This content was returned for correction. Fix it, then mark it as put together again." },
   "studio.langkah.sibuk": { default: "Memproses…", en: "Working…" },
@@ -3058,8 +3302,8 @@ const table: Table = {
   "studio.hambatan.readiness_not_validated": { default: "bagian isi belum lolos langkah Periksa isi", en: "part(s) of the content not yet through Check the content" },
   "studio.hambatan.readiness_returned": { default: "bagian isi dikembalikan dan harus diperbaiki", en: "part(s) of the content returned and to be fixed" },
   "studio.hambatan.readiness_awaiting_review": { default: "bagian isi masih menunggu langkah Setujui isi", en: "part(s) of the content still waiting at Approve the content" },
-  "studio.hambatan.readiness_no_release": { default: "Kursus ini belum memiliki terbitan: mulai dari langkah Buat terbitan.", en: "This course has no release yet: start at Create the release." },
-  "studio.hambatan.readiness_not_sealed": { default: "Isi kursus belum dikunci pada langkah Kunci terbitan. Setelah dikunci, isinya tidak dapat diubah lagi.", en: "The course content is not locked yet at Lock the release. Once locked, it cannot be changed." },
+  "studio.hambatan.readiness_no_release": { default: "Paket ini belum memiliki terbitan: mulai dari langkah Buat terbitan.", en: "This course has no release yet: start at Create the release." },
+  "studio.hambatan.readiness_not_sealed": { default: "Isi paket belum dikunci pada langkah Kunci terbitan. Setelah dikunci, isinya tidak dapat diubah lagi.", en: "The course content is not locked yet at Lock the release. Once locked, it cannot be changed." },
   "studio.hambatan.lain": { default: "Ada hal lain yang menahan terbitan ini.", en: "Something else is holding this release." },
   "studio.hambatan.pelajaran": { default: "Pelajaran", en: "Lesson" },
   "studio.hambatan.pola.answer_position_skew": { default: "jawaban benar menumpuk di posisi yang sama", en: "the correct answers bunch in one position" },
@@ -3068,31 +3312,31 @@ const table: Table = {
   "studio.hambatan.pola.stem_reveals_answer": { default: "pertanyaannya membocorkan jawaban", en: "the question gives its answer away" },
   "studio.hambatan.pola.lain": { default: "catatan mutu soal lainnya", en: "another question-quality note" },
   "studio.langkah.susun.judul": { default: "Susun isi", en: "Put the content together" },
-  "studio.langkah.susun.arti": { default: "Buku kerja sudah menjadi kursus, bab, pelajaran, dan soal. Lihat seperti siswa untuk memeriksa tampilannya, lalu tandai sudah tersusun.", en: "The workbook has become a course with chapters, lessons and questions. See it as a student to check how it looks, then mark it as put together." },
+  "studio.langkah.susun.arti": { default: "Buku kerja sudah menjadi kursus, bab, pelajaran, dan soal. Lihat seperti murid untuk memeriksa tampilannya, lalu tandai sudah tersusun.", en: "The workbook has become a course with chapters, lessons and questions. See it as a student to check how it looks, then mark it as put together." },
   "studio.langkah.susun.tombol": { default: "Tandai sudah tersusun", en: "Mark as put together" },
   "studio.langkah.periksa.judul": { default: "Periksa isi", en: "Check the content" },
   "studio.langkah.periksa.arti": { default: "Jalankan pemeriksaan isi di bagian Temuan di bawah. Perbaiki yang wajib diperbaiki, lalu tandai lolos pemeriksaan.", en: "Run the content check in the Findings section below. Fix what must be fixed, then mark the check as passed." },
   "studio.langkah.periksa.tombol": { default: "Tandai lolos pemeriksaan", en: "Mark the check as passed" },
   "studio.langkah.ajukan.judul": { default: "Ajukan untuk ditinjau", en: "Send for review" },
-  "studio.langkah.ajukan.arti": { default: "Kirim kursus ini kepada rekan yang boleh menyetujuinya. Persetujuannya harus dari orang lain, bukan dari penyusun.", en: "Send this course to a colleague who may approve it. The approval must come from someone other than its author." },
+  "studio.langkah.ajukan.arti": { default: "Kirim paket ini kepada rekan yang boleh menyetujuinya. Persetujuannya harus dari orang lain, bukan dari penyusun.", en: "Send this course to a colleague who may approve it. The approval must come from someone other than its author." },
   "studio.langkah.ajukan.tombol": { default: "Ajukan untuk ditinjau", en: "Send for review" },
   "studio.langkah.setujui.judul": { default: "Setujui isi", en: "Approve the content" },
   "studio.langkah.setujui.arti": { default: "Orang kedua membaca isinya lalu menyetujuinya. Peringatan di bagian Temuan juga diakui di langkah ini.", en: "A second person reads the content and approves it. Warnings in the Findings section are acknowledged at this step too." },
   "studio.langkah.setujui.tombol": { default: "Setujui isi", en: "Approve the content" },
   "studio.langkah.buat.judul": { default: "Buat terbitan", en: "Create the release" },
-  "studio.langkah.buat.arti": { default: "Terbitan adalah versi kursus yang nanti dipakai siswa. Terbitan dibuat dari kursus yang sudah disetujui.", en: "A release is the version of the course that students will use. It is made from an approved course." },
+  "studio.langkah.buat.arti": { default: "Terbitan adalah versi Paket Pembelajaran yang nanti dipakai murid. Terbitan dibuat dari paket yang sudah disetujui.", en: "A release is the version of the course that students will use. It is made from an approved course." },
   "studio.langkah.buat.tombol": { default: "Buat terbitan", en: "Create the release" },
   "studio.langkah.kunci.judul": { default: "Kunci terbitan", en: "Lock the release" },
   "studio.langkah.kunci.arti": { default: "Orang kedua mengunci terbitan. PINTAR memeriksa isinya sekali lagi. Setelah dikunci, isinya tidak dapat diubah; perbaikan dibuat sebagai salinan baru.", en: "A second person locks the release. PINTAR checks the content once more. Once locked it cannot be changed; a correction is made as a new copy." },
   "studio.langkah.kunci.tombol": { default: "Kunci terbitan", en: "Lock the release" },
   "studio.langkah.terbitkan.judul": { default: "Terbitkan", en: "Publish" },
-  "studio.langkah.terbitkan.arti": { default: "Setelah terbit, guru dapat menugaskannya ke kelas.", en: "Once published, teachers can assign it to a class." },
+  "studio.langkah.terbitkan.arti": { default: "Setelah terbit, guru dapat menyediakannya untuk kelas mereka.", en: "Once published, teachers can make it available to their classes." },
   "studio.langkah.terbitkan.tombol": { default: "Terbitkan", en: "Publish" },
   "studio.langkah.terbit.judul": { default: "Terbit", en: "Published" },
   "studio.langkah.terbit.sejak": { default: "Terbit sejak", en: "Published since" },
-  "studio.langkah.terbit.nanti": { default: "Kursus ini terbit setelah langkah 7.", en: "This course is published after step 7." },
+  "studio.langkah.terbit.nanti": { default: "Paket ini terbit setelah langkah 7.", en: "This course is published after step 7." },
   "studio.langkah.ditarik.judul": { default: "Ditarik", en: "Withdrawn" },
-  "studio.langkah.ditarik.arti": { default: "Terbitan ini sudah ditarik dari peredaran. Untuk memperbaikinya, buat salinan kursus di bawah.", en: "This release has been withdrawn from circulation. To correct it, make a copy of the course below." },
+  "studio.langkah.ditarik.arti": { default: "Terbitan ini sudah ditarik dari peredaran. Untuk memperbaikinya, buat salinan paket di bawah.", en: "This release has been withdrawn from circulation. To correct it, make a copy of the course below." },
   "studio.langkah.tarik.alasan": { default: "Alasan penarikan", en: "Reason for withdrawal" },
   "studio.paket.periksa_isi": { default: "Periksa isi sekarang", en: "Check the content now" },
   "studio.paket.periksa_isi_arti": { default: "PINTAR memeriksa pelajaran dan soalnya. Temuannya muncul di sini; langkah Kunci terbitan memeriksa sekali lagi.", en: "PINTAR checks the lessons and questions. Its findings appear here; the Lock the release step checks once more." },
@@ -3129,7 +3373,7 @@ const table: Table = {
   "entry.pimpinan": { default: "Saya memimpin bagian sekolah", en: "I lead part of the school" },
   // Signed in, but holding no place yet: said plainly, with the one next step.
   "entry.kosong": {
-    default: "Akun Anda belum terhubung dengan kelas atau tugas apa pun. Hubungi admin sekolah Anda.",
+    default: "Anda belum terhubung dengan kelas atau tugas apa pun. Hubungi yang mengurus PINTAR di sekolah Anda.",
     en: "Your account is not linked to any class or role yet. Please ask your school administrator.",
   },
 
@@ -3150,7 +3394,7 @@ const table: Table = {
     default: "Ini bukan ujian. Jawaban Anda dipakai untuk menyusun peta bacaan yang pas.",
     en: "This is not an exam. Your answers are used to build a reading map that fits you.",
   },
-  "pretest.progress": { default: "Pertanyaan", en: "Question" },
+  "pretest.progress": { default: "Soal", en: "Question" },
   "pretest.next": { default: "Berikutnya", en: "Next" },
   "pretest.back": { default: "Kembali", en: "Back" },
   "pretest.finish": { default: "Selesaikan pemetaan", en: "Finish the mapping" },
@@ -3188,7 +3432,7 @@ const table: Table = {
   "posttest.elapsed": { default: "Waktu berjalan", en: "Time elapsed" },
   "posttest.pause": { default: "Simpan & Jeda", en: "Save & pause" },
   "posttest.resume": { default: "Lanjutkan mengerjakan", en: "Carry on" },
-  "posttest.flag": { default: "Tandai", en: "Flag" },
+  "posttest.flag": { default: "Tandai soal ini", en: "Flag this question" },
   "posttest.flagged": { default: "Ditandai", en: "Flagged" },
   "posttest.navigator": { default: "Daftar soal", en: "Question list" },
   "posttest.answered": { default: "Sudah dijawab", en: "Answered" },
@@ -3231,7 +3475,7 @@ const table: Table = {
 
   // ----------------------------------------- UX-1 Slice 2: the learner cycle
   "siklus.halo": { default: "Halo", en: "Hello" },
-  "siklus.beranda": { default: "Beranda", en: "Home" },
+  "siklus.beranda": { default: "Belajar", en: "Home" },
   "siklus.hari_ini": { default: "Ini yang sedang berjalan hari ini.", en: "Here is what is under way for you today." },
   // DAISY-26 (UX-21): the panel is named for what it holds; its buttons are named for where they go (src/components/siklus/aksi.ts)
   "siklus.panel.eyebrow": { default: "Langkah berikutnya", en: "Your next step" },
@@ -3321,8 +3565,8 @@ const table: Table = {
   "evaluasi.sesi_habis": { default: "Waktu peragaan sudah habis. Kembali ke ruang peragaan untuk mulai lagi.", en: "The demonstration time is up. Go back to the demonstration room to start again." },
   "evaluasi.gagal": { default: "Sudut pandang itu tidak bisa dibuka sekarang.", en: "That point of view cannot be opened right now." },
   "evaluasi.kembali": { default: "Kembali ke ruang peragaan", en: "Back to the demonstration room" },
-  "studio.refused": { default: "Halaman ini untuk staf pengelola isi. Akun Anda belum memiliki akses ke Studio.", en: "This page is for content staff. Your account does not have access to the Studio yet." },
-  "studio.nav.beranda": { default: "Beranda", en: "Home" },
+  "studio.refused": { default: "Anda tidak memiliki akses ke Studio.", en: "This page is for content staff. Your account does not have access to the Studio yet." },
+  "studio.nav.beranda": { default: "Studio", en: "Home" },
   "studio.nav.unggah": { default: "Buat Paket", en: "Create a package" },
   "studio.nav.tinjau": { default: "Antrean Tinjauan", en: "Review queue" },
   "studio.nav.kanonik": { default: "Pustaka PINTAR", en: "PINTAR Library" },
@@ -3343,8 +3587,8 @@ const table: Table = {
   "studio.kuis.riwayat": { default: "Uji Cepat yang sudah diluncurkan", en: "Quick Assessments already launched" },
   "studio.kuis.kosong": { default: "Belum ada Uji Cepat di kelas ini.", en: "No Quick Assessment has been run in this class yet." },
   "studio.kuis.bab_kosong": { default: "Belum ada bab yang bisa dipakai untuk Uji Cepat. Buat paket sekolah Anda, atau tunggu bab Pustaka PINTAR dibuka untuk sekolah Anda.", en: "No chapter is available for a Quick Assessment yet. Create your school's package, or wait for a PINTAR Library chapter to be opened to your school." },
-  "studio.kuis.tidak_tersedia": { default: "Bahan Uji Cepat ini sudah tidak tersedia untuk sekolah Anda, jadi Uji Cepat ini tidak bisa dimulai lagi. Pekerjaan murid yang sudah selesai tetap tersimpan.", en: "This Quick Assessment's material is no longer available to your school, so it cannot be started again. Work students have already finished stays saved." },
-  "studio.kuis.tanpa_kelas": { default: "Akun Anda belum dipasangkan dengan kelas mana pun.", en: "Your account is not paired with any class yet." },
+  "studio.kuis.tidak_tersedia": { default: "Materi Uji Cepat ini sudah tidak tersedia untuk sekolah Anda, jadi Uji Cepat ini tidak bisa dimulai lagi. Pekerjaan murid yang sudah selesai tetap tersimpan.", en: "This Quick Assessment's material is no longer available to your school, so it cannot be started again. Work students have already finished stays saved." },
+  "studio.kuis.tanpa_kelas": { default: "Anda belum dipasangkan dengan kelas mana pun.", en: "Your account is not paired with any class yet." },
   "studio.bucket.ACTION_REQUIRED": { default: "Menunggu tindakan Anda", en: "Waiting on you" },
   "studio.bucket.AWAITING_MY_REVIEW": { default: "Menunggu tinjauan Anda", en: "Waiting on your review" },
   "studio.bucket.BLOCKED": { default: "Tertahan", en: "Held" },
@@ -3358,16 +3602,16 @@ const table: Table = {
   "studio.state.explain.BLOCKED": { default: "Ada yang harus diperbaiki pada isinya sebelum paket ini bisa lanjut.", en: "Something in the content must be fixed before this package can go further." },
   "studio.paket.judul": { default: "Paket Pembelajaran", en: "Learning Package" },
   "studio.paket.alasan": { default: "Yang perlu diselesaikan", en: "What needs finishing" },
-  "studio.paket.pratinjau": { default: "Lihat seperti siswa", en: "See it as a student" },
+  "studio.paket.pratinjau": { default: "Lihat seperti murid", en: "See it as a student" },
   "studio.paket.setujui": { default: "Setujui", en: "Approve" },
   "studio.paket.kunci": { default: "Setujui & Kunci", en: "Approve & lock" },
   "studio.paket.kunci_peringatan": { default: "Setelah dikunci, isi paket ini tidak dapat diubah lagi. Perbaikan berikutnya dibuat sebagai salinan baru.", en: "Once locked, this package's content cannot be changed again. A later correction is made as a new copy." },
   "studio.paket.terbitkan": { default: "Terbitkan", en: "Publish" },
   "studio.paket.tarik": { default: "Tarik dari peredaran", en: "Withdraw from circulation" },
-  "studio.paket.terbit_bukan_tugas": { default: "Menerbitkan belum menugaskan. Siswa baru melihatnya setelah Anda menugaskannya ke kelas.", en: "Publishing is not assigning. Students see it only once you have assigned it to a class." },
+  "studio.paket.terbit_bukan_tugas": { default: "Menerbitkan belum menyediakan. Murid baru melihatnya setelah guru menyediakannya untuk kelas.", en: "Publishing is not making available. Students see it only once a teacher makes it available to a class." },
   "studio.paket.revisi": { default: "Perbaiki kursus ini", en: "Correct this course" },
   "studio.paket.revisi_terbaru": { default: "Kursus ini sudah diperbaiki. Buka perbaikannya; materi baru untuk kelas memakai perbaikan itu", en: "This course has been corrected. Open the correction; new learning for classes uses it" },
-  "studio.paket.revisi_penjelasan": { default: "Perbaiki buku kerjanya, lalu unggah sebagai perbaikan kursus ini. Kursus asli tetap utuh beserta seluruh catatan pengerjaan siswa; perbaikan menjadi versi berikutnya, ditinjau dan diterbitkan seperti biasa.", en: "Correct the workbook, then upload it as a correction of this course. The original stays whole, with every record of student work; the correction becomes the next version, reviewed and published as usual." },
+  "studio.paket.revisi_penjelasan": { default: "Perbaiki buku kerjanya, lalu unggah sebagai perbaikan kursus ini. Kursus asli tetap utuh beserta seluruh catatan pengerjaan murid; perbaikan menjadi versi berikutnya, ditinjau dan diterbitkan seperti biasa.", en: "Correct the workbook, then upload it as a correction of this course. The original stays whole, with every record of student work; the correction becomes the next version, reviewed and published as usual." },
   "studio.paket.revisi_sebelum": { default: "Perbaikan dari versi sebelumnya", en: "A correction of the previous version" },
   "studio.paket.revisi_unggah": { default: "Unggah buku kerja perbaikan", en: "Upload the corrected workbook" },
   "studio.paket.riwayat.judul": { default: "Riwayat perbaikan", en: "Correction history" },
@@ -3490,7 +3734,7 @@ const table: Table = {
   "studio.kanonik.judul": { default: "Pustaka PINTAR", en: "PINTAR Library" },
   "studio.kanonik.penjelasan": { default: "Paket yang disusun PINTAR dan diizinkan untuk sekolah Anda. Bisa ditugaskan, tidak bisa disunting.", en: "Packages PINTAR wrote and opened to your school. They can be assigned; they cannot be edited." },
   "studio.kanonik.kosong": { default: "Belum ada paket PINTAR yang diizinkan untuk sekolah Anda.", en: "No PINTAR package has been opened to your school yet." },
-  "studio.kanonik.ditarik": { default: "Izin untuk paket ini sudah berakhir. Siswa yang sedang mengerjakan tetap bisa menyelesaikannya; pengerjaan baru tidak dibuka lagi.", en: "The permission for this package has ended. Students already working on it can finish; no new attempt opens." },
+  "studio.kanonik.ditarik": { default: "Izin untuk paket ini sudah berakhir. Murid yang sedang mengerjakan tetap bisa menyelesaikannya; pengerjaan baru tidak dibuka lagi.", en: "The permission for this package has ended. Students already working on it can finish; no new attempt opens." },
   "studio.kanonik.hanya_baca": { default: "Hanya dapat dibaca dan ditugaskan.", en: "Readable and assignable only." },
   "studio.definisi.judul": { default: "Aturan Asesmen", en: "Assessment Rules" },
   "studio.definisi.batas": { default: "Batas yang berlaku", en: "The thresholds in force" },
@@ -3498,10 +3742,10 @@ const table: Table = {
   "studio.definisi.versi_baru": { default: "Perubahan ini mengubah cara hasil dibaca, jadi tersimpan sebagai aturan baru. Hasil lama tetap dibaca dengan aturan lamanya.", en: "This change alters how results are read, so it is saved as a new rule. Older results keep being read under their own rule." },
   "studio.definisi.tetap": { default: "Nama diperbarui. Cara hasil dibaca tidak berubah.", en: "The name is updated. How results are read has not changed." },
   "studio.integritas.judul": { default: "Tinjauan Integritas", en: "Integrity Review" },
-  "studio.integritas.penjelasan": { default: "Catatan ini bahan pertimbangan manusia, bukan kesimpulan tentang siswa.", en: "These notes are material for a human to weigh, not a conclusion about a student." },
+  "studio.integritas.penjelasan": { default: "Catatan ini bahan pertimbangan manusia, bukan kesimpulan tentang murid.", en: "These notes are material for a human to weigh, not a conclusion about a student." },
   "studio.integritas.kosong": { default: "Tidak ada catatan yang menunggu tinjauan.", en: "No note is waiting for review." },
   "studio.integritas.NO_CONCERN": { default: "Tidak ada yang perlu ditindaklanjuti", en: "Nothing to follow up" },
-  "studio.integritas.DISCUSSED_WITH_LEARNER": { default: "Sudah dibicarakan dengan siswa", en: "Discussed with the student" },
+  "studio.integritas.DISCUSSED_WITH_LEARNER": { default: "Sudah dibicarakan dengan murid", en: "Discussed with the student" },
   "studio.integritas.REFERRED_TO_INSTITUTION": { default: "Diteruskan ke pihak sekolah", en: "Passed to the school" },
   "studio.integritas.catat": { default: "Catat tinjauan", en: "Record the review" },
   "studio.sertifikat.judul": { default: "Tata Letak Sertifikat", en: "Certificate Layout" },
@@ -3510,10 +3754,10 @@ const table: Table = {
   "studio.sertifikat.simpan": { default: "Simpan", en: "Save" },
   "studio.bank.judul": { default: "Bank Soal", en: "Item Bank" },
   // polish batch 2 (UX-02): what the page is for in this phase, said once, instead of a line under every question
-  "studio.bank.intro": { default: "Soal-soal di bank sekolah Anda. Angka dari pengerjaan siswa baru muncul setelah cukup siswa menjawab sebuah soal; bila angka itu menandai soal, peninjau mencatat keputusannya di sini. Untuk mengubah soal, unggah buku kerja yang sudah diperbaiki di Buat Paket.", en: "The questions in your school's bank. Figures from student work appear only once enough students have answered a question; when they flag one, a reviewer records the decision here. To change a question, upload a corrected workbook in Create a package." },
+  "studio.bank.intro": { default: "Soal-soal di bank sekolah Anda. Angka dari pengerjaan murid baru muncul setelah cukup murid menjawab sebuah soal; bila angka itu menandai soal, peninjau mencatat keputusannya di sini. Untuk mengubah soal, unggah buku kerja yang sudah diperbaiki di Buat Paket.", en: "The questions in your school's bank. Figures from student work appear only once enough students have answered a question; when they flag one, a reviewer records the decision here. To change a question, upload a corrected workbook in Create a package." },
   "studio.bank.kesehatan": { default: "Kesehatan soal", en: "Item health" },
   "studio.bank.prediksi": { default: "Perkiraan penyusun", en: "The author's estimate" },
-  "studio.bank.empiris": { default: "Dari pengerjaan siswa", en: "From student work" },
+  "studio.bank.empiris": { default: "Dari pengerjaan murid", en: "From student work" },
   "studio.bank.akui_ok": { default: "Sudah ditinjau, soal ini wajar", en: "Reviewed — this item is sound" },
   "studio.bank.tindakan": { default: "Sudah ditinjau, soal ini diperbaiki", en: "Reviewed — this item was corrected" },
   // CR-52 (QN5, D-123): Bank Soal is browsed, narrowed and reviewed with each question's key and reasons
@@ -3533,11 +3777,11 @@ const table: Table = {
   "galat.action_unchanged": { default: "Tidak ada yang berubah. Perubahan ini di luar wewenang Anda, atau sudah tidak berlaku lagi.", en: "Nothing changed. This change is outside your permissions, or no longer applies." },
   "galat.action_failed": { default: "Ada kendala di PINTAR. Coba sekali lagi. Bila masih terjadi, sampaikan kode rujukan berikut kepada yang mengurus PINTAR di sekolah Anda.", en: "PINTAR ran into a problem. Try once more. If it happens again, give whoever looks after PINTAR at your school the reference that follows." },
   "galat.rollover_input_incomplete": { default: "Pilih tahun ajaran asal dan tujuan, lalu kelas tujuan untuk sedikitnya satu kelas.", en: "Choose the academic years to move from and to, then a destination class for at least one class." },
-  "galat.transfer_input_incomplete": { default: "Pilih peserta didik, lalu isi kode sekolah tujuan dan kode tahun ajaran tujuan.", en: "Choose the student, then fill in the destination school code and the destination academic-year code." },
+  "galat.transfer_input_incomplete": { default: "Pilih murid, lalu isi kode sekolah tujuan dan kode tahun ajaran tujuan.", en: "Choose the student, then fill in the destination school code and the destination academic-year code." },
   "galat.role_input_incomplete": { default: "Pilih orang dan peran, lalu isi Berlaku sampai.", en: "Choose the person and the role, then fill in Valid until." },
   "galat.role_reason_required": { default: "Tuliskan alasan peran ini dicabut.", en: "Write why this role is being revoked." },
   "galat.role_scope_required": { default: "Pilih Lingkup, yaitu bagian sekolah tempat peran ini berlaku. Hanya Admin platform yang tidak memerlukannya.", en: "Choose the Scope, the part of the school where this role applies. Only a Platform administrator needs none." },
-  "galat.template_input_incomplete": { default: "Pilih institusi, isi kunci judul, lalu pilih sedikitnya satu metrik.", en: "Choose the institution, fill in the title key, then choose at least one metric." },
+  "galat.template_input_incomplete": { default: "Pilih sekolah, isi kunci judul, lalu pilih sedikitnya satu metrik.", en: "Choose the institution, fill in the title key, then choose at least one metric." },
   "galat.school_required": { default: "Pilih sekolah terlebih dahulu.", en: "Choose a school first." },
   "galat.move_input_incomplete": { default: "Pilih kelas tujuan untuk murid itu.", en: "Choose the class to move that student to." },
   "galat.move_not_current": { default: "Murid itu sudah tidak di kelas tersebut, mungkin baru saja dipindahkan. Lihat daftarnya lagi.", en: "That student is no longer in that class; they may have just been moved. Look at the list again." },
@@ -3559,10 +3803,10 @@ const table: Table = {
   "galat.transfer_authorized": { default: "Perpindahan disetujui dan tinggal dijalankan.", en: "Transfer authorized; it only remains to be executed." },
   "galat.transfer_executed": { default: "Perpindahan dijalankan.", en: "Transfer executed." },
   "galat.transfer_rejected": { default: "Perpindahan ditolak.", en: "Transfer rejected." },
-  "galat.step_taken": { default: "Kursus ini maju ke langkah berikutnya.", en: "This course has moved on to its next step." },
+  "galat.step_taken": { default: "Paket ini maju ke langkah berikutnya.", en: "This course has moved on to its next step." },
   "galat.check_run": { default: "Pemeriksaan isi selesai. Temuannya ada di bawah.", en: "The content check is done. Its findings are below." },
   "galat.finding_acknowledged": { default: "Temuan itu sudah diakui.", en: "That finding has been acknowledged." },
-  "galat.revision_created": { default: "Salinan baru kursus ini dibuat, dan Anda sekarang melihatnya.", en: "A new copy of this course was made, and you are now looking at it." },
+  "galat.revision_created": { default: "Salinan baru paket ini dibuat, dan Anda sekarang melihatnya.", en: "A new copy of this course was made, and you are now looking at it." },
   "galat.assignment_moved": { default: "Penugasan itu sekarang memakai terbitan ini.", en: "That assignment now uses this release." },
   "galat.distribution_granted": { default: "Sekolah itu sekarang dapat memakai terbitan ini.", en: "That school may now use this release." },
   "galat.distribution_withdrawn": { default: "Izin sekolah itu ditarik.", en: "That school’s permission was withdrawn." },
@@ -3570,16 +3814,16 @@ const table: Table = {
   "galat.certificate_saved": { default: "Tata letak ini dipakai untuk sertifikat berikutnya.", en: "This layout will be used for the next certificates." },
   "galat.quick_check_launched": { default: "Uji Cepat diluncurkan untuk kelas itu.", en: "The Quick Assessment was launched for that class." },
   "galat.draft_created": { default: "Paket dibuat.", en: "Package created." },
-  "studio.konten.kode.content_transition_invalid": { default: "Kursus ini sudah tidak berada di langkah itu, mungkin karena rekan baru saja mengambilnya. Muat ulang halaman untuk melihat langkah yang berlaku sekarang.", en: "This course is no longer at that step, perhaps because a colleague has just taken it. Reload the page to see the current step." },
+  "studio.konten.kode.content_transition_invalid": { default: "Paket ini sudah tidak berada di langkah itu, mungkin karena rekan baru saja mengambilnya. Muat ulang halaman untuk melihat langkah yang berlaku sekarang.", en: "This course is no longer at that step, perhaps because a colleague has just taken it. Reload the page to see the current step." },
   "studio.konten.kode.content_review_not_allowed": { default: "Menyetujui isi bukan wewenang Anda di sekolah ini. Minta orang yang disebut di langkah Setujui isi.", en: "Approving the content is not yours to do in this school. Ask someone named at the Approve the content step." },
   "studio.konten.kode.content_reviewer_required": { default: "Persetujuan belum tercatat atas nama Anda. Muat ulang halaman, lalu setujui sekali lagi.", en: "The approval was not recorded under your name. Reload the page and approve once more." },
-  "studio.konten.kode.content_author_unknown": { default: "PINTAR tidak tahu siapa penyusun kursus ini, jadi tidak dapat memastikan bahwa persetujuannya dari orang lain. Sampaikan kepada yang mengurus PINTAR di sekolah Anda.", en: "PINTAR does not know who wrote this course, so it cannot confirm that the approval comes from someone else. Tell whoever looks after PINTAR at your school." },
-  "studio.konten.kode.content_reviewer_is_author": { default: "Anda menyusun kursus ini, jadi persetujuannya harus dari orang lain. Minta rekan yang disebut di langkah Setujui isi.", en: "You wrote this course, so the approval must come from someone else. Ask a colleague named at the Approve the content step." },
+  "studio.konten.kode.content_author_unknown": { default: "PINTAR tidak tahu siapa penyusun paket ini, jadi tidak dapat memastikan bahwa persetujuannya dari orang lain. Sampaikan kepada yang mengurus PINTAR di sekolah Anda.", en: "PINTAR does not know who wrote this course, so it cannot confirm that the approval comes from someone else. Tell whoever looks after PINTAR at your school." },
+  "studio.konten.kode.content_reviewer_is_author": { default: "Anda menyusun paket ini, jadi persetujuannya harus dari orang lain. Minta rekan yang disebut di langkah Setujui isi.", en: "You wrote this course, so the approval must come from someone else. Ask a colleague named at the Approve the content step." },
   "studio.konten.kode.content_reviewer_not_caller": { default: "Persetujuan hanya dapat dicatat atas nama Anda sendiri, bukan atas nama orang lain.", en: "An approval can only be recorded in your own name, not in someone else\u2019s." },
   "studio.konten.kode.content_seal_not_allowed": { default: "Mengunci terbitan bukan wewenang Anda di sekolah ini. Minta orang yang disebut di langkah Kunci terbitan.", en: "Locking the release is not yours to do in this school. Ask someone named at the Lock the release step." },
   "studio.konten.kode.content_publish_not_allowed": { default: "Menerbitkan bukan wewenang Anda di sekolah ini. Minta orang yang disebut di langkah Terbitkan.", en: "Publishing is not yours to do in this school. Ask someone named at the Publish step." },
   "studio.konten.kode.content_withdraw_not_allowed": { default: "Menarik isi yang sudah terbit bukan wewenang Anda di sekolah ini. Minta orang yang disebut di langkah Terbitkan.", en: "Withdrawing published content is not yours to do in this school. Ask someone named at the Publish step." },
-  "studio.konten.kode.content_author_immutable": { default: "Penyusun kursus tidak dapat diganti.", en: "A course\u2019s author cannot be changed." },
+  "studio.konten.kode.content_author_immutable": { default: "Penyusun paket tidak dapat diganti.", en: "A course\u2019s author cannot be changed." },
   "studio.konten.kode.content_created_not_ingested": { default: "Isi baru selalu dimulai dari unggahan. Unggah buku kerjanya, lalu ikuti Langkah menuju terbit.", en: "New content always starts from an upload. Upload its workbook, then follow Steps to publication." },
   "sync.done": { default: "Semua jawaban sudah tersimpan di server.", en: "Every answer is saved on the server." },
   // R1 (F-07/F-08). Said when Finish is held back because an answer the
@@ -3638,7 +3882,7 @@ const table: Table = {
   "emailuji.galat.asal": { default: "Belum terkirim: permintaan ini tidak datang dari halaman PINTAR di alamat ini. Buka halaman ini lagi dari alamat PINTAR, lalu kirim ulang.", en: "Not sent: this request did not come from a PINTAR page at this address. Open this page again from PINTAR's address, then send it again." },
   "emailuji.galat.umum": { default: "Belum terkirim: terjadi kesalahan di PINTAR. Coba lagi sebentar lagi.", en: "Not sent: something went wrong in PINTAR. Try again in a moment." },
   "emailuji.galat.jaringan": { default: "Permintaan tidak sampai ke PINTAR. Periksa sambungan internet, lalu coba lagi.", en: "The request did not reach PINTAR. Check the internet connection, then try again." },
-  "aktivasi.ditolak": { default: "Halaman ini untuk pengelola data sekolah.", en: "This page is for the people who manage a school's records." },
+  "aktivasi.ditolak": { default: "Halaman ini untuk Admin sekolah atau Admin platform.", en: "This page is for the people who manage a school's records." },
   "aktivasi.eyebrow": { default: "Akun", en: "Accounts" },
   "aktivasi.judul": { default: "Aktifkan akun", en: "Activate accounts" },
   // polish batch 2 (UX-11): each sentence stops where the sign-in address goes; the screen puts the
@@ -3678,7 +3922,7 @@ const table: Table = {
   "aktivasi.galat.nama": { default: "Tulis nama orangnya dulu.", en: "Write the person's name first." },
   "aktivasi.galat.surel": { default: "Alamat email ini belum lengkap. Contoh: nama@sekolah.sch.id", en: "This email address isn't complete. Example: name@school.sch.id" },
   "aktivasi.galat.ditolak": { default: "PINTAR menolak, dan tidak ada yang dibuat. Orang ini mungkin sudah punya akun, atau bukan dari sekolah yang Anda kelola. Muat ulang halaman ini untuk melihat daftar terbaru.", en: "PINTAR refused, and nothing was made. This person may already have an account, or may not belong to a school you manage. Reload this page to see the current list." },
-  "aktivasi.galat.baru_ditolak": { default: "PINTAR menolak, dan tidak ada yang dibuat. Hanya admin platform yang bisa membuat orang di luar pendataan.", en: "PINTAR refused, and nothing was made. Only a platform administrator can create a person outside the intake." },
+  "aktivasi.galat.baru_ditolak": { default: "PINTAR menolak, dan tidak ada yang dibuat. Hanya Admin platform yang bisa membuat orang di luar pendataan.", en: "PINTAR refused, and nothing was made. Only a platform administrator can create a person outside the intake." },
   "aktivasi.galat.dipakai": { default: "Akun belum bisa dibuat. Alamat email ini mungkin sudah dipakai akun lain. Coba alamat lain.", en: "The account could not be made. This email address may already belong to another account. Try another address." },
   "aktivasi.galat.kartu": { default: "Kartu belum bisa dibuat, dan tidak ada yang tersimpan. Coba lagi.", en: "The card could not be made, and nothing was saved. Try again." },
   "aktivasi.galat.sesi": { default: "Sesi Anda sudah berakhir, dan tidak ada yang dibuat. Masuk lagi, lalu ulangi.", en: "Your session has ended, and nothing was made. Sign in again, then repeat this." },
@@ -3871,7 +4115,7 @@ const table: Table = {
   "akun.semua.arti": { default: "Akun Anda keluar dari setiap komputer dan perangkat tempat Anda masuk, termasuk yang ini. Setelah itu Anda masuk lagi di perangkat yang Anda pakai.", en: "Your account is signed out of every computer and device where you're signed in, including this one. Then you sign in again on the device you use." },
   "akun.semua.tombol": { default: "Keluar dari semua perangkat", en: "Sign out of every device" },
   "akun.semua.yakin": { default: "Keluar dari semua perangkat sekarang?", en: "Sign out of every device now?" },
-  "akun.semua.ya": { default: "Ya, keluar dari semua", en: "Yes, sign out everywhere" },
+  "akun.semua.ya": { default: "Keluar dari semua", en: "Sign out everywhere" },
   "akun.semua.batal": { default: "Batal", en: "Cancel" },
   "akun.semua.gagal": { default: "PINTAR belum bisa mengeluarkan akun Anda dari semua perangkat. Coba lagi.", en: "PINTAR couldn't sign you out everywhere yet. Try again." },
   "masuk.sesi_berakhir": { default: "Sesi di komputer ini sudah berakhir. Masuk lagi untuk melanjutkan.", en: "The session on this computer has ended. Sign in again to continue." },
@@ -3924,10 +4168,10 @@ const table: Table = {
   // CR-13 (D-120 QN1): an email corrected after activation, told to the old and the new address (DAISY: copy to review)
   "email.aman.email_dikoreksi.subjek": { default: "Alamat email akun PINTAR Anda dikoreksi", en: "The email address of your PINTAR account was corrected" },
   "email.aman.email_dikoreksi.judul": { default: "Alamat email dikoreksi", en: "Email address corrected" },
-  "email.aman.email_dikoreksi.isi": { default: "Admin PINTAR mengoreksi alamat email untuk masuk ke akun PINTAR dengan PINTAR ID ini. Mulai sekarang email dari PINTAR dikirim ke alamat yang baru, dan semua sesi yang terbuka sudah ditutup. Password dan PIN tidak berubah.", en: "A PINTAR administrator corrected the sign-in email address of the PINTAR account with this PINTAR ID. From now on, email from PINTAR goes to the new address, and every open session has been closed. The password and PIN have not changed." },
-  "email.aman.email_dikoreksi.bukan_anda": { default: "Jika Anda tidak meminta koreksi ini, segera hubungi admin sekolah Anda.", en: "If you didn't ask for this correction, contact your school's administrator straight away." },
+  "email.aman.email_dikoreksi.isi": { default: "Alamat email untuk masuk ke akun PINTAR dengan PINTAR ID ini sudah dikoreksi oleh admin. Mulai sekarang PINTAR mengirim email ke alamat yang baru. Akun ini sudah keluar dari semua perangkat; masuklah lagi dengan alamat yang baru. Password dan PIN Anda tetap sama.", en: "The sign-in email address of the PINTAR account with this PINTAR ID has been corrected by an administrator. From now on PINTAR sends email to the new address. This account has been signed out of every device; sign in again with the new address. Your password and PIN stay the same." },
+  "email.aman.email_dikoreksi.bukan_anda": { default: "Bukan Anda yang meminta koreksi ini? Segera hubungi admin sekolah Anda.", en: "Didn't ask for this correction? Contact your school's administrator straight away." },
   "email.aman.email_dikoreksi.subjek_admin": { default: "Alamat email sebuah akun dikoreksi", en: "An account's email address was corrected" },
-  "email.aman.email_dikoreksi.isi_admin": { default: "Alamat email untuk masuk ke akun dengan PINTAR ID ini dikoreksi oleh admin platform setelah aktivasi. Alasannya dan kedua alamat ada di catatan keamanan.", en: "The platform administrator corrected the sign-in email address of the account with this PINTAR ID after activation. The reason and both addresses are in the security record." },
+  "email.aman.email_dikoreksi.isi_admin": { default: "Alamat email untuk masuk ke akun dengan PINTAR ID ini sudah dikoreksi. Siapa yang mengoreksi, alasannya dan kedua alamat ada di catatan keamanan.", en: "The sign-in email address of the account with this PINTAR ID has been corrected. Who corrected it, the reason and both addresses are in the security record." },
   "aktifkan.minta_sering": { default: "Kode untuk alamat ini sudah terlalu sering diminta, jadi kode tidak dikirim.", en: "A code has been asked for this address too often, so no code was sent." },
   "aktifkan.email_tertahan": { default: "PINTAR belum bisa mengirim email saat ini, jadi kode tidak dikirim.", en: "PINTAR can't send email right now, so no code was sent." },
   "aktifkan.tidak_tersedia": { default: "PINTAR sedang tidak dapat memproses ini. Coba lagi sebentar lagi.", en: "PINTAR can't handle this right now. Try again in a little while." },
@@ -4085,7 +4329,7 @@ const table: Table = {
   // "Mastery Check". Nothing else was reworded.
   "tur.tur": { default: "Tur PINTAR", en: "PINTAR tour" },
   "tur.nama.belajar": { default: "Tur halaman Belajar", en: "Tour of the Learning page" },
-  "tur.nama.pengajar": { default: "Tur untuk pengajar", en: "Tour for educators" },
+  "tur.nama.pengajar": { default: "Tur untuk guru", en: "Tour for educators" },
   "tur.berikutnya": { default: "Berikutnya", en: "Next" },
   "tur.kembali": { default: "Kembali", en: "Back" },
   "tur.lewati": { default: "Lewati tur", en: "Skip tour" },
@@ -4158,7 +4402,7 @@ const table: Table = {
   "tur.sm.2.isi": { default: "Pemetaan Awal, Peta Bacaan, Pelajaran, Uji Penguasaan, lalu Hasil. Hanya satu langkah yang terbuka pada satu waktu. Pemetaan Awal bukan ujian.", en: "Initial Mapping, Reading Map, Lessons, Mastery Check, then Results. Only one step is open at a time. The Initial Mapping is not a test." },
   "tur.sm.3.judul": { default: "Tempat belajar", en: "Where you learn" },
   "tur.sm.3.isi": { default: "Peta Bacaan menunjukkan bagian yang perlu dibaca lebih dulu, beserta alasannya. Pelajaran dibuka dari sana, dan posisi baca tersimpan.", en: "The Reading Map shows which part to read first, and why. Lessons open from there, and your place is saved." },
-  "tur.sm.4.judul": { default: "Mengerjakan penilaian", en: "Taking an assessment" },
+  "tur.sm.4.judul": { default: "Mengerjakan asesmen", en: "Taking an assessment" },
   "tur.sm.4.isi": { default: "Pilih jawaban, lalu simpan. Jawaban yang sudah Anda simpan tercatat. Uji Cepat yang dibuka guru juga muncul di halaman Belajar.", en: "Choose an answer, then save it. The answers you save are recorded. Quick Assessments your teacher opens also appear on the Learning page." },
   "tur.sm.5.judul": { default: "Melihat hasil", en: "Seeing results" },
   "tur.sm.5.isi": { default: "Hasil ada di langkah terakhir setiap materi: penguasaan, bagian yang perlu diulang, dan perubahan sejak Pemetaan Awal. Dibandingkan dengan diri sendiri, bukan dengan orang lain.", en: "Results are the last step of every assignment: mastery, what to revisit, and how you've changed since the Initial Mapping. Compared with yourself, never with others." },
@@ -4175,8 +4419,8 @@ const table: Table = {
   "tur.pg.2.isi": { default: "Daftar ini mengikuti penugasan dari sekolah. Pilih satu kelas; yang Anda siapkan dan lihat sesudahnya berlaku untuk kelas yang dipilih.", en: "This list follows the school's assignments. Choose a class — what you prepare and view next applies to the class you selected." },
   "tur.pg.2.kosong": { default: "Belum ada kelas di sini. Kelas muncul setelah sekolah menugaskan Anda.", en: "No classes here yet. Classes appear once the school assigns you." },
   "tur.pg.3.judul": { default: "Yang sedang berjalan", en: "What's open now" },
-  "tur.pg.3.isi": { default: "Penilaian yang jendelanya masih terbuka, dengan jumlah murid yang sudah mengumpulkan. Angka ini hitungan, bukan penilaian.", en: "Assessments whose window is still open, with how many learners have submitted. These numbers are counts, not judgments." },
-  "tur.pg.3.kosong": { default: "Saat ada penilaian yang jendelanya terbuka, daftarnya muncul di halaman ini.", en: "When an assessment window is open, it appears on this page." },
+  "tur.pg.3.isi": { default: "Asesmen yang jendelanya masih terbuka, dengan jumlah murid yang sudah mengumpulkan. Angka ini hitungan, bukan penilaian.", en: "Assessments whose window is still open, with how many learners have submitted. These numbers are counts, not judgments." },
+  "tur.pg.3.kosong": { default: "Saat ada asesmen yang jendelanya terbuka, daftarnya muncul di halaman ini.", en: "When an assessment window is open, it appears on this page." },
   "tur.pg.4.judul": { default: "Uji Cepat", en: "Quick Assessment" },
   "tur.pg.4.isi": { default: "Dari halaman kelas: atur, tinjau, lalu sediakan. Murid baru menerimanya setelah Anda menekan Sediakan. Hasilnya ikut menjadi bukti belajar; Uji Cepat tidak menerbitkan sertifikat.", en: "From a class page: configure, review, then make it available. Learners receive it only after you press Make available. Results become learning evidence; a Quick Assessment does not issue a certificate." },
   "tur.pg.5.judul": { default: "Menyediakan materi", en: "Making material available" },
@@ -4191,7 +4435,7 @@ const table: Table = {
   // internal-word guard runs over every one of these tellings, which is worth
   // more than the exemption would be.
   "mengajar.judul": { default: "Kelas", en: "Classes" },
-  "nav.kelas": { default: "Kelas", en: "Classes" },
+  "nav.kelas": { default: "Mengajar", en: "Classes" },
   // DAISY-03: "Pimpinan", not "Beranda". Beside Kelas or Konfigurasi, "Beranda"
   // named nothing -- every place is somebody's home -- and D-010 calls it Pimpinan.
   "nav.pimpinan": { default: "Pimpinan", en: "Management" },
@@ -4201,6 +4445,252 @@ const table: Table = {
   "nav.studio": { default: "Studio", en: "Studio" },
   "nav.tempat": { default: "Tempat kerja Anda", en: "Your places" },
   "nav.menu": { default: "Menu", en: "Menu" },
+  "tombol.menerbitkan": { default: "Menerbitkan…", en: "Publishing\u2026" },
+  "studio.langkah.selesai.terbitkan": { default: "Diterbitkan", en: "Published" },
+  "studio.integritas.tindak": { default: "Tindak lanjut", en: "Follow-up" },
+  "pimpinan.keadaan.menunggu_keputusan": { default: "Menunggu keputusan", en: "Awaiting a decision" },
+  "kesiapan.pita.judul": { default: "Hasil {n} murid yang sudah mengerjakan", en: "Results of the {n} students who have taken it" },
+  "laporan.standar.class_learning_intelligence": { default: "Laporan belajar kelas", en: "Class learning report" },
+  "laporan.standar.institution_learning_intelligence": { default: "Laporan belajar sekolah", en: "School learning report" },
+  "laporan.standar.learner_result": { default: "Hasil murid", en: "Student result" },
+  "laporan.tampilan.bar": { default: "Diagram batang", en: "Bar chart" },
+  "laporan.tampilan.list": { default: "Daftar", en: "List" },
+  "laporan.tampilan.table": { default: "Tabel", en: "Table" },
+  "laporan.tampilan.card_list": { default: "Kartu", en: "Cards" },
+  "laporan.tampilan.distribution": { default: "Sebaran", en: "Distribution" },
+  "laporan.tampilan.hero_stat": { default: "Angka utama", en: "Headline figure" },
+  "laporan.tampilan.summary": { default: "Ringkasan", en: "Summary" },
+  "studio.definisi.unit.soal": { default: "soal", en: "questions" },
+  "studio.definisi.unit.tenggang": { default: "tenggang kirim paling lama", en: "send grace at most" },
+  "studio.definisi.unit.detik": { default: "detik", en: "seconds" },
+  "studio.definisi.unit.percobaan": { default: "percobaan paling banyak", en: "attempts at most" },
+  "studio.definisi.f.judul": { default: "Nama aturan", en: "Rule name" },
+  "studio.definisi.f.mode": { default: "Jenis asesmen", en: "Assessment type" },
+  "studio.definisi.f.jumlah": { default: "Jumlah soal", en: "Number of questions" },
+  "studio.definisi.f.keselamatan": { default: "Minimum soal keselamatan", en: "Minimum safety questions" },
+  "studio.definisi.f.ragu": { default: "Jendela ragu (detik)", en: "Hesitation window (seconds)" },
+  "studio.definisi.f.tenggang": { default: "Tenggang kirim (detik)", en: "Send grace (seconds)" },
+  "studio.definisi.f.percobaan": { default: "Batas percobaan", en: "Attempt limit" },
+  "studio.definisi.f.acak": { default: "Urutan", en: "Order" },
+  "studio.definisi.f.jeda": { default: "Boleh dijeda", en: "May be paused" },
+  "studio.definisi.f.luring": { default: "Boleh dikerjakan luring", en: "May be taken offline" },
+  "studio.definisi.acak.NONE": { default: "Soal dan pilihan jawaban tidak diacak", en: "Questions and answer choices in their order" },
+  "studio.definisi.acak.ITEMS": { default: "Urutan soal diacak", en: "Questions shuffled" },
+  "studio.definisi.acak.ITEMS_AND_OPTIONS": { default: "Urutan soal dan pilihan jawaban diacak", en: "Questions and answer choices shuffled" },
+  "config.sekolah.sintetis": { default: "data uji", en: "test data" },
+  "config.sekolah.aktif": { default: "aktif", en: "active" },
+  "config.sekolah.nonaktif": { default: "nonaktif", en: "inactive" },
+  // D-138/D-140: the audit trail in words (Jejak audit), never its codes or tables
+  "audit.aksi.ASSESSMENT_DEFINITION_CREATED": { default: "Aturan asesmen dibuat", en: "Assessment rule created" },
+  "audit.aksi.ASSESSMENT_DEFINITION_RELABELLED": { default: "Nama aturan asesmen diubah", en: "Assessment rule renamed" },
+  "audit.aksi.ASSESSMENT_DEFINITION_VERSIONED": { default: "Aturan asesmen diperbarui", en: "Assessment rule updated" },
+  "audit.aksi.CERTIFICATE_TEMPLATE_SAVED": { default: "Tata letak sertifikat disimpan", en: "Certificate layout saved" },
+  "audit.aksi.COURSE_CORRECTION_UPLOADED": { default: "Koreksi materi diunggah", en: "Content correction uploaded" },
+  "audit.aksi.COURSE_REVISION_CREATED": { default: "Revisi materi dibuat", en: "Content revision created" },
+  "audit.aksi.EVIDENCE_RECLASSIFIED": { default: "Bukti asesmen diklasifikasi ulang", en: "Assessment evidence reclassified" },
+  "audit.aksi.FINDING_ACKNOWLEDGED": { default: "Temuan pemeriksaan materi dicatat", en: "Content check finding acknowledged" },
+  "audit.aksi.INTEGRITY_SIGNAL_REVIEWED": { default: "Tanda integritas ditinjau", en: "Integrity signal reviewed" },
+  "audit.aksi.LEARNING_ASSIGNED": { default: "Materi disediakan untuk kelas", en: "Content made available to a class" },
+  "audit.aksi.LEARNING_RELEASE_MOVED": { default: "Kelas dipindah ke terbitan materi lain", en: "Class moved to another content release" },
+  "audit.aksi.QUESTION_HEALTH_REVIEWED": { default: "Kesehatan soal ditinjau", en: "Question health reviewed" },
+  "audit.aksi.RELEASE_CREATED": { default: "Terbitan materi dibuat", en: "Content release created" },
+  "audit.aksi.RELEASE_DISTRIBUTION_GRANTED": { default: "Terbitan materi dibagikan ke sekolah", en: "Content release shared with a school" },
+  "audit.aksi.RELEASE_DISTRIBUTION_WITHDRAWN": { default: "Pembagian terbitan materi ditarik", en: "Content release sharing withdrawn" },
+  "audit.aksi.RELEASE_FROZEN": { default: "Terbitan materi dikunci", en: "Content release frozen" },
+  "audit.aksi.RELEASE_PUBLISHED": { default: "Materi diterbitkan", en: "Content published" },
+  "audit.aksi.RELEASE_WITHDRAWN": { default: "Terbitan materi ditarik", en: "Content release withdrawn" },
+  "audit.aksi.account.activated": { default: "Akun diaktifkan", en: "Account activated" },
+  "audit.aksi.account.activation_authorized": { default: "Aktivasi akun disetujui", en: "Account activation authorised" },
+  "audit.aksi.account.card_reissued": { default: "Kartu kelas dicetak ulang", en: "Class card reissued" },
+  "audit.aksi.account.new_person_authorized": { default: "Orang baru disetujui untuk diaktifkan", en: "New person authorised for activation" },
+  "audit.aksi.assessment_result.recomputed": { default: "Hasil asesmen dihitung ulang", en: "Assessment result recomputed" },
+  "audit.aksi.assessment_session.deadline_extended": { default: "Batas waktu asesmen diperpanjang", en: "Assessment deadline extended" },
+  "audit.aksi.assessment_session.terminated": { default: "Asesmen dihentikan", en: "Assessment stopped" },
+  "audit.aksi.briefing.holding": { default: "Pengarahan ditahan", en: "Briefing held" },
+  "audit.aksi.briefing.opened": { default: "Pengarahan dibuka", en: "Briefing opened" },
+  "audit.aksi.briefing.transition": { default: "Keadaan pengarahan berubah", en: "Briefing state changed" },
+  "audit.aksi.certificate.issued": { default: "Sertifikat diterbitkan", en: "Certificate issued" },
+  "audit.aksi.certificate.prepared": { default: "Sertifikat disiapkan", en: "Certificate prepared" },
+  "audit.aksi.certificate.revoked": { default: "Sertifikat dicabut", en: "Certificate revoked" },
+  "audit.aksi.class.status_changed": { default: "Keadaan kelas berubah", en: "Class status changed" },
+  "audit.aksi.content.status_changed": { default: "Keadaan materi berubah", en: "Content status changed" },
+  "audit.aksi.enrollment.created": { default: "Murid dimasukkan ke kelas", en: "Student added to a class" },
+  "audit.aksi.evaluation.assume": { default: "Peragaan dimulai", en: "Demonstration started" },
+  "audit.aksi.evaluation.exit": { default: "Peragaan diakhiri", en: "Demonstration ended" },
+  "audit.aksi.evaluator.grant": { default: "Akses peragaan diberikan", en: "Demonstration access granted" },
+  "audit.aksi.evaluator.revoke": { default: "Akses peragaan dicabut", en: "Demonstration access revoked" },
+  "audit.aksi.feedback_cycle.closed": { default: "Putaran umpan balik ditutup", en: "Feedback round closed" },
+  "audit.aksi.feedback_cycle.opened": { default: "Putaran umpan balik dibuka", en: "Feedback round opened" },
+  "audit.aksi.feedback_question_set.published": { default: "Pertanyaan umpan balik diterbitkan", en: "Feedback questions published" },
+  "audit.aksi.feedback_threshold.published": { default: "Batas tampil umpan balik diterbitkan", en: "Feedback threshold published" },
+  "audit.aksi.identity.device_declared": { default: "Jenis komputer dicatat", en: "Computer type recorded" },
+  "audit.aksi.identity.email_corrected": { default: "Alamat email dikoreksi", en: "Email address corrected" },
+  "audit.aksi.identity.name_confirmed": { default: "Nama dikonfirmasi", en: "Name confirmed" },
+  "audit.aksi.identity.name_corrected": { default: "Nama dikoreksi", en: "Name corrected" },
+  "audit.aksi.identity.name_corrected_at_activation": { default: "Nama dikoreksi saat aktivasi", en: "Name corrected at activation" },
+  "audit.aksi.identity.password_set": { default: "Password dibuat", en: "Password set" },
+  "audit.aksi.identity.pin_set": { default: "PIN dibuat", en: "PIN set" },
+  "audit.aksi.identity.recovery_locked": { default: "Pemulihan akun dikunci", en: "Account recovery locked" },
+  "audit.aksi.identity.recovery_pin_ok": { default: "PIN pemulihan benar", en: "Recovery PIN correct" },
+  "audit.aksi.identity.recovery_pin_wrong": { default: "PIN pemulihan salah", en: "Recovery PIN wrong" },
+  "audit.aksi.identity.recovery_restored": { default: "Akun dipulihkan", en: "Account restored" },
+  "audit.aksi.identity.recovery_suspended": { default: "Pemulihan akun ditangguhkan", en: "Account recovery suspended" },
+  "audit.aksi.identity.recovery_verified": { default: "Pemulihan akun diverifikasi", en: "Account recovery verified" },
+  "audit.aksi.identity.session_ended": { default: "Keluar dari PINTAR", en: "Signed out" },
+  "audit.aksi.identity.session_pin_wrong": { default: "PIN sesi salah", en: "Session PIN wrong" },
+  "audit.aksi.identity.session_resumed": { default: "Sesi dilanjutkan", en: "Session resumed" },
+  "audit.aksi.identity.setup_completed": { default: "Penyiapan akun selesai", en: "Account setup completed" },
+  "audit.aksi.identity.username_claimed": { default: "Nama pengguna dipilih", en: "Username chosen" },
+  "audit.aksi.identity.username_corrected": { default: "Nama pengguna dikoreksi", en: "Username corrected" },
+  "audit.aksi.import.completed": { default: "Pendataan selesai", en: "Intake completed" },
+  "audit.aksi.import.confirmed": { default: "Pendataan disetujui", en: "Intake confirmed" },
+  "audit.aksi.import.pilot_completed": { default: "Uji coba pendataan selesai", en: "Intake pilot completed" },
+  "audit.aksi.import.pilot_verified": { default: "Uji coba pendataan diperiksa", en: "Intake pilot verified" },
+  "audit.aksi.ingest.materialised": { default: "Data pendataan diterapkan", en: "Intake data applied" },
+  "audit.aksi.ingest.prepared": { default: "Data pendataan disiapkan", en: "Intake data prepared" },
+  "audit.aksi.institution.created": { default: "Sekolah dibuat", en: "School created" },
+  "audit.aksi.institution.state_changed": { default: "Keadaan sekolah berubah", en: "School status changed" },
+  "audit.aksi.institution_namespace.reserved": { default: "Kode sekolah dipesan", en: "School code reserved" },
+  "audit.aksi.learner_detail.opened": { default: "Rincian murid dibuka", en: "Student details opened" },
+  "audit.aksi.lesson_review.requested": { default: "Tinjauan pelajaran diminta", en: "Lesson review requested" },
+  "audit.aksi.maintenance.activated": { default: "Pemeliharaan diaktifkan", en: "Maintenance activated" },
+  "audit.aksi.maintenance.cancelled": { default: "Pemeliharaan dibatalkan", en: "Maintenance cancelled" },
+  "audit.aksi.maintenance.deactivated": { default: "Pemeliharaan dinonaktifkan", en: "Maintenance deactivated" },
+  "audit.aksi.maintenance.emergency_stop": { default: "Pemeliharaan darurat dimulai", en: "Emergency maintenance started" },
+  "audit.aksi.maintenance.ended_now": { default: "Pemeliharaan diakhiri", en: "Maintenance ended" },
+  "audit.aksi.maintenance.scheduled": { default: "Pemeliharaan dijadwalkan", en: "Maintenance scheduled" },
+  "audit.aksi.maintenance.started_now": { default: "Pemeliharaan dimulai", en: "Maintenance started" },
+  "audit.aksi.management_decision.advanced": { default: "Kasus pimpinan diteruskan", en: "Management case advanced" },
+  "audit.aksi.management_decision.raised": { default: "Kasus pimpinan diajukan", en: "Management case raised" },
+  "audit.aksi.membership.closed": { default: "Keanggotaan diakhiri", en: "Membership ended" },
+  "audit.aksi.membership.created": { default: "Keanggotaan dibuat", en: "Membership created" },
+  "audit.aksi.metric_catalogue.published": { default: "Daftar ukuran laporan diterbitkan", en: "Report measures published" },
+  "audit.aksi.mode_policy.changed": { default: "Batas asesmen diubah", en: "Assessment limits changed" },
+  "audit.aksi.notice.published": { default: "Pengumuman diterbitkan", en: "Notice published" },
+  "audit.aksi.notice.withdrawn": { default: "Pengumuman ditarik", en: "Notice withdrawn" },
+  "audit.aksi.period.rollover": { default: "Tahun ajaran dilanjutkan", en: "School year rolled over" },
+  "audit.aksi.platform_config.updated": { default: "Pengaturan platform diubah", en: "Platform settings changed" },
+  "audit.aksi.platform_environment.changed": { default: "Lingkungan platform diubah", en: "Platform environment changed" },
+  "audit.aksi.professional_learning.enrolled": { default: "Guru didaftarkan untuk belajar", en: "Teacher enrolled for learning" },
+  "audit.aksi.question_health.recomputed": { default: "Kesehatan soal dihitung ulang", en: "Question health recomputed" },
+  "audit.aksi.question_health.transition": { default: "Keadaan kesehatan soal berubah", en: "Question health status changed" },
+  "audit.aksi.quick_assessment.launched": { default: "Uji Cepat dimulai", en: "Quick Assessment started" },
+  "audit.aksi.quick_assessment.selected": { default: "Soal Uji Cepat dipilih", en: "Quick Assessment questions chosen" },
+  "audit.aksi.report_template.provisioned": { default: "Templat laporan disiapkan", en: "Report template provisioned" },
+  "audit.aksi.report_template.saved": { default: "Templat laporan disimpan", en: "Report template saved" },
+  "audit.aksi.role.first_system_admin_bootstrapped": { default: "Admin platform pertama ditetapkan", en: "First platform admin set up" },
+  "audit.aksi.role.granted": { default: "Peran diberikan", en: "Role granted" },
+  "audit.aksi.role.revoked": { default: "Peran dicabut", en: "Role revoked" },
+  "audit.aksi.school.founded": { default: "Sekolah didirikan di PINTAR", en: "School founded in PINTAR" },
+  "audit.aksi.school_pass_mark.set": { default: "Batas ketuntasan ditetapkan", en: "Pass mark set" },
+  "audit.aksi.scoring_policy.published": { default: "Aturan perhitungan nilai diterbitkan", en: "Scoring rules published" },
+  "audit.aksi.structure.academic_year_created": { default: "Tahun ajaran dibuat", en: "School year created" },
+  "audit.aksi.structure.bagian_created": { default: "Bagian dibuat", en: "Section created" },
+  "audit.aksi.structure.deactivated": { default: "Bagian struktur dinonaktifkan", en: "Structure item deactivated" },
+  "audit.aksi.structure.jenjang_created": { default: "Jenjang dibuat", en: "Level created" },
+  "audit.aksi.structure.kelas_created": { default: "Kelas dibuat", en: "Class created" },
+  "audit.aksi.structure.reguler_created": { default: "Program reguler dibuat", en: "Regular programme created" },
+  "audit.aksi.structure.renamed": { default: "Nama dalam struktur diubah", en: "Structure item renamed" },
+  "audit.aksi.structure.tingkat_created": { default: "Tingkat dibuat", en: "Grade created" },
+  "audit.aksi.support_report.moved": { default: "Laporan masalah diperbarui", en: "Problem report updated" },
+  "audit.aksi.support_report.received": { default: "Laporan masalah diterima", en: "Problem report received" },
+  "audit.ranah.account": { default: "Akun", en: "Account" },
+  "audit.ranah.assessment_result": { default: "Hasil asesmen", en: "Assessment result" },
+  "audit.ranah.assessment_session": { default: "Asesmen", en: "Assessment" },
+  "audit.ranah.briefing": { default: "Pengarahan", en: "Briefing" },
+  "audit.ranah.certificate": { default: "Sertifikat", en: "Certificate" },
+  "audit.ranah.class": { default: "Kelas", en: "Class" },
+  "audit.ranah.content": { default: "Materi", en: "Content" },
+  "audit.ranah.enrollment": { default: "Keanggotaan kelas", en: "Class enrolment" },
+  "audit.ranah.evaluation": { default: "Peragaan", en: "Demonstration" },
+  "audit.ranah.evaluator": { default: "Akses peragaan", en: "Demonstration access" },
+  "audit.ranah.feature_flag": { default: "Fitur platform", en: "Platform feature" },
+  "audit.ranah.feedback_cycle": { default: "Umpan balik", en: "Feedback" },
+  "audit.ranah.feedback_question_set": { default: "Umpan balik", en: "Feedback" },
+  "audit.ranah.feedback_threshold": { default: "Umpan balik", en: "Feedback" },
+  "audit.ranah.identity": { default: "Akun", en: "Account" },
+  "audit.ranah.import": { default: "Pendataan", en: "Intake" },
+  "audit.ranah.ingest": { default: "Pendataan", en: "Intake" },
+  "audit.ranah.institution": { default: "Sekolah", en: "School" },
+  "audit.ranah.institution_namespace": { default: "Sekolah", en: "School" },
+  "audit.ranah.learner_detail": { default: "Murid", en: "Student" },
+  "audit.ranah.lesson_review": { default: "Materi", en: "Content" },
+  "audit.ranah.maintenance": { default: "Pemeliharaan", en: "Maintenance" },
+  "audit.ranah.management_decision": { default: "Kasus pimpinan", en: "Management case" },
+  "audit.ranah.membership": { default: "Keanggotaan", en: "Membership" },
+  "audit.ranah.metric_catalogue": { default: "Laporan", en: "Reports" },
+  "audit.ranah.mode_policy": { default: "Asesmen", en: "Assessment" },
+  "audit.ranah.notice": { default: "Pengumuman", en: "Notice" },
+  "audit.ranah.period": { default: "Tahun ajaran", en: "School year" },
+  "audit.ranah.platform_config": { default: "Platform", en: "Platform" },
+  "audit.ranah.platform_environment": { default: "Platform", en: "Platform" },
+  "audit.ranah.probe": { default: "Pemeriksaan sistem", en: "System check" },
+  "audit.ranah.professional_learning": { default: "Belajar guru", en: "Teacher learning" },
+  "audit.ranah.question_health": { default: "Kesehatan soal", en: "Question health" },
+  "audit.ranah.quick_assessment": { default: "Uji Cepat", en: "Quick Assessment" },
+  "audit.ranah.report_template": { default: "Laporan", en: "Reports" },
+  "audit.ranah.role": { default: "Peran", en: "Role" },
+  "audit.ranah.school": { default: "Sekolah", en: "School" },
+  "audit.ranah.school_pass_mark": { default: "Ketuntasan", en: "Pass mark" },
+  "audit.ranah.scoring_policy": { default: "Asesmen", en: "Assessment" },
+  "audit.ranah.selfcheck": { default: "Pemeriksaan sistem", en: "System check" },
+  "audit.ranah.structure": { default: "Struktur sekolah", en: "School structure" },
+  "audit.ranah.support_report": { default: "Laporan masalah", en: "Problem report" },
+  "audit.ranah.transfer": { default: "Pindah sekolah", en: "School transfer" },
+  "audit.ranah.ASSESSMENT": { default: "Asesmen", en: "Assessment" },
+  "audit.ranah.CERTIFICATE": { default: "Sertifikat", en: "Certificate" },
+  "audit.ranah.COURSE": { default: "Materi", en: "Content" },
+  "audit.ranah.EVIDENCE": { default: "Asesmen", en: "Assessment" },
+  "audit.ranah.FINDING": { default: "Materi", en: "Content" },
+  "audit.ranah.INTEGRITY": { default: "Integritas", en: "Integrity" },
+  "audit.ranah.LEARNING": { default: "Materi", en: "Content" },
+  "audit.ranah.QUESTION": { default: "Kesehatan soal", en: "Question health" },
+  "audit.ranah.RELEASE": { default: "Materi", en: "Content" },
+  "audit.tabel.academic_periods": { default: "Tahun ajaran", en: "School year" },
+  "audit.tabel.assessment_assignments": { default: "Penugasan asesmen", en: "Assessment assignment" },
+  "audit.tabel.assessment_definitions": { default: "Aturan asesmen", en: "Assessment rule" },
+  "audit.tabel.assessment_results": { default: "Hasil asesmen", en: "Assessment result" },
+  "audit.tabel.assessment_sessions": { default: "Asesmen", en: "Assessment" },
+  "audit.tabel.audit_log": { default: "Jejak audit", en: "Audit trail" },
+  "audit.tabel.briefings": { default: "Pengarahan", en: "Briefing" },
+  "audit.tabel.broadcast_notices": { default: "Pengumuman", en: "Notice" },
+  "audit.tabel.certificate_templates": { default: "Tata letak sertifikat", en: "Certificate layout" },
+  "audit.tabel.certificates": { default: "Sertifikat", en: "Certificate" },
+  "audit.tabel.classes": { default: "Kelas", en: "Class" },
+  "audit.tabel.courses": { default: "Materi", en: "Content" },
+  "audit.tabel.enrollments": { default: "Keanggotaan kelas", en: "Class enrolment" },
+  "audit.tabel.evaluation_evaluators": { default: "Akses peragaan", en: "Demonstration access" },
+  "audit.tabel.evaluation_sessions": { default: "Peragaan", en: "Demonstration" },
+  "audit.tabel.feature_flags": { default: "Fitur platform", en: "Platform feature" },
+  "audit.tabel.feedback_cycles": { default: "Putaran umpan balik", en: "Feedback round" },
+  "audit.tabel.feedback_question_sets": { default: "Pertanyaan umpan balik", en: "Feedback questions" },
+  "audit.tabel.feedback_thresholds": { default: "Batas tampil umpan balik", en: "Feedback threshold" },
+  "audit.tabel.import_jobs": { default: "Pendataan", en: "Intake" },
+  "audit.tabel.ingest_batches": { default: "Pendataan", en: "Intake" },
+  "audit.tabel.institutions": { default: "Sekolah", en: "School" },
+  "audit.tabel.integrity_signals": { default: "Tanda integritas", en: "Integrity signal" },
+  "audit.tabel.learning_assignments": { default: "Materi untuk kelas", en: "Class content" },
+  "audit.tabel.maintenance_windows": { default: "Pemeliharaan", en: "Maintenance" },
+  "audit.tabel.management_decisions": { default: "Kasus pimpinan", en: "Management case" },
+  "audit.tabel.memberships": { default: "Keanggotaan", en: "Membership" },
+  "audit.tabel.metric_catalogue": { default: "Ukuran laporan", en: "Report measures" },
+  "audit.tabel.mode_policy": { default: "Batas asesmen", en: "Assessment limits" },
+  "audit.tabel.org_nodes": { default: "Struktur sekolah", en: "School structure" },
+  "audit.tabel.persons": { default: "Orang", en: "Person" },
+  "audit.tabel.platform_config": { default: "Pengaturan platform", en: "Platform settings" },
+  "audit.tabel.platform_environment": { default: "Lingkungan platform", en: "Platform environment" },
+  "audit.tabel.probe": { default: "Pemeriksaan sistem", en: "System check" },
+  "audit.tabel.plp_releases": { default: "Terbitan materi", en: "Content release" },
+  "audit.tabel.question_health": { default: "Kesehatan soal", en: "Question health" },
+  "audit.tabel.recovery_ladder": { default: "Pemulihan akun", en: "Account recovery" },
+  "audit.tabel.release_distributions": { default: "Pembagian materi", en: "Content sharing" },
+  "audit.tabel.report_templates": { default: "Templat laporan", en: "Report template" },
+  "audit.tabel.role_assignments": { default: "Peran", en: "Role" },
+  "audit.tabel.school_pass_marks": { default: "Batas ketuntasan", en: "Pass mark" },
+  "audit.tabel.scoring_policy": { default: "Aturan perhitungan nilai", en: "Scoring rules" },
+  "audit.tabel.support_reports": { default: "Laporan masalah", en: "Problem report" },
+  "audit.tabel.transfers": { default: "Pindah sekolah", en: "School transfer" },
+  "audit.aksi.lain": { default: "Perubahan tercatat", en: "Change recorded" },
 
   // ── WP6B. PEMBELAJARAN SAYA — the educator reading their own learning.
   //
@@ -4217,7 +4707,7 @@ const table: Table = {
   // permission, because none of those is what happened: nobody has enrolled
   // this person in anything, which is an ordinary state of affairs and reads
   // like one.
-  "nav.pembelajaran": { default: "Pembelajaran Saya", en: "My Learning" },
+  "nav.pembelajaran": { default: "Belajar", en: "My Learning" },
   "pembelajaran.eyebrow": { default: "Pembelajaran Saya", en: "My Learning" },
   "pembelajaran.milik": { default: "Ini pembelajaran Anda sendiri, terpisah dari kelas yang Anda ajar.", en: "This is your own learning, separate from the classes you teach." },
   "pembelajaran.kosong": { default: "Belum ada pembelajaran untuk Anda saat ini.", en: "You have no learning at the moment." },
@@ -4316,7 +4806,7 @@ const table: Table = {
 
   "umpanbalik.pimpinan.judul": { default: "Umpan balik kelas", en: "Class feedback" },
   "umpanbalik.pimpinan.sub": { default: "Satu kelas dan guru yang mengajarnya.", en: "One class and the educator who taught it." },
-  "umpanbalik.pimpinan.kosong": { default: "Belum ada putaran umpan balik di bagian ini.", en: "No round of feedback has been held in this part of the school yet." },
+  "umpanbalik.pimpinan.kosong": { default: "Belum ada putaran umpan balik dalam lingkup ini.", en: "No round of feedback has been held in this part of the school yet." },
   "umpanbalik.pimpinan.buka": { default: "Buka umpan balik kelas", en: "Open class feedback" },
 
   "umpanbalik.kembali": { default: "Kembali", en: "Back" },
@@ -4362,35 +4852,35 @@ const table: Table = {
   // to find another class, does not suggest a way round it, and does not hint
   // that the answer might differ if asked again. WP7B decided that boundary
   // conservatively on purpose; this reports it.
-  "umpanbalik.kelas.judul": { default: "Kelas di bagian ini", en: "Classes in this part of the school" },
-  "umpanbalik.kelas.sub": { default: "Putaran umpan balik dimulai untuk satu kelas dan satu pengajarnya.", en: "A feedback round is started for one class and one of its educators." },
-  "umpanbalik.kelas.kosong": { default: "Belum ada kelas di bagian ini.", en: "There are no classes in this part of the school yet." },
+  "umpanbalik.kelas.judul": { default: "Kelas dalam lingkup ini", en: "Classes in this part of the school" },
+  "umpanbalik.kelas.sub": { default: "Putaran umpan balik dimulai untuk satu kelas dan satu gurunya.", en: "A feedback round is started for one class and one of its educators." },
+  "umpanbalik.kelas.kosong": { default: "Belum ada kelas dalam lingkup ini.", en: "There are no classes in this part of the school yet." },
   "umpanbalik.kelas.buka": { default: "Buka kelas", en: "Open class" },
   "umpanbalik.kelas.putaran": { default: "Putaran untuk kelas ini", en: "Rounds for this class" },
 
   "umpanbalik.buka.judul": { default: "Mulai putaran umpan balik", en: "Start a feedback round" },
-  "umpanbalik.buka.sub": { default: "Pilih pengajar yang akan ditanyakan kepada kelas ini.", en: "Choose the educator this class will be asked about." },
-  "umpanbalik.buka.kosong": { default: "Tidak ada pengajar yang bisa ditanyakan untuk kelas ini.", en: "There is no educator this class can be asked about." },
+  "umpanbalik.buka.sub": { default: "Pilih guru yang akan ditanyakan kepada kelas ini.", en: "Choose the educator this class will be asked about." },
+  "umpanbalik.buka.kosong": { default: "Tidak ada guru yang bisa ditanyakan untuk kelas ini.", en: "There is no educator this class can be asked about." },
   "umpanbalik.buka.tanpa_wewenang": { default: "Kelas ini bukan wewenang Anda.", en: "This class is not yours." },
   "umpanbalik.buka.aksi": { default: "Mulai putaran", en: "Start a round" },
   "umpanbalik.buka.memulai": { default: "Memulai…", en: "Starting…" },
   "umpanbalik.buka.dibuka": { default: "Putaran umpan balik untuk kelas ini sudah dimulai.", en: "The feedback round for this class has started." },
-  "umpanbalik.buka.sudah_ada": { default: "Kelas ini sudah punya putaran tentang pengajar itu pada periode ini.", en: "This class already has a round about that educator in this period." },
-  "umpanbalik.buka.bukan_pengajar": { default: "Pengajar itu tidak lagi tercatat mengajar kelas ini.", en: "That educator is no longer recorded as teaching this class." },
+  "umpanbalik.buka.sudah_ada": { default: "Kelas ini sudah punya putaran tentang guru itu pada periode ini.", en: "This class already has a round about that educator in this period." },
+  "umpanbalik.buka.bukan_pengajar": { default: "Guru itu tidak lagi tercatat mengajar kelas ini.", en: "That educator is no longer recorded as teaching this class." },
   "umpanbalik.buka.bukan_wewenang": { default: "Kelas ini bukan wewenang Anda untuk memulai putaran.", en: "This class is not yours to start a round for." },
   "umpanbalik.buka.bukan_akademik": { default: "Kelas ini terhubung dengan materi di luar kurikulum akademik, sehingga putaran umpan balik tidak dibuka untuknya.", en: "This class is connected to material outside the academic curriculum, so a feedback round is not opened for it." },
   "umpanbalik.buka.kelas_belum_siap": { default: "Kelas ini belum siap untuk putaran umpan balik.", en: "This class is not ready for a feedback round." },
   "umpanbalik.buka.belum_siap": { default: "PINTAR belum siap memulai putaran umpan balik.", en: "PINTAR is not ready to start a feedback round." },
   "umpanbalik.buka.subjek_sendiri": { default: "Putaran tentang pengajaran Anda sendiri dimulai oleh orang lain.", en: "A round about your own teaching is started by somebody else." },
   "umpanbalik.buka.tak_pasti": { default: "Sambungan terputus sebelum ada jawaban pasti. Buka kembali halaman ini untuk melihat keadaannya.", en: "The connection dropped before there was a definite answer. Open this page again to see where things stand." },
-  "mengajar.kembali": { default: "Kelas", en: "Classes" },
+  "mengajar.kembali": { default: "Mengajar", en: "Classes" },
   "mengajar.sedia.kode.assign_not_allowed": { default: "Anda tidak berwenang menyediakan materi untuk kelas ini.", en: "You are not allowed to make material available to this class." },
   "mengajar.sedia.kode.assign_class_invalid": { default: "Kelas ini tidak aktif atau belum punya tahun ajaran.", en: "This class is inactive or has no academic year." },
   "mengajar.sedia.kode.assign_release_not_published": { default: "Materi ini belum terbit, jadi belum bisa disediakan.", en: "This material is not published yet, so it cannot be made available." },
   "mengajar.sedia.kode.assign_window_invalid": { default: "Tanggal selesai harus sesudah tanggal mulai.", en: "The end date must be after the start date." },
   "mengajar.sedia.kode.assign_exists": { default: "Materi ini sudah disediakan untuk kelas ini.", en: "This material is already available to this class." },
-  "mengajar.sedia.kode.assign_pre_test_missing": { default: "Materi ini belum punya Pemetaan awal. Tandai soal Pemetaan awal lalu terbitkan ulang.", en: "This material has no Initial Mapping yet. Mark Initial Mapping questions and publish again." },
-  "mengajar.sedia.kode.assign_post_test_missing": { default: "Materi ini belum punya Cek penguasaan. Tandai soal Cek penguasaan lalu terbitkan ulang.", en: "This material has no Mastery Check yet. Mark Mastery Check questions and publish again." },
+  "mengajar.sedia.kode.assign_pre_test_missing": { default: "Materi ini belum punya Pemetaan Awal. Tandai soal Pemetaan awal lalu terbitkan ulang.", en: "This material has no Initial Mapping yet. Mark Initial Mapping questions and publish again." },
+  "mengajar.sedia.kode.assign_post_test_missing": { default: "Materi ini belum punya Uji Penguasaan. Tandai soal Cek penguasaan lalu terbitkan ulang.", en: "This material has no Mastery Check yet. Mark Mastery Check questions and publish again." },
   "mengajar.sedia.kode.assign_pre_test_too_short": { default: "Soal Pemetaan awal di materi ini kurang dari yang diminta.", en: "This material has fewer Initial Mapping questions than it asks for." },
   "mengajar.sedia.kode.assign_post_test_too_short": { default: "Soal Cek penguasaan di materi ini kurang dari yang diminta.", en: "This material has fewer Mastery Check questions than it asks for." },
   "mengajar.sedia.kode.assign_cycle_overlap": { default: "Soal Cek penguasaan berada di kelompok paralel yang sama dengan soal Pemetaan awal, sehingga tidak bisa dipakai. Pisahkan kelompoknya lalu terbitkan ulang.", en: "The Mastery Check questions share a parallel group with the Initial Mapping questions, so they cannot be used. Separate the groups and publish again." },
@@ -4401,8 +4891,8 @@ const table: Table = {
   "mengajar.sedia.batas_belum": { default: "Batas ketuntasan belum ditetapkan. Admin sekolah menetapkannya di Konfigurasi → Batas ketuntasan; sampai itu, pelajaran ini belum bisa disediakan.", en: "No pass mark has been set. The school admin sets it in Configuration → Pass mark; until then this lesson cannot be given." },
   "mengajar.sedia.kode.assign_input_invalid": { default: "Kelas atau materi tidak dikenali.", en: "The class or material was not recognised." },
   "mengajar.sedia.kode.assign_failed": { default: "Materi belum berhasil disediakan. Coba lagi sebentar lagi.", en: "The material could not be made available. Try again in a moment." },
-  "cycle.pemetaan.belum_ada": { default: "Pemetaan awal untuk pelajaran ini belum disiapkan. Tanyakan kepada guru.", en: "The Initial Mapping for this lesson is not ready yet. Ask the teacher." },
-  "cycle.penguasaan.belum_ada": { default: "Cek penguasaan untuk pelajaran ini belum disiapkan. Tanyakan kepada guru.", en: "The Mastery Check for this lesson is not ready yet. Ask the teacher." },
+  "cycle.pemetaan.belum_ada": { default: "Pemetaan Awal untuk pelajaran ini belum disiapkan. Tanyakan kepada guru.", en: "The Initial Mapping for this lesson is not ready yet. Ask the teacher." },
+  "cycle.penguasaan.belum_ada": { default: "Uji Penguasaan untuk pelajaran ini belum disiapkan. Tanyakan kepada guru.", en: "The Mastery Check for this lesson is not ready yet. Ask the teacher." },
   "mengajar.sapa.pagi": { default: "Selamat pagi", en: "Good morning" },
   "mengajar.sapa.siang": { default: "Selamat siang", en: "Good afternoon" },
   "mengajar.sapa.sore": { default: "Selamat sore", en: "Good evening" },
@@ -4483,7 +4973,7 @@ const table: Table = {
   "mengajar.siap.kembali": { default: "Kembali ke pilihan materi", en: "Back to material choice" },
   "mengajar.instrumen.PRE_TEST": { default: "Pemetaan Awal", en: "Initial Mapping" },
   "mengajar.instrumen.POST_TEST": { default: "Uji Penguasaan", en: "Mastery Check" },
-  "mengajar.instrumen.STANDALONE": { default: "Asesmen mandiri", en: "Standalone Assessment" },
+  "mengajar.instrumen.STANDALONE": { default: "Asesmen Mandiri", en: "Standalone Assessment" },
   // DAISY-04. The fourth assessment mode had no label, so any class that had run an
   // Uji Cepat took the Siapkan page down with it (audit M7). D-015 names it.
   "mengajar.instrumen.QUICK": { default: "Uji Cepat", en: "Quick Assessment" },
@@ -4494,7 +4984,7 @@ const table: Table = {
   "mengajar.instrumen.TEST": { default: "Tes", en: "Test" },
   "mengajar.instrumen.EXAM": { default: "Ujian", en: "Exam" },
   "mengajar.instrumen.PUBLIC_DEMO": { default: "Demonstrasi", en: "Demonstration" },
-  "mengajar.instrumen.PAPER": { default: "Tes di kertas", en: "Paper Test" },
+  "mengajar.instrumen.PAPER": { default: "Tes di Kertas", en: "Paper Test" },
   // DAISY-04 (D-011): PINTAR's own error and not-found pages, never Next's English
   // defaults. Calm, no blame, no raw message; a short reference to pass on.
   "galat.judul": { default: "Maaf, halaman ini tidak bisa ditampilkan", en: "Sorry, this page could not be shown" },
@@ -4588,7 +5078,7 @@ const table: Table = {
   "mengajar.bukti.kali": { default: "kali", en: "times" },
   "mengajar.bukti.kosong": { default: "Belum ada asesmen yang berjalan atau selesai di kelas ini, jadi belum ada keadaan untuk dilaporkan.", en: "No assessment is open or finished in this class yet, so there is nothing to report on." },
   "mengajar.bukti.simpulan": { default: "Kesimpulan", en: "Conclusions" },
-  "mengajar.bukti.kaki": { default: "Yang tidak tampil di sini: penilaian per soal dan sinyal integritas. Keduanya ditinjau Kepala Departemen, bukan pengajar.", en: "Not shown here: item-level review and integrity signals. Both are reviewed by the Head of Department, not the educator." },
+  "mengajar.bukti.kaki": { default: "Yang tidak tampil di sini: penilaian per soal dan sinyal integritas. Keduanya ditinjau Kepala departemen, bukan guru.", en: "Not shown here: item-level review and integrity signals. Both are reviewed by the Head of Department, not the educator." },
   "mengajar.langkah.eyebrow": { default: "Langkah berikutnya", en: "What next" },
   "mengajar.langkah.judul": { default: "Yang bisa Anda lakukan sekarang", en: "What you can do now" },
   "mengajar.langkah.intro": { default: "Diurutkan dari yang paling masuk akal hari ini, berdasarkan apa yang PINTAR tahu tentang kelas ini.", en: "Ordered by what makes most sense today, from what PINTAR knows about this class." },
@@ -4604,8 +5094,8 @@ const table: Table = {
   "mengajar.langkah.f5": { default: "Uji Cepat untuk mengecek pemahaman hari ini", en: "Quick Assessment to check today's understanding" },
   "mengajar.langkah.f5w": { default: "Beberapa soal, satu jendela pendek. Hasilnya menjadi bukti pembelajaran seperti asesmen lain.", en: "A few items, one short window. The result becomes learning evidence like any other assessment." },
   "mengajar.langkah.f6": { default: "Susun materi sendiri", en: "Draft your own material" },
-  "mengajar.langkah.f6w": { default: "Anda bisa menyusun dan mengunggah. Persetujuan dan penerbitan dilakukan Kepala Departemen dan sekolah.", en: "You can draft and upload. Approval and publishing are done by the Head of Department and the school." },
-  "mengajar.langkah.quiet": { default: "Ringkasan berkala untuk kelas ini belum ada; akan muncul di sini bila sudah tersedia. Yang tidak ada di daftar ini — penilaian per soal dan sinyal integritas — bukan bagian dari peran pengajar.", en: "There is no periodic briefing for this class yet; it will appear here when there is. What is not on this list — item review and integrity signals — is not part of the educator role." },
+  "mengajar.langkah.f6w": { default: "Anda bisa menyusun dan mengunggah. Persetujuan dan penerbitan dilakukan Kepala departemen dan sekolah.", en: "You can draft and upload. Approval and publishing are done by the Head of Department and the school." },
+  "mengajar.langkah.quiet": { default: "Ringkasan berkala untuk kelas ini belum ada; akan muncul di sini bila sudah tersedia. Yang tidak ada di daftar ini — penilaian per soal dan sinyal integritas — bukan bagian dari peran guru.", en: "There is no periodic briefing for this class yet; it will appear here when there is. What is not on this list — item review and integrity signals — is not part of the educator role." },
   "mengajar.siapa.judul": { default: "Siapa yang sudah mengumpulkan", en: "Who has submitted" },
   "mengajar.siapa.sudah": { default: "Sudah mengumpulkan", en: "Have submitted" },
   "mengajar.siapa.belum": { default: "Belum mengerjakan", en: "Not yet attempted" },
@@ -4782,7 +5272,9 @@ export function batasHari(hari: string, ujung: "awal" | "akhir"): string | null 
  * does not ask for a rendering that would be a bug to perform. A key not
  * listed here is still rendered for every persona and still audited.
  */
-const STAFF_ONLY_PREFIXES = ["studio.", "config.", "pimpinan.", "pendataan."] as const;
+// `audit.`: the Jejak Audit's words for an action, an area and a table (D-140, DG-11), read on Konfigurasi only, by the
+// administrators who may read the log; never addressed to a learner or to the public.
+const STAFF_ONLY_PREFIXES = ["studio.", "config.", "pimpinan.", "pendataan.", "audit."] as const;
 
 export function isStaffOnly(event: HleEvent): boolean {
   return STAFF_ONLY_PREFIXES.some((p) => event.startsWith(p));

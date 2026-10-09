@@ -14,7 +14,10 @@
  * notice and this permission notice appear in all copies. THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
  * WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
  */
+import { createElement, type ReactElement } from "react";
+
 const IKON = {
+  "circle-check": "<circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"m9 12 2 2 4-4\" />",
   "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /><circle cx=\"9\" cy=\"7\" r=\"4\" /><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /><path d=\"M16 3.13a4 4 0 0 1 0 7.75\" />",
   "book-open": "<path d=\"M12 7v14\" /><path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\" />",
   "chart-no-axes-column": "<line x1=\"18\" x2=\"18\" y1=\"20\" y2=\"10\" /><line x1=\"12\" x2=\"12\" y1=\"20\" y2=\"4\" /><line x1=\"6\" x2=\"6\" y1=\"20\" y2=\"14\" />",
@@ -39,13 +42,33 @@ const IKON = {
 
 export type NamaIkon = keyof typeof IKON;
 
+// DAISY-30 (text is never set as HTML): the markup above stays as the bundle wrote it, so it can be compared with the
+// source byte for byte, and is turned into React elements here, once. It is a fixed list of self-closing shapes with
+// quoted attributes; anything else in it is refused when the module loads rather than drawn.
+const BENTUK = /<(circle|path|line|polyline|rect) ((?:[a-z0-9]+="[^"]*" )+)\/>/g;
+function unsur(nama: NamaIkon): ReactElement[] {
+  const src = IKON[nama];
+  const out: ReactElement[] = [];
+  let sisa: string = src;
+  for (const [semua, tag, atribut] of src.matchAll(BENTUK)) {
+    const props: Record<string, string> = { key: String(out.length) };
+    for (const [, k, v] of atribut.matchAll(/([a-z0-9]+)="([^"]*)"/g)) props[k] = v;
+    out.push(createElement(tag, props));
+    sisa = sisa.replace(semua, "");
+  }
+  if (sisa.trim() !== "") throw new Error(`Ikon ${nama}: markup that is not a plain shape`);
+  return out;
+}
+const UNSUR = Object.fromEntries((Object.keys(IKON) as NamaIkon[]).map((n) => [n, unsur(n)])) as Record<NamaIkon, ReactElement[]>;
+
 export default function Ikon({ nama, kelas }: { nama: NamaIkon; kelas?: string }) {
   return (
     <svg
       className={kelas ? `pin-ikon ${kelas}` : "pin-ikon"}
       viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round"
       aria-hidden="true" focusable="false"
-      dangerouslySetInnerHTML={{ __html: IKON[nama] }}
-    />
+    >
+      {UNSUR[nama]}
+    </svg>
   );
 }

@@ -66,7 +66,7 @@ export default async function Aktivasi() {
   if (error || (!adminSistem && sekolah.length === 0)) {
     return (
       <HalamanPenolakan messageKey="aktivasi.ditolak" persona="staff" locale={locale}
-        backHref="/" backKey="entry.title" />
+        backHref="/" backKey="galat.beranda" />
     );
   }
 

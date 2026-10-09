@@ -48,7 +48,7 @@ export default async function Pendataan({
         persona="staff"
         locale={locale}
         backHref="/"
-        backKey="entry.title"
+        backKey="galat.beranda"
       />
     );
   }

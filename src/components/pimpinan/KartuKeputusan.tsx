@@ -59,7 +59,7 @@ export default function KartuKeputusan({
     <article className={`pin-kp pin-${nada(k.keadaan)}`}>
       <header className="pin-kp-head">
         <p className="pin-eyebrow">
-          <span className="pin-kp-tanda">{s(KEADAAN_KUNCI[k.keadaan])}</span>
+          <span className="pin-kp-tanda">{s(tunggu ? "pimpinan.keadaan.menunggu_keputusan" : KEADAAN_KUNCI[k.keadaan])}</span>
           {k.simpulNama ? <span className="pin-kp-simpul">{k.simpulNama}</span> : null}
         </p>
         <h3 className="pin-kp-judul">{s(KELUARGA_KUNCI[k.keluarga])}</h3>

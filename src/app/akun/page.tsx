@@ -34,7 +34,7 @@ export default async function Akun() {
   const peran = await peranSaya();
   const staf = Boolean(peran?.some((p) => PERAN_STAF.includes(p)));
   if (!staf) {
-    return <HalamanPenolakan messageKey="auth.not_yet" persona="public" locale={locale} backHref="/" backKey="entry.title" />;
+    return <HalamanPenolakan messageKey="auth.not_yet" persona="public" locale={locale} backHref="/" backKey="galat.beranda" />;
   }
   // BOB-29 (C11): what this browser was declared for this person, to show and to change
   const { data: sesi } = await (await supabaseServer()).rpc("sesi_periksa");

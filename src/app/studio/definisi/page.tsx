@@ -32,6 +32,9 @@ import Penomoran, { UKURAN, halamanDiminta, rentang, tautanHalaman } from "@/com
  */
 type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; hal?: string; ubah?: string }>;
 
+/** The shuffle policies the database accepts, each said in words (studio.definisi.acak.*). */
+const ACAK = ["NONE", "ITEMS", "ITEMS_AND_OPTIONS"] as const;
+
 export default async function Definisi({ searchParams }: { searchParams: Search }) {
   // CR-87: a tab not this person's sends them to Studio's home (src/lib/studio-tab.ts); the database still decides
   if (!(await tabSaya()).includes("definisi")) redirect("/studio");
@@ -79,8 +82,10 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
         <ul className="mt-2 grid gap-1 text-sm text-ink-2">
           {(bounds ?? []).map((b) => (
             <li key={b.mode} className="tabular-nums">
-              {enumLabel("mode", b.mode)}: {b.item_count_min}–{b.item_count_max} · {b.late_sync_grace_max}s
-              {b.attempt_limit_max ? ` · ${b.attempt_limit_max}×` : ""}
+              {/* D-140(c): the limits in words, never «3–20 · 300s · 1×» */}
+              {enumLabel("mode", b.mode)}: {b.item_count_min}–{b.item_count_max} {s("studio.definisi.unit.soal")}
+              {" · "}{s("studio.definisi.unit.tenggang")} {b.late_sync_grace_max} {s("studio.definisi.unit.detik")}
+              {b.attempt_limit_max ? <>{" · "}{s("studio.definisi.unit.percobaan")} {b.attempt_limit_max}</> : null}
             </li>
           ))}
         </ul>
@@ -100,29 +105,38 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
               ))}
             </select>
           </label>
-          <input className={field} name="judul" placeholder="nama aturan" required />
+          {/* D-140(c): every field has its visible label; the shuffle and the two switches are said in words */}
+          <label className={label}><span>{s("studio.definisi.f.judul")}</span>
+            <input className={field} name="judul" required />
+          </label>
           <div className="flex flex-wrap gap-2">
+            <label className={label}><span>{s("studio.definisi.f.mode")}</span>
             <select className={field} name="mode" defaultValue="POST_TEST">
               {(bounds ?? []).filter((b) => MODE_SIKLUS.includes(b.mode)).map((b) => (
                 <option key={b.mode} value={b.mode}>{enumLabel("mode", b.mode)}</option>
               ))}
             </select>
+            </label>
+            <label className={label}><span>{s("studio.bank.saring.untuk")}</span>
             <select className={field} name="bank" defaultValue="PRACTICE">
               {/* L4 (CR-85, D-127 Q5): the bank's own words (jenis.bank.*, as Bank Soal says them), the value underneath */}
               {["PRACTICE", "TEST", "EXAM"].map((b) => <option key={b} value={b}>{enumLabel("bank", b)}</option>)}
             </select>
-            <input className={field} name="jumlah" type="number" placeholder="jumlah soal" required />
-            <input className={field} name="keselamatan" type="number" placeholder="minimum keselamatan" />
-            <input className={field} name="ragu" type="number" placeholder="jendela ragu (detik)" />
-            <input className={field} name="tenggang" type="number" placeholder="tenggang kirim (detik)" />
-            <input className={field} name="percobaan" type="number" placeholder="batas percobaan" />
+            </label>
+            <label className={label}><span>{s("studio.definisi.f.jumlah")}</span><input className={field} name="jumlah" type="number" min={1} required /></label>
+            <label className={label}><span>{s("studio.definisi.f.keselamatan")}</span><input className={field} name="keselamatan" type="number" min={0} /></label>
+            <label className={label}><span>{s("studio.definisi.f.ragu")}</span><input className={field} name="ragu" type="number" min={0} /></label>
+            <label className={label}><span>{s("studio.definisi.f.tenggang")}</span><input className={field} name="tenggang" type="number" min={0} /></label>
+            <label className={label}><span>{s("studio.definisi.f.percobaan")}</span><input className={field} name="percobaan" type="number" min={1} /></label>
+            <label className={label}><span>{s("studio.definisi.f.acak")}</span>
             <select className={field} name="acak" defaultValue="ITEMS_AND_OPTIONS">
-              {["NONE", "ITEMS", "ITEMS_AND_OPTIONS"].map((v) => <option key={v} value={v}>{v}</option>)}
+              {ACAK.map((v) => <option key={v} value={v}>{s(`studio.definisi.acak.${v}`)}</option>)}
             </select>
+            </label>
           </div>
           <div className="flex flex-wrap gap-3 text-sm">
-            <label className="flex items-center gap-1"><input type="checkbox" name="jeda" /> jeda</label>
-            <label className="flex items-center gap-1"><input type="checkbox" name="luring" /> luring</label>
+            <label className="flex items-center gap-1"><input type="checkbox" name="jeda" /> {s("studio.definisi.f.jeda")}</label>
+            <label className="flex items-center gap-1"><input type="checkbox" name="luring" /> {s("studio.definisi.f.luring")}</label>
           </div>
           {/* L4 (CR-85): how many questions of each difficulty, one number per band in the band's own word, never typed JSON */}
           <div className="flex flex-wrap gap-2">
@@ -147,7 +161,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
             return (
               <li key={d.id} className={card}>
                 <p className="font-medium">{d.title}</p>
-                <p className="mt-1 text-sm text-ink-3 tabular-nums">{enumLabel("mode", d.mode)} · {d.item_count}</p>
+                <p className="mt-1 text-sm text-ink-3 tabular-nums">{enumLabel("mode", d.mode)} · {d.item_count} {s("studio.definisi.unit.soal")}</p>
                 {/* FD-9: where the rule stands, and its chapter's steps, which it moves through */}
                 <p className="mt-1 text-sm text-ink-2">
                   {s(d.status === "APPROVED" ? "studio.langkah.keadaan.selesai" : "studio.langkah.keadaan.nanti")}
@@ -162,8 +176,8 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
                   <form action={saveDefinitionAction} id={`definisi-${d.id}`} className="mt-2 flex flex-wrap items-end gap-2">
                     <input type="hidden" name="definisi" value={d.id} />
                     <input type="hidden" name="hal" value={halaman} />
-                    <input className={field} name="judul" defaultValue={d.title} />
-                    <input className={field} name="jumlah" type="number" defaultValue={d.item_count} />
+                    <label className={label}><span>{s("studio.definisi.f.judul")}</span><input className={field} name="judul" defaultValue={d.title} /></label>
+                    <label className={label}><span>{s("studio.definisi.f.jumlah")}</span><input className={field} name="jumlah" type="number" min={1} defaultValue={d.item_count} /></label>
                     <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
                   </form>
                 ) : null}

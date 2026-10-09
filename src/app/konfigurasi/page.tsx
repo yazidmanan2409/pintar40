@@ -24,6 +24,7 @@ import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
 import { navKonteks } from "@/components/NavKonteks";
 import { CangkangStaf } from "@/components/CangkangPengalaman";
 import ItemNav from "@/components/ItemNav";
+import { kataAksiAudit, kataTabelAudit } from "@/lib/jejak-audit";
 import { konteksHalaman } from "@/lib/konteks-server";
 import { melayani } from "@/lib/konteks";
 import { peranSaya } from "@/lib/tur-negara";
@@ -76,8 +77,8 @@ const namaDari = (v: unknown): string | null => {
 };
 const tautanTempat = "text-ink-2 underline underline-offset-4 hover:text-ink-1";
 const when = (iso: string) => new Date(iso).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jakarta" });
-const roleLabel = (r: string) => (["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"].includes(r) ? s(`role.${r}` as HleEvent) : r);
-const transferLabel = (st: string) => (["REQUESTED", "AUTHORIZED", "EXECUTED", "REJECTED", "CANCELLED"].includes(st) ? s(`transfer.${st}` as HleEvent) : st);
+const roleLabel = (r: string) => (["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"].includes(r) ? s(`role.${r}` as HleEvent) : TANPA_NAMA);
+const transferLabel = (st: string) => (["REQUESTED", "AUTHORIZED", "EXECUTED", "REJECTED", "CANCELLED"].includes(st) ? s(`transfer.${st}` as HleEvent) : TANPA_NAMA);
 
 const card = "rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-4";
 const field = "rounded-[var(--radius-1)] border border-line-1 bg-surface-0 px-2 py-1 text-sm";
@@ -86,6 +87,11 @@ const label = "grid gap-1 text-sm text-ink-2";
 
 /** The three reports PINTAR defines. The table's own CHECK is the authority. */
 const STANDARD_REPORTS = ["class_learning_intelligence", "institution_learning_intelligence", "learner_result"] as const;
+/** The report titles a template may carry, chosen by their words (D-140(c)). */
+const JUDUL_LAPORAN = ["laporan.institusi.judul", "laporan.kelas.judul"] as const;
+/** A standard report's or a visualization's words; an unknown value says nothing rather than its code. */
+const kataLaporan = (jenis: "standar" | "tampilan", v: string) =>
+  allKeys().includes(`laporan.${jenis}.${v}` as HleEvent) ? s(`laporan.${jenis}.${v}` as HleEvent) : TANPA_NAMA;
 
 type MetricDefinition = {
   metric_id: string;
@@ -128,7 +134,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         persona="staff"
         locale={await currentLocale()}
         backHref="/"
-        backKey="entry.title"
+        backKey="galat.beranda"
       />
     );
   }
@@ -1019,8 +1025,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               {(institutions ?? []).map((i) => (
                 <li key={i.id} className="rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
                   <div className="flex items-center justify-between">
-                    <span>{i.name}{i.is_synthetic ? <span className="ml-2 rounded bg-info-soft px-1.5 text-xs text-info">sintetis</span> : null}</span>
-                    <span className="text-ink-3">{i.is_active ? "aktif" : "nonaktif"}</span>
+                    <span>{i.name}{i.is_synthetic && platformIni ? <span className="ml-2 rounded bg-info-soft px-1.5 text-xs text-info">{s("config.sekolah.sintetis")}</span> : null}</span>
+                    <span className="text-ink-3">{s(i.is_active ? "config.sekolah.aktif" : "config.sekolah.nonaktif")}</span>
                   </div>
                   <p className="mt-1 text-xs text-ink-3">
                     {(periods ?? []).filter((p) => p.institution_id === i.id).map((p) => `${p.name} (${p.starts_on} – ${p.ends_on})`).join(" · ") || s("config.empty")}
@@ -1099,7 +1105,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                       )}
                       <form action={transferRejectAction} className="flex gap-1">
                         <input type="hidden" name="transfer" value={x.id} />
-                        <input name="reason" className={field} placeholder={s("config.label.reason")} />
+                        <label className="sr-only" htmlFor={`alasan-${x.id}`}>{s("config.label.reason")}</label>
+                        <input id={`alasan-${x.id}`} name="reason" className={field} placeholder={s("config.label.reason")} />
                         <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.reject")}</TombolKirim>
                       </form>
                     </div>
@@ -1121,9 +1128,31 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   ))}
                 </select>
               </label>
-              <label className={label}>{s("config.label.destination_institution")}<input name="to_institution" className={field} required /></label>
-              <label className={label}>{s("config.label.destination_period")}<input name="to_period" className={field} required /></label>
-              <label className={label}>{s("config.label.destination_programme")}<input name="to_programme" className={field} /></label>
+              {/* CR-41 (D-140(c)): the destination is chosen by name from the schools, school years and programmes this
+                  reader may already read, never typed as an internal id. Nothing new becomes readable: a school the
+                  reader cannot see is not offered (the application pass log, CR-41, records that limit). */}
+              <label className={label}>{s("config.label.destination_institution")}
+                <select name="to_institution" className={field} required defaultValue="">
+                  <option value="" disabled>—</option>
+                  {(institutions ?? []).map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
+                </select>
+              </label>
+              <label className={label}>{s("config.label.destination_period")}
+                <select name="to_period" className={field} required defaultValue="">
+                  <option value="" disabled>—</option>
+                  {(periods ?? []).map((p) => (
+                    <option key={p.id} value={p.id}>{institutionName.get(p.institution_id) ?? TANPA_NAMA} · {p.name}</option>
+                  ))}
+                </select>
+              </label>
+              <label className={label}>{s("config.label.destination_programme")}
+                <select name="to_programme" className={field} defaultValue="">
+                  <option value="">—</option>
+                  {(nodes ?? []).filter((n) => n.kind === "PROGRAMME" && n.is_active).map((n) => (
+                    <option key={n.id} value={n.id}>{institutionName.get(n.institution_id) ?? TANPA_NAMA} · {n.name}{n.academic_period_id ? ` · ${periodName.get(n.academic_period_id) ?? ""}` : ""}</option>
+                  ))}
+                </select>
+              </label>
               <label className={label}>{s("config.label.reason")}<input name="reason" className={field} /></label>
               <p className="text-xs text-ink-3 sm:col-span-2">{s("config.label.destination_help")}</p>
               <div><TombolKirim className={button} sibuk={s("tombol.mengirim")}>{s("config.action.request_transfer")}</TombolKirim></div>
@@ -1249,15 +1278,17 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             <div className="mt-2 overflow-x-auto">
               <table className="w-full text-left text-sm text-ink-2">
                 <thead className="text-xs text-ink-3">
-                  <tr><th className="py-1 pr-3">{s("config.label.when")}</th><th className="py-1 pr-3">{s("config.label.action")}</th><th className="py-1 pr-3">{s("config.label.target")}</th><th className="py-1 pr-3">{s("config.label.build")}</th></tr>
+                  <tr><th className="py-1 pr-3">{s("config.label.when")}</th><th className="py-1 pr-3">{s("config.label.action")}</th><th className="py-1 pr-3">{s("config.label.target")}</th>{platformIni ? <th className="py-1 pr-3">{s("config.label.build")}</th> : null}</tr>
                 </thead>
                 <tbody>
                   {(audit ?? []).slice(0, UKURAN_JEJAK).map((r) => (
                     <tr key={r.id} className="border-t border-line-1">
                       <td className="py-1 pr-3 whitespace-nowrap">{when(r.at)}</td>
-                      <td className="py-1 pr-3">{r.action}</td>
-                      <td className="py-1 pr-3 text-ink-3">{r.target_table} · {short(r.target_id)}{r.institution_id ? ` · ${institutionName.get(r.institution_id) ?? TANPA_NAMA}` : ""}</td>
-                      <td className="py-1 pr-3 text-ink-3">{short(r.build_sha)}</td>
+                      {/* D-138(c), D-140(c): the action and the record in words; never the code, the table or an id.
+                          The build stays a platform operator's diagnostic. */}
+                      <td className="py-1 pr-3">{kataAksiAudit(r.action, locale)}</td>
+                      <td className="py-1 pr-3 text-ink-3">{[kataTabelAudit(r.target_table, locale), r.institution_id ? institutionName.get(r.institution_id) ?? TANPA_NAMA : null].filter(Boolean).join(" · ") || TANPA_NAMA}</td>
+                      {platformIni ? <td className="py-1 pr-3 text-ink-3">{short(r.build_sha)}</td> : null}
                     </tr>
                   ))}
                   {(audit ?? []).length === 0 && <tr><td className="py-1 text-ink-3" colSpan={4}>{s("config.empty")}</td></tr>}
@@ -1288,9 +1319,9 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 {myTemplates.map((tpl) => (
                   <li key={tpl.id} className="rounded-[var(--radius-1)] border border-line-1 p-2">
                     <span className="font-medium">{kata(tpl.title_key) ?? TANPA_NAMA}</span>
-                    <span className="text-ink-3"> · {tpl.standard_report} · {s("laporan.templat.versi")} {tpl.template_version}</span>
+                    <span className="text-ink-3"> · {kataLaporan("standar", tpl.standard_report)} · {s("laporan.templat.versi")} {tpl.template_version}</span>
                     <p className="mt-1 text-ink-2">
-                      {(metricsByTemplate.get(tpl.id) ?? []).map((m) => `${namaMetrik.get(m.metric_id) ?? m.metric_id} (${m.visualization})`).join(", ")}
+                      {(metricsByTemplate.get(tpl.id) ?? []).map((m) => `${namaMetrik.get(m.metric_id) ?? TANPA_NAMA} (${kataLaporan("tampilan", m.visualization)})`).join(", ")}
                     </p>
                   </li>
                 ))}
@@ -1308,12 +1339,14 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 </label>
                 <label className={label}>{s("laporan.templat.jenis")}
                   <select name="standard_report" className={field} required>
-                    {STANDARD_REPORTS.map((r) => <option key={r} value={r}>{r}</option>)}
+                    {STANDARD_REPORTS.map((r) => <option key={r} value={r}>{kataLaporan("standar", r)}</option>)}
                   </select>
                 </label>
                 <label className={label}>{s("laporan.templat.judul_kunci")}
-                  <input name="title_key" className={field} required pattern="[a-z][a-z0-9_.]+"
-                         defaultValue="laporan.institusi.judul" />
+                  {/* D-140(c): the title is chosen by its words; the copy key it stores is never typed */}
+                  <select name="title_key" className={field} required defaultValue="laporan.institusi.judul">
+                    {JUDUL_LAPORAN.map((k) => <option key={k} value={k}>{s(k)}</option>)}
+                  </select>
                 </label>
                 <fieldset className="grid gap-1">
                   <legend className="text-sm text-ink-2">{s("laporan.templat.pilih")}</legend>
@@ -1324,14 +1357,13 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                           already carries its scope ("class.", "institution.").
                           The scope column itself is an enum and §7 does not
                           let one be rendered raw to a human. */}
-                      <span className="min-w-[14rem] text-ink-2">{namaMetrik.get(d.metric_id) ?? d.metric_id}
-                        {namaMetrik.get(d.metric_id) ? <span className="block break-all text-xs text-ink-3">{d.metric_id}</span> : null}</span>
+                      <span className="min-w-[14rem] text-ink-2">{namaMetrik.get(d.metric_id) ?? TANPA_NAMA}</span>
                       {/* No selection is the default: an empty visualization
                           is how a metric is left out, so the form cannot
                           silently include one nobody ticked. */}
                       <select name={`metric[${d.metric_id}]`} className={field} defaultValue="">
                         <option value="">—</option>
-                        {(d.allowed_visualizations ?? []).map((v: string) => <option key={v} value={v}>{v}</option>)}
+                        {(d.allowed_visualizations ?? []).map((v: string) => <option key={v} value={v}>{kataLaporan("tampilan", v)}</option>)}
                       </select>
                     </label>
                   ))}
