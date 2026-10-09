@@ -1425,7 +1425,11 @@ export const appTests: SelfTest[] = [
       c.expect(belajarMurid.html.includes(tabBelajar) && belajarMurid.html.includes(tabSertifikat),
         "the learner lost their own shell");
       c.expect(!/href="\/mengajar"/.test(belajarMurid.raw), "a learner was offered a way into teaching");
-      c.expect(!belajarMurid.html.includes(pembelajaran), "a learner's own home was renamed for them");
+      // RESTATED FOR TERMINOLOGY v1 (D-068 F2): the educator's own-learning tab is now «Belajar», the learner's own
+      // word, so the word alone no longer tells them apart; what must not reach a learner is the educator's page itself,
+      // its eyebrow and the sentence that it is apart from their teaching
+      c.expect(!belajarMurid.html.includes(t("pembelajaran.eyebrow", "educator")) && !belajarMurid.html.includes(milik),
+        "a learner's own home was renamed for them");
       c.expect(/data-tur="bantuan"/.test(belajarMurid.raw), "the learner lost the Help entry their tour points at");
 
       // 6. THEIR CERTIFICATES ARE THE ONE CERTIFICATE SURFACE, and reaching it
@@ -2616,7 +2620,8 @@ export const appTests: SelfTest[] = [
         const i = x.indexOf('id="pin-perkelas"');
         if (!c.expect(i >= 0, `${peran}: Pimpinan has no class-by-class section above the classes`)) continue;
         const sec = x.slice(i, x.indexOf("</section>", i));
-        const ringkas = [...sec.matchAll(/<summary><span class="pin-kelas-nama">([^<]+)<\/span><span class="pin-kelas-tanda">([^<]+)<\/span><\/summary>/g)];
+        // (D-138 step 4: the Disclosure's chevron icon follows the tag, hidden from readers)
+        const ringkas = [...sec.matchAll(/<summary><span class="pin-kelas-nama">([^<]+)<\/span><span class="pin-kelas-tanda">([^<]+)<\/span>(?:<svg class="pin-ikon pin-chevron"[^>]*aria-hidden="true"[^>]*>[\s\S]*?<\/svg>)?<\/summary>/g)];
         const tanda = new Set(["pimpinan.kelas.ada", "pimpinan.kelas.belum", "laporan.metrik.bukan_untuk_anda"].map((k) => t(k as HleEvent, "staff")));
         c.expect(ringkas.length > 0 || visibleText(sec).includes(t("pimpinan.kelas.kosong", "staff")), `${peran}: the section neither lists a class nor says there is none`);
         c.expect(ringkas.every((m) => tanda.has(m[2].replace(/&#x27;/g, "'"))), `${peran}: a class is summarised as ${ringkas.map((m) => m[2]).join(", ")}`);
