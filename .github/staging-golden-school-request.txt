@@ -10,4 +10,5 @@
 # 6 Oct, closure batch 0 (D-118): Sekolah Uji Penutupan B0 (found-school.yml run 37462555196, GS-00 green inside it); G4 now asserts D-054(b)'s activation order
 # 8 Oct, L3 (D-132: one Golden School walk, because landing changes for everyone): Sekolah Uji Penutupan L3 (found-school.yml run 37709075256, GS-00 green inside it); staging at 177, main d66485e
 # 8 Oct, BOB19-K01 (the owner's ruling, Option B): G3 appoints the first administrator by «Menunjuk admin sekolah pertama»: Sekolah Uji Penutupan BOB19 (found-school.yml run 37743250063, GS-00 green inside it); staging at 177, main bf18bc0
-slug: sekolah-uji-bob19
+# 9 Oct, the baseline before the application pass (owner, 9 Oct): Sekolah Uji Baseline 894 (found-school.yml run 37879140604); staging at 177, main 894ae01 (code)
+slug: sekolah-uji-baseline-894
