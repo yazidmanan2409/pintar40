@@ -1569,7 +1569,10 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-kembali {
   justify-self: start;
   background: none; border: 0; padding: var(--space-2) 0;
-  font: inherit; font-size: var(--t-small); font-weight: var(--weight-strong);
+  /* t-body 16: 08-migration.md's «Sizes outside the ladder» row names this
+     element's 15 px and maps it to t-body; the general back-link row says
+     t-small. The row that names the element is applied. */
+  font: inherit; font-size: var(--t-body); font-weight: var(--weight-strong);
   color: var(--pintar-primary); cursor: pointer; min-height: var(--control-md);
 }
 
