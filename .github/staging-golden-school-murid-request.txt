@@ -5,3 +5,5 @@
 # 6 Oct, closure batch 0: Sekolah Uji Penutupan B0 after run 37463817245 (GS-04 to GS-11 green); GS-16 by clicking, J6.2 and J6.11 asserted
 # 8 Oct, L3 (D-132): Sekolah Uji Penutupan L3 after run 37709418935 (GS-04 to GS-11 green); staging at 177, main d66485e
 slug: sekolah-uji-l3
+# 9 Oct, the baseline before the application pass (D-138): Sekolah Uji Baseline 894 after admin run 37879701505 (green); staging at 894ae01
+slug: sekolah-uji-baseline-894
