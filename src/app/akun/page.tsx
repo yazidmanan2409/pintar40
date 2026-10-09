@@ -49,7 +49,7 @@ export default async function Akun() {
 
   return (
     <>
-      <CangkangPengalaman locale={locale} kind={kind} />
+      <CangkangPengalaman locale={locale} kind={kind} halamanKini="akun" />
       <main className="pin-col">
         <div className="pin-head">
           <h1 className="pin-h1">{s("akun.judul")}</h1>

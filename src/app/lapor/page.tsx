@@ -1,3 +1,4 @@
+import { kataHalaman } from "@/lib/kata-halaman";
 import Link from "next/link";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
@@ -36,7 +37,7 @@ export default async function Lapor({ searchParams }: { searchParams: Promise<{ 
 
   return (
     <>
-      <CangkangPengalaman locale={locale} kind={kind} />
+      <CangkangPengalaman locale={locale} kind={kind} halamanKini="lapor" />
       <main className="pin-col">
         <Link className="pin-back" href={halaman === "/" ? kembali : halaman}>← {s("lapor.kembali")}</Link>
         <div className="pin-head">
@@ -49,7 +50,8 @@ export default async function Lapor({ searchParams }: { searchParams: Promise<{ 
             <input type="hidden" name="dari" value={halaman} />
             {ref ? <input type="hidden" name="ref" value={ref} /> : null}
             <p className="pin-meta">
-              {s("lapor.halaman")} <span className="pin-num">{halaman}</span>
+              {/* D-140(c): the place in words; the path itself travels in the hidden field above */}
+              {s("lapor.halaman")} {kataHalaman(halaman, locale)}
               {ref ? <> · {s("lapor.rujukan")} <span className="pin-num">{ref}</span></> : null}
             </p>
             <label className="pin-lapor-isian">

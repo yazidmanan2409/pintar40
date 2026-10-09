@@ -1,5 +1,4 @@
-import Link from "next/link";
-import TandaTautan from "@/components/TandaTautan";
+import TabStudioNav from "@/components/studio/TabStudio";
 import { currentViewer } from "@/lib/auth";
 import { s, studioInstitutions, tabSaya } from "./_lib";
 import { type TabStudio } from "@/lib/studio-tab";
@@ -76,11 +75,7 @@ export default async function StudioLayout({ children }: { children: React.React
           <p className="text-sm text-ink-3">{s("app.name")}</p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight">{s("studio.title")}</h1>
         </div>
-        <nav className="mt-4 flex flex-wrap gap-3 text-sm">
-          {nav.map(([href, text]) => (
-            <Link key={href} href={href} className="text-ink-2 underline-offset-4 hover:underline">{text}<TandaTautan /></Link>
-          ))}
-        </nav>
+        <div className="mt-4"><TabStudioNav tab={nav} label={s("studio.title")} /></div>
       </header>
       {children}
     </main>

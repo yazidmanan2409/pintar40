@@ -43,7 +43,7 @@ export default async function Keamanan() {
 
   return (
     <>
-      <CangkangPengalaman locale={locale} kind="pendataan" />
+      <CangkangPengalaman locale={locale} kind="pendataan" halamanKini="keamanan" />
       <main className="pin-col">
         <div className="pin-head">
           <p className="pin-eyebrow">{s("keamanan.eyebrow")}</p>

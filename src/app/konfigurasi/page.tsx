@@ -83,6 +83,10 @@ const transferLabel = (st: string) => (["REQUESTED", "AUTHORIZED", "EXECUTED", "
 const card = "rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-4";
 const field = "pin-input"; // D-138 step 4d/4f: the v3 Field (44 px, the 3:1 outline), not a Tailwind look-alike
 const button = "pin-btn justify-self-start"; // D-138 step 4d/4f: the v3 Button (44 px, its states), at its own width in a grid
+// D-140 (review RV-17): one primary action per form (its own verb), and the platform's emergency stop drawn as
+// destructive; every other action (look, check, withdraw, refuse, revoke) stays the secondary Button
+const primer = "pin-btn pin-primary justify-self-start";
+const bahaya = "pin-btn pin-str-bahaya justify-self-start";
 const label = "grid gap-1 text-sm text-ink-2";
 
 /** The three reports PINTAR defines. The table's own CHECK is the authority. */
@@ -591,7 +595,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                           <label className={label}>{sl("config.ketuntasan.alasan")}
                             <input name="alasan" type="text" required maxLength={300} placeholder={sl("config.ketuntasan.alasan_contoh")} className={field} />
                           </label>
-                          <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.ketuntasan.tombol")}</TombolKirim>
+                          <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.ketuntasan.tombol")}</TombolKirim>
                         </form>
                         {p.history.length > 0 ? (
                           <details>
@@ -670,7 +674,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                                   <option value="" disabled>{sl("config.pindah.ke")}</option>
                                   {tujuan.map((k) => <option key={k.node_id} value={k.node_id}>{namaKelas(k)}</option>)}
                                 </select>
-                                <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.pindah.tombol")}</TombolKirim>
+                                <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pindah.tombol")}</TombolKirim>
                               </form>
                             ) : null}
                           </li>
@@ -715,7 +719,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                         ))}
                       </select>
                     </label>
-                    <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.peserta.daftarkan")}</TombolKirim>
+                    <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.peserta.daftarkan")}</TombolKirim>
                   </form>
                 ) : (
                   <p className="mt-3 text-sm text-ink-3">{sl("config.peserta.tanpa_tempat")}</p>
@@ -789,7 +793,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                         <label className={label}>{sl("lapor.triase.langkah")}
                           <input name="langkah" className={field} required maxLength={500} autoComplete="off" />
                         </label>
-                        <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("lapor.triase.simpan")}</TombolKirim>
+                        <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("lapor.triase.simpan")}</TombolKirim>
                       </form>
                     ) : null}
                   </li>
@@ -862,7 +866,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" name="umumkan" value="1" /> {sl("config.pemeliharaan.umumkan")}
                   </label>
-                  <div><TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.jadwalkan")}</TombolKirim></div>
+                  <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.jadwalkan")}</TombolKirim></div>
                 </form>
               </div>
             ) : null}
@@ -925,7 +929,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 <label className={label}>{sl("config.pemeliharaan.pengumuman.sampai")}
                   <input type="datetime-local" name="sampai" className={field} required />
                 </label>
-                <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.pengumuman.terbitkan")}</TombolKirim>
+                <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.pengumuman.terbitkan")}</TombolKirim>
               </div>
             </form>
             {kelola && kelola.pengumuman.length > 0 ? (
@@ -972,7 +976,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   <label className={label}>{sl("config.pemeliharaan.darurat.ketik")}
                     <input name="konfirmasi" className={field} required autoComplete="off" pattern={KONFIRMASI_HENTIKAN} />
                   </label>
-                  <div><TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.darurat.tombol")}</TombolKirim></div>
+                  <div><TombolKirim className={bahaya} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.darurat.tombol")}</TombolKirim></div>
                 </form>
               </div>
             ) : null}
@@ -1076,7 +1080,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                       </label>
                     ))}
                   </div>
-                  <div><TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.rollover")}</TombolKirim></div>
+                  <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("config.action.rollover")}</TombolKirim></div>
                 </form>
               );
             })}
@@ -1098,10 +1102,10 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   {(x.status === "REQUESTED" || x.status === "AUTHORIZED") && (
                     <div className="flex flex-wrap gap-2">
                       {x.status === "REQUESTED" && (
-                        <form action={transferAuthorizeAction}><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.authorize")}</TombolKirim></form>
+                        <form action={transferAuthorizeAction}><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("config.action.authorize")}</TombolKirim></form>
                       )}
                       {x.status === "AUTHORIZED" && (
-                        <form action={transferExecuteAction}><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.execute")}</TombolKirim></form>
+                        <form action={transferExecuteAction}><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("config.action.execute")}</TombolKirim></form>
                       )}
                       <form action={transferRejectAction} className="flex gap-1">
                         <input type="hidden" name="transfer" value={x.id} />
@@ -1155,7 +1159,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               </label>
               <label className={label}>{s("config.label.reason")}<input name="reason" className={field} /></label>
               <p className="text-xs text-ink-3 sm:col-span-2">{s("config.label.destination_help")}</p>
-              <div><TombolKirim className={button} sibuk={s("tombol.mengirim")}>{s("config.action.request_transfer")}</TombolKirim></div>
+              <div><TombolKirim className={primer} sibuk={s("tombol.mengirim")}>{s("config.action.request_transfer")}</TombolKirim></div>
             </form>
             {result("transfers")}
           </section>
@@ -1197,7 +1201,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   <input type="hidden" name="scope" value={angkat.scope} />
                   <input type="hidden" name="valid_until" value={angkat.sampai} />
                   <input type="hidden" name="yakin" value="ya" />
-                  <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.angkat.ya")}</TombolKirim>
+                  <TombolKirim className={primer} sibuk={s("tombol.menyimpan")}>{s("config.angkat.ya")}</TombolKirim>
                   <Link href="/konfigurasi?bagian=roles#roles" className={tautanTempat}>{s("config.angkat.batal")}</Link>
                 </form>
               </div>
@@ -1214,7 +1218,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     <input type="hidden" name="sekolah" value={satuSekolah} />
                     <input type="hidden" name="valid_until" value={sp.sampai} />
                     <input type="hidden" name="yakin" value="ya" />
-                    <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.angkat.ya")}</TombolKirim>
+                    <TombolKirim className={primer} sibuk={s("tombol.menyimpan")}>{s("config.angkat.ya")}</TombolKirim>
                     <Link href="/konfigurasi?bagian=roles#roles" className={tautanTempat}>{s("config.angkat.batal")}</Link>
                   </form>
                 ) : (
@@ -1227,7 +1231,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                       </select>
                     </label>
                     <label className={label}>{s("config.label.valid_until")}<input type="date" name="valid_until" className={field} required /></label>
-                    <div><TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.action.grant")}</TombolKirim></div>
+                    <div><TombolKirim className={primer} sibuk={s("tombol.menyimpan")}>{s("config.action.grant")}</TombolKirim></div>
                   </form>
                 )}
               </div>
@@ -1267,7 +1271,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 </select>
               </label>
               <label className={label}>{s("config.label.valid_until")}<input type="date" name="valid_until" className={field} required /></label>
-              <div><TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("config.action.grant")}</TombolKirim></div>
+              <div><TombolKirim className={primer} sibuk={s("tombol.menyimpan")}>{s("config.action.grant")}</TombolKirim></div>
             </form>
             {result("roles")}
           </section>
@@ -1344,7 +1348,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 </label>
                 <label className={label}>{s("laporan.templat.judul_kunci")}
                   {/* D-140(c): the title is chosen by its words; the copy key it stores is never typed */}
-                  <select name="title_key" className={field} required defaultValue="laporan.institusi.judul">
+                  <select name="title_key" className={field} required defaultValue="laporan.kelas.judul">
                     {JUDUL_LAPORAN.map((k) => <option key={k} value={k}>{s(k)}</option>)}
                   </select>
                 </label>
@@ -1357,18 +1361,21 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                           already carries its scope ("class.", "institution.").
                           The scope column itself is an enum and §7 does not
                           let one be rendered raw to a human. */}
-                      <span className="min-w-[14rem] text-ink-2">{namaMetrik.get(d.metric_id) ?? TANPA_NAMA}</span>
+                      <span className="min-w-[14rem] text-ink-2">{namaMetrik.get(d.metric_id) ?? TANPA_NAMA}{/* D-140 (RV-6): a class
+                        figure and a school figure can share a name, so the scope is said beside it */}
+                        {d.metric_id.startsWith("class.") ? <span className="text-ink-3"> · {s("laporan.templat.lingkup.kelas")}</span>
+                          : d.metric_id.startsWith("institution.") ? <span className="text-ink-3"> · {s("laporan.templat.lingkup.sekolah")}</span> : null}</span>
                       {/* No selection is the default: an empty visualization
                           is how a metric is left out, so the form cannot
                           silently include one nobody ticked. */}
                       <select name={`metric[${d.metric_id}]`} className={field} defaultValue="">
-                        <option value="">—</option>
+                        <option value="">{s("laporan.templat.tidak_dipakai")}</option>
                         {(d.allowed_visualizations ?? []).map((v: string) => <option key={v} value={v}>{kataLaporan("tampilan", v)}</option>)}
                       </select>
                     </label>
                   ))}
                 </fieldset>
-                <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("laporan.templat.simpan")}</TombolKirim>
+                <TombolKirim className={primer} sibuk={s("tombol.menyimpan")}>{s("laporan.templat.simpan")}</TombolKirim>
               </form>
             )}
             {result("intelligence")}

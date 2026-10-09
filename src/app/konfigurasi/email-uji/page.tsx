@@ -39,7 +39,7 @@ export default async function EmailUji() {
 
   return (
     <>
-      <CangkangPengalaman locale={locale} kind="pendataan" />
+      <CangkangPengalaman locale={locale} kind="pendataan" halamanKini="emailuji" />
       <main className="pin-col">
         <div className="pin-head">
           <p className="pin-eyebrow">{s("emailuji.eyebrow")}</p>

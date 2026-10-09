@@ -3645,6 +3645,11 @@
       "id": "CI-W03",
       "runner": "static",
       "proves": "S4 (D-091(e), approved by the owner 6 Oct as QN7): the database red cases share one local stack per group without losing a case or its isolation, read in .github/workflows/ci.yml, .github/actions/local-stack/action.yml, .github/actions/local-stack/fingerprint.sql and selftest/plants/plants.json (selftest/ciwaste.test.ts). The red-case matrix holds exactly the 30 cases of 6 Oct, each in one group, and every plant gate in plants.json is one of them; every case has its steps and every step's case is in the matrix; each case's steps are contiguous, so no other case's stack step (and its reset) falls between a case's reset and its plants; each step runs on !cancelled(), so a failed case never skips a later case in its group; db-table-without-rls, which plants a migration, is alone, and a shared group holds database cases only; the defects are injected per case of the group. The local-stack action boots only when no stack runs, resets the database on every use, and fails the use when the fresh database's fingerprint (functions, column and relation grants, policies, triggers, extensions, roles, memberships, role settings, row counts) differs from the job's first; the fingerprint only reads."
+    },
+    {
+      "id": "D140-SAJI-01",
+      "runner": "static",
+      "proves": "D-140, the 9 Oct independent review: RV-1 «Laporkan masalah» and «Laporan saya» show a page as its place in words (kataHalaman), never its path or an id, while the path still travels for engineering; RV-2 the security record shows an event it has no words for in the Jejak audit's words, with year and time zone; RV-3 the staff navigation keeps Daisy's one order of places whichever is open (CSS order), the context's name and chooser after them; RV-4 Konfigurasi's own pages, Akun saya and «Laporkan masalah» name themselves in the phone bar; RV-17 Konfigurasi's main actions are primary and its emergency stop destructive"
     }
   ]
 }

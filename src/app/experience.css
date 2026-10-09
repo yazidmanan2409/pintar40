@@ -1072,6 +1072,10 @@
   border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-md);
   transition: border-color var(--duration-fast) var(--ease-standard);
 }
+/* D-140 (review RV-12): a field never runs past its panel on a phone; it shrinks with its row */
+.pin-input { max-width: 100%; min-width: 0; }
+/* the Jejak audit's words wrap inside their cells at 320 px instead of running off the edge (its table still scrolls) */
+#audit td { overflow-wrap: anywhere; }
 .pin-input:hover { border-color: var(--ink-3); }
 .pin-input[aria-invalid="true"] { border-color: var(--status-blocked); box-shadow: inset 0 0 0 var(--border-hairline) var(--status-blocked); }
 .pin-input:disabled { background: var(--surface-2); color: var(--ink-disabled); border-color: var(--line); cursor: not-allowed; }
@@ -2595,6 +2599,18 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 }
 /* CR-93: the picture field never sets the form wider than its column (a 320 px window); wider, it keeps its own width */
 .pin-lapor input[type="file"] { max-width: 100%; min-width: 0; }
+/* D-140 (review RV-5): every file field's button is the v3 Button (44 px, its outline and states), not the browser's
+   grey default. Its words, and the file name beside it, are the browser's own, in the reader's browser language. */
+input[type="file"] { font: inherit; font-size: var(--t-body); color: var(--ink-2); max-width: 100%; }
+input[type="file"]::file-selector-button {
+  min-height: var(--control-md); padding: 0 var(--space-4); margin-right: var(--space-3);
+  border-radius: var(--radius-md); border: var(--border-hairline) solid var(--line-strong);
+  background: var(--surface-1); color: var(--ink-1);
+  font: inherit; font-weight: var(--weight-strong); cursor: pointer;
+}
+input[type="file"]::file-selector-button:hover { background: var(--surface-2); }
+input[type="file"]:focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+input[type="file"]:disabled::file-selector-button { background: var(--surface-2); color: var(--ink-disabled); border-color: var(--line); cursor: not-allowed; }
 .pin-lapor-pilih { display: flex; align-items: center; gap: var(--space-2); min-height: var(--control-h); }
 .pin-lapor-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
 .pin-lapor-satu {
@@ -2649,6 +2665,18 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 }
 .pin-staf .pin-tabs a.pin-nav-item[aria-current="page"] .pin-ikon { color: var(--pintar-primary); }
 .pin-staf .pin-tabs a.pin-nav-item:focus-visible { outline-offset: -2px; }
+/* D-140 (review RV-3): the places keep one order, Daisy's (bundle.js PERSONA), whichever of them is open; the page
+   you are on is marked, never moved to the top. The context's name and the chooser follow the places. */
+.pin-staf .pin-tabs > * { order: 20; }
+.pin-staf .pin-tabs > a[href="/mengajar"] { order: 1; }
+.pin-staf .pin-tabs > a[href="/pimpinan"] { order: 2; }
+.pin-staf .pin-tabs > a[href="/konfigurasi"] { order: 3; }
+.pin-staf .pin-tabs > a[href="/pendataan"] { order: 4; }
+.pin-staf .pin-tabs > a[href="/aktivasi"] { order: 5; }
+.pin-staf .pin-tabs > a[href="/studio"] { order: 6; }
+.pin-staf .pin-tabs > a[href="/konfigurasi/keamanan"] { order: 7; }
+.pin-staf .pin-tabs > a[href="/konfigurasi/email-uji"] { order: 8; }
+.pin-staf .pin-tabs > a[href="/belajar"] { order: 9; }
 .pin-nav-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* The working context's place, and the one way to change it (L3, D-132). */
 .pin-staf .pin-nav-tempat {

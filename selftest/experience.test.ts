@@ -12717,6 +12717,59 @@ export const experienceTests: SelfTest[] = [
   },
 
   {
+    id: "D140-SAJI-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      /**
+       * D-140, THE 9 OCT REVIEW (pass log RV-1, RV-2, RV-3, RV-4, RV-17): what a reader is shown is words, the
+       * navigation keeps one order, and a page names itself.
+       */
+      const c = new Checks();
+      const baca = (...p: string[]) => code(readFileSync(join(repoRoot, ...p), "utf8"));
+      const { kataHalaman } = await import("../src/lib/kata-halaman");
+      // RV-1: a reported page is shown as its place, never its path or an id
+      const UUID = "0ad39ff1-7075-4da7-b264-f542b9eea0e3";
+      const KASUS: Array<[string, string]> = [
+        [`/pimpinan/${UUID}/murid`, t("nav.pimpinan", "staff")],
+        [`/mengajar/${UUID}/murid/${UUID}`, t("nav.kelas", "staff")],
+        [`/studio/paket/${UUID}`, t("nav.studio", "staff")],
+        ["/konfigurasi/keamanan", t("keamanan.judul", "staff")],
+        ["/", t("lapor.halaman.awal", "staff")],
+        [`/sesuatu/${UUID}`, t("lapor.halaman.lain", "staff")],
+      ];
+      for (const [jalan, harap] of KASUS) {
+        const v = kataHalaman(jalan, "id");
+        c.expect(v === harap && !/[0-9a-f]{8}-|\//.test(v), `«${jalan}» is shown as «${v}», not «${harap}»`);
+      }
+      const lapor = baca("src", "app", "lapor", "page.tsx");
+      c.expect(/\{s\("lapor\.halaman"\)\} \{kataHalaman\(halaman, locale\)\}/.test(lapor) && !/<span className="pin-num">\{halaman\}<\/span>/.test(lapor)
+        && /<input type="hidden" name="dari" value=\{halaman\} \/>/.test(lapor), "«Laporkan masalah» shows the page's path, or no longer carries it for engineering");
+      c.expect(/\{kataHalaman\(l\.halaman, locale\)\}/.test(baca("src", "app", "lapor", "saya", "page.tsx")), "«Laporan saya» shows a report's page as its path");
+      // RV-2: a security event this page has no words for reads in the Jejak audit's words, never its code
+      const catatan = baca("src", "components", "keamanan", "CatatanKeamanan.tsx");
+      c.expect(/: kataAksiAudit\(aksi, locale\)\)/.test(catatan) && !/: aksi\)\);/.test(catatan) && /year: "numeric"/.test(catatan) && /timeZoneName: "short"/.test(catatan),
+        "the security record shows an event by its code, or a moment without its year or time zone");
+      // RV-3: one order of places, Daisy's, whichever is open
+      const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
+      const URUT = ["/mengajar", "/pimpinan", "/konfigurasi", "/pendataan", "/aktivasi", "/studio", "/konfigurasi/keamanan", "/konfigurasi/email-uji", "/belajar"];
+      const nilai = URUT.map((h) => Number(new RegExp(`\\.pin-staf \\.pin-tabs > a\\[href="${h.replace(/\//g, "\\/")}"\\] \\{ order: (\\d+); \\}`).exec(css)?.[1] ?? NaN));
+      c.expect(nilai.every((n, i) => Number.isFinite(n) && (i === 0 || n > nilai[i - 1])), `the places have no fixed order: ${JSON.stringify(nilai)}`);
+      c.expect(/\.pin-staf \.pin-tabs > \* \{ order: 20; \}/.test(css), "the context's name and the chooser are not after the places");
+      // RV-3/RV-4: a page that is not a place names itself in the phone bar and marks its parent
+      for (const [f, h] of [["konfigurasi/keamanan/page.tsx", "keamanan"], ["konfigurasi/email-uji/page.tsx", "emailuji"], ["akun/page.tsx", "akun"], ["lapor/page.tsx", "lapor"], ["lapor/saya/page.tsx", "lapor"]]) {
+        c.expect(new RegExp(`<CangkangPengalaman [^>]*halamanKini="${h}"`).test(baca("src", "app", ...f.split("/"))), `${f} does not name itself to the shell`);
+      }
+      const cangkang = baca("src", "components", "CangkangPengalaman.tsx");
+      c.expect((cangkang.match(/kini: kataKini \?\? /g) ?? []).length === 4, "a staff shell's phone bar ignores the page's own name");
+      // RV-17: one primary action per form; the emergency stop is destructive
+      const konf = baca("src", "app", "konfigurasi", "page.tsx");
+      c.expect(/const primer = "pin-btn pin-primary\b[^"]*"/.test(konf) && /const bahaya = "pin-btn pin-str-bahaya\b[^"]*"/.test(konf)
+        && /className=\{bahaya\}[^\n]*\n?[^\n]*config\.pemeliharaan\.darurat\.tombol/.test(konf), "Konfigurasi's emergency stop is not drawn as destructive");
+      c.expect((konf.match(/className=\{primer\}/g) ?? []).length >= 10, "Konfigurasi's main actions are not primary");
+      return c.verdict("D-140's review findings RV-1, RV-2, RV-3, RV-4 and RV-17 stay closed: a reported page reads as its place, never its path; the security record reads in words with its year and time zone; the places keep Daisy's order and the page you are on is marked, not moved; pages that are not places name themselves in the phone bar; Konfigurasi's main actions are primary and its emergency stop destructive");
+    },
+  },
+  {
     id: "DAISY-31-PINDAH-01",
     requires: [],
     run: async ({ repoRoot }) => {

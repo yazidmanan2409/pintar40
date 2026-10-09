@@ -1,6 +1,7 @@
 import { allKeys, t, TANPA_SALINAN, TIMEZONE, type HleEvent, type Locale } from "@/lib/hle";
 import { tampilPintarId } from "@/lib/aktivasi-kontrak";
 import BarisHasil from "@/components/BarisHasil";
+import { kataAksiAudit } from "@/lib/jejak-audit";
 
 export type BarisKeamanan = { waktu: string; aksi: string; pintarId: string | null };
 
@@ -10,15 +11,17 @@ const BERNAMA = new Set<string>(allKeys().filter((k) => k.startsWith("keamanan.a
  * THE SECURITY RECORD (BOB-28, C7's in-app list): the newest identity and
  * recovery events from the audit log (security_event_list), each with the
  * PINTAR ID it concerns. What is shown is what the record holds; an event this
- * page has no words for is shown by its own name, never hidden.
+ * page has no words for is still shown, never hidden, in the words of the Jejak audit (its action's own, else its
+ * area's, else «Perubahan tercatat»), never by its code (D-140(c), 9 Oct review RV-2). The moment carries its year
+ * and the school's time zone.
  */
 export default function CatatanKeamanan({ locale, baris }: { locale: Locale; baris: BarisKeamanan[] }) {
   const s = (k: HleEvent) => t(k, "staff", { locale });
-  const nama = (aksi: string) => (BERNAMA.has(`keamanan.a.${aksi}`) ? s(`keamanan.a.${aksi}` as HleEvent) : aksi);
+  const nama = (aksi: string) => (BERNAMA.has(`keamanan.a.${aksi}`) ? s(`keamanan.a.${aksi}` as HleEvent) : kataAksiAudit(aksi, locale));
   const waktu = (iso: string) => {
     const d = new Date(iso);
     return Number.isNaN(d.getTime()) ? iso : new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "id-ID", {
-      day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: TIMEZONE,
+      day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: TIMEZONE, timeZoneName: "short",
     }).format(d);
   };
   return (
@@ -31,7 +34,7 @@ export default function CatatanKeamanan({ locale, baris }: { locale: Locale; bar
           {baris.map((b, i) => (
             <li key={`${b.waktu}-${i}`}>
               <span><strong>{nama(b.aksi)}</strong> · {waktu(b.waktu)}</span>
-              <span className="pin-num">{b.pintarId ? tampilPintarId(b.pintarId) : TANPA_SALINAN}</span>
+              <span>{s("idpage.id_label")} <span className="pin-num">{b.pintarId ? tampilPintarId(b.pintarId) : TANPA_SALINAN}</span></span>
             </li>
           ))}
         </ul>

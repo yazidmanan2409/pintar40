@@ -100,10 +100,17 @@ export default async function CangkangPengalaman({
   locale,
   kind = "learner",
   current,
+  halamanKini,
 }: {
   locale: Locale;
   kind?: "learner" | "public" | "focus" | "pengajar" | "pimpinan" | "pendataan";
   current?: "belajar" | "sertifikat" | "kelas" | "pimpinan" | "pendataan" | "aktivasi";
+  /**
+   * A page that is not one of the places but sits in a staff shell (D-140, review RV-3/RV-4): Konfigurasi's own pages,
+   * Akun saya, «Laporkan masalah». The phone bar names it, and its parent place (Konfigurasi for its own pages) is
+   * marked current in the navigation; Keamanan akun and Kirim email uji also show as their own item.
+   */
+  halamanKini?: "keamanan" | "emailuji" | "akun" | "lapor";
 }) {
   // ONE READ, IN PARALLEL (DAISY-02/03). The viewer and the reader's own active
   // roles are asked once, together, for every signed-in shell, and handed down:
@@ -121,6 +128,15 @@ export default async function CangkangPengalaman({
   // persona, C10) the shells read the roles as before.
   const k = kind === "public" ? null : await konteksSaya();
   const adaKonteks = k?.keadaan === "ADA";
+  // D-140 (RV-3/RV-4): the word for a page that is not a place, and the place it belongs to
+  const KATA_HALAMAN = { keamanan: "keamanan.judul", emailuji: "emailuji.judul", akun: "akun.judul", lapor: "nav.lapor" } as const;
+  const kataKini = halamanKini ? t(KATA_HALAMAN[halamanKini], "staff", { locale }) : null;
+  const indukKini = halamanKini === "keamanan" || halamanKini === "emailuji" ? "/konfigurasi" : undefined;
+  const subKini = halamanKini === "keamanan"
+    ? <ItemNav href="/konfigurasi/keamanan" label={t("keamanan.judul", "staff", { locale })} kini />
+    : halamanKini === "emailuji"
+      ? <ItemNav href="/konfigurasi/email-uji" label={t("emailuji.judul", "staff", { locale })} kini />
+      : null;
 
   // FOCUS. During an assessment the shell keeps the mark and the language and
   // drops the tabs. The engine survives navigating away — a session is server
@@ -141,7 +157,7 @@ export default async function CangkangPengalaman({
   if (kind === "pengajar") {
     return shellStaf({
       locale, persona: "educator",
-      kini: t("nav.kelas", "educator", { locale }),
+      kini: kataKini ?? t("nav.kelas", "educator", { locale }),
       bantuan: <TombolBantuan locale={locale} persona="educator" beranda="/mengajar" />,
       sesi: <SesiSaya locale={locale} persona="educator" viewer={viewer} peran={peran} />,
       nav: (
@@ -153,11 +169,11 @@ export default async function CangkangPengalaman({
               educator who has no learning is entitled to the plain answer
               rather than to no door. */}
           {adaKonteks ? (
-            await navKonteks({ locale, persona: "educator", kecuali: ["/mengajar"], bentuk: "nav" })
+            await navKonteks({ locale, persona: "educator", kecuali: ["/mengajar"], bentuk: "nav", kini: indukKini })
           ) : (
             <>
               <ItemNav href="/belajar" label={t("nav.pembelajaran", "educator", { locale })} />
-              <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} bentuk="nav" />
+              <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} bentuk="nav" kini={indukKini} />
             </>
           )}
         </>
@@ -168,12 +184,12 @@ export default async function CangkangPengalaman({
   if (kind === "pimpinan") {
     return shellStaf({
       locale, persona: "staff",
-      kini: t("nav.pimpinan", "staff", { locale }),
+      kini: kataKini ?? t("nav.pimpinan", "staff", { locale }),
       sesi: <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />,
       nav: (
         <>
           <ItemNav href="/pimpinan" label={t("nav.pimpinan", "staff", { locale })} kini={current === "pimpinan"} />
-          {await navKonteks({ locale, persona: "staff", kecuali: ["/pimpinan"], bentuk: "nav" })}
+          {await navKonteks({ locale, persona: "staff", kecuali: ["/pimpinan"], bentuk: "nav", kini: indukKini })}
         </>
       ),
     });
@@ -182,7 +198,7 @@ export default async function CangkangPengalaman({
   if (kind === "pendataan") {
     return shellStaf({
       locale, persona: "staff",
-      kini: t(current === "aktivasi" ? "nav.aktivasi" : "nav.pendataan", "staff", { locale }),
+      kini: kataKini ?? t(current === "aktivasi" ? "nav.aktivasi" : "nav.pendataan", "staff", { locale }),
       sesi: <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />,
       nav: (
         <>
@@ -195,10 +211,11 @@ export default async function CangkangPengalaman({
             <ItemNav href="/aktivasi" label={t("nav.aktivasi", "staff", { locale })} kini={current === "aktivasi"} />
           ) : null}
           {adaKonteks ? (
-            await navKonteks({ locale, persona: "staff", kecuali: ["/pendataan", "/aktivasi"], bentuk: "nav" })
+            await navKonteks({ locale, persona: "staff", kecuali: ["/pendataan", "/aktivasi"], bentuk: "nav", kini: indukKini })
           ) : (
-            <TabTempat tempat={tempat} locale={locale} persona="staff" studio={studio} bentuk="nav" />
+            <TabTempat tempat={tempat} locale={locale} persona="staff" studio={studio} bentuk="nav" kini={indukKini} />
           )}
+          {subKini}
         </>
       ),
     });
@@ -221,7 +238,7 @@ export default async function CangkangPengalaman({
   if (mengajar) {
     return shellStaf({
       locale, persona: "educator",
-      kini: t("nav.pembelajaran", "educator", { locale }),
+      kini: kataKini ?? t("nav.pembelajaran", "educator", { locale }),
       sesi: <SesiSaya locale={locale} persona="educator" viewer={viewer} peran={peran} />,
       lapor: "educator",
       nav: (

@@ -44,9 +44,12 @@ export async function navKonteks({
   kecuali = [],
   kelas,
   bentuk,
+  kini,
 }: {
   locale: Locale;
   persona: Persona;
+  /** The place the reader is in (or the parent of the page they are on), marked `aria-current` in the navigation. */
+  kini?: string;
   /** The surfaces the calling shell already draws. */
   kecuali?: readonly string[];
   /** For a page outside the Experience shell, which styles its own links. */
@@ -59,7 +62,7 @@ export async function navKonteks({
     const peran = await peranSaya();
     return (
       <TabTempat tempat={tempatDariPeran(peran)} kecuali={kecuali as Tempat[]} locale={locale} persona={persona}
-        kelas={kelas} studio={tawarkanStudio(peran) && !kecuali.includes("/studio")} bentuk={bentuk} />
+        kelas={kelas} studio={tawarkanStudio(peran) && !kecuali.includes("/studio")} bentuk={bentuk} kini={kini} />
     );
   }
   const lain = (await tempatSaya()).length > 1;
@@ -69,7 +72,7 @@ export async function navKonteks({
     return (
       <>
         {permukaanKonteks(k).filter((x) => !kecuali.includes(x)).map((href) => (
-          <ItemNav key={href} href={href} label={t(LABEL[href], persona, { locale })} />
+          <ItemNav key={href} href={href} label={t(LABEL[href], persona, { locale })} kini={href === kini} />
         ))}
         {tempat || namaTujuan ? (
           <span className="pin-nav-tempat" data-konteks-tempat="">{[namaTujuan, tempat].filter(Boolean).join(" · ")}</span>

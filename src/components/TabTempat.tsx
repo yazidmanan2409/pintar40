@@ -20,6 +20,7 @@ export default function TabTempat({
   kelas,
   studio = false,
   bentuk,
+  kini,
 }: {
   tempat: readonly Tempat[];
   kecuali?: readonly Tempat[];
@@ -31,12 +32,14 @@ export default function TabTempat({
   studio?: boolean;
   /** "nav": drawn as the staff navigation's items (icon, word, working dot), D-138 step 3. */
   bentuk?: "nav";
+  /** The place the reader is in, marked `aria-current` (the staff navigation only). */
+  kini?: string;
 }) {
   if (bentuk === "nav") {
     return (
       <>
-        {daftarTempat(tempat, kecuali, locale, persona).map(({ href, label }) => <ItemNav key={href} href={href} label={label} />)}
-        {studio ? <ItemNav href="/studio" label={t("nav.studio", persona, { locale })} /> : null}
+        {daftarTempat(tempat, kecuali, locale, persona).map(({ href, label }) => <ItemNav key={href} href={href} label={label} kini={href === kini} />)}
+        {studio ? <ItemNav href="/studio" label={t("nav.studio", persona, { locale })} kini={kini === "/studio"} /> : null}
       </>
     );
   }

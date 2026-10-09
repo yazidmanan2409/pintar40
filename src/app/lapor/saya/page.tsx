@@ -1,3 +1,4 @@
+import { kataHalaman } from "@/lib/kata-halaman";
 import Link from "next/link";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
@@ -25,7 +26,7 @@ export default async function LaporanSaya({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <CangkangPengalaman locale={locale} kind={kind} />
+      <CangkangPengalaman locale={locale} kind={kind} halamanKini="lapor" />
       <main className="pin-col">
         <Link className="pin-back" href={kembali}>← {s("lapor.kembali")}</Link>
         <div className="pin-head">
@@ -41,7 +42,7 @@ export default async function LaporanSaya({ searchParams }: { searchParams: Prom
             {daftar.map((l) => (
               <li key={l.id} className="pin-lapor-satu">
                 <p>
-                  <strong>{s(kunciStatusLaporan(l.status))}</strong> · {format.date(l.dibuat, locale)} · <span className="pin-num">{l.halaman}</span>
+                  <strong>{s(kunciStatusLaporan(l.status))}</strong> · {format.date(l.dibuat, locale)} · {kataHalaman(l.halaman, locale)}
                   {l.hentikanKelas ? <> · {s("lapor.hentikan.singkat")}</> : null}
                 </p>
                 <p className="pin-meta">{l.terjadi}</p>
