@@ -64,7 +64,7 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
   - UX1-V3-FEEDBACK-01 (rendered feedback; new);
   - restated to the ruled design: UX1-S3-FAKTA-01, DAISY-17-KIRIM-01, and two role assertions.
 - **Can fail (shown):**
-  - TARGET-01 on today's stylesheet: 16 findings (40, 34, 32 px; no floor on the language switch, selects, segments, tabs and close controls);
+  - TARGET-01 on today's stylesheet: red, naming the 40 px button and field, the 34 px navigator, the 32 px question-bar button, and no 44 px floor on the language switch, selects, segments, tabs or close controls;
   - TARGET-01 with a planted `calc()`: red;
   - FEEDBACK-01 on today's components: red on five counts.
 - **Local suite, crawl, journeys:** running.
