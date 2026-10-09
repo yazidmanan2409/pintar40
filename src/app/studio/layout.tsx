@@ -5,10 +5,9 @@ import { s, studioInstitutions, tabSaya } from "./_lib";
 import { type TabStudio } from "@/lib/studio-tab";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
-import SesiSaya from "@/components/SesiSaya";
-import TautanLapor from "@/components/lapor/TautanLapor";
 import { navKonteks } from "@/components/NavKonteks";
-import { peranSaya } from "@/lib/tur-negara";
+import { CangkangStaf } from "@/components/CangkangPengalaman";
+import ItemNav from "@/components/ItemNav";
 import { t } from "@/lib/hle";
 
 /**
@@ -20,9 +19,8 @@ import { t } from "@/lib/hle";
  */
 export default async function StudioLayout({ children }: { children: React.ReactNode }) {
   const locale = await currentLocale();
-  // One parallel read of the viewer and their roles, for the gate below, the
-  // way back to their places and the session strip (DAISY-02/03).
-  const [viewer, peran] = await Promise.all([currentViewer(), peranSaya()]);
+  // The viewer, for the gate below; the shell reads the reader and their roles itself (D-138 step 3).
+  const viewer = await currentViewer();
   const institutions = viewer ? await studioInstitutions() : [];
 
   if (!viewer || institutions.length === 0) {
@@ -59,20 +57,25 @@ export default async function StudioLayout({ children }: { children: React.React
   const nav = (await tabSaya()).map((t) => TAB[t]);
 
   return (
+    <>
+    {/* D-138 step 3: the staff shell (AppShell). The reader's other places are the active context's (NavKonteks);
+        the reader, «Laporkan masalah», the language and the way out are the shell's (DAISY-02, DAISY-12). */}
+    <CangkangStaf
+      locale={locale}
+      kini={t("nav.studio", "staff", { locale })}
+      nav={
+        <>
+          <ItemNav href="/studio" label={t("nav.studio", "staff", { locale })} kini />
+          {await navKonteks({ locale, persona: "staff", kecuali: ["/studio"], bentuk: "nav" })}
+        </>
+      }
+    />
     <main className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-6">
-        {/* DAISY-02: who is signed in and the way out, beside the title. */}
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-sm text-ink-3">{s("app.name")}</p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight">{s("studio.title")}</h1>
-          </div>
-          <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />
+        <div>
+          <p className="text-sm text-ink-3">{s("app.name")}</p>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight">{s("studio.title")}</h1>
         </div>
-        <nav className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm" aria-label={t("nav.tempat", "staff", { locale })}>
-          {await navKonteks({ locale, persona: "staff", kecuali: ["/studio"], kelas: "text-ink-2 underline underline-offset-4 hover:text-ink-1" })}
-          <TautanLapor locale={locale} kelas="text-ink-2 underline underline-offset-4 hover:text-ink-1" />
-        </nav>
         <nav className="mt-4 flex flex-wrap gap-3 text-sm">
           {nav.map(([href, text]) => (
             <Link key={href} href={href} className="text-ink-2 underline-offset-4 hover:underline">{text}<TandaTautan /></Link>
@@ -81,5 +84,6 @@ export default async function StudioLayout({ children }: { children: React.React
       </header>
       {children}
     </main>
+    </>
   );
 }

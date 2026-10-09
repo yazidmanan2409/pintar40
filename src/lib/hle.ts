@@ -1024,7 +1024,7 @@ export type HleEvent =
   | "studio.konten.kode.content_created_not_ingested"
   | "mengajar.judul"
   | "nav.kelas" | "nav.pimpinan" | "nav.pendataan"
-  | "nav.aktivasi" | "nav.konfigurasi" | "nav.studio" | "nav.tempat"
+  | "nav.aktivasi" | "nav.konfigurasi" | "nav.studio" | "nav.tempat" | "nav.menu"
   // ── WP6B. The educator's own learning. These are NOT staff-only: they are
   // read by a person in their learner context, so the internal-word sweep
   // applies to them exactly as it does to the learner's own home — which is
@@ -4200,6 +4200,7 @@ const table: Table = {
   "nav.konfigurasi": { default: "Konfigurasi", en: "Configuration" },
   "nav.studio": { default: "Studio", en: "Studio" },
   "nav.tempat": { default: "Tempat kerja Anda", en: "Your places" },
+  "nav.menu": { default: "Menu", en: "Menu" },
 
   // ── WP6B. PEMBELAJARAN SAYA — the educator reading their own learning.
   //

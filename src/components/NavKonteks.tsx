@@ -6,6 +6,7 @@ import { konteksSaya, tempatSaya } from "@/lib/konteks-server";
 import { peranSaya } from "@/lib/tur-negara";
 import { istilah } from "@/lib/istilah-menunggu";
 import TabTempat, { tawarkanStudio, tempatDariPeran, type Tempat } from "./TabTempat";
+import ItemNav from "./ItemNav";
 
 /** Each surface's existing tab word (no new words, D-128(g)). */
 const LABEL: Record<string, HleEvent> = {
@@ -42,6 +43,7 @@ export async function navKonteks({
   persona,
   kecuali = [],
   kelas,
+  bentuk,
 }: {
   locale: Locale;
   persona: Persona;
@@ -49,18 +51,38 @@ export async function navKonteks({
   kecuali?: readonly string[];
   /** For a page outside the Experience shell, which styles its own links. */
   kelas?: string;
+  /** "nav": the staff navigation's items (D-138 step 3); the place and the chooser keep their data hooks. */
+  bentuk?: "nav";
 }) {
   const k = await konteksSaya();
   if (k?.keadaan !== "ADA") {
     const peran = await peranSaya();
     return (
       <TabTempat tempat={tempatDariPeran(peran)} kecuali={kecuali as Tempat[]} locale={locale} persona={persona}
-        kelas={kelas} studio={tawarkanStudio(peran) && !kecuali.includes("/studio")} />
+        kelas={kelas} studio={tawarkanStudio(peran) && !kecuali.includes("/studio")} bentuk={bentuk} />
     );
   }
   const lain = (await tempatSaya()).length > 1;
   const tempat = k.platform ? t("config.pemeliharaan.platform", "staff", { locale }) : k.nama;
   const namaTujuan = k.tujuan === "MENGELOLA" ? istilah("context.manage_label") : null;
+  if (bentuk === "nav") {
+    return (
+      <>
+        {permukaanKonteks(k).filter((x) => !kecuali.includes(x)).map((href) => (
+          <ItemNav key={href} href={href} label={t(LABEL[href], persona, { locale })} />
+        ))}
+        {tempat || namaTujuan ? (
+          <span className="pin-nav-tempat" data-konteks-tempat="">{[namaTujuan, tempat].filter(Boolean).join(" · ")}</span>
+        ) : null}
+        {lain ? (
+          <Link href="/" className="pin-nav-pilih" data-konteks-pilih="">
+            {t("entry.title", "public", { locale })}
+            <TandaTautan />
+          </Link>
+        ) : null}
+      </>
+    );
+  }
   return (
     <>
       {permukaanKonteks(k).filter((x) => !kecuali.includes(x)).map((href) => (

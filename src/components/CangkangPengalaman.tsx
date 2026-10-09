@@ -13,6 +13,9 @@ import TabTempat, { tempatDariPeran, tawarkanStudio } from "./TabTempat";
 import { navKonteks } from "./NavKonteks";
 import { konteksSaya } from "@/lib/konteks-server";
 import { melayani } from "@/lib/konteks";
+import type { ReactNode } from "react";
+import Ikon from "./Ikon";
+import ItemNav from "./ItemNav";
 
 /**
  * The Experience shell: the mark, where you are, and the language switch.
@@ -136,91 +139,69 @@ export default async function CangkangPengalaman({
   }
 
   if (kind === "pengajar") {
-    return (
-      <header className="pin-top pin-shell pin-noprint">
-        <MerekPintar />
-        <nav className="pin-tabs" aria-label={t("app.name", "educator", { locale })}>
-          <Link href="/mengajar" aria-current={current === "kelas" ? "page" : undefined}>
-            {t("nav.kelas", "educator", { locale })}
-            <TandaTautan />
-          </Link>
+    return shellStaf({
+      locale, persona: "educator",
+      kini: t("nav.kelas", "educator", { locale }),
+      bantuan: <TombolBantuan locale={locale} persona="educator" beranda="/mengajar" />,
+      sesi: <SesiSaya locale={locale} persona="educator" viewer={viewer} peran={peran} />,
+      nav: (
+        <>
+          <ItemNav href="/mengajar" label={t("nav.kelas", "educator", { locale })} kini={current === "kelas"} />
           {/* Always here, never conditional on there being something behind it.
               A tab that appeared the day somebody was enrolled would be
               announcing the enrolment to anyone watching the header, and an
               educator who has no learning is entitled to the plain answer
               rather than to no door. */}
           {adaKonteks ? (
-            await navKonteks({ locale, persona: "educator", kecuali: ["/mengajar"] })
+            await navKonteks({ locale, persona: "educator", kecuali: ["/mengajar"], bentuk: "nav" })
           ) : (
             <>
-              <Link href="/belajar" aria-current={undefined}>
-                {t("nav.pembelajaran", "educator", { locale })}
-                <TandaTautan />
-              </Link>
-              <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} />
+              <ItemNav href="/belajar" label={t("nav.pembelajaran", "educator", { locale })} />
+              <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} bentuk="nav" />
             </>
           )}
-        </nav>
-        <span className="pin-spacer" />
-        <TombolBantuan locale={locale} persona="educator" beranda="/mengajar" />
-        {/* DAISY-12 (D-037 step 2): beside Bantuan on every staff shell */}
-        <TautanLapor locale={locale} persona="educator" />
-        <PengalihBahasa locale={locale} />
-        <SesiSaya locale={locale} persona="educator" viewer={viewer} peran={peran} />
-      </header>
-    );
+        </>
+      ),
+    });
   }
 
   if (kind === "pimpinan") {
-    return (
-      <header className="pin-top pin-shell pin-noprint">
-        <MerekPintar />
-        <nav className="pin-tabs" aria-label={t("app.name", "staff", { locale })}>
-          <Link href="/pimpinan" aria-current={current === "pimpinan" ? "page" : undefined}>
-            {t("nav.pimpinan", "staff", { locale })}
-            <TandaTautan />
-          </Link>
-          {await navKonteks({ locale, persona: "staff", kecuali: ["/pimpinan"] })}
-        </nav>
-        <span className="pin-spacer" />
-        <TautanLapor locale={locale} />
-        <PengalihBahasa locale={locale} />
-        <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />
-      </header>
-    );
+    return shellStaf({
+      locale, persona: "staff",
+      kini: t("nav.pimpinan", "staff", { locale }),
+      sesi: <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />,
+      nav: (
+        <>
+          <ItemNav href="/pimpinan" label={t("nav.pimpinan", "staff", { locale })} kini={current === "pimpinan"} />
+          {await navKonteks({ locale, persona: "staff", kecuali: ["/pimpinan"], bentuk: "nav" })}
+        </>
+      ),
+    });
   }
 
   if (kind === "pendataan") {
-    return (
-      <header className="pin-top pin-shell pin-noprint">
-        <MerekPintar />
-        <nav className="pin-tabs" aria-label={t("app.name", "staff", { locale })}>
+    return shellStaf({
+      locale, persona: "staff",
+      kini: t(current === "aktivasi" ? "nav.aktivasi" : "nav.pendataan", "staff", { locale }),
+      sesi: <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />,
+      nav: (
+        <>
           {!adaKonteks || (k?.keadaan === "ADA" && melayani(k, "/pendataan")) ? (
-            <Link href="/pendataan" aria-current={current === "pendataan" ? "page" : undefined}>
-              {t("nav.pendataan", "staff", { locale })}
-              <TandaTautan />
-            </Link>
+            <ItemNav href="/pendataan" label={t("nav.pendataan", "staff", { locale })} kini={current === "pendataan"} />
           ) : null}
           {/* Aktivasi is the same audience's next step -- recorded people who
               cannot sign in yet -- and was reachable only by typing it (M3). */}
           {!adaKonteks || (k?.keadaan === "ADA" && melayani(k, "/aktivasi")) ? (
-            <Link href="/aktivasi" aria-current={current === "aktivasi" ? "page" : undefined}>
-              {t("nav.aktivasi", "staff", { locale })}
-              <TandaTautan />
-            </Link>
+            <ItemNav href="/aktivasi" label={t("nav.aktivasi", "staff", { locale })} kini={current === "aktivasi"} />
           ) : null}
           {adaKonteks ? (
-            await navKonteks({ locale, persona: "staff", kecuali: ["/pendataan", "/aktivasi"] })
+            await navKonteks({ locale, persona: "staff", kecuali: ["/pendataan", "/aktivasi"], bentuk: "nav" })
           ) : (
-            <TabTempat tempat={tempat} locale={locale} persona="staff" studio={studio} />
+            <TabTempat tempat={tempat} locale={locale} persona="staff" studio={studio} bentuk="nav" />
           )}
-        </nav>
-        <span className="pin-spacer" />
-        <TautanLapor locale={locale} />
-        <PengalihBahasa locale={locale} />
-        <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />
-      </header>
-    );
+        </>
+      ),
+    });
   }
 
   if (kind === "public") {
@@ -238,37 +219,28 @@ export default async function CangkangPengalaman({
   // the other four return above without asking anything.
   const { mengajar } = konteksPembelajaran(peran);
   if (mengajar) {
-    return (
-      <header className="pin-top pin-shell pin-noprint">
-        <MerekPintar />
-        <nav className="pin-tabs" aria-label={t("app.name", "educator", { locale })}>
-          {adaKonteks ? null : (
-            <Link href="/mengajar" aria-current={undefined}>
-              {t("nav.kelas", "educator", { locale })}
-              <TandaTautan />
-            </Link>
-          )}
+    return shellStaf({
+      locale, persona: "educator",
+      kini: t("nav.pembelajaran", "educator", { locale }),
+      sesi: <SesiSaya locale={locale} persona="educator" viewer={viewer} peran={peran} />,
+      lapor: "educator",
+      nav: (
+        <>
+          {adaKonteks ? null : <ItemNav href="/mengajar" label={t("nav.kelas", "educator", { locale })} />}
           {/* Their certificates live under this tab rather than beside it: the
               learner's shell gives Sertifikat top billing because learning is
               the whole of their product, and for somebody who also teaches it
               is one thing inside one of two contexts. It is reached from the
               page, which is the same choice WP5B made about a job. */}
-          <Link href="/belajar" aria-current={current ? "page" : undefined}>
-            {t("nav.pembelajaran", "educator", { locale })}
-            <TandaTautan />
-          </Link>
+          <ItemNav href="/belajar" label={t("nav.pembelajaran", "educator", { locale })} kini={Boolean(current)} />
           {adaKonteks ? (
-            await navKonteks({ locale, persona: "educator", kecuali: ["/belajar"] })
+            await navKonteks({ locale, persona: "educator", kecuali: ["/belajar"], bentuk: "nav" })
           ) : (
-            <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} />
+            <TabTempat tempat={tempat} kecuali={["/mengajar"]} locale={locale} persona="educator" studio={studio} bentuk="nav" />
           )}
-        </nav>
-        <span className="pin-spacer" />
-        <TautanLapor locale={locale} persona="educator" />
-        <PengalihBahasa locale={locale} />
-        <SesiSaya locale={locale} persona="educator" viewer={viewer} peran={peran} />
-      </header>
-    );
+        </>
+      ),
+    });
   }
 
   return (
@@ -300,4 +272,74 @@ export default async function CangkangPengalaman({
       <SesiSaya locale={locale} persona="learner" viewer={viewer} peran={peran} />
     </header>
   );
+}
+
+/**
+ * THE STAFF SHELL (the design system's AppShell; question 1 and question 11, 5 Oct; D-138 step 3).
+ *
+ * One header, three layouts, decided by CSS alone so nothing is drawn twice (the tour and the help panel live in it):
+ * - 1024 px and wider: a sticky left navigation, the person's places above and the person below (`.pin-staf`).
+ * - Under 1024 px: a top bar (the mark, the current place, «Keluar», the menu button) and a menu that drops below it
+ *   with the same places, Bantuan, «Laporkan masalah» and the language.
+ * The menu opens with a checkbox and its label, so it works before any script has loaded on a slow classroom tablet,
+ * the same reason «Keluar» is a real form. «Keluar» is visible at every width without opening anything (D-009).
+ * The places are the ones the reader already had (TabTempat, navKonteks); a place shown decides nothing.
+ */
+function shellStaf({
+  locale,
+  persona,
+  kini,
+  nav,
+  bantuan,
+  sesi,
+  lapor,
+}: {
+  locale: Locale;
+  persona: "educator" | "staff";
+  /** The current place's word, for the top bar under 1024 px. */
+  kini: string;
+  nav: ReactNode;
+  bantuan?: ReactNode;
+  sesi: ReactNode;
+  /** The persona «Laporkan masalah» speaks to, when it is not the shell's own. */
+  lapor?: "educator";
+}) {
+  return (
+    <header className="pin-top pin-shell pin-noprint pin-staf">
+      <div className="pin-staf-kepala">
+        <MerekPintar />
+      </div>
+      <span className="pin-bar-tempat">{kini}</span>
+      <input type="checkbox" id="pin-laci" className="pin-laci-saklar" aria-label={t("nav.menu", persona, { locale })} aria-controls="pin-laci-isi" />
+      <label htmlFor="pin-laci" className="pin-laci-tombol" aria-hidden="true">
+        <Ikon nama="menu" kelas="pin-ikon-buka" />
+        <Ikon nama="x" kelas="pin-ikon-tutup" />
+      </label>
+      <div className="pin-laci" id="pin-laci-isi">
+        <nav className="pin-tabs" aria-label={t("nav.tempat", persona, { locale })}>
+          {nav}
+        </nav>
+        <div className="pin-staf-bawah">
+          {bantuan}
+          {/* DAISY-12 (D-037 step 2): beside Bantuan on every staff shell */}
+          <TautanLapor locale={locale} persona={lapor ?? (persona === "educator" ? "educator" : undefined)} />
+          <PengalihBahasa locale={locale} />
+        </div>
+      </div>
+      {sesi}
+    </header>
+  );
+}
+
+/**
+ * The staff shell for a surface that decides its own places (Konfigurasi, Studio): the page passes its items, drawn
+ * with ItemNav, and the shell adds the reader, Bantuan's neighbours and the way out exactly as on every other staff
+ * surface (D-138 step 3).
+ */
+export async function CangkangStaf({ locale, kini, nav }: { locale: Locale; kini: string; nav: ReactNode }) {
+  const [viewer, peran] = await Promise.all([currentViewer(), peranSaya()]);
+  return shellStaf({
+    locale, persona: "staff", kini, nav,
+    sesi: <SesiSaya locale={locale} persona="staff" viewer={viewer} peran={peran} />,
+  });
 }

@@ -2599,3 +2599,103 @@ a.pin-tautan { display: inline-flex; align-items: center; }
     padding-top: var(--space-2); padding-bottom: var(--space-2);
   }
 }
+
+/* ══════════════════════════════════════ THE STAFF SHELL (AppShell; D-138 step 3)
+   One header (CangkangPengalaman's shellStaf), laid out by width:
+   - 1024 px and wider: a fixed left navigation, shell-nav wide, the places above
+     and the reader below; the page moves right by the same width.
+   - under 1024 px: a sticky top bar (the mark, the current place, «Keluar», the
+     menu button) and the menu, which opens below the bar.
+   The breakpoints are bp-large (1024); CSS cannot read a variable inside @media.
+   Last in the file, so it holds over the older header rules above. */
+.pin-ikon { width: var(--icon-md); height: var(--icon-md); flex: none; }
+.pin-laci-saklar {
+  position: absolute; width: 1px; height: 1px; margin: 0; padding: 0;
+  overflow: hidden; clip-path: inset(50%); opacity: 0;
+}
+.pin-staf .pin-tabs { display: grid; gap: 2px; height: auto; margin: 0; padding: 0; border: 0; }
+.pin-staf .pin-tabs a.pin-nav-item {
+  position: relative; display: flex; flex: none; align-items: center; justify-content: flex-start; gap: var(--space-3);
+  min-height: var(--control-md); height: auto; margin: 0; padding: 0 var(--space-3);
+  border: 0; border-radius: var(--radius-md);
+  color: var(--ink-2); font-size: var(--t-body); line-height: var(--t-body-lh); font-weight: var(--weight-normal);
+  text-align: left; text-decoration: none;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+.pin-staf .pin-tabs a.pin-nav-item .pin-ikon { color: var(--ink-3); }
+.pin-staf .pin-tabs a.pin-nav-item:hover { background: var(--surface-2); color: var(--ink-1); text-decoration: none; }
+.pin-staf .pin-tabs a.pin-nav-item:active { background: var(--surface-3); }
+.pin-staf .pin-tabs a.pin-nav-item[aria-current="page"] {
+  background: var(--pintar-primary-soft); color: var(--ink-1); font-weight: var(--weight-strong);
+}
+.pin-staf .pin-tabs a.pin-nav-item[aria-current="page"] .pin-ikon { color: var(--pintar-primary); }
+.pin-staf .pin-tabs a.pin-nav-item:focus-visible { outline-offset: -2px; }
+.pin-nav-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* The working context's place, and the one way to change it (L3, D-132). */
+.pin-staf .pin-nav-tempat {
+  display: block; padding: var(--space-4) var(--space-3) var(--space-1);
+  font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-3);
+}
+.pin-staf .pin-tabs a.pin-nav-pilih {
+  display: flex; align-items: center; min-height: var(--control-md); height: auto; margin: 0; padding: 0 var(--space-3);
+  border: 0; font-size: var(--t-small); font-weight: var(--weight-strong); color: var(--pintar-primary);
+}
+.pin-staf-bawah { display: grid; gap: var(--space-2); justify-items: start; }
+
+@media (min-width: 1024px) {
+  body:has(.pin-staf) { padding-left: calc(var(--shell-nav) + var(--gutter)); }
+  .pin-staf {
+    position: fixed; inset: 0 auto 0 0; z-index: var(--z-nav);
+    width: var(--shell-nav); height: auto; margin: 0;
+    display: flex; flex-direction: column; align-items: stretch; gap: var(--space-2);
+    padding: var(--space-4) var(--space-3); overflow-y: auto;
+    background: var(--surface-0); border-bottom: 0; border-right: var(--border-hairline) solid var(--line);
+  }
+  .pin-staf-kepala { padding: 0 var(--space-2) var(--space-3); }
+  .pin-staf .pin-bar-tempat, .pin-staf .pin-laci-tombol { display: none; }
+  .pin-staf .pin-laci { display: flex; flex-direction: column; flex: 1 0 auto; gap: var(--space-2); }
+  .pin-staf-bawah { margin-top: auto; padding-top: var(--space-3); border-top: var(--border-hairline) solid var(--line); }
+  .pin-staf .pin-sesi {
+    flex-direction: column; align-items: stretch; gap: var(--space-2);
+    padding-top: var(--space-3); border-top: var(--border-hairline) solid var(--line);
+  }
+  .pin-staf .pin-sesi-ket { max-width: none; white-space: normal; }
+  .pin-staf .pin-sesi-akun { display: inline-flex; align-items: center; min-height: var(--control-md); }
+  .pin-staf .pin-sesi form, .pin-staf .pin-sesi-keluar { width: 100%; }
+}
+@media (max-width: 1023px) {
+  .pin-staf {
+    position: sticky; top: 0; z-index: var(--z-sticky);
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-2);
+    height: auto; min-height: var(--shell-bar); padding: 0 var(--space-2) 0 var(--space-4);
+    background: var(--surface-0);
+  }
+  .pin-staf .pin-merek { height: var(--logo-height-phone); }
+  .pin-staf-kepala { order: 0; display: flex; align-items: center; min-height: var(--shell-bar); }
+  .pin-staf .pin-bar-tempat {
+    order: 1; flex: 1; min-width: 0;
+    font-weight: var(--weight-strong); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .pin-staf .pin-sesi { order: 2; width: auto; border: 0; padding: 0; flex-wrap: nowrap; }
+  .pin-staf .pin-sesi-ket, .pin-staf .pin-sesi-akun { display: none; }
+  .pin-staf .pin-laci-tombol {
+    order: 3; display: inline-flex; align-items: center; justify-content: center;
+    width: var(--control-md); height: var(--control-md); border-radius: var(--radius-md);
+    color: var(--ink-1); cursor: pointer;
+  }
+  .pin-staf .pin-laci-tombol:hover { background: var(--surface-2); }
+  .pin-laci-saklar:focus-visible + .pin-laci-tombol { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+  .pin-staf .pin-ikon-tutup { display: none; }
+  .pin-laci-saklar:checked + .pin-laci-tombol .pin-ikon-buka { display: none; }
+  .pin-laci-saklar:checked + .pin-laci-tombol .pin-ikon-tutup { display: block; }
+  .pin-staf .pin-laci {
+    display: none; order: 4; width: 100%;
+    padding: var(--space-2) 0 var(--space-4); border-top: var(--border-hairline) solid var(--line);
+  }
+  .pin-laci-saklar:checked ~ .pin-laci { display: grid; gap: var(--space-3); }
+  /* Open, the menu shows the reader too: their name, Akun saya and «Keluar» move under it. */
+  .pin-laci-saklar:checked ~ .pin-sesi { order: 5; width: 100%; flex-wrap: wrap; padding-bottom: var(--space-3); }
+  .pin-laci-saklar:checked ~ .pin-sesi .pin-sesi-ket,
+  .pin-laci-saklar:checked ~ .pin-sesi .pin-sesi-akun { display: inline-flex; align-items: center; }
+}
+@media print { body:has(.pin-staf) { padding-left: 0; } }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import TandaTautan from "@/components/TandaTautan";
 import { t, type Locale, type Persona } from "@/lib/hle";
 import { daftarTempat, type Tempat } from "./tempat";
+import ItemNav from "./ItemNav";
 
 export { tempatDariPeran, tawarkanStudio, type Tempat } from "./tempat";
 
@@ -18,6 +19,7 @@ export default function TabTempat({
   persona,
   kelas,
   studio = false,
+  bentuk,
 }: {
   tempat: readonly Tempat[];
   kecuali?: readonly Tempat[];
@@ -27,7 +29,17 @@ export default function TabTempat({
   kelas?: string;
   /** tawarkanStudio of the reader's roles: whether to end with the Studio tab. */
   studio?: boolean;
+  /** "nav": drawn as the staff navigation's items (icon, word, working dot), D-138 step 3. */
+  bentuk?: "nav";
 }) {
+  if (bentuk === "nav") {
+    return (
+      <>
+        {daftarTempat(tempat, kecuali, locale, persona).map(({ href, label }) => <ItemNav key={href} href={href} label={label} />)}
+        {studio ? <ItemNav href="/studio" label={t("nav.studio", persona, { locale })} /> : null}
+      </>
+    );
+  }
   return (
     <>
       {daftarTempat(tempat, kecuali, locale, persona).map(({ href, label }) => (

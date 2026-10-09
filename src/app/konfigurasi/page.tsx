@@ -20,9 +20,10 @@ import { adaAdminSekolah, calonAdminPertama } from "@/lib/admin-pertama";
 import { pelajaranDanBatas } from "@/lib/batas-ketuntasan";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
-import SesiSaya from "@/components/SesiSaya";
 import TabTempat, { tempatDariPeran } from "@/components/TabTempat";
 import { navKonteks } from "@/components/NavKonteks";
+import { CangkangStaf } from "@/components/CangkangPengalaman";
+import ItemNav from "@/components/ItemNav";
 import { konteksHalaman } from "@/lib/konteks-server";
 import { melayani } from "@/lib/konteks";
 import { peranSaya } from "@/lib/tur-negara";
@@ -37,7 +38,6 @@ import { asalPindah, muridDiKelas, namaKelas, tujuanPindah } from "@/lib/pindah-
 import { jumlahAdminSekolah, persiapanSekolah, type PeranTerbaca } from "@/lib/persiapan-sekolah";
 import { lingkupPeran } from "@/lib/lingkup-peran";
 import { alamatCatatan, formulirPeserta, tempatCatatan } from "@/lib/pengembangan";
-import TautanLapor from "@/components/lapor/TautanLapor";
 import { kunciKodeLaporan, kunciStatusLaporan, langkahBerikut, laporanTriase, type KodeLaporan } from "@/lib/lapor-masalah";
 import { pindahkanLaporanAksi } from "@/app/lapor/actions";
 import { daftarKelola, KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan";
@@ -419,50 +419,35 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const nav = navSemua.filter(([bagian]) => tampil(bagian));
 
   return (
+    <>
+    {/* D-138 step 3: the staff shell (AppShell). The places below are this page's own, unchanged: each asks its own
+        gate on arrival and a link decides nothing (DAISY-03, D-010); «Laporkan masalah», the language and the way out
+        are the shell's, as on every staff surface (DAISY-02, DAISY-12). */}
+    <CangkangStaf
+      locale={await currentLocale()}
+      kini={s("nav.konfigurasi")}
+      nav={
+        <>
+          <ItemNav href="/konfigurasi" label={s("nav.konfigurasi")} kini />
+          {bolehPendataan ? <ItemNav href="/pendataan" label={s("nav.pendataan")} /> : null}
+          {lama || (kh && melayani(kh, "/aktivasi")) ? <ItemNav href="/aktivasi" label={s("nav.aktivasi")} /> : null}
+          {lama || (kh && melayani(kh, "/studio")) ? <ItemNav href="/studio" label={s("nav.studio")} /> : null}
+          {platformIni ? <ItemNav href="/konfigurasi/email-uji" label={s("emailuji.judul")} /> : null}
+          {(platformIni || sekolahIni.length > 0) ? <ItemNav href="/konfigurasi/keamanan" label={s("keamanan.judul")} /> : null}
+          {lama ? (
+            <TabTempat tempat={tempatDariPeran(peran)} kecuali={["/konfigurasi"]} locale={await currentLocale()} persona="staff" bentuk="nav" />
+          ) : (
+            await navKonteks({ locale: await currentLocale(), persona: "staff", kecuali: ["/konfigurasi", "/pendataan", "/aktivasi", "/studio"], bentuk: "nav" })
+          )}
+        </>
+      }
+    />
     <main className="py-6">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-sm text-ink-3">{s("app.name")}</p>
-          <h1 className="text-2xl font-semibold tracking-tight">{s("config.title")}</h1>
-        </div>
-        {/* DAISY-02: the shared session strip replaces a hard-coded "Keluar"
-            that sat outside the copy table and never changed language. */}
-        <SesiSaya locale={await currentLocale()} persona="staff" viewer={viewer} peran={peran} />
+      <header>
+        <p className="text-sm text-ink-3">{s("app.name")}</p>
+        <h1 className="text-2xl font-semibold tracking-tight">{s("config.title")}</h1>
       </header>
 
-      {/* WP5B. THE WAY IN TO BULK INTAKE, from the surface an institution
-          administrator already lands on. It is one link and not a panel: the
-          intake is its own experience on the design system, and reproducing a
-          piece of it here would be two places to keep true. The link decides
-          nothing — `/pendataan` asks `can_on_node('CAN_PROVISION_PEOPLE', …)`
-          on arrival and refuses a reader who does not hold it. */}
-      {/* DAISY-03 (M3). Aktivasi and Studio were reachable only by typing
-          their addresses. They sit beside the intake now, with the
-          administrator's other places (D-010) after them. Every one of these
-          asks its own gate on arrival; a link here decides nothing. */}
-      <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2" aria-label={t("nav.tempat", "staff", { locale: await currentLocale() })}>
-        {bolehPendataan ? <Link href="/pendataan" className={tautanTempat}>{s("pendataan.judul")}<TandaTautan /></Link> : null}
-        {lama || (kh && melayani(kh, "/aktivasi")) ? <Link href="/aktivasi" className={tautanTempat}>{s("nav.aktivasi")}<TandaTautan /></Link> : null}
-        {lama || (kh && melayani(kh, "/studio")) ? <Link href="/studio" className={tautanTempat}>{s("nav.studio")}<TandaTautan /></Link> : null}
-        {/* DAISY-12 (D-037 step 2): «Laporkan masalah», as on every staff shell */}
-        <TautanLapor locale={await currentLocale()} kelas={tautanTempat} />
-        {/* BOB-51: the platform admin's delivery proof, a click rather than a console */}
-        {platformIni ? <Link href="/konfigurasi/email-uji" className={tautanTempat}>{s("emailuji.judul")}<TandaTautan /></Link> : null}
-        {/* BOB-28, D-101 (1): the assisted PIN-recovery reset (a School Admin's for their school's people), and for the
-            platform admin the security record */}
-        {(platformIni || sekolahIni.length > 0) ? <Link href="/konfigurasi/keamanan" className={tautanTempat}>{s("keamanan.judul")}<TandaTautan /></Link> : null}
-        {lama ? (
-          <TabTempat
-            tempat={tempatDariPeran(peran)}
-            kecuali={["/konfigurasi"]}
-            locale={await currentLocale()}
-            persona="staff"
-            kelas={tautanTempat}
-          />
-        ) : (
-          await navKonteks({ locale: await currentLocale(), persona: "staff", kecuali: ["/konfigurasi", "/pendataan", "/aktivasi", "/studio"], kelas: tautanTempat })
-        )}
-      </nav>
 
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
         <KartuKesehatan locale={await currentLocale()} keadaan={kesehatan} kelas={card} tautan={tautanTempat} />
@@ -1359,5 +1344,6 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         </div>
       </div>
     </main>
+    </>
   );
 }
