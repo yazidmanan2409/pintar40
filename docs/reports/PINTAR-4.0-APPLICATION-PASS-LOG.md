@@ -152,6 +152,53 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
 **Consequence for the application pass.** The surfaces (steps 4a–4f) stay PARTIAL, not done. Studio and Konfigurasi are the least migrated.
 
 
+## Fix batch A (9 Oct, D-140; approved by Yazid: «Do A as per your recommendation»)
+
+**Commits:** 44cebee (the fixes and guard D140-SAJI-01), 42990bd (the guard's manifest text, F06-S04), b117a72 (journey S23l restated for RV-1). Branch only; main and staging are still 8851988.
+
+**Closed in code, verified locally (crawl of the fresh build, 389 pages over 14 personas, 0 broken, 0 wider than 320 px, 0 over 3 s; screenshots reviewed):**
+
+| # | What the screen now does | Seen |
+|---|---|---|
+| RV-1 | «Laporkan masalah» and «Laporan saya» name the page in words («Halaman: Konfigurasi»), never a path or an id; the path is still stored for engineering | sysadmin lapor 1280; S23l «Halaman: Mengajar» |
+| RV-2 | Keamanan akun's record reads «Jenis komputer dicatat · 9 Okt 2026, 19.08 WIB · PINTAR ID …» | sysadmin keamanan 320 |
+| RV-3 | the staff navigation keeps Daisy's order (Konfigurasi, Pendataan, Aktivasi akun, Studio) and marks the page you are on | siklus-admin Studio, Akun, Aktivasi 1280 |
+| RV-4 | the phone bar names Keamanan akun, Email uji, Akun saya and Laporkan masalah | sysadmin keamanan 320 |
+| RV-6 | report template: each metric's scope named, «Tidak dipakai», the title chosen from the list | siklus-admin Konfigurasi 1280 |
+| RV-12 | fields and the audit table stay inside 320 px | crawl width check 0 |
+| RV-13 | Studio's sub-navigation is tabs with the current one marked | siklus-admin Studio 1280 |
+| RV-17 | Konfigurasi's main actions are primary; the emergency stop is destructive | siklus-admin Konfigurasi 1280 |
+| RV-5 | PARTIAL: the file control is drawn as a Button; its words («Choose File / No file chosen») are the browser's own and follow the browser's language. Not changeable without replacing the native control | sysadmin lapor 1280 |
+
+**Evidence so far:** CI 37917925527 (44cebee): 657 passed, 1 failed (F06-S04, fixed in 42990bd); the red-case job's first attempt died at stack start (port 54322 in use, no test ran) and passed on its one re-run. Local journeys (42990bd): 74 PASS, S23l FAIL on its stale check (restated in b117a72), BD11 BLOCKED locally (no Firefox or WebKit). Final CI and journeys on b117a72: see «Verification of the final commit». Not on staging yet.
+
+**Correction (9 Oct):** an earlier status from the coordinator called S23q / CR-52 an open governed exception. That was wrong: it repeated the 8 Oct handoff text, which predates D-137. CR-52 was closed by the known-issues batch (4693d4d; main 894ae01; journeys 37876329363, 76 PASS, 0 FAIL; D-137). S23q has passed in every journey run since, including the local run on 42990bd. A second correction: a local suite result of «656 passed» reported for batch A was a stale file from 08:06; that run had not started (the local Docker daemon had stopped). The suite evidence for batch A is CI's.
+
+## Walkthrough readiness classification (9 Oct, on b117a72)
+
+**The rule applied.** Dr Gladys walks as «Admin sekolah» of Sekolah Demo PINTAR, journeys 1–9 of her guide (`docs/onboarding/PINTAR-Panduan-Walkthrough-Sekolah-Demo.md`). A finding is **WALKTHROUGH BLOCKING** when she would meet it on that path and it is either an engineering problem left for her (D-140(c): raw ids, JSON, internal enums, technical language, unusable selectors), a break or dead end that stops her, or a screen that contradicts itself, so that her reading of it would record our defect rather than her experience. Everything else is **NON-BLOCKING**: it stays OPEN with its reason, and is not closed by this classification.
+
+| # | Classification | Evidence and rationale |
+|---|---|---|
+| RV-10 | **BLOCKING** | Journey 4 («Lihat bab itu … bagaimana bab itu sampai ke murid»). Studio's home says «Belum ada paket di sini.» above a listed package (`src/app/studio/page.tsx:32`: the empty-task line reuses the empty-package sentence); a published package's page reads «Siap · Paket ini siap diterbitkan» above «Terbit sejak 9 Oktober 2026» (`src/app/studio/paket/[course]/page.tsx:227-230`). Seen in the crawl of the fresh build (siklus-admin Studio and Pecahan). She would be told a published chapter is not yet published. Not fixed in batch A. |
+| RV-11 | NON-BLOCKING, OPEN | Journey 3. Ringkasan Kelas / Sekolah have no app shell and do not name the class, school or period (`src/app/edukator/ringkasan/page.tsx`). She reaches it from a link naming Kelas 5A, and «Kembali» returns; nothing on it is engineering language. A real gap for a report that may be printed. |
+| RV-16 | NON-BLOCKING, OPEN | Journey 2. Konfigurasi prints a period as «2026-07-01 – 2027-06-30»; the date inputs are native (their format follows the browser). Legible, not an id or enum; a design gap (Daisy: dates in words). |
+| RV-9 | NON-BLOCKING for her role, OPEN | Seen on Pimpinan (dean). She is Admin sekolah and reads reports under Konfigurasi (ruled behaviour, observer sheet). «(0/5)» appears only when evidence is short; Kelas 5A has five assessed. Still a defect for deans and heads of department. |
+| RV-7 | NON-BLOCKING, OPEN | Only on the CI/development bootstrap school, whose chapter has no Pemetaan Awal. Sekolah Demo's chapter has one (the Golden School student step walks it: run 37918037282). The offer without a Pemetaan Awal is still a defect. |
+| RV-8 | NON-BLOCKING, OPEN | Seen on a seeded lesson with an audio file missing. Lessons in this stage are text only (D-050; observer sheet). Not verified against Sekolah Demo's lessons on staging. |
+| RV-14 | NON-BLOCKING, OPEN | Studio Aturan Asesmen: not on her guide's journeys; labelled, no codes; limits in seconds. |
+| RV-15 | NON-BLOCKING, OPEN | Platform administrator only. |
+| RV-18 | NON-BLOCKING, OPEN | Transfers are not on her journeys; the typed destination school is OP-4 (an authorization decision). |
+| RV-19 – RV-21, RV-23, RV-24 | NON-BLOCKING, OPEN (MINOR) | Tour focus details, 320 px badges, touching cards, native markers, a cut select, an empty tile and an all-«—» column: visual, none engineering language. |
+| RV-22 | NON-BLOCKING, OPEN (MINOR) | Pendataan widths and the uppercase label stay. The «request host» on Aktivasi is the real address on staging (staging.pintarselalu.com/aktifkan); locally it reads 127.0.0.1:3999. |
+| RV-5 | NON-BLOCKING, PARTIAL | As above. |
+| OP-1, OP-2 | NON-BLOCKING, OPEN (deviations) | The navigation works at every width (crawl, 320 and 1280 px). |
+| OP-3 / AP-1 | NON-BLOCKING, BLOCKED | Font licence (CR-56); today's logo. |
+| OP-4 | NON-BLOCKING, PARTIAL | Not on her journeys; an authorization decision. |
+| OP-5 | NON-BLOCKING, OPEN | Pre-v1 wording held in migrations and seeds; legible Indonesian; needs migrations of its own (D-068(f)). She may comment on it. |
+| OP-6, OP-7 | NON-BLOCKING, OPEN for her | Kept for her terminology decision (D-140(c)); never invented. |
+| OP-8, OP-9 | DECIDED, recorded | As above. |
+
 ## Deviations and open items (D-140(a): what cannot be closed stays open, with its reason)
 
 | # | Item | State | Reason and evidence |
