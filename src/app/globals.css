@@ -143,6 +143,10 @@
   --type-hero: var(--t-display);
   --type-name: 40px;
   --type-name-print: 44px;
+  /* The certificate is frozen (08-migration.md, «Not gaps, kept on purpose»):
+     its course line stays 20 on screen, so it does not follow --type-course
+     onto t-subsection 18 with the rest of the product. */
+  --type-cert-course: 20px;
   --type-chip: 12.5px;    /* the mono verification link, a single element */
   /* The question stem. The most-read text in the product: a learner reads it
      with full attention and nothing on the screen competes, so it sits one

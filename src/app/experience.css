@@ -161,16 +161,20 @@
    at 3.2:1), never a faded copy of the live button. A button that is busy
    (TombolKirim, aria-busy) is not disabled-looking: it was heard and keeps
    its colour while it works. */
-.pin-btn:disabled:not([aria-busy="true"]),
-.pin-btn[aria-disabled="true"]:not([aria-busy="true"]) {
+.pin-btn:disabled:not([aria-busy="true"]):not([data-keadaan="selesai"]),
+.pin-btn[aria-disabled="true"]:not([aria-busy="true"]):not([data-keadaan="selesai"]) {
   background: var(--surface-2); color: var(--ink-disabled); border-color: transparent; cursor: not-allowed;
 }
 .pin-btn[aria-busy="true"], .pin-mbtn[aria-busy="true"] { cursor: progress; }
 /* Completed: the confirmed result, said once, at the action (ActionFeedback). */
-.pin-btn[data-keadaan="selesai"] {
+.pin-btn[data-keadaan="selesai"], .pin-btn[data-keadaan="selesai"]:hover, .pin-btn[data-keadaan="selesai"]:active,
+.pin-btn.pin-primary[data-keadaan="selesai"], .pin-btn.pin-primary[data-keadaan="selesai"]:hover, .pin-btn.pin-primary[data-keadaan="selesai"]:active {
   background: var(--status-ok-soft); color: var(--status-ok); border-color: transparent; cursor: default;
 }
 /* The line under a busy button after 3 seconds: still working, no second press. */
+/* Empty, the line takes no room and draws nothing, but stays in the page so a
+   screen reader is already listening when its words arrive. */
+.pin-lambat:empty { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .pin-lambat { display: block; flex-basis: 100%; margin: var(--space-1) 0 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); }
 .pin-actions { display: flex; gap: var(--space-3); margin-top: var(--space-5); flex-wrap: wrap; align-items: center; }
 .pin-back {
@@ -253,7 +257,7 @@
 }
 .pin-cert .pin-done { font-size: var(--type-body); color: var(--ink-2); margin: 0; }
 .pin-cert .pin-course {
-  font-size: var(--type-course); font-weight: var(--weight-strong);
+  font-size: var(--type-cert-course); font-weight: var(--weight-strong);
   line-height: 1.3; margin: var(--space-1) 0 0;
 }
 .pin-cert hr { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
@@ -787,7 +791,12 @@
 }
 .pin-soalbar .pin-sbar i { display: block; height: 100%; background: var(--pintar-primary); }
 .pin-soalbar .pin-time { font-size: var(--type-meta); color: var(--ink-3); font-variant-numeric: tabular-nums; }
-.pin-soalbar .pin-btn { min-height: var(--control-md); }
+.pin-soalbar .pin-btn {
+  position: relative; min-height: var(--control-sm); padding: 0 var(--space-3);
+  font-size: var(--t-label); line-height: var(--t-label-lh);
+}
+/* Compact is a look, not a smaller target: the hit area stays control-md tall. */
+.pin-soalbar .pin-btn::after { content: ""; position: absolute; inset: calc((var(--control-md) - var(--control-sm)) / -2) 0; }
 
 .pin-stem { font-size: var(--type-stem); line-height: var(--leading-body); font-weight: var(--weight-normal); max-width: 60ch; margin: 0 0 var(--space-5); }
 .pin-opsi { display: grid; gap: var(--space-3); max-width: 60ch; }
@@ -1501,7 +1510,7 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-md);
   background: var(--surface-1);
 }
-.pin-inp:focus-within { outline: 2px solid var(--pintar-primary); outline-offset: 2px; }
+.pin-inp:focus-within { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
 .pin-inp input {
   flex: 1; min-width: 0; height: calc(var(--control-h) - 2px);
   border: 0; background: none; font: inherit; font-size: var(--type-body); color: var(--ink-1);
@@ -1767,12 +1776,12 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-kp-putus { display: grid; gap: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--line); }
 .pin-kp-putus h4 { margin: 0; }
 .pin-kp-hasil { margin: 0; font-weight: var(--weight-strong); color: var(--ink-1); }
-.pin-kp-form { display: grid; gap: var(--space-3); }
+.pin-kp-form { display: grid; gap: var(--space-4); }
 .pin-kp-form select, .pin-kp-form textarea {
   width: 100%; min-height: var(--control-h); font: inherit;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
-  background: var(--surface-0); color: var(--ink-1);
+  border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-md);
+  background: var(--surface-1); color: var(--ink-1);
 }
 .pin-kp-form textarea { min-height: calc(var(--control-h) + var(--space-5)); resize: vertical; }
 .pin-kp-form .pin-btn, .pin-kp-ambil .pin-btn { justify-self: start; }
@@ -1849,8 +1858,8 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-data-peta select, .pin-data-baca textarea, .pin-data-baca input[type="file"] {
   width: 100%; min-height: var(--control-h); font: inherit;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--line-strong); border-radius: var(--radius-1);
-  background: var(--surface-0); color: var(--ink-1);
+  border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-md);
+  background: var(--surface-1); color: var(--ink-1);
 }
 .pin-data-baca textarea { min-height: calc(var(--control-h) + var(--space-6)); resize: vertical; }
 
@@ -2208,8 +2217,8 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-str-tanya-judul { margin: 0; font-weight: var(--weight-strong); }
 .pin-str-tanya-aksi { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .pin-btn.pin-str-bahaya { background: var(--status-blocked); border-color: var(--status-blocked); color: var(--pintar-primary-ink); }
-.pin-btn.pin-str-bahaya:hover { background: var(--status-blocked-hover); border-color: var(--status-blocked-hover); }
-.pin-btn.pin-str-bahaya:active { background: var(--status-blocked-pressed); border-color: var(--status-blocked-pressed); }
+.pin-btn.pin-str-bahaya:hover:not(:disabled) { background: var(--status-blocked-hover); border-color: var(--status-blocked-hover); }
+.pin-btn.pin-str-bahaya:active:not(:disabled) { background: var(--status-blocked-pressed); border-color: var(--status-blocked-pressed); }
 .pin-str .pin-msg { margin-top: var(--space-1); }
 
 /* ---------------------------------------------- Unggah buku kerja (DAISY-06)
@@ -2243,7 +2252,12 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-ung-langkah-isi > * { max-width: 100%; }
 .pin-ung-isian { display: grid; gap: var(--space-1); min-width: 0; width: 100%; }
 .pin-ung-isian label { font-size: var(--type-meta); font-weight: var(--weight-strong); color: var(--ink-2); }
-.pin-ung-isian input[type="file"], .pin-ung-isian select { width: 100%; min-width: 0; font-size: var(--type-meta); }
+.pin-ung-isian input[type="file"] { width: 100%; min-width: 0; font-size: var(--type-meta); }
+.pin-ung-isian select {
+  width: 100%; min-width: 0; min-height: var(--control-md); font: inherit; font-size: var(--t-body);
+  padding: 0 var(--space-3); color: var(--ink-1); background: var(--surface-1);
+  border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-md);
+}
 /* D-085 M10: what a correction changed, and the line it belongs to */
 .pin-ung-isian textarea { width: 100%; min-width: 0; font-size: var(--type-meta); }
 .pin-riwayat { display: grid; gap: var(--space-1); }

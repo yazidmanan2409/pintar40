@@ -53,6 +53,7 @@ export default function TombolKirim({
   const { pending } = useFormStatus();
   const tombol = useRef<HTMLButtonElement>(null);
   const terkirim = useRef(false);
+  const selesaiTuntas = useRef(false);
   const [lambat, setLambat] = useState(false);
   const [diubah, setDiubah] = useState(false);
 
@@ -83,6 +84,13 @@ export default function TombolKirim({
     if (!form) return;
     const jaga = (e: Event) => {
       if (e.target !== form) return;
+      // Completed: the same form, unchanged, is not sent again (ActionFeedback).
+      // Held here, at the submit, never inside the button's own click.
+      if (selesaiTuntas.current) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return;
+      }
       if (terkirim.current) {
         e.preventDefault();
         e.stopImmediatePropagation();
@@ -102,6 +110,9 @@ export default function TombolKirim({
   }, [pending]);
 
   const tuntas = !pending && selesai !== undefined && !diubah;
+  useEffect(() => {
+    selesaiTuntas.current = tuntas;
+  }, [tuntas]);
   return (
     <>
       <button
@@ -111,12 +122,15 @@ export default function TombolKirim({
         disabled={pending || disabled}
         aria-busy={pending ? "true" : undefined}
         data-keadaan={tuntas ? "selesai" : undefined}
+        aria-disabled={tuntas ? "true" : rest["aria-disabled"]}
       >
         {pending ? sibuk : tuntas ? <><span aria-hidden="true">✓</span> {selesai}</> : children}
       </button>
-      {pending && lambat ? (
-        <span className="pin-lambat" role="status">{t("tombol.lambat", "learner", { locale: bahasaHalaman() })}</span>
-      ) : null}
+      {/* The live region is on the page from the start and only its words
+          change: a region inserted at the moment it fills is often not read. */}
+      <span className="pin-lambat" role="status">
+        {pending && lambat ? t("tombol.lambat", "learner", { locale: bahasaHalaman() }) : ""}
+      </span>
     </>
   );
 }

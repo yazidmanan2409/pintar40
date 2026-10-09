@@ -550,6 +550,13 @@ function sizesControl(sel: string, target: string): boolean {
     return new RegExp(`^${p}(?![\\w-])`).test(comp) || comp.startsWith(p + ".") || comp === p;
   });
 }
+/** The certificate's frozen sizes (08-migration.md): selector, phone block?, size. */
+const CERT_FROZEN: Array<[string, boolean, string]> = [
+  [".pin-cert .pin-name", false, "40px"], [".pin-cert .pin-course", false, "20px"],
+  [".pin-cert .pin-name", true, "32px"], [".pin-cert .pin-course", true, "18px"],
+  [".pin-sheet .pin-name", false, "44px"], [".pin-sheet .pin-course", false, "22px"],
+  [".pin-sheet .pin-inst", false, "15px"],
+];
 const RAW_COLOUR = /#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\s*\(/g;
 const RAW_LENGTH = /(?<![\w.-])\d+(?:\.\d+)?(?:px|rem|em|ch|%)/g;
 
@@ -859,6 +866,27 @@ export const experienceTests: SelfTest[] = [
       }
       c.expect(/\*:focus-visible\s*\{[^}]*var\(--focus-ring\)/.test(css), "the focus ring is not drawn with --focus-ring");
 
+      // THE CERTIFICATE IS FROZEN (08-migration.md, «Not gaps, kept on purpose»):
+      // aliasing the v2 type names onto v3 must not move a size on it. Each
+      // rule's font-size is resolved through the token file and compared with
+      // the frozen value, on screen, on a phone and on the printed sheet.
+      const exp = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
+      const ukuran = (sel: string, phone: boolean) => {
+        const blocks = phone ? [...exp.matchAll(/@media \(max-width: 560px\) \{([\s\S]*?)\n\}/g)].map((m) => m[1]) : [exp.replace(/@media[^{]*\{[\s\S]*?\n\}/g, "")];
+        let v: string | undefined;
+        for (const b of blocks) {
+          const re = new RegExp(`(?:^|[}\\s])${sel.replace(/[.]/g, "\\.")}\\s*\\{([^}]*)\\}`, "g");
+          for (const m of b.matchAll(re)) { const f = /font-size:\s*([^;]+);/.exec(m[1]); if (f) v = f[1].trim(); }
+        }
+        if (!v) return undefined;
+        const r = /^var\((--[a-z0-9-]+)\)$/.exec(v);
+        return r ? resolve(tk, r[1]) : v;
+      };
+      for (const [sel, phone, frozen] of CERT_FROZEN) {
+        const got = ukuran(sel, phone);
+        c.expect(got === frozen, `${sel}${phone ? " on a phone" : ""} is ${got}, the frozen certificate says ${frozen}`);
+      }
+
       // nothing points at a custom property nobody declares: a misspelt token
       // is a silent fallback to the browser's default, not an error
       const declared = new Set<string>();
@@ -919,7 +947,11 @@ export const experienceTests: SelfTest[] = [
           if (v === "auto" || v === "100%") continue;
           const n = px(v);
           c.expect(n !== null, `${target.join(", ")} sets ${d[1]}: ${v}, which this guard cannot resolve to a size`);
-          if (n !== null) c.expect(n >= FLOOR, `${target.join(", ")} sets ${d[1]} to ${n}px, under the ${FLOOR}px target`);
+          // Button, small (08-migration.md): 36 px seen, 44 px to hit, when its
+          // ::after extends the hit area by the difference above and below
+          const kecil = n !== null && n < FLOOR && v === "var(--control-sm)" && target.every((sel) =>
+            new RegExp(`${sel.replace(/[.[\]="()]/g, (x) => "\\" + x)}::after\\s*\\{[^}]*inset:\\s*calc\\(\\(var\\(--control-md\\) - var\\(--control-sm\\)\\) / -2\\) 0`).test(css));
+          if (n !== null && !kecil) c.expect(n >= FLOOR, `${target.join(", ")} sets ${d[1]} to ${n}px, under the ${FLOOR}px target`);
         }
       }
       for (const t of BASE_TARGETS) {
