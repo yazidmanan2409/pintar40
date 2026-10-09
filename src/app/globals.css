@@ -84,7 +84,7 @@
 }
 
 :root {
-  --pintar-tokens-version: 2;
+  --pintar-tokens-version: 3;
 
   /* surfaces and ink ------------------------------------------------------ */
   --surface-0: #FBFAF7;   /* the canvas: warm off-white, page ground only */
@@ -117,8 +117,8 @@
   --status-info: #3D5A80;      --status-info-soft: #E7EDF5;
 
   /* shape ----------------------------------------------------------------- */
-  --radius-1: 8px;
-  --radius-2: 12px;
+  --radius-1: var(--radius-md);   /* v2 alias */
+  --radius-2: var(--radius-lg);   /* v2 alias */
   --radius-pill: 999px;
 
   /* rhythm: 8-pt on a 4-px scale ------------------------------------------ */
@@ -127,28 +127,28 @@
   --space-9: 64px;
 
   /* type ladder — weights 400 and 600 only -------------------------------- */
-  --type-eyebrow: 12px;   /* 600, uppercase, tracked */
-  --type-fine: 13px;      /* 400/600 — scope line, definition labels */
-  --type-meta: 14px;      /* 400 */
-  --type-body: 16px;      /* 400 */
-  --type-card: 17px;      /* 600 — card title */
-  --type-course: 20px;    /* 600 — course line */
-  --type-subhead: 22px;   /* 600 */
-  --type-section: 24px;   /* 600 */
-  --type-page: 30px;      /* 600 — page title */
+  --type-eyebrow: var(--t-eyebrow);   /* 600, uppercase, tracked */
+  --type-fine: var(--t-small);      /* 400/600 — scope line, definition labels */
+  --type-meta: var(--t-small);      /* 400 */
+  --type-body: var(--t-body);      /* 400 */
+  --type-card: var(--t-subsection);      /* 600 — card title */
+  --type-course: var(--t-subsection);    /* 600 — course line */
+  --type-subhead: var(--t-section);   /* 600 */
+  --type-section: var(--t-section);   /* 600 */
+  --type-page: var(--t-page);      /* 600 — page title */
   /* DISPLAY. Three sizes above the ladder, each for one named thing: the
      verification verdict a stranger reads first, the holder's name on screen,
      and the holder's name on the printed sheet. Named rather than free, so
      "large" is still a decision somebody made once. */
-  --type-hero: 36px;
+  --type-hero: var(--t-display);
   --type-name: 40px;
   --type-name-print: 44px;
   --type-chip: 12.5px;    /* the mono verification link, a single element */
   /* The question stem. The most-read text in the product: a learner reads it
      with full attention and nothing on the screen competes, so it sits one
      step above the reading size and one below the smallest subhead. */
-  --type-stem: 21px;
-  --type-stem-phone: 19px;
+  --type-stem: var(--t-stem);
+  --type-stem-phone: var(--t-stem-compact);
   --weight-normal: 400;
   --weight-strong: 600;
   --tracking-eyebrow: 0.06em;
@@ -180,7 +180,7 @@
   --measure-read: 760px;    /* the reading column */
   --measure-narrow: 560px;  /* public verification */
   --measure-stage: 1120px;  /* the widest a composition goes */
-  --measure: 64ch;          /* prose measure, v1 name retained */
+  --measure: var(--measure-prose);   /* v2 alias */
 
   /* guidance — the first-login tour, the Help panel and the tour's one tip
      (UX-1 §F, §O). Three named card measures, because "how wide is the thing
@@ -200,19 +200,103 @@
   --measure-auth: 400px;         /* the form on a wide screen */
   --measure-auth-wide: 460px;    /* the form in the one-column tablet band */
   --measure-sesi: 28ch;          /* a signed-in name in a header row, before it ellipsizes */
-  --control-h: 52px;             /* email-path field and primary action */
-  --control-h-big: 60px;         /* card-path field and primary action */
+  --control-h: var(--control-lg);             /* email-path field and primary action */
+  --control-h-big: var(--control-xl);         /* card-path field and primary action */
   --vis-band: 260px;             /* the statement panel's height below the form */
   /* The sign-in panel's small rule over the statement (DAISY-08): the ink's
      own colour, faded, so it reads as a mark and not as a divider. */
   --say-mark: 0.6;
 
   /* motion: colour and opacity only, 160ms -------------------------------- */
-  --motion-fast: 160ms;
+  --motion-fast: var(--duration-base);   /* v2 alias */
 
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ==================================================================== v3
+     Token set v3, APPLICATION READY on c42fecb (D-136(b)); the application
+     pass begins under D-138. Every value below is copied from the design
+     system's tokens.json (vendored at selftest/fixtures/design-tokens-v3.json)
+     and UX1-V3-TOKENS-01 fails if one drifts. The v2 names above are aliases
+     of these until no rule uses them (08-migration.md). */
+  /* colour roles */
+  --surface-3: #ebe8e1;
+  --ink-disabled: #7f8890;
+  --line-control: #808a91;
+  --pintar-primary-pressed: #19443d;
+  --focus-ring: var(--pintar-primary);
+  --status-blocked-hover: #763131;
+  --status-blocked-pressed: #6b2c2c;
+  --scrim: rgba(31, 42, 51, 0.32);
+  --context: var(--ink-1);
+  --context-ink: var(--surface-0);
+  --table-head: var(--surface-2);
+  --table-row: var(--surface-1);
+  --table-row-alt: var(--surface-0);
+  --table-row-hover: var(--surface-3);
+  --table-row-selected: var(--pintar-primary-soft);
+  /* radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  /* shadow: floating layers only */
+  --shadow-overlay: 0 4px 12px rgba(31, 42, 51, 0.10), 0 0 0 1px rgba(31, 42, 51, 0.08);
+  --shadow-dialog: 0 8px 24px rgba(31, 42, 51, 0.14), 0 0 0 1px rgba(31, 42, 51, 0.06);
+  /* controls, icons, shell, measures, wordmark */
+  --control-md: 44px;
+  --control-lg: 52px;
+  --control-xl: 60px;
+  --control-sm: 36px;
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --shell-nav: 248px;
+  --shell-rail: 72px;
+  --shell-bar: 56px;
+  --measure-prose: 64ch;
+  --wordmark-nav: 18px;
+  --wordmark-bar: 16px;
+  --wordmark-standalone: 24px;
+  --wordmark-min: 12px;
+  /* border */
+  --border-hairline: 1px;
+  --border-focus: 2px;
+  --border-selected: 2px;
+  /* motion */
+  --duration-fast: 120ms;
+  --duration-base: 160ms;
+  --duration-slow: 240ms;
+  --duration-pulse: 900ms;
+  /* easing */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 1, 1);
+  /* layers */
+  --z-sticky: 10;
+  --z-nav: 20;
+  --z-overlay: 100;
+  --z-modal: 200;
+  /* breakpoints (CSS cannot read these inside @media; they document the rule) */
+  --bp-medium: 640px;
+  --bp-large: 1024px;
+  --bp-wide: 1280px;
+  /* type ladder: size, leading and tracking per style */
+  --t-display: 36px; --t-display-lh: 44px; --t-display-ls: -0.02em;
+  --t-page: 30px; --t-page-lh: 36px; --t-page-ls: -0.02em;
+  --t-page-compact: 26px; --t-page-compact-lh: 32px; --t-page-compact-ls: -0.015em;
+  --t-section: 22px; --t-section-lh: 28px; --t-section-ls: -0.01em;
+  --t-subsection: 18px; --t-subsection-lh: 26px; --t-subsection-ls: -0.005em;
+  --t-body: 16px; --t-body-lh: 24px;
+  --t-prose: 16px; --t-prose-lh: 26px;
+  --t-small: 14px; --t-small-lh: 20px;
+  --t-label: 14px; --t-label-lh: 20px;
+  --t-eyebrow: 12px; --t-eyebrow-lh: 16px; --t-eyebrow-ls: 0.06em;
+  --t-stat: 30px; --t-stat-lh: 36px; --t-stat-ls: -0.02em;
+  --t-stat-small: 22px; --t-stat-small-lh: 28px; --t-stat-small-ls: -0.01em;
+  --t-identifier: 14px; --t-identifier-lh: 20px; --t-identifier-ls: 0.02em;
+  --t-stem: 21px; --t-stem-lh: 32px;
+  --t-stem-compact: 19px; --t-stem-compact-lh: 28px;
+  --font-wordmark: "Helvetica Neue", "Neue Helvetica", Helvetica, Arial, sans-serif;
 }
 
 @theme inline {
@@ -236,10 +320,22 @@
   --color-blocked-soft: var(--status-blocked-soft);
   --color-info: var(--status-info);
   --color-info-soft: var(--status-info-soft);
+  --color-surface-3: var(--surface-3);
+  --color-ink-disabled: var(--ink-disabled);
+  --color-line-control: var(--line-control);
+  --color-primary-hover: var(--pintar-primary-hover);
+  --color-primary-pressed: var(--pintar-primary-pressed);
+  --color-blocked-hover: var(--status-blocked-hover);
+  --color-blocked-pressed: var(--status-blocked-pressed);
+  --color-context: var(--context);
+  --color-context-ink: var(--context-ink);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --radius-1: var(--radius-1);
   --radius-2: var(--radius-2);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
 }
 
 html { color-scheme: light; }
@@ -257,7 +353,7 @@ body {
 .pin-shell { margin-inline: calc(var(--gutter) * -1); }
 a { color: var(--pintar-primary); text-decoration: none; }
 a:hover { text-decoration: underline; }
-*:focus-visible { outline: 2px solid var(--pintar-primary); outline-offset: 2px; }
+*:focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
 /* X.6 (U-DEVICE, D-046): NOTHING IS WIDER THAN A 320 PX WINDOW. A grid item may

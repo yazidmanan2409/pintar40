@@ -514,6 +514,18 @@ const TAILWIND_DESIGN = new RegExp(
   "g",
 );
 
+/** sha256 of docs/coordination/ux/sistem-desain/project/tokens.json at c42fecb. */
+const V3_TOKENS_SHA256 = "9137af2a2c7b11c5537d01d500e3700a7e7d9b41003c0f957c2d1f2effd687e5";
+/** v2 names kept as aliases of their v3 token (08-migration.md). */
+const V2_ALIASES: Array<[string, string]> = [
+  ["--radius-1", "--radius-md"], ["--radius-2", "--radius-lg"],
+  ["--motion-fast", "--duration-base"], ["--control-h", "--control-lg"], ["--control-h-big", "--control-xl"],
+  ["--measure", "--measure-prose"],
+  ["--type-eyebrow", "--t-eyebrow"], ["--type-fine", "--t-small"], ["--type-meta", "--t-small"],
+  ["--type-body", "--t-body"], ["--type-card", "--t-subsection"], ["--type-course", "--t-subsection"],
+  ["--type-subhead", "--t-section"], ["--type-section", "--t-section"], ["--type-page", "--t-page"],
+  ["--type-hero", "--t-display"], ["--type-stem", "--t-stem"], ["--type-stem-phone", "--t-stem-compact"],
+];
 const RAW_COLOUR = /#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\s*\(/g;
 const RAW_LENGTH = /(?<![\w.-])\d+(?:\.\d+)?(?:px|rem|em|ch|%)/g;
 
@@ -547,6 +559,17 @@ function tokens(css: string): Record<string, string> {
   const out: Record<string, string> = {};
   for (const m of block.matchAll(/(--[a-z0-9-]+)\s*:\s*([^;]+);/g)) out[m[1]] = m[2].trim();
   return out;
+}
+
+/** A token's value with any `var(--x)` it points at followed to the end. */
+function resolve(tk: Record<string, string>, name: string): string {
+  let v = tk[name];
+  for (let i = 0; i < 8 && v !== undefined; i++) {
+    const m = /^var\((--[a-z0-9-]+)\)$/.exec(v.trim());
+    if (!m) break;
+    v = tk[m[1]];
+  }
+  return v;
 }
 
 /** The Tailwind utility names `@theme inline` backs with a token. */
@@ -602,7 +625,7 @@ export const experienceTests: SelfTest[] = [
       const themed = themeColours(globals);
       c.expect(themed.size > 10, `only ${themed.size} Tailwind colour(s) are backed by a token`);
       c.expect(Object.keys(declared).length > 30, `only ${Object.keys(declared).length} tokens declared`);
-      c.expect(declared["--pintar-tokens-version"] === "2", "the token set is not version 2");
+      c.expect(declared["--pintar-tokens-version"] === "3", "the token set is not version 3");
 
       let scanned = 0;
       for (const rel of [...reset].sort()) {
@@ -729,11 +752,112 @@ export const experienceTests: SelfTest[] = [
       measured++;
       c.expect(onHover >= AA, `--pintar-primary-ink on --pintar-primary-hover is ${onHover.toFixed(2)}:1`);
 
+      // v3 (D-138): the roles the application pass introduces. Text on the
+      // pressed and destructive grounds, the context band, and the rows'
+      // hover, stripe and selection grounds hold AA; a field's outline
+      // (line-control) holds 3:1 against every surface (WCAG 1.4.11).
+      const v3text: Array<[string, string]> = [
+        ["--pintar-primary-ink", "--pintar-primary-pressed"],
+        ["--pintar-primary-ink", "--status-blocked"],
+        ["--pintar-primary-ink", "--status-blocked-hover"],
+        ["--pintar-primary-ink", "--status-blocked-pressed"],
+        ["--context-ink", "--context"],
+        ["--ink-1", "--surface-3"],
+        ["--ink-2", "--surface-3"],
+        ["--ink-1", "--table-row-hover"],
+        ["--ink-2", "--table-row-alt"],
+        ["--ink-1", "--table-row-selected"],
+        ["--ink-2", "--table-head"],
+        ["--focus-ring", "--surface-0"],
+      ];
+      for (const [fg, bg] of v3text) {
+        const a = resolve(tk, fg), b = resolve(tk, bg);
+        c.expect(/^#[0-9a-fA-F]{6}$/.test(a ?? "") && /^#[0-9a-fA-F]{6}$/.test(b ?? ""), `${fg} on ${bg} does not resolve to two hex colours (${a}, ${b})`);
+        if (!a || !b) continue;
+        const r = ratio(a, b);
+        measured++;
+        c.expect(r >= AA, `${fg} on ${bg} is ${r.toFixed(2)}:1, below AA ${AA}:1`);
+      }
+      for (const ground of ["--surface-0", "--surface-1", "--surface-2"]) {
+        const r = ratio(resolve(tk, "--line-control"), tk[ground]);
+        measured++;
+        c.expect(r >= 3, `--line-control on ${ground} is ${r.toFixed(2)}:1, below the 3:1 a control's edge needs`);
+      }
+
       c.note(`${measured} ratio(s) computed from the token file`);
       return c.verdict(
         "WCAG 2.1 contrast is COMPUTED from src/app/globals.css for every text token against white, ivory " +
           "and the well, and for every status token against its own soft ground, and nothing is below AA — " +
           "so the token lint can never enforce a failing token",
+      );
+    },
+  },
+
+  {
+    id: "UX1-V3-TOKENS-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // The design system's tokens.json at its verified freeze (c42fecb,
+      // D-136(b)), vendored byte for byte. The hash pins it: an edit to the
+      // copy is an edit to the design system and has to come from there.
+      const fixture = join(repoRoot, "selftest", "fixtures", "design-tokens-v3.json");
+      const raw = readFileSync(fixture);
+      const hash = createHash("sha256").update(raw).digest("hex");
+      c.expect(hash === V3_TOKENS_SHA256, `the vendored tokens.json is not c42fecb's (sha256 ${hash})`);
+      const spec = JSON.parse(raw.toString("utf8"));
+      const css = readFileSync(join(repoRoot, "src", "app", "globals.css"), "utf8");
+      const tk = tokens(css);
+      const norm = (v: string) => v.replace(/\{([a-z0-9-]+)\}/g, "var(--$1)").replace(/\s+/g, " ").trim().toLowerCase();
+
+      let compared = 0;
+      for (const group of ["color", "spacing", "radius", "shadow", "size", "border", "duration", "easing", "zIndex", "breakpoint"]) {
+        for (const t of spec[group].tokens as Array<{ name: string; value: string }>) {
+          const have = tk[`--${t.name}`];
+          compared++;
+          c.expect(have !== undefined, `v3 token --${t.name} is not declared in globals.css`);
+          if (have !== undefined) c.expect(norm(have) === norm(t.value), `--${t.name} is ${have}, the design system says ${t.value}`);
+        }
+      }
+      for (const g of spec.type.groups as Array<{ styles: Array<{ name: string; fontSize: string; lineHeight: string; letterSpacing?: string }> }>) {
+        for (const st of g.styles) {
+          compared++;
+          c.expect(tk[`--${st.name}`] === st.fontSize, `--${st.name} is ${tk[`--${st.name}`]}, the design system says ${st.fontSize}`);
+          c.expect(tk[`--${st.name}-lh`] === st.lineHeight, `--${st.name}-lh is ${tk[`--${st.name}-lh`]}, the design system says ${st.lineHeight}`);
+          if (st.letterSpacing) c.expect(tk[`--${st.name}-ls`] === st.letterSpacing, `--${st.name}-ls is ${tk[`--${st.name}-ls`]}, the design system says ${st.letterSpacing}`);
+        }
+      }
+
+      // the v2 names are aliases of the v3 token 08-migration.md maps them to,
+      // by reference, so they can never disagree with it
+      for (const [v2, v3] of V2_ALIASES) {
+        c.expect(tk[v2] === `var(${v3})`, `${v2} is ${tk[v2]}, not an alias of ${v3}`);
+      }
+      c.expect(/\*:focus-visible\s*\{[^}]*var\(--focus-ring\)/.test(css), "the focus ring is not drawn with --focus-ring");
+
+      // nothing points at a custom property nobody declares: a misspelt token
+      // is a silent fallback to the browser's default, not an error
+      const declared = new Set<string>();
+      const used: Array<[string, string]> = [];
+      const files = [
+        ...walk(join(repoRoot, "src", "app")).filter((f) => /\.(tsx|css)$/.test(f)),
+        ...walk(join(repoRoot, "src", "components")).filter((f) => /\.tsx$/.test(f)),
+      ];
+      for (const f of files) {
+        const text = readFileSync(f, "utf8");
+        for (const m of text.matchAll(/(--[a-zA-Z0-9-]+)\s*:/g)) declared.add(m[1]);
+        for (const m of text.matchAll(/["'](--[a-zA-Z0-9-]+)["']\s*:/g)) declared.add(m[1]);
+        for (const m of text.matchAll(/var\((--[a-zA-Z0-9-]+)\s*([,)])/g)) if (m[2] === ")") used.push([relative(repoRoot, f), m[1]]);
+      }
+      const missing = used.filter(([, n]) => !declared.has(n));
+      c.expect(missing.length === 0, "custom properties used but declared nowhere:\n  " + [...new Set(missing.map(([f, n]) => `${f}: ${n}`))].join("\n  "));
+
+      c.note(`${compared} v3 token(s) compared with c42fecb, ${V2_ALIASES.length} v2 alias(es), ${used.length} var() reference(s)`);
+      return c.verdict(
+        "token set v3 is applied: every token in the design system's tokens.json at its verified freeze c42fecb " +
+          "(vendored, sha256-pinned) is declared in src/app/globals.css with the same value, every type style's size, " +
+          "leading and tracking included; each v2 token name 08-migration.md keeps is an alias pointing at its v3 token; " +
+          "the focus ring is drawn with --focus-ring; and no stylesheet or component references a custom property nobody declares",
       );
     },
   },

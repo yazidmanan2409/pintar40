@@ -1,0 +1,687 @@
+{
+  "name": "PINTAR",
+  "version": 3,
+  "meta": {
+    "source": "github",
+    "repo": "yazidmanan2409/pintar40",
+    "ref": "main@e9ccfd6",
+    "paths": {
+      "tokens": [
+        "src/app/globals.css"
+      ],
+      "components": [
+        "src/app/experience.css",
+        "src/components/TombolKirim.tsx",
+        "src/components/TandaTautan.tsx",
+        "src/components/CangkangPengalaman.tsx",
+        "src/components/tempat.ts"
+      ],
+      "fonts": [
+        "public/fonts/plus-jakarta-sans-latin.woff2",
+        "public/fonts/ibm-plex-mono-500-latin.woff2"
+      ],
+      "assets": [
+        "public/brand/pintar-selalu-logo.png"
+      ],
+      "docs": [
+        "docs/coordination/design/PINTAR-DESIGN-SKILL-SPEC.md"
+      ]
+    },
+    "status": "APPROVED IN PRINCIPLE (5 Oct). Token set v3 evolves token set v2 (src/app/globals.css); every question it raised is ruled (questions 1 to 17). Nothing is applied to PINTAR until the authorised UI/UX stage begins. Every token's usage begins KEPT, CHANGED or NEW, and APPROVED where it departed from an earlier ruling and Yazid approved the departure.",
+    "synced": "2026-10-04"
+  },
+  "color": {
+    "themes": [
+      {
+        "id": "light",
+        "name": "Light"
+      }
+    ],
+    "tokens": [
+      {
+        "name": "surface-0",
+        "value": "#fbfaf7",
+        "usage": "KEPT. The canvas: page ground and the navigation's ground. Warm off-white."
+      },
+      {
+        "name": "surface-1",
+        "value": "#ffffff",
+        "usage": "KEPT. The product surface: tables, sheets, fields, dialogs, menus. Use it only where an object needs to stand apart from the canvas."
+      },
+      {
+        "name": "surface-2",
+        "value": "#f3f1ec",
+        "usage": "KEPT. Quiet wells, the hover ground of rows and quiet buttons, the segmented control's track, skeleton blocks. Never a resting card."
+      },
+      {
+        "name": "surface-3",
+        "value": "#ebe8e1",
+        "usage": "NEW. The pressed ground of neutral controls (secondary and quiet buttons, rows). Never a resting surface. ink-1 12.0:1, ink-2 5.8:1."
+      },
+      {
+        "name": "ink-1",
+        "value": "#1f2a33",
+        "usage": "KEPT. Primary text: titles, body, values. 14.0:1 on surface-0, 14.6:1 on surface-1, 12.9:1 on surface-2, 12.4:1 on pintar-primary-soft."
+      },
+      {
+        "name": "ink-2",
+        "value": "#4e5a64",
+        "usage": "KEPT. Secondary text: descriptions, help text, table headers, unselected tabs and nav items. 6.8:1 on surface-0, 7.1:1 on surface-1, 6.3:1 on surface-2, 6.0:1 on pintar-primary-soft."
+      },
+      {
+        "name": "ink-3",
+        "value": "#5f6a73",
+        "usage": "KEPT. Metadata, captions, eyebrows, placeholders. 5.3:1 on surface-0, 5.5:1 on surface-1, 4.9:1 on surface-2, 4.7:1 on pintar-primary-soft."
+      },
+      {
+        "name": "ink-disabled",
+        "value": "#7f8890",
+        "usage": "NEW. Text and icons of a disabled control: 3.2:1 on surface-2 and 3.6:1 on surface-1. WCAG exempts disabled controls, but PINTAR keeps them readable. A disabled control always has its reason written next to it."
+      },
+      {
+        "name": "line",
+        "value": "rgba(31, 42, 51, 0.12)",
+        "usage": "KEPT. The one hairline: dividers, table row rules, the navigation's edge, panel outlines. Decorative separation only; it never outlines a field."
+      },
+      {
+        "name": "line-strong",
+        "value": "rgba(31, 42, 51, 0.24)",
+        "usage": "KEPT. Secondary button outlines and the segmented control's selected segment. These have text labels that identify them, so the outline only groups them. 1.6:1."
+      },
+      {
+        "name": "line-control",
+        "value": "#808a91",
+        "usage": "NEW, APPROVED (question 3, 5 Oct). The outline of every field, checkbox, radio and switch: 3.5:1 on surface-1, 3.4:1 on surface-0, 3.1:1 on surface-2, meeting WCAG 1.4.11. Replaces line-strong on fields, which is 1.6:1 today."
+      },
+      {
+        "name": "pintar-primary",
+        "value": "#245f55",
+        "usage": "KEPT. PINTAR green. The one primary action, links, the focus ring, the selected tab's underline, a checked control. 7.4:1 on surface-1, 7.1:1 on surface-0. Approved 16 Sep 2026. It is also the colour of the PINTAR wordmark (canonical, 5 Oct), CMYK 84 43 65 29 in print."
+      },
+      {
+        "name": "pintar-primary-ink",
+        "value": "#ffffff",
+        "usage": "KEPT. Text and icons on pintar-primary: 7.4:1."
+      },
+      {
+        "name": "pintar-primary-soft",
+        "value": "#e3efec",
+        "usage": "KEPT. The selected ground: the current navigation item, a selected table row, the QR tile. pintar-primary text on it is 6.3:1. Never success."
+      },
+      {
+        "name": "pintar-primary-hover",
+        "value": "#1e5148",
+        "usage": "KEPT. The primary button on hover: white text 9.0:1."
+      },
+      {
+        "name": "pintar-primary-pressed",
+        "value": "#19443d",
+        "usage": "NEW. The primary button while pressed: white text 10.9:1."
+      },
+      {
+        "name": "focus-ring",
+        "value": "{pintar-primary}",
+        "usage": "KEPT (named: v2 writes the primary directly in :focus-visible). The keyboard focus outline, 2px solid with a 2px offset, on every focusable thing. 7.1:1 on surface-0, 6.5:1 on surface-2. It is never removed, and it never changes colour by component."
+      },
+      {
+        "name": "status-ok",
+        "value": "#2f6e4a",
+        "usage": "KEPT. Success: a real, confirmed change («✓ Tersimpan»), a verified result, something now available. Always with ✓ and a word, because it differs from PINTAR green by only 1.2:1 in lightness. Rare by design. 6.1:1 on surface-1, 5.3:1 on status-ok-soft."
+      },
+      {
+        "name": "status-ok-soft",
+        "value": "#e4f2ea",
+        "usage": "KEPT. The ground of a success result line or banner. Never a resting decoration."
+      },
+      {
+        "name": "status-attention",
+        "value": "#8a5f00",
+        "usage": "KEPT. Attention: something needs a look, and nothing is broken and nobody did anything wrong. 5.7:1 on surface-1, 4.9:1 on status-attention-soft."
+      },
+      {
+        "name": "status-attention-soft",
+        "value": "#f7eed8",
+        "usage": "KEPT. The ground of an attention banner or badge."
+      },
+      {
+        "name": "status-blocked",
+        "value": "#8c3b3b",
+        "usage": "KEPT. Error and destructive: an action failed or is refused, or a destructive confirmation. 7.5:1 on surface-1, 6.1:1 on status-blocked-soft, white text 7.5:1. Never on a person or a learner's result."
+      },
+      {
+        "name": "status-blocked-soft",
+        "value": "#f6e4e4",
+        "usage": "KEPT. The ground of an error result line or banner."
+      },
+      {
+        "name": "status-blocked-hover",
+        "value": "#763131",
+        "usage": "NEW. The destructive confirm button on hover: white text 9.3:1."
+      },
+      {
+        "name": "status-blocked-pressed",
+        "value": "#6b2c2c",
+        "usage": "NEW. The destructive confirm button while pressed: white text 10.4:1."
+      },
+      {
+        "name": "status-info",
+        "value": "#3d5a80",
+        "usage": "KEPT. Information: neutral news that changes nothing yet. 7.1:1 on surface-1, 6.0:1 on status-info-soft."
+      },
+      {
+        "name": "status-info-soft",
+        "value": "#e7edf5",
+        "usage": "KEPT. The ground of an information banner or badge."
+      },
+      {
+        "name": "scrim",
+        "value": "rgba(31, 42, 51, 0.32)",
+        "usage": "NEW, APPROVED (question 5, 5 Oct). Behind a dialog or a drawer only, to say the page beneath is waiting."
+      },
+      {
+        "name": "context",
+        "value": "{ink-1}",
+        "usage": "NEW role, APPROVED (question 12, 5 Oct). The accent, without a new hue: a mode that changes what the screen means (MODE PERAGAAN; a preview of what a learner sees) is one full-width band in deep ink, so it can never be read as a status or an action. Nowhere else."
+      },
+      {
+        "name": "context-ink",
+        "value": "{surface-0}",
+        "usage": "NEW role, APPROVED (question 12, 5 Oct). Text and its link on the context band. 14.0:1."
+      },
+      {
+        "name": "table-head",
+        "value": "{surface-2}",
+        "usage": "NEW role (Dr Gladys, accepted 5 Oct), no new colour. The header row of a table: its own quiet ground, under ink-2 labels at 600 (6.3:1). It is never a row colour."
+      },
+      {
+        "name": "table-row",
+        "value": "{surface-1}",
+        "usage": "NEW role (Dr Gladys, accepted 5 Oct), no new colour. Odd body rows: the table's own white."
+      },
+      {
+        "name": "table-row-alt",
+        "value": "{surface-0}",
+        "usage": "NEW role (Dr Gladys, accepted 5 Oct), no new colour. Even body rows: the canvas tint (option A, question 14, 5 Oct; final under D-135), 1.04:1 against white, enough to follow a long row and too quiet to read as meaning. Every text colour keeps its contrast on it (ink-3 5.3:1). A display check is an optional field check, not a condition. A+ (#F7F6F2) replaces it only if A demonstrably lacks visibility; it is not a token."
+      },
+      {
+        "name": "table-row-hover",
+        "value": "{surface-3}",
+        "usage": "NEW role (Dr Gladys, accepted 5 Oct), no new colour. A row that opens, under the pointer: one step darker than either stripe, so it can't be taken for one. ink-3 4.52:1, just above the floor: nothing quieter than ink-3 is allowed in a table."
+      },
+      {
+        "name": "table-row-selected",
+        "value": "{pintar-primary-soft}",
+        "usage": "NEW role (Dr Gladys, accepted 5 Oct), no new colour. A selected row, whatever its stripe, with a 3 px pintar-primary edge and its checked box: selection never rests on the tint alone."
+      }
+    ]
+  },
+  "type": {
+    "fonts": [
+      {
+        "family": "Plus Jakarta Sans",
+        "file": "fonts/plus-jakarta-sans-latin.woff2",
+        "weight": "200 800",
+        "style": "normal"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "file": "fonts/ibm-plex-mono-500-latin.woff2",
+        "weight": "500",
+        "style": "normal"
+      }
+    ],
+    "families": {
+      "sans": "\"Plus Jakarta Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+      "mono": "\"IBM Plex Mono\", ui-monospace, SFMono-Regular, Menlo, monospace",
+      "wordmark": "\"Helvetica Neue\", \"Neue Helvetica\", Helvetica, Arial, sans-serif"
+    },
+    "groups": [
+      {
+        "name": "Titles",
+        "family": "sans",
+        "styles": [
+          {
+            "name": "t-display",
+            "fontSize": "36px",
+            "lineHeight": "44px",
+            "fontWeight": 600,
+            "letterSpacing": "-0.02em",
+            "sample": "Sertifikat ini sah",
+            "usage": "KEPT (v2 hero 36). One per page at most: a verdict a stranger reads first, or a welcome."
+          },
+          {
+            "name": "t-page",
+            "fontSize": "30px",
+            "lineHeight": "36px",
+            "fontWeight": 600,
+            "letterSpacing": "-0.02em",
+            "sample": "Kelas 5A · Matematika",
+            "usage": "KEPT (v2 page 30). The page title, one per page. Becomes t-page-compact below 640px."
+          },
+          {
+            "name": "t-page-compact",
+            "fontSize": "26px",
+            "lineHeight": "32px",
+            "fontWeight": 600,
+            "letterSpacing": "-0.015em",
+            "sample": "Kelas 5A · Matematika",
+            "usage": "NEW (replaces literal 26, 27 and 32 px phone sizes). The page title below 640px. It replaces the literal 26, 27 and 32px phone headings."
+          },
+          {
+            "name": "t-section",
+            "fontSize": "22px",
+            "lineHeight": "28px",
+            "fontWeight": 600,
+            "letterSpacing": "-0.01em",
+            "sample": "Siapa yang belum mengerjakan",
+            "usage": "CHANGED, APPROVED (question 4, 5 Oct): v2 subhead 22 and section 24 become one 22. A section heading inside a page. Merges v2 subhead 22 and section 24."
+          },
+          {
+            "name": "t-subsection",
+            "fontSize": "18px",
+            "lineHeight": "26px",
+            "fontWeight": 600,
+            "letterSpacing": "-0.005em",
+            "sample": "Bab 3 · Pecahan senilai",
+            "usage": "CHANGED, APPROVED (question 4, 5 Oct): v2 card 17 and course 20 become one 18. A subsection, a panel or dialog title, a course line. Merges v2 card 17 and course 20."
+          }
+        ]
+      },
+      {
+        "name": "Text",
+        "family": "sans",
+        "styles": [
+          {
+            "name": "t-body",
+            "fontSize": "16px",
+            "lineHeight": "24px",
+            "fontWeight": 400,
+            "sample": "Murid membaca materi, lalu mengerjakan soal latihan.",
+            "usage": "KEPT. All interface text: sentences, field values, buttons at 44px."
+          },
+          {
+            "name": "t-prose",
+            "fontSize": "16px",
+            "lineHeight": "26px",
+            "fontWeight": 400,
+            "sample": "Pecahan senilai adalah pecahan yang nilainya sama walaupun pembilang dan penyebutnya berbeda.",
+            "usage": "KEPT (v2 prose leading 1.65). Sustained reading only (a lesson, an explanation), at 64ch at most."
+          },
+          {
+            "name": "t-small",
+            "fontSize": "14px",
+            "lineHeight": "20px",
+            "fontWeight": 400,
+            "sample": "Terakhir diperbarui 3 Okt 2026, 14.20 WIB",
+            "usage": "CHANGED, APPROVED (question 4, 5 Oct): v2 meta 14 kept, fine 13 folds into it. Secondary body, help text, metadata and captions, in ink-2 or ink-3. Merges v2 meta 14 and fine 13: PINTAR has no 13px text in v3."
+          },
+          {
+            "name": "t-label",
+            "fontSize": "14px",
+            "lineHeight": "20px",
+            "fontWeight": 600,
+            "sample": "Nama lengkap",
+            "usage": "KEPT (v2 meta 14 at 600). Field labels, table headers, button text at 36px and below, badge text. Labels are never in capitals."
+          },
+          {
+            "name": "t-eyebrow",
+            "fontSize": "12px",
+            "lineHeight": "16px",
+            "fontWeight": 600,
+            "letterSpacing": "0.06em",
+            "sample": "LANGKAH BERIKUTNYA",
+            "usage": "KEPT. The only uppercase style, and the only 12px text. One short line above a title, to name its context."
+          }
+        ]
+      },
+      {
+        "name": "Numbers and identifiers",
+        "family": "sans",
+        "styles": [
+          {
+            "name": "t-stat",
+            "fontSize": "30px",
+            "lineHeight": "36px",
+            "fontWeight": 600,
+            "letterSpacing": "-0.02em",
+            "sample": "24 dari 31",
+            "usage": "NEW name. Replaces the literal 32 px of today's .pin-metric figure (2 px smaller) and sits on the page title's size. One figure that is the point of its block, always followed by what it is out of and what it means. Tabular figures."
+          },
+          {
+            "name": "t-stat-small",
+            "fontSize": "22px",
+            "lineHeight": "28px",
+            "fontWeight": 600,
+            "letterSpacing": "-0.01em",
+            "sample": "24 dari 31",
+            "usage": "NEW name, kept size (22). A figure inside a row of figures, or in a table summary. Tabular figures."
+          },
+          {
+            "name": "t-identifier",
+            "family": "mono",
+            "fontSize": "14px",
+            "lineHeight": "20px",
+            "fontWeight": 500,
+            "letterSpacing": "0.02em",
+            "sample": "7Q2Z 0D9K",
+            "usage": "KEPT face and weight: v2 .pin-mono (IBM Plex Mono 500, tabular), now named and given a size. PINTAR IDs, codes and references. Never broken across lines. The certificate keeps its own sizes for its number (15) and verification link (12.5): the certificate is frozen."
+          }
+        ]
+      },
+      {
+        "name": "Reading (unchanged named exceptions)",
+        "family": "sans",
+        "styles": [
+          {
+            "name": "t-stem",
+            "fontSize": "21px",
+            "lineHeight": "32px",
+            "fontWeight": 400,
+            "sample": "Manakah pecahan yang senilai dengan 2/3?",
+            "usage": "KEPT. The question a learner is answering: the most-read text in PINTAR. Kept outside the ladder on purpose."
+          },
+          {
+            "name": "t-stem-compact",
+            "fontSize": "19px",
+            "lineHeight": "28px",
+            "fontWeight": 400,
+            "sample": "Manakah pecahan yang senilai dengan 2/3?",
+            "usage": "KEPT. The question stem below 640px."
+          }
+        ]
+      }
+    ]
+  },
+  "spacing": {
+    "note": "A 4px base, used in 8s. Unchanged from v2.",
+    "tokens": [
+      {
+        "name": "space-1",
+        "value": "4px",
+        "usage": "KEPT. An icon and its text; a label and its count."
+      },
+      {
+        "name": "space-2",
+        "value": "8px",
+        "usage": "KEPT. Inside a control group: buttons in a row, a badge and its text."
+      },
+      {
+        "name": "space-3",
+        "value": "12px",
+        "usage": "KEPT. A label or help text and its field; table cell padding (vertical)."
+      },
+      {
+        "name": "space-4",
+        "value": "16px",
+        "usage": "KEPT. Between fields in a form; table cell padding (horizontal); the small-screen gutter."
+      },
+      {
+        "name": "space-5",
+        "value": "24px",
+        "usage": "KEPT. Between groups of fields; panel padding; the desktop gutter."
+      },
+      {
+        "name": "space-6",
+        "value": "32px",
+        "usage": "KEPT. Between a page header and its first section; dialog padding."
+      },
+      {
+        "name": "space-7",
+        "value": "40px",
+        "usage": "KEPT. The page's top padding."
+      },
+      {
+        "name": "space-8",
+        "value": "48px",
+        "usage": "KEPT. Between sections of a page."
+      },
+      {
+        "name": "space-9",
+        "value": "64px",
+        "usage": "KEPT. The page's bottom padding; the space before a page's quiet footer."
+      }
+    ]
+  },
+  "radius": {
+    "note": "Four steps. v2 radius-1 (8) is radius-md, v2 radius-2 (12) is radius-lg, and v2's literal 6px goes.",
+    "tokens": [
+      {
+        "name": "radius-sm",
+        "value": "4px",
+        "usage": "NEW, APPROVED (question 7, 5 Oct): v2 has only 8, 12 and pill; replaces the literal 6 px. Checkboxes, skeleton blocks, a keyboard key. Tags moved to pill after the 4 Oct references."
+      },
+      {
+        "name": "radius-md",
+        "value": "8px",
+        "usage": "KEPT value, renamed from radius-1. Buttons, fields, menus, tooltips, the segmented control."
+      },
+      {
+        "name": "radius-lg",
+        "value": "12px",
+        "usage": "KEPT value, renamed from radius-2. Panels, table frames, dialogs, drawers' inner corners. The largest radius in PINTAR."
+      },
+      {
+        "name": "radius-pill",
+        "value": "999px",
+        "usage": "KEPT. Every small label (status badges, tags) and the switch track. Never a button or a field (question 13)."
+      }
+    ]
+  },
+  "shadow": {
+    "note": "APPROVED (question 5, 5 Oct). v2 has no shadow tokens by design: hairlines and grounds, not elevation. Only for genuine floating layers (menus, tooltips, a select's open list, dialogs, drawers); ordinary surfaces and cards stay flat. Small blur, no backdrop filter, cheap on school hardware.",
+    "tokens": [
+      {
+        "name": "shadow-overlay",
+        "value": "0 4px 12px rgba(31, 42, 51, 0.10), 0 0 0 1px rgba(31, 42, 51, 0.08)",
+        "usage": "NEW, APPROVED (question 5, 5 Oct): v2 has no shadow tokens by design. Menus, tooltips, a select's open list: small layers anchored to a control."
+      },
+      {
+        "name": "shadow-dialog",
+        "value": "0 8px 24px rgba(31, 42, 51, 0.14), 0 0 0 1px rgba(31, 42, 51, 0.06)",
+        "usage": "NEW, APPROVED (question 5, 5 Oct): v2 has no shadow tokens by design. Dialogs and drawers, over the scrim."
+      }
+    ]
+  },
+  "size": {
+    "note": "Control heights, icon sizes, the shell's measures and the content widths.",
+    "tokens": [
+      {
+        "name": "control-md",
+        "value": "44px",
+        "usage": "CHANGED: 40 → 44. The default height of every button, field and select, and every row action's hit area: PINTAR's 44 px target. It replaces v2's 40 px .pin-btn and .pin-input, the question navigator's 34 and the question bar's 32."
+      },
+      {
+        "name": "control-lg",
+        "value": "52px",
+        "usage": "KEPT value, renamed from control-h. Sign-in fields and actions, and the primary action on a learner's own surface."
+      },
+      {
+        "name": "control-xl",
+        "value": "60px",
+        "usage": "KEPT value, renamed from control-h-big. The class-card path, for young children typing a card number."
+      },
+      {
+        "name": "control-sm",
+        "value": "36px",
+        "usage": "NEW. Visual height of a compact button in a dense table toolbar. Its hit area is still 44px, through padding around it."
+      },
+      {
+        "name": "icon-sm",
+        "value": "16px",
+        "usage": "NEW. An icon inside a badge or beside 14px text."
+      },
+      {
+        "name": "icon-md",
+        "value": "20px",
+        "usage": "NEW. The default icon: buttons, navigation, fields."
+      },
+      {
+        "name": "icon-lg",
+        "value": "24px",
+        "usage": "NEW. An icon that stands alone in an empty state or an alert."
+      },
+      {
+        "name": "shell-nav",
+        "value": "248px",
+        "usage": "NEW, APPROVED (question 1, 5 Oct). The expanded left navigation, at 1280px and up."
+      },
+      {
+        "name": "shell-rail",
+        "value": "72px",
+        "usage": "NEW, APPROVED (question 1, 5 Oct). The collapsed staff navigation: icons, each with its name as a tooltip and an accessible name, from 1024 to 1279px or when the reader collapses it. Learners never get a rail."
+      },
+      {
+        "name": "shell-bar",
+        "value": "56px",
+        "usage": "KEPT value (the 56 px header), now named. The top bar below 1024px, and the public and focus shells at every width. v2's header height."
+      },
+      {
+        "name": "measure-auth",
+        "value": "400px",
+        "usage": "KEPT. The sign-in form on a wide screen."
+      },
+      {
+        "name": "measure-narrow",
+        "value": "560px",
+        "usage": "KEPT. One task: sign-in, verification, a short form."
+      },
+      {
+        "name": "measure-read",
+        "value": "760px",
+        "usage": "KEPT. Reading and forms: a lesson, a settings page."
+      },
+      {
+        "name": "measure-stage",
+        "value": "1120px",
+        "usage": "KEPT. Tables and overviews: the widest any content goes."
+      },
+      {
+        "name": "measure-prose",
+        "value": "64ch",
+        "usage": "KEPT (v2 measure). A paragraph's line length."
+      },
+      {
+        "name": "wordmark-nav",
+        "value": "18px",
+        "usage": "NEW (canonical wordmark, 5 Oct). The wordmark's cap height in the staff navigation, about 99 px wide. Clear space there is at least half of it, which the navigation's 16 px padding gives."
+      },
+      {
+        "name": "wordmark-bar",
+        "value": "16px",
+        "usage": "NEW (canonical wordmark, 5 Oct). The wordmark's cap height in a top bar (learner, focus, public, and staff under 1024 px), about 88 px wide."
+      },
+      {
+        "name": "wordmark-standalone",
+        "value": "24px",
+        "usage": "NEW (canonical wordmark, 5 Oct). The wordmark's cap height alone above a task (sign-in, the lock, an error page), about 132 px wide, with its full clear space."
+      },
+      {
+        "name": "wordmark-min",
+        "value": "12px",
+        "usage": "NEW (canonical wordmark, 5 Oct). The smallest the wordmark is ever drawn on screen: a 12 px cap height, about 66 px wide. In print, 15 mm wide. Below that, write PINTAR in the text face instead."
+      }
+    ]
+  },
+  "border": {
+    "tokens": [
+      {
+        "name": "border-hairline",
+        "value": "1px",
+        "usage": "KEPT value, now named. Every line in PINTAR: dividers, outlines, field borders."
+      },
+      {
+        "name": "border-focus",
+        "value": "2px",
+        "usage": "KEPT value, now named. The focus ring, with a 2px offset."
+      },
+      {
+        "name": "border-selected",
+        "value": "2px",
+        "usage": "KEPT value (the tab underline), now named. The selected tab's underline and a field's error edge (drawn inside, so nothing moves)."
+      }
+    ]
+  },
+  "duration": {
+    "note": "Approved (question 8, 5 Oct): hover and press 120 ms (duration-fast); an ordinary colour or opacity change 160 ms (duration-base); a floating layer entering 240 ms (duration-slow), travelling 8 px at most; a disclosure's chevron may turn. Under reduced motion every nonessential motion is removed.",
+    "tokens": [
+      {
+        "name": "duration-fast",
+        "value": "120ms",
+        "usage": "NEW, APPROVED (question 8, 5 Oct). Hover and press colour, a checkbox's tick, a layer leaving."
+      },
+      {
+        "name": "duration-base",
+        "value": "160ms",
+        "usage": "KEPT (v2 motion-fast). A state change: a tab, a segment, a result line appearing."
+      },
+      {
+        "name": "duration-slow",
+        "value": "240ms",
+        "usage": "NEW, APPROVED (question 8, 5 Oct). A floating layer entering: a dialog, a drawer, a menu; it travels 8 px at most. The longest motion in PINTAR."
+      },
+      {
+        "name": "duration-pulse",
+        "value": "900ms",
+        "usage": "KEPT value (the 0.9 s pin-denyut pulse), now named. One cycle of the working dot while something is in flight. Off under reduced motion, where the dot stays still."
+      }
+    ]
+  },
+  "easing": {
+    "tokens": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.2, 0, 0, 1)",
+        "usage": "NEW. Everything that enters or changes."
+      },
+      {
+        "name": "ease-exit",
+        "value": "cubic-bezier(0.3, 0, 1, 1)",
+        "usage": "NEW, APPROVED (question 8, 5 Oct). A layer leaving."
+      }
+    ]
+  },
+  "zIndex": {
+    "tokens": [
+      {
+        "name": "z-sticky",
+        "value": "10",
+        "usage": "NEW. A sticky table header or first column; the top bar."
+      },
+      {
+        "name": "z-nav",
+        "value": "20",
+        "usage": "NEW. The left navigation."
+      },
+      {
+        "name": "z-overlay",
+        "value": "100",
+        "usage": "NEW. Menus and tooltips."
+      },
+      {
+        "name": "z-modal",
+        "value": "200",
+        "usage": "NEW. The scrim, dialogs and drawers."
+      }
+    ]
+  },
+  "breakpoint": {
+    "note": "New in v3: two boundaries replace v2's 560 and 640px. Content decides inside a page (container queries); these decide the shell.",
+    "tokens": [
+      {
+        "name": "bp-medium",
+        "value": "640px",
+        "usage": "CHANGED: 640 was the gutter step; it now also ends the phone band (v2: 560). Small below, medium from here: the gutter goes from 16 to 24px and page titles from compact to full."
+      },
+      {
+        "name": "bp-large",
+        "value": "1024px",
+        "usage": "NEW, APPROVED (question 1, 5 Oct). The left navigation appears, as a rail; below, the top bar and the menu drawer."
+      },
+      {
+        "name": "bp-wide",
+        "value": "1280px",
+        "usage": "NEW, APPROVED (question 1, 5 Oct). The navigation expands to shell-nav by default."
+      }
+    ]
+  }
+}
