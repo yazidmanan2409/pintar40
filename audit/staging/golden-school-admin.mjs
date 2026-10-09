@@ -102,6 +102,8 @@ async function step(id, title, fn) {
   try { detail = await fn(rec); } catch (e) { rec.verdict = "FAIL"; detail = String(e.message ?? e).split("\n")[0].slice(0, 300); }
   results.push({ id, verdict: rec.verdict });
   log(`${rec.verdict.padEnd(5)} ${id}  ${title} :: ${detail}`);
+  // a failing check is also a GitHub annotation, readable through the API without the job log (D-140, 9 Oct)
+  if (rec.verdict === "FAIL") console.log(`::error title=${id}::${String(detail).replace(/%/g, "%25").replace(/\r?\n/g, " ").slice(0, 900)}`);
   return rec.verdict;
 }
 
