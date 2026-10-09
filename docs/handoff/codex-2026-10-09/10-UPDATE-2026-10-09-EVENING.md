@@ -15,7 +15,7 @@
 | Staging app | **8851988**, deployment `dpl_35dkbHYVBk2iJ63tNGcPhF4i8SzF`, `staging.pintarselalu.com` | facts run 37911713146 (GREEN) |
 | Staging database | **177 migrations**, equal to main's (no migration was added after 8851988; `git diff 8851988..HEAD -- supabase/` is empty) | facts run 37911713146 |
 | Production | **5b5b68d**, untouched in this period (no release since 23 Sep; D-004) | facts runs; no production workflow run |
-| Unmerged, CI-proven code | **Fix batch A** (44cebee, 42990bd, b117a72) and **batch B / RV-10** (001a357): branch only. See §2, §3 | |
+| Unmerged, CI-proven code | **Fix batch A** (44cebee, 42990bd, b117a72) and **batch B / RV-10** (001a357): branch only. Head **001a357**: CI 37930520507 18/18, journeys 37930524012 green, local suite 658/0. See §2, §3 | |
 | Dr Gladys's second walkthrough | **NOT READY.** The walkthrough-blocking defect RV-10 is fixed on the branch but **not on staging**; batch A is not on staging either. See §8 | |
 
 Superseded from 00 §1: main is no longer 8202139/dab5c12; staging is no longer dab5c12; the design lane is now being applied to `src` (D-138); the CI allowance line is replaced by §9.
@@ -85,8 +85,7 @@ Files changed by batches A and B (code): `src/lib/kata-halaman.ts` (new), `src/l
 ### 3.3 Batch B, RV-10 (001a357)
 
 - **Locally verified:** guard D140-STUDIO-01 PASS on 001a357; **FAIL on the old Studio pages, for both reasons** (shown by stashing the two page changes); F06-S04 PASS (363 static/app tests name their artefact); `tsc` 0; `eslint` 0 errors.
-- **CI 37930520507 and journeys 37930524012 on 001a357:** see §3.5 for the state at the stop.
-- **Fresh local chain on 001a357** (database reset, build, full suite, crawl, journeys): see §3.5.
+- **CI 37930520507: success 18/18; journeys 37930524012: success; fresh local suite 658/0; local crawl clean.** Details in §3.5.
 - **Not staging verified.** Nothing after 8851988 is on staging.
 
 ### 3.4 Golden School walks this period (all on staging)
@@ -99,9 +98,19 @@ Files changed by batches A and B (code): `src/lib/kata-halaman.ts` (new), `src/l
 
 These schools are synthetic and stay on staging. **Sekolah Demo PINTAR**, Dr Gladys's specimen, was not touched by any of these walks.
 
-### 3.5 State of the runs at the stop
+### 3.5 Final verification of the head 001a357 (batches A and B together), at the stop
 
-*Filled in at the stop; see §11 for the final line.*
+| Check | Run / place | Result |
+|---|---|---|
+| CI | **37930520507** on 001a357 | **success, 18/18 jobs** (selftest contract, every red case, both migration paths, lint, typecheck, build) |
+| Journeys | **37930524012** on 001a357 | **success**: job A (crawl, every role's screens) and job B (the journeys, BD11 in Chromium, Firefox and WebKit) both green. Job B fails on any FAIL step (S23q's failure made such runs `failure` before D-137), so success means no step failed. The exact PASS count was not read: the job log is not readable from this container; the run's «Journey B verdicts» summary has it |
+| Local suite, fresh | database reset, build, full suite on 001a357 (12:38 UTC) | **658 passed, 0 failed**, 1 justified local skip; D140-STUDIO-01 and D140-SAJI-01 PASS |
+| Local crawl, same build | 389 pages, 14 personas | 0 broken, 0 wider than 320 px, 0 over 3 s; one refusal (boot-siswa, RV-7). Studio home reads «Tidak ada yang menunggu tindakan Anda di Studio.»; the published package reads «Terbit · Paket ini sudah terbit. Guru dapat menyediakannya untuk kelas mereka.»; «siap diterbitkan» appears on no crawled page |
+| Local journeys | — | **stopped by the coordinator at the end of the work window**, before a result (supplementary; CI's journeys above are the evidence) |
+| Independent review | — | **not run on batches A and B.** The 8851988 review's findings were checked against the new screenshots by the coordinator only. A second-eye look at the staging screens is a READY condition (§8) |
+
+**RV-10 status:** implemented, locally verified, **CI verified** (37930520507, 37930524012). Not staging verified. Not human accepted.
+**Batch A status:** implemented, locally verified, CI verified (37927976617 on b117a72, and again within 001a357). Not staging verified.
 
 ## 4. Current environments (exact)
 
@@ -154,7 +163,7 @@ The full RV table and the readiness classification are in the pass log (`docs/re
 | RV-2 raw event code in the security record (BLOCKER) | — | fixed in 44cebee | CI verified; locally seen; not on staging |
 | RV-3, RV-4, RV-6, RV-12, RV-13, RV-17 | — | fixed in 44cebee | CI verified; locally seen; not on staging |
 | RV-5 file control | — | PARTIAL (styled; the words are the browser's) | CI verified; not on staging |
-| **RV-10 Studio contradictions (walkthrough-BLOCKING)** | — | fixed in 001a357, guard red on the old pages | locally verified; CI per §3.5; **not on staging** |
+| **RV-10 Studio contradictions (walkthrough-BLOCKING)** | — | fixed in 001a357, guard red on the old pages | **CI verified** (37930520507, 37930524012); locally verified; **not on staging** |
 | RV-7, RV-8, RV-9, RV-11, RV-14, RV-15, RV-16, RV-18 … RV-24 | — | **OPEN**, NON-BLOCKING for the walkthrough, each with its reason in the pass log | — |
 | OP-1, OP-2 | — | OPEN (deviations) | |
 | OP-3 / AP-1 wordmark | — | BLOCKED (font licence, CR-56) | |
@@ -216,12 +225,12 @@ The full RV table and the readiness classification are in the pass log (`docs/re
   - cancelled journeys 37927979286: 40;
   - cancelled CI 37921432883: 36;
   - the Golden School walks: about 99 in all.
-- **In flight at the stop:** CI 37930520507 (about 70) and journeys 37930524012 (about 50). The total after them is about 625, leaving **about 375**.
+- **Final, read at the stop (about 13:05 UTC):** **616 used** (22 runs; 544 compute minutes), including CI 37930520507 (70) and journeys 37930524012 (44). **About 384 remain.**
 - **Tomorrow's sequence** (§10) needs about 60–70: the main E1 check, facts, a four-step Golden School walk and a possible facts re-read. A further full CI and journeys cycle (about 125) would fit once more.
 
 ## 10. Next steps: the shortest safe sequence (not started tonight)
 
-1. Read §3.5 / §11. If CI 37930520507 or journeys 37930524012 is red, root-cause it before anything else: no re-run without a cause, and no weakened test.
+1. The verified head is **001a357** (CI 37930520507, journeys 37930524012, both green). The branch commits after it are documents only (`docs/handoff/**`, `docs/reports/**`). **Fast-forward main to 001a357 itself, not the branch tip:** `docs/handoff/**` is not on CI's skipped paths (00 §4), so a main push including this handoff would start a full CI run instead of E1's ALREADY PROVEN.
 2. The owner decides on the guide commit 0f55f1b, which is on the path from main to the head. If it must not go, the code commits need a new main-bound line and a fresh CI.
 3. The owner approves **one** fast-forward of main to the verified head. Verify the fast-forward from the actual main HEAD first.
 4. Main's CI should cancel itself as ALREADY PROVEN (E1). Staging deploys from main.
@@ -250,4 +259,5 @@ The full RV table and the readiness classification are in the pass log (`docs/re
 - **Not readable from this container:**
   - the staging site itself (network policy);
   - GitHub job-log blobs through `gh` (read through the GitHub MCP tool or the check-run annotations instead).
-- **Started and not finished:** none in code. The final runs at the stop are listed in §3.5.
+- **Started and not finished:** none in code. The local journey replica on 001a357 was stopped before a result (§3.5). Nothing is partly applied on staging or production. The local `supabase/config.toml` is clean.
+- **The handoff commit:** the commit that adds this line on `claude/awesome-rubin-bqxp6p` (see `git log -- docs/handoff/codex-2026-10-09/10-UPDATE-2026-10-09-EVENING.md`).
