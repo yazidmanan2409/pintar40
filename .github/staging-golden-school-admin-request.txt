@@ -10,3 +10,5 @@
 # run 2: after run 37463105684 (A3: the school code «G00» derived from the slug was already Sekolah Demo PINTAR's; the walk now takes a free code)
 # 8 Oct, L3 (D-132): Sekolah Uji Penutupan L3 after run 37709146876 (GS-02/03 green); staging at 177, main d66485e
 slug: sekolah-uji-l3
+# 9 Oct, the baseline before the application pass (D-138): Sekolah Uji Baseline 894 after run 37879198761 (GS-02/03 green); staging at 894ae01
+slug: sekolah-uji-baseline-894
