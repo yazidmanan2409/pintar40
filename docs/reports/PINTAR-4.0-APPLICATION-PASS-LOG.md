@@ -11,14 +11,14 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
 | CI on 894ae01 | 37876327609 | 18/18 |
 | Journeys on 894ae01 | 37876329363 | crawl GREEN; 76 PASS, 0 FAIL |
 | Staging = main | facts 37878894218 | 894ae01, 177 migrations |
-| Golden School walk on 894ae01, school `sekolah-uji-baseline-894` | GS-02/03 37879198761; GS-04..11 37879701505; student step 37881020645; reports step 37884383500 (running) | first three green |
+| Golden School walk on 894ae01, school `sekolah-uji-baseline-894` | GS-02/03 37879198761; GS-04..11 37879701505; student step 37881020645; reports step 37884383500 | all four green: the baseline is clean |
 
 ## Steps
 
 | # | Step | State | Screens | Evidence |
 |---|---|---|---|---|
 | 1 | Tokens (v3 in `globals.css`, v2 names as aliases) | built and verified locally (643eb9e); not on staging | every page: the v2 type sizes now resolve to v3 (13 → 14, 17 and 20 → 18, 24 → 22), except the frozen certificate, which keeps every size (fixed in ce1ba94 after review) | See «Step 1» below |
-| 2 | Primitives (Button, fields, segmented control, tabs, badges, result line, alert) + target-size guard | built (26a288b; fixes 3ded8bd, ce1ba94, 95b1209); review AMBER, findings addressed; re-verification on 95b1209 running; not on staging | every page with a button, field, select, segmented control, view tabs, the language switch, the question navigator, a result line | See «Step 2» below |
+| 2 | Primitives (Button, fields, segmented control, tabs, badges, result line, alert) + target-size guard | built (26a288b; fixes 3ded8bd, ce1ba94, 95b1209); review AMBER, findings addressed; verified locally on 95b1209; not on staging | every page with a button, field, select, segmented control, view tabs, the language switch, the question navigator, a result line | See «Step 2» below |
 | 3 | Shells (staff left navigation, learner top bar) | not started | | |
 | 4a | Surfaces: learner (Belajar, lesson, assessments, result, certificates) | not started | | |
 | 4b | Surfaces: teacher (Mengajar) | not started | | |
@@ -89,7 +89,12 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
     - TARGET-01 does not see the header tabs (step 3), inline or Tailwind heights (steps 4d–4f), or selects outside the named rules. Its manifest text now says so.
     - FEEDBACK-01 renders on the server, so it does not render the busy state, the wait line or the return to the verb. The 3-second timer is checked in the source only.
     - Not applied in step 2, and now not claimed: Alert (`.pin-banner`, `.pin-perhatian`), Badge shape, the written reason beside a disabled button, 44 px Radio/Checkbox rows, the select chevron. These go to step 4 with their screens.
-  - Evidence correction: the suite (656) and the journeys (75 PASS) ran on 26a288b. Only the crawl ran on 3ded8bd. A full re-run on 95b1209 is in progress.
+  - Evidence correction: the suite (656) and the journeys (75 PASS) ran on 26a288b. Only the crawl ran on 3ded8bd.
+- **Re-verification on 95b1209** (run at d732855, which adds only the log):
+  - suite 656 passed, 0 failed;
+  - crawl GREEN: 389 pages, 0 broken, 0 wider than 320 px;
+  - journeys 75 PASS, BD11 BLOCKED locally (no Firefox or WebKit).
+- **320 px screenshots:** all 389 pages captured on 3ded8bd and kept (AP-3). One observation goes to step 3: at 320 px the staff header stacks into five rows (place, language switch, «Laporkan masalah», identity, tabs). That header is what the shell step replaces.
 - **Not yet:** CI, staging.
 
 ## Unresolved defects
