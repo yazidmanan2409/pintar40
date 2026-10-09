@@ -13,6 +13,16 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
 | Staging = main | facts 37878894218 | 894ae01, 177 migrations |
 | Golden School walk on 894ae01, school `sekolah-uji-baseline-894` | GS-02/03 37879198761; GS-04..11 37879701505; student step 37881020645; reports step 37884383500 | all four green: the baseline is clean |
 
+## CI allowance (D-139)
+
+1,000 additional minutes, counted from 2026-10-09T06:00:33Z with the ledger estimate (`audit/ci/actions-spend.mjs`). The coordinator stops and reports before a run would exceed it.
+
+| Gate | Contents | Runs | Estimate | Running total |
+|---|---|---|---|---|
+| A | steps 1–3 | | | 0 |
+
+**Evidence classes used below:** local PASS (this container), CI PASS (GitHub Actions on the commit), staging PASS (the running staging application), human acceptance (a person, recorded by name). They are never merged.
+
 ## Steps
 
 | # | Step | State | Screens | Evidence |
