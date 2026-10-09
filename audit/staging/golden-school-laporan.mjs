@@ -114,7 +114,7 @@ async function shot(page, name) {
 async function step(id, title, fn) {
   const rec = { verdict: "PASS" };
   let detail;
-  try { detail = await fn(rec); } catch (e) { rec.verdict = "FAIL"; detail = String(e.message ?? e).split("\n")[0].slice(0, 300); }
+  try { detail = await fn(rec); } catch (e) { rec.verdict = "FAIL"; detail = String(e.message ?? e).split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 3).join(" | ").slice(0, 500); }
   results.push({ id, verdict: rec.verdict });
   log(`${rec.verdict.padEnd(7)} ${id}  ${title} :: ${detail}`);
   // a failing check is also a GitHub annotation, readable through the API without the job log (D-140, 9 Oct)
@@ -122,7 +122,12 @@ async function step(id, title, fn) {
   return rec.verdict;
 }
 async function klikTautan(page, href) {
-  const a = page.locator(`a[href="${href}"]`).first();
+  // D-138 step 3 (AppShell): under 1024 px the staff places and «Akun saya» sit in the menu; a person opens it first
+  if (!(await page.locator(`a[href="${href}"]:visible`).count())) {
+    const menu = page.locator('label[for="pin-laci"]');
+    if (await menu.isVisible().catch(() => false)) await menu.click();
+  }
+  const a = page.locator(`a[href="${href}"]:visible`).first();
   await a.waitFor({ state: "visible", timeout: SLOW });
   await a.click();
   await page.waitForURL((u) => u.pathname + u.search === href || u.pathname === href, { timeout: SLOW });
@@ -206,8 +211,9 @@ function harus(figs, label, { nilai, sampel, tingkat, kurang, pita, belum } = {}
   if (kurang && !/Belum cukup data|Belum ada bukti/.test(f.teks)) salah.push(`expected withheld below its minimum, got «${f.teks.slice(0, 120)}»`);
   // CR-81 (D-123(3)): the class's population is said apart from the bands. Since the copy owed (11-validation §4,
   // D-138 step 5) the line reads «N murid di kelas ini · N sudah mengerjakan Uji Penguasaan · N belum mengerjakan»
-  if (belum !== undefined && !new RegExp(`(^|\\D)${belum} belum mengerjakan\\b`).test(f.teks))
-    salah.push(`the population does not say ${belum} have not sat the Uji Penguasaan («${f.teks.slice(0, 200)}»)`);
+  // (no \b after it: the text is read with textContent, which joins the line to the next element's words)
+  if (belum !== undefined && !new RegExp(`(^|\\D)${belum} belum mengerjakan`).test(f.teks))
+    salah.push(`the population does not say ${belum} have not sat the Uji Penguasaan («…${f.teks.slice(-260)}»)`);
   if (pita) {
     // D-095: the bands drawn in band order, with the line that they are PINTAR's fixed bands, not the school's threshold
     const urut = f.baris.map(([k]) => k).filter((k) => Object.values(TIER).includes(k));

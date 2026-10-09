@@ -56,7 +56,7 @@ async function shot(page, name) {
 async function step(id, title, fn) {
   const rec = { verdict: "PASS" };
   let detail;
-  try { detail = await fn(rec); } catch (e) { rec.verdict = "FAIL"; detail = String(e.message ?? e).split("\n")[0].slice(0, 300); }
+  try { detail = await fn(rec); } catch (e) { rec.verdict = "FAIL"; detail = String(e.message ?? e).split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 3).join(" | ").slice(0, 500); }
   results.push({ id, verdict: rec.verdict });
   log(`${rec.verdict.padEnd(5)} ${id}  ${title} :: ${detail}`);
   // a failing check is also a GitHub annotation, readable through the API without the job log (D-140, 9 Oct)
