@@ -109,6 +109,49 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
 - **320 px screenshots:** all 389 pages captured on 3ded8bd and kept (AP-3). One observation goes to step 3: at 320 px the staff header stacks into five rows (place, language switch, «Laporkan masalah», identity, tabs). That header is what the shell step replaces.
 - **Not yet:** CI, staging.
 
+## Independent review of the application on 8851988 (9 Oct, after staging deploy)
+
+**What was reviewed:** an independent read-only reviewer looked at the full screenshot set of the application code staging runs. The set covers 389 pages for 14 personas at 1280 and 320 px, from the crawl of f5ce56f, whose `src` is identical to 8851988. It was checked against the frozen design (08-migration.md) and D-140(c).
+
+**Limits.** The review is of screenshots of identical code, not of the live staging site, which this container cannot reach (organisation network policy); the staging behaviour evidence is the Golden School walk. Not seen:
+- an assessment in progress, a result page, an issued certificate, the Pendataan upload preview, Antrean Tinjauan with items, Integritas with items;
+- the 1024–1279 px range;
+- the Mengajar and Belajar landings beneath the first-run tour.
+
+**Confirmed by the reviewer:** AP-5 fixed; AP-6 fixed; DG-11 (Jejak audit in words) fixed; AP-1/OP-3 still open; OP-9 as described.
+
+**All findings are OPEN.** None is fixed in 8851988.
+
+| # | Severity | Finding (as seen) | Where |
+|---|---|---|---|
+| RV-1 | BLOCKER (D-140(c)) | «Laporkan masalah» prints the raw page path with ids: «Halaman: /pimpinan/0ad39ff1-…» (also /mengajar/…/murid/<uuid>, /studio/paket/<uuid>). Confirmed in code: `src/app/lapor/page.tsx:52` | every persona's lapor page |
+| RV-2 | BLOCKER (D-140(c)), Admin platform only | Keamanan akun's «Catatan keamanan terbaru» shows a raw event code «identity.device_declared», an unlabelled id, and a date with no year or WIB | sysadmin /konfigurasi/keamanan |
+| RV-3 | MAJOR | The staff navigation reorders itself, putting the current place first; on Konfigurasi sub-pages (email uji, keamanan, akun) it shrinks and marks nothing current | sysadmin, alpha-admin |
+| RV-4 | MAJOR | The phone top bar names the wrong place: «Pendataan» on Konfigurasi sub-pages and Akun saya (sysadmin has no Pendataan) | 320 px, sysadmin, alpha-admin |
+| RV-5 | MAJOR | File inputs are browser defaults in English: «Choose File / No file chosen» | Studio unggah; every lapor page |
+| RV-6 | MAJOR | Templat laporan: 16 unlabelled «—» selects; «Kenaikan» and «Peserta» twice; developer label «Kunci judul»; defaults disagree | Konfigurasi, school admin |
+| RV-7 | MAJOR | Dead end: «Mulai Pemetaan Awal» offered where none exists, leading to a refusal page without the shell | boot-siswa (CI/dev bootstrap school) |
+| RV-8 | MAJOR | Lesson audio shows «0:00 / 0:00» (the .mp3 is 404) with no message; may be a missing seed asset | siklus-siswa lesson; Studio pratinjau |
+| RV-9 | MAJOR | Class summary repeats «Peserta» and «Kenaikan» with different thresholds; «(0/5)»/«(0/10)» unexplained; metric cards touch | alpha-dean Pimpinan |
+| RV-10 | MAJOR | Contradiction: «Siap — Paket ini siap diterbitkan» above «Terbit sejak 9 Oktober 2026»; Studio home «Belum ada paket di sini» above a listed package | siklus-admin Studio |
+| RV-11 | MAJOR | Report pages (Ringkasan Kelas / Sekolah) have no app shell and do not name the class, school or period; at 320 «Masuk se…» is cut | alpha-dean |
+| RV-12 | MAJOR | At 320: the Jejak audit table is clipped at the right with no scroll cue; the «Alasan» input in Peran & akses runs past its panel | Konfigurasi |
+| RV-13 | MAJOR (design) | Studio's sub-navigation is plain 14 px links, not Tabs (no current mark, under 44 px); Studio's column is wider and left-set | every Studio page |
+| RV-14 | MAJOR (D-140) | Aturan Asesmen: numeric fields with no hint; limits in seconds; native 13 px checkboxes | Studio definisi |
+| RV-15 | MAJOR | Technical language for the platform admin: «Lingkungan development», «20 pemeriksaan skema…», the seed name «PINTAR Bootstrap (OFFICIAL evidence — development and CI only)» (relates to OP-5) | sysadmin |
+| RV-16 | MAJOR (design) | Date fields are native «mm/dd/yyyy» with no echo in words; ISO dates in text; no WIB on audit times | Konfigurasi |
+| RV-17 | MAJOR (design) | Konfigurasi uses only secondary buttons: «Hentikan PINTAR sekarang» is not destructive; the main actions are not primary | Konfigurasi |
+| RV-18 | MINOR | Perpindahan murid still labelled «Kode sekolah tujuan…» (relates to OP-4) | Konfigurasi |
+| RV-19 | MINOR | Tour: focus box on its heading looks like a field; ring hugs its target; at 320 the sheet covers the target | Mengajar, Belajar |
+| RV-20 | MINOR | «Berjalan» / «Tersedia» badges missing at 320 | Mengajar class |
+| RV-21 | MINOR | Layout: touching cards; jammed hint text; doubled «Bagian bacaan Bagian 1»; native ▶ markers in Studio | various |
+| RV-22 | MINOR | Pendataan field and button widths differ, hint far from its field, uppercase label; Aktivasi prints the request host (check on staging) | Pendataan, Aktivasi |
+| RV-23 | MINOR | At 320 the Urutan select is cut; a competency code wraps | Studio |
+| RV-24 | MINOR | Empty «Lingkungan —» tile; «PINTAR» eyebrow; index «Inteligensi & Laporan» leads to «Templat laporan»; an all-«—» «Versi» column; unstriped rows | Konfigurasi |
+
+**Consequence for the application pass.** The surfaces (steps 4a–4f) stay PARTIAL, not done. Studio and Konfigurasi are the least migrated.
+
+
 ## Deviations and open items (D-140(a): what cannot be closed stays open, with its reason)
 
 | # | Item | State | Reason and evidence |
