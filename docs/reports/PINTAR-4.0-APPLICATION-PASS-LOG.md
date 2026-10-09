@@ -18,7 +18,7 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
 | # | Step | State | Screens | Evidence |
 |---|---|---|---|---|
 | 1 | Tokens (v3 in `globals.css`, v2 names as aliases) | built and verified locally (643eb9e); not on staging | every page: the v2 type sizes now resolve to v3 (13 → 14, 17 and 20 → 18, 24 → 22) | See «Step 1» below |
-| 2 | Primitives (Button, fields, segmented control, tabs, badges, result line, alert) + target-size guard | built (26a288b); local suite, crawl and journeys running; not on staging | every page with a button, field, select, segmented control, view tabs, the language switch, the question navigator, a result line | See «Step 2» below |
+| 2 | Primitives (Button, fields, segmented control, tabs, badges, result line, alert) + target-size guard | built (26a288b, fix 3ded8bd) and verified locally; not on staging | every page with a button, field, select, segmented control, view tabs, the language switch, the question navigator, a result line | See «Step 2» below |
 | 3 | Shells (staff left navigation, learner top bar) | not started | | |
 | 4a | Surfaces: learner (Belajar, lesson, assessments, result, certificates) | not started | | |
 | 4b | Surfaces: teacher (Mengajar) | not started | | |
@@ -42,7 +42,7 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
   - a faint `line-control`: TOKENS-01 and CONTRAST-01 red;
   - a misspelt `var(--measure-raed)`: TOKENS-01 red.
 - **Local suite:** 654 passed, 0 failed, 1 justified local skip.
-- **Crawl (job A replica):** 389 pages over 14 personas; 0 broken; 0 wider than 320 px; 0 over 3 s. This matches the baseline crawl (389, 0, 0). Screenshots at 1280 and 320 px were kept for every page.
+- **Crawl (job A replica):** 389 pages over 14 personas; 0 broken; 0 wider than 320 px; 0 over 3 s. This matches the baseline crawl (389, 0, 0). The crawl keeps a 1280 px screenshot of every page. It measures every page at 320 px, but saves a 320 px screenshot only when a page fails, so there is no 320 px picture set yet (see AP-3).
 - **Journeys:** run together with step 2 (below), not separately.
 - **Not yet:** CI, staging, independent review.
 
@@ -67,13 +67,20 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
   - TARGET-01 on today's stylesheet: red, naming the 40 px button and field, the 34 px navigator, the 32 px question-bar button, and no 44 px floor on the language switch, selects, segments, tabs or close controls;
   - TARGET-01 with a planted `calc()`: red;
   - FEEDBACK-01 on today's components: red on five counts.
-- **Local suite, crawl, journeys:** running.
+- **Local suite (26a288b):** 656 passed, 0 failed, 1 justified local skip.
+- **Journeys (job B replica, 26a288b, steps 1 and 2 together):** 75 PASS. BD11 is BLOCKED locally because Firefox and WebKit are not in the container; it runs only in CI. The baseline CI run had 76 PASS with BD11 passing.
+- **Crawl (job A replica):**
+  - On 26a288b: **RED**. Three lesson pages were 339 px wide at 320 px (AP-2).
+  - On 3ded8bd (the fix): GREEN. 389 pages, 0 broken, 0 wider than 320 px, 0 over 3 s.
+- **Seen (1280 px, lesson page, before and after):** buttons at 44 px with 16 px labels; the disabled «Halaman sebelumnya» on surface-2 instead of faded; the language switch as a segmented control; the speed select at 44 px with the stronger outline; the section heading at t-subsection 18.
 - **Not yet:** CI, staging, independent review.
 
 ## Unresolved defects
 
 | # | Defect | Found | State |
 |---|---|---|---|
+| AP-2 | Step 2: «Tampilkan langkah berikutnya» (t-body 16, nowrap) was 307 px in a 288 px column, so 3 lesson pages scrolled sideways at 320 px | 9 Oct, local crawl on 26a288b | Fixed in 3ded8bd (any `.pin-btn` may fold below 560 px; the 44 px floor stays); crawl GREEN on the fix |
+| AP-3 | No 320 px screenshot set: the crawl saves one only when a page fails | 9 Oct | Open: add a 320 px capture of every page before step 3 |
 | AP-1 | Step 3 (shells): the canonical wordmark's outlined master does not exist yet; it waits on the font licence check (CR-56, outside engineering). | 9 Oct | Step 3 keeps today's logo until the master arrives, and records the gap |
 
 ## Developer-owned usability items (D-138(c))
