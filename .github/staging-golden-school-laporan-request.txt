@@ -12,4 +12,5 @@
 slug: sekolah-uji-l3
 # 9 Oct, the baseline before the application pass (D-138): Sekolah Uji Baseline 894 after student run 37881020645 (green); staging at 894ae01
 # 9 Oct, D-140, before Dr Gladys's walkthrough: Sekolah Uji Daisy 885 (student step run 37913241956 green); staging at 177, main 8851988
-slug: sekolah-uji-daisy-885
+# 9 Oct, D-140: diagnostic re-walk on 8851988 with the walk fixes (812efbd); staging at 177, main 8851988 (after run 37918037282)
+slug: sekolah-uji-daisy-885b
