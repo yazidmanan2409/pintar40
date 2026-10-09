@@ -9,14 +9,14 @@ tim. Bila sesuatu membingungkan, itu temuan yang berharga, bukan kesalahan Anda.
 **Peran Anda:** Admin sekolah di «Sekolah Demo PINTAR». Sekolah ini sudah dipakai: sudah ada kelas, staf, murid, dan satu
 bab Matematika Kelas 5 yang sudah dikerjakan murid-muridnya.
 
-**Akun Anda:** Yazid sudah mendaftarkan alamat surel Anda. Surel dari PINTAR untuk uji ini dikirim atas nama «PINTAR
+**Akun Anda:** Yazid sudah mendaftarkan alamat email Anda. Email dari PINTAR untuk uji ini dikirim atas nama «PINTAR
 Staging»; bila tidak muncul, periksa juga folder Spam atau Promosi.
 
 ## Yang dicoba
 
 Urutan ini hanya saran.
 
-1. Masuk ke PINTAR untuk pertama kali dengan alamat surel Anda.
+1. Masuk ke PINTAR untuk pertama kali dengan alamat email Anda.
 2. Kenali sekolah Anda: bagaimana sekolah ini tersusun, siapa saja orangnya, dan apa peran mereka.
 3. Cari tahu bagaimana hasil belajar Kelas 5A pada bab Matematika itu.
 4. Lihat bab itu: apa isinya, dan bagaimana bab itu sampai ke murid.
