@@ -180,7 +180,7 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
 
 | # | Classification | Evidence and rationale |
 |---|---|---|
-| RV-10 | **BLOCKING → fixed in 001a357 (batch B, approved «Fix RV-10 only»); CI verified (37930520507 18/18; journeys 37930524012 green); local suite 658/0; guard D140-STUDIO-01 red on the old pages; NOT on staging** | Journey 4 («Lihat bab itu … bagaimana bab itu sampai ke murid»). Studio's home says «Belum ada paket di sini.» above a listed package (`src/app/studio/page.tsx:32`: the empty-task line reuses the empty-package sentence); a published package's page reads «Siap · Paket ini siap diterbitkan» above «Terbit sejak 9 Oktober 2026» (`src/app/studio/paket/[course]/page.tsx:227-230`). Seen in the crawl of the fresh build (siklus-admin Studio and Pecahan). She would be told a published chapter is not yet published. Not fixed in batch A. |
+| RV-10 | **BLOCKING → fixed in 001a357 (batch B, approved «Fix RV-10 only»); CI verified (37930520507 18/18; journeys 37930524012 green); local suite 658/0; guard D140-STUDIO-01 red on the old pages; on staging 9 Oct (main 001a357, facts 37964868797, Golden School walk 4/4 green, school sekolah-uji-daisy-001a); the live screens are still to be looked at by the owner** | Journey 4 («Lihat bab itu … bagaimana bab itu sampai ke murid»). Studio's home says «Belum ada paket di sini.» above a listed package (`src/app/studio/page.tsx:32`: the empty-task line reuses the empty-package sentence); a published package's page reads «Siap · Paket ini siap diterbitkan» above «Terbit sejak 9 Oktober 2026» (`src/app/studio/paket/[course]/page.tsx:227-230`). Seen in the crawl of the fresh build (siklus-admin Studio and Pecahan). She would be told a published chapter is not yet published. Not fixed in batch A. |
 | RV-11 | NON-BLOCKING, OPEN | Journey 3. Ringkasan Kelas / Sekolah have no app shell and do not name the class, school or period (`src/app/edukator/ringkasan/page.tsx`). She reaches it from a link naming Kelas 5A, and «Kembali» returns; nothing on it is engineering language. A real gap for a report that may be printed. |
 | RV-16 | NON-BLOCKING, OPEN | Journey 2. Konfigurasi prints a period as «2026-07-01 – 2027-06-30»; the date inputs are native (their format follows the browser). Legible, not an id or enum; a design gap (Daisy: dates in words). |
 | RV-9 | NON-BLOCKING for her role, OPEN | Seen on Pimpinan (dean). She is Admin sekolah and reads reports under Konfigurasi (ruled behaviour, observer sheet). «(0/5)» appears only when evidence is short; Kelas 5A has five assessed. Still a defect for deans and heads of department. |
@@ -228,3 +228,11 @@ This log is the evidence record D-138(d) asks for. A step is **done** only when 
 ## Developer-owned usability items (D-138(c))
 
 Carried from the L4 list (raw codes, JSON, unclear selectors, missing labels) and resolved in the step that touches their screen: Aturan Asesmen (shuffle choices, limits line, placeholder-only inputs), Jejak audit (action codes, tables), report templates (keys as titles), transfers (typed codes, CR-41), the integrity review's next action.
+
+## Landed and frozen (9 Oct, about 17:45 UTC)
+
+- main 001a357 (fast-forward from 8851988, owner-approved); main CI 37964671673 ALREADY PROVEN by 37930520507.
+- Staging 001a357, `dpl_EcwRYkkSG1hGqGjocvmVC6cKAhEg`, 177 migrations (facts 37964868797 GREEN).
+- Golden School walk 4/4 green (sekolah-uji-daisy-001a: 37965014304, 37965100845, 37965480454, 37966534672, 37967468474).
+- Batches A and B are **staging verified by deployment and walk**. The RV-10 screens on live staging are awaiting the owner's look. **No finding is human accepted.**
+- Staging is FROZEN for Dr Gladys's walkthrough (D-140(d); `docs/coordination/walkthrough-gladys/EVIDENCE.md` §0).

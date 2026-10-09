@@ -1,12 +1,38 @@
 # Dr Gladys's walkthrough · evidence and findings (D-117)
 
-**State: POSTPONED (D-118, 6 Oct).** The freeze below did not begin. This record and its instruments are kept, and are re-pinned to the specimen Dr Gladys eventually walks; §1 and §2 describe the 6 Oct specimen. Earlier state: FROZEN, waiting for the walkthrough. Nothing is remediated from this record until the owner and the Second
+**State on 9 Oct: READY and FROZEN on staging 001a357 (§0).** Earlier state: POSTPONED (D-118, 6 Oct). The 6 Oct freeze below did not begin. This record and its instruments are kept, and are re-pinned to the specimen Dr Gladys eventually walks; §1 and §2 describe the 6 Oct specimen. Earlier state: FROZEN, waiting for the walkthrough. Nothing is remediated from this record until the owner and the Second
 Eye have reviewed the findings report (§6) and approved each finding.
 
 This walkthrough does not change #150, Production Ready, the legal and data-protection gate, the capacity gate, or the use
 of real external student data (D-117(m)).
 
-## 1. The specimen
+## 0. Re-pinned 9 Oct 2026 (D-140): the specimen she will walk
+
+**State: READY, staging FROZEN from 9 Oct 2026 about 17:45 UTC** (D-140(d)). The freeze follows owner approval for this specimen. From now until she signs off: no code, UI, copy, migration, or staging or main deployment. Records go to `claude/awesome-rubin-bqxp6p` only. §1 and §2 below are the 6 Oct specimen, kept as history.
+
+| | |
+|---|---|
+| **Staging app** | commit **`001a357`** (main), deployment `dpl_EcwRYkkSG1hGqGjocvmVC6cKAhEg` (READY). `environment-facts.yml` run **37964868797**, GREEN, 9 Oct 17:14 UTC |
+| **Database** | **177 migrations** = main's (same run) |
+| **Code evidence** | CI **37930520507** on 001a357, 18/18. Journeys **37930524012** on 001a357, crawl and journeys green. Main's CI run 37964671673 cancelled itself as ALREADY PROVEN by 37930520507 (E1). Local suite 658/0 |
+| **Staging behaviour** | Golden School walk on 001a357, school `sekolah-uji-daisy-001a`: **all four green** (found 37965014304; 37965100845, 37965480454, 37966534672, 37967468474) |
+| **Production** | untouched: `5b5b68d`, 111 migrations at its commit (same facts run) |
+| **What changed since 6 Oct** | the Daisy application pass (D-138: tokens, primitives, shells, parts of the surfaces, Terminology v1 copy); D-137 (Bank Soal filter and key/reasons, CR-92, Peran & akses paged); D-140 fixes, including batch A (RV-1 … RV-17 as listed in the pass log) and RV-10. Her guide: «surel» → «email» (0f55f1b) |
+| **Known non-blocking items she may meet** | RV-11 (report pages name no class), RV-16 (ISO dates in Konfigurasi), RV-5 (the browser's own file-control words), OP-5 (pre-v1 wording held in the database), OP-6 and OP-7 (her terminology decisions). Classification: `docs/reports/PINTAR-4.0-APPLICATION-PASS-LOG.md`. **Do not treat these as breaks** |
+
+**Baseline re-read (read only, staging, 9 Oct 17:20 UTC): Sekolah Demo PINTAR is unchanged from §2:**
+- 6 active places;
+- active roles INSTITUTION_ADMIN 1, EDUCATOR 1, HEAD_OF_DEPARTMENT 1, DEAN 1;
+- 10 official results;
+- 3 ISSUED certificates;
+- 0 in-app problem reports at the school (0 on staging);
+- 91 audit rows at the school; the latest audit row on staging is 7690. This number grows with every staging walk and does not belong to the demo school.
+
+Her account is not yet added. When Yazid adds her as «Admin sekolah», record the time here; that grant is the first row of hers.
+
+**Checked twice:** `environment-facts.yml` before she starts and after she finishes must show deployment `dpl_EcwRYkkSG1hGqGjocvmVC6cKAhEg` and commit `001a357`.
+
+## 1. The specimen (6 Oct, superseded by §0)
 
 | | |
 |---|---|

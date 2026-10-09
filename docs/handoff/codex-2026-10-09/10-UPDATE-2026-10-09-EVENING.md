@@ -261,3 +261,27 @@ The full RV table and the readiness classification are in the pass log (`docs/re
   - GitHub job-log blobs through `gh` (read through the GitHub MCP tool or the check-run annotations instead).
 - **Started and not finished:** none in code. The local journey replica on 001a357 was stopped before a result (§3.5). Nothing is partly applied on staging or production. The local `supabase/config.toml` is clean.
 - **The handoff commit:** the commit that adds this line on `claude/awesome-rubin-bqxp6p` (see `git log -- docs/handoff/codex-2026-10-09/10-UPDATE-2026-10-09-EVENING.md`).
+
+## 12. After the owner's approval (9 Oct, about 17:10–17:45 UTC): staging READY and FROZEN
+
+This supersedes §1's «Dr Gladys: NOT READY» and §8. The earlier text stays as the state at the stop.
+
+1. **Main fast-forwarded 8851988 → 001a357**, on the owner's approval for that one push, guide commit 0f55f1b included. It was checked as a clean fast-forward from the actual main HEAD first. The session's automatic permission check refused the push once and accepted it after an explicit approval sentence. **No standing push rule exists.**
+2. **Main's CI 37964671673:** «ALREADY PROVEN by CI run 37930520507 on 001a357 … this run cancels itself and is not evidence» (E1). All 8 jobs show `cancelled`, because the proof job is cancelled with the run after printing its verdict.
+3. **Environment facts 37964868797: GREEN.**
+   - Staging: deployment `dpl_EcwRYkkSG1hGqGjocvmVC6cKAhEg` (READY), commit **001a357**, 177 migrations applied = 177 at the commit, email settings present.
+   - Production: `dpl_3GshvyyNaC5bwZQ1M8vTFLHyEMLE`, **5b5b68d**, 111 at its commit, database not read; 669 code files differ from main (a release is a deliberate step, D-004).
+   - No migration ran: none was added.
+4. **Golden School walk on staging 001a357, school `sekolah-uji-daisy-001a`: all four green.** Runs: found 37965014304; first administrator 37965100845; admin setup and the chapter's publication 37965480454; students 37966534672; reports, certificate, recovery, shared computer and public check 37967468474.
+5. **Sekolah Demo PINTAR, re-read on staging, read only** (Supabase connector, SELECT only, 17:20 UTC): unchanged from the 6 Oct baseline.
+   - 6 active places; roles INSTITUTION_ADMIN, EDUCATOR, HEAD_OF_DEPARTMENT and DEAN, 1 each;
+   - 10 official results; 3 ISSUED certificates;
+   - 0 problem reports; 91 audit rows at the school.
+   - The latest audit row on staging is 7690.
+6. **The walkthrough instruments are re-pinned:** `docs/coordination/walkthrough-gladys/EVIDENCE.md` §0 (new specimen, baseline re-read, the non-blocking items she may meet). The OBSERVER-SHEET is unchanged; its «what the demo school held» still matches the re-read.
+7. **RV-10 and batch A are now staging verified by deployment and walk:** staging runs the exact commit CI and the journeys proved. The RV-10 screens themselves were **not looked at on the live staging site by machine**, because this container cannot reach it. The local crawl of 001a357 shows them corrected. **The owner's own look at Studio on staging** (its home, and the published Bab page of Sekolah Demo PINTAR) before inviting her is the remaining human check.
+8. **The verdict, given to the owner: GO for Dr Gladys's second walkthrough on staging 001a357**, subject to that look.
+   - **Staging is FROZEN** (D-140(d)): no code, UI, copy, migration or deployment until she signs off.
+   - The branch takes records only.
+   - After her walk: classify the findings A–F, update this handoff, and STOP (D-140(e)–(g)).
+9. **CI budget after this:** about 616 + 2 (main E1) + 1 (facts) + about 51 (the walk) ≈ **670 of 1,000**. This is an estimate, not re-read with the ledger after the walk.
