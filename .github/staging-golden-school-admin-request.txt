@@ -11,4 +11,5 @@
 # 8 Oct, L3 (D-132): Sekolah Uji Penutupan L3 after run 37709146876 (GS-02/03 green); staging at 177, main d66485e
 slug: sekolah-uji-l3
 # 9 Oct, the baseline before the application pass (D-138): Sekolah Uji Baseline 894 after run 37879198761 (GS-02/03 green); staging at 894ae01
-slug: sekolah-uji-baseline-894
+# 9 Oct, D-140, before Dr Gladys's walkthrough: Sekolah Uji Daisy 885 (G1-G3 run 37911971442 green); staging at 177, main 8851988
+slug: sekolah-uji-daisy-885
