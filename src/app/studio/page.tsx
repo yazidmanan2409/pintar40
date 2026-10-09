@@ -28,8 +28,9 @@ export default async function StudioBeranda() {
 
   return (
     <div className="grid gap-6">
+      {/* RV-10 (D-140): no task waiting is not «no package»; the packages are listed below */}
       {rows.length === 0 ? (
-        <p className={card}>{s("studio.paket.kosong")}</p>
+        <p className={card}>{s("studio.beranda.tak_ada_tugas")}</p>
       ) : (
         <section className="grid gap-3 sm:grid-cols-2">
           {rows.map((r) => (

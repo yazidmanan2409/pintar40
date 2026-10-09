@@ -829,6 +829,8 @@ export type HleEvent =
   | "studio.paket.riwayat.ini"
   | "studio.paket.riwayat.buka"
   | "studio.paket.kosong"
+  | "studio.beranda.tak_ada_tugas"
+  | "studio.state.explain.TERBIT"
   | "studio.temuan.judul"
   | "studio.temuan.lokasi"
   | "studio.temuan.mengapa"
@@ -3626,6 +3628,8 @@ const table: Table = {
   "studio.paket.riwayat.ini": { default: "halaman ini", en: "this page" },
   "studio.paket.riwayat.buka": { default: "Buka", en: "Open" },
   "studio.paket.kosong": { default: "Belum ada paket di sini.", en: "There is nothing here yet." },
+  "studio.beranda.tak_ada_tugas": { default: "Tidak ada yang menunggu tindakan Anda di Studio.", en: "Nothing in the Studio is waiting for you." },
+  "studio.state.explain.TERBIT": { default: "Paket ini sudah terbit. Guru dapat menyediakannya untuk kelas mereka.", en: "This package is published. Teachers can make it available to their classes." },
   // polish batch 2 (UX-14): the section is named what both steps call it
   "studio.temuan.judul": { default: "Temuan", en: "Findings" },
   "studio.temuan.lokasi": { default: "Lokasi", en: "Where" },

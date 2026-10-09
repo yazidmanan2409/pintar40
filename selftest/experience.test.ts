@@ -12717,6 +12717,33 @@ export const experienceTests: SelfTest[] = [
   },
 
   {
+    id: "D140-STUDIO-01",
+    requires: [],
+    run: async ({ repoRoot }) => {
+      /**
+       * D-140, THE 9 OCT REVIEW (pass log RV-10, walkthrough-blocking): Studio never contradicts itself. Its home
+       * says no task is waiting, not «no package», when the packages are listed below; a published package with
+       * nothing to fix reads as published, not «siap diterbitkan».
+       */
+      const c = new Checks();
+      const baca = (...p: string[]) => code(readFileSync(join(repoRoot, ...p), "utf8"));
+      const beranda = baca("src", "app", "studio", "page.tsx");
+      const kosongTugas = /rows\.length === 0 \? \(\s*<p className=\{card\}>\{s\("([\w.]+)"\)\}<\/p>/.exec(beranda)?.[1];
+      c.expect(kosongTugas === "studio.beranda.tak_ada_tugas", `Studio's home says «${kosongTugas ? t(kosongTugas as never, "staff") : "?"}» when no task waits, above its list of packages`);
+      c.expect(/courses \?\? \[\]\)\.length === 0 \? \(\s*<p className=\{card\}>\{s\("studio\.paket\.kosong"\)\}/.test(beranda), "the list of packages no longer says when it is empty");
+      const paket = baca("src", "app", "studio", "paket", "[course]", "page.tsx");
+      c.expect(/const terbitSiap = state\?\.surface_state === "READY" && terakhir\?\.status === "PUBLISHED";/.test(paket)
+        && /terbitSiap \? s\("studio\.langkah\.terbit\.judul"\) : s\(`studio\.state\.\$\{state\.surface_state\}`/.test(paket)
+        && /terbitSiap \? s\("studio\.state\.explain\.TERBIT"\) : s\(`studio\.state\.explain\.\$\{state\.surface_state\}`/.test(paket),
+        "a published package with nothing to fix still reads «Siap · Paket ini siap diterbitkan»");
+      for (const [k, harap] of [["studio.beranda.tak_ada_tugas", "Tidak ada yang menunggu tindakan Anda di Studio."], ["studio.state.explain.TERBIT", "Paket ini sudah terbit. Guru dapat menyediakannya untuk kelas mereka."], ["studio.langkah.terbit.judul", "Terbit"]] as const) {
+        c.expect(t(k as never, "staff") === harap && t(k as never, "staff", { locale: "en" }) !== harap, `the copy table's ${k} is not «${harap}» with its English`);
+      }
+      return c.verdict("Studio's home and a published package's headline agree with what is listed and published (RV-10)");
+    },
+  },
+
+  {
     id: "D140-SAJI-01",
     requires: [],
     run: async ({ repoRoot }) => {

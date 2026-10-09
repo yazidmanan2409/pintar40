@@ -188,6 +188,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   if (refAlasan) console.error(`[studio ${refAlasan}] studio_package_state returned blocker code(s) the catalogue does not know`, asing.map((r) => r?.code));
   const published = (rilisGaris ?? []).filter((r) => r.status === "PUBLISHED");
   const terakhir = (releases ?? []).at(-1) ?? null;
+  const terbitSiap = state?.surface_state === "READY" && terakhir?.status === "PUBLISHED";
   const tersegel = terakhir !== null && !["INGESTED", "STRUCTURED", "VALIDATED", "IN_REVIEW", "APPROVED"].includes(terakhir.status);
   const findings = ((mcq ?? []) as Finding[]).filter((f) => f.acknowledged_at === null);
   const coaching = ((coach ?? []) as Finding[]).filter((f) => f.acknowledged_at === null);
@@ -224,10 +225,11 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         ) : null}
 
         <p className="mt-4 text-xl font-semibold">
-          {state ? s(`studio.state.${state.surface_state}` as never) : "—"}
+          {/* RV-10 (D-140): a published package with nothing to fix reads as published, not «siap diterbitkan» */}
+          {state ? (terbitSiap ? s("studio.langkah.terbit.judul") : s(`studio.state.${state.surface_state}` as never)) : "—"}
         </p>
         <p className="mt-1 text-sm text-ink-2">
-          {state ? s(`studio.state.explain.${state.surface_state}` as never) : ""}
+          {state ? (terbitSiap ? s("studio.state.explain.TERBIT") : s(`studio.state.explain.${state.surface_state}` as never)) : ""}
         </p>
 
         {state && state.reasons.length > 0 ? (
