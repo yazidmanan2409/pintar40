@@ -2770,7 +2770,8 @@ await step("S23l", "«Laporkan masalah»: the teacher reports a problem from /me
     const diterimaAudit = id ? Number(sql(`select count(*) from public.audit_log where id > ${dulu} and action = 'support_report.received' and target_id = '${id}' and institution_id = '${ids.sd}'`).trim()) : 0;
     notes.push(`«Laporkan masalah» from /mengajar → /lapor?dari=${dari}, the form says «${halaman}»; «Kirim laporan» → received said ${diterima}, «Laporan saya» reads ` +
       `«${saya1.status}» «${saya1.langkah}»; in the database ${r0.slice(1, 8).join(" | ")}, audited ${diterimaAudit}`);
-    if (dari !== "/mengajar" || !halaman.includes("/mengajar") || !diterima || saya1.ada !== 1 || saya1.status !== "Diterima"
+    if (dari !== "/mengajar" || halaman !== "Halaman: Mengajar" ||   // RV-1 (D-140): the place in words, never its path
+        !diterima || saya1.ada !== 1 || saya1.status !== "Diterima"
         || !saya1.langkah.includes("Admin sekolah atau tim PINTAR akan melihatnya dalam satu hari sekolah.")        // hle.ts:2783
         || r0[1] !== "DITERIMA" || r0[2] !== people.guru.name || r0[3] !== "EDUCATOR" || r0[4] !== namaSd || r0[5] !== "/mengajar"
         || r0[6] !== "false" || r0[7] !== "true" || diterimaAudit !== 1) { rec.verdict = "FAIL"; if (!id) return notes.join("; "); }
