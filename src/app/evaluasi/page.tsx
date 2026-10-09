@@ -58,7 +58,7 @@ export default async function EvaluationHubPage({
               </div>
               <form action="/api/evaluation/assume" method="post">
                 <input type="hidden" name="persona_id" value={p.persona_id} />
-                <button className="rounded-[var(--radius-1)] bg-surface-2 px-3 py-1 text-sm hover:bg-line-1">
+                <button className="pin-btn">
                   {e("evaluasi.mulai")}
                 </button>
               </form>

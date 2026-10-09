@@ -81,8 +81,8 @@ const roleLabel = (r: string) => (["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "IN
 const transferLabel = (st: string) => (["REQUESTED", "AUTHORIZED", "EXECUTED", "REJECTED", "CANCELLED"].includes(st) ? s(`transfer.${st}` as HleEvent) : TANPA_NAMA);
 
 const card = "rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-4";
-const field = "rounded-[var(--radius-1)] border border-line-1 bg-surface-0 px-2 py-1 text-sm";
-const button = "rounded-[var(--radius-1)] bg-surface-2 px-3 py-1 text-sm hover:bg-line-1";
+const field = "pin-input"; // D-138 step 4d/4f: the v3 Field (44 px, the 3:1 outline), not a Tailwind look-alike
+const button = "pin-btn justify-self-start"; // D-138 step 4d/4f: the v3 Button (44 px, its states), at its own width in a grid
 const label = "grid gap-1 text-sm text-ink-2";
 
 /** The three reports PINTAR defines. The table's own CHECK is the authority. */

@@ -989,6 +989,21 @@ export const experienceTests: SelfTest[] = [
         c.expect(n !== null && n >= FLOOR, `${t}'s own rule does not set a ${FLOOR}px floor (${h ? h[1].trim() : "none"})`);
       }
       c.note(`${rules} rule(s) sizing ${TARGETS.length} control(s); ${BASE_TARGETS.length} base floor(s)`);
+      // D-138 steps 4d/4f: Studio's and Konfigurasi's forms are styled from shared class strings, outside the
+      // stylesheet this guard reads. They must name the v3 primitives, whose 44 px floor is checked above, and no
+      // form control in src may carry a Tailwind padding-only look-alike again (the 9 Oct 1280 px screenshots: 30 px
+      // fields and a grey «Simpan» that read as disabled).
+      for (const f of ["src/app/studio/_lib.ts", "src/app/konfigurasi/page.tsx"]) {
+        const src = readFileSync(join(repoRoot, f), "utf8");
+        c.expect(/(?:export )?const field = "pin-input"/.test(src) && /(?:export )?const button = "pin-btn\b[^"]*"/.test(src),
+          `${f}: the shared field and button strings are not the v3 Field and Button`);
+      }
+      for (const f of walk(join(repoRoot, "src")).filter((p) => /\.tsx?$/.test(p) && !p.endsWith("hle.ts"))) {
+        const src = readFileSync(f, "utf8");
+        const m = /<(?:button|input|select|textarea)\b[^>]*className="[^"]*\bpy-(?:0|0\.5|1|1\.5)\b[^"]*"/.exec(src)
+          ?? /=\s*"[^"]*\bpx-\d[^"]*\bpy-(?:0|0\.5|1|1\.5)\b[^"]*"/.exec(src);
+        c.expect(m === null, `${relative(repoRoot, f)} sizes a control by Tailwind padding under 44 px: ${m?.[0].slice(0, 100)}`);
+      }
       return c.verdict(
         "every rule in src/app/experience.css that sizes one of PINTAR's controls (buttons, fields, selects, segments, " +
           "tabs, the language switch, the question navigator, back links and close controls) keeps it at control-md " +
@@ -8282,6 +8297,15 @@ export const experienceTests: SelfTest[] = [
       // saya» into the menu, which shows them again when opened. That is the only thing allowed to hide: nothing hides
       // the strip or its way out at any width, and the name and «Akun saya» are hidden only on the staff bar and only
       // where the opened menu draws them again.
+      // D-138 step 3: from 1024 px the staff shell is a fixed navigation on the left. globals.css pulls every
+      // `.pin-shell` a gutter outward (the old full-bleed header), so the navigation's own `margin: 0` must outrank
+      // that rule, or the mark, the places and «Keluar» sit a gutter off the screen's left edge (seen, 9 Oct, 1280 px).
+      const glob = code(readFileSync(join(repoRoot, "src", "app", "globals.css"), "utf8"));
+      const tarik = /\.pin-shell \{[^}]*margin-inline:\s*calc\(var\(--gutter\) \* -1\)/.test(glob);
+      const tetap = /\n\s*([^{}\n]+)\{\s*position: fixed; inset: 0 auto 0 0;[^}]*margin: 0;/.exec(css)?.[1]?.trim() ?? "";
+      c.expect(tetap !== "", "the fixed staff navigation could not be found");
+      c.expect(!tarik || /^\.pin-shell\.pin-staf$/.test(tetap),
+        `the fixed staff navigation (${tetap || "none"}) does not outrank .pin-shell's outward margin, so it sits off the screen's edge`);
       const sembunyi = [...css.matchAll(/(?:^|[}\n])\s*([^{}@]*\.pin-sesi[^{]*)\{([^}]*)\}/g)]
         .filter((m) => /display:\s*none/.test(m[2])).map((m) => m[1].trim());
       const bolehSembunyi = (sel: string) => sel.split(",").every((x) => /^\.pin-staf \.pin-sesi-(?:ket|akun)$/.test(x.trim()));

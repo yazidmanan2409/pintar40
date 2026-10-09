@@ -18,8 +18,8 @@ import { konteksHalaman } from "@/lib/konteks-server";
 export const s = (event: HleEvent) => t(event, "staff");
 
 export const card = "rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-4";
-export const field = "rounded-[var(--radius-1)] border border-line-1 bg-surface-0 px-2 py-1 text-sm";
-export const button = "rounded-[var(--radius-1)] bg-surface-2 px-3 py-1 text-sm hover:bg-line-1";
+export const field = "pin-input"; // D-138 step 4d/4f: the v3 Field (44 px, the 3:1 outline), not a Tailwind look-alike
+export const button = "pin-btn justify-self-start"; // D-138 step 4d/4f: the v3 Button (44 px, its states), at its own width in a grid
 export const label = "grid gap-1 text-sm text-ink-2";
 
 export type StudioInstitution = { id: string; name: string; capabilities: string[] };
