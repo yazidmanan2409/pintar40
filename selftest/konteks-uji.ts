@@ -14,10 +14,45 @@ export type PilihKonteks = string | { tujuan: "BELAJAR" | "MENGAJAR" | "MENGELOL
 const nilai = (tag: string, nama: string) =>
   (new RegExp(`\\b${nama}="([^"]*)"`).exec(tag)?.[1] ?? "").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#x27;/g, "'");
 
+/**
+ * A rendered page put together as a browser puts it together. React streams a slow part of a page out of order: the
+ * part arrives later as <div hidden id="S:x">…</div>, and an inline $RS("S:x","P:x") moves it into its
+ * <template id="P:x"></template> (a Suspense boundary's, $RC("B:y","S:x"), replaces the boundary's fallback). A
+ * browser runs those scripts as the page parses; read as raw HTML, a form's fields can sit outside the form. Which
+ * parts are streamed late is timing, not the page's shape, so every reader of a rendered form reads this first.
+ */
+export function tersusun(html: string): string {
+  const segmen = new Map<string, string>();
+  let h = html;
+  // 1. every streamed segment, taken out of the page, depth-matched
+  for (;;) {
+    const m = /<div hidden(?:="")? id="S:([0-9a-z]+)">/.exec(h);
+    if (!m) break;
+    const awal = m.index + m[0].length;
+    const re = /<div\b[^>]*>|<\/div>/g;
+    re.lastIndex = awal;
+    let d = 1, akhir = -1, t: RegExpExecArray | null;
+    while ((t = re.exec(h))) { d += t[0] === "</div>" ? -1 : 1; if (d === 0) { akhir = t.index; break; } }
+    if (akhir < 0) break;
+    segmen.set(m[1], h.slice(awal, akhir));
+    h = h.slice(0, m.index) + h.slice(akhir + "</div>".length);
+  }
+  // 2. which segment completes which Suspense boundary
+  const batas = new Map([...html.matchAll(/\$RC\("B:([0-9a-z]+)","S:([0-9a-z]+)"\)/g)].map((m) => [m[1], m[2]] as const));
+  // 3. each put back where the browser puts it, nested parts included
+  const isi = (teks: string, dalam = 0): string => dalam > 50 ? teks : teks
+    .replace(/<!--\$\?--><template id="B:([0-9a-z]+)"><\/template>[\s\S]*?<!--\/\$-->/g, (semua, b: string) => {
+      const sid = batas.get(b);
+      return sid && segmen.has(sid) ? isi(segmen.get(sid)!, dalam + 1) : semua;
+    })
+    .replace(/<template id="P:([0-9a-z]+)"><\/template>/g, (semua, p: string) => segmen.has(p) ? isi(segmen.get(p)!, dalam + 1) : semua);
+  return isi(h);
+}
+
 /** The chooser's doors on a rendered `/`: each door's pair key, its words and its form's hidden fields. */
 export function pintuDi(html: string): Array<{ kunci: string; label: string; isian: Array<[string, string]> }> {
   const out: Array<{ kunci: string; label: string; isian: Array<[string, string]> }> = [];
-  for (const bagian of html.split(/<form\b/).slice(1)) {
+  for (const bagian of tersusun(html).split(/<form\b/).slice(1)) {
     const isi = bagian.split(/<\/form>/)[0];
     const tombol = /<button\b[^>]*\bdata-konteks="([^"]*)"[^>]*>([\s\S]*?)<\/button>/.exec(isi);
     if (!tombol) continue;

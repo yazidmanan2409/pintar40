@@ -202,8 +202,9 @@ function harus(figs, label, { nilai, sampel, tingkat, kurang, pita, belum } = {}
     for (const [k, n] of Object.entries(ada)) if (!(k in tingkat) && n !== 0) salah.push(`unexpected «${k}» ${n}`);
   }
   if (kurang && !/Belum cukup data|Belum ada bukti/.test(f.teks)) salah.push(`expected withheld below its minimum, got «${f.teks.slice(0, 120)}»`);
-  // CR-81 (D-123(3)): the class's population is said apart from the bands, «… · N belum mengerjakan Uji Penguasaan»
-  if (belum !== undefined && !new RegExp(`(^|\\D)${belum} belum mengerjakan Uji Penguasaan`).test(f.teks))
+  // CR-81 (D-123(3)): the class's population is said apart from the bands. Since the copy owed (11-validation §4,
+  // D-138 step 5) the line reads «N murid di kelas ini · N sudah mengerjakan Uji Penguasaan · N belum mengerjakan»
+  if (belum !== undefined && !new RegExp(`(^|\\D)${belum} belum mengerjakan\\b`).test(f.teks))
     salah.push(`the population does not say ${belum} have not sat the Uji Penguasaan («${f.teks.slice(0, 200)}»)`);
   if (pita) {
     // D-095: the bands drawn in band order, with the line that they are PINTAR's fixed bands, not the school's threshold
@@ -414,7 +415,8 @@ await step("L3", "GS-17 the dean: signs in (first time) → /pimpinan: the schoo
   const sekolah = await angka(p.locator('section[aria-labelledby="pin-bukti"]'));
   await shot(p, "l3-dekan-pimpinan");
   out.push(harus(sekolah, "Peserta", { nilai: ANGKA.format(S.peserta) }));
-  for (const label of ["Kenaikan", "Butir wajib", "Capaian kompetensi"]) {
+  // («Soal wajib»: Terminology v1, «butir» → «soal», D-068 E11–E15)
+  for (const label of ["Kenaikan", "Soal wajib", "Capaian kompetensi"]) {
     if (sekolah.some((f) => f.label === label)) out.push(harus(sekolah, label, { kurang: true }));
   }
   out.push(...await kelasDiPimpinan(p, "l3-dekan-kelas"));

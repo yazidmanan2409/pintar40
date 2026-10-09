@@ -2305,7 +2305,7 @@ await step("S23", "the head of department reads Kelas 1A's figures beside the cl
     laporan = `report: stopped: ${String(e.message ?? e).split("\n")[0].slice(0, 160)}`;
   }
   // W10: above the class. What «Yang didukung bukti» says to a head of department over a department, and
-  // the department's roster, reached by clicking (Lihat lebih rinci → Murid pada bagian ini)
+  // the department's roster, reached by clicking (Lihat lebih rinci → Murid dalam lingkup ini; Terminology v1, ruling 19)
   const bagianC = norm(await h.locator('section[aria-labelledby="pin-bukti"]').innerText().catch(() => ""));
   const kosongC = /Belum ada angka yang bisa ditampilkan/.test(bagianC);
   let roster = "";
@@ -2315,7 +2315,7 @@ await step("S23", "the head of department reads Kelas 1A's figures beside the cl
     await h.waitForURL((u) => /^\/pimpinan\/[^/]+$/.test(u.pathname), { timeout: SLOW });
     // W11: the parts offered below the department are Tingkat and Kelas, never the hidden «Reguler» or «Jenjang»
     bawahDept = norm(await h.locator('section[aria-labelledby="pin-bawah"]').innerText().catch(() => ""));
-    await h.getByRole("link", { name: "Murid pada bagian ini" }).first().click();
+    await h.getByRole("link", { name: "Murid dalam lingkup ini" }).first().click();
     await h.waitForURL((u) => u.pathname.endsWith("/murid"), { timeout: SLOW });
     await h.locator("h1").first().waitFor({ timeout: SLOW });
     roster = await bodyText(h);
@@ -2455,7 +2455,7 @@ await step("S23i", "the head of department reviews Kelas 1A's integrity observat
     rec.shots.push(await shot(h, "hod07-integritas"));
     const bingkai = /bahan pertimbangan manusia, bukan kesimpulan/i.test(teks);
     const vonis = /curang|kecurangan|menyontek|mencontek|pelanggaran|bersalah|dihukum|cheat/i.test(teks);
-    const kategori = /Terputus lalu tersambung lagi|Berpindah dari layar penilaian/.test(teks);
+    const kategori = /Terputus lalu tersambung lagi|Berpindah dari layar (?:penilaian|asesmen)/.test(teks);
     const namaTampak = teks.includes(namaMurid);
     notes.push(`the page frames them as material for a human ${bingkai}, carries a verdict word ${vonis}, names the observation ${kategori}, names the student ${namaTampak}`);
     if (!bingkai || !kategori) notes.push(`the page at ${new URL(h.url()).pathname} says: «${teks.slice(0, 400)}»`);
@@ -2499,7 +2499,7 @@ await step("S23i", "the head of department reviews Kelas 1A's integrity observat
       halaman.push([jalur, new URL(s.url()).pathname, norm(await bodyText(s))]);
     }
     rec.shots.push(await shot(s, "x11-murid-studio"));
-    const bocor = halaman.filter(([, , t]) => /integritas|Terputus lalu tersambung lagi|Berpindah dari layar penilaian|Tinjauan Integritas/i.test(t)).map(([j]) => j);
+    const bocor = halaman.filter(([, , t]) => /integritas|Terputus lalu tersambung lagi|Berpindah dari layar (?:penilaian|asesmen)|Tinjauan Integritas/i.test(t)).map(([j]) => j);
     notes.push(`${namaMurid} sees it on ${bocor.length ? bocor.join(", ") : "none of"} /belajar, her result and /studio/integritas (which ends at ${halaman[2][1]})`);
     if (bocor.length) rec.verdict = "FAIL";
   } catch (e) {
@@ -2594,14 +2594,16 @@ await step("S23r", "the head of department's referral of Kelas 1A's integrity ob
     await tutupTur(h);
     const diKaprodi = await teks(kartu(h));
     notes.push(`the head of department's /pimpinan card: «${diKaprodi.slice(0, 220)}»`);
-    if (!/Menunggu tinjauan/.test(diKaprodi) || !/Tinjauan integritas/.test(diKaprodi) || !/Kelas 1A/.test(diKaprodi)      // hle.ts:2131, 2127
+    // (D-140, CR-76 copy owed: the referrer's card states that the case waits on another leader's decision,
+    // pimpinan.keadaan.menunggu_keputusan, where a decider's card says «Menunggu tinjauan»)
+    if (!/Menunggu keputusan/.test(diKaprodi) || !/Tinjauan integritas/.test(diKaprodi) || !/Kelas 1A/.test(diKaprodi)
         || !/Berasal dari satu catatan integritas\./.test(diKaprodi) || UUID.test(diKaprodi) || MENTAH.test(diKaprodi)) rec.verdict = "FAIL";  // hle.ts:2156
     // CR-76 (D-123(4)): whoever referred it does not decide it. Her card offers neither move and says another leader
     // decides it; the dean stands over Kelas 1A, so it does not say that nobody else can (KartuKeputusan.tsx; hle.ts
     // pimpinan.menunggu_pemutus_lain, pimpinan.belum_ada_pemutus_lain)
     const tombolPerujuk = await kartu(h).first().getByRole("button", { name: /Saya yang menangani|Catat keputusan/ }).count();
-    const menungguLain = /keputusannya diambil oleh pimpinan lain/.test(diKaprodi);
-    const tiadaLain = /Belum ada pimpinan lain yang berwenang/.test(diKaprodi);
+    const menungguLain = /jadi pimpinan lain yang memutuskannya/.test(diKaprodi);                         // copy owed (11-validation §4)
+    const tiadaLain = /Belum ada pimpinan lain yang boleh memutuskan/.test(diKaprodi);
     notes.push(`CR-76: the referrer is offered ${tombolPerujuk} move(s); the card says another leader decides it ${menungguLain}; says nobody else can ${tiadaLain}`);
     if (tombolPerujuk !== 0 || !menungguLain || tiadaLain) rec.verdict = "FAIL";
 
@@ -2880,9 +2882,11 @@ await step("S23t", "the school admin assembles the school's own class report on 
     const daftarSebelum = await a.locator("#intelligence ul > li").count();                            // konfigurasi/page.tsx:1144-1153
     const form = a.locator("#intelligence form").first();                                              // :1137, 1160
     await form.locator('select[name="institution"]').selectOption(ids.sd);                              // :1161-1164
-    await form.locator('select[name="standard_report"]').selectOption("class_learning_intelligence");   // :1166-1169 (the option's text is the raw value)
-    await form.locator('input[name="title_key"]').fill("laporan.kelas.judul");                         // :1171-1173 (a raw copy key; pattern [a-z][a-z0-9_.]+)
+    await form.locator('select[name="standard_report"]').selectOption("class_learning_intelligence");   // (D-140: the option's text is its words, the value the report's own)
+    // RESTATED FOR D-140: the title is chosen from the report titles by their words (JUDUL_LAPORAN), never typed as a key
+    await form.locator('select[name="title_key"]').selectOption("laporan.kelas.judul");
     const tampilan = {};
+    const kataTampilan = {};
     // RESTATED FOR L4 (CR-85, D-127 Q5): the screen names a metric by its own label (metrik.*.label), its id secondary,
     // so the saved template is found in the list by those labels, read from the same form, instead of by raw metric ids
     const labelMetrik = {};
@@ -2892,7 +2896,10 @@ await step("S23t", "the school admin assembles the school's own class report on 
     }
     for (const m of PILIH) {
       const pilih = form.locator(`select[name="metric[${m}]"]`);                                       // :1188-1191; "" = left out
-      tampilan[m] = (await pilih.locator("option").evaluateAll((os) => os.map((o) => o.value))).filter(Boolean).at(-1) ?? "";
+      const pilihan = (await pilih.locator("option").evaluateAll((os) => os.map((o) => [o.value, (o.textContent ?? "").trim()]))).filter(([v]) => v);
+      tampilan[m] = pilihan.at(-1)?.[0] ?? "";
+      // D-140: the list names the drawing by its words (the option's own text), not its value
+      kataTampilan[m] = pilihan.at(-1)?.[1] ?? "";
       if (tampilan[m]) await pilih.selectOption(tampilan[m]);
     }
     rec.shots.push(await shot(a, "cr40-templat-isi"));
@@ -2905,7 +2912,7 @@ await step("S23t", "the school admin assembles the school's own class report on 
     rec.shots.push(await shot(a, "cr40-templat-disimpan"));
     const milik = sendiri().split("|");
     const harapIsi = PILIH.map((m) => `${m}:${tampilan[m]}`).join(",");
-    const barisDaftar = PILIH.map((m) => `${labelMetrik[m]} (${tampilan[m]})`).join(", ");            // konfigurasi/page.tsx, «Templat laporan»
+    const barisDaftar = PILIH.map((m) => `${labelMetrik[m]} (${kataTampilan[m]})`).join(", ");        // konfigurasi/page.tsx, «Templat laporan» (D-140: in words)
     const diaudit = milik[0] ? Number(sql(`select count(*) from public.audit_log where action = 'report_template.saved' and target_id = '${milik[0]}' and institution_id = '${ids.sd}'`).trim()) : 0;
     notes.push(`«Simpan templat» → hasil=${u.searchParams.get("hasil")} kode=${u.searchParams.get("kode")} n=${u.searchParams.get("n")}; the section lists ${daftarSebelum} → ${daftarSesudah} template(s), ` +
       `the new one «${barisDaftar}» ${bagian.includes(barisDaftar)}; in the database ${milik.slice(1).join(" | ") || "nothing"}, audited ${diaudit}`);
@@ -2951,14 +2958,27 @@ await step("S23j", "the audit reader: on Konfigurasi → «Jejak audit» the sch
     await tutupTur(page);
     await page.locator("#audit table").waitFor({ timeout: SLOW });                                    // konfigurasi/page.tsx:1106-1110; «Jejak audit», hle.ts:2625
     rec.shots.push(await shot(page, nama));
-    const baris = await page.locator("#audit tbody tr").evaluateAll((trs) => trs                        // :1114-1121 (when, action, target, build); the empty line is one cell, :1122
-      .filter((tr) => tr.children.length === 4)
+    // RESTATED FOR D-140 (Jejak audit in words, DG-11): the row is (when, the action in words, the record's kind ·
+    // its school), plus the build only in «Seluruh platform»; the empty line is one cell. No code, table or id is shown.
+    const baris = await page.locator("#audit tbody tr").evaluateAll((trs) => trs
+      .filter((tr) => tr.children.length >= 3)
       .map((tr) => [...tr.children].map((td) => (td.textContent ?? "").replace(/\s+/g, " ").trim())));
-    // the target cell is «table · id[0..8] · school» (:1118), «—» for no id (short(), konfigurasi/page.tsx:57)
     return baris.map(([, aksi, sasaran]) => {
-      const [tabel = "", id = "", sekolah = ""] = sasaran.split(" · ");
-      return `${aksi}|${tabel}|${id === "—" ? "" : id}|${sekolah}`;
+      const bagian = sasaran === "\u2014" ? [] : sasaran.split(" · ");
+      // the record's kind is named only when the copy table has it; the school is the last part when the row has one
+      const sekolah = bagian.length && sekolahKenal.has(bagian[bagian.length - 1]) ? bagian.pop() : "";
+      return `${aksi}|${bagian.join(" · ")}|${sekolah}`;
     });
+  };
+  const sekolahKenal = new Set(sql("select name from public.institutions").split("\n").filter(Boolean));
+  // the words the page itself prints for each (action, table), from the same mapping (src/lib/jejak-audit.ts)
+  const kataUntuk = (pasangan) => {
+    const keluar = execFileSync("npx", ["tsx", "-e",
+      "import { kataAksiAudit, kataTabelAudit } from './src/lib/jejak-audit.ts';" +
+      "const p = JSON.parse(process.env.PASANGAN);" +
+      "process.stdout.write(JSON.stringify(p.map(([a, t]) => [kataAksiAudit(a, 'id'), kataTabelAudit(t, 'id') ?? ''])));"],
+      { cwd: process.env.APP_DIR, encoding: "utf8", env: { ...process.env, PASANGAN: JSON.stringify(pasangan) } });
+    return JSON.parse(keluar);
   };
   // the database's newest 50 for the same filter, newest first; the rows sharing the 50th row's moment (one transaction
   // writes several) may fall either side of the cut, so they are allowed on the screen, not required
@@ -2968,10 +2988,15 @@ await step("S23j", "the audit reader: on Konfigurasi → «Jejak audit» the sch
              (l.at > (select min(at) from t))::text, chr(10)), '')
         from public.audit_log l left join public.institutions i on i.id = l.institution_id
        where ${saring} and l.at >= (select min(at) from t)`).split("\n").filter(Boolean);
+    // each database row as the page words it: action|kind|school
+    const pasangan = baris.map((b) => b.split("|").slice(0, 2));
+    const kata = pasangan.length ? kataUntuk(pasangan) : [];
+    const dikata = baris.map((b, i) => { const [, , , rest] = b.split("|"); return `${kata[i][0]}|${kata[i][1]}|${rest}`; });
     return {
       semua: Number(sql(`select count(*) from public.audit_log l where ${saring}`).trim()),
-      pasti: baris.filter((b) => b.endsWith("#true")).map((b) => b.replace(/#true$/, "")),
-      boleh: baris.map((b) => b.replace(/#(true|false)$/, "")),
+      pasti: dikata.filter((b) => b.endsWith("#true")).map((b) => b.replace(/#true$/, "")),
+      boleh: dikata.map((b) => b.replace(/#(true|false)$/, "")),
+      kode: baris.map((b) => b.split("|")[0]),
     };
   };
   const ganda = (xs) => xs.reduce((m, x) => m.set(x, (m.get(x) ?? 0) + 1), new Map());
@@ -2987,7 +3012,10 @@ await step("S23j", "the audit reader: on Konfigurasi → «Jejak audit» the sch
   const hGladys = harapan("true");
   const asingAdmin = layarAdmin.filter((k) => !k.endsWith(`|${namaSd}`));
   const diluarSd = layarGladys.filter((k) => !k.endsWith(`|${namaSd}`));
-  const langkahIni = ["management_decision.advanced", "support_report.moved", "report_template.saved"].filter((x) => layarAdmin.some((k) => k.startsWith(`${x}|`)));
+  const langkahIni = ["management_decision.advanced", "support_report.moved", "report_template.saved"].filter((x) => hAdmin.kode.includes(x));
+  // nothing on the screen is a code: no action, table or id leaks (D-140(c))
+  const bocor = [...layarAdmin, ...layarGladys].filter((k) => /[a-z]+_[a-z_]+|[A-Z]{3,}_[A-Z_]+|\b[0-9a-f]{8}\b/.test(k));
+  if (bocor.length) rec.verdict = "FAIL";
   const okAdmin = layarAdmin.length > 0 && sama(layarAdmin, hAdmin) && asingAdmin.length === 0;
   const okGladys = sama(layarGladys, hGladys) && diluarSd.length > 0;
   if (!okAdmin || !okGladys) rec.verdict = "FAIL";
@@ -2995,7 +3023,7 @@ await step("S23j", "the audit reader: on Konfigurasi → «Jejak audit» the sch
     `schools named ${JSON.stringify(sekolahDi(layarAdmin))}, rows of another school or of none ${asingAdmin.length}${asingAdmin.length ? ` (${asingAdmin.slice(0, 3).join(", ")})` : ""}; ` +
     `this block's own rows among them: ${langkahIni.join(", ") || "none"}; the platform admin's: ${layarGladys.length} row(s) (the database's newest overall: ${Math.min(50, hGladys.semua)} of ${hGladys.semua}), ` +
     `the same rows ${sama(layarGladys, hGladys)}, schools named ${JSON.stringify(sekolahDi(layarGladys))}, rows beyond SD ${diluarSd.length}; ` +
-    `the actions as printed: ${JSON.stringify([...new Set(layarAdmin.map((k) => k.split("|")[0]))].slice(0, 8))}`;
+    `the actions as printed: ${JSON.stringify([...new Set(layarAdmin.map((k) => k.split("|")[0]))].slice(0, 8))}; codes on screen ${bocor.length}${bocor.length ? ` (${bocor.slice(0, 3).join(", ")})` : ""}`;
 });
 
 // CR-52 (J4.8 EC; D-050(a)(d)): the Question Bank, walked against QN5 as D-120 ruled it: «4.0's Question Bank means

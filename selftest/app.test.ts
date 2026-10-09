@@ -5,7 +5,7 @@
  * never a superuser connection (FABLE-01 §6). R01 needs no network. R04 is
  * evidence forwarded from the CI workflow's own jobs.
  */
-import { pilihKonteksCookie, pintuDi } from "./konteks-uji";
+import { pilihKonteksCookie, pintuDi, tersusun } from "./konteks-uji";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { createServerClient } from "@supabase/ssr";
@@ -243,7 +243,7 @@ function nilaiLanjut(html: string): string[] {
  * script would post them, or null when the page drew no such form.
  */
 function formLanjutkan(html: string): Array<[string, string]> | null {
-  for (const bagian of html.split(/<form\b/).slice(1)) {
+  for (const bagian of tersusun(html).split(/<form\b/).slice(1)) {
     const isi = bagian.split(/<\/form>/)[0];
     const masukan = [...isi.matchAll(/<input\b[^>]*\btype="hidden"[^>]*>/g)].map((m) => [
       /\bname="([^"]*)"/.exec(m[0])?.[1] ?? "",
@@ -1199,7 +1199,7 @@ export const appTests: SelfTest[] = [
         const r = await fetch(`${base}/konfigurasi`, { method: "POST", body: fd, headers: { cookie, origin: base }, redirect: "manual" });
         return r.headers.get("location") ?? `(${r.status})`;
       };
-      const halaman = async (cookie: string, q = "") => (await get(`${base}/konfigurasi${q}`, { headers: { cookie } })).text();
+      const halaman = async (cookie: string, q = "") => tersusun(await (await get(`${base}/konfigurasi${q}`, { headers: { cookie } })).text());
       // the first-appointment section: from its marker to the end of its own form
       const bagianPertama = (html: string) => /data-admin-pertama=""/.test(html) ? html.split('data-admin-pertama=""')[1].split(/<\/form>/)[0] : "";
       const pilihanDi = (html: string, nama: string) => new RegExp(`<option value="[^"]*">${nama}</option>`).test(html);
