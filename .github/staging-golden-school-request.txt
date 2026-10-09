@@ -13,4 +13,5 @@
 # 9 Oct, the baseline before the application pass (owner, 9 Oct): Sekolah Uji Baseline 894 (found-school.yml run 37879140604); staging at 177, main 894ae01 (code)
 # 9 Oct, the application pass before Dr Gladys's walkthrough (D-140): Sekolah Uji Daisy 885 (found-school.yml run 37911896688, GS-00 green inside it); staging at 177, main 8851988
 # 9 Oct, D-140: re-walk on 8851988 to read GS step 4's failure; staging at 177, main 8851988 (after run 37916647855)
-slug: sekolah-uji-daisy-885b
+# 9 Oct, D-140: staging READY walk on 001a357 (batches A and B); facts 37964868797 GREEN, 177 (after run 37965014304)
+slug: sekolah-uji-daisy-001a
