@@ -35,7 +35,7 @@ Each item keeps its original finding ids for traceability: CR (closure register)
 | W1.8 | «Riwayat perbaikan» shows who reviewed and approved; «Kursus ini» → the package noun | J4.12, UX-13 | E | 1 (data) + 3 | VERIFIED — INTERNAL ACCEPTANCE PENDING (Batch 1 data part, staging 2 Nov; UI in Batch 3) |
 | W1.9 | Wording: «siswa» → «murid» (UX-18); «(D-008)» removed (UX-43); Studio passes the locale (UX-25); 320 px select and code (RV-23) | UX-18/25/43, RV-23 | E | 3 | NOT STARTED |
 | W1.10 | **An example-only workbook** (no live items or keys) offered beside the blank template | DG-36 | E (content) | 3 | NOT STARTED |
-| W1.11 | Question Bank reachable by the people QN5 meant, after F-7 | J4.8 | E after Y | 3 | BLOCKED — OWNER DECISION |
+| W1.11 | Question Bank reachable by the people QN5 meant, after F-7 | J4.8 | E after Y | 3 | BUILT on the branch (F-7 ruled 2 Nov, D-150; batch-3/05); staging NOT RUN |
 | W1.12 | The author is never offered «Sudah saya tinjau» (the database already refuses it) | J4.3 (new) | E | 3 | NOT STARTED |
 | W1.13 | `advanceContentAction` writes items, lessons, modules, definitions and course separately. Make the step one transaction, or prove partial failure is safe | J4.3 (observation) | E | 1 | VERIFIED — INTERNAL ACCEPTANCE PENDING (Batch 1, staging 2 Nov) |
 | W1.14 | The other Studio pages (unggah, tinjau, kanonik, definisi, bank, integritas, pratinjau) on 08-migration rows; no composition needed | design §2 | E | 3 | NOT STARTED |

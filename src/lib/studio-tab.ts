@@ -12,8 +12,9 @@
  *   definisi    Admin sekolah and Admin platform: «not ordinary teacher UI … its narrow administrative/operator
  *               ownership» (D-127 Q8), the admin-gated configuration of FABLE-01 §10 and doc 09, as the pass mark is
  *               the school admin's (D-081 Q2)
- *   bank        CAN_REVIEW_QUESTION_HEALTH: Bank Soal as built is Question Health, which a teacher does not reach
- *               (J5.8, EDU-09; HOD-06)
+ *   bank        CAN_DRAFT or CAN_REVIEW_QUESTION_HEALTH (owner ruling F-7, 2 Nov, Batch 3 closure; QN5, J4.8): a teacher
+ *               who authors browses their own school's bank with its keys and reasons; Question Health inside it (its
+ *               signals, the evidence figures and the review form) stays the reviewer's (J4.9, J5.8, EDU-09; HOD-06)
  *   integritas  CAN_REVIEW_INTEGRITY: Kepala departemen, Admin sekolah, Admin platform; never a teacher (J5.8; HOD-07,
  *               X-11; CR-75, CR-77; D-070(i))
  *
@@ -51,7 +52,7 @@ export function tabStudio(kemampuan: ReadonlySet<string>, peran: readonly string
     tinjau: punya("CAN_REVIEW"),
     kanonik: punya("CAN_DRAFT") || punya("CAN_ASSIGN_LEARNING"),
     definisi: admin && punya("CAN_DRAFT"),
-    bank: punya("CAN_REVIEW_QUESTION_HEALTH"),
+    bank: punya("CAN_DRAFT") || punya("CAN_REVIEW_QUESTION_HEALTH"),
     integritas: punya("CAN_REVIEW_INTEGRITY"),
   };
   return TAB_STUDIO.filter((t) => boleh[t]);

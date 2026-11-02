@@ -1057,6 +1057,9 @@
   margin: 0; max-width: 60ch;
   font-size: var(--type-body); color: var(--ink-1); line-height: var(--leading-prose);
 }
+/* WHO IT IS FOR, read in the review before the act (Batch 3 closure; Daisy, J5Jendela): «Disediakan untuk Kelas 5A ·
+   31 murid terdaftar hari ini», the class in the strong weight, above the consequence. */
+.pin-untuk { margin: 0 0 var(--space-3); font-size: var(--type-body); color: var(--ink-1); }
 
 /* A SECOND LINE UNDER A FACT. The compact fact summary gains a quiet qualifier
    — "24 learners enrolled today" under a class name — and inherits the stack. */

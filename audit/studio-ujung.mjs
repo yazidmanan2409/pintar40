@@ -292,6 +292,23 @@ await step("U7", "the Guru submits the correction again", async (rec) => {
   }
 });
 
+// Batch 3 closure (defect 1): the line is one package on Studio's home, at its newest version; the replaced version is
+// history, opened from «Riwayat perbaikan», and is not counted in «Menunggu tindakan Anda»
+await step("U7a", "Studio's home lists the package once, at its newest version; the version the correction replaced is not a package of its own", async (rec) => {
+  if (!course || course === pertama) { rec.verdict = "BLOCKED"; return; }
+  await pilihPintu(g, "MENGAJAR");
+  await g.goto(`${APP}/studio`, { waitUntil: "networkidle" });
+  await shot(g, rec, "beranda-satu-garis");
+  const baris = g.locator("#paket a.pin-row").filter({ hasText: JUDUL });
+  harus(rec, (await baris.count()) === 1, `the package is listed ${await baris.count()} time(s)`);
+  harus(rec, (await g.locator(`#paket a[href="/studio/paket/${pertama}"]`).count()) === 0, "the replaced version is not listed as a package");
+  harus(rec, (await g.locator(`#paket a[href="/studio/paket/${course}"]`).count()) === 1, "the newest version is the one listed");
+  const terhitung = sql(`select count(*) from public.courses c where c.id = '${pertama}' and c.status in ('INGESTED','STRUCTURED','VALIDATION_FAILED')`);
+  harus(rec, terhitung === "1", "the replaced version is still a draft by status (the case this measures)");
+  await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+  harus(rec, (await g.locator(`#riwayat a[href="/studio/paket/${pertama}"]`).count()) > 0, "«Riwayat perbaikan» still opens the replaced version");
+});
+
 await step("U8", "the head of department approves the content, reviews its findings, and creates and locks the release in one press; the author is offered none of it and the head of department is refused «Terbitkan»", async (rec) => {
   if (!keadaan().startsWith("IN_REVIEW")) { rec.verdict = "BLOCKED"; return; }
   if (!(await tekan(h, "Setujui isi", rec, "setujui"))) return;
@@ -370,6 +387,40 @@ await step("U10", "the Guru gives the chapter to her class on Siapkan («✓ Dis
   harus(rec, /Materi disediakan untuk kelas ini\./.test(hasil), `the result line: «${hasil}»`);
   la = sql(`select coalesce((select id::text from public.learning_assignments where course_id='${course}' and node_id='${KELAS}' order by created_at desc limit 1), '')`);
   harus(rec, !!la, `the class holds the assignment (${la || "none"})`);
+  // Batch 3 closure (defect 2): the card says what the class now has, never «Belum disediakan» beside «✓ Disediakan»
+  const lencana = norm(await g.locator(".pin-paket .pin-prow .pin-pill").first().innerText().catch(() => ""));
+  harus(rec, lencana === "Tersedia" && (await g.locator(".pin-paket .pin-prow .pin-pill.pin-ok").count()) === 1, `the card's badge reads «${lencana}»`);
+  // Daisy, J1Terbit step 7: the way on is the class, whose «Materi untuk kelas ini» lists it «✓ Tersedia» with its window
+  await g.locator(`main a.pin-btn[href="/mengajar/${KELAS}"]`).first().click();
+  await g.waitForURL((u) => u.pathname === `/mengajar/${KELAS}`, { timeout: SLOW });
+  await g.waitForLoadState("networkidle");
+  const materi = g.locator(".pin-sec", { has: g.getByRole("heading", { name: "Materi untuk kelas ini" }) }).locator(".pin-row").filter({ hasText: JUDUL });
+  await materi.first().scrollIntoViewIfNeeded().catch(() => {});
+  await shot(g, rec, "kelas-tersedia");
+  const barisMateri = norm(await materi.first().innerText().catch(() => ""));
+  harus(rec, (await materi.locator(".pin-pill.pin-ok").count()) === 1 && /Tersedia/.test(barisMateri) && /Mulai .+ Sampai /.test(barisMateri),
+    `the class page lists it «${barisMateri}»`);
+});
+
+// F-7 (owner ruling, 2 Nov, Batch 3 closure; QN5, J4.8): the teacher who authors browses her school's bank, with keys
+// and reasons; Question Health inside it stays the reviewer's (no evidence figures, no review form)
+await step("U10b", "the Guru opens Studio → «Bank Soal» by clicking: her school's questions with their keys and reasons, and no Question Health", async (rec) => {
+  if (!course) { rec.verdict = "BLOCKED"; return; }
+  await pilihPintu(g, "MENGAJAR");
+  await g.goto(`${APP}/studio`, { waitUntil: "networkidle" });
+  const tab = g.getByRole("link", { name: "Bank Soal" }).first();
+  if (!harus(rec, (await tab.count()) > 0, "Studio offers the Guru «Bank Soal»")) return;
+  await tab.click();
+  await g.waitForURL((u) => u.pathname === "/studio/bank", { timeout: SLOW });
+  await g.getByRole("heading", { name: "Bank Soal", exact: true }).waitFor({ timeout: SLOW }).catch(() => {});
+  await g.locator("main li[data-soal]").first().waitFor({ timeout: SLOW }).catch(() => {});
+  await shot(g, rec, "bank-guru");
+  const ids = (await g.locator("main li[data-soal]").evaluateAll((els) => els.map((e) => e.getAttribute("data-soal")))).filter(Boolean);
+  const sekolah = sql(`select institution_id::text from public.courses where id = '${course}'`);
+  const asing = sql(`select count(*) from public.items where left(id::text, 8) = any(string_to_array('${ids.join(",")}', ',')) and institution_id <> '${sekolah}'`);
+  harus(rec, ids.length > 0 && asing === "0", `${ids.length} question(s) listed, ${asing} of another school`);
+  harus(rec, (await g.locator("main .pin-opsi-kunci").count()) > 0, "a question shows its key and reasons");
+  harus(rec, (await g.locator('main form select[name="keputusan"]').count()) === 0, "no Question Health review form");
 });
 
 await step("U11", "the learner finds the chapter on Belajar and opens it", async (rec) => {

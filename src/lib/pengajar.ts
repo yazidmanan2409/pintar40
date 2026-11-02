@@ -434,6 +434,14 @@ export function statusMateri(x: Pick<Penugasan, "status" | "berakhir" | "belumMu
   return "mengajar.status.tersedia";
 }
 
+/**
+ * The Badge tone of a material's state (Batch 3 closure; Daisy, J1Terbit step 7 and J2Kelas): «Tersedia» is done, so
+ * it is the ok Badge (its ✓ is drawn by .pin-pill.pin-ok); every other state is neutral. The word carries the state.
+ */
+export function nadaMateri(k: ReturnType<typeof statusMateri>): "pin-ok" | "pin-neutral" {
+  return k === "mengajar.status.tersedia" ? "pin-ok" : "pin-neutral";
+}
+
 /** The chapters of one course, in curriculum order. */
 export async function bab(courseId: string): Promise<Array<{ id: string; judul: string; urutan: number }>> {
   const c = await db();

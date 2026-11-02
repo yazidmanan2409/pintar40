@@ -787,20 +787,18 @@ async function bank(page, who) {
   return { t, n: await shown.count(), ids, foreign: ids.filter((x) => !mine.has(x)).length, ofCourse: ids.filter((x) => thisCourse.has(x)).length,
            noEvidence: (t.match(/Belum cukup bukti untuk menilai soal ini\./g) ?? []).length, shot: await shot(page, `bank-${who}`) };
 }
-// RESTATED FOR CR-87 (D-127; D-129(g), a changed requirement): Bank Soal as built is Question Health, which a teacher
-// does not reach (J5.8, EDU-09; src/lib/studio-tab.ts). The teacher is offered no Bank Soal tab, and the page sends them
-// to Studio's home; the school admin still reads the bank.
-await step("Q1", "Bank Soal as the teacher: no tab is offered, and the page sends the teacher to Studio's home (CR-87; J5.8, EDU-09)", ["D-050 bank", "CR-87"], async (rec) => {
+// RESTATED FOR F-7 (owner ruling, 2 Nov, Batch 3 closure; QN5, J4.8), after CR-87: the teacher who authors browses her
+// school's bank by its tab, with keys and reasons; Question Health inside it stays the reviewer's (no review form).
+await step("Q1", "Bank Soal as the teacher: the tab is offered; her school's questions with their keys, nothing from another school, and no Question Health (F-7; QN5, J4.8, J4.9)", ["D-050 bank", "F-7"], async (rec) => {
   rec.page = G;
   if (!course) return blocked(rec, "no course");
-  await G.goto(`${APP}/studio/bank`, { timeout: SLOW });
-  await G.waitForURL((u) => u.pathname !== "/studio/bank", { timeout: SLOW, waitUntil: "commit" }).catch(() => {});
-  await G.locator("h1").first().waitFor({ state: "visible", timeout: SLOW }).catch(() => {});
-  const di = new URL(G.url()).pathname;
   const tab = await G.getByRole("link", { name: "Bank Soal" }).count();
-  rec.shots.push(await shot(G, "bank-teacher"));
-  if (di !== "/studio" || tab !== 0) rec.verdict = "FAIL";
-  return `the teacher asking for /studio/bank lands on ${di}; Bank Soal tabs offered: ${tab}`;
+  const b = await bank(G, "teacher");
+  const kunci = await G.locator("main .pin-opsi-kunci").count();
+  const tinjau = await G.locator('main form select[name="keputusan"]').count();
+  rec.shots.push(b.shot);
+  if (b.foreign > 0 || b.ofCourse === 0 || kunci === 0 || tinjau !== 0) rec.verdict = "FAIL";
+  return `Bank Soal tabs offered: ${tab}; ${b.n} list rows; of this upload ${b.ofCourse}, from another school ${b.foreign}; keys shown ${kunci}; Question Health review forms ${tinjau}`;
 });
 for (const [id, who, page] of [["Q2", "admin", A]]) {
   await step(id, `Bank Soal as the ${who}: the uploaded questions are listed, and nothing from another school`, ["D-050 bank"], async (rec) => {

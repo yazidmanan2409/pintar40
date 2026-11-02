@@ -465,7 +465,9 @@ export const penutupanTests: SelfTest[] = [
         SYSTEM_ADMIN: [...TAB_STUDIO],
         INSTITUTION_ADMIN: [...TAB_STUDIO],
         HEAD_OF_DEPARTMENT: ["beranda", "unggah", "tinjau", "kanonik", "bank", "integritas"],
-        EDUCATOR: ["beranda", "unggah", "kanonik"],
+        // RESTATED FOR F-7 (owner ruling, 2 Nov, Batch 3 closure; QN5, J4.8): a teacher who authors browses their school's
+        // bank; Question Health inside it stays the reviewer's (STUDIO3C-BANK-01)
+        EDUCATOR: ["beranda", "unggah", "kanonik", "bank"],
         DEAN: [],
         STUDENT: [],
       };
@@ -497,7 +499,7 @@ export const penutupanTests: SelfTest[] = [
           `/studio/${t} does not send a person it is not for to Studio's home`);
       }
       return c.verdict(`from ${berkas}: Admin platform and Admin sekolah see all seven Studio tabs, the Kepala departemen all but `
-        + "Aturan Penilaian, the Guru Beranda, Buat Paket and Pustaka PINTAR, the Dekan and the student none; the operator's parts "
+        + "Aturan Penilaian, the Guru Beranda, Buat Paket, Pustaka PINTAR and Bank Soal (F-7), the Dekan and the student none; the operator's parts "
         + "are Admin platform's alone; the layout draws the tabs from that table; Studio's own Uji Cepat launcher and certificate "
         + "layout are gone, page, tab and action; each tab's page sends a person it is not for to Studio's home (CR-87, CR-84)");
     },
