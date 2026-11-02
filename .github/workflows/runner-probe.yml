@@ -1,0 +1,55 @@
+# Batch 0 (D-142, owner authorisation 2 Nov): what the GitHub-hosted runner actually provides.
+#
+# READ ONLY. No secrets, no checkout of application code, no network writes. It prints the image's
+# operating system, the tools PINTAR's CI relies on (Node, npm, Docker, psql, pg_dump) and the
+# Node runtime the JavaScript actions get, for `ubuntu-latest` and the pinned `ubuntu-24.04`, so a
+# CI compatibility change is chosen on evidence, not on an assumption about the image.
+name: probe · runner image (read only)
+
+on:
+  push:
+    branches:
+      - claude/awesome-rubin-bqxp6p
+    paths:
+      - .github/workflows/runner-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [ubuntu-latest, ubuntu-24.04]
+    runs-on: ${{ matrix.image }}
+    timeout-minutes: 5
+    steps:
+      - name: Image and tools
+        run: |
+          set +e
+          echo "### ${{ matrix.image }}" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo '```'
+            echo "ImageOS=$ImageOS ImageVersion=$ImageVersion"
+            . /etc/os-release && echo "os: $PRETTY_NAME"
+            echo "kernel: $(uname -r)"
+            echo "node: $(node --version 2>&1)"
+            echo "npm: $(npm --version 2>&1)"
+            echo "docker: $(docker --version 2>&1)"
+            echo "docker compose: $(docker compose version 2>&1)"
+            echo "psql: $(psql --version 2>&1)"
+            echo "pg_dump: $(pg_dump --version 2>&1)"
+            echo "pg_config: $(pg_config --version 2>&1)"
+            echo "python3: $(python3 --version 2>&1)"
+            echo "pgdg codename support: $(curl -fsS -o /dev/null -w '%{http_code}' https://apt.postgresql.org/pub/repos/apt/dists/$(. /etc/os-release; echo $VERSION_CODENAME)-pgdg/Release 2>&1)"
+            echo "ls /usr/lib/postgresql: $(ls /usr/lib/postgresql 2>&1 | tr '\n' ' ')"
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Node runtime given to a JavaScript action
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const line = `actions runtime: node ${process.version}`;
+            core.summary.addRaw(line + "\n"); await core.summary.write(); console.log(line);
