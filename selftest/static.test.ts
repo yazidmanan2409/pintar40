@@ -97,6 +97,7 @@ import { secguardTests } from "./secguard.test";
 import { cr91Tests } from "./cr91.test";
 import { ux2Tests } from "./ux2.test";
 import { tanggalTests } from "./tanggal.test";
+import { koleksiTests } from "./koleksi.test";
 import { penutupanTests } from "./penutupan.test";
 import { fable22Tests } from "./fable22.test";
 
@@ -2179,6 +2180,7 @@ export const staticTests: SelfTest[] = [
   ...cr91Tests,
   ...ux2Tests,
   ...tanggalTests,
+  ...koleksiTests,
   ...penutupanTests,
   ...fable22Tests,
 ];

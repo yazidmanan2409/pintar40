@@ -204,6 +204,10 @@ export type HleEvent =
   | "sesi.menu.semua"
   | "jaga.judul"
   | "tanggal.belum"
+  | "koleksi.cari.label" | "koleksi.cari.placeholder" | "koleksi.cari.hapus" | "koleksi.cari.cocok"
+  | "koleksi.saring.label" | "koleksi.saring.semua"
+  | "koleksi.kosong.judul" | "koleksi.kosong.kueri" | "koleksi.kosong.reset"
+  | "koleksi.halaman.label" | "koleksi.sebelumnya" | "koleksi.menampilkan" | "koleksi.posisi" | "koleksi.posisi.ringkas"
   | "auth.title"
   | "auth.lede"
   | "auth.email_label"
@@ -2732,6 +2736,23 @@ const table: Table = {
   "ketiadaan.jumlah.murid": { default: "Sekarang {have} murid; perlu {needed}.", en: "{have} students so far; {needed} needed." },
   // W3.3 · the echo under an empty date field (Daisy, components/DateTime)
   "tanggal.belum": { default: "Belum ada tanggal.", en: "No date yet." },
+  // W3.4 (Batch 2; CR-88): the Collection (Daisy, components/Table, Search, Pagination; the words J2Kelas lists as new).
+  // {benda} is the caller's noun, already in the reader's language; {q} is what was searched. «Berikutnya» and the
+  // pager's hidden names «Halaman sebelumnya» / «Halaman berikutnya» are already here (koleksi.berikutnya, lesson.prev/next).
+  "koleksi.cari.label": { default: "Cari {benda}", en: "Search {benda}" },
+  "koleksi.cari.placeholder": { default: "Cari nama", en: "Search names" },
+  "koleksi.cari.hapus": { default: "Hapus pencarian", en: "Clear search" },
+  "koleksi.cari.cocok": { default: "{n} {benda} cocok dengan «{q}»", en: "{n} {benda} match «{q}»" },
+  "koleksi.saring.label": { default: "Tampilkan", en: "Show" },
+  "koleksi.saring.semua": { default: "Semua", en: "All" },
+  "koleksi.kosong.judul": { default: "Tidak ada {benda} yang cocok", en: "No {benda} match" },
+  "koleksi.kosong.kueri": { default: "Tidak ada nama dengan «{q}» di tampilan ini.", en: "No name with «{q}» in this view." },
+  "koleksi.kosong.reset": { default: "Hapus pencarian dan saringan", en: "Clear search and filter" },
+  "koleksi.halaman.label": { default: "Halaman daftar {benda}", en: "Pages of the {benda} list" },
+  "koleksi.sebelumnya": { default: "Sebelumnya", en: "Previous" },
+  "koleksi.menampilkan": { default: "Menampilkan {dari}–{sampai} dari {total} {benda}", en: "Showing {dari}–{sampai} of {total} {benda}" },
+  "koleksi.posisi": { default: "Halaman {n} dari {total}", en: "Page {n} of {total}" },
+  "koleksi.posisi.ringkas": { default: "{n} / {total}", en: "{n} / {total}" },
   // ══════════════════════════════ UX-1 · the sign-in screen (login handoff)
   // Daisy's canonical copy table, verbatim: 38 strings measured against their
   // controls at every width in both languages. Three of them are load-bearing

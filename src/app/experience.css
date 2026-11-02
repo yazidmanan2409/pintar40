@@ -2857,3 +2857,58 @@ select:not([multiple]):not([size]) {
 .pin-gema { display: flex; align-items: center; gap: var(--space-2); margin: var(--space-2) 0 0; font-size: var(--type-body); line-height: var(--t-body-lh); font-weight: var(--weight-strong); color: var(--ink-1); }
 .pin-gema .pin-ikon { color: var(--ink-3); flex: none; }
 .pin-gema .is-kosong { font-weight: var(--weight-normal); color: var(--ink-3); }
+/* ───────────────────────────── W3.4 · Table / Collection (Batch 2; CR-88; Daisy, components/Table, Table rows,
+   Search, Pagination, Segmented control). A search and at most one filter (segments wide, a select below 640 px), the
+   table in a named frame that scrolls on its own with its head and each row's name held still, rows of 52 px or more
+   on the quiet stripe (option A: table-row and table-row-alt), and the pager that never hides the total. Below 640 px
+   the low-priority columns step back and the pager says «2 / 16» beside its two arrows. There is no card view. */
+.pin-koleksi { container-type: inline-size; display: grid; gap: var(--space-3); min-width: 0; }
+.pin-koleksi > * { min-width: 0; }
+.pin-koleksi-alat { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.pin-cari { position: relative; display: block; flex: 1 1 calc(var(--space-5) * 10); max-width: calc(var(--space-5) * 15); }
+.pin-cari > .pin-ikon { position: absolute; left: var(--space-3); top: 50%; translate: 0 -50%; color: var(--ink-3); pointer-events: none; }
+.pin-cari .pin-input { width: 100%; padding-left: calc(var(--space-3) + var(--icon-md) + var(--space-2)); padding-right: var(--control-md); }
+.pin-cari .pin-input::-webkit-search-cancel-button { display: none; }
+.pin-cari-hapus { position: absolute; right: 0; top: 0; width: var(--control-md); height: var(--control-md); display: grid; place-items: center; color: var(--ink-2); border-radius: var(--radius-md); }
+.pin-cari-hapus:hover { color: var(--ink-1); }
+.pin-cari-hasil:empty { display: none; }
+.pin-pilih { position: relative; display: block; }
+.pin-pilih select { appearance: none; width: 100%; padding-right: calc(var(--space-3) + var(--icon-md) + var(--space-2)); cursor: pointer; }
+.pin-pilih > .pin-ikon { position: absolute; right: var(--space-3); top: 50%; translate: 0 -50%; color: var(--ink-2); pointer-events: none; }
+.pin-tabel-bingkai { background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); overflow-x: auto; max-width: 100%; }
+.pin-tabel-bingkai:focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+.pin-tabel { width: 100%; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
+.pin-tabel th, .pin-tabel td { padding: var(--space-3) var(--space-4); text-align: left; vertical-align: middle; border-bottom: var(--border-hairline) solid var(--line); }
+.pin-tabel thead th { position: sticky; top: 0; z-index: var(--z-sticky); background: var(--table-head); font-size: var(--t-label); line-height: var(--t-label-lh); font-weight: var(--weight-strong); color: var(--ink-2); white-space: nowrap; }
+.pin-tabel tbody tr:last-child > * { border-bottom: 0; }
+.pin-tabel tbody tr > * { height: var(--control-lg); }
+.pin-tabel .pin-angka { text-align: right; }
+.pin-tabel .pin-sempit { width: 0; white-space: nowrap; }
+.pin-tabel-nama { font-weight: var(--weight-strong); color: var(--ink-1); min-width: 16ch; overflow-wrap: break-word; }
+/* the row's name is held still when the table scrolls sideways; it carries its row's ground with it */
+.pin-tabel thead th:first-child, .pin-tabel .pin-tabel-nama { position: sticky; left: 0; z-index: 1; }
+.pin-tabel thead th:first-child { z-index: calc(var(--z-sticky) + 1); }
+/* ROWS (Dr Gladys, 5 Oct; option A): the stripe is set on the cells, so a sticky name keeps it. No vertical lines,
+   no colour per row for status. The rules carry no extra weight (:where), so a later hover or selection wins. */
+.pin-tabel tbody tr > * { background: var(--table-row); }
+.pin-tabel tbody tr:where(:nth-child(even)) > * { background: var(--table-row-alt); }
+.pin-tabel-kosong td { height: auto; padding: var(--space-7) var(--space-4); }
+.pin-kosong-cocok { display: grid; gap: var(--space-2); justify-items: start; max-width: var(--measure-prose); }
+.pin-kosong-cocok h3 { margin: 0; font-size: var(--t-subsection); line-height: var(--t-subsection-lh); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-kosong-cocok p { margin: 0; color: var(--ink-2); }
+.pin-kosong-cocok .pin-actions { margin-top: var(--space-2); }
+/* the pager: where, how much, how to move */
+.pin-pager { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); align-items: center; justify-content: space-between; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); }
+.pin-pager-gerak { display: flex; gap: var(--space-2); align-items: center; }
+.pin-pager-posisi { font-variant-numeric: tabular-nums; color: var(--ink-1); font-weight: var(--weight-strong); white-space: nowrap; padding: 0 var(--space-2); }
+.pin-pager-kecil { display: none; }
+/* a choice that only fits wide: segments there, a select (the same options) here */
+.pin-sempit-saja { display: none; }
+@container (max-width: 639px) {
+  .pin-tabel [data-prioritas="rendah"] { display: none; }
+  .pin-cari { max-width: none; }
+  .pin-lebar-saja { display: none; }
+  .pin-sempit-saja { display: block; }
+  .pin-pager-teks, .pin-pager-lebar { display: none; }
+  .pin-pager-kecil { display: inline; }
+}

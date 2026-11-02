@@ -408,10 +408,6 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The definition-list label column: sized to the longest label in either language." },
   { file: "src/app/experience.css", literal: "560px",
     reason: "The phone breakpoint, which is a device fact rather than a spacing step." },
-  // W3.5 (Batch 2): Daisy's design system keeps its breakpoints as plain numbers (640, 1024, 1280) because CSS cannot
-  // read a variable in a media query; «under 640 px» is written max-width: 639px.
-  { file: "src/app/experience.css", literal: "639px",
-    reason: "Daisy's 640 px breakpoint (the Dialog's actions stack under it), a device fact a media query cannot read from a token." },
   { file: "src/app/experience.css", literal: "6px",
     reason: "Sub-4px detail geometry: the status dot, the readiness bar and the chip corner." },
   { file: "src/app/experience.css", literal: "2px",
@@ -468,6 +464,10 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The staff shell's breakpoint, bp-large (tokens.json): CSS cannot read a custom property inside @media." },
   { file: "src/app/experience.css", literal: "1023px",
     reason: "The staff shell's breakpoint, bp-large less one pixel (tokens.json): CSS cannot read a custom property inside @media." },
+  { file: "src/app/experience.css", literal: "639px",
+    reason: "W3.4: the Collection's narrow layout, bp-medium (640, tokens.json) less one pixel, as the design system's own Table and Pagination write it (bundle.css @container): CSS cannot read a custom property inside @container." },
+  { file: "src/app/experience.css", literal: "16ch",
+    reason: "W3.4: a row's name never narrower than 16 characters, so it wraps between words rather than inside one (Daisy, components/Table: Long values, min-width 16ch); a measure in characters, not a scale step." },
   { file: "src/app/experience.css", literal: "22px",
     reason: "The class card's characters in the PIN input at control-xl (08-migration.md, PIN input: 20 to 22 px); the design system's own component writes the same literal." },
   { file: "src/app/experience.css", literal: "20px",

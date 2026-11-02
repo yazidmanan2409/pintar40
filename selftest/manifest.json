@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 193,
+  "version": 194,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3787,6 +3787,21 @@
       "id": "TANGGAL-03",
       "runner": "static",
       "proves": "W3.3 Date and time echo (Batch 2; RV-16; Daisy components/DateTime), selftest/tanggal.test.ts, the source of every src/**/*.tsx and src/components/bentuk/TanggalDenganGema.tsx rendered in id and en: no native date, datetime-local or time input outside TanggalDenganGema; each use is labelled (htmlFor) and in the reader's language; Siapkan's mulai/sampai and Konfigurasi's pm_mulai, pm_selesai, terbit, sampai and valid_until are echoed under their names; rendered, the field passes name, id, value, required, min and max through, aria-describedby names the echo first, and the echo after it says «Jumat, 9 Okt 2026» («Friday, 9 Oct 2026»), with «, 07.30 WIB» for a time, politely, and «Belum ada tanggal.» when empty; .pin-gema in src/app/experience.css is Daisy's line."
+    },
+    {
+      "id": "KOLEKSI-HAL-01",
+      "runner": "static",
+      "proves": "W3.4 Table / Collection (Batch 2; CR-88; Daisy components/Pagination, Search, Table), selftest/koleksi.test.ts, executing the source of src/components/koleksi/aturan.ts: posisiHalaman places a page in the whole (page 2 of 312 by 20 is 21–40 of 16 pages; the last page is short; a page past the last is the last; page 0, a negative or no page is page 1; nothing at all is page 1 of 1 showing 0–0; a size below one is one row); halamanKoleksi reads only a whole page number; urutAbjad is alphabetical in Indonesian order ignoring case and accents, numbers in number order; susunKoleksi searches ignoring case and accents, filters, orders and pages, keeping the whole count; saringDiminta is always an offered choice and, of the segments and the select, takes the one the person changed; tautanKoleksi keeps the page's own place and leaves out the default filter and page 1."
+    },
+    {
+      "id": "KOLEKSI-TABEL-01",
+      "runner": "static",
+      "proves": "W3.4 Table / Collection (Batch 2; CR-88; J2; Daisy components/Table, TableRows, Search, Pagination, SegmentedControl, EmptyState), selftest/koleksi.test.ts: src/components/koleksi/Koleksi.tsx rendered in id and en: the frame is a role=region, tabindex=0, named; the table has a caption; column heads are th scope=col and each row's name th scope=row; low-priority columns are marked; the toolbar is a GET form keeping the page's place, a labelled search described by a polite count («312 murid cocok dengan «Mur»»), and one filter as a radio group of segments and a select of the same choices; the pager says «Menampilkan 21–40 dari 312 murid» and «Halaman 2 dari 16» and moves by «Sebelumnya»/«Berikutnya» links keeping the search and filter, disabled (not absent) at an end, never hiding the total; nothing matching is the row «Tidak ada murid yang cocok» inside the frame with a «Hapus pencarian» link (or «Hapus pencarian dan saringan»); no rows at all renders the caller's Empty state."
+    },
+    {
+      "id": "KOLEKSI-CSS-01",
+      "runner": "static",
+      "proves": "W3.4 Table / Collection (Batch 2; Daisy components/Table, TableRows option A, Pagination, SegmentedControl), selftest/koleksi.test.ts, the source of src/app/experience.css and src/app/globals.css: the head is sticky in ink-2 on table-head; body rows are at least control-lg (52 px) and striped table-row / table-row-alt; the frame scrolls on its own on surface-1 with radius-lg and shows focus; the row's name is held still; no vertical lines; the Collection is an inline-size container and below 640 px low-priority columns step back, the segments become the select and the pager takes «2 / 16»; a segment is a 44 px target."
     },
     {
       "id": "D140-STUDIO-01",
