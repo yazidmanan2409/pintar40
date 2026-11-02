@@ -2817,7 +2817,10 @@ select:not([multiple]):not([size]) {
 
 /* ───────────────────────────── W3.5 · the account menu and the one Dialog (Batch 2; Daisy, components/Menu,
    Dialog, Identity; JQ2(a)). Menu items 44 px; the destructive item last, in blocked words; the dialog on the scrim. */
-.pin-menu-induk { position: relative; display: inline-block; }
+/* the menu hangs from the whole identity strip (the foot of the navigation or drawer), not from the name inside it,
+   so it is never wider than the place it opens from */
+.pin-sesi:has(.pin-menu-induk) { position: relative; }
+.pin-menu-induk { position: static; display: inline-block; }
 .pin-menu-tombol {
   display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control-md); padding: 0 var(--space-2);
   border: 0; background: none; color: var(--ink-1); font: inherit; cursor: pointer; max-width: 100%;
@@ -2826,7 +2829,10 @@ select:not([multiple]):not([size]) {
 .pin-menu-tombol .pin-chevron { width: var(--icon-sm); height: var(--icon-sm); color: var(--ink-3); flex: none; }
 .pin-menu-tombol[aria-expanded="true"] .pin-chevron { transform: rotate(180deg); }
 .pin-menu {
-  position: absolute; top: calc(100% + var(--space-1)); right: 0; z-index: var(--z-overlay); min-width: var(--measure-menu);
+  /* the identity sits at the foot of the navigation (and of the drawer), so the menu opens upward from it, aligned to
+     its left edge: Daisy's .pds-menu-atas */
+  position: absolute; top: auto; bottom: calc(100% + var(--space-1)); left: 0; right: auto; z-index: var(--z-overlay);
+  min-width: var(--measure-menu); max-width: calc(100vw - var(--space-6));
   display: grid; padding: var(--space-1); background: var(--surface-1); border-radius: var(--radius-md); box-shadow: var(--shadow-overlay);
 }
 .pin-menu[hidden] { display: none; }
@@ -2839,6 +2845,8 @@ select:not([multiple]):not([size]) {
 .pin-menu-bahaya { color: var(--status-blocked); }
 .pin-menu-pisah { border: 0; border-top: var(--border-hairline) solid var(--line); margin: var(--space-1) 0; }
 .pin-dialog {
+  /* the native dialog centres itself with margin: auto, which the CSS reset removes; it is put back here */
+  margin: auto; max-height: calc(100dvh - var(--space-8)); overflow: auto;
   border: 0; padding: 0; border-radius: var(--radius-lg); box-shadow: var(--shadow-dialog); background: var(--surface-1); color: var(--ink-1);
   width: min(var(--measure-dialog), calc(100vw - var(--space-6)));
 }
