@@ -1,0 +1,1524 @@
+{
+ "halaman": 62,
+ "layar": 39,
+ "tanpaJudul": 39,
+ "tanpaLompat": 39,
+ "fokusTakTerlihat": 1,
+ "axeBersih": 38,
+ "axeGagal": 0,
+ "meluap": {
+  "320": 0,
+  "640": 5,
+  "1024": 0,
+  "1280": 0
+ },
+ "terpotong": {
+  "320": 0,
+  "640": 0,
+  "1024": 0,
+  "1280": 0
+ },
+ "aturan": [
+  {
+   "id": "label",
+   "impact": "critical",
+   "help": "Form elements must have labels",
+   "layar": 1,
+   "node": 1,
+   "contoh": [
+    "/lapor?dari=%2Fkonfigurasi"
+   ]
+  }
+ ],
+ "layarDaftar": [
+  {
+   "path": "/",
+   "who": "sysadmin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "button «ID»"
+   },
+   "papan": {
+    "berhenti": 4,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/konfigurasi",
+   "who": "sysadmin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 18,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/aktivasi",
+   "who": "sysadmin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "a «info@pintarselalu.com»"
+   },
+   "papan": {
+    "berhenti": 12,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/konfigurasi/email-uji",
+   "who": "sysadmin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 12,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/konfigurasi/keamanan",
+   "who": "sysadmin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 14,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/lapor?dari=%2Fkonfigurasi",
+   "who": "sysadmin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "button «ID»"
+   },
+   "papan": {
+    "berhenti": 6,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [
+    "label:critical:1"
+   ],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/akun",
+   "who": "sysadmin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 14,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/pendataan",
+   "who": "alpha-admin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 14,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/studio",
+   "who": "alpha-admin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 10,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/dekan/ringkasan?simpul=f30cd19a-f160-4dd2-99cd-3aebe3501b07",
+   "who": "alpha-admin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "a «Akun saya»"
+   },
+   "papan": {
+    "berhenti": 4,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/edukator/ringkasan?kelas=41739567-c99c-4b50-a2ec-eef644330c8a",
+   "who": "alpha-admin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "a «Akun saya»"
+   },
+   "papan": {
+    "berhenti": 4,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/studio/unggah",
+   "who": "alpha-admin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 10,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/studio/tinjau",
+   "who": "alpha-admin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 10,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/studio/kanonik",
+   "who": "alpha-admin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 10,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/studio/definisi",
+   "who": "alpha-admin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 10,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/studio/bank",
+   "who": "alpha-admin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 10,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/studio/integritas",
+   "who": "alpha-admin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 10,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/pimpinan",
+   "who": "alpha-dean",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 13,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/pimpinan/f30cd19a-f160-4dd2-99cd-3aebe3501b07",
+   "who": "alpha-dean",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 17,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/pimpinan/f30cd19a-f160-4dd2-99cd-3aebe3501b07/umpan-balik",
+   "who": "alpha-dean",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 12,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/pimpinan/f30cd19a-f160-4dd2-99cd-3aebe3501b07/murid",
+   "who": "alpha-dean",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 12,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/pimpinan/f30cd19a-f160-4dd2-99cd-3aebe3501b07/umpan-balik/kelas/41739567-c99c-4b50-a2ec-eef644330c8a",
+   "who": "alpha-dean",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 11,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/pimpinan/f30cd19a-f160-4dd2-99cd-3aebe3501b07/murid/730a0608-d4ca-4c53-bde9-f2367c84687c",
+   "who": "alpha-dean",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 10,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/mengajar",
+   "who": "alpha-guru",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «»"
+   },
+   "papan": {
+    "berhenti": 4,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/mengajar/41739567-c99c-4b50-a2ec-eef644330c8a",
+   "who": "alpha-guru",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 19,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/mengajar/41739567-c99c-4b50-a2ec-eef644330c8a/siapkan",
+   "who": "alpha-guru",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 12,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/mengajar/41739567-c99c-4b50-a2ec-eef644330c8a/uji-cepat",
+   "who": "alpha-guru",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 12,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/mengajar/41739567-c99c-4b50-a2ec-eef644330c8a/bukti",
+   "who": "alpha-guru",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 12,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/mengajar/41739567-c99c-4b50-a2ec-eef644330c8a/langkah",
+   "who": "alpha-guru",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 15,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/mengajar/41739567-c99c-4b50-a2ec-eef644330c8a/umpan-balik",
+   "who": "alpha-guru",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 12,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/mengajar/41739567-c99c-4b50-a2ec-eef644330c8a/murid/730a0608-d4ca-4c53-bde9-f2367c84687c",
+   "who": "alpha-guru",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 12,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/belajar",
+   "who": "alpha-siswa",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «»"
+   },
+   "papan": {
+    "berhenti": 4,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": 674,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/belajar/sertifikat",
+   "who": "alpha-siswa",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "a «Belajar»"
+   },
+   "papan": {
+    "berhenti": 8,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": 675,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/studio/paket/481b2d75-139f-4a96-af70-0bfa8a7dddc9",
+   "who": "siklus-admin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 10,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/studio/pratinjau/c3285249-0b4c-45ba-828e-f9e1fecdd41d",
+   "who": "siklus-admin",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 10,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/mengajar/123d2298-c458-42ad-ad63-6aefbbf9047f/siapa?penugasan=fa19bcc3-99f7-4f0c-aa06-f448820e49fc",
+   "who": "siklus-guru",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "input «Menu»"
+   },
+   "papan": {
+    "berhenti": 16,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/belajar/715b0fa4-421b-4624-b7c2-96284588bf7b/pemetaan",
+   "who": "siklus-siswa",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "a «Belajar»"
+   },
+   "papan": {
+    "berhenti": 11,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": 674,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/belajar/715b0fa4-421b-4624-b7c2-96284588bf7b",
+   "who": "siklus-siswa",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "a «Belajar»"
+   },
+   "papan": {
+    "berhenti": 12,
+    "tanpaTanda": 0,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": 674,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  },
+  {
+   "path": "/belajar/715b0fa4-421b-4624-b7c2-96284588bf7b/pelajaran/c3285249-0b4c-45ba-828e-f9e1fecdd41d",
+   "who": "siklus-siswa",
+   "judul": "PINTAR",
+   "judulMasalah": "only the application name, the same on every page",
+   "lompat": {
+    "ada": false,
+    "pertama": "a «Belajar»"
+   },
+   "papan": {
+    "berhenti": 10,
+    "tanpaTanda": 1,
+    "luar": 0,
+    "macet": false,
+    "tanpaTandaContoh": [
+     "audio «»"
+    ],
+    "tanpaBerhenti": false
+   },
+   "axe": [],
+   "lebar": {
+    "320": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "640": {
+     "meluap": 674,
+     "terpotong": 0
+    },
+    "1024": {
+     "meluap": null,
+     "terpotong": 0
+    },
+    "1280": {
+     "meluap": null,
+     "terpotong": 0
+    }
+   },
+   "gagal": []
+  }
+ ],
+ "fokusMacet": 0,
+ "tanpaBerhentiPapan": 0,
+ "_tentang": "Batch 0 B0-B accessibility baseline, local job-A replica of audit-journeys on 0fb65bb (synthetic seeded world, local stack), 2 Nov 2026. Recorded, not judged. The focus metric «lost to the page» of the first run was a harness false positive (focus on <body> after the last stop is the page end) and is removed here; every other figure is as recorded."
+}

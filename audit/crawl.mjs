@@ -264,7 +264,7 @@ if (A11Y !== "0") {
   const baris = [
     `A11Y BASELINE (recorded, not judged): ${b.layar} distinct screens (${b.halaman} pages checked)`,
     `  title missing or only «PINTAR»: ${b.tanpaJudul}; no working skip link as the first Tab stop: ${b.tanpaLompat}`,
-    `  a focus stop without a visible indicator: ${b.fokusTakTerlihat}; focus stuck or lost to the page: ${b.fokusMacetAtauHilang}`,
+    `  a focus stop without a visible indicator: ${b.fokusTakTerlihat}; focus stuck: ${b.fokusMacet}; no focus stop at all: ${b.tanpaBerhentiPapan}`,
     `  axe clean: ${b.axeBersih}; axe could not run: ${b.axeGagal}`,
     `  wider than the window at ${Object.entries(b.meluap).map(([w, n]) => `${w}px: ${n}`).join(", ")}`,
     `  clipped text at ${Object.entries(b.terpotong).map(([w, n]) => `${w}px: ${n}`).join(", ")}`,

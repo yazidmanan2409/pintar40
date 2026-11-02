@@ -11,7 +11,8 @@
 //   judul      the document title: present, not empty, and not the bare application name shared by every page
 //   lompat     the first Tab stop: a same-page link whose target exists («Langsung ke konten» or similar)
 //   papan      a keyboard walk of up to 40 Tab presses: stops reached, whether each shows a visible focus indicator,
-//              whether focus is stuck or lost to <body>, and whether any focused element sits off screen
+//              whether focus is stuck on one element, whether the page has no focus stop at all, and whether any
+//              focused element sits off screen (focus on <body> after the last stop is the page's end, not a defect)
 //   lebar      at 320, 640 (1280 at 200 % zoom), 1024 and 1280 CSS px: page wider than the window (horizontal
 //              scroll), and text clipped by a box that hides overflow without an ellipsis
 //
@@ -93,6 +94,7 @@ export async function periksa(page) {
     for (let i = 0; i < 40; i++) {
       await page.keyboard.press("Tab");
       const f = await page.evaluate(FOKUS);
+      // focus on <body> after the last stop is the page's end (the browser wraps next); not a defect
       if (f.tubuh) { tubuh++; if (i === 0) langkah.push({ tubuh: true }); if (tubuh >= 2) break; continue; }
       // a focus indicator: the focused style differs from the same element's unfocused style
       const tanpa = await page.evaluate(() => { const el = document.activeElement; el.blur(); const cs = getComputedStyle(el);
@@ -107,7 +109,7 @@ export async function periksa(page) {
     const pertama = langkah[0];
     const sasaran = pertama?.href?.startsWith("#") ? await page.evaluate((h) => !!document.getElementById(decodeURIComponent(h.slice(1))), pertama.href) : false;
     hasil.lompat = { ada: Boolean(pertama?.href?.startsWith("#") && sasaran), pertama: pertama?.tubuh ? "(body)" : pertama ? `${pertama.tag} «${pertama.teks}»` : null };
-    hasil.papan = { berhenti: langkah.filter((l) => !l.tubuh && !l.ulang).length, tanpaTanda, luar, macet: macet >= 3, hilangKeTubuh: tubuh > 0 && langkah.length > 1,
+    hasil.papan = { berhenti: langkah.filter((l) => !l.tubuh && !l.ulang).length, tanpaTanda, luar, macet: macet >= 3, tanpaBerhenti: langkah.filter((l) => !l.tubuh && !l.ulang).length === 0,
       tanpaTandaContoh: langkah.filter((l) => l.terlihat === false).slice(0, 3).map((l) => `${l.tag} «${l.teks}»`) };
   } catch (e) { hasil.gagal.push(`keyboard: ${String(e.message ?? e).slice(0, 160)}`); }
 
@@ -141,7 +143,8 @@ export function ringkas(semua) {
     tanpaJudul: hitung((h) => h.judulMasalah),
     tanpaLompat: hitung((h) => !h.lompat?.ada),
     fokusTakTerlihat: hitung((h) => (h.papan?.tanpaTanda ?? 0) > 0),
-    fokusMacetAtauHilang: hitung((h) => h.papan?.macet || h.papan?.hilangKeTubuh),
+    fokusMacet: hitung((h) => h.papan?.macet),
+    tanpaBerhentiPapan: hitung((h) => h.papan?.tanpaBerhenti),
     axeBersih: hitung((h) => h.axe && h.axe.length === 0),
     axeGagal: hitung((h) => !h.axe),
     meluap: Object.fromEntries(LEBAR.map((w) => [w, hitung((h) => h.lebar?.[w]?.meluap)])),
