@@ -21,7 +21,8 @@
  * (IDENTITY-4.0 §4). The card as a designed object is DAISY-24's; this email
  * carries its facts and the way to Akun saya, where the QR is.
  */
-import { format, t, TIMEZONE, type HleEvent } from "@/lib/hle";
+import { format, t, type HleEvent } from "@/lib/hle";
+import { tanggal } from "@/lib/tanggal";
 import type { Templat } from "@/lib/email/templat";
 import type { DataEmailKartu, DataEmailKode, DataEmailPasswordDiubah } from "@/lib/email/identitas";
 import { tampilPintarId } from "@/lib/aktivasi-kontrak";
@@ -102,10 +103,8 @@ export const templatPemulihan: Templat<DataEmailKode> = (data, konteks) => {
 /** PASSWORD_DIUBAH (BOB-27, D-055(f)): the password changed, when, and every session ended. */
 export const templatPasswordDiubah: Templat<DataEmailPasswordDiubah> = (data, konteks) => {
   const nama = data.nama.trim();
-  const d = new Date(data.waktu);
-  const kapan = Number.isNaN(d.getTime()) ? data.waktu : new Intl.DateTimeFormat("id-ID", {
-    day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: TIMEZONE, timeZoneName: "short",
-  }).format(d);
+  // the formal form with its time, «4 Oktober 2026 pukul 15.00 WIB», from the one date helper (W3.3, RV-16)
+  const kapan = tanggal(data.waktu, "resmiJam") || data.waktu;
   return bingkaiEmail(
     {
       subjek: kata("email.diubah.subjek"),

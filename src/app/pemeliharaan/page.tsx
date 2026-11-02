@@ -36,7 +36,7 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
   const status = await statusSaya();
   const w = jendelaUtama(status);
   const s = (k: HleEvent) => t(k, "learner", { locale });
-  const jam = (iso: string) => `${jamWib(iso, locale)} ${s("pemeliharaan.zona")}`;
+  const jam = (iso: string) => `${jamWib(iso)} ${s("pemeliharaan.zona")}`;
 
   let isi: React.ReactNode;
   if (status.terhenti === "EMERGENCY") {

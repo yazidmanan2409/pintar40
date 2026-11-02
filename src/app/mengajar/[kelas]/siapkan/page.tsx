@@ -6,6 +6,7 @@ import { sediakanMateri } from "../../actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import TombolKirim from "@/components/TombolKirim";
+import TanggalDenganGema from "@/components/bentuk/TanggalDenganGema";
 import BarisHasil from "@/components/BarisHasil";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
@@ -216,13 +217,13 @@ export default async function Siapkan({
               <div>
                 <dt><label htmlFor="pin-mulai">{s("mengajar.siap.mulai")}</label></dt>
                 <dd>
-                  <input className="pin-input" id="pin-mulai" type="date" name="mulai" defaultValue={hariIniSekolah()} />
+                  <TanggalDenganGema id="pin-mulai" name="mulai" defaultValue={hariIniSekolah()} locale={locale} untuk="educator" />
                 </dd>
               </div>
               <div>
                 <dt><label htmlFor="pin-sampai">{s("mengajar.siap.sampai")}</label></dt>
                 <dd>
-                  <input className="pin-input" id="pin-sampai" type="date" name="sampai" />
+                  <TanggalDenganGema id="pin-sampai" name="sampai" locale={locale} untuk="educator" />
                 </dd>
               </div>
               <div>

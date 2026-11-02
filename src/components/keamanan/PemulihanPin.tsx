@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { t, TIMEZONE, type HleEvent, type Locale } from "@/lib/hle";
+import { t, type HleEvent, type Locale } from "@/lib/hle";
+import { tanggal } from "@/lib/tanggal";
 import { tampilPintarId } from "@/lib/aktivasi-kontrak";
 import { bacaJawabanPemulihanAdmin, type JawabanStatusPemulihan, type StatusPemulihan } from "@/lib/keamanan-kontrak";
 import BarisHasil from "@/components/BarisHasil";
@@ -54,12 +55,8 @@ export default function PemulihanPin({ locale }: { locale: Locale }) {
     if (j.ok) { setStatus(j.status); setSelesai(true); } else setGagal(j);
   }
 
-  const sampai = (iso: string | null) => {
-    const d = iso ? new Date(iso) : null;
-    return d && !Number.isNaN(d.getTime())
-      ? new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: TIMEZONE }).format(d)
-      : "";
-  };
+  // the end of a lock, which someone acts on: with its day, year and WIB («Jumat, 9 Okt 2026, 07.30 WIB»; W3.3, RV-16)
+  const sampai = (iso: string | null) => tanggal(iso, "hariJam", locale);
 
   return (
     <section className="pin-sec" aria-labelledby="pin-keamanan-pin">

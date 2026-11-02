@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 192,
+  "version": 193,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3772,6 +3772,21 @@
       "id": "UX2-JAGA-01",
       "runner": "static",
       "proves": "W3.14 the idle warning (Batch 2; Daisy's components IdleWarning, J7Kunci), selftest/ux2.test.ts, the source of src/components/PenjagaSesi.tsx, src/app/layout.tsx and src/app/experience.css: an alert with the clock icon and the heading «PINTAR akan terkunci dalam 1 menit», mounted before the page in the flow (no fixed position, no z-index), on the attention ground, with no countdown."
+    },
+    {
+      "id": "TANGGAL-01",
+      "runner": "static",
+      "proves": "W3.3 one date helper (Batch 2; RV-16; Daisy components/Dates), selftest/tanggal.test.ts, the output of src/lib/tanggal.ts: for fixed instants every form reads as the spec writes it in id and en («9 Okt 2026», «Jumat, 9 Okt 2026», «Jumat, 9 Okt 2026, 07.30 WIB», «9 Okt 2026, 07.30 WIB», «09/10/2026», «9 Oktober 2026», «Friday, 9 Oct 2026, 07.30 WIB»); a UTC late evening is the next day in Jakarta, and the answers are the same in a process on TZ=America/Los_Angeles; a field's yyyy-mm-dd is never shifted and an impossible day is nothing; the twelve months and seven days by name; the output of format.date, jamWib and the security email comes from it."
+    },
+    {
+      "id": "TANGGAL-02",
+      "runner": "static",
+      "proves": "W3.3 one date helper (Batch 2; RV-16), selftest/tanggal.test.ts, the source of every src/**/*.ts(x): no toLocale…String or Intl.DateTimeFormat outside src/lib/tanggal.ts, except selisihZona and hariIniSekolah in src/lib/hle.ts (an offset and a field value, never a date a person reads); the places RV-16 named (Konfigurasi, Studio, Email uji, Keamanan, pengajar, maintenance, emails) ask the helper; the helper reads no device zone or locale data."
+    },
+    {
+      "id": "TANGGAL-03",
+      "runner": "static",
+      "proves": "W3.3 Date and time echo (Batch 2; RV-16; Daisy components/DateTime), selftest/tanggal.test.ts, the source of every src/**/*.tsx and src/components/bentuk/TanggalDenganGema.tsx rendered in id and en: no native date, datetime-local or time input outside TanggalDenganGema; each use is labelled (htmlFor) and in the reader's language; Siapkan's mulai/sampai and Konfigurasi's pm_mulai, pm_selesai, terbit, sampai and valid_until are echoed under their names; rendered, the field passes name, id, value, required, min and max through, aria-describedby names the echo first, and the echo after it says «Jumat, 9 Okt 2026» («Friday, 9 Oct 2026»), with «, 07.30 WIB» for a time, politely, and «Belum ada tanggal.» when empty; .pin-gema in src/app/experience.css is Daisy's line."
     },
     {
       "id": "D140-STUDIO-01",

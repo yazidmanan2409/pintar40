@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import { t, TIMEZONE, type HleEvent, type Locale } from "@/lib/hle";
+import { t, type HleEvent, type Locale } from "@/lib/hle";
+import { tanggal } from "@/lib/tanggal";
 import BarisHasil from "@/components/BarisHasil";
 import TombolKirim from "@/components/TombolKirim";
 import { cariRiwayatEmail, type BarisRiwayat, type HasilRiwayat } from "@/app/konfigurasi/email-uji/actions";
@@ -27,12 +28,9 @@ export function kunciHasil(b: Pick<BarisRiwayat, "hasil" | "batas">): HleEvent {
   return `emailuji.r.hasil.${b.hasil}` as HleEvent;
 }
 
+/** When the email was asked for: a record, so the timestamp («9 Okt 2026, 07.30 WIB»; W3.3, RV-16). */
 function waktu(iso: string, locale: Locale): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "id-ID", {
-    day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: TIMEZONE, timeZoneName: "short",
-  }).format(d);
+  return tanggal(iso, "cap", locale) || iso;
 }
 
 export default function RiwayatEmail({ locale }: { locale: Locale }) {

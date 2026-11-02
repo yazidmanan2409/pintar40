@@ -2851,3 +2851,9 @@ select:not([multiple]):not([size]) {
 /* the one solid red in PINTAR: a destructive confirmation's own button (components/Button) */
 .pin-btn.pin-bahaya-pasti { background: var(--status-blocked); border-color: var(--status-blocked); color: var(--pintar-primary-ink); }
 .pin-btn.pin-bahaya-pasti:hover { background: var(--status-blocked-hover); border-color: var(--status-blocked-hover); }
+/* ───────────────────────────── W3.3 · Date and time: the echo (Batch 2; Daisy, components/DateTime; RV-16)
+   Under a native date field, the chosen date in words with the day, built from the field's value; «Belum ada
+   tanggal.» when empty, quieter. */
+.pin-gema { display: flex; align-items: center; gap: var(--space-2); margin: var(--space-2) 0 0; font-size: var(--type-body); line-height: var(--t-body-lh); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-gema .pin-ikon { color: var(--ink-3); flex: none; }
+.pin-gema .is-kosong { font-weight: var(--weight-normal); color: var(--ink-3); }

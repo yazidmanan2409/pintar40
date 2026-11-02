@@ -12805,7 +12805,9 @@ export const experienceTests: SelfTest[] = [
       c.expect(/\{kataHalaman\(l\.halaman, locale\)\}/.test(baca("src", "app", "lapor", "saya", "page.tsx")), "«Laporan saya» shows a report's page as its path");
       // RV-2: a security event this page has no words for reads in the Jejak audit's words, never its code
       const catatan = baca("src", "components", "keamanan", "CatatanKeamanan.tsx");
-      c.expect(/: kataAksiAudit\(aksi, locale\)\)/.test(catatan) && !/: aksi\)\);/.test(catatan) && /year: "numeric"/.test(catatan) && /timeZoneName: "short"/.test(catatan),
+      // RESTATED FOR W3.3 (Batch 2): the moment's year and time zone moved into the one date helper (src/lib/tanggal.ts);
+      // the record now writes it as the timestamp form, «9 Okt 2026, 07.30 WIB», whose year and «WIB» TANGGAL-01 proves.
+      c.expect(/: kataAksiAudit\(aksi, locale\)\)/.test(catatan) && !/: aksi\)\);/.test(catatan) && /tanggal\(iso, "cap", locale\)/.test(catatan),
         "the security record shows an event by its code, or a moment without its year or time zone");
       // RV-3: one order of places, Daisy's, whichever is open
       const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));

@@ -10,6 +10,8 @@
  * Only what Phase 1 renders is wired here; later phases extend the table.
  */
 
+import { tanggal } from "./tanggal";
+
 export type Persona = "learner" | "educator" | "staff" | "public";
 export type HleEvent =
   | "jenis.bank.PRACTICE" | "jenis.bank.TEST" | "jenis.bank.EXAM"
@@ -201,6 +203,7 @@ export type HleEvent =
   | "ketiadaan.jumlah.murid"
   | "sesi.menu.semua"
   | "jaga.judul"
+  | "tanggal.belum"
   | "auth.title"
   | "auth.lede"
   | "auth.email_label"
@@ -2721,12 +2724,14 @@ const table: Table = {
   "berkas.pilih": { default: "Pilih berkas", en: "Choose a file" },
   "berkas.belum": { default: "Belum dipilih", en: "Nothing chosen yet" },
   "berkas.banyak": { default: "{n} berkas: {nama}", en: "{n} files: {nama}" },
-  // W3.2 / CR-46 (Daisy, components/EmptyState «not enough yet»): how much there is and how much is needed, in words
-  // W3.5 (JQ2(a); Daisy, components/Identity): the account menu's destructive item, which asks in the Dialog
   // W3.14 (Daisy, J7Kunci new words): the idle warning's heading; the sentence and the button are jaga.peringatan, jaga.masih
   "jaga.judul": { default: "PINTAR akan terkunci dalam 1 menit", en: "PINTAR will lock in 1 minute" },
+  // W3.5 (JQ2(a); Daisy, components/Identity): the account menu's destructive item, which asks in the Dialog
   "sesi.menu.semua": { default: "Keluar dari semua perangkat…", en: "Sign out of every device…" },
+  // W3.2 / CR-46 (Daisy, components/EmptyState «not enough yet»): how much there is and how much is needed, in words
   "ketiadaan.jumlah.murid": { default: "Sekarang {have} murid; perlu {needed}.", en: "{have} students so far; {needed} needed." },
+  // W3.3 · the echo under an empty date field (Daisy, components/DateTime)
+  "tanggal.belum": { default: "Belum ada tanggal.", en: "No date yet." },
   // ══════════════════════════════ UX-1 · the sign-in screen (login handoff)
   // Daisy's canonical copy table, verbatim: 38 strings measured against their
   // controls at every width in both languages. Three of them are load-bearing
@@ -5231,15 +5236,9 @@ export const format = {
     return new Intl.NumberFormat(LOCALE_TAG[locale], { style: "unit", unit: menit ? "minute" : "second", unitDisplay: "long" })
       .format(menit ? Math.ceil(detik / 60) : Math.ceil(detik));
   },
+  // W3.3 (Batch 2): the formal form, «9 Oktober 2026», written by the one date helper (src/lib/tanggal.ts).
   date(iso: string, locale: Locale = "id"): string {
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return iso;
-    return new Intl.DateTimeFormat(LOCALE_TAG[locale], {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      timeZone: TIMEZONE,
-    }).format(d);
+    return tanggal(iso, "resmi", locale) || iso;
   },
 };
 
