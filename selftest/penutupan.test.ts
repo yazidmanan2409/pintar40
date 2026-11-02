@@ -6,8 +6,10 @@
  * and its line is absent from the certificate and from the public check, rather than a dash.
  * PENUTUPAN-S01 — CR-02 (D-078(c), D-077(d)): the learner's certificate page draws the school, the course and the
  * certificate's language from the certificate's own seal (my_certificate), never from today's school or assignment.
- * PENUTUPAN-M04 — CR-50 (D-063 M5, D-120 Q9): every PINTAR chapter in docs/onboarding/konten is what the upload page
- * makes of its workbook, and each wrong option names a misconception the same file defines on its «Miskonsepsi» sheet.
+ * PENUTUPAN-M04 — CR-50 (D-063 M5, D-120 Q9): every chapter of the synthetic corpus in docs/onboarding/konten-sintetis
+ * is what the upload page makes of its workbook, and each wrong option names a misconception the same file defines on
+ * its «Miskonsepsi» sheet. RESTATED FOR F-4 (D-145(b)): the real chapters, with their keys, left the public tree; the same
+ * rules now run on the synthetic corpus, whose size is its own exact count (2 chapters; once at least 20 real ones).
  * PENUTUPAN-E03 — CR-13 (D-120 QN1): the correction route asks the caller's authority before Auth is touched, maps
  * every refusal to its own code, and tells the old and the new address only after activation.
  * PENUTUPAN-D01 — FD-5 (D-129(c)), the half of the round trip outside the database: the workbook's «Mudah», «Sedang» and
@@ -146,9 +148,11 @@ export const penutupanTests: SelfTest[] = [
     id: "PENUTUPAN-M04",
     run: async (ctx) => {
       const c = new Checks();
-      const dir = join(ctx.repoRoot, "docs", "onboarding", "konten");
+      const dir = join(ctx.repoRoot, "docs", "onboarding", "konten-sintetis");
       const bab = readdirSync(dir).filter((f) => f.endsWith(".xlsx")).sort();
-      c.expect(bab.length >= 20, `only ${bab.length} chapter workbooks were found in docs/onboarding/konten`);
+      // F-4: the synthetic corpus's own exact count, each workbook with its package (the real corpus was held to >= 20)
+      c.expect(bab.length === 2 && bab.every((f) => readdirSync(dir).includes(f.replace(/\.xlsx$/, ".paket.json"))),
+        `${bab.length} chapter workbooks were found in docs/onboarding/konten-sintetis (expected 2, each with its .paket.json)`);
       let salah = 0, definisi = 0;
       for (const f of bab) {
         const nama = f.replace(/\.xlsx$/, "");
@@ -181,7 +185,7 @@ export const penutupanTests: SelfTest[] = [
       // a problem on the «Miskonsepsi» sheet is placed by the column's own header, as on every other sheet (DAISY-06)
       const tempat = lokasiMasalah({ code: "MISCONCEPTION_TEXT_MISSING", sheet: "Miskonsepsi", row: 3, field: "remediation" }, "id");
       c.expect(tempat === "Lembar Miskonsepsi, baris 3, kolom Cara membantu", `a «Miskonsepsi» problem's place reads "${tempat}"`);
-      return c.verdict(`each of the ${bab.length} PINTAR chapter workbooks in docs/onboarding/konten converts, with the upload page's own ` +
+      return c.verdict(`each of the ${bab.length} synthetic chapter workbooks in docs/onboarding/konten-sintetis converts, with the upload page's own ` +
         `reader and converter, to its committed .paket.json, and all ${salah} wrong options name one of the ${definisi} misconceptions ` +
         "their own «Miskonsepsi» sheet defines, each of which is used; a problem on that sheet is placed by its column's header (D-063 M5, D-120 Q9)");
     },

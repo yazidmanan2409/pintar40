@@ -32,9 +32,9 @@ on:
         type: string
         default: ""
       chapter:
-        description: "journey: the chapter's file stem under docs/onboarding/konten"
+        description: "journey: the chapter's file stem under docs/onboarding/konten-sintetis (F-4: the synthetic corpus)"
         type: string
-        default: SD5-Matematika-Bab1
+        default: SD5-Sintetis-Bab1
       reuse_published:
         description: "journey: continue from a lesson an earlier run published and nobody has assigned yet, instead of uploading and publishing again"
         type: boolean
@@ -159,8 +159,8 @@ jobs:
         working-directory: audit/staging
         env:
           STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
-          WORKBOOK: ${{ github.workspace }}/content/docs/onboarding/konten/${{ inputs.chapter }}.xlsx
-          KEY_JSON: ${{ github.workspace }}/content/docs/onboarding/konten/${{ inputs.chapter }}.paket.json
+          WORKBOOK: ${{ github.workspace }}/content/docs/onboarding/konten-sintetis/${{ inputs.chapter }}.xlsx
+          KEY_JSON: ${{ github.workspace }}/content/docs/onboarding/konten-sintetis/${{ inputs.chapter }}.paket.json
           MEDIA_DIR: ${{ github.workspace }}/media-branch/media
           OUT_DIR: ${{ github.workspace }}/out
           RUN_TAG: ${{ github.run_number }}

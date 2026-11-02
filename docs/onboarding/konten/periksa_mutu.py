@@ -24,6 +24,9 @@
 # an Alasan, exactly one correct option, four options A-D, a difficulty on every question.
 #
 # Run: python3 docs/onboarding/konten/periksa_mutu.py <package.json> [--miskonsepsi <csv>]
+# e.g. python3 docs/onboarding/konten/periksa_mutu.py docs/onboarding/konten-sintetis/SD5-Sintetis-Bab1.paket.json
+# F-4 (D-145(b)): the real chapters and their misconception CSVs left this public tree for the private content store;
+# the synthetic corpus in docs/onboarding/konten-sintetis is clean here (0 ERROR, 0 WARNING per chapter).
 import csv
 import json
 import re

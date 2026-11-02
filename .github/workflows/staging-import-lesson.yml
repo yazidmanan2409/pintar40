@@ -25,9 +25,9 @@ on:
   workflow_dispatch:
     inputs:
       package:
-        description: "Package JSON on main"
+        description: "Package JSON on main (F-4: the synthetic corpus; real chapters are in the private content store)"
         required: true
-        default: docs/onboarding/konten/SD5-Matematika-Bab1.paket.json
+        default: docs/onboarding/konten-sintetis/SD5-Sintetis-Bab1.paket.json
       media_branch:
         description: "The media/* branch holding media/ files"
         required: true

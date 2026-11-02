@@ -12518,11 +12518,11 @@ export const experienceTests: SelfTest[] = [
        * as React elements only.
        *
        * 1. RENDERED, in a child process:
-       *    (a) the LESSON PLAYER with a real SD5 lesson («Faktor», SD5
-       *        Matematika Bab 2), every page: no ** or table pipes left, its
+       *    (a) the LESSON PLAYER with a whole lesson («Membaca Tabel Data»,
+       *        SD5-Sintetis-Bab2), every page: no ** or table pipes left, its
        *        table drawn, its nine bold phrases bold;
        *    (b) the lesson player with an SMA X line, a^{m/n}: a <sup>;
-       *    (c) every lesson of every package in docs/onboarding/konten: no **
+       *    (c) every lesson of every package in docs/onboarding/konten-sintetis: no **
        *        left, no |--- left, no paragraph that starts with a pipe, no
        *        line that keeps an _…_ pair or a leading "- "; every table and
        *        table row, every italic line and every list line (nested ones
@@ -12534,6 +12534,16 @@ export const experienceTests: SelfTest[] = [
        *        __dunder__ stay literal;
        *    (e) lines stay lines, "- " lines become one list, and an indented
        *        "- " line is an item under the one above.
+       *
+       * RESTATED FOR F-4 (D-145(b)): the repository is public, so the real
+       * chapters and their keys left the tree. (a) and (c) read the synthetic
+       * corpus (docs/onboarding/konten-sintetis, written by its buat-korpus.mts),
+       * which carries every markup the real chapters used: pages at "## ",
+       * bold, whole italic lines («_Periksa…_», «_Diadaptasi…_»), "- " lists
+       * with indented, nested items, and pipe tables. Every rule is kept; the
+       * corpus-wide counts (once at least 100 italic lines, 400 list lines,
+       * 4 indented ones and 1 nested list, 70 lessons and 20 tables, the real
+       * corpus's size) are now that corpus's own exact counts.
        */
       const SMAX = "Untuk a > 0 dan n > 0, a^{m/n} = (a^{1/n})^{m}.";
       const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
@@ -12548,10 +12558,10 @@ export const experienceTests: SelfTest[] = [
         "  const pemain = (body, startAt) => renderToStaticMarkup(h(AppRouterContext.Provider, { value: r }, h(LessonPlayer, {" +
         '    learningAssignmentId: "t", lessonId: "l", title: "x", bodyMarkdown: body, workedExamples: [], media: [], startAt,' +
         "    saveProgress: async () => ({ ok: true }) })));" +
-        '  const dir = process.cwd() + "/docs/onboarding/konten/";' +
+        '  const dir = process.cwd() + "/docs/onboarding/konten-sintetis/";' +
         '  const paket = fs.readdirSync(dir).filter((f) => f.endsWith(".paket.json")).sort()' +
         '    .map((f) => ({ f, lessons: JSON.parse(fs.readFileSync(dir + f, "utf8")).courses.flatMap((c) => c.modules).flatMap((m) => m.lessons) }));' +
-        '  const faktor = paket.find((p) => p.f === "SD5-Matematika-Bab2.paket.json").lessons.find((l) => l.title === "Faktor").body_markdown;' +
+        '  const faktor = paket.find((p) => p.f === "SD5-Sintetis-Bab2.paket.json").lessons.find((l) => l.title === "Membaca Tabel Data").body_markdown;' +
         '  const halaman = faktor.split("\\n").filter((b) => b.startsWith("## ")).length;' +
         "  const out = { halaman, faktor: Array.from({ length: halaman }, (_, k) => pemain(faktor, k + 1))," +
         '    smax: pemain("## Pangkat pecahan\\n" + process.env.SMAX, 1), korpus: [], baris: [], blok: "" };' +
@@ -12583,16 +12593,16 @@ export const experienceTests: SelfTest[] = [
       try { o = JSON.parse(anak.stdout) as Hasil; } catch { /* reported below */ }
       if (c.expect(anak.status === 0 && o !== null, `the lesson player could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 2).join(" ")}`)) {
         const x = o!;
-        // (a) the lesson player, a real SD5 lesson, every page
+        // (a) the lesson player, a whole lesson of the corpus, every page
         const semua = x.faktor.join("\n");
-        c.expect(x.halaman === 3 && x.faktor.length === 3, `«Faktor» was expected to have 3 pages, not ${x.halaman}`);
-        c.expect(!semua.includes("**"), "the lesson player still shows ** around bold words in «Faktor» (SD5 Matematika Bab 2)");
-        c.expect(!/\|-{3}/.test(semua) && !/<p[^>]*>\s*\|/.test(semua), "the lesson player still shows the table's pipes in «Faktor»");
-        c.expect((semua.match(/<table>/g) ?? []).length === 1 && /<th scope="col">Faktor dari 12<\/th>/.test(semua)
-          && (semua.match(/<tr>/g) ?? []).length === 5, "the lesson player does not draw «Faktor»'s table as a table (a head and four rows)");
-        c.expect((semua.match(/<strong>/g) ?? []).length === 9, `«Faktor» has nine bold phrases; the player drew ${(semua.match(/<strong>/g) ?? []).length}`);
+        c.expect(x.halaman === 3 && x.faktor.length === 3, `«Membaca Tabel Data» was expected to have 3 pages, not ${x.halaman}`);
+        c.expect(!semua.includes("**"), "the lesson player still shows ** around bold words in «Membaca Tabel Data» (SD5-Sintetis-Bab2)");
+        c.expect(!/\|-{3}/.test(semua) && !/<p[^>]*>\s*\|/.test(semua), "the lesson player still shows the table's pipes in «Membaca Tabel Data»");
+        c.expect((semua.match(/<table>/g) ?? []).length === 1 && /<th scope="col">Buku dipinjam<\/th>/.test(semua)
+          && (semua.match(/<tr>/g) ?? []).length === 5, "the lesson player does not draw «Membaca Tabel Data»'s table as a table (a head and four rows)");
+        c.expect((semua.match(/<strong>/g) ?? []).length === 9, `«Membaca Tabel Data» has nine bold phrases; the player drew ${(semua.match(/<strong>/g) ?? []).length}`);
         c.expect(/<em>Periksa: /.test(semua) && /<em>Diadaptasi dari /.test(semua) && !/>_|_</.test(semua),
-          "the lesson player still shows «Faktor»'s «_Periksa…_» and «_Diadaptasi…_» lines with their underscores");
+          "the lesson player still shows «Membaca Tabel Data»'s «_Periksa…_» and «_Diadaptasi…_» lines with their underscores");
         // (b) an SMA X line
         c.expect(/a<sup>m\/n<\/sup> = \(a<sup>1\/n<\/sup>\)<sup>m<\/sup>/.test(x.smax) && !x.smax.includes("^{"),
           "the lesson player does not raise a^{m/n} (SMA X Matematika) as a superscript");
@@ -12627,11 +12637,12 @@ export const experienceTests: SelfTest[] = [
             anak += (l.md.match(/^[ \t]+- /gm) ?? []).length;
             sarang += (l.html.match(/<li>[^]*?<ul class="pin-tdaftar">/g) ?? []).length;
           }
-          c.expect(miring >= 100 && em === miring, `${miring} italic lines are written in the packages, ${em} drawn`);
-          c.expect(li === daftar && daftar >= 400, `${daftar} list lines are written in the packages, ${li} items drawn`);
-          c.expect(anak >= 4 && sarang >= 1, `${anak} indented list lines are written, ${sarang} nested lists drawn`);
-          c.expect(x.korpus.length >= 70, `only ${x.korpus.length} lessons were read from docs/onboarding/konten`);
-          c.expect(tabel === pemisah && tabel >= 20, `${pemisah} tables are written in the packages, ${tabel} drawn`);
+          // F-4: the synthetic corpus's own exact counts (the real corpus was held to at least 100, 400, 4 and 1, 70, 20)
+          c.expect(miring === 12 && em === miring, `${miring} italic lines are written in the packages, ${em} drawn`);
+          c.expect(li === daftar && daftar === 54, `${daftar} list lines are written in the packages, ${li} items drawn`);
+          c.expect(anak === 7 && sarang === 14, `${anak} indented list lines are written, ${sarang} nested lists drawn`);
+          c.expect(x.korpus.length === 8, `${x.korpus.length} lessons (not 8) were read from docs/onboarding/konten-sintetis`);
+          c.expect(tabel === pemisah && tabel === 6, `${pemisah} tables are written in the packages, ${tabel} drawn`);
           c.expect(tr + pemisah === baris, `${baris} table lines are written, ${tr} rows drawn beside ${pemisah} separators`);
           // (d) inline: marks, what stays literal, and escaping
           const [smax, terbuka, sup, turus, sisip, periksa, tag, lebih, air, bersarang] = x.baris;
@@ -12708,7 +12719,7 @@ export const experienceTests: SelfTest[] = [
 
       return c.verdict(
         "learner text renders its own markup through one shared renderer, as React elements only: the lesson player " +
-        "draws a real SD5 lesson («Faktor») on every page with no ** or table pipes left, its table as a table and its " +
+        "draws a whole lesson of the synthetic corpus («Membaca Tabel Data», docs/onboarding/konten-sintetis) on every page with no ** or table pipes left, its table as a table and its " +
         "nine bold phrases bold, and an SMA X a^{m/n} as a superscript; every lesson of every package renders with no ** " +
         "or table pipes left and every table and row accounted for; marks left open, tally marks and a pipe in a sentence " +
         "stay literal and a planted tag is escaped; «_Periksa…_» and «_Diadaptasi…_» are italic in every lesson (bold and " +

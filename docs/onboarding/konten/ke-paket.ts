@@ -3,6 +3,9 @@
 // would build from the same file. Stops on the first problem, naming it.
 //
 // Run: npx tsx docs/onboarding/konten/ke-paket.ts <workbook.xlsx> <package.json>
+// e.g. npx tsx docs/onboarding/konten/ke-paket.ts docs/onboarding/konten-sintetis/SD5-Sintetis-Bab1.xlsx /tmp/bab1.paket.json
+// F-4 (D-145(b)): the real chapters left this public tree for the private content store; develop and test against the
+// synthetic corpus in docs/onboarding/konten-sintetis (written by its buat-korpus.mts, which uses the same converter).
 import { readFileSync, writeFileSync } from "node:fs";
 import { bacaBukuKerja } from "../../../src/lib/xlsx";
 import { bukuKerjaKePaket } from "../../../src/lib/unggah-kontrak";

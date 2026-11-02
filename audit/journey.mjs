@@ -911,11 +911,12 @@ await step("S15b", "D-029, D-120 Q7, L3 C7: the canonical library is the platfor
   return `in Mengelola · SD the picker offers ${JSON.stringify(diSekolah)} (the library ${pustaka(diSekolah)} time(s)); in Pustaka PINTAR ${JSON.stringify(diPustaka)}; canonical courses ${before.courses} → ${after.courses} (nothing sent)`;
 });
 
-// Real content: SD Kelas 5 Matematika Bab 1, from docs/onboarding/konten/SD5-Matematika-Bab1.xlsx,
+// F-4 (D-145(b)): the synthetic SD Kelas 5 Matematika Bab 1 («Matematika Kelas 5 · Bab 1: Pola Bilangan»), from
+// docs/onboarding/konten-sintetis/SD5-Sintetis-Bab1.xlsx (the real chapter and its key left the public tree),
 // converted by the app's own bukuKerjaKePaket. Imported through today's page into SD, then its
 // course page is captured, so the chapter can be seen before any school has it.
-await step("S15c", "SD 5 Matematika Bab 1 (real content) imports whole into SD", async (rec) => {
-  const f = new URL("./fixtures/sd5-matematika-bab1.paket.json", import.meta.url);
+await step("S15c", "SD 5 Matematika Bab 1 (synthetic chapter, F-4) imports whole into SD", async (rec) => {
+  const f = new URL("./fixtures/sd5-sintetis-bab1.paket.json", import.meta.url);
   if (!existsSync(f) || !paketContoh) { rec.verdict = "NOTE"; return "candidate predates BOB-02, or the chapter fixture is absent"; }
   const before = hitung(ids.sd);
   const r = await kirimPaket("SD Zayd", readFileSync(f, "utf8"));
@@ -941,7 +942,7 @@ await step("S15c", "SD 5 Matematika Bab 1 (real content) imports whole into SD",
   const items = course ? sql(`select count(*) from public.items i join public.lessons l on l.id=i.lesson_id join public.modules m on m.id=l.module_id where m.course_id='${course}'`).trim() : "0";
   const tags = course ? sql(`select coalesce(string_agg(r||':'||n, ', '),'-') from (select coalesce(i.cycle_role::text,'LATIHAN') r, count(*) n from public.items i join public.lessons l on l.id=i.lesson_id join public.modules m on m.id=l.module_id where m.course_id='${course}' group by 1 order by 1) x`).trim() : "-";
   notes.push(`SD courses ${before.courses} → ${after.courses}, lessons ${before.lessons} → ${after.lessons}; this course: items ${items} (${tags})`);
-  // the chapter as its package has it (CR-82: the fixture is today's PINTAR content, so nothing here is a written-in number)
+  // the chapter as its package has it (CR-82: nothing here is a written-in number; F-4: the fixture is the synthetic corpus's)
   const paketBab1 = JSON.parse(readFileSync(f, "utf8"));
   const nSoal = paketBab1.courses.reduce((n, c) => n + c.modules.reduce((m, md) => m + md.lessons.reduce((k, l) => k + (l.items ?? []).length, 0), 0), 0);
   const kodeMis = (paketBab1.misconceptions ?? []).map((x) => x.code);
@@ -999,7 +1000,7 @@ const siap = (c) => sql(`select status || ' | ' || coalesce(blockers::text, '') 
 // (the reason is in `notes`, the verdict set).
 // `peninjau` (HOD-04, GS-09): the page that takes the reviewer's steps (approve, make and lock the release) and reads the
 // questions first; the school admin by default.
-// `tanpaLemah` (CR-50, CR-82): the chapter is PINTAR's own regenerated content, every wrong option naming a misconception
+// `tanpaLemah` (CR-50, CR-82): the chapter is the synthetic corpus's (F-4; once PINTAR's regenerated content), every wrong option naming a misconception
 // its package defines (PENUTUPAN-M04), so its review must raise no WEAK_MISCONCEPTION_LINKAGE finding (F20-M03 in the
 // database; here through the screens).
 async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama = "Bab 1", awalan = "", antrean = null, peninjau = null, tanpaLemah = false } = {}) {
@@ -1049,7 +1050,7 @@ async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama 
       notes.push(`findings on ${nama}: question quality ${mutu}; student text ${teks}`);
       if (tanpaLemah) {
         const lemah = Number(sql(`select count(*) from public.mcq_quality_findings where course_id='${course}' and pattern_class = 'WEAK_MISCONCEPTION_LINKAGE'`).trim());
-        notes.push(`CR-50/CR-82: WEAK_MISCONCEPTION_LINKAGE findings on ${nama}: ${lemah} (must be 0 on PINTAR's regenerated content)`);
+        notes.push(`CR-50/CR-82: WEAK_MISCONCEPTION_LINKAGE findings on ${nama}: ${lemah} (must be 0: every wrong option of the chapter names one)`);
         if (lemah !== 0) rec.verdict = "FAIL";
       }
       const r0 = siap(course);
@@ -1302,7 +1303,7 @@ await step("S19", "the student finds Bab 1 and reaches its pre-test (B4)", async
   rec.shots.push(await shot(s, "murid-belajar-bab1"));
   const home = await bodyText(s);
   const tugas = sql(`select id from public.learning_assignments where course_id='${babSatu()}' order by created_at desc limit 1`).trim();
-  const listed = /Matematika Kelas 5|Bilangan Cacah/.test(home);
+  const listed = /Matematika Kelas 5|Pola Bilangan/.test(home);
   const href = tugas ? await s.locator(`a[href^="/belajar/${tugas}"]`).first().getAttribute("href").catch(() => null) : null;
   if (!tugas || !listed || !href) { rec.verdict = "FAIL"; await sc.close(); return `Bab 1 on /belajar: named ${listed}, linked ${Boolean(href)}; page: ${home.slice(0, 260)}`; }
   const res = await s.goto(`${APP}/belajar/${tugas}/pemetaan`, { waitUntil: "networkidle" });
@@ -1337,7 +1338,7 @@ async function tutupTur(page) {
 const KUNCI = new Map();
 const SOAL = { pre: 0, post: 0 };
 {
-  const f = new URL("./fixtures/sd5-matematika-bab1.paket.json", import.meta.url);
+  const f = new URL("./fixtures/sd5-sintetis-bab1.paket.json", import.meta.url);
   if (existsSync(f)) {
     for (const c of JSON.parse(readFileSync(f, "utf8")).courses)
       for (const m of c.modules) for (const l of m.lessons) for (const it of l.items ?? []) {
@@ -3379,7 +3380,7 @@ await step("S26d", "two chapters: Gita, part-way through Bab 1, finds her home c
   const bab1 = babSatu();
   const la1 = bab1 && kelas ? sql(`select id from public.learning_assignments where course_id='${bab1}' and node_id='${kelas}' order by created_at desc limit 1`).trim() : "";
   if (!terbitBab || !la1) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "no Bab 1 assignment for Kelas 1A"; }
-  const f = new URL("./fixtures/sd5-matematika-bab2.paket.json", import.meta.url);
+  const f = new URL("./fixtures/sd5-sintetis-bab2.paket.json", import.meta.url);
   if (!existsSync(f) || !paketContoh) { rec.verdict = "NOTE"; return "candidate predates BOB-02, or the Bab 2 fixture is absent"; }
   const notes = [];
 
