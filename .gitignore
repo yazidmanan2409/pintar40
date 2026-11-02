@@ -45,3 +45,6 @@ next-env.d.ts
 # supabase cli scratch
 supabase/.temp/
 supabase/.branches/
+
+# agent worktrees (local only, never committed)
+/.claude/worktrees/
