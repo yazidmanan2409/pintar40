@@ -3,6 +3,8 @@
 **Authority:** owner, 2 Nov: «Batch 2 accepted / Batch 3 development GO».
 **Branch:** `claude/awesome-rubin-bqxp6p`. Nothing was merged to `main` or deployed to staging. Production and Dr Gladys's demonstration records were not touched. The staging freeze is unchanged.
 
+**Since then (2 Nov):** merged as `a5e2935` through the protected path and verified on staging; see `04-STAGING-VERIFICATION-REPORT.md` (D-149). Batch 3 is not yet fully accepted.
+
 ## Verdict: development complete, except two blocked items. STOP at the promotion gate.
 
 Every Batch 3 item is built and guarded, except two:
