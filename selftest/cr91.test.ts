@@ -1,7 +1,7 @@
 /**
  * CR-91 (Batch 1; F-3 ruled by the owner, D-145(a)): A CLASS CARD IS A LEARNER'S ALONE — the application's half.
  *
- * The database half is selftest/db/fable23.sql (F23-C01 … F23-C06): no person holds a class card and a staff role,
+ * The database half is selftest/db/fable23.sql (F23-C01 … F23-C07): no person holds a class card and a staff role,
  * enforced from both sides. The owner asked for the restriction «in the database and application, not merely hidden»,
  * so the application adds two checks of its own:
  *

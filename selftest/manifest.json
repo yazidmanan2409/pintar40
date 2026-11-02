@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 188,
+  "version": 189,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3237,6 +3237,12 @@
       "id": "F23-C06",
       "runner": "db",
       "proves": "CR-91 / J9, measured in selftest/db/fable23.sql: educator as learner is intact. The enrolled Guru holds exactly one EMAIL account and, through it, the working contexts Belajar and Mengajar.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-C07",
+      "runner": "db",
+      "proves": "CR-91 (D-145(a), staging closeout item 7), measured in selftest/db/fable23.sql: role transitions. A Guru not yet activated whose role is revoked through revoke_role (with its reason), and a person whose role has expired, are no longer staff: Aktivasi says boleh_kartu true and authorize_account_activation grants the card, which becomes an account. Once either holds the card, grant_role refuses a Guru role 42501 STAFF_ROLE_FOR_CARD, and neither card holder holds a staff role. A role that has not yet started still blocks a card (F23-C01).",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {

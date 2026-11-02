@@ -19,6 +19,10 @@
 --            card session can provision nobody, review nothing, administer no school, and is no Admin platform
 --   F23-C06  EDUCATOR AS LEARNER IS INTACT (J9): a Guru who is enrolled keeps one EMAIL account and holds Belajar and
 --            Mengajar
+--   F23-C07  ROLE TRANSITIONS: a Guru not yet activated whose role is revoked (revoke_role, with its reason) and a
+--            person whose role has expired are no longer staff, so Aktivasi offers a card and the card is granted;
+--            once either holds the card, granting a staff role again is refused (42501 STAFF_ROLE_FOR_CARD), so the
+--            card never carries a staff role in either direction
 --   F23-W01  ONE STEP, ONE TRANSACTION (W1.13): langkah_konten moves the whole tree as the caller (items, lessons,
 --            modules, the course; the approver stamped on each); a step refused at its LAST table (the course) leaves
 --            items, lessons and modules exactly where they were, never a mixed tree
@@ -84,7 +88,7 @@ language plpgsql set search_path = public, pg_temp as $$
 declare
   r record; v_a uuid; v_node uuid; v_tag text := to_char(clock_timestamp(), 'HH24MISSUS');
   v_staf uuid; v_besok uuid; v_murid uuid; v_kartu_p uuid; v_surel_p uuid; v_lama uuid; v_lama_u uuid;
-  v_err text; v_n int; v_b boolean; v_got text; v_card text;
+  v_err text; v_n int; v_b boolean; v_got text; v_card text; v_bekas uuid; v_habis uuid; v_ra uuid;
   v_w uuid; v_w_b uuid; v_adm_w uuid; v_kajur uuid; v_dean uuid; v_guru uuid; v_adm_b uuid; v_guru_p uuid; v_kajur_p uuid;
   v_c1 uuid; v_c2 uuid; v_c3 uuid; v_c4 uuid; v_batch uuid; v_j jsonb;
   v_probs jsonb := '{}'::jsonb; v_fatal text := '';
@@ -344,6 +348,63 @@ begin
     end;
 
     -- ═══════════════════════════════════════════════════════════════════════
+    -- F23-C07  ROLE TRANSITIONS
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_owner();
+      perform set_config('app.seed_intent', 'synthetic', true);
+      insert into public.persons (display_name) values ('Guru Berhenti F23 ' || v_tag) returning persons.id into v_bekas;
+      insert into public.persons (display_name) values ('Guru Lalu F23 ' || v_tag) returning persons.id into v_habis;
+      perform public.issue_institutional_id(v_bekas, v_a);
+      perform public.issue_institutional_id(v_habis, v_a);
+      insert into public.role_assignments (person_id, role, scope_node_id, valid_until)
+      values (v_bekas, 'EDUCATOR', v_node, now() + interval '1 year') returning role_assignments.id into v_ra;
+      insert into public.role_assignments (person_id, role, scope_node_id, valid_from, valid_until)
+      values (v_habis, 'EDUCATOR', v_node, now() - interval '2 days', now() - interval '1 day');
+      perform set_config('app.seed_intent', '', true);
+
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      select w.boleh_kartu into v_b from public.persons_awaiting_account() w where w.person_id = v_bekas;
+      if v_b is distinct from false then
+        v_probs := selftest.f23_note(v_probs, 'F23-C07', format('before the revocation Aktivasi says boleh_kartu %s for the Guru', v_b));
+      end if;
+      perform public.revoke_role(v_ra, 'Tidak lagi mengajar; menjadi murid');
+      for r in select * from (values (v_bekas, '9100000071', 'the revoked Guru'), (v_habis, '9100000072', 'the expired Guru')) as t(p, kartu, siapa) loop
+        select w.boleh_kartu into v_b from public.persons_awaiting_account() w where w.person_id = r.p;
+        if v_b is distinct from true then
+          v_probs := selftest.f23_note(v_probs, 'F23-C07', format('Aktivasi says boleh_kartu %s for %s', v_b, r.siapa));
+        end if;
+        v_err := selftest.f23_raised(format('select * from public.authorize_account_activation(%L::uuid, %L, %L, %L)',
+          r.p, 'CLASSROOM_CARD', 'card-' || r.kartu || '@cards.synthetic.pintar.test', r.kartu));
+        if v_err is not null then
+          v_probs := selftest.f23_note(v_probs, 'F23-C07', format('%s was refused a card: %s', r.siapa, v_err));
+        end if;
+      end loop;
+      perform selftest.as_owner();
+      insert into auth.users (id, email) values (gen_random_uuid(), 'card-9100000071@cards.synthetic.pintar.test'),
+                                                (gen_random_uuid(), 'card-9100000072@cards.synthetic.pintar.test');
+      select count(*) into v_n from public.accounts a where a.person_id in (v_bekas, v_habis) and a.kind = 'CLASSROOM_CARD';
+      if v_n <> 2 then
+        v_probs := selftest.f23_note(v_probs, 'F23-C07', format('%s of the 2 granted cards became accounts', v_n));
+      end if;
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      for r in select * from (values (v_bekas, 'the revoked Guru'), (v_habis, 'the expired Guru')) as t(p, siapa) loop
+        v_err := selftest.f23_raised(format('select public.grant_role(%L::uuid, %L::public.app_role, %L::uuid, %L::timestamptz)',
+          r.p, 'EDUCATOR', v_node, now() + interval '1 year'));
+        if v_err is distinct from '42501 STAFF_ROLE_FOR_CARD' then
+          v_probs := selftest.f23_note(v_probs, 'F23-C07', format('re-granting %s a Guru role over the card answered %s', r.siapa, coalesce(v_err, 'a grant')));
+        end if;
+      end loop;
+      perform selftest.as_owner();
+      if exists (select 1 from public.persons p where p.id in (v_bekas, v_habis) and public.memegang_peran_staf(p.id)) then
+        v_probs := selftest.f23_note(v_probs, 'F23-C07', 'a card holder holds a staff role');
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f23_note(v_probs, 'F23-C07', 'threw: ' || sqlerrm);
+    end;
+
+    -- ═══════════════════════════════════════════════════════════════════════
     -- THE CONTENT WORKFLOW: its own school, people and packages (fable12's helpers)
     -- ═══════════════════════════════════════════════════════════════════════
     perform selftest.as_owner();
@@ -577,9 +638,9 @@ begin
   perform selftest.as_owner();
 
   for r in select * from unnest(
-      array['F23-C01', 'F23-C02', 'F23-C03', 'F23-C04', 'F23-C05', 'F23-C06', 'F23-W01', 'F23-W02', 'F23-W03', 'F23-W04', 'F23-T01'],
+      array['F23-C01', 'F23-C02', 'F23-C03', 'F23-C04', 'F23-C05', 'F23-C06', 'F23-C07', 'F23-W01', 'F23-W02', 'F23-W03', 'F23-W04', 'F23-T01'],
       array['CR-91 -- asking for a card', 'CR-91 -- the account side', 'CR-91 -- the grant side',
-            'CR-91 -- legacy data', 'CR-91 -- no staff power through a card', 'CR-91 / J9 -- educator as learner',
+            'CR-91 -- legacy data', 'CR-91 -- no staff power through a card', 'CR-91 / J9 -- educator as learner', 'CR-91 -- role transitions',
             'W1.13 -- one step, one transaction', 'W1.6 -- the send-back', 'W1.6 -- the author''s correction path',
             'W1.8 -- who reviewed and approved', 'W4.1 -- approved v1 wording in the database'],
       array[
@@ -597,6 +658,9 @@ begin
         'no person in the seeded world holds a class card and a staff role; card 7001''s session can provision nobody, '
           || 'review nothing, administer no school, is no Admin platform and is offered nobody to activate',
         'the enrolled Guru holds exactly one EMAIL account and, through it, Belajar and Mengajar',
+        'a Guru whose role was revoked (with its reason) and a person whose role expired are offered a card and granted '
+          || 'it; once either holds the card, a Guru role is refused 42501 STAFF_ROLE_FOR_CARD; neither card holder holds '
+          || 'a staff role',
         'langkah_konten approves the whole tree as the head of department, every item, lesson, module and the course '
           || 'stamped with them; a step refused at the course leaves items, lessons and modules IN_REVIEW, never mixed',
         'kembalikan_paket by the head of department with a reason moves the whole tree to VALIDATION_FAILED and records '
