@@ -8,6 +8,8 @@ import KakiPintar from "@/components/KakiPintar";
 import TombolKirim from "@/components/TombolKirim";
 import TanggalDenganGema from "@/components/bentuk/TanggalDenganGema";
 import BarisHasil from "@/components/BarisHasil";
+import Kosong from "@/components/Kosong";
+import { bagianJakarta, tanggal } from "@/lib/tanggal";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
@@ -46,16 +48,29 @@ export const dynamic = "force-dynamic";
  * node, so the class below is a SELECTED scope rather than a boundary the
  * database draws. The copy says "dipilih" for exactly that reason and claims no
  * enforcement it cannot point at.
+ *
+ * BATCH 3 · W3.11 (Daisy, J5Jendela and J1Terbit part two). «Sampai» is marked «(opsional)» and its empty echo says
+ * «Tanpa batas akhir». A refusal about the window («Sampai» before «Mulai», ASSIGN_WINDOW_INVALID) comes back with the
+ * dates as they were sent, and its sentence is told under «Sampai», which takes focus; correcting the date clears it.
+ * Every other refusal still answers at the button. A «Sediakan» the database accepted comes back here as
+ * `?disediakan=`: the review reads the class's assignments again and, only when the material is there, the button
+ * says «✓ Disediakan», the line says what was made available and its window in words, and the way on names the class.
  */
+function hariDari(iso: string | null): string | undefined {
+  const b = bagianJakarta(iso);
+  return b ? `${b.tahun}-${String(b.bulan).padStart(2, "0")}-${String(b.hari).padStart(2, "0")}` : undefined;
+}
+
+const HARI = /^\d{4}-\d{2}-\d{2}$/;
 export default async function Siapkan({
   params,
   searchParams,
 }: {
   params: Promise<{ kelas: string }>;
-  searchParams: Promise<{ terbitan?: string; kode?: string }>;
+  searchParams: Promise<{ terbitan?: string; kode?: string; mulai?: string; sampai?: string; disediakan?: string }>;
 }) {
   const { kelas: id } = await params;
-  const { terbitan: pilihan, kode } = await searchParams;
+  const { terbitan: pilihan, kode, mulai: mulaiTadi, sampai: sampaiTadi, disediakan } = await searchParams;
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "educator", { locale });
 
@@ -63,7 +78,9 @@ export default async function Siapkan({
   // BOB-04 (D-008): a refused "Sediakan" comes back here with its code, and the
   // teacher reads what the lesson is missing -- never the database's words
   const galat = kodePenugasanDari(kode);
-  const tolakan = galat ? <BarisHasil nada="gagal">{s(kunciKodePenugasan(galat))}</BarisHasil> : null;
+  // W3.11 (J5): a window refusal is told under «Sampai», not at the button
+  const galatJendela = galat === "ASSIGN_WINDOW_INVALID" ? s(kunciKodePenugasan(galat)) : undefined;
+  const tolakan = galat && !galatJendela ? <BarisHasil nada="gagal">{s(kunciKodePenugasan(galat))}</BarisHasil> : null;
   if (!ctx) {
     return <HalamanPenolakan locale={locale} persona="educator" backHref="/mengajar" backKey="mengajar.kembali" />;
   }
@@ -79,7 +96,15 @@ export default async function Siapkan({
   // reaches it through «Koreksi» (before anyone starts), or stays with the release it was given
   const garisPunya = new Set(tugas.filter((x) => x.status === "ACTIVE").map((x) => akar.get(x.courseId) ?? x.courseId));
   const calon = semua.filter((r) => !punya.has(r.id) && !garisPunya.has(akar.get(r.courseId) ?? r.courseId));
-  const dipilih = pilihan ? calon.find((r) => r.id === pilihan) ?? null : null;
+  // W3.11 (J1 part two): made available, as the database now says, and never on the address's word alone
+  const sudah = disediakan ? tugas.find((x) => x.releaseId === disediakan && x.status === "ACTIVE") ?? null : null;
+  const dipilih = sudah
+    ? semua.find((r) => r.id === sudah.releaseId) ?? null
+    : pilihan ? calon.find((r) => r.id === pilihan) ?? null : null;
+  const mulaiAwal = sudah ? hariDari(sudah.mulai) ?? hariIniSekolah() : HARI.test(mulaiTadi ?? "") ? mulaiTadi! : hariIniSekolah();
+  const sampaiAwal = sudah ? hariDari(sudah.sampai) : HARI.test(sampaiTadi ?? "") ? sampaiTadi : undefined;
+  const jendelaKata = `${s("mengajar.siap.mulai")} ${tanggal(mulaiAwal, "hari", locale)} · ${
+    sampaiAwal ? `${s("mengajar.siap.sampai")} ${tanggal(sampaiAwal, "hari", locale)}` : s("mengajar.siap.sampai.kosong")}`;
 
   const lingkup = (
     <BarisLingkup
@@ -103,7 +128,9 @@ export default async function Siapkan({
         <main id="isi" tabIndex={-1} className="pin-col">
           <Link className="pin-back" href={`/mengajar/${id}`}>← {ctx.ini.nama}</Link>
           {lingkup}
-        {tolakan}
+          {/* a window refusal whose material is no longer on offer has no field to stand under: it is said here */}
+          {tolakan ?? (galatJendela ? <BarisHasil nada="gagal">{galatJendela}</BarisHasil> : null)}
+          {sudah ? <BarisHasil nada="ok">{s("mengajar.sedia.ok")}</BarisHasil> : null}
           <TahapKomitmen tahap={0} nama={langkah} locale={locale} />
           <div className="pin-head">
             <p className="pin-eyebrow">
@@ -112,7 +139,7 @@ export default async function Siapkan({
             <h1 className="pin-h1">{s("mengajar.siap.pilih")}</h1>
           </div>
           {calon.length === 0 ? (
-            <p className="pin-empty">{s("mengajar.siap.pilih.kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("mengajar.siap.pilih.kosong")} />
           ) : (
             <div className="pin-list">
               {calon.map((r) => (
@@ -151,7 +178,7 @@ export default async function Siapkan({
       <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/mengajar/${id}/siapkan`}>← {s("mengajar.siap.kembali")}</Link>
         {lingkup}
-        <TahapKomitmen tahap={1} nama={langkah} locale={locale} />
+        <TahapKomitmen tahap={sudah ? 2 : 1} nama={langkah} locale={locale} />
 
         <div className="pin-head">
           <p className="pin-eyebrow">{s("mengajar.siap.eyebrow")} · {ctx.ini.nama}</p>
@@ -217,13 +244,18 @@ export default async function Siapkan({
               <div>
                 <dt><label htmlFor="pin-mulai">{s("mengajar.siap.mulai")}</label></dt>
                 <dd>
-                  <TanggalDenganGema id="pin-mulai" name="mulai" defaultValue={hariIniSekolah()} locale={locale} untuk="educator" />
+                  <TanggalDenganGema id="pin-mulai" name="mulai" defaultValue={mulaiAwal} disabled={Boolean(sudah)} locale={locale} untuk="educator" />
                 </dd>
               </div>
               <div>
-                <dt><label htmlFor="pin-sampai">{s("mengajar.siap.sampai")}</label></dt>
+                <dt>
+                  <label htmlFor="pin-sampai">
+                    {s("mengajar.siap.sampai")} <span className="pin-opsional">{s("bentuk.opsional")}</span>
+                  </label>
+                </dt>
                 <dd>
-                  <TanggalDenganGema id="pin-sampai" name="sampai" locale={locale} untuk="educator" />
+                  <TanggalDenganGema id="pin-sampai" name="sampai" defaultValue={sampaiAwal} disabled={Boolean(sudah)}
+                    kosong={s("mengajar.siap.sampai.kosong")} galat={galatJendela} locale={locale} untuk="educator" />
                 </dd>
               </div>
               <div>
@@ -251,13 +283,20 @@ export default async function Siapkan({
               {/* DAISY-18: a refused "Sediakan" answers at the button that sent it */}
               {tolakan}
               <div className="pin-actions">
-                <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.menyediakan")}>
+                <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.menyediakan")}
+                  selesai={sudah ? s("mengajar.sedia.selesai") : undefined}>
                   {s("mengajar.siap.komit")} {dipilih.kursus} {s("mengajar.untuk")} {ctx.ini.nama}
                 </TombolKirim>
-                <Link className="pin-btn" href={`/mengajar/${id}/siapkan`}>
-                  {s("mengajar.siap.kembali")}
-                </Link>
+                {sudah ? (
+                  <Link className="pin-btn" href={`/mengajar/${id}`}>{ctx.ini.nama}</Link>
+                ) : (
+                  <Link className="pin-btn" href={`/mengajar/${id}/siapkan`}>
+                    {s("mengajar.siap.kembali")}
+                  </Link>
+                )}
               </div>
+              {/* W3.11 (J1 part two): what changed for whom, the window in words, and the way on beside it */}
+              {sudah ? <BarisHasil nada="ok">{s("mengajar.sedia.ok")} {jendelaKata}.</BarisHasil> : null}
             </div>
           </div>
         </form>

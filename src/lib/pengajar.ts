@@ -2,6 +2,7 @@ import "server-only";
 import { bagianJakarta } from "@/lib/tanggal";
 import { supabaseServer } from "@/lib/supabase/server";
 import { alamatPilih } from "@/lib/konteks";
+import { susunHasilUjiCepat, type HasilUjiCepat, type SesiHasil } from "@/lib/hasil-ujicepat";
 import { alihkan, jalurIni, konteksHalaman, tempatSaya } from "@/lib/konteks-server";
 import {
   kelasDalamLingkup, nodeLingkup,
@@ -1226,4 +1227,46 @@ export function waktu(): { iso: string; jam: number } {
   // the hour on Jakarta's clock, from the one date helper (W3.3, RV-16)
   const jam = bagianJakarta(now)?.jam ?? 0;
   return { iso: now.toISOString(), jam };
+}
+
+// ═══════════════════════════════════════════ 8. the Uji Cepat score (W2.4)
+
+/**
+ * W2.4 (CR-27, J5.6; D-120 Q8): one Uji Cepat of this class, scored for its teacher. Null when the assignment is not
+ * this class's Uji Cepat. A READ OF WHAT EXISTS, no new path: the class now (faktaKelas), its sittings of this
+ * assignment (as `berjalan` and `siapa` read them), and each finished learner's official result through the
+ * catalogue (`learner.result`, which authorizes the reader over that learner, as the learner's record and
+ * «Minta membaca lagi» read it). What the evaluator does not give is not shown (susunHasilUjiCepat).
+ */
+export async function hasilUjiCepat(
+  kelasId: string,
+  institusi: string,
+  penugasan: string,
+): Promise<{ tugas: Berjalan; hasil: HasilUjiCepat } | null> {
+  const [semua, fakta] = await Promise.all([berjalan([kelasId], ["OPEN", "CLOSED"]), faktaKelas(kelasId)]);
+  const tugas = semua.find((b) => b.id === penugasan && b.adHoc && b.mode === "QUICK");
+  if (!tugas) return null;
+  const c = await db();
+  const { data } = await c
+    .from("assessment_sessions")
+    .select("id, person_id, status, finalized_at")
+    .eq("assessment_assignment_id", penugasan);
+  const sesi = rows<SesiHasil & { finalized_at: string | null }>(data)
+    .sort((a, b) => String(a.finalized_at ?? "").localeCompare(String(b.finalized_at ?? "")));
+  const dalamKelas = new Set(fakta.murid.map((m) => m.id));
+  const selesai = sesi.filter((x) => x.status === "FINALIZED" && dalamKelas.has(x.person_id));
+  const nilai = new Map<string, number | null>();
+  await Promise.all([...new Set(selesai.map((x) => x.person_id))].map(async (orang) => {
+    const { data: amplop, error } = await c.rpc("metric_evaluate", { p_metric_id: "learner.result", p_node: orang, p_institution: institusi });
+    const isi = !error && amplop && (amplop as Amplop).status === "ok" && Array.isArray((amplop as Amplop).value)
+      ? ((amplop as Amplop).value as Array<{ session_id?: unknown; mastery?: unknown }>) : [];
+    const milik = new Set(selesai.filter((x) => x.person_id === orang).map((x) => x.id));
+    for (const v of isi) {
+      const id = String(v.session_id ?? "");
+      if (!milik.has(id) || v.mastery == null) continue;
+      const m = Number(v.mastery);
+      if (Number.isFinite(m)) nilai.set(id, m);
+    }
+  }));
+  return { tugas, hasil: susunHasilUjiCepat(fakta.murid, sesi, nilai) };
 }

@@ -195,7 +195,9 @@ export const tanggalTests: SelfTest[] = [
       }
       // the fields RV-16 named, each with its echo, under the same names and ids the forms, tests and audits use
       const siapkan = kode(readFileSync(join(ctx.repoRoot, "src/app/mengajar/[kelas]/siapkan/page.tsx"), "utf8"));
-      c.expect(/<TanggalDenganGema id="pin-mulai" name="mulai" defaultValue=\{hariIniSekolah\(\)\}/.test(siapkan) && /<TanggalDenganGema id="pin-sampai" name="sampai"/.test(siapkan),
+      // RESTATED FOR W3.11 (Batch 3): «mulai» starts on `mulaiAwal` (the dates a refusal sent back, the window made
+      // available, else the school's today: DAISY-14-TANGGAL-01 holds that); both fields keep their echo, ids and names.
+      c.expect(/<TanggalDenganGema id="pin-mulai" name="mulai" defaultValue=\{mulaiAwal\}/.test(siapkan) && /<TanggalDenganGema id="pin-sampai" name="sampai"/.test(siapkan),
         "Siapkan's «mulai» and «sampai» have no echo");
       const konf = kode(readFileSync(join(ctx.repoRoot, "src/app/konfigurasi/page.tsx"), "utf8"));
       for (const [nama, n, jenis] of [["pm_mulai", 1, "datetime-local"], ["pm_selesai", 1, "datetime-local"], ["terbit", 1, "datetime-local"], ["sampai", 1, "datetime-local"], ["valid_until", 2, null]] as const) {

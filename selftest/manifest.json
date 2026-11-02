@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 194,
+  "version": 195,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3812,6 +3812,31 @@
       "id": "D140-SAJI-01",
       "runner": "static",
       "proves": "reads the source files, the stylesheet src/app/experience.css and the copy table (and executes kataHalaman) for D-140, the 9 Oct independent review: RV-1 «Laporkan masalah» and «Laporan saya» show a page as its place in words (kataHalaman), never its path or an id, while the path still travels for engineering; RV-2 the security record shows an event it has no words for in the Jejak audit's words, with year and time zone; RV-3 the staff navigation keeps Daisy's one order of places whichever is open (CSS order), the context's name and chooser after them; RV-4 Konfigurasi's own pages, Akun saya and «Laporkan masalah» name themselves in the phone bar; RV-17 Konfigurasi's main actions are primary and its emergency stop destructive"
+    },
+    {
+      "id": "MENGAJAR3-HASIL-01",
+      "runner": "static",
+      "proves": "W2.4 the Uji Cepat score, the class first and the learners one step below (Batch 3; CR-27, J5.6; D-120 Q8; Daisy 11-validation.md §3), selftest/mengajar3.test.ts: src/lib/hasil-ujicepat.ts susunHasilUjiCepat driven makes the class figure the mean of only the scores the evaluator gave, on its base (scored of the class now), counts no one outside the class and gives no figure (never a zero) when there is none; src/lib/pengajar.ts hasilUjiCepat reads each score through the catalogue's learner.result for this class's own Uji Cepat only; src/app/mengajar/[kelas]/uji-cepat/hasil/page.tsx puts the figure in t-stat with its base above the learners' Table (Koleksi), nothing ordered by score; src/app/mengajar/[kelas]/uji-cepat/page.tsx leads there from the running and the last Uji Cepat; the words in both languages in src/lib/hle.ts."
+    },
+    {
+      "id": "MENGAJAR3-JENDELA-01",
+      "runner": "static",
+      "proves": "W3.11 J5 on Siapkan (Batch 3; Daisy components/J5Jendela), selftest/mengajar3.test.ts: src/app/mengajar/[kelas]/siapkan/page.tsx marks «Sampai» «(opsional)», its empty echo «Tanpa batas akhir», reopens a refused form with the dates sent (src/app/mengajar/actions.ts) and tells a window refusal (ASSIGN_WINDOW_INVALID) under «Sampai» instead of at the button; src/components/bentuk/TanggalDenganGema.tsx rendered with a refusal marks the field invalid, describes it by the sentence after its echo, draws it with the alert icon, focuses the field on arrival and clears it when the date changes."
+    },
+    {
+      "id": "MENGAJAR3-SEDIA-01",
+      "runner": "static",
+      "proves": "W3.11 J1 part two «✓ Disediakan» (Batch 3; Daisy components/J1Terbit), selftest/mengajar3.test.ts: src/app/mengajar/actions.ts returns an accepted Sediakan to its review (?disediakan=); src/app/mengajar/[kelas]/siapkan/page.tsx, only when the class's assignments hold it, gives TombolKirim its result word «Disediakan», says «Materi disediakan untuk kelas ini.» with the window in words and offers the way on to the class; src/components/TombolKirim.tsx rendered shows «✓ Disediakan»."
+    },
+    {
+      "id": "MENGAJAR3-KIRIM-01",
+      "runner": "static",
+      "proves": "W3.17 Mengajar result words and RV-20 (Batch 3; 08-migration.md Actions; Daisy components/J2Kelas), selftest/mengajar3.test.ts: src/app/mengajar/[kelas]/ulang/page.tsx «Minta membaca lagi» says «Mengirim…» then «✓ Terkirim» once the request was taken; every TombolKirim under src/app/mengajar/[kelas] gives its result word except the named Uji Cepat launch; src/app/experience.css keeps a list row's badge (.pin-row > .pin-pill) at 320 px."
+    },
+    {
+      "id": "MENGAJAR3-KOSONG-01",
+      "runner": "static",
+      "proves": "W3.18 Mengajar part (Batch 3; 08-migration.md Feedback, .pin-empty to Empty state), selftest/mengajar3.test.ts: src/app/mengajar/[kelas]/{page,siapkan,uji-cepat,uji-cepat/hasil,ulang} write no bare pin-empty line and say their emptiness through src/components/Kosong.tsx."
     }
   ]
 }

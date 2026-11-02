@@ -5,6 +5,7 @@ import * as ajar from "@/lib/pengajar";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import BarisHasil from "@/components/BarisHasil";
+import Kosong from "@/components/Kosong";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import PemilihKelas from "@/components/mengajar/PemilihKelas";
@@ -147,7 +148,7 @@ export default async function Kelas({
         <div className="pin-sec">
           <h2>{s("mengajar.berjalan.kelas")}</h2>
           {buka.length === 0 ? (
-            <p className="pin-empty">{s("mengajar.berjalan.kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("mengajar.berjalan.kosong")} />
           ) : (
             <div className="pin-list">
               {buka.map((b) => (
@@ -174,7 +175,7 @@ export default async function Kelas({
           {/* DAISY-18: "Sediakan" lands here, beside the material it made available */}
           {sedia === "ok" ? <BarisHasil nada="ok">{s("mengajar.sedia.ok")}</BarisHasil> : null}
           {tugas.length === 0 && terbit.length === 0 ? (
-            <p className="pin-empty">{s("mengajar.materi.kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("mengajar.materi.kosong")} />
           ) : (
             <div className="pin-list">
               {tugas.map((x) => (

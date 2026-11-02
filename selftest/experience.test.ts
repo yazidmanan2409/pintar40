@@ -316,6 +316,7 @@ const RESET_SURFACES = [
   "src/app/mengajar/[kelas]/page.tsx",
   "src/app/mengajar/[kelas]/siapkan/page.tsx",
   "src/app/mengajar/[kelas]/uji-cepat/page.tsx",
+  "src/app/mengajar/[kelas]/uji-cepat/hasil/page.tsx",
   "src/app/mengajar/[kelas]/bukti/page.tsx",
   "src/app/mengajar/[kelas]/langkah/page.tsx",
   "src/app/mengajar/[kelas]/siapa/page.tsx",
@@ -10258,7 +10259,11 @@ export const experienceTests: SelfTest[] = [
       c.expect(/p_from: mulai \? batasHari\(mulai, "awal"\) : null,/.test(aksi) && /p_until: sampai \? batasHari\(sampai, "akhir"\) : null,/.test(aksi),
         "sediakanMateri does not send the school's days");
       const siapkan = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "[kelas]", "siapkan", "page.tsx"), "utf8"));
-      c.expect(/name="mulai" defaultValue=\{hariIniSekolah\(\)\}/.test(siapkan), "Siapkan's first day does not start on the school's today");
+      // RESTATED FOR W3.11 (Batch 3): J5 reopens a refused form with the dates the teacher sent, and J1 part two shows
+      // the window the database now holds; a fresh review still starts on the school's today, so the field takes
+      // `mulaiAwal`, whose last fallback (no date sent back, nothing made available) is hariIniSekolah().
+      c.expect(/name="mulai" defaultValue=\{mulaiAwal\}/.test(siapkan) && /const mulaiAwal = [^;]*: hariIniSekolah\(\);/.test(siapkan),
+        "Siapkan's first day does not start on the school's today");
       const utc = walk(join(repoRoot, "src")).filter((f) => /\.(ts|tsx)$/.test(f))
         .filter((f) => /T00:00:00Z|T23:59:59Z|T00:00:00\.000Z/.test(code(readFileSync(f, "utf8"))));
       c.expect(utc.length === 0, `a day boundary is built in UTC in ${utc.map((f) => relative(repoRoot, f)).join(", ")}`);
@@ -10866,7 +10871,10 @@ export const experienceTests: SelfTest[] = [
         && /const kartu = `keputusan=\$\{encodeURIComponent\(id\)\}`;/.test(pimAksi) && (pimAksi.match(/\$\{kartu\}/g) ?? []).length === 3,
         "a decision's answer is not on the card that was moved");
       const ajar = code(baca("src", "app", "mengajar", "actions.ts"));
-      c.expect(/ke\(kelasId, "\?sedia=ok"\);/.test(ajar) && /ke\(kelasId, "\/uji-cepat\?cepat=ok"\);/.test(ajar),
+      // RESTATED FOR W3.11 (Batch 3): J1 part two (Daisy, J1Terbit) answers «Sediakan» at the button that sent it,
+      // «✓ Disediakan» and the line with the window, then the way on to the class; so a Sediakan the database took
+      // returns to the review as `?disediakan=`, which reads the assignment back before saying so (MENGAJAR3-SEDIA-01).
+      c.expect(/ke\(kelasId, `\/siapkan\?disediakan=\$\{encodeURIComponent\(terbitan\)\}`\);/.test(ajar) && /ke\(kelasId, "\/uji-cepat\?cepat=ok"\);/.test(ajar),
         "a teacher's Sediakan or Uji Cepat returns without saying it was done");
 
       /**

@@ -1572,6 +1572,23 @@ export type HleEvent =
   | "mengajar.siapa.sedang"
   | "mengajar.siapa.catatan"
   | "mengajar.siapa.kosong"
+  // Batch 3 · W2.4, W3.11, W3.17 (Mengajar)
+  | "bentuk.opsional"
+  | "mengajar.sedia.selesai"
+  | "mengajar.ulang.selesai"
+  | "mengajar.cepat.hasil.judul"
+  | "mengajar.cepat.hasil.lihat"
+  | "mengajar.cepat.hasil.kelas"
+  | "mengajar.cepat.hasil.dasar"
+  | "mengajar.cepat.hasil.arti"
+  | "mengajar.cepat.hasil.belum"
+  | "mengajar.cepat.hasil.rincian"
+  | "mengajar.cepat.hasil.rincian.arti"
+  | "mengajar.cepat.hasil.kolom.nama"
+  | "mengajar.cepat.hasil.kolom.keadaan"
+  | "mengajar.cepat.hasil.kolom.nilai"
+  | "mengajar.cepat.hasil.nilai_belum"
+  | "mengajar.cepat.hasil.kembali"
   | "tur.tur"
   | "tur.nama.belajar"
   | "tur.nama.pengajar"
@@ -3047,6 +3064,23 @@ const table: Table = {
   "mengajar.bukti.peserta": { default: "peserta", en: "participants" },
   "mengajar.siap.terdaftar_peserta": { default: "peserta terdaftar hari ini", en: "participants enrolled today" },
   "mengajar.siapa.kosong_peserta": { default: "Tidak ada peserta dalam daftar ini.", en: "No participant in this list." },
+  // Batch 3 · W3.11 (J5, J1 part two), W3.17 (result words), W2.4 (the Uji Cepat score; D-120 Q8)
+  "bentuk.opsional": { default: "(opsional)", en: "(optional)" },
+  "mengajar.sedia.selesai": { default: "Disediakan", en: "Made available" },
+  "mengajar.ulang.selesai": { default: "Terkirim", en: "Sent" },
+  "mengajar.cepat.hasil.judul": { default: "Hasil Uji Cepat", en: "Quick Assessment result" },
+  "mengajar.cepat.hasil.lihat": { default: "Lihat hasil", en: "See the result" },
+  "mengajar.cepat.hasil.kelas": { default: "Nilai kelas", en: "Class score" },
+  "mengajar.cepat.hasil.dasar": { default: "{n} dari {total} {benda} sudah dinilai", en: "{n} of {total} {benda} scored" },
+  "mengajar.cepat.hasil.arti": { default: "Rata-rata nilai yang sudah ada. Yang belum mengumpulkan, atau belum dinilai, tidak dihitung.", en: "The average of the scores there are. Anyone who has not handed in, or has no score yet, is not counted." },
+  "mengajar.cepat.hasil.belum": { default: "Belum ada nilai. Nilai kelas muncul di sini setelah ada yang mengumpulkan.", en: "No scores yet. The class score appears here once someone has handed in." },
+  "mengajar.cepat.hasil.rincian": { default: "Rincian nilai", en: "Score by person" },
+  "mengajar.cepat.hasil.rincian.arti": { default: "Diurutkan abjad. Bukan peringkat.", en: "In alphabetical order. Not a ranking." },
+  "mengajar.cepat.hasil.kolom.nama": { default: "Nama", en: "Name" },
+  "mengajar.cepat.hasil.kolom.keadaan": { default: "Keadaan", en: "Status" },
+  "mengajar.cepat.hasil.kolom.nilai": { default: "Nilai", en: "Score" },
+  "mengajar.cepat.hasil.nilai_belum": { default: "Belum ada nilai", en: "No score yet" },
+  "mengajar.cepat.hasil.kembali": { default: "Kembali ke Uji Cepat", en: "Back to the Quick Assessment" },
   "mengajar.kelas.catatan_pengembangan": { default: "Catatan pengembangan profesi kelas ini", en: "This class's professional-learning record" },
   "pengembangan.eyebrow": { default: "Pengembangan profesi guru", en: "Educators' professional learning" },
   "pengembangan.judul": { default: "Catatan pengembangan profesi", en: "Professional-learning record" },

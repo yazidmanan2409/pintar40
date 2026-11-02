@@ -2924,3 +2924,19 @@ select:not([multiple]):not([size]) {
 /* W3.1: the Tab starting point after a navigation (FokusRute): no size, never seen, never ringed */
 .pin-awal { position: absolute; width: 0; height: 0; overflow: hidden; }
 .pin-awal:focus { outline: none; }
+
+/* ───────────────────────────── Batch 3 · Mengajar (W3.11, W3.17, W2.4) */
+/* W3.11 (Daisy, J5Jendela): «(opsional)» beside a label, quieter than it; the server's sentence under its field */
+.pin-opsional { font-weight: var(--weight-normal); color: var(--ink-3); }
+.pin-galat-bidang {
+  display: flex; gap: var(--space-2); align-items: flex-start; margin: var(--space-2) 0 0;
+  font-size: var(--t-small); line-height: var(--t-small-lh); font-weight: var(--weight-strong); color: var(--status-blocked);
+}
+.pin-galat-bidang .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); margin-top: 2px; flex: none; }
+/* W3.17 · RV-20: a list row's badge is never lost at a narrow width; it moves under the row's words instead */
+@media (max-width: 560px) {
+  .pin-row > .pin-pill { display: inline-flex; grid-column: 1; grid-row: auto; justify-self: start; }
+}
+/* W2.4: the class's Uji Cepat figure stands alone above its learners; a learner with no score says so quietly */
+.pin-cepat-kelas { margin-bottom: var(--space-5); }
+.pin-cepat-tanpa { color: var(--ink-3); }
