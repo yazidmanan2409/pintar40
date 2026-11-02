@@ -14,11 +14,14 @@
 // Supabase, Stripe, Slack, Google, Resend, npm); JWTs whose payload says service_role or an unknown issuer;
 // database URLs with an inline password on a non-local host; assignments of a password, secret or token to a
 // literal in env-like and config files; real-person data (an email at a domain not on the synthetic list; a
-// 16-digit NIK); and restricted assessment-answer material (answer keys outside the synthetic fixtures).
+// 16-digit NIK); and restricted assessment-answer material (answer keys outside the synthetic fixtures): every
+// .paket.json and .xlsx by its path, and, in any text file (F-4, D-145(b)), keyed content: three or more
+// `"is_correct": true` markers, a generator's keyed option tuples, a misconception CSV mapping distractors.
 //
 // The allow list (scripts/guard/allowlist.json) names what is public on purpose: the Supabase local stack's
-// well-known demo keys, synthetic fixture directories, example domains, and the F-4 inventory of answer-key
-// files that are already public and await their own decision. Anything else is a finding.
+// well-known demo keys, synthetic fixture directories, example domains, and every file declared to carry keys on
+// purpose (synthetic). F-4 removed the real keyed files from the tree; `f4_riwayat` names them so --history can
+// count them (already public; never treated as confidential again). Anything else is a finding.
 import { execFileSync, spawnSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -48,7 +51,13 @@ export function pindai(path, teks, izin) {
   for (const r of aturan) {
     if (r.jalur && !r.jalur.test(path)) continue;
     if (r.bukanJalur && r.bukanJalur.test(path)) continue;
-    for (const m of teks.matchAll(r.pola)) {
+    const sumber = r.barisPertama ? teks.split("\n", 1)[0] : teks;
+    if (r.minimal) {
+      // data-shaped: one finding for the file, only past the threshold, fingerprinted by rule and path
+      if ([...sumber.matchAll(r.pola)].length >= r.minimal) hasil.push({ aturan: r.id, kelas: kelas[r.id], path, sidik: sidik(`${r.id}:${path}`) });
+      continue;
+    }
+    for (const m of sumber.matchAll(r.pola)) {
       const nilai = m.groups?.v ?? m[0];
       if (r.saring && !r.saring(nilai, m, izin)) continue;
       hasil.push({ aturan: r.id, kelas: kelas[r.id], path, sidik: sidik(nilai) });
@@ -73,7 +82,9 @@ export function putuskan(temuan, izin) {
   const rapi = temuan.filter((t) => { const k = `${t.aturan}|${t.path}|${t.sidik}`; if (kunciUnik.has(k)) return false; kunciUnik.add(k); return true; });
   const ditolak = rapi.filter((t) => !diizinkan(t, izin));
   const f4 = new Set(rapi.filter((t) => kelas[t.aturan] === "kunci-jawaban" && izin.berkas_kerja_terdaftar.some((f) => f.path === t.path && f.jenis === "nyata-F4")).map((t) => t.path));
-  return { ditolak, diizinkan: rapi.length - ditolak.length, f4: [...f4] };
+  // F-4: keyed findings in the files F-4 removed (only --history sees them: they are no longer in the tree)
+  const riwayat = new Set(ditolak.filter((t) => kelas[t.aturan] === "kunci-jawaban" && cocokPola(t.path, izin.f4_riwayat ?? [])).map((t) => t.path));
+  return { ditolak, diizinkan: rapi.length - ditolak.length, f4: [...f4], f4Riwayat: [...riwayat] };
 }
 
 function daftar(root, mode) {
@@ -109,13 +120,14 @@ export function pindaiRepo(root, mode, izin = muatIzin()) {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const root = execFileSync("git", ["rev-parse", "--show-toplevel"], { encoding: "utf8" }).trim();
   const mode = process.argv.find((a) => ["--staged", "--tree", "--history"].includes(a)) ?? "--staged";
-  const { ditolak, diizinkan: n, f4 } = pindaiRepo(root, mode);
+  const { ditolak, diizinkan: n, f4, f4Riwayat } = pindaiRepo(root, mode);
   if (process.argv.includes("--json")) {
-    console.log(JSON.stringify({ mode, temuan: ditolak, diizinkan: n, f4_terpapar: f4 }, null, 1));
+    console.log(JSON.stringify({ mode, temuan: ditolak, diizinkan: n, f4_terpapar: f4, f4_riwayat: f4Riwayat }, null, 1));
   } else {
     for (const t of ditolak) console.log(`${t.kelas.padEnd(12)} ${t.aturan.padEnd(22)} ${t.path}  [${t.sidik}]${t.blob ? ` blob ${t.blob.slice(0, 10)}` : ""}`);
     console.log(`sensitive-scan ${mode}: ${ditolak.length} finding(s) not allowed; ${n} allowed by scripts/guard/allowlist.json`);
     if (f4.length) console.log(`  of which ${f4.length} file(s) hold REAL answer keys already public (F-4 inventory; awaiting the owner's F-4 decision, not approved)`);
+    if (f4Riwayat.length) console.log(`  ${f4Riwayat.length} path(s) among the findings are real keyed files F-4 removed from the tree (f4_riwayat; still in history, so already public: D-145(b))`);
   }
   if (mode !== "--history" && ditolak.length > 0) {
     console.error("Refused: the repository is public (D-143). Remove the value, or, if it is public on purpose, add its fingerprint to scripts/guard/allowlist.json with a reason.");

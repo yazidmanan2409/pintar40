@@ -74,6 +74,11 @@
    "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"
   },
   {
+   "path": "selftest/db/fable11.sql",
+   "jenis": "sintetis",
+   "alasan": "inlines the synthetic sample package (selftest/fixtures/bob02/contoh-pelajaran.paket.json, «Pecahan untuk Kelas 4») as SQL for F11; 0 items from real content (declared under F-4 when keyed content in any file became a finding)"
+  },
+  {
    "path": "selftest/fixtures/bob02/contoh-excel.xlsx",
    "jenis": "sintetis",
    "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"

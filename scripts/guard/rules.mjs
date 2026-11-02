@@ -6,6 +6,10 @@
 //   kredensial      a working secret: refuse, never allow by path; rotate if it was ever pushed
 //   data-pribadi    real-person data: an address or identity number of a real person
 //   kunci-jawaban   restricted assessment-answer material (answer keys) outside the synthetic fixtures
+//
+// A rule may also say `minimal` (it fires only when the file holds at least that many matches, as ONE finding for the
+// file, fingerprinted by its path: data, not code that merely names the field) and `barisPertama` (only the first
+// line is read: a CSV header).
 
 /** Domains that are synthetic, reserved or organisational role addresses (not a person). */
 const DOMAIN_SINTETIS = /(\.test|\.invalid|\.example|\.local|\.internal|example\.(com|org|net|co)|localhost)$/i;
@@ -71,9 +75,32 @@ export const aturan = [
     },
   },
   { id: "nik", pola: /(?<![0-9A-Za-z])(?<v>[1-9][0-9]{15})(?![0-9A-Za-z])/g, bukanJalur: /(^|\/)(package-lock\.json|[^/]*\.(svg|lock))$/, saring: nikMasukAkal },
-  // Answer keys: flagged by path in sensitive-scan.mjs (docs/onboarding/{konten,contoh}); this rule catches a keyed
-  // package anywhere else: a JSON with a correct-answer marker outside the synthetic fixtures.
+  // Answer keys: every .paket.json and .xlsx is flagged by its path in sensitive-scan.mjs; this rule catches a keyed
+  // package by its content: a package JSON with a correct-answer marker.
   { id: "kunci-jawaban", pola: /"is_correct"\s*:\s*true/g, jalur: /\.paket\.json$/, saring: () => true },
+  // F-4 (D-145(b)): keyed CONTENT in any text file, whatever its name. Each is refused unless the file is declared in
+  // berkas_kerja_terdaftar (a synthetic fixture that carries keys on purpose).
+  //  (a) a data-shaped run of correct-answer markers: three or more `"is_correct": true` in one file (a package or an
+  //      item list pasted into JSON, code, SQL, CSV or Markdown). Code that reads, writes or tests the field names it
+  //      once or twice per file (src/, selftest/, supabase/: at most 1 per file at F-4) and fires nothing;
+  {
+    id: "kunci-jawaban-penanda",
+    pola: /"is_correct"\s*:\s*true/g,
+    jalur: /\.(json|ts|tsx|mts|cts|js|mjs|cjs|py|sql|csv|md)$/i,
+    bukanJalur: /\.paket\.json$/,
+    minimal: 3,
+  },
+  //  (b) a content generator's keyed option tuple: an option, then True (Python) or true (JS), then a reason
+  //      opening «Benar», which is how the removed chapter generators held every item's key;
+  { id: "kunci-jawaban-generator", pola: /,\s*(?:True|true)\s*,\s*["']Benar\b/g, jalur: /\.(py|ts|tsx|mts|cts|js|mjs|cjs|json|md|txt)$/i },
+  //  (c) a misconception CSV that maps each question's distractors: a header with both a `code` and a `questions`
+  //      column (the questions column lists every wrong letter per item, which gives the key by elimination).
+  {
+    id: "kunci-jawaban-miskonsepsi",
+    pola: /^\uFEFF?(?=(?:[^\n]*[,;\t])?\s*"?code"?\s*(?:[,;\t]|$))(?=(?:[^\n]*[,;\t])?\s*"?questions"?\s*(?:[,;\t]|$))[^\n]*/gi,
+    jalur: /\.(csv|tsv)$/i,
+    barisPertama: true,
+  },
 ];
 
 export const kelas = {
@@ -92,4 +119,7 @@ export const kelas = {
   "surel-pribadi": "data-pribadi",
   "nik": "data-pribadi",
   "kunci-jawaban": "kunci-jawaban",
+  "kunci-jawaban-penanda": "kunci-jawaban",
+  "kunci-jawaban-generator": "kunci-jawaban",
+  "kunci-jawaban-miskonsepsi": "kunci-jawaban",
 };
