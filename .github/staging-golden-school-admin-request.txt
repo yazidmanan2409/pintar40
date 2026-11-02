@@ -16,4 +16,5 @@ slug: sekolah-uji-l3
 # 9 Oct, D-140: staging READY walk on 001a357 (batches A and B); facts 37964868797 GREEN, 177 (after run 37965100845)
 # 2 Nov, Batch 1 staging verification: Sekolah Uji B1 1102; staging at 181, main 430544b (after run 41400228976)
 # 2 Nov, Batch 2 staging verification: Sekolah Uji B2 1102; main fab8e4a (after run 41433012861)
-slug: sekolah-uji-b2-1102
+# 2 Nov, Batch 3 staging verification: Sekolah Uji B3 1102; staging at 182, main a5e2935 (after run 41526780481)
+slug: sekolah-uji-b3-1102
