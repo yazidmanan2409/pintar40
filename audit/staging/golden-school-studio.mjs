@@ -55,7 +55,9 @@ const mail = (who) => `goldenschool+${SLUG}-${who}@pintarselalu.com`;
 const KELAS = "Kelas 5A";
 const MURID = ["Utama", "Bunga", "Citra", "Dimas", "Eka"].map((n) => `${n} Murid ${SLUG.toUpperCase()}`);
 const PELAJAR = MURID[2]; // GS-21 re-issues Utama's and Bunga's cards; this walk re-issues Citra's
-const JUDUL = `Matematika Kelas 4 · Kelipatan Bilangan (${SLUG})`;
+// one chapter per run, so the walk can be run again on the same school (each run's chapter is its own)
+const RUN = (process.env.GITHUB_RUN_ID ?? String(Date.now())).slice(-6);
+const JUDUL = `Matematika Kelas 4 · Kelipatan Bilangan (${SLUG} · ${RUN})`;
 const ALASAN_KEMBALI = "Soal C5 terlalu panjang untuk murid kelas 4; mohon dipersingkat kalimatnya.";
 const RINGKASAN = "Soal C5 dipersingkat sesuai catatan peninjau.";
 
@@ -122,7 +124,7 @@ await step("T0", `read only: «${SLUG}», «${KELAS}», its staff, and staging's
   const [id, kelas, migrasi, fungsi, sudah] = r.split("|");
   S = { id: uuid(id), kelas: uuid(kelas) };
   harus(rec, Number(migrasi) >= 182 && fungsi === "true", `staging holds ${migrasi} migrations and nama_riwayat_paket: ${fungsi}`);
-  harus(rec, sudah === "0", `no chapter titled «${JUDUL}» yet (${sudah}): a school this walk has not used`);
+  harus(rec, sudah === "0", `no chapter titled «${JUDUL}» yet (${sudah}): this run's own chapter`);
   for (const who of ["admin", "kabag", "guru", "dekan"]) {
     harus(rec, keadaanDari(sql, lit)(mail(who)) !== null, `${who} has an account`);
   }
@@ -349,7 +351,7 @@ await step("T10", `the Guru gives it to «${KELAS}» on Siapkan («✓ Disediaka
   await closeTour(G);
   await G.goto(`${APP}/mengajar/${S.kelas}/siapkan`, { waitUntil: "networkidle", timeout: SLOW });
   await closeTour(G);
-  const row = G.locator("a.pin-row").filter({ hasText: SLUG }).first();
+  const row = G.locator("a.pin-row").filter({ hasText: JUDUL }).first();
   if (!harus(rec, (await row.count()) > 0, "Siapkan offers the chapter")) return;
   await row.click();
   await G.waitForLoadState("networkidle");
@@ -488,7 +490,11 @@ await step("T14", "W6.7: the learner hands it in; no certificate comes of it (J5
   harus(rec, dijawab === 3 && selesai === "1", `answered ${dijawab}, handed in ${selesai}`);
   const sertifikat = sql(`select count(*) from public.certificates c join public.assessment_sessions s on s.id = c.session_id where s.assessment_assignment_id = '${uuid(ujiCepat)}'`);
   const teks = norm(await M.locator("main").innerText().catch(() => ""));
-  harus(rec, sertifikat === "0" && !/sertifikat/i.test(teks) && (await M.locator('a[href*="/sertifikat"]').count()) === 0, `no certificate (database ${sertifikat}; the page names none)`);
+  // the page's own content, not the learner's menu: a learner who already holds a certificate (GS-15) is offered
+  // «Sertifikat» there, whatever this Uji Cepat did
+  const tautanSertifikat = await M.locator('main a[href*="/sertifikat"]').count();
+  harus(rec, sertifikat === "0", `no certificate for the Uji Cepat in the database (${sertifikat})`);
+  harus(rec, !/sertifikat/i.test(teks) && tautanSertifikat === 0, `the page the learner lands on names or links no certificate (${tautanSertifikat} link(s) in its content)`);
 });
 
 await step("T15", "W6.7: «Lihat hasil»: the class figure on its base first, the learner one step below (W2.4)", async (rec) => {

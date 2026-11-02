@@ -481,7 +481,7 @@ await step("U14", "W6.7: the learner finds the Uji Cepat on Belajar and hands it
   // J5.7: a single Uji Cepat never issues a certificate, in the database or on the screen the learner lands on
   const sertifikat = sql(`select count(*) from public.certificates c join public.assessment_sessions s on s.id = c.session_id where s.assessment_assignment_id='${ujiCepat}'`);
   const teks = norm(await m.locator("main").innerText().catch(() => ""));
-  harus(rec, sertifikat === "0" && !/sertifikat/i.test(teks) && (await m.locator('a[href*="/sertifikat"]').count()) === 0,
+  harus(rec, sertifikat === "0" && !/sertifikat/i.test(teks) && (await m.locator('main a[href*="/sertifikat"]').count()) === 0,
     `no certificate for the Uji Cepat (${sertifikat} in the database; the page ${/sertifikat/i.test(teks) ? "mentions" : "does not mention"} one)`);
 });
 
