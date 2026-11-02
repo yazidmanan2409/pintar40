@@ -6,8 +6,8 @@
 
 | Exit criterion (2 Nov authorisation) | Result | Evidence |
 |---|---|---|
-| CI compatibility restored or explicitly blocked | **RESTORED** on the development branch. `ci.yml` green unchanged on Ubuntu 26.04. The browser jobs needed a pin to 24.04 (Playwright 1.55 has no 26.04 build) | Deliverable 2; runs 41375753148, 41377378758 (red, cause), 41377773745 (after the pin) |
-| Local and branch verification passes | **PASS** | Local: tsc 0, eslint 0, full selftest **660/0** (1 CI-only justified skip). Branch: CI **18/18, selftest 661/0/0** |
+| CI compatibility restored or explicitly blocked | **RESTORED** on the development branch. `ci.yml` green unchanged on Ubuntu 26.04. The browser jobs needed a pin to 24.04 (Playwright 1.55 has no 26.04 build) | Deliverable 2; runs 41375753148, 41377378758 (red, cause), 41377773745 (after the pin: green), 41378821622 (Batch 0 head: green) |
+| Local and branch verification passes | **PASS** | Local: tsc 0, eslint 0, full selftest **660/0** (1 CI-only justified skip). Branch: CI **18/18, selftest 661/0/0** on 0fb65bb and on the Batch 0 head 1a040d4; journeys A and B green |
 | Accessibility harness works, with findings recorded | **PASS** (harness); the baseline is **not clean** and is recorded | Deliverable 3; `evidence/a11y-baseline-2026-11-02.json` |
 | Security scan complete, critical findings escalated | **PASS**. **0 credentials.** Answer-key exposure escalated as F-4 (already known, decided public by D-143). New: two real-chapter copies under `audit/fixtures/` | Deliverable 4 |
 | Safeguards tested | **PASS**: SEC-G01/G02 red then green; the pre-commit hook refused a planted personal address | Deliverable 4 §5 |
@@ -53,7 +53,7 @@
 | Merge or push to `main` | None. All work is on `claude/awesome-rubin-bqxp6p` |
 | Repository visibility, permissions, history | Unchanged. No rewrite, no deletion, no rotation |
 | Scope, foundation | No application code changed. Changes are to CI workflow runner labels, the audit harness, a guard script, selftests and documents |
-| CI ceiling (400 min) | Used about **150** rounded-up runner-minutes (deliverable 1 §4); 0 ms billed |
+| CI ceiling (400 min) | Used **187** rounded-up runner-minutes (158.5 compute) of 400 (deliverable 1 §4); 0 ms billed |
 
 ## 4. Roadmap compatibility (D-144): known concerns only
 

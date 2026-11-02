@@ -56,12 +56,8 @@ The upgrade remains the long-term route: see §6.
 | 41374792031 | runner probe + stack | aa3e165 | Green on both images (§1) |
 | **41375753148** | **ci** | 0fb65bb | **Green 18/18; selftest 661/0/0** |
 | 41377378758 | audit-journeys (A crawl, B Dr Gladys's path) | c1a2c22 | **Red**: browser install on Ubuntu 26.04 (§2). The finding that led to §3 |
-| **41377773745** | **audit-journeys** | 871767d (pinned) | *see §4.1* |
-| *(final)* | ci | Batch 0 head | *see §4.1* |
-
-### 4.1 After the pin
-
-*Filled in from the runs; see the completion report (deliverable 1) for the final state.*
+| **41377773745** | **audit-journeys** | 871767d (pinned) | **Green**: A crawl (14.1 min), B Dr Gladys's path from an empty production-like database (29.3 min); browser installed on 24.04 |
+| **41378821622** | **ci** | 1a040d4 (Batch 0 head) | **Green 18/18; selftest 661/0/0** |
 
 ## 5. Local verification
 
@@ -71,7 +67,7 @@ The upgrade remains the long-term route: see §6.
 | `eslint` (whole repository) | rc 0 (4 warnings, all pre-existing in `audit/`) |
 | Selftest SEC-G01/G02 (targeted), red then green | Red on a disabled allow check and on a planted undeclared package; green after |
 | Job-A replica (crawl, 14 personas) with the accessibility harness | Crawl GREEN (0 broken); baseline recorded (deliverable 3) |
-| Full selftest locally | *see deliverable 1* |
+| Full selftest locally (stack started as CI does, Mailpit sink) | **660 passed, 0 failed**, 1 CI-only justified skip (F01-R04) |
 
 ## 6. Remaining platform risks (not fixed in Batch 0, by design)
 

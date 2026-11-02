@@ -22,7 +22,7 @@ Batches are ordered by dependency and risk (`D-DEPENDENCY-MAP`), not by module. 
 | | |
 |---|---|
 | **Closes** | W0.2 CI on the new runner image, W0.4 accessibility harness, W0.5 history secret scan; facts and CI re-established on current code |
-| **Why first** | Nothing can be verified until CI runs on GitHub's new image (Ubuntu 26 and Node 24 since 19 Oct; no build since). The accessibility harness must exist before any screen work, or later batches cannot be held to the accessibility gate |
+| **Why first** | Re-establish verification on GitHub's current image before any change. **Done 2 Nov (`batch-0/01`):** `ci.yml` green unchanged on Ubuntu 26.04; Playwright browser jobs pinned to 24.04; accessibility baseline recorded; history scan 0 credentials |
 | **Needs first** | Owner: plan approval, CI allowance, freeze lifted |
 | **Enables** | Every later batch |
 | **Retires** | CI-platform risk; the unknown exposure of the public history |
@@ -192,8 +192,8 @@ Counsel:       engage ───────────────────�
 
 ## CI and verification resources
 
-- **Per batch:** CI ≈ 70 min + journeys ≈ 45 min + Golden School walk ≈ 50 min + facts ≈ 2 min ≈ **170 min**. Budget **≈ 200 per batch** with one re-run for a root-caused failure.
-- **Batches 0–11:** ≈ 12 × 200 = **2,400 min**, plus ≈ 300 for L1 capacity runs, the release rehearsal and the off-platform backup drills. **Ask: an allowance of ≈ 2,800 minutes** (224 remain under D-139).
+- **Per batch (measured in Batch 0, rounded up per job):** CI **61** (18 jobs; 41375753148, 41378821622) + journeys **45** (41377773745) + Golden School walk ≈ 50 (D-139 ledger, not run in Batch 0) + facts ≈ 2 ≈ **160 min**. Budget **≈ 200 per batch** with one re-run for a root-caused failure. Batch 0 itself used 187 of its 400.
+- **Batches 1–11:** ≈ 11 × 200 = **2,200 min**, plus ≈ 300 for L1 capacity runs, the release rehearsal and the off-platform backup drills: **≈ 2,500 minutes**. GitHub bills **0 ms** on this public repository (verified 2 Nov), so the allowance is a governance limit, granted per batch with the owner's GO.
 - **Optimisations already in place and kept:**
   - E1 (main reuses a proven CI);
   - documents-only commits skip CI;
