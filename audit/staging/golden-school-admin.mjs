@@ -487,12 +487,17 @@ async function kePaket(page, lewat) {
 async function tekan(page, tombol) {
   await page.reload({ waitUntil: "networkidle" });
   await closeTour(page);
-  const b = page.getByRole("button", { name: tombol, exact: true });
+  let b = page.getByRole("button", { name: tombol, exact: true });
+  // W1.4 (Batch 3): a reader who may also lock creates and locks the release in one press («Kunci terbitan» in the
+  // «Buat terbitan · Kunci terbitan» panel), which must end with the release locked
+  const gabung = tombol === "Buat terbitan" && !(await b.count());
+  if (gabung) b = page.getByRole("button", { name: "Kunci terbitan", exact: true });
   if (!(await b.count())) return { tidakAda: true };
   const sebelum = teksKeadaan();
   await b.first().click();
   let sesudah = sebelum;
   for (let i = 0; i < 40 && sesudah === sebelum; i++) { await page.waitForTimeout(500); sesudah = teksKeadaan(); }
+  for (let i = 0; gabung && i < 40 && keadaan().terbitan !== "FROZEN"; i++) { await page.waitForTimeout(500); sesudah = teksKeadaan(); }
   await page.waitForLoadState("networkidle");
   return { sesudah: sesudah === sebelum ? null : sesudah };
 }

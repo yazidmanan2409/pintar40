@@ -1009,18 +1009,30 @@ async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama 
   // press a step's button as `page`; the state it moved to, or null when nothing moved
   const tekan = async (page, kunci, tombol) => {
     await page.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
-    const btn = page.getByRole("button", { name: tombol, exact: true });
+    let btn = page.getByRole("button", { name: tombol, exact: true });
+    // W1.4 (Batch 3): a reader who may also lock the release creates and locks it in one press, «Kunci terbitan» in
+    // the «Buat terbitan · Kunci terbitan» panel; that press must end with the release locked
+    let gabung = false;
+    if (kunci === "buat" && !(await btn.count())) {
+      btn = page.getByRole("button", { name: "Kunci terbitan", exact: true });
+      gabung = true;
+    }
     if (!(await btn.count())) return { tidakAda: true };
     const before = keadaanBab(course);
     await btn.first().click();
     let after = before;
     for (let i = 0; i < 40 && after === before; i++) { await page.waitForTimeout(500); after = keadaanBab(course); }
+    for (let i = 0; gabung && i < 40 && !after.endsWith("|FROZEN"); i++) { await page.waitForTimeout(500); after = keadaanBab(course); }
+    if (gabung) notes.push(`W1.4: «Buat terbitan» and «Kunci terbitan» in one press → ${after}`);
     await page.waitForLoadState("networkidle");
     rec.shots.push(await shot(page, `${awalan}terbit-${kunci}${after === before ? "-ditolak" : ""}`));
-    return { after: after === before ? null : after };
+    return { after: after === before ? null : after, gabung };
   };
   if (antrean) await antrean("sebelum");
+  let sudahDikunci = false;
   for (const [kunci, tombol, siapa] of TERBIT) {
+    // the combined press already locked the release (W1.4): the lock step is done
+    if (kunci === "kunci" && sudahDikunci) { notes.push("kunci → done in the same press as buat (W1.4)"); continue; }
     const page = siapa === "g" ? g : ["setujui", "buat", "kunci"].includes(kunci) ? pen : a;
     if (kunci === "setujui" && antrean) await antrean("diajukan");
     if (siapa === "a" && ["setujui", "kunci"].includes(kunci)) {
@@ -1082,6 +1094,10 @@ async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama 
     if (t.tidakAda) { notes.push(`${kunci}: no "${tombol}" button for ${who}; state ${keadaanBab(course)}; the page says: ${await kataLangkah(page)}`); rec.verdict = "FAIL"; return false; }
     if (!t.after) { notes.push(`${kunci}: pressed by ${who}, nothing moved (${keadaanBab(course)}); the page says: ${await kataLangkah(page)}`); rec.verdict = "FAIL"; return false; }
     notes.push(`${kunci} → ${t.after}`);
+    if (t.gabung) {
+      if (!t.after.endsWith("|FROZEN")) { notes.push(`the combined press left ${t.after}, not a locked release`); rec.verdict = "FAIL"; return false; }
+      sudahDikunci = true;
+    }
   }
   return true;
 }
@@ -1117,7 +1133,8 @@ async function lihatAntreanKaprodi(course) {
       if (hasil.gagal) return;
       try {
         const teks = await buka();
-        const tautan = h.getByRole("link", { name: judul, exact: true });
+        // Batch 3 (W1.7): the queue's rows are whole-row links, named by the title and then its line of facts
+        const tautan = h.getByRole("link", { name: new RegExp(`^${judul.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`) });
         const menunggu = Number(sql(`select count(*) from public.courses where institution_id='${ids.sd}' and status='IN_REVIEW'`));
         const r = { menunggu, kosong: /Tidak ada yang menunggu tinjauan Anda/.test(teks), terdaftar: (await tautan.count()) > 0 };
         rec_shots_kaprodi.push(await shot(h, `j4-4-antrean-${f}`));

@@ -315,11 +315,14 @@ const errors = () => Number(sql(`select (select count(*) from public.mcq_quality
 const readiness = () => sql(`select status || ' ' || coalesce(blockers::text, '') from public.publish_readiness(${uuid(course)})`);
 async function tekan(page, label, name) {
   await lihat(page, `/studio/paket/${course}`);
-  const b = page.getByRole("button", { name: label, exact: true });
+  let b = page.getByRole("button", { name: label, exact: true });
+  // W1.4 (Batch 3): a reader who may also lock creates and locks the release in one press («Kunci terbitan»)
+  const gabung = label === "Buat terbitan" && !(await b.count());
+  if (gabung) b = page.getByRole("button", { name: "Kunci terbitan", exact: true });
   if (!(await b.count())) return { absent: true };
   const before = keadaan();
   await b.first().click();
-  const after = await until(() => { const k = keadaan(); return k !== before ? k : null; }, 20000);
+  const after = await until(() => { const k = keadaan(); return k !== before && (!gabung || /FROZEN/.test(k)) ? k : null; }, 30000);
   const f = await shot(page, `terbit-${name}${after ? "" : "-nothing-moved"}`);
   return { after, before, f };
 }
@@ -367,6 +370,8 @@ await step("J05", "Studio to published with two people: the teacher prepares and
   notes.push(`the admin reviewed ${await tinjauSemua(A)} warning(s) before approving`);
   rec.shots.push(await shot(A, "terbit-temuan-ditinjau"));
   for (const [label, name] of [["Setujui isi", "setujui"], ["Buat terbitan", "buat"], ["Kunci terbitan", "kunci"]]) {
+    // W1.4: the lock was taken in the same press as «Buat terbitan»
+    if (name === "kunci" && /FROZEN/.test(keadaan())) { notes.push("admin kunci → done in the same press as buat (W1.4)"); continue; }
     const t = await tekan(A, label, name);
     rec.shots.push(t.f ?? "");
     if (t.absent || !t.after) { rec.verdict = "FAIL"; notes.push(`${name}: ${t.absent ? `the admin is not offered "${label}"` : "nothing moved"}; the page: ${(await text(A)).slice(0, 300)}`); return notes.join("; "); }
