@@ -465,7 +465,7 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
   { file: "src/app/experience.css", literal: "1023px",
     reason: "The staff shell's breakpoint, bp-large less one pixel (tokens.json): CSS cannot read a custom property inside @media." },
   { file: "src/app/experience.css", literal: "639px",
-    reason: "W3.4: the Collection's narrow layout, bp-medium (640, tokens.json) less one pixel, as the design system's own Table and Pagination write it (bundle.css @container): CSS cannot read a custom property inside @container." },
+    reason: "W3.4/W3.5: bp-medium (640, tokens.json) less one pixel, as the design system writes it: the Collection's narrow layout (bundle.css @container) and the Dialog's stacked actions; CSS cannot read a custom property inside @container or @media." },
   { file: "src/app/experience.css", literal: "16ch",
     reason: "W3.4: a row's name never narrower than 16 characters, so it wraps between words rather than inside one (Daisy, components/Table: Long values, min-width 16ch); a measure in characters, not a scale step." },
   { file: "src/app/experience.css", literal: "22px",
