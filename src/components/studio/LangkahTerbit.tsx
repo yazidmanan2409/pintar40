@@ -317,6 +317,7 @@ export default function LangkahTerbit({
         <div className="pin-lt-panel" aria-labelledby="lt-kini">
           <p className="pin-eyebrow">{s("studio.langkah.keadaan.kini")}</p>
           <h4 id="lt-kini" className="pin-lt-panel-judul">{s("studio.langkah.terbit.judul")}</h4>
+          {kabarBaris}
           {(() => {
             const kalimat = (
               <p>
@@ -348,12 +349,13 @@ export default function LangkahTerbit({
         <div className="pin-lt-panel" aria-labelledby="lt-kini">
           <p className="pin-eyebrow">{s("studio.langkah.keadaan.kini")}</p>
           <h4 id="lt-kini" className="pin-lt-panel-judul">{s("studio.langkah.ditarik.judul")}</h4>
+          {kabarBaris}
           {kabar?.jenis === "tarik"
             ? <BarisHasil nada="ok">{s("studio.langkah.ditarik.arti")}</BarisHasil>
             : <p>{s("studio.langkah.ditarik.arti")}</p>}
         </div>
       ) : (
-        <p className="pin-lt-oleh">{s("studio.langkah.terbit.nanti")}</p>
+        <>{kabarBaris}<p className="pin-lt-oleh">{s("studio.langkah.terbit.nanti")}</p></>
       )}
     </section>
   );
