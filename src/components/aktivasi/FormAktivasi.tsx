@@ -6,9 +6,9 @@ import { isianKurang, kunciGagal, type JawabanAktivasi, type ModeAktivasi } from
 import HasilAktivasi from "./HasilAktivasi";
 import BarisHasil from "@/components/BarisHasil";
 import LembarKartu, { type KartuCetak } from "./LembarKartu";
-import type { KelasKartu } from "./kelas";
+import { bolehKartu, type KelasKartu } from "./kelas";
 
-type Orang = { person_id: string; display_name: string; institutional_id: string; institution_id: string };
+type Orang = { person_id: string; display_name: string; institutional_id: string; institution_id: string; boleh_kartu: boolean };
 
 /** One press and what came of it: the route's answer, or the check that stopped it being sent. */
 type Hasil = { mode: ModeAktivasi; jawaban: JawabanAktivasi | null; surel?: string; nama?: string };
@@ -205,11 +205,14 @@ export default function FormAktivasi({ locale, orang, adminSistem, kelas = [] }:
                         onClick={() => void kirim(o.person_id, "EMAIL", { person_id: o.person_id, email: alamat.trim() }, { surel: alamat })}>
                         {sibuk === `${o.person_id}:EMAIL` ? s("tombol.mengaktifkan") : s("aktivasi.dengan_surel")}
                       </button>
-                      <button type="button" className="pin-btn" disabled={sibuk !== null}
-                        aria-busy={sibuk === `${o.person_id}:CLASSROOM_CARD` ? "true" : undefined}
-                        onClick={() => void kirim(o.person_id, "CLASSROOM_CARD", { person_id: o.person_id }, {})}>
-                        {sibuk === `${o.person_id}:CLASSROOM_CARD` ? s("tombol.mengaktifkan") : s("aktivasi.dengan_kartu")}
-                      </button>
+                      {/* CR-91 (D-145(a)): a class card only for a learner; staff activate with email */}
+                      {bolehKartu(o) ? (
+                        <button type="button" className="pin-btn" disabled={sibuk !== null}
+                          aria-busy={sibuk === `${o.person_id}:CLASSROOM_CARD` ? "true" : undefined}
+                          onClick={() => void kirim(o.person_id, "CLASSROOM_CARD", { person_id: o.person_id }, {})}>
+                          {sibuk === `${o.person_id}:CLASSROOM_CARD` ? s("tombol.mengaktifkan") : s("aktivasi.dengan_kartu")}
+                        </button>
+                      ) : null}
                     </div>
                     {kurang[o.person_id] ? (
                       <BarisHasil nada="gagal">{s(kurang[o.person_id])}</BarisHasil>

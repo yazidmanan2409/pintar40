@@ -3,9 +3,10 @@
  * investigation of DG-19..37, §B RC-4 and RC-6, §E.
  *
  *   L4-C01  the example workbook: a separate download, clearly marked, built from its source byte for byte, read
- *           and converted by the importer's own code with no special case
+ *           and converted by the importer's own code with no special case (F-4, D-145(b): its source is the synthetic
+ *           corpus's SD5-Sintetis-Bab1.xlsx, no longer a real chapter)
  *   L4-P01  one lesson renderer: the player and Studio's preview draw through src/components/pelajaran/Halaman.tsx;
- *           rendered, the player's page is the shared page, byte for byte, and a real lesson pages at its headings
+ *           rendered, the player's page is the shared page, byte for byte, and a whole lesson pages at its headings
  *           with its diagram drawn, never printed
  *   L4-K01  the screens: one number per difficulty band instead of typed JSON; the bank and the predicted difficulty
  *           in their words; an integrity sitting named by its learner, class and assessment; staff lists one page at a
@@ -87,7 +88,8 @@ export const l4Tests: SelfTest[] = [
       c.expect(pengimpor.length === 0, `the import path treats the example specially: ${pengimpor.join(", ")}`);
       return c.verdict(`the example is built from ${SUMBER_CONTOH} byte for byte into ${HASIL_CONTOH}, accepted by the importer's own `
         + `reader and converter as one course titled «${kursus[0]?.title}», with no special case; and WITHHELD: public/ serves no `
-        + "workbook or data file and the upload panel links none, until the owner rules on Q9's «if canonically suitable» (it carries live keys)");
+        + "workbook or data file and the upload panel links none, until the owner rules on Q9's «if canonically suitable» (it carries keys, "
+        + "synthetic since F-4)");
     },
   },
   {
@@ -108,7 +110,7 @@ export const l4Tests: SelfTest[] = [
       let r: { judul?: number; halaman?: number; bersama?: string[]; pemain?: string; contohBersama?: string } = {};
       try { r = JSON.parse(anak.stdout); } catch { /* reported below */ }
       if (!c.expect(anak.status === 0 && Array.isArray(r.bersama), `the lesson could not be rendered: ${(anak.stderr || "").split("\n")[0]}`)) return c.verdict("");
-      c.expect(r.halaman === r.judul && r.halaman! >= 2, `a real lesson does not page at its headings: ${r.judul} heading(s), ${r.halaman} page(s)`);
+      c.expect(r.halaman === r.judul && r.halaman! >= 2, `a whole lesson does not page at its headings: ${r.judul} heading(s), ${r.halaman} page(s)`);
       c.expect(r.pemain!.includes(r.bersama![0]), "the player's first page is not the shared renderer's first page, byte for byte");
       // the worked example: the player shows the lesson's first, through the shared component, one step at a time
       c.expect(!!r.contohBersama && r.pemain!.includes(r.contohBersama!) && r.pemain!.includes("Contoh satu")
@@ -118,7 +120,7 @@ export const l4Tests: SelfTest[] = [
       c.expect(/<svg[^>]*aria-label="3 dari 8 bagian"/.test(terakhir) && !r.bersama!.some((x) => x.includes("[[visual")),
         "a diagram directive is printed as text instead of drawn");
       return c.verdict(`the player and Studio's preview import one renderer (src/components/pelajaran/Halaman.tsx) and neither keeps its own; `
-        + `rendered, PINTAR's own SD 5 lesson with the most sections pages at its ${r.judul} headings, the player's page is the shared page `
+        + `rendered, the example's SD 5 lesson with the most sections (synthetic corpus, F-4) pages at its ${r.judul} headings, the player's page is the shared page `
         + "byte for byte, a diagram directive is drawn as a figure on its page, never printed, and the player's worked example is the "
         + "shared component's (the lesson's first, one step at a time); the preview shows that same example, all its steps, from both "
         + "the school's own lesson and the canonical read (whose RPC already returns it). The preview itself is read as SOURCE, not rendered");

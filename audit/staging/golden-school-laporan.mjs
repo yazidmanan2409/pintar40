@@ -85,7 +85,7 @@ mkdirSync(join(OUT, "shots"), { recursive: true });
 // the recipe (§4), as golden-school-admin.mjs made it
 const mail = (who) => `goldenschool+${SLUG}-${who}@pintarselalu.com`;
 const KELAS = "Kelas 5A", BAGIAN = "Kelas Tinggi";
-const BAB = "Matematika Kelas 5 · Bab 1: Bilangan Cacah sampai 100.000";
+const BAB = "Matematika Kelas 5 · Bab 1: Pola Bilangan"; // F-4: the synthetic chapter golden-school-admin.mjs imports
 const MURID = ["Utama", "Bunga", "Citra", "Dimas", "Eka"].map((n) => `${n} Murid ${SLUG.toUpperCase()}`);
 const SEKOLAH_LAIN = "Sekolah Uji Kinerja (sintetis)";
 

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 185,
+  "version": 189,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2277,7 +2277,7 @@
     {
       "id": "PENUTUPAN-M04",
       "runner": "static",
-      "proves": "CR-50 (D-063 M5, D-120 Q9), executed: each PINTAR chapter workbook in docs/onboarding/konten, read and converted by the upload page's own reader and converter (src/lib/xlsx.ts, src/lib/unggah-kontrak.ts), is byte for byte its committed .paket.json, so the package imported is the file reviewed; every wrong option names a misconception code, every code it names is defined on the same file's «Miskonsepsi» sheet, and every definition is used; a problem on the «Miskonsepsi» sheet is placed by its column's header (src/components/unggah/lokasi.ts). The database half (the definitions become the importing owner's own, and a different definition of a held code is refused) is F20-M01..M03."
+      "proves": "CR-50 (D-063 M5, D-120 Q9), executed: each chapter workbook of the synthetic corpus in docs/onboarding/konten-sintetis (F-4, D-145(b): exactly its 2 chapters; the real chapters left the public tree), read and converted by the upload page's own reader and converter (src/lib/xlsx.ts, src/lib/unggah-kontrak.ts), is byte for byte its committed .paket.json, so the package imported is the file reviewed; every wrong option names a misconception code, every code it names is defined on the same file's «Miskonsepsi» sheet, and every definition is used; a problem on the «Miskonsepsi» sheet is placed by its column's header (src/components/unggah/lokasi.ts). The database half (the definitions become the importing owner's own, and a different definition of a held code is refused) is F20-M01..M03."
     },
     {
       "id": "PENUTUPAN-E03",
@@ -2624,7 +2624,7 @@
     {
       "id": "DAISY-30-TEKS-01",
       "runner": "static",
-      "proves": "DAISY-30: learner text renders its own markup, through one shared renderer (src/components/teks/Teks.tsx), React elements only. (1) RENDERED in a child process: the lesson player with a real SD5 lesson («Faktor», SD5 Matematika Bab 2) on every page shows no ** and no table pipes, draws its table as a table and its nine bold phrases bold; the lesson player raises an SMA X a^{m/n} as <sup>; every lesson of every package in docs/onboarding/konten renders with no ** or |--- left and no paragraph starting with a pipe, every table and table row accounted for, and no rendered line keeps an _…_ pair or a leading \"- \" with every italic line (116) and every list line, nested ones included, accounted for; the lesson player shows «Faktor»'s «Periksa» and «Diadaptasi» lines in italic; marks left open, tally marks and a pipe in a sentence stay literal, «_Periksa…_» is italic with bold and ^{…} inside, while x_{0} stays a subscript and a snake_case word, a lone _ and __dunder__ stay literal, a planted <b> is escaped, _{…} is a subscript and nested braces hold; SMA X Matematika Bab 1's forms as written (a^{(m+p)/n}, 2^{1/2 + 1/4}, 3^{2x−1}, log_{10}, bold beside powers) are one <sup>/<sub> each, and Unicode powers and roots (2⁶, aᵐ, ²log, √ ∛ ∜ ⁿ√) are left as they are; single lines stay lines, \"- \" lines are one list, and an indented \"- \" line is an item under the one above (Geografi Bab 4's Sungai Tohor list). (2) From the SOURCE: the lesson player (pages, worked example), the lesson's summary, the item screen (stem, stimulus, options, help), the result screen (stem, answer, rationale), the reading map, the result's objective rows, Studio's preview and Bank Soal all draw authored text through the renderer; no file in src uses dangerouslySetInnerHTML (a planted one is caught), and package.json carries no markdown or maths library"
+      "proves": "DAISY-30: learner text renders its own markup, through one shared renderer (src/components/teks/Teks.tsx), React elements only. (1) RENDERED in a child process: the lesson player with a whole lesson of the synthetic corpus («Membaca Tabel Data», SD5-Sintetis-Bab2; F-4, D-145(b)) on every page shows no ** and no table pipes, draws its table as a table and its nine bold phrases bold; the lesson player raises an SMA X a^{m/n} as <sup>; every lesson of every package in docs/onboarding/konten-sintetis renders with no ** or |--- left and no paragraph starting with a pipe, every table and table row accounted for, and no rendered line keeps an _…_ pair or a leading \"- \" with every italic line and every list line, nested ones included, accounted for, at the corpus's exact counts (8 lessons, 6 tables, 12 italic lines, 54 list lines, 7 of them indented); the lesson player shows «Membaca Tabel Data»'s «Periksa» and «Diadaptasi» lines in italic; marks left open, tally marks and a pipe in a sentence stay literal, «_Periksa…_» is italic with bold and ^{…} inside, while x_{0} stays a subscript and a snake_case word, a lone _ and __dunder__ stay literal, a planted <b> is escaped, _{…} is a subscript and nested braces hold; SMA X Matematika Bab 1's forms as written (a^{(m+p)/n}, 2^{1/2 + 1/4}, 3^{2x−1}, log_{10}, bold beside powers) are one <sup>/<sub> each, and Unicode powers and roots (2⁶, aᵐ, ²log, √ ∛ ∜ ⁿ√) are left as they are; single lines stay lines, \"- \" lines are one list, and an indented \"- \" line is an item under the one above. (2) From the SOURCE: the lesson player (pages, worked example), the lesson's summary, the item screen (stem, stimulus, options, help), the result screen (stem, answer, rationale), the reading map, the result's objective rows, Studio's preview and Bank Soal all draw authored text through the renderer; no file in src uses dangerouslySetInnerHTML (a planted one is caught), and package.json carries no markdown or maths library"
     },
     {
       "id": "DAISY-31-PINDAH-01",
@@ -2912,12 +2912,12 @@
     {
       "id": "L4-C01",
       "runner": "static",
-      "proves": "L4 · CR-88 (D-127 Q9), with the Second Eye's finding 1: reads every SERVED file under public/ and finds no workbook or data file; reads the upload panel's SOURCE and finds no link to the example; reads the KEPT build docs/onboarding/contoh/contoh-buku-kerja-pintar.xlsx and the SOURCE workbook SD5-Matematika-Bab1.xlsx: the kept example is the source's build byte for byte; the importer's own reader and converter accept it as one course, its title marked «Contoh — »; the import path's SOURCE has no case for it. Serving waits for the owner's ruling (it carries live answer keys)"
+      "proves": "L4 · CR-88 (D-127 Q9), with the Second Eye's finding 1: reads every SERVED file under public/ and finds no workbook or data file; reads the upload panel's SOURCE and finds no link to the example; reads the KEPT build docs/onboarding/contoh/contoh-buku-kerja-pintar.xlsx and the SOURCE workbook docs/onboarding/konten-sintetis/SD5-Sintetis-Bab1.xlsx (synthetic since F-4, D-145(b)): the kept example is the source's build byte for byte; the importer's own reader and converter accept it as one course, its title marked «Contoh — »; the import path's SOURCE has no case for it. Serving waits for the owner's ruling (it carries answer keys, synthetic since F-4)"
     },
     {
       "id": "L4-P01",
       "runner": "static",
-      "proves": "L4 · CR-88 (RC-6 (3), FD-6): reads the SOURCE of the lesson player and Studio's preview (both import src/components/pelajaran/Halaman.tsx and keep no renderer of their own; the preview draws every page and every worked example's steps), and RENDERS PINTAR's own SD 5 lesson with the most sections through the shared renderer and through the player: it pages at its headings, the player's page is the shared page byte for byte, and a diagram directive is drawn as an SVG figure, never printed. Red on the code before L4 (the preview drew one flattened card and printed the directive)"
+      "proves": "L4 · CR-88 (RC-6 (3), FD-6): reads the SOURCE of the lesson player and Studio's preview (both import src/components/pelajaran/Halaman.tsx and keep no renderer of their own; the preview draws every page and every worked example's steps), and RENDERS the example workbook's SD 5 lesson with the most sections (synthetic corpus, F-4) through the shared renderer and through the player: it pages at its headings, the player's page is the shared page byte for byte, and a diagram directive is drawn as an SVG figure, never printed. Red on the code before L4 (the preview drew one flattened card and printed the directive)"
     },
     {
       "id": "CR52-B01",
@@ -3201,6 +3201,78 @@
       "id": "F22-K06",
       "runner": "db",
       "proves": "L3 (D-132 §2.11; CR-83(4)), measured in selftest/db/fable22.sql: context never widens authority. Renaming the school's class (an Admin sekolah's act) is refused to a Kepala departemen in Mengajar and in Mengelola, to a Dekan in Mengelola, and to a Guru with Mengelola forged straight onto the row (which the next read clears); the authorization primitives answer false in every context; the Admin sekolah renames it with no context at all; and no RLS policy and no function but the context's own reads the context.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-C01",
+      "runner": "db",
+      "proves": "CR-91 (D-145(a); migration 20261212100000), measured in selftest/db/fable23.sql: asking for a card. Aktivasi's list (persons_awaiting_account) says boleh_kartu false for a Guru and for a Guru whose role starts tomorrow, true for a learner; authorize_account_activation refuses a card for either Guru 42501 CARD_FOR_STAFF and writes no card grant; the same Guru is granted an email account and the learner a card, which Auth's insert turns into a class-card account.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-C02",
+      "runner": "db",
+      "proves": "CR-91, measured in selftest/db/fable23.sql: the account side. A class-card account for a person holding a staff role is refused 42501 CARD_FOR_STAFF (trigger accounts_card_is_learners) through a planted activation grant consumed by Auth's insert, through the seed branch of handle_new_auth_user, and by re-pointing an existing card account to a Guru; no card account exists for staff afterwards.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-C03",
+      "runner": "db",
+      "proves": "CR-91, measured in selftest/db/fable23.sql: the grant side. A staff role for a class-card learner is refused 42501 STAFF_ROLE_FOR_CARD (trigger role_assignments_card_holds_no_role, which fires before the general guard) through grant_role by the school's administrator and by a Platform Admin, and through the seed path; neither card learner holds a role; an email learner may still be given one.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-C04",
+      "runner": "db",
+      "proves": "CR-91, measured in selftest/db/fable23.sql: legacy data. With a class card and a staff role planted together (both guards disabled inside the rolled-back test only), kartu_bukan_staf() answers false for that card's session (so the sign-in route ends it) and authorize_card_reissue refuses the person 42501 CARD_FOR_STAFF; card 7001, an email Guru and an email learner answer true.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-C05",
+      "runner": "db",
+      "proves": "CR-91, measured in selftest/db/fable23.sql: no staff power through a card. No person in the seeded world holds a class card and a staff role that is not revoked or expired; card 7001's session can provision nobody (CAN_PROVISION_PEOPLE), review nothing (CAN_REVIEW), administer no school (INSTITUTION_ADMIN scope), is no Admin platform, and is offered nobody to activate.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-C06",
+      "runner": "db",
+      "proves": "CR-91 / J9, measured in selftest/db/fable23.sql: educator as learner is intact. The enrolled Guru holds exactly one EMAIL account and, through it, the working contexts Belajar and Mengajar.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-C07",
+      "runner": "db",
+      "proves": "CR-91 (D-145(a), staging closeout item 7), measured in selftest/db/fable23.sql: role transitions. A Guru not yet activated whose role is revoked through revoke_role (with its reason), and a person whose role has expired, are no longer staff: Aktivasi says boleh_kartu true and authorize_account_activation grants the card, which becomes an account. Once either holds the card, grant_role refuses a Guru role 42501 STAFF_ROLE_FOR_CARD, and neither card holder holds a staff role. A role that has not yet started still blocks a card (F23-C01).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-W01",
+      "runner": "db",
+      "proves": "W1.13 (Batch 1, D-145(c); migration 20261214100000), measured in selftest/db/fable23.sql: one content step is one transaction. langkah_konten (SECURITY INVOKER, so row-level security and enforce_content_status decide as before) approves the whole tree as the head of department, every item, lesson, module and the course stamped with them; a step refused at its last table (the course, planted out of step with its guard off inside the rolled-back test) leaves items, lessons and modules IN_REVIEW, never a mixed tree.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-W02",
+      "runner": "db",
+      "proves": "W1.6 (Batch 1; migrations 20261213100000 and 20261214100000), measured in selftest/db/fable23.sql: the send-back. kembalikan_paket by the head of department (CAN_REVIEW, not the author) with a reason moves the whole tree IN_REVIEW -> VALIDATION_FAILED and records one SENT_BACK outcome (reason, reviewer, author) and one content.sent_back audit row; refused to the author and to a Dekan (42501 SENDBACK_NOT_REVIEWER), without a reason of 10 to 1000 characters (SENDBACK_REASON_MISSING), off an approved package (SENDBACK_NOT_IN_REVIEW), to a reviewer who wrote the package (SENDBACK_REVIEWER_IS_AUTHOR); the edge taken through the author's own step is refused as an illegal transition by enforce_content_status.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-W03",
+      "runner": "db",
+      "proves": "W1.6 (Batch 1), measured in selftest/db/fable23.sql: the author's correction path. A correction upload of the sent-back draft is accepted in its line (package_revision_problems raises no REVISION_NOT_RELEASED); a correction of a draft nobody sent back is still refused as not released; the author may also mark the sent-back draft structured again (VALIDATION_FAILED -> STRUCTURED) and resubmit it.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-W04",
+      "runner": "db",
+      "proves": "W1.8 (Batch 1), measured in selftest/db/fable23.sql: who reviewed and approved. An approval records one APPROVED outcome in content_review_outcomes naming the reviewer and the author; the school's author and reviewer each read the package's outcomes, another school's administrator none; changing or removing an outcome is refused PR080 REVIEW_OUTCOME_FIXED.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-T01",
+      "runner": "db",
+      "proves": "W4.1 (Batch 1, D-145(c); migration 20261211100000), measured in selftest/db/fable23.sql: approved Terminology v1 wording held in the database. A package whose lesson text says «salah» is validated: the coaching finding's location names the workbook's column («kolom Isi pelajaran», from learner_readable_fields.judul_kolom), never the database column («kolom body_markdown»); no doctrine_lexicon rule says «siswa» (C30); run_mcq_quality says «murid» and its bank-wide location is «Bank soal untuk paket ini» (C29, D23).",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
@@ -3645,6 +3717,26 @@
       "id": "CI-W03",
       "runner": "static",
       "proves": "S4 (D-091(e), approved by the owner 6 Oct as QN7): the database red cases share one local stack per group without losing a case or its isolation, read in .github/workflows/ci.yml, .github/actions/local-stack/action.yml, .github/actions/local-stack/fingerprint.sql and selftest/plants/plants.json (selftest/ciwaste.test.ts). The red-case matrix holds exactly the 30 cases of 6 Oct, each in one group, and every plant gate in plants.json is one of them; every case has its steps and every step's case is in the matrix; each case's steps are contiguous, so no other case's stack step (and its reset) falls between a case's reset and its plants; each step runs on !cancelled(), so a failed case never skips a later case in its group; db-table-without-rls, which plants a migration, is alone, and a shared group holds database cases only; the defects are injected per case of the group. The local-stack action boots only when no stack runs, resets the database on every use, and fails the use when the fresh database's fingerprint (functions, column and relation grants, policies, triggers, extensions, roles, memberships, role settings, row counts) differs from the job's first; the fingerprint only reads."
+    },
+    {
+      "id": "SEC-G01",
+      "runner": "static",
+      "proves": "The public-repository guard (Batch 0 B0-C; D-143): executes scripts/guard/sensitive-scan.mjs on planted text built at run time (selftest/secguard.test.ts). Refused, by fingerprint only: a private-key header; GitHub, AWS, Supabase, Stripe, Slack, Google, Resend and npm tokens; a JWT granting service_role from a real project; a database URL with a password on a real host; a secret assigned in an env file; a credential inside a synthetic fixture directory (never allowed by path); a personal address; a plausible NIK; an undeclared answer-key package, including one under audit/fixtures; and, since F-4 (D-145(b)), keyed content in any text file (class kunci-jawaban): three or more is_correct-true markers in JSON, TypeScript, SQL or Markdown that is not a package (a fixture directory too), a generator's keyed option tuples (Python and JS; a reason opening Benar or Tepat), a misconception CSV whose header has both code and questions. Allowed: the local stack's demo JWT, synthetic and reserved domains, organisational role addresses, stand-in tokens, a localhost database URL, an environment or workflow secret reference, a declared synthetic package, code, a test or a migration that merely mentions is_correct (at most twice in a file), the same keyed content in a file declared sintetis, a CSV with a code column and no question map, and a tuple whose reason is neither «Benar» nor «Tepat». No finding carries the matched value."
+    },
+    {
+      "id": "SEC-G02",
+      "runner": "static",
+      "proves": "The repository as committed (Batch 0 B0-C; D-143): sensitive-scan --tree finds nothing not allowed; every tracked .paket.json and .xlsx is declared in scripts/guard/allowlist.json as sintetis or tanpa-kunci with a reason (since F-4 none as nyata-F4, and no real keyed file is found), and no declaration names an untracked file; every registered fingerprint carries a reason; .githooks/pre-commit is executable and scans the staged files, and npm's prepare script installs it (selftest/secguard.test.ts)."
+    },
+    {
+      "id": "CR91-K01",
+      "runner": "static",
+      "proves": "CR-91 (D-145(a)), the application's half (selftest/cr91.test.ts): src/lib/kartu-masuk.ts, driven with every outside call recorded, asks kartu_bukan_staf() as the new session after Auth accepts a card; a card whose person holds a staff role answers 403 CARD_REQUEST_REFUSED with a reference, its session is ended once and the attempt is not settled as a sign-in, and the answer does not say why; a check that cannot be asked fails closed (CARD_UNAVAILABLE, session ended); a learner's card signs in and is settled MASUK. src/app/api/masuk/kartu/route.ts asks with the session's own client, never the service role, and ends a refused session through keluarPerangkatIni (this session only, BOB-05), never Auth's global sign-out."
+    },
+    {
+      "id": "CR91-K02",
+      "runner": "static",
+      "proves": "CR-91 (D-145(a)), the application's half (selftest/cr91.test.ts): bolehKartu (src/components/aktivasi/kelas.ts) is true only for an explicit boleh_kartu = true; the real Aktivasi form, rendered, offers the learner a card and email and the Guru email only; src/app/aktivasi/page.tsx builds the whole-class card groups only from the people a card may be offered to."
     },
     {
       "id": "D140-STUDIO-01",

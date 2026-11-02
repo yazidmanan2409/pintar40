@@ -36,7 +36,9 @@ env:
 jobs:
   setup:
     name: a teacher for Yazid, and two students with class cards
-    runs-on: ubuntu-latest
+    # Batch 0 (B0-A): Playwright 1.55 has no browser build for ubuntu-latest = Ubuntu 26.04
+    # («Playwright does not support chromium on ubuntu26.04-x64», run 41377378758); pinned to 24.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4

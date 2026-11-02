@@ -135,6 +135,9 @@ export const bob12Tests: SelfTest[] = [
               return { error: perilaku.auth ?? null, jeda: perilaku.jeda ?? null };
             },
             tujuan: async (l: unknown) => (l === "/belajar" ? "/belajar" : "/beranda-peran"),
+            // CR-91 (D-145(a)): a learner's card, asked as the new session (selftest/cr91.test.ts drives the refusal)
+            bukanStaf: async () => true,
+            keluar: async () => {},
             catatGalat: (ref: string, apa: string) => cat.log.push(`${ref} ${apa}`),
           });
           return { h, cat };

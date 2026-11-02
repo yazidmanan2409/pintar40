@@ -42,7 +42,7 @@ A change outside your lane needs a ticket that says so. If a ticket needs someth
 | `docs/coordination/**`, `docs/audit/**`, `audit/**`, `.github/workflows/audit-journeys.yml`, `.github/workflows/check-front-door.yml`, `.github/workflows/staging-journey.yml`, `.github/workflows/identity-facts.yml`, every `.github/*-request.txt`, `RELEASE_SHA` in the deploy workflows | **Coordinator** |
 | Identity email (D-057): the sending module, send limits, send log and secrets | **Bob** (BOB-25; paths set in his contract) |
 | Identity email templates: wording, layout, the Digital Card | **Daisy** (DAISY-19 to DAISY-24) |
-| `docs/onboarding/konten/**` (lesson workbooks, their generators and packages, and the question checker `periksa_mutu.py`) | **Lana** (D-051); the coordinator calibrates the checker against Studio and owns `ke-paket.ts` |
+| `docs/onboarding/konten/**` (the question checker `periksa_mutu.py`, `ke-paket.ts`, hand-off notes; F-4, D-145: the lesson workbooks, their generators and packages moved to the private content store; the synthetic development corpus is `docs/onboarding/konten-sintetis/`) | **Lana** (D-051); the coordinator calibrates the checker against Studio and owns `ke-paket.ts` |
 | `selftest/manifest.json`, `selftest/*.test.ts` | **Shared, append only.** Each lane adds its own test ids and bumps `version`. Never edit or remove another lane's test. If `version` conflicts on merge, take the higher number and add one. |
 
 **Copy rule (D-014).** Every word a user sees lives in `src/lib/hle.ts`. Bob may add keys his feature needs, with his best Indonesian and English. Daisy owns the final wording and may rewrite any key, but the key names Bob depends on stay the same.

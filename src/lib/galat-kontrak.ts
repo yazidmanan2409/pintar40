@@ -201,6 +201,9 @@ const POLA_STUDIO: ReadonlyArray<readonly [RegExp, KodeGalat]> = [
   [/^this distribution is already /, "ACTION_UNCHANGED"],
   [/^a release move applies to an ACTIVE assignment/, "ACTION_UNCHANGED"],
   [/^a Question Health record does not move from /, "ACTION_UNCHANGED"],
+  // W1.13 (Batch 1): langkah_konten, the one-transaction content step: a shortfall changed nothing (F-05)
+  [/^a content step changed fewer rows than it meant to, so nothing was changed/, "ACTION_UNCHANGED"],
+  [/^langkah_konten: an unknown status/, "ACTION_INPUT_INVALID"],
   // no longer available to choose
   [/^distribution is downstream of publication/, "ACTION_NOT_FOUND"],
   [/^the target release belongs to another institution/, "ACTION_NOT_FOUND"],

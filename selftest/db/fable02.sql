@@ -116,6 +116,13 @@ begin
   delete from public.school_pass_marks spm using public.courses c
    where spm.course_id = c.id and c.title like p_prefix || '%';
   alter table public.school_pass_marks enable trigger school_pass_marks_append_only;
+  -- W1.8 (Batch 1): a probe course's review outcomes are history like the pass marks; removed with it, the guard paused
+  if to_regclass('public.content_review_outcomes') is not null then
+    alter table public.content_review_outcomes disable trigger content_review_outcomes_are_history;
+    delete from public.content_review_outcomes o using public.courses c
+     where o.course_id = c.id and c.title like p_prefix || '%';
+    alter table public.content_review_outcomes enable trigger content_review_outcomes_are_history;
+  end if;
   delete from public.ingest_batches ib
    where ib.raw_payload::text like '%' || p_prefix || '%';
   delete from public.coaching_findings f using public.courses c

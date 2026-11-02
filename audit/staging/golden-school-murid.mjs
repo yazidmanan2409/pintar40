@@ -46,7 +46,7 @@ mkdirSync(join(OUT, "shots"), { recursive: true });
 // the recipe (§4), as golden-school-admin.mjs made it
 const ADMIN_EMAIL = `goldenschool+${SLUG}-admin@pintarselalu.com`;
 const KELAS = "Kelas 5A";
-const BAB = "Matematika Kelas 5 · Bab 1: Bilangan Cacah sampai 100.000";
+const BAB = "Matematika Kelas 5 · Bab 1: Pola Bilangan"; // F-4: the synthetic chapter golden-school-admin.mjs imports
 const MURID = ["Utama", "Bunga", "Citra", "Dimas", "Eka"].map((n) => `${n} Murid ${SLUG.toUpperCase()}`);
 // the share each student answers right, pre-test then post-test: the primary student passes; with the school's 70%
 // three pass and two do not (0.625 and 0.5), so the result page is read on both sides of the mark
@@ -294,7 +294,7 @@ await step("M2", `GS-12 (J2.19): the primary student «${MURID[0]}» signs in wi
   await shot(U, "m2-belajar");
   utamaMasuk = di === "/belajar" && (await U.locator(`a[href^="/belajar/${S.tugas}"]`).count()) > 0;
   if (!utamaMasuk) rec.verdict = "FAIL";
-  return `signed in with the card, landed on ${di}; the chapter named ${/Bilangan Cacah|Matematika Kelas 5/.test(teks)}, linked ${utamaMasuk}`;
+  return `signed in with the card, landed on ${di}; the chapter named ${/Pola Bilangan|Matematika Kelas 5/.test(teks)}, linked ${utamaMasuk}`;
 });
 
 let pre0 = null;

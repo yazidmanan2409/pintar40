@@ -188,14 +188,14 @@
 
 **Penjelasan:**
 - Dua asal konten (J4.11; D-085 M6). Alur Studio dikunci di database: susun dan ajukan (Guru, Kepala departemen, Admin sekolah) → setujui (Kepala departemen/Admin sekolah; penulis tidak boleh menyetujui pekerjaannya sendiri) → kunci rilis (orang kedua) → terbitkan (hanya Admin sekolah; Kepala departemen tidak bisa). Peninjau melihat soal, kunci, dan alasan. Catatan mutu soal ditinjau satu per satu sebelum terbit. Dekan tidak punya kemampuan Studio (INV-19; F06-N02).
-- Konten yang ada (SD kelas 5 Matematika Bab 1–9, SMA kelas X Matematika Bab 1–7, SMA kelas XI Geografi Bab 1–4; 20 buku kerja di `docs/onboarding/konten/`) disusun lewat persiapan berbantuan AI dengan pemeriksaan oleh koordinator (brief konten lane, baris 5), lalu diuji alurnya di staging. Sumbernya berbeda: sembilan buku kerja SD kelas 5 "diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V" (`docs/onboarding/konten/sd5_*.py`); Geografi kelas XI dan Matematika kelas X dari buku siswa (brief konten lane, baris 25 dan 56). Papan kerja mencatat "CONTENT PASS", bukan tinjauan guru mata pelajaran.
+- Konten yang ada (SD kelas 5 Matematika Bab 1–9, SMA kelas X Matematika Bab 1–7, SMA kelas XI Geografi Bab 1–4; 20 buku kerja, dahulu di `docs/onboarding/konten/` dan sejak F-4 (D-145) dipindahkan ke penyimpanan konten privat; untuk pengembangan dipakai korpus sintetis `docs/onboarding/konten-sintetis/`) disusun lewat persiapan berbantuan AI dengan pemeriksaan oleh koordinator (brief konten lane, baris 5), lalu diuji alurnya di staging. Sumbernya berbeda: sembilan buku kerja SD kelas 5 "diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V" (generatornya, dahulu `docs/onboarding/konten/sd5_*.py`, kini di penyimpanan konten privat, F-4/D-145); Geografi kelas XI dan Matematika kelas X dari buku siswa (brief konten lane, baris 25 dan 56). Papan kerja mencatat "CONTENT PASS", bukan tinjauan guru mata pelajaran.
 - Tidak ditemukan: catatan tinjauan manusia ahli bidang atas konten itu; pernyataan lisensi atau hak pakai bahan sumber (D-069(g) hanya untuk demo pendidik); ini masuk G2.3 dan G4. "Diadaptasi dari" bukan izin (D-112(c)); buku panduan guru (sembilan buku kerja SD kelas 5) dan buku siswa (Geografi XI, Matematika X) adalah bahan yang berbeda dan hak pakainya harus diverifikasi terpisah.
 - Pengisian pustaka standar pusat tertahan: JOURNEY-LOG baris 139 (2 Okt) "belum ada jalur authoring"; D-029 menolak impor ke pustaka kanonik; Pertanyaan "siapa menyiapkan dan menyetujui konten standar secara pusat" (G2 di `docs/recovery/PHASE-1-STATUS.md` baris 324; CF11 di baris 297) belum diputuskan. Jalur penampilan ke guru ada (`src/app/studio/kanonik`; M6-S01, M6-K01), pengisian pustaka belum.
 - AI tidak menerbitkan apa pun sendiri; penerbitan selalu oleh manusia (INV-32; doc 10).
 
 **Mengapa PINTAR seperti ini:** Otoritas pedagogis ada pada manusia; penulis tidak boleh menyetujui pekerjaannya sendiri.
 
-**Bukti / mekanisme di PINTAR:** `src/components/studio/langkah.ts`; tes F06-N02, M6-S01, M6-K01; `docs/onboarding/konten/` (20 berkas).
+**Bukti / mekanisme di PINTAR:** `src/components/studio/langkah.ts`; tes F06-N02, M6-S01, M6-K01; 20 buku kerja di penyimpanan konten privat (F-4, D-145; dahulu `docs/onboarding/konten/`); korpus sintetis untuk pengembangan: `docs/onboarding/konten-sintetis/`.
 
 **Sumber:**
 - MEMBUKTIKAN: `src/components/studio/langkah.ts`; tes di atas; JOURNEY-LOG butir 13, baris 139.
@@ -216,11 +216,11 @@
 **Jawaban singkat:**
 "Yang ada hari ini adalah buku kerja Matematika kelas 5 dan kelas X, serta Geografi kelas XI. Kami belum punya pemetaan resmi ke capaian pembelajaran Kurikulum Merdeka, jadi kami tidak akan mengklaim kesesuaian."
 
-**Penjelasan:** Buku kerja yang ada: SD kelas 5 Matematika Bab 1–9; SMA kelas X Matematika Bab 1–7; SMA kelas XI Geografi Bab 1–4 (20 berkas di `docs/onboarding/konten/`). Keberadaan berkas bukan bukti bahwa konten tersedia di sekolah. Kolom "tujuan pembelajaran" opsional di templat (`src/lib/unggah-kontrak.ts:56-112`). Tidak ditemukan kata "Kurikulum Merdeka" atau "Capaian Pembelajaran" di kode, teks layar, atau keputusan; tidak ada peta ke fase atau CP. Sumber penyusunan: SD kelas 5 diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V; Geografi kelas XI dan Matematika kelas X dari buku siswa (brief konten lane, baris 25 dan 56). Sumber itu tidak sama dengan klaim kesesuaian CP. Lisensi bahan sumber: lihat G2.3 dan G4. Buku panduan guru (SD5) dan buku siswa (Geografi XI, Matematika X) dibedakan; "diadaptasi dari" bukan izin (D-112(c)). Konten di produksi tidak diverifikasi.
+**Penjelasan:** Buku kerja yang ada: SD kelas 5 Matematika Bab 1–9; SMA kelas X Matematika Bab 1–7; SMA kelas XI Geografi Bab 1–4 (20 berkas, kini di penyimpanan konten privat sejak F-4, D-145; dahulu `docs/onboarding/konten/`). Keberadaan berkas bukan bukti bahwa konten tersedia di sekolah. Kolom "tujuan pembelajaran" opsional di templat (`src/lib/unggah-kontrak.ts:56-112`). Tidak ditemukan kata "Kurikulum Merdeka" atau "Capaian Pembelajaran" di kode, teks layar, atau keputusan; tidak ada peta ke fase atau CP. Sumber penyusunan: SD kelas 5 diadaptasi dari Buku Panduan Guru Matematika untuk SD/MI Kelas V; Geografi kelas XI dan Matematika kelas X dari buku siswa (brief konten lane, baris 25 dan 56). Sumber itu tidak sama dengan klaim kesesuaian CP. Lisensi bahan sumber: lihat G2.3 dan G4. Buku panduan guru (SD5) dan buku siswa (Geografi XI, Matematika X) dibedakan; "diadaptasi dari" bukan izin (D-112(c)). Konten di produksi tidak diverifikasi.
 
 **Mengapa PINTAR seperti ini:** Kesesuaian kurikulum membutuhkan pemeriksaan yang belum dilakukan.
 
-**Bukti / mekanisme di PINTAR:** `docs/onboarding/konten/*.xlsx`; templat `src/lib/unggah-kontrak.ts`.
+**Bukti / mekanisme di PINTAR:** 20 buku kerja di penyimpanan konten privat (F-4, D-145); templat `src/lib/unggah-kontrak.ts`.
 
 **Sumber:** MEMBUKTIKAN: keberadaan berkas; BOARD (tiket konten lane). Pemetaan CP: **tidak ditemukan** (dicari "kurikulum merdeka", "capaian pembelajaran", "fase" di `docs/`, `src/`, `supabase/`).
 

@@ -1,0 +1,131 @@
+{
+ "_tentang": "Batch 0 (B0-C, D-143); F-4 (D-145(b)). What is public on purpose. nilai_sidik: sha256/12 fingerprints of values judged, each with a reason. berkas_kerja_terdaftar: every .paket.json and .xlsx, and every other file that holds answer-key content (class kunci-jawaban: a data-shaped run of \"is_correct\": true markers, a generator's keyed option tuples, a misconception CSV mapping each question's distractors), declared by path as sintetis or tanpa-kunci (nyata-F4 is kept as a kind for the record; since F-4 no real keyed file is in the tree); an undeclared one is refused wherever it sits. f4_riwayat: the real keyed files F-4 removed from the tree by forward commits (D-145(b)); they stay in git history, so their keys are treated as already public, never as confidential. It allows nothing: --history only counts them by name. jalur_sintetis: synthetic fixtures for personal-data rules only; a credential or an answer key is never allowed by path. abaikan_jalur: generated files.",
+ "nilai_sidik": [
+  {
+   "sidik": "c36e91689fa2",
+   "kelas": "data-pribadi",
+   "alasan": "the owner's own personal address (+guru alias), used by the staging human-account request; public since D-143. Registered so CI can run; removal awaits the owner (B0-C report §4). Not an approval for any other address."
+  }
+ ],
+ "berkas_kerja_terdaftar": [
+  {
+   "path": "audit/fixtures/contoh-pelajaran-perbaikan.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "audit/fixtures/pd-uji-bab1.paket.json",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "audit/fixtures/pd-uji-bab2.paket.json",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "audit/fixtures/sd5-sintetis-bab1.paket.json",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"
+  },
+  {
+   "path": "audit/fixtures/sd5-sintetis-bab2.paket.json",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"
+  },
+  {
+   "path": "docs/coordination/handoff/contoh-gsheets.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "docs/coordination/handover/bob02/contoh-excel.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "docs/onboarding/PINTAR-Isian-Data-Sekolah.xlsx",
+   "jenis": "tanpa-kunci",
+   "alasan": "school data-entry template; no questions (0 items match real content)"
+  },
+  {
+   "path": "docs/onboarding/contoh/contoh-buku-kerja-pintar.xlsx",
+   "jenis": "sintetis",
+   "alasan": "the example workbook, rebuilt for Batch 1 (F-4) from the synthetic SD5-Sintetis-Bab1.xlsx by npm run contoh:buku-kerja; 0 items from real content (its earlier real-content build is in history, F-4)"
+  },
+  {
+   "path": "docs/onboarding/konten-sintetis/SD5-Sintetis-Bab1.paket.json",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"
+  },
+  {
+   "path": "docs/onboarding/konten-sintetis/SD5-Sintetis-Bab1.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"
+  },
+  {
+   "path": "docs/onboarding/konten-sintetis/SD5-Sintetis-Bab2.paket.json",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"
+  },
+  {
+   "path": "docs/onboarding/konten-sintetis/SD5-Sintetis-Bab2.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"
+  },
+  {
+   "path": "selftest/db/fable11.sql",
+   "jenis": "sintetis",
+   "alasan": "inlines the synthetic sample package (selftest/fixtures/bob02/contoh-pelajaran.paket.json, «Pecahan untuk Kelas 4») as SQL for F11; 0 items from real content (declared under F-4 when keyed content in any file became a finding)"
+  },
+  {
+   "path": "selftest/fixtures/bob02/contoh-excel.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "selftest/fixtures/bob02/contoh-gsheets.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "selftest/fixtures/bob02/contoh-pelajaran-v1.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "selftest/fixtures/bob02/contoh-pelajaran.paket.json",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "selftest/fixtures/bob02/contoh-pelajaran.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  }
+ ],
+ "f4_riwayat": [
+  "audit/fixtures/sd5-matematika-bab1.paket.json",
+  "audit/fixtures/sd5-matematika-bab2.paket.json",
+  "docs/onboarding/contoh/contoh-buku-kerja-pintar.xlsx",
+  "docs/onboarding/konten/SD5-Matematika-Bab*",
+  "docs/onboarding/konten/SMA10-Matematika-Bab*",
+  "docs/onboarding/konten/SMA11-Geografi-Bab*",
+  "docs/onboarding/konten/sd5_matematika_bab*.py",
+  "docs/onboarding/konten/sma10_matematika_bab*.py",
+  "docs/onboarding/konten/sma11_geografi_bab*.py"
+ ],
+ "jalur_sintetis": [
+  "selftest/fixtures/**",
+  "audit/fixtures/**",
+  "supabase/seed/**",
+  "supabase/tests/**",
+  "tests/**",
+  "scripts/guard/fixtures/**"
+ ],
+ "abaikan_jalur": [
+  "package-lock.json",
+  "**/*.min.js",
+  "**/*.map"
+ ]
+}

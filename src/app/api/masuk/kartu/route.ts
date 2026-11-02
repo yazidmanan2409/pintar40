@@ -4,6 +4,7 @@ import { supabaseService } from "@/lib/supabase/service";
 import { alamatKlien, fetchBerpenerus } from "@/lib/auth-forwarding";
 import { asalSendiri, masukDenganKartu, type HasilRuteKartu } from "@/lib/kartu-masuk";
 import { tujuanMasuk } from "@/app/masuk/actions";
+import { keluarPerangkatIni } from "@/lib/keluar";
 
 /**
  * BOB-12: THE CLASS CARD'S SIGN-IN, served at `/masuk/kartu` (next.config.ts
@@ -40,6 +41,9 @@ export async function POST(request: NextRequest) {
     if (r.status === 429) jeda = r.headers.get("retry-after");
     return r;
   };
+  // The new session's own client, made once: it signs in, is asked CR-91's question, and is ended if refused.
+  let klien: Awaited<ReturnType<typeof supabaseServer>> | null = null;
+  const sesi = async () => (klien ??= await supabaseServer({ fetch: fetchBerpenerus(alamatKlien(request.headers), rekam) }));
   const hasil = await masukDenganKartu(
     { origin, kartu: fd?.get("kartu"), pin: fd?.get("pin"), lanjut: fd?.get("lanjut") ?? null },
     {
@@ -53,10 +57,17 @@ export async function POST(request: NextRequest) {
         if (error) throw new Error(error.code ?? "refused");
       },
       masuk: async (email, password) => {
-        const supabase = await supabaseServer({ fetch: fetchBerpenerus(alamatKlien(request.headers), rekam) });
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await (await sesi()).auth.signInWithPassword({ email, password });
         return { error: error ? { status: error.status, code: error.code, name: error.name } : null, jeda };
       },
+      // CR-91: asked by the session that just signed in, never by the service role
+      bukanStaf: async () => {
+        const { data, error } = await (await sesi()).rpc("kartu_bukan_staf");
+        if (error || typeof data !== "boolean") throw new Error(error?.code ?? "no answer");
+        return data;
+      },
+      // BOB-05: this session only (scope local), PINTAR's own record of it ended first; never Auth's global sign-out
+      keluar: async () => keluarPerangkatIni(await sesi()),
       tujuan: tujuanMasuk,
       catatGalat: (ref, apa) => console.error(`[masuk/kartu] ref=${ref} ${apa}`),
     },

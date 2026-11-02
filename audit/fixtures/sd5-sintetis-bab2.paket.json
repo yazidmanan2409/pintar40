@@ -1,0 +1,1189 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Matematika Kelas 5 · Bab 2: Data Sederhana",
+   "subject": "Matematika",
+   "stage": "SD",
+   "grade_label": "Kelas 5",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Data Sederhana",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Mengumpulkan Data dengan Turus",
+       "summary": "Cara mengumpulkan data, mencatatnya dengan turus, dan menuliskannya dalam tabel.",
+       "body_markdown": "## Apa itu data\nData adalah kumpulan keterangan, misalnya warna kesukaan teman sekelas atau banyak buku yang dibaca setiap minggu.\n\nData dapat dikumpulkan dengan cara:\n- bertanya langsung kepada teman\n- mengamati dan mencatat\n- membaca catatan yang sudah ada\n\n## Mencatat dengan turus\nSaat menghitung sambil mengamati, kita memakai **turus**. Setiap data dicatat dengan satu garis tegak. Garis kelima dibuat miring, mencoret empat garis sebelumnya, sehingga satu ikat turus bernilai **5**.\n\nCara membaca turus:\n- hitung ikatnya, lalu kalikan 5\n- tambahkan garis yang belum diikat\n\n_Periksa: 3 ikat dan 2 garis bernilai 3 × 5 + 2 = 17._\n\n## Dari turus ke tabel\nHasil turus lalu ditulis sebagai bilangan dalam tabel.\n\n| Kendaraan | Banyaknya |\n|---|---|\n| Sepeda | 17 |\n| Motor | 12 |\n| Mobil | 6 |\n\n**Coba:** berapa kendaraan yang tercatat seluruhnya?\n_Periksa: 17 + 12 + 6 = 35 kendaraan._",
+       "objective": {
+        "statement": "Kalian dapat mencatat data dengan turus dan membaca nilainya.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "S1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Satu ikat turus terdiri atas empat garis tegak yang dicoret satu garis miring. Berapa nilai satu ikat turus?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "4",
+           "is_correct": false,
+           "rationale": "4 hanya menghitung garis tegak; garis miringnya juga satu data.",
+           "misconception_code": "SINT5-B2-01"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "5",
+           "is_correct": true,
+           "rationale": "Empat garis tegak dan satu garis miring, semuanya 5."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "1",
+           "is_correct": false,
+           "rationale": "Satu ikat mewakili beberapa data; setiap garis bernilai satu.",
+           "misconception_code": "SINT5-B2-01"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "10",
+           "is_correct": false,
+           "rationale": "Satu ikat bernilai 5; dua ikat baru bernilai 10.",
+           "misconception_code": "SINT5-B2-01"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "S2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Data warna kesukaan: merah dipilih 7 anak, biru 5 anak, dan hijau 3 anak. Berapa anak yang ditanya seluruhnya?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "12 anak",
+           "is_correct": false,
+           "rationale": "12 hanya merah dan biru; hijau belum ikut dijumlahkan.",
+           "misconception_code": "SINT5-B2-08"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "7 anak",
+           "is_correct": false,
+           "rationale": "7 anak hanya yang memilih merah; semua warna harus dijumlahkan.",
+           "misconception_code": "SINT5-B2-08"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "4 anak",
+           "is_correct": false,
+           "rationale": "4 adalah selisih merah dan hijau; yang ditanyakan jumlah seluruhnya.",
+           "misconception_code": "SINT5-B2-07"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "15 anak",
+           "is_correct": true,
+           "rationale": "7 + 5 + 3 = 15 anak."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "S3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Turus sepeda yang lewat: pagi 3 ikat dan 2 garis, siang 2 ikat dan 4 garis. Berapa sepeda yang lewat pada pagi dan siang?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "31 sepeda",
+           "is_correct": true,
+           "rationale": "Pagi 3 × 5 + 2 = 17, siang 2 × 5 + 4 = 14, jumlahnya 31."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "26 sepeda",
+           "is_correct": false,
+           "rationale": "26 didapat jika satu ikat dihitung 4; satu ikat bernilai 5.",
+           "misconception_code": "SINT5-B2-01"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "17 sepeda",
+           "is_correct": false,
+           "rationale": "17 sepeda hanya yang lewat pagi hari.",
+           "misconception_code": "SINT5-B2-08"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "11 sepeda",
+           "is_correct": false,
+           "rationale": "11 didapat jika satu ikat dihitung 1; satu ikat bernilai 5.",
+           "misconception_code": "SINT5-B2-01"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "S4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Dua ikat turus dan 3 garis tegak menunjukkan bilangan berapa?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "11",
+           "is_correct": false,
+           "rationale": "11 didapat jika satu ikat dihitung 4.",
+           "misconception_code": "SINT5-B2-01"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "5",
+           "is_correct": false,
+           "rationale": "5 didapat jika satu ikat dihitung 1.",
+           "misconception_code": "SINT5-B2-01"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "13",
+           "is_correct": true,
+           "rationale": "5 + 5 + 3 = 13."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "23",
+           "is_correct": false,
+           "rationale": "Angka ikat dan garis tidak ditulis berdampingan; hitung 5 + 5 + 3.",
+           "misconception_code": "SINT5-B2-01"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "S5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kelas 5A mencatat hewan peliharaan: kucing 9 anak, ikan 6 anak, dan burung 4 anak. Berapa selisih pemelihara kucing dan pemelihara burung?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "5 anak",
+           "is_correct": true,
+           "rationale": "9 − 4 = 5 anak."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "13 anak",
+           "is_correct": false,
+           "rationale": "13 adalah 9 + 4; yang ditanyakan selisihnya.",
+           "misconception_code": "SINT5-B2-07"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "3 anak",
+           "is_correct": false,
+           "rationale": "3 adalah 9 − 6; angka 6 milik baris ikan.",
+           "misconception_code": "SINT5-B2-02"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "4 anak",
+           "is_correct": false,
+           "rationale": "4 anak adalah pemelihara burung saja; selisih dihitung 9 − 4.",
+           "misconception_code": "SINT5-B2-07"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Membaca Tabel Data",
+       "summary": "Baris, kolom, dan judul kolom; membaca satu nilai, membandingkan, dan menjumlahkan data tabel.",
+       "body_markdown": "## Bagian-bagian tabel\nTabel menyusun data dalam **baris** dan **kolom**. Baris pertama berisi **judul kolom**, yang memberi tahu arti setiap angka di bawahnya.\n\nPerpustakaan kelas mencatat buku yang dipinjam selama empat hari:\n\n| Hari | Buku dipinjam |\n|---|---|\n| Senin | 12 |\n| Selasa | 9 |\n| Rabu | 15 |\n| Kamis | 8 |\n\n## Membaca nilai dan membandingkan\nUntuk membaca satu nilai, cari barisnya lebih dulu, lalu ikuti ke kolom yang diminta. Pada hari Rabu dipinjam **15 buku**.\n\nUntuk membandingkan, lihat semua angka dalam satu kolom:\n- paling banyak: Rabu, **15 buku**\n- paling sedikit: Kamis, **8 buku**\n- selisihnya: 15 − 8 = **7 buku**\n\n## Menjumlahkan data tabel\nJumlah seluruh buku yang dipinjam adalah 12 + 9 + 15 + 8 = **44 buku**.\n\n**Coba:** berapa buku yang dipinjam pada hari Senin dan Selasa?\n_Periksa: 12 + 9 = 21 buku._\n\n_Diadaptasi dari contoh catatan perpustakaan kelas yang ditulis tim penulis untuk latihan._",
+       "objective": {
+        "statement": "Kalian dapat membaca, membandingkan, dan menjumlahkan data yang disajikan dalam tabel.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "S6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Perpustakaan mencatat buku yang dipinjam: Senin 14, Selasa 10, dan Rabu 17. Pada hari apa buku paling banyak dipinjam?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "Senin",
+           "is_correct": false,
+           "rationale": "Senin berada di baris pertama, tetapi angkanya 14.",
+           "misconception_code": "SINT5-B2-02"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "Selasa",
+           "is_correct": false,
+           "rationale": "Selasa adalah hari dengan pinjaman paling sedikit.",
+           "misconception_code": "SINT5-B2-07"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "Rabu",
+           "is_correct": true,
+           "rationale": "17 lebih besar dari 14 dan 10."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "Tidak dapat diketahui",
+           "is_correct": false,
+           "rationale": "Banyak buku setiap hari tercatat; bandingkan ketiga angkanya.",
+           "misconception_code": "SINT5-B2-02"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "S7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tabel pengunjung kebun binatang mini: Sabtu 120 orang, Minggu 150 orang. Berapa orang lebih banyak yang datang pada hari Minggu?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "270 orang",
+           "is_correct": false,
+           "rationale": "270 adalah 120 + 150; yang ditanyakan selisihnya.",
+           "misconception_code": "SINT5-B2-07"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "30 orang",
+           "is_correct": true,
+           "rationale": "150 − 120 = 30 orang."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "150 orang",
+           "is_correct": false,
+           "rationale": "150 orang adalah pengunjung hari Minggu saja.",
+           "misconception_code": "SINT5-B2-02"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "120 orang",
+           "is_correct": false,
+           "rationale": "120 orang adalah pengunjung hari Sabtu saja.",
+           "misconception_code": "SINT5-B2-02"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "S8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tabel tabungan: Ani Rp15.000, Beni Rp22.000, Cici Rp18.000, Dodi Rp25.000. Berapa jumlah tabungan Ani dan Cici?",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "Rp37.000",
+           "is_correct": false,
+           "rationale": "Rp37.000 adalah tabungan Ani dan Beni; Beni ada di baris lain.",
+           "misconception_code": "SINT5-B2-02"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "Rp3.000",
+           "is_correct": false,
+           "rationale": "Rp3.000 adalah selisih tabungan Cici dan Ani; yang ditanyakan jumlahnya.",
+           "misconception_code": "SINT5-B2-07"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "Rp80.000",
+           "is_correct": false,
+           "rationale": "Rp80.000 adalah tabungan keempat anak; yang diminta hanya dua.",
+           "misconception_code": "SINT5-B2-08"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "Rp33.000",
+           "is_correct": true,
+           "rationale": "Rp15.000 + Rp18.000 = Rp33.000."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "S9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Kolom pertama sebuah tabel berisi nama buah dan kolom kedua berisi banyaknya. Baris mangga berisi 12 dan baris jeruk berisi 20. Berapa banyak jeruk?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "20 buah",
+           "is_correct": true,
+           "rationale": "Baris jeruk, kolom kedua: 20."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "12 buah",
+           "is_correct": false,
+           "rationale": "12 ada di baris mangga.",
+           "misconception_code": "SINT5-B2-02"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "32 buah",
+           "is_correct": false,
+           "rationale": "32 adalah 12 + 20; yang ditanyakan jeruk saja.",
+           "misconception_code": "SINT5-B2-08"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "8 buah",
+           "is_correct": false,
+           "rationale": "8 adalah selisih jeruk dan mangga.",
+           "misconception_code": "SINT5-B2-07"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "S10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Suhu udara pagi: Senin 24 °C, Selasa 26 °C, Rabu 23 °C, Kamis 25 °C. Pada hari apa suhunya paling rendah?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "Selasa",
+           "is_correct": false,
+           "rationale": "Selasa adalah hari dengan suhu paling tinggi.",
+           "misconception_code": "SINT5-B2-07"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "Rabu",
+           "is_correct": true,
+           "rationale": "23 °C adalah suhu yang paling rendah."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "Senin",
+           "is_correct": false,
+           "rationale": "Senin berada di baris pertama, tetapi suhunya 24 °C.",
+           "misconception_code": "SINT5-B2-02"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "Kamis",
+           "is_correct": false,
+           "rationale": "Kamis berada di baris terakhir, tetapi suhunya 25 °C.",
+           "misconception_code": "SINT5-B2-02"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Modus",
+       "summary": "Nilai yang paling sering muncul dalam sekumpulan data, dan langkah mencarinya.",
+       "body_markdown": "## Nilai yang paling sering muncul\n**Modus** adalah nilai yang paling sering muncul dalam sekumpulan data.\n\nData ukuran baju: 30, 32, 32, 34, 32, 30.\n- 30 muncul 2 kali\n- 32 muncul 3 kali\n- 34 muncul 1 kali\n\nModusnya 32, karena 32 paling sering muncul.\n\n## Hal yang perlu diingat\nModus adalah nilai datanya, bukan banyak kemunculannya. Pada contoh di atas modusnya 32, bukan 3.\n\nLangkah mencari modus:\n- kelompokkan data yang sama\n- hitung kemunculan setiap nilai\n  - pakai turus jika datanya banyak\n- pilih nilai dengan kemunculan terbanyak\n\n_Periksa: data 5, 7, 7, 9 memiliki modus 7._",
+       "objective": {
+        "statement": "Kalian dapat menentukan modus sekumpulan data.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "S11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Data ukuran sepatu: 34, 35, 35, 36, 35, 37. Berapa modusnya?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "37",
+           "is_correct": false,
+           "rationale": "37 adalah ukuran terbesar, tetapi hanya muncul sekali.",
+           "misconception_code": "SINT5-B2-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "3",
+           "is_correct": false,
+           "rationale": "3 adalah banyak kemunculan ukuran 35, bukan ukurannya.",
+           "misconception_code": "SINT5-B2-04"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "36",
+           "is_correct": false,
+           "rationale": "36 letaknya di tengah daftar; hitung dulu kemunculan setiap ukuran.",
+           "misconception_code": "SINT5-B2-09"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "35",
+           "is_correct": true,
+           "rationale": "35 muncul tiga kali, lebih sering dari ukuran lainnya."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "S12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Banyak telur yang dipanen setiap hari selama seminggu: 6, 8, 6, 7, 8, 8, 5. Berapa modus data itu?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "8",
+           "is_correct": true,
+           "rationale": "8 muncul tiga kali, lebih sering dari nilai lainnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "3",
+           "is_correct": false,
+           "rationale": "3 adalah banyak kemunculan nilai 8, bukan nilainya.",
+           "misconception_code": "SINT5-B2-04"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "6",
+           "is_correct": false,
+           "rationale": "6 berulang lebih dulu, tetapi hanya dua kali; 8 muncul tiga kali.",
+           "misconception_code": "SINT5-B2-09"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "48",
+           "is_correct": false,
+           "rationale": "48 adalah jumlah semua data; modus adalah nilai yang paling sering muncul.",
+           "misconception_code": "SINT5-B2-05"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "S13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Nilai kuis delapan anak: 70, 85, 90, 85, 70, 85, 60, 95. Manakah pernyataan yang tepat?",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "Modusnya 95 karena nilainya terbesar",
+           "is_correct": false,
+           "rationale": "Nilai terbesar belum tentu paling sering muncul; 95 muncul sekali.",
+           "misconception_code": "SINT5-B2-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "Modusnya 3 karena 85 muncul tiga kali",
+           "is_correct": false,
+           "rationale": "3 adalah banyak kemunculannya; modusnya nilai 85.",
+           "misconception_code": "SINT5-B2-04"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "Modusnya 85 karena muncul tiga kali",
+           "is_correct": true,
+           "rationale": "85 muncul tiga kali, 70 dua kali, dan nilai lain sekali."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "Modusnya 70 karena muncul paling awal",
+           "is_correct": false,
+           "rationale": "70 muncul dua kali, lebih jarang dari 85.",
+           "misconception_code": "SINT5-B2-09"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "S14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Banyak saudara kandung sepuluh murid: 1, 2, 2, 0, 3, 2, 1, 1, 2, 4. Berapa modusnya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "1",
+           "is_correct": false,
+           "rationale": "1 muncul tiga kali, sedangkan 2 muncul empat kali.",
+           "misconception_code": "SINT5-B2-09"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "2",
+           "is_correct": true,
+           "rationale": "2 muncul empat kali, lebih sering dari nilai lainnya."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "4",
+           "is_correct": false,
+           "rationale": "4 adalah banyak kemunculan nilai 2, bukan nilainya.",
+           "misconception_code": "SINT5-B2-04"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "18",
+           "is_correct": false,
+           "rationale": "18 adalah jumlah semua data, bukan nilai yang paling sering muncul.",
+           "misconception_code": "SINT5-B2-05"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Rata-rata Sederhana",
+       "summary": "Arti rata-rata, cara menghitungnya, dan cara memeriksa hasilnya.",
+       "body_markdown": "## Arti rata-rata\nRata-rata adalah nilai yang mewakili sekumpulan data jika semuanya dibagi sama rata.\n\nCara menghitung rata-rata:\n- jumlahkan semua data\n- bagi dengan banyak data\n\n## Contoh menghitung\nBerat tiga kantong beras: 2 kg, 3 kg, dan 4 kg.\n\n| Kantong | Berat |\n|---|---|\n| Pertama | 2 kg |\n| Kedua | 3 kg |\n| Ketiga | 4 kg |\n\nJumlahnya 2 + 3 + 4 = 9 kg. Banyak datanya 3, jadi rata-ratanya 9 : 3 = **3 kg**.\n\n## Memeriksa hasil\nRata-rata selalu berada di antara nilai terkecil dan nilai terbesar.\n- jika hasilnya lebih besar dari nilai terbesar, mungkin data belum dibagi\n- jika hasilnya terlalu kecil, periksa pembaginya\n  - pembagi harus sama dengan banyak data\n  - hitung ulang banyak data sebelum membagi\n\n**Coba:** hitung rata-rata dari 6, 8, dan 10.\n_Periksa: 6 + 8 + 10 = 24 dan 24 : 3 = 8._",
+       "objective": {
+        "statement": "Kalian dapat menghitung rata-rata sekumpulan data dan memeriksa apakah hasilnya masuk akal.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "S15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Berat empat semangka: 3 kg, 5 kg, 4 kg, dan 4 kg. Berapa rata-rata beratnya?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "16 kg",
+           "is_correct": false,
+           "rationale": "16 kg adalah jumlah beratnya; jumlah itu masih harus dibagi 4.",
+           "misconception_code": "SINT5-B2-05"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "8 kg",
+           "is_correct": false,
+           "rationale": "8 didapat dari 16 : 2; banyak semangkanya 4.",
+           "misconception_code": "SINT5-B2-06"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "4 kg",
+           "is_correct": true,
+           "rationale": "3 + 5 + 4 + 4 = 16, dan 16 : 4 = 4 kg."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "5 kg",
+           "is_correct": false,
+           "rationale": "5 kg adalah berat terbesar, bukan rata-ratanya.",
+           "misconception_code": "SINT5-B2-03"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "S16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Uang saku Lina selama lima hari: Rp5.000, Rp7.000, Rp9.000, Rp4.000, dan Rp5.000. Berapa rata-rata uang sakunya per hari?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "Rp30.000",
+           "is_correct": false,
+           "rationale": "Rp30.000 adalah jumlah lima hari; jumlah itu masih harus dibagi 5.",
+           "misconception_code": "SINT5-B2-05"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "Rp7.500",
+           "is_correct": false,
+           "rationale": "Rp7.500 didapat dari pembagian dengan 4; datanya ada 5.",
+           "misconception_code": "SINT5-B2-06"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "Rp9.000",
+           "is_correct": false,
+           "rationale": "Rp9.000 adalah uang saku terbesar, bukan rata-ratanya.",
+           "misconception_code": "SINT5-B2-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "Rp6.000",
+           "is_correct": true,
+           "rationale": "Jumlahnya Rp30.000, dan Rp30.000 : 5 = Rp6.000."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "S17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Rata-rata tiga nilai ulangan Tono adalah 80. Nilai ulangan pertama 75 dan kedua 85. Berapa nilai ulangan ketiga?",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "80",
+           "is_correct": true,
+           "rationale": "Jumlah ketiga nilai 3 × 80 = 240, jadi nilai ketiga 240 − 75 − 85 = 80."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "160",
+           "is_correct": false,
+           "rationale": "160 adalah 75 + 85, jumlah dua nilai pertama.",
+           "misconception_code": "SINT5-B2-08"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "240",
+           "is_correct": false,
+           "rationale": "240 adalah jumlah ketiga nilai; nilai ketiga didapat dari 240 − 160.",
+           "misconception_code": "SINT5-B2-05"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "75",
+           "is_correct": false,
+           "rationale": "75 adalah nilai ulangan pertama; nilai ketiga dihitung dari jumlah seluruhnya.",
+           "misconception_code": "SINT5-B2-02"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "S18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tinggi lima tanaman cabai: 20 cm, 24 cm, 22 cm, 18 cm, dan 26 cm. Berapa rata-rata tingginya?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "110 cm",
+           "is_correct": false,
+           "rationale": "110 cm adalah jumlah tingginya; jumlah itu masih harus dibagi 5.",
+           "misconception_code": "SINT5-B2-05"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "27,5 cm",
+           "is_correct": false,
+           "rationale": "27,5 didapat dari 110 : 4; tanamannya ada 5.",
+           "misconception_code": "SINT5-B2-06"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "26 cm",
+           "is_correct": false,
+           "rationale": "26 cm adalah tanaman tertinggi, bukan rata-ratanya.",
+           "misconception_code": "SINT5-B2-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "22 cm",
+           "is_correct": true,
+           "rationale": "Jumlahnya 110 cm, dan 110 : 5 = 22 cm."
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SINT5-B2-01",
+   "label": "Turus dibaca keliru",
+   "description": "Murid menghitung satu ikat turus sebagai 4 atau sebagai 1, padahal bernilai 5.",
+   "remediation": "Hitung setiap garis dalam satu ikat sambil menunjuknya, termasuk garis miringnya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SINT5-B2-02",
+   "label": "Baris atau kolom tertukar",
+   "description": "Murid membaca angka dari baris atau kolom tabel yang tidak ditanyakan.",
+   "remediation": "Tunjuk nama barisnya dulu, lalu geser jari ke kolom yang diminta."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SINT5-B2-03",
+   "label": "Nilai terbesar dianggap jawabannya",
+   "description": "Murid memilih nilai data terbesar sebagai modus atau rata-rata.",
+   "remediation": "Bandingkan arti modus dan rata-rata dengan arti nilai terbesar memakai satu contoh kecil."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SINT5-B2-04",
+   "label": "Banyak kemunculan dianggap modus",
+   "description": "Murid menjawab berapa kali nilai itu muncul, bukan nilai datanya.",
+   "remediation": "Buat tabel dua kolom, nilai dan banyak kemunculan, lalu lingkari kolom nilai."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SINT5-B2-05",
+   "label": "Semua data dijumlahkan saja",
+   "description": "Murid menjumlahkan semua data, padahal yang ditanyakan modus atau rata-rata.",
+   "remediation": "Tuliskan langkah rata-rata: jumlahkan, lalu bagi; untuk modus, hitung kemunculan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SINT5-B2-06",
+   "label": "Pembagi rata-rata tidak tepat",
+   "description": "Murid membagi jumlah data dengan bilangan yang bukan banyak datanya.",
+   "remediation": "Hitung banyak data dengan menunjuk satu per satu sebelum membagi."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SINT5-B2-07",
+   "label": "Perbandingan terbalik",
+   "description": "Murid memilih yang paling sedikit saat ditanya yang paling banyak, atau menjumlahkan saat ditanya selisih.",
+   "remediation": "Garis bawahi kata kunci soal: paling banyak, paling sedikit, selisih, atau jumlah."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SINT5-B2-08",
+   "label": "Data yang dijumlahkan tidak lengkap",
+   "description": "Murid menjumlahkan lebih sedikit atau lebih banyak data daripada yang diminta.",
+   "remediation": "Centang setiap data yang diminta pada tabel sebelum menjumlahkan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SINT5-B2-09",
+   "label": "Modus dipilih tanpa menghitung",
+   "description": "Murid memilih nilai yang pertama berulang atau yang letaknya di tengah, tanpa menghitung kemunculan setiap nilai.",
+   "remediation": "Hitung kemunculan setiap nilai dengan turus sebelum memilih modus."
+  }
+ ]
+}

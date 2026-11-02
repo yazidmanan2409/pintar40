@@ -14,6 +14,15 @@
 export type KelasKartu = { id: string; label: string; orang: string[] };
 
 /**
+ * CR-91 (D-145(a)): a class card is a learner's alone. `persons_awaiting_account` says per person whether a card may
+ * be offered (false for anyone holding a staff role, one that starts later included); anything but an explicit true is
+ * no card. The database refuses the card regardless: this keeps the screen from offering what it would refuse.
+ */
+export function bolehKartu(o: { boleh_kartu?: boolean | null }): boolean {
+  return o.boleh_kartu === true;
+}
+
+/**
  * An enrolment still in the school: PENDING (provisioned, no account yet,
  * which is everyone this screen is for) or ACTIVE. An ENDED or CANCELLED one is
  * not a member to make a card for.

@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/audit/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -44,3 +45,6 @@ next-env.d.ts
 # supabase cli scratch
 supabase/.temp/
 supabase/.branches/
+
+# agent worktrees (local only, never committed)
+/.claude/worktrees/

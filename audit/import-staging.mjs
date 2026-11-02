@@ -123,6 +123,9 @@ begin
     raise exception 'not replaced: a question of it was presented'; end if;
   if exists (select 1 from public.question_health where item_id = any (v_items)) then
     raise exception 'not replaced: a question of it has health evidence'; end if;
+  if to_regclass('public.content_review_outcomes') is not null
+     and exists (select 1 from public.content_review_outcomes where course_id = c) then
+    raise exception 'not replaced: the course has review history'; end if;
   delete from public.mcq_quality_findings where course_id = c or item_id = any (v_items);
   delete from public.coaching_findings where course_id = c;
   delete from public.item_options where item_id = any (v_items);

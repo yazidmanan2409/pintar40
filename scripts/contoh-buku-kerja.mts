@@ -1,4 +1,4 @@
-// L4 (CR-88; D-127 Q9): writes the example workbook beside its source (not served; see src/lib/contoh-buku-kerja.ts).
+// L4 (CR-88; D-127 Q9): writes the example workbook from its synthetic source (F-4; not served; see src/lib/contoh-buku-kerja.ts).
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { HASIL_CONTOH, SUMBER_CONTOH, bukuKerjaContoh } from "../src/lib/contoh-buku-kerja";

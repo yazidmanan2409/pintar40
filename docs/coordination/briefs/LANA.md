@@ -10,7 +10,7 @@ One chapter = one workbook = one PINTAR course, handed off on its own. Do not st
 
 | Ticket | Chapter |
 |---|---|
-| LANA-01 | Bab 1: Bilangan Cacah sampai 100.000. **A workbook already exists** (`docs/onboarding/konten/SD5-Matematika-Bab1.xlsx`, made from its generator `sd5_matematika_bab1.py`). Study it first: it is the house style. Then check it against your PDF and bring it to this brief: correct anything the PDF shows is wrong, add the proposed misconception codes (below), and **drop its two media lessons** (5 and 6: video, audio, infographic), keeping any text in them that the chapter needs as ordinary text lessons. |
+| LANA-01 | Bab 1: Bilangan Cacah sampai 100.000. **A workbook already exists** (once `SD5-Matematika-Bab1.xlsx` in `docs/onboarding/konten/`, made from its generator `sd5_matematika_bab1.py`; since F-4 (D-145) both are in the private content store, not in this public repository). Study it first: it is the house style. Then check it against your PDF and bring it to this brief: correct anything the PDF shows is wrong, add the proposed misconception codes (below), and **drop its two media lessons** (5 and 6: video, audio, infographic), keeping any text in them that the chapter needs as ordinary text lessons. |
 | LANA-02 … LANA-09 | Bab 2 … Bab 9, each from its PDF. |
 
 ## Your second job: SMA Kelas XI Geografi, Bab 1 to Bab 4 (Yazid, 29 Sep)
@@ -87,11 +87,11 @@ Same gate, same hand-off, one chapter at a time, each after the previous verdict
 ## Read first (on `origin/main`)
 - `docs/coordination/README.md` §1–§4: roles, lanes, branches, the hand-off block. **Binding.**
 - `docs/coordination/DECISIONS.md`, especially **D-007** (the lesson workbook), **D-008** (pre-test and post-test on every lesson), **D-030** (package limits) and **D-050** (the first testing phases cover lessons and MCQs, not video, audio or presentations) and **D-052** (readiness is a sequence of gates; 5 Oct is tentative, so quality comes before speed).
-- `docs/onboarding/konten/sd5_matematika_bab1.py`: how Bab 1 was built. Copy its approach.
+- `sd5_matematika_bab1.py` (F-4, D-145: moved from `docs/onboarding/konten/` to the private content store): how Bab 1 was built. Copy its approach. For a public example of the format, see the synthetic corpus `docs/onboarding/konten-sintetis/` and its `buat-korpus.mts`.
 - `src/lib/unggah-kontrak.ts`, `KOLOM` and `BATAS_PAKET`: the exact column contract and limits Studio enforces. Read it; do not change it.
 
 ## Your lane
-- **Yours:** `docs/onboarding/konten/**` only: per chapter, `sd5_matematika_babN.py` (the generator), `SD5-Matematika-BabN.xlsx`, `SD5-Matematika-BabN.paket.json`, `SD5-Matematika-BabN-miskonsepsi.csv`, and `handoff/LANA-0N.md`.
+- **Yours:** the chapter files, per chapter (F-4, D-145: real chapters and their keys live in the private content store, never in this public repository; `docs/onboarding/konten/**` keeps only the generic tools and hand-off notes): `sd5_matematika_babN.py` (the generator), `SD5-Matematika-BabN.xlsx`, `SD5-Matematika-BabN.paket.json`, `SD5-Matematika-BabN-miskonsepsi.csv`, and `handoff/LANA-0N.md`.
 - **Not yours:** everything else, including `src/**`, `supabase/**`, workflows, `docs/coordination/**`. Never upload anything to staging or production yourself; the coordinator does that.
 - **Branch:** your session's own branch (say its name in your first hand-off). Before each ticket, `git fetch origin main && git merge origin/main`. Merge; never rebase or force-push. Commit messages start with the ticket id and end in `[skip ci]` (content starts no CI).
 
@@ -118,7 +118,7 @@ Same gate, same hand-off, one chapter at a time, each after the previous verdict
 Run both checks before every hand-off; paste their output into the hand-off.
 
 1. **Every number is proven.** Like Bab 1's generator, assert in Python every sum, difference, product, quotient, comparison and money amount used in a question, an answer or a distractor. The generator must fail if any is wrong. Where the book's own answer key is wrong, say so in a comment and in the hand-off (Bab 1 found one).
-2. **The app's own reader accepts it:** `npm ci` once, then `npx tsx docs/onboarding/konten/ke-paket.ts SD5-Matematika-BabN.xlsx SD5-Matematika-BabN.paket.json`. It stops on the first problem, naming the sheet and row.
+2. **The app's own reader accepts it:** `npm ci` once, then `npx tsx docs/onboarding/konten/ke-paket.ts SD5-Matematika-BabN.xlsx SD5-Matematika-BabN.paket.json` (run in the private content store's checkout; F-4). It stops on the first problem, naming the sheet and row.
 3. **The question check is clean:** `python3 docs/onboarding/konten/periksa_mutu.py SD5-Matematika-BabN.paket.json`. It runs Studio's five rules:
    - **STEM_REVEALS_ANSWER is an ERROR and blocks publishing:** a word of 6+ letters (or a 6+ character number such as `45.500`) that is in the question must not appear only in the correct option. Put it in a distractor too, or reword the question.
    - The correct option is never more than twice as long as the longest distractor; no distractor is shorter than a third of the average option.
@@ -139,7 +139,7 @@ LANE:        Lana
 TICKET:      LANA-0N (Bab N: <judul>)
 HEAD:        <branch> @ <full sha>          (main merged in at <sha>)
 SOURCE:      <PDF title, publisher, year, pages used>
-CHANGED:     docs/onboarding/konten/<files>
+CHANGED:     <files in the private content store (F-4, D-145)>
 CONTENT:     <lessons> lessons (<pages> pages); <items> questions: 4 pre-test, 8 post-test, <n> practice; answers by letter A/B/C/D = a/b/c/d
 PROOF:       generator assertions: <n> passed; ke-paket.ts: <output>; periksa_mutu.py: <TOTAL line>
 BOOK ERRORS: <answer-key or text errors found in the PDF; "none">

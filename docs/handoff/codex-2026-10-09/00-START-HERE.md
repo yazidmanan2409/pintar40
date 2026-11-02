@@ -9,6 +9,10 @@
 - An earlier GREEN or «complete» verdict is a recorded claim, never a fact by itself.
 - Your job is independent verification against the original requirements, not a rebuild (09).
 
+## 0. Read first: the 9 Oct evening delta
+
+**[10-UPDATE-2026-10-09-EVENING.md](10-UPDATE-2026-10-09-EVENING.md)** records everything after this package was written (D-137 … D-140): main moved to 8851988, the Daisy application pass, fix batches A and B on the branch, the Golden School walks, the CI budget, and **Dr Gladys: NOT READY**. Sections 1–5 below are the 8 Oct state and are kept as written. Where 10 differs, 10 is the later fact. In particular, **S23q / CR-52 is CLOSED (D-137)**, not the open exception §5.1 describes (10 §7).
+
 ## 1. The state, verified 8 Oct 2026 (~13:20 UTC)
 
 | Item | State | Source |

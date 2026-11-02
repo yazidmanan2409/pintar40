@@ -34,11 +34,14 @@ env:
   STAGING_ORIGIN: https://staging.pintarselalu.com
   ADMIN_EMAIL: uji-kinerja-admin@example.co
   GURU_EMAIL: goldenschool+guru@pintarselalu.com
-  CHAPTER: SD5-Matematika-Bab1
+  # F-4 (D-145(b)): the synthetic corpus's chapter; the real chapters are in the private content store
+  CHAPTER: SD5-Sintetis-Bab1
 
 jobs:
   journey:
-    runs-on: ubuntu-latest
+    # Batch 0 (B0-A): Playwright 1.55 has no browser build for ubuntu-latest = Ubuntu 26.04
+    # («Playwright does not support chromium on ubuntu26.04-x64», run 41377378758); pinned to 24.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -92,8 +95,8 @@ jobs:
           STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
           GS_MAILBOX_PASSWORD: ${{ secrets.GS_MAILBOX_PASSWORD }}
           TEACHER_SIGNIN: email
-          WORKBOOK: ${{ github.workspace }}/docs/onboarding/konten/${{ env.CHAPTER }}.xlsx
-          KEY_JSON: ${{ github.workspace }}/docs/onboarding/konten/${{ env.CHAPTER }}.paket.json
+          WORKBOOK: ${{ github.workspace }}/docs/onboarding/konten-sintetis/${{ env.CHAPTER }}.xlsx
+          KEY_JSON: ${{ github.workspace }}/docs/onboarding/konten-sintetis/${{ env.CHAPTER }}.paket.json
           MEDIA_DIR: ${{ github.workspace }}/media-branch/media
           OUT_DIR: ${{ github.workspace }}/out
           RUN_TAG: h${{ github.run_number }}

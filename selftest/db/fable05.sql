@@ -448,6 +448,14 @@ begin
    where f.course_id = c.id and c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
   delete from public.coaching_findings f using public.courses c
    where f.course_id = c.id and c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
+  -- Review outcomes (migration 181) are history; only this suite's own probe
+  -- courses lose theirs, with the history trigger off for that one statement.
+  if to_regclass('public.content_review_outcomes') is not null then
+    alter table public.content_review_outcomes disable trigger content_review_outcomes_are_history;
+    delete from public.content_review_outcomes o using public.courses c
+     where o.course_id = c.id and c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
+    alter table public.content_review_outcomes enable trigger content_review_outcomes_are_history;
+  end if;
   delete from public.courses c
    where c.institution_id = v_canon and (c.supersedes_course_id is not null or c.title in ('Pengukuran Nasional II', 'Pengukuran Nasional Uji'));
   alter table public.assessment_definitions enable trigger assessment_definitions_taught_immutable;

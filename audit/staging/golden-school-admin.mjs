@@ -16,9 +16,10 @@
 //       set of cards (J3.7, M7) is issued in the run that signs the students in (GS-12), and read from the
 //       printable set there: card numbers and PINs are never kept between runs.
 //   A5  read back, read only: the tree, the four staff roles, the five students; «Persiapan sekolah» done.
-//   A6  GS-08 (J4.1, J4.2): content in. Konfigurasi → Studio → Buat Paket: the school, the real workbook (SD 5
-//       Matematika Bab 1, docs/onboarding/konten, as on main), «Periksa buku kerja», the media it names (it names
-//       none), «Simpan ke Studio»; it is a draft of the school's, whole, and its package page opens by its link.
+//   A6  GS-08 (J4.1, J4.2): content in. Konfigurasi → Studio → Buat Paket: the school, the synthetic workbook (SD 5
+//       Matematika Bab 1, docs/onboarding/konten-sintetis, as on main; F-4: the real chapter left the public tree),
+//       «Periksa buku kerja», the media it names (it names none), «Simpan ke Studio»; it is a draft of the school's,
+//       whole, and its package page opens by its link.
 //   A7  GS-05 (J3.8): back to Konfigurasi by Studio's own link; on Batas ketuntasan the chapter reads «Batas
 //       ketuntasan belum ditetapkan» (no default, D-081); the admin sets 70% with a reason; the page reads it back,
 //       the database holds it, by them, audited.
@@ -77,9 +78,10 @@ const STAF = [
   { kunci: "dekan", nama: `Dekan ${SLUG.toUpperCase()}`, peran: "DEAN", tempat: null },
 ];
 const MURID = ["Utama", "Bunga", "Citra", "Dimas", "Eka"].map((n) => `${n} Murid ${SLUG.toUpperCase()}`);
-// the chapter (§4): the real workbook on main; its Kursus, Pelajaran and Soal sheets give these (read 2 Oct, 0a81e5b)
-const BUKU = fileURLToPath(new URL("../../docs/onboarding/konten/SD5-Matematika-Bab1.xlsx", import.meta.url));
-const BAB = { judul: "Matematika Kelas 5 · Bab 1: Bilangan Cacah sampai 100.000", pelajaran: 5, soal: 31 };
+// the chapter (§4): F-4 (D-145(b)), the synthetic workbook on main (the real one, with its key, left the public tree);
+// its Kursus, Pelajaran and Soal sheets give these (docs/onboarding/konten-sintetis/buat-korpus.mts writes them)
+const BUKU = fileURLToPath(new URL("../../docs/onboarding/konten-sintetis/SD5-Sintetis-Bab1.xlsx", import.meta.url));
+const BAB = { judul: "Matematika Kelas 5 · Bab 1: Pola Bilangan", pelajaran: 4, soal: 18 };
 const BATAS = { persen: "70", alasan: "Keputusan rapat guru Golden School" };
 
 const sql = (q) => execFileSync("psql", [DB, "-qAt", "-v", "ON_ERROR_STOP=1",
@@ -345,7 +347,7 @@ const bab = () => {
 };
 
 let kursus = null;
-await step("A6", `GS-08 (J4.1, J4.2): content in: Konfigurasi → Studio → Buat Paket; «${BAB.judul}» from the real workbook, checked, the media it names, saved to Studio as the school's draft; its package page opens by its link`, async (rec) => {
+await step("A6", `GS-08 (J4.1, J4.2): content in: Konfigurasi → Studio → Buat Paket; «${BAB.judul}» from the synthetic workbook, checked, the media it names, saved to Studio as the school's draft; its package page opens by its link`, async (rec) => {
   if (!existsSync(BUKU)) { rec.verdict = "FAIL"; return `no workbook at ${BUKU}`; }
   const ada = bab();
   if (ada) {
