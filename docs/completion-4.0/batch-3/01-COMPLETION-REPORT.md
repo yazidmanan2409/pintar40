@@ -13,6 +13,17 @@ The exit gate's W6.5 Studio proof passes as a **local** browser walk. Two parts 
 - the same proof **on staging**;
 - the side-by-side check of J1Terbit and J5 against their compositions.
 
+## 0. Final engineering gate (owner, 2 Nov: «Batch 3 final engineering gate»)
+
+| # | Owner's item | Answer |
+|---|---|---|
+| 1 | CI and browser journeys on the final code commit, with run IDs, results and tested SHA | §6 |
+| 2 | Keep two-transaction create-and-lock; the interface must report the state, the refusal reason and the next action | **Kept; no new database function.** STUDIO3A-SEPARUH-01 renders the steps after the combined press created the release and its lock was refused (RELEASE_NOT_READY with a blocker). **State:** the current step «Kunci terbitan», «Buat terbitan · Selesai», and «Buat terbitan» done in the list. **Reason:** the refusal's sentence and what holds the lock back, as an alert. **Next action:** «Kunci terbitan» again, never «Buat terbitan». The test goes red when the press stops reporting the created release. A browser reaches this state only when the lock's readiness check finds an error after approval (warnings do not block it), so the proof is rendered from the press's real answer, through an optional starting answer the page never passes. |
+| 3 | The existing F-7 request for W1.11 | §7.1, as written in F-OWNER-DECISIONS, with no new requirement |
+| 4 | Daisy's W1.2 composition; blocking separated from cosmetic | Not obtainable from here: her system is unchanged since 8 Oct (`cc96030`) and contains no question-review composition. **`03-DAISY-W1.2-COMMISSION.md`** gives what the screen carries and the six decisions that are hers. **`02-DAISY-QUESTIONS.md`** is triaged: **blocking** A1 (W1.2), D1 (what the Uji Cepat class figure is) and D3 (a minimum group before it shows); **wording** 8; **cosmetic** 22. |
+| 5 | The reviewer-name function reveals only package-specific reviewer identities, never arbitrary person records across schools | **Confirmed by design and by test.** `nama_riwayat_paket(p_courses uuid[])` takes package ids only, never a person id. It returns the display names of the people recorded on those packages as reviewers (`content_review_outcomes`) or correction writers (`course_revision_notes`). It answers only for packages whose school the caller may work on in Studio (CAN_DRAFT or CAN_REVIEW, the outcome table's own read policy). Two columns are returned, nothing is written, it is SECURITY DEFINER with a pinned search_path and a STAFF registry row, and anon is refused. **F23-W05** proves: the author is told the reviewer's name though they cannot read that person row; **another school's admin** and **the same school's Dekan** (no Studio capability) are told **nobody**; an unknown package id adds nobody; nobody is told a name not recorded on the packages; an anonymous call is refused 42501. A planted version returning every person failed on 8 counts. |
+| 6 | A consolidated report and the remaining acceptance gaps | This report; §7 |
+
 ## 1. Requirements
 
 | Item | What it asked | Status | Evidence |
@@ -85,8 +96,8 @@ Evidence: `evidence/w65/` (the run's JSON, its log and 11 screenshots).
 
 | | Result |
 |---|---|
-| Local suite, fresh database (static, app and db) | **693 passed, 0 failed** |
-| New guards | STUDIO3A-* (7), STUDIO3B-* (6), MENGAJAR3-* (5), F23-W05. Each was red without its change and green with it: the agents reset `src` to 405bb19; F23-W05 was run with the function dropped. |
+| Local suite, fresh database (static, app and db) | **694 passed, 0 failed** |
+| New guards | STUDIO3A-* (8, incl. SEPARUH-01), STUDIO3B-* (6), MENGAJAR3-* (5), F23-W05. Each was red without its change and green with it: the agents reset `src` to 405bb19; F23-W05 was run with the function dropped. |
 | Restated, rule unchanged, each marked `RESTATED FOR …` | DAISY-06-TERBIT-01, DAISY-18-DENGAR-01, D140-STUDIO-01, DAISY-14-TANGGAL-01, TANGGAL-02/03, BOB07-K02, L4-K01, CR52-B01, PENUTUPAN-J01/I01, POLISH2-STUDIO-01, STUDIO3A-AKUI-01, STUDIO3A-RIWAYAT-01, two UX-14/16 heading pins |
 | Baselines | Migrations 181 → 182 (UX1-BRAND-02, UX1-TUR-ORANG-01), with the reason written beside each |
 | Branch CI | §6 |
@@ -95,26 +106,36 @@ No test was weakened or removed.
 
 ## 5. Notes for the owner
 
-- **W1.4 is two transactions in one press, not one.**
-  - Each step stays atomic: «Buat terbitan» and «Kunci terbitan» are BOB-03's own typed actions.
-  - If the lock is refused, the release stays created (a valid state), and the panel says what blocks the lock.
-  - Making both one transaction would need a new database function. Say if you want that.
+- **W1.4 stays two transactions in one press** (owner, final gate item 2). A created but unlocked release is a recoverable state, and the page reports it (STUDIO3A-SEPARUH-01).
 - **A synthetic school's Uji Cepat score page says «Belum ada nilai».** Synthetic results are never official evidence, and the learner record behaves the same way. The walk therefore runs in the seeded official school. On staging, the Golden School is non-synthetic.
 - **Grouped acknowledgement is one transaction per finding**, as single presses were. A refusal stops the group at that finding.
 - **Questions for Daisy:** `02-DAISY-QUESTIONS.md` has the W1.2 composition and 33 questions on which her system is silent, each with what is built today.
 
 ## 6. CI on the branch
 
-(Filled in when the runs complete.)
+{CI}
 
-## 7. Still open
+## 7. Remaining acceptance gaps
 
-| | Needs |
+### 7.1 F-7 · who the Question Bank is for (W1.11, J4.8): the existing request, unchanged
+
+**Today:** the bank (browse, filter, key and reason review, QN5) is gated as Question Health, so heads of department and admins reach it and teachers who author cannot.
+
+| Option | Consequence |
 |---|---|
-| W1.2 question-review layout | Daisy's composition |
-| W1.11 Question Bank | Owner decision F-7 |
-| W6.5 on staging (the exit gate) | A separate authorization: merge, deploy, then the walk against a fresh Golden School |
-| J1Terbit and J5 side by side with their compositions | The independent review |
-| 33 design and wording answers | Daisy |
+| **Recommended (F-OWNER-DECISIONS):** teachers with CAN_DRAFT browse their own school's bank (QN5); Question Health signals stay head-of-department-only (J4.9) | W1.11 is built in Batch 3's terms: one gate and its guard, then J4.8 can close |
+| Keep the bank as built (heads of department and admins only) | J4.8 is recorded as an accepted deviation from QN5; no build |
+| No ruling | J4.8 stays E and cannot close; W1.11 stays blocked |
 
-**STOP at the Batch 3 promotion gate for owner review.**
+### 7.2 The rest
+
+| Gap | Needs | Blocks |
+|---|---|---|
+| W1.2 question-review layout | Daisy's composition (commission ready) | W1.2, J4.4's review part |
+| D1, D3 (the Uji Cepat class figure) | Daisy (D3 possibly also the owner) | W2.4's design sign-off; the figure is built as the mean, shown from 1 |
+| F-7 | The owner (§7.1) | W1.11, J4.8 |
+| W6.5 on staging | A separate authorization: merge, deploy, then the walk against a fresh Golden School. The staging walks already understand the combined press (8f9a023). | The exit gate |
+| J1Terbit and J5 side by side with their compositions | The independent review | «design complete» on the matrix lines |
+| 30 wording and cosmetic answers | Daisy | Copy and style only |
+
+**STOP at the Batch 3 promotion gate.** No merge, no deploy, production untouched, no Batch 4.
