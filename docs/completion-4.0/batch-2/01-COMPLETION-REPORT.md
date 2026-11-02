@@ -92,7 +92,7 @@ GitHub bills nothing for this public repository; the minutes are runner-minutes,
 - It happens only while the skip link has focus.
 - Daisy to decide (§5).
 
-**(b) One crawl screen not yet reproduced:** the platform admin's /aktivasi, where the first Tab after the crawl's route lands on «info@pintarselalu.com». A direct visit tabs correctly. To be diagnosed.
+**(b) RESOLVED in the promotion (`03-STAGING-VERIFICATION-REPORT.md` §4): a real defect, fixed before the merge.** Originally: one crawl screen not yet reproduced: the platform admin's /aktivasi, where the first Tab after the crawl's route lands on «info@pintarselalu.com». A direct visit tabs correctly. To be diagnosed.
 
 **(c) Adoption on screens is later batches' work, as planned (E §Batch 2: «built once, used everywhere» in batches 3–6):**
 - the 35 `.pin-empty` lines to `Kosong` with their actions;
