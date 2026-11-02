@@ -492,7 +492,7 @@ await step("U13", "W6.7: the Guru launches an Uji Cepat of three of the chapter'
   harus(rec, jalan && !!ujiCepat, `«Uji Cepat sedang berjalan» (${ujiCepat || "none"})`);
 });
 
-await step("U14", "W6.7: the learner finds the Uji Cepat on Belajar and hands it in", async (rec) => {
+await step("U14", "W6.7: the learner finds the Uji Cepat on Belajar and hands it in; no certificate comes of it (J5.7)", async (rec) => {
   if (!ujiCepat) { rec.verdict = "BLOCKED"; return; }
   const { page: m } = sesi.murid;
   await m.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
@@ -527,9 +527,15 @@ await step("U14", "W6.7: the learner finds the Uji Cepat on Belajar and hands it
     await m.waitForURL((u) => u.pathname.endsWith("/hasil") || u.pathname === "/belajar", { timeout: 60000 });
     break;
   }
+  await m.waitForLoadState("networkidle");
   await shot(m, rec, "uji-cepat-dikumpulkan");
   const selesai = sql(`select count(*) from public.assessment_sessions s where s.assessment_assignment_id='${ujiCepat}' and s.submitted_at is not null`);
   harus(rec, dijawab === 3 && selesai === "1", `answered ${dijawab}, handed in sittings ${selesai}`);
+  // J5.7: a single Uji Cepat never issues a certificate, in the database or on the screen the learner lands on
+  const sertifikat = sql(`select count(*) from public.certificates c join public.assessment_sessions s on s.id = c.session_id where s.assessment_assignment_id='${ujiCepat}'`);
+  const teks = norm(await m.locator("main").innerText().catch(() => ""));
+  harus(rec, sertifikat === "0" && !/sertifikat/i.test(teks) && (await m.locator('a[href*="/sertifikat"]').count()) === 0,
+    `no certificate for the Uji Cepat (${sertifikat} in the database; the page ${/sertifikat/i.test(teks) ? "mentions" : "does not mention"} one)`);
 });
 
 await step("U15", "W6.7: the Guru opens «Lihat hasil»: the class figure on its base first, each learner one step below", async (rec) => {
