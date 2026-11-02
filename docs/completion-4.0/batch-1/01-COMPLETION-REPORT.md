@@ -46,8 +46,8 @@
 | **Local, full manifest** (fresh stack, CI-like), integrated tree `cd048d0` | **673 passed, 0 failed**; 1 justified CI-only skip (F01-R04) |
 | Local, every DB suite on a fresh database | 319 rows, 0 failing |
 | Local typecheck / lint | 0 / 0 errors |
-| **CI (branch)** | see §2.3 |
-| **Journeys (branch, local stack; Chromium for the crawl, three engines for job B)** | see §2.3 |
+| **CI (branch)**, `dabafa5` | **GREEN**: 18/18 jobs; strict selftest **674 passed, 0 failed, 0 skipped**; every red case proved its gate (§2.3) |
+| **Journeys (branch, local stack; Chromium for the crawl, three engines for job B)**, `9f534a7` | **GREEN**: A (every role's screens, seeded world) and B (Gladys's path from an empty production-like database) both succeeded |
 | **Staging** (deploy, facts, staging crawl, Golden School on fresh synthetic data) | **NOT RUN**: blocked on the merge authorisation (§5) |
 
 **The first full run found 323 failures; every one was traced and fixed, none suppressed:**
@@ -64,7 +64,18 @@
 
 ### 2.3 CI on the branch
 
-*Run ids, results and minutes: §4.*
+| Run | Commit | Result |
+|---|---|---|
+| `ci` 41384760756 | `9f534a7` | **RED**: 2 of 18 jobs. The red-case gates for bob35 and fable05 run `run_fable05()` more than once on one database; its cleanup `f05_reset` could not delete its own approved probe course past the new `content_review_outcomes` foreign key. The same defect class as `purge_probe_content` (§2.2), in a second helper; the local full run had not caught it because it runs each suite once |
+| `audit-journeys` 41384764104 | `9f534a7` | **GREEN**: jobs A and B |
+| `ci` 41387912678 | `dabafa5` | **GREEN**: 18/18 jobs, strict selftest 674/0/0 (F01-R04 runs in CI), verdict green |
+
+**Fix (`dabafa5`), not a suppression:**
+- `f05_reset` removes only its own probe courses' outcome rows, with the history trigger off for that statement (as `purge_probe_content`).
+- Reproduced locally first: the suite failed on its second run; after the fix three consecutive runs were 25/0, the bob35 gate proved 5/5 plants, and the FABLE-05 red-case step ran clean end to end.
+- The same review found `audit/import-staging.mjs`, which replaces an unreleased staging draft by deleting it. It now **refuses** a draft that has review history, rather than deleting history or failing on the key.
+
+Between `9f534a7` and `dabafa5` only documents, that helper and that script changed, so the journeys result on `9f534a7` stands for the app.
 
 ## 3. Staging pre-deployment gate (D-146)
 
@@ -78,7 +89,16 @@ Prepared: `03-STAGING-PRE-DEPLOYMENT-GATE.md`.
 
 ## 4. CI minutes (D-145(d): 600, rounded up per job)
 
-*Filled from the runs.*
+Every run created on the repository since the Batch 1 ledger opened (2 Nov, 03:03 UTC), each job's minutes rounded up:
+
+| Run | Workflow | Jobs | Minutes |
+|---|---|---|---|
+| 41384760756 | ci (`9f534a7`, red) | 18 | 56 |
+| 41384764104 | audit-journeys (`9f534a7`) | 2 | 45 |
+| 41387912678 | ci (`dabafa5`, green) | 18 | 62 |
+| **Total** | | | **163 of 600** |
+
+GitHub bills 0 for this public repository; the ceiling is counted as runner-minutes regardless.
 
 ## 5. Remaining dependencies and owner decisions
 

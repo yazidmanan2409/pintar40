@@ -13,7 +13,7 @@ Nothing was written to staging. Every staging fact below came from read-only SEL
 | | |
 |---|---|
 | Branch | `claude/awesome-rubin-bqxp6p` |
-| Candidate commit | the head at the end of Batch 1 (completion report, deliverable 1) |
+| Candidate commit | the branch head carrying this document (code last changed at `dabafa5`, CI green) |
 | Diff over staging (`001a357`) | Batch 0 (harness, guard, CI pins, documents) + Batch 1 (4 migrations, CR-91 app checks, `langkah_konten` action, F-4 corpus and removals) |
 | Migrations to apply | 178–181 (`20261211100000` … `20261214100000`), forward-only, in order; effects in `02-MIGRATIONS-AND-EFFECTS.md` |
 
@@ -71,7 +71,7 @@ Nothing was written to staging. Every staging fact below came from read-only SEL
 | Condition (D-146 §4) | State |
 |---|---|
 | Candidate identified by commit | Yes (§1) |
-| Local and branch tests pass | Local: full suite **673/0** (+1 CI-only justified skip), every DB suite 319/0 on a fresh database. Branch CI and journeys: see the completion report |
+| Local and branch tests pass | Local: full suite **673/0** (+1 CI-only justified skip), every DB suite 319/0 on a fresh database. Branch CI `dabafa5` GREEN (674/0/0); journeys `9f534a7` GREEN (completion report §2.3) |
 | Migration contents and dependencies reviewed | Yes (`02-MIGRATIONS-AND-EFFECTS.md`); applied cleanly from empty locally (181) several times |
 | Staging's actual schema verified | 177 = `001a357`'s set, read 2 Nov (§2) |
 | Recovery and contingency documented and feasible | §4; one owner confirmation outstanding (a recent backup) |
