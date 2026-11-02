@@ -70,6 +70,19 @@ export const KODE_PINDAH_KELAS = ["MOVE_NOT_CURRENT", "MOVE_NOT_A_KELAS", "MOVE_
  */
 export const KODE_KETUNTASAN = ["PASS_MARK_MISSING"] as const;
 
+/**
+ * W1.6 (Batch 3 screen; Batch 1 data): THE FOUR REFUSALS OF A SEND-BACK, from the package page's «Kembalikan ke
+ * penyusun» (`kembalikan_paket`, 20261214100000), 42501 or PR040 with the code in DETAIL:
+ * - SENDBACK_NOT_REVIEWER: no CAN_REVIEW in the package's school (or no person in the session);
+ * - SENDBACK_NOT_IN_REVIEW: the package is no longer in review (a colleague approved or sent it back meanwhile);
+ * - SENDBACK_REVIEWER_IS_AUTHOR: the reader wrote the package (the same second person approval needs);
+ * - SENDBACK_REASON_MISSING: the reason is not 10 to 1000 characters.
+ * Read by their DETAIL before any message pattern, so the words of the database never decide them.
+ */
+export const KODE_KEMBALI = [
+  "SENDBACK_NOT_REVIEWER", "SENDBACK_NOT_IN_REVIEW", "SENDBACK_REVIEWER_IS_AUTHOR", "SENDBACK_REASON_MISSING",
+] as const;
+
 /** BOB-44: enrolling a person for professional learning, refused by PR090 with the code in DETAIL. */
 export const KODE_PESERTA = [
   "PD_NOT_ALLOWED", "PD_PLACE_INVALID", "PD_PLACE_NOT_FOR_EDUCATORS", "PD_PERSON_NOT_STAFF", "PD_ALREADY_ENROLLED",
@@ -141,6 +154,8 @@ export const KODE_SUKSES = [
   "PD_ENROLLED",
   // #148: maintenance scheduled, started now, ended (or cancelled), stopped at once; a notice published or withdrawn
   "MAINTENANCE_SCHEDULED", "MAINTENANCE_STARTED", "MAINTENANCE_ENDED", "MAINTENANCE_STOPPED", "NOTICE_PUBLISHED", "NOTICE_WITHDRAWN",
+  // W1.6: a package sent back to its author, with the reviewer's reason
+  "SENT_BACK",
 ] as const;
 
 /**
@@ -158,8 +173,10 @@ export type KodePindahKelas = (typeof KODE_PINDAH_KELAS)[number];
 export type KodeKetuntasan = (typeof KODE_KETUNTASAN)[number];
 export type KodePeserta = (typeof KODE_PESERTA)[number];
 export type KodePemeliharaan = (typeof KODE_PEMELIHARAAN)[number];
+export type KodeKembali = (typeof KODE_KEMBALI)[number];
 /** What `kodeGalat` answers: any action's codes, a release move's two (DAISY-31) and a class move's four (M9). */
-export type KodeGalat = (typeof KODE_GALAT)[number] | KodePindah | KodePindahKelas | KodeKetuntasan | KodePeserta | KodePemeliharaan;
+export type KodeGalat = (typeof KODE_GALAT)[number] | KodePindah | KodePindahKelas | KodeKetuntasan | KodePeserta | KodePemeliharaan
+  | KodeKembali;
 export type KodeKonten = (typeof KODE_KONTEN)[number];
 export type KodeIsian = (typeof KODE_ISIAN)[number];
 export type KodeSukses = (typeof KODE_SUKSES)[number];
@@ -253,6 +270,10 @@ export function kodeGalat(e: GalatDb): KodeGalat {
     return (KODE_PEMELIHARAAN as readonly string[]).includes(e?.details ?? "") ? e!.details as KodePemeliharaan : "ACTION_FAILED";
   }
   if (state === "PT503") return "MAINTENANCE_ACTIVE";
+  // W1.6: a send-back's four refusals by their DETAIL (42501 or PR040), before any message pattern
+  if ((state === "42501" || state === "PR040") && (KODE_KEMBALI as readonly string[]).includes(e?.details ?? "")) {
+    return e!.details as KodeKembali;
+  }
   const disebut = POLA_STUDIO.find(([pola]) => pola.test(pesan.replace(/^ERROR:\s*/i, "")));
   if (disebut) return disebut[1];
   if (state === "42501" || /permission denied|\brequires CAN_[A-Z_]+|\bnot allowed\b|\bmay not\b|\bonly (?:a|an|the) [A-Z_]+/i.test(pesan)) {
@@ -300,6 +321,7 @@ export function rujukan(): string {
 
 const SEMUA_KODE = new Set<string>([
   ...KODE_GALAT, ...KODE_PINDAH, ...KODE_PINDAH_KELAS, ...KODE_KETUNTASAN, ...KODE_PESERTA, ...KODE_PEMELIHARAAN, ...KODE_KONTEN,
+  ...KODE_KEMBALI,
   ...KODE_ISIAN, ...KODE_SUKSES, ...KODE_KONTEKS,
   ...KODE_TERBITAN_DB, "RELEASE_INPUT_INVALID", "RELEASE_FAILED",
   ...KODE_TOLAK_PAKET, "PACKAGE_HAS_PROBLEMS", "PACKAGE_INPUT_INVALID", "PACKAGE_FAILED",

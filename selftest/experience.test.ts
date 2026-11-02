@@ -10098,7 +10098,10 @@ export const experienceTests: SelfTest[] = [
         }
         c.expect(JSON.stringify(tombolDi(R["unggah-penyusun"])) === JSON.stringify([tb("susun")])
           && /<input type="hidden" name="to" value="STRUCTURED"\/>/.test(R["unggah-penyusun"])
-          && /<li class="pin-lt-langkah pin-lt-kini" aria-current="step"><span class="pin-lt-no" aria-hidden="true">1<\/span>/.test(R["unggah-penyusun"]),
+          // RESTATED FOR W1.1 (Batch 3): Daisy's J1Terbit draws the steps as Progress's named steps, a word each with no
+          // number in a circle (the current one marked by aria-current and its ring), so step 1 being current is read
+          // as the first item of the list being the current one, named «Susun isi»
+          && new RegExp(`<ol class="pin-lt-daftar"[^>]*><li class="pin-lt-langkah pin-lt-kini" aria-current="step"><p class="pin-lt-judul">${sId(kunciSalinan("susun", "judul"))}<`).test(R["unggah-penyusun"]),
           `after upload the author is not offered exactly "${tb("susun")}" on step 1: ${tombolDi(R["unggah-penyusun"])}`);
         c.expect(JSON.stringify(tombolDi(R["unggah-penyusun-en"])) === JSON.stringify([t(kunciSalinan("susun", "tombol"), "staff", { locale: "en" })]), "(en) step 1 is not offered in English");
         c.expect(R["dikembalikan"].includes(sId("studio.langkah.dikembalikan")) && /value="STRUCTURED"/.test(R["dikembalikan"]), "returned content does not say so, or cannot be put together again");
@@ -10782,6 +10785,11 @@ export const experienceTests: SelfTest[] = [
       };
       const berkasBagian = (f: string, bagian: string) => {
         const src = code(baca(f));
+        // RESTATED FOR W1.4 (Batch 3; Daisy, Action feedback): a content step's result («paket») is said in the steps'
+        // own panel, beside the step's button, rather than above the steps: the package page reads it back by its code
+        // and hands it to LangkahTerbit, which draws it in the shared BarisHasil (STUDIO3A-LANGKAH-01 renders it)
+        if (bagian === "paket" && /const dibaca = sp\.bagian === "paket" \? bacaHasil\(sp\) : null;/.test(src)
+          && /<LangkahTerbit[\s\S]*?hasilIsi=\{hasilIsi\}/.test(src)) return true;
         return [...src.matchAll(/<HasilDi q=\{sp\} bagian=(\{\[[^\]]*\]\}|"[^"]*")/g)].some((m) => literal(m[1]).includes(bagian));
       };
       const studio = jawaban(code(baca("src", "app", "studio", "actions.ts")), false);
@@ -12769,7 +12777,9 @@ export const experienceTests: SelfTest[] = [
       const beranda = baca("src", "app", "studio", "page.tsx");
       const kosongTugas = /rows\.length === 0 \? \(\s*<p className=\{card\}>\{s\("([\w.]+)"\)\}<\/p>/.exec(beranda)?.[1];
       c.expect(kosongTugas === "studio.beranda.tak_ada_tugas", `Studio's home says «${kosongTugas ? t(kosongTugas as never, "staff") : "?"}» when no task waits, above its list of packages`);
-      c.expect(/courses \?\? \[\]\)\.length === 0 \? \(\s*<p className=\{card\}>\{s\("studio\.paket\.kosong"\)\}/.test(beranda), "the list of packages no longer says when it is empty");
+      // RESTATED FOR W1.7 (Batch 3): the empty list is Batch 2's Empty state (Kosong, Daisy components/EmptyState), with the
+      // same sentence; narrowed to a count's list, it also gives the way back to every package
+      c.expect(/courses \?\? \[\]\)\.length === 0 \? \(\s*<Kosong [^>]*kalimat=\{s\("studio\.paket\.kosong"\)\}/.test(beranda), "the list of packages no longer says when it is empty");
       const paket = baca("src", "app", "studio", "paket", "[course]", "page.tsx");
       c.expect(/const terbitSiap = state\?\.surface_state === "READY" && terakhir\?\.status === "PUBLISHED";/.test(paket)
         && /terbitSiap \? s\("studio\.langkah\.terbit\.judul"\) : s\(`studio\.state\.\$\{state\.surface_state\}`/.test(paket)

@@ -1041,6 +1041,13 @@ export type HleEvent =
   | "nav.aktivasi" | "nav.konfigurasi" | "nav.studio" | "nav.tempat" | "nav.menu"
   | "tombol.menerbitkan"
   | "studio.langkah.selesai.terbitkan"
+  // W1.6 / W1.8 (Batch 3): the reviewer's send-back, its record, and the author's way on
+  | "studio.kembali.tombol" | "studio.kembali.judul" | "studio.kembali.arti" | "studio.kembali.alasan"
+  | "studio.kembali.alasan_arti" | "studio.kembali.batal" | "studio.kembali.alasan_dari" | "studio.kembali.jalan_unggah"
+  | "tombol.mengembalikan"
+  | "galat.sent_back" | "galat.sendback_not_reviewer" | "galat.sendback_not_in_review" | "galat.sendback_reviewer_is_author"
+  | "galat.sendback_reason_missing"
+  | "studio.paket.riwayat.disetujui" | "studio.paket.riwayat.dikembalikan"
   | "studio.integritas.tindak"
   | "pimpinan.keadaan.menunggu_keputusan"
   | "kesiapan.pita.judul"
@@ -3693,9 +3700,9 @@ const table: Table = {
   "studio.paket.terbitkan": { default: "Terbitkan", en: "Publish" },
   "studio.paket.tarik": { default: "Tarik dari peredaran", en: "Withdraw from circulation" },
   "studio.paket.terbit_bukan_tugas": { default: "Menerbitkan belum menyediakan. Murid baru melihatnya setelah guru menyediakannya untuk kelas.", en: "Publishing is not making available. Students see it only once a teacher makes it available to a class." },
-  "studio.paket.revisi": { default: "Perbaiki kursus ini", en: "Correct this course" },
-  "studio.paket.revisi_terbaru": { default: "Kursus ini sudah diperbaiki. Buka perbaikannya; materi baru untuk kelas memakai perbaikan itu", en: "This course has been corrected. Open the correction; new learning for classes uses it" },
-  "studio.paket.revisi_penjelasan": { default: "Perbaiki buku kerjanya, lalu unggah sebagai perbaikan kursus ini. Kursus asli tetap utuh beserta seluruh catatan pengerjaan murid; perbaikan menjadi versi berikutnya, ditinjau dan diterbitkan seperti biasa.", en: "Correct the workbook, then upload it as a correction of this course. The original stays whole, with every record of student work; the correction becomes the next version, reviewed and published as usual." },
+  "studio.paket.revisi": { default: "Perbaiki paket ini", en: "Correct this course" },
+  "studio.paket.revisi_terbaru": { default: "Paket ini sudah diperbaiki. Buka perbaikannya; materi baru untuk kelas memakai perbaikan itu", en: "This course has been corrected. Open the correction; new learning for classes uses it" },
+  "studio.paket.revisi_penjelasan": { default: "Perbaiki buku kerjanya, lalu unggah sebagai perbaikan paket ini. Paket asli tetap utuh beserta seluruh catatan pengerjaan murid; perbaikan menjadi versi berikutnya, ditinjau dan diterbitkan seperti biasa.", en: "Correct the workbook, then upload it as a correction of this course. The original stays whole, with every record of student work; the correction becomes the next version, reviewed and published as usual." },
   "studio.paket.revisi_sebelum": { default: "Perbaikan dari versi sebelumnya", en: "A correction of the previous version" },
   "studio.paket.revisi_unggah": { default: "Unggah buku kerja perbaikan", en: "Upload the corrected workbook" },
   "studio.paket.riwayat.judul": { default: "Riwayat perbaikan", en: "Correction history" },
@@ -4533,6 +4540,25 @@ const table: Table = {
   "nav.menu": { default: "Menu", en: "Menu" },
   "tombol.menerbitkan": { default: "Menerbitkan…", en: "Publishing\u2026" },
   "studio.langkah.selesai.terbitkan": { default: "Diterbitkan", en: "Published" },
+  // W1.6 (Batch 3; UX-36, J4.3): the second person's other outcome at «Setujui isi», an in-page confirmation with a
+  // reason (Daisy, Confirmation). These words are engineering's, listed for Daisy's review in the Batch 3 report
+  "studio.kembali.tombol": { default: "Kembalikan ke penyusun", en: "Send back to the author" },
+  "studio.kembali.judul": { default: "Kembalikan paket ini ke penyusun?", en: "Send this course back to its author?" },
+  "studio.kembali.arti": { default: "Paket kembali ke langkah Susun isi. Penyusun membaca alasan Anda, memperbaikinya, lalu mengajukannya lagi untuk ditinjau. Alasan dan nama Anda tercatat di Riwayat perbaikan.", en: "The course goes back to the Put the content together step. Its author reads your reason, corrects it, and sends it for review again. Your reason and your name are kept in the Correction history." },
+  "studio.kembali.alasan": { default: "Alasan", en: "Reason" },
+  "studio.kembali.alasan_arti": { default: "Tulis apa yang perlu diperbaiki, 10 sampai 1000 karakter.", en: "Write what needs correcting, in 10 to 1000 characters." },
+  "studio.kembali.batal": { default: "Batal", en: "Cancel" },
+  "studio.kembali.alasan_dari": { default: "Alasan peninjau", en: "The reviewer\u2019s reason" },
+  "studio.kembali.jalan_unggah": { default: "Isi diperbaiki di buku kerjanya: unggah buku kerja perbaikan, dan perbaikannya menjadi versi berikutnya dari paket ini. Bila isinya tidak perlu diubah, tandai sudah tersusun lagi lalu ajukan kembali.", en: "The content is corrected in its workbook: upload the corrected workbook, and the correction becomes this course\u2019s next version. If nothing in the content needs to change, mark it as put together again and send it for review again." },
+  "tombol.mengembalikan": { default: "Mengembalikan…", en: "Sending back\u2026" },
+  "galat.sent_back": { default: "Paket ini dikembalikan ke penyusun beserta alasan Anda.", en: "This course was sent back to its author with your reason." },
+  "galat.sendback_not_reviewer": { default: "Mengembalikan paket ke penyusun bukan wewenang Anda di sekolah ini.", en: "Sending a course back to its author is not yours to do in this school." },
+  "galat.sendback_not_in_review": { default: "Paket ini sudah tidak berada di langkah Setujui isi, mungkin karena rekan baru saja mengambilnya. Muat ulang halaman untuk melihat langkah yang berlaku sekarang.", en: "This course is no longer at the Approve the content step, perhaps because a colleague has just taken it. Reload the page to see the step it is at now." },
+  "galat.sendback_reviewer_is_author": { default: "Anda menyusun paket ini, jadi yang mengembalikannya harus orang lain.", en: "You wrote this course, so someone else sends it back." },
+  "galat.sendback_reason_missing": { default: "Tulis alasannya, 10 sampai 1000 karakter.", en: "Write the reason, in 10 to 1000 characters." },
+  // W1.8 (Batch 3; J4.12): «Riwayat perbaikan» names every review outcome of each version, from content_review_outcomes
+  "studio.paket.riwayat.disetujui": { default: "Disetujui", en: "Approved" },
+  "studio.paket.riwayat.dikembalikan": { default: "Dikembalikan ke penyusun", en: "Sent back to the author" },
   "studio.integritas.tindak": { default: "Tindak lanjut", en: "Follow-up" },
   "pimpinan.keadaan.menunggu_keputusan": { default: "Menunggu keputusan", en: "Awaiting a decision" },
   "kesiapan.pita.judul": { default: "Hasil {n} murid yang sudah mengerjakan", en: "Results of the {n} students who have taken it" },

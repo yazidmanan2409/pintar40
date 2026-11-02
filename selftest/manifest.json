@@ -3837,6 +3837,41 @@
       "id": "MENGAJAR3-KOSONG-01",
       "runner": "static",
       "proves": "W3.18 Mengajar part (Batch 3; 08-migration.md Feedback, .pin-empty to Empty state), selftest/mengajar3.test.ts: src/app/mengajar/[kelas]/{page,siapkan,uji-cepat,uji-cepat/hasil,ulang} write no bare pin-empty line and say their emptiness through src/components/Kosong.tsx."
+    },
+    {
+      "id": "STUDIO3A-J1-01",
+      "runner": "static",
+      "proves": "W1.1 Daisy's J1Terbit on the package page (Batch 3; Daisy components/J1Terbit, Progress, Tabs F10), selftest/studio3a.test.ts: src/components/studio/LangkahTerbit.tsx rendered in id and en: the seven steps are named steps (a word each, no numbered circle, done ones read as «Selesai», exactly one current), no step's sentence sits in the list, and the current step alone opens in a panel with «Sekarang», its name, its sentence, who takes it and its action; «Terbitkan» answers «Menerbitkan…» and «✓ Diterbitkan» (the source) and the published panel says since when; the source of src/components/studio/TabStudio.tsx and src/app/experience.css fade the Studio tab row's edge, with tokens, while more tabs lie past it."
+    },
+    {
+      "id": "STUDIO3A-LANGKAH-01",
+      "runner": "static",
+      "proves": "W1.4 release in fewer presses, every step says what it did (Batch 3; UX-15, UX-39; Daisy ActionFeedback), selftest/studio3a.test.ts: src/components/studio/LangkahTerbit.tsx rendered: a second person at «Buat terbitan» creates and locks the release in one press, both steps still listed, while the author only creates it; after a content step the next panel says «<step> · Selesai» as a status line, and a refusal is an alert in the refused step's panel; the source runs the combined press as BOB-03's create-then-lock typed actions, and the source of src/app/studio/paket/[course]/page.tsx passes the content step's result, read by its code, to the panel."
+    },
+    {
+      "id": "STUDIO3A-KEMBALI-01",
+      "runner": "static",
+      "proves": "W1.6 UI send back to the author (Batch 3; UX-36, J4.3; Daisy Confirmation), selftest/studio3a.test.ts: each refusal of kembalikan_paket read from the migration 20261214100000 reaches the screen as its own code in src/lib/galat-kontrak.ts with a sentence in both languages naming no machinery; LangkahTerbit rendered: the reviewer is offered «Kembalikan ke penyusun» beside «Setujui isi», the author is not, and the author sees the reason, who gave it and when, the correction upload in the line and «Tandai sudah tersusun»; the source holds an in-page confirmation (no Dialog) with a 10-1000 character reason and «Batal», posting to kembalikanPaketAksi, whose source asks kembalikan_paket as the reader in the working context; the package page's source passes the last reason from content_review_outcomes; executes bisaDikoreksi: a sent-back draft is offered for correction."
+    },
+    {
+      "id": "STUDIO3A-RIWAYAT-01",
+      "runner": "static",
+      "proves": "W1.8 UI «Riwayat perbaikan» names the reviewers (Batch 3; J4.12, UX-13), selftest/studio3a.test.ts, the source of src/app/studio/paket/[course]/page.tsx: every review outcome of the package's line is read from content_review_outcomes in order with the reviewers' names, and the history (shown whenever there is one) says of each version who sent it back and why, who approved it, and when; the copy table has both outcome words in both languages, and the page's correction lines say «paket», not «kursus» (Terminology v1)."
+    },
+    {
+      "id": "STUDIO3A-AKUI-01",
+      "runner": "static",
+      "proves": "W1.12 the author is never offered «Sudah saya tinjau» (Batch 3; J4.3), selftest/studio3a.test.ts, the source of src/app/studio/paket/[course]/page.tsx: a finding offers the acknowledgement only to a CAN_REVIEW reader known not to be the package's author, for both kinds of finding; the migrations still refuse the author's own acknowledgement."
+    },
+    {
+      "id": "STUDIO3A-BERANDA-01",
+      "runner": "static",
+      "proves": "W1.7 Studio home counts open their lists, the package list shows status (Batch 3; UX-34; Daisy J1Terbit, Badge), selftest/studio3a.test.ts, the source of src/app/studio/page.tsx against the migration defining studio_home: every bucket has a list (the review queue, Bank Soal's question health, Pustaka PINTAR when the reader holds that tab, else the count stays a count; the home's own list narrowed to exactly what the two draft counts count), each such count is a link, and each package row says «✓ Terbit» or «Ditarik» as a Badge, otherwise «Sekarang:» and its step; an empty list is the Empty state, rendered."
+    },
+    {
+      "id": "STUDIO3A-BAHASA-01",
+      "runner": "static",
+      "proves": "W1.9 on the package page, Studio's home, the review queue and the steps (Batch 3; UX-18, UX-25, UX-43, RV-23), selftest/studio3a.test.ts, the source of the four files and the copy table: each writes in the reader's language (currentLocale, never Studio's locale-less words), none of the copy keys they use says «siswa» or prints a decision number in Indonesian, and src/app/experience.css keeps fields and the step panel within a 320 px page."
     }
   ]
 }

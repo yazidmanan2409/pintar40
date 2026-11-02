@@ -86,6 +86,25 @@ export async function advanceContentAction(fd: FormData): Promise<void> {
   back(`/studio/paket/${course}`, "paket", { ok: true, kode: "STEP_TAKEN" });
 }
 
+/**
+ * W1.6 (Batch 3 screen): THE REVIEWER SENDS THE PACKAGE BACK TO ITS AUTHOR, with a reason. One database function,
+ * `kembalikan_paket` (20261214100000), as the signed-in reviewer: CAN_REVIEW in the school, not the author, the
+ * package in review, a reason of 10 to 1000 characters; it records the outcome, steps the whole tree back in one
+ * transaction and audits it. Typed for useActionState (the in-page confirmation keeps the reason typed into it when
+ * the answer is a refusal): a refusal is its code (KODE_KEMBALI), never the database's words.
+ */
+export async function kembalikanPaketAksi(_prev: HasilAksi | null, fd: FormData): Promise<HasilAksi> {
+  const course = uuidOrNull(str(fd, "course"));
+  if (!course) return TIDAK_DIKENALI;
+  await wajibDalamKonteks({ sekolah: await sekolahDari("kursus", course) }, "paket");
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("kembalikan_paket", { p_course: course, p_alasan: str(fd, "alasan") });
+  // a refusal of the step it takes inside (enforce_content_status) is named as a content step's is
+  if (error) return ditolak("kembalikan_paket", error, kodeGalatKonten(error));
+  revalidatePath("/studio", "layout");
+  return { ok: true, kode: "SENT_BACK" };
+}
+
 export async function runValidationAction(fd: FormData): Promise<void> {
   const course = uuidOrNull(str(fd, "course"));
   if (!course) back("/studio", "paket", TIDAK_DIKENALI);

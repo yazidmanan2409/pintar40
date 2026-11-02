@@ -99,6 +99,7 @@ import { ux2Tests } from "./ux2.test";
 import { tanggalTests } from "./tanggal.test";
 import { koleksiTests } from "./koleksi.test";
 import { mengajar3Tests } from "./mengajar3.test";
+import { studio3aTests } from "./studio3a.test";
 import { penutupanTests } from "./penutupan.test";
 import { fable22Tests } from "./fable22.test";
 
@@ -2182,6 +2183,7 @@ export const staticTests: SelfTest[] = [
   ...ux2Tests,
   ...tanggalTests,
   ...koleksiTests,
+  ...studio3aTests,
   ...penutupanTests,
   ...fable22Tests,
   ...mengajar3Tests,

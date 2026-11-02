@@ -352,6 +352,10 @@ export function terbaruPerGaris<T extends { courseId: string; terbitPada: string
  * D-085 M10: the courses a corrected workbook may name -- locked (FROZEN, PUBLISHED or SUPERSEDED, by the course's
  * own status or a release's, as content_is_sealed reads it) and the newest of their line, so a line never forks. The
  * database decides (package_revision_problems); this only offers what it would accept. Pure.
+ *
+ * W1.6 (Batch 3): a draft a reviewer sent back (VALIDATION_FAILED, the send-back's state) is corrected in its line
+ * too, as package_revision_problems now accepts (paket_dikembalikan, 20261214100000), so the package page's «Unggah
+ * buku kerja perbaikan» lands on it here. The database still checks that a reviewer sent it back.
  */
 export function bisaDikoreksi<K extends { id: string; supersedes_course_id: string | null; status: string }>(
   kursus: readonly K[], rilis: ReadonlyArray<{ course_id: string; status: string }>,
@@ -359,7 +363,8 @@ export function bisaDikoreksi<K extends { id: string; supersedes_course_id: stri
   const tersegel = (st: string) => st === "FROZEN" || st === "PUBLISHED" || st === "SUPERSEDED";
   const dikoreksi = new Set(kursus.map((k) => k.supersedes_course_id).filter(Boolean));
   const rilisTersegel = new Set(rilis.filter((r) => tersegel(r.status)).map((r) => r.course_id));
-  return kursus.filter((k) => !dikoreksi.has(k.id) && (tersegel(k.status) || rilisTersegel.has(k.id)));
+  return kursus.filter((k) => !dikoreksi.has(k.id)
+    && (tersegel(k.status) || rilisTersegel.has(k.id) || k.status === "VALIDATION_FAILED"));
 }
 
 type Distribusi = {

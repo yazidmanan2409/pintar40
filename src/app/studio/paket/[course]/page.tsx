@@ -5,10 +5,11 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
 import { currentLocale } from "@/lib/locale";
 import LangkahTerbit from "@/components/studio/LangkahTerbit";
-import { enumLabel, format, t, type HleEvent } from "@/lib/hle";
+import { enumLabel, format, t, type HleEvent, type Locale } from "@/lib/hle";
 import { KODE_HAMBATAN, kalimatHambatan, type Hambatan } from "@/lib/terbitan-kontrak";
-import { rujukan } from "@/lib/galat-kontrak";
-import { button, can, card, field, label, outcomeLine, s, studioInstitutions, when } from "../../_lib";
+import { bacaHasil, kalimatHasil, rujukan } from "@/lib/galat-kontrak";
+import { tanggal } from "@/lib/tanggal";
+import { button, can, card, field, label, studioInstitutions } from "../../_lib";
 import {
   acknowledgeFindingAction, moveReleaseAction, runValidationAction,
 } from "../../actions";
@@ -51,6 +52,13 @@ export const generateMetadata = judulHalaman("/studio/paket/[course]");
  * line now links to the upload, which brings the corrected workbook in as its
  * next version with what changed and why; «Riwayat perbaikan» lists the line,
  * each version with its release, its summary, who wrote it and when.
+ *
+ * BATCH 3 (W1.1, W1.6, W1.8, W1.9, W1.12). The steps are Daisy's J1Terbit composition (LangkahTerbit), and a content
+ * step's result is said in the current step's panel rather than above it. A reviewer may send the package back with a
+ * reason (kembalikan_paket); its author sees the reason there, with the correction upload in the package's line.
+ * «Riwayat perbaikan» names every review outcome of each version, who sent it back and why, and who approved it
+ * (content_review_outcomes). The author of a package is never offered «Sudah saya tinjau» on its findings (the
+ * database refuses it). Every word is in the reader's language (UX-25).
  */
 
 type Params = Promise<{ course: string }>;
@@ -61,9 +69,10 @@ type Finding = {
   mengapa_penting: string; cara_memperbaiki: string; acknowledged_at: string | null;
 };
 
-function FindingCard({ f, courseId, kind, showAck, pemilik, ditolak }: {
-  f: Finding; courseId: string; kind: "MCQ_QUALITY" | "COACHING"; showAck: boolean; pemilik: string; ditolak: boolean;
+function FindingCard({ f, courseId, kind, showAck, pemilik, ditolak, locale }: {
+  f: Finding; courseId: string; kind: "MCQ_QUALITY" | "COACHING"; showAck: boolean; pemilik: string; ditolak: boolean; locale: Locale;
 }) {
+  const s = (k: HleEvent) => t(k, "staff", { locale });
   return (
     <li className={card}>
       <p className="text-sm text-ink-3">{s("studio.temuan.lokasi")}: {f.lokasi}</p>
@@ -95,6 +104,10 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   // CR-84 (3): what a refused form sent comes back to it, for the same person only (src/lib/isian.ts)
   const pemilik = (await currentViewer())?.personId ?? "";
   const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
+  // UX-25 (W1.9): every word on this page in the reader's language
+  const locale = await currentLocale();
+  const s = (k: HleEvent) => t(k, "staff", { locale });
+  const when = (iso: string | null) => tanggal(iso, "cap", locale) || "—";
 
   const { data: course } = await supabase
     .from("courses")
@@ -105,8 +118,8 @@ export default async function Paket({ params, searchParams }: { params: Params; 
     return <p className={card}>{s("studio.paket.kosong")}</p>;
   }
 
-  const [institutions, locale, { data: saya }] = await Promise.all([
-    studioInstitutions(), currentLocale(), supabase.rpc("current_person_id"),
+  const [institutions, { data: saya }] = await Promise.all([
+    studioInstitutions(), supabase.rpc("current_person_id"),
   ]);
   const inst = institutions.find((i) => i.id === course.institution_id);
   // L3 (§2.6): a package of another school is never worked on in this context, and the context never switches
@@ -161,12 +174,20 @@ export default async function Paket({ params, searchParams }: { params: Params; 
     const k: string = kini;
     kini = sesudah.find((x) => x.supersedes_course_id === k)?.id;
   }
-  const { data: catatanRows } = urutGaris.length > 1
-    ? await supabase.from("course_revision_notes").select("course_id, summary, written_by_person_id, written_at").in("course_id", urutGaris)
-    : { data: [] as Array<{ course_id: string; summary: string; written_by_person_id: string | null; written_at: string }> };
+  const [{ data: catatanRows }, { data: tinjauanRows }] = await Promise.all([
+    urutGaris.length > 1
+      ? supabase.from("course_revision_notes").select("course_id, summary, written_by_person_id, written_at").in("course_id", urutGaris)
+      : Promise.resolve({ data: [] as Array<{ course_id: string; summary: string; written_by_person_id: string | null; written_at: string }> }),
+    // W1.8 (J4.12): every review outcome of the line's versions, in order: who sent it back and why, who approved it
+    supabase.from("content_review_outcomes").select("course_id, outcome, reason, reviewer_person_id, decided_at")
+      .in("course_id", urutGaris.length > 0 ? urutGaris : [courseId]).order("decided_at", { ascending: true }),
+  ]);
   const catatan = new Map(((catatanRows ?? []) as Array<{ course_id: string; summary: string; written_by_person_id: string | null; written_at: string }>)
     .map((r) => [r.course_id, r]));
-  const penulisIds = [...new Set([...catatan.values()].map((r) => r.written_by_person_id).filter((x): x is string => !!x))];
+  type Tinjauan = { course_id: string; outcome: "SENT_BACK" | "APPROVED"; reason: string | null; reviewer_person_id: string; decided_at: string };
+  const tinjauan = (tinjauanRows ?? []) as Tinjauan[];
+  const penulisIds = [...new Set([...[...catatan.values()].map((r) => r.written_by_person_id), ...tinjauan.map((o) => o.reviewer_person_id)]
+    .filter((x): x is string => !!x))];
   const { data: penulisRows } = penulisIds.length > 0
     ? await supabase.from("persons").select("id, display_name").in("id", penulisIds)
     : { data: [] as Array<{ id: string; display_name: string }> };
@@ -181,7 +202,21 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   const state = (Array.isArray(stateRows) ? stateRows[0] : stateRows) as
     | { surface_state: string; reasons: Hambatan[]; preview_lesson_id: string | null } | undefined;
 
-  const banner = outcomeLine(sp);
+  const banner = kalimatHasil(sp, s, { ok: "studio.hasil.ok", gagal: "studio.hasil.gagal" });
+  // a content step's result is said in the current step's panel (W1.4; Daisy, Action feedback), codes only
+  const dibaca = sp.bagian === "paket" ? bacaHasil(sp) : null;
+  const hasilIsi = dibaca && banner ? { ok: dibaca.ok, kode: dibaca.kode, kalimat: banner } : null;
+  // W1.6: the package a reviewer sent back, the reason last given, and the author's correction in the line
+  const dikembalikanOleh = course.status === "VALIDATION_FAILED"
+    ? tinjauan.filter((o) => o.course_id === courseId && o.outcome === "SENT_BACK").at(-1) ?? null : null;
+  const kembali = dikembalikanOleh && dikembalikanOleh.reason ? {
+    alasan: dikembalikanOleh.reason,
+    oleh: penulis.get(dikembalikanOleh.reviewer_person_id) ?? null,
+    pada: when(dikembalikanOleh.decided_at),
+  } : null;
+  const unggahPerbaikan = can(inst, "CAN_DRAFT") && dikembalikanOleh && !penerus ? `/studio/unggah?revisi=${courseId}#buku-kerja` : null;
+  // W1.12: «Sudah saya tinjau» is a second person's; the database refuses the author acknowledging their own finding
+  const bukanPenyusun = typeof saya === "string" && typeof course.author_person_id === "string" && saya !== course.author_person_id;
   // DAISY-16: a reason whose code the catalogue does not know shows the general
   // line and a reference; the code goes to the server log under it, never to the page
   const dikenal = (r: Hambatan) => (KODE_HAMBATAN as readonly string[]).includes(r?.code);
@@ -210,6 +245,8 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   return (
     <div className="grid gap-6">
       <section className={card} id="paket">
+        {/* J1Terbit: the way back names its destination */}
+        <p><Link className="pin-back" href="/studio"><Ikon nama="chevron-left" />{s("studio.nav.beranda")}</Link></p>
         <h2 className="text-lg font-medium">{course.title}</h2>
         <p className="mt-1 text-sm text-ink-3">{course.subject} · {course.stage} · {course.grade_label}</p>
         {course.supersedes_course_id ? (
@@ -295,7 +332,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         </section>
       ) : null}
 
-      <HasilDi q={sp} bagian={["paket", "terbitan"]} kalimat={banner} />
+      <HasilDi q={sp} bagian="terbitan" kalimat={banner} />
 
       <LangkahTerbit
         locale={locale}
@@ -305,6 +342,9 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         kemampuan={inst?.capabilities ?? []}
         saya={typeof saya === "string" ? saya : null}
         penyusun={(course.author_person_id as string | null) ?? null}
+        hasilIsi={hasilIsi}
+        kembali={kembali}
+        unggahPerbaikan={unggahPerbaikan}
       />
 
       <section className="grid gap-2" id="temuan">
@@ -323,16 +363,16 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         ) : (
           <ul className="grid gap-2">
             {findings.map((f) => (
-              <FindingCard key={f.id} f={f} courseId={courseId} kind="MCQ_QUALITY" showAck={can(inst, "CAN_REVIEW")} pemilik={pemilik} ditolak={ditolak("temuan")} />
+              <FindingCard key={f.id} f={f} courseId={courseId} kind="MCQ_QUALITY" showAck={can(inst, "CAN_REVIEW") && bukanPenyusun} pemilik={pemilik} ditolak={ditolak("temuan")} locale={locale} />
             ))}
             {coaching.map((f) => (
-              <FindingCard key={f.id} f={f} courseId={courseId} kind="COACHING" showAck={can(inst, "CAN_REVIEW")} pemilik={pemilik} ditolak={ditolak("temuan")} />
+              <FindingCard key={f.id} f={f} courseId={courseId} kind="COACHING" showAck={can(inst, "CAN_REVIEW") && bukanPenyusun} pemilik={pemilik} ditolak={ditolak("temuan")} locale={locale} />
             ))}
           </ul>
         )}
       </section>
 
-      {urutGaris.length > 1 ? (
+      {urutGaris.length > 1 || tinjauan.length > 0 ? (
         <section className={card} id="riwayat">
           <h3 className="text-lg font-medium">{sl("studio.paket.riwayat.judul")}</h3>
           <ol className="mt-2 grid gap-3">
@@ -361,6 +401,21 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                           ? ` · ${sl("studio.paket.riwayat.oleh")} ${penulis.get(n.written_by_person_id)}` : ""}
                       </p>
                     </>
+                  ) : null}
+                  {/* W1.8: who sent this version back and why, and who approved it, in order */}
+                  {tinjauan.some((o) => o.course_id === id) ? (
+                    <ul className="pin-riwayat-tinjauan">
+                      {tinjauan.filter((o) => o.course_id === id).map((o) => (
+                        <li key={`${o.outcome}-${o.decided_at}`} data-hasil-tinjauan={o.outcome}>
+                          <p className="text-sm">
+                            {sl(o.outcome === "APPROVED" ? "studio.paket.riwayat.disetujui" : "studio.paket.riwayat.dikembalikan")}
+                            {penulis.get(o.reviewer_person_id) ? ` · ${sl("studio.paket.riwayat.oleh")} ${penulis.get(o.reviewer_person_id)}` : ""}
+                          </p>
+                          {o.outcome === "SENT_BACK" && o.reason ? <p className="pin-riwayat-alasan text-sm">{o.reason}</p> : null}
+                          <p className="text-xs text-ink-3">{when(o.decided_at)}</p>
+                        </li>
+                      ))}
+                    </ul>
                   ) : null}
                 </li>
               );
