@@ -82,7 +82,7 @@ export default async function PermukaanAsesmen({
     return (
       <>
         <CangkangPengalaman locale={locale} current="belajar" />
-        <main className="pin-col">
+        <main id="isi" tabIndex={-1} className="pin-col">
           <Link className="pin-back" href={kembali.href}>
             ← {s(kembali.key)}
           </Link>
@@ -128,7 +128,7 @@ export default async function PermukaanAsesmen({
       {/* The focus shell: the mark and the language, no tabs. A header offering
           three ways out of a timed task is inviting the learner to take one. */}
       <CangkangPengalaman locale={locale} kind="focus" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <ItemPlayer
           sessionId={sesi}
           paper={paper}

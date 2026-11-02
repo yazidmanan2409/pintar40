@@ -1,4 +1,5 @@
 import "server-only";
+import { bagianJakarta } from "@/lib/tanggal";
 import { supabaseServer } from "@/lib/supabase/server";
 import { alamatPilih } from "@/lib/konteks";
 import { alihkan, jalurIni, konteksHalaman, tempatSaya } from "@/lib/konteks-server";
@@ -1222,10 +1223,7 @@ export async function kelasTanpaMateri(kelas: KelasMengajar[]): Promise<{ kelasI
  */
 export function waktu(): { iso: string; jam: number } {
   const now = new Date();
-  const jam = Number(
-    new Intl.DateTimeFormat("en-GB", {
-      hour: "numeric", hour12: false, timeZone: "Asia/Jakarta",
-    }).format(now),
-  );
+  // the hour on Jakarta's clock, from the one date helper (W3.3, RV-16)
+  const jam = bagianJakarta(now)?.jam ?? 0;
   return { iso: now.toISOString(), jam };
 }

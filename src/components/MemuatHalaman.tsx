@@ -34,7 +34,7 @@ export default async function MemuatHalaman({ dalamBingkai = false }: { dalamBin
       <header className="pin-top pin-shell">
         <MerekPintar />
       </header>
-      <main className="pin-col">{isi}</main>
+      <main id="isi" tabIndex={-1} className="pin-col">{isi}</main>
     </div>
   );
 }

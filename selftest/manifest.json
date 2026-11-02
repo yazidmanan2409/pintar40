@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 189,
+  "version": 194,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2342,7 +2342,7 @@
     {
       "id": "PENUTUPAN-L01",
       "runner": "static",
-      "proves": "CR-93 and CR-94 (the owner's ruling of 8 Oct: the 320 px overflow only), the source of src/app/experience.css, src/app/lapor/page.tsx, src/components/lapor/TangkapanLayar.tsx and src/app/konfigurasi/page.tsx: the report form's file field may shrink to its column (max-width 100%, min-width 0) and sets no width, so it keeps its own width where it fits; a role's row in Konfigurasi wraps below 640 px, so its revoke form goes below the name, and from 640 px up does not wrap, as before. A source pin; the seeded crawl's X.6 (audit/crawl.mjs) measures both pages at 320 px in the browser."
+      "proves": "CR-93 and CR-94 (the owner's ruling of 8 Oct: the 320 px overflow only), the source of src/app/experience.css, src/app/lapor/page.tsx, src/components/lapor/TangkapanLayar.tsx (through src/components/bentuk/BidangBerkas.tsx since W3.3) and src/app/konfigurasi/page.tsx: the report form's file field may shrink to its column (max-width 100%, min-width 0) and sets no width, so it keeps its own width where it fits; a role's row in Konfigurasi wraps below 640 px, so its revoke form goes below the name, and from 640 px up does not wrap, as before. A source pin; the seeded crawl's X.6 (audit/crawl.mjs) measures both pages at 320 px in the browser."
     },
     {
       "id": "PENUTUPAN-A01",
@@ -3737,6 +3737,71 @@
       "id": "CR91-K02",
       "runner": "static",
       "proves": "CR-91 (D-145(a)), the application's half (selftest/cr91.test.ts): bolehKartu (src/components/aktivasi/kelas.ts) is true only for an explicit boleh_kartu = true; the real Aktivasi form, rendered, offers the learner a card and email and the Guru email only; src/app/aktivasi/page.tsx builds the whole-class card groups only from the people a card may be offered to."
+    },
+    {
+      "id": "UX2-JUDUL-01",
+      "runner": "static",
+      "proves": "W3.1 (Batch 2; WCAG 2.4.2), selftest/ux2.test.ts: the root layout holds the title template «%s · PINTAR»; every src/app/**/page.tsx exports generateMetadata = judulHalaman(<its own route>) from the one map src/lib/judul-halaman.ts; every map entry is a page; each title resolves in id and en to words that are neither the bare name, the calm dash nor a key; a page whose heading is data (a person's, a class's or a package's name) is titled by its place."
+    },
+    {
+      "id": "UX2-LEWATI-01",
+      "runner": "static",
+      "proves": "W3.1 (Batch 2; WCAG 2.4.1; Daisy 06-accessibility), selftest/ux2.test.ts, the source of src/app/layout.tsx, every src/**/*.tsx and src/app/experience.css: «Langsung ke isi» is the first element of <body> in src/app/layout.tsx, a link to #isi; every <main> in src is id=\"isi\"; .pin-lewati (src/app/experience.css) waits above the page (absolute, translateY(calc(-100% …)), 44 px high) and comes into place with a focus ring."
+    },
+    {
+      "id": "UX2-BERKAS-01",
+      "runner": "static",
+      "proves": "W3.3 FileField (Batch 2; Daisy components/FileField; closes RV-5 and the /lapor axe `label` finding), selftest/ux2.test.ts: no file input in src outside src/components/bentuk/BidangBerkas.tsx; rendered in id and en, the input is named by the field's label (aria-labelledby), described by the choice and the limit, lies transparent over «Pilih berkas» (CSS), shows a focus ring on its button, and names the empty choice «Belum dipilih» politely; /lapor's screenshot uses it."
+    },
+    {
+      "id": "UX2-PRIMITIF-01",
+      "runner": "static",
+      "proves": "W3.3 primitives (Batch 2; Daisy's components Select, Radio, Checkbox, Badge, Alert, Disclosure, the 08-migration rows, assets/AppIcon), selftest/ux2.test.ts, the source of src/app/experience.css, src/app/globals.css, every src/**/*.tsx and src/app/favicon.ico: a single select shows the chevron token; a checkbox or radio row is a 44 px target with a 20 px box and every one sits inside its label; the success badge says ✓; the attention alert (src/app/belajar/page.tsx) has its icon; the health mark (src/components/konfigurasi/KartuKesehatan.tsx) is a badge, the sehat-tanda/perhatian mix ended; «Keluar» (src/components/BarisSesi.tsx) carries log-out; every <details> is a Disclosure with the chevron, the browser's marker hidden; the tab icon is Daisy's blob."
+    },
+    {
+      "id": "UX2-KOSONG-01",
+      "runner": "static",
+      "proves": "W3.2 empty state and the disabled button's reason (Batch 2; Daisy's components EmptyState and Button; CR-46), selftest/ux2.test.ts: src/components/Kosong.tsx rendered gives «not yet» a sentence and its first action, «not enough yet» no action, «nothing matches» its way back; the source of src/components/bukti/KartuKetiadaan.tsx no longer writes «(have/needed)» and uses «Sekarang {have} murid; perlu {needed}.»; src/components/AlasanNonaktif.tsx rendered is the reason line beside the button."
+    },
+    {
+      "id": "UX2-MENU-01",
+      "runner": "static",
+      "proves": "W3.5 account menu and the one Dialog (Batch 2; Daisy's components Menu, Dialog, Identity; JQ2(a)), selftest/ux2.test.ts: src/components/BarisSesi.tsx rendered for staff in id and en makes the name a menu button (aria-haspopup, aria-expanded, aria-controls) over a hidden role=menu with Akun saya, Laporan saya and, last, «Keluar dari semua perangkat…»; the native dialog asks «Keluar dari semua perangkat sekarang?», the safe action first and «Keluar dari semua» the one solid red; «Keluar» stays outside the menu; a learner's strip has no menu; the source of src/components/sesi/MenuAkun.tsx and src/components/Dialog.tsx handles the keys, first-item focus, outside press, showModal and focus return; src/app/experience.css gives 44 px items, the scrim and stacked actions under 640 px."
+    },
+    {
+      "id": "UX2-JAGA-01",
+      "runner": "static",
+      "proves": "W3.14 the idle warning (Batch 2; Daisy's components IdleWarning, J7Kunci), selftest/ux2.test.ts, the source of src/components/PenjagaSesi.tsx, src/app/layout.tsx and src/app/experience.css: an alert with the clock icon and the heading «PINTAR akan terkunci dalam 1 menit», mounted before the page in the flow (no fixed position, no z-index), on the attention ground, with no countdown."
+    },
+    {
+      "id": "TANGGAL-01",
+      "runner": "static",
+      "proves": "W3.3 one date helper (Batch 2; RV-16; Daisy components/Dates), selftest/tanggal.test.ts, the output of src/lib/tanggal.ts: for fixed instants every form reads as the spec writes it in id and en («9 Okt 2026», «Jumat, 9 Okt 2026», «Jumat, 9 Okt 2026, 07.30 WIB», «9 Okt 2026, 07.30 WIB», «09/10/2026», «9 Oktober 2026», «Friday, 9 Oct 2026, 07.30 WIB»); a UTC late evening is the next day in Jakarta, and the answers are the same in a process on TZ=America/Los_Angeles; a field's yyyy-mm-dd is never shifted and an impossible day is nothing; the twelve months and seven days by name; the output of format.date, jamWib and the security email comes from it."
+    },
+    {
+      "id": "TANGGAL-02",
+      "runner": "static",
+      "proves": "W3.3 one date helper (Batch 2; RV-16), selftest/tanggal.test.ts, the source of every src/**/*.ts(x): no toLocale…String or Intl.DateTimeFormat outside src/lib/tanggal.ts, except selisihZona and hariIniSekolah in src/lib/hle.ts (an offset and a field value, never a date a person reads); the places RV-16 named (Konfigurasi, Studio, Email uji, Keamanan, pengajar, maintenance, emails) ask the helper; the helper reads no device zone or locale data."
+    },
+    {
+      "id": "TANGGAL-03",
+      "runner": "static",
+      "proves": "W3.3 Date and time echo (Batch 2; RV-16; Daisy components/DateTime), selftest/tanggal.test.ts, the source of every src/**/*.tsx and src/components/bentuk/TanggalDenganGema.tsx rendered in id and en: no native date, datetime-local or time input outside TanggalDenganGema; each use is labelled (htmlFor) and in the reader's language; Siapkan's mulai/sampai and Konfigurasi's pm_mulai, pm_selesai, terbit, sampai and valid_until are echoed under their names; rendered, the field passes name, id, value, required, min and max through, aria-describedby names the echo first, and the echo after it says «Jumat, 9 Okt 2026» («Friday, 9 Oct 2026»), with «, 07.30 WIB» for a time, politely, and «Belum ada tanggal.» when empty; .pin-gema in src/app/experience.css is Daisy's line."
+    },
+    {
+      "id": "KOLEKSI-HAL-01",
+      "runner": "static",
+      "proves": "W3.4 Table / Collection (Batch 2; CR-88; Daisy components/Pagination, Search, Table), selftest/koleksi.test.ts, executing the source of src/components/koleksi/aturan.ts: posisiHalaman places a page in the whole (page 2 of 312 by 20 is 21–40 of 16 pages; the last page is short; a page past the last is the last; page 0, a negative or no page is page 1; nothing at all is page 1 of 1 showing 0–0; a size below one is one row); halamanKoleksi reads only a whole page number; urutAbjad is alphabetical in Indonesian order ignoring case and accents, numbers in number order; susunKoleksi searches ignoring case and accents, filters, orders and pages, keeping the whole count; saringDiminta is always an offered choice and, of the segments and the select, takes the one the person changed; tautanKoleksi keeps the page's own place and leaves out the default filter and page 1."
+    },
+    {
+      "id": "KOLEKSI-TABEL-01",
+      "runner": "static",
+      "proves": "W3.4 Table / Collection (Batch 2; CR-88; J2; Daisy components/Table, TableRows, Search, Pagination, SegmentedControl, EmptyState), selftest/koleksi.test.ts: src/components/koleksi/Koleksi.tsx rendered in id and en: the frame is a role=region, tabindex=0, named; the table has a caption; column heads are th scope=col and each row's name th scope=row; low-priority columns are marked; the toolbar is a GET form keeping the page's place, a labelled search described by a polite count («312 murid cocok dengan «Mur»»), and one filter as a radio group of segments and a select of the same choices; the pager says «Menampilkan 21–40 dari 312 murid» and «Halaman 2 dari 16» and moves by «Sebelumnya»/«Berikutnya» links keeping the search and filter, disabled (not absent) at an end, never hiding the total; nothing matching is the row «Tidak ada murid yang cocok» inside the frame with a «Hapus pencarian» link (or «Hapus pencarian dan saringan»); no rows at all renders the caller's Empty state."
+    },
+    {
+      "id": "KOLEKSI-CSS-01",
+      "runner": "static",
+      "proves": "W3.4 Table / Collection (Batch 2; Daisy components/Table, TableRows option A, Pagination, SegmentedControl), selftest/koleksi.test.ts, the source of src/app/experience.css and src/app/globals.css: the head is sticky in ink-2 on table-head; body rows are at least control-lg (52 px) and striped table-row / table-row-alt; the frame scrolls on its own on surface-1 with radius-lg and shows focus; the row's name is held still; no vertical lines; the Collection is an inline-size container and below 640 px low-priority columns step back, the segments become the select and the pager takes «2 / 16»; a segment is a 44 px target."
     },
     {
       "id": "D140-STUDIO-01",

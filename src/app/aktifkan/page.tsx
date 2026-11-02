@@ -6,6 +6,9 @@ import MerekPintar from "@/components/MerekPintar";
 import PanelPernyataan, { KalimatPonsel } from "@/components/masuk/PanelPernyataan";
 import MintaKode from "@/components/aktifkan/MintaKode";
 import WizardAktivasi from "@/components/aktifkan/WizardAktivasi";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/aktifkan");
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +34,7 @@ export default async function Aktifkan() {
   const viewer = await currentViewer();
 
   return (
-    <main className="pin-masuk">
+    <main id="isi" tabIndex={-1} className="pin-masuk">
       <div className="pin-panggung">
         <div className="pin-auth">
           <div className="pin-authtop">

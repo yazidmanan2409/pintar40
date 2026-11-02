@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Ikon from "@/components/Ikon";
 import { t, type Locale } from "@/lib/hle";
 import { BATAS_SESI, COOKIE_JAGA, HALAMAN_TERKUNCI } from "@/lib/penjaga-sesi-kontrak";
 
@@ -125,9 +126,15 @@ export default function PenjagaSesi({ locale }: { locale: Locale }) {
   if (!peringatan) return null;
   const persona = peringatan === "CARD" ? "learner" : "staff";
   return (
-    <div className="pin-jaga" role="status">
-      <p>{t("jaga.peringatan", persona, { locale })}</p>
-      <button type="button" className="pin-mbtn pin-mbtn-1" onClick={() => aktifRef.current()}>{t("jaga.masih", persona, { locale })}</button>
+    // W3.14 (Batch 2; Daisy, components/IdleWarning and J7Kunci): an attention alert at the TOP of the page, in the flow
+    // (it never covers the work), with the clock icon and its own heading; heard once (role="alert"), no countdown.
+    <div className="pin-jaga" role="alert">
+      <Ikon nama="clock" kelas="pin-jaga-ikon" />
+      <div className="pin-jaga-isi">
+        <h2 className="pin-jaga-judul">{t("jaga.judul", persona, { locale })}</h2>
+        <p>{t("jaga.peringatan", persona, { locale })}</p>
+        <button type="button" className="pin-mbtn pin-mbtn-1" onClick={() => aktifRef.current()}>{t("jaga.masih", persona, { locale })}</button>
+      </div>
     </div>
   );
 }

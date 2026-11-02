@@ -420,7 +420,12 @@ export const aktifkanTests: SelfTest[] = [
       // 4. THE DOOR TO AKUN SAYA IS ON A STAFF STRIP ONLY: it is drawn with
       //    the name, and a learner's strip never carries a name (S15)
       const strip = code(baca1(repoRoot, "src", "components", "BarisSesi.tsx"));
-      c.expect(/\{nama \? <a className="pin-sesi-akun" href="\/akun">\{s\("sesi\.akun"\)\}<\/a> : null\}/.test(strip), "the door to Akun saya is drawn without the staff name");
+      // RESTATED FOR W3.5 (Batch 2, JQ2(a)): the door to Akun saya is in the account menu, which BarisSesi draws only in the
+      // branch that has the staff name; the menu itself is MenuAkun's, and it holds the /akun item
+      const menuAkun = code(baca1(repoRoot, "src", "components", "sesi", "MenuAkun.tsx"));
+      c.expect(/\{nama \? \([\s\S]*?<MenuAkun locale=\{locale\} nama=\{nama\}>[\s\S]*?\) : \(\s*s\("sesi\.bukan_anda"\)\s*\)\}/.test(strip)
+        && /<a role="menuitem" className="pin-menu-butir" href="\/akun" tabIndex=\{-1\}>\{s\("sesi\.akun"\)\}<\/a>/.test(menuAkun),
+        "the door to Akun saya is drawn without the staff name");
       c.expect(/nama=\{namaUntukStrip\(v\.displayName, p\)\}/.test(code(baca1(repoRoot, "src", "components", "SesiSaya.tsx"))), "the strip's name is not the staff-only rule's");
 
       // 5. NO WORD ABOUT A CARD WHERE A LEARNER OR AN INTAKE READS: the

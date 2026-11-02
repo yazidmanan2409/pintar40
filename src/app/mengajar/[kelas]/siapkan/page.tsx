@@ -6,6 +6,7 @@ import { sediakanMateri } from "../../actions";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import TombolKirim from "@/components/TombolKirim";
+import TanggalDenganGema from "@/components/bentuk/TanggalDenganGema";
 import BarisHasil from "@/components/BarisHasil";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
@@ -13,6 +14,9 @@ import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
 import { kodePenugasanDari, kunciKodePenugasan } from "@/lib/penugasan-kontrak";
 import { batasPelajaran } from "@/lib/batas-ketuntasan";
 import { supabaseServer } from "@/lib/supabase/server";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/mengajar/[kelas]/siapkan");
 
 export const dynamic = "force-dynamic";
 
@@ -96,7 +100,7 @@ export default async function Siapkan({
     return (
       <>
         <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
-        <main className="pin-col">
+        <main id="isi" tabIndex={-1} className="pin-col">
           <Link className="pin-back" href={`/mengajar/${id}`}>← {ctx.ini.nama}</Link>
           {lingkup}
         {tolakan}
@@ -144,7 +148,7 @@ export default async function Siapkan({
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/mengajar/${id}/siapkan`}>← {s("mengajar.siap.kembali")}</Link>
         {lingkup}
         <TahapKomitmen tahap={1} nama={langkah} locale={locale} />
@@ -213,13 +217,13 @@ export default async function Siapkan({
               <div>
                 <dt><label htmlFor="pin-mulai">{s("mengajar.siap.mulai")}</label></dt>
                 <dd>
-                  <input className="pin-input" id="pin-mulai" type="date" name="mulai" defaultValue={hariIniSekolah()} />
+                  <TanggalDenganGema id="pin-mulai" name="mulai" defaultValue={hariIniSekolah()} locale={locale} untuk="educator" />
                 </dd>
               </div>
               <div>
                 <dt><label htmlFor="pin-sampai">{s("mengajar.siap.sampai")}</label></dt>
                 <dd>
-                  <input className="pin-input" id="pin-sampai" type="date" name="sampai" />
+                  <TanggalDenganGema id="pin-sampai" name="sampai" locale={locale} untuk="educator" />
                 </dd>
               </div>
               <div>

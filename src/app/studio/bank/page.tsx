@@ -1,5 +1,6 @@
 import { pitaKesulitan, rentangPita } from "@/lib/unggah-kontrak";
 import { redirect } from "next/navigation";
+import Ikon from "@/components/Ikon";
 import { enumLabel } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
@@ -10,6 +11,9 @@ import HasilDi from "@/components/HasilDi";
 import SimpanIsian from "@/components/SimpanIsian";
 import { TeksBaris } from "@/components/teks/Teks";
 import { pilihanTinjauan, SEDANG_DITINJAU } from "@/lib/kesehatan-soal";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/studio/bank");
 
 /**
  * Content & Question Banks, and the Question Health surface (§8, §10).
@@ -168,8 +172,8 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
                   {s("studio.bank.prediksi")}: {pitaKesulitan(i.predicted_difficulty) ? s(`mengajar.cepat.tingkat.${pitaKesulitan(i.predicted_difficulty)!}`) : "—"}
                 </p>
                 {(opsiPerSoal.get(i.id) ?? []).length > 0 ? (
-                  <details className="mt-2">
-                    <summary className="cursor-pointer text-sm font-medium">{s("studio.bank.kunci_alasan")}</summary>
+                  <details className="mt-2 pin-disclosure">
+                    <summary className="cursor-pointer text-sm font-medium">{s("studio.bank.kunci_alasan")}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
                     <ul className="mt-2 grid gap-1">
                       {(opsiPerSoal.get(i.id) ?? []).map((o) => (
                         <li key={o.label} className={o.is_correct ? "pin-opsi pin-opsi-kunci" : "pin-opsi"}>

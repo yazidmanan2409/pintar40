@@ -10,6 +10,9 @@ import { berandaPasangan, bacaPermintaan, kunciPasangan, pintuPilihan, samaPasan
 import { konteksSaya, tempatSaya } from "@/lib/konteks-server";
 import { istilah } from "@/lib/istilah-menunggu";
 import { pilihKonteks } from "./konteks-actions";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/");
 
 const PINTU = "rounded-[var(--radius-2)] border border-line-1 bg-surface-1 px-5 py-4 text-lg hover:bg-surface-2";
 
@@ -43,7 +46,7 @@ export default async function Entry({
 
   if (!viewer) {
     return (
-      <main className="mx-auto max-w-xl py-16">
+      <main id="isi" tabIndex={-1} className="mx-auto max-w-xl py-16">
         <p className="text-sm text-ink-3">{s("app.name")}</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight">{s("entry.title")}</h1>
         <div className="mt-8 grid gap-3">
@@ -76,7 +79,7 @@ export default async function Entry({
     : minta.untuk && pintu.length > 1 ? istilah("context.choose_place") : null;
 
   return (
-    <main className="mx-auto max-w-xl py-16">
+    <main id="isi" tabIndex={-1} className="mx-auto max-w-xl py-16">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-ink-3">{s("app.name")}</p>
         <SesiSaya locale={locale} persona="public" viewer={viewer} peran={peran} />

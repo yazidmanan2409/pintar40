@@ -73,8 +73,8 @@ export default function PengingatPemeliharaan({ locale, status }: { locale: Loca
       baris.push(
         <p key="menjelang">
           <strong>{s("pemeliharaan.pita.dalam")} {menitTersisa(jendela.mulai, kini)} {s("pemeliharaan.pita.menit")}.</strong>{" "}
-          {s("pemeliharaan.pita.pukul")} {jamWib(jendela.mulai, locale)} {s("pemeliharaan.zona")}.{" "}
-          {jendela.selesai ? <>{s("pemeliharaan.pita.selesai_kira")} {jamWib(jendela.selesai, locale)} {s("pemeliharaan.zona")}. </> : null}
+          {s("pemeliharaan.pita.pukul")} {jamWib(jendela.mulai)} {s("pemeliharaan.zona")}.{" "}
+          {jendela.selesai ? <>{s("pemeliharaan.pita.selesai_kira")} {jamWib(jendela.selesai)} {s("pemeliharaan.zona")}. </> : null}
           {asesmen ? s("pemeliharaan.pita.asesmen") : s("pemeliharaan.pita.biasa")}{" "}
           {tahap === 15 ? s("pemeliharaan.pita.asesmen_baru") : null}
         </p>,

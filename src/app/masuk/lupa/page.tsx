@@ -6,6 +6,9 @@ import PengalihBahasa from "@/components/PengalihBahasa";
 import MerekPintar from "@/components/MerekPintar";
 import PanelPernyataan, { KalimatPonsel } from "@/components/masuk/PanelPernyataan";
 import LupaPassword from "@/components/aktifkan/LupaPassword";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/masuk/lupa");
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +29,7 @@ export default async function Lupa({ searchParams }: { searchParams: Promise<{ i
   const { id } = await searchParams;
   const idAwal = kanonikPintarId(Array.isArray(id) ? id[0] : id);
   return (
-    <main className="pin-masuk">
+    <main id="isi" tabIndex={-1} className="pin-masuk">
       <div className="pin-panggung">
         <div className="pin-auth">
           <div className="pin-authtop">

@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { evaluationHub, evaluationState } from "@/lib/evaluation";
 import { t } from "@/lib/hle";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/evaluasi");
 
 const e = (k: Parameters<typeof t>[0]) => t(k, "staff");
 
@@ -23,7 +26,7 @@ export default async function EvaluationHubPage({
 
   if (refused) {
     return (
-      <main className="mx-auto max-w-md py-16">
+      <main id="isi" tabIndex={-1} className="mx-auto max-w-md py-16">
         <h1 className="text-2xl font-semibold tracking-tight">{e("evaluasi.judul")}</h1>
         <p className="mt-4 text-ink-2">{e("evaluasi.refused")}</p>
         <p className="mt-6"><Link href="/">← {e("galat.beranda")}</Link></p>
@@ -32,7 +35,7 @@ export default async function EvaluationHubPage({
   }
 
   return (
-    <main className="mx-auto max-w-2xl py-12">
+    <main id="isi" tabIndex={-1} className="mx-auto max-w-2xl py-12">
       <h1 className="text-2xl font-semibold tracking-tight">{e("evaluasi.judul")}</h1>
       <p className="mt-3 text-ink-2">{e("evaluasi.intro")}</p>
 

@@ -9,6 +9,9 @@ import { tujuanInternal } from "@/lib/tujuan";
 import MerekPintar from "@/components/MerekPintar";
 import PengalihBahasa from "@/components/PengalihBahasa";
 import PilihPerangkat from "@/components/sesi/PilihPerangkat";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/perangkat");
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +37,7 @@ export default async function Perangkat({ searchParams }: { searchParams: Promis
   const jaga = error ? null : bacaPenjagaan(data);
   if (!jaga || jaga.keadaan !== "BUKA" || (jaga.mode !== "SHARED" && jaga.mode !== "PERSONAL")) redirect(tujuan);
   return (
-    <main className="pin-masuk">
+    <main id="isi" tabIndex={-1} className="pin-masuk">
       <div className="pin-panggung">
         <div className="pin-auth">
           <div className="pin-authtop">

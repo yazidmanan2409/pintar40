@@ -8,6 +8,9 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import BarisHasil from "@/components/BarisHasil";
 import { cangkangStaf } from "@/components/lapor/cangkang";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/lapor/saya");
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +30,7 @@ export default async function LaporanSaya({ searchParams }: { searchParams: Prom
   return (
     <>
       <CangkangPengalaman locale={locale} kind={kind} halamanKini="lapor" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={kembali}>← {s("lapor.kembali")}</Link>
         <div className="pin-head">
           <p className="pin-eyebrow">{s("lapor.eyebrow")}</p>

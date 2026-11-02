@@ -464,6 +464,10 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The staff shell's breakpoint, bp-large (tokens.json): CSS cannot read a custom property inside @media." },
   { file: "src/app/experience.css", literal: "1023px",
     reason: "The staff shell's breakpoint, bp-large less one pixel (tokens.json): CSS cannot read a custom property inside @media." },
+  { file: "src/app/experience.css", literal: "639px",
+    reason: "W3.4/W3.5: bp-medium (640, tokens.json) less one pixel, as the design system writes it: the Collection's narrow layout (bundle.css @container) and the Dialog's stacked actions; CSS cannot read a custom property inside @container or @media." },
+  { file: "src/app/experience.css", literal: "16ch",
+    reason: "W3.4: a row's name never narrower than 16 characters, so it wraps between words rather than inside one (Daisy, components/Table: Long values, min-width 16ch); a measure in characters, not a scale step." },
   { file: "src/app/experience.css", literal: "22px",
     reason: "The class card's characters in the PIN input at control-xl (08-migration.md, PIN input: 20 to 22 px); the design system's own component writes the same literal." },
   { file: "src/app/experience.css", literal: "20px",
@@ -10380,7 +10384,12 @@ export const experienceTests: SelfTest[] = [
       try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
       if (c.expect(anak.status === 0 && html.length === KASUS.length, `the absence card could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
         const x = html.map((h) => h.replace(/&#x27;/g, "'").replace(/&amp;/g, "&"));
-        c.expect(x[0].includes(t("metrik.pemahaman.label", "staff")) && x[0].includes(`${t("laporan.metrik.belum_cukup_data", "staff")} (3/5)`)
+        // RESTATED FOR W3.2 / CR-46 (Batch 2, Daisy's EmptyState «not enough yet»): «how far» is no longer the pair
+        // «(3/5)», which reads as a score, but the sentence «Sekarang 3 murid; perlu 5.»; why and what will make it
+        // appear are held as before.
+        const jauh = t("ketiadaan.jumlah.murid", "staff").replace("{have}", "3").replace("{needed}", "5");
+        c.expect(x[0].includes(t("metrik.pemahaman.label", "staff")) && x[0].includes(t("laporan.metrik.belum_cukup_data", "staff"))
+          && x[0].includes(jauh) && !/\(\d+\/\d+\)/.test(x[0])
           && x[0].includes(t("laporan.muncul.akhir", "staff")), `short of evidence, the card does not say why, how far and what will make it appear: ${x[0]}`);
         c.expect(x[1].includes(t("laporan.muncul.awal_akhir", "staff", { locale: "en" })), "(en) the gain card does not say what will make it appear");
         c.expect(!/pin-ml/.test(x[2])
@@ -10827,6 +10836,9 @@ export const experienceTests: SelfTest[] = [
         "src/components/sesi/LayarTerkunci.tsx": 1,
         "src/components/struktur/PanelStruktur.tsx": 1,
         "src/components/pendataan/Penggerak.tsx": 1,
+        // RESTATED FOR W3.14 (Batch 2; Daisy, IdleWarning and J7Kunci): the idle warning is not a save's answer but a
+        // state of the whole page, which Daisy specifies as role="alert" so a screen reader hears it once.
+        "src/components/PenjagaSesi.tsx": 1,
       };
       const lama = (src: string) => [...src.matchAll(/<[a-z]+\b[^>]*(?:role="alert"|pin-msg-err)[^>]*>/g)].map((m) => m[0]);
       for (const f of semua) {
@@ -11936,7 +11948,8 @@ export const experienceTests: SelfTest[] = [
       const unggah = baca("src", "app", "studio", "unggah", "page.tsx");
       const [iBuku, iD, iM, iT, iE] = ['id="buku-kerja"', "<details", 'id="mudah"', 'id="terstruktur"', "</details>"].map((x) => unggah.indexOf(x));
       c.expect(iBuku >= 0 && iBuku < iD && iD < iM && iM < iT && iT < iE
-        && /<details className="grid gap-4" id="sistem-lain" open=\{sistemLainTerbuka\}>/.test(unggah)
+        // RESTATED FOR W3.3 (Batch 2): Daisy's Disclosure class (the chevron) joins; one closed disclosure as before
+        && /<details className="grid gap-4 pin-disclosure" id="sistem-lain" open=\{sistemLainTerbuka\}>/.test(unggah)
         && /const sistemLainTerbuka = sp\.bagian === "mudah" \|\| sp\.bagian === "terstruktur";/.test(unggah),
         "the JSON forms are not in one closed disclosure below the workbook that opens for their own answer");
       c.expect(/\{s\("studio\.unggah\.periksa_mudah"\)\}<\/TombolKirim>/.test(unggah) && /\{s\("studio\.unggah\.periksa_terstruktur"\)\}<\/TombolKirim>/.test(unggah)
@@ -12792,7 +12805,9 @@ export const experienceTests: SelfTest[] = [
       c.expect(/\{kataHalaman\(l\.halaman, locale\)\}/.test(baca("src", "app", "lapor", "saya", "page.tsx")), "«Laporan saya» shows a report's page as its path");
       // RV-2: a security event this page has no words for reads in the Jejak audit's words, never its code
       const catatan = baca("src", "components", "keamanan", "CatatanKeamanan.tsx");
-      c.expect(/: kataAksiAudit\(aksi, locale\)\)/.test(catatan) && !/: aksi\)\);/.test(catatan) && /year: "numeric"/.test(catatan) && /timeZoneName: "short"/.test(catatan),
+      // RESTATED FOR W3.3 (Batch 2): the moment's year and time zone moved into the one date helper (src/lib/tanggal.ts);
+      // the record now writes it as the timestamp form, «9 Okt 2026, 07.30 WIB», whose year and «WIB» TANGGAL-01 proves.
+      c.expect(/: kataAksiAudit\(aksi, locale\)\)/.test(catatan) && !/: aksi\)\);/.test(catatan) && /tanggal\(iso, "cap", locale\)/.test(catatan),
         "the security record shows an event by its code, or a moment without its year or time zone");
       // RV-3: one order of places, Daisy's, whichever is open
       const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));

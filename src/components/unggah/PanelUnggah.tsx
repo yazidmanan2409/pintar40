@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import BidangBerkas from "@/components/bentuk/BidangBerkas";
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import {
   kunciKodePaket,
@@ -234,16 +235,14 @@ export default function PanelUnggah({
           </select>
         </div>
         <div className="pin-ung-isian">
-          <label htmlFor="ung-berkas">{s("studio.unggah.berkas")}</label>
-          <input
-            id="ung-berkas"
-            name="berkas"
-            type="file"
+          {/* W3.3: Daisy's FileField (RV-5): the browser's own «Choose File» never shows */}
+          <BidangBerkas
+            id="ung-berkas" name="berkas" label={s("studio.unggah.berkas")} locale={locale}
             accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            onChange={(e) => { setBerkas(e.target.files?.[0] ?? null); mulaiLagi(); }}
+            batas={`${s("studio.unggah.berkas_batas")} ${format.number(batasMb, locale)} MB.`}
+            onPilih={(fs) => { setBerkas(fs[0] ?? null); mulaiLagi(); }}
             disabled={sibuk !== null}
           />
-          <p className="pin-hint">{s("studio.unggah.berkas_batas")} {format.number(batasMb, locale)} MB.</p>
         </div>
         {koreksiSekolah.length > 0 && (
           <div className="pin-ung-isian">
@@ -296,8 +295,10 @@ export default function PanelUnggah({
         <div className="pin-ung-langkah-isi">
           <p className="pin-ung-catatan">{s("studio.unggah.media_arti")}</p>
           <div className="pin-ung-isian">
-            <label htmlFor="ung-media">{s("studio.unggah.media_pilih")}</label>
-            <input id="ung-media" type="file" multiple onChange={(e) => pilihMedia(e.target.files)} disabled={sibuk !== null} />
+            <BidangBerkas
+              id="ung-media" multiple label={s("studio.unggah.media_pilih")} locale={locale}
+              onPilih={(_fs, e) => pilihMedia(e.target.files)} disabled={sibuk !== null}
+            />
           </div>
           <ul className="pin-ung-media">
             {perluMedia.map((m) => (

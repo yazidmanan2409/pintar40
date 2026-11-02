@@ -196,6 +196,8 @@
   --measure-guide-card: 420px;   /* the tour card, beside its target */
   --measure-guide-panel: 380px;  /* the Help panel */
   --measure-guide-tip: 300px;    /* a tip, anchored to one control */
+  --measure-menu: 220px;         /* W3.5: a menu at its narrowest (Daisy, components/Menu) */
+  --measure-dialog: 480px;       /* W3.5: the one dialog at its widest (Daisy, components/Dialog) */
   --guide-sheet-max: 78%;        /* the phone sheet's ceiling (§J-15) */
 
   /* the sign-in screen (UX-1 login handoff §1.2-1.4, §6.5). Named because the
@@ -255,6 +257,8 @@
   --icon-sm: 16px;
   --icon-md: 20px;
   --icon-lg: 24px;
+  /* W3.3 Select (Daisy): the chevron-down icon (Lucide, as Ikon.tsx), in --ink-3 (#5F6A73) */
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235F6A73' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   --shell-nav: 248px;
   --shell-rail: 72px;
   --shell-bar: 56px;

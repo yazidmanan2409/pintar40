@@ -35,7 +35,7 @@ export default function HalamanPenolakan({
 }) {
   const s = (k: HleEvent) => t(k, persona, { locale });
   return (
-    <div className="pin-col">
+    <main id="isi" tabIndex={-1} className="pin-col">
       <section className="pin-refusal">
         <MerekPintar standalone />
         <h1>{s(messageKey)}</h1>
@@ -48,6 +48,6 @@ export default function HalamanPenolakan({
       </section>
 
       <KakiPintar className="pin-noprint" />
-    </div>
+    </main>
   );
 }

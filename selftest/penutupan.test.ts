@@ -510,7 +510,8 @@ export const penutupanTests: SelfTest[] = [
       const aksi = readFileSync(join(ctx.repoRoot, "src", "app", "studio", "actions.ts"), "utf8");
       // L3 (D-132 C8): the operator is Admin platform whose grant is part of the working context
       const i = /const operator = adminPlatform === true && peran\.includes\("SYSTEM_ADMIN"\);/.test(halaman) ? halaman.indexOf("{operator ? (") : -1;
-      const j = halaman.indexOf('<details className="grid gap-4" id="sistem-lain"');
+      // RESTATED FOR W3.3 (Batch 2): the disclosure gains Daisy's class (pin-disclosure, its chevron); the rule is unchanged
+      const j = halaman.indexOf('<details className="grid gap-4 pin-disclosure" id="sistem-lain"');
       const k = halaman.indexOf(") : null}", j);
       c.expect(i >= 0 && j > i && k > halaman.indexOf("</details>", j) && halaman.indexOf("</details>", j) > j,
         "the JSON forms are not drawn for the platform operator alone");
@@ -666,7 +667,10 @@ export const penutupanTests: SelfTest[] = [
       // CR-93: «Laporkan masalah» — its picture field is the form's only file field, and it may shrink to the column
       c.expect(/className="pin-lapor"/.test(baca("src", "app", "lapor", "page.tsx")) && /<TangkapanLayar\b/.test(baca("src", "app", "lapor", "page.tsx")),
         "the report form no longer draws the picture field inside .pin-lapor");
-      c.expect(/type="file"/.test(baca("src", "components", "lapor", "TangkapanLayar.tsx")), "the picture field is not a file field");
+      // RESTATED FOR W3.3 (Batch 2, Daisy's FileField, RV-5): the picture field is a file field through BidangBerkas, whose
+      // native input lies inside its button (absolute, inset 0), so it cannot set the form wider than its column either
+      c.expect(/<BidangBerkas\b/.test(baca("src", "components", "lapor", "TangkapanLayar.tsx"))
+        && /type="file"/.test(baca("src", "components", "bentuk", "BidangBerkas.tsx")), "the picture field is not a file field");
       const aturan = /\.pin-lapor input\[type="file"\]\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
       c.expect(/max-width:\s*100%/.test(aturan) && /min-width:\s*0/.test(aturan),
         "the report form's file field may still set the form wider than its column (CR-93: 440 px at a 320 px window)");

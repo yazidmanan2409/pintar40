@@ -4,6 +4,9 @@ import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/verifikasi/[token]");
 
 /**
  * THE public certificate verification route (INV-38). Exactly one exists. A
@@ -94,7 +97,7 @@ export default async function VerifikasiPage({
   return (
     <>
       <CangkangPengalaman locale={locale} kind="public" />
-      <main className="pin-col pin-narrow">
+      <main id="isi" tabIndex={-1} className="pin-col pin-narrow">
         <div className="pin-head">
           <p className="pin-eyebrow">{s("verifikasi.eyebrow")}</p>
           <h1 className="pin-h1">{s("verifikasi.judul")}</h1>

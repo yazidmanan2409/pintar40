@@ -9,6 +9,9 @@ import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import { TeksBaris } from "@/components/teks/Teks";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/mengajar/[kelas]/soal");
 
 export const dynamic = "force-dynamic";
 
@@ -55,7 +58,7 @@ export default async function SoalKelas({
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/mengajar/${id}/bukti`}>← {s("mengajar.soal.kembali")}</Link>
         <BarisLingkup
           scope={{ institution: ctx.konteks.institusi?.nama ?? null, path: [ctx.ini.nama], period: ctx.konteks.periode }}

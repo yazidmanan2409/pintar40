@@ -1,4 +1,5 @@
-import { allKeys, t, TANPA_SALINAN, TIMEZONE, type HleEvent, type Locale } from "@/lib/hle";
+import { allKeys, t, TANPA_SALINAN, type HleEvent, type Locale } from "@/lib/hle";
+import { tanggal } from "@/lib/tanggal";
 import { tampilPintarId } from "@/lib/aktivasi-kontrak";
 import BarisHasil from "@/components/BarisHasil";
 import { kataAksiAudit } from "@/lib/jejak-audit";
@@ -18,12 +19,8 @@ const BERNAMA = new Set<string>(allKeys().filter((k) => k.startsWith("keamanan.a
 export default function CatatanKeamanan({ locale, baris }: { locale: Locale; baris: BarisKeamanan[] }) {
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const nama = (aksi: string) => (BERNAMA.has(`keamanan.a.${aksi}`) ? s(`keamanan.a.${aksi}` as HleEvent) : kataAksiAudit(aksi, locale));
-  const waktu = (iso: string) => {
-    const d = new Date(iso);
-    return Number.isNaN(d.getTime()) ? iso : new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "id-ID", {
-      day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: TIMEZONE, timeZoneName: "short",
-    }).format(d);
-  };
+  // a line of history: the timestamp, with its year and WIB («9 Okt 2026, 07.30 WIB»; W3.3, RV-16)
+  const waktu = (iso: string) => tanggal(iso, "cap", locale) || iso;
   return (
     <section className="pin-sec" aria-labelledby="pin-keamanan-catatan">
       <h2 id="pin-keamanan-catatan">{s("keamanan.catatan_judul")}</h2>

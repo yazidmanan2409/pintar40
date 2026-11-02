@@ -19,6 +19,9 @@ import {
   rendersCredential, rendersVerification, layoutFor,
 } from "@/lib/sertifikat";
 import KakiPintar from "@/components/KakiPintar";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/belajar/[tugas]/sertifikat");
 
 /**
  * The learner's certificate for one learning assignment.
@@ -104,7 +107,7 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
     return (
       <>
         <CangkangPengalaman locale={locale} current="sertifikat" />
-        <div className="pin-col">
+        <main id="isi" tabIndex={-1} className="pin-col">
           {back}
           <section className="pin-pending">
             <div className="pin-dots" aria-hidden="true"><i /><i /><i /></div>
@@ -120,7 +123,7 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
           </section>
 
           <KakiPintar className="pin-noprint" />
-        </div>
+        </main>
       </>
     );
   }
@@ -145,7 +148,7 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
   return (
     <>
       <CangkangPengalaman locale={locale} current="sertifikat" />
-      <div className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         {back}
 
         {detail.status === "REVOKED" ? (
@@ -210,7 +213,7 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
         {/* pin-noprint: the printed sheet carries the issuing institution's
             identity, never the software vendor's. */}
         <KakiPintar className="pin-noprint" />
-      </div>
+      </main>
     </>
   );
 }

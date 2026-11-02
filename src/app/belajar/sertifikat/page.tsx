@@ -10,6 +10,9 @@ import { BarisLingkup } from "@/components/bukti";
 import { myCertificates, institutionNames, type CertificateRow } from "@/lib/sertifikat";
 import KakiPintar from "@/components/KakiPintar";
 import { petaSesi } from "@/components/sertifikat/asalSertifikat";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/belajar/sertifikat");
 
 /**
  * Sertifikat Anda — the learner's certificate list.
@@ -66,7 +69,7 @@ export default async function DaftarSertifikat() {
   return (
     <>
       <CangkangPengalaman locale={locale} current="sertifikat" />
-      <div className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <BarisLingkup scope={{ institution }} locale={locale} />
 
         <div className="pin-head">
@@ -113,7 +116,7 @@ export default async function DaftarSertifikat() {
         )}
 
         <KakiPintar className="pin-noprint" />
-      </div>
+      </main>
     </>
   );
 }

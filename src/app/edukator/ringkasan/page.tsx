@@ -7,6 +7,9 @@ import { kunciMuncul } from "@/components/bukti/muncul";
 import NilaiLaporan from "@/components/bukti/NilaiLaporan";
 import AksiLaporan from "@/components/laporan/AksiLaporan";
 import { s, card, omissionText, actionText, type Entry } from "../../_intel";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/edukator/ringkasan");
 
 /**
  * THE EXPOSURE CAVEAT IS CONDITIONAL, NOT DECORATIVE.
@@ -75,7 +78,7 @@ export default async function RingkasanKelas({
     .map((r) => r.cohort_node_id).filter((x): x is string => typeof x === "string")));
 
   return (
-    <main className="mx-auto grid max-w-3xl gap-6 p-6">
+    <main id="isi" tabIndex={-1} className="mx-auto grid max-w-3xl gap-6 p-6">
       {/* Who is signed in, and the way out (DAISY-02, D-009). min-w-0: a grid
           item is otherwise never narrower than the strip's unbroken line, and a
           long name pushed the button off a phone screen; the strip's own box too,

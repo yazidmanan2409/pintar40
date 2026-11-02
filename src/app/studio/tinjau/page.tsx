@@ -2,6 +2,9 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { card, s, studioInstitutions, when, tabSaya } from "../_lib";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/studio/tinjau");
 
 /**
  * Review queue (§4). A reviewer never sees an "approve" affordance for their

@@ -8,6 +8,9 @@ import FormEmailUji from "@/components/email-uji/FormEmailUji";
 import RiwayatEmail from "@/components/email-uji/RiwayatEmail";
 import { NAMA_PENGATURAN_EMAIL } from "@/app/api/_email/pengaturan";
 import { tawarkanPlatform } from "@/lib/konteks-server";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/konfigurasi/email-uji");
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +43,7 @@ export default async function EmailUji() {
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pendataan" halamanKini="emailuji" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <div className="pin-head">
           <p className="pin-eyebrow">{s("emailuji.eyebrow")}</p>
           <h1 className="pin-h1">{s("emailuji.judul")}</h1>

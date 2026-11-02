@@ -1,0 +1,112 @@
+[
+ {
+  "id": "JUDUL",
+  "ok": true,
+  "d": "/konfigurasi: «Konfigurasi · PINTAR»"
+ },
+ {
+  "id": "LEWATI-1",
+  "ok": true,
+  "d": "first Tab → a.pin-lewati pin-noprint «Langsung ke isi» top 12 ring true"
+ },
+ {
+  "id": "LEWATI-2",
+  "ok": true,
+  "d": "Enter → focus on main#isi"
+ },
+ {
+  "id": "MENU-0",
+  "ok": true,
+  "d": "the name button reached in 11 Tab press(es) from the top of the page, ring true"
+ },
+ {
+  "id": "MENU-1",
+  "ok": true,
+  "d": "Enter: expanded=true, focus on «Akun saya» (menuitem)"
+ },
+ {
+  "id": "MENU-2",
+  "ok": true,
+  "d": "↓ «Laporan saya», End «Keluar dari semua perangkat…», Home «Akun saya», ↑ wraps to «Keluar dari semua perangkat…»"
+ },
+ {
+  "id": "MENU-3",
+  "ok": true,
+  "d": "Esc: expanded=false, focus back on button.pin-menu-tombol"
+ },
+ {
+  "id": "DIALOG-1",
+  "ok": true,
+  "d": "dialog open=true, focus on «Batal»"
+ },
+ {
+  "id": "DIALOG-2",
+  "ok": true,
+  "d": "Tab «Keluar dari semua», Tab again: focus behind the dialog = none (the page behind is inert; the browser takes it)"
+ },
+ {
+  "id": "DIALOG-3",
+  "ok": true,
+  "d": "Esc: closed=true, focus back on button.pin-menu-tombol; still signed in: /konfigurasi"
+ },
+ {
+  "id": "AXE /konfigurasi",
+  "ok": true,
+  "d": "clean"
+ },
+ {
+  "id": "AXE /akun",
+  "ok": true,
+  "d": "clean"
+ },
+ {
+  "id": "AXE /lapor",
+  "ok": true,
+  "d": "clean"
+ },
+ {
+  "id": "AXE /lapor/saya",
+  "ok": true,
+  "d": "clean"
+ },
+ {
+  "id": "AXE /konfigurasi",
+  "ok": true,
+  "d": "clean"
+ },
+ {
+  "id": "LEBAR-1280",
+  "ok": true,
+  "d": "/akun at 1280px: wider than the window false"
+ },
+ {
+  "id": "LEBAR-1024",
+  "ok": true,
+  "d": "/akun at 1024px: wider than the window false"
+ },
+ {
+  "id": "LEBAR-320",
+  "ok": true,
+  "d": "/akun at 320px: wider than the window false"
+ },
+ {
+  "id": "MENU-320-0",
+  "ok": true,
+  "d": "the name button is reachable at 320 px (drawer opened): 1"
+ },
+ {
+  "id": "MENU-320",
+  "ok": true,
+  "d": "the open menu at 320 px: {\"l\":16,\"r\":245,\"w\":320}"
+ },
+ {
+  "id": "MURID-1",
+  "ok": true,
+  "d": "learner: first Tab «Langsung ke isi», menu buttons 0; title «Belajar · PINTAR»"
+ },
+ {
+  "id": "AXE /belajar (learner)",
+  "ok": false,
+  "d": "target-size(serious)×1 [a[aria-current=\"page\"] :: Fix any of the following: Target has insufficient size because it is partially obscured (smallest space is 21.8px by 55px, should be at least 24px by 24px) Targ]"
+ }
+]

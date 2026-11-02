@@ -1,6 +1,6 @@
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import type { Envelope } from "./types";
-import { kunciMuncul } from "./muncul";
+import { kunciMuncul, SYARAT_METRIK } from "./muncul";
 
 /**
  * KartuKetiadaan — the absence card, in four variants.
@@ -64,10 +64,15 @@ export default function KartuKetiadaan({
   // knows more about why this particular figure is missing than a variant map.
   const base = s(entry.statement_key ?? STATEMENT[variant]);
   const muncul = kunciMuncul(entry);
-  const counted =
-    variant === "belum_cukup" && entry.needed != null
-      ? `${base} (${format.number(entry.have ?? 0, locale)}/${format.number(entry.needed, locale)})`
-      : base;
+  // CR-46 (W3.2, Daisy's EmptyState «not enough yet»): never «(3/5)», a pair of figures that reads as a score. Where
+  // the evidence counted is students, the sentence says so: «Sekarang 3 murid; perlu 5.» Elsewhere the unit is not
+  // known here, so no count is shown; the line below says what will make the figure appear.
+  const syarat = entry.metric_id ? SYARAT_METRIK[entry.metric_id] : undefined;
+  const hitungMurid = syarat === "penilaian" || syarat === "akhir" || syarat === "awal_akhir";
+  const jumlah =
+    variant === "belum_cukup" && entry.needed != null && hitungMurid
+      ? s("ketiadaan.jumlah.murid").replace("{have}", format.number(entry.have ?? 0, locale)).replace("{needed}", format.number(entry.needed, locale))
+      : null;
 
   return (
     <div className="pin-metric">
@@ -75,7 +80,8 @@ export default function KartuKetiadaan({
       {variant !== "tidak_untuk_anda" && entry.label_key ? (
         <span className="pin-ml">{s(entry.label_key)}</span>
       ) : null}
-      <span className="pin-abs">{counted}</span>
+      <span className="pin-abs">{base}</span>
+      {jumlah ? <span className="pin-ma">{jumlah}</span> : null}
       {muncul ? <span className="pin-ma">{s(muncul)}</span> : null}
       {action ? <span className="pin-ma">{action}</span> : null}
     </div>

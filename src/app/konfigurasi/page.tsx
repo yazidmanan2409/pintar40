@@ -1,5 +1,6 @@
 import Link from "next/link";
 import TandaTautan from "@/components/TandaTautan";
+import Ikon from "@/components/Ikon";
 import { t, format, allKeys, type HleEvent } from "@/lib/hle";
 import Penomoran, { UKURAN, halamanDiminta, rentang, satuHalaman, tautanHalaman } from "@/components/koleksi/Penomoran";
 
@@ -32,6 +33,8 @@ import { bacaStruktur } from "@/lib/struktur";
 import { tahunAjaranPada } from "@/lib/struktur-kontrak";
 import PanelStruktur from "@/components/struktur/PanelStruktur";
 import TombolKirim from "@/components/TombolKirim";
+import TanggalDenganGema from "@/components/bentuk/TanggalDenganGema";
+import { tanggal, type BentukTanggal } from "@/lib/tanggal";
 import BarisHasil from "@/components/BarisHasil";
 import { sekolahPendataan } from "@/lib/pendataan";
 import { sekolahDipilih, sekolahDitawarkan } from "@/components/sekolah";
@@ -42,6 +45,9 @@ import { alamatCatatan, formulirPeserta, tempatCatatan } from "@/lib/pengembanga
 import { kunciKodeLaporan, kunciStatusLaporan, langkahBerikut, laporanTriase, type KodeLaporan } from "@/lib/lapor-masalah";
 import { pindahkanLaporanAksi } from "@/app/lapor/actions";
 import { daftarKelola, KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/konfigurasi");
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -76,7 +82,6 @@ const namaDari = (v: unknown): string | null => {
   return typeof o?.display_name === "string" ? o.display_name : null;
 };
 const tautanTempat = "text-ink-2 underline underline-offset-4 hover:text-ink-1";
-const when = (iso: string) => new Date(iso).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jakarta" });
 const roleLabel = (r: string) => (["EDUCATOR", "HEAD_OF_DEPARTMENT", "DEAN", "INSTITUTION_ADMIN", "SYSTEM_ADMIN"].includes(r) ? s(`role.${r}` as HleEvent) : TANPA_NAMA);
 const transferLabel = (st: string) => (["REQUESTED", "AUTHORIZED", "EXECUTED", "REJECTED", "CANCELLED"].includes(st) ? s(`transfer.${st}` as HleEvent) : TANPA_NAMA);
 
@@ -399,6 +404,9 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const tujuan = kelasDari && struktur?.ok ? tujuanPindah(struktur.rows, kelasDari.node_id) : [];
   const muridDari = kelasDari ? await muridDiKelas(supabase, kelasDari.node_id) : [];
   const sl = (event: HleEvent) => t(event, "staff", { locale });
+  // W3.3 (Batch 2; RV-16): every moment through the one date helper, on WIB, with its year and «WIB» —
+  // a record as the timestamp («9 Okt 2026, 07.30 WIB»), a window someone acts on with its day.
+  const when = (iso: string, bentuk: BentukTanggal = "cap") => tanggal(iso, bentuk, locale) || TANPA_NAMA;
   // J3.2 (ADM-02): what setup remains at the school shown, from what this page already read
   const persiapan = struktur?.ok
     ? persiapanSekolah(struktur.rows, (assignments ?? []) as PeranTerbaca[],
@@ -452,7 +460,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         </>
       }
     />
-    <main className="py-6">
+    <main id="isi" tabIndex={-1} className="py-6">
       <header>
         <p className="text-sm text-ink-3">{s("app.name")}</p>
         <h1 className="text-2xl font-semibold tracking-tight">{s("config.title")}</h1>
@@ -598,8 +606,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                           <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.ketuntasan.tombol")}</TombolKirim>
                         </form>
                         {p.history.length > 0 ? (
-                          <details>
-                            <summary className="cursor-pointer text-ink-3">{sl("config.ketuntasan.riwayat")}</summary>
+                          <details className="pin-disclosure">
+                            <summary className="cursor-pointer text-ink-3">{sl("config.ketuntasan.riwayat")}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
                             <ul className="mt-1 grid gap-1 text-ink-2">
                               {p.history.map((h, i) => (
                                 <li key={`${h.set_at}-${i}`}>
@@ -827,12 +835,14 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 ))}
               </fieldset>
               <div className="flex flex-wrap items-end gap-2">
-                <label className={label}>{sl("config.pemeliharaan.mulai")}
-                  <input type="datetime-local" name="pm_mulai" className={field} defaultValue={sp.pm_mulai ?? ""} />
-                </label>
-                <label className={label}>{sl("config.pemeliharaan.selesai")}
-                  <input type="datetime-local" name="pm_selesai" className={field} defaultValue={sp.pm_selesai ?? ""} />
-                </label>
+                <div className={label}>
+                  <label htmlFor="cfg-pm-mulai">{sl("config.pemeliharaan.mulai")}</label>
+                  <TanggalDenganGema jenis="datetime-local" id="cfg-pm-mulai" name="pm_mulai" className={field} defaultValue={sp.pm_mulai ?? ""} locale={locale} />
+                </div>
+                <div className={label}>
+                  <label htmlFor="cfg-pm-selesai">{sl("config.pemeliharaan.selesai")}</label>
+                  <TanggalDenganGema jenis="datetime-local" id="cfg-pm-selesai" name="pm_selesai" className={field} defaultValue={sp.pm_selesai ?? ""} locale={locale} />
+                </div>
                 <button type="submit" className={button}>{sl("config.pemeliharaan.periksa")}</button>
               </div>
             </form>
@@ -844,8 +854,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     {Number((tabrakan as { asesmen: number }).asesmen)} {sl("config.pemeliharaan.tabrakan.jumlah")}{" "}
                     {(tabrakan as { terakhir_selesai?: string | null }).terakhir_selesai ? (
                       <>
-                        {sl("config.pemeliharaan.tabrakan.terakhir")} {when((tabrakan as { terakhir_selesai: string }).terakhir_selesai)} {sl("pemeliharaan.zona")}.{" "}
-                        {sl("config.pemeliharaan.tabrakan.saran")} {when((tabrakan as { terakhir_selesai: string }).terakhir_selesai)} {sl("pemeliharaan.zona")}.
+                        {sl("config.pemeliharaan.tabrakan.terakhir")} {when((tabrakan as { terakhir_selesai: string }).terakhir_selesai)}.{" "}
+                        {sl("config.pemeliharaan.tabrakan.saran")} {when((tabrakan as { terakhir_selesai: string }).terakhir_selesai)}.
                       </>
                     ) : null}
                   </p>
@@ -882,7 +892,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                       {" · "}{w.platform ? sl("config.pemeliharaan.platform") : w.sekolah.join(", ")}
                     </span>
                     <span className="text-ink-2">
-                      {when(w.mulai)} {w.selesai ? <>{sl("config.pemeliharaan.hingga")} {when(w.selesai)}</> : <>· {sl("config.pemeliharaan.tanpa_akhir")}</>}
+                      {when(w.mulai, "hariJam")} {w.selesai ? <>{sl("config.pemeliharaan.hingga")} {when(w.selesai, "hariJam")}</> : <>· {sl("config.pemeliharaan.tanpa_akhir")}</>}
                     </span>
                     {w.pesan ? <span className="text-ink-2">{w.pesan}</span> : null}
                     <span className="text-xs text-ink-3">{sl("config.pemeliharaan.alasan")}: {w.alasan}</span>
@@ -923,12 +933,14 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 <input name="pesan" className={field} required maxLength={500} autoComplete="off" />
               </label>
               <div className="flex flex-wrap items-end gap-2">
-                <label className={label}>{sl("config.pemeliharaan.pengumuman.terbit")}
-                  <input type="datetime-local" name="terbit" className={field} />
-                </label>
-                <label className={label}>{sl("config.pemeliharaan.pengumuman.sampai")}
-                  <input type="datetime-local" name="sampai" className={field} required />
-                </label>
+                <div className={label}>
+                  <label htmlFor="cfg-pengumuman-terbit">{sl("config.pemeliharaan.pengumuman.terbit")}</label>
+                  <TanggalDenganGema jenis="datetime-local" id="cfg-pengumuman-terbit" name="terbit" className={field} locale={locale} />
+                </div>
+                <div className={label}>
+                  <label htmlFor="cfg-pengumuman-sampai">{sl("config.pemeliharaan.pengumuman.sampai")}</label>
+                  <TanggalDenganGema jenis="datetime-local" id="cfg-pengumuman-sampai" name="sampai" className={field} required locale={locale} />
+                </div>
                 <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.pengumuman.terbitkan")}</TombolKirim>
               </div>
             </form>
@@ -938,7 +950,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   <li key={n.id} data-pengumuman={n.id} className="grid gap-1 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
                     <span className="text-ink-1">{n.pesan}</span>
                     <span className="text-ink-2">
-                      {when(n.terbit)} {sl("config.pemeliharaan.hingga")} {when(n.sampai)}
+                      {when(n.terbit, "hariJam")} {sl("config.pemeliharaan.hingga")} {when(n.sampai, "hariJam")}
                       {n.platform ? <> · {sl("config.pemeliharaan.platform")}</> : null}
                       {n.ditarik ? <> · <strong>{sl("config.pemeliharaan.pengumuman.ditarik")}</strong></> : null}
                     </span>
@@ -1173,7 +1185,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 <li key={a.id} className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
                   <span>
                     {personName.get(a.person_id) ?? TANPA_NAMA} · {roleLabel(a.role)}
-                    <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? TANPA_NAMA : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {a.valid_until.slice(0, 10)}</span>
+                    <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? TANPA_NAMA : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {when(a.valid_until, "baca")}</span>
                   </span>
                   {a.person_id !== viewer.personId && (
                     // D-097(a): a revocation states why
@@ -1230,7 +1242,10 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                         {calonPertama.map((p) => <option key={p.person_id} value={p.person_id}>{p.display_name}</option>)}
                       </select>
                     </label>
-                    <label className={label}>{s("config.label.valid_until")}<input type="date" name="valid_until" className={field} required /></label>
+                    <div className={label}>
+                      <label htmlFor="cfg-admin-pertama-sampai">{s("config.label.valid_until")}</label>
+                      <TanggalDenganGema id="cfg-admin-pertama-sampai" name="valid_until" className={field} required locale={locale} />
+                    </div>
                     <div><TombolKirim className={primer} sibuk={s("tombol.menyimpan")}>{s("config.action.grant")}</TombolKirim></div>
                   </form>
                 )}
@@ -1270,7 +1285,10 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   {lingkupPeran(platformKonteks ? [] : nodes ?? [], institutionName).map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
                 </select>
               </label>
-              <label className={label}>{s("config.label.valid_until")}<input type="date" name="valid_until" className={field} required /></label>
+              <div className={label}>
+                <label htmlFor="cfg-peran-sampai">{s("config.label.valid_until")}</label>
+                <TanggalDenganGema id="cfg-peran-sampai" name="valid_until" className={field} required locale={locale} />
+              </div>
               <div><TombolKirim className={primer} sibuk={s("tombol.menyimpan")}>{s("config.action.grant")}</TombolKirim></div>
             </form>
             {result("roles")}

@@ -7,6 +7,9 @@ import { recordIntegrityReviewAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
 import SimpanIsian from "@/components/SimpanIsian";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/studio/integritas");
 
 /**
  * Integrity review centre (§10).

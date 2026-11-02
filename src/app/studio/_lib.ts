@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { supabaseServer } from "@/lib/supabase/server";
 import { t, type HleEvent } from "@/lib/hle";
+import { tanggal } from "@/lib/tanggal";
 import { kalimatHasil, type QueryHasil } from "@/lib/galat-kontrak";
 import { peranSaya } from "@/lib/tur-negara";
 import { KEMAMPUAN_STUDIO, tabStudio, type TabStudio } from "@/lib/studio-tab";
@@ -105,5 +106,5 @@ export function outcomeLine(q: QueryHasil): string | null {
 }
 
 export const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "—");
-export const when = (iso: string | null) =>
-  iso ? new Date(iso).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jakarta" }) : "—";
+/** When something was recorded: the timestamp, with its year and WIB («9 Okt 2026, 07.30 WIB»; W3.3, RV-16). */
+export const when = (iso: string | null) => tanggal(iso, "cap") || "—";

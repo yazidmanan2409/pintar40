@@ -11,6 +11,9 @@ import { PARAM_BANTUAN } from "@/components/tur/TombolBantuan";
 import { bolehTampilOtomatis, turPengajarBerlaku, TUR_PENGAJAR } from "@/lib/tur";
 import { keadaanTur, peranSaya } from "@/lib/tur-negara";
 import { kataAnggota } from "@/lib/mengajar";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/mengajar");
 
 export const dynamic = "force-dynamic";
 
@@ -91,7 +94,7 @@ export default async function BerandaPengajar({
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <BarisLingkup
           scope={{ institution: konteks.institusi?.nama ?? null, period: konteks.periode }}
           locale={locale}

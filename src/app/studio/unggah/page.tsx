@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
+import Ikon from "@/components/Ikon";
 import { currentViewer } from "@/lib/auth";
 import { t } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
@@ -13,6 +14,9 @@ import { confirmMappingAction, easyUploadAction, structuredImportAction } from "
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
 import SimpanIsian from "@/components/SimpanIsian";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/studio/unggah");
 
 /**
  * Content Factory (§2). Two paths, both landing at INGESTED and converging on
@@ -137,8 +141,8 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
           workbook, each form with its own button. CR-87 (D-127 Q7): they are the
           platform operator's alone; a school's people import the workbook. */}
       {operator ? (
-      <details className="grid gap-4" id="sistem-lain" open={sistemLainTerbuka}>
-        <summary className="cursor-pointer text-lg font-medium">{s("studio.unggah.json_judul")}</summary>
+      <details className="grid gap-4 pin-disclosure" id="sistem-lain" open={sistemLainTerbuka}>
+        <summary className="cursor-pointer text-lg font-medium">{s("studio.unggah.json_judul")}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
         <p className="mt-2 text-sm text-ink-2">{s("studio.unggah.json_arti")}</p>
 
         <section className={`${card} mt-4`} id="mudah">

@@ -10,6 +10,8 @@
  * browser times T-60/30/15 itself, with no polling (D-094(d)).
  */
 
+import { jam } from "./tanggal";
+
 export const HALAMAN_PEMELIHARAAN = "/pemeliharaan";
 
 /** The phrase «Hentikan sekarang» is confirmed with, typed (D-094(h)); the database checks the same words. */
@@ -125,12 +127,9 @@ export function tahapBerikutMs(mulai: string, sekarangMs: number, selisihMs = 0)
 }
 
 /** A time of day as a reader in Indonesia reads it: «22.00» (WIB, Asia/Jakarta). */
-export function jamWib(iso: string, locale: "id" | "en" = "id"): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "id-ID", {
-    hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Jakarta",
-  }).format(d);
+// W3.3 (Batch 2; RV-16): from the one date helper, «22.00» in both languages (24-hour with a full stop, never «22:00»).
+export function jamWib(iso: string): string {
+  return jam(iso);
 }
 
 /** The window that matters most to this reader now: an emergency, else an active window, else the nearest. */

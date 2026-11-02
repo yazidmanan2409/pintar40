@@ -10,6 +10,9 @@ import KakiPintar from "@/components/KakiPintar";
 import LessonPlayer from "../../../_components/LessonPlayer";
 import { saveLessonProgress, tandaiBacaUlang } from "../../../actions";
 import { TeksBaris } from "@/components/teks/Teks";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/belajar/[tugas]/pelajaran/[pelajaran]");
 
 export const dynamic = "force-dynamic";
 
@@ -65,7 +68,7 @@ export default async function Pelajaran(
   return (
     <>
       <CangkangPengalaman locale={locale} current="belajar" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/belajar/${tugas}`}>
           ← {s("cycle.title")}
         </Link>

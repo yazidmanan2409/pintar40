@@ -11,6 +11,9 @@ import HasilDi from "@/components/HasilDi";
 import SimpanIsian from "@/components/SimpanIsian";
 import TandaTautan from "@/components/TandaTautan";
 import Penomoran, { UKURAN, halamanDiminta, rentang, tautanHalaman } from "@/components/koleksi/Penomoran";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/studio/definisi");
 
 /**
  * Assessment Definition builder (§10).

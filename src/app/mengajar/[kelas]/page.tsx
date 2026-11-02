@@ -11,6 +11,9 @@ import PemilihKelas from "@/components/mengajar/PemilihKelas";
 import DaftarMurid from "@/components/mengajar/DaftarMurid";
 import { kataAnggota } from "@/lib/mengajar";
 import { alamatCatatan } from "@/lib/pengembangan-kontrak";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/mengajar/[kelas]");
 
 export const dynamic = "force-dynamic";
 
@@ -72,7 +75,7 @@ export default async function Kelas({
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href="/mengajar">
           ← {s("mengajar.kembali")}
         </Link>

@@ -3,6 +3,9 @@ import { t } from "@/lib/hle";
 import { card, s } from "../../_lib";
 import { TeksBaris } from "@/components/teks/Teks";
 import { HalamanPelajaran, LangkahContoh, contohPelajaran, halamanPelajaran, type ContohLangkah } from "@/components/pelajaran/Halaman";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/studio/pratinjau/[pelajaran]");
 
 /**
  * Preview — the learner view, sanitized (§5).

@@ -37,7 +37,7 @@ export default function HalamanGalat({
 }) {
   const s = (k: HleEvent) => t(k, "public", { locale });
   return (
-    <main className="pin-col">
+    <main id="isi" tabIndex={-1} className="pin-col">
       <section className="pin-refusal" role="alert">
         <MerekPintar standalone />
         <h1>{s("galat.judul")}</h1>

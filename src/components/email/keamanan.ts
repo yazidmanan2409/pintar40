@@ -9,17 +9,16 @@
  * carries the PINTAR ID, which is not a secret, and the time; never a PIN, a
  * code, a password, an address or anything about where the attempt came from.
  */
-import { TIMEZONE, type HleEvent } from "@/lib/hle";
+import { type HleEvent } from "@/lib/hle";
+import { tanggal } from "@/lib/tanggal";
 import type { Templat } from "@/lib/email/templat";
 import type { DataEmailKeamanan } from "@/lib/email/identitas";
 import { tampilPintarId } from "@/lib/aktivasi-kontrak";
 import { bingkaiEmail, kata, type Blok } from "./bingkai";
 
 export const templatKeamanan: Templat<DataEmailKeamanan> = (data, konteks) => {
-  const d = new Date(data.waktu);
-  const kapan = Number.isNaN(d.getTime()) ? data.waktu : new Intl.DateTimeFormat("id-ID", {
-    day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: TIMEZONE, timeZoneName: "short",
-  }).format(d);
+  // the formal form with its time, «4 Oktober 2026 pukul 15.00 WIB», from the one date helper (W3.3, RV-16)
+  const kapan = tanggal(data.waktu, "resmiJam") || data.waktu;
   const p = data.peristiwa.toLowerCase();
   const k = (akhir: string) => kata(`email.aman.${p}.${akhir}` as HleEvent);
   const admin = data.untuk === "ADMIN";

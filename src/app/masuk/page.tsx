@@ -10,6 +10,9 @@ import PanelPernyataan, { KalimatPonsel } from "@/components/masuk/PanelPernyata
 import FokusAwal from "@/components/masuk/FokusAwal";
 import TombolKirim from "@/components/TombolKirim";
 import { keluarDariSesi, lanjutkanSesi } from "./actions";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/masuk");
 
 export const dynamic = "force-dynamic";
 
@@ -58,7 +61,7 @@ export default async function Masuk({
   const viewer = await currentViewer();
 
   return (
-    <main className="pin-masuk">
+    <main id="isi" tabIndex={-1} className="pin-masuk">
       <div className="pin-panggung">
       <div className="pin-auth">
         <div className="pin-authtop">

@@ -10,6 +10,8 @@
  * Only what Phase 1 renders is wired here; later phases extend the table.
  */
 
+import { tanggal } from "./tanggal";
+
 export type Persona = "learner" | "educator" | "staff" | "public";
 export type HleEvent =
   | "jenis.bank.PRACTICE" | "jenis.bank.TEST" | "jenis.bank.EXAM"
@@ -196,6 +198,16 @@ export type HleEvent =
   | "bukti.minimum"
 
   | "app.name"
+  | "aksesibilitas.lewati"
+  | "berkas.pilih" | "berkas.belum" | "berkas.banyak"
+  | "ketiadaan.jumlah.murid"
+  | "sesi.menu.semua"
+  | "jaga.judul"
+  | "tanggal.belum"
+  | "koleksi.cari.label" | "koleksi.cari.placeholder" | "koleksi.cari.hapus" | "koleksi.cari.cocok"
+  | "koleksi.saring.label" | "koleksi.saring.semua"
+  | "koleksi.kosong.judul" | "koleksi.kosong.kueri" | "koleksi.kosong.reset"
+  | "koleksi.halaman.label" | "koleksi.sebelumnya" | "koleksi.menampilkan" | "koleksi.posisi" | "koleksi.posisi.ringkas"
   | "auth.title"
   | "auth.lede"
   | "auth.email_label"
@@ -2710,6 +2722,37 @@ const table: Table = {
   "bukti.minimum": { default: "minimum", en: "minimum" },
 
   "app.name": { default: "PINTAR", en: "PINTAR" },
+  // W3.1 (Batch 2): the skip link, the first focusable thing on every page (Daisy, 06-accessibility; spec §13)
+  "aksesibilitas.lewati": { default: "Langsung ke isi", en: "Skip to content" },
+  // W3.3 (Batch 2): FileField (Daisy, components/FileField; closes RV-5)
+  "berkas.pilih": { default: "Pilih berkas", en: "Choose a file" },
+  "berkas.belum": { default: "Belum dipilih", en: "Nothing chosen yet" },
+  "berkas.banyak": { default: "{n} berkas: {nama}", en: "{n} files: {nama}" },
+  // W3.14 (Daisy, J7Kunci new words): the idle warning's heading; the sentence and the button are jaga.peringatan, jaga.masih
+  "jaga.judul": { default: "PINTAR akan terkunci dalam 1 menit", en: "PINTAR will lock in 1 minute" },
+  // W3.5 (JQ2(a); Daisy, components/Identity): the account menu's destructive item, which asks in the Dialog
+  "sesi.menu.semua": { default: "Keluar dari semua perangkat…", en: "Sign out of every device…" },
+  // W3.2 / CR-46 (Daisy, components/EmptyState «not enough yet»): how much there is and how much is needed, in words
+  "ketiadaan.jumlah.murid": { default: "Sekarang {have} murid; perlu {needed}.", en: "{have} students so far; {needed} needed." },
+  // W3.3 · the echo under an empty date field (Daisy, components/DateTime)
+  "tanggal.belum": { default: "Belum ada tanggal.", en: "No date yet." },
+  // W3.4 (Batch 2; CR-88): the Collection (Daisy, components/Table, Search, Pagination; the words J2Kelas lists as new).
+  // {benda} is the caller's noun, already in the reader's language; {q} is what was searched. «Berikutnya» and the
+  // pager's hidden names «Halaman sebelumnya» / «Halaman berikutnya» are already here (koleksi.berikutnya, lesson.prev/next).
+  "koleksi.cari.label": { default: "Cari {benda}", en: "Search {benda}" },
+  "koleksi.cari.placeholder": { default: "Cari nama", en: "Search names" },
+  "koleksi.cari.hapus": { default: "Hapus pencarian", en: "Clear search" },
+  "koleksi.cari.cocok": { default: "{n} {benda} cocok dengan «{q}»", en: "{n} {benda} match «{q}»" },
+  "koleksi.saring.label": { default: "Tampilkan", en: "Show" },
+  "koleksi.saring.semua": { default: "Semua", en: "All" },
+  "koleksi.kosong.judul": { default: "Tidak ada {benda} yang cocok", en: "No {benda} match" },
+  "koleksi.kosong.kueri": { default: "Tidak ada nama dengan «{q}» di tampilan ini.", en: "No name with «{q}» in this view." },
+  "koleksi.kosong.reset": { default: "Hapus pencarian dan saringan", en: "Clear search and filter" },
+  "koleksi.halaman.label": { default: "Halaman daftar {benda}", en: "Pages of the {benda} list" },
+  "koleksi.sebelumnya": { default: "Sebelumnya", en: "Previous" },
+  "koleksi.menampilkan": { default: "Menampilkan {dari}–{sampai} dari {total} {benda}", en: "Showing {dari}–{sampai} of {total} {benda}" },
+  "koleksi.posisi": { default: "Halaman {n} dari {total}", en: "Page {n} of {total}" },
+  "koleksi.posisi.ringkas": { default: "{n} / {total}", en: "{n} / {total}" },
   // ══════════════════════════════ UX-1 · the sign-in screen (login handoff)
   // Daisy's canonical copy table, verbatim: 38 strings measured against their
   // controls at every width in both languages. Three of them are load-bearing
@@ -5214,15 +5257,9 @@ export const format = {
     return new Intl.NumberFormat(LOCALE_TAG[locale], { style: "unit", unit: menit ? "minute" : "second", unitDisplay: "long" })
       .format(menit ? Math.ceil(detik / 60) : Math.ceil(detik));
   },
+  // W3.3 (Batch 2): the formal form, «9 Oktober 2026», written by the one date helper (src/lib/tanggal.ts).
   date(iso: string, locale: Locale = "id"): string {
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return iso;
-    return new Intl.DateTimeFormat(LOCALE_TAG[locale], {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      timeZone: TIMEZONE,
-    }).format(d);
+    return tanggal(iso, "resmi", locale) || iso;
   },
 };
 

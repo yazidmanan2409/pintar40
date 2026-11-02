@@ -6,6 +6,9 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { jamWib, jendelaUtama, statusSaya } from "@/lib/pemeliharaan";
 import MerekPintar from "@/components/MerekPintar";
 import PengalihBahasa from "@/components/PengalihBahasa";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/pemeliharaan");
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +36,7 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
   const status = await statusSaya();
   const w = jendelaUtama(status);
   const s = (k: HleEvent) => t(k, "learner", { locale });
-  const jam = (iso: string) => `${jamWib(iso, locale)} ${s("pemeliharaan.zona")}`;
+  const jam = (iso: string) => `${jamWib(iso)} ${s("pemeliharaan.zona")}`;
 
   let isi: React.ReactNode;
   if (status.terhenti === "EMERGENCY") {
@@ -92,7 +95,7 @@ export default async function Pemeliharaan({ searchParams }: { searchParams: Pro
   }
 
   return (
-    <main className="pin-masuk">
+    <main id="isi" tabIndex={-1} className="pin-masuk">
       <div className="pin-panggung">
         <div className="pin-auth">
           <div className="pin-authtop">
