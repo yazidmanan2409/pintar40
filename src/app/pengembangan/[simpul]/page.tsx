@@ -6,6 +6,9 @@ import { catatan, type KeadaanUji, type PaketPeserta } from "@/lib/pengembangan"
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/pengembangan/[simpul]");
 
 export const dynamic = "force-dynamic";
 
@@ -58,7 +61,7 @@ export default async function CatatanPengembangan({ params }: { params: Promise<
   return (
     <>
       <CangkangPengalaman locale={locale} kind={kind} />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={kembali}>← {s("pengembangan.kembali")}</Link>
         <div className="pin-head">
           <p className="pin-eyebrow">{s("pengembangan.eyebrow")} · {isi.nama}</p>

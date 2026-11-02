@@ -13,6 +13,9 @@ import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
 import { kodePenugasanDari, kunciKodePenugasan } from "@/lib/penugasan-kontrak";
 import { batasPelajaran } from "@/lib/batas-ketuntasan";
 import { supabaseServer } from "@/lib/supabase/server";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/mengajar/[kelas]/siapkan");
 
 export const dynamic = "force-dynamic";
 
@@ -96,7 +99,7 @@ export default async function Siapkan({
     return (
       <>
         <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
-        <main className="pin-col">
+        <main id="isi" tabIndex={-1} className="pin-col">
           <Link className="pin-back" href={`/mengajar/${id}`}>← {ctx.ini.nama}</Link>
           {lingkup}
         {tolakan}
@@ -144,7 +147,7 @@ export default async function Siapkan({
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/mengajar/${id}/siapkan`}>← {s("mengajar.siap.kembali")}</Link>
         {lingkup}
         <TahapKomitmen tahap={1} nama={langkah} locale={locale} />

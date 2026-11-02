@@ -7,6 +7,9 @@ import { tujuanInternal } from "@/lib/tujuan";
 import MerekPintar from "@/components/MerekPintar";
 import PengalihBahasa from "@/components/PengalihBahasa";
 import LayarTerkunci from "@/components/sesi/LayarTerkunci";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/terkunci");
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +37,7 @@ export default async function Terkunci({ searchParams }: { searchParams: Promise
   const kartu = jaga.mode === "CARD";
   const persona = kartu ? "learner" : "staff";
   return (
-    <main className="pin-masuk">
+    <main id="isi" tabIndex={-1} className="pin-masuk">
       <div className="pin-panggung">
         <div className="pin-auth">
           <div className="pin-authtop">

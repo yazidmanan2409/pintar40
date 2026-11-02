@@ -19,6 +19,9 @@ import {
   rendersCredential, rendersVerification, layoutFor,
 } from "@/lib/sertifikat";
 import KakiPintar from "@/components/KakiPintar";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/belajar/[tugas]/sertifikat");
 
 /**
  * The learner's certificate for one learning assignment.

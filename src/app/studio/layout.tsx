@@ -69,7 +69,7 @@ export default async function StudioLayout({ children }: { children: React.React
         </>
       }
     />
-    <main className="mx-auto max-w-5xl px-4 py-8">
+    <main id="isi" tabIndex={-1} className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-6">
         <div>
           <p className="text-sm text-ink-3">{s("app.name")}</p>

@@ -196,6 +196,8 @@ export type HleEvent =
   | "bukti.minimum"
 
   | "app.name"
+  | "aksesibilitas.lewati"
+  | "berkas.pilih" | "berkas.belum" | "berkas.banyak"
   | "auth.title"
   | "auth.lede"
   | "auth.email_label"
@@ -2710,6 +2712,12 @@ const table: Table = {
   "bukti.minimum": { default: "minimum", en: "minimum" },
 
   "app.name": { default: "PINTAR", en: "PINTAR" },
+  // W3.1 (Batch 2): the skip link, the first focusable thing on every page (Daisy, 06-accessibility; spec §13)
+  "aksesibilitas.lewati": { default: "Langsung ke isi", en: "Skip to content" },
+  // W3.3 (Batch 2): FileField (Daisy, components/FileField; closes RV-5)
+  "berkas.pilih": { default: "Pilih berkas", en: "Choose a file" },
+  "berkas.belum": { default: "Belum dipilih", en: "Nothing chosen yet" },
+  "berkas.banyak": { default: "{n} berkas: {nama}", en: "{n} files: {nama}" },
   // ══════════════════════════════ UX-1 · the sign-in screen (login handoff)
   // Daisy's canonical copy table, verbatim: 38 strings measured against their
   // controls at every width in both languages. Three of them are load-bearing

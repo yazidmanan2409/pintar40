@@ -10,6 +10,9 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import RingkasKesiapan from "@/components/pimpinan/RingkasKesiapan";
 import AngkaTerkelola from "@/components/pimpinan/AngkaTerkelola";
 import { BarisLingkup, KartuKetiadaan } from "@/components/bukti";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/pimpinan/[simpul]");
 
 export const dynamic = "force-dynamic";
 
@@ -68,7 +71,7 @@ export default async function SimpulPimpinan({
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pimpinan" current="pimpinan" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href="/pimpinan">
           ← {s("pimpinan.kembali")}
         </Link>

@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { card, s, studioInstitutions } from "./_lib";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/studio");
 
 /**
  * Studio home — "Beranda" (FABLE-05 §1).

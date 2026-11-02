@@ -11,6 +11,9 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import FormAktivasi from "@/components/aktivasi/FormAktivasi";
 import { KeAktifkan } from "@/components/aktivasi/HasilAktivasi";
 import KartuUlang, { type PemegangKartu } from "@/components/aktivasi/KartuUlang";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/aktivasi");
 
 export const dynamic = "force-dynamic";
 
@@ -77,7 +80,7 @@ export default async function Aktivasi() {
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pendataan" current="aktivasi" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <div className="pin-head">
           <p className="pin-eyebrow">{s("aktivasi.eyebrow")}</p>
           <h1 className="pin-h1">{s("aktivasi.judul")}</h1>

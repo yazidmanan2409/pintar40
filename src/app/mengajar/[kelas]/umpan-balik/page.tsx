@@ -8,6 +8,9 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import HasilKelas from "@/components/umpanbalik/HasilKelas";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/mengajar/[kelas]/umpan-balik");
 
 export const dynamic = "force-dynamic";
 
@@ -67,7 +70,7 @@ export default async function UmpanBalikKelas({
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/mengajar/${encodeURIComponent(kelas)}`}>
           ← {s("umpanbalik.kembali")}
         </Link>

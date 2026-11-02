@@ -10,6 +10,9 @@ import { BarisLingkup } from "@/components/bukti";
 import { myCertificates, institutionNames, type CertificateRow } from "@/lib/sertifikat";
 import KakiPintar from "@/components/KakiPintar";
 import { petaSesi } from "@/components/sertifikat/asalSertifikat";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/belajar/sertifikat");
 
 /**
  * Sertifikat Anda — the learner's certificate list.

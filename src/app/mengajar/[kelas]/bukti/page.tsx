@@ -8,6 +8,9 @@ import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { AngkaBerdiri, BarisKesiapan, BarisLingkup, KartuKetiadaan, KeadaanHariIni, PopulasiKelas } from "@/components/bukti";
 import { nilaiMetrik, urutkanPita } from "@/lib/nilai-metrik";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/mengajar/[kelas]/bukti");
 
 export const dynamic = "force-dynamic";
 
@@ -109,7 +112,7 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/mengajar/${id}`}>← {ctx.ini.nama}</Link>
         <BarisLingkup
           scope={{

@@ -10,6 +10,9 @@ import HasilDi from "@/components/HasilDi";
 import SimpanIsian from "@/components/SimpanIsian";
 import { TeksBaris } from "@/components/teks/Teks";
 import { pilihanTinjauan, SEDANG_DITINJAU } from "@/lib/kesehatan-soal";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/studio/bank");
 
 /**
  * Content & Question Banks, and the Question Health surface (§8, §10).

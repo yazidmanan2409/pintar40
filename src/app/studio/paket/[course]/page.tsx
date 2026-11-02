@@ -19,6 +19,9 @@ import { soalPaket } from "@/lib/soal-tinjauan";
 import { akarGaris } from "@/lib/pengajar";
 import { jalurIni, konteksHalaman, tempatSaya } from "@/lib/konteks-server";
 import { alamatPilih, melayani } from "@/lib/konteks";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/studio/paket/[course]");
 
 /**
  * Package detail — Publish Readiness (§5), freeze & publish (§6), release

@@ -666,7 +666,10 @@ export const penutupanTests: SelfTest[] = [
       // CR-93: «Laporkan masalah» — its picture field is the form's only file field, and it may shrink to the column
       c.expect(/className="pin-lapor"/.test(baca("src", "app", "lapor", "page.tsx")) && /<TangkapanLayar\b/.test(baca("src", "app", "lapor", "page.tsx")),
         "the report form no longer draws the picture field inside .pin-lapor");
-      c.expect(/type="file"/.test(baca("src", "components", "lapor", "TangkapanLayar.tsx")), "the picture field is not a file field");
+      // RESTATED FOR W3.3 (Batch 2, Daisy's FileField, RV-5): the picture field is a file field through BidangBerkas, whose
+      // native input lies inside its button (absolute, inset 0), so it cannot set the form wider than its column either
+      c.expect(/<BidangBerkas\b/.test(baca("src", "components", "lapor", "TangkapanLayar.tsx"))
+        && /type="file"/.test(baca("src", "components", "bentuk", "BidangBerkas.tsx")), "the picture field is not a file field");
       const aturan = /\.pin-lapor input\[type="file"\]\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
       c.expect(/max-width:\s*100%/.test(aturan) && /min-width:\s*0/.test(aturan),
         "the report form's file field may still set the form wider than its column (CR-93: 440 px at a 320 px window)");

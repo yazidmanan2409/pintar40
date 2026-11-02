@@ -42,6 +42,9 @@ import { alamatCatatan, formulirPeserta, tempatCatatan } from "@/lib/pengembanga
 import { kunciKodeLaporan, kunciStatusLaporan, langkahBerikut, laporanTriase, type KodeLaporan } from "@/lib/lapor-masalah";
 import { pindahkanLaporanAksi } from "@/app/lapor/actions";
 import { daftarKelola, KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/konfigurasi");
 
 /**
  * Super Admin & Configuration Studio — shell (FABLE-01 §10).
@@ -452,7 +455,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         </>
       }
     />
-    <main className="py-6">
+    <main id="isi" tabIndex={-1} className="py-6">
       <header>
         <p className="text-sm text-ink-3">{s("app.name")}</p>
         <h1 className="text-2xl font-semibold tracking-tight">{s("config.title")}</h1>

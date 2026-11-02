@@ -3,6 +3,9 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
 import PermukaanAsesmen from "../../_components/PermukaanAsesmen";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/belajar/asesmen/[penugasan]");
 
 export const dynamic = "force-dynamic";
 

@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { card, s } from "../../_lib";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/studio/kanonik/[terbitan]");
 
 /**
  * A distributed canonical release, read-only (§5.3).

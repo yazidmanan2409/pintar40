@@ -5,6 +5,9 @@ import { HALAMAN_PEMULIHAN, kanonikPintarId, tampilPintarId } from "@/lib/aktiva
 import PengalihBahasa from "@/components/PengalihBahasa";
 import MerekPintar from "@/components/MerekPintar";
 import PanelPernyataan from "@/components/masuk/PanelPernyataan";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/id/[pintarId]");
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +30,7 @@ export default async function HalamanId({ params }: { params: Promise<{ pintarId
   const id = kanonikPintarId(decodeURIComponent(pintarId));
   if (!id) notFound();
   return (
-    <main className="pin-masuk">
+    <main id="isi" tabIndex={-1} className="pin-masuk">
       <div className="pin-panggung">
         <div className="pin-auth">
           <div className="pin-authtop">

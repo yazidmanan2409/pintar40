@@ -10,6 +10,9 @@ import KakiPintar from "@/components/KakiPintar";
 import PerTujuan from "@/components/siklus/PerTujuan";
 import { TeksBaris } from "@/components/teks/Teks";
 import { bagianUlang, ketuntasan } from "@/lib/siklus";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/belajar/[tugas]/hasil");
 
 export const dynamic = "force-dynamic";
 
@@ -63,7 +66,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
   return (
     <>
       <CangkangPengalaman locale={locale} current="belajar" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/belajar/${tugas}`}>
           ← {s("cycle.title")}
         </Link>

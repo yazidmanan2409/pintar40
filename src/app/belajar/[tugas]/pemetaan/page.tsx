@@ -4,6 +4,9 @@ import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
 import PermukaanAsesmen from "../../_components/PermukaanAsesmen";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/belajar/[tugas]/pemetaan");
 
 export const dynamic = "force-dynamic";
 

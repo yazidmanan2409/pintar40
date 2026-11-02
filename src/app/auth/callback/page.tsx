@@ -5,6 +5,9 @@ import MerekPintar from "@/components/MerekPintar";
 import PengalihBahasa from "@/components/PengalihBahasa";
 import PanelPernyataan, { KalimatPonsel } from "@/components/masuk/PanelPernyataan";
 import TukarTautan from "@/components/masuk/TukarTautan";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/auth/callback");
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +47,7 @@ export default async function Callback({
   const mati = Boolean(sp.error || sp.error_code) || !sp.code;
 
   return (
-    <main className="pin-masuk">
+    <main id="isi" tabIndex={-1} className="pin-masuk">
       <div className="pin-panggung">
       <div className="pin-auth">
         <div className="pin-authtop">

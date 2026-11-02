@@ -17,6 +17,9 @@ import IsianSetuju from "@/components/pendataan/IsianSetuju";
 import DaftarNama from "@/components/pendataan/DaftarNama";
 import { semuaNama } from "../nama";
 import { tawarkanSekolahLain } from "@/lib/konteks-server";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/pendataan/[pekerjaan]");
 
 export const dynamic = "force-dynamic";
 
@@ -90,7 +93,7 @@ export default async function SatuPendataan({
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pendataan" current="pendataan" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href="/pendataan">← {s("pendataan.kembali")}</Link>
 
         <div className="pin-head">

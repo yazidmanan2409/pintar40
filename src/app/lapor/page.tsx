@@ -11,6 +11,9 @@ import BarisHasil from "@/components/BarisHasil";
 import TombolKirim from "@/components/TombolKirim";
 import TangkapanLayar from "@/components/lapor/TangkapanLayar";
 import { cangkangStaf } from "@/components/lapor/cangkang";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/lapor");
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +41,7 @@ export default async function Lapor({ searchParams }: { searchParams: Promise<{ 
   return (
     <>
       <CangkangPengalaman locale={locale} kind={kind} halamanKini="lapor" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={halaman === "/" ? kembali : halaman}>← {s("lapor.kembali")}</Link>
         <div className="pin-head">
           <p className="pin-eyebrow">{s("lapor.eyebrow")}</p>

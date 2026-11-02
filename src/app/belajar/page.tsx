@@ -18,6 +18,9 @@ import { namaSapaan } from "@/components/sesi";
 import KartuTugas from "@/components/siklus/KartuTugas";
 import PanelLanjut from "@/components/siklus/PanelLanjut";
 import { labelTujuan } from "@/components/siklus/aksi";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/belajar");
 
 export const dynamic = "force-dynamic";
 
@@ -213,7 +216,7 @@ export default async function Belajar({
   return (
     <>
       <CangkangPengalaman locale={locale} current="belajar" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <div className="pin-head">
           <p className="pin-eyebrow">
             {konteks.mengajar ? s("pembelajaran.eyebrow") : s("siklus.beranda")}

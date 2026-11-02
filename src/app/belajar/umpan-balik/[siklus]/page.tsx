@@ -9,6 +9,9 @@ import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import LembarUmpanBalik from "@/components/umpanbalik/LembarUmpanBalik";
 import { kirimUmpanBalikAksi } from "../actions";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/belajar/umpan-balik/[siklus]");
 
 export const dynamic = "force-dynamic";
 
@@ -59,7 +62,7 @@ export default async function BeriUmpanBalik({
   return (
     <>
       <CangkangPengalaman locale={locale} current="belajar" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href="/belajar">← {s("umpanbalik.kembali")}</Link>
 
         <div className="pin-head">

@@ -16,7 +16,7 @@ export default async function TidakAda() {
   const s = (k: HleEvent) => t(k, "public", { locale });
   return (
     <div className="pin-col">
-      <main>
+      <main id="isi" tabIndex={-1}>
         <section className="pin-refusal">
           <MerekPintar standalone />
           <h1>{s("tidak_ada.judul")}</h1>

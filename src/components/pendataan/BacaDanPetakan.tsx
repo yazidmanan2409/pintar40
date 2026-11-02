@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import BidangBerkas from "@/components/bentuk/BidangBerkas";
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import {
   MEDAN, PERAN_PENDATAAN, bacaKisi, barisTernormalisasi, pemetaanLengkap, tebakPemetaan,
@@ -93,12 +94,10 @@ export default function BacaDanPetakan({
         <p className="pin-mm">{s("pendataan.unggah.bentuk")}</p>
 
         <div className="pin-isian">
-          <label htmlFor="pin-berkas">{s("pendataan.unggah.berkas")}</label>
-          <input
-            id="pin-berkas"
-            type="file"
+          <BidangBerkas
+            id="pin-berkas" label={s("pendataan.unggah.berkas")} locale={locale}
             accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain"
-            onChange={dariBerkas}
+            onPilih={(_fs, e) => dariBerkas(e)}
           />
         </div>
 

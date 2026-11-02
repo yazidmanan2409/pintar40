@@ -6,6 +6,9 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup, KartuKetiadaan } from "@/components/bukti";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/mengajar/[kelas]/murid/[orang]");
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +52,7 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/mengajar/${id}`}>← {ctx.ini.nama}</Link>
         <BarisLingkup
           scope={{ institution: ctx.konteks.institusi?.nama ?? null, path: [ctx.ini.nama], period: ctx.konteks.periode }}

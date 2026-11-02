@@ -2749,3 +2749,28 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
   .pin-laci-saklar:checked ~ .pin-sesi .pin-sesi-akun { display: inline-flex; align-items: center; }
 }
 @media print { body:has(.pin-staf) { padding-left: 0; } }
+
+/* ───────────────────────────── W3.1 · the skip link (Batch 2; Daisy, approved question 10)
+   «Langsung ke isi»: the first focusable thing on every page. It waits above the page's top edge
+   (nothing scrolls to a negative offset, so it never shows) and comes into place with focus. */
+.pin-lewati { position: absolute; left: var(--space-3); top: var(--space-3); z-index: var(--z-modal); display: inline-flex; align-items: center; min-height: var(--control-md); padding: 0 var(--space-4); border-radius: var(--radius-md); background: var(--surface-1); color: var(--pintar-primary); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; box-shadow: var(--shadow-overlay); transform: translateY(calc(-100% - var(--space-4) - var(--space-3))); }
+.pin-lewati:focus { transform: none; outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+@media (prefers-reduced-motion: no-preference) { .pin-lewati { transition: transform var(--motion-fast) ease-out; } }
+/* the page's content takes focus from the link without drawing a ring around the whole page */
+#isi:focus { outline: none; }
+
+/* ───────────────────────────── W3.3 · FileField (Batch 2; Daisy, components/FileField; closes RV-5)
+   The native input lies transparent over «Pilih berkas», so the whole button is its target and the browser's own
+   words never show; what was chosen is named beneath, in words. */
+.pin-berkas { display: grid; gap: var(--space-2); justify-items: start; }
+.pin-berkas-judul { font-weight: 600; color: var(--ink-1); }
+.pin-berkas-tombol { position: relative; display: inline-flex; }
+.pin-berkas-tombol > .pin-btn { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-md); }
+.pin-berkas-tombol input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.pin-berkas input[type="file"]:focus-visible + label { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+.pin-berkas-nama { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-2); margin: 0; overflow-wrap: anywhere; }
+.pin-berkas-galat { color: var(--status-blocked); margin: 0; }
+
+/* W3.1 · a lesson's audio or video (the Batch 0 baseline's one focus stop without an indicator): the browser's own
+   controls take focus inside the element, where :focus-visible does not reach, so the element itself shows the ring. */
+audio:focus, audio:focus-within, video:focus, video:focus-within { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }

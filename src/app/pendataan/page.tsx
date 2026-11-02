@@ -11,6 +11,9 @@ import BarisHasil from "@/components/BarisHasil";
 import TandaTautan from "@/components/TandaTautan";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import BacaDanPetakan from "@/components/pendataan/BacaDanPetakan";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/pendataan");
 
 export const dynamic = "force-dynamic";
 
@@ -62,7 +65,7 @@ export default async function Pendataan({
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pendataan" current="pendataan" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <div className="pin-head">
           <p className="pin-eyebrow">{s("pendataan.eyebrow")}</p>
           <h1 className="pin-h1">{s("pendataan.judul")}</h1>

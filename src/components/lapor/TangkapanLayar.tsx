@@ -4,6 +4,7 @@ import { useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { t, type Locale } from "@/lib/hle";
 import { BATAS_TANGKAPAN, namaTangkapan } from "@/lib/lapor-masalah-kontrak";
+import BidangBerkas from "@/components/bentuk/BidangBerkas";
 
 /**
  * DAISY-12: the optional screenshot. The picture goes straight to PINTAR's private storage through the one signed
@@ -41,8 +42,9 @@ export default function TangkapanLayar({ locale }: { locale: Locale }) {
 
   return (
     <div className="pin-lapor-isian">
-      <span>{s("lapor.tangkapan")}</span>
-      <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => pilih(e.target.files?.[0])} />
+      {/* W3.3 / the /lapor axe finding (`label`, critical): the field's own label now names the input */}
+      <BidangBerkas id="lapor-tangkapan" label={s("lapor.tangkapan")} locale={locale}
+        accept="image/png,image/jpeg,image/webp" onPilih={(fs) => pilih(fs[0])} />
       <input type="hidden" name="tangkapan" value={jalur} />
       <p className="pin-hint" aria-live="polite">
         {keadaan === "naik" ? s("lapor.tangkapan.naik") : keadaan === "siap" ? s("lapor.tangkapan.siap")

@@ -14,6 +14,9 @@ import { bacaGagalUjiCepat } from "@/lib/ujicepat-kontrak";
 import { kalimatTolakUjiCepat } from "@/components/mengajar/tolakUjiCepat";
 import { TeksBaris } from "@/components/teks/Teks";
 import { kataAnggota } from "@/lib/mengajar";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/mengajar/[kelas]/uji-cepat");
 
 export const dynamic = "force-dynamic";
 
@@ -117,7 +120,7 @@ export default async function UjiCepat({
     return (
       <>
         {kepala}
-        <main className="pin-col">
+        <main id="isi" tabIndex={-1} className="pin-col">
           <Link className="pin-back" href={`/mengajar/${id}`}>← {ctx.ini.nama}</Link>
           {lingkup}
           <TahapKomitmen tahap={2} nama={langkah} locale={locale} />
@@ -198,7 +201,7 @@ export default async function UjiCepat({
     return (
       <>
         {kepala}
-        <main className="pin-col">
+        <main id="isi" tabIndex={-1} className="pin-col">
           <Link className="pin-back" href={ubahPilihan}>← {s("mengajar.cepat.tinjau.ubah")}</Link>
           {lingkup}
           <TahapKomitmen tahap={1} nama={langkah} locale={locale} />
@@ -262,7 +265,7 @@ export default async function UjiCepat({
   return (
     <>
       {kepala}
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/mengajar/${id}`}>← {ctx.ini.nama}</Link>
         {lingkup}
         <TahapKomitmen tahap={0} nama={langkah} locale={locale} />

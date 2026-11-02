@@ -7,6 +7,9 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/pimpinan/[simpul]/murid/[orang]");
 
 export const dynamic = "force-dynamic";
 
@@ -79,7 +82,7 @@ export default async function RincianMuridPimpinan({
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pimpinan" current="pimpinan" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/pimpinan/${encodeURIComponent(node.id)}/murid`}>
           ← {s("pimpinan.murid.judul")}
         </Link>

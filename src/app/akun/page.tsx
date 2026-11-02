@@ -11,6 +11,9 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { bacaPenjagaan, HALAMAN_PERANGKAT } from "@/lib/penjaga-sesi-kontrak";
 import { konteksSaya } from "@/lib/konteks-server";
 import { berandaPasangan } from "@/lib/konteks";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/akun");
 
 export const dynamic = "force-dynamic";
 
@@ -50,7 +53,7 @@ export default async function Akun() {
   return (
     <>
       <CangkangPengalaman locale={locale} kind={kind} halamanKini="akun" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <div className="pin-head">
           <h1 className="pin-h1">{s("akun.judul")}</h1>
           <p className="pin-intro">{s("akun.intro")}</p>

@@ -13,6 +13,9 @@ import { confirmMappingAction, easyUploadAction, structuredImportAction } from "
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
 import SimpanIsian from "@/components/SimpanIsian";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/studio/unggah");
 
 /**
  * Content Factory (§2). Two paths, both landing at INGESTED and converging on

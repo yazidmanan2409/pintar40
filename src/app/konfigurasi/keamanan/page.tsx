@@ -7,6 +7,9 @@ import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import PemulihanPin from "@/components/keamanan/PemulihanPin";
 import CatatanKeamanan, { type BarisKeamanan } from "@/components/keamanan/CatatanKeamanan";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/konfigurasi/keamanan");
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +47,7 @@ export default async function Keamanan() {
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pendataan" halamanKini="keamanan" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <div className="pin-head">
           <p className="pin-eyebrow">{s("keamanan.eyebrow")}</p>
           <h1 className="pin-h1">{s("keamanan.judul")}</h1>

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 189,
+  "version": 190,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2342,7 +2342,7 @@
     {
       "id": "PENUTUPAN-L01",
       "runner": "static",
-      "proves": "CR-93 and CR-94 (the owner's ruling of 8 Oct: the 320 px overflow only), the source of src/app/experience.css, src/app/lapor/page.tsx, src/components/lapor/TangkapanLayar.tsx and src/app/konfigurasi/page.tsx: the report form's file field may shrink to its column (max-width 100%, min-width 0) and sets no width, so it keeps its own width where it fits; a role's row in Konfigurasi wraps below 640 px, so its revoke form goes below the name, and from 640 px up does not wrap, as before. A source pin; the seeded crawl's X.6 (audit/crawl.mjs) measures both pages at 320 px in the browser."
+      "proves": "CR-93 and CR-94 (the owner's ruling of 8 Oct: the 320 px overflow only), the source of src/app/experience.css, src/app/lapor/page.tsx, src/components/lapor/TangkapanLayar.tsx (through src/components/bentuk/BidangBerkas.tsx since W3.3) and src/app/konfigurasi/page.tsx: the report form's file field may shrink to its column (max-width 100%, min-width 0) and sets no width, so it keeps its own width where it fits; a role's row in Konfigurasi wraps below 640 px, so its revoke form goes below the name, and from 640 px up does not wrap, as before. A source pin; the seeded crawl's X.6 (audit/crawl.mjs) measures both pages at 320 px in the browser."
     },
     {
       "id": "PENUTUPAN-A01",
@@ -3737,6 +3737,21 @@
       "id": "CR91-K02",
       "runner": "static",
       "proves": "CR-91 (D-145(a)), the application's half (selftest/cr91.test.ts): bolehKartu (src/components/aktivasi/kelas.ts) is true only for an explicit boleh_kartu = true; the real Aktivasi form, rendered, offers the learner a card and email and the Guru email only; src/app/aktivasi/page.tsx builds the whole-class card groups only from the people a card may be offered to."
+    },
+    {
+      "id": "UX2-JUDUL-01",
+      "runner": "static",
+      "proves": "W3.1 (Batch 2; WCAG 2.4.2), selftest/ux2.test.ts: the root layout holds the title template «%s · PINTAR»; every src/app/**/page.tsx exports generateMetadata = judulHalaman(<its own route>) from the one map src/lib/judul-halaman.ts; every map entry is a page; each title resolves in id and en to words that are neither the bare name, the calm dash nor a key; a page whose heading is data (a person's, a class's or a package's name) is titled by its place."
+    },
+    {
+      "id": "UX2-LEWATI-01",
+      "runner": "static",
+      "proves": "W3.1 (Batch 2; WCAG 2.4.1; Daisy 06-accessibility), selftest/ux2.test.ts, the source of src/app/layout.tsx, every src/**/*.tsx and src/app/experience.css: «Langsung ke isi» is the first element of <body> in src/app/layout.tsx, a link to #isi; every <main> in src is id=\"isi\"; .pin-lewati (src/app/experience.css) waits above the page (absolute, translateY(calc(-100% …)), 44 px high) and comes into place with a focus ring."
+    },
+    {
+      "id": "UX2-BERKAS-01",
+      "runner": "static",
+      "proves": "W3.3 FileField (Batch 2; Daisy components/FileField; closes RV-5 and the /lapor axe `label` finding), selftest/ux2.test.ts: no file input in src outside src/components/bentuk/BidangBerkas.tsx; rendered in id and en, the input is named by the field's label (aria-labelledby), described by the choice and the limit, lies transparent over «Pilih berkas» (CSS), shows a focus ring on its button, and names the empty choice «Belum dipilih» politely; /lapor's screenshot uses it."
     },
     {
       "id": "D140-STUDIO-01",

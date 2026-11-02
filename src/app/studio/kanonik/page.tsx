@@ -7,6 +7,9 @@ import { grantDistributionAction, withdrawDistributionAction } from "../actions"
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
 import SimpanIsian from "@/components/SimpanIsian";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/studio/kanonik");
 
 /**
  * The PINTAR library — distributed canonical content (this phase's §5.3).

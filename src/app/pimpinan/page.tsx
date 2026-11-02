@@ -18,6 +18,9 @@ import BarisHasil from "@/components/BarisHasil";
 import TandaTautan from "@/components/TandaTautan";
 import { lingkupAwal } from "@/components/pimpinan/lingkup";
 import { alamatCatatan, tempatCatatan } from "@/lib/pengembangan";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/pimpinan");
 
 export const dynamic = "force-dynamic";
 
@@ -106,7 +109,7 @@ export default async function Pimpinan({
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pimpinan" current="pimpinan" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         {/* ── A. MANAGEMENT CONTEXT ─────────────────────────────────────── */}
         <BarisLingkup scope={{ path: [dipilih.nama] }} locale={locale} />
 

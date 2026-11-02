@@ -8,6 +8,9 @@ import { lessonRead } from "@/lib/siklus";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import PetaBacaan from "@/components/siklus/PetaBacaan";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/belajar/[tugas]/peta");
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +41,7 @@ export default async function Peta({ params }: { params: Promise<{ tugas: string
   return (
     <>
       <CangkangPengalaman locale={locale} current="belajar" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/belajar/${tugas}`}>
           ← {s("cycle.title")}
         </Link>

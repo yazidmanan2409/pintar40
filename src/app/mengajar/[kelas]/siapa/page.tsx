@@ -8,6 +8,9 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import DaftarMurid from "@/components/mengajar/DaftarMurid";
 import { kataAnggota } from "@/lib/mengajar";
+import { judulHalaman } from "@/lib/judul-halaman";
+
+export const generateMetadata = judulHalaman("/mengajar/[kelas]/siapa");
 
 export const dynamic = "force-dynamic";
 
@@ -67,7 +70,7 @@ export default async function Siapa({
   return (
     <>
       <CangkangPengalaman locale={locale} kind="pengajar" current="kelas" />
-      <main className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <Link className="pin-back" href={`/mengajar/${id}`}>← {ctx.ini.nama}</Link>
         <BarisLingkup
           scope={{
