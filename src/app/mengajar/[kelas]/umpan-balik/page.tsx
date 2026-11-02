@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
@@ -82,7 +83,7 @@ export default async function UmpanBalikKelas({
         </div>
 
         {siklus.length === 0 ? (
-          <p className="pin-empty">{s("umpanbalik.guru.kosong")}</p>
+          <Kosong jenis="belum" kalimat={s("umpanbalik.guru.kosong")} />
         ) : (
           siklus.map((c, i) => {
             const kunci = keadaanKunci(c.keadaan);

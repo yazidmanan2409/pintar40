@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
@@ -72,7 +73,7 @@ export default async function SoalKelas({
         </div>
 
         {soal.length === 0 ? (
-          <p className="pin-empty">{s("mengajar.soal.kosong")}</p>
+          <Kosong jenis="belum" kalimat={s("mengajar.soal.kosong")} />
         ) : (
           <ol className="pin-soal-kelas">
             {soal.map(({ soal: q, pilihan, perluBantuan }) => (

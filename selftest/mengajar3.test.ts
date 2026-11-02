@@ -233,13 +233,17 @@ export const mengajar3Tests: SelfTest[] = [
     run: async (ctx) => {
       const c = new Checks();
       let n = 0;
-      for (const p of [SIAPKAN, CEPAT, HASIL, ULANG, KELAS]) {
+      // EXTENDED (Batch 3 integration): every Mengajar page, the home, «Lihat per soal», a learner's page and the
+      // feedback page included, so no bare «pin-empty» line is left under src/app/mengajar
+      const LAIN = [["src", "app", "mengajar", "page.tsx"], ["src", "app", "mengajar", "[kelas]", "soal", "page.tsx"],
+        ["src", "app", "mengajar", "[kelas]", "murid", "[orang]", "page.tsx"], ["src", "app", "mengajar", "[kelas]", "umpan-balik", "page.tsx"]];
+      for (const p of [SIAPKAN, CEPAT, HASIL, ULANG, KELAS, ...LAIN]) {
         const isi = kode(baca(ctx.repoRoot, ...p));
         c.expect(!/className="pin-empty"/.test(isi), `${p.slice(3).join("/")} still writes a bare «pin-empty» line`);
         n += (isi.match(/<Kosong jenis="belum"/g) ?? []).length;
       }
-      c.expect(n >= 9, `only ${n} Empty states on the Mengajar pages this batch touches`);
-      return c.verdict(`the Mengajar pages this batch touches say their emptiness through Kosong (${n})`);
+      c.expect(n >= 16, `only ${n} Empty states on the Mengajar pages`);
+      return c.verdict(`every Mengajar page says its emptiness through Kosong (${n}), none with a bare «pin-empty» line`);
     },
   },
 ];

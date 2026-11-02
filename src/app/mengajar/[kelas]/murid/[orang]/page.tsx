@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
@@ -67,7 +68,7 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
         <section className="pin-sec" aria-labelledby="pin-murid-tugas">
           <h2 id="pin-murid-tugas">{s("mengajar.murid1.tugas")}</h2>
           {catatan.tugas.length === 0 ? (
-            <p className="pin-empty">{s("mengajar.murid1.tugas_kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("mengajar.murid1.tugas_kosong")} />
           ) : (
             <dl className="pin-facts">
               {catatan.tugas.map((x) => (
@@ -86,7 +87,7 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
           {catatan.hasil.status !== "ok" ? (
             <KartuKetiadaan entry={catatan.hasil} locale={locale} persona="educator" />
           ) : catatan.daftarHasil.length === 0 ? (
-            <p className="pin-empty">{s("mengajar.murid1.hasil_kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("mengajar.murid1.hasil_kosong")} />
           ) : (
             <dl className="pin-facts">
               {catatan.daftarHasil.map((h) => (

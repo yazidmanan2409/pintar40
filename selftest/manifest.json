@@ -3842,7 +3842,7 @@
     {
       "id": "MENGAJAR3-KOSONG-01",
       "runner": "static",
-      "proves": "W3.18 Mengajar part (Batch 3; 08-migration.md Feedback, .pin-empty to Empty state), selftest/mengajar3.test.ts: src/app/mengajar/[kelas]/{page,siapkan,uji-cepat,uji-cepat/hasil,ulang} write no bare pin-empty line and say their emptiness through src/components/Kosong.tsx."
+      "proves": "W3.18 Mengajar (Batch 3; 08-migration.md Feedback, .pin-empty to Empty state), selftest/mengajar3.test.ts: the source of every Mengajar page (src/app/mengajar/page.tsx and [kelas]/{page,siapkan,uji-cepat,uji-cepat/hasil,ulang,soal,murid/[orang],umpan-balik}) writes no bare pin-empty line and says its emptiness through src/components/Kosong.tsx."
     },
     {
       "id": "STUDIO3A-J1-01",
