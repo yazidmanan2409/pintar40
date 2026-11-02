@@ -81,6 +81,11 @@ async function klikTautan(page, href) {
     const menu = page.locator('label[for="pin-laci"]');
     if (await menu.isVisible().catch(() => false)) await menu.click();
   }
+  // W3.5 (Batch 2, JQ2(a)): Akun saya and Laporan saya sit in the account menu, opened by the staff member's name
+  if (!(await page.locator(`a[href="${href}"]:visible`).count())) {
+    const akun = page.locator('button[aria-controls="pin-menu-akun"]:visible').first();
+    if (await akun.count()) await akun.click();
+  }
   const a = page.locator(`a[href="${href}"]:visible`).first();
   await a.waitFor({ state: "visible", timeout: SLOW });
   await a.click();

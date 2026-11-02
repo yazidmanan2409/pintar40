@@ -196,6 +196,8 @@
   --measure-guide-card: 420px;   /* the tour card, beside its target */
   --measure-guide-panel: 380px;  /* the Help panel */
   --measure-guide-tip: 300px;    /* a tip, anchored to one control */
+  --measure-menu: 220px;         /* W3.5: a menu at its narrowest (Daisy, components/Menu) */
+  --measure-dialog: 480px;       /* W3.5: the one dialog at its widest (Daisy, components/Dialog) */
   --guide-sheet-max: 78%;        /* the phone sheet's ceiling (§J-15) */
 
   /* the sign-in screen (UX-1 login handoff §1.2-1.4, §6.5). Named because the

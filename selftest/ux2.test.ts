@@ -19,6 +19,13 @@
  *  UX2-KOSONG-01  W3.2 · EMPTY STATE (CR-46): Kosong renders a sentence and, except for «not enough yet», its action;
  *                 the absence card never shows «(n/m)» and says «Sekarang 3 murid; perlu 5.» where students are
  *                 counted; AlasanNonaktif gives a disabled button its reason beside it.
+ *  UX2-MENU-01    W3.5 · THE ACCOUNT MENU AND THE ONE DIALOG (JQ2(a)): a staff strip's name is a menu button
+ *                 (aria-haspopup, aria-expanded, aria-controls) over a hidden role=menu holding Akun saya, Laporan saya
+ *                 and, last, «Keluar dari semua perangkat…», which opens the native dialog (showModal) whose «Batal»
+ *                 takes focus and whose «Keluar dari semua» is the one solid red; «Keluar» stays outside the menu; a
+ *                 learner's strip has no menu and no name.
+ *  UX2-JAGA-01    W3.14 · THE IDLE WARNING (J7): an attention alert (role=alert) with the clock and its own heading,
+ *                 mounted before the page in the flow (never fixed over the work), on the attention ground, no countdown.
  */
 import { spawnSync } from "node:child_process";
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -223,6 +230,62 @@ export const ux2Tests: SelfTest[] = [
       const r = render(ctx.repoRoot, "src/components/AlasanNonaktif.tsx", { id: "periksa-alasan", children: "Pilih buku kerja dahulu." });
       c.expect(r.ok && r.html === '<p class="pin-alasan" id="periksa-alasan">Pilih buku kerja dahulu.</p>', `the reason line is ${r.html || r.galat}`);
       return c.verdict("Kosong: a sentence and its action (none for «not enough yet»); the absence card says «Sekarang 3 murid; perlu 5.», never «(3/5)»; a disabled button's reason is a line beside it");
+    },
+  },
+  {
+    id: "UX2-MENU-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const { t } = await import("../src/lib/hle");
+      for (const locale of ["id", "en"] as const) {
+        const st = render(ctx.repoRoot, "src/components/BarisSesi.tsx", { locale, persona: "staff", nama: "Rina Kartika" });
+        const mu = render(ctx.repoRoot, "src/components/BarisSesi.tsx", { locale, persona: "learner", nama: null });
+        if (!c.expect(st.ok && mu.ok, `the strip could not be rendered: ${st.galat || mu.galat}`)) continue;
+        const x = st.html, s = (k: Parameters<typeof t>[0]) => t(k, "staff", { locale });
+        c.expect(/<button type="button" class="pin-menu-tombol" aria-haspopup="menu" aria-expanded="false" aria-controls="pin-menu-akun"><strong>Rina Kartika<\/strong>/.test(x),
+          `(${locale}) the staff member's name is not the menu's button`);
+        const menu = x.match(/<div id="pin-menu-akun" class="pin-menu" role="menu" aria-label="Rina Kartika" hidden="">([\s\S]*?)<\/div>/)?.[1] ?? "";
+        const butir = [...menu.matchAll(/role="menuitem"[^>]*>([^<]+)</g)].map((m) => m[1]);
+        c.expect(JSON.stringify(butir) === JSON.stringify([s("sesi.akun"), s("lapor.saya.buka"), s("sesi.menu.semua")]),
+          `(${locale}) the menu holds ${JSON.stringify(butir)}`);
+        c.expect(/href="\/akun"/.test(menu) && /href="\/lapor\/saya"/.test(menu) && /<button role="menuitem" type="button" class="pin-menu-butir pin-menu-bahaya"/.test(menu),
+          `(${locale}) the items do not go where they say, or the destructive one is not last and a button`);
+        c.expect(/<dialog class="pin-dialog" aria-labelledby="pin-dialog-semua">/.test(x) && x.includes(`<h2 id="pin-dialog-semua">${s("akun.semua.yakin")}</h2>`),
+          `(${locale}) there is no dialog asking «${s("akun.semua.yakin")}»`);
+        const aksi = x.match(/<div class="pin-dialog-aksi">([\s\S]*?)<\/div>/)?.[1] ?? "";
+        c.expect(aksi.indexOf(s("akun.semua.batal")) > -1 && aksi.indexOf(s("akun.semua.batal")) < aksi.indexOf(s("akun.semua.ya"))
+          && /class="pin-btn pin-bahaya-pasti"[^>]*>[^<]*<|class="pin-btn pin-bahaya-pasti"/.test(aksi), `(${locale}) the safe action is not first, or the act is not the solid red`);
+        c.expect(/<form action="\/keluar" method="post">/.test(x) && !/role="menu"[\s\S]*\/keluar"/.test(menu), `(${locale}) «Keluar» is not outside the menu`);
+        c.expect(!/pin-menu|role="menu"|<dialog/.test(mu.html), `(${locale}) a learner's strip has a menu`);
+      }
+      const src = readFileSync(join(ctx.repoRoot, "src/components/sesi/MenuAkun.tsx"), "utf8");
+      const dlg = readFileSync(join(ctx.repoRoot, "src/components/Dialog.tsx"), "utf8");
+      c.expect(/d\.showModal\(\)/.test(dlg) && /p\.focus\(\)/.test(dlg), "the dialog is not modal, or focus does not return to its opener");
+      c.expect(/autoFocus onClick=\{\(\) => setTanya\(false\)\}/.test(src), "focus does not start on «Batal»");
+      for (const k of ["ArrowDown", "ArrowUp", "Home", "End", "Escape", "Tab"]) c.expect(src.includes(`e.key === "${k}"`), `the menu ignores ${k}`);
+      c.expect(/butir\(\)\[0\]\?\.focus\(\)/.test(src) && /pointerdown/.test(src), "the first item does not take focus on open, or a press outside does not close it");
+      const css = readFileSync(join(ctx.repoRoot, "src/app/experience.css"), "utf8");
+      c.expect(/\.pin-menu-butir \{[^}]*min-height: var\(--control-md\)/.test(css) && /\.pin-dialog::backdrop \{ background: var\(--scrim\); \}/.test(css)
+        && /@media \(max-width: 639px\) \{ \.pin-dialog-aksi \{ flex-direction: column-reverse;/.test(css), "menu items are not 44 px, the scrim is missing, or the actions do not stack safe-last under 640 px");
+      return c.verdict("a staff member's name opens a 44 px menu (Akun saya, Laporan saya, «Keluar dari semua perangkat…» last) with arrow, Home/End, Esc and outside-press handling; the one dialog is modal, starts on «Batal» and names «Keluar dari semua» in the one solid red; «Keluar» stays outside; a learner has none");
+    },
+  },
+  {
+    id: "UX2-JAGA-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const src = readFileSync(join(ctx.repoRoot, "src/components/PenjagaSesi.tsx"), "utf8");
+      c.expect(/<div className="pin-jaga" role="alert">\s*<Ikon nama="clock" kelas="pin-jaga-ikon" \/>/.test(src), "the warning is not an alert with the clock");
+      c.expect(/<h2 className="pin-jaga-judul">\{t\("jaga\.judul"/.test(src), "the warning has no heading");
+      const { t } = await import("../src/lib/hle");
+      c.expect(t("jaga.judul", "staff") === "PINTAR akan terkunci dalam 1 menit", "the heading is not Daisy's");
+      const tata = readFileSync(join(ctx.repoRoot, "src/app/layout.tsx"), "utf8");
+      c.expect(tata.indexOf("<PenjagaSesi") > -1 && tata.indexOf("<PenjagaSesi") < tata.indexOf("{children}"), "the warning is not mounted before the page (the top)");
+      const css = readFileSync(join(ctx.repoRoot, "src/app/experience.css"), "utf8");
+      const r = css.match(/\n\.pin-jaga \{([^}]*)\}/)?.[1] ?? "";
+      c.expect(/background: var\(--status-attention-soft\)/.test(r) && !/position:\s*fixed/.test(r) && !/z-index/.test(r), "the warning is not on the attention ground, or it floats over the work");
+      c.expect(!/setInterval\([^)]*1_?000\)|detik|seconds/i.test(src.split("if (!peringatan) return null;")[1] ?? ""), "the warning counts down");
+      return c.verdict("the idle warning is an alert at the top of the page, in the flow, with the clock and «PINTAR akan terkunci dalam 1 menit», on the attention ground, without a countdown");
     },
   },
 ];

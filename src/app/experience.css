@@ -2578,12 +2578,15 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-perangkat-pilihan input { margin-top: var(--space-1); }
 .pin-perangkat-dipilih { border-color: var(--pintar-primary); box-shadow: inset 0 0 0 1px var(--pintar-primary); }
 .pin-jaga {
-  position: fixed; inset: auto var(--space-3) var(--space-3) var(--space-3); z-index: 60; margin: 0 auto; max-width: var(--measure-read);
-  display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); align-items: center; justify-content: space-between;
-  padding: var(--space-3); background: var(--surface-1); color: var(--ink-1);
-  border: 1px solid var(--line-strong); border-radius: var(--radius-1); box-shadow: 0 0 0 4px var(--pintar-primary-soft);
+  /* W3.14 (Daisy, IdleWarning): attention, not error — the attention ground and the clock, at the top, in the flow */
+  display: grid; grid-template-columns: var(--icon-md) minmax(0, 1fr); column-gap: var(--space-3); align-items: start;
+  margin: var(--space-3) auto; max-width: var(--measure-read); padding: var(--space-4) var(--space-5);
+  background: var(--status-attention-soft); color: var(--ink-1); border: 0; border-radius: var(--radius-lg);
 }
-.pin-jaga > p { margin: 0; flex: 1 1 var(--measure-guide-tip); }
+.pin-jaga-ikon { width: var(--icon-md); height: var(--icon-md); color: var(--status-attention); }
+.pin-jaga-isi { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); align-items: center; }
+.pin-jaga-judul { margin: 0; flex: 1 1 100%; font-size: var(--t-body); line-height: var(--t-body-lh); font-weight: var(--weight-strong); }
+.pin-jaga-isi > p { margin: 0; flex: 1 1 var(--measure-guide-tip); }
 
 /* --------------------------------------------------------- laporkan masalah */
 /* BOB-15 / DAISY-12 (D-037 step 2): three questions, one box, an optional picture; and the reports themselves as a
@@ -2811,3 +2814,40 @@ select:not([multiple]):not([size]) {
 .pin-kosong-kalimat { margin: 0; color: var(--ink-2); max-width: var(--measure); }
 /* The disabled button's reason (components/Button), written beside it. */
 .pin-alasan { margin: var(--space-1) 0 0; font-size: var(--type-meta); color: var(--ink-3); }
+
+/* ───────────────────────────── W3.5 · the account menu and the one Dialog (Batch 2; Daisy, components/Menu,
+   Dialog, Identity; JQ2(a)). Menu items 44 px; the destructive item last, in blocked words; the dialog on the scrim. */
+.pin-menu-induk { position: relative; display: inline-block; }
+.pin-menu-tombol {
+  display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control-md); padding: 0 var(--space-2);
+  border: 0; background: none; color: var(--ink-1); font: inherit; cursor: pointer; max-width: 100%;
+}
+.pin-menu-tombol strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pin-menu-tombol .pin-chevron { width: var(--icon-sm); height: var(--icon-sm); color: var(--ink-3); flex: none; }
+.pin-menu-tombol[aria-expanded="true"] .pin-chevron { transform: rotate(180deg); }
+.pin-menu {
+  position: absolute; top: calc(100% + var(--space-1)); right: 0; z-index: var(--z-overlay); min-width: var(--measure-menu);
+  display: grid; padding: var(--space-1); background: var(--surface-1); border-radius: var(--radius-md); box-shadow: var(--shadow-overlay);
+}
+.pin-menu[hidden] { display: none; }
+.pin-menu-butir {
+  display: flex; align-items: center; min-height: var(--control-md); padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm);
+  background: none; color: var(--ink-1); font: inherit; text-align: left; text-decoration: none; cursor: pointer; white-space: nowrap;
+}
+.pin-menu-butir:hover, .pin-menu-butir:focus-visible { background: var(--surface-2); text-decoration: none; outline: none; }
+.pin-menu-butir:focus-visible { box-shadow: inset 0 0 0 var(--border-focus) var(--focus-ring); }
+.pin-menu-bahaya { color: var(--status-blocked); }
+.pin-menu-pisah { border: 0; border-top: var(--border-hairline) solid var(--line); margin: var(--space-1) 0; }
+.pin-dialog {
+  border: 0; padding: 0; border-radius: var(--radius-lg); box-shadow: var(--shadow-dialog); background: var(--surface-1); color: var(--ink-1);
+  width: min(var(--measure-dialog), calc(100vw - var(--space-6)));
+}
+.pin-dialog::backdrop { background: var(--scrim); }
+.pin-dialog-isi { padding: var(--space-6); display: grid; gap: var(--space-4); }
+.pin-dialog-isi h2 { margin: 0; font-size: var(--t-subsection); line-height: var(--t-subsection-lh); font-weight: var(--weight-strong); }
+.pin-dialog-isi p { margin: 0; color: var(--ink-2); }
+.pin-dialog-aksi { display: flex; gap: var(--space-3); justify-content: flex-end; flex-wrap: wrap; }
+@media (max-width: 639px) { .pin-dialog-aksi { flex-direction: column-reverse; align-items: stretch; } }
+/* the one solid red in PINTAR: a destructive confirmation's own button (components/Button) */
+.pin-btn.pin-bahaya-pasti { background: var(--status-blocked); border-color: var(--status-blocked); color: var(--pintar-primary-ink); }
+.pin-btn.pin-bahaya-pasti:hover { background: var(--status-blocked-hover); border-color: var(--status-blocked-hover); }

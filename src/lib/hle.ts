@@ -199,6 +199,8 @@ export type HleEvent =
   | "aksesibilitas.lewati"
   | "berkas.pilih" | "berkas.belum" | "berkas.banyak"
   | "ketiadaan.jumlah.murid"
+  | "sesi.menu.semua"
+  | "jaga.judul"
   | "auth.title"
   | "auth.lede"
   | "auth.email_label"
@@ -2720,6 +2722,10 @@ const table: Table = {
   "berkas.belum": { default: "Belum dipilih", en: "Nothing chosen yet" },
   "berkas.banyak": { default: "{n} berkas: {nama}", en: "{n} files: {nama}" },
   // W3.2 / CR-46 (Daisy, components/EmptyState «not enough yet»): how much there is and how much is needed, in words
+  // W3.5 (JQ2(a); Daisy, components/Identity): the account menu's destructive item, which asks in the Dialog
+  // W3.14 (Daisy, J7Kunci new words): the idle warning's heading; the sentence and the button are jaga.peringatan, jaga.masih
+  "jaga.judul": { default: "PINTAR akan terkunci dalam 1 menit", en: "PINTAR will lock in 1 minute" },
+  "sesi.menu.semua": { default: "Keluar dari semua perangkat…", en: "Sign out of every device…" },
   "ketiadaan.jumlah.murid": { default: "Sekarang {have} murid; perlu {needed}.", en: "{have} students so far; {needed} needed." },
   // ══════════════════════════════ UX-1 · the sign-in screen (login handoff)
   // Daisy's canonical copy table, verbatim: 38 strings measured against their

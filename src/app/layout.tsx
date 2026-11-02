@@ -32,9 +32,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <EvaluationBanner />
         {/* #148: planned maintenance from T-60 and live notices, read once per page; the browser times the rest */}
         <PitaPemeliharaan locale={locale} />
-        {children}
-        {/* BOB-29: the inactivity clock of a shared computer or a class card; nothing for anybody else. */}
+        {/* BOB-29: the inactivity clock of a shared computer or a class card; nothing for anybody else. W3.14: its
+            warning stands at the top of the page, in the flow, so it never covers the work (Daisy, IdleWarning). */}
         <PenjagaSesi locale={locale} />
+        {children}
       </body>
     </html>
   );

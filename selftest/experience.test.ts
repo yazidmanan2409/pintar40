@@ -408,6 +408,10 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The definition-list label column: sized to the longest label in either language." },
   { file: "src/app/experience.css", literal: "560px",
     reason: "The phone breakpoint, which is a device fact rather than a spacing step." },
+  // W3.5 (Batch 2): Daisy's design system keeps its breakpoints as plain numbers (640, 1024, 1280) because CSS cannot
+  // read a variable in a media query; «under 640 px» is written max-width: 639px.
+  { file: "src/app/experience.css", literal: "639px",
+    reason: "Daisy's 640 px breakpoint (the Dialog's actions stack under it), a device fact a media query cannot read from a token." },
   { file: "src/app/experience.css", literal: "6px",
     reason: "Sub-4px detail geometry: the status dot, the readiness bar and the chip corner." },
   { file: "src/app/experience.css", literal: "2px",
@@ -10832,6 +10836,9 @@ export const experienceTests: SelfTest[] = [
         "src/components/sesi/LayarTerkunci.tsx": 1,
         "src/components/struktur/PanelStruktur.tsx": 1,
         "src/components/pendataan/Penggerak.tsx": 1,
+        // RESTATED FOR W3.14 (Batch 2; Daisy, IdleWarning and J7Kunci): the idle warning is not a save's answer but a
+        // state of the whole page, which Daisy specifies as role="alert" so a screen reader hears it once.
+        "src/components/PenjagaSesi.tsx": 1,
       };
       const lama = (src: string) => [...src.matchAll(/<[a-z]+\b[^>]*(?:role="alert"|pin-msg-err)[^>]*>/g)].map((m) => m[0]);
       for (const f of semua) {

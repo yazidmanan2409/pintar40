@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 191,
+  "version": 192,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3762,6 +3762,16 @@
       "id": "UX2-KOSONG-01",
       "runner": "static",
       "proves": "W3.2 empty state and the disabled button's reason (Batch 2; Daisy's components EmptyState and Button; CR-46), selftest/ux2.test.ts: src/components/Kosong.tsx rendered gives «not yet» a sentence and its first action, «not enough yet» no action, «nothing matches» its way back; the source of src/components/bukti/KartuKetiadaan.tsx no longer writes «(have/needed)» and uses «Sekarang {have} murid; perlu {needed}.»; src/components/AlasanNonaktif.tsx rendered is the reason line beside the button."
+    },
+    {
+      "id": "UX2-MENU-01",
+      "runner": "static",
+      "proves": "W3.5 account menu and the one Dialog (Batch 2; Daisy's components Menu, Dialog, Identity; JQ2(a)), selftest/ux2.test.ts: src/components/BarisSesi.tsx rendered for staff in id and en makes the name a menu button (aria-haspopup, aria-expanded, aria-controls) over a hidden role=menu with Akun saya, Laporan saya and, last, «Keluar dari semua perangkat…»; the native dialog asks «Keluar dari semua perangkat sekarang?», the safe action first and «Keluar dari semua» the one solid red; «Keluar» stays outside the menu; a learner's strip has no menu; the source of src/components/sesi/MenuAkun.tsx and src/components/Dialog.tsx handles the keys, first-item focus, outside press, showModal and focus return; src/app/experience.css gives 44 px items, the scrim and stacked actions under 640 px."
+    },
+    {
+      "id": "UX2-JAGA-01",
+      "runner": "static",
+      "proves": "W3.14 the idle warning (Batch 2; Daisy's components IdleWarning, J7Kunci), selftest/ux2.test.ts, the source of src/components/PenjagaSesi.tsx, src/app/layout.tsx and src/app/experience.css: an alert with the clock icon and the heading «PINTAR akan terkunci dalam 1 menit», mounted before the page in the flow (no fixed position, no z-index), on the attention ground, with no countdown."
     },
     {
       "id": "D140-STUDIO-01",

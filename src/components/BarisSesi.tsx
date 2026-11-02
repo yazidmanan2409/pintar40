@@ -1,5 +1,6 @@
 import { t, type Locale, type Persona } from "@/lib/hle";
 import Ikon from "@/components/Ikon";
+import MenuAkun from "@/components/sesi/MenuAkun";
 
 /**
  * WHO IS SIGNED IN, AND THE WAY OUT (DAISY-02, D-009).
@@ -51,15 +52,15 @@ export default function BarisSesi({
       <span id={idKet} className="pin-sesi-ket" title={nama ?? undefined}>
         {nama ? (
           <>
-            {s("sesi.sebagai")} <strong>{nama}</strong>
+            {/* W3.5 (JQ2(a)): the staff member's own name opens the account menu (Daisy, components/Identity, Menu) */}
+            {s("sesi.sebagai")} <MenuAkun locale={locale} nama={nama}><strong>{nama}</strong></MenuAkun>
           </>
         ) : (
           s("sesi.bukan_anda")
         )}
       </span>
-      {/* DAISY-20: Akun saya — the PINTAR ID and card — for the reader the strip
-          names, which is a staff reader and never a learner (C17). */}
-      {nama ? <a className="pin-sesi-akun" href="/akun">{s("sesi.akun")}</a> : null}
+      {/* DAISY-20: Akun saya — the PINTAR ID and card — for the reader the strip names, a staff reader and never a
+          learner (C17). W3.5: it lives in the account menu now, with Laporan saya and «Keluar dari semua perangkat…». */}
       <form action="/keluar" method="post">
         <button type="submit" className="pin-sesi-keluar" aria-describedby={idKet}>
           {/* W3.3: Daisy's 08 row — «Keluar» is the quiet button with the log-out icon (one meaning per icon) */}
