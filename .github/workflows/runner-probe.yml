@@ -53,3 +53,31 @@ jobs:
           script: |
             const line = `actions runtime: node ${process.version}`;
             core.summary.addRaw(line + "\n"); await core.summary.write(); console.log(line);
+
+  # The riskiest component on a new image: the local Supabase stack (Docker) and psql against it.
+  # Starts the stack exactly as CI does (.github/actions/local-stack: pinned CLI, every migration,
+  # synthetic seed, fingerprint by psql), then counts the migrations. Local containers only.
+  stack:
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [ubuntu-latest, ubuntu-24.04]
+    runs-on: ${{ matrix.image }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - id: stack
+        uses: ./.github/actions/local-stack
+      - name: psql against the stack
+        env:
+          DB_URL: ${{ steps.stack.outputs.db-url }}
+        run: |
+          echo "### stack on ${{ matrix.image }}" >> "$GITHUB_STEP_SUMMARY"
+          { echo "docker server API: $(docker version --format '{{.Server.APIVersion}} (min {{.Server.MinAPIVersion}})')";
+            echo "migrations: $(psql -Atq -c 'select count(*) from supabase_migrations.schema_migrations' "$DB_URL")";
+            echo "server: $(psql -Atq -c 'show server_version' "$DB_URL")"; } | tee -a "$GITHUB_STEP_SUMMARY"
