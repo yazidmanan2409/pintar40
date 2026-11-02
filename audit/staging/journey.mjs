@@ -333,7 +333,8 @@ async function tinjauSemua(page) {
   let n = 0, stuck = 0;
   for (let i = 0; i < 120 && unack() > 0; i++) {
     await lihat(page, `/studio/paket/${course}`);
-    const b = page.getByRole("button", { name: "Sudah saya tinjau", exact: true });
+    // W1.5 (Batch 3): findings of one kind are acknowledged together («Sudah saya tinjau semuanya»)
+    const b = page.getByRole("button", { name: /^Sudah saya tinjau( semuanya)?$/ });
     if (!(await b.count())) break;
     const n0 = unack();
     await b.first().click();

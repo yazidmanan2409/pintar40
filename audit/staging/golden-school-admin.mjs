@@ -560,7 +560,8 @@ await step("A9", "GS-09 (J4.3–J4.5): the seven steps by two people. The admin,
         let ditinjau = 0;
         for (let i = 0; i < 80; i++) {
           await H.reload({ waitUntil: "networkidle" });
-          const ack = H.getByRole("button", { name: "Sudah saya tinjau", exact: true });
+          // W1.5 (Batch 3): findings of one kind are acknowledged together («Sudah saya tinjau semuanya»)
+          const ack = H.getByRole("button", { name: /^Sudah saya tinjau( semuanya)?$/ });
           if (!(await ack.count())) break;
           const terbuka = () => Number(sql(`select (select count(*) from public.mcq_quality_findings where course_id = '${kursus}' and acknowledged_at is null)
             + (select count(*) from public.coaching_findings where course_id = '${kursus}' and acknowledged_at is null)`));

@@ -1076,7 +1076,8 @@ async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama 
         let reviewed = 0;
         for (let i = 0; i < 60; i++) {
           await a.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
-          const ack = a.getByRole("button", { name: "Sudah saya tinjau", exact: true });
+          // W1.5 (Batch 3): findings of one kind are acknowledged together («Sudah saya tinjau semuanya»)
+          const ack = a.getByRole("button", { name: /^Sudah saya tinjau( semuanya)?$/ });
           if (!(await ack.count())) break;
           const open = () => Number(sql(`select (select count(*) from public.mcq_quality_findings where course_id='${course}' and acknowledged_at is null)
             + (select count(*) from public.coaching_findings where course_id='${course}' and acknowledged_at is null)`));
