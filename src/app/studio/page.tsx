@@ -81,19 +81,19 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
 
   const isiKartu = (r: { bucket: string; institution_id: string; count: number }) => (
     <>
-      <p className="text-sm text-ink-3">{byId.get(r.institution_id) ?? "—"}</p>
-      <p className="mt-1 font-medium">{s(`studio.bucket.${r.bucket}` as HleEvent)}</p>
-      <p className="mt-2 text-2xl tabular-nums">{format.number(r.count, locale)}</p>
+      <p className="pin-ket-3">{byId.get(r.institution_id) ?? "—"}</p>
+      <p className="pin-judul-baris">{s(`studio.bucket.${r.bucket}` as HleEvent)}</p>
+      <p className="pin-studio-angka">{format.number(r.count, locale)}</p>
     </>
   );
 
   return (
-    <div className="grid gap-6">
+    <div className="pin-studio-halaman">
       {/* RV-10 (D-140): no task waiting is not «no package»; the packages are listed below */}
       {rows.length === 0 ? (
         <p className={card}>{s("studio.beranda.tak_ada_tugas")}</p>
       ) : (
-        <section className="grid gap-3 sm:grid-cols-2">
+        <section className="pin-studio-hitungan">
           {rows.map((r) => {
             const href = keDaftar(r.bucket);
             return href ? (
@@ -108,13 +108,13 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
         </section>
       )}
 
-      <section className="grid gap-2" id="paket">
-        <h2 className="text-lg font-medium">{s("studio.paket.judul")}</h2>
+      <section className="pin-studio-halaman" id="paket">
+        <h2 className="pin-studio-h3">{s("studio.paket.judul")}</h2>
         {daftar ? (
           <p className="pin-meta">
             {s(`studio.bucket.${daftar}` as HleEvent)}
             {" · "}
-            <Link href="/studio#paket" className="underline underline-offset-4">{s("koleksi.saring.semua")}</Link>
+            <Link href="/studio#paket" className="pin-studio-tautan">{s("koleksi.saring.semua")}</Link>
           </p>
         ) : null}
         {(courses ?? []).length === 0 ? (

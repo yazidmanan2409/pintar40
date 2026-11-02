@@ -365,6 +365,10 @@ const RESET_SURFACES = [
   "src/app/studio/kanonik/[terbitan]/page.tsx",
   "src/app/studio/pratinjau/[pelajaran]/page.tsx",
   "src/app/studio/unggah/page.tsx",
+  // W1.14 (Batch 3 integration): Studio's Beranda, Tinjau and a package's page, on the same primitives.
+  "src/app/studio/page.tsx",
+  "src/app/studio/paket/[course]/page.tsx",
+  "src/app/studio/tinjau/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */
@@ -375,9 +379,6 @@ const PENDING_SURFACES: Record<string, string> = {
   "src/app/konfigurasi/page.tsx": "Slice 7 — configuration",
   "src/app/edukator/ringkasan/page.tsx": "Slice 6 — reports",
   "src/app/dekan/ringkasan/page.tsx": "Slice 6 — reports",
-  "src/app/studio/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/paket/[course]/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/tinjau/page.tsx": "Slice 5 — Studio",
 };
 
 /**
@@ -11989,7 +11990,7 @@ export const experienceTests: SelfTest[] = [
        *    heading, in each language.
        */
       const paket = baca("src", "app", "studio", "paket", "[course]", "page.tsx");
-      c.expect(/<h3 className="text-lg font-medium">\{s\("studio\.temuan\.judul"\)\}<\/h3>/.test(paket) && !/studio\.temuan\.masalah/.test(paket),
+      c.expect(/<h3 className="pin-studio-h3">\{s\("studio\.temuan\.judul"\)\}<\/h3>/.test(paket) && !/studio\.temuan\.masalah/.test(paket),
         "the findings section is not headed with its own name");
       for (const locale of LOCALES) {
         const judul = t("studio.temuan.judul", "staff", { locale });
@@ -12004,7 +12005,7 @@ export const experienceTests: SelfTest[] = [
        *    its picker names the release to move to, its button says «Pindahkan»,
        *    and each form names the class it moves.
        */
-      c.expect(/<h3 className="text-lg font-medium">\{s\("studio\.paket\.pindah\.judul"\)\}<\/h3>/.test(paket)
+      c.expect(/<h3 className="pin-studio-h3">\{s\("studio\.paket\.pindah\.judul"\)\}<\/h3>/.test(paket)
         && /<span>\{s\("studio\.paket\.pindah\.tujuan"\)\}<\/span>/.test(paket)
         && /\{s\("studio\.paket\.pindah\.tombol"\)\}<\/TombolKirim>/.test(paket)
         && /\{namaKelas\.get\(a\.node_id as string\) \?\? "—"\}/.test(paket) && !/studio\.paket\.tugaskan/.test(paket),

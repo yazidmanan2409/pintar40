@@ -5,16 +5,19 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
 import { currentLocale } from "@/lib/locale";
 import LangkahTerbit from "@/components/studio/LangkahTerbit";
-import { enumLabel, format, t, type HleEvent, type Locale } from "@/lib/hle";
+import { enumLabel, format, t, type HleEvent } from "@/lib/hle";
 import { KODE_HAMBATAN, kalimatHambatan, type Hambatan } from "@/lib/terbitan-kontrak";
 import { bacaHasil, kalimatHasil, rujukan } from "@/lib/galat-kontrak";
 import { tanggal } from "@/lib/tanggal";
 import { button, can, card, field, label, studioInstitutions } from "../../_lib";
 import {
-  acknowledgeFindingAction, moveReleaseAction, runValidationAction,
+  moveReleaseAction, runValidationAction,
 } from "../../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
+import Kosong from "@/components/Kosong";
+import TemuanKelompok from "@/components/studio/TemuanKelompok";
+import type { Temuan } from "@/lib/temuan";
 import SimpanIsian from "@/components/SimpanIsian";
 import { TeksBaris } from "@/components/teks/Teks";
 import { soalPaket } from "@/lib/soal-tinjauan";
@@ -64,38 +67,7 @@ export const generateMetadata = judulHalaman("/studio/paket/[course]");
 type Params = Promise<{ course: string }>;
 type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
 
-type Finding = {
-  id: string; severity: string; lokasi: string; masalah: string;
-  mengapa_penting: string; cara_memperbaiki: string; acknowledged_at: string | null;
-};
-
-function FindingCard({ f, courseId, kind, showAck, pemilik, ditolak, locale }: {
-  f: Finding; courseId: string; kind: "MCQ_QUALITY" | "COACHING"; showAck: boolean; pemilik: string; ditolak: boolean; locale: Locale;
-}) {
-  const s = (k: HleEvent) => t(k, "staff", { locale });
-  return (
-    <li className={card}>
-      <p className="text-sm text-ink-3">{s("studio.temuan.lokasi")}: {f.lokasi}</p>
-      <p className="mt-1 font-medium">{f.masalah}</p>
-      <p className="mt-2 text-sm text-ink-2">{s("studio.temuan.mengapa")}: {f.mengapa_penting}</p>
-      <p className="mt-1 text-sm text-ink-2">{s("studio.temuan.cara")}: {f.cara_memperbaiki}</p>
-      {showAck && f.severity === "WARNING" && f.acknowledged_at === null ? (
-        <form action={acknowledgeFindingAction} id={`temuan-${f.id}`} className="mt-3 flex flex-wrap items-end gap-2">
-          <input type="hidden" name="course" value={courseId} />
-          <input type="hidden" name="finding" value={f.id} />
-          <input type="hidden" name="kind" value={kind} />
-          <label className={label}>
-            <span>{s("studio.paket.catatan")}</span>
-            <input className={field} name="catatan" />
-          </label>
-          <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.temuan.akui")}</TombolKirim>
-        </form>
-      ) : null}
-      {showAck && f.severity === "WARNING" && f.acknowledged_at === null
-        ? <SimpanIsian form={`temuan-${f.id}`} ditolak={ditolak} pemilik={pemilik} /> : null}
-    </li>
-  );
-}
+type Finding = Temuan;
 
 export default async function Paket({ params, searchParams }: { params: Params; searchParams: Search }) {
   const { course: courseId } = await params;
@@ -243,40 +215,40 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   const sekarangDi = (rilis: string) => (rilisGaris ?? []).find((r) => r.id === rilis)?.published_at as string | null | undefined;
 
   return (
-    <div className="grid gap-6">
+    <div className="pin-studio-halaman">
       <section className={card} id="paket">
         {/* J1Terbit: the way back names its destination */}
         <p><Link className="pin-back" href="/studio"><Ikon nama="chevron-left" />{s("studio.nav.beranda")}</Link></p>
-        <h2 className="text-lg font-medium">{course.title}</h2>
-        <p className="mt-1 text-sm text-ink-3">{course.subject} · {course.stage} · {course.grade_label}</p>
+        <h2 className="pin-studio-h3">{course.title}</h2>
+        <p className="pin-ket-3">{course.subject} · {course.stage} · {course.grade_label}</p>
         {course.supersedes_course_id ? (
-          <p className="mt-2 text-sm text-ink-2">
-            <Link href={`/studio/paket/${course.supersedes_course_id}`} className="underline underline-offset-4">
+          <p className="pin-ket">
+            <Link href={`/studio/paket/${course.supersedes_course_id}`} className="pin-studio-tautan">
               ← {s("studio.paket.revisi_sebelum")}
             </Link>
           </p>
         ) : null}
         {/* D-085 M10: forward too -- this course has been corrected; new learning uses the correction */}
         {penerus ? (
-          <p className="mt-2 text-sm text-ink-2" data-penerus={penerus}>
-            <Link href={`/studio/paket/${penerus}`} className="underline underline-offset-4">
+          <p className="pin-ket" data-penerus={penerus}>
+            <Link href={`/studio/paket/${penerus}`} className="pin-studio-tautan">
               {s("studio.paket.revisi_terbaru")} →
             </Link>
           </p>
         ) : null}
 
-        <p className="mt-4 text-xl font-semibold">
+        <p className="pin-studio-h2">
           {/* RV-10 (D-140): a published package with nothing to fix reads as published, not «siap diterbitkan» */}
           {state ? (terbitSiap ? s("studio.langkah.terbit.judul") : s(`studio.state.${state.surface_state}` as never)) : "—"}
         </p>
-        <p className="mt-1 text-sm text-ink-2">
+        <p className="pin-ket">
           {state ? (terbitSiap ? s("studio.state.explain.TERBIT") : s(`studio.state.explain.${state.surface_state}` as never)) : ""}
         </p>
 
         {state && state.reasons.length > 0 ? (
           <>
-            <p className="mt-4 text-sm font-medium">{sl("studio.paket.alasan")}</p>
-            <ul className="mt-1 list-disc pl-5 text-sm text-ink-2">
+            <p className="pin-judul-baris">{sl("studio.paket.alasan")}</p>
+            <ul className="pin-daftar-titik pin-ket">
               {/* BOB-17 (D-011): each reason is a blocker code; its line comes from the copy table */}
               {state.reasons.map((r, i) => (
                 <li key={`${r?.code}-${r?.lesson_id ?? ""}-${r?.pattern ?? ""}-${i}`}>{kalimatHambatan(r, sl, (n) => format.number(n, locale))}{refAlasan && !dikenal(r) ? ` (${sl("galat.rujukan")}: ${refAlasan})` : null}</li>
@@ -285,7 +257,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
           </>
         ) : null}
 
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="pin-baris-aksi">
           {state?.preview_lesson_id ? (
             <Link className={button} href={`/studio/pratinjau/${state.preview_lesson_id}`}>
               {s("studio.paket.pratinjau")}
@@ -298,27 +270,27 @@ export default async function Paket({ params, searchParams }: { params: Params; 
           learner preview above stays the sanitised learner view (§5); this is the Studio staff's own view. */}
       {can(inst, "CAN_DRAFT") ? (
         <section className={card} id="soal">
-          <h3 className="text-lg font-medium">{sl("studio.soal.judul")}</h3>
-          <p className="mt-1 text-sm text-ink-2">{sl("studio.soal.arti")}</p>
+          <h3 className="pin-studio-h3">{sl("studio.soal.judul")}</h3>
+          <p className="pin-ket">{sl("studio.soal.arti")}</p>
           {soal.length === 0 ? (
-            <p className="mt-2 text-sm text-ink-2">{sl("studio.soal.kosong")}</p>
+            <p className="pin-ket">{sl("studio.soal.kosong")}</p>
           ) : (
-            <div className="mt-3 grid gap-2">
+            <div className="pin-daftar">
               {soal.map((l, li) => (
                 <details key={l.id} className="pin-soal-pelajaran pin-disclosure" open={li === 0}>
-                  <summary className="cursor-pointer font-medium">{l.judul} · {format.number(l.soal.length, locale)} {sl("studio.soal.jumlah")}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
-                  <ol className="mt-2 grid list-decimal gap-3 pl-5">
+                  <summary className="pin-judul-baris">{l.judul} · {format.number(l.soal.length, locale)} {sl("studio.soal.jumlah")}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
+                  <ol className="pin-daftar-titik">
                     {l.soal.map((q) => (
                       <li key={q.id} className="pin-soal">
-                        <p className="text-xs text-ink-3">{q.peran ? enumLabel("mode", q.peran, locale) : enumLabel("bank", q.bank, locale)}</p>
-                        {q.stimulus ? <p className="mt-1 text-sm text-ink-2"><TeksBaris teks={q.stimulus} /></p> : null}
-                        <p className="mt-1"><TeksBaris teks={q.pertanyaan} /></p>
-                        <ul className="mt-2 grid gap-1">
+                        <p className="pin-ket-3">{q.peran ? enumLabel("mode", q.peran, locale) : enumLabel("bank", q.bank, locale)}</p>
+                        {q.stimulus ? <p className="pin-ket"><TeksBaris teks={q.stimulus} /></p> : null}
+                        <p><TeksBaris teks={q.pertanyaan} /></p>
+                        <ul className="pin-daftar-rapat">
                           {q.opsi.map((o) => (
                             <li key={o.label} className={o.kunci ? "pin-opsi pin-opsi-kunci" : "pin-opsi"}>
-                              <span className={o.kunci ? "font-semibold" : undefined}>{o.label}. <TeksBaris teks={o.isi} /></span>
-                              {o.kunci ? <span className="ml-2 text-xs font-semibold">· {sl("studio.soal.kunci")}</span> : null}
-                              <p className="text-sm text-ink-2">{sl("studio.soal.alasan")}: <TeksBaris teks={o.alasan} /></p>
+                              <span className={o.kunci ? "pin-judul-baris" : undefined}>{o.label}. <TeksBaris teks={o.isi} /></span>
+                              {o.kunci ? <span className="pin-studio-kunci">· {sl("studio.soal.kunci")}</span> : null}
+                              <p className="pin-ket">{sl("studio.soal.alasan")}: <TeksBaris teks={o.alasan} /></p>
                             </li>
                           ))}
                         </ul>
@@ -347,55 +319,50 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         unggahPerbaikan={unggahPerbaikan}
       />
 
-      <section className="grid gap-2" id="temuan">
+      <section className="pin-studio-halaman" id="temuan">
         {/* Polish batch 2 (UX-14): named «Temuan», as both steps above call it */}
-        <h3 className="text-lg font-medium">{s("studio.temuan.judul")}</h3>
+        <h3 className="pin-studio-h3">{s("studio.temuan.judul")}</h3>
         {can(inst, "CAN_DRAFT") && !tersegel ? (
-          <form action={runValidationAction} className="flex flex-wrap items-center gap-3">
+          <form action={runValidationAction} className="pin-baris-aksi">
             <input type="hidden" name="course" value={courseId} />
             <TombolKirim className={button} sibuk={s("tombol.memeriksa")}>{s("studio.paket.periksa_isi")}</TombolKirim>
-            <span className="text-sm text-ink-2">{s("studio.paket.periksa_isi_arti")}</span>
+            <span className="pin-ket">{s("studio.paket.periksa_isi_arti")}</span>
           </form>
         ) : null}
         <HasilDi q={sp} bagian="temuan" kalimat={banner} />
         {findings.length + coaching.length === 0 ? (
-          <p className={card}>{s("studio.temuan.kosong")}</p>
+          <Kosong jenis="belum" kalimat={s("studio.temuan.kosong")} />
         ) : (
-          <ul className="grid gap-2">
-            {findings.map((f) => (
-              <FindingCard key={f.id} f={f} courseId={courseId} kind="MCQ_QUALITY" showAck={can(inst, "CAN_REVIEW") && bukanPenyusun} pemilik={pemilik} ditolak={ditolak("temuan")} locale={locale} />
-            ))}
-            {coaching.map((f) => (
-              <FindingCard key={f.id} f={f} courseId={courseId} kind="COACHING" showAck={can(inst, "CAN_REVIEW") && bukanPenyusun} pemilik={pemilik} ditolak={ditolak("temuan")} locale={locale} />
-            ))}
-          </ul>
+          // W1.5: one group per kind of finding, acknowledged together; W1.12: never offered to the package's author
+          <TemuanKelompok course={courseId} mcq={findings} coaching={coaching}
+            bolehAkui={can(inst, "CAN_REVIEW") && bukanPenyusun} pemilik={pemilik} ditolak={ditolak("temuan")} locale={locale} />
         )}
       </section>
 
       {urutGaris.length > 1 || tinjauan.length > 0 ? (
         <section className={card} id="riwayat">
-          <h3 className="text-lg font-medium">{sl("studio.paket.riwayat.judul")}</h3>
-          <ol className="mt-2 grid gap-3">
+          <h3 className="pin-studio-h3">{sl("studio.paket.riwayat.judul")}</h3>
+          <ol className="pin-daftar">
             {urutGaris.map((id, i) => {
               const r = (rilisGaris ?? []).filter((x) => x.course_id === id).at(-1);
               const n = catatan.get(id);
               return (
                 <li key={id} className="pin-riwayat" data-versi={id}>
-                  <p className="font-medium">
+                  <p className="pin-judul-baris">
                     {r?.version_label ?? "—"}
                     {" · "}
                     {r?.published_at ? when(r.published_at as string) : sl("studio.paket.riwayat.belum_terbit")}
                     {" · "}
                     {id === courseId
-                      ? <span className="text-ink-3">{sl("studio.paket.riwayat.ini")}</span>
-                      : <Link href={`/studio/paket/${id}`} className="underline underline-offset-4">{sl("studio.paket.riwayat.buka")}</Link>}
+                      ? <span className="pin-ket-3">{sl("studio.paket.riwayat.ini")}</span>
+                      : <Link href={`/studio/paket/${id}`} className="pin-studio-tautan">{sl("studio.paket.riwayat.buka")}</Link>}
                   </p>
                   {i === 0 ? (
-                    <p className="text-sm text-ink-2">{sl("studio.paket.riwayat.asli")}</p>
+                    <p className="pin-ket">{sl("studio.paket.riwayat.asli")}</p>
                   ) : n ? (
                     <>
-                      <p className="text-sm"><TeksBaris teks={n.summary} /></p>
-                      <p className="text-xs text-ink-3">
+                      <p className="pin-ket"><TeksBaris teks={n.summary} /></p>
+                      <p className="pin-ket-3">
                         {when(n.written_at)}
                         {n.written_by_person_id && penulis.get(n.written_by_person_id)
                           ? ` · ${sl("studio.paket.riwayat.oleh")} ${penulis.get(n.written_by_person_id)}` : ""}
@@ -407,12 +374,12 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                     <ul className="pin-riwayat-tinjauan">
                       {tinjauan.filter((o) => o.course_id === id).map((o) => (
                         <li key={`${o.outcome}-${o.decided_at}`} data-hasil-tinjauan={o.outcome}>
-                          <p className="text-sm">
+                          <p className="pin-ket">
                             {sl(o.outcome === "APPROVED" ? "studio.paket.riwayat.disetujui" : "studio.paket.riwayat.dikembalikan")}
                             {penulis.get(o.reviewer_person_id) ? ` · ${sl("studio.paket.riwayat.oleh")} ${penulis.get(o.reviewer_person_id)}` : ""}
                           </p>
-                          {o.outcome === "SENT_BACK" && o.reason ? <p className="pin-riwayat-alasan text-sm">{o.reason}</p> : null}
-                          <p className="text-xs text-ink-3">{when(o.decided_at)}</p>
+                          {o.outcome === "SENT_BACK" && o.reason ? <p className="pin-riwayat-alasan pin-ket">{o.reason}</p> : null}
+                          <p className="pin-ket-3">{when(o.decided_at)}</p>
                         </li>
                       ))}
                     </ul>
@@ -426,9 +393,9 @@ export default async function Paket({ params, searchParams }: { params: Params; 
 
       {can(inst, "CAN_DRAFT") && terkunci && !penerus ? (
         <section className={card} id="revisi">
-          <h3 className="text-lg font-medium">{s("studio.paket.revisi")}</h3>
-          <p className="mt-1 text-sm text-ink-2">{s("studio.paket.revisi_penjelasan")}</p>
-          <p className="mt-3">
+          <h3 className="pin-studio-h3">{s("studio.paket.revisi")}</h3>
+          <p className="pin-ket">{s("studio.paket.revisi_penjelasan")}</p>
+          <p>
             <Link className={button} href={`/studio/unggah?revisi=${courseId}#buku-kerja`}>{sl("studio.paket.revisi_unggah")}</Link>
           </p>
           <HasilDi q={sp} bagian="revisi" kalimat={banner} />
@@ -439,14 +406,14 @@ export default async function Paket({ params, searchParams }: { params: Params; 
         <section className={card} id="koreksi">
           {/* Polish batch 2 (UX-16): this moves an assignment that exists, and
               each form says which class it moves and where that class is now. */}
-          <h3 className="text-lg font-medium">{s("studio.paket.pindah.judul")}</h3>
+          <h3 className="pin-studio-h3">{s("studio.paket.pindah.judul")}</h3>
           <HasilDi q={sp} bagian="koreksi" kalimat={banner} />
           {(assignments ?? []).map((a) => (
             <div key={a.id}>
-            <form action={moveReleaseAction} id={`koreksi-${a.id}`} className="mt-3 flex flex-wrap items-end gap-2">
+            <form action={moveReleaseAction} id={`koreksi-${a.id}`} className="pin-baris-aksi">
               <input type="hidden" name="course" value={courseId} />
               <input type="hidden" name="assignment" value={a.id} />
-              <p className="w-full text-sm text-ink-2">
+              <p className="pin-ket">
                 {namaKelas.get(a.node_id as string) ?? "—"}
                 {sekarangDi(a.plp_release_id as string)
                   ? ` · ${s("studio.paket.pindah.sekarang")} ${when(sekarangDi(a.plp_release_id as string) ?? null)}`

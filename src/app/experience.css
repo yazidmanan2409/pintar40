@@ -3030,3 +3030,11 @@ select:not([multiple]):not([size]) {
 .pin-temuan-lokasi ul { margin: var(--space-2) 0 0; }
 /* a Disclosure holding whole panels (Buat Paket's two JSON forms): its parts on the page's rhythm */
 .pin-studio-lipat { display: grid; gap: var(--space-4); }
+
+/* ───────────────────────────── W1.14 · Studio's home, package page and review queue on the same primitives (Batch 3
+   integration): the count's figure in the stat type, the count cards two to a row from 220 px each, an inline link,
+   and the key's mark beside an option. Tokens only. */
+.pin-studio-angka { margin: 0; font-size: var(--t-stat); line-height: var(--t-stat-lh); letter-spacing: var(--t-stat-ls); font-variant-numeric: tabular-nums; color: var(--ink-1); }
+.pin-studio-hitungan { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--space-1) * 55)), 1fr)); gap: var(--space-3); min-width: 0; }
+.pin-studio-tautan { color: var(--pintar-primary); text-decoration: underline; text-underline-offset: 3px; }
+.pin-studio-kunci { margin-left: var(--space-2); font-size: var(--t-small); line-height: var(--t-small-lh); font-weight: var(--weight-strong); color: var(--ink-1); }

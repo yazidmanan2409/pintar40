@@ -43,8 +43,8 @@ export default async function Tinjau() {
     institutions.some((i) => i.id === c.institution_id && i.capabilities.includes("CAN_REVIEW")));
 
   return (
-    <div className="grid gap-4">
-      <h2 className="text-lg font-medium">{s("studio.tinjau.judul")}</h2>
+    <div className="pin-studio-halaman">
+      <h2 className="pin-studio-h3">{s("studio.tinjau.judul")}</h2>
       {rows.length === 0 ? (
         <Kosong jenis="belum" kalimat={s("studio.tinjau.kosong")} />
       ) : (

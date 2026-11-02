@@ -318,8 +318,9 @@ export const studio3aTests: SelfTest[] = [
       c.expect(/tinjauan\.map\(\(o\) => o\.reviewer_person_id\)/.test(paket) && /from\("persons"\)\.select\("id, display_name"\)\.in\("id", penulisIds\)/.test(paket),
         "the reviewers' names are not read");
       const blok = /<ul className="pin-riwayat-tinjauan">([\s\S]*?)<\/ul>/.exec(paket)?.[1] ?? "";
+      // RESTATED FOR W1.14 (Batch 3 integration): the reason line is pin-ket, no longer Tailwind text-sm
       c.expect(/o\.outcome === "APPROVED" \? "studio\.paket\.riwayat\.disetujui" : "studio\.paket\.riwayat\.dikembalikan"/.test(blok)
-        && /penulis\.get\(o\.reviewer_person_id\)/.test(blok) && /o\.outcome === "SENT_BACK" && o\.reason \? <p className="pin-riwayat-alasan text-sm">\{o\.reason\}<\/p>/.test(blok)
+        && /penulis\.get\(o\.reviewer_person_id\)/.test(blok) && /o\.outcome === "SENT_BACK" && o\.reason \? <p className="pin-riwayat-alasan pin-ket">\{o\.reason\}<\/p>/.test(blok)
         && /when\(o\.decided_at\)/.test(blok), "a review outcome does not say what it was, who decided it, why (sent back) and when");
       for (const locale of ["id", "en"] as const) {
         for (const k of ["studio.paket.riwayat.disetujui", "studio.paket.riwayat.dikembalikan"]) {
@@ -344,17 +345,22 @@ export const studio3aTests: SelfTest[] = [
       const paket = kode(baca(ctx.repoRoot, PAKET));
       c.expect(/const bukanPenyusun = typeof saya === "string" && typeof course\.author_person_id === "string" && saya !== course\.author_person_id;/.test(paket),
         "the page does not know whether the reader wrote the package");
-      const kartu = [...paket.matchAll(/<FindingCard [^>]*showAck=\{([^}]*)\}/g)].map((m) => m[1]);
-      c.expect(kartu.length === 2 && kartu.every((x) => x === `can(inst, "CAN_REVIEW") && bukanPenyusun`),
-        `a finding offers «Sudah saya tinjau» to the package's author: ${JSON.stringify(kartu)}`);
-      const fc = /function FindingCard[\s\S]*?\n\}\n/.exec(paket)?.[0] ?? "";
-      c.expect(/showAck && f\.severity === "WARNING" && f\.acknowledged_at === null \? \(\s*<form action=\{acknowledgeFindingAction\}/.test(fc),
-        "the acknowledgement is not drawn only where showAck allows it");
+      // RESTATED FOR W1.5 (Batch 3 integration): the findings are now Daisy's grouped list (TemuanKelompok), mounted
+      // once for both kinds; the rule is unchanged: the acknowledgement is offered only to a non-author reviewer, and
+      // only for a WARNING (an ERROR is fixed in the content)
+      const mount = [...paket.matchAll(/<TemuanKelompok [^>]*bolehAkui=\{([^}]*)\}/g)].map((m) => m[1]);
+      c.expect(mount.length === 1 && mount[0] === `can(inst, "CAN_REVIEW") && bukanPenyusun`,
+        `a finding offers «Sudah saya tinjau» to the package's author: ${JSON.stringify(mount)}`);
+      c.expect(/<TemuanKelompok [^>]*mcq=\{findings\} coaching=\{coaching\}/.test(paket) && !/FindingCard/.test(paket),
+        "the page does not give both kinds of finding to the grouped list");
+      const kel = kode(baca(ctx.repoRoot, "src/components/studio/TemuanKelompok.tsx"));
+      c.expect(/const akui = bolehAkui && g\.severity === "WARNING";/.test(kel),
+        "the acknowledgement is not drawn only where bolehAkui allows it, and only for a WARNING");
       // the database already refuses it, which is what makes this courtesy honest
       const sql = readdirSync(join(ctx.repoRoot, "supabase", "migrations")).filter((f) => f.endsWith(".sql"))
         .map((f) => baca(ctx.repoRoot, `supabase/migrations/${f}`)).join("\n");
       c.expect(/the author of the content does not acknowledge their own finding/.test(sql), "the database no longer refuses the author's own acknowledgement");
-      return c.verdict("the source of src/app/studio/paket/[course]/page.tsx offers «Sudah saya tinjau» on a finding only to a " +
+      return c.verdict("the source of src/app/studio/paket/[course]/page.tsx and src/components/studio/TemuanKelompok.tsx offer «Sudah saya tinjau» on a finding group only to a " +
         "reviewer (CAN_REVIEW) who is known not to be the package's author, on both kinds of finding; the migrations still " +
         "refuse the author acknowledging their own finding");
     },
