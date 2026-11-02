@@ -50,13 +50,13 @@ export default function KartuKesehatan({ locale, keadaan, kelas, tautan }: {
         </>
       ) : keadaan.hasil.sehat ? (
         <>
-          <p className="pin-sehat-tanda pin-ok">{s("config.kesehatan.sehat")}</p>
+          <p className="pin-sehat-tanda"><span className="pin-pill pin-ok">{s("config.kesehatan.sehat")}</span></p>
           <p className="pin-sehat-label">{keadaan.hasil.jumlah} {s("config.kesehatan.jumlah")}</p>
           {periksa("config.kesehatan.ulang")}
         </>
       ) : (
         <>
-          <p className="pin-sehat-tanda pin-perhatian">{s("config.kesehatan.perhatian")}</p>
+          <p className="pin-sehat-tanda"><span className="pin-pill pin-attention">{s("config.kesehatan.perhatian")}</span></p>
           <p className="pin-sehat-kata">{s("config.kesehatan.menyimpang")}</p>
           <ul className="pin-sehat-daftar">
             {keadaan.hasil.menyimpang.map((k) => <li key={k}>{s(`config.kesehatan.cek.${k}` as HleEvent)}</li>)}

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 190,
+  "version": 191,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3752,6 +3752,16 @@
       "id": "UX2-BERKAS-01",
       "runner": "static",
       "proves": "W3.3 FileField (Batch 2; Daisy components/FileField; closes RV-5 and the /lapor axe `label` finding), selftest/ux2.test.ts: no file input in src outside src/components/bentuk/BidangBerkas.tsx; rendered in id and en, the input is named by the field's label (aria-labelledby), described by the choice and the limit, lies transparent over «Pilih berkas» (CSS), shows a focus ring on its button, and names the empty choice «Belum dipilih» politely; /lapor's screenshot uses it."
+    },
+    {
+      "id": "UX2-PRIMITIF-01",
+      "runner": "static",
+      "proves": "W3.3 primitives (Batch 2; Daisy's components Select, Radio, Checkbox, Badge, Alert, Disclosure, the 08-migration rows, assets/AppIcon), selftest/ux2.test.ts, the source of src/app/experience.css, src/app/globals.css, every src/**/*.tsx and src/app/favicon.ico: a single select shows the chevron token; a checkbox or radio row is a 44 px target with a 20 px box and every one sits inside its label; the success badge says ✓; the attention alert (src/app/belajar/page.tsx) has its icon; the health mark (src/components/konfigurasi/KartuKesehatan.tsx) is a badge, the sehat-tanda/perhatian mix ended; «Keluar» (src/components/BarisSesi.tsx) carries log-out; every <details> is a Disclosure with the chevron, the browser's marker hidden; the tab icon is Daisy's blob."
+    },
+    {
+      "id": "UX2-KOSONG-01",
+      "runner": "static",
+      "proves": "W3.2 empty state and the disabled button's reason (Batch 2; Daisy's components EmptyState and Button; CR-46), selftest/ux2.test.ts: src/components/Kosong.tsx rendered gives «not yet» a sentence and its first action, «not enough yet» no action, «nothing matches» its way back; the source of src/components/bukti/KartuKetiadaan.tsx no longer writes «(have/needed)» and uses «Sekarang {have} murid; perlu {needed}.»; src/components/AlasanNonaktif.tsx rendered is the reason line beside the button."
     },
     {
       "id": "D140-STUDIO-01",

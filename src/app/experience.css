@@ -2539,9 +2539,8 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-sehat-label { margin: 0; font-size: var(--type-meta); color: var(--ink-3); }
 .pin-sehat-kata { margin: 0; font-size: var(--type-meta); color: var(--ink-2); }
 .pin-sehat-gagal { margin: 0; font-size: var(--type-meta); color: var(--status-blocked); }
-.pin-sehat-tanda { margin: 0; padding: 2px var(--space-2); border-radius: var(--radius-1); font-size: var(--type-meta); }
-.pin-sehat-tanda.pin-ok { background: var(--status-ok-soft); color: var(--status-ok); }
-.pin-sehat-tanda.pin-perhatian { background: var(--status-attention-soft); color: var(--status-attention); }
+/* W3.3 Badge (Daisy): the health mark is a badge in a paragraph; the Alert class no longer doubles as its colour */
+.pin-sehat-tanda { margin: 0; }
 .pin-sehat-daftar { margin: 0; padding-left: var(--space-5); font-size: var(--type-meta); color: var(--ink-2); }
 
 /* ── DAISY-16: what holds a release, one blocker per line ──────────────── */
@@ -2774,3 +2773,41 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
 /* W3.1 · a lesson's audio or video (the Batch 0 baseline's one focus stop without an indicator): the browser's own
    controls take focus inside the element, where :focus-visible does not reach, so the element itself shows the ring. */
 audio:focus, audio:focus-within, video:focus, video:focus-within { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+
+/* ───────────────────────────── W3.3 · primitives (Batch 2; Daisy's components, 08-migration)
+   Select: the native select with the chevron icon (components/Select). The icon is a token (globals.css), drawn
+   in the hint ink, on the right, inside the 44 px control. */
+select:not([multiple]):not([size]) {
+  appearance: none; background-image: var(--select-chevron); background-repeat: no-repeat;
+  background-position: right var(--space-3) center; background-size: var(--icon-md) var(--icon-md);
+  padding-right: calc(var(--space-3) * 2 + var(--icon-md));
+}
+/* Radio and Checkbox (components/Radio, Checkbox): the whole row is the target, at least 44 px tall; the box is
+   20 px. Zero specificity (:where), so a component's own layout still applies; the menu drawer's toggle is not a choice. */
+:where(label:has(input[type="checkbox"]:not(.pin-laci-saklar)), label:has(input[type="radio"])) {
+  min-height: var(--control-md); display: flex; align-items: center; gap: var(--space-2); cursor: pointer;
+}
+:where(input[type="checkbox"]:not(.pin-laci-saklar), input[type="radio"]) {
+  width: var(--icon-md); height: var(--icon-md); flex: none; margin: 0; accent-color: var(--pintar-primary);
+}
+.pin-tur-centang input { width: var(--icon-md); height: var(--icon-md); }
+/* Badge (components/Badge): success says ✓ where the others have the dot. */
+.pin-pill.pin-ok::before { content: "✓"; width: auto; height: auto; border-radius: 0; background: none; }
+/* Alert (components/Alert): the icon carries the kind beside the title; no stripe. */
+.pin-perhatian { grid-template-columns: var(--icon-md) minmax(0, 1fr); column-gap: var(--space-3); }
+.pin-perhatian > * { grid-column: 2; }
+.pin-perhatian > .pin-perhatian-ikon { grid-column: 1; grid-row: 1 / span 4; color: var(--status-attention); width: var(--icon-md); height: var(--icon-md); }
+/* «Keluar» with its log-out icon (08 Navigation row). */
+.pin-sesi-keluar { gap: var(--space-2); }
+.pin-sesi-keluar .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); flex: none; }
+/* Disclosure (components/Disclosure; RV-21): every <details> shows the chevron, never the browser's marker. */
+.pin-disclosure > summary { list-style: none; display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.pin-disclosure > summary::-webkit-details-marker { display: none; }
+.pin-disclosure > summary::marker { content: ""; }
+.pin-disclosure > summary > .pin-chevron { margin-left: auto; color: var(--ink-3); flex: none; transition: transform var(--duration-base) var(--ease-standard); }
+.pin-disclosure[open] > summary > .pin-chevron { transform: rotate(180deg); }
+/* Empty state (components/EmptyState): a sentence and, where there is one, the action. */
+.pin-kosong { display: grid; gap: var(--space-3); justify-items: start; }
+.pin-kosong-kalimat { margin: 0; color: var(--ink-2); max-width: var(--measure); }
+/* The disabled button's reason (components/Button), written beside it. */
+.pin-alasan { margin: var(--space-1) 0 0; font-size: var(--type-meta); color: var(--ink-3); }

@@ -1,4 +1,5 @@
 import { t, type Locale, type Persona } from "@/lib/hle";
+import Ikon from "@/components/Ikon";
 
 /**
  * WHO IS SIGNED IN, AND THE WAY OUT (DAISY-02, D-009).
@@ -61,6 +62,8 @@ export default function BarisSesi({
       {nama ? <a className="pin-sesi-akun" href="/akun">{s("sesi.akun")}</a> : null}
       <form action="/keluar" method="post">
         <button type="submit" className="pin-sesi-keluar" aria-describedby={idKet}>
+          {/* W3.3: Daisy's 08 row — «Keluar» is the quiet button with the log-out icon (one meaning per icon) */}
+          <Ikon nama="log-out" />
           {s("sesi.keluar")}
         </button>
       </form>

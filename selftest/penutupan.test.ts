@@ -510,7 +510,8 @@ export const penutupanTests: SelfTest[] = [
       const aksi = readFileSync(join(ctx.repoRoot, "src", "app", "studio", "actions.ts"), "utf8");
       // L3 (D-132 C8): the operator is Admin platform whose grant is part of the working context
       const i = /const operator = adminPlatform === true && peran\.includes\("SYSTEM_ADMIN"\);/.test(halaman) ? halaman.indexOf("{operator ? (") : -1;
-      const j = halaman.indexOf('<details className="grid gap-4" id="sistem-lain"');
+      // RESTATED FOR W3.3 (Batch 2): the disclosure gains Daisy's class (pin-disclosure, its chevron); the rule is unchanged
+      const j = halaman.indexOf('<details className="grid gap-4 pin-disclosure" id="sistem-lain"');
       const k = halaman.indexOf(") : null}", j);
       c.expect(i >= 0 && j > i && k > halaman.indexOf("</details>", j) && halaman.indexOf("</details>", j) > j,
         "the JSON forms are not drawn for the platform operator alone");

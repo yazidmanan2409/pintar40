@@ -10380,7 +10380,12 @@ export const experienceTests: SelfTest[] = [
       try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
       if (c.expect(anak.status === 0 && html.length === KASUS.length, `the absence card could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) {
         const x = html.map((h) => h.replace(/&#x27;/g, "'").replace(/&amp;/g, "&"));
-        c.expect(x[0].includes(t("metrik.pemahaman.label", "staff")) && x[0].includes(`${t("laporan.metrik.belum_cukup_data", "staff")} (3/5)`)
+        // RESTATED FOR W3.2 / CR-46 (Batch 2, Daisy's EmptyState «not enough yet»): «how far» is no longer the pair
+        // «(3/5)», which reads as a score, but the sentence «Sekarang 3 murid; perlu 5.»; why and what will make it
+        // appear are held as before.
+        const jauh = t("ketiadaan.jumlah.murid", "staff").replace("{have}", "3").replace("{needed}", "5");
+        c.expect(x[0].includes(t("metrik.pemahaman.label", "staff")) && x[0].includes(t("laporan.metrik.belum_cukup_data", "staff"))
+          && x[0].includes(jauh) && !/\(\d+\/\d+\)/.test(x[0])
           && x[0].includes(t("laporan.muncul.akhir", "staff")), `short of evidence, the card does not say why, how far and what will make it appear: ${x[0]}`);
         c.expect(x[1].includes(t("laporan.muncul.awal_akhir", "staff", { locale: "en" })), "(en) the gain card does not say what will make it appear");
         c.expect(!/pin-ml/.test(x[2])
@@ -11936,7 +11941,8 @@ export const experienceTests: SelfTest[] = [
       const unggah = baca("src", "app", "studio", "unggah", "page.tsx");
       const [iBuku, iD, iM, iT, iE] = ['id="buku-kerja"', "<details", 'id="mudah"', 'id="terstruktur"', "</details>"].map((x) => unggah.indexOf(x));
       c.expect(iBuku >= 0 && iBuku < iD && iD < iM && iM < iT && iT < iE
-        && /<details className="grid gap-4" id="sistem-lain" open=\{sistemLainTerbuka\}>/.test(unggah)
+        // RESTATED FOR W3.3 (Batch 2): Daisy's Disclosure class (the chevron) joins; one closed disclosure as before
+        && /<details className="grid gap-4 pin-disclosure" id="sistem-lain" open=\{sistemLainTerbuka\}>/.test(unggah)
         && /const sistemLainTerbuka = sp\.bagian === "mudah" \|\| sp\.bagian === "terstruktur";/.test(unggah),
         "the JSON forms are not in one closed disclosure below the workbook that opens for their own answer");
       c.expect(/\{s\("studio\.unggah\.periksa_mudah"\)\}<\/TombolKirim>/.test(unggah) && /\{s\("studio\.unggah\.periksa_terstruktur"\)\}<\/TombolKirim>/.test(unggah)

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import Ikon from "@/components/Ikon";
 import { t, format, type HleEvent, type Persona } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
@@ -263,6 +264,7 @@ export default async function Belajar({
             <h2 id="pin-diminta-judul">{s("siklus.diminta.judul")}</h2>
             {diminta.map((r) => (
               <div className="pin-perhatian" key={r.request_id} data-permintaan={r.request_id}>
+                <Ikon nama="triangle-alert" kelas="pin-perhatian-ikon" />
                 <span className="pin-what">{r.course_title}</span>
                 <span className="pin-why">
                   {r.requested_by ? `${r.requested_by} ${s("siklus.diminta.meminta")}` : s("siklus.diminta.arti")}
@@ -288,6 +290,7 @@ export default async function Belajar({
             <h2>{s("siklus.siap.judul")}</h2>
             {perhatian.map((k) => (
               <div className="pin-perhatian" key={k.tugas.learning_assignment_id}>
+                <Ikon nama="triangle-alert" kelas="pin-perhatian-ikon" />
                 <span className="pin-what">{k.tugas.title}</span>
                 <span className="pin-why">{s("siklus.siap.arti")}</span>
                 <div className="pin-actions">

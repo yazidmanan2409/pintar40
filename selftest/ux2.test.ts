@@ -12,6 +12,13 @@
  *  UX2-BERKAS-01  W3.3 · FILEFIELD (RV-5; the /lapor axe `label` finding). No bare file input outside BidangBerkas;
  *                 rendered, its input is named by the field's label, lies transparent over «Pilih berkas», and the
  *                 choice is named beneath in words («Belum dipilih» before).
+ *  UX2-PRIMITIF-01 W3.3 · THE PRIMITIVES (Daisy's components and 08-migration): a select shows the chevron; a choice
+ *                 row is a 44 px target with a 20 px box; a success badge says ✓; the attention alert has its icon; the
+ *                 health mark is a badge (the old sehat-tanda/perhatian mix is ended); «Keluar» carries log-out; every
+ *                 <details> is a Disclosure with the chevron; the tab icon is Daisy's.
+ *  UX2-KOSONG-01  W3.2 · EMPTY STATE (CR-46): Kosong renders a sentence and, except for «not enough yet», its action;
+ *                 the absence card never shows «(n/m)» and says «Sekarang 3 murid; perlu 5.» where students are
+ *                 counted; AlasanNonaktif gives a disabled button its reason beside it.
  */
 import { spawnSync } from "node:child_process";
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -144,6 +151,78 @@ export const ux2Tests: SelfTest[] = [
       const lapor = readFileSync(join(ctx.repoRoot, "src/components/lapor/TangkapanLayar.tsx"), "utf8");
       c.expect(/<BidangBerkas[^>]*label=\{s\("lapor\.tangkapan"\)\}/.test(lapor), "/lapor's screenshot field is not a labelled FileField");
       return c.verdict("no bare file input; FileField names its input by the field's label, hides the browser's words under «Pilih berkas» and names the choice in words; /lapor's screenshot is labelled");
+    },
+  },
+  {
+    id: "UX2-PRIMITIF-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const baca = (p: string) => readFileSync(join(ctx.repoRoot, p), "utf8");
+      const css = baca("src/app/experience.css"), glob = baca("src/app/globals.css");
+      const aturan = (sel: string) => {
+        const esc = sel.replace(/[.*+?^${}()|[\]\\:>"=]/g, (x) => `\\${x}`);
+        return css.match(new RegExp(`(?:^|\\n)${esc}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
+      };
+      c.expect(/--select-chevron:\s*url\("data:image\/svg\+xml,[^"]*m6 9 6 6 6-6/.test(glob), "no chevron token (globals.css)");
+      const sel = aturan("select:not([multiple]):not([size])");
+      c.expect(/appearance:\s*none/.test(sel) && /background-image:\s*var\(--select-chevron\)/.test(sel), "a select shows no chevron");
+      const baris = css.match(/:where\(label:has\(input\[type="checkbox"\][^)]*\)\), label:has\(input\[type="radio"\]\)\)\s*\{([^}]*)\}/)?.[1] ?? "";
+      c.expect(/min-height:\s*var\(--control-md\)/.test(baris), "a choice row is not a 44 px target");
+      const kotak = css.match(/:where\(input\[type="checkbox"\][^,]*, input\[type="radio"\]\)\s*\{([^}]*)\}/)?.[1] ?? "";
+      c.expect(/width:\s*var\(--icon-md\)/.test(kotak) && /height:\s*var\(--icon-md\)/.test(kotak), "a choice's box is not 20 px");
+      // every checkbox and radio (but the menu drawer's toggle) is inside its label, so the whole row is its target
+      for (const f of berkas(join(ctx.repoRoot, "src"), /\.tsx$/)) {
+        const s = readFileSync(f, "utf8");
+        for (const m of s.matchAll(/<input\b[^>]*?type="(checkbox|radio)"|<input\s*\n\s*type="(checkbox|radio)"/g)) {
+          const sebelum = s.slice(0, m.index);
+          if (/pin-laci-saklar/.test(s.slice(m.index!, m.index! + 200))) continue;
+          c.expect(sebelum.lastIndexOf("<label") > sebelum.lastIndexOf("</label>"), `${relative(ctx.repoRoot, f)}: a ${m[1] ?? m[2]} outside its label`);
+        }
+      }
+      c.expect(/content:\s*"✓"/.test(aturan(".pin-pill.pin-ok::before")), "a success badge has the dot, not ✓");
+      const kartu = baca("src/components/konfigurasi/KartuKesehatan.tsx");
+      c.expect(!/pin-sehat-tanda pin-perhatian/.test(kartu) && /pin-pill pin-attention/.test(kartu) && !/\.pin-sehat-tanda\.pin-perhatian/.test(css),
+        "the health mark still mixes the Alert's class into a badge");
+      const belajar = baca("src/app/belajar/page.tsx");
+      const alert = [...belajar.matchAll(/<div className="pin-perhatian"[^>]*>\s*(<[^>]+>)/g)].map((m) => m[1]);
+      c.expect(alert.length >= 2 && alert.every((x) => /<Ikon nama="triangle-alert" kelas="pin-perhatian-ikon" \/>/.test(x)), "the attention alert has no icon");
+      c.expect(/<Ikon nama="log-out" \/>\s*\{s\("sesi\.keluar"\)\}/.test(baca("src/components/BarisSesi.tsx")), "«Keluar» has no log-out icon");
+      let rinci = 0;
+      for (const f of berkas(join(ctx.repoRoot, "src"), /\.tsx$/)) {
+        const s = readFileSync(f, "utf8");
+        for (const m of s.matchAll(/<details\b[^>]*>\s*<summary[^>]*>[\s\S]*?<\/summary>/g)) {
+          rinci++;
+          c.expect(/className="[^"]*(pin-disclosure|pin-kelas-bukti)/.test(m[0]) && /<Ikon nama="chevron-down" kelas="pin-chevron" \/>/.test(m[0]),
+            `${relative(ctx.repoRoot, f)}: a <details> without the Disclosure chevron`);
+        }
+      }
+      c.expect(rinci >= 6, `only ${rinci} <details> found`);
+      c.expect(/\.pin-disclosure > summary::-webkit-details-marker\s*\{\s*display:\s*none/.test(css), "the browser's marker still shows");
+      const sidik = spawnSync("git", ["hash-object", "src/app/favicon.ico"], { cwd: ctx.repoRoot, encoding: "utf8" }).stdout.trim();
+      c.expect(sidik === "70839bbe9b197e4b7d2a45997566c2abdf7ac720", `the tab icon is not Daisy's (${sidik})`);
+      return c.verdict(`select chevron, 44 px choice rows with 20 px boxes, ✓ badge, alert icon, the health badge, «Keluar» with log-out, ${rinci} Disclosures with the chevron, Daisy's tab icon`);
+    },
+  },
+  {
+    id: "UX2-KOSONG-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const a = render(ctx.repoRoot, "src/components/Kosong.tsx", { jenis: "belum", kalimat: "Bab yang disediakan muncul di sini.", aksi: { href: "/mengajar", label: "Siapkan materi pertama" } });
+      const k = render(ctx.repoRoot, "src/components/Kosong.tsx", { jenis: "kurang", kalimat: "Sekarang 2 murid; perlu 5.", aksi: { href: "/x", label: "Tidak" } });
+      const n = render(ctx.repoRoot, "src/components/Kosong.tsx", { jenis: "tidak_cocok", kalimat: "Tidak ada murid yang cocok dengan «Ani».", aksi: { href: "?", label: "Hapus pencarian" } });
+      if (c.expect(a.ok && k.ok && n.ok, `Kosong could not be rendered: ${a.galat || k.galat || n.galat}`)) {
+        c.expect(/data-kosong="belum"/.test(a.html) && /<p class="pin-kosong-kalimat">Bab yang disediakan muncul di sini\.<\/p>/.test(a.html)
+          && /<a class="pin-btn" href="\/mengajar">Siapkan materi pertama<\/a>/.test(a.html), "«not yet» is not a sentence and its first action");
+        c.expect(/data-kosong="kurang"/.test(k.html) && !/<a /.test(k.html), "«not enough yet» offers an action");
+        c.expect(/Hapus pencarian<\/a>/.test(n.html), "«nothing matches» has no way back");
+      }
+      const kk = readFileSync(join(ctx.repoRoot, "src/components/bukti/KartuKetiadaan.tsx"), "utf8");
+      c.expect(!/\(\$\{format\.number\(entry\.have/.test(kk) && /ketiadaan\.jumlah\.murid/.test(kk), "the absence card still writes «(have/needed)»");
+      const { t } = await import("../src/lib/hle");
+      c.expect(t("ketiadaan.jumlah.murid", "staff").replace("{have}", "2").replace("{needed}", "5") === "Sekarang 2 murid; perlu 5.", "the count sentence is not Daisy's");
+      const r = render(ctx.repoRoot, "src/components/AlasanNonaktif.tsx", { id: "periksa-alasan", children: "Pilih buku kerja dahulu." });
+      c.expect(r.ok && r.html === '<p class="pin-alasan" id="periksa-alasan">Pilih buku kerja dahulu.</p>', `the reason line is ${r.html || r.galat}`);
+      return c.verdict("Kosong: a sentence and its action (none for «not enough yet»); the absence card says «Sekarang 3 murid; perlu 5.», never «(3/5)»; a disabled button's reason is a line beside it");
     },
   },
 ];

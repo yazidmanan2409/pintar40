@@ -198,6 +198,7 @@ export type HleEvent =
   | "app.name"
   | "aksesibilitas.lewati"
   | "berkas.pilih" | "berkas.belum" | "berkas.banyak"
+  | "ketiadaan.jumlah.murid"
   | "auth.title"
   | "auth.lede"
   | "auth.email_label"
@@ -2718,6 +2719,8 @@ const table: Table = {
   "berkas.pilih": { default: "Pilih berkas", en: "Choose a file" },
   "berkas.belum": { default: "Belum dipilih", en: "Nothing chosen yet" },
   "berkas.banyak": { default: "{n} berkas: {nama}", en: "{n} files: {nama}" },
+  // W3.2 / CR-46 (Daisy, components/EmptyState «not enough yet»): how much there is and how much is needed, in words
+  "ketiadaan.jumlah.murid": { default: "Sekarang {have} murid; perlu {needed}.", en: "{have} students so far; {needed} needed." },
   // ══════════════════════════════ UX-1 · the sign-in screen (login handoff)
   // Daisy's canonical copy table, verbatim: 38 strings measured against their
   // controls at every width in both languages. Three of them are load-bearing

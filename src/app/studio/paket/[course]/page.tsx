@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Ikon from "@/components/Ikon";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
 import { currentLocale } from "@/lib/locale";
@@ -267,8 +268,8 @@ export default async function Paket({ params, searchParams }: { params: Params; 
           ) : (
             <div className="mt-3 grid gap-2">
               {soal.map((l, li) => (
-                <details key={l.id} className="pin-soal-pelajaran" open={li === 0}>
-                  <summary className="cursor-pointer font-medium">{l.judul} · {format.number(l.soal.length, locale)} {sl("studio.soal.jumlah")}</summary>
+                <details key={l.id} className="pin-soal-pelajaran pin-disclosure" open={li === 0}>
+                  <summary className="cursor-pointer font-medium">{l.judul} · {format.number(l.soal.length, locale)} {sl("studio.soal.jumlah")}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
                   <ol className="mt-2 grid list-decimal gap-3 pl-5">
                     {l.soal.map((q) => (
                       <li key={q.id} className="pin-soal">

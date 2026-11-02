@@ -1,5 +1,6 @@
 import Link from "next/link";
 import TandaTautan from "@/components/TandaTautan";
+import Ikon from "@/components/Ikon";
 import { t, format, allKeys, type HleEvent } from "@/lib/hle";
 import Penomoran, { UKURAN, halamanDiminta, rentang, satuHalaman, tautanHalaman } from "@/components/koleksi/Penomoran";
 
@@ -601,8 +602,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                           <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.ketuntasan.tombol")}</TombolKirim>
                         </form>
                         {p.history.length > 0 ? (
-                          <details>
-                            <summary className="cursor-pointer text-ink-3">{sl("config.ketuntasan.riwayat")}</summary>
+                          <details className="pin-disclosure">
+                            <summary className="cursor-pointer text-ink-3">{sl("config.ketuntasan.riwayat")}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
                             <ul className="mt-1 grid gap-1 text-ink-2">
                               {p.history.map((h, i) => (
                                 <li key={`${h.set_at}-${i}`}>

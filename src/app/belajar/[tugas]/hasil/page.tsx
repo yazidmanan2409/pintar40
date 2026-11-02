@@ -143,7 +143,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
             {review.map((r) => (
               <details
                 key={r.posisi}
-                className="pin-item"
+                className="pin-item pin-disclosure"
                 open={r.is_safety_critical && r.benar === false}
               >
                 <summary className="pin-ihead">
@@ -152,6 +152,7 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
                   <span className={`pin-pill ${r.benar ? "pin-ok" : "pin-neutral"}`}>
                     {r.benar ? s("hasil.answer_right") : s("hasil.answer_notyet")}
                   </span>
+                  <Ikon nama="chevron-down" kelas="pin-chevron" />
                 </summary>
                 {r.jawaban_teks ? (
                   <span className="pin-mine">
