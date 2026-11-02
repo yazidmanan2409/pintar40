@@ -100,7 +100,7 @@ Evidence: `evidence/w65/` (the run's JSON, its log and 11 screenshots).
 | New guards | STUDIO3A-* (8, incl. SEPARUH-01), STUDIO3B-* (6), MENGAJAR3-* (5), F23-W05. Each was red without its change and green with it: the agents reset `src` to 405bb19; F23-W05 was run with the function dropped. |
 | Restated, rule unchanged, each marked `RESTATED FOR …` | DAISY-06-TERBIT-01, DAISY-18-DENGAR-01, D140-STUDIO-01, DAISY-14-TANGGAL-01, TANGGAL-02/03, BOB07-K02, L4-K01, CR52-B01, PENUTUPAN-J01/I01, POLISH2-STUDIO-01, STUDIO3A-AKUI-01, STUDIO3A-RIWAYAT-01, two UX-14/16 heading pins |
 | Baselines | Migrations 181 → 182 (UX1-BRAND-02, UX1-TUR-ORANG-01), with the reason written beside each |
-| Branch CI | §6 |
+| Branch CI | §6: `ci` 41485243098 and `audit-journeys` 41485237768, both green on `8a75689` |
 
 No test was weakened or removed.
 
@@ -113,7 +113,24 @@ No test was weakened or removed.
 
 ## 6. CI on the branch
 
-{CI}
+**Tested SHA:** `8a7568929ac59bcfb405596cbfcf51982e2a3b39`. The app code there is the same as `0d3c6d0`; the commits after `0d3c6d0` change only the walk scripts.
+
+| Workflow | Run | Result |
+|---|---|---|
+| `ci` (the protected check's suite: static, app, db, red cases, migrations clean and upgrade path, baseline parity, verdict) | **41485243098** | **success** |
+| `audit-journeys` job A: every role's screens in the seeded world, then **the W6.5/W6.7 Studio walk** (16 legs) | **41485237768** | **success** |
+| `audit-journeys` job B: Gladys's path from an empty, production-like database (69 steps; any FAIL or BLOCKED turns it red) | **41485237768** | **success** |
+
+**How it got there (no app defect found):**
+
+| SHA | Runs | What happened | Fix |
+|---|---|---|---|
+| `0d3c6d0` | ci 41456048517 **success**; journeys 41456052964 A **success**, B **red** | S17 and C12c: «no "Buat terbitan" button for the head of department». S17t: the review-queue link was not found by its exact title. 29 further steps were red or blocked as cascades (Bab 1 never published). | `8f9a023`: the walks press the approved combined button (W1.4) and require the release to END locked; the queue's whole-row link (W1.7) is matched by a name that begins with the title |
+| `8f9a023` | ci 41474549982 **red**: the red-case job could not start its database (port 54322 already in use on the runner) **before any test ran**; journeys 41474544188 A **success**, B 67 PASS / 2 FAIL | C12c and S26f: the walk pressed only «Sudah saya tinjau»; grouped findings (W1.5) say «Sudah saya tinjau semuanya», so publishing was rightly refused | `8a75689`: the walks take either name and still press until no warning is left |
+| `8a75689` | ci 41485243098 **success**; journeys 41485237768 **success** (A and B) | none | none |
+
+The staging Golden School walk and the staging journey carry the same three updates, so the post-promotion staging run will not trip on them.
+
 
 ## 7. Remaining acceptance gaps
 
