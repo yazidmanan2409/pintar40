@@ -13,6 +13,7 @@ import BarisHasil from "@/components/BarisHasil";
  *
  * Keyboard: the button has aria-haspopup, aria-expanded and aria-controls; on open the first item takes focus; arrow
  * keys move, Home and End go to the ends; Esc, Tab or a press outside closes it, and Esc returns focus to the button.
+ * The dialog is opened from the button (the item that asked is hidden by then), so closing it returns focus there.
  */
 export default function MenuAkun({ locale, nama, children }: { locale: Locale; nama: string; children: React.ReactNode }) {
   const s = useCallback((k: HleEvent) => t(k, "staff", { locale }), [locale]);
@@ -76,7 +77,7 @@ export default function MenuAkun({ locale, nama, children }: { locale: Locale; n
         <a role="menuitem" className="pin-menu-butir" href="/lapor/saya" tabIndex={-1}>{s("lapor.saya.buka")}</a>
         <hr className="pin-menu-pisah" />
         <button role="menuitem" type="button" className="pin-menu-butir pin-menu-bahaya" tabIndex={-1}
-          onClick={() => { setBuka(false); setKeadaan("diam"); setTanya(true); }}>
+          onClick={() => { setBuka(false); tombol.current?.focus(); setKeadaan("diam"); setTanya(true); }}>
           {s("sesi.menu.semua")}
         </button>
       </div>
