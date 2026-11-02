@@ -66,7 +66,7 @@ So Dr Gladys's Studio attempt (D-141(b)) is not visible on staging under her own
 | Journeys (crawl + journeys, three engines) | **37930524012** | `001a357` | success |
 | Golden School walk (Level 3, staging) | 37965014304 … 37967468474 | staging `001a357` | 4/4 green, school `sekolah-uji-daisy-001a` [recorded 9 Oct] |
 | Local full suite | 9 Oct | `001a357` | 658 passed, 0 failed [recorded] |
-| **Any CI build since 9 Oct** | — | — | **None.** Since 19 Oct GitHub's `ubuntu-latest` is Ubuntu 26, and Node 20 actions run on Node 24 |
+| **Any CI build since 9 Oct** | — | — | **None until Batch 0.** The 9 Oct run (37930520507) was green. Batch 0 (2 Nov, branch): `ci.yml` green on Ubuntu 26.04 (41375753148, 661/0/0); browser jobs needed a 24.04 pin (`batch-0/02`) |
 
 **Consequence:** the first CI build may need fixes before it can verify anything. 71 jobs use the unpinned `ubuntu-latest`. CI reads `psql` from the runner image [verified in workflow files].
 

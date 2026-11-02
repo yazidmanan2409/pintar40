@@ -15,11 +15,11 @@ Each item keeps its original finding ids for traceability: CR (closure register)
 
 | Id | Item | Source | Who | Batch | Status |
 |---|---|---|---|---|---|
-| W0.1 | Repository public **by the owner's choice** (D-143). Consequence work: W5.2 (answer keys and content sources out of the repository), W0.5 (history secret scan), and a pre-commit guard so no key, secret or real-person data is ever committed to a public repo | D-143 | E | 0–1 | NOT STARTED |
-| W0.2 | First CI build on GitHub's new runner image (Ubuntu 26, Node 24): fix the local stack and `psql` source; pin the image if needed; leave the Supabase CLI bump for later | W6.6 (2 Nov plan) | E | 0 | NOT STARTED |
+| W0.1 | Repository public **by the owner's choice** (D-143). Consequence work: W5.2 (answer keys and content sources out of the repository), W0.5 (history secret scan), and a pre-commit guard so no key, secret or real-person data is ever committed to a public repo | D-143 | E | 0–1 | IMPLEMENTED — NOT VERIFIED (guard and scan done in Batch 0, commit 0fb65bb, SEC-G01/G02 green in CI 41375753148; W5.2 remains, batch 1) |
+| W0.2 | CI on GitHub's new runner image (Ubuntu 26.04, Node 24 for actions). **Batch 0 finding:** `ci.yml` green unchanged (41375753148, 661/0/0); every Playwright browser install fails on 26.04 (Playwright 1.55); 17 browser jobs pinned to ubuntu-24.04 (871767d). Later: Playwright upgrade, Node 24 action majors, Supabase CLI bump (`batch-0/02` §6) | W6.6 (2 Nov plan) | E | 0 | VERIFIED — INTERNAL ACCEPTANCE PENDING for `ci.yml` and `audit-journeys.yml` on the branch (`batch-0/02`); the 14 other pinned workflows IMPLEMENTED — NOT VERIFIED |
 | W0.3 | Lift the staging freeze (D-140(d)/D-141(a)) on plan approval | D-141 | Y | 0 | BLOCKED — OWNER DECISION |
-| W0.4 | Add an accessibility harness to the crawl: axe on every page, a keyboard walk per surface, clipping detection (not only overflow) | design reconciliation §5; X.6 | E | 0 | NOT STARTED |
-| W0.5 | A secret scan of the full history, now that it is public. The project refs are not secrets; confirm no key was ever committed | A-CURRENT-STATE §1 | E | 0 | NOT STARTED |
+| W0.4 | Accessibility harness in the crawl: axe, title, skip link, keyboard walk, overflow and clipping at 320/640/1024/1280 px (`audit/a11y.mjs`, Batch 0). Baseline in `batch-0/03`. Next: public pages in the crawl (with W3.1) | design reconciliation §5; X.6 | E | 0 | VERIFIED — INTERNAL ACCEPTANCE PENDING (harness; the baseline itself is recorded, not clean) |
+| W0.5 | Secret scan of the full reachable history (all branches and PR refs): **0 credentials**; the owner's own address; 43 + 4 answer-key files (`batch-0/04`) | A-CURRENT-STATE §1 | E | 0 | VERIFIED — INTERNAL ACCEPTANCE PENDING |
 
 ## W1 · Studio and content (J4, J5.4)
 
@@ -80,7 +80,7 @@ Status per screen: the design reconciliation found **J2, J5 and J6 not applied**
 | W3.7 | Pendataan, Aktivasi: field widths, hints, label case | RV-22 | E | 4 | NOT STARTED |
 | W3.8 | **Report pages** Ringkasan Kelas / Sekolah: shell, class, school, period, print | RV-11; J7.2–7.4; X.7 | **D** then E | 5 | BLOCKED — EXTERNAL DEPENDENCY (Daisy) |
 | W3.9 | Pimpinan: «(0/5)» explained; repeated labels («Peserta» in academic metrics vs J9.3); touching cards | RV-9 | E | 5 | NOT STARTED |
-| W3.10 | Learner (J4 residue): answer-count line, «Halo, …», accessible names | J4 | E | 5 | NOT STARTED |
+| W3.10 | Learner (J4 residue): answer-count line, «Halo, …», accessible names; **the learner screens are 674–675 px wide in a 640 px window (1280 at 200 % zoom; Batch 0 baseline)**; the lesson's `<audio>` control has no visible focus indicator | J4; `batch-0/03` | E | 5 | NOT STARTED |
 | W3.11 | **J5 Jendela** on Siapkan: date echo, «(opsional)», refusal under the field with focus; **J1 part two** «✓ Disediakan» | J5, J1 | E | 3 | NOT STARTED |
 | W3.12 | **J3 navigation under L3**: the composition predates the working-context model; the rail (OP-1) and group labels (OP-2) | J3, OP-1, OP-2 | **D** (restate) or Y (accept deviation) | 5 | BLOCKED — EXTERNAL DEPENDENCY |
 | W3.13 | **J6 Peragaan** evaluation band (region, title prefix, leaving line) | J6 | E | 5 | NOT STARTED |
@@ -109,7 +109,7 @@ Status per screen: the design reconciliation found **J2, J5 and J6 not applied**
 |---|---|---|---|---|---|
 | W5.1 | **CR-91** enforced in the database per F-3 (recommended: class cards for learners only; red → green tests) | CR-91, X.2, X.8 | E after Y | 1 | BLOCKED — OWNER DECISION |
 | W5.2 | Answer-key sources moved out of the repository per F-4; L4-C01 restated; summative items regenerated if exposure is confirmed | S1; D-032 | E after Y | 1 | BLOCKED — OWNER DECISION |
-| W5.3 | Branch protection on `main` (required CI, no force push) | 05 §1.1 | Y | 0 | BLOCKED — OWNER DECISION |
+| W5.3 | Branch protection on `main` (required CI, no force push), **required before the next merge to `main`**; settings proposed in `batch-0/04` §6 R-1 | 05 §1.1; D-143 | Y | before batch 1 merge | BLOCKED — OWNER DECISION |
 | W5.4 | Re-run the security suite (RLS, isolation, sessions, credential privacy, audit) on the release candidate | 04 | E | 8 | NOT STARTED |
 
 ## W6 · Regression, evidence, accessibility

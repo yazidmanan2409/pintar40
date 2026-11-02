@@ -8,7 +8,7 @@
 
 **Three rules apply to every row:**
 1. **VERIFIED here is functional only.** No screen yet carries Daisy's full composition (`C-OPEN-WORK-REGISTER` §D), so under the mandate's definition of COMPLETE (§3, condition 2), **no line is complete**. Design completion is tracked per screen in the register and in matrix G.
-2. VERIFIED rests on 9 Oct evidence. **No CI has run since GitHub's runner change.** The first batch re-establishes it, and EVIDENCE-MODEL rule 3 means nothing carries forward across code changes.
+2. VERIFIED rests on 9 Oct evidence. **No CI had run since 9 Oct; Batch 0 re-established it on the branch (`batch-0/02`), which is not a staging or Golden School verification.** The first batch re-establishes it, and EVIDENCE-MODEL rule 3 means nothing carries forward across code changes.
 3. A line's gaps point to their work items in `C-OPEN-WORK-REGISTER` (W-ids) and batches in `E-CRITICAL-PATH-EXECUTION-PLAN`.
 
 ## Summary
