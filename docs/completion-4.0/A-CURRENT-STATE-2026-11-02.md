@@ -4,7 +4,9 @@
 - **[verified]** means read today.
 - **[recorded]** means taken from a record and not re-read today.
 
-## 1. Urgent security finding (STOP condition, mandate §13)
+## 1. The repository is public, by the owner's choice
+
+**Owner, 2 Nov:** «Correct - i changed it this morning». The change was deliberate, **not an incident** (D-143). The consequences below are recorded for decisions F-4 and F-16, not as a breach.
 
 **The repository `yazidmanan2409/pintar40` is PUBLIC.** [verified]
 - `gh api repos/yazidmanan2409/pintar40` returns `"private": false, "visibility": "public"`, and an anonymous request returns HTTP 200.
@@ -22,7 +24,7 @@
 
 `main` has no branch protection [recorded].
 
-**The coordinator has not changed any repository setting.** This is the owner's action, first in `F-OWNER-DECISIONS-REQUIRED-2026-11-02.md`.
+**The coordinator has not changed any repository setting.** What follows from the repository being public, and what must not be committed from now on, is in F-1 and F-4.
 
 ## 2. Code and branches [verified]
 

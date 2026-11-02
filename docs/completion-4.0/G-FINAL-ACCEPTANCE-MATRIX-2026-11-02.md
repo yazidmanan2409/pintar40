@@ -93,6 +93,6 @@ Release lines R.1–R.8 are proven by Gates 4–5 (§4), not by scenarios.
 | 1 | NO-GO: 22 IMPLEMENTED — NOT VERIFIED, 22 IN PROGRESS, 4 NOT STARTED, 10 BLOCKED |
 | 2 | NO-GO: no screen has its full composition; no screen-reader or zoom pass done |
 | 3 | NO-GO: no CI since the runner change; Studio proof not run; CR-59 not built |
-| 4 | NO-GO: #150 NOT PASS; L1 FAIL on Micro; legal not started; CR-91 held; **repository public** |
+| 4 | NO-GO: #150 NOT PASS; L1 FAIL on Micro; legal not started; CR-91 held; answer keys in the (public) repository |
 | 5 | NO-GO: production `5b5b68d`, 669 code files behind |
 | 6 | NO-GO: 0 scenarios run |

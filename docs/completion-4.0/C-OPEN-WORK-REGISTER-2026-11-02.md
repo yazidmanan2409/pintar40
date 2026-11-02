@@ -15,7 +15,7 @@ Each item keeps its original finding ids for traceability: CR (closure register)
 
 | Id | Item | Source | Who | Batch | Status |
 |---|---|---|---|---|---|
-| W0.1 | **Make the repository private** (it is public; answer keys exposed) | A-CURRENT-STATE §1 | Y | now | BLOCKED — OWNER DECISION |
+| W0.1 | Repository public **by the owner's choice** (D-143). Consequence work: W5.2 (answer keys and content sources out of the repository), W0.5 (history secret scan), and a pre-commit guard so no key, secret or real-person data is ever committed to a public repo | D-143 | E | 0–1 | NOT STARTED |
 | W0.2 | First CI build on GitHub's new runner image (Ubuntu 26, Node 24): fix the local stack and `psql` source; pin the image if needed; leave the Supabase CLI bump for later | W6.6 (2 Nov plan) | E | 0 | NOT STARTED |
 | W0.3 | Lift the staging freeze (D-140(d)/D-141(a)) on plan approval | D-141 | Y | 0 | BLOCKED — OWNER DECISION |
 | W0.4 | Add an accessibility harness to the crawl: axe on every page, a keyboard walk per surface, clipping detection (not only overflow) | design reconciliation §5; X.6 | E | 0 | NOT STARTED |
