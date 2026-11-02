@@ -13,6 +13,7 @@ import {
 import { konfirmasiPaketAksi, unggahBukuKerjaAksi } from "@/app/studio/actions";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { NAMA_BERKAS_TEMPLAT, templatPelajaran } from "./templat";
+import { NAMA_UNDUHAN_CONTOH, bukuKerjaContohSaja } from "./contoh";
 import { lokasiMasalah } from "./lokasi";
 import BarisHasil from "@/components/BarisHasil";
 
@@ -43,7 +44,8 @@ export const MASALAH_TAMPIL = 50;
  * starting on the first. Changing the school or the file starts again.
  *
  * THE TEMPLATE is built here, in the browser, from BOB-02's contract
- * (./templat.ts), so it cannot fall behind what the reader accepts.
+ * (./templat.ts), so it cannot fall behind what the reader accepts. Beside it, W1.10 (DG-36): an example of the same
+ * workbook filled with a small chapter written for the example alone (./contoh.ts), no live item and no live key.
  *
  * Every word comes from the copy table; a problem is its code's sentence and
  * never the database's text (D-011).
@@ -94,13 +96,22 @@ export default function PanelUnggah({
   const langkahKini = tersimpan ? 4 : !periksa?.ok ? 1 : !mediaLengkap ? 2 : 3;
 
   function unduhTemplat() {
-    const blob = new Blob([templatPelajaran() as BlobPart], {
+    unduh(templatPelajaran(), NAMA_BERKAS_TEMPLAT);
+  }
+
+  /** W1.10 (DG-36): the example-only workbook, built here as the template is (./contoh.ts). */
+  function unduhContoh() {
+    unduh(bukuKerjaContohSaja(), NAMA_UNDUHAN_CONTOH);
+  }
+
+  function unduh(isi: Uint8Array, nama: string) {
+    const blob = new Blob([isi as BlobPart], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = NAMA_BERKAS_TEMPLAT;
+    a.download = nama;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -205,6 +216,13 @@ export default function PanelUnggah({
           {s("studio.unggah.templat")}
         </button>
         <p className="pin-hint">{s("studio.unggah.templat_arti")}</p>
+      </div>
+      {/* W1.10 (DG-36): beside the blank template, an example filled with made-up content only */}
+      <div className="pin-ung-templat" data-contoh-saja="">
+        <button type="button" className="pin-btn" onClick={unduhContoh}>
+          {s("studio.unggah.contoh")}
+        </button>
+        <p className="pin-hint">{s("studio.unggah.contoh_arti")}</p>
       </div>
 
       <ol className="pin-ung-langkah" aria-label={s("studio.unggah.buku.judul")}>

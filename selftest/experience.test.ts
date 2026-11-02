@@ -355,6 +355,16 @@ const RESET_SURFACES = [
   "src/app/lapor/saya/page.tsx",
   // #148 (D-094, D-100): the maintenance page, on the sign-in shell's pin-* classes as «PINTAR terkunci» is.
   "src/app/pemeliharaan/page.tsx",
+  // W1.14 / W3.18 (Batch 3): Studio's shell and its pages other than Beranda, Tinjau and a package's page, moved off
+  // their Tailwind compositions onto the pin-* v3 primitives (08-migration), so the token lint now reads them too.
+  "src/app/studio/layout.tsx",
+  "src/app/studio/bank/page.tsx",
+  "src/app/studio/definisi/page.tsx",
+  "src/app/studio/integritas/page.tsx",
+  "src/app/studio/kanonik/page.tsx",
+  "src/app/studio/kanonik/[terbitan]/page.tsx",
+  "src/app/studio/pratinjau/[pelajaran]/page.tsx",
+  "src/app/studio/unggah/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */
@@ -365,17 +375,9 @@ const PENDING_SURFACES: Record<string, string> = {
   "src/app/konfigurasi/page.tsx": "Slice 7 — configuration",
   "src/app/edukator/ringkasan/page.tsx": "Slice 6 — reports",
   "src/app/dekan/ringkasan/page.tsx": "Slice 6 — reports",
-  "src/app/studio/layout.tsx": "Slice 5 — Studio",
   "src/app/studio/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/bank/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/definisi/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/integritas/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/kanonik/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/kanonik/[terbitan]/page.tsx": "Slice 5 — Studio",
   "src/app/studio/paket/[course]/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/pratinjau/[pelajaran]/page.tsx": "Slice 5 — Studio",
   "src/app/studio/tinjau/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/unggah/page.tsx": "Slice 5 — Studio",
 };
 
 /**
@@ -10804,13 +10806,14 @@ export const experienceTests: SelfTest[] = [
       }
       for (const f of semua.filter((x) => /^src\/app\/studio\/.*page\.tsx$/.test(x))) {
         const src = code(baca(f));
-        const nama = [...src.matchAll(/const (\w+) = [^;]*outcomeLine\(sp\)/g)].map((m) => m[1]);
+        // RESTATED FOR W1.9 (Batch 3): Studio's pages pass the reader's language (outcomeLine(sp, locale)); the rule is unchanged
+        const nama = [...src.matchAll(/const (\w+) = [^;]*outcomeLine\(sp(?:, locale)?\)/g)].map((m) => m[1]);
         for (const v of nama) {
           const pakai = [...src.matchAll(new RegExp(`\\b${v}\\b`, "g"))].filter((m) => !/const $/.test(src.slice(m.index! - 6, m.index!)));
           c.expect(pakai.every((m) => src.slice(m.index! - 9, m.index!) === "kalimat={"),
             `${f}: the result sentence "${v}" reaches the screen other than through HasilDi`);
         }
-        const langsung = [...src.matchAll(/outcomeLine\(sp\)/g)].filter((m) => !/const \w+ = [^;]*$/.test(src.slice(Math.max(0, m.index! - 200), m.index!)));
+        const langsung = [...src.matchAll(/outcomeLine\(sp(?:, locale)?\)/g)].filter((m) => !/const \w+ = [^;]*$/.test(src.slice(Math.max(0, m.index! - 200), m.index!)));
         c.expect(langsung.every((m) => src.slice(m.index! - 9, m.index!) === "kalimat={"), `${f}: outcomeLine reaches the screen other than through HasilDi`);
       }
       c.expect(!berkasBagian("src/app/studio/bank/page.tsx", "bukan-bagian"), "the control: a section no line names is found");
@@ -11926,7 +11929,8 @@ export const experienceTests: SelfTest[] = [
        *    database id, and no word outside the copy table.
        */
       const bank = baca("src", "app", "studio", "bank", "page.tsx");
-      c.expect(/<p className="text-sm text-ink-2">\{s\("studio\.bank\.intro"\)\}<\/p>/.test(bank)
+      // RESTATED FOR W1.14 (Batch 3): the line's Tailwind look became the v3 secondary line (pin-ket); said once, as before
+      c.expect(/<p className="pin-ket">\{s\("studio\.bank\.intro"\)\}<\/p>/.test(bank)
         && !/studio\.bank\.belum_cukup/.test(bank) && !/placeholder="/.test(bank)
         && (bank.match(/\bshort\(/g) ?? []).length === 1 && /<li key=\{i\.id\} className=\{card\} data-soal=\{short\(i\.id\)\}>/.test(bank),
         "Bank Soal does not say once what it is for, still says «Belum cukup bukti» under every question, shows a database id, or keeps a word outside the copy table");
@@ -11965,7 +11969,8 @@ export const experienceTests: SelfTest[] = [
       const [iBuku, iD, iM, iT, iE] = ['id="buku-kerja"', "<details", 'id="mudah"', 'id="terstruktur"', "</details>"].map((x) => unggah.indexOf(x));
       c.expect(iBuku >= 0 && iBuku < iD && iD < iM && iM < iT && iT < iE
         // RESTATED FOR W3.3 (Batch 2): Daisy's Disclosure class (the chevron) joins; one closed disclosure as before
-        && /<details className="grid gap-4 pin-disclosure" id="sistem-lain" open=\{sistemLainTerbuka\}>/.test(unggah)
+        // RESTATED FOR W1.14 (Batch 3): its Tailwind grid became pin-studio-lipat; still one closed disclosure
+        && /<details className="pin-disclosure pin-studio-lipat" id="sistem-lain" open=\{sistemLainTerbuka\}>/.test(unggah)
         && /const sistemLainTerbuka = sp\.bagian === "mudah" \|\| sp\.bagian === "terstruktur";/.test(unggah),
         "the JSON forms are not in one closed disclosure below the workbook that opens for their own answer");
       c.expect(/\{s\("studio\.unggah\.periksa_mudah"\)\}<\/TombolKirim>/.test(unggah) && /\{s\("studio\.unggah\.periksa_terstruktur"\)\}<\/TombolKirim>/.test(unggah)

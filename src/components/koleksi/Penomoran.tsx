@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { t } from "@/lib/hle";
+import { t, type Locale } from "@/lib/hle";
 import TandaTautan from "@/components/TandaTautan";
 
 /**
@@ -17,14 +17,18 @@ export { UKURAN, halamanDiminta, satuHalaman, rentang, tautanHalaman } from "./h
  * «Kembali» · Halaman n · «Berikutnya». `ke(n)` builds the link to page n, keeping whatever else the URL says.
  * Nothing is drawn when the list is one page.
  */
-export default function Penomoran({ halaman, lagi, ke }: { halaman: number; lagi: boolean; ke: (n: number) => string }) {
+export default function Penomoran({ halaman, lagi, ke, locale = "id" }: {
+  halaman: number; lagi: boolean; ke: (n: number) => string;
+  /** W1.9 (UX-25): the reader's language. */
+  locale?: Locale;
+}) {
   if (halaman <= 1 && !lagi) return null;
   // the design system's own classes (tokens only), and a menu link that acknowledges the click (DAISY-18)
   return (
     <nav className="pin-actions" data-penomoran="">
-      {halaman > 1 ? <Link href={ke(halaman - 1)} className="pin-tautan">{t("koleksi.kembali", "staff")}<TandaTautan /></Link> : null}
-      <span className="pin-meta">{t("lesson.page_of", "staff")} {halaman}</span>
-      {lagi ? <Link href={ke(halaman + 1)} className="pin-tautan">{t("koleksi.berikutnya", "staff")}<TandaTautan /></Link> : null}
+      {halaman > 1 ? <Link href={ke(halaman - 1)} className="pin-tautan">{t("koleksi.kembali", "staff", { locale })}<TandaTautan /></Link> : null}
+      <span className="pin-meta">{t("lesson.page_of", "staff", { locale })} {halaman}</span>
+      {lagi ? <Link href={ke(halaman + 1)} className="pin-tautan">{t("koleksi.berikutnya", "staff", { locale })}<TandaTautan /></Link> : null}
     </nav>
   );
 }

@@ -139,7 +139,8 @@ export const l4Tests: SelfTest[] = [
         && !/placeholder='komposisi/.test(def), "the difficulty mix is still asked for as typed JSON");
       c.expect(/for \(const b of \["MUDAH", "SEDANG", "SULIT"\]\) \{ const n = num\(fd, `komposisi_\$\{b\}`\)/.test(aksi) && !/JSON\.parse\(mix\)/.test(aksi),
         "the rule's action does not build the mix from one number per band");
-      c.expect(/\{enumLabel\("bank", b\)\}/.test(def), "Aturan Penilaian draws the bank's value instead of its words");
+      // RESTATED FOR W1.9 (Batch 3): the bank's words in the reader's language (UX-25); still its words, never the value
+      c.expect(/\{enumLabel\("bank", b(?:, locale)?\)\}/.test(def), "Aturan Penilaian draws the bank's value instead of its words");
       c.expect(/\.range\(\.\.\.rentang\(halaman\)\)/.test(def) && /<Penomoran halaman=\{halaman\}/.test(def)
         && /bukaUbah\(d\.id\) \? \(\s*<form action=\{saveDefinitionAction\}/.test(def) && /s\("koleksi\.ubah"\)/.test(def),
         "Aturan Penilaian is not one page at a time with its edit opened by «Ubah»");
@@ -207,7 +208,8 @@ export const l4Tests: SelfTest[] = [
       c.expect(/<form method="get" action="\/studio\/bank"/.test(bank) && /<select className=\{field\} name="bank"/.test(bank)
         && /<select className=\{field\} name="tingkat"/.test(bank), "Bank Soal has no way to narrow the list");
       c.expect((bank.match(/saring\(supabase\.from\("items"\)/g) ?? []).length === 2, "the bank's two reads are not narrowed alike");
-      c.expect(/\{enumLabel\("bank", b\)\}/.test(bank) && /s\(`mengajar\.cepat\.tingkat\.\$\{p\}`\)/.test(bank), "a choice is drawn as its raw value");
+      // RESTATED FOR W1.9 (Batch 3): the bank's words in the reader's language (UX-25); still its words, never the value
+      c.expect(/\{enumLabel\("bank", b(?:, locale)?\)\}/.test(bank) && /s\(`mengajar\.cepat\.tingkat\.\$\{p\}`\)/.test(bank), "a choice is drawn as its raw value");
       // REVIEW: the key and every option's reason, read under the reader's row security, only where they hold CAN_DRAFT
       c.expect(/capabilities\.includes\("CAN_DRAFT"\)/.test(bank) && /from\("item_options"\)\.select\("item_id, label, body, is_correct, rationale"\)/.test(bank)
         && /"pin-opsi pin-opsi-kunci"/.test(bank) && /s\("studio\.soal\.alasan"\)/.test(bank),

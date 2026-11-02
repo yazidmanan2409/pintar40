@@ -1,6 +1,6 @@
 import TabStudioNav from "@/components/studio/TabStudio";
 import { currentViewer } from "@/lib/auth";
-import { s, studioInstitutions, tabSaya } from "./_lib";
+import { kataStudio, studioInstitutions, tabSaya } from "./_lib";
 import { type TabStudio } from "@/lib/studio-tab";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { currentLocale } from "@/lib/locale";
@@ -18,6 +18,8 @@ import { t } from "@/lib/hle";
  */
 export default async function StudioLayout({ children }: { children: React.ReactNode }) {
   const locale = await currentLocale();
+  // W1.9 (UX-25): the tabs and the heading in the reader's own language
+  const s = kataStudio(locale);
   // The viewer, for the gate below; the shell reads the reader and their roles itself (D-138 step 3).
   const viewer = await currentViewer();
   const institutions = viewer ? await studioInstitutions() : [];
@@ -69,13 +71,13 @@ export default async function StudioLayout({ children }: { children: React.React
         </>
       }
     />
-    <main id="isi" tabIndex={-1} className="mx-auto max-w-5xl px-4 py-8">
-      <header className="mb-6">
-        <div>
-          <p className="text-sm text-ink-3">{s("app.name")}</p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">{s("studio.title")}</h1>
-        </div>
-        <div className="mt-4"><TabStudioNav tab={nav} label={s("studio.title")} /></div>
+    {/* W1.14 (Batch 3): the reading column at the stage width, the page head (eyebrow and title) and the tabs, as the
+        other staff pages draw them (.pin-col, .pin-head); no Tailwind composition */}
+    <main id="isi" tabIndex={-1} className="pin-col pin-wide">
+      <header className="pin-head">
+        <p className="pin-eyebrow">{s("app.name")}</p>
+        <h1 className="pin-h1">{s("studio.title")}</h1>
+        <div className="pin-studio-nav"><TabStudioNav tab={nav} label={s("studio.title")} /></div>
       </header>
       {children}
     </main>

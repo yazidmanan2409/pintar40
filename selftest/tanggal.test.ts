@@ -154,7 +154,8 @@ export const tanggalTests: SelfTest[] = [
       // the places RV-16 named now ask the helper
       const ASAL: Array<[string, RegExp]> = [
         ["src/app/konfigurasi/page.tsx", /tanggal\(iso, bentuk, locale\)/],
-        ["src/app/studio/_lib.ts", /tanggal\(iso, "cap"\)/],
+        // RESTATED FOR W1.9 (Batch 3): Studio passes the reader's language to the same helper (UX-25)
+        ["src/app/studio/_lib.ts", /tanggal\(iso, "cap"(?:, locale)?\)/],
         ["src/components/email-uji/RiwayatEmail.tsx", /tanggal\(iso, "cap", locale\)/],
         ["src/components/keamanan/CatatanKeamanan.tsx", /tanggal\(iso, "cap", locale\)/],
         ["src/components/keamanan/PemulihanPin.tsx", /tanggal\(iso, "hariJam", locale\)/],

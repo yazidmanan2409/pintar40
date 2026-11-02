@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import { enumLabel } from "@/lib/hle";
+import { currentLocale } from "@/lib/locale";
+import Kosong from "@/components/Kosong";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
-import { button, card, field, label, outcomeLine, s, studioInstitutions, when, tabSaya } from "../_lib";
+import { button, card, field, kataStudio, label, outcomeLine, studioInstitutions, when, tabSaya } from "../_lib";
 import { recordIntegrityReviewAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
@@ -31,6 +33,9 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
   if (!(await tabSaya()).includes("integritas")) redirect("/studio");
   const sp = await searchParams;
   const supabase = await supabaseServer();
+  // W1.9 (UX-25): every word in the reader's language, a time with its year and WIB in it too
+  const locale = await currentLocale();
+  const s = kataStudio(locale);
   // CR-84 (3): what a refused form sent comes back to it, for the same person only (src/lib/isian.ts)
   const pemilik = (await currentViewer())?.personId ?? "";
   const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
@@ -59,28 +64,29 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
     satu(r.assessment_definitions as { title?: string } | null)?.title,
   ].filter((x): x is string => typeof x === "string" && x.length > 0).join(" · ")]));
 
-  const banner = outcomeLine(sp);
+  const banner = outcomeLine(sp, locale);
 
   return (
-    <div className="grid gap-4" id="integritas">
+    <div className="pin-studio-halaman" id="integritas">
       <div>
-        <h2 className="text-lg font-medium">{s("studio.integritas.judul")}</h2>
-        <p className="mt-1 text-sm text-ink-2">{s("studio.integritas.penjelasan")}</p>
+        <h2 className="pin-studio-h2">{s("studio.integritas.judul")}</h2>
+        <p className="pin-ket">{s("studio.integritas.penjelasan")}</p>
       </div>
       {/* DAISY-18: one form per item; the answer heads the list it came from */}
       <HasilDi q={sp} bagian="integritas" kalimat={banner} />
 
       {bySession.size === 0 ? (
-        <p className={card}>{s("studio.integritas.kosong")}</p>
+        // W3.2 (Empty state, «not yet»): nothing is waiting, which is good news; there is no action to offer
+        <Kosong jenis="belum" kalimat={s("studio.integritas.kosong")} />
       ) : (
-        <ul className="grid gap-2">
+        <ul className="pin-daftar">
           {[...bySession.entries()].map(([session, group]) => (
             <li key={session} className={card}>
-              <p className="text-sm text-ink-2">{namaSesi.get(session) || "\u2014"}</p>
-              <ul className="mt-2 grid gap-1 text-sm text-ink-2">
-                {group.map((g) => <li key={g.id}>{enumLabel("integritas", g.category)} · {when(g.observed_at)}</li>)}
+              <p className="pin-judul-baris">{namaSesi.get(session) || "\u2014"}</p>
+              <ul className="pin-daftar-rapat pin-ket">
+                {group.map((g) => <li key={g.id}>{enumLabel("integritas", g.category, locale)} · {when(g.observed_at, locale)}</li>)}
               </ul>
-              <form action={recordIntegrityReviewAction} id={`integritas-${session}`} className="mt-3 flex flex-wrap items-end gap-2">
+              <form action={recordIntegrityReviewAction} id={`integritas-${session}`} className="pin-baris-aksi">
                 <input type="hidden" name="sinyal" value={group[0].id} />
                 <label className={label}>
                   <span>{s("studio.integritas.tindak")}</span>

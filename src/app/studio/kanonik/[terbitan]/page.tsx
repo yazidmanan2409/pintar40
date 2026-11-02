@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
-import { card, s } from "../../_lib";
+import { currentLocale } from "@/lib/locale";
+import { card, kataStudio } from "../../_lib";
+import Kosong from "@/components/Kosong";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/studio/kanonik/[terbitan]");
@@ -13,12 +15,16 @@ export const generateMetadata = judulHalaman("/studio/kanonik/[terbitan]");
  * option, a correctness mapping or a rationale: preview is the sanitized
  * learner view, and a consuming school has no authoring reason to hold another
  * tenant's answer key.
+ *
+ * W1.14 (Batch 3): on the v3 primitives (Panel, a list with gaps, the Empty state); W1.9: in the reader's language,
+ * and each count says what it counts.
  */
 type Params = Promise<{ terbitan: string }>;
 
 export default async function KanonikTerbitan({ params }: { params: Params }) {
   const { terbitan } = await params;
   const supabase = await supabaseServer();
+  const s = kataStudio(await currentLocale());
   const { data: outline } = await supabase.rpc("distributed_release_outline", { p_release: terbitan });
 
   const rows = (outline ?? []) as Array<{
@@ -28,25 +34,24 @@ export default async function KanonikTerbitan({ params }: { params: Params }) {
   }>;
 
   if (rows.length === 0) {
-    return <p className={card}>{s("studio.kanonik.kosong")}</p>;
+    return <Kosong jenis="belum" kalimat={s("studio.kanonik.kosong")} />;
   }
 
   return (
-    <div className="grid gap-4">
-      <p className="text-sm text-ink-2">{s("studio.kanonik.hanya_baca")}</p>
-      <ul className="grid gap-2">
+    <div className="pin-studio-halaman">
+      <p className="pin-ket">{s("studio.kanonik.hanya_baca")}</p>
+      <ul className="pin-daftar">
         {rows.map((r) => (
           <li key={`${r.module_id}:${r.lesson_id ?? "-"}`} className={card}>
-            <p className="text-sm text-ink-3">{r.module_title}</p>
+            <p className="pin-ket-3">{r.module_title}</p>
             {r.lesson_id ? (
               <>
-                <Link href={`/studio/pratinjau/${r.lesson_id}?kanonik=1`}
-                      className="mt-1 block font-medium underline-offset-4 hover:underline">
+                <Link href={`/studio/pratinjau/${r.lesson_id}?kanonik=1`} className="pin-tautan pin-judul-baris">
                   {r.lesson_title}
                 </Link>
-                {r.lesson_summary ? <p className="mt-1 text-sm text-ink-2">{r.lesson_summary}</p> : null}
-                <p className="mt-1 text-sm text-ink-3 tabular-nums">
-                  {r.objective_count} · {r.item_count}
+                {r.lesson_summary ? <p className="pin-ket">{r.lesson_summary}</p> : null}
+                <p className="pin-ket-3 pin-num">
+                  {r.objective_count} {s("studio.kanonik.unit.tujuan")} · {r.item_count} {s("studio.definisi.unit.soal")}
                 </p>
               </>
             ) : null}

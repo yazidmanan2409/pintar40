@@ -2974,3 +2974,59 @@ select:not([multiple]):not([size]) {
 /* W2.4: the class's Uji Cepat figure stands alone above its learners; a learner with no score says so quietly */
 .pin-cepat-kelas { margin-bottom: var(--space-5); }
 .pin-cepat-tanpa { color: var(--ink-3); }
+
+/* ───────────────────────────── W1.14 / W3.18 · Studio's pages on the v3 primitives (Batch 3; Daisy, 08-migration:
+   Panel, Form layout, Text field, Radio, Checkbox, Hierarchy). The Tailwind compositions they replace drew the same
+   things; nothing here is a new composition (design §2). One column at the reading measure for a form; two short
+   related fields share a row from 220 px each (Form layout); a choice is a 44 px row with its explanation under it. */
+.pin-studio-halaman { display: grid; gap: var(--space-5); min-width: 0; }
+.pin-studio-halaman > * { min-width: 0; }
+.pin-studio-h2 { margin: 0; font-size: var(--t-section); line-height: var(--t-section-lh); letter-spacing: var(--t-section-ls); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-studio-h3 { margin: 0; font-size: var(--t-subsection); line-height: var(--t-subsection-lh); letter-spacing: var(--t-subsection-ls); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-studio-nav { margin-top: var(--space-4); }
+/* Panel (Containers): a surface with its hairline; never a shadow */
+.pin-panel {
+  display: grid; gap: var(--space-2); min-width: 0; padding: var(--space-4);
+  background: var(--surface-1); border: var(--border-hairline) solid var(--line-1); border-radius: var(--radius-lg);
+}
+.pin-panel > * { min-width: 0; margin: 0; }
+/* a quieter line under a heading, and a line of facts about a row */
+.pin-ket { margin: 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); }
+.pin-ket-3 { margin: 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-3); }
+.pin-judul-baris { margin: 0; font-weight: var(--weight-strong); color: var(--ink-1); overflow-wrap: anywhere; }
+/* a list with gaps (Hierarchy), never bullets */
+.pin-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); min-width: 0; }
+.pin-daftar-rapat { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); }
+.pin-daftar-titik { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-1); }
+/* Text field: the label above, the help under the label, then the control (components/TextField) */
+.pin-bidang { display: grid; gap: var(--space-1); min-width: 0; align-content: start; }
+.pin-bidang > span:first-child, .pin-bidang > label:first-child, .pin-bidang-label {
+  font-size: var(--t-label); line-height: var(--t-label-lh); font-weight: var(--weight-strong); color: var(--ink-1);
+}
+.pin-bidang > .pin-input, .pin-bidang > select { width: 100%; }
+/* Form layout: one column; the action at its own width; short fields sharing a row */
+.pin-formulir { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); max-width: var(--measure-read); }
+.pin-formulir-baris { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--space-1) * 55)), 1fr)); gap: var(--space-4); }
+.pin-btn-awal { justify-self: start; }
+/* a form of one row: its fields and its button, wrapping on a phone */
+.pin-baris-aksi { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); min-width: 0; }
+.pin-baris-aksi > .pin-bidang { flex: 1 1 calc(var(--space-1) * 55); }
+/* Radio and Checkbox groups (components/Radio, Checkbox): a fieldset with its question as the legend; each row 44 px,
+   the whole row the target, its explanation under the label */
+.pin-fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: var(--space-1); min-width: 0; }
+.pin-fieldset > legend { padding: 0; margin-bottom: var(--space-1); font-size: var(--t-label); line-height: var(--t-label-lh); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-pilihan { display: grid; grid-template-columns: var(--icon-md) minmax(0, 1fr); column-gap: var(--space-3); align-items: center; min-height: var(--control-md); cursor: pointer; }
+.pin-pilihan > input { grid-row: 1; }
+.pin-pilihan > small { grid-column: 2; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-3); padding-bottom: var(--space-2); }
+/* RV-23: a code keeps together, moving to the next line whole rather than breaking inside itself */
+.pin-kode { display: inline-block; white-space: nowrap; font-size: var(--t-small); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+/* the lesson preview's page counter */
+.pin-halaman-ke { margin: 0 0 var(--space-2); font-size: var(--t-eyebrow); line-height: var(--t-eyebrow-lh); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.pin-media { width: 100%; }
+/* W1.5 (UX-01): the question check's findings, one group per kind with its count; the places in a Disclosure */
+.pin-temuan-kepala { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); }
+.pin-temuan-jumlah { font-size: var(--t-small); color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pin-temuan-lokasi > summary { min-height: var(--control-md); cursor: pointer; font-size: var(--t-small); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-temuan-lokasi ul { margin: var(--space-2) 0 0; }
+/* a Disclosure holding whole panels (Buat Paket's two JSON forms): its parts on the page's rhythm */
+.pin-studio-lipat { display: grid; gap: var(--space-4); }

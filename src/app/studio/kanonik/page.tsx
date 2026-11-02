@@ -2,7 +2,10 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
-import { button, card, field, label, outcomeLine, peranStudio, s, studioInstitutions, when, tabSaya } from "../_lib";
+import { button, card, field, kataStudio, label, outcomeLine, peranStudio, studioInstitutions, when, tabSaya } from "../_lib";
+import { currentLocale } from "@/lib/locale";
+import Kosong from "@/components/Kosong";
+import TandaTautan from "@/components/TandaTautan";
 import { grantDistributionAction, withdrawDistributionAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
@@ -31,6 +34,9 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
   if (!(await tabSaya()).includes("kanonik")) redirect("/studio");
   const sp = await searchParams;
   const supabase = await supabaseServer();
+  // W1.9 (UX-25): every word in the reader's language, a date with its year and WIB in it too
+  const locale = await currentLocale();
+  const s = kataStudio(locale);
   // CR-84 (3): what a refused form sent comes back to it, for the same person only (src/lib/isian.ts)
   const pemilik = (await currentViewer())?.personId ?? "";
   const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
@@ -56,7 +62,7 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
     distribution_status: string; authorized_at: string; withdrawn_at: string | null;
   }>).filter((r) => ids.has(r.consuming_institution_id) || ids.has(r.owner_institution_id));
 
-  const banner = outcomeLine(sp);
+  const banner = outcomeLine(sp, locale);
 
   // CR-87 (4), FD-8 (D-127; ADR-0015): granting and withdrawing the library is the platform operator's alone, by names.
   // Every school admin was shown the form (CAN_PUBLISH in their own school), which the database refused, and it asked
@@ -95,31 +101,32 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="pin-studio-halaman">
       <div>
-        <h2 className="text-lg font-medium">{s("studio.kanonik.judul")}</h2>
-        <p className="mt-1 text-sm text-ink-2">{s("studio.kanonik.penjelasan")}</p>
+        <h2 className="pin-studio-h2">{s("studio.kanonik.judul")}</h2>
+        <p className="pin-ket">{s("studio.kanonik.penjelasan")}</p>
       </div>
 
       {catalogue.length === 0 ? (
-        <p className={card}>{s("studio.kanonik.kosong")}</p>
+        // W3.2 (Empty state, «not yet»): what will appear here; a school cannot itself make the library give it more
+        <Kosong jenis="belum" kalimat={s("studio.kanonik.kosong")} />
       ) : (
-        <ul className="grid gap-2">
+        <ul className="pin-daftar">
           {catalogue.map((r) => (
             <li key={`${r.plp_release_id}:${r.consuming_institution_id}`} className={card}>
-              <p className="font-medium">{r.course_title}</p>
-              <p className="mt-1 text-sm text-ink-3">
+              <p className="pin-judul-baris">{r.course_title}</p>
+              <p className="pin-ket-3">
                 {r.subject} · {r.stage} · {r.grade_label} · {r.owner_name}
               </p>
-              <p className="mt-2 text-sm text-ink-2">{s("studio.kanonik.hanya_baca")}</p>
+              <p className="pin-ket">{s("studio.kanonik.hanya_baca")}</p>
               {r.distribution_status === "WITHDRAWN" ? (
-                <p className="mt-2 text-sm text-ink-2">{s("studio.kanonik.ditarik")}</p>
+                <p className="pin-ket">{s("studio.kanonik.ditarik")}</p>
               ) : (
-                <p className="mt-2 text-sm text-ink-3">{when(r.authorized_at)}</p>
+                <p className="pin-ket-3">{when(r.authorized_at, locale)}</p>
               )}
-              <p className="mt-2 text-sm">
-                <Link href={`/studio/kanonik/${r.plp_release_id}`} className="underline underline-offset-4">
-                  {s("studio.paket.pratinjau")}
+              <p className="pin-ket">
+                <Link href={`/studio/kanonik/${r.plp_release_id}`} className="pin-tautan">
+                  {s("studio.paket.pratinjau")}<TandaTautan />
                 </Link>
               </p>
             </li>
@@ -129,8 +136,8 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
 
       {mayGrant ? (
         <section className={card} id="izin">
-          <h3 className="font-medium">{s("studio.kanonik.judul")}</h3>
-          <form action={grantDistributionAction} id="izin-beri" className="mt-3 flex flex-wrap items-end gap-2">
+          <h3 className="pin-studio-h3">{s("studio.kanonik.judul")}</h3>
+          <form action={grantDistributionAction} id="izin-beri" className="pin-baris-aksi">
             <label className={label}>
               <span>{s("studio.paket.judul")}</span>
               <select className={field} name="release" defaultValue="" required>
@@ -153,7 +160,7 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
           </form>
           <SimpanIsian form="izin-beri" ditolak={ditolak("izin")} pemilik={pemilik} />
           {izinBerlaku.length > 0 ? (
-            <form action={withdrawDistributionAction} id="izin-tarik" className="mt-3 flex flex-wrap items-end gap-2">
+            <form action={withdrawDistributionAction} id="izin-tarik" className="pin-baris-aksi">
               <label className={label}>
                 <span>{s("studio.paket.judul")}</span>
                 <select className={field} name="distribusi" defaultValue="" required>

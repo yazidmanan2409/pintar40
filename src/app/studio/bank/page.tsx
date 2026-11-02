@@ -2,9 +2,11 @@ import { pitaKesulitan, rentangPita } from "@/lib/unggah-kontrak";
 import { redirect } from "next/navigation";
 import Ikon from "@/components/Ikon";
 import { enumLabel } from "@/lib/hle";
+import { currentLocale } from "@/lib/locale";
+import Kosong from "@/components/Kosong";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
-import { button, card, field, label, outcomeLine, s, short, studioInstitutions, tabSaya } from "../_lib";
+import { button, card, field, kataStudio, label, outcomeLine, short, studioInstitutions, tabSaya } from "../_lib";
 import { recordQuestionHealthReviewAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
 import HasilDi from "@/components/HasilDi";
@@ -66,6 +68,9 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
   if (!(await tabSaya()).includes("bank")) redirect("/studio");
   const sp = await searchParams;
   const supabase = await supabaseServer();
+  // W1.9 (UX-25): every word in the reader's language
+  const locale = await currentLocale();
+  const s = kataStudio(locale);
   // CR-84 (3): what a refused form sent comes back to it, for the same person only (src/lib/isian.ts)
   const pemilik = (await currentViewer())?.personId ?? "";
   const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
@@ -125,22 +130,22 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
   }
 
   const healthByItem = new Map(((health ?? []) as Sehat[]).map((h) => [h.item_id, h]));
-  const banner = outcomeLine(sp);
+  const banner = outcomeLine(sp, locale);
 
   return (
-    <div className="grid gap-4" id="kesehatan">
-      <h2 className="text-lg font-medium">{s("studio.bank.judul")}</h2>
-      <p className="text-sm text-ink-2">{s("studio.bank.intro")}</p>
+    <div className="pin-studio-halaman" id="kesehatan">
+      <h2 className="pin-studio-h2">{s("studio.bank.judul")}</h2>
+      <p className="pin-ket">{s("studio.bank.intro")}</p>
       {/* DAISY-18: one form per item; the answer heads the list it came from */}
       <HasilDi q={sp} bagian="kesehatan" kalimat={banner} />
 
       {/* CR-52: narrow the list; a GET form, so the choice is in the address and the list is read again */}
-      <form method="get" action="/studio/bank" className="flex flex-wrap items-end gap-2">
+      <form method="get" action="/studio/bank" className="pin-baris-aksi">
         <label className={label}>
           <span>{s("studio.bank.saring.untuk")}</span>
           <select className={field} name="bank" defaultValue={bank}>
             <option value="">{s("studio.bank.saring.semua")}</option>
-            {BANK.map((b) => <option key={b} value={b}>{enumLabel("bank", b)}</option>)}
+            {BANK.map((b) => <option key={b} value={b}>{enumLabel("bank", b, locale)}</option>)}
           </select>
         </label>
         <label className={label}>
@@ -154,9 +159,10 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
       </form>
 
       {items.length === 0 ? (
-        <p className={card}>{s(bank || tingkat ? "studio.bank.saring.kosong" : "studio.paket.kosong")}</p>
+        // W3.2 (Empty state): «nothing matches» when narrowed, «not yet» otherwise; no action is offered (Daisy, open)
+        <Kosong jenis={bank || tingkat ? "tidak_cocok" : "belum"} kalimat={s(bank || tingkat ? "studio.bank.saring.kosong" : "studio.paket.kosong")} />
       ) : (
-        <ul className="grid gap-2">
+        <ul className="pin-daftar">
           {items.map((i) => {
             const h = healthByItem.get(i.id);
             const pilihan = pilihanTinjauan(h?.state);
@@ -165,33 +171,33 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
               // The short id is not shown; it stays on the row as data-soal, for
               // the staging journey's check of which school's questions are listed
               <li key={i.id} className={card} data-soal={short(i.id)}>
-                <p className="font-medium"><TeksBaris teks={i.stem} /></p>
-                <p className="mt-1 text-sm text-ink-3">{enumLabel("bank", i.bank_type)}</p>
-                <p className="mt-2 text-sm text-ink-2 tabular-nums">
+                <p className="pin-judul-baris"><TeksBaris teks={i.stem} /></p>
+                <p className="pin-ket-3">{enumLabel("bank", i.bank_type, locale)}</p>
+                <p className="pin-ket pin-num">
                   {/* L4 (CR-85): the author's word for it (FD-5's scale), not the number underneath */}
                   {s("studio.bank.prediksi")}: {pitaKesulitan(i.predicted_difficulty) ? s(`mengajar.cepat.tingkat.${pitaKesulitan(i.predicted_difficulty)!}`) : "—"}
                 </p>
                 {(opsiPerSoal.get(i.id) ?? []).length > 0 ? (
-                  <details className="mt-2 pin-disclosure">
-                    <summary className="cursor-pointer text-sm font-medium">{s("studio.bank.kunci_alasan")}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
-                    <ul className="mt-2 grid gap-1">
+                  <details className="pin-disclosure pin-temuan-lokasi">
+                    <summary>{s("studio.bank.kunci_alasan")}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
+                    <ul className="pin-daftar-rapat">
                       {(opsiPerSoal.get(i.id) ?? []).map((o) => (
                         <li key={o.label} className={o.is_correct ? "pin-opsi pin-opsi-kunci" : "pin-opsi"}>
-                          <span className={o.is_correct ? "font-semibold" : undefined}>{o.label}. <TeksBaris teks={o.body} /></span>
-                          {o.is_correct ? <span className="ml-2 text-xs font-semibold">· {s("studio.soal.kunci")}</span> : null}
-                          <p className="text-sm text-ink-2">{s("studio.soal.alasan")}: <TeksBaris teks={o.rationale} /></p>
+                          <span className={o.is_correct ? "pin-judul-baris" : undefined}>{o.label}. <TeksBaris teks={o.body} /></span>
+                          {o.is_correct ? <strong className="pin-ket"> · {s("studio.soal.kunci")}</strong> : null}
+                          <p className="pin-ket">{s("studio.soal.alasan")}: <TeksBaris teks={o.rationale} /></p>
                         </li>
                       ))}
                     </ul>
                   </details>
                 ) : null}
                 {hasEmpirical ? (
-                  <p className="mt-1 text-sm text-ink-2">
+                  <p className="pin-ket">
                     {s("studio.bank.empiris")}: {i.empirical_difficulty} · {i.empirical_evidence_count}
                   </p>
                 ) : null}
                 {pilihan.length > 0 && mayReview.some((m) => m.id === i.institution_id) ? (
-                  <form action={recordQuestionHealthReviewAction} id={`kesehatan-${i.id}`} className="mt-3 flex flex-wrap items-end gap-2">
+                  <form action={recordQuestionHealthReviewAction} id={`kesehatan-${i.id}`} className="pin-baris-aksi">
                     <input type="hidden" name="soal" value={i.id} />
                     <label className={label}>
                       <span>{s("studio.bank.kesehatan")}</span>
@@ -201,7 +207,7 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
                         ))}
                       </select>
                     </label>
-                    <input className={field} name="catatan" placeholder={s("studio.paket.catatan")} aria-label={s("studio.paket.catatan")} />
+                    <label className={label}><span>{s("studio.paket.catatan")}</span><input className={field} name="catatan" /></label>
                     <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.integritas.catat")}</TombolKirim>
                   </form>
                 ) : null}

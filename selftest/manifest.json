@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 195,
+  "version": 196,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3872,6 +3872,36 @@
       "id": "STUDIO3A-BAHASA-01",
       "runner": "static",
       "proves": "W1.9 on the package page, Studio's home, the review queue and the steps (Batch 3; UX-18, UX-25, UX-43, RV-23), selftest/studio3a.test.ts, the source of the four files and the copy table: each writes in the reader's language (currentLocale, never Studio's locale-less words), none of the copy keys they use says «siswa» or prints a decision number in Indonesian, and src/app/experience.css keeps fields and the step panel within a 320 px page."
+    },
+    {
+      "id": "STUDIO3B-KELAS-01",
+      "runner": "static",
+      "proves": "W1.14 / W3.18 Studio on Daisy's 08-migration rows (Batch 3), selftest/studio3b.test.ts, the source of src/app/studio/layout.tsx, unggah, definisi, bank, integritas, kanonik, kanonik/[terbitan] and pratinjau/[pelajaran] page.tsx, src/app/studio/_lib.ts and src/app/experience.css: every class they name is a pin-* class the stylesheet defines (no Tailwind composition); the shared card, label, field and button strings are the v3 Panel, Text field, Field and Button; an empty list is the Empty state (Kosong); every id and form name the selftests and journeys select is kept."
+    },
+    {
+      "id": "STUDIO3B-ATURAN-01",
+      "runner": "static",
+      "proves": "W1.3 Aturan Asesmen (Batch 3; RV-14, DG-28/29), selftest/studio3b.test.ts: src/lib/aturan-asesmen.ts executed in id and en (a time in minutes, «15 menit», «1 menit 30 detik», «45 detik»; the limits line «antara 3 dan 60 soal · … 15 menit» with no «–», «s» or «×»; each hint says its limit once, or per mode where the modes differ; minutes kept as whole seconds); the source of src/app/studio/definisi/page.tsx (the mode, bank and order as radio rows and the two switches as checkbox rows with their explanation, in fieldsets with a legend; every number with its hint; the optional ones marked «(opsional)»; the send grace asked in minutes) and of src/app/studio/actions.ts (kept in seconds); src/app/experience.css's 44 px choice rows; src/components/bentuk/BidangTeks.tsx rendered (label, help, field, aria-describedby naming the help)."
+    },
+    {
+      "id": "STUDIO3B-TEMUAN-01",
+      "runner": "static",
+      "proves": "W1.5 the question check's findings acknowledged as a group (Batch 3; UX-01), selftest/studio3b.test.ts: src/components/studio/TemuanKelompok.tsx rendered with 33 waiting findings (28 of one kind, 4 of another, 1 ERROR, plus one acknowledged): 3 groups, the 28 said once with «28 temuan», its why and fix once, its places in a Disclosure and ONE «Sudah saya tinjau semuanya» form carrying all 28; the ERROR offered no acknowledgement; no form without CAN_REVIEW; the source of src/app/studio/actions.ts: acknowledgeFindingsGroupAction calls acknowledge_finding once per finding as the reviewer in the working context, at most 500, writes no table itself and returns FINDINGS_ACKNOWLEDGED with the count (kalimatHasil executed); the check (validate_course_content, run_mcq_quality) is the author's before the lock in the source of src/app/studio/paket/[course]/page.tsx."
+    },
+    {
+      "id": "STUDIO3B-KELIRU-01",
+      "runner": "static",
+      "proves": "W1.5 / J4.10 misconception feedback asserted in a browser (Batch 3), selftest/studio3b.test.ts: the source of audit/journey.mjs (run by .github/workflows/audit-journeys.yml) has step S22m after the students' answers, where the teacher opens «Lihat bukti» and «Pemahaman keliru yang berulang di kelas ini» is read by the selectors the source of src/app/mengajar/[kelas]/bukti/page.tsx draws (ul.pin-keliru, .pin-kl, .pin-ms, .pin-kr), each row checked against the package's own definition and remediation, most frequent first, no more than the class's wrong answers carrying a code (service_cohort_misconceptions), above the catalogue's minimum_sample, naming no student, FAIL otherwise; every wrong option of audit/fixtures/sd5-sintetis-bab1.paket.json names a misconception the package defines."
+    },
+    {
+      "id": "STUDIO3B-CONTOH-01",
+      "runner": "static",
+      "proves": "W1.10 an example-only workbook (Batch 3; DG-36), selftest/studio3b.test.ts: src/components/unggah/contoh.ts built twice is the same bytes; src/lib/xlsx.ts and src/lib/unggah-kontrak.ts read and convert it into one course marked «Contoh — » whose first lesson says it is made up, with a Pemetaan awal, Cek penguasaan and practice question each with one key and every wrong option naming a misconception its «Miskonsepsi» sheet defines; none of its questions is in the synthetic corpus, the audit fixtures or the withheld example (docs/onboarding/contoh); scripts/guard/sensitive-scan.mjs flags nothing in its source; public/ serves no workbook; src/components/unggah/PanelUnggah.tsx rendered in id and en offers it beside the blank template, saying its content is made up."
+    },
+    {
+      "id": "STUDIO3B-KATA-01",
+      "runner": "static",
+      "proves": "W1.9 Studio part (Batch 3; UX-18, UX-43, UX-25, RV-23), selftest/studio3b.test.ts: no studio.* copy in src/lib/hle.ts says «siswa»; the template src/components/unggah/templat.ts generated and read back prints no «(D-008)» in «Cara mengisi»; the source of each of the eight Studio surfaces reads the reader's language once (kataStudio) and gives it to every enumLabel, when, outcomeLine and pager; src/components/studio/TemuanKelompok.tsx renders in English; at 320 px the order is radios (no cut select), a competency code keeps together (.pin-kode) and a field or select shrinks with its column (src/app/experience.css)."
     }
   ]
 }

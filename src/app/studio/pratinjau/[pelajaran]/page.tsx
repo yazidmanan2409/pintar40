@@ -1,6 +1,7 @@
 import { supabaseServer } from "@/lib/supabase/server";
-import { t } from "@/lib/hle";
-import { card, s } from "../../_lib";
+import { currentLocale } from "@/lib/locale";
+import { card, kataStudio } from "../../_lib";
+import Kosong from "@/components/Kosong";
 import { TeksBaris } from "@/components/teks/Teks";
 import { HalamanPelajaran, LangkahContoh, contohPelajaran, halamanPelajaran, type ContohLangkah } from "@/components/pelajaran/Halaman";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -26,6 +27,8 @@ export default async function Pratinjau({ params, searchParams }: { params: Para
   const { pelajaran } = await params;
   const sp = await searchParams;
   const supabase = await supabaseServer();
+  // W1.9 (UX-25): the preview's own words in the reader's language; the lesson's text is the lesson's
+  const s = kataStudio(await currentLocale());
 
   let title: string | null = null;
   let summary: string | null = null;
@@ -69,25 +72,25 @@ export default async function Pratinjau({ params, searchParams }: { params: Para
     }
   }
 
-  if (!title) return <p className={card}>{s("studio.paket.kosong")}</p>;
+  if (!title) return <Kosong jenis="belum" kalimat={s("studio.paket.kosong")} />;
 
   return (
-    <article className="grid gap-4">
+    <article className="pin-studio-halaman">
       <header>
-        <h2 className="text-xl font-medium">{title}</h2>
-        {summary ? <p className="mt-1 text-sm text-ink-2"><TeksBaris teks={summary} /></p> : null}
+        <h2 className="pin-studio-h2">{title}</h2>
+        {summary ? <p className="pin-ket"><TeksBaris teks={summary} /></p> : null}
       </header>
       {objectives.length > 0 ? (
-        <ul className="grid gap-1 text-sm text-ink-2">
-          {/* L4 (CR-85): the objective in words; its code secondary */}
-          {objectives.map((o) => <li key={o.code}><TeksBaris teks={o.statement} /> <span className="text-xs text-ink-3">{o.code}</span></li>)}
+        <ul className="pin-daftar-rapat pin-ket">
+          {/* L4 (CR-85): the objective in words; its code secondary. RV-23: the code keeps together at 320 px */}
+          {objectives.map((o) => <li key={o.code}><TeksBaris teks={o.statement} /> <span className="pin-kode">{o.code}</span></li>)}
         </ul>
       ) : null}
       {/* L4 (CR-88, FD-6): the lesson as the learner's player draws it, through the same renderer: its pages (one card
           each, in order), its drawn diagrams and its worked examples, every step shown */}
       {body ? halamanPelajaran(body).map((baris, i, semua) => (
         <div key={i} className={card} data-halaman={i + 1}>
-          <p className="mb-2 text-xs text-ink-3 tabular-nums">{t("lesson.page_of", "staff")} {i + 1}/{semua.length}</p>
+          <p className="pin-halaman-ke">{s("lesson.page_of")} {i + 1}/{semua.length}</p>
           <HalamanPelajaran baris={baris} />
         </div>
       )) : null}
@@ -100,14 +103,14 @@ export default async function Pratinjau({ params, searchParams }: { params: Para
       ) : null}
       {media.filter((m) => m.url).map((m) => (
         <div key={m.path} className={card}>
-          {m.jenis === "video" ? <video controls preload="metadata" src={m.url!} className="w-full" /> : null}
-          {m.jenis === "audio" ? <audio controls preload="metadata" src={m.url!} className="w-full" /> : null}
+          {m.jenis === "video" ? <video controls preload="metadata" src={m.url!} className="pin-media" /> : null}
+          {m.jenis === "audio" ? <audio controls preload="metadata" src={m.url!} className="pin-media" /> : null}
           {m.jenis === "pdf" ? (
-            <a href={m.url!} target="_blank" rel="noreferrer" className="text-sm underline underline-offset-4">
-              {t("lesson.pdf", "staff")}
+            <a href={m.url!} target="_blank" rel="noreferrer" className="pin-tautan">
+              {s("lesson.pdf")}
             </a>
           ) : null}
-          {m.transcript ? <p className="mt-2 text-sm text-ink-2">{m.transcript}</p> : null}
+          {m.transcript ? <p className="pin-ket">{m.transcript}</p> : null}
         </div>
       ))}
     </article>

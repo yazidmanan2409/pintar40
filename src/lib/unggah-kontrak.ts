@@ -102,7 +102,7 @@ export const KOLOM: Record<NamaLembar, readonly Kolom[]> = {
     { kunci: "stem", judul: "Pertanyaan", wajib: true, arti: "" },
     { kunci: "stimulus", judul: "Bacaan", wajib: false, arti: "Teks yang dibaca sebelum menjawab." },
     { kunci: "petunjuk", judul: "Petunjuk", wajib: false, arti: "Bantuan berpikir; tidak boleh menyebut jawabannya." },
-    { kunci: "use", judul: "Kegunaan", wajib: false, pilihan: KEGUNAAN, arti: "Pemetaan awal atau Cek penguasaan (D-008); kosongkan untuk Latihan." },
+    { kunci: "use", judul: "Kegunaan", wajib: false, pilihan: KEGUNAAN, arti: "Pemetaan awal atau Cek penguasaan; kosongkan untuk Latihan." },
     { kunci: "difficulty", judul: "Tingkat kesulitan", wajib: false, pilihan: KESULITAN, arti: "Mudah, Sedang atau Sulit." },
     { kunci: "parallel_group", judul: "Kelompok paralel", wajib: false, arti: "Soal setara diberi label yang sama." },
   ],

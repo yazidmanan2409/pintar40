@@ -2,13 +2,12 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import Ikon from "@/components/Ikon";
 import { currentViewer } from "@/lib/auth";
-import { t } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { BATAS_PAKET } from "@/lib/unggah-kontrak";
 import { tujuanUnggah } from "@/components/sekolah";
 import PanelUnggah from "@/components/unggah/PanelUnggah";
 import { bisaDikoreksi } from "@/lib/pengajar";
-import { button, can, card, field, label, outcomeLine, peranStudio, s, studioInstitutions, tabSaya } from "../_lib";
+import { button, can, card, field, kataStudio, label, outcomeLine, peranStudio, studioInstitutions, tabSaya } from "../_lib";
 import { konteksHalaman } from "@/lib/konteks-server";
 import { confirmMappingAction, easyUploadAction, structuredImportAction } from "../actions";
 import TombolKirim from "@/components/TombolKirim";
@@ -58,6 +57,8 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
   const [boleh, locale, { data: adminPlatform }, peran, kh] = await Promise.all([
     studioInstitutions(), currentLocale(), supabase.rpc("is_system_admin"), peranStudio(), konteksHalaman(),
   ]);
+  // W1.9 (UX-25): every word in the reader's language
+  const s = kataStudio(locale);
   // L3 (D-132 C8): the platform operator's parts (the JSON import, D-127 Q7) only where Admin platform's grant is part
   // of the working context; the database and the action refuse a JSON package from anyone else either way (CR-87)
   const operator = adminPlatform === true && peran.includes("SYSTEM_ADMIN");
@@ -96,7 +97,7 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
     .order("created_at", { ascending: false })
     .limit(10);
 
-  const banner = outcomeLine(sp);
+  const banner = outcomeLine(sp, locale);
   const pending = (batches ?? []).filter(
     (b) => b.confirmed_at === null && Array.isArray(b.open_questions) && b.open_questions.length > 0,
   );
@@ -111,12 +112,15 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
   );
 
   // Polish batch 2 (UX-12): what another system sends with its package. These
-  // stay for integrators, labelled in the copy table rather than in the page.
+  // stay for integrators, labelled in the copy table rather than in the page. W1.14 (components/TextField: «a
+  // placeholder is an example, never the label»): each with its visible label above it.
   const bidangSistem = (
-    <div className="flex flex-wrap gap-2">
+    <div className="pin-formulir-baris">
       {(["produsen", "kontrak", "permintaan"] as const).map((nama) => (
-        <input key={nama} className={field} name={nama}
-          placeholder={s(`studio.unggah.${nama}`)} aria-label={s(`studio.unggah.${nama}`)} />
+        <label key={nama} className={label}>
+          <span>{s(`studio.unggah.${nama}`)}</span>
+          <input className={field} name={nama} />
+        </label>
       ))}
     </div>
   );
@@ -124,13 +128,13 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
   const sistemLainTerbuka = sp.bagian === "mudah" || sp.bagian === "terstruktur";
 
   return (
-    <div className="grid gap-6">
-      <h2 className="text-lg font-medium">{s("studio.unggah.judul")}</h2>
+    <div className="pin-studio-halaman">
+      <h2 className="pin-studio-h2">{s("studio.unggah.judul")}</h2>
 
       <section className={card} id="buku-kerja">
-        <h3 className="font-medium">{t("studio.unggah.buku.judul", "staff", { locale })}</h3>
-        <p className="mt-1 text-sm text-ink-2">{t("studio.unggah.buku.arti", "staff", { locale })}</p>
-        <div className="mt-4">
+        <h3 className="pin-studio-h3">{s("studio.unggah.buku.judul")}</h3>
+        <p className="pin-ket">{s("studio.unggah.buku.arti")}</p>
+        <div>
           <PanelUnggah locale={locale} sekolah={institutions} batasMb={BATAS_PAKET.berkasMaks.nilai / (1024 * 1024)}
             koreksi={koreksi} revisiAwal={sp.revisi ?? null} />
         </div>
@@ -141,14 +145,14 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
           workbook, each form with its own button. CR-87 (D-127 Q7): they are the
           platform operator's alone; a school's people import the workbook. */}
       {operator ? (
-      <details className="grid gap-4 pin-disclosure" id="sistem-lain" open={sistemLainTerbuka}>
-        <summary className="cursor-pointer text-lg font-medium">{s("studio.unggah.json_judul")}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
-        <p className="mt-2 text-sm text-ink-2">{s("studio.unggah.json_arti")}</p>
+      <details className="pin-disclosure pin-studio-lipat" id="sistem-lain" open={sistemLainTerbuka}>
+        <summary className="pin-studio-h3">{s("studio.unggah.json_judul")}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
+        <p className="pin-ket">{s("studio.unggah.json_arti")}</p>
 
-        <section className={`${card} mt-4`} id="mudah">
-          <h3 className="font-medium">{s("studio.unggah.mudah")}</h3>
-          <p className="mt-1 text-sm text-ink-2">{s("studio.unggah.mudah_penjelasan")}</p>
-          <form action={easyUploadAction} id="form-mudah" className="mt-3 grid gap-2">
+        <section className={card} id="mudah">
+          <h3 className="pin-studio-h3">{s("studio.unggah.mudah")}</h3>
+          <p className="pin-ket">{s("studio.unggah.mudah_penjelasan")}</p>
+          <form action={easyUploadAction} id="form-mudah" className="pin-formulir">
             {institutionField}
             <label className={label}>
               <span>{s("studio.unggah.isi_json")}</span>
@@ -161,10 +165,10 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
           <HasilDi q={sp} bagian="mudah" kalimat={banner} />
         </section>
 
-        <section className={`${card} mt-4`} id="terstruktur">
-          <h3 className="font-medium">{s("studio.unggah.terstruktur")}</h3>
-          <p className="mt-1 text-sm text-ink-2">{s("studio.unggah.terstruktur_penjelasan")}</p>
-          <form action={structuredImportAction} id="form-terstruktur" className="mt-3 grid gap-2">
+        <section className={card} id="terstruktur">
+          <h3 className="pin-studio-h3">{s("studio.unggah.terstruktur")}</h3>
+          <p className="pin-ket">{s("studio.unggah.terstruktur_penjelasan")}</p>
+          <form action={structuredImportAction} id="form-terstruktur" className="pin-formulir">
             {institutionField}
             <label className={label}>
               <span>{s("studio.unggah.isi_json")}</span>
@@ -183,18 +187,18 @@ export default async function Unggah({ searchParams }: { searchParams: Search })
           -- drawn whether or not questions are still open below. */}
       <HasilDi q={sp} bagian="pertanyaan" kalimat={banner} />
       {pending.length > 0 ? (
-        <section className="grid gap-2" id="pertanyaan">
-          <h3 className="text-lg font-medium">{s("studio.unggah.pertanyaan")}</h3>
+        <section className="pin-studio-halaman" id="pertanyaan">
+          <h3 className="pin-studio-h3">{s("studio.unggah.pertanyaan")}</h3>
           {pending.map((b) => (
             <div key={b.id} className={card}>
-              <ul className="list-disc pl-5 text-sm text-ink-2">
+              <ul className="pin-daftar-titik pin-ket">
                 {/* L4 (CR-85, §E item 20): a question in words, or nothing; never the stored object as JSON */}
                 {(b.open_questions as Array<Record<string, unknown> | string>)
                   .map((q) => (typeof q === "string" ? q : typeof q?.question === "string" ? q.question : null))
                   .filter((q): q is string => !!q)
                   .map((q, i) => <li key={i}>{q}</li>)}
               </ul>
-              <form action={confirmMappingAction} className="mt-3">
+              <form action={confirmMappingAction}>
                 <input type="hidden" name="batch" value={b.id} />
                 <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.unggah.konfirmasi")}</TombolKirim>
               </form>
