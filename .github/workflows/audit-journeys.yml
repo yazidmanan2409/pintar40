@@ -125,6 +125,18 @@ jobs:
           APP_DIR: ${{ github.workspace }}/app
           OUT_DIR: ${{ github.workspace }}/audit-out/crawl
         run: node crawl.mjs
+      # W6.5 (Batch 3): the whole Studio path by the screens in the seeded world: a Guru's never-imported chapter, a
+      # failed upload fixed, one send-back and resubmission, approval by the head of department, publication by the
+      # admin, assignment and the learner opening it. Runs after the crawl (which only reads), even when the crawl
+      # failed, and turns the job red on any failing step.
+      - name: Walk Studio end to end (W6.5)
+        if: success() || failure()
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/studio-ujung
+        run: node studio-ujung.mjs
       - name: Server log (errors only)
         if: always()
         run: grep -iE 'error|exception|fail' "$RUNNER_TEMP/app.log" | grep -v 'evaluation_state' | head -80 || true

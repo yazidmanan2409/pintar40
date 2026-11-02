@@ -315,7 +315,9 @@ export const studio3aTests: SelfTest[] = [
         "«Riwayat perbaikan» does not read every review outcome of the line, in order");
       c.expect(/\{urutGaris\.length > 1 \|\| tinjauan\.length > 0 \? \(\s*<section className=\{card\} id="riwayat">/.test(paket),
         "«Riwayat perbaikan» is not shown for a package with review outcomes and no correction");
-      c.expect(/tinjauan\.map\(\(o\) => o\.reviewer_person_id\)/.test(paket) && /from\("persons"\)\.select\("id, display_name"\)\.in\("id", penulisIds\)/.test(paket),
+      // RESTATED FOR W1.8 (Batch 3 integration): the names come through nama_riwayat_paket, so the author is told who
+      // sent their version back (F23-W05); the persons table under the reader's own row security did not reach them
+      c.expect(/tinjauan\.map\(\(o\) => o\.reviewer_person_id\)/.test(paket) && /rpc\("nama_riwayat_paket", \{ p_courses: urutGaris\.length > 0 \? urutGaris : \[courseId\] \}\)/.test(paket),
         "the reviewers' names are not read");
       const blok = /<ul className="pin-riwayat-tinjauan">([\s\S]*?)<\/ul>/.exec(paket)?.[1] ?? "";
       // RESTATED FOR W1.14 (Batch 3 integration): the reason line is pin-ket, no longer Tailwind text-sm

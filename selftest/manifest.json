@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 196,
+  "version": 197,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3267,6 +3267,12 @@
       "id": "F23-W04",
       "runner": "db",
       "proves": "W1.8 (Batch 1), measured in selftest/db/fable23.sql: who reviewed and approved. An approval records one APPROVED outcome in content_review_outcomes naming the reviewer and the author; the school's author and reviewer each read the package's outcomes, another school's administrator none; changing or removing an outcome is refused PR080 REVIEW_OUTCOME_FIXED.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-W05",
+      "runner": "db",
+      "proves": "W1.8 the history's names (Batch 3 integration), measured in selftest/db/fable23.sql against supabase/migrations/20261215100000_a_package_names_who_reviewed_it.sql: the author's own row security does not reach the reviewer's person row, yet nama_riwayat_paket tells the author and the reviewer the reviewer's display name for the packages asked for, another school's administrator nothing, and nobody a name of a person not recorded on those packages as a reviewer or a correction writer.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {

@@ -160,10 +160,12 @@ export default async function Paket({ params, searchParams }: { params: Params; 
   const tinjauan = (tinjauanRows ?? []) as Tinjauan[];
   const penulisIds = [...new Set([...[...catatan.values()].map((r) => r.written_by_person_id), ...tinjauan.map((o) => o.reviewer_person_id)]
     .filter((x): x is string => !!x))];
+  // W1.8: the names the history needs, read through nama_riwayat_paket, so the author sees who sent their version back
+  // (their own row security does not reach the reviewer's person row); only the people recorded on these packages
   const { data: penulisRows } = penulisIds.length > 0
-    ? await supabase.from("persons").select("id, display_name").in("id", penulisIds)
-    : { data: [] as Array<{ id: string; display_name: string }> };
-  const penulis = new Map(((penulisRows ?? []) as Array<{ id: string; display_name: string }>).map((p) => [p.id, p.display_name]));
+    ? await supabase.rpc("nama_riwayat_paket", { p_courses: urutGaris.length > 0 ? urutGaris : [courseId] })
+    : { data: [] as Array<{ person_id: string; display_name: string }> };
+  const penulis = new Map(((penulisRows ?? []) as Array<{ person_id: string; display_name: string }>).map((p) => [p.person_id, p.display_name]));
   const TERSEGEL = ["FROZEN", "PUBLISHED", "SUPERSEDED"];
   const terkunci = TERSEGEL.includes(course.status as string) || (releases ?? []).some((r) => TERSEGEL.includes(r.status as string));
 

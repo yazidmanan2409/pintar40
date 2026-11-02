@@ -1,0 +1,459 @@
+// W6.5 · STUDIO END TO END, LOCALLY (Batch 3). The whole Studio path by the screens, in the seeded world, with four
+// people of one school (the synthetic «Sekolah Sintetis Siklus»):
+//
+//   the author   a Guru (EDUCATOR of Kelas 5S), who writes a chapter that was never imported anywhere: the example
+//                workbook Studio offers («Unduh contoh isian», W1.10), made her own (a new title, no «Contoh — » mark);
+//   the reviewer the head of department (Matematika);
+//   the publisher the school admin;
+//   the learner  a learner of Kelas 5S.
+//
+// The path, every step pressed on a screen and every outcome read back from the database:
+//   1. the Guru's first upload FAILS at the check, row by row (a question's difficulty is not one the column allows),
+//      and nothing is saved; she fixes the row and the check passes; she saves it to Studio as a draft;
+//   2. she takes it through «Tandai sudah tersusun», «Tandai lolos pemeriksaan», «Ajukan untuk ditinjau»;
+//   3. the head of department sends it back ONCE with a reason («Kembalikan ke penyusun», W1.6); the Guru reads the
+//      reason on her package page; she corrects the workbook and uploads it as the correction in the same line, and
+//      submits again;
+//   4. the head of department approves the content, then creates and locks the release (one press, W1.4); the author
+//      is offered none of these steps; the head of department is refused «Terbitkan» (CAN_PUBLISH is the admin's);
+//   5. the school admin publishes the chapter («Terbitkan» → «✓ Diterbitkan») and sets its pass mark;
+//   6. the Guru gives it to Kelas 5S on Siapkan («✓ Disediakan», W3.11);
+//   7. the learner finds it on Belajar and opens its first lesson.
+// «Riwayat perbaikan» must then name the send-back with its reason and the approval, with who and when (W1.8).
+//
+// Synthetic content only (F-4): the example's own made-up chapter. Runs against a local stack, never staging or
+// production. Writes a JSON record and screenshots to OUT_DIR, and exits 1 when any step fails.
+
+import { chromium } from "playwright";
+import { createRequire } from "node:module";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+
+const APP = process.env.APP_URL ?? "http://127.0.0.1:3999";
+const SB = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+const ANON = process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const DB = process.env.SUPABASE_DB_URL;
+const OUT = process.env.OUT_DIR ?? "audit-out/studio-ujung";
+const SLOW = 30000;
+const require = createRequire(join(process.env.APP_DIR ?? process.cwd(), "package.json"));
+const { createServerClient } = require("@supabase/ssr");
+
+// seed constants (supabase/seed), not secrets
+const ORANG = {
+  guru: { key: "guru", tujuan: "MENGAJAR", email: "siklus-guru@synthetic.pintar.test", password: "Sintetis-SiklusGuru-11!" },
+  kaprodi: { key: "kaprodi", tujuan: "MENGELOLA", email: "siklus-kaprodi@synthetic.pintar.test", password: "Sintetis-SiklusKaprodi-22!" },
+  admin: { key: "admin", tujuan: "MENGELOLA", email: "siklus-admin@synthetic.pintar.test", password: "Sintetis-SiklusAdmin-33!" },
+  murid: { key: "murid", tujuan: "BELAJAR", email: "siklus-email@synthetic.pintar.test", password: "Sintetis-SiklusEmail-84!" },
+};
+// the chapter's own title: never imported anywhere, unique in the database for this run
+const JUDUL = `Matematika Kelas 4 · Kelipatan Bilangan (disusun guru ${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "")})`;
+const ALASAN_KEMBALI = "Soal C5 terlalu panjang untuk murid kelas 4; mohon dipersingkat kalimatnya.";
+
+mkdirSync(OUT, { recursive: true });
+const sql = (q) => execFileSync("psql", [DB, "-At", "-v", "ON_ERROR_STOP=1", "-c", q], { encoding: "utf8" }).trim();
+const esc = (s) => s.replace(/'/g, "''");
+const norm = (s) => (s ?? "").replace(/\s+/g, " ").trim();
+
+const langkah = [];
+let gagal = false;
+async function step(id, judul, fn) {
+  const rec = { id, judul, verdict: "PASS", catatan: [], shots: [] };
+  try {
+    await fn(rec);
+  } catch (e) {
+    rec.verdict = "FAIL";
+    rec.catatan.push(`error: ${String(e.message ?? e).split("\n")[0].slice(0, 300)}`);
+  }
+  if (rec.verdict !== "PASS") gagal = true;
+  langkah.push(rec);
+  console.log(`${rec.verdict.padEnd(5)} ${id} ${judul}\n      ${rec.catatan.join("\n      ")}`);
+  return rec.verdict === "PASS";
+}
+const harus = (rec, ok, kata) => { rec.catatan.push(`${ok ? "ok" : "!!"} ${kata}`); if (!ok) rec.verdict = "FAIL"; return ok; };
+async function shot(page, rec, nama) {
+  const f = `${String(langkah.length + 1).padStart(2, "0")}-${nama}.png`;
+  await page.screenshot({ path: join(OUT, f), fullPage: true }).catch(() => null);
+  rec.shots.push(f);
+}
+
+async function cookies(p) {
+  const jar = new Map();
+  const client = createServerClient(SB, ANON, {
+    cookies: { getAll: () => [...jar].map(([name, value]) => ({ name, value })), setAll: (cs) => cs.forEach(({ name, value }) => jar.set(name, value)) },
+  });
+  const { data, error } = await client.auth.signInWithPassword({ email: p.email, password: p.password });
+  if (error || !data.session) throw new Error(`sign-in failed for ${p.key}: ${error?.message ?? "no session"}`);
+  const host = new URL(APP).hostname;
+  return [...jar].map(([name, value]) => ({ name, value, domain: host, path: "/", httpOnly: false, secure: false, sameSite: "Lax" }));
+}
+
+// signed in as the person does it, then «Komputer pribadi saya» and the person's own door on the chooser
+async function masuk(browser, p) {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "id-ID", timezoneId: "Asia/Jakarta", acceptDownloads: true });
+  await context.addCookies(await cookies(p));
+  const page = await context.newPage();
+  await page.goto(`${APP}/`, { waitUntil: "networkidle" });
+  if (new URL(page.url()).pathname === "/perangkat") {
+    await page.locator('input[type="radio"][name="mode"][value="PERSONAL"]').check();
+    await page.getByRole("button", { name: "Simpan pilihan" }).click();
+    await page.waitForURL((u) => u.pathname !== "/perangkat", { timeout: SLOW }).catch(() => {});
+    await page.waitForLoadState("networkidle");
+  }
+  await pilihPintu(page, p.tujuan);
+  return { context, page };
+}
+async function pilihPintu(page, tujuan) {
+  await page.goto(`${APP}/`, { waitUntil: "networkidle" });
+  const pintu = page.locator('[data-pemilih="konteks"] button[data-konteks]');
+  if (!(await pintu.count())) return;
+  const kunci = await pintu.evaluateAll((bs) => bs.map((b) => b.getAttribute("data-konteks")));
+  const pilih = kunci.find((k) => k === tujuan) ?? kunci.find((k) => k.split(":")[0] === tujuan) ?? kunci[0];
+  await page.locator(`[data-pemilih="konteks"] button[data-konteks="${pilih}"]`).click();
+  await page.waitForURL((u) => u.pathname !== "/", { timeout: SLOW }).catch(() => {});
+  await page.waitForLoadState("networkidle");
+}
+async function tutupTur(page) {
+  const lewati = page.getByRole("button", { name: /Lewati|Tutup tur|Selesai/ }).first();
+  if (await lewati.isVisible().catch(() => false)) await lewati.click().catch(() => {});
+}
+
+// ─────────────────────────────── the workbook: Studio's stored (uncompressed) .xlsx, read and rewritten in place
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = (b) => { let c = 0xffffffff; for (const x of b) c = CRC[(c ^ x) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+function bacaZip(buf) {
+  const entri = [];
+  let p = 0;
+  while (buf.readUInt32LE(p) === 0x04034b50) {
+    if (buf.readUInt16LE(p + 8) !== 0) throw new Error("the workbook is not stored uncompressed");
+    const n = buf.readUInt16LE(p + 26), x = buf.readUInt16LE(p + 28), size = buf.readUInt32LE(p + 18);
+    const nama = buf.subarray(p + 30, p + 30 + n).toString("utf8");
+    const isi = buf.subarray(p + 30 + n + x, p + 30 + n + x + size);
+    entri.push({ nama, isi: Buffer.from(isi) });
+    p += 30 + n + x + size;
+  }
+  return entri;
+}
+function tulisZip(entri) {
+  const lokal = [], pusat = [];
+  let offset = 0;
+  for (const e of entri) {
+    const nama = Buffer.from(e.nama, "utf8"), crc = crc32(e.isi);
+    const h = Buffer.alloc(30);
+    h.writeUInt32LE(0x04034b50, 0); h.writeUInt16LE(20, 4); h.writeUInt16LE(0x0800, 6); h.writeUInt16LE(0, 8);
+    h.writeUInt16LE(0, 10); h.writeUInt16LE(33, 12); h.writeUInt32LE(crc, 14); h.writeUInt32LE(e.isi.length, 18);
+    h.writeUInt32LE(e.isi.length, 22); h.writeUInt16LE(nama.length, 26); h.writeUInt16LE(0, 28);
+    lokal.push(h, nama, e.isi);
+    const c = Buffer.alloc(46);
+    c.writeUInt32LE(0x02014b50, 0); c.writeUInt16LE(20, 4); c.writeUInt16LE(20, 6); c.writeUInt16LE(0x0800, 8);
+    c.writeUInt16LE(0, 10); c.writeUInt16LE(0, 12); c.writeUInt16LE(33, 14); c.writeUInt32LE(crc, 16);
+    c.writeUInt32LE(e.isi.length, 20); c.writeUInt32LE(e.isi.length, 24); c.writeUInt16LE(nama.length, 28); c.writeUInt32LE(offset, 42);
+    pusat.push(c, nama);
+    offset += 30 + nama.length + e.isi.length;
+  }
+  const ukuran = pusat.reduce((n, b) => n + b.length, 0);
+  const akhir = Buffer.alloc(22);
+  akhir.writeUInt32LE(0x06054b50, 0); akhir.writeUInt16LE(entri.length, 8); akhir.writeUInt16LE(entri.length, 10);
+  akhir.writeUInt32LE(ukuran, 12); akhir.writeUInt32LE(offset, 16);
+  return Buffer.concat([...lokal, ...pusat, akhir]);
+}
+const xmlTeks = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+/** The workbook with `ubah(namaLembar, xml) → xml` applied to each sheet. */
+function ubahBuku(buf, ubah) {
+  const entri = bacaZip(buf);
+  const buku = entri.find((e) => e.nama === "xl/workbook.xml").isi.toString("utf8");
+  const nama = [...buku.matchAll(/<sheet name="([^"]*)" sheetId="(\d+)"/g)].map((m) => m[1]);
+  return tulisZip(entri.map((e) => {
+    const m = /^xl\/worksheets\/sheet(\d+)\.xml$/.exec(e.nama);
+    if (!m) return e;
+    const lembar = nama[Number(m[1]) - 1];
+    return { nama: e.nama, isi: Buffer.from(ubah(lembar, e.isi.toString("utf8")), "utf8") };
+  }));
+}
+/** In one sheet, the row whose cells include `kunci` exactly: `dari` → `ke` in that row only. */
+const ubahBaris = (xml, kunci, dari, ke) => xml.replace(/<row r="\d+">.*?<\/row>/g, (row) =>
+  row.includes(`>${xmlTeks(kunci)}</t>`) ? row.replace(`>${xmlTeks(dari)}</t>`, `>${xmlTeks(ke)}</t>`) : row);
+
+// ═══════════════════════════════════════════════════════════════════════════ the walk
+const browser = await chromium.launch();
+const sesi = {};
+for (const [k, p] of Object.entries(ORANG)) sesi[k] = await masuk(browser, p);
+const { page: g } = sesi.guru;
+
+let buku = null;
+await step("U0", "the Guru opens Studio → Unggah and downloads «Unduh contoh isian»", async (rec) => {
+  await g.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
+  await shot(g, rec, "unggah");
+  const tombol = g.getByRole("button", { name: "Unduh contoh isian" });
+  harus(rec, (await tombol.count()) === 1, "Unggah offers «Unduh contoh isian»");
+  const [unduh] = await Promise.all([g.waitForEvent("download", { timeout: SLOW }), tombol.click()]);
+  buku = readFileSync(await unduh.path());
+  harus(rec, buku.length > 1000 && buku.readUInt32LE(0) === 0x04034b50, `downloaded ${unduh.suggestedFilename()} (${buku.length} bytes)`);
+});
+
+const JUDUL_CONTOH = "Contoh — Matematika Kelas 4 · Kelipatan Bilangan";
+const SOAL_C5 = "Lampu merah menyala setiap 2 menit dan lampu hijau setiap 5 menit. Keduanya menyala bersama pada menit ke-0. Pada menit ke berapa keduanya menyala bersama lagi?";
+const SOAL_C5_SINGKAT = "Lampu merah menyala tiap 2 menit, lampu hijau tiap 5 menit. Mulai bersama, kapan menyala bersama lagi?";
+const bukuGuru = (rusak, dikoreksi = false) => ubahBuku(buku, (lembar, xml) => {
+  let x = xml.split(`>${xmlTeks(JUDUL_CONTOH)}</t>`).join(`>${xmlTeks(JUDUL)}</t>`);
+  // the correction the reviewer asked for: question C5's sentence, shorter
+  if (dikoreksi && lembar === "Soal") x = x.split(`>${xmlTeks(SOAL_C5)}</t>`).join(`>${xmlTeks(SOAL_C5_SINGKAT)}</t>`);
+  // the mistake: question C1's difficulty is not one the column allows
+  if (rusak && lembar === "Soal") x = ubahBaris(x, "C1", "Mudah", "Gampang");
+  return x;
+});
+const kursusIni = () => sql(`select coalesce((select id::text from public.courses where title='${esc(JUDUL)}' order by created_at desc limit 1), '')`);
+const tulisBerkas = (nama, b) => { const f = join(OUT, nama); writeFileSync(f, b); return f; };
+
+async function periksaBuku(page, berkas) {
+  await page.goto(`${APP}/studio/unggah`, { waitUntil: "networkidle" });
+  await page.locator("#ung-berkas").setInputFiles(berkas);
+  await page.getByRole("button", { name: "Periksa buku kerja" }).click();
+  const lolos = page.getByText("Buku kerja lolos pemeriksaan.");
+  await Promise.race([lolos.waitFor({ timeout: SLOW }).catch(() => {}), page.waitForTimeout(8000)]);
+  return { lolos: await lolos.isVisible().catch(() => false), teks: norm(await page.locator("main").innerText().catch(() => "")) };
+}
+
+await step("U1", "the Guru's first upload fails at the check, row by row, and nothing is saved", async (rec) => {
+  const sebelum = sql(`select count(*) from public.courses where title='${esc(JUDUL)}'`);
+  const r = await periksaBuku(g, tulisBerkas("bab-guru-salah.xlsx", bukuGuru(true)));
+  await shot(g, rec, "periksa-gagal");
+  harus(rec, !r.lolos, "the check does not pass");
+  const i = r.teks.indexOf("Paket ini belum bisa diterima");
+  rec.catatan.push(`the page says: ${r.teks.slice(Math.max(0, i), i + 260)}`);
+  harus(rec, /Lembar Soal, baris 2, kolom Tingkat kesulitan/.test(r.teks), "the refusal names the sheet, the row and the column (Soal, row 2, Tingkat kesulitan)");
+  harus(rec, /Belum ada yang disimpan/.test(r.teks), "the page says nothing was saved");
+  harus(rec, (await g.getByRole("button", { name: "Simpan ke Studio" }).count()) === 0 || !(await g.getByRole("button", { name: "Simpan ke Studio" }).isEnabled()), "nothing can be saved");
+  harus(rec, sql(`select count(*) from public.courses where title='${esc(JUDUL)}'`) === sebelum, "no course was made");
+});
+
+let course = "";
+const keadaan = () => sql(`select c.status || '|' || coalesce((select r.status::text from public.plp_releases r where r.course_id = c.id order by r.created_at desc limit 1), '-') from public.courses c where c.id='${course}'`);
+await step("U2", "the Guru fixes the row; the check passes and the chapter is saved to Studio as a draft", async (rec) => {
+  const r = await periksaBuku(g, tulisBerkas("bab-guru.xlsx", bukuGuru(false)));
+  harus(rec, r.lolos, "«Buku kerja lolos pemeriksaan.»");
+  await shot(g, rec, "periksa-lolos");
+  await g.getByRole("button", { name: "Simpan ke Studio" }).click();
+  const saved = await g.getByText("Tersimpan di Studio sebagai draf.").waitFor({ timeout: SLOW }).then(() => true).catch(() => false);
+  await shot(g, rec, "tersimpan");
+  harus(rec, saved, "«Tersimpan di Studio sebagai draf.»");
+  course = kursusIni();
+  harus(rec, !!course, `the course exists (${course || "none"}), state ${course ? keadaan() : "-"}`);
+  const penyusun = sql(`select coalesce((select p.display_name from public.courses c join public.persons p on p.id = c.author_person_id where c.id='${course}'), '-')`);
+  harus(rec, /Guru/.test(penyusun), `its author is the Guru (${penyusun})`);
+});
+
+// press a step's button on the package page as `page`; the state it moved to (or null)
+async function tekan(page, tombol, rec, nama) {
+  await page.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+  const btn = page.getByRole("button", { name: tombol, exact: true });
+  if (!(await btn.count())) { harus(rec, false, `«${tombol}» is offered (state ${keadaan()})`); return null; }
+  const sebelum = keadaan();
+  await btn.first().click();
+  let sesudah = sebelum;
+  for (let i = 0; i < 40 && sesudah === sebelum; i++) { await page.waitForTimeout(500); sesudah = keadaan(); }
+  await page.waitForLoadState("networkidle");
+  await shot(page, rec, nama);
+  harus(rec, sesudah !== sebelum, `«${tombol}»: ${sebelum} → ${sesudah}`);
+  return sesudah !== sebelum ? sesudah : null;
+}
+const ditawarkan = async (page, tombol) => {
+  await page.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+  return (await page.getByRole("button", { name: tombol, exact: true }).count()) > 0;
+};
+
+await step("U3", "the Guru takes her draft to review: «Tandai sudah tersusun», «Tandai lolos pemeriksaan», «Ajukan untuk ditinjau»", async (rec) => {
+  if (!course) { rec.verdict = "BLOCKED"; return; }
+  for (const [tombol, nama] of [["Tandai sudah tersusun", "susun"], ["Tandai lolos pemeriksaan", "periksa"], ["Ajukan untuk ditinjau", "ajukan"]]) {
+    if (!(await tekan(g, tombol, rec, nama))) return;
+  }
+  harus(rec, !(await ditawarkan(g, "Setujui isi")) && !(await ditawarkan(g, "Kembalikan ke penyusun")), "the author is offered neither «Setujui isi» nor «Kembalikan ke penyusun»");
+});
+
+const { page: h } = sesi.kaprodi;
+await step("U4", "the head of department sends it back once, with a reason («Kembalikan ke penyusun»)", async (rec) => {
+  if (!course || !keadaan().startsWith("IN_REVIEW")) { rec.verdict = "BLOCKED"; return; }
+  await h.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+  const buka = h.getByRole("button", { name: "Kembalikan ke penyusun", exact: true });
+  harus(rec, (await buka.count()) > 0 && (await h.getByRole("button", { name: "Setujui isi", exact: true }).count()) > 0, "the reviewer is offered «Setujui isi» and «Kembalikan ke penyusun»");
+  await buka.first().click();
+  const kotak = h.locator('.pin-konfirmasi textarea[name="alasan"]');
+  await kotak.waitFor({ timeout: SLOW });
+  harus(rec, await kotak.evaluate((el) => el === document.activeElement), "the confirmation opens with the reason box focused");
+  // a reason under ten characters is refused by the form itself
+  await kotak.fill("Pendek");
+  harus(rec, !(await kotak.evaluate((el) => el.checkValidity())), "a six-character reason does not pass the form");
+  await kotak.fill(ALASAN_KEMBALI);
+  await shot(h, rec, "kembalikan-konfirmasi");
+  const sebelum = keadaan();
+  await h.locator('.pin-konfirmasi button[type="submit"]').click();
+  let sesudah = sebelum;
+  for (let i = 0; i < 40 && sesudah === sebelum; i++) { await h.waitForTimeout(500); sesudah = keadaan(); }
+  await h.waitForLoadState("networkidle");
+  await shot(h, rec, "dikembalikan");
+  harus(rec, sesudah.startsWith("VALIDATION_FAILED"), `the package went back to its author: ${sebelum} → ${sesudah}`);
+  const hasil = sql(`select o.outcome || '|' || coalesce(o.reason, '') || '|' || p.display_name from public.content_review_outcomes o join public.persons p on p.id = o.reviewer_person_id where o.course_id='${course}' order by o.decided_at desc limit 1`);
+  harus(rec, hasil === `SENT_BACK|${ALASAN_KEMBALI}|${hasil.split("|")[2]}` && /Kaprodi|Kepala|Siklus/.test(hasil.split("|")[2]), `recorded: ${hasil}`);
+});
+
+await step("U5", "the Guru reads the reason on her package page, with who and when, and the way to upload the correction", async (rec) => {
+  await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+  await shot(g, rec, "guru-membaca-alasan");
+  const teks = norm(await g.locator("main").innerText());
+  harus(rec, teks.includes(ALASAN_KEMBALI), "the reason is on the page");
+  const peninjau = sql(`select p.display_name from public.content_review_outcomes o join public.persons p on p.id = o.reviewer_person_id where o.course_id='${course}' order by o.decided_at desc limit 1`);
+  harus(rec, new RegExp(`oleh ${peninjau.replace(/[()]/g, "\\$&")}`, "i").test(teks), `who sent it back is named («oleh ${peninjau}»)`);
+  const jalan = g.locator('a[href*="/studio/unggah?revisi="]');
+  harus(rec, (await jalan.count()) > 0, `a link to upload the correction (${await jalan.first().getAttribute("href").catch(() => "-")})`);
+  rec.catatan.push(`the page says: ${teks.slice(Math.max(0, teks.indexOf(ALASAN_KEMBALI) - 200), teks.indexOf(ALASAN_KEMBALI) + 260)}`);
+});
+
+let pertama = "";
+await step("U6", "the Guru uploads the corrected workbook as the next version of the same package, with what changed", async (rec) => {
+  if (!course || !keadaan().startsWith("VALIDATION_FAILED")) { rec.verdict = "BLOCKED"; return; }
+  pertama = course;
+  await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+  await g.locator('a[href*="/studio/unggah?revisi="]').first().click();
+  await g.waitForURL((u) => u.pathname === "/studio/unggah", { timeout: SLOW });
+  await g.waitForLoadState("networkidle");
+  harus(rec, (await g.locator("#ung-revisi").inputValue()) === course, "the upload opens with this package chosen as the one corrected");
+  await g.locator("#ung-berkas").setInputFiles(tulisBerkas("bab-guru-perbaikan.xlsx", bukuGuru(false, true)));
+  await g.locator("#ung-ringkasan").fill("Soal C5 dipersingkat sesuai catatan peninjau.");
+  await g.getByRole("button", { name: "Periksa buku kerja" }).click();
+  const lolos = await g.getByText("Buku kerja lolos pemeriksaan.").waitFor({ timeout: SLOW }).then(() => true).catch(() => false);
+  harus(rec, lolos, "the corrected workbook passes the check");
+  await g.getByRole("button", { name: "Simpan ke Studio" }).click();
+  const saved = await g.getByText("Tersimpan di Studio sebagai draf.").waitFor({ timeout: SLOW }).then(() => true).catch(() => false);
+  await shot(g, rec, "perbaikan-tersimpan");
+  harus(rec, saved, "«Tersimpan di Studio sebagai draf.»");
+  const baru = sql(`select coalesce((select id::text from public.courses where supersedes_course_id='${pertama}' order by created_at desc limit 1), '')`);
+  harus(rec, !!baru && baru !== pertama, `the correction is the next version in the line (${baru || "none"})`);
+  if (baru) course = baru;
+  const soal = sql(`select count(*) from public.items i join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id='${course}' and i.stem = '${esc(SOAL_C5_SINGKAT)}'`);
+  harus(rec, soal === "1", "the new version carries the shortened question C5");
+});
+
+await step("U7", "the Guru submits the correction again", async (rec) => {
+  if (!course || course === pertama) { rec.verdict = "BLOCKED"; return; }
+  for (const [tombol, nama] of [["Tandai sudah tersusun", "susun-2"], ["Tandai lolos pemeriksaan", "periksa-2"], ["Ajukan untuk ditinjau", "ajukan-2"]]) {
+    if (!(await tekan(g, tombol, rec, nama))) return;
+  }
+});
+
+await step("U8", "the head of department approves the content, reviews its findings, and creates and locks the release in one press; the author is offered none of it and the head of department is refused «Terbitkan»", async (rec) => {
+  if (!keadaan().startsWith("IN_REVIEW")) { rec.verdict = "BLOCKED"; return; }
+  if (!(await tekan(h, "Setujui isi", rec, "setujui"))) return;
+  // findings: every WARNING acknowledged by the second person, by kind (W1.5), until none is left
+  let akui = 0;
+  for (let i = 0; i < 20; i++) {
+    await h.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+    const b = h.getByRole("button", { name: /^Sudah saya tinjau/ });
+    if (!(await b.count())) break;
+    await b.first().click();
+    await h.waitForLoadState("networkidle");
+    await h.waitForTimeout(800);
+    akui += 1;
+  }
+  const terbuka = sql(`select (select count(*) from public.mcq_quality_findings where course_id='${course}' and acknowledged_at is null and severity::text = 'WARNING')
+    + (select count(*) from public.coaching_findings where course_id='${course}' and acknowledged_at is null and severity::text = 'WARNING')`);
+  harus(rec, terbuka === "0", `findings acknowledged by kind in ${akui} press(es); WARNINGs left: ${terbuka}`);
+  harus(rec, !(await ditawarkan(g, "Buat terbitan")) && !(await ditawarkan(g, "Kunci terbitan")), "the author is offered neither «Buat terbitan» nor «Kunci terbitan»");
+  await h.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+  const judulPanel = norm(await h.locator("#lt-kini").innerText().catch(() => ""));
+  harus(rec, /Buat terbitan · Kunci terbitan/.test(judulPanel), `the panel reads «${judulPanel}»`);
+  const s2 = await tekan(h, "Kunci terbitan", rec, "buat-dan-kunci");
+  harus(rec, !!s2 && /\|FROZEN$/.test(s2), `one press created and locked the release (${s2})`);
+  harus(rec, !(await ditawarkan(h, "Terbitkan")), "the head of department is not offered «Terbitkan»");
+});
+
+const { page: a } = sesi.admin;
+await step("U9", "the school admin publishes the chapter («Terbitkan» → «✓ Diterbitkan») and sets its pass mark", async (rec) => {
+  if (!/\|FROZEN$/.test(keadaan())) { rec.verdict = "BLOCKED"; return; }
+  await a.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+  await a.getByRole("button", { name: "Terbitkan", exact: true }).click();
+  const sudah = await a.getByText("Diterbitkan").first().waitFor({ timeout: SLOW }).then(() => true).catch(() => false);
+  await a.waitForTimeout(1000);
+  await shot(a, rec, "diterbitkan");
+  harus(rec, sudah, "the button answered «✓ Diterbitkan»");
+  harus(rec, /\|PUBLISHED$/.test(keadaan()), `published (${keadaan()})`);
+  // the pass mark is set on a published chapter (Konfigurasi lists those), before the teacher may give it
+  const inst = sql(`select institution_id from public.courses where id='${course}'`);
+  await a.goto(`${APP}/konfigurasi?sekolah=${inst}&muat=${Date.now()}#ketuntasan`, { waitUntil: "networkidle" });
+  await tutupTur(a);
+  // a pass mark belongs to the lesson's line, kept under its first version (school_lesson_lines): the correction
+  // made the published chapter the second version of the line the Guru began
+  const akar = pertama || course;
+  const baris = a.locator(`#ketuntasan li[data-pelajaran="${akar}"]`);
+  if (harus(rec, (await baris.count()) > 0, "Konfigurasi → Batas ketuntasan lists the chapter")) {
+    await baris.locator('input[name="persen"]').fill("70");
+    await baris.locator('input[name="alasan"]').fill("Keputusan rapat guru");
+    await baris.getByRole("button", { name: "Tetapkan", exact: true }).click();
+    await a.waitForURL((u) => u.searchParams.get("bagian") === "ketuntasan", { timeout: SLOW }).catch(() => {});
+    const batas = sql(`select coalesce(max(m.percent)::text, '-') from public.school_pass_marks m where m.course_id='${akar}'
+      and not exists (select 1 from public.school_pass_marks n where n.supersedes_id = m.id)`);
+    harus(rec, batas === "70", `the pass mark is ${batas}%`);
+  }
+});
+
+const KELAS = sql(`select n.id from public.org_nodes n join public.role_assignments ra on ra.scope_node_id = n.id join public.accounts ac on ac.person_id = ra.person_id join auth.users u on u.id = ac.auth_user_id where u.email='${ORANG.guru.email}' and ra.role = 'EDUCATOR' and ra.revoked_at is null limit 1`);
+let la = "";
+await step("U10", "the Guru gives the chapter to her class on Siapkan («✓ Disediakan»)", async (rec) => {
+  if (!/\|PUBLISHED$/.test(keadaan())) { rec.verdict = "BLOCKED"; return; }
+  await pilihPintu(g, "MENGAJAR");
+  await g.goto(`${APP}/mengajar/${KELAS}/siapkan`, { waitUntil: "networkidle" });
+  await tutupTur(g);
+  const row = g.locator("a.pin-row").filter({ hasText: "disusun guru" }).first();
+  if (!harus(rec, (await row.count()) > 0, "Siapkan offers the chapter")) return;
+  await row.click();
+  await g.waitForLoadState("networkidle");
+  const sampai = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(Date.now() + 30 * 86400000));
+  await g.locator("#pin-sampai").fill(sampai);
+  await g.locator('form:has(input[name="terbitan"]) button[type="submit"]').first().click();
+  await g.waitForURL((u) => u.searchParams.has("disediakan") || u.searchParams.has("kode"), { timeout: SLOW }).catch(() => {});
+  await g.waitForLoadState("networkidle");
+  const tombol = norm(await g.locator('form:has(input[name="terbitan"]) button[type="submit"]').first().innerText().catch(() => ""));
+  const hasil = norm(await g.getByText("Materi disediakan untuk kelas ini.").first().innerText().catch(() => ""));
+  await shot(g, rec, "disediakan");
+  harus(rec, new URL(g.url()).searchParams.has("disediakan") && /✓\s*Disediakan/.test(tombol), `the button reads «${tombol}» on ${new URL(g.url()).pathname}`);
+  harus(rec, /Materi disediakan untuk kelas ini\./.test(hasil), `the result line: «${hasil}»`);
+  la = sql(`select coalesce((select id::text from public.learning_assignments where course_id='${course}' and node_id='${KELAS}' order by created_at desc limit 1), '')`);
+  harus(rec, !!la, `the class holds the assignment (${la || "none"})`);
+});
+
+await step("U11", "the learner finds the chapter on Belajar and opens it", async (rec) => {
+  if (!la) { rec.verdict = "BLOCKED"; return; }
+  const { page: m } = sesi.murid;
+  await m.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+  await tutupTur(m);
+  await shot(m, rec, "belajar");
+  const tautan = m.locator(`a[href*="/belajar/${la}"]`);
+  if (!harus(rec, (await tautan.count()) > 0, "Belajar offers the chapter")) return;
+  await tautan.first().click();
+  await m.waitForURL((u) => u.pathname.startsWith(`/belajar/${la}`), { timeout: SLOW });
+  await m.waitForLoadState("networkidle");
+  await m.waitForFunction(() => !/Memuat halaman/.test(document.querySelector("main")?.innerText ?? "Memuat halaman"), null, { timeout: SLOW }).catch(() => {});
+  await tutupTur(m);
+  await shot(m, rec, "bab-dibuka");
+  const teks = norm(await m.locator("main").innerText().catch(() => ""));
+  harus(rec, /kelipatan bilangan/i.test(teks) && /Pemetaan Awal/.test(teks), `the chapter opens at ${new URL(m.url()).pathname}: «${teks.slice(0, 160)}»`);
+  harus(rec, !/Kunci|Alasan:/.test(teks), "no key or reason is shown to the learner");
+});
+
+await step("U12", "«Riwayat perbaikan» names the send-back with its reason and the approval, with who and when", async (rec) => {
+  if (!course || course === pertama) { rec.verdict = "BLOCKED"; return; }
+  await g.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+  const r = norm(await g.locator("#riwayat").innerText().catch(() => ""));
+  await g.locator("#riwayat").scrollIntoViewIfNeeded().catch(() => {});
+  await shot(g, rec, "riwayat");
+  const nama = sql(`select string_agg(distinct p.display_name, '|') from public.content_review_outcomes o join public.persons p on p.id = o.reviewer_person_id where o.course_id in ('${pertama}', '${course}')`);
+  harus(rec, /Dikembalikan ke penyusun/.test(r) && r.includes(ALASAN_KEMBALI) && /Disetujui/.test(r), "both outcomes, and the reason");
+  harus(rec, nama.split("|").every((n) => r.includes(n)), `the reviewer named (${nama})`);
+  harus(rec, r.includes("Soal C5 dipersingkat sesuai catatan peninjau."), "the correction's own summary");
+  rec.catatan.push(`the history reads: ${r.slice(0, 500)}`);
+  const audit = sql(`select coalesce(string_agg(action, ',' order by id), '-') from public.audit_log where target_id in ('${pertama}', '${course}')`);
+  rec.catatan.push(`audit rows on the line: ${audit}`);
+});
+
+writeFileSync(join(OUT, "studio-ujung.json"), JSON.stringify({ judul: JUDUL, langkah }, null, 2));
+await browser.close();
+process.exit(gagal ? 1 : 0);

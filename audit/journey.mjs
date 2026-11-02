@@ -3786,7 +3786,7 @@ await step("S26f", "a correction by the screens: from a published course's page 
   if (!ringkasanDb.startsWith(`${RINGKASAN}|`) || ringkasanDb.endsWith("|-") || diaudit !== 1 || !/dibagi sama besar/.test(isi)) rec.verdict = "FAIL";
 
   // 4. the new course's page: the history, from «Buka kursus»; the old page leads forward
-  await g.getByRole("link", { name: "Buka kursus", exact: true }).click();
+  await g.getByRole("link", { name: /^Buka (kursus|paket)$/ }).click();
   await g.waitForURL((u) => u.pathname === `/studio/paket/${baru}`, { timeout: SLOW });
   await g.waitForLoadState("networkidle");
   const versi = await g.locator("#riwayat li.pin-riwayat").count();

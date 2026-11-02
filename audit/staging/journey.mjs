@@ -296,7 +296,7 @@ await step("J04", "the teacher uploads SD 5 Matematika Bab 1 (workbook) in Studi
   await G.getByRole("button", { name: "Simpan ke Studio", exact: true }).click();
   await G.getByText("Tersimpan di Studio sebagai draf.").waitFor({ timeout: 90000 });
   rec.shots.push(await shot(G, "unggah-simpan"));
-  const href = await G.getByRole("link", { name: "Buka kursus" }).getAttribute("href");
+  const href = await G.getByRole("link", { name: /^Buka (kursus|paket)$/ }).getAttribute("href");
   course = href.split("/").pop();
   const counts = sql(`select (select count(*) from public.modules where course_id = ${uuid(course)}) || ' modules, ' ||
       (select count(*) from public.lessons l join public.modules m on m.id = l.module_id where m.course_id = ${uuid(course)}) || ' lessons, ' ||

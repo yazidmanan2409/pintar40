@@ -2020,7 +2020,10 @@ export const experienceTests: SelfTest[] = [
       // (CR-91); 20261213100000 adds a content-status edge; 20261214100000 adds content_review_outcomes (a review's outcome,
       // reason, reviewer and author) and three functions. Read against §3 first: none is a mark, a logo, a crest or a
       // theme, so the Q-7 source still does not exist.
-      c.expect(migrations.length === 181, `${migrations.length} migrations; the frozen baseline has 181`);
+      // MOVED 181 -> 182 for Batch 3: 20261215100000 adds nama_riwayat_paket (the names «Riwayat perbaikan» shows) and its
+      // registry row; no table, no column. Read against §3 first: it is not a mark, a logo, a crest or a theme, so the
+      // Q-7 source still does not exist.
+      c.expect(migrations.length === 182, `${migrations.length} migrations; the frozen baseline has 182`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3820,7 +3823,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 176 -> 177 for L3 (D-132): a session's working context touches no tour RPC.
       // MOVED 177 -> 181 for Batch 1 (D-145): v1 wording, CR-91's card rule, the send-back edge, the one-transaction content
       // step and the review record touch no tour RPC.
-      c.expect(migs.length === 181, `${migs.length} migrations; the baseline has 181`);
+      // MOVED 181 -> 182 for Batch 3: the history's names (nama_riwayat_paket) touch no tour RPC.
+      c.expect(migs.length === 182, `${migs.length} migrations; the baseline has 182`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

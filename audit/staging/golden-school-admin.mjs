@@ -394,7 +394,7 @@ await step("A6", `GS-08 (J4.1, J4.2): content in: Konfigurasi → Studio → Bua
     jejak.push(`in the database: status ${b.status}, lessons ${b.pelajaran}/${BAB.pelajaran}, questions ${b.soal}/${BAB.soal}, audit rows on the course ${b.jejak}`);
   }
   // the package page, by the panel's own link
-  const buka = A.getByRole("link", { name: "Buka kursus", exact: true });
+  const buka = A.getByRole("link", { name: /^Buka (kursus|paket)$/ });
   if (simpan && b && await buka.count()) {
     await buka.click();
     await A.waitForURL((u) => u.pathname === `/studio/paket/${b.id}`, { timeout: SLOW });
@@ -402,7 +402,7 @@ await step("A6", `GS-08 (J4.1, J4.2): content in: Konfigurasi → Studio → Bua
     await closeTour(A);
     const halaman = norm(await A.locator("main").innerText().catch(() => ""));
     await shot(A, "a6-paket");
-    jejak.push(`«Buka kursus» → ${new URL(A.url()).pathname}, the title on the page ${halaman.includes(BAB.judul)}`);
+    jejak.push(`«Buka paket» → ${new URL(A.url()).pathname}, the title on the page ${halaman.includes(BAB.judul)}`);
     if (!halaman.includes(BAB.judul)) rec.verdict = "FAIL";
   } else rec.verdict = "FAIL";
   if (!simpan || !b || b.pelajaran !== BAB.pelajaran || b.soal !== BAB.soal) rec.verdict = "FAIL";
