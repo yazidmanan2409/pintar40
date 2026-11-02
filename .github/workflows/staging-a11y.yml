@@ -1,0 +1,90 @@
+# STAGING ONLY. Batch 1 closeout (owner, 2 Nov): the Batch 0 accessibility harness (audit/a11y.mjs) on the running
+# staging application, over every working context of the Golden School's staff and the public pages. Runs
+# audit/staging/a11y-staging.mjs once per edit of .github/staging-a11y-request.txt on the coordinator's branch; the
+# request's last line names a school whose admin walk has run ("slug: <slug>"). It records, as the baseline does; it
+# fails only when the harness could not do its work.
+#
+# NEVER: production (staging's ref and database URL are checked first; production's keys are never read); any write to
+# the database (read only); a form submitted; a password or PIN in the log.
+
+name: staging · accessibility on the Golden School staff screens and the public pages (Batch 0 harness)
+
+on:
+  push:
+    branches:
+      - claude/awesome-rubin-bqxp6p
+    paths:
+      - .github/staging-a11y-request.txt
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+env:
+  STAGING_SUPABASE_PROJECT_REF: keijhmdtsgrfvnvocfvk
+  PRODUCTION_SUPABASE_PROJECT_REF: trtlvibiybwixfumjrrx
+  STAGING_ORIGIN: https://staging.pintarselalu.com
+
+jobs:
+  gs00:
+    # GS-00 (CR-60): staging runs main's code and main's migrations, read by machine inside this run; red stops the walk
+    name: GS-00 · staging runs main's commit and migrations
+    uses: ./.github/workflows/environment-facts.yml
+    with:
+      scope: staging
+    secrets:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+
+  a11y:
+    name: the Batch 0 accessibility harness on staging (recorded, not judged)
+    needs: [gs00]
+    # Batch 0 (B0-A): Playwright 1.55 has no browser build for ubuntu-latest = Ubuntu 26.04
+    # («Playwright does not support chromium on ubuntu26.04-x64», run 41377378758); pinned to 24.04.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: The school named by the request
+        run: |
+          set -euo pipefail
+          slug=$(tail -n 1 .github/staging-a11y-request.txt | sed -n 's/^slug: *\([a-z0-9][a-z0-9-]*\) *$/\1/p')
+          [ -n "$slug" ] || { echo "::error::the request's last line is not 'slug: <slug>'"; exit 1; }
+          echo "GS_SLUG=$slug" >> "$GITHUB_ENV"
+          echo "school: $slug"
+      - name: Playwright and axe-core (the audit harness's versions)
+        run: |
+          (cd audit && npm install --no-audit --no-fund >/dev/null)
+          cd audit/staging
+          npm init -y >/dev/null
+          npm i --no-save --no-audit --no-fund playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+      - name: Staging's database URL (checked, never printed)
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          [ "$STAGING_SUPABASE_PROJECT_REF" != "$PRODUCTION_SUPABASE_PROJECT_REF" ]
+          case "$STAGING_SUPABASE_DB_URL" in *"$PRODUCTION_SUPABASE_PROJECT_REF"*) echo "::error::the database URL names production"; exit 1;; esac
+          case "$STAGING_SUPABASE_DB_URL" in *"$STAGING_SUPABASE_PROJECT_REF"*) echo "the database URL names staging's project";; *) echo "::error::the database URL does not name staging's project"; exit 1;; esac
+      - name: Every staff working context and the public pages, through the harness (page loads and sign-ins only)
+        working-directory: audit/staging
+        env:
+          STAGING_SUPABASE_DB_URL: ${{ secrets.STAGING_SUPABASE_DB_URL }}
+          GS_MAILBOX_PASSWORD: ${{ secrets.GS_MAILBOX_PASSWORD }}
+          OUT_DIR: ${{ github.workspace }}/out
+          # read by ../perf/lib.mjs at import (its server-made session is never used here, and no key is given)
+          SUPABASE_URL: https://${{ env.STAGING_SUPABASE_PROJECT_REF }}.supabase.co
+        run: node a11y-staging.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: staging-a11y
+          path: out/
+          if-no-files-found: ignore
