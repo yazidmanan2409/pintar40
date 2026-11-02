@@ -91,3 +91,18 @@ D-145(b)(6) and D-144 (roadmap compatibility: 4.5 Question Intelligence must not
 | d | Regenerate those chapters' 240 (at most) Pemetaan Awal and Uji Penguasaan items, as new identities | Content lead, after (a) and (c); before any real school |
 | e | Confirm no real use on production (owner-side read, or a read authorised for Claude) | **BLOCKED — OWNER DECISION** |
 | f | Optional: the exposure flag (§3.4) | Owner decision (class B, D-144) |
+
+## 5. What Batch 1 did (commits `1efe7dd` … `58e0d22`)
+
+| D-145(b) step | Done in Batch 1 |
+|---|---|
+| (2) Remove restricted keyed material from the active tree by forward commits | **Done.** 82 files removed: 20 `.paket.json`, 20 `.xlsx`, 20 generator `.py`, 20 `*-miskonsepsi.csv` and the two `audit/fixtures/sd5-matematika-bab{1,2}.paket.json` copies. The sample workbook `contoh-buku-kerja-pintar.xlsx` is rebuilt from synthetic content. No history rewritten |
+| (3) Replace real material misfiled as synthetic | **Done.** `audit/fixtures/sd5-sintetis-bab{1,2}.paket.json`, written by `docs/onboarding/konten-sintetis/buat-korpus.mts` (original synthetic content, the app's own converter) |
+| (4) Inventory the exposed items and their usage | **Done** (this file, §1–2) |
+| (6) New identities, originals retired | **Rule written** (§3). Applied when the content lead regenerates; nothing to regenerate in Batch 1 |
+| (7) Workflows no longer need restricted keys in the public repository | **Done.** L4-C01/P01, PENUTUPAN-M04, DAISY-30-TEKS-01, `audit/journey.mjs` (S15c, S21, S26d), the Golden School audits, and the staging import and journey workflows read the synthetic corpus. Thresholds tied to the real corpus's size are now its exact synthetic counts; every rule check kept (each changed test shown red on a broken fixture, then green) |
+| (8) Preventive safeguards | **Done.** The guard recognises keyed **content** (correct-answer markers in any data file, generator tuples, misconception maps with a distractor column), not only file types. SEC-G02 refuses any real-keyed declaration. SEC-G01: 26 planted red cases and 16 green ones |
+| (1) Private content store | **BLOCKED — OWNER DECISION** (§4 a) |
+| (5) Regenerate before real use | Waits on §4 a, c |
+
+**Known limit of the history scan:** `sensitive-scan --history` judges an old blob by its path's current declaration. Earlier versions of `docs/onboarding/contoh/contoh-buku-kerja-pintar.xlsx` (built from real SD5 Bab 1) are therefore not flagged there. They are listed as exposed in §1. The tree and staged modes (CI and pre-commit) are unaffected.
