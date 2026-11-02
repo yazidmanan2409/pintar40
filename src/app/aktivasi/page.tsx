@@ -4,7 +4,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { sekolahPendataan } from "@/lib/pendataan";
 import { konteksHalaman } from "@/lib/konteks-server";
 import { pilihanTempat, type SimpulPohon } from "@/lib/struktur-kontrak";
-import { kelasUntukKartu, type KelasKartu } from "@/components/aktivasi/kelas";
+import { bolehKartu, kelasUntukKartu, type KelasKartu } from "@/components/aktivasi/kelas";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
@@ -41,7 +41,7 @@ export default async function Aktivasi() {
     supabase.rpc("card_holders"),
   ]);
   const orangSemua = (Array.isArray(menunggu) ? menunggu : []) as Array<{
-    person_id: string; display_name: string; institutional_id: string; institution_id: string;
+    person_id: string; display_name: string; institutional_id: string; institution_id: string; boleh_kartu: boolean;
   }>;
   const adminSistem = sistem === true;
   const pemegangSemua = (Array.isArray(berkartu) ? berkartu : []) as PemegangKartu[];
@@ -71,7 +71,8 @@ export default async function Aktivasi() {
   }
 
   // M7 (D-085): the Kelas each of them is in, so a whole class's cards are one press
-  const kelas = await kelasMenunggu(supabase, orang);
+  // CR-91 (D-145(a)): whole-class cards are for the learners in the class; a staff member in it activates with email
+  const kelas = await kelasMenunggu(supabase, orang.filter(bolehKartu));
 
   return (
     <>

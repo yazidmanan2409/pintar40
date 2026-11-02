@@ -94,6 +94,7 @@ import { dr150cTests } from "./dr150c.test";
 import { rilis40Tests } from "./rilis40.test";
 import { ciwasteTests } from "./ciwaste.test";
 import { secguardTests } from "./secguard.test";
+import { cr91Tests } from "./cr91.test";
 import { penutupanTests } from "./penutupan.test";
 import { fable22Tests } from "./fable22.test";
 
@@ -2173,6 +2174,7 @@ export const staticTests: SelfTest[] = [
   ...rilis40Tests,
   ...ciwasteTests,
   ...secguardTests,
+  ...cr91Tests,
   ...penutupanTests,
   ...fable22Tests,
 ];

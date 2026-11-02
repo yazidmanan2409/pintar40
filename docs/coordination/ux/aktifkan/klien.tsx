@@ -89,7 +89,7 @@ switch (k.layar) {
     isi = (
       <Cangkang>
         <div className="pin-head"><h1 className="pin-h1">{st("aktivasi.judul")}</h1></div>
-        <FormAktivasi locale={L} adminSistem orang={[{ person_id: "p1", display_name: "Rahmat Hidayat", institutional_id: "2026001", institution_id: "i1" }]} />
+        <FormAktivasi locale={L} adminSistem orang={[{ person_id: "p1", display_name: "Rahmat Hidayat", institutional_id: "2026001", institution_id: "i1", boleh_kartu: true }]} />
       </Cangkang>
     );
     break;

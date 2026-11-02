@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 186,
+  "version": 187,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3204,6 +3204,42 @@
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
+      "id": "F23-C01",
+      "runner": "db",
+      "proves": "CR-91 (D-145(a); migration 20261212100000), measured in selftest/db/fable23.sql: asking for a card. Aktivasi's list (persons_awaiting_account) says boleh_kartu false for a Guru and for a Guru whose role starts tomorrow, true for a learner; authorize_account_activation refuses a card for either Guru 42501 CARD_FOR_STAFF and writes no card grant; the same Guru is granted an email account and the learner a card, which Auth's insert turns into a class-card account.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-C02",
+      "runner": "db",
+      "proves": "CR-91, measured in selftest/db/fable23.sql: the account side. A class-card account for a person holding a staff role is refused 42501 CARD_FOR_STAFF (trigger accounts_card_is_learners) through a planted activation grant consumed by Auth's insert, through the seed branch of handle_new_auth_user, and by re-pointing an existing card account to a Guru; no card account exists for staff afterwards.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-C03",
+      "runner": "db",
+      "proves": "CR-91, measured in selftest/db/fable23.sql: the grant side. A staff role for a class-card learner is refused 42501 STAFF_ROLE_FOR_CARD (trigger role_assignments_card_holds_no_role, which fires before the general guard) through grant_role by the school's administrator and by a Platform Admin, and through the seed path; neither card learner holds a role; an email learner may still be given one.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-C04",
+      "runner": "db",
+      "proves": "CR-91, measured in selftest/db/fable23.sql: legacy data. With a class card and a staff role planted together (both guards disabled inside the rolled-back test only), kartu_bukan_staf() answers false for that card's session (so the sign-in route ends it) and authorize_card_reissue refuses the person 42501 CARD_FOR_STAFF; card 7001, an email Guru and an email learner answer true.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-C05",
+      "runner": "db",
+      "proves": "CR-91, measured in selftest/db/fable23.sql: no staff power through a card. No person in the seeded world holds a class card and a staff role that is not revoked or expired; card 7001's session can provision nobody (CAN_PROVISION_PEOPLE), review nothing (CAN_REVIEW), administer no school (INSTITUTION_ADMIN scope), is no Admin platform, and is offered nobody to activate.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-C06",
+      "runner": "db",
+      "proves": "CR-91 / J9, measured in selftest/db/fable23.sql: educator as learner is intact. The enrolled Guru holds exactly one EMAIL account and, through it, the working contexts Belajar and Mengajar.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
       "id": "F22-A01",
       "runner": "app",
       "proves": "The Second Eye's hold 3 (8 Oct), D-132 §2.11, through the running app's rendered chooser (/) and its routes /mulai and /mengajar, and its database: when the read of the pairs a person holds (konteks_tempat_saya, with the person's own session) is refused for real (EXECUTE taken from authenticated for the test and given back after), the chooser at / offers no door, /mulai chooses no purpose and sends the person into no surface, /mengajar lists no class, and the session holds no context. The control: before, the same teacher is offered her Mengajar door, and the same session is offered it again once the read is restored.",
@@ -3655,6 +3691,16 @@
       "id": "SEC-G02",
       "runner": "static",
       "proves": "The repository as committed (Batch 0 B0-C; D-143): sensitive-scan --tree finds nothing not allowed; every tracked .paket.json and .xlsx is declared in scripts/guard/allowlist.json as nyata-F4, sintetis or tanpa-kunci with a reason, and no declaration names an untracked file; every registered fingerprint carries a reason; .githooks/pre-commit is executable and scans the staged files, and npm's prepare script installs it (selftest/secguard.test.ts)."
+    },
+    {
+      "id": "CR91-K01",
+      "runner": "static",
+      "proves": "CR-91 (D-145(a)), the application's half (selftest/cr91.test.ts): src/lib/kartu-masuk.ts, driven with every outside call recorded, asks kartu_bukan_staf() as the new session after Auth accepts a card; a card whose person holds a staff role answers 403 CARD_REQUEST_REFUSED with a reference, its session is ended once and the attempt is not settled as a sign-in, and the answer does not say why; a check that cannot be asked fails closed (CARD_UNAVAILABLE, session ended); a learner's card signs in and is settled MASUK. src/app/api/masuk/kartu/route.ts asks with the session's own client, never the service role, and ends a refused session with signOut."
+    },
+    {
+      "id": "CR91-K02",
+      "runner": "static",
+      "proves": "CR-91 (D-145(a)), the application's half (selftest/cr91.test.ts): bolehKartu (src/components/aktivasi/kelas.ts) is true only for an explicit boleh_kartu = true; the real Aktivasi form, rendered, offers the learner a card and email and the Guru email only; src/app/aktivasi/page.tsx builds the whole-class card groups only from the people a card may be offered to."
     },
     {
       "id": "D140-STUDIO-01",

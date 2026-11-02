@@ -34,6 +34,13 @@ export type AlatKartu = {
   masuk(email: string, sandi: string): Promise<{ error: GalatAuth | null; jeda?: string | null }>;
   /** Where the newly signed-in person goes (tujuanMasuk). */
   tujuan(lanjut: unknown): Promise<string>;
+  /**
+   * CR-91 (D-145(a)): `kartu_bukan_staf()`, asked AS THE NEW SESSION. False when this card's person holds a staff role
+   * (a class card is a learner's alone). Throws when it cannot be asked.
+   */
+  bukanStaf(): Promise<boolean>;
+  /** Ends the new session: a card session CR-91 does not let stand. */
+  keluar(): Promise<void>;
   /** Server-side log: a reference and what failed, never a card number or PIN. */
   catatGalat(ref: string, apa: string): void;
 };
@@ -148,6 +155,27 @@ export async function masukDenganKartu(
     const ref = rujukan();
     alat.catatGalat(ref, `Auth could not be asked (${jawaban.error.status ?? 0} ${jawaban.error.code ?? jawaban.error.name ?? ""})`);
     return gagal("CARD_UNAVAILABLE", { ref });
+  }
+
+  // CR-91 (D-145(a)): a class card is a learner's alone. The database already refuses a card for staff and a staff role
+  // for a card; this asks once more at the moment of authentication, as the new session, and FAILS CLOSED: a card
+  // whose person holds a staff role, or a question that cannot be asked, ends the session before anything is served.
+  // The attempt stays counted (no MASUK settle), and nothing in the answer says why.
+  let bukanStaf = false;
+  let tidakTerjawab = false;
+  try {
+    bukanStaf = await alat.bukanStaf();
+  } catch {
+    tidakTerjawab = true;
+  }
+  if (!bukanStaf) {
+    await alat.keluar().catch((e) =>
+      alat.catatGalat(rujukan(), `a refused card session could not be ended: ${e instanceof Error ? e.message : "unknown"}`));
+    const ref = rujukan();
+    alat.catatGalat(ref, tidakTerjawab
+      ? "CR-91: the card's staff check could not be asked; the session was ended"
+      : "CR-91: a class card whose person holds a staff role was refused; the session was ended");
+    return gagal(tidakTerjawab ? "CARD_UNAVAILABLE" : "CARD_REQUEST_REFUSED", { ref });
   }
 
   await alat.selesaikan(kunci, "MASUK").catch((e) =>
