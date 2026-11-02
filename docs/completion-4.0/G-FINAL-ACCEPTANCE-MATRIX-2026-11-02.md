@@ -17,7 +17,7 @@ A line is **ACCEPTED** only when all ten hold. These are the mandate's §3 condi
 | 5 | Integrated with dependents | The journey that crosses it (Level 2 journeys, Level 3 Golden School) |
 | 6 | Automated verification passes | CI on the release candidate |
 | 7 | Browser verification passes | Journeys (Chromium, Firefox, WebKit) and/or the Golden School on staging, on the candidate's code |
-| 8 | A person completes the task unaided | An internal acceptance record (§3) |
+| 8 | A person completes the task unaided | An internal acceptance record (§3), on the staging release candidate (Gate 5) |
 | 9 | Accessibility and usability met | Clean axe; keyboard walk; NVDA/TalkBack on its key screens; 320 px and 200 % zoom |
 | 10 | Evidence current, traceable, reproducible | Run ids on the candidate SHA (EVIDENCE-MODEL rule 3: nothing carries forward) |
 
@@ -47,7 +47,7 @@ A line is **ACCEPTED** only when all ten hold. These are the mandate's §3 condi
 - keyboard operation;
 - final terminology, with no placeholder awaiting a word.
 
-## 3. Internal human acceptance scenarios (Gate 6)
+## 3. Internal human acceptance scenarios (Gate 5, on the staging release candidate; production-applicable parts repeated at Gate 6)
 
 These are unscripted tasks, done by people who did not build PINTAR, observed and recorded per mandate §11 (goal, starting state, actions, outcome, confusion, evidence, verdict). **Together they cover every journey**, so every mandatory line is exercised by at least one scenario.
 
@@ -70,7 +70,7 @@ These are unscripted tasks, done by people who did not build PINTAR, observed an
 | S-15 Help: report a problem, follow it in «Laporan saya»; see an error page | Any | J10.1, J10.2 |
 | S-16 Universal checks: by clicking only, 320 px, ID/EN, keyboard, screen reader | Observer with an accessibility user | X.1–X.12 |
 
-Release lines R.1–R.8 are proven by Gates 4–5 (§4), not by scenarios.
+Release lines R.1–R.8 are proven by Gates 4 and 6 (§4), not by scenarios.
 
 ## 4. Gate criteria (GO / NO-GO)
 
@@ -80,9 +80,9 @@ Release lines R.1–R.8 are proven by Gates 4–5 (§4), not by scenarios.
 | **1 · Functional completeness** | All 127 lines satisfy conditions 1, 3, 4, 5, 6, 7; no SQL-only operation (X.9, REL-02) | Any line IN PROGRESS, NOT STARTED or IMPLEMENTED — NOT VERIFIED; any operator step |
 | **2 · Design completeness** | Every route meets §2; every J composition applied; the five new designs applied; terminology final; accessibility checks (axe, keyboard, NVDA, TalkBack, 200 %, contrast) pass | Any screen COMPONENTS ONLY; any word placeholder; any accessibility failure |
 | **3 · End to end** | Every journey class in mandate §8 green on fresh data, success and failure paths, three engines; the Studio proof (W6.5); CR-59 rule-level tests; U-PERF re-measured; no release-blocking regression | Any red journey; any undocumented operator step |
-| **4 · Operational readiness** | CR-91 enforced and the security suite green; answer keys out of the repository; **#150 PASS** (criteria confirmed, F-5); L1 PASS at the chosen tier and CAP-01 burst; legal gate closed in writing; second admins and custodians named and proven; break-glass rehearsed; support tiers named; mail capacity recorded | Any #150 B-item open; capacity unproven; legal open; a security hold |
-| **5 · Production verified** | Rehearsed upgrade (F-18) green; production = the approved candidate (facts); Auth and mail verified by received headers; staff transition done; magic link retired; DNS live; watch on; critical journeys pass on production; **owner GO recorded** | Any mandatory production check failing; a migration without a tested recovery path |
-| **6 · Final internal acceptance** | Scenarios S-1 … S-16 pass unaided; defects fixed and retested; matrix B 127/127 ACCEPTED; the evidence pack current; **explicit owner approval** | Any scenario failing; any known incompleteness |
+| **4 · Operational readiness** | CR-91 enforced and the security suite green; F-4 carried out (private store, real-chapter fixtures replaced, exposed keyed files out of the tree, regeneration status of each chapter recorded (regeneration itself required before real schools, not before Gate 4) — `batch-0/05-PHASE-0-CORRECTIONS.md` §2); **#150 PASS** (criteria confirmed, F-5; under E option B its production-only criteria move to Gate 6); L1 PASS at the chosen tier and CAP-01 burst; legal gate closed in writing; second admins and custodians named and proven; break-glass rehearsed; support tiers named; mail capacity recorded | Any #150 B-item open; capacity unproven; legal open; a security hold |
+| **5 · Internal acceptance on the staging release candidate** (corrected 2 Nov, Batch 0) | The release candidate frozen on staging with Gates 1–4 green on its SHA; scenarios S-1 … S-16 pass unaided on it; defects fixed and retested (a fix makes a new candidate, re-verified); matrix B 127/127 ACCEPTED on staging; **owner GO for production** recorded | Any scenario failing; any known incompleteness; a candidate changed after acceptance without re-verification |
+| **6 · Production verified, final** | Rehearsed upgrade (F-18, `batch-0/07-MIGRATION-162-BRIEF.md`) green; under option B, #150's production-only criteria PASS; production = the accepted candidate (facts); Auth and mail verified by received headers; staff transition done; magic link retired; DNS live; watch on; critical journeys pass on production; **the production-applicable acceptance checks repeated** (sign-in by each route, mail received, certificate verification by QR, one learner and one teacher scenario observed); the evidence pack current; **explicit owner approval** | Any mandatory production check failing; a migration without a tested recovery path; any repeated check failing |
 | **→ Dr Gladys** | Gate 6 passed | Anything before it |
 
 ## 5. Where we are against it today
@@ -92,7 +92,7 @@ Release lines R.1–R.8 are proven by Gates 4–5 (§4), not by scenarios.
 | 0 | **Submitted for approval** (this package) |
 | 1 | NO-GO: 22 IMPLEMENTED — NOT VERIFIED, 22 IN PROGRESS, 4 NOT STARTED, 10 BLOCKED |
 | 2 | NO-GO: no screen has its full composition; no screen-reader or zoom pass done |
-| 3 | NO-GO: no CI since the runner change; Studio proof not run; CR-59 not built |
+| 3 | NO-GO: CI re-established on the new image in Batch 0 (branch only; not a staging or Golden School verification); Studio proof not run; CR-59 not built |
 | 4 | NO-GO: #150 NOT PASS; L1 FAIL on Micro; legal not started; CR-91 held; answer keys in the (public) repository |
-| 5 | NO-GO: production `5b5b68d`, 669 code files behind |
-| 6 | NO-GO: 0 scenarios run |
+| 5 | NO-GO: 0 scenarios run; no release candidate yet |
+| 6 | NO-GO: production `5b5b68d`, 669 code files behind |

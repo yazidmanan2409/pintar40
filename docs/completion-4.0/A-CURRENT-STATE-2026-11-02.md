@@ -76,7 +76,7 @@ So Dr Gladys's Studio attempt (D-141(b)) is not visible on staging under her own
 - **Used: 776** (215 runs, 656 compute minutes). Of that: CI 383, journeys 136, staging walks 140, the daily-spend job 84, facts 27, operator 6.
 - **Remaining: about 224.**
 - The scheduled jobs alone cost about 4 minutes a day.
-- **Note** (assumption, not verified): GitHub-hosted runner minutes are free for public repositories. Making the repository private again, which is recommended, restores the cost. The allowance is a governance limit either way.
+- **Billing (verified 2 Nov, Batch 0):** the repository is public (D-143), and GitHub reports **0 billable ms** for the Batch 0 runs (run usage of 41374792031). The minute allowance is a governance limit, not a cost (Batch 0 report §CI).
 
 ## 6. Infrastructure and capacity [recorded]
 

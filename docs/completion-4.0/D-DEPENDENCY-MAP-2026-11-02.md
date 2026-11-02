@@ -6,7 +6,7 @@ How the open work (`C-OPEN-WORK-REGISTER`) depends on itself, on the owner, on D
 
 ```mermaid
 flowchart TD
-  Y0[Y: repo private W0.1]:::owner
+  Y0[Y: branch protection on main W5.3, before any merge]:::owner
   Y1[Y: approve plan + CI allowance + lift freeze]:::owner
   Y3[Y: CR-91 ruling F-3]:::owner
   Y4[Y: answer keys F-4]:::owner
@@ -27,8 +27,9 @@ flowchart TD
   B7[Batch 7 · words + accessibility]
   B8[Batch 8 · full regression + evidence · Gate 1-3]
 
-  Y0 --> B0
   Y1 --> B0 --> B1 --> B2
+  Y0 --> M1[first merge to main after Batch 0]
+  B1 --> M1
   Y3 --> B1
   Y4 --> B1
   B2 --> B3 & B4 & B5
@@ -47,10 +48,10 @@ flowchart TD
   O3[Y: custodian B, second admins · B5/B6]:::owner
   O4[Y: compute tier + forwarding · Q2/Q3]:::owner
   O5[Y+X: legal gate, counsel]:::ext
-  O6[Y: Q15 · how 162 reaches production F-5]:::owner
+  O6[Y: F-5 · technical upgrade to the full candidate, see batch-0/07]:::owner
   B9[Batch 9 · operational readiness · Gate 4]
-  B10[Batch 10 · rehearsed release · Gate 5]
-  B11[Batch 11 · internal acceptance · Gate 6]
+  B10[Batch 10 · staging release candidate + internal acceptance · Gate 5]
+  B11[Batch 11 · rehearsed production release + production verification · Gate 6]
   GL[Dr Gladys walkthrough]:::ext
 
   O1 --> UPG[production upgrade rehearsal W9.10]
@@ -62,7 +63,8 @@ flowchart TD
   O4 --> B9
   O5 --> B9
   B8 --> B10
-  B9 --> B10 --> B11 --> GL
+  B9 --> B10
+  B10 --> YGO[Y: owner GO for production]:::owner --> B11 --> GL
 
   classDef owner fill:#fde8c8,stroke:#a86a00;
   classDef ext fill:#e3eefc,stroke:#2b5fa8;
@@ -72,13 +74,13 @@ flowchart TD
 
 ### 2.1 Platform
 
-- **Every batch → W0.2 (CI on the new runner).**
-  - **Observed:** no CI since 19 Oct. 71 jobs use the unpinned `ubuntu-latest`, and `ci.yml` uses the runner image's `psql`.
-  - Nothing can be verified until CI runs again.
+- **Every batch → W0.2 (CI on the new runner).** *Corrected in Batch 0:*
+  - The last CI before Batch 0 was **9 Oct, green** (37930520507). Nothing had failed; CI had simply not run.
+  - `ubuntu-latest` is now Ubuntu 26.04 (Docker 29, psql 18, Node 24 for actions). Batch 0 measured it: the local stack, all 177 migrations and CI run on it (`batch-0/02-CI-COMPATIBILITY-EVIDENCE.md`).
 - **Every staging change → the end of the freeze (D-140(d), D-141(a)).**
 - **Every batch's CI → the CI allowance.**
-  - 224 minutes remain.
-  - A batch costs about 175–200 minutes including its Golden School walk (see E §4).
+  - The repository is public: GitHub bills 0 ms (verified 2 Nov). The allowance is a governance limit.
+  - A batch's measured cost is in E (CI and verification resources).
 
 ### 2.2 Data model before screens (batch 1 before 3–5)
 
