@@ -1,11 +1,11 @@
 // W6.5 · STUDIO END TO END, LOCALLY (Batch 3). The whole Studio path by the screens, in the seeded world, with four
-// people of one school (the synthetic «Sekolah Sintetis Siklus»):
+// people of one school (the seeded official «PINTAR Bootstrap» school, development and CI only):
 //
-//   the author   a Guru (EDUCATOR of Kelas 5S), who writes a chapter that was never imported anywhere: the example
+//   the author   a Guru (EDUCATOR of Kelas 5B), who writes a chapter that was never imported anywhere: the example
 //                workbook Studio offers («Unduh contoh isian», W1.10), made her own (a new title, no «Contoh — » mark);
 //   the reviewer the head of department (Matematika);
 //   the publisher the school admin;
-//   the learner  a learner of Kelas 5S.
+//   the learner  a learner of Kelas 5B.
 //
 // The path, every step pressed on a screen and every outcome read back from the database:
 //   1. the Guru's first upload FAILS at the check, row by row (a question's difficulty is not one the column allows),
@@ -17,8 +17,11 @@
 //   4. the head of department approves the content, then creates and locks the release (one press, W1.4); the author
 //      is offered none of these steps; the head of department is refused «Terbitkan» (CAN_PUBLISH is the admin's);
 //   5. the school admin publishes the chapter («Terbitkan» → «✓ Diterbitkan») and sets its pass mark;
-//   6. the Guru gives it to Kelas 5S on Siapkan («✓ Disediakan», W3.11);
-//   7. the learner finds it on Belajar and opens its first lesson.
+//   6. the Guru gives it to Kelas 5B on Siapkan («✓ Disediakan», W3.11);
+//   7. the learner finds it on Belajar and opens it;
+//   8. W6.7, Uji Cepat at Level 3: the Guru launches an Uji Cepat of three of the chapter's questions in 5B, the
+//      learner sits it, and the Guru reads the score page: the class figure first, on its base («n dari N murid sudah
+//      dinilai»), then each learner one step below, the figure the learner was given.
 // «Riwayat perbaikan» must then name the send-back with its reason and the approval, with who and when (W1.8).
 //
 // Synthetic content only (F-4): the example's own made-up chapter. Runs against a local stack, never staging or
@@ -39,12 +42,14 @@ const SLOW = 30000;
 const require = createRequire(join(process.env.APP_DIR ?? process.cwd(), "package.json"));
 const { createServerClient } = require("@supabase/ssr");
 
-// seed constants (supabase/seed), not secrets
+// seed constants (supabase/seed), not secrets. The seeded OFFICIAL school («PINTAR Bootstrap», development and CI
+// only): a learner's result there is official evidence, so W6.7's score page has a figure to show (in a synthetic
+// school every result is SYNTHETIC and learner.result, rightly, gives none)
 const ORANG = {
-  guru: { key: "guru", tujuan: "MENGAJAR", email: "siklus-guru@synthetic.pintar.test", password: "Sintetis-SiklusGuru-11!" },
-  kaprodi: { key: "kaprodi", tujuan: "MENGELOLA", email: "siklus-kaprodi@synthetic.pintar.test", password: "Sintetis-SiklusKaprodi-22!" },
-  admin: { key: "admin", tujuan: "MENGELOLA", email: "siklus-admin@synthetic.pintar.test", password: "Sintetis-SiklusAdmin-33!" },
-  murid: { key: "murid", tujuan: "BELAJAR", email: "siklus-email@synthetic.pintar.test", password: "Sintetis-SiklusEmail-84!" },
+  guru: { key: "guru", tujuan: "MENGAJAR", email: "boot-guru@bootstrap.pintar.test", password: "Bootstrap-Guru-7741!" },
+  kaprodi: { key: "kaprodi", tujuan: "MENGELOLA", email: "boot-kaprodi@bootstrap.pintar.test", password: "Bootstrap-Kaprodi-5528!" },
+  admin: { key: "admin", tujuan: "MENGELOLA", email: "boot-admin@bootstrap.pintar.test", password: "Bootstrap-Admin-9163!" },
+  murid: { key: "murid", tujuan: "BELAJAR", email: "boot-siswa@bootstrap.pintar.test", password: "Bootstrap-Siswa-3082!" },
 };
 // the chapter's own title: never imported anywhere, unique in the database for this run
 const JUDUL = `Matematika Kelas 4 · Kelipatan Bilangan (disusun guru ${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "")})`;
@@ -240,7 +245,7 @@ await step("U2", "the Guru fixes the row; the check passes and the chapter is sa
   course = kursusIni();
   harus(rec, !!course, `the course exists (${course || "none"}), state ${course ? keadaan() : "-"}`);
   const penyusun = sql(`select coalesce((select p.display_name from public.courses c join public.persons p on p.id = c.author_person_id where c.id='${course}'), '-')`);
-  harus(rec, /Guru/.test(penyusun), `its author is the Guru (${penyusun})`);
+  harus(rec, penyusun === sql(`select p.display_name from public.persons p join public.accounts a on a.person_id = p.id join auth.users u on u.id = a.auth_user_id where u.email='${ORANG.guru.email}'`), `its author is the Guru (${penyusun})`);
 });
 
 // press a step's button on the package page as `page`; the state it moved to (or null)
@@ -293,7 +298,7 @@ await step("U4", "the head of department sends it back once, with a reason («Ke
   await shot(h, rec, "dikembalikan");
   harus(rec, sesudah.startsWith("VALIDATION_FAILED"), `the package went back to its author: ${sebelum} → ${sesudah}`);
   const hasil = sql(`select o.outcome || '|' || coalesce(o.reason, '') || '|' || p.display_name from public.content_review_outcomes o join public.persons p on p.id = o.reviewer_person_id where o.course_id='${course}' order by o.decided_at desc limit 1`);
-  harus(rec, hasil === `SENT_BACK|${ALASAN_KEMBALI}|${hasil.split("|")[2]}` && /Kaprodi|Kepala|Siklus/.test(hasil.split("|")[2]), `recorded: ${hasil}`);
+  harus(rec, hasil.startsWith(`SENT_BACK|${ALASAN_KEMBALI}|`), `recorded: ${hasil}`);
 });
 
 await step("U5", "the Guru reads the reason on her package page, with who and when, and the way to upload the correction", async (rec) => {
@@ -452,6 +457,99 @@ await step("U12", "«Riwayat perbaikan» names the send-back with its reason and
   rec.catatan.push(`the history reads: ${r.slice(0, 500)}`);
   const audit = sql(`select coalesce(string_agg(action, ',' order by id), '-') from public.audit_log where target_id in ('${pertama}', '${course}')`);
   rec.catatan.push(`audit rows on the line: ${audit}`);
+});
+
+// ─────────────────────────────── W6.7 · Uji Cepat at Level 3 (CR-34), on the chapter just published
+const KUNCI_SOAL = new Map([
+  ["Bilangan manakah yang termasuk kelipatan 4?", "16"],
+  ["Kelipatan 5 yang keempat adalah ....", "20"],
+  ["Kelipatan persekutuan terkecil dari 3 dan 4 adalah ....", "12"],
+  ["Tiga kelipatan 6 yang pertama adalah ....", "6, 12, 18"],
+  [SOAL_C5_SINGKAT, "10"],
+]);
+let ujiCepat = "";
+await step("U13", "W6.7: the Guru launches an Uji Cepat of three of the chapter's questions for 5B", async (rec) => {
+  if (!la) { rec.verdict = "BLOCKED"; return; }
+  const modul = sql(`select id from public.modules where course_id='${course}' order by ordinal limit 1`);
+  await g.goto(`${APP}/mengajar/${KELAS}/uji-cepat`, { waitUntil: "networkidle" });
+  await tutupTur(g);
+  if (!harus(rec, !/Uji Cepat sedang berjalan/.test(norm(await g.locator("main").innerText())), "no Uji Cepat is already running in 5B")) return;
+  await g.locator("#pin-bab").selectOption(modul);
+  await g.getByRole("button", { name: "Tampilkan soal bab ini", exact: true }).click();
+  await g.waitForURL((u) => u.searchParams.get("bab") === modul, { timeout: SLOW });
+  await g.waitForLoadState("networkidle");
+  const baris = g.locator("ol.pin-cepat-pilih > li");
+  const n = await baris.count();
+  harus(rec, (await g.locator("ol.pin-cepat-pilih .pin-opsi-kunci").count()) === 0, `${n} question(s) offered, no key shown`);
+  for (let i = 0; i < 3 && i < n; i++) await baris.nth(i).locator('input[type="checkbox"][name="butir"]').check();
+  await g.getByRole("button", { name: "Lanjut ke tinjauan", exact: true }).click();
+  await g.waitForURL((u) => u.searchParams.get("tahap") === "tinjau", { timeout: SLOW });
+  await g.getByRole("button", { name: "Sediakan Uji Cepat sekarang", exact: true }).click();
+  const jalan = await g.getByText("Uji Cepat sedang berjalan").first().waitFor({ timeout: SLOW }).then(() => true).catch(() => false);
+  await shot(g, rec, "uji-cepat-berjalan");
+  ujiCepat = sql(`select coalesce((select aa.id::text from public.assessment_assignments aa join public.assessment_definitions d on d.id = aa.assessment_definition_id
+    where aa.node_id='${KELAS}' and d.mode::text = 'QUICK' order by aa.created_at desc limit 1), '')`);
+  harus(rec, jalan && !!ujiCepat, `«Uji Cepat sedang berjalan» (${ujiCepat || "none"})`);
+});
+
+await step("U14", "W6.7: the learner finds the Uji Cepat on Belajar and hands it in", async (rec) => {
+  if (!ujiCepat) { rec.verdict = "BLOCKED"; return; }
+  const { page: m } = sesi.murid;
+  await m.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+  await tutupTur(m);
+  const tautan = m.locator(`a[href="/belajar/asesmen/${ujiCepat}"]`);
+  if (!harus(rec, (await tautan.count()) > 0, "Belajar offers the Uji Cepat")) return;
+  await tautan.first().click();
+  await m.waitForURL((u) => u.pathname === `/belajar/asesmen/${ujiCepat}`, { timeout: SLOW });
+  await m.locator("main button[type=submit].pin-primary").first().click();
+  let dijawab = 0;
+  for (let i = 0; i < 10; i++) {
+    const stem = m.locator("h2.pin-stem").first();
+    await stem.waitFor({ state: "visible", timeout: SLOW });
+    const raw = await stem.innerText();
+    const benar = KUNCI_SOAL.get(norm(raw));
+    const opts = m.locator("ul.pin-opsi button.pin-op");
+    let idx = 0;
+    for (let j = 0; j < await opts.count(); j++) if (norm(await opts.nth(j).locator("span").nth(1).innerText()) === benar) idx = j;
+    await opts.nth(idx).click();
+    const simpan = m.getByRole("button", { name: /^(Kunci|Simpan) jawaban ini$/ });
+    if (await simpan.count()) { await simpan.click(); await m.getByRole("button", { name: "Tersimpan", exact: true }).waitFor({ timeout: SLOW }); }
+    dijawab += 1;
+    const next = m.getByRole("button", { name: "Berikutnya", exact: true });
+    if (await next.count()) {
+      await next.click();
+      await m.waitForFunction((prev) => document.querySelector("h2.pin-stem")?.innerText !== prev, raw, { timeout: SLOW });
+      continue;
+    }
+    await m.getByRole("button", { name: "Kumpulkan", exact: true }).click();
+    const tanya = m.locator('[aria-labelledby="kumpulkan-tanya"]');
+    if (await tanya.waitFor({ state: "visible", timeout: 5000 }).then(() => true, () => false)) await tanya.getByRole("button", { name: "Kumpulkan", exact: true }).click();
+    await m.waitForURL((u) => u.pathname.endsWith("/hasil") || u.pathname === "/belajar", { timeout: 60000 });
+    break;
+  }
+  await shot(m, rec, "uji-cepat-dikumpulkan");
+  const selesai = sql(`select count(*) from public.assessment_sessions s where s.assessment_assignment_id='${ujiCepat}' and s.submitted_at is not null`);
+  harus(rec, dijawab === 3 && selesai === "1", `answered ${dijawab}, handed in sittings ${selesai}`);
+});
+
+await step("U15", "W6.7: the Guru opens «Lihat hasil»: the class figure on its base first, each learner one step below", async (rec) => {
+  if (!ujiCepat) { rec.verdict = "BLOCKED"; return; }
+  await g.goto(`${APP}/mengajar/${KELAS}/uji-cepat`, { waitUntil: "networkidle" });
+  const lihat = g.locator(`a[href="/mengajar/${KELAS}/uji-cepat/hasil?penugasan=${ujiCepat}"]`).first();
+  if (!harus(rec, (await lihat.count()) > 0, "the running Uji Cepat leads to «Lihat hasil»")) return;
+  await lihat.click();
+  await g.waitForURL((u) => u.pathname.endsWith("/uji-cepat/hasil"), { timeout: SLOW });
+  await g.waitForLoadState("networkidle");
+  await shot(g, rec, "uji-cepat-hasil");
+  const kelas = g.locator(".pin-cepat-kelas");
+  const dinilai = await kelas.getAttribute("data-dinilai").catch(() => null);
+  const terdaftar = await kelas.getAttribute("data-terdaftar").catch(() => null);
+  const teksKelas = norm(await kelas.innerText().catch(() => ""));
+  rec.catatan.push(`the class figure reads «${teksKelas}»`);
+  harus(rec, dinilai === "1" && /100\s?%/.test(teksKelas) && new RegExp(`1 dari ${terdaftar} murid`).test(teksKelas), `scored ${dinilai} of ${terdaftar} in 5B now, the figure 100%`);
+  const murid = sql(`select p.display_name from public.persons p join public.accounts a on a.person_id = p.id join auth.users u on u.id = a.auth_user_id where u.email='${ORANG.murid.email}'`);
+  const baris = norm(await g.locator("main").innerText());
+  harus(rec, baris.indexOf(teksKelas.slice(0, 10)) < baris.indexOf(murid) && baris.includes(murid), `the learner «${murid}» is listed below the figure`);
 });
 
 writeFileSync(join(OUT, "studio-ujung.json"), JSON.stringify({ judul: JUDUL, langkah }, null, 2));

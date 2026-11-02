@@ -1,5 +1,5 @@
 {
-  "judul": "Matematika Kelas 4 · Kelipatan Bilangan (disusun guru 202611021310)",
+  "judul": "Matematika Kelas 4 · Kelipatan Bilangan (disusun guru 202611021325)",
   "langkah": [
     {
       "id": "U0",
@@ -36,8 +36,8 @@
       "catatan": [
         "ok «Buku kerja lolos pemeriksaan.»",
         "ok «Tersimpan di Studio sebagai draf.»",
-        "ok the course exists (5fd886dc-9f54-4156-ac20-10c791242988), state INGESTED|-",
-        "ok its author is the Guru (Guru Siklus (sintetis))"
+        "ok the course exists (1eff2409-2eb6-4927-80cf-910728fc9276), state INGESTED|-",
+        "ok its author is the Guru (Guru Bootstrap)"
       ],
       "shots": [
         "03-periksa-lolos.png",
@@ -69,7 +69,7 @@
         "ok the confirmation opens with the reason box focused",
         "ok a six-character reason does not pass the form",
         "ok the package went back to its author: IN_REVIEW|- → VALIDATION_FAILED|-",
-        "ok recorded: SENT_BACK|Soal C5 terlalu panjang untuk murid kelas 4; mohon dipersingkat kalimatnya.|Kaprodi Siklus (sintetis)"
+        "ok recorded: SENT_BACK|Soal C5 terlalu panjang untuk murid kelas 4; mohon dipersingkat kalimatnya.|Kaprodi Bootstrap"
       ],
       "shots": [
         "05-kembalikan-konfirmasi.png",
@@ -82,9 +82,9 @@
       "verdict": "PASS",
       "catatan": [
         "ok the reason is on the page",
-        "ok who sent it back is named («oleh Kaprodi Siklus (sintetis)»)",
-        "ok a link to upload the correction (/studio/unggah?revisi=5fd886dc-9f54-4156-ac20-10c791242988#buku-kerja)",
-        "the page says: k memeriksa tampilannya, lalu tandai sudah tersusun. Oleh: Guru, Kepala departemen atau Admin sekolah Isi ini dikembalikan untuk diperbaiki. Perbaiki, lalu tandai sudah tersusun lagi. Alasan peninjau Soal C5 terlalu panjang untuk murid kelas 4; mohon dipersingkat kalimatnya. oleh Kaprodi Siklus (sintetis) · 2 Nov 2026, 20.11 WIB Isi diperbaiki di buku kerjanya: unggah buku kerja perbaikan, dan perbaikannya menjadi versi berikutnya dari paket ini. Bila isin"
+        "ok who sent it back is named («oleh Kaprodi Bootstrap»)",
+        "ok a link to upload the correction (/studio/unggah?revisi=1eff2409-2eb6-4927-80cf-910728fc9276#buku-kerja)",
+        "the page says: k memeriksa tampilannya, lalu tandai sudah tersusun. Oleh: Guru, Kepala departemen atau Admin sekolah Isi ini dikembalikan untuk diperbaiki. Perbaiki, lalu tandai sudah tersusun lagi. Alasan peninjau Soal C5 terlalu panjang untuk murid kelas 4; mohon dipersingkat kalimatnya. oleh Kaprodi Bootstrap · 2 Nov 2026, 20.25 WIB Isi diperbaiki di buku kerjanya: unggah buku kerja perbaikan, dan perbaikannya menjadi versi berikutnya dari paket ini. Bila isinya tidak"
       ],
       "shots": [
         "06-guru-membaca-alasan.png"
@@ -98,7 +98,7 @@
         "ok the upload opens with this package chosen as the one corrected",
         "ok the corrected workbook passes the check",
         "ok «Tersimpan di Studio sebagai draf.»",
-        "ok the correction is the next version in the line (068fc4b4-2e73-447f-956a-41cd05c797d4)",
+        "ok the correction is the next version in the line (5c5cff37-4ee6-4ad0-9104-6948477ed731)",
         "ok the new version carries the shortened question C5"
       ],
       "shots": [
@@ -158,9 +158,9 @@
       "verdict": "PASS",
       "catatan": [
         "ok Siapkan offers the chapter",
-        "ok the button reads «✓ Disediakan» on /mengajar/1d4ada7a-a4f0-4225-9941-8be13f5b9706/siapkan",
+        "ok the button reads «✓ Disediakan» on /mengajar/a931ebe3-e124-420a-b8f1-a18e17eaa128/siapkan",
         "ok the result line: «✓ Materi disediakan untuk kelas ini. Mulai Senin, 2 Nov 2026 · Sampai Rabu, 2 Des 2026.»",
-        "ok the class holds the assignment (31acc848-81c7-4bb2-9d19-4a77c3460c62)"
+        "ok the class holds the assignment (b1b6edd9-1f36-444e-b062-35c0c00ff41d)"
       ],
       "shots": [
         "11-disediakan.png"
@@ -172,7 +172,7 @@
       "verdict": "PASS",
       "catatan": [
         "ok Belajar offers the chapter",
-        "ok the chapter opens at /belajar/31acc848-81c7-4bb2-9d19-4a77c3460c62/pemetaan: «← Perjalanan belajar Anda MATEMATIKA · KELAS 4 · MATEMATIKA KELAS 4 · KELIPATAN BILANGAN (DISUSUN GURU 202611021310) Pemetaan Awal Ini bukan ujian. Jawaban Anda»",
+        "ok the chapter opens at /belajar/b1b6edd9-1f36-444e-b062-35c0c00ff41d/pemetaan: «← Perjalanan belajar Anda MATEMATIKA · KELAS 4 · MATEMATIKA KELAS 4 · KELIPATAN BILANGAN (DISUSUN GURU 202611021325) Pemetaan Awal Ini bukan ujian. Jawaban Anda»",
         "ok no key or reason is shown to the learner"
       ],
       "shots": [
@@ -186,13 +186,52 @@
       "verdict": "PASS",
       "catatan": [
         "ok both outcomes, and the reason",
-        "ok the reviewer named (Kaprodi Siklus (sintetis))",
+        "ok the reviewer named (Kaprodi Bootstrap)",
         "ok the correction's own summary",
-        "the history reads: Riwayat perbaikan — · belum terbit · Buka Versi pertama Dikembalikan ke penyusun · oleh Kaprodi Siklus (sintetis) Soal C5 terlalu panjang untuk murid kelas 4; mohon dipersingkat kalimatnya. 2 Nov 2026, 20.11 WIB 1.0.0 · 2 Nov 2026, 20.11 WIB · halaman ini Soal C5 dipersingkat sesuai catatan peninjau. 2 Nov 2026, 20.11 WIB · oleh Guru Siklus (sintetis) Disetujui · oleh Kaprodi Siklus (sintetis) 2 Nov 2026, 20.11 WIB",
+        "the history reads: Riwayat perbaikan — · belum terbit · Buka Versi pertama Dikembalikan ke penyusun · oleh Kaprodi Bootstrap Soal C5 terlalu panjang untuk murid kelas 4; mohon dipersingkat kalimatnya. 2 Nov 2026, 20.25 WIB 1.0.0 · 2 Nov 2026, 20.26 WIB · halaman ini Soal C5 dipersingkat sesuai catatan peninjau. 2 Nov 2026, 20.25 WIB · oleh Guru Bootstrap Disetujui · oleh Kaprodi Bootstrap 2 Nov 2026, 20.26 WIB",
         "audit rows on the line: content.status_changed,content.status_changed,content.status_changed,content.status_changed,content.sent_back,COURSE_CORRECTION_UPLOADED,content.status_changed,content.status_changed,content.status_changed,content.status_changed"
       ],
       "shots": [
         "13-riwayat.png"
+      ]
+    },
+    {
+      "id": "U13",
+      "judul": "W6.7: the Guru launches an Uji Cepat of three of the chapter's questions for 5B",
+      "verdict": "PASS",
+      "catatan": [
+        "ok no Uji Cepat is already running in 5B",
+        "ok 5 question(s) offered, no key shown",
+        "ok «Uji Cepat sedang berjalan» (8093a64f-aabe-407e-8ffb-8fea646a88dc)"
+      ],
+      "shots": [
+        "14-uji-cepat-berjalan.png"
+      ]
+    },
+    {
+      "id": "U14",
+      "judul": "W6.7: the learner finds the Uji Cepat on Belajar and hands it in",
+      "verdict": "PASS",
+      "catatan": [
+        "ok Belajar offers the Uji Cepat",
+        "ok answered 3, handed in sittings 1"
+      ],
+      "shots": [
+        "15-uji-cepat-dikumpulkan.png"
+      ]
+    },
+    {
+      "id": "U15",
+      "judul": "W6.7: the Guru opens «Lihat hasil»: the class figure on its base first, each learner one step below",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the running Uji Cepat leads to «Lihat hasil»",
+        "the class figure reads «Nilai kelas 100% 1 dari 1 murid sudah dinilai Rata-rata nilai yang sudah ada. Yang belum mengumpulkan, atau belum dinilai, tidak dihitung.»",
+        "ok scored 1 of 1 in 5B now, the figure 100%",
+        "ok the learner «Siswa Bootstrap» is listed below the figure"
+      ],
+      "shots": [
+        "16-uji-cepat-hasil.png"
       ]
     }
   ]
