@@ -1,5 +1,8 @@
 # PINTAR 4.0 · Status and the complete list to finish 4.0 (2 Nov 2026)
 
+> **Superseded the same day by the Final Completion Mandate (D-142).** The authoritative register and plan are `docs/completion-4.0/` (A–G). This document is kept as history; where they differ, `docs/completion-4.0/` is the later fact.
+
+
 **Decision:** D-141 (2 Nov). Dr Gladys's second walkthrough is deferred, and PINTAR 4.0 is completed first. This document is the plan. Implementation starts only on the owner's approval of the first batch and of a CI allowance.
 
 **What the plan builds on:** the item-level status of every list in `docs/reports/PINTAR-4.0-CHECKLISTS-AND-FINDINGS-UPDATE-2026-10-09.md`.
