@@ -109,13 +109,28 @@ Her compositions are from `origin/ux-1/daisy-experience`, unchanged since 8 Oct.
   - `audit/staging/golden-school-studio.mjs` has the same checks (T7a, T10, T10b);
   - `audit/staging/journey.mjs` Q1 is restated for F-7.
 
-**Suites:** SUITE_RESULT_PLACEHOLDER
+**Suites:** **699 passed, 0 failed → GREEN.** The whole suite ran on the final code: a fresh build and a freshly reset local stack. Its 14 skips are local only; each has a reviewed justification, and all 14 run in CI.
+
+The first full run found four failures. Each was corrected; none was weakened:
+- **UX1-BRAND-02, UX1-TUR-ORANG-01:** frozen migration-count baselines (182). Both moved to 183 with the reading recorded, as every batch has done: the new migration only re-emits `studio_home`; it is not a mark, logo, crest or theme, and touches no tour RPC.
+- **BOB41-K01:** «health is read for the items shown, never the first 200 rows». It was **RESTATED FOR F-7**: it now requires the narrower read, exactly the items shown in schools where the reader reviews Question Health.
+- **STUDIO3C-SIAPKAN-01:** my own guard's comment stripper left a `{}` behind, so its pattern never matched. The stripper was fixed; the assertion is unchanged.
+
+A run polluted by an earlier local journey run (fixture interference; CI uses separate stacks) was discarded, as was one on a stale build.
 
 ## 3. Evidence
 
 `evidence/sisi-penutupan/` holds Daisy's render beside ours after the corrections. They are taken from the same code's journey run; staging was not touched.
 
-EVIDENCE_PLACEHOLDER
+| Image | Daisy | Ours, after the closure |
+|---|---|---|
+| `j1-beranda.png` | J1Terbit step 3, Studio home | After a send-back and correction, the line is listed once («Sekarang: Setujui isi»), and «Tidak ada yang menunggu tindakan Anda di Studio.» (the replaced draft is no longer counted) |
+| `j1-siapkan.png` | J1Terbit step 6, Siapkan | After «Sediakan»: «✓ Disediakan», the result line with the window in words, the way on «5B», and the card's Badge «✓ Tersedia» (was «Belum disediakan») |
+| `j1-kelas.png` | J1Terbit step 7, the class page | «Materi untuk kelas ini»: «✓ Tersedia» as the ok Badge; «Mulai 3 November 2026 · Sampai 3 Desember 2026», or «Tanpa batas akhir» |
+| `j5-jendela.png` | J5Jendela, the window and the review | Mulai; Sampai (opsional) with the date in words; «Disediakan untuk **5B** · 1 murid terdaftar hari ini» now in «Tinjauan sebelum disediakan» |
+| `f7-bank-guru.png` | (no composition) | F-7: the Guru's Studio has «Bank Soal»; her school's questions, each with «Kunci dan alasan»; no Question Health form or evidence figures |
+
+**Stale-build caveat:** a first set of these images came from a stale build, made before the J5 change. The `.next` folder predated it, and the selftest runner reuses any existing build. They were discarded. The images above come from a fresh build, with the journey run on a freshly reset database (18/18).
 
 ## 4. Scope kept
 

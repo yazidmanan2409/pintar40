@@ -21,7 +21,7 @@ import { Checks, type SelfTest } from "./lib";
 
 const baca = (root: string, p: string) => readFileSync(join(root, p), "utf8");
 /** Source without its comments, so a comment cannot satisfy a guard. */
-const kode = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
+const kode = (x: string) => x.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
 
 export const studio3cTests: SelfTest[] = [
   {

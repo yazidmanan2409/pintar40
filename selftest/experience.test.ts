@@ -2023,7 +2023,10 @@ export const experienceTests: SelfTest[] = [
       // MOVED 181 -> 182 for Batch 3: 20261215100000 adds nama_riwayat_paket (the names «Riwayat perbaikan» shows) and its
       // registry row; no table, no column. Read against §3 first: it is not a mark, a logo, a crest or a theme, so the
       // Q-7 source still does not exist.
-      c.expect(migrations.length === 182, `${migrations.length} migrations; the frozen baseline has 182`);
+      // MOVED 182 -> 183 for the Batch 3 closure (D-150): 20261216100000 re-emits studio_home with one condition per
+      // package bucket (a superseded version is not counted); no table, no column. Read against §3 first: it is not a
+      // mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
+      c.expect(migrations.length === 183, `${migrations.length} migrations; the frozen baseline has 183`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3824,7 +3827,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 177 -> 181 for Batch 1 (D-145): v1 wording, CR-91's card rule, the send-back edge, the one-transaction content
       // step and the review record touch no tour RPC.
       // MOVED 181 -> 182 for Batch 3: the history's names (nama_riwayat_paket) touch no tour RPC.
-      c.expect(migs.length === 182, `${migs.length} migrations; the baseline has 182`);
+      // MOVED 182 -> 183 for the Batch 3 closure (D-150): studio_home's superseded-version condition touches no tour RPC.
+      c.expect(migs.length === 183, `${migs.length} migrations; the baseline has 183`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
