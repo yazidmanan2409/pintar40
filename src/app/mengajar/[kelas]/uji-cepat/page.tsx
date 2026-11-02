@@ -4,6 +4,7 @@ import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
 import { sediakanUjiCepat } from "../../actions";
 import BarisHasil from "@/components/BarisHasil";
+import Kosong from "@/components/Kosong";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import TombolKirim from "@/components/TombolKirim";
@@ -157,6 +158,12 @@ export default async function UjiCepat({
             <Link className="pin-btn" href={`/mengajar/${id}/siapa?penugasan=${hidup.id}`}>
               {s("mengajar.cepat.hidup.siapa")}
             </Link>
+            {/* W2.4 (D-120 Q8): once something is handed in, the score, the class first */}
+            {hidup.mengumpulkan > 0 ? (
+              <Link className="pin-btn" href={`/mengajar/${id}/uji-cepat/hasil?penugasan=${hidup.id}`}>
+                {s("mengajar.cepat.hasil.lihat")}
+              </Link>
+            ) : null}
             {/* M5: once something is handed in, the questions the class found hard */}
             {hidup.mengumpulkan > 0 ? (
               <Link className="pin-btn" href={`/mengajar/${id}/soal?penugasan=${hidup.id}`}>
@@ -281,12 +288,13 @@ export default async function UjiCepat({
         {terakhir ? (
           <p className="pin-meta pin-cepat-terakhir">
             {s("mengajar.cepat.terakhir")} · {terakhir.judul} ·{" "}
+            <Link href={`/mengajar/${id}/uji-cepat/hasil?penugasan=${terakhir.id}`}>{s("mengajar.cepat.hasil.lihat")}</Link> ·{" "}
             <Link href={`/mengajar/${id}/soal?penugasan=${terakhir.id}`}>{s("mengajar.bukti.per_soal")}</Link>
           </p>
         ) : null}
 
         {bab.length === 0 ? (
-          <p className="pin-empty">{s("mengajar.cepat.bab.kosong")}</p>
+          <Kosong jenis="belum" kalimat={s("mengajar.cepat.bab.kosong")} />
         ) : (
           /* A GET FORM. Showing a chapter's questions and continuing to the review are navigation, not a write: the
              choices ride in the query string and the review renders them without touching a table. Two buttons
@@ -310,7 +318,7 @@ export default async function UjiCepat({
               <h2 id="pin-cepat-pilih">{s("mengajar.cepat.pilih")}</h2>
               <p className="pin-sub">{s("mengajar.cepat.pilih.arti")}</p>
               {tersedia.length === 0 ? (
-                <p className="pin-empty">{s("mengajar.cepat.pilih.kosong")}</p>
+                <Kosong jenis="belum" kalimat={s("mengajar.cepat.pilih.kosong")} />
               ) : (
                 <ol className="pin-soal-kelas pin-cepat-pilih">
                   {tersedia.map((x) => (

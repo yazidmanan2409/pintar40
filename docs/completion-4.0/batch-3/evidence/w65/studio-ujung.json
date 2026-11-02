@@ -1,0 +1,239 @@
+{
+  "judul": "Matematika Kelas 4 · Kelipatan Bilangan (disusun guru 202611021328)",
+  "langkah": [
+    {
+      "id": "U0",
+      "judul": "the Guru opens Studio → Unggah and downloads «Unduh contoh isian»",
+      "verdict": "PASS",
+      "catatan": [
+        "ok Unggah offers «Unduh contoh isian»",
+        "ok downloaded contoh-isian-pelajaran-pintar.xlsx (48104 bytes)"
+      ],
+      "shots": [
+        "01-unggah.png"
+      ]
+    },
+    {
+      "id": "U1",
+      "judul": "the Guru's first upload fails at the check, row by row, and nothing is saved",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the check does not pass",
+        "the page says: Paket ini belum bisa diterima. Perbaiki baris yang disebut lalu unggah lagi. Belum ada yang disimpan. Perbaiki baris berikut di buku kerja, lalu periksa lagi. Lembar Soal, baris 2, kolom Tingkat kesulitan Isi kolom ini tidak ada dalam daftar pilihannya.",
+        "ok the refusal names the sheet, the row and the column (Soal, row 2, Tingkat kesulitan)",
+        "ok the page says nothing was saved",
+        "ok nothing can be saved",
+        "ok no course was made"
+      ],
+      "shots": [
+        "02-periksa-gagal.png"
+      ]
+    },
+    {
+      "id": "U2",
+      "judul": "the Guru fixes the row; the check passes and the chapter is saved to Studio as a draft",
+      "verdict": "PASS",
+      "catatan": [
+        "ok «Buku kerja lolos pemeriksaan.»",
+        "ok «Tersimpan di Studio sebagai draf.»",
+        "ok the course exists (a96c90c7-7b3a-438d-96e2-6d0c78177dcf), state INGESTED|-",
+        "ok its author is the Guru (Guru Bootstrap)"
+      ],
+      "shots": [
+        "03-periksa-lolos.png",
+        "03-tersimpan.png"
+      ]
+    },
+    {
+      "id": "U3",
+      "judul": "the Guru takes her draft to review: «Tandai sudah tersusun», «Tandai lolos pemeriksaan», «Ajukan untuk ditinjau»",
+      "verdict": "PASS",
+      "catatan": [
+        "ok «Tandai sudah tersusun»: INGESTED|- → STRUCTURED|-",
+        "ok «Tandai lolos pemeriksaan»: STRUCTURED|- → VALIDATED|-",
+        "ok «Ajukan untuk ditinjau»: VALIDATED|- → IN_REVIEW|-",
+        "ok the author is offered neither «Setujui isi» nor «Kembalikan ke penyusun»"
+      ],
+      "shots": [
+        "04-susun.png",
+        "04-periksa.png",
+        "04-ajukan.png"
+      ]
+    },
+    {
+      "id": "U4",
+      "judul": "the head of department sends it back once, with a reason («Kembalikan ke penyusun»)",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the reviewer is offered «Setujui isi» and «Kembalikan ke penyusun»",
+        "ok the confirmation opens with the reason box focused",
+        "ok a six-character reason does not pass the form",
+        "ok the package went back to its author: IN_REVIEW|- → VALIDATION_FAILED|-",
+        "ok recorded: SENT_BACK|Soal C5 terlalu panjang untuk murid kelas 4; mohon dipersingkat kalimatnya.|Kaprodi Bootstrap"
+      ],
+      "shots": [
+        "05-kembalikan-konfirmasi.png",
+        "05-dikembalikan.png"
+      ]
+    },
+    {
+      "id": "U5",
+      "judul": "the Guru reads the reason on her package page, with who and when, and the way to upload the correction",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the reason is on the page",
+        "ok who sent it back is named («oleh Kaprodi Bootstrap»)",
+        "ok a link to upload the correction (/studio/unggah?revisi=a96c90c7-7b3a-438d-96e2-6d0c78177dcf#buku-kerja)",
+        "the page says: k memeriksa tampilannya, lalu tandai sudah tersusun. Oleh: Guru, Kepala departemen atau Admin sekolah Isi ini dikembalikan untuk diperbaiki. Perbaiki, lalu tandai sudah tersusun lagi. Alasan peninjau Soal C5 terlalu panjang untuk murid kelas 4; mohon dipersingkat kalimatnya. oleh Kaprodi Bootstrap · 2 Nov 2026, 20.28 WIB Isi diperbaiki di buku kerjanya: unggah buku kerja perbaikan, dan perbaikannya menjadi versi berikutnya dari paket ini. Bila isinya tidak"
+      ],
+      "shots": [
+        "06-guru-membaca-alasan.png"
+      ]
+    },
+    {
+      "id": "U6",
+      "judul": "the Guru uploads the corrected workbook as the next version of the same package, with what changed",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the upload opens with this package chosen as the one corrected",
+        "ok the corrected workbook passes the check",
+        "ok «Tersimpan di Studio sebagai draf.»",
+        "ok the correction is the next version in the line (8ccf2ef9-48a1-4e71-93ca-05af8b7e2613)",
+        "ok the new version carries the shortened question C5"
+      ],
+      "shots": [
+        "07-perbaikan-tersimpan.png"
+      ]
+    },
+    {
+      "id": "U7",
+      "judul": "the Guru submits the correction again",
+      "verdict": "PASS",
+      "catatan": [
+        "ok «Tandai sudah tersusun»: INGESTED|- → STRUCTURED|-",
+        "ok «Tandai lolos pemeriksaan»: STRUCTURED|- → VALIDATED|-",
+        "ok «Ajukan untuk ditinjau»: VALIDATED|- → IN_REVIEW|-"
+      ],
+      "shots": [
+        "08-susun-2.png",
+        "08-periksa-2.png",
+        "08-ajukan-2.png"
+      ]
+    },
+    {
+      "id": "U8",
+      "judul": "the head of department approves the content, reviews its findings, and creates and locks the release in one press; the author is offered none of it and the head of department is refused «Terbitkan»",
+      "verdict": "PASS",
+      "catatan": [
+        "ok «Setujui isi»: IN_REVIEW|- → APPROVED|-",
+        "ok findings acknowledged by kind in 0 press(es); WARNINGs left: 0",
+        "ok the author is offered neither «Buat terbitan» nor «Kunci terbitan»",
+        "ok the panel reads «Buat terbitan · Kunci terbitan»",
+        "ok «Kunci terbitan»: APPROVED|- → APPROVED|FROZEN",
+        "ok one press created and locked the release (APPROVED|FROZEN)",
+        "ok the head of department is not offered «Terbitkan»"
+      ],
+      "shots": [
+        "09-setujui.png",
+        "09-buat-dan-kunci.png"
+      ]
+    },
+    {
+      "id": "U9",
+      "judul": "the school admin publishes the chapter («Terbitkan» → «✓ Diterbitkan») and sets its pass mark",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the button answered «✓ Diterbitkan»",
+        "ok published (APPROVED|PUBLISHED)",
+        "ok Konfigurasi → Batas ketuntasan lists the chapter",
+        "ok the pass mark is 70%"
+      ],
+      "shots": [
+        "10-diterbitkan.png"
+      ]
+    },
+    {
+      "id": "U10",
+      "judul": "the Guru gives the chapter to her class on Siapkan («✓ Disediakan»)",
+      "verdict": "PASS",
+      "catatan": [
+        "ok Siapkan offers the chapter",
+        "ok the button reads «✓ Disediakan» on /mengajar/4caeb0ed-e20b-4add-ac69-660d389ca8af/siapkan",
+        "ok the result line: «✓ Materi disediakan untuk kelas ini. Mulai Senin, 2 Nov 2026 · Sampai Rabu, 2 Des 2026.»",
+        "ok the class holds the assignment (62ba7cd3-1abe-4072-a546-f9d99cffae4f)"
+      ],
+      "shots": [
+        "11-disediakan.png"
+      ]
+    },
+    {
+      "id": "U11",
+      "judul": "the learner finds the chapter on Belajar and opens it",
+      "verdict": "PASS",
+      "catatan": [
+        "ok Belajar offers the chapter",
+        "ok the chapter opens at /belajar/62ba7cd3-1abe-4072-a546-f9d99cffae4f/pemetaan: «← Perjalanan belajar Anda MATEMATIKA · KELAS 4 · MATEMATIKA KELAS 4 · KELIPATAN BILANGAN (DISUSUN GURU 202611021328) Pemetaan Awal Ini bukan ujian. Jawaban Anda»",
+        "ok no key or reason is shown to the learner"
+      ],
+      "shots": [
+        "12-belajar.png",
+        "12-bab-dibuka.png"
+      ]
+    },
+    {
+      "id": "U12",
+      "judul": "«Riwayat perbaikan» names the send-back with its reason and the approval, with who and when",
+      "verdict": "PASS",
+      "catatan": [
+        "ok both outcomes, and the reason",
+        "ok the reviewer named (Kaprodi Bootstrap)",
+        "ok the correction's own summary",
+        "the history reads: Riwayat perbaikan — · belum terbit · Buka Versi pertama Dikembalikan ke penyusun · oleh Kaprodi Bootstrap Soal C5 terlalu panjang untuk murid kelas 4; mohon dipersingkat kalimatnya. 2 Nov 2026, 20.28 WIB 1.0.0 · 2 Nov 2026, 20.28 WIB · halaman ini Soal C5 dipersingkat sesuai catatan peninjau. 2 Nov 2026, 20.28 WIB · oleh Guru Bootstrap Disetujui · oleh Kaprodi Bootstrap 2 Nov 2026, 20.28 WIB",
+        "audit rows on the line: content.status_changed,content.status_changed,content.status_changed,content.status_changed,content.sent_back,COURSE_CORRECTION_UPLOADED,content.status_changed,content.status_changed,content.status_changed,content.status_changed"
+      ],
+      "shots": [
+        "13-riwayat.png"
+      ]
+    },
+    {
+      "id": "U13",
+      "judul": "W6.7: the Guru launches an Uji Cepat of three of the chapter's questions for 5B",
+      "verdict": "PASS",
+      "catatan": [
+        "ok no Uji Cepat is already running in 5B",
+        "ok 5 question(s) offered, no key shown",
+        "ok «Uji Cepat sedang berjalan» (6de7f542-f533-4476-82be-eb045e5865ff)"
+      ],
+      "shots": [
+        "14-uji-cepat-berjalan.png"
+      ]
+    },
+    {
+      "id": "U14",
+      "judul": "W6.7: the learner finds the Uji Cepat on Belajar and hands it in; no certificate comes of it (J5.7)",
+      "verdict": "PASS",
+      "catatan": [
+        "ok Belajar offers the Uji Cepat",
+        "ok answered 3, handed in sittings 1",
+        "ok no certificate for the Uji Cepat (0 in the database; the page does not mention one)"
+      ],
+      "shots": [
+        "15-uji-cepat-dikumpulkan.png"
+      ]
+    },
+    {
+      "id": "U15",
+      "judul": "W6.7: the Guru opens «Lihat hasil»: the class figure on its base first, each learner one step below",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the running Uji Cepat leads to «Lihat hasil»",
+        "the class figure reads «Nilai kelas 100% 1 dari 1 murid sudah dinilai Rata-rata nilai yang sudah ada. Yang belum mengumpulkan, atau belum dinilai, tidak dihitung.»",
+        "ok scored 1 of 1 in 5B now, the figure 100%",
+        "ok the learner «Siswa Bootstrap» is listed below the figure"
+      ],
+      "shots": [
+        "16-uji-cepat-hasil.png"
+      ]
+    }
+  ]
+}

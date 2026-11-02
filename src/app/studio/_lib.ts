@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { supabaseServer } from "@/lib/supabase/server";
-import { t, type HleEvent } from "@/lib/hle";
+import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { tanggal } from "@/lib/tanggal";
 import { kalimatHasil, type QueryHasil } from "@/lib/galat-kontrak";
 import { peranSaya } from "@/lib/tur-negara";
@@ -18,10 +18,20 @@ import { konteksHalaman } from "@/lib/konteks-server";
 
 export const s = (event: HleEvent) => t(event, "staff");
 
-export const card = "rounded-[var(--radius-2)] border border-line-1 bg-surface-1 p-4";
+/** Studio's words, in one reader's language. */
+export type Kata = (event: HleEvent) => string;
+/**
+ * W1.9 (UX-25, Batch 3): STUDIO SPEAKS ITS READER'S LANGUAGE. `s` above is Indonesian whatever the reader chose; a page
+ * reads its reader's language once (currentLocale) and draws every word through this.
+ */
+export const kataStudio = (locale: Locale): Kata => (event) => t(event, "staff", { locale });
+
+// W1.14 / W3.18 (Batch 3; 08-migration «Containers» and «Fields»): the shared class strings name the v3 primitives in
+// experience.css, never a Tailwind composition: Panel, Text field (its label above the control), Button.
+export const card = "pin-panel";
 export const field = "pin-input"; // D-138 step 4d/4f: the v3 Field (44 px, the 3:1 outline), not a Tailwind look-alike
-export const button = "pin-btn justify-self-start"; // D-138 step 4d/4f: the v3 Button (44 px, its states), at its own width in a grid
-export const label = "grid gap-1 text-sm text-ink-2";
+export const button = "pin-btn pin-btn-awal"; // D-138 step 4d/4f: the v3 Button (44 px, its states), at its own width in a grid
+export const label = "pin-bidang";
 
 export type StudioInstitution = { id: string; name: string; capabilities: string[] };
 
@@ -101,10 +111,11 @@ export function can(inst: StudioInstitution | undefined, capability: string): bo
  * nobody named); the sentence is the copy table's. Nothing typed into the
  * address reaches the banner: an unknown code, reference or count is dropped.
  */
-export function outcomeLine(q: QueryHasil): string | null {
+export function outcomeLine(q: QueryHasil, locale: Locale = "id"): string | null {
+  const s = kataStudio(locale);
   return kalimatHasil(q, s, { ok: "studio.hasil.ok", gagal: "studio.hasil.gagal" });
 }
 
 export const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "—");
 /** When something was recorded: the timestamp, with its year and WIB («9 Okt 2026, 07.30 WIB»; W3.3, RV-16). */
-export const when = (iso: string | null) => tanggal(iso, "cap") || "—";
+export const when = (iso: string | null, locale: Locale = "id") => tanggal(iso, "cap", locale) || "—";

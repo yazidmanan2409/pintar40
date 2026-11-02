@@ -37,6 +37,9 @@
 --   F23-W04  WHO REVIEWED AND APPROVED (W1.8): an approval records an APPROVED outcome naming the reviewer and the
 --            author; the school's author and reviewer read the package's outcomes, another school's administrator reads
 --            none; an outcome cannot be changed or removed (PR080)
+--   F23-W05  THE HISTORY'S NAMES (W1.8): the author cannot read the reviewer's person row, yet nama_riwayat_paket
+--            names the reviewer to the author and the reviewer, to another school's administrator nobody, and to no one
+--            a person not recorded on the packages
 --   F23-T01  APPROVED v1 WORDING IN THE DATABASE (W4.1): a coaching finding names where it is in the workbook's words
 --            («kolom Isi pelajaran», never «kolom body_markdown»); no coaching rule says «siswa» (C29, C30); the
 --            bank-wide finding is «Bank soal untuk paket ini» (D23)
@@ -88,7 +91,7 @@ language plpgsql set search_path = public, pg_temp as $$
 declare
   r record; v_a uuid; v_node uuid; v_tag text := to_char(clock_timestamp(), 'HH24MISSUS');
   v_staf uuid; v_besok uuid; v_murid uuid; v_kartu_p uuid; v_surel_p uuid; v_lama uuid; v_lama_u uuid;
-  v_err text; v_n int; v_b boolean; v_got text; v_card text; v_bekas uuid; v_habis uuid; v_ra uuid;
+  v_err text; v_n int; v_m int; v_b boolean; v_got text; v_card text; v_bekas uuid; v_habis uuid; v_ra uuid;
   v_w uuid; v_w_b uuid; v_adm_w uuid; v_kajur uuid; v_dean uuid; v_guru uuid; v_adm_b uuid; v_guru_p uuid; v_kajur_p uuid;
   v_c1 uuid; v_c2 uuid; v_c3 uuid; v_c4 uuid; v_batch uuid; v_j jsonb;
   v_probs jsonb := '{}'::jsonb; v_fatal text := '';
@@ -600,6 +603,58 @@ begin
     end;
 
     -- ═══════════════════════════════════════════════════════════════════════
+    -- F23-W05  THE HISTORY'S NAMES (W1.8, Batch 3 integration)
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      -- the author's own row security does not reach the reviewer's person row: the reason the function exists
+      perform selftest.as_user_uid(v_guru);
+      select count(*) into v_n from public.persons p where p.id = v_kajur_p;
+      perform selftest.as_owner();
+      if v_n <> 0 then
+        v_probs := selftest.f23_note(v_probs, 'F23-W05', format('the author reads the reviewer''s person row directly (%s): the case this measures has changed', v_n));
+      end if;
+      for r in select * from (values (v_guru, 1, 'the author'), (v_kajur, 1, 'the reviewer'), (v_adm_b, 0, 'another school''s administrator'),
+                                     (v_dean, 0, 'the same school''s Dekan (no Studio capability)')) as t(u, mau, siapa) loop
+        perform selftest.as_user_uid(r.u);
+        -- a reader with no Studio capability there is told nobody at all, not only not the reviewer
+        if r.mau = 0 then
+          select count(*) into v_n from public.nama_riwayat_paket(array[v_c1, v_c3, gen_random_uuid()]);
+          perform selftest.as_owner();
+          if v_n <> 0 then
+            v_probs := selftest.f23_note(v_probs, 'F23-W05', format('%s is told %s name(s)', r.siapa, v_n));
+          end if;
+          perform selftest.as_user_uid(r.u);
+        end if;
+        select count(*) into v_n from public.nama_riwayat_paket(array[v_c1, v_c3, gen_random_uuid()]) x
+         where x.person_id = v_kajur_p and x.display_name is not null and x.display_name <> '';
+        -- what the reader is told in all, beyond the reviewer: no one but the people recorded on the two packages
+        select count(*) into v_m from public.nama_riwayat_paket(array[v_c1, v_c3, gen_random_uuid()]) x
+         where x.person_id not in (select o.reviewer_person_id from public.content_review_outcomes o where o.course_id in (v_c1, v_c3)
+                                   union select n.written_by_person_id from public.course_revision_notes n
+                                    where n.course_id in (v_c1, v_c3) and n.written_by_person_id is not null);
+        perform selftest.as_owner();
+        if r.mau = 1 and v_n < 1 then
+          v_probs := selftest.f23_note(v_probs, 'F23-W05', format('%s is not told the reviewer''s name', r.siapa));
+        elsif r.mau = 0 and v_n <> 0 then
+          v_probs := selftest.f23_note(v_probs, 'F23-W05', format('%s is told the reviewer''s name', r.siapa));
+        end if;
+        if v_m <> 0 then
+          v_probs := selftest.f23_note(v_probs, 'F23-W05', format('%s is told %s name(s) of people not recorded on the packages', r.siapa, v_m));
+        end if;
+      end loop;
+      -- nobody signed in may call it at all
+      perform selftest.as_anon();
+      v_err := selftest.f23_raised(format('select * from public.nama_riwayat_paket(array[%L::uuid])', v_c1));
+      perform selftest.as_owner();
+      if v_err is null or v_err not like '42501%' then
+        v_probs := selftest.f23_note(v_probs, 'F23-W05', 'an anonymous call answered ' || coalesce(v_err, 'rows'));
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f23_note(v_probs, 'F23-W05', 'threw: ' || sqlerrm);
+    end;
+
+    -- ═══════════════════════════════════════════════════════════════════════
     -- F23-T01  APPROVED v1 WORDING IN THE DATABASE
     -- ═══════════════════════════════════════════════════════════════════════
     begin
@@ -638,11 +693,11 @@ begin
   perform selftest.as_owner();
 
   for r in select * from unnest(
-      array['F23-C01', 'F23-C02', 'F23-C03', 'F23-C04', 'F23-C05', 'F23-C06', 'F23-C07', 'F23-W01', 'F23-W02', 'F23-W03', 'F23-W04', 'F23-T01'],
+      array['F23-C01', 'F23-C02', 'F23-C03', 'F23-C04', 'F23-C05', 'F23-C06', 'F23-C07', 'F23-W01', 'F23-W02', 'F23-W03', 'F23-W04', 'F23-W05', 'F23-T01'],
       array['CR-91 -- asking for a card', 'CR-91 -- the account side', 'CR-91 -- the grant side',
             'CR-91 -- legacy data', 'CR-91 -- no staff power through a card', 'CR-91 / J9 -- educator as learner', 'CR-91 -- role transitions',
             'W1.13 -- one step, one transaction', 'W1.6 -- the send-back', 'W1.6 -- the author''s correction path',
-            'W1.8 -- who reviewed and approved', 'W4.1 -- approved v1 wording in the database'],
+            'W1.8 -- who reviewed and approved', 'W1.8 -- the history''s names', 'W4.1 -- approved v1 wording in the database'],
       array[
         'Aktivasi says boleh_kartu false for a Guru and for a Guru whose role starts tomorrow, true for a learner; a card '
           || 'for either Guru is refused 42501 CARD_FOR_STAFF and no card grant is written; the same Guru is granted an '
@@ -673,6 +728,10 @@ begin
         'the approval recorded one APPROVED outcome naming the head of department and the author; the author and the '
           || 'reviewer each read the two outcomes, another school''s administrator none; changing or removing an outcome '
           || 'is refused PR080 REVIEW_OUTCOME_FIXED',
+        'the author cannot read the reviewer''s person row, yet nama_riwayat_paket tells the author and the reviewer the '
+          || 'reviewer''s name for the two packages; another school''s administrator and the same school''s Dekan (no Studio '
+          || 'capability) are told nobody; an unknown package id adds nobody; nobody is told a name not recorded on the '
+          || 'packages; an anonymous call is refused 42501',
         'a lesson that says «salah» is found at «kolom Isi pelajaran», never at the database column; no coaching rule '
           || 'says «siswa»; the question-quality findings say «murid» and «Bank soal untuk paket ini»'
       ]) as t(tid, tarea, tdetail)

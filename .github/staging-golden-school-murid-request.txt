@@ -10,4 +10,5 @@ slug: sekolah-uji-l3
 # 9 Oct, D-140: diagnostic re-walk on 8851988 with the walk fixes (812efbd); staging at 177, main 8851988 (after run 37917177366)
 # 9 Oct, D-140: staging READY walk on 001a357 (batches A and B); facts 37964868797 GREEN, 177 (after run 37965480454)
 # 2 Nov, Batch 1 staging verification: Sekolah Uji B1 1102; staging at 181, main 430544b (after run 41400643297)
-slug: sekolah-uji-b1-1102
+# 2 Nov, Batch 2 staging verification: Sekolah Uji B2 1102; main fab8e4a (after run 41433578771)
+slug: sekolah-uji-b2-1102

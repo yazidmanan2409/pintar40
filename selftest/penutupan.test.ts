@@ -511,7 +511,8 @@ export const penutupanTests: SelfTest[] = [
       // L3 (D-132 C8): the operator is Admin platform whose grant is part of the working context
       const i = /const operator = adminPlatform === true && peran\.includes\("SYSTEM_ADMIN"\);/.test(halaman) ? halaman.indexOf("{operator ? (") : -1;
       // RESTATED FOR W3.3 (Batch 2): the disclosure gains Daisy's class (pin-disclosure, its chevron); the rule is unchanged
-      const j = halaman.indexOf('<details className="grid gap-4 pin-disclosure" id="sistem-lain"');
+      // RESTATED FOR W1.14 (Batch 3): the disclosure's Tailwind grid became pin-studio-lipat (08-migration); the rule is unchanged
+      const j = halaman.indexOf('<details className="pin-disclosure pin-studio-lipat" id="sistem-lain"');
       const k = halaman.indexOf(") : null}", j);
       c.expect(i >= 0 && j > i && k > halaman.indexOf("</details>", j) && halaman.indexOf("</details>", j) > j,
         "the JSON forms are not drawn for the platform operator alone");
@@ -553,7 +554,9 @@ export const penutupanTests: SelfTest[] = [
         "Tinjauan Integritas does not read the waiting list");
       c.expect(/\.\.\.\(group\[0\]\.may_refer \? \["REFERRED_TO_INSTITUTION"\] : \[\]\)/.test(h),
         "«Diteruskan ke pihak sekolah» is offered where the server refuses it");
-      c.expect(/bySession\.size === 0 \? \(\s*<p className=\{card\}>\{s\("studio\.integritas\.kosong"\)\}<\/p>/.test(h),
+      // RESTATED FOR W1.14 (Batch 3): the empty sentence is drawn as Daisy's Empty state (Kosong, W3.2), not a bare card;
+      // it is still drawn exactly when the waiting list is empty
+      c.expect(/bySession\.size === 0 \? \([^<]{0,200}<Kosong jenis="belum" kalimat=\{s\("studio\.integritas\.kosong"\)\} \/>/.test(h),
         "the empty sentence is not drawn from the waiting list");
       return c.verdict("Tinjauan Integritas lists integrity_signals_awaiting_review (a reviewed sitting leaves it), says «Tidak ada "
         + "catatan yang menunggu tinjauan» exactly when it is empty, and offers «Diteruskan ke pihak sekolah» only where the read "

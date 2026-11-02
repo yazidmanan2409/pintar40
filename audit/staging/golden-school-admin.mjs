@@ -394,7 +394,7 @@ await step("A6", `GS-08 (J4.1, J4.2): content in: Konfigurasi → Studio → Bua
     jejak.push(`in the database: status ${b.status}, lessons ${b.pelajaran}/${BAB.pelajaran}, questions ${b.soal}/${BAB.soal}, audit rows on the course ${b.jejak}`);
   }
   // the package page, by the panel's own link
-  const buka = A.getByRole("link", { name: "Buka kursus", exact: true });
+  const buka = A.getByRole("link", { name: /^Buka (kursus|paket)$/ });
   if (simpan && b && await buka.count()) {
     await buka.click();
     await A.waitForURL((u) => u.pathname === `/studio/paket/${b.id}`, { timeout: SLOW });
@@ -402,7 +402,7 @@ await step("A6", `GS-08 (J4.1, J4.2): content in: Konfigurasi → Studio → Bua
     await closeTour(A);
     const halaman = norm(await A.locator("main").innerText().catch(() => ""));
     await shot(A, "a6-paket");
-    jejak.push(`«Buka kursus» → ${new URL(A.url()).pathname}, the title on the page ${halaman.includes(BAB.judul)}`);
+    jejak.push(`«Buka paket» → ${new URL(A.url()).pathname}, the title on the page ${halaman.includes(BAB.judul)}`);
     if (!halaman.includes(BAB.judul)) rec.verdict = "FAIL";
   } else rec.verdict = "FAIL";
   if (!simpan || !b || b.pelajaran !== BAB.pelajaran || b.soal !== BAB.soal) rec.verdict = "FAIL";
@@ -487,12 +487,17 @@ async function kePaket(page, lewat) {
 async function tekan(page, tombol) {
   await page.reload({ waitUntil: "networkidle" });
   await closeTour(page);
-  const b = page.getByRole("button", { name: tombol, exact: true });
+  let b = page.getByRole("button", { name: tombol, exact: true });
+  // W1.4 (Batch 3): a reader who may also lock creates and locks the release in one press («Kunci terbitan» in the
+  // «Buat terbitan · Kunci terbitan» panel), which must end with the release locked
+  const gabung = tombol === "Buat terbitan" && !(await b.count());
+  if (gabung) b = page.getByRole("button", { name: "Kunci terbitan", exact: true });
   if (!(await b.count())) return { tidakAda: true };
   const sebelum = teksKeadaan();
   await b.first().click();
   let sesudah = sebelum;
   for (let i = 0; i < 40 && sesudah === sebelum; i++) { await page.waitForTimeout(500); sesudah = teksKeadaan(); }
+  for (let i = 0; gabung && i < 40 && keadaan().terbitan !== "FROZEN"; i++) { await page.waitForTimeout(500); sesudah = teksKeadaan(); }
   await page.waitForLoadState("networkidle");
   return { sesudah: sesudah === sebelum ? null : sesudah };
 }
@@ -555,7 +560,8 @@ await step("A9", "GS-09 (J4.3–J4.5): the seven steps by two people. The admin,
         let ditinjau = 0;
         for (let i = 0; i < 80; i++) {
           await H.reload({ waitUntil: "networkidle" });
-          const ack = H.getByRole("button", { name: "Sudah saya tinjau", exact: true });
+          // W1.5 (Batch 3): findings of one kind are acknowledged together («Sudah saya tinjau semuanya»)
+          const ack = H.getByRole("button", { name: /^Sudah saya tinjau( semuanya)?$/ });
           if (!(await ack.count())) break;
           const terbuka = () => Number(sql(`select (select count(*) from public.mcq_quality_findings where course_id = '${kursus}' and acknowledged_at is null)
             + (select count(*) from public.coaching_findings where course_id = '${kursus}' and acknowledged_at is null)`));

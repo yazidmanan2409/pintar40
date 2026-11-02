@@ -245,7 +245,8 @@ export const galatTests: SelfTest[] = [
 
       // 5. the two surfaces read only the code: Studio's shared line and Konfigurasi's
       const lib = readFileSync(join(ctx.repoRoot, "src", "app", "studio", "_lib.ts"), "utf8");
-      c.expect(/export function outcomeLine\(q: QueryHasil\)[\s\S]*?kalimatHasil\(q, s,/.test(lib), "Studio's outcome line does not read the code");
+      // RESTATED FOR W1.9 (Batch 3): the line takes the reader's language (UX-25); it still reads only the code
+      c.expect(/export function outcomeLine\(q: QueryHasil(?:, locale: Locale = "id")?\)[\s\S]*?kalimatHasil\(q, s,/.test(lib), "Studio's outcome line does not read the code");
       const konf = readFileSync(join(ctx.repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8");
       c.expect(/kalimatHasil\(sp, s, \{ ok: "config\.result\.ok", gagal: "config\.result\.failed" \}\)/.test(konf),
         "Konfigurasi's result line does not read the code");

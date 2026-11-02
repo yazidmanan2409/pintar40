@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
@@ -156,14 +157,14 @@ export default async function BerandaPengajar({
             </div>
           </div>
         ) : (
-          <p className="pin-empty" data-tur="layak">{s("mengajar.layak.kosong")}</p>
+          <div data-tur="layak"><Kosong jenis="belum" kalimat={s("mengajar.layak.kosong")} /></div>
         )}
 
         <div className="pin-sec" data-tur="kelas">
           <h2>{s("mengajar.kelas.judul")}</h2>
           <p className="pin-sub">{s("mengajar.kelas.sub")}</p>
           {konteks.kelas.length === 0 ? (
-            <p className="pin-empty">{s("mengajar.kelas.kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("mengajar.kelas.kosong")} />
           ) : (
             <div className="pin-list">
               {konteks.kelas.map((k) => {
@@ -195,7 +196,7 @@ export default async function BerandaPengajar({
         <div className="pin-sec" data-tur="berjalan">
           <h2>{s("mengajar.berjalan.judul")}</h2>
           {buka.length === 0 ? (
-            <p className="pin-empty">{s("mengajar.berjalan.kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("mengajar.berjalan.kosong")} />
           ) : (
             <div className="pin-list">
               {buka.map((b) => (

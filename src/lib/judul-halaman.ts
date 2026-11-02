@@ -52,6 +52,7 @@ export const JUDUL_HALAMAN: Record<string, Judul> = {
   "/mengajar/[kelas]/siapkan": { kunci: "mengajar.siap.pilih", untuk: "educator" },
   "/mengajar/[kelas]/soal": { kunci: "mengajar.soal.judul", untuk: "educator" },
   "/mengajar/[kelas]/uji-cepat": { kunci: "mengajar.cepat.hidup.judul", untuk: "educator" },
+  "/mengajar/[kelas]/uji-cepat/hasil": { kunci: "mengajar.cepat.hasil.judul", untuk: "educator" },
   "/mengajar/[kelas]/ulang": { kunci: "mengajar.ulang.judul", untuk: "educator" },
   "/mengajar/[kelas]/umpan-balik": { kunci: "nav.kelas", untuk: "educator" },
   "/pemeliharaan": { kunci: "pemeliharaan.darurat.judul", untuk: "public" },

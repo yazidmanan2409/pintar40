@@ -954,6 +954,7 @@ export type HleEvent =
   | "studio.kanonik.kosong"
   | "studio.kanonik.ditarik"
   | "studio.kanonik.hanya_baca"
+  | "studio.kanonik.unit.tujuan"
   | "studio.definisi.judul"
   | "studio.definisi.batas"
   | "studio.definisi.simpan"
@@ -1041,6 +1042,13 @@ export type HleEvent =
   | "nav.aktivasi" | "nav.konfigurasi" | "nav.studio" | "nav.tempat" | "nav.menu"
   | "tombol.menerbitkan"
   | "studio.langkah.selesai.terbitkan"
+  // W1.6 / W1.8 (Batch 3): the reviewer's send-back, its record, and the author's way on
+  | "studio.kembali.tombol" | "studio.kembali.judul" | "studio.kembali.arti" | "studio.kembali.alasan"
+  | "studio.kembali.alasan_arti" | "studio.kembali.batal" | "studio.kembali.alasan_dari" | "studio.kembali.jalan_unggah"
+  | "tombol.mengembalikan"
+  | "galat.sent_back" | "galat.sendback_not_reviewer" | "galat.sendback_not_in_review" | "galat.sendback_reviewer_is_author"
+  | "galat.sendback_reason_missing"
+  | "studio.paket.riwayat.disetujui" | "studio.paket.riwayat.dikembalikan"
   | "studio.integritas.tindak"
   | "pimpinan.keadaan.menunggu_keputusan"
   | "kesiapan.pita.judul"
@@ -1071,6 +1079,18 @@ export type HleEvent =
   | "studio.definisi.acak.NONE"
   | "studio.definisi.acak.ITEMS"
   | "studio.definisi.acak.ITEMS_AND_OPTIONS"
+  // W1.3 (Batch 3; RV-14, DG-28/29): Aturan Asesmen's hints, its limits in minutes and words, its choices as rows
+  | "studio.definisi.wajib" | "studio.definisi.opsional" | "studio.definisi.unit.menit"
+  | "studio.definisi.kata.antara" | "studio.definisi.kata.dan"
+  | "studio.definisi.f.tenggang_menit" | "studio.definisi.f.komposisi" | "studio.definisi.f.selama"
+  | "studio.definisi.petunjuk.jumlah" | "studio.definisi.petunjuk.keselamatan" | "studio.definisi.petunjuk.ragu"
+  | "studio.definisi.petunjuk.tenggang" | "studio.definisi.petunjuk.percobaan" | "studio.definisi.petunjuk.komposisi"
+  | "studio.definisi.petunjuk.jeda" | "studio.definisi.petunjuk.luring"
+  // W1.5 (Batch 3; UX-01): the question check's findings, one group per kind, acknowledged together
+  | "studio.temuan.kelompok.jumlah" | "studio.temuan.kelompok.lokasi" | "studio.temuan.akui_semua"
+  | "studio.temuan.perbaiki_dulu" | "galat.findings_acknowledged"
+  // W1.10 (Batch 3; DG-36): the example-only workbook beside the blank template
+  | "studio.unggah.contoh" | "studio.unggah.contoh_arti"
   | "config.sekolah.sintetis" | "config.sekolah.aktif" | "config.sekolah.nonaktif"
   // D-138/D-140: the audit trail in words
   | "audit.aksi.ASSESSMENT_DEFINITION_CREATED"
@@ -1572,6 +1592,23 @@ export type HleEvent =
   | "mengajar.siapa.sedang"
   | "mengajar.siapa.catatan"
   | "mengajar.siapa.kosong"
+  // Batch 3 · W2.4, W3.11, W3.17 (Mengajar)
+  | "bentuk.opsional"
+  | "mengajar.sedia.selesai"
+  | "mengajar.ulang.selesai"
+  | "mengajar.cepat.hasil.judul"
+  | "mengajar.cepat.hasil.lihat"
+  | "mengajar.cepat.hasil.kelas"
+  | "mengajar.cepat.hasil.dasar"
+  | "mengajar.cepat.hasil.arti"
+  | "mengajar.cepat.hasil.belum"
+  | "mengajar.cepat.hasil.rincian"
+  | "mengajar.cepat.hasil.rincian.arti"
+  | "mengajar.cepat.hasil.kolom.nama"
+  | "mengajar.cepat.hasil.kolom.keadaan"
+  | "mengajar.cepat.hasil.kolom.nilai"
+  | "mengajar.cepat.hasil.nilai_belum"
+  | "mengajar.cepat.hasil.kembali"
   | "tur.tur"
   | "tur.nama.belajar"
   | "tur.nama.pengajar"
@@ -3047,6 +3084,23 @@ const table: Table = {
   "mengajar.bukti.peserta": { default: "peserta", en: "participants" },
   "mengajar.siap.terdaftar_peserta": { default: "peserta terdaftar hari ini", en: "participants enrolled today" },
   "mengajar.siapa.kosong_peserta": { default: "Tidak ada peserta dalam daftar ini.", en: "No participant in this list." },
+  // Batch 3 · W3.11 (J5, J1 part two), W3.17 (result words), W2.4 (the Uji Cepat score; D-120 Q8)
+  "bentuk.opsional": { default: "(opsional)", en: "(optional)" },
+  "mengajar.sedia.selesai": { default: "Disediakan", en: "Made available" },
+  "mengajar.ulang.selesai": { default: "Terkirim", en: "Sent" },
+  "mengajar.cepat.hasil.judul": { default: "Hasil Uji Cepat", en: "Quick Assessment result" },
+  "mengajar.cepat.hasil.lihat": { default: "Lihat hasil", en: "See the result" },
+  "mengajar.cepat.hasil.kelas": { default: "Nilai kelas", en: "Class score" },
+  "mengajar.cepat.hasil.dasar": { default: "{n} dari {total} {benda} sudah dinilai", en: "{n} of {total} {benda} scored" },
+  "mengajar.cepat.hasil.arti": { default: "Rata-rata nilai yang sudah ada. Yang belum mengumpulkan, atau belum dinilai, tidak dihitung.", en: "The average of the scores there are. Anyone who has not handed in, or has no score yet, is not counted." },
+  "mengajar.cepat.hasil.belum": { default: "Belum ada nilai. Nilai kelas muncul di sini setelah ada yang mengumpulkan.", en: "No scores yet. The class score appears here once someone has handed in." },
+  "mengajar.cepat.hasil.rincian": { default: "Rincian nilai", en: "Score by person" },
+  "mengajar.cepat.hasil.rincian.arti": { default: "Diurutkan abjad. Bukan peringkat.", en: "In alphabetical order. Not a ranking." },
+  "mengajar.cepat.hasil.kolom.nama": { default: "Nama", en: "Name" },
+  "mengajar.cepat.hasil.kolom.keadaan": { default: "Keadaan", en: "Status" },
+  "mengajar.cepat.hasil.kolom.nilai": { default: "Nilai", en: "Score" },
+  "mengajar.cepat.hasil.nilai_belum": { default: "Belum ada nilai", en: "No score yet" },
+  "mengajar.cepat.hasil.kembali": { default: "Kembali ke Uji Cepat", en: "Back to the Quick Assessment" },
   "mengajar.kelas.catatan_pengembangan": { default: "Catatan pengembangan profesi kelas ini", en: "This class's professional-learning record" },
   "pengembangan.eyebrow": { default: "Pengembangan profesi guru", en: "Educators' professional learning" },
   "pengembangan.judul": { default: "Catatan pengembangan profesi", en: "Professional-learning record" },
@@ -3286,7 +3340,7 @@ const table: Table = {
   "studio.paket.masalah.text_too_long": { default: "Teks di kolom ini terlalu panjang.", en: "The text in this column is too long." },
   "studio.paket.masalah.package_could_not_be_saved": { default: "Paket ini belum bisa disimpan. Coba lagi, atau hubungi Admin platform.", en: "This package could not be saved. Try again, or contact the platform administrator." },
   "studio.paket.masalah.revision_course_unknown": { default: "Kursus yang mau diperbaiki tidak ada di sekolah ini.", en: "The course being corrected is not in this school." },
-  "studio.paket.masalah.revision_not_released": { default: "Kursus yang mau diperbaiki belum dikunci. Hanya kursus yang sudah dikunci yang diperbaiki dengan cara ini.", en: "The course being corrected has not been locked. Only a locked course is corrected this way." },
+  "studio.paket.masalah.revision_not_released": { default: "Paket yang mau diperbaiki belum dikunci. Hanya paket yang sudah dikunci yang diperbaiki dengan cara ini.", en: "The course being corrected has not been locked. Only a locked course is corrected this way." },
   "studio.paket.masalah.revision_not_latest": { default: "Kursus ini sudah pernah diperbaiki. Pilih versi terbarunya.", en: "This course has already been corrected. Choose its newest version." },
   "studio.paket.masalah.revision_one_course": { default: "Buku kerja perbaikan berisi tepat satu kursus.", en: "A corrected workbook holds exactly one course." },
   "studio.paket.masalah.revision_summary_missing": { default: "Tulis apa yang diperbaiki dan mengapa, 10 sampai 1.000 huruf.", en: "Say what was corrected and why, in 10 to 1,000 characters." },
@@ -3362,7 +3416,7 @@ const table: Table = {
   "studio.hambatan.pola.stem_reveals_answer": { default: "pertanyaannya membocorkan jawaban", en: "the question gives its answer away" },
   "studio.hambatan.pola.lain": { default: "catatan mutu soal lainnya", en: "another question-quality note" },
   "studio.langkah.susun.judul": { default: "Susun isi", en: "Put the content together" },
-  "studio.langkah.susun.arti": { default: "Buku kerja sudah menjadi kursus, bab, pelajaran, dan soal. Lihat seperti murid untuk memeriksa tampilannya, lalu tandai sudah tersusun.", en: "The workbook has become a course with chapters, lessons and questions. See it as a student to check how it looks, then mark it as put together." },
+  "studio.langkah.susun.arti": { default: "Buku kerja sudah menjadi paket: bab, pelajaran, dan soal. Lihat seperti murid untuk memeriksa tampilannya, lalu tandai sudah tersusun.", en: "The workbook has become a course with chapters, lessons and questions. See it as a student to check how it looks, then mark it as put together." },
   "studio.langkah.susun.tombol": { default: "Tandai sudah tersusun", en: "Mark as put together" },
   "studio.langkah.periksa.judul": { default: "Periksa isi", en: "Check the content" },
   "studio.langkah.periksa.arti": { default: "Jalankan pemeriksaan isi di bagian Temuan di bawah. Perbaiki yang wajib diperbaiki, lalu tandai lolos pemeriksaan.", en: "Run the content check in the Findings section below. Fix what must be fixed, then mark the check as passed." },
@@ -3659,9 +3713,9 @@ const table: Table = {
   "studio.paket.terbitkan": { default: "Terbitkan", en: "Publish" },
   "studio.paket.tarik": { default: "Tarik dari peredaran", en: "Withdraw from circulation" },
   "studio.paket.terbit_bukan_tugas": { default: "Menerbitkan belum menyediakan. Murid baru melihatnya setelah guru menyediakannya untuk kelas.", en: "Publishing is not making available. Students see it only once a teacher makes it available to a class." },
-  "studio.paket.revisi": { default: "Perbaiki kursus ini", en: "Correct this course" },
-  "studio.paket.revisi_terbaru": { default: "Kursus ini sudah diperbaiki. Buka perbaikannya; materi baru untuk kelas memakai perbaikan itu", en: "This course has been corrected. Open the correction; new learning for classes uses it" },
-  "studio.paket.revisi_penjelasan": { default: "Perbaiki buku kerjanya, lalu unggah sebagai perbaikan kursus ini. Kursus asli tetap utuh beserta seluruh catatan pengerjaan murid; perbaikan menjadi versi berikutnya, ditinjau dan diterbitkan seperti biasa.", en: "Correct the workbook, then upload it as a correction of this course. The original stays whole, with every record of student work; the correction becomes the next version, reviewed and published as usual." },
+  "studio.paket.revisi": { default: "Perbaiki paket ini", en: "Correct this course" },
+  "studio.paket.revisi_terbaru": { default: "Paket ini sudah diperbaiki. Buka perbaikannya; materi baru untuk kelas memakai perbaikan itu", en: "This course has been corrected. Open the correction; new learning for classes uses it" },
+  "studio.paket.revisi_penjelasan": { default: "Perbaiki buku kerjanya, lalu unggah sebagai perbaikan paket ini. Paket asli tetap utuh beserta seluruh catatan pengerjaan murid; perbaikan menjadi versi berikutnya, ditinjau dan diterbitkan seperti biasa.", en: "Correct the workbook, then upload it as a correction of this course. The original stays whole, with every record of student work; the correction becomes the next version, reviewed and published as usual." },
   "studio.paket.revisi_sebelum": { default: "Perbaikan dari versi sebelumnya", en: "A correction of the previous version" },
   "studio.paket.revisi_unggah": { default: "Unggah buku kerja perbaikan", en: "Upload the corrected workbook" },
   "studio.paket.riwayat.judul": { default: "Riwayat perbaikan", en: "Correction history" },
@@ -3679,6 +3733,10 @@ const table: Table = {
   "studio.temuan.mengapa": { default: "Mengapa penting", en: "Why it matters" },
   "studio.temuan.cara": { default: "Cara memperbaiki", en: "How to fix it" },
   "studio.temuan.akui": { default: "Sudah saya tinjau", en: "I have reviewed this" },
+  "studio.temuan.kelompok.jumlah": { default: "temuan", en: "findings" },
+  "studio.temuan.kelompok.lokasi": { default: "Lihat lokasinya", en: "See where" },
+  "studio.temuan.akui_semua": { default: "Sudah saya tinjau semuanya", en: "I have reviewed all of these" },
+  "studio.temuan.perbaiki_dulu": { default: "Temuan ini diperbaiki di isinya, lalu pemeriksaan dijalankan lagi; tidak bisa sekadar diakui.", en: "These are fixed in the content and the check run again; they cannot just be acknowledged." },
   "studio.temuan.kosong": { default: "Tidak ada catatan mutu yang menunggu.", en: "No quality notes are waiting." },
   "studio.unggah.judul": { default: "Buat Paket Pembelajaran", en: "Create a Learning Package" },
   "studio.unggah.mudah": { default: "Unggah Mudah", en: "Easy upload" },
@@ -3729,15 +3787,17 @@ const table: Table = {
   "studio.unggah.buku.arti": { default: "Isi templat Excel, lalu unggah di sini. PINTAR memeriksa setiap baris lebih dulu dan tidak menyimpan apa pun sebelum semuanya benar.", en: "Fill in the Excel template, then upload it here. PINTAR checks every row first and saves nothing until everything is right." },
   "studio.unggah.templat": { default: "Unduh templat Excel", en: "Download the Excel template" },
   "studio.unggah.templat_arti": { default: "Lembar Cara mengisi di dalamnya menjelaskan setiap kolom dan batasnya.", en: "Its Cara mengisi sheet explains every column and its limits." },
+  "studio.unggah.contoh": { default: "Unduh contoh isian", en: "Download a filled example" },
+  "studio.unggah.contoh_arti": { default: "Templat yang sama, sudah terisi satu bab contoh agar terlihat cara mengisi setiap lembar. Isinya karangan untuk contoh ini saja: bukan materi sekolah dan bukan soal yang dikerjakan murid.", en: "The same template, filled with one example chapter so you can see how each sheet is filled in. Its content is made up for this example alone: it is not school material and not questions students take." },
   "studio.unggah.sekolah": { default: "Sekolah", en: "School" },
   "studio.unggah.tanpa_sekolah": { default: "Anda belum dapat menyusun materi di sekolah mana pun.", en: "You cannot prepare material for any school yet." },
   "studio.unggah.berkas": { default: "Buku kerja (.xlsx)", en: "Workbook (.xlsx)" },
   "studio.unggah.berkas_batas": { default: "Paling besar", en: "At most" },
-  "studio.unggah.revisi": { default: "Perbaikan dari kursus yang sudah ada?", en: "A correction of an existing course?" },
-  "studio.unggah.revisi_bukan": { default: "Bukan, ini kursus baru", en: "No, this is a new course" },
-  "studio.unggah.revisi_arti": { default: "Kursus asli dan semua catatan siswa tetap utuh. Perbaikan menjadi versi berikutnya, ditinjau dan diterbitkan seperti biasa; setelah terbit, materi baru untuk kelas memakai versi itu.", en: "The original course and every student record stay whole. The correction becomes the next version, reviewed and published as usual; once published, new learning for classes uses it." },
+  "studio.unggah.revisi": { default: "Perbaikan dari paket yang sudah ada?", en: "A correction of an existing course?" },
+  "studio.unggah.revisi_bukan": { default: "Bukan, ini paket baru", en: "No, this is a new course" },
+  "studio.unggah.revisi_arti": { default: "Kursus asli dan semua catatan murid tetap utuh. Perbaikan menjadi versi berikutnya, ditinjau dan diterbitkan seperti biasa; setelah terbit, materi baru untuk kelas memakai versi itu.", en: "The original course and every student record stay whole. The correction becomes the next version, reviewed and published as usual; once published, new learning for classes uses it." },
   "studio.unggah.ringkasan": { default: "Apa yang diperbaiki, dan mengapa", en: "What was corrected, and why" },
-  "studio.unggah.ringkasan_arti": { default: "Dicatat di riwayat perbaikan kursus, dengan nama Anda dan tanggalnya.", en: "Kept in the course's correction history, with your name and the date." },
+  "studio.unggah.ringkasan_arti": { default: "Dicatat di riwayat perbaikan paket, dengan nama Anda dan tanggalnya.", en: "Kept in the course's correction history, with your name and the date." },
   "studio.unggah.langkah.periksa": { default: "Periksa buku kerja", en: "Check the workbook" },
   "studio.unggah.langkah.media": { default: "Unggah media", en: "Upload the media" },
   "studio.unggah.langkah.simpan": { default: "Simpan ke Studio", en: "Save to Studio" },
@@ -3767,7 +3827,7 @@ const table: Table = {
   "studio.unggah.media_progres": { default: "berkas terunggah", en: "files uploaded" },
   "studio.unggah.simpan_arti": { default: "Semuanya siap. Simpan sebagai draf di Studio; murid belum melihatnya sebelum diterbitkan.", en: "Everything is ready. Save it as a draft in Studio; students do not see it until it is published." },
   "studio.unggah.tersimpan": { default: "Tersimpan di Studio sebagai draf.", en: "Saved to Studio as a draft." },
-  "studio.unggah.buka_kursus": { default: "Buka kursus", en: "Open the course" },
+  "studio.unggah.buka_kursus": { default: "Buka paket", en: "Open the course" },
   "studio.unggah.ulang": { default: "Unggah buku kerja lain", en: "Upload another workbook" },
   "studio.unggah.rujukan": { default: "Rujukan:", en: "Reference:" },
   // polish batch 2 (UX-12): the two JSON forms sit in one closed disclosure below the workbook, each with its own button
@@ -3788,6 +3848,8 @@ const table: Table = {
   "studio.kanonik.kosong": { default: "Belum ada paket PINTAR yang diizinkan untuk sekolah Anda.", en: "No PINTAR package has been opened to your school yet." },
   "studio.kanonik.ditarik": { default: "Izin untuk paket ini sudah berakhir. Murid yang sedang mengerjakan tetap bisa menyelesaikannya; pengerjaan baru tidak dibuka lagi.", en: "The permission for this package has ended. Students already working on it can finish; no new attempt opens." },
   "studio.kanonik.hanya_baca": { default: "Hanya dapat dibaca dan ditugaskan.", en: "Readable and assignable only." },
+  // W1.14 (Batch 3): a lesson's two counts each say what they count, never «3 · 8»
+  "studio.kanonik.unit.tujuan": { default: "tujuan pembelajaran", en: "learning objectives" },
   "studio.definisi.judul": { default: "Aturan Asesmen", en: "Assessment Rules" },
   "studio.definisi.batas": { default: "Batas yang berlaku", en: "The thresholds in force" },
   "studio.definisi.simpan": { default: "Simpan", en: "Save" },
@@ -3857,6 +3919,7 @@ const table: Table = {
   "galat.transfer_rejected": { default: "Perpindahan ditolak.", en: "Transfer rejected." },
   "galat.step_taken": { default: "Paket ini maju ke langkah berikutnya.", en: "This course has moved on to its next step." },
   "galat.check_run": { default: "Pemeriksaan isi selesai. Temuannya ada di bawah.", en: "The content check is done. Its findings are below." },
+  "galat.findings_acknowledged": { default: "Temuan sejenis sudah diakui sekaligus. Jumlahnya:", en: "The findings of one kind are acknowledged together. Count:" },
   "galat.finding_acknowledged": { default: "Temuan itu sudah diakui.", en: "That finding has been acknowledged." },
   "galat.revision_created": { default: "Salinan baru paket ini dibuat, dan Anda sekarang melihatnya.", en: "A new copy of this course was made, and you are now looking at it." },
   "galat.assignment_moved": { default: "Penugasan itu sekarang memakai terbitan ini.", en: "That assignment now uses this release." },
@@ -4499,6 +4562,25 @@ const table: Table = {
   "nav.menu": { default: "Menu", en: "Menu" },
   "tombol.menerbitkan": { default: "Menerbitkan…", en: "Publishing\u2026" },
   "studio.langkah.selesai.terbitkan": { default: "Diterbitkan", en: "Published" },
+  // W1.6 (Batch 3; UX-36, J4.3): the second person's other outcome at «Setujui isi», an in-page confirmation with a
+  // reason (Daisy, Confirmation). These words are engineering's, listed for Daisy's review in the Batch 3 report
+  "studio.kembali.tombol": { default: "Kembalikan ke penyusun", en: "Send back to the author" },
+  "studio.kembali.judul": { default: "Kembalikan paket ini ke penyusun?", en: "Send this course back to its author?" },
+  "studio.kembali.arti": { default: "Paket kembali ke langkah Susun isi. Penyusun membaca alasan Anda, memperbaikinya, lalu mengajukannya lagi untuk ditinjau. Alasan dan nama Anda tercatat di Riwayat perbaikan.", en: "The course goes back to the Put the content together step. Its author reads your reason, corrects it, and sends it for review again. Your reason and your name are kept in the Correction history." },
+  "studio.kembali.alasan": { default: "Alasan", en: "Reason" },
+  "studio.kembali.alasan_arti": { default: "Tulis apa yang perlu diperbaiki, 10 sampai 1000 karakter.", en: "Write what needs correcting, in 10 to 1000 characters." },
+  "studio.kembali.batal": { default: "Batal", en: "Cancel" },
+  "studio.kembali.alasan_dari": { default: "Alasan peninjau", en: "The reviewer\u2019s reason" },
+  "studio.kembali.jalan_unggah": { default: "Isi diperbaiki di buku kerjanya: unggah buku kerja perbaikan, dan perbaikannya menjadi versi berikutnya dari paket ini. Bila isinya tidak perlu diubah, tandai sudah tersusun lagi lalu ajukan kembali.", en: "The content is corrected in its workbook: upload the corrected workbook, and the correction becomes this course\u2019s next version. If nothing in the content needs to change, mark it as put together again and send it for review again." },
+  "tombol.mengembalikan": { default: "Mengembalikan…", en: "Sending back\u2026" },
+  "galat.sent_back": { default: "Paket ini dikembalikan ke penyusun beserta alasan Anda.", en: "This course was sent back to its author with your reason." },
+  "galat.sendback_not_reviewer": { default: "Mengembalikan paket ke penyusun bukan wewenang Anda di sekolah ini.", en: "Sending a course back to its author is not yours to do in this school." },
+  "galat.sendback_not_in_review": { default: "Paket ini sudah tidak berada di langkah Setujui isi, mungkin karena rekan baru saja mengambilnya. Muat ulang halaman untuk melihat langkah yang berlaku sekarang.", en: "This course is no longer at the Approve the content step, perhaps because a colleague has just taken it. Reload the page to see the step it is at now." },
+  "galat.sendback_reviewer_is_author": { default: "Anda menyusun paket ini, jadi yang mengembalikannya harus orang lain.", en: "You wrote this course, so someone else sends it back." },
+  "galat.sendback_reason_missing": { default: "Tulis alasannya, 10 sampai 1000 karakter.", en: "Write the reason, in 10 to 1000 characters." },
+  // W1.8 (Batch 3; J4.12): «Riwayat perbaikan» names every review outcome of each version, from content_review_outcomes
+  "studio.paket.riwayat.disetujui": { default: "Disetujui", en: "Approved" },
+  "studio.paket.riwayat.dikembalikan": { default: "Dikembalikan ke penyusun", en: "Sent back to the author" },
   "studio.integritas.tindak": { default: "Tindak lanjut", en: "Follow-up" },
   "pimpinan.keadaan.menunggu_keputusan": { default: "Menunggu keputusan", en: "Awaiting a decision" },
   "kesiapan.pita.judul": { default: "Hasil {n} murid yang sudah mengerjakan", en: "Results of the {n} students who have taken it" },
@@ -4529,6 +4611,23 @@ const table: Table = {
   "studio.definisi.acak.NONE": { default: "Soal dan pilihan jawaban tidak diacak", en: "Questions and answer choices in their order" },
   "studio.definisi.acak.ITEMS": { default: "Urutan soal diacak", en: "Questions shuffled" },
   "studio.definisi.acak.ITEMS_AND_OPTIONS": { default: "Urutan soal dan pilihan jawaban diacak", en: "Questions and answer choices shuffled" },
+  // W1.3 (Batch 3; RV-14, DG-28/29): each field says what it is for and its limit, in words; a time in minutes
+  "studio.definisi.wajib": { default: "Semua isian wajib diisi, kecuali yang bertanda (opsional).", en: "Every field is required except those marked (optional)." },
+  "studio.definisi.opsional": { default: "(opsional)", en: "(optional)" },
+  "studio.definisi.unit.menit": { default: "menit", en: "minutes" },
+  "studio.definisi.kata.antara": { default: "antara", en: "between" },
+  "studio.definisi.kata.dan": { default: "dan", en: "and" },
+  "studio.definisi.f.tenggang_menit": { default: "Tenggang kirim (menit)", en: "Send grace (minutes)" },
+  "studio.definisi.f.komposisi": { default: "Jumlah soal per tingkat kesulitan", en: "Questions per difficulty" },
+  "studio.definisi.f.selama": { default: "Selama mengerjakan", en: "While it is being taken" },
+  "studio.definisi.petunjuk.jumlah": { default: "Berapa soal yang dikerjakan setiap murid; boleh", en: "How many questions each student answers; allowed" },
+  "studio.definisi.petunjuk.keselamatan": { default: "Berapa soal bertanda keselamatan yang paling sedikit harus ada. Kosongkan bila tidak ada.", en: "The fewest safety-marked questions it must hold. Leave empty if none." },
+  "studio.definisi.petunjuk.ragu": { default: "Kosongkan bila arah berpikir tidak ditawarkan. Bila diisi: setelah berapa detik di satu soal murid ditawari arah berpikir; boleh", en: "Leave empty if no direction to think in is offered. If filled in: after how many seconds on one question the student is offered one; allowed" },
+  "studio.definisi.petunjuk.tenggang": { default: "Berapa lama jawaban yang terkirim sesudah waktu habis masih diterima, misalnya karena sinyal putus; paling lama", en: "How long an answer sent after time is up is still accepted, for example after a lost signal; at most" },
+  "studio.definisi.petunjuk.percobaan": { default: "Berapa kali seorang murid boleh mengerjakannya; paling banyak", en: "How many times one student may take it; at most" },
+  "studio.definisi.petunjuk.komposisi": { default: "Kosongkan bila tingkat kesulitan soal tidak diatur.", en: "Leave empty if the difficulty of the questions is not set." },
+  "studio.definisi.petunjuk.jeda": { default: "Murid boleh menyimpan, berhenti, lalu melanjutkan nanti.", en: "Students may save, stop and carry on later." },
+  "studio.definisi.petunjuk.luring": { default: "Murid boleh terus mengerjakan saat sinyal putus; jawabannya terkirim ketika tersambung lagi.", en: "Students may keep working when the signal drops; their answers are sent when it returns." },
   "config.sekolah.sintetis": { default: "data uji", en: "test data" },
   "config.sekolah.aktif": { default: "aktif", en: "active" },
   "config.sekolah.nonaktif": { default: "nonaktif", en: "inactive" },

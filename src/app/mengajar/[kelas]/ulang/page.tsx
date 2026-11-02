@@ -7,6 +7,7 @@ import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import TombolKirim from "@/components/TombolKirim";
 import BarisHasil from "@/components/BarisHasil";
+import Kosong from "@/components/Kosong";
 import { BarisLingkup } from "@/components/bukti";
 import { mintaBacaUlang } from "../../actions";
 import { bacaKodeUlang } from "@/lib/ulang-kontrak";
@@ -90,7 +91,7 @@ export default async function UlangKelas({
           <fieldset className="pin-ulang-murid">
             <legend>{s("mengajar.ulang.murid")}</legend>
             {bahan.murid.length === 0 ? (
-              <p className="pin-empty">{s("mengajar.ulang.murid_kosong")}</p>
+              <Kosong jenis="belum" kalimat={s("mengajar.ulang.murid_kosong")} />
             ) : (
               <ul>
                 {bahan.murid.map((m) => (
@@ -128,13 +129,16 @@ export default async function UlangKelas({
           </fieldset>
 
           <p className="pin-sub">{s("mengajar.ulang.tidak_berubah")}</p>
-          <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.memproses")}>{s("mengajar.ulang.kirim")}</TombolKirim>
+          {/* W3.17 (Daisy, J2Kelas; 08 Actions): «Mengirim…», then «✓ Terkirim» once the database has taken the request;
+              a request inside PINTAR, not an email, so the result word is honest. Changing a tick returns it to its verb. */}
+          <TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.mengirim")}
+            selesai={sp.ulang === "ok" ? s("mengajar.ulang.selesai") : undefined}>{s("mengajar.ulang.kirim")}</TombolKirim>
         </form>
 
         <section className="pin-sec" aria-labelledby="pin-ulang-riwayat">
           <h2 id="pin-ulang-riwayat">{s("mengajar.ulang.riwayat")}</h2>
           {bahan.permintaan.length === 0 ? (
-            <p className="pin-empty">{s("mengajar.ulang.riwayat_kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("mengajar.ulang.riwayat_kosong")} />
           ) : (
             <dl className="pin-facts">
               {bahan.permintaan.map((r) => (

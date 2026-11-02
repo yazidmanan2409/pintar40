@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { t, type Locale, type Persona } from "@/lib/hle";
 import { gemaTanggal } from "@/lib/tanggal";
 import Ikon from "@/components/Ikon";
@@ -16,10 +16,15 @@ import Ikon from "@/components/Ikon";
  *
  * The field's own label is the caller's (`<label htmlFor={id}>`). name, id, defaultValue, required, min and max pass
  * through unchanged, so a server action's form reads the same value as before.
+ *
+ * Batch 3 · W3.11 (Daisy, J5Jendela): `kosong` is what an empty optional field means, said in the echo in place of
+ * «Belum ada tanggal.» («Tanpa batas akhir» under Siapkan's «Sampai»). `galat` is the server's own sentence about
+ * this field, drawn under it with the alert icon: the field is marked invalid and names the sentence after its echo,
+ * focus is put on the field when the page arrives with it, and correcting the date clears it.
  */
 export default function TanggalDenganGema({
   jenis = "date", id: idLuar, name, defaultValue, required, min, max, disabled, className = "pin-input",
-  keterangan, locale, untuk = "staff",
+  keterangan, kosong, galat, locale, untuk = "staff",
 }: {
   /** "date" for a day; "datetime-local" for a day and a time (on Jakarta's clock, WIB). */
   jenis?: "date" | "datetime-local";
@@ -33,6 +38,10 @@ export default function TanggalDenganGema({
   className?: string;
   /** Further ids that describe the field, read after the echo. */
   keterangan?: string;
+  /** The echo of an empty field, when empty means something («Tanpa batas akhir»); «Belum ada tanggal.» otherwise. */
+  kosong?: string;
+  /** The server's sentence about this field (a refusal), drawn under it until the date is changed. */
+  galat?: string;
   locale: Locale;
   untuk?: Persona;
 }) {
@@ -41,18 +50,37 @@ export default function TanggalDenganGema({
   const [nilai, setNilai] = useState(defaultValue ?? "");
   const kata = gemaTanggal(nilai, locale);
   const idGema = `${id}-gema`;
+  const idGalat = `${id}-galat`;
+  const [diubah, setDiubah] = useState(false);
+  const salah = Boolean(galat) && !diubah;
+  const kolom = useRef<HTMLInputElement>(null);
+  // the refusal arrives with the page: focus goes to the field it is about, which reads it after its echo
+  useEffect(() => {
+    if (galat) kolom.current?.focus();
+  }, [galat]);
+  const ubah = (v: string) => {
+    setNilai(v);
+    if (galat) setDiubah(true);
+  };
+  const dijelaskan = [idGema, salah ? idGalat : "", keterangan ?? ""].filter(Boolean).join(" ");
 
   return (
     <>
       <input
-        className={className} id={id} type={jenis} name={name} defaultValue={defaultValue} required={required}
-        min={min} max={max} disabled={disabled} aria-describedby={keterangan ? `${idGema} ${keterangan}` : idGema}
-        onInput={(e) => setNilai(e.currentTarget.value)} onChange={(e) => setNilai(e.currentTarget.value)}
+        ref={kolom} className={className} id={id} type={jenis} name={name} defaultValue={defaultValue} required={required}
+        min={min} max={max} disabled={disabled} aria-describedby={dijelaskan} aria-invalid={salah ? "true" : undefined}
+        onInput={(e) => ubah(e.currentTarget.value)} onChange={(e) => ubah(e.currentTarget.value)}
       />
       <p className="pin-gema" aria-live="polite">
         <Ikon nama="calendar" />
-        <span id={idGema} className={kata ? undefined : "is-kosong"}>{kata || t("tanggal.belum", untuk, { locale })}</span>
+        <span id={idGema} className={kata ? undefined : "is-kosong"}>{kata || kosong || t("tanggal.belum", untuk, { locale })}</span>
       </p>
+      {salah ? (
+        <p className="pin-galat-bidang" id={idGalat}>
+          <Ikon nama="circle-alert" />
+          <span>{galat}</span>
+        </p>
+      ) : null}
     </>
   );
 }

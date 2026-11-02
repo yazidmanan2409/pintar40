@@ -1009,18 +1009,30 @@ async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama 
   // press a step's button as `page`; the state it moved to, or null when nothing moved
   const tekan = async (page, kunci, tombol) => {
     await page.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
-    const btn = page.getByRole("button", { name: tombol, exact: true });
+    let btn = page.getByRole("button", { name: tombol, exact: true });
+    // W1.4 (Batch 3): a reader who may also lock the release creates and locks it in one press, «Kunci terbitan» in
+    // the «Buat terbitan · Kunci terbitan» panel; that press must end with the release locked
+    let gabung = false;
+    if (kunci === "buat" && !(await btn.count())) {
+      btn = page.getByRole("button", { name: "Kunci terbitan", exact: true });
+      gabung = true;
+    }
     if (!(await btn.count())) return { tidakAda: true };
     const before = keadaanBab(course);
     await btn.first().click();
     let after = before;
     for (let i = 0; i < 40 && after === before; i++) { await page.waitForTimeout(500); after = keadaanBab(course); }
+    for (let i = 0; gabung && i < 40 && !after.endsWith("|FROZEN"); i++) { await page.waitForTimeout(500); after = keadaanBab(course); }
+    if (gabung) notes.push(`W1.4: «Buat terbitan» and «Kunci terbitan» in one press → ${after}`);
     await page.waitForLoadState("networkidle");
     rec.shots.push(await shot(page, `${awalan}terbit-${kunci}${after === before ? "-ditolak" : ""}`));
-    return { after: after === before ? null : after };
+    return { after: after === before ? null : after, gabung };
   };
   if (antrean) await antrean("sebelum");
+  let sudahDikunci = false;
   for (const [kunci, tombol, siapa] of TERBIT) {
+    // the combined press already locked the release (W1.4): the lock step is done
+    if (kunci === "kunci" && sudahDikunci) { notes.push("kunci → done in the same press as buat (W1.4)"); continue; }
     const page = siapa === "g" ? g : ["setujui", "buat", "kunci"].includes(kunci) ? pen : a;
     if (kunci === "setujui" && antrean) await antrean("diajukan");
     if (siapa === "a" && ["setujui", "kunci"].includes(kunci)) {
@@ -1064,7 +1076,8 @@ async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama 
         let reviewed = 0;
         for (let i = 0; i < 60; i++) {
           await a.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
-          const ack = a.getByRole("button", { name: "Sudah saya tinjau", exact: true });
+          // W1.5 (Batch 3): findings of one kind are acknowledged together («Sudah saya tinjau semuanya»)
+          const ack = a.getByRole("button", { name: /^Sudah saya tinjau( semuanya)?$/ });
           if (!(await ack.count())) break;
           const open = () => Number(sql(`select (select count(*) from public.mcq_quality_findings where course_id='${course}' and acknowledged_at is null)
             + (select count(*) from public.coaching_findings where course_id='${course}' and acknowledged_at is null)`));
@@ -1082,6 +1095,10 @@ async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama 
     if (t.tidakAda) { notes.push(`${kunci}: no "${tombol}" button for ${who}; state ${keadaanBab(course)}; the page says: ${await kataLangkah(page)}`); rec.verdict = "FAIL"; return false; }
     if (!t.after) { notes.push(`${kunci}: pressed by ${who}, nothing moved (${keadaanBab(course)}); the page says: ${await kataLangkah(page)}`); rec.verdict = "FAIL"; return false; }
     notes.push(`${kunci} → ${t.after}`);
+    if (t.gabung) {
+      if (!t.after.endsWith("|FROZEN")) { notes.push(`the combined press left ${t.after}, not a locked release`); rec.verdict = "FAIL"; return false; }
+      sudahDikunci = true;
+    }
   }
   return true;
 }
@@ -1117,7 +1134,8 @@ async function lihatAntreanKaprodi(course) {
       if (hasil.gagal) return;
       try {
         const teks = await buka();
-        const tautan = h.getByRole("link", { name: judul, exact: true });
+        // Batch 3 (W1.7): the queue's rows are whole-row links, named by the title and then its line of facts
+        const tautan = h.getByRole("link", { name: new RegExp(`^${judul.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`) });
         const menunggu = Number(sql(`select count(*) from public.courses where institution_id='${ids.sd}' and status='IN_REVIEW'`));
         const r = { menunggu, kosong: /Tidak ada yang menunggu tinjauan Anda/.test(teks), terdaftar: (await tautan.count()) > 0 };
         rec_shots_kaprodi.push(await shot(h, `j4-4-antrean-${f}`));
@@ -2149,6 +2167,49 @@ await step("S22", "the teacher reaches Lihat bukti by clicking and reads the cla
   return `${jalan}; ${perSoal}; ${catatan}; expected comprehension ${pahamTeks} and net gain ${naikTeks} (from the plan); on the page: comprehension ${simpulan.includes(pahamTeks)}, ` +
     `net gain ${simpulan.includes(naikTeks)}, mastery by part shown ${bagian}; figures still absent: ${absen} (misconceptions need registered codes, D-063); ` +
     `Mengumpulkan ${JSON.stringify(kumpul)}; the figures section says: "${simpulan.slice(0, 700)}"`;
+});
+
+// W1.5 / J4.10 (Batch 3; UX-01): THE MISCONCEPTION FEEDBACK, ASSERTED IN A BROWSER. Every wrong option of the synthetic
+// Bab 1 names a misconception its own package defines (CR-50, F20-M03), so the five students' planned wrong answers (S21)
+// are evidence for «Pemahaman keliru yang berulang di kelas ini» on «Lihat bukti». The teacher reads it there: each row is
+// one of the package's definitions by its label, with how often it occurred and its remediation (how to help); the most
+// frequent first; the counts add up to no more than the class's own wrong answers carrying a code (the view under the
+// figure, read here as the database holds it); and no student is named in it (the class aggregate, never a learner).
+await step("S22m", "the teacher reads the misunderstandings that recur in Kelas 1A on «Lihat bukti»: each one the chapter's package defines, by its label, with how often it occurred and how to help, the most frequent first, counted from the class's own wrong answers and naming no student (J4.10; CR-50: a package carries its definitions)", async (rec) => {
+  if (!terbitBab || !HARAP) { rec.verdict = "BLOCKED"; return !terbitBab ? "Bab 1 was not published (S17)" : "the chapter fixture is absent"; }
+  const kelas = kelasSatuA();
+  if (!kelas) { rec.verdict = "BLOCKED"; return "no Kelas 1A"; }
+  const paket = JSON.parse(readFileSync(new URL("./fixtures/sd5-sintetis-bab1.paket.json", import.meta.url), "utf8"));
+  const definisi = new Map((paket.misconceptions ?? []).map((m) => [norm(m.label), norm(m.remediation)]));
+  const minimum = Number(sql(`select d.minimum_sample from public.metric_definitions d join public.metric_catalogue c on c.version = d.catalogue_version
+     where c.superseded_by is null and d.metric_id = 'class.misconceptions' order by c.effective_from desc limit 1`).trim() || 0);
+  const dasar = Number(sql(`select coalesce(sum(occurrences), 0) from public.service_cohort_misconceptions
+     where institution_id = '${ids.sd}' and class_node_id = '${kelas}'`).trim() || 0);
+  const tc = await ctx();
+  const t = await tc.newPage();
+  await magicSignIn(t, people.guru.email);
+  await t.goto(`${APP}/mengajar/${kelas}/bukti`, { waitUntil: "networkidle" });
+  await tutupTur(t);
+  await t.locator("h1").first().waitFor({ timeout: SLOW });
+  rec.shots.push(await shot(t, "j410-guru-miskonsepsi"));
+  const blok = t.locator(".pin-metric", { has: t.locator("ul.pin-keliru") });
+  const judul = norm(await blok.locator(".pin-ml").first().innerText().catch(() => ""));
+  const baris = await t.locator("ul.pin-keliru li").evaluateAll((els) => els.map((e) => ({
+    label: (e.querySelector(".pin-kl")?.textContent ?? "").replace(/\s+/g, " ").trim(),
+    kali: Number(((e.querySelector(".pin-ms")?.textContent ?? "").match(/\d+/) ?? ["-1"])[0]),
+    bantu: (e.querySelector(".pin-kr")?.textContent ?? "").replace(/\s+/g, " ").trim(),
+  })));
+  const teksBlok = norm(await blok.innerText().catch(() => ""));
+  await tc.close();
+  const jumlah = baris.reduce((n, b) => n + b.kali, 0);
+  const dikenal = baris.every((b) => definisi.has(b.label) && definisi.get(b.label) === b.bantu);
+  const urut = baris.every((b, i) => b.kali >= 1 && (i === 0 || baris[i - 1].kali >= b.kali));
+  const tanpaNama = !MURID.some((m) => teksBlok.includes(m));
+  const ok = minimum > 0 && dasar >= minimum && judul === "Pemahaman keliru yang berulang di kelas ini" && baris.length >= 1
+    && dikenal && urut && jumlah > 0 && jumlah <= dasar && tanpaNama;
+  if (!ok) rec.verdict = "FAIL";
+  return `the figure «${judul}»: ${baris.length} row(s) ${JSON.stringify(baris.map((b) => `${b.label} · ${b.kali}`))}; each the package's own definition with its remediation: ${dikenal}; ` +
+    `most frequent first: ${urut}; ${jumlah} on the page of ${dasar} wrong answers carrying a code in the class (the figure needs ${minimum}); no student named: ${tanpaNama}`;
 });
 
 // D-085 M3 (J5.12): the teacher may give material back to the learners who need it. From «Lihat bukti», Bab 1's Uji
@@ -3743,7 +3804,7 @@ await step("S26f", "a correction by the screens: from a published course's page 
   if (!ringkasanDb.startsWith(`${RINGKASAN}|`) || ringkasanDb.endsWith("|-") || diaudit !== 1 || !/dibagi sama besar/.test(isi)) rec.verdict = "FAIL";
 
   // 4. the new course's page: the history, from «Buka kursus»; the old page leads forward
-  await g.getByRole("link", { name: "Buka kursus", exact: true }).click();
+  await g.getByRole("link", { name: /^Buka (kursus|paket)$/ }).click();
   await g.waitForURL((u) => u.pathname === `/studio/paket/${baru}`, { timeout: SLOW });
   await g.waitForLoadState("networkidle");
   const versi = await g.locator("#riwayat li.pin-riwayat").count();

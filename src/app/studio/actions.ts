@@ -6,6 +6,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { isSystemAdmin } from "@/lib/auth";
 import { sekolahDari, wajibDalamKonteks } from "@/lib/konteks-server";
 import { BATAS, bacaBukuKerja } from "@/lib/xlsx";
+import { tenggangDetik } from "@/lib/aturan-asesmen";
 import {
   bukuKerjaKePaket, kodeGalatPaket,
   type HasilPaket, type HitunganPaket, type KodePaket, type MasalahPaket, type MediaPaket,
@@ -86,6 +87,25 @@ export async function advanceContentAction(fd: FormData): Promise<void> {
   back(`/studio/paket/${course}`, "paket", { ok: true, kode: "STEP_TAKEN" });
 }
 
+/**
+ * W1.6 (Batch 3 screen): THE REVIEWER SENDS THE PACKAGE BACK TO ITS AUTHOR, with a reason. One database function,
+ * `kembalikan_paket` (20261214100000), as the signed-in reviewer: CAN_REVIEW in the school, not the author, the
+ * package in review, a reason of 10 to 1000 characters; it records the outcome, steps the whole tree back in one
+ * transaction and audits it. Typed for useActionState (the in-page confirmation keeps the reason typed into it when
+ * the answer is a refusal): a refusal is its code (KODE_KEMBALI), never the database's words.
+ */
+export async function kembalikanPaketAksi(_prev: HasilAksi | null, fd: FormData): Promise<HasilAksi> {
+  const course = uuidOrNull(str(fd, "course"));
+  if (!course) return TIDAK_DIKENALI;
+  await wajibDalamKonteks({ sekolah: await sekolahDari("kursus", course) }, "paket");
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc("kembalikan_paket", { p_course: course, p_alasan: str(fd, "alasan") });
+  // a refusal of the step it takes inside (enforce_content_status) is named as a content step's is
+  if (error) return ditolak("kembalikan_paket", error, kodeGalatKonten(error));
+  revalidatePath("/studio", "layout");
+  return { ok: true, kode: "SENT_BACK" };
+}
+
 export async function runValidationAction(fd: FormData): Promise<void> {
   const course = uuidOrNull(str(fd, "course"));
   if (!course) back("/studio", "paket", TIDAK_DIKENALI);
@@ -109,6 +129,39 @@ export async function acknowledgeFindingAction(fd: FormData): Promise<void> {
     p_kind: kind, p_finding: finding, p_note: str(fd, "catatan") || null,
   });
   back(`/studio/paket/${course}`, "temuan", error ? ditolak("acknowledge_finding", error) : { ok: true, kode: "FINDING_ACKNOWLEDGED" });
+}
+
+/** The most findings one group press acknowledges: more than a chapter's check writes, so a forged post stays bounded. */
+const TEMUAN_SEKALIGUS_MAKS = 500;
+
+/**
+ * W1.5 (Batch 3; UX-01): ONE KIND OF FINDING, ACKNOWLEDGED AS A GROUP. The question check writes one finding per
+ * question (28 «Tidak satu pun pengecoh tertaut ke miskonsepsi» for one chapter on staging), and the reviewer pressed
+ * «Sudah saya tinjau» 28 times. The group (src/components/studio/TemuanKelompok.tsx) sends every finding of its kind
+ * with one note, and this calls the SAME database function once per finding, as the reviewer: acknowledge_finding
+ * still decides each one (CAN_REVIEW in the owning school, never the content's author, a WARNING only, not yet
+ * acknowledged) and writes each its own audit row. No new path to the tables, no migration.
+ *
+ * Each acknowledgement is its own transaction, as it was one press at a time. A refusal stops the group at that
+ * finding and says why; the ones before it stay acknowledged (each audited), and the rest stay on the page.
+ */
+export async function acknowledgeFindingsGroupAction(fd: FormData): Promise<void> {
+  const course = uuidOrNull(str(fd, "course"));
+  const kind = str(fd, "kind");
+  const semua = fd.getAll("finding").map((v) => uuidOrNull(String(v)));
+  const findings = [...new Set(semua.filter((f): f is string => f !== null))];
+  if (!course || findings.length === 0 || findings.length !== semua.length) back("/studio", "temuan", TIDAK_DIKENALI);
+  if (findings.length > TEMUAN_SEKALIGUS_MAKS) back(`/studio/paket/${course}`, "temuan", KURANG);
+  await wajibDalamKonteks({ sekolah: await sekolahDari("kursus", course) }, "temuan");
+  const supabase = await supabaseServer();
+  const catatan = str(fd, "catatan") || null;
+  let n = 0;
+  for (const finding of findings) {
+    const { error } = await supabase.rpc("acknowledge_finding", { p_kind: kind, p_finding: finding, p_note: catatan });
+    if (error) back(`/studio/paket/${course}`, "temuan", ditolak("acknowledge_finding", error));
+    n++;
+  }
+  back(`/studio/paket/${course}`, "temuan", { ok: true, kode: "FINDINGS_ACKNOWLEDGED", n });
 }
 
 // ---------------------------------------------------------------- releases
@@ -438,7 +491,9 @@ export async function saveDefinitionAction(fd: FormData): Promise<void> {
   put("item_count", num(fd, "jumlah"));
   put("safety_critical_minimum", num(fd, "keselamatan"));
   put("hesitation_window_seconds", num(fd, "ragu"));
-  put("late_sync_grace_seconds", num(fd, "tenggang"));
+  // W1.3 (RV-14): Aturan Asesmen asks the send grace in minutes; the database keeps seconds (a hand-made post's
+  // seconds, `tenggang`, as before). The server's bounds decide either way.
+  put("late_sync_grace_seconds", tenggangDetik(num(fd, "tenggang_menit"), num(fd, "tenggang")));
   put("attempt_limit", num(fd, "percobaan"));
   put("shuffle_policy", str(fd, "acak"));
   payload.allows_pause = str(fd, "jeda") === "on";

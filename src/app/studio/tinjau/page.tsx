@@ -1,7 +1,11 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
-import { card, s, studioInstitutions, when, tabSaya } from "../_lib";
+import { currentLocale } from "@/lib/locale";
+import { t, type HleEvent } from "@/lib/hle";
+import { tanggal } from "@/lib/tanggal";
+import Kosong from "@/components/Kosong";
+import { studioInstitutions, tabSaya } from "../_lib";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/studio/tinjau");
@@ -12,12 +16,17 @@ export const generateMetadata = judulHalaman("/studio/tinjau");
  * 0057 the APPROVED transition requires CAN_REVIEW and records the caller as
  * the reviewer, so approving one's own draft is refused whether the button is
  * on the page or not.
+ *
+ * W1.6 (Batch 3). Each package opens at its «Setujui isi» step, where the reviewer approves it or sends it back to
+ * its author with a reason (kembalikan_paket). The queue is Daisy's list (as J1Terbit draws Studio's), in the reader's
+ * language (UX-25), and an empty queue is the Empty state.
  */
 export default async function Tinjau() {
   // CR-87: a tab not this person's sends them to Studio's home (src/lib/studio-tab.ts); the database still decides
   if (!(await tabSaya()).includes("tinjau")) redirect("/studio");
   const supabase = await supabaseServer();
-  const institutions = await studioInstitutions();
+  const [institutions, locale] = await Promise.all([studioInstitutions(), currentLocale()]);
+  const s = (k: HleEvent) => t(k, "staff", { locale });
   const byId = new Map(institutions.map((i) => [i.id, i.name]));
 
   const [{ data: me }, { data: courses }] = await Promise.all([
@@ -34,26 +43,22 @@ export default async function Tinjau() {
     institutions.some((i) => i.id === c.institution_id && i.capabilities.includes("CAN_REVIEW")));
 
   return (
-    <div className="grid gap-4">
-      <h2 className="text-lg font-medium">{s("studio.tinjau.judul")}</h2>
+    <div className="pin-studio-halaman">
+      <h2 className="pin-studio-h3">{s("studio.tinjau.judul")}</h2>
       {rows.length === 0 ? (
-        <p className={card}>{s("studio.tinjau.kosong")}</p>
+        <Kosong jenis="belum" kalimat={s("studio.tinjau.kosong")} />
       ) : (
-        <ul className="grid gap-2">
+        <div className="pin-list">
           {rows.map((c) => (
-            <li key={c.id} className={card}>
-              <Link href={`/studio/paket/${c.id}`} className="font-medium underline-offset-4 hover:underline">
-                {c.title}
-              </Link>
-              <p className="mt-1 text-sm text-ink-3">
-                {c.subject} · {c.grade_label} · {byId.get(c.institution_id) ?? ""} · {when(c.created_at)}
-              </p>
-              {c.author_person_id && c.author_person_id === me ? (
-                <p className="mt-2 text-sm text-ink-2">{s("studio.tinjau.bukan_penulis")}</p>
-              ) : null}
-            </li>
+            <Link key={c.id} href={`/studio/paket/${c.id}`} className="pin-row">
+              <span className="pin-title">{c.title}</span>
+              <span className="pin-rowmeta">
+                <span>{c.subject} · {c.grade_label} · {byId.get(c.institution_id) ?? ""} · {tanggal(c.created_at, "cap", locale)}</span>
+                {c.author_person_id && c.author_person_id === me ? <span>{s("studio.tinjau.bukan_penulis")}</span> : null}
+              </span>
+            </Link>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

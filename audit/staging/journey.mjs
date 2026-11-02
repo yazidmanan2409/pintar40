@@ -296,7 +296,7 @@ await step("J04", "the teacher uploads SD 5 Matematika Bab 1 (workbook) in Studi
   await G.getByRole("button", { name: "Simpan ke Studio", exact: true }).click();
   await G.getByText("Tersimpan di Studio sebagai draf.").waitFor({ timeout: 90000 });
   rec.shots.push(await shot(G, "unggah-simpan"));
-  const href = await G.getByRole("link", { name: "Buka kursus" }).getAttribute("href");
+  const href = await G.getByRole("link", { name: /^Buka (kursus|paket)$/ }).getAttribute("href");
   course = href.split("/").pop();
   const counts = sql(`select (select count(*) from public.modules where course_id = ${uuid(course)}) || ' modules, ' ||
       (select count(*) from public.lessons l join public.modules m on m.id = l.module_id where m.course_id = ${uuid(course)}) || ' lessons, ' ||
@@ -315,11 +315,14 @@ const errors = () => Number(sql(`select (select count(*) from public.mcq_quality
 const readiness = () => sql(`select status || ' ' || coalesce(blockers::text, '') from public.publish_readiness(${uuid(course)})`);
 async function tekan(page, label, name) {
   await lihat(page, `/studio/paket/${course}`);
-  const b = page.getByRole("button", { name: label, exact: true });
+  let b = page.getByRole("button", { name: label, exact: true });
+  // W1.4 (Batch 3): a reader who may also lock creates and locks the release in one press («Kunci terbitan»)
+  const gabung = label === "Buat terbitan" && !(await b.count());
+  if (gabung) b = page.getByRole("button", { name: "Kunci terbitan", exact: true });
   if (!(await b.count())) return { absent: true };
   const before = keadaan();
   await b.first().click();
-  const after = await until(() => { const k = keadaan(); return k !== before ? k : null; }, 20000);
+  const after = await until(() => { const k = keadaan(); return k !== before && (!gabung || /FROZEN/.test(k)) ? k : null; }, 30000);
   const f = await shot(page, `terbit-${name}${after ? "" : "-nothing-moved"}`);
   return { after, before, f };
 }
@@ -330,7 +333,8 @@ async function tinjauSemua(page) {
   let n = 0, stuck = 0;
   for (let i = 0; i < 120 && unack() > 0; i++) {
     await lihat(page, `/studio/paket/${course}`);
-    const b = page.getByRole("button", { name: "Sudah saya tinjau", exact: true });
+    // W1.5 (Batch 3): findings of one kind are acknowledged together («Sudah saya tinjau semuanya»)
+    const b = page.getByRole("button", { name: /^Sudah saya tinjau( semuanya)?$/ });
     if (!(await b.count())) break;
     const n0 = unack();
     await b.first().click();
@@ -367,6 +371,8 @@ await step("J05", "Studio to published with two people: the teacher prepares and
   notes.push(`the admin reviewed ${await tinjauSemua(A)} warning(s) before approving`);
   rec.shots.push(await shot(A, "terbit-temuan-ditinjau"));
   for (const [label, name] of [["Setujui isi", "setujui"], ["Buat terbitan", "buat"], ["Kunci terbitan", "kunci"]]) {
+    // W1.4: the lock was taken in the same press as «Buat terbitan»
+    if (name === "kunci" && /FROZEN/.test(keadaan())) { notes.push("admin kunci → done in the same press as buat (W1.4)"); continue; }
     const t = await tekan(A, label, name);
     rec.shots.push(t.f ?? "");
     if (t.absent || !t.after) { rec.verdict = "FAIL"; notes.push(`${name}: ${t.absent ? `the admin is not offered "${label}"` : "nothing moved"}; the page: ${(await text(A)).slice(0, 300)}`); return notes.join("; "); }

@@ -98,10 +98,17 @@ export async function sediakanMateri(formData: FormData): Promise<void> {
   if (error || !data?.ok) {
     const kode = kodeGalatPenugasan(error);
     if (kode === "ASSIGN_FAILED") console.error("[sediakan] assign_release failed", error?.code, error?.message);
-    ke(kelasId, `/siapkan?terbitan=${encodeURIComponent(terbitan)}&kode=${kode}`);
+    // W3.11 (J5): the dates the teacher chose go back with the refusal, so the form reopens with them (each already
+    // read as a yyyy-mm-dd above, or dropped) and a refusal about the window is told under its field
+    const q = new URLSearchParams({ terbitan, kode });
+    if (mulai) q.set("mulai", mulai);
+    if (sampai) q.set("sampai", sampai);
+    ke(kelasId, `/siapkan?${q.toString()}`);
   }
 
-  ke(kelasId, "?sedia=ok");
+  // W3.11 (J1 part two): «Menyediakan…», then «✓ Disediakan» at the button that sent it and the line with the window
+  // in words, then the way on to the class. The review reads back what the database now holds before it says so.
+  ke(kelasId, `/siapkan?disediakan=${encodeURIComponent(terbitan)}`);
 }
 
 // ─────────────────────────────────────────────────────── launch a quick assessment

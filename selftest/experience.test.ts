@@ -316,6 +316,7 @@ const RESET_SURFACES = [
   "src/app/mengajar/[kelas]/page.tsx",
   "src/app/mengajar/[kelas]/siapkan/page.tsx",
   "src/app/mengajar/[kelas]/uji-cepat/page.tsx",
+  "src/app/mengajar/[kelas]/uji-cepat/hasil/page.tsx",
   "src/app/mengajar/[kelas]/bukti/page.tsx",
   "src/app/mengajar/[kelas]/langkah/page.tsx",
   "src/app/mengajar/[kelas]/siapa/page.tsx",
@@ -354,6 +355,20 @@ const RESET_SURFACES = [
   "src/app/lapor/saya/page.tsx",
   // #148 (D-094, D-100): the maintenance page, on the sign-in shell's pin-* classes as «PINTAR terkunci» is.
   "src/app/pemeliharaan/page.tsx",
+  // W1.14 / W3.18 (Batch 3): Studio's shell and its pages other than Beranda, Tinjau and a package's page, moved off
+  // their Tailwind compositions onto the pin-* v3 primitives (08-migration), so the token lint now reads them too.
+  "src/app/studio/layout.tsx",
+  "src/app/studio/bank/page.tsx",
+  "src/app/studio/definisi/page.tsx",
+  "src/app/studio/integritas/page.tsx",
+  "src/app/studio/kanonik/page.tsx",
+  "src/app/studio/kanonik/[terbitan]/page.tsx",
+  "src/app/studio/pratinjau/[pelajaran]/page.tsx",
+  "src/app/studio/unggah/page.tsx",
+  // W1.14 (Batch 3 integration): Studio's Beranda, Tinjau and a package's page, on the same primitives.
+  "src/app/studio/page.tsx",
+  "src/app/studio/paket/[course]/page.tsx",
+  "src/app/studio/tinjau/page.tsx",
 ];
 
 /** Not re-set yet, and the slice that will do it. UX-1 §4 forbids touching them. */
@@ -364,17 +379,6 @@ const PENDING_SURFACES: Record<string, string> = {
   "src/app/konfigurasi/page.tsx": "Slice 7 — configuration",
   "src/app/edukator/ringkasan/page.tsx": "Slice 6 — reports",
   "src/app/dekan/ringkasan/page.tsx": "Slice 6 — reports",
-  "src/app/studio/layout.tsx": "Slice 5 — Studio",
-  "src/app/studio/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/bank/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/definisi/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/integritas/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/kanonik/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/kanonik/[terbitan]/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/paket/[course]/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/pratinjau/[pelajaran]/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/tinjau/page.tsx": "Slice 5 — Studio",
-  "src/app/studio/unggah/page.tsx": "Slice 5 — Studio",
 };
 
 /**
@@ -2016,7 +2020,10 @@ export const experienceTests: SelfTest[] = [
       // (CR-91); 20261213100000 adds a content-status edge; 20261214100000 adds content_review_outcomes (a review's outcome,
       // reason, reviewer and author) and three functions. Read against §3 first: none is a mark, a logo, a crest or a
       // theme, so the Q-7 source still does not exist.
-      c.expect(migrations.length === 181, `${migrations.length} migrations; the frozen baseline has 181`);
+      // MOVED 181 -> 182 for Batch 3: 20261215100000 adds nama_riwayat_paket (the names «Riwayat perbaikan» shows) and its
+      // registry row; no table, no column. Read against §3 first: it is not a mark, a logo, a crest or a theme, so the
+      // Q-7 source still does not exist.
+      c.expect(migrations.length === 182, `${migrations.length} migrations; the frozen baseline has 182`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3816,7 +3823,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 176 -> 177 for L3 (D-132): a session's working context touches no tour RPC.
       // MOVED 177 -> 181 for Batch 1 (D-145): v1 wording, CR-91's card rule, the send-back edge, the one-transaction content
       // step and the review record touch no tour RPC.
-      c.expect(migs.length === 181, `${migs.length} migrations; the baseline has 181`);
+      // MOVED 181 -> 182 for Batch 3: the history's names (nama_riwayat_paket) touch no tour RPC.
+      c.expect(migs.length === 182, `${migs.length} migrations; the baseline has 182`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -10097,7 +10105,10 @@ export const experienceTests: SelfTest[] = [
         }
         c.expect(JSON.stringify(tombolDi(R["unggah-penyusun"])) === JSON.stringify([tb("susun")])
           && /<input type="hidden" name="to" value="STRUCTURED"\/>/.test(R["unggah-penyusun"])
-          && /<li class="pin-lt-langkah pin-lt-kini" aria-current="step"><span class="pin-lt-no" aria-hidden="true">1<\/span>/.test(R["unggah-penyusun"]),
+          // RESTATED FOR W1.1 (Batch 3): Daisy's J1Terbit draws the steps as Progress's named steps, a word each with no
+          // number in a circle (the current one marked by aria-current and its ring), so step 1 being current is read
+          // as the first item of the list being the current one, named «Susun isi»
+          && new RegExp(`<ol class="pin-lt-daftar"[^>]*><li class="pin-lt-langkah pin-lt-kini" aria-current="step"><p class="pin-lt-judul">${sId(kunciSalinan("susun", "judul"))}<`).test(R["unggah-penyusun"]),
           `after upload the author is not offered exactly "${tb("susun")}" on step 1: ${tombolDi(R["unggah-penyusun"])}`);
         c.expect(JSON.stringify(tombolDi(R["unggah-penyusun-en"])) === JSON.stringify([t(kunciSalinan("susun", "tombol"), "staff", { locale: "en" })]), "(en) step 1 is not offered in English");
         c.expect(R["dikembalikan"].includes(sId("studio.langkah.dikembalikan")) && /value="STRUCTURED"/.test(R["dikembalikan"]), "returned content does not say so, or cannot be put together again");
@@ -10258,7 +10269,11 @@ export const experienceTests: SelfTest[] = [
       c.expect(/p_from: mulai \? batasHari\(mulai, "awal"\) : null,/.test(aksi) && /p_until: sampai \? batasHari\(sampai, "akhir"\) : null,/.test(aksi),
         "sediakanMateri does not send the school's days");
       const siapkan = code(readFileSync(join(repoRoot, "src", "app", "mengajar", "[kelas]", "siapkan", "page.tsx"), "utf8"));
-      c.expect(/name="mulai" defaultValue=\{hariIniSekolah\(\)\}/.test(siapkan), "Siapkan's first day does not start on the school's today");
+      // RESTATED FOR W3.11 (Batch 3): J5 reopens a refused form with the dates the teacher sent, and J1 part two shows
+      // the window the database now holds; a fresh review still starts on the school's today, so the field takes
+      // `mulaiAwal`, whose last fallback (no date sent back, nothing made available) is hariIniSekolah().
+      c.expect(/name="mulai" defaultValue=\{mulaiAwal\}/.test(siapkan) && /const mulaiAwal = [^;]*: hariIniSekolah\(\);/.test(siapkan),
+        "Siapkan's first day does not start on the school's today");
       const utc = walk(join(repoRoot, "src")).filter((f) => /\.(ts|tsx)$/.test(f))
         .filter((f) => /T00:00:00Z|T23:59:59Z|T00:00:00\.000Z/.test(code(readFileSync(f, "utf8"))));
       c.expect(utc.length === 0, `a day boundary is built in UTC in ${utc.map((f) => relative(repoRoot, f)).join(", ")}`);
@@ -10777,6 +10792,11 @@ export const experienceTests: SelfTest[] = [
       };
       const berkasBagian = (f: string, bagian: string) => {
         const src = code(baca(f));
+        // RESTATED FOR W1.4 (Batch 3; Daisy, Action feedback): a content step's result («paket») is said in the steps'
+        // own panel, beside the step's button, rather than above the steps: the package page reads it back by its code
+        // and hands it to LangkahTerbit, which draws it in the shared BarisHasil (STUDIO3A-LANGKAH-01 renders it)
+        if (bagian === "paket" && /const dibaca = sp\.bagian === "paket" \? bacaHasil\(sp\) : null;/.test(src)
+          && /<LangkahTerbit[\s\S]*?hasilIsi=\{hasilIsi\}/.test(src)) return true;
         return [...src.matchAll(/<HasilDi q=\{sp\} bagian=(\{\[[^\]]*\]\}|"[^"]*")/g)].some((m) => literal(m[1]).includes(bagian));
       };
       const studio = jawaban(code(baca("src", "app", "studio", "actions.ts")), false);
@@ -10791,13 +10811,14 @@ export const experienceTests: SelfTest[] = [
       }
       for (const f of semua.filter((x) => /^src\/app\/studio\/.*page\.tsx$/.test(x))) {
         const src = code(baca(f));
-        const nama = [...src.matchAll(/const (\w+) = [^;]*outcomeLine\(sp\)/g)].map((m) => m[1]);
+        // RESTATED FOR W1.9 (Batch 3): Studio's pages pass the reader's language (outcomeLine(sp, locale)); the rule is unchanged
+        const nama = [...src.matchAll(/const (\w+) = [^;]*outcomeLine\(sp(?:, locale)?\)/g)].map((m) => m[1]);
         for (const v of nama) {
           const pakai = [...src.matchAll(new RegExp(`\\b${v}\\b`, "g"))].filter((m) => !/const $/.test(src.slice(m.index! - 6, m.index!)));
           c.expect(pakai.every((m) => src.slice(m.index! - 9, m.index!) === "kalimat={"),
             `${f}: the result sentence "${v}" reaches the screen other than through HasilDi`);
         }
-        const langsung = [...src.matchAll(/outcomeLine\(sp\)/g)].filter((m) => !/const \w+ = [^;]*$/.test(src.slice(Math.max(0, m.index! - 200), m.index!)));
+        const langsung = [...src.matchAll(/outcomeLine\(sp(?:, locale)?\)/g)].filter((m) => !/const \w+ = [^;]*$/.test(src.slice(Math.max(0, m.index! - 200), m.index!)));
         c.expect(langsung.every((m) => src.slice(m.index! - 9, m.index!) === "kalimat={"), `${f}: outcomeLine reaches the screen other than through HasilDi`);
       }
       c.expect(!berkasBagian("src/app/studio/bank/page.tsx", "bukan-bagian"), "the control: a section no line names is found");
@@ -10866,7 +10887,10 @@ export const experienceTests: SelfTest[] = [
         && /const kartu = `keputusan=\$\{encodeURIComponent\(id\)\}`;/.test(pimAksi) && (pimAksi.match(/\$\{kartu\}/g) ?? []).length === 3,
         "a decision's answer is not on the card that was moved");
       const ajar = code(baca("src", "app", "mengajar", "actions.ts"));
-      c.expect(/ke\(kelasId, "\?sedia=ok"\);/.test(ajar) && /ke\(kelasId, "\/uji-cepat\?cepat=ok"\);/.test(ajar),
+      // RESTATED FOR W3.11 (Batch 3): J1 part two (Daisy, J1Terbit) answers «Sediakan» at the button that sent it,
+      // «✓ Disediakan» and the line with the window, then the way on to the class; so a Sediakan the database took
+      // returns to the review as `?disediakan=`, which reads the assignment back before saying so (MENGAJAR3-SEDIA-01).
+      c.expect(/ke\(kelasId, `\/siapkan\?disediakan=\$\{encodeURIComponent\(terbitan\)\}`\);/.test(ajar) && /ke\(kelasId, "\/uji-cepat\?cepat=ok"\);/.test(ajar),
         "a teacher's Sediakan or Uji Cepat returns without saying it was done");
 
       /**
@@ -11910,7 +11934,8 @@ export const experienceTests: SelfTest[] = [
        *    database id, and no word outside the copy table.
        */
       const bank = baca("src", "app", "studio", "bank", "page.tsx");
-      c.expect(/<p className="text-sm text-ink-2">\{s\("studio\.bank\.intro"\)\}<\/p>/.test(bank)
+      // RESTATED FOR W1.14 (Batch 3): the line's Tailwind look became the v3 secondary line (pin-ket); said once, as before
+      c.expect(/<p className="pin-ket">\{s\("studio\.bank\.intro"\)\}<\/p>/.test(bank)
         && !/studio\.bank\.belum_cukup/.test(bank) && !/placeholder="/.test(bank)
         && (bank.match(/\bshort\(/g) ?? []).length === 1 && /<li key=\{i\.id\} className=\{card\} data-soal=\{short\(i\.id\)\}>/.test(bank),
         "Bank Soal does not say once what it is for, still says «Belum cukup bukti» under every question, shows a database id, or keeps a word outside the copy table");
@@ -11949,7 +11974,8 @@ export const experienceTests: SelfTest[] = [
       const [iBuku, iD, iM, iT, iE] = ['id="buku-kerja"', "<details", 'id="mudah"', 'id="terstruktur"', "</details>"].map((x) => unggah.indexOf(x));
       c.expect(iBuku >= 0 && iBuku < iD && iD < iM && iM < iT && iT < iE
         // RESTATED FOR W3.3 (Batch 2): Daisy's Disclosure class (the chevron) joins; one closed disclosure as before
-        && /<details className="grid gap-4 pin-disclosure" id="sistem-lain" open=\{sistemLainTerbuka\}>/.test(unggah)
+        // RESTATED FOR W1.14 (Batch 3): its Tailwind grid became pin-studio-lipat; still one closed disclosure
+        && /<details className="pin-disclosure pin-studio-lipat" id="sistem-lain" open=\{sistemLainTerbuka\}>/.test(unggah)
         && /const sistemLainTerbuka = sp\.bagian === "mudah" \|\| sp\.bagian === "terstruktur";/.test(unggah),
         "the JSON forms are not in one closed disclosure below the workbook that opens for their own answer");
       c.expect(/\{s\("studio\.unggah\.periksa_mudah"\)\}<\/TombolKirim>/.test(unggah) && /\{s\("studio\.unggah\.periksa_terstruktur"\)\}<\/TombolKirim>/.test(unggah)
@@ -11968,7 +11994,7 @@ export const experienceTests: SelfTest[] = [
        *    heading, in each language.
        */
       const paket = baca("src", "app", "studio", "paket", "[course]", "page.tsx");
-      c.expect(/<h3 className="text-lg font-medium">\{s\("studio\.temuan\.judul"\)\}<\/h3>/.test(paket) && !/studio\.temuan\.masalah/.test(paket),
+      c.expect(/<h3 className="pin-studio-h3">\{s\("studio\.temuan\.judul"\)\}<\/h3>/.test(paket) && !/studio\.temuan\.masalah/.test(paket),
         "the findings section is not headed with its own name");
       for (const locale of LOCALES) {
         const judul = t("studio.temuan.judul", "staff", { locale });
@@ -11983,7 +12009,7 @@ export const experienceTests: SelfTest[] = [
        *    its picker names the release to move to, its button says «Pindahkan»,
        *    and each form names the class it moves.
        */
-      c.expect(/<h3 className="text-lg font-medium">\{s\("studio\.paket\.pindah\.judul"\)\}<\/h3>/.test(paket)
+      c.expect(/<h3 className="pin-studio-h3">\{s\("studio\.paket\.pindah\.judul"\)\}<\/h3>/.test(paket)
         && /<span>\{s\("studio\.paket\.pindah\.tujuan"\)\}<\/span>/.test(paket)
         && /\{s\("studio\.paket\.pindah\.tombol"\)\}<\/TombolKirim>/.test(paket)
         && /\{namaKelas\.get\(a\.node_id as string\) \?\? "—"\}/.test(paket) && !/studio\.paket\.tugaskan/.test(paket),
@@ -12761,7 +12787,9 @@ export const experienceTests: SelfTest[] = [
       const beranda = baca("src", "app", "studio", "page.tsx");
       const kosongTugas = /rows\.length === 0 \? \(\s*<p className=\{card\}>\{s\("([\w.]+)"\)\}<\/p>/.exec(beranda)?.[1];
       c.expect(kosongTugas === "studio.beranda.tak_ada_tugas", `Studio's home says «${kosongTugas ? t(kosongTugas as never, "staff") : "?"}» when no task waits, above its list of packages`);
-      c.expect(/courses \?\? \[\]\)\.length === 0 \? \(\s*<p className=\{card\}>\{s\("studio\.paket\.kosong"\)\}/.test(beranda), "the list of packages no longer says when it is empty");
+      // RESTATED FOR W1.7 (Batch 3): the empty list is Batch 2's Empty state (Kosong, Daisy components/EmptyState), with the
+      // same sentence; narrowed to a count's list, it also gives the way back to every package
+      c.expect(/courses \?\? \[\]\)\.length === 0 \? \(\s*<Kosong [^>]*kalimat=\{s\("studio\.paket\.kosong"\)\}/.test(beranda), "the list of packages no longer says when it is empty");
       const paket = baca("src", "app", "studio", "paket", "[course]", "page.tsx");
       c.expect(/const terbitSiap = state\?\.surface_state === "READY" && terakhir\?\.status === "PUBLISHED";/.test(paket)
         && /terbitSiap \? s\("studio\.langkah\.terbit\.judul"\) : s\(`studio\.state\.\$\{state\.surface_state\}`/.test(paket)
