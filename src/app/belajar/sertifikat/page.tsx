@@ -69,7 +69,7 @@ export default async function DaftarSertifikat() {
   return (
     <>
       <CangkangPengalaman locale={locale} current="sertifikat" />
-      <div className="pin-col">
+      <main id="isi" tabIndex={-1} className="pin-col">
         <BarisLingkup scope={{ institution }} locale={locale} />
 
         <div className="pin-head">
@@ -116,7 +116,7 @@ export default async function DaftarSertifikat() {
         )}
 
         <KakiPintar className="pin-noprint" />
-      </div>
+      </main>
     </>
   );
 }

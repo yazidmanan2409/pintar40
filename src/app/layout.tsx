@@ -4,6 +4,7 @@ import { t } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import EvaluationBanner from "./_evaluation-banner";
 import PenjagaSesi from "@/components/PenjagaSesi";
+import FokusRute from "@/components/FokusRute";
 import PitaPemeliharaan from "@/components/pemeliharaan/PitaPemeliharaan";
 
 export const metadata: Metadata = {
@@ -26,6 +27,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body className="min-h-dvh bg-surface-0 text-ink-1">
         {/* W3.1 (WCAG 2.4.1): «Langsung ke isi», the first focusable thing on every page; each page's
             <main> is #isi. Out of sight until it has focus (Daisy's skip link, 06-accessibility). */}
+        {/* the Tab starting point after a navigation inside PINTAR, just before the skip link (FokusRute) */}
+        <FokusRute />
         <a href="#isi" className="pin-lewati pin-noprint">{t("aksesibilitas.lewati", "public", { locale })}</a>
         {/* Rendered from the evaluation session on every page, so the indicator
             cannot be lost on refresh or dismissed (ADR-0020). */}

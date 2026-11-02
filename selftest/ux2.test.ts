@@ -108,8 +108,12 @@ export const ux2Tests: SelfTest[] = [
       const tata = readFileSync(join(ctx.repoRoot, "src/app/layout.tsx"), "utf8");
       const tubuh = tata.split(/<body[^>]*>/)[1] ?? "";
       const pertama = tubuh.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").trim();
-      c.expect(/^<a href="#isi" className="pin-lewati pin-noprint">\{t\("aksesibilitas\.lewati"/.test(pertama),
+      // the unfocusable-by-Tab starting point (FokusRute) may stand before it; the skip link is the first Tab stop
+      c.expect(/^(<FokusRute \/>\s*)?<a href="#isi" className="pin-lewati pin-noprint">\{t\("aksesibilitas\.lewati"/.test(pertama),
         "«Langsung ke isi» is not the first thing in <body>, a link to #isi");
+      const fr = readFileSync(join(ctx.repoRoot, "src/components/FokusRute.tsx"), "utf8");
+      c.expect(/tabIndex=\{-1\}/.test(fr) && /usePathname/.test(fr) && /e\.closest\("#isi"\)/.test(fr),
+        "after a navigation the Tab starting point is not put back before the skip link, or it takes focus a page placed");
       const { t } = await import("../src/lib/hle");
       c.expect(t("aksesibilitas.lewati", "public", { locale: "id" }) === "Langsung ke isi", "the skip link does not say «Langsung ke isi»");
       let n = 0;
@@ -127,6 +131,23 @@ export const ux2Tests: SelfTest[] = [
         "the skip link does not wait out of sight above the page at a 44 px height");
       c.expect(/transform:\s*none/.test(fokus) && /outline:/.test(fokus), "the skip link does not come into place, ringed, with focus");
       c.expect(n >= 50, `only ${n} <main> found`);
+      // every page has the target: its own <main id="isi">, or every path through it reaches a shared surface that
+      // renders one (the refusal page, the assessment surface), or Studio's layout holds it. The certificate pages and
+      // the refusal page once drew their content in a plain <div>, with no main at all (found by the crawl, Batch 2).
+      const BERSAMA: Record<string, string> = {
+        HalamanPenolakan: "src/components/HalamanPenolakan.tsx",
+        PermukaanAsesmen: "src/app/belajar/_components/PermukaanAsesmen.tsx",
+      };
+      for (const [nama, f] of Object.entries(BERSAMA)) {
+        c.expect(/<main id="isi"/.test(readFileSync(join(ctx.repoRoot, f), "utf8")), `${nama} renders no <main id="isi">`);
+      }
+      c.expect(/<main id="isi"/.test(readFileSync(join(ctx.repoRoot, "src/app/studio/layout.tsx"), "utf8")), "Studio's layout renders no <main id=\"isi\">");
+      for (const f of berkas(join(ctx.repoRoot, "src/app"), /^page\.tsx$/)) {
+        const isi = readFileSync(f, "utf8");
+        const rel = relative(ctx.repoRoot, f);
+        if (/<main id="isi"/.test(isi) || rel.startsWith(join("src", "app", "studio"))) continue;
+        c.expect(Object.keys(BERSAMA).some((k) => new RegExp(`<${k}\\b`).test(isi)), `${rel}: no <main id="isi"> and no shared surface that renders one`);
+      }
       return c.verdict(`«Langsung ke isi» opens <body> and leads to #isi; all ${n} <main> elements are #isi; it shows only with focus`);
     },
   },

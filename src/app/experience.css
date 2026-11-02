@@ -2920,3 +2920,7 @@ select:not([multiple]):not([size]) {
   .pin-pager-teks, .pin-pager-lebar { display: none; }
   .pin-pager-kecil { display: inline; }
 }
+
+/* W3.1: the Tab starting point after a navigation (FokusRute): no size, never seen, never ringed */
+.pin-awal { position: absolute; width: 0; height: 0; overflow: hidden; }
+.pin-awal:focus { outline: none; }
