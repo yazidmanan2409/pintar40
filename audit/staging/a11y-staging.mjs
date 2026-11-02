@@ -211,6 +211,14 @@ const baris = [
   ...b.aturan.map((a) => `    ${a.id} (${a.impact}) ${a.layar} screens, ${a.node} nodes — ${a.help}; e.g. ${a.contoh.join(" ")}`),
 ];
 log(["", ...baris].join("\n"));
+// the screens behind each recorded finding, by name, so a finding is never only a count (Batch 2 promotion)
+for (const x of b.layarDaftar) {
+  const catat = [];
+  if (!x.lompat?.ada) catat.push(`no working skip link as the first Tab stop (first: ${x.lompat?.pertama ?? "?"})`);
+  if ((x.papan?.tanpaTanda ?? 0) > 0) catat.push(`focus stop(s) without an indicator: ${(x.papan?.tanpaTandaContoh ?? []).join("; ")}`);
+  if (x.judulMasalah) catat.push(`title: ${x.judulMasalah}`);
+  if (catat.length) log(`  ${x.who} ${x.path}: ${catat.join(" | ")}`);
+}
 const gagalNilai = nilai.filter((x) => !x.ok);
 if (gagalNilai.length) masalah.push(`judged checks failed: ${gagalNilai.map((x) => x.id).join(", ")}`);
 if (masalah.length) {
