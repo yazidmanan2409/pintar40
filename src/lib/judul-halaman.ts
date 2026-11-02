@@ -59,7 +59,8 @@ export const JUDUL_HALAMAN: Record<string, Judul> = {
   "/pendataan/[pekerjaan]": { kunci: "nav.pendataan", untuk: "staff" },
   "/pengembangan/[simpul]": { kunci: "pengembangan.judul", untuk: "staff" },
   "/perangkat": { kunci: "perangkat.judul", untuk: "public" },
-  "/pimpinan": { kunci: "pimpinan.judul", untuk: "staff" },
+  // a refused reader gets the title too, so a gated home is titled by its place, never by its own heading (UX1-PIMPINAN-AKSES-01)
+  "/pimpinan": { kunci: "nav.pimpinan", untuk: "staff" },
   "/pimpinan/[simpul]": { kunci: "nav.pimpinan", untuk: "staff" },
   "/pimpinan/[simpul]/murid": { kunci: "pimpinan.murid.judul", untuk: "staff" },
   "/pimpinan/[simpul]/murid/[orang]": { kunci: "nav.pimpinan", untuk: "staff" },
