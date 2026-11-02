@@ -1,0 +1,23 @@
+# Batch 1 · Migrations and their effects (2 Nov 2026)
+
+Four forward-only migrations, 178–181 on top of staging's 177. All are applied in filename order by `supabase db push`, as every migration is. **No migration edits an applied one.** Each ends in an assertion block (ADR-0014). If an assertion fails, that migration rolls back and the push stops at the previous one.
+
+| # | File | What it changes | Existing data | Reversible? |
+|---|---|---|---|---|
+| 178 | `20261211100000_db_wording_follows_terminology_v1.sql` (W4.1) | `learner_readable_fields.judul_kolom` (new NOT NULL column, filled for the 11 registered columns). `validate_course_content` names the workbook column in a finding's location. `run_mcq_quality`: «murid», «Bank soal untuk paket ini». Four `doctrine_lexicon` rows: «siswa» → «murid» | **Updates 4 platform reference rows** (`doctrine_lexicon`). Findings already stored keep their wording; unacknowledged ones are rewritten the next time their package is checked, as before. No school's data touched | Forward-correctable: a later migration can re-word. The column add is additive |
+| 179 | `20261212100000_a_class_card_is_a_learners_alone.sql` (CR-91) | Triggers `accounts_card_is_learners` and `role_assignments_card_holds_no_role`. `authorize_account_activation` and `authorize_card_reissue` refuse a card for staff (42501 CARD_FOR_STAFF). `persons_awaiting_account` returns `boleh_kartu` (**the function is dropped and re-made**; same name, a column more). New `kartu_bukan_staf()`; helper `memegang_peran_staf()` | **No data written.** The closing block **refuses the migration if any person already holds a class card and a staff role**. Staging: 1,353 card accounts, 0 with a staff role (read 2 Nov), so it applies. Production: unread. If it holds such a person, the migration stops intact and the owner decides (revoke the role, or replace the card with an email account) | Additive guards; a later migration can drop them. **Application compatibility:** the old app reads `persons_awaiting_account` without the new column (extra columns are ignored) and never calls `kartu_bukan_staf`. Old app + new database works; it simply does not offer the card filter |
+| 180 | `20261213100000_a_reviewer_may_send_a_package_back.sql` (W1.6, part 1) | One edge `IN_REVIEW → VALIDATION_FAILED` in `content_status_transitions`. `enforce_content_status` re-emitted with step (1b): that edge only inside `kembalikan_paket` | One reference row inserted. No content row touched | Additive. The edge can be deleted by a later migration only if no row has taken it |
+| 181 | `20261214100000_a_content_step_is_one_transaction.sql` (W1.6 part 2, W1.8, W1.13) | Table `content_review_outcomes` (append-only, RLS: CAN_DRAFT or CAN_REVIEW in the school; no client write). Trigger `courses_review_outcome` records APPROVED outcomes. `langkah_konten` (SECURITY INVOKER, one transaction). `kembalikan_paket` (SECURITY DEFINER, CAN_REVIEW, reason). `paket_dikembalikan`. `package_revision_problems` accepts a correction of a sent-back draft. Two registry rows | **No existing row changed.** Approvals made before 181 have no outcome row: their reviewer stays on `courses.reviewed_by_person_id` and in the audit log, as before. Outcomes start from 181 | Additive. Outcomes are history (PR080) |
+
+## Application and database compatibility
+
+| Combination | Works? | Why |
+|---|---|---|
+| **Candidate app + database 181** | Yes (the batch's own tests) | — |
+| **Previous app (main, `001a357`) + database 181** | **Yes, with one exception** | The old `advanceContentAction` writes the five tables directly: same writes, same rules (the trigger still decides), not atomic. Old activation ignores `boleh_kartu`, but the database refuses a card for staff anyway. The exception is a sent-back package: the old app has no send-back, and a package returned by `kembalikan_paket` shows as «dikembalikan» (an existing state) |
+| **Candidate app + database 177** | **No** | The app calls `langkah_konten` and `kartu_bukan_staf`, which do not exist before 181/179. The app and its migrations deploy together (staging: migrations on push to `main`, then the app) |
+
+## Staging and production
+
+- **Staging:** applies 178–181 when Batch 1 reaches `main` (`staging.yml`), after the owner's merge authorisation (D-146). Its demonstration school is not written by any of them; only the platform reference rows in 178 and 180 change.
+- **Production:** none applied (D-145(e)). These four join the production upgrade set (`batch-0/07-MIGRATION-162-BRIEF.md`). They add one new production-data dependency: **179's closing check** (no person with a card and a staff role).

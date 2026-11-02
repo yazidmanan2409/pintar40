@@ -3240,6 +3240,36 @@
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
+      "id": "F23-W01",
+      "runner": "db",
+      "proves": "W1.13 (Batch 1, D-145(c); migration 20261214100000), measured in selftest/db/fable23.sql: one content step is one transaction. langkah_konten (SECURITY INVOKER, so row-level security and enforce_content_status decide as before) approves the whole tree as the head of department, every item, lesson, module and the course stamped with them; a step refused at its last table (the course, planted out of step with its guard off inside the rolled-back test) leaves items, lessons and modules IN_REVIEW, never a mixed tree.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-W02",
+      "runner": "db",
+      "proves": "W1.6 (Batch 1; migrations 20261213100000 and 20261214100000), measured in selftest/db/fable23.sql: the send-back. kembalikan_paket by the head of department (CAN_REVIEW, not the author) with a reason moves the whole tree IN_REVIEW -> VALIDATION_FAILED and records one SENT_BACK outcome (reason, reviewer, author) and one content.sent_back audit row; refused to the author and to a Dekan (42501 SENDBACK_NOT_REVIEWER), without a reason of 10 to 1000 characters (SENDBACK_REASON_MISSING), off an approved package (SENDBACK_NOT_IN_REVIEW), to a reviewer who wrote the package (SENDBACK_REVIEWER_IS_AUTHOR); the edge taken through the author's own step is refused as an illegal transition by enforce_content_status.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-W03",
+      "runner": "db",
+      "proves": "W1.6 (Batch 1), measured in selftest/db/fable23.sql: the author's correction path. A correction upload of the sent-back draft is accepted in its line (package_revision_problems raises no REVISION_NOT_RELEASED); a correction of a draft nobody sent back is still refused as not released; the author may also mark the sent-back draft structured again (VALIDATION_FAILED -> STRUCTURED) and resubmit it.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-W04",
+      "runner": "db",
+      "proves": "W1.8 (Batch 1), measured in selftest/db/fable23.sql: who reviewed and approved. An approval records one APPROVED outcome in content_review_outcomes naming the reviewer and the author; the school's author and reviewer each read the package's outcomes, another school's administrator none; changing or removing an outcome is refused PR080 REVIEW_OUTCOME_FIXED.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-T01",
+      "runner": "db",
+      "proves": "W4.1 (Batch 1, D-145(c); migration 20261211100000), measured in selftest/db/fable23.sql: approved Terminology v1 wording held in the database. A package whose lesson text says «salah» is validated: the coaching finding's location names the workbook's column («kolom Isi pelajaran», from learner_readable_fields.judul_kolom), never the database column («kolom body_markdown»); no doctrine_lexicon rule says «siswa» (C30); run_mcq_quality says «murid» and its bank-wide location is «Bank soal untuk paket ini» (C29, D23).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
       "id": "F22-A01",
       "runner": "app",
       "proves": "The Second Eye's hold 3 (8 Oct), D-132 §2.11, through the running app's rendered chooser (/) and its routes /mulai and /mengajar, and its database: when the read of the pairs a person holds (konteks_tempat_saya, with the person's own session) is refused for real (EXECUTE taken from authenticated for the test and given back after), the chooser at / offers no door, /mulai chooses no purpose and sends the person into no surface, /mengajar lists no class, and the session holds no context. The control: before, the same teacher is offered her Mengajar door, and the same session is offered it again once the read is restored.",

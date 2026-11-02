@@ -75,53 +75,18 @@ export async function advanceContentAction(fd: FormData): Promise<void> {
   // L3 (§2.11): the chapter is the working context's, or the chooser offers its school's (values kept)
   await wajibDalamKonteks({ sekolah: await sekolahDari("kursus", course) }, "paket");
 
+  // W1.13 (Batch 1): the whole step (items, lessons, modules, the chapter's rules, the course) is ONE transaction in
+  // the database, as the caller: `langkah_konten` makes the same writes this action used to make one request at a
+  // time, with the same expectations, and a refusal or a shortfall undoes all of it. The reviewer of record is the
+  // caller (APPROVED); enforce_content_status still decides every edge.
   const supabase = await supabaseServer();
-  const { data: mods } = await supabase.from("modules").select("id").eq("course_id", course);
-  const moduleIds = (mods ?? []).map((m) => m.id as string);
-  const { data: lessons } = moduleIds.length
-    ? await supabase.from("lessons").select("id").in("module_id", moduleIds)
-    : { data: [] as Array<{ id: string }> };
-  const lessonIds = (lessons ?? []).map((l) => l.id as string);
-  const { data: itemRows } = lessonIds.length
-    ? await supabase.from("items").select("id").in("lesson_id", lessonIds)
-    : { data: [] as Array<{ id: string }> };
-  const itemCount = (itemRows ?? []).length;
-
-  // The reviewer of record is the caller; the database refuses anything else.
-  const [{ data: me }, { data: bab }] = await Promise.all([
-    supabase.rpc("current_person_id"),
-    supabase.from("courses").select("status").eq("id", course).maybeSingle(),
-  ]);
-  const patch: Record<string, unknown> = { status: to };
-  if (to === "APPROVED") patch.reviewed_by_person_id = me;
-
-  // expected: every visible item and lesson, every visible module; definitions
-  // may legitimately be none, so they are counted but not required
-  for (const [table, column, ids, expected] of [
-    ["items", "lesson_id", lessonIds, itemCount],
-    ["lessons", "module_id", moduleIds, lessonIds.length],
-    ["modules", "course_id", [course], moduleIds.length],
-    ["assessment_definitions", "course_id", [course], -1],
-  ] as const) {
-    if (ids.length === 0) continue;
-    // FD-9 (D-127 Q8): the chapter's rules move with it, its modules' rules among them, but only those standing where
-    // the chapter stands: a rule saved once the chapter had moved on (before L2) stays behind as a draft instead of
-    // making the chapter's own step illegal
-    const q = table === "assessment_definitions"
-      ? supabase.from(table).update(patch)
-          .or(`course_id.eq.${course}${moduleIds.length ? `,module_id.in.(${moduleIds.join(",")})` : ""}`)
-          .eq("is_ad_hoc", false).eq("status", (bab?.status as string | undefined) ?? "")
-      : supabase.from(table).update(patch).in(column, ids as string[]);
-    const { data, error } = await q.select("id");
+  const { error } = await supabase.rpc("langkah_konten", { p_course: course, p_ke: to });
+  if (error) {
+    // F-05: a step that would change less than it meant to changes nothing, and says so
+    if (error.details === "ACTION_UNCHANGED") back(`/studio/paket/${course}`, "paket", TIDAK_BERUBAH);
     // BOB-07: the content step's refusal, named (DAISY-06's step list shows it)
-    if (error) back(`/studio/paket/${course}`, "paket", ditolak(`${table} status`, error, kodeGalatKonten(error)));
-    if (expected >= 0 && (data ?? []).length !== expected) {
-      back(`/studio/paket/${course}`, "paket", TIDAK_BERUBAH);
-    }
+    back(`/studio/paket/${course}`, "paket", ditolak("langkah_konten", error, kodeGalatKonten(error)));
   }
-  const { data: changed, error } = await supabase.from("courses").update(patch).eq("id", course).select("id");
-  if (error) back(`/studio/paket/${course}`, "paket", ditolak("courses status", error, kodeGalatKonten(error)));
-  if ((changed ?? []).length !== 1) back(`/studio/paket/${course}`, "paket", TIDAK_BERUBAH);
   back(`/studio/paket/${course}`, "paket", { ok: true, kode: "STEP_TAKEN" });
 }
 

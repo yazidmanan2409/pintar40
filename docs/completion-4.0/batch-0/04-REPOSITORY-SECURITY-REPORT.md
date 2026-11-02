@@ -128,3 +128,21 @@ One generic sentence in `supabase/seed/learning_cycle.sql` matches a real object
 | R-5 | Owner review of **non-git surfaces** (issues, PR comments, Actions logs, artifacts) for any pasted credential | A git scan cannot see them |
 | R-6 | Decide **F-4** (deliverable 5) and **§4.1** | Answer keys are the material risk |
 | R-7 | Decide whether branch `claude/adoring-feynman-njmjll` (the internal demo packages) stays published. Deleting a branch is not authorised in Batch 0 and does not un-publish anything already copied | §4.2 |
+
+---
+
+## Erratum (Batch 1, 2 Nov 2026): the answer-key count was too low
+
+§4.2 counted 43 tracked files with real answer keys. **That missed 40 more**, found while mapping F-4's consumers in Batch 1:
+- **the 20 generator scripts** `docs/onboarding/konten/*.py` (`sd5_matematika_bab*.py`, `sma10_*.py`, `sma11_*.py`): each holds every item with its key;
+- **the 20 misconception maps** `docs/onboarding/konten/*-miskonsepsi.csv`: their `questions` column lists every distractor's letter per item, so the key follows by elimination.
+
+**Why the scan missed them:** the Batch 0 guard recognised keyed material only by file type (`.paket.json`, `.xlsx`) and by `"is_correct": true` inside `.paket.json`.
+
+**Corrected count:** 83 tracked files in the active tree (43 + 40), plus 4 on one branch. The items exposed are the same 619 (`batch-1/F4-EXPOSED-ITEM-INVENTORY.md`). The new files reveal the same keys in other forms; they add no new items.
+
+**Fix:**
+- In Batch 1 (F-4), every one of these files is removed from the active tree by a forward commit.
+- The guard now recognises keyed **content**, not only file types: correct-answer markers in data files, generator tuples, and misconception maps with a distractor column. Proven red/green in SEC-G01.
+
+No credential finding changes: still 0.
