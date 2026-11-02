@@ -13,6 +13,7 @@ import { chromium } from "playwright";
 import { createRequire } from "node:module";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { periksa, ringkas } from "./a11y.mjs";
 
 const APP = process.env.APP_URL;
 const SB = process.env.SUPABASE_URL;
@@ -43,6 +44,11 @@ const PERSONAS = [
 ];
 
 const MAX_PAGES = Number(process.env.MAX_PAGES ?? 45);
+// B0-B: the accessibility baseline (audit/a11y.mjs) RECORDS each distinct screen once (ids normalised), plus every
+// persona's landing; it never adds to `broken`. A11Y=0 switches it off; A11Y=all checks every page reached.
+const A11Y = process.env.A11Y ?? "1";
+const a11yDiperiksa = new Set();
+const layarKunci = (path) => path.replace(/\?.*$/, "").replace(/[0-9a-f]{8}-[0-9a-f-]{27,}/g, ":id").replace(/\/\d+(?=\/|$)/g, "/:n");
 // L3: the door each role's persona chooses on `/` (a purpose; for Admin platform, «Seluruh platform»)
 const TUJUAN_PERAN = {
   SYSTEM_ADMIN: "MENGELOLA:PLATFORM", INSTITUTION_ADMIN: "MENGELOLA", DEAN: "MENGELOLA", HEAD_OF_DEPARTMENT: "MENGELOLA",
@@ -164,6 +170,13 @@ async function crawl(browser, p) {
       rec.shotSempit = rec.shot?.replace(/\.png$/, "-320.png") ?? null;
       if (rec.shotSempit) await page.screenshot({ path: join(dir, rec.shotSempit), fullPage: true }).catch(() => (rec.shotSempit = null));
       await page.setViewportSize({ width: 1280, height: 900 });
+      if (A11Y !== "0" && !rec.refusal && !rec.errorPage) {
+        const k = layarKunci(rec.finalPath ?? path);
+        if (A11Y === "all" || depth === 0 || !a11yDiperiksa.has(k)) {
+          a11yDiperiksa.add(k);
+          rec.a11y = await periksa(page).catch((e) => ({ gagal: [String(e.message ?? e).slice(0, 200)] }));
+        }
+      }
       if (n === 0) result.landing = rec.finalPath;
       // Gate 6 (BOB-29): a staff browser is first asked «Komputer siapa ini?». The persona answers as the walks do
       // («Komputer pribadi saya»), so the crawl reads the screens behind the question rather than the question alone
@@ -242,6 +255,24 @@ for (const r of all) {
     if (x.error) console.log(`      nav-error: ${x.error}`);
     if (x.sempit) console.log(`      320px: ${x.sempit.gagal ?? `the page is ${x.sempit.halaman} px wide; ${x.sempit.sebab.join("; ") || "no single part named"}`}`);
   }
+}
+
+// B0-B: the accessibility baseline, for the record (never part of the verdict below)
+if (A11Y !== "0") {
+  const b = ringkas(all);
+  writeFileSync(join(OUT, "a11y.json"), JSON.stringify(b, null, 1));
+  const baris = [
+    `A11Y BASELINE (recorded, not judged): ${b.layar} distinct screens (${b.halaman} pages checked)`,
+    `  title missing or only «PINTAR»: ${b.tanpaJudul}; no working skip link as the first Tab stop: ${b.tanpaLompat}`,
+    `  a focus stop without a visible indicator: ${b.fokusTakTerlihat}; focus stuck or lost to the page: ${b.fokusMacetAtauHilang}`,
+    `  axe clean: ${b.axeBersih}; axe could not run: ${b.axeGagal}`,
+    `  wider than the window at ${Object.entries(b.meluap).map(([w, n]) => `${w}px: ${n}`).join(", ")}`,
+    `  clipped text at ${Object.entries(b.terpotong).map(([w, n]) => `${w}px: ${n}`).join(", ")}`,
+    `  axe rules violated (impact, screens, nodes):`,
+    ...b.aturan.map((a) => `    ${a.id} (${a.impact}) ${a.layar} screens, ${a.node} nodes — ${a.help}; e.g. ${a.contoh.join(" ")}`),
+  ];
+  console.log("\n" + baris.join("\n"));
+  if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, ["### Accessibility baseline (recorded, not judged)", "", "```", ...baris, "```", ""].join("\n"), { flag: "a" });
 }
 
 // X.10: the slowest pages to become readable, for the record (judged on staging, not here)
