@@ -613,12 +613,22 @@ begin
       if v_n <> 0 then
         v_probs := selftest.f23_note(v_probs, 'F23-W05', format('the author reads the reviewer''s person row directly (%s): the case this measures has changed', v_n));
       end if;
-      for r in select * from (values (v_guru, 1, 'the author'), (v_kajur, 1, 'the reviewer'), (v_adm_b, 0, 'another school''s administrator')) as t(u, mau, siapa) loop
+      for r in select * from (values (v_guru, 1, 'the author'), (v_kajur, 1, 'the reviewer'), (v_adm_b, 0, 'another school''s administrator'),
+                                     (v_dean, 0, 'the same school''s Dekan (no Studio capability)')) as t(u, mau, siapa) loop
         perform selftest.as_user_uid(r.u);
-        select count(*) into v_n from public.nama_riwayat_paket(array[v_c1, v_c3]) x
+        -- a reader with no Studio capability there is told nobody at all, not only not the reviewer
+        if r.mau = 0 then
+          select count(*) into v_n from public.nama_riwayat_paket(array[v_c1, v_c3, gen_random_uuid()]);
+          perform selftest.as_owner();
+          if v_n <> 0 then
+            v_probs := selftest.f23_note(v_probs, 'F23-W05', format('%s is told %s name(s)', r.siapa, v_n));
+          end if;
+          perform selftest.as_user_uid(r.u);
+        end if;
+        select count(*) into v_n from public.nama_riwayat_paket(array[v_c1, v_c3, gen_random_uuid()]) x
          where x.person_id = v_kajur_p and x.display_name is not null and x.display_name <> '';
         -- what the reader is told in all, beyond the reviewer: no one but the people recorded on the two packages
-        select count(*) into v_m from public.nama_riwayat_paket(array[v_c1, v_c3]) x
+        select count(*) into v_m from public.nama_riwayat_paket(array[v_c1, v_c3, gen_random_uuid()]) x
          where x.person_id not in (select o.reviewer_person_id from public.content_review_outcomes o where o.course_id in (v_c1, v_c3)
                                    union select n.written_by_person_id from public.course_revision_notes n
                                     where n.course_id in (v_c1, v_c3) and n.written_by_person_id is not null);
@@ -632,6 +642,13 @@ begin
           v_probs := selftest.f23_note(v_probs, 'F23-W05', format('%s is told %s name(s) of people not recorded on the packages', r.siapa, v_m));
         end if;
       end loop;
+      -- nobody signed in may call it at all
+      perform selftest.as_anon();
+      v_err := selftest.f23_raised(format('select * from public.nama_riwayat_paket(array[%L::uuid])', v_c1));
+      perform selftest.as_owner();
+      if v_err is null or v_err not like '42501%' then
+        v_probs := selftest.f23_note(v_probs, 'F23-W05', 'an anonymous call answered ' || coalesce(v_err, 'rows'));
+      end if;
     exception when others then
       perform selftest.as_owner();
       v_probs := selftest.f23_note(v_probs, 'F23-W05', 'threw: ' || sqlerrm);
@@ -712,8 +729,9 @@ begin
           || 'reviewer each read the two outcomes, another school''s administrator none; changing or removing an outcome '
           || 'is refused PR080 REVIEW_OUTCOME_FIXED',
         'the author cannot read the reviewer''s person row, yet nama_riwayat_paket tells the author and the reviewer the '
-          || 'reviewer''s name for the two packages, and another school''s administrator nothing; nobody is told a name not '
-          || 'recorded on the packages',
+          || 'reviewer''s name for the two packages; another school''s administrator and the same school''s Dekan (no Studio '
+          || 'capability) are told nobody; an unknown package id adds nobody; nobody is told a name not recorded on the '
+          || 'packages; an anonymous call is refused 42501',
         'a lesson that says «salah» is found at «kolom Isi pelajaran», never at the database column; no coaching rule '
           || 'says «siswa»; the question-quality findings say «murid» and «Bank soal untuk paket ini»'
       ]) as t(tid, tarea, tdetail)

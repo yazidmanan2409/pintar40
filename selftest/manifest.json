@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 197,
+  "version": 198,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3853,6 +3853,11 @@
       "id": "STUDIO3A-LANGKAH-01",
       "runner": "static",
       "proves": "W1.4 release in fewer presses, every step says what it did (Batch 3; UX-15, UX-39; Daisy ActionFeedback), selftest/studio3a.test.ts: src/components/studio/LangkahTerbit.tsx rendered: a second person at «Buat terbitan» creates and locks the release in one press, both steps still listed, while the author only creates it; after a content step the next panel says «<step> · Selesai» as a status line, and a refusal is an alert in the refused step's panel; the source runs the combined press as BOB-03's create-then-lock typed actions, and the source of src/app/studio/paket/[course]/page.tsx passes the content step's result, read by its code, to the panel."
+    },
+    {
+      "id": "STUDIO3A-SEPARUH-01",
+      "runner": "static",
+      "proves": "W1.4 kept as two transactions (owner, 2 Nov, Batch 3 final engineering gate, item 2), selftest/studio3a.test.ts: src/components/studio/LangkahTerbit.tsx rendered after the combined press created the release and its lock was refused (RELEASE_NOT_READY with a blocker) shows the state (the current step «Kunci terbitan», «Buat terbitan · Selesai», Buat terbitan done in the list), the reason (the refusal's sentence and what holds the lock back, as an alert) and the next action («Kunci terbitan», never «Buat terbitan» again); the source of the combined press reports exactly that state, and the package page never passes the starting answer."
     },
     {
       "id": "STUDIO3A-KEMBALI-01",

@@ -22,7 +22,7 @@ type Terbitan = { id: string; status: string; terbitPada: string | null };
  * What the release step last answered, for which step, and (W1.4) which steps that one press completed, so a stale
  * answer is never shown against the next one and the next step's panel can say what the last press did.
  */
-type Jawaban =
+export type Jawaban =
   | { langkah: KunciLangkah | "tarik"; hasil: HasilTerbitan; selesai: Array<KunciLangkah | "tarik"> }
   | { langkah: "kembali"; kembali: HasilAksi; selesai: [] }
   | null;
@@ -57,6 +57,7 @@ type Kabar = { jenis: "langkah"; langkah: KunciLangkah[] } | { jenis: "kembali" 
  */
 export default function LangkahTerbit({
   locale, course, fakta, terbitan, kemampuan, saya, penyusun, hasilIsi = null, kembali = null, unggahPerbaikan = null,
+  jawabanAwal = null,
 }: {
   locale: Locale;
   course: string;
@@ -73,6 +74,11 @@ export default function LangkahTerbit({
   kembali?: { alasan: string; oleh: string | null; pada: string } | null;
   /** Where the corrected workbook is uploaded in this package's line, when this reader may and it is still the newest. */
   unggahPerbaikan?: string | null;
+  /**
+   * The last press's answer to start from. The page never passes it (a press starts from nothing); it lets a rendered
+   * test show a state a browser reaches only through a refusal, such as a release created whose lock was held back.
+   */
+  jawabanAwal?: Jawaban;
 }) {
   const router = useRouter();
   const s = (k: HleEvent) => t(k, "staff", { locale });
@@ -108,7 +114,7 @@ export default function LangkahTerbit({
     if (!aksi) return null;
     const hasil = await aksi(null, fd);
     return { langkah, hasil, selesai: hasil.ok ? [langkah] : [] };
-  }, null);
+  }, jawabanAwal);
 
   const hasilKembali = jawaban?.langkah === "kembali" ? jawaban.kembali : null;
   // what the last press did, read from its answer (W1.4)

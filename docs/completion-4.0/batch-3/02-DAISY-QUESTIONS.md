@@ -1,6 +1,14 @@
-# Batch 3 · Questions for Daisy (prepared 2 Nov 2026)
+# Batch 3 · Questions for Daisy (prepared 2 Nov 2026; triaged 2 Nov)
 
 These are the design and wording questions Batch 3 met that the frozen design system does not answer. Each one says what is built today, so nothing is waiting on an answer. Every answer becomes a small, separate change. The wording in this list is mine unless it is marked as hers.
+
+## Triage (owner's Batch 3 gate, item 4)
+
+| Class | Questions | What waits on them |
+|---|---|---|
+| **Blocking: the decision changes what is built or what a figure means** | **A1** (W1.2, the question-review layout; commission in `03-DAISY-W1.2-COMMISSION.md`), **D1** (what the Uji Cepat class figure is: the mean of official scores, or another figure), **D3** (a minimum group before a class figure is shown; possibly an owner question too, as it touches what a teacher may infer) | W1.2 cannot close. W2.4's figure is built as the mean, from 1 learner, and changes if D1 or D3 are answered otherwise. |
+| **Wording approval: needed for "design complete", not for behaviour** | B2, B5, C2 (its sentences), C3, C5, C7, C9, D7 | Every word is in `hle.ts`. An answer changes copy only. |
+| **Cosmetic or layout confirmation** | B1, B3, B4, B6–B12, C1, C4, C6, C8, D2, D4, D5, D6, D8, D9 | Nothing functional. Each is built in her primitives, and an answer is a small style or markup change. |
 
 ## A. The blocking one
 

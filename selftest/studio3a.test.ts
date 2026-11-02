@@ -216,6 +216,57 @@ export const studio3aTests: SelfTest[] = [
     },
   },
   {
+    // W1.4, kept as two transactions by the owner (2 Nov, Batch 3 final engineering gate, item 2): a release created
+    // whose lock is held back is a recoverable state, provided the page says that state, the refusal's reason and the
+    // next action. A browser reaches it only when the lock's readiness check finds an error after approval, so it is
+    // rendered here from the answer the combined press returns in that case.
+    id: "STUDIO3A-SEPARUH-01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const { t } = (await import("../src/lib/hle")) as unknown as { t: T };
+      const { kunciKodeTerbitan, kalimatHambatan } = (await import("../src/lib/terbitan-kontrak")) as unknown as {
+        kunciKodeTerbitan: (k: string) => string;
+        kalimatHambatan: (h: unknown, s: (k: string) => string, n: (x: number) => string) => string;
+      };
+      const s = (k: string) => t(k, "staff", { locale: "id" });
+      const hambatan = [{ code: "READINESS_ITEM_ERROR", count: 2 }];
+      const ditolak = { ok: false, code: "RELEASE_NOT_READY", release: RILIS, kesiapan: "BLOCKED", hambatan };
+      // the combined press, as the head of department makes it: created («buat» done), the lock refused
+      const jawaban = { langkah: "kunci", hasil: ditolak, selesai: ["buat"] };
+      const KASUS = [props("APPROVED", rilis("INGESTED"), KAPRODI, { jawabanAwal: jawaban })];
+      const { html, galat } = gambarLangkah(ctx.repoRoot, KASUS);
+      if (c.expect(galat === "", `the steps could not be rendered: ${galat}`)) {
+        const p = panel(html[0]);
+        const isi = teks(p);
+        // the state: the release is created («Buat terbitan · Selesai») and the current step is «Kunci terbitan»
+        c.expect(new RegExp(`<h4 id="lt-kini" class="pin-lt-panel-judul">${s("studio.langkah.kunci.judul")}</h4>`).test(p),
+          `the current step is not «${s("studio.langkah.kunci.judul")}»`);
+        c.expect(isi.includes(`${s("studio.langkah.buat.judul")} · ${s("studio.langkah.keadaan.selesai")}`),
+          "the panel does not say the release was created");
+        const daftar = /<ol class="pin-lt-daftar"[^>]*>([\s\S]*?)<\/ol>/.exec(html[0])?.[1] ?? "";
+        c.expect(/pin-lt-selesai[^>]*><p class="pin-lt-judul">Buat terbitan/.test(daftar), "the list does not show «Buat terbitan» done");
+        // the reason: the refusal's own sentence and what holds the lock back, never the database's words
+        c.expect(isi.includes(s(kunciKodeTerbitan("RELEASE_NOT_READY"))), "the panel does not say why the lock was refused");
+        const kalimat = kalimatHambatan(hambatan[0], s, (n) => String(n));
+        c.expect(isi.includes(kalimat), `the panel does not say what holds the lock back («${kalimat}»)`);
+        c.expect(/role="alert"|pin-hasil-gagal|data-nada="gagal"/.test(p), "the refusal is not drawn as a refusal");
+        // the next action: «Kunci terbitan» again, for the person who may take it
+        c.expect(tombolKirim(p).includes(s("studio.langkah.kunci.tombol")), `the next action «${s("studio.langkah.kunci.tombol")}» is not offered`);
+        c.expect(!tombolKirim(p).includes(s("studio.langkah.buat.tombol")), "the panel offers to create the release again");
+      }
+      const src = kode(baca(ctx.repoRoot, LANGKAH));
+      c.expect(/const dikunci = await kunciTerbitanAksi\(null, fd\);\s*return \{ langkah: "kunci", hasil: dikunci, selesai: dikunci\.ok \? \["buat", "kunci"\] : \["buat"\] \};/.test(src),
+        "the combined press does not report a created release whose lock was refused as exactly that");
+      c.expect(/useActionState<Jawaban, FormData>\([\s\S]*?\}, jawabanAwal\);/.test(src) && !/jawabanAwal=/.test(baca(ctx.repoRoot, PAKET)),
+        "the starting answer is not the test's alone (the package page passes it)");
+      return c.verdict("rendered from src/components/studio/LangkahTerbit.tsx after the combined press created the release and " +
+        "its lock was refused (RELEASE_NOT_READY with a blocker): the current step is «Kunci terbitan», the panel says «Buat " +
+        "terbitan · Selesai», the refusal's sentence and what holds the lock back, and offers «Kunci terbitan» again, never " +
+        "«Buat terbitan»; the source of the combined press reports exactly that state, and the package page never passes the " +
+        "starting answer");
+    },
+  },
+  {
     id: "STUDIO3A-KEMBALI-01",
     run: async (ctx) => {
       const c = new Checks();
