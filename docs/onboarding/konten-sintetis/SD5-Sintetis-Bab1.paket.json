@@ -1,0 +1,1189 @@
+{
+ "courses": [
+  {
+   "_row": {
+    "sheet": "Kursus",
+    "row": 2
+   },
+   "title": "Matematika Kelas 5 · Bab 1: Pola Bilangan",
+   "subject": "Matematika",
+   "stage": "SD",
+   "grade_label": "Kelas 5",
+   "konteks": "Akademik",
+   "modules": [
+    {
+     "_row": {
+      "sheet": "Bab",
+      "row": 2
+     },
+     "ordinal": "1",
+     "title": "Pola Bilangan",
+     "lessons": [
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 2
+       },
+       "ordinal": "1",
+       "title": "Mengenal Pola Bertambah",
+       "summary": "Barisan yang setiap langkahnya bertambah dengan bilangan yang sama, selisihnya, dan cara melanjutkannya.",
+       "body_markdown": "## Apa itu pola bertambah\nLihat barisan 2, 5, 8, 11. Dari 2 ke 5 bertambah 3, dari 5 ke 8 bertambah 3, dan dari 8 ke 11 juga bertambah 3.\n\nBarisan yang setiap langkahnya bertambah dengan bilangan yang sama disebut **pola bertambah tetap**. Bilangan yang ditambahkan itu disebut **selisih**.\n\nSetiap bilangan dalam barisan disebut **suku**:\n- 2 adalah suku ke-1\n- 5 adalah suku ke-2\n- 8 adalah suku ke-3\n- 11 adalah suku ke-4\n\n## Mencari selisih\nUntuk mencari selisih, kurangkan suku dari suku sesudahnya. Periksa paling sedikit tiga pasang suku, bukan satu pasang saja.\n\nContoh: barisan 7, 12, 17, 22.\n- 12 − 7 = 5\n- 17 − 12 = 5\n- 22 − 17 = 5\n\nSelisihnya selalu 5, jadi barisan ini pola bertambah tetap dengan selisih **5**.\n\n**Coba:** berapa selisih barisan 9, 13, 17, 21?\n_Periksa: 13 − 9 = 4, 17 − 13 = 4, dan 21 − 17 = 4. Selisihnya 4._\n\n## Melanjutkan barisan\nJika selisihnya sudah diketahui, suku berikutnya didapat dengan menambahkan selisih pada suku terakhir. Barisan 7, 12, 17, 22 dilanjutkan menjadi 27, 32, 37, dan seterusnya.\n\nIngat dua hal:\n- tambahkan selisihnya, bukan suku pertamanya\n- hitung langkah satu per satu sampai suku yang diminta\n\n**Coba:** lanjutkan barisan 3, 9, 15, 21 dua suku lagi.\n_Periksa: selisihnya 6, jadi 21 + 6 = 27 dan 27 + 6 = 33._",
+       "objective": {
+        "statement": "Kalian dapat menentukan selisih pola bertambah tetap dan melanjutkan barisannya.",
+        "bloom": "UNDERSTAND"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 2
+         },
+         "ref": "S1",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Barisan 4, 7, 10, 13, ... bertambah tetap. Bilangan berapa yang datang sesudah 13?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 2
+           },
+           "label": "A",
+           "body": "16",
+           "is_correct": true,
+           "rationale": "Setiap langkah bertambah 3, jadi 13 + 3 = 16."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 3
+           },
+           "label": "B",
+           "body": "17",
+           "is_correct": false,
+           "rationale": "17 didapat dari 13 + 4; 4 adalah suku pertama, sedangkan selisihnya 7 − 4 = 3.",
+           "misconception_code": "SINT5-B1-01"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 4
+           },
+           "label": "C",
+           "body": "26",
+           "is_correct": false,
+           "rationale": "26 adalah 13 × 2. Barisan ini ditambah 3 setiap langkah, tidak dikali.",
+           "misconception_code": "SINT5-B1-04"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 5
+           },
+           "label": "D",
+           "body": "14",
+           "is_correct": false,
+           "rationale": "14 hanya menambah 1. Selisih dua suku berurutan pada barisan ini 3.",
+           "misconception_code": "SINT5-B1-05"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 3
+         },
+         "ref": "S2",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Berapa selisih tetap pada barisan 5, 11, 17, 23, ...?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 6
+           },
+           "label": "A",
+           "body": "5",
+           "is_correct": false,
+           "rationale": "5 adalah suku pertama. Selisih adalah jarak dari satu suku ke suku sesudahnya.",
+           "misconception_code": "SINT5-B1-01"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 7
+           },
+           "label": "B",
+           "body": "6",
+           "is_correct": true,
+           "rationale": "11 − 5 = 6, 17 − 11 = 6, dan 23 − 17 = 6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 8
+           },
+           "label": "C",
+           "body": "29",
+           "is_correct": false,
+           "rationale": "29 adalah suku berikutnya (23 + 6). Yang ditanyakan selisihnya.",
+           "misconception_code": "SINT5-B1-08"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 9
+           },
+           "label": "D",
+           "body": "56",
+           "is_correct": false,
+           "rationale": "56 adalah 5 + 11 + 17 + 23, jumlah keempat suku. Yang ditanyakan selisih dua suku berurutan.",
+           "misconception_code": "SINT5-B1-07"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 4
+         },
+         "ref": "S3",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pada barisan 3, 8, 13, 18, ..., berapakah suku ke-6?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 10
+           },
+           "label": "A",
+           "body": "23",
+           "is_correct": false,
+           "rationale": "23 adalah suku ke-5. Satu langkah lagi: 23 + 5 = 28.",
+           "misconception_code": "SINT5-B1-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 11
+           },
+           "label": "B",
+           "body": "33",
+           "is_correct": false,
+           "rationale": "33 adalah suku ke-7; hitungan sudah lewat satu langkah.",
+           "misconception_code": "SINT5-B1-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 12
+           },
+           "label": "C",
+           "body": "28",
+           "is_correct": true,
+           "rationale": "Suku ke-5 adalah 23, dan suku ke-6 adalah 23 + 5 = 28."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 13
+           },
+           "label": "D",
+           "body": "36",
+           "is_correct": false,
+           "rationale": "36 adalah 18 × 2. Barisan ini bertambah 5 setiap langkah.",
+           "misconception_code": "SINT5-B1-04"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 5
+         },
+         "ref": "S4",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Rina mengumpulkan kelereng. Hari pertama ia punya 6 butir, lalu setiap hari bertambah 4 butir. Berapa kelereng Rina pada hari ke-5?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 14
+           },
+           "label": "A",
+           "body": "18",
+           "is_correct": false,
+           "rationale": "18 adalah banyak kelereng pada hari ke-4.",
+           "misconception_code": "SINT5-B1-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 15
+           },
+           "label": "B",
+           "body": "26",
+           "is_correct": false,
+           "rationale": "26 adalah banyak kelereng pada hari ke-6; hari ke-1 sudah 6 butir.",
+           "misconception_code": "SINT5-B1-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 16
+           },
+           "label": "C",
+           "body": "30",
+           "is_correct": false,
+           "rationale": "30 adalah 6 × 5. Setiap hari kelerengnya ditambah 4, tidak dikali.",
+           "misconception_code": "SINT5-B1-04"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 17
+           },
+           "label": "D",
+           "body": "22",
+           "is_correct": true,
+           "rationale": "6, 10, 14, 18, 22: pada hari ke-5 Rina punya 22 kelereng."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 6
+         },
+         "ref": "S5",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Lanjutkan barisan 20, 30, 40, 50, ... Bilangan berapa yang datang sesudah 50?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 18
+           },
+           "label": "A",
+           "body": "60",
+           "is_correct": true,
+           "rationale": "Selisihnya 10, jadi 50 + 10 = 60."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 19
+           },
+           "label": "B",
+           "body": "51",
+           "is_correct": false,
+           "rationale": "51 hanya menambah 1, padahal setiap langkah bertambah 10.",
+           "misconception_code": "SINT5-B1-05"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 20
+           },
+           "label": "C",
+           "body": "70",
+           "is_correct": false,
+           "rationale": "70 didapat dari 50 + 20; 20 adalah suku pertama, sedangkan selisihnya 10.",
+           "misconception_code": "SINT5-B1-01"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 21
+           },
+           "label": "D",
+           "body": "100",
+           "is_correct": false,
+           "rationale": "100 adalah 50 × 2; barisan ini ditambah 10 setiap langkah.",
+           "misconception_code": "SINT5-B1-04"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 7
+         },
+         "ref": "S6",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Barisan 2, 9, 16, 23, ... bertambah tetap. Manakah pernyataan yang tepat?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 22
+           },
+           "label": "A",
+           "body": "Selisihnya 2 dan suku berikutnya 25",
+           "is_correct": false,
+           "rationale": "2 adalah suku pertama. Selisihnya 9 − 2 = 7.",
+           "misconception_code": "SINT5-B1-01"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 23
+           },
+           "label": "B",
+           "body": "Selisihnya 7 dan suku berikutnya 30",
+           "is_correct": true,
+           "rationale": "9 − 2 = 7, jadi suku berikutnya 23 + 7 = 30."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 24
+           },
+           "label": "C",
+           "body": "Selisihnya 7 dan suku berikutnya 46",
+           "is_correct": false,
+           "rationale": "46 adalah 23 × 2; suku berikutnya didapat dengan menambah 7.",
+           "misconception_code": "SINT5-B1-04"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 25
+           },
+           "label": "D",
+           "body": "Selisihnya 1 dan suku berikutnya 24",
+           "is_correct": false,
+           "rationale": "Barisan ini tidak naik satu-satu; periksa 9 − 2.",
+           "misconception_code": "SINT5-B1-05"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 3
+       },
+       "ordinal": "2",
+       "title": "Pola Berkurang",
+       "summary": "Barisan yang setiap langkahnya berkurang dengan bilangan yang sama, dan contohnya sehari-hari.",
+       "body_markdown": "## Barisan yang turun\nBarisan 40, 36, 32, 28 makin kecil. Setiap langkah berkurang 4. Barisan seperti ini disebut **pola berkurang tetap**.\n\nCara mencari selisihnya sama: kurangkan suku sesudahnya dari suku sebelumnya.\n- 40 − 36 = 4\n- 36 − 32 = 4\n- 32 − 28 = 4\n\n## Melanjutkan pola berkurang\nUntuk melanjutkan, kurangkan selisih dari suku terakhir: 28 − 4 = 24, lalu 24 − 4 = 20.\n\nPola berkurang sering kita temui sehari-hari:\n- sisa air di botol yang diminum sedikit demi sedikit\n- sisa halaman buku yang belum dibaca\n- sisa uang saku sesudah jajan setiap hari\n\n**Coba:** barisan 63, 56, 49, 42. Berapa dua suku berikutnya?\n_Periksa: selisihnya 7, jadi 42 − 7 = 35 dan 35 − 7 = 28._",
+       "objective": {
+        "statement": "Kalian dapat menentukan selisih pola berkurang tetap dan melanjutkan barisannya.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 8
+         },
+         "ref": "S7",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Barisan 50, 45, 40, 35, ... berkurang tetap. Bilangan berapa yang datang sesudah 35?",
+         "use": "PRE_TEST",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 26
+           },
+           "label": "A",
+           "body": "40",
+           "is_correct": false,
+           "rationale": "40 sudah ada di barisan; menambah 5 berarti arah polanya terbalik.",
+           "misconception_code": "SINT5-B1-02"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 27
+           },
+           "label": "B",
+           "body": "34",
+           "is_correct": false,
+           "rationale": "34 hanya berkurang 1, padahal setiap langkah berkurang 5.",
+           "misconception_code": "SINT5-B1-05"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 28
+           },
+           "label": "C",
+           "body": "30",
+           "is_correct": true,
+           "rationale": "35 − 5 = 30."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 29
+           },
+           "label": "D",
+           "body": "25",
+           "is_correct": false,
+           "rationale": "25 adalah dua langkah sesudah 35, bukan satu langkah.",
+           "misconception_code": "SINT5-B1-03"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 9
+         },
+         "ref": "S8",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tandon sekolah berisi 96 liter air. Setiap hari terpakai 8 liter. Berapa liter air yang tersisa sesudah 4 hari?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 30
+           },
+           "label": "A",
+           "body": "64 liter",
+           "is_correct": true,
+           "rationale": "Dalam 4 hari terpakai 4 × 8 = 32 liter, jadi tersisa 96 − 32 = 64 liter."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 31
+           },
+           "label": "B",
+           "body": "72 liter",
+           "is_correct": false,
+           "rationale": "72 liter adalah sisa air sesudah 3 hari.",
+           "misconception_code": "SINT5-B1-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 32
+           },
+           "label": "C",
+           "body": "128 liter",
+           "is_correct": false,
+           "rationale": "128 liter didapat dengan menambah 32; air yang terpakai harus dikurangkan.",
+           "misconception_code": "SINT5-B1-02"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 33
+           },
+           "label": "D",
+           "body": "32 liter",
+           "is_correct": false,
+           "rationale": "32 liter adalah air yang terpakai selama 4 hari, bukan air yang tersisa.",
+           "misconception_code": "SINT5-B1-08"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 10
+         },
+         "ref": "S9",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Barisan 81, 74, 67, 60, ... berkurang tetap. Suku keberapa yang bernilai 39?",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 34
+           },
+           "label": "A",
+           "body": "Suku ke-6",
+           "is_correct": false,
+           "rationale": "Suku ke-6 bernilai 46. Ada 6 langkah dari 81 ke 39, dan suku pertama juga dihitung.",
+           "misconception_code": "SINT5-B1-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 35
+           },
+           "label": "B",
+           "body": "Suku ke-42",
+           "is_correct": false,
+           "rationale": "42 adalah 81 − 39, besar perubahannya, bukan urutan suku.",
+           "misconception_code": "SINT5-B1-08"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 36
+           },
+           "label": "C",
+           "body": "Suku ke-8",
+           "is_correct": false,
+           "rationale": "Suku ke-8 bernilai 32; 39 sudah tercapai satu langkah sebelumnya.",
+           "misconception_code": "SINT5-B1-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 37
+           },
+           "label": "D",
+           "body": "Suku ke-7",
+           "is_correct": true,
+           "rationale": "81, 74, 67, 60, 53, 46, 39: bilangan 39 adalah suku ke-7."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 11
+         },
+         "ref": "S10",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Barisan 100, 90, 80, 70, ... berkurang 10 setiap langkah. Bilangan berapa yang datang sesudah 70?",
+         "difficulty": "0.3",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 38
+           },
+           "label": "A",
+           "body": "80",
+           "is_correct": false,
+           "rationale": "80 adalah suku sebelum 70; barisan ini turun.",
+           "misconception_code": "SINT5-B1-02"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 39
+           },
+           "label": "B",
+           "body": "60",
+           "is_correct": true,
+           "rationale": "70 − 10 = 60."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 40
+           },
+           "label": "C",
+           "body": "69",
+           "is_correct": false,
+           "rationale": "69 hanya berkurang 1, padahal setiap langkah berkurang 10.",
+           "misconception_code": "SINT5-B1-05"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 41
+           },
+           "label": "D",
+           "body": "340",
+           "is_correct": false,
+           "rationale": "340 adalah jumlah keempat suku, bukan suku berikutnya.",
+           "misconception_code": "SINT5-B1-07"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 12
+         },
+         "ref": "S11",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Di gudang ada 40 kursi. Setiap jam 6 kursi dibawa ke aula. Berapa kursi yang tersisa di gudang sesudah 3 jam?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 42
+           },
+           "label": "A",
+           "body": "34 kursi",
+           "is_correct": false,
+           "rationale": "34 kursi adalah sisa sesudah 1 jam; masih ada 2 jam lagi.",
+           "misconception_code": "SINT5-B1-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 43
+           },
+           "label": "B",
+           "body": "58 kursi",
+           "is_correct": false,
+           "rationale": "58 didapat dengan menambah 18; kursi yang dibawa pergi harus dikurangkan.",
+           "misconception_code": "SINT5-B1-02"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 44
+           },
+           "label": "C",
+           "body": "22 kursi",
+           "is_correct": true,
+           "rationale": "Dalam 3 jam dibawa 3 × 6 = 18 kursi; 40 − 18 = 22."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 45
+           },
+           "label": "D",
+           "body": "18 kursi",
+           "is_correct": false,
+           "rationale": "18 kursi adalah yang dibawa ke aula, bukan yang tersisa.",
+           "misconception_code": "SINT5-B1-08"
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 4
+       },
+       "ordinal": "3",
+       "title": "Pola pada Tabel dan Gambar",
+       "summary": "Pola yang tampak pada susunan benda dan pada tabel, serta cara melengkapi tabelnya.",
+       "body_markdown": "## Pola pada gambar\nSebuah susunan persegi dibuat dari batang lidi. Persegi pertama memerlukan 4 lidi. Setiap persegi yang ditempel di sampingnya memerlukan 3 lidi lagi.\n- 1 persegi: 4 lidi\n- 2 persegi: 7 lidi\n- 3 persegi: 10 lidi\n\nBanyak lidi membentuk barisan 4, 7, 10 dengan selisih 3.\n\n## Pola pada tabel\nPola juga dapat dituliskan dalam tabel. Baris atas menunjukkan urutan, baris bawah menunjukkan nilainya.\n\n| Banyak persegi | 1 | 2 | 3 | 4 | 5 |\n|---|---|---|---|---|---|\n| Banyak lidi | 4 | 7 | 10 | 13 | 16 |\n\nBacalah tabel per kolom: untuk 4 persegi, cari kolom yang atasnya 4, lalu baca angka di bawahnya, yaitu 13.\n\n## Melengkapi tabel\nTabel harga pensil di koperasi sekolah:\n\n| Banyak pensil | Harga |\n|---|---|\n| 1 | Rp2.500 |\n| 2 | Rp5.000 |\n| 3 | Rp7.500 |\n\nSetiap pensil menambah Rp2.500. Untuk melengkapi tabel:\n- tentukan selisih pada kolom harga\n- tambahkan selisih itu baris demi baris\n  - 4 pensil: Rp7.500 + Rp2.500 = Rp10.000\n  - 5 pensil: Rp10.000 + Rp2.500 = Rp12.500\n\n_Periksa: 5 × Rp2.500 = Rp12.500, sama dengan hasil penjumlahan berulang._",
+       "objective": {
+        "statement": "Kalian dapat membaca pola dari gambar atau tabel dan melengkapi nilai yang belum ada.",
+        "bloom": "APPLY"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 13
+         },
+         "ref": "S12",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Gambar ke-1 memakai 3 batang korek, gambar ke-2 memakai 5 batang, dan gambar ke-3 memakai 7 batang. Berapa batang korek pada gambar ke-4?",
+         "use": "PRE_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 46
+           },
+           "label": "A",
+           "body": "9 batang",
+           "is_correct": true,
+           "rationale": "Setiap gambar menambah 2 batang: 7 + 2 = 9."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 47
+           },
+           "label": "B",
+           "body": "10 batang",
+           "is_correct": false,
+           "rationale": "10 didapat dari 7 + 3; 3 adalah banyak batang gambar ke-1, bukan tambahannya.",
+           "misconception_code": "SINT5-B1-01"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 48
+           },
+           "label": "C",
+           "body": "8 batang",
+           "is_correct": false,
+           "rationale": "8 hanya menambah 1 batang; tambahannya 2 setiap gambar.",
+           "misconception_code": "SINT5-B1-05"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 49
+           },
+           "label": "D",
+           "body": "15 batang",
+           "is_correct": false,
+           "rationale": "15 adalah 3 + 5 + 7, jumlah batang ketiga gambar.",
+           "misconception_code": "SINT5-B1-07"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 14
+         },
+         "ref": "S13",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Daftar harga di koperasi: 1 buku Rp4.000, 2 buku Rp8.000, 3 buku Rp12.000. Jika polanya tetap, berapa harga 5 buku?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 50
+           },
+           "label": "A",
+           "body": "Rp16.000",
+           "is_correct": false,
+           "rationale": "Rp16.000 adalah harga 4 buku.",
+           "misconception_code": "SINT5-B1-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 51
+           },
+           "label": "B",
+           "body": "Rp20.000",
+           "is_correct": true,
+           "rationale": "Setiap buku menambah Rp4.000, jadi 5 buku seharga Rp20.000."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 52
+           },
+           "label": "C",
+           "body": "Rp24.000",
+           "is_correct": false,
+           "rationale": "Rp24.000 adalah Rp12.000 × 2; harganya bertambah Rp4.000 per buku.",
+           "misconception_code": "SINT5-B1-04"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 53
+           },
+           "label": "D",
+           "body": "Rp60.000",
+           "is_correct": false,
+           "rationale": "Rp60.000 memakai harga 3 buku seolah-olah harga 1 buku.",
+           "misconception_code": "SINT5-B1-06"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 15
+         },
+         "ref": "S14",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Tinggi sebuah tanaman: minggu ke-1 5 cm, minggu ke-2 8 cm, minggu ke-3 11 cm. Jika bertambah tetap, pada minggu keberapa tingginya 20 cm?",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 54
+           },
+           "label": "A",
+           "body": "Minggu ke-5",
+           "is_correct": false,
+           "rationale": "Pada minggu ke-5 tingginya baru 17 cm.",
+           "misconception_code": "SINT5-B1-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 55
+           },
+           "label": "B",
+           "body": "Minggu ke-15",
+           "is_correct": false,
+           "rationale": "15 adalah pertambahan tinggi dari 5 cm ke 20 cm, bukan urutan minggu.",
+           "misconception_code": "SINT5-B1-08"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 56
+           },
+           "label": "C",
+           "body": "Minggu ke-6",
+           "is_correct": true,
+           "rationale": "5, 8, 11, 14, 17, 20: tinggi 20 cm dicapai pada minggu ke-6."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 57
+           },
+           "label": "D",
+           "body": "Minggu ke-7",
+           "is_correct": false,
+           "rationale": "Pada minggu ke-7 tingginya sudah 23 cm.",
+           "misconception_code": "SINT5-B1-03"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 16
+         },
+         "ref": "S15",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Baris pertama sebuah tabel berisi banyak meja: 1, 2, 3, 4. Baris kedua berisi banyak kursi: 4, 8, 12, 16. Berapa kursi untuk 6 meja?",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 58
+           },
+           "label": "A",
+           "body": "20 kursi",
+           "is_correct": false,
+           "rationale": "20 kursi adalah pasangan untuk 5 meja.",
+           "misconception_code": "SINT5-B1-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 59
+           },
+           "label": "B",
+           "body": "6 kursi",
+           "is_correct": false,
+           "rationale": "6 adalah banyak meja; banyak kursi dibaca di baris kedua.",
+           "misconception_code": "SINT5-B1-06"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 60
+           },
+           "label": "C",
+           "body": "40 kursi",
+           "is_correct": false,
+           "rationale": "40 adalah 4 + 8 + 12 + 16, jumlah semua kursi pada tabel.",
+           "misconception_code": "SINT5-B1-07"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 61
+           },
+           "label": "D",
+           "body": "24 kursi",
+           "is_correct": true,
+           "rationale": "Setiap meja mendapat 4 kursi: 6 × 4 = 24."
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "_row": {
+        "sheet": "Pelajaran",
+        "row": 5
+       },
+       "ordinal": "4",
+       "title": "Memecahkan Masalah dengan Pola",
+       "summary": "Langkah memakai pola untuk soal cerita: jadwal, susunan benda, dan pola yang dikali.",
+       "body_markdown": "## Langkah memecahkan masalah\nBanyak soal cerita dapat diselesaikan dengan pola. Gunakan langkah berikut:\n- tuliskan beberapa suku pertama\n- cari selisihnya\n- lanjutkan sampai suku yang diminta\n- periksa jawaban dengan cara lain\n\n## Contoh: jadwal kereta mainan\nKereta mainan di taman berangkat pukul 08.00 dan berangkat lagi setiap 20 menit.\n\n| Keberangkatan ke- | Pukul |\n|---|---|\n| 1 | 08.00 |\n| 2 | 08.20 |\n| 3 | 08.40 |\n| 4 | 09.00 |\n\nKeberangkatan ke-4 adalah pukul **09.00**.\n\n## Contoh: menyusun kursi\nKursi di aula disusun berbaris. Baris pertama berisi 6 kursi, dan setiap baris berikutnya 2 kursi lebih banyak.\n- baris ke-1: 6 kursi\n- baris ke-2: 8 kursi\n- baris ke-3: 10 kursi\n\nBanyak kursi pada tiga baris pertama adalah 6 + 8 + 10 = **24 kursi**.\n_Periksa: baris pertama ikut dijumlahkan, bukan hanya baris yang terakhir._\n\n## Pola yang dikali\nTidak semua pola bertambah tetap. Pada barisan 3, 6, 12, 24, setiap suku adalah **dua kali** suku sebelumnya.\n\nUntuk mengenali jenis pola, periksa dua hal:\n- apakah selisihnya selalu sama?\n  - jika ya, polanya bertambah atau berkurang tetap\n- apakah hasil baginya selalu sama?\n  - jika ya, polanya dikali tetap\n\n**Coba:** lanjutkan barisan 2, 6, 18 satu suku lagi.\n_Periksa: setiap suku dikali 3, jadi 18 × 3 = 54._",
+       "objective": {
+        "statement": "Kalian dapat memakai pola bertambah, berkurang, atau dikali untuk memecahkan masalah sehari-hari.",
+        "bloom": "ANALYSE"
+       },
+       "media": [],
+       "items": [
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 17
+         },
+         "ref": "S16",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Bus pertama berangkat pukul 06.00, lalu setiap 15 menit berangkat bus berikutnya. Pukul berapa bus keempat berangkat?",
+         "use": "POST_TEST",
+         "difficulty": "0.5",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 62
+           },
+           "label": "A",
+           "body": "Pukul 07.00",
+           "is_correct": false,
+           "rationale": "Pukul 07.00 adalah keberangkatan bus kelima.",
+           "misconception_code": "SINT5-B1-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 63
+           },
+           "label": "B",
+           "body": "Pukul 06.30",
+           "is_correct": false,
+           "rationale": "Pukul 06.30 adalah keberangkatan bus ketiga.",
+           "misconception_code": "SINT5-B1-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 64
+           },
+           "label": "C",
+           "body": "Pukul 06.04",
+           "is_correct": false,
+           "rationale": "06.04 menambah satu menit untuk setiap bus; selangnya 15 menit.",
+           "misconception_code": "SINT5-B1-05"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 65
+           },
+           "label": "D",
+           "body": "Pukul 06.45",
+           "is_correct": true,
+           "rationale": "Bus ke-1 06.00, ke-2 06.15, ke-3 06.30, ke-4 06.45."
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 18
+         },
+         "ref": "S17",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Pak Dimas menyusun batu bata bertingkat. Tingkat paling atas berisi 2 bata, dan setiap tingkat di bawahnya berisi 3 bata lebih banyak. Ada 4 tingkat. Berapa bata seluruhnya?",
+         "use": "POST_TEST",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 66
+           },
+           "label": "A",
+           "body": "11 bata",
+           "is_correct": false,
+           "rationale": "11 bata hanya isi tingkat paling bawah; yang ditanyakan jumlah semua tingkat.",
+           "misconception_code": "SINT5-B1-08"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 67
+           },
+           "label": "B",
+           "body": "26 bata",
+           "is_correct": true,
+           "rationale": "Tingkatnya berisi 2, 5, 8, dan 11 bata; 2 + 5 + 8 + 11 = 26."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 68
+           },
+           "label": "C",
+           "body": "24 bata",
+           "is_correct": false,
+           "rationale": "24 adalah 5 + 8 + 11; tingkat paling atas belum ikut dijumlahkan.",
+           "misconception_code": "SINT5-B1-09"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 69
+           },
+           "label": "D",
+           "body": "12 bata",
+           "is_correct": false,
+           "rationale": "12 adalah 3 × 4; 3 adalah tambahan setiap tingkat, bukan isi tingkatnya.",
+           "misconception_code": "SINT5-B1-08"
+          }
+         ]
+        },
+        {
+         "_row": {
+          "sheet": "Soal",
+          "row": 19
+         },
+         "ref": "S18",
+         "item_type": "MCQ_SINGLE",
+         "stem": "Sebuah barisan dimulai dari 1, dan setiap suku adalah dua kali suku sebelumnya: 1, 2, 4, 8, ... Berapakah suku ke-6?",
+         "difficulty": "0.7",
+         "options": [
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 70
+           },
+           "label": "A",
+           "body": "16",
+           "is_correct": false,
+           "rationale": "16 adalah suku ke-5; masih satu langkah lagi.",
+           "misconception_code": "SINT5-B1-03"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 71
+           },
+           "label": "B",
+           "body": "11",
+           "is_correct": false,
+           "rationale": "11 didapat jika setiap langkah ditambah 2; barisan ini dikali 2.",
+           "misconception_code": "SINT5-B1-04"
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 72
+           },
+           "label": "C",
+           "body": "32",
+           "is_correct": true,
+           "rationale": "1, 2, 4, 8, 16, 32: suku ke-6 adalah 32."
+          },
+          {
+           "_row": {
+            "sheet": "Pilihan",
+            "row": 73
+           },
+           "label": "D",
+           "body": "64",
+           "is_correct": false,
+           "rationale": "64 adalah suku ke-7; hitungan sudah lewat satu langkah.",
+           "misconception_code": "SINT5-B1-03"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "misconceptions": [
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 2
+   },
+   "code": "SINT5-B1-01",
+   "label": "Suku pertama dipakai sebagai selisih",
+   "description": "Murid menambahkan suku pertama pada suku terakhir, seolah-olah suku pertama adalah selisihnya.",
+   "remediation": "Tuliskan pengurangan dua suku berurutan di bawah barisan, lalu tambahkan hasil pengurangan itu."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 3
+   },
+   "code": "SINT5-B1-02",
+   "label": "Arah pola terbalik",
+   "description": "Murid menambah pada pola yang berkurang, atau mengurangi pada pola yang bertambah.",
+   "remediation": "Tandai dengan panah naik atau turun di antara suku sebelum melanjutkan barisan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 4
+   },
+   "code": "SINT5-B1-03",
+   "label": "Banyak langkah meleset",
+   "description": "Murid berhenti satu langkah terlalu cepat atau terlalu jauh dari suku yang diminta.",
+   "remediation": "Beri nomor urut di bawah setiap suku dan berhenti tepat pada nomor yang diminta."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 5
+   },
+   "code": "SINT5-B1-04",
+   "label": "Pola tambah dan pola kali tertukar",
+   "description": "Murid mengalikan pada pola yang ditambah tetap, atau menambah tetap pada pola yang dikali.",
+   "remediation": "Periksa dulu selisih dan hasil bagi dua suku berurutan; pilih yang selalu sama."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 6
+   },
+   "code": "SINT5-B1-05",
+   "label": "Pola dianggap selalu naik atau turun satu",
+   "description": "Murid menambah atau mengurangi 1, tanpa melihat selisih barisan itu.",
+   "remediation": "Hitung selisih tiga pasang suku dan bandingkan hasilnya sebelum melanjutkan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 7
+   },
+   "code": "SINT5-B1-06",
+   "label": "Nilai dibaca dari baris atau kolom lain",
+   "description": "Murid mengambil angka dari baris atau kolom tabel yang bukan pasangannya.",
+   "remediation": "Tunjuk urutan pada baris atas, lalu turunkan jari lurus ke nilai pasangannya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 8
+   },
+   "code": "SINT5-B1-07",
+   "label": "Semua suku dijumlahkan",
+   "description": "Murid menjumlahkan suku-suku yang terlihat, padahal yang diminta satu suku tertentu.",
+   "remediation": "Garis bawahi kata tanya pada soal: suku keberapa yang diminta, atau jumlah semuanya."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 9
+   },
+   "code": "SINT5-B1-08",
+   "label": "Selisih dan suku tertukar",
+   "description": "Murid menjawab selisih atau besar perubahan, padahal yang diminta sukunya, atau sebaliknya.",
+   "remediation": "Tuliskan dua baris terpisah: baris suku dan baris selisih, lalu pilih baris yang ditanyakan."
+  },
+  {
+   "_row": {
+    "sheet": "Miskonsepsi",
+    "row": 10
+   },
+   "code": "SINT5-B1-09",
+   "label": "Suku pertama lupa dijumlahkan",
+   "description": "Saat menjumlahkan suku-suku, murid tidak menghitung suku pertama.",
+   "remediation": "Coret setiap suku yang sudah dijumlahkan, mulai dari suku pertama."
+  }
+ ]
+}

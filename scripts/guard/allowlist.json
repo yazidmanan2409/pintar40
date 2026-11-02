@@ -34,6 +34,16 @@
    "alasan": "copy of the real chapter (every item matches docs/onboarding/konten); public since D-143; F-4"
   },
   {
+   "path": "audit/fixtures/sd5-sintetis-bab1.paket.json",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"
+  },
+  {
+   "path": "audit/fixtures/sd5-sintetis-bab2.paket.json",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"
+  },
+  {
    "path": "docs/coordination/handoff/contoh-gsheets.xlsx",
    "jenis": "sintetis",
    "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
@@ -50,8 +60,28 @@
   },
   {
    "path": "docs/onboarding/contoh/contoh-buku-kerja-pintar.xlsx",
-   "jenis": "nyata-F4",
-   "alasan": "sample workbook carrying the real SD5 Bab 1 items and keys; public since D-143; F-4"
+   "jenis": "sintetis",
+   "alasan": "the example workbook, rebuilt for Batch 1 (F-4) from the synthetic SD5-Sintetis-Bab1.xlsx by npm run contoh:buku-kerja; 0 items from real content (its earlier real-content build is in history, F-4)"
+  },
+  {
+   "path": "docs/onboarding/konten-sintetis/SD5-Sintetis-Bab1.paket.json",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"
+  },
+  {
+   "path": "docs/onboarding/konten-sintetis/SD5-Sintetis-Bab1.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"
+  },
+  {
+   "path": "docs/onboarding/konten-sintetis/SD5-Sintetis-Bab2.paket.json",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"
+  },
+  {
+   "path": "docs/onboarding/konten-sintetis/SD5-Sintetis-Bab2.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture written for Batch 1 (F-4); 0 items from real content"
   },
   {
    "path": "docs/onboarding/konten/SD5-Matematika-Bab1.paket.json",
