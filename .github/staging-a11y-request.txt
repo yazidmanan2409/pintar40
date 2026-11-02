@@ -1,0 +1,3 @@
+# Requests for staging-a11y.yml (the Batch 0 accessibility harness on staging). One line per run; the last line names the school.
+# 2 Nov, Batch 1 staging verification: Sekolah Uji B1 1102 after GS-01 to GS-16; staging at 181, main 430544b (after run 41401958860)
+slug: sekolah-uji-b1-1102
