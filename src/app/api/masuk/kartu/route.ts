@@ -4,6 +4,7 @@ import { supabaseService } from "@/lib/supabase/service";
 import { alamatKlien, fetchBerpenerus } from "@/lib/auth-forwarding";
 import { asalSendiri, masukDenganKartu, type HasilRuteKartu } from "@/lib/kartu-masuk";
 import { tujuanMasuk } from "@/app/masuk/actions";
+import { keluarPerangkatIni } from "@/lib/keluar";
 
 /**
  * BOB-12: THE CLASS CARD'S SIGN-IN, served at `/masuk/kartu` (next.config.ts
@@ -65,10 +66,8 @@ export async function POST(request: NextRequest) {
         if (error || typeof data !== "boolean") throw new Error(error?.code ?? "no answer");
         return data;
       },
-      keluar: async () => {
-        const { error } = await (await sesi()).auth.signOut();
-        if (error) throw new Error(error.code ?? "sign-out refused");
-      },
+      // BOB-05: this session only (scope local), PINTAR's own record of it ended first; never Auth's global sign-out
+      keluar: async () => keluarPerangkatIni(await sesi()),
       tujuan: tujuanMasuk,
       catatGalat: (ref, apa) => console.error(`[masuk/kartu] ref=${ref} ${apa}`),
     },

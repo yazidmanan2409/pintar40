@@ -3725,7 +3725,7 @@
     {
       "id": "CR91-K01",
       "runner": "static",
-      "proves": "CR-91 (D-145(a)), the application's half (selftest/cr91.test.ts): src/lib/kartu-masuk.ts, driven with every outside call recorded, asks kartu_bukan_staf() as the new session after Auth accepts a card; a card whose person holds a staff role answers 403 CARD_REQUEST_REFUSED with a reference, its session is ended once and the attempt is not settled as a sign-in, and the answer does not say why; a check that cannot be asked fails closed (CARD_UNAVAILABLE, session ended); a learner's card signs in and is settled MASUK. src/app/api/masuk/kartu/route.ts asks with the session's own client, never the service role, and ends a refused session with signOut."
+      "proves": "CR-91 (D-145(a)), the application's half (selftest/cr91.test.ts): src/lib/kartu-masuk.ts, driven with every outside call recorded, asks kartu_bukan_staf() as the new session after Auth accepts a card; a card whose person holds a staff role answers 403 CARD_REQUEST_REFUSED with a reference, its session is ended once and the attempt is not settled as a sign-in, and the answer does not say why; a check that cannot be asked fails closed (CARD_UNAVAILABLE, session ended); a learner's card signs in and is settled MASUK. src/app/api/masuk/kartu/route.ts asks with the session's own client, never the service role, and ends a refused session through keluarPerangkatIni (this session only, BOB-05), never Auth's global sign-out."
     },
     {
       "id": "CR91-K02",

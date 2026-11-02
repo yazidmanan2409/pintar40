@@ -573,8 +573,15 @@ export const penutupanTests: SelfTest[] = [
         "a saved rule can be changed after its chapter has moved on");
       c.expect(/const \{ data: bab \} = await supabase\.from\("courses"\)\.select\("institution_id"\)\.eq\("id", course\)\.maybeSingle\(\);/.test(aksi)
         && /put\("institution_id", bab\.institution_id\);/.test(aksi), "the rule's school is not the chapter's own");
-      c.expect(/\.or\(`course_id\.eq\.\$\{course\}\$\{moduleIds\.length \? `,module_id\.in\.\(\$\{moduleIds\.join\(","\)\}\)` : ""\}`\)/.test(aksi)
-        && /\.eq\("is_ad_hoc", false\)\.eq\("status", \(bab\?\.status as string \| undefined\) \?\? ""\)/.test(aksi),
+      // RESTATED FOR BATCH 1 (W1.13, D-145(c)): the step is one transaction in the database (langkah_konten, its latest
+      // migration); the rule is the same: the chapter's rules and its modules' rules move with it, only those standing
+      // where the chapter stands, never an ad-hoc one; and Studio's step is that call
+      const langkah = readdirSync(join(ctx.repoRoot, "supabase", "migrations")).sort()
+        .filter((f) => /create or replace function public\.langkah_konten\(/.test(readFileSync(join(ctx.repoRoot, "supabase", "migrations", f), "utf8")))
+        .map((f) => readFileSync(join(ctx.repoRoot, "supabase", "migrations", f), "utf8")).pop() ?? "";
+      c.expect(/update public\.assessment_definitions set status = v_ke,[\s\S]{0,200}?where \(course_id = p_course or module_id = any\(v_mods\)\) and not is_ad_hoc and status = v_status;/.test(langkah)
+        && /select c\.institution_id, c\.status into v_inst, v_status from public\.courses c where c\.id = p_course;/.test(langkah)
+        && /supabase\.rpc\("langkah_konten", \{ p_course: course, p_ke: to \}\)/.test(aksi),
         "Studio's step does not move the chapter's rules, its modules' among them, standing where the chapter stands");
       c.expect(/ditolak\("save_assessment_definition", error, kodeGalatKonten\(error\)\)/.test(aksi)
         && kodeGalatKonten({ code: "P0001", message: "a rule is set while its chapter is still being drafted; this chapter is APPROVED" }) === "CONTENT_CREATED_NOT_INGESTED",

@@ -60,9 +60,9 @@ const uuidOrNull = (v: string): string | null =>
  * NEVER TRUST A 2XX (F-05). An UPDATE that row-level security filters to zero
  * rows returns no error from PostgREST: the author was told "Tersimpan" while
  * nothing had changed. Every table write here reads back what it touched and
- * compares it with what it meant to touch; a shortfall is a refusal.
+ * compares it with what it meant to touch; a shortfall is a refusal. The content step's own check now runs inside
+ * the database, in the same transaction as its writes (langkah_konten, W1.13).
  */
-const TIDAK_BERUBAH: HasilAksi = { ok: false, kode: "ACTION_UNCHANGED" };
 const TIDAK_DIKENALI: HasilAksi = { ok: false, kode: "ACTION_NOT_FOUND" };
 const KURANG: HasilAksi = { ok: false, kode: "ACTION_INPUT_INVALID" };
 
@@ -81,12 +81,8 @@ export async function advanceContentAction(fd: FormData): Promise<void> {
   // caller (APPROVED); enforce_content_status still decides every edge.
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("langkah_konten", { p_course: course, p_ke: to });
-  if (error) {
-    // F-05: a step that would change less than it meant to changes nothing, and says so
-    if (error.details === "ACTION_UNCHANGED") back(`/studio/paket/${course}`, "paket", TIDAK_BERUBAH);
-    // BOB-07: the content step's refusal, named (DAISY-06's step list shows it)
-    back(`/studio/paket/${course}`, "paket", ditolak("langkah_konten", error, kodeGalatKonten(error)));
-  }
+  // BOB-07: the content step's refusal, named (DAISY-06's step list shows it); a shortfall is ACTION_UNCHANGED (F-05)
+  if (error) back(`/studio/paket/${course}`, "paket", ditolak("langkah_konten", error, kodeGalatKonten(error)));
   back(`/studio/paket/${course}`, "paket", { ok: true, kode: "STEP_TAKEN" });
 }
 

@@ -2007,7 +2007,12 @@ export const experienceTests: SelfTest[] = [
       // MOVED 176 -> 177 for L3 (D-132): 20261210100000 adds five columns to device_sessions (konteks_tujuan,
       // konteks_tempat, konteks_platform, konteks_sebab, konteks_pada: a session's working context) and four functions.
       // Read against §3 first: none is a mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
-      c.expect(migrations.length === 177, `${migrations.length} migrations; the frozen baseline has 177`);
+      // MOVED 177 -> 181 for Batch 1 (D-145): 20261211100000 adds learner_readable_fields.judul_kolom (a finding's column
+      // in the workbook's words) and re-words platform reference rows; 20261212100000 adds two triggers and four functions
+      // (CR-91); 20261213100000 adds a content-status edge; 20261214100000 adds content_review_outcomes (a review's outcome,
+      // reason, reviewer and author) and three functions. Read against §3 first: none is a mark, a logo, a crest or a
+      // theme, so the Q-7 source still does not exist.
+      c.expect(migrations.length === 181, `${migrations.length} migrations; the frozen baseline has 181`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3805,7 +3810,9 @@ export const experienceTests: SelfTest[] = [
       // MOVED 171 -> 173 for batch 3b (D-123): the decision queue's referrer rule and catalogue MC-7 touch no tour RPC.
       // MOVED 173 -> 176 for L2: a band's reading, the integrity waiting list and a rule's save touch no tour RPC.
       // MOVED 176 -> 177 for L3 (D-132): a session's working context touches no tour RPC.
-      c.expect(migs.length === 177, `${migs.length} migrations; the baseline has 177`);
+      // MOVED 177 -> 181 for Batch 1 (D-145): v1 wording, CR-91's card rule, the send-back edge, the one-transaction content
+      // step and the review record touch no tour RPC.
+      c.expect(migs.length === 181, `${migs.length} migrations; the baseline has 181`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -9652,7 +9659,7 @@ export const experienceTests: SelfTest[] = [
         { locale, mode: "EMAIL", jawaban: { ok: false, error: "refused", detail: DETAIL }, surel: "guru@sekolah.sch.id" },
         { locale, mode: "NEW_PERSON", jawaban: null },
       ]);
-      const FORM = { locale: "id", adminSistem: true, orang: [{ person_id: "p1", display_name: "Nadia Putri", institutional_id: "2026001", institution_id: "i1" }] };
+      const FORM = { locale: "id", adminSistem: true, orang: [{ person_id: "p1", display_name: "Nadia Putri", institutional_id: "2026001", institution_id: "i1", boleh_kartu: true }] };
       const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
         "(async () => {" +
         '  const { createElement: h } = await import("react");' +

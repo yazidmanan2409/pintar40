@@ -10,7 +10,7 @@
  *            person holds a staff role is refused (403 CARD_REQUEST_REFUSED, with a reference), its session is ended,
  *            and the attempt is not settled as a sign-in; a question that cannot be asked fails closed the same way
  *            (CARD_UNAVAILABLE). A learner's card signs in as before. The route asks with the session's own client
- *            (never the service role) and ends it with signOut.
+ *            (never the service role) and ends it through keluarPerangkatIni (this session only, BOB-05).
  *  CR91-K02  AKTIVASI OFFERS A CARD ONLY TO A LEARNER. bolehKartu is true only for an explicit boleh_kartu = true; the
  *            real form, rendered, offers «kartu» to the learner and not to the Guru (email only); the page builds the
  *            whole-class card groups from the people a card may be offered to.
@@ -72,8 +72,8 @@ export const cr91Tests: SelfTest[] = [
         c.expect(/bukanStaf:\s*async\s*\(\)\s*=>\s*\{[\s\S]{0,200}?\(await sesi\(\)\)\.rpc\(\s*["']kartu_bukan_staf["']/.test(rute),
           "the route does not ask kartu_bukan_staf with the new session's own client");
         c.expect(!/layanan\.rpc\(\s*["']kartu_bukan_staf["']/.test(rute), "the route asks the staff check with the service role");
-        c.expect(/keluar:\s*async\s*\(\)\s*=>\s*\{[\s\S]{0,200}?\(await sesi\(\)\)\.auth\.signOut\(/.test(rute),
-          "the route does not end a refused card session with the session's own signOut");
+        c.expect(/keluar:\s*async\s*\(\)\s*=>\s*keluarPerangkatIni\(\s*await sesi\(\)\s*\)/.test(rute),
+          "the route does not end a refused card session through keluarPerangkatIni (this session only, BOB-05)");
       } finally {
         for (const [k, v] of Object.entries(sebelum)) { if (v === undefined) delete process.env[k]; else process.env[k] = v; }
       }

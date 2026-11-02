@@ -202,6 +202,12 @@ begin
   return n;
 end $$;
 
+-- ADR-0021: a re-emitted function's rights are stated in the migration that re-emits it (as they stood)
+revoke all on function public.validate_course_content(uuid) from public, anon, authenticated;
+revoke all on function public.run_mcq_quality(uuid) from public, anon, authenticated;
+grant execute on function public.validate_course_content(uuid) to authenticated;
+grant execute on function public.run_mcq_quality(uuid) to authenticated;
+
 do $$
 declare v text;
 begin

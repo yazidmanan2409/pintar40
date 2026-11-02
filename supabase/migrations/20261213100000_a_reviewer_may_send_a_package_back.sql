@@ -5,11 +5,11 @@
 -- IN_REVIEW -> VALIDATION_FAILED («returned for correction», the state Studio already shows as «dikembalikan» and
 -- whose way forward, VALIDATION_FAILED -> STRUCTURED, already exists), and guards it in enforce_content_status: the
 -- step is taken only inside kembalikan_paket() (part 2, 20261214100000), which checks the reviewer's authority, the
--- second person and the reason, and records the outcome. A plain UPDATE making the step is refused with the
--- trigger's existing «illegal content transition» refusal (BOB07-K02's coded set is unchanged: CONTENT_TRANSITION_INVALID).
+-- second person and the reason, and records the outcome. A plain UPDATE making the step is refused by the trigger's
+-- existing «illegal content transition» refusal, the same raise (BOB07-K02's coded set is unchanged).
 --
 -- This file holds only the edge and the trigger, so the trigger's refusals stay the ones BOB07-K02 reads.
--- enforce_content_status is 20260915150000's text with step (1b) added; nothing else in it changes.
+-- enforce_content_status is 20260915150000's text with one condition added to step (1); nothing else in it changes.
 
 insert into public.content_status_transitions (from_status, to_status, note) values
   ('IN_REVIEW', 'VALIDATION_FAILED', 'sent back to its author by a reviewer, with a reason (W1.6, kembalikan_paket)');
@@ -32,19 +32,15 @@ begin
   if new.status is distinct from old.status then
     -- (1) is the transition legal? The graph alone decides, and it knows
     -- nothing about roles.
+    -- W1.6 (Batch 1, D-145(c)): IN_REVIEW -> VALIDATION_FAILED is a reviewer sending the package back to its author,
+    -- and is legal ONLY inside kembalikan_paket(), which checks CAN_REVIEW, that the reviewer is not the author, and
+    -- that a reason is given, and records the outcome. That function marks its own transaction; for any other
+    -- statement (an author's plain UPDATE under CAN_DRAFT, say) the edge is as if it were not in the allow-list.
     if not exists (select 1 from public.content_status_transitions t
-                    where t.from_status = old.status and t.to_status = new.status) then
+                    where t.from_status = old.status and t.to_status = new.status)
+       or (old.status = 'IN_REVIEW' and new.status = 'VALIDATION_FAILED'
+           and coalesce(current_setting('pintar.kirim_balik', true), '') <> 'ya') then
       raise exception 'illegal content transition % -> % on %.% (not in the allow-list)',
-        old.status, new.status, tg_table_schema, tg_table_name;
-    end if;
-
-    -- (1b) W1.6 (Batch 1, D-145(c)): IN_REVIEW -> VALIDATION_FAILED is a reviewer sending the package back to its
-    -- author, and is taken ONLY through kembalikan_paket(), which checks CAN_REVIEW, that the reviewer is not the
-    -- author, and that a reason is given, and records the outcome. That function marks its own transaction; any other
-    -- statement making this step (an author's plain UPDATE under CAN_DRAFT, say) is refused as an illegal transition.
-    if old.status = 'IN_REVIEW' and new.status = 'VALIDATION_FAILED'
-       and coalesce(current_setting('pintar.kirim_balik', true), '') <> 'ya' then
-      raise exception 'illegal content transition % -> % on %.% (only a reviewer''s send-back with a reason)',
         old.status, new.status, tg_table_schema, tg_table_name;
     end if;
 
@@ -110,6 +106,9 @@ begin
   end if;
   return new;
 end $$;
+
+-- ADR-0021: the trigger function is nobody's to call, as it stood
+revoke all on function public.enforce_content_status() from public, anon, authenticated;
 
 do $$
 begin

@@ -104,20 +104,20 @@ begin
          reviewed_by_person_id = case when v_ke = 'APPROVED' then v_me else reviewed_by_person_id end
    where lesson_id = any(v_les);
   get diagnostics v_n = row_count;
-  if v_n <> v_harap then raise exception using errcode = 'PR040', detail = 'ACTION_UNCHANGED', message = format('a content step changed %s of %s items; nothing was changed', v_n, v_harap); end if;
+  if v_n <> v_harap then raise exception using errcode = 'PR040', detail = 'ACTION_UNCHANGED', message = 'a content step changed fewer rows than it meant to, so nothing was changed', hint = format('%s of %s items', v_n, v_harap); end if;
 
   select count(*) into v_harap from public.lessons l where l.module_id = any(v_mods);
   update public.lessons set status = v_ke,
          reviewed_by_person_id = case when v_ke = 'APPROVED' then v_me else reviewed_by_person_id end
    where module_id = any(v_mods);
   get diagnostics v_n = row_count;
-  if v_n <> v_harap then raise exception using errcode = 'PR040', detail = 'ACTION_UNCHANGED', message = format('a content step changed %s of %s lessons; nothing was changed', v_n, v_harap); end if;
+  if v_n <> v_harap then raise exception using errcode = 'PR040', detail = 'ACTION_UNCHANGED', message = 'a content step changed fewer rows than it meant to, so nothing was changed', hint = format('%s of %s lessons', v_n, v_harap); end if;
 
   update public.modules set status = v_ke,
          reviewed_by_person_id = case when v_ke = 'APPROVED' then v_me else reviewed_by_person_id end
    where course_id = p_course;
   get diagnostics v_n = row_count;
-  if v_n <> coalesce(array_length(v_mods, 1), 0) then raise exception using errcode = 'PR040', detail = 'ACTION_UNCHANGED', message = format('a content step changed %s of %s modules; nothing was changed', v_n, coalesce(array_length(v_mods, 1), 0)); end if;
+  if v_n <> coalesce(array_length(v_mods, 1), 0) then raise exception using errcode = 'PR040', detail = 'ACTION_UNCHANGED', message = 'a content step changed fewer rows than it meant to, so nothing was changed', hint = format('%s of %s modules', v_n, coalesce(array_length(v_mods, 1), 0)); end if;
 
   -- FD-9 (D-127 Q8): the chapter's rules (and its modules' rules) move with it, only those standing where it stands;
   -- they may legitimately be none, so they are not counted
@@ -129,7 +129,7 @@ begin
          reviewed_by_person_id = case when v_ke = 'APPROVED' then v_me else reviewed_by_person_id end
    where id = p_course;
   get diagnostics v_n = row_count;
-  if v_n <> 1 then raise exception using errcode = 'PR040', detail = 'ACTION_UNCHANGED', message = format('a content step changed %s of %s courses; nothing was changed', v_n, 1); end if;
+  if v_n <> 1 then raise exception using errcode = 'PR040', detail = 'ACTION_UNCHANGED', message = 'a content step changed fewer rows than it meant to, so nothing was changed', hint = format('%s of %s courses', v_n, 1); end if;
 end $$;
 revoke all on function public.langkah_konten(uuid, text) from public, anon, authenticated;
 grant execute on function public.langkah_konten(uuid, text) to authenticated;

@@ -188,8 +188,9 @@ grant execute on function public.persons_awaiting_account() to authenticated;
 create or replace function public.kartu_bukan_staf()
 returns boolean
 language sql stable security definer set search_path = public, pg_temp as $$
+  -- the caller's own person (current_person_id: one account per person), never an argument
   select not exists (select 1 from public.accounts a
-                      where a.auth_user_id = auth.uid() and a.kind = 'CLASSROOM_CARD'
+                      where a.person_id = public.current_person_id() and a.kind = 'CLASSROOM_CARD'
                         and public.memegang_peran_staf(a.person_id))
 $$;
 revoke all on function public.kartu_bukan_staf() from public, anon, authenticated;

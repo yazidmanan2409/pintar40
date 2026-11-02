@@ -46,7 +46,7 @@ rights_release as (select unnest(string_to_array(
   'assessment_results=S assessment_sessions=s assistance_grants=S assistance_levels=S audit_log=S ' ||
   'briefing_transitions=S briefings=S certificate_identity_snapshots=S certificate_templates=S ' ||
   'certificates=S classes=S coaching_findings=SU content_ownership_lineage=S ' ||
-  'content_status_transitions=S course_revision_notes=S courses=SIU doctrine_lexicon=S ' ||
+  'content_review_outcomes=S content_status_transitions=S course_revision_notes=S courses=SIU doctrine_lexicon=S ' ||
   'enrollments=SIU evidence_class_overrides=SI exam_cooling_policies=SIU feature_flags=SIU ' ||
   'feedback_cycles=S feedback_opportunities=S generated_reports=S import_jobs=S import_rows=S ' ||
   'ingest_batches=SIU ingest_status_transitions=S institutional_identities=S institutions=S ' ||
