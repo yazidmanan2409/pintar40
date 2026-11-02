@@ -9,7 +9,8 @@ import { useEffect, useRef, type ReactNode } from "react";
  *
  * The native <dialog>, opened with showModal(): it holds focus, Esc closes it, and focus returns to what opened it.
  * A title, one or two sentences of consequence, the actions at the end (the safe one first); under 640 px they stack,
- * the safe one last. For a destructive act, focus starts on the safe button (`autoFocus` on «Batal»).
+ * the safe one last. For a destructive act, focus starts on the safe button: put it first, and showModal() focuses it
+ * (never React's autoFocus, which focuses at mount, while the dialog is still closed).
  */
 export default function Dialog({
   terbuka, judul, idJudul, onTutup, children, aksi,

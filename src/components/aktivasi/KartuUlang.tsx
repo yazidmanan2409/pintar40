@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import BarisHasil from "@/components/BarisHasil";
+import Kosong from "@/components/Kosong";
 import { bacaJawabanKartuUlang, type AlasanKartuUlang, type JawabanKartuUlang } from "@/lib/kartu-ulang-kontrak";
 import LembarKartu, { type KartuCetak } from "./LembarKartu";
 
@@ -69,7 +70,9 @@ export default function KartuUlang({ locale, pemegang }: { locale: Locale; pemeg
       <h2 id="pin-akt-ulang">{s("aktivasi.ulang.judul")}</h2>
       <p className="pin-meta">{s("aktivasi.ulang.arti")}</p>
       {pemegang.length === 0 ? (
-        <BarisHasil nada="netral">{s("aktivasi.ulang.kosong")}</BarisHasil>
+        // W3.2 (Batch 2): an empty state, not a result. As BarisHasil it scrolled itself into view on load, which moved the
+        // browser's Tab starting point to the foot of the page, so the first Tab skipped «Langsung ke isi» (found on /aktivasi).
+        <Kosong jenis="belum" kalimat={s("aktivasi.ulang.kosong")} />
       ) : (
         <>
           <label className="pin-akt-isian">

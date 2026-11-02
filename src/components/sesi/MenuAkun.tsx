@@ -14,6 +14,8 @@ import BarisHasil from "@/components/BarisHasil";
  * Keyboard: the button has aria-haspopup, aria-expanded and aria-controls; on open the first item takes focus; arrow
  * keys move, Home and End go to the ends; Esc, Tab or a press outside closes it, and Esc returns focus to the button.
  * The dialog is opened from the button (the item that asked is hidden by then), so closing it returns focus there.
+ * «Batal» is the dialog's first control, so showModal() gives it focus. Not React's autoFocus: that calls focus() once,
+ * when the closed dialog mounts, and moved the page's Tab starting point off the skip link (found on /aktivasi).
  */
 export default function MenuAkun({ locale, nama, children }: { locale: Locale; nama: string; children: React.ReactNode }) {
   const s = useCallback((k: HleEvent) => t(k, "staff", { locale }), [locale]);
@@ -86,7 +88,7 @@ export default function MenuAkun({ locale, nama, children }: { locale: Locale; n
         onTutup={() => { setTanya(false); }}
         aksi={
           <>
-            <button type="button" className="pin-btn" autoFocus onClick={() => setTanya(false)} disabled={keadaan === "sibuk"}>
+            <button type="button" className="pin-btn" onClick={() => setTanya(false)} disabled={keadaan === "sibuk"}>
               {s("akun.semua.batal")}
             </button>
             <button type="button" className="pin-btn pin-bahaya-pasti" onClick={() => void keluarSemua()} disabled={keadaan === "sibuk"}

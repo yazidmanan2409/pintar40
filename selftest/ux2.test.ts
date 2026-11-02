@@ -244,6 +244,11 @@ export const ux2Tests: SelfTest[] = [
         c.expect(/data-kosong="kurang"/.test(k.html) && !/<a /.test(k.html), "«not enough yet» offers an action");
         c.expect(/Hapus pencarian<\/a>/.test(n.html), "«nothing matches» has no way back");
       }
+      // an empty state is drawn as one, never as a result line: BarisHasil scrolls itself into view on mount, which moved the
+      // browser's Tab starting point past «Langsung ke isi» on /aktivasi (found by the crawl, Batch 2 promotion)
+      const ulang = readFileSync(join(ctx.repoRoot, "src/components/aktivasi/KartuUlang.tsx"), "utf8");
+      c.expect(/<Kosong jenis="belum" kalimat=\{s\("aktivasi\.ulang\.kosong"\)\} \/>/.test(ulang) && !/<BarisHasil[^>]*>\{s\("aktivasi\.ulang\.kosong"\)\}/.test(ulang),
+        "Aktivasi's «no card holders yet» is drawn as a result line, not an empty state");
       const kk = readFileSync(join(ctx.repoRoot, "src/components/bukti/KartuKetiadaan.tsx"), "utf8");
       c.expect(!/\(\$\{format\.number\(entry\.have/.test(kk) && /ketiadaan\.jumlah\.murid/.test(kk), "the absence card still writes «(have/needed)»");
       const { t } = await import("../src/lib/hle");
@@ -282,7 +287,9 @@ export const ux2Tests: SelfTest[] = [
       const src = readFileSync(join(ctx.repoRoot, "src/components/sesi/MenuAkun.tsx"), "utf8");
       const dlg = readFileSync(join(ctx.repoRoot, "src/components/Dialog.tsx"), "utf8");
       c.expect(/d\.showModal\(\)/.test(dlg) && /p\.focus\(\)/.test(dlg), "the dialog is not modal, or focus does not return to its opener");
-      c.expect(/autoFocus onClick=\{\(\) => setTanya\(false\)\}/.test(src), "focus does not start on «Batal»");
+      // focus starts on «Batal» because it is the dialog's first control and showModal() focuses that; React's autoFocus
+      // focused it at mount, inside the closed dialog, and moved the page's Tab starting point (found on /aktivasi)
+      c.expect(!/<button[^>]*\sautoFocus[\s/>]/.test(src) && /<div className="pin-dialog-aksi">\{aksi\}<\/div>/.test(dlg), "focus does not start on «Batal» through showModal, or autoFocus is back");
       for (const k of ["ArrowDown", "ArrowUp", "Home", "End", "Escape", "Tab"]) c.expect(src.includes(`e.key === "${k}"`), `the menu ignores ${k}`);
       c.expect(/butir\(\)\[0\]\?\.focus\(\)/.test(src) && /pointerdown/.test(src), "the first item does not take focus on open, or a press outside does not close it");
       const css = readFileSync(join(ctx.repoRoot, "src/app/experience.css"), "utf8");
