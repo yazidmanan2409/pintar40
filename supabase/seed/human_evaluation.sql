@@ -413,9 +413,9 @@ begin
   insert into public.evaluation_personas (person_id, institution_id, label, role_perspective, ordinal) values
     (p_siswa, inst, 'Murid',                  'STUDENT',            1),
     (p_guru,  inst, 'Guru',                   'EDUCATOR',           2),
-    (p_hod,   inst, 'Penelaah & Penerbit',    'HEAD_OF_DEPARTMENT', 3),
-    (p_dekan, inst, 'Pimpinan Sekolah',       'DEAN',               4),
-    (p_admin, inst, 'Administrator Sekolah',  'INSTITUTION_ADMIN',  5);
+    (p_hod,   inst, 'Kepala departemen',      'HEAD_OF_DEPARTMENT', 3),
+    (p_dekan, inst, 'Dekan',                  'DEAN',               4),
+    (p_admin, inst, 'Admin sekolah',          'INSTITUTION_ADMIN',  5);
   select array_agg(id) into v_persona_ids from public.evaluation_personas where institution_id = inst;
   if array_length(v_persona_ids, 1) <> 5 then
     raise exception 'the evaluation hub has % persona(s), expected exactly five', array_length(v_persona_ids, 1);
