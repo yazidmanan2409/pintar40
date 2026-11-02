@@ -91,8 +91,8 @@ export const aturan = [
     minimal: 3,
   },
   //  (b) a content generator's keyed option tuple: an option, then True (Python) or true (JS), then a reason
-  //      opening «Benar», which is how the removed chapter generators held every item's key;
-  { id: "kunci-jawaban-generator", pola: /,\s*(?:True|true)\s*,\s*["']Benar\b/g, jalur: /\.(py|ts|tsx|mts|cts|js|mjs|cjs|json|md|txt)$/i },
+  //      opening «Benar» or «Tepat», which is how the removed chapter generators held every item's key;
+  { id: "kunci-jawaban-generator", pola: /,\s*(?:True|true)\s*,\s*["'](?:Benar|Tepat)\b/g, jalur: /\.(py|ts|tsx|mts|cts|js|mjs|cjs|json|md|txt)$/i },
   //  (c) a misconception CSV that maps each question's distractors: a header with both a `code` and a `questions`
   //      column (the questions column lists every wrong letter per item, which gives the key by elimination).
   {

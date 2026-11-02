@@ -10,7 +10,7 @@
  *           personal address; a plausible NIK; an undeclared answer-key package, including one under audit/fixtures
  *           (two real chapters sat there, B0-C finding). F-4 (D-145(b)), keyed CONTENT in any text file, class
  *           kunci-jawaban: (a) three or more "is_correct": true markers in a .ts, .py, .sql, .md or .json file that is
- *           not a package, (b) a generator's keyed option tuple (an option, True, then a reason opening «Benar»),
+ *           not a package, (b) a generator's keyed option tuple (an option, True, then a reason opening «Benar» or «Tepat»),
  *           (c) a misconception CSV whose header has both `code` and `questions` (its distractor map gives the key by
  *           elimination). Green: the
  *           Supabase local stack's demo JWT, synthetic and reserved domains, organisational role addresses, stand-in
@@ -93,6 +93,8 @@ export const secguardTests: SelfTest[] = [
         // F-4 (b): a chapter generator's keyed option tuples
         ["kunci-jawaban-generator", "kunci-jawaban", "docs/onboarding/konten/sd5_matematika_bab10.py",
           ["OPSI = [", `    ("${isi(8)}", ${"Tr" + "ue"}, "${"Ben" + "ar"}. ${isi(20)}", ""),`, `    ("${isi(8)}", False, "${isi(20)}", "K-1"),`, "]"].join("\n")],
+        ["kunci-jawaban-generator", "kunci-jawaban", "docs/onboarding/konten/sma11_geografi_bab9.py",
+          `SOAL_1 = [\n    ("${isi(8)}", ${"Tr" + "ue"}, "${"Tep" + "at"}. ${isi(20)}", "", "k_1"),\n]`],
         ["kunci-jawaban-generator", "kunci-jawaban", "scripts/bab10.mjs", `const o = ["${isi(6)}", ${"tr" + "ue"}, '${"Ben" + "ar"}: ${isi(12)}'];`],
         // F-4 (c): a misconception CSV with its distractor map
         ["kunci-jawaban-miskonsepsi", "kunci-jawaban", "docs/onboarding/konten/SD5-Matematika-Bab10-miskonsepsi.csv",
@@ -123,7 +125,7 @@ export const secguardTests: SelfTest[] = [
         ["a migration that names the column", "supabase/migrations/2026_x.sql", `select count(*) from item_options where is_correct; -- {${tanda()}}`],
         ["a declared synthetic corpus file", "docs/onboarding/konten-sintetis/SD5-Sintetis-Bab1.paket.json", `{"items": ${soalBerkunci(5)}}`],
         ["a CSV with a code column and no question map", "docs/kode.csv", `${"co" + "de"},label,remediation\nK-1,x,y`],
-        ["a generator tuple that is not a key", "scripts/x.py", `ROW = ("a", ${"Tr" + "ue"}, "Benarkah ini")\nOK = ("b", False, "${"Ben" + "ar"}")`],
+        ["a generator tuple that is not a key", "scripts/x.py", `ROW = ("a", ${"Tr" + "ue"}, "Benarkah ini", "Tepatnya")\nOK = ("b", False, "${"Ben" + "ar"}")`],
         ["a synthetic fixture's example name", "selftest/fixtures/nama.csv", `${"ani.putri" + at + "sekolah.sch.id"}`],
       ];
       for (const [apa, path, teks] of hijau) {
