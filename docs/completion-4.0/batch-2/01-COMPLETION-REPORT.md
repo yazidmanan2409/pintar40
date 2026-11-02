@@ -65,7 +65,7 @@ The browser walk found two defects before this report, both now fixed:
 | Measure | Batch 0 baseline (39 screens) | Batch 2 (40 screens) |
 |---|---|---|
 | Title missing or only «PINTAR» | 39 | **0** |
-| No working skip link as the first Tab stop | 39 | **2**, both caused by the guided tour taking focus on a first visit (by design), plus §4(b) |
+| No working skip link as the first Tab stop | 39 | **3**: two are the guided tour taking focus on a first visit (by design; the teacher's Mengajar, the learner's Belajar), one is §4(b) |
 | A focus stop without a visible indicator | 1 | **0** |
 | axe clean | 38 | **40** (the /lapor `label` finding fixed) |
 | Wider than the window at 640 px | 5 | 5 (unchanged; not Batch 2's) |
@@ -73,7 +73,16 @@ The browser walk found two defects before this report, both now fixed:
 
 ## 3. CI on the branch
 
-*Filled from the final runs.*
+| Run | Commit | Result | Minutes |
+|---|---|---|---|
+| `ci` 41411049255 | `4c2ff6e` | RED at lint: the evidence script used `require()`; converted to an ES module | 6 |
+| `audit-journeys` 41411053594 | `4c2ff6e` | GREEN (A, B) | 45 |
+| `ci` 41414899272 | `7eafd50` | RED: UX1-PIMPINAN-AKSES-01. /pimpinan's title carried its heading to refused readers; fixed. Cancelled once superseded. | 84 |
+| **`ci` 41418570342** | **`d1bb705`** | **GREEN: 18/18; strict selftest 688 passed, 0 failed, 0 skipped** | 72 |
+| **`audit-journeys` 41418574826** | **`d1bb705`** | **GREEN: A (every role's screens, with the accessibility crawl in §2.1) and B (Gladys's path)** | 44 |
+| **Batch 2 total** | | | **251** |
+
+GitHub bills nothing for this public repository; the minutes are runner-minutes, rounded up per job.
 
 ## 4. Remaining gaps (not hidden)
 
