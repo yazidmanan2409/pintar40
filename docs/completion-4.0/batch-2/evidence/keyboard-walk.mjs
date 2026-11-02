@@ -1,6 +1,7 @@
+// Batch 2 evidence script (run against a local build: OUT=<dir> AXE=<axe.min.js> node keyboard-walk.mjs, with playwright resolvable).
 // Batch 2 exit gate: a keyboard walk of the shell and the account menu, axe on the shells, screenshots at 320/1024/1280.
-const { chromium } = require('playwright');
-const fs = require('fs');
+import { chromium } from 'playwright';
+import fs from 'node:fs';
 const APP = 'http://127.0.0.1:3999', OUT = process.env.OUT;
 const AXE = fs.readFileSync(process.env.AXE, 'utf8');
 const hasil = []; const catat = (id, ok, d) => { hasil.push({ id, ok, d }); console.log(`${ok ? 'PASS' : 'FAIL'} ${id} :: ${d}`); };
@@ -35,7 +36,7 @@ async function axe(p, nama) {
       const di = new URL(p.url()).pathname;
       const judul = await p.title();
       catat('JUDUL', /· PINTAR$|PINTAR/.test(judul) && judul !== 'PINTAR', `${di}: «${judul}»`);
-      await p.evaluate(() => { document.activeElement && document.activeElement.blur(); window.scrollTo(0, 0); });
+      await p.evaluate(() => { if (document.activeElement) document.activeElement.blur(); window.scrollTo(0, 0); });
       await p.keyboard.press('Tab'); await p.waitForTimeout(400); let a = await aktif(p);
       catat('LEWATI-1', a.tag === 'a' && /pin-lewati/.test(a.cls) && a.atas >= 0 && a.terlihat, `first Tab → ${a.tag}.${a.cls} «${a.teks}» top ${Math.round(a.atas)} ring ${a.terlihat}`);
       await p.screenshot({ path: `${OUT}/01-lewati-1280.png` });
@@ -63,7 +64,7 @@ async function axe(p, nama) {
       const buka = await p.evaluate(() => document.querySelector('dialog.pin-dialog')?.open === true); a = await aktif(p);
       catat('DIALOG-1', buka && /Batal|Cancel/.test(a.teks), `dialog open=${buka}, focus on «${a.teks}»`);
       await p.screenshot({ path: `${OUT}/03-dialog-1280.png` });
-      await p.keyboard.press('Tab'); const t1 = (await aktif(p)).teks; await p.keyboard.press('Tab'); const t2 = (await aktif(p)).teks;
+      await p.keyboard.press('Tab'); const t1 = (await aktif(p)).teks; await p.keyboard.press('Tab');
       const luar = await p.evaluate(() => { const e = document.activeElement; const d = document.querySelector('dialog.pin-dialog'); return e && e !== document.body && !d.contains(e) ? e.tagName : null; });
       catat('DIALOG-2', /Keluar dari semua|Sign out everywhere/.test(t1) && luar === null, `Tab «${t1}», Tab again: focus behind the dialog = ${luar ?? 'none (the page behind is inert; the browser takes it)'}`);
       await p.keyboard.press('Escape'); await p.waitForTimeout(200);
