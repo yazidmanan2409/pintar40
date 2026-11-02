@@ -1,0 +1,5 @@
+#!/bin/sh
+# Batch 0 (B0-C, D-143): the repository is public. Refuse a commit that adds a credential, real-person data or an
+# undeclared answer-key file. Prints rule, path and a fingerprint, never the value. Installed by `npm install`
+# (the prepare script sets core.hooksPath=.githooks); CI runs the same scanner over the whole tree (SEC-G02).
+exec node scripts/guard/sensitive-scan.mjs --staged

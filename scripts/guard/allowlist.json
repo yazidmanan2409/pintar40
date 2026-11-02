@@ -1,0 +1,295 @@
+{
+ "_tentang": "Batch 0 (B0-C, D-143). What is public on purpose or already public and awaiting a decision. nilai_sidik: sha256/12 fingerprints of values judged, each with a reason. berkas_kerja_terdaftar: every .paket.json and .xlsx, declared by path as nyata-F4 (real answer keys already public; listed, NOT approved: F-4 decides), sintetis or tanpa-kunci; an undeclared one is refused wherever it sits. jalur_sintetis: synthetic fixtures for personal-data rules only; a credential or an answer key is never allowed by path. abaikan_jalur: generated files.",
+ "nilai_sidik": [
+  {
+   "sidik": "c36e91689fa2",
+   "kelas": "data-pribadi",
+   "alasan": "the owner's own personal address (+guru alias), used by the staging human-account request; public since D-143. Registered so CI can run; removal awaits the owner (B0-C report §4). Not an approval for any other address."
+  }
+ ],
+ "berkas_kerja_terdaftar": [
+  {
+   "path": "audit/fixtures/contoh-pelajaran-perbaikan.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "audit/fixtures/pd-uji-bab1.paket.json",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "audit/fixtures/pd-uji-bab2.paket.json",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "audit/fixtures/sd5-matematika-bab1.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "copy of the real chapter (every item matches docs/onboarding/konten); public since D-143; F-4"
+  },
+  {
+   "path": "audit/fixtures/sd5-matematika-bab2.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "copy of the real chapter (every item matches docs/onboarding/konten); public since D-143; F-4"
+  },
+  {
+   "path": "docs/coordination/handoff/contoh-gsheets.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "docs/coordination/handover/bob02/contoh-excel.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "docs/onboarding/PINTAR-Isian-Data-Sekolah.xlsx",
+   "jenis": "tanpa-kunci",
+   "alasan": "school data-entry template; no questions (0 items match real content)"
+  },
+  {
+   "path": "docs/onboarding/contoh/contoh-buku-kerja-pintar.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "sample workbook carrying the real SD5 Bab 1 items and keys; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab1.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab1.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab2.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab2.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab3.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab3.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab4.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab4.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab5.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab5.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab6.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab6.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab7.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab7.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab8.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab8.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab9.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SD5-Matematika-Bab9.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA10-Matematika-Bab1.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA10-Matematika-Bab1.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA10-Matematika-Bab2.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA10-Matematika-Bab2.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA10-Matematika-Bab3.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA10-Matematika-Bab3.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA10-Matematika-Bab4.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA10-Matematika-Bab4.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA10-Matematika-Bab5.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA10-Matematika-Bab5.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA10-Matematika-Bab6.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA10-Matematika-Bab6.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA10-Matematika-Bab7.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA10-Matematika-Bab7.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA11-Geografi-Bab1.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA11-Geografi-Bab1.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA11-Geografi-Bab2.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA11-Geografi-Bab2.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA11-Geografi-Bab3.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA11-Geografi-Bab3.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA11-Geografi-Bab4.paket.json",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "docs/onboarding/konten/SMA11-Geografi-Bab4.xlsx",
+   "jenis": "nyata-F4",
+   "alasan": "real chapter source or keyed build; public since D-143; F-4"
+  },
+  {
+   "path": "selftest/fixtures/bob02/contoh-excel.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "selftest/fixtures/bob02/contoh-gsheets.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "selftest/fixtures/bob02/contoh-pelajaran-v1.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "selftest/fixtures/bob02/contoh-pelajaran.paket.json",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  },
+  {
+   "path": "selftest/fixtures/bob02/contoh-pelajaran.xlsx",
+   "jenis": "sintetis",
+   "alasan": "synthetic fixture; 0 items match real content (B0-C check, 2 Nov)"
+  }
+ ],
+ "jalur_sintetis": [
+  "selftest/fixtures/**",
+  "audit/fixtures/**",
+  "supabase/seed/**",
+  "supabase/tests/**",
+  "tests/**",
+  "scripts/guard/fixtures/**"
+ ],
+ "abaikan_jalur": [
+  "package-lock.json",
+  "**/*.min.js",
+  "**/*.map"
+ ]
+}

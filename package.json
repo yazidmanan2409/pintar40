@@ -18,7 +18,9 @@
     "db:status": "bash scripts/dev/golden-db.sh status",
     "plants": "node scripts/dev/plants.mjs",
     "preflight:rpc": "node scripts/dev/reachability.mjs",
-    "contoh:buku-kerja": "tsx scripts/contoh-buku-kerja.mts"
+    "contoh:buku-kerja": "tsx scripts/contoh-buku-kerja.mts",
+    "guard:scan": "node scripts/guard/sensitive-scan.mjs --tree",
+    "prepare": "git config core.hooksPath .githooks 2>/dev/null || true"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
