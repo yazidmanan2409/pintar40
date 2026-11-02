@@ -30,14 +30,14 @@ Each item keeps its original finding ids for traceability: CR (closure register)
 | W1.3 | Aturan Asesmen: hints, limits in minutes and words, 44 px checkboxes and radios | RV-14, DG-28/29 residue | E | 3 | NOT STARTED |
 | W1.4 | Release in fewer presses; every step confirms what it did | UX-15, UX-39 | E | 3 | NOT STARTED |
 | W1.5 | Question check runnable before lock; findings acknowledged as a group; misconception feedback asserted in a browser | UX-01, J4.10 | E | 3 | NOT STARTED |
-| W1.6 | **Send back to the author.** A review outcome other than approval: a new content-status transition (migration), a reason, an audit row, the author's correction path | UX-36, J4.3 | E | 1 (data) + 3 (UI) | NOT STARTED |
+| W1.6 | **Send back to the author.** A review outcome other than approval: a new content-status transition (migration), a reason, an audit row, the author's correction path | UX-36, J4.3 | E | 1 (data) + 3 (UI) | IMPLEMENTED — NOT FULLY VERIFIED (Batch 1 data part; UI in Batch 3) |
 | W1.7 | Studio home count cards link to their lists; the course list shows status | UX-34 | E | 3 | NOT STARTED |
-| W1.8 | «Riwayat perbaikan» shows who reviewed and approved; «Kursus ini» → the package noun | J4.12, UX-13 | E | 1 (data) + 3 | NOT STARTED |
+| W1.8 | «Riwayat perbaikan» shows who reviewed and approved; «Kursus ini» → the package noun | J4.12, UX-13 | E | 1 (data) + 3 | IMPLEMENTED — NOT FULLY VERIFIED (Batch 1 data part; UI in Batch 3) |
 | W1.9 | Wording: «siswa» → «murid» (UX-18); «(D-008)» removed (UX-43); Studio passes the locale (UX-25); 320 px select and code (RV-23) | UX-18/25/43, RV-23 | E | 3 | NOT STARTED |
 | W1.10 | **An example-only workbook** (no live items or keys) offered beside the blank template | DG-36 | E (content) | 3 | NOT STARTED |
 | W1.11 | Question Bank reachable by the people QN5 meant, after F-7 | J4.8 | E after Y | 3 | BLOCKED — OWNER DECISION |
 | W1.12 | The author is never offered «Sudah saya tinjau» (the database already refuses it) | J4.3 (new) | E | 3 | NOT STARTED |
-| W1.13 | `advanceContentAction` writes items, lessons, modules, definitions and course separately. Make the step one transaction, or prove partial failure is safe | J4.3 (observation) | E | 1 | NOT STARTED |
+| W1.13 | `advanceContentAction` writes items, lessons, modules, definitions and course separately. Make the step one transaction, or prove partial failure is safe | J4.3 (observation) | E | 1 | IMPLEMENTED — NOT FULLY VERIFIED (Batch 1) |
 | W1.14 | The other Studio pages (unggah, tinjau, kanonik, definisi, bank, integritas, pratinjau) on 08-migration rows; no composition needed | design §2 | E | 3 | NOT STARTED |
 | W1.15 | Dr Gladys's Studio notes: where and as whom she tried; add anything missing | D-141(b) | Y | now | BLOCKED — OWNER DECISION |
 
@@ -98,7 +98,7 @@ Status per screen: the design reconciliation found **J2, J5 and J6 not applied**
 
 | Id | Item | Source | Who | Batch | Status |
 |---|---|---|---|---|---|
-| W4.1 | Migrations for the v1 rows held in the database (C29, C30, D23 locations in words; C31, B15, B16; RV-15 seed name; one English finding) | OP-5, UX-17 | E | 1 | NOT STARTED |
+| W4.1 | Migrations for the v1 rows held in the database (C29, C30, D23 locations in words; C31, B15, B16; RV-15 seed name; one English finding) | OP-5, UX-17 | E | 1 | PARTLY IMPLEMENTED — NOT FULLY VERIFIED (Batch 1: C29, C30, D23, UX-17, B15, B16; C31 retained; English rule and RV-15 await approved text) |
 | W4.2 | **Dr Gladys's terminology decisions, asked in writing now:** «penilaian» strings after the inventory (OP-6); Bank Soal measured difficulty (OP-7); six context words (D-132(m)); the L4 §4 word list (shuffle values, limit units, misconception singular, visualization and report names) | OP-6, OP-7, D-132(m), L4 §4 | G (via Y) then E | ask now; apply 7 | BLOCKED — EXTERNAL DEPENDENCY |
 | W4.3 | `auth.belum_siap` through the canonical copy review | L-copy | E | 7 | NOT STARTED |
 | W4.4 | The compositions' new interface words into `hle.ts` («Langsung ke isi», «Ciutkan navigasi», «Buka/Tutup menu», «Disediakan», «Terkirim», «(opsional)», Table strings, the idle heading) | J1–J7 READMEs | E | with each screen | NOT STARTED |
@@ -107,8 +107,8 @@ Status per screen: the design reconciliation found **J2, J5 and J6 not applied**
 
 | Id | Item | Source | Who | Batch | Status |
 |---|---|---|---|---|---|
-| W5.1 | **CR-91** enforced in the database per F-3 (recommended: class cards for learners only; red → green tests) | CR-91, X.2, X.8 | E after Y | 1 | BLOCKED — OWNER DECISION |
-| W5.2 | Answer-key sources moved out of the repository per F-4; L4-C01 restated; summative items regenerated if exposure is confirmed | S1; D-032 | E after Y | 1 | BLOCKED — OWNER DECISION |
+| W5.1 | **CR-91** enforced in the database per F-3 (recommended: class cards for learners only; red → green tests) | CR-91, X.2, X.8 | E after Y | 1 | IMPLEMENTED — NOT FULLY VERIFIED (Batch 1, D-145) |
+| W5.2 | Answer-key sources moved out of the repository per F-4; L4-C01 restated; summative items regenerated if exposure is confirmed | S1; D-032 | E after Y | 1 | PARTLY IMPLEMENTED (Batch 1: sources removed, L4-C01 restated; private store and regeneration: owner) |
 | W5.3 | Branch protection on `main` (required CI, no force push), **required before the next merge to `main`**; settings proposed in `batch-0/04` §6 R-1 | 05 §1.1; D-143 | Y | before batch 1 merge | BLOCKED — OWNER DECISION |
 | W5.4 | Re-run the security suite (RLS, isolation, sessions, credential privacy, audit) on the release candidate | 04 | E | 8 | NOT STARTED |
 
