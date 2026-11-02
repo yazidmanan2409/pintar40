@@ -6,8 +6,10 @@
 // opened. Its landing screen and up to SEJAUH of its own navigation links are checked; so are the public pages. Every
 // step is a page load (GET) or a sign-in: nothing is submitted, and links that end a session are never followed.
 //
-// It RECORDS, as the Batch 0 baseline does (a11y.mjs): the findings are the staging baseline, not a verdict. The run
-// fails only when the harness could not do its work: a person could not sign in, or axe could not run on a page.
+// It RECORDS, as the Batch 0 baseline does (a11y.mjs): the findings are the staging baseline, not a verdict. Batch 2's
+// promotion adds JUDGED checks that fail the run: the keyboard walk of the skip link, the account menu and the dialog
+// (never confirmed), no page title carrying a name of the school's people, a refused page's title, the menu at 320 px
+// and no sideways scroll at 1280, 1024 and 320 px. The run also fails when the harness could not do its work.
 // Learners are not walked here: a card's PIN is shown once (golden-school-murid.mjs); learner screens are measured by
 // the local crawl (audit-journeys job A).
 //
@@ -117,6 +119,85 @@ try {
   await browser.close();
 }
 
+// ── JUDGED (Batch 2 promotion, owner item 6 and 8): keyboard, titles, widths. These FAIL the run when they fail.
+const nilai = [];
+const nilaiKah = (id, ok, d) => { nilai.push({ id, ok }); log(`${ok ? "PASS" : "FAIL"} ${id} :: ${d}`); if (!ok) console.log(`::error title=${id}::${String(d).replace(/%/g, "%25").slice(0, 600)}`); };
+const aktif = (page) => page.evaluate(() => { const e = document.activeElement; return { tag: e.tagName.toLowerCase(), id: e.id, cls: typeof e.className === "string" ? e.className : "", role: e.getAttribute("role"), teks: (e.innerText || "").replace(/\s+/g, " ").trim().slice(0, 40), atas: Math.round(e.getBoundingClientRect().top) }; });
+// the school's people, by name: no page title may carry one
+const namaOrang = sql(`select coalesce(string_agg(p.display_name, '|'), '') from public.persons p join public.enrollments e on e.person_id = p.id join public.institutions i on i.id = e.institution_id where i.slug = ${lit(SLUG)}`)
+  .split("|").concat(sql(`select coalesce(string_agg(p.display_name, '|'), '') from public.persons p join public.role_assignments r on r.person_id = p.id join public.institutions i on i.id = r.institution_id where i.slug = ${lit(SLUG)}`).split("|"))
+  .map((x) => x.trim()).filter((x) => x.length >= 4);
+const judulDilihat = semua.flatMap((r) => r.pages.map((x) => ({ who: r.persona, path: x.path, judul: x.a11y?.judul ?? "" })));
+const bocor = judulDilihat.filter((x) => namaOrang.some((n) => x.judul.includes(n)));
+nilaiKah("JUDUL-NAMA", namaOrang.length > 0 && bocor.length === 0, `${judulDilihat.length} titles read, ${namaOrang.length} names of the school's people checked; carrying a name: ${bocor.map((x) => `${x.who} ${x.path} «${x.judul}»`).join("; ") || "none"}`);
+{
+  const browser2 = await chromium.launch();
+  try {
+    // the admin at 1280: the skip link, the account menu, the dialog (never confirmed)
+    for (const lebar of [1280, 1024, 320]) {
+      const ctx = await browser2.newContext({ viewport: { width: lebar, height: 900 } });
+      const page = await ctx.newPage();
+      await masukStaf(page, mail("admin"), keadaanDari(sql, lit));
+      if (new URL(page.url()).pathname === "/" && (await page.locator('[data-pemilih="konteks"] button[data-konteks]').count())) {
+        await page.locator('[data-pemilih="konteks"] button[data-konteks]').first().click();
+        await page.waitForURL((u) => u.pathname !== "/", { timeout: SLOW }).catch(() => {});
+      }
+      await page.waitForLoadState("networkidle"); await closeTour(page).catch(() => {});
+      const di = new URL(page.url()).pathname;
+      const melebar = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
+      nilaiKah(`LEBAR-${lebar}`, !melebar, `${di} at ${lebar} px: wider than the window ${melebar}`);
+      if (lebar === 1280) {
+        await page.goto(`${APP}${di}`, { waitUntil: "networkidle" }); await closeTour(page).catch(() => {});
+        await page.keyboard.press("Tab"); await page.waitForTimeout(400); let a = await aktif(page);
+        nilaiKah("PAPAN-LEWATI", a.tag === "a" && /pin-lewati/.test(a.cls) && a.atas >= 0, `first Tab on ${di}: ${a.tag}.${a.cls} «${a.teks}» top ${a.atas}`);
+        await page.keyboard.press("Enter"); await page.waitForTimeout(200); a = await aktif(page);
+        nilaiKah("PAPAN-ISI", a.id === "isi", `Enter: focus on ${a.tag}#${a.id}`);
+        let n = 0, ketemu = false;
+        await page.goto(`${APP}${di}`, { waitUntil: "networkidle" }); await closeTour(page).catch(() => {});
+        for (; n < 120; n++) { await page.keyboard.press("Tab"); a = await aktif(page); if (/pin-menu-tombol/.test(a.cls)) { ketemu = true; break; } }
+        nilaiKah("PAPAN-MENU-0", ketemu, `the account menu's button reached by Tab in ${n + 1}`);
+        await page.keyboard.press("Enter"); await page.waitForTimeout(200); a = await aktif(page);
+        const ex = await page.getAttribute("button.pin-menu-tombol", "aria-expanded");
+        nilaiKah("PAPAN-MENU-1", ex === "true" && a.role === "menuitem", `Enter: expanded ${ex}, focus «${a.teks}» (${a.role})`);
+        await page.keyboard.press("End"); const akhir = (await aktif(page)).teks;
+        await page.keyboard.press("Home"); const awal = (await aktif(page)).teks;
+        await page.keyboard.press("Escape"); await page.waitForTimeout(150); a = await aktif(page);
+        nilaiKah("PAPAN-MENU-2", /semua perangkat/i.test(akhir) && awal !== akhir && /pin-menu-tombol/.test(a.cls), `End «${akhir}», Home «${awal}», Esc back on ${a.cls}`);
+        await page.keyboard.press("Enter"); await page.waitForTimeout(150); await page.keyboard.press("End"); await page.keyboard.press("Enter"); await page.waitForTimeout(300);
+        const buka = await page.evaluate(() => document.querySelector("dialog.pin-dialog")?.open === true); a = await aktif(page);
+        nilaiKah("PAPAN-DIALOG-1", buka && /^Batal$/.test(a.teks), `the dialog open ${buka}, focus «${a.teks}»`);
+        await page.screenshot({ path: join(OUT, "dialog-1280.png") }).catch(() => {});
+        await page.keyboard.press("Escape"); await page.waitForTimeout(200); a = await aktif(page);
+        const tutup = await page.evaluate(() => document.querySelector("dialog.pin-dialog")?.open === false);
+        nilaiKah("PAPAN-DIALOG-2", tutup && /pin-menu-tombol/.test(a.cls) && new URL(page.url()).pathname === di, `Esc: closed ${tutup}, focus on ${a.cls}, still signed in on ${new URL(page.url()).pathname}`);
+      }
+      if (lebar === 320) {
+        const laci = page.locator('label[for="pin-laci"]');
+        if (await laci.isVisible().catch(() => false)) { await laci.click(); await page.waitForTimeout(200); }
+        await page.locator("button.pin-menu-tombol:visible").first().click();
+        await page.waitForTimeout(200);
+        const m = await page.evaluate(() => { const r = document.querySelector("#pin-menu-akun")?.getBoundingClientRect(); return r ? { l: Math.round(r.left), r: Math.round(r.right), w: innerWidth, h: Math.round(r.height) } : null; });
+        nilaiKah("MENU-320", m && m.h > 0 && m.l >= 0 && m.r <= m.w, `the open account menu at 320 px: ${JSON.stringify(m)}`);
+        await page.screenshot({ path: join(OUT, "menu-320.png") }).catch(() => {});
+      }
+      await ctx.close();
+    }
+    // a page the reader may not open: the teacher asks for Pimpinan; the tab says nothing of Pimpinan's home
+    const ctx = await browser2.newContext({ viewport: { width: 1280, height: 900 } });
+    const page = await ctx.newPage();
+    await masukStaf(page, mail("guru"), keadaanDari(sql, lit));
+    await page.goto(`${APP}/pimpinan`, { waitUntil: "networkidle" });
+    const judul = await page.title();
+    const ditolak = (await page.locator(".pin-refusal").count()) > 0;
+    nilaiKah("JUDUL-DITOLAK", ditolak && !/menunggu Anda/i.test(judul), `the teacher on /pimpinan: refused ${ditolak}, title «${judul}»`);
+    await ctx.close();
+  } catch (e) {
+    nilaiKah("PAPAN-JALAN", false, String(e.message ?? e).split("\n")[0].slice(0, 300));
+  } finally {
+    await browser2.close();
+  }
+}
+
 const b = ringkas(semua);
 writeFileSync(join(OUT, "a11y-staging.json"), JSON.stringify({ slug: SLUG, app: APP, ...b }, null, 1));
 const baris = [
@@ -130,6 +211,8 @@ const baris = [
   ...b.aturan.map((a) => `    ${a.id} (${a.impact}) ${a.layar} screens, ${a.node} nodes — ${a.help}; e.g. ${a.contoh.join(" ")}`),
 ];
 log(["", ...baris].join("\n"));
+const gagalNilai = nilai.filter((x) => !x.ok);
+if (gagalNilai.length) masalah.push(`judged checks failed: ${gagalNilai.map((x) => x.id).join(", ")}`);
 if (masalah.length) {
   for (const m of masalah) console.log(`::error title=a11y-staging::${m.replace(/%/g, "%25")}`);
   log(`\nHARNESS INCOMPLETE: ${masalah.length} problem(s)\n${masalah.join("\n")}`);
