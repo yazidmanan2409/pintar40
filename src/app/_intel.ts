@@ -1,5 +1,5 @@
 import { t, type HleEvent, type Locale } from "@/lib/hle";
-import { variantOf, type Envelope } from "@/components/bukti";
+import type { Envelope } from "@/components/bukti";
 
 /**
  * Shared reading of a report envelope for the FABLE-06 surfaces.
@@ -26,16 +26,13 @@ export type Entry = Envelope;
 export const s = (k: string, persona: "educator" | "staff" = "educator", locale: Locale = "id") =>
   t(k as HleEvent, persona, { locale });
 
-/** The sentence a reader sees in place of a number. Never the status itself. */
+/**
+ * The sentence a reader sees in place of a number. Never the status itself, and never «(0/5)» (W3.9, RV-9; CR-46):
+ * how far a figure is from appearing is its own sentence, `kalimatJumlah` («Sekarang 3 murid; perlu 5.»), drawn
+ * beside this one where the evidence counted is students.
+ */
 export function omissionText(e: Entry, locale: Locale = "id"): string {
-  if (e.statement_key) {
-    const base = s(e.statement_key, "educator", locale);
-    if (variantOf(e) === "belum_cukup" && e.needed != null) {
-      return `${base} (${e.have ?? 0}/${e.needed})`;
-    }
-    return base;
-  }
-  return s("laporan.metrik.tidak_dikenal", "educator", locale);
+  return s(e.statement_key ?? "laporan.metrik.tidak_dikenal", "educator", locale);
 }
 
 /**

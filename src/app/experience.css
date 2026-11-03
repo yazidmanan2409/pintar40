@@ -439,6 +439,8 @@
 
 /* ------------------------------------------------------------ evidence cards */
 .pin-grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+/* W3.9 (RV-9): a section's figures and its absence cards, one under another, never touching (LayoutGrid's gap) */
+.pin-bukti-tumpuk { display: grid; gap: var(--space-4); min-width: 0; }
 .pin-metric {
   border: 1px solid var(--line); border-radius: var(--radius-2); padding: var(--space-5);
   display: grid; gap: 6px; align-content: start; background: var(--surface-1);

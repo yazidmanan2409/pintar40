@@ -46,6 +46,21 @@ const STATEMENT: Record<Variant, string> = {
   menunggu: "laporan.metrik.tidak_dikenal",
 };
 
+/**
+ * CR-46 (W3.2, Daisy's EmptyState «not enough yet»): never «(3/5)», a pair of figures that reads as a score. Where
+ * the evidence counted is students, the sentence says so: «Sekarang 3 murid; perlu 5.» Elsewhere the unit is not
+ * known here, so no count is shown (null); the line after it says what will make the figure appear. W3.9 (RV-9):
+ * the two report pages say it the same way, from here.
+ */
+export function kalimatJumlah(entry: Envelope, locale: Locale = "id", persona: "educator" | "staff" = "educator"): string | null {
+  const syarat = entry.metric_id ? SYARAT_METRIK[entry.metric_id] : undefined;
+  const hitungMurid = syarat === "penilaian" || syarat === "akhir" || syarat === "awal_akhir";
+  if (variantOf(entry) !== "belum_cukup" || entry.needed == null || !hitungMurid) return null;
+  return t("ketiadaan.jumlah.murid", persona, { locale })
+    .replace("{have}", format.number(entry.have ?? 0, locale))
+    .replace("{needed}", format.number(entry.needed, locale));
+}
+
 export default function KartuKetiadaan({
   entry,
   action,
@@ -64,15 +79,7 @@ export default function KartuKetiadaan({
   // knows more about why this particular figure is missing than a variant map.
   const base = s(entry.statement_key ?? STATEMENT[variant]);
   const muncul = kunciMuncul(entry);
-  // CR-46 (W3.2, Daisy's EmptyState «not enough yet»): never «(3/5)», a pair of figures that reads as a score. Where
-  // the evidence counted is students, the sentence says so: «Sekarang 3 murid; perlu 5.» Elsewhere the unit is not
-  // known here, so no count is shown; the line below says what will make the figure appear.
-  const syarat = entry.metric_id ? SYARAT_METRIK[entry.metric_id] : undefined;
-  const hitungMurid = syarat === "penilaian" || syarat === "akhir" || syarat === "awal_akhir";
-  const jumlah =
-    variant === "belum_cukup" && entry.needed != null && hitungMurid
-      ? s("ketiadaan.jumlah.murid").replace("{have}", format.number(entry.have ?? 0, locale)).replace("{needed}", format.number(entry.needed, locale))
-      : null;
+  const jumlah = kalimatJumlah(entry, locale, persona);
 
   return (
     <div className="pin-metric">

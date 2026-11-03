@@ -8281,13 +8281,13 @@ export const experienceTests: SelfTest[] = [
           && (!/peranSaya\(\)/.test(src) || /await Promise\.all\(\[currentViewer\(\), peranSaya\(\)/.test(src)),
           `${f} reads the viewer or their roles more than once, or in sequence`);
       }
+      // RESTATED FOR W3.8 (Batch 5, RV-11): the two report pages no longer draw a bare header of their own with the
+      // signed-in strip in it (at 320 px «Masuk se…» was cut); they sit in the staff shell, whose strip (asserted for
+      // CangkangStaf above, from one parallel read) shows who is signed in and the way out at every width.
       for (const f of ["edukator/ringkasan/page.tsx", "dekan/ringkasan/page.tsx"]) {
         const src = code(readFileSync(join(repoRoot, "src", "app", f), "utf8"));
-        c.expect(/<header[\s\S]*?<SesiSaya locale=\{await currentLocale\(\)\}[^>]*\/>[\s\S]*?<\/header>/.test(src),
-          `${f} does not show who is signed in and the way out in its header`);
-        // a grid item never shrinks below its content unless told to: without
-        // this a long name pushed Keluar off a 375px screen (measured, 20px)
-        c.expect(/<header className="[^"]*\bmin-w-0\b[^"]*">[\s\S]*?<SesiSaya/.test(src), `${f}'s header cannot shrink to a phone's width`);
+        c.expect(/<CangkangStaf locale=\{locale\} kini=\{judul\} nav=\{await navKonteks\(\{[^}]*\}\)\} \/>/.test(src) && !/<SesiSaya\b/.test(src),
+          `${f} does not show who is signed in and the way out in the staff shell`);
       }
 
       /**
@@ -10465,7 +10465,8 @@ export const experienceTests: SelfTest[] = [
         && /bk\.length === 0 \? "laporan\.metrik\.bukan_untuk_anda"/.test(pimpinan), "a class is not drawn with its figures, its absences, or one refusal line");
       for (const hal of [["dekan", "ringkasan"], ["edukator", "ringkasan"]]) {
         const src = code(readFileSync(join(repoRoot, "src", "app", ...hal, "page.tsx"), "utf8"));
-        c.expect(/kunciMuncul\(e\) \? <p[^>]*>\{s\(kunciMuncul\(e\)!\)\}<\/p> : null/.test(src), `/${hal.join("/")} does not say what will make a figure appear`);
+        // RESTATED FOR W3.8 (Batch 5): the sentence is now asked in the reader's language (persona and locale passed)
+        c.expect(/kunciMuncul\(e\) \? <p[^>]*>\{s\(kunciMuncul\(e\)!, "(?:educator|staff)", locale\)\}<\/p> : null/.test(src), `/${hal.join("/")} does not say what will make a figure appear`);
       }
       // Pimpinan's own links. Their condition leans on a refusal never reaching
       // `bukti` or a class's list, so that is checked where it is decided.

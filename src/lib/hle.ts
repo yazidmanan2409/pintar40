@@ -72,6 +72,7 @@ export type HleEvent =
   | "laporan.kelas.judul" | "laporan.institusi.judul"
   | "laporan.kosong" | "laporan.tak_ada_angka"
   | "laporan.kembali" | "laporan.cetak"
+  | "laporan.cakupan.kelas" | "laporan.cakupan.sekolah"
   // ── WP4. The Management surface. `pimpinan` is Indonesian for the people who
   // lead a part of a school — the word the approved Management design uses for
   // the role, and the one this surface is named after. Every key below is
@@ -1611,7 +1612,6 @@ export type HleEvent =
   | "mengajar.langkah.f5w"
   | "mengajar.langkah.f6"
   | "mengajar.langkah.f6w"
-  | "mengajar.langkah.quiet"
   | "mengajar.siapa.judul"
   | "mengajar.siapa.sudah"
   | "mengajar.siapa.belum"
@@ -2437,11 +2437,11 @@ const table: Table = {
   // reader sees passes through here, including the sentences that explain an
   // omission: a status like `not_permitted` or `below_minimum` is an internal
   // word and never reaches a screen.
-  "metrik.peserta.label": { default: "Peserta", en: "Students" },
+  "metrik.peserta.label": { default: "Murid yang dinilai di kelas ini", en: "Students assessed in this class" },
   "metrik.peserta.arti": { default: "Banyaknya murid yang mengerjakan asesmen di kelas ini.", en: "How many students took the assessment in this class." },
   "metrik.pemahaman.label": { default: "Pemahaman", en: "Comprehension" },
   "metrik.pemahaman.arti": { default: "Rata-rata penguasaan kelas pada Uji Penguasaan.", en: "The class's average mastery on the Mastery Check." },
-  "metrik.kenaikan.label": { default: "Kenaikan", en: "Gain" },
+  "metrik.kenaikan.label": { default: "Rata-rata kenaikan penguasaan di kelas ini", en: "Average mastery gain in this class" },
   "metrik.kenaikan.arti": { default: "Selisih penguasaan sebelum dan sesudah pembelajaran, per murid.", en: "The difference in mastery before and after the lessons, per student." },
   // D-095: PINTAR's fixed performance bands, an independent distribution, not the school's mastery threshold
   "metrik.kesiapan.label": { default: "Sebaran hasil Uji Penguasaan", en: "Spread of Mastery Check results" },
@@ -2454,9 +2454,9 @@ const table: Table = {
   // verdict-shaped word a learner must never be shown.
   "metrik.miskonsepsi.label": { default: "Pemahaman keliru yang berulang", en: "Recurring misunderstandings" },
   "metrik.miskonsepsi.arti": { default: "Pola jawaban keliru yang muncul pada banyak murid, dengan saran penanganannya.", en: "Patterns of mistaken answers shared by many students, with what to do about them." },
-  "metrik.peserta_institusi.label": { default: "Peserta", en: "Students" },
+  "metrik.peserta_institusi.label": { default: "Murid yang dinilai di sekolah ini", en: "Students assessed in this school" },
   "metrik.peserta_institusi.arti": { default: "Banyaknya murid yang mengerjakan asesmen di sekolah ini.", en: "How many students took the assessment in this school." },
-  "metrik.kenaikan_institusi.label": { default: "Kenaikan", en: "Gain" },
+  "metrik.kenaikan_institusi.label": { default: "Rata-rata kenaikan penguasaan di sekolah ini", en: "Average mastery gain in this school" },
   "metrik.kenaikan_institusi.arti": { default: "Rata-rata kenaikan penguasaan murid di sekolah ini.", en: "The average gain in mastery across this school's students." },
   "metrik.gerbang_keselamatan.label": { default: "Soal wajib", en: "Required items" },
   "metrik.gerbang_keselamatan.arti": { default: "Bagian murid yang menjawab benar seluruh soal wajib.", en: "The share of students who answered every required item correctly." },
@@ -2515,6 +2515,9 @@ const table: Table = {
   "laporan.institusi.judul": { default: "Ringkasan Sekolah", en: "School Summary" },
   "laporan.kembali": { default: "Kembali", en: "Back" },
   "laporan.cetak": { default: "Cetak laporan", en: "Print report" },
+  // W3.8 (RV-11): what a report's figures cover and when they were calculated, under its heading and on the paper
+  "laporan.cakupan.kelas": { default: "Angka dihitung {waktu} dari semua bukti kelas ini sampai saat itu.", en: "Figures calculated {waktu} from all of this class's evidence up to then." },
+  "laporan.cakupan.sekolah": { default: "Angka dihitung {waktu} dari semua bukti sekolah ini, di setiap tahun ajaran, sampai saat itu.", en: "Figures calculated {waktu} from all of this school's evidence, in every school year, up to then." },
   "laporan.kosong": { default: "Belum ada angka yang bisa ditampilkan untuk Anda di sini.", en: "There are no figures to show you here yet." },
   "laporan.tak_ada_angka": { default: "Tidak ada angka pada laporan ini, tetapi keterangan di bawah menjelaskan alasannya satu per satu.", en: "This report carries no figures, but the notes below say why, one by one." },
 
@@ -5494,7 +5497,6 @@ const table: Table = {
   "mengajar.langkah.f5w": { default: "Beberapa soal, satu jendela pendek. Hasilnya menjadi bukti pembelajaran seperti asesmen lain.", en: "A few items, one short window. The result becomes learning evidence like any other assessment." },
   "mengajar.langkah.f6": { default: "Susun materi sendiri", en: "Draft your own material" },
   "mengajar.langkah.f6w": { default: "Anda bisa menyusun dan mengunggah. Persetujuan dan penerbitan dilakukan Kepala departemen dan sekolah.", en: "You can draft and upload. Approval and publishing are done by the Head of Department and the school." },
-  "mengajar.langkah.quiet": { default: "Ringkasan berkala untuk kelas ini belum ada; akan muncul di sini bila sudah tersedia. Yang tidak ada di daftar ini — penilaian per soal dan sinyal integritas — bukan bagian dari peran guru.", en: "There is no periodic briefing for this class yet; it will appear here when there is. What is not on this list — item review and integrity signals — is not part of the educator role." },
   "mengajar.siapa.judul": { default: "Siapa yang sudah mengumpulkan", en: "Who has submitted" },
   "mengajar.siapa.sudah": { default: "Sudah mengumpulkan", en: "Have submitted" },
   "mengajar.siapa.belum": { default: "Belum mengerjakan", en: "Not yet attempted" },

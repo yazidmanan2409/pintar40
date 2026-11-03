@@ -192,18 +192,21 @@ export default async function Pimpinan({
               {s(perKelas.some(({ bukti: bk }) => bk.some((e) => e.status === "ok")) ? "pimpinan.bukti.di_kelas" : "pimpinan.bukti.kosong")}
             </p>
           ) : (
-            <>
-              <div className="pin-grid2">
-                {angka.map((e, i) => (
-                  <AngkaTerkelola
-                    key={e.metric_id ?? `angka-${i}`}
-                    entry={e}
-                    value={nilaiMetrik(e.metric_id, e.value, locale)}
-                    rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} /> : undefined}
-                    locale={locale}
-                  />
-                ))}
-              </div>
+            // W3.9 (RV-9): the figures and the absence cards under them are spaced by the layout gap, never touching
+            <div className="pin-bukti-tumpuk">
+              {angka.length > 0 ? (
+                <div className="pin-grid2">
+                  {angka.map((e, i) => (
+                    <AngkaTerkelola
+                      key={e.metric_id ?? `angka-${i}`}
+                      entry={e}
+                      value={nilaiMetrik(e.metric_id, e.value, locale)}
+                      rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} /> : undefined}
+                      locale={locale}
+                    />
+                  ))}
+                </div>
+              ) : null}
               {/* An absent figure keeps its own sentence — the evaluator's, not
                   a variant map's — so NOT_YET_EVALUABLE and INSUFFICIENT_EVIDENCE
                   read as the two different facts WP3 separated them into. */}
@@ -215,7 +218,7 @@ export default async function Pimpinan({
                   persona="staff"
                 />
               ))}
-            </>
+            </div>
           )}
         </section>
 
