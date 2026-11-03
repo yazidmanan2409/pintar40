@@ -19,4 +19,5 @@
 # 2 Nov, Batch 3 staging verification: Sekolah Uji B3 1102 (found-school.yml run 41526379831); staging at 182, main a5e2935 (facts 41526374666 GREEN)
 # 3 Nov, Batch 3 closure staging verification (D-150; owner closure promotion GO): Sekolah Uji B3C 1103 (found-school.yml run 41560704317); staging at 183, main cb1ff3e (facts 41560700942 GREEN)
 # 3 Nov, Batch 4 staging verification (D-153, D-154; recovery gate cleared): Sekolah Uji B4 1103 (found-school.yml run 41599434543); staging at 188, main 31e456d
-slug: sekolah-uji-b4-1103
+# 4 Nov (WIB), Batch 5 staging verification (D-157; owner's backup check CONDITIONAL GO): Sekolah Uji B5 1104 (found-school.yml run 41708808752); staging at 193, main 3412075
+slug: sekolah-uji-b5-1104
