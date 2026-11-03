@@ -1,6 +1,5 @@
 import { t, type HleEvent, type Locale } from "@/lib/hle";
-import { qrMatrix, qrSvgPath } from "@/lib/qr";
-import { id44 } from "./jawaban";
+import KartuPintar from "@/components/kartu/KartuPintar";
 import type { DataKartu } from "./kontrak";
 
 /**
@@ -22,35 +21,16 @@ import type { DataKartu } from "./kontrak";
  * when the route said `staf`, and Akun saya refuses a reader with no staff role
  * before it asks for any data.
  *
- * The card itself — the PINTAR Digital Card of the card family — is DAISY-24's;
- * this panel is its data, plainly set.
+ * W3.20 (DAISY-24): the panel IS the PINTAR Digital Card now, front and back
+ * (src/components/kartu/KartuPintar.tsx, the frozen design), with the one line
+ * of what the ID means beneath it.
  */
 export default function IdentitasSaya({ locale, kartu }: { locale: Locale; kartu: DataKartu }) {
   const s = (k: HleEvent) => t(k, "staff", { locale });
-  const { path, size } = qrSvgPath(qrMatrix(kartu.tautanId));
   return (
     <section className="pin-idn" aria-label={s("akun.id")}>
-      <div className="pin-idn-teks">
-        <p className="pin-idn-nama">{kartu.nama}</p>
-        <p className="pin-eyebrow">{s("akun.id")}</p>
-        <p className="pin-idn-id">{id44(kartu.pintarId)}</p>
-        {kartu.konteks.length ? (
-          <ul className="pin-idn-konteks">
-            {kartu.konteks.map((k, i) => (
-              <li key={i}>
-                {s(`role.${k.peran}` as HleEvent)}
-                {k.institusi ? <> · {k.institusi}</> : null}
-              </li>
-            ))}
-          </ul>
-        ) : null}
-        <p className="pin-meta">{s("akun.id_arti")}</p>
-      </div>
-      <div className="pin-qr pin-idn-qr">
-        <svg viewBox={`0 0 ${size} ${size}`} role="img" aria-label={s("akun.qr")} shapeRendering="crispEdges">
-          <path d={path} fill="var(--ink-1)" />
-        </svg>
-      </div>
+      <KartuPintar locale={locale} kartu={kartu} />
+      <p className="pin-meta">{s("akun.id_arti")}</p>
     </section>
   );
 }

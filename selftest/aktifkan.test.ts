@@ -326,8 +326,15 @@ export const aktifkanTests: SelfTest[] = [
         c.expect(terlihat(w).includes(s("aktifkan.w_kartu_terkirim")) && !terlihat(w).includes(s("aktifkan.w_kartu_belum")), `welcome (${locale}) does not say the card was sent`);
         c.expect(terlihat(L("welcome, card not sent")).includes(s("aktifkan.w_kartu_belum")), `welcome (${locale}) does not say a refused card waits in Akun saya`);
         c.expect(w.includes(`href="/mengajar"`) && terlihat(w).includes(s("aktifkan.w_masuk")), `welcome (${locale}): «${s("aktifkan.w_masuk")}» does not go to the route's home`);
-        c.expect(terlihat(w).includes(`${t("role.EDUCATOR", "staff", { locale })} · SMA Negeri 1 Contoh`) && terlihat(w).includes(t("role.SYSTEM_ADMIN", "staff", { locale })),
-          `welcome (${locale}): the context lines are not the data's (role · school; the platform role alone)`);
+        // RESTATED FOR W3.20 (Batch 6, B6K; DAISY-24 / D-074): the welcome draws the PINTAR Digital Card, whose face is
+        // Bahasa Indonesia only (kartu-pintar ronde-2, «Already decided by Yazid»), so the context lines are the
+        // Terminology v1 Indonesian names in both page languages, in the card's alphabetical order, on a face marked
+        // lang="id"; still role · school, and the platform role alone on its own line
+        const kartuW = /<div class="pin-kd"[\s\S]*$/.exec(w)?.[0] ?? "";
+        const bab = [...kartuW.matchAll(/<li class="pin-kd-bab-baris">([\s\S]*?)<\/li>/g)].map((m) => terlihat(m[1]).trim());
+        c.expect(JSON.stringify(bab) === JSON.stringify([t("role.SYSTEM_ADMIN", "staff", { locale: "id" }), `${t("role.EDUCATOR", "staff", { locale: "id" })} · SMA Negeri 1 Contoh`])
+          && /class="pin-kd-muka pin-kd-depan" lang="id"/.test(kartuW),
+          `welcome (${locale}): the context lines are not the data's (role · school; the platform role alone), in the card's order and words: ${JSON.stringify(bab)}`);
 
         // 7. THE FIRST SCREEN: the email, the way to sign in, and no code or countdown yet
         const minta = L("ask for a code");
