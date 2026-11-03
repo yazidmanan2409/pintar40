@@ -125,7 +125,7 @@ export default function LessonPlayer(props: LessonPlayerProps) {
 
       <p className="pin-lpos">
         <span>{kata("lesson.page_of")} {page + 1}/{pages.length}</span>
-        <span className="pin-dots">
+        <span className="pin-dots" aria-hidden="true">
           {pages.map((_, i) => (
             <span key={i} className={`pin-ldot${i === page ? " pin-at" : i < page ? " pin-done" : ""}`} />
           ))}
@@ -175,8 +175,15 @@ function MediaEntry({ entry, personId, locale }: { entry: LessonPlayerProps["med
   const kata = (k: HleEvent) => t(k, "learner", { locale });
   const [rate, setRate] = useState(1);
   const [showTranscript, setShowTranscript] = useState(false);
+  // W2.12 (RV-8): a recording whose file is not there (no address, or the file answers with an error) is said to be
+  // unavailable in words, its transcript shown in its place, instead of a player stuck at «0:00 / 0:00». Lessons are
+  // text in this stage (D-050), so this makes a missing file honest and builds nothing else.
+  const [tidakAda, setTidakAda] = useState(!entry.url);
+  const gagal = (el: HTMLMediaElement) => el.error !== null || el.networkState === HTMLMediaElement.NETWORK_NO_SOURCE;
   const attach = (el: HTMLMediaElement | null) => {
     if (!el) return;
+    // an error that came before the page's script was running is read from the element itself
+    if (gagal(el)) { setTidakAda(true); return; }
     el.playbackRate = rate;
     // W2: this person's place in the recording on this device, never another learner's
     const at = bacaDetik(penyimpananPerangkat(), personId, entry.path);
@@ -193,12 +200,25 @@ function MediaEntry({ entry, personId, locale }: { entry: LessonPlayerProps["med
     ) : null;
   }
 
+  if (tidakAda && (entry.jenis === "audio" || entry.jenis === "video")) {
+    return (
+      <div className="pin-lcard" data-media="tidak-ada">
+        <p className="pin-meta" role="status">
+          {kata(entry.transcript ? "lesson.media.tidak_ada" : "lesson.media.tidak_ada_teks")}
+        </p>
+        {entry.transcript ? <p className="pin-ltrans">{entry.transcript}</p> : null}
+      </div>
+    );
+  }
+
   return (
     <div className="pin-lcard">
       {entry.url && entry.jenis === "video" && (
-        <video ref={attach} controls src={entry.url} className="pin-lvideo" />
+        <video ref={attach} controls src={entry.url} className="pin-lvideo" onError={() => setTidakAda(true)} />
       )}
-      {entry.url && entry.jenis === "audio" && <audio ref={attach} controls src={entry.url} className="pin-laudio" />}
+      {entry.url && entry.jenis === "audio" && (
+        <audio ref={attach} controls src={entry.url} className="pin-laudio" onError={() => setTidakAda(true)} />
+      )}
       <div className="pin-lctl">
         <label className="pin-lrate">
           {kata("lesson.speed")}

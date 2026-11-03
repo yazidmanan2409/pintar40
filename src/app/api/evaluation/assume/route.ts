@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { publicSupabaseAnonKey, publicSupabaseUrl } from "@/lib/env";
 import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseService } from "@/lib/supabase/service";
-import { accessTokenExpiry, writePersonaSessionCookie } from "@/lib/evaluation";
+import { accessTokenExpiry, sisihkanSesiPenilai, writePersonaSessionCookie } from "@/lib/evaluation";
 
 /**
  * Persona assumption — the privileged half (ADR-0020, Task 2 §8).
@@ -109,6 +109,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.redirect(back, { status: 303 });
   }
 
+  // the evaluator's own session is set aside, unchanged, to be put back when they leave (not lost: ADR-0020's
+  // «exit to the Hub, then assume»; owner, Batch 5 promotion gate)
+  await sisihkanSesiPenilai();
   await writePersonaSessionCookie(accessToken, expiresAt);
   return NextResponse.redirect(new URL("/", request.url), { status: 303 });
 }

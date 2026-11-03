@@ -94,6 +94,8 @@ export default async function Masuk({
             <>
               {/* BOB-29: the proxy sends an ended session here (3 wrong PINs, 60 minutes locked, signed out elsewhere) */}
               {sp.sesi === "berakhir" ? <p className="pin-msg pin-msg-note" role="status">{s("masuk.sesi_berakhir")}</p> : null}
+              {/* W3.13 (J6Peragaan): the result of «Keluar dari peragaan» (src/app/evaluasi/actions.ts) */}
+              {sp.sesi === "peragaan" ? <p className="pin-msg pin-msg-note" role="status" data-keluar-peragaan="">{s("evaluasi.keluar_selesai")}</p> : null}
               <LayarMasuk locale={locale} lanjut={lanjut} />
             </>
           )}

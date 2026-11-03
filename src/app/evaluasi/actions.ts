@@ -9,6 +9,10 @@ import { exitPersona } from "@/lib/evaluation";
  * allows that client. The Hub posts to it directly.
  */
 export async function exitPersonaAction() {
-  await exitPersona();
-  redirect("/evaluasi");
+  // W3.13 (J6Peragaan): leaving says so in words («Anda sudah keluar dari peragaan.»). The persona's session is ended
+  // server-side and the evaluator's own session, set aside when they assumed it, is put back: they return to the Hub
+  // still signed in as themselves (ADR-0020; owner, Batch 5 promotion gate). Only when there is none to put back (it
+  // aged out) does the sign-in screen carry the line and return them to the Hub.
+  const kembali = await exitPersona();
+  redirect(kembali ? "/evaluasi?keluar=1" : "/masuk?sesi=peragaan&lanjut=%2Fevaluasi");
 }

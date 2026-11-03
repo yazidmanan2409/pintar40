@@ -1,0 +1,11 @@
+Staging, read only, 3 Nov 2026 ~10:05 UTC, after the last Batch 4 walk (188 migrations, main 31e456d). Query: preservation.sql.
+demo_roles 4 | demo_results 10 | demo_official 10 | demo_certificates 3 | demo_enrolments 5 | demo_courses 1     (before: identical)
+demo_audit 91 (6860)                                                                                          (before: identical)
+demo_people bd41b3c9605519cffb916d0352b5148d                                                                   (before: identical)
+demo_accounts 7deebf17f87ba3ee6bd192f776db01fb                                                                 (before: identical)
+results_outside_tests 2440c371b31c77a0b5cf3333122858de                                                         (before: identical)
+official_outside_tests a14f4a405d09b0ee2daec14292a4777b                                                        (before: identical)
+certificates_outside_tests ffa43edd2b15583ffb5fe2eae3dd9bf9                                                    (before: identical)
+all results/official/certificates/courses/transfers 1580/154/42/47/1   (before 1568/142/39/44/0)
+  +12 / +12 / +3 / +3 all in sekolah-uji-b4-1103 (12/12/3/3 there); the 1 transfer is between sekolah-uji-b4-1103 and sekolah-uji-b3c-1103
+card_conversions 1 (Eka Murid SEKOLAH-UJI-B4-1103, walk P3)

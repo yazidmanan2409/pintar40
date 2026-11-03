@@ -1,0 +1,55 @@
+{
+  "app": "http://127.0.0.1:3999",
+  "langkah": [
+    {
+      "id": "F1",
+      "judul": "leaving MODE PERAGAAN returns the evaluator to the Hub, signed in as themselves; signing out ends both",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the evaluator holds their own session (1 cookie(s))",
+        "ok the Hub offers a persona to view as",
+        "ok the MODE PERAGAAN band is shown while viewing as the persona",
+        "ok the evaluator's own session is set aside unchanged",
+        "ok an evaluation session is open",
+        "ok leaving lands on /evaluasi?keluar=1 (the Hub, not the sign-in screen)",
+        "ok the Hub says «Anda sudah keluar dari peragaan.»",
+        "ok no band after leaving",
+        "ok the Hub offers the personas again: signed in as the evaluator",
+        "ok the browser holds the evaluator's own session again",
+        "ok nothing is left set aside",
+        "ok the evaluation session was ended server-side",
+        "ok signing out answered 0",
+        "ok signing out leaves no session cookie, the evaluator's own included",
+        "ok no evaluation session is left open",
+        "ok the evaluator's own Auth session was ended at sign-out",
+        "ok the evaluator's own refresh token is refused after signing out (400)"
+      ],
+      "shots": [
+        "1-hub.png",
+        "1-dalam-peragaan.png",
+        "1-kembali-ke-hub.png"
+      ]
+    },
+    {
+      "id": "F2",
+      "judul": "the guided tour is non-modal and works by keyboard: Tab in and out, Enter continues, «Kembali» goes back, Esc skips (offered again under the cap), «Jangan tampilkan lagi» stops it",
+      "verdict": "PASS",
+      "catatan": [
+        "the tour was opened from «Bantuan», by keyboard",
+        "ok the tour is open on Belajar",
+        "ok the tour is not aria-modal",
+        "ok nothing on the page is made inert or hidden behind it",
+        "ok Tab reaches the tour's «Berikutnya»",
+        "ok Enter continues to the next step («Mulai dari daftar ini» → «Setiap materi punya lima langkah»)",
+        "ok «Kembali» goes back a step",
+        "ok Tab leaves the tour for the page (focus is not trapped)",
+        "ok Esc dismisses the tour",
+        "ok finished, suppressed or at its cap, it does not open by itself on the next visit"
+      ],
+      "shots": [
+        "2-tur-1.png",
+        "2-tur-ditutup.png"
+      ]
+    }
+  ]
+}

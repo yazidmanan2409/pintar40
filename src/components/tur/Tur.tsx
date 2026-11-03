@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { t, type HleEvent, type Locale, type Persona } from "@/lib/hle";
 import { simpanBahasa } from "@/lib/locale-klien";
 import {
-  akanMunculLagi, geserKe, pitaSasaran, ruangBawah, tempatKartu, tipSetelahTutup, tur as turUntuk,
+  akanMunculLagi, geserKe, kotakCincin, pitaSasaran, ruangBawah, tempatKartu, tipSetelahTutup, tur as turUntuk,
   JARAK, TEPI, type Keadaan, type Langkah, type Layar, type Petak, type TurKey, type Varian,
 } from "@/lib/tur";
 import { catatTampilTur, selesaikanTurAksi, bungkamTurAksi } from "@/app/tur/actions";
@@ -152,38 +152,14 @@ export default function Tur({
     return () => akar.classList.remove("pin-tuntun");
   }, [aktif, bantuan]);
 
-  // ──────────────────────────────────────────────── the page behind is inert
-  // Only for the tour. Help is not modal (§O-2), so the page stays live under
-  // it and the reader can still see what they came to ask about.
-  //
-  // EVERYTHING EXCEPT THE TOUR, found by walking up from the tour's own root
-  // and marking every sibling at every level. That is the whole page and only
-  // the page: the tour's own ancestors carry nothing interactive of their own,
-  // and nothing here depends on where the caller chose to mount it.
-  useEffect(() => {
-    if (!aktif) return;
-    // What was there BEFORE is recorded, not assumed: an element that already
-    // carried `aria-hidden` for a reason of its own must get that reason back,
-    // and an element that was already inert is left alone entirely.
-    const ubah: Array<{ el: Element; sembunyi: string | null }> = [];
-    let simpul: Element | null = akarRef.current;
-    while (simpul && simpul !== document.body && simpul.parentElement) {
-      for (const saudara of Array.from(simpul.parentElement.children)) {
-        if (saudara === simpul || saudara.hasAttribute("inert")) continue;
-        ubah.push({ el: saudara, sembunyi: saudara.getAttribute("aria-hidden") });
-        saudara.setAttribute("inert", "");
-        saudara.setAttribute("aria-hidden", "true");
-      }
-      simpul = simpul.parentElement;
-    }
-    return () => {
-      for (const { el, sembunyi } of ubah) {
-        el.removeAttribute("inert");
-        if (sembunyi === null) el.removeAttribute("aria-hidden");
-        else el.setAttribute("aria-hidden", sembunyi);
-      }
-    };
-  }, [aktif]);
+  // ─────────────────────────────────────────── the page behind stays usable
+  // W3.15 (UX-38, RV-19): THE TOUR NO LONGER HOLDS THE LANDING. It used to make
+  // every sibling of its root inert and aria-hidden and to keep Tab inside the
+  // card, so a learner arriving at their own home could do nothing there until
+  // they had skipped it. It is now a non-modal dialog, like Help (§O-2): the
+  // page under it stays live for the pointer, the keyboard and a screen reader,
+  // the spotlight still says where to look, and the card is one more thing on
+  // the page that Esc, «Lewati tur» or leaving the page closes.
 
   // ───────────────────────────────────────── measuring, scrolling and placing
   //
@@ -276,7 +252,7 @@ export default function Tur({
         ditengah();
         return;
       }
-      const k: Petak = { top: r.top, left: r.left, width: r.width, height: r.height };
+      const k: Petak = kotakCincin({ top: r.top, left: r.left, width: r.width, height: r.height });
       setKotak(k);
 
       if (layar.telepon || !kartu) {
@@ -289,13 +265,17 @@ export default function Tur({
     ukur(true);
     // A smooth scroll is still moving after `ukur` returns, and a phone rotates
     // under the reader's hands: the ring follows rather than being placed once.
+    // W3.15 (RV-19): a new window size (a phone turned, a page zoomed to 320 px)
+    // also moves the target back into the band above the sheet; only the
+    // reader's own scrolling is followed without being undone.
     const lagi = () => ukur(false);
-    window.addEventListener("resize", lagi);
-    window.addEventListener("orientationchange", lagi);
+    const ulang = () => ukur(true);
+    window.addEventListener("resize", ulang);
+    window.addEventListener("orientationchange", ulang);
     window.addEventListener("scroll", lagi, true);
     return () => {
-      window.removeEventListener("resize", lagi);
-      window.removeEventListener("orientationchange", lagi);
+      window.removeEventListener("resize", ulang);
+      window.removeEventListener("orientationchange", ulang);
       window.removeEventListener("scroll", lagi, true);
       document.body.style.paddingBottom = "";
     };
@@ -350,31 +330,12 @@ export default function Tur({
   }
 
   // Esc closes, and closes as a skip. Nothing else is bound: arrow keys belong
-  // to the screen reader's own browse mode (§K-3). It sits on the card rather
-  // than on the window because focus never leaves the card while it is open —
-  // and if `inert` is not honoured, the trap below is what keeps that true.
+  // to the screen reader's own browse mode (§K-3), and Tab is the page's own
+  // (W3.15: the card is not modal, so focus may leave it for the page).
   function tekan(e: React.KeyboardEvent<HTMLDivElement>) {
     if (e.key === "Escape") {
       e.preventDefault();
       tutup("lewati");
-      return;
-    }
-    if (e.key !== "Tab") return;
-    const kartu = kartuRef.current;
-    if (!kartu) return;
-    const bisa = Array.from(
-      kartu.querySelectorAll<HTMLElement>("button, input, [href], select, textarea"),
-    ).filter((el) => !el.hasAttribute("disabled"));
-    if (bisa.length === 0) return;
-    const pertama = bisa[0];
-    const terakhir = bisa[bisa.length - 1];
-    const fokus = document.activeElement;
-    if (e.shiftKey && (fokus === pertama || fokus === judulRef.current)) {
-      e.preventDefault();
-      terakhir.focus();
-    } else if (!e.shiftKey && fokus === terakhir) {
-      e.preventDefault();
-      pertama.focus();
     }
   }
 
@@ -432,7 +393,6 @@ export default function Tur({
             style={taruh ? { ...taruh, translate: "none" } : undefined}
             onKeyDown={tekan}
             role="dialog"
-            aria-modal="true"
             aria-labelledby="pin-tur-judul"
             aria-describedby="pin-tur-isi"
           >
@@ -454,8 +414,8 @@ export default function Tur({
                   ))}
                 </span>
               </span>
-              {/* The header switch is unreachable while the page is inert, so
-                  the dialog carries the same preference itself. */}
+              {/* The dialog carries the same preference as the header switch,
+                  so the language changes without leaving the step. */}
               <button type="button" className="pin-tur-x" onClick={gantiBahasa}>
                 {locale === "id" ? t("bahasa.en", persona, { locale }) : t("bahasa.id", persona, { locale })}
               </button>

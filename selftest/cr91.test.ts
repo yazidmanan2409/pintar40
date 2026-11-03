@@ -113,7 +113,11 @@ export const cr91Tests: SelfTest[] = [
         c.expect(budi.includes(surel) && !budi.includes(kartu), "the Guru is offered a class card");
       }
       const halaman = readFileSync(join(ctx.repoRoot, "src/app/aktivasi/page.tsx"), "utf8");
-      c.expect(/kelasMenunggu\(supabase,\s*orang\.filter\(bolehKartu\)\)/.test(halaman),
+      // RESTATED FOR W2.10 (Batch 5; D-153): the whole-class groups are the database's (kelas_menunggu_akun,
+      // orang_kelas_menunggu_akun), which leave out anyone holding a staff role (memegang_peran_staf; executed by F26-W01)
+      const mig = readFileSync(join(ctx.repoRoot, "supabase/migrations/20261224100000_people_awaiting_an_account_are_listed_a_page_at_a_time.sql"), "utf8");
+      c.expect(/kelasMenunggu\(supabase, lingkupTunggu\)/.test(halaman)
+        && /and not public\.memegang_peran_staf\(p\.id\)/.test(mig.slice(mig.indexOf("function public.kelas_menunggu_akun_anggota"))),
         "the whole-class card groups are not built from the people a card may be offered to");
       return c.verdict("a card is offered only for an explicit boleh_kartu = true; the form offers the learner a card and email and the Guru email only; whole-class cards are for learners");
     },

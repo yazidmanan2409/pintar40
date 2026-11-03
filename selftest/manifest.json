@@ -2689,7 +2689,7 @@
     {
       "id": "M7-K01",
       "runner": "static",
-      "proves": "M7 (D-085): a whole class's cards in one operation, as a printable set. Executes kelasUntukKartu (src/components/aktivasi/kelas.ts): each Kelas with the learners in it awaiting an account, each once, never a Tingkat or someone with an account. Renders LembarKartu (rendered output): one card per learner with name, school number, card number, PIN and the sign-in address, no photo, printing offered and the once-only warning off the paper, a learner not made named with the reason. The source of FormAktivasi sends the batch through the one per-person route /api/akun/aktivasi in turn and keeps no PIN on the device; no second issuance route exists; the source of the page reads the classes' current members."
+      "proves": "M7 (D-085): a whole class's cards in one operation, as a printable set. Executes kelasUntukKartu (src/components/aktivasi/kelas.ts): each Kelas with the learners in it awaiting an account, each once, never a Tingkat or someone with an account. Renders LembarKartu (rendered output): one card per learner with name, school number, card number, PIN and the sign-in address, no photo, printing offered and the once-only warning off the paper, a learner not made named with the reason. The source of FormAktivasi sends the batch through the one per-person route /api/akun/aktivasi in turn and keeps no PIN on the device; no second issuance route exists; the source of the page reads the classes' current members. RESTATED FOR W2.10 (Batch 5, D-153): the offer is the database's per-Kelas count (kelas_menunggu_akun) labelled through kelasDitawarkan (executed: never a Tingkat, an empty class or an unknown place), and the run reads that one class's learners (orang_kelas_menunggu_akun via src/app/aktivasi/actions.ts); who is in a class's set is executed at the database by F26-W01."
     },
     {
       "id": "W9-K02",
@@ -3158,7 +3158,7 @@
     {
       "id": "F21-I01",
       "runner": "db",
-      "proves": "FD-7 (DG-32), measured in selftest/db/fable21.sql through integrity_signals_awaiting_review: two observations of one sitting in an Alpha class wait for the school admin, each referable, and for a Kepala departemen of another department with no referral offered, which record_integrity_review indeed refuses for her; the sitting's own learner is shown none; once the admin records a review on the sitting both leave the list for every reviewer, the observations themselves unchanged (doc 16); an observation made after the review waits again.",
+      "proves": "FD-7 (DG-32), measured in selftest/db/fable21.sql through integrity_signals_awaiting_review: two observations of one sitting in an Alpha class wait for the school admin, each referable, and for a Kepala departemen of another department with no referral offered, which record_integrity_review indeed refuses for her; the sitting's own learner is shown none; RESTATED FOR W2.7 (Batch 5, CR-75: one decision per observation): once the admin records a decision on one observation exactly the other still waits, for every reviewer, and once each has its own decision both leave the list, the observations themselves unchanged (doc 16); an observation made after the review waits again.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
@@ -4030,6 +4030,71 @@
       "proves": "W3.7 and W3.6 (Batch 4; RV-22, RV-16), selftest/b4.test.ts, reading the source: Pendataan's school code (src/app/pendataan/page.tsx) is the TextField primitive (sentence-case label, the hint under it and named by the field) on one row with its button; the intake's file and paste fields (src/components/pendataan/BacaDanPetakan.tsx) use the field frame with a sentence-case label; Pendataan's job list and every date in src/app/konfigurasi/page.tsx go through the WIB date helper."
     },
     {
+      "id": "B5A-LAPORAN-K01",
+      "runner": "static",
+      "proves": "W3.8 (Batch 5; RV-11; J7.2-J7.4, X.7), selftest/b5a.test.ts: the class and school reports (src/app/edukator/ringkasan/page.tsx, src/app/dekan/ringkasan/page.tsx) sit in the staff shell (CangkangStaf with navKonteks) with no bare header; the class report names the school, the class and its school year (BarisLingkup, rendered) and the class in its heading, the school report the school; each says what its figures cover and when they were calculated (laporan.cakupan.*); «Kembali» and «Cetak» kept; the layouts' working-context guard and the «another school» offer kept; kepalaLaporan (src/lib/laporan.ts) reads the names as the signed-in reader; the shell, footer, report controls and skip link carry pin-noprint, which print hides."
+    },
+    {
+      "id": "B5A-PIMPINAN-K01",
+      "runner": "static",
+      "proves": "W3.9 (Batch 5; RV-9; X.5, J9.3), selftest/b5a.test.ts: RESTATED AT THE PROMOTION GATE (owner, 3 Nov): the class and school figures keep Terminology v1's approved words, «Peserta» (ruling 8) and «Kenaikan», in both languages, in the copy table (src/lib/hle.ts); rendered, the report pages' absence sentence (src/app/_intel.ts omissionText) carries no «(0/5)» and kalimatJumlah (src/components/bukti/KartuKetiadaan.tsx) says «Sekarang 0 murid; perlu 5.», drawn by both report pages; /pimpinan and /pimpinan/[simpul] stack their figures and absence cards in .pin-bukti-tumpuk (grid gap, a space token)."
+    },
+    {
+      "id": "B5A-TAKLIMAT-K01",
+      "runner": "static",
+      "proves": "W2.6 (Batch 5; CR-37, J7.5; D-120 QN4, briefings hidden): no copy outside the audit trail's names for past rows speaks of a briefing (mengajar.langkah.quiet removed); the class's «Langkah» page (src/app/mengajar/[kelas]/langkah/page.tsx) draws no briefing footnote; no source under src/app, src/components or src/lib reads the briefings table or promises a briefings surface; the unused exposure-caveat predicate in the class report is gone."
+    },
+    {
+      "id": "B5B-LEBAR-K01",
+      "runner": "static",
+      "proves": "W3.10 (Batch 5; Batch 0 baseline 03-ACCESSIBILITY-BASELINE), selftest/b5b.test.ts, reading the source: the learner and focus bars (src/components/CangkangPengalaman.tsx) carry pin-murid, and src/app/experience.css lets the learner's bar wrap when, and only when, its parts do not fit (the session strip takes its own row), keeping the tabs' row height, and under 640 px gives the session strip and the tabs each a row of their own (LearnerShell), so no learner screen is wider than a 640 or 320 px window."
+    },
+    {
+      "id": "B5B-NAMA-K01",
+      "runner": "static",
+      "proves": "W3.10 (Batch 5, J4Murid), selftest/b5b.test.ts, reading the source: the learner's tabs are named «Belajar», the Uji Penguasaan's progress dots are role=img with their name, the lesson's page dots are hidden beside the words that say the page, and on a phone the cycle trail's step names are hidden from the eye only, never from a screen reader."
+    },
+    {
+      "id": "B5B-DIJAWAB-K01",
+      "runner": "static",
+      "proves": "W3.10 (Batch 5, J4Murid), selftest/b5b.test.ts, reading the source: in an Uji Penguasaan the player (src/app/belajar/_components/ItemPlayer.tsx) keeps a status line «Sudah dijawab: n dari N.», counted from the answers the server accepted and built from the copy table's posttest.answered and siklus.dari, in both languages."
+    },
+    {
+      "id": "B5B-PEMETAAN-K01",
+      "runner": "static",
+      "proves": "W2.12 RV-7 (Batch 5, J6.5), selftest/b5b.test.ts, reading the source: src/lib/siklus.ts tells a chapter with no Pemetaan Awal apart (tanpaPemetaan); its status line is cycle.pemetaan.belum_ada, it leads Belajar's home only when nothing else waits, the home and the chapter page offer no «Mulai Pemetaan Awal» for it, and the refusal at its address wears the learner's shell."
+    },
+    {
+      "id": "B5B-MEDIA-K01",
+      "runner": "static",
+      "proves": "W2.12 RV-8 (Batch 5, J6.3), selftest/b5b.test.ts, reading the source: a lesson recording with no address, or whose file fails to load (also before the script ran, read from the element), is said in words («Rekaman ini tidak tersedia.») in a status line with its transcript in its place, instead of a player at «0:00 / 0:00»; the seeded pecahan-senilai.mp3 is genuinely absent (D-050: lessons are text in 4.0; no media feature built)."
+    },
+    {
+      "id": "B5B-HASIL-K01",
+      "runner": "static",
+      "proves": "UX-40 (Batch 5, W2.13 learner part), selftest/b5b.test.ts, reading the source: peringkat (src/lib/siklus.ts) leads Belajar's home with a new (unopened) result after a session left open and before any other work, and never with an opened one; the home asks my_new_results before ranking and keeps its «all done» state; opening /belajar/[tugas]/hasil calls note_result_seen; supabase/migrations/20261227100000_a_new_result_is_the_next_step.sql keeps the person's own «seen» in a table no client reaches, scoped to current_person_id(), registered LEARNER, with every earlier result recorded as seen."
+    },
+    {
+      "id": "B5B-SERTIFIKAT-K01",
+      "runner": "static",
+      "proves": "UX-46 (Batch 5), selftest/b5b.test.ts, reading the source: on Belajar → Sertifikat a certificate that cannot be shown sends the reader back to /belajar/sertifikat with «Kembali ke Sertifikat» («Back to Certificates»), not «Kembali ke Belajar»."
+    },
+    {
+      "id": "B5B-TUR-K01",
+      "runner": "static",
+      "proves": "W3.15 RV-19, UX-38 (Batch 5), selftest/b5b.test.ts, reading the source: the first-login tour (src/components/tur/Tur.tsx) is a non-modal dialog that keeps its role and name (no aria-modal, no inert or aria-hidden page, no Tab trap; neither veil catches a click), its ring stands 8 px clear of its target (kotakCincin, src/lib/tur.ts), a resize or a turned phone moves the target back above the sheet, and its headline draws no field-like focus box."
+    },
+    {
+      "id": "B5B-PERAGAAN-K01",
+      "runner": "static",
+      "proves": "W3.13 (Batch 5, Daisy J6Peragaan), selftest/b5b.test.ts, reading the source: src/app/_evaluation-banner.tsx is the full-width deep-ink context band (pin-konteks: context / context-ink, underlined ways out, in the flow), a region named «MODE PERAGAAN» drawn directly after the skip link with «Ganti sudut pandang» then «Keluar dari peragaan» as its first focusable parts; every page title is prefixed «MODE PERAGAAN · » while a persona is held (judulDalamPeragaan, F9); leaving lands on sign-in with «Anda sudah keluar dari peragaan.» and returns to the room."
+    },
+    {
+      "id": "B5B-AJAR-K01",
+      "runner": "static",
+      "proves": "W2.16 (Batch 5, DAISY-35 / CR-57), selftest/b5b.test.ts, reading the source: konteksPembelajaran (src/lib/pembelajaran.ts) gives a Guru who also holds a senior role the adult learning shell and no child tour while a senior reader who does not teach keeps the learner shell and tour (§H-3); every refusal under src/app/belajar passes the reader's own persona (personaPembelajaran); the hint button's labels carry no emoji in either language («No emoji in the interface chrome»)."
+    },
+    {
       "id": "F24-K03",
       "runner": "db",
       "proves": "D-152(a), the Batch 4 promotion gate's condition 2, measured in selftest/db/fable24.sql against supabase/migrations/20261217100000_a_card_learner_becomes_staff_through_an_email_account.sql: a conversion interrupted before Auth's write leaves the class card untouched (number, sign-in address, no set-up) and a staff role still refused (STAFF_ROLE_FOR_CARD, CR-91); a retry leaves one pending grant; an expired grant's write is refused (CARD_ADDRESS_REFUSED) and changes nothing; after a write whose answer was lost, a second conversion is refused (CARD_NOT_FOUND), the school corrects a wrong address before activation and the corrected address is offered the activation code; the person holds exactly one email account.",
@@ -4039,6 +4104,73 @@
       "id": "F24-P03",
       "runner": "db",
       "proves": "W2.15, the Batch 4 promotion gate's condition 3, measured in selftest/db/fable24.sql against supabase/migrations/20261219100000_a_transfer_is_requested_by_name_and_accepted_by_the_receiving_school.sql: the executed transfer leaves the learner's nomor induk at the sending school, PINTAR ID, sittings, official results and certificates unchanged (a digest before and after) and keeps the sending enrolment as ENDED history; the sending school's admin still reads it but not the new enrolment; the receiving school's admin reads the enrolment it received and the learner's portable enrolment history (INV-25, record_class_registry) but none of the sending school's audit rows about the learner (INSTITUTION_SCOPED).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "B5-CABUT-K01",
+      "runner": "static",
+      "proves": "W2.5 (Batch 5; CR-05, ADM-18, J8.5), selftest/b5.test.ts: the source of «Sertifikat sekolah» (src/app/konfigurasi/sertifikat/page.tsx) lists the database's own read sertifikat_sekolah as Daisy's Collection, offers «Cabut» on an issued certificate only and reads the chosen one again by id; the revocation (src/components/sertifikat/FormCabut.tsx) is Daisy's form page with the destructive in-page Confirmation (components/Confirmation, GQ5: never the Dialog): a required reason, «Lanjutkan» that commits nothing, the solid red act naming the certificate, focus on «Batal», what happens and what stays safe; the action (src/app/konfigurasi/sertifikat/actions.ts) checks the certificate's school against the working context and then asks revoke_certificate with the caller's own client; every refusal code and state has words in both languages in the copy table (src/lib/hle.ts); Konfigurasi links the page and it has its title."
+    },
+    {
+      "id": "F26-C01",
+      "runner": "db",
+      "proves": "W2.5 (Batch 5; CR-05), selftest/db/fable26.sql, migration 20261222100000: sertifikat_sekolah answers the school admin their school's issued certificates (number, holder, school, state), by number from its start and by a part of the holder's name, one by id (also with no school named, for whom may revoke it); a prepared ELIGIBLE row is not listed; «%» is matched as a word; a Guru, a head of department, another school's admin, a school admin asking for every school and an anonymous caller are refused; Admin platform reads every school's."
+    },
+    {
+      "id": "F26-C02",
+      "runner": "db",
+      "proves": "W2.5 (Batch 5; CR-05, J8.5), selftest/db/fable26.sql: on the screen's path, another school's admin and a revocation without a reason are refused and change nothing; the school admin revokes with a reason; sertifikat_sekolah then says REVOKED with its reason and time; a second revocation is refused (CERTIFICATE_ALREADY_REVOKED) and the first reason stands; verify_certificate says DICABUT; certificate.revoked is recorded once with the reason."
+    },
+    {
+      "id": "B5-INTEGRITAS-K01",
+      "runner": "static",
+      "proves": "W2.7 (Batch 5; CR-75, CR-76, CR-77; J7.6), selftest/b5.test.ts: the source of Tinjauan Integritas (src/app/studio/integritas/page.tsx) gives each waiting observation its own form posting its own id, with a labelled note; names a sitting by its learner first with the PINTAR ID beneath and its state as a badge in words; lists «Sudah ditinjau» from integrity_reviews_recorded a page at a time with the decision, who, when and the note; a referred observation carries the case's named steps (Daisy, components/Progress; 11-validation GQ2) and, once decided, its outcome, time and note, only where the database shows the case; the next-step sentence (src/lib/integritas-kontrak.ts, executes) follows the case's state; every word in both languages in the copy table."
+    },
+    {
+      "id": "F26-I01",
+      "runner": "db",
+      "proves": "W2.7 (Batch 5; CR-75, CR-76, CR-77), selftest/db/fable26.sql, migration 20261223100000: a review recorded before W2.7 (no scope) still covers its sitting; a decision recorded now leaves exactly the sitting's other observation waiting; integrity_reviews_recorded shows each decided observation with its decision, note, time and reviewer; the referrer sees the case AWAITING_REVIEW with whether another leader may decide, then DECIDED with its outcome, time and note once another leader decides; a head of another department sees that it was referred and nothing of the case; the sitting's own learner sees nothing; anon cannot run it."
+    },
+    {
+      "id": "B5-TUNGGU-K01",
+      "runner": "static",
+      "proves": "W2.10 (Batch 5; CR-49, D-153), selftest/b5.test.ts: the source of Aktivasi (src/app/aktivasi/page.tsx, src/components/aktivasi/CariTunggu.tsx, src/components/aktivasi/cari-pemegang.ts) reads the people waiting for an account a page of 20 from persons_awaiting_account_page, narrowed to the working context's school and searched by the address's words, with the total and a pager keeping the words, never persons_awaiting_account whole; new words start at the first page; every word in both languages in the copy table."
+    },
+    {
+      "id": "F26-W01",
+      "runner": "db",
+      "proves": "W2.10 (Batch 5; D-153; M7 and CR-91 kept), selftest/db/fable26.sql, migration 20261224100000: persons_awaiting_account_page answers 20 then 3 of 23 waiting by name with the total, by part of a name and by nomor induk, «%» as a word, nothing narrowed to another school, a staff member with no card; kelas_menunggu_akun counts the Kelas and no Tingkat; orang_kelas_menunggu_akun names exactly the 23 waiting learners each once in name order, not one with an account, an ENDED enrolment, a Tingkat membership or a staff role; a Guru and another school's admin read none of it; anon cannot run them."
+    },
+    {
+      "id": "B5C-MURID-K01",
+      "runner": "static",
+      "proves": "W2.18 · J5.13 (Batch 5), selftest/b5c.test.ts, from the source, the migration and the copy table: the teacher's view of one learner (src/app/mengajar/[kelas]/murid/[orang]/page.tsx) lists, under «Tujuan pembelajaran yang belum tercapai», each objective the learner has not yet reached by its statement (the learner's result's rows, DAISY-29), with no figure and an empty state; pengajar.tujuanBelum asks only tujuan_belum_tercapai (supabase/migrations/20261225100000_a_teacher_sees_the_objectives_a_learner_has_not_yet_reached.sql), a SECURITY DEFINER function returning the objective and its statement only, which checks the reader's teaching role (learner.result's staff audience) over the class and the learner's placement in it, reads the class's own official Uji Penguasaan against the mark sealed on each attempt, and reads no item, response or key; the words say «belum», never failure (X.5), in both languages."
+    },
+    {
+      "id": "B5C-BERANDA-K01",
+      "runner": "static",
+      "proves": "UX-37 (Batch 5), selftest/b5c.test.ts, which executes src/lib/pengajar.ts menungguKelas and reads the source of the pages: decides what waits in a class (the first open assessment some have not submitted, with how many; the newest material it may be given and lacks; nothing else); src/app/mengajar/[kelas]/langkah/page.tsx and the home's class rows (src/app/mengajar/page.tsx) read it in the same words (src/components/mengajar/menunggu.ts); the home reads it batched (one read of the classes' material, one of the school's releases, the database's fit per class); a «Sedang berjalan» row opens /siapa for that assessment."
+    },
+    {
+      "id": "B5C-BUKTI-K01",
+      "runner": "static",
+      "proves": "UX-41 (Batch 5), RESTATED AT THE PROMOTION GATE (owner, 3 Nov: preserve approved terminology), selftest/b5c.test.ts: the copy table keeps «Lihat bukti»'s heading as Terminology v1's «Penguasaan per bagian» / «Mastery by part» (new words await Dr Gladys); the source of src/app/mengajar/[kelas]/bukti/page.tsx names each row by its objective (BarisKesiapan label = competency), and the migration text of class.topic_mastery names each by its objective's statement."
+    },
+    {
+      "id": "B5C-TOLAK-K01",
+      "runner": "static",
+      "proves": "UX-45 (Batch 5), selftest/b5c.test.ts, from the copy table, the source of every Mengajar page and the executed Uji Cepat sentence: tolak.arti has an educator telling that sends nobody to a teacher, in both languages; every HalamanPenolakan under src/app/mengajar speaks as an educator; the Uji Cepat's (src/components/mengajar/tolakUjiCepat.ts) and «Minta membaca lagi»'s not-allowed refusals end with that same line, and no Mengajar sentence keeps a recovery line of its own."
+    },
+    {
+      "id": "F25-T01",
+      "runner": "db",
+      "proves": "W2.18 · J5.13 (Batch 5), measured in selftest/db/fable25.sql against supabase/migrations/20261225100000_a_teacher_sees_the_objectives_a_learner_has_not_yet_reached.sql: tujuan_belum_tercapai gives the class's teacher the objective, by its statement, that the learner's latest official Uji Penguasaan in the class recorded below the sealed mark, and not the one at the mark; a later attempt at the mark takes both off; an attempt sat in another class is not read; the answer is the objective and its statement only.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F25-T02",
+      "runner": "db",
+      "proves": "W2.18 (Batch 5), measured in selftest/db/fable25.sql: tujuan_belum_tercapai gives a teacher of another class of the same school, a teacher of another school, a school admin with no teaching role, and the class's own teacher asking under another class an empty answer; an anonymous caller is refused.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     }
   ]

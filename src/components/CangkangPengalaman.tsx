@@ -110,7 +110,7 @@ export default async function CangkangPengalaman({
    * Akun saya, «Laporkan masalah». The phone bar names it, and its parent place (Konfigurasi for its own pages) is
    * marked current in the navigation; Keamanan akun and Kirim email uji also show as their own item.
    */
-  halamanKini?: "keamanan" | "emailuji" | "akun" | "lapor";
+  halamanKini?: "keamanan" | "emailuji" | "akun" | "lapor" | "sertifikat";
 }) {
   // ONE READ, IN PARALLEL (DAISY-02/03). The viewer and the reader's own active
   // roles are asked once, together, for every signed-in shell, and handed down:
@@ -129,14 +129,16 @@ export default async function CangkangPengalaman({
   const k = kind === "public" ? null : await konteksSaya();
   const adaKonteks = k?.keadaan === "ADA";
   // D-140 (RV-3/RV-4): the word for a page that is not a place, and the place it belongs to
-  const KATA_HALAMAN = { keamanan: "keamanan.judul", emailuji: "emailuji.judul", akun: "akun.judul", lapor: "nav.lapor" } as const;
+  const KATA_HALAMAN = { keamanan: "keamanan.judul", emailuji: "emailuji.judul", akun: "akun.judul", lapor: "nav.lapor", sertifikat: "sertifikat.kelola.judul" } as const;
   const kataKini = halamanKini ? t(KATA_HALAMAN[halamanKini], "staff", { locale }) : null;
-  const indukKini = halamanKini === "keamanan" || halamanKini === "emailuji" ? "/konfigurasi" : undefined;
+  const indukKini = halamanKini === "keamanan" || halamanKini === "emailuji" || halamanKini === "sertifikat" ? "/konfigurasi" : undefined;
   const subKini = halamanKini === "keamanan"
     ? <ItemNav href="/konfigurasi/keamanan" label={t("keamanan.judul", "staff", { locale })} kini />
     : halamanKini === "emailuji"
       ? <ItemNav href="/konfigurasi/email-uji" label={t("emailuji.judul", "staff", { locale })} kini />
-      : null;
+      : halamanKini === "sertifikat"
+        ? <ItemNav href="/konfigurasi/sertifikat" label={t("sertifikat.kelola.judul", "staff", { locale })} kini />
+        : null;
 
   // FOCUS. During an assessment the shell keeps the mark and the language and
   // drops the tabs. The engine survives navigating away — a session is server
@@ -145,7 +147,7 @@ export default async function CangkangPengalaman({
   // The public verification shell already works this way for its own reason.
   if (kind === "focus") {
     return (
-      <header className="pin-top pin-shell pin-noprint">
+      <header className="pin-top pin-shell pin-noprint pin-murid">
         <MerekPintar />
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
@@ -261,9 +263,9 @@ export default async function CangkangPengalaman({
   }
 
   return (
-    <header className="pin-top pin-shell pin-noprint">
+    <header className="pin-top pin-shell pin-noprint pin-murid">
       <MerekPintar />
-      <nav className="pin-tabs" aria-label={t("app.name", "learner", { locale })}>
+      <nav className="pin-tabs" aria-label={t("nav.belajar", "learner", { locale })}>
         <Link href="/belajar" aria-current={current === "belajar" ? "page" : undefined}>
           {t("nav.belajar", "learner", { locale })}
           <TandaTautan />

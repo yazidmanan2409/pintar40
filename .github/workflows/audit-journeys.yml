@@ -149,6 +149,30 @@ jobs:
           APP_DIR: ${{ github.workspace }}/app
           OUT_DIR: ${{ github.workspace }}/audit-out/admin-ujung
         run: node admin-ujung.mjs
+      # Batch 5 (D-156): certificate revocation on «Sertifikat sekolah», one decision per integrity observation and the
+      # referrer reading the case's outcome, Aktivasi's waiting list a page at a time, the class report in the staff
+      # shell, the Guru's objectives not yet reached, Belajar's widths; each screen through the accessibility checks.
+      # After the administration walk, whose Aktivasi step reads the waiting list before this walk adds 25 to it; its
+      # integrity sitting is started by the synthetic learner (a fresh seed holds none).
+      - name: Walk Batch 5 (revocation, integrity review, the paged waiting list, reports, learner pages)
+        if: success() || failure()
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/b5-ujung
+        run: node b5-ujung.mjs
+      # Batch 5 promotion gate (owner, 3 Nov): leaving MODE PERAGAAN returns the evaluator to the Hub as themselves and
+      # signing out ends both sessions; the guided tour is non-modal and works by keyboard (Tab in and out, Enter
+      # continues, «Kembali», Esc dismisses).
+      - name: Walk the Batch 5 focused checks (MODE PERAGAAN exit, the tour by keyboard)
+        if: success() || failure()
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/b5-fokus
+        run: node b5-fokus.mjs
       - name: Server log (errors only)
         if: always()
         run: grep -iE 'error|exception|fail' "$RUNNER_TEMP/app.log" | grep -v 'evaluation_state' | head -80 || true

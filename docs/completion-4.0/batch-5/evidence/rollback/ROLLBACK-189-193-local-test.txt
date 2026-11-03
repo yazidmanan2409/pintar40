@@ -1,0 +1,25 @@
+ROLLBACK-189-193.sql, local test, 3 Nov 2026 (populated local database after the full suite; candidate d920c58, migrations unchanged since)
+
+Before (at 193): md5(prosrc) integrity_signals_awaiting_review 14d934de98291de93673865363a25293, record_integrity_review baf30d8e6520d2f8c92136825cf00024
+
+psql -v ON_ERROR_STOP=1 < ROLLBACK-189-193.sql
+  NOTICE:  rollback: result_views holds 0 row(s); they are dropped with it
+  DROP FUNCTION / DROP FUNCTION / DELETE 8 / DELETE 5 / COMMIT
+
+After rollback:
+  md5(prosrc) integrity_signals_awaiting_review e1cd1099dc3412b7501a7e8704730fa3   (= staging, read-only 3 Nov)
+  md5(prosrc) record_integrity_review           14e24ea3ae9c8e929d128b3fc64c46c3   (= staging, read-only 3 Nov)
+  schema_migrations: 188 rows, max 20261221100000
+  functions sertifikat_sekolah, integrity_signal_decided, integrity_reviews_recorded, menunggu_akun_boleh,
+    persons_awaiting_account_page, kelas_menunggu_akun, kelas_menunggu_akun_anggota, orang_kelas_menunggu_akun,
+    tujuan_belum_tercapai, note_result_seen, my_new_results: none present
+  to_regclass('public.result_views'): null
+
+npx supabase migration up --local
+  Applying 20261222100000 … 20261223100000 … 20261224100000 … 20261225100000 … 20261227100000 … "Migrations applied"
+  schema_migrations: 193 rows, max 20261227100000
+  md5(prosrc) back to 14d934de… and baf30d8e…; result_views present
+
+npm run selftest:only -- 'F25-*,F26-*' on the round-tripped database:
+  F26-C01 PASS, F26-C02 PASS, F26-I01 PASS, F26-W01 PASS, F25-T01 PASS, F25-T02 PASS
+  6 passed, 0 failed, 0 skipped → GREEN

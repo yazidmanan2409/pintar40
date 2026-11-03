@@ -1,54 +1,38 @@
 /**
- * M7 (D-085) — WHOLE-CLASS CARD ISSUE: WHICH CLASS, AND WHO IN IT.
+ * M7 (D-085) — WHOLE-CLASS CARD ISSUE: WHICH CLASS, AND HOW MANY IN IT.
  *
- * An administrator issues cards for a whole class in one operation. The people
- * are exactly the ones Aktivasi already lists (`persons_awaiting_account`:
- * provisioned, no account yet); this only groups them by the Kelas they are a
- * member of, labelled as the intake labels a place (`pilihanTempat`). A person
- * in no class is not in any group and keeps their own row. Each card is still
- * issued one person at a time through `/api/akun/aktivasi`, where the database
- * decides and audits per person: one press, one request per learner.
- *
- * Pure and free of React, so a test drives exactly what the screen offers.
+ * An administrator issues cards for a whole class in one operation. W2.10 (Batch 5; CR-49, D-153): the grouping is the
+ * database's (kelas_menunggu_akun: per Kelas, its current members, an enrolment still PENDING or ACTIVE, who wait for
+ * an account and may hold a card), so Aktivasi offers each Kelas with its count and never reads every waiting person
+ * to build the offer. The class's own learners are read when its run starts (orang_kelas_menunggu_akun, by name).
+ * Each card is still issued one person at a time through `/api/akun/aktivasi`, where the database decides and audits
+ * per person: one press, one request per learner.
  */
-export type KelasKartu = { id: string; label: string; orang: string[] };
+export type KelasKartu = { id: string; label: string; jumlah: number };
+
+/** One learner of a class's run, as orang_kelas_menunggu_akun answers. */
+export type AnggotaKelas = { person_id: string; display_name: string; institutional_id: string };
 
 /**
- * CR-91 (D-145(a)): a class card is a learner's alone. `persons_awaiting_account` says per person whether a card may
- * be offered (false for anyone holding a staff role, one that starts later included); anything but an explicit true is
- * no card. The database refuses the card regardless: this keeps the screen from offering what it would refuse.
+ * CR-91 (D-145(a)): a class card is a learner's alone. The waiting list says per person whether a card may be offered
+ * (false for anyone holding a staff role, one that starts later included); anything but an explicit true is no card.
+ * The database refuses the card regardless: this keeps the screen from offering what it would refuse.
  */
 export function bolehKartu(o: { boleh_kartu?: boolean | null }): boolean {
   return o.boleh_kartu === true;
 }
 
 /**
- * An enrolment still in the school: PENDING (provisioned, no account yet,
- * which is everyone this screen is for) or ACTIVE. An ENDED or CANCELLED one is
- * not a member to make a card for.
+ * The classes Aktivasi offers: each Kelas the database counted, labelled as the intake labels a place
+ * (`pilihanTempat`), only a real Kelas with someone waiting, by label.
  */
-export function masihTerdaftar(status: string | null | undefined): boolean {
-  return status === "PENDING" || status === "ACTIVE";
-}
-
-export function kelasUntukKartu(
-  menunggu: ReadonlyArray<{ person_id: string }>,
-  keanggotaan: ReadonlyArray<{ person_id: string; node_id: string; status?: string | null }>,
+export function kelasDitawarkan(
+  hitungan: ReadonlyArray<{ node_id: string; jumlah: number }>,
   tempat: ReadonlyArray<{ id: string; label: string; level: string }>,
 ): KelasKartu[] {
   const kelas = new Map(tempat.filter((t) => t.level === "KELAS").map((t) => [t.id, t.label]));
-  const tunggu = new Set(menunggu.map((m) => m.person_id));
-  const per = new Map<string, Set<string>>();
-  for (const k of keanggotaan) {
-    if (!kelas.has(k.node_id) || !tunggu.has(k.person_id)) continue;
-    if (k.status !== undefined && !masihTerdaftar(k.status)) continue;
-    if (!per.has(k.node_id)) per.set(k.node_id, new Set());
-    per.get(k.node_id)!.add(k.person_id);
-  }
-  // in the order Aktivasi lists the people, so the printed set reads like the screen
-  const urut = menunggu.map((m) => m.person_id);
-  return [...per.entries()]
-    .map(([id, orang]) => ({ id, label: kelas.get(id)!, orang: urut.filter((p) => orang.has(p)) }))
-    .filter((k) => k.orang.length > 0)
+  return hitungan
+    .filter((h) => kelas.has(h.node_id) && h.jumlah > 0)
+    .map((h) => ({ id: h.node_id, label: kelas.get(h.node_id)!, jumlah: h.jumlah }))
     .sort((a, b) => a.label.localeCompare(b.label, "id"));
 }

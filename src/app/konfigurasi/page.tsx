@@ -525,6 +525,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           {lama || (kh && melayani(kh, "/studio")) ? <ItemNav href="/studio" label={s("nav.studio")} /> : null}
           {platformIni ? <ItemNav href="/konfigurasi/email-uji" label={s("emailuji.judul")} /> : null}
           {(platformIni || sekolahIni.length > 0) ? <ItemNav href="/konfigurasi/keamanan" label={s("keamanan.judul")} /> : null}
+          {/* W2.5 (CR-05): the school's certificates, for whom revoke_certificate accepts (the page asks the database) */}
+          {(platformIni || satuSekolah) ? <ItemNav href="/konfigurasi/sertifikat" label={s("sertifikat.kelola.judul")} /> : null}
           {lama ? (
             <TabTempat tempat={tempatDariPeran(peran)} kecuali={["/konfigurasi"]} locale={await currentLocale()} persona="staff" bentuk="nav" />
           ) : (

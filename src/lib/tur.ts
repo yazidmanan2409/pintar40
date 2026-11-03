@@ -243,6 +243,17 @@ export type Layar = { lebar: number; tinggi: number; atap: number; telepon: bool
 export const TEPI = 16;
 /** The gap between a target and the card describing it. */
 export const JARAK = 16;
+/**
+ * W3.15 (RV-19): THE ROOM BETWEEN A TARGET AND ITS RING. The ring was drawn on the target's own edge, so a tab or a
+ * heading touched the white gap and the ring read as the target's border. It stands this far outside instead, the
+ * focus ring's offset (InteractionStates) carried to the spotlight's scale: one 8 px step of the spacing scale.
+ */
+export const CELAH = 8;
+
+/** The ring's box: the target's, grown by CELAH on every side. */
+export function kotakCincin(r: Petak): Petak {
+  return { top: r.top - CELAH, left: r.left - CELAH, width: r.width + 2 * CELAH, height: r.height + 2 * CELAH };
+}
 
 /**
  * THE BAND A TARGET MUST SIT IN — and the whole point is that it is NOT just

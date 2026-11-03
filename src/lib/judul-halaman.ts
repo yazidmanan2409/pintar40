@@ -38,6 +38,7 @@ export const JUDUL_HALAMAN: Record<string, Judul> = {
   "/evaluasi": { kunci: "evaluasi.judul", untuk: "staff" },
   "/id/[pintarId]": { kunci: "idpage.judul", untuk: "public" },
   "/konfigurasi": { kunci: "config.title", untuk: "staff" },
+  "/konfigurasi/sertifikat": { kunci: "sertifikat.kelola.judul", untuk: "staff" },
   "/konfigurasi/email-uji": { kunci: "emailuji.judul", untuk: "staff" },
   "/konfigurasi/keamanan": { kunci: "keamanan.judul", untuk: "staff" },
   "/lapor": { kunci: "lapor.judul", untuk: "staff" },
@@ -93,7 +94,27 @@ export function judulDari(rute: string, locale: "id" | "en"): Metadata["title"] 
   return MEREK.test(kata) ? { absolute: kata } : kata;
 }
 
+/**
+ * W3.13 (Daisy, J6Peragaan, F9): INSIDE THE DEMONSTRATION ROOM THE TITLE SAYS WHERE YOU ARE. The band says «MODE
+ * PERAGAAN» on the screen; the browser tab, the window list and a screen reader's page announcement said only the
+ * page's own name («Belajar · PINTAR»). So every page's title is prefixed with the band's own words while an
+ * evaluation persona is held: «MODE PERAGAAN · Belajar · PINTAR». Pure, so the guard can hold it.
+ */
+export function judulDalamPeragaan(judul: Metadata["title"], mode: string | null): Metadata["title"] {
+  if (!mode || judul == null) return judul;
+  if (typeof judul === "string") return `${mode} · ${judul}`;
+  if ("absolute" in judul && typeof judul.absolute === "string") return { absolute: `${mode} · ${judul.absolute}` };
+  return judul;
+}
+
 /** `export const generateMetadata = judulHalaman("/studio/bank");` in a page. */
 export function judulHalaman(rute: string) {
-  return async (): Promise<Metadata> => ({ title: judulDari(rute, await currentLocale()) });
+  return async (): Promise<Metadata> => {
+    // the evaluation session is read where the band reads it (one cached read per request); imported here, at run
+    // time, because that module is server-only and this map is also read by the guards
+    const { evaluationState } = await import("@/lib/evaluation");
+    const [locale, peragaan] = await Promise.all([currentLocale(), evaluationState().catch(() => null)]);
+    const mode = peragaan ? t("evaluasi.mode", "staff", { locale }) : null;
+    return { title: judulDalamPeragaan(judulDari(rute, locale), mode) };
+  };
 }

@@ -1,0 +1,345 @@
+{
+  "app": "http://127.0.0.1:3999",
+  "tag": "235c56",
+  "langkah": [
+    {
+      "id": "B5-W1",
+      "judul": "W2.5: the platform admin revokes a certificate on «Sertifikat sekolah», with a reason and the in-page confirmation",
+      "verdict": "PASS",
+      "catatan": [
+        "ok an issued certificate exists to revoke",
+        "ok «Lanjutkan» commits nothing: still ISSUED",
+        "ok focus starts on «Batal» (Batal)",
+        "ok the certificate is REVOKED with the reason",
+        "ok certificate.revoked is audited with the reason",
+        "ok the public check says DICABUT",
+        "ok the list says «Dicabut»",
+        "ok /konfigurasi/sertifikat: axe clean",
+        "ok /konfigurasi/sertifikat: skip link first (a «Langsung ke isi») and its own title «Sertifikat sekolah · PINTAR»",
+        "ok /konfigurasi/sertifikat: no sideways scroll at 320/640/1024/1280"
+      ],
+      "shots": [
+        "01-sertifikat-daftar.png",
+        "01-sertifikat-konfirmasi.png",
+        "01-sertifikat-dicabut.png"
+      ]
+    },
+    {
+      "id": "B5-W2",
+      "judul": "W2.7: one decision per observation; the referrer sees the case's steps and outcome on Tinjauan Integritas",
+      "verdict": "PASS",
+      "catatan": [
+        "ok two observations of an alpha sitting are waiting",
+        "ok the sitting is named «Siswa Alpha Dua (sintetis)», «Menunggu tinjauan»",
+        "ok each observation has its own form",
+        "ok the decided observation left; the other still waits",
+        "ok the referral is a case in the decision queue",
+        "ok the referrer reads the referral and its steps: «Berpindah dari layar asesmen · 3 Nov 2026, 19.53 WIBDiteruskan ke pihak sekolahDitinjau oleh Admin Alpha (sintetis), 3 Nov 2026, 19.56 WIBCatatan: Pindah layar berulang (uji 235c56)DiteruskanDitinjau »",
+        "ok alpha's dean has the case under «Keputusan»",
+        "ok the dean's decision is recorded",
+        "ok the referrer reads «Diputuskan», the outcome, the dean's note and the next step: «Berpindah dari layar asesmen · 3 Nov 2026, 19.53 WIBDiteruskan ke pihak sekolahDitinjau oleh Admin Alpha (sintetis), 3 Nov 2026, 19.56 WIBCatatan: Pindah layar berulang (uji 235c56)DiteruskanDitinjau pimpinanDiputuskanKeputusan: Pendampingan disiapkan · 3 Nov »",
+        "ok no identifier or raw code on the screen",
+        "ok /studio/integritas: axe clean",
+        "ok /studio/integritas: skip link first (a «Langsung ke isi») and its own title «Tinjauan Integritas · PINTAR»",
+        "ok /studio/integritas: no sideways scroll at 320/640/1024/1280"
+      ],
+      "shots": [
+        "02-integritas-menunggu.png",
+        "02-integritas-diteruskan.png",
+        "02-integritas-diputuskan.png"
+      ]
+    },
+    {
+      "id": "B5-W3",
+      "judul": "W2.10: Aktivasi lists the people waiting for an account 20 to a page, with the count, the next page and a search",
+      "verdict": "PASS",
+      "catatan": [
+        "ok page 1 draws 20 people (≤ 20) of 26 waiting (≥ 25)",
+        "ok page 2 draws the rest",
+        "ok searching finds exactly «Tunggu Walk 235c56 23» (1 row(s))",
+        "ok /aktivasi: axe clean",
+        "ok /aktivasi: skip link first (a «Langsung ke isi») and its own title «Aktifkan akun · PINTAR»",
+        "ok /aktivasi: no sideways scroll at 320/640/1024/1280"
+      ],
+      "shots": [
+        "03-aktivasi-halaman-1.png",
+        "03-aktivasi-cari.png"
+      ]
+    },
+    {
+      "id": "B5-W4",
+      "judul": "W3.8: alpha's dean opens the class report in the staff shell, named by school, class and year; print drops the navigation",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the report is inside the staff shell",
+        "ok the report names «Sekolah Sintetis Alpha», «5A» and «TA 2026/2027»",
+        "ok in print no navigation or header shows (0)",
+        "ok /edukator/ringkasan: axe clean",
+        "ok /edukator/ringkasan: skip link first (a «Langsung ke isi») and its own title «Ringkasan Kelas · PINTAR»",
+        "ok /edukator/ringkasan: no sideways scroll at 320/640/1024/1280"
+      ],
+      "shots": [
+        "04-laporan-kelas.png",
+        "04-laporan-kelas-cetak.png"
+      ]
+    },
+    {
+      "id": "B5-W5",
+      "judul": "W2.18 / UX-37: the Guru's view of one learner lists the objectives not yet reached; /mengajar's running rows open",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the Guru teaches a class with a learner (on /mengajar: [\"/mengajar/bcc52b95-ebbc-44ac-8239-bb3b7040e8e9\"])",
+        "ok the learner page has «Tujuan pembelajaran yang belum tercapai»",
+        "ok no identifier on the screen",
+        "ok /mengajar/[kelas]/murid/[orang]: axe clean",
+        "ok /mengajar/[kelas]/murid/[orang]: skip link first (a «Langsung ke isi») and its own title «Mengajar · PINTAR»",
+        "ok /mengajar/[kelas]/murid/[orang]: no sideways scroll at 320/640/1024/1280",
+        "ok /mengajar shows 0 running row link(s)",
+        "ok /mengajar: axe clean",
+        "ok /mengajar: skip link first (a «Langsung ke isi») and its own title «Mengajar · PINTAR»",
+        "ok /mengajar: no sideways scroll at 320/640/1024/1280"
+      ],
+      "shots": [
+        "05-guru-murid.png",
+        "05-mengajar-beranda.png"
+      ]
+    },
+    {
+      "id": "B5-W6",
+      "judul": "W3.10 / W3.15: Belajar fits 640 and 320 px; the tour leaves the page usable",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the tour is not aria-modal",
+        "ok the page behind the tour is not inert",
+        "ok Belajar at 640 px is 640 px wide",
+        "ok Belajar at 320 px is 320 px wide",
+        "ok /belajar: axe clean",
+        "ok /belajar: skip link first (a «Langsung ke isi») and its own title «Belajar · PINTAR»",
+        "ok /belajar: no sideways scroll at 320/640/1024/1280"
+      ],
+      "shots": [
+        "06-belajar-640.png",
+        "06-belajar-320.png"
+      ]
+    }
+  ],
+  "a11y": [
+    {
+      "jalan": "/konfigurasi/sertifikat",
+      "judul": "Sertifikat sekolah · PINTAR",
+      "axe": [],
+      "lompat": {
+        "ada": true,
+        "pertama": "a «Langsung ke isi»"
+      },
+      "lebar": {
+        "320": {
+          "lebar": 320,
+          "meluap": null,
+          "terpotong": []
+        },
+        "640": {
+          "lebar": 640,
+          "meluap": null,
+          "terpotong": []
+        },
+        "1024": {
+          "lebar": 1024,
+          "meluap": null,
+          "terpotong": []
+        },
+        "1280": {
+          "lebar": 1280,
+          "meluap": null,
+          "terpotong": []
+        }
+      }
+    },
+    {
+      "jalan": "/studio/integritas",
+      "judul": "Tinjauan Integritas · PINTAR",
+      "axe": [],
+      "lompat": {
+        "ada": true,
+        "pertama": "a «Langsung ke isi»"
+      },
+      "lebar": {
+        "320": {
+          "lebar": 320,
+          "meluap": null,
+          "terpotong": []
+        },
+        "640": {
+          "lebar": 640,
+          "meluap": null,
+          "terpotong": []
+        },
+        "1024": {
+          "lebar": 1024,
+          "meluap": null,
+          "terpotong": []
+        },
+        "1280": {
+          "lebar": 1280,
+          "meluap": null,
+          "terpotong": []
+        }
+      }
+    },
+    {
+      "jalan": "/aktivasi",
+      "judul": "Aktifkan akun · PINTAR",
+      "axe": [],
+      "lompat": {
+        "ada": true,
+        "pertama": "a «Langsung ke isi»"
+      },
+      "lebar": {
+        "320": {
+          "lebar": 320,
+          "meluap": null,
+          "terpotong": []
+        },
+        "640": {
+          "lebar": 640,
+          "meluap": null,
+          "terpotong": []
+        },
+        "1024": {
+          "lebar": 1024,
+          "meluap": null,
+          "terpotong": []
+        },
+        "1280": {
+          "lebar": 1280,
+          "meluap": null,
+          "terpotong": []
+        }
+      }
+    },
+    {
+      "jalan": "/edukator/ringkasan",
+      "judul": "Ringkasan Kelas · PINTAR",
+      "axe": [],
+      "lompat": {
+        "ada": true,
+        "pertama": "a «Langsung ke isi»"
+      },
+      "lebar": {
+        "320": {
+          "lebar": 320,
+          "meluap": null,
+          "terpotong": []
+        },
+        "640": {
+          "lebar": 640,
+          "meluap": null,
+          "terpotong": []
+        },
+        "1024": {
+          "lebar": 1024,
+          "meluap": null,
+          "terpotong": []
+        },
+        "1280": {
+          "lebar": 1280,
+          "meluap": null,
+          "terpotong": []
+        }
+      }
+    },
+    {
+      "jalan": "/mengajar/[kelas]/murid/[orang]",
+      "judul": "Mengajar · PINTAR",
+      "axe": [],
+      "lompat": {
+        "ada": true,
+        "pertama": "a «Langsung ke isi»"
+      },
+      "lebar": {
+        "320": {
+          "lebar": 320,
+          "meluap": null,
+          "terpotong": []
+        },
+        "640": {
+          "lebar": 640,
+          "meluap": null,
+          "terpotong": []
+        },
+        "1024": {
+          "lebar": 1024,
+          "meluap": null,
+          "terpotong": []
+        },
+        "1280": {
+          "lebar": 1280,
+          "meluap": null,
+          "terpotong": []
+        }
+      }
+    },
+    {
+      "jalan": "/mengajar",
+      "judul": "Mengajar · PINTAR",
+      "axe": [],
+      "lompat": {
+        "ada": true,
+        "pertama": "a «Langsung ke isi»"
+      },
+      "lebar": {
+        "320": {
+          "lebar": 320,
+          "meluap": null,
+          "terpotong": []
+        },
+        "640": {
+          "lebar": 640,
+          "meluap": null,
+          "terpotong": []
+        },
+        "1024": {
+          "lebar": 1024,
+          "meluap": null,
+          "terpotong": []
+        },
+        "1280": {
+          "lebar": 1280,
+          "meluap": null,
+          "terpotong": []
+        }
+      }
+    },
+    {
+      "jalan": "/belajar",
+      "judul": "Belajar · PINTAR",
+      "axe": [],
+      "lompat": {
+        "ada": true,
+        "pertama": "a «Langsung ke isi»"
+      },
+      "lebar": {
+        "320": {
+          "lebar": 320,
+          "meluap": null,
+          "terpotong": []
+        },
+        "640": {
+          "lebar": 640,
+          "meluap": null,
+          "terpotong": []
+        },
+        "1024": {
+          "lebar": 1024,
+          "meluap": null,
+          "terpotong": []
+        },
+        "1280": {
+          "lebar": 1280,
+          "meluap": null,
+          "terpotong": []
+        }
+      }
+    }
+  ]
+}

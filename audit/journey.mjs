@@ -2527,7 +2527,8 @@ await step("S23i", "the head of department reviews Kelas 1A's integrity observat
     notes.push(`the page frames them as material for a human ${bingkai}, carries a verdict word ${vonis}, names the observation ${kategori}, names the student ${namaTampak}`);
     if (!bingkai || !kategori) notes.push(`the page at ${new URL(h.url()).pathname} says: «${teks.slice(0, 400)}»`);
     const form = h.locator("form").filter({ has: h.locator(`input[name="sinyal"][value="${idSinyal}"]`) }).first();
-    if (!(await form.count()) || !bingkai || vonis || !kategori) { rec.verdict = "FAIL"; return notes.join("; "); }
+    // W2.7 (Batch 5; CR-75): the sitting is named by its learner; the Batch 5 walk found every sitting shown as «—»
+    if (!(await form.count()) || !bingkai || vonis || !kategori || !namaTampak) { rec.verdict = "FAIL"; return notes.join("; "); }
     await form.locator('select[name="keputusan"]').selectOption({ label: "Diteruskan ke pihak sekolah" });
     await form.locator('input[name="catatan"]').fill(RUJUK_S23);
     await form.getByRole("button", { name: "Catat tinjauan" }).click();
@@ -2600,7 +2601,7 @@ await jalankanC12({ step, sql, ctx, magicSignIn, apiSession, grantViaForm, catat
 // moves; the student sees none of it.
 // RESTATED FOR FD-7 (DG-32): S23i's review is the referral; the sitting has left the head of department's waiting list,
 // so no second referral can be pressed from Studio (the database's own idempotency stays F06-P22's).
-await step("S23r", "the head of department's referral of Kelas 1A's integrity observation (S23i, «Diteruskan ke pihak sekolah») is one waiting decision, and Studio no longer offers the sitting (FD-7); the dean finds it under «Keputusan» on /pimpinan, takes it («Saya yang menangani») and records «Tidak ada tindakan lanjutan» with «Catat keputusan»; the referrer sees it decided; no score moves and the student sees none of it (CR-38: DEA-04, BOB-39)", async (rec) => {
+await step("S23r", "the head of department's referral of Kelas 1A's integrity observation (S23i, «Diteruskan ke pihak sekolah») is one waiting decision, and Studio no longer offers the sitting (FD-7); the dean finds it under «Keputusan» on /pimpinan, takes it («Saya yang menangani») and records «Tidak ada tindakan lanjutan» with «Catat keputusan»; the referrer sees it decided, on /pimpinan and on Tinjauan Integritas where she referred it (W2.7, CR-77); no score moves and the student sees none of it (CR-38: DEA-04, BOB-39)", async (rec) => {
   const kelas = kelasSatuA();
   // the observation S23i reviewed (S23i's own query, journey.mjs:2304-2305)
   const sinyal = kelas ? sql(`select s.id||'|'||p.display_name from public.integrity_signals s join public.assessment_sessions ss on ss.id = s.session_id
@@ -2720,6 +2721,15 @@ await step("S23r", "the head of department's referral of Kelas 1A's integrity ob
     const nanti = await teks(kartu(h));
     notes.push(`the head of department's card now «${nanti.slice(0, 160)}»`);
     if (!/Sudah diputuskan/.test(nanti) || !/Tidak ada tindakan lanjutan/.test(nanti)) rec.verdict = "FAIL";
+    // W2.7 (Batch 5; CR-77, Daisy GQ2): and on the page she referred it from: Studio → «Tinjauan Integritas», under
+    // «Sudah ditinjau», the observation carries the case's named steps, the outcome in words and the dean's note
+    await h.goto(`${APP}/studio/integritas`, { waitUntil: "networkidle" });
+    await h.getByRole("heading", { name: "Tinjauan Integritas", exact: true }).waitFor({ timeout: SLOW }).catch(() => {});
+    const diStudio = await teks(h.locator(`[data-sinyal-ditinjau="${idSinyal}"]`));
+    rec.shots.push(await shot(h, "cr77-perujuk-melihat-hasil"));
+    notes.push(`CR-77: on Tinjauan Integritas the referred observation reads «${diStudio.slice(0, 260)}»`);
+    if (!/Diteruskan ke pihak sekolah/.test(diStudio) || !/Diputuskan/.test(diStudio) || !/Keputusan: Tidak ada tindakan lanjutan/.test(diStudio)
+        || !diStudio.includes(PUTUS) || !/Kasus ini selesai/.test(diStudio) || MENTAH.test(diStudio)) rec.verdict = "FAIL";
   } catch (e) {
     rec.verdict = "FAIL";
     rec.shots.push(await shot(d, "cr38-berhenti"));
@@ -2916,13 +2926,14 @@ await step("S23t", "the school admin assembles the school's own class report on 
       (select coalesce(string_agg(coalesce(e->>'metric_id', '(ditahan)'), ',' order by (e->>'ordinal')::int), '') from jsonb_array_elements(r.body->'entries') e)
     from public.generated_reports r where r.generated_by_person_id = '${kaprodiId}' and r.scope_node_id = '${kelas}' and r.standard_report = 'class_learning_intelligence'
    order by r.generated_at desc limit 1), '')`).trim().split("|");
-  const PILIH = ["class.comprehension", "class.net_gain"];   // labels «Pemahaman», «Kenaikan» (hle.ts:2009, 2011)
+  const PILIH = ["class.comprehension", "class.net_gain"];   // labels «Pemahaman», «Kenaikan» (Terminology v1)
   const notes = [];
   const hc = await ctx();
   const h = await hc.newPage();
   // the summary as drawn: one article per entry of the template, each permitted one headed by its label
   const bacaRingkasan = async () => {
-    await h.getByRole("heading", { name: "Ringkasan Kelas", exact: true }).waitFor({ timeout: SLOW });   // edukator/ringkasan/page.tsx:78; hle.ts:2077
+    // W3.8 (Batch 5): «Ringkasan Kelas» is the eyebrow; the heading names the class
+    await h.locator("main .pin-head .pin-eyebrow", { hasText: "Ringkasan Kelas" }).waitFor({ timeout: SLOW });
     await h.waitForLoadState("networkidle");
     return { n: await h.locator("main > section > article").count(),                                    // edukator/ringkasan/page.tsx:97-99
       judul: (await h.locator("main > section > article > h2").allTextContents()).map(norm) };           // :102-104

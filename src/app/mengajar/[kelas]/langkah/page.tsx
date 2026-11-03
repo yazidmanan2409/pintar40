@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { t, format, type HleEvent } from "@/lib/hle";
+import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
+import { kataMenunggu } from "@/components/mengajar/menunggu";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/langkah");
@@ -33,8 +34,12 @@ export const dynamic = "force-dynamic";
  * `extend_session_deadline` does, which is why its card keeps that sentence and
  * the other one would not have.)
  *
- * NOTHING HERE FOR ITEM REVIEW OR INTEGRITY, and the footnote says so plainly
- * rather than leaving an educator to wonder whether they have missed a menu.
+ * NO FOOTNOTE (W2.6; CR-37, D-120 QN4). The line under the cards promised a
+ * periodic briefing «here when there is one»; briefings are hidden for 4.0
+ * (11-validation §3: «The surface goes»), so the promise went with them. Its
+ * second sentence (item review and integrity are not the teacher's) did not
+ * stand alone and is no longer plainly true beside the class's per-question
+ * evidence (/mengajar/[kelas]/soal), so it went too.
  */
 export default async function Langkah({ params }: { params: Promise<{ kelas: string }> }) {
   const { kelas: id } = await params;
@@ -53,32 +58,11 @@ export default async function Langkah({ params }: { params: Promise<{ kelas: str
     ajar.faktaKelas(id),
   ]);
 
-  const punya = new Set(tugas.map((x) => x.releaseId));
-  const calon = terbit.filter((r) => !punya.has(r.id));
-  const tertunda = buka.find((b) => b.mengumpulkan < fakta.murid.length) ?? null;
-
   type Kartu = { key: string; judul: string; sebab: string; href: string; utama: boolean };
-  const kartu: Kartu[] = [];
-
-  if (tertunda) {
-    const belum = Math.max(0, fakta.murid.length - tertunda.mengumpulkan);
-    kartu.push({
-      key: "f1",
-      judul: `${s("mengajar.langkah.f1")} — ${format.number(belum, locale)} ${s("mengajar.bukti.murid")}`,
-      sebab: s("mengajar.langkah.f1w"),
-      href: `/mengajar/${id}/siapa?penugasan=${tertunda.id}`,
-      utama: true,
-    });
-  }
-  if (calon.length > 0) {
-    kartu.push({
-      key: "f4",
-      judul: s("mengajar.langkah.f4"),
-      sebab: s("mengajar.langkah.f4w"),
-      href: `/mengajar/${id}/siapkan?terbitan=${calon[0].id}`,
-      utama: kartu.length === 0,
-    });
-  }
+  // UX-37: what waits on the teacher here is decided once (menungguKelas), the same answer the home shows per class
+  const kartu: Kartu[] = ajar
+    .menungguKelas(id, buka, fakta.murid.length, new Set(tugas.map((x) => x.releaseId)), terbit)
+    .map((m, i) => ({ key: m.key, ...kataMenunggu(m, s, locale), href: m.href, utama: i === 0 }));
   kartu.push({
     key: "f5",
     judul: s("mengajar.langkah.f5"),
@@ -130,7 +114,6 @@ export default async function Langkah({ params }: { params: Promise<{ kelas: str
           ))}
         </div>
 
-        <p className="pin-foot">{s("mengajar.langkah.quiet")}</p>
         <KakiPintar />
       </main>
     </>

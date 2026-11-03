@@ -23,6 +23,8 @@
 | BLOCKED — EXTERNAL DEPENDENCY | 2 |
 | **Total** | **130** |
 
+**Counted again from the rows after Batch 5 (3 Nov, on the branch):** VERIFIED (all qualifiers) 72 · IMPLEMENTED — NOT VERIFIED 36 · IN PROGRESS 10 · NOT STARTED 3 · BLOCKED — OWNER DECISION 7 (one marked resolved) · BLOCKED — EXTERNAL DEPENDENCY 2 · total 130. The table above is the 2 Nov baseline.
+
 **Class C (not part of 4.0 completion by ruling):**
 - **J4.2** media playback (D-050);
 - **J4.9** Question Health (P2, needs data, CR-36);
@@ -124,7 +126,7 @@
 | J5.10 | Assistive «what next» | A | VERIFIED | BOB40-K01; S26d | — |
 | J5.11 | HOD assigns and runs Uji Cepat in the Bagian | A | VERIFIED | S27h | — |
 | J5.12 | Learners below target; reassign reading | A | VERIFIED | M3R-S01; S22b | — |
-| J5.13 | Teacher's view of one learner incl. objectives struggled with | B (is «Hasil resmi» the M4 record) | IMPL | `murid/[orang]`; M4-K01; S22 | **No objectives the learner struggles with** → W2.18 |
+| J5.13 | Teacher's view of one learner incl. objectives struggled with | B (is «Hasil resmi» the M4 record) | IMPL | `murid/[orang]`; M4-K01; S22; B5C-MURID-K01, F25-T01/T02, walk B5-W5 | Batch 5 (D-156): the objectives not yet reached, by statement (W2.18); on the branch, promotion pending |
 | J5.14 | Question-level results after close | A | VERIFIED | D088K-S01, C12-D01; S22, S26e | — |
 
 ## J6 · Learning
@@ -135,7 +137,7 @@
 | J6.2 | Open a lesson without starting an assessment | A | VERIFIED | S19; GS-13/15 | — |
 | J6.3 | Lesson loads; place kept | A (media C) | VERIFIED (text) | GS-14; S21c, S21e | RV-8 missing seeded audio → W2.12 |
 | J6.4 | Hints help without revealing | A | IMPL | `bantuan-terjadwal`; browser run on older SHA | Re-walk → W6.10 |
-| J6.5 | Truthful orientation; explicit start | A | IN PROG | GS-13 | **RV-7**: «Mulai Pemetaan Awal» offered with none → W2.12 |
+| J6.5 | Truthful orientation; explicit start | A | IMPL | GS-13; B5B-PEMETAAN-K01 | Batch 5: RV-7 closed on the branch (W2.12); promotion pending |
 | J6.6 | One player; sync; reload safe | A | VERIFIED | S21; GS-13/15 | — |
 | J6.7 | Pause and resume | A | IMPL | F03-T11 | Browser walk (STU-08) → W6.10 |
 | J6.8 | Answers kept through network loss | A | VERIFIED | S21 student 3; EFF-K01 | Level 3 coverage → W6.3 |
@@ -152,11 +154,11 @@
 | Line | Requirement | Class | Status | Evidence | Gap → work |
 |---|---|---|---|---|---|
 | J7.1 | Teacher reads class evidence | A | VERIFIED | S22; GS-17 | — |
-| J7.2 | HOD scoped figures | A | IN PROG | S23; GS-17 | **RV-9** «(0/5)» unexplained; **RV-11** report page names no class/school/period, no shell → W3.8, W3.9 |
-| J7.3 | Dean school summary | A | IN PROG | S23d; GS-17 | RV-11, RV-9 → W3.8, W3.9 |
-| J7.4 | School admin reaches the school report | A | IN PROG | GS-17; S23t | RV-11 → W3.8 |
-| J7.5 | Decision queue (briefings HIDE, QN4) | A (briefings C) | IN PROG | S23r | `mengajar.langkah.quiet` still promises briefings (CR-37) → W2.6 |
-| J7.6 | Human integrity review; referral scoped | A | IN PROG | S23i, S23r | **CR-77** referrer never sees outcome; **CR-75** one form per sitting, no reviewed state → W2.7 |
+| J7.2 | HOD scoped figures | A | IMPL | S23; GS-17; B5A-LAPORAN-K01, B5A-PIMPINAN-K01, walk B5-W4 | Batch 5: shell, place and period named, RV-9 on the branch; report body and print layout await Daisy (W3.8) |
+| J7.3 | Dean school summary | A | IMPL | S23d; GS-17; B5A-LAPORAN-K01, B5A-PIMPINAN-K01 | Batch 5: as J7.2; the school report covers every school year and says so |
+| J7.4 | School admin reaches the school report | A | IMPL | GS-17; S23t; B5A-LAPORAN-K01, walk B5-W4 | Batch 5: as J7.2 (W3.8 partial: Daisy) |
+| J7.5 | Decision queue (briefings HIDE, QN4) | A (briefings C) | IMPL | S23r; B5A-TAKLIMAT-K01 | Batch 5: the briefing promise removed (CR-37, W2.6); promotion pending |
+| J7.6 | Human integrity review; referral scoped | A | IMPL | S23i, S23r; B5-INTEGRITAS-K01, F26-I01, journey S23r, walk B5-W2 | Batch 5: one decision per observation, a reviewed state, the referrer sees the outcome (W2.7); promotion pending |
 | J7.7 | Readiness tiers claim no pass | A | VERIFIED | GS-17; PITA-K01 | — |
 | J7.8 | Metric version label | A (EC) | IMPL | D088G-S01 | No rule-level test → W6.1 |
 | J7.9 | Dean certificate aggregates | A | VERIFIED | GS laporan | — |
@@ -169,7 +171,7 @@
 | J8.2 | Learner sees state; rendering never issues | A | VERIFIED | S21i; GS-18 | — |
 | J8.3 | Sealed at issuance | A | VERIFIED | mig 20261201100000 (CR-02); GS-18 | — |
 | J8.4 | Certificate as designed, A4, QR (CR-03/04) | B (frozen design needs font licence, institution mark column, print proof) | BLK-OWNER | `KartuSertifikat`, `LembarA4`, `KodeVerifikasi` | Wordmark licence and physical proof → F-11; then W3.19 |
-| J8.5 | Template and **revocation**; numbers never collide | A | IN PROG | ADM18-K01/K02; GS-18 | **CR-05 revocation is SQL-only** → W2.5 |
+| J8.5 | Template and **revocation**; numbers never collide | A | IMPL | ADM18-K01/K02; GS-18; B5-CABUT-K01, F26-C01/C02, walk B5-W1 | Batch 5: revocation on a screen (CR-05, W2.5); promotion pending |
 | J8.6 | Anonymous verification | A | VERIFIED | P1; GS-19 | Production DNS (CR-11) → W9.15 |
 | J8.7 | Production signing key and pepper; escrow | A (REL) | BLK-EXT | keyring; DR-S01..S10 | #150 B5 → W9.6 |
 | J8.8 | **Profile photo** on the profile only (CR-07) | A | IMPL | Batch 4: «Foto profil»; B4-FOTO-K01; walk B4-W10 | Closed in Batch 4 (W2.8); promotion pending |
@@ -202,9 +204,9 @@
 | X.2 | Fail closed outside role/scope | A | VERIFIED | F01-*, D101-A02; GS-17 | **CR-91** held → F-3, W5.1 |
 | X.3 | Success only after a real change | A | IMPL | EMAILJUJUR-K01 | Rule-level test → W6.1 |
 | X.4 | No raw text; ID = EN; Terminology v1 | A | IN PROG | `hle.ts`; BOB07-K01 | OP-5 DB-held strings; OP-6/OP-7 (Dr Gladys) → W4.1, W4.2 |
-| X.5 | «Not yet» never failure | A | IN PROG | `KartuKetiadaan` | CR-46, RV-9 → W3.9, W3.2 |
+| X.5 | «Not yet» never failure | A | IMPL | `KartuKetiadaan`; B5A-PIMPINAN-K01 | Batch 5: «(0/5)» replaced by the CR-46 sentence (W3.9) |
 | X.6 | Usable at 320 px | A | IN PROG | crawl 320 px | RV-11, RV-19, RV-20, RV-23; crawl detects overflow only → W3.*, W6.4 |
-| X.7 | Context before consequential action | A | IN PROG | L3D/L3A | RV-11 → W3.8 |
+| X.7 | Context before consequential action | A | IMPL | L3D/L3A; B5A-LAPORAN-K01 | Batch 5: reports name school, class and period (W3.8 partial) |
 | X.8 | Privacy: no oracle, no internals | A | VERIFIED (examples) | P1, BOB26-A02; GS-19 | Rule-level test; CR-91 → W6.1, F-3 |
 | X.9 | Recovery without SQL where claimed | A | IN PROG | Gates 4–5 | CR-13, CR-14, CR-15, CR-05 → W2.1–W2.5 |
 | X.10 | U-PERF ≤ 3 s | A (P0) | IMPL | last measured 28–30 Sep | Re-measure after L3 and shell (CR-58) → W6.2 |

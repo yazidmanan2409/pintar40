@@ -554,7 +554,8 @@ export const penutupanTests: SelfTest[] = [
       const h = readFileSync(join(ctx.repoRoot, "src", "app", "studio", "integritas", "page.tsx"), "utf8");
       c.expect(/rpc\("integrity_signals_awaiting_review"\)/.test(h) && !/from\("integrity_signals"\)/.test(h),
         "Tinjauan Integritas does not read the waiting list");
-      c.expect(/\.\.\.\(group\[0\]\.may_refer \? \["REFERRED_TO_INSTITUTION"\] : \[\]\)/.test(h),
+      // RESTATED FOR W2.7 (Batch 5; CR-75): each observation has its own form, so the offer is each observation's own may_refer
+      c.expect(/\.\.\.\(g\.may_refer \? \["REFERRED_TO_INSTITUTION"\] : \[\]\)/.test(h) && !/group\[0\]\.may_refer/.test(h),
         "«Diteruskan ke pihak sekolah» is offered where the server refuses it");
       // RESTATED FOR W1.14 (Batch 3): the empty sentence is drawn as Daisy's Empty state (Kosong, W3.2), not a bare card;
       // it is still drawn exactly when the waiting list is empty

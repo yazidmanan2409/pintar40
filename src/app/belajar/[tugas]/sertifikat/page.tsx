@@ -9,6 +9,8 @@ import { supabaseServer } from "@/lib/supabase/server";
 import * as engine from "@/lib/assessment-engine";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
+import { peranSaya } from "@/lib/tur-negara";
+import { personaPembelajaran } from "@/lib/pembelajaran";
 import { BarisLingkup } from "@/components/bukti";
 import KartuSertifikat from "@/components/sertifikat/KartuSertifikat";
 import LembarA4 from "@/components/sertifikat/LembarA4";
@@ -218,11 +220,14 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
   );
 }
 
-function Refusal({ locale }: { locale: Awaited<ReturnType<typeof currentLocale>> }) {
+async function Refusal({ locale }: { locale: Awaited<ReturnType<typeof currentLocale>> }) {
+  // UX-46: the way back is to the certificates the learner came from, and it says so («Kembali ke Sertifikat»);
+  // W2.16 (DAISY-35 item 2): and it speaks to the reader's own context
+  const persona = personaPembelajaran(await peranSaya());
   return (
     <>
       <CangkangPengalaman locale={locale} current="sertifikat" />
-      <HalamanPenolakan locale={locale} backHref="/belajar/sertifikat" />
+      <HalamanPenolakan locale={locale} persona={persona} backHref="/belajar/sertifikat" backKey="tolak.kembali_sertifikat" />
     </>
   );
 }

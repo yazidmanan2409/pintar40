@@ -1,5 +1,5 @@
 export { default as AngkaBerdiri } from "./AngkaBerdiri";
-export { default as KartuKetiadaan, variantOf, type Variant } from "./KartuKetiadaan";
+export { default as KartuKetiadaan, variantOf, kalimatJumlah, type Variant } from "./KartuKetiadaan";
 export { default as BarisKesiapan } from "./BarisKesiapan";
 export { default as PopulasiKelas } from "./PopulasiKelas";
 export { default as BarisLingkup, type Lingkup } from "./BarisLingkup";

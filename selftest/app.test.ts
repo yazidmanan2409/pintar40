@@ -84,6 +84,8 @@ const ROUTE_INVENTORY = [
   "/",
   // W2.1-W2.3 (Batch 4): «Koreksi data orang», the platform admin's and school admin's corrections
   "/aktivasi/orang",
+  // W2.5 (Batch 5): «Sertifikat sekolah», the school admin's certificate revocation
+  "/konfigurasi/sertifikat",
   "/masuk",
   // UX-1 login. The magic-link callback stopped being a bare redirect and
   // became a surface people read (S13/S14), so its rendered output joins the

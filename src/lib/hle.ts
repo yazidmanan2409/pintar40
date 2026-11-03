@@ -72,6 +72,7 @@ export type HleEvent =
   | "laporan.kelas.judul" | "laporan.institusi.judul"
   | "laporan.kosong" | "laporan.tak_ada_angka"
   | "laporan.kembali" | "laporan.cetak"
+  | "laporan.cakupan.kelas" | "laporan.cakupan.sekolah"
   // ── WP4. The Management surface. `pimpinan` is Indonesian for the people who
   // lead a part of a school — the word the approved Management design uses for
   // the role, and the one this surface is named after. Every key below is
@@ -136,6 +137,43 @@ export type HleEvent =
   | "verifikasi.status.DIGANTIKAN"
   | "verifikasi.status.DIGANTIKAN.arti"
   | "verifikasi.status.TIDAK_SAH"
+  | "sertifikat.kelola.judul"
+  | "sertifikat.kelola.intro"
+  | "sertifikat.kelola.intro.platform"
+  | "sertifikat.kelola.benda"
+  | "sertifikat.kelola.cari"
+  | "sertifikat.kelola.kolom.pemegang"
+  | "sertifikat.kelola.kolom.nomor"
+  | "sertifikat.kelola.kolom.sekolah"
+  | "sertifikat.kelola.kolom.kursus"
+  | "sertifikat.kelola.kolom.terbit"
+  | "sertifikat.kelola.kolom.keadaan"
+  | "sertifikat.kelola.kolom.tindakan"
+  | "sertifikat.kelola.keadaan.ISSUED"
+  | "sertifikat.kelola.keadaan.REVOKED"
+  | "sertifikat.kelola.keadaan.SUPERSEDED"
+  | "sertifikat.kelola.kosong"
+  | "sertifikat.kelola.tidak_cocok"
+  | "sertifikat.kelola.cabut"
+  | "sertifikat.kelola.ditolak"
+  | "sertifikat.cabut.judul"
+  | "sertifikat.cabut.alasan"
+  | "sertifikat.cabut.alasan.arti"
+  | "sertifikat.cabut.lanjut"
+  | "sertifikat.cabut.tanya"
+  | "sertifikat.cabut.akibat"
+  | "sertifikat.cabut.aman"
+  | "sertifikat.cabut.tombol"
+  | "sertifikat.cabut.batal"
+  | "sertifikat.cabut.ok"
+  | "sertifikat.cabut.dicabut_pada"
+  | "sertifikat.cabut.alasan_tercatat"
+  | "sertifikat.cabut.digantikan"
+  | "sertifikat.cabut.gagal.ALASAN_WAJIB"
+  | "sertifikat.cabut.gagal.SUDAH_DICABUT"
+  | "sertifikat.cabut.gagal.DITOLAK"
+  | "sertifikat.cabut.gagal.TIDAK_DITEMUKAN"
+  | "sertifikat.cabut.gagal.LAYANAN_TIDAK_TERSEDIA"
   | "verifikasi.tidak_ditemukan.arti"
   | "sertifikat.daftar.eyebrow"
   | "sertifikat.daftar.judul"
@@ -192,6 +230,7 @@ export type HleEvent =
   | "tombol.memulai"
   | "tombol.mengaktifkan"
   | "tolak.kembali"
+  | "tolak.kembali_sertifikat"
   | "komitmen.kembali"
   | "bukti.dari"
   | "bukti.murid"
@@ -674,6 +713,8 @@ export type HleEvent =
   | "lesson.example.reveal"
   | "lesson.example.done"
   | "lesson.pdf"
+  | "lesson.media.tidak_ada"
+  | "lesson.media.tidak_ada_teks"
   | "lesson.saved"
   | "posttest.title"
   | "posttest.intro"
@@ -785,6 +826,7 @@ export type HleEvent =
   | "evaluasi.sebagai"
   | "evaluasi.ganti"
   | "evaluasi.keluar"
+  | "evaluasi.keluar_selesai"
   | "evaluasi.berakhir"
   | "evaluasi.sesi_habis"
   | "evaluasi.gagal"
@@ -971,6 +1013,29 @@ export type HleEvent =
   | "studio.integritas.DISCUSSED_WITH_LEARNER"
   | "studio.integritas.REFERRED_TO_INSTITUTION"
   | "studio.integritas.catat"
+  | "studio.integritas.menunggu.judul"
+  | "studio.integritas.ditinjau.judul"
+  | "studio.integritas.ditinjau.kosong"
+  | "studio.integritas.keadaan.menunggu"
+  | "studio.integritas.keadaan.ditinjau"
+  | "studio.integritas.catatan.arti"
+  | "studio.integritas.oleh"
+  | "studio.integritas.catatan_tercatat"
+  | "studio.integritas.rujukan.judul"
+  | "studio.integritas.rujukan.langkah.diteruskan"
+  | "studio.integritas.rujukan.langkah.ditinjau"
+  | "studio.integritas.rujukan.langkah.diputuskan"
+  | "studio.integritas.rujukan.hasil"
+  | "studio.integritas.rujukan.hasil.NO_FURTHER_ACTION"
+  | "studio.integritas.rujukan.hasil.LEARNER_SUPPORT_ARRANGED"
+  | "studio.integritas.rujukan.hasil.ESCALATED_TO_INSTITUTION"
+  | "studio.integritas.rujukan.catatan"
+  | "studio.integritas.rujukan.sedang"
+  | "studio.integritas.rujukan.di_pimpinan"
+  | "studio.integritas.rujukan.tak_terlihat"
+  | "studio.integritas.rujukan.lanjut.NO_FURTHER_ACTION"
+  | "studio.integritas.rujukan.lanjut.LEARNER_SUPPORT_ARRANGED"
+  | "studio.integritas.rujukan.lanjut.ESCALATED_TO_INSTITUTION"
   | "studio.sertifikat.judul"
   | "studio.sertifikat.tata_letak"
   | "studio.sertifikat.identitas"
@@ -1484,6 +1549,9 @@ export type HleEvent =
   | "mengajar.murid1.hasil"
   | "mengajar.murid1.hasil_arti"
   | "mengajar.murid1.hasil_kosong"
+  | "mengajar.murid1.tujuan"
+  | "mengajar.murid1.tujuan_arti"
+  | "mengajar.murid1.tujuan_kosong"
   | "mengajar.murid.judul"
   | "mengajar.murid.sub"
   | "mengajar.murid.kosong"
@@ -1611,7 +1679,6 @@ export type HleEvent =
   | "mengajar.langkah.f5w"
   | "mengajar.langkah.f6"
   | "mengajar.langkah.f6w"
-  | "mengajar.langkah.quiet"
   | "mengajar.siapa.judul"
   | "mengajar.siapa.sudah"
   | "mengajar.siapa.belum"
@@ -1790,6 +1857,10 @@ export type HleEvent =
   | "aktivasi.intro.buka"
   | "aktivasi.halaman_masuk"
   | "aktivasi.kosong"
+  | "aktivasi.tunggu.cari"
+  | "aktivasi.tunggu.jumlah"
+  | "aktivasi.tunggu.cocok"
+  | "aktivasi.tunggu.tidak_cocok"
   | "aktivasi.surel"
   | "aktivasi.dengan_surel"
   | "aktivasi.dengan_kartu"
@@ -2515,6 +2586,9 @@ const table: Table = {
   "laporan.institusi.judul": { default: "Ringkasan Sekolah", en: "School Summary" },
   "laporan.kembali": { default: "Kembali", en: "Back" },
   "laporan.cetak": { default: "Cetak laporan", en: "Print report" },
+  // W3.8 (RV-11): what a report's figures cover and when they were calculated, under its heading and on the paper
+  "laporan.cakupan.kelas": { default: "Angka dihitung {waktu} dari semua bukti kelas ini sampai saat itu.", en: "Figures calculated {waktu} from all of this class's evidence up to then." },
+  "laporan.cakupan.sekolah": { default: "Angka dihitung {waktu} dari semua bukti sekolah ini, di setiap tahun ajaran, sampai saat itu.", en: "Figures calculated {waktu} from all of this school's evidence, in every school year, up to then." },
   "laporan.kosong": { default: "Belum ada angka yang bisa ditampilkan untuk Anda di sini.", en: "There are no figures to show you here yet." },
   "laporan.tak_ada_angka": { default: "Tidak ada angka pada laporan ini, tetapi keterangan di bawah menjelaskan alasannya satu per satu.", en: "This report carries no figures, but the notes below say why, one by one." },
 
@@ -2819,6 +2893,43 @@ const table: Table = {
   "verifikasi.status.DIGANTIKAN": { default: "Digantikan sertifikat yang lebih baru", en: "Replaced by a newer certificate" },
   "verifikasi.status.DIGANTIKAN.arti": { default: "Penerbit telah menerbitkan sertifikat pengganti. Mintalah sertifikat yang baru kepada pemegangnya.", en: "The issuer has issued a replacement. Ask the holder for the new certificate." },
   "verifikasi.status.TIDAK_SAH": { default: "Tidak sah", en: "Not valid" },
+  "sertifikat.kelola.judul": { default: "Sertifikat sekolah", en: "School certificates" },
+  "sertifikat.kelola.intro": { default: "Sertifikat yang sudah diterbitkan sekolah Anda. Sertifikat yang keliru diterbitkan dapat dicabut di sini; pemeriksaan keasliannya lalu menyatakannya dicabut.", en: "The certificates your school has issued. A certificate issued in error can be revoked here; its authenticity check then says it was revoked." },
+  "sertifikat.kelola.intro.platform": { default: "Sertifikat yang sudah diterbitkan semua sekolah. Sertifikat yang keliru diterbitkan dapat dicabut di sini; pemeriksaan keasliannya lalu menyatakannya dicabut.", en: "The certificates every school has issued. A certificate issued in error can be revoked here; its authenticity check then says it was revoked." },
+  "sertifikat.kelola.benda": { default: "sertifikat", en: "certificates" },
+  "sertifikat.kelola.cari": { default: "Cari nomor sertifikat atau nama pemegang", en: "Search by certificate number or holder's name" },
+  "sertifikat.kelola.kolom.pemegang": { default: "Pemegang", en: "Holder" },
+  "sertifikat.kelola.kolom.nomor": { default: "Nomor sertifikat", en: "Certificate number" },
+  "sertifikat.kelola.kolom.sekolah": { default: "Sekolah", en: "School" },
+  "sertifikat.kelola.kolom.kursus": { default: "Kursus", en: "Course" },
+  "sertifikat.kelola.kolom.terbit": { default: "Diterbitkan", en: "Issued" },
+  "sertifikat.kelola.kolom.keadaan": { default: "Keadaan", en: "State" },
+  "sertifikat.kelola.kolom.tindakan": { default: "Tindakan", en: "Action" },
+  "sertifikat.kelola.keadaan.ISSUED": { default: "Berlaku", en: "Valid" },
+  "sertifikat.kelola.keadaan.REVOKED": { default: "Dicabut", en: "Revoked" },
+  "sertifikat.kelola.keadaan.SUPERSEDED": { default: "Digantikan", en: "Replaced" },
+  "sertifikat.kelola.kosong": { default: "Belum ada sertifikat yang diterbitkan.", en: "No certificate has been issued yet." },
+  "sertifikat.kelola.tidak_cocok": { default: "Tidak ada sertifikat yang cocok dengan pencarian ini.", en: "No certificate matches this search." },
+  "sertifikat.kelola.cabut": { default: "Cabut", en: "Revoke" },
+  "sertifikat.kelola.ditolak": { default: "Sertifikat sekolah hanya dapat dibuka oleh Admin sekolah.", en: "Only a school admin can open the school's certificates." },
+  "sertifikat.cabut.judul": { default: "Cabut sertifikat", en: "Revoke a certificate" },
+  "sertifikat.cabut.alasan": { default: "Alasan pencabutan", en: "Reason for revoking" },
+  "sertifikat.cabut.alasan.arti": { default: "Mengapa sertifikat ini dicabut. Dicatat bersama pencabutannya dan tidak dapat diubah.", en: "Why this certificate is revoked. Recorded with the revocation and cannot be changed." },
+  "sertifikat.cabut.lanjut": { default: "Lanjutkan", en: "Continue" },
+  "sertifikat.cabut.tanya": { default: "Cabut sertifikat ini?", en: "Revoke this certificate?" },
+  "sertifikat.cabut.akibat": { default: "Pemeriksaan keaslian akan menyatakan sertifikat ini dicabut oleh penerbit. Pencabutan tidak dapat dibatalkan; bila perlu, sekolah menerbitkan sertifikat baru.", en: "The authenticity check will say the issuer revoked this certificate. A revocation cannot be undone; if needed, the school issues a new certificate." },
+  "sertifikat.cabut.aman": { default: "Hasil dan nilai murid tetap tersimpan.", en: "The learner's results and scores stay as they are." },
+  "sertifikat.cabut.tombol": { default: "Cabut sertifikat {nomor}", en: "Revoke certificate {nomor}" },
+  "sertifikat.cabut.batal": { default: "Batal", en: "Cancel" },
+  "sertifikat.cabut.ok": { default: "✓ Sertifikat {nomor} sudah dicabut. Pemeriksaan keasliannya kini menyatakannya dicabut.", en: "✓ Certificate {nomor} is revoked. Its authenticity check now says so." },
+  "sertifikat.cabut.dicabut_pada": { default: "Dicabut {tanggal}.", en: "Revoked {tanggal}." },
+  "sertifikat.cabut.alasan_tercatat": { default: "Alasan:", en: "Reason:" },
+  "sertifikat.cabut.digantikan": { default: "Sertifikat ini sudah digantikan sertifikat yang lebih baru, jadi tidak dicabut di sini.", en: "This certificate has been replaced by a newer one, so it is not revoked here." },
+  "sertifikat.cabut.gagal.ALASAN_WAJIB": { default: "Tulis alasan pencabutannya.", en: "Write the reason for revoking it." },
+  "sertifikat.cabut.gagal.SUDAH_DICABUT": { default: "Sertifikat ini sudah dicabut sebelumnya. Pencabutan yang pertama tetap berlaku.", en: "This certificate was already revoked. The first revocation stands." },
+  "sertifikat.cabut.gagal.DITOLAK": { default: "Anda tidak berwenang mencabut sertifikat sekolah ini.", en: "You are not allowed to revoke this school's certificates." },
+  "sertifikat.cabut.gagal.TIDAK_DITEMUKAN": { default: "Sertifikat ini tidak ditemukan.", en: "This certificate was not found." },
+  "sertifikat.cabut.gagal.LAYANAN_TIDAK_TERSEDIA": { default: "Pencabutan belum dapat dilakukan sekarang. Coba lagi sebentar lagi.", en: "The revocation cannot be done right now. Try again shortly." },
   "verifikasi.tidak_ditemukan.arti": { default: "Periksa kembali tautan atau kode yang Anda terima.", en: "Check the link or code you were given." },
   "sertifikat.daftar.eyebrow": { default: "Sertifikat", en: "Certificates" },
   "sertifikat.daftar.judul": { default: "Sertifikat Anda", en: "Your certificates" },
@@ -2863,8 +2974,10 @@ const table: Table = {
   "lingkup.semua": { default: "Semua yang bisa Anda lihat", en: "Everything you can see" },
   "lingkup.kosong": { default: "Belum ada lingkup yang bisa dipilih.", en: "There is no scope to choose from yet." },
   // DAISY-17: a staff reader has no teacher to ask; they ask whoever looks after PINTAR at the school (as galat.action_failed does)
+  // UX-45: nor has a Guru; every refusal a teacher meets ends with this line (HalamanPenolakan, the Uji Cepat refusal)
   "tolak.arti": { default: "Jika ini keliru, tanyakan kepada guru Anda.", en: "If you think this is a mistake, ask your teacher.",
-    staff: "Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.", en_staff: "If you think this is a mistake, ask whoever looks after PINTAR at your school." },
+    staff: "Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.", en_staff: "If you think this is a mistake, ask whoever looks after PINTAR at your school.",
+    educator: "Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.", en_educator: "If you think this is a mistake, ask whoever looks after PINTAR at your school." },
   // DAISY-18 (D-047): what the screen says the moment a section is asked for
   "memuat.halaman": { default: "Memuat halaman…", en: "Loading the page…" },
   // DAISY-17 (D-046(e)): what a submit button says from the click until the answer comes back
@@ -2877,6 +2990,8 @@ const table: Table = {
   "tombol.memulai": { default: "Memulai…", en: "Starting…" },
   "tombol.mengaktifkan": { default: "Mengaktifkan…", en: "Activating…" },
   "tolak.kembali": { default: "Kembali ke Belajar", en: "Back to Learning" },
+  // UX-46: a certificate that cannot be shown sends the reader back to the certificates list they came from
+  "tolak.kembali_sertifikat": { default: "Kembali ke Sertifikat", en: "Back to Certificates" },
   "komitmen.kembali": { default: "Periksa lagi", en: "Check again" },
   "bukti.dari": { default: "Dari", en: "From" },
   "bukti.murid": { default: "murid", en: "students" },
@@ -3655,6 +3770,9 @@ const table: Table = {
   "lesson.example.reveal": { default: "Tampilkan langkah berikutnya", en: "Show the next step" },
   "lesson.example.done": { default: "Semua langkah sudah tampil.", en: "Every step is showing." },
   "lesson.pdf": { default: "Buka ringkasan", en: "Open the summary" },
+  // W2.12 (RV-8): a recording whose file cannot be played says so, rather than a player stuck at «0:00 / 0:00»
+  "lesson.media.tidak_ada": { default: "Rekaman ini tidak tersedia. Isinya ada di teks lengkap di bawah.", en: "This recording is not available. Its content is in the full text below." },
+  "lesson.media.tidak_ada_teks": { default: "Rekaman ini tidak tersedia.", en: "This recording is not available." },
   "lesson.saved": { default: "Posisi bacaan tersimpan.", en: "Your place is saved." },
 
   "posttest.title": { default: "Uji Penguasaan", en: "Mastery Check" },
@@ -3675,10 +3793,12 @@ const table: Table = {
   "posttest.submit": { default: "Kumpulkan", en: "Submit" },
   "posttest.submit_confirm": { default: "Kumpulkan sekarang? Setelah dikumpulkan, jawaban tidak bisa diubah.", en: "Submit now? Once submitted, answers cannot be changed." },
 
-  "assist.SD": { default: "🤔 Perlu contoh?", en: "🤔 Want an example?" },
-  "assist.SMP": { default: "💡 Perlu petunjuk?", en: "💡 Want a hint?" },
-  "assist.SMA": { default: "🧭 Perlu arah?", en: "🧭 Need a direction?" },
-  "assist.UNIVERSITAS": { default: "🧭 Perlu arah berpikir?", en: "🧭 Need a direction to think in?" },
+  // W2.16 (DAISY-35 item 4): judged under the design spec, «No emoji in the interface chrome» (README, Iconography;
+  // Icons: «no emoji»). The hint button is a control, so its label is its words alone.
+  "assist.SD": { default: "Perlu contoh?", en: "Want an example?" },
+  "assist.SMP": { default: "Perlu petunjuk?", en: "Want a hint?" },
+  "assist.SMA": { default: "Perlu arah?", en: "Need a direction?" },
+  "assist.UNIVERSITAS": { default: "Perlu arah berpikir?", en: "Need a direction to think in?" },
   "assist.more": { default: "Masih perlu bantuan lagi?", en: "Still need more help?" },
   "assist.close": { default: "Sudah cukup, terima kasih", en: "That is enough, thank you" },
   "assist.level.ARAH": { default: "Arah berpikir", en: "A direction to think in" },
@@ -3793,6 +3913,8 @@ const table: Table = {
   "evaluasi.sebagai": { default: "Sedang melihat sebagai", en: "Currently viewing as" },
   "evaluasi.ganti": { default: "Ganti sudut pandang", en: "Change the point of view" },
   "evaluasi.keluar": { default: "Keluar dari peragaan", en: "Leave the demonstration" },
+  // W3.13 (Daisy, J6Peragaan: new words for the result line after «Keluar dari peragaan»)
+  "evaluasi.keluar_selesai": { default: "Anda sudah keluar dari peragaan.", en: "You have left the demonstration." },
   "evaluasi.berakhir": { default: "Sesi peragaan berakhir", en: "The demonstration session has ended" },
   "evaluasi.sesi_habis": { default: "Waktu peragaan sudah habis. Kembali ke ruang peragaan untuk mulai lagi.", en: "The demonstration time is up. Go back to the demonstration room to start again." },
   "evaluasi.gagal": { default: "Sudut pandang itu tidak bisa dibuka sekarang.", en: "That point of view cannot be opened right now." },
@@ -3990,6 +4112,29 @@ const table: Table = {
   "studio.integritas.DISCUSSED_WITH_LEARNER": { default: "Sudah dibicarakan dengan murid", en: "Discussed with the student" },
   "studio.integritas.REFERRED_TO_INSTITUTION": { default: "Diteruskan ke pihak sekolah", en: "Passed to the school" },
   "studio.integritas.catat": { default: "Catat tinjauan", en: "Record the review" },
+  "studio.integritas.menunggu.judul": { default: "Menunggu tinjauan", en: "Waiting for review" },
+  "studio.integritas.ditinjau.judul": { default: "Sudah ditinjau", en: "Reviewed" },
+  "studio.integritas.ditinjau.kosong": { default: "Belum ada catatan yang sudah ditinjau.", en: "No note has been reviewed yet." },
+  "studio.integritas.keadaan.menunggu": { default: "Menunggu tinjauan", en: "Waiting for review" },
+  "studio.integritas.keadaan.ditinjau": { default: "Sudah ditinjau", en: "Reviewed" },
+  "studio.integritas.catatan.arti": { default: "Apa yang Anda lihat atau lakukan. Dicatat bersama tinjauannya.", en: "What you saw or did. Recorded with the review." },
+  "studio.integritas.oleh": { default: "Ditinjau oleh {nama}, {waktu}", en: "Reviewed by {nama}, {waktu}" },
+  "studio.integritas.catatan_tercatat": { default: "Catatan:", en: "Note:" },
+  "studio.integritas.rujukan.judul": { default: "Langkah kasus yang diteruskan", en: "Steps of the referred case" },
+  "studio.integritas.rujukan.langkah.diteruskan": { default: "Diteruskan", en: "Referred" },
+  "studio.integritas.rujukan.langkah.ditinjau": { default: "Ditinjau pimpinan", en: "Taken up by a leader" },
+  "studio.integritas.rujukan.langkah.diputuskan": { default: "Diputuskan", en: "Decided" },
+  "studio.integritas.rujukan.hasil": { default: "Keputusan: {hasil}", en: "Decision: {hasil}" },
+  "studio.integritas.rujukan.hasil.NO_FURTHER_ACTION": { default: "Tidak ada tindakan lanjutan", en: "No further action" },
+  "studio.integritas.rujukan.hasil.LEARNER_SUPPORT_ARRANGED": { default: "Pendampingan disiapkan", en: "Learner support arranged" },
+  "studio.integritas.rujukan.hasil.ESCALATED_TO_INSTITUTION": { default: "Diteruskan ke pihak sekolah", en: "Escalated to the school" },
+  "studio.integritas.rujukan.catatan": { default: "Catatan keputusan:", en: "Decision note:" },
+  "studio.integritas.rujukan.sedang": { default: "Seorang pimpinan sedang menangani kasus ini.", en: "A leader is handling this case." },
+  "studio.integritas.rujukan.di_pimpinan": { default: "Kasus ini menunggu keputusan di Pimpinan.", en: "This case is waiting for a decision in Pimpinan." },
+  "studio.integritas.rujukan.tak_terlihat": { default: "Diteruskan ke pimpinan. Keadaan kasusnya dapat dilihat oleh yang meneruskannya dan pimpinan yang berwenang memutuskan.", en: "Referred to a leader. The case's state can be seen by whoever referred it and the leaders who may decide it." },
+  "studio.integritas.rujukan.lanjut.NO_FURTHER_ACTION": { default: "Kasus ini selesai; tidak ada langkah lanjutan.", en: "This case is closed; nothing further is needed." },
+  "studio.integritas.rujukan.lanjut.LEARNER_SUPPORT_ARRANGED": { default: "Pendampingan untuk murid disiapkan. Ikuti arahan pimpinan untuk pendampingannya.", en: "Support for the learner is arranged. Follow the leader's direction for it." },
+  "studio.integritas.rujukan.lanjut.ESCALATED_TO_INSTITUTION": { default: "Kasus ini diteruskan ke pihak sekolah, yang menanganinya dari sini.", en: "This case went to the school, which handles it from here." },
   "studio.sertifikat.judul": { default: "Tata Letak Sertifikat", en: "Certificate Layout" },
   "studio.sertifikat.tata_letak": { default: "Tata letak", en: "Layout" },
   "studio.sertifikat.identitas": { default: "Sertifikat menampilkan nama pemegang saja.", en: "The certificate shows the holder's name only." },
@@ -4163,6 +4308,10 @@ const table: Table = {
   "aktivasi.intro.buka": { default: "Untuk akun email, minta orangnya mengaktifkan akunnya di", en: "For an email account, ask the person to activate it at" },
   "aktivasi.halaman_masuk": { default: "halaman Masuk PINTAR", en: "PINTAR's sign-in page" },
   "aktivasi.kosong": { default: "Semua orang yang sudah didata sudah bisa masuk.", en: "Everyone who has been recorded can already sign in." },
+  "aktivasi.tunggu.cari": { default: "Cari nama atau nomor induk", en: "Search by name or school number" },
+  "aktivasi.tunggu.jumlah": { default: "{n} orang menunggu akun.", en: "{n} people are waiting for an account." },
+  "aktivasi.tunggu.cocok": { default: "{n} orang yang menunggu akun cocok dengan pencarian ini.", en: "{n} people waiting for an account match this search." },
+  "aktivasi.tunggu.tidak_cocok": { default: "Tidak ada orang yang menunggu akun yang cocok dengan pencarian ini.", en: "Nobody waiting for an account matches this search." },
   "aktivasi.surel": { default: "Alamat email", en: "Email address" },
   "aktivasi.dengan_surel": { default: "Aktifkan dengan email", en: "Activate with email" },
   "aktivasi.dengan_kartu": { default: "Buat kartu kelas", en: "Make a classroom card" },
@@ -5333,6 +5482,10 @@ const table: Table = {
   "mengajar.murid1.hasil": { default: "Hasil resmi", en: "Official results" },
   "mengajar.murid1.hasil_arti": { default: "Penguasaan yang tercatat pada tiap penilaian yang sudah dinilai.", en: "The mastery recorded on each assessment that has been scored." },
   "mengajar.murid1.hasil_kosong": { default: "Belum ada hasil resmi untuk murid ini.", en: "No official result for this learner yet." },
+  // W2.18 (J5.13): the objectives the learner has not yet reached, by their statement; «belum» is never failure (X.5)
+  "mengajar.murid1.tujuan": { default: "Tujuan pembelajaran yang belum tercapai", en: "Learning objectives not yet reached" },
+  "mengajar.murid1.tujuan_arti": { default: "Dari Uji Penguasaan terakhir murid ini di kelas ini: tujuan yang penguasaannya masih di bawah target. Ini yang perlu dipelajari lagi, bukan penilaian atas muridnya.", en: "From this learner's latest Mastery Check in this class: the objectives whose mastery is still below the target. This is what to work on next, not a judgment of the learner." },
+  "mengajar.murid1.tujuan_kosong": { default: "Tidak ada tujuan pembelajaran yang tercatat di bawah target pada Uji Penguasaan murid ini di kelas ini.", en: "No learning objective is recorded below the target on this learner's Mastery Checks in this class." },
   "mengajar.murid.judul": { default: "Murid", en: "Learners" },
   "mengajar.murid.sub": { default: "Nama diurutkan abjad; tidak ada peringkat.", en: "Names in alphabetical order; there is no ranking." },
   "mengajar.murid.kosong": { default: "Belum ada murid terdaftar di kelas ini.", en: "No learner is enrolled in this class yet." },
@@ -5456,7 +5609,8 @@ const table: Table = {
   "mengajar.cepat.tolak.bank": { default: "Bab itu belum punya cukup soal untuk jumlah yang dipilih. Pilih jumlah soal yang lebih sedikit, atau bab lain.", en: "That chapter does not have enough questions for the number chosen. Choose fewer items, or another chapter." },
   "mengajar.cepat.tolak.jumlah": { default: "Jumlah soal harus antara", en: "The number of items must be between" },
   "mengajar.cepat.tolak.menit": { default: "Waktu pengerjaan itu tidak bisa dipakai. Pilih", en: "That time window cannot be used. Choose" },
-  "mengajar.cepat.tolak.izin": { default: "Anda tidak dapat menyediakan Uji Cepat untuk kelas ini dengan bab itu. Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.", en: "You cannot make a Quick Assessment available for this class with that chapter. If you think this is a mistake, ask whoever looks after PINTAR at your school." },
+  // UX-45: the recovery line is tolak.arti's educator telling, said after this one (kalimatTolakUjiCepat)
+  "mengajar.cepat.tolak.izin": { default: "Anda tidak dapat menyediakan Uji Cepat untuk kelas ini dengan bab itu.", en: "You cannot make a Quick Assessment available for this class with that chapter." },
   "mengajar.cepat.tolak.tidak_ada": { default: "Kelas atau bab itu tidak ditemukan. Muat ulang halaman ini, lalu pilih lagi.", en: "That class or chapter was not found. Reload this page, then choose again." },
   "mengajar.cepat.tolak.umum": { default: "Ada kendala di PINTAR. Coba sekali lagi. Bila masih terjadi, sampaikan kepada yang mengurus PINTAR di sekolah Anda.", en: "Something went wrong in PINTAR. Try once more. If it happens again, tell whoever looks after PINTAR at your school." },
   "mengajar.cepat.atau": { default: "atau", en: "or" },
@@ -5472,6 +5626,7 @@ const table: Table = {
   "mengajar.bukti.siapa": { default: "Lihat nama murid", en: "See the learners' names" },
   "mengajar.bukti.murid": { default: "murid", en: "learners" },
   "mengajar.bukti.poin": { default: "poin", en: "points" },
+  // UX-41 (DAISY-29's words): the rows are learning objectives, each named by its statement; a «bagian» is the school's structure (D-006)
   "mengajar.bukti.bagian": { default: "Penguasaan per bagian", en: "Mastery by part" },
   "mengajar.bukti.keliru": { default: "Pemahaman keliru yang berulang di kelas ini", en: "Recurring misunderstandings in this class" },
   "mengajar.bukti.kali": { default: "kali", en: "times" },
@@ -5494,7 +5649,6 @@ const table: Table = {
   "mengajar.langkah.f5w": { default: "Beberapa soal, satu jendela pendek. Hasilnya menjadi bukti pembelajaran seperti asesmen lain.", en: "A few items, one short window. The result becomes learning evidence like any other assessment." },
   "mengajar.langkah.f6": { default: "Susun materi sendiri", en: "Draft your own material" },
   "mengajar.langkah.f6w": { default: "Anda bisa menyusun dan mengunggah. Persetujuan dan penerbitan dilakukan Kepala departemen dan sekolah.", en: "You can draft and upload. Approval and publishing are done by the Head of Department and the school." },
-  "mengajar.langkah.quiet": { default: "Ringkasan berkala untuk kelas ini belum ada; akan muncul di sini bila sudah tersedia. Yang tidak ada di daftar ini — penilaian per soal dan sinyal integritas — bukan bagian dari peran guru.", en: "There is no periodic briefing for this class yet; it will appear here when there is. What is not on this list — item review and integrity signals — is not part of the educator role." },
   "mengajar.siapa.judul": { default: "Siapa yang sudah mengumpulkan", en: "Who has submitted" },
   "mengajar.siapa.sudah": { default: "Sudah mengumpulkan", en: "Have submitted" },
   "mengajar.siapa.belum": { default: "Belum mengerjakan", en: "Not yet attempted" },
