@@ -62,5 +62,7 @@ These are the design and wording questions Batch 3 met that the frozen design sy
 | D9 | **RV-20.** Below 560 px, a list row's badge moves under the row's words, on every list. Please confirm the placement. | As described | `experience.css` |
 
 Not for Daisy:
-- W1.11 (who the Question Bank is for) waits on owner decision F-7.
+- W1.11 (who the Question Bank is for) was ruled by the owner on 2 Nov (F-7, D-150): teachers with CAN_DRAFT browse their school's bank; Question Health stays the head of department's.
+
+**Closure pass (2 Nov, D-150):** A1, D1 and D3 are still open and registered as awaiting Daisy (`05-FINAL-CLOSURE-REPORT.md` §5). Reconciled with her compositions meanwhile: the class page's «✓ Tersedia» and window words (J1 step 7); the Siapkan card's badge after «Sediakan» (step 6); «Disediakan untuk … · n murid terdaftar hari ini» in J5's review panel. D6's navigation already matched her J1 (the result, then the way on to the class).
 - In a synthetic school the Uji Cepat score page shows «Belum ada nilai», because synthetic results are never official evidence. The learner record behaves the same way.

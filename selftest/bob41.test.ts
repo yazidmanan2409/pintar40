@@ -49,7 +49,11 @@ export const bob41Tests: SelfTest[] = [
       c.expect(/\.in\("state", \[\.\.\.SEDANG_DITINJAU\]\)\.in\("institution_id", mayReview\.map\(\(m\) => m\.id\)\)/.test(hal)
           && /const items = \[\.\.\.baru, \.\.\.\(lama \?\? \[\]\)\];/.test(hal),
         "an item waiting on a reviewer that is older than the latest 40 is not listed");
-      c.expect(!/\.limit\(200\)/.test(hal) && /\.in\("item_id", items\.map\(\(i\) => i\.id\)\)/.test(hal),
+      // RESTATED FOR F-7 (owner ruling, 2 Nov, Batch 3 closure, D-150): health is still read for exactly the items shown,
+      // now only those in a school where the reader reviews Question Health (J4.9); never the first 200 rows
+      c.expect(!/\.limit\(200\)/.test(hal)
+          && /const sehatIds = items\.filter\(\(i\) => sehatDi\.has\(i\.institution_id\)\)\.map\(\(i\) => i\.id\);/.test(hal)
+          && /from\("question_health"\)\.select\("item_id, state, evidence_count, note"\)\.in\("item_id", sehatIds\)/.test(hal),
         "health is read from the first 200 rows rather than for the items shown");
       // 3. preserved: the latest 40 are still listed, and the copy is the existing copy
       c.expect(/\.order\("created_at", \{ ascending: false \}\)\.limit\(40\)/.test(hal), "the latest 40 items are no longer listed");

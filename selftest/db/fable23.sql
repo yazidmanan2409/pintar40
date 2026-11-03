@@ -40,6 +40,11 @@
 --   F23-W05  THE HISTORY'S NAMES (W1.8): the author cannot read the reviewer's person row, yet nama_riwayat_paket
 --            names the reviewer to the author and the reviewer, to another school's administrator nobody, and to no one
 --            a person not recorded on the packages
+--   F23-W06  A SUPERSEDED VERSION IS HISTORY, NOT A TASK (W1.7, Batch 3 closure): once a sent-back draft is corrected as
+--            the next version of its line, studio_home counts only the newest version of each line in «Menunggu
+--            tindakan Anda» and «Tertahan», and the correction's note still names the version it replaced
+--   F23-W07  F-7 (owner ruling, Batch 3 closure; QN5, J4.8, W1.11): the authoring teacher reads the school's bank, keys and
+--            reasons, and nothing of another school; Question Health (its rows, its count) stays the reviewer's (J4.9)
 --   F23-T01  APPROVED v1 WORDING IN THE DATABASE (W4.1): a coaching finding names where it is in the workbook's words
 --            («kolom Isi pelajaran», never «kolom body_markdown»); no coaching rule says «siswa» (C29, C30); the
 --            bank-wide finding is «Bank soal untuk paket ini» (D23)
@@ -93,7 +98,7 @@ declare
   v_staf uuid; v_besok uuid; v_murid uuid; v_kartu_p uuid; v_surel_p uuid; v_lama uuid; v_lama_u uuid;
   v_err text; v_n int; v_m int; v_b boolean; v_got text; v_card text; v_bekas uuid; v_habis uuid; v_ra uuid;
   v_w uuid; v_w_b uuid; v_adm_w uuid; v_kajur uuid; v_dean uuid; v_guru uuid; v_adm_b uuid; v_guru_p uuid; v_kajur_p uuid;
-  v_c1 uuid; v_c2 uuid; v_c3 uuid; v_c4 uuid; v_batch uuid; v_j jsonb;
+  v_c1 uuid; v_c2 uuid; v_c3 uuid; v_c4 uuid; v_batch uuid; v_j jsonb; v_c5 uuid; v_c6 uuid;
   v_probs jsonb := '{}'::jsonb; v_fatal text := '';
 begin
   perform selftest.as_owner();
@@ -655,6 +660,129 @@ begin
     end;
 
     -- ═══════════════════════════════════════════════════════════════════════
+    -- F23-W06  A SUPERSEDED VERSION IS HISTORY, NOT A TASK (Batch 3 closure, defect 1)
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      -- a fresh draft, sent back by the head of department (W02's draft is marked structured again in W03, so it is no longer
+      -- correctable in its line); the author then saves its correction as the next version
+      perform selftest.as_user_uid(v_guru);
+      v_c6 := selftest.f12_course(v_w, selftest.f12_paket('Gaya ' || v_tag,
+        'Gaya apa yang membuat benda jatuh ke bawah?', 'Gaya gravitasi', 'Gaya magnet saja'));
+      perform selftest.as_user_uid(v_kajur);
+      perform public.kembalikan_paket(v_c6, 'Soal pertama belum jelas maksudnya.');
+      perform selftest.as_user_uid(v_guru);
+      v_batch := selftest.f11_batch(v_w, 'STRUCTURED_PACKAGE', selftest.f12_paket('Koreksi W06 ' || v_tag,
+        'Energi apa yang dimiliki benda yang sedang bergerak?', 'Energi gerak', 'Energi kimia saja'));
+      update public.ingest_batches set revises_course_id = v_c6, change_summary = 'Soal pertama diperjelas maksudnya.'
+       where ingest_batches.id = v_batch;
+      perform public.prepare_ingest_batch(v_batch);
+      v_j := public.confirm_ingest_batch(v_batch);
+      v_c5 := (v_j -> 'courses' ->> 0)::uuid;
+      perform selftest.as_owner();
+      if v_c5 is null or not exists (select 1 from public.courses c where c.id = v_c5 and c.supersedes_course_id = v_c6) then
+        v_probs := selftest.f23_note(v_probs, 'F23-W06', 'the correction did not arrive as the next version of the sent-back draft: ' || left(coalesce((v_j -> 'problems')::text, v_j::text, 'null'), 400));
+      else
+        -- the superseded draft is still a draft by status: the case this measures
+        select count(*) into v_n from public.courses c where c.id = v_c6 and c.status in ('INGESTED','STRUCTURED','VALIDATION_FAILED');
+        if v_n <> 1 then
+          v_probs := selftest.f23_note(v_probs, 'F23-W06', 'the sent-back draft is no longer a draft by status: the case this measures has changed');
+        end if;
+        -- what «Menunggu tindakan Anda» should count: the school's drafts that are the newest of their line
+        select count(*) into v_m from public.courses c
+         where c.institution_id = v_w and c.status in ('INGESTED','STRUCTURED','VALIDATION_FAILED')
+           and not exists (select 1 from public.courses x where x.supersedes_course_id = c.id);
+        perform selftest.as_user_uid(v_guru);
+        select coalesce(sum(h.count), 0) into v_n from public.studio_home() h where h.bucket = 'ACTION_REQUIRED' and h.institution_id = v_w;
+        perform selftest.as_owner();
+        if v_n <> v_m then
+          v_probs := selftest.f23_note(v_probs, 'F23-W06', format('«Menunggu tindakan Anda» counts %s package(s); the newest of each line are %s', v_n, v_m));
+        end if;
+        -- a blocking finding left on the superseded draft no longer holds the school's work in «Tertahan»
+        insert into public.mcq_quality_findings (institution_id, course_id, pattern_class, severity, lokasi, masalah, mengapa_penting, cara_memperbaiki)
+        values (v_w, v_c6, 'F23_W06_PROBE', 'ERROR', 'probe', 'probe', 'probe', 'probe');
+        select count(distinct f.course_id) into v_m from public.mcq_quality_findings f
+         where f.institution_id = v_w and f.severity = 'ERROR' and f.acknowledged_at is null
+           and not exists (select 1 from public.courses x where x.supersedes_course_id = f.course_id);
+        perform selftest.as_user_uid(v_guru);
+        select coalesce(sum(h.count), 0) into v_n from public.studio_home() h where h.bucket = 'BLOCKED' and h.institution_id = v_w;
+        perform selftest.as_owner();
+        if v_n <> v_m then
+          v_probs := selftest.f23_note(v_probs, 'F23-W06', format('«Tertahan» counts %s package(s), a finding on a superseded version among them; expected %s', v_n, v_m));
+        end if;
+        -- and it stays in the line's history: the correction names it, with what changed
+        select count(*) into v_n from public.course_revision_notes n where n.course_id = v_c5 and n.supersedes_course_id = v_c6;
+        if v_n <> 1 then
+          v_probs := selftest.f23_note(v_probs, 'F23-W06', 'the correction''s history does not name the version it replaced');
+        end if;
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f23_note(v_probs, 'F23-W06', 'threw: ' || sqlerrm);
+    end;
+
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F23-W07  F-7: THE BANK IS THE AUTHORING TEACHER'S TOO; QUESTION HEALTH IS NOT (Batch 3 closure)
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_owner();
+      -- a Question Health row on one of the school's questions, as the job writes them
+      insert into public.question_health (item_id, institution_id, evidence_count)
+      select i.id, i.institution_id, 40 from public.items i where i.institution_id = v_w
+         and not exists (select 1 from public.question_health q where q.item_id = i.id) limit 1;
+      update public.question_health set state = 'OBSERVING' where institution_id = v_w and state = 'INSUFFICIENT_EVIDENCE';
+      update public.question_health set state = 'SIGNAL_RAISED' where institution_id = v_w and state = 'OBSERVING';
+      select count(*) into v_m from public.items i where i.institution_id <> v_w;
+      if v_m = 0 then
+        v_probs := selftest.f23_note(v_probs, 'F23-W07', 'no other school holds a question: the isolation case is not measured');
+      end if;
+      perform selftest.as_user_uid(v_guru);
+      -- browse: the school's questions and every option's key and reason
+      select count(*) into v_n from public.items i where i.institution_id = v_w;
+      if v_n = 0 then
+        v_probs := selftest.f23_note(v_probs, 'F23-W07', 'the authoring teacher reads none of the school''s questions');
+      end if;
+      select count(*) into v_n from public.item_options o join public.items i on i.id = o.item_id
+       where i.institution_id = v_w and o.is_correct and o.rationale is not null;
+      if v_n = 0 then
+        v_probs := selftest.f23_note(v_probs, 'F23-W07', 'the authoring teacher reads no key with its reason');
+      end if;
+      -- school isolation
+      select count(*) into v_n from public.items i where i.institution_id <> v_w;
+      if v_n <> 0 then
+        v_probs := selftest.f23_note(v_probs, 'F23-W07', format('the teacher reads %s question(s) of another school', v_n));
+      end if;
+      select count(*) into v_n from public.item_options o where o.institution_id <> v_w;
+      if v_n <> 0 then
+        v_probs := selftest.f23_note(v_probs, 'F23-W07', format('the teacher reads %s option(s) of another school', v_n));
+      end if;
+      -- Question Health stays the reviewer's: the teacher reads no row, and cannot record a review
+      select count(*) into v_n from public.question_health q;
+      if v_n <> 0 then
+        v_probs := selftest.f23_note(v_probs, 'F23-W07', format('the teacher reads %s Question Health row(s)', v_n));
+      end if;
+      select count(*) into v_n from public.studio_home() h where h.bucket = 'QUESTION_HEALTH';
+      if v_n <> 0 then
+        v_probs := selftest.f23_note(v_probs, 'F23-W07', 'the teacher is counted Question Health signals');
+      end if;
+      perform selftest.as_user_uid(v_kajur);
+      select count(*) into v_n from public.question_health q where q.institution_id = v_w and q.state = 'SIGNAL_RAISED';
+      perform selftest.as_owner();
+      if v_n = 0 then
+        v_probs := selftest.f23_note(v_probs, 'F23-W07', 'the head of department no longer reads the school''s Question Health signal');
+      end if;
+      -- another school's administrator browses none of this school's questions
+      perform selftest.as_user_uid(v_adm_b);
+      select count(*) into v_n from public.items i where i.institution_id = v_w;
+      perform selftest.as_owner();
+      if v_n <> 0 then
+        v_probs := selftest.f23_note(v_probs, 'F23-W07', format('another school''s administrator reads %s of this school''s question(s)', v_n));
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f23_note(v_probs, 'F23-W07', 'threw: ' || sqlerrm);
+    end;
+
+    -- ═══════════════════════════════════════════════════════════════════════
     -- F23-T01  APPROVED v1 WORDING IN THE DATABASE
     -- ═══════════════════════════════════════════════════════════════════════
     begin
@@ -693,11 +821,13 @@ begin
   perform selftest.as_owner();
 
   for r in select * from unnest(
-      array['F23-C01', 'F23-C02', 'F23-C03', 'F23-C04', 'F23-C05', 'F23-C06', 'F23-C07', 'F23-W01', 'F23-W02', 'F23-W03', 'F23-W04', 'F23-W05', 'F23-T01'],
+      array['F23-C01', 'F23-C02', 'F23-C03', 'F23-C04', 'F23-C05', 'F23-C06', 'F23-C07', 'F23-W01', 'F23-W02', 'F23-W03', 'F23-W04', 'F23-W05', 'F23-W06', 'F23-W07', 'F23-T01'],
       array['CR-91 -- asking for a card', 'CR-91 -- the account side', 'CR-91 -- the grant side',
             'CR-91 -- legacy data', 'CR-91 -- no staff power through a card', 'CR-91 / J9 -- educator as learner', 'CR-91 -- role transitions',
             'W1.13 -- one step, one transaction', 'W1.6 -- the send-back', 'W1.6 -- the author''s correction path',
-            'W1.8 -- who reviewed and approved', 'W1.8 -- the history''s names', 'W4.1 -- approved v1 wording in the database'],
+            'W1.8 -- who reviewed and approved', 'W1.8 -- the history''s names', 'W1.7 -- a superseded version is history, not a task',
+            'F-7 / W1.11 -- the bank is the authoring teacher''s; Question Health is not',
+            'W4.1 -- approved v1 wording in the database'],
       array[
         'Aktivasi says boleh_kartu false for a Guru and for a Guru whose role starts tomorrow, true for a learner; a card '
           || 'for either Guru is refused 42501 CARD_FOR_STAFF and no card grant is written; the same Guru is granted an '
@@ -732,6 +862,12 @@ begin
           || 'reviewer''s name for the two packages; another school''s administrator and the same school''s Dekan (no Studio '
           || 'capability) are told nobody; an unknown package id adds nobody; nobody is told a name not recorded on the '
           || 'packages; an anonymous call is refused 42501',
+        'the sent-back draft corrected as the next version of its line stays in the history (the correction''s note names '
+          || 'it) but is no longer counted: studio_home''s «Menunggu tindakan Anda» and «Tertahan» count only the newest '
+          || 'version of each line, even with a blocking finding left on the superseded one',
+        'the school''s authoring teacher (CAN_DRAFT) reads its questions and every key with its reason, no other school''s '
+          || 'question or option, no Question Health row and no Question Health count; the head of department still reads '
+          || 'the school''s signal; another school''s administrator reads none of the school''s questions',
         'a lesson that says «salah» is found at «kolom Isi pelajaran», never at the database column; no coaching rule '
           || 'says «siswa»; the question-quality findings say «murid» and «Bank soal untuk paket ini»'
       ]) as t(tid, tarea, tdetail)

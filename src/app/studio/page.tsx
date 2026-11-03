@@ -23,7 +23,7 @@ export const generateMetadata = judulHalaman("/studio");
  * a count whose tab is not this reader's stays a count. The package list says where each package stands, as Daisy's
  * J1Terbit draws Studio's list: «✓ Terbit» (or «Ditarik») as a Badge, otherwise «Sekarang:» and the step it is at
  * (posisiPaket, the steps' own reading of the course and its latest release). Every word in the reader's language
- * (UX-25).
+ * (UX-25). A version a correction replaced is not listed or counted: the line is one package, at its newest version.
  */
 type Daftar = "ACTION_REQUIRED" | "BLOCKED";
 const DAFTAR: readonly Daftar[] = ["ACTION_REQUIRED", "BLOCKED"];
@@ -46,8 +46,14 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
     ? await supabase.from("mcq_quality_findings").select("course_id").in("institution_id", menyusun)
       .eq("severity", "ERROR").is("acknowledged_at", null)
     : { data: [] as Array<{ course_id: string }> };
+  // W1.7 (Batch 3 closure): a package is its line's newest version; a version a correction replaced is history, opened
+  // from «Riwayat perbaikan», never a package of its own here (studio_home counts the same way, 20261216100000)
+  const { data: digantikan } = await supabase.from("courses").select("supersedes_course_id")
+    .in("institution_id", daftar ? menyusun : ids).not("supersedes_course_id", "is", null);
+  const lama = [...new Set((digantikan ?? []).map((x) => x.supersedes_course_id as string))];
   let kursusQ = supabase.from("courses").select("id, title, subject, grade_label, institution_id, status")
     .in("institution_id", daftar ? menyusun : ids);
+  if (lama.length > 0) kursusQ = kursusQ.not("id", "in", `(${lama.join(",")})`);
   if (daftar === "ACTION_REQUIRED") kursusQ = kursusQ.in("status", ["INGESTED", "STRUCTURED", "VALIDATION_FAILED"]);
   if (daftar === "BLOCKED") kursusQ = kursusQ.in("id", [...new Set((tertahan ?? []).map((f) => f.course_id as string))]);
   const [{ data: buckets }, { data: courses }] = await Promise.all([

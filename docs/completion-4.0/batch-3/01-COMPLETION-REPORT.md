@@ -3,6 +3,8 @@
 **Authority:** owner, 2 Nov: «Batch 2 accepted / Batch 3 development GO».
 **Branch:** `claude/awesome-rubin-bqxp6p`. Nothing was merged to `main` or deployed to staging. Production and Dr Gladys's demonstration records were not touched. The staging freeze is unchanged.
 
+**Since then (2 Nov):** merged as `a5e2935` through the protected path and verified on staging; see `04-STAGING-VERIFICATION-REPORT.md` (D-149). The closure pass (D-150) fixed the two defects found there and applied F-7: `05-FINAL-CLOSURE-REPORT.md`, with the outstanding-item register. Batch 3 is not yet fully accepted (W1.2, D1, D3 await Daisy).
+
 ## Verdict: development complete, except two blocked items. STOP at the promotion gate.
 
 Every Batch 3 item is built and guarded, except two:
@@ -38,7 +40,7 @@ The exit gate's W6.5 Studio proof passes as a **local** browser walk. Two parts 
 | W1.8 (screens) | «Riwayat perbaikan»: who reviewed and approved | **DONE**. The walk found the author was told the reason but not who gave it. Fixed by migration `20261215100000` (`nama_riwayat_paket`, §3). | STUDIO3A-RIWAYAT-01; **F23-W05** (red without the function, green with it); walk U5, U12 |
 | W1.9 | Wording: «murid», no «(D-008)», the locale passed, 320 px | **DONE**, including the Unggah correction words now saying «paket» | STUDIO3A-BAHASA-01, STUDIO3B-KATA-01 |
 | W1.10 | An example-only workbook | **DONE**. It is the walk's starting point. | STUDIO3B-CONTOH-01; walk U0 |
-| W1.11 | The Question Bank for the people QN5 meant | **BLOCKED (owner, F-7)** | none |
+| W1.11 | The Question Bank for the people QN5 meant | **DONE in the closure pass** (F-7 ruled, D-150) | STUDIO3C-BANK-01, F23-W07; walk U10b (`05-FINAL-CLOSURE-REPORT.md`) |
 | W1.12 | The author is never offered «Sudah saya tinjau» | **DONE**, also on the grouped findings | STUDIO3A-AKUI-01 (restated for the group mount) |
 | W1.14 | The other Studio pages on the 08 rows | **DONE**: all 11 Studio surfaces, no Tailwind left; the token lint reads them all | STUDIO3B-KELAS-01; UX1-S0-TOKEN-01 (RESET_SURFACES) |
 | W2.4 | Uji Cepat score: the class first, the learners one step below | **DONE** | MENGAJAR3-HASIL-01; walk U15 («Nilai kelas 100% · 1 dari 1 murid sudah dinilai»); `evidence/w65/16-uji-cepat-hasil.png` |

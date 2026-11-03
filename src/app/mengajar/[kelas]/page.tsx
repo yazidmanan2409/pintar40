@@ -181,11 +181,13 @@ export default async function Kelas({
               {tugas.map((x) => (
                 <div key={x.id} className="pin-row">
                   <span className="pin-title">{x.kursus}</span>
+                  {/* Batch 3 closure (Daisy, J1Terbit step 7): the window in words, «Mulai … · Sampai …» or «Tanpa batas
+                      akhir», and «Tersedia» as the done Badge (✓); a scheduled or finished material stays neutral */}
                   <span className="pin-rowmeta">
-                    {x.mulai ? <span>{format.date(x.mulai, locale)}</span> : null}
-                    {x.sampai ? <span>{format.date(x.sampai, locale)}</span> : null}
+                    {x.mulai ? <span>{s("mengajar.siap.mulai")} {format.date(x.mulai, locale)}</span> : null}
+                    <span>{x.sampai ? `${s("mengajar.siap.sampai")} ${format.date(x.sampai, locale)}` : s("mengajar.siap.sampai.kosong")}</span>
                   </span>
-                  <span className="pin-pill pin-neutral">{s(ajar.statusMateri(x))}</span>
+                  <span className={`pin-pill ${ajar.nadaMateri(ajar.statusMateri(x))}`}>{s(ajar.statusMateri(x))}</span>
                 </div>
               ))}
               {terbit

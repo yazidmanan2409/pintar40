@@ -190,7 +190,13 @@ export default async function Siapkan({
           <div className="pin-prow">
             <h2>{dipilih.kursus}</h2>
             <span className="pin-asal" data-asal={dipilih.asal}>{s(dipilih.asal === "PINTAR" ? "mengajar.siap.asal.pintar" : "mengajar.siap.asal.sekolah")}</span>
-            <span className="pin-pill pin-neutral">{s("mengajar.status.belum")}</span>
+            {/* Batch 3 closure (defect 2): once «Sediakan» is taken the card says what the class now has, as the class
+                page does (statusMateri), never «Belum disediakan» beside «✓ Disediakan» */}
+            {sudah ? (
+              <span className={`pin-pill ${ajar.nadaMateri(ajar.statusMateri(sudah))}`}>{s(ajar.statusMateri(sudah))}</span>
+            ) : (
+              <span className="pin-pill pin-neutral">{s("mengajar.status.belum")}</span>
+            )}
           </div>
           <p className="pin-meta">
             {/* DAISY-26 (UX-20): no version number; the date says which release */}
@@ -258,21 +264,18 @@ export default async function Siapkan({
                     kosong={s("mengajar.siap.sampai.kosong")} galat={galatJendela} locale={locale} untuk="educator" />
                 </dd>
               </div>
-              <div>
-                <dt>{s("mengajar.siap.disediakan")}</dt>
-                <dd>
-                  {ctx.ini.nama} ({s("mengajar.siap.dipilih")})
-                  <small>
-                    {format.number(fakta.murid.length, locale)} {s("mengajar.siap.terdaftar")}
-                  </small>
-                </dd>
-              </div>
             </dl>
           </div>
 
           <div className="pin-sec">
             <h2>{s("mengajar.siap.tinjau")}</h2>
             <div className="pin-commit">
+              {/* Batch 3 closure (Daisy, J5Jendela and J1Terbit step 6): who it is for is part of the review, «Disediakan
+                  untuk Kelas 5A · 31 murid terdaftar hari ini», not a third column of the window */}
+              <p className="pin-untuk" data-untuk="kelas">
+                {s("mengajar.siap.disediakan")} <b>{ctx.ini.nama}</b>
+                {" · "}{format.number(fakta.murid.length, locale)} {s("mengajar.siap.terdaftar")}
+              </p>
               <p className="pin-akibat">
                 {s("mengajar.siap.akibat.1")}{" "}
                 <b>

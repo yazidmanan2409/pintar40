@@ -1,0 +1,4 @@
+# 2 Nov, Batch 3 staging verification (W6.5, W6.7): Sekolah Uji B3 1102 after GS-01 to GS-21 (run 41532445624); main a5e2935; another school whose administrator must be told nobody: Sekolah Uji B2 1102
+# 2 Nov, again after run 41536379780 (16 PASS, 1 FAIL: T14 counted the learner menu's «Sertifikat» link; fixed in d5d0c3d); the first run's Uji Cepat closed 22:42:31 UTC
+other: sekolah-uji-b2-1102
+slug: sekolah-uji-b3-1102

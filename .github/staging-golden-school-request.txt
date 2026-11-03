@@ -16,4 +16,5 @@
 # 9 Oct, D-140: staging READY walk on 001a357 (batches A and B); facts 37964868797 GREEN, 177 (after run 37965014304)
 # 2 Nov, Batch 1 staging verification (D-146; owner protected-merge GO): Sekolah Uji B1 1102 (found-school.yml run 41400107343); staging at 181, main 430544b (facts 41400103860 GREEN)
 # 2 Nov, Batch 2 staging verification: Sekolah Uji B2 1102 (found-school.yml run 41432906079); staging at 181, main fab8e4a (facts 41432900275 GREEN)
-slug: sekolah-uji-b2-1102
+# 2 Nov, Batch 3 staging verification: Sekolah Uji B3 1102 (found-school.yml run 41526379831); staging at 182, main a5e2935 (facts 41526374666 GREEN)
+slug: sekolah-uji-b3-1102

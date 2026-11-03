@@ -46,6 +46,12 @@ export const generateMetadata = judulHalaman("/studio/bank");
  * package page reads them (D-088(h)): with the reader's own client, under
  * item_options' row security, and only where the reader holds CAN_DRAFT in
  * that question's school. Nothing here writes a question.
+ *
+ * F-7 (owner ruling, 2 Nov, Batch 3 closure; QN5, J4.8, W1.11): the bank is for the teachers who author too. A reader
+ * with CAN_DRAFT browses their own school's questions, keys and reasons (items and item_options are CAN_DRAFT's under
+ * row security, school by school). Question Health stays the reviewer's (J4.9): the evidence figures, the health state
+ * and the review form are shown only in a school where the reader holds CAN_REVIEW_QUESTION_HEALTH, and
+ * question_health's own row security reads nothing to anyone else.
  */
 const BANK = ["PRACTICE", "TEST", "EXAM"] as const;
 const PITA = ["MUDAH", "SEDANG", "SULIT"] as const;
@@ -76,6 +82,9 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
   const ditolak = (bagian: string) => sp.hasil === "gagal" && sp.bagian === bagian;
   const institutions = await studioInstitutions();
   const mayReview = institutions.filter((i) => i.capabilities.includes("CAN_REVIEW_QUESTION_HEALTH"));
+  // F-7: the schools whose bank this reader browses, as the tab gives it (CAN_DRAFT or Question Health)
+  const bisaBank = institutions.filter((i) => i.capabilities.includes("CAN_DRAFT") || i.capabilities.includes("CAN_REVIEW_QUESTION_HEALTH"));
+  const sehatDi = new Set(mayReview.map((m) => m.id));
 
   // CR-52: the two narrowing choices, each only one of its known values
   const bank = (BANK as readonly string[]).includes(sp.bank ?? "") ? sp.bank! : "";
@@ -94,7 +103,7 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
   type Sehat = { item_id: string; state: string; evidence_count: number };
   const [{ data: terbaru }, { data: menunggu }] = await Promise.all([
     // L3 (D-127 Q2): the working context's school only (studioInstitutions is narrowed to it)
-    saring(supabase.from("items").select(kolom).in("institution_id", institutions.map((i) => i.id)))
+    saring(supabase.from("items").select(kolom).in("institution_id", bisaBank.map((i) => i.id)))
       .order("created_at", { ascending: false }).limit(40),
     // BOB-41: every item waiting on a reviewer in their schools, whatever its age
     mayReview.length
@@ -109,9 +118,10 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
     ? await saring(supabase.from("items").select(kolom).in("id", lamaIds)).order("created_at", { ascending: false })
     : { data: [] };
   const items = [...baru, ...(lama ?? [])];
-  // health for exactly the items shown
-  const { data: health } = items.length
-    ? await supabase.from("question_health").select("item_id, state, evidence_count, note").in("item_id", items.map((i) => i.id))
+  // health for exactly the items shown, and only in a school where the reader reviews Question Health (F-7, J4.9)
+  const sehatIds = items.filter((i) => sehatDi.has(i.institution_id)).map((i) => i.id);
+  const { data: health } = sehatIds.length
+    ? await supabase.from("question_health").select("item_id, state, evidence_count, note").in("item_id", sehatIds)
     : { data: [] };
 
   // CR-52: each question's key and reasons, for the schools where this reader holds CAN_DRAFT (D-088(h)); the
@@ -166,7 +176,8 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
           {items.map((i) => {
             const h = healthByItem.get(i.id);
             const pilihan = pilihanTinjauan(h?.state);
-            const hasEmpirical = i.empirical_difficulty !== null && i.empirical_evidence_count !== null;
+            // F-7 (J4.9): the evidence figures are Question Health's, shown only to its reviewer in that school
+            const hasEmpirical = sehatDi.has(i.institution_id) && i.empirical_difficulty !== null && i.empirical_evidence_count !== null;
             return (
               // The short id is not shown; it stays on the row as data-soal, for
               // the staging journey's check of which school's questions are listed
@@ -196,7 +207,7 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
                     {s("studio.bank.empiris")}: {i.empirical_difficulty} · {i.empirical_evidence_count}
                   </p>
                 ) : null}
-                {pilihan.length > 0 && mayReview.some((m) => m.id === i.institution_id) ? (
+                {pilihan.length > 0 && sehatDi.has(i.institution_id) ? (
                   <form action={recordQuestionHealthReviewAction} id={`kesehatan-${i.id}`} className="pin-baris-aksi">
                     <input type="hidden" name="soal" value={i.id} />
                     <label className={label}>
@@ -211,7 +222,7 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
                     <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.integritas.catat")}</TombolKirim>
                   </form>
                 ) : null}
-                {pilihan.length > 0 && mayReview.some((m) => m.id === i.institution_id)
+                {pilihan.length > 0 && sehatDi.has(i.institution_id)
                   ? <SimpanIsian form={`kesehatan-${i.id}`} ditolak={ditolak("kesehatan")} pemilik={pemilik} /> : null}
               </li>
             );

@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 198,
+  "version": 199,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -2312,7 +2312,7 @@
     {
       "id": "PENUTUPAN-T01",
       "runner": "static",
-      "proves": "CR-87 (D-127 Q4, Q8; D-129(g)), the source of src/lib/studio-tab.ts, src/app/studio/layout.tsx and each Studio page, and the latest role_capabilities migration: driven from each role's Studio capabilities, Admin platform and Admin sekolah see all seven tabs, the Kepala departemen all but Aturan Penilaian, the Guru Beranda, Buat Paket and Pustaka PINTAR, the Dekan and the student none; the operator's parts are Admin platform's alone; the layout draws its tabs from that table; Studio's own Uji Cepat launcher and certificate layout picker are gone, page, tab and action (CR-84, D-127 Q4, CR-06); each tab's page sends a person it is not for to Studio's home."
+      "proves": "CR-87 (D-127 Q4, Q8; D-129(g)), the source of src/lib/studio-tab.ts, src/app/studio/layout.tsx and each Studio page, and the latest role_capabilities migration: driven from each role's Studio capabilities, Admin platform and Admin sekolah see all seven tabs, the Kepala departemen all but Aturan Penilaian, the Guru Beranda, Buat Paket, Pustaka PINTAR and Bank Soal (owner ruling F-7, 2 Nov), the Dekan and the student none; the operator's parts are Admin platform's alone; the layout draws its tabs from that table; Studio's own Uji Cepat launcher and certificate layout picker are gone, page, tab and action (CR-84, D-127 Q4, CR-06); each tab's page sends a person it is not for to Studio's home."
     },
     {
       "id": "PENUTUPAN-J01",
@@ -3276,6 +3276,18 @@
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
+      "id": "F23-W06",
+      "runner": "db",
+      "proves": "W1.7 a superseded version is history, not a task (Batch 3 closure, defect 1), measured in selftest/db/fable23.sql against supabase/migrations/20261216100000_a_superseded_version_is_history.sql: a sent-back draft corrected as the next version of its line keeps its draft status and stays in the line's history (the correction's note names it), yet studio_home counts for its author only the newest version of each line in «Menunggu tindakan Anda» and «Tertahan», even with a blocking finding left on the replaced version.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F23-W07",
+      "runner": "db",
+      "proves": "F-7 / W1.11 the bank is the authoring teacher's; Question Health is not (owner ruling, 2 Nov, Batch 3 closure; QN5, J4.8, J4.9), measured in selftest/db/fable23.sql: the school's Guru (CAN_DRAFT) reads its questions and every key with its reason under row security, no question or option of another school, no question_health row and no Question Health count from studio_home; the head of department still reads the school's signal; another school's administrator reads none of the school's questions.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
       "id": "F23-T01",
       "runner": "db",
       "proves": "W4.1 (Batch 1, D-145(c); migration 20261211100000), measured in selftest/db/fable23.sql: approved Terminology v1 wording held in the database. A package whose lesson text says «salah» is validated: the coaching finding's location names the workbook's column («kolom Isi pelajaran», from learner_readable_fields.judul_kolom), never the database column («kolom body_markdown»); no doctrine_lexicon rule says «siswa» (C30); run_mcq_quality says «murid» and its bank-wide location is «Bank soal untuk paket ini» (C29, D23).",
@@ -3913,6 +3925,21 @@
       "id": "STUDIO3B-KATA-01",
       "runner": "static",
       "proves": "W1.9 Studio part (Batch 3; UX-18, UX-43, UX-25, RV-23), selftest/studio3b.test.ts: no studio.* copy in src/lib/hle.ts says «siswa»; the template src/components/unggah/templat.ts generated and read back prints no «(D-008)» in «Cara mengisi»; the source of each of the eight Studio surfaces reads the reader's language once (kataStudio) and gives it to every enumLabel, when, outcomeLine and pager; src/components/studio/TemuanKelompok.tsx renders in English; at 320 px the order is radios (no cut select), a competency code keeps together (.pin-kode) and a field or select shrinks with its column (src/app/experience.css)."
+    },
+    {
+      "id": "STUDIO3C-BERANDA-02",
+      "runner": "static",
+      "proves": "W1.7 defect 1 (Batch 3 closure; 04-STAGING-VERIFICATION-REPORT.md §6), selftest/studio3c.test.ts: the source of src/app/studio/page.tsx leaves every course another course supersedes out of Studio's package list, and the latest studio_home migration (20261216100000) counts only the newest version of each line in ACTION_REQUIRED, AWAITING_MY_REVIEW and BLOCKED."
+    },
+    {
+      "id": "STUDIO3C-SIAPKAN-01",
+      "runner": "static",
+      "proves": "W3.11 defect 2 and J1Terbit step 7 (Batch 3 closure; Daisy components/J1Terbit), selftest/studio3c.test.ts: executes statusMateri and nadaMateri (src/lib/pengajar.ts): «Tersedia» is the ok Badge, «Dijadwalkan», «Selesai» and «Belum disediakan» neutral; the source of src/app/mengajar/[kelas]/siapkan/page.tsx gives the card after «Sediakan» the class's own state of the material and «Belum disediakan» only before, and says who it is for («Disediakan untuk … · n murid terdaftar hari ini») in the review before the act (Daisy J5Jendela), not beside the window; src/app/mengajar/[kelas]/page.tsx draws each material's state with nadaMateri and its window in words; src/app/experience.css draws the ok Badge's ✓."
+    },
+    {
+      "id": "STUDIO3C-BANK-01",
+      "runner": "static",
+      "proves": "F-7 / W1.11 (owner ruling, 2 Nov, Batch 3 closure; QN5, J4.8, J4.9), selftest/studio3c.test.ts: executes tabStudio (src/lib/studio-tab.ts): Bank Soal is offered to a Guru who authors (CAN_DRAFT) and to a Question Health reviewer, not to a teacher who only gives material or an integrity reviewer alone; the source of src/app/studio/bank/page.tsx lists only the schools whose bank the reader browses, reads keys and reasons where the reader holds CAN_DRAFT, and reads Question Health, shows the evidence figures and offers the review form only where the reader holds CAN_REVIEW_QUESTION_HEALTH."
     }
   ]
 }
