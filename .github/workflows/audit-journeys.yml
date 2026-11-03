@@ -137,6 +137,18 @@ jobs:
           APP_DIR: ${{ github.workspace }}/app
           OUT_DIR: ${{ github.workspace }}/audit-out/studio-ujung
         run: node studio-ujung.mjs
+      # Batch 4 exit gate (D-152): every administration action through the screens, each act's audit row asserted: the
+      # school code, name, username and email corrections, a class card made and turned into an email account, a transfer
+      # by name accepted and executed by the receiving school, what waits, stuck sends, the paged schools and a profile
+      # photo. Last, because it changes seeded people (a name, a username, a learner's school).
+      - name: Walk the administration (Batch 4)
+        if: success() || failure()
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/admin-ujung
+        run: node admin-ujung.mjs
       - name: Server log (errors only)
         if: always()
         run: grep -iE 'error|exception|fail' "$RUNNER_TEMP/app.log" | grep -v 'evaluation_state' | head -80 || true

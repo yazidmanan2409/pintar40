@@ -326,9 +326,14 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const tujuanDitemukan = ((Array.isArray(sekolahDitemukan) ? sekolahDitemukan : []) as Array<{ institution_id: string; nama: string; kode: string | null }>)
     .filter((x) => x.institution_id !== satuSekolah);
   const { data: masukData } = satuSekolah ? await supabase.rpc("pindah_masuk", { p_sekolah: satuSekolah }) : { data: null };
-  const pindahMasuk = (Array.isArray(masukData) ? masukData : []) as Array<{
+  const masukSemua = (Array.isArray(masukData) ? masukData : []) as Array<{
     transfer_id: string; nama_murid: string; dari_sekolah: string; dari_kode: string | null; alasan: string | null; diminta_pada: string;
+    keadaan: string;
   }>;
+  // the requests to accept; and, for every incoming transfer, the learner's name the receiving school may read before
+  // the transfer is executed (pindah_masuk), so an accepted transfer is executed by name, never as «—»
+  const pindahMasuk = masukSemua.filter((m) => m.keadaan === "REQUESTED");
+  const namaMasuk = new Map(masukSemua.map((m) => [m.transfer_id, m.nama_murid] as const));
   const lagiPindah = (pindahHalaman ?? []).length > UKURAN;
   // L4 finding 6 (CR-88): Peran & akses draws one page of roles, each with its revoke form; the read stays whole,
   // because the school's readiness and its count of admins below are taken from every active role
@@ -1193,7 +1198,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               {daftarPindah.map((x) => (
                 <li key={x.id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 sm:grid-cols-[1fr_auto] sm:items-center">
                   <div>
-                    <span>{namaPindah.get(x.person_id) ?? TANPA_NAMA}</span>
+                    <span>{namaPindah.get(x.person_id) ?? namaMasuk.get(x.id) ?? TANPA_NAMA}</span>
                     <span className="text-ink-3"> · {institutionName.get(x.from_institution_id) ?? TANPA_NAMA} → {institutionName.get(x.to_institution_id) ?? TANPA_NAMA}</span>
                     <span className="ml-2 rounded bg-info-soft px-1.5 text-xs text-info">{transferLabel(x.status)}</span>
                     {x.reason ? <p className="text-xs text-ink-3">{x.reason}</p> : null}

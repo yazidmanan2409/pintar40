@@ -15,7 +15,8 @@
 --       receiving school's to choose, so they are left empty here (to_academic_period_id becomes nullable; a check
 --       keeps every EXECUTED transfer's period set). Audited, as every transfer is, by transfers_audit (both schools).
 --   (3) pindah_masuk(school): the receiving school's incoming requests, for its CAN_AUTHORIZE_TRANSFER holders: the
---       request, the learner's NAME and the sending school's name and code. The learner's other data stays unreadable
+--       request, the learner's NAME and the sending school's name and code; and those it accepted but has not yet
+--       executed (keadaan AUTHORIZED), so the school executes a transfer it can name. The learner's other data stays unreadable
 --       until the transfer is executed (portable_visibility, unchanged).
 --   (4) transfer_terima(transfer, period, programme): the RECEIVING school accepts a request made by the sending
 --       school into one of ITS OWN school years (and, optionally, one of its programmes): status AUTHORIZED, both sides
@@ -97,13 +98,14 @@ grant execute on function public.transfer_minta(uuid, uuid, text) to authenticat
 -- ═══════════════════════════════════════════════════════════════ (3) what the receiving school sees
 create function public.pindah_masuk(p_sekolah uuid default null)
 returns table (transfer_id uuid, nama_murid text, dari_sekolah text, dari_kode text, alasan text, diminta_pada timestamptz,
-               ke_sekolah uuid)
+               ke_sekolah uuid, keadaan text)
 language sql stable security definer set search_path = public, pg_temp as $$
-  select t.id, p.display_name, i.name, i.namespace, t.reason, t.created_at, t.to_institution_id
+  select t.id, p.display_name, i.name, i.namespace, t.reason, t.created_at, t.to_institution_id, t.status::text
     from public.transfers t
     join public.persons p on p.id = t.person_id
     join public.institutions i on i.id = t.from_institution_id
-   where t.status = 'REQUESTED'
+   -- REQUESTED to accept; AUTHORIZED (accepted, not yet executed) so the school executes a transfer it can name
+   where t.status in ('REQUESTED', 'AUTHORIZED')
      and t.requested_by_institution = t.from_institution_id
      and public.can_on_node('CAN_AUTHORIZE_TRANSFER', t.to_institution_id)
      and (p_sekolah is null or t.to_institution_id = p_sekolah)
