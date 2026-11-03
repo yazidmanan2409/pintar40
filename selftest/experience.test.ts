@@ -2033,7 +2033,10 @@ export const experienceTests: SelfTest[] = [
       // orang_berakun; 20261219100000 makes transfers.to_academic_period_id nullable (the receiving school chooses it) and
       // adds four transfer functions; 20261220100000 adds email_send_stuck; 20261221100000 pages maintenance_list. Read
       // against §3 first: none is a mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
-      c.expect(migrations.length === 188, `${migrations.length} migrations; the frozen baseline has 188`);
+      // MOVED 188 -> 189 for Batch 5 (agent C, W2.18): 20261225100000 adds tujuan_belum_tercapai (the objectives a
+      // learner has not yet reached, by statement, for the class's teacher) and its registry row; no table, no column.
+      // Read against §3 first: it is not a mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
+      c.expect(migrations.length === 189, `${migrations.length} migrations; the frozen baseline has 189`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3837,7 +3840,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 182 -> 183 for the Batch 3 closure (D-150): studio_home's superseded-version condition touches no tour RPC.
       // MOVED 183 -> 188 for Batch 4 (D-152): the card conversion, the correction finder, the transfer by name, stuck
       // sends and maintenance paging touch no tour RPC.
-      c.expect(migs.length === 188, `${migs.length} migrations; the baseline has 188`);
+      // MOVED 188 -> 189 for Batch 5 (agent C, W2.18): the objectives a learner has not yet reached touch no tour RPC.
+      c.expect(migs.length === 189, `${migs.length} migrations; the baseline has 189`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -6629,9 +6633,17 @@ export const experienceTests: SelfTest[] = [
       //    address a learner, and that must be a statement about WHO is being
       //    spoken to rather than a silent rewrite of the copy a learner reads.
       //    Asserted over the whole table rather than trusted.
+      //    RESTATED for UX-45 (Batch 5): `tolak.arti` alone is told to an educator in the educator's own words (a Guru
+      //    refused on a teaching page asks whoever looks after PINTAR, not "your teacher"). It is the refusal page's
+      //    recovery line, which the learning surface never says: a refusal there is drawn as a learner's
+      //    (persona="learner"), and neither surface file names the key -- asserted here, so the learning surface's copy
+      //    still cannot change with who is reading it.
+      const PENOLAKAN_GURU = new Set<string>(["tolak.arti"]);
+      c.expect(!/tolak\.arti/.test(sumber) && !/<HalamanPenolakan[^>]*persona=\{persona\}/.test(read("src/app/belajar/page.tsx")),
+        "the learning surface says the refusal's recovery line in its reader's persona");
       let berbeda = 0;
       for (const k of allKeys()) {
-        if (/^(studio\.|config\.|pimpinan\.|pendataan\.)/.test(k)) continue;
+        if (/^(studio\.|config\.|pimpinan\.|pendataan\.)/.test(k) || PENOLAKAN_GURU.has(k)) continue;
         for (const l of LOCALES) {
           if (t(k, "learner", { locale: l }) !== t(k, "educator", { locale: l })) berbeda++;
         }

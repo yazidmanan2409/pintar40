@@ -7,6 +7,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup, KartuKetiadaan } from "@/components/bukti";
+import { TeksBaris } from "@/components/teks/Teks";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/murid/[orang]");
@@ -35,6 +36,11 @@ const KEADAAN: Record<ajar.KeadaanMurid, HleEvent> = {
  *
  * WHETHER THE MASTERY TARGET WAS MET IS NOT SAID: the target is the school's
  * pass mark, still open (D-086(b)); the recorded mastery is shown as recorded.
+ *
+ * W2.18 (J5.13): AND WHAT THE LEARNER HAS NOT YET REACHED, IN WORDS. The
+ * objectives, by their statement, that the learner's latest Uji Penguasaan in
+ * this class recorded below the mark sealed on it (tujuan_belum_tercapai, which
+ * answers nobody but a teacher of this class). No new figure reaches the screen.
  */
 export default async function MuridSatu({ params }: { params: Promise<{ kelas: string; orang: string }> }) {
   const { kelas: id, orang } = await params;
@@ -48,7 +54,11 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
     return <HalamanPenolakan locale={locale} persona="educator" backHref={ctx ? `/mengajar/${id}` : "/mengajar"} backKey="mengajar.kembali" />;
   }
 
-  const catatan = await ajar.catatanMurid(id, ctx.ini.institusi, orang);
+  // W2.18: beside the record, the objectives the learner has not yet reached, as the database answers for this class
+  const [catatan, belum] = await Promise.all([
+    ajar.catatanMurid(id, ctx.ini.institusi, orang),
+    ajar.tujuanBelum(id, orang),
+  ]);
 
   return (
     <>
@@ -112,6 +122,24 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
                 </div>
               ))}
             </dl>
+          )}
+        </section>
+
+        {/* W2.18 (J5.13): the objectives by their statement (the learner's result's own rows, DAISY-29), no figure
+            and no item; «belum» is what to work on next, never a failure (X.5) */}
+        <section className="pin-sec" aria-labelledby="pin-murid-tujuan">
+          <h2 id="pin-murid-tujuan">{s("mengajar.murid1.tujuan")}</h2>
+          <p className="pin-sub">{s("mengajar.murid1.tujuan_arti")}</p>
+          {belum.length === 0 ? (
+            <Kosong jenis="belum" kalimat={s("mengajar.murid1.tujuan_kosong")} />
+          ) : (
+            <div className="pin-domain">
+              {belum.map((x) => (
+                <div className="pin-drow" key={x.id ?? x.pernyataan} data-tujuan-belum="">
+                  <span><TeksBaris teks={x.pernyataan} /></span>
+                </div>
+              ))}
+            </div>
           )}
         </section>
 

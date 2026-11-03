@@ -1484,6 +1484,9 @@ export type HleEvent =
   | "mengajar.murid1.hasil"
   | "mengajar.murid1.hasil_arti"
   | "mengajar.murid1.hasil_kosong"
+  | "mengajar.murid1.tujuan"
+  | "mengajar.murid1.tujuan_arti"
+  | "mengajar.murid1.tujuan_kosong"
   | "mengajar.murid.judul"
   | "mengajar.murid.sub"
   | "mengajar.murid.kosong"
@@ -2863,8 +2866,10 @@ const table: Table = {
   "lingkup.semua": { default: "Semua yang bisa Anda lihat", en: "Everything you can see" },
   "lingkup.kosong": { default: "Belum ada lingkup yang bisa dipilih.", en: "There is no scope to choose from yet." },
   // DAISY-17: a staff reader has no teacher to ask; they ask whoever looks after PINTAR at the school (as galat.action_failed does)
+  // UX-45: nor has a Guru; every refusal a teacher meets ends with this line (HalamanPenolakan, the Uji Cepat refusal)
   "tolak.arti": { default: "Jika ini keliru, tanyakan kepada guru Anda.", en: "If you think this is a mistake, ask your teacher.",
-    staff: "Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.", en_staff: "If you think this is a mistake, ask whoever looks after PINTAR at your school." },
+    staff: "Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.", en_staff: "If you think this is a mistake, ask whoever looks after PINTAR at your school.",
+    educator: "Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.", en_educator: "If you think this is a mistake, ask whoever looks after PINTAR at your school." },
   // DAISY-18 (D-047): what the screen says the moment a section is asked for
   "memuat.halaman": { default: "Memuat halaman…", en: "Loading the page…" },
   // DAISY-17 (D-046(e)): what a submit button says from the click until the answer comes back
@@ -5333,6 +5338,10 @@ const table: Table = {
   "mengajar.murid1.hasil": { default: "Hasil resmi", en: "Official results" },
   "mengajar.murid1.hasil_arti": { default: "Penguasaan yang tercatat pada tiap penilaian yang sudah dinilai.", en: "The mastery recorded on each assessment that has been scored." },
   "mengajar.murid1.hasil_kosong": { default: "Belum ada hasil resmi untuk murid ini.", en: "No official result for this learner yet." },
+  // W2.18 (J5.13): the objectives the learner has not yet reached, by their statement; «belum» is never failure (X.5)
+  "mengajar.murid1.tujuan": { default: "Tujuan pembelajaran yang belum tercapai", en: "Learning objectives not yet reached" },
+  "mengajar.murid1.tujuan_arti": { default: "Dari Uji Penguasaan terakhir murid ini di kelas ini: tujuan yang penguasaannya masih di bawah target. Ini yang perlu dipelajari lagi, bukan penilaian atas muridnya.", en: "From this learner's latest Mastery Check in this class: the objectives whose mastery is still below the target. This is what to work on next, not a judgment of the learner." },
+  "mengajar.murid1.tujuan_kosong": { default: "Tidak ada tujuan pembelajaran yang tercatat di bawah target pada Uji Penguasaan murid ini di kelas ini.", en: "No learning objective is recorded below the target on this learner's Mastery Checks in this class." },
   "mengajar.murid.judul": { default: "Murid", en: "Learners" },
   "mengajar.murid.sub": { default: "Nama diurutkan abjad; tidak ada peringkat.", en: "Names in alphabetical order; there is no ranking." },
   "mengajar.murid.kosong": { default: "Belum ada murid terdaftar di kelas ini.", en: "No learner is enrolled in this class yet." },
@@ -5456,7 +5465,8 @@ const table: Table = {
   "mengajar.cepat.tolak.bank": { default: "Bab itu belum punya cukup soal untuk jumlah yang dipilih. Pilih jumlah soal yang lebih sedikit, atau bab lain.", en: "That chapter does not have enough questions for the number chosen. Choose fewer items, or another chapter." },
   "mengajar.cepat.tolak.jumlah": { default: "Jumlah soal harus antara", en: "The number of items must be between" },
   "mengajar.cepat.tolak.menit": { default: "Waktu pengerjaan itu tidak bisa dipakai. Pilih", en: "That time window cannot be used. Choose" },
-  "mengajar.cepat.tolak.izin": { default: "Anda tidak dapat menyediakan Uji Cepat untuk kelas ini dengan bab itu. Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.", en: "You cannot make a Quick Assessment available for this class with that chapter. If you think this is a mistake, ask whoever looks after PINTAR at your school." },
+  // UX-45: the recovery line is tolak.arti's educator telling, said after this one (kalimatTolakUjiCepat)
+  "mengajar.cepat.tolak.izin": { default: "Anda tidak dapat menyediakan Uji Cepat untuk kelas ini dengan bab itu.", en: "You cannot make a Quick Assessment available for this class with that chapter." },
   "mengajar.cepat.tolak.tidak_ada": { default: "Kelas atau bab itu tidak ditemukan. Muat ulang halaman ini, lalu pilih lagi.", en: "That class or chapter was not found. Reload this page, then choose again." },
   "mengajar.cepat.tolak.umum": { default: "Ada kendala di PINTAR. Coba sekali lagi. Bila masih terjadi, sampaikan kepada yang mengurus PINTAR di sekolah Anda.", en: "Something went wrong in PINTAR. Try once more. If it happens again, tell whoever looks after PINTAR at your school." },
   "mengajar.cepat.atau": { default: "atau", en: "or" },
@@ -5472,7 +5482,8 @@ const table: Table = {
   "mengajar.bukti.siapa": { default: "Lihat nama murid", en: "See the learners' names" },
   "mengajar.bukti.murid": { default: "murid", en: "learners" },
   "mengajar.bukti.poin": { default: "poin", en: "points" },
-  "mengajar.bukti.bagian": { default: "Penguasaan per bagian", en: "Mastery by part" },
+  // UX-41 (DAISY-29's words): the rows are learning objectives, each named by its statement; a «bagian» is the school's structure (D-006)
+  "mengajar.bukti.bagian": { default: "Penguasaan per tujuan pembelajaran", en: "Mastery by learning objective" },
   "mengajar.bukti.keliru": { default: "Pemahaman keliru yang berulang di kelas ini", en: "Recurring misunderstandings in this class" },
   "mengajar.bukti.kali": { default: "kali", en: "times" },
   "mengajar.bukti.kosong": { default: "Belum ada asesmen yang berjalan atau selesai di kelas ini, jadi belum ada keadaan untuk dilaporkan.", en: "No assessment is open or finished in this class yet, so there is nothing to report on." },

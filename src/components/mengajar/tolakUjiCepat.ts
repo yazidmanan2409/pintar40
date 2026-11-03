@@ -34,7 +34,8 @@ export function kalimatTolakUjiCepat(
     case "QUICK_MINUTES_OUT_OF_RANGE":
       return `${awal} ${s("mengajar.cepat.tolak.menit")} ${daftar(batas.menit.map(n), s("mengajar.cepat.atau"))} ${s("mengajar.cepat.menit")}.`;
     case "QUICK_NOT_ALLOWED":
-      return `${awal} ${s("mengajar.cepat.tolak.izin")}`;
+      // UX-45: the recovery line every refusal a teacher meets ends with
+      return `${awal} ${s("mengajar.cepat.tolak.izin")} ${s("tolak.arti")}`;
     case "QUICK_NOT_FOUND":
       return `${awal} ${s("mengajar.cepat.tolak.tidak_ada")}`;
     case "QUICK_PASS_MARK_MISSING":
