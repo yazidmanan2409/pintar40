@@ -18,6 +18,8 @@
 --            with no school year; the receiving school sees the learner's name only, accepts into its own year, executes
 --   F24-P02  THE TRANSFER'S REFUSALS: the wrong side accepting or asking, the wrong year, no reason, twice, a short or
 --            unauthorised search
+--   F24-E01  STUCK SENDS (W2.19, J1.9): email_send_stuck lists, for the platform admin only, the sends still waiting on
+--            the email server after N minutes, with their age; fresh and accepted sends are not listed
 --   F24-K02  THE CONVERSION'S REFUSALS: without a reason (REASON_REQUIRED), to a Guru and to another school's
 --            administrator (42501), for a person with no class card (CARD_NOT_FOUND), to an address an account
 --            already uses (EMAIL_TAKEN), to a malformed address (EMAIL_INVALID); a card's address moved without a live
@@ -347,6 +349,33 @@ begin
       v_probs := selftest.f24_note(v_probs, 'F24-P02', 'not reached: the transfer block threw');
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F24-E01  STUCK SENDS (W2.19, J1.9)
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_owner();
+      insert into public.email_send_log (id, requested_at, kind, recipient_hash, outcome)
+      values ('00000000-0000-4000-8000-0000000f2401', now() - interval '45 minutes', 'KODE_AKTIVASI', repeat('a', 64), 'PENDING'),
+             ('00000000-0000-4000-8000-0000000f2402', now() - interval '1 minute', 'KODE_AKTIVASI', repeat('b', 64), 'PENDING');
+      insert into public.email_send_log (id, requested_at, kind, recipient_hash, outcome, smtp_code, settled_at)
+      values ('00000000-0000-4000-8000-0000000f2403', now() - interval '50 minutes', 'KODE_AKTIVASI', repeat('c', 64), 'SENT', 250, now() - interval '49 minutes');
+      perform selftest.as_user('sysadmin@synthetic.pintar.test');
+      select count(*) into v_n from public.email_send_stuck(10) x where x.id = '00000000-0000-4000-8000-0000000f2401' and x.minutes >= 45;
+      if v_n <> 1 then v_probs := selftest.f24_note(v_probs, 'F24-E01', 'a send pending for 45 minutes is not listed as stuck'); end if;
+      select count(*) into v_n from public.email_send_stuck(10) x
+       where x.id in ('00000000-0000-4000-8000-0000000f2402', '00000000-0000-4000-8000-0000000f2403');
+      if v_n <> 0 then v_probs := selftest.f24_note(v_probs, 'F24-E01', 'a fresh pending send or an accepted one is listed as stuck'); end if;
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      v_err := selftest.f23_raised('select * from public.email_send_stuck(10)');
+      if v_err is null or v_err not like '42501%' then
+        v_probs := selftest.f24_note(v_probs, 'F24-E01', 'a school admin read the stuck sends: ' || coalesce(v_err, 'rows'));
+      end if;
+      perform selftest.as_owner();
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f24_note(v_probs, 'F24-E01', 'threw: ' || sqlerrm);
+    end;
+
     raise exception 'F24_ROLLBACK';
   exception when others then
     perform selftest.as_owner();
@@ -355,10 +384,10 @@ begin
   perform selftest.as_owner();
 
   for r in select * from unnest(
-      array['F24-K01', 'F24-K02', 'F24-O01', 'F24-P01', 'F24-P02'],
+      array['F24-K01', 'F24-K02', 'F24-O01', 'F24-P01', 'F24-P02', 'F24-E01'],
       array['D-152(a) -- a card learner becomes staff through an email account', 'D-152(a) -- the conversion''s refusals',
             'W2.1-W2.3 -- finding a person to correct', 'W2.15 -- a transfer by name, accepted by the receiving school',
-            'W2.15 -- the transfer''s refusals'],
+            'W2.15 -- the transfer''s refusals', 'W2.19 -- stuck sends'],
       array[
         'the school admin converts a class-card learner''s account: the same account row, Auth user, person and PINTAR '
           || 'ID; an EMAIL account whose set-up is REQUIRED (the new address is offered an activation code); the card''s '
@@ -380,7 +409,9 @@ begin
         'accepting into the sending school''s year (PERIOD_INVALID); the sending school accepting its own request (42501) '
           || 'or seeing it as incoming; a request to its own school (DESTINATION_INVALID), with no reason '
           || '(REASON_REQUIRED), twice (TRANSFER_OPEN); a two-letter search (QUERY_TOO_SHORT); a Guru searching (42501); '
-          || 'the receiving school asking for another school''s learner (42501)'
+          || 'the receiving school asking for another school''s learner (42501)',
+        'email_send_stuck: the platform admin is shown a send pending for 45 minutes with its age, not one pending for a '
+          || 'minute nor one the server accepted; a school admin is refused 42501'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

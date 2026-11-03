@@ -1743,6 +1743,13 @@ export type HleEvent =
   | "emailuji.r.jenis.UJI_PENGIRIMAN"
   | "emailuji.r.jenis.lain"
   | "emailuji.r.hasil.PENDING"
+  | "emailuji.r.hasil.PENDING_LAMA"
+  | "emailuji.t.judul"
+  | "emailuji.t.intro"
+  | "emailuji.t.kosong"
+  | "emailuji.t.galat"
+  | "emailuji.t.menunggu"
+  | "emailuji.t.menit"
   | "emailuji.r.hasil.SENT"
   | "emailuji.r.hasil.BATAS_ALAMAT"
   | "emailuji.r.hasil.BATAS_UMUM"
@@ -4088,7 +4095,14 @@ const table: Table = {
   "emailuji.r.jenis.PEMBERITAHUAN_KEAMANAN": { default: "Email keamanan akun", en: "Account security email" },
   "emailuji.r.jenis.UJI_PENGIRIMAN": { default: "Email uji", en: "Test email" },
   "emailuji.r.jenis.lain": { default: "Email", en: "Email" },
-  "emailuji.r.hasil.PENDING": { default: "Sedang dikirim", en: "Being sent" },
+  "emailuji.r.hasil.PENDING_LAMA": { default: "Tertahan: diserahkan ke server email, tetapi belum ada jawaban lebih dari 10 menit", en: "Stuck: handed to the email server, but no answer for more than 10 minutes" },
+  "emailuji.t.judul": { default: "Pengiriman tertahan", en: "Stuck sends" },
+  "emailuji.t.intro": { default: "Email yang sudah diserahkan ke server email tetapi belum dijawab lebih dari 10 menit. «Diterima server email» berarti server sudah menerimanya; itu belum berarti sampai di kotak masuk.", en: "Emails handed to the email server that have had no answer for more than 10 minutes. «Accepted by the email server» means the server took it; it does not yet mean it reached the inbox." },
+  "emailuji.t.kosong": { default: "Tidak ada pengiriman yang tertahan.", en: "No send is stuck." },
+  "emailuji.t.galat": { default: "Daftar ini belum bisa dibaca. Muat ulang halaman sebentar lagi.", en: "This list could not be read. Reload the page in a moment." },
+  "emailuji.t.menunggu": { default: "Menunggu", en: "Waiting" },
+  "emailuji.t.menit": { default: "menit", en: "minutes" },
+  "emailuji.r.hasil.PENDING": { default: "Diserahkan ke server email, belum ada jawaban", en: "Handed to the email server, no answer yet" },
   "emailuji.r.hasil.SENT": { default: "Diterima server email", en: "Accepted by the email server" },
   "emailuji.r.hasil.BATAS_ALAMAT": { default: "Tidak dikirim: batas PINTAR untuk alamat ini", en: "Not sent: PINTAR's limit for this address" },
   "emailuji.r.hasil.BATAS_UMUM": { default: "Tidak dikirim: batas pengiriman PINTAR per jam", en: "Not sent: PINTAR's hourly sending limit" },
