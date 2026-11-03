@@ -18,7 +18,7 @@
 |---|---|---|
 | Code and test head | `b8ba042` | The last commit changing application code, migrations, tests, walks or workflows |
 | Evidence | `84e684f` | Walk, focused-check, full-suite and rollback evidence; no code |
-| Final PR head | *this report's commit* | Documents only; CI and journeys re-run on it (§4) |
+| Final PR head | the commit carrying this report | Documents only; CI and journeys re-run on it (§4) |
 | `main` | `31e456d` | Unchanged since Batch 4 (D-155) |
 
 ## 2. What changed (Batch 5 and the promotion gate)
@@ -83,8 +83,9 @@ All local runs used a fresh production build and a freshly reset database.
 
 | Run | Head | Verdict |
 |---|---|---|
-| `ci` 41640033654 (pull_request) | `b8ba042` | *see the PR / filled at the gate* |
-| End-to-end journeys 41640031926 | `b8ba042` | *see the PR / filled at the gate* |
+| `ci` 41640033654 (pull_request) | `b8ba042` | **success** (16 jobs, including the required `verdict`) |
+| End-to-end journeys 41640031926 | `b8ba042` | **success**. Job A: every role's screens, Studio W6.5, Batch 4 administration, **Batch 5 walk**, **Batch 5 focused checks**. Job B: Gladys's path from an empty database |
+| `ci` and journeys on the final head | final head (docs and evidence only after `b8ba042`) | re-run; IDs and verdicts in the PR |
 
 **Earlier runs:**
 - Green on `83f3bcc`: `ci` 41629701365 and journeys 41629705082.
