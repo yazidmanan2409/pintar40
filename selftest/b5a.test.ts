@@ -11,9 +11,9 @@
  *                   the names as the signed-in reader (no service key). Print: the shell's header, the footer, the
  *                   report's controls and the skip link carry `pin-noprint`, which print hides. Rendered: BarisLingkup
  *                   names school / class / year.
- *  B5A-PIMPINAN-K01 W3.9 (RV-9; X.5, J9.3) · the copy table: the class and school figures no longer share «Peserta» and
- *                   «Kenaikan»; each label says what it measures and where, apart in both languages, and no academic
- *                   metric label says «Peserta». Rendered: the report pages' absence sentence (omissionText) no longer
+ *  B5A-PIMPINAN-K01 W3.9 (RV-9; X.5, J9.3) · the copy table: RESTATED AT THE PROMOTION GATE, the class and school
+ *                   figures keep Terminology v1's approved words, «Peserta» (ruling 8) and «Kenaikan», in both languages;
+ *                   a new label is Dr Gladys's to give (W4.2). Rendered: the report pages' absence sentence (omissionText) no longer
  *                   carries «(0/5)»; kalimatJumlah says «Sekarang 0 murid; perlu 5.» and the report pages draw it. The
  *                   source: Pimpinan and its branch page stack their figures and absence cards with the layout gap
  *                   (.pin-bukti-tumpuk, a space token), so no two cards touch.
@@ -127,22 +127,19 @@ export const b5aTests: SelfTest[] = [
     id: "B5A-PIMPINAN-K01",
     run: async (ctx) => {
       const c = new Checks();
-      const PASANG: Array<[HleEvent, HleEvent]> = [
-        ["metrik.peserta.label", "metrik.peserta_institusi.label"],
-        ["metrik.kenaikan.label", "metrik.kenaikan_institusi.label"],
+      // RESTATED AT THE BATCH 5 PROMOTION GATE (owner, 3 Nov: «preserve Dr Gladys's approved terminology wherever
+      // applicable; do not silently replace «Peserta» with unapproved terms»). Terminology v1 (frozen, D-068) ruling 8:
+      // «Peserta» (metric) is kept, «participants in the measurement, not all murid». The four labels are the approved
+      // words, in both languages; any change to them is Dr Gladys's, in writing (W4.2), not this batch's.
+      const DISETUJUI: Array<[HleEvent, string, string]> = [
+        ["metrik.peserta.label", "Peserta", "Students"],
+        ["metrik.peserta_institusi.label", "Peserta", "Students"],
+        ["metrik.kenaikan.label", "Kenaikan", "Gain"],
+        ["metrik.kenaikan_institusi.label", "Kenaikan", "Gain"],
       ];
-      for (const locale of ["id", "en"] as const) {
-        for (const [k, i] of PASANG) {
-          const a = t(k, "staff", { locale });
-          const b = t(i, "staff", { locale });
-          c.expect(a !== b, `(${locale}) the class and the school figure are both labelled «${a}»`);
-          c.expect(a.split(/\s+/).length >= 3 && b.split(/\s+/).length >= 3, `(${locale}) «${a}» / «${b}» do not say what they measure and where`);
-        }
-        const metrik = allKeys().filter((k) => /^metrik\.[a-z_]+\.label$/.test(k));
-        const peserta = metrik.filter((k) => /\bPeserta\b/i.test(t(k, "staff", { locale: "id" })));
-        c.expect(metrik.length > 10 && peserta.length === 0, `academic metric labels still say «Peserta»: ${peserta.join(", ")}`);
-        const label = metrik.map((k) => t(k, "staff", { locale }));
-        c.expect(new Set(label).size === label.length, `(${locale}) two metrics share a label`);
+      for (const [k, id, en] of DISETUJUI) {
+        c.expect(t(k, "staff", { locale: "id" }) === id && t(k, "staff", { locale: "en" }) === en,
+          `${k} reads «${t(k, "staff", { locale: "id" })}» / «${t(k, "staff", { locale: "en" })}», not the approved «${id}» / «${en}»`);
       }
       // rendered: the report pages' absence sentence, and the count sentence beside it
       const r = render(ctx.repoRoot,
@@ -175,8 +172,8 @@ export const b5aTests: SelfTest[] = [
         c.expect(i > 0 && /<div className="pin-bukti-tumpuk">\s*\{angka\.length > 0 \? \(\s*<div className="pin-grid2">/.test(sek)
           && /<\/div>\s*\) : null\}\s*\{absen\.map\(\(e, i\) => \(\s*<KartuKetiadaan/.test(sek), `${f}: the figures and the absence cards touch`);
       }
-      return c.verdict("the class and school figures are labelled apart and say what they measure and where, in both languages (no academic " +
-        "metric label says «Peserta»; no two metrics share a label); rendered, the report pages' absence sentence carries no «(0/5)» and " +
+      return c.verdict("the class and school figures keep Terminology v1's approved words, «Peserta» (ruling 8) and «Kenaikan», in both " +
+        "languages; rendered, the report pages' absence sentence carries no «(0/5)» and " +
         "kalimatJumlah says «Sekarang 0 murid; perlu 5.» / «0 students so far; 10 needed.», which both report pages draw; Pimpinan and its " +
         "branch page stack their figures and absence cards in .pin-bukti-tumpuk (grid gap, a space token)");
     },

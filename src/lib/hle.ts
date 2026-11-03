@@ -2508,11 +2508,11 @@ const table: Table = {
   // reader sees passes through here, including the sentences that explain an
   // omission: a status like `not_permitted` or `below_minimum` is an internal
   // word and never reaches a screen.
-  "metrik.peserta.label": { default: "Murid yang dinilai di kelas ini", en: "Students assessed in this class" },
+  "metrik.peserta.label": { default: "Peserta", en: "Students" },
   "metrik.peserta.arti": { default: "Banyaknya murid yang mengerjakan asesmen di kelas ini.", en: "How many students took the assessment in this class." },
   "metrik.pemahaman.label": { default: "Pemahaman", en: "Comprehension" },
   "metrik.pemahaman.arti": { default: "Rata-rata penguasaan kelas pada Uji Penguasaan.", en: "The class's average mastery on the Mastery Check." },
-  "metrik.kenaikan.label": { default: "Rata-rata kenaikan penguasaan di kelas ini", en: "Average mastery gain in this class" },
+  "metrik.kenaikan.label": { default: "Kenaikan", en: "Gain" },
   "metrik.kenaikan.arti": { default: "Selisih penguasaan sebelum dan sesudah pembelajaran, per murid.", en: "The difference in mastery before and after the lessons, per student." },
   // D-095: PINTAR's fixed performance bands, an independent distribution, not the school's mastery threshold
   "metrik.kesiapan.label": { default: "Sebaran hasil Uji Penguasaan", en: "Spread of Mastery Check results" },
@@ -2525,9 +2525,9 @@ const table: Table = {
   // verdict-shaped word a learner must never be shown.
   "metrik.miskonsepsi.label": { default: "Pemahaman keliru yang berulang", en: "Recurring misunderstandings" },
   "metrik.miskonsepsi.arti": { default: "Pola jawaban keliru yang muncul pada banyak murid, dengan saran penanganannya.", en: "Patterns of mistaken answers shared by many students, with what to do about them." },
-  "metrik.peserta_institusi.label": { default: "Murid yang dinilai di sekolah ini", en: "Students assessed in this school" },
+  "metrik.peserta_institusi.label": { default: "Peserta", en: "Students" },
   "metrik.peserta_institusi.arti": { default: "Banyaknya murid yang mengerjakan asesmen di sekolah ini.", en: "How many students took the assessment in this school." },
-  "metrik.kenaikan_institusi.label": { default: "Rata-rata kenaikan penguasaan di sekolah ini", en: "Average mastery gain in this school" },
+  "metrik.kenaikan_institusi.label": { default: "Kenaikan", en: "Gain" },
   "metrik.kenaikan_institusi.arti": { default: "Rata-rata kenaikan penguasaan murid di sekolah ini.", en: "The average gain in mastery across this school's students." },
   "metrik.gerbang_keselamatan.label": { default: "Soal wajib", en: "Required items" },
   "metrik.gerbang_keselamatan.arti": { default: "Bagian murid yang menjawab benar seluruh soal wajib.", en: "The share of students who answered every required item correctly." },
@@ -5627,7 +5627,7 @@ const table: Table = {
   "mengajar.bukti.murid": { default: "murid", en: "learners" },
   "mengajar.bukti.poin": { default: "poin", en: "points" },
   // UX-41 (DAISY-29's words): the rows are learning objectives, each named by its statement; a «bagian» is the school's structure (D-006)
-  "mengajar.bukti.bagian": { default: "Penguasaan per tujuan pembelajaran", en: "Mastery by learning objective" },
+  "mengajar.bukti.bagian": { default: "Penguasaan per bagian", en: "Mastery by part" },
   "mengajar.bukti.keliru": { default: "Pemahaman keliru yang berulang di kelas ini", en: "Recurring misunderstandings in this class" },
   "mengajar.bukti.kali": { default: "kali", en: "times" },
   "mengajar.bukti.kosong": { default: "Belum ada asesmen yang berjalan atau selesai di kelas ini, jadi belum ada keadaan untuk dilaporkan.", en: "No assessment is open or finished in this class yet, so there is nothing to report on." },

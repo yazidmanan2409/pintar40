@@ -4037,7 +4037,7 @@
     {
       "id": "B5A-PIMPINAN-K01",
       "runner": "static",
-      "proves": "W3.9 (Batch 5; RV-9; X.5, J9.3), selftest/b5a.test.ts: the class and school figures are labelled apart and say what they measure and where in both languages, no academic metric label says «Peserta» and no two metrics share a label (src/lib/hle.ts); rendered, the report pages' absence sentence (src/app/_intel.ts omissionText) carries no «(0/5)» and kalimatJumlah (src/components/bukti/KartuKetiadaan.tsx) says «Sekarang 0 murid; perlu 5.», drawn by both report pages; /pimpinan and /pimpinan/[simpul] stack their figures and absence cards in .pin-bukti-tumpuk (grid gap, a space token)."
+      "proves": "W3.9 (Batch 5; RV-9; X.5, J9.3), selftest/b5a.test.ts: RESTATED AT THE PROMOTION GATE (owner, 3 Nov): the class and school figures keep Terminology v1's approved words, «Peserta» (ruling 8) and «Kenaikan», in both languages, in the copy table (src/lib/hle.ts); rendered, the report pages' absence sentence (src/app/_intel.ts omissionText) carries no «(0/5)» and kalimatJumlah (src/components/bukti/KartuKetiadaan.tsx) says «Sekarang 0 murid; perlu 5.», drawn by both report pages; /pimpinan and /pimpinan/[simpul] stack their figures and absence cards in .pin-bukti-tumpuk (grid gap, a space token)."
     },
     {
       "id": "B5A-TAKLIMAT-K01",
@@ -4154,7 +4154,7 @@
     {
       "id": "B5C-BUKTI-K01",
       "runner": "static",
-      "proves": "UX-41 (Batch 5), selftest/b5c.test.ts, from the copy table, the source of «Lihat bukti» (src/app/mengajar/[kelas]/bukti/page.tsx) and the migration of class.topic_mastery: the page heads its per-objective rows «Penguasaan per tujuan pembelajaran» / «Mastery by learning objective» (DAISY-29's words) and each row is the evaluator's objective named by its statement (class.topic_mastery, MC-4)."
+      "proves": "UX-41 (Batch 5), RESTATED AT THE PROMOTION GATE (owner, 3 Nov: preserve approved terminology), selftest/b5c.test.ts: the copy table keeps «Lihat bukti»'s heading as Terminology v1's «Penguasaan per bagian» / «Mastery by part» (new words await Dr Gladys); the source of src/app/mengajar/[kelas]/bukti/page.tsx names each row by its objective (BarisKesiapan label = competency), and the migration text of class.topic_mastery names each by its objective's statement."
     },
     {
       "id": "B5C-TOLAK-K01",

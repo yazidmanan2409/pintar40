@@ -19,7 +19,7 @@ const e = (k: Parameters<typeof t>[0]) => t(k, "staff");
 export default async function EvaluationHubPage({
   searchParams,
 }: {
-  searchParams: Promise<{ galat?: string }>;
+  searchParams: Promise<{ galat?: string; keluar?: string }>;
 }) {
   const params = await searchParams;
   const [{ personas, refused }, state] = await Promise.all([evaluationHub(), evaluationState()]);
@@ -39,6 +39,10 @@ export default async function EvaluationHubPage({
       <h1 className="text-2xl font-semibold tracking-tight">{e("evaluasi.judul")}</h1>
       <p className="mt-3 text-ink-2">{e("evaluasi.intro")}</p>
 
+      {/* W3.13 (J6Peragaan): the result of «Keluar dari peragaan», back at the Hub as oneself */}
+      {params.keluar && !state ? (
+        <p className="pin-msg pin-msg-note mt-6" role="status" data-keluar-peragaan="">{e("evaluasi.keluar_selesai")}</p>
+      ) : null}
       {state ? (
         <p className="mt-6 rounded-[var(--radius-1)] border border-line-1 bg-surface-1 p-3 text-sm">
           {e("evaluasi.sebagai")}: <strong>{state.label}</strong>

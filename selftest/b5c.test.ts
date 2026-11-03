@@ -13,7 +13,8 @@
  *                 «Yang bisa Anda lakukan sekarang» and the home's class rows both read it, in the same words
  *                 (kataMenunggu); the home reads it batched (one read of the classes' material, one of the school's
  *                 releases); a «Sedang berjalan» row opens who has submitted that assessment.
- *  B5C-BUKTI-K01  UX-41: «Lihat bukti» heads the per-objective rows «Penguasaan per tujuan pembelajaran» (DAISY-29's
+ *  B5C-BUKTI-K01  UX-41 (RESTATED AT THE PROMOTION GATE: the heading keeps Terminology v1's «Penguasaan per bagian»; its
+ *                 new words await Dr Gladys) · «Lihat bukti» heads the per-objective rows (formerly «Penguasaan per tujuan pembelajaran», DAISY-29's
  *                 words) and names each row by the evaluator's objective statement, as the learner's result does.
  *  B5C-TOLAK-K01  UX-45: a refusal a Guru meets ends with the teacher's recovery line: tolak.arti has an educator telling
  *                 that sends nobody to a teacher, every refusal page under /mengajar speaks as an educator, and the Uji
@@ -146,10 +147,12 @@ export const b5cTests: SelfTest[] = [
     id: "B5C-BUKTI-K01",
     run: async (ctx) => {
       const c = new Checks();
-      c.expect(t("mengajar.bukti.bagian", "educator", { locale: "id" }) === "Penguasaan per tujuan pembelajaran"
-        && /learning objective/i.test(t("mengajar.bukti.bagian", "educator", { locale: "en" }))
-        && !/bagian/i.test(t("mengajar.bukti.bagian", "educator", { locale: "id" })),
-        "«Lihat bukti» still heads the rows «Penguasaan per bagian»");
+      // RESTATED AT THE BATCH 5 PROMOTION GATE (owner, 3 Nov: «preserve Dr Gladys's approved terminology … do not silently
+      // replace»): the heading keeps Terminology v1's «Penguasaan per bagian» (E23 was moved to the register, not changed);
+      // its new words are Dr Gladys's to give (UX-41 stays open for them). The rows stay named by their objective.
+      c.expect(t("mengajar.bukti.bagian", "educator", { locale: "id" }) === "Penguasaan per bagian"
+        && t("mengajar.bukti.bagian", "educator", { locale: "en" }) === "Mastery by part",
+        "«Lihat bukti»'s heading is not Terminology v1's «Penguasaan per bagian»");
       const hal = kode(baca(ctx.repoRoot, "src/app/mengajar/[kelas]/bukti/page.tsx"));
       c.expect(/<span className="pin-ml">\{s\("mengajar\.bukti\.bagian"\)\}<\/span>[\s\S]*?bagian\.map\(\(b\) => \(\s*<BarisKesiapan\s+key=\{b\.objective_id \?\? b\.code\}\s+label=\{b\.competency\}/.test(hal),
         "the rows are not named by the evaluator's objective");
@@ -157,8 +160,7 @@ export const b5cTests: SelfTest[] = [
       const calc = /create or replace function public\.calc_class_topic_mastery[\s\S]*?\nend;/.exec(mig)?.[0] ?? "";
       c.expect(/'competency', d\.statement/.test(calc) && /coalesce\(min\(lo\.statement\), min\(t\.code\)\) as statement/.test(calc),
         "class.topic_mastery does not name each row by its objective's statement");
-      return c.verdict("«Lihat bukti» heads its per-objective rows «Penguasaan per tujuan pembelajaran» / «Mastery by learning objective» "
-        + "(DAISY-29's words) and each row is the evaluator's objective, named by its statement (class.topic_mastery, MC-4)");
+      return c.verdict("«Lihat bukti» keeps Terminology v1's heading «Penguasaan per bagian» (new words await Dr Gladys) and each row is the evaluator's objective, named by its statement (class.topic_mastery, MC-4)");
     },
   },
   {

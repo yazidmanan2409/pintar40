@@ -315,7 +315,13 @@ export const b5bTests: SelfTest[] = [
       const judul = kode(baca(ctx.repoRoot, "src/lib/judul-halaman.ts"));
       c.expect(/evaluationState\(\)/.test(judul) && /judulDalamPeragaan\(judulDari\(rute, locale\), mode\)/.test(judul), "page titles do not ask whether the room is open");
       const aksi = kode(baca(ctx.repoRoot, "src/app/evaluasi/actions.ts"));
-      c.expect(/redirect\("\/masuk\?sesi=peragaan&lanjut=%2Fevaluasi"\)/.test(aksi), "leaving the room does not carry its result");
+      // RESTATED AT THE BATCH 5 PROMOTION GATE (owner, 3 Nov: «revert automatic session sign-out when leaving MODE
+      // PERAGAAN»): leaving puts the evaluator's own session back and returns them to the Hub, where the line is said;
+      // only without a session to put back does the sign-in screen carry it (the live proof is audit/b5-fokus.mjs F1, run in the journeys)
+      const hub = kode(baca(ctx.repoRoot, "src/app/evaluasi/page.tsx"));
+      c.expect(/const kembali = await exitPersona\(\);\s*redirect\(kembali \? "\/evaluasi\?keluar=1" : "\/masuk\?sesi=peragaan&lanjut=%2Fevaluasi"\)/.test(aksi)
+        && /params\.keluar && !state \? \([\s\S]{0,120}role="status"[^>]*>\{e\("evaluasi\.keluar_selesai"\)\}/.test(hub),
+        "leaving the room does not return to the Hub as oneself with its result");
       const masuk = kode(baca(ctx.repoRoot, "src/app/masuk/page.tsx"));
       c.expect(/sp\.sesi === "peragaan" \? <p className="pin-msg pin-msg-note" role="status"[^>]*>\{s\("evaluasi\.keluar_selesai"\)\}/.test(masuk),
         "nothing says «Anda sudah keluar dari peragaan.» after leaving");

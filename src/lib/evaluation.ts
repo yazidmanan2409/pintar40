@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { publicSupabaseUrl } from "@/lib/env";
+import { publicSupabaseAnonKey, publicSupabaseUrl } from "@/lib/env";
 import { supabaseServer } from "@/lib/supabase/server";
 
 /**
@@ -123,13 +123,89 @@ export const evaluationState = cache(async (): Promise<EvaluationState | null> =
 });
 
 /**
+ * THE EVALUATOR'S OWN SESSION IS SET ASIDE, NOT LOST (Batch 5 promotion gate, owner 3 Nov: «revert automatic session
+ * sign-out when leaving MODE PERAGAAN»; ADR-0020: «exit to the Hub, then assume»; re-authentication is required to
+ * ENTER evaluation mode, not to switch within it).
+ *
+ * The persona's session is written into the browser's one Supabase session cookie, so assuming a persona used to
+ * overwrite the evaluator's own session, and leaving signed them out. Now, at assume, the evaluator's own session
+ * cookies (the base name and any chunks, exactly as @supabase/ssr wrote them) are copied, unchanged, under
+ * `pintar-penilai.<name>` (httpOnly, never readable by script, never sent anywhere but back to this server) and the
+ * chunks removed, so the persona's cookie is the only session read while the persona is active. At exit the persona's
+ * session is ended server-side first (`exit_persona`, unchanged) and its cookie dropped, and only then are the
+ * evaluator's own cookies put back. At sign-out (/keluar) the evaluator's set-aside session is ended at Auth too and
+ * its cookies removed: «evaluator logout terminates both». Nothing here mints, renews or reads a persona's refresh
+ * material (there is none), and the evaluator's own session is the one they already held.
+ */
+const SIMPAN = "pintar-penilai.";
+const SIMPAN_UMUR = 60 * 60 * 12; // seconds: a demonstration's day; a later exit falls back to signing in
+
+function namaSesi(nama: string, dasar: string): boolean {
+  return nama === dasar || (nama.startsWith(`${dasar}.`) && /^\d+$/.test(nama.slice(dasar.length + 1)));
+}
+
+/** At assume: copy the evaluator's own session cookies aside and clear the chunks (the base is overwritten next). */
+export async function sisihkanSesiPenilai(): Promise<void> {
+  const jar = await cookies();
+  const dasar = sessionCookieName();
+  // a second assume without an exit between keeps the first set-aside session: never the persona's over it
+  if (jar.getAll().some((c) => c.name.startsWith(SIMPAN))) return;
+  for (const c of jar.getAll().filter((x) => namaSesi(x.name, dasar))) {
+    jar.set(`${SIMPAN}${c.name}`, c.value, {
+      httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: SIMPAN_UMUR,
+    });
+    if (c.name !== dasar) jar.delete(c.name);
+  }
+}
+
+/** Put the evaluator's own session back; true when there was one to put back. */
+async function kembalikanSesiPenilai(): Promise<boolean> {
+  const jar = await cookies();
+  const tersimpan = jar.getAll().filter((c) => c.name.startsWith(SIMPAN));
+  for (const c of tersimpan) {
+    jar.set(c.name.slice(SIMPAN.length), c.value, {
+      httpOnly: false, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 400,
+    });
+    jar.delete(c.name);
+  }
+  return tersimpan.some((c) => c.name === `${SIMPAN}${sessionCookieName()}`);
+}
+
+/**
+ * At sign-out: end the evaluator's set-aside session at Auth (this device's session only, as /keluar does for its
+ * own) and remove its cookies. The access token is read from the set-aside cookie and sent only to Auth's own logout.
+ */
+export async function akhiriSesiPenilai(): Promise<void> {
+  const jar = await cookies();
+  const dasar = sessionCookieName();
+  const bagian = jar.getAll().filter((c) => c.name.startsWith(SIMPAN));
+  if (bagian.length === 0) return;
+  const urut = (n: string) => (n === `${SIMPAN}${dasar}` ? -1 : Number(n.slice(`${SIMPAN}${dasar}.`.length)));
+  const nilai = bagian.filter((c) => namaSesi(c.name.slice(SIMPAN.length), dasar)).sort((a, b) => urut(a.name) - urut(b.name));
+  const utuh = nilai.find((c) => c.name === `${SIMPAN}${dasar}`)?.value ?? nilai.map((c) => c.value).join("");
+  try {
+    const json = utuh.startsWith("base64-") ? Buffer.from(utuh.slice(7), "base64").toString("utf8") : utuh;
+    const akses = (JSON.parse(json) as { access_token?: unknown }).access_token;
+    if (typeof akses === "string" && akses) {
+      await fetch(`${publicSupabaseUrl()}/auth/v1/logout?scope=local`, {
+        method: "POST", headers: { apikey: publicSupabaseAnonKey(), Authorization: `Bearer ${akses}` },
+        signal: AbortSignal.timeout(5000),
+      }).catch(() => null);
+    }
+  } catch { /* an unreadable set-aside session is simply removed */ }
+  for (const c of bagian) jar.delete(c.name);
+}
+
+/**
  * Leave a persona. The session is ended SERVER-SIDE first — a cookie clear
  * alone would leave a live pairing behind and a token still stamping audit
- * rows — and only then is the cookie dropped.
+ * rows — and only then is the cookie dropped. Then the evaluator's own session
+ * is put back (above): true when they are signed in again as themselves.
  */
-export async function exitPersona(): Promise<void> {
+export async function exitPersona(): Promise<boolean> {
   const supabase = await supabaseServer();
   await supabase.rpc("exit_persona");
   const jar = await cookies();
-  jar.delete(sessionCookieName());
+  for (const c of jar.getAll().filter((x) => namaSesi(x.name, sessionCookieName()))) jar.delete(c.name);
+  return kembalikanSesiPenilai();
 }
