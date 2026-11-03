@@ -45,24 +45,24 @@ Each item keeps its original finding ids for traceability: CR (closure register)
 
 | Id | Item | Source | Who | Batch | Status |
 |---|---|---|---|---|---|
-| W2.1 | **Correct a wrong email**: the screen (server and route exist; four choices confirmed D-122(1)) | CR-13, J2.21, ADM-08 | E | 4 | DONE — PROMOTION PENDING (Batch 4: «Koreksi data orang»; F24-O01, B4-ORANG-K01, walk B4-W3) |
-| W2.2 | **Correct a name**: screen over `correct_person_name` (platform admin per D-077(3); placement by D) | CR-14, J2.4 | E | 4 | DONE — PROMOTION PENDING (Batch 4; walk B4-W1) |
-| W2.3 | **Correct a username** without SQL (audited, platform admin), per F-8 | CR-15, J2.17 | E after Y | 4 | DONE — PROMOTION PENDING (Batch 4, per F-8; walk B4-W2) |
+| W2.1 | **Correct a wrong email**: the screen (server and route exist; four choices confirmed D-122(1)) | CR-13, J2.21, ADM-08 | E | 4 | VERIFIED ON STAGING — INTERNAL ACCEPTANCE PENDING (Batch 4; D-155, staging walk 41612169706;: «Koreksi data orang»; F24-O01, B4-ORANG-K01, walk B4-W3) |
+| W2.2 | **Correct a name**: screen over `correct_person_name` (platform admin per D-077(3); placement by D) | CR-14, J2.4 | E | 4 | VERIFIED ON STAGING — INTERNAL ACCEPTANCE PENDING (Batch 4; D-155, staging walk 41612169706;; walk B4-W1) |
+| W2.3 | **Correct a username** without SQL (audited, platform admin), per F-8 | CR-15, J2.17 | E after Y | 4 | VERIFIED ON STAGING — INTERNAL ACCEPTANCE PENDING (Batch 4; D-155, staging walk 41612169706;, per F-8; walk B4-W2) |
 | W2.4 | **Uji Cepat score**: class first, learners as a drill-down (D-120 Q8) | CR-27, J5.6 | E | 3 | NOT STARTED |
 | W2.5 | **Revoke a certificate** (school admin screen; reason; audit) | CR-05, J8.5 | E | 5 | NOT STARTED |
 | W2.6 | Briefings hidden as ruled: remove the promise in `mengajar.langkah.quiet` and the stale comments | CR-37, J7.5 | E | 5 | NOT STARTED |
 | W2.7 | Integrity review: the referrer sees the outcome; one decision per signal; a visible reviewed state | CR-77, CR-75, J7.6 | E | 5 | NOT STARTED |
-| W2.8 | **Profile photo** on the profile only (FileField; storage; not on the certificate) | CR-07, J8.8 | E | 4 | DONE — PROMOTION PENDING (Batch 4; B4-FOTO-K01, walk B4-W10) |
+| W2.8 | **Profile photo** on the profile only (FileField; storage; not on the certificate) | CR-07, J8.8 | E | 4 | VERIFIED ON STAGING — INTERNAL ACCEPTANCE PENDING (Batch 4; D-155, staging walk 41612169706;; B4-FOTO-K01, walk B4-W10) |
 | W2.9 | «Laporan saya» reachable from the account menu | CR-78, J10.1, X.1 | E | 4 | DONE (Batch 2: MenuAkun «Laporan saya»; verified in Batch 4) |
 | W2.10 | Platform admin lists paged | CR-49, R.5 | E | 4 | PARTIAL — INCOMPLETE (D-153): paged in Batch 4 (schools, problem reports, maintenance, card holders; F24-H01, B4-HAL-K01); the Aktivasi waiting-for-account list is NOT paged: incomplete W2.10 functionality, not an accepted deviation |
 | W2.12 | No «Mulai Pemetaan Awal» offer without one (RV-7); the seeded lesson's missing audio (RV-8) | RV-7, RV-8, J6.5 | E | 5 | NOT STARTED |
 | W2.13 | Teacher and admin UX: «nomor induk» (UX-09); Konfigurasi waiting counts (UX-33); per-class flags (UX-37); new result as next action (UX-40); «Penguasaan per bagian» heading (UX-41); educator recovery line (UX-45); certificate refusal label (UX-46) | UX register | E | 4–5 | PARTIAL (Batch 4: UX-33 done, B4-MENUNGGU-K01, walk B4-W8; UX-09 AWAITING DAISY; teacher items UX-37/40/41/45/46 not in Batch 4) |
 | W2.14 | «ditugaskan» residue in learner and Studio strings, under C2 (D-135(d)) | UX-19 | E | 7 | NOT STARTED |
-| W2.15 | Transfers: walk end to end; destination by name per F-10 | CR-41, OP-4, RV-18, J3.10 | E after Y | 4 | DONE — PROMOTION PENDING (Batch 4, per F-10; F24-P01/P02, B4-PINDAH-K01, walk B4-W6/W7) |
+| W2.15 | Transfers: walk end to end; destination by name per F-10 | CR-41, OP-4, RV-18, J3.10 | E after Y | 4 | VERIFIED ON STAGING — INTERNAL ACCEPTANCE PENDING (Batch 4; D-155, staging walk 41612169706;, per F-10; F24-P01/P02, B4-PINDAH-K01, walk B4-W6/W7) |
 | W2.16 | Educator-as-learner polish | CR-57, J9.8 | E | 5 | NOT STARTED |
 | W2.17 | Names and reads proven at 10× staging's enrolments | FD-4, R.5 | E | 8 | IN PROGRESS |
 | W2.18 | Teacher's view of one learner shows the objectives they struggle with | J5.13 | E | 5 | NOT STARTED |
-| W2.19 | Email operational truth: a list of stuck sends; «accepted» vs «handed off» | J1.9 | E | 4 | DONE — PROMOTION PENDING (Batch 4; F24-E01, walk B4-W9) |
+| W2.19 | Email operational truth: a list of stuck sends; «accepted» vs «handed off» | J1.9 | E | 4 | VERIFIED ON STAGING — INTERNAL ACCEPTANCE PENDING (Batch 4; D-155, staging walk 41612169706;; F24-E01, walk B4-W9) |
 | W2.20 | A production school-founding path (audited, versioned), per F-9 | J1.1 | E after Y | 9 | BLOCKED — OWNER DECISION |
 
 ## W3 · Daisy's design on every screen (X.12)
@@ -77,7 +77,7 @@ Status per screen: the design reconciliation found **J2, J5 and J6 not applied**
 | W3.4 | Table / Collection (search, filter, pagination) as a shared component | CR-88; J2 | E | 2 | NOT STARTED |
 | W3.5 | Account menu and the one Dialog (JQ2(a)); **J2 Kelas** roster as a Table | J2 | E | 2 (components) + 4 (screens) | DONE — PROMOTION PENDING (Batch 2 components; Batch 4 J2Kelas roster Table, B4-J2-K01) |
 | W3.6 | **Konfigurasi**: page split or index; sections on the Collection pattern; RV-24, RV-18, RV-15, RV-16 | design §2 | **D** then E | 4 | BLOCKED — EXTERNAL DEPENDENCY (Daisy: no Konfigurasi composition). Batch 4: RV-16 dates and RV-18 (W2.15) done |
-| W3.7 | Pendataan, Aktivasi: field widths, hints, label case | RV-22 | E | 4 | DONE — PROMOTION PENDING (Batch 4; B4-BIDANG-K01, walk B4-W0) |
+| W3.7 | Pendataan, Aktivasi: field widths, hints, label case | RV-22 | E | 4 | VERIFIED ON STAGING — INTERNAL ACCEPTANCE PENDING (Batch 4; D-155, staging walk 41612169706;; B4-BIDANG-K01, walk B4-W0) |
 | W3.8 | **Report pages** Ringkasan Kelas / Sekolah: shell, class, school, period, print | RV-11; J7.2–7.4; X.7 | **D** then E | 5 | BLOCKED — EXTERNAL DEPENDENCY (Daisy) |
 | W3.9 | Pimpinan: «(0/5)» explained; repeated labels («Peserta» in academic metrics vs J9.3); touching cards | RV-9 | E | 5 | NOT STARTED |
 | W3.10 | Learner (J4 residue): answer-count line, «Halo, …», accessible names; **the learner screens are 674–675 px wide in a 640 px window (1280 at 200 % zoom; Batch 0 baseline)**; the lesson's `<audio>` control has no visible focus indicator | J4; `batch-0/03` | E | 5 | NOT STARTED |
