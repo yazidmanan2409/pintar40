@@ -162,6 +162,16 @@ jobs:
           APP_DIR: ${{ github.workspace }}/app
           OUT_DIR: ${{ github.workspace }}/audit-out/b5-ujung
         run: node b5-ujung.mjs
+      # Batch 6 (D-159; W3.22, Daisy's 08-migration §Print): each printable surface at A4 in a real browser: the staff
+      # and learner shells print no shell part; the class-card sheet prints only the set, two across, no card split.
+      - name: Walk the A4 print of each surface (Batch 6)
+        if: success() || failure()
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/b6-cetak
+        run: node b6-cetak.mjs
       # Batch 5 promotion gate (owner, 3 Nov): leaving MODE PERAGAAN returns the evaluator to the Hub as themselves and
       # signing out ends both sessions; the guided tour is non-modal and works by keyboard (Tab in and out, Enter
       # continues, «Kembali», Esc dismisses).

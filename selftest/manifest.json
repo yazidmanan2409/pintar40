@@ -4122,6 +4122,11 @@
       "proves": "D-160(d) (Batch 6), selftest/b6e.test.ts: no delivered state exists: the send log's outcome check in the migration source (supabase/migrations/20261026100000_pintar_sends_its_own_email.sql) holds SENT and no DELIVERED value, and no source under src/ names a delivered state as a literal."
     },
     {
+      "id": "B6P-K01",
+      "runner": "static",
+      "proves": "W3.22 (Batch 6; Daisy's 08-migration §Print), selftest/b6e.test.ts: the source of Konfigurasi (src/app/konfigurasi/page.tsx) gives its section menu, the page's own navigation, pin-noprint so it never reaches the paper, and CI's journeys workflow (.github/workflows/audit-journeys.yml) runs the rendered A4 print walk (audit/b6-cetak.mjs: the staff and learner shells print no shell part; the class-card sheet prints only the set, two across, no card split)."
+    },
+    {
       "id": "B5-CABUT-K01",
       "runner": "static",
       "proves": "W2.5 (Batch 5; CR-05, ADM-18, J8.5), selftest/b5.test.ts: the source of «Sertifikat sekolah» (src/app/konfigurasi/sertifikat/page.tsx) lists the database's own read sertifikat_sekolah as Daisy's Collection, offers «Cabut» on an issued certificate only and reads the chosen one again by id; the revocation (src/components/sertifikat/FormCabut.tsx) is Daisy's form page with the destructive in-page Confirmation (components/Confirmation, GQ5: never the Dialog): a required reason, «Lanjutkan» that commits nothing, the solid red act naming the certificate, focus on «Batal», what happens and what stays safe; the action (src/app/konfigurasi/sertifikat/actions.ts) checks the certificate's school against the working context and then asks revoke_certificate with the caller's own client; every refusal code and state has words in both languages in the copy table (src/lib/hle.ts); Konfigurasi links the page and it has its title."

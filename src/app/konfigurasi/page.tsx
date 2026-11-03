@@ -568,7 +568,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
       </section>
 
       <div className="mt-6 grid gap-4 md:grid-cols-[220px_1fr]">
-        <nav className={`${card} self-start p-2`}>
+        {/* W3.22 (Daisy 08-migration §Print): the section menu is the page's navigation and never reaches the paper */}
+        <nav className={`${card} self-start p-2 pin-noprint`} data-menu-bagian="">
           {nav.map(([key, title]) => (
             <a key={key} href={`#${key}`} className="block rounded-[var(--radius-1)] px-3 py-2 text-sm hover:bg-surface-2">{title}</a>
           ))}

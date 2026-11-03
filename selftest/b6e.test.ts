@@ -9,6 +9,8 @@
  *   B6E-K02  the screens that report a send to its owner (the activation welcome, Akun saya's «kirim kartu», the
  *            Email uji result) say the email was handed to the email server and that PINTAR cannot confirm it
  *            arrives — never «sudah dikirim ke email Anda» / «terkirim ke» (rendered copy table, both languages).
+ *   B6P-K01  W3.22 (Daisy 08-migration §Print): Konfigurasi's section menu, the page's own navigation, carries
+ *            pin-noprint, and the rendered print walk (audit/b6-cetak.mjs) is a step of CI's journeys (job A).
  *   B6E-K03  no «delivered» state exists anywhere: the send log's outcome check holds no DELIVERED value (migration
  *            source), and no source under src/ names one.
  */
@@ -98,6 +100,18 @@ export const b6eTests: SelfTest[] = [
       const bocor = semuaFile(join(ROOT, "src")).filter((f) => /["'`](DELIVERED|TERKIRIM_SAMPAI|SAMPAI)["'`]/.test(kode(readFileSync(f, "utf8"))));
       c.expect(bocor.length === 0, `a source names a delivered state: ${bocor.join(", ")}`);
       return c.verdict("the send log holds no delivered outcome and no source names one");
+    },
+  },
+  {
+    id: "B6P-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const src = kode(readFileSync(join(ctx.repoRoot, "src/app/konfigurasi/page.tsx"), "utf8"));
+      c.expect(/<nav className=\{`\$\{card\} self-start p-2 pin-noprint`\} data-menu-bagian="">/.test(src),
+        "Konfigurasi's section menu does not carry pin-noprint (it prints)");
+      const wf = readFileSync(join(ctx.repoRoot, ".github/workflows/audit-journeys.yml"), "utf8");
+      c.expect(/run: node b6-cetak\.mjs/.test(wf), "the print walk (audit/b6-cetak.mjs) is not a step of CI's journeys");
+      return c.verdict("the section menu is noprint and the A4 print walk runs in CI");
     },
   },
 ];
