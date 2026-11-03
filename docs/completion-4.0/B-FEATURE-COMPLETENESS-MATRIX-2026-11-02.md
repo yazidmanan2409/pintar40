@@ -126,7 +126,7 @@
 | J5.10 | Assistive «what next» | A | VERIFIED | BOB40-K01; S26d | — |
 | J5.11 | HOD assigns and runs Uji Cepat in the Bagian | A | VERIFIED | S27h | — |
 | J5.12 | Learners below target; reassign reading | A | VERIFIED | M3R-S01; S22b | — |
-| J5.13 | Teacher's view of one learner incl. objectives struggled with | B (is «Hasil resmi» the M4 record) | IMPL | `murid/[orang]`; M4-K01; S22; B5C-MURID-K01, F25-T01/T02, walk B5-W5 | Batch 5 (D-156): the objectives not yet reached, by statement (W2.18); on the branch, promotion pending |
+| J5.13 | Teacher's view of one learner incl. objectives struggled with | B (is «Hasil resmi» the M4 record) | IMPL | `murid/[orang]`; M4-K01; S22; B5C-MURID-K01, F25-T01/T02, walk B5-W5 | Batch 5 (D-156): the objectives not yet reached, by statement (W2.18); on staging (D-158) |
 | J5.14 | Question-level results after close | A | VERIFIED | D088K-S01, C12-D01; S22, S26e | — |
 
 ## J6 · Learning
