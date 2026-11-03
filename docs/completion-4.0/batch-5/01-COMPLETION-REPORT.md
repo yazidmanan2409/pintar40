@@ -3,7 +3,7 @@
 **Authority:** owner, 3 Nov: «PINTAR 4.0 — BATCH 4 ENGINEERING ACCEPTED / BATCH 5 DEVELOPMENT GO» (D-156).
 
 **Where the work is:**
-- Development branch `claude/awesome-rubin-bqxp6p`. The code head is `24c3928`; this report and the register changes follow it.
+- Development branch `claude/awesome-rubin-bqxp6p`. The code head is `83f3bcc` (CI and the journeys green on it, §6); this report and the register changes follow it, documents only.
 - Nothing is merged to `main`. Nothing is deployed to staging. Production is untouched. Dr Gladys's demonstration records are untouched. The staging freeze holds (D-155).
 
 **Verdict: IMPLEMENTED AND VERIFIED ON THE BRANCH. Stopped at the promotion gate.**
@@ -96,10 +96,14 @@ All pass on the clean run.
 
 | Run | Head | Result |
 |---|---|---|
-| `ci` 41625730169 | `24c3928` | §6 |
-| End-to-end journeys 41625734838 | `24c3928` | §6 |
+| `ci` 41629701365 | `83f3bcc` | **success**, including the required `verdict` |
+| End-to-end journeys 41629705082 | `83f3bcc` | **success** (job A, every role's screens, the Studio walk and the Batch 4 admin walk; job B, Gladys's path from an empty database, including S23i, S23r and C-12) |
 
-The runs on `1f18a0b` were cancelled when the integrity fix superseded them (D-119).
+**Superseded runs:**
+- The runs on `1f18a0b` were cancelled when the integrity fix superseded them (D-119).
+- On `24c3928`, `ci` 41625730169 was green. The journeys (41625734838) failed job B at C12a and S23t.
+- Both failures were the journey scripts still reading Batch 5's old words: an h1 «Ringkasan Kelas», now the eyebrow over the class's name, and «Kenaikan», now «Rata-rata kenaikan penguasaan di kelas ini».
+- `83f3bcc` updates the CI journey, `audit/c12.mjs` and the staging report walk (`audit/staging/golden-school-laporan.mjs`) to the new words, and the UX-41 heading likewise. No application code changed.
 
 ### 2.3 Browser walk
 
@@ -164,7 +168,7 @@ Screen evidence from the parallel streams is in `evidence/B5A/` (reports at 1280
 
 ## 6. CI on the code head
 
-*(Filled in when runs 41625730169 and 41625734838 finish.)*
+**Green on `83f3bcc`:** `ci` 41629701365 and end-to-end journeys 41629705082 (§2.2). The commits after it change documents only.
 
 ## STOP
 
