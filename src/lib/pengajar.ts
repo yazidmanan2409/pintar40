@@ -302,6 +302,24 @@ export async function terbitan(institusi: string, kelas?: string): Promise<Terbi
   const { data: dist } = await c.rpc("distributed_releases");
   const semua = [...out, ...pintarDariDistribusi(rows<Distribusi>(dist), institusi)];
   if (!kelas || semua.length === 0) return semua;
+  return cocokKelas(kelas, semua);
+}
+
+/**
+ * UX-37: the releases each of several classes may be given, from ONE read of the school's releases and one
+ * releases_matching_place per class (the database decides each fit, as `terbitan(institusi, kelas)` asks it).
+ */
+export async function terbitanKelas(institusi: string, kelasIds: readonly string[]): Promise<Map<string, Terbitan[]>> {
+  const out = new Map<string, Terbitan[]>();
+  if (kelasIds.length === 0) return out;
+  const semua = await terbitan(institusi);
+  await Promise.all(kelasIds.map(async (k) => { out.set(k, semua.length === 0 ? [] : await cocokKelas(k, semua)); }));
+  return out;
+}
+
+/** BOB-43: of these releases, the ones this class may be given, as the database answers. */
+async function cocokKelas(kelas: string, semua: Terbitan[]): Promise<Terbitan[]> {
+  const c = await db();
   const { data: cocok, error } = await c.rpc("releases_matching_place", { p_node: kelas, p_releases: semua.map((t) => t.id) });
   // unread is none offered: assign_release would refuse a mismatch anyway, and offering it would be the lie
   if (error) return [];
@@ -398,18 +416,33 @@ export function pintarDariDistribusi(dist: readonly Distribusi[], institusi: str
 
 /** What has already been made available to one class. */
 export async function penugasan(nodeId: string): Promise<Penugasan[]> {
+  return (await penugasanKelas([nodeId])).get(nodeId) ?? [];
+}
+
+/** UX-37: what has already been made available to each of several classes, in one read. */
+export async function penugasanKelas(nodeIds: readonly string[]): Promise<Map<string, Penugasan[]>> {
+  const out = new Map<string, Penugasan[]>(nodeIds.map((k) => [k, []]));
+  if (nodeIds.length === 0) return out;
   const c = await db();
   const { data } = await c
     .from("learning_assignments")
-    .select("id, course_id, plp_release_id, status, available_from, available_until, course:courses(title)")
-    .eq("node_id", nodeId);
+    .select("id, node_id, course_id, plp_release_id, status, available_from, available_until, course:courses(title)")
+    .in("node_id", [...nodeIds]);
 
   type Baris = {
-    id: string; course_id: string; plp_release_id: string; status: string;
+    id: string; node_id: string; course_id: string; plp_release_id: string; status: string;
     available_from: string | null; available_until: string | null;
     course: { title: string } | null;
   };
-  return rows<Baris>(data).map((r) => ({
+  for (const r of rows<Baris>(data)) out.get(r.node_id)?.push(penugasanDari(r));
+  return out;
+}
+
+function penugasanDari(r: {
+  id: string; course_id: string; plp_release_id: string; status: string;
+  available_from: string | null; available_until: string | null; course: { title: string } | null;
+}): Penugasan {
+  return {
     id: r.id,
     courseId: r.course_id,
     releaseId: r.plp_release_id,
@@ -419,7 +452,7 @@ export async function penugasan(nodeId: string): Promise<Penugasan[]> {
     sampai: r.available_until,
     berakhir: Boolean(r.available_until && Date.parse(r.available_until) <= Date.now()),
     belumMulai: Boolean(r.available_from && Date.parse(r.available_from) > Date.now()),
-  }));
+  };
 }
 
 /**
@@ -699,6 +732,53 @@ export async function berjalan(
 }
 
 /**
+ * UX-37: WHAT WAITS ON THE TEACHER IN ONE CLASS — the acts of «Yang bisa Anda lakukan sekarang» (/langkah) that the
+ * class's state puts there, and only those: an open assessment some of the class has not submitted yet (f1, the
+ * first such), and published material the class may be given but does not have (f4, the newest). The Uji Cepat,
+ * «Lihat bukti» and «Susun materi sendiri» are always on /langkah and wait on nobody, so they are not here. Pure, so
+ * /langkah and the home read the same answer from the same rows and a test drives it without a database.
+ */
+export type Menunggu =
+  | { key: "f1"; belum: number; href: string }
+  | { key: "f4"; href: string };
+
+export function menungguKelas(
+  kelasId: string,
+  buka: ReadonlyArray<Pick<Berjalan, "id" | "nodeId" | "mengumpulkan">>,
+  murid: number,
+  punya: ReadonlySet<string>,
+  terbit: ReadonlyArray<Pick<Terbitan, "id">>,
+): Menunggu[] {
+  const out: Menunggu[] = [];
+  const tertunda = buka.find((b) => b.nodeId === kelasId && b.mengumpulkan < murid) ?? null;
+  if (tertunda) {
+    out.push({ key: "f1", belum: Math.max(0, murid - tertunda.mengumpulkan), href: `/mengajar/${kelasId}/siapa?penugasan=${tertunda.id}` });
+  }
+  const calon = terbit.filter((r) => !punya.has(r.id));
+  if (calon.length > 0) out.push({ key: "f4", href: `/mengajar/${kelasId}/siapkan?terbitan=${calon[0].id}` });
+  return out;
+}
+
+/**
+ * UX-37: what waits in each class of the teaching context, for the home. Batched: the open assessments and the
+ * headcounts the home has already read are passed in; the classes' material is ONE read, the school's releases one
+ * read, and the database's fit of a release to a class one call per class (BOB-43, as /langkah asks it).
+ */
+export async function menungguBeranda(
+  kelas: readonly KelasMengajar[],
+  buka: ReadonlyArray<Pick<Berjalan, "id" | "nodeId" | "mengumpulkan">>,
+  murid: Readonly<Record<string, { murid: number } | undefined>>,
+): Promise<Record<string, Menunggu[]>> {
+  if (kelas.length === 0) return {};
+  const ids = kelas.map((k) => k.id);
+  const [tugas, terbit] = await Promise.all([penugasanKelas(ids), terbitanKelas(kelas[0].institusi, ids)]);
+  return Object.fromEntries(kelas.map((k) => [k.id, menungguKelas(
+    k.id, buka, murid[k.id]?.murid ?? 0,
+    new Set((tugas.get(k.id) ?? []).map((x) => x.releaseId)), terbit.get(k.id) ?? [],
+  )]));
+}
+
+/**
  * EDU-J23, EDU-J24: WHO, IN THREE LISTS. The same three states «Lihat bukti»
  * counts (W8, hitungKeadaan): submitted; started and not submitted (a session
  * of any other state, so also one that ran out or was ended); not started (no
@@ -818,6 +898,25 @@ export function susunCatatan(
       batas: batasSesi.get(String(v.session_id ?? "")) ?? null,
     })),
   };
+}
+
+/**
+ * W2.18 (J5.13): THE OBJECTIVES THIS LEARNER HAS NOT YET REACHED, IN WORDS. The database answers
+ * (tujuan_belum_tercapai, 20261225100000): the objectives, by their statement, that the learner's latest official Uji
+ * Penguasaan in this class recorded below the mark sealed on that attempt -- the class's «Penguasaan per tujuan
+ * pembelajaran» reading narrowed to one learner, judged by the learner's own result's rule. It returns no figure (a
+ * number reaches a staff screen only through the catalogue), no item and no answer, and nothing at all to a reader who
+ * does not teach this class or about a learner not in it. Unread is none listed.
+ */
+export type TujuanBelum = { id: string | null; pernyataan: string };
+
+export async function tujuanBelum(kelasId: string, orang: string): Promise<TujuanBelum[]> {
+  const c = await db();
+  const { data, error } = await c.rpc("tujuan_belum_tercapai", { p_class: kelasId, p_learner: orang });
+  if (error) return [];
+  return rows<{ objective_id: string | null; statement: string }>(data)
+    .filter((r) => typeof r.statement === "string" && r.statement.trim() !== "")
+    .map((r) => ({ id: r.objective_id, pernyataan: r.statement }));
 }
 
 // ═══════════════════════════════════════════════════ 5. the quick assessment

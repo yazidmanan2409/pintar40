@@ -80,6 +80,8 @@ export default async function UlangKelas({
           <BarisHasil nada="gagal">
             {s(`mengajar.ulang.tolak.${kode.toLowerCase()}` as HleEvent)}
             {kode === "REVIEW_FAILED" && ref ? ` ${s("galat.rujukan")}: ${ref}.` : ""}
+            {/* UX-45: a refusal ends with the teacher's recovery line, as every refusal a teacher meets does */}
+            {kode === "REVIEW_NOT_ALLOWED" ? ` ${s("tolak.arti")}` : ""}
           </BarisHasil>
         ) : null}
 

@@ -12,6 +12,7 @@ import { PARAM_BANTUAN } from "@/components/tur/TombolBantuan";
 import { bolehTampilOtomatis, turPengajarBerlaku, TUR_PENGAJAR } from "@/lib/tur";
 import { keadaanTur, peranSaya } from "@/lib/tur-negara";
 import { kataAnggota } from "@/lib/mengajar";
+import { kataMenunggu } from "@/components/mengajar/menunggu";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/mengajar");
@@ -66,8 +67,12 @@ export default async function BerandaPengajar({
     ajar.berjalan(konteks.kelas.map((k) => k.id)),
   ]);
 
+  // UX-37: what waits in each class, as /langkah decides it (menungguKelas), batched over the classes; asked now,
+  // so it is read beside the line below rather than after it
+  const menungguDibaca = ajar.menungguBeranda(konteks.kelas, buka, ringkas);
   // W16: with no suggestion, a class that has no material at all while the school has published some
   const baru = satu ? null : await ajar.kelasTanpaMateri(konteks.kelas);
+  const menunggu = await menungguDibaca;
   const sekarang = ajar.waktu();
   const nama = new Map(konteks.kelas.map((k) => [k.id, k.nama]));
 
@@ -178,6 +183,7 @@ export default async function BerandaPengajar({
                       `${b.judul} · ${format.number(b.mengumpulkan, locale)}/${format.number(r?.murid ?? 0, locale)} ${s("mengajar.bukti.kumpul").toLowerCase()}`,
                   ),
                 ].filter(Boolean);
+                const tunggu = menunggu[k.id] ?? [];
                 return (
                   <Link key={k.id} className="pin-row" href={`/mengajar/${k.id}`}>
                     <span className="pin-title">{k.nama}</span>
@@ -186,6 +192,14 @@ export default async function BerandaPengajar({
                         <span key={i}>{m}</span>
                       ))}
                     </span>
+                    {/* UX-37: the class's waiting work, in /langkah's own words; the row opens the class */}
+                    {tunggu.length > 0 ? (
+                      <span className="pin-rowmeta" data-menunggu={k.id}>
+                        {tunggu.map((m) => (
+                          <span key={m.key}>{kataMenunggu(m, s, locale, kataAnggota("mengajar.bukti.murid", k.jenis)).judul}</span>
+                        ))}
+                      </span>
+                    ) : null}
                   </Link>
                 );
               })}
@@ -200,7 +214,8 @@ export default async function BerandaPengajar({
           ) : (
             <div className="pin-list">
               {buka.map((b) => (
-                <div key={b.id} className="pin-row">
+                // UX-37: a running assessment opens who has submitted it, as «Lihat bukti» and /langkah lead there
+                <Link key={b.id} className="pin-row" href={`/mengajar/${b.nodeId}/siapa?penugasan=${b.id}`}>
                   <span className="pin-title">
                     {b.judul} · {nama.get(b.nodeId) ?? ""}
                   </span>
@@ -213,7 +228,7 @@ export default async function BerandaPengajar({
                     </span>
                   </span>
                   <span className="pin-pill pin-neutral">{s("mengajar.status.berjalan")}</span>
-                </div>
+                </Link>
               ))}
             </div>
           )}

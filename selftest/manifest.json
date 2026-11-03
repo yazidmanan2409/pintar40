@@ -4090,6 +4090,38 @@
       "id": "F26-W01",
       "runner": "db",
       "proves": "W2.10 (Batch 5; D-153; M7 and CR-91 kept), selftest/db/fable26.sql, migration 20261224100000: persons_awaiting_account_page answers 20 then 3 of 23 waiting by name with the total, by part of a name and by nomor induk, «%» as a word, nothing narrowed to another school, a staff member with no card; kelas_menunggu_akun counts the Kelas and no Tingkat; orang_kelas_menunggu_akun names exactly the 23 waiting learners each once in name order, not one with an account, an ENDED enrolment, a Tingkat membership or a staff role; a Guru and another school's admin read none of it; anon cannot run them."
+    },
+    {
+      "id": "B5C-MURID-K01",
+      "runner": "static",
+      "proves": "W2.18 · J5.13 (Batch 5), selftest/b5c.test.ts, from the source, the migration and the copy table: the teacher's view of one learner (src/app/mengajar/[kelas]/murid/[orang]/page.tsx) lists, under «Tujuan pembelajaran yang belum tercapai», each objective the learner has not yet reached by its statement (the learner's result's rows, DAISY-29), with no figure and an empty state; pengajar.tujuanBelum asks only tujuan_belum_tercapai (supabase/migrations/20261225100000_a_teacher_sees_the_objectives_a_learner_has_not_yet_reached.sql), a SECURITY DEFINER function returning the objective and its statement only, which checks the reader's teaching role (learner.result's staff audience) over the class and the learner's placement in it, reads the class's own official Uji Penguasaan against the mark sealed on each attempt, and reads no item, response or key; the words say «belum», never failure (X.5), in both languages."
+    },
+    {
+      "id": "B5C-BERANDA-K01",
+      "runner": "static",
+      "proves": "UX-37 (Batch 5), selftest/b5c.test.ts, which executes src/lib/pengajar.ts menungguKelas and reads the source of the pages: decides what waits in a class (the first open assessment some have not submitted, with how many; the newest material it may be given and lacks; nothing else); src/app/mengajar/[kelas]/langkah/page.tsx and the home's class rows (src/app/mengajar/page.tsx) read it in the same words (src/components/mengajar/menunggu.ts); the home reads it batched (one read of the classes' material, one of the school's releases, the database's fit per class); a «Sedang berjalan» row opens /siapa for that assessment."
+    },
+    {
+      "id": "B5C-BUKTI-K01",
+      "runner": "static",
+      "proves": "UX-41 (Batch 5), selftest/b5c.test.ts, from the copy table, the source of «Lihat bukti» (src/app/mengajar/[kelas]/bukti/page.tsx) and the migration of class.topic_mastery: the page heads its per-objective rows «Penguasaan per tujuan pembelajaran» / «Mastery by learning objective» (DAISY-29's words) and each row is the evaluator's objective named by its statement (class.topic_mastery, MC-4)."
+    },
+    {
+      "id": "B5C-TOLAK-K01",
+      "runner": "static",
+      "proves": "UX-45 (Batch 5), selftest/b5c.test.ts, from the copy table, the source of every Mengajar page and the executed Uji Cepat sentence: tolak.arti has an educator telling that sends nobody to a teacher, in both languages; every HalamanPenolakan under src/app/mengajar speaks as an educator; the Uji Cepat's (src/components/mengajar/tolakUjiCepat.ts) and «Minta membaca lagi»'s not-allowed refusals end with that same line, and no Mengajar sentence keeps a recovery line of its own."
+    },
+    {
+      "id": "F25-T01",
+      "runner": "db",
+      "proves": "W2.18 · J5.13 (Batch 5), measured in selftest/db/fable25.sql against supabase/migrations/20261225100000_a_teacher_sees_the_objectives_a_learner_has_not_yet_reached.sql: tujuan_belum_tercapai gives the class's teacher the objective, by its statement, that the learner's latest official Uji Penguasaan in the class recorded below the sealed mark, and not the one at the mark; a later attempt at the mark takes both off; an attempt sat in another class is not read; the answer is the objective and its statement only.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F25-T02",
+      "runner": "db",
+      "proves": "W2.18 (Batch 5), measured in selftest/db/fable25.sql: tujuan_belum_tercapai gives a teacher of another class of the same school, a teacher of another school, a school admin with no teaching role, and the class's own teacher asking under another class an empty answer; an anonymous caller is refused.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     }
   ]
 }
