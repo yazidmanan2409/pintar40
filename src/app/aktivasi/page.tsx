@@ -5,11 +5,13 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { sekolahPendataan } from "@/lib/pendataan";
 import { konteksHalaman } from "@/lib/konteks-server";
 import { pilihanTempat, type SimpulPohon } from "@/lib/struktur-kontrak";
-import { bolehKartu, kelasUntukKartu, type KelasKartu } from "@/components/aktivasi/kelas";
+import { kelasDitawarkan, type KelasKartu } from "@/components/aktivasi/kelas";
+import Penomoran, { halamanDiminta } from "@/components/koleksi/Penomoran";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import FormAktivasi from "@/components/aktivasi/FormAktivasi";
+import CariTunggu from "@/components/aktivasi/CariTunggu";
 import { KeAktifkan } from "@/components/aktivasi/HasilAktivasi";
 import KartuUlang, { type PemegangKartu } from "@/components/aktivasi/KartuUlang";
 import KartuJadiEmail from "@/components/aktivasi/KartuJadiEmail";
@@ -35,19 +37,13 @@ export const dynamic = "force-dynamic";
  * BOB-28 (D-088(e)): below it, «Kartu hilang atau rusak»: a learner who has a
  * class card gets a new one (`card_holders()`, `/api/akun/kartu-kelas`).
  */
-export default async function Aktivasi({ searchParams }: { searchParams: Promise<{ cari_kartu?: string; cari_staf?: string; hal?: string }> }) {
+export default async function Aktivasi({ searchParams }: { searchParams: Promise<{ cari_kartu?: string; cari_staf?: string; hal?: string; cari_tunggu?: string; hal_tunggu?: string }> }) {
   const sp = await searchParams;
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const supabase = await supabaseServer();
 
-  const [{ data: menunggu, error }, { data: sistem }] = await Promise.all([
-    supabase.rpc("persons_awaiting_account"),
-    supabase.rpc("is_system_admin"),
-  ]);
-  const orangSemua = (Array.isArray(menunggu) ? menunggu : []) as Array<{
-    person_id: string; display_name: string; institutional_id: string; institution_id: string; boleh_kartu: boolean;
-  }>;
+  const { data: sistem } = await supabase.rpc("is_system_admin");
   const adminSistem = sistem === true;
   // L3 (CR-83; D-127 Q2; D-132 C7): Aktivasi is the working context's. Mengelola · a school: that school's people
   // waiting for an account and its card holders, whoever the reader is. «Seluruh platform»: every school's, and the
@@ -57,7 +53,19 @@ export default async function Aktivasi({ searchParams }: { searchParams: Promise
   const lama = kh === "TANPA_KONTEKS";
   const platformIni = lama ? adminSistem : kh?.platform === true && adminSistem;
   const sekolahIni = !lama && kh && !kh.platform ? kh.tempat : null;
-  const orang = lama || platformIni ? orangSemua : orangSemua.filter((o) => sekolahIni !== null && o.institution_id === sekolahIni);
+  // W2.10 (Batch 5; CR-49, D-153): the people waiting for an account, a page of 20 from the database
+  // (persons_awaiting_account_page), narrowed to the context's school there, searched by name or nomor induk; never
+  // every waiting person at once. A school context with no school reads none.
+  const lingkupTunggu = lama || platformIni ? null : sekolahIni ?? "00000000-0000-0000-0000-000000000000";
+  const cariTunggu = kataAman(sp.cari_tunggu);
+  const halTunggu = halamanDiminta(sp.hal_tunggu);
+  const { data: menunggu, error } = await supabase.rpc("persons_awaiting_account_page", {
+    p_sekolah: lingkupTunggu, p_cari: cariTunggu || null, p_hal: halTunggu,
+  });
+  const orang = (Array.isArray(menunggu) ? menunggu : []) as Array<{
+    person_id: string; display_name: string; institutional_id: string; institution_id: string; boleh_kartu: boolean; total: number;
+  }>;
+  const totalTunggu = orang[0] ? Number(orang[0].total) : 0;
   // BOB-28 (D-088(e)) and D-152(a): the class-card holders a card can be re-issued for, or converted. W2.10 (Batch 4;
   // CR-49, CAP-10): searched on the server, at most twenty for the words asked, never every holder at once; in a
   // school's context only that school's learners (cariPemegangKartu)
@@ -80,9 +88,9 @@ export default async function Aktivasi({ searchParams }: { searchParams: Promise
     );
   }
 
-  // M7 (D-085): the Kelas each of them is in, so a whole class's cards are one press
-  // CR-91 (D-145(a)): whole-class cards are for the learners in the class; a staff member in it activates with email
-  const kelas = await kelasMenunggu(supabase, orang.filter(bolehKartu));
+  // M7 (D-085): the Kelas with learners waiting for an account, so a whole class's cards are one press. W2.10: counted
+  // by the database (kelas_menunggu_akun; CR-91: learners who may hold a card only), the learners read at the run
+  const kelas = await kelasMenunggu(supabase, lingkupTunggu);
 
   return (
     <>
@@ -98,7 +106,10 @@ export default async function Aktivasi({ searchParams }: { searchParams: Promise
         <p className="pin-meta">
           <Link className="pin-tautan" href="/aktivasi/orang">{s("aktivasi.orang.tautan")}</Link> · {s("aktivasi.orang.arti")}
         </p>
-        <FormAktivasi locale={locale} orang={orang} adminSistem={platformIni} kelas={kelas} />
+        <FormAktivasi locale={locale} orang={orang} adminSistem={platformIni} kelas={kelas} dicari={cariTunggu}
+          pencarian={orang.length > 0 || cariTunggu ? <CariTunggu locale={locale} total={totalTunggu} dicari={cariTunggu} /> : null}
+          penomoran={<Penomoran locale={locale} halaman={halTunggu} lagi={halTunggu * 20 < totalTunggu}
+            ke={(n) => halamanTunggu(cariTunggu, n)} />} />
         <KartuUlang locale={locale} pemegang={pemegangUlang} ada={adaPemegang} dicari={cariKartu} />
         {/* D-152(a): a card learner who becomes staff gets an email account first, as the same person (CR-91) */}
         <KartuJadiEmail locale={locale} pemegang={pemegangStaf} ada={adaPemegang} dicari={cariStaf} />
@@ -109,32 +120,32 @@ export default async function Aktivasi({ searchParams }: { searchParams: Promise
 }
 
 /**
- * M7: WHICH CLASS EACH PERSON AWAITING AN ACCOUNT IS IN. The schools' places
- * as the intake labels them, then the current members of their classes, each
- * with its enrolment, all RLS-bounded reads (CAN_VIEW_LEARNER_ROSTER covers a
- * school admin's school). Asked by class, never by a list of every person, so
- * a large school does not become a long request. Nothing here grants anything:
- * each card is still decided per person by `/api/akun/aktivasi`.
+ * M7 with W2.10: THE KELAS WITH LEARNERS WAITING FOR AN ACCOUNT. The database counts them per Kelas
+ * (kelas_menunggu_akun: current members, an enrolment still PENDING or ACTIVE, no account, and no staff role, CR-91);
+ * the places are labelled as the intake labels them (pilihanTempat, RLS-bounded reads of those schools' structure).
+ * Nothing here grants anything: each card is still decided per person by `/api/akun/aktivasi`.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function kelasMenunggu(db: any, orang: Array<{ person_id: string; institution_id: string }>): Promise<KelasKartu[]> {
-  if (orang.length === 0) return [];
-  const sekolah = [...new Set(orang.map((o) => o.institution_id))];
+async function kelasMenunggu(db: any, sekolah: string | null): Promise<KelasKartu[]> {
+  const { data: hitung } = await db.rpc("kelas_menunggu_akun", { p_sekolah: sekolah });
+  const hitungan = ((Array.isArray(hitung) ? hitung : []) as Array<{ node_id: string; institution_id: string; jumlah: number }>)
+    .map((h) => ({ node_id: String(h.node_id), institution_id: String(h.institution_id), jumlah: Number(h.jumlah) }));
+  if (hitungan.length === 0) return [];
+  const sekolahKelas = [...new Set(hitungan.map((h) => h.institution_id))];
   const [simpul, periode] = await Promise.all([
     db.from("org_nodes").select("id, name, kind, parent_id, jalur, academic_period_id, is_active")
-      .in("institution_id", sekolah).order("name").limit(2000),
-    db.from("academic_periods").select("id, name").in("institution_id", sekolah),
+      .in("institution_id", sekolahKelas).order("name").limit(2000),
+    db.from("academic_periods").select("id, name").in("institution_id", sekolahKelas),
   ]);
   const tahun = new Map(((periode.data ?? []) as Array<{ id: string; name: string }>).map((p) => [String(p.id), String(p.name)]));
-  const tempat = pilihanTempat((simpul.data ?? []) as SimpulPohon[], tahun);
-  const kelasIds = tempat.filter((t) => t.level === "KELAS").map((t) => t.id);
-  if (kelasIds.length === 0) return [];
-  const { data: anggota } = await db.from("memberships")
-    .select("node_id, enrollment:enrollments(person_id, status)")
-    .in("node_id", kelasIds).is("valid_to", null);
-  // the enrolment's state goes with it: a person awaiting an account is PENDING (kelasUntukKartu decides)
-  const keanggotaan = ((anggota ?? []) as Array<{ node_id: string; enrollment: { person_id: string; status: string } | null }>)
-    .filter((m) => m.enrollment)
-    .map((m) => ({ person_id: String(m.enrollment!.person_id), node_id: String(m.node_id), status: String(m.enrollment!.status) }));
-  return kelasUntukKartu(orang, keanggotaan, tempat);
+  return kelasDitawarkan(hitungan, pilihanTempat((simpul.data ?? []) as SimpulPohon[], tahun));
+}
+
+/** W2.10: page n of the waiting list, keeping the words it was searched with (and nothing else). */
+function halamanTunggu(cari: string, n: number): string {
+  const q = new URLSearchParams();
+  if (cari) q.set("cari_tunggu", cari);
+  if (n > 1) q.set("hal_tunggu", String(n));
+  const x = q.toString();
+  return x ? `/aktivasi?${x}` : "/aktivasi";
 }

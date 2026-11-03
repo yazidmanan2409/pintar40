@@ -9,7 +9,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
  * twenty matches; nothing sends every card holder to the browser. The section keeps its own state (a chosen row, a
  * printed card) because only the search words change.
  */
-export function useCariDiAlamat(kunci: string): [string, (v: string) => void] {
+export function useCariDiAlamat(kunci: string, juga: readonly string[] = []): [string, (v: string) => void] {
   const router = useRouter();
   const jalan = usePathname();
   const sp = useSearchParams();
@@ -22,6 +22,8 @@ export function useCariDiAlamat(kunci: string): [string, (v: string) => void] {
     tunda.current = setTimeout(() => {
       const q = new URLSearchParams(sp.toString());
       if (v.trim()) q.set(kunci, v.trim()); else q.delete(kunci);
+      // W2.10: new words start a paged list from its first page (`juga`: the page parameters the search resets)
+      for (const x of juga) q.delete(x);
       const s = q.toString();
       router.replace(s ? `${jalan}?${s}` : jalan, { scroll: false });
     }, 250);

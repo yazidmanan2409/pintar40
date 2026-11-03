@@ -179,6 +179,8 @@ const AKSI_TERIKAT: Record<string, Record<string, string>> = {
   "src/app/pimpinan/[simpul]/umpan-balik/actions.ts": {},
   "src/app/mengajar/actions.ts": {},
   // W2.5 (Batch 5; CR-05): the revocation checks the certificate's school against the context before revoke_certificate
+  // W2.10 (Batch 5): the whole-class run's read of one class's waiting learners; the cards are /api/akun/aktivasi's
+  "src/app/aktivasi/actions.ts": { anggotaKelasMenungguAksi: "a read of one class's waiting learners for the whole-class run; it acts on nothing, each card is decided per person by /api/akun/aktivasi" },
   "src/app/konfigurasi/sertifikat/actions.ts": { kodeDariGalat: "maps a refusal already received to a code; it acts on nothing" },
 };
 /** Every other server-action file, and why it is not context-bound. */

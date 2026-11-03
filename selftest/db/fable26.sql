@@ -11,6 +11,12 @@
 --   F26-C02  THE REVOCATION ON THE SCREEN'S PATH (W2.5, CR-05, J8.5): the school admin revokes with a reason; the list
 --            then says REVOKED with when and why; the public check says DICABUT; certificate.revoked is on the record
 --            with the reason; without a reason, twice, or by another school's admin it is refused and nothing changes
+--   F26-W01  THE PEOPLE WAITING FOR AN ACCOUNT, A PAGE AT A TIME (W2.10, D-153; M7 and CR-91 kept): the paged list
+--            answers persons_awaiting_account's people a page of 20 by name with the total, narrowed to a school, searched
+--            by part of a name or nomor induk («%» is a word); kelas_menunggu_akun counts per Kelas the current members
+--            waiting who may hold a card (each once; not one with an account, an ENDED enrolment, a Tingkat membership or
+--            a staff role); orang_kelas_menunggu_akun names exactly them by name; a Guru and another school's admin read
+--            none of it; anon cannot run it
 --   F26-I01  EACH INTEGRITY OBSERVATION HAS ITS DECISION, AND ITS OUTCOME IS SEEN (W2.7; CR-75, CR-76, CR-77): a review
 --            recorded before W2.7 (no scope) still covers its sitting; a decision recorded now leaves only that
 --            observation decided; integrity_reviews_recorded shows each decided observation with its decision, note,
@@ -69,6 +75,7 @@ declare
   v_s1 uuid; v_cert uuid; v_elig uuid; v_inst uuid; v_no text; v_nama text; v_tok text; v_alpha uuid;
   v_n int; v_m int; v_k int; v_x text; v_status text; v_alasan text; v_at timestamptz; v_sekolah text;
   v_ia uuid; v_isess uuid; v_inode uuid; v_iroot uuid; v_idept uuid; v_ikadep text; v_imurid uuid; v_pemutus text;
+  v_wk uuid; v_wt uuid; v_wper uuid; v_wpend uuid[] := '{}'; v_wx uuid; v_wakun uuid; v_wakhir uuid; v_wstaf uuid; v_wtingkat uuid; v_we uuid;
   v_g1 uuid; v_g2 uuid; v_g3 uuid; v_g4 uuid; v_case uuid; v_rec record; v_tag text := to_char(clock_timestamp(), 'HH24MISSUS');
 begin
   begin
@@ -186,6 +193,101 @@ begin
       v_probs := selftest.f26_note(v_probs, 'F26-C02', 'threw: ' || sqlerrm);
     end;
 
+    -- ═════════════════════════════════════════════════════════ F26-W01
+    begin
+      select i.id into v_ia from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
+      select n.id, n.academic_period_id, n.parent_id into v_wk, v_wper, v_wt from public.org_nodes n
+       where n.institution_id = v_ia and n.kind = 'CLASS' and n.academic_period_id is not null order by n.created_at limit 1;
+      if v_wk is null or v_wt is null then raise exception 'fixture: no alpha Kelas under a Tingkat'; end if;
+      if (select x.namespace from public.institutions x where x.id = v_ia) is null then
+        update public.institutions set namespace = upper(substr(md5(v_tag), 1, 3)) where institutions.id = v_ia;
+      end if;
+      perform set_config('app.seed_intent', 'synthetic', true);
+      -- 23 learners waiting in the Kelas (PENDING), named so they sort: «F26 Tunggu 01 …» … «F26 Tunggu 23 …»
+      for v_n in 1..23 loop
+        insert into public.persons (display_name) values (format('F26 Tunggu %s %s', lpad(v_n::text, 2, '0'), v_tag)) returning persons.id into v_wx;
+        perform public.issue_institutional_id(v_wx, v_ia);
+        insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_wx, v_ia, v_wper, 'PENDING') returning enrollments.id into v_we;
+        insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_we, v_wk, v_wper);
+        v_wpend := v_wpend || v_wx;
+      end loop;
+      -- one who already has an account; one whose enrolment ENDED; one in a Tingkat only; one holding a staff role
+      -- (a learner of the school who already has an account, put in the Kelas too)
+      select a.person_id into v_wakun from public.accounts a join auth.users u on u.id = a.auth_user_id
+       where u.email = 'alpha-siswa-1@synthetic.pintar.test';
+      insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_wakun, v_ia, v_wper, 'ACTIVE') returning enrollments.id into v_we;
+      insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_we, v_wk, v_wper);
+      insert into public.persons (display_name) values ('F26 Keluar ' || v_tag) returning persons.id into v_wakhir;
+      perform public.issue_institutional_id(v_wakhir, v_ia);
+      insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_wakhir, v_ia, v_wper, 'PENDING') returning enrollments.id into v_we;
+      insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_we, v_wk, v_wper);
+      update public.enrollments set status = 'ACTIVE' where enrollments.id = v_we;
+      update public.enrollments set status = 'ENDED', end_reason = 'WITHDRAWN', valid_to = now() where enrollments.id = v_we;
+      insert into public.persons (display_name) values ('F26 Tingkat ' || v_tag) returning persons.id into v_wtingkat;
+      perform public.issue_institutional_id(v_wtingkat, v_ia);
+      insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_wtingkat, v_ia, v_wper, 'PENDING') returning enrollments.id into v_we;
+      insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_we, v_wt, v_wper);
+      insert into public.persons (display_name) values ('F26 Staf ' || v_tag) returning persons.id into v_wstaf;
+      perform public.issue_institutional_id(v_wstaf, v_ia);
+      insert into public.enrollments (person_id, institution_id, academic_period_id, status) values (v_wstaf, v_ia, v_wper, 'PENDING') returning enrollments.id into v_we;
+      insert into public.memberships (enrollment_id, node_id, academic_period_id) values (v_we, v_wk, v_wper);
+      insert into public.role_assignments (person_id, role, scope_node_id, valid_until) values (v_wstaf, 'EDUCATOR', v_wk, now() + interval '1 year');
+      perform set_config('app.seed_intent', '', true);
+      perform selftest.as_owner();
+
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      -- the paged list: by name, 20 then the rest, with the total
+      select count(*), max(total) into v_n, v_k from public.persons_awaiting_account_page(v_ia, 'F26 Tunggu', 1);
+      select count(*) into v_m from public.persons_awaiting_account_page(v_ia, 'F26 Tunggu', 2);
+      if v_n <> 20 or v_k <> 23 or v_m <> 3 then
+        v_probs := selftest.f26_note(v_probs, 'F26-W01', format('the list searched «F26 Tunggu» answers %s then %s (total %s); expected 20, 3, 23', v_n, v_m, v_k));
+      end if;
+      select string_agg(x.display_name, ',' order by x.display_name) into v_x from public.persons_awaiting_account_page(v_ia, 'F26 Tunggu 0', 1) x;
+      if v_x is distinct from (select string_agg(format('F26 Tunggu %s %s', lpad(g::text, 2, '0'), v_tag), ',' order by g) from generate_series(1, 9) g) then
+        v_probs := selftest.f26_note(v_probs, 'F26-W01', 'a search by part of the name is not the nine «F26 Tunggu 0…» in name order: ' || coalesce(v_x, 'none'));
+      end if;
+      select count(*) into v_n from public.persons_awaiting_account_page(v_ia,
+        (select ii.institutional_id from public.institutional_identities ii where ii.person_id = v_wpend[5] and ii.institution_id = v_ia), 1) x
+       where x.person_id = v_wpend[5];
+      if v_n <> 1 then v_probs := selftest.f26_note(v_probs, 'F26-W01', 'a search by nomor induk does not find the person'); end if;
+      select count(*) into v_n from public.persons_awaiting_account_page(v_ia, '%', 1);
+      if v_n <> 0 then v_probs := selftest.f26_note(v_probs, 'F26-W01', 'a search for «%» was read as a pattern'); end if;
+      select count(*) into v_n from public.persons_awaiting_account_page('00000000-0000-0000-0000-000000000000'::uuid, 'F26', 1);
+      if v_n <> 0 then v_probs := selftest.f26_note(v_probs, 'F26-W01', 'narrowed to another school, the list still answers alpha''s people'); end if;
+      select count(*) into v_n from public.persons_awaiting_account_page(v_ia, 'F26 Staf', 1) x where x.boleh_kartu is false;
+      if v_n <> 1 then v_probs := selftest.f26_note(v_probs, 'F26-W01', 'the staff member waiting is not listed with no card offered (CR-91)'); end if;
+      -- the class's count and its learners
+      select coalesce(sum(h.jumlah) filter (where h.node_id = v_wk), 0), count(*) filter (where h.node_id = v_wt)
+        into v_n, v_m from public.kelas_menunggu_akun(v_ia) h;
+      select count(*) into v_k from public.orang_kelas_menunggu_akun(v_wk) o where o.display_name like 'F26 %' || v_tag;
+      select string_agg(o.person_id::text, ',' order by o.display_name) into v_x
+        from public.orang_kelas_menunggu_akun(v_wk) o where o.display_name like 'F26 %' || v_tag;
+      if v_k <> 23 or v_x is distinct from array_to_string(v_wpend, ',') or v_m <> 0
+         or exists (select 1 from public.orang_kelas_menunggu_akun(v_wk) o where o.person_id = v_wakun) then
+        v_probs := selftest.f26_note(v_probs, 'F26-W01', format('the Kelas names %s of its waiting learners (expected the 23, each once, in name order, none with an ENDED enrolment, a staff role or only a Tingkat); a Tingkat counted %s', v_k, v_m));
+      end if;
+      if v_n < 23 then v_probs := selftest.f26_note(v_probs, 'F26-W01', format('the Kelas is counted %s, fewer than its 23 waiting learners', v_n)); end if;
+      perform selftest.as_owner();
+      -- a Guru and another school's admin read none of it
+      foreach v_x in array array['alpha-guru@synthetic.pintar.test', 'beta-admin@synthetic.pintar.test'] loop
+        perform selftest.as_user(v_x);
+        select count(*) into v_n from public.persons_awaiting_account_page(v_ia, 'F26', 1);
+        select count(*) into v_m from public.orang_kelas_menunggu_akun(v_wk);
+        select count(*) into v_k from public.kelas_menunggu_akun(v_ia);
+        perform selftest.as_owner();
+        if v_n + v_m + v_k <> 0 then
+          v_probs := selftest.f26_note(v_probs, 'F26-W01', format('%s reads %s waiting, %s of the Kelas, %s class counts', v_x, v_n, v_m, v_k));
+        end if;
+      end loop;
+      if has_function_privilege('anon', 'public.persons_awaiting_account_page(uuid, text, integer)', 'EXECUTE')
+         or has_function_privilege('anon', 'public.orang_kelas_menunggu_akun(uuid)', 'EXECUTE') then
+        v_probs := selftest.f26_note(v_probs, 'F26-W01', 'an anonymous caller may run a waiting-for-account read');
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f26_note(v_probs, 'F26-W01', 'threw: ' || sqlerrm);
+    end;
+
     -- ═════════════════════════════════════════════════════════ F26-I01
     begin
       select i.id into v_ia from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
@@ -289,8 +391,9 @@ begin
   perform selftest.as_owner();
 
   for r in select * from unnest(
-      array['F26-C01', 'F26-C02', 'F26-I01'],
+      array['F26-C01', 'F26-C02', 'F26-W01', 'F26-I01'],
       array['W2.5 -- a school admin finds their school''s certificates', 'W2.5 -- the revocation on the screen''s path',
+            'W2.10 -- the people waiting for an account, a page at a time',
             'W2.7 -- each integrity observation has its decision, and its outcome is seen'],
       array[
         'sertifikat_sekolah: the school admin reads the issued certificate (number, holder, school, state), by number from '
@@ -301,6 +404,11 @@ begin
           || 'a reason; the list says REVOKED with its reason and time; a second revocation is refused '
           || '(CERTIFICATE_ALREADY_REVOKED) and the reason stands; the public check says DICABUT; certificate.revoked is '
           || 'recorded once with the reason',
+        'persons_awaiting_account_page answers 20 then 3 of 23 waiting by name with the total, by part of a name and by nomor '
+          || 'induk, «%» as a word, nothing for another school, the staff member with no card (CR-91); kelas_menunggu_akun counts '
+          || 'the Kelas and no Tingkat; orang_kelas_menunggu_akun names exactly its 23 waiting learners in name order, not one '
+          || 'with an account, an ENDED enrolment, a Tingkat membership or a staff role; a Guru and another school''s admin read '
+          || 'none of it; anon cannot run it',
         'a review recorded before W2.7 still covers its sitting; a decision now leaves exactly the other observation '
           || 'waiting; integrity_reviews_recorded shows the decision, note, time and reviewer; the referrer sees the case '
           || 'AWAITING_REVIEW with whether another leader may decide, then DECIDED with its outcome, time and note once '

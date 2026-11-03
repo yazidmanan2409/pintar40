@@ -1850,6 +1850,10 @@ export type HleEvent =
   | "aktivasi.intro.buka"
   | "aktivasi.halaman_masuk"
   | "aktivasi.kosong"
+  | "aktivasi.tunggu.cari"
+  | "aktivasi.tunggu.jumlah"
+  | "aktivasi.tunggu.cocok"
+  | "aktivasi.tunggu.tidak_cocok"
   | "aktivasi.surel"
   | "aktivasi.dengan_surel"
   | "aktivasi.dengan_kartu"
@@ -4283,6 +4287,10 @@ const table: Table = {
   "aktivasi.intro.buka": { default: "Untuk akun email, minta orangnya mengaktifkan akunnya di", en: "For an email account, ask the person to activate it at" },
   "aktivasi.halaman_masuk": { default: "halaman Masuk PINTAR", en: "PINTAR's sign-in page" },
   "aktivasi.kosong": { default: "Semua orang yang sudah didata sudah bisa masuk.", en: "Everyone who has been recorded can already sign in." },
+  "aktivasi.tunggu.cari": { default: "Cari nama atau nomor induk", en: "Search by name or school number" },
+  "aktivasi.tunggu.jumlah": { default: "{n} orang menunggu akun.", en: "{n} people are waiting for an account." },
+  "aktivasi.tunggu.cocok": { default: "{n} orang yang menunggu akun cocok dengan pencarian ini.", en: "{n} people waiting for an account match this search." },
+  "aktivasi.tunggu.tidak_cocok": { default: "Tidak ada orang yang menunggu akun yang cocok dengan pencarian ini.", en: "Nobody waiting for an account matches this search." },
   "aktivasi.surel": { default: "Alamat email", en: "Email address" },
   "aktivasi.dengan_surel": { default: "Aktifkan dengan email", en: "Activate with email" },
   "aktivasi.dengan_kartu": { default: "Buat kartu kelas", en: "Make a classroom card" },

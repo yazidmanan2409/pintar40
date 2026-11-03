@@ -2689,7 +2689,7 @@
     {
       "id": "M7-K01",
       "runner": "static",
-      "proves": "M7 (D-085): a whole class's cards in one operation, as a printable set. Executes kelasUntukKartu (src/components/aktivasi/kelas.ts): each Kelas with the learners in it awaiting an account, each once, never a Tingkat or someone with an account. Renders LembarKartu (rendered output): one card per learner with name, school number, card number, PIN and the sign-in address, no photo, printing offered and the once-only warning off the paper, a learner not made named with the reason. The source of FormAktivasi sends the batch through the one per-person route /api/akun/aktivasi in turn and keeps no PIN on the device; no second issuance route exists; the source of the page reads the classes' current members."
+      "proves": "M7 (D-085): a whole class's cards in one operation, as a printable set. Executes kelasUntukKartu (src/components/aktivasi/kelas.ts): each Kelas with the learners in it awaiting an account, each once, never a Tingkat or someone with an account. Renders LembarKartu (rendered output): one card per learner with name, school number, card number, PIN and the sign-in address, no photo, printing offered and the once-only warning off the paper, a learner not made named with the reason. The source of FormAktivasi sends the batch through the one per-person route /api/akun/aktivasi in turn and keeps no PIN on the device; no second issuance route exists; the source of the page reads the classes' current members. RESTATED FOR W2.10 (Batch 5, D-153): the offer is the database's per-Kelas count (kelas_menunggu_akun) labelled through kelasDitawarkan (executed: never a Tingkat, an empty class or an unknown place), and the run reads that one class's learners (orang_kelas_menunggu_akun via src/app/aktivasi/actions.ts); who is in a class's set is executed at the database by F26-W01."
     },
     {
       "id": "W9-K02",
@@ -4065,6 +4065,16 @@
       "id": "F26-I01",
       "runner": "db",
       "proves": "W2.7 (Batch 5; CR-75, CR-76, CR-77), selftest/db/fable26.sql, migration 20261223100000: a review recorded before W2.7 (no scope) still covers its sitting; a decision recorded now leaves exactly the sitting's other observation waiting; integrity_reviews_recorded shows each decided observation with its decision, note, time and reviewer; the referrer sees the case AWAITING_REVIEW with whether another leader may decide, then DECIDED with its outcome, time and note once another leader decides; a head of another department sees that it was referred and nothing of the case; the sitting's own learner sees nothing; anon cannot run it."
+    },
+    {
+      "id": "B5-TUNGGU-K01",
+      "runner": "static",
+      "proves": "W2.10 (Batch 5; CR-49, D-153), selftest/b5.test.ts: the source of Aktivasi (src/app/aktivasi/page.tsx, src/components/aktivasi/CariTunggu.tsx, src/components/aktivasi/cari-pemegang.ts) reads the people waiting for an account a page of 20 from persons_awaiting_account_page, narrowed to the working context's school and searched by the address's words, with the total and a pager keeping the words, never persons_awaiting_account whole; new words start at the first page; every word in both languages in the copy table."
+    },
+    {
+      "id": "F26-W01",
+      "runner": "db",
+      "proves": "W2.10 (Batch 5; D-153; M7 and CR-91 kept), selftest/db/fable26.sql, migration 20261224100000: persons_awaiting_account_page answers 20 then 3 of 23 waiting by name with the total, by part of a name and by nomor induk, «%» as a word, nothing narrowed to another school, a staff member with no card; kelas_menunggu_akun counts the Kelas and no Tingkat; orang_kelas_menunggu_akun names exactly the 23 waiting learners each once in name order, not one with an account, an ENDED enrolment, a Tingkat membership or a staff role; a Guru and another school's admin read none of it; anon cannot run them."
     }
   ]
 }

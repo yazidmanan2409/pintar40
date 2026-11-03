@@ -22,29 +22,31 @@ export const m7Tests: SelfTest[] = [
     id: "M7-K01",
     run: async (ctx) => {
       const c = new Checks();
-      const { kelasUntukKartu } = await import("../src/components/aktivasi/kelas");
+      // RESTATED FOR W2.10 (Batch 5; D-153, a changed requirement: the waiting list is paged, so the whole-class offer can
+      // no longer be grouped from every waiting person in the page's render). Who is in a class's set (only people awaiting
+      // an account, current members, PENDING as the intake leaves them, never a Tingkat, someone with an account, an ended
+      // enrolment or a staff role, each once, in name order) is now the database's: kelas_menunggu_akun and
+      // orang_kelas_menunggu_akun, executed by F26-W01. What stays here is executed too: the offer labels only real Kelas
+      // with someone waiting, in label order.
+      const { kelasDitawarkan } = await import("../src/components/aktivasi/kelas");
 
-      // 1. which class, and who in it: only people awaiting an account, only real Kelas, each once, in Aktivasi's order
-      const menunggu = [{ person_id: "budi" }, { person_id: "citra" }, { person_id: "dodi" }, { person_id: "eka" }, { person_id: "tanpa-kelas" }];
+      // 1. which class: only real Kelas the database counted with someone waiting, labelled as the intake labels them
       const tempat = [
         { id: "b", label: "Kelas Rendah", level: "BAGIAN" }, { id: "t", label: "Kelas Rendah · Tingkat 1 · 2026/2027", level: "TINGKAT" },
         { id: "k1a", label: "Kelas Rendah · Tingkat 1 · Kelas 1A · 2026/2027", level: "KELAS" },
         { id: "k1b", label: "Kelas Rendah · Tingkat 1 · Kelas 1B · 2026/2027", level: "KELAS" },
+        { id: "k1c", label: "Kelas Rendah · Tingkat 1 · Kelas 1C · 2026/2027", level: "KELAS" },
       ];
-      // as the page reads them: a person awaiting an account is PENDING (intake), ACTIVE once activated
-      const keanggotaan = [
-        { person_id: "eka", node_id: "k1a", status: "PENDING" }, { person_id: "budi", node_id: "k1a", status: "PENDING" },
-        { person_id: "citra", node_id: "k1a", status: "PENDING" },
-        { person_id: "budi", node_id: "k1a", status: "PENDING" },     // listed twice by the read: once in the set
-        { person_id: "ani", node_id: "k1a", status: "ACTIVE" },       // has an account already: not in the set
-        { person_id: "dodi", node_id: "k1b", status: "ACTIVE" },
-        { person_id: "citra", node_id: "t", status: "PENDING" },      // a Tingkat is not a class
-        { person_id: "tanpa-kelas", node_id: "k1b", status: "ENDED" }, // left the school: not a member
+      const hitungan = [
+        { node_id: "k1b", jumlah: 1 }, { node_id: "k1a", jumlah: 3 },
+        { node_id: "t", jumlah: 4 },        // a Tingkat is not a class
+        { node_id: "k1c", jumlah: 0 },      // nobody waiting
+        { node_id: "lain", jumlah: 2 },     // a place this reader's structure does not have
       ];
-      const g = kelasUntukKartu(menunggu, keanggotaan, tempat);
-      c.expect(JSON.stringify(g.map((k) => [k.id, k.orang])) === JSON.stringify([["k1a", ["budi", "citra", "eka"]], ["k1b", ["dodi"]]]),
-        `Aktivasi offers ${JSON.stringify(g.map((k) => [k.id, k.orang]))}; expected Kelas 1A: budi, citra, eka (Aktivasi's order, each once, nobody with an account) and Kelas 1B: dodi`);
-      c.expect(kelasUntukKartu(menunggu, [], tempat).length === 0 && kelasUntukKartu([], keanggotaan, tempat).length === 0,
+      const g = kelasDitawarkan(hitungan, tempat);
+      c.expect(JSON.stringify(g.map((k) => [k.id, k.jumlah])) === JSON.stringify([["k1a", 3], ["k1b", 1]]),
+        `Aktivasi offers ${JSON.stringify(g.map((k) => [k.id, k.jumlah]))}; expected Kelas 1A (3) then Kelas 1B (1), never a Tingkat, an empty class or an unknown place`);
+      c.expect(kelasDitawarkan([], tempat).length === 0 && kelasDitawarkan(hitungan, []).length === 0,
         "a class with nobody awaiting an account is offered");
 
       // 2. the printable set, as the administrator and the paper read it
@@ -103,15 +105,19 @@ export const m7Tests: SelfTest[] = [
       const penerbit = api.filter((r) => r !== "aktivasi" &&
         sumber(join(akun, r)).some((s) => /authorize_account_activation|authorize_new_person|auth\.admin\.createUser|CLASSROOM_CARD/.test(s)));
       c.expect(penerbit.length === 0, `a second issuance route exists beside aktivasi: ${JSON.stringify(penerbit)}`);
+      // RESTATED FOR W2.10: the page asks the database for each Kelas's count and labels them through kelasDitawarkan; the
+      // run reads that one class's learners (the database's set, F26-W01) and asks each card in turn as before
       const page = buang(readFileSync(join(ctx.repoRoot, "src", "app", "aktivasi", "page.tsx"), "utf8"));
-      c.expect(/\.in\("node_id", kelasIds\)\.is\("valid_to", null\)/.test(page) && /kelasUntukKartu\(orang, keanggotaan, tempat\)/.test(page),
-        "the page does not read the classes' current members and group them through kelasUntukKartu");
-      c.expect(/status: String\(m\.enrollment!\.status\)/.test(page) && !/status === "ACTIVE"/.test(page),
-        "the page drops members by their enrolment before kelasUntukKartu: a person awaiting an account is PENDING (audit run 36840115477)");
+      c.expect(/db\.rpc\("kelas_menunggu_akun", \{ p_sekolah: sekolah \}\)/.test(page) && /kelasDitawarkan\(hitungan, pilihanTempat\(/.test(page),
+        "the page does not offer the classes the database counted, labelled through kelasDitawarkan");
+      const aksiKelas = buang(readFileSync(join(ctx.repoRoot, "src", "app", "aktivasi", "actions.ts"), "utf8"));
+      c.expect(/rpc\("orang_kelas_menunggu_akun", \{ p_kelas: kelas \}\)/.test(aksiKelas)
+        && /const anggota = await anggotaKelasMenungguAksi\(k\.id\);/.test(form) && /const giliran = anggota\.map\(\(o\) => o\.person_id\)/.test(form),
+        "the whole-class run does not read that class's learners from the database before asking each card");
 
       return c.verdict(
-        "executed: Aktivasi offers each Kelas with the learners in it who await an account, each once and in Aktivasi's " +
-          "order, PENDING as the intake leaves them, never a Tingkat, someone with an account or an ended enrolment; the printable set (rendered output) draws one card per " +
+        "executed: Aktivasi offers each Kelas the database counted with someone waiting, never a Tingkat, an empty class or an " +
+          "unknown place (who is in the set: F26-W01); the run reads that class's learners from the database; the printable set (rendered output) draws one card per " +
           "learner with name, school number, card number, PIN and the sign-in address, no photo, a print action and the " +
           "once-only warning off the paper, and names a learner whose card was not made with the reason; the source of the " +
           "form sends the batch through the one per-person route, in turn, and keeps no PIN on the device; there is no second " +

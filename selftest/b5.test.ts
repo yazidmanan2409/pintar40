@@ -18,6 +18,10 @@
  *                referred observation carries the case's named steps and, once decided, its outcome, time and note,
  *                only where the database shows the case; the next-step sentence follows the case (another leader,
  *                nobody yet (CR-76), a leader handling it, the outcome); every word in both languages.
+ *  B5-TUNGGU-K01 W2.10 (CR-49, D-153) · the source: Aktivasi reads the people waiting for an account a page of 20 from the
+ *                database (persons_awaiting_account_page), narrowed to the context's school, searched by the words in
+ *                the address, with the total and the pager keeping the words; never persons_awaiting_account whole; the
+ *                search resets to the first page; every word in both languages.
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -130,6 +134,27 @@ export const b5Tests: SelfTest[] = [
         + "and its state as a badge; «Sudah ditinjau» lists integrity_reviews_recorded a page at a time with who, when and the note; a referral "
         + "carries the case's named steps, its outcome and note once decided, only where the database shows the case, and the next step "
         + "follows the case; every word in both languages");
+    },
+  },
+  {
+    id: "B5-TUNGGU-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const p = kode(baca(ctx.repoRoot, "src/app/aktivasi/page.tsx"));
+      c.expect(/rpc\("persons_awaiting_account_page", \{\s*p_sekolah: lingkupTunggu, p_cari: cariTunggu \|\| null, p_hal: halTunggu,\s*\}\)/.test(p),
+        "Aktivasi does not read the waiting list a page at a time from the database, narrowed and searched");
+      c.expect(!/rpc\("persons_awaiting_account"\)/.test(p), "Aktivasi still reads every waiting person at once");
+      c.expect(/const lingkupTunggu = lama \|\| platformIni \? null : sekolahIni \?\? "00000000-0000-0000-0000-000000000000";/.test(p),
+        "the waiting list is not narrowed to the working context's school");
+      c.expect(/<CariTunggu locale=\{locale\} total=\{totalTunggu\} dicari=\{cariTunggu\} \/>/.test(p) && /<Penomoran locale=\{locale\} halaman=\{halTunggu\} lagi=\{halTunggu \* 20 < totalTunggu\}/.test(p)
+        && /if \(cari\) q\.set\("cari_tunggu", cari\);/.test(p), "the waiting list has no total, or its pager drops the search");
+      const f = kode(baca(ctx.repoRoot, "src/components/aktivasi/CariTunggu.tsx"));
+      c.expect(/useCariDiAlamat\("cari_tunggu", \["hal_tunggu"\]\)/.test(f), "the waiting list's search is not the server's, from the first page");
+      const h = kode(baca(ctx.repoRoot, "src/components/aktivasi/cari-pemegang.ts"));
+      c.expect(/for \(const x of juga\) q\.delete\(x\);/.test(h), "new search words keep an old page");
+      for (const k of ["aktivasi.tunggu.cari", "aktivasi.tunggu.jumlah", "aktivasi.tunggu.cocok", "aktivasi.tunggu.tidak_cocok"]) c.expect(duaBahasa(k), `${k} has no words in both languages`);
+      return c.verdict("Aktivasi reads persons_awaiting_account_page a page of 20, narrowed to the context's school and searched by the address's words, "
+        + "with the total and a pager that keeps the words; never every waiting person; new words start at page 1; words in both languages");
     },
   },
 ];

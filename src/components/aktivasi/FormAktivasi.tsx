@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { isianKurang, kunciGagal, type JawabanAktivasi, type ModeAktivasi } from "./hasil";
 import HasilAktivasi from "./HasilAktivasi";
 import BarisHasil from "@/components/BarisHasil";
 import LembarKartu, { type KartuCetak } from "./LembarKartu";
 import { bolehKartu, type KelasKartu } from "./kelas";
+import { anggotaKelasMenungguAksi } from "@/app/aktivasi/actions";
 
 type Orang = { person_id: string; display_name: string; institutional_id: string; institution_id: string; boleh_kartu: boolean };
 
@@ -32,10 +33,14 @@ type Hasil = { mode: ModeAktivasi; jawaban: JawabanAktivasi | null; surel?: stri
  * «Ubah» goes back to the fields with what was typed. What is sent is exactly
  * what was shown.
  */
-export default function FormAktivasi({ locale, orang, adminSistem, kelas = [] }: {
+export default function FormAktivasi({ locale, orang, adminSistem, kelas = [], pencarian = null, penomoran = null, dicari = "" }: {
   locale: Locale; orang: Orang[]; adminSistem: boolean;
-  /** M7: the classes with people awaiting an account, and who they are. */
+  /** M7: the classes with people awaiting an account, and how many in each (W2.10: their learners are read at the run). */
   kelas?: KelasKartu[];
+  /** W2.10 (D-153): the search (CariTunggu, with the count), the pager, and the words the page was asked with. */
+  pencarian?: ReactNode;
+  penomoran?: ReactNode;
+  dicari?: string;
 }) {
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const [surel, setSurel] = useState<Record<string, string>>({});
@@ -109,7 +114,6 @@ export default function FormAktivasi({ locale, orang, adminSistem, kelas = [] }:
   const [pilihKelas, setPilihKelas] = useState(kelas[0]?.id ?? "");
   const [kemajuan, setKemajuan] = useState<{ selesai: number; total: number } | null>(null);
   const [lembar, setLembar] = useState<{ kelas: string; kartu: KartuCetak[]; gagal: Array<{ nama: string; kunci: HleEvent }> } | null>(null);
-  const siapa = new Map(orang.map((o) => [o.person_id, o]));
 
   /**
    * Each learner of the class who has no account yet, one request each, in
@@ -123,11 +127,18 @@ export default function FormAktivasi({ locale, orang, adminSistem, kelas = [] }:
     berjalan.current = true;
     setSibuk(`kelas:${k.id}`);
     setLembar(null);
-    const giliran = k.orang.filter((p) => !hasil[p]?.jawaban?.ok);
     const kartu: KartuCetak[] = [];
     const gagal: Array<{ nama: string; kunci: HleEvent }> = [];
-    setKemajuan({ selesai: 0, total: giliran.length });
     try {
+      // W2.10 (D-153): the class's own learners, read now, for this class alone (never every waiting person)
+      const anggota = await anggotaKelasMenungguAksi(k.id);
+      if (!anggota) {
+        gagal.push({ nama: k.label, kunci: kunciGagal("CLASSROOM_CARD", null) });
+        return;
+      }
+      const siapa = new Map(anggota.map((o) => [o.person_id, o]));
+      const giliran = anggota.map((o) => o.person_id).filter((p) => !hasil[p]?.jawaban?.ok);
+      setKemajuan({ selesai: 0, total: giliran.length });
       for (let i = 0; i < giliran.length; i++) {
         const p = giliran[i];
         const o = siapa.get(p);
@@ -166,7 +177,7 @@ export default function FormAktivasi({ locale, orang, adminSistem, kelas = [] }:
               <select className="pin-input" value={pilihKelas} disabled={sibuk !== null}
                 onChange={(e) => { setPilihKelas(e.target.value); setLembar(null); }}>
                 {kelas.map((k) => (
-                  <option key={k.id} value={k.id}>{k.label} ({k.orang.length} {s("aktivasi.kelas.murid")})</option>
+                  <option key={k.id} value={k.id}>{k.label} ({k.jumlah} {s("aktivasi.kelas.murid")})</option>
                 ))}
               </select>
             </label>
@@ -180,8 +191,10 @@ export default function FormAktivasi({ locale, orang, adminSistem, kelas = [] }:
       ) : null}
       {lembar ? <LembarKartu locale={locale} kelas={lembar.kelas} kartu={lembar.kartu} gagal={lembar.gagal} /> : null}
 
+      {/* W2.10 (D-153): the people waiting for an account, searched and paged by the database (20 a page) */}
+      {pencarian}
       {orang.length === 0 ? (
-        <p className="pin-meta">{s("aktivasi.kosong")}</p>
+        <p className="pin-meta">{s(dicari ? "aktivasi.tunggu.tidak_cocok" : "aktivasi.kosong")}</p>
       ) : (
         <ul className="pin-akt-daftar pin-noprint">
           {orang.map((o) => {
@@ -226,6 +239,7 @@ export default function FormAktivasi({ locale, orang, adminSistem, kelas = [] }:
           })}
         </ul>
       )}
+      {penomoran}
 
       {adminSistem && (
         <section className="pin-akt-orang pin-akt-baru pin-noprint">
