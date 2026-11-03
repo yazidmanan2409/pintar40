@@ -4,6 +4,9 @@ import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
 import PermukaanAsesmen from "../../_components/PermukaanAsesmen";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
+import CangkangPengalaman from "@/components/CangkangPengalaman";
+import { peranSaya } from "@/lib/tur-negara";
+import { personaPembelajaran } from "@/lib/pembelajaran";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/belajar/[tugas]/pemetaan");
@@ -29,9 +32,18 @@ export default async function Pemetaan({ params }: { params: Promise<{ tugas: st
   // says so, and the way back is to the lesson.
   const mine = (await engine.myAssignments(db)).find((a) => a.learning_assignment_id === tugas);
   const state = mine ? await engine.cycleState(db, tugas).catch(() => null) : null;
-  if (!mine || !state) return <HalamanPenolakan locale={locale} />;
+  // W2.16 (DAISY-35 item 2): a refusal here speaks to the reader's own context (an educator reads as an educator)
+  const persona = personaPembelajaran(await peranSaya());
+  if (!mine || !state) return <HalamanPenolakan locale={locale} persona={persona} />;
   if (!state.pre_assignment) {
-    return <HalamanPenolakan locale={locale} messageKey="cycle.pemetaan.belum_ada" backHref={`/belajar/${tugas}`} backKey="cycle.title" />;
+    // W2.12 (RV-7): nothing offers this any more (src/lib/siklus.ts tanpaPemetaan); reached by its address, it is
+    // said inside the learner's shell, never as a dead end without one
+    return (
+      <>
+        <CangkangPengalaman locale={locale} current="belajar" />
+        <HalamanPenolakan locale={locale} persona={persona} messageKey="cycle.pemetaan.belum_ada" backHref={`/belajar/${tugas}`} backKey="cycle.title" />
+      </>
+    );
   }
   if (state.pre_status === "FINALIZED") redirect(`/belajar/${tugas}/peta`);
 

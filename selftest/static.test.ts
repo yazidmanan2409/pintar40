@@ -105,6 +105,7 @@ import { b4Tests } from "./b4.test";
 import { b5Tests } from "./b5.test";
 import { b5aTests } from "./b5a.test";
 import { b5cTests } from "./b5c.test";
+import { b5bTests } from "./b5b.test";
 import { studio3bTests } from "./studio3b.test";
 import { penutupanTests } from "./penutupan.test";
 import { fable22Tests } from "./fable22.test";
@@ -2199,4 +2200,5 @@ export const staticTests: SelfTest[] = [
   ...b5Tests,
   ...b5aTests,
   ...b5cTests,
+  ...b5bTests,
 ];

@@ -10,6 +10,8 @@ import TombolKirim from "@/components/TombolKirim";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import OrientasiAsesmen from "@/components/siklus/OrientasiAsesmen";
 import { kunciNamaAsesmen } from "@/components/siklus/aksi";
+import { peranSaya } from "@/lib/tur-negara";
+import { personaPembelajaran } from "@/lib/pembelajaran";
 import ItemPlayer from "./ItemPlayer";
 
 /**
@@ -70,9 +72,13 @@ export default async function PermukaanAsesmen({
 
   // ---------------------------------------------------------- D. orientation
   if (!sesi) {
-    const orientasi = await engine.orientation(db, penugasan);
+    // W2.16 (DAISY-35 item 2): a refusal here speaks to the reader's own context (the roles are read once per request)
+    const [orientasi, persona] = await Promise.all([
+      engine.orientation(db, penugasan),
+      peranSaya().then(personaPembelajaran),
+    ]);
     if (!orientasi) {
-      return <HalamanPenolakan locale={locale} backHref={kembali.href} backKey={kembali.key} />;
+      return <HalamanPenolakan locale={locale} persona={persona} backHref={kembali.href} backKey={kembali.key} />;
     }
     // DAISY-26 (UX-05): the assessment is called by its own kind, so an Uji
     // Cepat is never titled with the Uji Penguasaan whose player it borrows. A

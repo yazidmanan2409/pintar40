@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { publicSupabaseUrl } from "@/lib/env";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -113,12 +114,13 @@ export type EvaluationState = {
  * render — never from client state — so the indicator survives a refresh and
  * cannot be dismissed (ADR-0020).
  */
-export async function evaluationState(): Promise<EvaluationState | null> {
+export const evaluationState = cache(async (): Promise<EvaluationState | null> => {
+  // W3.13: asked once per request -- the band and the page title inside the room (F9) share the answer
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("evaluation_state");
   if (error || !Array.isArray(data) || data.length === 0) return null;
   return data[0] as EvaluationState;
-}
+});
 
 /**
  * Leave a persona. The session is ended SERVER-SIDE first — a cookie clear

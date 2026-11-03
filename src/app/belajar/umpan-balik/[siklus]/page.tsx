@@ -7,6 +7,8 @@ import * as ub from "@/lib/umpanbalik";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
+import { peranSaya } from "@/lib/tur-negara";
+import { personaPembelajaran } from "@/lib/pembelajaran";
 import LembarUmpanBalik from "@/components/umpanbalik/LembarUmpanBalik";
 import { kirimUmpanBalikAksi } from "../actions";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -51,7 +53,7 @@ export default async function BeriUmpanBalik({
     return (
       <HalamanPenolakan
         messageKey="umpanbalik.kirim.bukan_milik"
-        persona="learner"
+        persona={personaPembelajaran(await peranSaya())}
         locale={locale}
         backHref="/belajar"
         backKey="umpanbalik.kembali"

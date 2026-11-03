@@ -10,5 +10,8 @@ import { exitPersona } from "@/lib/evaluation";
  */
 export async function exitPersonaAction() {
   await exitPersona();
-  redirect("/evaluasi");
+  // W3.13 (J6Peragaan): leaving says so in words («Anda sudah keluar dari peragaan.»). The persona's session WAS the
+  // browser's session, so leaving ends it and the evaluator signs in again; the sign-in screen carries the line, as
+  // it carries «sesi berakhir», and sends them back to the room.
+  redirect("/masuk?sesi=peragaan&lanjut=%2Fevaluasi");
 }

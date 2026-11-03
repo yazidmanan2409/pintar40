@@ -43,6 +43,12 @@ export type Posisi = {
   pelajaranTotal: number;
   /** True once the whole cycle is behind the learner. */
   selesai: boolean;
+  /**
+   * W2.12 (RV-7): whether this chapter has a Pemetaan Awal to take at all. A chapter without one still starts at
+   * PEMETAAN (the Uji Penguasaan waits on it), but nothing may offer «Mulai Pemetaan Awal» for it: the offer led to a
+   * refusal page. Optional so a position built elsewhere reads as "has one".
+   */
+  pemetaanAda?: boolean;
 };
 
 const FINAL = "FINALIZED";
@@ -134,7 +140,7 @@ export function lessonRead(l: Pick<LessonEntry, "furthest_position" | "total_pos
 export function posisi(state: CycleState, lessons: readonly LessonEntry[]): Posisi {
   const total = lessons.length;
   const read = lessons.filter(lessonRead).length;
-  const base = { pelajaranSelesai: read, pelajaranTotal: total };
+  const base = { pelajaranSelesai: read, pelajaranTotal: total, pemetaanAda: Boolean(state.pre_assignment) };
 
   if (state.post_status === FINAL) {
     return { langkah: "HASIL", indeks: 4, ...base, selesai: true };
@@ -187,6 +193,11 @@ export type Kandidat = {
   posisi: Posisi;
   /** True when a session for this step is already open or paused. */
   berjalan: boolean;
+  /**
+   * UX-40: a finished chapter whose result its learner has not opened yet (`my_new_results`). A new result is the
+   * next step; once opened it is a card like any other finished chapter.
+   */
+  hasilBaru?: boolean;
 };
 
 /**
@@ -203,6 +214,9 @@ export function peringkat(kandidat: readonly Kandidat[]): {
 } {
   const urut = [...kandidat].sort((a, b) => {
     if (a.berjalan !== b.berjalan) return a.berjalan ? -1 : 1;
+    // UX-40: a result not yet seen comes straight after a session left open, ahead of beginning or continuing other work
+    const ba = Boolean(a.hasilBaru && a.posisi.selesai), bb = Boolean(b.hasilBaru && b.posisi.selesai);
+    if (ba !== bb) return ba ? -1 : 1;
     const d = URUTAN[a.posisi.langkah] - URUTAN[b.posisi.langkah];
     if (d !== 0) return d;
     // A stable tie-break that is not list position: the assignment closer to
@@ -214,12 +228,26 @@ export function peringkat(kandidat: readonly Kandidat[]): {
   });
   // A cycle that is entirely behind the learner is never "the one thing": the
   // home would be telling somebody to go and look at something they finished.
-  const utama = urut.find((k) => !k.posisi.selesai) ?? null;
+  // UX-40: unless its result is NEW -- not yet opened -- and then opening it is the next step.
+  // W2.12 (RV-7): a chapter waiting on a Pemetaan Awal that does not exist has nothing to start, so it leads only
+  // when nothing else waits, and then the panel says why there is no button.
+  const utama = urut.find((k) => (k.hasilBaru && k.posisi.selesai) || (!k.posisi.selesai && !tanpaPemetaan(k.posisi)))
+    ?? urut.find((k) => !k.posisi.selesai) ?? null;
   return { utama, sisa: urut.filter((k) => k !== utama) };
+}
+
+/**
+ * W2.12 (RV-7): A STEP WITH NOTHING BEHIND IT. The chapter waits on a Pemetaan Awal that does not exist, so there is
+ * nothing to start: no button offers it, it never leads the home while real work waits, and its status line says
+ * plainly that the Pemetaan Awal is not ready yet and whom to ask.
+ */
+export function tanpaPemetaan(p: Posisi): boolean {
+  return p.langkah === "PEMETAAN" && p.pemetaanAda === false;
 }
 
 /** The status line under a trail: which step, and how far through it. */
 export function statusKey(p: Posisi): string {
+  if (tanpaPemetaan(p)) return "cycle.pemetaan.belum_ada";
   switch (p.langkah) {
     case "PEMETAAN": return "siklus.di.pemetaan";
     case "PETA": return "siklus.di.peta";

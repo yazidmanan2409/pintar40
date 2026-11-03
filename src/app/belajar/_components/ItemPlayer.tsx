@@ -28,7 +28,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { t, type HleEvent, type Locale } from "@/lib/hle";
+import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import type { PaperEntry, AssistanceState, AssistanceLevel } from "@/lib/assessment-engine";
 import { TeksBaris } from "@/components/teks/Teks";
 import { belumDisimpan, sameAnswer, soalAwal, type Answer, type Entry } from "@/lib/kumpulkan";
@@ -541,6 +541,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
       ? (chosen as { posisi: number[] }).posisi.includes(posisi)
       : (chosen as { posisi: number } | undefined)?.posisi === posisi;
   const committed = sameAnswer(accepted[current.presentedItemId], chosen ?? { posisi: -1 });
+  const jumlahDijawab = paper.filter((p) => accepted[p.presentedItemId]).length;
 
   const itemId = current.presentedItemId;
   const state = assist?.itemId === itemId ? assist.state : null;
@@ -568,7 +569,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
           </span>
         ) : (
           // §1: dots, never a percent bar and never a countdown-feeling timer
-          <span className="pin-dots" aria-label={`${kata("pretest.progress")} ${index + 1}/${paper.length}`}>
+          <span className="pin-dots" role="img" aria-label={`${kata("pretest.progress")} ${index + 1}/${paper.length}`}>
             {paper.map((p, i) => (
               <span
                 key={p.presentedItemId}
@@ -671,6 +672,14 @@ export default function ItemPlayer(props: ItemPlayerProps) {
                   {flagged[current.presentedItemId] ? kata("posttest.flagged") : kata("posttest.flag")}
                 </button>
               </div>
+            )}
+            {/* W3.10 (J4Murid): after a saved answer, how many are answered, in words («Sudah dijawab: 7 dari 10.») */}
+            {formal && (
+              <p className="pin-meta" role="status" data-dijawab="">
+                {jumlahDijawab > 0
+                  ? `${kata("posttest.answered")}: ${format.number(jumlahDijawab, props.locale)} ${kata("siklus.dari")} ${format.number(paper.length, props.locale)}.`
+                  : ""}
+              </p>
             )}
           </article>
 

@@ -1,0 +1,28 @@
+BEGIN
+CREATE TABLE
+GRANT
+DO
+                                 set_config                                 
+----------------------------------------------------------------------------
+ {"sub" : "99fd9df3-5dbc-425e-aea9-bb22c036c808", "role" : "authenticated"}
+(1 row)
+
+SET
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+DO
+RESET
+      k       |    v    
+--------------+---------
+ baca_tabel   | ditolak
+ baru_sebelum | 1
+ baru_sesudah | 0
+ catat        | true
+ catat_lagi   | true
+ catat_lain   | false
+(6 rows)
+
+ROLLBACK

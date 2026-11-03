@@ -1,5 +1,3 @@
-import { turPengajarBerlaku } from "@/lib/tur";
-
 /**
  * PEMBELAJARAN SAYA — WHICH CONTEXT IS THIS PERSON READING THEIR OWN LEARNING IN?
  *
@@ -76,7 +74,23 @@ export type KonteksPembelajaran = {
   turBelajar: boolean;
 };
 
+/**
+ * W2.16 (DAISY-35 item 3; CR-57): A GURU WHO ALSO HOLDS A SENIOR ROLE STILL TEACHES. The shell asked
+ * `turPengajarBerlaku`, the educator TOUR's rule, which (rightly, §H-3) refuses the educator's map to anybody senior.
+ * But which map a person is shown is not whether they teach: a Kepala departemen who also teaches and learns was
+ * handed the child's learner shell and its first-login tour. Whether this person teaches is whether they hold the
+ * EDUCATOR role at all; seniority adds nothing and removes nothing. Roles held only: no identity-model change
+ * (ruling 7), and a senior reader who does not teach keeps the learner shell and its tour as before (§H-3).
+ */
 export function konteksPembelajaran(peran: readonly string[] | null): KonteksPembelajaran {
-  const mengajar = peran === null ? false : turPengajarBerlaku(peran);
+  const mengajar = peran === null ? false : peran.includes("EDUCATOR");
   return { mengajar, turBelajar: !mengajar };
+}
+
+/**
+ * W2.16 (DAISY-35 item 2): WHO A REFUSAL ON /belajar IS SPEAKING TO. The landing already speaks to an educator as an
+ * educator; its refusal pages were all hard-wired to the learner. The same rule as the landing's, from the same roles.
+ */
+export function personaPembelajaran(peran: readonly string[] | null): "educator" | "learner" {
+  return konteksPembelajaran(peran).mengajar ? "educator" : "learner";
 }
