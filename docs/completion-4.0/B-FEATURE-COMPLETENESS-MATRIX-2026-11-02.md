@@ -46,7 +46,7 @@
 | J1.6 | Platform-only controls restricted, audited; audit reader | A (feature flags C, D-097(c)) | VERIFIED | F01-T18, F08-P09/P10; S23j | Maintenance controls have no browser step → W6.10 |
 | J1.7 | Tested break-glass for the sole production admin | A (REL) | BLK-OWNER | none | Needs the second admin and runbook → F-6, W9.12 |
 | J1.8 | Evaluation personas outside identity | A | IMPL | EVAL-N04/N09, F16-X01/S01 | No browser step → W6.10 |
-| J1.9 | Email operational truth; stuck sends identifiable | B (no «accepted» vs «handed off» state) | IMPL | send log; `/konfigurasi/email-uji`; EMAILJUJUR-* | **No list of stuck sends**; no browser lookup → W2.19 |
+| J1.9 | Email operational truth; stuck sends identifiable | B (no «accepted» vs «handed off» state) | IMPL | send log; `/konfigurasi/email-uji`; EMAILJUJUR-*; Batch 4: email_send_stuck, F24-E01, walk B4-W9 | Closed in Batch 4 (W2.19); promotion pending |
 
 ## J2 · Identity
 
@@ -55,7 +55,7 @@
 | J2.1 | No sign-up; activation claims provisioned identity; no oracle | A | VERIFIED | F09-A01, F18-L01, BOB26-A02/K01; P2 | Unknown-address walk on an older SHA → W6.10 |
 | J2.2 | Provisioning silent; the person activates | A | VERIFIED | S3, S12; GS G2, A3 | — |
 | J2.3 | Activation: code → username → password → PIN → ID/card → home | A | VERIFIED | BOB26-A01, D102-*; S1; GS G4, A8, A10 | Final card is CR-21 (W3.20) |
-| J2.4 | Explicit name confirmation | A | VERIFIED | F18-N02/I01; GS G2, G4 | Later correction has no screen (CR-14 → W2.2) |
+| J2.4 | Explicit name confirmation | A | VERIFIED | F18-N02/I01; GS G2, G4 | Batch 4: correction screen (W2.2), walk B4-W1; promotion pending |
 | J2.5 | Email/username + password; leaked check | A | VERIFIED | BOB26-A01/S01; all staff sign-ins | Production Auth settings → W9.13 |
 | J2.6 | Magic link removed only when replacements work | A (REL) | IMPL | `TAUTAN_MASUK_CADANGAN=false` | Depends on J2.7; production still offers it (CR-25) → W9.14 |
 | J2.7 | Existing staff activate, no duplicates; rehearsed | A (REL) | BLK-OWNER | F16-S01 | Rehearsal needs the production upgrade rehearsal (#150 B3) → W9.10; a synthetic staging rehearsal can come earlier → W6.10 |
@@ -68,11 +68,11 @@
 | J2.14 | Identity emails through PINTAR's path | A | VERIFIED (staging) | F17-*, BOB25-*; every GS activation | Production SMTP, SPF/DKIM/DMARC → W9.13 |
 | J2.15 | Every identity email to the standard | B (final DAISY-37) | IN PROG | `api/_email/identitas.ts` | CR-22; font licence → W3.20, F-11 |
 | J2.16 | PINTAR ID; staff Digital Card | A | VERIFIED (core) | F16-I01; GS R2, R3 | Final card CR-21 → W3.20 |
-| J2.17 | Username rules; correction audited | E (CR-15 «no screen needed» vs REL-02 zero operator steps) | IN PROG | `correct_username` RPC | **Correction is SQL/RPC only** → W2.3, F-8 |
+| J2.17 | Username rules; correction audited | E (CR-15 «no screen needed» vs REL-02 zero operator steps) | IMPL | `correct_username`; Batch 4 «Koreksi data orang», walk B4-W2 | Closed in Batch 4 (W2.3, F-8); promotion pending |
 | J2.18 | Resend countdown; same with or without identity | A | IMPL | `kode-ulang-walk` 37483810708 (**older SHA**) | Re-walk on current code → W6.10 |
 | J2.19 | Students by class card + PIN; refusal under load said | A | VERIFIED (core) | BOB12-A01; S11; GS M2, M6, C2, N1 | Under load: CAP-01 → W9.4 |
 | J2.20 | Student idle lock, PIN resume, expiry | A | VERIFIED (core) | BOB29-A02, W2-K01; GS U1 | Long-idle expiry HTTP only → W6.10 |
-| J2.21 | School re-issues card/PIN and corrects wrong email, no SQL | A | IN PROG | `KartuUlang` (GS R1); `api/akun/email` + mig 20261203100000 | **Email correction has no button** (CR-13) → W2.1 |
+| J2.21 | School re-issues card/PIN and corrects wrong email, no SQL | A | IMPL | `KartuUlang` (GS R1); Batch 4 email correction screen, walk B4-W3; card → email account, B4-KARTU-A01 | Closed in Batch 4 (W2.1); promotion pending |
 
 ## J3 · School setup
 
@@ -87,7 +87,7 @@
 | J3.7 | Class card sets; individual issue and re-issue | A | VERIFIED | M7-K01; S10, S20; GS M1, N1, R1 | — |
 | J3.8 | Per-lesson pass mark | A | VERIFIED | BOB49-S01; S17b; GS A7, M5 | — |
 | J3.9 | Report templates from approved metrics | A | VERIFIED | F08-P03; S23t | — |
-| J3.10 | Transfer request → authorization → execution | B (cross-school directory unruled) | BLK-OWNER | transfer actions; named selects; F01-T10 | Destination by name for a school admin → F-10; never walked → W2.15 |
+| J3.10 | Transfer request → authorization → execution | B (cross-school directory unruled) | IMPL | Batch 4: cari_sekolah_tujuan, transfer_minta/terima; F24-P01/P02; walk B4-W6/W7 | Closed in Batch 4 (W2.15, F-10); promotion pending |
 | J3.11 | Every consequential action leaves a trace | A (universal) | IMPL | audit_log; F08-P09/P10 | **No rule-level test** (CR-59) → W6.1 |
 | J3.12 | Move a student between classes | A | VERIFIED | M9-*, D088I-S01; S25, S26d2 | — |
 
@@ -172,7 +172,7 @@
 | J8.5 | Template and **revocation**; numbers never collide | A | IN PROG | ADM18-K01/K02; GS-18 | **CR-05 revocation is SQL-only** → W2.5 |
 | J8.6 | Anonymous verification | A | VERIFIED | P1; GS-19 | Production DNS (CR-11) → W9.15 |
 | J8.7 | Production signing key and pepper; escrow | A (REL) | BLK-EXT | keyring; DR-S01..S10 | #150 B5 → W9.6 |
-| J8.8 | **Profile photo** on the profile only (CR-07) | A | **NOT STARTED** | none | → W2.8 |
+| J8.8 | **Profile photo** on the profile only (CR-07) | A | IMPL | Batch 4: «Foto profil»; B4-FOTO-K01; walk B4-W10 | Closed in Batch 4 (W2.8); promotion pending |
 
 ## J9 · Educator as learner
 
@@ -191,7 +191,7 @@
 
 | Line | Requirement | Class | Status | Evidence | Gap → work |
 |---|---|---|---|---|---|
-| J10.1 | «Laporkan masalah» with context and status; tiers named | A | IN PROG | S23l; BOB15-K01 | **CR-78** «Laporan saya» unreachable by navigation; tiers unnamed (CR-71) → W2.9, F-13 |
+| J10.1 | «Laporkan masalah» with context and status; tiers named | A | IMPL | S23l; BOB15-K01; MenuAkun «Laporan saya» (Batch 2) | CR-78 closed in Batch 2 (verified Batch 4); tiers unnamed (CR-71) → F-13 |
 | J10.2 | Own error and not-found pages with a reference | A | VERIFIED | P3; crawl | Forced-500 walk → W6.10 |
 
 ## X · Universal rules
