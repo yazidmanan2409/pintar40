@@ -1,5 +1,7 @@
 # Batch 5 · Protected merge and staging verification (3–4 Nov 2026)
 
+> **Closeout** (owner, «BATCH 5 FINAL STAGING CLOSEOUT — CONDITIONAL PASS»): `ci` on `3412075` is closed in §1a (attempt 1 failed on runner infrastructure and is kept as failed; attempt 2 is green). The cases exercised only in CI are in §3. Production and the demonstration school are re-checked in §4.
+
 **Authority:**
 - Owner, 3 Nov: «PINTAR 4.0 — BATCH 5 CONTROLLED PROMOTION — CONDITIONAL GO» (D-157).
 - Owner, 4 Nov (WIB): «PINTAR 4.0 — Batch 5 Backup Check — CONDITIONAL GO» (D-158).
@@ -25,8 +27,27 @@
 | Prerequisites (read only, 19:55 UTC) | 188 migrations, digest `776956cb…` (= the repository's first 188). The two bodies 190 replaces are byte-identical to the repository's (`e1cd1099…`, `14e24ea3…`). None of 189–193's objects existed. Record: `evidence/staging/preservation-before.txt`. |
 | Pull request | [PR #8](https://github.com/yazidmanan2409/pintar40/pull/8): mergeable state `clean`, no bypass |
 | Merge | **`3412075`**, a merge commit pinned to `469dde2` (`expectedHeadSha`) |
-| Triggered on `main` | `ci` 41707829722 and `staging.yml` 41707829723 (**success**: the migration). **No production workflow started.** The PR changed no production request file and no `supabase/config.toml`. |
+| Triggered on `main` | `staging.yml` 41707829723 (**success**: the migration) and `ci` 41707829722 (see §1a). **No production workflow started.** The PR changed no production request file and no `supabase/config.toml`. |
 | Recovery arrangement | `ROLLBACK-189-193.sql`, tested locally in both directions (`evidence/rollback/`), plus the physical backup. Not used. |
+
+## 1a. `ci` on the merge commit `3412075`: both attempts kept
+
+| Attempt | Jobs | Verdict |
+|---|---|---|
+| **1** (19:55–20:09 UTC) | 18: 15 success, **2 failure**, 1 skipped | **FAILED.** It stays failed, and it is not counted as green. |
+| **2** (re-run of the failed jobs) | 18: **18 success** | **success**, including `selftest contract (strict, local stack)` and the required `verdict` |
+
+**Attempt 1, diagnosed from its logs: an infrastructure failure, not an application failure.**
+- **Red-case job:** «red case · db · tour r1 fable05 bob12 bob03» (job 126169919461) failed in the local-stack action's «Start stack» step, before any test body ran. The runner refused the database container: `failed to bind host port 0.0.0.0:54322/tcp: address already in use`.
+- **What followed from that:**
+  - every later step of that job was skipped, and its gate reported «no database url»;
+  - `selftest` was skipped, because it depends on the red-case jobs;
+  - `verdict` (job 126175078557) failed on «red-case: failure» and «selftest: skipped», as designed.
+- **Not an application failure:**
+  - no assertion failed anywhere;
+  - the same tree passed every job on `469dde2` (`ci` 41644822454);
+  - the re-run passed the same job.
+- **One re-run, by the rule:** the job died during runner stack start-up, which qualifies for a single re-run. Nothing on `main` or staging changed in between.
 
 ## 2. Migrations 189–193 on staging (read only, after)
 
@@ -81,6 +102,14 @@
 - The checks: JUDUL-NAMA (25 titles, none carrying a person's name), LEBAR-1280/1024/320, PAPAN-LEWATI, PAPAN-ISI, PAPAN-MENU-0/1/2, PAPAN-DIALOG-1/2, MENU-320 and JUDUL-DITOLAK.
 - Recorded: 13 distinct screens (25 pages); axe clean on 13 of 13, and could not run on 0.
 
+**Passed in CI, but not exercised as complete staging journeys** (owner, «BATCH 5 FINAL STAGING CLOSEOUT», item 4):
+- **The per-observation integrity decision and the referrer's outcome** (W2.7, CR-75, CR-77).
+  - CI: job A B5-W2 and job B S23i, S23r, green on `469dde2` (journeys 41644821806) and on `b8ba042` (41640031926).
+  - Staging: the page and «Sudah ditinjau» were walked; no observation was waiting to decide.
+- **A populated waiting-for-account list, a page at a time** (W2.10).
+  - CI: job A B5-W3, 20 of 50 on page 1, page 2 and the search, in the same runs.
+  - Staging: Aktivasi was walked; nobody was waiting on the platform.
+
 **Not walked on staging, and why:**
 - **MODE PERAGAAN** (W3.13, the exit to the Hub): staging has no evaluation persona at all (`evaluation_personas` is empty, read only), so there is nothing to assume there. Walked in CI: job A `audit/b5-fokus.mjs` F1.
 - **UX-40**, a new result as the next step: a learner's card PIN is shown once. Walked in CI.
@@ -106,17 +135,24 @@ Staging, read-only. The same query was run before the merge and after the last w
 - No reset.
 - No write to the demonstration school.
 - No existing assessment record was modified.
+- **Re-read at closeout**, 3 Nov 21:53 UTC, after the `ci` re-run: every demonstration-school value and every outside-the-test-schools digest above is identical. Staging is at 193.
+
+**Production and outstanding activity:**
+- Every workflow run from the merge to the closeout is accounted for: the staging migration (41707829723), `found-school` (41708808752), the six staging walks above, and `ci` 41707829722 (both attempts).
+- None of them is a production workflow: no `deploy-supabase-production`, `deploy-vercel-production`, `configure-supabase-auth` or `configure-supabase-smtp`.
+- No production request file changed. The production database was not read, by standing rule, and was not written.
+- `ci` and the staging walks run against their own local stacks or staging only.
 
 ## 5. Still open: Batch 5 is not fully accepted
 
 | Item | State |
 |---|---|
-| Dr Gladys | The «Peserta»/«Kenaikan» labels at class and school level (RV-9, W3.9); the UX-41 heading; the strings written by engineering. The approved words are in place. Questions: `02-PROMOTION-PRECONDITIONS.md`, condition 1. |
-| Daisy | The W3.8 report body and A4 print composition; the PD Kelas «Lihat bukti» view; W3.12, W3.16, W3.6, UX-09 |
+| Dr Gladys | **INCOMPLETE, awaiting her decision:** the «Peserta»/«Kenaikan» labels at class and school level (RV-9, W3.9); the UX-41 heading; the strings written by engineering. The approved words are in place. Questions: `02-PROMOTION-PRECONDITIONS.md`, condition 1. |
+| Daisy | **INCOMPLETE, awaiting her design:** the W3.8 report body and A4 print composition; the PD Kelas «Lihat bukti» view; W3.12, W3.16, W3.6, UX-09 |
 | Owner (recorded) | A persona access token copied before leaving MODE PERAGAAN stays valid until it expires: the existing accepted design (`03-FINISH-LINE-REPORT.md` §6) |
 | W9.12 (Batch 9) | Recovery readiness after a logical restore. Storage objects are outside physical database backups. |
 | Register housekeeping | W3.5 still reads «DONE — PROMOTION PENDING» from Batch 2/4, although Batch 4's staging walk P1 verified its Table. It is left for the owner's register pass. |
 
 ## 6. Freeze restored · STOP
 
-Nothing changes on staging or `main` without a new owner authorisation (D-158). The development branch carries this report and the staging requests only. STOP at the Batch 5 staging-verification gate, for owner review.
+Nothing changes on staging or `main` without a new owner authorisation (D-158). The development branch carries this report and the staging requests only. STOP at the Batch 5 owner-review gate. No Batch 6 work and no production change without separate authorisation.
