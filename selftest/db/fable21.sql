@@ -12,8 +12,9 @@
 --   F21-I01  FD-7 (DG-32): Tinjauan Integritas's waiting list. Two observations of one sitting wait for a reviewer who may
 --            review them, and for nobody else (the sitting's own learner sees none); a Kepala departemen whose department
 --            does not hold the sitting's class sees them with no referral offered, and the server indeed refuses that
---            referral; once a review is recorded on the sitting both leave, for every reviewer; an observation made after
---            the review waits again
+--            referral; RESTATED FOR W2.7 (Batch 5, one decision per observation): a decision on one leaves exactly the other
+--            waiting, and once each has its own decision both leave, for every reviewer; an observation made after the
+--            review waits again
 --   F21-R01  FD-9 (D-127 Q8; DG-30): a saved rule's lifecycle. A rule saved for a chapter still being drafted is a draft
 --            (INGESTED), moves with the chapter through the steps to approval, and is the released chapter's Uji
 --            Penguasaan rule (release_cycle_definition); a new rule for the chapter once it has moved on is refused by
@@ -242,19 +243,34 @@ begin
         v_probs := selftest.f21_note(v_probs, 'F21-I01', format('the sitting''s own learner is shown %s observation(s)', v_n));
       end if;
 
-      -- the admin reviews the sitting: both observations leave, for every reviewer
+      -- RESTATED FOR W2.7 (Batch 5; CR-75, a changed requirement: «one decision per signal»). FD-7 dropped the whole
+      -- sitting once its newest observation was reviewed, so the others never carried a decision of their own. Now each
+      -- observation leaves once a decision is recorded on IT, for every reviewer; the sitting leaves when all have one.
       perform selftest.as_user('alpha-admin@synthetic.pintar.test');
       perform public.record_integrity_review(v_isig2, 'NO_CONCERN', 'F21-I01');
+      select coalesce(jsonb_agg(w.signal_id), '[]'::jsonb) into v_ilist from public.integrity_signals_awaiting_review() w where w.session_id = v_isess;
+      perform selftest.as_owner();
+      if v_ilist is distinct from jsonb_build_array(v_isig1) then
+        v_probs := selftest.f21_note(v_probs, 'F21-I01', format('after a decision on one observation the sitting shows %s waiting, not exactly the other one', v_ilist));
+      end if;
+      perform selftest.as_user(v_ikadep);
+      select coalesce(jsonb_agg(w.signal_id), '[]'::jsonb) into v_ilist from public.integrity_signals_awaiting_review() w where w.session_id = v_isess;
+      perform selftest.as_owner();
+      if v_ilist is distinct from jsonb_build_array(v_isig1) then
+        v_probs := selftest.f21_note(v_probs, 'F21-I01', format('after the admin''s decision another reviewer is shown %s, not exactly the other observation', v_ilist));
+      end if;
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      perform public.record_integrity_review(v_isig1, 'DISCUSSED_WITH_LEARNER', 'F21-I01');
       select count(*) into v_n from public.integrity_signals_awaiting_review() w where w.session_id = v_isess;
       perform selftest.as_owner();
       if v_n <> 0 then
-        v_probs := selftest.f21_note(v_probs, 'F21-I01', format('after the review the sitting still shows %s observation(s) as waiting', v_n));
+        v_probs := selftest.f21_note(v_probs, 'F21-I01', format('after a decision on each observation the sitting still shows %s as waiting', v_n));
       end if;
       perform selftest.as_user(v_ikadep);
       select count(*) into v_n from public.integrity_signals_awaiting_review() w where w.session_id = v_isess;
       perform selftest.as_owner();
       if v_n <> 0 then
-        v_probs := selftest.f21_note(v_probs, 'F21-I01', format('after the admin''s review another reviewer is still shown %s', v_n));
+        v_probs := selftest.f21_note(v_probs, 'F21-I01', format('after the admin''s decisions another reviewer is still shown %s', v_n));
       end if;
       -- the signals are not rewritten by any of this (doc 16)
       if (select count(*) from public.integrity_signals where session_id = v_isess) <> 2 then
@@ -369,7 +385,7 @@ begin
     select * from unnest(
       array['F21-D01', 'F21-I01', 'F21-R01'],
       array['FD-5, D-127 §4, D-129(c) -- the author''s difficulty is read as the author wrote it, end to end',
-            'FD-7, DG-32 -- a reviewed sitting leaves the waiting list; no refused referral is offered',
+            'FD-7, DG-32, W2.7 -- a decided observation leaves the waiting list; no refused referral is offered',
             'FD-9, D-127 Q8 -- a rule is set while its chapter is drafted, moves with it, and is the released chapter''s rule'],
       array[
         'a chapter whose author marked two questions Mudah, one Sedang and two Sulit is imported with each stored as 0.3, 0.5 '
@@ -378,8 +394,8 @@ begin
           || 'two Mudah and the Sedang, never a Sulit',
         'two observations of one sitting wait for the school admin, each referable, and for another department''s Kepala '
           || 'departemen with no referral offered, which the server indeed refuses; the sitting''s learner sees none; once the '
-          || 'admin records a review both leave for every reviewer, the observations themselves unchanged; an observation '
-          || 'made after the review waits again',
+          || 'admin records a decision on one only the other still waits, and once each has its own decision both leave for '
+          || 'every reviewer (W2.7), the observations themselves unchanged; an observation made after the review waits again',
         'the chapter''s Uji Penguasaan rule changed while the chapter is being drafted is a new version and a draft, moves with '
           || 'the chapter to approval, and is the released chapter''s Uji Penguasaan rule; once the chapter has moved on a new rule '
           || 'and a new version are each refused by name and nothing is saved'

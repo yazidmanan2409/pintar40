@@ -3158,7 +3158,7 @@
     {
       "id": "F21-I01",
       "runner": "db",
-      "proves": "FD-7 (DG-32), measured in selftest/db/fable21.sql through integrity_signals_awaiting_review: two observations of one sitting in an Alpha class wait for the school admin, each referable, and for a Kepala departemen of another department with no referral offered, which record_integrity_review indeed refuses for her; the sitting's own learner is shown none; once the admin records a review on the sitting both leave the list for every reviewer, the observations themselves unchanged (doc 16); an observation made after the review waits again.",
+      "proves": "FD-7 (DG-32), measured in selftest/db/fable21.sql through integrity_signals_awaiting_review: two observations of one sitting in an Alpha class wait for the school admin, each referable, and for a Kepala departemen of another department with no referral offered, which record_integrity_review indeed refuses for her; the sitting's own learner is shown none; RESTATED FOR W2.7 (Batch 5, CR-75: one decision per observation): once the admin records a decision on one observation exactly the other still waits, for every reviewer, and once each has its own decision both leave the list, the observations themselves unchanged (doc 16); an observation made after the review waits again.",
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
@@ -4055,6 +4055,16 @@
       "id": "F26-C02",
       "runner": "db",
       "proves": "W2.5 (Batch 5; CR-05, J8.5), selftest/db/fable26.sql: on the screen's path, another school's admin and a revocation without a reason are refused and change nothing; the school admin revokes with a reason; sertifikat_sekolah then says REVOKED with its reason and time; a second revocation is refused (CERTIFICATE_ALREADY_REVOKED) and the first reason stands; verify_certificate says DICABUT; certificate.revoked is recorded once with the reason."
+    },
+    {
+      "id": "B5-INTEGRITAS-K01",
+      "runner": "static",
+      "proves": "W2.7 (Batch 5; CR-75, CR-76, CR-77; J7.6), selftest/b5.test.ts: the source of Tinjauan Integritas (src/app/studio/integritas/page.tsx) gives each waiting observation its own form posting its own id, with a labelled note; names a sitting by its learner first with the PINTAR ID beneath and its state as a badge in words; lists «Sudah ditinjau» from integrity_reviews_recorded a page at a time with the decision, who, when and the note; a referred observation carries the case's named steps (Daisy, components/Progress; 11-validation GQ2) and, once decided, its outcome, time and note, only where the database shows the case; the next-step sentence (src/lib/integritas-kontrak.ts, executes) follows the case's state; every word in both languages in the copy table."
+    },
+    {
+      "id": "F26-I01",
+      "runner": "db",
+      "proves": "W2.7 (Batch 5; CR-75, CR-76, CR-77), selftest/db/fable26.sql, migration 20261223100000: a review recorded before W2.7 (no scope) still covers its sitting; a decision recorded now leaves exactly the sitting's other observation waiting; integrity_reviews_recorded shows each decided observation with its decision, note, time and reviewer; the referrer sees the case AWAITING_REVIEW with whether another leader may decide, then DECIDED with its outcome, time and note once another leader decides; a head of another department sees that it was referred and nothing of the case; the sitting's own learner sees nothing; anon cannot run it."
     }
   ]
 }

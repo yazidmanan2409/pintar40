@@ -1008,6 +1008,29 @@ export type HleEvent =
   | "studio.integritas.DISCUSSED_WITH_LEARNER"
   | "studio.integritas.REFERRED_TO_INSTITUTION"
   | "studio.integritas.catat"
+  | "studio.integritas.menunggu.judul"
+  | "studio.integritas.ditinjau.judul"
+  | "studio.integritas.ditinjau.kosong"
+  | "studio.integritas.keadaan.menunggu"
+  | "studio.integritas.keadaan.ditinjau"
+  | "studio.integritas.catatan.arti"
+  | "studio.integritas.oleh"
+  | "studio.integritas.catatan_tercatat"
+  | "studio.integritas.rujukan.judul"
+  | "studio.integritas.rujukan.langkah.diteruskan"
+  | "studio.integritas.rujukan.langkah.ditinjau"
+  | "studio.integritas.rujukan.langkah.diputuskan"
+  | "studio.integritas.rujukan.hasil"
+  | "studio.integritas.rujukan.hasil.NO_FURTHER_ACTION"
+  | "studio.integritas.rujukan.hasil.LEARNER_SUPPORT_ARRANGED"
+  | "studio.integritas.rujukan.hasil.ESCALATED_TO_INSTITUTION"
+  | "studio.integritas.rujukan.catatan"
+  | "studio.integritas.rujukan.sedang"
+  | "studio.integritas.rujukan.di_pimpinan"
+  | "studio.integritas.rujukan.tak_terlihat"
+  | "studio.integritas.rujukan.lanjut.NO_FURTHER_ACTION"
+  | "studio.integritas.rujukan.lanjut.LEARNER_SUPPORT_ARRANGED"
+  | "studio.integritas.rujukan.lanjut.ESCALATED_TO_INSTITUTION"
   | "studio.sertifikat.judul"
   | "studio.sertifikat.tata_letak"
   | "studio.sertifikat.identitas"
@@ -4064,6 +4087,29 @@ const table: Table = {
   "studio.integritas.DISCUSSED_WITH_LEARNER": { default: "Sudah dibicarakan dengan murid", en: "Discussed with the student" },
   "studio.integritas.REFERRED_TO_INSTITUTION": { default: "Diteruskan ke pihak sekolah", en: "Passed to the school" },
   "studio.integritas.catat": { default: "Catat tinjauan", en: "Record the review" },
+  "studio.integritas.menunggu.judul": { default: "Menunggu tinjauan", en: "Waiting for review" },
+  "studio.integritas.ditinjau.judul": { default: "Sudah ditinjau", en: "Reviewed" },
+  "studio.integritas.ditinjau.kosong": { default: "Belum ada catatan yang sudah ditinjau.", en: "No note has been reviewed yet." },
+  "studio.integritas.keadaan.menunggu": { default: "Menunggu tinjauan", en: "Waiting for review" },
+  "studio.integritas.keadaan.ditinjau": { default: "Sudah ditinjau", en: "Reviewed" },
+  "studio.integritas.catatan.arti": { default: "Apa yang Anda lihat atau lakukan. Dicatat bersama tinjauannya.", en: "What you saw or did. Recorded with the review." },
+  "studio.integritas.oleh": { default: "Ditinjau oleh {nama}, {waktu}", en: "Reviewed by {nama}, {waktu}" },
+  "studio.integritas.catatan_tercatat": { default: "Catatan:", en: "Note:" },
+  "studio.integritas.rujukan.judul": { default: "Langkah kasus yang diteruskan", en: "Steps of the referred case" },
+  "studio.integritas.rujukan.langkah.diteruskan": { default: "Diteruskan", en: "Referred" },
+  "studio.integritas.rujukan.langkah.ditinjau": { default: "Ditinjau pimpinan", en: "Taken up by a leader" },
+  "studio.integritas.rujukan.langkah.diputuskan": { default: "Diputuskan", en: "Decided" },
+  "studio.integritas.rujukan.hasil": { default: "Keputusan: {hasil}", en: "Decision: {hasil}" },
+  "studio.integritas.rujukan.hasil.NO_FURTHER_ACTION": { default: "Tidak ada tindakan lanjutan", en: "No further action" },
+  "studio.integritas.rujukan.hasil.LEARNER_SUPPORT_ARRANGED": { default: "Pendampingan disiapkan", en: "Learner support arranged" },
+  "studio.integritas.rujukan.hasil.ESCALATED_TO_INSTITUTION": { default: "Diteruskan ke pihak sekolah", en: "Escalated to the school" },
+  "studio.integritas.rujukan.catatan": { default: "Catatan keputusan:", en: "Decision note:" },
+  "studio.integritas.rujukan.sedang": { default: "Seorang pimpinan sedang menangani kasus ini.", en: "A leader is handling this case." },
+  "studio.integritas.rujukan.di_pimpinan": { default: "Kasus ini menunggu keputusan di Pimpinan.", en: "This case is waiting for a decision in Pimpinan." },
+  "studio.integritas.rujukan.tak_terlihat": { default: "Diteruskan ke pimpinan. Keadaan kasusnya dapat dilihat oleh yang meneruskannya dan pimpinan yang berwenang memutuskan.", en: "Referred to a leader. The case's state can be seen by whoever referred it and the leaders who may decide it." },
+  "studio.integritas.rujukan.lanjut.NO_FURTHER_ACTION": { default: "Kasus ini selesai; tidak ada langkah lanjutan.", en: "This case is closed; nothing further is needed." },
+  "studio.integritas.rujukan.lanjut.LEARNER_SUPPORT_ARRANGED": { default: "Pendampingan untuk murid disiapkan. Ikuti arahan pimpinan untuk pendampingannya.", en: "Support for the learner is arranged. Follow the leader's direction for it." },
+  "studio.integritas.rujukan.lanjut.ESCALATED_TO_INSTITUTION": { default: "Kasus ini diteruskan ke pihak sekolah, yang menanganinya dari sini.", en: "This case went to the school, which handles it from here." },
   "studio.sertifikat.judul": { default: "Tata Letak Sertifikat", en: "Certificate Layout" },
   "studio.sertifikat.tata_letak": { default: "Tata letak", en: "Layout" },
   "studio.sertifikat.identitas": { default: "Sertifikat menampilkan nama pemegang saja.", en: "The certificate shows the holder's name only." },

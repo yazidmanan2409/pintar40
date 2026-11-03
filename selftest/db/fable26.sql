@@ -11,6 +11,12 @@
 --   F26-C02  THE REVOCATION ON THE SCREEN'S PATH (W2.5, CR-05, J8.5): the school admin revokes with a reason; the list
 --            then says REVOKED with when and why; the public check says DICABUT; certificate.revoked is on the record
 --            with the reason; without a reason, twice, or by another school's admin it is refused and nothing changes
+--   F26-I01  EACH INTEGRITY OBSERVATION HAS ITS DECISION, AND ITS OUTCOME IS SEEN (W2.7; CR-75, CR-76, CR-77): a review
+--            recorded before W2.7 (no scope) still covers its sitting; a decision recorded now leaves only that
+--            observation decided; integrity_reviews_recorded shows each decided observation with its decision, note,
+--            time and reviewer; for a referral, the referrer sees the case waiting, whether another leader may decide,
+--            and once another leader decides, the outcome, its time and note; a reviewer outside the case's management
+--            scope sees that it was referred and nothing of the case; the sitting's own learner sees nothing
 --
 -- EVERY ROW IS ROLLED BACK: one subtransaction, verdicts collected in a jsonb of problems, a sentinel to undo the
 -- lot, and the findings emitted afterwards.
@@ -62,6 +68,8 @@ declare
   r record; v_probs jsonb := '{}'::jsonb; v_fatal text := '';
   v_s1 uuid; v_cert uuid; v_elig uuid; v_inst uuid; v_no text; v_nama text; v_tok text; v_alpha uuid;
   v_n int; v_m int; v_k int; v_x text; v_status text; v_alasan text; v_at timestamptz; v_sekolah text;
+  v_ia uuid; v_isess uuid; v_inode uuid; v_iroot uuid; v_idept uuid; v_ikadep text; v_imurid uuid; v_pemutus text;
+  v_g1 uuid; v_g2 uuid; v_g3 uuid; v_g4 uuid; v_case uuid; v_rec record; v_tag text := to_char(clock_timestamp(), 'HH24MISSUS');
 begin
   begin
     perform selftest.purge_certificates();
@@ -178,6 +186,101 @@ begin
       v_probs := selftest.f26_note(v_probs, 'F26-C02', 'threw: ' || sqlerrm);
     end;
 
+    -- ═════════════════════════════════════════════════════════ F26-I01
+    begin
+      select i.id into v_ia from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
+      select s.id, s.class_node_id into v_isess, v_inode from public.assessment_sessions s
+       where s.institution_id = v_ia and s.class_node_id is not null and not public.session_is_professional(s.id)
+       order by s.created_at limit 1;
+      select n.id into v_iroot from public.org_nodes n where n.institution_id = v_ia and n.kind = 'FACULTY' order by n.created_at limit 1;
+      if v_ia is null or v_isess is null or v_iroot is null then raise exception 'fixture: no alpha sitting or faculty'; end if;
+      select a.auth_user_id into v_imurid from public.assessment_sessions s join public.accounts a on a.person_id = s.person_id where s.id = v_isess;
+      -- a head of a department that does not hold the sitting's class: may review, has no management scope over the case
+      insert into public.org_nodes (institution_id, parent_id, kind, name)
+      values (v_ia, v_iroot, 'DEPARTMENT', 'Departemen F26 ' || v_tag) returning org_nodes.id into v_idept;
+      v_ikadep := 'f26-kadep-' || v_tag || '@synthetic.pintar.test';
+      perform selftest.f05_actor(v_ikadep, 'HEAD_OF_DEPARTMENT', v_idept);
+      -- two observations reviewed before W2.7: a review row with no scope, recorded after both, covers the sitting
+      insert into public.integrity_signals (session_id, institution_id, category, observed_at)
+      values (v_isess, v_ia, 'NAVIGATION', now() - interval '10 minutes') returning integrity_signals.id into v_g1;
+      insert into public.integrity_signals (session_id, institution_id, category, observed_at)
+      values (v_isess, v_ia, 'VISIBILITY_CHANGE', now() - interval '9 minutes') returning integrity_signals.id into v_g2;
+      insert into public.audit_log (at, actor_person_id, action, target_table, target_id, institution_id, summary)
+      select now() - interval '8 minutes', a.person_id, 'INTEGRITY_SIGNAL_REVIEWED', 'integrity_signals', v_g2::text, v_ia,
+             jsonb_build_object('session_id', v_isess, 'category', 'VISIBILITY_CHANGE', 'decision', 'NO_CONCERN', 'note', 'lama')
+        from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = 'alpha-admin@synthetic.pintar.test' limit 1;
+      -- two observations after it
+      insert into public.integrity_signals (session_id, institution_id, category, observed_at)
+      values (v_isess, v_ia, 'NAVIGATION', now() - interval '5 minutes') returning integrity_signals.id into v_g3;
+      insert into public.integrity_signals (session_id, institution_id, category, observed_at)
+      values (v_isess, v_ia, 'RECONNECT', now() - interval '4 minutes') returning integrity_signals.id into v_g4;
+
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      select coalesce(string_agg(w.signal_id::text, ',' order by w.observed_at), '') into v_x
+        from public.integrity_signals_awaiting_review() w where w.session_id = v_isess;
+      if v_x is distinct from v_g3::text || ',' || v_g4::text then
+        v_probs := selftest.f26_note(v_probs, 'F26-I01', 'before any new decision the waiting list is not exactly the two observations after the earlier sitting review');
+      end if;
+      -- one decision on the newest: a referral, with its note
+      perform public.record_integrity_review(v_g4, 'REFERRED_TO_INSTITUTION', 'Perlu dibahas (F26)');
+      select coalesce(string_agg(w.signal_id::text, ','), '') into v_x from public.integrity_signals_awaiting_review() w where w.session_id = v_isess;
+      if v_x is distinct from v_g3::text then
+        v_probs := selftest.f26_note(v_probs, 'F26-I01', 'a decision on one observation did not leave exactly the other one waiting');
+      end if;
+      select * into v_rec from public.integrity_reviews_recorded(1) rr where rr.signal_id = v_g4;
+      if v_rec.signal_id is null or v_rec.decision is distinct from 'REFERRED_TO_INSTITUTION' or v_rec.note is distinct from 'Perlu dibahas (F26)'
+         or v_rec.reviewer_name is null or v_rec.case_id is null or v_rec.case_visible is not true
+         or v_rec.case_state is distinct from 'AWAITING_REVIEW' or v_rec.case_raised_by_me is not true or v_rec.case_outcome is not null
+         or v_rec.case_other_decider is null then
+        v_probs := selftest.f26_note(v_probs, 'F26-I01', format('the referrer''s reviewed row reads %s', row_to_json(v_rec)));
+      end if;
+      v_case := v_rec.case_id;
+      select count(*) into v_n from public.integrity_reviews_recorded(1) rr where rr.signal_id in (v_g1, v_g2)and rr.decision = 'NO_CONCERN';
+      if v_n <> 2 then v_probs := selftest.f26_note(v_probs, 'F26-I01', format('%s of the two observations the earlier sitting review covered are shown decided', v_n)); end if;
+      select count(*) into v_n from public.integrity_reviews_recorded(1) rr where rr.signal_id = v_g3;
+      if v_n <> 0 then v_probs := selftest.f26_note(v_probs, 'F26-I01', 'an undecided observation is shown as reviewed'); end if;
+      perform selftest.as_owner();
+
+      -- a reviewer outside the case's management scope: sees it was referred, nothing of the case
+      perform selftest.as_user(v_ikadep);
+      select * into v_rec from public.integrity_reviews_recorded(1) rr where rr.signal_id = v_g4;
+      if v_rec.signal_id is null or v_rec.case_id is null or v_rec.case_visible is not false or v_rec.case_state is not null
+         or v_rec.case_note is not null or v_rec.case_raised_by_me is not false or v_rec.case_other_decider is not null then
+        v_probs := selftest.f26_note(v_probs, 'F26-I01', format('a reviewer outside the case''s scope reads %s', row_to_json(v_rec)));
+      end if;
+      perform selftest.as_owner();
+      -- the sitting's own learner: nothing
+      perform selftest.as_user_uid(v_imurid);
+      select count(*) into v_n from public.integrity_reviews_recorded(1) rr where rr.session_id = v_isess;
+      perform selftest.as_owner();
+      if v_n <> 0 then v_probs := selftest.f26_note(v_probs, 'F26-I01', format('the sitting''s own learner is shown %s reviewed observation(s)', v_n)); end if;
+
+      -- another leader decides; the referrer then reads the outcome
+      v_pemutus := null;
+      foreach v_x in array array['alpha-dean@synthetic.pintar.test', 'alpha-hod@synthetic.pintar.test', 'alpha-guru@synthetic.pintar.test'] loop
+        perform selftest.as_user(v_x);
+        if public.management_scope_over_node(v_inode) then v_pemutus := v_x; end if;
+        perform selftest.as_owner();
+        exit when v_pemutus is not null;
+      end loop;
+      if v_pemutus is null then raise exception 'fixture: no alpha leader stands over the sitting''s class'; end if;
+      perform selftest.as_user(v_pemutus);
+      perform public.advance_management_decision(v_case, 'DECIDED', 'LEARNER_SUPPORT_ARRANGED', 'Didampingi wali kelas (F26)');
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      select * into v_rec from public.integrity_reviews_recorded(1) rr where rr.signal_id = v_g4;
+      perform selftest.as_owner();
+      if v_rec.case_state is distinct from 'DECIDED' or v_rec.case_outcome is distinct from 'LEARNER_SUPPORT_ARRANGED'
+         or v_rec.case_decided_at is null or v_rec.case_note is distinct from 'Didampingi wali kelas (F26)' then
+        v_probs := selftest.f26_note(v_probs, 'F26-I01', format('after the decision the referrer reads %s', row_to_json(v_rec)));
+      end if;
+      if has_function_privilege('anon', 'public.integrity_reviews_recorded(integer)', 'EXECUTE') then
+        v_probs := selftest.f26_note(v_probs, 'F26-I01', 'an anonymous caller may run the reviewed list');
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f26_note(v_probs, 'F26-I01', 'threw: ' || sqlerrm);
+    end;
+
     raise exception 'F26_ROLLBACK';
   exception when others then
     perform selftest.as_owner();
@@ -186,8 +289,9 @@ begin
   perform selftest.as_owner();
 
   for r in select * from unnest(
-      array['F26-C01', 'F26-C02'],
-      array['W2.5 -- a school admin finds their school''s certificates', 'W2.5 -- the revocation on the screen''s path'],
+      array['F26-C01', 'F26-C02', 'F26-I01'],
+      array['W2.5 -- a school admin finds their school''s certificates', 'W2.5 -- the revocation on the screen''s path',
+            'W2.7 -- each integrity observation has its decision, and its outcome is seen'],
       array[
         'sertifikat_sekolah: the school admin reads the issued certificate (number, holder, school, state), by number from '
           || 'its start and by a part of the name, one by id; the prepared row is not listed; «%» matches nothing; a Guru, '
@@ -196,7 +300,12 @@ begin
         'another school''s admin and a reasonless revocation are refused and change nothing; the school admin revokes with '
           || 'a reason; the list says REVOKED with its reason and time; a second revocation is refused '
           || '(CERTIFICATE_ALREADY_REVOKED) and the reason stands; the public check says DICABUT; certificate.revoked is '
-          || 'recorded once with the reason'
+          || 'recorded once with the reason',
+        'a review recorded before W2.7 still covers its sitting; a decision now leaves exactly the other observation '
+          || 'waiting; integrity_reviews_recorded shows the decision, note, time and reviewer; the referrer sees the case '
+          || 'AWAITING_REVIEW with whether another leader may decide, then DECIDED with its outcome, time and note once '
+          || 'another leader decides; a reviewer outside the case''s scope sees it was referred and nothing of the case; '
+          || 'the learner sees nothing; anon cannot run it'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

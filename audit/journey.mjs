@@ -2600,7 +2600,7 @@ await jalankanC12({ step, sql, ctx, magicSignIn, apiSession, grantViaForm, catat
 // moves; the student sees none of it.
 // RESTATED FOR FD-7 (DG-32): S23i's review is the referral; the sitting has left the head of department's waiting list,
 // so no second referral can be pressed from Studio (the database's own idempotency stays F06-P22's).
-await step("S23r", "the head of department's referral of Kelas 1A's integrity observation (S23i, «Diteruskan ke pihak sekolah») is one waiting decision, and Studio no longer offers the sitting (FD-7); the dean finds it under «Keputusan» on /pimpinan, takes it («Saya yang menangani») and records «Tidak ada tindakan lanjutan» with «Catat keputusan»; the referrer sees it decided; no score moves and the student sees none of it (CR-38: DEA-04, BOB-39)", async (rec) => {
+await step("S23r", "the head of department's referral of Kelas 1A's integrity observation (S23i, «Diteruskan ke pihak sekolah») is one waiting decision, and Studio no longer offers the sitting (FD-7); the dean finds it under «Keputusan» on /pimpinan, takes it («Saya yang menangani») and records «Tidak ada tindakan lanjutan» with «Catat keputusan»; the referrer sees it decided, on /pimpinan and on Tinjauan Integritas where she referred it (W2.7, CR-77); no score moves and the student sees none of it (CR-38: DEA-04, BOB-39)", async (rec) => {
   const kelas = kelasSatuA();
   // the observation S23i reviewed (S23i's own query, journey.mjs:2304-2305)
   const sinyal = kelas ? sql(`select s.id||'|'||p.display_name from public.integrity_signals s join public.assessment_sessions ss on ss.id = s.session_id
@@ -2720,6 +2720,15 @@ await step("S23r", "the head of department's referral of Kelas 1A's integrity ob
     const nanti = await teks(kartu(h));
     notes.push(`the head of department's card now «${nanti.slice(0, 160)}»`);
     if (!/Sudah diputuskan/.test(nanti) || !/Tidak ada tindakan lanjutan/.test(nanti)) rec.verdict = "FAIL";
+    // W2.7 (Batch 5; CR-77, Daisy GQ2): and on the page she referred it from: Studio → «Tinjauan Integritas», under
+    // «Sudah ditinjau», the observation carries the case's named steps, the outcome in words and the dean's note
+    await h.goto(`${APP}/studio/integritas`, { waitUntil: "networkidle" });
+    await h.getByRole("heading", { name: "Tinjauan Integritas", exact: true }).waitFor({ timeout: SLOW }).catch(() => {});
+    const diStudio = await teks(h.locator(`[data-sinyal-ditinjau="${idSinyal}"]`));
+    rec.shots.push(await shot(h, "cr77-perujuk-melihat-hasil"));
+    notes.push(`CR-77: on Tinjauan Integritas the referred observation reads «${diStudio.slice(0, 260)}»`);
+    if (!/Diteruskan ke pihak sekolah/.test(diStudio) || !/Diputuskan/.test(diStudio) || !/Keputusan: Tidak ada tindakan lanjutan/.test(diStudio)
+        || !diStudio.includes(PUTUS) || !/Kasus ini selesai/.test(diStudio) || MENTAH.test(diStudio)) rec.verdict = "FAIL";
   } catch (e) {
     rec.verdict = "FAIL";
     rec.shots.push(await shot(d, "cr38-berhenti"));

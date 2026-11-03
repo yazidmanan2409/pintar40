@@ -11,6 +11,13 @@
  *                certificate's school against the working context, then asks revoke_certificate with the caller's
  *                own client (no service key); every refusal code has its sentence in both languages; Konfigurasi
  *                links the page; the page has its title.
+ *  B5-INTEGRITAS-K01  W2.7 (CR-75, CR-76, CR-77; J7.6) · the source: Tinjauan Integritas gives each waiting observation
+ *                its own form (one decision per observation, never the sitting's newest only), with a labelled note;
+ *                a sitting is named by its learner first and the PINTAR ID beneath, with its state as a badge in
+ *                words; «Sudah ditinjau» lists integrity_reviews_recorded (decision, who, when, note), paged; a
+ *                referred observation carries the case's named steps and, once decided, its outcome, time and note,
+ *                only where the database shows the case; the next-step sentence follows the case (another leader,
+ *                nobody yet (CR-76), a leader handling it, the outcome); every word in both languages.
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -18,6 +25,7 @@ import { Checks, type SelfTest } from "./lib";
 import { t, type HleEvent } from "../src/lib/hle";
 import { KODE_CABUT, KEADAAN_SERTIFIKAT } from "../src/lib/sertifikat-cabut-kontrak";
 import { JUDUL_HALAMAN } from "../src/lib/judul-halaman";
+import { langkahRujukan } from "../src/lib/integritas-kontrak";
 
 const baca = (root: string, p: string) => { try { return readFileSync(join(root, p), "utf8"); } catch { return ""; } };
 /** Source without its comments, so a comment cannot satisfy a guard. */
@@ -82,6 +90,46 @@ export const b5Tests: SelfTest[] = [
         + "asks the reason, «Lanjutkan» commits nothing, the destructive in-page confirmation names the certificate, starts on «Batal» "
         + "and says what stays safe; the action checks the context, then revoke_certificate with the caller's client; every code and "
         + "state has words in both languages; Konfigurasi links it and it has its title");
+    },
+  },
+  {
+    id: "B5-INTEGRITAS-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const p = kode(baca(ctx.repoRoot, "src/app/studio/integritas/page.tsx"));
+      c.expect(/\{group\.map\(\(g\) => \([\s\S]*?<form action=\{recordIntegrityReviewAction\} id=\{`integritas-sinyal-\$\{g\.id\}`\}[\s\S]*?<input type="hidden" name="sinyal" value=\{g\.id\} \/>/.test(p),
+        "each waiting observation does not have its own form posting its own id");
+      c.expect(!/value=\{group\[0\]\.id\}/.test(p), "a sitting's form still posts its newest observation only");
+      c.expect(/<BidangTeks id=\{`integritas-catatan-\$\{g\.id\}`\} name="catatan"[^>]*label=\{s\("studio\.paket\.catatan"\)\}/.test(p), "the note is not a labelled field");
+      c.expect(/persons\(display_name, pintar_id\)/.test(p) && /<p className="pin-judul-baris">\{n\?\.nama \|\| "(?:—|\\u2014)"\}<\/p>\s*\{n\?\.pintarId \? <p className="pin-meta pin-num">\{n\.pintarId\}<\/p> : null\}/.test(p),
+        "a sitting is not named by its learner first with the PINTAR ID beneath");
+      c.expect(/studio\.integritas\.keadaan\.menunggu/.test(p) && /studio\.integritas\.keadaan\.ditinjau/.test(p) && /className=\{keadaan === "menunggu" \? "pin-pill pin-attention" : "pin-pill pin-ok"\}/.test(p),
+        "a sitting's state is not a badge in words");
+      c.expect(/rpc\("integrity_reviews_recorded", \{ p_hal: halTinjau \}\)/.test(p) && /<Penomoran locale=\{locale\} halaman=\{halTinjau\} lagi=\{lagiTinjau\}/.test(p),
+        "the reviewed observations are not listed from integrity_reviews_recorded, a page at a time");
+      c.expect(/studio\.integritas\.oleh/.test(p) && /studio\.integritas\.catatan_tercatat/.test(p), "a reviewed observation does not say who, when and its note");
+      c.expect(/\{g\.case_id \? <Rujukan /.test(p) && /if \(!g\.case_visible\) return <p className="pin-meta" data-rujukan="tersembunyi">/.test(p)
+        && /<ol className="pin-tahap" aria-label=\{s\("studio\.integritas\.rujukan\.judul"\)\}>/.test(p) && /aria-current=\{i === kini && g\.case_state !== "DECIDED" \? "step" : undefined\}/.test(p),
+        "a referred observation does not carry the case's named steps, or shows a case the database does not show");
+      c.expect(/g\.case_state === "DECIDED" && g\.case_outcome \?/.test(p) && /studio\.integritas\.rujukan\.catatan/.test(p), "a decided case does not show its outcome and note");
+      // the next step follows the case
+      const k = (x: Parameters<typeof langkahRujukan>[0]) => langkahRujukan(x).kalimat;
+      c.expect(k({ case_state: "AWAITING_REVIEW", case_outcome: null, case_raised_by_me: true, case_other_decider: true }) === "pimpinan.menunggu_pemutus_lain"
+        && k({ case_state: "AWAITING_REVIEW", case_outcome: null, case_raised_by_me: true, case_other_decider: false }) === "pimpinan.belum_ada_pemutus_lain"
+        && k({ case_state: "AWAITING_REVIEW", case_outcome: null, case_raised_by_me: false, case_other_decider: null }) === "studio.integritas.rujukan.di_pimpinan"
+        && k({ case_state: "UNDER_REVIEW", case_outcome: null, case_raised_by_me: true, case_other_decider: true }) === "studio.integritas.rujukan.sedang"
+        && k({ case_state: "DECIDED", case_outcome: "LEARNER_SUPPORT_ARRANGED", case_raised_by_me: true, case_other_decider: true }) === "studio.integritas.rujukan.lanjut.LEARNER_SUPPORT_ARRANGED",
+        "the case's next-step sentence does not follow its state (another leader, nobody yet, handling, decided)");
+      const kunci = ["studio.integritas.menunggu.judul", "studio.integritas.ditinjau.judul", "studio.integritas.ditinjau.kosong", "studio.integritas.keadaan.menunggu",
+        "studio.integritas.keadaan.ditinjau", "studio.integritas.oleh", "studio.integritas.rujukan.tak_terlihat", "studio.integritas.rujukan.sedang", "studio.integritas.rujukan.di_pimpinan",
+        ...["diteruskan", "ditinjau", "diputuskan"].map((l) => `studio.integritas.rujukan.langkah.${l}`),
+        ...["NO_FURTHER_ACTION", "LEARNER_SUPPORT_ARRANGED", "ESCALATED_TO_INSTITUTION"].flatMap((o) => [`studio.integritas.rujukan.hasil.${o}`, `studio.integritas.rujukan.lanjut.${o}`]),
+        ...["NO_CONCERN", "DISCUSSED_WITH_LEARNER", "REFERRED_TO_INSTITUTION"].map((d) => `studio.integritas.${d}`)];
+      for (const x of kunci) c.expect(duaBahasa(x), `${x} has no words in both languages`);
+      return c.verdict("each waiting observation has its own form and labelled note; a sitting is named by its learner with the PINTAR ID beneath "
+        + "and its state as a badge; «Sudah ditinjau» lists integrity_reviews_recorded a page at a time with who, when and the note; a referral "
+        + "carries the case's named steps, its outcome and note once decided, only where the database shows the case, and the next step "
+        + "follows the case; every word in both languages");
     },
   },
 ];

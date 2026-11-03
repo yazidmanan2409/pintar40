@@ -3020,6 +3020,14 @@ select:not([multiple]):not([size]) {
 /* a form of one row: its fields and its button, wrapping on a phone */
 .pin-baris-aksi { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); min-width: 0; }
 .pin-baris-aksi > .pin-bidang { flex: 1 1 calc(var(--space-1) * 55); }
+/* W2.7 (CR-75, CR-77): a sitting named by its learner with its state badge; each observation its own decision; a
+   referred case's named steps (components/Progress) under the decision it came from */
+.pin-integritas-kepala { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--space-2) var(--space-4); min-width: 0; }
+.pin-integritas-catatan { display: grid; gap: var(--space-2); padding-block: var(--space-3); border-top: var(--border-hairline) solid var(--line); min-width: 0; }
+.pin-integritas-catatan p { margin: 0; }
+.pin-integritas-rujukan { display: grid; gap: var(--space-2); min-width: 0; }
+.pin-integritas-rujukan .pin-tahap { margin: 0; }
+.pin-integritas-rujukan p { margin: 0; overflow-wrap: anywhere; }
 /* Radio and Checkbox groups (components/Radio, Checkbox): a fieldset with its question as the legend; each row 44 px,
    the whole row the target, its explanation under the label */
 .pin-fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: var(--space-1); min-width: 0; }

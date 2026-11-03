@@ -151,7 +151,8 @@ export const l4Tests: SelfTest[] = [
       c.expect(/pitaKesulitan\(i\.predicted_difficulty\)/.test(baca("src", "app", "studio", "bank", "page.tsx")), "Bank Soal draws the predicted difficulty as a number");
       // the integrity review names a sitting
       const integ = baca("src", "app", "studio", "integritas", "page.tsx");
-      c.expect(/from\("assessment_sessions"\)/.test(integ) && /persons\(display_name\)/.test(integ) && /assessment_definitions\(title\)/.test(integ)
+      // RESTATED FOR W2.7 (Batch 5; CR-75): the learner's PINTAR ID is read beside the name, to be shown beneath it
+      c.expect(/from\("assessment_sessions"\)/.test(integ) && /persons\(display_name, pintar_id\)/.test(integ) && /assessment_definitions\(title\)/.test(integ)
         && /namaSesi\.get\(session\)/.test(integ) && !/short\(session\)/.test(integ), "an integrity sitting is not named by its learner, class and assessment");
       // Konfigurasi: the transfers and the audit trail one page at a time
       const konf = baca("src", "app", "konfigurasi", "page.tsx");
