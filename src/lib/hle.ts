@@ -1992,6 +1992,19 @@ export type HleEvent =
   | "orang.email.gagal.EMAIL_SAMA"
   | "orang.email.gagal.EMAIL_TERPAKAI"
   | "orang.email.gagal.AKUN_EMAIL_TIDAK_ADA"
+  | "akun.foto.judul"
+  | "akun.foto.arti"
+  | "akun.foto.alt"
+  | "akun.foto.pilih"
+  | "akun.foto.ganti"
+  | "akun.foto.batas"
+  | "akun.foto.besar"
+  | "akun.foto.jenis"
+  | "akun.foto.hapus"
+  | "akun.foto.naik"
+  | "akun.foto.ok"
+  | "akun.foto.dihapus"
+  | "akun.foto.gagal"
   | "aktivasi.ulang.judul"
   | "aktivasi.ulang.arti"
   | "aktivasi.ulang.cari"
@@ -4358,6 +4371,19 @@ const table: Table = {
   "orang.email.gagal.EMAIL_SAMA": { default: "Itu sudah alamat orang ini.", en: "That is already this person's address." },
   "orang.email.gagal.EMAIL_TERPAKAI": { default: "Alamat ini sudah dipakai akun lain.", en: "Another account already uses this address." },
   "orang.email.gagal.AKUN_EMAIL_TIDAK_ADA": { default: "Orang ini tidak punya akun email.", en: "This person has no email account." },
+  "akun.foto.judul": { default: "Foto profil", en: "Profile photo" },
+  "akun.foto.arti": { default: "Foto ini hanya tampil di profil Anda. Foto tidak dicetak di sertifikat.", en: "This photo shows on your profile only. It is not printed on any certificate." },
+  "akun.foto.alt": { default: "Foto profil Anda", en: "Your profile photo" },
+  "akun.foto.pilih": { default: "Pilih foto", en: "Choose a photo" },
+  "akun.foto.ganti": { default: "Ganti foto", en: "Change the photo" },
+  "akun.foto.batas": { default: "PNG, JPEG, atau WebP; paling besar 2 MB.", en: "PNG, JPEG or WebP; at most 2 MB." },
+  "akun.foto.besar": { default: "Foto ini lebih besar dari 2 MB. Pilih foto yang lebih kecil.", en: "This photo is larger than 2 MB. Choose a smaller one." },
+  "akun.foto.jenis": { default: "Pilih berkas PNG, JPEG, atau WebP.", en: "Choose a PNG, JPEG or WebP file." },
+  "akun.foto.hapus": { default: "Hapus foto", en: "Remove the photo" },
+  "akun.foto.naik": { default: "Menyimpan foto…", en: "Saving the photo…" },
+  "akun.foto.ok": { default: "Foto profil disimpan.", en: "Profile photo saved." },
+  "akun.foto.dihapus": { default: "Foto profil dihapus dari profil Anda.", en: "The photo is removed from your profile." },
+  "akun.foto.gagal": { default: "Foto belum tersimpan. Coba lagi sebentar lagi.", en: "The photo was not saved yet. Try again in a moment." },
   "aktivasi.ulang.judul": { default: "Kartu hilang atau rusak", en: "Lost or damaged card" },
   "aktivasi.ulang.arti": { default: "Terbitkan kartu baru untuk murid yang kehilangan kartunya atau kartunya rusak. Kartu lama langsung berhenti berlaku; akun, kelas dan semua hasil belajarnya tetap.", en: "Issue a new card for a learner whose card is lost or damaged. The old card stops working at once; their account, class and all their learning stay." },
   "aktivasi.ulang.cari": { default: "Cari nama murid", en: "Search for a learner's name" },

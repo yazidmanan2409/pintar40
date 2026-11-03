@@ -3987,6 +3987,21 @@
       "runner": "app",
       "proves": "D-152(a) (Batch 4), selftest/b4.test.ts, live against the app and the local stack: a class-card learner signs in with the card; the platform admin's conversion without a reason is refused (ALASAN_WAJIB); with one it answers ok and the card no longer signs in; the same account row and Auth user are an EMAIL account; the person activates it with a code to the new address and signs in with their password; a staff role is then accepted where CR-91 refused it over the card; account.card_converted_to_email records the reason, the old card and the new address.",
       "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
+    },
+    {
+      "id": "B4-FOTO-K01",
+      "runner": "static",
+      "proves": "W2.8 (Batch 4, CR-07, J8.8), selftest/b4.test.ts: «Akun saya» (src/app/akun/page.tsx) shows «Foto profil» (src/components/akun/FotoProfil.tsx): the FileField primitive, an upload through the one signed route (/api/assets/upload-url) into profile/<own person id>/, then simpanFotoAksi (src/app/akun/actions.ts) keeps the path only when it is in the person's own folder and the file exists, with the person's own client under persons_update_own, or removes it; the page reads only the person's own photo through a 300-second signed URL; PNG, JPEG and WebP only (src/lib/foto-profil-kontrak.ts); the certificate reads no photo (D-076(b)(1)); every sentence in both languages."
+    },
+    {
+      "id": "B4-ORANG-K01",
+      "runner": "static",
+      "proves": "W2.1-W2.3 (Batch 4, CR-13-CR-15, F-8 / D-152(b)), selftest/b4.test.ts: /aktivasi/orang lists orang_berakun as a paged Collection with the caller's client, opens a panel offering only the corrections the database grants this reader (boleh_email, boleh_identitas), and asks correct_person_name and correct_username with the caller's client (src/app/aktivasi/orang/actions.ts); Aktivasi leads to it; every refusal has a sentence in both languages."
+    },
+    {
+      "id": "B4-PINDAH-K01",
+      "runner": "static",
+      "proves": "W2.15 (Batch 4, F-10 / D-152(c)), selftest/b4.test.ts: Konfigurasi · Perpindahan finds a destination school through cari_sekolah_tujuan (exact name or code), requests the transfer through transfer_minta, and shows the receiving school its incoming requests (pindah_masuk) to accept into its own school year through transfer_terima (src/app/konfigurasi/actions.ts); every sentence in both languages."
     }
   ]
 }

@@ -58,6 +58,94 @@ export const b4Tests: SelfTest[] = [
         + "one service-key write (Auth's address move); each database refusal maps to a contract code with a sentence in both languages");
     },
   },
+  {
+    id: "B4-FOTO-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const halaman = kode(baca(ctx.repoRoot, "src/app/akun/page.tsx"));
+      c.expect(/<FotoProfil locale=\{locale\} personId=\{String\(aku\)\} url=\{urlFoto\} \/>/.test(halaman), "«Akun saya» does not show «Foto profil»");
+      c.expect(/createSignedUrl\(jalurFoto, 300\)/.test(halaman) && /jalurFoto\.startsWith\(`profile\/\$\{aku\}\/`\)/.test(halaman),
+        "the page does not read only the person's own photo through a short-lived signed URL");
+      const komp = kode(baca(ctx.repoRoot, "src/components/akun/FotoProfil.tsx"));
+      c.expect(/<BidangBerkas id="foto-profil"/.test(komp) && /fetch\("\/api\/assets\/upload-url"/.test(komp) && /uploadToSignedUrl\(/.test(komp)
+        && /simpanFotoAksi\(path\)/.test(komp) && /simpanFotoAksi\(null\)/.test(komp),
+        "the section does not upload through the signed route (FileField) and then keep, or remove, the path");
+      const aksi = kode(baca(ctx.repoRoot, "src/app/akun/actions.ts"));
+      const milik = aksi.indexOf("fotoMilik(");
+      const ada = aksi.indexOf('.storage.from("assets").list(');
+      const tulis = aksi.indexOf('supabase.from("persons").update({ photo_path: jalur })');
+      c.expect(milik > 0 && ada > milik && tulis > ada, "the action does not check the folder and the file before the person's own update");
+      c.expect(!/supabaseService\(\)\.from\("persons"\)/.test(aksi), "the action writes the person with the service key");
+      const kontrak = await import("../src/lib/foto-profil-kontrak");
+      const p = "11111111-1111-4111-8111-111111111111";
+      const q = "22222222-2222-4222-8222-222222222222";
+      c.expect(kontrak.jalurFotoBaru(p, q, "image/png") === `profile/${p}/${q}.png` && kontrak.jalurFotoBaru(p, q, "image/gif") === null,
+        "the contract does not keep PNG, JPEG and WebP only");
+      c.expect(kontrak.fotoMilik(p, `profile/${p}/${q}.jpg`) && !kontrak.fotoMilik(p, `profile/${q}/${q}.jpg`) && !kontrak.fotoMilik(p, `profile/${p}/../x.jpg`),
+        "the contract accepts a path outside the person's own folder");
+      c.expect(!/photo/i.test(kode(baca(ctx.repoRoot, "src/components/sertifikat/KartuSertifikat.tsx")).replace(/NAME_ONLY/g, "")),
+        "the certificate reads a photo");
+      for (const k of ["judul", "arti", "alt", "pilih", "ganti", "batas", "besar", "jenis", "hapus", "naik", "ok", "dihapus", "gagal"]) {
+        for (const locale of ["id", "en"] as const) {
+          const kata = t(`akun.foto.${k}` as HleEvent, "staff", { locale });
+          c.expect(!!kata && !kata.startsWith("akun."), `akun.foto.${k} has no sentence in ${locale}`);
+        }
+      }
+      return c.verdict("«Akun saya» shows «Foto profil» (src/components/akun/FotoProfil.tsx): FileField, upload through the one signed route into "
+        + "profile/<own id>/, then simpanFotoAksi keeps the path only if it is in the person's own folder and the file exists, with the "
+        + "person's own client (persons_update_own), or removes it; the page reads only the own photo through a 300-second signed URL; PNG, "
+        + "JPEG and WebP only; the certificate reads no photo; every sentence in both languages");
+    },
+  },
+  {
+    id: "B4-ORANG-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const halaman = kode(baca(ctx.repoRoot, "src/app/aktivasi/orang/page.tsx"));
+      c.expect(/supabase\.rpc\("orang_berakun"/.test(halaman) && /<Koleksi\b/.test(halaman) && /posisiHalaman\(total, hal, UKURAN\)/.test(halaman),
+        "the corrections screen does not list the database's own people as a paged Collection");
+      c.expect(/dipilih\.boleh_email \?/.test(halaman) && /const identitas = dipilih\?\.boleh_identitas && platformIni/.test(halaman),
+        "the panel does not offer only what the database says this reader may correct");
+      c.expect(!/supabaseService/.test(halaman), "the corrections screen reads with the service key");
+      const aksi = kode(baca(ctx.repoRoot, "src/app/aktivasi/orang/actions.ts"));
+      c.expect(/supabase\.rpc\("correct_person_name", \{ p_person: orang, p_name: nilai, p_reason: alasan \}\)/.test(aksi)
+        && /supabase\.rpc\("correct_username", \{ p_person: orang, p_name: nilai, p_reason: alasan \}\)/.test(aksi) && !/supabaseService/.test(aksi),
+        "the name and username corrections are not the database's own, asked with the caller's client");
+      const aktivasi = kode(baca(ctx.repoRoot, "src/app/aktivasi/page.tsx"));
+      c.expect(/href="\/aktivasi\/orang"/.test(aktivasi), "Aktivasi does not lead to «Koreksi data orang»");
+      for (const k of ["DITOLAK", "REASON_REQUIRED", "IDENTITY_NOT_FOUND", "NAME_INVALID", "NAME_UNCHANGED", "PERMINTAAN_TIDAK_SAH", "LAYANAN_TIDAK_TERSEDIA"]) {
+        for (const locale of ["id", "en"] as const) {
+          const kata = t(`orang.gagal.${k}` as HleEvent, "staff", { locale });
+          c.expect(!!kata && !kata.startsWith("orang."), `orang.gagal.${k} has no sentence in ${locale}`);
+        }
+      }
+      return c.verdict("/aktivasi/orang lists orang_berakun as a paged Collection with the caller's client, opens a panel offering only the "
+        + "corrections the database grants this reader (boleh_email, boleh_identitas), and asks correct_person_name and correct_username "
+        + "with the caller's client; Aktivasi leads to it; every refusal has a sentence in both languages");
+    },
+  },
+  {
+    id: "B4-PINDAH-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const halaman = kode(baca(ctx.repoRoot, "src/app/konfigurasi/page.tsx"));
+      c.expect(/supabase\.rpc\("cari_sekolah_tujuan", \{ p_kata: cariSekolah \}\)/.test(halaman) && /supabase\.rpc\("pindah_masuk", \{ p_sekolah: satuSekolah \}\)/.test(halaman),
+        "Konfigurasi does not find the destination by the directory, or read the incoming requests, through the database");
+      c.expect(/data-pindah="keluar"/.test(halaman) && /action=\{transferMintaAction\}/.test(halaman) && /action=\{transferTerimaAction\}/.test(halaman),
+        "Konfigurasi does not offer the request and the acceptance");
+      const aksi = kode(baca(ctx.repoRoot, "src/app/konfigurasi/actions.ts"));
+      c.expect(/supabase\.rpc\("transfer_minta"/.test(aksi) && /supabase\.rpc\("transfer_terima"/.test(aksi), "the actions do not ask transfer_minta and transfer_terima");
+      for (const k of ["galat.transfer_search_short", "pindah.masuk.judul", "pindah.keluar.judul", "pindah.cari.kosong", "pindah.tujuan"] as const) {
+        for (const locale of ["id", "en"] as const) {
+          const kata = t(k as HleEvent, "staff", { locale });
+          c.expect(!!kata && kata !== k, `${k} has no sentence in ${locale}`);
+        }
+      }
+      return c.verdict("Konfigurasi · Perpindahan finds a destination school through cari_sekolah_tujuan (exact name or code), requests the "
+        + "transfer through transfer_minta, and shows the receiving school its incoming requests (pindah_masuk) to accept into its own "
+        + "school year through transfer_terima; every sentence in both languages");
+    },
+  },
 ];
 
 export const b4AppTests: SelfTest[] = [

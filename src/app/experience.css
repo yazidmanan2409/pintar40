@@ -3047,3 +3047,10 @@ select:not([multiple]):not([size]) {
 .pin-koreksi, .pin-akt-staf { display: grid; gap: var(--space-3); max-width: 60ch; margin: var(--space-4) 0 0; }
 .pin-koreksi + .pin-koreksi { border-top: 1px solid var(--line); padding-top: var(--space-4); }
 .pin-koreksi-judul { margin: 0; font-size: var(--type-body); font-weight: var(--weight-strong); color: var(--ink-1); }
+
+/* W2.8 (Batch 4, CR-07) · THE PROFILE PHOTO: a 96 px square picture (or its empty frame) beside the FileField; stacks
+   under 480 px. */
+.pin-foto-profil { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-start; }
+.pin-foto { width: 96px; height: 96px; border-radius: var(--radius-2); object-fit: cover; border: 1px solid var(--line); background: var(--surface-2); flex: none; }
+.pin-foto-kosong { display: block; }
+.pin-foto-aksi { display: grid; gap: var(--space-2); flex: 1 1 240px; min-width: 0; }
