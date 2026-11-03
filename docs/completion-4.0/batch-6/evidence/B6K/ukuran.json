@@ -1,0 +1,135 @@
+{
+  "layar1280": {
+    "mukaPx": {
+      "lebar": 350,
+      "tinggi": 220.703125
+    },
+    "rasio": 1.5858407079646017,
+    "rasioCR80": 1.585772508336421,
+    "garisDepanTengahMm": 31.996821428571426,
+    "garisBelakangTengahMm": 31.996821428571426,
+    "garisTebalMm": 0.7489999999999999,
+    "merekMm": {
+      "kiri": 5.999642857142857,
+      "atas": 5.567821428571428,
+      "lebar": 5.170392857142857,
+      "tinggi": 2.896642857142857
+    },
+    "ubinMm": {
+      "kiri": 31.736964285714283,
+      "atas": 3.599785714285714,
+      "lebar": 22.122249999999998,
+      "tinggi": 26.02392857142857
+    },
+    "namaKiriMm": 5.999642857142857,
+    "warnaBidang": "rgb(68, 106, 75)",
+    "warnaGaris": "rgb(192, 156, 79)",
+    "warnaUbin": "rgb(227, 239, 236)",
+    "warnaModul": "rgb(36, 95, 85)",
+    "gambar": [
+      "/brand/pintar-selalu-logo.png"
+    ],
+    "lebarGulir": 1280,
+    "lebarJendela": 1280
+  },
+  "layar320": {
+    "mukaPx": {
+      "lebar": 256,
+      "tinggi": 161.421875
+    },
+    "rasio": 1.5859064950150035,
+    "rasioCR80": 1.585772508336421,
+    "garisDepanTengahMm": 31.998120117187497,
+    "garisBelakangTengahMm": 31.998120117187497,
+    "garisTebalMm": 0.747119140625,
+    "merekMm": {
+      "kiri": 5.997851562499999,
+      "atas": 5.5694335937499995,
+      "lebar": 5.172363281249999,
+      "tinggi": 2.8996582031249996
+    },
+    "ubinMm": {
+      "kiri": 31.734277343749998,
+      "atas": 3.5997558593749996,
+      "lebar": 22.120996093749998,
+      "tinggi": 26.023779296875
+    },
+    "namaKiriMm": 5.997851562499999,
+    "warnaBidang": "rgb(68, 106, 75)",
+    "warnaGaris": "rgb(192, 156, 79)",
+    "warnaUbin": "rgb(227, 239, 236)",
+    "warnaModul": "rgb(36, 95, 85)",
+    "gambar": [
+      "/brand/pintar-selalu-logo.png"
+    ],
+    "lebarGulir": 320,
+    "lebarJendela": 320
+  },
+  "cetak": {
+    "mukaPx": {
+      "lebar": 323.515625,
+      "tinggi": 204
+    },
+    "rasio": 1.5858609068627452,
+    "rasioCR80": 1.585772508336421,
+    "garisDepanTengahMm": 31.997160106254526,
+    "garisBelakangTengahMm": 31.997160106254526,
+    "garisTebalMm": 0.7483023424293649,
+    "merekMm": {
+      "kiri": 5.998821540690654,
+      "atas": 5.568857763825163,
+      "lebar": 5.171968123641633,
+      "tinggi": 2.898121226756822
+    },
+    "ubinMm": {
+      "kiri": 31.734634146341463,
+      "atas": 3.5968123641632452,
+      "lebar": 22.12246317314658,
+      "tinggi": 26.02107703453272
+    },
+    "namaKiriMm": 5.998821540690654,
+    "warnaBidang": "rgb(68, 106, 75)",
+    "warnaGaris": "rgb(192, 156, 79)",
+    "warnaUbin": "rgb(227, 239, 236)",
+    "warnaModul": "rgb(36, 95, 85)",
+    "gambar": [
+      "/brand/pintar-selalu-logo.png"
+    ],
+    "lebarGulir": 1280,
+    "lebarJendela": 1280,
+    "mukaMm": {
+      "lebar": 85.59684244791667,
+      "tinggi": 53.974999999999994
+    }
+  },
+  "contoh": {
+    "dua-sekolah": {
+      "baris": [
+        "Guru · SMP Cahaya Kaliandra",
+        "Kepala departemen · SMA Bukit Asri Kaliandra"
+      ],
+      "keluarga": "guru",
+      "pengecualian": null,
+      "warnaBidang": "rgb(68, 106, 75)"
+    },
+    "satu-sekolah-dua-peran": {
+      "baris": [
+        "Dekan · Guru",
+        "Sekolah Cendekia Kaliandra"
+      ],
+      "keluarga": "dekan",
+      "pengecualian": null,
+      "warnaBidang": "rgb(81, 94, 131)"
+    },
+    "tiga-pasangan": {
+      "baris": [
+        "Admin platform",
+        "Admin sekolah · Sekolah Menengah Kejuruan Teknologi dan Rekayasa Nusa Kaliandra Timur",
+        "Guru · SMP Cahaya Kaliandra"
+      ],
+      "keluarga": "admin-platform",
+      "pengecualian": "lebih-dari-dua",
+      "warnaBidang": "rgb(94, 96, 98)"
+    }
+  }
+}

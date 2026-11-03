@@ -2322,6 +2322,9 @@ export type HleEvent =
   | "akun.qr"
   | "akun.kartu_judul"
   | "akun.kartu_arti"
+  | "akun.kartu.depan"
+  | "akun.kartu.belakang"
+  | "akun.kartu.petunjuk"
   | "akun.kirim"
   | "akun.mengirim"
   | "akun.terkirim"
@@ -4793,6 +4796,12 @@ const table: Table = {
   "akun.qr": { default: "Kode QR untuk PINTAR ID Anda", en: "QR code for your PINTAR ID" },
   "akun.kartu_judul": { default: "Kartu PINTAR", en: "PINTAR Card" },
   "akun.kartu_arti": { default: "Kirim Kartu PINTAR Anda ke email Anda, untuk disimpan atau ditunjukkan.", en: "Send your PINTAR Card to your email, to keep or to show." },
+  // W3.20 (DAISY-24; D-074, D-120 Q16): the PINTAR Digital Card's two faces. The face itself is Bahasa Indonesia only
+  // (kartu-pintar ronde-2, «Already decided by Yazid»); the en rows name the faces for a reader of the English page.
+  "akun.kartu.depan": { default: "Kartu PINTAR, sisi depan", en: "PINTAR Card, front" },
+  "akun.kartu.belakang": { default: "Kartu PINTAR, sisi belakang", en: "PINTAR Card, back" },
+  // Daisy's words, approved as they stand (D-074(7))
+  "akun.kartu.petunjuk": { default: "Pindai untuk membuka halaman masuk PINTAR.", en: "Scan to open the PINTAR sign-in page." },
   "akun.kirim": { default: "Kirim kartu ke email saya", en: "Email the card to me" },
   "akun.mengirim": { default: "Mengirim…", en: "Sending…" },
   "akun.terkirim": { default: "Kartu sudah diserahkan ke server email untuk dikirim ke alamat Anda. PINTAR tidak bisa memastikan email itu sampai; jika belum ada di kotak masuk, periksa folder Spam.", en: "The card has been handed to the email server for your address. PINTAR can't confirm it arrives; if it isn't in your inbox, check your Spam folder." },

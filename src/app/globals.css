@@ -116,6 +116,28 @@
   --status-blocked: #8C3B3B;   --status-blocked-soft: #F6E4E4;
   --status-info: #3D5A80;      --status-info-soft: #E7EDF5;
 
+  /* the PINTAR Digital Card (W3.20 / DAISY-24; kartu-pintar ronde-2, frozen by
+     D-120 Q16). The card's own values, used by .pin-kd only: the six family
+     colours (D-074(1)) and the ochre line (D-074(2): the identity and artifact
+     language only, NEVER a UI accent); the screen card's narrowest and widest
+     size (Daisy's measured 266 and 440 px cards, ronde-2 §3); and §8's leading
+     and tracking. Lengths on the card itself are millimetres (experience.css). */
+  --kartu-emas: #C09C4F;
+  --kartu-murid: #725471;
+  --kartu-guru: #446A4B;
+  --kartu-kadep: #2E6973;
+  --kartu-dekan: #515E83;
+  --kartu-admin-sekolah: #7A5648;
+  --kartu-admin-platform: #5E6062;
+  --kartu-layar-min: 266px;
+  --kartu-layar-maks: 440px;
+  --kartu-nama-lh: 1.15; --kartu-nama-ls: -0.01em;
+  --kartu-id-lh: 1.2; --kartu-id-ls: 0.06em;
+  --kartu-bab-lh: 1.3; --kartu-bab-ls: 0.005em;
+  --kartu-petunjuk-lh: 1.35;
+  --kartu-situs-lh: 1.3; --kartu-situs-ls: 0.02em;
+  --kartu-kata: 0.06em;
+
   /* shape ----------------------------------------------------------------- */
   --radius-1: var(--radius-md);   /* v2 alias */
   --radius-2: var(--radius-lg);   /* v2 alias */
@@ -154,7 +176,7 @@
      tracking are the grammar's (sertifikat2.mts GAYA), named so the sheet's rules carry no free value. */
   --cert-akademik: #725471;
   --cert-profesi: #446A4B;
-  --cert-emas: #C09C4F;
+  --cert-emas: var(--kartu-emas); /* the card's gold line (Daisy, sertifikat ronde-2 §6: «0.75 mm, the card's») */
   --cert-lh-kepala: 1.15;
   --cert-lh-teks: 1.25;
   --cert-lh-arti: 1.5;

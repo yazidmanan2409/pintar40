@@ -2598,24 +2598,139 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-akt-selamat .pin-disc { justify-self: start; }
 .pin-akt-keluar { display: flex; justify-content: center; margin-top: var(--space-5); }
 
-/* THE PINTAR ID, 4 + 4, with its QR (Akun saya and the welcome). The ID never
-   breaks across its space; the QR is the certificate page's own box. On the
-   narrowest phones the QR goes under the text rather than squeezing it. */
-.pin-idn {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-4); align-items: start;
-  padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-2); background: var(--surface-1);
+/* THE PINTAR ID (Akun saya and the welcome): since W3.20 the panel is the
+   PINTAR Digital Card itself (below), with the line of what the ID means. */
+.pin-idn { display: grid; gap: var(--space-3); min-width: 0; }
+.pin-idn > .pin-meta { margin: 0; }
+
+/* W3.20 / DAISY-24 — THE PINTAR DIGITAL CARD, front and back, to the frozen
+   design (kartu-pintar ronde-2 §K, §5–§8, §L; D-074; D-120 Q16).
+   ONE UNIT. Every length is the design's own millimetres times --kp-mm, which
+   is the face's width over 85.6 (container query units). Printed, the face is
+   85.6 mm wide, so --kp-mm is exactly 1 mm (CR80 at actual size); on screen the
+   same numbers scale with the column. Type sizes are points: pt × 0.352778 mm.
+   THE COLOURS are the card's own (D-074(1), (2)): the --kartu-* tokens in
+   globals.css, read here and nowhere else. The ochre belongs to the identity
+   and artifact language only, never a UI accent. Paper, ink, PINTAR green and
+   the tile are the app's own tokens. */
+.pin-kd {
+  --kp-kertas: var(--surface-0);
+  --kp-tinta: var(--ink-1);
+  --kp-tinta2: var(--ink-2);
+  --kp-tinta3: var(--ink-3);
+  --kp-hijau: var(--pintar-primary);
+  --kp-ubin: var(--pintar-primary-soft);
+  --kp-emas: var(--kartu-emas);
+  --kp-murid: var(--kartu-murid);
+  --kp-guru: var(--kartu-guru);
+  --kp-kadep: var(--kartu-kadep);
+  --kp-dekan: var(--kartu-dekan);
+  --kp-admin-sekolah: var(--kartu-admin-sekolah);
+  --kp-admin-platform: var(--kartu-admin-platform);
+  --kp-pt: 0.352778;
+  display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: flex-start; min-width: 0;
 }
-.pin-idn-teks { display: grid; gap: var(--space-1); min-width: 0; }
-.pin-idn-teks p { margin: 0; }
-.pin-idn-nama { font-size: var(--type-card); font-weight: var(--weight-strong); overflow-wrap: anywhere; }
-.pin-idn-id {
-  font-family: var(--font-mono); font-size: var(--type-subhead); font-weight: var(--weight-strong);
-  font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink-1);
+/* Each face is its own container. On screen it is at most 440 px wide and at
+   least 266 px where the column allows (Daisy's measured screen cards, ronde-2
+   §3); a narrower column shrinks it, so a 320 px phone never scrolls sideways. */
+.pin-kd-wadah { container-type: inline-size; flex: 1 1 var(--kartu-layar-min); max-width: var(--kartu-layar-maks); min-width: 0; }
+/* NOTHING IS CUT: the face has no overflow clip (the lower field carries its
+   own corners), so text that outgrows its field — the unresolved exception of
+   more than two pairs, D-074(10) — shows instead of being silently truncated. */
+.pin-kd-muka {
+  --kp-mm: calc(100cqi / 85.6);
+  position: relative; width: 100%; aspect-ratio: 85.6 / 53.98;
+  background: var(--kp-kertas); color: var(--kp-tinta);
+  border-radius: calc(var(--kp-mm) * 3.18);
+  font-family: var(--font-sans); font-kerning: normal;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.pin-idn-konteks { margin: 0; padding: 0; list-style: none; font-size: var(--type-meta); color: var(--ink-2); }
-.pin-idn-qr { flex: none; }
+/* on screen, the app's one hairline round the trim, so the paper reads on a light page */
+.pin-kd-muka::after {
+  content: ""; position: absolute; inset: 0; border: 1px solid var(--line); border-radius: inherit; pointer-events: none;
+}
+.pin-kd-muka p, .pin-kd-muka ul { margin: 0; padding: 0; }
+/* the family colour below the line (front only), from the first role in the card's order */
+.pin-kd-depan[data-keluarga="murid"] { --kp-warna: var(--kp-murid); }
+.pin-kd-depan[data-keluarga="guru"] { --kp-warna: var(--kp-guru); }
+.pin-kd-depan[data-keluarga="kadep"] { --kp-warna: var(--kp-kadep); }
+.pin-kd-depan[data-keluarga="dekan"] { --kp-warna: var(--kp-dekan); }
+.pin-kd-depan[data-keluarga="admin-sekolah"] { --kp-warna: var(--kp-admin-sekolah); }
+.pin-kd-depan[data-keluarga="admin-platform"] { --kp-warna: var(--kp-admin-platform); }
+.pin-kd-bidang {
+  position: absolute; left: 0; right: 0; bottom: 0; top: calc(var(--kp-mm) * 32);
+  background: var(--kp-warna, transparent); border-radius: 0 0 calc(var(--kp-mm) * 3.18) calc(var(--kp-mm) * 3.18);
+}
+/* the ochre line: its centre at 32 mm on BOTH faces, 0.75 mm, full width */
+.pin-kd-garis {
+  position: absolute; left: 0; right: 0;
+  top: calc(var(--kp-mm) * (32 - 0.75 / 2)); height: calc(var(--kp-mm) * 0.75);
+  background: var(--kp-emas);
+}
+/* THE WORDMARK SLOT (§L): the 6 mm margin, cap top 5.57 mm, cap height 2.9 mm,
+   16.4 mm wide. Today's approved logo sits in it at the slot's height, its
+   width its own (D-160(a)); MerekKartu.tsx is the one-file swap. */
+.pin-kd-merek {
+  position: absolute; left: calc(var(--kp-mm) * 6); top: calc(var(--kp-mm) * 5.57);
+  width: calc(var(--kp-mm) * 16.4); height: calc(var(--kp-mm) * 2.9);
+  display: flex; align-items: flex-start;
+}
+.pin-kd-merek .pin-merek { height: 100%; }
+/* above the line, what is permanent: the name and the PINTAR ID stand 4.4 mm over the line and grow upward */
+.pin-kd-orang {
+  position: absolute; left: calc(var(--kp-mm) * 6); width: calc(var(--kp-mm) * (85.6 - 2 * 6));
+  bottom: calc(var(--kp-mm) * (53.98 - 32 + 0.75 / 2 + 4.4));
+}
+.pin-kd-nama {
+  font-weight: 600; font-size: calc(var(--kp-mm) * 12 * var(--kp-pt)); line-height: var(--kartu-nama-lh); letter-spacing: var(--kartu-nama-ls);
+  color: var(--kp-tinta); overflow-wrap: break-word;
+}
+.pin-kd-id {
+  font-family: var(--font-mono); font-weight: 500; font-size: calc(var(--kp-mm) * 9 * var(--kp-pt));
+  line-height: var(--kartu-id-lh); letter-spacing: var(--kartu-id-ls); white-space: nowrap; color: var(--kp-tinta2);
+}
+.pin-kd-orang .pin-kd-id { margin-top: calc(var(--kp-mm) * 1.3); }
+/* below the line, the current chapter: it hangs 4.0 mm under the line */
+.pin-kd-bab {
+  position: absolute; left: calc(var(--kp-mm) * 6); width: calc(var(--kp-mm) * (85.6 - 2 * 6));
+  top: calc(var(--kp-mm) * (32 + 0.75 / 2 + 4)); list-style: none; color: var(--kp-kertas);
+}
+.pin-kd-bab-baris {
+  font-weight: 400; font-size: calc(var(--kp-mm) * 8 * var(--kp-pt)); line-height: var(--kartu-bab-lh);
+  letter-spacing: var(--kartu-bab-ls); word-spacing: var(--kartu-kata);
+}
+.pin-kd-peran { font-weight: 600; letter-spacing: 0; }
+/* THE BACK: the PINTAR tile (§7), 22.125 × 26.025 mm, centred, top 3.6 mm, its
+   bottom 2 mm above the line; the symbol and its 4-module quiet zone fill the
+   square, the ID beneath the quiet zone, never in it */
+.pin-kd-ubin {
+  position: absolute; left: calc(var(--kp-mm) * (85.6 - 22.125) / 2); top: calc(var(--kp-mm) * 3.6);
+  width: calc(var(--kp-mm) * 22.125); height: calc(var(--kp-mm) * 26.025);
+  background: var(--kp-ubin); border-radius: calc(var(--kp-mm) * 1.6); overflow: hidden; color: var(--kp-hijau);
+}
+.pin-kd-ubin svg { display: block; width: 100%; height: auto; aspect-ratio: 1; }
+.pin-kd-id-ubin {
+  position: absolute; left: 0; right: 0; top: calc(var(--kp-mm) * (22.125 + 0.15));
+  text-align: center; padding-left: var(--kartu-id-ls); color: var(--kp-hijau);
+}
+.pin-kd-petunjuk {
+  position: absolute; left: calc(var(--kp-mm) * 6); width: calc(var(--kp-mm) * (85.6 - 2 * 6));
+  top: calc(var(--kp-mm) * (32 + 0.75 / 2 + 4)); text-align: center;
+  font-weight: 400; font-size: calc(var(--kp-mm) * 8 * var(--kp-pt)); line-height: var(--kartu-petunjuk-lh);
+  letter-spacing: var(--kartu-bab-ls); word-spacing: var(--kartu-kata); color: var(--kp-tinta);
+}
+.pin-kd-situs {
+  position: absolute; left: calc(var(--kp-mm) * 6); width: calc(var(--kp-mm) * (85.6 - 2 * 6));
+  bottom: calc(var(--kp-mm) * (6 - 0.4)); text-align: center;
+  font-weight: 400; font-size: calc(var(--kp-mm) * 6.5 * var(--kp-pt)); line-height: var(--kartu-situs-lh);
+  letter-spacing: var(--kartu-situs-ls); color: var(--kp-tinta3);
+}
+@media print {
+  /* on paper each face is CR80 at actual size, so --kp-mm is exactly 1 mm */
+  .pin-kd-wadah { flex: none; width: 85.6mm; max-width: none; break-inside: avoid; }
+  .pin-kd-muka::after { border-width: 0.2mm; }
+}
 @media (max-width: 360px) {
-  .pin-idn { grid-template-columns: minmax(0, 1fr); }
   /* With «Akun saya» beside «Keluar», a 320 px row left the staff name «Na…»,
      and the strip exists so the name can be read. On the narrowest phones the
      name takes the whole line and the two doors sit together under it, on the

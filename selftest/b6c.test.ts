@@ -281,7 +281,8 @@ export const b6cTests: SelfTest[] = [
 
       // the accents
       c.expect(token(globals, "--cert-akademik")?.toUpperCase() === "#725471" && token(globals, "--cert-profesi")?.toUpperCase() === "#446A4B"
-        && token(globals, "--cert-emas")?.toUpperCase() === "#C09C4F", "the accents or the gold are not Daisy's");
+        && token(globals, "--cert-emas") === "var(--kartu-emas)" && token(globals, "--kartu-emas")?.toUpperCase() === "#C09C4F",
+        "the accents are not Daisy's, or the gold line is not the card's own #C09C4F (sertifikat ronde-2 §6: «0.75 mm, the card's»)");
       c.expect(dari(".pin-sheet.pin-s-akademik")["--cert-aksen"] === "var(--cert-akademik)" && dari(".pin-sheet.pin-s-profesi")["--cert-aksen"] === "var(--cert-profesi)",
         "the accent does not follow the learning context");
 

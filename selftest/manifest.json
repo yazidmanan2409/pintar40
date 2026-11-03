@@ -4182,6 +4182,46 @@
       "proves": "W3.19 (Batch 6), selftest/b6c.test.ts: the certificate page's data rules (src/app/belajar/[tugas]/sertifikat/page.tsx, rendered through src/components/sertifikat/KartuSertifikat.tsx) are unchanged: the sheet renders only for ISSUED, a revoked or other non-issued certificate shows no QR and no link on screen or sheet and keeps its «dicabut» banner; the verification URL is the page's own (appUrl + /verifikasi/ + the token), the sheet's QR decodes to it exactly and the printed link is it without https://; name, course, school, number, date and descriptor are the credential's."
     },
     {
+      "id": "B6K-GEOMETRI-01",
+      "runner": "static",
+      "proves": "W3.20 / CR-21 / J2.16 (Batch 6, DAISY-24 ronde-2 §K, §5, §8), selftest/b6k.test.ts: the PINTAR Digital Card's CSS lays both faces out in one millimetre unit (the face's width over 85.6, exactly 1 mm in print where each face is 85.6 mm wide): CR80 85.6 x 53.98 with 3.18 mm corners, the ochre line centred at 32 mm and 0.75 mm thick as one rule on both faces, the 6 mm text margin, the name group 4.4 mm above and the chapter 4.0 mm below the line, the URL on the bottom margin, the type of §8, the tile inside the 3 mm safe margin."
+    },
+    {
+      "id": "B6K-WARNA-01",
+      "runner": "static",
+      "proves": "W3.20 (Batch 6; D-074(1), (2) and addendum (4)), selftest/b6k.test.ts: the card's six family colours are exactly D-074's (--kartu-* tokens in globals.css, read only by the card's rule in experience.css), reached only through the front's data-keluarga; the ochre #C09C4F is declared once and read by the card alone; paper, ink, green and tile are the app's tokens; rendered, a card takes the colour of its first role alphabetically (Kepala departemen + Guru gives Guru, Dekan + Guru gives Dekan)."
+    },
+    {
+      "id": "B6K-URUTAN-01",
+      "runner": "static",
+      "proves": "W3.20 (Batch 6; D-074(5), (6), (10), (11)), selftest/b6k.test.ts: src/lib/kartu-pintar.ts orders the card's roles alphabetically by the Terminology v1 names whatever the data's order, takes the first role's family colour, sets one school as roles then the school, two schools as one role with its school per line, never a school-less role under another's school, and with more than two pairs draws every line and marks the unresolved presentation exception (rendered)."
+    },
+    {
+      "id": "B6K-QR-01",
+      "runner": "static",
+      "proves": "W3.20 (Batch 6; DAISY-24 ronde-2 §7, D-074(7)), selftest/b6k.test.ts: the card's back is the PINTAR tile (#E3EFEC, modules #245F55, 22.13 x 26.02 mm centred, corners 1.6 mm, the full 4-module quiet zone, the ID beneath it); the QR path is exactly qrSvgPath(qrMatrix(tautanId)); the instruction is Daisy's «Pindai untuk membuka halaman masuk PINTAR.» from the copy table, and the address pintarselalu.com a constant (a proper noun never in the copy table)."
+    },
+    {
+      "id": "B6K-MEREK-01",
+      "runner": "static",
+      "proves": "W3.20 (Batch 6; D-120 Q16, D-160(a)), selftest/b6k.test.ts: the source and the rendered card show it draws its wordmark only through one replaceable component (src/components/kartu/MerekKartu.tsx, mounted once) holding today's approved logo (MerekPintar) in the wordmark's slot (6 mm, cap top 5.57 mm, 16.4 x 2.9 mm), sized by height alone; the wordmark is never live text on the card."
+    },
+    {
+      "id": "B6K-FOTO-01",
+      "runner": "static",
+      "proves": "W3.20 (Batch 6; D-085 T4, D-086(e), D-159(d)), selftest/b6k.test.ts: no Digital Card file or its data reader names photo_path, a photo or an avatar; the card takes only the page's language and DataKartu; rendered with a photograph planted in its data, its only image is the wordmark slot's logo and its only drawing the QR."
+    },
+    {
+      "id": "B6K-STAF-01",
+      "runner": "static",
+      "proves": "W3.20 (Batch 6; C17), selftest/b6k.test.ts: the Digital Card is drawn only through IdentitasSaya, which only Akun saya and the activation welcome draw; the learners' class-card sheet (LembarKartu) and the replacement card (KartuUlang) do not use it; my_identity_card still refuses anyone who is not staff."
+    },
+    {
+      "id": "B6K-DATA-01",
+      "runner": "static",
+      "proves": "W3.20 (Batch 6), selftest/b6k.test.ts: the source shows DataKartu stays the same four fields, read by GET /api/akun/kartu from my_identity_card through kartuDariDb into the same shape (the QR target unchanged); Akun saya's panel and the activation welcome both render the two faces with the name, the ID 4 + 4 as one text node, every role with its school, lang=id on the face, and the line of what the ID means."
+    },
+    {
       "id": "F26-W01",
       "runner": "db",
       "proves": "W2.10 (Batch 5; D-153; M7 and CR-91 kept), selftest/db/fable26.sql, migration 20261224100000: persons_awaiting_account_page answers 20 then 3 of 23 waiting by name with the total, by part of a name and by nomor induk, «%» as a word, nothing narrowed to another school, a staff member with no card; kelas_menunggu_akun counts the Kelas and no Tingkat; orang_kelas_menunggu_akun names exactly the 23 waiting learners each once in name order, not one with an account, an ENDED enrolment, a Tingkat membership or a staff role; a Guru and another school's admin read none of it; anon cannot run them."
