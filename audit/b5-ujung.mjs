@@ -135,7 +135,40 @@ let sertifikat = sesiSertifikat ? sql(`select x.certificate_id from public.certi
 if (sertifikat) sql(`select public.certificate_seal('${sertifikat}'::uuid, 1::smallint, repeat('b5w', 30))`);
 // (a re-run whose eligible sitting already holds a certificate revokes another issued one)
 if (!sertifikat) sertifikat = sql("select id from public.certificates where status = 'ISSUED' order by issued_at desc limit 1");
-// (b) two integrity observations an alpha sitting raised
+// (b) two integrity observations an alpha sitting raised. A fresh seed holds no alpha sitting (none of alpha's learners
+//     has an assignment), so when there is none the walk makes one, synthetic and controlled: a course, a release and a
+//     quick-assessment definition of alpha's own, and the sitting of a learner active in an alpha class (any: Batch 4's
+//     walk, run before this one in CI, transfers alpha-siswa-1 to beta) on it, in that class, opened and started.
+//     The database's own provenance trigger binds the person, school and period from the enrolment and derives the
+//     evidence class (SYNTHETIC); nothing outside alpha is read or written.
+const ADA_SESI = `select count(*) from public.assessment_sessions s where s.institution_id = '${alphaId}'
+   and s.class_node_id is not null and not public.session_is_professional(s.id)`;
+if (sql(ADA_SESI) === "0") {
+  sql(`do $$ declare v_enr uuid; v_kelas uuid; v_guru uuid; c uuid; r uuid; d uuid; s uuid := gen_random_uuid(); begin
+    select a.person_id into v_guru from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${ORANG.guru.email}';
+    select e.id, m.node_id into v_enr, v_kelas from public.enrollments e
+      join public.memberships m on m.enrollment_id = e.id and m.valid_to is null
+      join public.org_nodes n on n.id = m.node_id and n.kind = 'CLASS'
+     where e.institution_id = '${alphaId}' and e.status = 'ACTIVE'
+       and not exists (select 1 from public.role_assignments ra where ra.person_id = e.person_id and ra.revoked_at is null)
+     order by e.created_at limit 1;
+    if v_enr is null then raise exception 'fixture: no learner is active in an alpha class'; end if;
+    insert into public.courses (institution_id, subject, stage, grade_label, title, author_person_id)
+      values ('${alphaId}', 'Sintetis', 'SD', 'V', 'Walk B5 integritas ${TAG} (sintetis)', v_guru) returning id into c;
+    insert into public.plp_releases (institution_id, course_id, version_label, author_person_id)
+      values ('${alphaId}', c, '1.0.0', v_guru) returning id into r;
+    insert into public.assessment_definitions (institution_id, course_id, title, mode, bank_type, item_count, author_person_id)
+      values ('${alphaId}', c, 'Kuis sintetis ${TAG}', 'QUICK', 'PRACTICE', 5, v_guru) returning id into d;
+    insert into public.assessment_sessions (id, person_id, institution_id, enrollment_id, academic_period_id, class_node_id,
+       plp_release_id, assessment_definition_id, assessment_definition_version, engine_version, scoring_policy_version,
+       evidence_channel, evidence_class, mode)
+    select s, e.person_id, e.institution_id, e.id, e.academic_period_id, v_kelas, r, d, 1, 'engine-0',
+           public.scoring_policy_version(), 'ONLINE', public.derive_evidence_class(e.institution_id, 'ONLINE'), 'QUICK'
+      from public.enrollments e where e.id = v_enr;
+    update public.assessment_sessions set status = 'IN_PROGRESS', started_at = now() - interval '5 minutes' where id = s;
+  end $$`);
+  if (sql(ADA_SESI) === "0") throw new Error("fixture: no alpha sitting could be made, so B5-W2 has nothing to review");
+}
 const sesiAlpha = sql(`select s.id || '|' || p.display_name from public.assessment_sessions s join public.persons p on p.id = s.person_id
    where s.institution_id = '${alphaId}' and s.class_node_id is not null and not public.session_is_professional(s.id) order by s.created_at limit 1`);
 const [sesiId, namaMuridSesi] = sesiAlpha.split("|");

@@ -10,8 +10,11 @@
 //   F2  «keep the guided tour non-modal, with accessible keyboard operation, dismissal and continuation»: a learner who
 //       has not seen it lands on Belajar; the tour is a dialog that is not aria-modal and leaves the page usable (not
 //       inert); Tab reaches its buttons and leaves it for the page (no trap); Enter on «Berikutnya» continues to the next
-//       step and «Kembali» goes back; Esc dismisses it and it does not open by itself again. (A learner who has already
-//       seen it opens it from «Bantuan» by keyboard: tour state is never deleted, so no fixture can make it new.)
+//       step and «Kembali» goes back; Esc dismisses it. Continuation follows the tour's approved rule (src/lib/tur.ts
+//       akanMunculLagi): Esc is a skip, so under the cap of automatic presentations the tour is offered again by itself
+//       on the next visit; ticking «Jangan tampilkan lagi» by keyboard (Tab, Space) and closing records the choice, and it
+//       is not offered by itself again, while «Bantuan» still offers it. (A learner who has already seen it opens it from
+//       «Bantuan» by keyboard: tour state is never deleted, so no fixture can make it new.)
 //
 // Local or CI stack with the synthetic and human-evaluation seeds: APP_URL, NEXT_PUBLIC_SUPABASE_URL,
 // NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_DB_URL. Writes OUT_DIR/b5-fokus.json and screenshots; exits 1 on any FAIL.
@@ -148,7 +151,7 @@ await step("F1", "leaving MODE PERAGAAN returns the evaluator to the Hub, signed
 });
 
 // ── F2 the tour, by keyboard
-await step("F2", "the guided tour is non-modal and works by keyboard: Tab in and out, Enter continues, «Kembali» goes back, Esc dismisses", async (rec) => {
+await step("F2", "the guided tour is non-modal and works by keyboard: Tab in and out, Enter continues, «Kembali» goes back, Esc skips (offered again under the cap), «Jangan tampilkan lagi» stops it", async (rec) => {
   const orang = sql(`select a.person_id from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = '${MURID.email}'`);
   const { context, page } = await konteks(browser, MURID);
   await page.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
@@ -202,10 +205,42 @@ await step("F2", "the guided tour is non-modal and works by keyboard: Tab in and
   harus(rec, (await page.locator('[role="dialog"][aria-labelledby="pin-tur-judul"]').count()) === 0, "Esc dismisses the tour");
   await shot(page, rec, "tur-ditutup");
   await page.waitForTimeout(500);
-  const tercatat = sql(`select coalesce(bool_or(suppressed_at is not null or completed_at is not null or auto_shown_count > 0), false)::text from public.person_tour_state where person_id = '${orang}'`);
-  harus(rec, tercatat === "true", "the tour's state is recorded for the learner");
+  // what the learner's durable state now says (the tour's own rule, src/lib/tur.ts akanMunculLagi: finished, «Jangan
+  // tampilkan lagi», or the cap of automatic presentations stops it for good; Esc and «Lewati» are a skip, which does not)
+  const KEADAAN = `select coalesce((select (s.completed_at is not null)::text || '|' || (s.suppressed_at is not null)::text || '|' || s.auto_shown_count
+       || '|' || r.auto_presentation_limit from public.person_tour_state s join public.tour_registry r on r.tour_key = s.tour_key
+      where s.person_id = '${orang}' and s.tour_key = 'learner.first_login'), 'none')`;
+  const keadaan = sql(KEADAAN);
+  if (otomatis) harus(rec, /^false\|false\|[1-9]/.test(keadaan), `the automatic presentation is counted for the learner, and Esc neither finished nor suppressed it (${keadaan})`);
+  const [selesai, bungkam, kali, batas] = keadaan.split("|");
+  const lagi = keadaan !== "none" && selesai === "false" && bungkam === "false" && Number(kali) < Number(batas);
+  // continuation: a skip under the cap is offered again by itself on the next visit; otherwise it is not
   await page.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
-  harus(rec, (await page.locator('[role="dialog"][aria-labelledby="pin-tur-judul"]').count()) === 0, "dismissed, it does not open by itself on the next visit");
+  await page.waitForTimeout(400);
+  harus(rec, (await dialog.count()) === (lagi ? 1 : 0),
+    lagi ? `skipped with Esc under the cap (${kali} of ${batas}), it is offered again by itself on the next visit`
+         : "finished, suppressed or at its cap, it does not open by itself on the next visit");
+  if (lagi && (await dialog.count()) === 1) {
+    // dismissal for good, by keyboard: Tab to «Jangan tampilkan lagi», Space ticks it, Esc closes; recorded, never again
+    const kotak = dialog.locator('input[type="checkbox"]');
+    harus(rec, (await kotak.count()) === 1, "an automatic presentation offers «Jangan tampilkan lagi»");
+    if (await kotak.count()) {
+      let n = 0;
+      await dialog.locator("button").first().focus();
+      while (n++ < 12 && !(await kotak.evaluate((el) => el === document.activeElement))) await page.keyboard.press("Tab");
+      harus(rec, await kotak.evaluate((el) => el === document.activeElement), "Tab reaches «Jangan tampilkan lagi»");
+      await page.keyboard.press("Space");
+      harus(rec, await kotak.isChecked(), "Space ticks it");
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(800);
+      harus(rec, (await dialog.count()) === 0, "Esc closes the tour");
+      harus(rec, sql(KEADAAN).split("|")[1] === "true", "the learner's choice is recorded (suppressed)");
+      await page.goto(`${APP}/belajar`, { waitUntil: "networkidle" });
+      await page.waitForTimeout(400);
+      harus(rec, (await dialog.count()) === 0, "suppressed, it does not open by itself on the next visit");
+      harus(rec, (await page.locator('[data-tur="bantuan"]').count()) > 0, "«Bantuan» still offers it");
+    }
+  }
   await context.close();
 });
 

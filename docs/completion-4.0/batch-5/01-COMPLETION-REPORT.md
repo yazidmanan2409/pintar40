@@ -7,6 +7,8 @@
 - Nothing is merged to `main`. Nothing is deployed to staging. Production is untouched. Dr Gladys's demonstration records are untouched. The staging freeze holds (D-155).
 
 **Verdict: IMPLEMENTED AND VERIFIED ON THE BRANCH. Stopped at the promotion gate.**
+
+> **Promotion gate (D-157):** the owner's conditions before merging, and what was done overnight to meet them, are in `02-PROMOTION-PRECONDITIONS.md`. Where this page and that one differ, that one is later.
 - Every engineering item of the Batch 5 plan is built, with guards that are red on the base and green after.
 - **W2.10 is now implemented** as a focused correction (§1.3). It stays unaccepted until it is verified on staging.
 - Three items need Daisy (W3.8 body and print, W3.12, W3.16), one needs Dr Gladys's words (the metric labels), and one design conflict needs a ruling (the tour). All are in §5.
@@ -37,7 +39,7 @@ The test ids are in `selftest/manifest.json`. B5-*, B5A-*, B5B-* and B5C-* are s
 | Item | Done | Evidence |
 |---|---|---|
 | **W3.8 · report pages** (RV-11; J7.2–J7.4; X.7) | **PARTIAL by design rule.** <br>• Both «Ringkasan Kelas» and «Ringkasan Sekolah» are in the staff shell, with the context's own places. <br>• They name the school, the class (class report) and the school year. The school report says its figures cover every school year, because they do. <br>• They follow the reader's language, keep «Kembali» and «Cetak», and print with no navigation. <br>• **The report body and the print layout have no Daisy composition** and are registered (§5). | B5A-LAPORAN-K01; walk B5-W4; `evidence/B5A/*-print.png`, `*.pdf` |
-| **W3.9 · Pimpinan** (RV-9; X.5; J9.3) | • «(0/5)» is now the CR-46 sentence («Sekarang 0 murid; perlu 5.»). <br>• The class and school metrics are named for what they measure and never «Peserta». <br>• The cards are spaced. <br>• No calculation or visibility rule changed. | B5A-PIMPINAN-K01 |
+| **W3.9 · Pimpinan** (RV-9; X.5; J9.3) | • «(0/5)» is now the CR-46 sentence («Sekarang 0 murid; perlu 5.»). <br>• The metric labels stay Terminology v1's «Peserta» and «Kenaikan» (D-157(a)); distinct words are asked of Dr Gladys (02, condition 1). <br>• The cards are spaced. <br>• No calculation or visibility rule changed. | B5A-PIMPINAN-K01 |
 | **W2.6 · briefings hidden** (CR-37; J7.5) | The class page's briefing promise, the dead `briefings` reader and the stale predicate are gone. | B5A-TAKLIMAT-K01 |
 
 ### 1.3 Administration (W2.10, the focused correction)
@@ -52,7 +54,7 @@ The test ids are in `selftest/manifest.json`. B5-*, B5A-*, B5B-* and B5C-* are s
 |---|---|---|
 | **W2.18 · J5.13** | • On the teacher's view of one learner: «Tujuan pembelajaran yang belum tercapai», each objective by its statement, from the class's own official Uji Penguasaan against the mark sealed on each attempt. <br>• No figure, item, answer or key. <br>• `tujuan_belum_tercapai` answers only the class's own teacher, and only for a learner placed in it. Any other reader gets an empty answer. | B5C-MURID-K01; F25-T01, F25-T02; walk B5-W5 |
 | **UX-37** | • Each class's waiting work is on `/mengajar`, worked out by the same logic Langkah uses. <br>• «Sedang berjalan» rows open. | B5C-BERANDA-K01 |
-| **UX-41** | «Penguasaan per tujuan pembelajaran» (Daisy's DAISY-29 words). The rows were already named by statement. | B5C-BUKTI-K01 |
+| **UX-41** | The rows are named by their objective's statement. The heading stays the approved «Penguasaan per bagian» (D-157(a)); DAISY-29's «Penguasaan per tujuan pembelajaran» is asked of Dr Gladys. | B5C-BUKTI-K01 |
 | **UX-45** | A teacher's refusals end with the staff recovery line, never the learner's. | B5C-TOLAK-K01; UX1-AJAR-KATA-01 restated |
 
 ### 1.5 Learner workflows
@@ -64,7 +66,7 @@ The test ids are in `selftest/manifest.json`. B5-*, B5A-*, B5B-* and B5C-* are s
 | **UX-40** | • A new, unseen result is the next action on Belajar. Opening it marks it seen; existing results are back-filled as seen. <br>• Migration 193: `result_views`, no client access, reached only through two functions scoped to `current_person_id()`. | B5B-HASIL-K01; `evidence/B5B/ux40-db-bukti.*` |
 | **UX-46** | The certificate refusal goes back to «Sertifikat». | B5B-SERTIFIKAT-K01 |
 | **W3.15 · the tour** (RV-19, UX-38) | • Non-modal: the landing stays usable; Esc still closes it. <br>• The ring stands clear of its target, and there is no focus box on the heading. <br>• At 320 px the sheet never covers the target (7 of 7 steps). | B5B-TUR-K01; UX1-TUR-AKSES-01 restated; `evidence/B5B/tur-*` |
-| **W3.13 · J6 Peragaan band** | • Daisy's deep-ink band, a region named «MODE PERAGAAN». Its two ways out are the first stops after the skip link. <br>• Every title inside is prefixed «MODE PERAGAAN · ». <br>• «Anda sudah keluar dari peragaan.» shows after leaving. Leaving now also ends the evaluator's own sign-in. | B5B-PERAGAAN-K01; `evidence/B5B/j6-*` |
+| **W3.13 · J6 Peragaan band** | • Daisy's deep-ink band, a region named «MODE PERAGAAN». Its two ways out are the first stops after the skip link. <br>• Every title inside is prefixed «MODE PERAGAAN · ». <br>• Leaving returns the evaluator to the Hub signed in as themselves, with «Anda sudah keluar dari peragaan.»; signing out ends both (D-157(c); walked, `audit/b5-fokus.mjs` F1). | B5B-PERAGAAN-K01; `evidence/B5B/j6-*` |
 | **W2.16 · educator as learner** (CR-57 = DAISY-35) | • Items 1–4 are done: the Belajar door, refusal persona, an adult shell for a teaching senior, and no emoji. <br>• Item 5 (the PD Kelas «Lihat bukti» presentation) has no composition: registered. | B5B-AJAR-K01; UX1-AJAR-KONTEKS-01 restated |
 
 ### 1.6 Blocked on Daisy (registered, not invented)
@@ -157,10 +159,10 @@ Screen evidence from the parallel streams is in `evidence/B5A/` (reports at 1280
 | 1 | **W3.8:** the report body's composition and the A4 print layout (page breaks, margins, a repeated header line) | Daisy |
 | 2 | **W2.16 item 5:** the PD Kelas «Lihat bukti» presentation | Daisy |
 | 3 | **W3.12** (J3 navigation under L3), **W3.16** (the chooser and its six words), **W3.6**, **UX-09** | Daisy (+ Dr Gladys for words) |
-| 4 | **Tour modality:** `08-migration.md` keeps the tour «unchanged in behaviour: today's one modal»; UX-38 and this batch make it non-modal. Which stands? | Owner or Daisy |
-| 5 | **W3.9 metric labels:** «Murid yang dinilai di kelas ini», «Rata-rata kenaikan penguasaan di kelas ini» and their school forms replace «Peserta» / «Kenaikan». Terminology v1 ruling 8 had kept «Peserta» for the metric; J9.3 says it is the participant's word. | Dr Gladys (words) |
+| 4 | **Tour modality:** settled by the owner, D-157(b): non-modal, dismissible, keyboard accessible (walked, `audit/b5-fokus.mjs` F2). | — |
+| 5 | **W3.9 metric labels and the UX-41 heading:** the approved «Peserta», «Kenaikan» and «Penguasaan per bagian» are kept (D-157(a)); the exact questions are in `02-PROMOTION-PRECONDITIONS.md`, condition 1. | Dr Gladys (words) |
 | 6 | Words written by engineering, for review. <br>• The revocation and integrity strings (`sertifikat.kelola.*`, `sertifikat.cabut.*`, `studio.integritas.*`), where Daisy gave the grammar but not the words. <br>• `laporan.cakupan.*` and `mengajar.murid1.tujuan*`. <br>• `lesson.media.tidak_ada*`, `aktivasi.tunggu.*` and `tolak.kembali_sertifikat`. | Dr Gladys / Daisy |
-| 7 | **Behaviour change to note:** leaving MODE PERAGAAN now also ends the evaluator's sign-in, so the leaving line can be shown on `/masuk`. | Owner (accept or revert) |
+| 7 | **MODE PERAGAAN exit:** reverted by the owner's condition (D-157(c)); leaving returns to the Hub, signed in. | — |
 | 8 | **Not exercised here:** the whole-class card run over the per-class read was not walked in a browser. It runs in CI's journey step M7. | — |
 | 9 | **W9.12** (recovery readiness after a logical restore) and the Batch 9 items are unchanged | Batch 9 |
 
