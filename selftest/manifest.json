@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 199,
+  "version": 201,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3940,6 +3940,29 @@
       "id": "STUDIO3C-BANK-01",
       "runner": "static",
       "proves": "F-7 / W1.11 (owner ruling, 2 Nov, Batch 3 closure; QN5, J4.8, J4.9), selftest/studio3c.test.ts: executes tabStudio (src/lib/studio-tab.ts): Bank Soal is offered to a Guru who authors (CAN_DRAFT) and to a Question Health reviewer, not to a teacher who only gives material or an integrity reviewer alone; the source of src/app/studio/bank/page.tsx lists only the schools whose bank the reader browses, reads keys and reasons where the reader holds CAN_DRAFT, and reads Question Health, shows the evidence figures and offers the review form only where the reader holds CAN_REVIEW_QUESTION_HEALTH."
+    },
+    {
+      "id": "F24-K01",
+      "runner": "db",
+      "proves": "D-152(a) a class-card learner becomes staff through an email account (Batch 4), measured in selftest/db/fable24.sql against supabase/migrations/20261217100000_a_card_learner_becomes_staff_through_an_email_account.sql: the school admin's authorize_card_conversion and Auth's address move keep the same account row, Auth user, person and PINTAR ID; the account becomes EMAIL with its set-up REQUIRED (the new address is offered an activation code); the card's PIN and address sign nobody in; account.card_converted_to_email is audited with the reason, the old card and the new address; a staff role refused before (STAFF_ROLE_FOR_CARD) is granted after, and the person holds a role and no card (CR-91 unchanged).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F24-K02",
+      "runner": "db",
+      "proves": "D-152(a) the card conversion's refusals, measured in selftest/db/fable24.sql: no reason (REASON_REQUIRED), a malformed address (EMAIL_INVALID), a taken address (EMAIL_TAKEN), a person with no card (CARD_NOT_FOUND), a Guru and another school's administrator (42501); a card's address moved without a grant or to another address than granted (CARD_ADDRESS_REFUSED); after the conversion an unguarded change of the new address (EMAIL_CHANGE_REFUSED).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "B4-KARTU-K01",
+      "runner": "static",
+      "proves": "D-152(a) (Batch 4), selftest/b4.test.ts: the source of src/app/aktivasi/page.tsx offers «Murid yang menjadi staf» (src/components/aktivasi/KartuJadiEmail.tsx) beside «Kartu hilang atau rusak», posting the address and the reason through the TextField primitive to /api/akun/kartu-ke-email, whose source refuses a foreign origin and a signed-out caller, asks authorize_card_conversion with the caller's own client and only then makes its one service-key write (Auth's address move); every database refusal maps to a contract code (src/lib/kartu-jadi-email-kontrak.ts) with a sentence in both languages (src/lib/hle.ts)."
+    },
+    {
+      "id": "B4-KARTU-A01",
+      "runner": "app",
+      "proves": "D-152(a) (Batch 4), selftest/b4.test.ts, live against the app and the local stack: a class-card learner signs in with the card; the platform admin's conversion without a reason is refused (ALASAN_WAJIB); with one it answers ok and the card no longer signs in; the same account row and Auth user are an EMAIL account; the person activates it with a code to the new address and signs in with their password; a staff role is then accepted where CR-91 refused it over the card; account.card_converted_to_email records the reason, the old card and the new address.",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
     }
   ]
 }

@@ -1885,6 +1885,27 @@ export type HleEvent =
   | "akun.pin.simpan"
   | "akun.pin.menyimpan"
   | "akun.pin.tersimpan"
+  | "aktivasi.staf.judul"
+  | "aktivasi.staf.arti"
+  | "aktivasi.staf.pilih"
+  | "aktivasi.staf.email"
+  | "aktivasi.staf.email.arti"
+  | "aktivasi.staf.alasan"
+  | "aktivasi.staf.alasan.arti"
+  | "aktivasi.staf.konfirmasi"
+  | "aktivasi.staf.ya"
+  | "aktivasi.staf.sibuk"
+  | "aktivasi.staf.ok.1"
+  | "aktivasi.staf.ok.2"
+  | "aktivasi.staf.gagal.DITOLAK"
+  | "aktivasi.staf.gagal.ALASAN_WAJIB"
+  | "aktivasi.staf.gagal.EMAIL_TIDAK_SAH"
+  | "aktivasi.staf.gagal.EMAIL_TERPAKAI"
+  | "aktivasi.staf.gagal.KARTU_TIDAK_ADA"
+  | "aktivasi.staf.gagal.BELUM_MASUK"
+  | "aktivasi.staf.gagal.PERMINTAAN_DITOLAK"
+  | "aktivasi.staf.gagal.PERMINTAAN_TIDAK_SAH"
+  | "aktivasi.staf.gagal.LAYANAN_TIDAK_TERSEDIA"
   | "aktivasi.ulang.judul"
   | "aktivasi.ulang.arti"
   | "aktivasi.ulang.cari"
@@ -4144,6 +4165,27 @@ const table: Table = {
   "akun.pin.simpan": { default: "Simpan PIN baru", en: "Save the new PIN" },
   "akun.pin.menyimpan": { default: "Menyimpan…", en: "Saving…" },
   "akun.pin.tersimpan": { default: "PIN baru tersimpan.", en: "Your new PIN is saved." },
+  "aktivasi.staf.judul": { default: "Murid yang menjadi staf", en: "A learner who becomes staff" },
+  "aktivasi.staf.arti": { default: "Kartu kelas hanya untuk murid. Bila seorang murid menjadi staf, ubah kartunya menjadi akun email lebih dulu. Orangnya tetap sama: nomor induk, kelas dan semua hasil belajarnya tetap. Setelah ia mengaktifkan akun email itu, berikan perannya.", en: "A class card is for learners only. When a learner becomes staff, turn their card into an email account first. They stay the same person: their PINTAR ID, classes and all their learning stay. Once they have activated that email account, give them their role." },
+  "aktivasi.staf.pilih": { default: "Ubah menjadi akun email", en: "Turn into an email account" },
+  "aktivasi.staf.email": { default: "Alamat email orang ini", en: "This person's email address" },
+  "aktivasi.staf.email.arti": { default: "Alamat yang akan ia pakai untuk masuk. Kode aktivasi dikirim ke alamat ini.", en: "The address they will sign in with. The activation code is sent to this address." },
+  "aktivasi.staf.alasan": { default: "Alasan", en: "Reason" },
+  "aktivasi.staf.alasan.arti": { default: "Misalnya: diangkat menjadi asisten guru. 10 sampai 500 karakter; dicatat.", en: "For example: appointed as a teaching assistant. 10 to 500 characters; recorded." },
+  "aktivasi.staf.konfirmasi": { default: "Kartu kelasnya akan langsung berhenti berlaku. Ubah sekarang?", en: "Their class card will stop working at once. Change it now?" },
+  "aktivasi.staf.ya": { default: "Ya, ubah menjadi akun email", en: "Yes, turn it into an email account" },
+  "aktivasi.staf.sibuk": { default: "Mengubah…", en: "Changing…" },
+  "aktivasi.staf.ok.1": { default: "sekarang memakai akun email", en: "now has an email account at" },
+  "aktivasi.staf.ok.2": { default: "Kartu kelasnya tidak berlaku lagi. Minta ia membuka «Aktifkan akun» dan meminta kode dengan alamat ini; setelah akun aktif, berikan perannya.", en: "Their class card no longer works. Ask them to open «Activate account» and ask for a code with this address; once the account is active, give them their role." },
+  "aktivasi.staf.gagal.DITOLAK": { default: "Anda tidak bisa mengubah akun murid ini.", en: "You can't change this learner's account." },
+  "aktivasi.staf.gagal.ALASAN_WAJIB": { default: "Tuliskan alasannya, 10 sampai 500 karakter.", en: "Write the reason, 10 to 500 characters." },
+  "aktivasi.staf.gagal.EMAIL_TIDAK_SAH": { default: "Periksa alamat emailnya.", en: "Check the email address." },
+  "aktivasi.staf.gagal.EMAIL_TERPAKAI": { default: "Alamat ini sudah dipakai akun lain. Pakai alamat lain.", en: "Another account already uses this address. Use another address." },
+  "aktivasi.staf.gagal.KARTU_TIDAK_ADA": { default: "Orang ini tidak punya kartu kelas.", en: "This person has no class card." },
+  "aktivasi.staf.gagal.BELUM_MASUK": { default: "Sesi Anda sudah berakhir. Masuk lagi, lalu coba lagi.", en: "Your session has ended. Sign in again, then try again." },
+  "aktivasi.staf.gagal.PERMINTAAN_DITOLAK": { default: "Muat ulang halaman ini, lalu coba lagi.", en: "Reload this page, then try again." },
+  "aktivasi.staf.gagal.PERMINTAAN_TIDAK_SAH": { default: "Isi alamat email dan alasannya.", en: "Fill in the email address and the reason." },
+  "aktivasi.staf.gagal.LAYANAN_TIDAK_TERSEDIA": { default: "Akun belum bisa diubah. Kartu kelasnya masih berlaku. Coba lagi sebentar lagi.", en: "The account could not be changed yet. The class card still works. Try again in a moment." },
   "aktivasi.ulang.judul": { default: "Kartu hilang atau rusak", en: "Lost or damaged card" },
   "aktivasi.ulang.arti": { default: "Terbitkan kartu baru untuk murid yang kehilangan kartunya atau kartunya rusak. Kartu lama langsung berhenti berlaku; akun, kelas dan semua hasil belajarnya tetap.", en: "Issue a new card for a learner whose card is lost or damaged. The old card stops working at once; their account, class and all their learning stay." },
   "aktivasi.ulang.cari": { default: "Cari nama murid", en: "Search for a learner's name" },

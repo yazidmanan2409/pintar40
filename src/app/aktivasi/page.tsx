@@ -11,6 +11,7 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import FormAktivasi from "@/components/aktivasi/FormAktivasi";
 import { KeAktifkan } from "@/components/aktivasi/HasilAktivasi";
 import KartuUlang, { type PemegangKartu } from "@/components/aktivasi/KartuUlang";
+import KartuJadiEmail from "@/components/aktivasi/KartuJadiEmail";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/aktivasi");
@@ -89,6 +90,8 @@ export default async function Aktivasi() {
         </div>
         <FormAktivasi locale={locale} orang={orang} adminSistem={platformIni} kelas={kelas} />
         <KartuUlang locale={locale} pemegang={pemegang} />
+        {/* D-152(a): a card learner who becomes staff gets an email account first, as the same person (CR-91) */}
+        <KartuJadiEmail locale={locale} pemegang={pemegang} />
         <KakiPintar />
       </main>
     </>
