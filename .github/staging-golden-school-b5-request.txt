@@ -1,0 +1,2 @@
+# 4 Nov (WIB), Batch 5 staging verification (D-157): Sekolah Uji B5 1104 after GS-01 to GS-21 (run 41713430814) and the Studio walk (run 41717420070); main 3412075
+slug: sekolah-uji-b5-1104
