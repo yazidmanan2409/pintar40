@@ -203,6 +203,21 @@ No test was removed or weakened.
 | W9 | Stuck send on «Email uji»; schools paged | listed with its age |
 | W10 | Profile photo added, shown, removed | `persons.photo_path` set, then cleared |
 
+## 2a. CI evidence on the candidate (PR #7, head `b66c4bb`)
+
+The candidate is [yazidmanan2409/pintar40#7](https://github.com/yazidmanan2409/pintar40/pull/7). Its head is `b66c4bba9fe7468225d0be30123328ffb5115c2f`.
+
+- **`ci`, run 41587206549:** all 18 jobs green, including the verdict job «green only when every job ran and succeeded». The jobs are:
+  - install, lint, typecheck and build;
+  - the migrations from a clean database plus seed, and the upgrade path from the previous schema to HEAD;
+  - the strict selftest contract on the local stack, which runs the full manifest, the new Batch 4 proofs included;
+  - every red-case job, static and db.
+- **`audit-journeys`, run 41587216584**, dispatched with `ref` set to the head SHA (the run log names `b66c4bb`), both jobs green:
+  - **A · every role's screens in the seeded world:** the crawl, the Studio walk (W6.5) and **the Batch 4 administration walk, 11/11 PASS** (B4-W0 to B4-W10).
+  - **B · Gladys's path from an empty production-like database:** PASS.
+
+So the exit gate holds in CI as well as locally.
+
 ## 3. Security boundaries kept
 
 - **School isolation:**
@@ -224,7 +239,7 @@ No test was removed or weakened.
 | UX-09 «nomor induk» naming | **AWAITING DAISY** | Identity copy (DAISY-20/24); no ruling exists |
 | W1.2, D1, D3 | **AWAITING DAISY** (unchanged) | Registered in Batch 3 |
 | Aktivasi's waiting-for-account list | **RESIDUAL (W2.10)** | Not paged. Seven journeys find people on its first page, and the list holds only people with no account yet, so it empties as accounts are made. Card holders, the permanent population, are searched on the server. Paging this list needs a server search and journey changes; proposed as a follow-up |
-| CI evidence | **PENDING** | The walk and the suite are proved locally. `audit-journeys` and CI on the head SHA run at the promotion gate |
+| CI evidence | **DONE** | Green on the head SHA; see §2a |
 | Staging | **NOT APPLIED** | Migrations 184–188 reach staging only on the promotion authorisation |
 
 ## 5. Stop
