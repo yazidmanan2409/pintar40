@@ -83,6 +83,28 @@ export const KODE_KEMBALI = [
   "SENDBACK_NOT_REVIEWER", "SENDBACK_NOT_IN_REVIEW", "SENDBACK_REVIEWER_IS_AUTHOR", "SENDBACK_REASON_MISSING",
 ] as const;
 
+/**
+ * W2.15 (Batch 4, F-10 / D-152(c)): a transfer between schools by name, refused by transfer_minta, transfer_terima and
+ * cari_sekolah_tujuan with PR040 and the DETAIL these codes come from (KODE_ANTAR_SEKOLAH_DARI_DB); the action maps them.
+ */
+export const KODE_ANTAR_SEKOLAH = [
+  "TRANSFER_DESTINATION_INVALID", "TRANSFER_REASON_REQUIRED", "TRANSFER_OPEN", "TRANSFER_ENROLLMENT_NOT_ACTIVE",
+  "TRANSFER_PERIOD_INVALID", "TRANSFER_PROGRAMME_INVALID", "TRANSFER_NOT_OPEN", "TRANSFER_SEARCH_SHORT",
+  "TRANSFER_PERIOD_MISSING",
+] as const;
+export const KODE_ANTAR_SEKOLAH_DARI_DB: Record<string, (typeof KODE_ANTAR_SEKOLAH)[number]> = {
+  DESTINATION_INVALID: "TRANSFER_DESTINATION_INVALID",
+  REASON_REQUIRED: "TRANSFER_REASON_REQUIRED",
+  TRANSFER_OPEN: "TRANSFER_OPEN",
+  ENROLLMENT_NOT_ACTIVE: "TRANSFER_ENROLLMENT_NOT_ACTIVE",
+  PERIOD_INVALID: "TRANSFER_PERIOD_INVALID",
+  PROGRAMME_INVALID: "TRANSFER_PROGRAMME_INVALID",
+  TRANSFER_NOT_OPEN: "TRANSFER_NOT_OPEN",
+  TRANSFER_NOT_FOUND: "TRANSFER_NOT_OPEN",
+  QUERY_TOO_SHORT: "TRANSFER_SEARCH_SHORT",
+  TRANSFER_PERIOD_MISSING: "TRANSFER_PERIOD_MISSING",
+};
+
 /** BOB-44: enrolling a person for professional learning, refused by PR090 with the code in DETAIL. */
 export const KODE_PESERTA = [
   "PD_NOT_ALLOWED", "PD_PLACE_INVALID", "PD_PLACE_NOT_FOR_EDUCATORS", "PD_PERSON_NOT_STAFF", "PD_ALREADY_ENROLLED",
@@ -142,6 +164,8 @@ export const KODE_SUKSES = [
   // DAISY-18 (D-047): the key actions say what was done, not only "saved"
   "ROLE_GRANTED", "ROLE_REVOKED",
   "TRANSFER_REQUESTED", "TRANSFER_AUTHORIZED", "TRANSFER_EXECUTED", "TRANSFER_REJECTED",
+  // W2.15 (Batch 4): the receiving school accepted a transfer into its own school year
+  "TRANSFER_ACCEPTED",
   "STEP_TAKEN", "CHECK_RUN", "FINDING_ACKNOWLEDGED", "REVISION_CREATED", "ASSIGNMENT_MOVED",
   // W1.5 (Batch 3; UX-01): one kind of finding acknowledged as a group; n: how many
   "FINDINGS_ACKNOWLEDGED",
@@ -184,7 +208,8 @@ export type KodeIsian = (typeof KODE_ISIAN)[number];
 export type KodeSukses = (typeof KODE_SUKSES)[number];
 
 /** Every code a banner may carry: these and the domain contracts' own. */
-export type KodeHasil = KodeGalat | KodeKonten | KodeIsian | KodeSukses | KodeTerbitan | KodePaket | KodeKonteks;
+export type KodeHasil = KodeGalat | KodeKonten | KodeIsian | KodeSukses | KodeTerbitan | KodePaket | KodeKonteks
+  | (typeof KODE_ANTAR_SEKOLAH)[number];
 
 /** A problem of a package upload, at its sheet and row. */
 export type MasalahHasil = { code: string; sheet?: string; row?: number };
@@ -324,6 +349,7 @@ export function rujukan(): string {
 const SEMUA_KODE = new Set<string>([
   ...KODE_GALAT, ...KODE_PINDAH, ...KODE_PINDAH_KELAS, ...KODE_KETUNTASAN, ...KODE_PESERTA, ...KODE_PEMELIHARAAN, ...KODE_KONTEN,
   ...KODE_KEMBALI,
+  ...KODE_ANTAR_SEKOLAH,
   ...KODE_ISIAN, ...KODE_SUKSES, ...KODE_KONTEKS,
   ...KODE_TERBITAN_DB, "RELEASE_INPUT_INVALID", "RELEASE_FAILED",
   ...KODE_TOLAK_PAKET, "PACKAGE_HAS_PROBLEMS", "PACKAGE_INPUT_INVALID", "PACKAGE_FAILED",

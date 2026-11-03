@@ -1011,6 +1011,28 @@ export type HleEvent =
   | "galat.template_saved"
   | "galat.role_granted"
   | "galat.role_revoked"
+  | "pindah.menunggu_tujuan"
+  | "pindah.masuk.judul"
+  | "pindah.masuk.dari"
+  | "pindah.masuk.tahun"
+  | "pindah.masuk.program"
+  | "pindah.masuk.terima"
+  | "pindah.keluar.judul"
+  | "pindah.keluar.arti"
+  | "pindah.cari.label"
+  | "pindah.cari.tombol"
+  | "pindah.cari.kosong"
+  | "pindah.tujuan"
+  | "galat.transfer_destination_invalid"
+  | "galat.transfer_reason_required"
+  | "galat.transfer_open"
+  | "galat.transfer_enrollment_not_active"
+  | "galat.transfer_period_invalid"
+  | "galat.transfer_programme_invalid"
+  | "galat.transfer_not_open"
+  | "galat.transfer_search_short"
+  | "galat.transfer_period_missing"
+  | "galat.transfer_accepted"
   | "galat.transfer_requested"
   | "galat.transfer_authorized"
   | "galat.transfer_executed"
@@ -3991,6 +4013,28 @@ const table: Table = {
   // DAISY-18 (D-047): the key actions say what was done
   "galat.role_granted": { default: "Peran diberikan.", en: "Role granted." },
   "galat.role_revoked": { default: "Peran dicabut.", en: "Role revoked." },
+  "pindah.menunggu_tujuan": { default: "Menunggu sekolah tujuan menerima dan memilih tahun ajarannya.", en: "Waiting for the receiving school to accept it and choose its school year." },
+  "pindah.masuk.judul": { default: "Permintaan pindah masuk", en: "Incoming transfer requests" },
+  "pindah.masuk.dari": { default: "dari", en: "from" },
+  "pindah.masuk.tahun": { default: "Tahun ajaran di sekolah ini", en: "School year at this school" },
+  "pindah.masuk.program": { default: "Program (opsional)", en: "Programme (optional)" },
+  "pindah.masuk.terima": { default: "Terima perpindahan", en: "Accept the transfer" },
+  "pindah.keluar.judul": { default: "Ajukan perpindahan ke sekolah lain", en: "Request a transfer to another school" },
+  "pindah.keluar.arti": { default: "Cari sekolah tujuan dengan nama lengkapnya atau kodenya. Sekolah tujuan yang menerima perpindahan dan memilih tahun ajarannya.", en: "Find the receiving school by its full name or its code. The receiving school accepts the transfer and chooses the school year." },
+  "pindah.cari.label": { default: "Nama lengkap atau kode sekolah tujuan", en: "The receiving school's full name or code" },
+  "pindah.cari.tombol": { default: "Cari sekolah", en: "Find the school" },
+  "pindah.cari.kosong": { default: "Tidak ada sekolah aktif dengan nama atau kode itu. Periksa ejaannya: nama harus lengkap dan sama persis.", en: "No active school has that name or code. Check the spelling: the name must be complete and exact." },
+  "pindah.tujuan": { default: "Sekolah tujuan", en: "Receiving school" },
+  "galat.transfer_destination_invalid": { default: "Pilih sekolah tujuan lain yang aktif.", en: "Choose another, active school." },
+  "galat.transfer_reason_required": { default: "Tuliskan alasan perpindahannya.", en: "Write the reason for the transfer." },
+  "galat.transfer_open": { default: "Murid ini sudah punya permintaan pindah yang belum selesai.", en: "This learner already has a transfer request in progress." },
+  "galat.transfer_enrollment_not_active": { default: "Murid ini tidak lagi terdaftar di sekolah ini.", en: "This learner is no longer enrolled at this school." },
+  "galat.transfer_period_invalid": { default: "Pilih salah satu tahun ajaran sekolah ini.", en: "Choose one of this school's school years." },
+  "galat.transfer_programme_invalid": { default: "Pilih salah satu program sekolah ini.", en: "Choose one of this school's programmes." },
+  "galat.transfer_not_open": { default: "Permintaan ini tidak lagi menunggu sekolah ini.", en: "This request is no longer waiting for this school." },
+  "galat.transfer_search_short": { default: "Ketik nama lengkap atau kode sekolah, paling sedikit 3 karakter.", en: "Type the school's full name or code, at least 3 characters." },
+  "galat.transfer_period_missing": { default: "Sekolah tujuan belum memilih tahun ajarannya.", en: "The receiving school has not chosen the school year yet." },
+  "galat.transfer_accepted": { default: "Perpindahan diterima ke tahun ajaran yang dipilih. Sekarang bisa dijalankan.", en: "The transfer is accepted into the chosen school year. It can now be carried out." },
   "galat.transfer_requested": { default: "Perpindahan diajukan dan kini menunggu persetujuan dari pihak lain.", en: "Transfer requested; it now awaits authorization from the other side." },
   "galat.transfer_authorized": { default: "Perpindahan disetujui dan tinggal dijalankan.", en: "Transfer authorized; it only remains to be executed." },
   "galat.transfer_executed": { default: "Perpindahan dijalankan.", en: "Transfer executed." },

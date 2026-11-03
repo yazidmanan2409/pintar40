@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { adaAdminSekolah, akarSekolah, calonAdminPertama, orangSekolah } from "@/lib/admin-pertama";
 import { kodeGalatStruktur, rujukanGalat, type HasilStruktur } from "@/lib/struktur-kontrak";
-import { kodeGalat, queryHasil, type HasilAksi } from "@/lib/galat-kontrak";
+import { KODE_ANTAR_SEKOLAH_DARI_DB, kodeGalat, queryHasil, type HasilAksi } from "@/lib/galat-kontrak";
 import { bacaPersen } from "@/lib/batas-ketuntasan";
 import { KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan-kontrak";
 
@@ -94,6 +94,43 @@ export async function transferRequestAction(fd: FormData): Promise<void> {
   back("transfers", error ? ditolak("transfer_request", error) : { ok: true, kode: "TRANSFER_REQUESTED" });
 }
 
+/** W2.15: a transfer refusal by its DETAIL (PR040), else the general rule. */
+function ditolakPindah(fn: string, error: { code?: string | null; message?: string | null; details?: string | null } | null): HasilAksi {
+  const d = error?.code === "PR040" ? KODE_ANTAR_SEKOLAH_DARI_DB[error.details ?? ""] : undefined;
+  return d ? { ok: false, kode: d } : ditolak(fn, error);
+}
+
+/**
+ * W2.15 (Batch 4, F-10 / D-152(c)): THE SENDING SCHOOL ASKS FOR A TRANSFER TO A SCHOOL FOUND BY ITS NAME OR CODE. The
+ * school year is the receiving school's to choose; transfer_minta decides (CAN_AUTHORIZE_TRANSFER where the learner is
+ * enrolled; an active school other than its own; a reason; no open request already).
+ */
+export async function transferMintaAction(fd: FormData): Promise<void> {
+  const fromEnrollment = uuidOrNull(str(fd, "from_enrollment"));
+  const toInstitution = uuidOrNull(str(fd, "to_institution"));
+  const reason = str(fd, "reason");
+  if (!fromEnrollment || !toInstitution) back("transfers", { ok: false, kode: "TRANSFER_INPUT_INCOMPLETE" });
+  const supabase = await supabaseServer();
+  {
+    const { data: asal } = await supabase.from("enrollments").select("institution_id").eq("id", fromEnrollment).limit(1);
+    await wajibDalamKonteks({ sekolah: (asal?.[0] as { institution_id?: string } | undefined)?.institution_id ?? null }, "transfers");
+  }
+  const { error } = await supabase.rpc("transfer_minta", { p_from_enrollment: fromEnrollment, p_to_institution: toInstitution, p_reason: reason });
+  back("transfers", error ? ditolakPindah("transfer_minta", error) : { ok: true, kode: "TRANSFER_REQUESTED" });
+}
+
+/** W2.15: THE RECEIVING SCHOOL ACCEPTS A REQUEST INTO ONE OF ITS OWN SCHOOL YEARS (transfer_terima decides). */
+export async function transferTerimaAction(fd: FormData): Promise<void> {
+  const id = uuidOrNull(str(fd, "transfer"));
+  const period = uuidOrNull(str(fd, "to_period"));
+  const programme = uuidOrNull(str(fd, "to_programme"));
+  if (!id || !period) back("transfers", { ok: false, kode: "TRANSFER_INPUT_INCOMPLETE" });
+  const supabase = await supabaseServer();
+  await wajibDalamKonteks({ sekolah: await sekolahTransfer(supabase, id) }, "transfers");
+  const { error } = await supabase.rpc("transfer_terima", { p_transfer: id, p_to_period: period, p_to_programme: programme });
+  back("transfers", error ? ditolakPindah("transfer_terima", error) : { ok: true, kode: "TRANSFER_ACCEPTED" });
+}
+
 export async function transferAuthorizeAction(fd: FormData): Promise<void> {
   const id = uuidOrNull(str(fd, "transfer"));
   if (!id) back("transfers", { ok: false, kode: "ACTION_NOT_FOUND" });
@@ -109,7 +146,7 @@ export async function transferExecuteAction(fd: FormData): Promise<void> {
   const supabase = await supabaseServer();
   await wajibDalamKonteks({ sekolah: await sekolahTransfer(supabase, id) }, "transfers");
   const { error } = await supabase.rpc("transfer_execute", { p_transfer: id });
-  back("transfers", error ? ditolak("transfer_execute", error) : { ok: true, kode: "TRANSFER_EXECUTED" });
+  back("transfers", error ? ditolakPindah("transfer_execute", error) : { ok: true, kode: "TRANSFER_EXECUTED" });
 }
 
 export async function transferRejectAction(fd: FormData): Promise<void> {

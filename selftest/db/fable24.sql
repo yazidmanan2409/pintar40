@@ -14,6 +14,10 @@
 --            admin their school's people; a Guru nobody), at most 50 a page, and per row only the corrections the
 --            database accepts from this reader (email before activation for the school admin; everything for the
 --            platform admin)
+--   F24-P01  A TRANSFER BY NAME (W2.15, F-10): the directory by exact name or code, audited; the sending school asks
+--            with no school year; the receiving school sees the learner's name only, accepts into its own year, executes
+--   F24-P02  THE TRANSFER'S REFUSALS: the wrong side accepting or asking, the wrong year, no reason, twice, a short or
+--            unauthorised search
 --   F24-K02  THE CONVERSION'S REFUSALS: without a reason (REASON_REQUIRED), to a Guru and to another school's
 --            administrator (42501), for a person with no class card (CARD_NOT_FOUND), to an address an account
 --            already uses (EMAIL_TAKEN), to a malformed address (EMAIL_INVALID); a card's address moved without a live
@@ -46,7 +50,7 @@ declare
   r record; v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_probs jsonb := '{}'::jsonb; v_fatal text := '';
   v_a uuid; v_node uuid; v_murid uuid; v_lain uuid; v_akun public.accounts; v_akun2 public.accounts; v_uid uuid;
   v_err text; v_n int; v_b boolean; v_kartu text; v_email text; v_jejak jsonb; v_ra uuid; v_pid text; v_guru uuid;
-  v_adm_b uuid; v_w_b uuid; v_enrol int;
+  v_adm_b uuid; v_w_b uuid; v_enrol int; v_beta uuid; v_beta_per uuid; v_alpha_per uuid; v_en uuid; v_tf uuid; v_siswa uuid; v_bnama text;
 begin
   begin
     select i.id into v_a from public.institutions i where i.slug like 'synth-alpha-%' limit 1;
@@ -250,6 +254,99 @@ begin
       v_probs := selftest.f24_note(v_probs, 'F24-O01', 'threw: ' || sqlerrm);
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F24-P01 / P02  A TRANSFER BY NAME, ACCEPTED BY THE RECEIVING SCHOOL (W2.15, F-10)
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      select i.id into v_beta from public.institutions i where i.slug like 'synth-beta-%' limit 1;
+      select ap.id into v_beta_per from public.academic_periods ap where ap.institution_id = v_beta order by ap.starts_on desc nulls last limit 1;
+      select ap.id into v_alpha_per from public.academic_periods ap where ap.institution_id = v_a limit 1;
+      select a.person_id into v_siswa from public.accounts a join auth.users u on u.id = a.auth_user_id where u.email = 'alpha-siswa-1@synthetic.pintar.test';
+      select e.id into v_en from public.enrollments e where e.person_id = v_siswa and e.institution_id = v_a and e.status = 'ACTIVE' limit 1;
+      if v_beta is null or v_beta_per is null or v_en is null then
+        raise exception 'the fixture lacks beta, a beta school year or an alpha enrolment';
+      end if;
+      -- the directory: exact name or code, audited; nothing partial (alpha's admin cannot read beta's row: the name is
+      -- read here, as the owner, and typed as a person would)
+      select x.name into v_bnama from public.institutions x where x.id = v_beta;
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      select count(*) into v_n from public.cari_sekolah_tujuan(upper(v_bnama)) c where c.institution_id = v_beta;
+      if v_n <> 1 then v_probs := selftest.f24_note(v_probs, 'F24-P01', 'beta is not found by its exact name'); end if;
+      select count(*) into v_n from public.cari_sekolah_tujuan(left(v_bnama, 9)) c;
+      if v_n <> 0 then v_probs := selftest.f24_note(v_probs, 'F24-P01', format('a partial name found %s school(s)', v_n)); end if;
+      perform selftest.as_owner();
+      select count(*) into v_n from public.audit_log a where a.action = 'directory.school_searched' and a.at > now() - interval '1 minute';
+      if v_n < 2 then v_probs := selftest.f24_note(v_probs, 'F24-P01', format('%s directory search(es) audited of 2', v_n)); end if;
+      -- the sending school asks; the period is the receiving school's
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      v_tf := public.transfer_minta(v_en, v_beta, 'Pindah domisili mengikuti orang tua');
+      perform selftest.as_owner();
+      if not exists (select 1 from public.transfers t where t.id = v_tf and t.status = 'REQUESTED' and t.to_academic_period_id is null
+                        and t.requested_by_institution = v_a) then
+        v_probs := selftest.f24_note(v_probs, 'F24-P01', 'the request is not REQUESTED by alpha with no school year');
+      end if;
+      -- the receiving school sees the learner's name only
+      perform selftest.as_user('beta-admin@synthetic.pintar.test');
+      select count(*) into v_n from public.pindah_masuk(v_beta) m where m.transfer_id = v_tf and m.nama_murid is not null and m.dari_sekolah is not null;
+      if v_n <> 1 then v_probs := selftest.f24_note(v_probs, 'F24-P01', 'beta''s admin does not see the incoming request with the learner''s name'); end if;
+      select count(*) into v_n from public.persons p where p.id = v_siswa;
+      if v_n <> 0 then v_probs := selftest.f24_note(v_probs, 'F24-P01', 'beta reads the learner''s person row before the transfer is executed'); end if;
+      v_err := selftest.f23_raised(format('select public.transfer_execute(%L::uuid)', v_tf));
+      if v_err is null then v_probs := selftest.f24_note(v_probs, 'F24-P01', 'an unaccepted transfer was executed'); end if;
+      -- refusals on the receiving side
+      v_err := selftest.f23_raised(format('select public.transfer_terima(%L::uuid, %L::uuid)', v_tf, v_alpha_per));
+      if v_err is distinct from 'PR040 PERIOD_INVALID' then
+        v_probs := selftest.f24_note(v_probs, 'F24-P02', 'accepting into the sending school''s year answered ' || coalesce(v_err, 'done'));
+      end if;
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      v_err := selftest.f23_raised(format('select public.transfer_terima(%L::uuid, %L::uuid)', v_tf, v_beta_per));
+      if v_err is null or v_err not like '42501%' then
+        v_probs := selftest.f24_note(v_probs, 'F24-P02', 'the sending school accepted its own request: ' || coalesce(v_err, 'done'));
+      end if;
+      select count(*) into v_n from public.pindah_masuk() m where m.transfer_id = v_tf;
+      if v_n <> 0 then v_probs := selftest.f24_note(v_probs, 'F24-P02', 'the sending school sees its request as incoming'); end if;
+      for r in select * from (values
+          (v_en, v_a, 'Pindah', 'PR040 DESTINATION_INVALID', 'to its own school'),
+          (v_en, v_beta, 'x', 'PR040 REASON_REQUIRED', 'with no reason'),
+          (v_en, v_beta, 'Pindah lagi', 'PR040 TRANSFER_OPEN', 'a second open request')) as t(en, ke, alasan, mau, apa) loop
+        v_err := selftest.f23_raised(format('select public.transfer_minta(%L::uuid, %L::uuid, %L)', r.en, r.ke, r.alasan));
+        if v_err is distinct from r.mau then
+          v_probs := selftest.f24_note(v_probs, 'F24-P02', format('a request %s answered %s, not %s', r.apa, coalesce(v_err, 'done'), r.mau));
+        end if;
+      end loop;
+      v_err := selftest.f23_raised('select * from public.cari_sekolah_tujuan(''ab'')');
+      if v_err is distinct from 'PR040 QUERY_TOO_SHORT' then
+        v_probs := selftest.f24_note(v_probs, 'F24-P02', 'a two-letter search answered ' || coalesce(v_err, 'rows'));
+      end if;
+      perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+      v_err := selftest.f23_raised('select * from public.cari_sekolah_tujuan(''Sekolah Sintetis Beta'')');
+      if v_err is null or v_err not like '42501%' then
+        v_probs := selftest.f24_note(v_probs, 'F24-P02', 'a Guru searched the directory: ' || coalesce(v_err, 'rows'));
+      end if;
+      perform selftest.as_user('beta-admin@synthetic.pintar.test');
+      v_err := selftest.f23_raised(format('select public.transfer_minta(%L::uuid, %L::uuid, %L)', v_en, v_beta, 'Pindah ke sini'));
+      if v_err is null or v_err not like '42501%' then
+        v_probs := selftest.f24_note(v_probs, 'F24-P02', 'the receiving school asked for another school''s learner: ' || coalesce(v_err, 'done'));
+      end if;
+      -- the receiving school accepts into its own year; then it is executed
+      perform public.transfer_terima(v_tf, v_beta_per, null);
+      perform public.transfer_execute(v_tf);
+      perform selftest.as_owner();
+      if not exists (select 1 from public.enrollments e where e.person_id = v_siswa and e.institution_id = v_beta and e.status = 'ACTIVE'
+                        and e.academic_period_id = v_beta_per)
+         or not exists (select 1 from public.enrollments e where e.id = v_en and e.status = 'ENDED' and e.end_reason = 'TRANSFERRED_OUT') then
+        v_probs := selftest.f24_note(v_probs, 'F24-P01', 'the executed transfer did not move the enrolment into beta''s year');
+      end if;
+      -- transfers_audit records each step for both schools: requested, authorized, executed
+      select count(*) into v_n from public.audit_log a where a.target_id = v_tf::text
+         and a.action in ('transfer.requested', 'transfer.authorized', 'transfer.executed');
+      if v_n <> 6 then v_probs := selftest.f24_note(v_probs, 'F24-P01', format('%s audit rows for the three steps (6: each for both schools)', v_n)); end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f24_note(v_probs, 'F24-P01', 'threw: ' || sqlerrm);
+      v_probs := selftest.f24_note(v_probs, 'F24-P02', 'not reached: the transfer block threw');
+    end;
+
     raise exception 'F24_ROLLBACK';
   exception when others then
     perform selftest.as_owner();
@@ -258,9 +355,10 @@ begin
   perform selftest.as_owner();
 
   for r in select * from unnest(
-      array['F24-K01', 'F24-K02', 'F24-O01'],
+      array['F24-K01', 'F24-K02', 'F24-O01', 'F24-P01', 'F24-P02'],
       array['D-152(a) -- a card learner becomes staff through an email account', 'D-152(a) -- the conversion''s refusals',
-            'W2.1-W2.3 -- finding a person to correct'],
+            'W2.1-W2.3 -- finding a person to correct', 'W2.15 -- a transfer by name, accepted by the receiving school',
+            'W2.15 -- the transfer''s refusals'],
       array[
         'the school admin converts a class-card learner''s account: the same account row, Auth user, person and PINTAR '
           || 'ID; an EMAIL account whose set-up is REQUIRED (the new address is offered an activation code); the card''s '
@@ -273,7 +371,16 @@ begin
           || 'alpha''s Guru when narrowed to beta; a page is '
           || 'at most 50; alpha''s admin finds the activated Guru with no correction offered, the converted person (not yet '
           || 'activated) with the email correction only, and not beta''s admin; a Guru finds nobody; a school admin''s name '
-          || 'correction is still refused 42501'
+          || 'correction is still refused 42501',
+        'alpha''s admin finds beta by its exact name (any case), nothing by part of it, every search audited; asks for '
+          || 'a learner''s transfer to beta with no school year; beta''s admin sees the request with the learner''s name '
+          || 'but not the learner''s person row; an unaccepted transfer is not executed; beta accepts it into its own '
+          || 'school year and executes it: the learner is enrolled in beta''s year and the alpha enrolment ENDED; the '
+          || 'request, the acceptance and the execution are audited for both schools',
+        'accepting into the sending school''s year (PERIOD_INVALID); the sending school accepting its own request (42501) '
+          || 'or seeing it as incoming; a request to its own school (DESTINATION_INVALID), with no reason '
+          || '(REASON_REQUIRED), twice (TRANSFER_OPEN); a two-letter search (QUERY_TOO_SHORT); a Guru searching (42501); '
+          || 'the receiving school asking for another school''s learner (42501)'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

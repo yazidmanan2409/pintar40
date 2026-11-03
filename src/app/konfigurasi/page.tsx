@@ -46,6 +46,7 @@ import { kunciKodeLaporan, kunciStatusLaporan, langkahBerikut, laporanTriase, ty
 import { pindahkanLaporanAksi } from "@/app/lapor/actions";
 import { daftarKelola, KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { transferMintaAction, transferTerimaAction } from "./actions";
 
 export const generateMetadata = judulHalaman("/konfigurasi");
 
@@ -73,7 +74,7 @@ const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "—");
 // L4 (CR-85, investigation §E item 15): a name this reader cannot resolve shows the dash, never a fragment of an id
 const TANPA_NAMA = "\u2014";
 // FD-4: each person's name travels with the row that names them (the foreign key says which person)
-const KOLOM_PINDAH = "id, person_id, from_institution_id, to_institution_id, status, reason, created_at, persons!transfers_person_id_fkey(display_name)";
+const KOLOM_PINDAH = "id, person_id, from_institution_id, to_institution_id, status, reason, created_at, requested_by_institution, to_academic_period_id, persons!transfers_person_id_fkey(display_name)";
 /** L4 finding 6: roles drawn a page at a time (the size the audit trail uses) */
 const UKURAN_PERAN = 50;
 const KOLOM_PERAN = "id, person_id, role, scope_node_id, institution_id, valid_until, revoked_at, persons!role_assignments_person_id_fkey(display_name)";
@@ -112,6 +113,8 @@ type MetricDefinition = {
 
 type SearchParams = Promise<{
   bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; sekolah?: string; periksa?: string; dari?: string; lapor?: string;
+  // W2.15 (F-10): the directory search, a plain GET
+  cari_sekolah?: string;
   // #148: the first step of scheduling, asked by a plain GET so the second step can show what the window would meet
   pm_cek?: string; pm_platform?: string; pm_sekolah?: string | string[]; pm_mulai?: string; pm_selesai?: string;
   // D-101 (2): «Admin sekolah» named on Peran & akses, waiting for its second press
@@ -291,6 +294,19 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
       ? { data: [] as NonNullable<typeof transfers> }
       : await supabase.from("transfers").select(KOLOM_PINDAH).order("created_at", { ascending: false }).order("id").range(...rentang(halPindah));
   const daftarPindah = (pindahHalaman ?? []).slice(0, UKURAN);
+  // W2.15 (Batch 4, F-10 / D-152(c)): in a school's context the destination is found in the directory by its exact name
+  // or code (cari_sekolah_tujuan: name and code only, every search audited), and the school's incoming requests are
+  // accepted into one of its own school years (pindah_masuk, transfer_terima)
+  const cariSekolah = typeof sp.cari_sekolah === "string" ? sp.cari_sekolah.trim().slice(0, 120) : "";
+  const { data: sekolahDitemukan, error: galatCari } = satuSekolah && cariSekolah
+    ? await supabase.rpc("cari_sekolah_tujuan", { p_kata: cariSekolah })
+    : { data: null, error: null };
+  const tujuanDitemukan = ((Array.isArray(sekolahDitemukan) ? sekolahDitemukan : []) as Array<{ institution_id: string; nama: string; kode: string | null }>)
+    .filter((x) => x.institution_id !== satuSekolah);
+  const { data: masukData } = satuSekolah ? await supabase.rpc("pindah_masuk", { p_sekolah: satuSekolah }) : { data: null };
+  const pindahMasuk = (Array.isArray(masukData) ? masukData : []) as Array<{
+    transfer_id: string; nama_murid: string; dari_sekolah: string; dari_kode: string | null; alasan: string | null; diminta_pada: string;
+  }>;
   const lagiPindah = (pindahHalaman ?? []).length > UKURAN;
   // L4 finding 6 (CR-88): Peran & akses draws one page of roles, each with its revoke form; the read stays whole,
   // because the school's readiness and its count of admins below are taken from every active role
@@ -1110,10 +1126,13 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     <span className="text-ink-3"> · {institutionName.get(x.from_institution_id) ?? TANPA_NAMA} → {institutionName.get(x.to_institution_id) ?? TANPA_NAMA}</span>
                     <span className="ml-2 rounded bg-info-soft px-1.5 text-xs text-info">{transferLabel(x.status)}</span>
                     {x.reason ? <p className="text-xs text-ink-3">{x.reason}</p> : null}
+                    {/* W2.15: a request this school sent waits on the receiving school, which chooses its school year */}
+                    {x.status === "REQUESTED" && x.to_academic_period_id === null && x.from_institution_id === satuSekolah
+                      ? <p className="text-xs text-ink-3">{s("pindah.menunggu_tujuan")}</p> : null}
                   </div>
                   {(x.status === "REQUESTED" || x.status === "AUTHORIZED") && (
                     <div className="flex flex-wrap gap-2">
-                      {x.status === "REQUESTED" && (
+                      {x.status === "REQUESTED" && x.to_academic_period_id !== null && (
                         <form action={transferAuthorizeAction}><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("config.action.authorize")}</TombolKirim></form>
                       )}
                       {x.status === "AUTHORIZED" && (
@@ -1132,6 +1151,79 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               {daftarPindah.length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
             <Penomoran halaman={halPindah} lagi={lagiPindah} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_pindah", n, "transfers")} />
+            {/* W2.15: the receiving school's incoming requests, accepted into one of its own school years */}
+            {satuSekolah && pindahMasuk.length > 0 ? (
+              <div className="mt-3 grid gap-2" data-pindah="masuk">
+                <h3 className="text-sm font-medium">{s("pindah.masuk.judul")}</h3>
+                {pindahMasuk.map((m) => (
+                  <form key={m.transfer_id} action={transferTerimaAction} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2" data-pindah-masuk={m.transfer_id}>
+                    <input type="hidden" name="transfer" value={m.transfer_id} />
+                    <p className="sm:col-span-2 text-sm">
+                      <strong>{m.nama_murid}</strong> · {s("pindah.masuk.dari")} {m.dari_sekolah}{m.dari_kode ? ` (${m.dari_kode})` : ""}
+                      {m.alasan ? <span className="block text-xs text-ink-3">{m.alasan}</span> : null}
+                    </p>
+                    <label className={label}>{s("pindah.masuk.tahun")}
+                      <select name="to_period" className={field} required defaultValue="">
+                        <option value="" disabled>—</option>
+                        {(periods ?? []).filter((p) => p.institution_id === satuSekolah).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                      </select>
+                    </label>
+                    <label className={label}>{s("pindah.masuk.program")}
+                      <select name="to_programme" className={field} defaultValue="">
+                        <option value="">—</option>
+                        {(nodes ?? []).filter((n) => n.kind === "PROGRAMME" && n.is_active && n.institution_id === satuSekolah).map((n) => (
+                          <option key={n.id} value={n.id}>{n.name}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("pindah.masuk.terima")}</TombolKirim></div>
+                  </form>
+                ))}
+              </div>
+            ) : null}
+            {/* W2.15 (F-10): a transfer out, to a school found by its exact name or code */}
+            {satuSekolah ? (
+              <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" data-pindah="keluar">
+                <h3 className="text-sm font-medium">{s("pindah.keluar.judul")}</h3>
+                <p className="text-xs text-ink-3">{s("pindah.keluar.arti")}</p>
+                <form method="get" action="/konfigurasi" className="flex flex-wrap items-end gap-2">
+                  <input type="hidden" name="bagian" value="transfers" />
+                  <label className={label}>{s("pindah.cari.label")}
+                    <input name="cari_sekolah" className={field} defaultValue={cariSekolah} minLength={3} maxLength={120} required autoComplete="off" />
+                  </label>
+                  <button type="submit" className={button}>{s("pindah.cari.tombol")}</button>
+                </form>
+                {cariSekolah && galatCari ? <BarisHasil nada="gagal">{s("galat.transfer_search_short")}</BarisHasil> : null}
+                {cariSekolah && !galatCari && tujuanDitemukan.length === 0 ? <p className="text-sm text-ink-3">{s("pindah.cari.kosong")}</p> : null}
+                {tujuanDitemukan.length > 0 ? (
+                  <form action={transferMintaAction} className="grid gap-2 sm:grid-cols-2">
+                    <fieldset className="sm:col-span-2 grid gap-1">
+                      <legend className={label}>{s("pindah.tujuan")}</legend>
+                      {tujuanDitemukan.map((x, i) => (
+                        <label key={x.institution_id} className="flex items-center gap-2 text-sm">
+                          <input type="radio" name="to_institution" value={x.institution_id} defaultChecked={i === 0} required />
+                          {x.nama}{x.kode ? ` (${x.kode})` : ""}
+                        </label>
+                      ))}
+                    </fieldset>
+                    <label className={`${label} sm:col-span-2`}>{s("config.label.enrollment")}
+                      <select name="from_enrollment" className={field} required defaultValue="">
+                        <option value="" disabled>—</option>
+                        {(enrollments ?? []).filter((e) => e.institution_id === satuSekolah && e.member_kind !== "PARTICIPANT").map((e) => (
+                          <option key={e.id} value={e.id}>{personName.get(e.person_id) ?? TANPA_NAMA} · {periodName.get(e.academic_period_id) ?? ""}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className={`${label} sm:col-span-2`}>{s("config.label.reason")}
+                      <input name="reason" className={field} required minLength={3} maxLength={500} />
+                    </label>
+                    <div><TombolKirim className={primer} sibuk={s("tombol.mengirim")}>{s("config.action.request_transfer")}</TombolKirim></div>
+                  </form>
+                ) : null}
+              </div>
+            ) : null}
+            {/* the evaluation persona's page keeps the platform-wide form it had (C10) */}
+            {lama ? (
             <form action={transferRequestAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2">
               <label className={`${label} sm:col-span-2`}>{s("config.label.enrollment")}
                 <select name="from_enrollment" className={field} required defaultValue="">
@@ -1173,6 +1265,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <p className="text-xs text-ink-3 sm:col-span-2">{s("config.label.destination_help")}</p>
               <div><TombolKirim className={primer} sibuk={s("tombol.mengirim")}>{s("config.action.request_transfer")}</TombolKirim></div>
             </form>
+            ) : null}
             {result("transfers")}
           </section>
 
