@@ -10,6 +10,10 @@
 --            account whose set-up is REQUIRED, so the person activates it with a code to the new address; the
 --            conversion is audited (account.card_converted_to_email: reason, the old card, the new address, by whom);
 --            only then may a staff role be granted, and the person then holds a role and no class card (CR-91)
+--   F24-O01  FINDING A PERSON TO CORRECT (W2.1-W2.3): orang_berakun's scope (the platform admin everyone; a school
+--            admin their school's people; a Guru nobody), at most 50 a page, and per row only the corrections the
+--            database accepts from this reader (email before activation for the school admin; everything for the
+--            platform admin)
 --   F24-K02  THE CONVERSION'S REFUSALS: without a reason (REASON_REQUIRED), to a Guru and to another school's
 --            administrator (42501), for a person with no class card (CARD_NOT_FOUND), to an address an account
 --            already uses (EMAIL_TAKEN), to a malformed address (EMAIL_INVALID); a card's address moved without a live
@@ -202,6 +206,50 @@ begin
       v_probs := selftest.f24_note(v_probs, 'F24-K01', 'threw: ' || sqlerrm);
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F24-O01  FINDING A PERSON TO CORRECT (W2.1-W2.3)
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      -- an alpha Guru whose set-up is still REQUIRED: the school admin may correct their email, not their name
+      v_n := 0;
+      perform selftest.as_user('sysadmin@synthetic.pintar.test');
+      select count(*) into v_n from public.orang_berakun('alpha-guru@synthetic.pintar.test') o where o.boleh_identitas and o.boleh_email and o.activated;
+      if v_n <> 1 then
+        v_probs := selftest.f24_note(v_probs, 'F24-O01', format('the platform admin finds the activated alpha Guru %s time(s) with every correction', v_n));
+      end if;
+      select count(*) into v_n from public.orang_berakun('beta-admin@synthetic.pintar.test') o;
+      if v_n <> 1 then v_probs := selftest.f24_note(v_probs, 'F24-O01', 'the platform admin does not find beta''s admin'); end if;
+      select count(*) into v_n from public.orang_berakun('alpha-guru@synthetic.pintar.test', 0, 20,
+        (select i.id from public.institutions i where i.slug like 'synth-beta-%' limit 1)) o;
+      if v_n <> 0 then v_probs := selftest.f24_note(v_probs, 'F24-O01', 'narrowed to beta, the platform admin still finds alpha''s Guru'); end if;
+      select count(*) into v_n from public.orang_berakun(null, 0, 500) o;
+      if v_n > 50 then v_probs := selftest.f24_note(v_probs, 'F24-O01', format('a page holds %s rows (at most 50)', v_n)); end if;
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      select count(*) into v_n from public.orang_berakun('alpha-guru@synthetic.pintar.test') o where not o.boleh_identitas and not o.boleh_email;
+      if v_n <> 1 then
+        v_probs := selftest.f24_note(v_probs, 'F24-O01', 'the school admin does not find the activated alpha Guru, or is offered a correction the database refuses');
+      end if;
+      select count(*) into v_n from public.orang_berakun(v_email) o where o.person_id = v_murid and o.boleh_email and not o.activated and not o.boleh_identitas;
+      if v_n <> 1 then
+        v_probs := selftest.f24_note(v_probs, 'F24-O01', 'the school admin is not offered the email correction of a person not yet activated');
+      end if;
+      select count(*) into v_n from public.orang_berakun('beta-admin@synthetic.pintar.test') o;
+      if v_n <> 0 then v_probs := selftest.f24_note(v_probs, 'F24-O01', 'alpha''s admin finds beta''s admin'); end if;
+      perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+      select count(*) into v_n from public.orang_berakun(null) o;
+      if v_n <> 0 then v_probs := selftest.f24_note(v_probs, 'F24-O01', format('a Guru finds %s person(s)', v_n)); end if;
+      -- the corrections the list offers still decide for themselves
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      v_err := selftest.f23_raised(format('select public.correct_person_name(%L::uuid, %L, %L)', v_murid, 'Nama Lain F24', 'salah ketik'));
+      if v_err is null or v_err not like '42501%' then
+        v_probs := selftest.f24_note(v_probs, 'F24-O01', 'a school admin corrected a name: ' || coalesce(v_err, 'done'));
+      end if;
+      perform selftest.as_owner();
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f24_note(v_probs, 'F24-O01', 'threw: ' || sqlerrm);
+    end;
+
     raise exception 'F24_ROLLBACK';
   exception when others then
     perform selftest.as_owner();
@@ -210,8 +258,9 @@ begin
   perform selftest.as_owner();
 
   for r in select * from unnest(
-      array['F24-K01', 'F24-K02'],
-      array['D-152(a) -- a card learner becomes staff through an email account', 'D-152(a) -- the conversion''s refusals'],
+      array['F24-K01', 'F24-K02', 'F24-O01'],
+      array['D-152(a) -- a card learner becomes staff through an email account', 'D-152(a) -- the conversion''s refusals',
+            'W2.1-W2.3 -- finding a person to correct'],
       array[
         'the school admin converts a class-card learner''s account: the same account row, Auth user, person and PINTAR '
           || 'ID; an EMAIL account whose set-up is REQUIRED (the new address is offered an activation code); the card''s '
@@ -219,7 +268,12 @@ begin
           || 'refused before (STAFF_ROLE_FOR_CARD) is granted after, and the person holds a role and no card (CR-91)',
         'refused without a reason, to a malformed or taken address, for a person with no card, to a Guru and to another '
           || 'school''s administrator; a card''s address moved without a grant or to another address is refused; after '
-          || 'the conversion the new address is guarded as every email account''s (EMAIL_CHANGE_REFUSED)'
+          || 'the conversion the new address is guarded as every email account''s (EMAIL_CHANGE_REFUSED)',
+        'orang_berakun: the platform admin finds an activated alpha Guru with every correction and beta''s admin, and not '
+          || 'alpha''s Guru when narrowed to beta; a page is '
+          || 'at most 50; alpha''s admin finds the activated Guru with no correction offered, the converted person (not yet '
+          || 'activated) with the email correction only, and not beta''s admin; a Guru finds nobody; a school admin''s name '
+          || 'correction is still refused 42501'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

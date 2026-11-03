@@ -1906,6 +1906,63 @@ export type HleEvent =
   | "aktivasi.staf.gagal.PERMINTAAN_DITOLAK"
   | "aktivasi.staf.gagal.PERMINTAAN_TIDAK_SAH"
   | "aktivasi.staf.gagal.LAYANAN_TIDAK_TERSEDIA"
+  | "orang.judul"
+  | "orang.benda"
+  | "orang.intro.sekolah"
+  | "orang.intro.platform"
+  | "orang.cari"
+  | "orang.kosong"
+  | "orang.kolom.nama"
+  | "orang.kolom.id"
+  | "orang.kolom.email"
+  | "orang.kolom.username"
+  | "orang.kolom.keadaan"
+  | "orang.kolom.tindakan"
+  | "orang.aktif"
+  | "orang.belum_aktif"
+  | "orang.koreksi"
+  | "orang.panel"
+  | "orang.alasan"
+  | "orang.alasan.arti"
+  | "orang.menyimpan"
+  | "orang.email.judul"
+  | "orang.email.sekarang"
+  | "orang.email.baru"
+  | "orang.email.tombol"
+  | "orang.email.ok.belum"
+  | "orang.email.ok.aktif"
+  | "orang.email.hanya_platform"
+  | "orang.nama.judul"
+  | "orang.nama.arti"
+  | "orang.nama.baru"
+  | "orang.nama.tombol"
+  | "orang.nama.ok"
+  | "orang.username.judul"
+  | "orang.username.arti"
+  | "orang.username.baru"
+  | "orang.username.aturan"
+  | "orang.username.tombol"
+  | "orang.username.ok"
+  | "orang.identitas.hanya_platform"
+  | "orang.gagal.DITOLAK"
+  | "orang.gagal.REASON_REQUIRED"
+  | "orang.gagal.IDENTITY_NOT_FOUND"
+  | "orang.gagal.NAME_INVALID"
+  | "orang.gagal.NAME_UNCHANGED"
+  | "orang.gagal.PERMINTAAN_TIDAK_SAH"
+  | "orang.gagal.LAYANAN_TIDAK_TERSEDIA"
+  | "aktivasi.orang.tautan"
+  | "aktivasi.orang.arti"
+  | "orang.email.gagal.PERMINTAAN_DITOLAK"
+  | "orang.email.gagal.LAYANAN_TIDAK_TERSEDIA"
+  | "orang.email.gagal.BELUM_MASUK"
+  | "orang.email.gagal.DITOLAK"
+  | "orang.email.gagal.PERMINTAAN_TIDAK_SAH"
+  | "orang.email.gagal.ALASAN_WAJIB"
+  | "orang.email.gagal.EMAIL_TIDAK_SAH"
+  | "orang.email.gagal.EMAIL_SAMA"
+  | "orang.email.gagal.EMAIL_TERPAKAI"
+  | "orang.email.gagal.AKUN_EMAIL_TIDAK_ADA"
   | "aktivasi.ulang.judul"
   | "aktivasi.ulang.arti"
   | "aktivasi.ulang.cari"
@@ -4186,6 +4243,63 @@ const table: Table = {
   "aktivasi.staf.gagal.PERMINTAAN_DITOLAK": { default: "Muat ulang halaman ini, lalu coba lagi.", en: "Reload this page, then try again." },
   "aktivasi.staf.gagal.PERMINTAAN_TIDAK_SAH": { default: "Isi alamat email dan alasannya.", en: "Fill in the email address and the reason." },
   "aktivasi.staf.gagal.LAYANAN_TIDAK_TERSEDIA": { default: "Akun belum bisa diubah. Kartu kelasnya masih berlaku. Coba lagi sebentar lagi.", en: "The account could not be changed yet. The class card still works. Try again in a moment." },
+  "orang.judul": { default: "Koreksi data orang", en: "Correct a person's details" },
+  "orang.benda": { default: "orang", en: "people" },
+  "orang.intro.sekolah": { default: "Orang di sekolah ini yang sudah punya akun email. Anda bisa mengoreksi alamat email yang salah sebelum orangnya mengaktifkan akun. Nama dan username dikoreksi oleh Admin platform.", en: "People at this school who have an email account. You can correct a wrong email address before the person activates their account. Names and usernames are corrected by the platform admin." },
+  "orang.intro.platform": { default: "Semua orang yang punya akun email. Koreksi alamat email, nama, atau username dengan alasan; setiap koreksi dicatat.", en: "Everyone with an email account. Correct an email address, a name or a username with a reason; every correction is recorded." },
+  "orang.cari": { default: "Nama, email, username, atau PINTAR ID", en: "Name, email, username or PINTAR ID" },
+  "orang.kosong": { default: "Belum ada orang dengan akun email di sini.", en: "Nobody here has an email account yet." },
+  "orang.kolom.nama": { default: "Nama", en: "Name" },
+  "orang.kolom.id": { default: "PINTAR ID", en: "PINTAR ID" },
+  "orang.kolom.email": { default: "Email", en: "Email" },
+  "orang.kolom.username": { default: "Username", en: "Username" },
+  "orang.kolom.keadaan": { default: "Akun", en: "Account" },
+  "orang.kolom.tindakan": { default: "Tindakan", en: "Action" },
+  "orang.aktif": { default: "Aktif", en: "Active" },
+  "orang.belum_aktif": { default: "Belum diaktifkan", en: "Not activated yet" },
+  "orang.koreksi": { default: "Koreksi", en: "Correct" },
+  "orang.panel": { default: "Koreksi", en: "Correct" },
+  "orang.alasan": { default: "Alasan", en: "Reason" },
+  "orang.alasan.arti": { default: "Mengapa dikoreksi. Dicatat bersama koreksinya.", en: "Why it is corrected. Recorded with the correction." },
+  "orang.menyimpan": { default: "Menyimpan…", en: "Saving…" },
+  "orang.email.judul": { default: "Alamat email", en: "Email address" },
+  "orang.email.sekarang": { default: "Sekarang:", en: "Now:" },
+  "orang.email.baru": { default: "Alamat yang benar", en: "The right address" },
+  "orang.email.tombol": { default: "Koreksi email", en: "Correct the email" },
+  "orang.email.ok.belum": { default: "Email dikoreksi. Kode lama tidak berlaku lagi; orangnya mengaktifkan akun dengan alamat yang benar.", en: "The email is corrected. Old codes no longer work; the person activates the account at the right address." },
+  "orang.email.ok.aktif": { default: "Email dikoreksi. Orangnya masuk dengan alamat baru; alamat lama dan alamat baru sama-sama diberi tahu.", en: "The email is corrected. The person signs in with the new address; the old and the new address are both told." },
+  "orang.email.hanya_platform": { default: "Akun ini sudah aktif: emailnya hanya bisa dikoreksi oleh Admin platform.", en: "This account is active: its email can only be corrected by the platform admin." },
+  "orang.nama.judul": { default: "Nama", en: "Name" },
+  "orang.nama.arti": { default: "Sertifikat yang sudah terbit tetap memakai nama saat diterbitkan.", en: "Certificates already issued keep the name as issued." },
+  "orang.nama.baru": { default: "Nama yang benar", en: "The right name" },
+  "orang.nama.tombol": { default: "Koreksi nama", en: "Correct the name" },
+  "orang.nama.ok": { default: "Nama dikoreksi dan dicatat.", en: "The name is corrected and recorded." },
+  "orang.username.judul": { default: "Username", en: "Username" },
+  "orang.username.arti": { default: "Username dipakai untuk masuk. Beri tahu orangnya username yang baru.", en: "The username is used to sign in. Tell the person their new username." },
+  "orang.username.baru": { default: "Username yang benar", en: "The right username" },
+  "orang.username.aturan": { default: "4–20 karakter: huruf kecil, angka, titik, garis bawah; diawali huruf.", en: "4–20 characters: lowercase letters, numbers, dots, underscores; starting with a letter." },
+  "orang.username.tombol": { default: "Koreksi username", en: "Correct the username" },
+  "orang.username.ok": { default: "Username dikoreksi dan dicatat.", en: "The username is corrected and recorded." },
+  "orang.identitas.hanya_platform": { default: "Nama dan username hanya bisa dikoreksi oleh Admin platform.", en: "Names and usernames can only be corrected by the platform admin." },
+  "orang.gagal.DITOLAK": { default: "Anda tidak bisa membuat koreksi ini.", en: "You can't make this correction." },
+  "orang.gagal.REASON_REQUIRED": { default: "Tuliskan alasannya.", en: "Write the reason." },
+  "orang.gagal.IDENTITY_NOT_FOUND": { default: "Orang ini tidak ditemukan, atau belum punya username.", en: "This person was not found, or has no username yet." },
+  "orang.gagal.NAME_INVALID": { default: "Nama 1 sampai 200 karakter.", en: "A name is 1 to 200 characters." },
+  "orang.gagal.NAME_UNCHANGED": { default: "Itu sudah nama orang ini.", en: "That is already this person's name." },
+  "orang.gagal.PERMINTAAN_TIDAK_SAH": { default: "Muat ulang halaman ini, lalu coba lagi.", en: "Reload this page, then try again." },
+  "orang.gagal.LAYANAN_TIDAK_TERSEDIA": { default: "Koreksi belum tersimpan. Coba lagi sebentar lagi.", en: "The correction was not saved yet. Try again in a moment." },
+  "aktivasi.orang.tautan": { default: "Koreksi data orang", en: "Correct a person's details" },
+  "aktivasi.orang.arti": { default: "Email yang salah, nama, atau username orang yang sudah punya akun.", en: "A wrong email, a name or a username of someone who already has an account." },
+  "orang.email.gagal.PERMINTAAN_DITOLAK": { default: "Muat ulang halaman ini, lalu coba lagi.", en: "Reload this page, then try again." },
+  "orang.email.gagal.LAYANAN_TIDAK_TERSEDIA": { default: "Email belum dikoreksi. Coba lagi sebentar lagi.", en: "The email was not corrected yet. Try again in a moment." },
+  "orang.email.gagal.BELUM_MASUK": { default: "Sesi Anda sudah berakhir. Masuk lagi, lalu coba lagi.", en: "Your session has ended. Sign in again, then try again." },
+  "orang.email.gagal.DITOLAK": { default: "Anda tidak bisa mengoreksi email orang ini.", en: "You can't correct this person's email." },
+  "orang.email.gagal.PERMINTAAN_TIDAK_SAH": { default: "Isi alamat yang benar dan alasannya.", en: "Fill in the right address and the reason." },
+  "orang.email.gagal.ALASAN_WAJIB": { default: "Tuliskan alasannya.", en: "Write the reason." },
+  "orang.email.gagal.EMAIL_TIDAK_SAH": { default: "Periksa alamat emailnya.", en: "Check the email address." },
+  "orang.email.gagal.EMAIL_SAMA": { default: "Itu sudah alamat orang ini.", en: "That is already this person's address." },
+  "orang.email.gagal.EMAIL_TERPAKAI": { default: "Alamat ini sudah dipakai akun lain.", en: "Another account already uses this address." },
+  "orang.email.gagal.AKUN_EMAIL_TIDAK_ADA": { default: "Orang ini tidak punya akun email.", en: "This person has no email account." },
   "aktivasi.ulang.judul": { default: "Kartu hilang atau rusak", en: "Lost or damaged card" },
   "aktivasi.ulang.arti": { default: "Terbitkan kartu baru untuk murid yang kehilangan kartunya atau kartunya rusak. Kartu lama langsung berhenti berlaku; akun, kelas dan semua hasil belajarnya tetap.", en: "Issue a new card for a learner whose card is lost or damaged. The old card stops working at once; their account, class and all their learning stay." },
   "aktivasi.ulang.cari": { default: "Cari nama murid", en: "Search for a learner's name" },

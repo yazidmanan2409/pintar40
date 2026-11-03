@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -88,6 +89,10 @@ export default async function Aktivasi() {
           {/* Polish batch 2 (UX-11): the sign-in address, not the path /masuk */}
           <p className="pin-intro">{s("aktivasi.intro")} <KeAktifkan s={s} sebelum="aktivasi.intro.buka" /></p>
         </div>
+        {/* W2.1-W2.3 (Batch 4): a person who already has an account is corrected on their own page */}
+        <p className="pin-meta">
+          <Link className="pin-tautan" href="/aktivasi/orang">{s("aktivasi.orang.tautan")}</Link> · {s("aktivasi.orang.arti")}
+        </p>
         <FormAktivasi locale={locale} orang={orang} adminSistem={platformIni} kelas={kelas} />
         <KartuUlang locale={locale} pemegang={pemegang} />
         {/* D-152(a): a card learner who becomes staff gets an email account first, as the same person (CR-91) */}
