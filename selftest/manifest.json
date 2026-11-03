@@ -4107,6 +4107,21 @@
       "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     },
     {
+      "id": "B6E-K01",
+      "runner": "static",
+      "proves": "D-159(f), D-160(d) (Batch 6), selftest/b6e.test.ts: kunciHasil (src/components/email-uji/RiwayatEmail.tsx), executed on every outcome the send log can hold (PENDING fresh and stuck, SENT, REFUSED_BY_HOST, FAILED, REFUSED_LIMIT by address and global), shows each in exactly one of the four states PINTAR can prove, read from the rendered copy table (src/lib/hle.ts) in both languages: «Dalam antrean», «Diserahkan» (saying arrival is not confirmed), «Gagal», «Tidak dikirim»; the history renders a legend naming the four and saying inbox delivery is never known; no label claims delivery."
+    },
+    {
+      "id": "B6E-K02",
+      "runner": "static",
+      "proves": "D-160(d) (Batch 6), selftest/b6e.test.ts: the rendered copy table (src/lib/hle.ts) for the activation welcome (aktifkan.w_kartu_terkirim), Akun saya's card send (akun.terkirim) and the Email uji result (emailuji.terkirim) says, in both languages, that the email was handed to the email server; the welcome and Akun saya say PINTAR cannot confirm it arrives; none claims «sudah dikirim ke email Anda», «terkirim ke» or «has been sent»."
+    },
+    {
+      "id": "B6E-K03",
+      "runner": "static",
+      "proves": "D-160(d) (Batch 6), selftest/b6e.test.ts: no delivered state exists: the send log's outcome check in the migration source (supabase/migrations/20261026100000_pintar_sends_its_own_email.sql) holds SENT and no DELIVERED value, and no source under src/ names a delivered state as a literal."
+    },
+    {
       "id": "B5-CABUT-K01",
       "runner": "static",
       "proves": "W2.5 (Batch 5; CR-05, ADM-18, J8.5), selftest/b5.test.ts: the source of «Sertifikat sekolah» (src/app/konfigurasi/sertifikat/page.tsx) lists the database's own read sertifikat_sekolah as Daisy's Collection, offers «Cabut» on an issued certificate only and reads the chosen one again by id; the revocation (src/components/sertifikat/FormCabut.tsx) is Daisy's form page with the destructive in-page Confirmation (components/Confirmation, GQ5: never the Dialog): a required reason, «Lanjutkan» that commits nothing, the solid red act naming the certificate, focus on «Batal», what happens and what stays safe; the action (src/app/konfigurasi/sertifikat/actions.ts) checks the certificate's school against the working context and then asks revoke_certificate with the caller's own client; every refusal code and state has words in both languages in the copy table (src/lib/hle.ts); Konfigurasi links the page and it has its title."

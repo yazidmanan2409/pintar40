@@ -1798,6 +1798,7 @@ export type HleEvent =
   | "emailuji.ditolak"
   | "emailuji.r.judul"
   | "emailuji.r.intro"
+  | "emailuji.r.arti"
   | "emailuji.r.label"
   | "emailuji.r.tombol"
   | "emailuji.r.kode"
@@ -4246,6 +4247,7 @@ const table: Table = {
   // BOB-51: «Kirim email uji», the platform admin's delivery proof (Daisy's words at the polish pass)
   "emailuji.r.judul": { default: "Apa yang terjadi pada sebuah email?", en: "What happened to an email?" },
   "emailuji.r.intro": { default: "Ketik alamat email atau rujukan sebuah pengiriman. PINTAR tidak menyimpan alamat email; ia mencocokkan sidik alamat yang Anda ketik dengan catatan pengirimannya.", en: "Type an email address or a send's reference. PINTAR does not keep email addresses; it matches a fingerprint of the address you type against its send log." },
+  "emailuji.r.arti": { default: "Setiap pengiriman berada di salah satu dari empat keadaan: «Dalam antrean» (belum ada jawaban dari server email), «Diserahkan» (server email sudah menerimanya), «Gagal» (ditolak atau server tidak terjangkau), atau «Tidak dikirim» (batas pengiriman). PINTAR tidak menerima kabar dari kotak masuk penerima, jadi tidak pernah tahu apakah sebuah email sudah sampai.", en: "Every send is in one of four states: «Queued» (no answer from the email server yet), «Handed off» (the email server accepted it), «Unsuccessful» (refused, or the server could not be reached), or «Not sent» (a sending limit). PINTAR hears nothing back from the recipient's inbox, so it never knows whether an email arrived." },
   "emailuji.r.label": { default: "Alamat email atau rujukan", en: "Email address or reference" },
   "emailuji.r.tombol": { default: "Lihat riwayat", en: "Show the history" },
   "emailuji.r.kode": { default: "kode", en: "code" },
@@ -4261,19 +4263,19 @@ const table: Table = {
   "emailuji.r.jenis.PEMBERITAHUAN_KEAMANAN": { default: "Email keamanan akun", en: "Account security email" },
   "emailuji.r.jenis.UJI_PENGIRIMAN": { default: "Email uji", en: "Test email" },
   "emailuji.r.jenis.lain": { default: "Email", en: "Email" },
-  "emailuji.r.hasil.PENDING_LAMA": { default: "Tertahan: diserahkan ke server email, tetapi belum ada jawaban lebih dari 10 menit", en: "Stuck: handed to the email server, but no answer for more than 10 minutes" },
+  "emailuji.r.hasil.PENDING_LAMA": { default: "Tertahan dalam antrean: belum ada jawaban dari server email lebih dari 10 menit", en: "Stuck in the queue: no answer from the email server for more than 10 minutes" },
   "emailuji.t.judul": { default: "Pengiriman tertahan", en: "Stuck sends" },
-  "emailuji.t.intro": { default: "Email yang sudah diserahkan ke server email tetapi belum dijawab lebih dari 10 menit. «Diterima server email» berarti server sudah menerimanya; itu belum berarti sampai di kotak masuk.", en: "Emails handed to the email server that have had no answer for more than 10 minutes. «Accepted by the email server» means the server took it; it does not yet mean it reached the inbox." },
+  "emailuji.t.intro": { default: "Email dalam antrean yang belum dijawab server email lebih dari 10 menit. «Diserahkan» berarti server email sudah menerimanya; itu belum berarti sampai di kotak masuk.", en: "Queued emails the email server has not answered for more than 10 minutes. «Handed off» means the email server accepted it; that does not mean it reached the inbox." },
   "emailuji.t.kosong": { default: "Tidak ada pengiriman yang tertahan.", en: "No send is stuck." },
   "emailuji.t.galat": { default: "Daftar ini belum bisa dibaca. Muat ulang halaman sebentar lagi.", en: "This list could not be read. Reload the page in a moment." },
   "emailuji.t.menunggu": { default: "Belum dijawab selama", en: "Unanswered for" },
   "emailuji.t.menit": { default: "menit", en: "minutes" },
-  "emailuji.r.hasil.PENDING": { default: "Diserahkan ke server email, belum ada jawaban", en: "Handed to the email server, no answer yet" },
-  "emailuji.r.hasil.SENT": { default: "Diterima server email", en: "Accepted by the email server" },
+  "emailuji.r.hasil.PENDING": { default: "Dalam antrean: belum ada jawaban dari server email", en: "Queued: no answer from the email server yet" },
+  "emailuji.r.hasil.SENT": { default: "Diserahkan: diterima server email, belum dipastikan sampai", en: "Handed off: accepted by the email server, arrival not confirmed" },
   "emailuji.r.hasil.BATAS_ALAMAT": { default: "Tidak dikirim: batas PINTAR untuk alamat ini", en: "Not sent: PINTAR's limit for this address" },
   "emailuji.r.hasil.BATAS_UMUM": { default: "Tidak dikirim: batas pengiriman PINTAR per jam", en: "Not sent: PINTAR's hourly sending limit" },
-  "emailuji.r.hasil.REFUSED_BY_HOST": { default: "Ditolak server email", en: "Refused by the email server" },
-  "emailuji.r.hasil.FAILED": { default: "Tidak dikirim: server email tidak terjangkau", en: "Not sent: the email server could not be reached" },
+  "emailuji.r.hasil.REFUSED_BY_HOST": { default: "Gagal: ditolak server email", en: "Unsuccessful: refused by the email server" },
+  "emailuji.r.hasil.FAILED": { default: "Gagal: server email tidak terjangkau", en: "Unsuccessful: the email server could not be reached" },
   "emailuji.ditolak": { default: "Halaman ini hanya untuk admin platform.", en: "This page is for the platform administrator only." },
   "emailuji.eyebrow": { default: "Email", en: "Email" },
   "emailuji.judul": { default: "Kirim email uji", en: "Send a test email" },
@@ -4281,7 +4283,7 @@ const table: Table = {
   "emailuji.ke": { default: "Alamat email tujuan", en: "Send to this email address" },
   "emailuji.tombol": { default: "Kirim email uji", en: "Send test email" },
   "emailuji.mengirim": { default: "Mengirim…", en: "Sending…" },
-  "emailuji.terkirim": { default: "Email uji terkirim ke", en: "The test email was sent to" },
+  "emailuji.terkirim": { default: "Email uji sudah diserahkan ke server email untuk", en: "The test email was handed to the email server for" },
   "emailuji.periksa": { default: "Periksa kotak masuk alamat itu, termasuk folder spam.", en: "Check that inbox, including the spam folder." },
   "emailuji.rujukan": { default: "Rujukan:", en: "Reference:" },
   "emailuji.alasan.batas_alamat": { default: "Belum terkirim: alamat ini sudah menerima cukup banyak email dari PINTAR dalam waktu dekat. Coba lagi nanti.", en: "Not sent: this address has had enough email from PINTAR for now. Try again later." },
@@ -4735,7 +4737,7 @@ const table: Table = {
   "aktifkan.m_label": { default: "Nama lengkap", en: "Full name" },
   "aktifkan.m_batal": { default: "Batal", en: "Cancel" },
   "aktifkan.w_siap": { default: "Akun Anda sudah aktif. Mulai sekarang, masuk dengan email atau username, dan password Anda.", en: "Your account is active. From now on, sign in with your email or username, and your password." },
-  "aktifkan.w_kartu_terkirim": { default: "Kartu PINTAR Anda juga sudah dikirim ke email Anda.", en: "Your PINTAR Card has also been sent to your email." },
+  "aktifkan.w_kartu_terkirim": { default: "Kartu PINTAR Anda sudah diserahkan ke server email untuk dikirim ke alamat Anda. PINTAR tidak bisa memastikan email itu sampai; jika belum ada di kotak masuk, periksa folder Spam, atau kirim lagi dari Akun saya.", en: "Your PINTAR Card has been handed to the email server for your address. PINTAR can't confirm it arrives; if it isn't in your inbox, check your Spam folder, or send it again from My account." },
   "aktifkan.w_kartu_belum": { default: "Kartu PINTAR belum bisa dikirim ke email Anda sekarang. Anda bisa mengirimnya lagi nanti dari Akun saya.", en: "Your PINTAR Card couldn't be emailed just now. You can send it again later from My account." },
   "aktifkan.w_masuk": { default: "Masuk ke PINTAR", en: "Go to PINTAR" },
   // DAISY-20: what the server can refuse, one sentence per code (BOB-24's C9 rules and PIN list; BOB-26 §3).
@@ -4789,7 +4791,7 @@ const table: Table = {
   "akun.kartu_arti": { default: "Kirim Kartu PINTAR Anda ke email Anda, untuk disimpan atau ditunjukkan.", en: "Send your PINTAR Card to your email, to keep or to show." },
   "akun.kirim": { default: "Kirim kartu ke email saya", en: "Email the card to me" },
   "akun.mengirim": { default: "Mengirim…", en: "Sending…" },
-  "akun.terkirim": { default: "Kartu sudah dikirim ke email Anda.", en: "The card has been sent to your email." },
+  "akun.terkirim": { default: "Kartu sudah diserahkan ke server email untuk dikirim ke alamat Anda. PINTAR tidak bisa memastikan email itu sampai; jika belum ada di kotak masuk, periksa folder Spam.", en: "The card has been handed to the email server for your address. PINTAR can't confirm it arrives; if it isn't in your inbox, check your Spam folder." },
   "akun.belum": { default: "Kartu belum bisa dikirim sekarang.", en: "The card couldn't be sent just now." },
   "akun.coba_dalam": { default: "Coba lagi dalam", en: "Try again in" },
   "akun.coba_nanti": { default: "Coba lagi nanti.", en: "Try again later." },
