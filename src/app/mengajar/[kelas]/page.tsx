@@ -9,7 +9,8 @@ import Kosong from "@/components/Kosong";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import PemilihKelas from "@/components/mengajar/PemilihKelas";
-import DaftarMurid from "@/components/mengajar/DaftarMurid";
+import Koleksi from "@/components/koleksi/Koleksi";
+import { halamanKoleksi, kueriDiminta, susunKoleksi } from "@/components/koleksi/aturan";
 import { kataAnggota } from "@/lib/mengajar";
 import { alamatCatatan } from "@/lib/pengembangan-kontrak";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -44,10 +45,11 @@ export default async function Kelas({
   searchParams,
 }: {
   params: Promise<{ kelas: string }>;
-  searchParams: Promise<{ sedia?: string }>;
+  searchParams: Promise<{ sedia?: string; cari?: string | string[]; hal?: string | string[] }>;
 }) {
   const { kelas: id } = await params;
-  const { sedia } = await searchParams;
+  const sp = await searchParams;
+  const { sedia } = sp;
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "educator", { locale });
 
@@ -69,6 +71,8 @@ export default async function Kelas({
     ajar.berjalan([id]),
     ajar.terbitan(ctx.ini.institusi, id),
   ]);
+  // W3.5 (Daisy, J2Kelas): the roster searched and paged (alphabetical, 50 a page, the total kept)
+  const rosterHalaman = susunKoleksi(fakta.murid, { nama: (m) => m.nama, kueri: kueriDiminta(sp.cari), halaman: halamanKoleksi(sp.hal), ukuran: 50 });
 
   const punya = new Set(tugas.map((x) => x.releaseId));
   const aktif = tugas.filter((x) => x.status === "ACTIVE" && !x.berakhir);
@@ -223,7 +227,26 @@ export default async function Kelas({
               ? ` ${s("mengajar.fakta.berubah")} ${format.date(fakta.rosterBerubah, locale)}.`
               : ""}
           </p>
-          <DaftarMurid murid={fakta.murid} locale={locale} kelas={id} kosong={kataAnggota("mengajar.murid.kosong", ctx.ini.jenis)} />
+          {/* W3.5 (Batch 4; Daisy, J2Kelas): the class's learners as a Table: alphabetical, searchable, paged with the
+              total; each name opens that learner's record (M4) and nothing stands beside it (no status, no colour) */}
+          {fakta.murid.length === 0 ? (
+            <Kosong jenis="belum" kalimat={s(kataAnggota("mengajar.murid.kosong", ctx.ini.jenis))} />
+          ) : (
+            <Koleksi
+              id="pin-kelas-murid"
+              nama={`${s(kataAnggota("mengajar.murid.judul", ctx.ini.jenis))} · ${ctx.ini.nama}`}
+              benda={s(kataAnggota("mengajar.bukti.murid", ctx.ini.jenis))}
+              kolom={[{ judul: s("mengajar.cepat.hasil.kolom.nama") }]}
+              baris={rosterHalaman.isi.map((m) => ({ kunci: m.id, nama: <Link href={`/mengajar/${id}/murid/${m.id}`}>{m.nama}</Link>, sel: [] }))}
+              posisi={rosterHalaman.posisi}
+              totalSemua={rosterHalaman.totalSemua}
+              kosong={<Kosong jenis="belum" kalimat={s(kataAnggota("mengajar.murid.kosong", ctx.ini.jenis))} />}
+              jalan={`/mengajar/${id}`}
+              cari={kueriDiminta(sp.cari)}
+              locale={locale}
+              untuk="educator"
+            />
+          )}
         </div>
 
         <KakiPintar />

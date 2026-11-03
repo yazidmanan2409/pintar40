@@ -46,6 +46,7 @@ import { kunciKodeLaporan, kunciStatusLaporan, langkahBerikut, laporanTriase, ty
 import { pindahkanLaporanAksi } from "@/app/lapor/actions";
 import { daftarKelola, KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { transferMintaAction, transferTerimaAction } from "./actions";
 
 export const generateMetadata = judulHalaman("/konfigurasi");
 
@@ -73,7 +74,7 @@ const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "—");
 // L4 (CR-85, investigation §E item 15): a name this reader cannot resolve shows the dash, never a fragment of an id
 const TANPA_NAMA = "\u2014";
 // FD-4: each person's name travels with the row that names them (the foreign key says which person)
-const KOLOM_PINDAH = "id, person_id, from_institution_id, to_institution_id, status, reason, created_at, persons!transfers_person_id_fkey(display_name)";
+const KOLOM_PINDAH = "id, person_id, from_institution_id, to_institution_id, status, reason, created_at, requested_by_institution, to_academic_period_id, persons!transfers_person_id_fkey(display_name)";
 /** L4 finding 6: roles drawn a page at a time (the size the audit trail uses) */
 const UKURAN_PERAN = 50;
 const KOLOM_PERAN = "id, person_id, role, scope_node_id, institution_id, valid_until, revoked_at, persons!role_assignments_person_id_fkey(display_name)";
@@ -112,12 +113,15 @@ type MetricDefinition = {
 
 type SearchParams = Promise<{
   bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; sekolah?: string; periksa?: string; dari?: string; lapor?: string;
+  // W2.15 (F-10): the directory search, a plain GET
+  cari_sekolah?: string;
   // #148: the first step of scheduling, asked by a plain GET so the second step can show what the window would meet
   pm_cek?: string; pm_platform?: string; pm_sekolah?: string | string[]; pm_mulai?: string; pm_selesai?: string;
   // D-101 (2): «Admin sekolah» named on Peran & akses, waiting for its second press
   angkat?: string; lingkup?: string; sampai?: string; pertama?: string;
   // L4 (CR-88): the page of each bounded list
-  hal_pindah?: string; hal_jejak?: string; hal_peran?: string;
+  hal_pindah?: string; hal_jejak?: string; hal_peran?: string; hal_sekolah?: string; hal_lapor?: string;
+  hal_jendela?: string; hal_pengumuman?: string;
 }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
@@ -178,22 +182,33 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   // row security as before, instead of a second request listing every id, whose address outgrew what the server
   // accepts at platform scale (staging's 400s, and every name an 8-character fragment).
   const semuaSekolah = lama && isSys === true;
+  const halSekolah = halamanDiminta(sp.hal_sekolah);
+  const halLapor = halamanDiminta(sp.hal_lapor);
+  const halJendela = halamanDiminta(sp.hal_jendela);
+  const halPengumuman = halamanDiminta(sp.hal_pengumuman);
   const tanpaBaris = Promise.resolve({ data: [] as never[] });
   const enrolmen = supabase.from("enrollments")
     .select("id, person_id, institution_id, academic_period_id, status, member_kind, persons(display_name)").eq("status", "ACTIVE");
   const jejak = supabase.from("audit_log").select("id, at, action, target_table, target_id, institution_id, build_sha");
 
   const [
-    { data: institutions }, { data: periods }, { data: nodes }, { data: enrollments }, { data: transfers },
+    { data: institutionsDibaca }, { data: periodsDibaca }, { data: nodes }, { data: enrollments }, { data: transfers },
     { data: assignments }, { data: audit }, { data: lint, error: lintError }, { data: env },
     { data: awaiting }, [{ data: reportTemplates }, { data: templateMetrics }, { data: metricDefs }],
   ] = await Promise.all([
     satuSekolah
       ? supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").eq("id", satuSekolah)
-      : supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
+      // W2.10 (Batch 4; CR-49, CAP-10): «Seluruh platform» lists the schools a page at a time, never every school at once
+      : platformKonteks
+        ? supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name").order("id")
+            .range(...rentang(halSekolah))
+        : supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
     satuSekolah
       ? supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").eq("institution_id", satuSekolah).order("starts_on")
-      : supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").order("starts_on"),
+      // W2.10: in «Seluruh platform» the school years of the page's schools alone, read below
+      : platformKonteks
+        ? tanpaBaris
+        : supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").order("starts_on"),
     satuSekolah
       ? supabase.from("org_nodes").select("id, institution_id, kind, name, academic_period_id, is_active, jalur").eq("institution_id", satuSekolah).order("name")
       : platformKonteks
@@ -257,6 +272,16 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     ]),
   ]);
 
+  // W2.10: one page of schools in «Seluruh platform» (one row more was read, so the next page's existence is known), and
+  // the school years of those schools alone
+  const lagiSekolah = platformKonteks && (institutionsDibaca ?? []).length > UKURAN;
+  const institutions = platformKonteks ? (institutionsDibaca ?? []).slice(0, UKURAN) : institutionsDibaca;
+  const { data: periodsHalaman } = platformKonteks && (institutions ?? []).length > 0
+    ? await supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on")
+        .in("institution_id", (institutions ?? []).map((i) => i.id)).order("starts_on")
+    : { data: null };
+  const periods = platformKonteks ? (periodsHalaman ?? []) : periodsDibaca;
+
   // DAISY-05. The school whose structure is shown: an active, real school the
   // reader administers -- never the national library, whose name sorts first
   // (audit S7b) -- the one asked for if it is on offer, else the first. Its
@@ -291,6 +316,24 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
       ? { data: [] as NonNullable<typeof transfers> }
       : await supabase.from("transfers").select(KOLOM_PINDAH).order("created_at", { ascending: false }).order("id").range(...rentang(halPindah));
   const daftarPindah = (pindahHalaman ?? []).slice(0, UKURAN);
+  // W2.15 (Batch 4, F-10 / D-152(c)): in a school's context the destination is found in the directory by its exact name
+  // or code (cari_sekolah_tujuan: name and code only, every search audited), and the school's incoming requests are
+  // accepted into one of its own school years (pindah_masuk, transfer_terima)
+  const cariSekolah = typeof sp.cari_sekolah === "string" ? sp.cari_sekolah.trim().slice(0, 120) : "";
+  const { data: sekolahDitemukan, error: galatCari } = satuSekolah && cariSekolah
+    ? await supabase.rpc("cari_sekolah_tujuan", { p_kata: cariSekolah })
+    : { data: null, error: null };
+  const tujuanDitemukan = ((Array.isArray(sekolahDitemukan) ? sekolahDitemukan : []) as Array<{ institution_id: string; nama: string; kode: string | null }>)
+    .filter((x) => x.institution_id !== satuSekolah);
+  const { data: masukData } = satuSekolah ? await supabase.rpc("pindah_masuk", { p_sekolah: satuSekolah }) : { data: null };
+  const masukSemua = (Array.isArray(masukData) ? masukData : []) as Array<{
+    transfer_id: string; nama_murid: string; dari_sekolah: string; dari_kode: string | null; alasan: string | null; diminta_pada: string;
+    keadaan: string;
+  }>;
+  // the requests to accept; and, for every incoming transfer, the learner's name the receiving school may read before
+  // the transfer is executed (pindah_masuk), so an accepted transfer is executed by name, never as «—»
+  const pindahMasuk = masukSemua.filter((m) => m.keadaan === "REQUESTED");
+  const namaMasuk = new Map(masukSemua.map((m) => [m.transfer_id, m.nama_murid] as const));
   const lagiPindah = (pindahHalaman ?? []).length > UKURAN;
   // L4 finding 6 (CR-88): Peran & akses draws one page of roles, each with its revoke form; the read stays whole,
   // because the school's readiness and its count of admins below are taken from every active role
@@ -299,8 +342,10 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const namaPindah = new Map(daftarPindah.map((x) => [String(x.person_id), namaDari(x.persons)] as const)
     .filter((x): x is readonly [string, string] => typeof x[1] === "string"));
   // L4 (CR-85): a transfer names the other school too; in a school's context only that school was read above
-  const sekolahPindah = [...new Set(([...(transfers ?? []), ...daftarPindah] as Array<{ from_institution_id: string; to_institution_id: string }>)
-    .flatMap((x) => [x.from_institution_id, x.to_institution_id]))]
+  // W2.10: and the trail names its schools, which in «Seluruh platform» are no longer all read above
+  const sekolahPindah = [...new Set([...([...(transfers ?? []), ...daftarPindah] as Array<{ from_institution_id: string; to_institution_id: string }>)
+    .flatMap((x) => [x.from_institution_id, x.to_institution_id]),
+    ...((audit ?? []) as Array<{ institution_id: string | null }>).map((r) => r.institution_id).filter((x): x is string => !!x)])]
     .filter((id) => !(institutions ?? []).some((i) => i.id === id));
   const { data: sekolahLain } = sekolahPindah.length > 0
     ? await supabase.from("institutions").select("id, name").in("id", sekolahPindah)
@@ -332,6 +377,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     : null;
 
   const activeClassCount = (nodes ?? []).filter((n) => n.kind === "CLASS" && n.is_active).length;
+
   // BOB-19: the card judges each check by the one rule F01-T13 uses
   // (src/lib/kesehatan-skema), never "anything but 0 is a problem"
   let kesehatan: KeadaanKesehatan;
@@ -376,25 +422,52 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const pmMulai = sp.pm_mulai ? waktuWib(sp.pm_mulai) : null;
   const pmSelesai = waktuWib(sp.pm_selesai);
   const pmCek = sp.pm_cek === "1" && (pmPlatform || pmSekolah.length > 0) && (!sp.pm_mulai || pmMulai !== null);
-  const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan, peserta, catatanPd, laporan, kelolaSemua, { data: tabrakan }] = await Promise.all([
+  const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan, peserta, catatanPd, { isi: laporan, lagi: lagiLapor }, kelolaSemua, { data: tabrakan }] = await Promise.all([
     bacaanStruktur, currentLocale(), bacaanAkar,
     // L3: sekolahPendataan is already the working context's school (none in «Seluruh platform»), /pendataan's own rule
     sekolahPendataan().then((x) => x.length > 0).catch(() => false),
     sekolahStruktur ? pelajaranDanBatas(supabase, sekolahStruktur.id) : Promise.resolve(null),
     sekolahStruktur ? formulirPeserta(sekolahStruktur.id) : Promise.resolve(null),
     tempatCatatan(),
-    laporanTriase(platformIni ? null : sekolahIni),
-    daftarKelola(),
+    laporanTriase(platformIni ? null : sekolahIni, halLapor),
+    daftarKelola({ jendela: halJendela, pengumuman: halPengumuman, sekolah: !lama && !platformKonteks ? satuSekolah : null }),
     pmCek
       ? supabase.rpc("maintenance_collisions", { p_platform: pmPlatform, p_institutions: pmPlatform ? [] : pmSekolah, p_starts_at: pmMulai, p_ends_at: pmSelesai })
       : Promise.resolve({ data: null }),
   ]);
   // L3: maintenance windows and notices of this context: the school's own in Mengelola · a school; every one the
   // reader may act on in «Seluruh platform» (and before L3, for an evaluation persona)
-  const kelola = kelolaSemua && !lama && !platformKonteks
-    ? { pemeliharaan: kelolaSemua.pemeliharaan.filter((w) => w.sekolah.some((x) => sekolahIni.includes(x))),
-        pengumuman: kelolaSemua.pengumuman.filter((n) => !n.platform) }
-    : kelolaSemua;
+  // W2.10 (Batch 4): the database narrows them to the school (maintenance_list's p_sekolah) and pages them; the
+  // browser compared the schools' names with the context's school id, so a school's own windows never showed
+  const kelola = kelolaSemua;
+
+  // W2.13 / UX-33 (Batch 4): WHAT WAITS, WITH A COUNT, EACH OPENING WHERE IT IS DONE. Only what this reader may act on in
+  // this working context, each counted by the database under the reader's own row security (never listed): a school's
+  // imports waiting for a person's go (Pendataan), its people waiting for an account (Aktivasi) and its packages
+  // waiting on the reader (Studio, studio_home's own counts); in «Seluruh platform», every school's people waiting for
+  // an account. Nothing is shown when nothing waits.
+  const konteksAda = typeof kh === "object" && kh !== null;
+  const [nImpor, nAkun, nStudio] = await Promise.all([
+    satuSekolah && bolehPendataan
+      ? supabase.from("import_jobs").select("id", { count: "exact", head: true }).eq("institution_id", satuSekolah)
+          .in("state", ["AWAITING_CONFIRMATION", "AWAITING_PILOT_VERIFICATION"]).then((r) => r.count ?? 0)
+      : Promise.resolve(0),
+    konteksAda && melayani(kh, "/aktivasi") && (satuSekolah || platformIni)
+      ? (satuSekolah
+          ? supabase.rpc("persons_awaiting_account", {}, { count: "exact", head: true }).eq("institution_id", satuSekolah)
+          : supabase.rpc("persons_awaiting_account", {}, { count: "exact", head: true })).then((r) => r.count ?? 0)
+      : Promise.resolve(0),
+    satuSekolah && konteksAda && melayani(kh, "/studio")
+      ? supabase.rpc("studio_home").then(({ data }) => ((data ?? []) as Array<{ bucket: string; institution_id: string; count: number }>)
+          .filter((r) => r.institution_id === satuSekolah && (r.bucket === "ACTION_REQUIRED" || r.bucket === "AWAITING_MY_REVIEW"))
+          .reduce((n, r) => n + Number(r.count ?? 0), 0))
+      : Promise.resolve(0),
+  ]);
+  const menunggu: Array<{ k: string; href: string; kunci: HleEvent; n: number }> = [
+    { k: "impor", href: "/pendataan", kunci: "config.menunggu.pendataan" as HleEvent, n: nImpor },
+    { k: "akun", href: "/aktivasi", kunci: "config.menunggu.aktivasi" as HleEvent, n: nAkun },
+    { k: "studio", href: "/studio", kunci: "config.menunggu.studio" as HleEvent, n: nStudio },
+  ].filter((m) => m.n > 0);
   const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
   // M9: the Kelas whose students «Pindah kelas» lists, if one was chosen, and
   // where they may go; J3.6: or a Tingkat whose learners are not yet in a Kelas.
@@ -466,6 +539,19 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         <h1 className="text-2xl font-semibold tracking-tight">{s("config.title")}</h1>
       </header>
 
+
+      {menunggu.length > 0 ? (
+        <section className={`mt-6 ${card}`} aria-labelledby="pin-menunggu" data-menunggu="">
+          <h2 id="pin-menunggu" className="font-medium">{s("config.menunggu.judul")}</h2>
+          <ul className="mt-2 grid gap-1 text-sm">
+            {menunggu.map((m) => (
+              <li key={m.k} data-menunggu-jenis={m.k}>
+                <Link className="pin-tautan" href={m.href}><span className="pin-num">{m.n}</span> {s(m.kunci)}</Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
         <KartuKesehatan locale={await currentLocale()} keadaan={kesehatan} kelas={card} tautan={tautanTempat} />
@@ -612,7 +698,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                               {p.history.map((h, i) => (
                                 <li key={`${h.set_at}-${i}`}>
                                   <span className="pin-num">{format.percent(h.percent / 100, locale)}</span>
-                                  {" · "}{format.date(h.set_at, locale)}
+                                  {" · "}{when(h.set_at)}
                                   {h.set_by ? <> · {sl("config.ketuntasan.oleh")} {h.set_by}</> : null}
                                   {" · "}{h.reason}
                                 </li>
@@ -774,7 +860,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     <span className="text-ink-1">
                       <strong>{sl(kunciStatusLaporan(l.status))}</strong>
                       {l.hentikanKelas ? <> · <strong>{sl("lapor.hentikan.singkat")}</strong></> : null}
-                      {" · "}{format.date(l.dibuat, locale)} · {l.pelapor} · {roleLabel(l.peran)}{l.sekolah ? ` · ${l.sekolah}` : ""}
+                      {" · "}{when(l.dibuat)} · {l.pelapor} · {roleLabel(l.peran)}{l.sekolah ? ` · ${l.sekolah}` : ""}
                     </span>
                     <span className="text-ink-2">
                       <span className="pin-num">{l.halaman}</span>
@@ -808,6 +894,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 ))}
               </ul>
             )}
+            <Penomoran halaman={halLapor} lagi={lagiLapor} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_lapor", n, "laporan-masalah")} locale={locale} />
           </section>
 
           {/* #148 (D-094(a)(b)(g)(h), D-100). PEMELIHARAAN DAN PENGUMUMAN. Scheduling is two steps: the scope and the
@@ -916,6 +1003,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             ) : (
               <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.kosong")}</p>
             )}
+            <Penomoran halaman={halJendela} lagi={kelola?.lagiPemeliharaan === true} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_jendela", n, "pemeliharaan")} locale={locale} />
 
             <h3 className="mt-4 text-sm font-medium">{sl("config.pemeliharaan.pengumuman")}</h3>
             <p className="mt-1 text-sm text-ink-2">{sl("config.pemeliharaan.pengumuman.arti")}</p>
@@ -969,6 +1057,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             ) : (
               <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.pengumuman.kosong")}</p>
             )}
+            <Penomoran halaman={halPengumuman} lagi={kelola?.lagiPengumuman === true} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_pengumuman", n, "pemeliharaan")} locale={locale} />
 
             {platformIni ? (
               <div className="mt-4 grid gap-2 rounded-[var(--radius-1)] border border-line-1 px-3 py-2" data-hentikan="1">
@@ -1051,6 +1140,9 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               ))}
               {(institutions ?? []).length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
+            {platformKonteks ? (
+              <Penomoran halaman={halSekolah} lagi={lagiSekolah} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_sekolah", n, "system")} locale={locale} />
+            ) : null}
           </section>
 
           {/* Period rollover (INV-23) */}
@@ -1106,14 +1198,17 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               {daftarPindah.map((x) => (
                 <li key={x.id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 sm:grid-cols-[1fr_auto] sm:items-center">
                   <div>
-                    <span>{namaPindah.get(x.person_id) ?? TANPA_NAMA}</span>
+                    <span>{namaPindah.get(x.person_id) ?? namaMasuk.get(x.id) ?? TANPA_NAMA}</span>
                     <span className="text-ink-3"> · {institutionName.get(x.from_institution_id) ?? TANPA_NAMA} → {institutionName.get(x.to_institution_id) ?? TANPA_NAMA}</span>
                     <span className="ml-2 rounded bg-info-soft px-1.5 text-xs text-info">{transferLabel(x.status)}</span>
                     {x.reason ? <p className="text-xs text-ink-3">{x.reason}</p> : null}
+                    {/* W2.15: a request this school sent waits on the receiving school, which chooses its school year */}
+                    {x.status === "REQUESTED" && x.to_academic_period_id === null && x.from_institution_id === satuSekolah
+                      ? <p className="text-xs text-ink-3">{s("pindah.menunggu_tujuan")}</p> : null}
                   </div>
                   {(x.status === "REQUESTED" || x.status === "AUTHORIZED") && (
                     <div className="flex flex-wrap gap-2">
-                      {x.status === "REQUESTED" && (
+                      {x.status === "REQUESTED" && x.to_academic_period_id !== null && (
                         <form action={transferAuthorizeAction}><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("config.action.authorize")}</TombolKirim></form>
                       )}
                       {x.status === "AUTHORIZED" && (
@@ -1132,6 +1227,79 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               {daftarPindah.length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
             <Penomoran halaman={halPindah} lagi={lagiPindah} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_pindah", n, "transfers")} />
+            {/* W2.15: the receiving school's incoming requests, accepted into one of its own school years */}
+            {satuSekolah && pindahMasuk.length > 0 ? (
+              <div className="mt-3 grid gap-2" data-pindah="masuk">
+                <h3 className="text-sm font-medium">{s("pindah.masuk.judul")}</h3>
+                {pindahMasuk.map((m) => (
+                  <form key={m.transfer_id} action={transferTerimaAction} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2" data-pindah-masuk={m.transfer_id}>
+                    <input type="hidden" name="transfer" value={m.transfer_id} />
+                    <p className="sm:col-span-2 text-sm">
+                      <strong>{m.nama_murid}</strong> · {s("pindah.masuk.dari")} {m.dari_sekolah}{m.dari_kode ? ` (${m.dari_kode})` : ""}
+                      {m.alasan ? <span className="block text-xs text-ink-3">{m.alasan}</span> : null}
+                    </p>
+                    <label className={label}>{s("pindah.masuk.tahun")}
+                      <select name="to_period" className={field} required defaultValue="">
+                        <option value="" disabled>—</option>
+                        {(periods ?? []).filter((p) => p.institution_id === satuSekolah).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                      </select>
+                    </label>
+                    <label className={label}>{s("pindah.masuk.program")}
+                      <select name="to_programme" className={field} defaultValue="">
+                        <option value="">—</option>
+                        {(nodes ?? []).filter((n) => n.kind === "PROGRAMME" && n.is_active && n.institution_id === satuSekolah).map((n) => (
+                          <option key={n.id} value={n.id}>{n.name}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("pindah.masuk.terima")}</TombolKirim></div>
+                  </form>
+                ))}
+              </div>
+            ) : null}
+            {/* W2.15 (F-10): a transfer out, to a school found by its exact name or code */}
+            {satuSekolah ? (
+              <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" data-pindah="keluar">
+                <h3 className="text-sm font-medium">{s("pindah.keluar.judul")}</h3>
+                <p className="text-xs text-ink-3">{s("pindah.keluar.arti")}</p>
+                <form method="get" action="/konfigurasi" className="flex flex-wrap items-end gap-2">
+                  <input type="hidden" name="bagian" value="transfers" />
+                  <label className={label}>{s("pindah.cari.label")}
+                    <input name="cari_sekolah" className={field} defaultValue={cariSekolah} minLength={3} maxLength={120} required autoComplete="off" />
+                  </label>
+                  <button type="submit" className={button}>{s("pindah.cari.tombol")}</button>
+                </form>
+                {cariSekolah && galatCari ? <BarisHasil nada="gagal">{s("galat.transfer_search_short")}</BarisHasil> : null}
+                {cariSekolah && !galatCari && tujuanDitemukan.length === 0 ? <p className="text-sm text-ink-3">{s("pindah.cari.kosong")}</p> : null}
+                {tujuanDitemukan.length > 0 ? (
+                  <form action={transferMintaAction} className="grid gap-2 sm:grid-cols-2">
+                    <fieldset className="sm:col-span-2 grid gap-1">
+                      <legend className={label}>{s("pindah.tujuan")}</legend>
+                      {tujuanDitemukan.map((x, i) => (
+                        <label key={x.institution_id} className="flex items-center gap-2 text-sm">
+                          <input type="radio" name="to_institution" value={x.institution_id} defaultChecked={i === 0} required />
+                          {x.nama}{x.kode ? ` (${x.kode})` : ""}
+                        </label>
+                      ))}
+                    </fieldset>
+                    <label className={`${label} sm:col-span-2`}>{s("config.label.enrollment")}
+                      <select name="from_enrollment" className={field} required defaultValue="">
+                        <option value="" disabled>—</option>
+                        {(enrollments ?? []).filter((e) => e.institution_id === satuSekolah && e.member_kind !== "PARTICIPANT").map((e) => (
+                          <option key={e.id} value={e.id}>{personName.get(e.person_id) ?? TANPA_NAMA} · {periodName.get(e.academic_period_id) ?? ""}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className={`${label} sm:col-span-2`}>{s("config.label.reason")}
+                      <input name="reason" className={field} required minLength={3} maxLength={500} />
+                    </label>
+                    <div><TombolKirim className={primer} sibuk={s("tombol.mengirim")}>{s("config.action.request_transfer")}</TombolKirim></div>
+                  </form>
+                ) : null}
+              </div>
+            ) : null}
+            {/* the evaluation persona's page keeps the platform-wide form it had (C10) */}
+            {lama ? (
             <form action={transferRequestAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2">
               <label className={`${label} sm:col-span-2`}>{s("config.label.enrollment")}
                 <select name="from_enrollment" className={field} required defaultValue="">
@@ -1173,6 +1341,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <p className="text-xs text-ink-3 sm:col-span-2">{s("config.label.destination_help")}</p>
               <div><TombolKirim className={primer} sibuk={s("tombol.mengirim")}>{s("config.action.request_transfer")}</TombolKirim></div>
             </form>
+            ) : null}
             {result("transfers")}
           </section>
 

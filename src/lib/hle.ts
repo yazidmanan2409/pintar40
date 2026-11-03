@@ -267,6 +267,10 @@ export type HleEvent =
   | "auth.signed_out"
   | "auth.not_yet"
   | "config.title"
+  | "config.menunggu.judul"
+  | "config.menunggu.pendataan"
+  | "config.menunggu.aktivasi"
+  | "config.menunggu.studio"
   | "config.section.system"
   | "config.section.intelligence"
   | "laporan.templat.judul"
@@ -1011,6 +1015,28 @@ export type HleEvent =
   | "galat.template_saved"
   | "galat.role_granted"
   | "galat.role_revoked"
+  | "pindah.menunggu_tujuan"
+  | "pindah.masuk.judul"
+  | "pindah.masuk.dari"
+  | "pindah.masuk.tahun"
+  | "pindah.masuk.program"
+  | "pindah.masuk.terima"
+  | "pindah.keluar.judul"
+  | "pindah.keluar.arti"
+  | "pindah.cari.label"
+  | "pindah.cari.tombol"
+  | "pindah.cari.kosong"
+  | "pindah.tujuan"
+  | "galat.transfer_destination_invalid"
+  | "galat.transfer_reason_required"
+  | "galat.transfer_open"
+  | "galat.transfer_enrollment_not_active"
+  | "galat.transfer_period_invalid"
+  | "galat.transfer_programme_invalid"
+  | "galat.transfer_not_open"
+  | "galat.transfer_search_short"
+  | "galat.transfer_period_missing"
+  | "galat.transfer_accepted"
   | "galat.transfer_requested"
   | "galat.transfer_authorized"
   | "galat.transfer_executed"
@@ -1721,6 +1747,13 @@ export type HleEvent =
   | "emailuji.r.jenis.UJI_PENGIRIMAN"
   | "emailuji.r.jenis.lain"
   | "emailuji.r.hasil.PENDING"
+  | "emailuji.r.hasil.PENDING_LAMA"
+  | "emailuji.t.judul"
+  | "emailuji.t.intro"
+  | "emailuji.t.kosong"
+  | "emailuji.t.galat"
+  | "emailuji.t.menunggu"
+  | "emailuji.t.menit"
   | "emailuji.r.hasil.SENT"
   | "emailuji.r.hasil.BATAS_ALAMAT"
   | "emailuji.r.hasil.BATAS_UMUM"
@@ -1885,6 +1918,97 @@ export type HleEvent =
   | "akun.pin.simpan"
   | "akun.pin.menyimpan"
   | "akun.pin.tersimpan"
+  | "aktivasi.staf.judul"
+  | "aktivasi.staf.arti"
+  | "aktivasi.staf.pilih"
+  | "aktivasi.staf.email"
+  | "aktivasi.staf.email.arti"
+  | "aktivasi.staf.alasan"
+  | "aktivasi.staf.alasan.arti"
+  | "aktivasi.staf.konfirmasi"
+  | "aktivasi.staf.ya"
+  | "aktivasi.staf.sibuk"
+  | "aktivasi.staf.ok.1"
+  | "aktivasi.staf.ok.2"
+  | "aktivasi.staf.gagal.DITOLAK"
+  | "aktivasi.staf.gagal.ALASAN_WAJIB"
+  | "aktivasi.staf.gagal.EMAIL_TIDAK_SAH"
+  | "aktivasi.staf.gagal.EMAIL_TERPAKAI"
+  | "aktivasi.staf.gagal.KARTU_TIDAK_ADA"
+  | "aktivasi.staf.gagal.BELUM_MASUK"
+  | "aktivasi.staf.gagal.PERMINTAAN_DITOLAK"
+  | "aktivasi.staf.gagal.PERMINTAAN_TIDAK_SAH"
+  | "aktivasi.staf.gagal.LAYANAN_TIDAK_TERSEDIA"
+  | "orang.judul"
+  | "orang.benda"
+  | "orang.intro.sekolah"
+  | "orang.intro.platform"
+  | "orang.cari"
+  | "orang.kosong"
+  | "orang.kolom.nama"
+  | "orang.kolom.id"
+  | "orang.kolom.email"
+  | "orang.kolom.username"
+  | "orang.kolom.keadaan"
+  | "orang.kolom.tindakan"
+  | "orang.aktif"
+  | "orang.belum_aktif"
+  | "orang.koreksi"
+  | "orang.panel"
+  | "orang.alasan"
+  | "orang.alasan.arti"
+  | "orang.menyimpan"
+  | "orang.email.judul"
+  | "orang.email.sekarang"
+  | "orang.email.baru"
+  | "orang.email.tombol"
+  | "orang.email.ok.belum"
+  | "orang.email.ok.aktif"
+  | "orang.email.hanya_platform"
+  | "orang.nama.judul"
+  | "orang.nama.arti"
+  | "orang.nama.baru"
+  | "orang.nama.tombol"
+  | "orang.nama.ok"
+  | "orang.username.judul"
+  | "orang.username.arti"
+  | "orang.username.baru"
+  | "orang.username.aturan"
+  | "orang.username.tombol"
+  | "orang.username.ok"
+  | "orang.identitas.hanya_platform"
+  | "orang.gagal.DITOLAK"
+  | "orang.gagal.REASON_REQUIRED"
+  | "orang.gagal.IDENTITY_NOT_FOUND"
+  | "orang.gagal.NAME_INVALID"
+  | "orang.gagal.NAME_UNCHANGED"
+  | "orang.gagal.PERMINTAAN_TIDAK_SAH"
+  | "orang.gagal.LAYANAN_TIDAK_TERSEDIA"
+  | "aktivasi.orang.tautan"
+  | "aktivasi.orang.arti"
+  | "orang.email.gagal.PERMINTAAN_DITOLAK"
+  | "orang.email.gagal.LAYANAN_TIDAK_TERSEDIA"
+  | "orang.email.gagal.BELUM_MASUK"
+  | "orang.email.gagal.DITOLAK"
+  | "orang.email.gagal.PERMINTAAN_TIDAK_SAH"
+  | "orang.email.gagal.ALASAN_WAJIB"
+  | "orang.email.gagal.EMAIL_TIDAK_SAH"
+  | "orang.email.gagal.EMAIL_SAMA"
+  | "orang.email.gagal.EMAIL_TERPAKAI"
+  | "orang.email.gagal.AKUN_EMAIL_TIDAK_ADA"
+  | "akun.foto.judul"
+  | "akun.foto.arti"
+  | "akun.foto.alt"
+  | "akun.foto.pilih"
+  | "akun.foto.ganti"
+  | "akun.foto.batas"
+  | "akun.foto.besar"
+  | "akun.foto.jenis"
+  | "akun.foto.hapus"
+  | "akun.foto.naik"
+  | "akun.foto.ok"
+  | "akun.foto.dihapus"
+  | "akun.foto.gagal"
   | "aktivasi.ulang.judul"
   | "aktivasi.ulang.arti"
   | "aktivasi.ulang.cari"
@@ -2874,6 +2998,10 @@ const table: Table = {
   "auth.signed_out": { default: "Sampai jumpa lagi.", en: "See you again soon." },
   "auth.not_yet": { default: "Halaman ini belum tersedia untuk akun Anda.", en: "This page is not available to your account yet." },
   "config.title": { default: "Konfigurasi", en: "Configuration" },
+  "config.menunggu.judul": { default: "Yang menunggu", en: "Waiting" },
+  "config.menunggu.pendataan": { default: "pendataan menunggu persetujuan Anda di Pendataan", en: "imports waiting for your go-ahead in Pendataan" },
+  "config.menunggu.aktivasi": { default: "orang menunggu akun di Aktivasi", en: "people waiting for an account in Aktivasi" },
+  "config.menunggu.studio": { default: "paket menunggu tindakan atau tinjauan Anda di Studio", en: "packages waiting for your action or review in Studio" },
   "config.section.system": { default: "Sistem & Konfigurasi", en: "System & Configuration" },
   "config.section.intelligence": { default: "Inteligensi & Laporan", en: "Intelligence & Reports" },
   "laporan.templat.judul": { default: "Templat laporan", en: "Report templates" },
@@ -3913,6 +4041,28 @@ const table: Table = {
   // DAISY-18 (D-047): the key actions say what was done
   "galat.role_granted": { default: "Peran diberikan.", en: "Role granted." },
   "galat.role_revoked": { default: "Peran dicabut.", en: "Role revoked." },
+  "pindah.menunggu_tujuan": { default: "Belum diterima sekolah tujuan. Sekolah itu yang memilih tahun ajarannya.", en: "Not yet accepted by the receiving school, which chooses its school year." },
+  "pindah.masuk.judul": { default: "Permintaan pindah masuk", en: "Incoming transfer requests" },
+  "pindah.masuk.dari": { default: "dari", en: "from" },
+  "pindah.masuk.tahun": { default: "Tahun ajaran di sekolah ini", en: "School year at this school" },
+  "pindah.masuk.program": { default: "Program (opsional)", en: "Programme (optional)" },
+  "pindah.masuk.terima": { default: "Terima perpindahan", en: "Accept the transfer" },
+  "pindah.keluar.judul": { default: "Ajukan perpindahan ke sekolah lain", en: "Request a transfer to another school" },
+  "pindah.keluar.arti": { default: "Cari sekolah tujuan dengan nama lengkapnya atau kodenya. Sekolah tujuan yang menerima perpindahan dan memilih tahun ajarannya.", en: "Find the receiving school by its full name or its code. The receiving school accepts the transfer and chooses the school year." },
+  "pindah.cari.label": { default: "Nama lengkap atau kode sekolah tujuan", en: "The receiving school's full name or code" },
+  "pindah.cari.tombol": { default: "Cari sekolah", en: "Find the school" },
+  "pindah.cari.kosong": { default: "Tidak ada sekolah aktif dengan nama atau kode itu. Periksa ejaannya: nama harus lengkap dan sama persis.", en: "No active school has that name or code. Check the spelling: the name must be complete and exact." },
+  "pindah.tujuan": { default: "Sekolah tujuan", en: "Receiving school" },
+  "galat.transfer_destination_invalid": { default: "Pilih sekolah tujuan lain yang aktif.", en: "Choose another, active school." },
+  "galat.transfer_reason_required": { default: "Tuliskan alasan perpindahannya.", en: "Write the reason for the transfer." },
+  "galat.transfer_open": { default: "Murid ini sudah punya permintaan pindah yang belum selesai.", en: "This learner already has a transfer request in progress." },
+  "galat.transfer_enrollment_not_active": { default: "Murid ini tidak lagi terdaftar di sekolah ini.", en: "This learner is no longer enrolled at this school." },
+  "galat.transfer_period_invalid": { default: "Pilih salah satu tahun ajaran sekolah ini.", en: "Choose one of this school's school years." },
+  "galat.transfer_programme_invalid": { default: "Pilih salah satu program sekolah ini.", en: "Choose one of this school's programmes." },
+  "galat.transfer_not_open": { default: "Permintaan ini tidak lagi menunggu sekolah ini.", en: "This request is no longer waiting for this school." },
+  "galat.transfer_search_short": { default: "Ketik nama lengkap atau kode sekolah, paling sedikit 3 karakter.", en: "Type the school's full name or code, at least 3 characters." },
+  "galat.transfer_period_missing": { default: "Sekolah tujuan belum memilih tahun ajarannya.", en: "The receiving school has not chosen the school year yet." },
+  "galat.transfer_accepted": { default: "Perpindahan diterima ke tahun ajaran yang dipilih. Sekarang bisa dijalankan.", en: "The transfer is accepted into the chosen school year. It can now be carried out." },
   "galat.transfer_requested": { default: "Perpindahan diajukan dan kini menunggu persetujuan dari pihak lain.", en: "Transfer requested; it now awaits authorization from the other side." },
   "galat.transfer_authorized": { default: "Perpindahan disetujui dan tinggal dijalankan.", en: "Transfer authorized; it only remains to be executed." },
   "galat.transfer_executed": { default: "Perpindahan dijalankan.", en: "Transfer executed." },
@@ -3966,7 +4116,14 @@ const table: Table = {
   "emailuji.r.jenis.PEMBERITAHUAN_KEAMANAN": { default: "Email keamanan akun", en: "Account security email" },
   "emailuji.r.jenis.UJI_PENGIRIMAN": { default: "Email uji", en: "Test email" },
   "emailuji.r.jenis.lain": { default: "Email", en: "Email" },
-  "emailuji.r.hasil.PENDING": { default: "Sedang dikirim", en: "Being sent" },
+  "emailuji.r.hasil.PENDING_LAMA": { default: "Tertahan: diserahkan ke server email, tetapi belum ada jawaban lebih dari 10 menit", en: "Stuck: handed to the email server, but no answer for more than 10 minutes" },
+  "emailuji.t.judul": { default: "Pengiriman tertahan", en: "Stuck sends" },
+  "emailuji.t.intro": { default: "Email yang sudah diserahkan ke server email tetapi belum dijawab lebih dari 10 menit. «Diterima server email» berarti server sudah menerimanya; itu belum berarti sampai di kotak masuk.", en: "Emails handed to the email server that have had no answer for more than 10 minutes. «Accepted by the email server» means the server took it; it does not yet mean it reached the inbox." },
+  "emailuji.t.kosong": { default: "Tidak ada pengiriman yang tertahan.", en: "No send is stuck." },
+  "emailuji.t.galat": { default: "Daftar ini belum bisa dibaca. Muat ulang halaman sebentar lagi.", en: "This list could not be read. Reload the page in a moment." },
+  "emailuji.t.menunggu": { default: "Belum dijawab selama", en: "Unanswered for" },
+  "emailuji.t.menit": { default: "menit", en: "minutes" },
+  "emailuji.r.hasil.PENDING": { default: "Diserahkan ke server email, belum ada jawaban", en: "Handed to the email server, no answer yet" },
   "emailuji.r.hasil.SENT": { default: "Diterima server email", en: "Accepted by the email server" },
   "emailuji.r.hasil.BATAS_ALAMAT": { default: "Tidak dikirim: batas PINTAR untuk alamat ini", en: "Not sent: PINTAR's limit for this address" },
   "emailuji.r.hasil.BATAS_UMUM": { default: "Tidak dikirim: batas pengiriman PINTAR per jam", en: "Not sent: PINTAR's hourly sending limit" },
@@ -4144,6 +4301,97 @@ const table: Table = {
   "akun.pin.simpan": { default: "Simpan PIN baru", en: "Save the new PIN" },
   "akun.pin.menyimpan": { default: "Menyimpan…", en: "Saving…" },
   "akun.pin.tersimpan": { default: "PIN baru tersimpan.", en: "Your new PIN is saved." },
+  "aktivasi.staf.judul": { default: "Murid yang menjadi staf", en: "A learner who becomes staff" },
+  "aktivasi.staf.arti": { default: "Kartu kelas hanya untuk murid. Bila seorang murid menjadi staf, ubah kartunya menjadi akun email lebih dulu. Orangnya tetap sama: nomor induk, kelas dan semua hasil belajarnya tetap. Setelah ia mengaktifkan akun email itu, berikan perannya.", en: "A class card is for learners only. When a learner becomes staff, turn their card into an email account first. They stay the same person: their PINTAR ID, classes and all their learning stay. Once they have activated that email account, give them their role." },
+  "aktivasi.staf.pilih": { default: "Ubah menjadi akun email", en: "Turn into an email account" },
+  "aktivasi.staf.email": { default: "Alamat email orang ini", en: "This person's email address" },
+  "aktivasi.staf.email.arti": { default: "Alamat yang akan ia pakai untuk masuk. Dengan alamat ini ia meminta sendiri kode aktivasinya di «Aktifkan akun».", en: "The address they will sign in with. With it, they ask for their own activation code at «Activate account»." },
+  "aktivasi.staf.alasan": { default: "Alasan", en: "Reason" },
+  "aktivasi.staf.alasan.arti": { default: "Misalnya: diangkat menjadi asisten guru. 10 sampai 500 karakter; dicatat.", en: "For example: appointed as a teaching assistant. 10 to 500 characters; recorded." },
+  "aktivasi.staf.konfirmasi": { default: "Kartu kelasnya akan langsung berhenti berlaku. Ubah sekarang?", en: "Their class card will stop working at once. Change it now?" },
+  "aktivasi.staf.ya": { default: "Ya, ubah menjadi akun email", en: "Yes, turn it into an email account" },
+  "aktivasi.staf.sibuk": { default: "Mengubah…", en: "Changing…" },
+  "aktivasi.staf.ok.1": { default: "sekarang memakai akun email", en: "now has an email account at" },
+  "aktivasi.staf.ok.2": { default: "Kartu kelasnya tidak berlaku lagi. Minta ia membuka «Aktifkan akun» dan meminta kode dengan alamat ini; setelah akun aktif, berikan perannya.", en: "Their class card no longer works. Ask them to open «Activate account» and ask for a code with this address; once the account is active, give them their role." },
+  "aktivasi.staf.gagal.DITOLAK": { default: "Anda tidak bisa mengubah akun murid ini.", en: "You can't change this learner's account." },
+  "aktivasi.staf.gagal.ALASAN_WAJIB": { default: "Tuliskan alasannya, 10 sampai 500 karakter.", en: "Write the reason, 10 to 500 characters." },
+  "aktivasi.staf.gagal.EMAIL_TIDAK_SAH": { default: "Periksa alamat emailnya.", en: "Check the email address." },
+  "aktivasi.staf.gagal.EMAIL_TERPAKAI": { default: "Alamat ini sudah dipakai akun lain. Pakai alamat lain.", en: "Another account already uses this address. Use another address." },
+  "aktivasi.staf.gagal.KARTU_TIDAK_ADA": { default: "Orang ini tidak punya kartu kelas.", en: "This person has no class card." },
+  "aktivasi.staf.gagal.BELUM_MASUK": { default: "Sesi Anda sudah berakhir. Masuk lagi, lalu coba lagi.", en: "Your session has ended. Sign in again, then try again." },
+  "aktivasi.staf.gagal.PERMINTAAN_DITOLAK": { default: "Muat ulang halaman ini, lalu coba lagi.", en: "Reload this page, then try again." },
+  "aktivasi.staf.gagal.PERMINTAAN_TIDAK_SAH": { default: "Isi alamat email dan alasannya.", en: "Fill in the email address and the reason." },
+  "aktivasi.staf.gagal.LAYANAN_TIDAK_TERSEDIA": { default: "Akun belum bisa diubah. Kartu kelasnya masih berlaku. Coba lagi sebentar lagi.", en: "The account could not be changed yet. The class card still works. Try again in a moment." },
+  "orang.judul": { default: "Koreksi data orang", en: "Correct a person's details" },
+  "orang.benda": { default: "orang", en: "people" },
+  "orang.intro.sekolah": { default: "Orang di sekolah ini yang sudah punya akun email. Anda bisa mengoreksi alamat email yang salah sebelum orangnya mengaktifkan akun. Nama dan username dikoreksi oleh Admin platform.", en: "People at this school who have an email account. You can correct a wrong email address before the person activates their account. Names and usernames are corrected by the platform admin." },
+  "orang.intro.platform": { default: "Semua orang yang punya akun email. Koreksi alamat email, nama, atau username dengan alasan; setiap koreksi dicatat.", en: "Everyone with an email account. Correct an email address, a name or a username with a reason; every correction is recorded." },
+  "orang.cari": { default: "Nama, email, username, atau PINTAR ID", en: "Name, email, username or PINTAR ID" },
+  "orang.kosong": { default: "Belum ada orang dengan akun email di sini.", en: "Nobody here has an email account yet." },
+  "orang.kolom.nama": { default: "Nama", en: "Name" },
+  "orang.kolom.id": { default: "PINTAR ID", en: "PINTAR ID" },
+  "orang.kolom.email": { default: "Email", en: "Email" },
+  "orang.kolom.username": { default: "Username", en: "Username" },
+  "orang.kolom.keadaan": { default: "Akun", en: "Account" },
+  "orang.kolom.tindakan": { default: "Tindakan", en: "Action" },
+  "orang.aktif": { default: "Aktif", en: "Active" },
+  "orang.belum_aktif": { default: "Belum diaktifkan", en: "Not activated yet" },
+  "orang.koreksi": { default: "Koreksi", en: "Correct" },
+  "orang.panel": { default: "Koreksi", en: "Correct" },
+  "orang.alasan": { default: "Alasan", en: "Reason" },
+  "orang.alasan.arti": { default: "Mengapa dikoreksi. Dicatat bersama koreksinya.", en: "Why it is corrected. Recorded with the correction." },
+  "orang.menyimpan": { default: "Menyimpan…", en: "Saving…" },
+  "orang.email.judul": { default: "Alamat email", en: "Email address" },
+  "orang.email.sekarang": { default: "Sekarang:", en: "Now:" },
+  "orang.email.baru": { default: "Alamat yang benar", en: "The right address" },
+  "orang.email.tombol": { default: "Koreksi email", en: "Correct the email" },
+  "orang.email.ok.belum": { default: "Email dikoreksi. Kode lama tidak berlaku lagi; orangnya mengaktifkan akun dengan alamat yang benar.", en: "The email is corrected. Old codes no longer work; the person activates the account at the right address." },
+  "orang.email.ok.aktif": { default: "Email dikoreksi. Orangnya masuk dengan alamat baru; PINTAR mengirim surel keamanan ke alamat lama dan alamat baru.", en: "The email is corrected. The person signs in with the new address; PINTAR sends a security email to the old and the new address." },
+  "orang.email.hanya_platform": { default: "Akun ini sudah aktif: emailnya hanya bisa dikoreksi oleh Admin platform.", en: "This account is active: its email can only be corrected by the platform admin." },
+  "orang.nama.judul": { default: "Nama", en: "Name" },
+  "orang.nama.arti": { default: "Sertifikat yang sudah terbit tetap memakai nama saat diterbitkan.", en: "Certificates already issued keep the name as issued." },
+  "orang.nama.baru": { default: "Nama yang benar", en: "The right name" },
+  "orang.nama.tombol": { default: "Koreksi nama", en: "Correct the name" },
+  "orang.nama.ok": { default: "Nama dikoreksi dan dicatat.", en: "The name is corrected and recorded." },
+  "orang.username.judul": { default: "Username", en: "Username" },
+  "orang.username.arti": { default: "Username dipakai untuk masuk. Beri tahu orangnya username yang baru.", en: "The username is used to sign in. Tell the person their new username." },
+  "orang.username.baru": { default: "Username yang benar", en: "The right username" },
+  "orang.username.aturan": { default: "4–20 karakter: huruf kecil, angka, titik, garis bawah; diawali huruf.", en: "4–20 characters: lowercase letters, numbers, dots, underscores; starting with a letter." },
+  "orang.username.tombol": { default: "Koreksi username", en: "Correct the username" },
+  "orang.username.ok": { default: "Username dikoreksi dan dicatat.", en: "The username is corrected and recorded." },
+  "orang.identitas.hanya_platform": { default: "Nama dan username hanya bisa dikoreksi oleh Admin platform.", en: "Names and usernames can only be corrected by the platform admin." },
+  "orang.gagal.DITOLAK": { default: "Anda tidak bisa membuat koreksi ini.", en: "You can't make this correction." },
+  "orang.gagal.REASON_REQUIRED": { default: "Tuliskan alasannya.", en: "Write the reason." },
+  "orang.gagal.IDENTITY_NOT_FOUND": { default: "Orang ini tidak ditemukan, atau belum punya username.", en: "This person was not found, or has no username yet." },
+  "orang.gagal.NAME_INVALID": { default: "Nama 1 sampai 200 karakter.", en: "A name is 1 to 200 characters." },
+  "orang.gagal.NAME_UNCHANGED": { default: "Itu sudah nama orang ini.", en: "That is already this person's name." },
+  "orang.gagal.PERMINTAAN_TIDAK_SAH": { default: "Muat ulang halaman ini, lalu coba lagi.", en: "Reload this page, then try again." },
+  "orang.gagal.LAYANAN_TIDAK_TERSEDIA": { default: "Koreksi belum tersimpan. Coba lagi sebentar lagi.", en: "The correction was not saved yet. Try again in a moment." },
+  "aktivasi.orang.tautan": { default: "Koreksi data orang", en: "Correct a person's details" },
+  "aktivasi.orang.arti": { default: "Email yang salah, nama, atau username orang yang sudah punya akun.", en: "A wrong email, a name or a username of someone who already has an account." },
+  "orang.email.gagal.PERMINTAAN_DITOLAK": { default: "Muat ulang halaman ini, lalu coba lagi.", en: "Reload this page, then try again." },
+  "orang.email.gagal.LAYANAN_TIDAK_TERSEDIA": { default: "Email belum dikoreksi. Coba lagi sebentar lagi.", en: "The email was not corrected yet. Try again in a moment." },
+  "orang.email.gagal.BELUM_MASUK": { default: "Sesi Anda sudah berakhir. Masuk lagi, lalu coba lagi.", en: "Your session has ended. Sign in again, then try again." },
+  "orang.email.gagal.DITOLAK": { default: "Anda tidak bisa mengoreksi email orang ini.", en: "You can't correct this person's email." },
+  "orang.email.gagal.PERMINTAAN_TIDAK_SAH": { default: "Isi alamat yang benar dan alasannya.", en: "Fill in the right address and the reason." },
+  "orang.email.gagal.ALASAN_WAJIB": { default: "Tuliskan alasannya.", en: "Write the reason." },
+  "orang.email.gagal.EMAIL_TIDAK_SAH": { default: "Periksa alamat emailnya.", en: "Check the email address." },
+  "orang.email.gagal.EMAIL_SAMA": { default: "Itu sudah alamat orang ini.", en: "That is already this person's address." },
+  "orang.email.gagal.EMAIL_TERPAKAI": { default: "Alamat ini sudah dipakai akun lain.", en: "Another account already uses this address." },
+  "orang.email.gagal.AKUN_EMAIL_TIDAK_ADA": { default: "Orang ini tidak punya akun email.", en: "This person has no email account." },
+  "akun.foto.judul": { default: "Foto profil", en: "Profile photo" },
+  "akun.foto.arti": { default: "Foto ini hanya tampil di profil Anda. Foto tidak dicetak di sertifikat.", en: "This photo shows on your profile only. It is not printed on any certificate." },
+  "akun.foto.alt": { default: "Foto profil Anda", en: "Your profile photo" },
+  "akun.foto.pilih": { default: "Pilih foto", en: "Choose a photo" },
+  "akun.foto.ganti": { default: "Ganti foto", en: "Change the photo" },
+  "akun.foto.batas": { default: "PNG, JPEG, atau WebP; paling besar 2 MB.", en: "PNG, JPEG or WebP; at most 2 MB." },
+  "akun.foto.besar": { default: "Foto ini lebih besar dari 2 MB. Pilih foto yang lebih kecil.", en: "This photo is larger than 2 MB. Choose a smaller one." },
+  "akun.foto.jenis": { default: "Pilih berkas PNG, JPEG, atau WebP.", en: "Choose a PNG, JPEG or WebP file." },
+  "akun.foto.hapus": { default: "Hapus foto", en: "Remove the photo" },
+  "akun.foto.naik": { default: "Menyimpan foto…", en: "Saving the photo…" },
+  "akun.foto.ok": { default: "Foto profil disimpan.", en: "Profile photo saved." },
+  "akun.foto.dihapus": { default: "Foto profil dihapus dari profil Anda.", en: "The photo is removed from your profile." },
+  "akun.foto.gagal": { default: "Foto belum tersimpan. Coba lagi sebentar lagi.", en: "The photo was not saved yet. Try again in a moment." },
   "aktivasi.ulang.judul": { default: "Kartu hilang atau rusak", en: "Lost or damaged card" },
   "aktivasi.ulang.arti": { default: "Terbitkan kartu baru untuk murid yang kehilangan kartunya atau kartunya rusak. Kartu lama langsung berhenti berlaku; akun, kelas dan semua hasil belajarnya tetap.", en: "Issue a new card for a learner whose card is lost or damaged. The old card stops working at once; their account, class and all their learning stay." },
   "aktivasi.ulang.cari": { default: "Cari nama murid", en: "Search for a learner's name" },

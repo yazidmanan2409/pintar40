@@ -18,6 +18,7 @@ export const JUDUL_HALAMAN: Record<string, Judul> = {
   "/": { kunci: "entry.title", untuk: "public" },
   "/aktifkan": { kunci: "aktifkan.judul", untuk: "public" },
   "/aktivasi": { kunci: "aktivasi.judul", untuk: "staff" },
+  "/aktivasi/orang": { kunci: "orang.judul", untuk: "staff" },
   "/akun": { kunci: "akun.judul", untuk: "staff" },
   "/auth/callback": { kunci: "auth.title", untuk: "public" },
   "/belajar": { kunci: "nav.belajar", untuk: "learner" },

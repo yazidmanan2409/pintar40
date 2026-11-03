@@ -1,6 +1,6 @@
 {
   "contract": "pintar-selftest",
-  "version": 199,
+  "version": 202,
   "phase": "PINTAR 4.0 release candidate: the systemic repair -- an answer is never lost to a finish (R1), and a provisioned person can sign in while a stranger cannot provision themselves (F-01..F-03)",
   "entry": "npm run selftest (selftest/run.ts) — runs exactly this manifest; exit non-zero on any failure, any unreported id, any unlisted id, or any skip without a reviewed justification accepted by the caller",
   "runners": {
@@ -3940,6 +3940,106 @@
       "id": "STUDIO3C-BANK-01",
       "runner": "static",
       "proves": "F-7 / W1.11 (owner ruling, 2 Nov, Batch 3 closure; QN5, J4.8, J4.9), selftest/studio3c.test.ts: executes tabStudio (src/lib/studio-tab.ts): Bank Soal is offered to a Guru who authors (CAN_DRAFT) and to a Question Health reviewer, not to a teacher who only gives material or an integrity reviewer alone; the source of src/app/studio/bank/page.tsx lists only the schools whose bank the reader browses, reads keys and reasons where the reader holds CAN_DRAFT, and reads Question Health, shows the evidence figures and offers the review form only where the reader holds CAN_REVIEW_QUESTION_HEALTH."
+    },
+    {
+      "id": "F24-K01",
+      "runner": "db",
+      "proves": "D-152(a) a class-card learner becomes staff through an email account (Batch 4), measured in selftest/db/fable24.sql against supabase/migrations/20261217100000_a_card_learner_becomes_staff_through_an_email_account.sql: the school admin's authorize_card_conversion and Auth's address move keep the same account row, Auth user, person and PINTAR ID; the account becomes EMAIL with its set-up REQUIRED (the new address is offered an activation code); the card's PIN and address sign nobody in; account.card_converted_to_email is audited with the reason, the old card and the new address; a staff role refused before (STAFF_ROLE_FOR_CARD) is granted after, and the person holds a role and no card (CR-91 unchanged).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F24-K02",
+      "runner": "db",
+      "proves": "D-152(a) the card conversion's refusals, measured in selftest/db/fable24.sql: no reason (REASON_REQUIRED), a malformed address (EMAIL_INVALID), a taken address (EMAIL_TAKEN), a person with no card (CARD_NOT_FOUND), a Guru and another school's administrator (42501); a card's address moved without a grant or to another address than granted (CARD_ADDRESS_REFUSED); after the conversion an unguarded change of the new address (EMAIL_CHANGE_REFUSED).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F24-O01",
+      "runner": "db",
+      "proves": "W2.1-W2.3 finding a person to correct (Batch 4, D-152; CR-13/14/15, F-8), measured in selftest/db/fable24.sql against supabase/migrations/20261218100000_a_person_with_an_account_is_found_for_a_correction.sql: orang_berakun gives the platform admin everyone (an activated alpha Guru with every correction, beta's admin), and not alpha's Guru when narrowed to beta; at most 50 a page; alpha's admin finds the activated Guru with no correction offered, a person not yet activated with the email correction only, and not beta's admin; a Guru finds nobody; a school admin's name correction is still refused 42501.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F24-P01",
+      "runner": "db",
+      "proves": "W2.15 a transfer by name, accepted by the receiving school (Batch 4, F-10 / D-152(c)), measured in selftest/db/fable24.sql against supabase/migrations/20261219100000_a_transfer_is_requested_by_name_and_accepted_by_the_receiving_school.sql: alpha's admin finds beta by its exact name in any case and nothing by part of it, every search audited (directory.school_searched); transfer_minta asks with no school year; beta's admin sees the request with the learner's name (pindah_masuk) but not the learner's person row; an unaccepted transfer is not executed; transfer_terima accepts into beta's own year and transfer_execute moves the enrolment (alpha ENDED, beta ACTIVE in that year); transfers_audit records the three steps for both schools.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F24-P02",
+      "runner": "db",
+      "proves": "W2.15 the transfer's refusals, measured in selftest/db/fable24.sql: accepting into the sending school's year (PERIOD_INVALID); the sending school accepting its own request (42501) or seeing it as incoming; a request to its own school (DESTINATION_INVALID), without a reason (REASON_REQUIRED), twice (TRANSFER_OPEN); a two-letter search (QUERY_TOO_SHORT); a Guru searching the directory (42501); the receiving school asking for another school's learner (42501).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F24-E01",
+      "runner": "db",
+      "proves": "W2.19 stuck sends (Batch 4, J1.9), measured in selftest/db/fable24.sql against supabase/migrations/20261220100000_a_send_that_waits_too_long_is_shown.sql: email_send_stuck shows the platform admin a send pending for 45 minutes with its age, and neither a send pending for a minute nor one the server accepted; a school admin is refused 42501.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "B4-KARTU-K01",
+      "runner": "static",
+      "proves": "D-152(a) (Batch 4), selftest/b4.test.ts: the source of src/app/aktivasi/page.tsx offers «Murid yang menjadi staf» (src/components/aktivasi/KartuJadiEmail.tsx) beside «Kartu hilang atau rusak», posting the address and the reason through the TextField primitive to /api/akun/kartu-ke-email, whose source refuses a foreign origin and a signed-out caller, asks authorize_card_conversion with the caller's own client and only then makes its one service-key write (Auth's address move); every database refusal maps to a contract code (src/lib/kartu-jadi-email-kontrak.ts) with a sentence in both languages (src/lib/hle.ts)."
+    },
+    {
+      "id": "B4-KARTU-A01",
+      "runner": "app",
+      "proves": "D-152(a) (Batch 4), selftest/b4.test.ts, live against the app's route output and the local stack: a class-card learner signs in with the card; the platform admin's conversion without a reason is refused (ALASAN_WAJIB); with one it answers ok and the card no longer signs in; the same account row and Auth user are an EMAIL account; the person activates it with a code to the new address and signs in with their password; a staff role is then accepted where CR-91 refused it over the card; account.card_converted_to_email records the reason, the old card and the new address.",
+      "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
+    },
+    {
+      "id": "B4-FOTO-K01",
+      "runner": "static",
+      "proves": "W2.8 (Batch 4, CR-07, J8.8), selftest/b4.test.ts: «Akun saya» (src/app/akun/page.tsx) shows «Foto profil» (src/components/akun/FotoProfil.tsx): the FileField primitive, an upload through the one signed route (/api/assets/upload-url) into profile/<own person id>/, then simpanFotoAksi (src/app/akun/actions.ts) keeps the path only when it is in the person's own folder and the file exists, with the person's own client under persons_update_own, or removes it; the page reads only the person's own photo through a 300-second signed URL; PNG, JPEG and WebP only (src/lib/foto-profil-kontrak.ts); the certificate reads no photo (D-076(b)(1)); every sentence in both languages."
+    },
+    {
+      "id": "B4-ORANG-K01",
+      "runner": "static",
+      "proves": "W2.1-W2.3 (Batch 4, CR-13-CR-15, F-8 / D-152(b)), selftest/b4.test.ts, reading the source: /aktivasi/orang lists orang_berakun as a paged Collection with the caller's client, opens a panel offering only the corrections the database grants this reader (boleh_email, boleh_identitas), and asks correct_person_name and correct_username with the caller's client (src/app/aktivasi/orang/actions.ts); Aktivasi leads to it; every refusal has a sentence in both languages."
+    },
+    {
+      "id": "B4-PINDAH-K01",
+      "runner": "static",
+      "proves": "W2.15 (Batch 4, F-10 / D-152(c)), selftest/b4.test.ts, reading the source: Konfigurasi · Perpindahan finds a destination school through cari_sekolah_tujuan (exact name or code), requests the transfer through transfer_minta, and shows the receiving school its incoming requests (pindah_masuk) to accept into its own school year through transfer_terima (src/app/konfigurasi/actions.ts); every sentence in both languages."
+    },
+    {
+      "id": "F24-H01",
+      "runner": "db",
+      "proves": "W2.10 (Batch 4; CR-49, CAP-10), measured in selftest/db/fable24.sql against supabase/migrations/20261221100000_maintenance_windows_and_notices_are_listed_a_page_at_a_time.sql: maintenance_list answers 20 windows and 20 notices a page with whether more follow; narrowed to a school it lists that school's windows (21 found once each across two pages), never another school's window or a platform-wide notice; a school admin sees their school's windows in its context (the browser's name-for-id filter showed none); a Guru is refused.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "B4-HAL-K01",
+      "runner": "static",
+      "proves": "W2.10 (Batch 4; CR-49, CAP-10), selftest/b4.test.ts, reading the source: in «Seluruh platform» Konfigurasi reads the schools a page at a time (range, with the next page known) and only those schools' years; the problem reports are read a page at a time in the database's order (open first, a stopped class first, the oldest waiting first; then the finished, newest first), the page crossing from open to finished read correctly (executed against the paging arithmetic); the maintenance windows and notices are maintenance_list's pages, narrowed to the school by the database; Aktivasi's class-card holders are searched on the server, at most twenty, never sent whole; each list has its pager."
+    },
+    {
+      "id": "B4-MENUNGGU-K01",
+      "runner": "static",
+      "proves": "W2.13 / UX-33 (Batch 4), selftest/b4.test.ts, reading the source: Konfigurasi's landing (src/app/konfigurasi/page.tsx) shows what waits with a count, only where the reader may act in the working context: the school's imports waiting for a person's go (import_jobs in AWAITING_CONFIRMATION or AWAITING_PILOT_VERIFICATION, counted), its people waiting for an account (persons_awaiting_account, counted; every school's in «Seluruh platform»), its packages waiting on the reader (studio_home's ACTION_REQUIRED and AWAITING_MY_REVIEW); each opens where it is done; nothing is drawn when nothing waits; every sentence in both languages."
+    },
+    {
+      "id": "B4-J2-K01",
+      "runner": "static",
+      "proves": "W3.5 (Batch 4; Daisy, J2Kelas), selftest/b4.test.ts, reading the source: /mengajar/[kelas]/siapa is one Collection (Table, Search, Segmented filter), each learner once with the name opening their record and their state's Badge in the words «Lihat bukti» counts under, no score or rank; the class page's roster (/mengajar/[kelas]) is a Table of names alone, each opening the learner's record, searched and paged with the total."
+    },
+    {
+      "id": "B4-BIDANG-K01",
+      "runner": "static",
+      "proves": "W3.7 and W3.6 (Batch 4; RV-22, RV-16), selftest/b4.test.ts, reading the source: Pendataan's school code (src/app/pendataan/page.tsx) is the TextField primitive (sentence-case label, the hint under it and named by the field) on one row with its button; the intake's file and paste fields (src/components/pendataan/BacaDanPetakan.tsx) use the field frame with a sentence-case label; Pendataan's job list and every date in src/app/konfigurasi/page.tsx go through the WIB date helper."
+    },
+    {
+      "id": "F24-K03",
+      "runner": "db",
+      "proves": "D-152(a), the Batch 4 promotion gate's condition 2, measured in selftest/db/fable24.sql against supabase/migrations/20261217100000_a_card_learner_becomes_staff_through_an_email_account.sql: a conversion interrupted before Auth's write leaves the class card untouched (number, sign-in address, no set-up) and a staff role still refused (STAFF_ROLE_FOR_CARD, CR-91); a retry leaves one pending grant; an expired grant's write is refused (CARD_ADDRESS_REFUSED) and changes nothing; after a write whose answer was lost, a second conversion is refused (CARD_NOT_FOUND), the school corrects a wrong address before activation and the corrected address is offered the activation code; the person holds exactly one email account.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F24-P03",
+      "runner": "db",
+      "proves": "W2.15, the Batch 4 promotion gate's condition 3, measured in selftest/db/fable24.sql against supabase/migrations/20261219100000_a_transfer_is_requested_by_name_and_accepted_by_the_receiving_school.sql: the executed transfer leaves the learner's nomor induk at the sending school, PINTAR ID, sittings, official results and certificates unchanged (a digest before and after) and keeps the sending enrolment as ENDED history; the sending school's admin still reads it but not the new enrolment; the receiving school's admin reads the enrolment it received and the learner's portable enrolment history (INV-25, record_class_registry) but none of the sending school's audit rows about the learner (INSTITUTION_SCOPED).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     }
   ]
 }

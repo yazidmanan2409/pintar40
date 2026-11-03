@@ -161,7 +161,9 @@ export const l4Tests: SelfTest[] = [
         "Konfigurasi's transfers or audit trail is not one page at a time");
       // the re-review's N1: a listed transfer past the newest 50 is named from its own row, and its schools are read
       c.expect(/const namaPindah = new Map\(daftarPindah\.map\(\(x\) => \[String\(x\.person_id\), namaDari\(x\.persons\)\]/.test(konf)
-        && /\{namaPindah\.get\(x\.person_id\) \?\? TANPA_NAMA\}/.test(konf) && /\[\.\.\.\(transfers \?\? \[\]\), \.\.\.daftarPindah\]/.test(konf)
+        // RESTATED FOR W2.15 (Batch 4, D-152(c)): the row's own name first; for an accepted incoming transfer the receiving
+        // school may not read the person row yet, so the name pindah_masuk gives it comes next, before «—»
+        && /\{namaPindah\.get\(x\.person_id\) \?\? namaMasuk\.get\(x\.id\) \?\? TANPA_NAMA\}/.test(konf) && /\[\.\.\.\(transfers \?\? \[\]\), \.\.\.daftarPindah\]/.test(konf)
         && konf.indexOf("const daftarPindah") < konf.indexOf("const sekolahPindah"),
         "a transfer on a later page is not named from its own row, or its schools are not read");
       // the re-review's N2: a saved edit opens no row; only a refused one reopens it

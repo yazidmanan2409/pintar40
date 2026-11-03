@@ -1,0 +1,146 @@
+{
+  "app": "http://127.0.0.1:3999",
+  "tag": "38d837",
+  "langkah": [
+    {
+      "id": "B4-W0",
+      "judul": "alpha's admin gives the school its code on Pendataan (the TextField, its hint under the label)",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the hint is named by the field",
+        "ok alpha's code is BAW"
+      ],
+      "shots": [
+        "01-kode-sekolah.png"
+      ]
+    },
+    {
+      "id": "B4-W1",
+      "judul": "the platform admin corrects a Guru's name on «Koreksi data orang», with a reason, and it is audited",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the person's name is the corrected one",
+        "ok identity.name_corrected is in the audit log for the Guru",
+        "ok the audit row carries the reason"
+      ],
+      "shots": [
+        "02-koreksi-nama.png"
+      ]
+    },
+    {
+      "id": "B4-W2",
+      "judul": "the platform admin corrects the Guru's username, and it is audited",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the username is the corrected one",
+        "ok identity.username_corrected is in the audit log"
+      ],
+      "shots": [
+        "03-koreksi-username.png"
+      ]
+    },
+    {
+      "id": "B4-W4",
+      "judul": "alpha's admin makes a class card on Aktivasi for a learner the intake recorded, and it is audited",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the learner has a class-card account (48b410c8-ee6c-479a-92df-dc03be6efcbf/CLASSROOM_CARD)",
+        "ok the card's making is audited"
+      ],
+      "shots": []
+    },
+    {
+      "id": "B4-W5",
+      "judul": "the platform admin turns the learner's class card into an email account on Aktivasi, with a reason, and it is audited",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the same account row is now EMAIL (48b410c8-ee6c-479a-92df-dc03be6efcbf/EMAIL)",
+        "ok the Auth user carries the new address",
+        "ok account.card_converted_to_email is in the audit log"
+      ],
+      "shots": [
+        "05-kartu-jadi-email.png"
+      ]
+    },
+    {
+      "id": "B4-W3",
+      "judul": "the platform admin corrects the not-yet-activated person's email on «Koreksi data orang», and it is audited",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the Auth user carries the corrected address",
+        "ok identity.email_corrected is in the audit log"
+      ],
+      "shots": [
+        "06-koreksi-email.png"
+      ]
+    },
+    {
+      "id": "B4-W6",
+      "judul": "alpha's admin finds beta by its exact name and asks for a learner's transfer, with a reason; both are audited",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the directory finds exactly one school for «Sekolah Sintetis Beta»",
+        "ok the learner «Siswa Alpha Satu (sintetis)» is offered",
+        "ok the transfer is REQUESTED, with no school year yet",
+        "ok the search is audited (directory.school_searched)",
+        "ok the request is audited (transfer.requested)"
+      ],
+      "shots": [
+        "07-pindah-minta.png"
+      ]
+    },
+    {
+      "id": "B4-W7",
+      "judul": "beta's admin accepts the request into beta's school year and executes it; the enrolments move and both acts are audited",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the request shows the learner's name",
+        "ok accepted: the transfer is AUTHORIZED into beta's year",
+        "ok the transfer is EXECUTED",
+        "ok the learner is enrolled at beta",
+        "ok the alpha enrolment is no longer active",
+        "ok the acceptance and the execution are audited (transfer.authorized, transfer.executed)"
+      ],
+      "shots": [
+        "08-pindah-laksana.png"
+      ]
+    },
+    {
+      "id": "B4-W8",
+      "judul": "alpha's admin sees «Yang menunggu» on Konfigurasi with a count that opens Aktivasi",
+      "verdict": "PASS",
+      "catatan": [
+        "ok a count of people waiting for an account is shown",
+        "ok the count opens Aktivasi"
+      ],
+      "shots": [
+        "09-menunggu.png"
+      ]
+    },
+    {
+      "id": "B4-W9",
+      "judul": "the platform admin sees a stuck send on «Email uji» and the schools a page at a time on Konfigurasi",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the stuck send is listed with how long it has waited",
+        "ok the system section lists 6 school row(s), at most a page"
+      ],
+      "shots": [
+        "10-email-tertahan.png"
+      ]
+    },
+    {
+      "id": "B4-W10",
+      "judul": "a staff member adds a profile photo on «Akun saya», sees it, and removes it",
+      "verdict": "PASS",
+      "catatan": [
+        "ok the photo is kept in the person's own folder (profile/d5e6dd7c-6569-4d1d-bd11-adfb0c19ba53/7742537d-2b14-4229-89b3-44b84e8f0032.png)",
+        "ok the photo shows on «Akun saya» (/api/assets/read-url?path=profile%2Fd5e6dd7c-6569-4d1d-bd11-adfb0c19ba53%2F7742537d-2b14-4229-89b3-44b84e8f0032.png&alih=1 complete=true w=1)",
+        "ok removed: the person has no photo"
+      ],
+      "shots": [
+        "11-foto.png"
+      ]
+    }
+  ]
+}

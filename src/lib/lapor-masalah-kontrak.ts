@@ -72,3 +72,17 @@ export function namaTangkapan(id: string, jenisBerkas: string): string | null {
 
 /** The largest screenshot accepted, in bytes. */
 export const BATAS_TANGKAPAN = 5 * 1024 * 1024;
+
+/**
+ * W2.10 (Batch 4; CR-49, CAP-10): which rows one page of the triage list reads, the open reports coming before the
+ * finished ones. `terbuka` and `selesai` are inclusive ranges within each (one row more than a page in all, so the next
+ * page's existence is known), or null where the page reads none of that kind.
+ */
+export function rentangTriase(halaman: number, ukuran: number, nTerbuka: number): { terbuka: [number, number] | null; selesai: [number, number] | null } {
+  const dari = (Math.max(1, Math.floor(halaman)) - 1) * ukuran;
+  const sampai = dari + ukuran;
+  return {
+    terbuka: dari < nTerbuka ? [dari, Math.min(sampai, nTerbuka - 1)] : null,
+    selesai: sampai >= nTerbuka ? [Math.max(0, dari - nTerbuka), sampai - nTerbuka] : null,
+  };
+}

@@ -152,7 +152,7 @@ A run polluted by an earlier local journey run (fixture interference; CI uses se
 | J5's live «Jendela: …» line in the review | Open, cosmetic | Daisy (with D6) | A client echo of both fields, if she wants it beside the per-field echo |
 | W1.11 / J4.8 Question Bank | **CLOSED by this pass** (F-7) | — | — |
 | Defects 1 and 2 | **CLOSED by this pass** | — | — |
-| The closure's staging verification | **Not run** | A separate protected merge and staging authorisation | Merge; migration 183; the Studio walk (T7a, T10, T10b), the GS walks with Q1 restated, a11y; refreeze |
+| The closure's staging verification | **DONE** (D-151) | — | `06-CLOSURE-STAGING-VERIFICATION-REPORT.md`: merged `cb1ff3e`, staging at 183, every walk green, the freeze restored |
 
 **Batch 3 is not declared fully accepted.** W1.2, D1 and D3 remain with Daisy.
 

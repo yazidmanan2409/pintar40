@@ -31,10 +31,16 @@ export async function statusSaya(): Promise<StatusSaya> {
   }
 }
 
-/** The windows and notices this administrator may act on, newest first; null when the read fails. */
-export async function daftarKelola(): Promise<DaftarKelola | null> {
+/**
+ * The windows and notices this administrator may act on, newest first; null when the read fails. W2.10 (CR-49): a page
+ * of each at a time, and, in a school's working context, that school's windows and the notices that are not
+ * platform-wide, decided by the database (maintenance_list).
+ */
+export async function daftarKelola(halaman: { jendela?: number; pengumuman?: number; sekolah?: string | null } = {}): Promise<DaftarKelola | null> {
   const supabase = await supabaseServer();
-  const { data, error } = await supabase.rpc("maintenance_list");
+  const { data, error } = await supabase.rpc("maintenance_list", {
+    p_hal_jendela: halaman.jendela ?? 1, p_hal_pengumuman: halaman.pengumuman ?? 1, p_sekolah: halaman.sekolah ?? null,
+  });
   if (error) {
     console.error("[pemeliharaan] maintenance_list failed", error.code, error.message);
     return null;

@@ -17,4 +17,5 @@
 # 2 Nov, Batch 1 staging verification (D-146; owner protected-merge GO): Sekolah Uji B1 1102 (found-school.yml run 41400107343); staging at 181, main 430544b (facts 41400103860 GREEN)
 # 2 Nov, Batch 2 staging verification: Sekolah Uji B2 1102 (found-school.yml run 41432906079); staging at 181, main fab8e4a (facts 41432900275 GREEN)
 # 2 Nov, Batch 3 staging verification: Sekolah Uji B3 1102 (found-school.yml run 41526379831); staging at 182, main a5e2935 (facts 41526374666 GREEN)
-slug: sekolah-uji-b3-1102
+# 3 Nov, Batch 3 closure staging verification (D-150; owner closure promotion GO): Sekolah Uji B3C 1103 (found-school.yml run 41560704317); staging at 183, main cb1ff3e (facts 41560700942 GREEN)
+slug: sekolah-uji-b3c-1103

@@ -89,9 +89,15 @@ export const edu23Tests: SelfTest[] = [
       const page = buang(readFileSync(join(ctx.repoRoot, "src", "app", "mengajar", "[kelas]", "siapa", "page.tsx"), "utf8"));
       // each list says it is empty in its own words: nobody in it, not a class without learners
       // RESTATED FOR DAISY-33 (a changed requirement, D-069(k)): the empty sentence says «murid» or «peserta» by the class's kind
-      const urut = ["sudah", "sedang", "belum"].map((x) => page.indexOf(`<DaftarMurid murid={${x}} locale={locale} kelas={id} kosong={kataAnggota("mengajar.siapa.kosong", ctx.ini.jenis)} />`));
-      c.expect(/const \{ sudah, sedang, belum \} = await ajar\.siapa\(tugasId, fakta\.murid\);/.test(page) && urut.every((x, i) => x > 0 && (i === 0 || x > urut[i - 1])),
-        "/siapa does not draw the three lists, handed in, started, not started, in that order, each with its own empty sentence");
+      // RESTATED FOR W3.5 (Batch 4, D-152; Daisy, J2Kelas): the three lists are one Table whose filter shows one state at a
+      // time, in the same order and words, each learner once with their state's Badge; an empty state still says nobody is
+      // in it (the «siapa» sentence), not that the class has no learners
+      const urut = ["sudah", "sedang", "belum"].map((x) => page.indexOf(`${x}: { kunci: "mengajar.siapa.${x}"`));
+      c.expect(/const \{ sudah, sedang, belum \} = await ajar\.siapa\(tugasId, fakta\.murid\);/.test(page) && urut.every((x, i) => x > 0 && (i === 0 || x > urut[i - 1]))
+        && /const URUTAN_KEADAAN = \["sudah", "sedang", "belum"\] as const;/.test(page)
+        && /pilihan: URUTAN_KEADAAN\.map\(\(k\) => \(\{ nilai: k, label: `\$\{s\(KEADAAN\[k\]\.kunci\)\} · \$\{format\.number\(jumlah\[k\], locale\)\}` \}\)\)/.test(page)
+        && /kosong=\{<Kosong jenis="belum" kalimat=\{s\(kataAnggota\("mengajar\.siapa\.kosong", ctx\.ini\.jenis\)\)\} \/>\}/.test(page),
+        "/siapa does not draw the three states, handed in, started, not started, in that order with their counts, each with its own empty sentence");
       for (const locale of ["id", "en"] as const) {
         const k = (x: Parameters<typeof t>[0]) => t(x, "educator", { locale });
         c.expect(k("mengajar.siapa.kosong").length > 5 && k("mengajar.siapa.kosong") !== k("mengajar.murid.kosong"),

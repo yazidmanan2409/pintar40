@@ -190,6 +190,7 @@ const AKSI_BEBAS: Record<string, string> = {
   "src/app/evaluasi/actions.ts": "an evaluation persona has no session row and so no context (C10)",
   "src/app/tur/actions.ts": "the tour's evaluation persona (C10)",
   "src/app/konfigurasi/email-uji/actions.ts": "explicitly platform-scoped (D-132(k)): the send history is the platform administrator's, by its own scope",
+  "src/app/aktivasi/orang/actions.ts": "explicitly platform-scoped (F-8, D-077(3)): a name or username correction is the platform administrator's alone, decided by the database",
 };
 /** The context-bound API routes, and the act each checks the context before. */
 const RUTE_TERIKAT: Record<string, RegExp[]> = {
@@ -197,6 +198,7 @@ const RUTE_TERIKAT: Record<string, RegExp[]> = {
   "src/app/api/akun/kartu-kelas/route.ts": [/rpc\("authorize_card_reissue"/],
   "src/app/api/keamanan/pemulihan/route.ts": [/rpc\("admin_reset_recovery"/],
   "src/app/api/assets/upload-url/route.ts": [/rpc\("can_on_node"/, /rpc\("may_upload_package_media"/],
+  "src/app/api/akun/kartu-ke-email/route.ts": [/rpc\("authorize_card_conversion"/],
 };
 /** Every other API route, and why it is not context-bound. */
 const RUTE_BEBAS: Array<[RegExp, string]> = [
@@ -211,6 +213,7 @@ const RUTE_BEBAS: Array<[RegExp, string]> = [
   [/^src\/app\/api\/evaluation\/assume\//, "an evaluation persona (C10)"],
   [/^src\/app\/api\/verifikasi\//, "public certificate verification"],
   [/^src\/app\/api\/email\/uji\//, "explicitly platform-scoped (D-132(k)): the platform administrator's delivery proof, by its own scope"],
+  [/^src\/app\/api\/akun\/foto\//, "the person's own profile photo (W2.8): a neutral surface"],
 ];
 
 export const fable22Tests: SelfTest[] = [

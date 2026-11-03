@@ -6,6 +6,7 @@ import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import FormEmailUji from "@/components/email-uji/FormEmailUji";
 import RiwayatEmail from "@/components/email-uji/RiwayatEmail";
+import EmailTertahan from "@/components/email-uji/EmailTertahan";
 import { NAMA_PENGATURAN_EMAIL } from "@/app/api/_email/pengaturan";
 import { tawarkanPlatform } from "@/lib/konteks-server";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -51,6 +52,8 @@ export default async function EmailUji() {
         </div>
         <FormEmailUji locale={locale} namaPengaturan={NAMA_PENGATURAN_EMAIL} />
         <RiwayatEmail locale={locale} />
+        {/* W2.19 (J1.9): the sends the email server has not answered */}
+        <EmailTertahan locale={locale} />
         <KakiPintar />
       </main>
     </>

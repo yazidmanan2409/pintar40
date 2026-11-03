@@ -5,6 +5,7 @@ import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { tanggal } from "@/lib/tanggal";
 import BarisHasil from "@/components/BarisHasil";
 import TombolKirim from "@/components/TombolKirim";
+import { JENIS_EMAIL, MENIT_TERTAHAN } from "./jenis";
 import { cariRiwayatEmail, type BarisRiwayat, type HasilRiwayat } from "@/app/konfigurasi/email-uji/actions";
 
 /**
@@ -13,18 +14,15 @@ import { cariRiwayatEmail, type BarisRiwayat, type HasilRiwayat } from "@/app/ko
  * newest first, each with what became of it. "Diterima server email" is the
  * most PINTAR can know: no inbox delivery is claimed.
  */
-const JENIS: Record<string, HleEvent> = {
-  KODE_AKTIVASI: "emailuji.r.jenis.KODE_AKTIVASI",
-  KODE_ULANG: "emailuji.r.jenis.KODE_ULANG",
-  PEMULIHAN_PASSWORD: "emailuji.r.jenis.PEMULIHAN_PASSWORD",
-  PASSWORD_DIUBAH: "emailuji.r.jenis.PASSWORD_DIUBAH",
-  KARTU_DIGITAL: "emailuji.r.jenis.KARTU_DIGITAL",
-  PEMBERITAHUAN_KEAMANAN: "emailuji.r.jenis.PEMBERITAHUAN_KEAMANAN",
-  UJI_PENGIRIMAN: "emailuji.r.jenis.UJI_PENGIRIMAN",
-};
+const JENIS = JENIS_EMAIL;
 
-export function kunciHasil(b: Pick<BarisRiwayat, "hasil" | "batas">): HleEvent {
+export function kunciHasil(b: Pick<BarisRiwayat, "hasil" | "batas" | "diminta">, sekarang: number = Date.now()): HleEvent {
   if (b.hasil === "REFUSED_LIMIT") return b.batas === "GLOBAL" ? "emailuji.r.hasil.BATAS_UMUM" : "emailuji.r.hasil.BATAS_ALAMAT";
+  // W2.19: handed off is not accepted; a pending send the server has not answered for too long is stuck
+  if (b.hasil === "PENDING") {
+    const umur = sekarang - Date.parse(b.diminta);
+    return Number.isFinite(umur) && umur > MENIT_TERTAHAN * 60_000 ? "emailuji.r.hasil.PENDING_LAMA" : "emailuji.r.hasil.PENDING";
+  }
   return `emailuji.r.hasil.${b.hasil}` as HleEvent;
 }
 

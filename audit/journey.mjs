@@ -1590,10 +1590,15 @@ async function bacaSiapa() {
     await t.waitForURL((u) => u.pathname.endsWith("/siapa"), { timeout: SLOW });
     await t.locator("h1").first().waitFor({ timeout: SLOW });
     const shotPath = await shot(t, "edu23-siapa-tengah");
-    const daftar = await t.locator("main .pin-sec").evaluateAll((els) => els.map((e) => ({
-      judul: (e.querySelector("h2")?.textContent ?? "").replace(/\s+/g, " ").trim(),
-      nama: e.innerText.replace(/\s+/g, " ").trim(),
+    // W3.5 (Batch 4; Daisy, J2Kelas): one Table, each learner once with their state's Badge; the three lists are read back
+    // from it, grouped by the Badge's words (the same words the three headings had)
+    const baris = await t.locator("#pin-siapa-murid tbody tr:not(.pin-tabel-kosong)").evaluateAll((trs) => trs.map((tr) => ({
+      nama: (tr.querySelector('th[scope="row"]')?.textContent ?? "").replace(/\s+/g, " ").trim(),
+      keadaan: (tr.querySelector("[data-keadaan]")?.textContent ?? "").replace(/\s+/g, " ").trim(),
     })));
+    const daftar = ["Sudah mengumpulkan", "Sudah mulai, belum mengumpulkan", "Belum mengerjakan"].map((judul) => ({
+      judul, nama: baris.filter((b) => b.keadaan === judul).map((b) => b.nama).join(" "),
+    }));
     return { daftar, shotPath };
   } finally {
     await tc.close();
@@ -3248,7 +3253,7 @@ await step("S25", "the school admin moves a student from Kelas 1A to a new Kelas
   await magicSignIn(t, people.guru.email);
   await t.goto(`${APP}/mengajar/${kelas}`, { waitUntil: "networkidle" });
   await tutupTur(t);
-  const roster = norm(await t.locator(".pin-roster").first().innerText().catch(() => ""));
+  const roster = norm(await t.locator("#pin-kelas-murid").first().innerText().catch(() => ""));
   await t.goto(`${APP}/mengajar/${kelas}/bukti`, { waitUntil: "networkidle" });
   await tutupTur(t);
   rec.shots.push(await shot(t, "m9-guru-bukti"));
@@ -3351,7 +3356,7 @@ await step("S26b", "a new teacher replaces the old one mid-year: the school admi
   const rumah = await bodyText(sp);
   await sp.goto(`${APP}/mengajar/${kelas}`, { waitUntil: "networkidle" });
   await tutupTur(sp);
-  const roster = norm(await sp.locator(".pin-roster").first().innerText().catch(() => ""));
+  const roster = norm(await sp.locator("#pin-kelas-murid").first().innerText().catch(() => ""));
   await sp.goto(`${APP}/mengajar/${kelas}/bukti`, { waitUntil: "networkidle" });
   await tutupTur(sp);
   const bukti = norm(await sp.locator("main").innerText().catch(() => ""));

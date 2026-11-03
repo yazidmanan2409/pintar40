@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -11,7 +12,9 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import FormAktivasi from "@/components/aktivasi/FormAktivasi";
 import { KeAktifkan } from "@/components/aktivasi/HasilAktivasi";
 import KartuUlang, { type PemegangKartu } from "@/components/aktivasi/KartuUlang";
+import KartuJadiEmail from "@/components/aktivasi/KartuJadiEmail";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { adaPemegangKartu, cariPemegangKartu, kataAman } from "@/lib/pemegang-kartu";
 
 export const generateMetadata = judulHalaman("/aktivasi");
 
@@ -32,22 +35,20 @@ export const dynamic = "force-dynamic";
  * BOB-28 (D-088(e)): below it, «Kartu hilang atau rusak»: a learner who has a
  * class card gets a new one (`card_holders()`, `/api/akun/kartu-kelas`).
  */
-export default async function Aktivasi() {
+export default async function Aktivasi({ searchParams }: { searchParams: Promise<{ cari_kartu?: string; cari_staf?: string; hal?: string }> }) {
+  const sp = await searchParams;
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const supabase = await supabaseServer();
 
-  const [{ data: menunggu, error }, { data: sistem }, { data: berkartu }] = await Promise.all([
+  const [{ data: menunggu, error }, { data: sistem }] = await Promise.all([
     supabase.rpc("persons_awaiting_account"),
     supabase.rpc("is_system_admin"),
-    // BOB-28 (D-088(e)): the class-card holders a lost or damaged card can be re-issued for
-    supabase.rpc("card_holders"),
   ]);
   const orangSemua = (Array.isArray(menunggu) ? menunggu : []) as Array<{
     person_id: string; display_name: string; institutional_id: string; institution_id: string; boleh_kartu: boolean;
   }>;
   const adminSistem = sistem === true;
-  const pemegangSemua = (Array.isArray(berkartu) ? berkartu : []) as PemegangKartu[];
   // L3 (CR-83; D-127 Q2; D-132 C7): Aktivasi is the working context's. Mengelola · a school: that school's people
   // waiting for an account and its card holders, whoever the reader is. «Seluruh platform»: every school's, and the
   // platform's own act of making a person outside intake. An evaluation persona keeps the page as it was (C10). The
@@ -57,11 +58,17 @@ export default async function Aktivasi() {
   const platformIni = lama ? adminSistem : kh?.platform === true && adminSistem;
   const sekolahIni = !lama && kh && !kh.platform ? kh.tempat : null;
   const orang = lama || platformIni ? orangSemua : orangSemua.filter((o) => sekolahIni !== null && o.institution_id === sekolahIni);
-  const diSekolah = sekolahIni && pemegangSemua.length > 0
-    ? new Set(((await supabase.from("enrollments").select("person_id").eq("institution_id", sekolahIni)
-        .in("person_id", pemegangSemua.map((p) => p.person_id))).data ?? []).map((e) => String(e.person_id)))
-    : null;
-  const pemegang = lama || platformIni ? pemegangSemua : pemegangSemua.filter((p) => diSekolah?.has(p.person_id) ?? false);
+  // BOB-28 (D-088(e)) and D-152(a): the class-card holders a card can be re-issued for, or converted. W2.10 (Batch 4;
+  // CR-49, CAP-10): searched on the server, at most twenty for the words asked, never every holder at once; in a
+  // school's context only that school's learners (cariPemegangKartu)
+  const sekolahKartu = lama || platformIni ? null : sekolahIni ?? "00000000-0000-0000-0000-000000000000";
+  const cariKartu = kataAman(sp.cari_kartu);
+  const cariStaf = kataAman(sp.cari_staf);
+  const [adaPemegang, pemegangUlang, pemegangStaf] = await Promise.all([
+    adaPemegangKartu(supabase, sekolahKartu),
+    cariPemegangKartu(supabase, cariKartu, sekolahKartu) as Promise<PemegangKartu[]>,
+    cariPemegangKartu(supabase, cariStaf, sekolahKartu) as Promise<PemegangKartu[]>,
+  ]);
 
   // who may use this screen at all: a SYSTEM_ADMIN, or anyone the intake
   // already recognises as provisioning for a school (the same predicate)
@@ -87,8 +94,14 @@ export default async function Aktivasi() {
           {/* Polish batch 2 (UX-11): the sign-in address, not the path /masuk */}
           <p className="pin-intro">{s("aktivasi.intro")} <KeAktifkan s={s} sebelum="aktivasi.intro.buka" /></p>
         </div>
+        {/* W2.1-W2.3 (Batch 4): a person who already has an account is corrected on their own page */}
+        <p className="pin-meta">
+          <Link className="pin-tautan" href="/aktivasi/orang">{s("aktivasi.orang.tautan")}</Link> · {s("aktivasi.orang.arti")}
+        </p>
         <FormAktivasi locale={locale} orang={orang} adminSistem={platformIni} kelas={kelas} />
-        <KartuUlang locale={locale} pemegang={pemegang} />
+        <KartuUlang locale={locale} pemegang={pemegangUlang} ada={adaPemegang} dicari={cariKartu} />
+        {/* D-152(a): a card learner who becomes staff gets an email account first, as the same person (CR-91) */}
+        <KartuJadiEmail locale={locale} pemegang={pemegangStaf} ada={adaPemegang} dicari={cariStaf} />
         <KakiPintar />
       </main>
     </>
