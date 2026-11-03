@@ -188,6 +188,8 @@ export type HleEvent =
   | "sertifikat.status.SUPERSEDED"
   | "sertifikat.jenis"
   | "sertifikat.diberikan"
+  | "sertifikat.penerbit"
+  | "sertifikat.berkas"
   | "sertifikat.predikat"
   | "sertifikat.tanggal"
   | "sertifikat.periksa.judul"
@@ -2943,7 +2945,9 @@ const table: Table = {
   "sertifikat.status.REVOKED": { default: "Dicabut", en: "Revoked" },
   "sertifikat.status.SUPERSEDED": { default: "Digantikan", en: "Replaced" },
   "sertifikat.jenis": { default: "Sertifikat Penguasaan", en: "Certificate of Mastery" },
-  "sertifikat.diberikan": { default: "telah menuntaskan", en: "has completed" },
+  "sertifikat.diberikan": { default: "telah menuntaskan", en: "has met the mastery standard in" },
+  "sertifikat.penerbit": { default: "Diterbitkan oleh", en: "Issued by" },
+  "sertifikat.berkas": { default: "Sertifikat Penguasaan · {kursus}", en: "Certificate of Mastery · {kursus}" },
   "sertifikat.predikat": { default: "Predikat", en: "Grade" },
   "sertifikat.tanggal": { default: "Tanggal terbit", en: "Issue date" },
   "sertifikat.periksa.judul": { default: "Periksa keaslian", en: "Check it is genuine" },

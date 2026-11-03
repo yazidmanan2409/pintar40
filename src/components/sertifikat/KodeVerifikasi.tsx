@@ -11,13 +11,18 @@ import { qrMatrix, qrSvgPath } from "@/lib/qr";
  * `shapeRendering="crispEdges"` because a QR module is a square, and a browser
  * that anti-aliases the boundary between two modules is making the symbol
  * harder for a camera to read, not softer.
+ *
+ * TWO DRAWINGS OF ONE LINK. On screen, the card's tile at level M. On the
+ * printed sheet (`cetak`), Daisy's symbol: byte mode at level Q (D-160(b)), its
+ * modules exactly 26 mm in PINTAR green, its 4-module quiet zone clear paper
+ * (`.pin-s-qr`). The link is the same in both.
  */
-export default function KodeVerifikasi({ url, label }: { url: string; label: string }) {
-  const { path, size } = qrSvgPath(qrMatrix(url));
+export default function KodeVerifikasi({ url, label, cetak = false }: { url: string; label: string; cetak?: boolean }) {
+  const { path, size } = qrSvgPath(qrMatrix(url, cetak ? "Q" : "M"));
   return (
-    <div className="pin-qr">
+    <div className={cetak ? "pin-s-qr" : "pin-qr"}>
       <svg viewBox={`0 0 ${size} ${size}`} role="img" aria-label={label} shapeRendering="crispEdges">
-        <path d={path} fill="var(--ink-1)" />
+        <path d={path} fill={cetak ? "var(--pintar-primary)" : "var(--ink-1)"} />
       </svg>
     </div>
   );

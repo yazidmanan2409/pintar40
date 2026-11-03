@@ -9,10 +9,13 @@
  * rendered, and whoever answers that request learns the token. So the symbol is
  * computed here, server-side, from the link, and nothing leaves.
  *
- * Byte mode, error-correction level M (about 15% recoverable), the smallest
- * version that fits. M rather than L because this gets printed, folded and
- * photographed on a phone; M rather than Q because the extra recovery costs
- * modules, and a denser symbol photographs worse than a more redundant one.
+ * Byte mode, the smallest version that fits, at one of two error-correction
+ * levels. M (about 15% recoverable) is the default, and what the Digital Card
+ * and the on-screen certificate use. Q (about 25% recoverable) is the printed
+ * certificate's (D-160(b); Daisy's sertifikat ronde-2 §2): a certificate is
+ * kept for years, folded, stamped and photocopied, so recovery matters more than
+ * the extra modules. The 43-character token stays (ADR-0012), so the symbol is
+ * byte mode, not Daisy's version-4 alphanumeric: a recorded deviation.
  *
  * ISO/IEC 18004. Verified against an independent decoder — see
  * UX1-S1-QR-01, which encodes a real verification link, decodes the matrix
@@ -62,8 +65,12 @@ function ecCodewords(data: Uint8Array, count: number): Uint8Array {
 }
 
 // ------------------------------------------------------- version parameters
+export type QrLevel = "M" | "Q";
+
+type Blocks = Array<[number, Array<[number, number]>]>;
+
 /** [ec codewords per block, [blocks, data codewords per block] …] at level M. */
-const M_BLOCKS: Array<[number, Array<[number, number]>]> = [
+const M_BLOCKS: Blocks = [
   [10, [[1, 16]]],                  // 1
   [16, [[1, 28]]],                  // 2
   [26, [[1, 44]]],                  // 3
@@ -76,20 +83,38 @@ const M_BLOCKS: Array<[number, Array<[number, number]>]> = [
   [26, [[4, 43], [1, 44]]],         // 10
 ];
 
+/** The same at level Q (ISO/IEC 18004 table 9). */
+const Q_BLOCKS: Blocks = [
+  [13, [[1, 13]]],                  // 1
+  [22, [[1, 22]]],                  // 2
+  [18, [[2, 17]]],                  // 3
+  [26, [[2, 24]]],                  // 4
+  [18, [[2, 15], [2, 16]]],         // 5
+  [24, [[4, 19]]],                  // 6
+  [18, [[2, 14], [4, 15]]],         // 7
+  [22, [[4, 18], [2, 19]]],         // 8
+  [20, [[4, 16], [4, 17]]],         // 9
+  [24, [[6, 19], [2, 20]]],         // 10
+];
+
+const BLOCKS: Record<QrLevel, Blocks> = { M: M_BLOCKS, Q: Q_BLOCKS };
+/** The two format bits of each level: M is 00, Q is 11. */
+const LEVEL_BITS: Record<QrLevel, number> = { M: 0b00, Q: 0b11 };
+
 const ALIGNMENT: number[][] = [
   [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34],
   [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50],
 ];
 
-function dataCodewords(version: number): number {
-  const [, groups] = M_BLOCKS[version - 1];
+function dataCodewords(version: number, level: QrLevel): number {
+  const [, groups] = BLOCKS[level][version - 1];
   return groups.reduce((n, [blocks, per]) => n + blocks * per, 0);
 }
 
-/** Bytes encodable in byte mode at this version, level M. */
-function byteCapacity(version: number): number {
+/** Bytes encodable in byte mode at this version and level. */
+function byteCapacity(version: number, level: QrLevel): number {
   const headerBits = 4 + (version >= 10 ? 16 : 8);
-  return Math.floor((dataCodewords(version) * 8 - headerBits) / 8);
+  return Math.floor((dataCodewords(version, level) * 8 - headerBits) / 8);
 }
 
 // -------------------------------------------------------------- bit stream
@@ -120,9 +145,9 @@ const MASKS: Array<(i: number, j: number) => boolean> = [
   (i, j) => (((i + j) % 2) + ((i * j) % 3)) % 2 === 0,
 ];
 
-function formatBits(mask: number): number {
-  // level M is 0b00; BCH(15,5) with the QR generator, then the fixed XOR
-  const data = (0b00 << 3) | mask;
+function formatBits(mask: number, level: QrLevel): number {
+  // the level's two bits and the mask; BCH(15,5) with the QR generator, then the fixed XOR
+  const data = (LEVEL_BITS[level] << 3) | mask;
   let rem = data << 10;
   for (let i = 4; i >= 0; i--) {
     if ((rem >>> (10 + i)) & 1) rem ^= 0b10100110111 << i;
@@ -284,9 +309,9 @@ function penalty(g: Grid): number {
  * Throws rather than truncating if the text does not fit: a QR code that
  * silently encodes half a verification link is worse than no QR code.
  */
-export function qrMatrix(text: string): boolean[][] {
+export function qrMatrix(text: string, level: QrLevel = "M"): boolean[][] {
   const data = new TextEncoder().encode(text);
-  const version = M_BLOCKS.findIndex((_, i) => byteCapacity(i + 1) >= data.length) + 1;
+  const version = BLOCKS[level].findIndex((_, i) => byteCapacity(i + 1, level) >= data.length) + 1;
   if (version === 0) throw new Error(`QR: ${data.length} bytes exceed the supported capacity`);
 
   // 1. the bit stream: mode, length, payload, terminator, pad
@@ -294,16 +319,16 @@ export function qrMatrix(text: string): boolean[][] {
   bits.push(0b0100, 4);
   bits.push(data.length, version >= 10 ? 16 : 8);
   for (const b of data) bits.push(b, 8);
-  const total = dataCodewords(version) * 8;
+  const total = dataCodewords(version, level) * 8;
   bits.push(0, Math.min(4, total - bits.bitLength));
   if (bits.bitLength % 8 !== 0) bits.push(0, 8 - (bits.bitLength % 8));
   const stream = bits.toBytes();
-  for (let pad = 0; stream.length < dataCodewords(version); pad++) {
+  for (let pad = 0; stream.length < dataCodewords(version, level); pad++) {
     stream.push(pad % 2 === 0 ? 0xec : 0x11);
   }
 
   // 2. blocks, their error correction, and the interleave
-  const [ecPerBlock, groups] = M_BLOCKS[version - 1];
+  const [ecPerBlock, groups] = BLOCKS[level][version - 1];
   const dataBlocks: Uint8Array[] = [];
   const ecBlocks: Uint8Array[] = [];
   let offset = 0;
@@ -338,7 +363,7 @@ export function qrMatrix(text: string): boolean[][] {
         }
       }
     }
-    const fmt = formatBits(mask);
+    const fmt = formatBits(mask, level);
     const positions = formatPositions(size);
     for (let i = 0; i < 30; i++) {
       const [r, c] = positions[i];

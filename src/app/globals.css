@@ -148,6 +148,24 @@
      onto t-subsection 18 with the rest of the product. */
   --type-cert-course: 20px;
   --type-chip: 12.5px;    /* the mono verification link, a single element */
+  /* THE PRINTED CERTIFICATE (Daisy, sertifikat/ronde-2 §5-6; D-076, D-160). Its accent is the learning context's,
+     never the reader's role: plum (the Murid family) for academic, sage (the Guru family) for professional learning,
+     one lightness so neither is the louder. The gold is the card's, for the one line at 176 mm. The leading and
+     tracking are the grammar's (sertifikat2.mts GAYA), named so the sheet's rules carry no free value. */
+  --cert-akademik: #725471;
+  --cert-profesi: #446A4B;
+  --cert-emas: #C09C4F;
+  --cert-lh-kepala: 1.15;
+  --cert-lh-teks: 1.25;
+  --cert-lh-arti: 1.5;
+  --cert-ls-kepala: 0.12em;
+  --cert-ls-label: 0.14em;
+  --cert-ls-nama: -0.018em;
+  --cert-ls-kursus: -0.005em;
+  --cert-ls-nomor: 0.02em;
+  --cert-ls-arti: 0.005em;
+  --cert-ws-label: 0.1em;
+  --cert-ws-arti: 0.05em;
   /* The question stem. The most-read text in the product: a learner reads it
      with full attention and nothing on the screen competes, so it sits one
      step above the reading size and one below the smallest subhead. */

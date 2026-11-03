@@ -407,38 +407,167 @@
 .pin-foot { font-size: var(--type-meta); color: var(--ink-3); margin-top: var(--space-5); max-width: 56ch; }
 
 /* ------------------------------------------------------------- A4 print sheet
-   794 × 1123 px is 210 × 297 mm at 96 dpi. It is the paper, not a scale step:
-   the sheet never reflows, it is scaled whole. */
+   THE CERTIFICATE AS DESIGNED (Daisy, sertifikat/ronde-2; D-076, D-120 Q16, D-160). 210 × 297 mm is the paper,
+   not a scale step: the sheet never reflows, it is scaled whole on screen (LembarA4) and printed at 100%. Every
+   position below is the frozen grid, in millimetres (src/lib/sertifikat-lembar.ts holds the same numbers; B6C-SHEET-01
+   holds the two together); every size is a step of the app's ladder, written in points as the design writes it.
+     header 22 · achievement 36 → the record · record ends 16 above the line · the line at 176, 0.75 ·
+     the band 176-210, inset 10 · verification at 236: 92 + 12 + 26 = 130, centred */
 .pin-printwell { background: var(--surface-2); border-radius: var(--radius-2); padding: var(--space-5); }
 .pin-sheetbox { position: relative; margin: 0 auto; max-width: 794px; }
 .pin-sheet {
-  width: 794px; height: 1123px; background: var(--surface-1);
+  --cert-aksen: var(--cert-akademik);
+  width: 210mm; height: 297mm; overflow: hidden; background: var(--surface-0);
   box-shadow: 0 1px 0 var(--line), 0 0 0 1px var(--line);
   transform-origin: top left; position: absolute; left: 0; top: 0;
-  padding: 72px; display: flex; flex-direction: column;
-  font-size: var(--type-body); color: var(--ink-1);
+  font-family: var(--font-sans); font-kerning: normal; color: var(--ink-1);
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.pin-sheet .pin-s-top { flex: 0 0 auto; }
-.pin-sheet .pin-s-mid { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: var(--space-3); }
-.pin-sheet .pin-s-low { flex: 0 0 auto; display: grid; gap: 28px; }
-.pin-sheet .pin-inst { font-size: 15px; font-weight: var(--weight-strong); margin: 0; }
-.pin-sheet .pin-rule { width: 40px; height: 2px; background: var(--pintar-primary); margin: 14px 0 0; }
+/* the accent, by learning context and never by role (Daisy §5): plum academic, sage professional learning */
+.pin-sheet.pin-s-akademik { --cert-aksen: var(--cert-akademik); }
+.pin-sheet.pin-s-profesi { --cert-aksen: var(--cert-profesi); }
+.pin-sheet * { box-sizing: border-box; margin: 0; }
+
+/* HEADER: the title upper left in the accent; the wordmark slot upper right on its baseline (MerekSertifikat) */
+.pin-sheet .pin-s-kepala {
+  position: absolute; left: 20mm; right: 20mm; top: 22mm;
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.pin-sheet .pin-s-jenis {
+  font-size: 12pt; font-weight: var(--weight-strong); line-height: var(--cert-lh-kepala);
+  letter-spacing: var(--cert-ls-kepala); word-spacing: var(--cert-ws-label); text-transform: uppercase;
+  white-space: nowrap; color: var(--cert-aksen);
+}
+/* The slot is the wordmark's letters (3.15 mm cap height, ≥ 15 mm wide); its box has no text, so its baseline is
+   its bottom edge, on the title's. The artwork's own ground lies outside it. One width, never a height. */
+.pin-sheet .pin-s-merek {
+  position: relative; display: block; flex: none;
+  width: var(--merek-slot-lebar); height: var(--merek-slot-tinggi);
+}
+.pin-sheet .pin-s-merek img {
+  position: absolute; left: var(--merek-kiri); top: var(--merek-atas);
+  width: var(--merek-lebar); height: auto; max-width: none; display: block;
+}
+
+/* ACHIEVEMENT: centred between the header and the record; only this block re-centres */
+.pin-sheet .pin-s-capaian {
+  position: absolute; left: 20mm; width: 170mm; top: 36mm; bottom: 167.375mm;
+  display: flex; flex-direction: column; justify-content: center; text-align: center;
+}
 .pin-sheet .pin-name {
   font-size: var(--type-name-print); font-weight: var(--weight-strong); line-height: 1.05;
-  letter-spacing: var(--tracking-tight); margin: var(--space-3) 0 var(--space-5);
+  letter-spacing: var(--cert-ls-nama); overflow-wrap: break-word; text-wrap: balance;
 }
-.pin-sheet .pin-done { font-size: var(--type-body); color: var(--ink-2); margin: 0; }
-.pin-sheet .pin-course { font-size: var(--type-subhead); font-weight: var(--weight-strong); line-height: 1.3; margin: 6px 0 0; }
-.pin-sheet .pin-verify { background: transparent; padding: var(--space-5) 0 0; border-top: 1px solid var(--line); border-radius: 0; }
+.pin-sheet .pin-done { font-size: 12pt; line-height: var(--cert-lh-teks); color: var(--ink-2); margin-top: 6mm; }
+.pin-sheet .pin-course {
+  font-size: var(--type-subhead); font-weight: var(--weight-strong); line-height: var(--cert-lh-teks);
+  letter-spacing: var(--cert-ls-kursus); overflow-wrap: break-word; text-wrap: balance; margin-top: 2mm;
+}
 
-/* The sheet is the page when printed: the shell, the actions and the well all
-   step aside, and one A4 leaves the printer. */
+/* RECORD: one block, labels right-aligned to the page's axis, values from it; it ends 16 mm above the line
+   (297 - 176 + 0.375 + 16 = 137.375 mm from the foot). The value column is 1fr with the number's own width as its
+   minimum, so a long number moves the axis left instead of wrapping. */
+.pin-sheet .pin-s-rekam {
+  position: absolute; left: 20mm; width: 170mm; bottom: 137.375mm;
+  display: grid; grid-template-columns: 1fr 1fr; column-gap: 8mm; row-gap: 5mm; align-items: baseline;
+}
+.pin-sheet .pin-s-rekam > div { display: contents; }
+.pin-sheet .pin-s-rekam dt {
+  text-align: right; font-size: 9pt; font-weight: var(--weight-strong); line-height: var(--cert-lh-kepala);
+  letter-spacing: var(--cert-ls-label); word-spacing: var(--cert-ws-label); text-transform: uppercase; color: var(--ink-3);
+}
+.pin-sheet .pin-s-rekam dd { font-size: 12.75pt; font-weight: var(--weight-strong); line-height: var(--cert-lh-teks); color: var(--ink-1); }
+/* THE NUMBER NEVER BREAKS (ruling 2): one value, «/» included; it steps 12 → 10.5 → 9.75 pt only when long */
+.pin-sheet .pin-s-rekam dd.pin-s-nomor {
+  font-family: var(--font-mono); font-weight: 500; font-size: 12pt; letter-spacing: var(--cert-ls-nomor);
+  white-space: nowrap; overflow-wrap: normal; word-break: keep-all;
+}
+.pin-sheet .pin-s-rekam dd.pin-s-nomor-105 { font-size: 10.5pt; }
+.pin-sheet .pin-s-rekam dd.pin-s-nomor-975 { font-size: 9.75pt; }
+
+/* THE LINE AND THE BAND: the gold line centred at 176 mm, 0.75 mm, lying on the band's top edge; the band inset
+   10 mm each side, 176 to 210 mm, in the accent; «Diterbitkan oleh» over the school's name as recorded */
+.pin-sheet .pin-s-garis {
+  position: absolute; z-index: 1; left: 10mm; width: 190mm; top: 175.625mm; height: 0.75mm; background: var(--cert-emas);
+}
+.pin-sheet .pin-s-pita {
+  position: absolute; left: 10mm; width: 190mm; top: 176mm; height: 34mm; background: var(--cert-aksen);
+  display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+  padding: 3.375mm 16mm 3mm; color: var(--surface-0);
+}
+.pin-sheet .pin-s-label {
+  font-size: 9pt; font-weight: var(--weight-strong); line-height: var(--cert-lh-kepala);
+  letter-spacing: var(--cert-ls-label); word-spacing: var(--cert-ws-label); text-transform: uppercase; color: var(--surface-0);
+}
+.pin-sheet .pin-inst {
+  font-size: var(--type-subhead); font-weight: var(--weight-strong); line-height: var(--cert-lh-teks);
+  letter-spacing: var(--cert-ls-kursus); overflow-wrap: break-word; text-wrap: balance; color: var(--surface-0); margin-top: 2.2mm;
+}
+
+/* VERIFICATION: one centred group at 236 mm, 130 mm wide (left 40 mm): a 92 mm text column, a 12 mm gap, the 26 mm
+   QR; its 4-module quiet zone is clear paper. The printed link may wrap inside its column (D-160(b)). */
+.pin-sheet .pin-s-periksa {
+  position: absolute; left: 40mm; top: 236mm; width: 130mm;
+  display: grid; grid-template-columns: 92mm 26mm; column-gap: 12mm; align-items: start;
+}
+.pin-sheet .pin-s-teks h3 {
+  font-size: 9pt; font-weight: var(--weight-strong); line-height: var(--cert-lh-kepala);
+  letter-spacing: var(--cert-ls-label); word-spacing: var(--cert-ws-label); text-transform: uppercase; color: var(--ink-1);
+}
+.pin-sheet .pin-s-teks p {
+  font-size: 9pt; line-height: var(--cert-lh-arti); letter-spacing: var(--cert-ls-arti); word-spacing: var(--cert-ws-arti);
+  text-wrap: pretty; color: var(--ink-2); margin-top: 2mm;
+}
+.pin-sheet .pin-s-teks p.pin-s-tautan {
+  font-family: var(--font-mono); font-weight: 500; font-size: 9pt; line-height: var(--cert-lh-teks);
+  letter-spacing: normal; word-spacing: normal; overflow-wrap: anywhere; color: var(--ink-1); margin-top: 2.6mm;
+}
+.pin-sheet .pin-s-qr { width: 26mm; height: 26mm; }
+.pin-sheet .pin-s-qr svg { width: 26mm; height: 26mm; display: block; }
+
+/* PRINT: ONE CLEAN A4 PAGE (DAISY-36; Daisy's cetak-usulan.css, proved in her G). The sheet's own named page, A4
+   portrait with no margin, so the browser's date, title, address and page numbers have no room; it applies only
+   where the sheet is, never to another page of PINTAR someone prints. */
+@page sertifikat {
+  size: A4 portrait;
+  margin: 0;
+}
+
+/* The sheet is the page when printed: the shell, the on-screen card, the actions and the well all step aside, and
+   one A4 leaves the printer. */
 @media print {
   .pin-noprint { display: none !important; }
-  .pin-printwell { background: none; padding: 0; }
-  .pin-sheetbox { max-width: none; height: auto !important; }
-  .pin-sheet { position: static; transform: none !important; box-shadow: none; width: 100%; height: 100vh; }
   .pin-col { padding: 0; max-width: none; }
+
+  /* A page that holds the sheet prints the sheet and nothing else: whatever else it carries (the on-screen card,
+     the print heading, a banner, the scope line, anything added later) steps aside, so no second copy prints ahead
+     of the sheet and nothing pushes it onto a second page. */
+  body:has(.pin-printwell) { margin: 0; padding: 0; min-height: 0; background: none; }
+  body:has(.pin-printwell) > :not(:has(.pin-printwell)) { display: none !important; }
+  .pin-col:has(> .pin-printwell) { margin: 0; padding: 0; }
+  .pin-col:has(> .pin-printwell) > :not(.pin-printwell) { display: none !important; }
+
+  .pin-printwell { background: none; padding: 0; border-radius: 0; }
+  .pin-sheetbox { max-width: none; height: auto !important; margin: 0; }
+
+  .pin-sheet {
+    page: sertifikat;
+    position: relative;
+    transform: none !important;
+    box-shadow: none;
+    background: none;
+    /* the paper, exactly: never a second page. If a reader overrides the margins in the dialog, the sheet shrinks
+       to the printable area rather than spilling onto a second page. */
+    width: 210mm;
+    height: 297mm;
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow: hidden;
+    break-inside: avoid;
+    /* its colours are part of the certificate: the band and the gold line print with «Background graphics» off */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
 
 /* --------------------------------------------------------- product provenance
@@ -641,10 +770,9 @@
   .pin-grid2 { grid-template-columns: 1fr; }
   .pin-kaki { margin-top: var(--space-8); }
   .pin-commit, .pin-refusal { padding: var(--space-5); }
-  /* The sheet is the one exception, and it is not a narrow surface: A4 is
-     794px of paper scaled whole and never reflowed, so the viewport's width
-     is not the sheet's width. Its facts keep the printed row. */
-  .pin-sheet .pin-facts { grid-template-columns: repeat(3, 1fr); }
+  /* The sheet is not a narrow surface and nothing here touches it: A4 is
+     210 mm of paper scaled whole and never reflowed, so the viewport's width
+     is not the sheet's width (B6C-SHEET-01). */
 }
 
 /* ═══════════════════════════════════════════ UX-1 Slice 2 · the learner cycle
