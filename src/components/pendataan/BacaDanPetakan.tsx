@@ -93,7 +93,8 @@ export default function BacaDanPetakan({
         <h2 id="pin-unggah">{s("pendataan.unggah.judul")}</h2>
         <p className="pin-mm">{s("pendataan.unggah.bentuk")}</p>
 
-        <div className="pin-isian">
+        {/* W3.7 (Batch 4; RV-22): the field frame of Daisy's TextField, its label in sentence case */}
+        <div className="pin-bidang">
           <BidangBerkas
             id="pin-berkas" label={s("pendataan.unggah.berkas")} locale={locale}
             accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain"
@@ -101,8 +102,8 @@ export default function BacaDanPetakan({
           />
         </div>
 
-        <div className="pin-isian">
-          <label htmlFor="pin-tempel">{s("pendataan.unggah.tempel")}</label>
+        <div className="pin-bidang">
+          <label htmlFor="pin-tempel" className="pin-bidang-label">{s("pendataan.unggah.tempel")}</label>
           <textarea
             id="pin-tempel"
             rows={4}

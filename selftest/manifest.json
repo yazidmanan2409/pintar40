@@ -4023,6 +4023,11 @@
       "id": "B4-J2-K01",
       "runner": "static",
       "proves": "W3.5 (Batch 4; Daisy, J2Kelas), selftest/b4.test.ts, reading the source: /mengajar/[kelas]/siapa is one Collection (Table, Search, Segmented filter), each learner once with the name opening their record and their state's Badge in the words «Lihat bukti» counts under, no score or rank; the class page's roster (/mengajar/[kelas]) is a Table of names alone, each opening the learner's record, searched and paged with the total."
+    },
+    {
+      "id": "B4-BIDANG-K01",
+      "runner": "static",
+      "proves": "W3.7 and W3.6 (Batch 4; RV-22, RV-16), selftest/b4.test.ts, reading the source: Pendataan's school code (src/app/pendataan/page.tsx) is the TextField primitive (sentence-case label, the hint under it and named by the field) on one row with its button; the intake's file and paste fields (src/components/pendataan/BacaDanPetakan.tsx) use the field frame with a sentence-case label; Pendataan's job list and every date in src/app/konfigurasi/page.tsx go through the WIB date helper."
     }
   ]
 }

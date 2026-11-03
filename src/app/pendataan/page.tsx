@@ -11,6 +11,8 @@ import BarisHasil from "@/components/BarisHasil";
 import TandaTautan from "@/components/TandaTautan";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import BacaDanPetakan from "@/components/pendataan/BacaDanPetakan";
+import BidangTeks from "@/components/bentuk/BidangTeks";
+import { tanggal } from "@/lib/tanggal";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/pendataan");
@@ -112,24 +114,13 @@ export default async function Pendataan({
                   it can help. */}
               <p className="pin-msg pin-msg-note">{s("pendataan.kode.peringatan")}</p>
               {sp.galat === "kode" ? <BarisHasil nada="gagal">{s("pendataan.kode.gagal")}</BarisHasil> : null}
-              <form action={simpanKodeAksi} className="pin-form">
+              {/* W3.7 (Batch 4; RV-22): Daisy's TextField: the label in sentence case, the hint directly under it and named
+                  by the field, the field and its button on one row at the same height */}
+              <form action={simpanKodeAksi} className="pin-baris-aksi">
                 <input type="hidden" name="institusi" value={dipilih.id} />
-                <div className="pin-isian">
-                  <label htmlFor="pin-kode-isi">{s("pendataan.kode.label")}</label>
-                  <input
-                    id="pin-kode-isi"
-                    name="kode"
-                    className="pin-inp"
-                    defaultValue={dipilih.kode ?? ""}
-                    maxLength={3}
-                    size={3}
-                    autoComplete="off"
-                    spellCheck={false}
-                    aria-describedby="pin-kode-bentuk"
-                  />
-                </div>
-                <p id="pin-kode-bentuk" className="pin-meta">{s("pendataan.kode.bentuk")}</p>
-                <TombolKirim className="pin-btn pin-data-btn" sibuk={s("tombol.menyimpan")}>{s("pendataan.kode.simpan")}</TombolKirim>
+                <BidangTeks id="pin-kode-isi" name="kode" label={s("pendataan.kode.label")} petunjuk={s("pendataan.kode.bentuk")}
+                  defaultValue={dipilih.kode ?? ""} maxLength={3} size={3} autoComplete="off" spellCheck={false} />
+                <TombolKirim className="pin-btn" sibuk={s("tombol.menyimpan")}>{s("pendataan.kode.simpan")}</TombolKirim>
               </form>
             </>
           )}
@@ -156,7 +147,8 @@ export default async function Pendataan({
                   <li key={j.id}>
                     <Link href={`/pendataan/${encodeURIComponent(j.id)}`}>
                       <span className="pin-ml">
-                        {format.number(j.total, locale)} · {format.date(j.dibuat, locale)}
+                        {/* W3.6 / RV-16: a record's moment through the one date helper, on WIB */}
+                        {format.number(j.total, locale)} · {tanggal(j.dibuat, "cap", locale) || j.dibuat}
                       </span>
                       {/* The job's own state, as a sentence. The enum never
                           renders. */}

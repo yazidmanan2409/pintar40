@@ -230,6 +230,26 @@ export const b4Tests: SelfTest[] = [
         + "of names alone (each opening the record), searched and paged with the total");
     },
   },
+  {
+    id: "B4-BIDANG-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const pd = kode(baca(ctx.repoRoot, "src/app/pendataan/page.tsx"));
+      c.expect(/<form action=\{simpanKodeAksi\} className="pin-baris-aksi">/.test(pd)
+        && /<BidangTeks id="pin-kode-isi" name="kode" label=\{s\("pendataan\.kode\.label"\)\} petunjuk=\{s\("pendataan\.kode\.bentuk"\)\}/.test(pd)
+        && !/className="pin-isian"/.test(pd) && !/pin-data-btn/.test(pd),
+        "the school code is not Daisy's TextField (sentence-case label, the hint under it) on one row with its button");
+      const bp = kode(baca(ctx.repoRoot, "src/components/pendataan/BacaDanPetakan.tsx"));
+      c.expect(!/className="pin-isian"/.test(bp) && /<label htmlFor="pin-tempel" className="pin-bidang-label">/.test(bp),
+        "the intake's file and paste fields still wear the upper-case eyebrow label");
+      c.expect(!/format\.date\(/.test(pd) && /tanggal\(j\.dibuat, "cap", locale\)/.test(pd), "Pendataan's job list does not say its moments on WIB (RV-16)");
+      const kf = kode(baca(ctx.repoRoot, "src/app/konfigurasi/page.tsx"));
+      c.expect(!/format\.date\(/.test(kf), "Konfigurasi still writes a date without the WIB helper (RV-16)");
+      return c.verdict("reading the source: Pendataan's school code is the TextField primitive (sentence-case label, hint under it, named by "
+        + "the field) on one row with its button; the intake's file and paste fields use the field frame with a sentence-case label; "
+        + "Pendataan's job list and every Konfigurasi date go through the WIB date helper (RV-16)");
+    },
+  },
 ];
 
 export const b4AppTests: SelfTest[] = [

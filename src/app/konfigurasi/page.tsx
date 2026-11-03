@@ -693,7 +693,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                               {p.history.map((h, i) => (
                                 <li key={`${h.set_at}-${i}`}>
                                   <span className="pin-num">{format.percent(h.percent / 100, locale)}</span>
-                                  {" · "}{format.date(h.set_at, locale)}
+                                  {" · "}{when(h.set_at)}
                                   {h.set_by ? <> · {sl("config.ketuntasan.oleh")} {h.set_by}</> : null}
                                   {" · "}{h.reason}
                                 </li>
@@ -855,7 +855,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     <span className="text-ink-1">
                       <strong>{sl(kunciStatusLaporan(l.status))}</strong>
                       {l.hentikanKelas ? <> · <strong>{sl("lapor.hentikan.singkat")}</strong></> : null}
-                      {" · "}{format.date(l.dibuat, locale)} · {l.pelapor} · {roleLabel(l.peran)}{l.sekolah ? ` · ${l.sekolah}` : ""}
+                      {" · "}{when(l.dibuat)} · {l.pelapor} · {roleLabel(l.peran)}{l.sekolah ? ` · ${l.sekolah}` : ""}
                     </span>
                     <span className="text-ink-2">
                       <span className="pin-num">{l.halaman}</span>
