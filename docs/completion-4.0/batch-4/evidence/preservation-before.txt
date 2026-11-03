@@ -1,0 +1,9 @@
+Staging, read only, 3 Nov 2026 ~07:10 UTC, before the Batch 4 merge (183 migrations, main cb1ff3e). Query: preservation.sql.
+demo_roles 4 | demo_results 10 | demo_official 10 | demo_certificates 3 | demo_enrolments 5 | demo_courses 1
+demo_audit 91 (6860)
+demo_people bd41b3c9605519cffb916d0352b5148d
+demo_accounts 7deebf17f87ba3ee6bd192f776db01fb
+results_outside_tests 2440c371b31c77a0b5cf3333122858de
+official_outside_tests a14f4a405d09b0ee2daec14292a4777b
+certificates_outside_tests ffa43edd2b15583ffb5fe2eae3dd9bf9
+all results/official/certificates/courses/transfers 1568/142/39/44/0
