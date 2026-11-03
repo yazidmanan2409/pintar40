@@ -7,6 +7,8 @@
 //       link, account menu, identity block or Konfigurasi's section menu reaches the paper (Daisy: «every new shell part
 //       carries .pin-noprint»); the A4 PDF is saved. (The provenance footer prints on ordinary pages by design.)
 //   P2  the learner shell in print (/belajar): the same.
+//   P4  the PINTAR Digital Card on «Akun saya» (W3.20, CR-21): printed, each face is CR80 at actual size (85.6 mm wide)
+//       and no shell part reaches the paper.
 //   P3  the class-card sheet (Aktivasi → the class's cards in one press): in print only the set reaches the paper, two
 //       cards across, no card split across pages; colours are kept; the A4 PDF is saved and its page count recorded.
 //
@@ -208,6 +210,18 @@ await step("P3", `the class-card sheet in print: only the set, two across, no ca
   harus(rec, tampak.latar === "dashed", `the cut line prints (${tampak.latar})`);
   const n = halamanPdf(pdf);
   harus(rec, n >= 1 && n <= Math.ceil(kartu / 2), `the A4 PDF has ${n} page(s) for ${kartu} cards`);
+  await A.emulateMedia({ media: "screen" });
+});
+
+await step("P4", "the Digital Card on «Akun saya» printed: each face CR80 at actual size, no shell part", async (rec) => {
+  await buka(A, "/akun");
+  const muka = A.locator(".pin-kd-muka");
+  if (!harus(rec, (await muka.count()) === 2, `«Akun saya» shows the card's two faces (${await muka.count()})`)) return;
+  await cetak(A, rec, "kartu-pintar");
+  const lebar = await muka.evaluateAll((ms) => ms.map((m) => Math.round((m.getBoundingClientRect().width * 25.4 / 96) * 10) / 10));
+  harus(rec, lebar.every((w) => Math.abs(w - 85.6) <= 0.2), `printed, the faces are ${lebar.join(" and ")} mm wide (CR80 is 85.6)`);
+  const sisa = await cangkangTercetak(A);
+  harus(rec, sisa.length === 0, `«Akun saya» in print shows no shell part${sisa.length ? `: ${sisa.join(", ")}` : ""}`);
   await A.emulateMedia({ media: "screen" });
 });
 

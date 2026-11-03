@@ -2033,6 +2033,24 @@ await step("S21i", "the certificate as students meet it: above the target it is 
       const disiapkan = !terbit && /disiapkan/i.test(isi);
       notes.push(`opened: ${terbit ? `issued, with its actions ${aksi}` : `not yet issued, «being prepared» shown ${disiapkan}`}`);
       if (terbit ? !aksi : !disiapkan) rec.verdict = "FAIL";
+      // Batch 6 (W3.19, DAISY-36, W3.22): printed, the issued certificate is one A4 page of the sheet alone
+      if (terbit) {
+        await a1.emulateMedia({ media: "print" });
+        const cetak = await a1.evaluate(() => {
+          const kelihatan = (el) => { const r = el.getBoundingClientRect(); const g = getComputedStyle(el); return r.width > 0 && r.height > 0 && g.display !== "none" && g.visibility !== "hidden"; };
+          const lembar = document.querySelector(".pin-sheet");
+          const luar = lembar ? [...document.body.querySelectorAll("body *")].filter((el) => kelihatan(el) && !el.contains(lembar) && !lembar.contains(el)).length : -1;
+          const w = lembar ? lembar.getBoundingClientRect().width : 0;
+          return { ada: !!lembar && kelihatan(lembar), luar, lebarMm: Math.round((w * 25.4) / 96) };
+        });
+        const pdf = join(OUT, "stu17-sertifikat-A4.pdf");
+        await a1.pdf({ path: pdf, format: "A4", printBackground: true, preferCSSPageSize: true });
+        const halaman = (readFileSync(pdf).toString("latin1").match(/\/Type\s*\/Page[^s]/g) ?? []).length;
+        rec.shots.push(await shot(a1, "stu17-sertifikat-cetak"));
+        await a1.emulateMedia({ media: "screen" });
+        notes.push(`printed: the sheet ${cetak.ada ? `alone (${cetak.luar} other element(s) visible), ${cetak.lebarMm} mm wide` : "missing"}; the A4 PDF has ${halaman} page(s)`);
+        if (!cetak.ada || cetak.luar !== 0 || cetak.lebarMm !== 210 || halaman !== 1) rec.verdict = "FAIL";
+      }
     }
   } catch (e) {
     rec.verdict = "FAIL";
