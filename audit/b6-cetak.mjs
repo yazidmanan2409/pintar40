@@ -137,7 +137,6 @@ if (!sql(`select coalesce(namespace, '') from public.institutions where id = '${
   sql(`update public.institutions set namespace = (select x from (select chr(65 + (g % 26)) || chr(65 + ((g / 26) % 26)) || 'W' as x
      from generate_series(1, 600) g) q where not exists (select 1 from public.institutions t where upper(t.namespace) = q.x) limit 1) where id = '${alphaId}'`);
 }
-const NAMA = (i) => `Cetak Walk ${TAG} ${i}`;
 sql(`do $$ declare v uuid; e uuid; contoh record; begin
   perform set_config('app.seed_intent', 'synthetic', true);
   select en.academic_period_id, en.programme_id into contoh from public.enrollments en join public.memberships m on m.enrollment_id = en.id

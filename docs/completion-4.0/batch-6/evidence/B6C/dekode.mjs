@@ -1,3 +1,5 @@
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
 // Decode the QR from a raster of the printed PDF (300 dpi), cropped to the QR's place on the sheet.
 const sharp = require("/home/user/pintar40/node_modules/sharp");
 const jsQR = require("/home/user/pintar40/node_modules/jsqr");

@@ -1,7 +1,7 @@
 B6C evidence (W3.22, DAISY-36), 3 Nov 2026
 The real page /belajar/<assignment>/sertifikat on `next dev --webpack -p 3467`, signed in as the seeded learner
 «Aisyah (peraga)» holding the one ISSUED certificate in the local database (MYB4ERB9/00002, a 43-character token).
-Made by bukti.cjs (sign-in by magic link through the local Auth admin; reads only) and dekode.cjs.
+Made by bukti.mjs (sign-in by magic link through the local Auth admin; reads only) and dekode.mjs.
 
 --- pdfinfo sertifikat-A4.pdf  (page.pdf({format:'A4', printBackground:true, preferCSSPageSize:true}))
 Title:           Sertifikat Penguasaan · Matematika · Pecahan Senilai   (the suggested file name, set on beforeprint)

@@ -1,7 +1,9 @@
 // B6C evidence: sign in as the seeded learner holding the one ISSUED certificate, render the real page,
 // save an A4 PDF and screenshots, assert one page and decode the QR.
-const fs = require("fs");
-const path = require("path");
+import fs from "node:fs";
+import path from "node:path";
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
 const NM = "/home/user/pintar40/node_modules/";
 const { createClient } = require(NM + "@supabase/supabase-js");
 const { createServerClient } = require(NM + "@supabase/ssr");

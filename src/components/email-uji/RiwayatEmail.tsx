@@ -7,7 +7,7 @@ import BarisHasil from "@/components/BarisHasil";
 import TombolKirim from "@/components/TombolKirim";
 import { JENIS_EMAIL } from "./jenis";
 import { kunciHasil } from "./status";
-import { cariRiwayatEmail, type BarisRiwayat, type HasilRiwayat } from "@/app/konfigurasi/email-uji/actions";
+import { cariRiwayatEmail, type HasilRiwayat } from "@/app/konfigurasi/email-uji/actions";
 
 /**
  * J1.9 (D-098(c)): what happened to an email, as the send log knows it. One
