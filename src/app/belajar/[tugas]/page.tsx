@@ -4,7 +4,7 @@ import { t, format, type HleEvent } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
-import { posisi, statusKey, lessonRead } from "@/lib/siklus";
+import { posisi, statusKey, lessonRead, tanpaPemetaan } from "@/lib/siklus";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import JejakSiklus from "@/components/siklus/JejakSiklus";
@@ -55,8 +55,9 @@ export default async function Tugas({ params }: { params: Promise<{ tugas: strin
   // «Lanjutkan» only when that step's session is already open.
   const aksi: { href: string; labelKey: HleEvent } | null = (() => {
     switch (p.langkah) {
+      // W2.12 (RV-7): a chapter without a Pemetaan Awal offers none; its status line says it is not ready yet
       case "PEMETAAN":
-        return {
+        return tanpaPemetaan(p) ? null : {
           href: `/belajar/${tugas}/pemetaan`,
           labelKey: labelTujuan("PEMETAAN", { berjalan: Boolean(state.pre_session && state.pre_status !== "FINALIZED") }),
         };

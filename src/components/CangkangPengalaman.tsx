@@ -145,7 +145,7 @@ export default async function CangkangPengalaman({
   // The public verification shell already works this way for its own reason.
   if (kind === "focus") {
     return (
-      <header className="pin-top pin-shell pin-noprint">
+      <header className="pin-top pin-shell pin-noprint pin-murid">
         <MerekPintar />
         <span className="pin-spacer" />
         <PengalihBahasa locale={locale} />
@@ -261,9 +261,9 @@ export default async function CangkangPengalaman({
   }
 
   return (
-    <header className="pin-top pin-shell pin-noprint">
+    <header className="pin-top pin-shell pin-noprint pin-murid">
       <MerekPintar />
-      <nav className="pin-tabs" aria-label={t("app.name", "learner", { locale })}>
+      <nav className="pin-tabs" aria-label={t("nav.belajar", "learner", { locale })}>
         <Link href="/belajar" aria-current={current === "belajar" ? "page" : undefined}>
           {t("nav.belajar", "learner", { locale })}
           <TandaTautan />

@@ -95,6 +95,54 @@
 .pin-sesi-penolakan { flex-wrap: wrap; }
 .pin-sesi-penolakan .pin-sesi-ket { max-width: none; white-space: normal; }
 
+/* W3.13 (Daisy, J6Peragaan; Accent «Context», question 12): MODE PERAGAAN's band. Deep ink, full width (pulled out
+   by the gutter, as the shell is), in the flow above the shell, its way out on it; it wraps to two lines on a phone.
+   Its links are underlined and its focus ring is drawn in the band's own ink. */
+.pin-konteks {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4);
+  min-height: var(--control-md); margin-inline: calc(var(--gutter) * -1); padding: var(--space-2) var(--space-5);
+  background: var(--context); color: var(--context-ink);
+  font-size: var(--t-small); line-height: var(--t-small-lh);
+}
+.pin-konteks strong { font-weight: var(--weight-strong); }
+.pin-konteks-nama { letter-spacing: var(--tracking-wordmark); }
+.pin-konteks-kanan { margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+.pin-konteks-kanan form { display: flex; }
+.pin-konteks a, .pin-konteks .pin-konteks-tombol {
+  display: inline-flex; align-items: center; min-height: var(--control-md); padding: 0;
+  border: 0; background: none; color: var(--context-ink); font: inherit; font-weight: var(--weight-strong);
+  text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+}
+.pin-konteks a:focus-visible, .pin-konteks .pin-konteks-tombol:focus-visible { outline: var(--border-focus) solid var(--context-ink); outline-offset: 2px; }
+
+/* W3.10 (Batch 0 baseline, 03-ACCESSIBILITY-BASELINE: the learner screens were 674-699 px wide in a 640 px window,
+   the 200 % zoom case at 1280). The learner's bar (LearnerShell) held its mark, two tabs, Bantuan, the language and
+   the session strip on one 56 px row at every width above the phone composition, so «Keluar» was pushed past the
+   window's edge. The bar now wraps when, and only when, its parts do not fit: the session strip takes a row of its
+   own on the right, as on a phone. Under 640 px the tabs also take their own row (LearnerShell: «under 640 px the
+   tabs take their own row»), which the phone composition below already does from 560 px. */
+.pin-murid { flex-wrap: wrap; height: auto; min-height: var(--shell-bar); row-gap: 0; }
+.pin-murid .pin-tabs { height: var(--shell-bar); }
+.pin-murid .pin-sesi { margin-left: auto; }
+@media (max-width: 639px) {
+  .pin-murid { padding: 0 var(--space-4); column-gap: var(--space-4); }
+  .pin-murid .pin-sub { display: none; }
+  .pin-murid .pin-lang { margin-left: auto; }
+  .pin-murid .pin-sesi {
+    order: 5; width: 100%; justify-content: space-between;
+    border-top: var(--border-hairline) solid var(--line); padding-block: var(--space-1);
+  }
+  .pin-murid .pin-sesi-ket { max-width: none; }
+  .pin-murid .pin-tabs {
+    order: 10; width: 100%; gap: 0; height: auto; flex-wrap: wrap;
+    border-top: var(--border-hairline) solid var(--line);
+  }
+  .pin-murid .pin-tabs a {
+    flex: 1; justify-content: center; text-align: center;
+    height: auto; min-height: var(--control-md); line-height: var(--leading-body); padding-block: var(--space-1);
+  }
+}
+
 /* reading column and rhythm */
 .pin-col {
   max-width: var(--measure-read); margin-inline: auto;
@@ -945,7 +993,9 @@
      that is not said in words a line further down. */
   .pin-jejak { overflow: visible; margin-bottom: var(--space-2); }
   .pin-jstep { min-width: 0; }
-  .pin-jstep .pin-jname { display: none; }
+  /* W3.10: hidden from the eye only. `display: none` also took each step's name out of the accessibility tree, so on
+     a phone a screen reader met five unnamed list items, one of them «current». Read, not drawn (as .pin-sr). */
+  .pin-jstep .pin-jname { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .pin-stem { font-size: var(--type-stem-phone); }
   .pin-tugas .pin-tfoot { flex-direction: column; align-items: stretch; }
   .pin-tugas .pin-tfoot .pin-btn {
@@ -1220,6 +1270,8 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
 .pin-tur-tirai {
   position: fixed; inset: 0; z-index: 40;
   background: var(--scrim);
+  /* W3.15 (UX-38): the veil shows where to look and holds nothing; the page under it stays usable */
+  pointer-events: none;
 }
 
 /* ------------------------------------------------------------- the tour card
@@ -1264,9 +1316,11 @@ html.pin-tuntun body { background: var(--pintar-primary-soft); }
   line-height: var(--leading-heading); letter-spacing: -0.01em; margin: 0;
 }
 /* Focus lands here on open and on every step, so the step is read in the order
-   it is written. It is never reached by Tab, so the ring is suppressed only
-   for that programmatic case and kept for anybody arriving by keyboard. */
-.pin-tur-judul:focus:not(:focus-visible) { outline: none; }
+   it is written. W3.15 (RV-19): it is a heading, never reached by Tab and never
+   pressed, so it draws no ring at all: the focus ring belongs to controls
+   (InteractionStates), and a box round a heading opened by itself read as a
+   field to type in. As `#isi`, which takes focus from the skip link the same way. */
+.pin-tur-judul:focus { outline: none; }
 .pin-tur-isi { font-size: var(--type-body); color: var(--ink-2); margin: 0; }
 .pin-tur-kaki { display: flex; align-items: center; gap: var(--space-2) var(--space-4); flex-wrap: wrap; }
 .pin-tur-centang {

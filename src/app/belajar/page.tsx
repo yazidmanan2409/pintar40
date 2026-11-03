@@ -6,7 +6,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { currentViewer } from "@/lib/auth";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
-import { posisi, peringkat, lessonRead, ketuntasan, type Kandidat, type Ketuntasan } from "@/lib/siklus";
+import { posisi, peringkat, lessonRead, ketuntasan, tanpaPemetaan, type Kandidat, type Ketuntasan } from "@/lib/siklus";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import Tur from "@/components/tur/Tur";
@@ -130,6 +130,9 @@ export default async function Belajar({
       };
     }),
   );
+  // UX-40: a result the learner has not opened yet is the next step. A failed read offers nothing new rather than an error.
+  const baru = await engine.newResults(db).catch(() => new Set<string>());
+  for (const k of kandidat) k.hasilBaru = k.posisi.selesai && baru.has(k.tugas.learning_assignment_id);
   const { utama, sisa } = peringkat(kandidat);
 
   // Q-12: what a learner may start that no learning assignment names. The RPC
@@ -190,7 +193,8 @@ export default async function Belajar({
     const id = k.tugas.learning_assignment_id;
     const label = labelTujuan(k.posisi.langkah, { berjalan: k.berjalan });
     switch (k.posisi.langkah) {
-      case "PEMETAAN": return { href: `/belajar/${id}/pemetaan`, labelKey: label };
+      // W2.12 (RV-7): never offer a Pemetaan Awal the chapter does not have (the offer led to a refusal page)
+      case "PEMETAAN": return tanpaPemetaan(k.posisi) ? null : { href: `/belajar/${id}/pemetaan`, labelKey: label };
       case "PETA": return { href: `/belajar/${id}/peta`, labelKey: label };
       case "PELAJARAN": {
         const l = berikutnya.get(id);
@@ -409,9 +413,9 @@ export default async function Belajar({
         <KakiPintar />
       </main>
 
-      {/* A SIBLING OF THE PAGE, NOT A CHILD OF IT: while a step is open the
-          tour makes every sibling inert, and a tour mounted inside `main`
-          would be making itself inert along with the page. */}
+      {/* A SIBLING OF THE PAGE, NOT A CHILD OF IT: the tour's card and
+          spotlight are fixed layers over the page, which stays usable under
+          them (W3.15, UX-38). */}
       {konteks.turBelajar ? (
         <Tur
           kunci={TUR_BELAJAR}

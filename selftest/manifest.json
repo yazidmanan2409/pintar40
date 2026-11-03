@@ -4030,6 +4030,56 @@
       "proves": "W3.7 and W3.6 (Batch 4; RV-22, RV-16), selftest/b4.test.ts, reading the source: Pendataan's school code (src/app/pendataan/page.tsx) is the TextField primitive (sentence-case label, the hint under it and named by the field) on one row with its button; the intake's file and paste fields (src/components/pendataan/BacaDanPetakan.tsx) use the field frame with a sentence-case label; Pendataan's job list and every date in src/app/konfigurasi/page.tsx go through the WIB date helper."
     },
     {
+      "id": "B5B-LEBAR-K01",
+      "runner": "static",
+      "proves": "W3.10 (Batch 5; Batch 0 baseline 03-ACCESSIBILITY-BASELINE), selftest/b5b.test.ts, reading the source: the learner and focus bars (src/components/CangkangPengalaman.tsx) carry pin-murid, and src/app/experience.css lets the learner's bar wrap when, and only when, its parts do not fit (the session strip takes its own row), keeping the tabs' row height, and under 640 px gives the session strip and the tabs each a row of their own (LearnerShell), so no learner screen is wider than a 640 or 320 px window."
+    },
+    {
+      "id": "B5B-NAMA-K01",
+      "runner": "static",
+      "proves": "W3.10 (Batch 5, J4Murid), selftest/b5b.test.ts, reading the source: the learner's tabs are named «Belajar», the Uji Penguasaan's progress dots are role=img with their name, the lesson's page dots are hidden beside the words that say the page, and on a phone the cycle trail's step names are hidden from the eye only, never from a screen reader."
+    },
+    {
+      "id": "B5B-DIJAWAB-K01",
+      "runner": "static",
+      "proves": "W3.10 (Batch 5, J4Murid), selftest/b5b.test.ts, reading the source: in an Uji Penguasaan the player (src/app/belajar/_components/ItemPlayer.tsx) keeps a status line «Sudah dijawab: n dari N.», counted from the answers the server accepted and built from the copy table's posttest.answered and siklus.dari, in both languages."
+    },
+    {
+      "id": "B5B-PEMETAAN-K01",
+      "runner": "static",
+      "proves": "W2.12 RV-7 (Batch 5, J6.5), selftest/b5b.test.ts, reading the source: src/lib/siklus.ts tells a chapter with no Pemetaan Awal apart (tanpaPemetaan); its status line is cycle.pemetaan.belum_ada, it leads Belajar's home only when nothing else waits, the home and the chapter page offer no «Mulai Pemetaan Awal» for it, and the refusal at its address wears the learner's shell."
+    },
+    {
+      "id": "B5B-MEDIA-K01",
+      "runner": "static",
+      "proves": "W2.12 RV-8 (Batch 5, J6.3), selftest/b5b.test.ts, reading the source: a lesson recording with no address, or whose file fails to load (also before the script ran, read from the element), is said in words («Rekaman ini tidak tersedia.») in a status line with its transcript in its place, instead of a player at «0:00 / 0:00»; the seeded pecahan-senilai.mp3 is genuinely absent (D-050: lessons are text in 4.0; no media feature built)."
+    },
+    {
+      "id": "B5B-HASIL-K01",
+      "runner": "static",
+      "proves": "UX-40 (Batch 5, W2.13 learner part), selftest/b5b.test.ts, reading the source: peringkat (src/lib/siklus.ts) leads Belajar's home with a new (unopened) result after a session left open and before any other work, and never with an opened one; the home asks my_new_results before ranking and keeps its «all done» state; opening /belajar/[tugas]/hasil calls note_result_seen; supabase/migrations/20261227100000_a_new_result_is_the_next_step.sql keeps the person's own «seen» in a table no client reaches, scoped to current_person_id(), registered LEARNER, with every earlier result recorded as seen."
+    },
+    {
+      "id": "B5B-SERTIFIKAT-K01",
+      "runner": "static",
+      "proves": "UX-46 (Batch 5), selftest/b5b.test.ts, reading the source: on Belajar → Sertifikat a certificate that cannot be shown sends the reader back to /belajar/sertifikat with «Kembali ke Sertifikat» («Back to Certificates»), not «Kembali ke Belajar»."
+    },
+    {
+      "id": "B5B-TUR-K01",
+      "runner": "static",
+      "proves": "W3.15 RV-19, UX-38 (Batch 5), selftest/b5b.test.ts, reading the source: the first-login tour (src/components/tur/Tur.tsx) is a non-modal dialog that keeps its role and name (no aria-modal, no inert or aria-hidden page, no Tab trap; neither veil catches a click), its ring stands 8 px clear of its target (kotakCincin, src/lib/tur.ts), a resize or a turned phone moves the target back above the sheet, and its headline draws no field-like focus box."
+    },
+    {
+      "id": "B5B-PERAGAAN-K01",
+      "runner": "static",
+      "proves": "W3.13 (Batch 5, Daisy J6Peragaan), selftest/b5b.test.ts, reading the source: src/app/_evaluation-banner.tsx is the full-width deep-ink context band (pin-konteks: context / context-ink, underlined ways out, in the flow), a region named «MODE PERAGAAN» drawn directly after the skip link with «Ganti sudut pandang» then «Keluar dari peragaan» as its first focusable parts; every page title is prefixed «MODE PERAGAAN · » while a persona is held (judulDalamPeragaan, F9); leaving lands on sign-in with «Anda sudah keluar dari peragaan.» and returns to the room."
+    },
+    {
+      "id": "B5B-AJAR-K01",
+      "runner": "static",
+      "proves": "W2.16 (Batch 5, DAISY-35 / CR-57), selftest/b5b.test.ts, reading the source: konteksPembelajaran (src/lib/pembelajaran.ts) gives a Guru who also holds a senior role the adult learning shell and no child tour while a senior reader who does not teach keeps the learner shell and tour (§H-3); every refusal under src/app/belajar passes the reader's own persona (personaPembelajaran); the hint button's labels carry no emoji in either language («No emoji in the interface chrome»)."
+    },
+    {
       "id": "F24-K03",
       "runner": "db",
       "proves": "D-152(a), the Batch 4 promotion gate's condition 2, measured in selftest/db/fable24.sql against supabase/migrations/20261217100000_a_card_learner_becomes_staff_through_an_email_account.sql: a conversion interrupted before Auth's write leaves the class card untouched (number, sign-in address, no set-up) and a staff role still refused (STAFF_ROLE_FOR_CARD, CR-91); a retry leaves one pending grant; an expired grant's write is refused (CARD_ADDRESS_REFUSED) and changes nothing; after a write whose answer was lost, a second conversion is refused (CARD_NOT_FOUND), the school corrects a wrong address before activation and the corrected address is offered the activation code; the person holds exactly one email account.",

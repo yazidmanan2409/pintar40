@@ -192,6 +192,7 @@ export type HleEvent =
   | "tombol.memulai"
   | "tombol.mengaktifkan"
   | "tolak.kembali"
+  | "tolak.kembali_sertifikat"
   | "komitmen.kembali"
   | "bukti.dari"
   | "bukti.murid"
@@ -674,6 +675,8 @@ export type HleEvent =
   | "lesson.example.reveal"
   | "lesson.example.done"
   | "lesson.pdf"
+  | "lesson.media.tidak_ada"
+  | "lesson.media.tidak_ada_teks"
   | "lesson.saved"
   | "posttest.title"
   | "posttest.intro"
@@ -785,6 +788,7 @@ export type HleEvent =
   | "evaluasi.sebagai"
   | "evaluasi.ganti"
   | "evaluasi.keluar"
+  | "evaluasi.keluar_selesai"
   | "evaluasi.berakhir"
   | "evaluasi.sesi_habis"
   | "evaluasi.gagal"
@@ -2877,6 +2881,8 @@ const table: Table = {
   "tombol.memulai": { default: "Memulai…", en: "Starting…" },
   "tombol.mengaktifkan": { default: "Mengaktifkan…", en: "Activating…" },
   "tolak.kembali": { default: "Kembali ke Belajar", en: "Back to Learning" },
+  // UX-46: a certificate that cannot be shown sends the reader back to the certificates list they came from
+  "tolak.kembali_sertifikat": { default: "Kembali ke Sertifikat", en: "Back to Certificates" },
   "komitmen.kembali": { default: "Periksa lagi", en: "Check again" },
   "bukti.dari": { default: "Dari", en: "From" },
   "bukti.murid": { default: "murid", en: "students" },
@@ -3655,6 +3661,9 @@ const table: Table = {
   "lesson.example.reveal": { default: "Tampilkan langkah berikutnya", en: "Show the next step" },
   "lesson.example.done": { default: "Semua langkah sudah tampil.", en: "Every step is showing." },
   "lesson.pdf": { default: "Buka ringkasan", en: "Open the summary" },
+  // W2.12 (RV-8): a recording whose file cannot be played says so, rather than a player stuck at «0:00 / 0:00»
+  "lesson.media.tidak_ada": { default: "Rekaman ini tidak tersedia. Isinya ada di teks lengkap di bawah.", en: "This recording is not available. Its content is in the full text below." },
+  "lesson.media.tidak_ada_teks": { default: "Rekaman ini tidak tersedia.", en: "This recording is not available." },
   "lesson.saved": { default: "Posisi bacaan tersimpan.", en: "Your place is saved." },
 
   "posttest.title": { default: "Uji Penguasaan", en: "Mastery Check" },
@@ -3675,10 +3684,12 @@ const table: Table = {
   "posttest.submit": { default: "Kumpulkan", en: "Submit" },
   "posttest.submit_confirm": { default: "Kumpulkan sekarang? Setelah dikumpulkan, jawaban tidak bisa diubah.", en: "Submit now? Once submitted, answers cannot be changed." },
 
-  "assist.SD": { default: "🤔 Perlu contoh?", en: "🤔 Want an example?" },
-  "assist.SMP": { default: "💡 Perlu petunjuk?", en: "💡 Want a hint?" },
-  "assist.SMA": { default: "🧭 Perlu arah?", en: "🧭 Need a direction?" },
-  "assist.UNIVERSITAS": { default: "🧭 Perlu arah berpikir?", en: "🧭 Need a direction to think in?" },
+  // W2.16 (DAISY-35 item 4): judged under the design spec, «No emoji in the interface chrome» (README, Iconography;
+  // Icons: «no emoji»). The hint button is a control, so its label is its words alone.
+  "assist.SD": { default: "Perlu contoh?", en: "Want an example?" },
+  "assist.SMP": { default: "Perlu petunjuk?", en: "Want a hint?" },
+  "assist.SMA": { default: "Perlu arah?", en: "Need a direction?" },
+  "assist.UNIVERSITAS": { default: "Perlu arah berpikir?", en: "Need a direction to think in?" },
   "assist.more": { default: "Masih perlu bantuan lagi?", en: "Still need more help?" },
   "assist.close": { default: "Sudah cukup, terima kasih", en: "That is enough, thank you" },
   "assist.level.ARAH": { default: "Arah berpikir", en: "A direction to think in" },
@@ -3793,6 +3804,8 @@ const table: Table = {
   "evaluasi.sebagai": { default: "Sedang melihat sebagai", en: "Currently viewing as" },
   "evaluasi.ganti": { default: "Ganti sudut pandang", en: "Change the point of view" },
   "evaluasi.keluar": { default: "Keluar dari peragaan", en: "Leave the demonstration" },
+  // W3.13 (Daisy, J6Peragaan: new words for the result line after «Keluar dari peragaan»)
+  "evaluasi.keluar_selesai": { default: "Anda sudah keluar dari peragaan.", en: "You have left the demonstration." },
   "evaluasi.berakhir": { default: "Sesi peragaan berakhir", en: "The demonstration session has ended" },
   "evaluasi.sesi_habis": { default: "Waktu peragaan sudah habis. Kembali ke ruang peragaan untuk mulai lagi.", en: "The demonstration time is up. Go back to the demonstration room to start again." },
   "evaluasi.gagal": { default: "Sudut pandang itu tidak bisa dibuka sekarang.", en: "That point of view cannot be opened right now." },

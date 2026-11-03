@@ -55,6 +55,9 @@ export default async function Hasil({ params }: { params: Promise<{ tugas: strin
     engine.lessons(db, tugas).catch(() => []),
   ]);
   if (!outcome) notFound();
+  // UX-40: this result has now been seen, so Belajar's home stops offering it as the next step. Not evidence; a
+  // failed note changes nothing on this page.
+  await engine.noteResultSeen(db, state.post_session).catch(() => false);
   // D-085 M3 (W4): finishing is not mastering. The verdict is the session's own, from the mark sealed on it (D-088(b)).
   const target = ketuntasan(outcome);
   const ulang = target === "BELUM" ? bagianUlang(outcome.per_domain, outcome.ambang, peta, pelajaran) : [];

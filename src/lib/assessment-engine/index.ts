@@ -120,6 +120,19 @@ export async function cycleState(db: EngineClient, learningAssignmentId: string)
                    post_assignment: null, post_session: null, post_status: null };
 }
 
+/**
+ * UX-40: the caller's own learning assignments whose finished Uji Penguasaan result has not been opened yet, and the
+ * act of opening one. Neither is evidence; both are the database's answer for the caller alone.
+ */
+export async function newResults(db: EngineClient): Promise<Set<string>> {
+  const r = rows<{ learning_assignment_id: string }>(await call(db, "my_new_results"));
+  return new Set(r.map((x) => x.learning_assignment_id));
+}
+
+export async function noteResultSeen(db: EngineClient, sessionId: string): Promise<boolean> {
+  return Boolean(await call(db, "note_result_seen", { p_session: sessionId }));
+}
+
 export type SessionState = {
   status: string; mode: string; allows_pause: boolean;
   authoritative_deadline: string | null; started_at: string | null; submitted_at: string | null;

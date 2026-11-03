@@ -2033,7 +2033,10 @@ export const experienceTests: SelfTest[] = [
       // orang_berakun; 20261219100000 makes transfers.to_academic_period_id nullable (the receiving school chooses it) and
       // adds four transfer functions; 20261220100000 adds email_send_stuck; 20261221100000 pages maintenance_list. Read
       // against §3 first: none is a mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
-      c.expect(migrations.length === 188, `${migrations.length} migrations; the frozen baseline has 188`);
+      // MOVED 188 -> 189 for Batch 5 (agent B, UX-40): 20261227100000 adds result_views (that a learner has opened their
+      // own finished result: session, person, when) and two learner functions. Read against §3 first: it is not a mark, a
+      // logo, a crest or a theme, so the Q-7 source still does not exist.
+      c.expect(migrations.length === 189, `${migrations.length} migrations; the frozen baseline has 189`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3837,7 +3840,8 @@ export const experienceTests: SelfTest[] = [
       // MOVED 182 -> 183 for the Batch 3 closure (D-150): studio_home's superseded-version condition touches no tour RPC.
       // MOVED 183 -> 188 for Batch 4 (D-152): the card conversion, the correction finder, the transfer by name, stuck
       // sends and maintenance paging touch no tour RPC.
-      c.expect(migs.length === 188, `${migs.length} migrations; the baseline has 188`);
+      // MOVED 188 -> 189 for Batch 5 (agent B, UX-40): a result's «seen» (result_views) touches no tour RPC.
+      c.expect(migs.length === 189, `${migs.length} migrations; the baseline has 189`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";
@@ -4480,29 +4484,30 @@ export const experienceTests: SelfTest[] = [
       const turSrc = readFileSync(join(dir, "Tur.tsx"), "utf8");
       const kartu = code(turSrc);
 
-      // 1. IT IS A DIALOG, AND IT SAYS SO.
+      // 1. IT IS A DIALOG, AND IT SAYS SO -- a NON-MODAL one.
+      //    RESTATED FOR W3.15 (UX-38, Batch 5): «Let the landing stay usable while the tour is offered». The card keeps
+      //    its role, its label and its description; it no longer declares itself modal, because it no longer is.
       for (const [re, apa] of [
         [/role="dialog"/, "role=dialog"],
-        [/aria-modal="true"/, "aria-modal"],
         [/aria-labelledby="pin-tur-judul"/, "a label pointing at the headline"],
         [/aria-describedby="pin-tur-isi"/, "a description pointing at the body"],
       ] as Array<[RegExp, string]>) {
         c.expect(re.test(kartu), `the tour card has no ${apa}`);
       }
+      c.expect(!/aria-modal/.test(kartu), "the tour card still declares itself modal while the page behind it is usable");
 
-      // 2. THE PAGE BEHIND IS INERT, AND GETS ITSELF BACK. An attribute that is
-      //    set and never removed is a page nobody can use again.
-      c.expect(/setAttribute\("inert", ""\)/.test(kartu), "the page behind the tour is never made inert");
-      c.expect(/removeAttribute\("inert"\)/.test(kartu), "the page behind the tour never gets its interactivity back");
-      c.expect(/if \(saudara === simpul \|\| saudara\.hasAttribute\("inert"\)\) continue;/.test(kartu),
-        "the inert sweep does not skip the tour's own root, or clobbers an element that was already inert");
-      // What was there before is RESTORED, not removed: an element that carried
-      // `aria-hidden` for a reason of its own gets that reason back, and only an
-      // element that had none loses it.
-      c.expect(/getAttribute\("aria-hidden"\)/.test(kartu),
-        "the sweep never records what aria-hidden it is about to overwrite");
-      c.expect(/if \(sembunyi === null\) el\.removeAttribute\("aria-hidden"\);[\s\S]{0,80}else el\.setAttribute\("aria-hidden", sembunyi\);/.test(kartu),
-        "the sweep gives back no aria-hidden it overwrote, so an element that had one loses it");
+      // 2. THE PAGE BEHIND STAYS USABLE (restated, W3.15). It was made inert and aria-hidden until the tour was
+      //    skipped; now nothing in the tour takes the page away from the pointer, the keyboard or a screen reader:
+      //    no inert, no aria-hidden written onto the page, no Tab held inside the card, and neither veil catches a
+      //    click. Esc still closes it, as a skip.
+      c.expect(!/setAttribute\("inert"/.test(kartu), "the page behind the tour is made inert");
+      c.expect(!/setAttribute\("aria-hidden"/.test(kartu), "the page behind the tour is hidden from a screen reader");
+      c.expect(!/e\.key !== "Tab"|e\.key === "Tab"/.test(kartu), "Tab is held inside the tour card");
+      c.expect(/if \(e\.key === "Escape"\) \{\s*e\.preventDefault\(\);\s*tutup\("lewati"\);/.test(kartu), "Esc no longer closes the tour as a skip");
+      const cssTur = readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8");
+      const tirai = /\.pin-tur-tirai \{([^}]*)\}/.exec(cssTur)?.[1] ?? "";
+      const sorot = /\.pin-tur-sorot \{([^}]*)\}/.exec(cssTur)?.[1] ?? "";
+      c.expect(/pointer-events:\s*none/.test(tirai) && /pointer-events:\s*none/.test(sorot), "a veil catches the clicks meant for the page under it");
 
       // 3. FOCUS. On open and on every step it lands on the headline, so the
       //    step is read in the order it is written.
@@ -4598,8 +4603,9 @@ export const experienceTests: SelfTest[] = [
       c.note(`${semuaTur.length} tour component(s), ${urutan.length} control(s) in tab order, ` +
         `${kunciMini.length} copy key in the miniatures, 3 plants`);
       return c.verdict(
-        "the tour is a dialog a keyboard and a screen reader can use: it declares role, modality, its label and its " +
-        "description, the page behind it is made inert and gets both inert and aria-hidden back, focus lands on the " +
+        "the tour is a dialog a keyboard and a screen reader can use: it declares role, its label and its " +
+        "description and is not modal (W3.15) -- the page behind it is never made inert or aria-hidden, Tab is not held in " +
+        "the card, Esc still closes it and neither veil catches a click -- focus lands on the " +
         "headline on open and follows every step and has somewhere to go on close, the DOM gives the approved tab " +
         "order of language, Skip, checkbox, Back and Next with no tabindex forcing it — the reading watched on a card " +
         "whose footer puts the checkbox last — every control is a native button with an explicit type and no div " +
@@ -6414,8 +6420,10 @@ export const experienceTests: SelfTest[] = [
         { peran: ["DEAN"], mengajar: false, kata: "a dean" },
         { peran: ["INSTITUTION_ADMIN"], mengajar: false, kata: "an institution administrator" },
         { peran: ["SYSTEM_ADMIN"], mengajar: false, kata: "a platform administrator" },
-        { peran: ["EDUCATOR", "HEAD_OF_DEPARTMENT"], mengajar: false, kata: "an educator who is also a head of department" },
-        { peran: ["EDUCATOR", "DEAN"], mengajar: false, kata: "an educator who is also a dean" },
+        // RESTATED FOR W2.16 (DAISY-35 item 3, CR-57): a Guru who also holds a senior role still teaches, so their own
+        // learning wears the adult (educator's) learning shell and they are never handed the child's first-login tour.
+        { peran: ["EDUCATOR", "HEAD_OF_DEPARTMENT"], mengajar: true, kata: "an educator who is also a head of department" },
+        { peran: ["EDUCATOR", "DEAN"], mengajar: true, kata: "an educator who is also a dean" },
         // A FAILED READ FALLS BACK TO THE PRODUCT AS IT WAS. `peranSaya` can now
         // say "I could not ask", and the honest answer to that is the learner
         // shell and the learner tour -- which is every release before this one.
@@ -6437,11 +6445,11 @@ export const experienceTests: SelfTest[] = [
       //    WATCHED ON TWO PLANTS, both of them mistakes that are easy to make
       //    and that every assertion above would otherwise wave through.
       //
-      //    (a) "an educator who is also a dean still teaches" — dropping the
-      //        seniority rule and reading EDUCATOR on its own.
-      const tanpaSenioritas = (peran: readonly string[] | null) => (peran ?? []).includes("EDUCATOR");
-      c.expect(tanpaSenioritas(["EDUCATOR", "DEAN"]) !== konteksPembelajaran(["EDUCATOR", "DEAN"]).mengajar,
-        "dropping the seniority rule is indistinguishable from keeping it, so this case proves nothing");
+      //    (a) RESTATED (W2.16, DAISY-35 item 3): the mistake is now the opposite one -- reading the educator TOUR's
+      //        seniority rule as "does not teach", which hands a senior Guru the child's shell and tour.
+      const denganSenioritas = (peran: readonly string[] | null) => turPengajarBerlaku(peran ?? []);
+      c.expect(denganSenioritas(["EDUCATOR", "DEAN"]) !== konteksPembelajaran(["EDUCATOR", "DEAN"]).mengajar,
+        "applying the tour's seniority rule to whether somebody teaches is indistinguishable from not, so this case proves nothing");
       //    (b) "the learner tour belongs only to somebody holding no role" —
       //        which quietly takes the learner landing's own tour away from
       //        every senior reader, the thing §H-3 exists to prevent.
