@@ -2527,7 +2527,8 @@ await step("S23i", "the head of department reviews Kelas 1A's integrity observat
     notes.push(`the page frames them as material for a human ${bingkai}, carries a verdict word ${vonis}, names the observation ${kategori}, names the student ${namaTampak}`);
     if (!bingkai || !kategori) notes.push(`the page at ${new URL(h.url()).pathname} says: «${teks.slice(0, 400)}»`);
     const form = h.locator("form").filter({ has: h.locator(`input[name="sinyal"][value="${idSinyal}"]`) }).first();
-    if (!(await form.count()) || !bingkai || vonis || !kategori) { rec.verdict = "FAIL"; return notes.join("; "); }
+    // W2.7 (Batch 5; CR-75): the sitting is named by its learner; the Batch 5 walk found every sitting shown as «—»
+    if (!(await form.count()) || !bingkai || vonis || !kategori || !namaTampak) { rec.verdict = "FAIL"; return notes.join("; "); }
     await form.locator('select[name="keputusan"]').selectOption({ label: "Diteruskan ke pihak sekolah" });
     await form.locator('input[name="catatan"]').fill(RUJUK_S23);
     await form.getByRole("button", { name: "Catat tinjauan" }).click();

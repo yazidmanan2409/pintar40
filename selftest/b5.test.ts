@@ -105,7 +105,7 @@ export const b5Tests: SelfTest[] = [
         "each waiting observation does not have its own form posting its own id");
       c.expect(!/value=\{group\[0\]\.id\}/.test(p), "a sitting's form still posts its newest observation only");
       c.expect(/<BidangTeks id=\{`integritas-catatan-\$\{g\.id\}`\} name="catatan"[^>]*label=\{s\("studio\.paket\.catatan"\)\}/.test(p), "the note is not a labelled field");
-      c.expect(/persons\(display_name, pintar_id\)/.test(p) && /<p className="pin-judul-baris">\{n\?\.nama \|\| "(?:—|\\u2014)"\}<\/p>\s*\{n\?\.pintarId \? <p className="pin-meta pin-num">\{n\.pintarId\}<\/p> : null\}/.test(p),
+      c.expect(/persons!assessment_sessions_person_id_fkey\(display_name, pintar_id\)/.test(p) && /<p className="pin-judul-baris">\{n\?\.nama \|\| "(?:—|\\u2014)"\}<\/p>\s*\{n\?\.pintarId \? <p className="pin-meta pin-num">\{n\.pintarId\}<\/p> : null\}/.test(p),
         "a sitting is not named by its learner first with the PINTAR ID beneath");
       c.expect(/studio\.integritas\.keadaan\.menunggu/.test(p) && /studio\.integritas\.keadaan\.ditinjau/.test(p) && /className=\{keadaan === "menunggu" \? "pin-pill pin-attention" : "pin-pill pin-ok"\}/.test(p),
         "a sitting's state is not a badge in words");

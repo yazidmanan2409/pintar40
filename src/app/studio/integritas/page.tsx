@@ -73,12 +73,14 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
 
   // L4 (CR-85, investigation §E item 8): a sitting is named by its learner, class and assessment, which the reviewer
   // may read (assessment_sessions_select admits CAN_REVIEW_INTEGRITY); never by a fragment of its id. W2.7 (CR-75): the
-  // learner's name first, the PINTAR ID beneath. A sitting this read cannot name shows the dash, and the observations
-  // under it still say what was seen and when.
+  // learner's name first, the PINTAR ID beneath. The learner is named through the sitting's own person (its person_id
+  // key): a sitting has a second key to persons (who terminated it, 20260914094500), so an unnamed embed was ambiguous,
+  // PostgREST refused the read and every sitting showed «—» (found by the Batch 5 walk). A sitting this read cannot
+  // name shows the dash, and the observations under it still say what was seen and when.
   const semuaSesi = [...new Set([...bySession.keys(), ...sudahBySession.keys()])];
   const { data: sesi } = semuaSesi.length > 0
     ? await supabase.from("assessment_sessions")
-        .select("id, persons(display_name, pintar_id), kelas:org_nodes!assessment_sessions_class_node_id_fkey(name), assessment_definitions(title)")
+        .select("id, persons!assessment_sessions_person_id_fkey(display_name, pintar_id), kelas:org_nodes!assessment_sessions_class_node_id_fkey(name), assessment_definitions(title)")
         .in("id", semuaSesi)
     : { data: [] };
   const satu = <T,>(v: T | T[] | null | undefined): T | null => (Array.isArray(v) ? v[0] ?? null : v ?? null);
