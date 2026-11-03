@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
-import { KODE_CABUT, type KodeCabut } from "@/lib/sertifikat-cabut-kontrak";
+import { KODE_CABUT, kodeDariGalat, type KodeCabut } from "@/lib/sertifikat-cabut-kontrak";
 import { wajibDalamKonteks } from "@/lib/konteks-server";
 import { sekolahSertifikat } from "@/lib/sertifikat-sekolah";
 
@@ -23,16 +23,6 @@ function kembali(id: string, hasil: "ok" | "gagal", kode?: KodeCabut): never {
   redirect(`/konfigurasi/sertifikat?${q.toString()}#cabut`);
 }
 
-/** The database's refusal, as one of the screen's codes. */
-export async function kodeDariGalat(e: { code?: string; message?: string; details?: string | null }): Promise<KodeCabut> {
-  const pesan = e.message ?? "";
-  if (e.details === "CERTIFICATE_ALREADY_REVOKED" || /already revoked/.test(pesan)) return "SUDAH_DICABUT";
-  if (/records why/.test(pesan)) return "ALASAN_WAJIB";
-  if (/requires CAN_PUBLISH/.test(pesan) || e.code === "42501") return "DITOLAK";
-  if (/unknown certificate/.test(pesan)) return "TIDAK_DITEMUKAN";
-  return "LAYANAN_TIDAK_TERSEDIA";
-}
-
 export async function cabutSertifikatAksi(fd: FormData) {
   const id = String(fd.get("sertifikat") ?? "");
   const alasan = String(fd.get("alasan") ?? "").trim();
@@ -42,6 +32,6 @@ export async function cabutSertifikatAksi(fd: FormData) {
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("revoke_certificate", { p_certificate: id, p_reason: alasan });
   if (!error) kembali(id, "ok");
-  const kode = await kodeDariGalat(error);
+  const kode = kodeDariGalat(error);
   kembali(id, "gagal", KODE_CABUT.includes(kode) ? kode : "LAYANAN_TIDAK_TERSEDIA");
 }
