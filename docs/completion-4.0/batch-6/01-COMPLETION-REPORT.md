@@ -5,7 +5,7 @@
 - The owner's four rulings before implementation (D-160).
 
 **Where the work is:**
-- Development branch `claude/awesome-rubin-bqxp6p`.
+- Development branch `claude/awesome-rubin-bqxp6p`. The code head is `92aa3b2` (CI and the journeys green on it, §2a); the commits after it are documents only.
 - Nothing is merged to `main`; nothing is deployed to staging. Production is untouched. Dr Gladys's demonstration records are untouched. The staging freeze holds (D-158).
 
 **Verdict: IMPLEMENTED AND VERIFIED ON THE BRANCH, AS FAR AS ENGINEERING CAN GO. Stopped at the promotion gate.**
@@ -42,17 +42,17 @@
 | Static suite after integration | all Batch 6 guards and every restated test green |
 | Typecheck · lint | clean · 0 errors |
 | A4 print walk (`audit/b6-cetak.mjs`) | 4/4 PASS |
-| `ci` on the final head | see §2a |
-| End-to-end journeys on the final head | see §2a |
+| `ci` on the code head `92aa3b2` | **success** (41736195658) |
+| End-to-end journeys on `92aa3b2` | **success** (41736200006) |
 
 **§2a CI**
 
 | Run | Head | Result |
 |---|---|---|
 | `ci` 41734258404 | `74b36c7` | **failure, ours.** The lint step rejected two evidence scripts the certificate stream committed (`require()` in `.cjs`). Fixed in `92aa3b2`: they are ES modules now, the pattern `audit/` uses. Kept as failed. |
-| journeys 41734264618 | `74b36c7` | superseded by the fix (cancelled or left to finish; not counted) |
-| `ci` 41736195658 | `92aa3b2` | *filled when it completes* |
-| journeys 41736200006 | `92aa3b2` | *filled when it completes* |
+| journeys 41734264618 | `74b36c7` | cancelled: superseded by the fix (not counted) |
+| `ci` 41736195658 | `92aa3b2` | **success**: 18 of 18 jobs, including `selftest contract (strict, local stack)` and the required `verdict` |
+| journeys 41736200006 | `92aa3b2` | **success**, both jobs. Job A: every role's screens, Studio, Batch 4 administration, the Batch 5 walk, **the A4 print of each surface (Batch 6)**, the Batch 5 focused checks. Job B: Gladys's path from an empty database, including **the issued certificate printed as one A4 page** (STU17) |
 
 **Tests restated (none weakened; each states why):**
 - **UX1-S0-TOKEN-01:** the 1123 px and 72 px exemptions are gone. The sheet is now set in mm, so the allow-list is narrower.
