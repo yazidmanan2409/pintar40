@@ -48,6 +48,13 @@ const INTRINSIC_HEIGHT = 429;
 /** The brand name, as it appears in the artwork. A proper noun; never translated. */
 const NAMA = "PINTAR SELALU";
 
+/**
+ * The supplied artwork, for the one other place that places it whole: the printed certificate's wordmark slot
+ * (src/components/sertifikat/MerekSertifikat.tsx, D-160(a)), until the licensed wordmark master replaces it there.
+ * Named here only, so the asset still has one renderer's module (UX1-BRAND-02).
+ */
+export const BERKAS_MEREK = { src: "/brand/pintar-selalu-logo.png", lebar: INTRINSIC_WIDTH, tinggi: INTRINSIC_HEIGHT } as const;
+
 export default function MerekPintar({ standalone = false }: { standalone?: boolean }) {
   return (
     /* A plain <img>, deliberately, and the same choice BarisLingkup made.
@@ -57,7 +64,7 @@ export default function MerekPintar({ standalone = false }: { standalone?: boole
        a way of altering artwork we were told not to alter. */
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/brand/pintar-selalu-logo.png"
+      src={BERKAS_MEREK.src}
       alt={NAMA}
       width={INTRINSIC_WIDTH}
       height={INTRINSIC_HEIGHT}

@@ -4157,6 +4157,31 @@
       "proves": "W2.10 (Batch 5; CR-49, D-153), selftest/b5.test.ts: the source of Aktivasi (src/app/aktivasi/page.tsx, src/components/aktivasi/CariTunggu.tsx, src/components/aktivasi/cari-pemegang.ts) reads the people waiting for an account a page of 20 from persons_awaiting_account_page, narrowed to the working context's school and searched by the address's words, with the total and a pager keeping the words, never persons_awaiting_account whole; new words start at the first page; every word in both languages in the copy table."
     },
     {
+      "id": "B6C-QR-01",
+      "runner": "static",
+      "proves": "W3.19 / D-160(b) (Batch 6), selftest/b6c.test.ts: src/lib/qr.ts encodes byte mode at level Q as well as M; a verification link carrying the 43-character token (ADR-0012), at four lengths, decodes back exactly through jsQR and its format information reads level Q; the default stays level M; the printed certificate (src/components/sertifikat/KodeVerifikasi.tsx, cetak) asks for Q, the on-screen tile and the Digital Card keep M; an input past capacity is refused."
+    },
+    {
+      "id": "B6C-SHEET-01",
+      "runner": "static",
+      "proves": "W3.19 / CR-03 / CR-04 / J8.4 (Batch 6; D-076, D-120 Q16, D-160(a)), selftest/b6c.test.ts: the A4 sheet rendered from the real src/components/sertifikat/KartuSertifikat.tsx and measured in src/app/experience.css is Daisy's sertifikat/ronde-2: A4 in mm; «SERTIFIKAT PENGUASAAN» 12 pt in the accent at 22 mm on the 20 mm margin with the wordmark slot (src/components/sertifikat/MerekSertifikat.tsx, today's approved logo) on its baseline at a 3.15 mm cap height, at least 15 mm wide; name 33 pt, «telah menuntaskan» 12 pt, course 16.5 pt; the record on the page's axis ending 16 mm above the line, the number Plex Mono 12 pt unbroken, stepping 12 / 10.5 / 9.75 pt (src/lib/sertifikat-lembar.ts); the gold line centred at 176 mm, 0.75 mm; the band 176-210 mm inset 10 mm with «Diterbitkan oleh» 9 pt over the school 16.5 pt; the verification group 92 + 12 + 26 mm at 236 mm; plum #725471 or sage #446A4B; no phone rule reaches the sheet."
+    },
+    {
+      "id": "B6C-PRINT-01",
+      "runner": "static",
+      "proves": "DAISY-36 / W3.22 (Batch 6), selftest/b6c.test.ts: src/app/experience.css gives the sheet @page sertifikat (A4 portrait, margin 0), prints it at exactly 210 x 297 mm without a break and with print-color-adjust: exact, and a page holding it prints nothing else; every part of src/app/belajar/[tugas]/sertifikat/page.tsx around the sheet is pin-noprint; one action «Cetak atau simpan PDF» (src/components/sertifikat/AksiCetak.tsx) names the saved file «Sertifikat Penguasaan · <course>» while printing and restores the title; sertifikat.penerbit, sertifikat.berkas and the English of sertifikat.diberikan are in src/lib/hle.ts in both languages."
+    },
+    {
+      "id": "B6C-FOTO-01",
+      "runner": "static",
+      "proves": "D-085 T4, D-086(e), D-160(c) (Batch 6), selftest/b6c.test.ts: the certificate's component, page and parts never read a photograph or a mark URL; the rendered sheet, given both, draws exactly the wordmark slot's approved logo and the QR and nothing else; the sheet's rules draw no border, image or watermark, and it carries no signature or seal."
+    },
+    {
+      "id": "B6C-DATA-01",
+      "runner": "static",
+      "proves": "W3.19 (Batch 6), selftest/b6c.test.ts: the certificate page's data rules (src/app/belajar/[tugas]/sertifikat/page.tsx, rendered through src/components/sertifikat/KartuSertifikat.tsx) are unchanged: the sheet renders only for ISSUED, a revoked or other non-issued certificate shows no QR and no link on screen or sheet and keeps its «dicabut» banner; the verification URL is the page's own (appUrl + /verifikasi/ + the token), the sheet's QR decodes to it exactly and the printed link is it without https://; name, course, school, number, date and descriptor are the credential's."
+    },
+    {
       "id": "F26-W01",
       "runner": "db",
       "proves": "W2.10 (Batch 5; D-153; M7 and CR-91 kept), selftest/db/fable26.sql, migration 20261224100000: persons_awaiting_account_page answers 20 then 3 of 23 waiting by name with the total, by part of a name and by nomor induk, «%» as a word, nothing narrowed to another school, a staff member with no card; kelas_menunggu_akun counts the Kelas and no Tingkat; orang_kelas_menunggu_akun names exactly the 23 waiting learners each once in name order, not one with an account, an ENDED enrolment, a Tingkat membership or a staff role; a Guru and another school's admin read none of it; anon cannot run them."

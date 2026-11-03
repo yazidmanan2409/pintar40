@@ -1,0 +1,30 @@
+B6C evidence (W3.22, DAISY-36), 3 Nov 2026
+The real page /belajar/<assignment>/sertifikat on `next dev --webpack -p 3467`, signed in as the seeded learner
+«Aisyah (peraga)» holding the one ISSUED certificate in the local database (MYB4ERB9/00002, a 43-character token).
+Made by bukti.cjs (sign-in by magic link through the local Auth admin; reads only) and dekode.cjs.
+
+--- pdfinfo sertifikat-A4.pdf  (page.pdf({format:'A4', printBackground:true, preferCSSPageSize:true}))
+Title:           Sertifikat Penguasaan · Matematika · Pecahan Senilai   (the suggested file name, set on beforeprint)
+Pages:           1
+Page size:       594.96 x 841.92 pts (A4)
+
+--- pdfinfo sertifikat-A4-tanpa-latar.pdf  (printBackground:false: the band and the gold line still print,
+    print-color-adjust: exact; the file is identical)
+Pages:           1
+Page size:       594.96 x 841.92 pts (A4)
+
+--- the QR, decoded by jsQR from the PDF rasterised at 300 dpi (pdftoppm), both the crop at its place and the page
+{"crop":"http://localhost:3467/verifikasi/MsWaKOdeL0fVYqxZ-XHiWQyfqO3q2hwDA97SzRzygA4","wholePage":"http://localhost:3467/verifikasi/MsWaKOdeL0fVYqxZ-XHiWQyfqO3q2hwDA97SzRzygA4","version":7,"matchesExpected":true}
+= the verification URL the page builds (appUrl() + /verifikasi/ + token). Byte mode, level Q, version 7 (45 modules,
+0.58 mm a module at 26 mm).
+
+--- the tab's title while printing / after: ["Sertifikat Penguasaan · Matematika · Pecahan Senilai","Sertifikat · PINTAR"]
+
+--- measured in print emulation, mm from the sheet's top-left: ukuran-cetak.json
+sheet 210 × 297; header at 20/22; wordmark slot 17.6 × 3.15 at x 172.4 (right edge on the 20 mm margin);
+gold line top 175.62, 0.75 high, x 10, 190 wide; band top 176, 34 high; verification group x 40, top 236, 130 wide;
+QR x 144, top 236, 26 × 26; the number on one line; fonts Plus Jakarta Sans and IBM Plex Mono (the app's own);
+nothing outside the sheet visible in print.
+
+--- screen: layar-1280.png, lembar-layar-1280.png, layar-320.png (scrollWidth 320 at 320 px: no horizontal scroll);
+print-emulated A4 screenshot: cetak-A4.png

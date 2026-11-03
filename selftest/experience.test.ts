@@ -396,12 +396,11 @@ const PENDING_SURFACES: Record<string, string> = {
 const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
   { file: "src/app/experience.css", literal: "794px",
     reason: "A4 is 210mm; at 96dpi that is 794px. It is the paper, not a scale step." },
-  { file: "src/app/experience.css", literal: "1123px",
-    reason: "A4 is 297mm; at 96dpi that is 1123px. Same reason as the width." },
+  // RESTATED, B6C (Batch 6, Daisy's sertifikat/ronde-2): the sheet is now set in millimetres (210 x 297 mm, a 20 mm
+  // text margin), so its 1123px height and its 72px padding are gone from the stylesheet and their exemptions with
+  // them. 794px stays: the sheet's box on screen is still capped at the paper's width.
   { file: "src/app/experience.css", literal: "96px",
     reason: "The QR is square and printed at a fixed size a camera can resolve." },
-  { file: "src/app/experience.css", literal: "72px",
-    reason: "The printed sheet's margin, chosen for paper rather than for a screen rhythm." },
   { file: "src/app/experience.css", literal: "56px",
     reason: "The shell header's height: one control row, sized by the 40px control plus its padding." },
   { file: "src/app/experience.css", literal: "44px",
@@ -592,7 +591,9 @@ const CERT_FROZEN: Array<[string, boolean, string]> = [
   [".pin-cert .pin-name", false, "40px"], [".pin-cert .pin-course", false, "20px"],
   [".pin-cert .pin-name", true, "32px"], [".pin-cert .pin-course", true, "18px"],
   [".pin-sheet .pin-name", false, "44px"], [".pin-sheet .pin-course", false, "22px"],
-  [".pin-sheet .pin-inst", false, "15px"],
+  // RESTATED, B6C (Batch 6): Daisy's sertifikat/ronde-2 (D-076, frozen under D-120 Q16) sets the school in the band
+  // at 16.5 pt (22 px), «Diterbitkan oleh» above it; the 15 px line belonged to the round-1 sheet it replaces.
+  [".pin-sheet .pin-inst", false, "22px"],
 ];
 const RAW_COLOUR = /#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\s*\(/g;
 const RAW_LENGTH = /(?<![\w.-])\d+(?:\.\d+)?(?:px|rem|em|ch|%)/g;
@@ -1552,13 +1553,20 @@ export const experienceTests: SelfTest[] = [
         && new RegExp(`INTRINSIC_HEIGHT = ${h}\\b`).test(component),
         `the component's intrinsic dimensions do not match the file's ${w}x${h}`);
 
-      // 4. IT IS NOT ON THE CREDENTIAL. The certificate's issuer is the
-      //    INSTITUTION. A software vendor's mark on the same sheet would be a
-      //    second claimant to the provenance of the evidence.
-      const card = readFileSync(
-        join(repoRoot, "src", "components", "sertifikat", "KartuSertifikat.tsx"), "utf8");
+      // 4. NOT AS THE CREDENTIAL'S ISSUER. The certificate's issuer is the
+      //    INSTITUTION, named in «Diterbitkan oleh». RESTATED, B6C (Batch 6):
+      //    D-120 Q16 puts PINTAR's wordmark in the certificate's header, and
+      //    D-160(a) places today's approved logo in that one slot until the
+      //    licensed master exists. So the card still never renders the shell
+      //    mark (MerekPintar, .pin-merek) or names the asset itself; PINTAR
+      //    reaches the sheet only through the one wordmark-slot component,
+      //    exactly once, and the sheet's rules reference no brand asset.
+      const card = code(readFileSync(
+        join(repoRoot, "src", "components", "sertifikat", "KartuSertifikat.tsx"), "utf8"));
       c.expect(!/MerekPintar|pin-merek|brand\//.test(card),
-        "the credential card renders the PINTAR SELALU mark; the certificate's issuer is the institution");
+        "the credential card renders the shell's PINTAR SELALU mark; PINTAR reaches the certificate only through its wordmark slot");
+      c.expect((card.match(/<MerekSertifikat \/>/g) ?? []).length === 1,
+        "the certificate's wordmark is not drawn once, by its one slot component");
       const sheet = /\.pin-sheet\b[^{]*\{([^}]*)\}/.exec(css);
       c.expect(sheet === null || !/brand\//.test(sheet[1]), "the printed sheet references the brand asset");
 
@@ -1574,7 +1582,8 @@ export const experienceTests: SelfTest[] = [
         "the mark rendered by the application is the supplied artwork in public/brand/pintar-selalu-logo.png " +
           "byte for byte -- verified by sha256, so a recompression or a resize fails -- its intrinsic geometry " +
           "is read from the PNG header rather than trusted, the style rule sets a height and never a width so " +
-          "the letterforms cannot be squashed, and it appears on no surface that prints a credential",
+          "the letterforms cannot be squashed, and a printed credential carries it only in its one wordmark slot (D-120 Q16, D-160(a)), " +
+          "never as the shell mark or the issuer",
       );
     },
   },
@@ -2327,7 +2336,11 @@ export const experienceTests: SelfTest[] = [
         // gap that is not there
         stacked += r.sel.split(",").length;
       }
-      c.expect(sheet === 1, `${sheet} sheet exception(s); the paper is the one thing that does not narrow`);
+      // RESTATED, B6C (Batch 6): the sheet no longer draws its record with .pin-facts (Daisy's ronde-2 record is its own
+      // block on the page's axis), so there is no sheet exception to keep. The rule it guarded is held more strongly:
+      // no phone rule reaches into the sheet at all, so nothing narrows the paper.
+      c.expect(sheet === 0, `${sheet} sheet rule(s) narrow .pin-facts; the sheet has no fact summary to keep`);
+      c.expect(!/\.pin-sheet|\.pin-s-/.test(phone), "a phone rule reaches into the A4 sheet, which is scaled whole and never reflowed");
 
       // 3. every selector that narrows .pin-facts anywhere is covered above,
       //    including the ones that outrank the plain class

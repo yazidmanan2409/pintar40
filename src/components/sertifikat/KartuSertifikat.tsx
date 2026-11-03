@@ -1,5 +1,7 @@
 import { t, format, type Locale } from "@/lib/hle";
+import { ukuranNomor, tautanCetak, type KonteksSertifikat } from "@/lib/sertifikat-lembar";
 import KodeVerifikasi from "./KodeVerifikasi";
+import MerekSertifikat from "./MerekSertifikat";
 
 export type Kredensial = {
   institution: string | null;
@@ -34,34 +36,42 @@ export type Kredensial = {
  * `verificationUrl` is null for every state except ISSUED, and the whole verify
  * block disappears with it — see `rendersVerification` and the note on ELIGIBLE
  * in src/lib/sertifikat.ts.
+ *
+ * TWO DRAWINGS OF THE SAME CREDENTIAL, from the same `cred`: the on-screen card
+ * (`screen`), and the A4 sheet (`sheet`), which is Daisy's frozen composition
+ * (sertifikat/ronde-2; D-076, D-120 Q16, D-160) — see `LembarSertifikat` below.
  */
 export default function KartuSertifikat({
   cred,
   locale,
   variant = "screen",
+  konteks = "akademik",
 }: {
   cred: Kredensial;
   locale: Locale;
   variant?: "screen" | "sheet";
+  /** The accent's learning context (Daisy §5); only the sheet draws it. */
+  konteks?: KonteksSertifikat;
 }) {
   const s = (k: Parameters<typeof t>[0]) => t(k, "learner", { locale });
-  const body = (
-    <>
-      <div className={variant === "sheet" ? "pin-s-top" : undefined}>
+  if (variant === "sheet") return <LembarSertifikat cred={cred} locale={locale} konteks={konteks} />;
+  return (
+    <article className="pin-cert">
+      <div>
         {cred.institution ? <p className="pin-inst">{cred.institution}</p> : null}
         <div className="pin-rule" aria-hidden="true" />
       </div>
 
-      <div className={variant === "sheet" ? "pin-s-mid" : undefined}>
+      <div>
         <p className="pin-eyebrow">{s("sertifikat.jenis")}</p>
         <h1 className="pin-name">{cred.nameAsIssued}</h1>
         <p className="pin-done">{s("sertifikat.diberikan")}</p>
         <p className="pin-course">{cred.course}</p>
       </div>
 
-      {variant === "screen" ? <hr /> : null}
+      <hr />
 
-      <div className={variant === "sheet" ? "pin-s-low" : undefined}>
+      <div>
         <dl className="pin-facts">
           {/* D-121(a): PINTAR's descriptor has no band below 70%, so a learner who passed a lower school mark holds a
               certificate with no descriptor, and the line is absent rather than a dash */}
@@ -83,7 +93,7 @@ export default function KartuSertifikat({
 
         {cred.verificationUrl ? (
           <>
-            {variant === "screen" ? <hr /> : null}
+            <hr />
             <div className="pin-verify">
               <KodeVerifikasi url={cred.verificationUrl} label={s("sertifikat.periksa.judul")} />
               <div>
@@ -95,9 +105,81 @@ export default function KartuSertifikat({
           </>
         ) : null}
       </div>
-    </>
+    </article>
   );
+}
 
-  if (variant === "sheet") return <div className="pin-sheet">{body}</div>;
-  return <article className="pin-cert">{body}</article>;
+/**
+ * THE A4 SHEET, AS DESIGNED (Daisy, sertifikat/ronde-2; the grid in src/lib/sertifikat-lembar.ts, the millimetres
+ * in `.pin-sheet`). Achievement → Issuer → Verification, on one A4 portrait page:
+ *
+ *   header        «SERTIFIKAT PENGUASAAN» in the accent, upper left; the wordmark slot upper right (MerekSertifikat,
+ *                 D-160(a): today's approved logo, artwork and never live text)
+ *   achievement   the name as issued, «telah menuntaskan», the course; centred
+ *   record        Predikat (only when there is one, D-121(a)), Tanggal terbit, Nomor sertifikat, labels meeting the
+ *                 values at the page's axis; the number one unbroken value, stepping down the ladder only when long
+ *   the line      gold, at 176 mm, 0.75 mm, on the band's top edge
+ *   issuer        the band in the accent: «Diterbitkan oleh» over the school's name as recorded — text, no school
+ *                 logo (D-160(c))
+ *   verification  «Periksa keaslian», its sentence, the printed link; the QR (level Q, D-160(b)) beside them
+ *
+ * NOTHING ELSE IS DRAWN (Daisy §1, D-076, D-085 T4, D-086(e)): no picture of the holder, no school logo, no
+ * signature, seal, border, watermark or flourish. The only images on the sheet are the wordmark slot and the QR.
+ * The verification group exists only for an ISSUED certificate, as on screen (`verificationUrl` is null otherwise).
+ */
+function LembarSertifikat({ cred, locale, konteks }: { cred: Kredensial; locale: Locale; konteks: KonteksSertifikat }) {
+  const s = (k: Parameters<typeof t>[0]) => t(k, "learner", { locale });
+  const pt = ukuranNomor(cred.certificateNumber);
+  const nomorKelas = pt === 12 ? "pin-s-nomor" : `pin-s-nomor pin-s-nomor-${String(pt).replace(".", "")}`;
+  // the course's middle dot stays with the subject: a line never starts «· Bab 5» (Daisy §1)
+  const kursus = cred.course.replace(/ · /g, " · ");
+  return (
+    <div className={`pin-sheet ${konteks === "profesi" ? "pin-s-profesi" : "pin-s-akademik"}`}>
+      <div className="pin-s-kepala">
+        <p className="pin-s-jenis">{s("sertifikat.jenis")}</p>
+        <MerekSertifikat />
+      </div>
+
+      <div className="pin-s-capaian">
+        <h1 className="pin-name">{cred.nameAsIssued}</h1>
+        <p className="pin-done">{s("sertifikat.diberikan")}</p>
+        <p className="pin-course">{kursus}</p>
+      </div>
+
+      <dl className="pin-s-rekam">
+        {/* D-121(a): no descriptor, no line — never a dash */}
+        {cred.predikat ? (
+          <div>
+            <dt>{s("sertifikat.predikat")}</dt>
+            <dd>{cred.predikat}</dd>
+          </div>
+        ) : null}
+        <div>
+          <dt>{s("sertifikat.tanggal")}</dt>
+          <dd>{format.date(cred.issuedAtIso, locale)}</dd>
+        </div>
+        <div>
+          <dt>{s("sertifikat.nomor")}</dt>
+          <dd className={nomorKelas}>{cred.certificateNumber}</dd>
+        </div>
+      </dl>
+
+      <div className="pin-s-garis" aria-hidden="true" />
+      <div className="pin-s-pita">
+        <p className="pin-s-label">{s("sertifikat.penerbit")}</p>
+        {cred.institution ? <p className="pin-inst">{cred.institution}</p> : null}
+      </div>
+
+      {cred.verificationUrl ? (
+        <div className="pin-s-periksa">
+          <div className="pin-s-teks">
+            <h3>{s("sertifikat.periksa.judul")}</h3>
+            <p>{s("sertifikat.periksa.arti")}</p>
+            <p className="pin-s-tautan">{tautanCetak(cred.verificationUrl)}</p>
+          </div>
+          <KodeVerifikasi url={cred.verificationUrl} label={s("sertifikat.periksa.judul")} cetak />
+        </div>
+      ) : null}
+    </div>
+  );
 }
