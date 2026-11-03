@@ -428,7 +428,8 @@ export const bob28AppTests: SelfTest[] = [
       c.expect(m1.status === 200 && !keMasuk(await lamaB.kirim("/belajar")), `the first card could not sign in (${m1.status})`);
 
       // the screen's list, then the re-issue
-      const halaman = await sys.kirim("/aktivasi");
+      // W2.10 (Batch 4; CAP-10): the holders are searched on the server, so the screen is asked with the learner's name
+      const halaman = await sys.kirim(`/aktivasi?cari_kartu=${encodeURIComponent(nama)}`);
       c.expect(halaman.status === 200 && (await halaman.text()).includes(nama), "Aktivasi does not list the learner under «Kartu hilang atau rusak»");
       const tanpaAlasan = await sys.jsonDari("/api/akun/kartu-kelas", { json: { person_id: murid, alasan: "DICURI" } });
       const ulang = await sys.jsonDari("/api/akun/kartu-kelas", { json: { person_id: murid, alasan: "HILANG" } });

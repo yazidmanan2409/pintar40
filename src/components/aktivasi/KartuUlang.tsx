@@ -6,6 +6,8 @@ import BarisHasil from "@/components/BarisHasil";
 import Kosong from "@/components/Kosong";
 import { bacaJawabanKartuUlang, type AlasanKartuUlang, type JawabanKartuUlang } from "@/lib/kartu-ulang-kontrak";
 import LembarKartu, { type KartuCetak } from "./LembarKartu";
+import { useCariDiAlamat } from "./cari-pemegang";
+import { kataAman } from "@/lib/pemegang-kartu";
 
 export type PemegangKartu = { person_id: string; display_name: string; institutional_id: string; card_last4: string };
 
@@ -19,10 +21,13 @@ export type PemegangKartu = { person_id: string; display_name: string; instituti
  * account, class and every result. The list is the database's own
  * (card_holders): the schools the reader provisions people in, and only the
  * card number's last four digits.
+ *
+ * W2.10 (Batch 4; CAP-10): the search is the server's: `pemegang` is at most twenty matches for the words the page was
+ * asked with (`dicari`), `ada` whether there is anyone at all; typing changes the words in the address.
  */
-export default function KartuUlang({ locale, pemegang }: { locale: Locale; pemegang: PemegangKartu[] }) {
+export default function KartuUlang({ locale, pemegang, ada, dicari }: { locale: Locale; pemegang: PemegangKartu[]; ada: boolean; dicari: string }) {
   const s = (k: HleEvent) => t(k, "staff", { locale });
-  const [cari, setCari] = useState("");
+  const [cari, setCari] = useCariDiAlamat("cari_kartu");
   const [akhiran, setAkhiran] = useState<Record<string, string>>({});
   const [pilih, setPilih] = useState<{ id: string; alasan: AlasanKartuUlang | null } | null>(null);
   const [sibuk, setSibuk] = useState(false);
@@ -36,7 +41,8 @@ export default function KartuUlang({ locale, pemegang }: { locale: Locale; pemeg
   }, [lembar]);
 
   const kata = cari.trim().toLowerCase();
-  const cocok = kata ? pemegang.filter((p) => p.display_name.toLowerCase().includes(kata) || p.institutional_id.toLowerCase().includes(kata)) : [];
+  const cocok = kata ? pemegang : [];
+  const terjawab = kata !== "" && kataAman(cari).toLowerCase() === dicari.toLowerCase();
 
   async function terbitkan(p: PemegangKartu, alasan: AlasanKartuUlang) {
     if (berjalan.current) return;
@@ -69,7 +75,7 @@ export default function KartuUlang({ locale, pemegang }: { locale: Locale; pemeg
     <section className="pin-sec" aria-labelledby="pin-akt-ulang">
       <h2 id="pin-akt-ulang">{s("aktivasi.ulang.judul")}</h2>
       <p className="pin-meta">{s("aktivasi.ulang.arti")}</p>
-      {pemegang.length === 0 ? (
+      {!ada ? (
         // W3.2 (Batch 2): an empty state, not a result. As BarisHasil it scrolled itself into view on load, which moved the
         // browser's Tab starting point to the foot of the page, so the first Tab skipped «Langsung ke isi» (found on /aktivasi).
         <Kosong jenis="belum" kalimat={s("aktivasi.ulang.kosong")} />
@@ -79,7 +85,7 @@ export default function KartuUlang({ locale, pemegang }: { locale: Locale; pemeg
             <span className="pin-meta">{s("aktivasi.ulang.cari")}</span>
             <input className="pin-input" type="search" value={cari} onChange={(e) => setCari(e.target.value)} autoComplete="off" spellCheck={false} />
           </label>
-          {kata && cocok.length === 0 ? <p className="pin-meta">{s("aktivasi.ulang.tidak_ketemu")}</p> : null}
+          {terjawab && cocok.length === 0 ? <p className="pin-meta">{s("aktivasi.ulang.tidak_ketemu")}</p> : null}
           <ul className="pin-lap-baris">
             {cocok.slice(0, 20).map((p) => {
               const dipilih = pilih?.id === p.person_id;

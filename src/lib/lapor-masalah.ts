@@ -1,6 +1,6 @@
 import "server-only";
 import { supabaseServer } from "@/lib/supabase/server";
-import type { StatusLaporan } from "@/lib/lapor-masalah-kontrak";
+import { rentangTriase, type StatusLaporan } from "@/lib/lapor-masalah-kontrak";
 
 export * from "@/lib/lapor-masalah-kontrak";
 
@@ -60,15 +60,34 @@ export async function laporanSaya(): Promise<LaporanMasalah[]> {
 
 /**
  * The triage list: the reports of the schools this reader administers (or every report, for Admin platform), open
- * ones first, a stopped class first among them, then the oldest waiting first. Row security decides the set.
+ * ones first, a stopped class first among them, then the oldest waiting first; the finished ones after, the newest
+ * first. Row security decides the set.
+ *
+ * W2.10 (Batch 4; CR-49, CAP-10): one page at a time (20), in that order, the database doing the ordering, so a
+ * platform with every school's reports never reads them all; `lagi` says whether another page follows. The open
+ * reports are counted first, so a page that crosses from the open ones to the finished ones reads both.
  */
-export async function laporanTriase(sekolah: readonly string[] | null): Promise<LaporanMasalah[]> {
+export async function laporanTriase(sekolah: readonly string[] | null, halaman = 1, ukuran = 20): Promise<{ isi: LaporanMasalah[]; lagi: boolean }> {
   const c = await supabaseServer();
-  let q = c.from("support_reports").select(KOLOM);
-  if (sekolah) q = q.in("institution_id", sekolah.length ? [...sekolah] : ["00000000-0000-0000-0000-000000000000"]);
-  const { data } = await q.order("created_at", { ascending: true }).limit(200);
-  const urut: Record<StatusLaporan, number> = { DITERIMA: 0, DITANGANI: 1, SELESAI: 2 };
-  return ((data ?? []) as unknown as Baris[]).map(ubah)
-    .sort((a, b) => urut[a.status] - urut[b.status] || Number(b.hentikanKelas) - Number(a.hentikanKelas)
-      || (a.status === "SELESAI" ? b.dibuat.localeCompare(a.dibuat) : a.dibuat.localeCompare(b.dibuat)));
+  const lingkup = sekolah ? (sekolah.length ? [...sekolah] : ["00000000-0000-0000-0000-000000000000"]) : null;
+  const dasar = (kolom: string, opsi?: { count: "exact"; head: true }) => {
+    const q = c.from("support_reports").select(kolom, opsi);
+    return lingkup ? q.in("institution_id", lingkup) : q;
+  };
+  const { count: terbuka } = await dasar("id", { count: "exact", head: true }).neq("status", "SELESAI");
+  const nTerbuka = terbuka ?? 0;
+  const { terbuka: rTerbuka, selesai: rSelesai } = rentangTriase(halaman, ukuran, nTerbuka);
+  const baris: Baris[] = [];
+  if (rTerbuka) {
+    const { data } = await dasar(KOLOM).neq("status", "SELESAI")
+      .order("status").order("stops_class", { ascending: false }).order("created_at").order("id")
+      .range(...rTerbuka);
+    baris.push(...((data ?? []) as unknown as Baris[]));
+  }
+  if (rSelesai) {
+    const { data } = await dasar(KOLOM).eq("status", "SELESAI").order("created_at", { ascending: false }).order("id")
+      .range(...rSelesai);
+    baris.push(...((data ?? []) as unknown as Baris[]));
+  }
+  return { isi: baris.slice(0, ukuran).map(ubah), lagi: baris.length > ukuran };
 }

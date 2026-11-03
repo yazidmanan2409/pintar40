@@ -4002,6 +4002,17 @@
       "id": "B4-PINDAH-K01",
       "runner": "static",
       "proves": "W2.15 (Batch 4, F-10 / D-152(c)), selftest/b4.test.ts: Konfigurasi · Perpindahan finds a destination school through cari_sekolah_tujuan (exact name or code), requests the transfer through transfer_minta, and shows the receiving school its incoming requests (pindah_masuk) to accept into its own school year through transfer_terima (src/app/konfigurasi/actions.ts); every sentence in both languages."
+    },
+    {
+      "id": "F24-H01",
+      "runner": "db",
+      "proves": "W2.10 (Batch 4; CR-49, CAP-10), measured in selftest/db/fable24.sql against supabase/migrations/20261221100000_maintenance_windows_and_notices_are_listed_a_page_at_a_time.sql: maintenance_list answers 20 windows and 20 notices a page with whether more follow; narrowed to a school it lists that school's windows (21 found once each across two pages), never another school's window or a platform-wide notice; a school admin sees their school's windows in its context (the browser's name-for-id filter showed none); a Guru is refused.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "B4-HAL-K01",
+      "runner": "static",
+      "proves": "W2.10 (Batch 4; CR-49, CAP-10), selftest/b4.test.ts: in «Seluruh platform» Konfigurasi reads the schools a page at a time (range, with the next page known) and only those schools' years; the problem reports are read a page at a time in the database's order (open first, a stopped class first, the oldest waiting first; then the finished, newest first), the page crossing from open to finished read correctly (executed against the paging arithmetic); the maintenance windows and notices are maintenance_list's pages, narrowed to the school by the database; Aktivasi's class-card holders are searched on the server, at most twenty, never sent whole; each list has its pager."
     }
   ]
 }

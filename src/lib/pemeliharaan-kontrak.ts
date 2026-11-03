@@ -170,7 +170,8 @@ export type PengumumanKelola = {
   boleh: boolean;
 };
 
-export type DaftarKelola = { pemeliharaan: JendelaKelola[]; pengumuman: PengumumanKelola[] };
+/** W2.10: one page of each, and whether another page of each follows. */
+export type DaftarKelola = { pemeliharaan: JendelaKelola[]; pengumuman: PengumumanKelola[]; lagiPemeliharaan: boolean; lagiPengumuman: boolean };
 
 /** The administrator's list read back, dropping anything of the wrong shape. */
 export function bacaDaftarKelola(data: unknown): DaftarKelola {
@@ -199,7 +200,7 @@ export function bacaDaftarKelola(data: unknown): DaftarKelola {
       platform: x.platform === true, boleh: x.boleh === true,
     });
   }
-  return { pemeliharaan: jendela, pengumuman };
+  return { pemeliharaan: jendela, pengumuman, lagiPemeliharaan: d.lagi_pemeliharaan === true, lagiPengumuman: d.lagi_pengumuman === true };
 }
 
 /**

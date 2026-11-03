@@ -120,7 +120,8 @@ type SearchParams = Promise<{
   // D-101 (2): «Admin sekolah» named on Peran & akses, waiting for its second press
   angkat?: string; lingkup?: string; sampai?: string; pertama?: string;
   // L4 (CR-88): the page of each bounded list
-  hal_pindah?: string; hal_jejak?: string; hal_peran?: string;
+  hal_pindah?: string; hal_jejak?: string; hal_peran?: string; hal_sekolah?: string; hal_lapor?: string;
+  hal_jendela?: string; hal_pengumuman?: string;
 }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
@@ -181,22 +182,33 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   // row security as before, instead of a second request listing every id, whose address outgrew what the server
   // accepts at platform scale (staging's 400s, and every name an 8-character fragment).
   const semuaSekolah = lama && isSys === true;
+  const halSekolah = halamanDiminta(sp.hal_sekolah);
+  const halLapor = halamanDiminta(sp.hal_lapor);
+  const halJendela = halamanDiminta(sp.hal_jendela);
+  const halPengumuman = halamanDiminta(sp.hal_pengumuman);
   const tanpaBaris = Promise.resolve({ data: [] as never[] });
   const enrolmen = supabase.from("enrollments")
     .select("id, person_id, institution_id, academic_period_id, status, member_kind, persons(display_name)").eq("status", "ACTIVE");
   const jejak = supabase.from("audit_log").select("id, at, action, target_table, target_id, institution_id, build_sha");
 
   const [
-    { data: institutions }, { data: periods }, { data: nodes }, { data: enrollments }, { data: transfers },
+    { data: institutionsDibaca }, { data: periodsDibaca }, { data: nodes }, { data: enrollments }, { data: transfers },
     { data: assignments }, { data: audit }, { data: lint, error: lintError }, { data: env },
     { data: awaiting }, [{ data: reportTemplates }, { data: templateMetrics }, { data: metricDefs }],
   ] = await Promise.all([
     satuSekolah
       ? supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").eq("id", satuSekolah)
-      : supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
+      // W2.10 (Batch 4; CR-49, CAP-10): «Seluruh platform» lists the schools a page at a time, never every school at once
+      : platformKonteks
+        ? supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name").order("id")
+            .range(...rentang(halSekolah))
+        : supabase.from("institutions").select("id, name, slug, is_synthetic, is_active, tenant_kind").order("name"),
     satuSekolah
       ? supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").eq("institution_id", satuSekolah).order("starts_on")
-      : supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").order("starts_on"),
+      // W2.10: in «Seluruh platform» the school years of the page's schools alone, read below
+      : platformKonteks
+        ? tanpaBaris
+        : supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on").order("starts_on"),
     satuSekolah
       ? supabase.from("org_nodes").select("id, institution_id, kind, name, academic_period_id, is_active, jalur").eq("institution_id", satuSekolah).order("name")
       : platformKonteks
@@ -260,6 +272,16 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     ]),
   ]);
 
+  // W2.10: one page of schools in «Seluruh platform» (one row more was read, so the next page's existence is known), and
+  // the school years of those schools alone
+  const lagiSekolah = platformKonteks && (institutionsDibaca ?? []).length > UKURAN;
+  const institutions = platformKonteks ? (institutionsDibaca ?? []).slice(0, UKURAN) : institutionsDibaca;
+  const { data: periodsHalaman } = platformKonteks && (institutions ?? []).length > 0
+    ? await supabase.from("academic_periods").select("id, institution_id, name, starts_on, ends_on")
+        .in("institution_id", (institutions ?? []).map((i) => i.id)).order("starts_on")
+    : { data: null };
+  const periods = platformKonteks ? (periodsHalaman ?? []) : periodsDibaca;
+
   // DAISY-05. The school whose structure is shown: an active, real school the
   // reader administers -- never the national library, whose name sorts first
   // (audit S7b) -- the one asked for if it is on offer, else the first. Its
@@ -315,8 +337,10 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const namaPindah = new Map(daftarPindah.map((x) => [String(x.person_id), namaDari(x.persons)] as const)
     .filter((x): x is readonly [string, string] => typeof x[1] === "string"));
   // L4 (CR-85): a transfer names the other school too; in a school's context only that school was read above
-  const sekolahPindah = [...new Set(([...(transfers ?? []), ...daftarPindah] as Array<{ from_institution_id: string; to_institution_id: string }>)
-    .flatMap((x) => [x.from_institution_id, x.to_institution_id]))]
+  // W2.10: and the trail names its schools, which in «Seluruh platform» are no longer all read above
+  const sekolahPindah = [...new Set([...([...(transfers ?? []), ...daftarPindah] as Array<{ from_institution_id: string; to_institution_id: string }>)
+    .flatMap((x) => [x.from_institution_id, x.to_institution_id]),
+    ...((audit ?? []) as Array<{ institution_id: string | null }>).map((r) => r.institution_id).filter((x): x is string => !!x)])]
     .filter((id) => !(institutions ?? []).some((i) => i.id === id));
   const { data: sekolahLain } = sekolahPindah.length > 0
     ? await supabase.from("institutions").select("id, name").in("id", sekolahPindah)
@@ -392,25 +416,24 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const pmMulai = sp.pm_mulai ? waktuWib(sp.pm_mulai) : null;
   const pmSelesai = waktuWib(sp.pm_selesai);
   const pmCek = sp.pm_cek === "1" && (pmPlatform || pmSekolah.length > 0) && (!sp.pm_mulai || pmMulai !== null);
-  const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan, peserta, catatanPd, laporan, kelolaSemua, { data: tabrakan }] = await Promise.all([
+  const [struktur, locale, { data: akar }, bolehPendataan, ketuntasan, peserta, catatanPd, { isi: laporan, lagi: lagiLapor }, kelolaSemua, { data: tabrakan }] = await Promise.all([
     bacaanStruktur, currentLocale(), bacaanAkar,
     // L3: sekolahPendataan is already the working context's school (none in «Seluruh platform»), /pendataan's own rule
     sekolahPendataan().then((x) => x.length > 0).catch(() => false),
     sekolahStruktur ? pelajaranDanBatas(supabase, sekolahStruktur.id) : Promise.resolve(null),
     sekolahStruktur ? formulirPeserta(sekolahStruktur.id) : Promise.resolve(null),
     tempatCatatan(),
-    laporanTriase(platformIni ? null : sekolahIni),
-    daftarKelola(),
+    laporanTriase(platformIni ? null : sekolahIni, halLapor),
+    daftarKelola({ jendela: halJendela, pengumuman: halPengumuman, sekolah: !lama && !platformKonteks ? satuSekolah : null }),
     pmCek
       ? supabase.rpc("maintenance_collisions", { p_platform: pmPlatform, p_institutions: pmPlatform ? [] : pmSekolah, p_starts_at: pmMulai, p_ends_at: pmSelesai })
       : Promise.resolve({ data: null }),
   ]);
   // L3: maintenance windows and notices of this context: the school's own in Mengelola · a school; every one the
   // reader may act on in «Seluruh platform» (and before L3, for an evaluation persona)
-  const kelola = kelolaSemua && !lama && !platformKonteks
-    ? { pemeliharaan: kelolaSemua.pemeliharaan.filter((w) => w.sekolah.some((x) => sekolahIni.includes(x))),
-        pengumuman: kelolaSemua.pengumuman.filter((n) => !n.platform) }
-    : kelolaSemua;
+  // W2.10 (Batch 4): the database narrows them to the school (maintenance_list's p_sekolah) and pages them; the
+  // browser compared the schools' names with the context's school id, so a school's own windows never showed
+  const kelola = kelolaSemua;
   const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
   // M9: the Kelas whose students «Pindah kelas» lists, if one was chosen, and
   // where they may go; J3.6: or a Tingkat whose learners are not yet in a Kelas.
@@ -824,6 +847,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 ))}
               </ul>
             )}
+            <Penomoran halaman={halLapor} lagi={lagiLapor} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_lapor", n, "laporan-masalah")} locale={locale} />
           </section>
 
           {/* #148 (D-094(a)(b)(g)(h), D-100). PEMELIHARAAN DAN PENGUMUMAN. Scheduling is two steps: the scope and the
@@ -932,6 +956,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             ) : (
               <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.kosong")}</p>
             )}
+            <Penomoran halaman={halJendela} lagi={kelola?.lagiPemeliharaan === true} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_jendela", n, "pemeliharaan")} locale={locale} />
 
             <h3 className="mt-4 text-sm font-medium">{sl("config.pemeliharaan.pengumuman")}</h3>
             <p className="mt-1 text-sm text-ink-2">{sl("config.pemeliharaan.pengumuman.arti")}</p>
@@ -985,6 +1010,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             ) : (
               <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.pengumuman.kosong")}</p>
             )}
+            <Penomoran halaman={halPengumuman} lagi={kelola?.lagiPengumuman === true} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_pengumuman", n, "pemeliharaan")} locale={locale} />
 
             {platformIni ? (
               <div className="mt-4 grid gap-2 rounded-[var(--radius-1)] border border-line-1 px-3 py-2" data-hentikan="1">
@@ -1067,6 +1093,9 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               ))}
               {(institutions ?? []).length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
+            {platformKonteks ? (
+              <Penomoran halaman={halSekolah} lagi={lagiSekolah} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_sekolah", n, "system")} locale={locale} />
+            ) : null}
           </section>
 
           {/* Period rollover (INV-23) */}

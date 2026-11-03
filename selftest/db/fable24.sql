@@ -20,6 +20,8 @@
 --            unauthorised search
 --   F24-E01  STUCK SENDS (W2.19, J1.9): email_send_stuck lists, for the platform admin only, the sends still waiting on
 --            the email server after N minutes, with their age; fresh and accepted sends are not listed
+--   F24-H01  MAINTENANCE A PAGE AT A TIME (W2.10): maintenance_list pages windows and notices (20) and narrows them to
+--            a school in the database
 --   F24-K02  THE CONVERSION'S REFUSALS: without a reason (REASON_REQUIRED), to a Guru and to another school's
 --            administrator (42501), for a person with no class card (CARD_NOT_FOUND), to an address an account
 --            already uses (EMAIL_TAKEN), to a malformed address (EMAIL_INVALID); a card's address moved without a live
@@ -376,6 +378,71 @@ begin
       v_probs := selftest.f24_note(v_probs, 'F24-E01', 'threw: ' || sqlerrm);
     end;
 
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F24-H01  MAINTENANCE WINDOWS AND NOTICES A PAGE AT A TIME (W2.10, CR-49, CAP-10)
+    -- ═══════════════════════════════════════════════════════════════════════
+    declare v_sys uuid; v_page1 jsonb; v_page2 jsonb; v_wb uuid; v_ids uuid[];
+    begin
+      perform selftest.as_owner();
+      select a.person_id into v_sys from public.accounts a join auth.users u on u.id = a.auth_user_id
+       where lower(u.email) = 'sysadmin@synthetic.pintar.test';
+      select i.id into v_beta from public.institutions i where i.slug like 'synth-beta-%' limit 1;
+      -- 21 of alpha's windows (one more than a page), one of beta's, 21 platform notices, all a month away
+      with w as (
+        insert into public.maintenance_windows (kind, platform, institution_ids, starts_at, ends_at, reason, created_by_person_id, created_at)
+        select 'PLANNED', false, array[v_a], now() + interval '30 days', now() + interval '30 days 1 hour', 'F24-H01 ' || g, v_sys,
+               now() + make_interval(secs => g)
+          from generate_series(1, 21) g returning maintenance_windows.id)
+      select array_agg(w.id) into v_ids from w;
+      insert into public.maintenance_windows (kind, platform, institution_ids, starts_at, ends_at, reason, created_by_person_id, created_at)
+      values ('PLANNED', false, array[v_beta], now() + interval '30 days', now() + interval '30 days 1 hour', 'F24-H01 beta', v_sys,
+              now() + interval '1 minute') returning maintenance_windows.id into v_wb;
+      insert into public.broadcast_notices (platform, message, publish_at, expires_at, created_by_person_id, created_at)
+      select true, 'F24-H01 ' || g, now() + interval '30 days', now() + interval '31 days', v_sys, now() + make_interval(secs => g)
+        from generate_series(1, 21) g;
+
+      perform selftest.as_user('sysadmin@synthetic.pintar.test');
+      v_page1 := public.maintenance_list(1, 1, null);
+      if jsonb_array_length(v_page1 -> 'pemeliharaan') <> 20 or (v_page1 ->> 'lagi_pemeliharaan')::boolean is not true
+         or jsonb_array_length(v_page1 -> 'pengumuman') <> 20 or (v_page1 ->> 'lagi_pengumuman')::boolean is not true then
+        v_probs := selftest.f24_note(v_probs, 'F24-H01', 'the first page is not 20 of each with more to follow: '
+          || jsonb_array_length(v_page1 -> 'pemeliharaan') || '/' || jsonb_array_length(v_page1 -> 'pengumuman'));
+      end if;
+      -- the notices' second page holds the 21st (a page is cut before it is numbered)
+      v_page2 := public.maintenance_list(1, 2, null);
+      select count(*) into v_n from jsonb_array_elements(v_page2 -> 'pengumuman') e where e ->> 'pesan' like 'F24-H01 %';
+      if v_n < 1 then v_probs := selftest.f24_note(v_probs, 'F24-H01', 'the notices'' second page is empty'); end if;
+      -- narrowed to alpha: alpha's windows only, the 21 across two pages with none repeated, no platform notice
+      v_page1 := public.maintenance_list(1, 1, v_a);
+      v_page2 := public.maintenance_list(2, 1, v_a);
+      if exists (select 1 from jsonb_array_elements((v_page1 -> 'pemeliharaan') || (v_page2 -> 'pemeliharaan')) e where (e ->> 'id')::uuid = v_wb) then
+        v_probs := selftest.f24_note(v_probs, 'F24-H01', 'beta''s window is listed in alpha''s context');
+      end if;
+      select count(distinct e ->> 'id') into v_n from jsonb_array_elements((v_page1 -> 'pemeliharaan') || (v_page2 -> 'pemeliharaan')) e
+       where (e ->> 'id')::uuid = any (v_ids);
+      if v_n <> 21 or jsonb_array_length(v_page1 -> 'pemeliharaan') <> 20 then
+        v_probs := selftest.f24_note(v_probs, 'F24-H01', 'alpha''s 21 windows are not found once each across two pages: ' || v_n);
+      end if;
+      if exists (select 1 from jsonb_array_elements(v_page1 -> 'pengumuman') e where (e ->> 'platform')::boolean) then
+        v_probs := selftest.f24_note(v_probs, 'F24-H01', 'a platform-wide notice is listed in a school''s context');
+      end if;
+      -- the defect the browser filter had: alpha's admin, in alpha's context, sees alpha's windows
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      v_page1 := public.maintenance_list(1, 1, v_a);
+      select count(*) into v_n from jsonb_array_elements(v_page1 -> 'pemeliharaan') e where (e ->> 'id')::uuid = any (v_ids);
+      if v_n <> 20 then
+        v_probs := selftest.f24_note(v_probs, 'F24-H01', 'alpha''s admin sees ' || v_n || ' of alpha''s windows on the first page');
+      end if;
+      -- a Guru is refused, as #148
+      perform selftest.as_user('alpha-guru@synthetic.pintar.test');
+      v_err := selftest.f23_raised('select public.maintenance_list()');
+      if v_err is null then v_probs := selftest.f24_note(v_probs, 'F24-H01', 'a Guru read the maintenance list'); end if;
+      perform selftest.as_owner();
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f24_note(v_probs, 'F24-H01', 'threw: ' || sqlerrm);
+    end;
+
     raise exception 'F24_ROLLBACK';
   exception when others then
     perform selftest.as_owner();
@@ -384,10 +451,10 @@ begin
   perform selftest.as_owner();
 
   for r in select * from unnest(
-      array['F24-K01', 'F24-K02', 'F24-O01', 'F24-P01', 'F24-P02', 'F24-E01'],
+      array['F24-K01', 'F24-K02', 'F24-O01', 'F24-P01', 'F24-P02', 'F24-E01', 'F24-H01'],
       array['D-152(a) -- a card learner becomes staff through an email account', 'D-152(a) -- the conversion''s refusals',
             'W2.1-W2.3 -- finding a person to correct', 'W2.15 -- a transfer by name, accepted by the receiving school',
-            'W2.15 -- the transfer''s refusals', 'W2.19 -- stuck sends'],
+            'W2.15 -- the transfer''s refusals', 'W2.19 -- stuck sends', 'W2.10 -- maintenance listed a page at a time'],
       array[
         'the school admin converts a class-card learner''s account: the same account row, Auth user, person and PINTAR '
           || 'ID; an EMAIL account whose set-up is REQUIRED (the new address is offered an activation code); the card''s '
@@ -411,7 +478,10 @@ begin
           || '(REASON_REQUIRED), twice (TRANSFER_OPEN); a two-letter search (QUERY_TOO_SHORT); a Guru searching (42501); '
           || 'the receiving school asking for another school''s learner (42501)',
         'email_send_stuck: the platform admin is shown a send pending for 45 minutes with its age, not one pending for a '
-          || 'minute nor one the server accepted; a school admin is refused 42501'
+          || 'minute nor one the server accepted; a school admin is refused 42501',
+        'maintenance_list: 20 windows and 20 notices a page with more to follow, the notices'' second page holding the rest; narrowed to alpha, alpha''s 21 windows '
+          || 'once each across two pages, beta''s window and every platform notice left out; alpha''s admin sees alpha''s '
+          || 'windows in alpha''s context (the browser''s name-for-id filter showed none); a Guru is refused'
       ]) as t(tid, tarea, tdetail)
   loop
     id := r.tid; area := r.tarea;

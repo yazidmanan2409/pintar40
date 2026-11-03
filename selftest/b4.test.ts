@@ -32,7 +32,7 @@ export const b4Tests: SelfTest[] = [
     run: async (ctx) => {
       const c = new Checks();
       const halaman = kode(baca(ctx.repoRoot, "src/app/aktivasi/page.tsx"));
-      c.expect(/<KartuUlang locale=\{locale\} pemegang=\{pemegang\} \/>\s*<KartuJadiEmail locale=\{locale\} pemegang=\{pemegang\} \/>/.test(halaman),
+      c.expect(/<KartuUlang locale=\{locale\} pemegang=\{pemegangUlang\} ada=\{adaPemegang\} dicari=\{cariKartu\} \/>\s*(?:\{[^}]*\}\s*)?<KartuJadiEmail locale=\{locale\} pemegang=\{pemegangStaf\} ada=\{adaPemegang\} dicari=\{cariStaf\} \/>/.test(halaman),
         "Aktivasi does not offer «Murid yang menjadi staf» beside «Kartu hilang atau rusak»");
       const komp = kode(baca(ctx.repoRoot, "src/components/aktivasi/KartuJadiEmail.tsx"));
       c.expect(/fetch\("\/api\/akun\/kartu-ke-email"/.test(komp) && /<BidangTeks id=\{`staf-email-/.test(komp) && /<BidangTeks id=\{`staf-alasan-/.test(komp),
@@ -144,6 +144,43 @@ export const b4Tests: SelfTest[] = [
       return c.verdict("Konfigurasi · Perpindahan finds a destination school through cari_sekolah_tujuan (exact name or code), requests the "
         + "transfer through transfer_minta, and shows the receiving school its incoming requests (pindah_masuk) to accept into its own "
         + "school year through transfer_terima; every sentence in both languages");
+    },
+  },
+  {
+    id: "B4-HAL-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const konf = kode(baca(ctx.repoRoot, "src/app/konfigurasi/page.tsx"));
+      c.expect(/: platformKonteks\s*\? supabase\.from\("institutions"\)\.select\([^)]*\)\.order\("name"\)\.order\("id"\)\s*\.range\(\.\.\.rentang\(halSekolah\)\)/.test(konf)
+        && /\.in\("institution_id", \(institutions \?\? \[\]\)\.map\(\(i\) => i\.id\)\)/.test(konf),
+        "«Seluruh platform» does not read the schools a page at a time, with only those schools' years");
+      c.expect(/laporanTriase\(platformIni \? null : sekolahIni, halLapor\)/.test(konf), "the problem reports are not read a page at a time");
+      c.expect(/daftarKelola\(\{ jendela: halJendela, pengumuman: halPengumuman, sekolah: !lama && !platformKonteks \? satuSekolah : null \}\)/.test(konf)
+        && !/w\.sekolah\.some\(/.test(konf), "the maintenance lists are not the database's pages, narrowed by the database");
+      for (const k of ["hal_sekolah", "hal_lapor", "hal_jendela", "hal_pengumuman"]) {
+        c.expect(new RegExp(`tautanHalaman\\("/konfigurasi", sp, "${k}", n, "[a-z-]+"\\)\\} locale=\\{locale\\} />`).test(konf), `${k} has no pager`);
+      }
+      const pem = kode(baca(ctx.repoRoot, "src/lib/pemeliharaan.ts"));
+      c.expect(/rpc\("maintenance_list", \{\s*p_hal_jendela:/.test(pem), "daftarKelola does not ask for a page");
+      const akt = kode(baca(ctx.repoRoot, "src/app/aktivasi/page.tsx"));
+      c.expect(!/rpc\("card_holders"\)/.test(akt) && /cariPemegangKartu\(supabase, cariKartu, sekolahKartu\)/.test(akt),
+        "Aktivasi still reads every card holder");
+      const pk = kode(baca(ctx.repoRoot, "src/lib/pemegang-kartu.ts"));
+      c.expect(/\.limit\(sekolah \? 60 : 20\)/.test(pk) && /\.slice\(0, 20\)/.test(pk) && /if \(kata\.length < 1\) return \[\];/.test(pk),
+        "the holder search is not bounded, or reads without words");
+      const { kataAman } = await import("../src/lib/pemegang-kartu");
+      c.expect(kataAman('Ani"),x*%') === "Ani ),x" && kataAman(["Budi", "x"]) === "Budi" && kataAman(undefined) === "", "the search words are not made safe");
+      // the triage's paging arithmetic, executed: 23 open reports and pages of 20 (one row more is read)
+      const { rentangTriase } = await import("../src/lib/lapor-masalah-kontrak");
+      const r1 = rentangTriase(1, 20, 23), r2 = rentangTriase(2, 20, 23), r3 = rentangTriase(1, 20, 0), r4 = rentangTriase(3, 20, 23);
+      c.expect(JSON.stringify(r1) === '{"terbuka":[0,20],"selesai":null}', `page 1: ${JSON.stringify(r1)}`);
+      c.expect(JSON.stringify(r2) === '{"terbuka":[20,22],"selesai":[0,17]}', `page 2: ${JSON.stringify(r2)}`);
+      c.expect(JSON.stringify(r3) === '{"terbuka":null,"selesai":[0,20]}', `no open reports: ${JSON.stringify(r3)}`);
+      c.expect(JSON.stringify(r4) === '{"terbuka":null,"selesai":[17,37]}', `page 3: ${JSON.stringify(r4)}`);
+      return c.verdict("«Seluruh platform» reads the schools a page at a time with only their years; the problem reports a page at a time in "
+        + "the database's order (the page from open to finished reads both, executed); the maintenance windows and notices are "
+        + "maintenance_list's pages narrowed by the database; Aktivasi searches the card holders on the server (at most twenty, never "
+        + "without words, the words made safe); every list has its pager");
     },
   },
 ];

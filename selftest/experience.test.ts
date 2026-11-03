@@ -2026,7 +2026,12 @@ export const experienceTests: SelfTest[] = [
       // MOVED 182 -> 183 for the Batch 3 closure (D-150): 20261216100000 re-emits studio_home with one condition per
       // package bucket (a superseded version is not counted); no table, no column. Read against §3 first: it is not a
       // mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
-      c.expect(migrations.length === 183, `${migrations.length} migrations; the frozen baseline has 183`);
+      // MOVED 183 -> 188 for Batch 4 (D-152): 20261217100000 adds card_conversions (a card's conversion to an email
+      // account: person, card, address, reason, by whom) and re-emits two auth.users guards; 20261218100000 adds
+      // orang_berakun; 20261219100000 makes transfers.to_academic_period_id nullable (the receiving school chooses it) and
+      // adds four transfer functions; 20261220100000 adds email_send_stuck; 20261221100000 pages maintenance_list. Read
+      // against §3 first: none is a mark, a logo, a crest or a theme, so the Q-7 source still does not exist.
+      c.expect(migrations.length === 188, `${migrations.length} migrations; the frozen baseline has 188`);
       // BOTH SHAPES A COLUMN CAN ARRIVE IN. The first version of this matched
       // only a create-table definition, so a planted `alter table … add column
       // logo_url text` sailed past it — a guard that misses the thing it exists
@@ -3828,7 +3833,9 @@ export const experienceTests: SelfTest[] = [
       // step and the review record touch no tour RPC.
       // MOVED 181 -> 182 for Batch 3: the history's names (nama_riwayat_paket) touch no tour RPC.
       // MOVED 182 -> 183 for the Batch 3 closure (D-150): studio_home's superseded-version condition touches no tour RPC.
-      c.expect(migs.length === 183, `${migs.length} migrations; the baseline has 183`);
+      // MOVED 183 -> 188 for Batch 4 (D-152): the card conversion, the correction finder, the transfer by name, stuck
+      // sends and maintenance paging touch no tour RPC.
+      c.expect(migs.length === 188, `${migs.length} migrations; the baseline has 188`);
       const tourMig = migs.find((f) => f.includes("tour_state_follows_the_person"));
       c.expect(Boolean(tourMig), "the tour persistence migration is not in the tree");
       const sql = tourMig ? readFileSync(tourMig, "utf8") : "";

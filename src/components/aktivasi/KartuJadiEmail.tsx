@@ -6,6 +6,8 @@ import BarisHasil from "@/components/BarisHasil";
 import BidangTeks from "@/components/bentuk/BidangTeks";
 import { bacaJawabanKartuJadiEmail, type JawabanKartuJadiEmail } from "@/lib/kartu-jadi-email-kontrak";
 import type { PemegangKartu } from "./KartuUlang";
+import { useCariDiAlamat } from "./cari-pemegang";
+import { kataAman } from "@/lib/pemegang-kartu";
 
 /**
  * «MURID YANG MENJADI STAF» (D-152(a), Batch 4; CR-91 unchanged).
@@ -20,9 +22,10 @@ import type { PemegangKartu } from "./KartuUlang";
  * No composition of Daisy's covers this action: it follows «Kartu hilang atau rusak» beside it (search, choose,
  * confirm, the result line) in the Batch 2 primitives (TextField, ActionFeedback).
  */
-export default function KartuJadiEmail({ locale, pemegang }: { locale: Locale; pemegang: PemegangKartu[] }) {
+export default function KartuJadiEmail({ locale, pemegang, ada, dicari }: { locale: Locale; pemegang: PemegangKartu[]; ada: boolean; dicari: string }) {
   const s = (k: HleEvent) => t(k, "staff", { locale });
-  const [cari, setCari] = useState("");
+  const [cari, setCari] = useCariDiAlamat("cari_staf");
+  const [dikenal, setDikenal] = useState<Record<string, PemegangKartu>>({});
   const [pilih, setPilih] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [alasan, setAlasan] = useState("");
@@ -32,10 +35,9 @@ export default function KartuJadiEmail({ locale, pemegang }: { locale: Locale; p
   const berjalan = useRef(false);
 
   const kata = cari.trim().toLowerCase();
-  const cocok = kata
-    ? pemegang.filter((p) => !selesai.has(p.person_id)
-        && (p.display_name.toLowerCase().includes(kata) || p.institutional_id.toLowerCase().includes(kata)))
-    : [];
+  // W2.10 (CAP-10): the server's matches for the words the page was asked with, at most twenty
+  const cocok = kata ? pemegang.filter((p) => !selesai.has(p.person_id)) : [];
+  const terjawab = kata !== "" && kataAman(cari).toLowerCase() === dicari.toLowerCase();
 
   async function ubah(p: PemegangKartu) {
     if (berjalan.current) return;
@@ -55,6 +57,7 @@ export default function KartuJadiEmail({ locale, pemegang }: { locale: Locale; p
       berjalan.current = false;
       setSibuk(false);
     }
+    setDikenal((x) => ({ ...x, [p.person_id]: p }));
     setHasil({ id: p.person_id, jawaban });
     if (jawaban.ok) {
       setSelesai((x) => new Set(x).add(p.person_id));
@@ -64,7 +67,7 @@ export default function KartuJadiEmail({ locale, pemegang }: { locale: Locale; p
     }
   }
 
-  const berhasil = hasil?.jawaban.ok ? { orang: pemegang.find((p) => p.person_id === hasil.id), email: hasil.jawaban.email } : null;
+  const berhasil = hasil?.jawaban.ok ? { orang: dikenal[hasil.id], email: hasil.jawaban.email } : null;
 
   return (
     <section className="pin-sec" aria-labelledby="pin-akt-staf" id="jadi-staf">
@@ -76,13 +79,13 @@ export default function KartuJadiEmail({ locale, pemegang }: { locale: Locale; p
           {s("aktivasi.staf.ok.2")}
         </BarisHasil>
       ) : null}
-      {pemegang.length === 0 ? null : (
+      {!ada ? null : (
         <>
           <label className="pin-akt-isian">
             <span className="pin-meta">{s("aktivasi.ulang.cari")}</span>
             <input className="pin-input" type="search" value={cari} onChange={(e) => setCari(e.target.value)} autoComplete="off" spellCheck={false} />
           </label>
-          {kata && cocok.length === 0 ? <p className="pin-meta">{s("aktivasi.ulang.tidak_ketemu")}</p> : null}
+          {terjawab && cocok.length === 0 ? <p className="pin-meta">{s("aktivasi.ulang.tidak_ketemu")}</p> : null}
           <ul className="pin-lap-baris">
             {cocok.slice(0, 20).map((p) => {
               const dipilih = pilih === p.person_id;
