@@ -267,6 +267,10 @@ export type HleEvent =
   | "auth.signed_out"
   | "auth.not_yet"
   | "config.title"
+  | "config.menunggu.judul"
+  | "config.menunggu.pendataan"
+  | "config.menunggu.aktivasi"
+  | "config.menunggu.studio"
   | "config.section.system"
   | "config.section.intelligence"
   | "laporan.templat.judul"
@@ -2994,6 +2998,10 @@ const table: Table = {
   "auth.signed_out": { default: "Sampai jumpa lagi.", en: "See you again soon." },
   "auth.not_yet": { default: "Halaman ini belum tersedia untuk akun Anda.", en: "This page is not available to your account yet." },
   "config.title": { default: "Konfigurasi", en: "Configuration" },
+  "config.menunggu.judul": { default: "Yang menunggu", en: "Waiting" },
+  "config.menunggu.pendataan": { default: "pendataan menunggu persetujuan Anda di Pendataan", en: "imports waiting for your go-ahead in Pendataan" },
+  "config.menunggu.aktivasi": { default: "orang menunggu akun di Aktivasi", en: "people waiting for an account in Aktivasi" },
+  "config.menunggu.studio": { default: "paket menunggu tindakan atau tinjauan Anda di Studio", en: "packages waiting for your action or review in Studio" },
   "config.section.system": { default: "Sistem & Konfigurasi", en: "System & Configuration" },
   "config.section.intelligence": { default: "Inteligensi & Laporan", en: "Intelligence & Reports" },
   "laporan.templat.judul": { default: "Templat laporan", en: "Report templates" },

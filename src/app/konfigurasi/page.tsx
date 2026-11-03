@@ -372,6 +372,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     : null;
 
   const activeClassCount = (nodes ?? []).filter((n) => n.kind === "CLASS" && n.is_active).length;
+
   // BOB-19: the card judges each check by the one rule F01-T13 uses
   // (src/lib/kesehatan-skema), never "anything but 0 is a problem"
   let kesehatan: KeadaanKesehatan;
@@ -434,6 +435,34 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   // W2.10 (Batch 4): the database narrows them to the school (maintenance_list's p_sekolah) and pages them; the
   // browser compared the schools' names with the context's school id, so a school's own windows never showed
   const kelola = kelolaSemua;
+
+  // W2.13 / UX-33 (Batch 4): WHAT WAITS, WITH A COUNT, EACH OPENING WHERE IT IS DONE. Only what this reader may act on in
+  // this working context, each counted by the database under the reader's own row security (never listed): a school's
+  // imports waiting for a person's go (Pendataan), its people waiting for an account (Aktivasi) and its packages
+  // waiting on the reader (Studio, studio_home's own counts); in «Seluruh platform», every school's people waiting for
+  // an account. Nothing is shown when nothing waits.
+  const konteksAda = typeof kh === "object" && kh !== null;
+  const [nImpor, nAkun, nStudio] = await Promise.all([
+    satuSekolah && bolehPendataan
+      ? supabase.from("import_jobs").select("id", { count: "exact", head: true }).eq("institution_id", satuSekolah)
+          .in("state", ["AWAITING_CONFIRMATION", "AWAITING_PILOT_VERIFICATION"]).then((r) => r.count ?? 0)
+      : Promise.resolve(0),
+    konteksAda && melayani(kh, "/aktivasi") && (satuSekolah || platformIni)
+      ? (satuSekolah
+          ? supabase.rpc("persons_awaiting_account", {}, { count: "exact", head: true }).eq("institution_id", satuSekolah)
+          : supabase.rpc("persons_awaiting_account", {}, { count: "exact", head: true })).then((r) => r.count ?? 0)
+      : Promise.resolve(0),
+    satuSekolah && konteksAda && melayani(kh, "/studio")
+      ? supabase.rpc("studio_home").then(({ data }) => ((data ?? []) as Array<{ bucket: string; institution_id: string; count: number }>)
+          .filter((r) => r.institution_id === satuSekolah && (r.bucket === "ACTION_REQUIRED" || r.bucket === "AWAITING_MY_REVIEW"))
+          .reduce((n, r) => n + Number(r.count ?? 0), 0))
+      : Promise.resolve(0),
+  ]);
+  const menunggu: Array<{ k: string; href: string; kunci: HleEvent; n: number }> = [
+    { k: "impor", href: "/pendataan", kunci: "config.menunggu.pendataan" as HleEvent, n: nImpor },
+    { k: "akun", href: "/aktivasi", kunci: "config.menunggu.aktivasi" as HleEvent, n: nAkun },
+    { k: "studio", href: "/studio", kunci: "config.menunggu.studio" as HleEvent, n: nStudio },
+  ].filter((m) => m.n > 0);
   const kelasAktif = struktur?.ok ? struktur.rows.filter((r) => r.level === "KELAS" && r.is_active) : [];
   // M9: the Kelas whose students «Pindah kelas» lists, if one was chosen, and
   // where they may go; J3.6: or a Tingkat whose learners are not yet in a Kelas.
@@ -505,6 +534,19 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         <h1 className="text-2xl font-semibold tracking-tight">{s("config.title")}</h1>
       </header>
 
+
+      {menunggu.length > 0 ? (
+        <section className={`mt-6 ${card}`} aria-labelledby="pin-menunggu" data-menunggu="">
+          <h2 id="pin-menunggu" className="font-medium">{s("config.menunggu.judul")}</h2>
+          <ul className="mt-2 grid gap-1 text-sm">
+            {menunggu.map((m) => (
+              <li key={m.k} data-menunggu-jenis={m.k}>
+                <Link className="pin-tautan" href={m.href}><span className="pin-num">{m.n}</span> {s(m.kunci)}</Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
         <KartuKesehatan locale={await currentLocale()} keadaan={kesehatan} kelas={card} tautan={tautanTempat} />

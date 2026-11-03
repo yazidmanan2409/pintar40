@@ -230,6 +230,21 @@ begin
       select count(*) into v_n from public.orang_berakun('alpha-guru@synthetic.pintar.test', 0, 20,
         (select i.id from public.institutions i where i.slug like 'synth-beta-%' limit 1)) o;
       if v_n <> 0 then v_probs := selftest.f24_note(v_probs, 'F24-O01', 'narrowed to beta, the platform admin still finds alpha''s Guru'); end if;
+      -- the PINTAR ID (persons.pintar_id, not the school's nomor induk) is returned and found as typed: any case, 4+4
+      declare v_pid text; v_ppid uuid;
+      begin
+        perform selftest.as_owner();
+        select p.id, p.pintar_id into v_ppid, v_pid from public.persons p join public.accounts a on a.person_id = p.id
+         where a.kind = 'EMAIL' and p.pintar_id is not null and not public.adalah_persona(p.id) limit 1;
+        perform selftest.as_user('sysadmin@synthetic.pintar.test');
+        if v_pid is null then
+          v_probs := selftest.f24_note(v_probs, 'F24-O01', 'no person with an email account has a PINTAR ID to search by');
+        else
+          select count(*) into v_n from public.orang_berakun(lower(substr(v_pid, 1, 4) || ' ' || substr(v_pid, 5))) o
+           where o.person_id = v_ppid and o.pintar_id = v_pid;
+          if v_n <> 1 then v_probs := selftest.f24_note(v_probs, 'F24-O01', 'a person is not found by their PINTAR ID typed 4+4 in lower case'); end if;
+        end if;
+      end;
       select count(*) into v_n from public.orang_berakun(null, 0, 500) o;
       if v_n > 50 then v_probs := selftest.f24_note(v_probs, 'F24-O01', format('a page holds %s rows (at most 50)', v_n)); end if;
       perform selftest.as_user('alpha-admin@synthetic.pintar.test');
@@ -463,7 +478,8 @@ begin
         'refused without a reason, to a malformed or taken address, for a person with no card, to a Guru and to another '
           || 'school''s administrator; a card''s address moved without a grant or to another address is refused; after '
           || 'the conversion the new address is guarded as every email account''s (EMAIL_CHANGE_REFUSED)',
-        'orang_berakun: the platform admin finds an activated alpha Guru with every correction and beta''s admin, and not '
+        'orang_berakun: the platform admin finds an activated alpha Guru with every correction and beta''s admin, a person by '
+          || 'their PINTAR ID typed 4+4 in lower case (the PINTAR ID returned, not the nomor induk), and not '
           || 'alpha''s Guru when narrowed to beta; a page is '
           || 'at most 50; alpha''s admin finds the activated Guru with no correction offered, the converted person (not yet '
           || 'activated) with the email correction only, and not beta''s admin; a Guru finds nobody; a school admin''s name '

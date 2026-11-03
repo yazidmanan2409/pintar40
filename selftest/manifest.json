@@ -4013,6 +4013,11 @@
       "id": "B4-HAL-K01",
       "runner": "static",
       "proves": "W2.10 (Batch 4; CR-49, CAP-10), selftest/b4.test.ts: in «Seluruh platform» Konfigurasi reads the schools a page at a time (range, with the next page known) and only those schools' years; the problem reports are read a page at a time in the database's order (open first, a stopped class first, the oldest waiting first; then the finished, newest first), the page crossing from open to finished read correctly (executed against the paging arithmetic); the maintenance windows and notices are maintenance_list's pages, narrowed to the school by the database; Aktivasi's class-card holders are searched on the server, at most twenty, never sent whole; each list has its pager."
+    },
+    {
+      "id": "B4-MENUNGGU-K01",
+      "runner": "static",
+      "proves": "W2.13 / UX-33 (Batch 4), selftest/b4.test.ts: Konfigurasi's landing (src/app/konfigurasi/page.tsx) shows what waits with a count, only where the reader may act in the working context: the school's imports waiting for a person's go (import_jobs in AWAITING_CONFIRMATION or AWAITING_PILOT_VERIFICATION, counted), its people waiting for an account (persons_awaiting_account, counted; every school's in «Seluruh platform»), its packages waiting on the reader (studio_home's ACTION_REQUIRED and AWAITING_MY_REVIEW); each opens where it is done; nothing is drawn when nothing waits; every sentence in both languages."
     }
   ]
 }

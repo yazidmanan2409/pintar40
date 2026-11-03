@@ -15,13 +15,14 @@ import { halamanKoleksi, kueriDiminta, posisiHalaman } from "@/components/koleks
 import { UKURAN } from "@/components/koleksi/halaman";
 import FormKoreksiEmail from "@/components/aktivasi/FormKoreksiEmail";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { tampilPintarId } from "@/lib/aktivasi-kontrak";
 import { koreksiNamaAksi, koreksiUsernameAksi } from "./actions";
 
 export const generateMetadata = judulHalaman("/aktivasi/orang");
 export const dynamic = "force-dynamic";
 
 type Orang = {
-  person_id: string; display_name: string; institutional_id: string | null; institution_name: string | null;
+  person_id: string; display_name: string; pintar_id: string | null; institutional_id: string | null; institution_name: string | null;
   email: string; username: string | null; activated: boolean; boleh_email: boolean; boleh_identitas: boolean; total: number;
 };
 type Sp = { cari?: string; hal?: string; pilih?: string; bagian?: string; hasil?: string; kode?: string };
@@ -112,7 +113,7 @@ export default async function KoreksiOrang({ searchParams }: { searchParams: Pro
             kunci: o.person_id,
             nama: o.display_name,
             sel: [
-              <span key="i" className="pin-num">{o.institutional_id ?? "—"}</span>,
+              <span key="i" className="pin-num">{o.pintar_id ? tampilPintarId(o.pintar_id) : "—"}</span>,
               <span key="e" className="pin-num">{o.email}</span>,
               <span key="u" className="pin-num">{o.username ?? "—"}</span>,
               <span key="k" className={o.activated ? "pin-pill pin-ok" : "pin-pill pin-neutral"}>{s(o.activated ? "orang.aktif" : "orang.belum_aktif")}</span>,

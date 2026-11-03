@@ -7,9 +7,9 @@
 -- still waiting for an account and the class-card holders, so a correction was an operator's SQL step (REL-02).
 --
 -- orang_berakun(search, offset, limit): the people with an EMAIL account (not personas), each with their name, PINTAR
--- ID, school, sign-in address, username and whether the account has been activated; and, so a screen offers only what
+-- ID (and the school's nomor induk), school, sign-in address, username and whether the account has been activated; and, so a screen offers only what
 -- the database will accept, which corrections THIS reader may make (boleh_email, boleh_identitas). Scope: the platform
--- admin reads everyone; a reader with CAN_PROVISION_PEOPLE reads the people who belong to those schools (by PINTAR ID,
+-- admin reads everyone; a reader with CAN_PROVISION_PEOPLE reads the people who belong to those schools (by nomor induk,
 -- a live staff role or a live enrolment); anyone else nobody. boleh_email follows authorize_email_correction exactly. It
 -- reads and writes nothing else, and the corrections still decide for themselves. Paged (20 by default, at most 50),
 -- with the total, so the platform lists stay paged (W2.10). An optional school narrows it to the working context's
@@ -19,11 +19,11 @@
 
 create function public.orang_berakun(p_cari text default null, p_offset integer default 0, p_limit integer default 20,
                                       p_sekolah uuid default null)
-returns table (person_id uuid, display_name text, institutional_id text, institution_id uuid, institution_name text,
+returns table (person_id uuid, display_name text, pintar_id text, institutional_id text, institution_id uuid, institution_name text,
                email text, username text, activated boolean, boleh_email boolean, boleh_identitas boolean, total bigint)
 language sql stable security definer set search_path = public, pg_temp as $$
   with sekolah as (
-    -- every school a person belongs to: their PINTAR ID's, a live staff role's, a live enrolment's
+    -- every school a person belongs to: their nomor induk's, a live staff role's, a live enrolment's
     select x.person_id, x.institution_id from public.institutional_identities x
     union
     select ra.person_id, ra.institution_id from public.role_assignments ra
@@ -32,13 +32,13 @@ language sql stable security definer set search_path = public, pg_temp as $$
     select e.person_id, e.institution_id from public.enrollments e
      where e.status = 'ACTIVE' and e.institution_id is not null
   ), baca as (
-    select a.person_id, p.display_name, ii.institutional_id, coalesce(ii.institution_id, sk.institution_id) as institution_id,
+    select a.person_id, p.display_name, p.pintar_id, ii.institutional_id, coalesce(ii.institution_id, sk.institution_id) as institution_id,
            i.name as institution_name, lower(u.email) as email, un.username,
            not exists (select 1 from public.account_setup s where s.account_id = a.id and s.state = 'REQUIRED') as activated,
            public.is_system_admin() as sys,
            exists (select 1 from sekolah k where k.person_id = a.person_id
                       and public.can_on_node('CAN_PROVISION_PEOPLE', k.institution_id)) as sekolah,
-           -- the email correction's own rule (authorize_email_correction): the school of the person's PINTAR ID
+           -- the email correction's own rule (authorize_email_correction): the school of the person's nomor induk
            (ii.institution_id is not null and public.can_on_node('CAN_PROVISION_PEOPLE', ii.institution_id)) as sekolah_id
       from public.accounts a
       join public.persons p on p.id = a.person_id
@@ -60,10 +60,13 @@ language sql stable security definer set search_path = public, pg_temp as $$
             or b.email ilike '%' || btrim(p_cari) || '%'
             or coalesce(b.username, '') ilike '%' || btrim(p_cari) || '%'
             or coalesce(b.institutional_id, '') ilike '%' || btrim(p_cari) || '%'
+            -- the PINTAR ID as typed: any case, spaces and hyphens ignored (IDENTITY-4.0 §4)
+            or (b.pintar_id is not null and length(regexp_replace(btrim(p_cari), '[\s-]', '', 'g')) >= 4
+                and b.pintar_id ilike '%' || regexp_replace(btrim(p_cari), '[\s-]', '', 'g') || '%')
             -- the panel reads the one person it opened for, by id
             or b.person_id::text = lower(btrim(p_cari)))
   )
-  select t.person_id, t.display_name, t.institutional_id, t.institution_id, t.institution_name, t.email, t.username,
+  select t.person_id, t.display_name, t.pintar_id, t.institutional_id, t.institution_id, t.institution_name, t.email, t.username,
          t.activated, (t.sys or (t.sekolah_id and not t.activated)) as boleh_email, t.sys as boleh_identitas,
          count(*) over () as total
     from terlihat t

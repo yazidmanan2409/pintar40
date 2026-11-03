@@ -107,6 +107,8 @@ export const b4Tests: SelfTest[] = [
       c.expect(/dipilih\.boleh_email \?/.test(halaman) && /const identitas = dipilih\?\.boleh_identitas && platformIni/.test(halaman),
         "the panel does not offer only what the database says this reader may correct");
       c.expect(!/supabaseService/.test(halaman), "the corrections screen reads with the service key");
+      c.expect(/\{o\.pintar_id \? tampilPintarId\(o\.pintar_id\) : "—"\}/.test(halaman) && !/\{o\.institutional_id \?\? "—"\}/.test(halaman),
+        "the «PINTAR ID» column does not show the PINTAR ID (4+4), or shows the school's nomor induk under that name");
       const aksi = kode(baca(ctx.repoRoot, "src/app/aktivasi/orang/actions.ts"));
       c.expect(/supabase\.rpc\("correct_person_name", \{ p_person: orang, p_name: nilai, p_reason: alasan \}\)/.test(aksi)
         && /supabase\.rpc\("correct_username", \{ p_person: orang, p_name: nilai, p_reason: alasan \}\)/.test(aksi) && !/supabaseService/.test(aksi),
@@ -181,6 +183,31 @@ export const b4Tests: SelfTest[] = [
         + "the database's order (the page from open to finished reads both, executed); the maintenance windows and notices are "
         + "maintenance_list's pages narrowed by the database; Aktivasi searches the card holders on the server (at most twenty, never "
         + "without words, the words made safe); every list has its pager");
+    },
+  },
+  {
+    id: "B4-MENUNGGU-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const konf = kode(baca(ctx.repoRoot, "src/app/konfigurasi/page.tsx"));
+      c.expect(/from\("import_jobs"\)\.select\("id", \{ count: "exact", head: true \}\)\.eq\("institution_id", satuSekolah\)\s*\.in\("state", \["AWAITING_CONFIRMATION", "AWAITING_PILOT_VERIFICATION"\]\)/.test(konf),
+        "the imports waiting for a go are not counted for the context's school");
+      c.expect(/rpc\("persons_awaiting_account", \{\}, \{ count: "exact", head: true \}\)\.eq\("institution_id", satuSekolah\)/.test(konf)
+        && /melayani\(kh, "\/aktivasi"\)/.test(konf), "the people waiting for an account are not counted, or counted for a reader Aktivasi does not serve");
+      c.expect(/rpc\("studio_home"\)\.then/.test(konf) && /r\.bucket === "ACTION_REQUIRED" \|\| r\.bucket === "AWAITING_MY_REVIEW"/.test(konf) && /melayani\(kh, "\/studio"\)/.test(konf),
+        "Studio's waiting packages are not studio_home's own counts");
+      c.expect(/\.filter\(\(m\) => m\.n > 0\)/.test(konf) && /\{menunggu\.length > 0 \? \(/.test(konf) && /<Link className="pin-tautan" href=\{m\.href\}>/.test(konf),
+        "the landing shows an empty count, or a count that does not open where it is done");
+      for (const k of ["judul", "pendataan", "aktivasi", "studio"]) {
+        for (const locale of ["id", "en"] as const) {
+          const kata = t(`config.menunggu.${k}` as HleEvent, "staff", { locale });
+          c.expect(!!kata && !kata.startsWith("config."), `config.menunggu.${k} has no sentence in ${locale}`);
+        }
+      }
+      return c.verdict("Konfigurasi's landing shows what waits (UX-33), each counted by the database under the reader's row security and only "
+        + "where the reader may act in this context: the school's imports waiting for a go, its people waiting for an account (every "
+        + "school's in «Seluruh platform»), its packages waiting on the reader (studio_home); each opens where it is done; nothing when "
+        + "nothing waits; every sentence in both languages");
     },
   },
 ];
