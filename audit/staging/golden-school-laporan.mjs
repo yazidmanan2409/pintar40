@@ -317,7 +317,7 @@ await step("L0", `read only: «${SLUG}», «${KELAS}», «${BAB}», and the figu
 
 const KELAS_ANGKA = () => ({
   paham: [`Pemahaman`, { nilai: persen(S.paham), sampel: S.nPost }],
-  naik: [`Kenaikan`, { nilai: poin(S.naik), sampel: S.nKedua }],
+  naik: [`Rata-rata kenaikan penguasaan di kelas ini`, { nilai: poin(S.naik), sampel: S.nKedua }],
   siap: [PITA, { tingkat: S.tingkat, pita: true, belum: S.belum }],
 });
 
@@ -347,12 +347,12 @@ await step("L1", "GS-17 the teacher: signs in → Mengajar → «Kelas 5A» → 
   out.push(`«Keadaan hari ini» Mengumpulkan ${kumpul.join(", ")}`);
   const figs = await angka(guru.locator("main"));
   for (const [label, harap] of Object.values(KELAS_ANGKA())) out.push(harus(figs, label, harap));
-  const topik = figs.find((f) => f.label === "Penguasaan per bagian");
+  const topik = figs.find((f) => f.label === "Penguasaan per tujuan pembelajaran");   // UX-41 (Batch 5)
   if (topik) {
     const nilai = topik.baris.map(([, v]) => Number(String(v).replace(/\D/g, "")));
-    if (!nilai.length || nilai.some((v) => !(v >= 0 && v <= 100))) throw new Error(`«Penguasaan per bagian» rows ${JSON.stringify(topik.baris)}`);
-    out.push(`«Penguasaan per bagian» ${topik.baris.length} rows (read, not recomputed)`);
-  } else out.push("«Penguasaan per bagian» not shown");
+    if (!nilai.length || nilai.some((v) => !(v >= 0 && v <= 100))) throw new Error(`«Penguasaan per tujuan pembelajaran» rows ${JSON.stringify(topik.baris)}`);
+    out.push(`«Penguasaan per tujuan pembelajaran» ${topik.baris.length} rows (read, not recomputed)`);
+  } else out.push("«Penguasaan per tujuan pembelajaran» not shown");
   // each student's official results, against the sealed mark
   for (const m of S.murid) {
     await buka(guru, `/mengajar/${S.kelas}/murid/${m.orang}`);
@@ -411,9 +411,10 @@ async function kelasDiPimpinan(p, nama) {
   if (Number(n) !== S.peserta) throw new Error(`«Murid di kelas ini sekarang» ${n}, expected ${S.peserta}`);
   out.push(`«${KELAS}»: ${n} students now`);
   const figs = await angka(panel);
-  out.push(harus(figs, "Peserta", { nilai: ANGKA.format(S.peserta) }));
+  // W3.9 (Batch 5): the class metrics say what they count, never «Peserta» (J9.3)
+  out.push(harus(figs, "Murid yang dinilai di kelas ini", { nilai: ANGKA.format(S.peserta) }));
   out.push(harus(figs, "Pemahaman", { nilai: persen(S.paham) }));
-  out.push(harus(figs, "Kenaikan", { nilai: poin(S.naik) }));
+  out.push(harus(figs, "Rata-rata kenaikan penguasaan di kelas ini", { nilai: poin(S.naik) }));
   out.push(harus(figs, PITA, { tingkat: S.tingkat, pita: true, belum: S.belum }));
   return out;
 }
@@ -427,9 +428,9 @@ await step("L3", "GS-17 the dean: signs in (first time) → /pimpinan: the schoo
   if (di !== "/pimpinan") throw new Error(`landed on ${di}, not /pimpinan`);
   const sekolah = await angka(p.locator('section[aria-labelledby="pin-bukti"]'));
   await shot(p, "l3-dekan-pimpinan");
-  out.push(harus(sekolah, "Peserta", { nilai: ANGKA.format(S.peserta) }));
+  out.push(harus(sekolah, "Murid yang dinilai di sekolah ini", { nilai: ANGKA.format(S.peserta) }));
   // («Soal wajib»: Terminology v1, «butir» → «soal», D-068 E11–E15)
-  for (const label of ["Kenaikan", "Soal wajib", "Capaian kompetensi"]) {
+  for (const label of ["Rata-rata kenaikan penguasaan di sekolah ini", "Soal wajib", "Capaian kompetensi"]) {
     if (sekolah.some((f) => f.label === label)) out.push(harus(sekolah, label, { kurang: true }));
   }
   out.push(...await kelasDiPimpinan(p, "l3-dekan-kelas"));
@@ -438,7 +439,7 @@ await step("L3", "GS-17 the dean: signs in (first time) → /pimpinan: the schoo
   await p.waitForLoadState("networkidle");
   await shot(p, "l3-dekan-ringkasan");
   const lap = await angka(p.locator("main"));
-  out.push(`summary: ${harus(lap, "Peserta", { nilai: ANGKA.format(S.peserta) })}, ${harus(lap, "Sertifikat terbit", { nilai: ANGKA.format(S.terbit) })}`);
+  out.push(`summary: ${harus(lap, "Murid yang dinilai di sekolah ini", { nilai: ANGKA.format(S.peserta) })}, ${harus(lap, "Sertifikat terbit", { nilai: ANGKA.format(S.terbit) })}`);
   out.push(await ditolak(p, `/pimpinan/${S.akarLain}`));
   out.push(await tanpaAngka(p, `/dekan/ringkasan?simpul=${S.akarLain}`));
   await pamit(p, "the dean", "/pimpinan");
@@ -455,12 +456,12 @@ await step("L4", "GS-17 the school admin: signs in → Konfigurasi → «Laporan
   await klikTautan(p, `/dekan/ringkasan?simpul=${S.akar}`);
   const lap = await angka(p.locator("main"));
   await shot(p, "l4-admin-sekolah");
-  out.push(`school summary: ${harus(lap, "Peserta", { nilai: ANGKA.format(S.peserta) })}, ${harus(lap, "Sertifikat terbit", { nilai: ANGKA.format(S.terbit) })}`);
+  out.push(`school summary: ${harus(lap, "Murid yang dinilai di sekolah ini", { nilai: ANGKA.format(S.peserta) })}, ${harus(lap, "Sertifikat terbit", { nilai: ANGKA.format(S.terbit) })}`);
   await buka(p, "/konfigurasi");
   await klikTautan(p, `/edukator/ringkasan?kelas=${S.kelas}`);
   const kls = await angka(p.locator("main"));
   await shot(p, "l4-admin-kelas");
-  out.push(`«${KELAS}» summary: ${[harus(kls, "Peserta", { nilai: ANGKA.format(S.peserta) }),
+  out.push(`«${KELAS}» summary: ${[harus(kls, "Murid yang dinilai di kelas ini", { nilai: ANGKA.format(S.peserta) }),
     ...Object.values(KELAS_ANGKA()).map(([label, h]) => harus(kls, label, { nilai: h.nilai, tingkat: h.tingkat, pita: h.pita, belum: h.belum }))].join(", ")}`);
   out.push(await ditolak(p, "/pimpinan"));
   out.push(await tanpaAngka(p, `/edukator/ringkasan?kelas=${S.kelasLain}`));

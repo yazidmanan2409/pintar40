@@ -96,8 +96,9 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
     const angka = C.layarAwal.bukti.join(" | ");
     // «Peserta» (terminology v1: those taking part in a measurement) is what each figure says it is «Dari»
     const kartu = (label) => C.layarAwal.bukti.find((x) => x.startsWith(label)) ?? "";
-    const paham = kartu("Pemahaman"), naik = kartu("Kenaikan");
-    const harap = /Pemahaman 75\s?%/.test(paham) && /Dari 5 murid/.test(paham) && /Kenaikan \+35 poin/.test(naik) && /Dari 5 murid/.test(naik);
+    // W3.9 (Batch 5): the gain is labelled for what it measures, «Rata-rata kenaikan penguasaan di kelas ini»
+    const paham = kartu("Pemahaman"), naik = kartu("Rata-rata kenaikan penguasaan di kelas ini");
+    const harap = /Pemahaman 75\s?%/.test(paham) && /Dari 5 murid/.test(paham) && /Rata-rata kenaikan penguasaan di kelas ini \+35 poin/.test(naik) && /Dari 5 murid/.test(naik);
     if (!harap || C.awal.jumlah_metrik !== 16 || !C.awal.metrik_ok) rec.verdict = "FAIL";
     return `catalogue ${C.awal.katalog}, ${C.awal.jumlah_metrik} metrics, ${Object.keys(C.awal.metrik).length} readings (${C.awal.metrik_ok} ok), md5 ${C.awal.metrik_md5}; ` +
       `sources ${JSON.stringify(C.awal.sumber)}; rosters ${JSON.stringify(C.awal.daftar)}; the Guru ${JSON.stringify(C.awal.orang)}; ` +

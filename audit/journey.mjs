@@ -2100,7 +2100,7 @@ await step("S22", "the teacher reaches Lihat bukti by clicking and reads the cla
   const naikTeks = `${HARAP.naik > 0 ? "+" : ""}${Math.round(HARAP.naik * 100)} poin`;
   const absen = (simpulan.match(/Belum ada bukti yang memenuhi syarat untuk angka ini\./g) ?? []).length;
   const kumpul = [...txt.matchAll(/Mengumpulkan\s*(\d+)\s*\/\s*(\d+)/gi)].map((m) => `${m[1]}/${m[2]}`);
-  const bagian = simpulan.includes("Penguasaan per bagian");
+  const bagian = simpulan.includes("Penguasaan per tujuan pembelajaran");   // UX-41 (Batch 5)
   if (!simpulan.includes(pahamTeks) || !simpulan.includes(naikTeks)) rec.verdict = "FAIL";
   // D-088(k), M5: from «Lihat bukti» the teacher follows the Uji Penguasaan's «Lihat per soal» and reads which questions
   // the class found hard: five handed in, every question once with its key, the right answers adding up to the plan,
@@ -2926,13 +2926,14 @@ await step("S23t", "the school admin assembles the school's own class report on 
       (select coalesce(string_agg(coalesce(e->>'metric_id', '(ditahan)'), ',' order by (e->>'ordinal')::int), '') from jsonb_array_elements(r.body->'entries') e)
     from public.generated_reports r where r.generated_by_person_id = '${kaprodiId}' and r.scope_node_id = '${kelas}' and r.standard_report = 'class_learning_intelligence'
    order by r.generated_at desc limit 1), '')`).trim().split("|");
-  const PILIH = ["class.comprehension", "class.net_gain"];   // labels «Pemahaman», «Kenaikan» (hle.ts:2009, 2011)
+  const PILIH = ["class.comprehension", "class.net_gain"];   // labels «Pemahaman», «Rata-rata kenaikan penguasaan di kelas ini» (W3.9)
   const notes = [];
   const hc = await ctx();
   const h = await hc.newPage();
   // the summary as drawn: one article per entry of the template, each permitted one headed by its label
   const bacaRingkasan = async () => {
-    await h.getByRole("heading", { name: "Ringkasan Kelas", exact: true }).waitFor({ timeout: SLOW });   // edukator/ringkasan/page.tsx:78; hle.ts:2077
+    // W3.8 (Batch 5): «Ringkasan Kelas» is the eyebrow; the heading names the class
+    await h.locator("main .pin-head .pin-eyebrow", { hasText: "Ringkasan Kelas" }).waitFor({ timeout: SLOW });
     await h.waitForLoadState("networkidle");
     return { n: await h.locator("main > section > article").count(),                                    // edukator/ringkasan/page.tsx:97-99
       judul: (await h.locator("main > section > article > h2").allTextContents()).map(norm) };           // :102-104
@@ -3010,7 +3011,7 @@ await step("S23t", "the school admin assembles the school's own class report on 
     notes.push(`after: the summary shows ${akhir.n} entr(ies) ${JSON.stringify(akhir.judul)} from the school's own template ${lapAkhir[0] === milik[0]} ` +
       `(version ${lapAkhir[1]}, ${lapAkhir[3]}); PINTAR's standard template unchanged ${bakuAkhir === bakuAwal}`);
     if (lapAkhir[0] !== milik[0] || lapAkhir[1] !== "1" || lapAkhir[3] !== PILIH.join(",") || akhir.n !== PILIH.length
-        || JSON.stringify(akhir.judul) !== JSON.stringify(["Pemahaman", "Kenaikan"]) || bakuAkhir !== bakuAwal) rec.verdict = "FAIL";
+        || JSON.stringify(akhir.judul) !== JSON.stringify(["Pemahaman", "Rata-rata kenaikan penguasaan di kelas ini"]) || bakuAkhir !== bakuAwal) rec.verdict = "FAIL";
   } catch (e) {
     rec.verdict = "FAIL";
     rec.shots.push(await shot(h, "cr40-berhenti"));
