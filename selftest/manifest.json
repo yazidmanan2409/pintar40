@@ -4030,6 +4030,21 @@
       "proves": "W3.7 and W3.6 (Batch 4; RV-22, RV-16), selftest/b4.test.ts, reading the source: Pendataan's school code (src/app/pendataan/page.tsx) is the TextField primitive (sentence-case label, the hint under it and named by the field) on one row with its button; the intake's file and paste fields (src/components/pendataan/BacaDanPetakan.tsx) use the field frame with a sentence-case label; Pendataan's job list and every date in src/app/konfigurasi/page.tsx go through the WIB date helper."
     },
     {
+      "id": "B5A-LAPORAN-K01",
+      "runner": "static",
+      "proves": "W3.8 (Batch 5; RV-11; J7.2-J7.4, X.7), selftest/b5a.test.ts: the class and school reports (src/app/edukator/ringkasan/page.tsx, src/app/dekan/ringkasan/page.tsx) sit in the staff shell (CangkangStaf with navKonteks) with no bare header; the class report names the school, the class and its school year (BarisLingkup, rendered) and the class in its heading, the school report the school; each says what its figures cover and when they were calculated (laporan.cakupan.*); «Kembali» and «Cetak» kept; the layouts' working-context guard and the «another school» offer kept; kepalaLaporan (src/lib/laporan.ts) reads the names as the signed-in reader; the shell, footer, report controls and skip link carry pin-noprint, which print hides."
+    },
+    {
+      "id": "B5A-PIMPINAN-K01",
+      "runner": "static",
+      "proves": "W3.9 (Batch 5; RV-9; X.5, J9.3), selftest/b5a.test.ts: the class and school figures are labelled apart and say what they measure and where in both languages, no academic metric label says «Peserta» and no two metrics share a label (src/lib/hle.ts); rendered, the report pages' absence sentence (src/app/_intel.ts omissionText) carries no «(0/5)» and kalimatJumlah (src/components/bukti/KartuKetiadaan.tsx) says «Sekarang 0 murid; perlu 5.», drawn by both report pages; /pimpinan and /pimpinan/[simpul] stack their figures and absence cards in .pin-bukti-tumpuk (grid gap, a space token)."
+    },
+    {
+      "id": "B5A-TAKLIMAT-K01",
+      "runner": "static",
+      "proves": "W2.6 (Batch 5; CR-37, J7.5; D-120 QN4, briefings hidden): no copy outside the audit trail's names for past rows speaks of a briefing (mengajar.langkah.quiet removed); the class's «Langkah» page (src/app/mengajar/[kelas]/langkah/page.tsx) draws no briefing footnote; no source under src/app, src/components or src/lib reads the briefings table or promises a briefings surface; the unused exposure-caveat predicate in the class report is gone."
+    },
+    {
       "id": "F24-K03",
       "runner": "db",
       "proves": "D-152(a), the Batch 4 promotion gate's condition 2, measured in selftest/db/fable24.sql against supabase/migrations/20261217100000_a_card_learner_becomes_staff_through_an_email_account.sql: a conversion interrupted before Auth's write leaves the class card untouched (number, sign-in address, no set-up) and a staff role still refused (STAFF_ROLE_FOR_CARD, CR-91); a retry leaves one pending grant; an expired grant's write is refused (CARD_ADDRESS_REFUSED) and changes nothing; after a write whose answer was lost, a second conversion is refused (CARD_NOT_FOUND), the school corrects a wrong address before activation and the corrected address is offered the activation code; the person holds exactly one email account.",

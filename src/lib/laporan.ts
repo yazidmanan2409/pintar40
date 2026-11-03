@@ -57,3 +57,35 @@ export async function namaTempat(ids: readonly string[]): Promise<Record<string,
     return nama ? [[id, nama]] : [];
   }));
 }
+
+/**
+ * W3.8 (RV-11; J7.2–J7.4, X.7): WHAT A REPORT IS OF, NAMED BEFORE ITS FIGURES. The school, the place (for a class
+ * summary, the class) and the class's school year, read as the signed-in reader under `org_nodes_select`,
+ * `institutions_select` and `academic_periods_select`: a place the reader may not see gets no name, and nothing here
+ * widens a read or decides a figure. A school summary's figures are the school's in every school year
+ * (`calc_institution_*` read every official sitting of the school, with no year), so it names no year; a class
+ * belongs to one year, so its summary names that year.
+ */
+export async function kepalaLaporan(
+  simpul: string,
+): Promise<{ sekolah: string | null; tempat: string | null; jenis: string | null; periode: string | null }> {
+  const kosong = { sekolah: null, tempat: null, jenis: null, periode: null };
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(simpul)) return kosong;
+  const supabase = await supabaseServer();
+  const { data: node } = await supabase.from("org_nodes")
+    .select("name, kind, institution_id, academic_period_id").eq("id", simpul).maybeSingle();
+  const n = node as { name?: string; kind?: string; institution_id?: string; academic_period_id?: string | null } | null;
+  if (!n?.institution_id) return kosong;
+  const [{ data: inst }, { data: per }] = await Promise.all([
+    supabase.from("institutions").select("name").eq("id", n.institution_id).maybeSingle(),
+    n.academic_period_id
+      ? supabase.from("academic_periods").select("name").eq("id", n.academic_period_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+  return {
+    sekolah: (inst as { name?: string } | null)?.name ?? null,
+    tempat: n.name ?? null,
+    jenis: n.kind ?? null,
+    periode: (per as { name?: string } | null)?.name ?? null,
+  };
+}

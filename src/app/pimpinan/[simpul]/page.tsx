@@ -87,18 +87,21 @@ export default async function SimpulPimpinan({
           {bukti.length === 0 ? (
             <p className="pin-empty">{s("pimpinan.bukti.kosong")}</p>
           ) : (
-            <>
-              <div className="pin-grid2">
-                {angka.map((e, i) => (
-                  <AngkaTerkelola
-                    key={e.metric_id ?? `angka-${i}`}
-                    entry={e}
-                    value={nilaiMetrik(e.metric_id, e.value, locale)}
-                    rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} /> : undefined}
-                    locale={locale}
-                  />
-                ))}
-              </div>
+            // W3.9 (RV-9): the figures and the absence cards under them are spaced by the layout gap, never touching
+            <div className="pin-bukti-tumpuk">
+              {angka.length > 0 ? (
+                <div className="pin-grid2">
+                  {angka.map((e, i) => (
+                    <AngkaTerkelola
+                      key={e.metric_id ?? `angka-${i}`}
+                      entry={e}
+                      value={nilaiMetrik(e.metric_id, e.value, locale)}
+                      rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} /> : undefined}
+                      locale={locale}
+                    />
+                  ))}
+                </div>
+              ) : null}
               {absen.map((e, i) => (
                 <KartuKetiadaan
                   key={e.metric_id ?? `absen-${i}`}
@@ -107,7 +110,7 @@ export default async function SimpulPimpinan({
                   persona="staff"
                 />
               ))}
-            </>
+            </div>
           )}
         </section>
 

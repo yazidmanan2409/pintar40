@@ -1,8 +1,12 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { tawarkanSekolahLain } from "@/lib/konteks-server";
-import { namaTempat, templatUntuk } from "@/lib/laporan";
+import { kepalaLaporan, namaTempat, templatUntuk } from "@/lib/laporan";
 import { currentLocale } from "@/lib/locale";
-import SesiSaya from "@/components/SesiSaya";
+import { tanggal } from "@/lib/tanggal";
+import { CangkangStaf } from "@/components/CangkangPengalaman";
+import { navKonteks } from "@/components/NavKonteks";
+import KakiPintar from "@/components/KakiPintar";
+import { BarisLingkup, kalimatJumlah } from "@/components/bukti";
 import { kunciMuncul } from "@/components/bukti/muncul";
 import NilaiLaporan from "@/components/bukti/NilaiLaporan";
 import AksiLaporan from "@/components/laporan/AksiLaporan";
@@ -23,6 +27,13 @@ export const generateMetadata = judulHalaman("/dekan/ringkasan");
  * asserted against the API: a dean's client holds no Studio capability, so the
  * endpoints refuse a write whatever this file draws. F06-N02 tests that, not
  * the absence of a button.
+ *
+ * W3.8 (RV-11; J7.3, J7.4, X.7): IN THE STAFF SHELL, AND SAYING WHAT IT IS OF. The report sits in the staff shell
+ * (D-138 step 3) with the working context's own places (navKonteks); every shell part carries `pin-noprint`, so the
+ * paper carries the report alone. Above the figures, the school (BarisLingkup; the school's figures are asked at its
+ * root whatever node is named, so the school and not the node is named), and what the figures cover: every school
+ * year, up to the moment they were calculated (`calc_institution_*` read every official sitting of the school, with
+ * no year), so no single year is claimed for them.
  */
 export const dynamic = "force-dynamic";
 
@@ -52,68 +63,78 @@ export default async function RingkasanSekolah({
     });
     report = data as Report;
   }
+  const dihitung = new Date();
 
   const entries = (report?.entries ?? []) as Entry[];
   const shown = entries.filter((e) => e.status === "ok");
   // W9: figures in the reader's language and units; rows that name a place, by its name
   const locale = await currentLocale();
+  const kepalaNanti = simpul ? kepalaLaporan(simpul) : Promise.resolve(null);
   const tempat = await namaTempat(shown.flatMap((e) => (Array.isArray(e.value) ? (e.value as Array<{ cohort_node_id?: unknown }>) : [])
     .map((r) => r.cohort_node_id).filter((x): x is string => typeof x === "string")));
+  const kepala = await kepalaNanti;
+  const judul = s("laporan.institusi.judul", "staff", locale);
 
   return (
-    <main id="isi" tabIndex={-1} className="mx-auto grid max-w-3xl gap-6 p-6">
-      {/* Who is signed in, and the way out (DAISY-02, D-009). min-w-0: a grid
-          item is otherwise never narrower than the strip's unbroken line, and a
-          long name pushed the button off a phone screen; the strip's own box too,
-          or at 320 px it stood 26 px past the window (X.6). */}
-      <header className="flex min-w-0 flex-wrap items-start justify-between gap-3">
-        <h1 className="text-xl font-semibold">{s("laporan.institusi.judul")}</h1>
-        <div className="pin-noprint min-w-0 max-w-full">
-          <SesiSaya locale={await currentLocale()} persona="staff" />
-        </div>
-      </header>
-      <AksiLaporan kembali={s("laporan.kembali", "staff", locale)} cetak={s("laporan.cetak", "staff", locale)} />
-
-      {!template || !simpul ? (
-        <p className={card}>{s("laporan.kosong")}</p>
-      ) : entries.length === 0 ? (
-        <p className={card}>{s("laporan.kosong")}</p>
-      ) : (
-        <>
-          {/* P3 -- an all-omitted report is a valid report. It renders its
-              statements and says so, rather than refusing. */}
-          {shown.length === 0 ? (
-            <p className={card}>{s("laporan.tak_ada_angka")}</p>
+    <>
+      <CangkangStaf locale={locale} kini={judul} nav={await navKonteks({ locale, persona: "staff", bentuk: "nav" })} />
+      <main id="isi" tabIndex={-1} className="pin-col">
+        {/* W3.8: whose report; printed with it */}
+        <BarisLingkup scope={{ institution: kepala?.sekolah }} locale={locale} />
+        <div className="pin-head">
+          <p className="pin-eyebrow">{judul}</p>
+          <h1 className="pin-h1">{kepala?.sekolah ?? judul}</h1>
+          {report ? (
+            <p className="pin-intro">
+              {s("laporan.cakupan.sekolah", "staff", locale).replace("{waktu}", tanggal(dihitung, "cap", locale))}
+            </p>
           ) : null}
+        </div>
+        <AksiLaporan kembali={s("laporan.kembali", "staff", locale)} cetak={s("laporan.cetak", "staff", locale)} />
 
-          <section className="grid gap-4">
-            {entries.map((e, i) => (
-              <article key={e.ordinal ?? i} className={card}>
-                {/* A metric the viewer may not see carries NO label: the
-                    refusal must not disclose what it withheld. */}
-                {e.status === "ok" || e.status === "below_minimum" || e.status === "deprecated" ? (
-                  <h2 className="font-medium">{e.label_key ? s(e.label_key) : ""}</h2>
-                ) : null}
+        {!template || !simpul ? (
+          <p className={card}>{s("laporan.kosong", "staff", locale)}</p>
+        ) : entries.length === 0 ? (
+          <p className={card}>{s("laporan.kosong", "staff", locale)}</p>
+        ) : (
+          <>
+            {/* P3 -- an all-omitted report is a valid report. It renders its
+                statements and says so, rather than refusing. */}
+            {shown.length === 0 ? (
+              <p className={card}>{s("laporan.tak_ada_angka", "staff", locale)}</p>
+            ) : null}
 
-                {e.status === "ok" ? (
-                  <>
-                    <NilaiLaporan entry={e} locale={locale} tempat={tempat} />
-                    {/* S-3: the sentence is not optional and not conditional. */}
-                    <p className="mt-2 text-sm text-black/70">{actionText(e)}</p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-sm text-black/70">{omissionText(e)}</p>
-                    {/* DAISY-07: and what will make it appear, when it is short of evidence */}
-                    {kunciMuncul(e) ? <p className="mt-1 text-sm text-black/70">{s(kunciMuncul(e)!)}</p> : null}
-                  </>
-                )}
-              </article>
-            ))}
-          </section>
-        </>
-      )}
-    </main>
+            <section className="grid gap-4">
+              {entries.map((e, i) => (
+                <article key={e.ordinal ?? i} className={card}>
+                  {/* A metric the viewer may not see carries NO label: the
+                      refusal must not disclose what it withheld. */}
+                  {e.status === "ok" || e.status === "below_minimum" || e.status === "deprecated" ? (
+                    <h2 className="font-medium">{e.label_key ? s(e.label_key, "staff", locale) : ""}</h2>
+                  ) : null}
+
+                  {e.status === "ok" ? (
+                    <>
+                      <NilaiLaporan entry={e} locale={locale} tempat={tempat} />
+                      {/* S-3: the sentence is not optional and not conditional. */}
+                      <p className="mt-2 text-sm text-black/70">{actionText(e, locale)}</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm text-black/70">{omissionText(e, locale)}</p>
+                      {/* W3.9 (RV-9; CR-46): how far, as a sentence, never «(0/10)» */}
+                      {kalimatJumlah(e, locale, "staff") ? <p className="mt-1 text-sm text-black/70">{kalimatJumlah(e, locale, "staff")}</p> : null}
+                      {/* DAISY-07: and what will make it appear, when it is short of evidence */}
+                      {kunciMuncul(e) ? <p className="mt-1 text-sm text-black/70">{s(kunciMuncul(e)!, "staff", locale)}</p> : null}
+                    </>
+                  )}
+                </article>
+              ))}
+            </section>
+          </>
+        )}
+      </main>
+      <KakiPintar className="pin-noprint" />
+    </>
   );
 }
-

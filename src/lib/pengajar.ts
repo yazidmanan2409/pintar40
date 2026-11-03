@@ -1042,19 +1042,6 @@ export async function minimumMetrik(): Promise<Record<string, number>> {
   return out;
 }
 
-/** Is there a periodic briefing for this class yet? Absence is a real answer. */
-export async function ringkasan(nodeId: string): Promise<{ siap: boolean } | null> {
-  const c = await db();
-  const { data } = await c
-    .from("briefings")
-    .select("id, state")
-    .eq("scope_node_id", nodeId)
-    .order("created_at", { ascending: false })
-    .limit(1);
-  const b = rows<{ id: string; state: string }>(data)[0];
-  return b ? { siap: b.state === "READY" || b.state === "REVIEWED" } : null;
-}
-
 // ═══════════════════════════════════════════ 7. who is reading, and a summary
 
 /** The reader's own name, as the school stored it. */

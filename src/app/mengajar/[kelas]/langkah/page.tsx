@@ -33,8 +33,12 @@ export const dynamic = "force-dynamic";
  * `extend_session_deadline` does, which is why its card keeps that sentence and
  * the other one would not have.)
  *
- * NOTHING HERE FOR ITEM REVIEW OR INTEGRITY, and the footnote says so plainly
- * rather than leaving an educator to wonder whether they have missed a menu.
+ * NO FOOTNOTE (W2.6; CR-37, D-120 QN4). The line under the cards promised a
+ * periodic briefing «here when there is one»; briefings are hidden for 4.0
+ * (11-validation §3: «The surface goes»), so the promise went with them. Its
+ * second sentence (item review and integrity are not the teacher's) did not
+ * stand alone and is no longer plainly true beside the class's per-question
+ * evidence (/mengajar/[kelas]/soal), so it went too.
  */
 export default async function Langkah({ params }: { params: Promise<{ kelas: string }> }) {
   const { kelas: id } = await params;
@@ -130,7 +134,6 @@ export default async function Langkah({ params }: { params: Promise<{ kelas: str
           ))}
         </div>
 
-        <p className="pin-foot">{s("mengajar.langkah.quiet")}</p>
         <KakiPintar />
       </main>
     </>
