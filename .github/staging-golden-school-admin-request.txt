@@ -19,4 +19,5 @@ slug: sekolah-uji-l3
 # 2 Nov, Batch 3 staging verification: Sekolah Uji B3 1102; staging at 182, main a5e2935 (after run 41526780481)
 # 3 Nov, Batch 3 closure staging verification: Sekolah Uji B3C 1103; staging at 183, main cb1ff3e (after run 41560800182)
 # 3 Nov, Batch 4 staging verification (D-153, D-154): Sekolah Uji B4 1103; staging at 188, main 31e456d (after run 41599554264)
-slug: sekolah-uji-b4-1103
+# 4 Nov (WIB), Batch 5 staging verification (D-157): Sekolah Uji B5 1104; staging at 193, main 3412075 (after run 41709137424)
+slug: sekolah-uji-b5-1104
