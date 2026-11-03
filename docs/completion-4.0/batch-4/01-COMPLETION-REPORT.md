@@ -23,7 +23,7 @@ The exit gate is met locally: every administration action is done through the sc
 | W2.3 | Correct a username (CR-15, J2.17; F-8) | **DONE** (§1.2) |
 | W2.8 | Profile photo on the profile only (CR-07, J8.8) | **DONE** (§1.3) |
 | W2.9 | «Laporan saya» from the account menu (CR-78, J10.1) | **ALREADY DONE in Batch 2**; verified, register reconciled (§1.9) |
-| W2.10 | Platform lists paged (CR-49, CAP-10) | **DONE**, with one recorded residual (§1.4, §4) |
+| W2.10 | Platform lists paged (CR-49, CAP-10) | **PARTIAL — INCOMPLETE**: schools, problem reports, maintenance and card holders are paged; the Aktivasi waiting-for-account list is not (§1.4, §4). Per D-153 this is incomplete W2.10 functionality, not an accepted deviation |
 | W2.13 (admin part) | UX-33 Konfigurasi waiting counts; UX-09 «nomor induk» | UX-33 **DONE**; UX-09 **AWAITING DAISY** (identity copy) (§1.5) |
 | W2.15 | Transfers end to end; destination by name (F-10) | **DONE** (§1.6) |
 | W2.19 | Stuck sends; «handed off» is not «accepted» (J1.9) | **DONE** (§1.7) |
@@ -154,7 +154,7 @@ EDU23 and M4 were restated against the Table with the same content asserted: the
 
 | Kind | IDs | What they prove |
 |---|---|---|
-| Database (`selftest/db/fable24.sql`) | F24-K01, K02, O01, P01, P02, E01, H01 | The conversion and its refusals; finding people (PINTAR ID as typed); the transfer and its refusals; stuck sends; maintenance paging |
+| Database (`selftest/db/fable24.sql`) | F24-K01, K02, K03, O01, P01, P02, P03, E01, H01 (K03 and P03 added at the promotion gate, D-153) | The conversion and its refusals; finding people (PINTAR ID as typed); the transfer and its refusals; stuck sends; maintenance paging |
 | Static (`selftest/b4.test.ts`) | B4-KARTU-K01, FOTO-K01, ORANG-K01, PINDAH-K01, HAL-K01 (the paging arithmetic executed), MENUNGGU-K01, J2-K01, BIDANG-K01 | The source of each feature |
 | Live (`selftest/b4.test.ts`) | B4-KARTU-A01 | A card learner converted, activated with a code to the new address, and given a staff role |
 
@@ -238,11 +238,15 @@ So the exit gate holds in CI as well as locally.
 | W3.6 Konfigurasi page split and index (Collection sections, RV-24, RV-15) | **AWAITING DAISY** | No composition exists; not invented. RV-16 and RV-18 are done (§1.10, §1.6) |
 | UX-09 «nomor induk» naming | **AWAITING DAISY** | Identity copy (DAISY-20/24); no ruling exists |
 | W1.2, D1, D3 | **AWAITING DAISY** (unchanged) | Registered in Batch 3 |
-| Aktivasi's waiting-for-account list | **RESIDUAL (W2.10)** | Not paged. Seven journeys find people on its first page, and the list holds only people with no account yet, so it empties as accounts are made. Card holders, the permanent population, are searched on the server. Paging this list needs a server search and journey changes; proposed as a follow-up |
+| Aktivasi's waiting-for-account list | **INCOMPLETE (W2.10)**: incomplete W2.10 functionality, not an accepted deviation (D-153) | Not paged; the list is still read whole. The fix needs a server-side search and paging for it, and the seven journeys that find people on its first page changed to search. Open in the register |
 | CI evidence | **DONE** | Green on the head SHA; see §2a |
 | Staging | **NOT APPLIED** | Migrations 184–188 reach staging only on the promotion authorisation |
 
-## 5. Stop
+## 5. Promotion gate (D-153)
+
+The preconditions and their evidence are in `02-PROMOTION-PRECONDITIONS.md`. The recovery plan is `ROLLBACK-184-188.sql`, tested locally in both directions.
+
+## 6. Stop
 
 Batch 4 development stops here, at the promotion gate. Promotion needs separate authorisation:
 1. a PR to `main`;

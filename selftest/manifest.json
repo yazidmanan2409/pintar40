@@ -4028,6 +4028,18 @@
       "id": "B4-BIDANG-K01",
       "runner": "static",
       "proves": "W3.7 and W3.6 (Batch 4; RV-22, RV-16), selftest/b4.test.ts, reading the source: Pendataan's school code (src/app/pendataan/page.tsx) is the TextField primitive (sentence-case label, the hint under it and named by the field) on one row with its button; the intake's file and paste fields (src/components/pendataan/BacaDanPetakan.tsx) use the field frame with a sentence-case label; Pendataan's job list and every date in src/app/konfigurasi/page.tsx go through the WIB date helper."
+    },
+    {
+      "id": "F24-K03",
+      "runner": "db",
+      "proves": "D-152(a), the Batch 4 promotion gate's condition 2, measured in selftest/db/fable24.sql against supabase/migrations/20261217100000_a_card_learner_becomes_staff_through_an_email_account.sql: a conversion interrupted before Auth's write leaves the class card untouched (number, sign-in address, no set-up) and a staff role still refused (STAFF_ROLE_FOR_CARD, CR-91); a retry leaves one pending grant; an expired grant's write is refused (CARD_ADDRESS_REFUSED) and changes nothing; after a write whose answer was lost, a second conversion is refused (CARD_NOT_FOUND), the school corrects a wrong address before activation and the corrected address is offered the activation code; the person holds exactly one email account.",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
+    },
+    {
+      "id": "F24-P03",
+      "runner": "db",
+      "proves": "W2.15, the Batch 4 promotion gate's condition 3, measured in selftest/db/fable24.sql against supabase/migrations/20261219100000_a_transfer_is_requested_by_name_and_accepted_by_the_receiving_school.sql: the executed transfer leaves the learner's nomor induk at the sending school, PINTAR ID, sittings, official results and certificates unchanged (a digest before and after) and keeps the sending enrolment as ENDED history; the sending school's admin still reads it but not the new enrolment; the receiving school's admin reads the enrolment it received and the learner's portable enrolment history (INV-25, record_class_registry) but none of the sending school's audit rows about the learner (INSTITUTION_SCOPED).",
+      "skip_justification": "needs a reachable Postgres with the migrations and the synthetic seed applied (CI local stack via SUPABASE_DB_URL)"
     }
   ]
 }

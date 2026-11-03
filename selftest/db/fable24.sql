@@ -16,12 +16,14 @@
 --            platform admin)
 --   F24-P01  A TRANSFER BY NAME (W2.15, F-10): the directory by exact name or code, audited; the sending school asks
 --            with no school year; the receiving school sees the learner's name only, accepts into its own year, executes
+--   F24-P03  THE TRANSFER KEEPS HISTORY AND ISOLATION (promotion gate, condition 3)
 --   F24-P02  THE TRANSFER'S REFUSALS: the wrong side accepting or asking, the wrong year, no reason, twice, a short or
 --            unauthorised search
 --   F24-E01  STUCK SENDS (W2.19, J1.9): email_send_stuck lists, for the platform admin only, the sends still waiting on
 --            the email server after N minutes, with their age; fresh and accepted sends are not listed
 --   F24-H01  MAINTENANCE A PAGE AT A TIME (W2.10): maintenance_list pages windows and notices (20) and narrows them to
 --            a school in the database
+--   F24-K03  AN INTERRUPTED CONVERSION (promotion gate, condition 2): nothing half-done, CR-91 intact, a recovery path
 --   F24-K02  THE CONVERSION'S REFUSALS: without a reason (REASON_REQUIRED), to a Guru and to another school's
 --            administrator (42501), for a person with no class card (CARD_NOT_FOUND), to an address an account
 --            already uses (EMAIL_TAKEN), to a malformed address (EMAIL_INVALID); a card's address moved without a live
@@ -52,6 +54,7 @@ returns table (id text, area text, ok boolean, detail text)
 language plpgsql set search_path = public, pg_temp as $$
 declare
   r record; v_tag text := to_char(clock_timestamp(), 'HH24MISSUS'); v_probs jsonb := '{}'::jsonb; v_fatal text := '';
+  v_snap text; v_snap2 text;
   v_a uuid; v_node uuid; v_murid uuid; v_lain uuid; v_akun public.accounts; v_akun2 public.accounts; v_uid uuid;
   v_err text; v_n int; v_b boolean; v_kartu text; v_email text; v_jejak jsonb; v_ra uuid; v_pid text; v_guru uuid;
   v_adm_b uuid; v_w_b uuid; v_enrol int; v_beta uuid; v_beta_per uuid; v_alpha_per uuid; v_en uuid; v_tf uuid; v_siswa uuid; v_bnama text;
@@ -138,6 +141,47 @@ begin
     end;
 
     -- ═══════════════════════════════════════════════════════════════════════
+    -- F24-K03  AN INTERRUPTED CONVERSION (the Batch 4 promotion gate, condition 2), part 1: before Auth's write
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_owner();
+      -- K02 left one live grant and no Auth write: the route was interrupted between its two steps
+      select a.* into v_akun2 from public.accounts a where a.person_id = v_murid;
+      if v_akun2.kind <> 'CLASSROOM_CARD' or v_akun2.card_number is distinct from v_akun.card_number
+         or exists (select 1 from public.account_setup s where s.account_id = v_akun.id and s.state = 'REQUIRED') then
+        v_probs := selftest.f24_note(v_probs, 'F24-K03', 'a grant with no Auth write changed the account: ' || row_to_json(v_akun2)::text);
+      end if;
+      if not exists (select 1 from auth.users u where u.id = v_akun.auth_user_id
+                       and lower(u.email) = 'card-' || v_kartu || '@cards.synthetic.pintar.test') then
+        v_probs := selftest.f24_note(v_probs, 'F24-K03', 'a grant with no Auth write moved the card''s sign-in address');
+      end if;
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      v_err := selftest.f23_raised(format('select public.grant_role(%L::uuid, %L::public.app_role, %L::uuid, %L::timestamptz)',
+        v_murid, 'EDUCATOR', v_node, now() + interval '1 year'));
+      if v_err is distinct from '42501 STAFF_ROLE_FOR_CARD' then
+        v_probs := selftest.f24_note(v_probs, 'F24-K03', 'with a grant pending, a staff role over the card answered ' || coalesce(v_err, 'a grant'));
+      end if;
+      -- a retry replaces the pending grant: one live grant, never two
+      perform * from public.authorize_card_conversion(v_murid, v_email, 'Diangkat menjadi asisten guru di sekolah ini.');
+      perform selftest.as_owner();
+      select count(*) into v_n from public.card_conversions c where c.account_id = v_akun.id and c.consumed_at is null;
+      if v_n <> 1 then v_probs := selftest.f24_note(v_probs, 'F24-K03', format('a retry left %s pending grants', v_n)); end if;
+      -- the grant runs out before Auth writes (a slow or failed route): the write is refused and nothing changes
+      update public.card_conversions set expires_at = clock_timestamp() - interval '1 second'
+       where account_id = v_akun.id and consumed_at is null;
+      v_err := selftest.f23_raised(format('update auth.users set email = %L where id = %L::uuid', v_email, v_akun.auth_user_id));
+      if v_err is distinct from 'PR040 CARD_ADDRESS_REFUSED' then
+        v_probs := selftest.f24_note(v_probs, 'F24-K03', 'an expired grant still moved the card: ' || coalesce(v_err, 'done'));
+      end if;
+      if (select a.kind from public.accounts a where a.id = v_akun.id) <> 'CLASSROOM_CARD' then
+        v_probs := selftest.f24_note(v_probs, 'F24-K03', 'after the refused write the account is no longer the card');
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f24_note(v_probs, 'F24-K03', 'part 1 threw: ' || sqlerrm);
+    end;
+
+    -- ═══════════════════════════════════════════════════════════════════════
     -- F24-K01  THE CONVERSION
     -- ═══════════════════════════════════════════════════════════════════════
     begin
@@ -215,6 +259,38 @@ begin
     end;
 
     -- ═══════════════════════════════════════════════════════════════════════
+    -- F24-K03  part 2: after Auth's write, when the answer never reached the screen
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      -- the admin presses again: the card is gone, so it is refused, and nothing is converted twice
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      v_err := selftest.f23_raised(format('select * from public.authorize_card_conversion(%L::uuid, %L, %L)',
+        v_murid, 'kedua-' || v_email, 'Diangkat menjadi asisten guru di sekolah ini.'));
+      if v_err is distinct from 'PR040 CARD_NOT_FOUND' then
+        v_probs := selftest.f24_note(v_probs, 'F24-K03', 'a second conversion of the converted account answered ' || coalesce(v_err, 'a grant'));
+      end if;
+      -- the person is not stranded: until they activate, the school corrects a wrong address (the supported path)
+      v_err := selftest.f23_raised(format('select * from public.authorize_email_correction(%L::uuid, %L, %L)',
+        v_murid, 'benar-' || v_email, 'Alamat yang diberikan salah ketik'));
+      if v_err is not null then
+        v_probs := selftest.f24_note(v_probs, 'F24-K03', 'the school could not correct the converted person''s address before activation: ' || v_err);
+      end if;
+      perform selftest.as_owner();
+      update auth.users set email = 'benar-' || v_email where users.id = v_akun.auth_user_id;
+      select t.auth_user_id::text into v_err from public.activation_code_target('benar-' || v_email) t;
+      if v_err is distinct from v_akun.auth_user_id::text then
+        v_probs := selftest.f24_note(v_probs, 'F24-K03', 'the corrected address is not offered an activation code');
+      end if;
+      select count(*) into v_n from public.accounts a where a.person_id = v_murid;
+      if v_n <> 1 or (select a.kind from public.accounts a where a.id = v_akun.id) <> 'EMAIL' then
+        v_probs := selftest.f24_note(v_probs, 'F24-K03', 'after the recovery the person does not hold exactly one email account');
+      end if;
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f24_note(v_probs, 'F24-K03', 'part 2 threw: ' || sqlerrm);
+    end;
+
+    -- ═══════════════════════════════════════════════════════════════════════
     -- F24-O01  FINDING A PERSON TO CORRECT (W2.1-W2.3)
     -- ═══════════════════════════════════════════════════════════════════════
     begin
@@ -285,6 +361,12 @@ begin
       if v_beta is null or v_beta_per is null or v_en is null then
         raise exception 'the fixture lacks beta, a beta school year or an alpha enrolment';
       end if;
+      -- P03: the learner's identity and history before the transfer (nomor induk, PINTAR ID, sittings, results, certificates)
+      v_snap := (select md5(coalesce((select string_agg(ii.institution_id::text || ':' || ii.institutional_id, ',' order by ii.institution_id) from public.institutional_identities ii where ii.person_id = v_siswa), '')
+          || '|' || coalesce((select p.pintar_id from public.persons p where p.id = v_siswa), '')
+          || '|' || coalesce((select string_agg(x.id::text || ':' || x.status::text, ',' order by x.id) from public.assessment_sessions x where x.person_id = v_siswa), '')
+          || '|' || coalesce((select string_agg(x.id::text, ',' order by x.id) from public.official_results x where x.person_id = v_siswa), '')
+          || '|' || coalesce((select string_agg(x.id::text, ',' order by x.id) from public.certificates x where x.person_id = v_siswa), '')));
       -- the directory: exact name or code, audited; nothing partial (alpha's admin cannot read beta's row: the name is
       -- read here, as the owner, and typed as a person would)
       select x.name into v_bnama from public.institutions x where x.id = v_beta;
@@ -364,6 +446,48 @@ begin
       perform selftest.as_owner();
       v_probs := selftest.f24_note(v_probs, 'F24-P01', 'threw: ' || sqlerrm);
       v_probs := selftest.f24_note(v_probs, 'F24-P02', 'not reached: the transfer block threw');
+    end;
+
+    -- ═══════════════════════════════════════════════════════════════════════
+    -- F24-P03  THE TRANSFER KEEPS HISTORY AND ISOLATION (the Batch 4 promotion gate, condition 3)
+    -- ═══════════════════════════════════════════════════════════════════════
+    begin
+      perform selftest.as_owner();
+      if v_tf is null or not exists (select 1 from public.transfers t where t.id = v_tf and t.status = 'EXECUTED') then
+        raise exception 'P01 did not execute its transfer';
+      end if;
+      -- identity and history are the person's and unchanged: alpha's nomor induk, the PINTAR ID, sittings, results,
+      -- certificates; the alpha enrolment is kept, ENDED, never deleted
+      v_snap2 := (select md5(coalesce((select string_agg(ii.institution_id::text || ':' || ii.institutional_id, ',' order by ii.institution_id) from public.institutional_identities ii where ii.person_id = v_siswa), '')
+          || '|' || coalesce((select p.pintar_id from public.persons p where p.id = v_siswa), '')
+          || '|' || coalesce((select string_agg(x.id::text || ':' || x.status::text, ',' order by x.id) from public.assessment_sessions x where x.person_id = v_siswa), '')
+          || '|' || coalesce((select string_agg(x.id::text, ',' order by x.id) from public.official_results x where x.person_id = v_siswa), '')
+          || '|' || coalesce((select string_agg(x.id::text, ',' order by x.id) from public.certificates x where x.person_id = v_siswa), '')));
+      if v_snap2 is distinct from v_snap then
+        v_probs := selftest.f24_note(v_probs, 'F24-P03', 'the learner''s identity or history changed with the transfer');
+      end if;
+      if not exists (select 1 from public.enrollments e where e.id = v_en and e.institution_id = v_a and e.status = 'ENDED') then
+        v_probs := selftest.f24_note(v_probs, 'F24-P03', 'the alpha enrolment is not kept as ENDED history');
+      end if;
+      -- isolation as INV-13 and INV-25 draw it: alpha's admin still reads alpha's history but never the learner's future
+      -- at beta; beta's admin reads the enrolment it received and the PORTABLE history that existed at the transfer
+      -- (enrolments, record_class_registry), but nothing INSTITUTION_SCOPED of alpha's: its audit trail
+      perform selftest.as_user('alpha-admin@synthetic.pintar.test');
+      select count(*) into v_n from public.enrollments e where e.id = v_en;
+      if v_n <> 1 then v_probs := selftest.f24_note(v_probs, 'F24-P03', 'alpha can no longer read its own ended enrolment'); end if;
+      select count(*) into v_n from public.enrollments e where e.person_id = v_siswa and e.institution_id = v_beta;
+      if v_n <> 0 then v_probs := selftest.f24_note(v_probs, 'F24-P03', 'alpha reads the learner''s new enrolment at beta'); end if;
+      perform selftest.as_user('beta-admin@synthetic.pintar.test');
+      select count(*) into v_n from public.enrollments e where e.person_id = v_siswa and e.institution_id = v_beta and e.status = 'ACTIVE';
+      if v_n <> 1 then v_probs := selftest.f24_note(v_probs, 'F24-P03', 'beta cannot read the enrolment it received'); end if;
+      select count(*) into v_n from public.enrollments e where e.id = v_en;
+      if v_n <> 1 then v_probs := selftest.f24_note(v_probs, 'F24-P03', 'beta cannot read the learner''s portable enrolment history (INV-25)'); end if;
+      select count(*) into v_n from public.audit_log a where a.institution_id = v_a and a.target_id = v_siswa::text;
+      if v_n <> 0 then v_probs := selftest.f24_note(v_probs, 'F24-P03', format('beta reads %s of alpha''s audit rows about the learner (INSTITUTION_SCOPED)', v_n)); end if;
+      perform selftest.as_owner();
+    exception when others then
+      perform selftest.as_owner();
+      v_probs := selftest.f24_note(v_probs, 'F24-P03', 'threw: ' || sqlerrm);
     end;
 
     -- ═══════════════════════════════════════════════════════════════════════
@@ -466,10 +590,11 @@ begin
   perform selftest.as_owner();
 
   for r in select * from unnest(
-      array['F24-K01', 'F24-K02', 'F24-O01', 'F24-P01', 'F24-P02', 'F24-E01', 'F24-H01'],
+      array['F24-K01', 'F24-K02', 'F24-K03', 'F24-O01', 'F24-P01', 'F24-P02', 'F24-P03', 'F24-E01', 'F24-H01'],
       array['D-152(a) -- a card learner becomes staff through an email account', 'D-152(a) -- the conversion''s refusals',
+            'D-152(a) -- an interrupted conversion',
             'W2.1-W2.3 -- finding a person to correct', 'W2.15 -- a transfer by name, accepted by the receiving school',
-            'W2.15 -- the transfer''s refusals', 'W2.19 -- stuck sends', 'W2.10 -- maintenance listed a page at a time'],
+            'W2.15 -- the transfer''s refusals', 'W2.15 -- the transfer keeps history and isolation', 'W2.19 -- stuck sends', 'W2.10 -- maintenance listed a page at a time'],
       array[
         'the school admin converts a class-card learner''s account: the same account row, Auth user, person and PINTAR '
           || 'ID; an EMAIL account whose set-up is REQUIRED (the new address is offered an activation code); the card''s '
@@ -478,6 +603,11 @@ begin
         'refused without a reason, to a malformed or taken address, for a person with no card, to a Guru and to another '
           || 'school''s administrator; a card''s address moved without a grant or to another address is refused; after '
           || 'the conversion the new address is guarded as every email account''s (EMAIL_CHANGE_REFUSED)',
+        'interrupted before Auth''s write: the account is still the card (same number, sign-in address, no set-up), a '
+          || 'staff role is still refused (STAFF_ROLE_FOR_CARD), a retry leaves one pending grant, an expired grant''s '
+          || 'write is refused (CARD_ADDRESS_REFUSED) and changes nothing; after a write whose answer was lost: a second '
+          || 'conversion is refused (CARD_NOT_FOUND), the school corrects a wrong address before activation and the '
+          || 'corrected address is offered the activation code; the person holds exactly one email account',
         'orang_berakun: the platform admin finds an activated alpha Guru with every correction and beta''s admin, a person by '
           || 'their PINTAR ID typed 4+4 in lower case (the PINTAR ID returned, not the nomor induk), and not '
           || 'alpha''s Guru when narrowed to beta; a page is '
@@ -493,6 +623,10 @@ begin
           || 'or seeing it as incoming; a request to its own school (DESTINATION_INVALID), with no reason '
           || '(REASON_REQUIRED), twice (TRANSFER_OPEN); a two-letter search (QUERY_TOO_SHORT); a Guru searching (42501); '
           || 'the receiving school asking for another school''s learner (42501)',
+        'the learner''s nomor induk at alpha, PINTAR ID, sittings, results and certificates are unchanged by the transfer; '
+          || 'the alpha enrolment is kept as ENDED history; alpha''s admin still reads it but not the beta enrolment; '
+          || 'beta''s admin reads the enrolment it received and the portable enrolment history (INV-25) but none of alpha''s '
+          || 'audit rows about the learner (INSTITUTION_SCOPED)',
         'email_send_stuck: the platform admin is shown a send pending for 45 minutes with its age, not one pending for a '
           || 'minute nor one the server accepted; a school admin is refused 42501',
         'maintenance_list: 20 windows and 20 notices a page with more to follow, the notices'' second page holding the rest; narrowed to alpha, alpha''s 21 windows '

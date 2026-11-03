@@ -54,7 +54,7 @@ Each item keeps its original finding ids for traceability: CR (closure register)
 | W2.7 | Integrity review: the referrer sees the outcome; one decision per signal; a visible reviewed state | CR-77, CR-75, J7.6 | E | 5 | NOT STARTED |
 | W2.8 | **Profile photo** on the profile only (FileField; storage; not on the certificate) | CR-07, J8.8 | E | 4 | DONE — PROMOTION PENDING (Batch 4; B4-FOTO-K01, walk B4-W10) |
 | W2.9 | «Laporan saya» reachable from the account menu | CR-78, J10.1, X.1 | E | 4 | DONE (Batch 2: MenuAkun «Laporan saya»; verified in Batch 4) |
-| W2.10 | Platform admin lists paged | CR-49, R.5 | E | 4 | DONE — PROMOTION PENDING (Batch 4; F24-H01, B4-HAL-K01). Residual: Aktivasi's waiting-for-account list is not paged (Batch 4 report §4) |
+| W2.10 | Platform admin lists paged | CR-49, R.5 | E | 4 | PARTIAL — INCOMPLETE (D-153): paged in Batch 4 (schools, problem reports, maintenance, card holders; F24-H01, B4-HAL-K01); the Aktivasi waiting-for-account list is NOT paged: incomplete W2.10 functionality, not an accepted deviation |
 | W2.12 | No «Mulai Pemetaan Awal» offer without one (RV-7); the seeded lesson's missing audio (RV-8) | RV-7, RV-8, J6.5 | E | 5 | NOT STARTED |
 | W2.13 | Teacher and admin UX: «nomor induk» (UX-09); Konfigurasi waiting counts (UX-33); per-class flags (UX-37); new result as next action (UX-40); «Penguasaan per bagian» heading (UX-41); educator recovery line (UX-45); certificate refusal label (UX-46) | UX register | E | 4–5 | PARTIAL (Batch 4: UX-33 done, B4-MENUNGGU-K01, walk B4-W8; UX-09 AWAITING DAISY; teacher items UX-37/40/41/45/46 not in Batch 4) |
 | W2.14 | «ditugaskan» residue in learner and Studio strings, under C2 (D-135(d)) | UX-19 | E | 7 | NOT STARTED |
