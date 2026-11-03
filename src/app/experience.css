@@ -2507,6 +2507,12 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-lt-panel .pin-konfirmasi-judul { font-size: var(--t-body); font-weight: var(--weight-strong); color: var(--ink-1); }
 .pin-konfirmasi-isi { display: grid; gap: var(--space-3); min-width: 0; }
 .pin-konfirmasi-isi .pin-actions { margin-top: 0; }
+/* W2.5 (CR-05): the destructive Confirmation (components/Confirmation): its edge is status-blocked, as its button is */
+.pin-konfirmasi.pin-konfirmasi-bahaya { border-color: var(--status-blocked); }
+.pin-konfirmasi .pin-konfirmasi-judul { margin: 0; font-size: var(--t-body); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-konfirmasi p { margin: 0; }
+/* a reason written for an act (W2.5): a few lines, growing downward only */
+.pin-alasan-isian { width: 100%; min-height: calc(var(--control-md) * 3); padding-block: var(--space-2); resize: vertical; }
 /* W1.8: a version's review outcomes in «Riwayat perbaikan», under its summary */
 .pin-riwayat-tinjauan {
   list-style: none; margin: var(--space-2) 0 0; padding: 0 0 0 var(--space-3);

@@ -136,6 +136,43 @@ export type HleEvent =
   | "verifikasi.status.DIGANTIKAN"
   | "verifikasi.status.DIGANTIKAN.arti"
   | "verifikasi.status.TIDAK_SAH"
+  | "sertifikat.kelola.judul"
+  | "sertifikat.kelola.intro"
+  | "sertifikat.kelola.intro.platform"
+  | "sertifikat.kelola.benda"
+  | "sertifikat.kelola.cari"
+  | "sertifikat.kelola.kolom.pemegang"
+  | "sertifikat.kelola.kolom.nomor"
+  | "sertifikat.kelola.kolom.sekolah"
+  | "sertifikat.kelola.kolom.kursus"
+  | "sertifikat.kelola.kolom.terbit"
+  | "sertifikat.kelola.kolom.keadaan"
+  | "sertifikat.kelola.kolom.tindakan"
+  | "sertifikat.kelola.keadaan.ISSUED"
+  | "sertifikat.kelola.keadaan.REVOKED"
+  | "sertifikat.kelola.keadaan.SUPERSEDED"
+  | "sertifikat.kelola.kosong"
+  | "sertifikat.kelola.tidak_cocok"
+  | "sertifikat.kelola.cabut"
+  | "sertifikat.kelola.ditolak"
+  | "sertifikat.cabut.judul"
+  | "sertifikat.cabut.alasan"
+  | "sertifikat.cabut.alasan.arti"
+  | "sertifikat.cabut.lanjut"
+  | "sertifikat.cabut.tanya"
+  | "sertifikat.cabut.akibat"
+  | "sertifikat.cabut.aman"
+  | "sertifikat.cabut.tombol"
+  | "sertifikat.cabut.batal"
+  | "sertifikat.cabut.ok"
+  | "sertifikat.cabut.dicabut_pada"
+  | "sertifikat.cabut.alasan_tercatat"
+  | "sertifikat.cabut.digantikan"
+  | "sertifikat.cabut.gagal.ALASAN_WAJIB"
+  | "sertifikat.cabut.gagal.SUDAH_DICABUT"
+  | "sertifikat.cabut.gagal.DITOLAK"
+  | "sertifikat.cabut.gagal.TIDAK_DITEMUKAN"
+  | "sertifikat.cabut.gagal.LAYANAN_TIDAK_TERSEDIA"
   | "verifikasi.tidak_ditemukan.arti"
   | "sertifikat.daftar.eyebrow"
   | "sertifikat.daftar.judul"
@@ -2819,6 +2856,43 @@ const table: Table = {
   "verifikasi.status.DIGANTIKAN": { default: "Digantikan sertifikat yang lebih baru", en: "Replaced by a newer certificate" },
   "verifikasi.status.DIGANTIKAN.arti": { default: "Penerbit telah menerbitkan sertifikat pengganti. Mintalah sertifikat yang baru kepada pemegangnya.", en: "The issuer has issued a replacement. Ask the holder for the new certificate." },
   "verifikasi.status.TIDAK_SAH": { default: "Tidak sah", en: "Not valid" },
+  "sertifikat.kelola.judul": { default: "Sertifikat sekolah", en: "School certificates" },
+  "sertifikat.kelola.intro": { default: "Sertifikat yang sudah diterbitkan sekolah Anda. Sertifikat yang keliru diterbitkan dapat dicabut di sini; pemeriksaan keasliannya lalu menyatakannya dicabut.", en: "The certificates your school has issued. A certificate issued in error can be revoked here; its authenticity check then says it was revoked." },
+  "sertifikat.kelola.intro.platform": { default: "Sertifikat yang sudah diterbitkan semua sekolah. Sertifikat yang keliru diterbitkan dapat dicabut di sini; pemeriksaan keasliannya lalu menyatakannya dicabut.", en: "The certificates every school has issued. A certificate issued in error can be revoked here; its authenticity check then says it was revoked." },
+  "sertifikat.kelola.benda": { default: "sertifikat", en: "certificates" },
+  "sertifikat.kelola.cari": { default: "Cari nomor sertifikat atau nama pemegang", en: "Search by certificate number or holder's name" },
+  "sertifikat.kelola.kolom.pemegang": { default: "Pemegang", en: "Holder" },
+  "sertifikat.kelola.kolom.nomor": { default: "Nomor sertifikat", en: "Certificate number" },
+  "sertifikat.kelola.kolom.sekolah": { default: "Sekolah", en: "School" },
+  "sertifikat.kelola.kolom.kursus": { default: "Kursus", en: "Course" },
+  "sertifikat.kelola.kolom.terbit": { default: "Diterbitkan", en: "Issued" },
+  "sertifikat.kelola.kolom.keadaan": { default: "Keadaan", en: "State" },
+  "sertifikat.kelola.kolom.tindakan": { default: "Tindakan", en: "Action" },
+  "sertifikat.kelola.keadaan.ISSUED": { default: "Berlaku", en: "Valid" },
+  "sertifikat.kelola.keadaan.REVOKED": { default: "Dicabut", en: "Revoked" },
+  "sertifikat.kelola.keadaan.SUPERSEDED": { default: "Digantikan", en: "Replaced" },
+  "sertifikat.kelola.kosong": { default: "Belum ada sertifikat yang diterbitkan.", en: "No certificate has been issued yet." },
+  "sertifikat.kelola.tidak_cocok": { default: "Tidak ada sertifikat yang cocok dengan pencarian ini.", en: "No certificate matches this search." },
+  "sertifikat.kelola.cabut": { default: "Cabut", en: "Revoke" },
+  "sertifikat.kelola.ditolak": { default: "Sertifikat sekolah hanya dapat dibuka oleh Admin sekolah.", en: "Only a school admin can open the school's certificates." },
+  "sertifikat.cabut.judul": { default: "Cabut sertifikat", en: "Revoke a certificate" },
+  "sertifikat.cabut.alasan": { default: "Alasan pencabutan", en: "Reason for revoking" },
+  "sertifikat.cabut.alasan.arti": { default: "Mengapa sertifikat ini dicabut. Dicatat bersama pencabutannya dan tidak dapat diubah.", en: "Why this certificate is revoked. Recorded with the revocation and cannot be changed." },
+  "sertifikat.cabut.lanjut": { default: "Lanjutkan", en: "Continue" },
+  "sertifikat.cabut.tanya": { default: "Cabut sertifikat ini?", en: "Revoke this certificate?" },
+  "sertifikat.cabut.akibat": { default: "Pemeriksaan keaslian akan menyatakan sertifikat ini dicabut oleh penerbit. Pencabutan tidak dapat dibatalkan; bila perlu, sekolah menerbitkan sertifikat baru.", en: "The authenticity check will say the issuer revoked this certificate. A revocation cannot be undone; if needed, the school issues a new certificate." },
+  "sertifikat.cabut.aman": { default: "Hasil dan nilai murid tetap tersimpan.", en: "The learner's results and scores stay as they are." },
+  "sertifikat.cabut.tombol": { default: "Cabut sertifikat {nomor}", en: "Revoke certificate {nomor}" },
+  "sertifikat.cabut.batal": { default: "Batal", en: "Cancel" },
+  "sertifikat.cabut.ok": { default: "✓ Sertifikat {nomor} sudah dicabut. Pemeriksaan keasliannya kini menyatakannya dicabut.", en: "✓ Certificate {nomor} is revoked. Its authenticity check now says so." },
+  "sertifikat.cabut.dicabut_pada": { default: "Dicabut {tanggal}.", en: "Revoked {tanggal}." },
+  "sertifikat.cabut.alasan_tercatat": { default: "Alasan:", en: "Reason:" },
+  "sertifikat.cabut.digantikan": { default: "Sertifikat ini sudah digantikan sertifikat yang lebih baru, jadi tidak dicabut di sini.", en: "This certificate has been replaced by a newer one, so it is not revoked here." },
+  "sertifikat.cabut.gagal.ALASAN_WAJIB": { default: "Tulis alasan pencabutannya.", en: "Write the reason for revoking it." },
+  "sertifikat.cabut.gagal.SUDAH_DICABUT": { default: "Sertifikat ini sudah dicabut sebelumnya. Pencabutan yang pertama tetap berlaku.", en: "This certificate was already revoked. The first revocation stands." },
+  "sertifikat.cabut.gagal.DITOLAK": { default: "Anda tidak berwenang mencabut sertifikat sekolah ini.", en: "You are not allowed to revoke this school's certificates." },
+  "sertifikat.cabut.gagal.TIDAK_DITEMUKAN": { default: "Sertifikat ini tidak ditemukan.", en: "This certificate was not found." },
+  "sertifikat.cabut.gagal.LAYANAN_TIDAK_TERSEDIA": { default: "Pencabutan belum dapat dilakukan sekarang. Coba lagi sebentar lagi.", en: "The revocation cannot be done right now. Try again shortly." },
   "verifikasi.tidak_ditemukan.arti": { default: "Periksa kembali tautan atau kode yang Anda terima.", en: "Check the link or code you were given." },
   "sertifikat.daftar.eyebrow": { default: "Sertifikat", en: "Certificates" },
   "sertifikat.daftar.judul": { default: "Sertifikat Anda", en: "Your certificates" },
