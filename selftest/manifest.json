@@ -3985,7 +3985,7 @@
     {
       "id": "B4-KARTU-A01",
       "runner": "app",
-      "proves": "D-152(a) (Batch 4), selftest/b4.test.ts, live against the app and the local stack: a class-card learner signs in with the card; the platform admin's conversion without a reason is refused (ALASAN_WAJIB); with one it answers ok and the card no longer signs in; the same account row and Auth user are an EMAIL account; the person activates it with a code to the new address and signs in with their password; a staff role is then accepted where CR-91 refused it over the card; account.card_converted_to_email records the reason, the old card and the new address.",
+      "proves": "D-152(a) (Batch 4), selftest/b4.test.ts, live against the app's route output and the local stack: a class-card learner signs in with the card; the platform admin's conversion without a reason is refused (ALASAN_WAJIB); with one it answers ok and the card no longer signs in; the same account row and Auth user are an EMAIL account; the person activates it with a code to the new address and signs in with their password; a staff role is then accepted where CR-91 refused it over the card; account.card_converted_to_email records the reason, the old card and the new address.",
       "skip_justification": "needs the running app, the local stack (Auth, PostgREST) and the Mailpit sink"
     },
     {
@@ -3996,12 +3996,12 @@
     {
       "id": "B4-ORANG-K01",
       "runner": "static",
-      "proves": "W2.1-W2.3 (Batch 4, CR-13-CR-15, F-8 / D-152(b)), selftest/b4.test.ts: /aktivasi/orang lists orang_berakun as a paged Collection with the caller's client, opens a panel offering only the corrections the database grants this reader (boleh_email, boleh_identitas), and asks correct_person_name and correct_username with the caller's client (src/app/aktivasi/orang/actions.ts); Aktivasi leads to it; every refusal has a sentence in both languages."
+      "proves": "W2.1-W2.3 (Batch 4, CR-13-CR-15, F-8 / D-152(b)), selftest/b4.test.ts, reading the source: /aktivasi/orang lists orang_berakun as a paged Collection with the caller's client, opens a panel offering only the corrections the database grants this reader (boleh_email, boleh_identitas), and asks correct_person_name and correct_username with the caller's client (src/app/aktivasi/orang/actions.ts); Aktivasi leads to it; every refusal has a sentence in both languages."
     },
     {
       "id": "B4-PINDAH-K01",
       "runner": "static",
-      "proves": "W2.15 (Batch 4, F-10 / D-152(c)), selftest/b4.test.ts: Konfigurasi · Perpindahan finds a destination school through cari_sekolah_tujuan (exact name or code), requests the transfer through transfer_minta, and shows the receiving school its incoming requests (pindah_masuk) to accept into its own school year through transfer_terima (src/app/konfigurasi/actions.ts); every sentence in both languages."
+      "proves": "W2.15 (Batch 4, F-10 / D-152(c)), selftest/b4.test.ts, reading the source: Konfigurasi · Perpindahan finds a destination school through cari_sekolah_tujuan (exact name or code), requests the transfer through transfer_minta, and shows the receiving school its incoming requests (pindah_masuk) to accept into its own school year through transfer_terima (src/app/konfigurasi/actions.ts); every sentence in both languages."
     },
     {
       "id": "F24-H01",
@@ -4012,12 +4012,17 @@
     {
       "id": "B4-HAL-K01",
       "runner": "static",
-      "proves": "W2.10 (Batch 4; CR-49, CAP-10), selftest/b4.test.ts: in «Seluruh platform» Konfigurasi reads the schools a page at a time (range, with the next page known) and only those schools' years; the problem reports are read a page at a time in the database's order (open first, a stopped class first, the oldest waiting first; then the finished, newest first), the page crossing from open to finished read correctly (executed against the paging arithmetic); the maintenance windows and notices are maintenance_list's pages, narrowed to the school by the database; Aktivasi's class-card holders are searched on the server, at most twenty, never sent whole; each list has its pager."
+      "proves": "W2.10 (Batch 4; CR-49, CAP-10), selftest/b4.test.ts, reading the source: in «Seluruh platform» Konfigurasi reads the schools a page at a time (range, with the next page known) and only those schools' years; the problem reports are read a page at a time in the database's order (open first, a stopped class first, the oldest waiting first; then the finished, newest first), the page crossing from open to finished read correctly (executed against the paging arithmetic); the maintenance windows and notices are maintenance_list's pages, narrowed to the school by the database; Aktivasi's class-card holders are searched on the server, at most twenty, never sent whole; each list has its pager."
     },
     {
       "id": "B4-MENUNGGU-K01",
       "runner": "static",
-      "proves": "W2.13 / UX-33 (Batch 4), selftest/b4.test.ts: Konfigurasi's landing (src/app/konfigurasi/page.tsx) shows what waits with a count, only where the reader may act in the working context: the school's imports waiting for a person's go (import_jobs in AWAITING_CONFIRMATION or AWAITING_PILOT_VERIFICATION, counted), its people waiting for an account (persons_awaiting_account, counted; every school's in «Seluruh platform»), its packages waiting on the reader (studio_home's ACTION_REQUIRED and AWAITING_MY_REVIEW); each opens where it is done; nothing is drawn when nothing waits; every sentence in both languages."
+      "proves": "W2.13 / UX-33 (Batch 4), selftest/b4.test.ts, reading the source: Konfigurasi's landing (src/app/konfigurasi/page.tsx) shows what waits with a count, only where the reader may act in the working context: the school's imports waiting for a person's go (import_jobs in AWAITING_CONFIRMATION or AWAITING_PILOT_VERIFICATION, counted), its people waiting for an account (persons_awaiting_account, counted; every school's in «Seluruh platform»), its packages waiting on the reader (studio_home's ACTION_REQUIRED and AWAITING_MY_REVIEW); each opens where it is done; nothing is drawn when nothing waits; every sentence in both languages."
+    },
+    {
+      "id": "B4-J2-K01",
+      "runner": "static",
+      "proves": "W3.5 (Batch 4; Daisy, J2Kelas), selftest/b4.test.ts, reading the source: /mengajar/[kelas]/siapa is one Collection (Table, Search, Segmented filter), each learner once with the name opening their record and their state's Badge in the words «Lihat bukti» counts under, no score or rank; the class page's roster (/mengajar/[kelas]) is a Table of names alone, each opening the learner's record, searched and paged with the total."
     }
   ]
 }

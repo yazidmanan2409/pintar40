@@ -434,3 +434,8 @@ export function kalimatHasil(
   if (h.ref) bagian.push(`${s("galat.rujukan")}: ${h.ref}.`);
   return bagian.join(" ");
 }
+
+/** W2.15 (Batch 4): a transfer's refusal by its DETAIL (PR040), as a code of this contract, or undefined for any other. */
+export function kodeAntarSekolah(e: GalatDb): (typeof KODE_ANTAR_SEKOLAH_DARI_DB)[string] | undefined {
+  return e?.code === "PR040" && typeof e.details === "string" ? KODE_ANTAR_SEKOLAH_DARI_DB[e.details] : undefined;
+}

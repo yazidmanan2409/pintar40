@@ -8,6 +8,7 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import BarisHasil from "@/components/BarisHasil";
+import TombolKirim from "@/components/TombolKirim";
 import BidangTeks from "@/components/bentuk/BidangTeks";
 import Kosong from "@/components/Kosong";
 import Koleksi from "@/components/koleksi/Koleksi";
@@ -148,7 +149,7 @@ export default async function KoreksiOrang({ searchParams }: { searchParams: Pro
                   <input type="hidden" name="orang" value={dipilih.person_id} />
                   <BidangTeks id="koreksi-nama" name="nilai" required maxLength={200} label={s("orang.nama.baru")} defaultValue={dipilih.display_name} />
                   <BidangTeks id="koreksi-nama-alasan" name="alasan" required maxLength={500} label={s("orang.alasan")} petunjuk={s("orang.alasan.arti")} />
-                  <span className="pin-actions"><button type="submit" className="pin-btn pin-primary">{s("orang.nama.tombol")}</button></span>
+                  <span className="pin-actions"><TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.memproses")}>{s("orang.nama.tombol")}</TombolKirim></span>
                   {hasilDi("nama")}
                 </form>
                 <form action={koreksiUsernameAksi} className="pin-koreksi" data-koreksi="username">
@@ -158,7 +159,7 @@ export default async function KoreksiOrang({ searchParams }: { searchParams: Pro
                   <BidangTeks id="koreksi-username" name="nilai" required maxLength={20} autoComplete="off" spellCheck={false}
                     label={s("orang.username.baru")} petunjuk={s("orang.username.aturan")} defaultValue={dipilih.username ?? ""} />
                   <BidangTeks id="koreksi-username-alasan" name="alasan" required maxLength={500} label={s("orang.alasan")} petunjuk={s("orang.alasan.arti")} />
-                  <span className="pin-actions"><button type="submit" className="pin-btn pin-primary">{s("orang.username.tombol")}</button></span>
+                  <span className="pin-actions"><TombolKirim className="pin-btn pin-primary" sibuk={s("tombol.memproses")}>{s("orang.username.tombol")}</TombolKirim></span>
                   {hasilDi("username")}
                 </form>
               </>

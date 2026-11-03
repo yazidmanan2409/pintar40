@@ -64,18 +64,18 @@ export const b4Tests: SelfTest[] = [
       const c = new Checks();
       const halaman = kode(baca(ctx.repoRoot, "src/app/akun/page.tsx"));
       c.expect(/<FotoProfil locale=\{locale\} personId=\{String\(aku\)\} url=\{urlFoto\} \/>/.test(halaman), "«Akun saya» does not show «Foto profil»");
-      c.expect(/createSignedUrl\(jalurFoto, 300\)/.test(halaman) && /jalurFoto\.startsWith\(`profile\/\$\{aku\}\/`\)/.test(halaman),
-        "the page does not read only the person's own photo through a short-lived signed URL");
+      c.expect(/`\/api\/assets\/read-url\?path=\$\{encodeURIComponent\(jalurFoto\)\}&alih=1`/.test(halaman) && /jalurFoto\.startsWith\(`profile\/\$\{aku\}\/`\)/.test(halaman)
+        && !/supabaseService/.test(halaman), "the page does not show only the person's own photo through the read route's short-lived URL");
       const komp = kode(baca(ctx.repoRoot, "src/components/akun/FotoProfil.tsx"));
       c.expect(/<BidangBerkas id="foto-profil"/.test(komp) && /fetch\("\/api\/assets\/upload-url"/.test(komp) && /uploadToSignedUrl\(/.test(komp)
-        && /simpanFotoAksi\(path\)/.test(komp) && /simpanFotoAksi\(null\)/.test(komp),
+        && /simpanFoto\(path\)/.test(komp) && /simpanFoto\(null\)/.test(komp) && /fetch\("\/api\/akun\/foto"/.test(komp),
         "the section does not upload through the signed route (FileField) and then keep, or remove, the path");
-      const aksi = kode(baca(ctx.repoRoot, "src/app/akun/actions.ts"));
+      const aksi = kode(baca(ctx.repoRoot, "src/app/api/akun/foto/route.ts"));
       const milik = aksi.indexOf("fotoMilik(");
       const ada = aksi.indexOf('.storage.from("assets").list(');
       const tulis = aksi.indexOf('supabase.from("persons").update({ photo_path: jalur })');
-      c.expect(milik > 0 && ada > milik && tulis > ada, "the action does not check the folder and the file before the person's own update");
-      c.expect(!/supabaseService\(\)\.from\("persons"\)/.test(aksi), "the action writes the person with the service key");
+      c.expect(milik > 0 && ada > milik && tulis > ada, "the route does not check the folder and the file before the person's own update");
+      c.expect(!/supabaseService\(\)\.from\("persons"\)/.test(aksi) && /if \(!asalSendiri\(/.test(aksi), "the route writes the person with the service key, or answers another origin");
       const kontrak = await import("../src/lib/foto-profil-kontrak");
       const p = "11111111-1111-4111-8111-111111111111";
       const q = "22222222-2222-4222-8222-222222222222";
@@ -208,6 +208,26 @@ export const b4Tests: SelfTest[] = [
         + "where the reader may act in this context: the school's imports waiting for a go, its people waiting for an account (every "
         + "school's in «Seluruh platform»), its packages waiting on the reader (studio_home); each opens where it is done; nothing when "
         + "nothing waits; every sentence in both languages");
+    },
+  },
+  {
+    id: "B4-J2-K01",
+    run: async (ctx) => {
+      const c = new Checks();
+      const siapa = kode(baca(ctx.repoRoot, "src/app/mengajar/[kelas]/siapa/page.tsx"));
+      const kelas = kode(baca(ctx.repoRoot, "src/app/mengajar/[kelas]/page.tsx"));
+      c.expect(/<Koleksi\s+id="pin-siapa-murid"/.test(siapa) && !/<DaftarMurid\b/.test(siapa), "/siapa is not Daisy's J2Kelas Table");
+      c.expect(/sel: \[<span key="k" className=\{KEADAAN\[m\.keadaan\]\.badge\} data-keadaan=\{m\.keadaan\}>\{s\(KEADAAN\[m\.keadaan\]\.kunci\)\}<\/span>\]/.test(siapa)
+        && /saring=\{\{/.test(siapa) && /cari=\{cari\}/.test(siapa), "/siapa's rows do not carry their state's Badge, or the Table has no search or state filter");
+      c.expect(!/format\.percent|m\.nilai|skor|peringkat|rank/i.test(siapa.slice(siapa.indexOf("<Koleksi"), siapa.indexOf("</section>", siapa.indexOf("<Koleksi")))),
+        "/siapa's Table carries a score or a ranking");
+      c.expect(/<Koleksi\s+id="pin-kelas-murid"/.test(kelas) && !/<DaftarMurid\b/.test(kelas) && /kolom=\{\[\{ judul: s\("mengajar\.cepat\.hasil\.kolom\.nama"\) \}\]\}/.test(kelas)
+        && /sel: \[\] \}\)\)/.test(kelas), "the class page's roster is not a Table of names alone");
+      c.expect(/susunKoleksi\(fakta\.murid, \{ nama: \(m\) => m\.nama, kueri: kueriDiminta\(sp\.cari\), halaman: halamanKoleksi\(sp\.hal\), ukuran: 50 \}\)/.test(kelas),
+        "the class page's roster is not searched and paged");
+      return c.verdict("Daisy's J2Kelas: /siapa is one Table, each learner once (the name opening their record) with their state's Badge in "
+        + "the words «Lihat bukti» counts under, searched and filtered by state, no score or rank; the class page's roster is a Table "
+        + "of names alone (each opening the record), searched and paged with the total");
     },
   },
 ];

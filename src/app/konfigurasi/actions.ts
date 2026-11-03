@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { adaAdminSekolah, akarSekolah, calonAdminPertama, orangSekolah } from "@/lib/admin-pertama";
 import { kodeGalatStruktur, rujukanGalat, type HasilStruktur } from "@/lib/struktur-kontrak";
-import { KODE_ANTAR_SEKOLAH_DARI_DB, kodeGalat, queryHasil, type HasilAksi } from "@/lib/galat-kontrak";
+import { kodeAntarSekolah, kodeGalat, queryHasil, type HasilAksi } from "@/lib/galat-kontrak";
 import { bacaPersen } from "@/lib/batas-ketuntasan";
 import { KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan-kontrak";
 
@@ -96,7 +96,7 @@ export async function transferRequestAction(fd: FormData): Promise<void> {
 
 /** W2.15: a transfer refusal by its DETAIL (PR040), else the general rule. */
 function ditolakPindah(fn: string, error: { code?: string | null; message?: string | null; details?: string | null } | null): HasilAksi {
-  const d = error?.code === "PR040" ? KODE_ANTAR_SEKOLAH_DARI_DB[error.details ?? ""] : undefined;
+  const d = kodeAntarSekolah(error);
   return d ? { ok: false, kode: d } : ditolak(fn, error);
 }
 

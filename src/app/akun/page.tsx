@@ -8,7 +8,6 @@ import KakiPintar from "@/components/KakiPintar";
 import AkunSaya from "@/components/aktifkan/AkunSaya";
 import KeluarSemua from "@/components/sesi/KeluarSemua";
 import FotoProfil from "@/components/akun/FotoProfil";
-import { supabaseService } from "@/lib/supabase/service";
 import { supabaseServer } from "@/lib/supabase/server";
 import { bacaPenjagaan, HALAMAN_PERANGKAT } from "@/lib/penjaga-sesi-kontrak";
 import { konteksSaya } from "@/lib/konteks-server";
@@ -44,12 +43,13 @@ export default async function Akun() {
   // BOB-29 (C11): what this browser was declared for this person, to show and to change
   const supabase = await supabaseServer();
   const { data: sesi } = await supabase.rpc("sesi_periksa");
-  // W2.8 (CR-07): the person's own photo, read through a short-lived signed URL (the read route's own rule: one's own)
+  // W2.8 (CR-07): the person's own photo, shown through the read route (/api/assets/read-url, alih=1: a 60-second signed
+  // URL, the database deciding who may see whose photo), never through a URL this page signs itself
   const { data: aku } = await supabase.rpc("current_person_id");
   const { data: orang } = aku ? await supabase.from("persons").select("photo_path").eq("id", aku).maybeSingle() : { data: null };
   const jalurFoto = (orang as { photo_path?: string | null } | null)?.photo_path ?? null;
   const urlFoto = jalurFoto && aku && jalurFoto.startsWith(`profile/${aku}/`)
-    ? (await supabaseService().storage.from("assets").createSignedUrl(jalurFoto, 300)).data?.signedUrl ?? null
+    ? `/api/assets/read-url?path=${encodeURIComponent(jalurFoto)}&alih=1`
     : null;
   const mode = bacaPenjagaan(sesi)?.mode;
   const k = await konteksSaya();

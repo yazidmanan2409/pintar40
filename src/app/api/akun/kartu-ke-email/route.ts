@@ -8,6 +8,7 @@ import {
 } from "@/lib/kartu-jadi-email-kontrak";
 import { jawab } from "@/app/api/aktifkan/_jawab";
 import { detailPr040 } from "@/app/api/aktifkan/_wizard";
+import { sasaranDalamKonteks, sekolahOrang } from "@/lib/konteks-server";
 
 /**
  * D-152(a) (Batch 4): A CLASS-CARD LEARNER WHO BECOMES STAFF GETS AN EMAIL ACCOUNT, AS THE SAME PERSON.
@@ -44,6 +45,10 @@ export async function POST(request: NextRequest) {
   const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
   const alasan = typeof body?.alasan === "string" ? body.alasan : "";
   if (!UUID.test(person) || !email) return gagal("PERMINTAAN_TIDAK_SAH");
+  // §2.11 (D-132(k)): a learner of a school is converted in that school's working context, or «Seluruh platform»
+  if (!(await sasaranDalamKonteks({ sekolah: await sekolahOrang(person), atauPlatform: true }))) {
+    return jawab({ status: STATUS_KARTU_JADI_EMAIL.PERMINTAAN_DITOLAK, body: { ok: false, code: "PERMINTAAN_DITOLAK", sebab: "CONTEXT_OTHER_PLACE" } });
+  }
 
   const { data, error } = await caller.rpc("authorize_card_conversion", { p_person: person, p_email: email, p_reason: alasan });
   if (error) {

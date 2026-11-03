@@ -3053,4 +3053,4 @@ select:not([multiple]):not([size]) {
 .pin-foto-profil { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-start; }
 .pin-foto { width: 96px; height: 96px; border-radius: var(--radius-2); object-fit: cover; border: 1px solid var(--line); background: var(--surface-2); flex: none; }
 .pin-foto-kosong { display: block; }
-.pin-foto-aksi { display: grid; gap: var(--space-2); flex: 1 1 240px; min-width: 0; }
+.pin-foto-aksi { display: grid; gap: var(--space-2); flex: 1 1 calc(var(--space-9) * 4); min-width: 0; }

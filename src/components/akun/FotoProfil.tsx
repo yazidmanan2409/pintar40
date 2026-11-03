@@ -7,16 +7,23 @@ import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { BATAS_FOTO, jalurFotoBaru } from "@/lib/foto-profil-kontrak";
 import BidangBerkas from "@/components/bentuk/BidangBerkas";
 import BarisHasil from "@/components/BarisHasil";
-import { simpanFotoAksi } from "@/app/akun/actions";
 
 type Keadaan = "diam" | "naik" | "ok" | "hapus" | "gagal" | "besar" | "jenis";
 
 /**
  * W2.8 (Batch 4, CR-07, J8.8): «Foto profil» on «Akun saya». The picture goes to PINTAR's private storage through the
- * one signed upload route, under the person's own folder (the route refuses any other); the server action then keeps
- * its path on the person, only if the file is really there. Shown back through a short-lived signed URL; never on a
- * certificate. «Hapus foto» removes it from the profile.
+ * one signed upload route, under the person's own folder (the route refuses any other); /api/akun/foto then keeps its
+ * path on the person, only if the file is really there. Shown back through the read route's short-lived signed URL;
+ * never on a certificate. «Hapus foto» removes it from the profile.
  */
+async function simpanFoto(jalur: string | null): Promise<boolean> {
+  const r = await fetch("/api/akun/foto", {
+    method: "POST", headers: { "content-type": "application/json", accept: "application/json" },
+    body: JSON.stringify({ jalur }), cache: "no-store", credentials: "same-origin",
+  }).catch(() => null);
+  const j = r ? ((await r.json().catch(() => null)) as { ok?: boolean } | null) : null;
+  return j?.ok === true;
+}
 export default function FotoProfil({ locale, personId, url }: { locale: Locale; personId: string; url: string | null }) {
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const router = useRouter();
@@ -36,8 +43,7 @@ export default function FotoProfil({ locale, personId, url }: { locale: Locale; 
       const { path, token } = (await r.json()) as { path: string; token: string };
       const { error } = await supabaseBrowser().storage.from("assets").uploadToSignedUrl(path, token, f, { contentType: f.type });
       if (error) { setKeadaan("gagal"); return; }
-      const hasil = await simpanFotoAksi(path);
-      if (!hasil.ok) { setKeadaan("gagal"); return; }
+      if (!(await simpanFoto(path))) { setKeadaan("gagal"); return; }
       setKeadaan("ok");
       router.refresh();
     } catch {
@@ -47,8 +53,7 @@ export default function FotoProfil({ locale, personId, url }: { locale: Locale; 
 
   async function hapus() {
     setKeadaan("naik");
-    const hasil = await simpanFotoAksi(null).catch(() => null);
-    if (!hasil?.ok) { setKeadaan("gagal"); return; }
+    if (!(await simpanFoto(null))) { setKeadaan("gagal"); return; }
     setKeadaan("hapus");
     router.refresh();
   }

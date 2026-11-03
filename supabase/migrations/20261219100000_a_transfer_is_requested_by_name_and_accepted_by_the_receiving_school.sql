@@ -171,6 +171,9 @@ begin
   update public.transfers set status = 'EXECUTED', to_enrollment_id = v_new, executed_at = now() where id = p_transfer;
   return v_new;
 end $$;
+-- ADR-0021: a function's EXECUTE is PUBLIC's by default, so its grants are restated where it is created
+revoke all on function public.transfer_execute(uuid) from public, anon;
+grant execute on function public.transfer_execute(uuid) to authenticated;
 
 insert into public.client_rpc_registry (function_name, exposure, note, authorization_kind, authorization_requirement) values
   ('cari_sekolah_tujuan', 'STAFF', 'W2.15 (F-10, D-152(c)): an active school found by its exact name or code, name and code only, '
