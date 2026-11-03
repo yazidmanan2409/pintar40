@@ -44,7 +44,7 @@ begin
   select i.id into v_inst from public.institutions i
    where public.can_on_node('CAN_AUTHORIZE_TRANSFER', i.id) order by i.name limit 1;
   if v_inst is null and not public.is_system_admin() then
-    raise exception using errcode = '42501', message = 'the school directory is for those who may authorise transfers';
+    raise exception using errcode = '42501', message = 'the school directory requires CAN_AUTHORIZE_TRANSFER';
   end if;
   if char_length(v_kata) < 3 or char_length(v_kata) > 120 then
     raise exception using errcode = 'PR040', detail = 'QUERY_TOO_SHORT', message = 'a school is found by its exact name or code (3 to 120 characters)';
@@ -73,7 +73,7 @@ begin
     raise exception using errcode = 'PR040', detail = 'ENROLLMENT_NOT_ACTIVE', message = 'the learner is not enrolled here now';
   end if;
   if not public.can_on_node('CAN_AUTHORIZE_TRANSFER', e.institution_id) then
-    raise exception using errcode = '42501', message = 'a transfer out is asked by the sending school';
+    raise exception using errcode = '42501', message = 'a transfer out requires CAN_AUTHORIZE_TRANSFER at the sending school';
   end if;
   if p_to_institution is null or p_to_institution = e.institution_id
      or not exists (select 1 from public.institutions i where i.id = p_to_institution and i.is_active) then
@@ -126,7 +126,7 @@ begin
     raise exception using errcode = 'PR040', detail = 'TRANSFER_NOT_FOUND', message = 'no such transfer';
   end if;
   if not public.can_on_node('CAN_AUTHORIZE_TRANSFER', t.to_institution_id) then
-    raise exception using errcode = '42501', message = 'a transfer in is accepted by the receiving school';
+    raise exception using errcode = '42501', message = 'a transfer in requires CAN_AUTHORIZE_TRANSFER at the receiving school';
   end if;
   if t.status <> 'REQUESTED' or t.requested_by_institution is distinct from t.from_institution_id then
     raise exception using errcode = 'PR040', detail = 'TRANSFER_NOT_OPEN', message = 'this transfer is not waiting for the receiving school';
