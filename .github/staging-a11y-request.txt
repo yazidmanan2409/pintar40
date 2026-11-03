@@ -4,4 +4,5 @@
 # 2 Nov, Batch 2 staging verification: the same school, again, to name the screens behind the recorded findings (after run 41436131363)
 # 2 Nov, Batch 3 staging verification: Sekolah Uji B3 1102 after GS-01 to GS-21 and the Studio walk (run 41540087994); main a5e2935; judged keyboard, title and width checks
 # 3 Nov, Batch 3 closure staging verification: Sekolah Uji B3C 1103 after GS-01 to GS-21 and the Studio walk (run 41570204639, 19/19); main cb1ff3e; judged keyboard, title and width checks
-slug: sekolah-uji-b3c-1103
+# 3 Nov, Batch 4 staging verification (D-153, D-154): Sekolah Uji B4 1103 after GS-01 to GS-21, the Studio walk (run 41608632487) and the Batch 4 administration walk (run 41612169706, 9/9); main 31e456d; judged keyboard, title and width checks
+slug: sekolah-uji-b4-1103
