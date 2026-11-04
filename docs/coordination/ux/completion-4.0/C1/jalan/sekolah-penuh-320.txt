@@ -1,0 +1,63 @@
+Ringkasan Sekolah · every school year at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Menu»
+ 4. a «Kembali»
+ 5. button «Cetak laporan»
+
+The accessibility tree of the main region
+- main:
+  - paragraph: "[G6 · judul laporan sekolah]"
+  - heading "SMP Cahaya Kaliandra" [level=1]
+  - paragraph: Angka dihitung 4 Nov 2026, 10.52 WIB dari semua bukti sekolah ini, di setiap tahun ajaran, sampai saat itu.
+  - link "Kembali":
+    - /url: "#"
+  - button "Cetak laporan"
+  - region "Peserta":
+    - heading "Peserta" [level=2]
+    - paragraph: "412"
+    - paragraph: Banyaknya murid yang mengerjakan asesmen di sekolah ini.
+  - region "Kenaikan":
+    - heading "Kenaikan" [level=2]
+    - paragraph: +14 poin
+    - paragraph: Tidak perlu diulang — lanjutkan ke materi berikutnya.
+  - region "Soal wajib":
+    - heading "Soal wajib" [level=2]
+    - paragraph: 93%
+    - paragraph: Fokuskan waktu tambahan pada murid di dua tingkat kesiapan terbawah.
+  - region "Sertifikat terbit":
+    - heading "Sertifikat terbit" [level=2]
+    - paragraph: "37"
+    - paragraph: Banyaknya sertifikat yang berlaku dan dapat diperiksa publik.
+  - region "Capaian kompetensi":
+    - heading "Capaian kompetensi" [level=2]
+    - paragraph: Rata-rata penguasaan pada tiap ranah yang diukur.
+    - list:
+      - listitem:
+        - strong: Bilangan
+        - text: 74% · 388 murid
+      - listitem:
+        - strong: Aljabar
+        - text: 66% · 301 murid
+      - listitem:
+        - strong: Geometri dan pengukuran
+        - text: 69% · 274 murid
+      - listitem:
+        - strong: Membaca teks informasi
+        - text: 77% · 352 murid
+  - region "Perbandingan angkatan":
+    - heading "Perbandingan angkatan" [level=2]
+    - paragraph: Penguasaan rata-rata tiap angkatan di sekolah ini.
+    - list:
+      - listitem:
+        - strong: Kelas 7 (2026/2027)
+        - text: 71% · 140 murid
+      - listitem:
+        - strong: Kelas 8 (2026/2027)
+        - text: 68% · 138 murid
+      - listitem:
+        - strong: Kelas 9 (2026/2027)
+        - text: 75% · 134 murid
+      - listitem:
+        - strong: Kelas 7 (2025/2026)
+        - text: 66% · 129 murid

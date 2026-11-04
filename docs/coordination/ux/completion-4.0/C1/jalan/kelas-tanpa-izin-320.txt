@@ -1,0 +1,58 @@
+Ringkasan Kelas · one figure not shown for this reader at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Menu»
+ 4. a «Kembali»
+ 5. button «Cetak laporan»
+
+The accessibility tree of the main region
+- main:
+  - list "Lokasi":
+    - listitem: SMP Cahaya Kaliandra
+    - listitem: Kelas 7A
+    - listitem: TA 2026/2027
+  - paragraph: "[G6 · judul laporan kelas]"
+  - heading "Kelas 7A" [level=1]
+  - paragraph: Angka dihitung 4 Nov 2026, 10.52 WIB dari semua bukti kelas ini sampai saat itu.
+  - link "Kembali":
+    - /url: "#"
+  - button "Cetak laporan"
+  - region "Peserta":
+    - heading "Peserta" [level=2]
+    - paragraph: "28"
+    - paragraph: Banyaknya murid yang mengerjakan asesmen di kelas ini.
+  - region "Pemahaman":
+    - heading "Pemahaman" [level=2]
+    - paragraph: 72%
+    - paragraph: Tidak perlu diulang — lanjutkan ke materi berikutnya.
+  - region "Kenaikan":
+    - heading "Kenaikan" [level=2]
+    - paragraph: +18 poin
+    - paragraph: Tidak perlu diulang — lanjutkan ke materi berikutnya.
+  - region "Sebaran hasil Uji Penguasaan":
+    - heading "Sebaran hasil Uji Penguasaan" [level=2]
+    - paragraph: Fokuskan waktu tambahan pada murid di pita Berkembang dan Perlu penguatan.
+    - paragraph: Hasil 24 murid yang sudah mengerjakan
+    - term: Mantap
+    - definition: 9 murid
+    - term: Berkembang
+    - definition: 11 murid
+    - term: Perlu penguatan
+    - definition: 4 murid
+    - term: Belum mengerjakan Uji Penguasaan
+    - definition: 4 murid
+    - paragraph: 28 murid di kelas ini · 24 sudah mengerjakan Uji Penguasaan · 4 belum mengerjakan
+    - paragraph: "Pita tetap PINTAR: 80% ke atas, 60–79%, dan di bawah 60% atau soal wajib belum tepat. Bukan batas ketuntasan sekolah dan tidak menentukan sertifikat."
+  - region "Penguasaan per topik":
+    - heading "Penguasaan per topik" [level=2]
+    - paragraph: Rata-rata penguasaan kelas pada tiap topik.
+    - term: Pecahan senilai
+    - definition: 81%
+    - term: Menyederhanakan pecahan
+    - definition: 68%
+    - term: Membandingkan pecahan
+    - definition: 54%
+    - term: Pecahan dalam kehidupan sehari-hari
+    - definition: 70%
+  - region "Angka ini tidak ditampilkan untuk peran Anda.":
+    - paragraph: Angka ini tidak ditampilkan untuk peran Anda.

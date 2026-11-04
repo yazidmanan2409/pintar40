@@ -1,0 +1,29 @@
+6 pages × 4 widths (+ A4 for 3): 0 with a failure
+
+ok   kelas-penuh @1280
+ok   kelas-penuh @820
+ok   kelas-penuh @390
+ok   kelas-penuh @320
+ok   kelas-penuh @A4
+ok   kelas-tanpa-izin @1280
+ok   kelas-tanpa-izin @820
+ok   kelas-tanpa-izin @390
+ok   kelas-tanpa-izin @320
+ok   kelas-belum @1280
+ok   kelas-belum @820
+ok   kelas-belum @390
+ok   kelas-belum @320
+ok   kelas-belum @A4
+ok   kelas-kosong @1280
+ok   kelas-kosong @820
+ok   kelas-kosong @390
+ok   kelas-kosong @320
+ok   sekolah-penuh @1280
+ok   sekolah-penuh @820
+ok   sekolah-penuh @390
+ok   sekolah-penuh @320
+ok   sekolah-penuh @A4
+ok   sekolah-tanpa-angka @1280
+ok   sekolah-tanpa-angka @820
+ok   sekolah-tanpa-angka @390
+ok   sekolah-tanpa-angka @320

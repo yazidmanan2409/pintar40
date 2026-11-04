@@ -1,0 +1,79 @@
+/* C1 · W3.8 — the report body and its A4 print. Composition only: every value is a
+   design-system token or an existing component. No new token, no palette change. */
+
+.c1-slot {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  width: 120px; height: 40px; padding: 0 var(--space-2); box-sizing: border-box;
+  border: var(--border-hairline) dashed var(--line-control); border-radius: var(--radius-md);
+  font-size: 14px; line-height: 20px; font-weight: 600; color: var(--pintar-primary); white-space: nowrap; overflow: hidden;
+}
+.c1-slot small { font-size: 9px; line-height: 12px; font-weight: 400; color: var(--ink-3); white-space: normal; }
+/* A word slot that is Dr Gladys's (G6): drawn as a slot, never filled. */
+.c1-slot-kata { display: inline-block; padding: 0 var(--space-2); border: var(--border-hairline) dashed var(--line-control); border-radius: var(--radius-sm); color: var(--ink-2); }
+
+/* The head: the scope line, the title slot as the eyebrow, the place as the title, when. */
+.c1-kepala { align-items: end; }
+.c1-alis { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); }
+.c1-aksi { gap: var(--space-4); }
+
+/* The body: the template's order; consecutive single figures share a row. */
+.c1-badan { display: grid; gap: var(--space-6); }
+.c1-baris-satu { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.c1-m { display: grid; gap: var(--space-2); align-content: start; min-width: 0; }
+.c1-m-satu { padding: var(--space-5); background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); }
+.c1-m-lebar, .c1-m-belum:not(.c1-m-satu) { padding-top: var(--space-5); border-top: var(--border-hairline) solid var(--line); }
+.c1-m-judul { font-size: 18px; line-height: 26px; font-weight: 600; color: var(--ink-1); }
+.c1-m-satu .c1-m-judul { font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.c1-stat { font-size: 30px; line-height: 36px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--ink-1); }
+/* S-3: never a number without a sentence saying what to do about it. */
+.c1-kalimat { font-size: 16px; line-height: 24px; color: var(--ink-1); max-width: var(--measure-prose); }
+.c1-m-satu .c1-kalimat { font-size: 14px; line-height: 20px; }
+.c1-sub { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-2); margin-top: var(--space-2); }
+.c1-meta { font-size: 14px; line-height: 20px; color: var(--ink-2); max-width: var(--measure-prose); }
+.c1-isi { display: grid; max-width: var(--measure-narrow); border-top: var(--border-hairline) solid var(--line); }
+.c1-isi > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-4); padding: var(--space-2) var(--space-1); border-bottom: var(--border-hairline) solid var(--line); }
+.c1-isi dt { color: var(--ink-1); overflow-wrap: anywhere; }
+.c1-isi dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink-1); white-space: nowrap; }
+.c1-isi dd span { font-weight: 400; color: var(--ink-2); }
+.c1-daftar { list-style: none; padding: 0; margin: 0; display: grid; max-width: var(--measure-prose); border-top: var(--border-hairline) solid var(--line); }
+.c1-daftar li { display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-1); border-bottom: var(--border-hairline) solid var(--line); }
+.c1-daftar strong { font-weight: 600; color: var(--ink-1); }
+.c1-daftar span { font-size: 14px; line-height: 20px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+/* What stands in for a figure: the statement, how far, what will make it appear. Quiet, never a warning colour. */
+.c1-ket { display: grid; gap: var(--space-1); max-width: var(--measure-prose); }
+.c1-ket p { font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.c1-ket p:first-child { font-size: 16px; line-height: 24px; color: var(--ink-1); }
+.c1-m-tanpa { padding: var(--space-4) var(--space-5); background: var(--surface-2); border: 0; border-radius: var(--radius-lg); }
+
+@container shell (max-width: 639px) {
+  .c1-kepala .pds-actions { justify-content: space-between; width: 100%; }
+}
+
+/* ── A4 ─────────────────────────────────────────────────────────────────────
+   The report alone, on A4 portrait, 18 mm top and bottom and 15 mm at the sides.
+   Every page repeats one header line (title · school · class · year, and when the
+   figures were calculated) and carries «Halaman n dari m» at its foot. A figure
+   never splits across pages; a long list may, and its heading never ends a page. */
+@page {
+  size: A4 portrait;
+  margin: 18mm 15mm;
+  @top-left { font: 400 8pt/1.3 "Inter", sans-serif; color: #4E5A64; vertical-align: bottom; padding-bottom: 3mm; }
+  @top-right { font: 400 8pt/1.3 "Inter", sans-serif; color: #4E5A64; vertical-align: bottom; padding-bottom: 3mm; }
+  @bottom-right { content: "Halaman " counter(page) " dari " counter(pages); font: 400 8pt/1.3 "Inter", sans-serif; color: #4E5A64; vertical-align: top; padding-top: 3mm; }
+}
+@media print {
+  html, body, .pds, .pds-shell, .pds-shell-host, .pds-main, .pds-main-isi { background: #fff !important; }
+  .pds-nav, .pds-bar, .pds-lewati, .c1-aksi { display: none !important; }
+  .pds-shell, .pds-shell-host, .pds-main { display: block; container-type: normal; }
+  .pds-main-isi { padding: 0; margin: 0; max-width: none; }
+  .c1-isi-utama { font-size: 10pt; line-height: 1.45; }
+  .pds-title { font-size: 20pt; line-height: 1.2; }
+  .c1-badan { gap: 6mm; }
+  .c1-baris-satu { grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+  .c1-m { break-inside: avoid; }
+  .c1-m-lebar:has(.c1-daftar li:nth-child(9)) { break-inside: auto; }
+  .c1-m-judul { break-after: avoid; }
+  .c1-stat { font-size: 20pt; line-height: 1.2; }
+  .c1-m-satu, .c1-m-tanpa { background: #fff; border: 0.5pt solid var(--line-control); }
+  .c1-slot-kata { border-color: #808A91; }
+}

@@ -1,0 +1,48 @@
+Ringkasan Kelas · under five («not yet») at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Pimpinan»
+ 3. a «Studio»
+ 4. button «Keluar»
+ 5. a «Kembali»
+ 6. button «Cetak laporan»
+
+The accessibility tree of the main region
+- main:
+  - list "Lokasi":
+    - listitem: SMP Cahaya Kaliandra
+    - listitem: Kelas 7A
+    - listitem: TA 2026/2027
+  - paragraph: "[G6 · judul laporan kelas]"
+  - heading "Kelas 7A" [level=1]
+  - paragraph: Angka dihitung 4 Nov 2026, 10.52 WIB dari semua bukti kelas ini sampai saat itu.
+  - link "Kembali":
+    - /url: "#"
+  - button "Cetak laporan"
+  - region "Peserta":
+    - heading "Peserta" [level=2]
+    - paragraph: "3"
+    - paragraph: Banyaknya murid yang mengerjakan asesmen di kelas ini.
+  - region "Pemahaman":
+    - heading "Pemahaman" [level=2]
+    - paragraph: Belum cukup data untuk menampilkan angka ini.
+    - paragraph: Sekarang 3 murid; perlu 5.
+    - paragraph: Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan.
+  - region "Kenaikan":
+    - heading "Kenaikan" [level=2]
+    - paragraph: Belum cukup data untuk menampilkan angka ini.
+    - paragraph: Sekarang 2 murid; perlu 5.
+    - paragraph: Angka ini muncul setelah cukup murid menyelesaikan Pemetaan Awal dan Uji Penguasaan. Hanya murid yang menyelesaikan keduanya yang dihitung.
+  - region "Sebaran hasil Uji Penguasaan":
+    - heading "Sebaran hasil Uji Penguasaan" [level=2]
+    - paragraph: Belum cukup data untuk menampilkan angka ini.
+    - paragraph: Sekarang 3 murid; perlu 5.
+    - paragraph: Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan.
+  - region "Penguasaan per topik":
+    - heading "Penguasaan per topik" [level=2]
+    - paragraph: Belum cukup data untuk menampilkan angka ini.
+    - paragraph: Sekarang 3 murid; perlu 5.
+    - paragraph: Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan.
+  - region "Pemahaman keliru yang berulang":
+    - heading "Pemahaman keliru yang berulang" [level=2]
+    - paragraph: Belum ada bukti yang memenuhi syarat untuk angka ini.
+    - paragraph: Angka ini muncul setelah beberapa murid memilih jawaban keliru yang sama pada pilihan yang diberi kode miskonsepsi.

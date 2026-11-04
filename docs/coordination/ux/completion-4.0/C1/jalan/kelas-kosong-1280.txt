@@ -1,0 +1,20 @@
+Ringkasan Kelas · nothing to show at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Pimpinan»
+ 3. a «Studio»
+ 4. button «Keluar»
+ 5. a «Kembali»
+ 6. button «Cetak laporan»
+
+The accessibility tree of the main region
+- main:
+  - list "Lokasi":
+    - listitem: SMP Cahaya Kaliandra
+    - listitem: Kelas 7A
+    - listitem: TA 2026/2027
+  - paragraph: "[G6 · judul laporan kelas]"
+  - heading "Kelas 7A" [level=1]
+  - link "Kembali":
+    - /url: "#"
+  - button "Cetak laporan"
+  - paragraph: Belum ada angka yang bisa ditampilkan untuk Anda di sini.

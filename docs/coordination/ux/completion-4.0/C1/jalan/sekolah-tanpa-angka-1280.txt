@@ -1,0 +1,46 @@
+Ringkasan Sekolah · no figure yet, each said why at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Pimpinan»
+ 3. a «Studio»
+ 4. button «Keluar»
+ 5. a «Kembali»
+ 6. button «Cetak laporan»
+
+The accessibility tree of the main region
+- main:
+  - paragraph: "[G6 · judul laporan sekolah]"
+  - heading "SMP Cahaya Kaliandra" [level=1]
+  - paragraph: Angka dihitung 4 Nov 2026, 10.52 WIB dari semua bukti sekolah ini, di setiap tahun ajaran, sampai saat itu.
+  - link "Kembali":
+    - /url: "#"
+  - button "Cetak laporan"
+  - paragraph: Tidak ada angka pada laporan ini, tetapi keterangan di bawah menjelaskan alasannya satu per satu.
+  - region "Peserta":
+    - heading "Peserta" [level=2]
+    - paragraph: Belum ada bukti yang memenuhi syarat untuk angka ini.
+    - paragraph: Sekarang 0 murid; perlu 1.
+    - paragraph: Angka ini muncul setelah murid menyelesaikan asesmen pertamanya.
+  - region "Kenaikan":
+    - heading "Kenaikan" [level=2]
+    - paragraph: Belum ada bukti yang memenuhi syarat untuk angka ini.
+    - paragraph: Sekarang 0 murid; perlu 10.
+    - paragraph: Angka ini muncul setelah cukup murid menyelesaikan Pemetaan Awal dan Uji Penguasaan. Hanya murid yang menyelesaikan keduanya yang dihitung.
+  - region "Soal wajib":
+    - heading "Soal wajib" [level=2]
+    - paragraph: Belum ada bukti yang memenuhi syarat untuk angka ini.
+    - paragraph: Sekarang 0 murid; perlu 10.
+    - paragraph: Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan.
+  - region "Sertifikat terbit":
+    - heading "Sertifikat terbit" [level=2]
+    - paragraph: Belum ada bukti yang memenuhi syarat untuk angka ini.
+    - paragraph: Angka ini muncul setelah sertifikat pertama sekolah ini terbit.
+  - region "Capaian kompetensi":
+    - heading "Capaian kompetensi" [level=2]
+    - paragraph: Belum ada bukti yang memenuhi syarat untuk angka ini.
+    - paragraph: Sekarang 0 murid; perlu 10.
+    - paragraph: Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan.
+  - region "Perbandingan angkatan":
+    - heading "Perbandingan angkatan" [level=2]
+    - paragraph: Belum ada bukti yang memenuhi syarat untuk angka ini.
+    - paragraph: Sekarang 0 murid; perlu 5.
+    - paragraph: Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan.
