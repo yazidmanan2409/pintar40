@@ -82,6 +82,13 @@
 - **DAISY-20-LAYAR-01 §6:** the card's face is Bahasa Indonesia only (ronde-2). The test now asserts the exact Indonesian lines and `lang="id"` in both page languages.
 - **B6C-SHEET-01:** after integration it also asserts that the certificate's gold is the card's own token.
 
+**§2b Staging backup (owner-supplied evidence, 4 Nov)**
+- **The screenshot:** the Supabase dashboard of `pintar-staging`, Database → Backups → Scheduled backups, captured by the owner on 4 Nov (`evidence/staging/backups-owner-2026-11-04.png`).
+- **The newest physical backup** is **3 Nov 2026 23:40:23 UTC**, Restore available. The earlier daily backups are 2 Nov 23:40:21 back to 28 Oct 23:40:24, all PHYSICAL.
+- **Storage objects are not included**, as the dashboard states (W9.12 stays open).
+- **What it is for:** a backup-freshness record only. Batch 6 has no migration, and no staging change is authorised. This backup is within the 24-hour window **until 4 Nov 23:40 UTC**. At any authorised promotion, freshness is checked again at the actual time of merge.
+- **Not verified by the coordinator:** the coordinator has no dashboard access; this is the owner's own evidence.
+
 ## 3. Open: decisions and designs (nothing invented)
 
 | # | What | Who |
