@@ -5,7 +5,7 @@
 - The owner's four rulings before implementation (D-160).
 
 **Where the work is:**
-- Development branch `claude/awesome-rubin-bqxp6p`. The code head is `92aa3b2` (CI and the journeys green on it, §2a); the commits after it are documents only.
+- Development branch `claude/awesome-rubin-bqxp6p`. The code head is `9b52b51`, the D-164 role-order correction (§1a; CI and the journeys green on it, §2a). The commits after it are documents only.
 - Nothing is merged to `main`; nothing is deployed to staging. Production is untouched. Dr Gladys's demonstration records are untouched. The staging freeze holds (D-158).
 
 **Verdict: IMPLEMENTED AND VERIFIED ON THE BRANCH, AS FAR AS ENGINEERING CAN GO. Stopped at the promotion gate.**
@@ -47,7 +47,7 @@
 | B6K-URUTAN-01, B6K-STAF-01 (staff only), B6K-DATA-01 (data unchanged), DAISY-19-EMAIL-01 (the frame), DAISY-20-EMAIL-01 (the identity emails) | green |
 | Static suite, all 347 runnable ids (30 skipped: other runners) | **347 passed, 0 failed.** BOB26-K01 needs the server-only `CARD_PEPPER`; it was run with the local stack's env and passed. |
 | Typecheck · lint | clean · 0 errors |
-| `ci` and journeys on the correction's head | §2a |
+| `ci` and journeys on `9b52b51` | **green**: `ci` 41748270096 attempt 2, 18 of 18 jobs (attempt 1 failed on runner infrastructure, kept); journeys 41748274116, both jobs (§2a) |
 
 ## 2. Verification
 
@@ -68,6 +68,9 @@
 | journeys 41734264618 | `74b36c7` | cancelled: superseded by the fix (not counted) |
 | `ci` 41736195658 | `92aa3b2` | **success**: 18 of 18 jobs, including `selftest contract (strict, local stack)` and the required `verdict` |
 | journeys 41736200006 | `92aa3b2` | **success**, both jobs. Job A: every role's screens, Studio, Batch 4 administration, the Batch 5 walk, **the A4 print of each surface (Batch 6)**, the Batch 5 focused checks. Job B: Gladys's path from an empty database, including **the issued certificate printed as one A4 page** (STU17) |
+| `ci` 41748270096, attempt 1 | `9b52b51` (D-164) | **failure, infrastructure.** The red-case job `db · wp1 task1 bob36 bob02 wp8` could not start its database container: «failed to bind host port 0.0.0.0:54322/tcp: address already in use», before any test ran; the plants then had no database URL, and `verdict` was red. Kept as failed. The same runner fault as `ci` on `3412075` (D-158). |
+| `ci` 41748270096, attempt 2 | `9b52b51` | **success**: the failed jobs re-run once; 18 of 18 jobs green, including `selftest contract (strict, local stack)` and `verdict` |
+| journeys 41748274116 | `9b52b51` | **success**, both jobs |
 
 **Tests restated (none weakened; each states why):**
 - **UX1-S0-TOKEN-01:** the 1123 px and 72 px exemptions are gone. The sheet is now set in mm, so the allow-list is narrower.
