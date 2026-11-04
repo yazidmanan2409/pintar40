@@ -99,8 +99,10 @@ export default async function CatatanPengembangan({ params }: { params: Promise<
             </section>
           ))
         )}
-        <KakiPintar />
       </main>
+      {/* E-C1-5 (Daisy, C1 PIMPINAN.md): an A4 surface like the reports — the provenance footer stays on screen, outside
+          the record, and off the paper */}
+      <KakiPintar className="pin-noprint" />
     </>
   );
 }

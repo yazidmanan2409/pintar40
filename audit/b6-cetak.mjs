@@ -11,6 +11,9 @@
 //       and no shell part reaches the paper.
 //   P3  the class-card sheet (Aktivasi → the class's cards in one press): in print only the set reaches the paper, two
 //       cards across, no card split across pages; colours are kept; the A4 PDF is saved and its page count recorded.
+//   P5  the professional-learning record (/pengembangan/[simpul], E-C1-5; Daisy C1 PIMPINAN.md: an A4 surface, Part A's
+//       page rules): printed by its facilitator, no shell part and no provenance footer reaches the paper, as on the
+//       report pages; the record itself does. The PD class is made by the product's own functions as Admin Alpha.
 //
 // Local or CI stack with the synthetic seed: APP_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
 // SUPABASE_DB_URL. Writes OUT_DIR/b6-cetak.json, screenshots and PDFs; exits 1 on any FAIL.
@@ -222,6 +225,40 @@ await step("P4", "the Digital Card on «Akun saya» printed: each face CR80 at a
   const sisa = await cangkangTercetak(A);
   harus(rec, sisa.length === 0, `«Akun saya» in print shows no shell part${sisa.length ? `: ${sisa.join(", ")}` : ""}`);
   await A.emulateMedia({ media: "screen" });
+});
+
+await step("P5", "the professional-learning record printed: the record, no shell part, no provenance footer (E-C1-5)", async (rec) => {
+  // a PD class of alpha's, as Konfigurasi makes it: a Bagian for educators, its Tingkat and Kelas, Guru Alpha the
+  // facilitator, two synthetic staff enrolled — each call the product's own function, as Admin Alpha
+  sql(`do $$ declare inst uuid := '${alphaId}'; adm uuid; guru uuid; p1 uuid; p2 uuid; b uuid; t uuid; k uuid; j jsonb; th text; begin
+    select a.id into adm from auth.users a where a.email = '${ORANG.alpha.email}';
+    select ac.person_id into guru from public.accounts ac join auth.users a on a.id = ac.auth_user_id where a.email = '${ORANG.guru.email}';
+    select ac.person_id into p1 from public.accounts ac join auth.users a on a.id = ac.auth_user_id where a.email = 'alpha-hod@synthetic.pintar.test';
+    select ac.person_id into p2 from public.accounts ac join auth.users a on a.id = ac.auth_user_id where a.email = 'alpha-dean@synthetic.pintar.test';
+    perform set_config('request.jwt.claims', json_build_object('sub', adm, 'role', 'authenticated')::text, true);
+    perform set_config('request.jwt.claim.sub', adm::text, true);
+    execute 'set local role authenticated';
+    b := public.create_bagian(inst, 'Pengembangan Guru ${TAG}', true);
+    -- the school year of alpha's class above, written as the structure functions read it (YYYY/YYYY+1)
+    select extract(year from ap.starts_on)::int || '/' || (extract(year from ap.starts_on)::int + 1) into th
+      from public.org_nodes n join public.academic_periods ap on ap.id = n.academic_period_id where n.id = '${kelasId}';
+    t := public.create_tingkat(b, 'Guru ${TAG}', th);
+    k := public.create_kelas(t, 'Kelas PD ${TAG}', th);
+    perform public.grant_role(guru, 'EDUCATOR', k, now() + interval '1 year');
+    j := public.enrol_for_professional_learning(p1, k);
+    j := public.enrol_for_professional_learning(p2, k);
+  end $$`);
+  const pd = sql(`select id from public.org_nodes where institution_id = '${alphaId}' and kind = 'CLASS' and name = 'Kelas PD ${TAG}'`);
+  if (!harus(rec, /^[0-9a-f-]{36}$/.test(pd), "the PD class was made through the product's functions")) return;
+  await buka(G, `/pengembangan/${pd}`);
+  harus(rec, (await G.locator("main .pin-head, main h1").count()) > 0 && (await G.locator(".pin-refusal").count()) === 0, "the facilitator reads the record");
+  harus(rec, await G.locator("footer.pin-kaki").first().isVisible().catch(() => false), "the provenance footer shows on screen");
+  await cetak(G, rec, "pengembangan");
+  const sisa = await cangkangTercetak(G);
+  harus(rec, sisa.length === 0, `the record in print shows no shell part${sisa.length ? `: ${sisa.join(", ")}` : ""}`);
+  harus(rec, !(await G.locator("footer.pin-kaki").first().isVisible().catch(() => false)), "the provenance footer stays off the paper, as on the report pages");
+  harus(rec, await G.locator("main h1").first().isVisible().catch(() => false), "the record itself reaches the paper");
+  await G.emulateMedia({ media: "screen" });
 });
 
 await browser.close();
