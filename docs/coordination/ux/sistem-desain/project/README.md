@@ -1,3 +1,5 @@
+**PINTAR 4.0 design completion, stage 1 (republished 4 Nov).** This page is the frozen system (c42fecb) with the outcomes of the design-completion items that needed no decision, and the settled brand: the public wordmark is «Pintar» in `#075056` in every slot once its master exists (F-11, D-161, D-163(a)); the interface palette is unchanged (`--pintar-primary` `#245F55`). **Everything waiting on F-11 or on a decision is marked provisional.** The record, the change log against version 18, and the canonical patterns are in «Completion 4.0».
+
 **Status: approved in principle (token set v3, 5 Oct).** Yazid has ruled on all seventeen questions; «Proposal and rulings» records each ruling. **APPLICATION READY (8 Oct).** J1 to J7 are composed («Composed journeys»), walked and recorded; every finding is corrected at source and every open question decided within the approved grammar; the stripe is A. «Validation» holds the records. The application pass begins with the authorised UI/UX stage. The product still runs token set v2 (`src/app/globals.css`): nothing here is applied to PINTAR until the authorised UI/UX stage begins.
 
 ## The intent
@@ -55,6 +57,8 @@ PINTAR speaks plain Bahasa Indonesia first; English is the second language of ev
 - **No emoji** in the interface chrome.
 
 ## The wordmark and imagery
+
+> **Superseded in part (D-161, D-163(a), 4 Nov).** The public wordmark is **«Pintar» in `#075056`** in every slot once the master exists (F-11); until then each slot holds a placeholder labelled «Pintar (master pending F-11)». The «PINTAR» capitals in `#245F55` described below are **kept for the record and superseded**. The slots' geometry is **provisional** («Completion 4.0», D5). Where «PINTAR SELALU» replaces «PINTAR» in running text, and the tab icon's colour, are the owner's and **open**. The palette is unchanged.
 
 - **The wordmark is PINTAR** (approved brand ruling, 5 Oct; locked).
   - The name in Helvetica Neue 65 Medium capitals, tracking +50, in PINTAR green #245F55, and nothing else: no symbol, no tagline, no «SELALU».

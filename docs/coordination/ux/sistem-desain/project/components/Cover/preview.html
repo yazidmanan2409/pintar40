@@ -10,7 +10,9 @@
   .sampul .cut { stroke: var(--surface-0); stroke-width: var(--border-hairline); }
   /* The wordmark alone: no tagline is ever attached to it (canonical wordmark ruling, 5 Oct). */
   .sampul .nama-blok { position: absolute; left: var(--space-8); bottom: var(--space-8); max-width: 440px; }
-  .sampul .nama { display: block; margin: 0; --merek-tinggi: 76px; }
+  .sampul .nama { display: block; margin: 0; }
+  .sampul .slot-merek { display: inline-flex; align-items: baseline; gap: 8px; padding: 12px 20px; border: 1px dashed var(--line-control); border-radius: var(--radius-md); font: 600 44px/1 var(--font-sans); color: #075056; }
+  .sampul .slot-merek small { font: 400 14px/1.2 var(--font-sans); color: var(--ink-2); }
 </style>
 <div class="sampul">
   <!--
@@ -47,7 +49,8 @@
     <line class="cut" x1="288" y1="216" x2="416" y2="216"/>
     <line class="rule" x1="416" y1="216" x2="480" y2="216"/>
   </svg>
+  <!-- 4 Nov (D-161, D-163(a)): the wordmark slot holds the placeholder until the master exists (F-11). -->
   <div class="nama-blok">
-    <span class="nama pds-merek" role="img" aria-label="PINTAR">PINTAR</span>
+    <span class="nama slot-merek" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span>
   </div>
 </div>

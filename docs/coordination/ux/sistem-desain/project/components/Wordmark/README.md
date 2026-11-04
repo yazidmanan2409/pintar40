@@ -1,3 +1,5 @@
+**SUPERSEDED (D-161, D-163(a), 4 Nov): kept for the record, not removed.** The public wordmark is «Pintar» in `#075056`; its slots are provisional (D5, «Completion 4.0») and the master is pending (F-11). This card's «PINTAR» capitals in `#245F55` no longer apply.
+
 PINTAR's canonical wordmark is the name in Helvetica Neue 65 Medium capitals, in PINTAR green, with nothing added.
 
 **Status: LOCKED (approved brand ruling, 5 Oct).** This is production refinement only: no alternative is explored, nothing is added, and no letter is altered.
