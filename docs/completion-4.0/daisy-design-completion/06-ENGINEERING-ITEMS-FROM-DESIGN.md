@@ -14,7 +14,9 @@
 
 Each has a D168-* regression test that was red on the old source and is green now.
 
-**Still open:** E-B1-1, E-B1-3 (its word), E-E1-1/E-E1-2, E-K-ALL (re-run at each CI), E-B4-1, and the larger compositions.
+**Verified by render, no change needed:** E-B4-1 (D168-B4-1).
+
+**Still open:** E-B1-1, E-B1-3 (its word), E-E1-1/E-E1-2, E-K-ALL (re-run at each CI), and the larger compositions.
 
 ## C1 · reports, Management and professional learning (D-167)
 

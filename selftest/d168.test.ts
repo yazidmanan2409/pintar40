@@ -71,6 +71,10 @@
  *              maintenance, problem reports), Studio's row lists (definitions, Bank Soal, integrity, release moves)
  *              and the distribution forms answer at the form; the answers no page read (package-less Studio refusals,
  *              the intake file, the certificate revocation's context refusal) are read where their form is.
+ *   D168-B4-1  a platform role beside a school role, rendered (E-B4-1; Daisy 1820300e): the Digital Card on «Akun saya»
+ *              (KartuPintar) and the card email (templatKartu) show the same lines in the same order — «Admin platform» on
+ *              its own line, then «Guru · SMP …», alphabetical — and the card takes the first role's colour, whatever
+ *              order the database gives.
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -533,6 +537,31 @@ export const d168Tests: SelfTest[] = [
       const pd = baca("src/app/pendataan/[pekerjaan]/page.tsx");
       c.expect(pd.indexOf('sp.galat === "konfirmasi"') > pd.indexOf("<DaftarNama") && pd.indexOf('sp.galat === "percontohan"') > pd.indexOf("barisPercontohan.map"), "Pendataan's refusals are said above what stands between them and their button");
       return c.verdict("every result names its form and row, comes back with its list's page, and is said at that form or row; no result names a part no page reads");
+    },
+  },
+  {
+    id: "D168-B4-1",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const { templatKartu } = await import("../src/components/email/identitas");
+      const { KELUARGA_PERAN } = await import("../src/lib/kartu-pintar");
+      const teks = (x: string) => x.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+      const label = t("email.kartu.peran" as HleEvent, "public", { locale: "id" });
+      for (const konteks of [[{ peran: "SYSTEM_ADMIN", institusi: null }, { peran: "EDUCATOR", institusi: "SMP Sintetis Satu" }],
+        [{ peran: "EDUCATOR", institusi: "SMP Sintetis Satu" }, { peran: "SYSTEM_ADMIN", institusi: null }]]) {
+        const kartu = { nama: "Nadia Putri", pintarId: "A14CD7ST", tautanId: "https://app.pintarselalu.com/id/A14CD7ST", konteks };
+        const r = render(repoRoot, "src/components/kartu/KartuPintar.tsx", { locale: "id", kartu });
+        if (!c.expect(r.ok, `the card could not be rendered: ${r.galat}`)) continue;
+        const baris = [...r.html.matchAll(/<li class="pin-kd-bab-baris">([\s\S]*?)<\/li>/g)].map((m) => teks(m[1]));
+        const e = templatKartu({ ...kartu, konteks: konteks as never, tautanAkun: "https://app.pintarselalu.com/akun" }, { asal: "https://app.pintarselalu.com", staging: false });
+        const email = e.teks.split("\n").filter((l) => l.trim().startsWith(label)).map((l) => l.trim().slice(label.length).replace(/^[:\s]+/, "").trim());
+        const harap = [t("role.SYSTEM_ADMIN" as HleEvent, "staff", { locale: "id" }), `${t("role.EDUCATOR" as HleEvent, "staff", { locale: "id" })} · SMP Sintetis Satu`];
+        c.expect(JSON.stringify(baris) === JSON.stringify(harap), `from ${konteks.map((k) => k.peran).join(",")}: the card shows ${JSON.stringify(baris)}, want ${JSON.stringify(harap)}`);
+        c.expect(JSON.stringify(email) === JSON.stringify(baris), `the email lists ${JSON.stringify(email)}, the card ${JSON.stringify(baris)}`);
+        const keluarga = /data-keluarga="([^"]+)"/.exec(r.html)?.[1];
+        c.expect(!!keluarga && keluarga === (KELUARGA_PERAN as Record<string, string>).SYSTEM_ADMIN, `the card's colour is ${keluarga}, not the first role's (${(KELUARGA_PERAN as Record<string, string>).SYSTEM_ADMIN})`);
+      }
+      return c.verdict("«Admin platform» on its own line, then «Guru · SMP …», on the rendered card and in its email, whatever order the database gives, in the first role's colour");
     },
   },
 ];
