@@ -633,7 +633,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
           {/* DAISY-05 (D-006, D-022). Struktur sekolah: first, because a new
               school cannot place a student or assign a teacher until it has a
               Kelas, and until now nothing here could make one. */}
-          <section id="struktur" hidden={!tampilDi("struktur") || undefined} className={card}>
+          {/* B1: only the page's own section is drawn */}{tampilDi("struktur") ? (
+<section id="struktur" hidden={!tampilDi("struktur") || undefined} className={card}>
             <h2 className="font-medium">{sl("config.section.struktur")}</h2>
             {sekolahStruktur && struktur ? (
               <>
@@ -676,6 +677,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
             )}
           </section>
+          ) : null}
 
           {/* J3.2 (ADM-02, P1). PERSIAPAN SEKOLAH: what is done and what remains
               at the school shown, each with the place it is done, right after
@@ -721,7 +723,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               «Batas ketuntasan belum ditetapkan», its history, and a form to set it. A teacher cannot give a lesson
               to a class until its mark is set; a change applies to what is given afterwards. set_school_pass_mark
               decides who may set it (the school's admin), keeps every change and audits it. */}
-          <section id="ketuntasan" hidden={!tampilDi("ketuntasan") || undefined} className={card} aria-labelledby="pin-ketuntasan">
+          {/* B1: only the page's own section is drawn */}{tampilDi("ketuntasan") ? (
+<section id="ketuntasan" hidden={!tampilDi("ketuntasan") || undefined} className={card} aria-labelledby="pin-ketuntasan">
             <h2 id="pin-ketuntasan" className="font-medium">{sl("config.section.ketuntasan")}</h2>
             {sekolahStruktur ? (
               <>
@@ -787,13 +790,15 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
             )}
           </section>
+          ) : null}
 
           {/* D-085 M9 (J3.12, ADM-J13). PINDAH KELAS: the administrator opens
               the Kelas a student is in, finds them, and moves them to another
               Kelas of the same year. move_learner_to_class decides each move
               again as this administrator, in one transaction; what was done in
               the old Kelas stays recorded there. */}
-          <section id="pindah" hidden={!tampilDi("pindah") || undefined} className={card}>
+          {/* B1: only the page's own section is drawn */}{tampilDi("pindah") ? (
+<section id="pindah" hidden={!tampilDi("pindah") || undefined} className={card}>
             <h2 className="font-medium">{sl("config.section.pindah")}</h2>
             {sekolahStruktur && struktur ? (
               <>
@@ -854,13 +859,15 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
             )}
           </section>
+          ) : null}
 
           {/* BOB-44 / DAISY-32 (D-069(e), D-070(c)). PESERTA PENGEMBANGAN PROFESI: an existing teacher or staff member of
               this school is enrolled as a participant in a professional-learning Kelas. The people offered are those the
               database says hold a staff role here now; the places, this school's professional-learning Kelas and
               Tingkat. enrol_for_professional_learning decides again, creates no person, account or number, and audits.
               DAISY-34: the records this administrator may open are linked here, read-only, never as a figure. */}
-          <section id="peserta" hidden={!tampilDi("peserta") || undefined} className={card} aria-labelledby="pin-peserta">
+          {/* B1: only the page's own section is drawn */}{tampilDi("peserta") ? (
+<section id="peserta" hidden={!tampilDi("peserta") || undefined} className={card} aria-labelledby="pin-peserta">
             <h2 id="pin-peserta" className="font-medium">{sl("config.section.peserta")}</h2>
             {sekolahStruktur && peserta ? (
               <>
@@ -907,12 +914,14 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
             )}
           </section>
+          ) : null}
 
           {/* BOB-15 + DAISY-12 (D-037 step 2; D-101(f)). LAPORAN MASALAH: the school resolves what it can (tier 1), the
               PINTAR team reads every school's (tier 2). Open reports first, a stopped class first among them. Each is
               moved forward once at a time with the next step written to its reporter; move_support_report decides
               who may, and audits it. */}
-          <section id="laporan-masalah" hidden={!tampilDi("laporan-masalah") || undefined} className={card} aria-labelledby="pin-laporan-masalah">
+          {/* B1: only the page's own section is drawn */}{tampilDi("laporan-masalah") ? (
+<section id="laporan-masalah" hidden={!tampilDi("laporan-masalah") || undefined} className={card} aria-labelledby="pin-laporan-masalah">
             <h2 id="pin-laporan-masalah" className="font-medium">{sl("config.section.laporan_masalah")}</h2>
             <p className="mt-1 text-sm text-ink-2">{sl(platformKonteks ? "lapor.triase.arti_platform" : "lapor.triase.arti")}</p>
             {/* E-K4: a move is answered in its report's row (it comes back with the row and its page); a refusal that
@@ -980,13 +989,15 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             <Penomoran halaman={halLapor} lagi={lagiLapor} ke={(n) => tautanHalaman(jalanIni, sp, "hal_lapor", n, "laporan-masalah")} locale={locale}
               benda={sl("koleksi.benda.laporan")} jumlah={laporan.length} />
           </section>
+          ) : null}
 
           {/* #148 (D-094(a)(b)(g)(h), D-100). PEMELIHARAAN DAN PENGUMUMAN. Scheduling is two steps: the scope and the
               time are checked first (a plain GET), and the second step shows the assessments that window would meet,
               with the latest one's end, before anything is saved (D-094(g)); it warns, it does not forbid. The list
               ends or starts a window with a reason; «Hentikan sekarang» is Admin platform's alone, separate, and
               confirmed by the typed phrase. The database decides who may do each, and audits it (D-093). */}
-          <section id="pemeliharaan" hidden={!tampilDi("pemeliharaan") || undefined} className={card} aria-labelledby="pin-pemeliharaan">
+          {/* B1: only the page's own section is drawn */}{tampilDi("pemeliharaan") ? (
+<section id="pemeliharaan" hidden={!tampilDi("pemeliharaan") || undefined} className={card} aria-labelledby="pin-pemeliharaan">
             <h2 id="pin-pemeliharaan" className="font-medium">{sl("config.section.pemeliharaan")}</h2>
             <p className="mt-1 text-sm text-ink-2">{sl("config.pemeliharaan.arti")}</p>
             {result("pemeliharaan")}
@@ -1173,6 +1184,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               </div>
             ) : null}
           </section>
+          ) : null}
 
           {/* DAISY-07 (B6b). THE SCHOOL'S REPORTS, one click away. BOB-06 gave
               every school PINTAR's standard class and school reports; nothing
@@ -1180,7 +1192,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               summary is read at the school's own root node and each class's at
               that class, for the school chosen above. A link decides nothing:
               generate_report decides every figure for this reader. */}
-          <section id="laporan" hidden={!tampilDi("laporan") || undefined} className={card}>
+          {/* B1: only the page's own section is drawn */}{tampilDi("laporan") ? (
+<section id="laporan" hidden={!tampilDi("laporan") || undefined} className={card}>
             <h2 className="font-medium">{sl("config.laporan.judul")}</h2>
             {sekolahStruktur ? (
               <>
@@ -1213,9 +1226,11 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               <p className="mt-1 text-sm text-ink-3">{sl("config.struktur.tanpa_sekolah")}</p>
             )}
           </section>
+          ) : null}
 
           {/* System & Configuration: institutions and periods */}
-          <section id="system" hidden={!tampilDi("system") || undefined} className={card}>
+          {/* B1: only the page's own section is drawn */}{tampilDi("system") ? (
+<section id="system" hidden={!tampilDi("system") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.system")}</h2>
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
               {(institutions ?? []).map((i) => (
@@ -1236,9 +1251,11 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 benda={sl("koleksi.benda.sekolah")} jumlah={(institutions ?? []).length} />
             ) : null}
           </section>
+          ) : null}
 
           {/* Period rollover (INV-23) */}
-          <section id="rollover" hidden={!tampilDi("rollover") || undefined} className={card}>
+          {/* B1: only the page's own section is drawn */}{tampilDi("rollover") ? (
+<section id="rollover" hidden={!tampilDi("rollover") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.rollover")}</h2>
             <p className="mt-1 text-sm text-ink-3">{s("config.label.mapping_help")}</p>
             {myInstitutions.map((inst) => {
@@ -1282,9 +1299,11 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             })}
             {result("rollover")}
           </section>
+          ) : null}
 
           {/* Transfers (INV-25; policy hooks only — OD-9) */}
-          <section id="transfers" hidden={!tampilDi("transfers") || undefined} className={card}>
+          {/* B1: only the page's own section is drawn */}{tampilDi("transfers") ? (
+<section id="transfers" hidden={!tampilDi("transfers") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.transfers")}</h2>
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
               {daftarPindah.map((x) => (
@@ -1449,9 +1468,11 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             ) : null}
             {result("transfers")}
           </section>
+          ) : null}
 
           {/* Roles (INV-16) */}
-          <section id="roles" hidden={!tampilDi("roles") || undefined} className={card}>
+          {/* B1: only the page's own section is drawn */}{tampilDi("roles") ? (
+<section id="roles" hidden={!tampilDi("roles") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.roles")}</h2>
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
               {daftarPeran.map((a) => (
@@ -1579,9 +1600,11 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             </form>
             {result("roles")}
           </section>
+          ) : null}
 
           {/* Audit reader (INV-18) — read only */}
-          <section id="audit" hidden={!tampilDi("audit") || undefined} className={card}>
+          {/* B1: only the page's own section is drawn */}{tampilDi("audit") ? (
+<section id="audit" hidden={!tampilDi("audit") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.audit")}</h2>
             {/* B1 (D-166(a)), RV-24: the audit trail is the design system's Table (TableRows: striped, and the stripes
                 print), with its caption. «Versi» is a platform operator's diagnostic: drawn for Admin platform only, and
@@ -1610,6 +1633,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               ke={(n) => tautanHalaman(jalanIni, sp, "hal_jejak", n, "audit")} locale={locale}
               benda={sl("koleksi.benda.jejak")} jumlah={Math.min((audit ?? []).length, UKURAN_JEJAK)} ukuran={UKURAN_JEJAK} />
           </section>
+          ) : null}
 
           {/* W8-02 — REPORT CONFIGURATION.
               PINTAR owns the metrics; the school owns the selection. The form
@@ -1620,7 +1644,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               CAN_MANAGE_REPORT_TEMPLATES before it resolves anything, and the
               row guards ask again on every write — this panel is a form, not
               an authority. */}
-          <section id="intelligence" hidden={!tampilDi("intelligence") || undefined} className={card}>
+          {/* B1: only the page's own section is drawn */}{tampilDi("intelligence") ? (
+<section id="intelligence" hidden={!tampilDi("intelligence") || undefined} className={card}>
             <h2 className="font-medium">{s("laporan.templat.judul")}</h2>
             <p className="mt-2 text-sm text-ink-3">{s("laporan.templat.penjelasan")}</p>
 
@@ -1688,6 +1713,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             )}
             {result("intelligence")}
           </section>
+          ) : null}
         </div>
         {/* B1: the index's sections, in five groups, each row the section's own title opening its page; the rows are
             the menu that was (navSemua through tampil, so the index and the sections agree, E-B1-5). The index is the

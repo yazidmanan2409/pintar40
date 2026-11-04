@@ -9064,7 +9064,8 @@ export const experienceTests: SelfTest[] = [
       c.expect(/const navSemua: Array<\[string, string\]> = \[\s*\["struktur"/.test(konfig) && /const nav = navSemua\.filter\(\(\[bagian\]\) => tampil\(bagian\)\);/.test(konfig),
         "Struktur sekolah is not the first entry in Konfigurasi's menu");
       // (B1: the sections' container carries the section a page draws; Struktur is still its first, and the index's first row)
-      c.expect(/<div className="grid gap-4" data-bagian-ini=\{bagianIni \?\? undefined\}>\s*(?:\{\s*\}\s*)*<section id="struktur"/.test(konfig), "Struktur sekolah is not the first section");
+      // (B1: each section is drawn only on its own page, behind tampilDi)
+      c.expect(/<div className="grid gap-4" data-bagian-ini=\{bagianIni \?\? undefined\}>\s*(?:\{\s*\}\s*)*\{tampilDi\("struktur"\) \? \(\s*<section id="struktur"/.test(konfig), "Struktur sekolah is not the first section");
       const { KELOMPOK_KONFIGURASI } = await import("../src/lib/bagian-konfigurasi");
       c.expect(KELOMPOK_KONFIGURASI[0]?.bagian[0] === "struktur", "Struktur sekolah is not the index's first row");
       // L3 (D-132 C7): on offer is the working context's school (an evaluation persona: as before, C10)

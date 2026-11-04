@@ -2273,11 +2273,12 @@ export const appTests: SelfTest[] = [
       const c = new Checks();
       const base = ctx.appUrl!;
       const admin = await signIn(ctx, PERSONA.alphaAdmin);
-      const res = await get(`${base}/konfigurasi`, { headers: { cookie: admin.cookie } });
+      // (B1: each section is drawn on its own page only; Struktur sekolah is /konfigurasi/struktur)
+      const res = await get(`${base}/konfigurasi/struktur`, { headers: { cookie: admin.cookie } });
       c.expect(res.status === 200, `INSTITUTION_ADMIN /konfigurasi → ${res.status}`);
       const raw = await res.text();
       const i = raw.indexOf('id="struktur"');
-      const j = raw.indexOf('id="system"', i);
+      const j = raw.indexOf("</section>", i);
       const bagian = i >= 0 && j > i ? raw.slice(i, j) : "";
       if (!c.expect(bagian.length > 0, "Konfigurasi has no Struktur sekolah section")) return c.verdict("");
       const teks = visibleText(bagian);
@@ -2303,12 +2304,12 @@ export const appTests: SelfTest[] = [
       const kanon = "PINTAR Kurikulum Nasional";
       const sys = await signIn(ctx, PERSONA.sysadmin);
       await pilihKonteksCookie(base, sys.cookie, { tujuan: "MENGELOLA", nama: "Sekolah Sintetis Alpha" });
-      for (const alamat of ["/konfigurasi", "/konfigurasi?sekolah=00000000-0000-0000-0000-000000000000"]) {
+      for (const alamat of ["/konfigurasi/struktur", "/konfigurasi/struktur?sekolah=00000000-0000-0000-0000-000000000000"]) {
         const r = await get(`${base}${alamat}`, { headers: { cookie: sys.cookie } });
         c.expect(r.status === 200, `SYSTEM_ADMIN ${alamat} → ${r.status}`);
         const html = await r.text();
         const a = html.indexOf('id="struktur"');
-        const b = html.indexOf('id="system"', a);
+        const b = html.indexOf("</section>", a);
         const sec = a >= 0 && b > a ? html.slice(a, b) : "";
         c.expect(sec.length > 0 && !/role="alert"/.test(sec), `SYSTEM_ADMIN ${alamat}: the structure section is missing or could not be read`);
         c.expect(!visibleText(sec).includes(kanon), `SYSTEM_ADMIN ${alamat}: the school picker offers or opens the national library`);
@@ -2318,15 +2319,16 @@ export const appTests: SelfTest[] = [
         headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${sys.accessToken}` },
       }).then((x) => x.json() as Promise<Array<{ id: string }>>).catch(() => [] as Array<{ id: string }>);
       if (c.expect(Array.isArray(idKanon) && idKanon.length > 0, "the national library's tenant could not be read, so the check below proves nothing")) {
-        const r = await get(`${base}/konfigurasi?sekolah=${idKanon[0].id}`, { headers: { cookie: sys.cookie } });
+        const r = await get(`${base}/konfigurasi/struktur?sekolah=${idKanon[0].id}`, { headers: { cookie: sys.cookie } });
         const html = await r.text();
         const a = html.indexOf('id="struktur"');
-        const sec = a >= 0 ? html.slice(a, html.indexOf('id="system"', a)) : "";
+        const sec = a >= 0 ? html.slice(a, html.indexOf("</section>", a)) : "";
         c.expect(sec.length > 0 && !visibleText(sec).includes(kanon), "asking for the national library by address opens it in the structure section");
       }
       await pilihKonteksCookie(base, sys.cookie, "MENGELOLA:PLATFORM");
       const platform = await (await get(`${base}/konfigurasi`, { headers: { cookie: sys.cookie } })).text();
-      c.expect(/<section id="struktur" hidden=""/.test(platform) && !/<a [^>]*href="#struktur"/.test(platform),
+      // (B1: a section the context does not draw is not in the page at all, and the index offers no row to it)
+      c.expect(!/<section id="struktur"/.test(platform) && !/<a [^>]*href="#struktur"/.test(platform) && !/data-bagian-ke="struktur"/.test(platform),
         "«Seluruh platform» draws or offers a school's structure");
       return c.verdict(
         "the school administrator's Konfigurasi opens on their school's structure, read from the database: the seeded Bagian, " +
@@ -2593,7 +2595,7 @@ export const appTests: SelfTest[] = [
       const rest = (q: string) => fetch(`${ctx.supabaseUrl}/rest/v1/${q}`, {
         headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${admin.accessToken}` },
       }).then((r) => r.json() as Promise<Array<Record<string, string | null>>>).catch(() => []);
-      const k = await get(`${base}/konfigurasi`, { headers: { cookie: admin.cookie } });
+      const k = await get(`${base}/konfigurasi/laporan`, { headers: { cookie: admin.cookie } });
       c.expect(k.status === 200, `INSTITUTION_ADMIN /konfigurasi → ${k.status}`);
       // the page as the browser puts it together: a streamed-late part is timing, not the page's shape
       const html = tersusun(await k.text());
@@ -3247,7 +3249,7 @@ export const appTests: SelfTest[] = [
         c.expect(tanya.status === 307 && (tanya.headers.get("location") ?? "").startsWith("/?lanjut="),
           `with two schools held, /konfigurasi did not ask which (${tanya.status} ${tanya.headers.get("location")})`);
         await pilihKonteksCookie(base, admin.cookie, `MENGELOLA:${S}`);
-        const hal = await get(`${base}/konfigurasi?sekolah=${S}`, { headers: { cookie: admin.cookie } });
+        const hal = await get(`${base}/konfigurasi/roles?sekolah=${S}`, { headers: { cookie: admin.cookie } });
         const html = await hal.text();
         const teks = visibleText(html);
         c.expect(hal.status === 200, `the school admin's /konfigurasi → ${hal.status}`);
