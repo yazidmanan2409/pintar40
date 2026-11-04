@@ -284,7 +284,11 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                   <ol className="pin-daftar-titik">
                     {l.soal.map((q) => (
                       <li key={q.id} className="pin-soal">
-                        <p className="pin-ket-3">{q.peran ? enumLabel("mode", q.peran, locale) : enumLabel("bank", q.bank, locale)}</p>
+                        <p className="pin-ket-3">
+                          {q.peran ? enumLabel("mode", q.peran, locale) : enumLabel("bank", q.bank, locale)}
+                          {/* E-A1-1: the author's difficulty, as its band's word (the Bank Soal's own words) */}
+                          {q.pita ? <> · {sl("studio.bank.prediksi")}: {sl(`mengajar.cepat.tingkat.${q.pita}`)}</> : null}
+                        </p>
                         {q.stimulus ? <p className="pin-ket"><TeksBaris teks={q.stimulus} /></p> : null}
                         <p><TeksBaris teks={q.pertanyaan} /></p>
                         <ul className="pin-daftar-rapat">
@@ -293,6 +297,13 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                               <span className={o.kunci ? "pin-judul-baris" : undefined}>{o.label}. <TeksBaris teks={o.isi} /></span>
                               {o.kunci ? <span className="pin-studio-kunci">· {sl("studio.soal.kunci")}</span> : null}
                               <p className="pin-ket">{sl("studio.soal.alasan")}: <TeksBaris teks={o.alasan} /></p>
+                              {/* E-A1-1: the misconception the option is coded with, by its name in the school's taxonomy */}
+                              {o.miskonsepsi ? (
+                                <p className="pin-ket" data-miskonsepsi={o.miskonsepsi.kode}>
+                                  {sl("studio.soal.miskonsepsi")}: {o.miskonsepsi.nama ?? o.miskonsepsi.kode}
+                                  {o.miskonsepsi.nama ? <> <span className="pin-kode">{o.miskonsepsi.kode}</span></> : null}
+                                </p>
+                              ) : null}
                             </li>
                           ))}
                         </ul>

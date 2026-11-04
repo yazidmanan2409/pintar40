@@ -55,6 +55,10 @@
  *              words and, for a key the copy table lacks or no key, the one «no name yet» sentence; every surface that
  *              names a report entry asks it (no `label_key ? … : ""` left, no empty heading); every metric label key the
  *              database's migrations and seed define has words in both languages.
+ *   D168-A1-1  the reviewer sees each question's difficulty and each option's misconception (E-A1-1): susunSoal returns
+ *              the author's difficulty as its band (never the number) and an option's misconception by its taxonomy name
+ *              (the code where unnamed); the loader reads both columns and the names with the reader's own client (no
+ *              new reach); the package page draws them in the Bank Soal's words.
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -64,6 +68,7 @@ import { allKeys, t, type HleEvent } from "../src/lib/hle";
 import { judulAsesmen } from "../src/lib/judul-asesmen";
 import { cangkangStaf } from "../src/components/lapor/cangkang";
 import { labelMetrik } from "../src/components/bukti/label";
+import { susunSoal } from "../src/lib/soal-tinjauan";
 import { render } from "./ux2.test";
 
 const kode = (x: string) => x.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
@@ -402,6 +407,34 @@ export const d168Tests: SelfTest[] = [
       const tanpaKata = [...label].filter((k) => !k.startsWith("metrik.probe.") && !kunci.has(k));
       c.expect(label.size >= 30 && tanpaKata.length === 0, `metric keys the database defines without words: ${tanpaKata.join(", ")} (of ${label.size})`);
       return c.verdict(`every report entry is named through labelMetrik (no key, no empty heading); the ${label.size} metric keys the database defines all have words`);
+    },
+  },
+  {
+    id: "D168-A1-1",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const tgl = "2026-10-01T00:00:00Z";
+      const hasil = susunSoal([{ id: "m", ordinal: 1 }], [{ id: "l", module_id: "m", ordinal: 1, title: "P" }],
+        [{ id: "a", lesson_id: "l", cycle_role: "POST_TEST", bank_type: "TEST", stimulus: null, stem: "s", created_at: tgl, predicted_difficulty: 0.75 },
+          { id: "b", lesson_id: "l", cycle_role: null, bank_type: "PRACTICE", stimulus: null, stem: "t", created_at: tgl, predicted_difficulty: 0.3 },
+          { id: "d", lesson_id: "l", cycle_role: null, bank_type: "PRACTICE", stimulus: null, stem: "u", created_at: tgl, predicted_difficulty: null }],
+        [{ item_id: "a", label: "A", body: "x", is_correct: false, rationale: "r", misconception_code: "MK-1" },
+          { item_id: "a", label: "B", body: "y", is_correct: false, rationale: "r", misconception_code: "MK-2" },
+          { item_id: "a", label: "C", body: "z", is_correct: true, rationale: "r", misconception_code: null }],
+        new Map([["MK-1", "Menjumlahkan penyebut"]]));
+      const [a, b, d] = hasil[0].soal;
+      c.expect(a.pita === "SULIT" && b.pita === "MUDAH" && d.pita === null && !JSON.stringify(hasil).includes("0.75"), `the bands read ${a.pita}/${b.pita}/${d.pita}, or a number leaked`);
+      c.expect(JSON.stringify(a.opsi.map((o) => o.miskonsepsi ?? null)) === JSON.stringify([{ kode: "MK-1", nama: "Menjumlahkan penyebut" }, { kode: "MK-2", nama: null }, null]),
+        `the options' misconceptions read ${JSON.stringify(a.opsi.map((o) => o.miskonsepsi ?? null))}`);
+      const muat = kode(readFileSync(join(repoRoot, "src/lib/soal-tinjauan.ts"), "utf8"));
+      c.expect(/from\("items"\)\.select\("[^"]*predicted_difficulty"\)/.test(muat) && /from\("item_options"\)\.select\("[^"]*misconception_code"\)/.test(muat)
+        && /await c\.from\("misconception_taxonomy"\)\.select\("code, label"\)/.test(muat) && !/service|admin|createClient/i.test(muat),
+        "the loader does not read the band, the code and its name with the reader's own client");
+      const hal = kode(readFileSync(join(repoRoot, "src/app/studio/paket/[course]/page.tsx"), "utf8"));
+      c.expect(/q\.pita \? <> · \{sl\("studio\.bank\.prediksi"\)\}: \{sl\(`mengajar\.cepat\.tingkat\.\$\{q\.pita\}`\)\}<\/> : null/.test(hal)
+        && /o\.miskonsepsi \?[\s\S]{0,200}studio\.soal\.miskonsepsi[\s\S]{0,80}o\.miskonsepsi\.nama \?\? o\.miskonsepsi\.kode/.test(hal),
+        "the package page does not draw the band or the misconception");
+      return c.verdict("the reviewer's questions carry the author's band (Sulit, Mudah, none) and each option's misconception by name (the code where unnamed), read under the reader's own access");
     },
   },
 ];

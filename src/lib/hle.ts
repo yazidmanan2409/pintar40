@@ -1051,7 +1051,7 @@ export type HleEvent =
   | "studio.bank.judul"
   | "studio.bank.intro"
   | "studio.bank.kesehatan"
-  | "studio.bank.prediksi"
+  | "studio.bank.prediksi" | "studio.soal.miskonsepsi"
   | "studio.bank.empiris"
   | "studio.bank.akui_ok"
   | "studio.bank.tindakan"
@@ -2469,6 +2469,8 @@ const table: Table = {
   "studio.soal.kunci": { default: "Kunci", en: "Key" },
   "studio.soal.alasan": { default: "Alasan", en: "Why" },
   "studio.soal.kosong": { default: "Paket ini belum berisi soal.", en: "This package has no questions yet." },
+  // E-A1-1: an option's misconception in the reviewer's question list (the metric's own word; pending Dr Gladys)
+  "studio.soal.miskonsepsi": { default: "Pemahaman keliru", en: "Misunderstanding" },
   "mengajar.bukti.per_soal": { default: "Lihat per soal", en: "See question by question" },
   "mengajar.soal.judul": { default: "Soal mana yang sulit bagi kelas ini", en: "Which questions this class found hard" },
   "mengajar.soal.arti": { default: "Dari jawaban yang sudah dikumpulkan murid kelas ini. Soal yang paling sedikit dijawab tepat ada di atas, dengan nama murid yang mungkin perlu bantuan pada konsep itu. Jawaban yang masih dikerjakan tidak terlihat di sini.", en: "From the answers this class has handed in. The questions answered rightly by the fewest come first, with the names of learners who may need help with that concept. Answers still being worked on are not shown here." },

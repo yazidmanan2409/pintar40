@@ -4212,6 +4212,11 @@
       "proves": "Terminology v1 ruling 2 (X12 T1; D-171(c)), selftest/d168.test.ts: over the rendered copy table, no Indonesian string says «kursus» and no English string says «course(s)» for the Studio object, except an allow-list that is the decision itself: the workbook's structure (ruling 14), the JSON format's language (ruling 13) and the certificate list's column (X12 T4, pending); the full term is «Paket Pembelajaran» / «Learning Package»."
     },
     {
+      "id": "D168-A1-1",
+      "runner": "static",
+      "proves": "E-A1-1, selftest/d168.test.ts: executing susunSoal (src/lib/soal-tinjauan.ts), a question with predicted difficulty 0.75 reads SULIT, 0.3 MUDAH, none null, never the number, and options carry their misconception by its taxonomy name or code; reading the source, the loader selects predicted_difficulty and misconception_code and reads misconception_taxonomy with the reader's own client, and the package page draws the band in the Bank Soal's words and the misconception's name."
+    },
+    {
       "id": "D168-C1-2",
       "runner": "static",
       "proves": "E-C1-1, E-C1-3 (D-168), selftest/d168.test.ts: executing labelMetrik (src/components/bukti/label.ts), a known label_key gives its words and a key without copy or no key gives «Ukuran ini belum punya nama» in both languages, never a key or nothing; reading the source of both report pages, KartuKetiadaan, AngkaBerdiri, AngkaTerkelola and «Lihat bukti», each names entries through it and no heading can be empty; over every supabase migration and seed, each metrik.*.label/arti key has copy-table words."
