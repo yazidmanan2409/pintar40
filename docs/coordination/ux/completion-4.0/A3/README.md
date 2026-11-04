@@ -1,7 +1,7 @@
 # A3 · D3: the Uji Cepat class figure for a small group
 
 **Form C (the presentation, per option).** Register entry A3.
-**Status: DESIGN ACCEPTED under option (a). O3 is decided (owner, 4 Nov): a threshold of 5, and the design-policy question is closed.**
+**Status: DESIGN ACCEPTED under option (a). O3 is decided (owner, 4 Nov, D-176): a threshold of 5, and the design-policy question is closed.**
 - **Five or more** participants with official scored results: the class figure (A2).
 - **Fewer than five:** no class average. The approved «not yet» pattern shows the actual scored count and the required threshold, and keeps the class total and scoring status (the base).
 - **Zero scored:** the approved Empty state, never a numeric zero.
@@ -10,7 +10,7 @@
 - **One authoritative threshold**, read from one place, never written into a page's words.
 - **Engineering defect E-A3-1:** the shared «how far» sentence (`kalimatJumlah`, `ketiadaan.jumlah.murid`) says «murid» on professional-learning pages. Corrected at its source, so a PD class says «peserta» (`ketiadaan.jumlah.peserta`, NEW, pending copy approval).
 
-Options (b) and (c) are kept below as drawn, for the record; they are not built.
+**Option (a) is the built state. Options (b) and (c) are NOT CHOSEN** (D-176); they stay drawn below for the record only and are not built.
 **Surface:** `/mengajar/[kelas]/uji-cepat/hasil`, in **A2's accepted composition**: the class first, «Rata-rata nilai kelas» with its base at body size and its explanation, «Lihat per soal», then «Rincian nilai» one step below.
 **Rules it follows:**
 - the not-yet state is D-172's canonical **P14**, the same grammar as the reports' figures (C1): the statement in the figure's place, how far, and what makes it appear;
@@ -27,9 +27,9 @@ Options (b) and (c) are kept below as drawn, for the record; they are not built.
 
 | Owner's option (O3) | Below the threshold | At or above it | Specimens |
 |---|---|---|---|
-| **(a) A threshold of 5** (the catalogue's floor for class metrics) | **No class figure.** In its place (P14), still headed «Rata-rata nilai kelas»:<br>• «Belum cukup nilai untuk menampilkan rata-rata kelas.»<br>• «Sekarang 3 murid; perlu 5.» (`ketiadaan.jumlah.murid`)<br>• «Rata-rata nilai kelas muncul setelah cukup murid dinilai.»<br>• the base «3 dari 28 murid sudah dinilai» | The figure, its base, its explanation (A2) | `ambang5-kurang`, `ambang5-cukup` |
-| **(b) Another threshold** (drawn with 10) | The same presentation. **The threshold is read from one place** (the catalogue's minimum, as the reports read theirs), never written into the page or its words: «perlu {needed}» carries it. | As (a) | `ambangN-kurang` |
-| **(c) No threshold** (today: from one scored learner) | — | **The figure from one scored learner up, exactly as A2.** The small-group presentation is the base itself: «1 dari 28 murid sudah dinilai», at body size and directly under the figure (A2 K4), so «100%» is read as one score so far. **No figure is suppressed, and no other cut-off is drawn.** A sentence that changed at some number would be a threshold by another name. | `tanpa-ambang` |
+| **(a) A threshold of 5** (the catalogue's floor for class metrics). **BUILT (D-176).** | **No class figure.** In its place (P14), still headed «Rata-rata nilai kelas»:<br>• «Belum cukup nilai untuk menampilkan rata-rata kelas.»<br>• «Sekarang 3 murid; perlu 5.» (`ketiadaan.jumlah.murid`)<br>• «Rata-rata nilai kelas muncul setelah cukup murid dinilai.»<br>• the base «3 dari 28 murid sudah dinilai» | The figure, its base, its explanation (A2) | `ambang5-kurang`, `ambang5-cukup` |
+| **(b) Another threshold** (drawn with 10). **NOT CHOSEN.** | The same presentation. **The threshold is read from one place** (the catalogue's minimum, as the reports read theirs), never written into the page or its words: «perlu {needed}» carries it. | As (a) | `ambangN-kurang` |
+| **(c) No threshold** (today: from one scored learner). **NOT CHOSEN** (D-176): today's behaviour changes to (a). | — | **The figure from one scored learner up, exactly as A2.** The small-group presentation is the base itself: «1 dari 28 murid sudah dinilai», at body size and directly under the figure (A2 K4), so «100%» is read as one score so far. **No figure is suppressed, and no other cut-off is drawn.** A sentence that changed at some number would be a threshold by another name. | `tanpa-ambang` |
 | **Every option: zero scored** | The Empty state (P13): «Belum ada nilai. Rata-rata nilai kelas muncul di sini setelah ada yang mengumpulkan.» (A2 K7). No figure, no zero. | — | `nol` |
 
 **What stays the same under every option:**
@@ -68,7 +68,7 @@ Options (b) and (c) are kept below as drawn, for the record; they are not built.
 
 ## 5. Decisions it depends on
 
-**None left.** O3 is decided: (a), threshold 5. The new keys await copy approval.
+**None left.** O3 is decided: (a), threshold 5 (D-176). The participant form of the «how far» line is engineering's fix at its source (E-A3-1). The new keys await copy approval.
 
 ## 6. Acceptance checklist (option (a), threshold 5)
 
