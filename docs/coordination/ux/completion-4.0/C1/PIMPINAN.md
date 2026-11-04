@@ -233,9 +233,10 @@ These are things the build must change for the composition to hold. None is a de
 - [auto] No sideways scroll at 1280, 820, 390 or 320 px, in all 18 specimens.
 - [auto] axe WCAG 2.2 AA: no violations, 72 of 72 renders.
 - [auto] No empty h1; no raw key; nothing that reads as a ranking.
-- [auto] Every badge carries a word (and an icon where it marks a state).
-- [auto] A4: the shell, back link, scope choice and forms do not print; a decision panel and a participant never split.
-- [auto] `/pengembangan/[simpul]` draws exactly the columns the contract returns per audience, in the database's order.
+- [manual] Every badge carries a word (and an icon where it marks a state).
+- [auto] A4: the shell, back link and forms do not print.
+- [manual] A4: a decision panel and a participant never split across pages.
+- [manual] `/pengembangan/[simpul]` draws exactly the columns the contract returns per audience, in the database's order (engineering can make this [auto] against `pengembangan-kontrak.ts`).
 - [manual] Side-by-side review of the build beside this composition at each width (brief G:14).
 - [manual] The roster's intro is read before the names (screen reader).
 - [manual] §10 answered by the owner, and the specimen re-rendered if the «Hasil» cell changes.
