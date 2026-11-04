@@ -33,8 +33,10 @@ export const hod09Tests: SelfTest[] = [
         c.expect(/^<div class="[^"]*\bpin-noprint\b/.test(html), "the report's controls are printed with it");
       }
       const buang = (x: string) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+      // RESTATED, R0-4: the history-back is the shared TautanKembali (also «Laporkan masalah»'s); AksiLaporan uses it
       const aksi = buang(readFileSync(join(ctx.repoRoot, "src", "components", "laporan", "AksiLaporan.tsx"), "utf8"));
-      c.expect(/if \(window\.history\.length > 1\) \{\s*e\.preventDefault\(\);\s*window\.history\.back\(\);/.test(aksi) && /window\.print\(\)/.test(aksi),
+      const kembali = buang(readFileSync(join(ctx.repoRoot, "src", "components", "TautanKembali.tsx"), "utf8"));
+      c.expect(/if \(window\.history\.length > 1\) \{\s*e\.preventDefault\(\);\s*window\.history\.back\(\);/.test(kembali) && /<TautanKembali href=\{ke\}/.test(aksi) && /window\.print\(\)/.test(aksi),
         "«Kembali» does not return where the reader came from (else their doors), or print is not the browser's print of this page");
       for (const [hal, persona] of [["edukator", "untuk"], ["dekan", "\"staff\""]] as const) { // E-C1-2: the class report's persona is the context's (`untuk`)
         const src = buang(readFileSync(join(ctx.repoRoot, "src", "app", hal, "ringkasan", "page.tsx"), "utf8"));

@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 import { alamatBagian } from "@/lib/bagian-konfigurasi";
 import { supabaseServer } from "@/lib/supabase/server";
 import { rujukan } from "@/lib/galat-kontrak";
@@ -22,7 +22,8 @@ export async function kirimLaporanAksi(fd: FormData): Promise<void> {
   const ref = rujukanLaporan(str(fd, "ref"));
   const balik = (q: Record<string, string>): never => {
     const p = new URLSearchParams({ dari: halaman, ...(ref ? { ref } : {}), ...q });
-    redirect(`/lapor?${p.toString()}`);
+    // replaces the form's history entry, so the history-back still returns to the page the report was started from
+    redirect(`/lapor?${p.toString()}`, RedirectType.replace);
   };
   const lakukan = str(fd, "lakukan"), harapan = str(fd, "harapan"), terjadi = str(fd, "terjadi");
   if (!lakukan || !harapan || !terjadi) balik({ kode: "REPORT_INPUT_INVALID" });

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import TautanKembali from "@/components/TautanKembali";
 
 /**
  * HOD-J09: A REPORT HAS A WAY BACK AND CAN BE PRINTED.
@@ -19,19 +19,9 @@ export default function AksiLaporan({ kembali, cetak, ke = "/" }: {
 }) {
   return (
     <div className="pin-actions pin-noprint">
-      <Link
-        href={ke}
-        className="pin-btn pin-quiet"
-        data-kembali={ke === "/" ? "riwayat" : "tempat"}
-        onClick={(e) => {
-          if (window.history.length > 1) {
-            e.preventDefault();
-            window.history.back();
-          }
-        }}
-      >
+      <TautanKembali href={ke} className="pin-btn pin-quiet" jenis={ke === "/" ? "riwayat" : "tempat"}>
         ← {kembali}
-      </Link>
+      </TautanKembali>
       <button type="button" className="pin-btn pin-primary" onClick={() => window.print()}>
         {cetak}
       </button>

@@ -271,7 +271,10 @@ export const d168Tests: SelfTest[] = [
           for (const k of m[0].matchAll(/\bs\("([a-z0-9_.]+)"/g)) c.expect(!(telanjang as string[]).includes(k[1]), `${f}: a back link reads only «Kembali» (${k[1]})`);
         }
         for (const k of src.matchAll(/backKey="([a-z0-9_.]+)"/g)) c.expect(!(telanjang as string[]).includes(k[1]) && (allKeys() as string[]).includes(k[1]), `${f}: a refusal's way back reads only «Kembali» (${k[1]})`);
-        if (/data-kembali="riwayat"|data-kembali=\{/.test(src)) c.expect(/KEMBALI_RIWAYAT/.test(src) || /AksiLaporan\.tsx$/.test(f), `${f}: a history-back is not named as one`);
+        if (/data-kembali="riwayat"|data-kembali=\{|<TautanKembali[^>]*jenis=/.test(src)) c.expect(/KEMBALI_RIWAYAT/.test(src) || /AksiLaporan\.tsx$|TautanKembali\.tsx$/.test(f), `${f}: a history-back is not named as one`);
+        // R0-4: a way back NAMED as the history-back goes back in the history (TautanKembali), never to a bare address
+        // that drops the page's query (/siapa without ?penugasan= refused the teacher who had come from it)
+        if (!/TautanKembali\.tsx$/.test(f)) c.expect(!/<Link[^>]*data-kembali="riwayat"/.test(src), `${f}: a link named as the history-back is a plain Link to an address`);
       }
       c.expect(tautan >= 30, `only ${tautan} back links found`);
       const nav = kode(readFileSync(join(repoRoot, "src/components/NavKonteks.tsx"), "utf8"));
@@ -280,7 +283,16 @@ export const d168Tests: SelfTest[] = [
       c.expect(/namaTempat\(backHref\)/.test(tolak), "the refusal page does not name its destination from the place table");
       const aksi = kode(readFileSync(join(repoRoot, "src/components/laporan/AksiLaporan.tsx"), "utf8"));
       // H9: the report's way back is declared by what it is: «tempat» when opened from a named place, «riwayat» otherwise
-      c.expect(/window\.history\.back\(\)/.test(aksi) && /data-kembali=\{ke === "\/" \? "riwayat" : "tempat"\}/.test(aksi), "the report's history-back is not declared as one");
+      // RESTATED, R0-4: the history-back is one component (TautanKembali), which the report pages and /lapor both use
+      const kembali = kode(readFileSync(join(repoRoot, "src/components/TautanKembali.tsx"), "utf8"));
+      c.expect(/window\.history\.back\(\)/.test(kembali) && /data-kembali=\{jenis\}/.test(kembali), "the history-back component does not go back in the history, or does not declare itself");
+      c.expect(/<TautanKembali href=\{ke\} className="pin-btn pin-quiet" jenis=\{ke === "\/" \? "riwayat" : "tempat"\}>/.test(aksi) && !/history\.back/.test(aksi), "the report's history-back is not the shared one");
+      const lapor = kode(readFileSync(join(repoRoot, "src/app/lapor/page.tsx"), "utf8"));
+      c.expect(/<TautanKembali className="pin-back" href=\{halaman\} jenis="riwayat">← \{s\(KEMBALI_RIWAYAT\)\}<\/TautanKembali>/.test(lapor), "«Laporkan masalah»'s way back is not the history-back");
+      const aksiLapor = kode(readFileSync(join(repoRoot, "src/app/lapor/actions.ts"), "utf8"));
+      c.expect(/redirect\(`\/lapor\?\$\{p\.toString\(\)\}`, RedirectType\.replace\)/.test(aksiLapor), "a refused report adds a history entry, so its way back returns to the form");
+      const semuaSrc = semua.map((f) => kode(readFileSync(join(repoRoot, f), "utf8"))).join("\n");
+      c.expect((semuaSrc.match(/window\.history\.back\(\)/g) ?? []).length === 1, "the history-back is written in more than one place");
       const asal = readFileSync(join(repoRoot, "src/lib/nama-tempat.ts"), "utf8");
       c.expect(/pimpinan: \{ ke: "\/pimpinan", nama: "nav\.pimpinan" \}/.test(asal) && /konfigurasi: \{ ke: "\/konfigurasi\/laporan", nama: "config\.laporan\.judul" \}/.test(asal)
         && /\{ ke: "\/", nama: KEMBALI_RIWAYAT \}/.test(asal), "a report's origin is not named from its place (H9)");

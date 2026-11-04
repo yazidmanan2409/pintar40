@@ -14,6 +14,8 @@
 //   N4  Under 1024 px: the bar's Tab order is the skip link, «Keluar», «Buka menu»; the drawer opens as a modal (focus
 //       moves in, the page behind is inert) and Escape closes it and returns focus to «Buka menu».
 //   N5  A transition: the teacher who also learns chooses Belajar on «/»; the navigation is then Belajar's, and back.
+//   N7  «Laporkan masalah» from a page that needs its query (an assignment's /siapa) and back: the same page and
+//       query, never a refusal (R0-4; the way back is the history-back, TautanKembali)
 //   N6  A page of another context is not drawn inside this one: a teacher in Mengajar opening /konfigurasi is refused
 //       or sent to «/», never shown Konfigurasi with its places.
 //
@@ -271,6 +273,33 @@ await step("N6", "a page of another context is not drawn inside this one", async
   const konfig = n?.dom.includes("/konfigurasi") ?? false;
   harus(rec, !konfig, `a teacher in Mengajar opening /konfigurasi lands on ${u.pathname}${u.search}, ${n ? `a shell offering ${n.dom.join(" · ")}` : "no navigation"}`);
   await shot(page, rec, "lain-konteks");
+});
+
+await step("N7", "«Laporkan masalah» from a page that needs its query, and back: the same page, not a refusal (R0-4)", async (rec) => {
+  const { page } = sesi["guru-dua"];
+  await page.setViewportSize({ width: 1280, height: 860 });
+  await page.goto(`${APP}/mengajar`, { waitUntil: "networkidle" });
+  const siapa = page.locator('main a[href*="/siapa?penugasan="]').first();
+  if (!harus(rec, (await siapa.count()) === 1, "the teacher's home links an assignment's «siapa» page")) return;
+  await siapa.click();
+  await page.waitForURL((u) => u.pathname.endsWith("/siapa") && u.searchParams.has("penugasan"), { timeout: 20000 });
+  await page.waitForLoadState("networkidle");
+  const asal = new URL(page.url());
+  await page.locator("[data-lapor]").first().click();
+  await page.waitForURL((u) => u.pathname === "/lapor", { timeout: 20000 });
+  await page.waitForLoadState("networkidle");
+  const dari = new URL(page.url()).searchParams.get("dari");
+  harus(rec, dari === asal.pathname, `the report keeps the page without its query (dari=${dari})`);
+  const balik = page.locator('[data-kembali="riwayat"]').first();
+  harus(rec, (await balik.innerText()).includes("Kembali ke halaman sebelumnya"), "the way back is named as the history-back");
+  await balik.click();
+  await page.waitForURL((u) => u.pathname === asal.pathname, { timeout: 20000 });
+  await page.waitForLoadState("networkidle");
+  const kini = new URL(page.url());
+  const judul = (await page.locator("h1").first().innerText()).trim();
+  harus(rec, kini.search === asal.search, `back on ${kini.pathname}${kini.search}, the page as it was left (${asal.search})`);
+  harus(rec, !/belum tersedia untuk akun Anda/.test(judul), `the page is drawn, not refused («${judul}»)`);
+  await shot(page, rec, "lapor-kembali");
 });
 
 await browser.close();

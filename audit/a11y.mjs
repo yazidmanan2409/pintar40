@@ -87,8 +87,16 @@ export async function periksa(page) {
 
   // skip link and keyboard walk, from the top of the page
   try {
-    await page.evaluate(() => { document.activeElement?.blur?.(); window.scrollTo(0, 0); });
-    await page.locator("body").focus().catch(() => {});
+    // FROM THE DOCUMENT'S START, really: blur() leaves the browser's focus starting point where focus was (the
+    // first-visit tour's headline, which W3.15 focuses on open), so the next Tab continued from there and the skip
+    // link read as missing (R0-3). Focusing <body> as a focusable element moves the starting point to the top.
+    await page.evaluate(() => {
+      document.activeElement?.blur?.(); window.scrollTo(0, 0);
+      const ada = document.body.hasAttribute("tabindex");
+      if (!ada) document.body.setAttribute("tabindex", "-1");
+      document.body.focus({ preventScroll: true });
+      if (!ada) document.body.removeAttribute("tabindex");
+    });
     const langkah = [];
     let macet = 0, tubuh = 0, tanpaTanda = 0, luar = 0;
     for (let i = 0; i < 40; i++) {
