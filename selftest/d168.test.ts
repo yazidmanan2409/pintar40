@@ -42,6 +42,9 @@
  *   D168-K9-1  a fixed value is text (E-K9): the date field (TanggalDenganGema), given `disabled` (Siapkan after
  *              «Disediakan»), draws no field at all — the date in the helper's words in an <output> the caller's label
  *              still names — and no src file draws a disabled native date field.
+ *   D168-K8-1  Studio's step list reads as progress, not as radio buttons (E-K8): its markers are segments (no ring, no
+ *              round marker, no border on any state), the list carries no radio role or input, and the current step is
+ *              told by aria-current and the primary segment.
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -298,6 +301,24 @@ export const d168Tests: SelfTest[] = [
       const salah = semua.filter((f) => /<input\b[^>]*type="(date|datetime-local)"[^>]*\bdisabled\b|<input\b[^>]*\bdisabled\b[^>]*type="(date|datetime-local)"/.test(kode(readFileSync(join(repoRoot, f), "utf8"))));
       c.expect(salah.length === 0, `a disabled native date field is drawn in: ${salah.join(", ")}`);
       return c.verdict("a fixed date is the helper's words in an <output>, never a disabled field; a date that can change stays a native field");
+    },
+  },
+  {
+    id: "D168-K8-1",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+      const aturan = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((m) => ({ pilih: m[1].trim(), isi: m[2] })).filter((a) => /\.pin-lt-langkah[^,]*::before/.test(a.pilih));
+      c.expect(aturan.length >= 3, `only ${aturan.length} marker rules`);
+      const cincin = aturan.filter((a) => /\bborder(-width|-color)?\s*:|border-radius:\s*50%|width:\s*var\(--icon/.test(a.isi));
+      c.expect(cincin.length === 0, `a step marker is a ring (a radio's look): ${cincin.map((a) => a.pilih).join(" | ")}`);
+      const dasar = aturan.find((a) => a.pilih === ".pin-lt-langkah::before");
+      c.expect(!!dasar && /display: block/.test(dasar.isi) && /height: var\(--space-1\)/.test(dasar.isi), "the marker is not a segment over the word");
+      c.expect(aturan.some((a) => a.pilih === '.pin-lt-langkah[aria-current="step"]::before' && /background: var\(--pintar-primary\)/.test(a.isi)), "the current step is not the primary segment");
+      const src = kode(readFileSync(join(repoRoot, "src/components/studio/LangkahTerbit.tsx"), "utf8"));
+      const daftar = /<ol className="pin-lt-daftar"[\s\S]*?<\/ol>/.exec(src)?.[0] ?? "";
+      c.expect(daftar !== "" && !/role="radio|<input\b|tabIndex/.test(daftar) && /aria-current=\{keadaan === "kini" \? "step" : undefined\}/.test(daftar), "the step list is a control, or its current step is not aria-current");
+      return c.verdict("Studio's steps are segments of progress over their words (no ring), not a control; the current one is aria-current and primary");
     },
   },
 ];

@@ -4212,6 +4212,11 @@
       "proves": "Terminology v1 ruling 2 (X12 T1; D-171(c)), selftest/d168.test.ts: over the rendered copy table, no Indonesian string says «kursus» and no English string says «course(s)» for the Studio object, except an allow-list that is the decision itself: the workbook's structure (ruling 14), the JSON format's language (ruling 13) and the certificate list's column (X12 T4, pending); the full term is «Paket Pembelajaran» / «Learning Package»."
     },
     {
+      "id": "D168-K8-1",
+      "runner": "static",
+      "proves": "E-K8 (D-173(d)), selftest/d168.test.ts, reading the stylesheet src/app/experience.css and the source of LangkahTerbit.tsx: every Studio step marker (.pin-lt-langkah::before) is a segment of progress over its word with no border or round marker (the ring read as a radio button), the current step is the primary segment, and the step list carries no radio role, input or tab stop; the current step is aria-current."
+    },
+    {
       "id": "D168-K9-1",
       "runner": "static",
       "proves": "E-K9 (D-173(d)), selftest/d168.test.ts: rendered (react-dom/server), TanggalDenganGema given disabled draws no input, only «Senin, 9 Nov 2026» (the date helper's words) in an <output> named by the caller's label, and a fixed empty end as «Tanpa batas akhir»; without disabled it stays a native date field; reading the source of every src .tsx file, none draws a disabled native date field."

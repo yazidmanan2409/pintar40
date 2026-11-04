@@ -2763,13 +2763,15 @@ a.pin-tautan { display: inline-flex; align-items: center; }
   list-style: none; margin: 0; padding: 0;
   display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5);
 }
-.pin-lt-langkah { display: inline-flex; align-items: center; gap: var(--space-2); min-width: 0; }
+/* E-K8 (D-173(d)): a step is marked by a segment of progress over its word, as J1Terbit's named steps — never by a
+   ring, which read as a radio button (an empty ring, and a thick one for the current step). Done: a filled segment;
+   current: the primary segment and the word in bold; to come: the hairline. The list is not a control. */
+.pin-lt-langkah { display: grid; gap: var(--space-1); align-content: start; min-width: 0; }
 .pin-lt-langkah::before {
-  content: ""; flex: none; width: var(--icon-md); height: var(--icon-md); border-radius: var(--radius-pill);
-  border: var(--border-hairline) solid var(--line-control); background: var(--surface-1);
+  content: ""; display: block; height: var(--space-1); border-radius: var(--radius-pill); background: var(--line-control);
 }
-.pin-lt-langkah.pin-lt-selesai::before { border-color: var(--ink-2); background: var(--ink-2); }
-.pin-lt-langkah[aria-current="step"]::before { border: calc(var(--space-1) + var(--border-focus)) solid var(--pintar-primary); background: var(--surface-1); }
+.pin-lt-langkah.pin-lt-selesai::before { background: var(--ink-2); }
+.pin-lt-langkah[aria-current="step"]::before { background: var(--pintar-primary); }
 .pin-lt-judul { margin: 0; font-size: var(--t-small); line-height: var(--leading-body); color: var(--ink-3); }
 .pin-lt-selesai .pin-lt-judul { color: var(--ink-2); }
 .pin-lt-langkah[aria-current="step"] .pin-lt-judul { color: var(--ink-1); font-weight: var(--weight-strong); }
