@@ -47,19 +47,17 @@ Top to bottom (`render/indeks-*`):
 | Group (new words) | Sections, in task order | Admin platform sees |
 |---|---|---|
 | Sekolah dan tahun ajaran | Struktur sekolah · Batas ketuntasan · Pergantian tahun ajaran · Sistem & Konfigurasi | Sistem & Konfigurasi |
-| Murid | Pindah kelas · Perpindahan murid | Perpindahan murid (round 1: shown today; kept) |
+| Murid | Pindah kelas · Perpindahan murid | — (the group is absent) |
 | Staf dan akses | Peran & akses · Peserta pengembangan profesi · Jejak audit | Peran & akses · Jejak audit |
 | Laporan dan templat | Laporan · Templat laporan | — |
 | Dukungan | Laporan masalah · Pemeliharaan dan pengumuman | both |
 
 **Group order:** setup first, because a new school can do nothing until it has a structure (DAISY-05). Then the people, then what is read, then support.
 
-**Which sections each role sees** is what the page shows today: `tampil()`, plus «Perpindahan murid», whose section carries no `hidden` and so shows in «Seluruh platform» although the menu omits it. Seen live in the owner's local reproduction (round 1).
-- **«Perpindahan murid» stays for Admin platform.** A transfer runs between two schools, and «Seluruh platform» is the one place that sees both ends. Removing it would change who sees what, which is a permission matter, not presentation.
-- In «Seluruh platform» the page holds the transfers list with its actions, as built. The two school-shaped forms («Permintaan pindah masuk», «Ajukan perpindahan ke sekolah lain») need a school (`satuSekolah`), so they are absent there, as built.
-- The index puts it in «Murid» for both roles.
-
-Otherwise «Seluruh platform» draws no school-shaped section (L3). A group with no section left is absent.
+**Which sections each role sees** is `tampil()`: the approved L3 rule. «Seluruh platform» draws no school-shaped section (L3). A group with no section left is absent.
+- **«Perpindahan murid» is not in «Seluruh platform»** (owner ruling O11, option (a)). It stays available in the authorized school context.
+- Its appearance there today is **implementation defect E-B1-5**: the section carries no `hidden`, so it shows although the menu omits it. Engineering records it, with an integration regression check that **the index and the sections agree**.
+- The owner's local reproduction (round 1) found it; the composition is restored to its original form.
 
 **RV-24 «index label»:** the row for the report templates is titled by the section it opens, «Templat laporan». «Inteligensi & Laporan» retires.
 
@@ -114,7 +112,7 @@ Each section page has:
 |---|---|
 | Index, Admin sekolah, something waiting | `indeks-sekolah` |
 | Index, nothing waiting | `indeks-sekolah-tenang` |
-| Index, Admin platform | `indeks-platform` (substitute; navigation and «Perpindahan murid» corrected after round 1) |
+| Index, Admin platform | `indeks-platform` (substitute; navigation corrected after round 1; «Perpindahan murid» excluded, O11(a)) |
 | A record opened in place, after a save | `ketuntasan` (result line), `peran-sekolah` (revocation), `laporan-masalah` |
 | Empty | `ketuntasan-kosong`: «Sekolah ini belum punya pelajaran.» Every section keeps its built empty line. |
 | A two-step form at step 2 | `pemeliharaan-sekolah` |
@@ -225,6 +223,7 @@ No frozen term is touched. «Murid» as a group label is the approved role word 
 - [auto] No raw copy key in any render.
 - [auto] RV-24: no «Lingkungan —» tile; no «Inteligensi & Laporan»; no all-empty «Versi» column; no «PINTAR» eyebrow; audit rows striped.
 - [auto] A4: the navigation, the bar, the skip link, the pager and the back link do not print.
+- [auto] For each role and context, the index's rows and the sections a reader can open agree; no section is reachable that the index omits («Perpindahan murid» in «Seluruh platform»: E-B1-5, engineering's integration regression check, O11(a)).
 - [manual] Side-by-side review of the build beside this composition at each width, recorded as match or deviation per region (brief G:14).
 - [manual] Admin platform in «Seluruh platform» reproduced on a disposable stack and compared with the substitute specimens before acceptance (register B1).
 - [manual] Every route meets G §2 (G:35, :81).

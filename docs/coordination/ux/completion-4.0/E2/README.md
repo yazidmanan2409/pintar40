@@ -6,6 +6,10 @@
 - the context control in every staff shell (`src/components/NavKonteks.tsx`);
 - the six expressions' keys (`src/lib/istilah-menunggu.ts`).
 
+**Status (owner, 4 Nov):** the chooser composition is **structurally accepted**; G1's six expressions remain pending.
+- **O6(a): E1 and E2 are one navigation experience.** They are reviewed and implemented together. **E2's relocated context control is not implemented on its own before E1 is accepted.** E1 restates the J3 navigation under L3: the rail at 1024–1279 px, collapse, labels, the context control and the responsive states. See `../E1/`.
+- **D-168:** the connected navigation, context selection, permissions, visible sections, refusal behaviour and role transitions are tested together.
+
 **Decides:** D for the composition. **G1 for the six words:** Dr Gladys (W4.2, F-13).
 - **Structural acceptance:** with the six as **empty labelled slots**, «[G1 · context.not_held]». A slot names its semantic key; it is never words.
 - **Final closure only with G1:** a word placeholder is a NO-GO at Gate 2 (G:81).

@@ -66,8 +66,8 @@ const KELOMPOK: Array<{ k: string; bagian: Bagian[] }> = [
   ] },
   { k: "murid", bagian: [
     { k: "pindah", judul: kata("config.section.pindah"), sekolahSaja: true },
-    // round 1: Admin platform sees «Perpindahan murid» in «Seluruh platform» today (the section carries no `hidden`); kept
-    { k: "transfers", judul: kata("config.section.transfers"), sekolahSaja: false },
+    // O11(a): «Perpindahan murid» is never in «Seluruh platform» (the L3 rule); its live appearance there is defect E-B1-5
+    { k: "transfers", judul: kata("config.section.transfers"), sekolahSaja: true },
   ] },
   { k: "staf", bagian: [
     { k: "roles", judul: kata("config.section.roles"), sekolahSaja: false },

@@ -9,11 +9,10 @@ Index · Admin platform in «Seluruh platform» (labelled substitute: from the c
  8. a «Periksa lagi»
  9. a «41 orang menunggu akun di Aktivasi»
 10. a «Sistem & Konfigurasi»
-11. a «Perpindahan murid»
-12. a «Peran & akses»
-13. a «Jejak audit»
-14. a «Laporan masalah»
-15. a «Pemeliharaan dan pengumuman»
+11. a «Peran & akses»
+12. a «Jejak audit»
+13. a «Laporan masalah»
+14. a «Pemeliharaan dan pengumuman»
 
 The accessibility tree of the main region
 - main:
@@ -43,13 +42,6 @@ The accessibility tree of the main region
         - link "Sistem & Konfigurasi":
           - /url: "#"
           - strong: Sistem & Konfigurasi
-  - region "Murid":
-    - heading "Murid" [level=2]
-    - list:
-      - listitem:
-        - link "Perpindahan murid":
-          - /url: "#"
-          - strong: Perpindahan murid
   - region "Staf dan akses":
     - heading "Staf dan akses" [level=2]
     - list:
