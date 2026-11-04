@@ -1747,7 +1747,7 @@ export const staticTests: SelfTest[] = [
         { file: "src/app/konfigurasi/page.tsx", rule: "id_fragment", contains: "l.build.slice(0, 7)",
           why: "kept exception (investigation §E item 22): the build, in the platform operator's triage only (platformIni)" },
         { file: "src/app/konfigurasi/page.tsx", rule: "id_fragment", contains: "short(r.build_sha)",
-          why: "Jejak audit: the build of each audited act, drawn for the platform operator only (platformIni), as l.build is" },
+          why: "Jejak audit: the build of each audited act, drawn for the platform operator only and only when a row on the page carries one (adaVersi, B1 / RV-24), as l.build is" },
         { file: "src/app/belajar/_components/LessonPlayer.tsx", rule: "unit_suffix", contains: "{r}×",
           why: "kept: the media player's playback speeds (0.75× … 2×) under its own label «Kecepatan» (lesson.speed), the convention every player uses" },
         { file: "src/app/studio/bank/page.tsx", rule: "raw_key_column", contains: "i.empirical_difficulty",

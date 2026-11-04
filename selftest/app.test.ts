@@ -1281,7 +1281,8 @@ export const appTests: SelfTest[] = [
 
       // 8. recovery: the last administrator revoked, the exception is back and appoints again
       const id = psql(`select id from public.role_assignments where institution_id = '${S}' and person_id = '${P1}' and revoked_at is null`);
-      const h4 = await halaman(op.cookie);
+      // (B1: a role's revocation opens in its row, ?ubah=)
+      const h4 = await halaman(op.cookie, `?ubah=${id}`);
       const formCabut = formDengan(h4, new RegExp(`name="assignment" value="${id}"`));
       const cabut = formCabut ? await kirim(op.cookie, formCabut, { assignment: id, alasan: `F22-A02 ${tag}` }) : "-";
       c.expect(/hasil=ok/.test(cabut) && adminAktif() === "0", `revoking the last administrator answered ${cabut}; active ${adminAktif()}`);

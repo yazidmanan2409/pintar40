@@ -4267,6 +4267,16 @@
       "proves": "E-K8 (D-173(d)), selftest/d168.test.ts, reading the stylesheet src/app/experience.css and the source of LangkahTerbit.tsx: every Studio step marker (.pin-lt-langkah::before) is a segment of progress over its word with no border or round marker (the ring read as a radio button), the current step is the primary segment, and the step list carries no radio role, input or tab stop; the current step is aria-current."
     },
     {
+      "id": "D168-B1-3",
+      "runner": "static",
+      "proves": "B1 \u00a71 \u00abRecords\u00bb and \u00a74 (D-166(a)), selftest/d168.test.ts, reading the source of src/app/konfigurasi/page.tsx: in Peran & akses and Batas ketuntasan each row's one action is at its end, named with its record (\u00abCabut \u00b7 {name}\u00bb, \u00abTetapkan \u00b7 {lesson}\u00bb), and opens in place: the open record is carried in the address (?ubah=, checked as an id), one row at a time, the row on surface-2 with its short form named like its action, its confirming action (destructive for a revocation) and \u00abBatal\u00bb; a closed row draws no form."
+    },
+    {
+      "id": "D168-B1-2",
+      "runner": "static",
+      "proves": "B1 \u00a71 \u00abJejak audit\u00bb and RV-24 (D-166(a)), selftest/d168.test.ts, reading the source of src/app/konfigurasi/page.tsx and the stylesheet src/app/experience.css: the audit trail is the design system's Table (pin-tabel in its scrollable frame) with a caption and column headers, its rows striped and the stripes printed; \u00abVersi\u00bb is drawn only for Admin platform and only when a row on the page carries a build (adaVersi), and a row without a build leaves its cell empty, never \u00ab\u2014\u00bb."
+    },
+    {
       "id": "D168-E1-1",
       "runner": "static",
       "proves": "E-E1-1 (D-170(c), D-171(a)), selftest/d168.test.ts, from the rendered ItemNav, the stylesheet src/app/experience.css and the source of TombolCiut.tsx, CangkangPengalaman.tsx, TombolBantuan.tsx, TautanLapor.tsx and BarisSesi.tsx: in the staff rail each place's link is named by its own word, visually hidden (never display: none, no aria-label or title), with an aria-hidden tooltip of the same word shown only while the shell is the rail (1024-1279 px unless expanded, 1280 px and up when collapsed), on focus at once and dismissible with Escape; the rail is shell-rail wide; every place has an icon; the collapse control names the state it offers (\u00abCiutkan navigasi\u00bb / \u00abLebarkan navigasi\u00bb) from the rail's own state and is hidden until it knows it; Bantuan, \u00abLaporkan masalah\u00bb and \u00abKeluar\u00bb keep their words."

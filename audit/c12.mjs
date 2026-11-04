@@ -256,6 +256,9 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
       await tutupTur(a);
       const baris = a.locator(`#ketuntasan li[data-pelajaran="${C.kursus[i]}"]`);
       if (!(await baris.count())) { rec.verdict = "FAIL"; notes.push(`Bab ${i + 1} is not listed under Batas ketuntasan`); return notes.join("; "); }
+      // B1: a record's one action opens its short form in place first
+      await baris.locator("[data-buka-ubah]").click();
+      await baris.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
       await baris.locator('input[name="persen"]').fill("60");
       await baris.locator('input[name="alasan"]').fill("Ketentuan uji pengembangan profesi");
       await baris.getByRole("button", { name: "Tetapkan", exact: true }).click();

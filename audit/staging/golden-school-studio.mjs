@@ -350,6 +350,9 @@ await step("T9", "the school admin publishes («✓ Diterbitkan») and sets the 
   await closeTour(A);
   const baris = A.locator(`#ketuntasan li[data-pelajaran="${akar}"]`);
   if (!harus(rec, (await baris.count()) > 0, "Batas ketuntasan lists the chapter's line")) return;
+  // B1: a record's one action opens its short form in place first
+  await baris.locator("[data-buka-ubah]").click();
+  await baris.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
   await baris.locator('input[name="persen"]').fill("70");
   await baris.locator('input[name="alasan"]').fill("Keputusan rapat guru Golden School");
   await baris.getByRole("button", { name: "Tetapkan", exact: true }).click();

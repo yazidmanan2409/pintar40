@@ -1239,6 +1239,9 @@ await step("S17b", "before the pass mark is set the teacher reads «Batas ketunt
     return `${catatan.join("; ")}; Konfigurasi lists no Bab 1 under Batas ketuntasan: ${norm(await a.locator("#ketuntasan").innerText().catch(() => "")).slice(0, 300)}`;
   }
   const sebelum = norm(await baris.innerText());
+  // B1: a record's one action opens its short form in place first
+  await baris.locator("[data-buka-ubah]").click();
+  await baris.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
   await baris.locator('input[name="persen"]').fill("60");
   await baris.locator('input[name="alasan"]').fill("Keputusan rapat guru");
   await baris.getByRole("button", { name: "Tetapkan", exact: true }).click();
@@ -3211,6 +3214,9 @@ await step("S24", "the school admin revokes the head of department's role on Kon
     return `no «Kepala departemen · Kelas Rendah» row on Peran & akses: ${norm(await a.locator("#roles").innerText().catch(() => "")).slice(0, 300)}`;
   }
   // D-097(a): a revocation states why
+  // B1: a record's one action opens its short form in place first
+  await baris.locator("[data-buka-ubah]").click();
+  await baris.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
   await baris.locator('input[name="alasan"]').fill("Tidak lagi memimpin Kelas Rendah");
   await baris.getByRole("button", { name: "Cabut", exact: true }).click();
   await a.waitForURL((u) => u.searchParams.get("bagian") === "roles" && u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
@@ -3373,6 +3379,9 @@ await step("S26b", "a new teacher replaces the old one mid-year: the school admi
   await a.goto(`${APP}/konfigurasi/roles?muat=${Date.now()}#roles`, { waitUntil: "networkidle" });
   const lama = a.locator("#roles li").filter({ hasText: people.guru.name }).filter({ hasText: "Guru" }).filter({ hasText: "Kelas 1A" }).first();
   if (!(await lama.count())) { rec.verdict = "FAIL"; return `${jejak.join(" | ")}; no «${people.guru.name} · Guru · Kelas 1A» row on Peran & akses`; }
+  // B1: a record's one action opens its short form in place first
+  await lama.locator("[data-buka-ubah]").click();
+  await lama.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
   await lama.locator('input[name="alasan"]').fill("Digantikan Bu Guru Sari");   // D-097(a)
   await lama.getByRole("button", { name: "Cabut", exact: true }).click();
   await a.waitForURL((u) => u.searchParams.get("bagian") === "roles" && u.searchParams.get("kode") === "ROLE_REVOKED", { timeout: SLOW }).catch(() => {});
@@ -3501,6 +3510,9 @@ await step("S26d", "two chapters: Gita, part-way through Bab 1, finds her home c
   await tutupTur(a);
   const barisBatas = a.locator(`#ketuntasan li[data-pelajaran="${bab2}"]`);
   if (!(await barisBatas.count())) { rec.verdict = "FAIL"; notes.push("Konfigurasi lists no Bab 2 under Batas ketuntasan"); return notes.join("; "); }
+  // B1: a record's one action opens its short form in place first
+  await barisBatas.locator("[data-buka-ubah]").click();
+  await barisBatas.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
   await barisBatas.locator('input[name="persen"]').fill("60");
   await barisBatas.locator('input[name="alasan"]').fill("Keputusan rapat guru");
   await barisBatas.getByRole("button", { name: "Tetapkan", exact: true }).click();

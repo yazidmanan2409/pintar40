@@ -695,4 +695,47 @@ export const d168Tests: SelfTest[] = [
       return c.verdict("the context control is the navigation's first part (the purpose's short name, the place, the chooser only with another context; in the rail one item named «Mau ke mana hari ini? · purpose · place»); the places follow O12's one order in the DOM; the chooser's current door is marked by its check, edge, ground and aria-current; the drawer is a modal named «Buka menu» / «Tutup menu» after «Keluar», taking focus in and back");
     },
   },
+  {
+    id: "D168-B1-2",
+    run: async ({ repoRoot }) => {
+      // B1 §1 «Jejak audit», RV-24: the audit trail is the design system's Table with its caption; «Versi» is Admin
+      // platform's diagnostic, drawn only when a row on the page carries a build, and a row without one is left empty
+      const c = new Checks();
+      const src = kode(readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8"));
+      const i = src.indexOf('<section id="audit"');
+      const audit = i < 0 ? "" : src.slice(i, src.indexOf("</section>", i));
+      c.expect(/<div className="pin-tabel-bingkai[^"]*" role="region" tabIndex=\{0\} aria-labelledby="pin-jejak-judul">\s*<table className="pin-tabel/.test(audit)
+        && /<caption id="pin-jejak-judul"/.test(audit) && (audit.match(/<th scope="col">/g) ?? []).length === 4, "the audit trail is not the design system's Table with its caption and column headers");
+      c.expect(/const adaVersi = platformIni && barisJejak\.some\(\(r\) => Boolean\(r\.build_sha\)\);/.test(src)
+        && /\{adaVersi \? <th scope="col">\{s\("config\.label\.build"\)\}<\/th> : null\}/.test(audit) && !/\{platformIni \?/.test(audit),
+        "«Versi» is drawn for a page none of whose rows carries a build, or for a reader who is not Admin platform");
+      c.expect(/\{r\.build_sha \? short\(r\.build_sha\) : ""\}/.test(audit), "a row without a build shows «—» in «Versi»");
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8");
+      c.expect(/\.pin-tabel tbody tr:where\(:nth-child\(even\)\) > \* \{ background: var\(--table-row-alt\); \}/.test(css)
+        && /@media print \{ \.pin-tabel tbody tr > \* \{ -webkit-print-color-adjust: exact; print-color-adjust: exact; \} \}/.test(css), "the Table's stripes are not drawn, or do not reach the paper");
+      return c.verdict("the audit trail is the design system's Table, captioned, striped on screen and on paper; «Versi» is drawn for Admin platform only when a row on the page carries a build, and an unbuilt row's cell is empty");
+    },
+  },
+  {
+    id: "D168-B1-3",
+    run: async ({ repoRoot }) => {
+      // B1 §1 «Records», §4: a record's one action is at its row's end, named with its record; it opens in place (the row
+      // takes surface-2 and shows its short form, with «Batal»), one row at a time, carried in the address (?ubah=)
+      const c = new Checks();
+      const src = kode(readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8"));
+      c.expect(/const ubah = uuidSah\(sp\.ubah\) \? sp\.ubah! : null;/.test(src) && /if \(id\) q\.set\("ubah", id\);/.test(src), "the open record is not carried in the address, or not checked");
+      const bagian = (id: string) => { const i = src.indexOf(`<section id="${id}"`); return i < 0 ? "" : src.slice(i, src.indexOf("</section>", i)); };
+      for (const [id, kunci, nama, aksi] of [["roles", 's("config.action.revoke")', "personName.get(a.person_id) ?? TANPA_NAMA", "revokeRoleAction"], ["ketuntasan", 'sl("config.ketuntasan.tombol")', "p.title", "tetapkanBatasAction"]] as const) {
+        const b = bagian(id);
+        const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        c.expect(new RegExp(`data-buka-ubah="">\\s*\\{${esc(kunci)}\\}<span className="pin-sr"> · \\{${esc(nama)}\\}</span>`).test(b),
+          `${id}: the row's action is not named with its record`);
+        c.expect(new RegExp(`<form action=\\{${aksi}\\}[^>]*aria-label=\\{\`\\$\\{${esc(kunci)}\\} · \\$\\{${esc(nama)}\\}\`\\}`).test(b), `${id}: the opened form is not named like its action`);
+        c.expect(/ubah === [a-z]\.(id|course_id) \? "bg-surface-2"/.test(b) && /\{s\("config\.angkat\.batal"\)\}<\/Link>/.test(b), `${id}: the opened row does not take surface-2 or has no «Batal»`);
+        c.expect((b.match(new RegExp(`<form action=\\{${aksi}\\}`, "g")) ?? []).length === 1 && /ubah !== [a-z]\.(id|course_id)/.test(b), `${id}: a row's form is drawn while it is closed`);
+      }
+      c.expect(/<TombolKirim className=\{bahaya\}[^>]*>\{s\("config\.action\.revoke"\)\}/.test(bagian("roles")), "the revocation's confirming button is not destructive");
+      return c.verdict("Peran & akses and Batas ketuntasan are records: each row's one action is named with its record and opens its short form in place, one at a time, in the address (?ubah=), the row on surface-2 with «Batal»; the revocation's confirming button is destructive");
+    },
+  },
 ];

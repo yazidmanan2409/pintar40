@@ -354,6 +354,9 @@ await step("U9", "the school admin publishes the chapter («Terbitkan» → «�
   const akar = pertama || course;
   const baris = a.locator(`#ketuntasan li[data-pelajaran="${akar}"]`);
   if (harus(rec, (await baris.count()) > 0, "Konfigurasi → Batas ketuntasan lists the chapter")) {
+    // B1: a record's one action opens its short form in place first
+    await baris.locator("[data-buka-ubah]").click();
+    await baris.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
     await baris.locator('input[name="persen"]').fill("70");
     await baris.locator('input[name="alasan"]').fill("Keputusan rapat guru");
     await baris.getByRole("button", { name: "Tetapkan", exact: true }).click();

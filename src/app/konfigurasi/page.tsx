@@ -124,6 +124,8 @@ type SearchParams = Promise<{
   pm_cek?: string; pm_platform?: string; pm_sekolah?: string | string[]; pm_mulai?: string; pm_selesai?: string;
   // D-101 (2): «Admin sekolah» named on Peran & akses, waiting for its second press
   angkat?: string; lingkup?: string; sampai?: string; pertama?: string;
+  /** B1: the record whose one action is open in place (its row shows its short form), one at a time. */
+  ubah?: string;
   // L4 (CR-88): the page of each bounded list
   hal_pindah?: string; hal_jejak?: string; hal_peran?: string; hal_sekolah?: string; hal_lapor?: string;
   hal_jendela?: string; hal_pengumuman?: string;
@@ -381,6 +383,15 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   // D-101 (2): a School Admin's «Admin sekolah» comes back here once, to be confirmed by a second press; the
   // database decides again on that press (role_assignments_guard: at the school itself, a person the school has)
   const uuidSah = (v: string | undefined) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v ?? "");
+  // B1 §1 «Records»: a record's one action opens in place, one row at a time, carried in the address so no client state
+  // is needed and a reload keeps it; the link that opens it and «Batal» keep the school and the list's page
+  const ubah = uuidSah(sp.ubah) ? sp.ubah! : null;
+  const tautanUbah = (id: string | null, jangkar: string) => {
+    const q = new URLSearchParams();
+    for (const k of ["sekolah", "hal_peran"] as const) if (typeof sp[k] === "string" && sp[k]) q.set(k, sp[k]!);
+    if (id) q.set("ubah", id);
+    return `${jalanIni}${q.size ? `?${q.toString()}` : ""}#${jangkar}`;
+  };
   const angkat = uuidSah(sp.angkat) && uuidSah(sp.lingkup) && /^\d{4}-\d{2}-\d{2}$/.test(sp.sampai ?? "")
     ? {
         person: sp.angkat!, scope: sp.lingkup!, sampai: sp.sampai!,
@@ -525,6 +536,9 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   // school-shaped section asked for in «Seluruh platform» goes to the index (B1 §3)
   const tampilDi = (bagian: string) => bagianIni === bagian && tampil(bagian);
   if (bagianIni !== null && !tampil(bagianIni)) redirect("/konfigurasi");
+  // B1 / RV-24: the audit trail's page, and whether any row on it carries a build («Versi», Admin platform's alone)
+  const barisJejak = (audit ?? []).slice(0, UKURAN_JEJAK);
+  const adaVersi = platformIni && barisJejak.some((r) => Boolean(r.build_sha));
   const navSemua: Array<[string, string]> = [
     ["struktur", s("config.section.struktur")],
     ["ketuntasan", s("config.section.ketuntasan")],
@@ -712,7 +726,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 {ketuntasan && ketuntasan.length > 0 ? (
                   <ul className="mt-3 grid gap-2 text-sm">
                     {ketuntasan.map((p) => (
-                      <li key={p.course_id} data-pelajaran={p.course_id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
+                      <li key={p.course_id} id={`batas-${p.course_id}`} data-pelajaran={p.course_id} data-terbuka={ubah === p.course_id ? "" : undefined}
+                        className={`grid gap-2 rounded-[var(--radius-1)] px-3 py-2 ${ubah === p.course_id ? "bg-surface-2" : "border-b border-line-1"}`}>
                         <span className="text-ink-1">
                           <strong>{p.title}</strong> · {p.subject} · {p.grade_label}
                           {p.canonical ? <> · <span className="text-ink-3">{sl("config.ketuntasan.materi_pintar")}</span></> : null}
@@ -722,7 +737,13 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                             ? sl("config.ketuntasan.belum")
                             : <>{sl("config.ketuntasan.sekarang")} <span className="pin-num">{format.percent(p.percent / 100, locale)}</span></>}
                         </span>
-                        <form action={tetapkanBatasAction} className="flex flex-wrap items-end gap-2">
+                        {ubah !== p.course_id ? (
+                          // B1: the row's one action, named with its record, opens its short form in place
+                          <Link href={tautanUbah(p.course_id, `batas-${p.course_id}`)} className={`${button} justify-self-start`} data-buka-ubah="">
+                            {sl("config.ketuntasan.tombol")}<span className="pin-sr"> · {p.title}</span>
+                          </Link>
+                        ) : (
+                        <form action={tetapkanBatasAction} className="flex flex-wrap items-end gap-2" aria-label={`${sl("config.ketuntasan.tombol")} · ${p.title}`}>
                           <input type="hidden" name="sekolah" value={sekolahStruktur.id} />
                           <input type="hidden" name="pelajaran" value={p.course_id} />
                           <label className={label}>{sl("config.ketuntasan.nilai")}
@@ -733,7 +754,9 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                             <input name="alasan" type="text" required maxLength={300} placeholder={sl("config.ketuntasan.alasan_contoh")} className={field} />
                           </label>
                           <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.ketuntasan.tombol")}</TombolKirim>
+                          <Link href={tautanUbah(null, `batas-${p.course_id}`)} className={tautanTempat}>{s("config.angkat.batal")}</Link>
                         </form>
+                        )}
                         {p.history.length > 0 ? (
                           <details className="pin-disclosure">
                             <summary className="cursor-pointer text-ink-3">{sl("config.ketuntasan.riwayat")}<Ikon nama="chevron-down" kelas="pin-chevron" /></summary>
@@ -1406,21 +1429,29 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
               {daftarPeran.map((a) => (
                 // CR-94: below 640 px the revoke form wraps below the name instead of past the window; wider, as before
-                <li key={a.id} className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
+                <li key={a.id} id={`peran-${a.id}`} data-terbuka={ubah === a.id ? "" : undefined}
+                  className={`flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 rounded-[var(--radius-1)] px-3 py-2 ${ubah === a.id ? "bg-surface-2" : "border-b border-line-1"}`}>
                   <span>
                     {personName.get(a.person_id) ?? TANPA_NAMA} · {roleLabel(a.role)}
                     <span className="text-ink-3"> · {a.scope_node_id ? nodeName.get(a.scope_node_id) ?? TANPA_NAMA : s("role.SYSTEM_ADMIN")} · {s("config.label.valid_until").toLowerCase()} {when(a.valid_until, "baca")}</span>
                   </span>
-                  {a.person_id !== viewer.personId && (
-                    // D-097(a): a revocation states why
-                    <form action={revokeRoleAction} className="flex flex-wrap items-center gap-2"><input type="hidden" name="asal" value="cabut" /><input type="hidden" name="hal_peran" value={String(halPeran)} />
+                  {a.person_id !== viewer.personId && ubah !== a.id ? (
+                    // B1: the row's one action, named with its record so a list of links is unambiguous («Cabut · Citra Lestari»)
+                    <Link href={tautanUbah(a.id, `peran-${a.id}`)} className={button} data-buka-ubah="">
+                      {s("config.action.revoke")}<span className="pin-sr"> · {personName.get(a.person_id) ?? TANPA_NAMA}</span>
+                    </Link>
+                  ) : null}
+                  {a.person_id !== viewer.personId && ubah === a.id ? (
+                    // D-097(a): a revocation states why; opened in place, its form is named like its action, and destructive
+                    <form action={revokeRoleAction} className="flex flex-wrap items-center gap-2" aria-label={`${s("config.action.revoke")} · ${personName.get(a.person_id) ?? TANPA_NAMA}`}><input type="hidden" name="asal" value="cabut" /><input type="hidden" name="hal_peran" value={String(halPeran)} />
                       <input type="hidden" name="assignment" value={a.id} />
                       <label className="flex items-center gap-1 text-xs text-ink-3">{s("config.label.reason")}
-                        <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
+                        <input name="alasan" className={field} required maxLength={300} autoComplete="off" autoFocus />
                       </label>
-                      <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.revoke")}</TombolKirim>
+                      <TombolKirim className={bahaya} sibuk={s("tombol.memproses")}>{s("config.action.revoke")}</TombolKirim>
+                      <Link href={tautanUbah(null, `peran-${a.id}`)} className={tautanTempat}>{s("config.angkat.batal")}</Link>
                     </form>
-                  )}
+                  ) : null}
                 </li>
               ))}
               {daftarPeran.length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
@@ -1525,23 +1556,26 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
           {/* Audit reader (INV-18) — read only */}
           <section id="audit" hidden={!tampilDi("audit") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.audit")}</h2>
-            <div className="mt-2 overflow-x-auto">
-              <table className="w-full text-left text-sm text-ink-2">
-                <thead className="text-xs text-ink-3">
-                  <tr><th className="py-1 pr-3">{s("config.label.when")}</th><th className="py-1 pr-3">{s("config.label.action")}</th><th className="py-1 pr-3">{s("config.label.target")}</th>{platformIni ? <th className="py-1 pr-3">{s("config.label.build")}</th> : null}</tr>
+            {/* B1 (D-166(a)), RV-24: the audit trail is the design system's Table (TableRows: striped, and the stripes
+                print), with its caption. «Versi» is a platform operator's diagnostic: drawn for Admin platform only, and
+                only when a row on this page carries a build; a row without one leaves its cell empty, never «—». */}
+            <div className="pin-tabel-bingkai mt-2" role="region" tabIndex={0} aria-labelledby="pin-jejak-judul">
+              <table className="pin-tabel text-sm text-ink-2" data-jejak="">
+                <caption id="pin-jejak-judul" className="pin-sr">{s("config.section.audit")}</caption>
+                <thead>
+                  <tr><th scope="col">{s("config.label.when")}</th><th scope="col">{s("config.label.action")}</th><th scope="col">{s("config.label.target")}</th>{adaVersi ? <th scope="col">{s("config.label.build")}</th> : null}</tr>
                 </thead>
                 <tbody>
-                  {(audit ?? []).slice(0, UKURAN_JEJAK).map((r) => (
-                    <tr key={r.id} className="border-t border-line-1">
-                      <td className="py-1 pr-3 whitespace-nowrap">{when(r.at)}</td>
-                      {/* D-138(c), D-140(c): the action and the record in words; never the code, the table or an id.
-                          The build stays a platform operator's diagnostic. */}
-                      <td className="py-1 pr-3">{kataAksiAudit(r.action, locale)}</td>
-                      <td className="py-1 pr-3 text-ink-3">{[kataTabelAudit(r.target_table, locale), r.institution_id ? institutionName.get(r.institution_id) ?? TANPA_NAMA : null].filter(Boolean).join(" · ") || TANPA_NAMA}</td>
-                      {platformIni ? <td className="py-1 pr-3 text-ink-3">{short(r.build_sha)}</td> : null}
+                  {barisJejak.map((r) => (
+                    <tr key={r.id}>
+                      <td className="whitespace-nowrap">{when(r.at)}</td>
+                      {/* D-138(c), D-140(c): the action and the record in words; never the code, the table or an id. */}
+                      <td>{kataAksiAudit(r.action, locale)}</td>
+                      <td className="text-ink-3">{[kataTabelAudit(r.target_table, locale), r.institution_id ? institutionName.get(r.institution_id) ?? TANPA_NAMA : null].filter(Boolean).join(" · ") || TANPA_NAMA}</td>
+                      {adaVersi ? <td className="pin-num text-ink-3">{r.build_sha ? short(r.build_sha) : ""}</td> : null}
                     </tr>
                   ))}
-                  {(audit ?? []).length === 0 && <tr><td className="py-1 text-ink-3" colSpan={4}>{s("config.empty")}</td></tr>}
+                  {barisJejak.length === 0 && <tr className="pin-tabel-kosong"><td className="text-ink-3" colSpan={adaVersi ? 4 : 3}>{s("config.empty")}</td></tr>}
                 </tbody>
               </table>
             </div>

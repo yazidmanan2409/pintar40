@@ -428,6 +428,9 @@ await step("A7", `GS-05 (J3.8): back to Konfigurasi by Studio's own link; on Bat
     return `Batas ketuntasan lists no such chapter: "${norm(await A.locator("#ketuntasan").innerText().catch(() => "")).slice(0, 300)}"`;
   }
   const sebelum = norm(await baris.innerText());
+  // B1: a record's one action opens its short form in place first
+  await baris.locator("[data-buka-ubah]").click();
+  await baris.locator('input[name="alasan"]').waitFor({ timeout: SLOW });
   await baris.locator('input[name="persen"]').fill(BATAS.persen);
   await baris.locator('input[name="alasan"]').fill(BATAS.alasan);
   await baris.getByRole("button", { name: "Tetapkan", exact: true }).click();
