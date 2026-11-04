@@ -410,6 +410,8 @@ const PENDING_SURFACES: Record<string, string> = {
  * file, a literal and one line saying why.
  */
 const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
+  { file: "src/app/experience.css", literal: "220px",
+    reason: "B1 FormLayout: the design system's own pds-grid-2 column floor (components/bundle.css, written there as the same literal); a field pair's breakpoint, not a scale step, and B1 adds no token." },
   { file: "src/app/experience.css", literal: "794px",
     reason: "A4 is 210mm; at 96dpi that is 794px. It is the paper, not a scale step." },
   // RESTATED, B6C (Batch 6, Daisy's sertifikat/ronde-2): the sheet is now set in millimetres (210 x 297 mm, a 20 mm

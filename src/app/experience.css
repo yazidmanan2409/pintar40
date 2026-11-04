@@ -3528,5 +3528,6 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 .pin-pill.pin-pill-ikon .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 /* authored content (TeksBaris, TeksBlok) is marked for the learner-surface check; the mark draws nothing */
 .pin-isi-materi { display: contents; }
-/* B1 FormLayout: two short fields share a row (auto-fit at 220 px), one column below it */
-.pin-baris-isian { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-2) var(--space-3); align-items: start; }
+/* B1 FormLayout: two short fields share a row, the design system's pds-grid-2 (auto-fit at 220 px, never wider than
+   the column), one column below it */
+.pin-baris-isian { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: var(--space-2) var(--space-4); align-items: start; }

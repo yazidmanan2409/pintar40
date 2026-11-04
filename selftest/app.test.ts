@@ -2821,7 +2821,7 @@ export const appTests: SelfTest[] = [
       c.expect(/<div className="pin-banner pin-attention" role="status" data-tabrakan-perhatian="">\s*<Ikon nama="triangle-alert" \/>/.test(pm), "the collision is not the attention alert with its icon");
       c.expect(/"sekolah", "hal_peran", "hal_lapor", "hal_pindah", "hal_jendela", "hal_pengumuman"/.test(src), "opening a window or notice loses its list's page");
       const css = readFileSync(`${ctx.repoRoot}/src/app/experience.css`, "utf8");
-      c.expect(/\.pin-baris-isian \{ display: grid; grid-template-columns: repeat\(auto-fit, minmax\(220px, 1fr\)\);/.test(css) && (pm.match(/className="pin-baris-isian"/g) ?? []).length === 2,
+      c.expect(/\.pin-baris-isian \{ display: grid; grid-template-columns: repeat\(auto-fit, minmax\(min\(100%, 220px\), 1fr\)\);/.test(css) && (pm.match(/className="pin-baris-isian"/g) ?? []).length === 2,
         "two short fields do not share a row (FormLayout, auto-fit at 220 px)");
       return c.verdict("every Konfigurasi section page, for Admin sekolah and Admin platform, runs h1 then h2s only; Pemeliharaan is the two-step schedule (no form before the check, the collision line before it), the windows, the notices and, for Admin platform alone, «Hentikan sekarang» last with its typed phrase and destructive button; a window's and a notice's one action opens its reason in place, named with its record, on surface-2 with «Batal», keeping its list's page; two short fields share a row");
     },

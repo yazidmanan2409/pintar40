@@ -3277,7 +3277,7 @@ await step("S25", "the school admin moves a student from Kelas 1A to a new Kelas
   const baris = a.locator("#pindah li").filter({ hasText: nama }).first();
   const opsiB = (await baris.locator('select[name="kelas"] option').allTextContents()).find((o) => o.startsWith("Kelas 1B"));
   await baris.locator('select[name="kelas"]').selectOption({ label: opsiB });
-  await baris.getByRole("button", { name: "Pindahkan", exact: true }).click();
+  await baris.getByRole("button", { name: `Pindahkan · ${nama}`, exact: true }).click();
   await a.waitForURL((u) => u.searchParams.get("bagian") === "pindah" && u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
   await a.waitForLoadState("networkidle");
   rec.shots.push(await shot(a, "m9-pindah-kelas"));
@@ -3456,7 +3456,7 @@ await step("S26c", "a student recorded in the Tingkat only is placed in one of i
   const keA = opsiK.find((o) => o.startsWith("Kelas 1A"));
   rec.shots.push(await shot(a, "adm-j09-dari-tingkat"));
   await baris.locator('select[name="kelas"]').selectOption({ label: keA });
-  await baris.getByRole("button", { name: "Pindahkan", exact: true }).click();
+  await baris.getByRole("button", { name: `Pindahkan · ${nama}`, exact: true }).click();
   await a.waitForURL((u) => u.searchParams.get("bagian") === "pindah" && u.searchParams.has("hasil"), { timeout: SLOW }).catch(() => {});
   await a.waitForLoadState("networkidle");
   rec.shots.push(await shot(a, "adm-j09-ditempatkan"));

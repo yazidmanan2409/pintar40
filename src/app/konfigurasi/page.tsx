@@ -804,7 +804,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               <>
                 <p className="mt-1 text-sm text-ink-2">{sl("config.pindah.arti")}</p>
                 {asal.kelas.length > 0 ? (
-                  <form method="get" action="/konfigurasi/pindah#pindah" className="mt-3 flex flex-wrap items-end gap-2">
+                  <form method="get" action="/konfigurasi/pindah#pindah" className="mt-3 grid max-w-[var(--measure-narrow)] gap-2">
                     {sekolahKu.length > 1 ? <input type="hidden" name="sekolah" value={sekolahStruktur.id} /> : null}
                     <label className={label}>{sl("config.pindah.dari")}
                       <select id="pin-pindah-dari" name="dari" className={field} required defaultValue={kelasDari?.node_id ?? ""}>
@@ -819,19 +819,19 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         ) : null}
                       </select>
                     </label>
-                    <button type="submit" className={button}>{sl("config.pindah.lihat")}</button>
+                    <div><button type="submit" className={button}>{sl("config.pindah.lihat")}</button></div>
                   </form>
                 ) : (
                   <p className="mt-3 text-sm text-ink-3">{sl("config.pindah.tanpa_kelas")}</p>
                 )}
                 {kelasDari ? (
                   <div className="mt-3 grid gap-2">
-                    <p className="text-sm font-medium text-ink-1">{namaKelas(kelasDari)}</p>
+                    <h2 className="text-sm font-medium text-ink-1">{namaKelas(kelasDari)}</h2>
                     {tujuan.length === 0 ? <p className="text-sm text-ink-3">{sl("config.pindah.tanpa_tujuan")}</p> : null}
                     {muridDari.length > 0 ? (
                       <ul className="grid gap-1 text-sm text-ink-2">
                         {muridDari.map((m) => (
-                          <li key={m.penempatan} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 sm:grid-cols-[1fr_auto] sm:items-center">
+                          <li key={m.penempatan} className="grid gap-2 border-b border-line-1 px-3 py-2 sm:grid-cols-[1fr_auto] sm:items-center">
                             <span className="text-ink-1">{m.nama}</span>
                             {tujuan.length > 0 ? (
                               <form action={pindahKelasAction} className="flex flex-wrap items-center gap-2">
@@ -842,7 +842,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                                   <option value="" disabled>{sl("config.pindah.ke")}</option>
                                   {tujuan.map((k) => <option key={k.node_id} value={k.node_id}>{namaKelas(k)}</option>)}
                                 </select>
-                                <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pindah.tombol")}</TombolKirim>
+                                <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pindah.tombol")}<span className="pin-sr"> · {m.nama}</span></TombolKirim>
                               </form>
                             ) : null}
                           </li>
@@ -873,8 +873,9 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               <>
                 <p className="mt-1 text-sm text-ink-2">{sl("config.peserta.arti")}</p>
                 {peserta.tempat.length > 0 ? (
-                  <form action={daftarkanPesertaAction} className="mt-3 flex flex-wrap items-end gap-2">
+                  <form action={daftarkanPesertaAction} className="mt-3 grid max-w-[var(--measure-narrow)] gap-2">
                     <input type="hidden" name="sekolah" value={sekolahStruktur.id} />
+                    <div className="pin-baris-isian">
                     <label className={label}>{sl("config.peserta.orang")}
                       <select name="orang" className={field} required defaultValue="">
                         <option value="" disabled>—</option>
@@ -889,7 +890,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         ))}
                       </select>
                     </label>
-                    <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.peserta.daftarkan")}</TombolKirim>
+                    </div>
+                    <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.peserta.daftarkan")}</TombolKirim></div>
                   </form>
                 ) : (
                   <p className="mt-3 text-sm text-ink-3">{sl("config.peserta.tanpa_tempat")}</p>
@@ -897,7 +899,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 {result("peserta")}
                 {catatanPd.length > 0 ? (
                   <nav className="mt-3 text-sm" aria-label={sl("config.peserta.catatan")}>
-                    <p className="text-ink-3">{sl("config.peserta.catatan")}</p>
+                    <h2 className="font-medium text-ink-1">{sl("config.peserta.catatan")}</h2>
                     <ul className="mt-1 grid gap-1">
                       {catatanPd.map((k) => (
                         <li key={k.id}>
@@ -1084,7 +1086,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     const nama = `${w.platform ? sl("config.pemeliharaan.platform") : w.sekolah.join(", ")}, ${when(w.mulai, "hariJam")}`;
                     return (
                     <li key={w.id} id={`jendela-${w.id}`} data-jendela={w.id} data-terbuka={ubah === w.id ? "" : undefined}
-                      className={`grid gap-1 rounded-[var(--radius-1)] px-3 py-2 ${ubah === w.id ? "bg-surface-2" : "border border-line-1"}`}>
+                      className={`grid gap-1 rounded-[var(--radius-1)] px-3 py-2 ${ubah === w.id ? "bg-surface-2" : "border-b border-line-1"}`}>
                       <span className="text-ink-1">
                         <strong>{sl(`config.pemeliharaan.keadaan.${w.keadaan}` as HleEvent)}</strong>
                         {" · "}{sl(`config.pemeliharaan.jenis.${w.jenis}` as HleEvent)}
@@ -1138,7 +1140,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     const nama = n.pesan.slice(0, 80);
                     return (
                     <li key={n.id} id={`pengumuman-${n.id}`} data-pengumuman={n.id} data-terbuka={ubah === n.id ? "" : undefined}
-                      className={`grid gap-1 rounded-[var(--radius-1)] px-3 py-2 ${ubah === n.id ? "bg-surface-2" : "border border-line-1"}`}>
+                      className={`grid gap-1 rounded-[var(--radius-1)] px-3 py-2 ${ubah === n.id ? "bg-surface-2" : "border-b border-line-1"}`}>
                       <span className="text-ink-1">{n.pesan}</span>
                       <span className="text-ink-2">
                         {when(n.terbit, "hariJam")} {sl("config.pemeliharaan.hingga")} {when(n.sampai, "hariJam")}
@@ -1239,18 +1241,23 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             {sekolahStruktur ? (
               <>
                 <p className="mt-1 text-sm text-ink-2">{sl("config.laporan.arti")}</p>
-                <nav className="mt-3 grid gap-2 text-sm" aria-label={sl("config.laporan.judul")}>
+                {/* B1 §1 «Laporan»: link rows, the school's summary first, then each active class's */}
+                <nav className="mt-3 grid gap-3 text-sm" aria-label={sl("config.laporan.judul")}>
                   {akar ? (
-                    <Link href={`/dekan/ringkasan?simpul=${(akar as { id: string }).id}&dari=konfigurasi`} className={tautanTempat}>
-                      {sl("config.laporan.sekolah")} · {sekolahStruktur.name}
-                      <TandaTautan />
-                    </Link>
+                    <ul className="grid">
+                      <li className="border-b border-line-1 px-3 py-2">
+                        <Link href={`/dekan/ringkasan?simpul=${(akar as { id: string }).id}&dari=konfigurasi`} className={tautanTempat}>
+                          {sl("config.laporan.sekolah")} · {sekolahStruktur.name}
+                          <TandaTautan />
+                        </Link>
+                      </li>
+                    </ul>
                   ) : null}
-                  <span className="text-ink-3">{sl("config.laporan.kelas")}</span>
+                  <h2 className="font-medium text-ink-1">{sl("config.laporan.kelas")}</h2>
                   {kelasAktif.length > 0 ? (
-                    <ul className="flex flex-wrap gap-x-4 gap-y-1">
+                    <ul className="grid">
                       {kelasAktif.map((k) => (
-                        <li key={k.node_id}>
+                        <li key={k.node_id} className="border-b border-line-1 px-3 py-2">
                           <Link href={`/edukator/ringkasan?kelas=${k.node_id}&dari=konfigurasi`} className={tautanTempat}>
                             {k.name}{k.academic_year ? ` (${k.academic_year})` : ""}
                             <TandaTautan />
@@ -1273,15 +1280,16 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
           {/* B1: only the page's own section is drawn */}{tampilDi("system") ? (
 <section id="system" hidden={!tampilDi("system") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.system")}</h2>
-            <ul className="mt-2 grid gap-1 text-sm text-ink-2">
+            {/* B1 §1 «Sistem & Konfigurasi»: read-only records; the state and «data uji» as badges, the years in words */}
+            <ul className="mt-2 grid text-sm text-ink-2">
               {(institutions ?? []).map((i) => (
-                <li key={i.id} className="rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
-                  <div className="flex items-center justify-between">
-                    <span>{i.name}{i.is_synthetic && platformIni ? <span className="ml-2 rounded bg-info-soft px-1.5 text-xs text-info">{s("config.sekolah.sintetis")}</span> : null}</span>
-                    <span className="text-ink-3">{s(i.is_active ? "config.sekolah.aktif" : "config.sekolah.nonaktif")}</span>
+                <li key={i.id} className="border-b border-line-1 px-3 py-2" data-sekolah-baris="">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="flex flex-wrap items-center gap-2 text-ink-1">{i.name}{i.is_synthetic && platformIni ? <span className="pin-pill pin-info">{s("config.sekolah.sintetis")}</span> : null}</span>
+                    <span className={`pin-pill ${i.is_active ? "pin-ok" : "pin-neutral"}`}>{s(i.is_active ? "config.sekolah.aktif" : "config.sekolah.nonaktif")}</span>
                   </div>
                   <p className="mt-1 text-xs text-ink-3">
-                    {(periods ?? []).filter((p) => p.institution_id === i.id).map((p) => `${p.name} (${p.starts_on} – ${p.ends_on})`).join(" · ") || s("config.empty")}
+                    {(periods ?? []).filter((p) => p.institution_id === i.id).map((p) => `${p.name} (${when(p.starts_on, "resmi")} – ${when(p.ends_on, "resmi")})`).join(" · ") || s("config.empty")}
                   </p>
                 </li>
               ))}
@@ -1306,8 +1314,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               return (
                 <form key={inst.id} action={rolloverAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3">
                   <input type="hidden" name="institution" value={inst.id} />
-                  <p className="text-sm font-medium">{inst.name}</p>
-                  <div className="grid gap-2 sm:grid-cols-2">
+                  <h2 className="text-sm font-medium">{inst.name}</h2>
+                  <div className="pin-baris-isian">
                     <label className={label}>{s("config.label.period_from")}
                       <select name="from_period" className={field} required defaultValue="">
                         <option value="" disabled>—</option>
@@ -1693,9 +1701,9 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             {myTemplates.length === 0 ? (
               <p className="mt-3 text-sm text-ink-3">{s("laporan.templat.kosong")}</p>
             ) : (
-              <ul className="mt-3 grid gap-2 text-sm">
+              <ul className="mt-3 grid text-sm">
                 {myTemplates.map((tpl) => (
-                  <li key={tpl.id} className="rounded-[var(--radius-1)] border border-line-1 p-2">
+                  <li key={tpl.id} className="border-b border-line-1 px-3 py-2">
                     <span className="font-medium">{kata(tpl.title_key) ?? TANPA_NAMA}</span>
                     <span className="text-ink-3"> · {kataLaporan("standar", tpl.standard_report)} · {s("laporan.templat.versi")} {tpl.template_version}</span>
                     <p className="mt-1 text-ink-2">
@@ -1709,7 +1717,8 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             {myInstitutions.length === 0 || (metricDefs ?? []).length === 0 ? (
               <p className="mt-3 text-sm text-ink-3">{s("laporan.templat.tak_berwenang")}</p>
             ) : (
-              <form action={saveReportTemplateAction} className="mt-4 grid gap-3">
+              <form action={saveReportTemplateAction} className="mt-4 grid max-w-[var(--measure-narrow)] gap-3">
+                <div className="pin-baris-isian">
                 <label className={label}>{s("laporan.templat.institusi")}
                   <select name="institution" className={field} required defaultValue={myInstitutions[0]?.id}>
                     {myInstitutions.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
@@ -1720,6 +1729,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     {STANDARD_REPORTS.map((r) => <option key={r} value={r}>{kataLaporan("standar", r)}</option>)}
                   </select>
                 </label>
+                </div>
                 <label className={label}>{s("laporan.templat.judul_kunci")}
                   {/* D-140(c): the title is chosen by its words; the copy key it stores is never typed */}
                   <select name="title_key" className={field} required defaultValue="laporan.kelas.judul">
@@ -1749,7 +1759,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     </label>
                   ))}
                 </fieldset>
-                <TombolKirim className={primer} sibuk={s("tombol.menyimpan")}>{s("laporan.templat.simpan")}</TombolKirim>
+                <div><TombolKirim className={primer} sibuk={s("tombol.menyimpan")}>{s("laporan.templat.simpan")}</TombolKirim></div>
               </form>
             )}
             {result("intelligence")}

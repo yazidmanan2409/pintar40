@@ -782,4 +782,45 @@ export const d168Tests: SelfTest[] = [
       return c.verdict("the learner-surface scan reads PINTAR's own words only: authored content (marked by TeksBaris/TeksBlok, through which the player draws stems and options) is set aside whole, nested or not; PINTAR's «Salah» badge or «Incorrect»/«Wrong» feedback beside or after it is still caught, an unclosed marker narrows nothing, and the seed keeps «Salah satu lebih besar»");
     },
   },
+  {
+    id: "D168-B1-7",
+    run: async ({ repoRoot }) => {
+      // B1 §1 «Every section's pattern» for Pindah kelas, Peserta, Laporan, Sistem & Konfigurasi, Pergantian tahun ajaran
+      // and Templat laporan: forms at measure-narrow with two short fields sharing a row, records as rows on a rule,
+      // each row's action named with its record, badges for state, dates in words
+      const c = new Checks();
+      const src = kode(readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8"));
+      const bagian = (id: string) => { const i = src.indexOf(`<section id="${id}"`); return i < 0 ? "" : src.slice(i, src.indexOf("</section>", i)); };
+      const sempit = /className="mt-[34] grid max-w-\[var\(--measure-narrow\)\] gap-[23]"/;
+      // Pindah kelas: «Dari» then «Tampilkan murid» (GET), then the Kelas's students as rows, each «Pindahkan · name»
+      const pindah = bagian("pindah");
+      c.expect(/<form method="get" action="\/konfigurasi\/pindah#pindah"/.test(pindah) && sempit.test(pindah), "Pindah kelas's first step is not a narrow GET form");
+      c.expect(/<h2 className="text-sm font-medium text-ink-1">\{namaKelas\(kelasDari\)\}<\/h2>/.test(pindah) && /<li key=\{m\.penempatan\} className="grid gap-2 border-b border-line-1/.test(pindah)
+        && /\{sl\("config\.pindah\.tombol"\)\}<span className="pin-sr"> · \{m\.nama\}<\/span>/.test(pindah), "Pindah kelas's students are not rows under their Kelas, each «Pindahkan» named with the student");
+      // Peserta: the form (two selects sharing a row), then «Catatan pengembangan profesi» as link rows under its h2
+      const peserta = bagian("peserta");
+      c.expect(sempit.test(peserta) && /<div className="pin-baris-isian">\s*<label className=\{label\}>\{sl\("config\.peserta\.orang"\)\}/.test(peserta)
+        && /<h2 className="font-medium text-ink-1">\{sl\("config\.peserta\.catatan"\)\}<\/h2>/.test(peserta), "Peserta is not a narrow form with «Orang» and «Tempat» sharing a row, then its records under their heading");
+      // Laporan: link rows, the school's summary first, then each active class's under its heading
+      const laporan = bagian("laporan");
+      const sekolahDulu = laporan.indexOf('config.laporan.sekolah'), kelasLalu = laporan.indexOf('<h2 className="font-medium text-ink-1">{sl("config.laporan.kelas")}</h2>');
+      c.expect(sekolahDulu > 0 && kelasLalu > sekolahDulu && (laporan.match(/<li[^>]*className="border-b border-line-1 px-3 py-2"/g) ?? []).length === 2, "Laporan is not link rows, the school's summary before the classes'");
+      // Sistem: read-only rows; «aktif»/«nonaktif» and «data uji» as badges; a school year's dates in words, never ISO
+      const sistem = bagian("system");
+      c.expect(/className=\{`pin-pill \$\{i\.is_active \? "pin-ok" : "pin-neutral"\}`\}/.test(sistem) && /<span className="pin-pill pin-info">\{s\("config\.sekolah\.sintetis"\)\}<\/span>/.test(sistem)
+        && /when\(p\.starts_on, "resmi"\)\} – \$\{when\(p\.ends_on, "resmi"\)\}/.test(sistem) && !/\$\{p\.starts_on\}/.test(sistem) && !/<form/.test(sistem), "Sistem & Konfigurasi's schools are not read-only rows with their badges and their years in words");
+      // Pergantian tahun ajaran: a panel per school under its name, «Dari» and «Ke» sharing a row
+      const roll = bagian("rollover");
+      c.expect(/<h2 className="text-sm font-medium">\{inst\.name\}<\/h2>\s*<div className="pin-baris-isian">\s*<label className=\{label\}>\{s\("config\.label\.period_from"\)\}/.test(roll), "Pergantian tahun ajaran's «Dari» and «Ke» do not share a row under the school's name");
+      // Templat laporan: the templates as rows, then the narrow form, school and kind sharing a row
+      const templat = bagian("intelligence");
+      c.expect(/<li key=\{tpl\.id\} className="border-b border-line-1 px-3 py-2">/.test(templat) && sempit.test(templat)
+        && /<div className="pin-baris-isian">\s*<label className=\{label\}>\{s\("laporan\.templat\.institusi"\)\}/.test(templat)
+        && templat.indexOf("myTemplates.map") < templat.indexOf("saveReportTemplateAction"), "Templat laporan is not its records, then a narrow form with school and kind sharing a row");
+      // the journeys press a student's «Pindahkan» by its full name
+      const jalan = readFileSync(join(repoRoot, "audit/journey.mjs"), "utf8");
+      c.expect((jalan.match(/getByRole\("button", \{ name: `Pindahkan · \$\{nama\}`, exact: true \}\)/g) ?? []).length === 2, "the journeys do not press «Pindahkan» by the student's name");
+      return c.verdict("Pindah kelas is a narrow GET step then its Kelas's students as rows, each «Pindahkan · name»; Peserta is a narrow form (Orang, Tempat sharing a row) then its records; Laporan is link rows, the school's first; Sistem's schools are read-only rows with «aktif»/«nonaktif» and «data uji» badges and their years in words; Pergantian's «Dari»/«Ke» share a row under the school's name; Templat laporan is its records then a narrow form");
+    },
+  },
 ];
