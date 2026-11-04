@@ -23,6 +23,7 @@ import {
 } from "@/lib/sertifikat";
 import KakiPintar from "@/components/KakiPintar";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { namaBerkas } from "@/lib/nama-berkas";
 
 export const generateMetadata = judulHalaman("/belajar/[tugas]/sertifikat");
 
@@ -156,7 +157,8 @@ export default async function SertifikatTugas({ params }: { params: Promise<{ tu
   // carries its accent (registered in the B6C hand-off, not decided here).
   const konteks: KonteksSertifikat = "akademik";
   // DAISY-36(3): the saved PDF's name, in the certificate's language; the course, never the person
-  const judulBerkas = t("sertifikat.berkas", "learner", { locale: bahasaSertifikat }).replace("{kursus}", course);
+  // E-D2-1: the title the saved PDF is named by, made a name every system can hold (namaBerkas)
+  const judulBerkas = namaBerkas(t("sertifikat.berkas", "learner", { locale: bahasaSertifikat }).replace("{kursus}", course));
 
   return (
     <>

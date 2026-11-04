@@ -354,7 +354,8 @@ export const b6cTests: SelfTest[] = [
       c.expect((terbit.match(/<AksiCetak /g) ?? []).length === 1 && /<AksiCetak label=\{s\("sertifikat\.cetak"\)\} judulBerkas=\{judulBerkas\} \/>/.test(terbit),
         "there is not one print action naming its file");
       c.expect(t("sertifikat.cetak", "learner", { locale: "id" }) === "Cetak atau simpan PDF", "the action is not «Cetak atau simpan PDF»");
-      c.expect(/const judulBerkas = t\("sertifikat\.berkas", "learner", \{ locale: bahasaSertifikat \}\)\.replace\("\{kursus\}", course\)/.test(hal),
+      // RESTATED FOR E-D2-1: the same title, made a name every system can hold (namaBerkas; D168-D2-1 executes it)
+      c.expect(/const judulBerkas = namaBerkas\(t\("sertifikat\.berkas", "learner", \{ locale: bahasaSertifikat \}\)\.replace\("\{kursus\}", course\)\)/.test(hal),
         "the file name is not the certificate's own words with its course");
       const aksi = kode(baca(ctx.repoRoot, "src/components/sertifikat/AksiCetak.tsx"));
       c.expect(/addEventListener\("beforeprint"/.test(aksi) && /addEventListener\("afterprint"/.test(aksi) && /document\.title = judulBerkas/.test(aksi)

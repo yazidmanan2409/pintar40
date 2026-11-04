@@ -59,6 +59,9 @@
  *              the author's difficulty as its band (never the number) and an option's misconception by its taxonomy name
  *              (the code where unnamed); the loader reads both columns and the names with the reader's own client (no
  *              new reach); the package page draws them in the Bank Soal's words.
+ *   D168-D2-1  the saved certificate's name (E-D2-1): namaBerkas turns / \ : * ? " < > | into hyphens, folds runs, trims, and
+ *              caps a 200-character title at 150 on a word; the certificate page names its PDF through it (the package,
+ *              never the learner); the print button puts the tab's title back when print returns, printed or cancelled.
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -69,6 +72,7 @@ import { judulAsesmen } from "../src/lib/judul-asesmen";
 import { cangkangStaf } from "../src/components/lapor/cangkang";
 import { labelMetrik } from "../src/components/bukti/label";
 import { susunSoal } from "../src/lib/soal-tinjauan";
+import { namaBerkas, BATAS_NAMA_BERKAS } from "../src/lib/nama-berkas";
 import { render } from "./ux2.test";
 
 const kode = (x: string) => x.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
@@ -435,6 +439,23 @@ export const d168Tests: SelfTest[] = [
         && /o\.miskonsepsi \?[\s\S]{0,200}studio\.soal\.miskonsepsi[\s\S]{0,80}o\.miskonsepsi\.nama \?\? o\.miskonsepsi\.kode/.test(hal),
         "the package page does not draw the band or the misconception");
       return c.verdict("the reviewer's questions carry the author's band (Sulit, Mudah, none) and each option's misconception by name (the code where unnamed), read under the reader's own access");
+    },
+  },
+  {
+    id: "D168-D2-1",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const kotor = namaBerkas('Sertifikat Penguasaan · Pecahan: 1/2 * 3? "Bab" <A> | B\\C');
+      c.expect(!/[/\\:*?"<>|]/.test(kotor) && kotor.startsWith("Sertifikat Penguasaan · Pecahan") && !/\s{2}|--/.test(kotor), `a title with forbidden characters gives «${kotor}»`);
+      const panjang = namaBerkas(`Sertifikat Penguasaan · ${"Kata ".repeat(40)}`);
+      c.expect(panjang.length <= BATAS_NAMA_BERKAS && panjang.length >= BATAS_NAMA_BERKAS - 30 && !/\s$/.test(panjang) && BATAS_NAMA_BERKAS === 150, `a 200-character title gives ${panjang.length} characters`);
+      c.expect(namaBerkas("Sertifikat Penguasaan · Matematika") === "Sertifikat Penguasaan · Matematika", "a clean title is changed");
+      const hal = kode(readFileSync(join(repoRoot, "src/app/belajar/[tugas]/sertifikat/page.tsx"), "utf8"));
+      c.expect(/const judulBerkas = namaBerkas\(t\("sertifikat\.berkas", "learner", \{ locale: bahasaSertifikat \}\)\.replace\("\{kursus\}", course\)\);/.test(hal), "the certificate's PDF is not named through namaBerkas from the package's title");
+      const aksi = kode(readFileSync(join(repoRoot, "src/components/sertifikat/AksiCetak.tsx"), "utf8"));
+      c.expect(/const semula = document\.title;\s*if \(judulBerkas\) document\.title = judulBerkas;\s*window\.print\(\);\s*document\.title = semula;/.test(aksi)
+        && /addEventListener\("afterprint", sesudah\)/.test(aksi), "the tab's title is not put back after a print or a cancelled print");
+      return c.verdict(`the saved PDF's name holds on every system (forbidden characters replaced, capped at ${BATAS_NAMA_BERKAS}), names the package only, and the tab's title returns after print or cancel`);
     },
   },
 ];

@@ -14,7 +14,7 @@ import { useEffect } from "react";
  * §7): «Simpan sebagai PDF» suggests the document's title as the file name, so
  * while the page prints — by this button or by the browser's own Print — the
  * title is `judulBerkas` («Sertifikat Penguasaan · <the course>»), and the tab's
- * own title returns afterwards. It names the course, never the person: a shared
+ * own title returns afterwards, after a print or a cancelled one (E-D2-1). It names the course, never the person: a shared
  * computer's tab bar and history never carry a person's name (W3.1).
  */
 export default function AksiCetak({ label, judulBerkas }: { label: string; judulBerkas?: string }) {
@@ -39,7 +39,14 @@ export default function AksiCetak({ label, judulBerkas }: { label: string; judul
   }, [judulBerkas]);
 
   return (
-    <button type="button" className="pin-btn pin-primary" onClick={() => window.print()}>
+    // E-D2-1: the browser's print returns when its dialog closes, printed or cancelled; the tab's title is put back
+    // then too, for a browser that sends no «afterprint» on a cancel
+    <button type="button" className="pin-btn pin-primary" onClick={() => {
+      const semula = document.title;
+      if (judulBerkas) document.title = judulBerkas;
+      window.print();
+      document.title = semula;
+    }}>
       {label}
     </button>
   );
