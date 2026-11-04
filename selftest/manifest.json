@@ -4212,6 +4212,11 @@
       "proves": "Terminology v1 ruling 2 (X12 T1; D-171(c)), selftest/d168.test.ts: over the rendered copy table, no Indonesian string says «kursus» and no English string says «course(s)» for the Studio object, except an allow-list that is the decision itself: the workbook's structure (ruling 14), the JSON format's language (ruling 13) and the certificate list's column (X12 T4, pending); the full term is «Paket Pembelajaran» / «Learning Package»."
     },
     {
+      "id": "D168-B1-4",
+      "runner": "static",
+      "proves": "E-B1-4, selftest/d168.test.ts, reading the stylesheet src/app/globals.css: a date, date-time or time field whose calendar button holds focus (focus within, not on the field) carries the design system's focus ring with the same tokens as *:focus-visible; the Chromium render before and after is in docs/completion-4.0/d177-koreksi/."
+    },
+    {
       "id": "D168-D2-1",
       "runner": "static",
       "proves": "E-D2-1, selftest/d168.test.ts: executing namaBerkas (src/lib/nama-berkas.ts), a title with / \\ : * ? \" < > | gives a clean name and a 200-character one is capped at 150 on a word; reading the source, the certificate page names its PDF through it from the package's title (never the learner's name) and AksiCetak puts the tab's title back when print returns, printed or cancelled, as well as on afterprint."

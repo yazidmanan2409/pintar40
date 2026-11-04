@@ -402,6 +402,10 @@ body {
 a { color: var(--pintar-primary); text-decoration: none; }
 a:hover { text-decoration: underline; }
 *:focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+/* E-B1-4: a native date field's last Tab stop is the browser's calendar button, inside the field, which no selector
+   reaches (Chromium styles neither ::-webkit-calendar-picker-indicator:focus nor :focus-visible) and which leaves the
+   field itself neither :focus nor :focus-visible. The field still holds focus within, so the field carries the ring. */
+input:is([type="date"], [type="datetime-local"], [type="time"]):focus-within:not(:focus) { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
 /* X.6 (U-DEVICE, D-046): NOTHING IS WIDER THAN A 320 PX WINDOW. A grid item may

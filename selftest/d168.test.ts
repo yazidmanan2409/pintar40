@@ -62,6 +62,9 @@
  *   D168-D2-1  the saved certificate's name (E-D2-1): namaBerkas turns / \ : * ? " < > | into hyphens, folds runs, trims, and
  *              caps a 200-character title at 150 on a word; the certificate page names its PDF through it (the package,
  *              never the learner); the print button puts the tab's title back when print returns, printed or cancelled.
+ *   D168-B1-4  every Tab stop of a date field shows the ring (E-B1-4): the design system's focus rule gives a date,
+ *              date-time or time field the ring while focus is within it but not on it (its calendar button), with the
+ *              same tokens as every other focus ring. Rendered evidence in Chromium: docs/completion-4.0/d177-koreksi/.
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -456,6 +459,17 @@ export const d168Tests: SelfTest[] = [
       c.expect(/const semula = document\.title;\s*if \(judulBerkas\) document\.title = judulBerkas;\s*window\.print\(\);\s*document\.title = semula;/.test(aksi)
         && /addEventListener\("afterprint", sesudah\)/.test(aksi), "the tab's title is not put back after a print or a cancelled print");
       return c.verdict(`the saved PDF's name holds on every system (forbidden characters replaced, capped at ${BATAS_NAMA_BERKAS}), names the package only, and the tab's title returns after print or cancel`);
+    },
+  },
+  {
+    id: "D168-B1-4",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const css = readFileSync(join(repoRoot, "src/app/globals.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+      const umum = /\*:focus-visible \{ outline: (var\(--border-focus\) solid var\(--focus-ring\)); outline-offset: (2px); \}/.exec(css);
+      const tanggal = /input:is\(\[type="date"\], \[type="datetime-local"\], \[type="time"\]\):focus-within:not\(:focus\) \{ outline: ([^;]+); outline-offset: ([^;]+); \}/.exec(css);
+      c.expect(!!umum && !!tanggal && tanggal[1] === umum[1] && tanggal[2] === umum[2], "the date field's calendar button has no focus ring, or a ring of its own look");
+      return c.verdict("a date field's calendar button shows the same ring as every other Tab stop (the field carries it while focus is within)");
     },
   },
 ];
