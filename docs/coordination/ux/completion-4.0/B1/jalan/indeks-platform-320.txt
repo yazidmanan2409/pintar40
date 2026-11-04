@@ -23,7 +23,7 @@ The accessibility tree of the main region
     - link "Periksa lagi":
       - /url: "#"
     - heading "Lingkungan" [level=3]
-    - paragraph: Pengujian
+    - paragraph: Pra-produksi
   - region "Yang menunggu":
     - heading "Yang menunggu" [level=2]
     - list:

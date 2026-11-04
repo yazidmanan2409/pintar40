@@ -158,11 +158,11 @@ All other words are the copy table at 0b19707, unchanged.
 | `config.kelompok.staf` | Staf dan akses | Staff and access | NEW · presentation |
 | `config.kelompok.laporan` | Laporan dan templat | Reports and templates | NEW · presentation |
 | `config.kelompok.dukungan` | Dukungan | Support | NEW · presentation |
-| `config.lingkungan.development` / `staging` / `production` | Pengembangan / Pengujian / Produksi | Development / Staging / Production | NEW · presentation (RV-15: the environment in words) |
+| `config.lingkungan.development` / `staging` / `production` | Internal / Pra-produksi / Produksi | Internal / Pre-production / Production | NEW · presentation (RV-15: the environment in words). **Proposed; Dr Gladys confirms.** Not «Pengembangan», which is professional learning («Pengembangan profesi guru», `/pengembangan`), and not «Pengujian», whose root «uji» names assessments («Uji Cepat», «Uji Penguasaan»). |
 | `config.kesehatan.jumlah` | **pemeriksaan perlindungan data, semuanya sesuai.** (after the count) | **data-protection checks, all as expected.** | CHANGED · presentation (RV-15: was «pemeriksaan skema, semuanya sesuai nilai yang diharapkan.») |
 | `config.section.intelligence` | — | — | RETIRED from the index (RV-24); the row uses `laporan.templat.judul` «Templat laporan» |
 | `config.refused` (English only) | unchanged | **This page is for school administrators and platform administrators only.** | CORRECTION: the English said «system administrators only», which does not match the Indonesian |
-| RV-15 seed name (data, not a key) | **Sekolah Uji PINTAR** | — | PROPOSED for the bootstrap institution, today «PINTAR Bootstrap (OFFICIAL evidence — development and CI only)» (`supabase/seed/official_bootstrap.sql:68`). The «data uji» badge already marks it. Applying it is W4.1's migration (engineering). |
+| RV-15 seed name (data, not a key) | **Sekolah Contoh PINTAR** | — | PROPOSED (not «Uji», for the same reason as above) for the bootstrap institution, today «PINTAR Bootstrap (OFFICIAL evidence — development and CI only)» (`supabase/seed/official_bootstrap.sql:68`). The «data uji» badge already marks it. Applying it is a change to that seed file (development and CI only), not a migration. |
 
 No frozen term is touched. «Murid» as a group label is the approved role word (`role.STUDENT`).
 

@@ -32,8 +32,8 @@ export const NEW: Record<string, { id: string; en: string; jenis: "baru" | "ubah
   "config.kelompok.staf": { id: "Staf dan akses", en: "Staff and access", jenis: "baru" },
   "config.kelompok.laporan": { id: "Laporan dan templat", en: "Reports and templates", jenis: "baru" },
   "config.kelompok.dukungan": { id: "Dukungan", en: "Support", jenis: "baru" },
-  "config.lingkungan.development": { id: "Pengembangan", en: "Development", jenis: "baru" },
-  "config.lingkungan.staging": { id: "Pengujian", en: "Staging", jenis: "baru" },
+  "config.lingkungan.development": { id: "Internal", en: "Internal", jenis: "baru" },
+  "config.lingkungan.staging": { id: "Pra-produksi", en: "Pre-production", jenis: "baru" },
   "config.lingkungan.production": { id: "Produksi", en: "Production", jenis: "baru" },
   "config.kesehatan.jumlah": { id: "pemeriksaan perlindungan data, semuanya sesuai.", en: "data-protection checks, all as expected.", jenis: "ubah" },
 };
