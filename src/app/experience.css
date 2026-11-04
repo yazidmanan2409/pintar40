@@ -3523,3 +3523,6 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 [data-bagian-ini] > section > h2:first-child { display: none; }
 /* B1 (TableRows): a table's stripes reach the paper */
 @media print { .pin-tabel tbody tr > * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+/* B1: a badge that carries its own icon (attention, «Menghentikan kelas») draws no dot as well */
+.pin-pill.pin-pill-ikon::before { display: none; }
+.pin-pill.pin-pill-ikon .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }

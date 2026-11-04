@@ -388,7 +388,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const ubah = uuidSah(sp.ubah) ? sp.ubah! : null;
   const tautanUbah = (id: string | null, jangkar: string) => {
     const q = new URLSearchParams();
-    for (const k of ["sekolah", "hal_peran"] as const) if (typeof sp[k] === "string" && sp[k]) q.set(k, sp[k]!);
+    for (const k of ["sekolah", "hal_peran", "hal_lapor"] as const) if (typeof sp[k] === "string" && sp[k]) q.set(k, sp[k]!);
     if (id) q.set("ubah", id);
     return `${jalanIni}${q.size ? `?${q.toString()}` : ""}#${jangkar}`;
   };
@@ -739,7 +739,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         </span>
                         {ubah !== p.course_id ? (
                           // B1: the row's one action, named with its record, opens its short form in place
-                          <Link href={tautanUbah(p.course_id, `batas-${p.course_id}`)} className={`${button} justify-self-start`} data-buka-ubah="">
+                          <Link href={tautanUbah(p.course_id, `batas-${p.course_id}`)} className={button} data-buka-ubah="">
                             {sl("config.ketuntasan.tombol")}<span className="pin-sr"> · {p.title}</span>
                           </Link>
                         ) : (
@@ -920,42 +920,56 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             ) : (
               <ul className="mt-3 grid gap-2 text-sm">
                 {laporan.map((l) => (
-                  <li key={l.id} id={`laporan-${l.id}`} data-laporan={l.id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
-                    <span className="text-ink-1">
-                      <strong>{sl(kunciStatusLaporan(l.status))}</strong>
-                      {l.hentikanKelas ? <> · <strong>{sl("lapor.hentikan.singkat")}</strong></> : null}
-                      {" · "}{when(l.dibuat)} · {l.pelapor} · {roleLabel(l.peran)}{l.sekolah ? ` · ${l.sekolah}` : ""}
-                    </span>
-                    <span className="text-ink-2">
-                      <span className="pin-num">{l.halaman}</span>
-                      {l.rujukan ? <> · {sl("lapor.rujukan")} <span className="pin-num">{l.rujukan}</span></> : null}
-                      {/* L4 (CR-85): the build, the kept technical exception, in the platform operator's triage only (investigation §E item 22) */}
-                      {platformIni && l.build ? <> · <span className="pin-num">{l.build.slice(0, 7)}</span></> : null}
-                    </span>
-                    <span className="text-ink-2">{sl("lapor.lakukan")} {l.lakukan}</span>
-                    <span className="text-ink-2">{sl("lapor.harapan")} {l.harapan}</span>
-                    <span className="text-ink-2">{sl("lapor.terjadi")} {l.terjadi}</span>
-                    {l.perangkat ? <span className="text-xs text-ink-3">{l.perangkat}</span> : null}
-                    {l.tangkapan ? (
-                      <a className={tautanTempat} href={`/api/assets/read-url?alih=1&path=${encodeURIComponent(l.tangkapan)}`}>{sl("lapor.triase.tangkapan")}</a>
-                    ) : null}
-                    {l.langkah ? <span className="text-ink-1">{sl("lapor.langkah")} {l.langkah}</span> : null}
-                    {langkahBerikut(l.status).length > 0 ? (
-                      <form action={pindahkanLaporanAksi} className="flex flex-wrap items-end gap-2">
-                        <input type="hidden" name="laporan" value={l.id} />
-                        <input type="hidden" name="hal_lapor" value={String(halLapor)} />
-                        <label className={label}>{sl("lapor.triase.ubah")}
-                          <select name="status" className={field} required defaultValue={langkahBerikut(l.status)[0]}>
-                            {langkahBerikut(l.status).map((x) => <option key={x} value={x}>{sl(kunciStatusLaporan(x))}</option>)}
-                          </select>
-                        </label>
-                        <label className={label}>{sl("lapor.triase.langkah")}
-                          <input name="langkah" className={field} required maxLength={500} autoComplete="off" />
-                        </label>
-                        <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("lapor.triase.simpan")}</TombolKirim>
-                      </form>
-                    ) : null}
-                    {sp.bagian === "laporan-masalah" && sp.lapor && sp.baris === l.id ? hasilLapor() : null}
+                  // B1 §1 «Laporan masalah»: each report an article named by what happened; its state a badge, «Menghentikan
+                  // kelas» an attention badge with its icon; the two other answers a description list; its one action,
+                  // «Ubah status», opens in place (?ubah=), named with its report
+                  <li key={l.id} id={`laporan-${l.id}`} data-laporan={l.id} data-terbuka={ubah === l.id ? "" : undefined}
+                    className={`rounded-[var(--radius-1)] px-3 py-3 ${ubah === l.id ? "bg-surface-2" : "border-b border-line-1"}`}>
+                    <article className="grid gap-2" aria-labelledby={`laporan-judul-${l.id}`}>
+                      <h3 id={`laporan-judul-${l.id}`} className="font-medium text-ink-1">{l.terjadi}</h3>
+                      <p className="text-ink-2">{when(l.dibuat)} · {l.pelapor} · {roleLabel(l.peran)}{l.sekolah ? ` · ${l.sekolah}` : ""}</p>
+                      <p className="flex flex-wrap items-center gap-2">
+                        <strong className="pin-pill pin-neutral" data-status-laporan="">{sl(kunciStatusLaporan(l.status))}</strong>
+                        {l.hentikanKelas ? <span className="pin-pill pin-attention pin-pill-ikon"><Ikon nama="triangle-alert" />{sl("lapor.hentikan.singkat")}</span> : null}
+                      </p>
+                      <dl className="grid gap-1 text-ink-2">
+                        <div><dt className="text-ink-3">{sl("lapor.lakukan")}</dt><dd>{l.lakukan}</dd></div>
+                        <div><dt className="text-ink-3">{sl("lapor.harapan")}</dt><dd>{l.harapan}</dd></div>
+                      </dl>
+                      <p className="text-ink-3">
+                        <span className="pin-num">{l.halaman}</span>
+                        {l.rujukan ? <> · {sl("lapor.rujukan")} <span className="pin-num">{l.rujukan}</span></> : null}
+                        {/* L4 (CR-85): the build, the kept technical exception, in the platform operator's triage only (investigation §E item 22) */}
+                        {platformIni && l.build ? <> · <span className="pin-num">{l.build.slice(0, 7)}</span></> : null}
+                      </p>
+                      {l.perangkat ? <p className="text-xs text-ink-3">{l.perangkat}</p> : null}
+                      {l.tangkapan ? (
+                        <a className={tautanTempat} href={`/api/assets/read-url?alih=1&path=${encodeURIComponent(l.tangkapan)}`}>{sl("lapor.triase.tangkapan")}</a>
+                      ) : null}
+                      {l.langkah ? <p className="text-ink-1">{sl("lapor.langkah")} {l.langkah}</p> : null}
+                      {langkahBerikut(l.status).length > 0 && ubah !== l.id ? (
+                        <Link href={tautanUbah(l.id, `laporan-${l.id}`)} className={button} data-buka-ubah="">
+                          {sl("lapor.triase.ubah")}<span className="pin-sr"> · {l.terjadi.slice(0, 80)}</span>
+                        </Link>
+                      ) : null}
+                      {langkahBerikut(l.status).length > 0 && ubah === l.id ? (
+                        <form action={pindahkanLaporanAksi} className="flex flex-wrap items-end gap-2" aria-label={`${sl("lapor.triase.ubah")} · ${l.terjadi.slice(0, 80)}`}>
+                          <input type="hidden" name="laporan" value={l.id} />
+                          <input type="hidden" name="hal_lapor" value={String(halLapor)} />
+                          <label className={label}>{sl("lapor.triase.ubah")}
+                            <select name="status" className={field} required defaultValue={langkahBerikut(l.status)[0]}>
+                              {langkahBerikut(l.status).map((x) => <option key={x} value={x}>{sl(kunciStatusLaporan(x))}</option>)}
+                            </select>
+                          </label>
+                          <label className={label}>{sl("lapor.triase.langkah")}
+                            <input name="langkah" className={field} required maxLength={500} autoComplete="off" autoFocus />
+                          </label>
+                          <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("lapor.triase.simpan")}</TombolKirim>
+                          <Link href={tautanUbah(null, `laporan-${l.id}`)} className={tautanTempat}>{s("config.angkat.batal")}</Link>
+                        </form>
+                      ) : null}
+                      {sp.bagian === "laporan-masalah" && sp.lapor && sp.baris === l.id ? hasilLapor() : null}
+                    </article>
                   </li>
                 ))}
               </ul>

@@ -2836,8 +2836,11 @@ await step("S23l", "«Laporkan masalah»: the teacher reports a problem from /me
     await tutupTur(page);
     const li = page.locator(`#laporan-masalah li[data-laporan="${id}"]`);                              // konfigurasi/page.tsx:635, 648
     if (!(await li.count())) return { ada: false, bagian: await teks(page.locator("#laporan-masalah")) };
-    const status = await teks(li.locator("strong"));                                                   // :650
+    const status = await teks(li.locator("[data-status-laporan]"));                                    // B1: the report's state badge
     const isi = await teks(li);
+    // B1: the report's one action, «Ubah status», opens its short form in place first
+    await li.locator("[data-buka-ubah]").click();
+    await li.locator('select[name="status"]').waitFor({ timeout: SLOW });
     await li.locator('select[name="status"]').selectOption({ label: ke });                             // :670-673; hle.ts:2786-2787
     await li.locator('input[name="langkah"]').fill(langkah);                                           // :675-676
     await li.getByRole("button", { name: "Simpan", exact: true }).click();                              // :678; hle.ts:2799

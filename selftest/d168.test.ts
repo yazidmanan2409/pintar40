@@ -725,7 +725,8 @@ export const d168Tests: SelfTest[] = [
       const src = kode(readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8"));
       c.expect(/const ubah = uuidSah\(sp\.ubah\) \? sp\.ubah! : null;/.test(src) && /if \(id\) q\.set\("ubah", id\);/.test(src), "the open record is not carried in the address, or not checked");
       const bagian = (id: string) => { const i = src.indexOf(`<section id="${id}"`); return i < 0 ? "" : src.slice(i, src.indexOf("</section>", i)); };
-      for (const [id, kunci, nama, aksi] of [["roles", 's("config.action.revoke")', "personName.get(a.person_id) ?? TANPA_NAMA", "revokeRoleAction"], ["ketuntasan", 'sl("config.ketuntasan.tombol")', "p.title", "tetapkanBatasAction"]] as const) {
+      for (const [id, kunci, nama, aksi] of [["roles", 's("config.action.revoke")', "personName.get(a.person_id) ?? TANPA_NAMA", "revokeRoleAction"], ["ketuntasan", 'sl("config.ketuntasan.tombol")', "p.title", "tetapkanBatasAction"],
+        ["laporan-masalah", 'sl("lapor.triase.ubah")', "l.terjadi.slice(0, 80)", "pindahkanLaporanAksi"]] as const) {
         const b = bagian(id);
         const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         c.expect(new RegExp(`data-buka-ubah="">\\s*\\{${esc(kunci)}\\}<span className="pin-sr"> · \\{${esc(nama)}\\}</span>`).test(b),
@@ -735,6 +736,11 @@ export const d168Tests: SelfTest[] = [
         c.expect((b.match(new RegExp(`<form action=\\{${aksi}\\}`, "g")) ?? []).length === 1 && /ubah !== [a-z]\.(id|course_id)/.test(b), `${id}: a row's form is drawn while it is closed`);
       }
       c.expect(/<TombolKirim className=\{bahaya\}[^>]*>\{s\("config\.action\.revoke"\)\}/.test(bagian("roles")), "the revocation's confirming button is not destructive");
+      // a problem report is an article named by what happened, its state a badge, «Menghentikan kelas» an attention badge
+      const lapor = bagian("laporan-masalah");
+      c.expect(/<article className="grid gap-2" aria-labelledby=\{`laporan-judul-\$\{l\.id\}`\}>\s*<h3 id=\{`laporan-judul-\$\{l\.id\}`\}[^>]*>\{l\.terjadi\}<\/h3>/.test(lapor)
+        && /<strong className="pin-pill pin-neutral" data-status-laporan="">/.test(lapor) && /pin-pill pin-attention pin-pill-ikon"><Ikon nama="triangle-alert" \/>/.test(lapor)
+        && /<dl className="grid gap-1 text-ink-2">/.test(lapor), "a problem report is not an article named by what happened, with its state and «Menghentikan kelas» as badges and its answers as a description list");
       return c.verdict("Peran & akses and Batas ketuntasan are records: each row's one action is named with its record and opens its short form in place, one at a time, in the address (?ubah=), the row on surface-2 with «Batal»; the revocation's confirming button is destructive");
     },
   },
