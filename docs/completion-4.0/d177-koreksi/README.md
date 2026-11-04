@@ -58,13 +58,13 @@ The database-state ids (F05-T20, TOUR-P01, F22-K01, D101-D01, D102-D01, F04-T11)
 - Journeys 41773392540: job B passed. Job A failed twice on one defect of E-K2: the pager outside a Collection did not fold at 320 px (`/aktivasi` 471 px, sysadmin `/konfigurasi` 443 px).
 - Fixed in `10e6868` (the pager is its own container) and asserted in D168-K2-1.
 
-**On `10e6868`:** CI, the journeys, and job A's walks run locally on a reset stack are recorded in §4 when they finish.
+**On `10e6868` and after:** §4.
 
 ## 4. Results on `10e6868`
 
 **CI:** `ci` 41777538854 passed.
 
-**Journeys:** still running at the time of writing.
+**Journeys** 41777542062: job B passed. Job A failed one check, B5-W2 («/studio/integritas: skip link first ((body))»); see §4b.
 
 **Job A's walks, run locally on a reset stack against the build of `10e6868`:**
 
@@ -76,6 +76,24 @@ The database-state ids (F05-T20, TOUR-P01, F22-K01, D101-D01, D102-D01, F04-T11)
 | Print, including P5 | 5/5 |
 
 The crawl could not run locally, because this stack's Auth does not pass the device screen; CI's journeys cover it.
+
+## 4b. Final verification on `f5331f0d`
+
+| Run | Result |
+|---|---|
+| `ci` 41785462493 | passed |
+| Journeys 41785465947 (job A, every walk; job B, Gladys's path) | passed |
+
+Two failures were corrected on the way. Both were in the checks, not in the application:
+
+1. **DAISY-07-LAPORAN-02** (CI on `c2d1f399`), corrected in `79041eb9`.
+   - H9 made each report link name where it came from (`&dari=konfigurasi`, `&dari=pimpinan`). The test's link patterns ended at the id. They now require the origin, which is stricter.
+   - Pimpinan's class disclosures are streamed in parts, so in the raw HTML a class's link can sit outside its `<details>`. The test now reads each page through `tersusun()`, as the suite's other readers of rendered pages do.
+2. **B5-W2** (journeys on `10e6868` and `c2d1f399`), corrected in `f5331f0d`.
+   - The walk opens `/studio/integritas#ditinjau`, and its keyboard check reloaded that address. The fragment puts Chromium's sequential-focus starting point at «Sudah ditinjau», and nothing focusable follows it.
+   - Probed on the local stack: with the fragment, the first Tab left the page in 2 of 6 loads; without it, the skip link came first in 6 of 6.
+   - The check now loads the page without its fragment, as its comment says. The skip-link requirement is unchanged.
+   - `c2d1f399` had attributed the failure to BarisHasil's `scrollIntoView`. The reload being checked carries no result, so that diagnosis was wrong, and the change is reverted in `f5331f0d`.
 
 ## 4a. Daisy's engineering hand-off (`SERAH-TERIMA`, `ux-1/daisy-experience` at `5a661b6e`), reconciled
 
