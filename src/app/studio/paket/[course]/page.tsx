@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import HalamanPenolakan from "@/components/HalamanPenolakan";
 import Link from "next/link";
 import Ikon from "@/components/Ikon";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -89,7 +90,9 @@ export default async function Paket({ params, searchParams }: { params: Params; 
     .eq("id", courseId).maybeSingle();
 
   if (!course) {
-    return <p className={card}>{s("studio.paket.kosong")}</p>;
+    // a package that is not there, or not this reader's (row security hides both alike), is refused, never said as
+    // empty (Kosong's rule; the same answer Mengajar gives a class it cannot read)
+    return <HalamanPenolakan locale={locale} persona="staff" backHref="/studio" backKey="studio.nav.beranda" />;
   }
 
   const [institutions, { data: saya }] = await Promise.all([
@@ -295,7 +298,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
             const isi = (k: HleEvent, v: Record<string, string>) => Object.entries(v).reduce((x, [a, b]) => x.split(`{${a}}`).join(b), sl(k));
             const gerak = (arah: "sebelum" | "sesudah") => {
               const n = arah === "sebelum" ? iniPelajaran - 1 : iniPelajaran + 1;
-              const kata = sl(arah === "sebelum" ? "studio.soal.sebelumnya" : "studio.soal.berikutnya");
+              const kata = sl(arah === "sebelum" ? "koleksi.sebelumnya" : "koleksi.berikutnya");
               const tanda = arah === "sebelum"
                 ? <><Ikon nama="chevron-left" /><span className="pin-pager-teks">{kata}</span></>
                 : <><span className="pin-pager-teks">{kata}</span><Ikon nama="chevron-right" /></>;

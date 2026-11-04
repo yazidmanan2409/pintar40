@@ -1,4 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import Kosong from "@/components/Kosong";
 import { asalLaporan } from "@/lib/nama-tempat";
 import { tawarkanSekolahLain } from "@/lib/konteks-server";
 import { kepalaLaporan, namaTempat, templatUntuk } from "@/lib/laporan";
@@ -96,9 +97,9 @@ export default async function RingkasanSekolah({
         <AksiLaporan kembali={s(asal.nama, "staff", locale)} ke={asal.ke} cetak={s("laporan.cetak", "staff", locale)} />
 
         {!template || !simpul ? (
-          <p className={card}>{s("laporan.kosong", "staff", locale)}</p>
+          <Kosong jenis="belum" kalimat={s("laporan.kosong", "staff", locale)} />
         ) : entries.length === 0 ? (
-          <p className={card}>{s("laporan.kosong", "staff", locale)}</p>
+          <Kosong jenis="belum" kalimat={s("laporan.kosong", "staff", locale)} />
         ) : (
           <>
             {/* P3 -- an all-omitted report is a valid report. It renders its

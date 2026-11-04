@@ -109,7 +109,7 @@ async function cangkangTercetak(page) {
       return r.width > 0 && r.height > 0 && g.display !== "none" && g.visibility !== "hidden";
     };
     const pemilih = ["header.pin-shell", "header.pin-top", "[role=banner]", ".pin-lewati", ".pin-menu-tombol", "[data-menu-akun]",
-      ".pin-konteks", "aside", "[data-menu-bagian]"];
+      ".pin-konteks", "aside", "[data-menu-bagian]", ".pin-back"];
     const nama = (p, el) => `${p}${el.className && typeof el.className === "string" ? `.${el.className.split(" ").slice(0, 2).join(".")}` : ""}`;
     const bagian = pemilih.flatMap((p) => [...document.querySelectorAll(p)].filter(kelihatan).map((el) => nama(p, el)));
     // navigation outside the page's own content: the shell's

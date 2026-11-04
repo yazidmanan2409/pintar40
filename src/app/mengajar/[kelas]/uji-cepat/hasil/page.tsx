@@ -123,7 +123,7 @@ export default async function HasilUjiCepat({
 
         {/* ONE STEP BELOW: each learner, alphabetical, a list and not a ranking */}
         <section className="pin-sec" aria-labelledby="pin-cepat-rincian">
-          <h2 id="pin-cepat-rincian">{s("mengajar.cepat.hasil.rincian")}</h2>
+          <h2 id="pin-cepat-rincian" className="pin-cepat-rincian-judul">{s("mengajar.cepat.hasil.rincian")}</h2>
           <p className="pin-sub">{s("mengajar.cepat.hasil.rincian.arti")}</p>
           <Koleksi
             id="pin-cepat-murid"

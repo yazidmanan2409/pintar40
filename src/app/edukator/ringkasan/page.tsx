@@ -1,4 +1,6 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { jenisAnggota, type JenisAnggota } from "@/lib/mengajar";
+import Kosong from "@/components/Kosong";
 import { asalLaporan } from "@/lib/nama-tempat";
 import { konteksSaya, tawarkanSekolahLain } from "@/lib/konteks-server";
 import type { Persona } from "@/lib/hle";
@@ -45,9 +47,12 @@ export default async function RingkasanKelas({
   const asal = asalLaporan(dari);
   const supabase = await supabaseServer();
   // L3 (§2.6): a report of another school's place is never shown in this context; the chooser offers that school
+  // E-A3-1: the class's kind decides who the «how far» line names (murid or peserta), read with the reader's own access
+  let jenis: JenisAnggota = "LEARNER";
   if (kelas) {
-    const { data: tempat } = await supabase.from("org_nodes").select("institution_id").eq("id", kelas).limit(1);
+    const { data: tempat } = await supabase.from("org_nodes").select("institution_id, member_kind").eq("id", kelas).limit(1);
     await tawarkanSekolahLain((tempat?.[0] as { institution_id?: string } | undefined)?.institution_id);
+    jenis = jenisAnggota((tempat?.[0] as { member_kind?: string } | undefined)?.member_kind);
   }
 
   // BOB-06 (B6b): the template of the school this node belongs to -- its own
@@ -97,9 +102,9 @@ export default async function RingkasanKelas({
         <AksiLaporan kembali={s(asal.nama, untuk, locale)} ke={asal.ke} cetak={s("laporan.cetak", untuk, locale)} />
 
         {!template || !kelas ? (
-          <p className={card}>{s("laporan.kosong", untuk, locale)}</p>
+          <Kosong jenis="belum" kalimat={s("laporan.kosong", untuk, locale)} />
         ) : entries.length === 0 ? (
-          <p className={card}>{s("laporan.kosong", untuk, locale)}</p>
+          <Kosong jenis="belum" kalimat={s("laporan.kosong", untuk, locale)} />
         ) : (
           <>
             {/* P3 -- an all-omitted report is a valid report. It renders its
@@ -127,7 +132,7 @@ export default async function RingkasanKelas({
                     <>
                       <p className="text-sm text-black/70">{omissionText(e, locale)}</p>
                       {/* W3.9 (RV-9; CR-46): how far, as a sentence, never «(0/5)» */}
-                      {kalimatJumlah(e, locale, untuk) ? <p className="mt-1 text-sm text-black/70">{kalimatJumlah(e, locale, untuk)}</p> : null}
+                      {kalimatJumlah(e, locale, untuk, jenis) ? <p className="mt-1 text-sm text-black/70">{kalimatJumlah(e, locale, untuk, jenis)}</p> : null}
                       {/* DAISY-07: and what will make it appear, when it is short of evidence */}
                       {kunciMuncul(e) ? <p className="mt-1 text-sm text-black/70">{s(kunciMuncul(e)!, untuk, locale)}</p> : null}
                     </>

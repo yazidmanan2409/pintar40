@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { currentViewer } from "@/lib/auth";
 import { currentLocale } from "@/lib/locale";
@@ -121,7 +122,7 @@ export default async function Entry({
           })}
         </div>
       ) : (
-        <p className="mt-8 text-ink-2">{s("entry.kosong")}</p>
+        <Kosong jenis="belum" kalimat={s("entry.kosong")} />
       )}
     </main>
   );

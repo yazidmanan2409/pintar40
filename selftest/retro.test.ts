@@ -107,6 +107,31 @@ export const retroTests: SelfTest[] = [
           c.expect(ok, `${rel}: a bare empty line (${kunci ?? m[1].slice(0, 40)}) that is not the Empty state (Kosong) and not declared`);
         }
       }
+      // restated stronger (reverse reconciliation, E2 #7 P13): the scan above read one class name, so an empty sentence
+      // in any other element escaped it (the chooser's «entry.kosong», Ringkasan, Konfigurasi, the certificate list).
+      // Every element that draws an empty sentence (a key with «kosong») is the Empty state, or declared here
+      const SEBARIS: Record<string, string> = {
+        "src/app/belajar/page.tsx#pembelajaran.kosong_arti": "the second line under a Kosong: what would fill it",
+        "src/app/studio/paket/[course]/page.tsx#studio.soal.kosong": "A1: an empty lesson opened from the jump shows its title and this line (A1 §states)",
+        "src/components/struktur/PanelStruktur.tsx#config.struktur.kosong": "imported outside Next by its tests (experience): no next/link",
+        "src/components/bukti/KeadaanHariIni.tsx#mengajar.bukti.kosong": "imported outside Next by its tests (W8-K01)",
+        "src/components/koleksi/Koleksi.tsx#koleksi.kosong.kueri": "inside the Collection's own empty state: what was searched",
+        "src/components/PemilihLingkup.tsx#lingkup.kosong": "a selector's status where its options would be, not a page's empty",
+      };
+      let sebaris = 0;
+      for (const f of [...tsx(join(repoRoot, "src", "app")), ...tsx(join(repoRoot, "src", "components"))]) {
+        const rel = f.slice(repoRoot.length + 1).replace(/\\/g, "/");
+        const src = readFileSync(f, "utf8");
+        for (const m of src.matchAll(/<(?:p|div|span)\b[^>]*>\{(?:s|sl|t)\("([a-z0-9_.]*kosong[a-z0-9_.]*)"/g)) {
+          sebaris++;
+          c.expect(`${rel}#${m[1]}` in SEBARIS, `${rel}: «${m[1]}» drawn as a bare line, not the Empty state (Kosong) and not declared`);
+        }
+      }
+      c.expect(sebaris <= Object.keys(SEBARIS).length + 1, `${sebaris} bare empty sentences found; ${Object.keys(SEBARIS).length} are declared`);
+      // a package that is not there, or not the reader's, is refused, never said as empty (Kosong's rule)
+      const paketHal = readFileSync(join(repoRoot, "src/app/studio/paket/[course]/page.tsx"), "utf8");
+      c.expect(/if \(!course\) \{[\s\S]{0,300}?return <HalamanPenolakan locale=\{locale\} persona="staff" backHref="\/studio" backKey="studio\.nav\.beranda" \/>;/.test(paketHal),
+        "a package that cannot be read is said as «Belum ada paket di sini.», an empty state standing for a refusal");
       // the refusal is never drawn as empty (Kosong's rule; S-2)
       const ub = readFileSync(join(repoRoot, "src/app/pimpinan/[simpul]/umpan-balik/kelas/[kelas]/page.tsx"), "utf8");
       c.expect(/<p className="pin-meta" data-tolak-bagian="">\{s\("umpanbalik\.buka\.tanpa_wewenang"\)\}<\/p>/.test(ub), "«Kelas ini bukan wewenang Anda.» is drawn as an empty state");
@@ -173,7 +198,12 @@ export const retroTests: SelfTest[] = [
       c.expect(/<FokusSoal pelajaran=\{iniPelajaran\} \/>/.test(bag) && /<h3 id="pin-soal-pelajaran" tabIndex=\{-1\}/.test(bag), "after the jump or the pager, focus is not put on the lesson's heading");
       const fokus = readFileSync(join(repoRoot, "src/components/studio/FokusSoal.tsx"), "utf8");
       c.expect(/getElementById\("pin-soal-pelajaran"\)\?\.focus\(\)/.test(fokus) && /\[pelajaran\]/.test(fokus), "FokusSoal does not focus the heading on each lesson");
-      c.expect(/studio\.soal\.sebelumnya[\s\S]*studio\.soal\.berikutnya/.test(bag) && /aria-disabled="true"/.test(bag), "the pager does not name the lesson or keeps no disabled end");
+      // restated (reverse reconciliation, X-KONSISTENSI K6, accepted under D-173): the pager's words are P9's own,
+      // «Sebelumnya» / «Berikutnya» (koleksi.*); A1's «Pelajaran sebelumnya / berikutnya» keys were withdrawn, and the
+      // position line keeps the unit («Pelajaran 3 dari 4»)
+      c.expect(/sl\(arah === "sebelum" \? "koleksi\.sebelumnya" : "koleksi\.berikutnya"\)/.test(bag) && /studio\.soal\.pelajaran_dari/.test(bag) && /aria-disabled="true"/.test(bag),
+        "the pager does not use the one pager's words (P9, K6), keep the unit in its position line, or keep a disabled end");
+      c.expect(!/"studio\.soal\.(?:sebelumnya|berikutnya)"/.test(readFileSync(join(repoRoot, "src/lib/hle.ts"), "utf8")), "the withdrawn keys studio.soal.sebelumnya / .berikutnya remain (K6)");
       c.expect(/o\.kunci \? <> <strong className="pin-pill pin-ok pin-pill-ikon pin-studio-kunci"><Ikon nama="check" \/>\{sl\("studio\.soal\.kunci"\)\}/.test(bag),
         "the key is not marked by badge, icon and word (never colour alone, WCAG 1.4.1)");
       c.expect(/\{q\.opsi\.map\(\(o\) => \([\s\S]{0,1200}<p className="pin-opsi-alasan">\{sl\("studio\.soal\.alasan"\)\}: <TeksBaris teks=\{o\.alasan\} \/><\/p>/.test(bag),
@@ -227,6 +257,15 @@ export const retroTests: SelfTest[] = [
       c.expect(!/<h[5-6]\b/.test(paket) && /<h2 id="pin-soal-judul"/.test(paket), "the package page's sections are not one level under its h1");
       c.expect(/<KepalaStudio>\s*<header className="pin-head">\s*[\s\S]{0,120}<h1 className="pin-h1">\{s\("studio\.title"\)\}<\/h1>/.test(tata)
         && /startsWith\("\/studio\/paket\/"\) \? null/.test(kepala), "Studio's head is still drawn over a package's page");
+      // A5 C6 (reverse reconciliation): a filtered Bank Soal with nothing left is the Collection's own empty state, with
+      // its one way back «Hapus pencarian dan saringan» (koleksi.kosong.reset), no new key; unfiltered, «not yet»
+      const bank = readFileSync(join(repoRoot, "src/app/studio/bank/page.tsx"), "utf8");
+      c.expect(/<Kosong jenis="tidak_cocok" kalimat=\{s\("koleksi\.kosong\.judul"\)\.replace\("\{benda\}", s\("studio\.soal\.jumlah"\)\)\}\s*aksi=\{\{ href: "\/studio\/bank", label: s\("koleksi\.kosong\.reset"\) \}\} \/>/.test(bank),
+        "a filtered empty Bank Soal offers no «Hapus pencarian dan saringan» (A5 C6)");
+      // B1 (D-166(a)) «No environment row: the «Lingkungan» panel is omitted, never «—»» (reverse reconciliation)
+      const konf = readFileSync(join(repoRoot, "src/app/konfigurasi/page.tsx"), "utf8");
+      c.expect(!/env\?\.environment \?\? "—"/.test(konf) && /\{env\?\.environment \? \(\s*<div className=\{card\}>/.test(konf),
+        "with no environment row Konfigurasi draws «Lingkungan —» instead of omitting the panel (B1)");
       // A5 C1: a sent-back package carries «Dikembalikan ke penyusun» beside «Sekarang: …»
       const beranda = readFileSync(join(repoRoot, "src/app/studio/page.tsx"), "utf8");
       c.expect(/c\.status === "VALIDATION_FAILED" && tinjauanTerakhir\.get\(c\.id as string\) === "SENT_BACK"\s*\? <span className="pin-pill pin-attention pin-pill-ikon" data-dikembalikan=""><Ikon nama="triangle-alert" \/>\{s\("studio\.paket\.riwayat\.dikembalikan"\)\}/.test(beranda),
@@ -356,6 +395,86 @@ export const retroTests: SelfTest[] = [
       for (const [f, n] of ada) c.expect(f in BOLEH && n === 1, `${f}: ${n} disclosure(s) not declared (E-P17: no disclosure around required content)`);
       for (const f of Object.keys(BOLEH)) c.expect(ada.has(f), `${f} is declared but draws no disclosure: remove its line`);
       return c.verdict(`reads the decision log (DECISIONS.md), the design hand-off list (06-ENGINEERING-ITEMS-FROM-DESIGN.md), the manifest, every test file and every walk: each of the ${putusan.length} rulings from D-166 is reconciled to the obligations that carry it (or why none); each of the ${baris.length} engineering items is named by a test, held by named tests or files, or blocked on a named decider, and says where it is implemented (D-180); and every disclosure under src/app and src/components (${ada.size}) is declared with what it holds (E-P17)`);
+    },
+  },
+  {
+    id: "R3-LENCANA-01",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      /**
+       * Reverse reconciliation (A5 C1 and D9, RV-20, W3.17): A ROW'S BADGE IS SHOWN ONCE, AT EVERY WIDTH. One rule hid
+       * every badge in a row's meta line above 560 px, as if each were the narrow copy of the row's own badge. Only
+       * Studio's home draws such a copy; every other meta-line badge is the only one its row has. So the learner's
+       * lesson status (/belajar/[tugas]) and Studio's «Dikembalikan ke penyusun» were never shown on a wide screen, and
+       * at 560 px and under, Studio's rows showed their badge twice (the RV-20 rule re-showed the original).
+       */
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8");
+      c.expect(!/\.pin-row \.pin-rowmeta \.pin-pill \{ display: none; \}/.test(css), "every badge in a row's meta line is hidden on a wide screen");
+      c.expect(/\.pin-row \.pin-rowmeta \.pin-pill\[data-salinan-sempit\] \{ display: none; \}/.test(css), "the narrow copy is not hidden on a wide screen");
+      c.expect(/\.pin-row:has\(\.pin-rowmeta \.pin-pill\[data-salinan-sempit\]\) > \.pin-pill \{ display: none; \}/.test(css), "under 560 px a row with a narrow copy still shows its own badge too");
+      const beranda = readFileSync(join(repoRoot, "src/app/studio/page.tsx"), "utf8");
+      c.expect(/const lencana = \(sempit: boolean\) =>/.test(beranda) && /\{lencana\(true\)\}/.test(beranda) && /\{lencana\(false\)\}/.test(beranda) && /data-salinan-sempit=\{sempit \? "" : undefined\}/.test(beranda),
+        "Studio's home does not mark its narrow copy of a row's badge");
+      return c.verdict("reads the stylesheet src/app/experience.css and the source of Studio's home: only a marked narrow copy of a row's badge is hidden on a wide screen, and under 560 px a row with one hides its original, so every meta-line badge (the learner's lesson status, «Dikembalikan ke penyusun») shows at every width and no badge shows twice; walked in audit/studio-ujung.mjs U5");
+    },
+  },
+  {
+    id: "R3-PESERTA-01",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      /**
+       * Reverse reconciliation (E-A3-1, D-168): THE «HOW FAR» LINE NAMES THE PLACE'S PEOPLE ON EVERY SURFACE. The key and
+       * the helper took the place's kind (kalimatJumlah(…, jenis)), but Ringkasan Kelas never passed it, so a professional-
+       * learning class read «Sekarang 2 murid; perlu 5.» on its own report. The school report covers a whole school
+       * (no one kind), so it keeps the default.
+       */
+      const { kalimatJumlahOrang } = await import("../src/components/bukti/KartuKetiadaan");
+      c.expect(/peserta/.test(kalimatJumlahOrang(2, 5, "PARTICIPANT", "id")) && /murid/.test(kalimatJumlahOrang(2, 5, "LEARNER", "id")),
+        "the shared line does not name participants for a professional-learning place");
+      const kelas = readFileSync(join(repoRoot, "src/app/edukator/ringkasan/page.tsx"), "utf8");
+      c.expect(/from\("org_nodes"\)\.select\("institution_id, member_kind"\)\.eq\("id", kelas\)/.test(kelas) && /jenis = jenisAnggota\(/.test(kelas)
+        && /kalimatJumlah\(e, locale, untuk, jenis\)/.test(kelas) && !/kalimatJumlah\(e, locale, untuk\)/.test(kelas),
+        "Ringkasan Kelas does not pass its class's kind to the «how far» line");
+      return c.verdict("executes the shared «how far» line (kalimatJumlahOrang) for both kinds, and reads the source of Ringkasan Kelas (src/app/edukator/ringkasan/page.tsx): it reads its class's kind under the reader's own access and passes it, so a professional-learning class says «peserta»");
+    },
+  },
+  {
+    id: "R5-CETAK-01",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      /**
+       * Reverse reconciliation (C1 Part B A4; B1 §2; W3.22): ON PAPER, A PAGE PRINTS ITS CONTENT, NOT ITS NAVIGATION OR
+       * ITS FORMS. The shell and the skip link were kept off paper, but the back link was not: 35 «← …» links printed,
+       * and a Konfigurasi comment wrongly said they already did. Management's decision forms printed too.
+       */
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8");
+      c.expect(/@media print \{\s*\.pin-back \{ display: none !important; \}/.test(css), "a back link prints (navigation is never on paper)");
+      const kartu = readFileSync(join(repoRoot, "src/components/pimpinan/KartuKeputusan.tsx"), "utf8");
+      const form = [...kartu.matchAll(/<form\b[^>]*>/g)].map((m) => m[0]);
+      c.expect(form.length >= 2 && form.every((f) => /pin-noprint/.test(f)), `Management's decision forms print: ${form.filter((f) => !/pin-noprint/.test(f)).join(" ")}`);
+      const walk = readFileSync(join(repoRoot, "audit/b6-cetak.mjs"), "utf8");
+      c.expect(/"\[data-menu-bagian\]", "\.pin-back"\]/.test(walk), "the print walk does not check that the back link stays off paper");
+      return c.verdict("reads the stylesheet src/app/experience.css, src/components/pimpinan/KartuKeputusan.tsx and the print walk audit/b6-cetak.mjs: every back link (.pin-back) stays off paper by one rule, Management's decision forms are pin-noprint, and the walk checks the back link on every page it prints");
+    },
+  },
+  {
+    id: "R3-A2-01",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      /**
+       * Reverse reconciliation (A2 K4 and K6, accepted D-170(a)): THE UJI CEPAT RESULT READS AS DAISY ACCEPTED IT. The base
+       * («n dari N murid sudah dinilai») sits directly under the figure at body size in ink-1, not in the shared metric
+       * panel's 14 px ink-2 meta line; «Rincian nilai» is the page's h2 in t-section, not drawn as the section eyebrow.
+       * Scoped to this panel: the shared .pin-metric keeps its meta line for every other figure.
+       */
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8");
+      c.expect(/\.pin-cepat-kelas \.pin-mm \{ font-size: var\(--t-body\); line-height: var\(--t-body-lh\); color: var\(--ink-1\); \}/.test(css), "the class figure's base is not at body size in ink-1 (A2 K4)");
+      c.expect(/\.pin-sec > h2\.pin-cepat-rincian-judul \{[^}]*font-size: var\(--t-section\);[^}]*text-transform: none;[^}]*color: var\(--ink-1\);/.test(css), "«Rincian nilai» is still drawn as an eyebrow (A2 K6)");
+      const hal = readFileSync(join(repoRoot, "src/app/mengajar/[kelas]/uji-cepat/hasil/page.tsx"), "utf8");
+      c.expect(/<h2 id="pin-cepat-rincian" className="pin-cepat-rincian-judul">\{s\("mengajar\.cepat\.hasil\.rincian"\)\}<\/h2>/.test(hal), "«Rincian nilai» is not the section heading A2 K6 names");
+      const iFig = hal.indexOf('className="pin-mv pin-num"'), iBase = hal.indexOf('"mengajar.cepat.hasil.dasar"', iFig);
+      c.expect(iFig > 0 && iBase > iFig && hal.slice(iFig, iBase).split("<span").length <= 3, "the base is not directly under the figure");
+      return c.verdict("reads the stylesheet src/app/experience.css and the source of src/app/mengajar/[kelas]/uji-cepat/hasil/page.tsx: the class figure's base sits directly under it at body size in ink-1, and «Rincian nilai» is the section's h2 in t-section, as A2 K4 and K6 were accepted");
     },
   },
 ];

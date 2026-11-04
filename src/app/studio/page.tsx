@@ -145,8 +145,10 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
               const r = rilis.get(c.id as string) ?? null;
               const posisi = posisiPaket({ statusKursus: c.status as string, terbitan: r ? { status: r.status } : null });
               // Daisy, Badge: one per row, the word carries it; a published package is done (✓), a withdrawn one neutral
-              const lencana = posisi.kini === "terbit" ? <span className="pin-pill pin-ok">{s("studio.langkah.terbit.judul")}</span>
-                : posisi.kini === "ditarik" ? <span className="pin-pill pin-neutral">{s("studio.langkah.ditarik.judul")}</span>
+              // one badge, drawn twice: beside the row, and as its marked narrow copy in the meta line (R3-LENCANA-01)
+              const lencana = (sempit: boolean) => posisi.kini === "terbit"
+                ? <span className="pin-pill pin-ok" data-salinan-sempit={sempit ? "" : undefined}>{s("studio.langkah.terbit.judul")}</span>
+                : posisi.kini === "ditarik" ? <span className="pin-pill pin-neutral" data-salinan-sempit={sempit ? "" : undefined}>{s("studio.langkah.ditarik.judul")}</span>
                 : null;
               return (
                 <Link key={c.id} href={`/studio/paket/${c.id}`} className="pin-row" data-posisi={posisi.kini ?? ""}>
@@ -157,10 +159,10 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
                       ? <span>{s("studio.langkah.keadaan.kini")}: {s(kunciSalinan(posisi.kini, "judul"))}</span> : null}
                     {c.status === "VALIDATION_FAILED" && tinjauanTerakhir.get(c.id as string) === "SENT_BACK"
                       ? <span className="pin-pill pin-attention pin-pill-ikon" data-dikembalikan=""><Ikon nama="triangle-alert" />{s("studio.paket.riwayat.dikembalikan")}</span> : null}
-                    {/* under 640 px the row's badge sits in its meta line (experience.css) */}
-                    {lencana}
+                    {/* under 560 px the row's badge sits in its meta line (experience.css) */}
+                    {lencana(true)}
                   </span>
-                  {lencana}
+                  {lencana(false)}
                 </Link>
               );
             })}

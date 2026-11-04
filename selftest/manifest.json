@@ -4352,6 +4352,26 @@
       "proves": "D-178(e) and D-179(e), the retrospective's process correction in both directions, selftest/retro.test.ts, reading the decision log (docs/coordination/DECISIONS.md) and the source of the design hand-off list (docs/completion-4.0/daisy-design-completion/06-ENGINEERING-ITEMS-FROM-DESIGN.md), the manifest, every test file and every walk: every ruling from D-166 on is reconciled in the list's table to the obligations that carry it, or says why none, and every obligation it names is a row of the list; each engineering item from an accepted design is named by a test, held by named manifest ids or files on its row, or blocked on a named decider, and traces where it is implemented (a path on its row or in a holding test's proves; D-180), so an accepted design cannot stand unbuilt and unnoticed (the A1 and A5 case); and every disclosure under src/app and src/components is declared with what it holds (E-P17: no disclosure around required content)."
     },
     {
+      "id": "R3-LENCANA-01",
+      "runner": "static",
+      "proves": "Reverse reconciliation (A5 C1 and D9; RV-20, W3.17), selftest/retro.test.ts, reading the stylesheet src/app/experience.css and the source of src/app/studio/page.tsx: only a row badge's marked narrow copy (data-salinan-sempit) is hidden on a wide screen, and under 560 px a row with one hides its original, so a badge that lives only in a row's meta line (the learner's lesson status on /belajar/[tugas], Studio's «Dikembalikan ke penyusun») shows at every width and no badge shows twice; the browser half is audit/studio-ujung.mjs U5."
+    },
+    {
+      "id": "R3-PESERTA-01",
+      "runner": "static",
+      "proves": "Reverse reconciliation (E-A3-1, D-168), selftest/retro.test.ts, executing kalimatJumlahOrang (src/components/bukti/KartuKetiadaan.tsx) for both kinds and reading the source of Ringkasan Kelas (src/app/edukator/ringkasan/page.tsx): the class report reads its class's kind (org_nodes.member_kind) under the reader's own access and passes it to the «how far» line, so a professional-learning class says «peserta», never «murid»."
+    },
+    {
+      "id": "R5-CETAK-01",
+      "runner": "static",
+      "proves": "Reverse reconciliation (C1 Part B's A4 line; B1 §2; W3.22), selftest/retro.test.ts, reading the stylesheet src/app/experience.css, the source of src/components/pimpinan/KartuKeputusan.tsx and the print walk audit/b6-cetak.mjs: every back link (.pin-back) stays off paper by one print rule, Management's decision forms are pin-noprint, and the walk checks the back link on every page it prints (P1–P6)."
+    },
+    {
+      "id": "R3-A2-01",
+      "runner": "static",
+      "proves": "Reverse reconciliation (A2 K4 and K6, accepted D-170(a)), selftest/retro.test.ts, reading the stylesheet src/app/experience.css and the source of src/app/mengajar/[kelas]/uji-cepat/hasil/page.tsx: the Uji Cepat class figure's base sits directly under the figure at body size in ink-1, and «Rincian nilai» is the section's h2 in t-section, not an eyebrow; the shared metric panel is unchanged for every other figure."
+    },
+    {
       "id": "R0-PIN-01",
       "runner": "static",
       "proves": "Retrospective R0-1 (W0.2), selftest/retro.test.ts, reading every workflow file under .github/workflows: each job that installs or drives a browser (Playwright install, a walk or the crawl) runs on ubuntu-24.04, where Playwright 1.55 has a browser build (run 41377378758); a planted job on ubuntu-latest is caught."

@@ -129,3 +129,18 @@ Read at `46498102`. Batch 6's own record is `batch-6/01` and `02`; its later cor
 **Batch 6 verdict:**
 - **What engineering can build is built and held.** No Batch 6 defect was found at the baseline.
 - **Not fully GREEN:** F-11, the physical print proofs, D1's manual protocol and real sending, and B4 are BLOCKED on the owner or on design review.
+
+## Corrections to this register from the reverse reconciliation (D-179(e); `04-REKONSILIASI-BALIK.md`)
+
+**Historical rows are kept as written; what was true at the corrected head is stated here.**
+
+| Row | Recorded as | What the reverse reconciliation showed | Correction |
+|---|---|---|---|
+| R2-5 | VERIFIED after correction | `R2-KOSONG-01` read one class name (`pin-empty`), so 18 empty sentences in other elements stood outside it, and a missing package was said as empty | 18 converted, 5 declared, the missing package refused; `R2-KOSONG-01` reads the empty sentence itself (04 §2 #3) |
+| R3-1 | VERIFIED (built during this audit) | the pager used A1's older keys, which X-KONSISTENSI K6 had withdrawn; the test asserted them | the one pager's words (04 §2 #1) |
+| R3-3 | VERIFIED after correction (C1's badge) | the badge was built and asserted in the source, but one CSS rule hid it on every wide screen; the same rule hid the learner's lesson status | the rule corrected at the source; walked at 1280 and 390 px (04 §2 #4) |
+| R3-3 | (C6 counted as built) | A5 C6's way back was never offered | built (04 §2 #2) |
+| R3-6 | VERIFIED | Ringkasan Kelas did not pass its class's kind (E-A3-1) | built (04 §2 #5) |
+
+**Lesson:** a test that reads the source can pass while the rendered page is wrong. That is why the badge fix carries a walk at two widths, and why E-RB-1 to E-RB-9 stay OPEN until a render or walk holds them.
+

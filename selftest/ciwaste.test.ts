@@ -116,7 +116,8 @@ export const ciwasteTests: SelfTest[] = [
       const m = await import(pathToFileURL(join(ctx.repoRoot, "audit/ci/proof-reuse.mjs")).href);
 
       // 1. what counts as the same code: only inert documents in the unread folders, and the staging request files
-      c.expect(m.sameCode([]) && m.sameCode(["docs/coordination/DECISIONS.md", "docs/reports/X.pdf", ".github/staging-golden-school-request.txt"]),
+      // restated (D-180): the decision log is read by R-PROSES-01, so it is no longer an unread document; the example is another
+      c.expect(m.sameCode([]) && m.sameCode(["docs/coordination/RUN-LOG.md", "docs/reports/X.pdf", ".github/staging-golden-school-request.txt"]),
         "only inert unread documents changed must count as the same code");
       for (const p of ["src/app/page.tsx", "selftest/manifest.json", "supabase/migrations/1_x.sql", ".github/workflows/ci.yml",
         "audit/ci/proof-reuse.mjs", "docs/audit/launch-readiness.sql", "docs/onboarding/PINTAR-Isian-Data-Sekolah.xlsx",
@@ -125,6 +126,9 @@ export const ciwasteTests: SelfTest[] = [
         "docs/coordination/ux/sertifikat/kini.mts", "docs/coordination/checklist/render_docx.mjs", "docs/reports/x.ts", "docs/coordination/a.json"]) {
         c.expect(!m.sameCode(["docs/coordination/A.md", p]), `a change to ${p} was treated as the same code`);
       }
+      // D-180: a document a test reads is never the same code: the decision log, which R-PROSES-01 reconciles
+      c.expect(!m.sameCode(["docs/coordination/DECISIONS.md"]) && !m.sameCode(["docs/coordination/A.md", "docs/coordination/DECISIONS.md"]),
+        "a change to the decision log alone was treated as the same code, though R-PROSES-01 reads it");
       // a rename is both of its paths, so moving code into an unread folder is never "the same code"
       c.expect(m.DIFF_ARGS("a", "b").includes("--no-renames"), "changed paths are listed without --no-renames: a rename would hide its old path");
       c.expect(!m.sameCode(["src/lib/x.ts", "docs/coordination/x.md"]), "a rename out of src/ was treated as the same code");
@@ -172,7 +176,7 @@ export const ciwasteTests: SelfTest[] = [
       c.expect(/ALREADY PROVEN[\s\S]{0,500}await cancelSelf\(\)/.test(src), "the proven outcome does not cancel the run");
 
       // 5. nothing CI executes reads the unread paths (comments may name them)
-      const unread = /docs\/(coordination|reports|deployment)|\.github\/staging-[a-z-]+-request\.txt/;
+      const unread = /docs\/(?:coordination(?!\/DECISIONS\.md)|reports|deployment)|\.github\/staging-[a-z-]+-request\.txt/;
       const roots = ["src", "selftest", "scripts", "supabase", ".github/actions", "audit/ci"];
       const skip = new Set(["audit/ci/proof-reuse.mjs", "audit/ci/actions-spend.mjs", "selftest/ciwaste.test.ts"]);
       const readers: string[] = [];
@@ -208,6 +212,7 @@ export const ciwasteTests: SelfTest[] = [
       const expected = ["coordination", "reports", "deployment"].flatMap((d) =>
         ["md", "pdf", "png", "jpg", "jpeg", "docx", "xlsx", "csv", "txt", "html"].map((e) => `docs/${d}/**/*.${e}`)).sort();
       c.expect(JSON.stringify(excluded) === JSON.stringify(expected), `the push filter skips ${excluded.length} patterns, not exactly the inert unread documents`);
+      c.expect(/"!docs\/deployment\/\*\*\/\*\.html"\n(?:\s*#[^\n]*\n)?\s*- "docs\/coordination\/DECISIONS\.md"\n/.test(filter), "the push filter skips the decision log, which a test reads (D-180)");
       for (const e of ["md", "pdf", "docx", "csv", "txt", "html"]) c.expect(m.INERT.test(`x.${e}`), `.${e} is skipped by the filter but not inert to the guard`);
       const jobs = [...ci.matchAll(/\n {2}([a-z-]+):\n {4}name:/g)].map((x) => x[1]).filter((j) => j !== "verdict").sort();
       const verdict = ci.slice(ci.indexOf("\n  verdict:\n"));

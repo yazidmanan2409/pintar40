@@ -161,6 +161,23 @@ The full plan is in `05-D1-IMPLEMENTATION-TEST-PLAN.md`.
 
 **Built (4 Nov, `be8a68c2`):** the reason line under the heading, the context line where the data carries a place, warm white and the gold line, and the card block from `susunKartu`. Proved by D1E-K02–K08, K10, K12, K14–K16, the restated DAISY-19/20, B6K-URUTAN-02, B6K-WARNA-01 and D168-B4-1, and the walk `audit/d1-email.mjs` (K09, K13, the keyboard order). **Open:** P5 (Dr Gladys) and P6, the manual client protocol (owner).
 
+## Reverse reconciliation: open coverage (D-179(e), D-180)
+
+The 138 «[auto]» lines of the accepted designs, read against the tests (`docs/completion-4.0/retrospektif/04-REKONSILIASI-BALIK.md`). Ten defects were corrected (its §2). What remains is built but not yet proven. Each row below is **OPEN until a test or walk holds it**, and it counts against GREEN.
+
+| # | Item | Status |
+|---|---|---|
+| E-RB-1 | Every accepted surface walked at the accepted widths (1280/820/390/320) with a judged axe run: A1, B1's section pages, C1 (Ringkasan Sekolah, `/pimpinan*`, `/pengembangan`), C2's PD page, E2's chooser | **Held by:** `audit/e1-navigasi.mjs` `audit/b5-ujung.mjs` (the index, Mengajar and Ringkasan Kelas only). **OPEN:** the rest **Implemented in:** `src/app/studio/paket/[course]/page.tsx`, `src/app/konfigurasi/page.tsx`, `src/app/pimpinan/page.tsx`, `src/app/page.tsx`. |
+| E-RB-2 | A judged keyboard focus walk on `/studio/paket`, Konfigurasi's section pages and `/` | **Held by:** `audit/e1-navigasi.mjs` (the shell). **OPEN:** those pages **Implemented in:** `src/app/globals.css` (the focus ring), `src/app/studio/paket/[course]/page.tsx`, `src/app/page.tsx`. |
+| E-RB-3 | A1: the pager's accessible names at 320 px; the empty, gagal, large and long states | **Held by:** `R3-SOAL-01` `audit/studio-ujung.mjs` (U7b). **OPEN:** the states named |
+| E-RB-4 | A2/A3: the Indonesian label and `.belum`; a PD render of the base and the «how far» line; renders at 5 and 28 scored | **Held by:** `MENGAJAR3-HASIL-01` `R3-PESERTA-01` `R3-A2-01`. **OPEN:** the renders named |
+| E-RB-5 | B2: the 11 keys by name, full and short forms, «nomor anggota», «Kode sekolah», the identifier's format and intake headers unchanged | **Held by:** `D168-B2-1`. **OPEN:** the items named **Implemented in:** `src/lib/hle.ts`, `src/lib/pendataan-kontrak.ts`. |
+| E-RB-6 | C1: the Ringkasan pages' withheld-figure rule, every figure's sentence, the template order; the rendered empty-heading sweep (E-C1-3) | **Held by:** `B5A-LAPORAN-K01` `D168-SERAH-1`. **OPEN:** the items named. The print header and page counter: **BLOCKED:** G6's words (Dr Gladys, K1) |
+| E-RB-7 | D1: the frame on recovery, password-changed and security emails (D1E-K01); the plain text's action URL and footer; the recovery duration | **Held by:** `D1E-K02` `D1E-K10` `DAISY-20-EMAIL-01`. **OPEN:** the items named |
+| E-RB-8 | D2: the printed PDF's `/Title`; the tab title restored on leaving the page | **Held by:** `D168-D2-1`. **OPEN:** the two named. The language of the name: **BLOCKED:** Daisy (K3) |
+| E-RB-9 | E1–E3: «no group label»; axe outside the rail range; a refusal drawn without the navigation; the lapse redirect; door height; «at most one current door»; the idle warning never taking focus | **Held by:** `D168-E1-1` `D168-E2-1` `UX2-JAGA-01`. **OPEN:** the items named |
+| E-RB-10 | K8: the step list's markers (A5 B12 asks for a ring on the current step and forbids «an open circle beside a filled one»; segments are built) | **Held by:** `D168-K8-1` (as built). **BLOCKED:** Daisy reconciles B12 (K3) |
+
 ## Rulings reconciled to obligations (D-179(e))
 
 **Every ruling from D-166 on is reconciled here the day it is made.** That is when design acceptance after batch closure began. Each ruling names the obligations above that carry it, or says why it carries none. `R-PROSES-01` fails on a ruling in `docs/coordination/DECISIONS.md` that has no line here, and on an obligation named here that has no row above.

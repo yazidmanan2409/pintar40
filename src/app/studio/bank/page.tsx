@@ -170,8 +170,12 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
       </form>
 
       {items.length === 0 ? (
-        // W3.2 (Empty state): «nothing matches» when narrowed, «not yet» otherwise; no action is offered (Daisy, open)
-        <Kosong jenis={bank || tingkat ? "tidak_cocok" : "belum"} kalimat={s(bank || tingkat ? "studio.bank.saring.kosong" : "studio.paket.kosong")} />
+        // W3.2 (Empty state); A5 C6 (Daisy, accepted D-173(a)): narrowed, the Collection's own «nothing matches» with its
+        // one way back, «Hapus pencarian dan saringan» (P12, no new key); not narrowed, «not yet»
+        bank || tingkat ? (
+          <Kosong jenis="tidak_cocok" kalimat={s("koleksi.kosong.judul").replace("{benda}", s("studio.soal.jumlah"))}
+            aksi={{ href: "/studio/bank", label: s("koleksi.kosong.reset") }} />
+        ) : <Kosong jenis="belum" kalimat={s("studio.paket.kosong")} />
       ) : (
         <ul className="pin-daftar">
           {items.map((i) => {

@@ -258,6 +258,24 @@ await step("U5", "the Guru reads the reason on her package page, with who and wh
   const jalan = g.locator('a[href*="/studio/unggah?revisi="]');
   harus(rec, (await jalan.count()) > 0, `a link to upload the correction (${await jalan.first().getAttribute("href").catch(() => "-")})`);
   rec.catatan.push(`the page says: ${teks.slice(Math.max(0, teks.indexOf(ALASAN_KEMBALI) - 200), teks.indexOf(ALASAN_KEMBALI) + 260)}`);
+  // A5 C1 and R3-LENCANA-01: on Studio's home the sent-back package carries «Dikembalikan ke penyusun» beside
+  // «Sekarang: …», visible on a wide screen and on a phone, and no row shows a badge twice
+  await g.goto(`${APP}/studio#paket`, { waitUntil: "networkidle" });
+  const baris = g.locator(`#paket a.pin-row[href="/studio/paket/${course}"]`);
+  const lebar = g.viewportSize();
+  for (const w of [1280, 390]) {
+    await g.setViewportSize({ width: w, height: 900 });
+    await g.waitForTimeout(200);
+    const tampak = await baris.locator("[data-dikembalikan]").isVisible().catch(() => false);
+    const meta = norm(await baris.locator(".pin-rowmeta").innerText().catch(() => ""));
+    harus(rec, tampak && /Dikembalikan ke penyusun/.test(meta) && /Sekarang:/.test(meta), `${w} px: the row shows «Dikembalikan ke penyusun» beside «Sekarang: …» («${meta}»)`);
+    const ganda = await g.locator("#paket a.pin-row").evaluateAll((rs) => rs.filter((r) => {
+      const kata = [...r.querySelectorAll(".pin-pill")].filter((p) => getComputedStyle(p).display !== "none").map((p) => p.textContent?.trim());
+      return new Set(kata).size !== kata.length;
+    }).length);
+    harus(rec, ganda === 0, `${w} px: ${ganda} row(s) show a badge twice`);
+  }
+  await g.setViewportSize(lebar ?? { width: 1280, height: 900 });
 });
 
 let pertama = "";
@@ -344,11 +362,12 @@ await step("U7b", "A1: the head of department reads the questions one whole less
     const meta2 = await periksa(2);
     harus(rec, meta2.length === 0 || meta2[0].startsWith(`Soal ${meta1.length + 1} dari ${nBank}`), `lesson 2 starts at «${meta2[0] ?? "(no question)"}», after lesson 1's ${meta1.length}`);
     // the pager back to lesson 1, by its name
-    await h.getByRole("link", { name: "Pelajaran sebelumnya", exact: true }).click();
+    await h.locator('[data-soal-pager] [data-pager="sebelum"]').click();
+    harus(rec, (await h.locator('[data-soal-pager] [data-pager="sebelum"]').getAttribute("aria-label")) !== null, "the pager's move is named (K6: «Sebelumnya»)");
     await h.waitForURL((u) => u.searchParams.get("pelajaran") === "1", { timeout: SLOW });
     await h.waitForFunction(() => document.activeElement?.id === "pin-soal-pelajaran", null, { timeout: SLOW }).catch(() => {});
-    harus(rec, await h.evaluate(() => document.activeElement?.id === "pin-soal-pelajaran"), "after «Pelajaran sebelumnya», focus is on the lesson's heading");
-    harus(rec, (await h.locator('[data-soal-pager] [data-pager="sebelum"][aria-disabled="true"]').count()) === 1, "on the first lesson, «Pelajaran sebelumnya» is disabled");
+    harus(rec, await h.evaluate(() => document.activeElement?.id === "pin-soal-pelajaran"), "after «Sebelumnya», focus is on the lesson's heading");
+    harus(rec, (await h.locator('[data-soal-pager] [data-pager="sebelum"][aria-disabled="true"]').count()) === 1, "on the first lesson, «Sebelumnya» is disabled");
   } else {
     harus(rec, (await h.locator("[data-soal-pager]").count()) === 0, "one lesson: no pager");
   }

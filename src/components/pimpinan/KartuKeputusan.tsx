@@ -120,7 +120,7 @@ export default function KartuKeputusan({
         ) : null}
 
         {aksi && berikut.includes("UNDER_REVIEW") ? (
-          <form action={aksi} className="pin-kp-ambil">
+          <form action={aksi} className="pin-kp-ambil pin-noprint">
             <input type="hidden" name="keputusan" value={k.id} />
             <input type="hidden" name="ke" value="UNDER_REVIEW" />
             <TombolKirim className="pin-btn" sibuk={s("tombol.memproses")}>
@@ -130,7 +130,7 @@ export default function KartuKeputusan({
         ) : null}
 
         {aksi && berikut.includes("DECIDED") ? (
-          <form action={aksi} className="pin-kp-form">
+          <form action={aksi} className="pin-kp-form pin-noprint">
             <input type="hidden" name="keputusan" value={k.id} />
             <input type="hidden" name="ke" value="DECIDED" />
             <div className="pin-isian">

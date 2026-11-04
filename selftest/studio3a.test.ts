@@ -447,7 +447,8 @@ export const studio3aTests: SelfTest[] = [
         "studio_home's own buckets changed; the narrowed lists must follow them");
       // every package says where it stands
       c.expect(/posisiPaket\(\{ statusKursus: c\.status as string, terbitan: r \? \{ status: r\.status \} : null \}\)/.test(beranda)
-        && /posisi\.kini === "terbit" \? <span className="pin-pill pin-ok">\{s\("studio\.langkah\.terbit\.judul"\)\}<\/span>/.test(beranda)
+        // restated (R3-LENCANA-01): the badge is one function, drawn beside the row and as its marked narrow copy
+        && /posisi\.kini === "terbit"\s*\? <span className="pin-pill pin-ok" data-salinan-sempit=\{sempit \? "" : undefined\}>\{s\("studio\.langkah\.terbit\.judul"\)\}<\/span>/.test(beranda)
         && /<span>\{s\("studio\.langkah\.keadaan\.kini"\)\}: \{s\(kunciSalinan\(posisi\.kini, "judul"\)\)\}<\/span>/.test(beranda),
         "a package in the list does not say where it stands («✓ Terbit», or «Sekarang:» and its step)");
       const r = render(ctx.repoRoot, "src/components/Kosong.tsx", { jenis: "tidak_cocok", kalimat: "Belum ada paket di sini.", aksi: { href: "/studio#paket", label: "Semua" } });

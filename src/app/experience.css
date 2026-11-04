@@ -293,7 +293,9 @@
   font-size: var(--type-meta); color: var(--ink-3);
 }
 .pin-row > .pin-pill { grid-column: 2; grid-row: 1 / span 3; }
-.pin-row .pin-rowmeta .pin-pill { display: none; }
+/* a row's badge is shown once: only its marked narrow copy (data-salinan-sempit) waits for a narrow screen; any other
+   badge in a meta line is the row's only one and always shows (A5 C1, RV-20) */
+.pin-row .pin-rowmeta .pin-pill[data-salinan-sempit] { display: none; }
 
 /* -------------------------------------------------------------- certificate */
 .pin-cert { border: 1px solid var(--line); border-radius: var(--radius-2); padding: var(--space-6); background: var(--surface-1); }
@@ -727,8 +729,7 @@
   .pin-h1 { font-size: var(--t-page-compact); line-height: var(--t-page-compact-lh); letter-spacing: var(--t-page-compact-ls); }
   .pin-scope { margin-bottom: 28px; }
   .pin-row { grid-template-columns: 1fr; padding: var(--space-4); }
-  .pin-row > .pin-pill { display: none; }
-  .pin-row .pin-rowmeta .pin-pill { display: inline-flex; }
+  .pin-row .pin-rowmeta .pin-pill[data-salinan-sempit] { display: inline-flex; }
   .pin-cert { padding: var(--space-5); }
   .pin-cert .pin-name { font-size: 32px; }
   .pin-cert .pin-course { font-size: 18px; }
@@ -3283,9 +3284,14 @@ select:not([multiple]):not([size]) {
 /* W3.17 · RV-20: a list row's badge is never lost at a narrow width; it moves under the row's words instead */
 @media (max-width: 560px) {
   .pin-row > .pin-pill { display: inline-flex; grid-column: 1; grid-row: auto; justify-self: start; }
+  .pin-row:has(.pin-rowmeta .pin-pill[data-salinan-sempit]) > .pin-pill { display: none; }
 }
 /* W2.4: the class's Uji Cepat figure stands alone above its learners; a learner with no score says so quietly */
 .pin-cepat-kelas { margin-bottom: var(--space-5); }
+/* A2 K4: the class figure's base is read with the figure, at body size in ink-1 (the shared meta line stays elsewhere) */
+.pin-cepat-kelas .pin-mm { font-size: var(--t-body); line-height: var(--t-body-lh); color: var(--ink-1); }
+/* A2 K6: «Rincian nilai» is the page's section heading, not the section eyebrow */
+.pin-sec > h2.pin-cepat-rincian-judul { font-size: var(--t-section); line-height: var(--t-section-lh); letter-spacing: var(--t-section-ls); text-transform: none; color: var(--ink-1); }
 .pin-cepat-tanpa { color: var(--ink-3); }
 
 /* ───────────────────────────── W1.14 / W3.18 · Studio's pages on the v3 primitives (Batch 3; Daisy, 08-migration:
@@ -3531,8 +3537,11 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 /* B1 FormLayout: two short fields share a row, the design system's pds-grid-2 (auto-fit at 220 px, never wider than
    the column), one column below it */
 .pin-baris-isian { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: var(--space-2) var(--space-4); align-items: start; }
+/* R5-CETAK-01: a back link is navigation, and navigation is never on paper, on any page (the shell and the skip link
+   are .pin-noprint) */
+@media print { .pin-back { display: none !important; } }
 /* B1 §2 A4: a Konfigurasi section page prints its content only: every form, a record's action and the pager stay off
-   the paper (the back link and the shell already do, .pin-noprint) */
+   the paper */
 @media print { [data-bagian-ini] form, [data-bagian-ini] [data-buka-ubah], [data-bagian-ini] [data-penomoran] { display: none !important; } }
 /* A1 (D-166(b)): the question review, one lesson at a time; scoped to the review's own lists */
 .pin-soal-lompat { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2) var(--space-3); margin-top: var(--space-3); }

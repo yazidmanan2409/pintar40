@@ -240,7 +240,9 @@ export const mengajar3Tests: SelfTest[] = [
       // RV-20: the badge of a list row stays at 320 px, moved under the row's words
       const css = baca(root, "src", "app", "experience.css");
       const lama = css.indexOf(".pin-row > .pin-pill { display: none; }");
-      const baru = css.search(/@media \(max-width: 560px\) \{\s*\.pin-row > \.pin-pill \{ display: inline-flex; grid-column: 1; grid-row: auto; justify-self: start; \}\s*\}/);
+      // restated (R3-LENCANA-01): the block may also hide the original of a row that carries a marked narrow copy, so
+      // the badge is shown once; the original is still shown under the words for every other row
+      const baru = css.search(/@media \(max-width: 560px\) \{\s*\.pin-row > \.pin-pill \{ display: inline-flex; grid-column: 1; grid-row: auto; justify-self: start; \}\s*(?:\.pin-row:has\(\.pin-rowmeta \.pin-pill\[data-salinan-sempit\]\) > \.pin-pill \{ display: none; \}\s*)?\}/);
       c.expect(baru > 0 && baru > lama, "a list row's badge is still hidden below 560 px (RV-20)");
       return c.verdict("«Minta membaca lagi» ends in «✓ Terkirim»; every Mengajar submit gives its result word but the Uji Cepat launch, which lands on the running stage; a row's badge stays at 320 px");
     },

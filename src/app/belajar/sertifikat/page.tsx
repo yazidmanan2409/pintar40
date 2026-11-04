@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { redirect } from "next/navigation";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
@@ -80,7 +81,7 @@ export default async function DaftarSertifikat() {
         </div>
 
         {rows.length === 0 ? (
-          <p className="pin-metric">{s("sertifikat.daftar.kosong")}</p>
+          <Kosong jenis="belum" kalimat={s("sertifikat.daftar.kosong")} />
         ) : (
           <div className="pin-list">
             {rows.map((row) => {

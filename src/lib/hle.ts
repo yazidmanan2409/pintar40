@@ -17,7 +17,6 @@ export type HleEvent =
   | "jenis.bank.PRACTICE" | "jenis.bank.TEST" | "jenis.bank.EXAM"
   | "studio.soal.judul" | "studio.soal.arti" | "studio.soal.jumlah" | "studio.soal.kunci" | "studio.soal.alasan" | "studio.soal.kosong"
   | "studio.soal.ringkas" | "studio.soal.pelajaran_label" | "studio.soal.pelajaran_dari" | "studio.soal.posisi" | "studio.soal.buka" | "studio.soal.bacaan" | "studio.soal.gagal" | "studio.soal.pager_label"
-  | "studio.soal.sebelumnya" | "studio.soal.berikutnya"
   | "mengajar.bukti.per_soal" | "mengajar.soal.judul" | "mengajar.soal.arti" | "mengajar.soal.terkumpul" | "mengajar.soal.dari" | "mengajar.soal.tepat"
   | "mengajar.soal.kunci" | "mengajar.soal.bantuan" | "mengajar.soal.semua_tepat" | "mengajar.soal.kosong" | "mengajar.soal.tidak_dijawab" | "mengajar.soal.kembali"
   | "mengajar.ulang.judul"
@@ -1060,7 +1059,6 @@ export type HleEvent =
   | "studio.bank.saring.untuk"
   | "studio.bank.saring.semua"
   | "studio.bank.saring.tombol"
-  | "studio.bank.saring.kosong"
   | "studio.bank.kunci_alasan"
   | "studio.hasil.ok"
   | "studio.hasil.gagal"
@@ -2476,8 +2474,6 @@ const table: Table = {
   "studio.soal.pelajaran_dari": { default: "Pelajaran {i} dari {n}", en: "Lesson {i} of {n}" },
   "studio.soal.posisi": { default: "Soal {i} dari {n}", en: "Question {i} of {n}" },
   "studio.soal.buka": { default: "Buka", en: "Open" },
-  "studio.soal.sebelumnya": { default: "Pelajaran sebelumnya", en: "Previous lesson" },
-  "studio.soal.berikutnya": { default: "Pelajaran berikutnya", en: "Next lesson" },
   "studio.soal.bacaan": { default: "Bacaan", en: "Reading passage" },
   "studio.soal.gagal": { default: "PINTAR belum bisa membuka soal paket ini. Muat ulang halaman ini; jika tetap gagal, hubungi admin sekolah Anda.", en: "PINTAR couldn't open this package's questions. Reload this page; if it still fails, contact your school's administrator." },
   "studio.soal.pager_label": { default: "Pelajaran dalam paket ini", en: "Lessons in this package" },
@@ -4219,7 +4215,6 @@ const table: Table = {
   "studio.bank.saring.untuk": { default: "Dipakai untuk", en: "Used for" },
   "studio.bank.saring.semua": { default: "Semua", en: "All" },
   "studio.bank.saring.tombol": { default: "Tampilkan", en: "Show" },
-  "studio.bank.saring.kosong": { default: "Tidak ada soal yang cocok dengan pilihan ini.", en: "No question matches this choice." },
   "studio.bank.kunci_alasan": { default: "Kunci dan alasan", en: "Key and reasons" },
   "studio.hasil.ok": { default: "Tersimpan.", en: "Saved." },
   "studio.hasil.gagal": { default: "Belum tersimpan.", en: "Not saved." },

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import TandaTautan from "@/components/TandaTautan";
 import Ikon from "@/components/Ikon";
 import { t, format, allKeys, type HleEvent } from "@/lib/hle";
@@ -620,10 +621,13 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
       {bagianIni === null && platformIni ? (
         <section className="mt-6 grid gap-3 sm:grid-cols-2" data-konfigurasi-panel="">
           <KartuKesehatan locale={await currentLocale()} keadaan={kesehatan} kelas={card} tautan={tautanTempat} />
-          <div className={card}>
-            <p className="text-sm text-ink-3">{s("config.environment")}</p>
-            <p className="mt-1 text-ink-2">{env?.environment ?? "—"}</p>
-          </div>
+          {/* B1: with no environment row the panel is omitted, never «—» (its words wait on Dr Gladys, pack A8) */}
+          {env?.environment ? (
+            <div className={card}>
+              <p className="text-sm text-ink-3">{s("config.environment")}</p>
+              <p className="mt-1 text-ink-2">{env.environment}</p>
+            </div>
+          ) : null}
         </section>
       ) : null}
 
@@ -782,7 +786,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     ))}
                   </ul>
                 ) : (
-                  <p className="mt-3 text-sm text-ink-3">{sl("config.ketuntasan.kosong")}</p>
+                  <Kosong jenis="belum" kalimat={sl("config.ketuntasan.kosong")} />
                 )}
                 {result("ketuntasan")}
               </>
@@ -849,7 +853,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-sm text-ink-3">{sl("config.pindah.kosong")}</p>
+                      <Kosong jenis="belum" kalimat={sl("config.pindah.kosong")} />
                     )}
                   </div>
                 ) : null}
@@ -930,7 +934,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                 names no row on this page is said here, above the list */}
             {sp.bagian === "laporan-masalah" && sp.lapor && !laporan.some((l) => l.id === sp.baris) ? hasilLapor() : null}
             {laporan.length === 0 ? (
-              <p className="mt-3 text-sm text-ink-3">{sl("lapor.triase.kosong")}</p>
+              <Kosong jenis="belum" kalimat={sl("lapor.triase.kosong")} />
             ) : (
               <ul className="mt-3 grid gap-2 text-sm">
                 {laporan.map((l) => (
@@ -1123,7 +1127,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   })}
                 </ul>
               ) : (
-                <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.kosong")}</p>
+                <Kosong jenis="belum" kalimat={sl("config.pemeliharaan.kosong")} />
               )}
               {result("pemeliharaan", "jendela")}
               <Penomoran halaman={halJendela} lagi={kelola?.lagiPemeliharaan === true} ke={(n) => tautanHalaman(jalanIni, sp, "hal_jendela", n, "pemeliharaan")} locale={locale}
@@ -1170,7 +1174,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   })}
                 </ul>
               ) : (
-                <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.pengumuman.kosong")}</p>
+                <Kosong jenis="belum" kalimat={sl("config.pemeliharaan.pengumuman.kosong")} />
               )}
               {result("pemeliharaan", "tarik")}
               <Penomoran halaman={halPengumuman} lagi={kelola?.lagiPengumuman === true} ke={(n) => tautanHalaman(jalanIni, sp, "hal_pengumuman", n, "pemeliharaan")} locale={locale}
@@ -1443,7 +1447,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   <button type="submit" className={button}>{s("pindah.cari.tombol")}</button>
                 </form>
                 {cariSekolah && galatCari ? <BarisHasil nada="gagal">{s("galat.transfer_search_short")}</BarisHasil> : null}
-                {cariSekolah && !galatCari && tujuanDitemukan.length === 0 ? <p className="text-sm text-ink-3">{s("pindah.cari.kosong")}</p> : null}
+                {cariSekolah && !galatCari && tujuanDitemukan.length === 0 ? <Kosong jenis="tidak_cocok" kalimat={s("pindah.cari.kosong")} /> : null}
                 {tujuanDitemukan.length > 0 ? (
                   <form action={transferMintaAction} className="grid gap-2 sm:grid-cols-2">
                     <fieldset className="sm:col-span-2 grid gap-1">
@@ -1699,7 +1703,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             <p className="mt-2 text-sm text-ink-3">{s("laporan.templat.penjelasan")}</p>
 
             {myTemplates.length === 0 ? (
-              <p className="mt-3 text-sm text-ink-3">{s("laporan.templat.kosong")}</p>
+              <Kosong jenis="belum" kalimat={s("laporan.templat.kosong")} />
             ) : (
               <ul className="mt-3 grid text-sm">
                 {myTemplates.map((tpl) => (
