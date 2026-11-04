@@ -98,6 +98,13 @@ Each correction is made **once, in the shared component or helper**, never per s
 
 **The exceptions Daisy documented (X1–X6) are accepted as intentional differences (D-173(c)), not permission for arbitrary inconsistency.** Each is an allowed difference in the checks above, named, so a check does not flatten a deliberate behaviour.
 
+## B4, D2 (design under review)
+
+| # | Item | Planned test |
+|---|---|---|
+| E-B4-1 | Daisy confirms the card with a platform role beside a school role as built (`1820300e`): «Admin platform» on its own line, then «Guru · SMP …», alphabetical, the first role's colour; the card email takes the same lines (D-164). **No render of the case exists**; she read it from the code path | rendered: a synthetic person holding SYSTEM_ADMIN and a school role, on «Akun saya» and in the card email, shows the same lines in the same order and colour; a [manual] side-by-side once reproduced |
+| E-D2-1 | Daisy confirms «Sertifikat Penguasaan · {the package's title}» as both the suggested file name and the PDF title, with no learner's name (`f33f7beb`), and adds: characters a file name cannot hold are replaced, a 150-character cap, the tab title restored after a print **or a cancelled print** | rendered: a title with `/ \ : * ? " < > \|` and a 200-character package title gives a clean, capped name and PDF title; the tab title returns after print and after cancel; no learner's name in either (W3.1) |
+
 ## D1 · the identity emails
 
 The full plan is in `05-D1-IMPLEMENTATION-TEST-PLAN.md`.
