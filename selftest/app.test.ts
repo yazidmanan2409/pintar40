@@ -2760,6 +2760,73 @@ export const appTests: SelfTest[] = [
     },
   },
   {
+    id: "D168-B1-6",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // B1 §1 «Pemeliharaan dan pengumuman» and the tree (§4): a section page's h1 names the section, so its parts are
+      // h2s and no heading skips a level; Pemeliharaan is a two-step form, then the windows as records, then the
+      // notices, then (Admin platform only) «Hentikan sekarang», last and set apart; a window's and a notice's one
+      // action opens its reason in place (?ubah=), named with its record.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const { BAGIAN_KONFIGURASI } = await import("../src/lib/bagian-konfigurasi");
+      const admin = await signIn(ctx, PERSONA.alphaAdmin);
+      const sys = await signIn(ctx, PERSONA.sysadmin);
+      await pilihKonteksCookie(base, sys.cookie, "MENGELOLA:PLATFORM");
+      const halaman = async (cookie: string, jalan: string) => {
+        const r = await get(`${base}${jalan}`, { headers: { cookie } });
+        return r.status === 200 ? tersusun(await r.text()) : "";
+      };
+      const tingkat = (html: string) => {
+        const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
+        // the section's own first h2 is not drawn (display: none, it names the region); what is drawn starts at h1
+        return [...main.matchAll(/<h([1-6])\b[^>]*>/g)].map((m) => Number(m[1]));
+      };
+      let dilihat = 0;
+      for (const [nama, cookie] of [["Admin sekolah", admin.cookie], ["Admin platform", sys.cookie]] as const) {
+        for (const b of BAGIAN_KONFIGURASI) {
+          const html = await halaman(cookie, `/konfigurasi/${b}`);
+          if (!new RegExp(`<section id="${b}"`).test(html)) continue;
+          dilihat++;
+          const t = tingkat(html);
+          c.expect(t[0] === 1 && t.slice(1).every((n) => n === 2), `${nama}: /konfigurasi/${b}'s headings run ${t.join(",")}; after its h1 every part is an h2`);
+        }
+      }
+      c.expect(dilihat >= 18, `only ${dilihat} section pages were read`);
+      // Pemeliharaan's parts in order, «Hentikan sekarang» last and only Admin platform's
+      const urutan = (html: string) => [...html.matchAll(/<section[^>]*aria-labelledby="(pin-pm-[a-z]+)"/g)].map((m) => m[1]);
+      const pSys = await halaman(sys.cookie, "/konfigurasi/pemeliharaan");
+      const pAdm = await halaman(admin.cookie, "/konfigurasi/pemeliharaan");
+      c.expect(JSON.stringify(urutan(pSys)) === JSON.stringify(["pin-pm-jadwal", "pin-pm-daftar", "pin-pm-umum", "pin-pm-henti"]), `Admin platform's Pemeliharaan reads ${urutan(pSys).join(", ")}`);
+      c.expect(JSON.stringify(urutan(pAdm)) === JSON.stringify(["pin-pm-jadwal", "pin-pm-daftar", "pin-pm-umum"]) && !/data-hentikan/.test(pAdm), `Admin sekolah's Pemeliharaan reads ${urutan(pAdm).join(", ")}`);
+      const henti = pSys.slice(pSys.indexOf('aria-labelledby="pin-pm-henti"'));
+      c.expect(/\brequired\b/.test(/<input[^>]*name="konfirmasi"[^>]*>/.exec(henti)?.[0] ?? "") && /pin-str-bahaya/.test(henti.slice(0, henti.indexOf("</form>"))), "«Hentikan sekarang» has no typed phrase or no destructive button");
+      // step 1 alone draws no schedule form; step 2 draws it with the collision line
+      c.expect(!/name="asal" value="jadwal"/.test(pAdm), "the schedule form is drawn before the time is checked");
+      const sekolahId = /name="pm_sekolah" value="([0-9a-f-]{36})"/.exec(pAdm)?.[1];
+      const langkah2 = sekolahId ? await halaman(admin.cookie, `/konfigurasi/pemeliharaan?pm_cek=1&pm_sekolah=${sekolahId}&pm_mulai=2030-01-05T19:00&pm_selesai=2030-01-05T21:00`) : "";
+      const blok2 = langkah2.slice(langkah2.indexOf('data-tabrakan="1"'), langkah2.indexOf('value="jadwal"'));
+      c.expect(/name="asal" value="jadwal"/.test(langkah2) && /role="status"/.test(blok2), `step 2 does not draw the schedule form after its collision line: ${visibleText(blok2).slice(0, 300)}`);
+      // the records, from the source: one action at the row's end, named with its record, opened in place
+      const src = readFileSync(`${ctx.repoRoot}/src/app/konfigurasi/page.tsx`, "utf8");
+      const pm = src.slice(src.indexOf('<section id="pemeliharaan"'), src.indexOf('aria-labelledby="pin-pm-henti"'));
+      for (const [rec, aksi] of [["w", "ubahPemeliharaanAction"], ["n", "tarikPengumumanAction"]] as const) {
+        c.expect(new RegExp(`ubah !== ${rec}\\.id \\? \\(\\s*<div>\\s*<Link href=\\{tautanUbah\\(${rec}\\.id, [^)]*\\)\\} className=\\{button\\} data-buka-ubah="">\\s*\\{kata\\}<span className="pin-sr"> · \\{nama\\}</span>`).test(pm),
+          `${aksi}: the row's action is not a link opening it in place, named with its record`);
+        c.expect(new RegExp(`<form action=\\{${aksi}\\}[^>]*aria-label=\\{\`\\$\\{kata\\} · \\$\\{nama\\}\`\\}`).test(pm) && (pm.match(new RegExp(`<form action=\\{${aksi}\\}`, "g")) ?? []).length === 1,
+          `${aksi}: the opened form is not named like its action, or is drawn more than once`);
+        c.expect(new RegExp(`ubah === ${rec}\\.id \\? "bg-surface-2"`).test(pm), `${aksi}: the opened row does not take surface-2`);
+      }
+      c.expect((pm.match(/\{s\("config\.angkat\.batal"\)\}<\/Link>/g) ?? []).length === 2, "an opened window or notice has no «Batal»");
+      c.expect(/<div className="pin-banner pin-attention" role="status" data-tabrakan-perhatian="">\s*<Ikon nama="triangle-alert" \/>/.test(pm), "the collision is not the attention alert with its icon");
+      c.expect(/"sekolah", "hal_peran", "hal_lapor", "hal_pindah", "hal_jendela", "hal_pengumuman"/.test(src), "opening a window or notice loses its list's page");
+      const css = readFileSync(`${ctx.repoRoot}/src/app/experience.css`, "utf8");
+      c.expect(/\.pin-baris-isian \{ display: grid; grid-template-columns: repeat\(auto-fit, minmax\(220px, 1fr\)\);/.test(css) && (pm.match(/className="pin-baris-isian"/g) ?? []).length === 2,
+        "two short fields do not share a row (FormLayout, auto-fit at 220 px)");
+      return c.verdict("every Konfigurasi section page, for Admin sekolah and Admin platform, runs h1 then h2s only; Pemeliharaan is the two-step schedule (no form before the check, the collision line before it), the windows, the notices and, for Admin platform alone, «Hentikan sekarang» last with its typed phrase and destructive button; a window's and a notice's one action opens its reason in place, named with its record, on surface-2 with «Batal», keeping its list's page; two short fields share a row");
+    },
+  },
+  {
     id: "DAISY-17-KIRIM-02",
     requires: ["app", "network"],
     run: async (ctx) => {

@@ -388,7 +388,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const ubah = uuidSah(sp.ubah) ? sp.ubah! : null;
   const tautanUbah = (id: string | null, jangkar: string) => {
     const q = new URLSearchParams();
-    for (const k of ["sekolah", "hal_peran", "hal_lapor", "hal_pindah"] as const) if (typeof sp[k] === "string" && sp[k]) q.set(k, sp[k]!);
+    for (const k of ["sekolah", "hal_peran", "hal_lapor", "hal_pindah", "hal_jendela", "hal_pengumuman"] as const) if (typeof sp[k] === "string" && sp[k]) q.set(k, sp[k]!);
     if (id) q.set("ubah", id);
     return `${jalanIni}${q.size ? `?${q.toString()}` : ""}#${jangkar}`;
   };
@@ -938,7 +938,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   <li key={l.id} id={`laporan-${l.id}`} data-laporan={l.id} data-terbuka={ubah === l.id ? "" : undefined}
                     className={`rounded-[var(--radius-1)] px-3 py-3 ${ubah === l.id ? "bg-surface-2" : "border-b border-line-1"}`}>
                     <article className="grid gap-2" aria-labelledby={`laporan-judul-${l.id}`}>
-                      <h3 id={`laporan-judul-${l.id}`} className="font-medium text-ink-1">{l.terjadi}</h3>
+                      <h2 id={`laporan-judul-${l.id}`} className="font-medium text-ink-1">{l.terjadi}</h2>
                       <p className="text-ink-2">{when(l.dibuat)} · {l.pelapor} · {roleLabel(l.peran)}{l.sekolah ? ` · ${l.sekolah}` : ""}</p>
                       <p className="flex flex-wrap items-center gap-2">
                         <strong className="pin-pill pin-neutral" data-status-laporan="">{sl(kunciStatusLaporan(l.status))}</strong>
@@ -1001,170 +1001,211 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             <h2 id="pin-pemeliharaan" className="font-medium">{sl("config.section.pemeliharaan")}</h2>
             <p className="mt-1 text-sm text-ink-2">{sl("config.pemeliharaan.arti")}</p>
             {result("pemeliharaan")}
-            <form method="get" action="/konfigurasi/pemeliharaan#pemeliharaan" className="mt-3 grid gap-2">
-              <input type="hidden" name="pm_cek" value="1" />
-              <fieldset className="grid gap-1 text-sm">
-                <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
-                {platformIni ? (
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" name="pm_platform" value="1" defaultChecked={pmPlatform} /> {sl("config.pemeliharaan.platform")}
-                  </label>
-                ) : null}
-                {sekolahKu.map((i) => (
-                  <label key={i.id} className="flex items-center gap-2">
-                    <input type="checkbox" name="pm_sekolah" value={i.id} defaultChecked={pmSekolah.includes(i.id)} /> {i.name}
-                  </label>
-                ))}
-              </fieldset>
-              <div className="flex flex-wrap items-end gap-2">
-                <div className={label}>
-                  <label htmlFor="cfg-pm-mulai">{sl("config.pemeliharaan.mulai")}</label>
-                  <TanggalDenganGema jenis="datetime-local" id="cfg-pm-mulai" name="pm_mulai" className={field} defaultValue={sp.pm_mulai ?? ""} locale={locale} />
+            {/* B1 §1 «Pemeliharaan dan pengumuman»: a form in two steps, then the windows as records, then the notices,
+                then (Admin platform only) «Hentikan sekarang», last and set apart. Each part is a region under its h2,
+                the section page's h1 naming the whole. */}
+            <section className="mt-3 grid gap-2" aria-labelledby="pin-pm-jadwal">
+              <h2 id="pin-pm-jadwal" className="font-medium">{sl("config.pemeliharaan.jadwalkan")}</h2>
+              <form method="get" action="/konfigurasi/pemeliharaan#pin-pm-jadwal" className="grid max-w-[var(--measure-narrow)] gap-2">
+                <input type="hidden" name="pm_cek" value="1" />
+                <fieldset className="grid gap-1 text-sm">
+                  <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
+                  {platformIni ? (
+                    <label className="flex items-center gap-2">
+                      <input type="checkbox" name="pm_platform" value="1" defaultChecked={pmPlatform} /> {sl("config.pemeliharaan.platform")}
+                    </label>
+                  ) : null}
+                  {sekolahKu.map((i) => (
+                    <label key={i.id} className="flex items-center gap-2">
+                      <input type="checkbox" name="pm_sekolah" value={i.id} defaultChecked={pmSekolah.includes(i.id)} /> {i.name}
+                    </label>
+                  ))}
+                </fieldset>
+                <div className="pin-baris-isian">
+                  <div className={label}>
+                    <label htmlFor="cfg-pm-mulai">{sl("config.pemeliharaan.mulai")}</label>
+                    <TanggalDenganGema jenis="datetime-local" id="cfg-pm-mulai" name="pm_mulai" className={field} defaultValue={sp.pm_mulai ?? ""} locale={locale} />
+                  </div>
+                  <div className={label}>
+                    <label htmlFor="cfg-pm-selesai">{sl("config.pemeliharaan.selesai")}</label>
+                    <TanggalDenganGema jenis="datetime-local" id="cfg-pm-selesai" name="pm_selesai" className={field} defaultValue={sp.pm_selesai ?? ""} locale={locale} />
+                  </div>
                 </div>
-                <div className={label}>
-                  <label htmlFor="cfg-pm-selesai">{sl("config.pemeliharaan.selesai")}</label>
-                  <TanggalDenganGema jenis="datetime-local" id="cfg-pm-selesai" name="pm_selesai" className={field} defaultValue={sp.pm_selesai ?? ""} locale={locale} />
-                </div>
-                <button type="submit" className={button}>{sl("config.pemeliharaan.periksa")}</button>
-              </div>
-            </form>
-            {pmCek ? (
-              <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 text-sm" data-tabrakan="1">
-                {tabrakan && Number((tabrakan as { asesmen?: number }).asesmen) > 0 ? (
-                  <p role="status">
-                    <strong>{sl("config.pemeliharaan.tabrakan.perhatian")}</strong>{" "}
-                    {Number((tabrakan as { asesmen: number }).asesmen)} {sl("config.pemeliharaan.tabrakan.jumlah")}{" "}
-                    {(tabrakan as { terakhir_selesai?: string | null }).terakhir_selesai ? (
-                      <>
-                        {sl("config.pemeliharaan.tabrakan.terakhir")} {when((tabrakan as { terakhir_selesai: string }).terakhir_selesai)}.{" "}
-                        {sl("config.pemeliharaan.tabrakan.saran")} {when((tabrakan as { terakhir_selesai: string }).terakhir_selesai)}.
-                      </>
-                    ) : null}
-                  </p>
-                ) : tabrakan ? (
-                  <p role="status">{sl("config.pemeliharaan.tabrakan.nihil")}</p>
-                ) : null}
-                <form action={jadwalkanPemeliharaanAction} className="grid gap-2"><input type="hidden" name="asal" value="jadwal" />
-                  {pmPlatform ? <input type="hidden" name="platform" value="1" /> : null}
-                  {pmPlatform ? null : pmSekolah.map((id) => <input key={id} type="hidden" name="sekolah" value={id} />)}
-                  <input type="hidden" name="mulai" value={sp.pm_mulai ?? ""} />
-                  <input type="hidden" name="selesai" value={sp.pm_selesai ?? ""} />
-                  <label className={label}>{sl("config.pemeliharaan.pesan")}
-                    <textarea name="pesan" className={field} maxLength={500} rows={2} />
-                  </label>
-                  <label className={label}>{sl("config.pemeliharaan.alasan")}
-                    <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
-                  </label>
-                  <label className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" name="umumkan" value="1" /> {sl("config.pemeliharaan.umumkan")}
-                  </label>
-                  <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.jadwalkan")}</TombolKirim></div>
-                </form>
-              </div>
-            ) : null}
-            {result("pemeliharaan", "jadwal")}
-
-            <h3 className="mt-4 text-sm font-medium">{sl("config.pemeliharaan.daftar")}</h3>
-            {kelola && kelola.pemeliharaan.length > 0 ? (
-              <ul className="mt-2 grid gap-2 text-sm">
-                {kelola.pemeliharaan.map((w) => (
-                  <li key={w.id} data-jendela={w.id} className="grid gap-1 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
-                    <span className="text-ink-1">
-                      <strong>{sl(`config.pemeliharaan.keadaan.${w.keadaan}` as HleEvent)}</strong>
-                      {" · "}{sl(`config.pemeliharaan.jenis.${w.jenis}` as HleEvent)}
-                      {" · "}{w.platform ? sl("config.pemeliharaan.platform") : w.sekolah.join(", ")}
-                    </span>
-                    <span className="text-ink-2">
-                      {when(w.mulai, "hariJam")} {w.selesai ? <>{sl("config.pemeliharaan.hingga")} {when(w.selesai, "hariJam")}</> : <>· {sl("config.pemeliharaan.tanpa_akhir")}</>}
-                    </span>
-                    {w.pesan ? <span className="text-ink-2">{w.pesan}</span> : null}
-                    <span className="text-xs text-ink-3">{sl("config.pemeliharaan.alasan")}: {w.alasan}</span>
-                    {w.menguasai && w.keadaan !== "BERAKHIR" ? (
-                      <form action={ubahPemeliharaanAction} className="flex flex-wrap items-end gap-2"><input type="hidden" name="asal" value="jendela" /><input type="hidden" name="hal_jendela" value={String(halJendela)} />
-                        <input type="hidden" name="jendela" value={w.id} />
-                        <label className={label}>{sl("config.pemeliharaan.alasan")}
-                          <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
-                        </label>
-                        {w.keadaan !== "AKTIF" ? (
-                          <TombolKirim className={button} name="aksi" value="MULAI" sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.mulai_sekarang")}</TombolKirim>
+                <div><button type="submit" className={button}>{sl("config.pemeliharaan.periksa")}</button></div>
+              </form>
+              {pmCek ? (
+                <div className="grid max-w-[var(--measure-narrow)] gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 text-sm" data-tabrakan="1">
+                  {tabrakan && Number((tabrakan as { asesmen?: number }).asesmen) > 0 ? (
+                    <div className="pin-banner pin-attention" role="status" data-tabrakan-perhatian="">
+                      <Ikon nama="triangle-alert" />
+                      <p className="text-ink-1">
+                        <strong>{sl("config.pemeliharaan.tabrakan.perhatian")}</strong>{" "}
+                        {Number((tabrakan as { asesmen: number }).asesmen)} {sl("config.pemeliharaan.tabrakan.jumlah")}{" "}
+                        {(tabrakan as { terakhir_selesai?: string | null }).terakhir_selesai ? (
+                          <>
+                            {sl("config.pemeliharaan.tabrakan.terakhir")} {when((tabrakan as { terakhir_selesai: string }).terakhir_selesai)}.{" "}
+                            {sl("config.pemeliharaan.tabrakan.saran")} {when((tabrakan as { terakhir_selesai: string }).terakhir_selesai)}.
+                          </>
                         ) : null}
-                        <TombolKirim className={button} name="aksi" value="AKHIRI" sibuk={s("tombol.memproses")}>
-                          {sl(w.keadaan === "AKTIF" ? "config.pemeliharaan.akhiri" : "config.pemeliharaan.batalkan")}
-                        </TombolKirim>
-                      </form>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.kosong")}</p>
-            )}
-            {result("pemeliharaan", "jendela")}
-            <Penomoran halaman={halJendela} lagi={kelola?.lagiPemeliharaan === true} ke={(n) => tautanHalaman(jalanIni, sp, "hal_jendela", n, "pemeliharaan")} locale={locale}
-              benda={sl("koleksi.benda.jendela")} jumlah={kelola?.pemeliharaan.length ?? 0} />
+                      </p>
+                    </div>
+                  ) : tabrakan ? (
+                    <p role="status">{sl("config.pemeliharaan.tabrakan.nihil")}</p>
+                  ) : null}
+                  <form action={jadwalkanPemeliharaanAction} className="grid gap-2"><input type="hidden" name="asal" value="jadwal" />
+                    {pmPlatform ? <input type="hidden" name="platform" value="1" /> : null}
+                    {pmPlatform ? null : pmSekolah.map((id) => <input key={id} type="hidden" name="sekolah" value={id} />)}
+                    <input type="hidden" name="mulai" value={sp.pm_mulai ?? ""} />
+                    <input type="hidden" name="selesai" value={sp.pm_selesai ?? ""} />
+                    <label className={label}>{sl("config.pemeliharaan.pesan")}
+                      <textarea name="pesan" className={field} maxLength={500} rows={2} />
+                    </label>
+                    <label className={label}>{sl("config.pemeliharaan.alasan")}
+                      <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
+                    </label>
+                    <label className="flex items-center gap-2 text-sm">
+                      <input type="checkbox" name="umumkan" value="1" /> {sl("config.pemeliharaan.umumkan")}
+                    </label>
+                    <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.jadwalkan")}</TombolKirim></div>
+                  </form>
+                </div>
+              ) : null}
+              {result("pemeliharaan", "jadwal")}
+            </section>
 
-            <h3 className="mt-4 text-sm font-medium">{sl("config.pemeliharaan.pengumuman")}</h3>
-            <p className="mt-1 text-sm text-ink-2">{sl("config.pemeliharaan.pengumuman.arti")}</p>
-            <form action={terbitkanPengumumanAction} className="mt-2 grid gap-2"><input type="hidden" name="asal" value="umumkan" />
-              <fieldset className="grid gap-1 text-sm">
-                <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
-                {platformIni ? (
-                  <label className="flex items-center gap-2"><input type="checkbox" name="platform" value="1" /> {sl("config.pemeliharaan.platform")}</label>
-                ) : null}
-                {sekolahKu.map((i) => (
-                  <label key={i.id} className="flex items-center gap-2"><input type="checkbox" name="sekolah" value={i.id} /> {i.name}</label>
-                ))}
-              </fieldset>
-              <label className={label}>{sl("config.pemeliharaan.pengumuman.pesan")}
-                <input name="pesan" className={field} required maxLength={500} autoComplete="off" />
-              </label>
-              <div className="flex flex-wrap items-end gap-2">
-                <div className={label}>
-                  <label htmlFor="cfg-pengumuman-terbit">{sl("config.pemeliharaan.pengumuman.terbit")}</label>
-                  <TanggalDenganGema jenis="datetime-local" id="cfg-pengumuman-terbit" name="terbit" className={field} locale={locale} />
+            <section className="mt-4" aria-labelledby="pin-pm-daftar">
+              <h2 id="pin-pm-daftar" className="font-medium">{sl("config.pemeliharaan.daftar")}</h2>
+              {kelola && kelola.pemeliharaan.length > 0 ? (
+                <ul className="mt-2 grid gap-2 text-sm">
+                  {kelola.pemeliharaan.map((w) => {
+                    // B1 §1 «Records»: a window's one action (end or cancel it) at its row's end, named with the window,
+                    // opening its reason in place
+                    const kata = sl(w.keadaan === "AKTIF" ? "config.pemeliharaan.akhiri" : "config.pemeliharaan.batalkan");
+                    const nama = `${w.platform ? sl("config.pemeliharaan.platform") : w.sekolah.join(", ")}, ${when(w.mulai, "hariJam")}`;
+                    return (
+                    <li key={w.id} id={`jendela-${w.id}`} data-jendela={w.id} data-terbuka={ubah === w.id ? "" : undefined}
+                      className={`grid gap-1 rounded-[var(--radius-1)] px-3 py-2 ${ubah === w.id ? "bg-surface-2" : "border border-line-1"}`}>
+                      <span className="text-ink-1">
+                        <strong>{sl(`config.pemeliharaan.keadaan.${w.keadaan}` as HleEvent)}</strong>
+                        {" · "}{sl(`config.pemeliharaan.jenis.${w.jenis}` as HleEvent)}
+                        {" · "}{w.platform ? sl("config.pemeliharaan.platform") : w.sekolah.join(", ")}
+                      </span>
+                      <span className="text-ink-2">
+                        {when(w.mulai, "hariJam")} {w.selesai ? <>{sl("config.pemeliharaan.hingga")} {when(w.selesai, "hariJam")}</> : <>· {sl("config.pemeliharaan.tanpa_akhir")}</>}
+                      </span>
+                      {w.pesan ? <span className="text-ink-2">{w.pesan}</span> : null}
+                      <span className="text-xs text-ink-3">{sl("config.pemeliharaan.alasan")}: {w.alasan}</span>
+                      {w.menguasai && w.keadaan !== "BERAKHIR" ? (
+                        ubah !== w.id ? (
+                          <div>
+                            <Link href={tautanUbah(w.id, `jendela-${w.id}`)} className={button} data-buka-ubah="">
+                              {kata}<span className="pin-sr"> · {nama}</span>
+                            </Link>
+                          </div>
+                        ) : (
+                          <form action={ubahPemeliharaanAction} className="flex flex-wrap items-end gap-2" aria-label={`${kata} · ${nama}`}><input type="hidden" name="asal" value="jendela" /><input type="hidden" name="hal_jendela" value={String(halJendela)} />
+                            <input type="hidden" name="jendela" value={w.id} />
+                            <label className={label}>{sl("config.pemeliharaan.alasan")}
+                              <input name="alasan" className={field} required maxLength={300} autoComplete="off" autoFocus />
+                            </label>
+                            {w.keadaan !== "AKTIF" ? (
+                              <TombolKirim className={button} name="aksi" value="MULAI" sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.mulai_sekarang")}</TombolKirim>
+                            ) : null}
+                            <TombolKirim className={button} name="aksi" value="AKHIRI" sibuk={s("tombol.memproses")}>{kata}</TombolKirim>
+                            <Link href={tautanUbah(null, `jendela-${w.id}`)} className={tautanTempat}>{s("config.angkat.batal")}</Link>
+                          </form>
+                        )
+                      ) : null}
+                    </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.kosong")}</p>
+              )}
+              {result("pemeliharaan", "jendela")}
+              <Penomoran halaman={halJendela} lagi={kelola?.lagiPemeliharaan === true} ke={(n) => tautanHalaman(jalanIni, sp, "hal_jendela", n, "pemeliharaan")} locale={locale}
+                benda={sl("koleksi.benda.jendela")} jumlah={kelola?.pemeliharaan.length ?? 0} />
+            </section>
+
+            <section className="mt-4" aria-labelledby="pin-pm-umum">
+              <h2 id="pin-pm-umum" className="font-medium">{sl("config.pemeliharaan.pengumuman")}</h2>
+              <p className="mt-1 text-sm text-ink-2">{sl("config.pemeliharaan.pengumuman.arti")}</p>
+              {kelola && kelola.pengumuman.length > 0 ? (
+                <ul className="mt-2 grid gap-2 text-sm">
+                  {kelola.pengumuman.map((n) => {
+                    const kata = sl("config.pemeliharaan.pengumuman.tarik");
+                    const nama = n.pesan.slice(0, 80);
+                    return (
+                    <li key={n.id} id={`pengumuman-${n.id}`} data-pengumuman={n.id} data-terbuka={ubah === n.id ? "" : undefined}
+                      className={`grid gap-1 rounded-[var(--radius-1)] px-3 py-2 ${ubah === n.id ? "bg-surface-2" : "border border-line-1"}`}>
+                      <span className="text-ink-1">{n.pesan}</span>
+                      <span className="text-ink-2">
+                        {when(n.terbit, "hariJam")} {sl("config.pemeliharaan.hingga")} {when(n.sampai, "hariJam")}
+                        {n.platform ? <> · {sl("config.pemeliharaan.platform")}</> : null}
+                        {n.ditarik ? <> · <strong className="pin-pill pin-neutral">{sl("config.pemeliharaan.pengumuman.ditarik")}</strong></> : null}
+                      </span>
+                      {n.boleh && !n.ditarik ? (
+                        ubah !== n.id ? (
+                          <div>
+                            <Link href={tautanUbah(n.id, `pengumuman-${n.id}`)} className={button} data-buka-ubah="">
+                              {kata}<span className="pin-sr"> · {nama}</span>
+                            </Link>
+                          </div>
+                        ) : (
+                          <form action={tarikPengumumanAction} className="flex flex-wrap items-end gap-2" aria-label={`${kata} · ${nama}`}><input type="hidden" name="asal" value="tarik" /><input type="hidden" name="hal_pengumuman" value={String(halPengumuman)} />
+                            <input type="hidden" name="pengumuman" value={n.id} />
+                            <label className={label}>{sl("config.pemeliharaan.alasan")}
+                              <input name="alasan" className={field} required maxLength={300} autoComplete="off" autoFocus />
+                            </label>
+                            <TombolKirim className={button} sibuk={s("tombol.memproses")}>{kata}</TombolKirim>
+                            <Link href={tautanUbah(null, `pengumuman-${n.id}`)} className={tautanTempat}>{s("config.angkat.batal")}</Link>
+                          </form>
+                        )
+                      ) : null}
+                    </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.pengumuman.kosong")}</p>
+              )}
+              {result("pemeliharaan", "tarik")}
+              <Penomoran halaman={halPengumuman} lagi={kelola?.lagiPengumuman === true} ke={(n) => tautanHalaman(jalanIni, sp, "hal_pengumuman", n, "pemeliharaan")} locale={locale}
+                benda={sl("koleksi.benda.pengumuman")} jumlah={kelola?.pengumuman.length ?? 0} />
+              <form action={terbitkanPengumumanAction} className="mt-3 grid max-w-[var(--measure-narrow)] gap-2"><input type="hidden" name="asal" value="umumkan" />
+                <fieldset className="grid gap-1 text-sm">
+                  <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
+                  {platformIni ? (
+                    <label className="flex items-center gap-2"><input type="checkbox" name="platform" value="1" /> {sl("config.pemeliharaan.platform")}</label>
+                  ) : null}
+                  {sekolahKu.map((i) => (
+                    <label key={i.id} className="flex items-center gap-2"><input type="checkbox" name="sekolah" value={i.id} /> {i.name}</label>
+                  ))}
+                </fieldset>
+                <label className={label}>{sl("config.pemeliharaan.pengumuman.pesan")}
+                  <input name="pesan" className={field} required maxLength={500} autoComplete="off" />
+                </label>
+                <div className="pin-baris-isian">
+                  <div className={label}>
+                    <label htmlFor="cfg-pengumuman-terbit">{sl("config.pemeliharaan.pengumuman.terbit")}</label>
+                    <TanggalDenganGema jenis="datetime-local" id="cfg-pengumuman-terbit" name="terbit" className={field} locale={locale} />
+                  </div>
+                  <div className={label}>
+                    <label htmlFor="cfg-pengumuman-sampai">{sl("config.pemeliharaan.pengumuman.sampai")}</label>
+                    <TanggalDenganGema jenis="datetime-local" id="cfg-pengumuman-sampai" name="sampai" className={field} required locale={locale} />
+                  </div>
                 </div>
-                <div className={label}>
-                  <label htmlFor="cfg-pengumuman-sampai">{sl("config.pemeliharaan.pengumuman.sampai")}</label>
-                  <TanggalDenganGema jenis="datetime-local" id="cfg-pengumuman-sampai" name="sampai" className={field} required locale={locale} />
-                </div>
-                <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.pengumuman.terbitkan")}</TombolKirim>
-              </div>
-            </form>
-            {result("pemeliharaan", "umumkan")}
-            {kelola && kelola.pengumuman.length > 0 ? (
-              <ul className="mt-2 grid gap-2 text-sm">
-                {kelola.pengumuman.map((n) => (
-                  <li key={n.id} data-pengumuman={n.id} className="grid gap-1 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
-                    <span className="text-ink-1">{n.pesan}</span>
-                    <span className="text-ink-2">
-                      {when(n.terbit, "hariJam")} {sl("config.pemeliharaan.hingga")} {when(n.sampai, "hariJam")}
-                      {n.platform ? <> · {sl("config.pemeliharaan.platform")}</> : null}
-                      {n.ditarik ? <> · <strong>{sl("config.pemeliharaan.pengumuman.ditarik")}</strong></> : null}
-                    </span>
-                    {n.boleh && !n.ditarik ? (
-                      <form action={tarikPengumumanAction} className="flex flex-wrap items-end gap-2"><input type="hidden" name="asal" value="tarik" /><input type="hidden" name="hal_pengumuman" value={String(halPengumuman)} />
-                        <input type="hidden" name="pengumuman" value={n.id} />
-                        <label className={label}>{sl("config.pemeliharaan.alasan")}
-                          <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
-                        </label>
-                        <TombolKirim className={button} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.pengumuman.tarik")}</TombolKirim>
-                      </form>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.pengumuman.kosong")}</p>
-            )}
-            {result("pemeliharaan", "tarik")}
-            <Penomoran halaman={halPengumuman} lagi={kelola?.lagiPengumuman === true} ke={(n) => tautanHalaman(jalanIni, sp, "hal_pengumuman", n, "pemeliharaan")} locale={locale}
-              benda={sl("koleksi.benda.pengumuman")} jumlah={kelola?.pengumuman.length ?? 0} />
+                <div><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.pengumuman.terbitkan")}</TombolKirim></div>
+              </form>
+              {result("pemeliharaan", "umumkan")}
+            </section>
 
             {platformIni ? (
-              <div className="mt-4 grid gap-2 rounded-[var(--radius-1)] border border-line-1 px-3 py-2" data-hentikan="1">
-                <h3 className="text-sm font-medium">{sl("config.pemeliharaan.darurat.judul")}</h3>
+              <section className="mt-6 grid gap-2 rounded-[var(--radius-1)] border border-line-1 px-3 py-3" data-hentikan="1" aria-labelledby="pin-pm-henti">
+                <h2 id="pin-pm-henti" className="font-medium">{sl("config.pemeliharaan.darurat.judul")}</h2>
                 <p className="text-sm text-ink-2">{sl("config.pemeliharaan.darurat.arti")}</p>
-                <form action={hentikanSekarangAction} className="grid gap-2"><input type="hidden" name="asal" value="henti" />
+                <form action={hentikanSekarangAction} className="grid max-w-[var(--measure-narrow)] gap-2"><input type="hidden" name="asal" value="henti" />
                   <fieldset className="grid gap-1 text-sm">
                     <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
                     <label className="flex items-center gap-2"><input type="checkbox" name="platform" value="1" /> {sl("config.pemeliharaan.platform")}</label>
@@ -1181,7 +1222,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   <div><TombolKirim className={bahaya} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.darurat.tombol")}</TombolKirim></div>
                 </form>
                 {result("pemeliharaan", "henti")}
-              </div>
+              </section>
             ) : null}
           </section>
           ) : null}
@@ -1353,7 +1394,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             {/* W2.15: the receiving school's incoming requests, accepted into one of its own school years */}
             {satuSekolah && pindahMasuk.length > 0 ? (
               <div className="mt-3 grid gap-2" data-pindah="masuk">
-                <h3 className="text-sm font-medium">{s("pindah.masuk.judul")}</h3>
+                <h2 className="text-sm font-medium">{s("pindah.masuk.judul")}</h2>
                 {pindahMasuk.map((m) => (
                   <form key={m.transfer_id} action={transferTerimaAction} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2" data-pindah-masuk={m.transfer_id}><input type="hidden" name="asal" value="terima" />
                     <input type="hidden" name="transfer" value={m.transfer_id} />
@@ -1384,7 +1425,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             {/* W2.15 (F-10): a transfer out, to a school found by its exact name or code */}
             {satuSekolah ? (
               <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" data-pindah="keluar">
-                <h3 className="text-sm font-medium">{s("pindah.keluar.judul")}</h3>
+                <h2 className="text-sm font-medium">{s("pindah.keluar.judul")}</h2>
                 <p className="text-xs text-ink-3">{s("pindah.keluar.arti")}</p>
                 <form method="get" action="/konfigurasi/transfers#transfers" className="flex flex-wrap items-end gap-2">
                   <input type="hidden" name="bagian" value="transfers" />
@@ -1509,7 +1550,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
               benda={sl("koleksi.benda.peran")} jumlah={daftarPeran.length} ukuran={UKURAN_PERAN} />
             {angkat ? (
               <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" role="group" aria-labelledby="pin-angkat">
-                <h3 id="pin-angkat" className="font-medium">{s("config.angkat.judul")}</h3>
+                <h2 id="pin-angkat" className="font-medium">{s("config.angkat.judul")}</h2>
                 <p className="text-sm text-ink-1"><strong>{angkat.nama}</strong> · {roleLabel("INSTITUTION_ADMIN")} · {angkat.tempat}</p>
                 <p className="text-sm text-ink-2">{s("config.angkat.arti")}</p>
                 <form action={grantRoleAction} className="flex flex-wrap items-center gap-3"><input type="hidden" name="asal" value="angkat" />
@@ -1526,7 +1567,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             {result("roles", "angkat")}
             {bukaAdminPertama && satuSekolah ? (
               <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" role="group" aria-labelledby="pin-admin-pertama" data-admin-pertama="">
-                <h3 id="pin-admin-pertama" className="font-medium">{s("config.pertama.judul")}</h3>
+                <h2 id="pin-admin-pertama" className="font-medium">{s("config.pertama.judul")}</h2>
                 <p className="text-sm text-ink-2">{s("config.pertama.arti")}</p>
                 {pertama ? (
                   <form action={tunjukAdminPertamaAction} className="flex flex-wrap items-center gap-3"><input type="hidden" name="asal" value="pertama" />

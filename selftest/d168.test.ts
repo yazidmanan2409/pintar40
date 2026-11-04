@@ -743,7 +743,7 @@ export const d168Tests: SelfTest[] = [
       c.expect(/<TombolKirim className=\{bahaya\}[^>]*>\{s\("config\.action\.revoke"\)\}/.test(bagian("roles")), "the revocation's confirming button is not destructive");
       // a problem report is an article named by what happened, its state a badge, «Menghentikan kelas» an attention badge
       const lapor = bagian("laporan-masalah");
-      c.expect(/<article className="grid gap-2" aria-labelledby=\{`laporan-judul-\$\{l\.id\}`\}>\s*<h3 id=\{`laporan-judul-\$\{l\.id\}`\}[^>]*>\{l\.terjadi\}<\/h3>/.test(lapor)
+      c.expect(/<article className="grid gap-2" aria-labelledby=\{`laporan-judul-\$\{l\.id\}`\}>\s*<h2 id=\{`laporan-judul-\$\{l\.id\}`\}[^>]*>\{l\.terjadi\}<\/h2>/.test(lapor)
         && /<strong className="pin-pill pin-neutral" data-status-laporan="">/.test(lapor) && /pin-pill pin-attention pin-pill-ikon"><Ikon nama="triangle-alert" \/>/.test(lapor)
         && /<dl className="grid gap-1 text-ink-2">/.test(lapor), "a problem report is not an article named by what happened, with its state and «Menghentikan kelas» as badges and its answers as a description list");
       return c.verdict("Peran & akses and Batas ketuntasan are records: each row's one action is named with its record and opens its short form in place, one at a time, in the address (?ubah=), the row on surface-2 with «Batal»; the revocation's confirming button is destructive");

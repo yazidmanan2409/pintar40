@@ -4272,6 +4272,11 @@
       "proves": "E-K8 (D-173(d)), selftest/d168.test.ts, reading the stylesheet src/app/experience.css and the source of LangkahTerbit.tsx: every Studio step marker (.pin-lt-langkah::before) is a segment of progress over its word with no border or round marker (the ring read as a radio button), the current step is the primary segment, and the step list carries no radio role, input or tab stop; the current step is aria-current."
     },
     {
+      "id": "D168-B1-6",
+      "runner": "app",
+      "proves": "B1 \u00a71 \u00abPemeliharaan dan pengumuman\u00bb and \u00a74 (D-166(a), D-172), selftest/app.test.ts, over HTTP against the seed and from the source of src/app/konfigurasi/page.tsx and the stylesheet src/app/experience.css: every Konfigurasi section page, for Admin sekolah and Admin platform, runs h1 then h2s only (no heading skips a level); Pemeliharaan is the two-step schedule (no schedule form before \u00abPeriksa waktu ini\u00bb, the collision line before it, as an attention alert), then the windows, then the notices, then, for Admin platform alone, \u00abHentikan sekarang\u00bb last and set apart with its typed phrase and destructive button; a window's and a notice's one action opens its reason in place (?ubah=), named with its record, on surface-2 with \u00abBatal\u00bb, keeping its list's page; two short fields share a row (auto-fit at 220 px)."
+    },
+    {
       "id": "D168-B1-3",
       "runner": "static",
       "proves": "B1 \u00a71 \u00abRecords\u00bb and \u00a74 (D-166(a)), selftest/d168.test.ts, reading the source of src/app/konfigurasi/page.tsx: in Peran & akses and Batas ketuntasan each row's one action is at its end, named with its record (\u00abCabut \u00b7 {name}\u00bb, \u00abTetapkan \u00b7 {lesson}\u00bb), and opens in place: the open record is carried in the address (?ubah=, checked as an id), one row at a time, the row on surface-2 with its short form named like its action, its confirming action (destructive for a revocation) and \u00abBatal\u00bb; a closed row draws no form."
