@@ -3531,3 +3531,6 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 /* B1 FormLayout: two short fields share a row, the design system's pds-grid-2 (auto-fit at 220 px, never wider than
    the column), one column below it */
 .pin-baris-isian { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: var(--space-2) var(--space-4); align-items: start; }
+/* B1 §2 A4: a Konfigurasi section page prints its content only: every form, a record's action and the pager stay off
+   the paper (the back link and the shell already do, .pin-noprint) */
+@media print { [data-bagian-ini] form, [data-bagian-ini] [data-buka-ubah], [data-bagian-ini] [data-penomoran] { display: none !important; } }

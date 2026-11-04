@@ -817,10 +817,16 @@ export const d168Tests: SelfTest[] = [
       c.expect(/<li key=\{tpl\.id\} className="border-b border-line-1 px-3 py-2">/.test(templat) && sempit.test(templat)
         && /<div className="pin-baris-isian">\s*<label className=\{label\}>\{s\("laporan\.templat\.institusi"\)\}/.test(templat)
         && templat.indexOf("myTemplates.map") < templat.indexOf("saveReportTemplateAction"), "Templat laporan is not its records, then a narrow form with school and kind sharing a row");
+      // A4 (B1 §2): a section page prints its content only; every form, a record's action and the pager stay off the paper
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8");
+      c.expect(/@media print \{ \[data-bagian-ini\] form, \[data-bagian-ini\] \[data-buka-ubah\], \[data-bagian-ini\] \[data-penomoran\] \{ display: none !important; \} \}/.test(css)
+        && /<Link className="pin-back pin-noprint"/.test(src), "a section page's forms, record actions, pager or back link reach the paper");
+      const cetak = readFileSync(join(repoRoot, "audit/b6-cetak.mjs"), "utf8");
+      c.expect(/await step\("P6"/.test(cetak) && /"\/konfigurasi\/audit"/.test(cetak), "the print walk does not print a Konfigurasi section page");
       // the journeys press a student's «Pindahkan» by its full name
       const jalan = readFileSync(join(repoRoot, "audit/journey.mjs"), "utf8");
       c.expect((jalan.match(/getByRole\("button", \{ name: `Pindahkan · \$\{nama\}`, exact: true \}\)/g) ?? []).length === 2, "the journeys do not press «Pindahkan» by the student's name");
-      return c.verdict("Pindah kelas is a narrow GET step then its Kelas's students as rows, each «Pindahkan · name»; Peserta is a narrow form (Orang, Tempat sharing a row) then its records; Laporan is link rows, the school's first; Sistem's schools are read-only rows with «aktif»/«nonaktif» and «data uji» badges and their years in words; Pergantian's «Dari»/«Ke» share a row under the school's name; Templat laporan is its records then a narrow form");
+      return c.verdict("Pindah kelas is a narrow GET step then its Kelas's students as rows, each «Pindahkan · name»; Peserta is a narrow form (Orang, Tempat sharing a row) then its records; Laporan is link rows, the school's first; Sistem's schools are read-only rows with «aktif»/«nonaktif» and «data uji» badges and their years in words; Pergantian's «Dari»/«Ke» share a row under the school's name; Templat laporan is its records then a narrow form; in print a section page keeps its content and drops its forms, record actions, pager and back link (walked: P6)");
     },
   },
 ];

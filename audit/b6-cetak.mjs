@@ -7,6 +7,8 @@
 //       link, account menu, identity block or Konfigurasi's section menu reaches the paper (Daisy: «every new shell part
 //       carries .pin-noprint»); the A4 PDF is saved. (The provenance footer prints on ordinary pages by design.)
 //   P2  the learner shell in print (/belajar): the same.
+//   P6  a Konfigurasi section page in print (B1 §2 A4): the content only; no form, record action, pager or back link
+//       reaches the paper, and the audit trail's table does, its stripes kept.
 //   P4  the PINTAR Digital Card on «Akun saya» (W3.20, CR-21): printed, each face is CR80 at actual size (85.6 mm wide)
 //       and no shell part reaches the paper.
 //   P3  the class-card sheet (Aktivasi → the class's cards in one press): in print only the set reaches the paper, two
@@ -259,6 +261,28 @@ await step("P5", "the professional-learning record printed: the record, no shell
   harus(rec, !(await G.locator("footer.pin-kaki").first().isVisible().catch(() => false)), "the provenance footer stays off the paper, as on the report pages");
   harus(rec, await G.locator("main h1").first().isVisible().catch(() => false), "the record itself reaches the paper");
   await G.emulateMedia({ media: "screen" });
+});
+
+await step("P6", "a Konfigurasi section page in print: its content only, no form, record action, pager or back link (B1 §2 A4)", async (rec) => {
+  for (const [jalan, nama, isi] of [["/konfigurasi/audit", "konfigurasi-audit", "table.pin-tabel"], ["/konfigurasi/roles", "konfigurasi-peran", "#roles li"],
+    ["/konfigurasi/pemeliharaan", "konfigurasi-pemeliharaan", "#pemeliharaan h2#pin-pm-daftar"]]) {
+    await buka(A, jalan);
+    const kontrol = async () => A.evaluate(() => {
+      const kelihatan = (el) => { const r = el.getBoundingClientRect(); const g = getComputedStyle(el); return r.width > 0 && r.height > 0 && g.display !== "none" && g.visibility !== "hidden"; };
+      return ["main form", "main [data-buka-ubah]", "main [data-penomoran]", "main .pin-back"].flatMap((p) => [...document.querySelectorAll(p)].filter(kelihatan).map(() => p));
+    });
+    harus(rec, (await kontrol()).length > 0, `${jalan} draws its controls on screen (the check can see them)`);
+    await cetak(A, rec, nama);
+    const sisa = await kontrol();
+    harus(rec, sisa.length === 0, `${jalan} in print shows no control${sisa.length ? `: ${[...new Set(sisa)].join(", ")}` : ""}`);
+    harus(rec, await A.locator(isi).first().isVisible(), `${jalan} in print keeps its content (${isi})`);
+    if (jalan.endsWith("/audit")) {
+      const latar = await A.locator("table.pin-tabel tbody tr:nth-child(2) > *").first().evaluate((el) => getComputedStyle(el).printColorAdjust ?? getComputedStyle(el).webkitPrintColorAdjust);
+      harus(rec, latar === "exact", `the audit trail's stripes print (print-color-adjust: ${latar})`);
+    }
+    harus(rec, (await cangkangTercetak(A)).length === 0, `${jalan} in print shows no shell part`);
+    await A.emulateMedia({ media: "screen" });
+  }
 });
 
 await browser.close();
