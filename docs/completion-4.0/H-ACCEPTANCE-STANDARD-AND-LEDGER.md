@@ -1,17 +1,18 @@
-# H · The acceptance standard (D-168) and the acceptance ledger, Batches 0–6 · 4 Nov 2026
+# H · The acceptance standard (D-168, D-172) and the acceptance ledger, Batches 0–6 · 4 Nov 2026
 
 **Authority:** owner, 4 Nov, «PINTAR 4.0 — NEW STANDING OWNER DIRECTIVE: Mandatory Cross-Component Integrity and End-to-End Acceptance» (D-168).
 - **Principle:** «A feature is not complete merely because it works. It is complete when it works correctly with everything it depends on and everything that depends on it.»
 - **This document authorises no application change and no promotion.**
 
-## 1. The five gates
+## 1. The gates
 
-Every batch and every feature is reported against all five, separately. **«GREEN» means all applicable gates have passed, and nothing less.**
+Every batch and every feature is reported against each gate, separately. **D-172** adds cross-feature UX consistency, which every applicable feature must pass beside D-168. **«GREEN» means all applicable gates have passed, and nothing less.**
 
 | Gate | What passing means | Evidence that counts |
 |---|---|---|
 | **Engineering verified** | The component does what its requirement says: red/green tests, CI and the batch's own walks are green on the code head | selftests red then green; `ci` and journeys on the head; staging walks where promoted |
 | **Integration verified** | It works with everything upstream and downstream: the eight checks of §2 are done and recorded, and every boundary defect found is fixed at its source | an integration dossier (§2) with its evidence |
+| **UX consistency verified** (D-172) | Its equivalent interactions follow the canonical patterns used elsewhere in PINTAR (§2, check 9); any exception is documented with its reason | Daisy's comparison with similar existing screens; the shared component used; the cross-screen checks green |
 | **Design accepted** | Every Daisy composition it uses is accepted, and the build is reviewed side by side with it; terminology is final (Dr Gladys) where it applies | the owner's acceptance; Daisy's side-by-side review; G-items closed |
 | **Human journey accepted** | The end-to-end human journeys through it have been walked by a person on staging and accepted, beyond the automated journeys | a recorded walk (who, when, journey, result) accepted by the owner |
 | **Fully accepted** | All of the above, where applicable | the owner's acceptance |
@@ -41,6 +42,15 @@ Every batch and every feature is reported against all five, separately. **«GREE
 6. **Regression.** What existing modules it changes or depends on, and the tests that prove those modules unchanged.
 7. **End-to-end journeys.** The human journeys that pass through it (J-numbers), run as walks: automated where possible, by a person for the human gate.
 8. **Evidence.** The dossier records **integration** evidence, not only component evidence: the probes, the screens, the walks, and what was traced to its source.
+9. **Cross-feature UX consistency (D-172).** Each common interaction is set beside its equivalents elsewhere and uses the same shared component and contract:
+   - action placement and hierarchy (Save, Cancel, Back, Close; primary and secondary);
+   - forms and validation; confirmations and destructive actions;
+   - filter, sort, paging and search;
+   - loading, empty, success, error and refusal;
+   - navigation, context switching and feedback;
+   - keyboard, screen reader and phone.
+
+   A difference is either corrected at the shared pattern or recorded as an exception with its functional reason. Security, permission and role differences are preserved, not flattened.
 
 **Defects at a boundary are traced to their source and corrected there.** For example, a page that offers a link its target refuses is corrected by deriving the link from the same permission the target uses, not by hiding it with a special case.
 
@@ -48,17 +58,17 @@ Every batch and every feature is reported against all five, separately. **«GREE
 
 The evidence already gathered is preserved; nothing proven is reopened. «Not yet assessed» means the D-168 dossier has not been made. It does not mean a defect is known.
 
-| Batch | Engineering verified | Integration verified | Design accepted | Human journey accepted | Fully accepted |
-|---|---|---|---|---|---|
-| **0** · CI, a11y harness, security safeguards | **passed** (D-145) | n/a (infrastructure); its checks feed the others | n/a | n/a | **passed (as infrastructure)** |
-| **1** · class cards (CR-91), send-back/history, approved wording, F-4 | **passed**: promoted, staging verified (D-147) | **not yet assessed** | partial: the wording is Dr Gladys's (W4.1 held, terminology v1 open) | **not accepted**: Dr Gladys's walkthrough deferred (D-141) | **no** |
-| **2** · the shell primitives (skip link, titles, empty state, Collection, account menu, idle warning) | **passed** (D-148) | **not yet assessed** | partial: the fifteen Batch 2 questions are unanswered (E3) | **not accepted** (D-141) | **no** |
-| **3** · Studio W6.5, Uji Cepat, closure | **passed** (D-149, D-151) | **not yet assessed**; known interface: the PD course through Studio, seen working locally (`verifikasi-b1-c2/putaran-2`) | partial: A1 accepted for design (D-166), **not built**; A2–A5 open | **not accepted** (D-141: Dr Gladys's Studio attempt) | **no** |
-| **4** · administration, identity, account | **passed** (D-155, D-156(a)) | **not yet assessed**; known interfaces: Konfigurasi's links and navigation (B1 differences), the identity-email data contract (D1) | partial: B1 provisional; D-156(a) keeps product acceptance open | **not accepted** | **no** |
-| **5** · reports, learner workflows, integrity | **passed** (D-158) | **not yet assessed**; known interfaces: the PD class's Ringkasan Kelas (owner question), the PD record and results (boundary holds, `putaran-2` §4) | partial: C1 accepted for design (D-167), not built; C2 provisional; C3 is Dr Gladys's | **not accepted** | **no** |
-| **6** · certificates, Digital Card, email, branding | **passed on the branch** (`9b52b51`: CI and journeys green); **not promoted** | **not yet assessed**; known interface fixed at source: the card email's order (D-164) | partial: D1 accepted for design, not built; F-11, DAISY-37 final, W3.21 open | **not accepted**; the cross-client email protocol and the physical proofs not run | **no** |
+| Batch | Engineering verified | Integration verified | UX consistency (D-172) | Design accepted | Human journey accepted | Fully accepted |
+|---|---|---|---|---|---|---|
+| **0** · CI, a11y harness, security safeguards | **passed** (D-145) | n/a (infrastructure); its checks feed the others | n/a (infrastructure) | n/a | n/a | **passed (as infrastructure)** |
+| **1** · class cards (CR-91), send-back/history, approved wording, F-4 | **passed**: promoted, staging verified (D-147) | **not yet assessed** | **not yet assessed** | partial: the wording is Dr Gladys's (W4.1 held, terminology v1 open) | **not accepted**: Dr Gladys's walkthrough deferred (D-141) | **no** |
+| **2** · the shell primitives (skip link, titles, empty state, Collection, account menu, idle warning) | **passed** (D-148) | **not yet assessed** | **not yet assessed** | partial: the fifteen Batch 2 questions are unanswered (E3) | **not accepted** (D-141) | **no** |
+| **3** · Studio W6.5, Uji Cepat, closure | **passed** (D-149, D-151) | **not yet assessed**; known interface: the PD course through Studio, seen working locally (`verifikasi-b1-c2/putaran-2`) | **not yet assessed** | partial: A1 accepted for design (D-166), **not built**; A2–A5 open | **not accepted** (D-141: Dr Gladys's Studio attempt) | **no** |
+| **4** · administration, identity, account | **passed** (D-155, D-156(a)) | **not yet assessed**; known interfaces: Konfigurasi's links and navigation (B1 differences), the identity-email data contract (D1) | **not yet assessed** | partial: B1 provisional; D-156(a) keeps product acceptance open | **not accepted** | **no** |
+| **5** · reports, learner workflows, integrity | **passed** (D-158) | **not yet assessed**; known interfaces: the PD class's Ringkasan Kelas (owner question), the PD record and results (boundary holds, `putaran-2` §4) | **not yet assessed** | partial: C1 accepted for design (D-167), not built; C2 provisional; C3 is Dr Gladys's | **not accepted** | **no** |
+| **6** · certificates, Digital Card, email, branding | **passed on the branch** (`9b52b51`: CI and journeys green); **not promoted** | **not yet assessed**; known interface fixed at source: the card email's order (D-164) | **not yet assessed** | partial: D1 accepted for design, not built; F-11, DAISY-37 final, W3.21 open | **not accepted**; the cross-client email protocol and the physical proofs not run | **no** |
 
-**No batch is fully GREEN.** Batch 0 passes only as infrastructure.
+**No batch is fully GREEN.** Cross-feature UX consistency (D-172) is now a gate for every batch and has not yet been assessed for any. Batch 0 passes only as infrastructure.
 
 ## 4. Known cross-component inconsistencies
 
