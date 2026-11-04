@@ -561,7 +561,6 @@ export const appTests: SelfTest[] = [
     run: async (ctx) => {
       const c = new Checks();
       const base = ctx.appUrl!;
-      const healthCard = t("config.card.health", "staff");
 
       // Control: an unrelated live session, so a later refusal is attributable
       // to the sign-out and not to a broken endpoint or bad credentials.
