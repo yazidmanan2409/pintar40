@@ -1054,17 +1054,19 @@
 .pin-daftar li { display: contents; }
 
 /* ------------------------------------------------------------------- result */
-.pin-hasil {
+/* E-K3 (D-168): the learner's result card has its own name. It used to share `.pin-hasil` with the result line of a
+   save (BarisHasil), whose ✓ the card's grid then put on a line of its own */
+.pin-capaian {
   background: var(--surface-2); border-radius: var(--radius-2); padding: var(--space-6);
   display: grid; gap: var(--space-2); margin-bottom: var(--space-5);
 }
-.pin-hasil .pin-big2 {
+.pin-capaian .pin-big2 {
   font-size: var(--type-hero); font-weight: var(--weight-strong); line-height: 1.05;
   letter-spacing: var(--tracking-tight); font-variant-numeric: tabular-nums; margin: 0;
 }
 /* A NUMBER NEVER STANDS ALONE: the figure is always followed by what it is out
    of and what the threshold is, and both come from the engine. */
-.pin-hasil .pin-mean { font-size: var(--type-body); color: var(--ink-2); max-width: 56ch; margin: 0; }
+.pin-capaian .pin-mean { font-size: var(--type-body); color: var(--ink-2); max-width: 56ch; margin: 0; }
 .pin-domain { display: grid; gap: var(--space-2); }
 .pin-drow {
   display: grid; grid-template-columns: 1fr auto; gap: var(--space-3); align-items: center;
@@ -1139,7 +1141,7 @@
     padding-block: var(--space-2);
   }
   .pin-nrow { grid-template-columns: 1fr; }
-  .pin-hasil { padding: var(--space-5); }
+  .pin-capaian { padding: var(--space-5); }
 }
 
 /* ═══════════════════════════════════════ UX-1 Slice 3 · the educator's surface
@@ -2870,9 +2872,11 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 }
 
 /* The result line of a save, next to its form. */
-.pin-hasil { margin-top: var(--space-2); }
+.pin-msg.pin-hasil { margin-top: var(--space-2); }
 .pin-msg.pin-hasil-ok { background: var(--status-ok-soft); color: var(--status-ok); }
 .pin-centang { font-weight: var(--weight-strong); margin-right: var(--space-1); }
+/* E-K3: the mark and its words share a line, also when the words come as a paragraph */
+.pin-msg.pin-hasil > .pin-centang + p { display: inline; margin: 0; }
 .pin-msg.pin-hasil-gagal { background: var(--status-blocked-soft); color: var(--status-blocked); }
 .pin-msg.pin-hasil-netral { background: var(--surface-2); color: var(--ink-2); }
 

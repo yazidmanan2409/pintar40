@@ -31,6 +31,10 @@
  *              its word from the one table (LABEL_TEMPAT) the navigation reads; the refusal page names its destination
  *              from it; a return that depends on how the reader arrived is declared `data-kembali="riwayat"` and named
  *              KEMBALI_RIWAYAT («Kembali ke halaman sebelumnya»).
+ *   D168-K3-1  the ✓ shares the line with its words (E-K3): the save-result line (BarisHasil, `.pin-msg.pin-hasil`) and
+ *              the learner's result card no longer share a class — the card's grid had put the ✓ on a row of its own on
+ *              every surface. No stylesheet rule gives `.pin-hasil` a layout; the card is `.pin-capaian`; a paragraph
+ *              after the ✓ runs inline.
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -221,6 +225,25 @@ export const d168Tests: SelfTest[] = [
       }
       c.expect(t("kembali.riwayat" as HleEvent, "staff", { locale: "id" }) === "Kembali ke halaman sebelumnya" && t("nav.pimpinan" as HleEvent, "staff", { locale: "id" }) === "Pimpinan", "the words are not the table's");
       return c.verdict(`no back link (${tautan} drawn) or refusal reads only «Kembali»; places are named from the one table the navigation reads; the history-back is declared and named as one`);
+    },
+  },
+  {
+    id: "D168-K3-1",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const css = ["src/app/experience.css", "src/app/globals.css"].map((f) => readFileSync(join(repoRoot, f), "utf8").replace(/\/\*[\s\S]*?\*\//g, "")).join("\n");
+      const aturan = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((m) => ({ pilih: m[1].trim(), isi: m[2] }));
+      const garis = aturan.filter((a) => a.pilih.split(",").some((p) => /\.pin-hasil(?![-\w])/.test(p)));
+      c.expect(garis.length > 0, "no rule names the result line");
+      const tata = garis.filter((a) => /\b(display|grid-template|flex-direction)\s*:/.test(a.isi) && !/\.pin-centang \+ p/.test(a.pilih));
+      c.expect(tata.length === 0, `a rule lays the result line out (the ✓ leaves its words): ${tata.map((a) => a.pilih).join(" | ")}`);
+      c.expect(aturan.some((a) => a.pilih === ".pin-capaian" && /display: grid/.test(a.isi)), "the learner's result card has no class of its own");
+      c.expect(aturan.some((a) => a.pilih === ".pin-msg.pin-hasil > .pin-centang + p" && /display: inline/.test(a.isi)), "a paragraph after the ✓ starts a line of its own");
+      const hasil = kode(readFileSync(join(repoRoot, "src/app/belajar/[tugas]/hasil/page.tsx"), "utf8"));
+      c.expect(/<section className="pin-capaian">/.test(hasil) && !/className="pin-hasil"/.test(hasil), "the result page still draws the card as the result line's class");
+      const baris = kode(readFileSync(join(repoRoot, "src/components/BarisHasil.tsx"), "utf8"));
+      c.expect(/<span className="pin-centang" aria-hidden="true">✓<\/span> : null\}\s*\{children\}/.test(baris), "the ✓ is not drawn directly before its words");
+      return c.verdict("the result line has no layout of its own to break: the card is .pin-capaian, the ✓ runs on with its words, a paragraph included");
     },
   },
 ];
