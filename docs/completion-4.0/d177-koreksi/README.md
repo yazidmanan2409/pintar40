@@ -137,6 +137,34 @@ E1 is accepted (D-170(c), with the correction accepted in D-171(a)). E2 is struc
 
 **Words:** «Ciutkan navigasi», «Lebarkan navigasi», «Buka menu» and «Tutup menu» are the design system's approved shell words (J3, question 1). Per E1 §5 they enter the copy table with the build.
 
+## 4d. B1: Konfigurasi as an index and one page per section (`c4e2ffe3`, `2c234ba7`)
+
+**Authority:** B1 is accepted for design (D-166(a): «the split, an index page and one page per section; no redraw»). The owner gave GO on 4 Nov: «proceed with the approved index-and-section split; preserve existing routes, actions, permissions, redirects and result messages».
+
+**How:**
+- The page as built is drawn either as the index (`/konfigurasi`) or for one section (`/konfigurasi/<section>`, through `[bagian]`).
+- So the gate, the working context, the database's reads, every action and every permission are the ones the section always had.
+- The sections, their pages and their groups are one table, `src/lib/bagian-konfigurasi.ts`.
+
+| Part | Built |
+|---|---|
+| Index | The context line, «Yang menunggu», Persiapan sekolah, and Admin platform's two panels: there is no tile for a value the reader cannot have (RV-24), and the classes' count is in Persiapan. Then the sections in B1's five groups, each row titled by its section. The rows are the menu that was (`navSemua` through `tampil()`), so the index and the sections agree (E-B1-5). «Templat laporan» replaces «Inteligensi & Laporan» (RV-24). |
+| Section page | «← Konfigurasi», the section's title as the `h1`, the context line, then the section as built; its own first heading is not drawn a second time. |
+| E-B1-1 | Every action answers on its section's page. An older address that names a section, by `?bagian=` or by the section's own parameters (`angkat`, `pertama`, `dari`, `pm_cek`, `cari_sekolah`, `hal_*`, `lapor`), gets one 307 to that page with every parameter. That redirect is in the proxy, before anything streams; inside the streamed page it would reach the browser late, as a refresh. An older `#fragment` is forwarded by the index. An unknown section goes to the index, and so does a school-shaped section in «Seluruh platform» (B1 §3). The section ids are unchanged. The walks use the routes. |
+
+**Tests:**
+- **New:** D168-B1-1, over HTTP: the older addresses, each section's page, the index in both contexts, and the fragments.
+- **Restated to the new structure, with the behaviour they asserted kept:** DAISY-05-STRUKTUR-01, D168-B1-5, L4-K01, L4F6-K01, B4-HAL-K01, B4-MENUNGGU-K01, B6P-K01, D168-K1-1, UX2-LEWATI-01, UX1-S0-TOKEN-01, F01-R02/R05, BOB07-R01, F22-A02 and BOB18-A01.
+- **Restated for B1's design change:** BOB19-A01. A school administrator's index draws no health panel, and the lint is still never run.
+
+**Local results:** 780 passed; the two failures, BOB18-A01 and BOB19-A01, need the runner's call count. Job A's walks pass on a reset stack: Studio 18/18, administration 11/11, Batch 5 6/6, print 5/5, focused checks 2/2, navigation 13/13.
+
+**Not built:** B1's per-section patterns were left as built («no redraw», D-166(a)). These are the record rows opened in place (`?ubah=`), the two-step maintenance form, and the audit table's stripes and conditional «Versi» column.
+
+**Pending:**
+- The group words, for copy approval: «Sekolah dan tahun ajaran», «Murid», «Staf dan akses», «Laporan dan templat», «Dukungan».
+- E1's phone-bar question, for Daisy (§4c).
+
 ## 5. Copy pending Dr Gladys (added under D-177; listed for the question pack)
 
 | Key(s) | Words |
@@ -147,4 +175,5 @@ E1 is accepted (D-170(c), with the correction accepted in D-171(a)). E2 is struc
 | `pengembangan.ditolak` (B10) | the record's refusal |
 | `mengajar.bukti.siapa_peserta`, `mengajar.bukti.pd.arti`, `mengajar.bukti.pd.buka` (B11–B13) | the PD «Lihat bukti» page |
 | `studio.soal.miskonsepsi` | «Pemahaman keliru» |
+| `config.kelompok.*` (B1) | Konfigurasi's five group names on the index |
 | `pendataan.buka.gagal` | the intake file that would not open |

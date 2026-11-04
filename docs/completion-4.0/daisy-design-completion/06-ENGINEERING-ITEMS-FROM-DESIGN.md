@@ -18,7 +18,14 @@ Each has a D168-* regression test that was red on the old source and is green no
 
 **Built under D-177 (4 Nov, `b03dbba5`):** E-E1-1, and E-E1-2's automated part, with E1 + E2 as one navigation (D168-E1-1, D168-E2-1, `audit/e1-navigasi.mjs`; `d177-koreksi/README.md` §4c). The NVDA and TalkBack passes remain manual and need devices.
 
-**Still open:** E-B1-1, E-B1-3 (its word), E-K-ALL (re-run at each CI), the NVDA and TalkBack passes, and the larger compositions.
+**Built under D-177 (4 Nov, `c4e2ffe3`):** B1, the Konfigurasi split, with E-B1-1 (D168-B1-1; `d177-koreksi/README.md` §4d).
+
+**Still open:**
+- E-B1-3 (its word);
+- E-K-ALL (re-run at each CI);
+- the NVDA and TalkBack passes;
+- B1's per-section patterns (rows opened in place, the two-step maintenance form, the audit table's stripes);
+- the larger compositions.
 
 ## C1 · reports, Management and professional learning (D-167)
 
