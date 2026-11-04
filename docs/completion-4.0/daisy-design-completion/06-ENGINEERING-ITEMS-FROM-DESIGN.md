@@ -136,3 +136,5 @@ Each correction is made **once, in the shared component or helper**, never per s
 ## D1 · the identity emails
 
 The full plan is in `05-D1-IMPLEMENTATION-TEST-PLAN.md`.
+
+**Built (4 Nov, `be8a68c2`):** the reason line under the heading, the context line where the data carries a place, warm white and the gold line, and the card block from `susunKartu`. Proved by D1E-K02–K08, K10, K12, K14–K16, the restated DAISY-19/20, B6K-URUTAN-02, B6K-WARNA-01 and D168-B4-1, and the walk `audit/d1-email.mjs` (K09, K13, the keyboard order). **Open:** P5 (Dr Gladys) and P6, the manual client protocol (owner).

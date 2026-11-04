@@ -1,6 +1,11 @@
 # D1 · Implementation checklist and test plan (prepared; NOT authorised) · 4 Nov 2026
 
-**Status:** prepared for the owner's implementation gate (brief §8, step 7). **This document authorises no code.**
+**Status (updated 4 Nov, `be8a68c2`):** built.
+- P7 is taken as given by the owner's directive of 4 Nov («Implement remaining Daisy-accepted compositions … including … email frames … within your existing authority»).
+- Steps 2–5 of §6 are done: the tests were written red first (`batch-6/evidence/D1/red-before-build.txt`), then the build, then green; the rendered walk (`audit/d1-email.mjs`) ran locally and is in CI's journeys. Record: `d177-koreksi/README.md` §4f.
+- **Still open:** P5 (Dr Gladys, the context line's words) and P6, the manual client protocol (§5), which needs a send path, synthetic inboxes and the owner's go at that time. D1 is not closed, and Batch 6's email item is not accepted, until §5 has passed.
+
+**Original status:** prepared for the owner's implementation gate (brief §8, step 7). This document authorised no code.
 
 **Inputs:**
 - Daisy's D1 step 2 composition: `ux-1/daisy-experience` at `40384fac`, `docs/coordination/ux/completion-4.0/D1/STEP-2.md`. Design accepted by the owner, 4 Nov; its acceptance checklist is §9.

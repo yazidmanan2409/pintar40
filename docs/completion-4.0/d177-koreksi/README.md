@@ -227,6 +227,43 @@ E1 is accepted (D-170(c), with the correction accepted in D-171(a)). E2 is struc
 - Daisy's phone-bar question (§4c).
 - The owner's protected gates are unchanged.
 
+## 4f. D1: the identity emails, as Daisy's step 2 (`be8a68c2`)
+
+**Authority:**
+- Daisy's D1/STEP-2, accepted for design on 4 Nov.
+- Her implementation answers P1–P4 (`9c12c6ef`).
+- The owner's directive of 4 Nov, which names the email frames among the work to build. P7 is taken as given by it.
+
+**Built:**
+- the reason line directly under the heading, and no longer in the footer;
+- the context line, only where the data carries a place (today the card email);
+- warm white and the 3 px gold top edge, kept on dark;
+- in the card email, the PINTAR Card as live-text table HTML from `susunKartu`'s lines, in the first role's family colour. It has no QR and no back, and its only image is today's logo (P2 (a));
+- the header keeps today's 104 × 58 logo (P3).
+- Found while building: with images blocked in dark mode, the header's alt «PINTAR» read dark green on dark. The wordmark's dark colour existed in the frame's CSS but the logo did not carry its class. Corrected.
+
+**What did not change:**
+- The data types and the send path.
+- No migration.
+- Removed keys: `email.kartu.nama`, `.id` and `.peran`, the old detail rows' labels, which nothing reads now.
+
+**Tests:**
+- **Written red first:** D1E-K02–K08, K10, K12, K14–K16. K12, K15 and K16 are guards that pass today.
+- **Restated, each red against the old code, with their assertions kept or made stricter:**
+  - DAISY-19-EMAIL-01;
+  - DAISY-20-EMAIL-01;
+  - B6K-URUTAN-02, which now holds the email to the card's lines as well as its order;
+  - B6K-WARNA-01, where the email frame joins the card's surfaces at the tokens' values;
+  - D168-B4-1, which now also checks the email's band colour.
+- **Walk:** `audit/d1-email.mjs` (journeys, job A) renders the eight emails at 600 and 320 px, light and dark, and with images blocked. It checks K09, K13 and the keyboard order: 3/3.
+- **Evidence:** `batch-6/evidence/D1/`.
+
+**Local results:** the whole manifest with Mailpit: 809 passed. The two call-count rows fail, as always.
+
+**Open:**
+- P5: the context line's words, with Dr Gladys.
+- P6: the manual client protocol (Gmail and Outlook, light and dark, images blocked, the 5-second recognition check). It needs a send path and synthetic inboxes, and the owner's go at that time. Until it passes, D1 and Batch 6's email item are not accepted.
+
 ## 5. Copy pending Dr Gladys (added under D-177; listed for the question pack)
 
 | Key(s) | Words |
@@ -239,3 +276,4 @@ E1 is accepted (D-170(c), with the correction accepted in D-171(a)). E2 is struc
 | `studio.soal.miskonsepsi` | «Pemahaman keliru» |
 | `config.kelompok.*` (B1) | Konfigurasi's five group names on the index |
 | `pendataan.buka.gagal` | the intake file that would not open |
+| `email.bingkai.konteks`, `email.bingkai.konteks.dan` (D1) | the identity emails' context line, «Akun PINTAR Anda di …» |
