@@ -1,7 +1,7 @@
 # B2 / UX-09 · «Nomor Registrasi Sekolah»: implementation preparation (no code authorised) · 4 Nov 2026
 
-**Authority:** owner, 4 Nov, «PINTAR 4.0 — OWNER RULING: B2 / UX-09 — APPROVED — Nomor Registrasi Sekolah» (D-174).
-**The term:** **Nomor Registrasi Sekolah** / **School Registration Number**; short label **No. Registrasi Sekolah**; clarification «Nomor registrasi orang ini di sekolah tersebut. Berbeda dari ID PINTAR dan NIS/NISN.»
+**Authority:** owner, 4 Nov, «PINTAR 4.0 — OWNER RULING: B2 / UX-09 — APPROVED — Nomor Registrasi Sekolah» (D-174), clarified by D-175. **B2 DESIGN ACCEPTED (D-175(b)).**
+**The term:** **Nomor Registrasi Sekolah** / **School Registration Number**; short label **No. Registrasi Sekolah**; explanation «Nomor registrasi orang ini di sekolah tersebut. Berbeda dari PINTAR ID dan NIS/NISN.» (D-175(a): **«PINTAR ID»** is the canonical name; the ruling's «ID PINTAR» is corrected)
 
 ## 1. The data contract: verified (the ruling's one condition)
 
@@ -17,7 +17,7 @@
 
 | Identifier | Meaning | Where it lives |
 |---|---|---|
-| ID PINTAR | the person, across PINTAR schools | `persons.pintar_id` |
+| PINTAR ID | the person, across PINTAR schools | `persons.pintar_id` |
 | **Nomor Registrasi Sekolah** | the person **at one school** | `institutional_identities.institutional_id` |
 | Kode sekolah | **the school** (part of the number) | `institutions.namespace` |
 | NIS / NISN | official student identifiers, outside PINTAR | not held by PINTAR as identity |
@@ -75,9 +75,10 @@ One static test over the rendered copy table, both languages:
 - no user-facing string says «nomor induk», «identity number» or «school number» for this concept;
 - «Nomor Registrasi Sekolah» / «School Registration Number» (or the short label) is the only name for it;
 - **the five identifiers are never confused:**
-  - a string naming the ID PINTAR never calls it the registration number, and the reverse;
+  - a string naming the PINTAR ID never calls it the registration number, and the reverse;
   - «Kode sekolah» stays the school's;
   - no string offers the number as the NIS / NISN;
+  - **no string says «ID PINTAR»** (D-175(a));
   - «Keanggotaan» stays class membership.
 
 One rendered check: Pendataan and Aktivasi show the same term, the same short label and the same clarification.
