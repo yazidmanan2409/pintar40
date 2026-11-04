@@ -2,6 +2,9 @@
 
 **Form T (copy table, per key).** Register entry A4 (`batch-3/02:10`, `batch-3/05:150`).
 **Source:** the words in `src/lib/hle.ts` at 0b19707, as engineering wrote them (`batch-3/02:24-60`).
+**Status:** accepted (owner, 4 Nov), except C3 and C9, which remain Dr Gladys's.
+- **X12:** the «paket» / «kursus» / «course» question is now an application-wide terminology reconciliation, owned by engineering, for one consolidated decision by Dr Gladys and the owner. The approved term is **Paket Pembelajaran / Learning Package**. C9's sheet name, and every workbook, template and identifier rename, wait on that decision.
+
 **Decides:** D, except where a row is marked **G** (Dr Gladys).
 
 **Each row is marked:**

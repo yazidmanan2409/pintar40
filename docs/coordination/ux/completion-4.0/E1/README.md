@@ -1,7 +1,9 @@
 # E1 · W3.12: J3's navigation restated under L3
 
 **Form C (composition).** Register entry E1 (OP-1, OP-2, F-12(5)).
-**Status:** design accepted (owner, 4 Nov), with one correction applied below: in the rail, a link's own text stays in the accessibility tree, visually hidden (§4). **O12:** the menu order is confirmed (§1).
+**Status:** design accepted (owner, 4 Nov); the correction below is accepted too. **Actual NVDA and TalkBack verification remains required** (§9).
+
+The correction: in the rail, a link's own text stays in the accessibility tree, visually hidden (§4). **O12:** the menu order is confirmed (§1).
 
 **Authority:** owner ruling **O6, option (a)**, 4 Nov:
 - restate the existing J3 navigation design under the approved L3 working-context model;
@@ -137,7 +139,8 @@ The walks are in `jalan/` (1280, 1100 and 390).
 **The rail's names (owner's correction, 4 Nov).**
 - In the rail the DS's AppShell hides each link's text with `display: none`, which removes it from the accessibility tree.
 - **The specification now is:** the text stays, visually hidden (`position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0`, the DS's `pds-sr`). The same applies to the identity block's name in the rail. No link carries an `aria-label` that repeats its text.
-- **This needs one change in the DS's tooltip, which the build takes with it.** `bundle.js` `tooltip()` shows a rail tooltip only while the label is `display: none` (`perlu()`). With the text visually hidden, that test must read **«the label is visually hidden»** (its rendered width is 1 px or less), or the rail loses its tooltips. The specimen emulates the corrected test. The DS is frozen, so the change is recorded here for the AppShell and the build, and not applied to the bundle.
+- **This needs one change in the DS's tooltip, which the build takes with it.** `bundle.js` `tooltip()` shows a rail tooltip only while the label is `display: none` (`perlu()`). **The tooltip follows the rail's state, not the label's CSS** (owner, 4 Nov): it shows while the shell is the rail, either collapsed by the reader (`data-ciut="ya"`) or in the 1024–1279 px range and not expanded. The specimen emulates exactly that, and the toggle's words use the same state. The DS is frozen, so the change is recorded here for the AppShell and the build, and not applied to the bundle.
+- **The rail's navigation text is the authoritative accessible name** (owner, 4 Nov). The tooltip is `aria-hidden` and adds nothing to it.
 - **Verified** (`jalan/*-1100.txt`, the walks re-rendered):
   - each rail link is named by its own text: «Mengajar», «Studio», «Bantuan», «Laporkan masalah», «Keluar»;
   - the chooser item is «Mau ke mana hari ini? · Mengajar · SMP Cahaya Kaliandra»;
@@ -183,8 +186,8 @@ The walks are in `jalan/` (1280, 1100 and 390).
 - [auto] Expanded at 1280 and up (248 px); the rail from 1024 to 1279 (72 px); the top bar and drawer under 1024. Checked at 1280, 1279, 1100, 1024, 1023, 820, 390 and 320.
 - [auto] The reader's collapse and expand: rail at 1280 when collapsed; full in the rail range when expanded; the toggle says «Ciutkan navigasi» or «Lebarkan navigasi» to match.
 - [auto] In the rail, every link's own text is in the accessibility tree and visually hidden (never `display: none`); no navigation link carries an `aria-label`.
-- [auto] A focused rail link shows its tooltip, with the same words as its name (the DS tooltip's corrected test).
-- [manual] With a screen reader (NVDA, TalkBack), each rail link is heard once, by its own words; the tooltip is not read twice (it is `aria-hidden`).
+- [auto] A focused rail link shows its tooltip, with the same words as its name; the tooltip shows only while the shell is the rail (its state, not the label's CSS).
+- [manual] **Required:** with NVDA and with TalkBack, each rail link is heard once, by its own words; the tooltip is not read twice (it is `aria-hidden`). Recorded per the protocol (§8 of the brief).
 - [auto] «Keluar» visible without opening anything, at every width (D-009).
 - [auto] No group label under one context; exactly one current place.
 - [auto] The chooser link («Mau ke mana hari ini?», block or rail item) appears only for a person with more than one context; single-context behaviour unchanged.
