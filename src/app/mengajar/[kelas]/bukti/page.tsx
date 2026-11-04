@@ -2,6 +2,7 @@ import Link from "next/link";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
+import { adaBuktiSoal } from "@/lib/mengajar";
 import { actionText, omissionText } from "../../../_intel";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
@@ -56,10 +57,12 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
     return <HalamanPenolakan locale={locale} persona="educator" backHref="/mengajar" backKey="mengajar.kembali" />;
   }
 
+  // E-C2-2 (D-070(h)): a professional-learning class produces no academic class figure, so none is asked for
+  const akademik = adaBuktiSoal(ctx.ini.jenis);
   const [asesmen, fakta, amplop, minimum] = await Promise.all([
     ajar.berjalan([id], ["OPEN", "CLOSED"]),
     ajar.faktaKelas(id),
-    ajar.bukti(id, ctx.ini.institusi),
+    akademik ? ajar.bukti(id, ctx.ini.institusi) : Promise.resolve([] as Awaited<ReturnType<typeof ajar.bukti>>),
     ajar.minimumMetrik(),
   ]);
 
@@ -136,6 +139,17 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
           <KeadaanHariIni asesmen={asesmen} murid={fakta.murid.length} locale={locale} kelas={id} jenis={ctx.ini.jenis} />
         </div>
 
+        {!akademik ? (
+          /* C2 (D-169(b)): one statement and the way to the professional-learning record (DAISY-34) — no figure, no
+             figure's place, no «not yet» promise of a figure that never comes */
+          <div className="pin-sec" data-pd-kesimpulan="">
+            <h2>{s("mengajar.bukti.simpulan")}</h2>
+            <div className="pin-kosong">
+              <p className="pin-kosong-kalimat">{s("mengajar.bukti.pd.arti")}</p>
+              <Link className="pin-btn pin-quiet" href={`/pengembangan/${id}`}>{s("mengajar.bukti.pd.buka")}</Link>
+            </div>
+          </div>
+        ) : (
         <div className="pin-sec">
           <h2>{s("mengajar.bukti.simpulan")}</h2>
           <div className="pin-grid2">
@@ -216,8 +230,11 @@ export default async function Bukti({ params }: { params: Promise<{ kelas: strin
             </>
           ) : null}
         </div>
+        )}
 
-        <p className="pin-foot">{s("mengajar.bukti.kaki")}</p>
+        {/* C2: the ordinary footnote names who reviews integrity signals; for a professional-learning class that is
+            false (D-069(c)), so it has none (Dr Gladys's slot, DR-GLADYS-QUESTION-PACK A7) */}
+        {akademik ? <p className="pin-foot">{s("mengajar.bukti.kaki")}</p> : null}
         <KakiPintar />
       </main>
     </>

@@ -1660,6 +1660,9 @@ export type HleEvent =
   | "mengajar.bukti.belum"
   | "mengajar.bukti.mulai"
   | "mengajar.bukti.siapa"
+  | "mengajar.bukti.siapa_peserta"
+  | "mengajar.bukti.pd.arti"
+  | "mengajar.bukti.pd.buka"
   | "mengajar.bukti.murid"
   | "mengajar.bukti.poin"
   | "mengajar.bukti.bagian"
@@ -5656,6 +5659,12 @@ const table: Table = {
   // W8: started and not handed in, apart from never started («Belum mengerjakan»)
   "mengajar.bukti.mulai": { default: "Sudah mulai, belum mengumpulkan", en: "Started, not submitted yet" },
   "mengajar.bukti.siapa": { default: "Lihat nama murid", en: "See the learners' names" },
+  // E-C2-1 (C2): the participant form; pending copy approval
+  "mengajar.bukti.siapa_peserta": { default: "Lihat nama peserta", en: "See the participants' names" },
+  // C2 (D-169(b)): pending copy approval
+  "mengajar.bukti.pd.arti": { default: "Kelas pengembangan profesi tidak menghasilkan angka akademik kelas. Kemajuan dan hasil setiap peserta tercatat di Catatan pengembangan profesi.", en: "A professional-learning class produces no academic class figure. Each participant's progress and result is in the professional-learning record." },
+  // C2: pending copy approval
+  "mengajar.bukti.pd.buka": { default: "Buka catatan pengembangan profesi", en: "Open the professional-learning record" },
   "mengajar.bukti.murid": { default: "murid", en: "learners" },
   "mengajar.bukti.poin": { default: "poin", en: "points" },
   // UX-41 (DAISY-29's words): the rows are learning objectives, each named by its statement; a «bagian» is the school's structure (D-006)

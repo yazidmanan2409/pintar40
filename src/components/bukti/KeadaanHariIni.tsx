@@ -1,5 +1,5 @@
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
-import { kataAnggota, type JenisAnggota } from "@/lib/mengajar";
+import { adaBuktiSoal, kataAnggota, type JenisAnggota } from "@/lib/mengajar";
 
 /** What a row needs of an assessment assignment: a subset of `Berjalan` (src/lib/pengajar.ts). */
 export type AsesmenKelas = {
@@ -114,9 +114,9 @@ export default function KeadaanHariIni({
           </dl>
           {kelas ? (
             <p className="pin-keadaan-siapa">
-              <a href={`/mengajar/${kelas}/siapa?penugasan=${a.id}`}>{s("mengajar.bukti.siapa")}</a>
+              <a href={`/mengajar/${kelas}/siapa?penugasan=${a.id}`}>{s(kataAnggota("mengajar.bukti.siapa", jenis))}</a>
               {/* D-088(k), M5: once something has been handed in, which questions the class found hard */}
-              {k.kumpul > 0 ? (
+              {k.kumpul > 0 && adaBuktiSoal(jenis) ? (
                 <> · <a href={`/mengajar/${kelas}/soal?penugasan=${a.id}`}>{s("mengajar.bukti.per_soal")}</a></>
               ) : null}
               {/* D-085 M3 (J5.12): once an Uji Penguasaan is handed in, the teacher may ask some learners to read again */}

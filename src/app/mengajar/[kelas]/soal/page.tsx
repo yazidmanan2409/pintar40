@@ -8,6 +8,7 @@ import { buktiSoal, susunBuktiSoal } from "@/lib/soal-kelas";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
+import { adaBuktiSoal } from "@/lib/mengajar";
 import { BarisLingkup } from "@/components/bukti";
 import { TeksBaris } from "@/components/teks/Teks";
 import { judulHalaman } from "@/lib/judul-halaman";
@@ -47,6 +48,10 @@ export default async function SoalKelas({
   const ctx = await ajar.kelas(id);
   if (!ctx || !tugasId) {
     return <HalamanPenolakan locale={locale} persona="educator" backHref="/mengajar" backKey="mengajar.kembali" />;
+  }
+  // E-C2-3: the same rule that decides whether «Lihat per soal» is offered (adaBuktiSoal; D-069(b))
+  if (!adaBuktiSoal(ctx.ini.jenis)) {
+    return <HalamanPenolakan locale={locale} persona="educator" backHref={`/mengajar/${id}/bukti`} backKey="mengajar.kembali" />;
   }
   const semua = await ajar.berjalan([id], ["OPEN", "CLOSED"]);
   const ini = semua.find((b) => b.id === tugasId);

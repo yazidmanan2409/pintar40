@@ -14,6 +14,12 @@
  *              «kursus» or «course» except the workbook's own structure (ruling 14), the JSON format's language (ruling
  *              13) and the certificate list's column (X12 T4, awaiting Dr Gladys and the owner). The allow-list IS the
  *              decision: a later string cannot drift back.
+ *   D168-C2-1  the professional-learning «Lihat bukti» (C2; D-069(b)(c), D-070(h), D-169(b)): the per-question link and
+ *              the per-question page follow ONE rule (adaBuktiSoal) — the link is offered only where the page opens; the
+ *              class evidence (academic metrics) is not requested for a professional-learning class, which draws one
+ *              statement and the way to its record instead of the «not yet» cards; the ordinary footnote (which names
+ *              the Kepala departemen as reviewer of integrity signals, false for PD) is not drawn there; its people are
+ *              «peserta» in the names link.
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -78,6 +84,28 @@ export const d168Tests: SelfTest[] = [
       c.expect(t("studio.paket.judul" as HleEvent, "staff", { locale: "id" }) === "Paket Pembelajaran" && t("studio.paket.judul" as HleEvent, "staff", { locale: "en" }) === "Learning Package",
         "the full term is not «Paket Pembelajaran» / «Learning Package»");
       return c.verdict("the Studio object is «paket» / «package» everywhere; «kursus» / «course» only in the workbook's structure, the JSON format and the pending certificate column");
+    },
+  },
+  {
+    id: "D168-C2-1",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (f: string) => kode(readFileSync(join(repoRoot, f), "utf8"));
+      const ajar = baca("src/lib/mengajar.ts");
+      const keadaan = baca("src/components/bukti/KeadaanHariIni.tsx");
+      const soal = baca("src/app/mengajar/[kelas]/soal/page.tsx");
+      const bukti = baca("src/app/mengajar/[kelas]/bukti/page.tsx");
+      c.expect(/export function adaBuktiSoal\(jenis: JenisAnggota\): boolean \{\s*return jenis === "LEARNER";\s*\}/.test(ajar), "adaBuktiSoal (the one rule) is not declared as LEARNER-only");
+      c.expect(/adaBuktiSoal\(jenis\)/.test(keadaan) && /href=\{`\/mengajar\/\$\{kelas\}\/soal/.test(keadaan), "the per-question link in «Keadaan hari ini» is not offered by adaBuktiSoal");
+      c.expect(/if \(!adaBuktiSoal\(ctx\.ini\.jenis\)\)\s*\{?\s*return <HalamanPenolakan/.test(soal), "the per-question page does not refuse by the same rule");
+      c.expect(/kataAnggota\("mengajar\.bukti\.siapa", jenis\)/.test(keadaan) && /"mengajar\.bukti\.siapa": "mengajar\.bukti\.siapa_peserta"/.test(ajar), "the names link is not «peserta» for a professional-learning class");
+      c.expect(/const akademik = adaBuktiSoal\(ctx\.ini\.jenis\)/.test(bukti), "the evidence page does not decide by the same rule");
+      c.expect(/akademik \? ajar\.bukti\(/.test(bukti) && (bukti.match(/ajar\.bukti\(/g) ?? []).length === 1, "the class evidence (academic metrics) is requested for a professional-learning class");
+      c.expect(/data-pd-kesimpulan/.test(bukti) && /mengajar\.bukti\.pd\.arti/.test(bukti) && /href=\{`\/pengembangan\/\$\{id\}`\}/.test(bukti) && /mengajar\.bukti\.pd\.buka/.test(bukti), "the professional-learning statement and the way to its record are not drawn");
+      c.expect(/akademik \? <p className="pin-foot">\{s\("mengajar\.bukti\.kaki"\)\}<\/p> : null/.test(bukti) && (bukti.match(/mengajar\.bukti\.kaki"/g) ?? []).length === 1, "the ordinary footnote is drawn for a professional-learning class (false there, D-069(c))");
+      c.expect(t("mengajar.bukti.siapa_peserta" as HleEvent, "staff", { locale: "id" }) === "Lihat nama peserta", "«Lihat nama peserta» is not the copy");
+      c.expect(!/murid|angka akademik kelas\b[^.]*akan/i.test(t("mengajar.bukti.pd.arti" as HleEvent, "staff", { locale: "id" })), "the professional-learning statement says «murid» or promises a figure");
+      return c.verdict("one rule (adaBuktiSoal) offers the per-question link and opens its page; a PD class requests no class metric, draws one statement and its record's link, no ordinary footnote, and «peserta»");
     },
   },
 ];

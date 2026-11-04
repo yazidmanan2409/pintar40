@@ -4212,6 +4212,11 @@
       "proves": "Terminology v1 ruling 2 (X12 T1; D-171(c)), selftest/d168.test.ts: over the rendered copy table, no Indonesian string says «kursus» and no English string says «course(s)» for the Studio object, except an allow-list that is the decision itself: the workbook's structure (ruling 14), the JSON format's language (ruling 13) and the certificate list's column (X12 T4, pending); the full term is «Paket Pembelajaran» / «Learning Package»."
     },
     {
+      "id": "D168-C2-1",
+      "runner": "static",
+      "proves": "C2 (D-069(b)(c), D-070(h), D-169(b); E-C2-1/2/3), selftest/d168.test.ts, reading the source of src/lib/mengajar.ts, KeadaanHariIni.tsx and the soal and bukti pages, and the copy table: one rule (adaBuktiSoal, LEARNER only) both offers «Lihat per soal» and opens the per-question page, so a professional-learning class is never offered a link that refuses; its «Lihat bukti» requests no class metric, draws one statement and the link to /pengembangan instead of the «not yet» cards, no ordinary footnote, and «Lihat nama peserta»."
+    },
+    {
       "id": "D168-B1-5",
       "runner": "static",
       "proves": "D-168 / D-169(a) (L3), selftest/d168.test.ts, reading the source of src/app/konfigurasi/page.tsx: every school-shaped section listed in BAGIAN_SEKOLAH carries hidden={!tampil(...)}, the same rule the menu is filtered by, so «Seluruh platform» draws no school-shaped section and the menu and the sections cannot disagree (E-B1-5: «Perpindahan murid» was drawn there by a missing attribute)."
