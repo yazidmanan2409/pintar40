@@ -407,7 +407,8 @@ export const d168Tests: SelfTest[] = [
       }
       const ringkas = baca("src/app/edukator/ringkasan/page.tsx");
       c.expect(/const untuk: Persona = k\?\.keadaan === "ADA" && k\.tujuan === "MENGAJAR" \? "educator" : "staff";/.test(ringkas) && !/"educator", locale\)/.test(ringkas)
-        && /kalimatJumlah\(e, locale, untuk\)/.test(ringkas), "the class report does not speak the reader's working context");
+        // restated (R3-PESERTA-01, E-A3-1): the line also takes the class's kind; the reader's persona is still the one passed
+        && /kalimatJumlah\(e, locale, untuk, jenis\)/.test(ringkas), "the class report does not speak the reader's working context");
       c.expect(/messageKey="pengembangan\.ditolak"/.test(baca("src/app/pengembangan/[simpul]/page.tsx")) && t("pengembangan.ditolak" as HleEvent, "staff", { locale: "id" }).startsWith("Catatan ini untuk fasilitator"),
         "the record's refusal falls back to the generic line");
       const murid = baca("src/app/mengajar/[kelas]/murid/[orang]/page.tsx");
