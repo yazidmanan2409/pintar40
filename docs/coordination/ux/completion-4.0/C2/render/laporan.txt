@@ -1,0 +1,18 @@
+4 pages × 4 widths: 0 with a failure
+
+ok   pd @1280
+ok   pd @820
+ok   pd @390
+ok   pd @320
+ok   pd-kosong @1280
+ok   pd-kosong @820
+ok   pd-kosong @390
+ok   pd-kosong @320
+ok   biasa @1280
+ok   biasa @820
+ok   biasa @390
+ok   biasa @320
+ok   tolak @1280
+ok   tolak @820
+ok   tolak @390
+ok   tolak @320

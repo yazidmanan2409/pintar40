@@ -1,0 +1,51 @@
+Ordinary class, for contrast · figures not yet at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Menu»
+ 4. a «Kelas 7A»
+ 5. a «SMP Cahaya Kaliandra»
+ 6. a «Kelas 7A»
+ 7. a «Lihat nama murid»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Kelas 7A":
+      - /url: "#"
+  - list "Lokasi":
+    - listitem:
+      - link "SMP Cahaya Kaliandra":
+        - /url: "#"
+    - listitem:
+      - link "Kelas 7A":
+        - /url: "#"
+    - listitem: TA 2026/2027
+  - paragraph: Bukti · Kelas 7A
+  - heading "Apa yang sudah bisa disimpulkan" [level=1]
+  - paragraph: PINTAR hanya menyimpulkan bila bukti resminya cukup. Belum cukup bukan berarti buruk — artinya belum.
+  - region "Keadaan hari ini":
+    - heading "Keadaan hari ini" [level=2]
+    - article "Uji Penguasaan · Pecahan senilai":
+      - heading "Uji Penguasaan · Pecahan senilai" [level=3]
+      - term: Mengumpulkan
+      - definition: 3 / 28
+      - term: Jendela
+      - definition: 14 Nov 2026
+      - term: Sudah mulai, belum mengumpulkan
+      - definition: 6 murid
+      - term: Belum mengerjakan
+      - definition: 19 murid
+      - paragraph:
+        - link "Lihat nama murid":
+          - /url: "#"
+  - region "Kesimpulan":
+    - heading "Kesimpulan" [level=2]
+    - region "Pemahaman":
+      - paragraph: Pemahaman
+      - paragraph: Belum cukup data untuk menampilkan angka ini.
+      - paragraph: Sekarang 3 murid; perlu 5.
+    - region "Kenaikan":
+      - paragraph: Kenaikan
+      - paragraph: Belum cukup data untuk menampilkan angka ini.
+      - paragraph: Sekarang 3 murid; perlu 5.
+  - paragraph: "Yang tidak tampil di sini: penilaian per soal dan sinyal integritas. Keduanya ditinjau Kepala departemen, bukan guru."

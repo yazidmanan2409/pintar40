@@ -1,0 +1,7 @@
+/* C2 — loads on top of C1's c1.css and c1b.css. Tokens and components only. */
+.c2-asesmen { display: grid; gap: var(--space-2); }
+.c2-asesmen h3 { font-size: 16px; line-height: 24px; font-weight: 600; }
+.c2-tautan { font-size: 14px; line-height: 20px; }
+.c2-pd { max-width: var(--measure-prose); }
+.c2-pd p { color: var(--ink-1); }
+.c2-tautan a { display: inline-flex; align-items: center; min-height: 24px; }

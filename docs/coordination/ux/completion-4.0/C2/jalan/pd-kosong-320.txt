@@ -1,0 +1,34 @@
+PD Kelas · nothing open yet (labelled substitute) at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Menu»
+ 4. a «PD Guru Matematika»
+ 5. a «SMP Cahaya Kaliandra»
+ 6. a «PD Guru Matematika»
+ 7. a «Buka catatan pengembangan profesi»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "PD Guru Matematika":
+      - /url: "#"
+  - list "Lokasi":
+    - listitem:
+      - link "SMP Cahaya Kaliandra":
+        - /url: "#"
+    - listitem:
+      - link "PD Guru Matematika":
+        - /url: "#"
+    - listitem: TA 2026/2027
+  - paragraph: Bukti · PD Guru Matematika
+  - heading "Apa yang sudah bisa disimpulkan" [level=1]
+  - paragraph: PINTAR hanya menyimpulkan bila bukti resminya cukup. Belum cukup bukan berarti buruk — artinya belum.
+  - region "Keadaan hari ini":
+    - heading "Keadaan hari ini" [level=2]
+    - paragraph: Belum ada asesmen yang berjalan atau selesai di kelas ini, jadi belum ada keadaan untuk dilaporkan.
+  - region "Kesimpulan":
+    - heading "Kesimpulan" [level=2]
+    - paragraph: Kelas pengembangan profesi tidak menghasilkan angka akademik kelas. Kemajuan dan hasil setiap peserta tercatat di Catatan pengembangan profesi.
+    - link "Buka catatan pengembangan profesi":
+      - /url: "#"
+  - paragraph: "Yang tidak tampil di sini: penilaian per soal dan sinyal integritas. Keduanya ditinjau Kepala departemen, bukan guru."
