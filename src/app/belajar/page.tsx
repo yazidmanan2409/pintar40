@@ -20,6 +20,7 @@ import KartuTugas from "@/components/siklus/KartuTugas";
 import PanelLanjut from "@/components/siklus/PanelLanjut";
 import { labelTujuan } from "@/components/siklus/aksi";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { judulAsesmen } from "@/lib/judul-asesmen";
 
 export const generateMetadata = judulHalaman("/belajar");
 
@@ -378,7 +379,7 @@ export default async function Belajar({
             <h2>{s("siklus.terbuka")}</h2>
             {terbuka.map((a) => (
               <div className="pin-tugas" key={a.assessment_assignment_id}>
-                <span className="pin-ttitle">{a.title}</span>
+                <span className="pin-ttitle">{judulAsesmen({ judul: a.title, mode: a.mode, dibuka: a.opens_at }, locale)}</span>
                 <div className="pin-tfoot">
                   <span className="pin-tstatus">
                     {format.number(a.item_count, locale)} {s("siklus.soal")} · {a.node_name}

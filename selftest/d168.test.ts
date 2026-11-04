@@ -35,12 +35,17 @@
  *              the learner's result card no longer share a class — the card's grid had put the ✓ on a row of its own on
  *              every surface. No stylesheet rule gives `.pin-hasil` a layout; the card is `.pin-capaian`; a paragraph
  *              after the ✓ runs inline.
+ *   D168-A2-1  an Uji Cepat is named in one place (E-A2-1, RV-16): judulAsesmen names it «Uji Cepat · <cap date>» in the
+ *              reader's language from when it opened, never from the stored stamp («Uji Cepat — 2026-11-02 20:26»); the
+ *              result page, «Keadaan hari ini», the Uji Cepat page (running and last) and Belajar's open list all name
+ *              it so, and none adds «Uji Cepat» beside the name.
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { allKeys, t, type HleEvent } from "../src/lib/hle";
+import { judulAsesmen } from "../src/lib/judul-asesmen";
 
 const kode = (x: string) => x.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
 
@@ -244,6 +249,31 @@ export const d168Tests: SelfTest[] = [
       const baris = kode(readFileSync(join(repoRoot, "src/components/BarisHasil.tsx"), "utf8"));
       c.expect(/<span className="pin-centang" aria-hidden="true">✓<\/span> : null\}\s*\{children\}/.test(baris), "the ✓ is not drawn directly before its words");
       return c.verdict("the result line has no layout of its own to break: the card is .pin-capaian, the ✓ runs on with its words, a paragraph included");
+    },
+  },
+  {
+    id: "D168-A2-1",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const q = { judul: "Uji Cepat — 2026-11-02 20:26", mode: "QUICK", dibuka: "2026-11-02T13:26:00Z" };
+      const id = judulAsesmen(q, "id");
+      const en = judulAsesmen(q, "en");
+      c.expect(id === "Uji Cepat · 2 Nov 2026, 20.26 WIB", `in Indonesian an Uji Cepat is named «${id}»`);
+      c.expect(en.startsWith("Quick Assessment · ") && /2026, 20\.26 WIB$/.test(en), `in English an Uji Cepat is named «${en}»`);
+      c.expect((id.match(/Uji Cepat/g) ?? []).length === 1 && !id.includes("—") && !/\d{4}-\d{2}-\d{2}/.test(id), "the name repeats «Uji Cepat» or carries the stored stamp");
+      c.expect(judulAsesmen({ judul: "Cek penguasaan", mode: "POST_TEST", dibuka: q.dibuka }, "id") === "Cek penguasaan", "another assessment loses its package's title");
+      const SURFACE: Array<[string, RegExp]> = [
+        ["src/app/mengajar/[kelas]/uji-cepat/hasil/page.tsx", /<p className="pin-eyebrow">\{judulAsesmen\(tugas, locale\)\}<\/p>/],
+        ["src/components/bukti/KeadaanHariIni.tsx", /<p className="pin-keadaan-judul">\{judulAsesmen\(a, locale\)\}<\/p>/],
+        ["src/app/mengajar/[kelas]/uji-cepat/page.tsx", /\{judulAsesmen\(hidup, locale\)\}[\s\S]*\{judulAsesmen\(terakhir, locale\)\}/],
+        ["src/app/belajar/page.tsx", /<span className="pin-ttitle">\{judulAsesmen\(\{ judul: a\.title, mode: a\.mode, dibuka: a\.opens_at \}, locale\)\}<\/span>/],
+      ];
+      for (const [f, re] of SURFACE) {
+        const src = kode(readFileSync(join(repoRoot, f), "utf8"));
+        c.expect(re.test(src), `${f} does not name the assessment through judulAsesmen`);
+        c.expect(!/s\("mengajar\.cepat\.eyebrow"\)\} · \{[a-z]+\.judul\}/.test(src) && !/\{(tugas|hidup|terakhir)\.judul\}/.test(src), `${f} still draws the stored title or adds «Uji Cepat» beside it`);
+      }
+      return c.verdict(`an Uji Cepat is «${id}» / «${en}» on every surface that names it; the stored stamp is never shown; others keep their titles`);
     },
   },
 ];

@@ -1,5 +1,6 @@
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import { adaBuktiSoal, kataAnggota, type JenisAnggota } from "@/lib/mengajar";
+import { judulAsesmen } from "@/lib/judul-asesmen";
 
 /** What a row needs of an assessment assignment: a subset of `Berjalan` (src/lib/pengajar.ts). */
 export type AsesmenKelas = {
@@ -8,6 +9,8 @@ export type AsesmenKelas = {
   /** OPEN or CLOSED, as the assignment carries it. Never rendered as a word. */
   keadaan: string;
   mode: string;
+  /** When it opened: an Uji Cepat is named by it (judulAsesmen). */
+  dibuka: string | null;
   ditutup: string | null;
   mengumpulkan: number;
   /** W8: learners with a session of any state, so at least those who submitted. */
@@ -85,7 +88,7 @@ export default function KeadaanHariIni({
     <div className="pin-keadaan">
       {tampil.map((a) => ({ a, k: hitungKeadaan(a, murid) })).map(({ a, k }) => (
         <div className="pin-keadaan-baris" key={a.id}>
-          <p className="pin-keadaan-judul">{a.judul}</p>
+          <p className="pin-keadaan-judul">{judulAsesmen(a, locale)}</p>
           <dl className="pin-facts">
             <div>
               <dt>{s("mengajar.bukti.kumpul")}</dt>

@@ -12,6 +12,7 @@ import { BarisLingkup, kalimatJumlahOrang } from "@/components/bukti";
 import { kataAnggota } from "@/lib/mengajar";
 import { AMBANG_NILAI_KELAS, type KeadaanHasil } from "@/lib/hasil-ujicepat";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { judulAsesmen } from "@/lib/judul-asesmen";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/uji-cepat/hasil");
 
@@ -84,7 +85,7 @@ export default async function HasilUjiCepat({
           locale={locale}
         />
         <div className="pin-head">
-          <p className="pin-eyebrow">{s("mengajar.cepat.eyebrow")} · {tugas.judul}</p>
+          <p className="pin-eyebrow">{judulAsesmen(tugas, locale)}</p>
           <h1 className="pin-h1">{s("mengajar.cepat.hasil.judul")}</h1>
         </div>
 
