@@ -3,7 +3,7 @@ Jejak audit · Admin sekolah (no «Versi» column) at 320 px: the Tab order from
  2. button «Keluar»
  3. button «Menu»
  4. a «Konfigurasi»
- 5. a «Kembali»
+ 5. a «Sebelumnya»
  6. a «Berikutnya»
 
 The accessibility tree of the main region
@@ -48,8 +48,9 @@ The accessibility tree of the main region
         - cell "Terbitan materi dibuat"
         - cell "Materi · SMP Cahaya Kaliandra"
   - navigation "Halaman daftar jejak audit":
-    - text: Halaman 2
-    - link "Kembali":
+    - text: Menampilkan 21–40 jejak audit
+    - link "Sebelumnya":
       - /url: "#"
+    - text: Halaman 2
     - link "Berikutnya":
       - /url: "#"

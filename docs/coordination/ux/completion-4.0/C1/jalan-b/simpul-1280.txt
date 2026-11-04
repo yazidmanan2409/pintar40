@@ -3,7 +3,7 @@
  2. a «Pimpinan»
  3. a «Studio»
  4. button «Keluar»
- 5. a «Kembali»
+ 5. a «Pimpinan»
  6. a «Buka umpan balik kelas»
  7. a «Murid dalam lingkup ini»
  8. a «Kelas 7A»
@@ -13,7 +13,7 @@
 The accessibility tree of the main region
 - main:
   - paragraph:
-    - link "Kembali":
+    - link "Pimpinan":
       - /url: "#"
   - paragraph: Pimpinan
   - heading "Matematika" [level=1]

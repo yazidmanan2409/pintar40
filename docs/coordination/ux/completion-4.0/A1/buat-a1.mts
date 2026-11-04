@@ -36,8 +36,6 @@ export const NEW: Record<string, { id: string; en: string }> = {
   "studio.soal.pelajaran_label": { id: "Pelajaran", en: "Lesson" },
   "studio.soal.pelajaran_dari": { id: "Pelajaran {i} dari {n}", en: "Lesson {i} of {n}" },
   "studio.soal.posisi": { id: "Soal {i} dari {n}", en: "Question {i} of {n}" },
-  "studio.soal.sebelumnya": { id: "Pelajaran sebelumnya", en: "Previous lesson" },
-  "studio.soal.berikutnya": { id: "Pelajaran berikutnya", en: "Next lesson" },
   "studio.soal.buka": { id: "Buka", en: "Open" },
   "studio.soal.kesulitan.MUDAH": { id: "Mudah", en: "Easy" },
   "studio.soal.kesulitan.SEDANG": { id: "Sedang", en: "Medium" },
@@ -121,8 +119,8 @@ function bagianSoal(k: Keadaan): string {
   const pager = (posisi: string) => `<nav class="pds-pager a1-pager" aria-label="${kata("studio.soal.pelajaran_label")}${posisi}">
     <span class="pds-pager-posisi">${kata("studio.soal.pelajaran_dari", { i: angka(k.ke + 1), n: angka(k.totalPelajaran) })}</span>
     <span class="pds-pager-gerak">
-      ${k.ke > 0 ? `<a href="#soal" class="pds-btn pds-btn-secondary" data-sebelum aria-label="${kata("studio.soal.sebelumnya")}">${ikon("chevron-left")}<span class="pds-btn-teks">${kata("studio.soal.sebelumnya")}</span></a>` : `<span class="pds-btn pds-btn-secondary" data-sebelum aria-disabled="true">${ikon("chevron-left")}<span class="pds-btn-teks">${kata("studio.soal.sebelumnya")}</span></span>`}
-      ${k.ke < k.totalPelajaran - 1 ? `<a href="#soal" class="pds-btn pds-btn-secondary" data-sesudah aria-label="${kata("studio.soal.berikutnya")}"><span class="pds-btn-teks">${kata("studio.soal.berikutnya")}</span>${ikon("chevron-right")}</a>` : `<span class="pds-btn pds-btn-secondary" data-sesudah aria-disabled="true"><span class="pds-btn-teks">${kata("studio.soal.berikutnya")}</span>${ikon("chevron-right")}</span>`}
+      ${k.ke > 0 ? `<a href="#soal" class="pds-btn pds-btn-secondary" data-sebelum>${ikon("chevron-left")}<span class="pds-btn-teks">${kata("koleksi.sebelumnya")}</span></a>` : `<span class="pds-btn pds-btn-secondary" data-sebelum aria-disabled="true">${ikon("chevron-left")}<span class="pds-btn-teks">${kata("koleksi.sebelumnya")}</span></span>`}
+      ${k.ke < k.totalPelajaran - 1 ? `<a href="#soal" class="pds-btn pds-btn-secondary" data-sesudah><span class="pds-btn-teks">${kata("koleksi.berikutnya")}</span>${ikon("chevron-right")}</a>` : `<span class="pds-btn pds-btn-secondary" data-sesudah aria-disabled="true"><span class="pds-btn-teks">${kata("koleksi.berikutnya")}</span>${ikon("chevron-right")}</span>`}
     </span></nav>`;
   return `<section class="pds-section" id="soal" aria-labelledby="soal-judul">
     ${kepala.replace("<h2", '<h2 id="soal-judul"')}

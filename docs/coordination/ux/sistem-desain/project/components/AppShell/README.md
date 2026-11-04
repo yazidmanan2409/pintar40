@@ -14,6 +14,7 @@ The staff shell: a sticky left navigation with the person's places above and the
 - Under 1024 px: a top bar (the mark, the current place, «Keluar», a menu button) and a left drawer with the same contents. «Keluar» is visible without opening anything at every width (D-009, DAISY-02).
 - A clicked place shows the working dot at once, until the next page arrives.
 - `aria-current="page"` on the current place; the navigation is a `nav` named «Tempat kerja Anda».
+- **In the rail (4.0 correction, E1):** each place keeps its own text as its name, visually hidden, never `display: none` and never an `aria-label` that repeats it. The identity button does the same (its name is its own text, after a visually hidden «Akun:»; WCAG 2.5.3). The tooltip and the collapse button follow the rail's state (the navigation at its 72 px), not a CSS property of the label.
 
 **Rules**
 - The navigation shows only places the person holds today; it decides nothing, and every page still checks on arrival.

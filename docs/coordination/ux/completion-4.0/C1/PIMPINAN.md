@@ -68,7 +68,7 @@ Figures look the same here as in the Ringkasan, so a figure reads the same where
 
 ### `/pimpinan/[simpul]` (`simpul`)
 
-- Back «Kembali».
+- Back «Pimpinan» (`nav.pimpinan`; D-172 K1: a back link names its destination).
 - Eyebrow «Pimpinan»; h1 the place.
 - Sections:
   - «Yang didukung bukti» (figures);
@@ -95,7 +95,7 @@ Figures look the same here as in the Ringkasan, so a figure reads the same where
 
 ### `/pimpinan/[simpul]/umpan-balik` (`umpan-balik`, `umpan-balik-kosong`)
 
-- Back «Kembali»; the scope line; eyebrow «Umpan balik kelas»; h1 the place; intro.
+- Back «{the place}» («Matematika», K1); the scope line; eyebrow «Umpan balik kelas»; h1 the place; intro.
 - **h2 «Putaran untuk kelas ini»** (the built key for a list of rounds), not the eyebrow's words a second time. Each round is a link row: the class, its state badge («Hasil tersedia» info, «Masih dikumpulkan» and «Hasil tidak ditampilkan» neutral), and «Guru: …».
 - «Kelas dalam lingkup ini»: link rows, «Buka kelas».
 
@@ -119,7 +119,7 @@ Figures look the same here as in the Ringkasan, so a figure reads the same where
 
 ### `/pengembangan/[simpul]` (`pengembangan-penuh`, `pengembangan-terbatas`)
 
-- Back «Kembali».
+- Back «Pimpinan» (`nav.pimpinan`) for a leader, «Konfigurasi» (`nav.konfigurasi`) for the school admin (K1). The pages below each place name their parent: the student list goes back to «{the place}», a student to «{`pimpinan.murid.judul`}», a round or class to «{`umpanbalik.pimpinan.judul`}».
 - Eyebrow «Pengembangan profesi guru · {place}».
 - h1 «Catatan pengembangan profesi».
 - Intro: `pengembangan.arti` for the full audience, or `pengembangan.arti_terbatas` for Admin sekolah.

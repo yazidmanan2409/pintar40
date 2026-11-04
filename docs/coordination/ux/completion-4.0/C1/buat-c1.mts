@@ -154,7 +154,7 @@ function halaman(l: Lembar): string {
           <h1 class="pds-title">${h1}</h1>
           ${l.entri ? `<p class="pds-intro">${kata(kelas ? "laporan.cakupan.kelas" : "laporan.cakupan.sekolah", { waktu: WAKTU })}</p>` : ""}
         </div>
-        <div class="pds-actions c1-aksi"><a href="#" class="pds-back">${ikon("chevron-left")}${kata("laporan.kembali")}</a><button type="button" class="pds-btn pds-btn-secondary">${kata("laporan.cetak")}</button></div></div>
+        <div class="pds-actions c1-aksi"><a href="#" class="pds-back">${ikon("chevron-left")}${kata("nav.pimpinan", "staff")}</a><button type="button" class="pds-btn pds-btn-secondary">${kata("laporan.cetak")}</button></div></div>
         ${!ada ? `<div class="pds-empty"><p>${kata("laporan.kosong")}</p></div>` : `${semuaKosong ? `<div class="pds-well"><p>${kata("laporan.tak_ada_angka")}</p></div>` : ""}<div class="c1-badan">${badan(l.entri!)}</div>`}
       </main>
     </div>

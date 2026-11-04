@@ -27,7 +27,7 @@ Today it is one page of 13 sections, most with their own forms. At 1280 px it is
 The split fits what the page already does:
 - each section is a separate task;
 - each server action already answers one section (`?bagian=…&hasil=…`);
-- each section already has its own pager.
+- each section already has its own pager: the canonical Pagination (D-172 K2): «Menampilkan {dari}–{sampai} {benda}» where the total is unknown (keyset, `koleksi.menampilkan_tanpa_total`), «Sebelumnya» shown disabled on page 1, «Halaman n», «Berikutnya». Corrected 4 Nov; the built Penomoran omitted «Sebelumnya» on page 1 and said «Kembali».
 
 **Why not cards:** the Panel rule says more than six objects of one kind is a list, not a grid of cards. So the index is grouped list rows.
 

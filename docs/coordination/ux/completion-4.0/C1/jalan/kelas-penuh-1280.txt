@@ -3,7 +3,7 @@ Ringkasan Kelas · every figure shown at 1280 px: the Tab order from the top of 
  2. a «Pimpinan»
  3. a «Studio»
  4. button «Keluar»
- 5. a «Kembali»
+ 5. a «Pimpinan»
  6. button «Cetak laporan»
 
 The accessibility tree of the main region
@@ -15,7 +15,7 @@ The accessibility tree of the main region
   - paragraph: "[G6 · judul laporan kelas]"
   - heading "Kelas 7A" [level=1]
   - paragraph: Angka dihitung 4 Nov 2026, 10.52 WIB dari semua bukti kelas ini sampai saat itu.
-  - link "Kembali":
+  - link "Pimpinan":
     - /url: "#"
   - button "Cetak laporan"
   - region "Peserta":

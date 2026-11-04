@@ -3,14 +3,14 @@
  2. a «Pimpinan»
  3. a «Studio»
  4. button «Keluar»
- 5. a «Kembali»
+ 5. a «Umpan balik kelas»
  6. a «SMP Cahaya Kaliandra»
  7. a «Matematika»
 
 The accessibility tree of the main region
 - main:
   - paragraph:
-    - link "Kembali":
+    - link "Umpan balik kelas":
       - /url: "#"
   - list "Lokasi":
     - listitem:

@@ -38,6 +38,7 @@ export const NEW: Record<string, { id: string; en: string; jenis: "baru" | "ubah
   // E3 #8: the overlap sentence takes the date-and-time form, without «pukul» before a day
   "config.pemeliharaan.tabrakan.terakhir": { id: "Asesmen terakhir diperkirakan selesai", en: "The last assessment is expected to finish", jenis: "ubah" },
   "config.pemeliharaan.tabrakan.saran": { id: "Pertimbangkan memulai pemeliharaan setelah", en: "Consider starting maintenance after", jenis: "ubah" },
+  "koleksi.menampilkan_tanpa_total": { id: "Menampilkan {dari}–{sampai} {benda}", en: "Showing {dari}–{sampai} {benda}", jenis: "baru" },
   "config.kesehatan.jumlah": { id: "pemeriksaan perlindungan data, semuanya sesuai.", en: "data-protection checks, all as expected.", jenis: "ubah" },
 };
 const kata = (k: string, isi: Record<string, string | number> = {}) => {
@@ -114,9 +115,11 @@ const kembali = `<p><a href="#" class="pds-back">${ikon("chevron-left")}${kata("
 const kepalaBagian = (judul: string, arti?: string, konteks = true) => `<div class="pds-pagehead"><div>${kembali}<h1 class="pds-title">${esc(judul)}</h1>${konteks ? `<p class="b1-konteks">${kata("config.struktur.sekolah")}: <strong>${SEKOLAH}</strong></p>` : ""}${arti ? `<p class="pds-intro">${esc(arti)}</p>` : ""}</div></div>`;
 const hasil = (ok: boolean, teks: string) => `<p class="pds-result ${ok ? "pds-result-ok" : "pds-result-blocked"}" role="status">${ikon(ok ? "circle-check" : "circle-alert")}<span>${esc(teks)}</span></p>`;
 /** The Collection pager as built (Penomoran): keyset pages, so a page number and «more», never a total. */
-const pager = (i: number, lagi: boolean, benda: string) => `<nav class="pds-pager" aria-label="${esc(kata("koleksi.halaman.label", { benda }))}"><span class="pds-pager-posisi">${kata("lesson.page_of")} ${i}</span><span class="pds-pager-gerak">
-  ${i > 1 ? `<a href="#" class="pds-btn pds-btn-secondary" data-sebelum>${ikon("chevron-left")}<span>${kata("koleksi.kembali")}</span></a>` : ""}
-  ${lagi ? `<a href="#" class="pds-btn pds-btn-secondary" data-sesudah><span>${kata("koleksi.berikutnya")}</span>${ikon("chevron-right")}</a>` : ""}
+/** D-172 K2: the one Pagination grammar. Keyset pages, whose total is unknown, say what is shown; «Sebelumnya» is shown disabled on page 1. */
+const pager = (i: number, lagi: boolean, benda: string, perHalaman = 20) => `<nav class="pds-pager" aria-label="${esc(kata("koleksi.halaman.label", { benda }))}"><span>${kata("koleksi.menampilkan_tanpa_total", { dari: String((i - 1) * perHalaman + 1), sampai: String(i * perHalaman), benda })}</span><span class="pds-pager-gerak">
+  ${i > 1 ? `<a href="#" class="pds-btn pds-btn-secondary" data-sebelum>${ikon("chevron-left")}<span class="pds-btn-teks">${kata("koleksi.sebelumnya")}</span></a>` : `<span class="pds-btn pds-btn-secondary" data-sebelum aria-disabled="true">${ikon("chevron-left")}<span class="pds-btn-teks">${kata("koleksi.sebelumnya")}</span></span>`}
+  <span class="pds-pager-posisi">${kata("lesson.page_of")} ${i}</span>
+  ${lagi ? `<a href="#" class="pds-btn pds-btn-secondary" data-sesudah><span class="pds-btn-teks">${kata("koleksi.berikutnya")}</span>${ikon("chevron-right")}</a>` : `<span class="pds-btn pds-btn-secondary" data-sesudah aria-disabled="true"><span class="pds-btn-teks">${kata("koleksi.berikutnya")}</span>${ikon("chevron-right")}</span>`}
 </span></nav>`;
 let nomorField = 0;
 const field = (label: string, kontrol: (id: string) => string, bantu?: string) => {
@@ -346,7 +349,7 @@ for (const l of LEMBAR) {
       const tab: string[] = [];
       for (let i = 0; i < 45; i++) {
         await page.keyboard.press("Tab");
-        const f = await page.evaluate(`(function () { var a = document.activeElement; if (!a || a === document.body) return ""; var cs = getComputedStyle(a); var cincin = (cs.outlineStyle !== "none" && parseFloat(cs.outlineWidth) >= 2) || /rgb/.test(cs.boxShadow); var nama = a.getAttribute("aria-label") || (a.labels && a.labels[0] && a.labels[0].textContent) || a.textContent || ""; var picker = /^(date|time|datetime-local)$/.test(a.type) && !a.matches(":focus-visible"); return a.tagName.toLowerCase() + " «" + nama.replace(/\\s+/g, " ").trim().slice(0, 60) + "»" + (picker ? "  DS-DATETIME" : cincin ? "" : "  NO RING"); })()`) as string;
+        const f = await page.evaluate(`(function () { var a = document.activeElement; if (!a || a === document.body) return ""; var cs = getComputedStyle(a); var cincin = (cs.outlineStyle !== "none" && parseFloat(cs.outlineWidth) >= 2) || /rgb/.test(cs.boxShadow); var nama = a.getAttribute("aria-label") || (a.labels && a.labels[0] && a.labels[0].textContent) || a.textContent || ""; var picker = /^(date|time|datetime-local)$/.test(a.type) && !a.matches(":focus-visible") && !cincin; return a.tagName.toLowerCase() + " «" + nama.replace(/\\s+/g, " ").trim().slice(0, 60) + "»" + (picker ? "  DS-DATETIME" : cincin ? "" : "  NO RING"); })()`) as string;
         if (!f) break;
         tab.push(f);
         if (/NO RING/.test(f)) masalah.push(`no focus ring: ${f}`);

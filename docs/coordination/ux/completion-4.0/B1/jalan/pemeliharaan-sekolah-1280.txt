@@ -15,14 +15,14 @@ Pemeliharaan · step 2 (the collision check) · Admin sekolah at 1280 px: the Ta
 14. input «Mulai (WIB; kosongkan untuk sekarang)»
 15. input «Mulai (WIB; kosongkan untuk sekarang)»
 16. input «Mulai (WIB; kosongkan untuk sekarang)»
-17. input «Mulai (WIB; kosongkan untuk sekarang)»  DS-DATETIME
+17. input «Mulai (WIB; kosongkan untuk sekarang)»
 18. input «Perkiraan selesai (WIB)»
 19. input «Perkiraan selesai (WIB)»
 20. input «Perkiraan selesai (WIB)»
 21. input «Perkiraan selesai (WIB)»
 22. input «Perkiraan selesai (WIB)»
 23. input «Perkiraan selesai (WIB)»
-24. input «Perkiraan selesai (WIB)»  DS-DATETIME
+24. input «Perkiraan selesai (WIB)»
 25. button «Periksa waktu ini»
 26. textarea «Pesan untuk pengguna (pilihan)»
 27. input «Alasan (dicatat)»
@@ -37,7 +37,7 @@ Pemeliharaan · step 2 (the collision check) · Admin sekolah at 1280 px: the Ta
 36. input «Terbit (WIB; kosongkan untuk sekarang)»
 37. input «Terbit (WIB; kosongkan untuk sekarang)»
 38. input «Terbit (WIB; kosongkan untuk sekarang)»
-39. input «Terbit (WIB; kosongkan untuk sekarang)»  DS-DATETIME
+39. input «Terbit (WIB; kosongkan untuk sekarang)»
 40. input «Sampai (WIB)»
 41. input «Sampai (WIB)»
 42. input «Sampai (WIB)»

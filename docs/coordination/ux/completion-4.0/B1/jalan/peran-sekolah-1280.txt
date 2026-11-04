@@ -22,7 +22,7 @@ Peran & akses · Admin sekolah, one revocation open at 1280 px: the Tab order fr
 21. input «Berlaku sampai»
 22. input «Berlaku sampai»
 23. input «Berlaku sampai»
-24. input «Berlaku sampai»  DS-DATETIME
+24. input «Berlaku sampai»
 25. button «Berikan peran»
 
 The accessibility tree of the main region
@@ -71,7 +71,7 @@ The accessibility tree of the main region
           - /url: "#"
           - text: Cabut
     - navigation "Halaman daftar peran & akses":
-      - text: Halaman 1
+      - text: Menampilkan 1–20 peran & akses Sebelumnya Halaman 1
       - link "Berikutnya":
         - /url: "#"
   - region "Berikan peran":

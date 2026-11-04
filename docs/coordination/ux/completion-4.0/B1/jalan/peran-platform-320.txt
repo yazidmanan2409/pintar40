@@ -14,7 +14,7 @@ Peran & akses · Admin platform (labelled substitute) at 320 px: the Tab order f
 13. input «Berlaku sampai»
 14. input «Berlaku sampai»
 15. input «Berlaku sampai»
-16. input «Berlaku sampai»  DS-DATETIME
+16. input «Berlaku sampai»
 17. button «Berikan peran»
 
 The accessibility tree of the main region
@@ -49,7 +49,7 @@ The accessibility tree of the main region
         - link "Cabut · Joko Santoso":
           - /url: "#"
           - text: Cabut
-    - navigation "Halaman daftar peran & akses": Halaman 1
+    - navigation "Halaman daftar peran & akses": Menampilkan 1–20 peran & akses Sebelumnya Halaman 1 Berikutnya
   - region "Berikan peran":
     - heading "Berikan peran" [level=2]
     - text: Orang

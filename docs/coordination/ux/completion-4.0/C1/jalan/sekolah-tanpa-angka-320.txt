@@ -2,7 +2,7 @@ Ringkasan Sekolah · no figure yet, each said why at 320 px: the Tab order from 
  1. a «Langsung ke isi»
  2. button «Keluar»
  3. button «Menu»
- 4. a «Kembali»
+ 4. a «Pimpinan»
  5. button «Cetak laporan»
 
 The accessibility tree of the main region
@@ -10,7 +10,7 @@ The accessibility tree of the main region
   - paragraph: "[G6 · judul laporan sekolah]"
   - heading "SMP Cahaya Kaliandra" [level=1]
   - paragraph: Angka dihitung 4 Nov 2026, 10.52 WIB dari semua bukti sekolah ini, di setiap tahun ajaran, sampai saat itu.
-  - link "Kembali":
+  - link "Pimpinan":
     - /url: "#"
   - button "Cetak laporan"
   - paragraph: Tidak ada angka pada laporan ini, tetapi keterangan di bawah menjelaskan alasannya satu per satu.

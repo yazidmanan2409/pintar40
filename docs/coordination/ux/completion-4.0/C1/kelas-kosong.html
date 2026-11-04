@@ -594,7 +594,7 @@ th.pds-angka .pds-sort { flex-direction: row-reverse; }
 @container (max-width: 639px) {
   .pds-pager-nomor { display: none; }
   .pds-pager-kecil { display: inline; }
-  .pds-pager .pds-btn-teks { display: none; }
+  .pds-pager .pds-btn-teks { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; } /* 4.0: visually hidden, never display: none, so the link keeps its own name */
   /* On a phone the page list becomes ‹ [2 ▾] dari 12 ›: the select is the page list. */
   .pds-pager-gerak:has(.pds-pager-lompat) [data-sebelum] { order: 0; }
   .pds-pager-gerak .pds-pager-lompat { order: 1; }
@@ -914,11 +914,10 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
 /* Collapsed by the reader, or 1024 to 1279px: the rail. */
 .pds-shell[data-ciut="ya"] { grid-template-columns: var(--shell-rail) minmax(0, 1fr); }
 .pds-shell[data-ciut="ya"] .pds-nav { padding-inline: var(--space-3); align-items: center; }
-.pds-shell[data-ciut="ya"] .pds-nav-label,
 .pds-shell[data-ciut="ya"] .pds-nav-grup,
-.pds-shell[data-ciut="ya"] .pds-identity > div,
 .pds-shell[data-ciut="ya"] .pds-identity > .pds-ikon,
 .pds-shell[data-ciut="ya"] .pds-merek-penuh { display: none; }
+.pds-shell[data-ciut="ya"] :is(.pds-nav-label, .pds-identity > div) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; } /* 4.0: in the rail a link and the identity button keep their own text as their name (visually hidden, WCAG 2.5.3) */
 .pds-shell[data-ciut="ya"] .pds-nav-kepala { flex-direction: column; padding: 0 0 var(--space-3); }
 .pds-shell[data-ciut="ya"] .pds-nav-item { width: var(--control-md); padding: 0; justify-content: center; }
 .pds-shell[data-ciut="ya"] .pds-nav-item .pds-dot { position: absolute; margin: -22px 0 0 26px; }
@@ -927,7 +926,8 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
 @container shell (max-width: 1279px) {
   .pds-shell:not([data-ciut="tidak"]) { grid-template-columns: var(--shell-rail) minmax(0, 1fr); }
   .pds-shell:not([data-ciut="tidak"]) .pds-nav { padding-inline: var(--space-3); align-items: center; }
-  .pds-shell:not([data-ciut="tidak"]) :is(.pds-nav-label, .pds-nav-grup, .pds-identity > div, .pds-identity > .pds-ikon, .pds-merek-penuh) { display: none; }
+  .pds-shell:not([data-ciut="tidak"]) :is(.pds-nav-grup, .pds-identity > .pds-ikon, .pds-merek-penuh) { display: none; }
+  .pds-shell:not([data-ciut="tidak"]) :is(.pds-nav-label, .pds-identity > div) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; } /* 4.0: in the rail a link and the identity button keep their own text as their name (visually hidden, WCAG 2.5.3) */
   .pds-shell:not([data-ciut="tidak"]) .pds-nav-kepala { flex-direction: column; padding: 0 0 var(--space-3); }
   .pds-shell:not([data-ciut="tidak"]) .pds-nav-item { width: var(--control-md); padding: 0; justify-content: center; }
   .pds-shell:not([data-ciut="tidak"]) .pds-identity { grid-template-columns: auto; padding: var(--space-1); width: auto; }
@@ -1089,6 +1089,8 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
 .pds-berkas-tombol input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 .pds-berkas input[type="file"]:focus-visible + label { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
 .pds-berkas-nama { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-2); }
+/* 4.0 (B1 finding): a native date or time field's last Tab stop, the calendar button, is focused inside the field, which matches neither :focus nor :focus-visible; :focus-within rings it. */
+.pds-input:is([type="date"], [type="time"], [type="datetime-local"]):focus-within { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; border-color: var(--ink-3); }
 </style><style>/* C1 · W3.8 — the report body and its A4 print. Composition only: every value is a
    design-system token or an existing component. No new token, no palette change. */
 
@@ -1430,9 +1432,11 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
     function perlu() {
       // A navigation item needs its tooltip only while its label is hidden (the rail).
       var lab = el.querySelector(".pds-nav-label");
-      return !lab || getComputedStyle(lab).display === "none";
+      // 4.0: the rail's state (the navigation at its 72 px), never the label's CSS
+      var nav = el.closest(".pds-nav");
+      return !lab || (!!nav && nav.getBoundingClientRect().width <= 80);
     }
-    function tampil(segera) { if (!perlu()) return; clearTimeout(tunda); tunda = setTimeout(function () { tip.hidden = false; }, segera ? 0 : 400); }
+    function tampil(segera) { if (!perlu()) return; clearTimeout(tunda); if (segera) { tip.hidden = false; return; } tunda = setTimeout(function () { tip.hidden = false; }, 400); } // 4.0: keyboard focus shows it at once
     function sembunyi() { clearTimeout(tunda); tip.hidden = true; }
     el.addEventListener("mouseenter", function () { tampil(false); });
     el.addEventListener("mouseleave", sembunyi);
@@ -1704,8 +1708,7 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
         el.querySelector("[data-id-inisial]").textContent = p.inisial;
         el.querySelector("[data-id-nama]").textContent = p.nama;
         el.querySelector("[data-id-konteks]").textContent = p.konteks;
-        var tombol = el.querySelector(".pds-identity");
-        if (tombol) tombol.setAttribute("aria-label", "Akun: " + p.nama);
+        // 4.0: the identity button is named by its own text (WCAG 2.5.3), never an aria-label
       });
       host.querySelectorAll("[data-shell-bantuan]").forEach(function (b) { b.hidden = !p.bantuan; });
       var kini = TEMPAT[p.kini].label;
@@ -1737,7 +1740,8 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
     var ciut = host.querySelector("[data-shell-ciut]");
     if (ciut) ciut.addEventListener("click", function () {
       var lab = host.querySelector(".pds-nav .pds-nav-label");
-      var ya = !(lab && getComputedStyle(lab).display === "none");
+      var navNow = host.querySelector(".pds-shell .pds-nav");
+      var ya = !(navNow && navNow.getBoundingClientRect().width <= 80); // 4.0: the rail's state
       s.setAttribute("data-ciut", ya ? "ya" : "tidak");
       ciut.setAttribute("aria-label", ya ? "Lebarkan navigasi" : "Ciutkan navigasi");
       ciut.setAttribute("aria-expanded", ya ? "false" : "true");
@@ -1949,7 +1953,7 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
           <h1 class="pds-title">Kelas 7A</h1>
           
         </div>
-        <div class="pds-actions c1-aksi"><a href="#" class="pds-back"><i data-ikon="chevron-left"></i>Kembali</a><button type="button" class="pds-btn pds-btn-secondary">Cetak laporan</button></div></div>
+        <div class="pds-actions c1-aksi"><a href="#" class="pds-back"><i data-ikon="chevron-left"></i>Pimpinan</a><button type="button" class="pds-btn pds-btn-secondary">Cetak laporan</button></div></div>
         <div class="pds-empty"><p>Belum ada angka yang bisa ditampilkan untuk Anda di sini.</p></div>
       </main>
     </div>

@@ -58,5 +58,3 @@ ok   memuat @1280
 ok   memuat @820
 ok   memuat @390
 ok   memuat @320
-
-Design-system finding (not B1's; DateTime): a native date field's last Tab stop, the browser's calendar button, shows no ring. Seen on: peran-sekolah, peran-platform, pemeliharaan-sekolah, pemeliharaan-platform.

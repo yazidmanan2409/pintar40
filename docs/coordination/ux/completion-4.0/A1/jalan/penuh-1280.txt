@@ -8,7 +8,7 @@ Lesson 1 of 4 (the first view) at 1280 px: the Tab order from the top of the pag
  7. a «Studio»
  8. select «Pelajaran 1 · Apa itu pecahan senilai (4 soal)Pela»
  9. button «Buka»
-10. a «Pelajaran berikutnya»
+10. a «Berikutnya»
 
 The accessibility tree of «Soal dalam paket ini»
 - region "Soal dalam paket ini":
@@ -137,6 +137,6 @@ The accessibility tree of «Soal dalam paket ini»
                 - strong: "Alasan:"
                 - text: 9/12 = 3/4, tidak senilai dengan 2/3.
   - navigation "Pelajaran (bawah)":
-    - text: Pelajaran 1 dari 4 Pelajaran sebelumnya
-    - link "Pelajaran berikutnya":
+    - text: Pelajaran 1 dari 4 Sebelumnya
+    - link "Berikutnya":
       - /url: "#soal"

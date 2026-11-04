@@ -11,14 +11,14 @@ Pemeliharaan · Admin platform, with «Hentikan sekarang» at 320 px: the Tab or
 10. input «Mulai (WIB; kosongkan untuk sekarang)»
 11. input «Mulai (WIB; kosongkan untuk sekarang)»
 12. input «Mulai (WIB; kosongkan untuk sekarang)»
-13. input «Mulai (WIB; kosongkan untuk sekarang)»  DS-DATETIME
+13. input «Mulai (WIB; kosongkan untuk sekarang)»
 14. input «Perkiraan selesai (WIB)»
 15. input «Perkiraan selesai (WIB)»
 16. input «Perkiraan selesai (WIB)»
 17. input «Perkiraan selesai (WIB)»
 18. input «Perkiraan selesai (WIB)»
 19. input «Perkiraan selesai (WIB)»
-20. input «Perkiraan selesai (WIB)»  DS-DATETIME
+20. input «Perkiraan selesai (WIB)»
 21. button «Periksa waktu ini»
 22. textarea «Pesan untuk pengguna (pilihan)»
 23. input «Alasan (dicatat)»
@@ -34,14 +34,14 @@ Pemeliharaan · Admin platform, with «Hentikan sekarang» at 320 px: the Tab or
 33. input «Terbit (WIB; kosongkan untuk sekarang)»
 34. input «Terbit (WIB; kosongkan untuk sekarang)»
 35. input «Terbit (WIB; kosongkan untuk sekarang)»
-36. input «Terbit (WIB; kosongkan untuk sekarang)»  DS-DATETIME
+36. input «Terbit (WIB; kosongkan untuk sekarang)»
 37. input «Sampai (WIB)»
 38. input «Sampai (WIB)»
 39. input «Sampai (WIB)»
 40. input «Sampai (WIB)»
 41. input «Sampai (WIB)»
 42. input «Sampai (WIB)»
-43. input «Sampai (WIB)»  DS-DATETIME
+43. input «Sampai (WIB)»
 44. button «Terbitkan pengumuman»
 45. input «Seluruh platform»
 

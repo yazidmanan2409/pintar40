@@ -260,9 +260,11 @@
     function perlu() {
       // A navigation item needs its tooltip only while its label is hidden (the rail).
       var lab = el.querySelector(".pds-nav-label");
-      return !lab || getComputedStyle(lab).display === "none";
+      // 4.0: the rail's state (the navigation at its 72 px), never the label's CSS
+      var nav = el.closest(".pds-nav");
+      return !lab || (!!nav && nav.getBoundingClientRect().width <= 80);
     }
-    function tampil(segera) { if (!perlu()) return; clearTimeout(tunda); tunda = setTimeout(function () { tip.hidden = false; }, segera ? 0 : 400); }
+    function tampil(segera) { if (!perlu()) return; clearTimeout(tunda); if (segera) { tip.hidden = false; return; } tunda = setTimeout(function () { tip.hidden = false; }, 400); } // 4.0: keyboard focus shows it at once
     function sembunyi() { clearTimeout(tunda); tip.hidden = true; }
     el.addEventListener("mouseenter", function () { tampil(false); });
     el.addEventListener("mouseleave", sembunyi);
@@ -534,8 +536,7 @@
         el.querySelector("[data-id-inisial]").textContent = p.inisial;
         el.querySelector("[data-id-nama]").textContent = p.nama;
         el.querySelector("[data-id-konteks]").textContent = p.konteks;
-        var tombol = el.querySelector(".pds-identity");
-        if (tombol) tombol.setAttribute("aria-label", "Akun: " + p.nama);
+        // 4.0: the identity button is named by its own text (WCAG 2.5.3), never an aria-label
       });
       host.querySelectorAll("[data-shell-bantuan]").forEach(function (b) { b.hidden = !p.bantuan; });
       var kini = TEMPAT[p.kini].label;
@@ -567,7 +568,8 @@
     var ciut = host.querySelector("[data-shell-ciut]");
     if (ciut) ciut.addEventListener("click", function () {
       var lab = host.querySelector(".pds-nav .pds-nav-label");
-      var ya = !(lab && getComputedStyle(lab).display === "none");
+      var navNow = host.querySelector(".pds-shell .pds-nav");
+      var ya = !(navNow && navNow.getBoundingClientRect().width <= 80); // 4.0: the rail's state
       s.setAttribute("data-ciut", ya ? "ya" : "tidak");
       ciut.setAttribute("aria-label", ya ? "Lebarkan navigasi" : "Ciutkan navigasi");
       ciut.setAttribute("aria-expanded", ya ? "false" : "true");

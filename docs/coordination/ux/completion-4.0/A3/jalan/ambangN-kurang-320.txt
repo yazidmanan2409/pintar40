@@ -58,6 +58,6 @@ Another threshold, here 10 (O3 b) · 7 of 28 scored: not yet at 320 px
           - cell "Sudah mengumpulkan"
           - cell "85%"
     - navigation "Halaman daftar murid":
-      - text: Menampilkan 1–6 dari 28 murid Halaman 1 dari 5
+      - text: Menampilkan 1–6 dari 28 murid Sebelumnya Halaman 1 dari 5
       - link "Berikutnya":
         - /url: "#"

@@ -3,7 +3,7 @@
  2. a «Pimpinan»
  3. a «Studio»
  4. button «Keluar»
- 5. a «Kembali»
+ 5. a «Matematika»
  6. a «SMP Cahaya Kaliandra»
  7. a «Matematika»
  8. a «Kelas 7AHasil tersediaGuru: Citra Lestari»
@@ -16,7 +16,7 @@
 The accessibility tree of the main region
 - main:
   - paragraph:
-    - link "Kembali":
+    - link "Matematika":
       - /url: "#"
   - list "Lokasi":
     - listitem:

@@ -19,17 +19,5 @@
 /* In the drawer the block heads the places, as in the expanded navigation. */
 .pds-drawer .e2-konteks { margin: 0 0 var(--space-3); }
 
-/* O-E1 correction (owner, 4 Nov): in the rail the link's own text stays in the accessibility tree, visually
-   hidden, never display: none and never repeated as an aria-label. The bundle's rail rule (display: none) is
-   overridden here; the DS's AppShell takes the same change (README §4). */
-.e1 .pds-shell[data-ciut="ya"] .pds-nav :is(.pds-nav-label, .pds-identity > div),
-.e1 .pds-nav .e1-rail-konteks .pds-nav-label {
-  display: block; position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
-}
-@container shell (min-width: 1024px) and (max-width: 1279px) {
-  .e1 .pds-shell:not([data-ciut="tidak"]) .pds-nav :is(.pds-nav-label, .pds-identity > div) {
-    display: block; position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
-  }
-}
+/* The rail's visually hidden text and its tooltip are now the design system's own (bundle.css, bundle.js; 4.0). */
+.e1 .pds-nav .e1-rail-konteks .pds-nav-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

@@ -5,12 +5,12 @@
  4. a «Aktivasi akun»
  5. a «Studio»
  6. button «Keluar»
- 7. a «Kembali»
+ 7. a «Konfigurasi»
 
 The accessibility tree of the main region
 - main:
   - paragraph:
-    - link "Kembali":
+    - link "Konfigurasi":
       - /url: "#"
   - paragraph: Pengembangan profesi guru · PD Guru Matematika
   - heading "Catatan pengembangan profesi" [level=1]

@@ -5,7 +5,7 @@ Five long options (the 320 px case) at 320 px: the Tab order from the top of the
  4. a «Studio»
  5. select «Pelajaran 1 · Apa itu pecahan senilai (4 soal)Pela»
  6. button «Buka»
- 7. a «Pelajaran sebelumnya»
+ 7. a «Sebelumnya»
 
 The accessibility tree of «Soal dalam paket ini»
 - region "Soal dalam paket ini":
@@ -62,5 +62,6 @@ The accessibility tree of «Soal dalam paket ini»
                 - text: Sisa kue adalah 6 dari 12, yaitu setengah, bukan sepertiga.
   - navigation "Pelajaran (bawah)":
     - text: Pelajaran 6 dari 6
-    - link "Pelajaran sebelumnya":
+    - link "Sebelumnya":
       - /url: "#soal"
+    - text: Berikutnya

@@ -594,7 +594,7 @@ th.pds-angka .pds-sort { flex-direction: row-reverse; }
 @container (max-width: 639px) {
   .pds-pager-nomor { display: none; }
   .pds-pager-kecil { display: inline; }
-  .pds-pager .pds-btn-teks { display: none; }
+  .pds-pager .pds-btn-teks { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; } /* 4.0: visually hidden, never display: none, so the link keeps its own name */
   /* On a phone the page list becomes ‹ [2 ▾] dari 12 ›: the select is the page list. */
   .pds-pager-gerak:has(.pds-pager-lompat) [data-sebelum] { order: 0; }
   .pds-pager-gerak .pds-pager-lompat { order: 1; }
@@ -914,11 +914,10 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
 /* Collapsed by the reader, or 1024 to 1279px: the rail. */
 .pds-shell[data-ciut="ya"] { grid-template-columns: var(--shell-rail) minmax(0, 1fr); }
 .pds-shell[data-ciut="ya"] .pds-nav { padding-inline: var(--space-3); align-items: center; }
-.pds-shell[data-ciut="ya"] .pds-nav-label,
 .pds-shell[data-ciut="ya"] .pds-nav-grup,
-.pds-shell[data-ciut="ya"] .pds-identity > div,
 .pds-shell[data-ciut="ya"] .pds-identity > .pds-ikon,
 .pds-shell[data-ciut="ya"] .pds-merek-penuh { display: none; }
+.pds-shell[data-ciut="ya"] :is(.pds-nav-label, .pds-identity > div) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; } /* 4.0: in the rail a link and the identity button keep their own text as their name (visually hidden, WCAG 2.5.3) */
 .pds-shell[data-ciut="ya"] .pds-nav-kepala { flex-direction: column; padding: 0 0 var(--space-3); }
 .pds-shell[data-ciut="ya"] .pds-nav-item { width: var(--control-md); padding: 0; justify-content: center; }
 .pds-shell[data-ciut="ya"] .pds-nav-item .pds-dot { position: absolute; margin: -22px 0 0 26px; }
@@ -927,7 +926,8 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
 @container shell (max-width: 1279px) {
   .pds-shell:not([data-ciut="tidak"]) { grid-template-columns: var(--shell-rail) minmax(0, 1fr); }
   .pds-shell:not([data-ciut="tidak"]) .pds-nav { padding-inline: var(--space-3); align-items: center; }
-  .pds-shell:not([data-ciut="tidak"]) :is(.pds-nav-label, .pds-nav-grup, .pds-identity > div, .pds-identity > .pds-ikon, .pds-merek-penuh) { display: none; }
+  .pds-shell:not([data-ciut="tidak"]) :is(.pds-nav-grup, .pds-identity > .pds-ikon, .pds-merek-penuh) { display: none; }
+  .pds-shell:not([data-ciut="tidak"]) :is(.pds-nav-label, .pds-identity > div) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; } /* 4.0: in the rail a link and the identity button keep their own text as their name (visually hidden, WCAG 2.5.3) */
   .pds-shell:not([data-ciut="tidak"]) .pds-nav-kepala { flex-direction: column; padding: 0 0 var(--space-3); }
   .pds-shell:not([data-ciut="tidak"]) .pds-nav-item { width: var(--control-md); padding: 0; justify-content: center; }
   .pds-shell:not([data-ciut="tidak"]) .pds-identity { grid-template-columns: auto; padding: var(--space-1); width: auto; }
@@ -1089,6 +1089,8 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
 .pds-berkas-tombol input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 .pds-berkas input[type="file"]:focus-visible + label { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
 .pds-berkas-nama { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-2); }
+/* 4.0 (B1 finding): a native date or time field's last Tab stop, the calendar button, is focused inside the field, which matches neither :focus nor :focus-visible; :focus-within rings it. */
+.pds-input:is([type="date"], [type="time"], [type="datetime-local"]):focus-within { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; border-color: var(--ink-3); }
 </style><style>/* B1 · W3.6 — Konfigurasi. Composition only: every value is a design-system token or an
    existing component. No new token, no palette change. */
 
@@ -1415,9 +1417,11 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
     function perlu() {
       // A navigation item needs its tooltip only while its label is hidden (the rail).
       var lab = el.querySelector(".pds-nav-label");
-      return !lab || getComputedStyle(lab).display === "none";
+      // 4.0: the rail's state (the navigation at its 72 px), never the label's CSS
+      var nav = el.closest(".pds-nav");
+      return !lab || (!!nav && nav.getBoundingClientRect().width <= 80);
     }
-    function tampil(segera) { if (!perlu()) return; clearTimeout(tunda); tunda = setTimeout(function () { tip.hidden = false; }, segera ? 0 : 400); }
+    function tampil(segera) { if (!perlu()) return; clearTimeout(tunda); if (segera) { tip.hidden = false; return; } tunda = setTimeout(function () { tip.hidden = false; }, 400); } // 4.0: keyboard focus shows it at once
     function sembunyi() { clearTimeout(tunda); tip.hidden = true; }
     el.addEventListener("mouseenter", function () { tampil(false); });
     el.addEventListener("mouseleave", sembunyi);
@@ -1689,8 +1693,7 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
         el.querySelector("[data-id-inisial]").textContent = p.inisial;
         el.querySelector("[data-id-nama]").textContent = p.nama;
         el.querySelector("[data-id-konteks]").textContent = p.konteks;
-        var tombol = el.querySelector(".pds-identity");
-        if (tombol) tombol.setAttribute("aria-label", "Akun: " + p.nama);
+        // 4.0: the identity button is named by its own text (WCAG 2.5.3), never an aria-label
       });
       host.querySelectorAll("[data-shell-bantuan]").forEach(function (b) { b.hidden = !p.bantuan; });
       var kini = TEMPAT[p.kini].label;
@@ -1722,7 +1725,8 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
     var ciut = host.querySelector("[data-shell-ciut]");
     if (ciut) ciut.addEventListener("click", function () {
       var lab = host.querySelector(".pds-nav .pds-nav-label");
-      var ya = !(lab && getComputedStyle(lab).display === "none");
+      var navNow = host.querySelector(".pds-shell .pds-nav");
+      var ya = !(navNow && navNow.getBoundingClientRect().width <= 80); // 4.0: the rail's state
       s.setAttribute("data-ciut", ya ? "ya" : "tidak");
       ciut.setAttribute("aria-label", ya ? "Lebarkan navigasi" : "Ciutkan navigasi");
       ciut.setAttribute("aria-expanded", ya ? "false" : "true");
@@ -1928,9 +1932,10 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
       <header class="pds-bar"><span class="b1-slot" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span><span class="pds-bar-tempat" aria-hidden="true">Konfigurasi</span><button type="button" class="pds-btn pds-btn-secondary">Keluar</button><button type="button" class="pds-btn pds-btn-icon" aria-label="Menu"><i data-ikon="menu"></i></button></header>
       <main class="pds-main-isi" id="b1-isi" tabindex="-1"><div class="pds-pagehead"><div><p><a href="#" class="pds-back"><i data-ikon="chevron-left"></i>Konfigurasi</a></p><h1 class="pds-title">Peran &amp; akses</h1></div></div><p class="b1-konteks"><strong>Seluruh platform</strong></p>
     <section class="pds-section" aria-labelledby="b1-daftar-peran"><h2 id="b1-daftar-peran" class="pds-sr">Peran & akses</h2><ul class="pds-list b1-daftar"><li class="b1-baris"><div class="b1-baris-kepala"><div><strong>Hana Wibisono</strong><small>Admin platform · Admin platform · Berlaku sampai 31 Des 2027</small></div><a href="#" class="pds-btn pds-btn-destructive b1-aksi" aria-label="Cabut · Hana Wibisono">Cabut</a></div></li><li class="b1-baris b1-baris-buka"><div class="b1-baris-kepala"><div><strong>Dewi Saraswati</strong><small>Admin sekolah · SMP Cahaya Kaliandra · Berlaku sampai 31 Des 2027</small></div></div><form class="pds-panel b1-form-baris" aria-label="Cabut · Dewi Saraswati"><div class="pds-field"><label class="pds-label" for="f1">Alasan</label><input id="f1" class="pds-input" required maxlength="300" autocomplete="off"></div>
-      <div class="pds-actions"><button type="submit" class="pds-btn pds-btn-destructive-confirm">Cabut</button><a href="#" class="pds-btn pds-btn-quiet">Batal</a></div></form></li><li class="b1-baris"><div class="b1-baris-kepala"><div><strong>Joko Santoso</strong><small>Admin sekolah · SD Tunas Mandiri · Berlaku sampai 31 Jul 2027</small></div><a href="#" class="pds-btn pds-btn-destructive b1-aksi" aria-label="Cabut · Joko Santoso">Cabut</a></div></li></ul><nav class="pds-pager" aria-label="Halaman daftar peran &amp; akses"><span class="pds-pager-posisi">Halaman 1</span><span class="pds-pager-gerak">
-  
-  
+      <div class="pds-actions"><button type="submit" class="pds-btn pds-btn-destructive-confirm">Cabut</button><a href="#" class="pds-btn pds-btn-quiet">Batal</a></div></form></li><li class="b1-baris"><div class="b1-baris-kepala"><div><strong>Joko Santoso</strong><small>Admin sekolah · SD Tunas Mandiri · Berlaku sampai 31 Jul 2027</small></div><a href="#" class="pds-btn pds-btn-destructive b1-aksi" aria-label="Cabut · Joko Santoso">Cabut</a></div></li></ul><nav class="pds-pager" aria-label="Halaman daftar peran &amp; akses"><span>Menampilkan 1–20 peran & akses</span><span class="pds-pager-gerak">
+  <span class="pds-btn pds-btn-secondary" data-sebelum aria-disabled="true"><i data-ikon="chevron-left"></i><span class="pds-btn-teks">Sebelumnya</span></span>
+  <span class="pds-pager-posisi">Halaman 1</span>
+  <span class="pds-btn pds-btn-secondary" data-sesudah aria-disabled="true"><span class="pds-btn-teks">Berikutnya</span><i data-ikon="chevron-right"></i></span>
 </span></nav></section><section class="pds-section" aria-labelledby="b1-beri"><h2 id="b1-beri">Berikan peran</h2>
     <form class="pds-panel b1-form"><div class="b1-dua"><div class="pds-field"><label class="pds-label" for="f2">Orang</label><span class="pds-select"><select id="f2" required><option value="" disabled selected>—</option><optgroup label="Belum memiliki peran"><option>Indah Permata</option></optgroup><optgroup label="Sudah dikenal sistem"><option>Citra Lestari</option><option>Eko Prasetyo</option></optgroup></select><i data-ikon="chevron-down"></i></span></div>
       <div class="pds-field"><label class="pds-label" for="f3">Peran</label><span class="pds-select"><select id="f3" ><option>Guru</option><option>Kepala departemen</option><option>Dekan</option><option>Admin sekolah</option><option>Admin platform</option></select><i data-ikon="chevron-down"></i></span></div><div class="pds-field"><label class="pds-label" for="f4">Lingkup</label><span class="pds-select"><select id="f4" ><option>—</option></select><i data-ikon="chevron-down"></i></span></div><div class="pds-field"><label class="pds-label" for="f5">Berlaku sampai</label><input id="f5" class="pds-input" type="date" value="2027-06-30" aria-describedby="f5-g"><p class="pds-gema" aria-live="polite"><i data-ikon="calendar"></i><span id="f5-g">Rabu, 30 Juni 2027</span></p></div></div>

@@ -29,7 +29,7 @@
    - the h1 is the place: the class, or the school;
    - the intro is the built coverage sentence, `laporan.cakupan.kelas` or `.sekolah` with its time.
    
-   The actions sit at the head's end: the back link «Kembali» and «Cetak laporan». It is a secondary button: the figures are the page; printing is one thing a reader may do with them.
+   The actions sit at the head's end: the back link, which names where it goes («Pimpinan», `nav.pimpinan`, or «Laporan» when the reader came from Konfigurasi; D-172 K1), and «Cetak laporan». It is a secondary button: the figures are the page; printing is one thing a reader may do with them.
 3. **The body:** the figures **in the template's order** (the school chose it, W8-02), laid out by shape.
 
 | What `generate_report` returns | Laid out as |
@@ -58,7 +58,7 @@
 | Width | What changes |
 |---|---|
 | 1280 / 820 | The staff shell. Single figures three to a row; key/value lists at `measure-narrow`. |
-| 390 / 320 | The App shell's top bar. Single figures one to a row. The actions span the head: «Kembali» at the start, «Cetak laporan» at the end. Lists keep the figure right-aligned; long names wrap. |
+| 390 / 320 | The App shell's top bar. Single figures one to a row. The actions span the head: the back link at the start, «Cetak laporan» at the end. Lists keep the figure right-aligned; long names wrap. |
 
 ### The A4 print specification
 
@@ -96,7 +96,7 @@ See `render/*-a4.pdf`, printed by the browser from the page's own stylesheet.
 
 ## 4. Keyboard and accessibility
 
-- **Tab order:** the skip link, the places, «Kembali», «Cetak laporan». The figures hold no controls.
+- **Tab order:** the skip link, the places, the back link («Pimpinan»), «Cetak laporan». The figures hold no controls.
 - **Headings:** one h1 (the place); an h2 per figure that has a label; none for a withheld figure, whose section is named by its sentence.
 - **Lists:** the key/value lists are `dl`; the row lists are `ul`.
 - **Colour never carries meaning:** no band, figure or state is coloured.
@@ -137,7 +137,7 @@ See `render/*-a4.pdf`, printed by the browser from the page's own stylesheet.
 
 | Action | Outcome |
 |---|---|
-| «Kembali» | the page the reader came from: `/pimpinan`, or Konfigurasi's «Laporan» section page (B1) |
+| «Pimpinan» / «Laporan» (the back link, K1) | the page the reader came from: `/pimpinan`, or Konfigurasi's «Laporan» section page (B1) |
 | «Cetak laporan» | the browser's print, to this specification |
 
 Nothing is saved and nothing is announced.

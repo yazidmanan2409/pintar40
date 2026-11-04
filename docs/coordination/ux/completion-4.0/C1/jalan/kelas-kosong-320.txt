@@ -2,7 +2,7 @@ Ringkasan Kelas · nothing to show at 320 px: the Tab order from the top of the 
  1. a «Langsung ke isi»
  2. button «Keluar»
  3. button «Menu»
- 4. a «Kembali»
+ 4. a «Pimpinan»
  5. button «Cetak laporan»
 
 The accessibility tree of the main region
@@ -13,7 +13,7 @@ The accessibility tree of the main region
     - listitem: TA 2026/2027
   - paragraph: "[G6 · judul laporan kelas]"
   - heading "Kelas 7A" [level=1]
-  - link "Kembali":
+  - link "Pimpinan":
     - /url: "#"
   - button "Cetak laporan"
   - paragraph: Belum ada angka yang bisa ditampilkan untuk Anda di sini.

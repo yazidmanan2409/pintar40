@@ -11,3 +11,4 @@ Who is signed in: initials or the profile photo, the name, and the context. Neve
 **Rules**
 - The profile photo belongs to the profile only. It is never drawn on the PINTAR card or the certificate (owner's ruling, 4 Oct).
 - A long name ellipsizes in the block; the full name is in the menu's accessible name.
+- **The identity button is named by its own text** (name, then role and school), after a visually hidden «Akun:» (`span.pds-sr`); never an `aria-label` that drops what is shown (WCAG 2.5.3, 4.0 correction). The built MenuAkun already does this.

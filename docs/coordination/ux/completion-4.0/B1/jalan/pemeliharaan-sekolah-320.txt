@@ -10,14 +10,14 @@ Pemeliharaan · step 2 (the collision check) · Admin sekolah at 320 px: the Tab
  9. input «Mulai (WIB; kosongkan untuk sekarang)»
 10. input «Mulai (WIB; kosongkan untuk sekarang)»
 11. input «Mulai (WIB; kosongkan untuk sekarang)»
-12. input «Mulai (WIB; kosongkan untuk sekarang)»  DS-DATETIME
+12. input «Mulai (WIB; kosongkan untuk sekarang)»
 13. input «Perkiraan selesai (WIB)»
 14. input «Perkiraan selesai (WIB)»
 15. input «Perkiraan selesai (WIB)»
 16. input «Perkiraan selesai (WIB)»
 17. input «Perkiraan selesai (WIB)»
 18. input «Perkiraan selesai (WIB)»
-19. input «Perkiraan selesai (WIB)»  DS-DATETIME
+19. input «Perkiraan selesai (WIB)»
 20. button «Periksa waktu ini»
 21. textarea «Pesan untuk pengguna (pilihan)»
 22. input «Alasan (dicatat)»
@@ -32,14 +32,14 @@ Pemeliharaan · step 2 (the collision check) · Admin sekolah at 320 px: the Tab
 31. input «Terbit (WIB; kosongkan untuk sekarang)»
 32. input «Terbit (WIB; kosongkan untuk sekarang)»
 33. input «Terbit (WIB; kosongkan untuk sekarang)»
-34. input «Terbit (WIB; kosongkan untuk sekarang)»  DS-DATETIME
+34. input «Terbit (WIB; kosongkan untuk sekarang)»
 35. input «Sampai (WIB)»
 36. input «Sampai (WIB)»
 37. input «Sampai (WIB)»
 38. input «Sampai (WIB)»
 39. input «Sampai (WIB)»
 40. input «Sampai (WIB)»
-41. input «Sampai (WIB)»  DS-DATETIME
+41. input «Sampai (WIB)»
 42. button «Terbitkan pengumuman»
 
 The accessibility tree of the main region

@@ -37,15 +37,29 @@
 
 | # | What does not match | Where | Correction (at the shared pattern or component) |
 |---|---|---|---|
-| **K1** | **Bare «Kembali» back links** (P3) | `laporan.kembali` (the Ringkasan), `pimpinan.kembali`, `umpanbalik.kembali`, `pengembangan.kembali`; the built `← Kembali` on `/pimpinan/*`; my C1 specimens followed them | **The back link names its destination.** The calling page passes it; the Ringkasan names `/pimpinan` or «Laporan» as it came. These keys are retired from back links, and the destination's own name (its nav word or its title) is used. A destination that truly varies and is unknown is the one exception: it keeps «Kembali». |
-| **K2** | **Two pagers** (P9) | the built Penomoran (`src/components/koleksi/Penomoran.tsx`) uses «Kembali» for the previous page, omits it on page 1 and shows no total, against the DS Pagination; my B1 and C1 specimens followed it; A1 followed the DS | **Penomoran becomes the DS Pagination.**<br>• «Sebelumnya» (`koleksi.sebelumnya`, which already exists) replaces `koleksi.kembali` in the pager.<br>• «Sebelumnya» is shown disabled on the first page.<br>• **Keyset pages, whose total is unknown, say what is shown** («Menampilkan {dari}–{sampai} {benda}»), in place of a total: one NEW key, `koleksi.menampilkan_tanpa_total`. |
+| **K1** | **Bare «Kembali» back links** (P3) | `laporan.kembali` (the Ringkasan), `pimpinan.kembali`, `umpanbalik.kembali`, `pengembangan.kembali`; the built `← Kembali` on `/pimpinan/*`; my C1 specimens followed them | **The back link names its destination.** The calling page passes it; the Ringkasan names `/pimpinan` or «Laporan» as it came. These keys are retired from back links, and the destination's own name (its nav word or its title) is used. A destination that truly varies and is unknown is the one exception: it keeps «Kembali».<br>**Specimens corrected (4 Nov):** C1 and C1 part B name their destinations (`nav.pimpinan`, «Matematika», `umpanbalik.pimpinan.judul`, `nav.konfigurasi`, `nav.kelas`). Re-rendered, 0 failures. |
+| **K2** | **Two pagers** (P9) | the built Penomoran (`src/components/koleksi/Penomoran.tsx`) uses «Kembali» for the previous page, omits it on page 1 and shows no total, against the DS Pagination; my B1 and C1 specimens followed it; A1 followed the DS | **Penomoran becomes the DS Pagination.**<br>• «Sebelumnya» (`koleksi.sebelumnya`, which already exists) replaces `koleksi.kembali` in the pager.<br>• «Sebelumnya» is shown disabled on the first page.<br>• **Keyset pages, whose total is unknown, say what is shown** («Menampilkan {dari}–{sampai} {benda}»), in place of a total: one NEW key, `koleksi.menampilkan_tanpa_total`.<br>**Specimens corrected (4 Nov):** B1's pager is now this grammar. Re-rendered, 0 failures. |
 | **K3** | **The ✓ alone on its line** (P6) | BarisHasil when wrapping (A5 B3); J5's live result | **In BarisHasil**, once, for every surface (A5 B3, accepted for design) |
 | **K4** | **A result line away from its action** (P5) | my B1 section pages placed it at the top | **Corrected in B1:** under the saved row, or under its form. Re-rendered. |
 | **K5** | **A scope choice drawn as buttons** (P10) | my C1 part B `/pimpinan` «Lingkup» | **Corrected in C1 part B:** Tabs (pages); the DS says `.pin-lingkup` becomes Tabs. Re-rendered. |
-| **K6** | **The pager's words named the unit** (P9) | my A1 «Pelajaran sebelumnya» / «Pelajaran berikutnya» | «Sebelumnya» / «Berikutnya», as P9. The position line «Pelajaran 3 dari 4» keeps the unit. A1's specimen is corrected with the next A1 change; the accepted composition is otherwise unchanged. |
+| **K6** | **The pager's words named the unit** (P9) | my A1 «Pelajaran sebelumnya» / «Pelajaran berikutnya» | «Sebelumnya» / «Berikutnya», as P9. The position line «Pelajaran 3 dari 4» keeps the unit. **Corrected (4 Nov):** A1's pager uses `koleksi.sebelumnya` / `koleksi.berikutnya`; its two NEW keys `studio.soal.sebelumnya` / `.berikutnya` are withdrawn. The accepted composition is otherwise unchanged. |
 | **K7** | **An app-name eyebrow inside the shell** (P20) | Konfigurasi (RV-24; B1), Studio (A5 C8) | **One rule for the page head:** no «PINTAR» eyebrow inside the shell |
 | **K8** | **Step markers that read as radio buttons** (P11 vs named steps) | Studio's step list (A5 B12) | Named steps as J1Terbit (A5 B12), in the one step-list component |
 | **K9** | **Disabled fields standing for a fixed value** (P18) | Siapkan after «Disediakan» (A5 D6) | Fixed values are text, in the date helper's words |
+
+### 2a. Corrected in the design system itself (4 Nov), found while re-rendering K1, K2 and K6
+
+These were defects in the shared source: each screen that used the component inherited them, and each screen had worked around them. The workarounds (E1's tooltip script and CSS override; `aria-label`s on A1's and A3's pager links) are removed; every screen now relies on the component.
+
+| # | Defect | Root cause | Correction (bundle.css / bundle.js / bundle-sumber.js) | Verified |
+|---|---|---|---|---|
+| **S1** | A pager button at 320–639 px had no name (axe `link-name`, B1) | Pagination's narrow rule hid the words with `display: none` | The words are visually hidden | B1 56 renders, 0 failures |
+| **S2** | A rail place lost its own text (E1 ruling) | The rail rules hid `.pds-nav-label` with `display: none` | Visually hidden; the group labels, the icon and the full wordmark stay `display: none` | E1 28 renders, 0 failures |
+| **S3** | A rail tooltip depended on the label's CSS, and a focused rail item's tooltip arrived a tick late | `perlu()` read `display` of the label; keyboard focus went through `setTimeout(0)` | `perlu()` and the collapse button read the rail's state (the navigation ≤ 80 px wide); keyboard focus shows the tooltip at once | E1 0 failures; DS Tooltip [fokus] ok |
+| **S4** | A date or time field's last Tab stop (the browser's calendar button) had no ring (B1, four pages) | The ring was on `:focus-visible`; that stop is inside the field and matches neither `:focus` nor `:focus-visible` | The ring on `:focus-within` for date, time and datetime-local | B1 Tab walks: ring on every stop; the DateTime finding is gone |
+| **S5** | The identity button's name dropped what it shows (WCAG 2.5.3 Label in Name; axe 4.14 `label-content-name-mismatch`, 40 DS previews) | `aria-label="Akun: {nama}"` replaced the visible name, role and school; it existed only because the rail removed the text | No `aria-label`: the button is named by its own text after a visually hidden «Akun:»; in the rail that text is visually hidden (as S2). 16 previews corrected | DS harness 60 previews, 0 failures (was 40) |
+
+S5 was already failing on the committed design system when re-checked with today's axe (4.14); the 8 Oct report predates that rule's inclusion. The built MenuAkun already names itself by its contents, so the application conforms.
 
 ## 3. Genuine exceptions, with their reason
 
@@ -70,7 +84,9 @@
   - a result line inside the form or row it answers (K4);
   - no «PINTAR» eyebrow inside the shell (K7);
   - no disclosure around required content (P17);
-  - every refusal through HalamanPenolakan (P15).
+  - every refusal through HalamanPenolakan (P15);
+  - no `display: none` on text that names a control, in the rail or the pager (S1, S2);
+  - no `aria-label` on a control whose visible text it does not contain (S5).
 
 ## Words (T table)
 

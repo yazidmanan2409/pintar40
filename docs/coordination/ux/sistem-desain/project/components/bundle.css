@@ -485,7 +485,7 @@ th.pds-angka .pds-sort { flex-direction: row-reverse; }
 @container (max-width: 639px) {
   .pds-pager-nomor { display: none; }
   .pds-pager-kecil { display: inline; }
-  .pds-pager .pds-btn-teks { display: none; }
+  .pds-pager .pds-btn-teks { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; } /* 4.0: visually hidden, never display: none, so the link keeps its own name */
   /* On a phone the page list becomes ‹ [2 ▾] dari 12 ›: the select is the page list. */
   .pds-pager-gerak:has(.pds-pager-lompat) [data-sebelum] { order: 0; }
   .pds-pager-gerak .pds-pager-lompat { order: 1; }
@@ -805,11 +805,10 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
 /* Collapsed by the reader, or 1024 to 1279px: the rail. */
 .pds-shell[data-ciut="ya"] { grid-template-columns: var(--shell-rail) minmax(0, 1fr); }
 .pds-shell[data-ciut="ya"] .pds-nav { padding-inline: var(--space-3); align-items: center; }
-.pds-shell[data-ciut="ya"] .pds-nav-label,
 .pds-shell[data-ciut="ya"] .pds-nav-grup,
-.pds-shell[data-ciut="ya"] .pds-identity > div,
 .pds-shell[data-ciut="ya"] .pds-identity > .pds-ikon,
 .pds-shell[data-ciut="ya"] .pds-merek-penuh { display: none; }
+.pds-shell[data-ciut="ya"] :is(.pds-nav-label, .pds-identity > div) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; } /* 4.0: in the rail a link and the identity button keep their own text as their name (visually hidden, WCAG 2.5.3) */
 .pds-shell[data-ciut="ya"] .pds-nav-kepala { flex-direction: column; padding: 0 0 var(--space-3); }
 .pds-shell[data-ciut="ya"] .pds-nav-item { width: var(--control-md); padding: 0; justify-content: center; }
 .pds-shell[data-ciut="ya"] .pds-nav-item .pds-dot { position: absolute; margin: -22px 0 0 26px; }
@@ -818,7 +817,8 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
 @container shell (max-width: 1279px) {
   .pds-shell:not([data-ciut="tidak"]) { grid-template-columns: var(--shell-rail) minmax(0, 1fr); }
   .pds-shell:not([data-ciut="tidak"]) .pds-nav { padding-inline: var(--space-3); align-items: center; }
-  .pds-shell:not([data-ciut="tidak"]) :is(.pds-nav-label, .pds-nav-grup, .pds-identity > div, .pds-identity > .pds-ikon, .pds-merek-penuh) { display: none; }
+  .pds-shell:not([data-ciut="tidak"]) :is(.pds-nav-grup, .pds-identity > .pds-ikon, .pds-merek-penuh) { display: none; }
+  .pds-shell:not([data-ciut="tidak"]) :is(.pds-nav-label, .pds-identity > div) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; } /* 4.0: in the rail a link and the identity button keep their own text as their name (visually hidden, WCAG 2.5.3) */
   .pds-shell:not([data-ciut="tidak"]) .pds-nav-kepala { flex-direction: column; padding: 0 0 var(--space-3); }
   .pds-shell:not([data-ciut="tidak"]) .pds-nav-item { width: var(--control-md); padding: 0; justify-content: center; }
   .pds-shell:not([data-ciut="tidak"]) .pds-identity { grid-template-columns: auto; padding: var(--space-1); width: auto; }
@@ -980,3 +980,5 @@ button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; c
 .pds-berkas-tombol input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 .pds-berkas input[type="file"]:focus-visible + label { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
 .pds-berkas-nama { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-2); }
+/* 4.0 (B1 finding): a native date or time field's last Tab stop, the calendar button, is focused inside the field, which matches neither :focus nor :focus-visible; :focus-within rings it. */
+.pds-input:is([type="date"], [type="time"], [type="datetime-local"]):focus-within { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; border-color: var(--ink-3); }

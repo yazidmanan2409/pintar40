@@ -8,8 +8,8 @@ Lesson 3 of 4 (mid-package) at 1280 px: the Tab order from the top of the page
  7. a «Studio»
  8. select «Pelajaran 1 · Apa itu pecahan senilai (4 soal)Pela»
  9. button «Buka»
-10. a «Pelajaran sebelumnya»
-11. a «Pelajaran berikutnya»
+10. a «Sebelumnya»
+11. a «Berikutnya»
 
 The accessibility tree of «Soal dalam paket ini»
 - region "Soal dalam paket ini":
@@ -128,7 +128,7 @@ The accessibility tree of «Soal dalam paket ini»
                 - text: Penyebut dibagi dengan bilangan yang berbeda.
   - navigation "Pelajaran (bawah)":
     - text: Pelajaran 3 dari 4
-    - link "Pelajaran sebelumnya":
+    - link "Sebelumnya":
       - /url: "#soal"
-    - link "Pelajaran berikutnya":
+    - link "Berikutnya":
       - /url: "#soal"

@@ -3,12 +3,12 @@
  2. a «Pimpinan»
  3. a «Studio»
  4. button «Keluar»
- 5. a «Kembali»
+ 5. a «Pimpinan»
 
 The accessibility tree of the main region
 - main:
   - paragraph:
-    - link "Kembali":
+    - link "Pimpinan":
       - /url: "#"
   - paragraph: Pengembangan profesi guru · PD Guru Matematika
   - heading "Catatan pengembangan profesi" [level=1]

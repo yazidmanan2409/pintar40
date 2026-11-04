@@ -3,7 +3,7 @@ Jejak audit · Admin platform («Versi» where a row has one) at 320 px: the Tab
  2. button «Keluar»
  3. button «Menu»
  4. a «Konfigurasi»
- 5. a «Kembali»
+ 5. a «Sebelumnya»
  6. a «Berikutnya»
 
 The accessibility tree of the main region
@@ -52,8 +52,9 @@ The accessibility tree of the main region
         - cell "Materi · SMP Cahaya Kaliandra"
         - cell
   - navigation "Halaman daftar jejak audit":
-    - text: Halaman 2
-    - link "Kembali":
+    - text: Menampilkan 21–40 jejak audit
+    - link "Sebelumnya":
       - /url: "#"
+    - text: Halaman 2
     - link "Berikutnya":
       - /url: "#"

@@ -69,6 +69,6 @@ The accessibility tree of the main region
           - /url: "#"
           - text: Ubah status
   - navigation "Halaman daftar laporan masalah":
-    - text: Halaman 1
+    - text: Menampilkan 1–20 laporan masalah Sebelumnya Halaman 1
     - link "Berikutnya":
       - /url: "#"

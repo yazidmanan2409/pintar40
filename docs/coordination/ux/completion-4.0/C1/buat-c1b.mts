@@ -115,7 +115,7 @@ const tolak = (h1: string, kembaliKe: string, nama: string) => `<div class="pds 
 
 // ── /pimpinan/[simpul] and the roster ───────────────────────────────────────
 function simpul(): string {
-  return shell(KADEP, "Matematika", `${kembali(kata("pimpinan.kembali"))}${kepala({ alis: kata("pimpinan.eyebrow"), h1: "Matematika" })}
+  return shell(KADEP, "Matematika", `${kembali(kata("nav.pimpinan"))}${kepala({ alis: kata("pimpinan.eyebrow"), h1: "Matematika" })}
     ${bagian("s-bukti", kata("pimpinan.bukti.judul"), `<div class="c1-baris-satu">${angkaSatu(kata("metrik.peserta_institusi.label", {}, "educator"), angka(84), kata("metrik.peserta_institusi.arti", {}, "educator"), 84)}${ketiadaan(null)}</div>`)}
     ${kesiapan(1, 1, 0)}
     ${bagian("s-ub", kata("umpanbalik.pimpinan.judul"), barisTautan([[kata("umpanbalik.pimpinan.buka")]]), kata("umpanbalik.pimpinan.sub"))}
@@ -142,7 +142,7 @@ function umpanBalik(ada: boolean): string {
   const putaran: Array<[string, string, keyof typeof KEADAAN_UB]> = [["Kelas 7A", "Citra Lestari", "PUBLISHED"], ["Kelas 7B", "Fitri Handayani", "OPEN"], ["Kelas 7C", "Citra Lestari", "WITHHELD"]];
   const daftar = ada ? `<ul class="pds-list">${putaran.map(([k, g, s]) => `<li><a href="#" class="pds-list-row"><strong>${k}</strong>${lencanaUb(s)}<small>${kata("umpanbalik.tentang.guru")}: ${g}</small></a></li>`).join("")}</ul>` : kosong(kata("umpanbalik.pimpinan.kosong"));
   // the h2 names the rounds (not the eyebrow's words again): «Putaran untuk kelas ini» is the built key for a round list
-  return shell(KADEP, kata("umpanbalik.pimpinan.judul"), `${kembali(kata("umpanbalik.kembali"))}${lingkup(SEKOLAH, "Matematika", kata("umpanbalik.pimpinan.judul"))}${kepala({ alis: kata("umpanbalik.pimpinan.judul"), h1: "Matematika", intro: kata("umpanbalik.pimpinan.sub") })}
+  return shell(KADEP, kata("umpanbalik.pimpinan.judul"), `${kembali("Matematika")}${lingkup(SEKOLAH, "Matematika", kata("umpanbalik.pimpinan.judul"))}${kepala({ alis: kata("umpanbalik.pimpinan.judul"), h1: "Matematika", intro: kata("umpanbalik.pimpinan.sub") })}
     <section class="pds-section" aria-labelledby="u-put"><h2 id="u-put">${kata("umpanbalik.kelas.putaran")}</h2>${daftar}</section>
     ${bagian("u-kelas", kata("umpanbalik.kelas.judul"), `<ul class="pds-list">${["Kelas 7A", "Kelas 7B", "Kelas 7C"].map((k) => `<li><a href="#" class="pds-list-row"><strong>${k}</strong><span class="c1-meta">${kata("umpanbalik.kelas.buka")}</span>${ikon("chevron-right")}</a></li>`).join("")}</ul>`, kata("umpanbalik.kelas.sub"))}`);
 }
@@ -156,12 +156,12 @@ function siklus(s: "PUBLISHED" | "WITHHELD" | "OPEN"): string {
     <ol class="c1b-soal">${soal.map(([q, op], i) => `<li><h3 id="q${i}">${q}</h3><dl class="c1b-opsi">${op.map(([o, n]) => `<div><dt>${o}</dt><dd><span class="c1b-batang" aria-hidden="true"><span style="width:${Math.round((n / total) * 100)}%"></span></span><span class="c1b-angka">${angka(n)}</span></dd></div>`).join("")}</dl></li>`).join("")}</ol>`
     : `<div class="pds-well"><p>${kata(s === "WITHHELD" ? "umpanbalik.hasil.belum_cukup_tanggapan" : "umpanbalik.hasil.belum_ditutup")}</p></div>`;
   const tutup = s === "OPEN" ? `<div class="pds-actions"><button type="button" class="pds-btn pds-btn-secondary">${kata("umpanbalik.tutup.aksi")}</button></div>` : `<p class="c1-meta">${kata("umpanbalik.tutup.selesai")}</p>`;
-  return shell(KADEP, "Kelas 7A", `${kembali(kata("umpanbalik.kembali"))}${lingkup(SEKOLAH, "Matematika", "Kelas 7A")}${kepala({ alis: kata("umpanbalik.pimpinan.judul"), h1: "Kelas 7A", intro: `${kata("umpanbalik.tentang.guru")}: Citra Lestari` })}
+  return shell(KADEP, "Kelas 7A", `${kembali(kata("umpanbalik.pimpinan.judul"))}${lingkup(SEKOLAH, "Matematika", "Kelas 7A")}${kepala({ alis: kata("umpanbalik.pimpinan.judul"), h1: "Kelas 7A", intro: `${kata("umpanbalik.tentang.guru")}: Citra Lestari` })}
     ${bagian("h-hasil", kata("umpanbalik.hasil.judul"), `<p>${lencanaUb(s)}</p>${hasil}`)}
     ${bagian("h-tutup", kata("umpanbalik.tutup.judul"), tutup)}<p class="c1-meta">${kata("umpanbalik.guru.guna")}</p>`);
 }
 function kelasUmpan(): string {
-  return shell(KADEP, "Kelas 7B", `${kembali(kata("umpanbalik.kembali"))}${lingkup(SEKOLAH, "Matematika", "Kelas 7B")}${kepala({ alis: kata("umpanbalik.pimpinan.judul"), h1: "Kelas 7B" })}
+  return shell(KADEP, "Kelas 7B", `${kembali(kata("umpanbalik.pimpinan.judul"))}${lingkup(SEKOLAH, "Matematika", "Kelas 7B")}${kepala({ alis: kata("umpanbalik.pimpinan.judul"), h1: "Kelas 7B" })}
     ${bagian("k-put", kata("umpanbalik.kelas.putaran"), `<ul class="pds-list"><li><a href="#" class="pds-list-row"><strong>${kata("umpanbalik.tentang.guru")}: Fitri Handayani</strong>${lencanaUb("OPEN")}${ikon("chevron-right")}</a></li></ul>`)}
     ${bagian("k-buka", kata("umpanbalik.buka.judul"), `<ul class="pds-list c1b-guru"><li><div class="pds-list-row"><strong>Fitri Handayani</strong><span class="c1-meta">${kata("umpanbalik.buka.sudah_ada")}</span></div></li><li><div class="pds-list-row"><strong>Gilang Ramadhan</strong><button type="button" class="pds-btn pds-btn-secondary" aria-label="${kata("umpanbalik.buka.aksi")} · Gilang Ramadhan">${kata("umpanbalik.buka.aksi")}</button></div></li></ul>`, kata("umpanbalik.buka.sub"))}`);
 }
@@ -186,7 +186,7 @@ function pengembangan(penuh: boolean): string {
         <div><dt>${kata("pengembangan.kolom.selesai")}</dt><dd>${ya(k.selesai)}</dd></div>
       </dl></li>`).join("")}</ul>`}</section>`).join("");
   const p = penuh ? KADEP : ADMIN;
-  return shell(p, kata("pengembangan.judul"), `${kembali(kata("pengembangan.kembali"))}${kepala({ alis: `${kata("pengembangan.eyebrow")} · PD Guru Matematika`, h1: kata("pengembangan.judul"), intro: kata(penuh ? "pengembangan.arti" : "pengembangan.arti_terbatas") })}${orang}`);
+  return shell(p, kata("pengembangan.judul"), `${kembali(kata(penuh ? "nav.pimpinan" : "nav.konfigurasi"))}${kepala({ alis: `${kata("pengembangan.eyebrow")} · PD Guru Matematika`, h1: kata("pengembangan.judul"), intro: kata(penuh ? "pengembangan.arti" : "pengembangan.arti_terbatas") })}${orang}`);
 }
 
 // ── render and check ─────────────────────────────────────────────────────────
@@ -206,10 +206,10 @@ const LEMBAR: Lembar[] = [
   { kode: "siklus-ditahan", judul: "/umpan-balik/[siklus] · results withheld (too few responses)", html: () => siklus("WITHHELD") },
   { kode: "siklus-terbuka", judul: "/umpan-balik/[siklus] · still collecting", html: () => siklus("OPEN") },
   { kode: "kelas-umpan", judul: "/umpan-balik/kelas/[kelas] · one class", html: kelasUmpan },
-  { kode: "umpan-balik-tolak", judul: "/umpan-balik · refusal", html: () => tolak(kata("umpanbalik.ditolak"), kata("umpanbalik.kembali"), "Citra Lestari") },
+  { kode: "umpan-balik-tolak", judul: "/umpan-balik · refusal", html: () => tolak(kata("umpanbalik.ditolak"), kata("nav.pimpinan"), "Citra Lestari") },
   { kode: "pengembangan-penuh", judul: "/pengembangan/[simpul] · facilitator, Kepala departemen, Dekan", html: () => pengembangan(true), cetak: true },
   { kode: "pengembangan-terbatas", judul: "/pengembangan/[simpul] · Admin sekolah (completion only)", html: () => pengembangan(false) },
-  { kode: "pengembangan-tolak", judul: "/pengembangan/[simpul] · refusal", html: () => tolak(kata("pengembangan.ditolak"), kata("pengembangan.kembali"), "Joko Susilo") },
+  { kode: "pengembangan-tolak", judul: "/pengembangan/[simpul] · refusal", html: () => tolak(kata("pengembangan.ditolak"), kata("nav.kelas"), "Joko Susilo") },
 ];
 const GAYA = readFileSync(join(sini, "c1.css"), "utf8") + readFileSync(join(sini, "c1b.css"), "utf8");
 const RENDER = join(sini, "render-b"), JALAN = join(sini, "jalan-b");

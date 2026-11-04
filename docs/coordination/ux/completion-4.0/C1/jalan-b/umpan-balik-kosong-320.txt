@@ -2,7 +2,7 @@
  1. a «Langsung ke isi»
  2. button «Keluar»
  3. button «Menu»
- 4. a «Kembali»
+ 4. a «Matematika»
  5. a «SMP Cahaya Kaliandra»
  6. a «Matematika»
  7. a «Kelas 7ABuka kelas»
@@ -12,7 +12,7 @@
 The accessibility tree of the main region
 - main:
   - paragraph:
-    - link "Kembali":
+    - link "Matematika":
       - /url: "#"
   - list "Lokasi":
     - listitem:

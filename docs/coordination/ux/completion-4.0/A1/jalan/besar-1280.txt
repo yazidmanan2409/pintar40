@@ -8,8 +8,8 @@
  7. a «Studio»
  8. select «Pelajaran 1 (4 soal)Pelajaran 2 (4 soal)Pelajaran »
  9. button «Buka»
-10. a «Pelajaran sebelumnya»
-11. a «Pelajaran berikutnya»
+10. a «Sebelumnya»
+11. a «Berikutnya»
 
 The accessibility tree of «Soal dalam paket ini»
 - region "Soal dalam paket ini":
@@ -624,7 +624,7 @@ The accessibility tree of «Soal dalam paket ini»
                 - text: Penyebut dibagi dengan bilangan yang berbeda.
   - navigation "Pelajaran (bawah)":
     - text: Pelajaran 237 dari 500
-    - link "Pelajaran sebelumnya":
+    - link "Sebelumnya":
       - /url: "#soal"
-    - link "Pelajaran berikutnya":
+    - link "Berikutnya":
       - /url: "#soal"

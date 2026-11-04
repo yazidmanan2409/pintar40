@@ -106,8 +106,6 @@ The letter column is `aria-hidden`. The letter is read from a screen-reader-only
 | `studio.soal.pelajaran_label` | Pelajaran | Lesson | presentation |
 | `studio.soal.pelajaran_dari` | Pelajaran {i} dari {n} | Lesson {i} of {n} | presentation |
 | `studio.soal.posisi` | Soal {i} dari {n} | Question {i} of {n} | presentation |
-| `studio.soal.sebelumnya` | Pelajaran sebelumnya | Previous lesson | presentation |
-| `studio.soal.berikutnya` | Pelajaran berikutnya | Next lesson | presentation |
 | `studio.soal.buka` | Buka | Open | presentation |
 | `studio.soal.kesulitan.MUDAH` / `SEDANG` / `SULIT` | Mudah / Sedang / Sulit | Easy / Medium / Hard | presentation: the workbook's own band words (KESULITAN) |
 | `studio.soal.miskonsepsi` | Miskonsepsi | Misconception | presentation: the workbook's sheet name |
@@ -115,6 +113,8 @@ The letter column is `aria-hidden`. The letter is read from a screen-reader-only
 | `studio.soal.gagal` | PINTAR belum bisa membuka soal paket ini. Muat ulang halaman ini; jika tetap gagal, hubungi admin sekolah Anda. | PINTAR couldn't open this package's questions. Reload this page; if it still fails, contact your school's administrator. | presentation |
 
 No frozen term is touched. «Peserta», «Kenaikan» and «Penguasaan per bagian» do not appear here.
+
+**D-172 K6 (corrected):** the pager's moves are Pagination's own «Sebelumnya» / «Berikutnya» (`koleksi.sebelumnya`, `koleksi.berikutnya`); the position line «Pelajaran 3 dari 4» keeps the unit. The two lesson-specific keys are withdrawn.
 
 ## 6. Components and tokens
 
