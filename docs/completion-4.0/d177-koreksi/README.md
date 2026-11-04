@@ -159,6 +159,8 @@ E1 is accepted (D-170(c), with the correction accepted in D-171(a)). E2 is struc
 
 **Local results:** 780 passed; the two failures, BOB18-A01 and BOB19-A01, need the runner's call count. Job A's walks pass on a reset stack: Studio 18/18, administration 11/11, Batch 5 6/6, print 5/5, focused checks 2/2, navigation 13/13.
 
+**CI and journeys on `2c234ba7`:** `ci` 41815404082 passed. Journeys 41815412342 passed: job A, the crawl and every walk; job B, Gladys's path, which walks Konfigurasi by its routes.
+
 **Not built:** B1's per-section patterns were left as built («no redraw», D-166(a)). These are the record rows opened in place (`?ubah=`), the two-step maintenance form, and the audit table's stripes and conditional «Versi» column.
 
 **Pending:**
