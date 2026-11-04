@@ -44,7 +44,7 @@
 | **K5** | **A scope choice drawn as buttons** (P10) | my C1 part B `/pimpinan` «Lingkup» | **Corrected in C1 part B:** Tabs (pages); the DS says `.pin-lingkup` becomes Tabs. Re-rendered. |
 | **K6** | **The pager's words named the unit** (P9) | my A1 «Pelajaran sebelumnya» / «Pelajaran berikutnya» | «Sebelumnya» / «Berikutnya», as P9. The position line «Pelajaran 3 dari 4» keeps the unit. **Corrected (4 Nov):** A1's pager uses `koleksi.sebelumnya` / `koleksi.berikutnya`; its two NEW keys `studio.soal.sebelumnya` / `.berikutnya` are withdrawn. The accepted composition is otherwise unchanged. |
 | **K7** | **An app-name eyebrow inside the shell** (P20) | Konfigurasi (RV-24; B1), Studio (A5 C8) | **One rule for the page head:** no «PINTAR» eyebrow inside the shell |
-| **K8** | **Step markers that read as radio buttons** (P11 vs named steps) | Studio's step list (A5 B12) | Named steps as J1Terbit (A5 B12), in the one step-list component |
+| **K8** | **Step markers that read as radio buttons** (P11 vs named steps) | Studio's step list (A5 B12) | Named steps (A5 B12), in the one step-list component. **Corrected at the DS source (4 Nov):** `.pds-steps` itself drew hollow circles with a 6 px ring; now filled dots and a `pintar-primary` pill for the current step. DS harness 60, 0 failures |
 | **K9** | **Disabled fields standing for a fixed value** (P18) | Siapkan after «Disediakan» (A5 D6) | Fixed values are text, in the date helper's words |
 
 ### 2a. Corrected in the design system itself (4 Nov), found while re-rendering K1, K2 and K6

@@ -61,7 +61,7 @@ ok   J1Terbit [a2@1280] @1280 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 107x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [a2@1024] @1024 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 107x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
-ok   J1Terbit [a2@390] @390 (height 1180px, card 1060)
+ok   J1Terbit [a2@390] @390 (height 1162px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 107x32; button "3 · Terbit" 81x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
 ok   J1Terbit [a1b@1280] @1280 (height 1060px, card 1060)
       note, under 44px: button "1 · Studio" 84x32; button "2 · Terbitkan" 104x32; button "3 · Terbit" 83x32; button "4 · Kelas" 79x32; button "5 · Kelas 5A" 99x32; button "6 · Siapkan" 96x32; button "7 · Tersedia" 98x32; input.pds-check "" 134x32; button "Start again" 95x32
@@ -237,7 +237,7 @@ ok   Table [urut-bab3] @1040 (height 780px, card 780)
 ok   Table [pilih] @1040 (height 780px, card 780)
       note, under 44px: button.pds-btn "Minta membaca lagi" 161x36; button.pds-btn "Batalkan pilihan" 132x36; a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36
 ok   Table [menu-baris] @1040 (height 780px, card 780)
-      note, under 44px: a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-menu-item "Minta membaca lagi" 212x44; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36
+      note, under 44px: a.pds-btn "Lihat Adi Pratama" 59x36; a.pds-btn "Lihat Ayu Lestari" 59x36; a.pds-btn "Lihat Bagus Santoso" 59x36; a.pds-btn "Lihat Citra Dewi" 59x36; a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Eka Putri" 59x36
 ok   Table [kosong] @1040 (height 780px, card 780)
 ok   Table [saring-perlu] @1040 (height 780px, card 780)
       note, under 44px: a.pds-btn "Lihat Dimas Anggara" 59x36; a.pds-btn "Lihat Joko Susilo" 59x36

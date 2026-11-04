@@ -22,7 +22,7 @@
 
 ## Acceptance checklist
 
-- [auto] The printed PDF's Title and the suggested file name both equal «Sertifikat Penguasaan · {package title}», in the reader's language.
+- [auto] The printed PDF's Title and the suggested file name both equal «Sertifikat Penguasaan · {package title}», **in the certificate's issued language** (`language_as_issued`, DAISY-36(3)), the same as the sheet it saves, whatever the page around it is in. *(Corrected 4 Nov: this line said «the reader's language»; the build at `src/app/belajar/[tugas]/sertifikat/page.tsx:158–159` is right.)*
 - [auto] Neither contains the learner's name.
 - [auto] Characters invalid in a file name are replaced, and the string is at most 150 characters.
 - [auto] The tab title is restored after printing, after a cancelled print, and on leaving the page.

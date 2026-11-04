@@ -20,7 +20,7 @@
 | **B9** | The first, never-released version reads «— · belum terbit» | **CORRECT** | **«Versi pertama · belum terbit»**. A dash stands in for nothing; this version has a name. NEW. |
 | **B10** | The package title as an h2 inside the card, because Studio's layout owns the h1 | **CORRECT** | **The package title is the page's h1** (`t-page`), with the back link «Studio» above it, as in J1Terbit. One `t-page` per page (Hierarchy). Studio's own head («Studio» and its tabs) belongs to Studio's index pages, not to a package's page. |
 | **B11** | The author sees no acknowledge button; should the page say a second person reviews findings? | **YES, say it** | One quiet line at the top of «Temuan», for the author only: **«Temuan ditinjau oleh orang kedua, bukan oleh penyusun paket.»** It uses the same verb as the reviewer's button («tinjau», A4 C2). NEW. |
-| **B12** | The step list's markers look like radio buttons: open for to come, filled for current | **CORRECT** | **As J1Terbit's named steps:**<br>• **done:** a filled `ink-1` dot;<br>• **current:** a 2 px `pintar-primary` ring, its name at 600, and `aria-current="step"`;<br>• **to come:** the name in `ink-2` beside a filled `line-control` dot.<br>Never an open circle beside a filled one, which is the radio button's grammar. Each step's state is said in its name for assistive technology, never by the marker alone. |
+| **B12** | The step list's markers look like radio buttons: open for to come, filled for current | **CORRECT** | **Named steps (`.pds-steps`, as J1Terbit uses them):**<br>• **done:** a filled `ink-1` dot;<br>• **current:** a filled `pintar-primary` pill (24 × 12 px), its name at 600, and `aria-current="step"` *(corrected 4 Nov: a 2 px ring round a dot, as first written here, renders as a selected radio button)*;<br>• **to come:** the name in `ink-2` beside a filled `line-control` dot.<br>Never an open circle beside a filled one, which is the radio button's grammar. Each step's state is said in its name for assistive technology, never by the marker alone.<br>**Final (4 Nov):** this is the one form; the DS's `.pds-steps` drew hollow circles with a 6 px ring and is corrected to it (`bundle.css`). Progress segments are not this pattern: a segment bar reads as a count (Progress), and a step list names states. |
 
 ## Studio · other pages
 
@@ -69,7 +69,7 @@ None. The three new keys await copy approval.
 - [auto] A result line's mark and words share one line at every width (B3; J5's result).
 - [auto] B7, B9 and B11 render the new keys; no step sentence names a step number.
 - [auto] The package page's h1 is the package title; no «PINTAR» eyebrow on Studio (B10, C8).
-- [auto] The step markers: done filled, current ringed with `aria-current="step"`, to come filled in `line-control`; no open circle (B12).
+- [auto] The step markers: done filled `ink-1`, current a filled `pintar-primary` pill with `aria-current="step"`, to come filled in `line-control`; no open circle, no ring (B12; DS harness, Progress, ActivationFlow, J1Terbit, J3).
 - [auto] A sent-back package shows the badge «Dikembalikan ke penyusun» with «Sekarang: Susun isi» (C1).
 - [auto] After «Disediakan», the window is text in the date helper's words, not disabled fields (D6).
 - [auto] J5's review panel shows «Jendela: Mulai … · Sampai …» before «Sediakan».

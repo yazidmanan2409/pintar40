@@ -15,7 +15,7 @@ Nothing here changes policy, calculations, certificate integrity, permissions, i
 | H3 | `src/components/BarisHasil.tsx` | The mark and its words on one line when wrapping | D-172 K3; A5 B3 | 320 px render of a long result |
 | H4 | `src/components/bentuk/TanggalDenganGema.tsx` (and its CSS) | The focus ring on `:focus-within` for date, time and datetime-local, so the calendar button is ringed | D-172 S4; B1 | Tab walk: ring on every stop |
 | H5 | the page head, `src/app/konfigurasi/*` and Studio | No «PINTAR» eyebrow inside the shell | D-172 K7; RV-24; A5 C8 | No `PINTAR` eyebrow in a shell page |
-| H6 | Studio's step list | Named steps, as J1Terbit, in the one step-list component | D-172 K8; A5 B12 | — |
+| H6 | Studio's step list (built as progress segments) | Named steps, `.pds-steps` as corrected 4 Nov: filled dots, the current step a `pintar-primary` pill at 600 with `aria-current="step"`, to come `line-control`; never segments, open circles or a ring | D-172 K8; A5 B12 | — |
 | H7 | Siapkan after «Disediakan» | A fixed value is text, not a disabled field | D-172 K9; A5 D6 | — |
 | H8 | `src/components/sesi/MenuAkun.tsx:70` | **Already correct:** named by its contents. Keep it so; do not add an `aria-label` (the DS's old preview did, now corrected) | D-172 S5; WCAG 2.5.3 | axe `label-content-name-mismatch` clean |
 
@@ -49,7 +49,7 @@ Nothing here changes policy, calculations, certificate integrity, permissions, i
 | H22 | A4 | X12: the terminology reconciliation (Paket Pembelajaran / Learning Package): engineering lists the uses; one decision for Dr Gladys and the owner. Sheets, identifiers and school files are not renamed | **Dr Gladys / owner** |
 | H23 | B2 | The eleven keys for «Nomor Registrasi Sekolah»; no column, format or workbook change | D-174; accepted |
 | H24 | C1 part B | The §8 defects listed in `C1/PIMPINAN.md` | accepted |
-| H25 | D2 | The certificate file name «Sertifikat Penguasaan · {package title}», sanitised, no learner name | accepted |
+| H25 | D2 | The certificate file name «Sertifikat Penguasaan · {package title}», sanitised, no learner name, in the certificate's issued language (as built) | accepted |
 | H26 | E3 | The idle warning stays until dismissed; the two disabled reasons are said | accepted |
 
 ## 5. Still gated (not hand-off)

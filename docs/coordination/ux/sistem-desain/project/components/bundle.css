@@ -540,19 +540,18 @@ th.pds-angka .pds-sort { flex-direction: row-reverse; }
 .pds-progress-isi { height: 100%; background: var(--pintar-primary); border-radius: inherit; }
 
 .pds-steps { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); }
-.pds-steps li { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 14px; line-height: 20px; color: var(--ink-3); }
+/* 4.0 (A5 B12, D-172 K8): every marker is a filled dot, so the list never reads as radio buttons (an open circle beside a filled one).
+   Done: ink-1. Current: a pintar-primary pill (a ring round a dot reads as a selected radio), its name at 600. To come: line-control, its name in ink-2. The state is said in words too. */
+.pds-steps li { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 14px; line-height: 20px; color: var(--ink-2); }
 .pds-steps li::before {
-  content: ""; width: 20px; height: 20px; border-radius: 50%; flex: none;
-  border: var(--border-hairline) solid var(--line-control); background: var(--surface-1);
+  content: ""; width: 12px; height: 12px; margin: 4px; border-radius: 50%; flex: none;
+  background: var(--line-control);
 }
 .pds-steps li[data-keadaan="selesai"] { color: var(--ink-2); }
-.pds-steps li[data-keadaan="selesai"]::before {
-  border-color: var(--ink-2); background: var(--ink-2);
-  -webkit-mask: none; mask: none;
-}
+.pds-steps li[data-keadaan="selesai"]::before { background: var(--ink-1); -webkit-mask: none; mask: none; }
 .pds-steps li[data-keadaan="selesai"] .pds-ikon { display: none; }
 .pds-steps li[aria-current="step"] { color: var(--ink-1); font-weight: 600; }
-.pds-steps li[aria-current="step"]::before { border: 6px solid var(--pintar-primary); }
+.pds-steps li[aria-current="step"]::before { width: 24px; border-radius: var(--radius-pill); background: var(--pintar-primary); }
 
 .pds-skeleton { display: grid; gap: var(--space-3); }
 .pds-skeleton i { display: block; height: 16px; border-radius: var(--radius-sm); background: var(--surface-2); }
