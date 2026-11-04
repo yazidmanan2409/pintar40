@@ -17,7 +17,7 @@
 **Batch 0 verdict:**
 - **Status:** every row is VERIFIED locally on the corrected head: the whole manifest (813 passed; only the two CI-only call-count rows fail) and every walk, the crawl included. It is not called verified until `ci` and the journeys are green on that head.
 - **Corrected during this audit:** R0-1, R0-3, R0-4 and R0-5. R0-2 is recorded as benign, with its cause.
-- **Process finding:** the two hand-offs from Batch 0 to Batch 1 (R0-2, R0-5) were never picked up. A batch's «observed, not investigated» list had no owner in the next batch. Two hand-offs from Batch 0 to Batch 1 (R0-2, R0-5) were never picked up. That is a process finding, carried to the audit's summary: a batch's «observed, not investigated» list had no owner in the next batch.
+- **Process finding:** the two hand-offs from Batch 0 to Batch 1 (R0-2, R0-5) were never picked up. A batch's «observed, not investigated» list had no owner in the next batch (carried to the summary, `02-RINGKASAN.md`).
 
 ## Batch 1 · Data model and security
 
