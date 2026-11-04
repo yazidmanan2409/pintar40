@@ -1,0 +1,25 @@
+/ · not held (context.not_held) at 320 px: the Tab order from the top of the page
+ 1. button «Keluar»
+ 2. button «Saya mau belajar»
+ 3. button «Saya mengajarSMP Cahaya Kaliandra» [current]
+
+The accessibility tree
+- banner:
+  - img "Pintar (master pending F-11)"
+  - paragraph:
+    - text: Masuk sebagai
+    - strong: Citra Lestari
+    - button "Keluar"
+- main:
+  - heading "Mau ke mana hari ini?" [level=1]
+  - paragraph: Halo, Citra.
+  - status:
+    - paragraph: "[G1 · context.not_held]"
+  - list "Mau ke mana hari ini?":
+    - listitem:
+      - button "Saya mau belajar":
+        - strong: Saya mau belajar
+    - listitem:
+      - button "Saya mengajar SMP Cahaya Kaliandra":
+        - strong: Saya mengajar
+        - text: SMP Cahaya Kaliandra

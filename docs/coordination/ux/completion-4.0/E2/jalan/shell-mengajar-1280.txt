@@ -1,0 +1,26 @@
+The context control · Mengajar, one context only (no chooser link) at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Mengajar» [current]
+ 3. a «Studio»
+ 4. button «Keluar»
+
+The accessibility tree
+- region "Mengajar":
+  - link "Langsung ke isi":
+    - /url: "#e2-isi"
+  - navigation "Tempat kerja Anda":
+    - img "Pintar (master pending F-11)"
+    - text: Mengajar
+    - strong: SMP Cahaya Kaliandra
+    - list:
+      - listitem:
+        - link "Mengajar":
+          - /url: "#"
+      - listitem:
+        - link "Studio":
+          - /url: "#"
+    - strong: Fitri Handayani
+    - text: Guru · SMP Cahaya Kaliandra
+    - button "Keluar"
+  - main:
+    - heading "Mengajar" [level=1]

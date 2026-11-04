@@ -1,0 +1,49 @@
+An action refused: its target is outside the context (context.other_school) at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Mau ke mana hari ini?»
+ 3. a «Konfigurasi» [current]
+ 4. a «Pendataan»
+ 5. a «Aktivasi akun»
+ 6. a «Studio»
+ 7. button «Keluar»
+ 8. select «Indah Permata»
+ 9. button «Berikan peran»
+
+The accessibility tree
+- region "Konfigurasi":
+  - link "Langsung ke isi":
+    - /url: "#e2-isi"
+  - navigation "Tempat kerja Anda":
+    - img "Pintar (master pending F-11)"
+    - text: "[G1 · context.manage_label]"
+    - strong: SMP Cahaya Kaliandra
+    - link "Mau ke mana hari ini?":
+      - /url: "#"
+    - list:
+      - listitem:
+        - link "Konfigurasi":
+          - /url: "#"
+      - listitem:
+        - link "Pendataan":
+          - /url: "#"
+      - listitem:
+        - link "Aktivasi akun":
+          - /url: "#"
+      - listitem:
+        - link "Studio":
+          - /url: "#"
+    - strong: Dewi Saraswati
+    - text: Admin sekolah · SMP Cahaya Kaliandra
+    - button "Keluar"
+  - main:
+    - heading "Konfigurasi" [level=1]
+    - paragraph:
+      - text: "Sekolah:"
+      - strong: SMP Cahaya Kaliandra
+    - region "Berikan peran":
+      - heading "Berikan peran" [level=2]
+      - text: Orang
+      - combobox "Orang":
+        - option "Indah Permata" [selected]
+      - button "Berikan peran"
+      - status: "[G1 · context.other_school]"

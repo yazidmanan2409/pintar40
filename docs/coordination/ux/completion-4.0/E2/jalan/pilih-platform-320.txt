@@ -1,0 +1,34 @@
+/ · Admin platform («Seluruh platform» and each school) at 320 px: the Tab order from the top of the page
+ 1. button «Keluar»
+ 2. button «Saya mengelola sekolahSeluruh platform» [current]
+ 3. button «Saya mengelola sekolahSD Tunas Mandiri»
+ 4. button «Saya mengelola sekolahSMP Cahaya Kaliandra»
+ 5. button «Saya mengelola sekolahSMA Harapan Bangsa»
+
+The accessibility tree
+- banner:
+  - img "Pintar (master pending F-11)"
+  - paragraph:
+    - text: Masuk sebagai
+    - strong: Arif Nugraha
+    - button "Keluar"
+- main:
+  - heading "Mau ke mana hari ini?" [level=1]
+  - paragraph: Halo, Arif.
+  - list "Mau ke mana hari ini?":
+    - listitem:
+      - button "Saya mengelola sekolah Seluruh platform":
+        - strong: Saya mengelola sekolah
+        - text: Seluruh platform
+    - listitem:
+      - button "Saya mengelola sekolah SD Tunas Mandiri":
+        - strong: Saya mengelola sekolah
+        - text: SD Tunas Mandiri
+    - listitem:
+      - button "Saya mengelola sekolah SMP Cahaya Kaliandra":
+        - strong: Saya mengelola sekolah
+        - text: SMP Cahaya Kaliandra
+    - listitem:
+      - button "Saya mengelola sekolah SMA Harapan Bangsa":
+        - strong: Saya mengelola sekolah
+        - text: SMA Harapan Bangsa

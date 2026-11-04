@@ -1,0 +1,21 @@
+/ · the page belongs to another context (context.other_context) at 320 px: the Tab order from the top of the page
+ 1. button «Keluar»
+ 2. button «Saya memimpin bagian sekolahSMP Cahaya Kaliandra»
+
+The accessibility tree
+- banner:
+  - img "Pintar (master pending F-11)"
+  - paragraph:
+    - text: Masuk sebagai
+    - strong: Eko Prasetyo
+    - button "Keluar"
+- main:
+  - heading "Mau ke mana hari ini?" [level=1]
+  - paragraph: Halo, Eko.
+  - status:
+    - paragraph: "[G1 · context.other_context]"
+  - list "Mau ke mana hari ini?":
+    - listitem:
+      - button "Saya memimpin bagian sekolah SMP Cahaya Kaliandra":
+        - strong: Saya memimpin bagian sekolah
+        - text: SMP Cahaya Kaliandra

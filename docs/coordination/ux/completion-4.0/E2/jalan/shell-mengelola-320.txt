@@ -1,0 +1,26 @@
+The context control · Mengelola (context.manage_label) at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Menu»
+ 4. select «Indah Permata»
+ 5. button «Berikan peran»
+
+The accessibility tree
+- region "Konfigurasi":
+  - link "Langsung ke isi":
+    - /url: "#e2-isi"
+  - img "Pintar (master pending F-11)"
+  - strong: SMP Cahaya Kaliandra
+  - button "Keluar"
+  - button "Menu"
+  - main:
+    - heading "Konfigurasi" [level=1]
+    - paragraph:
+      - text: "Sekolah:"
+      - strong: SMP Cahaya Kaliandra
+    - region "Berikan peran":
+      - heading "Berikan peran" [level=2]
+      - text: Orang
+      - combobox "Orang":
+        - option "Indah Permata" [selected]
+      - button "Berikan peran"

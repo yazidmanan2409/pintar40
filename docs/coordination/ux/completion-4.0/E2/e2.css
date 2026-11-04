@@ -1,0 +1,45 @@
+/* E2 — the chooser and the context control. Loads on top of C1's c1.css (slots). Tokens and components only. */
+
+/* ── the chooser: a focused page, one question, no shell ─────────────────── */
+.e2 { min-height: 100vh; background: var(--surface-0); }
+.e2-kepala, .e2-isi { max-width: var(--measure-narrow); margin: 0 auto; padding-inline: var(--space-4); }
+.e2-kepala { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-3); padding-top: var(--space-6); }
+.e2-sesi { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.e2-sesi strong { color: var(--ink-1); font-weight: 600; }
+.e2-isi { display: grid; gap: var(--space-4); padding-top: var(--space-7); padding-bottom: var(--space-9); }
+.e2-isi .pds-intro { margin-top: calc(-1 * var(--space-2)); }
+/* the reason the person was sent here: a status line above the doors */
+.e2-alasan p { margin: 0; }
+.e2-tanya { font-size: 18px; line-height: 26px; font-weight: 600; margin-top: var(--space-2); }
+
+/* the doors: one per purpose · place held; the purpose's words, the place under them */
+.e2-pintu { list-style: none; padding: 0; margin: var(--space-2) 0 0; display: grid; gap: var(--space-3); }
+.e2-pintu form { margin: 0; }
+.e2-pintu-tombol {
+  width: 100%; min-height: 64px; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-5); text-align: left; cursor: pointer; font: inherit; color: var(--ink-1);
+  background: var(--surface-1); border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-lg);
+  transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
+}
+.e2-pintu-tombol:hover { background: var(--surface-2); border-color: var(--ink-3); }
+.e2-pintu-tombol:focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+.e2-pintu-isi { display: grid; gap: 2px; min-width: 0; }
+.e2-pintu-isi strong { font-size: 18px; line-height: 26px; font-weight: 600; }
+.e2-pintu-isi small { font-size: 14px; line-height: 20px; color: var(--ink-2); overflow-wrap: anywhere; }
+.e2-pintu-tombol > .pds-ikon { color: var(--ink-3); }
+/* the current context: the check, the primary edge and the soft ground, and aria-current — never colour alone */
+.e2-kini { background: var(--pintar-primary-soft); border-color: var(--pintar-primary); box-shadow: inset 3px 0 0 var(--pintar-primary); }
+.e2-kini > .pds-ikon { color: var(--pintar-primary); }
+
+/* ── the context control: the top of the navigation, under the wordmark ─── */
+.e2-konteks { display: grid; gap: 2px; margin: 0 var(--space-2) var(--space-3); padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-2); }
+.e2-konteks-tujuan { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); }
+.e2-konteks-tujuan .e2-slot { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.e2-konteks-tempat { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-1); overflow-wrap: anywhere; }
+.e2-konteks-pilih { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 32px; margin-top: var(--space-1); font-size: 14px; line-height: 20px; font-weight: 600; color: var(--pintar-primary); text-decoration: none; }
+.e2-konteks-pilih:hover { text-decoration: underline; text-underline-offset: 3px; }
+.e2-konteks-pilih:focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; border-radius: var(--radius-sm); }
+/* on a phone the bar names the context in one line; the full control is at the top of the opened menu */
+.e2-bar-konteks { min-width: 0; font-size: 14px; line-height: 20px; color: var(--ink-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.e2-bar-konteks .e2-konteks-tujuan { display: none; }
+.e2-form { max-width: var(--measure-narrow); }

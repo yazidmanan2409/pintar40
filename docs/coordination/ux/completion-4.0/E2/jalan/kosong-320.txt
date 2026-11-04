@@ -1,0 +1,14 @@
+/ · holding no place at 320 px: the Tab order from the top of the page
+ 1. button «Keluar»
+
+The accessibility tree
+- banner:
+  - img "Pintar (master pending F-11)"
+  - paragraph:
+    - text: Masuk sebagai
+    - strong: Bagas Saputra
+    - button "Keluar"
+- main:
+  - heading "Mau ke mana hari ini?" [level=1]
+  - paragraph: Halo, Bagas.
+  - paragraph: Anda belum terhubung dengan kelas atau tugas apa pun. Hubungi yang mengurus PINTAR di sekolah Anda.
