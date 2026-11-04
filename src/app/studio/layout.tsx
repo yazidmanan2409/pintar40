@@ -75,7 +75,7 @@ export default async function StudioLayout({ children }: { children: React.React
         other staff pages draw them (.pin-col, .pin-head); no Tailwind composition */}
     <main id="isi" tabIndex={-1} className="pin-col pin-wide">
       <header className="pin-head">
-        <p className="pin-eyebrow">{s("app.name")}</p>
+        {/* E-K7 (D-173(d)): no app-name eyebrow inside the shell */}
         <h1 className="pin-h1">{s("studio.title")}</h1>
         <div className="pin-studio-nav"><TabStudioNav tab={nav} label={s("studio.title")} /></div>
       </header>

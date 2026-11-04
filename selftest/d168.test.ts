@@ -20,8 +20,10 @@
  *              statement and the way to its record instead of the «not yet» cards; the ordinary footnote (which names
  *              the Kepala departemen as reviewer of integrity signals, false for PD) is not drawn there; its people are
  *              «peserta» in the names link.
+ *   D168-K7-1  one page-head rule (E-K7, D-173(d)): no file that draws the shell (CangkangStaf / CangkangPengalaman)
+ *              draws the app's name as a page's eyebrow or head line — the shell already names PINTAR.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { allKeys, t, type HleEvent } from "../src/lib/hle";
@@ -106,6 +108,20 @@ export const d168Tests: SelfTest[] = [
       c.expect(t("mengajar.bukti.siapa_peserta" as HleEvent, "staff", { locale: "id" }) === "Lihat nama peserta", "«Lihat nama peserta» is not the copy");
       c.expect(!/murid|angka akademik kelas\b[^.]*akan/i.test(t("mengajar.bukti.pd.arti" as HleEvent, "staff", { locale: "id" })), "the professional-learning statement says «murid» or promises a figure");
       return c.verdict("one rule (adaBuktiSoal) offers the per-question link and opens its page; a PD class requests no class metric, draws one statement and its record's link, no ordinary footnote, and «peserta»");
+    },
+  },
+  {
+    id: "D168-K7-1",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const semua: string[] = [];
+      const jalan = (d: string) => { for (const e of readdirSync(join(repoRoot, d), { withFileTypes: true })) { const f = `${d}/${e.name}`; if (e.isDirectory()) jalan(f); else if (f.endsWith(".tsx")) semua.push(f); } };
+      jalan("src/app");
+      const bercangkang = semua.filter((f) => /<Cangkang(Staf|Pengalaman)\b/.test(kode(readFileSync(join(repoRoot, f), "utf8"))));
+      c.expect(bercangkang.length >= 20, `only ${bercangkang.length} shelled files found`);
+      const salah = bercangkang.filter((f) => /<(p|span|div)[^>]*>\s*\{s\("app\.name"\)\}/.test(kode(readFileSync(join(repoRoot, f), "utf8"))));
+      c.expect(salah.length === 0, `the app's name is drawn as a page head line inside the shell in: ${salah.join(", ")}`);
+      return c.verdict(`no shelled page (${bercangkang.length} files) draws «PINTAR» as its eyebrow or head line`);
     },
   },
 ];

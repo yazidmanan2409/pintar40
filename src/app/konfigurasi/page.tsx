@@ -536,8 +536,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
       }
     />
     <main id="isi" tabIndex={-1} className="py-6">
+      {/* E-K7 (D-173(d)): one page-head rule — no app-name eyebrow inside the shell, which already names PINTAR */}
       <header>
-        <p className="text-sm text-ink-3">{s("app.name")}</p>
         <h1 className="text-2xl font-semibold tracking-tight">{s("config.title")}</h1>
       </header>
 
