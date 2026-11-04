@@ -16,7 +16,7 @@
 - `render-b/<page>-<width>.png`, `render-b/<page>-a4.pdf` and `render-b/laporan.txt`.
 - `jalan-b/`.
 
-> **One escalation (§10): the figures on `/pengembangan/[simpul]`.** The brief says that route shows «never a figure, ranking or answer». The data contract returns, to its full audience, a result percentage, a pass verdict and a lesson count (MC-5). The specimen draws what the contract returns, marks it, and stops there.
+> **The result cell on `/pengembangan/[simpul]` is settled by D-069(b)** (owner, 4 Nov). The facilitator, the Kepala departemen over the place and the Dekan may see each participant's individual result; Admin sekolah sees enrolment, participation and completion, never an individual result. The restriction is no aggregate academic figure and no ranking. See §10.
 
 ---
 
@@ -132,7 +132,7 @@ Figures look the same here as in the Ringkasan, so a figure reads the same where
 | Admin sekolah | Sudah mulai · Pemetaan Awal · Uji Penguasaan · Selesai (no lessons, no result) |
 
 - No packages: `pengembangan.paket_kosong`. No participants: `pengembangan.kosong`.
-- **Never a ranking or an order by result:** participants in the order the database returns them. The «Hasil» cell is the open question in §10.
+- **Never a ranking, an order by result or an aggregate figure:** participants in the order the database returns them. The individual «Hasil» cell stands for the full audience (D-069(b)).
 
 ## 2. Layouts
 
@@ -188,7 +188,7 @@ All other words are the copy table at 0b19707, staff persona.
 | Key | Indonesian | English | Kind |
 |---|---|---|---|
 | `pengembangan.ditolak` | Catatan ini untuk fasilitator, Kepala departemen, Dekan, dan Admin sekolah tempat ini. | This record is for the facilitator, the Head of department, the Dean and the school administrator of this place. | NEW · presentation. Today's refusal passes no line, so it reads the generic `auth.not_yet`. |
-| `pengembangan.pelajaran_dari` | {n} dari {m} | {n} of {m} | NEW · presentation, replacing the hard-coded «n/m» |
+| `pengembangan.pelajaran_dari` | {n} dari {m} | {n} of {m} | NEW · presentation, replacing the hard-coded «n/m». **Proposed, pending copy approval.** |
 
 **Reused key:** `umpanbalik.kelas.putaran` «Putaran untuk kelas ini» becomes the h2 of the rounds list, in place of a second «Umpan balik kelas».
 
@@ -239,13 +239,13 @@ These are things the build must change for the composition to hold. None is a de
 - [manual] `/pengembangan/[simpul]` draws exactly the columns the contract returns per audience, in the database's order (engineering can make this [auto] against `pengembangan-kontrak.ts`).
 - [manual] Side-by-side review of the build beside this composition at each width (brief G:14).
 - [manual] The roster's intro is read before the names (screen reader).
-- [manual] §10 answered by the owner, and the specimen re-rendered if the «Hasil» cell changes.
+- [manual] No aggregate academic figure and no ranking on `/pengembangan/[simpul]`; the individual result shows only for the full audience (D-069(b)).
 
-## 10. Escalation: the figures on `/pengembangan/[simpul]`
+## 10. The result cell: settled
 
-- **What is new:** for the full audience (facilitator, Kepala departemen, Dekan), the record shows «Hasil: 84% · Tercapai», and «Pelajaran selesai» as a count. The brief for this route says «never a figure, ranking or answer». DAISY-34 says the records are «read-only, never as a figure».
-- **Why existing approvals don't cover it:** the contract (`src/lib/pengembangan-kontrak.ts`, MC-5) deliberately returns `learner.result`, and the brief's wording forbids a figure. Two approved sources disagree.
-- **What prevents me deciding:** whether a teacher's own learning result is shown to their facilitator and leaders is educational and HR policy, not presentation.
-- **What continues meanwhile:**
-  - The composition is complete either way. The «Hasil» cell is one marked item (`data-eskalasi="hasil"`): removing it changes nothing else, and keeping it needs no other change.
-  - The lesson count is presentation and stays in both cases, unless the owner rules it is a figure.
+The escalation raised in the first version of this part is **resolved by D-069(b)** (owner, 4 Nov):
+- The facilitator, the Kepala departemen over the relevant place and the Dekan may see each participant's professional-learning result.
+- Admin sekolah may see enrolment, participation and completion, but never individual results.
+- The brief's «never a figure» was an inaccurate paraphrase, now corrected. The intended restriction is **no aggregate academic figure and no ranking**.
+
+The individual result cell stays as drawn. Its escalation marker is removed, and the specimens are re-rendered.

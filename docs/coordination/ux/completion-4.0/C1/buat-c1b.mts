@@ -181,7 +181,7 @@ function pengembangan(penuh: boolean): string {
         <div><dt>${kata("pengembangan.kolom.pemetaan")}</dt><dd>${kata(`pengembangan.status.${k.awal}`)}</dd></div>
         <div><dt>${kata("pengembangan.kolom.penguasaan")}</dt><dd>${kata(`pengembangan.status.${k.akhir}`)}</dd></div>
         ${penuh && k.pelajaran ? `<div><dt>${kata("pengembangan.kolom.pelajaran")}</dt><dd>${kata("pengembangan.pelajaran_dari", { n: angka(k.pelajaran[0]), m: angka(k.pelajaran[1]) })}</dd></div>` : ""}
-        ${penuh && k.hasil ? `<div class="c1b-hasil" data-eskalasi="hasil"><dt>${kata("pengembangan.kolom.hasil")}</dt><dd>${persen(k.hasil[0])} · ${kata(k.hasil[1] ? "pengembangan.tercapai" : "pengembangan.belum_tercapai")}</dd></div>` : ""}
+        ${penuh && k.hasil ? `<div class="c1b-hasil"><dt>${kata("pengembangan.kolom.hasil")}</dt><dd>${persen(k.hasil[0])} · ${kata(k.hasil[1] ? "pengembangan.tercapai" : "pengembangan.belum_tercapai")}</dd></div>` : ""}
         <div><dt>${kata("pengembangan.kolom.selesai")}</dt><dd>${ya(k.selesai)}</dd></div>
       </dl></li>`).join("")}</ul>`}</section>`).join("");
   const p = penuh ? KADEP : ADMIN;
