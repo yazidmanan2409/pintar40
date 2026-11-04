@@ -219,7 +219,7 @@ export default async function Bank({ searchParams }: { searchParams: Search }) {
                         ))}
                       </select>
                     </label>
-                    <label className={label}><span>{s("studio.paket.catatan")}</span><input className={field} name="catatan" /></label>
+                    <label className={label}><span>{s("studio.paket.catatan")} <span className="pin-opsional">{s("bentuk.opsional")}</span></span><input className={field} name="catatan" /></label>
                     <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.integritas.catat")}</TombolKirim>
                   </form>
                 ) : null}

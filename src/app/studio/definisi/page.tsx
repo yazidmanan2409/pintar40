@@ -87,7 +87,8 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
   // W1.3: each number's hint and limit in words, from the bounds of the two modes this form offers
   const namaMode = (m: string) => enumLabel("mode", m, locale);
   const petunjuk = petunjukAturan(modeSiklus, s, namaMode);
-  const opsional = s("studio.definisi.opsional");
+  // A4 (C3, D7): «(opsional)» is one shared key wherever an optional field is marked
+  const opsional = s("bentuk.opsional");
 
   // the definition's two outcomes are whole sentences of their own
   const banner = sp.hasil === "ok" && (sp.kode === "DEFINITION_NEW_VERSION" || sp.kode === "DEFINITION_KEPT")

@@ -4332,6 +4332,21 @@
       "proves": "Retrospective R2-5 (W3.2, D-172 P13), selftest/retro.test.ts, reading the source of every .tsx file under src/app and src/components: every empty state is the Empty state (Kosong); a bare pin-empty line stands only where it is not an empty (a status, \u00abnothing waits\u00bb, or a component its tests import outside Next), each declared with its reason; the feedback page's section refusal (\u00abKelas ini bukan wewenang Anda.\u00bb) is a statement, never drawn as an empty state."
     },
     {
+      "id": "R3-SOAL-01",
+      "runner": "static",
+      "proves": "Retrospective R3-1 (W1.2, D-088(h); Daisy's A1 under D-166(b)), selftest/retro.test.ts, running soalPaket (src/lib/soal-tinjauan.ts) over a planted client with the API's 1,000-row limit: 2,500 questions in 500 lessons are all read, an empty lesson kept, and a failed read of any table returns a failure, never a shorter list; and reading the source of the package page (src/app/studio/paket/[course]/page.tsx) and FokusSoal (src/components/studio/FokusSoal.tsx): one whole lesson per view with no disclosure, package-wide numbering, a labelled GET jump with a button, focus on the lesson heading after a move, a pager naming the lesson, the key by badge, icon and word, every option's reason shown, the failed read said with BarisHasil and an empty package as Kosong."
+    },
+    {
+      "id": "R3-A5-01",
+      "runner": "static",
+      "proves": "Retrospective R3 (Batch 3's wording and layout questions, answered as Daisy's A4 and A5; D-171(b), D-173(a)), selftest/retro.test.ts, reading the copy table (src/lib/hle.ts) and the source of the Studio package page, Studio's layout and home, KepalaStudio, Siapkan and JendelaTinjau: A4's corrected English exactly; no \u00abcourse\u00bb in the send-back's English; the findings' result echoes its button's verb; one \u00ab(opsional)\u00bb key for every optional field; the package page's one h1 is its title under \u00abStudio\u00bb with its sections one level below and Studio's head aside; a sent-back package carries \u00abDikembalikan ke penyusun\u00bb on Studio's list; Siapkan's review carries the window being confirmed before \u00abSediakan\u00bb."
+    },
+    {
+      "id": "R5-PERSOAL-01",
+      "runner": "static",
+      "proves": "Retrospective R5 (E-C2-3, D-168, D-069(b)), selftest/retro.test.ts, reading the source of every .tsx file under src/app and src/components: every link to the per-question page (/mengajar/[kelas]/soal) is offered under adaBuktiSoal, the same rule by which that page refuses a class of participants, so a PD class's facilitator is never offered a link into a refusal (the Uji Cepat page and its results offered it)."
+    },
+    {
       "id": "R0-PIN-01",
       "runner": "static",
       "proves": "Retrospective R0-1 (W0.2), selftest/retro.test.ts, reading every workflow file under .github/workflows: each job that installs or drives a browser (Playwright install, a walk or the crawl) runs on ubuntu-24.04, where Playwright 1.55 has a browser build (run 41377378758); a planted job on ubuntu-latest is caught."

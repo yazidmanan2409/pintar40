@@ -309,6 +309,59 @@ await step("U7a", "Studio's home lists the package once, at its newest version; 
   harus(rec, (await g.locator(`#riwayat a[href="/studio/paket/${pertama}"]`).count()) > 0, "«Riwayat perbaikan» still opens the replaced version");
 });
 
+await step("U7b", "A1: the head of department reads the questions one whole lesson at a time: package-wide numbering, every key marked in words, every option's reason, the jump and the pager put focus on the lesson, and no sideways scroll at 320 px", async (rec) => {
+  if (!keadaan().startsWith("IN_REVIEW")) { rec.verdict = "BLOCKED"; return; }
+  await h.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
+  const soal = h.locator("#soal");
+  if (!harus(rec, (await soal.count()) === 1, "the package page has its question section")) return;
+  harus(rec, (await soal.locator("details").count()) === 0, "no question is behind a disclosure");
+  const nPelajaran = await soal.locator("#pin-soal-pilih option").count();
+  const nBank = Number(sql(`select count(*) from public.items i join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id='${course}'`));
+  const ringkas = norm(await soal.locator("[data-soal-ringkas]").innerText().catch(() => ""));
+  harus(rec, ringkas.startsWith(`${nBank} soal dalam ${nPelajaran} pelajaran`), `the summary reads «${ringkas}» (${nBank} questions in the bank)`);
+  const periksa = async (i) => {
+    const meta = (await soal.locator("li.pin-soal .pin-soal-meta").allInnerTexts()).map(norm);
+    const opsi = await soal.locator("li.pin-opsi").count();
+    const alasan = await soal.locator("li.pin-opsi .pin-opsi-alasan").filter({ hasText: /^Alasan:/ }).count();
+    const kunci = await soal.locator("li.pin-opsi-kunci").count();
+    const kunciKata = await soal.locator("li.pin-opsi-kunci .pin-studio-kunci").filter({ hasText: "Kunci" }).count();
+    harus(rec, opsi > 0 && alasan === opsi, `lesson ${i}: ${alasan} of ${opsi} options show their reason`);
+    harus(rec, kunci === meta.length && kunciKata === kunci, `lesson ${i}: ${kunci} key(s) for ${meta.length} question(s), ${kunciKata} marked «Kunci» in words`);
+    return meta;
+  };
+  const meta1 = await periksa(1);
+  harus(rec, meta1.length > 0 && meta1[0].startsWith(`Soal 1 dari ${nBank}`), `the first question reads «${meta1[0] ?? ""}»`);
+  await shot(h, rec, "a1-pelajaran-1");
+  if (nPelajaran > 1) {
+    // the jump: choose lesson 2 and press «Buka» (never on change)
+    await soal.locator("#pin-soal-pilih").selectOption("2");
+    harus(rec, !/[?&]pelajaran=2/.test(h.url()), "choosing a lesson alone does not move (WCAG 3.2.2)");
+    await soal.getByRole("button", { name: "Buka", exact: true }).click();
+    await h.waitForURL((u) => u.searchParams.get("pelajaran") === "2", { timeout: SLOW });
+    await h.waitForLoadState("networkidle");
+    await h.waitForFunction(() => document.activeElement?.id === "pin-soal-pelajaran", null, { timeout: SLOW }).catch(() => {});
+    harus(rec, await h.evaluate(() => document.activeElement?.id === "pin-soal-pelajaran"), "after «Buka», focus is on the lesson's heading");
+    const meta2 = await periksa(2);
+    harus(rec, meta2.length === 0 || meta2[0].startsWith(`Soal ${meta1.length + 1} dari ${nBank}`), `lesson 2 starts at «${meta2[0] ?? "(no question)"}», after lesson 1's ${meta1.length}`);
+    // the pager back to lesson 1, by its name
+    await h.getByRole("link", { name: "Pelajaran sebelumnya", exact: true }).click();
+    await h.waitForURL((u) => u.searchParams.get("pelajaran") === "1", { timeout: SLOW });
+    await h.waitForFunction(() => document.activeElement?.id === "pin-soal-pelajaran", null, { timeout: SLOW }).catch(() => {});
+    harus(rec, await h.evaluate(() => document.activeElement?.id === "pin-soal-pelajaran"), "after «Pelajaran sebelumnya», focus is on the lesson's heading");
+    harus(rec, (await h.locator('[data-soal-pager] [data-pager="sebelum"][aria-disabled="true"]').count()) === 1, "on the first lesson, «Pelajaran sebelumnya» is disabled");
+  } else {
+    harus(rec, (await h.locator("[data-soal-pager]").count()) === 0, "one lesson: no pager");
+  }
+  // 320 px: the lesson with its options and reasons fits without sideways scroll
+  const lebar = h.viewportSize();
+  await h.setViewportSize({ width: 320, height: 800 });
+  await h.waitForTimeout(300);
+  const geser = await h.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  await shot(h, rec, "a1-320");
+  await h.setViewportSize(lebar ?? { width: 1280, height: 900 });
+  harus(rec, geser <= 0, `at 320 px the page scrolls sideways by ${geser} px`);
+});
+
 await step("U8", "the head of department approves the content, reviews its findings, and creates and locks the release in one press; the author is offered none of it and the head of department is refused «Terbitkan»", async (rec) => {
   if (!keadaan().startsWith("IN_REVIEW")) { rec.verdict = "BLOCKED"; return; }
   if (!(await tekan(h, "Setujui isi", rec, "setujui"))) return;

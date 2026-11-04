@@ -131,6 +131,11 @@ export const d168Tests: SelfTest[] = [
         || /(nomor registrasi|registration number)[^.]{0,30}\b(NIS|NISN)\b(?![^.]{0,5}\.)/.test(v) && !/Berbeda dari|Different from/.test(v)
         || /Keanggotaan[^.]{0,20}(nomor|number)/i.test(v));
       c.expect(salah.length === 0, `an identifier is presented as another: ${salah.slice(0, 4).map(([k, l]) => `${k} (${l})`).join(", ")}`);
+      // retrospective R4 (B2's acceptance: «in both languages»): every key whose Indonesian names the number says the
+      // same number in English, never another identifier (aktivasi.staf.arti's English said «PINTAR ID»)
+      const tanpaPadanan = allKeys().filter((k) => /nomor registrasi sekolah|No\. Registrasi Sekolah/i.test(t(k as HleEvent, "staff", { locale: "id" }))
+        && !/school registration number/i.test(t(k as HleEvent, "staff", { locale: "en" })));
+      c.expect(tanpaPadanan.length === 0, `the English does not say «school registration number» where the Indonesian names it: ${tanpaPadanan.join(", ")}`);
       const arti = "Nomor registrasi orang ini di sekolah tersebut. Berbeda dari PINTAR ID dan NIS/NISN.";
       c.expect(t("pendataan.nomor.arti" as HleEvent, "staff", { locale: "id" }).startsWith(arti) && t("aktivasi.tunggu.cari_arti" as HleEvent, "staff", { locale: "id" }) === arti,
         "Pendataan and Aktivasi do not carry the same approved explanation");
@@ -478,7 +483,8 @@ export const d168Tests: SelfTest[] = [
         && /await c\.from\("misconception_taxonomy"\)\.select\("code, label"\)/.test(muat) && !/service|admin|createClient/i.test(muat),
         "the loader does not read the band, the code and its name with the reader's own client");
       const hal = kode(readFileSync(join(repoRoot, "src/app/studio/paket/[course]/page.tsx"), "utf8"));
-      c.expect(/q\.pita \? <> · \{sl\("studio\.bank\.prediksi"\)\}: \{sl\(`mengajar\.cepat\.tingkat\.\$\{q\.pita\}`\)\}<\/> : null/.test(hal)
+      // restated at A1 (D-166(b) decision 5, retrospective R3): the band is a bare word on the meta line, with no «Prediksi:» label
+      c.expect(/q\.pita \? <> · \{sl\(`mengajar\.cepat\.tingkat\.\$\{q\.pita\}` as HleEvent\)\}<\/> : null/.test(hal)
         && /o\.miskonsepsi \?[\s\S]{0,200}studio\.soal\.miskonsepsi[\s\S]{0,80}o\.miskonsepsi\.nama \?\? o\.miskonsepsi\.kode/.test(hal),
         "the package page does not draw the band or the misconception");
       return c.verdict("the reviewer's questions carry the author's band (Sulit, Mudah, none) and each option's misconception by name (the code where unnamed), read under the reader's own access");

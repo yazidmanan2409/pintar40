@@ -12087,7 +12087,8 @@ export const experienceTests: SelfTest[] = [
        *    heading, in each language.
        */
       const paket = baca("src", "app", "studio", "paket", "[course]", "page.tsx");
-      c.expect(/<h3 className="pin-studio-h3">\{s\("studio\.temuan\.judul"\)\}<\/h3>/.test(paket) && !/studio\.temuan\.masalah/.test(paket),
+      // restated at A5 B10 (retrospective R3): the package title is the page's h1, so its sections are h2
+      c.expect(/<h2 className="pin-studio-h3">\{s\("studio\.temuan\.judul"\)\}<\/h2>/.test(paket) && !/studio\.temuan\.masalah/.test(paket),
         "the findings section is not headed with its own name");
       for (const locale of LOCALES) {
         const judul = t("studio.temuan.judul", "staff", { locale });
@@ -12102,7 +12103,7 @@ export const experienceTests: SelfTest[] = [
        *    its picker names the release to move to, its button says «Pindahkan»,
        *    and each form names the class it moves.
        */
-      c.expect(/<h3 className="pin-studio-h3">\{s\("studio\.paket\.pindah\.judul"\)\}<\/h3>/.test(paket)
+      c.expect(/<h2 className="pin-studio-h3">\{s\("studio\.paket\.pindah\.judul"\)\}<\/h2>/.test(paket)
         && /<span>\{s\("studio\.paket\.pindah\.tujuan"\)\}<\/span>/.test(paket)
         && /\{s\("studio\.paket\.pindah\.tombol"\)\}<\/TombolKirim>/.test(paket)
         && /\{namaKelas\.get\(a\.node_id as string\) \?\? "—"\}/.test(paket) && !/studio\.paket\.tugaskan/.test(paket),

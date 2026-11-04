@@ -1059,7 +1059,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                     {pmPlatform ? null : pmSekolah.map((id) => <input key={id} type="hidden" name="sekolah" value={id} />)}
                     <input type="hidden" name="mulai" value={sp.pm_mulai ?? ""} />
                     <input type="hidden" name="selesai" value={sp.pm_selesai ?? ""} />
-                    <label className={label}>{sl("config.pemeliharaan.pesan")}
+                    <label className={label}>{sl("config.pemeliharaan.pesan")} <span className="pin-opsional">{sl("bentuk.opsional")}</span>
                       <textarea name="pesan" className={field} maxLength={500} rows={2} />
                     </label>
                     <label className={label}>{sl("config.pemeliharaan.alasan")}
@@ -1416,7 +1416,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                         {(periods ?? []).filter((p) => p.institution_id === satuSekolah).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                       </select>
                     </label>
-                    <label className={label}>{s("pindah.masuk.program")}
+                    <label className={label}>{s("pindah.masuk.program")} <span className="pin-opsional">{s("bentuk.opsional")}</span>
                       <select name="to_programme" className={field} defaultValue="">
                         <option value="">—</option>
                         {(nodes ?? []).filter((n) => n.kind === "PROGRAMME" && n.is_active && n.institution_id === satuSekolah).map((n) => (
@@ -1502,7 +1502,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   ))}
                 </select>
               </label>
-              <label className={label}>{s("config.label.destination_programme")}
+              <label className={label}>{s("config.label.destination_programme")} <span className="pin-opsional">{s("bentuk.opsional")}</span>
                 <select name="to_programme" className={field} defaultValue="">
                   <option value="">—</option>
                   {(nodes ?? []).filter((n) => n.kind === "PROGRAMME" && n.is_active).map((n) => (

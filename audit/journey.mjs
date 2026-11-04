@@ -1043,10 +1043,18 @@ async function terbitkanLewatLayar(course, rec, notes, { bacaSoal = false, nama 
     if (kunci === "setujui" && bacaSoal) {
       // D-088(h): before approving, the reviewer has the chapter's questions in front of them, each with its key and
       // every option's reason, on the package page (the learner preview stays without questions)
+      // A1 (D-166(b)): one whole lesson per view, so the reviewer reads the package lesson by lesson (?pelajaran=n),
+      // and every question, key and reason must be met across them
       await pen.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
-      const diLayar = await pen.locator("#soal li.pin-soal").count();
-      const kunciLayar = await pen.locator("#soal li.pin-opsi-kunci").count();
-      const alasanLayar = await pen.locator("#soal li.pin-opsi").count();
+      const nPelajaran = Math.max(1, await pen.locator("#soal #pin-soal-pilih option").count());
+      let diLayar = 0, kunciLayar = 0, alasanLayar = 0;
+      for (let i = 1; i <= nPelajaran; i++) {
+        if (i > 1) await pen.goto(`${APP}/studio/paket/${course}?pelajaran=${i}#pin-soal-pelajaran`, { waitUntil: "networkidle" });
+        diLayar += await pen.locator("#soal li.pin-soal").count();
+        kunciLayar += await pen.locator("#soal li.pin-opsi-kunci").count();
+        alasanLayar += await pen.locator("#soal li.pin-opsi").count();
+      }
+      await pen.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
       const diBank = Number(sql(`select count(*) from public.items i join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id='${course}'`));
       const opsiBank = Number(sql(`select count(*) from public.item_options o join public.items i on i.id = o.item_id join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id='${course}'`));
       const kunciBank = Number(sql(`select count(*) from public.item_options o join public.items i on i.id = o.item_id join public.lessons l on l.id = i.lesson_id join public.modules m on m.id = l.module_id where m.course_id='${course}' and o.is_correct`));

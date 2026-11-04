@@ -3534,3 +3534,30 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 /* B1 §2 A4: a Konfigurasi section page prints its content only: every form, a record's action and the pager stay off
    the paper (the back link and the shell already do, .pin-noprint) */
 @media print { [data-bagian-ini] form, [data-bagian-ini] [data-buka-ubah], [data-bagian-ini] [data-penomoran] { display: none !important; } }
+/* A1 (D-166(b)): the question review, one lesson at a time; scoped to the review's own lists */
+.pin-soal-lompat { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2) var(--space-3); margin-top: var(--space-3); }
+.pin-soal-lompat label { flex-basis: 100%; font-size: var(--type-meta); color: var(--ink-2); }
+.pin-soal-lompat select { min-width: 0; max-width: 100%; flex: 1 1 auto; }
+.pin-soal-pelajaran { margin-top: var(--space-5); display: grid; gap: var(--space-3); }
+.pin-soal-pelajaran-judul { margin: 0; font-size: var(--t-subsection); line-height: var(--t-subsection-lh); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-soal-pelajaran-judul:focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+.pin-soal-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+.pin-soal-daftar > .pin-soal > article { display: grid; gap: var(--space-3); padding: var(--space-5); border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface-1); }
+.pin-soal-meta { margin: 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); }
+.pin-soal-bacaan { display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--surface-2); }
+.pin-soal-bacaan-label { margin: 0; font-size: var(--t-small); font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-soal-bacaan p { margin: 0; overflow-wrap: anywhere; }
+.pin-soal-stem { margin: 0; font-size: var(--type-stem-phone); font-weight: var(--weight-strong); color: var(--ink-1); overflow-wrap: anywhere; }
+.pin-opsi-daftar { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.pin-opsi-daftar .pin-opsi { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: var(--space-3); max-width: none; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); border-left: 3px solid transparent; }
+.pin-opsi-daftar .pin-opsi-kunci { border-left-color: var(--pintar-primary); background: var(--pintar-primary-soft); }
+.pin-opsi-huruf { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: var(--radius-pill); border: 1px solid var(--line-strong); font-weight: var(--weight-strong); color: var(--ink-2); }
+.pin-opsi-daftar .pin-opsi-kunci .pin-opsi-huruf { background: var(--pintar-primary); border-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pin-opsi-isi { display: grid; gap: var(--space-1); min-width: 0; }
+.pin-opsi-teks { margin: 0; overflow-wrap: anywhere; }
+.pin-opsi-alasan { margin: 0; font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); overflow-wrap: anywhere; }
+@media (max-width: 560px) {
+  .pin-soal-daftar > .pin-soal > article { padding: var(--space-4); }
+  .pin-opsi-daftar .pin-opsi { grid-template-columns: 24px minmax(0, 1fr); }
+  .pin-opsi-huruf { width: 24px; height: 24px; }
+}

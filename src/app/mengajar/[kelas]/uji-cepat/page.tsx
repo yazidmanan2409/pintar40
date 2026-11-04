@@ -14,7 +14,7 @@ import TahapKomitmen from "@/components/mengajar/TahapKomitmen";
 import { bacaGagalUjiCepat } from "@/lib/ujicepat-kontrak";
 import { kalimatTolakUjiCepat } from "@/components/mengajar/tolakUjiCepat";
 import { TeksBaris } from "@/components/teks/Teks";
-import { kataAnggota } from "@/lib/mengajar";
+import { adaBuktiSoal, kataAnggota } from "@/lib/mengajar";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { judulAsesmen } from "@/lib/judul-asesmen";
 
@@ -165,8 +165,8 @@ export default async function UjiCepat({
                 {s("mengajar.cepat.hasil.lihat")}
               </Link>
             ) : null}
-            {/* M5: once something is handed in, the questions the class found hard */}
-            {hidup.mengumpulkan > 0 ? (
+            {/* M5: once something is handed in, the questions the class found hard; E-C2-3: only where that page answers */}
+            {hidup.mengumpulkan > 0 && adaBuktiSoal(ctx.ini.jenis) ? (
               <Link className="pin-btn" href={`/mengajar/${id}/soal?penugasan=${hidup.id}`}>
                 {s("mengajar.bukti.per_soal")}
               </Link>
@@ -289,8 +289,9 @@ export default async function UjiCepat({
         {terakhir ? (
           <p className="pin-meta pin-cepat-terakhir">
             {s("mengajar.cepat.terakhir")} · {judulAsesmen(terakhir, locale)} ·{" "}
-            <Link href={`/mengajar/${id}/uji-cepat/hasil?penugasan=${terakhir.id}`}>{s("mengajar.cepat.hasil.lihat")}</Link> ·{" "}
-            <Link href={`/mengajar/${id}/soal?penugasan=${terakhir.id}`}>{s("mengajar.bukti.per_soal")}</Link>
+            <Link href={`/mengajar/${id}/uji-cepat/hasil?penugasan=${terakhir.id}`}>{s("mengajar.cepat.hasil.lihat")}</Link>
+            {/* E-C2-3: the per-question page answers an academic class only (adaBuktiSoal) */}
+            {adaBuktiSoal(ctx.ini.jenis) ? <> · <Link href={`/mengajar/${id}/soal?penugasan=${terakhir.id}`}>{s("mengajar.bukti.per_soal")}</Link></> : null}
           </p>
         ) : null}
 

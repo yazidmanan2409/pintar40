@@ -8,6 +8,7 @@ import HasilDi from "@/components/HasilDi";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { posisiPaket, kunciSalinan } from "@/components/studio/langkah";
 import Kosong from "@/components/Kosong";
+import Ikon from "@/components/Ikon";
 import TandaTautan from "@/components/TandaTautan";
 import type { TabStudio } from "@/lib/studio-tab";
 
@@ -71,6 +72,13 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
     : { data: [] as Array<{ course_id: string; status: string; published_at: string | null; created_at: string }> };
   const rilis = new Map(((rilisRows ?? []) as Array<{ course_id: string; status: string; published_at: string | null }>)
     .map((r) => [r.course_id, r]));
+  // A5 C1 (D-173(a)): a package a reviewer sent back carries why it is back, beside the step it is at; its latest review
+  // outcome, read under the reader's own row security as the package page reads it (W1.8)
+  const { data: tinjauanRows } = kursusIds.length > 0
+    ? await supabase.from("content_review_outcomes").select("course_id, outcome, decided_at").in("course_id", kursusIds)
+      .order("decided_at", { ascending: true })
+    : { data: [] as Array<{ course_id: string; outcome: string; decided_at: string }> };
+  const tinjauanTerakhir = new Map(((tinjauanRows ?? []) as Array<{ course_id: string; outcome: string }>).map((o) => [o.course_id, o.outcome]));
 
   const rows = ((buckets ?? []) as Array<{ bucket: string; institution_id: string; count: number }>)
     .filter((r) => byId.has(r.institution_id));
@@ -147,6 +155,8 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
                     <span>{c.subject} · {c.grade_label} · {byId.get(c.institution_id) ?? "\u2014"}</span>
                     {posisi.kini && posisi.kini !== "terbit" && posisi.kini !== "ditarik"
                       ? <span>{s("studio.langkah.keadaan.kini")}: {s(kunciSalinan(posisi.kini, "judul"))}</span> : null}
+                    {c.status === "VALIDATION_FAILED" && tinjauanTerakhir.get(c.id as string) === "SENT_BACK"
+                      ? <span className="pin-pill pin-attention pin-pill-ikon" data-dikembalikan=""><Ikon nama="triangle-alert" />{s("studio.paket.riwayat.dikembalikan")}</span> : null}
                     {/* under 640 px the row's badge sits in its meta line (experience.css) */}
                     {lencana}
                   </span>

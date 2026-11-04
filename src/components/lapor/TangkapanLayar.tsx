@@ -43,7 +43,7 @@ export default function TangkapanLayar({ locale }: { locale: Locale }) {
   return (
     <div className="pin-lapor-isian">
       {/* W3.3 / the /lapor axe finding (`label`, critical): the field's own label now names the input */}
-      <BidangBerkas id="lapor-tangkapan" label={s("lapor.tangkapan")} locale={locale}
+      <BidangBerkas id="lapor-tangkapan" label={s("lapor.tangkapan")} opsional={s("bentuk.opsional")} locale={locale}
         accept="image/png,image/jpeg,image/webp" onPilih={(fs) => pilih(fs[0])} />
       <input type="hidden" name="tangkapan" value={jalur} />
       <p className="pin-hint" aria-live="polite">

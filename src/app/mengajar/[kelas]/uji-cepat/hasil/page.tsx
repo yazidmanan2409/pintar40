@@ -9,7 +9,7 @@ import Kosong from "@/components/Kosong";
 import Koleksi from "@/components/koleksi/Koleksi";
 import { halamanKoleksi, kueriDiminta, saringDiminta, susunKoleksi } from "@/components/koleksi/aturan";
 import { BarisLingkup, kalimatJumlahOrang } from "@/components/bukti";
-import { kataAnggota } from "@/lib/mengajar";
+import { adaBuktiSoal, kataAnggota } from "@/lib/mengajar";
 import { AMBANG_NILAI_KELAS, type KeadaanHasil } from "@/lib/hasil-ujicepat";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { judulAsesmen } from "@/lib/judul-asesmen";
@@ -114,9 +114,12 @@ export default async function HasilUjiCepat({
           </div>
         )}
 
-        <div className="pin-actions">
-          <Link className="pin-btn" href={`/mengajar/${id}/soal?penugasan=${tugas.id}`}>{s("mengajar.bukti.per_soal")}</Link>
-        </div>
+        {/* E-C2-3: offered only where the per-question page answers (adaBuktiSoal; a PD class's is refused) */}
+        {adaBuktiSoal(ctx.ini.jenis) ? (
+          <div className="pin-actions">
+            <Link className="pin-btn" href={`/mengajar/${id}/soal?penugasan=${tugas.id}`}>{s("mengajar.bukti.per_soal")}</Link>
+          </div>
+        ) : null}
 
         {/* ONE STEP BELOW: each learner, alphabetical, a list and not a ranking */}
         <section className="pin-sec" aria-labelledby="pin-cepat-rincian">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import JendelaTinjau from "@/components/mengajar/JendelaTinjau";
 import { t, format, hariIniSekolah, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as ajar from "@/lib/pengajar";
@@ -276,6 +277,11 @@ export default async function Siapkan({
                 {s("mengajar.siap.disediakan")} <b>{ctx.ini.nama}</b>
                 {" · "}{format.number(fakta.murid.length, locale)} {s("mengajar.siap.terdaftar")}
               </p>
+              {/* A5 J5 (D-173(a)): the window being confirmed, before «Sediakan»; after it, the result line says it */}
+              {sudah ? null : (
+                <JendelaTinjau idMulai="pin-mulai" idSampai="pin-sampai" mulai={mulaiAwal} sampai={sampaiAwal} locale={locale}
+                  kata={{ jendela: s("mengajar.siap.jendela"), mulai: s("mengajar.siap.mulai"), sampai: s("mengajar.siap.sampai"), tanpaAkhir: s("mengajar.siap.sampai.kosong") }} />
+              )}
               <p className="pin-akibat">
                 {s("mengajar.siap.akibat.1")}{" "}
                 <b>

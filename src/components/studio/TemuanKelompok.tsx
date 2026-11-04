@@ -63,7 +63,7 @@ export default function TemuanKelompok({
                 <input type="hidden" name="kind" value={g.jenis} />
                 {g.temuan.map((f) => <input key={f.id} type="hidden" name="finding" value={f.id} />)}
                 <div className="pin-bidang">
-                  <label htmlFor={`${formId}-catatan`}>{s("studio.paket.catatan")}</label>
+                  <label htmlFor={`${formId}-catatan`}>{s("studio.paket.catatan")} <span className="pin-opsional">{s("bentuk.opsional")}</span></label>
                   <input id={`${formId}-catatan`} className="pin-input" name="catatan" />
                 </div>
                 <TombolKirim className="pin-btn" sibuk={s("tombol.menyimpan")}>

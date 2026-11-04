@@ -16,6 +16,8 @@ export type Persona = "learner" | "educator" | "staff" | "public";
 export type HleEvent =
   | "jenis.bank.PRACTICE" | "jenis.bank.TEST" | "jenis.bank.EXAM"
   | "studio.soal.judul" | "studio.soal.arti" | "studio.soal.jumlah" | "studio.soal.kunci" | "studio.soal.alasan" | "studio.soal.kosong"
+  | "studio.soal.ringkas" | "studio.soal.pelajaran_label" | "studio.soal.pelajaran_dari" | "studio.soal.posisi" | "studio.soal.buka" | "studio.soal.bacaan" | "studio.soal.gagal" | "studio.soal.pager_label"
+  | "studio.soal.sebelumnya" | "studio.soal.berikutnya"
   | "mengajar.bukti.per_soal" | "mengajar.soal.judul" | "mengajar.soal.arti" | "mengajar.soal.terkumpul" | "mengajar.soal.dari" | "mengajar.soal.tepat"
   | "mengajar.soal.kunci" | "mengajar.soal.bantuan" | "mengajar.soal.semua_tepat" | "mengajar.soal.kosong" | "mengajar.soal.tidak_dijawab" | "mengajar.soal.kembali"
   | "mengajar.ulang.judul"
@@ -1179,7 +1181,7 @@ export type HleEvent =
   | "studio.definisi.acak.ITEMS"
   | "studio.definisi.acak.ITEMS_AND_OPTIONS"
   // W1.3 (Batch 3; RV-14, DG-28/29): Aturan Asesmen's hints, its limits in minutes and words, its choices as rows
-  | "studio.definisi.wajib" | "studio.definisi.opsional" | "studio.definisi.unit.menit"
+  | "studio.definisi.wajib" | "studio.definisi.unit.menit"
   | "studio.definisi.kata.antara" | "studio.definisi.kata.dan"
   | "studio.definisi.f.tenggang_menit" | "studio.definisi.f.komposisi" | "studio.definisi.f.selama"
   | "studio.definisi.petunjuk.jumlah" | "studio.definisi.petunjuk.keselamatan" | "studio.definisi.petunjuk.ragu"
@@ -2468,6 +2470,17 @@ const table: Table = {
   "studio.soal.kunci": { default: "Kunci", en: "Key" },
   "studio.soal.alasan": { default: "Alasan", en: "Why" },
   "studio.soal.kosong": { default: "Paket ini belum berisi soal.", en: "This package has no questions yet." },
+  // A1 (D-166(b)): the question review, one lesson at a time (Daisy's T table; presentation, pending copy approval)
+  "studio.soal.ringkas": { default: "{soal} soal dalam {pelajaran} pelajaran", en: "{soal} questions in {pelajaran} lessons" },
+  "studio.soal.pelajaran_label": { default: "Pelajaran", en: "Lesson" },
+  "studio.soal.pelajaran_dari": { default: "Pelajaran {i} dari {n}", en: "Lesson {i} of {n}" },
+  "studio.soal.posisi": { default: "Soal {i} dari {n}", en: "Question {i} of {n}" },
+  "studio.soal.buka": { default: "Buka", en: "Open" },
+  "studio.soal.sebelumnya": { default: "Pelajaran sebelumnya", en: "Previous lesson" },
+  "studio.soal.berikutnya": { default: "Pelajaran berikutnya", en: "Next lesson" },
+  "studio.soal.bacaan": { default: "Bacaan", en: "Reading passage" },
+  "studio.soal.gagal": { default: "PINTAR belum bisa membuka soal paket ini. Muat ulang halaman ini; jika tetap gagal, hubungi admin sekolah Anda.", en: "PINTAR couldn't open this package's questions. Reload this page; if it still fails, contact your school's administrator." },
+  "studio.soal.pager_label": { default: "Pelajaran dalam paket ini", en: "Lessons in this package" },
   // E3 #4 (Daisy): a disabled button says why, beside it (AlasanNonaktif); pending Dr Gladys (question pack B7, B8)
   "alasan.nonaktif.jawab": { default: "Pilih satu jawaban dulu.", en: "Choose one answer first." },
   "alasan.nonaktif.periksa": { default: "Pilih buku kerja dulu.", en: "Choose a workbook first." },
@@ -3283,7 +3296,7 @@ const table: Table = {
   "config.label.enrollment": { default: "Murid (pendaftaran aktif)", en: "Students (active enrolments)" },
   "config.label.destination_institution": { default: "Kode sekolah tujuan", en: "Destination school code" },
   "config.label.destination_period": { default: "Kode tahun ajaran tujuan", en: "Destination academic-year code" },
-  "config.label.destination_programme": { default: "Kode program tujuan (opsional)", en: "Destination programme code (optional)" },
+  "config.label.destination_programme": { default: "Kode program tujuan", en: "Destination programme code" },
   "config.label.destination_help": { default: "Kode tujuan diberikan oleh sekolah penerima. Persetujuan datang dari pihak lawan.", en: "The destination codes come from the receiving school. Authorization comes from the other side." },
   "config.label.reason": { default: "Alasan", en: "Reason" },
   "config.label.person": { default: "Orang", en: "Person" },
@@ -3431,7 +3444,7 @@ const table: Table = {
   "lapor.terjadi": { default: "Apa yang terjadi?", en: "What happened?" },
   "lapor.hentikan": { default: "Masalah ini menghentikan kelas saya sekarang", en: "This problem is stopping my class now" },
   "lapor.hentikan.singkat": { default: "Menghentikan kelas", en: "Stopping a class" },
-  "lapor.tangkapan": { default: "Tangkapan layar (tidak wajib)", en: "Screenshot (optional)" },
+  "lapor.tangkapan": { default: "Tangkapan layar", en: "Screenshot" },
   "lapor.tangkapan.arti": { default: "PNG, JPG atau WebP, paling besar 5 MB. Sertakan hanya yang perlu dilihat.", en: "PNG, JPG or WebP, at most 5 MB. Include only what needs to be seen." },
   "lapor.tangkapan.naik": { default: "Mengunggah tangkapan layar…", en: "Uploading the screenshot…" },
   "lapor.tangkapan.siap": { default: "Tangkapan layar terlampir.", en: "Screenshot attached." },
@@ -3510,7 +3523,7 @@ const table: Table = {
   "config.pemeliharaan.tabrakan.terakhir": { default: "Asesmen terakhir diperkirakan selesai", en: "The last assessment is expected to finish on" },
   "config.pemeliharaan.tabrakan.saran": { default: "Pertimbangkan memulai pemeliharaan setelah", en: "Consider starting maintenance after" },
   "config.pemeliharaan.tabrakan.nihil": { default: "Tidak ada asesmen yang dijadwalkan selama periode ini.", en: "No assessment is scheduled during this period." },
-  "config.pemeliharaan.pesan": { default: "Pesan untuk pengguna (pilihan)", en: "Message for users (optional)" },
+  "config.pemeliharaan.pesan": { default: "Pesan untuk pengguna", en: "Message for users" },
   "config.pemeliharaan.alasan": { default: "Alasan (dicatat)", en: "Reason (recorded)" },
   "config.pemeliharaan.umumkan": { default: "Terbitkan juga sebagai pengumuman", en: "Also publish it as a notice" },
   "config.pemeliharaan.jadwalkan": { default: "Jadwalkan pemeliharaan", en: "Schedule maintenance" },
@@ -3737,7 +3750,7 @@ const table: Table = {
   "studio.langkah.tarik.alasan": { default: "Alasan penarikan", en: "Reason for withdrawal" },
   "studio.paket.periksa_isi": { default: "Periksa isi sekarang", en: "Check the content now" },
   "studio.paket.periksa_isi_arti": { default: "PINTAR memeriksa pelajaran dan soalnya. Temuannya muncul di sini; langkah Kunci terbitan memeriksa sekali lagi.", en: "PINTAR checks the lessons and questions. Its findings appear here; the Lock the release step checks once more." },
-  "studio.paket.catatan": { default: "Catatan (boleh kosong)", en: "Note (optional)" },
+  "studio.paket.catatan": { default: "Catatan", en: "Note" },
   "studio.paket.koreksi_alasan": { default: "Alasan pemindahan", en: "Reason for the move" },
   // polish batch 2 (UX-16): the form moves an assignment that exists; it says so, and which class it moves
   "studio.paket.pindah.judul": { default: "Pindahkan penugasan ke terbitan lain", en: "Move an assignment to another release" },
@@ -4245,7 +4258,7 @@ const table: Table = {
   "pindah.masuk.judul": { default: "Permintaan pindah masuk", en: "Incoming transfer requests" },
   "pindah.masuk.dari": { default: "dari", en: "from" },
   "pindah.masuk.tahun": { default: "Tahun ajaran di sekolah ini", en: "School year at this school" },
-  "pindah.masuk.program": { default: "Program (opsional)", en: "Programme (optional)" },
+  "pindah.masuk.program": { default: "Program", en: "Programme" },
   "pindah.masuk.terima": { default: "Terima perpindahan", en: "Accept the transfer" },
   "pindah.keluar.judul": { default: "Ajukan perpindahan ke sekolah lain", en: "Request a transfer to another school" },
   "pindah.keluar.arti": { default: "Cari sekolah tujuan dengan nama lengkapnya atau kodenya. Sekolah tujuan yang menerima perpindahan dan memilih tahun ajarannya.", en: "Find the receiving school by its full name or its code. The receiving school accepts the transfer and chooses the school year." },
@@ -4269,7 +4282,7 @@ const table: Table = {
   "galat.transfer_rejected": { default: "Perpindahan ditolak.", en: "Transfer rejected." },
   "galat.step_taken": { default: "Paket ini maju ke langkah berikutnya.", en: "This package has moved on to its next step." },
   "galat.check_run": { default: "Pemeriksaan isi selesai. Temuannya ada di bawah.", en: "The content check is done. Its findings are below." },
-  "galat.findings_acknowledged": { default: "Temuan sejenis sudah ditinjau sekaligus. Jumlahnya:", en: "The findings of one kind are marked reviewed together. Count:" },
+  "galat.findings_acknowledged": { default: "Temuan sejenis sudah ditinjau sekaligus. Jumlahnya:", en: "Findings of this kind are marked reviewed together. Count:" },
   "galat.finding_acknowledged": { default: "Temuan itu sudah diakui.", en: "That finding has been acknowledged." },
   "galat.revision_created": { default: "Salinan baru paket ini dibuat, dan Anda sekarang melihatnya.", en: "A new copy of this package was made, and you are now looking at it." },
   "galat.assignment_moved": { default: "Penugasan itu sekarang memakai terbitan ini.", en: "That assignment now uses this release." },
@@ -4513,7 +4526,7 @@ const table: Table = {
   "akun.pin.menyimpan": { default: "Menyimpan…", en: "Saving…" },
   "akun.pin.tersimpan": { default: "PIN baru tersimpan.", en: "Your new PIN is saved." },
   "aktivasi.staf.judul": { default: "Murid yang menjadi staf", en: "A learner who becomes staff" },
-  "aktivasi.staf.arti": { default: "Kartu kelas hanya untuk murid. Bila seorang murid menjadi staf, ubah kartunya menjadi akun email lebih dulu. Orangnya tetap sama: nomor registrasi sekolah, kelas dan semua hasil belajarnya tetap. Setelah ia mengaktifkan akun email itu, berikan perannya.", en: "A class card is for learners only. When a learner becomes staff, turn their card into an email account first. They stay the same person: their PINTAR ID, classes and all their learning stay. Once they have activated that email account, give them their role." },
+  "aktivasi.staf.arti": { default: "Kartu kelas hanya untuk murid. Bila seorang murid menjadi staf, ubah kartunya menjadi akun email lebih dulu. Orangnya tetap sama: nomor registrasi sekolah, kelas dan semua hasil belajarnya tetap. Setelah ia mengaktifkan akun email itu, berikan perannya.", en: "A class card is for learners only. When a learner becomes staff, turn their card into an email account first. They stay the same person: the same school registration number, classes and all their learning stay. Once they have activated that email account, give them their role." },
   "aktivasi.staf.pilih": { default: "Ubah menjadi akun email", en: "Turn into an email account" },
   "aktivasi.staf.email": { default: "Alamat email orang ini", en: "This person's email address" },
   "aktivasi.staf.email.arti": { default: "Alamat yang akan ia pakai untuk masuk. Dengan alamat ini ia meminta sendiri kode aktivasinya di «Aktifkan akun».", en: "The address they will sign in with. With it, they ask for their own activation code at «Activate account»." },
@@ -5080,7 +5093,6 @@ const table: Table = {
   "studio.definisi.acak.ITEMS_AND_OPTIONS": { default: "Urutan soal dan pilihan jawaban diacak", en: "Questions and answer choices shuffled" },
   // W1.3 (Batch 3; RV-14, DG-28/29): each field says what it is for and its limit, in words; a time in minutes
   "studio.definisi.wajib": { default: "Semua isian wajib diisi, kecuali yang bertanda (opsional).", en: "Every field is required except those marked (optional)." },
-  "studio.definisi.opsional": { default: "(opsional)", en: "(optional)" },
   "studio.definisi.unit.menit": { default: "menit", en: "minutes" },
   "studio.definisi.kata.antara": { default: "antara", en: "between" },
   "studio.definisi.kata.dan": { default: "dan", en: "and" },

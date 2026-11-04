@@ -115,8 +115,11 @@ export const d088hTests: SelfTest[] = [
         [{ item_id: "c", label: "B", body: "dua", is_correct: true, rationale: "karena dua" },
           { item_id: "c", label: "A", body: "satu", is_correct: false, rationale: "keliru hitung" }],
       );
-      c.expect(JSON.stringify(hasil.map((l) => l.id)) === JSON.stringify(["l1", "l2", "l3"]),
-        `lessons come as ${JSON.stringify(hasil.map((l) => l.id))}; expected the package's order (module, then lesson), a lesson without questions left out`);
+      // restated at A1 (D-166(b), retrospective R3): a lesson without questions is kept, so the lesson jump lists it
+      // with «(0 soal)» and opening it says so (A1 §states); before A1 it was left out of the disclosures
+      c.expect(JSON.stringify(hasil.map((l) => l.id)) === JSON.stringify(["l1", "l2", "l3", "l4"]),
+        `lessons come as ${JSON.stringify(hasil.map((l) => l.id))}; expected the package's order (module, then lesson), a lesson without questions kept`);
+      c.expect(hasil[3].soal.length === 0 && hasil[3].judul === "Tanpa soal", "the lesson without questions is not kept as itself, with none");
       c.expect(JSON.stringify(hasil[0].soal.map((q) => q.id)) === JSON.stringify(["c", "b", "a"]),
         `Pelajaran 1's questions come as ${JSON.stringify(hasil[0].soal.map((q) => q.id))}; expected Pemetaan Awal, then Uji Penguasaan, then practice`);
       const opsi = hasil[0].soal[0].opsi;
@@ -125,7 +128,7 @@ export const d088hTests: SelfTest[] = [
       c.expect(hasil[0].soal[0].stimulus === "bacaan", "a question's stimulus is lost");
 
       const hal = buang(readFileSync(join(repoRoot, "src", "app", "studio", "paket", "[course]", "page.tsx"), "utf8"));
-      c.expect(/const soal = can\(inst, "CAN_DRAFT"\) \? await soalPaket\(supabase, courseId\) : \[\]/.test(hal),
+      c.expect(/const soal = can\(inst, "CAN_DRAFT"\) \? await soalPaket\(supabase, courseId\) : null/.test(hal) && /soal\?\.ok \? soal\.pelajaran/.test(hal),
         "the package page does not read the package's questions for its Studio staff");
       const iSoal = hal.indexOf('id="soal"'), iLangkah = hal.indexOf("<LangkahTerbit");
       c.expect(iSoal > 0 && iLangkah > iSoal, "the questions are not in front of the reviewer before the publish steps");
@@ -140,7 +143,7 @@ export const d088hTests: SelfTest[] = [
         }
       }
       return c.verdict(
-        "executes susunSoal (src/lib/soal-tinjauan.ts): lessons in the package's order without the empty ones, each " +
+        "executes susunSoal (src/lib/soal-tinjauan.ts): lessons in the package's order, an empty one kept (A1), each " +
           "lesson's Pemetaan Awal questions, then Uji Penguasaan, then practice; options A–E with the key marked and each " +
           "reason and stimulus kept. Reads the source of the package page: the questions read for CAN_DRAFT staff and " +
           "shown before the publish steps with the key and reasons; the learner preview still reads no question; the copy " +

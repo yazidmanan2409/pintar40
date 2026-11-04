@@ -14,9 +14,11 @@ import Ikon from "@/components/Ikon";
  * stays so it can be replaced. The field's own label names the input (WCAG 1.3.1, 4.1.2).
  */
 export default function BidangBerkas({
-  label, accept, batas, multiple = false, name, galat, onPilih, locale, untuk = "staff", id: idLuar, required, disabled,
+  label, opsional, accept, batas, multiple = false, name, galat, onPilih, locale, untuk = "staff", id: idLuar, required, disabled,
 }: {
   label: string;
+  /** The «(opsional)» mark (bentuk.opsional), for an optional field only, as BidangTeks draws it. */
+  opsional?: string | null;
   accept?: string;
   /** The limit line, said before a choice («Paling besar 10 MB»). */
   batas?: string;
@@ -39,7 +41,7 @@ export default function BidangBerkas({
 
   return (
     <div className="pin-berkas" data-berkas>
-      <span className="pin-berkas-judul" id={`${id}-label`}>{label}</span>
+      <span className="pin-berkas-judul" id={`${id}-label`}>{label}{opsional ? <span className="pin-opsional"> {opsional}</span> : null}</span>
       <span className="pin-berkas-tombol">
         <input
           id={id} type="file" accept={accept} name={name} multiple={multiple} required={required} disabled={disabled}
