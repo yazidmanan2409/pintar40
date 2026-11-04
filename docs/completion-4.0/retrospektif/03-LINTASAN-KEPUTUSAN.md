@@ -8,6 +8,8 @@
 
 **Approved (D-179):** GO for the coordinated decision process; NO-GO for batch promotion until the applicable acceptance conditions are met.
 
+**The decision pack (4 Nov):** one document for Dr Gladys and the owner, with every K row, its options, a recommendation and an answer column: «PINTAR 4.0 · K1–K7 decision pack» (Claude Docs, shared by the owner). It adds B32–B34 to K1 (now in `DR-GLADYS-QUESTION-PACK.md`) and records the residency conflict below (§1b).
+
 **The pass:** close the genuinely blocking decisions together in one round. Then implement what they decide, rerun the affected tests and the full journeys, and assess readiness for the next batch. No further broad audit is commissioned now.
 
 **Rule in force (D-180):** approved means implemented and verified. Every obligation records what must exist, where it is implemented, how it is verified, and what remains (`06-ENGINEERING-ITEMS-FROM-DESIGN.md`, held by `R-PROSES-01` in every CI run).
@@ -18,7 +20,7 @@
 
 | # | Decision | Decides | Where it is asked | Register rows |
 |---|---|---|---|---|
-| K1 | The words: Part A (A1–A10) and Part B (B1–B31) | **Dr Gladys** (A6 with the owner) | `DR-GLADYS-QUESTION-PACK.md`, one sitting. B28–B31 were added by the retrospective | R1-5, R2-4, R3-2, R3-3, R4-6, R4-7, R5-4, R5-6, R6-3 |
+| K1 | The words: Part A (A1–A10) and Part B (B1–B34) | **Dr Gladys** (A6 with the owner) | `DR-GLADYS-QUESTION-PACK.md`, one sitting. B28–B31 were added by the retrospective, B32–B34 by the pack | R1-5, R2-4, R3-2, R3-3, R4-6, R4-7, R5-4, R5-6, R6-3 |
 | K2 | X12: «paket» / «kursus» / «course», one consolidated decision, the workbook sheet included (C9) | **Dr Gladys and the owner** | `X12-TERMINOLOGY-PAKET.md`; pack A6 | R3-2 |
 | K3 | C2 (the PD Kelas presentation), B4 (the card's school-less role), G1's screens; the two questions the reverse reconciliation found are **answered** (Daisy, 4 Nov, `78b680d5`: K8's markers are A5 B12's filled marks, built; D2's name follows the issued language, as built). **C2:** complete, ready for the owner's review; the PD footnote (Dr Gladys) and two keys' copy remain. **B4:** confirmed, rendered from a disposable stack (`evidence/b4-kartu-platform-dan-sekolah-390.png`), visual evidence for the owner's review, not final acceptance | **Daisy first reconciles** them against the approved decisions and gives **one consolidated recommendation** (D-179(d)). What an earlier ruling already covers is applied, not asked again. Only a genuinely open choice goes to the owner | Daisy's C2, B4, E2 on `ux-1/daisy-experience` | R5-5, R5-6, R6-2 |
 | K4 | F-11: the wordmark master and the font licence | **owner** | `F-OWNER-DECISIONS-REQUIRED-2026-11-02.md` | R6-4, R6-5 |
@@ -38,6 +40,10 @@ K6 is not closed by choosing a storage location. Each question below needs an an
 | K6.4 | **How the exposed materials are retired**: the chapters whose keys are public are marked never usable for real assessment | the inventory lists them (`batch-1/F4-EXPOSED-ITEM-INVENTORY.md`) |
 | K6.5 | **How content is regenerated before real assessment**: who writes it, who reviews it, and how it reaches the store without passing through the repository | — |
 | K6.6 | **How backups and exports stay confidential**: database backups, Studio exports, reports and the workbook, each in Indonesia and under K6.2's readers | — |
+
+### 1b. K6: a residency conflict found while preparing the pack
+
+D-179(b) requires production storage and its backups to reside in Indonesia. Today nothing does: both Supabase projects are in `ap-southeast-1` (Singapore); the server functions run in Vercel's `sin1` (BOB-18); the approved off-platform backup is AWS S3 Singapore (D-107(b) D1, W9.5, not built). The pack asks the owner whether residency covers (a) the private content store only, (b) all production data and backups, which reverses D-107(b) D1, or (c) counsel first (F-16). Recommended: (c), with the content store created in Indonesia meanwhile. Engineering decides none of it.
 
 **Engineering's part, once K6 is answered:** apply the access rules at the stated boundary, with a test that reads the content as a person who must be refused. Extend the guard and the export paths to the stated rules. Record each answer as an obligation (D-180).
 

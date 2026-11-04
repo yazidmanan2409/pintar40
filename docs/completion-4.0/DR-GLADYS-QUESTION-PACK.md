@@ -149,14 +149,14 @@ In the card email: «Akun PINTAR Anda di {sekolah}.» But a PINTAR ID belongs to
 | B4 | A2 | Rata-rata nilai kelas | Class average score | Uji Cepat result (accepted, D-170) |
 | B5 | `ketiadaan.jumlah.peserta` | Sekarang {have} peserta; perlu {needed}. | {have} participants so far; {needed} needed. | every professional-learning «not yet» line |
 | B6 | `koleksi.menampilkan_tanpa_total` | Menampilkan {dari}–{sampai} {benda} | Showing {dari}–{sampai} {benda} | long lists without a total |
-| B7 | (E3) | Pilih satu jawaban dulu. | Choose an answer first. | a learner's disabled button |
-| B8 | (E3) | Pilih buku kerja dulu. | Choose a workbook first. | Studio upload |
+| B7 | `alasan.nonaktif.jawab` (E3) | Pilih satu jawaban dulu. | Choose one answer first. (shown today; this pack earlier said «Choose an answer first.»: confirm one) | a learner's disabled button |
+| B8 | `alasan.nonaktif.periksa` (E3) | Pilih buku kerja dulu. | Choose a workbook first. | Studio upload |
 | B9 | `pengembangan.pelajaran_dari` | {n} dari {m} | {n} of {m} | professional-learning record |
 | B10 | `pengembangan.ditolak` | Catatan ini untuk fasilitator, Kepala departemen, Dekan, dan Admin sekolah tempat ini. | This record is for the facilitator, the Head of department, the Dean and the school administrator of this place. | the record's refusal |
 | B11 | `mengajar.bukti.siapa_peserta` | Lihat nama peserta | See the participants' names | professional-learning «Lihat bukti» |
-| B12 | `mengajar.bukti.pd.arti` | Kelas pengembangan profesi tidak menghasilkan angka akademik kelas. Kemajuan dan hasil setiap peserta tercatat di Catatan pengembangan profesi. | (to be given) | professional-learning «Lihat bukti» |
+| B12 | `mengajar.bukti.pd.arti` | Kelas pengembangan profesi tidak menghasilkan angka akademik kelas. Kemajuan dan hasil setiap peserta tercatat di Catatan pengembangan profesi. | A professional-learning class produces no academic class figure. Each participant's progress and result is in the professional-learning record. | professional-learning «Lihat bukti» |
 | B13 | `mengajar.bukti.pd.buka` | Buka catatan pengembangan profesi | Open the professional-learning record | as above |
-| B14 | (B1) | Laporan dari staf semua sekolah, yang menghentikan kelas lebih dahulu. Sekolah menyelesaikan yang dapat diselesaikannya; tim PINTAR menindaklanjuti sisanya. | (to be given) | Konfigurasi, «Seluruh platform» only |
+| B14 | `lapor.triase.arti_platform` (B1) | Laporan dari staf semua sekolah, yang menghentikan kelas lebih dahulu. Sekolah menyelesaikan yang dapat diselesaikannya; tim PINTAR menindaklanjuti sisanya. | Reports from the staff of every school, those stopping a class first. Each school resolves what it can; the PINTAR team follows up the rest. | Konfigurasi, «Seluruh platform» only |
 
 **Words engineering wrote, never reviewed (G4).** Please read them on the screens or in `src/lib/hle.ts` by key prefix. Say «OK» per group, or mark the strings to change:
 
@@ -190,6 +190,14 @@ In the card email: «Akun PINTAR Anda di {sekolah}.» But a PINTAR ID belongs to
 | B30 | the optional field's mark, one word (A4 C3/D7, R3-2) | «(opsional)» everywhere. It replaces «(tidak wajib)» on /lapor's screenshot, «(pilihan)» on the maintenance message, «(boleh kosong)» on Studio's note, and two inline «(opsional)» | «(optional)» | every optional field. Daisy's rule, accepted in A4; confirm the word |
 | B31 | `aktivasi.staf.arti` (R4-7) | (unchanged) | «… They stay the same person: the same school registration number, classes and all their learning stay. …» (was «their PINTAR ID») | Aktivasi. The English now names the identifier the Indonesian names (B2) |
 
+### Part B, found missing while preparing the K1–K7 pack (4 Nov)
+
+| # | Key | Indonesian | English | Where |
+|---|---|---|---|---|
+| B32 | `config.kelompok.*` | Sekolah dan tahun ajaran · Murid · Staf dan akses · Laporan dan templat · Dukungan | School and school year · Students · Staff and access · Reports and templates · Support | the group names in the staff navigation and Konfigurasi |
+| B33 | `config.pemeliharaan.tabrakan.*` | «Perhatian.» · «{n} asesmen dijadwalkan berlangsung selama periode ini.» · «Asesmen terakhir diperkirakan selesai …» · «Pertimbangkan memulai pemeliharaan setelah …» · «Tidak ada asesmen yang dijadwalkan selama periode ini.» | «Please note.» · «{n} assessments are scheduled to run during this period.» · «The last assessment is expected to finish on …» · «Consider starting maintenance after …» · «No assessment is scheduled during this period.» | scheduling maintenance over assessments (H19) |
+| B34 | `mengajar.cepat.hasil.belum` | Belum ada nilai. Rata-rata nilai kelas muncul di sini setelah ada yang mengumpulkan. | today «… The class average appears here …»; proposed «The class average score appears here once someone has handed in.», to match B4 (minor finding 1, `04-REKONSILIASI-BALIK.md` §7) | Uji Cepat result, before any score |
+
 Already settled, nothing to answer: the school registration number («Nomor Registrasi Sekolah», D-174 / D-175), and «PINTAR ID» as the identifier's name.
 
 ---
@@ -203,6 +211,6 @@ Already settled, nothing to answer: the school registration number («Nomor Regi
 | A5, A6 | the Studio words (A4) and the application-wide terminology fix (X12) |
 | A7, A10 | the professional-learning page (C2) and the identity emails (D1) |
 | A8, A9 | Konfigurasi's platform view (B1) and the sign-in message |
-| Part B | every new word in the accepted designs, and E4, Daisy's last open item; B28–B31 the words the retrospective built or changed |
+| Part B | every new word in the accepted designs, and E4, Daisy's last open item; B28–B31 the words the retrospective built or changed; B32–B34 the keys found missing from this pack |
 
 **Gate 2 (Terminology final, G:81) needs every A and B answered.** A placeholder left anywhere is a NO-GO.
