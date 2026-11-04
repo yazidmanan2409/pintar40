@@ -113,10 +113,15 @@ async function buka(page, jalan) {
 }
 const a11ySemua = [];
 async function aksesibel(rec, page, jalan) {
-  // from a fresh load, so the keyboard walk starts at the top of the page, not where the walk's own clicks left focus
-  await page.reload({ waitUntil: "networkidle" });
+  // from a fresh load, so the keyboard walk starts at the top of the page, not where the walk's own clicks left focus.
+  // Loaded without the address's fragment: a fragment (the walk opens /studio/integritas#ditinjau) puts Chromium's
+  // sequential-focus starting point at its target, so the first Tab would start there, not at the top (probed: with
+  // #ditinjau the first Tab left the page in 2 of 6 loads, without it the skip link came first in 6 of 6).
+  const atas = new URL(page.url()); atas.hash = "";
+  const muatAtas = () => page.goto(atas.href, { waitUntil: "networkidle" });
+  await muatAtas();
   const lewati = page.getByRole("button", { name: /Lewati|Tutup tur|Selesai/ }).first();
-  if (await lewati.isVisible().catch(() => false)) { await lewati.click().catch(() => {}); await page.reload({ waitUntil: "networkidle" }); }
+  if (await lewati.isVisible().catch(() => false)) { await lewati.click().catch(() => {}); await muatAtas(); }
   const h = await periksa(page);
   const axe = (h.axe ?? []).map((v) => `${v.id}×${v.n}`);
   const luap = Object.entries(h.lebar).filter(([, v]) => v?.meluap).map(([w, v]) => `${w}px→${v.meluap}`);
