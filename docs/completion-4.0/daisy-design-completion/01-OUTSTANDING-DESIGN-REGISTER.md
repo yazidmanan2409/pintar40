@@ -251,6 +251,10 @@
   - `batch-5/evidence/walk/run3-fresh/04-laporan-kelas.png`, `04-laporan-kelas-cetak.png`.
 - **Acceptance:** E:90; the A4 print check (W3.22, `audit/b6-cetak.mjs`).
 
+- **Review note (coordinator, 4 Nov, on Daisy's C1 at `267ef47d`, `4af82f6d`, `9914bc97`):**
+  - **Her escalation on `/pengembangan` is already ruled.** D-069(b) gives the facilitator, the Kepala departemen over the place and the Dekan each participant's result/score, and gives Admin sekolah only enrolment, participation and completion. The brief's «never a figure» was the coordinator's loose paraphrase of the page's «never a figure or a ranking», which means no aggregate figure or ranking. The brief is corrected. The result cell stays as drawn.
+  - **Six build defects she found** go to the implementation gate, not to a decision: a raw data key can show as a label; staff pages use the educator wording; two pages can render an empty heading; the `/pengembangan` refusal falls back to a generic line (a new key proposed); the `/pengembangan` footer prints; `/pengembangan` picks its shell from role names (`peranSaya`).
+
 ### C2 · W2.16 item 5: the PD Kelas «Lihat bukti» presentation (DAISY-35(5), CR-57, J9.8)
 - **Approved rule:**
   - D-070(h): a PD Kelas keeps its ordinary «Lihat bukti» page, empty of academic figures by design; «presentation only; no figure is added or computed» (`docs/coordination/design/EDUCATOR-AS-LEARNER-TICKETS.md:382, :746`).

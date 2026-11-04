@@ -189,7 +189,7 @@ Recommend **the first two** within W3.1, which keeps people's names out of title
 | `/pimpinan/[simpul]/umpan-balik` | as `/pimpinan` (the policy asks `management_scope_over_node` again) | the cycles; none; refusal |
 | `/pimpinan/[simpul]/umpan-balik/[siklus]` | as above | one cycle; refusal |
 | `/pimpinan/[simpul]/umpan-balik/kelas/[kelas]` | as above | one class's feedback; refusal |
-| `/pengembangan/[simpul]` (DAISY-34) | the facilitator; Kepala departemen over the place; Dekan (progress and result); Admin sekolah (enrolment, participation, completion only). Anyone else is refused (PD_RECORD_NOT_ALLOWED). | each audience's columns as the database returns them; refusal; never a figure, ranking or answer |
+| `/pengembangan/[simpul]` (DAISY-34) | the facilitator; Kepala departemen over the place; Dekan (progress and result); Admin sekolah (enrolment, participation, completion only). Anyone else is refused (PD_RECORD_NOT_ALLOWED). | each audience's columns as the database returns them; refusal; never an aggregate figure, a ranking, an answer or an integrity signal. **Each participant's own result (D-069(b), MC-5) is shown to the facilitator, the Kepala departemen and the Dekan by ruling; Admin sekolah never sees it.** |
 
 The two Ringkasan bodies and their A4 print are the core of C1. The `/pimpinan` and `/pengembangan` routes are included where G:34 names reports. Their shells and behaviour are built and stay; what they need is the body's composition.
 
