@@ -16,7 +16,9 @@ Each has a D168-* regression test that was red on the old source and is green no
 
 **Verified by render, no change needed:** E-B4-1 (D168-B4-1).
 
-**Still open:** E-B1-1, E-B1-3 (its word), E-E1-1/E-E1-2, E-K-ALL (re-run at each CI), and the larger compositions.
+**Built under D-177 (4 Nov, `b03dbba5`):** E-E1-1, and E-E1-2's automated part, with E1 + E2 as one navigation (D168-E1-1, D168-E2-1, `audit/e1-navigasi.mjs`; `d177-koreksi/README.md` §4c). The NVDA and TalkBack passes remain manual and need devices.
+
+**Still open:** E-B1-1, E-B1-3 (its word), E-K-ALL (re-run at each CI), the NVDA and TalkBack passes, and the larger compositions.
 
 ## C1 · reports, Management and professional learning (D-167)
 

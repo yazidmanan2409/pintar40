@@ -104,11 +104,36 @@ Two failures were corrected on the way. Both were in the checks, not in the appl
 | E3 #3, #4, #12, #15 | Corrected in `24c33365` |
 | H8 | Already correct as built (`MenuAkun`); nothing to change |
 | H21 | Done for every surface except the class report on a PD Kelas, which waits on the owner's ruling on whether such a report exists (open item 7 from verification round 2) |
-| H13–H15 | With the E1/E2 navigation build, not yet started; NVDA and TalkBack need devices |
+| H13, H14 | Built with E1 + E2 (§4c) |
+| H15 | NVDA and TalkBack need devices |
 | H18 | The seed school's name waits on Dr Gladys (question pack A8) |
 | H22 | X12 T2–T5 wait on Dr Gladys and the owner |
 
 The test is D168-SERAH-1, red on the old source and green on the new.
+
+## 4c. E1 + E2: the integrated navigation (`b03dbba5`)
+
+E1 is accepted (D-170(c), with the correction accepted in D-171(a)). E2 is structurally accepted (D-169(c)). O12 is ruled (D-170(d)). D-177 asks for continuous execution within that approved scope. All of it is built in the shared shell, so every staff surface inherits it.
+
+| Part | Built |
+|---|---|
+| The rail (E-E1-1, H13) | 72 px by default from 1024 to 1279 px. Each link keeps its own word as its name, visually hidden: never `display: none`, no `aria-label` or `title`. The tooltip is the same word, `aria-hidden`. It shows only while the shell is the rail (the rail's state, not the label's CSS), at once on keyboard focus, and Escape dismisses it. Every place has an icon (Sertifikat sekolah had none and was blank in the rail). |
+| Collapse | At 1280 px and up the reader collapses to the rail; in the rail range they expand it. The toggle names the state it offers («Ciutkan navigasi» / «Lebarkan navigasi», `aria-expanded`), read from the rail's own state, and stays hidden until it knows that state. Only a departure from the width's default is kept, per device. |
+| The context control (E2) | The navigation's first part: the purpose's short name (G1's slot for Mengelola draws nothing yet), the place, and «Mau ke mana hari ini?» only for a person with another context. In the rail it is one item, named «Mau ke mana hari ini? · purpose · place». |
+| O12 order (H14) | The shell sorts its items in the DOM by one table, `URUTAN_TEMPAT`. **Found on the way:** CSS `order` had drawn «Seluruh platform»'s places in O12's order, while the keyboard reached Kirim email uji before Keamanan akun (WCAG 2.4.3). |
+| Under 1024 px | «Keluar», then «Buka menu». The drawer is a modal: focus moves in, the page behind is inert, and Escape or «Tutup menu» returns focus to the button. **Found on the way:** the script-less checkbox was a Tab stop at 1024 px and wider, where it did nothing; it now serves only until script loads. |
+| The chooser's door (E2) | Purpose and place on two lines. The current door is marked by a check, the primary edge and ground, and `aria-current`, not by weight. |
+
+**Tests:** D168-E1-1 and D168-E2-1, red on the old source and green on the new. The browser walk `audit/e1-navigasi.mjs` (E-E1-2) covers six people and contexts and eight widths: transitions, the places and their order, the chooser, the rail and its names and tooltips, axe in the rail, collapse, the drawer, and a page of another context. It passed 13/13 locally and now runs in the journeys. Job A's other walks pass locally on a reset stack: Studio 18/18, administration 11/11, Batch 5 6/6, print 5/5, focused checks 2/2.
+
+**Still required:** the NVDA and TalkBack passes on the rail (H15; E1 §9 [manual]). They need real devices.
+
+**For Daisy:** what the phone bar names.
+- E1 §1 and its 390 px walk name the school.
+- The design system's AppShell (`bundle.js`) and D-140 RV-4, which a test enforces, name the current page.
+- The build keeps the page, since E1 says the AppShell is unchanged, and the school heads the opened menu.
+
+**Words:** «Ciutkan navigasi», «Lebarkan navigasi», «Buka menu» and «Tutup menu» are the design system's approved shell words (J3, question 1). Per E1 §5 they enter the copy table with the build.
 
 ## 5. Copy pending Dr Gladys (added under D-177; listed for the question pack)
 
