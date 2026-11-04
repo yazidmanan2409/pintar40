@@ -45,9 +45,9 @@ Found by Daisy in C2 (`ux-1/daisy-experience` at `d9a27652`), or by the coordina
 
 | # | Item | Planned regression test |
 |---|---|---|
-| E-C2-1 | «Lihat nama murid» does not switch to the participant word for a PD Kelas (proposed key `mengajar.bukti.siapa_peserta`, pending copy approval) | rendered PD Kelas: no «murid» anywhere on the page (UX1-AJAR-KATA-01 extended to this control) |
+| E-C2-1 | «Lihat nama murid» does not switch to the participant word for a PD Kelas (proposed key `mengajar.bukti.siapa_peserta`, pending copy approval); seen live twice. The `/siapa` names link to `/mengajar/[kelas]/murid/[orang]` | rendered PD Kelas: no «murid» anywhere on the page or on the participant's page it links to (UX1-AJAR-KATA-01 extended) |
 | E-C2-2 | For a PD Kelas the page still asks for the five class metrics and draws five «not yet» cards. D-070(h): no figure is added or computed | source and rendered: for a PD Kelas the page requests no class metric and draws only the one statement and the link to the record; the ordinary class page is unchanged |
-| E-C2-3 | «Lihat per soal» and «Minta membaca lagi» stay on a PD Kelas (outside C2). The facilitator is refused participants' answers at the database (BOB43-D01: `jawaban_fasilitator` 0; D-069(b) «not individual answers») | rendered: the per-question page for a PD Kelas, read as the facilitator, shows no participant's answer; the database refusal stays as proven |
+| E-C2-3 | «Lihat per soal» is offered on a PD Kelas, and the per-question page **refuses the facilitator** (seen live, `verifikasi-b1-c2/putaran-2`); «Minta membaca lagi» stays. The database refuses the facilitator participants' answers (BOB43-D01 `jawaban_fasilitator` 0; live probe 0) | rendered PD Kelas: no link to a page that refuses this reader; the per-question page still refuses, and shows no participant's answer, if reached by address |
 
 **Checked during review:** BOB43-D01 lets Admin sekolah read a PD `assessment_sessions` row (`sesi_admin: 1`). That table holds status and timestamps only: no score or result (`supabase/migrations/20260912133821_evidence_session_root.sql`). So it is completion, which D-069(b) allows. Results live in `assessment_results`, and E-C1-7 sweeps them.
 
