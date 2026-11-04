@@ -1,4 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { alamatMedia } from "@/lib/media-pelajaran";
 import { currentLocale } from "@/lib/locale";
 import { card, kataStudio } from "../../_lib";
 import Kosong from "@/components/Kosong";
@@ -62,7 +63,7 @@ export default async function Pratinjau({ params, searchParams }: { params: Para
         const { data } = await supabase.rpc("may_preview_lesson_media", { p_path: m.path });
         return {
           jenis: String(m.jenis ?? ""), path: m.path!, transcript: m.transcript,
-          url: data === true ? `/api/assets/read-url?path=${encodeURIComponent(m.path!)}&alih=1` : null,
+          url: await alamatMedia(m.path!, data === true),
         };
       }));
       const { data: los } = await supabase

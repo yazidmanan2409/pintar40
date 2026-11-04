@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { supabaseServer } from "@/lib/supabase/server";
+import { alamatMedia } from "@/lib/media-pelajaran";
 import { currentLocale } from "@/lib/locale";
 import * as engine from "@/lib/assessment-engine";
 import { lessonRead } from "@/lib/siklus";
@@ -55,8 +56,9 @@ export default async function Pelajaran(
   const media = await Promise.all(
     (lesson.media ?? []).map(async (m) => {
       const { data } = await supabase.rpc("may_read_lesson_media", { p_path: m.path });
-      // BOB-11: `alih=1` answers with the file itself (a redirect), which a <video> or <audio> can play
-      return { ...m, url: data === true ? `/api/assets/read-url?path=${encodeURIComponent(m.path)}&alih=1` : null };
+      // BOB-11: `alih=1` answers with the file itself (a redirect), which a <video> or <audio> can play; R0-5: offered
+      // only when the file is there, so a missing PDF is not drawn as a link to the route's raw error
+      return { ...m, url: await alamatMedia(m.path, data === true) };
     }),
   );
 

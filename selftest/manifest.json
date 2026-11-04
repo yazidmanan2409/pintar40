@@ -4327,6 +4327,11 @@
       "proves": "Retrospective R0-1 (W0.2), selftest/retro.test.ts, reading every workflow file under .github/workflows: each job that installs or drives a browser (Playwright install, a walk or the crawl) runs on ubuntu-24.04, where Playwright 1.55 has a browser build (run 41377378758); a planted job on ubuntu-latest is caught."
     },
     {
+      "id": "R0-MEDIA-01",
+      "runner": "app",
+      "proves": "Retrospective R0-5 (W2.12, RV-8; Batch 0's read-url observation), selftest/app.test.ts, from the rendered learner lesson (src/app/belajar/[tugas]/pelajaran/[pelajaran]/page.tsx through src/lib/media-pelajaran.ts) over HTTP against the seed: a lesson's PDF whose storage object is absent is offered by no address (no \u00abBuka ringkasan\u00bb, no link to the route's raw 404), and once the object is placed the same lesson offers it; the existence check runs after the reader's own permission."
+    },
+    {
       "id": "D168-KATA-1",
       "runner": "static",
       "proves": "F03-R02 false positive (D-168), selftest/d168.test.ts, from selftest/isi-materi.ts, the rendered TeksBaris and TeksBlok (src/components/teks/Teks.tsx), the stylesheet src/app/experience.css, the source of ItemPlayer.tsx and the seed supabase/seed/learning_cycle.sql: the learner-surface scan for verdict words reads PINTAR's own words only; authored content, which the shared renderer marks (data-isi-materi) and through which the player draws stems and options, is set aside whole even when nested, so the authored option \u00abSalah satu lebih besar\u00bb is not flagged; PINTAR's \u00abSalah\u00bb badge or \u00abIncorrect\u00bb/\u00abWrong\u00bb feedback beside or after the content is still caught, an unclosed marker sets nothing aside, the wrapper changes no layout, and the seed keeps its option as written."

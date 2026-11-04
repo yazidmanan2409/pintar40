@@ -3471,4 +3471,51 @@ export const appTests: SelfTest[] = [
   ...bob50AppTests,
   // BOB-51 (D-057, REL-08): «Kirim email uji», the platform admin's delivery proof, through the running app
   ...bob51AppTests,
+  {
+    id: "R0-MEDIA-01",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // R0-5 (W2.12, RV-8; Batch 0's «/api/assets/read-url» observation, never triaged): a lesson's medium whose file is
+      // not there is offered by no address. A recording already said so in words; a PDF was still drawn as «Buka
+      // ringkasan» and opened the route's raw {"error":"not_found"}. Rendered against the seed, with the object absent
+      // and then placed, so the check is shown to tell the two apart.
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      if (!c.expect(Boolean(ctx.supabaseServiceRoleKey), "no service-role key to place or remove the media object")) return c.verdict("");
+      const murid = await signIn(ctx, PERSONA.cycleLearner);
+      const rpc = async (nama: string, body: unknown) => {
+        const r = await fetch(`${ctx.supabaseUrl}/rest/v1/rpc/${nama}`, { method: "POST",
+          headers: { apikey: ctx.supabaseAnonKey!, authorization: `Bearer ${murid.accessToken}`, "content-type": "application/json" }, body: JSON.stringify(body) });
+        return r.ok ? ((await r.json()) as unknown) : null;
+      };
+      let tugas = "", pelajaran = "", jalur = "";
+      for (const a of ((await rpc("my_learning_assignments", {})) ?? []) as Array<{ learning_assignment_id: string }>) {
+        for (const l of ((await rpc("learner_lessons", { p_learning_assignment: a.learning_assignment_id })) ?? []) as
+          Array<{ lesson_id: string; media: Array<{ jenis: string; path: string }> | null }>) {
+          const m = (l.media ?? []).find((x) => x.jenis === "pdf");
+          if (m && !jalur) { tugas = a.learning_assignment_id; pelajaran = l.lesson_id; jalur = m.path; }
+        }
+      }
+      if (!c.expect(jalur !== "", "the seeded learner has no lesson with a PDF, so this test would prove nothing")) return c.verdict("");
+      const layanan = { apikey: ctx.supabaseServiceRoleKey!, authorization: `Bearer ${ctx.supabaseServiceRoleKey!}` };
+      const hapus = () => fetch(`${ctx.supabaseUrl}/storage/v1/object/assets`, { method: "DELETE", headers: { ...layanan, "content-type": "application/json" }, body: JSON.stringify({ prefixes: [jalur] }) });
+      const tautan = `/api/assets/read-url?path=${encodeURIComponent(jalur)}&amp;alih=1`;
+      const lihat = async () => (await get(`${base}/belajar/${tugas}/pelajaran/${pelajaran}`, { headers: { cookie: murid.cookie } })).text();
+      // 1. the file is not there: no «Buka ringkasan», no address to the raw error
+      await hapus();
+      const tanpa = await lihat();
+      c.expect(tanpa.includes("pin-lcard") || tanpa.includes("<main"), "the lesson did not render");
+      c.expect(!tanpa.includes(tautan) && !tanpa.includes(t("lesson.pdf" as HleEvent, "learner", { locale: "id" })), "a missing PDF is still offered as «Buka ringkasan»");
+      const mentah = await get(`${base}${tautan.replace(/&amp;/g, "&")}`, { headers: { cookie: murid.cookie } });
+      c.expect(mentah.status === 404, `the route itself still answers a missing file with ${mentah.status}`);
+      // 2. the file placed: the same lesson offers it
+      const put = await fetch(`${ctx.supabaseUrl}/storage/v1/object/assets/${jalur}`, { method: "POST",
+        headers: { ...layanan, "content-type": "application/pdf", "x-upsert": "true" }, body: "%PDF-1.4 R0-5" });
+      c.expect(put.ok, `placing the PDF at ${jalur} failed (${put.status})`);
+      const dengan = await lihat();
+      c.expect(dengan.includes(tautan) && dengan.includes(t("lesson.pdf" as HleEvent, "learner", { locale: "id" })), "a PDF that is there is not offered");
+      await hapus();
+      return c.verdict("rendered for the seeded learner, a lesson's PDF whose file is absent is not offered (no «Buka ringkasan», no address to the route's raw 404), and the same PDF placed in storage is offered again; the check runs after the reader's own permission");
+    },
+  },
 ];
