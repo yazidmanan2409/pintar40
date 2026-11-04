@@ -85,8 +85,9 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
-import { Checks, type SelfTest } from "./lib";
-import { allKeys, t, type HleEvent } from "../src/lib/hle";
+import { Checks, visibleText, type SelfTest } from "./lib";
+import { tanpaIsiMateri } from "./isi-materi";
+import { allKeys, t, INTERNAL_WORDS, type HleEvent } from "../src/lib/hle";
 import { judulAsesmen } from "../src/lib/judul-asesmen";
 import { cangkangStaf } from "../src/components/lapor/cangkang";
 import { labelMetrik } from "../src/components/bukti/label";
@@ -749,26 +750,36 @@ export const d168Tests: SelfTest[] = [
     },
   },
   {
-    id: "D168-BENIH-1",
+    id: "D168-KATA-1",
     run: async ({ repoRoot }) => {
-      // F03-R02 (CI 41825262402): a learner's Pemetaan Awal showed «Salah» whenever its random draw included a seeded
-      // option «Salah satu lebih besar» (Indonesian «one of», not the forbidden label «Incorrect»). The scan of the
-      // rendered page is right; the content tripped it at random. This holds the seeds to it deterministically: no
-      // seeded string carries an ordinary-word INTERNAL_WORD (the enum-shaped ones are SQL values, not content)
+      // F03-R02's false positive: the learner-surface check reads PINTAR's own words, never the author's content. An
+      // option «Salah satu lebih besar» is Indonesian, not a verdict; «Salah» as PINTAR's badge or feedback is one.
       const c = new Checks();
-      const { INTERNAL_WORDS } = await import("../src/lib/hle");
-      const kata = INTERNAL_WORDS.filter((w) => w !== "PINTAR 4.0" && /[a-z]/.test(w));
-      const dir = join(repoRoot, "supabase", "seed");
-      const temuan: string[] = [];
-      for (const f of readdirSync(dir).filter((x) => x.endsWith(".sql"))) {
-        readFileSync(join(dir, f), "utf8").split("\n").forEach((baris, i) => {
-          const kode = baris.replace(/--.*$/, "");
-          for (const w of kata) if (new RegExp(`'[^']*\\b${w}\\b[^']*'`).test(kode)) temuan.push(`${f}:${i + 1} «${w}»`);
-        });
-      }
-      c.expect(kata.includes("Salah"), "the internal words no longer include «Salah», so this test proves nothing");
-      c.expect(temuan.length === 0, `a seeded string carries an internal word a learner may be shown: ${temuan.join(", ")}`);
-      return c.verdict(`no seeded string carries any of the ${kata.length} ordinary-word internal words, so no random draw can show one to a learner`);
+      const kata = (html: string) => { const x = visibleText(tanpaIsiMateri(html)); return INTERNAL_WORDS.filter((w) => w !== "PINTAR 4.0" && new RegExp(`\\b${w}\\b`).test(x)); };
+      const opsi = '<label><input type="radio"/><span><span data-isi-materi="">Salah satu lebih besar</span></span></label>';
+      c.expect(kata(opsi).length === 0, "an authored option «Salah satu lebih besar» is flagged as a verdict");
+      c.expect(kata('<div data-isi-materi="" class="pin-isi-materi"><p>Jawaban yang <strong>salah</strong>: Salah satu sisi</p><div><p>Salah</p></div></div>').length === 0,
+        "authored content with nested elements of its own tag is not set aside whole");
+      // the product rule stands: PINTAR's own verdict beside the content, or as feedback, is caught
+      c.expect(kata(`${opsi}<span class="pin-pill">Salah</span>`).includes("Salah"), "PINTAR's «Salah» badge beside an option is not caught");
+      c.expect(kata('<p role="status">Incorrect, try again</p><span data-isi-materi="">Dua</span>').includes("Incorrect"), "PINTAR's feedback outside the content is not caught");
+      c.expect(kata('<div data-isi-materi=""><p>Tiga</p></div><p>Wrong</p>').includes("Wrong"), "a verdict after the content is set aside with it");
+      c.expect(kata('<span data-other="">Salah</span>').includes("Salah"), "an element not marked as content is set aside");
+      // an unclosed marker sets nothing aside (the scan is never narrowed by malformed markup)
+      c.expect(kata('<span data-isi-materi="">Dua <p>Salah</p>').includes("Salah"), "an unclosed content marker hides the page after it");
+      // the shared renderer marks what it draws, and the player draws the stem, the stimulus and every option through it
+      const r = render(repoRoot, "src/components/teks/Teks.tsx", { teks: "Salah satu **lebih** besar" }, "TeksBaris");
+      c.expect(r.ok && /^<span data-isi-materi="">Salah satu <strong>lebih<\/strong> besar<\/span>$/.test(r.html), `TeksBaris does not mark its content: ${r.html || r.galat}`);
+      const b = render(repoRoot, "src/components/teks/Teks.tsx", { teks: "Salah satu" });
+      c.expect(b.ok && /^<div data-isi-materi="" class="pin-isi-materi">/.test(b.html) && kata(b.html).length === 0, `TeksBlok does not mark its content: ${b.html || b.galat}`);
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8");
+      c.expect(/\.pin-isi-materi \{ display: contents; \}/.test(css), "TeksBlok's wrapper changes the layout");
+      const pemain = readFileSync(join(repoRoot, "src/app/belajar/_components/ItemPlayer.tsx"), "utf8");
+      c.expect(/<TeksBaris teks=\{current\.item\.stem\} \/>/.test(pemain) && /<TeksBaris teks=\{o\.teks\} \/>/.test(pemain), "the player draws a stem or an option outside the shared renderer");
+      // no seed is held to avoid ordinary words: the option stays as it was written
+      const benih = readFileSync(join(repoRoot, "supabase/seed/learning_cycle.sql"), "utf8");
+      c.expect(benih.includes("'B','Salah satu lebih besar'"), "the seed's option was rewritten to satisfy the scan");
+      return c.verdict("the learner-surface scan reads PINTAR's own words only: authored content (marked by TeksBaris/TeksBlok, through which the player draws stems and options) is set aside whole, nested or not; PINTAR's «Salah» badge or «Incorrect»/«Wrong» feedback beside or after it is still caught, an unclosed marker narrows nothing, and the seed keeps «Salah satu lebih besar»");
     },
   },
 ];

@@ -4262,14 +4262,14 @@
       "proves": "E-C1-2/4/6, E-C2-1 (D-132, D-069(b), D-168), selftest/d168.test.ts: executing cangkangStaf (src/components/lapor/cangkang.ts), a teacher-administrator in Mengelola gets Konfigurasi's shell and a teaching Dean in Mengajar gets Mengajar's; reading the source, /pengembangan and /lapor choose their shell by the working context, the class report speaks the context's persona, the record's refusal says who it is for (copy table), a PD participant's per-learner page refuses to the record and rosters do not link it, and no Mengajar refusal to a class page names its button «Mengajar»."
     },
     {
+      "id": "D168-KATA-1",
+      "runner": "static",
+      "proves": "F03-R02 false positive (D-168), selftest/d168.test.ts, from selftest/isi-materi.ts, the rendered TeksBaris and TeksBlok (src/components/teks/Teks.tsx), the stylesheet src/app/experience.css, the source of ItemPlayer.tsx and the seed supabase/seed/learning_cycle.sql: the learner-surface scan for verdict words reads PINTAR's own words only; authored content, which the shared renderer marks (data-isi-materi) and through which the player draws stems and options, is set aside whole even when nested, so the authored option \u00abSalah satu lebih besar\u00bb is not flagged; PINTAR's \u00abSalah\u00bb badge or \u00abIncorrect\u00bb/\u00abWrong\u00bb feedback beside or after the content is still caught, an unclosed marker sets nothing aside, the wrapper changes no layout, and the seed keeps its option as written."
+    },
+    {
       "id": "D168-K8-1",
       "runner": "static",
       "proves": "E-K8 (D-173(d)), selftest/d168.test.ts, reading the stylesheet src/app/experience.css and the source of LangkahTerbit.tsx: every Studio step marker (.pin-lt-langkah::before) is a segment of progress over its word with no border or round marker (the ring read as a radio button), the current step is the primary segment, and the step list carries no radio role, input or tab stop; the current step is aria-current."
-    },
-    {
-      "id": "D168-BENIH-1",
-      "runner": "static",
-      "proves": "F03-R02's random failure (CI 41825262402) held deterministically, selftest/d168.test.ts, reading the source of every seed file under supabase/seed: no seeded string carries an ordinary-word INTERNAL_WORD (src/lib/hle.ts), such as \u00abSalah\u00bb in the option that read \u00abSalah satu lebih besar\u00bb, so no random draw of a learner's Pemetaan Awal can show one; the enum-shaped words are SQL values and are not scanned; SQL comments are ignored."
     },
     {
       "id": "D168-B1-3",

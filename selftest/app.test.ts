@@ -6,6 +6,7 @@
  * evidence forwarded from the CI workflow's own jobs.
  */
 import { pilihKonteksCookie, pintuDi, tersusun } from "./konteks-uji";
+import { tanpaIsiMateri } from "./isi-materi";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { createServerClient } from "@supabase/ssr";
@@ -290,7 +291,8 @@ function bagianUmpanBalik(raw: string): string {
 }
 
 function noInternalWords(c: Checks, html: string, where: string) {
-  const text = visibleText(html);
+  // PINTAR's own words on the page, not the author's content (selftest/isi-materi.ts; D168-KATA-1 proves the line)
+  const text = visibleText(tanpaIsiMateri(html));
   c.expect(!/PINTAR\s*4\.0/i.test(text), `${where} shows the internal version string`);
   for (const w of INTERNAL_WORDS) {
     if (w === "PINTAR 4.0") continue;

@@ -3526,3 +3526,5 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
 /* B1: a badge that carries its own icon (attention, «Menghentikan kelas») draws no dot as well */
 .pin-pill.pin-pill-ikon::before { display: none; }
 .pin-pill.pin-pill-ikon .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
+/* authored content (TeksBaris, TeksBlok) is marked for the learner-surface check; the mark draws nothing */
+.pin-isi-materi { display: contents; }

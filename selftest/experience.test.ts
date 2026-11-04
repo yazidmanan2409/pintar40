@@ -12701,8 +12701,9 @@ export const experienceTests: SelfTest[] = [
         "    const T = t.default?.default ? t.default : t;" +
         "    const TeksBlok = T.default ?? t.default, TeksBaris = T.TeksBaris ?? t.TeksBaris;" +
         "    for (const p of paket) for (const l of p.lessons) out.korpus.push({ f: p.f, judul: l.title, md: l.body_markdown, html: renderToStaticMarkup(h(TeksBlok, { teks: l.body_markdown })) });" +
-        "    out.baris = JSON.parse(process.env.BARIS).map((s) => renderToStaticMarkup(h(TeksBaris, { teks: s })));" +
-        '    out.blok = renderToStaticMarkup(h(TeksBlok, { teks: "Akibatnya:\\n- satu\\n- **dua**\\n  - dua a\\n  - dua b\\n██ 6\\n███ 8" }));' +
+        "    out.bungkus = renderToStaticMarkup(h(TeksBaris, { teks: 'a' })) === '<span data-isi-materi=\"\">a</span>';" +
+        "    out.baris = JSON.parse(process.env.BARIS).map((s) => renderToStaticMarkup(h(TeksBaris, { teks: s })).replace(/^<span data-isi-materi=\"\">([\\s\\S]*)<\\/span>$/, '$1'));" +
+        '    out.blok = renderToStaticMarkup(h(TeksBlok, { teks: "Akibatnya:\\n- satu\\n- **dua**\\n  - dua a\\n  - dua b\\n██ 6\\n███ 8" })).replace(/^<div data-isi-materi="" class="pin-isi-materi">([\\s\\S]*)<\\/div>$/, "$1");' +
         "  }" +
         "  process.stdout.write(JSON.stringify(out));" +
         "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
@@ -12718,7 +12719,7 @@ export const experienceTests: SelfTest[] = [
           "x_{0} + y_{1}", "nilai_akhir dan data_set", "isi _ di sini", "__init__", "(_catatan_)", "_**Coba:** a^{2}_",
         ]) },
       });
-      type Hasil = { halaman: number; faktor: string[]; smax: string; korpus: { f: string; judul: string; md: string; html: string }[]; baris: string[]; blok: string; galat?: string };
+      type Hasil = { halaman: number; faktor: string[]; smax: string; korpus: { f: string; judul: string; md: string; html: string }[]; baris: string[]; blok: string; bungkus?: boolean; galat?: string };
       let o: Hasil | null = null;
       try { o = JSON.parse(anak.stdout) as Hasil; } catch { /* reported below */ }
       if (c.expect(anak.status === 0 && o !== null, `the lesson player could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 2).join(" ")}`)) {
@@ -12775,6 +12776,8 @@ export const experienceTests: SelfTest[] = [
           c.expect(tabel === pemisah && tabel === 6, `${pemisah} tables are written in the packages, ${tabel} drawn`);
           c.expect(tr + pemisah === baris, `${baris} table lines are written, ${tr} rows drawn beside ${pemisah} separators`);
           // (d) inline: marks, what stays literal, and escaping
+          // authored content is marked as such (data-isi-materi), around exactly the line it draws
+          c.expect(x.bungkus === true, "TeksBaris does not mark its content as the author's");
           const [smax, terbuka, sup, turus, sisip, periksa, tag, lebih, air, bersarang] = x.baris;
           c.expect(/a<sup>m\/n<\/sup>/.test(smax), "a stem's a^{m/n} is not a superscript");
           c.expect(terbuka === "**tebal" && sup === "^{ tanpa tutup", "a mark left open is not drawn literally");
