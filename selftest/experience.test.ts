@@ -10813,7 +10813,9 @@ export const experienceTests: SelfTest[] = [
       const baris = code(baca("src", "components", "BarisHasil.tsx"));
       // v3 ActionFeedback (D-138 step 2): a status, except a failure, which is an alert
       c.expect(/role=\{nada === "gagal" \? "alert" : "status"\}/.test(baris) && /className=\{`\$\{kelas \?\? "pin-msg pin-hasil"\} pin-hasil-\$\{nada\}`\}/.test(baris)
-        && /useEffect\(\(\) => \{\s*baris\.current\?\.scrollIntoView\(\{ block: "nearest" \}\);\s*\}, \[\]\);/.test(baris),
+        // RESTATED (journeys 41777542062): still brought into view, by scrolling the window when out of view, never by
+        // scrollIntoView, which moves Chromium's Tab starting point past the skip link
+        && /if \(r\.top >= 0 && r\.bottom <= window\.innerHeight\) return;\s*window\.scrollTo\(/.test(baris) && !/\.scrollIntoView\(/.test(baris),
         "BarisHasil is not a status that brings itself into view");
       const di = code(baca("src", "components", "HasilDi.tsx"));
       c.expect(/if \(!cocok \|\| !q\.hasil \|\| !kalimat\) return null;/.test(di) && /return <BarisHasil nada=\{q\.hasil === "ok" \? "ok" : "gagal"\}>\{kalimat\}<\/BarisHasil>;/.test(di),

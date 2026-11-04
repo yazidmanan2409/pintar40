@@ -38,7 +38,14 @@ export default function BarisHasil({
 }) {
   const baris = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    baris.current?.scrollIntoView({ block: "nearest" });
+    // Brought into view by scrolling the window, never by scrollIntoView: Chromium moves the Tab starting point to an
+    // element scrolled into view, so the page's first Tab would pass the skip link (journeys 41777542062, B5-W2, once
+    // E-K4 drew results in their rows). Only a line out of view is scrolled to, and nothing takes focus.
+    const el = baris.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    if (r.top >= 0 && r.bottom <= window.innerHeight) return;
+    window.scrollTo({ top: window.scrollY + r.top - Math.max(0, (window.innerHeight - r.height) / 2) });
   }, []);
   return (
     <div ref={baris} id={id} className={`${kelas ?? "pin-msg pin-hasil"} pin-hasil-${nada}`} role={nada === "gagal" ? "alert" : "status"}>
