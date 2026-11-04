@@ -75,7 +75,7 @@ export function HalamanKoleksi({
 }) {
   const terbuka = !("total" in posisi);
   if (!terbuka && posisi.total === 0) return null;
-  if (terbuka && posisi.halaman <= 1 && !posisi.lagi) return null;
+  if (terbuka && posisi.halaman <= 1 && !posisi.lagi && posisi.sampai === 0) return null;
   const n = (x: number) => format.number(x, locale);
   const tautan = (h: number) => (ke ? ke(h) : tautanKoleksi(jalan, tetap, { cari, saring, hal: h }, param, jangkar));
   const gerak = (arah: "sebelum" | "sesudah") => {

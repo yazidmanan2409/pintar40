@@ -1,10 +1,11 @@
 import { appUrl } from "@/lib/env";
 import { TAMPERED, type VerificationResponse } from "@/lib/certificates/verification";
-import { t, format, type HleEvent, type Locale } from "@/lib/hle";
+import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { tanggal } from "@/lib/tanggal";
 
 export const generateMetadata = judulHalaman("/verifikasi/[token]");
 
@@ -137,7 +138,7 @@ export default async function VerifikasiPage({
             </div>
             <div>
               <dt>{s("verifikasi.tanggal")}</dt>
-              <dd className="pin-num">{row!.date ? format.date(row!.date, locale) : "—"}</dd>
+              <dd className="pin-num">{row!.date ? tanggal(row!.date, "baca", locale) : "—"}</dd>
             </div>
           </dl>
         ) : null}

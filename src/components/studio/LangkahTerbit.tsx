@@ -11,6 +11,7 @@ import { kunciKode, type HasilAksi } from "@/lib/galat-kontrak";
 import {
   advanceContentAction, buatTerbitanAksi, kembalikanPaketAksi, kunciTerbitanAksi, tarikTerbitanAksi, terbitkanAksi,
 } from "@/app/studio/actions";
+import { tanggal } from "@/lib/tanggal";
 import {
   LANGKAH, bolehMengambil, keadaanLangkah, kunciSalinan, posisiPaket,
   type FaktaPaket, type KunciLangkah, type Langkah,
@@ -327,7 +328,7 @@ export default function LangkahTerbit({
           {(() => {
             const kalimat = (
               <p>
-                {terbitan?.terbitPada ? `${s("studio.langkah.terbit.sejak")} ${format.date(terbitan.terbitPada, locale)}. ` : ""}
+                {terbitan?.terbitPada ? `${s("studio.langkah.terbit.sejak")} ${tanggal(terbitan.terbitPada, "baca", locale)}. ` : ""}
                 {s("studio.paket.terbit_bukan_tugas")}
               </p>
             );

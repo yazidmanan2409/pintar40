@@ -1,6 +1,7 @@
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import { adaBuktiSoal, kataAnggota, type JenisAnggota } from "@/lib/mengajar";
 import { judulAsesmen } from "@/lib/judul-asesmen";
+import { tanggal } from "@/lib/tanggal";
 
 /** What a row needs of an assessment assignment: a subset of `Berjalan` (src/lib/pengajar.ts). */
 export type AsesmenKelas = {
@@ -98,7 +99,7 @@ export default function KeadaanHariIni({
             </div>
             <div>
               <dt>{s("mengajar.bukti.jendela")}</dt>
-              <dd>{a.ditutup ? format.date(a.ditutup, locale) : "—"}</dd>
+              <dd>{a.ditutup ? tanggal(a.ditutup, "hari", locale) : "—"}</dd>
             </div>
             <div>
               <dt>{s("mengajar.bukti.mulai")}</dt>

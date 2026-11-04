@@ -11,7 +11,7 @@ import { UKURAN } from "./halaman";
  * E-K2 (D-173(d)): ONE PAGINATION GRAMMAR. This is the Collection's pager (HalamanKoleksi), not a second one: where the
  * list knows its total, «Menampilkan 21–40 dari 312 …» and «Halaman 2 dari 16»; where it does not (a page read one
  * row past its end, FD-4), «Menampilkan 21–40 …» and «Halaman 2», with no total computed. «Sebelumnya» and
- * «Berikutnya» are always drawn, a move that is not possible disabled, never hidden. Nothing is drawn for one page.
+ * «Berikutnya» are always drawn, a move that is not possible disabled, never hidden; a single page too (E3 #12).
  */
 export { UKURAN, halamanDiminta, satuHalaman, rentang, tautanHalaman } from "./halaman";
 
@@ -28,8 +28,9 @@ export default function Penomoran({ halaman, lagi, ke, locale = "id", benda, jum
   /** The whole count, only where the list already has it (never computed for the pager). */
   total?: number;
 }) {
-  // nothing is drawn for one page, known total or not (the list's own count says how many there are)
-  if (halaman <= 1 && !lagi) return null;
+  // E3 #12 (Daisy): one grammar on every list, one page or many — a single page shows «Halaman 1» with both moves
+  // disabled; only an empty list draws no pager (its empty state says so)
+  if (jumlah === 0 && halaman <= 1 && !lagi && !total) return null;
   const dari = (halaman - 1) * ukuran + 1;
   const posisi = total !== undefined
     ? posisiHalaman(total, halaman, ukuran)

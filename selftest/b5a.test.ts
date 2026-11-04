@@ -80,8 +80,8 @@ export const b5aTests: SelfTest[] = [
         c.expect(new RegExp(`s\\("${h.cakupan.replace(/\./g, "\\.")}", ${P}, locale\\)\\.replace\\("\\{waktu\\}", tanggal\\(dihitung, "cap", locale\\)\\)`).test(src)
           && /const dihitung = new Date\(\);/.test(src), `${h.f} does not say what the figures cover and when they were calculated`);
         // RESTATED FOR E-K1 (D-173(d)): the way back is the history-back, named as one
-        c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\(KEMBALI_RIWAYAT, ${P}, locale\\)\\} cetak=\\{s\\("laporan\\.cetak", ${P}, locale\\)\\} />`).test(src),
-          `${h.f} lost its way back (the history-back) or «Cetak»`);
+        c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\(asal\\.nama, ${P}, locale\\)\\} ke=\\{asal\\.ke\\} cetak=\\{s\\("laporan\\.cetak", ${P}, locale\\)\\} />`).test(src),
+          `${h.f} lost its way back (named by its origin, H9) or «Cetak»`);
         c.expect(/<KakiPintar className="pin-noprint" \/>/.test(src), `${h.f} has no footer, or prints it`);
         c.expect(/await tawarkanSekolahLain\(/.test(src) && src.indexOf("tawarkanSekolahLain(") < src.indexOf("generate_report"),
           `${h.f} no longer offers another school's report through the chooser before reading it`);

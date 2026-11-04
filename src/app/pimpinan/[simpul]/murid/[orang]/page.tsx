@@ -8,6 +8,7 @@ import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup } from "@/components/bukti";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { tanggal } from "@/lib/tanggal";
 
 export const generateMetadata = judulHalaman("/pimpinan/[simpul]/murid/[orang]");
 
@@ -89,7 +90,8 @@ export default async function RincianMuridPimpinan({
 
         <div className="pin-head">
           <p className="pin-eyebrow">{s("pimpinan.rincian.judul")}</p>
-          <h1 className="pin-h1">{rincian.display_name ?? ""}</h1>
+          {/* H24: a person whose name cannot be read is never an empty heading */}
+          <h1 className="pin-h1">{rincian.display_name || "\u2014"}</h1>
           {/* Said out loud, because the reader's own act left a trace and they
               are owed the knowledge that it did. */}
           <p className="pin-meta">{s("pimpinan.rincian.tercatat")}</p>
@@ -127,7 +129,7 @@ export default async function RincianMuridPimpinan({
                     {(rincian.placement_history ?? []).map((h) => (
                       <li key={`${h.node_id}-${h.until}`}>
                         {h.academic_year ? `${h.name} (${h.academic_year})` : h.name}
-                        {" · "}{s("pimpinan.rincian.sampai")} {format.date(h.until, locale)}
+                        {" · "}{s("pimpinan.rincian.sampai")} {tanggal(h.until, "baca", locale)}
                         {h.reason && ["MOVED", "PERIOD_ROLLOVER", "ENROLLMENT_ENDED"].includes(h.reason)
                           ? <> · {s(`pimpinan.rincian.alasan.${h.reason}` as HleEvent)}</> : null}
                       </li>

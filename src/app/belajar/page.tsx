@@ -21,6 +21,7 @@ import PanelLanjut from "@/components/siklus/PanelLanjut";
 import { labelTujuan } from "@/components/siklus/aksi";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { judulAsesmen } from "@/lib/judul-asesmen";
+import { tanggal } from "@/lib/tanggal";
 
 export const generateMetadata = judulHalaman("/belajar");
 
@@ -383,7 +384,7 @@ export default async function Belajar({
                 <div className="pin-tfoot">
                   <span className="pin-tstatus">
                     {format.number(a.item_count, locale)} {s("siklus.soal")} · {a.node_name}
-                    {a.closes_at ? ` · ${s("siklus.ditutup")} ${format.date(a.closes_at, locale)}` : ""}
+                    {a.closes_at ? ` · ${s("siklus.ditutup")} ${tanggal(a.closes_at, "hari", locale)}` : ""}
                   </span>
                   <Link className="pin-btn" href={`/belajar/asesmen/${a.assessment_assignment_id}`}>
                     {s("siklus.buka")}

@@ -41,7 +41,8 @@ export const hod09Tests: SelfTest[] = [
         // RESTATED FOR W3.8 (Batch 5, RV-11): the signed-in strip is the staff shell's now, whose header is
         // `pin-noprint` (asserted on shellStaf below), so the page draws no strip of its own to keep off the paper
         // RESTATED FOR E-K1 (D-173(d)): the way back is the history-back, named as one (KEMBALI_RIWAYAT), never a bare «Kembali»
-        c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\(KEMBALI_RIWAYAT, ${persona}, locale\\)\\} cetak=\\{s\\("laporan\\.cetak", ${persona}, locale\\)\\} />`).test(src)
+        // RESTATED FOR H9 (Daisy, C1): named by the place it was opened from (asalLaporan), the history-back otherwise
+        c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\(asal\\.nama, ${persona}, locale\\)\\} ke=\\{asal\\.ke\\} cetak=\\{s\\("laporan\\.cetak", ${persona}, locale\\)\\} />`).test(src)
           && /<CangkangStaf locale=\{locale\}/.test(src) && !/<SesiSaya\b/.test(src),
           `/${hal}/ringkasan offers no way back or print, or prints the signed-in strip`);
       }

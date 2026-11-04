@@ -150,7 +150,7 @@ export default async function Siapkan({
                   {/* DAISY-26 (UX-20): the date says which release; its version number means nothing to a teacher */}
                   <span className="pin-rowmeta">
                     {r.terbitPada ? (
-                      <span>{s("mengajar.siap.diterbitkan")} {format.date(r.terbitPada, locale)}</span>
+                      <span>{s("mengajar.siap.diterbitkan")} {tanggal(r.terbitPada, "baca", locale)}</span>
                     ) : null}
                   </span>
                   <span className="pin-pill pin-info">{s("mengajar.status.siap")}</span>
@@ -200,7 +200,7 @@ export default async function Siapkan({
           </div>
           <p className="pin-meta">
             {/* DAISY-26 (UX-20): no version number; the date says which release */}
-            {dipilih.terbitPada ? `${s("mengajar.siap.diterbitkan")} ${format.date(dipilih.terbitPada, locale)} · ` : ""}
+            {dipilih.terbitPada ? `${s("mengajar.siap.diterbitkan")} ${tanggal(dipilih.terbitPada, "baca", locale)} · ` : ""}
             {`${format.number(isi.pelajaran, locale)} ${s("mengajar.siap.pelajaran")}`}
             {` · ${format.number(isi.soal, locale)} ${s("mengajar.siap.soal")}`}
           </p>

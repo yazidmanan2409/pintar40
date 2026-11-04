@@ -222,7 +222,7 @@ export const koleksiTests: SelfTest[] = [
       c.expect(/\.pin-tabel \[data-prioritas="rendah"\] \{ display: none; \}/.test(sempit), "below 640 px low-priority columns do not step back");
       c.expect(/\.pin-lebar-saja \{ display: none; \}/.test(sempit) && /\.pin-sempit-saja \{ display: block; \}/.test(sempit)
         && /\.pin-sempit-saja \{ display: none; \}/.test(css), "below 640 px the segments do not become the select");
-      c.expect(/\.pin-pager-kecil \{ display: inline; \}/.test(sempit) && /\.pin-pager-teks, \.pin-pager-lebar \{ display: none; \}/.test(sempit),
+      c.expect(/\.pin-pager-kecil \{ display: inline; \}/.test(sempit) && /* RESTATED FOR H2 (Daisy D-172 S1): the button word is visually hidden, never removed */ /\.pin-pager-teks \{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset\(50%\); white-space: nowrap; \}/.test(sempit) && /\.pin-pager-lebar \{ display: none; \}/.test(sempit),
         "below 640 px the pager does not take its short form");
       c.expect(/container-type:\s*inline-size/.test(aturan(css, ".pin-koleksi")), "the Collection is not the container its narrow rules ask");
       c.expect(/min-height:\s*var\(--control-md\)/.test(aturan(css, ".pin-seg span")), "a segment is not a 44 px target");

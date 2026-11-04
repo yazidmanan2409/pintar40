@@ -311,9 +311,10 @@ export const ux2Tests: SelfTest[] = [
       c.expect(tata.indexOf("<PenjagaSesi") > -1 && tata.indexOf("<PenjagaSesi") < tata.indexOf("{children}"), "the warning is not mounted before the page (the top)");
       const css = readFileSync(join(ctx.repoRoot, "src/app/experience.css"), "utf8");
       const r = css.match(/\n\.pin-jaga \{([^}]*)\}/)?.[1] ?? "";
-      c.expect(/background: var\(--status-attention-soft\)/.test(r) && !/position:\s*fixed/.test(r) && !/z-index/.test(r), "the warning is not on the attention ground, or it floats over the work");
+      // RESTATED FOR E3 #3 (Daisy): kept in view at the top (sticky, in the flow), never fixed over the work
+      c.expect(/background: var\(--status-attention-soft\)/.test(r) && !/position:\s*fixed/.test(r) && /position: sticky; top: var\(--space-2\); z-index: var\(--z-sticky\);/.test(r), "the warning is not on the attention ground, does not stay in view, or floats over the work");
       c.expect(!/setInterval\([^)]*1_?000\)|detik|seconds/i.test(src.split("if (!peringatan) return null;")[1] ?? ""), "the warning counts down");
-      return c.verdict("the idle warning is an alert at the top of the page, in the flow, with the clock and «PINTAR akan terkunci dalam 1 menit», on the attention ground, without a countdown");
+      return c.verdict("the idle warning is an alert at the top of the page, in the flow and kept in view (sticky), with the clock and «PINTAR akan terkunci dalam 1 menit», on the attention ground, without a countdown");
     },
   },
 ];

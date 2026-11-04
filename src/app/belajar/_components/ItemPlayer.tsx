@@ -33,6 +33,7 @@ import type { PaperEntry, AssistanceState, AssistanceLevel } from "@/lib/assessm
 import { TeksBaris } from "@/components/teks/Teks";
 import { belumDisimpan, sameAnswer, soalAwal, type Answer, type Entry } from "@/lib/kumpulkan";
 import { ALAMAT_PERIKSA, dijawabDiHalaman, jedaAwal, jedaBantuan, periksaSaatLuring } from "@/lib/bantuan-terjadwal";
+import AlasanNonaktif from "@/components/AlasanNonaktif";
 
 export type ItemPlayerProps = {
   sessionId: string;
@@ -659,6 +660,7 @@ export default function ItemPlayer(props: ItemPlayerProps) {
                 <button
                   type="button"
                   disabled={!chosen || committed}
+                  aria-describedby={!chosen && !committed ? "jawab-alasan" : undefined}
                   onClick={() => chosen && void send(current, chosen)}
                   className="pin-btn pin-primary"
                 >
@@ -673,6 +675,8 @@ export default function ItemPlayer(props: ItemPlayerProps) {
                 </button>
               </div>
             )}
+            {/* E3 #4: the answer button, disabled before a choice, says why */}
+            {formal && !chosen && !committed ? <AlasanNonaktif id="jawab-alasan">{kata("alasan.nonaktif.jawab")}</AlasanNonaktif> : null}
             {/* W3.10 (J4Murid): after a saved answer, how many are answered, in words («Sudah dijawab: 7 dari 10.») */}
             {formal && (
               <p className="pin-meta" role="status" data-dijawab="">

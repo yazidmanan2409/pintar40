@@ -1,7 +1,7 @@
 import { kataHalaman } from "@/lib/kata-halaman";
 import Link from "next/link";
 import { namaTempat } from "@/lib/nama-tempat";
-import { t, format, type HleEvent } from "@/lib/hle";
+import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import { peranSaya } from "@/lib/tur-negara";
 import { kunciStatusLaporan, laporanSaya } from "@/lib/lapor-masalah";
@@ -11,6 +11,7 @@ import BarisHasil from "@/components/BarisHasil";
 import { cangkangStaf } from "@/components/lapor/cangkang";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { konteksSaya } from "@/lib/konteks-server";
+import { tanggal } from "@/lib/tanggal";
 
 export const generateMetadata = judulHalaman("/lapor/saya");
 
@@ -48,7 +49,7 @@ export default async function LaporanSaya({ searchParams }: { searchParams: Prom
             {daftar.map((l) => (
               <li key={l.id} className="pin-lapor-satu">
                 <p>
-                  <strong>{s(kunciStatusLaporan(l.status))}</strong> · {format.date(l.dibuat, locale)} · {kataHalaman(l.halaman, locale)}
+                  <strong>{s(kunciStatusLaporan(l.status))}</strong> · {tanggal(l.dibuat, "baca", locale)} · {kataHalaman(l.halaman, locale)}
                   {l.hentikanKelas ? <> · {s("lapor.hentikan.singkat")}</> : null}
                 </p>
                 <p className="pin-meta">{l.terjadi}</p>

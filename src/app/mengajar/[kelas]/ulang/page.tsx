@@ -12,6 +12,7 @@ import { BarisLingkup } from "@/components/bukti";
 import { mintaBacaUlang } from "../../actions";
 import { bacaKodeUlang } from "@/lib/ulang-kontrak";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { tanggal } from "@/lib/tanggal";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/ulang");
 
@@ -148,7 +149,7 @@ export default async function UlangKelas({
                 <div key={r.id} data-permintaan={r.orang}>
                   <dt>{r.nama}</dt>
                   <dd>
-                    {format.date(r.kapan, locale)} · {n(r.dibaca)} {s("mengajar.soal.dari")} {n(r.jumlah)} {s("mengajar.ulang.dibaca")}
+                    {tanggal(r.kapan, "baca", locale)} · {n(r.dibaca)} {s("mengajar.soal.dari")} {n(r.jumlah)} {s("mengajar.ulang.dibaca")}
                   </dd>
                 </div>
               ))}

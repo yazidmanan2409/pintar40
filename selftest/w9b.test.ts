@@ -66,12 +66,12 @@ export const w9bTests: SelfTest[] = [
       const baca = (...p: string[]) => buang(readFileSync(join(ctx.repoRoot, ...p), "utf8"));
       for (const p of [["src", "app", "dekan", "ringkasan", "page.tsx"], ["src", "app", "edukator", "ringkasan", "page.tsx"]]) {
         const src = baca(...p);
-        c.expect(/<NilaiLaporan entry=\{e\} locale=\{locale\} tempat=\{tempat\} \/>/.test(src) && !/function Value\(/.test(src) && /await namaTempat\(/.test(src),
+        c.expect(/<NilaiLaporan entry=\{e\} locale=\{locale\} tempat=\{tempat\} persona=(\{untuk\}|"staff") \/>/ /* RESTATED FOR H24: in the reader's words */.test(src) && !/function Value\(/.test(src) && /await namaTempat\(/.test(src),
           `${p.join("/")} still draws a figure by itself, or does not name the places its rows name`);
       }
       for (const p of [["src", "app", "pimpinan", "page.tsx"], ["src", "app", "pimpinan", "[simpul]", "page.tsx"]]) {
         const src = baca(...p);
-        c.expect(/rincian=\{berstruktur\(e\.value\) \? <NilaiLaporan entry=\{e\} locale=\{locale\} \/> : undefined\}/.test(src),
+        c.expect(/rincian=\{berstruktur\(e\.value\) \? <NilaiLaporan entry=\{e\} locale=\{locale\} persona="staff" \/> : undefined\}/.test(src),
           `${p.join("/")} still shows a structured figure as a count of its rows`);
       }
       c.expect(/\{rincian \?\? <span className="pin-mv pin-num">\{value\}<\/span>\}/.test(baca("src", "components", "pimpinan", "AngkaTerkelola.tsx")),

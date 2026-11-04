@@ -4212,6 +4212,11 @@
       "proves": "Terminology v1 ruling 2 (X12 T1; D-171(c)), selftest/d168.test.ts: over the rendered copy table, no Indonesian string says «kursus» and no English string says «course(s)» for the Studio object, except an allow-list that is the decision itself: the workbook's structure (ruling 14), the JSON format's language (ruling 13) and the certificate list's column (X12 T4, pending); the full term is «Paket Pembelajaran» / «Learning Package»."
     },
     {
+      "id": "D168-SERAH-1",
+      "runner": "static",
+      "proves": "Daisy's engineering hand-off (SERAH-TERIMA, 4 Nov), selftest/d168.test.ts, reading the source of every src .tsx file and the copy table: no screen calls the formal date form (only the certificate sheet and emails); the learner's answer button and Studio's «Periksa» are described by their disabled reason (E3 #4); NilaiLaporan uses the reader's persona and never draws a raw key (H24); no Pimpinan class or learner page draws an empty heading (H24); «Seluruh platform» uses lapor.triase.arti_platform (H17); the overlap sentences end without «pukul»/«at» before the date-and-time (H19)."
+    },
+    {
       "id": "D168-B4-1",
       "runner": "static",
       "proves": "E-B4-1 (Daisy 1820300e), selftest/d168.test.ts: rendered (react-dom/server), the Digital Card on «Akun saya» (src/components/kartu/KartuPintar.tsx) for a person holding Admin platform and Guru at a school shows «Admin platform» on its own line and then «Guru · SMP Sintetis Satu», in either database order, in Admin platform's colour (data-keluarga), and the card email (templatKartu) lists exactly the same lines in the same order."

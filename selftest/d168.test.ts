@@ -30,7 +30,8 @@
  *              controls (the tour's, a sitting's previous question); no `pin-back` link and no refusal page's `backKey` draws such a word; a link to a place takes
  *              its word from the one table (LABEL_TEMPAT) the navigation reads; the refusal page names its destination
  *              from it; a return that depends on how the reader arrived is declared `data-kembali="riwayat"` and named
- *              KEMBALI_RIWAYAT («Kembali ke halaman sebelumnya»).
+ *              KEMBALI_RIWAYAT («Kembali ke halaman sebelumnya»); a report opened from Pimpinan or Konfigurasi
+ *              names that place (H9, asalLaporan).
  *   D168-K3-1  the ✓ shares the line with its words (E-K3): the save-result line (BarisHasil, `.pin-msg.pin-hasil`) and
  *              the learner's result card no longer share a class — the card's grid had put the ✓ on a row of its own on
  *              every surface. No stylesheet rule gives `.pin-hasil` a layout; the card is `.pin-capaian`; a paragraph
@@ -75,6 +76,11 @@
  *              (KartuPintar) and the card email (templatKartu) show the same lines in the same order — «Admin platform» on
  *              its own line, then «Guru · SMP …», alphabetical — and the card takes the first role's colour, whatever
  *              order the database gives.
+ *   D168-SERAH-1 Daisy's engineering hand-off (SERAH-TERIMA, 4 Nov), the rows not proved elsewhere: no screen writes
+ *              the formal date (E3 #15; only the certificate sheet and the emails, which print); the learner's answer
+ *              button and Studio's «Periksa» say why they are disabled (E3 #4); the report body speaks the reader's
+ *              persona and draws no raw key (H24); no Pimpinan page draws an empty heading (H24); «Seluruh platform»
+ *              has its own «Laporan masalah» sentence (H17); the overlap sentence has no «pukul» before a day (H19).
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -227,7 +233,6 @@ export const d168Tests: SelfTest[] = [
       if (!c.expect(anak.status === 0 && html.length === KASUS.length, `the pager could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) return c.verdict("");
       const teks = (x: string) => x.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
       const [p1, p2, p3en, satu, ber, satuTotal] = html;
-      c.expect(satuTotal === "", "a one-page list with a known total draws a pager");
       c.expect(/^<div data-penomoran="" class="pin-penomoran">/.test(p1) && /\.pin-penomoran \{ container-type: inline-size;/.test(readFileSync(join(repoRoot, "src/app/experience.css"), "utf8")),
         "the pager outside a Collection is not its own container, so it does not fold at 320 px (B5-W3: /aktivasi 476 px)");
       c.expect(/Menampilkan 1–20 laporan/.test(teks(p1)) && /Halaman 1\b/.test(teks(p1)) && !/ dari /.test(teks(p1)), `page 1: ${teks(p1)}`);
@@ -237,7 +242,9 @@ export const d168Tests: SelfTest[] = [
       c.expect(mati(p1, "sebelum") && ke(p1, "sesudah", 2), "page 1 hides «Sebelumnya» (or links it) or does not link onward");
       c.expect(ke(p2, "sebelum", 1) && ke(p2, "sesudah", 3) && /Menampilkan 21–40 laporan/.test(teks(p2)), `page 2: ${teks(p2)}`);
       c.expect(/Showing 41–45 laporan/.test(teks(p3en)) && /Page 3\b/.test(teks(p3en)) && mati(p3en, "sesudah") && /Previous/.test(p3en), `the last page in English: ${teks(p3en)}`);
-      c.expect(satu === "", "a one-page list draws a pager");
+      // RESTATED FOR E3 #12 (Daisy): a single page keeps the one grammar — «Halaman 1», both moves disabled
+      c.expect(/Menampilkan 1–20 laporan/.test(teks(satu)) && mati(satu, "sebelum") && mati(satu, "sesudah"), `a one-page list: ${teks(satu)}`);
+      c.expect(/Menampilkan 1–1 dari 1 laporan/.test(teks(satuTotal)) && /Halaman 1 dari 1/.test(teks(satuTotal)) && mati(satuTotal, "sebelum") && mati(satuTotal, "sesudah"), `a one-page list with its total: ${teks(satuTotal)}`);
       c.expect(/Menampilkan 21–40 dari 45 laporan/.test(teks(ber)) && /Halaman 2 dari 3/.test(teks(ber)), `a known total is not shown: ${teks(ber)}`);
       c.expect(html.every((x) => !/>\s*(Kembali|Back)\s*</.test(x)), "a pager says «Kembali»");
       return c.verdict("one pager (the Collection's) for every paged list: the count line, the position, «Sebelumnya» disabled on page 1, no «Kembali», the total only where the list has it");
@@ -270,9 +277,13 @@ export const d168Tests: SelfTest[] = [
       const tolak = kode(readFileSync(join(repoRoot, "src/components/HalamanPenolakan.tsx"), "utf8"));
       c.expect(/namaTempat\(backHref\)/.test(tolak), "the refusal page does not name its destination from the place table");
       const aksi = kode(readFileSync(join(repoRoot, "src/components/laporan/AksiLaporan.tsx"), "utf8"));
-      c.expect(/window\.history\.back\(\)/.test(aksi) && /data-kembali="riwayat"/.test(aksi), "the report's history-back is not declared as one");
+      // H9: the report's way back is declared by what it is: «tempat» when opened from a named place, «riwayat» otherwise
+      c.expect(/window\.history\.back\(\)/.test(aksi) && /data-kembali=\{ke === "\/" \? "riwayat" : "tempat"\}/.test(aksi), "the report's history-back is not declared as one");
+      const asal = readFileSync(join(repoRoot, "src/lib/nama-tempat.ts"), "utf8");
+      c.expect(/pimpinan: \{ ke: "\/pimpinan", nama: "nav\.pimpinan" \}/.test(asal) && /konfigurasi: \{ ke: "\/konfigurasi#laporan", nama: "config\.laporan\.judul" \}/.test(asal)
+        && /\{ ke: "\/", nama: KEMBALI_RIWAYAT \}/.test(asal), "a report's origin is not named from its place (H9)");
       for (const f of ["src/app/edukator/ringkasan/page.tsx", "src/app/dekan/ringkasan/page.tsx"]) {
-        c.expect(/<AksiLaporan kembali=\{s\(KEMBALI_RIWAYAT, /.test(kode(readFileSync(join(repoRoot, f), "utf8"))), `${f}: the report's way back is not named as the history-back`);
+        c.expect(/const asal = asalLaporan\(dari\);/.test(kode(readFileSync(join(repoRoot, f), "utf8"))) && /<AksiLaporan kembali=\{s\(asal\.nama, /.test(kode(readFileSync(join(repoRoot, f), "utf8"))), `${f}: the report's way back is not named by its origin`);
       }
       c.expect(t("kembali.riwayat" as HleEvent, "staff", { locale: "id" }) === "Kembali ke halaman sebelumnya" && t("nav.pimpinan" as HleEvent, "staff", { locale: "id" }) === "Pimpinan", "the words are not the table's");
       return c.verdict(`no back link (${tautan} drawn) or refusal reads only «Kembali»; places are named from the one table the navigation reads; the history-back is declared and named as one`);
@@ -562,6 +573,33 @@ export const d168Tests: SelfTest[] = [
         c.expect(!!keluarga && keluarga === (KELUARGA_PERAN as Record<string, string>).SYSTEM_ADMIN, `the card's colour is ${keluarga}, not the first role's (${(KELUARGA_PERAN as Record<string, string>).SYSTEM_ADMIN})`);
       }
       return c.verdict("«Admin platform» on its own line, then «Guru · SMP …», on the rendered card and in its email, whatever order the database gives, in the first role's colour");
+    },
+  },
+  {
+    id: "D168-SERAH-1",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (f: string) => kode(readFileSync(join(repoRoot, f), "utf8"));
+      const semua: string[] = [];
+      const jalan = (d: string) => { for (const e of readdirSync(join(repoRoot, d), { withFileTypes: true })) { const f = `${d}/${e.name}`; if (e.isDirectory()) jalan(f); else if (f.endsWith(".tsx")) semua.push(f); } };
+      jalan("src");
+      const resmi = semua.filter((f) => !/\/email\//.test(f) && f !== "src/components/sertifikat/KartuSertifikat.tsx" && /format\.date\(/.test(baca(f)));
+      c.expect(resmi.length === 0, `a screen writes the formal date: ${resmi.join(", ")}`);
+      const pemain = baca("src/app/belajar/_components/ItemPlayer.tsx");
+      c.expect(/aria-describedby=\{!chosen && !committed \? "jawab-alasan" : undefined\}/.test(pemain) && /<AlasanNonaktif id="jawab-alasan">\{kata\("alasan\.nonaktif\.jawab"\)\}<\/AlasanNonaktif>/.test(pemain),
+        "the learner's answer button does not say why it is disabled");
+      c.expect(t("alasan.nonaktif.jawab" as HleEvent, "learner", { locale: "id" }) === "Pilih satu jawaban dulu." && t("alasan.nonaktif.periksa" as HleEvent, "staff", { locale: "id" }) === "Pilih buku kerja dulu.", "the reasons are not Daisy's words");
+      const nilai = baca("src/components/bukti/NilaiLaporan.tsx");
+      c.expect(/const s = \(k: string\) => t\(k as HleEvent, persona, \{ locale \}\);/.test(nilai) && /<dt>\{s\(k\)\}<\/dt>/.test(nilai) && !/: k\}<\/dt>/.test(nilai), "the report body is not in the reader's words, or can draw a raw key");
+      const kls = baca("src/app/pimpinan/[simpul]/umpan-balik/kelas/[kelas]/page.tsx");
+      c.expect(/if \(!ini\) \{[\s\S]{0,200}messageKey="umpanbalik\.buka\.tanpa_wewenang"/.test(kls) && !/ini\?\.nama \?\? ""/.test(kls), "a class outside the branch is drawn with an empty heading");
+      c.expect(!/display_name \?\? ""/.test(baca("src/app/pimpinan/[simpul]/murid/[orang]/page.tsx")), "a learner's page can draw an empty heading");
+      c.expect(/sl\(platformKonteks \? "lapor\.triase\.arti_platform" : "lapor\.triase\.arti"\)/.test(baca("src/app/konfigurasi/page.tsx"))
+        && !/Anda/.test(t("lapor.triase.arti_platform" as HleEvent, "staff", { locale: "id" })), "«Seluruh platform» speaks of «your school»");
+      for (const k of ["config.pemeliharaan.tabrakan.terakhir", "config.pemeliharaan.tabrakan.saran"]) {
+        c.expect(!/pukul\s*$/.test(t(k as HleEvent, "staff", { locale: "id" })) && !/\bat\s*$/.test(t(k as HleEvent, "staff", { locale: "en" })), `${k} puts «pukul» before a day`);
+      }
+      return c.verdict("the hand-off's remaining rows hold: screen dates by their use, disabled buttons with their reason, the report body in the reader's words with no key, no empty heading, the platform's own sentence, no «pukul» before a day");
     },
   },
 ];

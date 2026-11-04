@@ -72,6 +72,14 @@ export default async function KelasUmpanBalik({
   // node outside it is nameless here and refused by the endpoint below.
   const bawah = await pim.cabang([node.id]);
   const ini = bawah.find((n) => n.id === kelas && n.kind === "CLASS");
+  // H24 (Daisy C1 part B §8): a class outside the reader's branch has no name here; it is refused, never drawn with an
+  // empty heading
+  if (!ini) {
+    return (
+      <HalamanPenolakan messageKey="umpanbalik.buka.tanpa_wewenang" persona="staff" locale={locale}
+        backHref={`/pimpinan/${encodeURIComponent(node.id)}/umpan-balik`} backKey="umpanbalik.pimpinan.judul" />
+    );
+  }
   const [subjek, siklus] = await Promise.all([
     ub.subjekKelas(kelas),
     ub.siklusKelas([kelas]),
@@ -87,7 +95,7 @@ export default async function KelasUmpanBalik({
 
         <div className="pin-head">
           <p className="pin-eyebrow">{s("umpanbalik.pimpinan.judul")}</p>
-          <h1 className="pin-h1">{ini?.nama ?? ""}</h1>
+          <h1 className="pin-h1">{ini.nama}</h1>
         </div>
 
         {/* ── WHAT THIS CLASS HAS ALREADY BEEN ASKED ─────────────────────

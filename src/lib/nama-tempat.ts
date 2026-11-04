@@ -24,3 +24,16 @@ export function namaTempat(href: string): HleEvent | null {
 
 /** The history-back's name: it returns to whatever page the reader came from. */
 export const KEMBALI_RIWAYAT: HleEvent = "kembali.riwayat";
+
+/**
+ * H9 (Daisy, C1): a report names the page it was opened from. The two places that open a report say so in its address
+ * (`dari`); the way back is then named by that place and still returns to the page as the reader left it (history).
+ * Opened from anywhere else, it is the history-back, named as one.
+ */
+export const ASAL_LAPORAN: Readonly<Record<string, { ke: string; nama: HleEvent }>> = {
+  pimpinan: { ke: "/pimpinan", nama: "nav.pimpinan" },
+  konfigurasi: { ke: "/konfigurasi#laporan", nama: "config.laporan.judul" },
+};
+export function asalLaporan(dari: unknown): { ke: string; nama: HleEvent } {
+  return (typeof dari === "string" && Object.hasOwn(ASAL_LAPORAN, dari) ? ASAL_LAPORAN[dari] : null) ?? { ke: "/", nama: KEMBALI_RIWAYAT };
+}

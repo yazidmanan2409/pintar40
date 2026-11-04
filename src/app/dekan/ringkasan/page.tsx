@@ -1,5 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
-import { KEMBALI_RIWAYAT } from "@/lib/nama-tempat";
+import { asalLaporan } from "@/lib/nama-tempat";
 import { tawarkanSekolahLain } from "@/lib/konteks-server";
 import { kepalaLaporan, namaTempat, templatUntuk } from "@/lib/laporan";
 import { currentLocale } from "@/lib/locale";
@@ -41,9 +41,11 @@ export const dynamic = "force-dynamic";
 export default async function RingkasanSekolah({
   searchParams,
 }: {
-  searchParams: Promise<{ simpul?: string }>;
+  searchParams: Promise<{ simpul?: string; dari?: string }>;
 }) {
-  const { simpul } = await searchParams;
+  const { simpul, dari } = await searchParams;
+  // H9: the way back is named by the place the report was opened from
+  const asal = asalLaporan(dari);
   const supabase = await supabaseServer();
   // L3 (§2.6): a report of another school's place is never shown in this context; the chooser offers that school
   if (simpul) {
@@ -91,7 +93,7 @@ export default async function RingkasanSekolah({
             </p>
           ) : null}
         </div>
-        <AksiLaporan kembali={s(KEMBALI_RIWAYAT, "staff", locale)} cetak={s("laporan.cetak", "staff", locale)} />
+        <AksiLaporan kembali={s(asal.nama, "staff", locale)} ke={asal.ke} cetak={s("laporan.cetak", "staff", locale)} />
 
         {!template || !simpul ? (
           <p className={card}>{s("laporan.kosong", "staff", locale)}</p>
@@ -116,7 +118,7 @@ export default async function RingkasanSekolah({
 
                   {e.status === "ok" ? (
                     <>
-                      <NilaiLaporan entry={e} locale={locale} tempat={tempat} />
+                      <NilaiLaporan entry={e} locale={locale} tempat={tempat} persona="staff" />
                       {/* S-3: the sentence is not optional and not conditional. */}
                       <p className="mt-2 text-sm text-black/70">{actionText(e, locale)}</p>
                     </>

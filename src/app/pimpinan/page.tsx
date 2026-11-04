@@ -201,7 +201,7 @@ export default async function Pimpinan({
                       key={e.metric_id ?? `angka-${i}`}
                       entry={e}
                       value={nilaiMetrik(e.metric_id, e.value, locale)}
-                      rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} /> : undefined}
+                      rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} persona="staff" /> : undefined}
                       locale={locale}
                     />
                   ))}
@@ -256,14 +256,14 @@ export default async function Pimpinan({
                           <div className="pin-grid2">
                             {ada.map((e, i) => (
                               <AngkaTerkelola key={e.metric_id ?? `angka-${i}`} entry={e} value={nilaiMetrik(e.metric_id, e.value, locale)}
-                    rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} /> : undefined} locale={locale} />
+                    rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} persona="staff" /> : undefined} locale={locale} />
                             ))}
                           </div>
                         ) : null}
                         {bk.filter((e) => e.status !== "ok").map((e, i) => (
                           <KartuKetiadaan key={e.metric_id ?? `absen-${i}`} entry={e} locale={locale} persona="staff" />
                         ))}
-                        <Link className="pin-btn pin-quiet" href={`/edukator/ringkasan?kelas=${encodeURIComponent(kelas.id)}`}>
+                        <Link className="pin-btn pin-quiet" href={`/edukator/ringkasan?kelas=${encodeURIComponent(kelas.id)}&dari=pimpinan`}>
                           {s("pimpinan.laporan.kelas")}
                         </Link>
                       </div>
@@ -287,12 +287,12 @@ export default async function Pimpinan({
               {s("pimpinan.buka.simpul")}
             </Link>
             {bacaKelas ? (
-              <Link className="pin-btn" href={`/edukator/ringkasan?kelas=${encodeURIComponent(dipilih.id)}`}>
+              <Link className="pin-btn" href={`/edukator/ringkasan?kelas=${encodeURIComponent(dipilih.id)}&dari=pimpinan`}>
                 {s("pimpinan.laporan.kelas")}
               </Link>
             ) : null}
             {bacaSekolah ? (
-              <Link className="pin-btn" href={`/dekan/ringkasan?simpul=${encodeURIComponent(dipilih.id)}`}>
+              <Link className="pin-btn" href={`/dekan/ringkasan?simpul=${encodeURIComponent(dipilih.id)}&dari=pimpinan`}>
                 {s("pimpinan.laporan.sekolah")}
               </Link>
             ) : null}

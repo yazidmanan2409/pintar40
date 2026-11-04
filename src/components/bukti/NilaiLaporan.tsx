@@ -18,13 +18,15 @@ import PopulasiKelas from "./PopulasiKelas";
  */
 type Baris = Record<string, unknown>;
 
-export default function NilaiLaporan({ entry, locale, tempat = {} }: {
+export default function NilaiLaporan({ entry, locale, tempat = {}, persona = "educator" }: {
   entry: Envelope;
   locale: Locale;
+  /** H24 (Daisy C1 part B §8): the reader's words — a teacher's in Mengajar, staff words on every staff page. */
+  persona?: "educator" | "staff";
   /** The visible name of each place a row names (cohort rows), by id. */
   tempat?: Readonly<Record<string, string>>;
 }) {
-  const s = (k: string) => t(k as HleEvent, "educator", { locale });
+  const s = (k: string) => t(k as HleEvent, persona, { locale });
   const v = entry.value;
   const murid = s("mengajar.bukti.murid");
   const persen = (x: unknown) => (typeof x === "number" && Number.isFinite(x) ? format.percent(x, locale) : "—");
@@ -74,8 +76,8 @@ export default function NilaiLaporan({ entry, locale, tempat = {} }: {
       <dl className="pin-lap-isi">
         {baris.map(([k, n]) => (
           <div key={k}>
-            {/* tier keys are copy keys; the readiness enum never renders */}
-            <dt>{k.startsWith("kesiapan.") ? s(k) : k}</dt>
+            {/* H24 (Daisy C1 part B §8): every label is words; a key the copy table lacks reads as its dash, never as itself */}
+            <dt>{s(k)}</dt>
             <dd className="pin-num">{nilaiIsi(entry.metric_id, n, locale)}</dd>
           </div>
         ))}

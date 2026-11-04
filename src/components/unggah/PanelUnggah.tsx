@@ -16,6 +16,7 @@ import { NAMA_BERKAS_TEMPLAT, templatPelajaran } from "./templat";
 import { NAMA_UNDUHAN_CONTOH, bukuKerjaContohSaja } from "./contoh";
 import { lokasiMasalah } from "./lokasi";
 import BarisHasil from "@/components/BarisHasil";
+import AlasanNonaktif from "@/components/AlasanNonaktif";
 
 type Sekolah = { id: string; name: string };
 /** D-085 M10: a locked course, newest of its line, that a corrected workbook may correct. */
@@ -300,9 +301,12 @@ export default function PanelUnggah({
           className="pin-btn pin-primary"
           onClick={() => void jalankanPeriksa()}
           disabled={!berkas || sibuk !== null || tersimpan}
+          aria-describedby={!berkas ? "periksa-alasan" : undefined}
         >
           {sibuk === "periksa" ? s("studio.unggah.sibuk.periksa") : s("studio.unggah.langkah.periksa")}
         </button>
+        {/* E3 #4: «Periksa» before a workbook is chosen says why */}
+        {!berkas ? <AlasanNonaktif id="periksa-alasan">{s("alasan.nonaktif.periksa")}</AlasanNonaktif> : null}
         <div aria-live="polite">
           {periksa && <HasilPeriksa hasil={periksa} locale={locale} />}
         </div>

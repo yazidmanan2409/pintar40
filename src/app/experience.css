@@ -2926,7 +2926,10 @@ a.pin-tautan { display: inline-flex; align-items: center; }
 .pin-perangkat-pilihan input { margin-top: var(--space-1); }
 .pin-perangkat-dipilih { border-color: var(--pintar-primary); box-shadow: inset 0 0 0 1px var(--pintar-primary); }
 .pin-jaga {
-  /* W3.14 (Daisy, IdleWarning): attention, not error — the attention ground and the clock, at the top, in the flow */
+  /* W3.14 (Daisy, IdleWarning): attention, not error — the attention ground and the clock, at the top, in the flow.
+     E3 #3 (Daisy): kept in view while the page is scrolled (sticky, never fixed), below the shell's own sticky bar,
+     so a person who has scrolled while reading still sees it; it never takes focus */
+  position: sticky; top: var(--space-2); z-index: var(--z-sticky);
   display: grid; grid-template-columns: var(--icon-md) minmax(0, 1fr); column-gap: var(--space-3); align-items: start;
   margin: var(--space-3) auto; max-width: var(--measure-read); padding: var(--space-4) var(--space-5);
   background: var(--status-attention-soft); color: var(--ink-1); border: 0; border-radius: var(--radius-lg);
@@ -3064,6 +3067,7 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
   .pin-staf .pin-sesi form, .pin-staf .pin-sesi-keluar { width: 100%; }
 }
 @media (max-width: 1023px) {
+  .pin-jaga { top: calc(var(--shell-bar) + var(--space-2)); }
   .pin-staf {
     position: sticky; top: 0; z-index: var(--z-sticky);
     display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-2);
@@ -3267,7 +3271,9 @@ select:not([multiple]):not([size]) {
   .pin-cari { max-width: none; }
   .pin-lebar-saja { display: none; }
   .pin-sempit-saja { display: block; }
-  .pin-pager-teks, .pin-pager-lebar { display: none; }
+  /* H2 (Daisy, D-172 S1): a pager button's word steps out of sight on a phone but stays its name, never display: none */
+  .pin-pager-teks { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .pin-pager-lebar { display: none; }
   .pin-pager-kecil { display: inline; }
 }
 

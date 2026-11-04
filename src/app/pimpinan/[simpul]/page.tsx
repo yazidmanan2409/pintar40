@@ -95,7 +95,7 @@ export default async function SimpulPimpinan({
                       key={e.metric_id ?? `angka-${i}`}
                       entry={e}
                       value={nilaiMetrik(e.metric_id, e.value, locale)}
-                      rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} /> : undefined}
+                      rincian={berstruktur(e.value) ? <NilaiLaporan entry={e} locale={locale} persona="staff" /> : undefined}
                       locale={locale}
                     />
                   ))}

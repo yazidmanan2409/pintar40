@@ -860,7 +860,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               who may, and audits it. */}
           <section id="laporan-masalah" className={card} aria-labelledby="pin-laporan-masalah">
             <h2 id="pin-laporan-masalah" className="font-medium">{sl("config.section.laporan_masalah")}</h2>
-            <p className="mt-1 text-sm text-ink-2">{sl("lapor.triase.arti")}</p>
+            <p className="mt-1 text-sm text-ink-2">{sl(platformKonteks ? "lapor.triase.arti_platform" : "lapor.triase.arti")}</p>
             {/* E-K4: a move is answered in its report's row (it comes back with the row and its page); a refusal that
                 names no row on this page is said here, above the list */}
             {sp.bagian === "laporan-masalah" && sp.lapor && !laporan.some((l) => l.id === sp.baris) ? hasilLapor() : null}
@@ -1119,7 +1119,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 <p className="mt-1 text-sm text-ink-2">{sl("config.laporan.arti")}</p>
                 <nav className="mt-3 grid gap-2 text-sm" aria-label={sl("config.laporan.judul")}>
                   {akar ? (
-                    <Link href={`/dekan/ringkasan?simpul=${(akar as { id: string }).id}`} className={tautanTempat}>
+                    <Link href={`/dekan/ringkasan?simpul=${(akar as { id: string }).id}&dari=konfigurasi`} className={tautanTempat}>
                       {sl("config.laporan.sekolah")} · {sekolahStruktur.name}
                       <TandaTautan />
                     </Link>
@@ -1129,7 +1129,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     <ul className="flex flex-wrap gap-x-4 gap-y-1">
                       {kelasAktif.map((k) => (
                         <li key={k.node_id}>
-                          <Link href={`/edukator/ringkasan?kelas=${k.node_id}`} className={tautanTempat}>
+                          <Link href={`/edukator/ringkasan?kelas=${k.node_id}&dari=konfigurasi`} className={tautanTempat}>
                             {k.name}{k.academic_year ? ` (${k.academic_year})` : ""}
                             <TandaTautan />
                           </Link>

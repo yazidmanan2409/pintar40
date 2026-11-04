@@ -2380,11 +2380,12 @@ await step("S23", "the head of department reads Kelas 1A's figures beside the cl
     const tercetak = adaCetak && !(await cetak.isVisible()) && (await h.locator("h1").first().isVisible());
     rec.shots.push(await shot(h, "hod-j09-laporan-cetak"));
     await h.emulateMedia({ media: "screen" });
-    // E-K1 (D-173(d)): the report's way back is the history-back, named as one
-    await h.getByRole("link", { name: "← Kembali ke halaman sebelumnya", exact: true }).click();
+    // E-K1 / H9 (D-173(d)): opened from Pimpinan, the report's way back is named «Pimpinan»; opened by address, it is
+    // the history-back, named as one
+    await h.getByRole("link", { name: /^← (Pimpinan|Kembali ke halaman sebelumnya)$/ }).click();
     await h.waitForURL((u) => u.pathname === "/pimpinan", { timeout: SLOW });
     await h.locator('section[aria-labelledby="pin-bukti"]').first().waitFor({ timeout: SLOW }).catch(() => {});
-    laporan = `report: print offered ${adaCetak}, prints the report without its controls ${tercetak}, «Kembali ke halaman sebelumnya» back on /pimpinan true`;
+    laporan = `report: print offered ${adaCetak}, prints the report without its controls ${tercetak}, the way back («Pimpinan» or the history-back) on /pimpinan true`;
     if (!tercetak) rec.verdict = "FAIL";
   } catch (e) {
     rec.verdict = "FAIL";

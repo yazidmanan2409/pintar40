@@ -54,6 +54,8 @@
  *   UX1-UB-TUTUP-01          Management ends collection; the backend decides what it became
  *   UX1-UB-BUKA-01           discovery names a teacher; opening re-decides, every time
  */
+import { tanggal as tanggalHelper } from "../src/lib/tanggal";
+const tanggalBaca = (x: string) => tanggalHelper(x, "baca", "id");
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -9514,7 +9516,9 @@ export const experienceTests: SelfTest[] = [
           c.expect(JSON.stringify(opsi) === JSON.stringify([["sd", true, SEKOLAH[0].name], ["sma", false, SEKOLAH[1].name]]),
             `(${locale}) the picker offers ${JSON.stringify(opsi)}`);
           c.expect(/<input id="ung-berkas" type="file" accept="\.xlsx[^"]*"/.test(x), `(${locale}) there is no file input for an .xlsx workbook`);
-          c.expect(x.includes(`disabled="">${s("studio.unggah.langkah.periksa")}</button>`), `(${locale}) the check can be pressed before a file is chosen`);
+          // RESTATED FOR E3 #4 (Daisy): still disabled before a file is chosen, and now it says why beside it
+          c.expect(x.includes(`disabled="" aria-describedby="periksa-alasan">${s("studio.unggah.langkah.periksa")}</button>`)
+            && x.includes(`<p class="pin-alasan" id="periksa-alasan">${s("alasan.nonaktif.periksa" as HleEvent)}</p>`), `(${locale}) the check can be pressed before a file is chosen, or does not say why not`);
         });
         const tanpa = html[2];
         c.expect(tanpa.includes(t("studio.unggah.tanpa_sekolah", "staff")) && !/type="file"/.test(tanpa), "with no school on offer the panel still offers an upload");
@@ -10181,7 +10185,7 @@ export const experienceTests: SelfTest[] = [
         c.expect(tombolDi(R["beku-kaprodi"]).length === 0 && R["beku-kaprodi"].includes(sId("studio.langkah.tunggu.wewenang")),
           "a head of department is offered to publish, which needs CAN_PUBLISH");
         c.expect(JSON.stringify(tombolDi(R["beku-penyusun"])) === JSON.stringify([tb("terbitkan")]), "the school administrator is not offered to publish a locked release");
-        c.expect(R["terbit-penyusun"].includes(`${sId("studio.langkah.terbit.sejak")} ${format.date("2026-09-25T02:00:00Z", "id")}`)
+        c.expect(R["terbit-penyusun"].includes(`${sId("studio.langkah.terbit.sejak")} ${tanggalBaca("2026-09-25T02:00:00Z")}`) // RESTATED FOR E3 #15: a record's date in the human-readable form
           && R["terbit-penyusun"].includes(`<span class="pin-meta">${sId("studio.langkah.tarik.alasan")}</span>`)
           && JSON.stringify(tombolDi(R["terbit-penyusun"])) === JSON.stringify([sId("studio.paket.tarik")]),
           "a published course does not say since when, or offers no labelled withdrawal to its publisher");
@@ -10519,10 +10523,11 @@ export const experienceTests: SelfTest[] = [
         && /return out\.filter\(terbaca\);/.test(pimLib) && /bukti: bukti\.filter\(terbaca\)/.test(pimLib),
         "a refusal can reach Pimpinan's figures, so a figure there no longer means the reader may read it");
       c.expect(/const bacaSekolah = bukti\.some\(\(e\) => e\.metric_id\?\.startsWith\("institution\."\)\);/.test(pimpinan)
-        && /\{bacaSekolah \? \(\s*<Link className="pin-btn" href=\{`\/dekan\/ringkasan\?simpul=\$\{encodeURIComponent\(dipilih\.id\)\}`\}>\s*\{s\("pimpinan\.laporan\.sekolah"\)\}/.test(pimpinan),
+        // RESTATED FOR H9 (Daisy, C1): each link also says where the report was opened from (`dari`), so its way back is named
+        && /\{bacaSekolah \? \(\s*<Link className="pin-btn" href=\{`\/dekan\/ringkasan\?simpul=\$\{encodeURIComponent\(dipilih\.id\)\}&dari=pimpinan`\}>\s*\{s\("pimpinan\.laporan\.sekolah"\)\}/.test(pimpinan),
         "Pimpinan does not link the school summary exactly where the reader may read a school figure");
       c.expect(/const bacaKelas = diKelas && bukti\.some\(\(e\) => e\.metric_id\?\.startsWith\("class\."\)\);/.test(pimpinan)
-        && /\{bacaKelas \? \(\s*<Link className="pin-btn" href=\{`\/edukator\/ringkasan\?kelas=\$\{encodeURIComponent\(dipilih\.id\)\}`\}>\s*\{s\("pimpinan\.laporan\.kelas"\)\}/.test(pimpinan),
+        && /\{bacaKelas \? \(\s*<Link className="pin-btn" href=\{`\/edukator\/ringkasan\?kelas=\$\{encodeURIComponent\(dipilih\.id\)\}&dari=pimpinan`\}>\s*\{s\("pimpinan\.laporan\.kelas"\)\}/.test(pimpinan),
         "Pimpinan, standing at a class the reader may read, does not link that class's summary");
       {
         // inside a class's disclosure only when it has figures the reader may read
@@ -10530,23 +10535,24 @@ export const experienceTests: SelfTest[] = [
         // from the condition to its own close, the last `) : null}` before the class's </details>
         const b = pimpinan.lastIndexOf(") : null}", pimpinan.indexOf("</details>", a));
         const isi = a >= 0 && b > a ? pimpinan.slice(a, b) : "";
-        c.expect(/<Link className="pin-btn pin-quiet" href=\{`\/edukator\/ringkasan\?kelas=\$\{encodeURIComponent\(kelas\.id\)\}`\}>\s*\{s\("pimpinan\.laporan\.kelas"\)\}/.test(isi),
+        c.expect(/<Link className="pin-btn pin-quiet" href=\{`\/edukator\/ringkasan\?kelas=\$\{encodeURIComponent\(kelas\.id\)\}&dari=pimpinan`\}>\s*\{s\("pimpinan\.laporan\.kelas"\)\}/.test(isi),
           "a class the reader may read does not link its own summary inside its disclosure");
         c.expect((pimpinan.match(/\/edukator\/ringkasan\?/g) ?? []).length === 2 && (pimpinan.match(/\/dekan\/ringkasan\?/g) ?? []).length === 1,
           "Pimpinan links a summary somewhere other than the three places named");
       }
       const konfig = code(readFileSync(join(repoRoot, "src", "app", "konfigurasi", "page.tsx"), "utf8"));
       c.expect(/from\("org_nodes"\)\.select\("id"\)\.eq\("institution_id", sekolahStruktur\.id\)\.eq\("kind", "INSTITUTION"\)/.test(konfig)
-        && /href=\{`\/dekan\/ringkasan\?simpul=\$\{\(akar as \{ id: string \}\)\.id\}`\}/.test(konfig),
+        && /href=\{`\/dekan\/ringkasan\?simpul=\$\{\(akar as \{ id: string \}\)\.id\}&dari=konfigurasi`\}/.test(konfig),
         "Konfigurasi does not link the chosen school's summary at its own root node");
       c.expect(/struktur\.rows\.filter\(\(r\) => r\.level === "KELAS" && r\.is_active\)/.test(konfig)
-        && /href=\{`\/edukator\/ringkasan\?kelas=\$\{k\.node_id\}`\}/.test(konfig), "Konfigurasi does not link each active Kelas's summary");
+        && /href=\{`\/edukator\/ringkasan\?kelas=\$\{k\.node_id\}&dari=konfigurasi`\}/.test(konfig), "Konfigurasi does not link each active Kelas's summary");
       c.expect(/\["laporan", s\("config\.laporan\.judul"\)\]/.test(konfig), "the Laporan section is not in Konfigurasi's index");
       // each link carries the parameter its summary actually reads (the class
       // summary reads ?kelas=, the school summary ?simpul=)
       for (const [hal, param] of [["edukator", "kelas"], ["dekan", "simpul"]] as const) {
         const src = code(readFileSync(join(repoRoot, "src", "app", hal, "ringkasan", "page.tsx"), "utf8"));
-        const dibaca = /searchParams: Promise<\{ (\w+)\?: string \}>/.exec(src)?.[1];
+        // RESTATED FOR H9: the page also reads `dari` (where it was opened from), and every link sends it
+        const dibaca = /searchParams: Promise<\{ (\w+)\?: string; dari\?: string \}>/.exec(src)?.[1];
         for (const [nama, sumber] of [["Konfigurasi", konfig], ["Pimpinan", pimpinan]] as const) {
           c.expect(dibaca === param && new RegExp(`href=\\{\`\\/${hal}\\/ringkasan\\?${param}=`).test(sumber),
             `/${hal}/ringkasan reads ?${dibaca ?? "nothing"}=; ${nama} must link it with ?${param}=, and does not`);
