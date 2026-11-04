@@ -62,7 +62,35 @@ The database-state ids (F05-T20, TOUR-P01, F22-K01, D101-D01, D102-D01, F04-T11)
 
 ## 4. Results on `10e6868`
 
-(recorded when the runs finish)
+**CI:** `ci` 41777538854 passed.
+
+**Journeys:** still running at the time of writing.
+
+**Job A's walks, run locally on a reset stack against the build of `10e6868`:**
+
+| Walk | Result |
+|---|---|
+| Studio | 18/18 |
+| Administration | 11/11 |
+| Batch 5 (B5-W3 included, the 320 px case that failed in CI on `947b9a9`) | 6/6 |
+| Print, including P5 | 5/5 |
+
+The crawl could not run locally, because this stack's Auth does not pass the device screen; CI's journeys cover it.
+
+## 4a. Daisy's engineering hand-off (`SERAH-TERIMA`, `ux-1/daisy-experience` at `5a661b6e`), reconciled
+
+| Rows | State |
+|---|---|
+| H1, H3–H7, H10–H12, H16, H20, H23, H25 | Already corrected under D-177 (§1) |
+| H2, H9, H17, H19, H24 | Corrected in `24c33365` |
+| E3 #3, #4, #12, #15 | Corrected in `24c33365` |
+| H8 | Already correct as built (`MenuAkun`); nothing to change |
+| H21 | Done for every surface except the class report on a PD Kelas, which waits on the owner's ruling on whether such a report exists (open item 7 from verification round 2) |
+| H13–H15 | With the E1/E2 navigation build, not yet started; NVDA and TalkBack need devices |
+| H18 | The seed school's name waits on Dr Gladys (question pack A8) |
+| H22 | X12 T2–T5 wait on Dr Gladys and the owner |
+
+The test is D168-SERAH-1, red on the old source and green on the new.
 
 ## 5. Copy pending Dr Gladys (added under D-177; listed for the question pack)
 
