@@ -68,7 +68,7 @@ The accessibility tree of the main region
     - button "Periksa waktu ini"
     - status:
       - strong: Perhatian.
-      - paragraph: 3 asesmen dijadwalkan berlangsung selama periode ini. Asesmen terakhir diperkirakan selesai pukul 7 Nov 2026, 19.40 WIB. Pertimbangkan memulai pemeliharaan setelah pukul 7 Nov 2026, 19.40 WIB.
+      - paragraph: 3 asesmen dijadwalkan berlangsung selama periode ini. Asesmen terakhir diperkirakan selesai Sabtu, 7 Nov 2026, 19.40 WIB. Pertimbangkan memulai pemeliharaan setelah Sabtu, 7 Nov 2026, 19.40 WIB.
     - text: Pesan untuk pengguna (pilihan)
     - textbox "Pesan untuk pengguna (pilihan)"
     - text: Alasan (dicatat)

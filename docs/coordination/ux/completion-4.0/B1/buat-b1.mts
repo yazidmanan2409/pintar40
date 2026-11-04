@@ -35,6 +35,9 @@ export const NEW: Record<string, { id: string; en: string; jenis: "baru" | "ubah
   "config.lingkungan.development": { id: "Internal", en: "Internal", jenis: "baru" },
   "config.lingkungan.staging": { id: "Pra-produksi", en: "Pre-production", jenis: "baru" },
   "config.lingkungan.production": { id: "Produksi", en: "Production", jenis: "baru" },
+  // E3 #8: the overlap sentence takes the date-and-time form, without «pukul» before a day
+  "config.pemeliharaan.tabrakan.terakhir": { id: "Asesmen terakhir diperkirakan selesai", en: "The last assessment is expected to finish", jenis: "ubah" },
+  "config.pemeliharaan.tabrakan.saran": { id: "Pertimbangkan memulai pemeliharaan setelah", en: "Consider starting maintenance after", jenis: "ubah" },
   "config.kesehatan.jumlah": { id: "pemeriksaan perlindungan data, semuanya sesuai.", en: "data-protection checks, all as expected.", jenis: "ubah" },
 };
 const kata = (k: string, isi: Record<string, string | number> = {}) => {
@@ -248,7 +251,7 @@ function pemeliharaan(p: Pembaca): string {
   const cakupan = `<fieldset class="b1-fieldset"><legend class="pds-label">${kata("config.pemeliharaan.cakupan")}</legend>${p === "platform" ? centang(kata("config.pemeliharaan.platform")) : ""}${centang(SEKOLAH, true)}</fieldset>`;
   const langkah1 = `<form class="pds-form-group"><h3>${kata("config.pemeliharaan.daftar")}</h3>${cakupan}<div class="b1-dua">${field(kata("config.pemeliharaan.mulai"), waktuIn("2026-11-07T19:00", "Sabtu, 7 November 2026, 19.00 WIB"))}${field(kata("config.pemeliharaan.selesai"), waktuIn("2026-11-07T21:00", "Sabtu, 7 November 2026, 21.00 WIB"))}</div>
     <div class="pds-actions"><button type="submit" class="pds-btn pds-btn-secondary">${kata("config.pemeliharaan.periksa")}</button></div></form>`;
-  const langkah2 = `<div class="pds-alert pds-alert-attention" role="status">${ikon("circle-alert")}<strong class="pds-alert-judul">${kata("config.pemeliharaan.tabrakan.perhatian")}</strong><p><span class="b1-angka">3</span> ${kata("config.pemeliharaan.tabrakan.jumlah")} ${kata("config.pemeliharaan.tabrakan.terakhir")} 7 Nov 2026, 19.40 WIB. ${kata("config.pemeliharaan.tabrakan.saran")} 7 Nov 2026, 19.40 WIB.</p></div>
+  const langkah2 = `<div class="pds-alert pds-alert-attention" role="status">${ikon("circle-alert")}<strong class="pds-alert-judul">${kata("config.pemeliharaan.tabrakan.perhatian")}</strong><p><span class="b1-angka">3</span> ${kata("config.pemeliharaan.tabrakan.jumlah")} ${kata("config.pemeliharaan.tabrakan.terakhir")} Sabtu, 7 Nov 2026, 19.40 WIB. ${kata("config.pemeliharaan.tabrakan.saran")} Sabtu, 7 Nov 2026, 19.40 WIB.</p></div>
     <form class="pds-panel b1-form">${field(kata("config.pemeliharaan.pesan"), (id) => `<textarea id="${id}" class="pds-textarea" rows="2" maxlength="500"></textarea>`)}${field(kata("config.pemeliharaan.alasan"), input('required maxlength="300" autocomplete="off"'))}${centang(kata("config.pemeliharaan.umumkan"))}
       <div class="pds-actions"><button type="submit" class="pds-btn pds-btn-primary">${kata("config.pemeliharaan.jadwalkan")}</button></div></form>`;
   const daftar = `<section class="pds-section" aria-labelledby="b1-jendela"><h2 id="b1-jendela">${kata("config.pemeliharaan.daftar")}</h2><ul class="pds-list b1-daftar">

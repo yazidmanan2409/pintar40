@@ -22,7 +22,7 @@
 | P9 | **A long list's pages** | Pagination: «Sebelumnya» / «Berikutnya», «Sebelumnya» shown disabled on the first page, the position, and **never a hidden total** (or, when it is unknown, what is shown) | Where am I, how much is there, how do I move: always all three |
 | P10 | **Switch views of one thing** | Tabs (pages: links with `aria-current`; panels: `tablist`). A filter is the segmented control; a value is a select or radios. | Underlined and 600 is «the view I'm in» |
 | P11 | **Choose one value in a form** | 2–4 options: radio rows; more: a Select. Never a segmented control for a form's answer. | — |
-| P12 | **Search and filter a collection** | Collection (Koleksi): search, the segmented filter with «Semua», the Table or list, Pagination. An empty filtered result says nothing matches; «Semua» is the way back. | One way to narrow, one way back |
+| P12 | **Search and filter a collection** | Collection (Koleksi): search, the segmented filter with «Semua», the Table or list, Pagination. An empty filtered result is the Collection's own empty state, «Tidak ada {benda} yang cocok», with its reset «Hapus pencarian dan saringan» (`koleksi.kosong.reset`), on every filtered list. | One way to narrow, one way back |
 | P13 | **Empty** | Empty state (`Kosong`): one sentence of what is not there and, where one exists, the way on | Never a blank, never a zero standing for unknown |
 | P14 | **Not yet** | The statement in place of the figure, how far, and what makes it appear (KartuKetiadaan; C1) | «Not yet» is a real answer, in quiet ink |
 | P15 | **Refusal** | HalamanPenolakan: the surface's own line, `tolak.arti` in the reader's persona, the way home, who is signed in | Every refusal looks the same and says why |
