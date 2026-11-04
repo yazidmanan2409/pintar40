@@ -11,6 +11,7 @@ Each item's full composition (renders at every width, the keyboard and accessibi
 | The freeze (c42fecb) | Version 18 predated it. Its three Second Eye corrections are now on the page: the table stripe's final wording (`tokens.json` `table-row-alt` usage, Colour), and two words in Validation's copy rows. **No token value changed.** |
 | The brand | The public wordmark is «Pintar» in `#075056` (D-161, D-163(a)); the palette unchanged. The Wordmark card is **marked superseded, not removed**. The cover's wordmark is the placeholder «Pintar (master pending F-11)». |
 | New section | This one: the outcomes, the canonical patterns (D-172), and the provisional list |
+| Component corrections (4 Nov, D-172 S1–S6) | Found re-rendering the compositions; each corrected in `bundle.css` / `bundle.js`, not on a screen. **S1** Pagination: on a phone the buttons' words are visually hidden, never `display: none`, so each keeps its name. **S2** AppShell: in the rail each place keeps its own text as its name, visually hidden. **S3** Tooltip: a rail tooltip follows the rail's state, and shows at once on keyboard focus. **S4** DateTime: the ring on `:focus-within`, so the calendar button is ringed. **S5** Identity: the button is named by its own text after a visually hidden «Akun:», never an `aria-label` that drops what it shows (WCAG 2.5.3). **S6** Navigation: no link carries an `aria-label` repeating its own text (137 in the previews, and the bundle's template). Every preview re-checked: 60, 0 failures |
 
 ## The outcomes
 

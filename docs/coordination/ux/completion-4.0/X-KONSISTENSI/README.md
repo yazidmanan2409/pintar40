@@ -59,6 +59,8 @@ These were defects in the shared source: each screen that used the component inh
 | **S4** | A date or time field's last Tab stop (the browser's calendar button) had no ring (B1, four pages) | The ring was on `:focus-visible`; that stop is inside the field and matches neither `:focus` nor `:focus-visible` | The ring on `:focus-within` for date, time and datetime-local | B1 Tab walks: ring on every stop; the DateTime finding is gone |
 | **S5** | The identity button's name dropped what it shows (WCAG 2.5.3 Label in Name; axe 4.14 `label-content-name-mismatch`, 40 DS previews) | `aria-label="Akun: {nama}"` replaced the visible name, role and school; it existed only because the rail removed the text | No `aria-label`: the button is named by its own text after a visually hidden «Akun:»; in the rail that text is visually hidden (as S2). 16 previews corrected | DS harness 60 previews, 0 failures (was 40) |
 
+| **S6** | 137 navigation links in the DS previews, and the bundle's own place template, carried an `aria-label` repeating their text (E1 ruling: never) | Copied from the rail's old `display: none`, which left the link no other name | The `aria-label`s removed; each link is named by its own text | DS harness 60 previews, 0 failures; E1, E2 0 failures |
+
 S5 was already failing on the committed design system when re-checked with today's axe (4.14); the 8 Oct report predates that rule's inclusion. The built MenuAkun already names itself by its contents, so the application conforms.
 
 ## 3. Genuine exceptions, with their reason
@@ -86,6 +88,7 @@ S5 was already failing on the committed design system when re-checked with today
   - no disclosure around required content (P17);
   - every refusal through HalamanPenolakan (P15);
   - no `display: none` on text that names a control, in the rail or the pager (S1, S2);
+  - no navigation link with an `aria-label` repeating its own text (S6);
   - no `aria-label` on a control whose visible text it does not contain (S5).
 
 ## Words (T table)

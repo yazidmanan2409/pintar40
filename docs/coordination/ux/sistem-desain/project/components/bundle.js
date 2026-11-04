@@ -519,7 +519,7 @@
       var urut = 0;
       function item(k) {
         var t = TEMPAT[k];
-        return '<li><a href="#" class="pds-nav-item" data-tempat="' + k + '"' + (k === p.kini ? ' aria-current="page"' : "") + ' aria-label="' + esc(t.label) + '">' + ikon(t.ikon) + '<span class="pds-nav-label">' + esc(t.label) + "</span></a></li>";
+        return '<li><a href="#" class="pds-nav-item" data-tempat="' + k + '"' + (k === p.kini ? ' aria-current="page"' : "") + '>' + ikon(t.ikon) + '<span class="pds-nav-label">' + esc(t.label) + "</span></a></li>";
       }
       // Group labels only where the person has two contexts (WP6B: teaching and
       // their own learning). One context: one plain list, no label.

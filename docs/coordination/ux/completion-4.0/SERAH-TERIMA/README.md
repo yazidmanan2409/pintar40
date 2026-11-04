@@ -32,7 +32,7 @@ Nothing here changes policy, calculations, certificate integrity, permissions, i
 
 | # | Correction | Rests on |
 |---|---|---|
-| H13 | The AppShell (rail at 1024–1279 px, collapse) as the DS's `bundle.css` / `bundle.js` now are: rail text visually hidden, no `aria-label` repeating it; tooltip and collapse button follow the rail's state; keyboard focus shows the tooltip at once | E1 (owner, 4 Nov); S2, S3 |
+| H13 | The AppShell (rail at 1024–1279 px, collapse) as the DS's `bundle.css` / `bundle.js` now are: rail text visually hidden, no `aria-label` repeating it (S6); tooltip and collapse button follow the rail's state; keyboard focus shows the tooltip at once | E1 (owner, 4 Nov); S2, S3 |
 | H14 | O12's menu order, per context | E1 |
 | H15 | NVDA and TalkBack passes on the rail | owner, 4 Nov (still required) |
 
