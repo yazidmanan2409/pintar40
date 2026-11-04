@@ -1,6 +1,8 @@
 # Retrospective integrity audit, Batches 0–6 · preparation · 4 Nov 2026
 
-**Status:** prepared, not started. The owner's directive (4 Nov) is to finish the approved implementation work and establish a verified code baseline first, then audit Batches 0–6 in order. **No next development batch starts until this audit has established the true condition of Batches 0–6.**
+**Status:** started 4 Nov, on the verified baseline `be8a68c2`: `ci` 41842329505 and journeys 41842334345 both passed, with every walk running.
+
+**Before that:** prepared, not started. The owner's directive (4 Nov) is to finish the approved implementation work and establish a verified code baseline first, then audit Batches 0–6 in order. **No next development batch starts until this audit has established the true condition of Batches 0–6.**
 
 ## 1. The baseline
 

@@ -216,7 +216,8 @@ E1 is accepted (D-170(c), with the correction accepted in D-171(a)). E2 is struc
 
 **CI and journeys:**
 - `1c4aeadf`: `ci` 41833577552 failed on D101-A02 alone (corrected in `7863d71b`). Journeys 41833582256 passed.
-- `7863d71b` and later: recorded below once they report.
+- `7863d71b`: both runs cancelled, superseded by the dispatch on `be8a68c2`, which contains it.
+- **`be8a68c2`: `ci` 41842329505 passed; journeys 41842334345 passed.** Job A ran every walk, the new «Walk the identity emails (D1)» included; job B was Gladys's path. This is the verified baseline for the retrospective audit.
 
 **Still open, not engineering's to close:**
 - The group words (`config.kelompok.*`), for copy approval.
