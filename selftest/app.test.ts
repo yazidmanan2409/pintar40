@@ -2590,13 +2590,15 @@ export const appTests: SelfTest[] = [
       }).then((r) => r.json() as Promise<Array<Record<string, string | null>>>).catch(() => []);
       const k = await get(`${base}/konfigurasi`, { headers: { cookie: admin.cookie } });
       c.expect(k.status === 200, `INSTITUTION_ADMIN /konfigurasi → ${k.status}`);
-      const html = await k.text();
+      // the page as the browser puts it together: a streamed-late part is timing, not the page's shape
+      const html = tersusun(await k.text());
       const a = html.indexOf('id="laporan"');
       const b = html.indexOf("</section>", a);
       const bagian = a >= 0 && b > a ? html.slice(a, b) : "";
       if (!c.expect(bagian.length > 0, "Konfigurasi has no Laporan section")) return c.verdict("");
-      const sekolah = [...bagian.matchAll(/href="\/dekan\/ringkasan\?simpul=([0-9a-f-]{36})"/g)].map((m) => m[1]);
-      const kelas = [...bagian.matchAll(/href="\/edukator\/ringkasan\?kelas=([0-9a-f-]{36})"/g)].map((m) => m[1]);
+      // D-172 K1 / H9: each link names where it came from (&dari=konfigurasi), so the summary's way back is «Konfigurasi»
+      const sekolah = [...bagian.matchAll(/href="\/dekan\/ringkasan\?simpul=([0-9a-f-]{36})&amp;dari=konfigurasi"/g)].map((m) => m[1]);
+      const kelas = [...bagian.matchAll(/href="\/edukator\/ringkasan\?kelas=([0-9a-f-]{36})&amp;dari=konfigurasi"/g)].map((m) => m[1]);
       c.expect(sekolah.length === 1, `the Laporan section links ${sekolah.length} school summaries, expected 1`);
       c.expect(kelas.length >= 1, "the Laporan section links no class summary, though Alpha's seed has active classes");
       const simpul = await rest(`org_nodes?select=id,kind,institution_id&id=in.(${[...sekolah, ...kelas].join(",")})`);
@@ -2609,7 +2611,7 @@ export const appTests: SelfTest[] = [
       for (const [jalan, judul] of [[`/dekan/ringkasan?simpul=${sekolah[0]}`, "laporan.institusi.judul"], [`/edukator/ringkasan?kelas=${kelas[0]}`, "laporan.kelas.judul"]] as const) {
         if (!sekolah[0] || !kelas[0]) break;
         const r = await get(`${base}${jalan}`, { headers: { cookie: admin.cookie } });
-        const x = await r.text();
+        const x = tersusun(await r.text());
         const teks = visibleText(x);
         c.expect(r.status === 200 && teks.includes(t(judul, "staff")), `${jalan} → ${r.status} without its title`);
         c.expect(!teks.includes(t("laporan.kosong", "staff")), `${jalan} finds no report for the administrator's own school`);
@@ -2621,7 +2623,7 @@ export const appTests: SelfTest[] = [
         const sesi = await signIn(ctx, orang);
         const r = await get(`${base}/pimpinan`, { headers: { cookie: sesi.cookie } });
         if (!c.expect(r.status === 200, `${peran} /pimpinan → ${r.status}`)) continue;
-        const x = await r.text();
+        const x = tersusun(await r.text());
         const i = x.indexOf('id="pin-perkelas"');
         if (!c.expect(i >= 0, `${peran}: Pimpinan has no class-by-class section above the classes`)) continue;
         const sec = x.slice(i, x.indexOf("</section>", i));
@@ -2642,22 +2644,24 @@ export const appTests: SelfTest[] = [
           "metrik.perbandingan_kohort.label", "metrik.kompetensi.label", "metrik.kredensial.label"].map((k) => t(k as HleEvent, "staff"));
         const adaSekolah = labelSekolah.some((l) => figur.includes(l));
         const lanjut = x.slice(x.indexOf('id="pin-lanjut"'));
-        const keSekolah = [...lanjut.matchAll(/href="(\/dekan\/ringkasan\?simpul=[0-9a-f-]{36})"/g)].map((m) => m[1]);
+        const keSekolah = [...lanjut.matchAll(/href="(\/dekan\/ringkasan\?simpul=[0-9a-f-]{36}&amp;dari=pimpinan)"/g)].map((m) => m[1]);
         c.expect(keSekolah.length === (adaSekolah ? 1 : 0), `${peran}: ${keSekolah.length} school-summary link(s) while Pimpinan ${adaSekolah ? "shows" : "shows no"} school figure`);
         if (peran === "DEAN") c.expect(adaSekolah && keSekolah.length === 1, "DEAN at Alpha's root is not offered the school summary from Pimpinan");
         const perKelas = [...sec.matchAll(/<details[^>]*class="pin-kelas-bukti"[^>]*>([\s\S]*?)<\/details>/g)].map((m) => m[1]);
         const tandaKelas = (d: string) => (/<span class="pin-kelas-tanda">([^<]+)<\/span>/.exec(d)?.[1] ?? "").replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
         const bolehKelas = perKelas.filter((d) => tandaKelas(d) !== t("laporan.metrik.bukan_untuk_anda", "staff"));
-        const keKelas = perKelas.map((d) => /href="(\/edukator\/ringkasan\?kelas=[0-9a-f-]{36})"/.exec(d)?.[1]);
+        const keKelas = perKelas.map((d) => /href="(\/edukator\/ringkasan\?kelas=[0-9a-f-]{36}&amp;dari=pimpinan)"/.exec(d)?.[1]?.replace(/&amp;/g, "&"));
         c.expect(perKelas.every((d, i) => Boolean(keKelas[i]) === bolehKelas.includes(d)),
-          `${peran}: a class links its summary other than exactly when its figures are the reader's`);
+          `${peran}: a class links its summary other than exactly when its figures are the reader's (` +
+          perKelas.filter((d, i) => Boolean(keKelas[i]) !== bolehKelas.includes(d))
+            .map((d) => `${/pin-kelas-nama">([^<]+)/.exec(d)?.[1] ?? "?"}: ${tandaKelas(d)}; ${(d.match(/href="[^"]*ringkasan[^"]*"/g) ?? []).join(" ") || "no link"}`).join(" / ") + ")");
         const tujuan: Array<[string, HleEvent]> = [];
         if (keSekolah[0]) tujuan.push([keSekolah[0].replace(/&amp;/g, "&"), "laporan.institusi.judul"]);
         const kelasPertama = keKelas.find(Boolean);
         if (kelasPertama) tujuan.push([kelasPertama, "laporan.kelas.judul"]);
         for (const [jalan, judul] of tujuan) {
           const r2 = await get(`${base}${jalan}`, { headers: { cookie: sesi.cookie } });
-          const x2 = await r2.text();
+          const x2 = tersusun(await r2.text());
           const teks = visibleText(x2);
           c.expect(r2.status === 200 && teks.includes(t(judul, "staff")), `${peran} ${jalan} → ${r2.status} without its title`);
           c.expect(!teks.includes(t("laporan.kosong", "staff")), `${peran} ${jalan} finds no report`);
