@@ -1,0 +1,25 @@
+Password recovery: the Tab order (600 px, light)
+ 1. a «info@pintarselalu.com» mailto:info@pintarselalu.com
+ 2. a «pintarselalu.com» https://pintarselalu.com
+
+The accessibility tree
+- article "Kode untuk membuat password baru PINTAR":
+  - text: Pintar (master pending F-11)
+  - heading "Buat password baru" [level=1]
+  - paragraph: Anda menerima email ini karena kode untuk membuat password baru diminta untuk akun PINTAR dengan alamat ini.
+  - paragraph: Halo, Rina Kartika.
+  - paragraph: Ketik kode ini di halaman Lupa password PINTAR untuk membuat password baru.
+  - paragraph: Kode
+  - paragraph: 905 227
+  - paragraph: Kode ini berlaku selama 10 menit. Jika sudah lewat, minta kode baru di halaman yang sama.
+  - text: "Jika Anda tidak meminta kode ini, abaikan email ini: password Anda tidak berubah. Jangan berikan kode ini kepada siapa pun."
+  - paragraph: PINTAR tidak pernah meminta PIN atau password lewat email.
+  - paragraph:
+    - text: Ada pertanyaan? Tulis ke
+    - link "info@pintarselalu.com":
+      - /url: mailto:info@pintarselalu.com
+    - text: .
+  - paragraph:
+    - text: PT ZAYD PINTAR SELALU ·
+    - link "pintarselalu.com":
+      - /url: https://pintarselalu.com

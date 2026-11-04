@@ -1,0 +1,10 @@
+8 emails × the matrix (600 and 320, light and dark, images blocked) and the plain text: 0 with a failure
+
+ok   1-aktivasi
+ok   2-kirim-ulang
+ok   3-pemulihan
+ok   4-password-diganti
+ok   5-kartu
+ok   5b-kartu-dua-peran
+ok   6-keamanan
+ok   6b-keamanan-admin

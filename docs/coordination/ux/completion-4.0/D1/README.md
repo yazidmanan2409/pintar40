@@ -1,5 +1,7 @@
 # D1 step 1 · the email frame: covered / missing (CR-22, DAISY-37)
 
+**Accepted by the owner, 4 Nov (D-164).** Step 2 is in `STEP-2.md`. Row references corrected in step 2's commit.
+
 **Form K.** One row per requirement, as the brief asks (§5).
 - **Authority:** D-079(a)–(f) and its addendum; DAISY-37 (1)–(4) (BOARD.md:211); D-074(5) and its addendum; D-163(a).
 - **Read at:** engineering commit `0b19707`, read-only. File and line references are to that commit.
@@ -21,7 +23,7 @@ Five templates call it:
 
 **The answer.** The frame is complete as a frame on every structural, accessibility and plain-text requirement, so those rows are confirmed and reused. **Five rows are missing.**
 - **Rows 3a, 3b, 3c and 4:** DAISY-37's three named gaps, which are exactly the gaps the coordinator listed on 30 Sep (D-079, «Coordinator's mapping»). Row 4 is the who → why → what check, which waits on row 3b.
-- **Row 6:** the brand's own recognition (D-079(e)). It cannot be established before F-11's master; that is the brief's §8 rule.
+- **Row 5:** the brand's own recognition (D-079(e)). It cannot be established before F-11's master; that is the brief's §8 rule.
 
 Separately, **the card in the email has no approved composition:** all five card points are missing. **One of them is also an engineering defect:** the card email's role rows are ordered by seniority, against D-074(5).
 
@@ -41,9 +43,9 @@ The six emails' content then goes inside that frame.
 | 2 | **D-079(b)** One canonical shell, with variants for the code (activation, resend, recovery), the card, security and account notices, and password changed; no new trigger | One shell, `bingkaiEmail` (`bingkai.ts:221`), with the variants in row 1. The resend is a flag on the code template (`identitas.ts:34`), not a second email. The security template carries six events (`email.aman.*`, `hle.ts:4659–4695`). No new trigger. | **Covered** |
 | 3 | **D-079(c)** What the shell carries. Point by point: | | |
 | 3a | · the identity and wordmark | The header is today's logo image, `public/brand/pintar-email-logo.png` at 104 × 58 (`bingkai.ts:96, 229`). Its alt text is styled as the wordmark: «PINTAR» (`email.bingkai.merek`, `hle.ts:4365`), bold, letter-spaced, in `#245F55` (`bingkai.ts:229`). That predates D-163(a): the wordmark is now «Pintar» in `#075056`, and the master is pending F-11. | **Missing.** Step 2 draws the slot as the placeholder; it is not the master (D-163(a), F-11). |
-| 3b | · why the recipient received it | Each email passes its own reason, but the frame prints it in the footer only (`bingkai.ts:227, 261`). DAISY-37 (1) moves it up (row 9). | **Missing** (its position) |
-| 3c | · the school or context where appropriate | Nothing in the frame. Only the card email states a role and school, as detail rows (`identitas.ts:57–60`). | **Missing** (row 10) |
-| 3d | · a warm, restrained visual language | A warm canvas `#F3F1EC`, a white card, a hairline and radius 12, the token palette written out (`bingkai.ts:99–110, 251–256`). The warm-white and gold language of the artifacts is row 11. | **Covered** for restraint. The artifact language is row 11. |
+| 3b | · why the recipient received it | Each email passes its own reason, but the frame prints it in the footer only (`bingkai.ts:227, 261`). DAISY-37 (1) moves it up (row 8). | **Missing** (its position) |
+| 3c | · the school or context where appropriate | Nothing in the frame. Only the card email states a role and school, as detail rows (`identitas.ts:57–60`). | **Missing** (row 9) |
+| 3d | · a warm, restrained visual language | A warm canvas `#F3F1EC`, a white card, a hairline and radius 12, the token palette written out (`bingkai.ts:99–110, 251–256`). The warm-white and gold language of the artifacts is row 10. | **Covered** for restraint. The artifact language is row 10. |
 | 3e | · clear hierarchy; one strong primary action where needed | One `<h1>` (`bingkai.ts:257`); the `tombol` block, full width at 480 px and below (`bingkai.ts:155–160, 197–198`). | **Covered** |
 | 3f | · a fallback if the button or link fails | `cadangan`: «Jika tombol tidak bisa dibuka, salin alamat ini ke peramban Anda:» and the address (`bingkai.ts:161–163`; `hle.ts:4369`). | **Covered** |
 | 3g | · a footer with support and security lines | The reason; «PINTAR tidak pernah meminta PIN atau password lewat email.»; «Ada pertanyaan? Tulis ke info@pintarselalu.com.»; «PT ZAYD PINTAR SELALU · pintarselalu.com» (`bingkai.ts:260–265`). | **Covered** |
@@ -52,7 +54,7 @@ The six emails' content then goes inside that frame.
 | 3j | · graceful rendering with images blocked | The alt text carries the name (`bingkai.ts:229`). Render: `render-wiring/contoh-kode-600-tanpa-gambar.png`, identical to the prototype. | **Covered** for the frame. The wordmark's own text is row 3a. |
 | 3k | · a plain-text version | `teksBiasa`: every block, wrapped at 72 characters, a URL whole on its own line, and the footer (`bingkai.ts:278–310`). Samples: `render-wiring/contoh-kode-staging.txt`, `contoh-pemberitahuan-staging.txt`. | **Covered** |
 | 3l | · Indonesian-first copy suited to the recipient | Every word from the copy table in Bahasa Indonesia (`kata`, `bingkai.ts:85`); `lang="id"` on the document and the article. | **Covered** |
-| 4 | **D-079(d)** Calm and functional: no newsletter look, gradient, clutter or celebration; who → why → what within seconds | No gradient, image banner, confetti or marketing block, and the static scan has a planted control (`DAISY-19-EMAIL-01`). **Who → why → what:** «who» is the header, «what» is the heading and the action. «Why» is in the footer (row 3b), so the within-seconds order is not met. | **Covered** for calm. **Missing** for the order, until row 9. |
+| 4 | **D-079(d)** Calm and functional: no newsletter look, gradient, clutter or celebration; who → why → what within seconds | No gradient, image banner, confetti or marketing block, and the static scan has a planted control (`DAISY-19-EMAIL-01`). **Who → why → what:** «who» is the header, «what» is the heading and the action. «Why» is in the footer (row 3b), so the within-seconds order is not met. | **Covered** for calm. **Missing** for the order, until row 8. |
 | 5 | **D-079(e)** It looks like PINTAR before the recipient reads the sender | The token palette and today's logo. Recognition of the brand cannot be established with a placeholder (the brief, §8), and the wordmark is changing (D-163(a)). | **Missing until F-11.** The provisional protocol (who, why, what in 5 s) runs in step 2; the final recognition test runs after the master. |
 | 6 | **D-079(f)** When: the POLISHED bar, before C-11 | Timing, not composition. It is met when step 2 is accepted and built before C-11. | **Open (timing).** No design row of its own. |
 | 7 | **D-079 addendum:** the real duration, read from the canonical setting, never typed; no «segera» or «shortly»; the clock time optional | «Kode ini berlaku selama» + `format.durasi(data.berlakuMenit * 60)` + «. Jika sudah lewat, minta kode baru di halaman yang sama.» (`identitas.ts:39, 94`; `hle.ts:4834–4835`). `berlakuMenit` comes from the server's canonical setting (`identitas.ts:9–12`). No «segera» or «shortly» in `src/components/email/`. | **Covered** |

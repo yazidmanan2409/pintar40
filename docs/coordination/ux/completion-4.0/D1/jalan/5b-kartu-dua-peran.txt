@@ -1,0 +1,38 @@
+The PINTAR Card (two roles at two schools): the Tab order (600 px, light)
+ 1. a «Buka Akun saya» https://pintarselalu.com/akun
+ 2. a «https://pintarselalu.com/akun» https://pintarselalu.com/akun
+ 3. a «info@pintarselalu.com» mailto:info@pintarselalu.com
+ 4. a «pintarselalu.com» https://pintarselalu.com
+
+The accessibility tree
+- article "Kartu PINTAR Anda":
+  - text: Pintar (master pending F-11)
+  - heading "Kartu PINTAR Anda" [level=1]
+  - paragraph: Anda menerima email ini karena akun PINTAR Anda baru diaktifkan, atau kartunya diminta dari Akun saya.
+  - paragraph: Akun PINTAR Anda di SMA Bukit Asri Kaliandra dan SMP Cahaya Kaliandra.
+  - paragraph: Halo, Rina Kartika.
+  - paragraph: Ini Kartu PINTAR Anda.
+  - text: Pintar (master pending F-11) Rina Kartika K7M2 Q9XA
+  - paragraph:
+    - strong: Guru
+    - text: · SMP Cahaya Kaliandra
+  - paragraph:
+    - strong: Kepala departemen
+    - text: · SMA Bukit Asri Kaliandra
+  - paragraph: "PINTAR ID bukan rahasia: boleh ditunjukkan, dan tidak bisa dipakai untuk masuk. Password dan PIN Anda tetap rahasia."
+  - link "Buka Akun saya":
+    - /url: https://pintarselalu.com/akun
+  - paragraph:
+    - text: "Jika tombol tidak bisa dibuka, salin alamat ini ke peramban Anda:"
+    - link "https://pintarselalu.com/akun":
+      - /url: https://pintarselalu.com/akun
+  - paragraph: PINTAR tidak pernah meminta PIN atau password lewat email.
+  - paragraph:
+    - text: Ada pertanyaan? Tulis ke
+    - link "info@pintarselalu.com":
+      - /url: mailto:info@pintarselalu.com
+    - text: .
+  - paragraph:
+    - text: PT ZAYD PINTAR SELALU ·
+    - link "pintarselalu.com":
+      - /url: https://pintarselalu.com
