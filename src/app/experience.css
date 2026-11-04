@@ -3018,18 +3018,9 @@ input[type="file"]:disabled::file-selector-button { background: var(--surface-2)
 }
 .pin-staf .pin-tabs a.pin-nav-item[aria-current="page"] .pin-ikon { color: var(--pintar-primary); }
 .pin-staf .pin-tabs a.pin-nav-item:focus-visible { outline-offset: -2px; }
-/* D-140 (review RV-3): the places keep one order, Daisy's (bundle.js PERSONA), whichever of them is open; the page
-   you are on is marked, never moved to the top. The context's name and the chooser follow the places. */
-.pin-staf .pin-tabs > * { order: 20; }
-.pin-staf .pin-tabs > a[href="/mengajar"] { order: 1; }
-.pin-staf .pin-tabs > a[href="/pimpinan"] { order: 2; }
-.pin-staf .pin-tabs > a[href="/konfigurasi"] { order: 3; }
-.pin-staf .pin-tabs > a[href="/pendataan"] { order: 4; }
-.pin-staf .pin-tabs > a[href="/aktivasi"] { order: 5; }
-.pin-staf .pin-tabs > a[href="/studio"] { order: 6; }
-.pin-staf .pin-tabs > a[href="/konfigurasi/keamanan"] { order: 7; }
-.pin-staf .pin-tabs > a[href="/konfigurasi/email-uji"] { order: 8; }
-.pin-staf .pin-tabs > a[href="/belajar"] { order: 9; }
+/* D-140 (review RV-3), O12 (D-170(d)): the places keep one order whichever of them is open, the page you are on marked,
+   never moved to the top. The order is the DOM's (urutkanNav, URUTAN_TEMPAT), never CSS `order`, so the keyboard meets
+   the places in the order the eye does (WCAG 2.4.3). */
 .pin-nav-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* The working context's place, and the one way to change it (L3, D-132). */
 .pin-staf .pin-nav-tempat {
@@ -3381,3 +3372,149 @@ select:not([multiple]):not([size]) {
 .pin-foto { width: 96px; height: 96px; border-radius: var(--radius-2); object-fit: cover; border: 1px solid var(--line); background: var(--surface-2); flex: none; }
 .pin-foto-kosong { display: block; }
 .pin-foto-aksi { display: grid; gap: var(--space-2); flex: 1 1 calc(var(--space-9) * 4); min-width: 0; }
+
+/* ══════════════════════════════════════ E1 + E2: ONE NAVIGATION (D-169, D-170(c), D-171(a))
+   The design system's AppShell under L3: expanded (shell-nav, 248 px) from 1280 px; the rail (shell-rail, 72 px) from
+   1024 to 1279 px; the top bar and the menu under 1024 px. The reader may collapse to the rail at 1280 and up
+   (`data-ciut="ya"`, TombolCiut) and expand in the rail range (`data-ciut="tidak"`). In the rail each link keeps its
+   own text, visually hidden (never display: none, never an aria-label: E-E1-1), and its tooltip (aria-hidden, the same
+   words) shows on hover and at once on keyboard focus, only while the shell is the rail. */
+.pin-nav-tip { display: none; }
+/* the tooltip's place beside its item, set by the shell's script on hover or focus (TombolCiut) */
+[data-tip-host] { --tip-x: 0; --tip-y: 0; }
+.pin-avatar { display: none; }
+.pin-rail-ikon { display: none; }
+.pin-konteks-rail { display: none; }
+.pin-ciut {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: var(--control-md); height: var(--control-md); padding: 0; border: 0; border-radius: var(--radius-md);
+  background: none; color: var(--ink-2); cursor: pointer;
+}
+.pin-ciut[hidden] { display: none; }
+.pin-ciut:hover { background: var(--surface-2); color: var(--ink-1); }
+/* The context control (E2): one quiet block at the top of the navigation, and of the opened menu */
+.pin-konteks-blok {
+  display: grid; gap: var(--space-1); padding: var(--space-3);
+  background: var(--surface-2); border-radius: var(--radius-md);
+}
+.pin-konteks-tujuan { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-3); }
+.pin-konteks-tempat { font-size: var(--t-small); line-height: var(--t-small-lh); font-weight: var(--weight-strong); color: var(--ink-1); overflow-wrap: anywhere; }
+a.pin-konteks-pilih {
+  display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control-sm); width: fit-content;
+  font-size: var(--t-small); font-weight: var(--weight-strong); color: var(--pintar-primary); text-decoration: none;
+}
+a.pin-konteks-pilih:hover { text-decoration: underline; }
+a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
+.pin-konteks-inisial {
+  display: inline-grid; place-items: center; width: var(--control-sm); height: var(--control-sm);
+  border-radius: var(--radius-md); background: var(--surface-2); color: var(--ink-1);
+  font-size: var(--t-small); font-weight: var(--weight-strong);
+}
+.pin-avatar {
+  place-items: center; flex: none; width: var(--control-sm); height: var(--control-sm); border-radius: 50%;
+  background: var(--surface-2); color: var(--ink-2); font-size: var(--t-small); font-weight: var(--weight-strong);
+}
+.pin-nav-tip {
+  position: fixed; z-index: var(--z-overlay); left: var(--tip-x); top: var(--tip-y); translate: 0 -50%;
+  padding: var(--space-1) var(--space-2); border-radius: var(--radius-md);
+  background: var(--surface-1); color: var(--ink-1); box-shadow: var(--shadow-overlay);
+  font-size: var(--t-small); line-height: var(--t-small-lh); font-weight: var(--weight-normal); white-space: nowrap; pointer-events: none;
+}
+/* hover waits 400 ms before showing (the DS's delay); keyboard focus shows it at once */
+@keyframes pin-tip-tunda { from { visibility: hidden; } to { visibility: visible; } }
+@media (min-width: 1024px) {
+  .pin-staf-kepala { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+  .pin-staf .pin-rail-ikon { display: inline-block; }
+  .pin-staf .pin-bantuan-tombol { display: inline-flex; align-items: center; gap: var(--space-2); }
+}
+@media (max-width: 1023px) {
+  .pin-ciut { display: none; }
+  .pin-staf .pin-konteks-rail { display: none; }
+}
+/* The rail: by default from 1024 to 1279 px, unless the reader expanded it */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) { width: var(--shell-rail); padding-inline: var(--space-3); align-items: center; }
+  body:has(.pin-shell.pin-staf:not([data-ciut="tidak"])) { padding-left: calc(var(--shell-rail) + var(--gutter)); }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-merek { display: none; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-staf-kepala { flex-direction: column; padding: 0 0 var(--space-3); }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-laci { align-items: center; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-tabs { justify-items: center; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-tabs a.pin-nav-item, .pin-shell.pin-staf:not([data-ciut="tidak"]) a.pin-konteks-rail { width: var(--control-md); padding: 0; justify-content: center; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) :is(.pin-nav-label, .pin-rail-teks, .pin-sesi-ket strong) {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-konteks-blok { display: none; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) a.pin-konteks-rail { display: flex; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) [data-tip-host][data-tip-xy]:hover:not([data-tip-tutup]) > .pin-nav-tip { display: block; animation: pin-tip-tunda 400ms steps(1, end); }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) [data-tip-host][data-tip-xy]:focus-visible:not([data-tip-tutup]) > .pin-nav-tip { display: block; animation: none; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-avatar { display: inline-grid; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-staf-bawah { justify-items: center; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) :is(.pin-bantuan-tombol, .pin-sesi-keluar) { width: var(--control-md); min-height: var(--control-md); padding: 0; justify-content: center; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-lang { flex-direction: column; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-sesi { align-items: center; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-sesi form { width: auto; }
+  .pin-shell.pin-staf:not([data-ciut="tidak"]) .pin-menu-tombol .pin-chevron { display: none; }
+}
+/* The rail at 1280 px and up, when the reader collapsed it */
+@media (min-width: 1280px) {
+  .pin-shell.pin-staf[data-ciut="ya"] { width: var(--shell-rail); padding-inline: var(--space-3); align-items: center; }
+  body:has(.pin-shell.pin-staf[data-ciut="ya"]) { padding-left: calc(var(--shell-rail) + var(--gutter)); }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-merek { display: none; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-staf-kepala { flex-direction: column; padding: 0 0 var(--space-3); }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-laci { align-items: center; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-tabs { justify-items: center; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-tabs a.pin-nav-item, .pin-shell.pin-staf[data-ciut="ya"] a.pin-konteks-rail { width: var(--control-md); padding: 0; justify-content: center; }
+  .pin-shell.pin-staf[data-ciut="ya"] :is(.pin-nav-label, .pin-rail-teks, .pin-sesi-ket strong) {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-konteks-blok { display: none; }
+  .pin-shell.pin-staf[data-ciut="ya"] a.pin-konteks-rail { display: flex; }
+  .pin-shell.pin-staf[data-ciut="ya"] [data-tip-host][data-tip-xy]:hover:not([data-tip-tutup]) > .pin-nav-tip { display: block; animation: pin-tip-tunda 400ms steps(1, end); }
+  .pin-shell.pin-staf[data-ciut="ya"] [data-tip-host][data-tip-xy]:focus-visible:not([data-tip-tutup]) > .pin-nav-tip { display: block; animation: none; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-avatar { display: inline-grid; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-staf-bawah { justify-items: center; }
+  .pin-shell.pin-staf[data-ciut="ya"] :is(.pin-bantuan-tombol, .pin-sesi-keluar) { width: var(--control-md); min-height: var(--control-md); padding: 0; justify-content: center; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-lang { flex-direction: column; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-sesi { align-items: center; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-sesi form { width: auto; }
+  .pin-shell.pin-staf[data-ciut="ya"] .pin-menu-tombol .pin-chevron { display: none; }
+}
+.pin-konteks-kontrol { display: grid; width: 100%; }
+.pin-laci-js { display: none; }
+@media (min-width: 1024px) {
+  /* the drawer's controls do nothing at this width: neither is drawn, nor a Tab stop */
+  .pin-staf .pin-laci-saklar { display: none; }
+  .pin-shell.pin-staf :is(a.pin-konteks-rail) { margin-inline: auto; }
+}
+@media (max-width: 1023px) {
+  /* once the button is mounted it is the one control (TombolLaci); the checkbox served only until then */
+  .pin-staf[data-laci-js] :is(.pin-laci-saklar, .pin-laci-tombol) { display: none; }
+  .pin-staf .pin-laci-js {
+    order: 3; display: inline-flex; align-items: center; justify-content: center;
+    width: var(--control-md); height: var(--control-md); padding: 0; border: 0; border-radius: var(--radius-md);
+    background: none; color: var(--ink-1); cursor: pointer;
+  }
+  .pin-staf:not([data-laci-js]) .pin-laci-js { display: none; }
+  .pin-staf .pin-laci-js:hover { background: var(--surface-2); }
+  .pin-staf[data-laci="buka"] .pin-laci { display: grid; gap: var(--space-3); }
+  .pin-staf[data-laci="buka"] .pin-sesi { order: 5; width: 100%; flex-wrap: wrap; padding-bottom: var(--space-3); }
+  .pin-staf[data-laci="buka"] .pin-sesi :is(.pin-sesi-ket, .pin-sesi-akun) { display: inline-flex; align-items: center; }
+  /* open, the drawer is a modal sheet over the page (the page behind is inert), in E1's order: the context control and
+     the places, then Bantuan, «Laporkan masalah» and the language, then the reader and «Keluar» */
+  .pin-staf[data-laci="buka"] { position: fixed; inset: 0; z-index: var(--z-overlay); align-content: start; overflow-y: auto; }
+  .pin-staf .pin-laci > .pin-tabs { order: 0; }
+  .pin-staf .pin-laci > .pin-staf-bawah { order: 1; }
+}
+/* E2: the chooser's door (D-169(c)) */
+.pin-pintu { display: flex; align-items: center; gap: var(--space-3); min-height: 64px; }
+.pin-pintu-teks { display: grid; flex: 1; min-width: 0; }
+.pin-pintu-tujuan { font-size: var(--t-subsection); line-height: var(--t-subsection-lh); font-weight: var(--weight-strong); color: var(--ink-1); }
+.pin-pintu-tempat { font-size: var(--t-small); line-height: var(--t-small-lh); color: var(--ink-2); overflow-wrap: anywhere; }
+.pin-pintu > .pin-ikon { color: var(--ink-3); }
+.pin-pintu[aria-current="true"] {
+  background: var(--pintar-primary-soft); border-color: var(--pintar-primary);
+  box-shadow: inset var(--border-focus, 2px) 0 0 var(--pintar-primary);
+}
+.pin-pintu[aria-current="true"] > .pin-ikon { color: var(--pintar-primary); }

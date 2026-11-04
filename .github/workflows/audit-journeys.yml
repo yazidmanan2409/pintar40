@@ -183,6 +183,17 @@ jobs:
           APP_DIR: ${{ github.workspace }}/app
           OUT_DIR: ${{ github.workspace }}/audit-out/b5-fokus
         run: node b5-fokus.mjs
+      # E-E1-2 (D-170(e)): E1 + E2 as one navigation, tested together: role and context transitions, the places and
+      # their one order (O12), the chooser, the rail, collapse, the drawer, accessibility and refusals, at 1280, 1279,
+      # 1100, 1024, 1023, 820, 390 and 320 px.
+      - name: Walk the integrated navigation (E1 + E2)
+        if: success() || failure()
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/e1-navigasi
+        run: node e1-navigasi.mjs
       - name: Server log (errors only)
         if: always()
         run: grep -iE 'error|exception|fail' "$RUNNER_TEMP/app.log" | grep -v 'evaluation_state' | head -80 || true

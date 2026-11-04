@@ -1138,7 +1138,7 @@ export type HleEvent =
   | "studio.konten.kode.content_created_not_ingested"
   | "mengajar.judul"
   | "nav.kelas" | "nav.pimpinan" | "nav.pendataan"
-  | "nav.aktivasi" | "nav.konfigurasi" | "nav.studio" | "nav.tempat" | "nav.menu"
+  | "nav.aktivasi" | "nav.konfigurasi" | "nav.studio" | "nav.tempat" | "nav.menu" | "nav.ciutkan" | "nav.lebarkan" | "nav.buka_menu" | "nav.tutup_menu"
   | "tombol.menerbitkan"
   | "studio.langkah.selesai.terbitkan"
   // W1.6 / W1.8 (Batch 3): the reviewer's send-back, its record, and the author's way on
@@ -5016,6 +5016,11 @@ const table: Table = {
   "nav.studio": { default: "Studio", en: "Studio" },
   "nav.tempat": { default: "Tempat kerja Anda", en: "Your places" },
   "nav.menu": { default: "Menu", en: "Menu" },
+  // E1 (D-170(c)): the design system's approved shell words (J3, question 1), entering the copy table with the build
+  "nav.ciutkan": { default: "Ciutkan navigasi", en: "Collapse navigation" },
+  "nav.lebarkan": { default: "Lebarkan navigasi", en: "Expand navigation" },
+  "nav.buka_menu": { default: "Buka menu", en: "Open menu" },
+  "nav.tutup_menu": { default: "Tutup menu", en: "Close menu" },
   "tombol.menerbitkan": { default: "Menerbitkan…", en: "Publishing\u2026" },
   "studio.langkah.selesai.terbitkan": { default: "Diterbitkan", en: "Published" },
   // W1.6 (Batch 3; UX-36, J4.3): the second person's other outcome at «Setujui isi», an in-page confirmation with a

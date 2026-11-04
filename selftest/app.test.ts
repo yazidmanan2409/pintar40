@@ -2492,7 +2492,7 @@ export const appTests: SelfTest[] = [
         c.expect(nav.length > 0, `${peran} ${jalan}: the page has no tabs`);
         // DAISY-18: a menu link carries its working dot, an empty span at rest. D-138 step 3: in the staff navigation the
         // place is an ItemNav, its hidden icon, then its word, which is the link's name
-        c.expect(new RegExp(`<a [^>]*href="/studio"[^>]*>(?:<svg [^>]*aria-hidden="true"[^>]*>[\\s\\S]*?</svg>)?(?:<span class="pin-nav-label">)?${t("nav.studio", "staff")}(?:</span>)?(?:<span aria-hidden="true" class="pin-tanda-tautan"></span>)?</a>`).test(nav),
+        c.expect(new RegExp(`<a [^>]*href="/studio"[^>]*>(?:<svg [^>]*aria-hidden="true"[^>]*>[\\s\\S]*?</svg>)?(?:<span class="pin-nav-label">)?${t("nav.studio", "staff")}(?:</span>)?(?:<span class="pin-nav-tip" aria-hidden="true">${t("nav.studio", "staff")}</span>)?(?:<span aria-hidden="true" class="pin-tanda-tautan"></span>)?</a>`).test(nav),
           `${peran} ${jalan}: no Studio tab`);
       }
       const dekan = await signIn(ctx, PERSONA.dean);

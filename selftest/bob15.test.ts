@@ -201,7 +201,7 @@ export const bob15Tests: SelfTest[] = [
       // D-138 step 3: the staff shells draw one staff layout (shellStaf), which carries the link once; the four staff
       // branches (teaching, management, intake, an educator's own learning) and Studio and Konfigurasi (CangkangStaf) all
       // return through it, and the learner's own shell carries none (a student tells their teacher)
-      const iStaf = cangkang.indexOf("\nfunction shellStaf(");
+      const iStaf = cangkang.search(/\n(?:async )?function shellStaf\(/);
       const inti = iStaf > 0 ? cangkang.slice(0, iStaf) : "";
       const tata = iStaf > 0 ? cangkang.slice(iStaf, cangkang.indexOf("\nexport async function CangkangStaf(")) : "";
       const stafSendiri = cangkang.slice(cangkang.indexOf("\nexport async function CangkangStaf("));

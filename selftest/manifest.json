@@ -4257,6 +4257,16 @@
       "proves": "E-K8 (D-173(d)), selftest/d168.test.ts, reading the stylesheet src/app/experience.css and the source of LangkahTerbit.tsx: every Studio step marker (.pin-lt-langkah::before) is a segment of progress over its word with no border or round marker (the ring read as a radio button), the current step is the primary segment, and the step list carries no radio role, input or tab stop; the current step is aria-current."
     },
     {
+      "id": "D168-E1-1",
+      "runner": "static",
+      "proves": "E-E1-1 (D-170(c), D-171(a)), selftest/d168.test.ts, from the rendered ItemNav, the stylesheet src/app/experience.css and the source of TombolCiut.tsx, CangkangPengalaman.tsx, TombolBantuan.tsx, TautanLapor.tsx and BarisSesi.tsx: in the staff rail each place's link is named by its own word, visually hidden (never display: none, no aria-label or title), with an aria-hidden tooltip of the same word shown only while the shell is the rail (1024-1279 px unless expanded, 1280 px and up when collapsed), on focus at once and dismissible with Escape; the rail is shell-rail wide; every place has an icon; the collapse control names the state it offers (\u00abCiutkan navigasi\u00bb / \u00abLebarkan navigasi\u00bb) from the rail's own state and is hidden until it knows it; Bantuan, \u00abLaporkan masalah\u00bb and \u00abKeluar\u00bb keep their words."
+    },
+    {
+      "id": "D168-E2-1",
+      "runner": "static",
+      "proves": "E2 (D-169(c)) with E1 and O12 (D-170(d)), selftest/d168.test.ts, reading the source of NavKonteks.tsx, CangkangPengalaman.tsx, TombolLaci.tsx, src/app/page.tsx, src/lib/nama-tempat.ts and the stylesheet src/app/experience.css: the context control is the navigation's first part (the purpose's short name or G1's slot, the place, the chooser only with another context; in the rail one item named \u00abMau ke mana hari ini? \u00b7 purpose \u00b7 place\u00bb, its initials aria-hidden); the navigation's items no longer carry the place; the places' one order is O12's; the chooser's current door is marked by a check, the primary edge and ground and aria-current, not by weight; the drawer is a modal named \u00abBuka menu\u00bb / \u00abTutup menu\u00bb after \u00abKeluar\u00bb, moving focus in and back with the page inert, and the script-less control is not a second control or a desktop Tab stop."
+    },
+    {
       "id": "D168-K9-1",
       "runner": "static",
       "proves": "E-K9 (D-173(d)), selftest/d168.test.ts: rendered (react-dom/server), TanggalDenganGema given disabled draws no input, only «Senin, 9 Nov 2026» (the date helper's words) in an <output> named by the caller's label, and a fixed empty end as «Tanpa batas akhir»; without disabled it stays a native date field; reading the source of every src .tsx file, none draws a disabled native date field."

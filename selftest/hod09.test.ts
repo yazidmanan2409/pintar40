@@ -47,7 +47,7 @@ export const hod09Tests: SelfTest[] = [
           `/${hal}/ringkasan offers no way back or print, or prints the signed-in strip`);
       }
       const shell = buang(readFileSync(join(ctx.repoRoot, "src", "components", "CangkangPengalaman.tsx"), "utf8"));
-      c.expect(/<header className="pin-top pin-shell pin-noprint pin-staf">[\s\S]*?\{sesi\}\s*<\/header>/.test(shell.slice(shell.indexOf("function shellStaf("))),
+      c.expect(/<header className="pin-top pin-shell pin-noprint pin-staf">[\s\S]*?\{sesi\}\s*(?:(?:\{\s*\}|\{\/\*[\s\S]*?\*\/\})\s*)?(?:<TombolLaci [^>]*\/>\s*)?<\/header>/.test(shell.slice(shell.indexOf("function shellStaf("))),
         "the staff shell's signed-in strip is printed with the report");
       for (const locale of ["id", "en"] as const) {
         c.expect(t("laporan.cetak", "staff", { locale }) !== t("kembali.riwayat", "staff", { locale }), `(${locale}) the report's two controls read alike`);

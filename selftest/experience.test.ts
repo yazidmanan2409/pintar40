@@ -142,6 +142,16 @@ function teksPohon(n: Simpul, keluar: string[] = []): string[] {
   return keluar;
 }
 
+/** The text a screen reader takes as the name: an `aria-hidden` part (E1's rail tooltip, an avatar) is not read. */
+function namaPohon(n: Simpul, keluar: string[] = []): string[] {
+  if (n === null || n === undefined) return keluar;
+  if (typeof n === "string" || typeof n === "number") { keluar.push(String(n)); return keluar; }
+  const props = (n as { props?: Record<string, unknown> }).props;
+  if (props?.["aria-hidden"] === "true" || props?.["aria-hidden"] === true) return keluar;
+  for (const k of anakDari(n)) namaPohon(k, keluar);
+  return keluar;
+}
+
 function gayaPohon(n: Simpul, keluar: string[] = []): string[] {
   if (n === null || n === undefined || typeof n === "string" || typeof n === "number") return keluar;
   const gaya = (n.props ?? {}).style;
@@ -209,8 +219,10 @@ const WORD = /\b[a-z]+\b/gi;
  * (`CangkangStaf`, Konfigurasi and Studio). The guards that read the shell's branches read its own render here, and
  * the staff layout separately, so a check on one branch can never be satisfied by text in another.
  */
+// (E1: shellStaf became async when it began to draw the context control; located either way)
+const awalShellStaf = (src: string) => src.search(/\n(?:async )?function shellStaf\(/);
 function intiCangkang(src: string): string {
-  const i = src.indexOf("\nfunction shellStaf(");
+  const i = awalShellStaf(src);
   return i > 0 ? src.slice(0, i) : src;
 }
 function cabangCangkang(src: string, k: string): string {
@@ -221,7 +233,7 @@ function cabangCangkang(src: string, k: string): string {
   return inti.slice(i, akhir.length > 0 ? Math.min(...akhir) : inti.length);
 }
 function shellStafSrc(src: string): string {
-  const i = src.indexOf("\nfunction shellStaf(");
+  const i = awalShellStaf(src);
   const j = src.indexOf("\nexport async function CangkangStaf(");
   return i > 0 && j > i ? src.slice(i, j) : "";
 }
@@ -473,6 +485,12 @@ const EXEMPTIONS: Array<{ file: string; literal: string; reason: string }> = [
     reason: "The staff shell's breakpoint, bp-large (tokens.json): CSS cannot read a custom property inside @media." },
   { file: "src/app/experience.css", literal: "1023px",
     reason: "The staff shell's breakpoint, bp-large less one pixel (tokens.json): CSS cannot read a custom property inside @media." },
+  { file: "src/app/experience.css", literal: "1280px",
+    reason: "E1 (D-170(c)): bp-wide (tokens.json), where the staff navigation is expanded and the reader may collapse it to the rail; CSS cannot read a custom property inside @media." },
+  { file: "src/app/experience.css", literal: "1279px",
+    reason: "E1 (D-170(c)): bp-wide less one pixel (tokens.json), the top of the rail's range (1024-1279 px); CSS cannot read a custom property inside @media." },
+  { file: "src/app/experience.css", literal: "64px",
+    reason: "E2 (D-169(c)): the chooser's door is at least 64 px high (E2 §1, «Height at least 64 px»), one step above control-xl (60): a door holds two lines, the purpose and its place." },
   { file: "src/app/experience.css", literal: "639px",
     reason: "W3.4/W3.5: bp-medium (640, tokens.json) less one pixel, as the design system writes it: the Collection's narrow layout (bundle.css @container) and the Dialog's stacked actions; CSS cannot read a custom property inside @container or @media." },
   { file: "src/app/experience.css", literal: "16ch",
@@ -8140,7 +8158,7 @@ export const experienceTests: SelfTest[] = [
           const grup = els.find((e) => e.props?.role === "group");
           c.expect(form?.props?.action === "/keluar" && form?.props?.method === "post",
             `(${locale}) the ${apa} strip's way out is not a POST form to /keluar`);
-          c.expect(tombol?.props?.type === "submit" && teksPohon(tombol as Simpul).join("") === t("sesi.keluar", persona, { locale }),
+          c.expect(tombol?.props?.type === "submit" && namaPohon(tombol as Simpul).join("") === t("sesi.keluar", persona, { locale }),
             `(${locale}) the ${apa} strip has no submit button named "${t("sesi.keluar", persona, { locale })}"`);
           const ket = els.find((e) => e.props?.id === tombol?.props?.["aria-describedby"]);
           c.expect(Boolean(ket) && teksPohon(ket as Simpul).join("").trim().length > 0,
@@ -8571,7 +8589,8 @@ export const experienceTests: SelfTest[] = [
         "the home page greets with the raw display name instead of namaSapaan's");
       c.expect(/await Promise\.all\(\[currentViewer\(\), peranSaya\(\), currentLocale\(\)\]\)/.test(beranda), "the home page reads the viewer, roles and language in sequence");
       // L3 (D-128(g)): each door in the words the signed-out doors already use, by its purpose and home
-      const LABEL = /function labelPintu\([^)]*\): string \{([\s\S]*?)\n\}/.exec(beranda)?.[1] ?? "";
+      // (E2: the door draws its purpose and its place apart, bagianPintu; the purpose's words are the same rule)
+      const LABEL = /function bagianPintu\([^)]*\): \{[^}]*\} \{([\s\S]*?)\n\}/.exec(beranda)?.[1] ?? "";
       c.expect(/p\.tujuan === "BELAJAR" \? "entry\.learner"\s*: p\.tujuan === "MENGAJAR" \? "entry\.educator"\s*: berandaPasangan\(p\) === "\/pimpinan" \? "entry\.pimpinan" : "entry\.staff"/.test(LABEL),
         "the chooser's doors are not labelled with the purpose's own words (entry.learner, entry.educator, entry.pimpinan, entry.staff)");
       for (const kunci of ["entry.learner", "entry.educator", "entry.pimpinan", "entry.staff"]) {
@@ -9966,7 +9985,7 @@ export const experienceTests: SelfTest[] = [
       const cangkang = intiCangkang(cangkangPenuh);
       c.expect(/const studio = tawarkanStudio\(peran\);/.test(cangkang) && (cangkang.match(/peranSaya\(\)/g) ?? []).length === 1,
         "the shell does not decide the Studio tab from its one roles answer");
-      c.expect(!/studio|TabTempat|navKonteks/.test(cangkangPenuh.slice(cangkangPenuh.indexOf("\nfunction shellStaf("))),
+      c.expect(!/studio|TabTempat|navKonteks/.test(cangkangPenuh.slice(cangkangPenuh.search(/\n(?:async )?function shellStaf\(/))),
         "the staff layout or CangkangStaf decides a Studio tab of its own");
       // D-138 step 3: a branch runs to the next one (the staff branches return through shellStaf, no header of their own)
       const cabang = (k: string) => cabangCangkang(cangkang, k);
@@ -12903,12 +12922,22 @@ export const experienceTests: SelfTest[] = [
       // the record now writes it as the timestamp form, «9 Okt 2026, 07.30 WIB», whose year and «WIB» TANGGAL-01 proves.
       c.expect(/: kataAksiAudit\(aksi, locale\)\)/.test(catatan) && !/: aksi\)\);/.test(catatan) && /tanggal\(iso, "cap", locale\)/.test(catatan),
         "the security record shows an event by its code, or a moment without its year or time zone");
-      // RV-3: one order of places, Daisy's, whichever is open
+      // RV-3, RESTATED FOR O12 (D-170(d)): one order of places, whichever is open, and it is the DOM's: the staff shell
+      // sorts its items by URUTAN_TEMPAT (executed on items arriving in pieces), so the keyboard meets them in the
+      // order the eye does (WCAG 2.4.3); CSS `order` no longer reorders them on screen only
       const css = code(readFileSync(join(repoRoot, "src", "app", "experience.css"), "utf8"));
-      const URUT = ["/mengajar", "/pimpinan", "/konfigurasi", "/pendataan", "/aktivasi", "/studio", "/konfigurasi/keamanan", "/konfigurasi/email-uji", "/belajar"];
-      const nilai = URUT.map((h) => Number(new RegExp(`\\.pin-staf \\.pin-tabs > a\\[href="${h.replace(/\//g, "\\/")}"\\] \\{ order: (\\d+); \\}`).exec(css)?.[1] ?? NaN));
-      c.expect(nilai.every((n, i) => Number.isFinite(n) && (i === 0 || n > nilai[i - 1])), `the places have no fixed order: ${JSON.stringify(nilai)}`);
-      c.expect(/\.pin-staf \.pin-tabs > \* \{ order: 20; \}/.test(css), "the context's name and the chooser are not after the places");
+      const { URUTAN_TEMPAT } = await import("../src/lib/nama-tempat");
+      const { urutkanNav } = await import("../src/components/urutan-nav");
+      const { createElement: el, Fragment: F } = await import("react");
+      const URUT = ["/mengajar", "/pimpinan", "/konfigurasi", "/pendataan", "/aktivasi", "/studio", "/konfigurasi/keamanan", "/konfigurasi/email-uji", "/konfigurasi/sertifikat", "/belajar"];
+      c.expect(JSON.stringify(URUTAN_TEMPAT) === JSON.stringify(URUT), `the places' order is not O12's: ${JSON.stringify(URUTAN_TEMPAT)}`);
+      const potong = el(F, null, el("a", { href: "/konfigurasi" }), el("a", { href: "/konfigurasi/email-uji" }), el("a", { href: "/konfigurasi/sertifikat" }),
+        el(F, null, el("a", { href: "/konfigurasi/keamanan" }), el("span", { id: "lain" }), el("a", { href: "/aktivasi" })));
+      const urut = urutkanNav(potong).map((n) => (n as { props: { href?: string; id?: string } }).props.href ?? (n as { props: { id?: string } }).props.id);
+      c.expect(JSON.stringify(urut) === JSON.stringify(["/konfigurasi", "/aktivasi", "/konfigurasi/keamanan", "/konfigurasi/email-uji", "/konfigurasi/sertifikat", "lain"]),
+        `the shell does not put «Seluruh platform»'s places in O12's order: ${JSON.stringify(urut)}`);
+      c.expect(/\{urutkanNav\(nav\)\}/.test(baca("src", "components", "CangkangPengalaman.tsx")), "the staff shell draws its items unsorted");
+      c.expect(!/\.pin-tabs > [^{]*\{[^}]*\border:/.test(css), "CSS still reorders the places on screen only");
       // RV-3/RV-4: a page that is not a place names itself in the phone bar and marks its parent
       for (const [f, h] of [["konfigurasi/keamanan/page.tsx", "keamanan"], ["konfigurasi/email-uji/page.tsx", "emailuji"], ["akun/page.tsx", "akun"], ["lapor/page.tsx", "lapor"], ["lapor/saya/page.tsx", "lapor"]]) {
         c.expect(new RegExp(`<CangkangPengalaman [^>]*halamanKini="${h}"`).test(baca("src", "app", ...f.split("/"))), `${f} does not name itself to the shell`);

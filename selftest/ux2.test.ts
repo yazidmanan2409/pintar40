@@ -214,7 +214,8 @@ export const ux2Tests: SelfTest[] = [
       const belajar = baca("src/app/belajar/page.tsx");
       const alert = [...belajar.matchAll(/<div className="pin-perhatian"[^>]*>\s*(<[^>]+>)/g)].map((m) => m[1]);
       c.expect(alert.length >= 2 && alert.every((x) => /<Ikon nama="triangle-alert" kelas="pin-perhatian-ikon" \/>/.test(x)), "the attention alert has no icon");
-      c.expect(/<Ikon nama="log-out" \/>\s*\{s\("sesi\.keluar"\)\}/.test(baca("src/components/BarisSesi.tsx")), "«Keluar» has no log-out icon");
+      // (E1: in the staff rail the word is visually hidden beside the icon, pin-rail-teks; still the button's own text)
+      c.expect(/<Ikon nama="log-out" \/>\s*(?:<span className="pin-rail-teks">)?\{s\("sesi\.keluar"\)\}/.test(baca("src/components/BarisSesi.tsx")), "«Keluar» has no log-out icon");
       let rinci = 0;
       for (const f of berkas(join(ctx.repoRoot, "src"), /\.tsx$/)) {
         const s = readFileSync(f, "utf8");
@@ -268,7 +269,7 @@ export const ux2Tests: SelfTest[] = [
         const mu = render(ctx.repoRoot, "src/components/BarisSesi.tsx", { locale, persona: "learner", nama: null });
         if (!c.expect(st.ok && mu.ok, `the strip could not be rendered: ${st.galat || mu.galat}`)) continue;
         const x = st.html, s = (k: Parameters<typeof t>[0]) => t(k, "staff", { locale });
-        c.expect(/<button type="button" class="pin-menu-tombol" aria-haspopup="menu" aria-expanded="false" aria-controls="pin-menu-akun"><strong>Rina Kartika<\/strong>/.test(x),
+        c.expect(/<button type="button" class="pin-menu-tombol" aria-haspopup="menu" aria-expanded="false" aria-controls="pin-menu-akun">(?:<span class="pin-avatar" aria-hidden="true">RK<\/span>)?<strong>Rina Kartika<\/strong>/.test(x),
           `(${locale}) the staff member's name is not the menu's button`);
         const menu = x.match(/<div id="pin-menu-akun" class="pin-menu" role="menu" aria-label="Rina Kartika" hidden="">([\s\S]*?)<\/div>/)?.[1] ?? "";
         const butir = [...menu.matchAll(/role="menuitem"[^>]*>([^<]+)</g)].map((m) => m[1]);

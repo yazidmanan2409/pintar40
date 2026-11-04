@@ -602,4 +602,96 @@ export const d168Tests: SelfTest[] = [
       return c.verdict("the hand-off's remaining rows hold: screen dates by their use, disabled buttons with their reason, the report body in the reader's words with no key, no empty heading, the platform's own sentence, no «pukul» before a day");
     },
   },
+  {
+    id: "D168-E1-1",
+    run: async ({ repoRoot }) => {
+      // E-E1-1 (D-170(c), D-171(a)): the rail, its names and its tooltip; the collapse control (E1 §1, §4)
+      const c = new Checks();
+      const baca = (f: string) => kode(readFileSync(join(repoRoot, f), "utf8"));
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+      // rendered: a place's link is named by its own word, carries no aria-label or title, and its tooltip is the same word, aria-hidden
+      const r = render(repoRoot, "src/components/ItemNav.tsx", { href: "/studio", label: "Studio", kini: true });
+      c.expect(r.ok, `ItemNav could not be rendered: ${r.galat}`);
+      c.expect(/<span class="pin-nav-label">Studio<\/span><span class="pin-nav-tip" aria-hidden="true">Studio<\/span>/.test(r.html), `a place's word or its tooltip is not as specified: ${r.html.slice(0, 240)}`);
+      c.expect(!/aria-label=|title=/.test(r.html) && /aria-current="page"/.test(r.html), "a place carries an aria-label or a title, or the current place is not marked");
+      // the rail: by default from 1024 to 1279 px unless expanded, and at 1280 px and up when collapsed; 72 px; words visually hidden
+      const blok = (q: string, akhir = false) => { const i = akhir ? css.lastIndexOf(q) : css.indexOf(q); if (i < 0) return ""; let d = 0, j = css.indexOf("{", i); for (let k = j; k < css.length; k++) { if (css[k] === "{") d++; else if (css[k] === "}" && --d === 0) return css.slice(j, k); } return ""; };
+      const rentang = blok("@media (min-width: 1024px) and (max-width: 1279px)");
+      const lebar = blok("@media (min-width: 1280px)", true);
+      for (const [nama, isi, pilih] of [["1024-1279 px", rentang, '.pin-shell.pin-staf:not([data-ciut="tidak"])'], ["1280 px and up", lebar, '.pin-shell.pin-staf[data-ciut="ya"]']] as const) {
+        const esc = pilih.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        c.expect(new RegExp(`${esc} \\{ width: var\\(--shell-rail\\)`).test(isi), `${nama}: the shell is not the 72 px rail`);
+        c.expect(new RegExp(`${esc} :is\\(\\.pin-nav-label, \\.pin-rail-teks, \\.pin-sesi-ket strong\\) \\{\\s*position: absolute; width: 1px; height: 1px;[^}]*clip: rect\\(0 0 0 0\\)`).test(isi), `${nama}: the rail's words are not visually hidden`);
+        c.expect(new RegExp(`${esc} \\[data-tip-host\\]\\[data-tip-xy\\]:focus-visible:not\\(\\[data-tip-tutup\\]\\) > \\.pin-nav-tip \\{ display: block`).test(isi), `${nama}: a focused rail item shows no tooltip`);
+      }
+      c.expect(!/\.pin-nav-label[^{]*\{[^}]*display:\s*none/.test(css), "a place's word is removed with display: none somewhere");
+      // the tooltip shows only in the rail: every rule that draws it names a rail state
+      const drawn = [...css.matchAll(/([^{}]+)\{[^{}]*display:\s*block[^{}]*\}/g)].map((m) => m[1].trim()).filter((q) => q.includes(".pin-nav-tip"));
+      c.expect(drawn.length >= 4 && drawn.every((q) => /data-ciut="ya"|:not\(\[data-ciut="tidak"\]\)/.test(q)), `a tooltip is drawn outside the rail: ${drawn.join(" | ")}`);
+      c.expect(/^\.pin-nav-tip \{ display: none; \}/m.test(css), "the tooltip is not hidden by default");
+      // every place has its icon, so no place is blank in the rail
+      const { IKON_TEMPAT } = await import("../src/components/ikon-tempat");
+      const { URUTAN_TEMPAT } = await import("../src/lib/nama-tempat");
+      const tanpa = URUTAN_TEMPAT.filter((h) => !IKON_TEMPAT[h]);
+      c.expect(tanpa.length === 0, `a place has no icon and draws nothing in the rail: ${tanpa.join(", ")}`);
+      // the collapse control: hidden until its state is known, words from the rail's state, no aria-label
+      const ciut = baca("src/components/TombolCiut.tsx");
+      c.expect(/hidden=\{rel === null\}/.test(ciut) && /aria-expanded=\{rel === null \? undefined : !rel\}/.test(ciut)
+        && /setRel\(shell\.getBoundingClientRect\(\)\.width <= 80\)/.test(ciut) && /\{rel \? lebarkan : ciutkan\}/.test(ciut) && !/aria-label/.test(ciut),
+        "the collapse control does not name the state it offers from the rail's own state");
+      c.expect(/e\.key !== "Escape"/.test(ciut) && /tipTutup/.test(ciut), "a rail tooltip cannot be dismissed with Escape (1.4.13)");
+      const cangkang = baca("src/components/CangkangPengalaman.tsx");
+      c.expect(/<TombolCiut ciutkan=\{t\("nav\.ciutkan", persona, \{ locale \}\)\} lebarkan=\{t\("nav\.lebarkan", persona, \{ locale \}\)\} \/>/.test(cangkang), "the staff shell has no collapse control");
+      for (const [k, id, en] of [["nav.ciutkan", "Ciutkan navigasi", "Collapse navigation"], ["nav.lebarkan", "Lebarkan navigasi", "Expand navigation"]] as const) {
+        c.expect(t(k as HleEvent, "staff", { locale: "id" }) === id && t(k as HleEvent, "staff", { locale: "en" }) === en, `${k} is not the design system's word`);
+      }
+      // the bottom group keeps its words as names in the rail (visually hidden), beside the icon
+      c.expect(/<span className="pin-rail-teks">\{t\("nav\.bantuan"/.test(baca("src/components/tur/TombolBantuan.tsx"))
+        && /<Ikon nama="triangle-alert"[^>]*\/>\s*<span className="pin-rail-teks">\{t\("nav\.lapor"/.test(baca("src/components/lapor/TautanLapor.tsx"))
+        && /<Ikon nama="log-out" \/>\s*<span className="pin-rail-teks">\{s\("sesi\.keluar"\)\}/.test(baca("src/components/BarisSesi.tsx")),
+        "Bantuan, «Laporkan masalah» or «Keluar» loses its word in the rail");
+      return c.verdict("in the rail every place keeps its own word as its name, visually hidden (never display: none, no aria-label or title), with an aria-hidden tooltip of the same word shown only while the shell is the rail; the rail is 72 px from 1024 to 1279 px unless expanded and at 1280 px when collapsed; every place has an icon; the collapse control names the state it offers from the rail's own state and is hidden until it knows it");
+    },
+  },
+  {
+    id: "D168-E2-1",
+    run: async ({ repoRoot }) => {
+      // E2 (D-169(c)) with E1: the context control, the chooser's door, the drawer, the places' one order (O12)
+      const c = new Checks();
+      const baca = (f: string) => kode(readFileSync(join(repoRoot, f), "utf8"));
+      const nav = baca("src/components/NavKonteks.tsx");
+      const blok = nav.slice(nav.indexOf("export async function blokKonteks"));
+      c.expect(blok.length > 0 && /if \(k\?\.keadaan !== "ADA"\) return null;/.test(blok), "there is no context control, or it is drawn without a context");
+      c.expect(/istilah\("context\.manage_label"\)/.test(blok) && /"nav\.pembelajaran" : "nav\.kelas"/.test(blok), "the purpose's short name is not Mengajar, Belajar or G1's slot");
+      const pilihan = [...blok.matchAll(/\{lain \? \(/g)].length;
+      c.expect(pilihan === 2 && /<Link href="\/" className="pin-konteks-pilih"/.test(blok) && /<Link href="\/" className="pin-nav-item pin-konteks-rail"/.test(blok),
+        "the chooser (block and rail item) is not offered exactly when the person holds another context");
+      c.expect(/<span className="pin-konteks-inisial" aria-hidden="true">/.test(blok) && /const railNama = \[pilih, tujuan, tempat\]\.filter\(Boolean\)\.join\(" · "\)/.test(blok),
+        "the rail item is not named «Mau ke mana hari ini? · purpose · place», or its initials are read");
+      const iNav = nav.indexOf('if (bentuk === "nav")');
+      const navItems = iNav < 0 ? "" : nav.slice(iNav, nav.indexOf("\n  }\n", iNav));
+      c.expect(navItems.includes("<ItemNav") && !/data-konteks-tempat|data-konteks-pilih/.test(navItems), "the navigation's items still carry the place and the chooser after the places");
+      const cangkang = baca("src/components/CangkangPengalaman.tsx");
+      c.expect(/<nav className="pin-tabs" aria-label=\{t\("nav\.tempat", persona, \{ locale \}\)\}>\s*\{blok\}\s*\{urutkanNav\(nav\)\}/.test(cangkang), "the context control is not the navigation's first part");
+      // O12: the places in one order, the DOM's
+      const { URUTAN_TEMPAT } = await import("../src/lib/nama-tempat");
+      c.expect(JSON.stringify(URUTAN_TEMPAT) === JSON.stringify(["/mengajar", "/pimpinan", "/konfigurasi", "/pendataan", "/aktivasi", "/studio", "/konfigurasi/keamanan", "/konfigurasi/email-uji", "/konfigurasi/sertifikat", "/belajar"]),
+        "the places' order is not O12's");
+      // the chooser's door: the current one marked four ways
+      const beranda = baca("src/app/page.tsx");
+      c.expect(/aria-current=\{di \? "true" : undefined\}/.test(beranda) && /<Ikon nama=\{di \? "check" : "chevron-right"\} \/>/.test(beranda) && /className=\{`\$\{PINTU\} pin-pintu w-full text-left`\}/.test(beranda),
+        "the current door is not marked by its check and aria-current, or still by weight alone");
+      const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+      c.expect(/\.pin-pintu\[aria-current="true"\] \{\s*background: var\(--pintar-primary-soft\); border-color: var\(--pintar-primary\);/.test(css), "the current door has no primary edge or ground");
+      // the drawer: a modal with «Buka menu» / «Tutup menu», focus in and back, the page inert; after «Keluar»
+      const laci = baca("src/components/TombolLaci.tsx");
+      c.expect(/aria-expanded=\{terbuka\}/.test(laci) && /setAttribute\("role", "dialog"\)/.test(laci) && /setAttribute\("aria-modal", "true"\)/.test(laci)
+        && /\.inert = true/.test(laci) && /e\.key === "Escape"/.test(laci) && /tombol\.current\?\.focus\(\)/.test(laci) && /\{terbuka \? kataTutup : kataBuka\}/.test(laci) && !/aria-label=\{/.test(laci),
+        "the drawer is not a modal that takes focus in and gives it back, named «Buka menu» / «Tutup menu»");
+      c.expect(/\{sesi\}\s*<TombolLaci buka=\{t\("nav\.buka_menu"/.test(cangkang), "«Buka menu» does not follow «Keluar»");
+      c.expect(/\.pin-staf\[data-laci-js\] :is\(\.pin-laci-saklar, \.pin-laci-tombol\) \{ display: none; \}/.test(css) && /\.pin-staf \.pin-laci-saklar \{ display: none; \}/.test(css),
+        "the script-less menu control stays beside the button, or is a Tab stop at 1024 px and wider");
+      return c.verdict("the context control is the navigation's first part (the purpose's short name, the place, the chooser only with another context; in the rail one item named «Mau ke mana hari ini? · purpose · place»); the places follow O12's one order in the DOM; the chooser's current door is marked by its check, edge, ground and aria-current; the drawer is a modal named «Buka menu» / «Tutup menu» after «Keluar», taking focus in and back");
+    },
+  },
 ];

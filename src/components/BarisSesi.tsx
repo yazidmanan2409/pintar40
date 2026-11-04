@@ -31,6 +31,12 @@ import MenuAkun from "@/components/sesi/MenuAkun";
  * reader announces it as a button called "Keluar", described by the line
  * beside it.
  */
+/** A name's initials for the avatar: drawn, never read (the name is the account button's own text). */
+export function inisialNama(nama: string): string {
+  const kata = nama.split(/\s+/).map((w) => w.replace(/[^\p{L}]/gu, "")).filter(Boolean);
+  return [kata[0], kata.length > 1 ? kata[kata.length - 1] : undefined].filter(Boolean).map((w) => w![0]!.toLocaleUpperCase("id")).join("");
+}
+
 export default function BarisSesi({
   locale,
   persona,
@@ -53,7 +59,9 @@ export default function BarisSesi({
         {nama ? (
           <>
             {/* W3.5 (JQ2(a)): the staff member's own name opens the account menu (Daisy, components/Identity, Menu) */}
-            {s("sesi.sebagai")} <MenuAkun locale={locale} nama={nama}><strong>{nama}</strong></MenuAkun>
+            <span className="pin-rail-teks">{s("sesi.sebagai")} </span>
+            {/* E1: in the staff rail the identity is its avatar; the name stays the button's own text, visually hidden */}
+            <MenuAkun locale={locale} nama={nama}><span className="pin-avatar" aria-hidden="true">{inisialNama(nama)}</span><strong>{nama}</strong></MenuAkun>
           </>
         ) : (
           s("sesi.bukan_anda")
@@ -62,10 +70,11 @@ export default function BarisSesi({
       {/* DAISY-20: Akun saya — the PINTAR ID and card — for the reader the strip names, a staff reader and never a
           learner (C17). W3.5: it lives in the account menu now, with Laporan saya and «Keluar dari semua perangkat…». */}
       <form action="/keluar" method="post">
-        <button type="submit" className="pin-sesi-keluar" aria-describedby={idKet}>
+        <button type="submit" className="pin-sesi-keluar" aria-describedby={idKet} data-tip-host="">
           {/* W3.3: Daisy's 08 row — «Keluar» is the quiet button with the log-out icon (one meaning per icon) */}
           <Ikon nama="log-out" />
-          {s("sesi.keluar")}
+          <span className="pin-rail-teks">{s("sesi.keluar")}</span>
+          <span className="pin-nav-tip" aria-hidden="true">{s("sesi.keluar")}</span>
         </button>
       </form>
     </div>

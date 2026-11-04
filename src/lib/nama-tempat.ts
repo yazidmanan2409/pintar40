@@ -37,3 +37,15 @@ export const ASAL_LAPORAN: Readonly<Record<string, { ke: string; nama: HleEvent 
 export function asalLaporan(dari: unknown): { ke: string; nama: HleEvent } {
   return (typeof dari === "string" && Object.hasOwn(ASAL_LAPORAN, dari) ? ASAL_LAPORAN[dari] : null) ?? { ke: "/", nama: KEMBALI_RIWAYAT };
 }
+
+/**
+ * O12 (D-170(d)): THE PLACES' ONE ORDER, which every context's menu follows (ordering rules, not permission overrides:
+ * each context still shows only the places it serves). Mengajar: Mengajar · Studio; Admin sekolah: Konfigurasi ·
+ * Pendataan · Aktivasi akun · Studio · Keamanan akun · Sertifikat sekolah; Kepala departemen: Pimpinan · Studio;
+ * «Seluruh platform»: Konfigurasi · Aktivasi akun · Keamanan akun · Kirim email uji · Sertifikat sekolah. The staff
+ * shell sorts its items by it, so the order on screen is the DOM's and the keyboard's (WCAG 2.4.3).
+ */
+export const URUTAN_TEMPAT: readonly string[] = [
+  "/mengajar", "/pimpinan", "/konfigurasi", "/pendataan", "/aktivasi", "/studio",
+  "/konfigurasi/keamanan", "/konfigurasi/email-uji", "/konfigurasi/sertifikat", "/belajar",
+];

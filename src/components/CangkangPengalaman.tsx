@@ -10,10 +10,13 @@ import TombolBantuan from "./tur/TombolBantuan";
 import TautanLapor from "@/components/lapor/TautanLapor";
 import SesiSaya from "./SesiSaya";
 import TabTempat, { tempatDariPeran, tawarkanStudio } from "./TabTempat";
-import { navKonteks } from "./NavKonteks";
+import { navKonteks, blokKonteks } from "./NavKonteks";
+import TombolCiut from "./TombolCiut";
+import TombolLaci from "./TombolLaci";
 import { konteksSaya } from "@/lib/konteks-server";
 import { melayani } from "@/lib/konteks";
 import type { ReactNode } from "react";
+import { urutkanNav } from "./urutan-nav";
 import Ikon from "./Ikon";
 import ItemNav from "./ItemNav";
 
@@ -304,7 +307,7 @@ export default async function CangkangPengalaman({
  * the same reason «Keluar» is a real form. «Keluar» is visible at every width without opening anything (D-009).
  * The places are the ones the reader already had (TabTempat, navKonteks); a place shown decides nothing.
  */
-function shellStaf({
+async function shellStaf({
   locale,
   persona,
   kini,
@@ -323,10 +326,14 @@ function shellStaf({
   /** The persona «Laporkan masalah» speaks to, when it is not the shell's own. */
   lapor?: "educator";
 }) {
+  // E1/E2: the context control heads the navigation, and the opened menu. Under 1024 px the bar keeps naming the page
+  // (D-140 RV-4, the design system's AppShell); the place is the block's, at the top of the menu.
+  const blok = await blokKonteks({ locale });
   return (
     <header className="pin-top pin-shell pin-noprint pin-staf">
       <div className="pin-staf-kepala">
         <MerekPintar />
+        <TombolCiut ciutkan={t("nav.ciutkan", persona, { locale })} lebarkan={t("nav.lebarkan", persona, { locale })} />
       </div>
       <span className="pin-bar-tempat">{kini}</span>
       <input type="checkbox" id="pin-laci" className="pin-laci-saklar" aria-label={t("nav.menu", persona, { locale })} aria-controls="pin-laci-isi" />
@@ -335,8 +342,10 @@ function shellStaf({
         <Ikon nama="x" kelas="pin-ikon-tutup" />
       </label>
       <div className="pin-laci" id="pin-laci-isi">
+        {/* E1/E2: the context control is the navigation's first part, inside its landmark, before the places */}
         <nav className="pin-tabs" aria-label={t("nav.tempat", persona, { locale })}>
-          {nav}
+          {blok}
+          {urutkanNav(nav)}
         </nav>
         <div className="pin-staf-bawah">
           {bantuan}
@@ -346,6 +355,8 @@ function shellStaf({
         </div>
       </div>
       {sesi}
+      {/* E1 under 1024 px: «Keluar», then «Buka menu» (the drawer); the checkbox above serves until script loads */}
+      <TombolLaci buka={t("nav.buka_menu", persona, { locale })} tutup={t("nav.tutup_menu", persona, { locale })} />
     </header>
   );
 }
