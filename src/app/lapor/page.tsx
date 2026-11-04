@@ -13,6 +13,7 @@ import TombolKirim from "@/components/TombolKirim";
 import TangkapanLayar from "@/components/lapor/TangkapanLayar";
 import { cangkangStaf } from "@/components/lapor/cangkang";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { konteksSaya } from "@/lib/konteks-server";
 
 export const generateMetadata = judulHalaman("/lapor");
 
@@ -32,7 +33,8 @@ export default async function Lapor({ searchParams }: { searchParams: Promise<{ 
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const peran = await peranSaya();
   const staf = (peran ?? []).some((p) => p !== "STUDENT");
-  const { kind, kembali } = cangkangStaf(peran);
+  const k = await konteksSaya();
+  const { kind, kembali } = cangkangStaf(peran, k?.keadaan === "ADA" ? k : null);
   const halaman = halamanLaporan(q.dari);
   const ref = rujukanLaporan(q.ref);
   const kode = q.kode ? kodeGalatLaporan({ code: "PR100", details: q.kode }) : null;

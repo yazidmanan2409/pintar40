@@ -45,6 +45,12 @@
  *   D168-K8-1  Studio's step list reads as progress, not as radio buttons (E-K8): its markers are segments (no ring, no
  *              round marker, no border on any state), the list carries no radio role or input, and the current step is
  *              told by aria-current and the primary segment.
+ *   D168-C1-1  the reader's working context decides, and every way back names its destination (E-C1-2, E-C1-4,
+ *              E-C1-6, E-C2-1): /pengembangan and /lapor choose their shell by the working context (cangkangStaf with the
+ *              context; no role-name matching in the page); the class report speaks the context's persona; the record's
+ *              refusal says who it is for; a PD participant has no academic per-learner page (adaBuktiSoal) and the
+ *              rosters do not link one; no Mengajar refusal that returns to a class page, «Lihat bukti» or the Uji Cepat
+ *              calls its button «Mengajar».
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -52,6 +58,7 @@ import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { allKeys, t, type HleEvent } from "../src/lib/hle";
 import { judulAsesmen } from "../src/lib/judul-asesmen";
+import { cangkangStaf } from "../src/components/lapor/cangkang";
 import { render } from "./ux2.test";
 
 const kode = (x: string) => x.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
@@ -319,6 +326,45 @@ export const d168Tests: SelfTest[] = [
       const daftar = /<ol className="pin-lt-daftar"[\s\S]*?<\/ol>/.exec(src)?.[0] ?? "";
       c.expect(daftar !== "" && !/role="radio|<input\b|tabIndex/.test(daftar) && /aria-current=\{keadaan === "kini" \? "step" : undefined\}/.test(daftar), "the step list is a control, or its current step is not aria-current");
       return c.verdict("Studio's steps are segments of progress over their words (no ring), not a control; the current one is aria-current and primary");
+    },
+  },
+  {
+    id: "D168-C1-1",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (f: string) => kode(readFileSync(join(repoRoot, f), "utf8"));
+      const pasang = (tujuan: string, peran: string[]) => ({ tujuan, tempat: "s", platform: false, nama: "S", jenis: "INSTITUTION", peran, kemampuan: [] }) as never;
+      // a person who is both a teacher and a school administrator, working in Mengelola: Konfigurasi's shell, not a teacher's
+      c.expect(JSON.stringify(cangkangStaf(["EDUCATOR", "INSTITUTION_ADMIN"], pasang("MENGELOLA", ["INSTITUTION_ADMIN"]))) === JSON.stringify({ kind: "focus", kembali: "/konfigurasi" }),
+        `a teacher-administrator in Mengelola gets ${JSON.stringify(cangkangStaf(["EDUCATOR", "INSTITUTION_ADMIN"], pasang("MENGELOLA", ["INSTITUTION_ADMIN"])))}`);
+      c.expect(cangkangStaf(["EDUCATOR", "DEAN"], pasang("MENGAJAR", ["EDUCATOR"])).kembali === "/mengajar", "a teaching Dean in Mengajar is not given Mengajar");
+      c.expect(cangkangStaf(["EDUCATOR"], null).kembali === "/mengajar", "without a context the roles no longer stand in");
+      for (const f of ["src/app/pengembangan/[simpul]/page.tsx", "src/app/lapor/page.tsx", "src/app/lapor/saya/page.tsx"]) {
+        const src = baca(f);
+        c.expect(/cangkangStaf\(peran, k\?\.keadaan === "ADA" \? k : null\)/.test(src) && !/peran\?\.(includes|some)\(/.test(src), `${f} chooses its shell from role names, not the working context`);
+      }
+      const ringkas = baca("src/app/edukator/ringkasan/page.tsx");
+      c.expect(/const untuk: Persona = k\?\.keadaan === "ADA" && k\.tujuan === "MENGAJAR" \? "educator" : "staff";/.test(ringkas) && !/"educator", locale\)/.test(ringkas)
+        && /kalimatJumlah\(e, locale, untuk\)/.test(ringkas), "the class report does not speak the reader's working context");
+      c.expect(/messageKey="pengembangan\.ditolak"/.test(baca("src/app/pengembangan/[simpul]/page.tsx")) && t("pengembangan.ditolak" as HleEvent, "staff", { locale: "id" }).startsWith("Catatan ini untuk fasilitator"),
+        "the record's refusal falls back to the generic line");
+      const murid = baca("src/app/mengajar/[kelas]/murid/[orang]/page.tsx");
+      c.expect(/if \(!adaBuktiSoal\(ctx\.ini\.jenis\)\) \{\s*return <HalamanPenolakan [^>]*backHref=\{`\/pengembangan\/\$\{id\}`\} backKey="mengajar\.bukti\.pd\.buka"/.test(murid),
+        "a PD participant still has an academic per-learner page");
+      for (const f of ["src/app/mengajar/[kelas]/page.tsx", "src/app/mengajar/[kelas]/siapa/page.tsx"]) {
+        c.expect(/nama: adaBuktiSoal\(ctx\.ini\.jenis\) \? <Link href=\{`\/mengajar\/\$\{id\}\/murid\/\$\{m\.id\}`\}>\{m\.nama\}<\/Link> : m\.nama/.test(baca(f)), `${f}: a participant's name links to a per-learner page`);
+      }
+      const semua: string[] = [];
+      const jalan = (d: string) => { for (const e of readdirSync(join(repoRoot, d), { withFileTypes: true })) { const f = `${d}/${e.name}`; if (e.isDirectory()) jalan(f); else if (f.endsWith(".tsx")) semua.push(f); } };
+      jalan("src/app/mengajar");
+      for (const f of semua) {
+        for (const m of baca(f).matchAll(/<HalamanPenolakan\b([\s\S]*?)\/>/g)) {
+          const ke = /backHref=\{([^}]*\}?[^}]*)\}|backHref="([^"]*)"/.exec(m[1]);
+          const tujuanBukanTempat = ke && /`\/mengajar\/\$\{id\}/.test(ke[0]) && !/: "\/mengajar"/.test(ke[0]);
+          if (tujuanBukanTempat) c.expect(!/backKey="mengajar\.kembali"/.test(m[1]) || /backLabel=/.test(m[1]), `${f}: a refusal to a class page calls its button «Mengajar»: ${m[1].replace(/\s+/g, " ").slice(0, 120)}`);
+        }
+      }
+      return c.verdict("the shell, the persona and the way back follow the working context and name their destinations; a PD participant has the record, not an academic page");
     },
   },
 ];

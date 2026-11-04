@@ -49,7 +49,8 @@ export default async function UlangKelas({
   const ctx = await ajar.kelas(id);
   const bahan = ctx && sp.penugasan ? await ajar.bahanUlang(id, ctx.ini.institusi, sp.penugasan) : null;
   if (!ctx || !bahan) {
-    return <HalamanPenolakan locale={locale} persona="educator" backHref={ctx ? `/mengajar/${id}/bukti` : "/mengajar"} backKey="mengajar.kembali" />;
+    return <HalamanPenolakan locale={locale} persona="educator" backHref={ctx ? `/mengajar/${id}/bukti` : "/mengajar"}
+      backKey={ctx ? "mengajar.soal.kembali" : "mengajar.kembali"} />;
   }
   // from a learner's record: that learner ticked; otherwise those under the target
   const dariMurid = sp.murid && bahan.murid.some((m) => m.id === sp.murid) ? sp.murid : null;

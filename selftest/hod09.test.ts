@@ -36,12 +36,12 @@ export const hod09Tests: SelfTest[] = [
       const aksi = buang(readFileSync(join(ctx.repoRoot, "src", "components", "laporan", "AksiLaporan.tsx"), "utf8"));
       c.expect(/if \(window\.history\.length > 1\) \{\s*e\.preventDefault\(\);\s*window\.history\.back\(\);/.test(aksi) && /window\.print\(\)/.test(aksi),
         "«Kembali» does not return where the reader came from (else their doors), or print is not the browser's print of this page");
-      for (const [hal, persona] of [["edukator", "educator"], ["dekan", "staff"]] as const) {
+      for (const [hal, persona] of [["edukator", "untuk"], ["dekan", "\"staff\""]] as const) { // E-C1-2: the class report's persona is the context's (`untuk`)
         const src = buang(readFileSync(join(ctx.repoRoot, "src", "app", hal, "ringkasan", "page.tsx"), "utf8"));
         // RESTATED FOR W3.8 (Batch 5, RV-11): the signed-in strip is the staff shell's now, whose header is
         // `pin-noprint` (asserted on shellStaf below), so the page draws no strip of its own to keep off the paper
         // RESTATED FOR E-K1 (D-173(d)): the way back is the history-back, named as one (KEMBALI_RIWAYAT), never a bare «Kembali»
-        c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\(KEMBALI_RIWAYAT, "${persona}", locale\\)\\} cetak=\\{s\\("laporan\\.cetak", "${persona}", locale\\)\\} />`).test(src)
+        c.expect(new RegExp(`<AksiLaporan kembali=\\{s\\(KEMBALI_RIWAYAT, ${persona}, locale\\)\\} cetak=\\{s\\("laporan\\.cetak", ${persona}, locale\\)\\} />`).test(src)
           && /<CangkangStaf locale=\{locale\}/.test(src) && !/<SesiSaya\b/.test(src),
           `/${hal}/ringkasan offers no way back or print, or prints the signed-in strip`);
       }

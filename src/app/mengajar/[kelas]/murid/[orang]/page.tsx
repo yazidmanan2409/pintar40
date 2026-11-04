@@ -9,6 +9,7 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { BarisLingkup, KartuKetiadaan } from "@/components/bukti";
 import { TeksBaris } from "@/components/teks/Teks";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { adaBuktiSoal } from "@/lib/mengajar";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/murid/[orang]");
 
@@ -51,7 +52,14 @@ export default async function MuridSatu({ params }: { params: Promise<{ kelas: s
   const fakta = ctx ? await ajar.faktaKelas(id) : null;
   const murid = fakta?.murid.find((m) => m.id === orang) ?? null;
   if (!ctx || !murid) {
-    return <HalamanPenolakan locale={locale} persona="educator" backHref={ctx ? `/mengajar/${id}` : "/mengajar"} backKey="mengajar.kembali" />;
+    return <HalamanPenolakan locale={locale} persona="educator" backHref={ctx ? `/mengajar/${id}` : "/mengajar"}
+      backKey="mengajar.kembali" backLabel={ctx?.ini.nama} />;
+  }
+  // E-C2-1 (D-069(b), D-168): one learner's academic record is built from answers a professional-learning facilitator
+  // may not read, so it exists by the same rule as the per-question evidence; a participant's progress and result are
+  // the professional-learning record's, where this sends the reader
+  if (!adaBuktiSoal(ctx.ini.jenis)) {
+    return <HalamanPenolakan locale={locale} persona="educator" backHref={`/pengembangan/${id}`} backKey="mengajar.bukti.pd.buka" />;
   }
 
   // W2.18: beside the record, the objectives the learner has not yet reached, as the database answers for this class

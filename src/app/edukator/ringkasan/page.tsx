@@ -1,6 +1,7 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { KEMBALI_RIWAYAT } from "@/lib/nama-tempat";
-import { tawarkanSekolahLain } from "@/lib/konteks-server";
+import { konteksSaya, tawarkanSekolahLain } from "@/lib/konteks-server";
+import type { Persona } from "@/lib/hle";
 import { kepalaLaporan, namaTempat, templatUntuk } from "@/lib/laporan";
 import { currentLocale } from "@/lib/locale";
 import { tanggal } from "@/lib/tanggal";
@@ -70,7 +71,11 @@ export default async function RingkasanKelas({
   const tempat = await namaTempat(shown.flatMap((e) => (Array.isArray(e.value) ? (e.value as Array<{ cohort_node_id?: unknown }>) : [])
     .map((r) => r.cohort_node_id).filter((x): x is string => typeof x === "string")));
   const kepala = await kepalaNanti;
-  const judul = s("laporan.kelas.judul", "educator", locale);
+  // E-C1-2: the words of the reader's own work — a teacher's in Mengajar, staff wording for a Kepala departemen, a
+  // Dekan or an Admin sekolah who opens the class report from Mengelola (D-132: by the working context, not by role)
+  const k = await konteksSaya();
+  const untuk: Persona = k?.keadaan === "ADA" && k.tujuan === "MENGAJAR" ? "educator" : "staff";
+  const judul = s("laporan.kelas.judul", untuk, locale);
 
   return (
     <>
@@ -83,22 +88,22 @@ export default async function RingkasanKelas({
           <h1 className="pin-h1">{kepala?.tempat ?? judul}</h1>
           {report ? (
             <p className="pin-intro">
-              {s("laporan.cakupan.kelas", "educator", locale).replace("{waktu}", tanggal(dihitung, "cap", locale))}
+              {s("laporan.cakupan.kelas", untuk, locale).replace("{waktu}", tanggal(dihitung, "cap", locale))}
             </p>
           ) : null}
         </div>
-        <AksiLaporan kembali={s(KEMBALI_RIWAYAT, "educator", locale)} cetak={s("laporan.cetak", "educator", locale)} />
+        <AksiLaporan kembali={s(KEMBALI_RIWAYAT, untuk, locale)} cetak={s("laporan.cetak", untuk, locale)} />
 
         {!template || !kelas ? (
-          <p className={card}>{s("laporan.kosong", "educator", locale)}</p>
+          <p className={card}>{s("laporan.kosong", untuk, locale)}</p>
         ) : entries.length === 0 ? (
-          <p className={card}>{s("laporan.kosong", "educator", locale)}</p>
+          <p className={card}>{s("laporan.kosong", untuk, locale)}</p>
         ) : (
           <>
             {/* P3 -- an all-omitted report is a valid report. It renders its
                 statements and says so, rather than refusing. */}
             {shown.length === 0 ? (
-              <p className={card}>{s("laporan.tak_ada_angka", "educator", locale)}</p>
+              <p className={card}>{s("laporan.tak_ada_angka", untuk, locale)}</p>
             ) : null}
 
             <section className="grid gap-4">
@@ -107,7 +112,7 @@ export default async function RingkasanKelas({
                   {/* A metric the viewer may not see carries NO label: the
                       refusal must not disclose what it withheld. */}
                   {e.status === "ok" || e.status === "below_minimum" || e.status === "deprecated" ? (
-                    <h2 className="font-medium">{e.label_key ? s(e.label_key, "educator", locale) : ""}</h2>
+                    <h2 className="font-medium">{e.label_key ? s(e.label_key, untuk, locale) : ""}</h2>
                   ) : null}
 
                   {e.status === "ok" ? (
@@ -120,9 +125,9 @@ export default async function RingkasanKelas({
                     <>
                       <p className="text-sm text-black/70">{omissionText(e, locale)}</p>
                       {/* W3.9 (RV-9; CR-46): how far, as a sentence, never «(0/5)» */}
-                      {kalimatJumlah(e, locale) ? <p className="mt-1 text-sm text-black/70">{kalimatJumlah(e, locale)}</p> : null}
+                      {kalimatJumlah(e, locale, untuk) ? <p className="mt-1 text-sm text-black/70">{kalimatJumlah(e, locale, untuk)}</p> : null}
                       {/* DAISY-07: and what will make it appear, when it is short of evidence */}
-                      {kunciMuncul(e) ? <p className="mt-1 text-sm text-black/70">{s(kunciMuncul(e)!, "educator", locale)}</p> : null}
+                      {kunciMuncul(e) ? <p className="mt-1 text-sm text-black/70">{s(kunciMuncul(e)!, untuk, locale)}</p> : null}
                     </>
                   )}
                 </article>

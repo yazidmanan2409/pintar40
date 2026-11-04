@@ -92,7 +92,9 @@ export const m4Tests: SelfTest[] = [
         // RESTATED FOR DAISY-33 (a changed requirement, D-069(k)): the empty line is «murid» or «peserta» by the class's kind
         // RESTATED FOR W3.5 (Batch 4, D-152; Daisy, J2Kelas): the roster is a Table whose row is named by the learner's name,
         // and that name is the link to their record, nothing added to it
-        c.expect(/nama: <Link href=\{`\/mengajar\/\$\{id\}\/murid\/\$\{m\.id\}`\}>\{m\.nama\}<\/Link>/.test(readFileSync(join(ctx.repoRoot, "src", "app", "mengajar", ...f), "utf8")),
+        // RESTATED FOR E-C2-1 (D-069(b)): a learner's name opens their record; a PD participant has none (the same rule
+        // as the per-question evidence, adaBuktiSoal), so only a learner's name is a link
+        c.expect(/nama: adaBuktiSoal\(ctx\.ini\.jenis\) \? <Link href=\{`\/mengajar\/\$\{id\}\/murid\/\$\{m\.id\}`\}>\{m\.nama\}<\/Link> : m\.nama/.test(readFileSync(join(ctx.repoRoot, "src", "app", "mengajar", ...f), "utf8")),
           `${nama} does not open a learner's record from the names`);
       }
 

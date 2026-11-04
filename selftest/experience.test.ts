@@ -10509,7 +10509,8 @@ export const experienceTests: SelfTest[] = [
       for (const hal of [["dekan", "ringkasan"], ["edukator", "ringkasan"]]) {
         const src = code(readFileSync(join(repoRoot, "src", "app", ...hal, "page.tsx"), "utf8"));
         // RESTATED FOR W3.8 (Batch 5): the sentence is now asked in the reader's language (persona and locale passed)
-        c.expect(/kunciMuncul\(e\) \? <p[^>]*>\{s\(kunciMuncul\(e\)!, "(?:educator|staff)", locale\)\}<\/p> : null/.test(src), `/${hal.join("/")} does not say what will make a figure appear`);
+        // RESTATED FOR E-C1-2 (D-132): the class report's persona is the working context's (`untuk`)
+        c.expect(/kunciMuncul\(e\) \? <p[^>]*>\{s\(kunciMuncul\(e\)!, (?:"educator"|"staff"|untuk), locale\)\}<\/p> : null/.test(src), `/${hal.join("/")} does not say what will make a figure appear`);
       }
       // Pimpinan's own links. Their condition leans on a refusal never reaching
       // `bukti` or a class's list, so that is checked where it is decided.

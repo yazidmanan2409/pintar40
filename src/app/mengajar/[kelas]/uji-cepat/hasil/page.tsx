@@ -57,7 +57,8 @@ export default async function HasilUjiCepat({
   const ctx = await ajar.kelas(id);
   const baca = ctx && sp.penugasan ? await ajar.hasilUjiCepat(id, ctx.ini.institusi, sp.penugasan) : null;
   if (!ctx || !baca) {
-    return <HalamanPenolakan locale={locale} persona="educator" backHref={ctx ? `/mengajar/${id}/uji-cepat` : "/mengajar"} backKey="mengajar.kembali" />;
+    return <HalamanPenolakan locale={locale} persona="educator" backHref={ctx ? `/mengajar/${id}/uji-cepat` : "/mengajar"}
+      backKey={ctx ? "mengajar.cepat.judul" : "mengajar.kembali"} />;
   }
   const { tugas, hasil } = baca;
   const benda = s(kataAnggota("mengajar.bukti.murid", ctx.ini.jenis));

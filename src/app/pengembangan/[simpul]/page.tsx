@@ -8,6 +8,8 @@ import CangkangPengalaman from "@/components/CangkangPengalaman";
 import KakiPintar from "@/components/KakiPintar";
 import HalamanPenolakan from "@/components/HalamanPenolakan";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { konteksSaya } from "@/lib/konteks-server";
+import { cangkangStaf } from "@/components/lapor/cangkang";
 
 export const generateMetadata = judulHalaman("/pengembangan/[simpul]");
 
@@ -35,12 +37,12 @@ export default async function CatatanPengembangan({ params }: { params: Promise<
   const { simpul } = await params;
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
-  const [isi, peran] = await Promise.all([catatan(simpul), peranSaya()]);
-  // the shell of the reader's own work: a teacher's, Management's, or none for the administrator
-  const kind = peran?.includes("EDUCATOR") ? "pengajar" : peran?.some((p) => p === "HEAD_OF_DEPARTMENT" || p === "DEAN") ? "pimpinan" : "focus";
-  const kembali = kind === "pengajar" ? "/mengajar" : kind === "pimpinan" ? "/pimpinan" : "/konfigurasi";
+  const [isi, peran, k] = await Promise.all([catatan(simpul), peranSaya(), konteksSaya()]);
+  // E-C1-6 (D-132): the shell of the reader's own work, chosen by the working context as every other staff page's
+  // places are (a teacher's, Management's, or none for the administrator); the roles only stand in without one
+  const { kind, kembali } = cangkangStaf(peran, k?.keadaan === "ADA" ? k : null);
   if (!isi) {
-    return <HalamanPenolakan locale={locale} persona="staff" backHref={kembali} />;
+    return <HalamanPenolakan locale={locale} persona="staff" messageKey="pengembangan.ditolak" backHref={kembali} />;
   }
 
   const ringkas = (p: PaketPeserta): string[] => {

@@ -27,12 +27,15 @@ export default function HalamanPenolakan({
   persona = "learner",
   backHref = "/belajar",
   backKey,
+  backLabel,
 }: {
   messageKey?: HleEvent;
   locale?: Locale;
   persona?: Persona;
   backHref?: string;
   backKey?: HleEvent;
+  /** E-K1: the destination's own name, already in the reader's language, when it is a page and not a place (a class). */
+  backLabel?: string;
 }) {
   const s = (k: HleEvent) => t(k, persona, { locale });
   return (
@@ -41,7 +44,7 @@ export default function HalamanPenolakan({
         <MerekPintar standalone />
         <h1>{s(messageKey)}</h1>
         <p className="pin-intro">{s("tolak.arti")}</p>
-        <Link className="pin-btn" href={backHref}>{s(backKey ?? (backHref === "/belajar" ? "tolak.kembali" : namaTempat(backHref) ?? "tolak.kembali"))}</Link>
+        <Link className="pin-btn" href={backHref}>{backLabel ?? s(backKey ?? (backHref === "/belajar" ? "tolak.kembali" : namaTempat(backHref) ?? "tolak.kembali"))}</Link>
         {/* DAISY-02. A refusal is often somebody signed in as the wrong
             account, so the way out is here too. Drawn only when signed in, and
             it names the reader only if they hold a staff role (S15, D-020). */}

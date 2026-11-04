@@ -51,13 +51,13 @@ export default async function SoalKelas({
   }
   // E-C2-3: the same rule that decides whether «Lihat per soal» is offered (adaBuktiSoal; D-069(b))
   if (!adaBuktiSoal(ctx.ini.jenis)) {
-    return <HalamanPenolakan locale={locale} persona="educator" backHref={`/mengajar/${id}/bukti`} backKey="mengajar.kembali" />;
+    return <HalamanPenolakan locale={locale} persona="educator" backHref={`/mengajar/${id}/bukti`} backKey="mengajar.soal.kembali" />;
   }
   const semua = await ajar.berjalan([id], ["OPEN", "CLOSED"]);
   const ini = semua.find((b) => b.id === tugasId);
   const bukti = ini ? await buktiSoal(await supabaseServer(), tugasId, id) : null;
   if (!ini || !bukti) {
-    return <HalamanPenolakan locale={locale} persona="educator" backHref={`/mengajar/${id}`} backKey="mengajar.kembali" />;
+    return <HalamanPenolakan locale={locale} persona="educator" backHref={`/mengajar/${id}`} backLabel={ctx.ini.nama} />;
   }
   const soal = susunBuktiSoal(bukti);
 

@@ -10,6 +10,7 @@ import KakiPintar from "@/components/KakiPintar";
 import BarisHasil from "@/components/BarisHasil";
 import { cangkangStaf } from "@/components/lapor/cangkang";
 import { judulHalaman } from "@/lib/judul-halaman";
+import { konteksSaya } from "@/lib/konteks-server";
 
 export const generateMetadata = judulHalaman("/lapor/saya");
 
@@ -26,7 +27,8 @@ export default async function LaporanSaya({ searchParams }: { searchParams: Prom
   const locale = await currentLocale();
   const s = (k: HleEvent) => t(k, "staff", { locale });
   const [daftar, peran] = await Promise.all([laporanSaya(), peranSaya()]);
-  const { kind, kembali } = cangkangStaf(peran);
+  const k = await konteksSaya();
+  const { kind, kembali } = cangkangStaf(peran, k?.keadaan === "ADA" ? k : null);
 
   return (
     <>

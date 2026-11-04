@@ -11,7 +11,7 @@ import { BarisLingkup } from "@/components/bukti";
 import PemilihKelas from "@/components/mengajar/PemilihKelas";
 import Koleksi from "@/components/koleksi/Koleksi";
 import { halamanKoleksi, kueriDiminta, susunKoleksi } from "@/components/koleksi/aturan";
-import { kataAnggota } from "@/lib/mengajar";
+import { adaBuktiSoal, kataAnggota } from "@/lib/mengajar";
 import { alamatCatatan } from "@/lib/pengembangan-kontrak";
 import { judulHalaman } from "@/lib/judul-halaman";
 
@@ -237,7 +237,7 @@ export default async function Kelas({
               nama={`${s(kataAnggota("mengajar.murid.judul", ctx.ini.jenis))} · ${ctx.ini.nama}`}
               benda={s(kataAnggota("mengajar.bukti.murid", ctx.ini.jenis))}
               kolom={[{ judul: s("mengajar.cepat.hasil.kolom.nama") }]}
-              baris={rosterHalaman.isi.map((m) => ({ kunci: m.id, nama: <Link href={`/mengajar/${id}/murid/${m.id}`}>{m.nama}</Link>, sel: [] }))}
+              baris={rosterHalaman.isi.map((m) => ({ kunci: m.id, nama: adaBuktiSoal(ctx.ini.jenis) ? <Link href={`/mengajar/${id}/murid/${m.id}`}>{m.nama}</Link> : m.nama, sel: [] }))}
               posisi={rosterHalaman.posisi}
               totalSemua={rosterHalaman.totalSemua}
               kosong={<Kosong jenis="belum" kalimat={s(kataAnggota("mengajar.murid.kosong", ctx.ini.jenis))} />}
