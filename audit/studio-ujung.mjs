@@ -357,6 +357,16 @@ await step("U7b", "A1: the head of department reads the questions one whole less
   await h.setViewportSize({ width: 320, height: 800 });
   await h.waitForTimeout(300);
   const geser = await h.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  if (geser > 0) {
+    // name what overflows, so a failure says where (the outermost elements past the viewport's right edge)
+    const lebih = await h.evaluate(() => {
+      const W = document.documentElement.clientWidth;
+      const luar = [...document.querySelectorAll("body *")].filter((e) => e.getBoundingClientRect().right > W + 1);
+      return luar.filter((e) => !luar.includes(e.parentElement)).slice(0, 6)
+        .map((e) => `${e.tagName.toLowerCase()}${e.id ? `#${e.id}` : ""}.${[...e.classList].join(".")} (${Math.round(e.getBoundingClientRect().width)} px)`);
+    });
+    rec.catatan.push(`   overflowing: ${lebih.join("; ")}`);
+  }
   await shot(h, rec, "a1-320");
   await h.setViewportSize(lebar ?? { width: 1280, height: 900 });
   harus(rec, geser <= 0, `at 320 px the page scrolls sideways by ${geser} px`);

@@ -77,3 +77,55 @@ Read at `1fe111d3` (the head after Batch 2's corrections). The requirement-to-te
 - **Not fully GREEN.** C3's hint and C9 are BLOCKED on Dr Gladys (C9 also on X12); B7, B9 and B11's words await copy approval.
 - **Corrected during this audit:** R3-1 (A1, with the loader's two defects), R3-2 and R3-3.
 - **Process finding (the third instance, after R0-2 and R0-5):** an accepted design or hand-off with no line in an engineering list is not built. A1 and A5's page-level answers arrived after Batch 3 closed and were never carried into the E-items.
+
+## Batch 4 · Administration, identity and accounts
+
+Read at `46498102`. Batch 4's own record is `batch-4/01` (§1, §2); its later corrections are B1 (D-166(a), `d177-koreksi` §4d–§4e) and B2 (D-174, D-175).
+
+| ID | Requirement | Status | Evidence | Root cause | Consumers | Correction |
+|---|---|---|---|---|---|---|
+| R4-1 | **W2.1–W2.3** correct an email, a name and a username, platform-scoped, with a reason and an audit row | **VERIFIED** | Enforced in the database: F24-K01…P03 (the refusals by role and scope) and B4-ORANG-K01 green in the whole manifest; walk W1–W3 (`admin-ujung` 12/12) | — | «Koreksi data orang» | — |
+| R4-2 | **W2.8** the profile photo on the profile only | **VERIFIED** | B4-FOTO-K01; walk W10 | — | Akun saya | — |
+| R4-3 | **W2.15 / F-10** transfers end to end, the destination by name | **VERIFIED** | F24 transfer rows (refusals name CAN_AUTHORIZE_TRANSFER, F06-N02); walk W6–W7 | — | Konfigurasi › Pindah | — |
+| R4-4 | **W2.19** stuck sends; «handed off» is not «accepted» | **VERIFIED** | F24-E01; walk W9; the four email states (B6-E) | — | Email uji | — |
+| R4-5 | **W2.10** platform lists paged, the Aktivasi waiting list included | **VERIFIED** | Batch 4 left the Aktivasi list INCOMPLETE; Batch 5 paged it in the database (`persons_awaiting_account_page`, F26-W01) | — | Aktivasi | — |
+| R4-6 | **W3.5 / W3.6 / W3.7** the J2 roster as a Table; Konfigurasi (split and every section's pattern, B1); field widths and hints | **VERIFIED**; copy **BLOCKED** | B4-J2-K01, B4-BIDANG-K01; B1: D168-B1-2/3/6/7, E-B1-1 compatibility (every older `/konfigurasi#…` address forwards), walk W11 (`admin-ujung`) | — | Kelas; Konfigurasi | **BLOCKED:** E-B1-2 (`config.refused`'s two languages disagree; copy approval); E-B1-3 the seed school's name (Dr Gladys); `config.kelompok.*`, `context.manage_label` |
+| R4-7 | **UX-09 / B2** «Nomor Registrasi Sekolah» in every user-facing place, one English term, the four identifiers kept apart (D-174, D-175) | **VERIFIED** (after correction) | All 11 keys carry the term; the explanation is on Pendataan and as Aktivasi's search help. **One English line named another identifier:** `aktivasi.staf.arti` said «their PINTAR ID» where the Indonesian names the school registration number, two identifiers D-174 says are never interchangeable. D168-B2-1 read the Indonesian only | the test checked one language of a two-language rule | Aktivasi's card-to-email explanation | `D168-B2-1` extended: every key whose Indonesian names the number says «school registration number» in English (red on the old line, green now) |
+
+**Batch 4 verdict:**
+- **Built and held,** with one correction (R4-7).
+- **Not fully GREEN:** R4-6's copy items are BLOCKED on approval (E-B1-2, E-B1-3, `config.kelompok.*`, `context.manage_label`).
+
+## Batch 5 · Reports, Pimpinan, integrity and the learner's residue
+
+Read at `46498102`. Batch 5's own record is `batch-5/01` (§1, §4, §5) and `batch-5/03`; its later corrections are C1 (E-C1-1…7) and C2 (E-C2-1…3, design under review).
+
+| ID | Requirement | Status | Evidence | Root cause | Consumers | Correction |
+|---|---|---|---|---|---|---|
+| R5-1 | **W2.5** certificate revocation (CR-05, J8.5) | **VERIFIED** | B5-CABUT-K01; the revocation is the database's (Batch 5 §3); walk B5 (7/7) | — | Konfigurasi › Sertifikat sekolah | — |
+| R5-2 | **W2.7** integrity review: one decision per observation; the outcome to the referrer (CR-75/76/77) | **VERIFIED** | B5-INTEGRITAS-K01; F21-I01 (restated stronger: one decision leaves exactly the other observation waiting) | — | Studio › Tinjauan Integritas | — |
+| R5-3 | **W3.8** report pages, with C1's report body and the A4 print | **VERIFIED** | B5A-LAPORAN-K01; E-C1-1…7 tests; `audit/b6-cetak.mjs` (the `/pengembangan` footer prints, E-C1-5) | — | Ringkasan Kelas, Ringkasan Sekolah, `/pengembangan` | — |
+| R5-4 | **W3.9** Pimpinan; **W2.6** briefings hidden; **W2.10** the waiting list; **W2.18** J5.13; **W3.10**; **W2.12**; **W3.15** the tour; **W3.13** Peragaan | **VERIFIED**; W3.9's metric words **BLOCKED** | B5A-PIMPINAN-K01, B5A-TAKLIMAT-K01, B5-TUNGGU-K01, B5C-*, B5B-*, UX1-TUR-AKSES-01; walk `b5-fokus` (2/2). W2.12's missing recording is R0-5 (corrected) | — | — | **BLOCKED:** «Peserta», «Kenaikan», «Penguasaan per bagian» (Dr Gladys, D-157(a)) |
+| R5-5 | **W2.16 item 5 / E-C2-3** the PD Kelas: «Lihat per soal» offered only where the per-question page answers (D-168: the link from the page's own rule) | **VERIFIED** (after correction); the C2 presentation **BLOCKED** | The per-question page refuses a class of participants (`adaBuktiSoal`), and the class page's link was gated by it. **The Uji Cepat page (two links) and its results page still offered «Lihat per soal» on a PD class**, so the facilitator pressed into a refusal. E-C2-3 had no test | the fix was applied where it was seen, not at every consumer of the same rule | `/mengajar/[kelas]/uji-cepat`, `…/uji-cepat/hasil` | `R5-PERSOAL-01`: every link to the per-question page sits under `adaBuktiSoal` (red on three links, green now). **BLOCKED:** C2's presentation (E-C2-1 `mengajar.bukti.siapa_peserta`, E-C2-2's statement-only page), Daisy then the owner |
+| R5-6 | **W3.12 / W3.16** navigation under L3; the chooser | **VERIFIED** (structure); G1's six expressions **BLOCKED** | E1+E2 (E-E1-1/2), walk `e1-navigasi` (14/14) | — | every shell | **BLOCKED:** G1's words (E2); NVDA and TalkBack (§6 of the preparation) |
+
+**Batch 5 verdict:**
+- **Built and held,** with one correction (R5-5).
+- **Not fully GREEN:** C2's presentation, W3.9's words and G1's expressions are BLOCKED; the screen-reader passes are BLOCKED (manual).
+
+## Batch 6 · Certificate, card, emails and print
+
+Read at `46498102`. Batch 6's own record is `batch-6/01` and `02`; its later corrections are D1 (`d177-koreksi` §4f), D2 and B4 (E-B4-1). F-11 is open.
+
+| ID | Requirement | Status | Evidence | Root cause | Consumers | Correction |
+|---|---|---|---|---|---|---|
+| R6-1 | **W3.19 / CR-03, CR-04, J8.4** the certificate as designed, one A4 page; **D2** its file name without the person's name (W3.1) | **VERIFIED** (screen and print in a browser); physical proof **BLOCKED** | B6C-SHEET-01, -PRINT-01, -QR-01, -DATA-01, -FOTO-01; D168-D2-1 (the file name's characters and length); `b6-cetak` (6/6) | — | `/sertifikat/[token]`, its PDF | **BLOCKED:** the printed A4 proof and the QR read on two phones (owner) |
+| R6-2 | **W3.20 / CR-21, J2.16** the Digital Card, CR80; **B4** a school-less role beside a school role | **VERIFIED** (as built); B4 **BLOCKED** | B6K-GEOMETRI-01, -WARNA-01, -URUTAN-01/02, -QR-01, -MEREK-01, -FOTO-01, -STAF-01, -DATA-01 | — | the card, the card email (D-164) | **BLOCKED:** B4 under Daisy's then the owner's review; the CR80 print proof (owner) |
+| R6-3 | **W3.20 / CR-22, J2.15** the identity emails final (DAISY-37 → D1) | **VERIFIED** (branch); real sending **BLOCKED** | D1E-K02…K16; walk `d1-email` (3/3); B6E-K01…K03 (the four provable states, never «delivered») | — | every identity email | **BLOCKED:** D1's manual client protocol (P6: a send path and synthetic inboxes); `email.bingkai.konteks` copy; D1's authorisation is branch-only (no protected wording, logo or real sending) |
+| R6-4 | **W3.20 · OP-3, AP-1** the wordmark in the shell and emails (D5's slots) | **BLOCKED** | Today's logo stays (D-160(a)); D5 holds the slots' geometry only | — | shell, emails, certificate, card | **F-11** (owner): the licensed master and the font licence |
+| R6-5 | **W3.21** the Design System page republished (D4) | **VERIFIED** (stage 1, D-175(c)); stage 2 **BLOCKED** | Daisy's page version 20 accepted; tokens preserved | — | — | stage 2 after F-11 |
+| R6-6 | **W3.22** the A4 print of each surface | **VERIFIED** | B6P-K01; `b6-cetak` (6/6), now including `/pengembangan` (E-C1-5) | — | every printable surface | — |
+
+**Batch 6 verdict:**
+- **What engineering can build is built and held.** No Batch 6 defect was found at the baseline.
+- **Not fully GREEN:** F-11, the physical print proofs, D1's manual protocol and real sending, and B4 are BLOCKED on the owner or on design review.

@@ -368,6 +368,8 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                   )}
                 </section>
                 {pelajaranSoal.length > 1 ? (
+                  // the pager's narrow form (its words out of sight, still its name) is a container rule, as Penomoran's
+                  <div className="pin-penomoran">
                   <nav className="pin-pager" aria-label={sl("studio.soal.pager_label")} data-soal-pager="">
                     <span className="pin-pager-gerak">
                       {gerak("sebelum")}
@@ -375,6 +377,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
                       {gerak("sesudah")}
                     </span>
                   </nav>
+                  </div>
                 ) : null}
               </>
             );
