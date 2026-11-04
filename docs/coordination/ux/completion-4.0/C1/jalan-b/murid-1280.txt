@@ -1,0 +1,68 @@
+/pimpinan/[simpul]/murid · the roster at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Pimpinan»
+ 3. a «Studio»
+ 4. button «Keluar»
+ 5. a «Matematika»
+ 6. a «Adinda Putri»
+ 7. a «Bagas Saputra»
+ 8. a «Cahya Ramadhani»
+ 9. a «Dimas Pratama»
+10. a «Elok Wulandari»
+11. a «Fajar Nugroho»
+12. a «Gita Anggraini»
+13. a «Hafiz Kurniawan»
+14. a «Intan Permatasari»
+15. a «Joko Susilo»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Matematika":
+      - /url: "#"
+  - paragraph: Pimpinan
+  - heading "Murid dalam lingkup ini" [level=1]
+  - paragraph: Daftar nama menurut abjad. Membuka catatan satu murid adalah tindakan tersendiri, dan tercatat.
+  - region "Murid dalam lingkup ini":
+    - heading "Murid dalam lingkup ini" [level=2]
+    - list:
+      - listitem:
+        - link "Adinda Putri":
+          - /url: "#"
+          - strong: Adinda Putri
+      - listitem:
+        - link "Bagas Saputra":
+          - /url: "#"
+          - strong: Bagas Saputra
+      - listitem:
+        - link "Cahya Ramadhani":
+          - /url: "#"
+          - strong: Cahya Ramadhani
+      - listitem:
+        - link "Dimas Pratama":
+          - /url: "#"
+          - strong: Dimas Pratama
+      - listitem:
+        - link "Elok Wulandari":
+          - /url: "#"
+          - strong: Elok Wulandari
+      - listitem:
+        - link "Fajar Nugroho":
+          - /url: "#"
+          - strong: Fajar Nugroho
+      - listitem:
+        - link "Gita Anggraini":
+          - /url: "#"
+          - strong: Gita Anggraini
+      - listitem:
+        - link "Hafiz Kurniawan":
+          - /url: "#"
+          - strong: Hafiz Kurniawan
+      - listitem:
+        - link "Intan Permatasari":
+          - /url: "#"
+          - strong: Intan Permatasari
+      - listitem:
+        - link "Joko Susilo":
+          - /url: "#"
+          - strong: Joko Susilo

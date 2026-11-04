@@ -1,0 +1,59 @@
+/pengembangan/[simpul] · Admin sekolah (completion only) at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Konfigurasi»
+ 3. a «Pendataan»
+ 4. a «Aktivasi akun»
+ 5. a «Studio»
+ 6. button «Keluar»
+ 7. a «Kembali»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Kembali":
+      - /url: "#"
+  - paragraph: Pengembangan profesi guru · PD Guru Matematika
+  - heading "Catatan pengembangan profesi" [level=1]
+  - paragraph: Anda melihat pendaftaran, keikutsertaan dan penyelesaian. Kemajuan dan hasil hanya untuk fasilitator, Kepala departemen dan Dekan.
+  - region "Citra Lestari":
+    - heading "Citra Lestari" [level=2]
+    - paragraph: Terdaftar
+    - list:
+      - listitem:
+        - strong: Asesmen formatif di kelas
+        - term: "Sudah mulai:"
+        - definition: Ya
+        - term: "Pemetaan Awal:"
+        - definition: Sudah dikumpulkan
+        - term: "Uji Penguasaan:"
+        - definition: Sudah dikumpulkan
+        - term: "Selesai:"
+        - definition: Ya
+      - listitem:
+        - strong: Merancang umpan balik
+        - term: "Sudah mulai:"
+        - definition: Ya
+        - term: "Pemetaan Awal:"
+        - definition: Sudah dikumpulkan
+        - term: "Uji Penguasaan:"
+        - definition: Belum dikerjakan
+        - term: "Selesai:"
+        - definition: Belum
+  - region "Fitri Handayani":
+    - heading "Fitri Handayani" [level=2]
+    - paragraph: Terdaftar
+    - list:
+      - listitem:
+        - strong: Asesmen formatif di kelas
+        - term: "Sudah mulai:"
+        - definition: Ya
+        - term: "Pemetaan Awal:"
+        - definition: Sudah dikumpulkan
+        - term: "Uji Penguasaan:"
+        - definition: Sedang dikerjakan
+        - term: "Selesai:"
+        - definition: Belum
+  - region "Gilang Ramadhan":
+    - heading "Gilang Ramadhan" [level=2]
+    - paragraph: Terdaftar, akun belum diaktifkan
+    - paragraph: Belum ada paket yang diberikan.

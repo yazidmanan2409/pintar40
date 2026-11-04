@@ -1,0 +1,54 @@
+/umpan-balik/[siklus] · results available at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Menu»
+ 4. a «Kembali»
+ 5. a «SMP Cahaya Kaliandra»
+ 6. a «Matematika»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Kembali":
+      - /url: "#"
+  - list "Lokasi":
+    - listitem:
+      - link "SMP Cahaya Kaliandra":
+        - /url: "#"
+    - listitem:
+      - link "Matematika":
+        - /url: "#"
+    - listitem: Kelas 7A
+  - paragraph: Umpan balik kelas
+  - heading "Kelas 7A" [level=1]
+  - paragraph: "Guru: Citra Lestari"
+  - region "Yang dipilih kelas ini":
+    - heading "Yang dipilih kelas ini" [level=2]
+    - paragraph: Hasil tersedia
+    - paragraph: "Tanggapan yang masuk: 26"
+    - paragraph: Angka pada tiap pilihan adalah banyaknya tanggapan yang memilihnya.
+    - list:
+      - listitem:
+        - heading "Penjelasan guru mudah diikuti." [level=3]
+        - term: Hampir selalu
+        - definition: "14"
+        - term: Sering
+        - definition: "8"
+        - term: Kadang-kadang
+        - definition: "3"
+        - term: Jarang
+        - definition: "1"
+      - listitem:
+        - heading "Saya tahu apa yang harus dipelajari berikutnya." [level=3]
+        - term: Hampir selalu
+        - definition: "9"
+        - term: Sering
+        - definition: "11"
+        - term: Kadang-kadang
+        - definition: "5"
+        - term: Jarang
+        - definition: "1"
+  - region "Menutup putaran":
+    - heading "Menutup putaran" [level=2]
+    - paragraph: Pengumpulan tanggapan untuk putaran ini sudah berakhir.
+  - paragraph: "Ini bahan refleksi: yang tercatat adalah pilihan yang dibuat satu kelas."

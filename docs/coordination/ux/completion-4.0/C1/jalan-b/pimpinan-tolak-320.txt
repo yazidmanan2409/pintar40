@@ -1,0 +1,17 @@
+/pimpinan · refusal (Admin sekolah, by design) at 320 px: the Tab order from the top of the page
+ 1. a «Ke halaman awal»
+ 2. a «Keluar»
+
+The accessibility tree of the main region
+- main:
+  - img "Pintar (master pending F-11)"
+  - heading "Halaman ini untuk Kepala departemen dan Dekan, dalam lingkup yang mereka pimpin." [level=1]
+  - paragraph: Jika ini keliru, tanyakan kepada yang mengurus PINTAR di sekolah Anda.
+  - link "Ke halaman awal":
+    - /url: "#"
+  - paragraph:
+    - text: Masuk sebagai
+    - strong: Dewi Saraswati
+    - text: · Bukan akun Anda?
+    - link "Keluar":
+      - /url: "#"

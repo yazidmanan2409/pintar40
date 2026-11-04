@@ -1,0 +1,44 @@
+/umpan-balik/kelas/[kelas] · one class at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Pimpinan»
+ 3. a «Studio»
+ 4. button «Keluar»
+ 5. a «Kembali»
+ 6. a «SMP Cahaya Kaliandra»
+ 7. a «Matematika»
+ 8. a «Guru: Fitri HandayaniMasih dikumpulkan»
+ 9. button «Mulai putaran · Gilang Ramadhan»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Kembali":
+      - /url: "#"
+  - list "Lokasi":
+    - listitem:
+      - link "SMP Cahaya Kaliandra":
+        - /url: "#"
+    - listitem:
+      - link "Matematika":
+        - /url: "#"
+    - listitem: Kelas 7B
+  - paragraph: Umpan balik kelas
+  - heading "Kelas 7B" [level=1]
+  - region "Putaran untuk kelas ini":
+    - heading "Putaran untuk kelas ini" [level=2]
+    - list:
+      - listitem:
+        - 'link "Guru: Fitri Handayani Masih dikumpulkan"':
+          - /url: "#"
+          - strong: "Guru: Fitri Handayani"
+          - text: Masih dikumpulkan
+  - region "Mulai putaran umpan balik":
+    - heading "Mulai putaran umpan balik" [level=2]
+    - paragraph: Pilih guru yang akan ditanyakan kepada kelas ini.
+    - list:
+      - listitem:
+        - strong: Fitri Handayani
+        - text: Kelas ini sudah punya putaran tentang guru itu pada periode ini.
+      - listitem:
+        - strong: Gilang Ramadhan
+        - button "Mulai putaran · Gilang Ramadhan": Mulai putaran

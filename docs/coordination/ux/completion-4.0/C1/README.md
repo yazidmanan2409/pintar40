@@ -3,7 +3,7 @@
 **Form C (composition).** Register entry C1 (RV-11, J7.2–J7.4, X.7, F-12(2)).
 **Surfaces:**
 - **Part A, the core:** `/edukator/ringkasan?kelas=…` (Ringkasan Kelas) and `/dekan/ringkasan?simpul=…` (Ringkasan Sekolah), at 0b19707 (`src/app/edukator/ringkasan/page.tsx`, `src/app/dekan/ringkasan/page.tsx`, `src/components/bukti/NilaiLaporan.tsx`).
-- **Part B:** the bodies of the `/pimpinan` and `/pengembangan` routes (brief §5). In `PIMPINAN.md`, which follows in its own commit.
+- **Part B:** the bodies of the `/pimpinan` and `/pengembangan` routes (brief §5), in [`PIMPINAN.md`](PIMPINAN.md).
 
 **Decisions this item depends on.** Both are word slots; neither stops the layout.
 - **G6, the report titles (D-135(e)): Dr Gladys's.** Drawn as a labelled slot, «[G6 · judul laporan kelas]» and «[G6 · judul laporan sekolah]», on screen and in the print header. Never filled.

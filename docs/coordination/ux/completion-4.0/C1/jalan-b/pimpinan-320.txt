@@ -1,0 +1,178 @@
+/pimpinan · decisions waiting at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Menu»
+ 4. a «Matematika»
+ 5. a «Kelas 7A»
+ 6. a «Kelas 7B»
+ 7. button «Saya yang menangani»
+ 8. select «Hasil»
+ 9. textarea «Catatan (boleh dikosongkan)»
+10. button «Catat keputusan»
+11. select «Hasil»
+12. textarea «Catatan (boleh dikosongkan)»
+13. button «Catat keputusan»
+14. summary «Yang didukung bukti · Yang belum diketahui · Langk»
+15. summary «Kelas 7AAda angka»
+16. a «Buka ringkasan kelas ini»
+17. summary «Kelas 7BAda angka»
+18. summary «Kelas 7CBelum ada angka»
+19. a «Lihat lebih rinci»
+20. a «Buka ringkasan sekolah»
+21. a «PD Guru Matematika (2026/2027)»
+
+The accessibility tree of the main region
+- main:
+  - paragraph: Pimpinan
+  - heading "Apa yang menunggu Anda" [level=1]
+  - paragraph: Yang muncul di sini memerlukan wewenang, koordinasi, atau penafsiran untuk sekolah secara keseluruhan. Selebihnya tidak muncul.
+  - navigation "Lingkup":
+    - text: Lingkup
+    - list:
+      - listitem:
+        - link "Matematika":
+          - /url: "#"
+      - listitem:
+        - link "Kelas 7A":
+          - /url: "#"
+      - listitem:
+        - link "Kelas 7B":
+          - /url: "#"
+  - region "Keputusan":
+    - heading "Keputusan" [level=2]
+    - paragraph: 3 keputusan menunggu Anda.
+    - paragraph: "Urutannya: yang paling lama menunggu lebih dulu. Ini urutan, bukan peringkat."
+    - list:
+      - listitem:
+        - article "Tinjauan integritas":
+          - text: Menunggu tinjauan Kelas 7A
+          - heading "Tinjauan integritas" [level=3]
+          - paragraph:
+            - text: Tentang
+            - strong: Rizky Maulana
+          - paragraph: Sejak 28 Okt 2026 · Berasal dari satu catatan integritas.
+          - term: Yang didukung bukti
+          - definition: Seorang peninjau sudah melihat catatan itu dan memilih meneruskannya. Catatannya menyebut satu hal yang teramati, dan tidak lebih.
+          - term: Yang belum diketahui
+          - definition: Apa yang sebenarnya terjadi. Catatan ini bahan pertimbangan manusia, bukan kesimpulan tentang seorang murid.
+          - term: Langkah yang mungkin
+          - definition: Menentukan siapa yang menanganinya, atau menutupnya dengan catatan.
+          - blockquote: Jawaban Uji Penguasaan dikirim dalam waktu yang sangat singkat dibanding biasanya.
+          - heading "Keputusan Anda" [level=4]
+          - button "Saya yang menangani"
+          - text: Hasil
+          - combobox "Hasil":
+            - option "Tidak ada tindakan lanjutan" [selected]
+            - option "Pendampingan disiapkan"
+            - option "Diteruskan ke pihak sekolah"
+          - text: Catatan (boleh dikosongkan)
+          - textbox "Catatan (boleh dikosongkan)"
+          - button "Catat keputusan"
+      - listitem:
+        - article "Pendampingan belajar":
+          - text: Sedang ditangani Kelas 7B
+          - heading "Pendampingan belajar" [level=3]
+          - paragraph: Sejak 30 Okt 2026
+          - term: Yang didukung bukti
+          - definition: Bukti belajar yang sudah memenuhi syarat dalam lingkup ini.
+          - term: Yang belum diketahui
+          - definition: Apa yang menjelaskannya. Angka menunjukkan keadaan, bukan sebabnya.
+          - term: Langkah yang mungkin
+          - definition: Membicarakannya dengan guru dalam lingkup ini, atau mengamati satu siklus lagi sebelum menyimpulkan apa pun.
+          - heading "Keputusan Anda" [level=4]
+          - text: Hasil
+          - combobox "Hasil":
+            - option "Tidak ada tindakan lanjutan" [selected]
+            - option "Pendampingan disiapkan"
+            - option "Diteruskan ke pihak sekolah"
+          - text: Catatan (boleh dikosongkan)
+          - textbox "Catatan (boleh dikosongkan)"
+          - button "Catat keputusan"
+      - listitem:
+        - article "Tindak lanjut program":
+          - text: Menunggu keputusan Matematika
+          - heading "Tindak lanjut program" [level=3]
+          - paragraph: Sejak 2 Nov 2026
+          - term: Yang didukung bukti
+          - definition: Apa yang sudah tercatat tentang jalannya program dalam lingkup ini.
+          - term: Yang belum diketahui
+          - definition: Apa yang ada di luar catatan itu. PINTAR hanya melihat apa yang melewati PINTAR.
+          - term: Langkah yang mungkin
+          - definition: Mengoordinasikannya dengan pihak yang menjalankan program.
+          - heading "Keputusan Anda" [level=4]
+          - paragraph: Anda yang meneruskan kasus ini, jadi pimpinan lain yang memutuskannya. Kasus ini menunggu keputusan mereka.
+      - listitem:
+        - article "Pendampingan belajar":
+          - text: Sudah diputuskan Kelas 7B
+          - heading "Pendampingan belajar" [level=3]
+          - paragraph: Sejak 12 Okt 2026
+          - paragraph:
+            - strong: "Keputusan Anda:"
+            - text: Pendampingan disiapkan · Diputuskan 20 Okt 2026
+          - group: Yang didukung bukti · Yang belum diketahui · Langkah yang mungkin
+    - paragraph: PINTAR mengusulkan, manusia memutuskan.
+  - region "Yang didukung bukti":
+    - heading "Yang didukung bukti" [level=2]
+    - region "Peserta":
+      - paragraph: Peserta
+      - paragraph: "84"
+      - paragraph: Banyaknya murid yang mengerjakan asesmen di sekolah ini.
+      - paragraph: dari 84 murid
+    - region "Kenaikan":
+      - paragraph: Kenaikan
+      - paragraph: +12 poin
+      - paragraph: Rata-rata kenaikan penguasaan murid di sekolah ini.
+      - paragraph: dari 61 murid
+    - region "Soal wajib":
+      - paragraph: Soal wajib
+      - paragraph: Belum cukup data untuk menampilkan angka ini.
+      - paragraph: Sekarang 4 murid; perlu 10.
+      - paragraph: Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan.
+  - region "Per kelas":
+    - heading "Per kelas" [level=2]
+    - paragraph: Angka kelas dihitung untuk tiap kelas sendiri dan tidak dijumlahkan antarkelas. Buka satu kelas untuk melihat angkanya, atau apa yang membuatnya muncul.
+    - group:
+      - text: Kelas 7A Ada angka
+      - paragraph: Murid di kelas ini sekarang · 28
+      - region "Pemahaman":
+        - paragraph: Pemahaman
+        - paragraph: 72%
+        - paragraph: Rata-rata penguasaan kelas pada Uji Penguasaan.
+        - paragraph: dari 24 murid
+      - region "Kenaikan":
+        - paragraph: Kenaikan
+        - paragraph: +18 poin
+        - paragraph: Selisih penguasaan sebelum dan sesudah pembelajaran, per murid.
+        - paragraph: dari 22 murid
+      - link "Buka ringkasan kelas ini":
+        - /url: "#"
+    - group: Kelas 7B Ada angka
+    - group: Kelas 7C Belum ada angka
+  - region "Kesiapan bukti":
+    - heading "Kesiapan bukti" [level=2]
+    - term: Cukup untuk ditafsirkan
+    - definition: "3"
+    - term: Sudah ada, belum cukup
+    - definition: "2"
+    - term: Belum ada yang memenuhi syarat
+    - definition: "1"
+    - paragraph: Bukti yang belum cukup bukan hasil yang buruk. Artinya PINTAR belum boleh menyimpulkan apa pun, dan angkanya muncul sendiri ketika buktinya memenuhi syarat.
+  - region "Perlu diketahui":
+    - heading "Perlu diketahui" [level=2]
+    - paragraph: Hal berikut tidak menunggu keputusan siapa pun.
+    - list:
+      - listitem:
+        - link "Lihat lebih rinci":
+          - /url: "#"
+          - strong: Lihat lebih rinci
+      - listitem:
+        - link "Buka ringkasan sekolah":
+          - /url: "#"
+          - strong: Buka ringkasan sekolah
+  - region "Catatan pengembangan profesi":
+    - heading "Catatan pengembangan profesi" [level=2]
+    - list:
+      - listitem:
+        - link "PD Guru Matematika (2026/2027)":
+          - /url: "#"
+          - strong: PD Guru Matematika (2026/2027)

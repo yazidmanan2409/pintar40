@@ -1,0 +1,18 @@
+/pimpinan/[simpul]/murid · empty at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Pimpinan»
+ 3. a «Studio»
+ 4. button «Keluar»
+ 5. a «Matematika»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Matematika":
+      - /url: "#"
+  - paragraph: Pimpinan
+  - heading "Murid dalam lingkup ini" [level=1]
+  - paragraph: Daftar nama menurut abjad. Membuka catatan satu murid adalah tindakan tersendiri, dan tercatat.
+  - region "Murid dalam lingkup ini":
+    - heading "Murid dalam lingkup ini" [level=2]
+    - paragraph: Belum ada murid terdaftar dalam lingkup ini.

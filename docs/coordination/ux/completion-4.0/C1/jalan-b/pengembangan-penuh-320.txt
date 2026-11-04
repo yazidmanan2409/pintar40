@@ -1,0 +1,64 @@
+/pengembangan/[simpul] · facilitator, Kepala departemen, Dekan at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Menu»
+ 4. a «Kembali»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Kembali":
+      - /url: "#"
+  - paragraph: Pengembangan profesi guru · PD Guru Matematika
+  - heading "Catatan pengembangan profesi" [level=1]
+  - paragraph: Catatan baca-saja per peserta dan paket. Bukan penilaian kinerja dan bukan peringkat.
+  - region "Citra Lestari":
+    - heading "Citra Lestari" [level=2]
+    - paragraph: Terdaftar
+    - list:
+      - listitem:
+        - strong: Asesmen formatif di kelas
+        - term: "Sudah mulai:"
+        - definition: Ya
+        - term: "Pemetaan Awal:"
+        - definition: Sudah dikumpulkan
+        - term: "Uji Penguasaan:"
+        - definition: Sudah dikumpulkan
+        - term: "Pelajaran selesai:"
+        - definition: 6 dari 6
+        - term: "Hasil:"
+        - definition: 84% · Tercapai
+        - term: "Selesai:"
+        - definition: Ya
+      - listitem:
+        - strong: Merancang umpan balik
+        - term: "Sudah mulai:"
+        - definition: Ya
+        - term: "Pemetaan Awal:"
+        - definition: Sudah dikumpulkan
+        - term: "Uji Penguasaan:"
+        - definition: Belum dikerjakan
+        - term: "Pelajaran selesai:"
+        - definition: 3 dari 5
+        - term: "Selesai:"
+        - definition: Belum
+  - region "Fitri Handayani":
+    - heading "Fitri Handayani" [level=2]
+    - paragraph: Terdaftar
+    - list:
+      - listitem:
+        - strong: Asesmen formatif di kelas
+        - term: "Sudah mulai:"
+        - definition: Ya
+        - term: "Pemetaan Awal:"
+        - definition: Sudah dikumpulkan
+        - term: "Uji Penguasaan:"
+        - definition: Sedang dikerjakan
+        - term: "Pelajaran selesai:"
+        - definition: 5 dari 6
+        - term: "Selesai:"
+        - definition: Belum
+  - region "Gilang Ramadhan":
+    - heading "Gilang Ramadhan" [level=2]
+    - paragraph: Terdaftar, akun belum diaktifkan
+    - paragraph: Belum ada paket yang diberikan.

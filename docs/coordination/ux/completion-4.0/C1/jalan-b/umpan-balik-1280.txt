@@ -1,0 +1,68 @@
+/pimpinan/[simpul]/umpan-balik · the rounds at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Pimpinan»
+ 3. a «Studio»
+ 4. button «Keluar»
+ 5. a «Kembali»
+ 6. a «SMP Cahaya Kaliandra»
+ 7. a «Matematika»
+ 8. a «Kelas 7AHasil tersediaGuru: Citra Lestari»
+ 9. a «Kelas 7BMasih dikumpulkanGuru: Fitri Handayani»
+10. a «Kelas 7CHasil tidak ditampilkanGuru: Citra Lestari»
+11. a «Kelas 7ABuka kelas»
+12. a «Kelas 7BBuka kelas»
+13. a «Kelas 7CBuka kelas»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Kembali":
+      - /url: "#"
+  - list "Lokasi":
+    - listitem:
+      - link "SMP Cahaya Kaliandra":
+        - /url: "#"
+    - listitem:
+      - link "Matematika":
+        - /url: "#"
+    - listitem: Umpan balik kelas
+  - paragraph: Umpan balik kelas
+  - heading "Matematika" [level=1]
+  - paragraph: Satu kelas dan guru yang mengajarnya.
+  - region "Putaran untuk kelas ini":
+    - heading "Putaran untuk kelas ini" [level=2]
+    - list:
+      - listitem:
+        - 'link "Kelas 7A Hasil tersedia Guru: Citra Lestari"':
+          - /url: "#"
+          - strong: Kelas 7A
+          - text: "Hasil tersedia Guru: Citra Lestari"
+      - listitem:
+        - 'link "Kelas 7B Masih dikumpulkan Guru: Fitri Handayani"':
+          - /url: "#"
+          - strong: Kelas 7B
+          - text: "Masih dikumpulkan Guru: Fitri Handayani"
+      - listitem:
+        - 'link "Kelas 7C Hasil tidak ditampilkan Guru: Citra Lestari"':
+          - /url: "#"
+          - strong: Kelas 7C
+          - text: "Hasil tidak ditampilkan Guru: Citra Lestari"
+  - region "Kelas dalam lingkup ini":
+    - heading "Kelas dalam lingkup ini" [level=2]
+    - paragraph: Putaran umpan balik dimulai untuk satu kelas dan satu gurunya.
+    - list:
+      - listitem:
+        - link "Kelas 7A Buka kelas":
+          - /url: "#"
+          - strong: Kelas 7A
+          - text: Buka kelas
+      - listitem:
+        - link "Kelas 7B Buka kelas":
+          - /url: "#"
+          - strong: Kelas 7B
+          - text: Buka kelas
+      - listitem:
+        - link "Kelas 7C Buka kelas":
+          - /url: "#"
+          - strong: Kelas 7C
+          - text: Buka kelas

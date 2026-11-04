@@ -1,0 +1,68 @@
+/pimpinan/[simpul] · a node's page at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Pimpinan»
+ 3. a «Studio»
+ 4. button «Keluar»
+ 5. a «Kembali»
+ 6. a «Buka umpan balik kelas»
+ 7. a «Murid dalam lingkup ini»
+ 8. a «Kelas 7A»
+ 9. a «Kelas 7B»
+10. a «Kelas 7C»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Kembali":
+      - /url: "#"
+  - paragraph: Pimpinan
+  - heading "Matematika" [level=1]
+  - region "Yang didukung bukti":
+    - heading "Yang didukung bukti" [level=2]
+    - region "Peserta":
+      - paragraph: Peserta
+      - paragraph: "84"
+      - paragraph: Banyaknya murid yang mengerjakan asesmen di sekolah ini.
+      - paragraph: dari 84 murid
+    - region "Angka ini tidak ditampilkan untuk peran Anda.":
+      - paragraph: Angka ini tidak ditampilkan untuk peran Anda.
+  - region "Kesiapan bukti":
+    - heading "Kesiapan bukti" [level=2]
+    - term: Cukup untuk ditafsirkan
+    - definition: "1"
+    - term: Sudah ada, belum cukup
+    - definition: "1"
+    - term: Belum ada yang memenuhi syarat
+    - definition: "0"
+    - paragraph: Bukti yang belum cukup bukan hasil yang buruk. Artinya PINTAR belum boleh menyimpulkan apa pun, dan angkanya muncul sendiri ketika buktinya memenuhi syarat.
+  - region "Umpan balik kelas":
+    - heading "Umpan balik kelas" [level=2]
+    - paragraph: Satu kelas dan guru yang mengajarnya.
+    - list:
+      - listitem:
+        - link "Buka umpan balik kelas":
+          - /url: "#"
+          - strong: Buka umpan balik kelas
+  - region "Murid dalam lingkup ini":
+    - heading "Murid dalam lingkup ini" [level=2]
+    - paragraph: Daftar nama menurut abjad. Membuka catatan satu murid adalah tindakan tersendiri, dan tercatat.
+    - list:
+      - listitem:
+        - link "Murid dalam lingkup ini":
+          - /url: "#"
+          - strong: Murid dalam lingkup ini
+  - region "Lingkup yang Anda pimpin":
+    - heading "Lingkup yang Anda pimpin" [level=2]
+    - list:
+      - listitem:
+        - link "Kelas 7A":
+          - /url: "#"
+          - strong: Kelas 7A
+      - listitem:
+        - link "Kelas 7B":
+          - /url: "#"
+          - strong: Kelas 7B
+      - listitem:
+        - link "Kelas 7C":
+          - /url: "#"
+          - strong: Kelas 7C

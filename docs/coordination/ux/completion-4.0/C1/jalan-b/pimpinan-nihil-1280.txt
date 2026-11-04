@@ -1,0 +1,113 @@
+/pimpinan · none waiting at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Pimpinan»
+ 3. a «Studio»
+ 4. button «Keluar»
+ 5. a «Matematika»
+ 6. a «Kelas 7A»
+ 7. a «Kelas 7B»
+ 8. summary «Yang didukung bukti · Yang belum diketahui · Langk»
+ 9. summary «Kelas 7AAda angka»
+10. a «Buka ringkasan kelas ini»
+11. summary «Kelas 7BAda angka»
+12. summary «Kelas 7CBelum ada angka»
+13. a «Lihat lebih rinci»
+14. a «Buka ringkasan sekolah»
+15. a «PD Guru Matematika (2026/2027)»
+
+The accessibility tree of the main region
+- main:
+  - paragraph: Pimpinan
+  - heading "Apa yang menunggu Anda" [level=1]
+  - paragraph: Yang muncul di sini memerlukan wewenang, koordinasi, atau penafsiran untuk sekolah secara keseluruhan. Selebihnya tidak muncul.
+  - navigation "Lingkup":
+    - text: Lingkup
+    - list:
+      - listitem:
+        - link "Matematika":
+          - /url: "#"
+      - listitem:
+        - link "Kelas 7A":
+          - /url: "#"
+      - listitem:
+        - link "Kelas 7B":
+          - /url: "#"
+  - region "Keputusan":
+    - heading "Keputusan" [level=2]
+    - paragraph: Tidak ada keputusan yang menunggu Anda.
+    - list:
+      - listitem:
+        - article "Pendampingan belajar":
+          - text: Sudah diputuskan Kelas 7B
+          - heading "Pendampingan belajar" [level=3]
+          - paragraph: Sejak 12 Okt 2026
+          - paragraph:
+            - strong: "Keputusan Anda:"
+            - text: Pendampingan disiapkan · Diputuskan 20 Okt 2026
+          - group: Yang didukung bukti · Yang belum diketahui · Langkah yang mungkin
+    - paragraph: PINTAR mengusulkan, manusia memutuskan.
+  - region "Yang didukung bukti":
+    - heading "Yang didukung bukti" [level=2]
+    - region "Peserta":
+      - paragraph: Peserta
+      - paragraph: "84"
+      - paragraph: Banyaknya murid yang mengerjakan asesmen di sekolah ini.
+      - paragraph: dari 84 murid
+    - region "Kenaikan":
+      - paragraph: Kenaikan
+      - paragraph: +12 poin
+      - paragraph: Rata-rata kenaikan penguasaan murid di sekolah ini.
+      - paragraph: dari 61 murid
+    - region "Soal wajib":
+      - paragraph: Soal wajib
+      - paragraph: Belum cukup data untuk menampilkan angka ini.
+      - paragraph: Sekarang 4 murid; perlu 10.
+      - paragraph: Angka ini muncul setelah cukup murid menyelesaikan Uji Penguasaan.
+  - region "Per kelas":
+    - heading "Per kelas" [level=2]
+    - paragraph: Angka kelas dihitung untuk tiap kelas sendiri dan tidak dijumlahkan antarkelas. Buka satu kelas untuk melihat angkanya, atau apa yang membuatnya muncul.
+    - group:
+      - text: Kelas 7A Ada angka
+      - paragraph: Murid di kelas ini sekarang · 28
+      - region "Pemahaman":
+        - paragraph: Pemahaman
+        - paragraph: 72%
+        - paragraph: Rata-rata penguasaan kelas pada Uji Penguasaan.
+        - paragraph: dari 24 murid
+      - region "Kenaikan":
+        - paragraph: Kenaikan
+        - paragraph: +18 poin
+        - paragraph: Selisih penguasaan sebelum dan sesudah pembelajaran, per murid.
+        - paragraph: dari 22 murid
+      - link "Buka ringkasan kelas ini":
+        - /url: "#"
+    - group: Kelas 7B Ada angka
+    - group: Kelas 7C Belum ada angka
+  - region "Kesiapan bukti":
+    - heading "Kesiapan bukti" [level=2]
+    - term: Cukup untuk ditafsirkan
+    - definition: "3"
+    - term: Sudah ada, belum cukup
+    - definition: "2"
+    - term: Belum ada yang memenuhi syarat
+    - definition: "1"
+    - paragraph: Bukti yang belum cukup bukan hasil yang buruk. Artinya PINTAR belum boleh menyimpulkan apa pun, dan angkanya muncul sendiri ketika buktinya memenuhi syarat.
+  - region "Perlu diketahui":
+    - heading "Perlu diketahui" [level=2]
+    - paragraph: Hal berikut tidak menunggu keputusan siapa pun.
+    - list:
+      - listitem:
+        - link "Lihat lebih rinci":
+          - /url: "#"
+          - strong: Lihat lebih rinci
+      - listitem:
+        - link "Buka ringkasan sekolah":
+          - /url: "#"
+          - strong: Buka ringkasan sekolah
+  - region "Catatan pengembangan profesi":
+    - heading "Catatan pengembangan profesi" [level=2]
+    - list:
+      - listitem:
+        - link "PD Guru Matematika (2026/2027)":
+          - /url: "#"
+          - strong: PD Guru Matematika (2026/2027)

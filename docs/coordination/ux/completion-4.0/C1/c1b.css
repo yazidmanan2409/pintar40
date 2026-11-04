@@ -1,0 +1,64 @@
+/* C1 part B — the Management and professional-learning bodies. Tokens and components only. */
+.c1-alis-biasa { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); }
+.c1b-angka { font-variant-numeric: tabular-nums; font-weight: 600; }
+.c1b-hitung { font-size: 18px; line-height: 26px; font-weight: 600; color: var(--ink-1); }
+
+/* The scope choice: the places as buttons, the current one marked by its border, weight and aria-current. */
+.c1b-lingkup { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); align-items: center; }
+.c1b-lingkup ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.c1b-kini { font-weight: 600; border-color: var(--ink-1); }
+
+/* A decision: one panel each. */
+.c1b-kartu { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-4); }
+.c1b-kp { gap: var(--space-3); }
+.c1b-kp h3 { font-size: 18px; line-height: 26px; font-weight: 600; }
+.c1b-kp h4 { font-size: 16px; line-height: 24px; font-weight: 600; padding-top: var(--space-3); border-top: var(--border-hairline) solid var(--line); }
+.c1b-kp-kepala { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); align-items: center; }
+.c1b-rantai { display: grid; gap: var(--space-3); max-width: var(--measure-prose); }
+.c1b-rantai dt { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-2); }
+.c1b-rantai dd { margin: 0; color: var(--ink-1); }
+.c1b-kutip { margin: 0; padding: var(--space-2) var(--space-4); border-left: 3px solid var(--line-strong); color: var(--ink-1); max-width: var(--measure-prose); }
+.c1b-putus { display: grid; gap: var(--space-4); max-width: var(--measure-narrow); }
+.c1b-dua { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.c1b-kp-selesai { background: var(--surface-1); }
+.c1b-rincian > summary { min-height: 44px; }
+.c1b-rincian .c1b-rantai { padding: var(--space-2) var(--space-2) var(--space-3); }
+
+/* Per class: one disclosure per class (exploring, not required reading). */
+.c1b-dalam { display: grid; gap: var(--space-3); padding: 0 var(--space-2) var(--space-4); }
+.pds-disclosure > summary .pds-badge { margin-left: auto; margin-right: var(--space-2); }
+
+.c1b-fakta { max-width: var(--measure-prose); }
+.c1b-fakta dd { white-space: normal; text-align: right; }
+
+/* Feedback results: the count carries the meaning; the bar is drawn, not read. */
+.c1b-soal { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-5); counter-reset: soal; }
+.c1b-soal h3 { font-size: 16px; line-height: 24px; font-weight: 600; max-width: var(--measure-prose); }
+.c1b-opsi { display: grid; gap: var(--space-2); max-width: var(--measure-narrow); margin-top: var(--space-2); }
+.c1b-opsi > div { display: grid; grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr); gap: var(--space-3); align-items: center; }
+.c1b-opsi dd { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) 2.5rem; gap: var(--space-2); align-items: center; }
+.c1b-opsi dd .c1b-angka { text-align: right; }
+.c1b-batang { display: block; height: 8px; border-radius: var(--radius-pill); background: var(--surface-2); overflow: hidden; }
+.c1b-batang span { display: block; height: 100%; background: var(--pintar-primary); }
+
+/* The professional-learning record: one section per participant, one row per package, its columns as a definition list. */
+.c1b-peserta .pds-list > li { padding: var(--space-3) var(--space-2); display: grid; gap: var(--space-2); }
+.c1b-kolom { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); font-size: 14px; line-height: 20px; }
+.c1b-kolom > div { display: flex; gap: var(--space-1); }
+.c1b-kolom dt { color: var(--ink-2); }
+.c1b-kolom dt::after { content: ":"; }
+.c1b-kolom dd { margin: 0; color: var(--ink-1); font-weight: 600; }
+
+.c1b-tolak { max-width: var(--measure-auth); margin: var(--space-9) auto; padding: 0 var(--space-4); }
+
+@container shell (max-width: 639px) {
+  .c1b-opsi > div { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+  .c1b-fakta > div { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+  .c1b-fakta dd { text-align: left; }
+}
+@media print {
+  .pds-back, .c1b-lingkup, .c1b-kp form, .c1b-kp h4, .pds-list-row > .pds-ikon { display: none !important; }
+  .pds-disclosure > summary > .pds-ikon { display: none; }
+  .c1b-kp { break-inside: avoid; }
+  .c1b-peserta { break-inside: avoid; }
+}

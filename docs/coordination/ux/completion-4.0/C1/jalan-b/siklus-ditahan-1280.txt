@@ -1,0 +1,33 @@
+/umpan-balik/[siklus] · results withheld (too few responses) at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Pimpinan»
+ 3. a «Studio»
+ 4. button «Keluar»
+ 5. a «Kembali»
+ 6. a «SMP Cahaya Kaliandra»
+ 7. a «Matematika»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Kembali":
+      - /url: "#"
+  - list "Lokasi":
+    - listitem:
+      - link "SMP Cahaya Kaliandra":
+        - /url: "#"
+    - listitem:
+      - link "Matematika":
+        - /url: "#"
+    - listitem: Kelas 7A
+  - paragraph: Umpan balik kelas
+  - heading "Kelas 7A" [level=1]
+  - paragraph: "Guru: Citra Lestari"
+  - region "Yang dipilih kelas ini":
+    - heading "Yang dipilih kelas ini" [level=2]
+    - paragraph: Hasil tidak ditampilkan
+    - paragraph: Belum cukup tanggapan untuk menampilkan hasil dengan aman.
+  - region "Menutup putaran":
+    - heading "Menutup putaran" [level=2]
+    - paragraph: Pengumpulan tanggapan untuk putaran ini sudah berakhir.
+  - paragraph: "Ini bahan refleksi: yang tercatat adalah pilihan yang dibuat satu kelas."

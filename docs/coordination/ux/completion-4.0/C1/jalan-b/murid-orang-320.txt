@@ -1,0 +1,34 @@
+/pimpinan/[simpul]/murid/[orang] · one learner at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Menu»
+ 4. a «Murid dalam lingkup ini»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Murid dalam lingkup ini":
+      - /url: "#"
+  - paragraph: Catatan murid
+  - heading "Adinda Putri" [level=1]
+  - paragraph: Pembukaan catatan ini sudah tercatat.
+  - term: Program
+  - definition: Reguler
+  - term: Periode akademik
+  - definition: TA 2026/2027
+  - term: Penempatan sekarang
+  - definition: SMP Cahaya Kaliandra / Kelas 7A
+  - term: Penempatan sebelumnya
+  - definition: Kelas 7B (2026/2027) · sampai 15 Agu 2026 · pindah kelas
+  - region "Catatan belajar":
+    - heading "Catatan belajar" [level=2]
+    - list:
+      - listitem:
+        - strong: Pemetaan Awal
+        - text: Penguasaan 48%
+      - listitem:
+        - strong: Uji Cepat
+        - text: Penguasaan 62%
+      - listitem:
+        - strong: Uji Penguasaan
+        - text: Penguasaan 79%

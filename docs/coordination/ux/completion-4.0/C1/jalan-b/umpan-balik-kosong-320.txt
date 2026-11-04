@@ -1,0 +1,49 @@
+/pimpinan/[simpul]/umpan-balik · none at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Menu»
+ 4. a «Kembali»
+ 5. a «SMP Cahaya Kaliandra»
+ 6. a «Matematika»
+ 7. a «Kelas 7ABuka kelas»
+ 8. a «Kelas 7BBuka kelas»
+ 9. a «Kelas 7CBuka kelas»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Kembali":
+      - /url: "#"
+  - list "Lokasi":
+    - listitem:
+      - link "SMP Cahaya Kaliandra":
+        - /url: "#"
+    - listitem:
+      - link "Matematika":
+        - /url: "#"
+    - listitem: Umpan balik kelas
+  - paragraph: Umpan balik kelas
+  - heading "Matematika" [level=1]
+  - paragraph: Satu kelas dan guru yang mengajarnya.
+  - region "Putaran untuk kelas ini":
+    - heading "Putaran untuk kelas ini" [level=2]
+    - paragraph: Belum ada putaran umpan balik dalam lingkup ini.
+  - region "Kelas dalam lingkup ini":
+    - heading "Kelas dalam lingkup ini" [level=2]
+    - paragraph: Putaran umpan balik dimulai untuk satu kelas dan satu gurunya.
+    - list:
+      - listitem:
+        - link "Kelas 7A Buka kelas":
+          - /url: "#"
+          - strong: Kelas 7A
+          - text: Buka kelas
+      - listitem:
+        - link "Kelas 7B Buka kelas":
+          - /url: "#"
+          - strong: Kelas 7B
+          - text: Buka kelas
+      - listitem:
+        - link "Kelas 7C Buka kelas":
+          - /url: "#"
+          - strong: Kelas 7C
+          - text: Buka kelas
