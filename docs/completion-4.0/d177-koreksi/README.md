@@ -233,6 +233,12 @@ E1 is accepted (D-170(c), with the correction accepted in D-171(a)). E2 is struc
 - Daisy's D1/STEP-2, accepted for design on 4 Nov.
 - Her implementation answers P1–P4 (`9c12c6ef`).
 - The owner's directive of 4 Nov, which names the email frames among the work to build. P7 is taken as given by it.
+- **Its scope (owner, 4 Nov, on review):** it authorises development on this branch only. It does **not** approve:
+  - protected or pending wording (`email.bingkai.konteks`, with Dr Gladys);
+  - the final logo (F-11);
+  - sending to real inboxes (P6).
+
+  Each of those remains a separate acceptance requirement.
 
 **Built:**
 - the reason line directly under the heading, and no longer in the footer;
