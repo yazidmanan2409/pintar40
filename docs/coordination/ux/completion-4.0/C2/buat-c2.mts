@@ -65,7 +65,10 @@ function halaman(l: Lembar): string {
   const keadaan = l.asesmen.length === 0 ? `<div class="pds-empty"><p>${kata("mengajar.bukti.kosong")}</p></div>` : l.asesmen.map((a) => `<article class="c2-asesmen" aria-labelledby="as-${a.judul.length}"><h3 id="as-${a.judul.length}">${esc(a.judul)}</h3>
     <dl class="c1-isi"><div><dt>${kata("mengajar.bukti.kumpul")}</dt><dd>${angka(a.kumpul)} / ${angka(total)}</dd></div><div><dt>${kata("mengajar.bukti.jendela")}</dt><dd>${a.jendela}</dd></div>
     <div><dt>${kata("mengajar.bukti.mulai")}</dt><dd>${angka(a.sedang)} <span>${orang}</span></dd></div><div><dt>${kata("mengajar.bukti.belum")}</dt><dd>${angka(a.belum)} <span>${orang}</span></dd></div></dl>
-    <p class="c2-tautan"><a href="#" class="pds-link">${kata(l.pd ? "mengajar.bukti.siapa_peserta" : "mengajar.bukti.siapa")}</a></p></article>`).join("");
+    <p class="c2-tautan"><a href="#" class="pds-link">${kata(l.pd ? "mengajar.bukti.siapa_peserta" : "mengajar.bukti.siapa")}</a>${
+      // round 2: «Lihat per soal» is not offered on a PD Kelas (its page refuses the facilitator); «Minta membaca lagi» stays
+      a.kumpul > 0 && !l.pd ? ` · <a href="#" class="pds-link" data-per-soal="">${kata("mengajar.bukti.per_soal")}</a>` : ""}${
+      a.kumpul > 0 && a.judul.startsWith("Uji Penguasaan") ? ` · <a href="#" class="pds-link">${kata("mengajar.ulang.judul")}</a>` : ""}</p></article>`).join("");
   // D-070(h): a PD Kelas has no class academic figures by design. Not five «not yet» cards that promise figures which
   // never come: one statement of what this class is, and the pointer to the record that matters (DAISY-34).
   const simpulan = l.pd
@@ -76,7 +79,11 @@ function halaman(l: Lembar): string {
     <div class="pds-pagehead"><div><p class="c1-alis-biasa">${kata("mengajar.bukti.eyebrow")} · ${kelas}</p><h1 class="pds-title">${kata("mengajar.bukti.judul")}</h1><p class="pds-intro">${kata("mengajar.bukti.intro")}</p></div></div>
     <section class="pds-section" aria-labelledby="c2-keadaan"><h2 id="c2-keadaan">${kata("mengajar.bukti.keadaan")}</h2>${keadaan}</section>
     <section class="pds-section" aria-labelledby="c2-simpulan"><h2 id="c2-simpulan">${kata("mengajar.bukti.simpulan")}</h2>${simpulan}</section>
-    <p class="c1-meta">${kata("mengajar.bukti.kaki")}</p>`);
+    ${l.pd
+      // round 1: the ordinary footnote says Kepala departemen reviews integrity signals, which is false for a PD Kelas
+      // (D-069(c)). The PD page's own footnote is Dr Gladys's words: a labelled slot, or no footnote at all.
+      ? `<p class="c1-meta"><span class="c1-slot-kata" data-slot="kaki-pd">[Dr Gladys · catatan kaki untuk Kelas pengembangan profesi, atau tanpa catatan kaki]</span></p>`
+      : `<p class="c1-meta">${kata("mengajar.bukti.kaki")}</p>`}`);
 }
 
 const LEMBAR: Lembar[] = [
@@ -116,14 +123,17 @@ for (const l of LEMBAR) {
       var t = document.body.innerText;
       return { lebar: document.documentElement.scrollWidth, kecil: kecil,
         angka: document.querySelectorAll(".c1-stat, .c1-m").length, arah: document.querySelectorAll("[data-pd-arah]").length,
+        perSoal: document.querySelectorAll("[data-per-soal]").length, kaki: t.indexOf(${JSON.stringify(kata("mengajar.bukti.kaki"))}) >= 0,
         murid: /\\bmurid\\b/.test(t.replace(${JSON.stringify(kata("mengajar.bukti.intro"))}, "")) };
-    })()`) as { lebar: number; kecil: string[]; angka: number; arah: number; murid: boolean };
+    })()`) as { lebar: number; kecil: string[]; angka: number; arah: number; murid: boolean; perSoal: number; kaki: boolean };
     if (ukur.lebar > w + 1) masalah.push(`sideways scroll ${ukur.lebar} at ${w}`);
     if (ukur.kecil.length) masalah.push(`targets under 24 px: ${ukur.kecil.join(", ")}`);
     if (l.pd && !l.tolak) {
       if (ukur.angka) masalah.push("a PD Kelas shows a figure or a figure's place (D-070(h))");
       if (ukur.arah !== 1) masalah.push("the pointer to the professional-learning record is not drawn once");
       if (ukur.murid) masalah.push("a PD Kelas names its people «murid» (DAISY-33)");
+      if (ukur.perSoal) masalah.push("a PD Kelas offers «Lihat per soal» (round 2)");
+      if (ukur.kaki) masalah.push("a PD Kelas carries the ordinary footnote (round 1, D-069(c))");
     }
     await page.addScriptTag({ content: axe });
     const pelanggaran = await page.evaluate(`axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] } }).then(function (r) { return r.violations.map(function (v) { return v.id + " (" + v.nodes.length + ")"; }); })`) as string[];

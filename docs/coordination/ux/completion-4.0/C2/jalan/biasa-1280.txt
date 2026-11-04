@@ -7,6 +7,8 @@ Ordinary class, for contrast · figures not yet at 1280 px: the Tab order from t
  6. a «SMP Cahaya Kaliandra»
  7. a «Kelas 7A»
  8. a «Lihat nama murid»
+ 9. a «Lihat per soal»
+10. a «Minta membaca lagi»
 
 The accessibility tree of the main region
 - main:
@@ -38,6 +40,12 @@ The accessibility tree of the main region
       - definition: 19 murid
       - paragraph:
         - link "Lihat nama murid":
+          - /url: "#"
+        - text: ·
+        - link "Lihat per soal":
+          - /url: "#"
+        - text: ·
+        - link "Minta membaca lagi":
           - /url: "#"
   - region "Kesimpulan":
     - heading "Kesimpulan" [level=2]

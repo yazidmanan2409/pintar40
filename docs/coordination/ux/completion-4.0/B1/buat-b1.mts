@@ -66,7 +66,8 @@ const KELOMPOK: Array<{ k: string; bagian: Bagian[] }> = [
   ] },
   { k: "murid", bagian: [
     { k: "pindah", judul: kata("config.section.pindah"), sekolahSaja: true },
-    { k: "transfers", judul: kata("config.section.transfers"), sekolahSaja: true },
+    // round 1: Admin platform sees «Perpindahan murid» in «Seluruh platform» today (the section carries no `hidden`); kept
+    { k: "transfers", judul: kata("config.section.transfers"), sekolahSaja: false },
   ] },
   { k: "staf", bagian: [
     { k: "roles", judul: kata("config.section.roles"), sekolahSaja: false },
@@ -88,7 +89,7 @@ const KELOMPOK: Array<{ k: string; bagian: Bagian[] }> = [
 function shell(p: Pembaca, judul: string, isi: string): string {
   const tempat: Array<[string, string]> = p === "sekolah"
     ? [[kata("nav.konfigurasi"), "settings"], [kata("nav.pendataan"), "file-spreadsheet"], [kata("nav.aktivasi"), "user-check"], [kata("nav.studio"), "square-pen"], [kata("keamanan.judul"), "shield"], [kata("sertifikat.kelola.judul"), "award"]]
-    : [[kata("nav.konfigurasi"), "settings"], [kata("nav.aktivasi"), "user-check"], [kata("nav.studio"), "square-pen"], [kata("emailuji.judul"), "mail"], [kata("keamanan.judul"), "shield"], [kata("sertifikat.kelola.judul"), "award"]];
+    : [[kata("nav.konfigurasi"), "settings"], [kata("nav.aktivasi"), "user-check"], [kata("keamanan.judul"), "shield"], [kata("emailuji.judul"), "mail"], [kata("sertifikat.kelola.judul"), "award"]]; // round 1: the live platform navigation
   const o = ORANG[p];
   return `<div class="pds pds-jalan b1">
   <section class="pds-lewati-induk" data-shell data-shell-statis aria-label="${esc(judul)}">

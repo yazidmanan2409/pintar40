@@ -47,14 +47,19 @@ Top to bottom (`render/indeks-*`):
 | Group (new words) | Sections, in task order | Admin platform sees |
 |---|---|---|
 | Sekolah dan tahun ajaran | Struktur sekolah · Batas ketuntasan · Pergantian tahun ajaran · Sistem & Konfigurasi | Sistem & Konfigurasi |
-| Murid | Pindah kelas · Perpindahan murid | — (the group is absent) |
+| Murid | Pindah kelas · Perpindahan murid | Perpindahan murid (round 1: shown today; kept) |
 | Staf dan akses | Peran & akses · Peserta pengembangan profesi · Jejak audit | Peran & akses · Jejak audit |
 | Laporan dan templat | Laporan · Templat laporan | — |
 | Dukungan | Laporan masalah · Pemeliharaan dan pengumuman | both |
 
 **Group order:** setup first, because a new school can do nothing until it has a structure (DAISY-05). Then the people, then what is read, then support.
 
-**Which sections each role sees** is exactly `tampil()` today. «Seluruh platform» draws no school-shaped section (L3). A group with no section left is absent.
+**Which sections each role sees** is what the page shows today: `tampil()`, plus «Perpindahan murid», whose section carries no `hidden` and so shows in «Seluruh platform» although the menu omits it. Seen live in the owner's local reproduction (round 1).
+- **«Perpindahan murid» stays for Admin platform.** A transfer runs between two schools, and «Seluruh platform» is the one place that sees both ends. Removing it would change who sees what, which is a permission matter, not presentation.
+- In «Seluruh platform» the page holds the transfers list with its actions, as built. The two school-shaped forms («Permintaan pindah masuk», «Ajukan perpindahan ke sekolah lain») need a school (`satuSekolah`), so they are absent there, as built.
+- The index puts it in «Murid» for both roles.
+
+Otherwise «Seluruh platform» draws no school-shaped section (L3). A group with no section left is absent.
 
 **RV-24 «index label»:** the row for the report templates is titled by the section it opens, «Templat laporan». «Inteligensi & Laporan» retires.
 
@@ -109,7 +114,7 @@ Each section page has:
 |---|---|
 | Index, Admin sekolah, something waiting | `indeks-sekolah` |
 | Index, nothing waiting | `indeks-sekolah-tenang` |
-| Index, Admin platform | `indeks-platform` (substitute) |
+| Index, Admin platform | `indeks-platform` (substitute; navigation and «Perpindahan murid» corrected after round 1) |
 | A record opened in place, after a save | `ketuntasan` (result line), `peran-sekolah` (revocation), `laporan-masalah` |
 | Empty | `ketuntasan-kosong`: «Sekolah ini belum punya pelajaran.» Every section keeps its built empty line. |
 | A two-step form at step 2 | `pemeliharaan-sekolah` |
@@ -163,6 +168,7 @@ All other words are the copy table at 0b19707, unchanged.
 | `config.section.intelligence` | — | — | RETIRED from the index (RV-24); the row uses `laporan.templat.judul` «Templat laporan» |
 | `config.refused` (English only) | unchanged | **This page is for school administrators and platform administrators only.** | CORRECTION: the English said «system administrators only», which does not match the Indonesian |
 | RV-15 seed name (data, not a key) | **Sekolah Contoh PINTAR** | — | PROPOSED (not «Uji», for the same reason as above) for the bootstrap institution, today «PINTAR Bootstrap (OFFICIAL evidence — development and CI only)» (`supabase/seed/official_bootstrap.sql:68`). The «data uji» badge already marks it. Applying it is a change to that seed file (development and CI only), not a migration. |
+| `lapor.triase.arti` in «Seluruh platform» (a platform form, for example `lapor.triase.arti_platform`) | **Laporan dari staf semua sekolah, yang menghentikan kelas lebih dahulu. Sekolah menyelesaikan yang dapat diselesaikannya; tim PINTAR menindaklanjuti sisanya.** | **Reports from staff at every school, the ones stopping a class first. Each school resolves what it can; the PINTAR team follows up the rest.** | PROPOSED · presentation; **Dr Gladys confirms**. Round 1: today «Laporan dari staf sekolah Anda …» shows in «Seluruh platform», where there is no «your school». Admin sekolah keeps today's line. |
 
 No frozen term is touched. «Murid» as a group label is the approved role word (`role.STUDENT`).
 

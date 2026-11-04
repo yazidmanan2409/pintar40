@@ -28,7 +28,7 @@
 - the head: eyebrow «Bukti · PD Guru Matematika», h1 «Apa yang sudah bisa disimpulkan», and the built intro;
 - «Keadaan hari ini», as built;
 - «Kesimpulan»;
-- the footnote (`mengajar.bukti.kaki`).
+- the footnote: the ordinary page's `mengajar.bukti.kaki`, **but not on a PD Kelas** (see below).
 
 **What changes, for a PD Kelas only: «Kesimpulan».**
 
@@ -42,6 +42,14 @@
 - per open or closed assessment, its title and the participation counts: «Mengumpulkan 4 / 9», «Jendela», «Sudah mulai, belum mengumpulkan 2 peserta», «Belum mengerjakan 3 peserta»;
 - the people are «peserta» throughout (DAISY-33);
 - **one word fix:** «Lihat nama murid» becomes **«Lihat nama peserta»**. Today it is the one people-word the participant switch misses: `mengajar.bukti.siapa` is not in `KATA_PESERTA`.
+
+**The links under each assessment** (corrected after the owner's local reproduction, round 2):
+- **PD Kelas:** «Lihat nama peserta», and «Minta membaca lagi» once an Uji Penguasaan is handed in. **«Lihat per soal» is not offered.** Live, it leads the facilitator to the refusal page.
+- **Ordinary class:** as built: «Lihat nama murid» · «Lihat per soal» · «Minta membaca lagi».
+
+**The footnote** (corrected, round 1):
+- The ordinary footnote says integrity signals are «ditinjau Kepala departemen, bukan guru». **That is false for a PD Kelas**: PD integrity signals are not surfaced to school leadership (D-069(c)).
+- The PD page gets **its own footnote, or none. The words are Dr Gladys's.** The specimen draws a labelled slot, «[Dr Gladys · catatan kaki untuk Kelas pengembangan profesi, atau tanpa catatan kaki]», never filled. If she chooses none, the slot is removed and nothing else moves.
 
 **The intro stays:** «PINTAR hanya menyimpulkan bila bukti resminya cukup. Belum cukup bukan berarti buruk — artinya belum.» It is the ordinary page's line, and the page stays ordinary. «Kesimpulan» then says plainly that this class has no figures, so nothing waits.
 
@@ -69,12 +77,14 @@
 
 ## 4. Keyboard and accessibility
 
-- **Tab order:** the skip link, the places, the back link, the scope line's links, «Lihat nama peserta», «Buka catatan pengembangan profesi».
+- **Tab order:** the skip link, the places, the back link, the scope line's links, «Lihat nama peserta», «Minta membaca lagi», «Buka catatan pengembangan profesi».
 - **Tree:** «Kesimpulan» is an h2 section holding one paragraph and one link, which is named by its words.
 - **Checks** (`render/laporan.txt`): axe WCAG 2.2 AA in all 16 renders; every target is at least 24 px; focus rings. For the PD specimens:
   - **no figure and no figure's place**;
   - the pointer drawn exactly once;
-  - **no «murid»** outside the shared intro.
+  - **no «murid»** outside the shared intro;
+  - **no «Lihat per soal»**;
+  - **not the ordinary footnote**.
 
 ## 5. Words (T table)
 
@@ -83,6 +93,7 @@
 | `mengajar.bukti.pd.arti` | Kelas pengembangan profesi tidak menghasilkan angka akademik kelas. Kemajuan dan hasil setiap peserta tercatat di Catatan pengembangan profesi. | A professional-learning class produces no class academic figures. Each participant's progress and result are kept in the professional-learning record. | NEW · presentation; pending copy approval |
 | `mengajar.bukti.pd.buka` | Buka catatan pengembangan profesi | Open the professional-learning record | NEW · presentation; pending copy approval |
 | `mengajar.bukti.siapa_peserta` | Lihat nama peserta | See the participants' names | NEW · the participant form of `mengajar.bukti.siapa`. It joins `KATA_PESERTA` (DAISY-33). |
+| the PD footnote | **[Dr Gladys's slot]**, or no footnote | — | Dr Gladys's words (round 1; D-069(c)) |
 
 «Catatan pengembangan profesi» is the existing name of the record (`config.peserta.catatan`). No frozen term is touched. **UX1-AJAR-KATA-01 holds:** every new key is declared in both languages and addressed formally; the learning surface renders none of them.
 
@@ -103,7 +114,7 @@
 These are not decisions.
 
 - **The condition:** the composed «Kesimpulan» is drawn when the class's kind is PARTICIPANT, the value the page already reads (`jenisAnggota`). The page then need not ask for the five metrics. Asking and discarding would also be correct, but it is wasted work.
-- **«Lihat per soal» and «Minta membaca lagi»**, built links under «Keadaan hari ini» once something is handed in, lead to pages outside C2. Whether a PD class's per-question page shows anything is that page's own matter under D-070(h). This composition neither adds nor removes those links.
+- **«Lihat per soal»** is not offered on a PD Kelas: the built link is withheld when the kind is PARTICIPANT, the same condition as «Kesimpulan». «Minta membaca lagi» stays, as built.
 - **A facilitator without access to the record:** the record's own gate refuses, with the refusal line proposed in C1 part B.
 - **A class whose kind is unread** fails safe to LEARNER (`jenisAnggota`): the ordinary page.
 
@@ -113,7 +124,9 @@ These are not decisions.
 - [auto] The pointer to the professional-learning record is drawn once, under «Kesimpulan».
 - [auto] A PD Kelas names its people «peserta», never «murid», outside the shared intro (DAISY-33; the new `mengajar.bukti.siapa_peserta`).
 - [auto] No sideways scroll at 1280, 820, 390 or 320 px; axe WCAG 2.2 AA, 16 of 16; targets at least 24 px; focus rings.
-- [auto] UX1-AJAR-KATA-01 holds with the three new keys.
+- [auto] A PD Kelas offers no «Lihat per soal»; «Minta membaca lagi» stays once an Uji Penguasaan is handed in.
+- [auto] A PD Kelas does not carry the ordinary footnote; it carries Dr Gladys's footnote, or none (D-069(c)).
+- [auto] UX1-AJAR-KATA-01 holds with the three new keys (engineering's test, once the keys are in the copy table).
 - [manual] A PD class reproduced on a disposable stack and compared with the substitute specimens before acceptance (register C2).
 - [manual] Side-by-side review of the build at each width (brief G:14).
 - [manual] DAISY-35's own acceptance (BRD:260).

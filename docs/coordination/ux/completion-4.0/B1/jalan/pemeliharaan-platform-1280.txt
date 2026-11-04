@@ -2,44 +2,44 @@ Pemeliharaan · Admin platform, with «Hentikan sekarang» at 1280 px: the Tab o
  1. a «Langsung ke isi»
  2. a «Konfigurasi»
  3. a «Aktivasi akun»
- 4. a «Studio»
+ 4. a «Keamanan akun»
  5. a «Kirim email uji»
- 6. a «Keamanan akun»
- 7. a «Sertifikat sekolah»
- 8. button «Keluar»
- 9. a «Konfigurasi»
-10. input «Seluruh platform»
-11. input «SMP Cahaya Kaliandra»
+ 6. a «Sertifikat sekolah»
+ 7. button «Keluar»
+ 8. a «Konfigurasi»
+ 9. input «Seluruh platform»
+10. input «SMP Cahaya Kaliandra»
+11. input «Mulai (WIB; kosongkan untuk sekarang)»
 12. input «Mulai (WIB; kosongkan untuk sekarang)»
 13. input «Mulai (WIB; kosongkan untuk sekarang)»
 14. input «Mulai (WIB; kosongkan untuk sekarang)»
 15. input «Mulai (WIB; kosongkan untuk sekarang)»
 16. input «Mulai (WIB; kosongkan untuk sekarang)»
-17. input «Mulai (WIB; kosongkan untuk sekarang)»
-18. input «Mulai (WIB; kosongkan untuk sekarang)»  DS-DATETIME
+17. input «Mulai (WIB; kosongkan untuk sekarang)»  DS-DATETIME
+18. input «Perkiraan selesai (WIB)»
 19. input «Perkiraan selesai (WIB)»
 20. input «Perkiraan selesai (WIB)»
 21. input «Perkiraan selesai (WIB)»
 22. input «Perkiraan selesai (WIB)»
 23. input «Perkiraan selesai (WIB)»
-24. input «Perkiraan selesai (WIB)»
-25. input «Perkiraan selesai (WIB)»  DS-DATETIME
-26. button «Periksa waktu ini»
-27. textarea «Pesan untuk pengguna (pilihan)»
-28. input «Alasan (dicatat)»
-29. input «Terbitkan juga sebagai pengumuman»
-30. button «Jadwalkan pemeliharaan»
-31. a «Batalkan»
-32. input «Seluruh platform»
-33. input «SMP Cahaya Kaliandra»
-34. input «Isi pengumuman»
+24. input «Perkiraan selesai (WIB)»  DS-DATETIME
+25. button «Periksa waktu ini»
+26. textarea «Pesan untuk pengguna (pilihan)»
+27. input «Alasan (dicatat)»
+28. input «Terbitkan juga sebagai pengumuman»
+29. button «Jadwalkan pemeliharaan»
+30. a «Batalkan»
+31. input «Seluruh platform»
+32. input «SMP Cahaya Kaliandra»
+33. input «Isi pengumuman»
+34. input «Terbit (WIB; kosongkan untuk sekarang)»
 35. input «Terbit (WIB; kosongkan untuk sekarang)»
 36. input «Terbit (WIB; kosongkan untuk sekarang)»
 37. input «Terbit (WIB; kosongkan untuk sekarang)»
 38. input «Terbit (WIB; kosongkan untuk sekarang)»
 39. input «Terbit (WIB; kosongkan untuk sekarang)»
-40. input «Terbit (WIB; kosongkan untuk sekarang)»
-41. input «Terbit (WIB; kosongkan untuk sekarang)»  DS-DATETIME
+40. input «Terbit (WIB; kosongkan untuk sekarang)»  DS-DATETIME
+41. input «Sampai (WIB)»
 42. input «Sampai (WIB)»
 43. input «Sampai (WIB)»
 44. input «Sampai (WIB)»

@@ -6,7 +6,8 @@ PD Kelas · an assessment open (labelled substitute) at 320 px: the Tab order fr
  5. a «SMP Cahaya Kaliandra»
  6. a «PD Guru Matematika»
  7. a «Lihat nama peserta»
- 8. a «Buka catatan pengembangan profesi»
+ 8. a «Minta membaca lagi»
+ 9. a «Buka catatan pengembangan profesi»
 
 The accessibility tree of the main region
 - main:
@@ -39,9 +40,12 @@ The accessibility tree of the main region
       - paragraph:
         - link "Lihat nama peserta":
           - /url: "#"
+        - text: ·
+        - link "Minta membaca lagi":
+          - /url: "#"
   - region "Kesimpulan":
     - heading "Kesimpulan" [level=2]
     - paragraph: Kelas pengembangan profesi tidak menghasilkan angka akademik kelas. Kemajuan dan hasil setiap peserta tercatat di Catatan pengembangan profesi.
     - link "Buka catatan pengembangan profesi":
       - /url: "#"
-  - paragraph: "Yang tidak tampil di sini: penilaian per soal dan sinyal integritas. Keduanya ditinjau Kepala departemen, bukan guru."
+  - paragraph: "[Dr Gladys · catatan kaki untuk Kelas pengembangan profesi, atau tanpa catatan kaki]"

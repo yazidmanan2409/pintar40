@@ -2,14 +2,13 @@ Jejak audit · Admin platform («Versi» where a row has one) at 1280 px: the Ta
  1. a «Langsung ke isi»
  2. a «Konfigurasi»
  3. a «Aktivasi akun»
- 4. a «Studio»
+ 4. a «Keamanan akun»
  5. a «Kirim email uji»
- 6. a «Keamanan akun»
- 7. a «Sertifikat sekolah»
- 8. button «Keluar»
- 9. a «Konfigurasi»
-10. a «Kembali»
-11. a «Berikutnya»
+ 6. a «Sertifikat sekolah»
+ 7. button «Keluar»
+ 8. a «Konfigurasi»
+ 9. a «Kembali»
+10. a «Berikutnya»
 
 The accessibility tree of the main region
 - main:

@@ -2,25 +2,24 @@ Peran & akses · Admin platform (labelled substitute) at 1280 px: the Tab order 
  1. a «Langsung ke isi»
  2. a «Konfigurasi»
  3. a «Aktivasi akun»
- 4. a «Studio»
+ 4. a «Keamanan akun»
  5. a «Kirim email uji»
- 6. a «Keamanan akun»
- 7. a «Sertifikat sekolah»
- 8. button «Keluar»
- 9. a «Konfigurasi»
-10. a «Cabut · Hana Wibisono»
-11. input «Alasan»
-12. button «Cabut»
-13. a «Batal»
-14. a «Cabut · Joko Santoso»
-15. select «Orang»
-16. select «Peran»
-17. select «Lingkup»
+ 6. a «Sertifikat sekolah»
+ 7. button «Keluar»
+ 8. a «Konfigurasi»
+ 9. a «Cabut · Hana Wibisono»
+10. input «Alasan»
+11. button «Cabut»
+12. a «Batal»
+13. a «Cabut · Joko Santoso»
+14. select «Orang»
+15. select «Peran»
+16. select «Lingkup»
+17. input «Berlaku sampai»
 18. input «Berlaku sampai»
 19. input «Berlaku sampai»
-20. input «Berlaku sampai»
-21. input «Berlaku sampai»  DS-DATETIME
-22. button «Berikan peran»
+20. input «Berlaku sampai»  DS-DATETIME
+21. button «Berikan peran»
 
 The accessibility tree of the main region
 - main:

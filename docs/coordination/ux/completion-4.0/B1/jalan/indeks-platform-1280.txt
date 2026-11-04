@@ -2,14 +2,14 @@ Index · Admin platform in «Seluruh platform» (labelled substitute: from the c
  1. a «Langsung ke isi»
  2. a «Konfigurasi»
  3. a «Aktivasi akun»
- 4. a «Studio»
+ 4. a «Keamanan akun»
  5. a «Kirim email uji»
- 6. a «Keamanan akun»
- 7. a «Sertifikat sekolah»
- 8. button «Keluar»
- 9. a «Periksa lagi»
-10. a «41 orang menunggu akun di Aktivasi»
-11. a «Sistem & Konfigurasi»
+ 6. a «Sertifikat sekolah»
+ 7. button «Keluar»
+ 8. a «Periksa lagi»
+ 9. a «41 orang menunggu akun di Aktivasi»
+10. a «Sistem & Konfigurasi»
+11. a «Perpindahan murid»
 12. a «Peran & akses»
 13. a «Jejak audit»
 14. a «Laporan masalah»
@@ -43,6 +43,13 @@ The accessibility tree of the main region
         - link "Sistem & Konfigurasi":
           - /url: "#"
           - strong: Sistem & Konfigurasi
+  - region "Murid":
+    - heading "Murid" [level=2]
+    - list:
+      - listitem:
+        - link "Perpindahan murid":
+          - /url: "#"
+          - strong: Perpindahan murid
   - region "Staf dan akses":
     - heading "Staf dan akses" [level=2]
     - list:

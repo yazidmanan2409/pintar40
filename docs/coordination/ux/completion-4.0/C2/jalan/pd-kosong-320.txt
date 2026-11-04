@@ -31,4 +31,4 @@ The accessibility tree of the main region
     - paragraph: Kelas pengembangan profesi tidak menghasilkan angka akademik kelas. Kemajuan dan hasil setiap peserta tercatat di Catatan pengembangan profesi.
     - link "Buka catatan pengembangan profesi":
       - /url: "#"
-  - paragraph: "Yang tidak tampil di sini: penilaian per soal dan sinyal integritas. Keduanya ditinjau Kepala departemen, bukan guru."
+  - paragraph: "[Dr Gladys · catatan kaki untuk Kelas pengembangan profesi, atau tanpa catatan kaki]"
