@@ -1,0 +1,10 @@
+Mengelola · Admin platform in «Seluruh platform» at 390 px (bar): the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Buka menu»
+
+The navigation's accessibility tree
+- img "Pintar (master pending F-11)"
+- strong: Seluruh platform
+- button "Keluar"
+- button "Buka menu"

@@ -1,0 +1,23 @@
+Belajar · the same Guru, learning (staff shell, JQ3) at 1100 px (rail): the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Lebarkan navigasi»
+ 3. a «Mau ke mana hari ini? · Belajar · SMP Cahaya Kaliandra»
+ 4. a «Belajar» [current]
+ 5. a «Bantuan»
+ 6. a «Laporkan masalah»
+ 7. button «Keluar»
+
+The navigation's accessibility tree
+- navigation "Tempat kerja Anda":
+  - button "Lebarkan navigasi"
+  - link "Mau ke mana hari ini? · Belajar · SMP Cahaya Kaliandra":
+    - /url: "#"
+  - list:
+    - listitem:
+      - link "Belajar":
+        - /url: "#"
+  - link "Bantuan":
+    - /url: "#"
+  - link "Laporkan masalah":
+    - /url: "#"
+  - button "Keluar"

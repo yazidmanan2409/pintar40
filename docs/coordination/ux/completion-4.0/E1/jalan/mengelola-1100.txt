@@ -1,0 +1,43 @@
+Mengelola · Admin sekolah (G1's name) at 1100 px (rail): the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Lebarkan navigasi»
+ 3. a «Mau ke mana hari ini? · [G1 · context.manage_label] · SMP Cahaya» tooltip «[G1 · context.manage_label] · SMP Cahaya Kaliandra»
+ 4. a «Konfigurasi» [current]
+ 5. a «Pendataan»
+ 6. a «Aktivasi akun»
+ 7. a «Studio» tooltip «Studio»
+ 8. a «Keamanan akun»
+ 9. a «Sertifikat sekolah»
+10. a «Bantuan»
+11. a «Laporkan masalah»
+12. button «Keluar» tooltip «Keluar»
+
+The navigation's accessibility tree
+- navigation "Tempat kerja Anda":
+  - button "Lebarkan navigasi"
+  - link "Mau ke mana hari ini? · [G1 · context.manage_label] · SMP Cahaya Kaliandra":
+    - /url: "#"
+  - list:
+    - listitem:
+      - link "Konfigurasi":
+        - /url: "#"
+    - listitem:
+      - link "Pendataan":
+        - /url: "#"
+    - listitem:
+      - link "Aktivasi akun":
+        - /url: "#"
+    - listitem:
+      - link "Studio":
+        - /url: "#"
+    - listitem:
+      - link "Keamanan akun":
+        - /url: "#"
+    - listitem:
+      - link "Sertifikat sekolah":
+        - /url: "#"
+  - link "Bantuan":
+    - /url: "#"
+  - link "Laporkan masalah":
+    - /url: "#"
+  - button "Keluar"

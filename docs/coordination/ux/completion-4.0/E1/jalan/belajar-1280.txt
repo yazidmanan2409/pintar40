@@ -1,0 +1,28 @@
+Belajar · the same Guru, learning (staff shell, JQ3) at 1280 px (penuh): the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Ciutkan navigasi»
+ 3. a «Mau ke mana hari ini?»
+ 4. a «Belajar» [current]
+ 5. a «Bantuan»
+ 6. a «Laporkan masalah»
+ 7. button «Keluar»
+
+The navigation's accessibility tree
+- navigation "Tempat kerja Anda":
+  - img "Pintar (master pending F-11)"
+  - button "Ciutkan navigasi" [expanded]
+  - text: Belajar
+  - strong: SMP Cahaya Kaliandra
+  - link "Mau ke mana hari ini?":
+    - /url: "#"
+  - list:
+    - listitem:
+      - link "Belajar":
+        - /url: "#"
+  - link "Bantuan":
+    - /url: "#"
+  - link "Laporkan masalah":
+    - /url: "#"
+  - strong: Citra Lestari
+  - text: Guru · SMP Cahaya Kaliandra
+  - button "Keluar"

@@ -1,0 +1,39 @@
+Mengelola · Admin platform in «Seluruh platform» at 1100 px (rail): the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Lebarkan navigasi»
+ 3. a «Mau ke mana hari ini? · [G1 · context.manage_label] · Seluruh pl»
+ 4. a «Konfigurasi» [current]
+ 5. a «Aktivasi akun»
+ 6. a «Keamanan akun»
+ 7. a «Kirim email uji» tooltip «Kirim email uji»
+ 8. a «Sertifikat sekolah»
+ 9. a «Bantuan»
+10. a «Laporkan masalah»
+11. button «Keluar»
+
+The navigation's accessibility tree
+- navigation "Tempat kerja Anda":
+  - button "Lebarkan navigasi"
+  - link "Mau ke mana hari ini? · [G1 · context.manage_label] · Seluruh platform":
+    - /url: "#"
+  - list:
+    - listitem:
+      - link "Konfigurasi":
+        - /url: "#"
+    - listitem:
+      - link "Aktivasi akun":
+        - /url: "#"
+    - listitem:
+      - link "Keamanan akun":
+        - /url: "#"
+    - listitem:
+      - link "Kirim email uji":
+        - /url: "#"
+    - listitem:
+      - link "Sertifikat sekolah":
+        - /url: "#"
+  - link "Bantuan":
+    - /url: "#"
+  - link "Laporkan masalah":
+    - /url: "#"
+  - button "Keluar"

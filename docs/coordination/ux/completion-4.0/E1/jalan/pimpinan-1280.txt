@@ -1,0 +1,32 @@
+Mengelola · Kepala departemen (Pimpinan) at 1280 px (penuh): the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Ciutkan navigasi»
+ 3. a «Mau ke mana hari ini?»
+ 4. a «Pimpinan» [current]
+ 5. a «Studio»
+ 6. a «Bantuan»
+ 7. a «Laporkan masalah»
+ 8. button «Keluar»
+
+The navigation's accessibility tree
+- navigation "Tempat kerja Anda":
+  - img "Pintar (master pending F-11)"
+  - button "Ciutkan navigasi" [expanded]
+  - text: "[G1 · context.manage_label]"
+  - strong: SMP Cahaya Kaliandra
+  - link "Mau ke mana hari ini?":
+    - /url: "#"
+  - list:
+    - listitem:
+      - link "Pimpinan":
+        - /url: "#"
+    - listitem:
+      - link "Studio":
+        - /url: "#"
+  - link "Bantuan":
+    - /url: "#"
+  - link "Laporkan masalah":
+    - /url: "#"
+  - strong: Eko Prasetyo
+  - text: Kepala departemen · SMP Cahaya Kaliandra
+  - button "Keluar"

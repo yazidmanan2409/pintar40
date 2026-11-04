@@ -1,0 +1,20 @@
+/* E1 — J3's navigation under L3. Loads on top of C1's c1.css (slots) and E2's e2.css (the context
+   control). The shell itself is the design system's AppShell, unchanged. Tokens only. */
+
+/* The context control sits under the wordmark, above the places (E2). */
+.e1 .e1-konteks { margin: 0 0 var(--space-3); }
+/* In the rail: the block gives way to one item, the place's initials, which is the chooser link. */
+.e1-rail-konteks { display: none; }
+.e1-inisial::before { content: attr(data-inisial); }
+.e1-inisial { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius-md); background: var(--surface-2); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.02em; color: var(--ink-1); }
+.pds-shell[data-ciut="ya"] .e1-konteks { display: none; }
+.pds-shell[data-ciut="ya"] .e1-rail-konteks { display: inline-flex; }
+@container shell (min-width: 1024px) and (max-width: 1279px) {
+  .pds-shell:not([data-ciut="tidak"]) .e1-konteks { display: none; }
+  .pds-shell:not([data-ciut="tidak"]) .e1-rail-konteks { display: inline-flex; }
+}
+/* The collapse control: in the rail it is the expand control, under the slot-sized mark. */
+.e1 .pds-nav-kepala { gap: var(--space-2); }
+.e1 .pds-shell[data-ciut="ya"] .pds-nav-kepala .c1-slot { display: none; }
+/* In the drawer the block heads the places, as in the expanded navigation. */
+.pds-drawer .e2-konteks { margin: 0 0 var(--space-3); }
