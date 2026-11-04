@@ -1,0 +1,63 @@
+Another threshold, here 10 (O3 b) · 7 of 28 scored: not yet at 1280 px
+
+- main:
+  - paragraph:
+    - link "Kembali ke Uji Cepat":
+      - /url: "#"
+  - list "Lokasi":
+    - listitem:
+      - link "SMP Cahaya Kaliandra":
+        - /url: "#"
+    - listitem:
+      - link "Kelas 7A":
+        - /url: "#"
+    - listitem: TA 2026/2027
+  - paragraph: Uji Cepat · Bab 3 · Pecahan senilai
+  - heading "Hasil Uji Cepat" [level=1]
+  - region "Rata-rata nilai kelas":
+    - paragraph: Rata-rata nilai kelas
+    - paragraph: Belum cukup nilai untuk menampilkan rata-rata kelas.
+    - paragraph: Sekarang 7 murid; perlu 10.
+    - paragraph: Rata-rata nilai kelas muncul setelah cukup murid dinilai.
+    - paragraph: 7 dari 28 murid sudah dinilai
+  - link "Lihat per soal":
+    - /url: "#"
+  - region "Rincian nilai":
+    - heading "Rincian nilai" [level=2]
+    - paragraph: Diurutkan abjad. Bukan peringkat.
+    - table "Rincian nilai · Kelas 7A":
+      - caption: Rincian nilai · Kelas 7A
+      - rowgroup:
+        - row "Nama Keadaan Nilai":
+          - columnheader "Nama"
+          - columnheader "Keadaan"
+          - columnheader "Nilai"
+      - rowgroup:
+        - row "Adinda Putri Sudah mengumpulkan 90%":
+          - cell "Adinda Putri"
+          - cell "Sudah mengumpulkan"
+          - cell "90%"
+        - row "Bagas Saputra Sudah mengumpulkan 70%":
+          - cell "Bagas Saputra"
+          - cell "Sudah mengumpulkan"
+          - cell "70%"
+        - row "Cahya Ramadhani Sudah mengumpulkan 80%":
+          - cell "Cahya Ramadhani"
+          - cell "Sudah mengumpulkan"
+          - cell "80%"
+        - row "Dimas Pratama Sudah mengumpulkan 60%":
+          - cell "Dimas Pratama"
+          - cell "Sudah mengumpulkan"
+          - cell "60%"
+        - row "Elok Wulandari Sudah mengumpulkan 75%":
+          - cell "Elok Wulandari"
+          - cell "Sudah mengumpulkan"
+          - cell "75%"
+        - row "Fajar Nugroho Sudah mengumpulkan 85%":
+          - cell "Fajar Nugroho"
+          - cell "Sudah mengumpulkan"
+          - cell "85%"
+    - navigation "Halaman daftar murid":
+      - text: Menampilkan 1–6 dari 28 murid Sebelumnya Halaman 1 dari 5
+      - link "Berikutnya":
+        - /url: "#"

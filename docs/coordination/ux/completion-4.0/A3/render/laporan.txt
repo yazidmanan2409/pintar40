@@ -1,0 +1,22 @@
+5 states × 4 widths: 0 with a failure
+
+ok   ambang5-kurang @1280
+ok   ambang5-kurang @820
+ok   ambang5-kurang @390
+ok   ambang5-kurang @320
+ok   ambang5-cukup @1280
+ok   ambang5-cukup @820
+ok   ambang5-cukup @390
+ok   ambang5-cukup @320
+ok   ambangN-kurang @1280
+ok   ambangN-kurang @820
+ok   ambangN-kurang @390
+ok   ambangN-kurang @320
+ok   tanpa-ambang @1280
+ok   tanpa-ambang @820
+ok   tanpa-ambang @390
+ok   tanpa-ambang @320
+ok   nol @1280
+ok   nol @820
+ok   nol @390
+ok   nol @320
