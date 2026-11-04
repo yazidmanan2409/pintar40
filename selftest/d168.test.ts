@@ -22,8 +22,13 @@
  *              «peserta» in the names link.
  *   D168-K7-1  one page-head rule (E-K7, D-173(d)): no file that draws the shell (CangkangStaf / CangkangPengalaman)
  *              draws the app's name as a page's eyebrow or head line — the shell already names PINTAR.
+ *   D168-K2-1  one pagination grammar (E-K2, D-173(d)): Penomoran IS the Collection's pager (HalamanKoleksi); every
+ *              list that pages passes its rows' noun, its count and the reader's language; rendered, page 1 of a keyset
+ *              list shows «Menampilkan 1–20 …», «Halaman 1» and a DISABLED «Sebelumnya» (never hidden), page 2 links
+ *              both ways, no pager says «Kembali», and a list with a known total shows it («… dari 45 …»).
  */
 import { readFileSync, readdirSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { allKeys, t, type HleEvent } from "../src/lib/hle";
@@ -122,6 +127,60 @@ export const d168Tests: SelfTest[] = [
       const salah = bercangkang.filter((f) => /<(p|span|div)[^>]*>\s*\{s\("app\.name"\)\}/.test(kode(readFileSync(join(repoRoot, f), "utf8"))));
       c.expect(salah.length === 0, `the app's name is drawn as a page head line inside the shell in: ${salah.join(", ")}`);
       return c.verdict(`no shelled page (${bercangkang.length} files) draws «PINTAR» as its eyebrow or head line`);
+    },
+  },
+  {
+    id: "D168-K2-1",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const pager = kode(readFileSync(join(repoRoot, "src/components/koleksi/Penomoran.tsx"), "utf8"));
+      c.expect(/import \{ HalamanKoleksi \} from "\.\/Koleksi"/.test(pager) && /<HalamanKoleksi posisi=\{posisi\} benda=\{benda\} ke=\{ke\} locale=\{locale\} \/>/.test(pager)
+        && !/<Link\b|<nav\b/.test(pager), "Penomoran draws its own pager instead of the Collection's");
+      const PAKAI = ["src/app/konfigurasi/page.tsx", "src/app/studio/integritas/page.tsx", "src/app/studio/definisi/page.tsx", "src/app/aktivasi/page.tsx"];
+      let jumlah = 0;
+      for (const f of PAKAI) {
+        const src = kode(readFileSync(join(repoRoot, f), "utf8"));
+        for (const m of src.matchAll(/<Penomoran\b([\s\S]*?)\/>/g)) {
+          jumlah++;
+          c.expect(/locale=\{locale\}/.test(m[1]) && /benda=\{s?l?\("koleksi\.benda\.[a-z]+"\)|benda=\{s\("orang\.benda"\)\}/.test(m[1]) && /jumlah=\{/.test(m[1]),
+            `${f}: a pager without the reader's language, its rows' noun or its count: ${m[1].replace(/\s+/g, " ").slice(0, 90)}`);
+        }
+      }
+      c.expect(jumlah === 10, `${jumlah} paged lists found, not the 10 known`);
+      const KASUS = [
+        { halaman: 1, lagi: true, jumlah: 20, locale: "id" }, { halaman: 2, lagi: true, jumlah: 20, locale: "id" },
+        { halaman: 3, lagi: false, jumlah: 5, locale: "en" }, { halaman: 1, lagi: false, jumlah: 20, locale: "id" },
+        { halaman: 2, lagi: true, jumlah: 20, locale: "id", total: 45 },
+      ];
+      const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
+        "(async () => {" +
+        '  const { createElement: h } = await import("react");' +
+        '  const { renderToStaticMarkup } = await import("react-dom/server");' +
+        '  const { AppRouterContext } = await import("next/dist/shared/lib/app-router-context.shared-runtime.js");' +
+        '  const m = await import("file://" + process.cwd() + "/src/components/koleksi/Penomoran.tsx");' +
+        "  const P = m.default?.default ?? m.default;" +
+        "  const r = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} };" +
+        "  process.stdout.write(JSON.stringify(JSON.parse(process.env.KASUS_HAL).map((k) =>" +
+        "    renderToStaticMarkup(h(AppRouterContext.Provider, { value: r }, h(P, { ...k, benda: 'laporan', ke: (n) => '/x?hal=' + n }))))));" +
+        "})().catch((e) => { process.stderr.write(String(e && e.stack || e)); process.exit(1); });"], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, KASUS_HAL: JSON.stringify(KASUS) },
+      });
+      let html: string[] = [];
+      try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
+      if (!c.expect(anak.status === 0 && html.length === KASUS.length, `the pager could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) return c.verdict("");
+      const teks = (x: string) => x.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      const [p1, p2, p3en, satu, ber] = html;
+      c.expect(/Menampilkan 1–20 laporan/.test(teks(p1)) && /Halaman 1\b/.test(teks(p1)) && !/ dari /.test(teks(p1)), `page 1: ${teks(p1)}`);
+      const tombol = (x: string, arah: string) => (x.match(new RegExp(`<a [^>]*data-pager="${arah}"[^>]*>`)) ?? [""])[0];
+      const mati = (x: string, arah: string) => /aria-disabled="true"/.test(tombol(x, arah)) && !/href=/.test(tombol(x, arah));
+      const ke = (x: string, arah: string, n: number) => tombol(x, arah).includes(`href="/x?hal=${n}"`);
+      c.expect(mati(p1, "sebelum") && ke(p1, "sesudah", 2), "page 1 hides «Sebelumnya» (or links it) or does not link onward");
+      c.expect(ke(p2, "sebelum", 1) && ke(p2, "sesudah", 3) && /Menampilkan 21–40 laporan/.test(teks(p2)), `page 2: ${teks(p2)}`);
+      c.expect(/Showing 41–45 laporan/.test(teks(p3en)) && /Page 3\b/.test(teks(p3en)) && mati(p3en, "sesudah") && /Previous/.test(p3en), `the last page in English: ${teks(p3en)}`);
+      c.expect(satu === '<div data-penomoran=""></div>', "a one-page list draws a pager");
+      c.expect(/Menampilkan 21–40 dari 45 laporan/.test(teks(ber)) && /Halaman 2 dari 3/.test(teks(ber)), `a known total is not shown: ${teks(ber)}`);
+      c.expect(html.every((x) => !/>\s*(Kembali|Back)\s*</.test(x)), "a pager says «Kembali»");
+      return c.verdict("one pager (the Collection's) for every paged list: the count line, the position, «Sebelumnya» disabled on page 1, no «Kembali», the total only where the list has it");
     },
   },
 ];

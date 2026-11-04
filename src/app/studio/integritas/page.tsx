@@ -184,7 +184,8 @@ export default async function Integritas({ searchParams }: { searchParams: Searc
             ))}
           </ul>
         )}
-        <Penomoran locale={locale} halaman={halTinjau} lagi={lagiTinjau} ke={(n) => tautanHalaman("/studio/integritas", sp, "hal_tinjau", n, "ditinjau")} />
+        <Penomoran locale={locale} halaman={halTinjau} lagi={lagiTinjau} ke={(n) => tautanHalaman("/studio/integritas", sp, "hal_tinjau", n, "ditinjau")}
+          benda={s("koleksi.benda.tinjauan")} jumlah={sudahBySession.size} />
       </section>
     </div>
   );

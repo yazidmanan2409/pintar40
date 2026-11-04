@@ -389,9 +389,10 @@ export const studio3bTests: SelfTest[] = [
         }
       }
       // the pager (its link builder is a function, so it is read as source, not rendered)
+      // E-K2 (D-173(d)): the pager is the Collection's (HalamanKoleksi), given the reader's language; its words are
+      // proven in both languages by D168-K2-1
       const pager = kode(baca(repoRoot, "src/components/koleksi/Penomoran.tsx"));
-      c.expect(/t\("koleksi\.kembali", "staff", \{ locale \}\)/.test(pager) && /t\("koleksi\.berikutnya", "staff", \{ locale \}\)/.test(pager)
-        && /t\("lesson\.page_of", "staff", \{ locale \}\)/.test(pager), "the pager does not speak the reader's language");
+      c.expect(/<HalamanKoleksi [^>]*locale=\{locale\}/.test(pager), "the pager does not speak the reader's language");
       c.expect(HALAMAN.filter((f) => /<Penomoran /.test(baca(repoRoot, f))).every((f) => /<Penomoran [^>]*locale=\{locale\}/.test(baca(repoRoot, f))),
         "a Studio page's pager is not given the reader's language");
       // rendered: a list's result line and the review form speak English to an English reader

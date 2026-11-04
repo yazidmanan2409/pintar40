@@ -55,10 +55,16 @@ function kata(kunci: HleEvent, untuk: Persona, locale: Locale, isi: Record<strin
  * three. Two links that keep the search and the filter and return to the table (`#jangkar`); a move that is not
  * possible stays in place, disabled. Nothing at all is not paged: the empty row says so.
  */
+/**
+ * E-K2 (D-173(d)): where the total is not known (a keyset page, FD-4), the same pager without a total: «Menampilkan
+ * 21–40 laporan», «Halaman 2», and the move that is not possible disabled, never hidden. No total is computed for it.
+ */
+export type PosisiTerbuka = { halaman: number; lagi: boolean; dari: number; sampai: number };
+
 export function HalamanKoleksi({
-  posisi, benda, jalan, tetap = {}, cari = "", saring = SEMUA, param = PARAM_BAKU, jangkar = "", ke, locale, untuk = "staff",
-}: Tautan & {
-  posisi: Posisi;
+  posisi, benda, jalan = "", tetap = {}, cari = "", saring = SEMUA, param = PARAM_BAKU, jangkar = "", ke, locale, untuk = "staff",
+}: Partial<Tautan> & {
+  posisi: Posisi | PosisiTerbuka;
   benda: string;
   cari?: string;
   saring?: string;
@@ -67,12 +73,14 @@ export function HalamanKoleksi({
   locale: Locale;
   untuk?: Persona;
 }) {
-  if (posisi.total === 0) return null;
+  const terbuka = !("total" in posisi);
+  if (!terbuka && posisi.total === 0) return null;
+  if (terbuka && posisi.halaman <= 1 && !posisi.lagi) return null;
   const n = (x: number) => format.number(x, locale);
   const tautan = (h: number) => (ke ? ke(h) : tautanKoleksi(jalan, tetap, { cari, saring, hal: h }, param, jangkar));
   const gerak = (arah: "sebelum" | "sesudah") => {
     const ke_ = arah === "sebelum" ? posisi.halaman - 1 : posisi.halaman + 1;
-    const bisa = ke_ >= 1 && ke_ <= posisi.jumlahHalaman;
+    const bisa = ke_ >= 1 && (terbuka ? arah === "sebelum" || posisi.lagi : ke_ <= posisi.jumlahHalaman);
     const nama = kata(arah === "sebelum" ? "lesson.prev" : "lesson.next", untuk, locale);
     const isi = arah === "sebelum"
       ? <><Ikon nama="chevron-left" /><span className="pin-pager-teks">{kata("koleksi.sebelumnya", untuk, locale)}</span></>
@@ -84,13 +92,19 @@ export function HalamanKoleksi({
   return (
     <nav className="pin-pager" aria-label={kata("koleksi.halaman.label", untuk, locale, { benda })}>
       <span className="pin-pager-ringkas" aria-live="polite">
-        {kata("koleksi.menampilkan", untuk, locale, { dari: n(posisi.dari), sampai: n(posisi.sampai), total: n(posisi.total), benda })}
+        {terbuka
+          ? kata("koleksi.menampilkan_tanpa_total", untuk, locale, { dari: n(posisi.dari), sampai: n(posisi.sampai), benda })
+          : kata("koleksi.menampilkan", untuk, locale, { dari: n(posisi.dari), sampai: n(posisi.sampai), total: n(posisi.total), benda })}
       </span>
       <span className="pin-pager-gerak">
         {gerak("sebelum")}
         <span className="pin-pager-posisi" aria-live="polite">
-          <span className="pin-pager-lebar">{kata("koleksi.posisi", untuk, locale, { n: n(posisi.halaman), total: n(posisi.jumlahHalaman) })}</span>
-          <span className="pin-pager-kecil">{kata("koleksi.posisi.ringkas", untuk, locale, { n: n(posisi.halaman), total: n(posisi.jumlahHalaman) })}</span>
+          {terbuka
+            ? kata("koleksi.posisi.terbuka", untuk, locale, { n: n(posisi.halaman) })
+            : <>
+              <span className="pin-pager-lebar">{kata("koleksi.posisi", untuk, locale, { n: n(posisi.halaman), total: n(posisi.jumlahHalaman) })}</span>
+              <span className="pin-pager-kecil">{kata("koleksi.posisi.ringkas", untuk, locale, { n: n(posisi.halaman), total: n(posisi.jumlahHalaman) })}</span>
+            </>}
         </span>
         {gerak("sesudah")}
       </span>

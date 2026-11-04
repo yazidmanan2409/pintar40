@@ -250,6 +250,9 @@ export type HleEvent =
   | "koleksi.saring.label" | "koleksi.saring.semua"
   | "koleksi.kosong.judul" | "koleksi.kosong.kueri" | "koleksi.kosong.reset"
   | "koleksi.halaman.label" | "koleksi.sebelumnya" | "koleksi.menampilkan" | "koleksi.posisi" | "koleksi.posisi.ringkas"
+  | "koleksi.menampilkan_tanpa_total" | "koleksi.posisi.terbuka"
+  | "koleksi.benda.laporan" | "koleksi.benda.jendela" | "koleksi.benda.pengumuman" | "koleksi.benda.sekolah"
+  | "koleksi.benda.pindah" | "koleksi.benda.peran" | "koleksi.benda.jejak" | "koleksi.benda.tinjauan" | "koleksi.benda.definisi"
   | "auth.title"
   | "auth.lede"
   | "auth.email_label"
@@ -708,7 +711,7 @@ export type HleEvent =
   | "map.to_lesson"
   | "lesson.title"
   | "lesson.page_of"
-  | "koleksi.kembali" | "koleksi.berikutnya" | "koleksi.ubah"
+  | "koleksi.berikutnya" | "koleksi.ubah"
   | "lesson.prev"
   | "lesson.next"
   | "lesson.transcript"
@@ -3048,6 +3051,19 @@ const table: Table = {
   "koleksi.menampilkan": { default: "Menampilkan {dari}–{sampai} dari {total} {benda}", en: "Showing {dari}–{sampai} of {total} {benda}" },
   "koleksi.posisi": { default: "Halaman {n} dari {total}", en: "Page {n} of {total}" },
   "koleksi.posisi.ringkas": { default: "{n} / {total}", en: "{n} / {total}" },
+  // E-K2 (D-173(d)): the pager where the total is not known (FD-4); Daisy's words, pending Dr Gladys (question pack B6)
+  "koleksi.menampilkan_tanpa_total": { default: "Menampilkan {dari}–{sampai} {benda}", en: "Showing {dari}–{sampai} {benda}" },
+  "koleksi.posisi.terbuka": { default: "Halaman {n}", en: "Page {n}" },
+  // what each paged staff list holds, for its pager's count line (pending Dr Gladys with B6)
+  "koleksi.benda.laporan": { default: "laporan", en: "reports" },
+  "koleksi.benda.jendela": { default: "jadwal pemeliharaan", en: "maintenance windows" },
+  "koleksi.benda.pengumuman": { default: "pengumuman", en: "notices" },
+  "koleksi.benda.sekolah": { default: "sekolah", en: "schools" },
+  "koleksi.benda.pindah": { default: "perpindahan", en: "transfers" },
+  "koleksi.benda.peran": { default: "peran", en: "roles" },
+  "koleksi.benda.jejak": { default: "catatan", en: "entries" },
+  "koleksi.benda.tinjauan": { default: "pengerjaan ditinjau", en: "reviewed sittings" },
+  "koleksi.benda.definisi": { default: "definisi asesmen", en: "assessment definitions" },
   // ══════════════════════════════ UX-1 · the sign-in screen (login handoff)
   // Daisy's canonical copy table, verbatim: 38 strings measured against their
   // controls at every width in both languages. Three of them are load-bearing
@@ -3781,7 +3797,6 @@ const table: Table = {
   "lesson.title": { default: "Pelajaran", en: "Lesson" },
   "lesson.page_of": { default: "Halaman", en: "Page" },
   // L4 (CR-88): a staff list's pages, in words the copy table already has (pretest.back, pretest.next)
-  "koleksi.kembali": { default: "Kembali", en: "Back" },
   "koleksi.berikutnya": { default: "Berikutnya", en: "Next" },
   // L4 (CR-88): the explicit edit of a row, as Akun saya says it (akun.perangkat.ubah)
   "koleksi.ubah": { default: "Ubah", en: "Change" },

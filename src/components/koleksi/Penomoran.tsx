@@ -1,34 +1,40 @@
-import Link from "next/link";
-import { t, type Locale } from "@/lib/hle";
-import TandaTautan from "@/components/TandaTautan";
+import { type Locale } from "@/lib/hle";
+import { HalamanKoleksi } from "./Koleksi";
+import { posisiHalaman } from "./aturan";
+import { UKURAN } from "./halaman";
 
 /**
- * L4 (CR-88, investigation RC-6 (1)): NO STAFF LIST RENDERS MORE THAN ONE PAGE OF ROWS. A list shows `UKURAN` rows
- * at a time and moves between pages with «Kembali» and «Berikutnya» (words the copy table already has). The page is
- * a plain GET parameter, so the browser's Back and a shared link keep their place, and each list names its own
- * parameter so two lists on one page move independently.
+ * L4 (CR-88, investigation RC-6 (1)): NO STAFF LIST RENDERS MORE THAN ONE PAGE OF ROWS. A list shows a page of rows at
+ * a time; the page is a plain GET parameter, so the browser's Back and a shared link keep their place, and each list
+ * names its own parameter so two lists on one page move independently.
  *
- * Daisy's Collection component (Table + Pagination + Search, with an explicit edit action) supersedes the look; the
- * bound is the engineering half and stays.
+ * E-K2 (D-173(d)): ONE PAGINATION GRAMMAR. This is the Collection's pager (HalamanKoleksi), not a second one: where the
+ * list knows its total, «Menampilkan 21–40 dari 312 …» and «Halaman 2 dari 16»; where it does not (a page read one
+ * row past its end, FD-4), «Menampilkan 21–40 …» and «Halaman 2», with no total computed. «Sebelumnya» and
+ * «Berikutnya» are always drawn, a move that is not possible disabled, never hidden. Nothing is drawn for one page.
  */
 export { UKURAN, halamanDiminta, satuHalaman, rentang, tautanHalaman } from "./halaman";
 
-/**
- * «Kembali» · Halaman n · «Berikutnya». `ke(n)` builds the link to page n, keeping whatever else the URL says.
- * Nothing is drawn when the list is one page.
- */
-export default function Penomoran({ halaman, lagi, ke, locale = "id" }: {
+export default function Penomoran({ halaman, lagi, ke, locale = "id", benda, jumlah, ukuran = UKURAN, total }: {
   halaman: number; lagi: boolean; ke: (n: number) => string;
   /** W1.9 (UX-25): the reader's language. */
   locale?: Locale;
+  /** What the rows are, in the reader's language («laporan»). */
+  benda: string;
+  /** The rows on this page. */
+  jumlah: number;
+  /** The page's size, when it is not UKURAN. */
+  ukuran?: number;
+  /** The whole count, only where the list already has it (never computed for the pager). */
+  total?: number;
 }) {
-  if (halaman <= 1 && !lagi) return null;
-  // the design system's own classes (tokens only), and a menu link that acknowledges the click (DAISY-18)
+  const dari = (halaman - 1) * ukuran + 1;
+  const posisi = total !== undefined
+    ? posisiHalaman(total, halaman, ukuran)
+    : { halaman, lagi, dari: jumlah > 0 ? dari : 0, sampai: jumlah > 0 ? dari + jumlah - 1 : 0 };
   return (
-    <nav className="pin-actions" data-penomoran="">
-      {halaman > 1 ? <Link href={ke(halaman - 1)} className="pin-tautan">{t("koleksi.kembali", "staff", { locale })}<TandaTautan /></Link> : null}
-      <span className="pin-meta">{t("lesson.page_of", "staff", { locale })} {halaman}</span>
-      {lagi ? <Link href={ke(halaman + 1)} className="pin-tautan">{t("koleksi.berikutnya", "staff", { locale })}<TandaTautan /></Link> : null}
-    </nav>
+    <div data-penomoran="">
+      <HalamanKoleksi posisi={posisi} benda={benda} ke={ke} locale={locale} />
+    </div>
   );
 }

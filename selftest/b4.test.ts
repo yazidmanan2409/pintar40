@@ -160,7 +160,7 @@ export const b4Tests: SelfTest[] = [
       c.expect(/daftarKelola\(\{ jendela: halJendela, pengumuman: halPengumuman, sekolah: !lama && !platformKonteks \? satuSekolah : null \}\)/.test(konf)
         && !/w\.sekolah\.some\(/.test(konf), "the maintenance lists are not the database's pages, narrowed by the database");
       for (const k of ["hal_sekolah", "hal_lapor", "hal_jendela", "hal_pengumuman"]) {
-        c.expect(new RegExp(`tautanHalaman\\("/konfigurasi", sp, "${k}", n, "[a-z-]+"\\)\\} locale=\\{locale\\} />`).test(konf), `${k} has no pager`);
+        c.expect(new RegExp(`tautanHalaman\\("/konfigurasi", sp, "${k}", n, "[a-z-]+"\\)\\} locale=\\{locale\\}\\s+benda=\\{sl\\("koleksi\\.benda\\.[a-z]+"\\)\\} jumlah=\\{[^}]+\\} />`).test(konf), `${k} has no pager`);
       }
       const pem = kode(baca(ctx.repoRoot, "src/lib/pemeliharaan.ts"));
       c.expect(/rpc\("maintenance_list", \{\s*p_hal_jendela:/.test(pem), "daftarKelola does not ask for a page");

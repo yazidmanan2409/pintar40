@@ -237,7 +237,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
         </ul>
         {/* a page past the last says so, rather than an empty list (the Second Eye's finding 5); W3.2: the Empty state */}
         {definitions.length === 0 && halaman > 1 ? <Kosong jenis="tidak_cocok" kalimat={s("config.empty")} /> : null}
-        <Penomoran halaman={halaman} lagi={lagi} ke={ke} locale={locale} />
+        <Penomoran halaman={halaman} lagi={lagi} ke={ke} locale={locale} benda={s("koleksi.benda.definisi")} jumlah={definitions.length} />
       </section>
     </div>
   );

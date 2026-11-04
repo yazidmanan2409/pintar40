@@ -4212,6 +4212,11 @@
       "proves": "Terminology v1 ruling 2 (X12 T1; D-171(c)), selftest/d168.test.ts: over the rendered copy table, no Indonesian string says «kursus» and no English string says «course(s)» for the Studio object, except an allow-list that is the decision itself: the workbook's structure (ruling 14), the JSON format's language (ruling 13) and the certificate list's column (X12 T4, pending); the full term is «Paket Pembelajaran» / «Learning Package»."
     },
     {
+      "id": "D168-K2-1",
+      "runner": "static",
+      "proves": "E-K2 (D-173(d), one pagination grammar), selftest/d168.test.ts: reading the source, Penomoran renders the Collection's pager (HalamanKoleksi) and every one of the 10 paged staff lists passes its rows' noun, count and the reader's language; rendered (react-dom/server), page 1 of a keyset list shows «Menampilkan 1–20 laporan», «Halaman 1» and a disabled «Sebelumnya», page 2 links both ways, the last page in English, a one-page list draws nothing, a known total is shown, and no pager says «Kembali»."
+    },
+    {
       "id": "D168-K7-1",
       "runner": "static",
       "proves": "E-K7 (D-173(d), one page-head rule), selftest/d168.test.ts, reading the source of every src/app .tsx file that draws CangkangStaf or CangkangPengalaman: none draws {s(\"app.name\")} as a page's eyebrow or head line, so «PINTAR» appears in the shell only (Konfigurasi and Studio drew it)."

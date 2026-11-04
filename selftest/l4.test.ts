@@ -262,7 +262,7 @@ export const l4Tests: SelfTest[] = [
         "Peran & akses still draws every active role, each with a revoke form");
       c.expect(/\.is\("revoked_at", null\)\.order\("created_at", \{ ascending: false \}\)\.order\("id"\)/.test(konf),
         "the roles are not in a stable order, so a page boundary can repeat or drop one");
-      c.expect(/<Penomoran halaman=\{halPeran\} lagi=\{lagiPeran\} ke=\{\(n\) => tautanHalaman\("\/konfigurasi", sp, "hal_peran", n, "roles"\)\} \/>/.test(konf),
+      c.expect(/<Penomoran halaman=\{halPeran\} lagi=\{lagiPeran\} ke=\{\(n\) => tautanHalaman\("\/konfigurasi", sp, "hal_peran", n, "roles"\)\} locale=\{locale\}\s+benda=\{sl\("koleksi\.benda\.peran"\)\} jumlah=\{daftarPeran\.length\} ukuran=\{UKURAN_PERAN\} \/>/.test(konf),
         "the roles list has no way to its next page");
       c.expect(/persiapanSekolah\(struktur\.rows, \(assignments \?\? \[\]\)/.test(konf) && /jumlahAdminSekolah\(\(assignments \?\? \[\]\)/.test(konf),
         "the school's readiness or its admin count is no longer taken from every active role");

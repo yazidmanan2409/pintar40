@@ -897,7 +897,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 ))}
               </ul>
             )}
-            <Penomoran halaman={halLapor} lagi={lagiLapor} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_lapor", n, "laporan-masalah")} locale={locale} />
+            <Penomoran halaman={halLapor} lagi={lagiLapor} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_lapor", n, "laporan-masalah")} locale={locale}
+              benda={sl("koleksi.benda.laporan")} jumlah={laporan.length} />
           </section>
 
           {/* #148 (D-094(a)(b)(g)(h), D-100). PEMELIHARAAN DAN PENGUMUMAN. Scheduling is two steps: the scope and the
@@ -1006,7 +1007,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             ) : (
               <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.kosong")}</p>
             )}
-            <Penomoran halaman={halJendela} lagi={kelola?.lagiPemeliharaan === true} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_jendela", n, "pemeliharaan")} locale={locale} />
+            <Penomoran halaman={halJendela} lagi={kelola?.lagiPemeliharaan === true} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_jendela", n, "pemeliharaan")} locale={locale}
+              benda={sl("koleksi.benda.jendela")} jumlah={kelola?.pemeliharaan.length ?? 0} />
 
             <h3 className="mt-4 text-sm font-medium">{sl("config.pemeliharaan.pengumuman")}</h3>
             <p className="mt-1 text-sm text-ink-2">{sl("config.pemeliharaan.pengumuman.arti")}</p>
@@ -1060,7 +1062,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             ) : (
               <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.pengumuman.kosong")}</p>
             )}
-            <Penomoran halaman={halPengumuman} lagi={kelola?.lagiPengumuman === true} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_pengumuman", n, "pemeliharaan")} locale={locale} />
+            <Penomoran halaman={halPengumuman} lagi={kelola?.lagiPengumuman === true} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_pengumuman", n, "pemeliharaan")} locale={locale}
+              benda={sl("koleksi.benda.pengumuman")} jumlah={kelola?.pengumuman.length ?? 0} />
 
             {platformIni ? (
               <div className="mt-4 grid gap-2 rounded-[var(--radius-1)] border border-line-1 px-3 py-2" data-hentikan="1">
@@ -1144,7 +1147,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               {(institutions ?? []).length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
             {platformKonteks ? (
-              <Penomoran halaman={halSekolah} lagi={lagiSekolah} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_sekolah", n, "system")} locale={locale} />
+              <Penomoran halaman={halSekolah} lagi={lagiSekolah} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_sekolah", n, "system")} locale={locale}
+                benda={sl("koleksi.benda.sekolah")} jumlah={(institutions ?? []).length} />
             ) : null}
           </section>
 
@@ -1229,7 +1233,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               ))}
               {daftarPindah.length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
-            <Penomoran halaman={halPindah} lagi={lagiPindah} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_pindah", n, "transfers")} />
+            <Penomoran halaman={halPindah} lagi={lagiPindah} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_pindah", n, "transfers")} locale={locale}
+              benda={sl("koleksi.benda.pindah")} jumlah={daftarPindah.length} />
             {/* W2.15: the receiving school's incoming requests, accepted into one of its own school years */}
             {satuSekolah && pindahMasuk.length > 0 ? (
               <div className="mt-3 grid gap-2" data-pindah="masuk">
@@ -1373,7 +1378,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               ))}
               {daftarPeran.length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
-            <Penomoran halaman={halPeran} lagi={lagiPeran} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_peran", n, "roles")} />
+            <Penomoran halaman={halPeran} lagi={lagiPeran} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_peran", n, "roles")} locale={locale}
+              benda={sl("koleksi.benda.peran")} jumlah={daftarPeran.length} ukuran={UKURAN_PERAN} />
             {angkat ? (
               <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" role="group" aria-labelledby="pin-angkat">
                 <h3 id="pin-angkat" className="font-medium">{s("config.angkat.judul")}</h3>
@@ -1490,7 +1496,8 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               </table>
             </div>
             <Penomoran halaman={halamanDiminta(sp.hal_jejak)} lagi={(audit ?? []).length > UKURAN_JEJAK}
-              ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_jejak", n, "audit")} />
+              ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_jejak", n, "audit")} locale={locale}
+              benda={sl("koleksi.benda.jejak")} jumlah={Math.min((audit ?? []).length, UKURAN_JEJAK)} ukuran={UKURAN_JEJAK} />
           </section>
 
           {/* W8-02 — REPORT CONFIGURATION.
