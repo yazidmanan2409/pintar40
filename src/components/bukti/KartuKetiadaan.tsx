@@ -1,6 +1,7 @@
 import { t, format, type HleEvent, type Locale } from "@/lib/hle";
 import type { Envelope } from "./types";
 import { kunciMuncul, SYARAT_METRIK } from "./muncul";
+import type { JenisAnggota } from "@/lib/mengajar";
 
 /**
  * KartuKetiadaan — the absence card, in four variants.
@@ -52,13 +53,22 @@ const STATEMENT: Record<Variant, string> = {
  * known here, so no count is shown (null); the line after it says what will make the figure appear. W3.9 (RV-9):
  * the two report pages say it the same way, from here.
  */
-export function kalimatJumlah(entry: Envelope, locale: Locale = "id", persona: "educator" | "staff" = "educator"): string | null {
+export function kalimatJumlah(entry: Envelope, locale: Locale = "id", persona: "educator" | "staff" = "educator", jenis: JenisAnggota = "LEARNER"): string | null {
   const syarat = entry.metric_id ? SYARAT_METRIK[entry.metric_id] : undefined;
   const hitungMurid = syarat === "penilaian" || syarat === "akhir" || syarat === "awal_akhir";
   if (variantOf(entry) !== "belum_cukup" || entry.needed == null || !hitungMurid) return null;
-  return t("ketiadaan.jumlah.murid", persona, { locale })
-    .replace("{have}", format.number(entry.have ?? 0, locale))
-    .replace("{needed}", format.number(entry.needed, locale));
+  return kalimatJumlahOrang(entry.have ?? 0, entry.needed, jenis, locale, persona);
+}
+
+/**
+ * E-A3-1 (D-168): THE ONE «how far» SENTENCE, for every surface that counts people towards a threshold. It names the
+ * place's people by the place's kind (DAISY-33): «murid» in an academic class, «peserta» in a professional-learning
+ * one. A surface never writes the sentence itself.
+ */
+export function kalimatJumlahOrang(have: number, needed: number, jenis: JenisAnggota, locale: Locale = "id", persona: "educator" | "staff" = "educator"): string {
+  return t(jenis === "PARTICIPANT" ? "ketiadaan.jumlah.peserta" : "ketiadaan.jumlah.murid", persona, { locale })
+    .replace("{have}", format.number(have, locale))
+    .replace("{needed}", format.number(needed, locale));
 }
 
 export default function KartuKetiadaan({
@@ -66,12 +76,15 @@ export default function KartuKetiadaan({
   action,
   locale = "id",
   persona = "educator",
+  jenis = "LEARNER",
 }: {
   entry: Envelope;
   /** Optional: what to do while the figure is absent. */
   action?: string;
   locale?: Locale;
   persona?: "educator" | "staff";
+  /** the place's kind: its people are «murid» or «peserta» (DAISY-33) */
+  jenis?: JenisAnggota;
 }) {
   const s = (k: string) => t(k as HleEvent, persona, { locale });
   const variant = variantOf(entry);
@@ -79,7 +92,7 @@ export default function KartuKetiadaan({
   // knows more about why this particular figure is missing than a variant map.
   const base = s(entry.statement_key ?? STATEMENT[variant]);
   const muncul = kunciMuncul(entry);
-  const jumlah = kalimatJumlah(entry, locale, persona);
+  const jumlah = kalimatJumlah(entry, locale, persona, jenis);
 
   return (
     <div className="pin-metric">

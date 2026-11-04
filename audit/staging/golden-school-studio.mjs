@@ -558,7 +558,7 @@ await step("T15", "W6.7: «Lihat hasil»: the class figure on its base first, th
   const terdaftar = await kelas.getAttribute("data-terdaftar").catch(() => null);
   const teksKelas = norm(await kelas.innerText().catch(() => ""));
   rec.catatan.push(`the class figure reads «${teksKelas}»`);
-  harus(rec, dinilai === "1" && /100\s?%/.test(teksKelas) && new RegExp(`1 dari ${terdaftar} murid`).test(teksKelas), `scored ${dinilai} of ${terdaftar}, the figure 100%`);
+  harus(rec, dinilai === "1" && (await kelas.getAttribute("data-ambang").catch(() => null)) === "5" && !/%/.test(teksKelas) && /Sekarang 1 murid; perlu 5/.test(teksKelas) && new RegExp(`1 dari ${terdaftar} murid`).test(teksKelas), `D-176: one score of ${terdaftar} is below the threshold of five — no class average, the not-yet line «Sekarang 1 murid; perlu 5» and the base`);
   const halaman = norm(await G.locator("main").innerText());
   harus(rec, halaman.includes(PELAJAR) && halaman.indexOf("Nilai kelas") < halaman.indexOf(PELAJAR), "the learner is listed below the figure");
 });

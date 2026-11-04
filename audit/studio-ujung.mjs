@@ -536,7 +536,7 @@ await step("U14", "W6.7: the learner finds the Uji Cepat on Belajar and hands it
     `no certificate for the Uji Cepat (${sertifikat} in the database; the page ${/sertifikat/i.test(teks) ? "mentions" : "does not mention"} one)`);
 });
 
-await step("U15", "W6.7: the Guru opens «Lihat hasil»: the class figure on its base first, each learner one step below", async (rec) => {
+await step("U15", "W6.7: the Guru opens «Lihat hasil»: the class figure on its base first (below five scores, the not-yet state, D-176), each learner one step below", async (rec) => {
   if (!ujiCepat) { rec.verdict = "BLOCKED"; return; }
   await g.goto(`${APP}/mengajar/${KELAS}/uji-cepat`, { waitUntil: "networkidle" });
   const lihat = g.locator(`a[href="/mengajar/${KELAS}/uji-cepat/hasil?penugasan=${ujiCepat}"]`).first();
@@ -550,7 +550,7 @@ await step("U15", "W6.7: the Guru opens «Lihat hasil»: the class figure on its
   const terdaftar = await kelas.getAttribute("data-terdaftar").catch(() => null);
   const teksKelas = norm(await kelas.innerText().catch(() => ""));
   rec.catatan.push(`the class figure reads «${teksKelas}»`);
-  harus(rec, dinilai === "1" && /100\s?%/.test(teksKelas) && new RegExp(`1 dari ${terdaftar} murid`).test(teksKelas), `scored ${dinilai} of ${terdaftar} in 5B now, the figure 100%`);
+  harus(rec, dinilai === "1" && (await kelas.getAttribute("data-ambang").catch(() => null)) === "5" && !/%/.test(teksKelas) && /Sekarang 1 murid; perlu 5/.test(teksKelas) && new RegExp(`1 dari ${terdaftar} murid`).test(teksKelas), `D-176: one score of ${terdaftar} is below the threshold of five — no class average, the not-yet line «Sekarang 1 murid; perlu 5» and the base`);
   const murid = sql(`select p.display_name from public.persons p join public.accounts a on a.person_id = p.id join auth.users u on u.id = a.auth_user_id where u.email='${ORANG.murid.email}'`);
   const baris = norm(await g.locator("main").innerText());
   harus(rec, baris.indexOf(teksKelas.slice(0, 10)) < baris.indexOf(murid) && baris.includes(murid), `the learner «${murid}» is listed below the figure`);

@@ -242,6 +242,7 @@ export type HleEvent =
   | "aksesibilitas.lewati"
   | "berkas.pilih" | "berkas.belum" | "berkas.banyak"
   | "ketiadaan.jumlah.murid"
+  | "ketiadaan.jumlah.peserta"
   | "sesi.menu.semua"
   | "jaga.judul"
   | "tanggal.belum"
@@ -1694,6 +1695,8 @@ export type HleEvent =
   | "mengajar.cepat.hasil.judul"
   | "mengajar.cepat.hasil.lihat"
   | "mengajar.cepat.hasil.kelas"
+  | "mengajar.cepat.hasil.belum_cukup"
+  | "mengajar.cepat.hasil.muncul"
   | "mengajar.cepat.hasil.dasar"
   | "mengajar.cepat.hasil.arti"
   | "mengajar.cepat.hasil.belum"
@@ -3018,6 +3021,8 @@ const table: Table = {
   "sesi.menu.semua": { default: "Keluar dari semua perangkat…", en: "Sign out of every device…" },
   // W3.2 / CR-46 (Daisy, components/EmptyState «not enough yet»): how much there is and how much is needed, in words
   "ketiadaan.jumlah.murid": { default: "Sekarang {have} murid; perlu {needed}.", en: "{have} students so far; {needed} needed." },
+  // E-A3-1 (D-176(d)): the participant form; pending copy approval (DR-GLADYS-QUESTION-PACK B5)
+  "ketiadaan.jumlah.peserta": { default: "Sekarang {have} peserta; perlu {needed}.", en: "{have} participants so far; {needed} needed." },
   // W3.3 · the echo under an empty date field (Daisy, components/DateTime)
   "tanggal.belum": { default: "Belum ada tanggal.", en: "No date yet." },
   // W3.4 (Batch 2; CR-88): the Collection (Daisy, components/Table, Search, Pagination; the words J2Kelas lists as new).
@@ -3341,10 +3346,13 @@ const table: Table = {
   "mengajar.ulang.selesai": { default: "Terkirim", en: "Sent" },
   "mengajar.cepat.hasil.judul": { default: "Hasil Uji Cepat", en: "Quick Assessment result" },
   "mengajar.cepat.hasil.lihat": { default: "Lihat hasil", en: "See the result" },
-  "mengajar.cepat.hasil.kelas": { default: "Nilai kelas", en: "Class score" },
+  "mengajar.cepat.hasil.kelas": { default: "Rata-rata nilai kelas", en: "Class average score" },
+  // A3 (D-176): the class figure below its threshold; pending copy approval
+  "mengajar.cepat.hasil.belum_cukup": { default: "Belum cukup nilai untuk menampilkan rata-rata kelas.", en: "Not enough scores yet to show the class average." },
+  "mengajar.cepat.hasil.muncul": { default: "Rata-rata nilai kelas muncul setelah cukup {benda} dinilai.", en: "The class average appears once enough {benda} have been scored." },
   "mengajar.cepat.hasil.dasar": { default: "{n} dari {total} {benda} sudah dinilai", en: "{n} of {total} {benda} scored" },
   "mengajar.cepat.hasil.arti": { default: "Rata-rata nilai yang sudah ada. Yang belum mengumpulkan, atau belum dinilai, tidak dihitung.", en: "The average of the scores there are. Anyone who has not handed in, or has no score yet, is not counted." },
-  "mengajar.cepat.hasil.belum": { default: "Belum ada nilai. Nilai kelas muncul di sini setelah ada yang mengumpulkan.", en: "No scores yet. The class score appears here once someone has handed in." },
+  "mengajar.cepat.hasil.belum": { default: "Belum ada nilai. Rata-rata nilai kelas muncul di sini setelah ada yang mengumpulkan.", en: "No scores yet. The class average appears here once someone has handed in." },
   "mengajar.cepat.hasil.rincian": { default: "Rincian nilai", en: "Score by person" },
   "mengajar.cepat.hasil.rincian.arti": { default: "Diurutkan abjad. Bukan peringkat.", en: "In alphabetical order. Not a ranking." },
   "mengajar.cepat.hasil.kolom.nama": { default: "Nama", en: "Name" },

@@ -61,8 +61,20 @@ export const mengajar3Tests: SelfTest[] = [
         ];
         const nilai = new Map<string, number | null>([["s0", 0.8], ["s1", 0.6], ["s3", 0.9], ["sx", 0.1]]);
         const h = susun(roster, sesi, nilai);
-        c.expect(h.kelas.dinilai === 2 && h.kelas.terdaftar === 5 && Math.abs((h.kelas.nilai ?? -1) - 0.7) < 1e-9,
-          `the class figure is not the mean of the two scores given, on its base 2 of 5: ${JSON.stringify(h.kelas)}`);
+        // D-176 (O3 (a)): two scores are below the threshold of five: no figure, the base still counted
+        c.expect(h.kelas.dinilai === 2 && h.kelas.terdaftar === 5 && h.kelas.nilai === null,
+          `below the threshold the class figure is computed, or its base is wrong: ${JSON.stringify(h.kelas)}`);
+        // at the threshold, the mean of exactly the scores given
+        const lima = ["A", "B", "C", "D", "E", "F"].map((nama, i) => ({ id: `t${i}`, nama }));
+        const sesiLima = lima.map((m, i) => ({ id: `u${i}`, person_id: m.id, status: "FINALIZED" }));
+        const nilaiLima = new Map<string, number | null>([["u0", 0.5], ["u1", 0.6], ["u2", 0.7], ["u3", 0.8], ["u4", 0.9]]);
+        const h5 = susun(lima, sesiLima, nilaiLima);
+        c.expect(h5.kelas.dinilai === 5 && h5.kelas.terdaftar === 6 && Math.abs((h5.kelas.nilai ?? -1) - 0.7) < 1e-9,
+          `at five scores the class figure is not the mean of the five given, on its base 5 of 6: ${JSON.stringify(h5.kelas)}`);
+        const empat = susun(lima, sesiLima.slice(0, 4), nilaiLima);
+        c.expect(empat.kelas.nilai === null && empat.kelas.dinilai === 4, "at four scores a class figure is shown (D-176: five needed)");
+        const { AMBANG_NILAI_KELAS } = await import("../src/lib/hasil-ujicepat");
+        c.expect(AMBANG_NILAI_KELAS === 5, `the threshold is ${AMBANG_NILAI_KELAS}, not the ruled 5`);
         const per = Object.fromEntries(h.murid.map((m) => [m.nama, m]));
         c.expect(per.Ani.keadaan === "sudah" && per.Ani.nilai === 0.8 && per.Budi.nilai === 0.6,
           "a learner's score is not the one the evaluator gave for their sitting");
@@ -98,8 +110,13 @@ export const mengajar3Tests: SelfTest[] = [
       c.expect(/<span className="pin-mv pin-num">\{format\.percent\(hasil\.kelas\.nilai, locale\)\}<\/span>/.test(hasil)
         && /"mengajar\.cepat\.hasil\.dasar", \{ n: n\(hasil\.kelas\.dinilai\), total: n\(hasil\.kelas\.terdaftar\), benda \}/.test(hasil),
         "the class figure is not in t-stat with its base («n dari N»)");
-      c.expect(/hasil\.kelas\.nilai === null \? \(\s*<Kosong jenis="belum" kalimat=\{s\("mengajar\.cepat\.hasil\.belum"\)\} \/>/.test(hasil),
+      c.expect(/hasil\.kelas\.dinilai === 0 \? \(\s*<Kosong jenis="belum" kalimat=\{s\("mengajar\.cepat\.hasil\.belum"\)\} \/>/.test(hasil),
         "with no score the page does not say so in an Empty state");
+      // D-176: below the threshold, the not-yet pattern: how far (the shared sentence, by the place's kind), what makes it appear, the base
+      c.expect(/kalimatJumlahOrang\(hasil\.kelas\.dinilai, AMBANG_NILAI_KELAS, ctx\.ini\.jenis, locale\)/.test(hasil)
+        && /"mengajar\.cepat\.hasil\.belum_cukup"/.test(hasil) && /"mengajar\.cepat\.hasil\.muncul"/.test(hasil),
+        "below the threshold the page does not show the not-yet pattern with the shared count sentence");
+      c.expect(!/\b5\b/.test(hasil.replace(/[a-f0-9-]{36}/g, "")), "the page writes the threshold's number itself (it must read AMBANG_NILAI_KELAS)");
       c.expect(/m\.nilai === null/.test(hasil) && /"mengajar\.cepat\.hasil\.nilai_belum"/.test(hasil), "a learner with no score is not said to have none");
       c.expect(!/\.sort\(|nilai\s*-\s*|toFixed/.test(hasil), "the learners are ordered by score, or a score is rounded by hand");
       c.expect(/sudah: \{ kunci: "mengajar\.siapa\.sudah", badge: "pin-pill pin-ok" \}/.test(hasil), "the learners' states are not badges with their words");

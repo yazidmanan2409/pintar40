@@ -8,9 +8,9 @@ import HalamanPenolakan from "@/components/HalamanPenolakan";
 import Kosong from "@/components/Kosong";
 import Koleksi from "@/components/koleksi/Koleksi";
 import { halamanKoleksi, kueriDiminta, saringDiminta, susunKoleksi } from "@/components/koleksi/aturan";
-import { BarisLingkup } from "@/components/bukti";
+import { BarisLingkup, kalimatJumlahOrang } from "@/components/bukti";
 import { kataAnggota } from "@/lib/mengajar";
-import type { KeadaanHasil } from "@/lib/hasil-ujicepat";
+import { AMBANG_NILAI_KELAS, type KeadaanHasil } from "@/lib/hasil-ujicepat";
 import { judulHalaman } from "@/lib/judul-halaman";
 
 export const generateMetadata = judulHalaman("/mengajar/[kelas]/uji-cepat/hasil");
@@ -88,9 +88,19 @@ export default async function HasilUjiCepat({
           <h1 className="pin-h1">{s("mengajar.cepat.hasil.judul")}</h1>
         </div>
 
-        {/* THE CLASS FIRST: the figure, and always its base */}
-        {hasil.kelas.nilai === null ? (
+        {/* THE CLASS FIRST: the figure, and always its base. D-176: the figure needs AMBANG_NILAI_KELAS scores */}
+        {hasil.kelas.dinilai === 0 ? (
           <Kosong jenis="belum" kalimat={s("mengajar.cepat.hasil.belum")} />
+        ) : hasil.kelas.nilai === null ? (
+          <div className="pin-metric pin-cepat-kelas" data-dinilai={hasil.kelas.dinilai} data-terdaftar={hasil.kelas.terdaftar} data-ambang={AMBANG_NILAI_KELAS}>
+            <span className="pin-ml">{s("mengajar.cepat.hasil.kelas")}</span>
+            <span className="pin-abs">{s("mengajar.cepat.hasil.belum_cukup")}</span>
+            <span className="pin-ma">{kalimatJumlahOrang(hasil.kelas.dinilai, AMBANG_NILAI_KELAS, ctx.ini.jenis, locale)}</span>
+            <span className="pin-ma">{isi("mengajar.cepat.hasil.muncul", { benda })}</span>
+            <span className="pin-mm">
+              {isi("mengajar.cepat.hasil.dasar", { n: n(hasil.kelas.dinilai), total: n(hasil.kelas.terdaftar), benda })}
+            </span>
+          </div>
         ) : (
           <div className="pin-metric pin-cepat-kelas" data-dinilai={hasil.kelas.dinilai} data-terdaftar={hasil.kelas.terdaftar}>
             <span className="pin-ml">{s("mengajar.cepat.hasil.kelas")}</span>
