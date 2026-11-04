@@ -98,6 +98,13 @@ Each correction is made **once, in the shared component or helper**, never per s
 
 **The exceptions Daisy documented (X1–X6) are accepted as intentional differences (D-173(c)), not permission for arbitrary inconsistency.** Each is an allowed difference in the checks above, named, so a check does not flatten a deliberate behaviour.
 
+## A3 · the small-group class figure (drawn per O3 option; built only after O3)
+
+| # | Item | Planned test |
+|---|---|---|
+| E-A3-1 | **The «how far» line has no participant form:** `ketiadaan.jumlah.murid` («Sekarang {have} murid; perlu {needed}.») is the only key. Daisy found it for an Uji Cepat in a PD class (A3, `e0e15d54`); round 2 saw the same line say «murid» on a PD class's Ringkasan and «Lihat bukti» (X2) | **at the source (D-168):** `kalimatJumlah` (`src/components/bukti/KartuKetiadaan.tsx`) takes the place's kind, as the base line `mengajar.cepat.hasil.dasar` already does with `{benda}`, and a participant form `ketiadaan.jumlah.peserta` is added (copy approval). One fix serves every PD surface. Test: on every surface that shows the line, a PD place says «peserta» and an academic one «murid» |
+| E-A3-2 | **Under the chosen O3 rule:** the threshold read from one place; below it no class figure, the P14 not-yet pattern with the base at body size; zero scored → the empty state, never «0»; the learners' rows kept (unless O3 rules otherwise) | as Daisy's 8 [auto] lines, conditional on O3 |
+
 ## B4, D2 (design under review)
 
 | # | Item | Planned test |
