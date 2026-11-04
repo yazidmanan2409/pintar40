@@ -26,6 +26,7 @@ import { tanggal } from "@/lib/tanggal";
 import type { Templat } from "@/lib/email/templat";
 import type { DataEmailKartu, DataEmailKode, DataEmailPasswordDiubah } from "@/lib/email/identitas";
 import { tampilPintarId } from "@/lib/aktivasi-kontrak";
+import { urutKonteksKartu } from "@/lib/kartu-pintar";
 import { bingkaiEmail, kata, type Blok } from "./bingkai";
 
 /** KODE_AKTIVASI, or KODE_ULANG when `ulang`: a code the person asked for again. */
@@ -54,7 +55,8 @@ export const templatKode: Templat<DataEmailKode & { ulang: boolean }> = (data, k
 /** KARTU_DIGITAL: the PINTAR Card's facts, and the way to Akun saya. */
 export const templatKartu: Templat<DataEmailKartu> = (data, konteks) => {
   const nama = data.nama.trim();
-  const peran = data.konteks.map((k): [string, string] => [
+  // D-074(5): the Digital Card's own order (alphabetical, never seniority), not the database's
+  const peran = urutKonteksKartu(data.konteks).map((k): [string, string] => [
     kata("email.kartu.peran"),
     `${t(`role.${k.peran}` as HleEvent, "public", { locale: "id" })}${k.institusi ? ` · ${k.institusi}` : ""}`,
   ]);

@@ -34,6 +34,21 @@
 | **W3.20 · OP-3, AP-1: the wordmark in the shell and emails** | **AWAITING F-11.** The licensed outlined master does not exist. The shell keeps today's logo. | — |
 | **W3.21 · republish the Design System page** | **DAISY's.** This is her republication, not engineering work. | — |
 
+## 1a. Correction after the report: the card email's role order (D-164)
+
+**Found by Daisy** in D1 step 1 (her mapping at `9c4fe737`, row 16), and authorised by the owner (D-164(b)).
+- **The defect:** the Digital Card email listed the roles in the database's order, which is seniority (`my_identity_card`: `order by k.urutan`, where DEAN 3 and HEAD_OF_DEPARTMENT 4 come before EDUCATOR 5). D-074(5) says alphabetical by the Terminology v1 names, never seniority. The Digital Card screen was already right; only the email disagreed with it.
+- **The fix:** the card's sort is now one exported function, `urutKonteksKartu` (`src/lib/kartu-pintar.ts`). `susunKartu` (the Digital Card) and `templatKartu` (the card email, `src/components/email/identitas.ts`) both call it. No second ordering is written.
+- **Unchanged:** the identity-email data contract (`DataEmailKartu`, `my_identity_card`; no migration), the staff-only eligibility, permissions, and every other line of the email.
+
+| Check | Result |
+|---|---|
+| **B6K-URUTAN-02** (new): with the contexts in the database's seniority order, the email lists «Dekan», «Guru», «Kepala departemen», at one school and at two; for every permutation of three role sets (one school; two schools; the platform role beside school roles) the email's order is exactly the Digital Card's; `identitas.ts` sorts nothing itself and `kartu-pintar.ts` keeps one sort; the name, the ID 4 + 4, the Akun saya link and the number of role rows are unchanged | **red before the fix** (the email gave «Dekan, Kepala departemen, Guru»), **green after** |
+| B6K-URUTAN-01, B6K-STAF-01 (staff only), B6K-DATA-01 (data unchanged), DAISY-19-EMAIL-01 (the frame), DAISY-20-EMAIL-01 (the identity emails) | green |
+| Static suite, all 347 runnable ids (30 skipped: other runners) | **347 passed, 0 failed.** BOB26-K01 needs the server-only `CARD_PEPPER`; it was run with the local stack's env and passed. |
+| Typecheck · lint | clean · 0 errors |
+| `ci` and journeys on the correction's head | §2a |
+
 ## 2. Verification
 
 | | Result |

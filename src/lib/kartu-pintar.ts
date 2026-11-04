@@ -63,9 +63,18 @@ export type SusunanKartu = {
 
 const urutan = new Intl.Collator("id", { sensitivity: "base", numeric: true });
 
-export function susunKartu(konteks: DataKartu["konteks"]): SusunanKartu {
-  const urut = [...konteks].sort((a, b) =>
+/**
+ * THE CARD'S ORDER, in one place (D-074(5)): alphabetical by the Terminology v1 role names, then by the school's name.
+ * The Digital Card (susunKartu) and the card email (src/components/email/identitas.ts) both take it from here, so the
+ * card and the email it is sent in can never disagree, and no second ordering is written anywhere.
+ */
+export function urutKonteksKartu<K extends { peran: string; institusi: string | null }>(konteks: readonly K[]): K[] {
+  return [...konteks].sort((a, b) =>
     urutan.compare(namaPeranKartu(a.peran), namaPeranKartu(b.peran)) || urutan.compare(a.institusi ?? "", b.institusi ?? ""));
+}
+
+export function susunKartu(konteks: DataKartu["konteks"]): SusunanKartu {
+  const urut = urutKonteksKartu(konteks);
   const keluarga = urut.length ? KELUARGA_PERAN[urut[0].peran] ?? null : null;
   const tempat = new Set(urut.map((k) => k.institusi ?? null));
   let baris: BarisBab[] = [];

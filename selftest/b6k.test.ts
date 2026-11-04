@@ -18,6 +18,11 @@
  *                   the roles on one line and the school beneath; two schools put one role with its school per line; a
  *                   role with no school is never set under another role's school; more than two pairs draws every line
  *                   (no role left out, no type shrunk) and marks the unresolved exception.
+ *  B6K-URUTAN-02    the card EMAIL uses the card's order (D-074(5); owner ruling of 4 Nov, D-164): templatKartu, given the
+ *                   contexts in the database's seniority order (Dekan, Kepala departemen, Guru), lists its «Peran» rows
+ *                   alphabetically — Dekan, Guru, Kepala departemen — at one school and at two; the email's order is the
+ *                   Digital Card's (susunKartu) for every permutation; identitas.ts takes it from kartu-pintar.ts's one
+ *                   ordering function and sorts nothing itself; every other row of the card email is unchanged.
  *  B6K-QR-01        the back: the PINTAR tile on --pintar-primary-soft (#E3EFEC) with modules in PINTAR green (#245F55),
  *                   the full 4-module quiet zone in the viewBox, the ID beneath it; the QR is exactly today's encoding of
  *                   tautanId; the instruction is Daisy's «Pindai untuk membuka halaman masuk PINTAR.» and the address
@@ -372,6 +377,51 @@ export const b6kTests: SelfTest[] = [
         c.expect(teks(html[0]).includes(t("akun.id_arti", "staff", { locale: "id" })), "the panel lost the line of what the PINTAR ID means");
       }
       return c.verdict("DataKartu is the same four fields, read by the same route from my_identity_card into the same shape (the QR target unchanged); Akun saya and the welcome both draw the two faces with the name, the ID 4 + 4 as one text node and every role with its school");
+    },
+  },
+  {
+    id: "B6K-URUTAN-02",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const kp = await import("../src/lib/kartu-pintar");
+      const { templatKartu } = await import("../src/components/email/identitas");
+      const K = { asal: "https://app.pintarselalu.com", staging: false };
+      const peranEmail = (konteks: { peran: string; institusi: string | null }[]) => {
+        const e = templatKartu({ nama: "Nadia Putri", pintarId: "A14CD7ST", tautanId: "https://app.pintarselalu.com/id/A14CD7ST", konteks: konteks as never, tautanAkun: "https://app.pintarselalu.com/akun" }, K);
+        const label = t("email.kartu.peran" as HleEvent, "public", { locale: "id" });
+        return { e, baris: e.teks.split("\n").filter((l) => l.trim().startsWith(label)).map((l) => l.trim().slice(label.length).replace(/^[:\s]+/, "").trim()) };
+      };
+      // the database's order (my_identity_card: seniority), one school
+      const satu = [{ peran: "DEAN", institusi: "SMA Satu" }, { peran: "HEAD_OF_DEPARTMENT", institusi: "SMA Satu" }, { peran: "EDUCATOR", institusi: "SMA Satu" }];
+      const r1 = peranEmail(satu).baris;
+      c.expect(JSON.stringify(r1) === JSON.stringify(["Dekan · SMA Satu", "Guru · SMA Satu", "Kepala departemen · SMA Satu"]),
+        `one school: the card email lists ${r1.join(" | ") || "no role rows"}; want Dekan, Guru, Kepala departemen (D-074(5))`);
+      // two schools, the same roles
+      const dua = [{ peran: "DEAN", institusi: "SMA Dua" }, { peran: "HEAD_OF_DEPARTMENT", institusi: "SMA Satu" }, { peran: "EDUCATOR", institusi: "SMA Satu" }];
+      const r2 = peranEmail(dua).baris;
+      c.expect(JSON.stringify(r2) === JSON.stringify(["Dekan · SMA Dua", "Guru · SMA Satu", "Kepala departemen · SMA Satu"]),
+        `two schools: the card email lists ${r2.join(" | ") || "no role rows"}`);
+      // the platform role (no school) beside school roles keeps its own line, in the card's order
+      const N = (p: string) => t(`role.${p}` as HleEvent, "staff", { locale: "id" });
+      const campur = [{ peran: "SYSTEM_ADMIN", institusi: null }, { peran: "EDUCATOR", institusi: "SMA Satu" }, { peran: "DEAN", institusi: "SMA Satu" }];
+      // every permutation: the email's order is the Digital Card's
+      const perm = <T,>(xs: T[]): T[][] => xs.length <= 1 ? [xs] : xs.flatMap((x, i) => perm([...xs.slice(0, i), ...xs.slice(i + 1)]).map((r) => [x, ...r]));
+      for (const set of [satu, dua, campur]) for (const p of perm(set)) {
+        const kartu = kp.susunKartu(p as never).urut.map((k) => `${N(k.peran)}${k.institusi ? ` · ${k.institusi}` : ""}`);
+        const email = peranEmail(p).baris;
+        c.expect(JSON.stringify(email) === JSON.stringify(kartu), `from ${p.map((k) => k.peran).join(",")}: the email lists ${email.join(" | ")}, the card ${kartu.join(" | ")}`);
+      }
+      // one ordering function: identitas.ts takes the card's, and sorts nothing itself
+      const src = kode(baca(repoRoot, "src/components/email/identitas.ts"));
+      c.expect(/from "@\/lib\/kartu-pintar"/.test(src) && /urutKonteksKartu\(data\.konteks\)/.test(src), "the card email does not take its order from kartu-pintar.ts's urutKonteksKartu");
+      c.expect(!/\.sort\(|Intl\.Collator|localeCompare/.test(src), "identitas.ts sorts on its own (a second ordering algorithm)");
+      const kpSrc = kode(baca(repoRoot, "src/lib/kartu-pintar.ts"));
+      c.expect((kpSrc.match(/\.sort\(/g) ?? []).length === 1 && /urutKonteksKartu\(konteks\)/.test(kpSrc), "kartu-pintar.ts does not keep exactly one ordering, used by susunKartu");
+      // the rest of the card email is unchanged: name, the ID 4 + 4, the way to Akun saya, the number of role rows
+      const { e } = peranEmail(satu);
+      c.expect(e.teks.includes("Nadia Putri") && e.teks.includes("A14C D7ST") && e.teks.includes("https://app.pintarselalu.com/akun"), "the card email's name, ID or Akun saya link changed");
+      c.expect(peranEmail(campur).baris.length === 3, "a role row was dropped or added");
+      return c.verdict("the card email lists the roles in the Digital Card's alphabetical order, from one ordering function");
     },
   },
 ];
