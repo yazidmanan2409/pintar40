@@ -25,7 +25,7 @@
 
 **Answers received from Daisy** (`ux-1/daisy-experience` at `9c12c6ef`, `D1/STEP-2.md` «Implementation answers»):
 - **P1 answered:** the card block is built from `susunKartu`'s lines (STEP-2 §1, «Lines»).
-- **P2 answered, (a):** today's logo is the card block's one image until F-11 (D-160(a)). K06 reads «no back, no QR, and no image but the logo». **Open point for the owner:** Daisy gives it `alt="Pintar"`. Today's logo is the «PINTAR SELALU» mark, and the frame's alt today is «PINTAR» (`email.bingkai.merek`, pinned by DAISY-19-EMAIL-01). The coordinator recommends the alt stay `email.bingkai.merek` until the master exists, since the running-text naming is still open (O1).
+- **P2 answered, (a):** today's logo is the card block's one image until F-11 (D-160(a)). K06 reads «no back, no QR, and no image but the logo». **Ruled (D-166(c)):** the interim alt stays «PINTAR» (`email.bingkai.merek`) until F-11; Daisy applied it at `9e13e35d`. Originally she gave it `alt="Pintar"`. Today's logo is the «PINTAR SELALU» mark, and the frame's alt today is «PINTAR» (`email.bingkai.merek`, pinned by DAISY-19-EMAIL-01). The coordinator recommends the alt stay `email.bingkai.merek` until the master exists, since the running-text naming is still open (O1).
 - **P3 answered:** the header keeps today's pinned 104 × 58 logo until F-11, not rescaled; 120 × 40 is the master's slot. DAISY-19-EMAIL-02 stays as it is.
 - **P4 answered:** the border is the frame's `garis` (`--line`, `#E2E4E5` on white). K16 stays unwidened.
 - **Still open:** P5 (Dr Gladys), P6 (send path and synthetic test accounts), P7 (owner approval).
