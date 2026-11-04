@@ -164,6 +164,9 @@ export default async function Pendataan({
         </section>
 
         {/* ── A NEW FILE ────────────────────────────────────────────────── */}
+        {/* E-K4: a file that could not be opened as an intake used to be answered nowhere (?galat=baris was read by
+            no page); it is said here, at the form that sent it */}
+        {sp.galat === "baris" ? <BarisHasil nada="gagal">{s("pendataan.buka.gagal")}</BarisHasil> : null}
         {dipilih.kode ? (
           <BacaDanPetakan
             institusi={dipilih.id}

@@ -1474,7 +1474,7 @@ export type HleEvent =
   | "pendataan.medan.role" | "pendataan.medan.programme_id"
   | "pendataan.periksa.judul" | "pendataan.periksa.mulai" | "pendataan.periksa.jalan"
   | "pendataan.periksa.bersih" | "pendataan.periksa.ada" | "pendataan.periksa.baris"
-  | "pendataan.periksa.perbaiki" | "pendataan.periksa.gagal"
+  | "pendataan.periksa.perbaiki" | "pendataan.periksa.gagal" | "pendataan.buka.gagal"
   | "pendataan.masalah.nama" | "pendataan.masalah.orang_bentuk" | "pendataan.masalah.orang_asing"
   | "pendataan.masalah.orang_sudah" | "pendataan.masalah.tempat_bentuk"
   | "pendataan.masalah.tempat_asing" | "pendataan.masalah.tempat_luar"
@@ -2803,6 +2803,8 @@ const table: Table = {
   // discover later that PINTAR recorded nine hundred and ninety-seven people.
   "pendataan.periksa.perbaiki": { default: "Perbaiki berkas Anda, lalu mulai pendataan baru. Tidak ada yang dicatat sampai seluruh baris bisa dibaca.", en: "Correct your file, then start a new intake. Nothing is recorded until every row can be read." },
   "pendataan.periksa.gagal": { default: "Pemeriksaan tidak bisa dijalankan sekarang. Coba sekali lagi.", en: "The check could not run just now. Try once more." },
+  // E-K4: the intake file could not be opened (pending Dr Gladys)
+  "pendataan.buka.gagal": { default: "Berkas itu belum bisa dibuka sebagai pendataan. Periksa isinya, lalu coba lagi.", en: "That file could not be opened as an intake. Check its contents, then try again." },
 
   // EACH PROBLEM AS A SENTENCE AN ADMINISTRATOR CAN ACT ON. The database
   // returns them as field-name phrases; none of those reaches a screen.

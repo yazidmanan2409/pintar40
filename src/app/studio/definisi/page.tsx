@@ -44,7 +44,7 @@ export const generateMetadata = judulHalaman("/studio/definisi");
  * a segmented control or radios instead»); the two switches are checkboxes with their explanation under them. The
  * names the action reads are unchanged. W1.9: every word in the reader's language.
  */
-type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; hal?: string; ubah?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; hal?: string; ubah?: string; baris?: string }>;
 
 /** The shuffle policies the database accepts, each said in words (studio.definisi.acak.*). */
 const ACAK = ["NONE", "ITEMS", "ITEMS_AND_OPTIONS"] as const;
@@ -204,6 +204,8 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
       </section>
 
       <section className="pin-studio-halaman">
+        {/* E-K4: a saved edit makes a new version, whose row is not the one edited: it is answered above the list */}
+        <HasilDi q={sp} bagian="definisi-baris" kalimat={banner} barisDiHalaman={(definitions ?? []).map((d) => d.id)} />
         <ul className="pin-daftar">
           {(definitions ?? []).map((d) => {
             const bab = d.course_id ? judulBab.get(d.course_id) : undefined;
@@ -230,6 +232,7 @@ export default async function Definisi({ searchParams }: { searchParams: Search 
                     <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
                   </form>
                 ) : null}
+                {/* E-K4: an edit is answered in its own row */}<HasilDi q={sp} bagian="definisi-baris" baris={d.id} kalimat={banner} />
                 {bab?.status === "INGESTED" && bukaUbah(d.id) ? <SimpanIsian form={`definisi-${d.id}`} ditolak={ditolak("definisi")} pemilik={pemilik} /> : null}
               </li>
             );

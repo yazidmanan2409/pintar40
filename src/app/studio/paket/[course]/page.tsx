@@ -65,7 +65,7 @@ export const generateMetadata = judulHalaman("/studio/paket/[course]");
  */
 
 type Params = Promise<{ course: string }>;
-type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string }>;
+type Search = Promise<{ hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string; bagian?: string; baris?: string }>;
 
 type Finding = Temuan;
 
@@ -421,7 +421,8 @@ export default async function Paket({ params, searchParams }: { params: Params; 
           {/* Polish batch 2 (UX-16): this moves an assignment that exists, and
               each form says which class it moves and where that class is now. */}
           <h3 className="pin-studio-h3">{s("studio.paket.pindah.judul")}</h3>
-          <HasilDi q={sp} bagian="koreksi" kalimat={banner} />
+          {/* E-K4: a move is answered in its assignment's block; here only when it names none on this page */}
+          <HasilDi q={sp} bagian="koreksi" kalimat={banner} barisDiHalaman={(assignments ?? []).map((a) => a.id as string)} />
           {(assignments ?? []).map((a) => (
             <div key={a.id}>
             <form action={moveReleaseAction} id={`koreksi-${a.id}`} className="pin-baris-aksi">
@@ -449,6 +450,7 @@ export default async function Paket({ params, searchParams }: { params: Params; 
               <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.paket.pindah.tombol")}</TombolKirim>
             </form>
             <SimpanIsian form={`koreksi-${a.id}`} ditolak={ditolak("koreksi")} pemilik={pemilik} />
+            <HasilDi q={sp} bagian="koreksi" baris={a.id as string} kalimat={banner} />
             </div>
           ))}
         </section>

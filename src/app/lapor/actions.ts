@@ -48,8 +48,14 @@ export async function pindahkanLaporanAksi(fd: FormData): Promise<void> {
   const laporan = str(fd, "laporan");
   const status = str(fd, "status");
   const langkah = str(fd, "langkah");
+  // E-K4: the answer comes back to the report's own row, on the list's page it was moved from
+  const hal = str(fd, "hal_lapor");
+  const baris = /^[0-9a-f-]{36}$/i.test(laporan) ? laporan : null;
   const balik = (q: Record<string, string>): never => {
-    redirect(`/konfigurasi?${new URLSearchParams({ bagian: "laporan-masalah", ...q }).toString()}#laporan-masalah`);
+    const u = new URLSearchParams({ bagian: "laporan-masalah", ...q });
+    if (baris) u.set("baris", baris);
+    if (/^[1-9]\d{0,4}$/.test(hal)) u.set("hal_lapor", hal);
+    redirect(`/konfigurasi?${u.toString()}#${baris ? `laporan-${baris}` : "laporan-masalah"}`);
   };
   if (!/^[0-9a-f-]{36}$/i.test(laporan)) balik({ lapor: "REPORT_NOT_ALLOWED" });
   const supabase = await supabaseServer();

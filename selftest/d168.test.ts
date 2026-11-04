@@ -65,6 +65,12 @@
  *   D168-B1-4  every Tab stop of a date field shows the ring (E-B1-4): the design system's focus rule gives a date,
  *              date-time or time field the ring while focus is within it but not on it (its calendar button), with the
  *              same tokens as every other focus ring. Rendered evidence in Chromium: docs/completion-4.0/d177-koreksi/.
+ *   D168-K4-1  a result is said where its action was (E-K4): queryHasil returns the sending form's origin (`asal`), its
+ *              row (`baris`) and its list's page, and drops anything else; HasilDi draws a row's answer in the row and
+ *              the list's line only for a row not on the page; Konfigurasi's multi-form sections (roles, transfers,
+ *              maintenance, problem reports), Studio's row lists (definitions, Bank Soal, integrity, release moves)
+ *              and the distribution forms answer at the form; the answers no page read (package-less Studio refusals,
+ *              the intake file, the certificate revocation's context refusal) are read where their form is.
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -76,6 +82,7 @@ import { cangkangStaf } from "../src/components/lapor/cangkang";
 import { labelMetrik } from "../src/components/bukti/label";
 import { susunSoal } from "../src/lib/soal-tinjauan";
 import { namaBerkas, BATAS_NAMA_BERKAS } from "../src/lib/nama-berkas";
+import { queryHasil } from "../src/lib/galat-kontrak";
 import { render } from "./ux2.test";
 
 const kode = (x: string) => x.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
@@ -196,6 +203,7 @@ export const d168Tests: SelfTest[] = [
         { halaman: 1, lagi: true, jumlah: 20, locale: "id" }, { halaman: 2, lagi: true, jumlah: 20, locale: "id" },
         { halaman: 3, lagi: false, jumlah: 5, locale: "en" }, { halaman: 1, lagi: false, jumlah: 20, locale: "id" },
         { halaman: 2, lagi: true, jumlah: 20, locale: "id", total: 45 },
+        { halaman: 1, lagi: false, jumlah: 1, locale: "id", total: 1 },
       ];
       const anak = spawnSync(process.execPath, ["--import", "tsx", "-e",
         "(async () => {" +
@@ -214,7 +222,10 @@ export const d168Tests: SelfTest[] = [
       try { html = JSON.parse(anak.stdout); } catch { /* reported below */ }
       if (!c.expect(anak.status === 0 && html.length === KASUS.length, `the pager could not be rendered: ${(anak.stderr || "").split("\n").slice(0, 3).join(" ")}`)) return c.verdict("");
       const teks = (x: string) => x.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-      const [p1, p2, p3en, satu, ber] = html;
+      const [p1, p2, p3en, satu, ber, satuTotal] = html;
+      c.expect(satuTotal === "", "a one-page list with a known total draws a pager");
+      c.expect(/^<div data-penomoran="" class="pin-penomoran">/.test(p1) && /\.pin-penomoran \{ container-type: inline-size;/.test(readFileSync(join(repoRoot, "src/app/experience.css"), "utf8")),
+        "the pager outside a Collection is not its own container, so it does not fold at 320 px (B5-W3: /aktivasi 476 px)");
       c.expect(/Menampilkan 1–20 laporan/.test(teks(p1)) && /Halaman 1\b/.test(teks(p1)) && !/ dari /.test(teks(p1)), `page 1: ${teks(p1)}`);
       const tombol = (x: string, arah: string) => (x.match(new RegExp(`<a [^>]*data-pager="${arah}"[^>]*>`)) ?? [""])[0];
       const mati = (x: string, arah: string) => /aria-disabled="true"/.test(tombol(x, arah)) && !/href=/.test(tombol(x, arah));
@@ -222,7 +233,7 @@ export const d168Tests: SelfTest[] = [
       c.expect(mati(p1, "sebelum") && ke(p1, "sesudah", 2), "page 1 hides «Sebelumnya» (or links it) or does not link onward");
       c.expect(ke(p2, "sebelum", 1) && ke(p2, "sesudah", 3) && /Menampilkan 21–40 laporan/.test(teks(p2)), `page 2: ${teks(p2)}`);
       c.expect(/Showing 41–45 laporan/.test(teks(p3en)) && /Page 3\b/.test(teks(p3en)) && mati(p3en, "sesudah") && /Previous/.test(p3en), `the last page in English: ${teks(p3en)}`);
-      c.expect(satu === '<div data-penomoran=""></div>', "a one-page list draws a pager");
+      c.expect(satu === "", "a one-page list draws a pager");
       c.expect(/Menampilkan 21–40 dari 45 laporan/.test(teks(ber)) && /Halaman 2 dari 3/.test(teks(ber)), `a known total is not shown: ${teks(ber)}`);
       c.expect(html.every((x) => !/>\s*(Kembali|Back)\s*</.test(x)), "a pager says «Kembali»");
       return c.verdict("one pager (the Collection's) for every paged list: the count line, the position, «Sebelumnya» disabled on page 1, no «Kembali», the total only where the list has it");
@@ -470,6 +481,58 @@ export const d168Tests: SelfTest[] = [
       const tanggal = /input:is\(\[type="date"\], \[type="datetime-local"\], \[type="time"\]\):focus-within:not\(:focus\) \{ outline: ([^;]+); outline-offset: ([^;]+); \}/.exec(css);
       c.expect(!!umum && !!tanggal && tanggal[1] === umum[1] && tanggal[2] === umum[2], "the date field's calendar button has no focus ring, or a ring of its own look");
       return c.verdict("a date field's calendar button shows the same ring as every other Tab stop (the field carries it while focus is within)");
+    },
+  },
+  {
+    id: "D168-K4-1",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const baca = (f: string) => kode(readFileSync(join(repoRoot, f), "utf8"));
+      const fd = new FormData();
+      fd.set("asal", "cabut"); fd.set("hal_peran", "2"); fd.set("baris", "0f81f5a6-aeb9-45d8-aef6-431a02100818"); fd.set("hal_x", "<b>"); fd.set("nama", "Sari");
+      const q = queryHasil("roles", { ok: true, kode: "ROLE_REVOKED" }, fd);
+      c.expect(q.get("asal") === "cabut" && q.get("hal_peran") === "2" && q.get("baris") === "0f81f5a6-aeb9-45d8-aef6-431a02100818" && !q.has("hal_x") && !q.has("nama"),
+        `queryHasil carries ${q.toString()}`);
+      const jahat = new FormData(); jahat.set("asal", "Cabut<script>"); jahat.set("baris", "x");
+      const q2 = queryHasil("roles", { ok: false, kode: "ACTION_FAILED" }, jahat);
+      c.expect(!q2.has("asal") && !q2.has("baris"), "a forged origin or row reaches the page");
+      const R = (props: unknown) => render(repoRoot, "src/components/HasilDi.tsx", props);
+      const q3 = { bagian: "kesehatan", hasil: "ok", baris: "a" };
+      const diBaris = R({ q: q3, bagian: "kesehatan", baris: "a", kalimat: "OK" }), barisLain = R({ q: q3, bagian: "kesehatan", baris: "b", kalimat: "OK" });
+      const daftarAda = R({ q: q3, bagian: "kesehatan", barisDiHalaman: ["a", "b"], kalimat: "OK" }), daftarTiada = R({ q: q3, bagian: "kesehatan", barisDiHalaman: ["b"], kalimat: "OK" });
+      c.expect(/OK/.test(diBaris.html) && !/OK/.test(barisLain.html) && !/OK/.test(daftarAda.html) && /OK/.test(daftarTiada.html),
+        "HasilDi does not answer a row in its row, and a row not on the page at the list");
+      const konf = baca("src/app/konfigurasi/page.tsx");
+      c.expect(/const result = \(section: string, asal\?: string\) =>\s*sp\.bagian === section && sp\.hasil && \(asal \? asalKini === asal : asalKini === null\)/.test(konf), "Konfigurasi's result line does not follow the form's origin");
+      const ASAL: Array<[string, string, string]> = [["revokeRoleAction", "roles", "cabut"], ["tunjukAdminPertamaAction", "roles", "pertama"],
+        ["transferAuthorizeAction", "transfers", "baris"], ["transferExecuteAction", "transfers", "baris"], ["transferRejectAction", "transfers", "baris"],
+        ["transferTerimaAction", "transfers", "terima"], ["jadwalkanPemeliharaanAction", "pemeliharaan", "jadwal"], ["ubahPemeliharaanAction", "pemeliharaan", "jendela"],
+        ["terbitkanPengumumanAction", "pemeliharaan", "umumkan"], ["tarikPengumumanAction", "pemeliharaan", "tarik"], ["hentikanSekarangAction", "pemeliharaan", "henti"]];
+      for (const [aksi, bagian, asal] of ASAL) {
+        const form = new RegExp(`<form\\b[^>]*action=\\{${aksi}\\}[^>]*><input type="hidden" name="asal" value="${asal}" />`);
+        c.expect(form.test(konf) && konf.includes(`{result("${bagian}", "${asal}")}`), `Konfigurasi: ${aksi} is not answered at its form («${asal}»)`);
+      }
+      c.expect(/action=\{grantRoleAction\}[^>]*><input type="hidden" name="asal" value="angkat" \/>/.test(konf) && konf.includes('{result("roles", "angkat")}'), "the appointment's confirmation is not answered at itself");
+      c.expect(/sp\.baris === l\.id \? hasilLapor\(\) : null/.test(konf) && /name="hal_lapor"/.test(konf), "a problem report's move is not answered in its row");
+      const aksiKonf = baca("src/app/konfigurasi/actions.ts");
+      c.expect(!/back\("(roles|transfers)", (?:(?!, fd\);).)*\);/.test(aksiKonf) && /kembaliPemeliharaan = \(h: HasilAksi, fd\?: FormData\)/.test(aksiKonf), "a Konfigurasi action returns without its form");
+      for (const [f, bagian, baris] of [["src/app/studio/definisi/page.tsx", "definisi-baris", "d.id"], ["src/app/studio/bank/page.tsx", "kesehatan", "i.id"],
+        ["src/app/studio/integritas/page.tsx", "integritas", "g.id"], ["src/app/studio/paket/[course]/page.tsx", "koreksi", "a.id as string"]]) {
+        const src = baca(f);
+        c.expect(src.includes(`<HasilDi q={sp} bagian="${bagian}" baris={${baris}} kalimat={banner} />`) && new RegExp(`<HasilDi q=\\{sp\\} bagian="${bagian}" kalimat=\\{banner\\} barisDiHalaman=`).test(src),
+          `${f}: a row's action is not answered in its row`);
+      }
+      const kanonik = baca("src/app/studio/kanonik/page.tsx");
+      c.expect(kanonik.includes('<HasilDi q={sp} bagian="izin-beri" kalimat={banner} />') && kanonik.includes('<HasilDi q={sp} bagian="izin-tarik" kalimat={banner} />') && !/bagian="izin"/.test(kanonik), "the distribution forms are not answered at each form");
+      const studio = baca("src/app/studio/actions.ts");
+      c.expect(!/back\("\/studio\/kanonik", "izin",/.test(studio) && !/`koreksi-\$\{assignment\}`/.test(studio), "a Studio result names a section no page reads");
+      c.expect(/<HasilDi q=\{sp\} bagian=\{\["paket", "temuan", "koreksi"\]\}/.test(baca("src/app/studio/page.tsx")), "a package-less Studio refusal is answered nowhere");
+      c.expect(/sp\.galat === "baris" \? <BarisHasil nada="gagal">\{s\("pendataan\.buka\.gagal"\)\}/.test(baca("src/app/pendataan/page.tsx")), "an intake file that would not open is answered nowhere");
+      c.expect(/"cabut", \{ pilih: id \}\)/.test(baca("src/app/konfigurasi/sertifikat/actions.ts")) && /sp\.kode === "CONTEXT_OTHER_PLACE"/.test(baca("src/app/konfigurasi/sertifikat/page.tsx")),
+        "a revocation refused for its context loses its certificate, or is called a service failure");
+      const pd = baca("src/app/pendataan/[pekerjaan]/page.tsx");
+      c.expect(pd.indexOf('sp.galat === "konfirmasi"') > pd.indexOf("<DaftarNama") && pd.indexOf('sp.galat === "percontohan"') > pd.indexOf("barisPercontohan.map"), "Pendataan's refusals are said above what stands between them and their button");
+      return c.verdict("every result names its form and row, comes back with its list's page, and is said at that form or row; no result names a part no page reads");
     },
   },
 ];

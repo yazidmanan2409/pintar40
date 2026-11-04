@@ -11340,8 +11340,9 @@ export const experienceTests: SelfTest[] = [
         && (adminPertama.match(/"persons_awaiting_first_role"/g) ?? []).length === 1
         && /\.from\("institutional_identities"\)\.select\("person_id"\)/.test(adminPertama)
         && /return error \? true : /.test(adminPertama)
-        && /if \(sekolahPeran && !\(await orangSekolah\(supabase, sekolahPeran, person!\)\)\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}\);/.test(aksiKonf)
-        && /if \(isSys !== true\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}\);\s*if \(await adaAdminSekolah\(supabase, sekolah!\)\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}\);\s*if \(!\(await calonAdminPertama\(supabase\)\)\.some\(\(p\) => p\.person_id === person\)\) back/.test(aksiKonf)
+        // RESTATED FOR E-K4 (D-173(d)): each refusal returns with its form (`, fd`), so it is said at the form that sent it
+        && /if \(sekolahPeran && !\(await orangSekolah\(supabase, sekolahPeran, person!\)\)\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}, fd\);/.test(aksiKonf)
+        && /if \(isSys !== true\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}, fd\);\s*if \(await adaAdminSekolah\(supabase, sekolah!\)\) back\("roles", \{ ok: false, kode: "ACTION_NOT_ALLOWED" \}, fd\);\s*if \(!\(await calonAdminPertama\(supabase\)\)\.some\(\(p\) => p\.person_id === person\)\) back/.test(aksiKonf)
         && /p_role: "INSTITUTION_ADMIN", p_scope_node: akar,/.test(aksiKonf)
         && /const adminPlatformDiSekolah = !lama && isSys === true && kh !== null && !kh\.platform && kh\.peran\.includes\("SYSTEM_ADMIN"\);/.test(konf)
         && /\.\.\.\(platformIni \? \[\] : sekolahIni\.map\(\(sekolah\) => supabase\.rpc\("persons_awaiting_first_role_at", \{ p_institution: sekolah \}\)\)\)/.test(konf)

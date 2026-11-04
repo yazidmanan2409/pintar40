@@ -4212,9 +4212,14 @@
       "proves": "Terminology v1 ruling 2 (X12 T1; D-171(c)), selftest/d168.test.ts: over the rendered copy table, no Indonesian string says «kursus» and no English string says «course(s)» for the Studio object, except an allow-list that is the decision itself: the workbook's structure (ruling 14), the JSON format's language (ruling 13) and the certificate list's column (X12 T4, pending); the full term is «Paket Pembelajaran» / «Learning Package»."
     },
     {
+      "id": "D168-K4-1",
+      "runner": "static",
+      "proves": "E-K4 (D-173(d)), selftest/d168.test.ts: executing queryHasil (src/lib/galat-kontrak.ts), a result carries the form's origin, its row and its list's page and drops forged or other fields; rendered (react-dom/server), HasilDi answers a row in its row and at the list only when the row is not on the page; reading the source, Konfigurasi's roles, transfers, maintenance and problem-report forms, Studio's definition, Bank Soal, integrity and release-move rows and the two distribution forms are each answered at the form or row, and the results no page read (package-less Studio refusals, the intake file, the certificate's context refusal) are read where their form is."
+    },
+    {
       "id": "D168-B1-4",
       "runner": "static",
-      "proves": "E-B1-4, selftest/d168.test.ts, reading the stylesheet src/app/globals.css: a date, date-time or time field whose calendar button holds focus (focus within, not on the field) carries the design system's focus ring with the same tokens as *:focus-visible; the Chromium render before and after is in docs/completion-4.0/d177-koreksi/."
+      "proves": "E-B1-4, selftest/d168.test.ts, reading the source of the stylesheet src/app/globals.css: a date, date-time or time field whose calendar button holds focus (focus within, not on the field) carries the design system's focus ring with the same tokens as *:focus-visible; the Chromium render before and after is in docs/completion-4.0/d177-koreksi/."
     },
     {
       "id": "D168-D2-1",

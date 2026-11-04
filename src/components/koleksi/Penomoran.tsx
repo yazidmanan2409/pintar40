@@ -28,12 +28,16 @@ export default function Penomoran({ halaman, lagi, ke, locale = "id", benda, jum
   /** The whole count, only where the list already has it (never computed for the pager). */
   total?: number;
 }) {
+  // nothing is drawn for one page, known total or not (the list's own count says how many there are)
+  if (halaman <= 1 && !lagi) return null;
   const dari = (halaman - 1) * ukuran + 1;
   const posisi = total !== undefined
     ? posisiHalaman(total, halaman, ukuran)
     : { halaman, lagi, dari: jumlah > 0 ? dari : 0, sampai: jumlah > 0 ? dari + jumlah - 1 : 0 };
   return (
-    <div data-penomoran="">
+    // the pager's narrow layout is a container query (Koleksi's frame is its container); outside a Collection the
+    // wrapper is that container, so the pager folds at 320 px wherever it is drawn
+    <div data-penomoran="" className="pin-penomoran">
       <HalamanKoleksi posisi={posisi} benda={benda} ke={ke} locale={locale} />
     </div>
   );

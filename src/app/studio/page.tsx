@@ -3,6 +3,8 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { currentLocale } from "@/lib/locale";
 import { format, t, type HleEvent } from "@/lib/hle";
 import { card, studioInstitutions, tabSaya } from "./_lib";
+import { kalimatHasil } from "@/lib/galat-kontrak";
+import HasilDi from "@/components/HasilDi";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { posisiPaket, kunciSalinan } from "@/components/studio/langkah";
 import Kosong from "@/components/Kosong";
@@ -28,7 +30,7 @@ export const generateMetadata = judulHalaman("/studio");
 type Daftar = "ACTION_REQUIRED" | "BLOCKED";
 const DAFTAR: readonly Daftar[] = ["ACTION_REQUIRED", "BLOCKED"];
 
-export default async function StudioBeranda({ searchParams }: { searchParams: Promise<{ daftar?: string }> }) {
+export default async function StudioBeranda({ searchParams }: { searchParams: Promise<{ daftar?: string; bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; masalah?: string }> }) {
   const sp = await searchParams;
   const daftar = (DAFTAR as readonly string[]).includes(sp.daftar ?? "") ? sp.daftar as Daftar : null;
   const supabase = await supabaseServer();
@@ -95,6 +97,9 @@ export default async function StudioBeranda({ searchParams }: { searchParams: Pr
 
   return (
     <div className="pin-studio-halaman">
+      {/* E-K4: an action that arrived without its package (a broken or stale form) comes back here, and is answered
+          here rather than nowhere */}
+      <HasilDi q={sp} bagian={["paket", "temuan", "koreksi"]} kalimat={kalimatHasil(sp, s, { ok: "studio.hasil.ok", gagal: "studio.hasil.gagal" })} />
       {/* RV-10 (D-140): no task waiting is not «no package»; the packages are listed below */}
       {rows.length === 0 ? (
         <p className={card}>{s("studio.beranda.tak_ada_tugas")}</p>

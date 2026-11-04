@@ -28,7 +28,7 @@ export async function cabutSertifikatAksi(fd: FormData) {
   const alasan = String(fd.get("alasan") ?? "").trim();
   if (!UUID.test(id)) kembali("", "gagal", "TIDAK_DITEMUKAN");
   if (!alasan) kembali(id, "gagal", "ALASAN_WAJIB");
-  await wajibDalamKonteks({ sekolah: await sekolahSertifikat(id), atauPlatform: true }, "cabut");
+  await wajibDalamKonteks({ sekolah: await sekolahSertifikat(id), atauPlatform: true }, "cabut", { pilih: id });
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc("revoke_certificate", { p_certificate: id, p_reason: alasan });
   if (!error) kembali(id, "ok");

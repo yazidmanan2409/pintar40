@@ -74,7 +74,8 @@ export const b5Tests: SelfTest[] = [
       c.expect(!/<Dialog\b|showModal/.test(form), "the revocation uses the Dialog, which holds no form (GQ5)");
 
       const aksi = kode(baca(ctx.repoRoot, "src/app/konfigurasi/sertifikat/actions.ts"));
-      const posKonteks = aksi.indexOf("await wajibDalamKonteks({ sekolah: await sekolahSertifikat(id), atauPlatform: true }, \"cabut\")");
+      // RESTATED FOR E-K4: the context check also keeps the certificate (`pilih`) for the page it returns to
+      const posKonteks = aksi.indexOf("await wajibDalamKonteks({ sekolah: await sekolahSertifikat(id), atauPlatform: true }, \"cabut\", { pilih: id })");
       const posCabut = aksi.indexOf("rpc(\"revoke_certificate\", { p_certificate: id, p_reason: alasan })");
       c.expect(posKonteks > 0 && posCabut > posKonteks, "the action does not check the certificate's school against the working context before revoke_certificate");
       c.expect(/const supabase = await supabaseServer\(\);/.test(aksi) && !/service_role|SERVICE_ROLE|supabaseAdmin/.test(aksi),

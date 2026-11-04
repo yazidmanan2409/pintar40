@@ -15,6 +15,7 @@ import FormCabut from "@/components/sertifikat/FormCabut";
 import { tanggal } from "@/lib/tanggal";
 import { judulHalaman } from "@/lib/judul-halaman";
 import { KODE_CABUT, KEADAAN_SERTIFIKAT, type KeadaanSertifikat, type KodeCabut } from "@/lib/sertifikat-cabut-kontrak";
+import { kalimatHasil } from "@/lib/galat-kontrak";
 
 export const generateMetadata = judulHalaman("/konfigurasi/sertifikat");
 export const dynamic = "force-dynamic";
@@ -85,7 +86,10 @@ export default async function SertifikatSekolah({ searchParams }: { searchParams
     ? <BarisHasil nada={sp.hasil === "ok" ? "ok" : "gagal"}>
         {sp.hasil === "ok"
           ? s("sertifikat.cabut.ok").replace("{nomor}", dipilih.certificate_number)
-          : s(`sertifikat.cabut.gagal.${kode}` as HleEvent)}
+          // E-K4 / L3: a revocation of another school's certificate, refused in this context, says so (not «service down»)
+          : sp.kode === "CONTEXT_OTHER_PLACE"
+            ? kalimatHasil(sp, (k) => s(k), { ok: "config.result.ok", gagal: "config.result.failed" })
+            : s(`sertifikat.cabut.gagal.${kode}` as HleEvent)}
       </BarisHasil>
     : null;
 

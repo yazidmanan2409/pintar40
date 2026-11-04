@@ -6,7 +6,7 @@ import Penomoran, { UKURAN, halamanDiminta, rentang, satuHalaman, tautanHalaman 
 
 // L4 (CR-88): the audit trail's page is the newest 50, the size CR-39 (J1.6) reads; other staff lists are 20 a page
 const UKURAN_JEJAK = 50;
-import { kalimatHasil, rujukan } from "@/lib/galat-kontrak";
+import { asalHasil, kalimatHasil, rujukan } from "@/lib/galat-kontrak";
 import { nilaiSkema } from "@/lib/kesehatan-skema";
 import KartuKesehatan, { type KeadaanKesehatan } from "@/components/konfigurasi/KartuKesehatan";
 import { currentViewer } from "@/lib/auth";
@@ -113,6 +113,8 @@ type MetricDefinition = {
 
 type SearchParams = Promise<{
   bagian?: string; hasil?: string; kode?: string; ref?: string; n?: string; sekolah?: string; periksa?: string; dari?: string; lapor?: string;
+  /** E-K4: the report row a move answers (checked against the rows on this page). */
+  baris?: string;
   // W2.15 (F-10): the directory search, a plain GET
   cari_sekolah?: string;
   // #148: the first step of scheduling, asked by a plain GET so the second step can show what the window would meet
@@ -122,6 +124,8 @@ type SearchParams = Promise<{
   // L4 (CR-88): the page of each bounded list
   hal_pindah?: string; hal_jejak?: string; hal_peran?: string; hal_sekolah?: string; hal_lapor?: string;
   hal_jendela?: string; hal_pengumuman?: string;
+  /** E-K4: which form of a section sent the result (asalHasil validates it). */
+  asal?: string;
 }>;
 
 export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
@@ -400,8 +404,16 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   const rollNodes = (nodes ?? []).filter((n) => (n.kind === "COHORT" || n.kind === "CLASS") && n.academic_period_id);
 
   // DAISY-18: the result sits under the form it answers, in the shared line.
-  const result = (section: string) =>
-    sp.bagian === section && sp.hasil ? (
+  // E-K4 (D-173(d)): a section with several forms says each result at the form that sent it (`asal`); a result that
+  // names no form is said where the section's one line has always been
+  const asalKini = asalHasil(typeof sp.asal === "string" ? sp.asal : null);
+  const hasilLapor = () => sp.lapor ? (
+    <BarisHasil nada={sp.lapor === "MOVED" ? "ok" : "gagal"}>
+      {sl(sp.lapor === "MOVED" ? "lapor.triase.ok" : kunciKodeLaporan(sp.lapor as KodeLaporan))}
+    </BarisHasil>
+  ) : null;
+  const result = (section: string, asal?: string) =>
+    sp.bagian === section && sp.hasil && (asal ? asalKini === asal : asalKini === null) ? (
       <BarisHasil nada={sp.hasil === "ok" ? "ok" : "gagal"}>
         {kalimatHasil(sp, s, { ok: "config.result.ok", gagal: "config.result.failed" })}
       </BarisHasil>
@@ -849,17 +861,15 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           <section id="laporan-masalah" className={card} aria-labelledby="pin-laporan-masalah">
             <h2 id="pin-laporan-masalah" className="font-medium">{sl("config.section.laporan_masalah")}</h2>
             <p className="mt-1 text-sm text-ink-2">{sl("lapor.triase.arti")}</p>
-            {sp.bagian === "laporan-masalah" && sp.lapor ? (
-              <BarisHasil nada={sp.lapor === "MOVED" ? "ok" : "gagal"}>
-                {sl(sp.lapor === "MOVED" ? "lapor.triase.ok" : kunciKodeLaporan(sp.lapor as KodeLaporan))}
-              </BarisHasil>
-            ) : null}
+            {/* E-K4: a move is answered in its report's row (it comes back with the row and its page); a refusal that
+                names no row on this page is said here, above the list */}
+            {sp.bagian === "laporan-masalah" && sp.lapor && !laporan.some((l) => l.id === sp.baris) ? hasilLapor() : null}
             {laporan.length === 0 ? (
               <p className="mt-3 text-sm text-ink-3">{sl("lapor.triase.kosong")}</p>
             ) : (
               <ul className="mt-3 grid gap-2 text-sm">
                 {laporan.map((l) => (
-                  <li key={l.id} data-laporan={l.id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
+                  <li key={l.id} id={`laporan-${l.id}`} data-laporan={l.id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
                     <span className="text-ink-1">
                       <strong>{sl(kunciStatusLaporan(l.status))}</strong>
                       {l.hentikanKelas ? <> · <strong>{sl("lapor.hentikan.singkat")}</strong></> : null}
@@ -882,6 +892,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     {langkahBerikut(l.status).length > 0 ? (
                       <form action={pindahkanLaporanAksi} className="flex flex-wrap items-end gap-2">
                         <input type="hidden" name="laporan" value={l.id} />
+                        <input type="hidden" name="hal_lapor" value={String(halLapor)} />
                         <label className={label}>{sl("lapor.triase.ubah")}
                           <select name="status" className={field} required defaultValue={langkahBerikut(l.status)[0]}>
                             {langkahBerikut(l.status).map((x) => <option key={x} value={x}>{sl(kunciStatusLaporan(x))}</option>)}
@@ -893,6 +904,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                         <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("lapor.triase.simpan")}</TombolKirim>
                       </form>
                     ) : null}
+                    {sp.bagian === "laporan-masalah" && sp.lapor && sp.baris === l.id ? hasilLapor() : null}
                   </li>
                 ))}
               </ul>
@@ -953,7 +965,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 ) : tabrakan ? (
                   <p role="status">{sl("config.pemeliharaan.tabrakan.nihil")}</p>
                 ) : null}
-                <form action={jadwalkanPemeliharaanAction} className="grid gap-2">
+                <form action={jadwalkanPemeliharaanAction} className="grid gap-2"><input type="hidden" name="asal" value="jadwal" />
                   {pmPlatform ? <input type="hidden" name="platform" value="1" /> : null}
                   {pmPlatform ? null : pmSekolah.map((id) => <input key={id} type="hidden" name="sekolah" value={id} />)}
                   <input type="hidden" name="mulai" value={sp.pm_mulai ?? ""} />
@@ -971,6 +983,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 </form>
               </div>
             ) : null}
+            {result("pemeliharaan", "jadwal")}
 
             <h3 className="mt-4 text-sm font-medium">{sl("config.pemeliharaan.daftar")}</h3>
             {kelola && kelola.pemeliharaan.length > 0 ? (
@@ -988,7 +1001,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     {w.pesan ? <span className="text-ink-2">{w.pesan}</span> : null}
                     <span className="text-xs text-ink-3">{sl("config.pemeliharaan.alasan")}: {w.alasan}</span>
                     {w.menguasai && w.keadaan !== "BERAKHIR" ? (
-                      <form action={ubahPemeliharaanAction} className="flex flex-wrap items-end gap-2">
+                      <form action={ubahPemeliharaanAction} className="flex flex-wrap items-end gap-2"><input type="hidden" name="asal" value="jendela" /><input type="hidden" name="hal_jendela" value={String(halJendela)} />
                         <input type="hidden" name="jendela" value={w.id} />
                         <label className={label}>{sl("config.pemeliharaan.alasan")}
                           <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
@@ -1007,12 +1020,13 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             ) : (
               <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.kosong")}</p>
             )}
+            {result("pemeliharaan", "jendela")}
             <Penomoran halaman={halJendela} lagi={kelola?.lagiPemeliharaan === true} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_jendela", n, "pemeliharaan")} locale={locale}
               benda={sl("koleksi.benda.jendela")} jumlah={kelola?.pemeliharaan.length ?? 0} />
 
             <h3 className="mt-4 text-sm font-medium">{sl("config.pemeliharaan.pengumuman")}</h3>
             <p className="mt-1 text-sm text-ink-2">{sl("config.pemeliharaan.pengumuman.arti")}</p>
-            <form action={terbitkanPengumumanAction} className="mt-2 grid gap-2">
+            <form action={terbitkanPengumumanAction} className="mt-2 grid gap-2"><input type="hidden" name="asal" value="umumkan" />
               <fieldset className="grid gap-1 text-sm">
                 <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
                 {platformIni ? (
@@ -1037,6 +1051,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 <TombolKirim className={primer} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.pengumuman.terbitkan")}</TombolKirim>
               </div>
             </form>
+            {result("pemeliharaan", "umumkan")}
             {kelola && kelola.pengumuman.length > 0 ? (
               <ul className="mt-2 grid gap-2 text-sm">
                 {kelola.pengumuman.map((n) => (
@@ -1048,7 +1063,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                       {n.ditarik ? <> · <strong>{sl("config.pemeliharaan.pengumuman.ditarik")}</strong></> : null}
                     </span>
                     {n.boleh && !n.ditarik ? (
-                      <form action={tarikPengumumanAction} className="flex flex-wrap items-end gap-2">
+                      <form action={tarikPengumumanAction} className="flex flex-wrap items-end gap-2"><input type="hidden" name="asal" value="tarik" /><input type="hidden" name="hal_pengumuman" value={String(halPengumuman)} />
                         <input type="hidden" name="pengumuman" value={n.id} />
                         <label className={label}>{sl("config.pemeliharaan.alasan")}
                           <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
@@ -1062,6 +1077,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             ) : (
               <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.pengumuman.kosong")}</p>
             )}
+            {result("pemeliharaan", "tarik")}
             <Penomoran halaman={halPengumuman} lagi={kelola?.lagiPengumuman === true} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_pengumuman", n, "pemeliharaan")} locale={locale}
               benda={sl("koleksi.benda.pengumuman")} jumlah={kelola?.pengumuman.length ?? 0} />
 
@@ -1069,7 +1085,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <div className="mt-4 grid gap-2 rounded-[var(--radius-1)] border border-line-1 px-3 py-2" data-hentikan="1">
                 <h3 className="text-sm font-medium">{sl("config.pemeliharaan.darurat.judul")}</h3>
                 <p className="text-sm text-ink-2">{sl("config.pemeliharaan.darurat.arti")}</p>
-                <form action={hentikanSekarangAction} className="grid gap-2">
+                <form action={hentikanSekarangAction} className="grid gap-2"><input type="hidden" name="asal" value="henti" />
                   <fieldset className="grid gap-1 text-sm">
                     <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
                     <label className="flex items-center gap-2"><input type="checkbox" name="platform" value="1" /> {sl("config.pemeliharaan.platform")}</label>
@@ -1085,6 +1101,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   </label>
                   <div><TombolKirim className={bahaya} sibuk={s("tombol.memproses")}>{sl("config.pemeliharaan.darurat.tombol")}</TombolKirim></div>
                 </form>
+                {result("pemeliharaan", "henti")}
               </div>
             ) : null}
           </section>
@@ -1216,12 +1233,12 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   {(x.status === "REQUESTED" || x.status === "AUTHORIZED") && (
                     <div className="flex flex-wrap gap-2">
                       {x.status === "REQUESTED" && x.to_academic_period_id !== null && (
-                        <form action={transferAuthorizeAction}><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("config.action.authorize")}</TombolKirim></form>
+                        <form action={transferAuthorizeAction}><input type="hidden" name="asal" value="baris" /><input type="hidden" name="hal_pindah" value={String(halPindah)} /><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("config.action.authorize")}</TombolKirim></form>
                       )}
                       {x.status === "AUTHORIZED" && (
-                        <form action={transferExecuteAction}><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("config.action.execute")}</TombolKirim></form>
+                        <form action={transferExecuteAction}><input type="hidden" name="asal" value="baris" /><input type="hidden" name="hal_pindah" value={String(halPindah)} /><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("config.action.execute")}</TombolKirim></form>
                       )}
-                      <form action={transferRejectAction} className="flex gap-1">
+                      <form action={transferRejectAction} className="flex gap-1"><input type="hidden" name="asal" value="baris" /><input type="hidden" name="hal_pindah" value={String(halPindah)} />
                         <input type="hidden" name="transfer" value={x.id} />
                         <label className="sr-only" htmlFor={`alasan-${x.id}`}>{s("config.label.reason")}</label>
                         <input id={`alasan-${x.id}`} name="reason" className={field} placeholder={s("config.label.reason")} />
@@ -1233,6 +1250,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               ))}
               {daftarPindah.length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
+            {result("transfers", "baris")}
             <Penomoran halaman={halPindah} lagi={lagiPindah} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_pindah", n, "transfers")} locale={locale}
               benda={sl("koleksi.benda.pindah")} jumlah={daftarPindah.length} />
             {/* W2.15: the receiving school's incoming requests, accepted into one of its own school years */}
@@ -1240,7 +1258,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <div className="mt-3 grid gap-2" data-pindah="masuk">
                 <h3 className="text-sm font-medium">{s("pindah.masuk.judul")}</h3>
                 {pindahMasuk.map((m) => (
-                  <form key={m.transfer_id} action={transferTerimaAction} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2" data-pindah-masuk={m.transfer_id}>
+                  <form key={m.transfer_id} action={transferTerimaAction} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2" data-pindah-masuk={m.transfer_id}><input type="hidden" name="asal" value="terima" />
                     <input type="hidden" name="transfer" value={m.transfer_id} />
                     <p className="sm:col-span-2 text-sm">
                       <strong>{m.nama_murid}</strong> · {s("pindah.masuk.dari")} {m.dari_sekolah}{m.dari_kode ? ` (${m.dari_kode})` : ""}
@@ -1265,6 +1283,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 ))}
               </div>
             ) : null}
+            {result("transfers", "terima")}
             {/* W2.15 (F-10): a transfer out, to a school found by its exact name or code */}
             {satuSekolah ? (
               <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" data-pindah="keluar">
@@ -1366,7 +1385,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   </span>
                   {a.person_id !== viewer.personId && (
                     // D-097(a): a revocation states why
-                    <form action={revokeRoleAction} className="flex flex-wrap items-center gap-2">
+                    <form action={revokeRoleAction} className="flex flex-wrap items-center gap-2"><input type="hidden" name="asal" value="cabut" /><input type="hidden" name="hal_peran" value={String(halPeran)} />
                       <input type="hidden" name="assignment" value={a.id} />
                       <label className="flex items-center gap-1 text-xs text-ink-3">{s("config.label.reason")}
                         <input name="alasan" className={field} required maxLength={300} autoComplete="off" />
@@ -1378,6 +1397,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               ))}
               {daftarPeran.length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
+            {result("roles", "cabut")}
             <Penomoran halaman={halPeran} lagi={lagiPeran} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_peran", n, "roles")} locale={locale}
               benda={sl("koleksi.benda.peran")} jumlah={daftarPeran.length} ukuran={UKURAN_PERAN} />
             {angkat ? (
@@ -1385,7 +1405,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 <h3 id="pin-angkat" className="font-medium">{s("config.angkat.judul")}</h3>
                 <p className="text-sm text-ink-1"><strong>{angkat.nama}</strong> · {roleLabel("INSTITUTION_ADMIN")} · {angkat.tempat}</p>
                 <p className="text-sm text-ink-2">{s("config.angkat.arti")}</p>
-                <form action={grantRoleAction} className="flex flex-wrap items-center gap-3">
+                <form action={grantRoleAction} className="flex flex-wrap items-center gap-3"><input type="hidden" name="asal" value="angkat" />
                   <input type="hidden" name="person" value={angkat.person} />
                   <input type="hidden" name="role" value="INSTITUTION_ADMIN" />
                   <input type="hidden" name="scope" value={angkat.scope} />
@@ -1396,12 +1416,13 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 </form>
               </div>
             ) : null}
+            {result("roles", "angkat")}
             {bukaAdminPertama && satuSekolah ? (
               <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" role="group" aria-labelledby="pin-admin-pertama" data-admin-pertama="">
                 <h3 id="pin-admin-pertama" className="font-medium">{s("config.pertama.judul")}</h3>
                 <p className="text-sm text-ink-2">{s("config.pertama.arti")}</p>
                 {pertama ? (
-                  <form action={tunjukAdminPertamaAction} className="flex flex-wrap items-center gap-3">
+                  <form action={tunjukAdminPertamaAction} className="flex flex-wrap items-center gap-3"><input type="hidden" name="asal" value="pertama" />
                     <p className="w-full text-sm text-ink-1">{s("config.pertama.yakin")}</p>
                     <p className="w-full text-sm text-ink-1"><strong>{pertama.display_name}</strong> · {roleLabel("INSTITUTION_ADMIN")} · {institutionName.get(satuSekolah) ?? TANPA_NAMA}</p>
                     <input type="hidden" name="person" value={pertama.person_id} />
@@ -1412,7 +1433,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     <Link href="/konfigurasi?bagian=roles#roles" className={tautanTempat}>{s("config.angkat.batal")}</Link>
                   </form>
                 ) : (
-                  <form action={tunjukAdminPertamaAction} className="grid gap-2 sm:grid-cols-2">
+                  <form action={tunjukAdminPertamaAction} className="grid gap-2 sm:grid-cols-2"><input type="hidden" name="asal" value="pertama" />
                     <input type="hidden" name="sekolah" value={satuSekolah} />
                     <label className={label}>{s("config.label.person")}
                       <select name="person" className={field} required defaultValue="">
@@ -1429,6 +1450,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 )}
               </div>
             ) : null}
+            {result("roles", "pertama")}
             <form action={grantRoleAction} className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3 sm:grid-cols-2">
               <label className={label}>{s("config.label.person")}
                 <select name="person" className={field} required defaultValue="">

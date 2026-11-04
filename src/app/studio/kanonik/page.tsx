@@ -158,7 +158,8 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
             </label>
             <TombolKirim className={button} sibuk={s("tombol.menyimpan")}>{s("studio.definisi.simpan")}</TombolKirim>
           </form>
-          <SimpanIsian form="izin-beri" ditolak={ditolak("izin")} pemilik={pemilik} />
+          <SimpanIsian form="izin-beri" ditolak={ditolak("izin-beri")} pemilik={pemilik} />
+          <HasilDi q={sp} bagian="izin-beri" kalimat={banner} />
           {izinBerlaku.length > 0 ? (
             <form action={withdrawDistributionAction} id="izin-tarik" className="pin-baris-aksi">
               <label className={label}>
@@ -175,8 +176,9 @@ export default async function Kanonik({ searchParams }: { searchParams: Search }
               <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("studio.paket.tarik")}</TombolKirim>
             </form>
           ) : null}
-          {izinBerlaku.length > 0 ? <SimpanIsian form="izin-tarik" ditolak={ditolak("izin")} pemilik={pemilik} /> : null}
-          <HasilDi q={sp} bagian="izin" kalimat={banner} />
+          {izinBerlaku.length > 0 ? <SimpanIsian form="izin-tarik" ditolak={ditolak("izin-tarik")} pemilik={pemilik} /> : null}
+          {/* E-K4: a withdrawal is answered under its form (drawn also when the last permission has gone with it) */}
+          <HasilDi q={sp} bagian="izin-tarik" kalimat={banner} />
         </section>
       ) : null}
     </div>
