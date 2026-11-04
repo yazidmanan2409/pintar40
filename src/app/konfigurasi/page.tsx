@@ -1195,7 +1195,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           </section>
 
           {/* Transfers (INV-25; policy hooks only — OD-9) */}
-          <section id="transfers" className={card}>
+          <section id="transfers" hidden={!tampil("transfers") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.transfers")}</h2>
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
               {daftarPindah.map((x) => (

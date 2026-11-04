@@ -4202,6 +4202,11 @@
       "proves": "D-074(5) (Batch 6; owner ruling D-164), selftest/b6k.test.ts: the Digital Card email (templatKartu, src/components/email/identitas.ts), given the contexts in the database's seniority order, lists its role rows alphabetically by the Terminology v1 names (Dekan, Guru, Kepala departemen) at one school and at two, and for every permutation of three role sets (one school, two schools, the platform role beside school roles) in exactly the Digital Card's order (susunKartu); identitas.ts takes the order from kartu-pintar.ts's single urutKonteksKartu and sorts nothing itself; the name, the ID 4 + 4, the Akun saya link and the number of role rows are unchanged."
     },
     {
+      "id": "D168-B1-5",
+      "runner": "static",
+      "proves": "D-168 / D-169(a) (L3), selftest/d168.test.ts: in src/app/konfigurasi/page.tsx every school-shaped section listed in BAGIAN_SEKOLAH carries hidden={!tampil(...)}, the same rule the menu is filtered by, so «Seluruh platform» draws no school-shaped section and the menu and the sections cannot disagree (E-B1-5: «Perpindahan murid» was drawn there by a missing attribute)."
+    },
+    {
       "id": "B6K-QR-01",
       "runner": "static",
       "proves": "W3.20 (Batch 6; DAISY-24 ronde-2 §7, D-074(7)), selftest/b6k.test.ts: the card's back is the PINTAR tile (#E3EFEC, modules #245F55, 22.13 x 26.02 mm centred, corners 1.6 mm, the full 4-module quiet zone, the ID beneath it); the QR path is exactly qrSvgPath(qrMatrix(tautanId)); the instruction is Daisy's «Pindai untuk membuka halaman masuk PINTAR.» from the copy table, and the address pintarselalu.com a constant (a proper noun never in the copy table)."
