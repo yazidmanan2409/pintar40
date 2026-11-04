@@ -1,0 +1,26 @@
+6 states × 4 widths: 0 with a failure
+
+ok   penuh @1280
+ok   penuh @820
+ok   penuh @390
+ok   penuh @320
+ok   tengah @1280
+ok   tengah @820
+ok   tengah @390
+ok   tengah @320
+ok   besar @1280
+ok   besar @820
+ok   besar @390
+ok   besar @320
+ok   panjang @1280
+ok   panjang @820
+ok   panjang @390
+ok   panjang @320
+ok   kosong @1280
+ok   kosong @820
+ok   kosong @390
+ok   kosong @320
+ok   gagal @1280
+ok   gagal @820
+ok   gagal @390
+ok   gagal @320

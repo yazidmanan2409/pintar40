@@ -1,0 +1,14 @@
+A package with no questions at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Konfigurasi»
+ 3. a «Pendataan»
+ 4. a «Aktivasi akun»
+ 5. a «Studio»
+ 6. button «Keluar»
+ 7. a «Studio»
+
+The accessibility tree of «Soal dalam paket ini»
+- region "Soal dalam paket ini":
+  - heading "Soal dalam paket ini" [level=2]
+  - paragraph: Periksa setiap soal, kunci jawabannya, dan alasan setiap pilihan sebelum menyetujui. Hanya staf Studio sekolah ini yang melihat bagian ini; murid tidak pernah melihat kunci atau alasannya di sini.
+  - paragraph: Paket ini belum berisi soal.

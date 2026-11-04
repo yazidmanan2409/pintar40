@@ -1,0 +1,72 @@
+/* A1 · W1.2 — the question review. Composition only: every value is a design-system
+   token or an existing component. No new token, no palette change. */
+
+/* The wordmark slot: the provisional placeholder (master pending F-11). */
+.a1-slot {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  width: 120px; height: 40px; padding: 0 var(--space-2); box-sizing: border-box;
+  border: var(--border-hairline) dashed var(--line-control); border-radius: var(--radius-md);
+  font-size: 14px; line-height: 20px; font-weight: 600; color: var(--pintar-primary); white-space: nowrap; overflow: hidden;
+}
+.a1-slot small { font-size: 9px; line-height: 12px; font-weight: 400; color: var(--ink-3); white-space: normal; }
+
+/* Built sections shown only for place. */
+.a1-dibangun { opacity: 1; }
+.a1-dibangun p { font-size: 14px; line-height: 20px; }
+
+/* Summary and the lesson jump. */
+.a1-ringkas { font-size: 14px; line-height: 20px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.a1-lompat { display: grid; gap: var(--space-1); max-width: var(--measure-narrow); }
+.a1-lompat-baris { display: flex; gap: var(--space-2); align-items: center; }
+.a1-lompat-baris .pds-select { flex: 1 1 auto; min-width: 0; }
+.a1-lompat-baris .pds-select select { width: 100%; }
+
+/* One whole lesson. */
+.a1-pelajaran { display: grid; gap: var(--space-4); }
+.a1-pelajaran-judul { color: var(--ink-1); }
+.a1-pelajaran-judul:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 4px; border-radius: var(--radius-md); }
+.a1-pelajaran-judul small { font-size: 14px; line-height: 20px; font-weight: 400; color: var(--ink-2); margin-left: var(--space-2); white-space: nowrap; }
+.a1-soal-daftar { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-5); }
+
+/* One question. */
+.pin-soal article {
+  display: grid; gap: var(--space-3); min-width: 0;
+  padding: var(--space-5); background: var(--surface-1);
+  border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg);
+}
+.a1-meta { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+/* The reading passage («Bacaan», the workbook's stimulus): read before the stem, so it sits above it. */
+.a1-bacaan { display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); background: var(--surface-2); border-radius: var(--radius-md); max-width: var(--measure-prose); }
+.a1-bacaan p { font-size: 16px; line-height: 26px; color: var(--ink-1); overflow-wrap: anywhere; }
+.a1-bacaan .a1-bacaan-label { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-2); }
+.a1-batang { color: var(--ink-1); max-width: var(--measure-prose); overflow-wrap: anywhere; }
+
+/* The options: a letter column and the option with its reason. */
+.a1-opsi { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-2); }
+.pin-opsi {
+  display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: var(--space-3);
+  padding: var(--space-3); border-radius: var(--radius-md);
+  border: var(--border-hairline) solid var(--line); border-left: 3px solid transparent;
+}
+/* The key: the row edge and a tinted ground, and always the badge with its icon and word. */
+.pin-opsi-kunci { background: var(--pintar-primary-soft); border-left-color: var(--pintar-primary); }
+.a1-huruf {
+  display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: var(--radius-pill);
+  background: var(--surface-2); color: var(--ink-1); font-size: 14px; line-height: 20px; font-weight: 600;
+}
+.pin-opsi-kunci .a1-huruf { background: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.a1-opsi-isi { display: grid; gap: var(--space-1); min-width: 0; }
+.a1-opsi-teks { font-size: 16px; line-height: 24px; color: var(--ink-1); overflow-wrap: anywhere; }
+.a1-kunci { margin-left: var(--space-2); vertical-align: 1px; }
+.a1-alasan, .a1-miskonsepsi { font-size: 14px; line-height: 20px; color: var(--ink-2); max-width: var(--measure-prose); }
+.a1-alasan strong, .a1-miskonsepsi strong { color: var(--ink-1); font-weight: 600; }
+
+.a1-pager { padding-top: var(--space-2); }
+.a1-pager [aria-disabled="true"] { color: var(--ink-3); cursor: default; }
+
+@container (max-width: 639px) {
+  .pin-soal article { padding: var(--space-4); }
+  .pin-opsi { grid-template-columns: 24px minmax(0, 1fr); gap: var(--space-2); padding: var(--space-2) var(--space-3) var(--space-3) var(--space-2); }
+  .a1-huruf { width: 24px; height: 24px; }
+  .a1-kunci { margin-left: 0; margin-top: var(--space-1); display: inline-flex; }
+}

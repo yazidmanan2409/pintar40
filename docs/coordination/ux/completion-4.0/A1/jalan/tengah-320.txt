@@ -1,0 +1,131 @@
+Lesson 3 of 4 (mid-package) at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Buka menu»
+ 4. a «Studio»
+ 5. select «Pelajaran 1 · Apa itu pecahan senilai (4 soal)Pela»
+ 6. button «Buka»
+ 7. a «Pelajaran sebelumnya»
+ 8. a «Pelajaran berikutnya»
+
+The accessibility tree of «Soal dalam paket ini»
+- region "Soal dalam paket ini":
+  - heading "Soal dalam paket ini" [level=2]
+  - paragraph: Periksa setiap soal, kunci jawabannya, dan alasan setiap pilihan sebelum menyetujui. Hanya staf Studio sekolah ini yang melihat bagian ini; murid tidak pernah melihat kunci atau alasannya di sini.
+  - paragraph: 18 soal dalam 4 pelajaran
+  - text: Pelajaran
+  - combobox "Pelajaran":
+    - option "Pelajaran 1 · Apa itu pecahan senilai (4 soal)"
+    - option "Pelajaran 2 · Mengalikan pembilang dan penyebut (5 soal)"
+    - option "Pelajaran 3 · Menyederhanakan pecahan (5 soal)" [selected]
+    - option "Pelajaran 4 · Membandingkan pecahan (4 soal)"
+  - button "Buka"
+  - group "Pelajaran 3 · Menyederhanakan pecahan 5 soal":
+    - heading "Pelajaran 3 · Menyederhanakan pecahan 5 soal" [level=3]
+    - list:
+      - listitem:
+        - article "Sederhanakan 6/12.":
+          - paragraph: Soal 10 dari 18 · Latihan · Sedang
+          - heading "Sederhanakan 6/12." [level=4]
+          - list "Soal 10 dari 18":
+            - listitem:
+              - paragraph: A. 1/2 Kunci
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Pembilang dan penyebut dibagi dengan FPB-nya.
+            - listitem:
+              - paragraph: B. 2/4
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Senilai, tetapi belum paling sederhana.
+            - listitem:
+              - paragraph: C. 1/3
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Penyebut dibagi dengan bilangan yang berbeda.
+      - listitem:
+        - article "Sederhanakan 9/18.":
+          - paragraph: Soal 11 dari 18 · Latihan · Sedang
+          - heading "Sederhanakan 9/18." [level=4]
+          - list "Soal 11 dari 18":
+            - listitem:
+              - paragraph: A. 1/2 Kunci
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Pembilang dan penyebut dibagi dengan FPB-nya.
+            - listitem:
+              - paragraph: B. 3/6
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Senilai, tetapi belum paling sederhana.
+            - listitem:
+              - paragraph: C. 1/3
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Penyebut dibagi dengan bilangan yang berbeda.
+      - listitem:
+        - article "Sederhanakan 12/24.":
+          - paragraph: Soal 12 dari 18 · Latihan · Sedang
+          - heading "Sederhanakan 12/24." [level=4]
+          - list "Soal 12 dari 18":
+            - listitem:
+              - paragraph: A. 1/2 Kunci
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Pembilang dan penyebut dibagi dengan FPB-nya.
+            - listitem:
+              - paragraph: B. 4/8
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Senilai, tetapi belum paling sederhana.
+            - listitem:
+              - paragraph: C. 1/3
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Penyebut dibagi dengan bilangan yang berbeda.
+      - listitem:
+        - article "Sederhanakan 15/30.":
+          - paragraph: Soal 13 dari 18 · Latihan · Sedang
+          - heading "Sederhanakan 15/30." [level=4]
+          - list "Soal 13 dari 18":
+            - listitem:
+              - paragraph: A. 1/2 Kunci
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Pembilang dan penyebut dibagi dengan FPB-nya.
+            - listitem:
+              - paragraph: B. 5/10
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Senilai, tetapi belum paling sederhana.
+            - listitem:
+              - paragraph: C. 1/3
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Penyebut dibagi dengan bilangan yang berbeda.
+      - listitem:
+        - article "Sederhanakan 18/36.":
+          - paragraph: Soal 14 dari 18 · Latihan · Sedang
+          - heading "Sederhanakan 18/36." [level=4]
+          - list "Soal 14 dari 18":
+            - listitem:
+              - paragraph: A. 1/2 Kunci
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Pembilang dan penyebut dibagi dengan FPB-nya.
+            - listitem:
+              - paragraph: B. 6/12
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Senilai, tetapi belum paling sederhana.
+            - listitem:
+              - paragraph: C. 1/3
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Penyebut dibagi dengan bilangan yang berbeda.
+  - navigation "Pelajaran (bawah)":
+    - text: Pelajaran 3 dari 4
+    - link "Pelajaran sebelumnya":
+      - /url: "#soal"
+    - link "Pelajaran berikutnya":
+      - /url: "#soal"

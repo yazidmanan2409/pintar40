@@ -1,0 +1,139 @@
+Lesson 1 of 4 (the first view) at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Buka menu»
+ 4. a «Studio»
+ 5. select «Pelajaran 1 · Apa itu pecahan senilai (4 soal)Pela»
+ 6. button «Buka»
+ 7. a «Pelajaran berikutnya»
+
+The accessibility tree of «Soal dalam paket ini»
+- region "Soal dalam paket ini":
+  - heading "Soal dalam paket ini" [level=2]
+  - paragraph: Periksa setiap soal, kunci jawabannya, dan alasan setiap pilihan sebelum menyetujui. Hanya staf Studio sekolah ini yang melihat bagian ini; murid tidak pernah melihat kunci atau alasannya di sini.
+  - paragraph: 18 soal dalam 4 pelajaran
+  - text: Pelajaran
+  - combobox "Pelajaran":
+    - option "Pelajaran 1 · Apa itu pecahan senilai (4 soal)" [selected]
+    - option "Pelajaran 2 · Mengalikan pembilang dan penyebut (5 soal)"
+    - option "Pelajaran 3 · Menyederhanakan pecahan (5 soal)"
+    - option "Pelajaran 4 · Membandingkan pecahan (4 soal)"
+  - button "Buka"
+  - group "Pelajaran 1 · Apa itu pecahan senilai 4 soal":
+    - heading "Pelajaran 1 · Apa itu pecahan senilai 4 soal" [level=3]
+    - list:
+      - listitem:
+        - article "Pecahan manakah yang senilai dengan 1/2?":
+          - paragraph: Soal 1 dari 18 · Pemetaan Awal · Mudah
+          - heading "Pecahan manakah yang senilai dengan 1/2?" [level=4]
+          - list "Soal 1 dari 18":
+            - listitem:
+              - paragraph: A. 2/4 Kunci
+              - paragraph:
+                - strong: "Alasan:"
+                - text: 2/4 = 1/2 karena pembilang dan penyebut sama-sama dikali 2.
+            - listitem:
+              - paragraph: B. 1/4
+              - paragraph:
+                - strong: "Alasan:"
+                - text: 1/4 adalah setengah dari 1/2.
+              - paragraph:
+                - strong: "Miskonsepsi:"
+                - text: Menganggap penyebut yang lebih besar berarti pecahan yang lebih besar
+            - listitem:
+              - paragraph: C. 2/3
+              - paragraph:
+                - strong: "Alasan:"
+                - text: 2/3 lebih besar dari 1/2.
+            - listitem:
+              - paragraph: D. 3/4
+              - paragraph:
+                - strong: "Alasan:"
+                - text: 3/4 lebih besar dari 1/2.
+      - listitem:
+        - 'article "Isilah titik-titik: 3/5 = .../15"':
+          - paragraph: Soal 2 dari 18 · Uji Penguasaan · Sedang
+          - paragraph: Bacaan
+          - paragraph: Rina punya 3 dari 5 kelereng merah. Ia ingin menulis bagian kelereng merah itu sebagai pecahan berpenyebut 15 tanpa mengubah nilainya.
+          - 'heading "Isilah titik-titik: 3/5 = .../15" [level=4]'
+          - list "Soal 2 dari 18":
+            - listitem:
+              - paragraph: A. 9 Kunci
+              - paragraph:
+                - strong: "Alasan:"
+                - text: 5 dikali 3 menjadi 15, jadi 3 juga dikali 3 menjadi 9.
+            - listitem:
+              - paragraph: B. 5
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Hanya penyebut yang diubah.
+              - paragraph:
+                - strong: "Miskonsepsi:"
+                - text: Mengubah penyebut tanpa mengubah pembilang
+            - listitem:
+              - paragraph: C. 13
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Menambahkan 10 pada pembilang dan penyebut tidak menghasilkan pecahan senilai.
+              - paragraph:
+                - strong: "Miskonsepsi:"
+                - text: Menjumlahkan alih-alih mengalikan
+            - listitem:
+              - paragraph: D. 3
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Pembilang tidak diubah sama sekali.
+      - listitem:
+        - article "Gambar menunjukkan 4 dari 8 bagian diarsir. Pecahan senilai yang paling sederhana adalah ....":
+          - paragraph: Soal 3 dari 18 · Latihan · Mudah
+          - heading "Gambar menunjukkan 4 dari 8 bagian diarsir. Pecahan senilai yang paling sederhana adalah ...." [level=4]
+          - list "Soal 3 dari 18":
+            - listitem:
+              - paragraph: A. 1/2 Kunci
+              - paragraph:
+                - strong: "Alasan:"
+                - text: 4/8 disederhanakan dengan membagi 4 menjadi 1/2.
+            - listitem:
+              - paragraph: B. 4/8
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Ini senilai, tetapi belum paling sederhana.
+            - listitem:
+              - paragraph: C. 1/4
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Bagian yang diarsir adalah separuh, bukan seperempat.
+      - listitem:
+        - article "Manakah yang BUKAN pecahan senilai dengan 6/9?":
+          - paragraph: Soal 4 dari 18 · Latihan · Sulit
+          - heading "Manakah yang BUKAN pecahan senilai dengan 6/9?" [level=4]
+          - list "Soal 4 dari 18":
+            - listitem:
+              - paragraph: A. 2/3
+              - paragraph:
+                - strong: "Alasan:"
+                - text: 6/9 dibagi 3 menjadi 2/3, jadi senilai.
+            - listitem:
+              - paragraph: B. 12/18
+              - paragraph:
+                - strong: "Alasan:"
+                - text: 6/9 dikali 2 menjadi 12/18, jadi senilai.
+            - listitem:
+              - paragraph: C. 4/6
+              - paragraph:
+                - strong: "Alasan:"
+                - text: 4/6 dan 6/9 sama-sama senilai dengan 2/3.
+            - listitem:
+              - paragraph: D. 8/12
+              - paragraph:
+                - strong: "Alasan:"
+                - text: 8/12 = 2/3, jadi senilai.
+            - listitem:
+              - paragraph: E. 9/12 Kunci
+              - paragraph:
+                - strong: "Alasan:"
+                - text: 9/12 = 3/4, tidak senilai dengan 2/3.
+  - navigation "Pelajaran (bawah)":
+    - text: Pelajaran 1 dari 4
+    - link "Pelajaran berikutnya":
+      - /url: "#soal"

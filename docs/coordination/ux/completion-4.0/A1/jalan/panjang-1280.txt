@@ -1,0 +1,70 @@
+Five long options (the 320 px case) at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Konfigurasi»
+ 3. a «Pendataan»
+ 4. a «Aktivasi akun»
+ 5. a «Studio»
+ 6. button «Keluar»
+ 7. a «Studio»
+ 8. select «Pelajaran 1 · Apa itu pecahan senilai (4 soal)Pela»
+ 9. button «Buka»
+10. a «Pelajaran sebelumnya»
+
+The accessibility tree of «Soal dalam paket ini»
+- region "Soal dalam paket ini":
+  - heading "Soal dalam paket ini" [level=2]
+  - paragraph: Periksa setiap soal, kunci jawabannya, dan alasan setiap pilihan sebelum menyetujui. Hanya staf Studio sekolah ini yang melihat bagian ini; murid tidak pernah melihat kunci atau alasannya di sini.
+  - paragraph: 24 soal dalam 6 pelajaran
+  - text: Pelajaran
+  - combobox "Pelajaran":
+    - option "Pelajaran 1 · Apa itu pecahan senilai (4 soal)"
+    - option "Pelajaran 2 · Mengalikan pembilang dan penyebut (5 soal)"
+    - option "Pelajaran 3 · Menyederhanakan pecahan (5 soal)"
+    - option "Pelajaran 4 · Membandingkan pecahan (4 soal)"
+    - option "Pelajaran 1 · Apa itu pecahan senilai (4 soal)"
+    - option "Pelajaran 6 · Pecahan dalam kehidupan sehari-hari (1 soal)" [selected]
+  - button "Buka"
+  - group "Pelajaran 6 · Pecahan dalam kehidupan sehari-hari 1 soal":
+    - heading "Pelajaran 6 · Pecahan dalam kehidupan sehari-hari 1 soal" [level=3]
+    - list:
+      - listitem:
+        - article "Ibu memotong sebuah kue menjadi 12 potong yang sama besar. Budi memakan 3 potong, Sari memakan 2 potong, dan Ayah memakan 1 potong. Pecahan manakah yang menyatakan bagian kue yang sudah dimakan, dalam bentuk paling sederhana?":
+          - paragraph: Soal 24 dari 24 · Uji Penguasaan · Sulit
+          - heading "Ibu memotong sebuah kue menjadi 12 potong yang sama besar. Budi memakan 3 potong, Sari memakan 2 potong, dan Ayah memakan 1 potong. Pecahan manakah yang menyatakan bagian kue yang sudah dimakan, dalam bentuk paling sederhana?" [level=4]
+          - list "Soal 24 dari 24":
+            - listitem:
+              - paragraph: A. Setengah dari seluruh kue, karena 3 + 2 + 1 = 6 potong dari 12 potong, dan 6/12 disederhanakan menjadi 1/2 Kunci
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Jumlah potongan yang dimakan adalah 6 dari 12. Pembilang dan penyebut dibagi 6, sehingga 6/12 = 1/2.
+            - listitem:
+              - paragraph: B. Seperenam dari seluruh kue, karena ada enam potong yang dimakan oleh tiga orang yang berbeda
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Banyaknya potong yang dimakan (6) dibaca sebagai penyebut, padahal penyebutnya adalah jumlah semua potong (12).
+              - paragraph:
+                - strong: "Miskonsepsi:"
+                - text: Menukar pembilang dan penyebut
+            - listitem:
+              - paragraph: C. Tiga perdua belas, karena Budi memakan potongan paling banyak dibandingkan Sari dan Ayah
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Hanya bagian Budi yang dihitung; bagian Sari dan Ayah tidak ikut dijumlahkan.
+            - listitem:
+              - paragraph: D. Enam perdua belas, karena 6/12 sudah merupakan bentuk yang paling sederhana dan tidak bisa dibagi lagi
+              - paragraph:
+                - strong: "Alasan:"
+                - text: "6/12 masih bisa disederhanakan: pembilang dan penyebut sama-sama habis dibagi 6."
+              - paragraph:
+                - strong: "Miskonsepsi:"
+                - text: Menganggap pecahan sudah paling sederhana tanpa memeriksa FPB
+            - listitem:
+              - paragraph: E. Dua pertiga dari seluruh kue, karena tersisa sepertiga kue yang belum dimakan oleh siapa pun
+              - paragraph:
+                - strong: "Alasan:"
+                - text: Sisa kue adalah 6 dari 12, yaitu setengah, bukan sepertiga.
+  - navigation "Pelajaran (bawah)":
+    - text: Pelajaran 6 dari 6
+    - link "Pelajaran sebelumnya":
+      - /url: "#soal"
+    - text: Pelajaran berikutnya

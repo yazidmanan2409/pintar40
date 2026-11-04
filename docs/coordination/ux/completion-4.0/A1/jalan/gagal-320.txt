@@ -1,0 +1,11 @@
+The questions cannot be read at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Buka menu»
+ 4. a «Studio»
+
+The accessibility tree of «Soal dalam paket ini»
+- region "Soal dalam paket ini":
+  - heading "Soal dalam paket ini" [level=2]
+  - paragraph: Periksa setiap soal, kunci jawabannya, dan alasan setiap pilihan sebelum menyetujui. Hanya staf Studio sekolah ini yang melihat bagian ini; murid tidak pernah melihat kunci atau alasannya di sini.
+  - alert: PINTAR belum bisa membuka soal paket ini. Muat ulang halaman ini; jika tetap gagal, hubungi admin sekolah Anda.

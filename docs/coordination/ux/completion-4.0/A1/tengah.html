@@ -1,0 +1,2100 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Lesson 3 of 4 (mid-package)</title><style>@font-face { font-family: "Plus Jakarta Sans"; src: url("file:///home/user/pintar40/public/fonts/plus-jakarta-sans-latin.woff2") format("woff2"); font-weight: 200 800; font-style: normal; font-display: block; }
+@font-face { font-family: "IBM Plex Mono"; src: url("file:///home/user/pintar40/public/fonts/ibm-plex-mono-500-latin.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: block; }
+:root, [data-theme="light"] {
+  --surface-0: #fbfaf7;
+  --surface-1: #ffffff;
+  --surface-2: #f3f1ec;
+  --surface-3: #ebe8e1;
+  --ink-1: #1f2a33;
+  --ink-2: #4e5a64;
+  --ink-3: #5f6a73;
+  --ink-disabled: #7f8890;
+  --line: rgba(31, 42, 51, 0.12);
+  --line-strong: rgba(31, 42, 51, 0.24);
+  --line-control: #808a91;
+  --pintar-primary: #245f55;
+  --pintar-primary-ink: #ffffff;
+  --pintar-primary-soft: #e3efec;
+  --pintar-primary-hover: #1e5148;
+  --pintar-primary-pressed: #19443d;
+  --focus-ring: var(--pintar-primary);
+  --status-ok: #2f6e4a;
+  --status-ok-soft: #e4f2ea;
+  --status-attention: #8a5f00;
+  --status-attention-soft: #f7eed8;
+  --status-blocked: #8c3b3b;
+  --status-blocked-soft: #f6e4e4;
+  --status-blocked-hover: #763131;
+  --status-blocked-pressed: #6b2c2c;
+  --status-info: #3d5a80;
+  --status-info-soft: #e7edf5;
+  --scrim: rgba(31, 42, 51, 0.32);
+  --context: var(--ink-1);
+  --context-ink: var(--surface-0);
+  --table-head: var(--surface-2);
+  --table-row: var(--surface-1);
+  --table-row-alt: var(--surface-0);
+  --table-row-hover: var(--surface-3);
+  --table-row-selected: var(--pintar-primary-soft);
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 48px;
+  --space-9: 64px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+  --shadow-overlay: 0 4px 12px rgba(31, 42, 51, 0.10), 0 0 0 1px rgba(31, 42, 51, 0.08);
+  --shadow-dialog: 0 8px 24px rgba(31, 42, 51, 0.14), 0 0 0 1px rgba(31, 42, 51, 0.06);
+  --control-md: 44px;
+  --control-lg: 52px;
+  --control-xl: 60px;
+  --control-sm: 36px;
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --shell-nav: 248px;
+  --shell-rail: 72px;
+  --shell-bar: 56px;
+  --measure-auth: 400px;
+  --measure-narrow: 560px;
+  --measure-read: 760px;
+  --measure-stage: 1120px;
+  --measure-prose: 64ch;
+  --wordmark-nav: 18px;
+  --wordmark-bar: 16px;
+  --wordmark-standalone: 24px;
+  --wordmark-min: 12px;
+  --border-hairline: 1px;
+  --border-focus: 2px;
+  --border-selected: 2px;
+  --duration-fast: 120ms;
+  --duration-base: 160ms;
+  --duration-slow: 240ms;
+  --duration-pulse: 900ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 1, 1);
+  --z-sticky: 10;
+  --z-nav: 20;
+  --z-overlay: 100;
+  --z-modal: 200;
+  --bp-medium: 640px;
+  --bp-large: 1024px;
+  --bp-wide: 1280px;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-wordmark: "Helvetica Neue", "Neue Helvetica", Helvetica, Arial, sans-serif;
+}
+.t-display { font-family: var(--font-sans); font-size: 36px; line-height: 44px; font-weight: 600; letter-spacing: -0.02em; }
+.t-page { font-family: var(--font-sans); font-size: 30px; line-height: 36px; font-weight: 600; letter-spacing: -0.02em; }
+.t-page-compact { font-family: var(--font-sans); font-size: 26px; line-height: 32px; font-weight: 600; letter-spacing: -0.015em; }
+.t-section { font-family: var(--font-sans); font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: -0.01em; }
+.t-subsection { font-family: var(--font-sans); font-size: 18px; line-height: 26px; font-weight: 600; letter-spacing: -0.005em; }
+.t-body { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 400; }
+.t-prose { font-family: var(--font-sans); font-size: 16px; line-height: 26px; font-weight: 400; }
+.t-small { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 400; }
+.t-label { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 600; }
+.t-eyebrow { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.t-stat { font-family: var(--font-sans); font-size: 30px; line-height: 36px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.t-stat-small { font-family: var(--font-sans); font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.t-identifier { font-family: var(--font-mono); font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.02em; }
+.t-stem { font-family: var(--font-sans); font-size: 21px; line-height: 32px; font-weight: 400; }
+.t-stem-compact { font-family: var(--font-sans); font-size: 19px; line-height: 28px; font-weight: 400; }
+</style><style>/*
+  PINTAR Design System v3 (PROPOSAL): the component stylesheet.
+
+  Every value is a token from tokens.json (compiled to tokens.css by the
+  page). The few literals are geometry, not design choices: a 50% circle,
+  a 0 inset, the 1px hairline offsets. Container-query widths repeat the
+  breakpoint tokens (640, 1024, 1280) because CSS cannot read a variable
+  inside a condition.
+
+  Classes are `pds-*` so this proposal can sit beside the product's
+  `pin-*` classes without colliding. When approved, each one maps onto
+  the product's own class (see each component's README).
+  `.pds-demo-*` is preview chrome for review only, and not part of the system.
+*/
+
+/* ───────────────────────────────────────────────────────────── base */
+:root { color-scheme: light; }
+html, body { background: var(--surface-0); color: var(--ink-1); }
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 16px; line-height: 24px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+:where(.pds, .pds *, .pds *::before, .pds *::after) { box-sizing: border-box; }
+:where(.pds) :is(h1, h2, h3, h4, p, ul, ol, dl, dd, figure) { margin: 0; }
+:where(.pds) :is(button, input, select, textarea) { font: inherit; color: inherit; }
+:where(.pds) :focus-visible { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+:where(.pds) a { color: var(--pintar-primary); }
+.pds [hidden] { display: none !important; }
+.pds { padding: var(--space-5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); align-content: start; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pds *, .pds *::before, .pds *::after { transition-duration: 0ms !important; animation: none !important; }
+}
+/* The review toggle in the Motion preview simulates the same preference. */
+.pds-reduce *, .pds-reduce *::before, .pds-reduce *::after { transition-duration: 0ms !important; animation: none !important; }
+
+.pds-sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.pds-num { font-variant-numeric: tabular-nums; }
+.pds-mono { font-family: var(--font-mono); font-weight: 500; letter-spacing: 0.02em; white-space: nowrap; }
+.pds-ink-2 { color: var(--ink-2); }
+.pds-ink-3 { color: var(--ink-3); }
+.pds-measure { max-width: var(--measure-prose); }
+
+.pds-ikon { width: var(--icon-md); height: var(--icon-md); flex: none; display: inline-block; vertical-align: middle; }
+.pds-ikon-sm { width: var(--icon-sm); height: var(--icon-sm); }
+.pds-ikon-lg { width: var(--icon-lg); height: var(--icon-lg); }
+
+/* The working dot: says "in flight" without spinning. Still under reduced motion. */
+.pds-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor; flex: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pds-dot { animation: pds-denyut var(--duration-pulse) var(--ease-standard) infinite; }
+}
+@keyframes pds-denyut { 50% { opacity: 0.35; } }
+
+.pds-stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); align-content: start; }
+.pds-row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.pds-row-tight { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+
+/* ─────────────────────────────────────────────────────────── buttons */
+.pds-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: var(--control-md); padding: 0 var(--space-4);
+  border: var(--border-hairline) solid transparent; border-radius: var(--radius-md);
+  font-size: 16px; line-height: 24px; font-weight: 600;
+  text-decoration: none; white-space: nowrap; cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard);
+}
+.pds-btn .pds-ikon { margin-inline: -2px; }
+
+.pds-btn-primary { background: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pds-btn-primary:hover, .pds-btn-primary.is-hover { background: var(--pintar-primary-hover); }
+.pds-btn-primary:active, .pds-btn-primary.is-pressed { background: var(--pintar-primary-pressed); }
+
+.pds-btn-secondary { background: var(--surface-1); color: var(--ink-1); border-color: var(--line-strong); }
+.pds-btn-secondary:hover, .pds-btn-secondary.is-hover { background: var(--surface-2); }
+.pds-btn-secondary:active, .pds-btn-secondary.is-pressed { background: var(--surface-3); }
+
+.pds-btn-quiet { background: transparent; color: var(--pintar-primary); padding: 0 var(--space-3); }
+.pds-btn-quiet:hover, .pds-btn-quiet.is-hover { background: var(--surface-2); }
+.pds-btn-quiet:active, .pds-btn-quiet.is-pressed { background: var(--surface-3); }
+
+/* Starting a destructive act: quiet, red words. The confirm is the solid one. */
+.pds-btn-destructive { background: var(--surface-1); color: var(--status-blocked); border-color: var(--line-strong); }
+.pds-btn-destructive:hover, .pds-btn-destructive.is-hover { background: var(--status-blocked-soft); }
+.pds-btn-destructive:active, .pds-btn-destructive.is-pressed { background: var(--status-blocked-soft); border-color: var(--status-blocked); }
+.pds-btn-destructive-confirm { background: var(--status-blocked); color: var(--pintar-primary-ink); }
+.pds-btn-destructive-confirm:hover, .pds-btn-destructive-confirm.is-hover { background: var(--status-blocked-hover); }
+.pds-btn-destructive-confirm:active, .pds-btn-destructive-confirm.is-pressed { background: var(--status-blocked-pressed); }
+
+.pds-btn-icon { width: var(--control-md); padding: 0; background: transparent; color: var(--ink-2); }
+.pds-btn-icon:hover, .pds-btn-icon.is-hover { background: var(--surface-2); color: var(--ink-1); }
+.pds-btn-icon:active, .pds-btn-icon.is-pressed { background: var(--surface-3); }
+
+.pds-btn-lg { min-height: var(--control-lg); padding: 0 var(--space-5); }
+.pds-btn-xl { min-height: var(--control-xl); padding: 0 var(--space-5); font-size: 18px; }
+.pds-btn-icon.pds-btn-xl { width: var(--control-xl); padding: 0; }
+.pds-btn-sm { position: relative; min-height: var(--control-sm); padding: 0 var(--space-3); font-size: 14px; line-height: 20px; }
+/* Compact is a look, not a smaller target: the hit area stays 44px tall. */
+.pds-btn-sm::after { content: ""; position: absolute; inset: -4px 0; }
+.pds-btn-block { width: 100%; }
+
+.pds-btn.is-focus { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+
+/* Disabled: one look for every family, and a reason written beside it. */
+.pds-btn:disabled:not([aria-busy="true"]):not([data-keadaan="selesai"]),
+.pds-btn[aria-disabled="true"]:not([aria-busy="true"]):not([data-keadaan="selesai"]),
+.pds-btn.is-disabled {
+  background: var(--surface-2); color: var(--ink-disabled); border-color: transparent; cursor: not-allowed;
+}
+/* Processing: it keeps its own colour, because it was heard and is working. */
+.pds-btn[aria-busy="true"] { cursor: progress; pointer-events: none; }
+/* Completed: the confirmed result, said once, at the action. */
+.pds-btn[data-keadaan="selesai"] {
+  background: var(--status-ok-soft); color: var(--status-ok); border-color: transparent; cursor: default;
+}
+
+.pds-link {
+  color: var(--pintar-primary); text-decoration: underline;
+  text-decoration-thickness: 1px; text-underline-offset: 3px;
+  border-radius: 2px;
+}
+.pds-link:hover { text-decoration-thickness: 2px; }
+.pds-link-quiet { text-decoration: none; font-weight: 600; }
+.pds-link-quiet:hover { text-decoration: underline; }
+
+.pds-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.pds-actions-end { justify-content: flex-end; }
+
+/* ───────────────────────────────────────────────────────────── fields */
+.pds-field { display: grid; gap: var(--space-2); align-content: start; min-width: 0; }
+.pds-label { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-1); }
+.pds-label .pds-opsional { font-weight: 400; color: var(--ink-3); }
+.pds-help { font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.pds-error {
+  display: flex; gap: var(--space-2); align-items: flex-start;
+  font-size: 14px; line-height: 20px; font-weight: 600; color: var(--status-blocked);
+}
+.pds-error .pds-ikon { width: var(--icon-sm); height: var(--icon-sm); margin-top: 2px; }
+
+.pds-input, .pds-textarea, .pds-select select {
+  width: 100%; min-height: var(--control-md);
+  padding: 0 var(--space-3);
+  background: var(--surface-1); color: var(--ink-1);
+  border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-md);
+  font-size: 16px; line-height: 24px;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+.pds-input::placeholder, .pds-textarea::placeholder { color: var(--ink-3); opacity: 1; }
+.pds-input:hover, .pds-textarea:hover, .pds-select select:hover,
+.pds-input.is-hover { border-color: var(--ink-3); }
+.pds-input:focus-visible, .pds-textarea:focus-visible, .pds-select select:focus-visible, .pds-input.is-focus {
+  outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; border-color: var(--ink-3);
+}
+.pds-input[aria-invalid="true"], .pds-textarea[aria-invalid="true"], .pds-select select[aria-invalid="true"] {
+  border-color: var(--status-blocked);
+  box-shadow: inset 0 0 0 1px var(--status-blocked);
+}
+.pds-input:disabled, .pds-textarea:disabled, .pds-select select:disabled {
+  background: var(--surface-2); color: var(--ink-disabled); border-color: var(--line); cursor: not-allowed;
+}
+.pds-input[readonly] { background: var(--surface-2); border-color: var(--line); }
+.pds-input-lg { min-height: var(--control-lg); }
+.pds-input-xl { min-height: var(--control-xl); font-size: 22px; }
+.pds-textarea { min-height: 120px; padding: var(--space-3); resize: vertical; }
+.pds-input-pendek { max-width: 20ch; }
+
+/* A date field's echo (Dr Gladys, 5 Oct): the chosen date in words, built from the value, so it
+   is right whatever the browser shows inside the field. */
+.pds-gema { display: flex; align-items: center; gap: var(--space-2); margin: var(--space-2) 0 0; font-size: 16px; line-height: 24px; font-weight: 600; color: var(--ink-1); }
+.pds-gema .pds-ikon { color: var(--ink-3); flex: none; }
+.pds-gema .is-kosong { font-weight: 400; color: var(--ink-3); }
+
+.pds-select { position: relative; display: block; }
+.pds-select select { appearance: none; padding-right: calc(var(--space-3) + var(--icon-md) + var(--space-2)); cursor: pointer; }
+.pds-select .pds-ikon {
+  position: absolute; right: var(--space-3); top: 50%; translate: 0 -50%;
+  color: var(--ink-2); pointer-events: none;
+}
+
+.pds-search { position: relative; display: block; }
+.pds-search > .pds-ikon {
+  position: absolute; left: var(--space-3); top: 50%; translate: 0 -50%;
+  color: var(--ink-3); pointer-events: none;
+}
+.pds-search .pds-input { padding-left: calc(var(--space-3) + var(--icon-md) + var(--space-2)); padding-right: var(--control-md); }
+.pds-search .pds-input::-webkit-search-cancel-button { display: none; }
+.pds-search .pds-search-hapus {
+  position: absolute; right: 0; top: 0; width: var(--control-md); height: var(--control-md);
+  display: grid; place-items: center; border: 0; background: transparent; color: var(--ink-2);
+  border-radius: var(--radius-md); cursor: pointer;
+}
+.pds-search .pds-search-hapus:hover { color: var(--ink-1); }
+.pds-search .pds-search-hapus[hidden] { display: none; }
+
+/* A value and its unit: a time in WIB, a count of minutes. */
+.pds-unit { display: flex; align-items: center; gap: var(--space-2); }
+.pds-unit > span { font-size: 14px; line-height: 20px; color: var(--ink-2); white-space: nowrap; }
+
+/* Checkbox and radio: native inputs, drawn in tokens, 44px rows. */
+.pds-choice {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-1) var(--space-3);
+  align-items: start; min-height: var(--control-md); padding-block: 10px; cursor: pointer;
+}
+.pds-choice > span { line-height: 24px; }
+.pds-choice > small { grid-column: 2; font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.pds-check, .pds-radio {
+  appearance: none; margin: 2px 0 0; width: 20px; height: 20px; flex: none;
+  background: var(--surface-1); border: var(--border-hairline) solid var(--line-control);
+  display: grid; place-items: center; cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
+}
+.pds-check { border-radius: var(--radius-sm); }
+.pds-radio { border-radius: 50%; }
+.pds-check:hover, .pds-radio:hover { border-color: var(--ink-2); }
+.pds-check:checked, .pds-check:indeterminate { background: var(--pintar-primary); border-color: var(--pintar-primary); }
+.pds-check::after {
+  content: ""; width: 14px; height: 14px; background: var(--pintar-primary-ink);
+  -webkit-mask: var(--pds-centang) center / contain no-repeat; mask: var(--pds-centang) center / contain no-repeat;
+  opacity: 0;
+}
+.pds-check:checked::after { opacity: 1; }
+.pds-check:indeterminate::after {
+  -webkit-mask: none; mask: none; width: 10px; height: 2px; border-radius: 1px; opacity: 1;
+}
+.pds-radio:checked { border-color: var(--pintar-primary); }
+.pds-radio::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--pintar-primary); opacity: 0; }
+.pds-radio:checked::after { opacity: 1; }
+.pds-check:disabled, .pds-radio:disabled { background: var(--surface-2); border-color: var(--line); cursor: not-allowed; }
+.pds-choice:has(:disabled) { color: var(--ink-disabled); cursor: not-allowed; }
+.pds-check[aria-invalid="true"], .pds-radio[aria-invalid="true"] { border-color: var(--status-blocked); box-shadow: inset 0 0 0 1px var(--status-blocked); }
+.pds { --pds-centang: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E"); }
+
+.pds-fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: var(--space-1); min-width: 0; }
+.pds-fieldset > legend { padding: 0; margin-bottom: var(--space-2); }
+
+/* Switch: only for a setting that takes effect the moment it changes. */
+.pds-switch-row {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
+  min-height: var(--control-md);
+}
+.pds-switch-row .pds-switch-kata { font-size: 14px; line-height: 20px; color: var(--ink-2); min-width: 8ch; text-align: right; }
+.pds-switch-row { flex-wrap: wrap; }
+.pds-switch-row > :first-child { flex: 1 1 18ch; min-width: 0; }
+.pds-switch-row > .pds-row-tight { flex: none; flex-wrap: nowrap; margin-left: auto; }
+.pds-switch {
+  /* The button is the 44px target; the 44 x 24 track and the thumb are drawn inside it. */
+  position: relative; flex: none; width: 52px; height: var(--control-md); padding: 0;
+  border: 0; border-radius: var(--radius-md); background: transparent; cursor: pointer;
+}
+.pds-switch::before {
+  content: ""; position: absolute; left: 4px; top: 10px; width: 44px; height: 24px; box-sizing: border-box;
+  border-radius: var(--radius-pill); border: var(--border-hairline) solid var(--line-control); background: var(--surface-1);
+  transition: background-color var(--duration-base) var(--ease-standard), border-color var(--duration-base) var(--ease-standard);
+}
+.pds-switch::after {
+  content: ""; position: absolute; top: 14px; left: 8px; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--ink-3);
+  transition: background-color var(--duration-base) var(--ease-standard);
+}
+.pds-switch[aria-checked="true"]::before { background: var(--pintar-primary); border-color: var(--pintar-primary); }
+.pds-switch[aria-checked="true"]::after { translate: 20px 0; background: var(--pintar-primary-ink); }
+.pds-switch:hover::before { border-color: var(--ink-2); }
+.pds-switch[aria-checked="true"]:hover::before { background: var(--pintar-primary-hover); }
+.pds-switch:disabled { cursor: not-allowed; }
+.pds-switch:disabled::before { background: var(--surface-2); border-color: var(--line); }
+.pds-switch:disabled::after { background: var(--ink-disabled); }
+.pds-switch-wrap { display: inline-flex; }
+
+/* PIN and code: one input each, so paste, autofill and screen readers work. */
+.pds-pin { display: flex; align-items: center; gap: var(--space-2); }
+.pds-pin .pds-input {
+  width: 9ch; font-family: var(--font-mono); font-weight: 500; font-size: 22px; letter-spacing: 0.4em;
+  padding-left: calc(var(--space-3) + 0.2em); text-align: left;
+}
+.pds-pin .pds-input.pds-input-lg { min-height: var(--control-lg); }
+.pds-pin .pds-input.pds-input-xl { min-height: var(--control-xl); font-size: 26px; }
+.pds-input-xl { min-height: var(--control-xl); font-size: 22px; }
+.pds-kode .pds-input {
+  max-width: 14ch; font-family: var(--font-mono); font-weight: 500; font-size: 22px; letter-spacing: 0.12em;
+}
+
+/* Error summary: on a long form, at the top, focused, each error a link. */
+.pds-error-summary {
+  display: grid; gap: var(--space-2); padding: var(--space-4) var(--space-5);
+  background: var(--status-blocked-soft); border-radius: var(--radius-lg);
+}
+.pds-error-summary h2 { font-size: 16px; line-height: 24px; font-weight: 600; color: var(--ink-1); display: flex; gap: var(--space-2); align-items: center; }
+.pds-error-summary h2 .pds-ikon { color: var(--status-blocked); }
+.pds-error-summary ul { padding-left: var(--space-5); display: grid; gap: var(--space-1); }
+.pds-error-summary a { color: var(--status-blocked); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
+.pds-form { display: grid; gap: var(--space-5); max-width: var(--measure-read); }
+.pds-form-group { display: grid; gap: var(--space-4); }
+.pds-form-group + .pds-form-group { padding-top: var(--space-5); border-top: var(--border-hairline) solid var(--line); }
+.pds-form-group > h3 { font-size: 18px; line-height: 26px; font-weight: 600; }
+.pds-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: var(--space-4); }
+
+/* ─────────────────────────────────────── tabs and the segmented control */
+.pds-tabs {
+  display: flex; gap: var(--space-5); overflow-x: auto; scrollbar-width: none;
+  border-bottom: var(--border-hairline) solid var(--line);
+}
+.pds-tabs::-webkit-scrollbar { display: none; }
+.pds-tab {
+  position: relative; display: inline-flex; align-items: center; gap: var(--space-2);
+  min-height: var(--control-md); padding: 0 var(--space-1);
+  background: none; border: 0; cursor: pointer; white-space: nowrap;
+  font-size: 16px; line-height: 24px; color: var(--ink-2); text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+.pds-tab::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: var(--border-selected);
+  background: transparent; transition: background-color var(--duration-base) var(--ease-standard);
+}
+.pds-tab:hover, .pds-tab.is-hover { color: var(--ink-1); }
+.pds-tab:hover::after { background: var(--line-strong); }
+.pds-tab[aria-selected="true"], .pds-tab[aria-current="page"] { color: var(--ink-1); font-weight: 600; }
+.pds-tab[aria-selected="true"]::after, .pds-tab[aria-current="page"]::after { background: var(--pintar-primary); }
+.pds-tab:focus-visible { outline-offset: -2px; border-radius: var(--radius-md); }
+.pds-tab .pds-count { font-weight: 600; }
+
+.pds-seg {
+  /* Each segment is a full 44px target. The selected pill is drawn inset (a 3px
+     border in the track's colour), so the whole height still answers a tap. */
+  display: inline-flex; max-width: 100%; min-width: 0; overflow-x: auto; justify-self: start;
+  background: var(--surface-2); border-radius: var(--radius-md);
+}
+.pds-seg label { position: relative; display: block; flex: none; }
+.pds-seg input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.pds-seg span {
+  display: flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: var(--control-md); padding: 0 var(--space-4);
+  border: 3px solid transparent; border-radius: var(--radius-md); background-clip: padding-box;
+  font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-2); white-space: nowrap;
+  transition: background-color var(--duration-base) var(--ease-standard), color var(--duration-base) var(--ease-standard);
+}
+.pds-seg label:hover input:not(:checked) + span { color: var(--ink-1); background-color: var(--surface-3); }
+/* Selected is filled, as v2's .pin-seg and the language switch are: the state reads at 3:1 or
+   better against the track (WCAG 1.4.11), not by a hairline. The ring sits on the segment's edge,
+   3px clear of the fill, so it shows on the green too. */
+.pds-seg input:checked + span { background-color: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pds-seg input:focus-visible + span { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 0; }
+.pds-seg input:checked + span :is(.pds-ink-3, .pds-num) { color: inherit; }
+.pds-seg-sm span { min-height: 36px; padding: 0 var(--space-3); }
+
+/* ──────────────────────────────────────────────────────────── badges */
+.pds-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 24px; padding: 0 10px; border-radius: var(--radius-pill);
+  font-size: 14px; line-height: 20px; font-weight: 600; white-space: nowrap;
+  background: var(--surface-2); color: var(--ink-2);
+}
+.pds-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+.pds-badge:has(.pds-ikon)::before { display: none; }
+.pds-badge .pds-ikon { width: var(--icon-sm); height: var(--icon-sm); margin-left: -2px; }
+.pds-badge-info { background: var(--status-info-soft); color: var(--status-info); }
+.pds-badge-ok { background: var(--status-ok-soft); color: var(--status-ok); }
+.pds-badge-attention { background: var(--status-attention-soft); color: var(--status-attention); }
+.pds-badge-blocked { background: var(--status-blocked-soft); color: var(--status-blocked); }
+
+.pds-tag {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  min-height: 28px; padding: 0 var(--space-3); border-radius: var(--radius-pill);
+  border: var(--border-hairline) solid var(--line-strong); background: var(--surface-1);
+  font-size: 14px; line-height: 20px; color: var(--ink-2); white-space: nowrap;
+}
+.pds-tag button {
+  display: grid; place-items: center; width: 24px; height: 24px; margin-right: -6px; padding: 0;
+  border: 0; background: transparent; color: var(--ink-2); border-radius: var(--radius-pill); cursor: pointer;
+}
+.pds-tag button:hover { background: var(--surface-2); color: var(--ink-1); }
+.pds-tag button .pds-ikon { width: var(--icon-sm); height: var(--icon-sm); }
+
+.pds-count {
+  display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 var(--space-2);
+  border-radius: var(--radius-pill); background: var(--surface-2); color: var(--ink-2);
+  font-size: 14px; line-height: 20px; font-weight: 600; font-variant-numeric: tabular-nums;
+}
+
+/* ───────────────────────────────────────────────────────────── tables */
+.pds-table-wrap { container-type: inline-size; display: grid; gap: var(--space-3); min-width: 0; }
+.pds-table-wrap > * { min-width: 0; }
+/* A row's checkbox: the 20px box inside a 44px target that fills its cell. */
+.pds-pilih { display: grid; place-items: center; flex: none; width: var(--control-md); height: var(--control-md); margin: -10px -12px; cursor: pointer; }
+.pds-pilih .pds-check { margin: 0; }
+.pds-toolbar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.pds-toolbar .pds-search { flex: 1 1 240px; max-width: 360px; }
+.pds-toolbar-kiri, .pds-toolbar-kanan { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.pds-bulk {
+  display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  background: var(--pintar-primary-soft); border-radius: var(--radius-md);
+  font-size: 14px; line-height: 20px; font-weight: 600;
+}
+.pds-bulk[hidden] { display: none; }
+
+.pds-table-frame {
+  background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg);
+  overflow-x: auto; max-width: 100%;
+}
+.pds-table { width: 100%; border-collapse: separate; border-spacing: 0; font-variant-numeric: tabular-nums; }
+.pds-table caption { text-align: left; padding: var(--space-4) var(--space-4) 0; font-size: 14px; line-height: 20px; color: var(--ink-2); caption-side: top; }
+.pds-table th, .pds-table td { padding: var(--space-3) var(--space-4); text-align: left; vertical-align: middle; border-bottom: var(--border-hairline) solid var(--line); }
+.pds-table thead th {
+  position: sticky; top: 0; z-index: var(--z-sticky); background: var(--table-head);
+  font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-2); white-space: nowrap;
+}
+.pds-table tbody tr:last-child > * { border-bottom: 0; }
+.pds-table td { min-height: 52px; height: 52px; }
+.pds-table .pds-angka { text-align: right; }
+.pds-table .pds-sempit { width: 1%; white-space: nowrap; }
+.pds-table .pds-nama { font-weight: 600; color: var(--ink-1); min-width: 16ch; overflow-wrap: break-word; }
+/* The identifying cell: the row's checkbox and its name, held still when the table scrolls. */
+.pds-table .pds-identitas { display: flex; align-items: center; gap: var(--space-3); }
+.pds-table .pds-sub { display: block; font-weight: 400; font-size: 14px; line-height: 20px; color: var(--ink-3); }
+/* ROWS (Dr Gladys, 5 Oct). Body rows alternate table-row and table-row-alt so a long row can be
+   followed across; the stripe is the canvas tint, quiet enough never to read as meaning. Hidden
+   rows (a filter, another page) do not count, so the visible rows always alternate. Hover is one
+   step darker than either stripe; selected is its own tint with an edge and a checked box. Each
+   state is set on the cells, so a sticky cell carries its row's ground with it. */
+/* The stripe rules carry no extra weight (:where), so hover and selected always win over them. */
+.pds-table tbody tr > * { background: var(--table-row); }
+.pds-table tbody tr:where(:nth-child(even)) > * { background: var(--table-row-alt); }
+.pds-table tbody tr:where(:nth-child(odd of :not([hidden]))) > * { background: var(--table-row); }
+.pds-table tbody tr:where(:nth-child(even of :not([hidden]))) > * { background: var(--table-row-alt); }
+.pds-table tbody tr.is-link { cursor: pointer; }
+.pds-table tbody tr.is-link:hover > *, .pds-table tbody tr.is-hover > * { background: var(--table-row-hover); }
+.pds-table tbody tr[aria-selected="true"] > *, .pds-table tbody tr[aria-selected="true"]:hover > * { background: var(--table-row-selected); }
+.pds-table tbody tr[aria-selected="true"] > :first-child { box-shadow: inset 3px 0 0 var(--pintar-primary); }
+.pds-table .pds-sticky { position: sticky; left: 0; z-index: 1; }
+.pds-table thead .pds-sticky { z-index: calc(var(--z-sticky) + 1); }
+.pds-table thead .pds-sort:hover { background: var(--surface-3); }
+.pds-table .pds-tanggal { white-space: nowrap; }
+
+.pds-sort {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  min-height: 32px; margin: -6px -8px; padding: 0 var(--space-2);
+  background: none; border: 0; border-radius: var(--radius-sm); cursor: pointer;
+  font: inherit; color: inherit;
+}
+.pds-sort:hover { background: var(--surface-2); color: var(--ink-1); }
+.pds-sort .pds-ikon { width: var(--icon-sm); height: var(--icon-sm); color: var(--ink-3); }
+th[aria-sort="ascending"] .pds-sort, th[aria-sort="descending"] .pds-sort { color: var(--ink-1); }
+th[aria-sort="ascending"] .pds-sort .pds-ikon, th[aria-sort="descending"] .pds-sort .pds-ikon { color: var(--ink-1); }
+th.pds-angka .pds-sort { flex-direction: row-reverse; }
+
+.pds-row-actions { display: flex; justify-content: flex-end; gap: var(--space-1); align-items: center; }
+.pds-table-empty td { padding: var(--space-7) var(--space-4); }
+
+/* A choice that only fits wide: segments there, a select (the same options) here. */
+.pds-sempit-saja { display: none; }
+@container (max-width: 639px) {
+  .pds-table [data-prioritas="rendah"] { display: none; }
+  .pds-toolbar .pds-search { max-width: none; }
+  .pds-lebar-saja { display: none; }
+  .pds-sempit-saja { display: block; }
+}
+
+/* ───────────────────────────────────────────────────────── pagination */
+.pds-pager {
+  display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); align-items: center; justify-content: space-between;
+  font-size: 14px; line-height: 20px; color: var(--ink-2);
+}
+.pds-pager-gerak { display: flex; gap: var(--space-2); align-items: center; }
+.pds-pager-posisi { font-variant-numeric: tabular-nums; color: var(--ink-1); font-weight: 600; white-space: nowrap; padding: 0 var(--space-2); }
+.pds-pager-nomor { display: flex; gap: var(--space-1); align-items: center; }
+.pds-pager-nomor .pds-btn { min-width: var(--control-md); padding: 0 var(--space-2); font-variant-numeric: tabular-nums; }
+.pds-pager-nomor [aria-current="page"], .pds-pager-nomor [aria-current="page"]:hover { background: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.pds-pager-lompat { display: inline-flex; align-items: center; gap: var(--space-2); white-space: nowrap; }
+.pds-pager-lompat .pds-select select { min-width: 76px; font-variant-numeric: tabular-nums; }
+.pds-pager-dari { font-variant-numeric: tabular-nums; }
+.pds-pager-elipsis { min-width: var(--control-md); text-align: center; color: var(--ink-3); }
+.pds-pager-kecil { display: none; }
+@container (max-width: 639px) {
+  .pds-pager-nomor { display: none; }
+  .pds-pager-kecil { display: inline; }
+  .pds-pager .pds-btn-teks { display: none; }
+  /* On a phone the page list becomes ‹ [2 ▾] dari 12 ›: the select is the page list. */
+  .pds-pager-gerak:has(.pds-pager-lompat) [data-sebelum] { order: 0; }
+  .pds-pager-gerak .pds-pager-lompat { order: 1; }
+  .pds-pager-gerak:has(.pds-pager-lompat) [data-sesudah] { order: 2; }
+  .pds-pager-lompat-kata { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+
+/* ────────────────────────────────────────── alerts and result lines */
+.pds-alert {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-1) var(--space-3);
+  padding: var(--space-4) var(--space-5); border-radius: var(--radius-lg);
+  background: var(--surface-2); color: var(--ink-1);
+}
+.pds-alert > .pds-ikon { grid-row: span 3; margin-top: 2px; color: var(--ink-2); }
+.pds-alert h3, .pds-alert strong.pds-alert-judul { font-size: 16px; line-height: 24px; font-weight: 600; }
+.pds-alert p { font-size: 14px; line-height: 20px; color: var(--ink-1); }
+.pds-alert .pds-actions { margin-top: var(--space-2); }
+.pds-alert-info { background: var(--status-info-soft); }
+.pds-alert-info > .pds-ikon { color: var(--status-info); }
+.pds-alert-ok { background: var(--status-ok-soft); }
+.pds-alert-ok > .pds-ikon { color: var(--status-ok); }
+.pds-alert-attention { background: var(--status-attention-soft); }
+.pds-alert-attention > .pds-ikon { color: var(--status-attention); }
+.pds-alert-blocked { background: var(--status-blocked-soft); }
+.pds-alert-blocked > .pds-ikon { color: var(--status-blocked); }
+
+.pds-result {
+  display: inline-flex; gap: var(--space-2); align-items: flex-start;
+  padding: var(--space-2) var(--space-3); border-radius: var(--radius-md);
+  font-size: 14px; line-height: 20px; color: var(--ink-1);
+}
+.pds-result .pds-ikon { width: var(--icon-sm); height: var(--icon-sm); margin-top: 2px; }
+.pds-result[hidden] { display: none; }
+.pds-result-ok { background: var(--status-ok-soft); }
+.pds-result-ok .pds-ikon { color: var(--status-ok); }
+.pds-result-blocked { background: var(--status-blocked-soft); }
+.pds-result-blocked .pds-ikon { color: var(--status-blocked); }
+.pds-result-info { background: var(--status-info-soft); }
+.pds-result-info .pds-ikon { color: var(--status-info); }
+.pds-result-working { color: var(--ink-2); padding-inline: 0; }
+.pds-result-working .pds-dot { margin-top: 7px; color: var(--pintar-primary); }
+@media (prefers-reduced-motion: no-preference) {
+  .pds-result:not([hidden]) { animation: pds-muncul var(--duration-base) var(--ease-standard); }
+}
+@keyframes pds-muncul { from { opacity: 0; } }
+
+/* ─────────────────────────────────────────── progress, steps, loading */
+.pds-progress { display: grid; gap: var(--space-2); }
+.pds-progress-teks { display: flex; justify-content: space-between; gap: var(--space-3); font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.pds-progress-teks strong { color: var(--ink-1); font-weight: 600; font-variant-numeric: tabular-nums; }
+.pds-progress-jalur { height: 8px; border-radius: var(--radius-pill); background: var(--surface-2); overflow: hidden; }
+.pds-progress-isi { height: 100%; background: var(--pintar-primary); border-radius: inherit; }
+
+.pds-steps { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); }
+.pds-steps li { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 14px; line-height: 20px; color: var(--ink-3); }
+.pds-steps li::before {
+  content: ""; width: 20px; height: 20px; border-radius: 50%; flex: none;
+  border: var(--border-hairline) solid var(--line-control); background: var(--surface-1);
+}
+.pds-steps li[data-keadaan="selesai"] { color: var(--ink-2); }
+.pds-steps li[data-keadaan="selesai"]::before {
+  border-color: var(--ink-2); background: var(--ink-2);
+  -webkit-mask: none; mask: none;
+}
+.pds-steps li[data-keadaan="selesai"] .pds-ikon { display: none; }
+.pds-steps li[aria-current="step"] { color: var(--ink-1); font-weight: 600; }
+.pds-steps li[aria-current="step"]::before { border: 6px solid var(--pintar-primary); }
+
+.pds-skeleton { display: grid; gap: var(--space-3); }
+.pds-skeleton i { display: block; height: 16px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.pds-skeleton i.pds-sk-judul { height: 32px; width: 45%; }
+.pds-skeleton i.pds-sk-pendek { width: 60%; }
+.pds-skeleton i.pds-sk-baris { height: 52px; }
+@media (prefers-reduced-motion: no-preference) {
+  .pds-skeleton i { animation: pds-denyut calc(var(--duration-pulse) * 2) var(--ease-standard) infinite; }
+}
+
+/* ─────────────────────────────────────────────────────────── empty */
+.pds-empty { display: grid; gap: var(--space-2); justify-items: start; max-width: var(--measure-prose); }
+.pds-empty h3 { font-size: 18px; line-height: 26px; font-weight: 600; }
+.pds-empty p { color: var(--ink-2); }
+.pds-empty .pds-actions { margin-top: var(--space-2); }
+
+/* ───────────────────────────────────────── surfaces: panel, well, card */
+.pds-panel {
+  background: var(--surface-1); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg);
+  padding: var(--space-5); display: grid; gap: var(--space-3); align-content: start; min-width: 0;
+}
+.pds-panel > h3 { font-size: 18px; line-height: 26px; font-weight: 600; }
+.pds-well { background: var(--surface-2); border-radius: var(--radius-lg); padding: var(--space-5); display: grid; gap: var(--space-2); }
+.pds-section { display: grid; gap: var(--space-4); }
+.pds-section + .pds-section { padding-top: var(--space-6); border-top: var(--border-hairline) solid var(--line); }
+.pds-section > h2 { font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: -0.01em; }
+
+.pds-card {
+  display: grid; gap: var(--space-2); align-content: start;
+  padding: var(--space-5); border-radius: var(--radius-lg);
+  background: var(--surface-1); border: var(--border-hairline) solid var(--line);
+  color: inherit; text-decoration: none;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+a.pds-card:hover { border-color: var(--line-control); }
+.pds-card h3 { font-size: 18px; line-height: 26px; font-weight: 600; color: var(--ink-1); }
+.pds-card p { font-size: 14px; line-height: 20px; color: var(--ink-2); }
+
+.pds-list { list-style: none; padding: 0; border-top: var(--border-hairline) solid var(--line); }
+.pds-list > li { border-bottom: var(--border-hairline) solid var(--line); }
+.pds-list-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-1) var(--space-4); align-items: center;
+  min-height: 64px; padding: var(--space-3) var(--space-2); color: inherit; text-decoration: none;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+a.pds-list-row:hover, .pds-list-row.is-hover { background: var(--surface-2); }
+a.pds-list-row:active, .pds-list-row.is-pressed { background: var(--surface-3); }
+:is(.pds-nav-item, .pds-tab, .pds-list-row).is-focus { outline: var(--border-focus) solid var(--focus-ring); outline-offset: -2px; }
+.pds-seg span.is-focus { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 0; }
+.pds-back { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control-md); color: var(--pintar-primary); font-weight: 600; text-decoration: none; border-radius: var(--radius-sm); }
+.pds-back:hover { text-decoration: underline; text-underline-offset: 3px; }
+.pds-list-row strong { font-weight: 600; }
+.pds-list-row small { grid-column: 1; font-size: 14px; line-height: 20px; color: var(--ink-3); }
+
+/* ─────────────────────────────────────── disclosure (native details) */
+.pds-disclosure { border-bottom: var(--border-hairline) solid var(--line); }
+.pds-disclosure:first-of-type { border-top: var(--border-hairline) solid var(--line); }
+.pds-disclosure > summary {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
+  min-height: 56px; padding: var(--space-2) var(--space-2); cursor: pointer; list-style: none;
+  font-weight: 600; border-radius: var(--radius-md);
+}
+.pds-disclosure > summary::-webkit-details-marker { display: none; }
+.pds-disclosure > summary:hover { background: var(--surface-2); }
+.pds-disclosure > summary small { display: block; font-weight: 400; font-size: 14px; line-height: 20px; color: var(--ink-3); }
+.pds-disclosure > summary .pds-ikon { color: var(--ink-2); }
+.pds-disclosure > summary .pds-ikon { transition: rotate var(--duration-base) var(--ease-standard); }
+.pds-disclosure[open] > summary .pds-ikon { rotate: 180deg; }
+.pds-disclosure > div { padding: 0 var(--space-2) var(--space-5); color: var(--ink-2); display: grid; gap: var(--space-3); }
+
+/* ─────────────────────────────────────────── layers: dialog and drawer */
+.pds-dialog {
+  width: min(480px, calc(100% - var(--space-6))); max-height: calc(100% - var(--space-8));
+  padding: 0; border: 0; border-radius: var(--radius-lg);
+  background: var(--surface-1); color: var(--ink-1); box-shadow: var(--shadow-dialog);
+}
+.pds-dialog::backdrop { background: var(--scrim); }
+.pds-dialog-isi { padding: var(--space-6); display: grid; gap: var(--space-4); }
+.pds-dialog-isi h2 { font-size: 18px; line-height: 26px; font-weight: 600; }
+.pds-dialog-isi p { color: var(--ink-2); }
+.pds-dialog .pds-actions { justify-content: flex-end; margin-top: var(--space-2); }
+/* Under 640 px the actions stack, full width, the safe one last (Dialog). The markup keeps the safe one first. */
+@media (max-width: 639px) { .pds-dialog .pds-actions { flex-direction: column-reverse; align-items: stretch; } }
+@media (prefers-reduced-motion: no-preference) {
+  .pds-dialog[open] { animation: pds-masuk var(--duration-slow) var(--ease-standard); }
+  .pds-dialog[open]::backdrop { animation: pds-muncul var(--duration-slow) var(--ease-standard); }
+}
+/* A floating layer enters at duration-slow and travels 8 px at most (question 8, 5 Oct). */
+@keyframes pds-masuk { from { opacity: 0; translate: 0 8px; } }
+
+.pds-drawer {
+  position: fixed; inset: 0 auto 0 0; margin: 0; height: 100%; max-height: none;
+  width: min(320px, calc(100% - var(--space-8))); padding: 0; border: 0; border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  background: var(--surface-0); color: var(--ink-1); box-shadow: var(--shadow-dialog);
+}
+.pds-drawer.pds-drawer-kanan { inset: 0 0 0 auto; border-radius: var(--radius-lg) 0 0 var(--radius-lg); background: var(--surface-1); width: min(380px, calc(100% - var(--space-8))); }
+.pds-drawer::backdrop { background: var(--scrim); }
+.pds-drawer-kepala { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5); min-height: var(--shell-bar); border-bottom: var(--border-hairline) solid var(--line); }
+.pds-drawer-kepala h2 { font-size: 18px; line-height: 26px; font-weight: 600; }
+.pds-drawer-isi { padding: var(--space-4); display: grid; gap: var(--space-4); }
+@media (prefers-reduced-motion: no-preference) {
+  .pds-drawer[open] { animation: pds-geser-kiri var(--duration-slow) var(--ease-standard); }
+  .pds-drawer.pds-drawer-kanan[open] { animation: pds-geser-kanan var(--duration-slow) var(--ease-standard); }
+  .pds-drawer[open]::backdrop { animation: pds-muncul var(--duration-slow) var(--ease-standard); }
+}
+@keyframes pds-geser-kiri { from { opacity: 0; translate: -8px 0; } }
+@keyframes pds-geser-kanan { from { opacity: 0; translate: 8px 0; } }
+/* A menu is anchored to its button, so it travels less: 4 px, away from the button. */
+@keyframes pds-turun { from { opacity: 0; translate: 0 -4px; } }
+@keyframes pds-naik { from { opacity: 0; translate: 0 4px; } }
+
+/* ──────────────────────────────────────────────────── menu and tooltip */
+.pds-menu-host { position: relative; display: inline-block; }
+.pds-menu {
+  position: absolute; z-index: var(--z-overlay); top: calc(100% + var(--space-1)); right: 0;
+  min-width: 220px; padding: var(--space-1);
+  background: var(--surface-1); border-radius: var(--radius-md); box-shadow: var(--shadow-overlay);
+  display: grid;
+}
+.pds-menu[hidden] { display: none; }
+.pds-menu.pds-menu-atas { top: auto; bottom: calc(100% + var(--space-1)); left: 0; right: auto; }
+.pds-menu.pds-menu-samping { top: auto; bottom: 0; left: calc(100% + var(--space-3)); right: auto; }
+.pds-menu-item {
+  display: flex; align-items: center; gap: var(--space-3); min-height: var(--control-md); padding: 0 var(--space-3);
+  border: 0; border-radius: calc(var(--radius-md) - 2px); background: none; text-align: left; cursor: pointer;
+  font-size: 16px; line-height: 24px; color: var(--ink-1); text-decoration: none; white-space: nowrap;
+}
+.pds-menu-item .pds-ikon { color: var(--ink-2); }
+.pds-menu-item:hover, .pds-menu-item:focus-visible { background: var(--surface-2); outline: none; }
+.pds-menu-item:focus-visible { box-shadow: inset 0 0 0 var(--border-focus) var(--focus-ring); }
+.pds-menu-item.pds-menu-bahaya, .pds-menu-item.pds-menu-bahaya .pds-ikon { color: var(--status-blocked); }
+.pds-menu-pisah { height: 1px; margin: var(--space-1) 0; background: var(--line); border: 0; }
+.pds-menu-judul { padding: var(--space-2) var(--space-3) var(--space-1); font-size: 14px; line-height: 20px; color: var(--ink-3); }
+@media (prefers-reduced-motion: no-preference) {
+  .pds-menu:not([hidden]) { animation: pds-turun var(--duration-slow) var(--ease-standard); }
+  .pds-menu.pds-menu-atas:not([hidden]) { animation-name: pds-naik; }
+  .pds-menu.pds-menu-samping:not([hidden]) { animation-name: pds-muncul; }
+}
+
+.pds-tip-host { position: relative; display: inline-flex; }
+.pds-tooltip {
+  position: absolute; z-index: var(--z-overlay); bottom: calc(100% + 6px); left: 50%; translate: -50% 0;
+  padding: var(--space-1) var(--space-2); border-radius: var(--radius-md);
+  background: var(--surface-1); color: var(--ink-1); box-shadow: var(--shadow-overlay);
+  font-size: 14px; line-height: 20px; white-space: nowrap; pointer-events: none;
+}
+.pds-tooltip[hidden] { display: none; }
+.pds-tooltip.pds-tip-kanan { bottom: auto; top: 50%; left: calc(100% + 6px); translate: 0 -50%; }
+
+/* ───────────────────────────────────────────── identity and the avatar */
+.pds-avatar {
+  display: inline-grid; place-items: center; flex: none;
+  width: 40px; height: 40px; border-radius: 50%; overflow: hidden;
+  background: var(--surface-2); color: var(--ink-2);
+  font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: 0.02em;
+}
+.pds-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.pds-avatar-sm { width: 32px; height: 32px; }
+.pds-identity {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-3); align-items: center;
+  width: 100%; min-height: 56px; padding: var(--space-2); border: 0; border-radius: var(--radius-md);
+  background: none; text-align: left; cursor: pointer; color: inherit;
+}
+.pds-identity:hover { background: var(--surface-2); }
+.pds-identity strong { display: block; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pds-identity small { display: block; font-size: 14px; line-height: 20px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pds-identity > .pds-ikon { color: var(--ink-2); }
+
+/* ───────────────────────────────────────────────── page header */
+.pds-pagehead { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-3) var(--space-6); align-items: end; }
+.pds-pagehead > div { display: grid; gap: var(--space-2); }
+.pds-pagehead .pds-actions { justify-content: flex-end; }
+.pds-scope { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); align-items: center; list-style: none; padding: 0; font-size: 14px; line-height: 20px; color: var(--ink-3); }
+.pds-scope li { display: inline-flex; align-items: center; gap: var(--space-2); }
+/* The separator ends a line rather than starting one, as the middle dot binds to the word before it. */
+/* The separator is drawn, not read: empty alternative text (the plain value first, for a browser without it). */
+.pds-scope li:not(:last-child)::after { content: "/"; content: "/" / ""; color: var(--line-control); }
+.pds-scope a { display: inline-flex; align-items: center; min-height: 24px; color: var(--ink-2); text-decoration: none; border-radius: 2px; }
+.pds-scope a:hover { color: var(--ink-1); text-decoration: underline; text-underline-offset: 3px; }
+.pds-scope [aria-current="page"] { color: var(--ink-1); }
+.pds-title { font-size: 30px; line-height: 36px; font-weight: 600; letter-spacing: -0.02em; text-wrap: balance; }
+.pds-intro { color: var(--ink-2); max-width: var(--measure-prose); }
+.pds-eyebrow { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+
+/* ──────────────────────────────────────────────────── the app shell */
+.pds-shell-host { container: shell / inline-size; width: 100%; margin-inline: auto; }
+.pds-shell {
+  display: grid; grid-template-columns: var(--shell-nav) minmax(0, 1fr);
+  min-height: 720px; background: var(--surface-0); color: var(--ink-1);
+  border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg);
+}
+.pds-nav {
+  position: sticky; top: 0; align-self: start; height: 100%; min-height: 720px; z-index: var(--z-nav);
+  display: flex; flex-direction: column; gap: var(--space-2);
+  padding: var(--space-4) var(--space-3); background: var(--surface-0);
+  border-right: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+.pds-nav-kepala { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: 0 var(--space-1) var(--space-3) var(--space-2); }
+/* THE PINTAR WORDMARK (canonical, 5 Oct; locked): PINTAR in Helvetica Neue 65 Medium, capitals,
+   tracking +50, PINTAR green, nothing else. In the product it is the outlined master artwork (an
+   inline SVG), never live text: Helvetica Neue is not on Windows, Chromebooks or Android, and is not
+   licensed as a web font. Here it is a PROOF, set in the viewer's own face: Helvetica Neue on Apple
+   devices, a stand-in elsewhere. Sized by its cap height (0.714 em in Helvetica Neue); the trailing
+   tracking is taken back so the word's box ends at the R. */
+.pds-merek {
+  --merek-tinggi: var(--wordmark-nav);
+  display: inline-block; flex: none; vertical-align: middle;
+  font-family: var(--font-wordmark); font-weight: 500; font-style: normal; font-kerning: normal; font-synthesis: none;
+  font-size: calc(var(--merek-tinggi) / 0.714); line-height: 1;
+  letter-spacing: 0.05em; margin-right: -0.05em;
+  text-transform: uppercase; white-space: nowrap; color: var(--pintar-primary);
+  /* The box is the letters: cap height to baseline, as the outlined master's bounds will be. */
+  text-box: trim-both cap alphabetic;
+}
+.pds-merek-berdiri { --merek-tinggi: var(--wordmark-standalone); }
+.pds-merek-putih { color: var(--surface-1); }
+.pds-merek-hitam { color: #000; }
+.pds-nav-daftar { list-style: none; padding: 0; display: grid; gap: 2px; }
+.pds-nav-grup { padding: var(--space-4) var(--space-3) var(--space-1); }
+.pds-nav-item {
+  display: flex; align-items: center; gap: var(--space-3); min-height: var(--control-md); padding: 0 var(--space-3);
+  border-radius: var(--radius-md); color: var(--ink-2); text-decoration: none;
+  font-size: 16px; line-height: 24px;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+.pds-nav-item .pds-ikon { color: var(--ink-3); }
+.pds-nav-item:hover, .pds-nav-item.is-hover { background: var(--surface-2); color: var(--ink-1); }
+.pds-nav-item:active, .pds-nav-item.is-pressed { background: var(--surface-3); }
+.pds-nav-item[aria-current="page"] { background: var(--pintar-primary-soft); color: var(--ink-1); font-weight: 600; }
+.pds-nav-item[aria-current="page"] .pds-ikon { color: var(--pintar-primary); }
+.pds-nav-item .pds-nav-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pds-nav-item .pds-dot { color: var(--pintar-primary); }
+.pds-nav .pds-tip-host { display: flex; }
+.pds-nav .pds-tip-host > .pds-nav-item { flex: 1; min-width: 0; }
+button.pds-nav-item { width: 100%; border: 0; background: none; font: inherit; cursor: pointer; text-align: left; }
+.pds-nav-bawah { margin-top: auto; display: grid; gap: var(--space-2); padding-top: var(--space-3); border-top: var(--border-hairline) solid var(--line); }
+
+.pds-main { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; }
+.pds-main-isi { width: 100%; max-width: var(--measure-stage); margin-inline: auto; padding: var(--space-7) var(--space-6) var(--space-9); display: grid; gap: var(--space-6); }
+.pds-main-isi.pds-baca { max-width: calc(var(--measure-read) + 2 * var(--space-6)); }
+
+.pds-bar {
+  display: none; position: sticky; top: 0; z-index: var(--z-sticky);
+  align-items: center; gap: var(--space-2); min-height: var(--shell-bar); padding: 0 var(--space-2) 0 var(--space-4);
+  background: var(--surface-0); border-bottom: var(--border-hairline) solid var(--line);
+}
+.pds-bar .pds-merek { --merek-tinggi: var(--wordmark-bar); }
+.pds-bar-tempat { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Collapsed by the reader, or 1024 to 1279px: the rail. */
+.pds-shell[data-ciut="ya"] { grid-template-columns: var(--shell-rail) minmax(0, 1fr); }
+.pds-shell[data-ciut="ya"] .pds-nav { padding-inline: var(--space-3); align-items: center; }
+.pds-shell[data-ciut="ya"] .pds-nav-label,
+.pds-shell[data-ciut="ya"] .pds-nav-grup,
+.pds-shell[data-ciut="ya"] .pds-identity > div,
+.pds-shell[data-ciut="ya"] .pds-identity > .pds-ikon,
+.pds-shell[data-ciut="ya"] .pds-merek-penuh { display: none; }
+.pds-shell[data-ciut="ya"] .pds-nav-kepala { flex-direction: column; padding: 0 0 var(--space-3); }
+.pds-shell[data-ciut="ya"] .pds-nav-item { width: var(--control-md); padding: 0; justify-content: center; }
+.pds-shell[data-ciut="ya"] .pds-nav-item .pds-dot { position: absolute; margin: -22px 0 0 26px; }
+.pds-shell[data-ciut="ya"] .pds-identity { grid-template-columns: auto; padding: var(--space-1); width: auto; }
+
+@container shell (max-width: 1279px) {
+  .pds-shell:not([data-ciut="tidak"]) { grid-template-columns: var(--shell-rail) minmax(0, 1fr); }
+  .pds-shell:not([data-ciut="tidak"]) .pds-nav { padding-inline: var(--space-3); align-items: center; }
+  .pds-shell:not([data-ciut="tidak"]) :is(.pds-nav-label, .pds-nav-grup, .pds-identity > div, .pds-identity > .pds-ikon, .pds-merek-penuh) { display: none; }
+  .pds-shell:not([data-ciut="tidak"]) .pds-nav-kepala { flex-direction: column; padding: 0 0 var(--space-3); }
+  .pds-shell:not([data-ciut="tidak"]) .pds-nav-item { width: var(--control-md); padding: 0; justify-content: center; }
+  .pds-shell:not([data-ciut="tidak"]) .pds-identity { grid-template-columns: auto; padding: var(--space-1); width: auto; }
+}
+@container shell (max-width: 1023px) {
+  .pds-shell, .pds-shell:not([data-ciut="tidak"]), .pds-shell[data-ciut] { grid-template-columns: minmax(0, 1fr); }
+  .pds-shell .pds-nav { display: none; }
+  .pds-shell .pds-bar { display: flex; }
+  .pds-main-isi { padding: var(--space-6) var(--space-5) var(--space-8); }
+}
+@container shell (max-width: 639px) {
+  .pds-main-isi { padding: var(--space-5) var(--space-4) var(--space-8); gap: var(--space-5); }
+  .pds-title { font-size: 26px; line-height: 32px; letter-spacing: -0.015em; }
+  .pds-pagehead { grid-template-columns: minmax(0, 1fr); }
+  .pds-pagehead .pds-actions { justify-content: flex-start; }
+}
+
+/* The learner's shell: a top bar, at every width. Two places and Help. */
+.pds-topshell { container: shell / inline-size; background: var(--surface-0); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+.pds-top {
+  display: flex; align-items: center; gap: var(--space-5); min-height: var(--shell-bar); padding: 0 var(--space-4) 0 var(--space-5);
+  background: var(--surface-1); border-bottom: var(--border-hairline) solid var(--line);
+}
+.pds-top .pds-tabs { border-bottom: 0; align-self: stretch; }
+.pds-top .pds-tab { min-height: var(--shell-bar); }
+.pds-top-kanan { margin-left: auto; display: flex; align-items: center; gap: var(--space-2); }
+.pds-top-nama { font-size: 14px; line-height: 20px; color: var(--ink-2); white-space: nowrap; }
+.pds-top-nama strong { color: var(--ink-1); }
+@container shell (max-width: 639px) {
+  .pds-top { flex-wrap: wrap; gap: 0 var(--space-3); padding: 0 var(--space-2) 0 var(--space-4); }
+  .pds-top .pds-tabs { order: 3; width: 100%; gap: var(--space-4); }
+  .pds-top .pds-tab { min-height: var(--control-md); }
+  .pds-top-nama { display: none; }
+}
+
+/* ─────────────────────────────────────────── confirmation, in the page */
+.pds-confirm {
+  display: grid; gap: var(--space-3); padding: var(--space-5);
+  background: var(--surface-1); border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-lg);
+  max-width: var(--measure-read);
+}
+.pds-confirm h3 { font-size: 18px; line-height: 26px; font-weight: 600; }
+.pds-confirm p { color: var(--ink-2); max-width: var(--measure-prose); }
+.pds-confirm.pds-confirm-bahaya { border-color: var(--status-blocked); }
+.pds-confirm ul { padding-left: var(--space-5); color: var(--ink-2); display: grid; gap: var(--space-1); }
+
+/* ──────────────────────────────────────────────── identity screens */
+/* Whole-row choices: the row is the target; the safer choice comes first and is chosen. */
+.pds-pilihan { display: grid; gap: var(--space-3); }
+.pds-pilihan label {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-1) var(--space-3); align-items: start;
+  padding: var(--space-4); border: var(--border-hairline) solid var(--line-control); border-radius: var(--radius-lg);
+  background: var(--surface-1); cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
+}
+.pds-pilihan label:hover { background: var(--surface-2); }
+.pds-pilihan label:has(:checked) { border-color: var(--pintar-primary); background: var(--pintar-primary-soft); box-shadow: inset 0 0 0 1px var(--pintar-primary); }
+.pds-pilihan label:has(:focus-visible) { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+.pds-pilihan .pds-radio:focus-visible { outline: none; }
+.pds-pilihan strong { font-weight: 600; }
+.pds-pilihan small { grid-column: 2; font-size: 14px; line-height: 20px; color: var(--ink-2); }
+
+/* A single task on its own: the lock, sign-in, recovery. */
+.pds-tugas { display: grid; gap: var(--space-5); width: 100%; max-width: var(--measure-auth); margin-inline: auto; padding: var(--space-7) var(--space-5); }
+.pds-tugas h1 { font-size: 26px; line-height: 32px; font-weight: 600; letter-spacing: -0.015em; }
+.pds-tugas .pds-btn:not(.pds-btn-icon) { width: 100%; }
+.pds-tugas-bingkai { background: var(--surface-0); border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg); }
+
+/* Password rules: a rule ticks as it is met. Unmet is ink-2, never red. */
+.pds-aturan { list-style: none; padding: 0; display: grid; gap: var(--space-1); font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.pds-aturan li { display: flex; gap: var(--space-2); align-items: flex-start; }
+.pds-aturan li::before {
+  content: ""; width: 16px; height: 16px; margin-top: 2px; flex: none; border-radius: 50%;
+  border: var(--border-hairline) solid var(--line-control); background: var(--surface-1);
+}
+.pds-aturan li[data-keadaan="selesai"] { color: var(--ink-1); }
+.pds-aturan li[data-keadaan="selesai"]::before {
+  border-color: var(--status-ok);
+  background: var(--status-ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 11px no-repeat;
+}
+
+/* ─────────────────────────────────────────── preview chrome (not the system) */
+.pds-demo-label { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.pds-demo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: var(--space-4) var(--space-5); align-items: start; }
+.pds-demo-sel { display: grid; gap: var(--space-2); justify-items: start; }
+.pds-demo-matrix { display: grid; grid-template-columns: minmax(110px, auto) repeat(5, minmax(0, 1fr)); gap: var(--space-3) var(--space-4); align-items: center; overflow-x: auto; }
+.pds-demo-matrix > .pds-demo-label:first-child { visibility: hidden; }
+.pds-demo-kontrol {
+  display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); align-items: center;
+  padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+.pds-demo-kontrol .pds-demo-label { margin-right: var(--space-1); }
+.pds-demo-kontrol .pds-seg input:checked + span { background-color: var(--surface-1); color: var(--ink-1); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.pds-demo-gulir { overflow-x: auto; max-width: 100%; border-radius: var(--radius-md); }
+.pds-demo-catatan { font-size: 14px; line-height: 20px; color: var(--ink-3); max-width: var(--measure-prose); }
+.pds-demo-garis { display: grid; gap: var(--space-2); }
+.pds-demo-batang { height: 28px; border-radius: var(--radius-sm); background: var(--pintar-primary-soft); display: flex; align-items: center; padding: 0 var(--space-3); font-size: 14px; line-height: 20px; color: var(--ink-1); white-space: nowrap; overflow: hidden; }
+
+/* ────────────────────────────── the skip link (approved, question 10)
+   The first focusable thing on every page with a shell: «Langsung ke isi». Out of sight until it
+   has focus, then a plain button-like link at the top left that takes focus to the page's content. */
+.pds-lewati { position: absolute; left: var(--space-3); top: var(--space-3); z-index: var(--z-modal); display: inline-flex; align-items: center; min-height: var(--control-md); padding: 0 var(--space-4); border-radius: var(--radius-md); background: var(--surface-1); color: var(--pintar-primary); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; box-shadow: var(--shadow-overlay); transform: translateY(calc(-100% - var(--space-4))); }
+.pds-lewati:focus { transform: none; outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+/* The parent clips, so the hidden link never shows above it (it waits just outside the top edge). */
+.pds-lewati-induk { position: relative; overflow: clip; }
+
+/* ─────────────────────────── the context band (approved, question 12)
+   A mode that changes what the whole screen means (MODE PERAGAAN, ADR-0020): one full-width
+   band in deep ink at the top of every page while the mode lasts, with its way out on it.
+   It reads as neither a status nor an action. */
+.pds-konteks { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); min-height: var(--control-md); padding: var(--space-2) var(--space-4); background: var(--context); color: var(--context-ink); border-radius: var(--radius-md); font-size: 14px; line-height: 20px; }
+.pds-konteks strong { font-weight: 600; letter-spacing: 0.04em; }
+.pds-konteks a, .pds-konteks button { color: var(--context-ink); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-md); padding: 0; border: 0; background: none; cursor: pointer; }
+.pds-konteks a:focus-visible, .pds-konteks button:focus-visible { outline: var(--border-focus) solid var(--context-ink); outline-offset: 2px; }
+.pds-konteks-kanan { margin-left: auto; display: flex; gap: var(--space-4); flex-wrap: wrap; }
+.pds-konteks.pds-konteks-halaman { border-radius: 0; padding-inline: var(--space-5); }
+
+/* ───────────── A COMPOSED JOURNEY (specimen only; 11-validation.md §1)
+   The review bar is not PINTAR: dashed, in English, above the screens. Each screen below it
+   fills the window edge to edge, so the shells answer to the real width (1280, 1024, 390). */
+.pds.pds-jalan { padding: 0; gap: 0; }
+.pds-jalan-kepala { display: grid; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--surface-2); border-bottom: 2px dashed var(--line-control); font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.pds-jalan-kepala p { margin: 0; }
+.pds-jalan-judul { color: var(--ink-1); font-weight: 600; }
+.pds-jalan-langkah { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); list-style: none; margin: 0; padding: 0; }
+.pds-jalan-langkah button { min-height: 32px; padding: 0 var(--space-3); border: var(--border-hairline) solid var(--line-strong); border-radius: var(--radius-md); background: var(--surface-1); color: var(--ink-1); font: inherit; font-size: 14px; cursor: pointer; transition: background-color var(--duration-fast) var(--ease-standard); }
+.pds-jalan-langkah button:hover { background: var(--surface-3); }
+.pds-jalan-langkah button[aria-current="step"] { background: var(--pintar-primary-soft); border-color: var(--pintar-primary); font-weight: 600; }
+.pds-jalan-alat { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+.pds-jalan-alat label { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 32px; cursor: pointer; }
+.pds-jalan-alat button { min-height: 32px; padding: 0 var(--space-3); border: 0; border-radius: var(--radius-md); background: none; color: var(--pintar-primary); font: inherit; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.pds-jalan-catatan { color: var(--ink-1); }
+.pds-jalan .pds-shell, .pds-jalan .pds-topshell { border: 0; border-radius: 0; }
+.pds-jalan .pds-nav { border-radius: 0; }
+.pds-jalan .pds-topshell { min-height: 640px; }
+/* A review step moves the walk on (time passes, the other person takes over). It is not PINTAR: dashed, and in English. */
+.pds-btn.pds-jalan-tinjau { white-space: normal; text-align: start; padding-block: var(--space-2); border-style: dashed; border-color: var(--line-control); }
+.pds-tandai-baru [data-kata-baru] { outline: 2px dashed var(--status-attention); outline-offset: 2px; }
+
+
+/* ──────────────────────────────── corrections after the journeys (8 Oct)
+   F7: under 640 px a state badge in a table may wrap, so the state is read whole. */
+@media (max-width: 639px) { .pds-table .pds-badge { white-space: normal; } }
+/* F8: in the rail the group labels are hidden; a hairline keeps the two contexts apart. Order and grouping unchanged. */
+.pds-shell[data-ciut="ya"] .pds-nav-grup-isi + .pds-nav-grup-isi { border-top: var(--border-hairline) solid var(--line); margin-top: var(--space-2); padding-top: var(--space-2); }
+@container shell (min-width: 1024px) and (max-width: 1279px) {
+  .pds-shell:not([data-ciut="tidak"]) .pds-nav-grup-isi + .pds-nav-grup-isi { border-top: var(--border-hairline) solid var(--line); margin-top: var(--space-2); padding-top: var(--space-2); }
+}
+/* F10: when tabs run past the edge, the edge fades, so more tabs are seen to follow (bundle.js sets the class). */
+.pds-tabs.pds-tabs-lebih { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent); }
+/* GQ1: a population line (Progress): counts in words, never a chart. */
+.pds-populasi { margin: 0; color: var(--ink-2); }
+.pds-populasi strong { color: var(--ink-1); font-weight: 600; }
+/* GQ4: the file field (File field): the native input under a button, the chosen file named beneath. */
+.pds-berkas { display: grid; gap: var(--space-2); justify-items: start; }
+.pds-berkas-tombol { position: relative; display: inline-flex; }
+/* The native input lies over its button, transparent: the target is the whole button. */
+.pds-berkas-tombol input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.pds-berkas input[type="file"]:focus-visible + label { outline: var(--border-focus) solid var(--focus-ring); outline-offset: 2px; }
+.pds-berkas-nama { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-2); }
+</style><style>/* A1 · W1.2 — the question review. Composition only: every value is a design-system
+   token or an existing component. No new token, no palette change. */
+
+/* The wordmark slot: the provisional placeholder (master pending F-11). */
+.a1-slot {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  width: 120px; height: 40px; padding: 0 var(--space-2); box-sizing: border-box;
+  border: var(--border-hairline) dashed var(--line-control); border-radius: var(--radius-md);
+  font-size: 14px; line-height: 20px; font-weight: 600; color: var(--pintar-primary); white-space: nowrap; overflow: hidden;
+}
+.a1-slot small { font-size: 9px; line-height: 12px; font-weight: 400; color: var(--ink-3); white-space: normal; }
+
+/* Built sections shown only for place. */
+.a1-dibangun { opacity: 1; }
+.a1-dibangun p { font-size: 14px; line-height: 20px; }
+
+/* Summary and the lesson jump. */
+.a1-ringkas { font-size: 14px; line-height: 20px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.a1-lompat { display: grid; gap: var(--space-1); max-width: var(--measure-narrow); }
+.a1-lompat-baris { display: flex; gap: var(--space-2); align-items: center; }
+.a1-lompat-baris .pds-select { flex: 1 1 auto; min-width: 0; }
+.a1-lompat-baris .pds-select select { width: 100%; }
+
+/* One whole lesson. */
+.a1-pelajaran { display: grid; gap: var(--space-4); }
+.a1-pelajaran-judul { color: var(--ink-1); }
+.a1-pelajaran-judul:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 4px; border-radius: var(--radius-md); }
+.a1-pelajaran-judul small { font-size: 14px; line-height: 20px; font-weight: 400; color: var(--ink-2); margin-left: var(--space-2); white-space: nowrap; }
+.a1-soal-daftar { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-5); }
+
+/* One question. */
+.pin-soal article {
+  display: grid; gap: var(--space-3); min-width: 0;
+  padding: var(--space-5); background: var(--surface-1);
+  border: var(--border-hairline) solid var(--line); border-radius: var(--radius-lg);
+}
+.a1-meta { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+/* The reading passage («Bacaan», the workbook's stimulus): read before the stem, so it sits above it. */
+.a1-bacaan { display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); background: var(--surface-2); border-radius: var(--radius-md); max-width: var(--measure-prose); }
+.a1-bacaan p { font-size: 16px; line-height: 26px; color: var(--ink-1); overflow-wrap: anywhere; }
+.a1-bacaan .a1-bacaan-label { font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink-2); }
+.a1-batang { color: var(--ink-1); max-width: var(--measure-prose); overflow-wrap: anywhere; }
+
+/* The options: a letter column and the option with its reason. */
+.a1-opsi { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-2); }
+.pin-opsi {
+  display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: var(--space-3);
+  padding: var(--space-3); border-radius: var(--radius-md);
+  border: var(--border-hairline) solid var(--line); border-left: 3px solid transparent;
+}
+/* The key: the row edge and a tinted ground, and always the badge with its icon and word. */
+.pin-opsi-kunci { background: var(--pintar-primary-soft); border-left-color: var(--pintar-primary); }
+.a1-huruf {
+  display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: var(--radius-pill);
+  background: var(--surface-2); color: var(--ink-1); font-size: 14px; line-height: 20px; font-weight: 600;
+}
+.pin-opsi-kunci .a1-huruf { background: var(--pintar-primary); color: var(--pintar-primary-ink); }
+.a1-opsi-isi { display: grid; gap: var(--space-1); min-width: 0; }
+.a1-opsi-teks { font-size: 16px; line-height: 24px; color: var(--ink-1); overflow-wrap: anywhere; }
+.a1-kunci { margin-left: var(--space-2); vertical-align: 1px; }
+.a1-alasan, .a1-miskonsepsi { font-size: 14px; line-height: 20px; color: var(--ink-2); max-width: var(--measure-prose); }
+.a1-alasan strong, .a1-miskonsepsi strong { color: var(--ink-1); font-weight: 600; }
+
+.a1-pager { padding-top: var(--space-2); }
+.a1-pager [aria-disabled="true"] { color: var(--ink-3); cursor: default; }
+
+@container (max-width: 639px) {
+  .pin-soal article { padding: var(--space-4); }
+  .pin-opsi { grid-template-columns: 24px minmax(0, 1fr); gap: var(--space-2); padding: var(--space-2) var(--space-3) var(--space-3) var(--space-2); }
+  .a1-huruf { width: 24px; height: 24px; }
+  .a1-kunci { margin-left: 0; margin-top: var(--space-1); display: inline-flex; }
+}
+</style><script>/* @ds-bundle: {"format":4,"namespace":"Pintar","components":[]} */
+/*
+  PINTAR Design System v3 (PROPOSAL): the shared behaviour behind every preview.
+
+  ONE implementation per interaction, so the same act behaves the same way on
+  every surface: the action grammar (Simpan → Menyimpan… → ✓ Tersimpan), tabs,
+  menus, tooltips, dialogs and drawers, a table's sort, selection and pages,
+  PIN and code inputs, and the shell. Plain DOM, no library and no network.
+  Previews declare what they need with data attributes and call
+  Pintar.siapkan() once.
+
+  Icons: Lucide (lucide-static 0.468.0), ISC License, Copyright (c) Lucide
+  Contributors 2022, portions Copyright (c) Cole Bemis 2013-2022 (Feather, MIT).
+  The path data below is copied from those files unchanged.
+
+  Generated from docs/coordination/ux/sistem-desain/alat/bundle-sumber.js by
+  alat/buat-bundle.mjs. Edit the source, not this file.
+*/
+(function () {
+  "use strict";
+  var IKON = {"book-open":"<path d=\"M12 7v14\" /><path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\" />","award":"<path d=\"m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526\" /><circle cx=\"12\" cy=\"8\" r=\"6\" />","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /><circle cx=\"9\" cy=\"7\" r=\"4\" /><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /><path d=\"M16 3.13a4 4 0 0 1 0 7.75\" />","graduation-cap":"<path d=\"M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z\" /><path d=\"M22 10v6\" /><path d=\"M6 12.5V16a6 3 0 0 0 12 0v-3.5\" />","chart-no-axes-column":"<line x1=\"18\" x2=\"18\" y1=\"20\" y2=\"10\" /><line x1=\"12\" x2=\"12\" y1=\"20\" y2=\"4\" /><line x1=\"6\" x2=\"6\" y1=\"20\" y2=\"14\" />","settings":"<path d=\"M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z\" /><circle cx=\"12\" cy=\"12\" r=\"3\" />","file-spreadsheet":"<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\" /><path d=\"M14 2v4a2 2 0 0 0 2 2h4\" /><path d=\"M8 13h2\" /><path d=\"M14 13h2\" /><path d=\"M8 17h2\" /><path d=\"M14 17h2\" />","user-check":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /><circle cx=\"9\" cy=\"7\" r=\"4\" /><polyline points=\"16 11 18 13 22 9\" />","square-pen":"<path d=\"M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\" /><path d=\"M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z\" />","shield":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" />","mail":"<rect width=\"20\" height=\"16\" x=\"2\" y=\"4\" rx=\"2\" /><path d=\"m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7\" />","circle-help":"<circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\" /><path d=\"M12 17h.01\" />","id-card":"<path d=\"M16 10h2\" /><path d=\"M16 14h2\" /><path d=\"M6.17 15a3 3 0 0 1 5.66 0\" /><circle cx=\"9\" cy=\"11\" r=\"2\" /><rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\" />","log-out":"<path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\" /><polyline points=\"16 17 21 12 16 7\" /><line x1=\"21\" x2=\"9\" y1=\"12\" y2=\"12\" />","languages":"<path d=\"m5 8 6 6\" /><path d=\"m4 14 6-6 2-3\" /><path d=\"M2 5h12\" /><path d=\"M7 2h1\" /><path d=\"m22 22-5-10-5 10\" /><path d=\"M14 18h6\" />","user":"<path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\" /><circle cx=\"12\" cy=\"7\" r=\"4\" />","chevron-down":"<path d=\"m6 9 6 6 6-6\" />","chevron-left":"<path d=\"m15 18-6-6 6-6\" />","chevron-right":"<path d=\"m9 18 6-6-6-6\" />","check":"<path d=\"M20 6 9 17l-5-5\" />","x":"<path d=\"M18 6 6 18\" /><path d=\"m6 6 12 12\" />","menu":"<line x1=\"4\" x2=\"20\" y1=\"12\" y2=\"12\" /><line x1=\"4\" x2=\"20\" y1=\"6\" y2=\"6\" /><line x1=\"4\" x2=\"20\" y1=\"18\" y2=\"18\" />","search":"<circle cx=\"11\" cy=\"11\" r=\"8\" /><path d=\"m21 21-4.3-4.3\" />","ellipsis":"<circle cx=\"12\" cy=\"12\" r=\"1\" /><circle cx=\"19\" cy=\"12\" r=\"1\" /><circle cx=\"5\" cy=\"12\" r=\"1\" />","arrow-up-down":"<path d=\"m21 16-4 4-4-4\" /><path d=\"M17 20V4\" /><path d=\"m3 8 4-4 4 4\" /><path d=\"M7 4v16\" />","arrow-up":"<path d=\"m5 12 7-7 7 7\" /><path d=\"M12 19V5\" />","arrow-down":"<path d=\"M12 5v14\" /><path d=\"m19 12-7 7-7-7\" />","info":"<circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"M12 16v-4\" /><path d=\"M12 8h.01\" />","circle-alert":"<circle cx=\"12\" cy=\"12\" r=\"10\" /><line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\" /><line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\" />","triangle-alert":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /><path d=\"M12 9v4\" /><path d=\"M12 17h.01\" />","circle-check":"<circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"m9 12 2 2 4-4\" />","calendar":"<path d=\"M8 2v4\" /><path d=\"M16 2v4\" /><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\" /><path d=\"M3 10h18\" />","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\" /><polyline points=\"12 6 12 12 16 14\" />","eye":"<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" /><circle cx=\"12\" cy=\"12\" r=\"3\" />","eye-off":"<path d=\"M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49\" /><path d=\"M14.084 14.158a3 3 0 0 1-4.242-4.242\" /><path d=\"M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143\" /><path d=\"m2 2 20 20\" />","list-filter":"<path d=\"M3 6h18\" /><path d=\"M7 12h10\" /><path d=\"M10 18h4\" />","panel-left-close":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /><path d=\"M9 3v18\" /><path d=\"m16 15-3-3 3-3\" />","panel-left-open":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /><path d=\"M9 3v18\" /><path d=\"m14 9 3 3-3 3\" />","plus":"<path d=\"M5 12h14\" /><path d=\"M12 5v14\" />","trash-2":"<path d=\"M3 6h18\" /><path d=\"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6\" /><path d=\"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\" /><line x1=\"10\" x2=\"10\" y1=\"11\" y2=\"17\" /><line x1=\"14\" x2=\"14\" y1=\"11\" y2=\"17\" />","upload":"<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" /><polyline points=\"17 8 12 3 7 8\" /><line x1=\"12\" x2=\"12\" y1=\"3\" y2=\"15\" />","file":"<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\" /><path d=\"M14 2v4a2 2 0 0 0 2 2h4\" />"};
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function ikon(nama, kelas) {
+    var isi = IKON[nama] || "";
+    return '<svg class="pds-ikon' + (kelas ? " " + kelas : "") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + isi + "</svg>";
+  }
+
+  function isiIkon(akar) {
+    (akar || document).querySelectorAll("i[data-ikon]").forEach(function (el) {
+      var span = document.createElement("span");
+      span.innerHTML = ikon(el.getAttribute("data-ikon"), el.className);
+      el.replaceWith(span.firstChild);
+    });
+  }
+
+  /* ───────────────────────────────────── the network, for review only */
+  var JARINGAN = { mode: "normal" };
+  var WAKTU = { normal: 900, lambat: 4600, gagal: 1600 };
+
+  /* ───────────────────────────── THE ACTION GRAMMAR (D-047, one pattern)
+     receive → acknowledge (at once) → explain status → give the next step.
+     The button never claims success: only the simulated server's answer
+     turns it to «✓ Tersimpan». Over 3 s the status line explains the wait. */
+  function aksi(btn) {
+    var asli = btn.innerHTML;
+    var form = btn.closest("form");
+    var status = btn.getAttribute("data-status") ? document.querySelector(btn.getAttribute("data-status")) : null;
+    var hasil = btn.getAttribute("data-hasil") ? document.querySelector(btn.getAttribute("data-hasil")) : null;
+
+    function tampil(el, kelas, html) {
+      if (!el) return;
+      // A failure interrupts (role=alert); everything else is said politely (D-047, §13).
+      if (el !== status) el.setAttribute("role", kelas === "pds-result-blocked" ? "alert" : "status");
+      el.className = "pds-result " + kelas;
+      el.innerHTML = html;
+      el.hidden = false;
+    }
+
+    function pulih() {
+      btn.innerHTML = asli;
+      btn.removeAttribute("aria-busy");
+      btn.removeAttribute("aria-disabled");
+      btn.removeAttribute("data-keadaan");
+      btn.style.minWidth = "";
+    }
+
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      if (btn.getAttribute("aria-busy") === "true" || btn.getAttribute("data-keadaan") === "selesai") return;
+      if (form && form.hasAttribute("data-validasi")) { if (!validasi(form)) return; }
+      else if (form && !form.reportValidity()) return;
+      btn.style.minWidth = btn.offsetWidth + "px";
+      btn.setAttribute("aria-busy", "true");
+      btn.setAttribute("aria-disabled", "true");
+      btn.innerHTML = '<span class="pds-dot" aria-hidden="true"></span>' + esc(btn.getAttribute("data-sibuk") || "Memproses…");
+      if (hasil) hasil.hidden = true;
+      tampil(status, "pds-result-working", '<span class="pds-dot" aria-hidden="true"></span><span>' + esc(btn.getAttribute("data-sibuk") || "Memproses…") + "</span>");
+      var mode = JARINGAN.mode;
+      var lama = setTimeout(function () {
+        if (btn.getAttribute("aria-busy") === "true") {
+          tampil(status, "pds-result-working", '<span class="pds-dot" aria-hidden="true"></span><span>' + esc(btn.getAttribute("data-sibuk") || "Memproses…") + " Jaringan sedang lambat. PINTAR masih bekerja; Anda tidak perlu menekan lagi.</span>");
+        }
+      }, 3000);
+      setTimeout(function () {
+        clearTimeout(lama);
+        if (status) status.hidden = true;
+        if (mode === "gagal") {
+          pulih();
+          tampil(hasil, "pds-result-blocked", ikon("circle-alert") + "<span><strong>" + esc(btn.getAttribute("data-gagal") || "Belum tersimpan.") + "</strong> Sambungan ke PINTAR terputus sebelum selesai. Periksa jaringan, lalu tekan «" + esc(btn.textContent.trim()) + "» lagi. Isian Anda masih ada.</span>");
+          return;
+        }
+        var lanjut = btn.getAttribute("data-lanjut");
+        // EMAIL (D-098(c), EMAILJUJUR-L01): PINTAR cannot confirm delivery. The
+        // server accepted the request and nothing more, so the button returns to
+        // its verb and the line says PINTAR is sending. Never ✓, never «Terkirim».
+        if (btn.hasAttribute("data-email")) {
+          pulih();
+          tampil(hasil, "pds-result-info", ikon("info") + "<span>" + esc(btn.getAttribute("data-hasil-teks") || "PINTAR sedang mengirim.") + "</span>");
+          return;
+        }
+        btn.removeAttribute("aria-busy");
+        btn.setAttribute("data-keadaan", "selesai");
+        btn.innerHTML = ikon("check") + esc(btn.getAttribute("data-selesai") || "Selesai");
+        var lanjutKe = btn.getAttribute("data-lanjut-ke");
+        tampil(hasil, "pds-result-ok", ikon("circle-check") + "<span>" + esc(btn.getAttribute("data-hasil-teks") || "Perubahan tersimpan.") + (lanjut ? ' <a class="pds-link" href="#"' + (lanjutKe ? ' data-ke="' + esc(lanjutKe) + '"' : "") + ">" + esc(lanjut) + "</a>" : "") + "</span>");
+      }, WAKTU[mode] || WAKTU.normal);
+    });
+
+    if (form) {
+      form.addEventListener("input", function () {
+        if (btn.getAttribute("data-keadaan") === "selesai") {
+          pulih();
+          if (hasil) hasil.hidden = true;
+        }
+      });
+    }
+    var ulang = btn.getAttribute("data-ulang") ? document.querySelector(btn.getAttribute("data-ulang")) : null;
+    if (ulang) ulang.addEventListener("click", function () { pulih(); if (hasil) hasil.hidden = true; if (status) status.hidden = true; });
+  }
+
+  /* ───────────────────────────── VALIDATION: on submit, never per keystroke
+     Each invalid field says what is wrong under itself; a long form also gets
+     a summary at the top that takes focus and links to each field. Nothing
+     the person typed is cleared. A fixed field clears its own message. */
+  function validasi(form) {
+    var salah = [];
+    form.querySelectorAll("input, select, textarea").forEach(function (el) {
+      if (el.type === "radio" || el.type === "checkbox" || el.disabled) return;
+      var f = el.closest(".pds-field");
+      var g = f ? f.querySelector(".pds-error") : null;
+      var ok = el.checkValidity();
+      el.setAttribute("aria-invalid", ok ? "false" : "true");
+      if (g) g.hidden = ok;
+      if (!ok) salah.push({ id: el.id, pesan: el.getAttribute("data-galat") || "Isi bagian ini." });
+    });
+    var r = form.querySelector("[data-ringkasan-galat]");
+    if (r) {
+      r.hidden = salah.length === 0;
+      var ul = r.querySelector("ul");
+      if (ul) ul.innerHTML = salah.map(function (x) { return '<li><a href="#' + x.id + '" data-ke-isian="' + x.id + '">' + esc(x.pesan) + "</a></li>"; }).join("");
+      if (salah.length) r.focus();
+    } else if (salah.length) {
+      var pertama = document.getElementById(salah[0].id);
+      if (pertama) pertama.focus();
+    }
+    return salah.length === 0;
+  }
+  function siapValidasi(form) {
+    form.setAttribute("novalidate", "");
+    form.addEventListener("click", function (e) {
+      var a = e.target.closest("[data-ke-isian]");
+      if (!a) return;
+      e.preventDefault();
+      var el = document.getElementById(a.getAttribute("data-ke-isian"));
+      if (el) el.focus();
+    });
+    form.addEventListener("input", function (e) {
+      var el = e.target;
+      if (el.getAttribute("aria-invalid") === "true" && el.checkValidity()) {
+        el.setAttribute("aria-invalid", "false");
+        var f = el.closest(".pds-field");
+        var g = f ? f.querySelector(".pds-error") : null;
+        if (g) g.hidden = true;
+      }
+    });
+  }
+
+  /* ───────────────────────────────────────────── tabs (role=tablist) */
+  function tabs(daftar) {
+    var tab = Array.prototype.slice.call(daftar.querySelectorAll('[role="tab"]'));
+    function pilih(t, fokus) {
+      tab.forEach(function (x) {
+        var aktif = x === t;
+        x.setAttribute("aria-selected", aktif ? "true" : "false");
+        x.tabIndex = aktif ? 0 : -1;
+        var p = document.getElementById(x.getAttribute("aria-controls"));
+        if (p) p.hidden = !aktif;
+      });
+      if (fokus) t.focus();
+    }
+    tab.forEach(function (t, i) {
+      t.addEventListener("click", function () { pilih(t, false); });
+      t.addEventListener("keydown", function (e) {
+        var j = null;
+        if (e.key === "ArrowRight") j = (i + 1) % tab.length;
+        if (e.key === "ArrowLeft") j = (i - 1 + tab.length) % tab.length;
+        if (e.key === "Home") j = 0;
+        if (e.key === "End") j = tab.length - 1;
+        if (j !== null) { e.preventDefault(); pilih(tab[j], true); }
+      });
+    });
+    var awal = tab.filter(function (t) { return t.getAttribute("aria-selected") === "true"; })[0] || tab[0];
+    if (awal) pilih(awal, false);
+  }
+
+  /* ──────────────────────────────────────────────────────────── menu */
+  function menu(tombol) {
+    var m = document.getElementById(tombol.getAttribute("aria-controls"));
+    if (!m) return;
+    function item() { return Array.prototype.slice.call(m.querySelectorAll('[role="menuitem"]')); }
+    function tutup(kembali) {
+      m.hidden = true;
+      tombol.setAttribute("aria-expanded", "false");
+      if (kembali) tombol.focus();
+    }
+    function buka() {
+      document.querySelectorAll('[aria-haspopup="menu"][aria-expanded="true"]').forEach(function (b) { if (b !== tombol) b.click(); });
+      m.hidden = false;
+      tombol.setAttribute("aria-expanded", "true");
+      var i = item();
+      if (i[0]) i[0].focus();
+    }
+    tombol.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (m.hidden) buka(); else tutup(false);
+    });
+    tombol.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowDown" && m.hidden) { e.preventDefault(); buka(); }
+    });
+    m.addEventListener("keydown", function (e) {
+      var i = item(), k = i.indexOf(document.activeElement);
+      if (e.key === "Escape") { e.preventDefault(); tutup(true); }
+      if (e.key === "ArrowDown") { e.preventDefault(); i[(k + 1) % i.length].focus(); }
+      if (e.key === "ArrowUp") { e.preventDefault(); i[(k - 1 + i.length) % i.length].focus(); }
+      if (e.key === "Home") { e.preventDefault(); i[0].focus(); }
+      if (e.key === "End") { e.preventDefault(); i[i.length - 1].focus(); }
+      if (e.key === "Tab") tutup(false);
+    });
+    m.addEventListener("click", function (e) {
+      var it = e.target.closest('[role="menuitem"]');
+      if (it) { e.preventDefault(); tutup(true); var ke = it.getAttribute("data-dialog-buka"); if (ke) bukaDialog(ke, tombol); }
+    });
+    document.addEventListener("click", function (e) {
+      if (!m.hidden && !m.contains(e.target) && e.target !== tombol) tutup(false);
+    });
+  }
+
+  /* ───────────────────────────────────────────────────────── tooltip */
+  function tooltip(el) {
+    if (el.hasAttribute("data-tip-siap")) return;
+    el.setAttribute("data-tip-siap", "");
+    var teks = el.getAttribute("data-tip");
+    var host = document.createElement("span");
+    host.className = "pds-tip-host";
+    el.parentNode.insertBefore(host, el);
+    host.appendChild(el);
+    var tip = document.createElement("span");
+    tip.className = "pds-tooltip" + (el.getAttribute("data-tip-arah") === "kanan" ? " pds-tip-kanan" : "");
+    tip.setAttribute("aria-hidden", "true");
+    tip.textContent = teks;
+    tip.hidden = true;
+    host.appendChild(tip);
+    var tunda;
+    function perlu() {
+      // A navigation item needs its tooltip only while its label is hidden (the rail).
+      var lab = el.querySelector(".pds-nav-label");
+      return !lab || getComputedStyle(lab).display === "none";
+    }
+    function tampil(segera) { if (!perlu()) return; clearTimeout(tunda); tunda = setTimeout(function () { tip.hidden = false; }, segera ? 0 : 400); }
+    function sembunyi() { clearTimeout(tunda); tip.hidden = true; }
+    el.addEventListener("mouseenter", function () { tampil(false); });
+    el.addEventListener("mouseleave", sembunyi);
+    el.addEventListener("focus", function () { if (el.matches(":focus-visible")) tampil(true); });
+    el.addEventListener("blur", sembunyi);
+    el.addEventListener("keydown", function (e) { if (e.key === "Escape") sembunyi(); });
+  }
+
+  /* ───────────────────────────────────────────── dialog and drawer */
+  function bukaDialog(id) {
+    var d = document.getElementById(id);
+    if (d && !d.open) d.showModal();
+  }
+  function dialogs(akar) {
+    akar.querySelectorAll("[data-dialog-buka]").forEach(function (b) {
+      if (b.getAttribute("role") === "menuitem") return;
+      b.addEventListener("click", function () { bukaDialog(b.getAttribute("data-dialog-buka")); });
+    });
+    akar.querySelectorAll("dialog").forEach(function (d) {
+      d.addEventListener("click", function (e) { if (e.target === d && d.hasAttribute("data-tutup-luar")) d.close(); });
+      d.querySelectorAll("[data-dialog-tutup]").forEach(function (b) {
+        b.addEventListener("click", function () { d.close(b.getAttribute("data-dialog-tutup") || ""); });
+      });
+    });
+  }
+
+  /* ───────────────────────────────────────────────────────── switch */
+  function sakelar(s) {
+    var kata = s.closest(".pds-switch-row") ? s.closest(".pds-switch-row").querySelector("[data-switch-kata]") : null;
+    function tulis() {
+      if (kata) kata.textContent = s.getAttribute("aria-checked") === "true" ? (kata.getAttribute("data-aktif") || "Aktif") : (kata.getAttribute("data-nonaktif") || "Nonaktif");
+    }
+    s.addEventListener("click", function () {
+      s.setAttribute("aria-checked", s.getAttribute("aria-checked") === "true" ? "false" : "true");
+      tulis();
+    });
+    tulis();
+  }
+
+  /* ─────────────────────────────────────────────── PIN and code */
+  function pin(wrap) {
+    var input = wrap.querySelector("input");
+    var lihat = wrap.querySelector("[data-pin-lihat]");
+    input.addEventListener("input", function () { input.value = input.value.replace(/\D/g, "").slice(0, 4); });
+    if (lihat) lihat.addEventListener("click", function () {
+      var tampak = input.type === "text";
+      input.type = tampak ? "password" : "text";
+      lihat.setAttribute("aria-pressed", tampak ? "false" : "true");
+      lihat.setAttribute("aria-label", tampak ? "Tampilkan PIN" : "Sembunyikan PIN");
+      lihat.innerHTML = ikon(tampak ? "eye" : "eye-off");
+    });
+  }
+  function kode(input) {
+    input.addEventListener("input", function () {
+      var d = input.value.replace(/\D/g, "").slice(0, 6);
+      input.value = d.length > 3 ? d.slice(0, 3) + " " + d.slice(3) : d;
+    });
+  }
+
+  /* ──────────────── password rules: each rule ticks as it is met, never red */
+  function aturan(wrap) {
+    var input = wrap.querySelector("input");
+    var butir = wrap.querySelectorAll("[data-aturan]");
+    var lihat = wrap.querySelector("[data-pw-lihat]");
+    var UJI = {
+      panjang: function (v) { return v.length >= 8; },
+      kecil: function (v) { return /[a-z]/.test(v); },
+      besar: function (v) { return /[A-Z]/.test(v); },
+      angka: function (v) { return /[0-9]/.test(v); }
+    };
+    function tulis() {
+      butir.forEach(function (b) {
+        var ok = UJI[b.getAttribute("data-aturan")](input.value);
+        b.setAttribute("data-keadaan", ok ? "selesai" : "");
+        var sr = b.querySelector(".pds-sr"); if (sr) sr.textContent = ok ? " (terpenuhi)" : "";
+      });
+    }
+    input.addEventListener("input", tulis);
+    if (lihat) lihat.addEventListener("click", function () {
+      var tampak = input.type === "text";
+      input.type = tampak ? "password" : "text";
+      lihat.setAttribute("aria-pressed", tampak ? "false" : "true");
+      lihat.setAttribute("aria-label", tampak ? "Tampilkan password" : "Sembunyikan password");
+      lihat.innerHTML = ikon(tampak ? "eye" : "eye-off");
+    });
+    tulis();
+  }
+
+  /* ──────────────────────────────────────────────────────── search */
+  function cari(wrap) {
+    var input = wrap.querySelector("input");
+    var hapus = wrap.querySelector(".pds-search-hapus");
+    if (!hapus) return;
+    function sinkron() { hapus.hidden = !input.value; }
+    input.addEventListener("input", sinkron);
+    hapus.addEventListener("click", function () { input.value = ""; sinkron(); input.dispatchEvent(new Event("input", { bubbles: true })); input.focus(); });
+    sinkron();
+  }
+
+  /* ──────────────────── TABLE: sort, filter, select and pages, together */
+  function tabel(wrap) {
+    var t = wrap.querySelector("table");
+    var tbody = t.tBodies[0];
+    var semua = Array.prototype.slice.call(tbody.querySelectorAll("tr[data-baris]"));
+    var kosong = tbody.querySelector("tr.pds-table-empty");
+    var ukuran = Number(wrap.getAttribute("data-per-halaman") || 5);
+    var halaman = 1, urut = null, arah = 1;
+    var cariIn = wrap.querySelector("[data-tabel-cari]");
+    var saring = wrap.querySelectorAll("[data-tabel-saring]");
+    var saringPilih = wrap.querySelector("[data-tabel-saring-pilih]");
+    var pager = wrap.querySelector(".pds-pager");
+    var bulk = wrap.querySelector(".pds-bulk");
+    var kepalaCek = t.querySelector("thead .pds-check");
+
+    function cocok(tr) {
+      var q = cariIn ? cariIn.value.trim().toLowerCase() : "";
+      if (q && tr.getAttribute("data-cari").toLowerCase().indexOf(q) === -1) return false;
+      var lolos = true;
+      saring.forEach(function (s) { if (s.checked && s.value !== "semua" && tr.getAttribute("data-status") !== s.value) lolos = false; });
+      return lolos;
+    }
+    function nilai(tr, k) {
+      var sel = tr.children[k];
+      var v = sel.getAttribute("data-nilai");
+      return v !== null ? Number(v) : sel.textContent.trim().toLowerCase();
+    }
+    function gambar() {
+      var baris = semua.filter(cocok);
+      if (urut !== null) baris.sort(function (a, b) { var x = nilai(a, urut), y = nilai(b, urut); return (x > y ? 1 : x < y ? -1 : 0) * arah; });
+      var total = baris.length;
+      var hal = Math.max(1, Math.ceil(total / ukuran));
+      if (halaman > hal) halaman = hal;
+      var awal = (halaman - 1) * ukuran;
+      semua.forEach(function (tr) { tr.hidden = true; });
+      baris.slice(awal, awal + ukuran).forEach(function (tr) { tr.hidden = false; tbody.appendChild(tr); });
+      if (kosong) { tbody.appendChild(kosong); kosong.hidden = total !== 0; var q = kosong.querySelector("[data-tabel-kueri]"); if (q) q.textContent = cariIn ? cariIn.value.trim() : ""; }
+      if (pager) {
+        pager.hidden = total === 0;
+        var r = pager.querySelector("[data-pager-ringkas]");
+        if (r) r.textContent = total ? "Menampilkan " + (awal + 1) + "–" + Math.min(awal + ukuran, total) + " dari " + total + " " + (wrap.getAttribute("data-benda") || "baris") : "";
+        var pos = pager.querySelector("[data-pager-posisi]");
+        if (pos) pos.textContent = "Halaman " + halaman + " dari " + hal;
+        var kecil = pager.querySelector("[data-pager-kecil]");
+        if (kecil) kecil.textContent = halaman + " / " + hal;
+        var sebelum = pager.querySelector("[data-pager-sebelum]"), sesudah = pager.querySelector("[data-pager-sesudah]");
+        if (sebelum) { sebelum.disabled = halaman <= 1; }
+        if (sesudah) { sesudah.disabled = halaman >= hal; }
+        var nomor = pager.querySelector(".pds-pager-nomor");
+        if (nomor) {
+          var h = [];
+          for (var i = 1; i <= hal; i++) {
+            if (i === 1 || i === hal || Math.abs(i - halaman) <= 1) h.push(i);
+            else if (h[h.length - 1] !== "…") h.push("…");
+          }
+          nomor.innerHTML = h.map(function (n) {
+            return n === "…" ? '<span class="pds-pager-elipsis" aria-hidden="true">…</span>'
+              : '<button type="button" class="pds-btn pds-btn-quiet" data-ke="' + n + '"' + (n === halaman ? ' aria-current="page"' : "") + ' aria-label="Halaman ' + n + '">' + n + "</button>";
+          }).join("");
+        }
+      }
+      sinkronPilih();
+    }
+    function sinkronPilih() {
+      var cek = semua.map(function (tr) { return tr.querySelector(".pds-check"); }).filter(Boolean);
+      var dipilih = cek.filter(function (c) { return c.checked; }).length;
+      semua.forEach(function (tr) { var c = tr.querySelector(".pds-check"); if (c) tr.setAttribute("aria-selected", c.checked ? "true" : "false"); });
+      if (kepalaCek) { kepalaCek.checked = dipilih > 0 && dipilih === cek.length; kepalaCek.indeterminate = dipilih > 0 && dipilih < cek.length; }
+      if (bulk) { bulk.hidden = dipilih === 0; var n = bulk.querySelector("[data-bulk-jumlah]"); if (n) n.textContent = dipilih + " dipilih"; }
+    }
+    t.querySelectorAll("th .pds-sort").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var th = b.closest("th");
+        var k = Array.prototype.indexOf.call(th.parentNode.children, th);
+        arah = urut === k ? -arah : 1;
+        urut = k;
+        t.querySelectorAll("thead th").forEach(function (x) { x.removeAttribute("aria-sort"); var ik = x.querySelector(".pds-sort .pds-ikon"); if (ik) ik.outerHTML = ikon("arrow-up-down"); });
+        th.setAttribute("aria-sort", arah === 1 ? "ascending" : "descending");
+        var ik = b.querySelector(".pds-ikon");
+        if (ik) ik.outerHTML = ikon(arah === 1 ? "arrow-up" : "arrow-down");
+        gambar();
+      });
+    });
+    if (cariIn) cariIn.addEventListener("input", function () { halaman = 1; gambar(); });
+    saring.forEach(function (s) { s.addEventListener("change", function () { if (saringPilih && s.checked) saringPilih.value = s.value; halaman = 1; gambar(); }); });
+    if (saringPilih) saringPilih.addEventListener("change", function () {
+      saring.forEach(function (s) { s.checked = s.value === saringPilih.value; });
+      halaman = 1; gambar();
+    });
+    if (pager) pager.addEventListener("click", function (e) {
+      var b = e.target.closest("button");
+      if (!b || b.disabled) return;
+      if (b.hasAttribute("data-pager-sebelum")) halaman--;
+      else if (b.hasAttribute("data-pager-sesudah")) halaman++;
+      else if (b.getAttribute("data-ke")) halaman = Number(b.getAttribute("data-ke"));
+      gambar();
+      var akt = pager.querySelector('[aria-current="page"]');
+      if (akt && b.getAttribute("data-ke")) akt.focus();
+    });
+    tbody.addEventListener("change", function (e) { if (e.target.matches(".pds-check")) sinkronPilih(); });
+    if (kepalaCek) kepalaCek.addEventListener("change", function () {
+      semua.forEach(function (tr) { var c = tr.querySelector(".pds-check"); if (c) c.checked = kepalaCek.checked; });
+      sinkronPilih();
+    });
+    var batal = wrap.querySelector("[data-bulk-batal]");
+    if (batal) batal.addEventListener("click", function () { semua.forEach(function (tr) { var c = tr.querySelector(".pds-check"); if (c) c.checked = false; }); sinkronPilih(); if (kepalaCek) kepalaCek.focus(); });
+    wrap.querySelectorAll("[data-tabel-reset]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (cariIn) cariIn.value = "";
+        saring.forEach(function (s) { s.checked = s.value === "semua"; });
+        if (saringPilih) saringPilih.value = "semua";
+        halaman = 1; gambar();
+        if (cariIn) { cariIn.dispatchEvent(new Event("input", { bubbles: true })); cariIn.focus(); }
+      });
+    });
+    gambar();
+  }
+
+  /* ─────────────────── THE SHELL: who sees which places (today's rules)
+     The places come from D-010 (each role's home), DAISY-11 (Studio for the
+     roles that may draft), WP6B (an educator also sees Pembelajaran Saya) and
+     Konfigurasi's own links (Pendataan, Aktivasi akun, Keamanan, Email uji).
+     This proposal does not decide the menu; it draws today's. */
+  var TEMPAT = {
+    kelas: { label: "Kelas", ikon: "users" },
+    pembelajaran: { label: "Pembelajaran Saya", ikon: "book-open" },
+    pimpinan: { label: "Pimpinan", ikon: "chart-no-axes-column" },
+    konfigurasi: { label: "Konfigurasi", ikon: "settings" },
+    pendataan: { label: "Pendataan", ikon: "file-spreadsheet" },
+    aktivasi: { label: "Aktivasi akun", ikon: "user-check" },
+    studio: { label: "Studio", ikon: "square-pen" },
+    keamanan: { label: "Keamanan", ikon: "shield" },
+    emailuji: { label: "Email uji", ikon: "mail" }
+  };
+  var PERSONA = {
+    guru: { nama: "Rina Kartika", inisial: "RK", konteks: "Guru · SDN Kaliandra 1", grup: [{ judul: "Mengajar", isi: ["kelas", "studio"] }, { judul: "Belajar", isi: ["pembelajaran"] }], kini: "kelas", bantuan: true },
+    kadep: { nama: "Agus Setiawan", inisial: "AS", konteks: "Guru · Kepala departemen", grup: [{ judul: "Mengajar", isi: ["kelas", "pimpinan", "studio"] }, { judul: "Belajar", isi: ["pembelajaran"] }], kini: "pimpinan", bantuan: true },
+    dekan: { nama: "Siti Rahayu", inisial: "SR", konteks: "Dekan · Universitas Kaliandra", grup: [{ isi: ["pimpinan"] }], kini: "pimpinan", bantuan: false },
+    adminsekolah: { nama: "Maya Kusuma", inisial: "MK", konteks: "Admin sekolah · SDN Kaliandra 1", grup: [{ isi: ["konfigurasi", "pendataan", "aktivasi", "studio"] }], kini: "konfigurasi", bantuan: false },
+    adminplatform: { nama: "Dimas Anggara", inisial: "DA", konteks: "Admin platform", grup: [{ isi: ["konfigurasi", "pendataan", "aktivasi", "studio", "keamanan", "emailuji"] }], kini: "konfigurasi", bantuan: false }
+  };
+
+  function shell(host) {
+    var s = host.querySelector(".pds-shell");
+    var statis = host.hasAttribute("data-shell-statis");
+    var navDaftar = host.querySelectorAll("[data-shell-nav]");
+    var identitas = host.querySelectorAll("[data-shell-identitas]");
+    var tempatBar = host.querySelector(".pds-bar-tempat");
+    var judul = host.querySelector("[data-shell-judul]");
+    var cakupan = host.querySelector("[data-shell-cakupan]");
+
+    function navHtml(p) {
+      var urut = 0;
+      function item(k) {
+        var t = TEMPAT[k];
+        return '<li><a href="#" class="pds-nav-item" data-tempat="' + k + '"' + (k === p.kini ? ' aria-current="page"' : "") + ' aria-label="' + esc(t.label) + '">' + ikon(t.ikon) + '<span class="pds-nav-label">' + esc(t.label) + "</span></a></li>";
+      }
+      // Group labels only where the person has two contexts (WP6B: teaching and
+      // their own learning). One context: one plain list, no label.
+      if (p.grup.length < 2) return p.grup[0].isi.map(item).join("");
+      return p.grup.map(function (g) {
+        var id = "pds-grup-" + (++urut) + "-" + Math.random().toString(36).slice(2, 7);
+        return '<li class="pds-nav-grup-isi"><span class="pds-nav-grup pds-eyebrow" id="' + id + '">' + esc(g.judul) + '</span><ul class="pds-nav-daftar" aria-labelledby="' + id + '">' + g.isi.map(item).join("") + "</ul></li>";
+      }).join("");
+    }
+    function pasang(kunci) {
+      var p = PERSONA[kunci];
+      navDaftar.forEach(function (ul) { ul.innerHTML = navHtml(p); });
+      identitas.forEach(function (el) {
+        el.querySelector("[data-id-inisial]").textContent = p.inisial;
+        el.querySelector("[data-id-nama]").textContent = p.nama;
+        el.querySelector("[data-id-konteks]").textContent = p.konteks;
+        var tombol = el.querySelector(".pds-identity");
+        if (tombol) tombol.setAttribute("aria-label", "Akun: " + p.nama);
+      });
+      host.querySelectorAll("[data-shell-bantuan]").forEach(function (b) { b.hidden = !p.bantuan; });
+      var kini = TEMPAT[p.kini].label;
+      if (tempatBar) tempatBar.textContent = kini;
+      if (judul) judul.textContent = { kelas: "Kelas 5A · Matematika", pimpinan: "Sekolah Anda, sekilas", konfigurasi: "Konfigurasi sekolah" }[p.kini] || kini;
+      if (cakupan) cakupan.textContent = p.kini === "kelas" ? "Kelas" : kini;
+      host.querySelectorAll("[data-shell-isi]").forEach(function (el) { el.hidden = el.getAttribute("data-shell-isi") !== p.kini; });
+      tipRail();
+    }
+    function tipRail() {
+      host.querySelectorAll(".pds-nav .pds-nav-item").forEach(function (a) {
+        if (!a.hasAttribute("data-tip")) {
+          a.setAttribute("data-tip", a.textContent.trim());
+          a.setAttribute("data-tip-arah", "kanan");
+          tooltip(a);
+        }
+      });
+    }
+    host.querySelectorAll("[data-shell-persona]").forEach(function (r) {
+      r.addEventListener("change", function () { if (r.checked) pasang(r.value); });
+    });
+    host.querySelectorAll("[data-shell-lebar]").forEach(function (r) {
+      r.addEventListener("change", function () {
+        if (!r.checked) return;
+        var w = r.value === "penuh" ? "" : r.value + "px";
+        host.querySelector(".pds-shell-host").style.maxWidth = w;
+      });
+    });
+    var ciut = host.querySelector("[data-shell-ciut]");
+    if (ciut) ciut.addEventListener("click", function () {
+      var lab = host.querySelector(".pds-nav .pds-nav-label");
+      var ya = !(lab && getComputedStyle(lab).display === "none");
+      s.setAttribute("data-ciut", ya ? "ya" : "tidak");
+      ciut.setAttribute("aria-label", ya ? "Lebarkan navigasi" : "Ciutkan navigasi");
+      ciut.setAttribute("aria-expanded", ya ? "false" : "true");
+      ciut.innerHTML = ikon(ya ? "panel-left-open" : "panel-left-close");
+    });
+    if (!statis) host.addEventListener("click", function (e) {
+      var a = e.target.closest(".pds-nav-item[data-tempat]");
+      if (!a) return;
+      e.preventDefault();
+      if (a.getAttribute("aria-current") === "page") return;
+      // A place clicked: heard at once (the working dot), then the page.
+      a.insertAdjacentHTML("beforeend", '<span class="pds-dot" aria-hidden="true"></span>');
+      setTimeout(function () {
+        host.querySelectorAll(".pds-nav-item").forEach(function (x) { x.removeAttribute("aria-current"); var d = x.querySelector(".pds-dot"); if (d) d.remove(); });
+        host.querySelectorAll('.pds-nav-item[data-tempat="' + a.getAttribute("data-tempat") + '"]').forEach(function (x) { x.setAttribute("aria-current", "page"); });
+        var lab = TEMPAT[a.getAttribute("data-tempat")].label;
+        if (tempatBar) tempatBar.textContent = lab;
+        if (judul) judul.textContent = lab;
+        if (cakupan) cakupan.textContent = lab;
+        host.querySelectorAll("[data-shell-isi]").forEach(function (el) { el.hidden = true; });
+        var d = host.querySelector("dialog[open]");
+        if (d) d.close();
+      }, 700);
+    });
+    if (statis) { tipRail(); return; }
+    var awal = host.querySelector("[data-shell-persona]:checked");
+    pasang(awal ? awal.value : "guru");
+  }
+
+  /* ──────────────────────── A COMPOSED JOURNEY (specimen only, 11-validation.md §1)
+     Not product behaviour: in PINTAR each screen is its own page. Here the screens
+     of one journey sit in one card, [data-layar="id"], and anything carrying
+     data-ke="id" moves to that screen the way a page change would: heard at once
+     (the working dot), then the new screen, its title, and focus on its heading.
+     The review bar above the screens ([data-lompat]) jumps straight to a step, and
+     «Mark new words» outlines every word that is not in the copy table yet. */
+  function perjalanan(host) {
+    var layar = host.querySelectorAll("[data-layar]");
+    var lompat = host.querySelectorAll("[data-lompat]");
+    var catatan = host.querySelector("[data-jalan-catatan]");
+    var pertama = layar.length ? layar[0].getAttribute("data-layar") : "";
+    function pergi(id, fokus) {
+      var tujuan = host.querySelector('[data-layar="' + id + '"]');
+      if (!tujuan) return;
+      host.querySelectorAll("dialog[open]").forEach(function (d) { d.close(); });
+      host.querySelectorAll(".pds-menu:not([hidden])").forEach(function (m) { m.hidden = true; });
+      layar.forEach(function (l) { l.hidden = l !== tujuan; });
+      lompat.forEach(function (b) {
+        if (b.getAttribute("data-lompat") === id) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+      });
+      if (catatan) catatan.hidden = true;
+      if (tujuan.getAttribute("data-judul-hal")) document.title = tujuan.getAttribute("data-judul-hal");
+      window.scrollTo(0, 0);
+      var h = tujuan.querySelector("h1");
+      if (fokus && h) { h.setAttribute("tabindex", "-1"); h.focus(); }
+    }
+    host.addEventListener("click", function (e) {
+      var a = e.target.closest("[data-ke]");
+      if (a && host.contains(a)) {
+        e.preventDefault();
+        if (a.getAttribute("aria-busy") === "true") return;
+        var ke = a.getAttribute("data-ke");
+        if (a.hasAttribute("data-segera")) { pergi(ke, true); return; }
+        // Heard at once: the working dot on what was clicked, until the next screen is there.
+        a.setAttribute("aria-busy", "true");
+        a.insertAdjacentHTML("beforeend", '<span class="pds-dot" aria-hidden="true"></span>');
+        setTimeout(function () {
+          a.removeAttribute("aria-busy");
+          var d = a.querySelector(".pds-dot"); if (d) d.remove();
+          pergi(ke, true);
+        }, 450);
+        return;
+      }
+      var b = e.target.closest("[data-lompat]");
+      if (b && host.contains(b)) { pergi(b.getAttribute("data-lompat"), true); return; }
+      // A real place or link that this journey does not walk: say so in the review bar, change nothing.
+      var luar = e.target.closest("[data-layar] a[href='#']:not([data-ke]):not([data-dialog-buka]), [data-layar] .pds-nav-item:not([data-ke]):not([data-shell-ciut])");
+      if (luar && catatan) {
+        e.preventDefault();
+        catatan.hidden = false;
+        catatan.textContent = "«" + (luar.getAttribute("aria-label") || luar.textContent).trim() + "» is outside this journey; nothing changes.";
+      }
+    });
+    var tandai = host.querySelector("[data-tandai-baru]");
+    if (tandai) tandai.addEventListener("change", function () { host.classList.toggle("pds-tandai-baru", tandai.checked); });
+    var ulang = host.querySelector("[data-jalan-ulang]");
+    if (ulang) ulang.addEventListener("click", function () { location.reload(); });
+    pergi(pertama, false);
+  }
+
+  /* ──────────────────────────────────────────────── the file field */
+  function berkas(host) {
+    var input = host.querySelector('input[type="file"]'), nama = host.querySelector("[data-berkas-nama] span");
+    if (!input || !nama) return;
+    input.addEventListener("change", function () {
+      var f = Array.prototype.map.call(input.files || [], function (x) { return x.name; });
+      nama.textContent = f.length ? f.join(", ") : (nama.parentNode.getAttribute("data-kosong") || "");
+    });
+  }
+
+  /* ──────────────────────────────────────────── tabs past the edge (F10) */
+  // A row of tabs wider than its space scrolls; while more follow, its edge fades, and the
+  // current tab is kept in view.
+  function tabTepi(baris) {
+    function atur() {
+      var lebih = baris.scrollWidth > baris.clientWidth + 1 && baris.scrollLeft + baris.clientWidth < baris.scrollWidth - 1;
+      baris.classList.toggle("pds-tabs-lebih", lebih);
+    }
+    var kini = baris.querySelector('[aria-current="page"], [aria-selected="true"]');
+    if (kini && baris.scrollWidth > baris.clientWidth) baris.scrollLeft = Math.max(0, kini.offsetLeft - baris.offsetLeft - 16);
+    baris.addEventListener("scroll", atur, { passive: true });
+    if (window.ResizeObserver) new ResizeObserver(atur).observe(baris);
+    atur();
+  }
+
+  /* ─────────────────────────────────────────────────────── siapkan */
+  // ── dates (Dr Gladys, 5 Oct): one grammar, built from the value, never from the browser's locale ──
+  var BULAN = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+  var BULAN_PANJANG = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+  var HARI = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  // hari: "yyyy-mm-dd" (a date field's value, a calendar day in WIB); jam: "HH:MM" (a time field's value).
+  // bentuk: "ringkas" 09/10/2026 · "biasa" 9 Okt 2026 · "hari" Jumat, 9 Okt 2026 · "resmi" 9 Oktober 2026
+  //         · "waktu" Jumat, 9 Okt 2026, 07.30 WIB · "catatan" 9 Okt 2026, 07.30 WIB
+  function tanggal(hari, bentuk, jam) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(hari || "");
+    if (!m) return "";
+    var t = +m[1], b = +m[2], h = +m[3];
+    var d = new Date(Date.UTC(t, b - 1, h));
+    if (d.getUTCMonth() !== b - 1) return "";
+    var j = /^(\d{2}):(\d{2})/.exec(jam || "");
+    var pukul = j ? j[1] + "." + j[2] + " WIB" : "";
+    var biasa = h + " " + BULAN[b - 1] + " " + t;
+    var denganHari = HARI[d.getUTCDay()] + ", " + biasa;
+    switch (bentuk) {
+      case "ringkas": return m[3] + "/" + m[2] + "/" + m[1];
+      case "resmi": return h + " " + BULAN_PANJANG[b - 1] + " " + t;
+      case "hari": return denganHari;
+      case "waktu": return pukul ? denganHari + ", " + pukul : denganHari;
+      case "catatan": return pukul ? biasa + ", " + pukul : biasa;
+      default: return biasa;
+    }
+  }
+  // A native date or time field followed by its echo: [data-gema-tanggal="#field"] (and data-gema-jam="#field").
+  function gemaTanggal(akar) {
+    (akar || document).querySelectorAll("[data-gema-tanggal]").forEach(function (gema) {
+      var ft = document.querySelector(gema.getAttribute("data-gema-tanggal"));
+      var fj = gema.getAttribute("data-gema-jam") ? document.querySelector(gema.getAttribute("data-gema-jam")) : null;
+      var awal = gema.getAttribute("data-awal") || "", kosong = gema.getAttribute("data-kosong") || "Belum ada tanggal.";
+      function tulis() {
+        var teks = tanggal(ft.value, fj ? "waktu" : "hari", fj ? fj.value : "");
+        gema.textContent = teks ? awal + teks : kosong;
+        gema.classList.toggle("is-kosong", !teks);
+      }
+      ft.addEventListener("input", tulis); ft.addEventListener("change", tulis);
+      if (fj) { fj.addEventListener("input", tulis); fj.addEventListener("change", tulis); }
+      tulis();
+    });
+  }
+
+  function siapkan(akar) {
+    akar = akar || document;
+    isiIkon(akar);
+    akar.querySelectorAll("[data-shell]").forEach(shell);
+    akar.querySelectorAll("[data-perjalanan]").forEach(perjalanan);
+    akar.querySelectorAll("form[data-validasi]").forEach(siapValidasi);
+    akar.querySelectorAll("[data-aksi]").forEach(aksi);
+    akar.querySelectorAll('[role="tablist"]').forEach(tabs);
+    akar.querySelectorAll(".pds-tabs").forEach(tabTepi);
+    akar.querySelectorAll("[data-berkas]").forEach(berkas);
+    akar.querySelectorAll('[aria-haspopup="menu"]').forEach(menu);
+    akar.querySelectorAll(".pds-switch").forEach(sakelar);
+    akar.querySelectorAll("[data-pin]").forEach(pin);
+    akar.querySelectorAll("[data-kode]").forEach(kode);
+    akar.querySelectorAll("[data-aturan-pw]").forEach(aturan);
+    akar.querySelectorAll(".pds-search").forEach(cari);
+    akar.querySelectorAll("[data-tabel]").forEach(tabel);
+    gemaTanggal(akar);
+    dialogs(akar);
+    akar.querySelectorAll("[data-tip]").forEach(tooltip);
+    akar.querySelectorAll("[data-jaringan]").forEach(function (r) {
+      if (r.checked) JARINGAN.mode = r.value;
+      r.addEventListener("change", function () { if (r.checked) JARINGAN.mode = r.value; });
+    });
+    akar.querySelectorAll("[data-kurangi-gerak]").forEach(function (c) {
+      var sasaran = document.querySelector(c.getAttribute("data-kurangi-gerak"));
+      c.addEventListener("change", function () { if (sasaran) sasaran.classList.toggle("pds-reduce", c.checked); });
+    });
+  }
+
+  window.Pintar = { ikon: ikon, siapkan: siapkan, tanggal: tanggal, jaringan: JARINGAN, persona: PERSONA, tempat: TEMPAT };
+})();
+</script></head><body><div class="pds pds-jalan a1">
+  <section class="pds-lewati-induk" data-shell data-shell-statis aria-label="Lesson 3 of 4 (mid-package)">
+  <a class="pds-lewati" href="#a1-isi">Langsung ke isi</a>
+  <div class="pds-shell-host"><div class="pds-shell">
+    <nav class="pds-nav" aria-label="Tempat kerja Anda">
+      <div class="pds-nav-kepala"><span class="a1-slot" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span></div>
+      <ul class="pds-nav-daftar"><li><a href="#" class="pds-nav-item"><i data-ikon="settings"></i><span class="pds-nav-label">Konfigurasi</span></a></li><li><a href="#" class="pds-nav-item"><i data-ikon="file-spreadsheet"></i><span class="pds-nav-label">Pendataan</span></a></li><li><a href="#" class="pds-nav-item"><i data-ikon="user-check"></i><span class="pds-nav-label">Aktivasi akun</span></a></li><li><a href="#" class="pds-nav-item" aria-current="page"><i data-ikon="square-pen"></i><span class="pds-nav-label">Studio</span></a></li></ul>
+      <div class="pds-nav-bawah"><div class="pds-identity" style="cursor:default"><span class="pds-avatar" aria-hidden="true">HW</span><div><strong>Hendra Wijaya</strong><small>Kepala departemen · SMP Cahaya Kaliandra</small></div></div>
+      <button type="button" class="pds-nav-item pds-nav-keluar"><i data-ikon="log-out"></i><span class="pds-nav-label">Keluar</span></button></div>
+    </nav>
+    <div class="pds-main">
+      <header class="pds-bar"><span class="a1-slot" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span><span class="pds-bar-tempat" aria-hidden="true">Studio</span><button type="button" class="pds-btn pds-btn-secondary">Keluar</button><button type="button" class="pds-btn pds-btn-icon" aria-label="Buka menu"><i data-ikon="menu"></i></button></header>
+      <main class="pds-main-isi" id="a1-isi" tabindex="-1">
+        <div class="pds-pagehead"><div><p><a href="#" class="pds-back"><i data-ikon="chevron-left"></i>Studio</a></p><h1 class="pds-title">Matematika · Bab 3 · Pecahan senilai</h1></div></div>
+        <section class="pds-section a1-dibangun"><h2>Paket Pembelajaran</h2><p class="pds-ink-2">The package's state, findings and the learner preview, as built (not part of this composition).</p></section>
+        <section class="pds-section" id="soal" aria-labelledby="soal-judul">
+    <h2 id="soal-judul">Soal dalam paket ini</h2><p class="pds-ink-2">Periksa setiap soal, kunci jawabannya, dan alasan setiap pilihan sebelum menyetujui. Hanya staf Studio sekolah ini yang melihat bagian ini; murid tidak pernah melihat kunci atau alasannya di sini.</p>
+    <p class="a1-ringkas">18 soal dalam 4 pelajaran</p>
+    <form class="a1-lompat" action="#soal" onsubmit="return false"><label class="pds-label" for="tengah-pelajaran">Pelajaran</label>
+    <span class="a1-lompat-baris"><span class="pds-select"><select id="tengah-pelajaran"><option>Pelajaran 1 · Apa itu pecahan senilai (4 soal)</option><option>Pelajaran 2 · Mengalikan pembilang dan penyebut (5 soal)</option><option selected>Pelajaran 3 · Menyederhanakan pecahan (5 soal)</option><option>Pelajaran 4 · Membandingkan pecahan (4 soal)</option></select><i data-ikon="chevron-down"></i></span>
+    <button type="submit" class="pds-btn pds-btn-secondary">Buka</button></span></form>
+    <div class="a1-pelajaran" role="group" aria-labelledby="tengah-l-judul">
+      <h3 class="t-subsection a1-pelajaran-judul" id="tengah-l-judul" tabindex="-1">Pelajaran 3 · Menyederhanakan pecahan <small>5 soal</small></h3>
+      <ol class="a1-soal-daftar"><li class="pin-soal" id="soal-10">
+    <article aria-labelledby="soal-10-batang">
+      <p class="a1-meta">Soal 10 dari 18 · Latihan · Sedang</p>
+      
+      <h4 class="t-stem-compact a1-batang" id="soal-10-batang">Sederhanakan 6/12.</h4>
+      <ol class="a1-opsi" aria-label="Soal 10 dari 18"><li class="pin-opsi pin-opsi-kunci">
+    <span class="a1-huruf" aria-hidden="true">A</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">A. </span>1/2 <span class="pds-badge pds-badge-ok a1-kunci"><i data-ikon="check"></i>Kunci</span></p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Pembilang dan penyebut dibagi dengan FPB-nya.</p>
+      
+    </div>
+  </li><li class="pin-opsi">
+    <span class="a1-huruf" aria-hidden="true">B</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">B. </span>2/4</p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Senilai, tetapi belum paling sederhana.</p>
+      
+    </div>
+  </li><li class="pin-opsi">
+    <span class="a1-huruf" aria-hidden="true">C</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">C. </span>1/3</p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Penyebut dibagi dengan bilangan yang berbeda.</p>
+      
+    </div>
+  </li></ol>
+    </article>
+  </li><li class="pin-soal" id="soal-11">
+    <article aria-labelledby="soal-11-batang">
+      <p class="a1-meta">Soal 11 dari 18 · Latihan · Sedang</p>
+      
+      <h4 class="t-stem-compact a1-batang" id="soal-11-batang">Sederhanakan 9/18.</h4>
+      <ol class="a1-opsi" aria-label="Soal 11 dari 18"><li class="pin-opsi pin-opsi-kunci">
+    <span class="a1-huruf" aria-hidden="true">A</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">A. </span>1/2 <span class="pds-badge pds-badge-ok a1-kunci"><i data-ikon="check"></i>Kunci</span></p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Pembilang dan penyebut dibagi dengan FPB-nya.</p>
+      
+    </div>
+  </li><li class="pin-opsi">
+    <span class="a1-huruf" aria-hidden="true">B</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">B. </span>3/6</p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Senilai, tetapi belum paling sederhana.</p>
+      
+    </div>
+  </li><li class="pin-opsi">
+    <span class="a1-huruf" aria-hidden="true">C</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">C. </span>1/3</p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Penyebut dibagi dengan bilangan yang berbeda.</p>
+      
+    </div>
+  </li></ol>
+    </article>
+  </li><li class="pin-soal" id="soal-12">
+    <article aria-labelledby="soal-12-batang">
+      <p class="a1-meta">Soal 12 dari 18 · Latihan · Sedang</p>
+      
+      <h4 class="t-stem-compact a1-batang" id="soal-12-batang">Sederhanakan 12/24.</h4>
+      <ol class="a1-opsi" aria-label="Soal 12 dari 18"><li class="pin-opsi pin-opsi-kunci">
+    <span class="a1-huruf" aria-hidden="true">A</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">A. </span>1/2 <span class="pds-badge pds-badge-ok a1-kunci"><i data-ikon="check"></i>Kunci</span></p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Pembilang dan penyebut dibagi dengan FPB-nya.</p>
+      
+    </div>
+  </li><li class="pin-opsi">
+    <span class="a1-huruf" aria-hidden="true">B</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">B. </span>4/8</p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Senilai, tetapi belum paling sederhana.</p>
+      
+    </div>
+  </li><li class="pin-opsi">
+    <span class="a1-huruf" aria-hidden="true">C</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">C. </span>1/3</p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Penyebut dibagi dengan bilangan yang berbeda.</p>
+      
+    </div>
+  </li></ol>
+    </article>
+  </li><li class="pin-soal" id="soal-13">
+    <article aria-labelledby="soal-13-batang">
+      <p class="a1-meta">Soal 13 dari 18 · Latihan · Sedang</p>
+      
+      <h4 class="t-stem-compact a1-batang" id="soal-13-batang">Sederhanakan 15/30.</h4>
+      <ol class="a1-opsi" aria-label="Soal 13 dari 18"><li class="pin-opsi pin-opsi-kunci">
+    <span class="a1-huruf" aria-hidden="true">A</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">A. </span>1/2 <span class="pds-badge pds-badge-ok a1-kunci"><i data-ikon="check"></i>Kunci</span></p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Pembilang dan penyebut dibagi dengan FPB-nya.</p>
+      
+    </div>
+  </li><li class="pin-opsi">
+    <span class="a1-huruf" aria-hidden="true">B</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">B. </span>5/10</p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Senilai, tetapi belum paling sederhana.</p>
+      
+    </div>
+  </li><li class="pin-opsi">
+    <span class="a1-huruf" aria-hidden="true">C</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">C. </span>1/3</p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Penyebut dibagi dengan bilangan yang berbeda.</p>
+      
+    </div>
+  </li></ol>
+    </article>
+  </li><li class="pin-soal" id="soal-14">
+    <article aria-labelledby="soal-14-batang">
+      <p class="a1-meta">Soal 14 dari 18 · Latihan · Sedang</p>
+      
+      <h4 class="t-stem-compact a1-batang" id="soal-14-batang">Sederhanakan 18/36.</h4>
+      <ol class="a1-opsi" aria-label="Soal 14 dari 18"><li class="pin-opsi pin-opsi-kunci">
+    <span class="a1-huruf" aria-hidden="true">A</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">A. </span>1/2 <span class="pds-badge pds-badge-ok a1-kunci"><i data-ikon="check"></i>Kunci</span></p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Pembilang dan penyebut dibagi dengan FPB-nya.</p>
+      
+    </div>
+  </li><li class="pin-opsi">
+    <span class="a1-huruf" aria-hidden="true">B</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">B. </span>6/12</p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Senilai, tetapi belum paling sederhana.</p>
+      
+    </div>
+  </li><li class="pin-opsi">
+    <span class="a1-huruf" aria-hidden="true">C</span>
+    <div class="a1-opsi-isi">
+      <p class="a1-opsi-teks"><span class="pds-sr">C. </span>1/3</p>
+      <p class="a1-alasan"><strong>Alasan:</strong> Penyebut dibagi dengan bilangan yang berbeda.</p>
+      
+    </div>
+  </li></ol>
+    </article>
+  </li></ol>
+    </div>
+    <nav class="pds-pager a1-pager" aria-label="Pelajaran (bawah)">
+    <span class="pds-pager-posisi">Pelajaran 3 dari 4</span>
+    <span class="pds-pager-gerak">
+      <a href="#soal" class="pds-btn pds-btn-secondary" data-sebelum aria-label="Pelajaran sebelumnya"><i data-ikon="chevron-left"></i><span class="pds-btn-teks">Pelajaran sebelumnya</span></a>
+      <a href="#soal" class="pds-btn pds-btn-secondary" data-sesudah aria-label="Pelajaran berikutnya"><span class="pds-btn-teks">Pelajaran berikutnya</span><i data-ikon="chevron-right"></i></a>
+    </span></nav>
+  </section>
+        <section class="pds-section a1-dibangun"><h2>Langkah menuju terbit</h2><p class="pds-ink-2">«Langkah menuju terbit», as built, after the questions (D-088(h); J1). «Setujui isi» comes after the reviewer has read them.</p></section>
+      </main>
+    </div>
+  </div></div></section></div><script>Pintar.siapkan();</script></body></html>

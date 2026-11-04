@@ -1,5 +1,7 @@
 # D1 step 2 · the six identity emails, in the DAISY-19 frame (DAISY-37)
 
+**Accepted for design by the owner, 4 Nov.** Two notes recorded: the card block is built from `susunKartu`'s lines (§1); «Akun PINTAR Anda di …» awaits Dr Gladys (§5).
+
 **Form C (composition), in the email matrix.**
 - **Authority:** D-079(a)–(f) and its addendum; DAISY-37 (1)–(4); D-074(4)–(6); D-059; D-163(a); the owner's D1 ruling of 4 Nov (D-164) and its images-blocked addendum.
 - **Built on:** the step 1 mapping (`README.md`), accepted 4 Nov.
@@ -37,6 +39,7 @@ Every email has the same regions, top to bottom. The «D1» rows are new; the re
 | Name | 18/24 600, `#1F2A33`, inset 14 16 4 |
 | PINTAR ID | Shown 4 + 4 («K7M2 Q9XA»), Consolas / SF Mono 14/20, letter-spacing 1 px, `#4E5A64` |
 | Role band | One band for every role, in **the family colour of the first role in alphabetical order** (D-074(4) addendum; the ruled «terpisah» palette): Guru `#446A4B`, Kepala departemen `#2E6973`, Dekan `#515E83`, Admin sekolah `#7A5648`, Admin platform `#5E6062`. Each role and its school is one line, «**Peran** · Sekolah» (D-074(6)), 13/19, paper `#FBFAF7`, at least 4.5:1 on every family (ronde-2 §4). |
+| Lines | **The Digital Card's own lines** (`susunKartu` → `baris`, `src/lib/kartu-pintar.ts`): several roles at one school share one line with the school beneath; roles at different schools are one line each (D-074(6)). The specimen shows the two-school case. Engineering builds the block from `susunKartu`, so the card and the email always read alike (confirmed 4 Nov). |
 | Order | **Alphabetical by the Terminology v1 role name, then by school**, exactly as the Digital Card (D-074(5)). The data arrives in that order (`urutKonteksKartu`, D-164(b)); the block draws it as given. |
 | Colour is never alone | Every role is written (D-074(8)) |
 
@@ -103,7 +106,7 @@ Every key below is **presentation**, not a protected term. Every other word is t
 |---|---|---|---|---|
 | `email.kode.alasan` · `email.pulih.alasan` · `email.diubah.alasan` · `email.kartu.alasan` · `email.aman.alasan` · `email.aman.alasan_admin` | as built | as built | **Moved:** from the footer to the reason line, directly under the heading | Moved, words unchanged |
 | `email.bingkai.alasan` (the frame's default) | as built | as built | The reason line, when an email passes none. All six pass their own. | Moved, words unchanged |
-| `email.bingkai.konteks` | Akun PINTAR Anda di | Your PINTAR account at | The context line, followed by the place or places and a full stop | **New** |
+| `email.bingkai.konteks` | Akun PINTAR Anda di | Your PINTAR account at | The context line, followed by the place or places and a full stop | **New.** Kept as drawn; **with Dr Gladys for confirmation** before final terminology acceptance (a PINTAR ID is the person's own, not a school's) |
 | `email.bingkai.konteks.dan` | dan | and | Joins the last two places in the context line | **New** |
 | (no key) The context line when unavailable | — (the line is omitted) | — | Activation, resend, recovery, password changed, security notices; any email whose data has no place | Presentation rule, no words |
 | (no key) The wordmark placeholder | «Pintar (master pending F-11)» | the same | The header slot and the card's slot. **A design-time label, never sent**: engineering replaces it with the master after F-11, and until then keeps today's logo in that slot (D-160(a)). | Placeholder |
