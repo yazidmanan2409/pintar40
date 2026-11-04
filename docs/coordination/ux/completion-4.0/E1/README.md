@@ -165,14 +165,15 @@ The walks are in `jalan/` (1280, 1100 and 390).
   - rail: the initials, the full name in the tooltip and accessible name;
   - top bar: an ellipsis, with the full name in the drawer.
 - **Two schools with the same initials:** the initials are never the only carrier; the full name is the item's name and tooltip.
-- **Many places** (Admin sekolah's six): the list fits the rail's height at 1024 × 768. A taller list scrolls within the navigation, never the page.
+- **Many places** (Admin sekolah's six): the list fits the rail's height in the specimen at 1100 × 760 (`mengelola-1100`). A taller list scrolls within the navigation, never the page.
 - **No working context** (an evaluation persona, C10, or a session not given one): the roles' places, as before L3 (`TabTempat`), with no context control. Unchanged.
 
 ## 9. Acceptance checklist
 
 - [auto] Expanded at 1280 and up (248 px); the rail from 1024 to 1279 (72 px); the top bar and drawer under 1024. Checked at 1280, 1279, 1100, 1024, 1023, 820, 390 and 320.
 - [auto] The reader's collapse and expand: rail at 1280 when collapsed; full in the rail range when expanded; the toggle says «Ciutkan navigasi» or «Lebarkan navigasi» to match.
-- [auto] Every rail item has an accessible name and a tooltip; every place carries `aria-label`.
+- [auto] Every rail item has an accessible name; every place carries `aria-label`.
+- [manual] Each rail item shows its tooltip on hover and on focus (the DS's tooltip; the walks in `jalan/` record what appeared).
 - [auto] «Keluar» visible without opening anything, at every width (D-009).
 - [auto] No group label under one context; exactly one current place.
 - [auto] The chooser link («Mau ke mana hari ini?», block or rail item) appears only for a person with more than one context; single-context behaviour unchanged.
