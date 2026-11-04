@@ -126,6 +126,8 @@ E1 is accepted (D-170(c), with the correction accepted in D-171(a)). E2 is struc
 
 **Tests:** D168-E1-1 and D168-E2-1, red on the old source and green on the new. The browser walk `audit/e1-navigasi.mjs` (E-E1-2) covers six people and contexts and eight widths: transitions, the places and their order, the chooser, the rail and its names and tooltips, axe in the rail, collapse, the drawer, and a page of another context. It passed 13/13 locally and now runs in the journeys. Job A's other walks pass locally on a reset stack: Studio 18/18, administration 11/11, Batch 5 6/6, print 5/5, focused checks 2/2.
 
+**CI and journeys:** `ci` 41809279563 passed on `d3167b93`; the first CI run on `b03dbba5` failed only lint (`prefer-const` in D168-E1-1), corrected in `d3167b93`. The journeys 41808716931 passed on `b03dbba5`, job A's new walk «the integrated navigation (E1 + E2)» included; `d3167b93` changes only that test file.
+
 **Still required:** the NVDA and TalkBack passes on the rail (H15; E1 §9 [manual]). They need real devices.
 
 **For Daisy:** what the phone bar names.
