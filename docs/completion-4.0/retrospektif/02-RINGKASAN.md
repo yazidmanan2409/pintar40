@@ -73,7 +73,7 @@ The batch tests proved what each batch built. **Nothing proved that what was acc
 
 | Batch | Verdict | Why not fully GREEN |
 |---|---|---|
-| 0 | **VERIFIED** when §6 is green; no OPEN row | — |
+| 0 | **VERIFIED** (§6 green); no OPEN or BLOCKED row | — |
 | 1 | **Engineering VERIFIED; BLOCKED items remain** | F-4's store; the personal address; C31 and E-B1-3 wording |
 | 2 | **VERIFIED after correction; BLOCKED items remain** | `alasan.nonaktif.jawab`; R2-9's manual check |
 | 3 | **VERIFIED after correction; BLOCKED items remain** | C3, C9/X12; A5 B7, B9, B11 copy |
@@ -85,12 +85,12 @@ The batch tests proved what each batch built. **Nothing proved that what was acc
 
 ## 6. CI on the corrected head
 
-- `71b13d9b`: `ci` and journeys dispatched. Their results are recorded here when they complete.
-- Earlier head `04ee036f`: journeys 41857406665 passed. The `ci` re-run (41857401305, attempt 2) was still running at this writing; its selftest job had passed (816 passed). Its first attempt failed in runner setup, before any test ran.
+- **`71b13d9b`: `ci` 41866159878 passed; journeys 41866166979 passed** (every walk, the Studio walk's A1 step U7b included).
+- Earlier head `04ee036f`: `ci` 41857401305 passed on its one re-run (attempt 2). Its first attempt failed in runner setup, before any test ran. Journeys 41857406665 passed.
 
 ## 7. Recommendation on the next batch
 
-**Do not start the next development batch yet.** Engineering's part of Batches 0–6 is built and held once §6 is green. What remains is decisions, not code:
+**Do not start the next development batch yet.** Engineering's part of Batches 0–6 is built and held: §6 is green. What remains is decisions, not code:
 1. **Owner:** F-11; D1's send path and synthetic inboxes; F-4's private store; the personal address; X12's consolidated terminology decision.
 2. **Dr Gladys (one sitting, one pack):** the copy items of §4, C3, C9, E-B1-3 and W3.9's words.
 3. **Daisy:** C2, B4 and G1. Then the owner's review.

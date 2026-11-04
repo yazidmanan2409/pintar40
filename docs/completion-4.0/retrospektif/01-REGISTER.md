@@ -15,7 +15,7 @@
 | R0-7 | **Batch 0 §2.5:** learner screens 674–699 px wide in a 640 px window (W3.10) | **VERIFIED** | Closed by Batch 5 (B5-W6 walks Belajar at 640 and 320 px). The baseline crawl: 0 screens wider than the window at 640 px | — | the learner shell | (Batch 5) |
 
 **Batch 0 verdict:**
-- **Status:** every row is VERIFIED locally on the corrected head: the whole manifest (813 passed; only the two CI-only call-count rows fail) and every walk, the crawl included. It is not called verified until `ci` and the journeys are green on that head.
+- **Status: VERIFIED.** Every row holds on the corrected head `71b13d9b`: `ci` 41866159878 and journeys 41866166979 both green (and locally the whole manifest and every walk, the crawl included).
 - **Corrected during this audit:** R0-1, R0-3, R0-4 and R0-5. R0-2 is recorded as benign, with its cause.
 - **Process finding:** the two hand-offs from Batch 0 to Batch 1 (R0-2, R0-5) were never picked up. A batch's «observed, not investigated» list had no owner in the next batch (carried to the summary, `02-RINGKASAN.md`).
 
