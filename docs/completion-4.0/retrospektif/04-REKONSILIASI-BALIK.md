@@ -202,7 +202,7 @@ The «Held where» column names the existing evidence. No new test was written f
 
 **Also from Daisy:**
 - **C2:** complete and ready for the owner's review. The PD footnote (Dr Gladys) and the copy of `mengajar.bukti.pd.arti` and `.pd.buka` remain, both with K1.
-- **B4:** confirmed. Engineering rendered the case Daisy asked for (a platform role beside a school role), from a disposable local stack: `evidence/b4-kartu-platform-dan-sekolah-*.png`. B4 is ready for the owner's review.
+- **B4:** confirmed. Engineering rendered the case Daisy asked for (a platform role beside a school role), from a disposable local stack: `evidence/b4-kartu-platform-dan-sekolah-*.png`. It is visual evidence for the owner's review, **not final acceptance** of the card in every required condition.
 
 **The recount moves** from 90 HELD and 10 BLOCKED to **92 HELD and 8 BLOCKED**. A5 #4 (K8) and D2 #1 (the language) are now held.
 

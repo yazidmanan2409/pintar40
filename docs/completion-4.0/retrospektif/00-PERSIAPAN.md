@@ -1,6 +1,6 @@
 # Retrospective integrity audit, Batches 0–6 · preparation · 4 Nov 2026
 
-**Status:** complete (4 Nov). Started on the verified baseline `be8a68c2` (`ci` 41842329505, journeys 41842334345); ended on the corrected head `71b13d9b` (`ci` 41866159878, journeys 41866166979, both green). Findings and verdicts: `01-REGISTER.md`, `02-RINGKASAN.md`.
+**Status:** CLOSED (4 Nov; final head `cb07f515`, `ci` 41925962825, journeys 41925966593; `02-RINGKASAN.md` §9). Started on the verified baseline `be8a68c2` (`ci` 41842329505, journeys 41842334345); ended on the corrected head `71b13d9b` (`ci` 41866159878, journeys 41866166979, both green). Findings and verdicts: `01-REGISTER.md`, `02-RINGKASAN.md`.
 
 **Before that:** prepared, not started. The owner's directive (4 Nov) is to finish the approved implementation work and establish a verified code baseline first, then audit Batches 0–6 in order. **No next development batch starts until this audit has established the true condition of Batches 0–6.**
 

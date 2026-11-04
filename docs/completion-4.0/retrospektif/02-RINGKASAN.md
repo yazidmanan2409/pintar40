@@ -105,3 +105,29 @@ The batch tests proved what each batch built. **Nothing proved that what was acc
   - `R-PROSES-01` makes §2's recommendation a test. Every engineering item from an accepted design is named by a test, held by named tests or files, or blocked on a named decider. Red first, on four items with none: E-B1-2, E-B1-3, E-P15 and E-K-ALL.
   - Every disclosure on a screen is declared (E-P17).
 - **Next:** the coordinated decision pass, `03-LINTASAN-KEPUTUSAN.md`.
+
+## 9. Formal closure of the retrospective (D-181(7), owner 4 Nov: «CONDITIONAL GO»)
+
+**The retrospective is CLOSED** on `cb07f515`: `ci` 41925962825 and journeys 41925966593 both passed. Every walk ran in the journeys, including the new closure walk `rb-ujung`.
+
+**What it delivered:**
+- **The register** (`01-REGISTER.md`): Batches 0–6, requirement by requirement, with its later corrections beside the originals.
+- **The reverse reconciliation** (`04-REKONSILIASI-BALIK.md`): 131 accepted acceptance lines, now **92 HELD, 31 PARTIAL, 0 NOT HELD, 8 BLOCKED**.
+  - The 31 PARTIAL lines are classified by risk: 14 none, 17 low, 0 material (§7).
+  - Twelve defects were corrected: ten in §2, the chooser's session row in §6, and the step markers in §8.
+  - A Batch 3–5 package of defects was corrected before the reconciliation began.
+- **The process correction:** `R-PROSES-01`, in every CI run, checks rulings against obligations and obligations against evidence. The decision log now triggers CI.
+
+**The eight BLOCKED lines are preserved, and wait on the coordinated pass:**
+
+| Waits on | Lines |
+|---|---|
+| **K1** (Dr Gladys and copy) | A5 B7, B9 and B11's words; C1's G6 print title; C2's footnote and its new keys; E2's G1 sentences |
+| **K4** (F-11) | D5's wordmark slots and placeholder; D1's 120 × 40 header |
+
+**Not acceptance:** B4's render from a disposable stack is visual evidence for the owner's review, not final acceptance of the card.
+
+**Auditing stops here.** No further reconciliation, audit cycle or framework. The next authorised step is the coordinated decision pass K1–K7 (`03-LINTASAN-KEPUTUSAN.md`), with the physical and real-device acceptance: NVDA and TalkBack, and the A4, CR80 and QR print proofs.
+
+**Not done:** no batch promoted, nothing merged, no staging or production change.
+
