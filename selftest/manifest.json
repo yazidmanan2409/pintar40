@@ -4267,6 +4267,11 @@
       "proves": "E-K8 (D-173(d)), selftest/d168.test.ts, reading the stylesheet src/app/experience.css and the source of LangkahTerbit.tsx: every Studio step marker (.pin-lt-langkah::before) is a segment of progress over its word with no border or round marker (the ring read as a radio button), the current step is the primary segment, and the step list carries no radio role, input or tab stop; the current step is aria-current."
     },
     {
+      "id": "D168-BENIH-1",
+      "runner": "static",
+      "proves": "F03-R02's random failure (CI 41825262402) held deterministically, selftest/d168.test.ts, reading the source of every seed file under supabase/seed: no seeded string carries an ordinary-word INTERNAL_WORD (src/lib/hle.ts), such as \u00abSalah\u00bb in the option that read \u00abSalah satu lebih besar\u00bb, so no random draw of a learner's Pemetaan Awal can show one; the enum-shaped words are SQL values and are not scanned; SQL comments are ignored."
+    },
+    {
       "id": "D168-B1-3",
       "runner": "static",
       "proves": "B1 \u00a71 \u00abRecords\u00bb and \u00a74 (D-166(a)), selftest/d168.test.ts, reading the source of src/app/konfigurasi/page.tsx: in Peran & akses and Batas ketuntasan each row's one action is at its end, named with its record (\u00abCabut \u00b7 {name}\u00bb, \u00abTetapkan \u00b7 {lesson}\u00bb), and opens in place: the open record is carried in the address (?ubah=, checked as an id), one row at a time, the row on surface-2 with its short form named like its action, its confirming action (destructive for a revocation) and \u00abBatal\u00bb; a closed row draws no form."

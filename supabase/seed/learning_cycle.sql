@@ -349,7 +349,7 @@ begin
       'stem','Dua pecahan boleh dijumlahkan langsung bila penyebutnya?',
       'op', jsonb_build_array(
         jsonb_build_array('A','Berbeda satu angka',false,'Selisih satu tetap berbeda; samakan dulu.','MK-PEC-04'),
-        jsonb_build_array('B','Salah satu lebih besar',false,'Besar kecilnya tidak menentukan; harus sama.','MK-PEC-04'),
+        jsonb_build_array('B','Yang satu lebih besar',false,'Besar kecilnya tidak menentukan; harus sama.','MK-PEC-04'),
         jsonb_build_array('C','Sudah sama besarnya',true, 'Penjumlahan pembilang sah hanya ketika penyebutnya sama.', null),
         jsonb_build_array('D','Keduanya bilangan ganjil',false,'Ganjil genap tidak menentukan; harus sama.','MK-PEC-04'))),
     jsonb_build_object('l','2','obj','22','tipe','MCQ_SINGLE','aman',true,'d',0.77,'grup',null,

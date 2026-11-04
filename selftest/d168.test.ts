@@ -748,4 +748,27 @@ export const d168Tests: SelfTest[] = [
       return c.verdict("Peran & akses and Batas ketuntasan are records: each row's one action is named with its record and opens its short form in place, one at a time, in the address (?ubah=), the row on surface-2 with «Batal»; the revocation's confirming button is destructive");
     },
   },
+  {
+    id: "D168-BENIH-1",
+    run: async ({ repoRoot }) => {
+      // F03-R02 (CI 41825262402): a learner's Pemetaan Awal showed «Salah» whenever its random draw included a seeded
+      // option «Salah satu lebih besar» (Indonesian «one of», not the forbidden label «Incorrect»). The scan of the
+      // rendered page is right; the content tripped it at random. This holds the seeds to it deterministically: no
+      // seeded string carries an ordinary-word INTERNAL_WORD (the enum-shaped ones are SQL values, not content)
+      const c = new Checks();
+      const { INTERNAL_WORDS } = await import("../src/lib/hle");
+      const kata = INTERNAL_WORDS.filter((w) => w !== "PINTAR 4.0" && /[a-z]/.test(w));
+      const dir = join(repoRoot, "supabase", "seed");
+      const temuan: string[] = [];
+      for (const f of readdirSync(dir).filter((x) => x.endsWith(".sql"))) {
+        readFileSync(join(dir, f), "utf8").split("\n").forEach((baris, i) => {
+          const kode = baris.replace(/--.*$/, "");
+          for (const w of kata) if (new RegExp(`'[^']*\\b${w}\\b[^']*'`).test(kode)) temuan.push(`${f}:${i + 1} «${w}»`);
+        });
+      }
+      c.expect(kata.includes("Salah"), "the internal words no longer include «Salah», so this test proves nothing");
+      c.expect(temuan.length === 0, `a seeded string carries an internal word a learner may be shown: ${temuan.join(", ")}`);
+      return c.verdict(`no seeded string carries any of the ${kata.length} ordinary-word internal words, so no random draw can show one to a learner`);
+    },
+  },
 ];
