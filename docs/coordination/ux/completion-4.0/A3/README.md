@@ -1,7 +1,16 @@
 # A3 · D3: the Uji Cepat class figure for a small group
 
 **Form C (the presentation, per option).** Register entry A3.
-**Gate:** the threshold touches what a teacher may infer, so **it is the owner's (O3)**. This draws the presentation **for each option the owner may choose**, and zero scored learners under every option. **It is built only after O3.** Nothing here chooses.
+**Status: DESIGN ACCEPTED under option (a). O3 is decided (owner, 4 Nov): a threshold of 5, and the design-policy question is closed.**
+- **Five or more** participants with official scored results: the class figure (A2).
+- **Fewer than five:** no class average. The approved «not yet» pattern shows the actual scored count and the required threshold, and keeps the class total and scoring status (the base).
+- **Zero scored:** the approved Empty state, never a numeric zero.
+- **Individual scores stay visible** to authorised educators regardless of the threshold. Authorisation is unchanged.
+- **The threshold governs the class-level Uji Cepat figure only.** It hides no individual score and changes no other metric's definition.
+- **One authoritative threshold**, read from one place, never written into a page's words.
+- **Engineering defect E-A3-1:** the shared «how far» sentence (`kalimatJumlah`, `ketiadaan.jumlah.murid`) says «murid» on professional-learning pages. Corrected at its source, so a PD class says «peserta» (`ketiadaan.jumlah.peserta`, NEW, pending copy approval).
+
+Options (b) and (c) are kept below as drawn, for the record; they are not built.
 **Surface:** `/mengajar/[kelas]/uji-cepat/hasil`, in **A2's accepted composition**: the class first, «Rata-rata nilai kelas» with its base at body size and its explanation, «Lihat per soal», then «Rincian nilai» one step below.
 **Rules it follows:**
 - the not-yet state is D-172's canonical **P14**, the same grammar as the reports' figures (C1): the statement in the figure's place, how far, and what makes it appear;
@@ -52,23 +61,22 @@
 | `mengajar.cepat.hasil.muncul` | Rata-rata nilai kelas muncul setelah cukup murid dinilai. | The class average score appears once enough students are scored. | NEW · presentation, for (a) and (b) only |
 | `ketiadaan.jumlah.murid` | Sekarang {have} murid; perlu {needed}. | {have} students so far; {needed} needed. | EXISTING (the reports' «how far») |
 | `mengajar.cepat.hasil.kelas`, `.belum`, `.dasar`, `.arti` | as accepted in A2 | as accepted in A2 | EXISTING |
+| `ketiadaan.jumlah.peserta` | Sekarang {have} peserta; perlu {needed}. | {have} participants so far; {needed} needed. | NEW · the participant form, for E-A3-1 at the shared source; pending copy approval |
 
-**A PD class** uses «peserta» in the base (`{benda}`, DAISY-33). `ketiadaan.jumlah.murid` has no participant form; under (a) or (b) it needs one (`ketiadaan.jumlah.peserta`, NEW), or the line is left out for a PD class.
+
+**A PD class** uses «peserta» in the base (`{benda}`, DAISY-33) and, through E-A3-1's correction, in the «how far» line.
 
 ## 5. Decisions it depends on
 
-**O3 (the owner):** (a), (b) with its number, or (c). Each acceptance below is conditional on that choice, as the register sets out.
+**None left.** O3 is decided: (a), threshold 5. The new keys await copy approval.
 
-## 6. Acceptance checklist (conditional on O3)
+## 6. Acceptance checklist (option (a), threshold 5)
 
-- **If a threshold is chosen** ((a) or (b)):
-  - [auto] below it, no class figure renders; the P14 presentation says why;
-  - [auto] at and above it, the figure and its base render as A2;
-  - [auto] the threshold is read from one place, not repeated in the page.
-- **If no threshold is chosen** ((c)):
-  - [auto] the figure and its base render from one scored learner up, exactly as A2;
-  - [auto] the base is at body size, directly under the figure; nothing is suppressed.
-- **Under every option:**
-  - [auto] zero scored learners shows the Empty state (A2 K7), never a figure or a zero;
-  - [auto] the learners' rows stay in the drill-down.
+- [auto] With fewer than five official scored results, no class average renders; the «not yet» pattern shows the scored count and «perlu 5», with the base (class total and scoring status).
+- [auto] At five and above, the figure and its base render as A2.
+- [auto] The threshold is read from one authoritative place, not repeated in any page's words.
+- [auto] Zero scored shows the Empty state (A2 K7), never a figure or a zero.
+- [auto] Every learner's own score stays visible in «Rincian nilai» to authorised educators, at every count.
+- [auto] A PD class says «peserta» in the base and in the «how far» line (E-A3-1, at the shared source).
+- [auto] No score, result, permission or other metric definition changes.
 - [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): P14 (not yet, as the reports), P13 (empty), P9 (the one pager), P12 (the Collection), P20.
