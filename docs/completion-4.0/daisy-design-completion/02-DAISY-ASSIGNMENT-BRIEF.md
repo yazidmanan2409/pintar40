@@ -3,8 +3,8 @@
 **From:** the coordinator (Claude), on the owner's direction of 4 Nov: «Activate Daisy for the consolidated completion of approved PINTAR 4.0 designs».
 
 **Status:**
-- For owner review, after the owner's consistency review of 4 Nov («CONDITIONAL GO … Do not dispatch unchanged»).
-- Nothing here is dispatched until the owner approves this corrected package.
+- **Ready for dispatch** (owner review of 4 Nov: «GO for owner-authorized dispatch to Daisy»), after two correction passes.
+- That GO covers dispatch readiness only. It does not authorise implementation, migration 194, promotion or full PINTAR 4.0 acceptance. F-11, protected terminology, B3 and the other recorded gates stay open.
 - Daisy's independent design work does not wait for every owner decision. Each item carries its own gates (§5).
 
 ## For the owner: the genuine design blockers, in one place
@@ -274,7 +274,7 @@ Each [manual] line is run by a named person and recorded (date, device, client, 
 
 | Criterion | Protocol |
 |---|---|
-| **Email layout (provisional, with the placeholder)** (D1; BRD:211) | Each of the six emails is sent to a test inbox and opened in Gmail web, Gmail on a phone, Outlook desktop and Outlook on a phone; light and dark; once with images blocked. Recorded per client: (1) the layout matches the composition; (2) nothing is clipped or overflows at 320 px; (3) the plain text is complete; (4) with images blocked, the email still reads in full. **Recognition of who sent it, why and what to do is timed: a reader not involved in the design, shown the email at 320 px, states all three within 5 seconds**, in at least 4 of 5 attempts across the clients. **This stage cannot establish brand recognition:** a labelled placeholder is not the brand. |
-| **Email recognition (final, with the approved artwork)** (D1; after F-11) | The same clients and conditions, repeated with the owner-supplied master in place. Recorded: the same 5-second test, now including «this is from Pintar», in at least 4 of 5 attempts, with images on and with images blocked (the alt text then carries the name). |
+| **Email layout (provisional, with the placeholder)** (D1; BRD:211) | Each of the six emails is sent to a test inbox and opened in Gmail web, Gmail on a phone, Outlook desktop and Outlook on a phone; light and dark; once with images blocked. Recorded per client: (1) the layout matches the composition; (2) nothing is clipped or overflows at 320 px; (3) the plain text is complete; (4) with images blocked, the email still reads in full. **Recognition of who sent it, why and what to do is timed: a reader not involved in the design, shown the email at 320 px, states all three within 5 seconds**, in at least 4 of 5 attempts **per email**. Each attempt is a **different reader seeing that email for the first time**: no reader is counted twice for the same email, so repeated viewing cannot inflate the result. The five readers are spread across the clients. **This stage cannot establish brand recognition:** a labelled placeholder is not the brand. |
+| **Email recognition (final, with the approved artwork)** (D1; after F-11) | The same clients and conditions, repeated with the owner-supplied master in place. Recorded: the same 5-second test, now including «this is from Pintar», in at least 4 of 5 attempts per email (five readers new to the final version of that email), with images on and with images blocked (the alt text then carries the name). |
 | **Physical proof** (D3; F-11) | The certificate printed on A4 at 100 % and the card at CR80, from the development build. Recorded: the 0.75 mm line measured; the QR scanned on two different phones; the colours under daylight. |
 | **Design judgement** (A1, B1, C1, C2, E1, E2) | Daisy's side-by-side review of the build beside her composition, at each width (G:14). Recorded: match / deviation per region. |
