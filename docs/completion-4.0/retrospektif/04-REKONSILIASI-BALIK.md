@@ -133,3 +133,62 @@ These are not known defects. Each is behaviour that is built (or in one case par
 
 **The closure ends here (D-181(7)).** No further reconciliation cycle is opened.
 
+
+## 7. The 31 PARTIAL lines and the five minor findings, by risk (D-181(5))
+
+**Risk classes:**
+- **None:** the unasserted part is held where its shared pattern lives, so the line is covered by that pattern's own test.
+- **Low:** the unasserted part is built and seen working in a walk or by inspection, and a failure would be cosmetic or easily noticed.
+- **Material:** a product, security, integrity or critical usability defect. **None was found.**
+
+The «Held where» column names the existing evidence. No new test was written for any line below.
+
+### The PARTIAL lines
+
+| Line | What is not asserted on this composition | Held where | Risk |
+|---|---|---|---|
+| A1 #10 | P1, P9, P15 on the package page | P9: `D168-K2-1`, `R3-SOAL-01` (K6). P15: E-P15's guards. P1: one primary per step (`STUDIO3A-J1-01`) | None |
+| A2 #2 | `.dasar`'s English; the PD noun in its render | the noun executed for both kinds (`R3-PESERTA-01`); `.dasar` (id) in `MENGAJAR3-HASIL-01` | Low |
+| A2 #6 | P10 (a section, not tabs) | the page has no tabs (`R3-A2-01` reads its h2 section) | None |
+| A3 #7 | no score, permission or metric definition changed | A3 added no migration (`UX1-BRAND-02`'s migration baseline); the figure reads the catalogue's `learner.result` (`MENGAJAR3-HASIL-01`) | None |
+| A3 #8 | P14 cross-checked with the reports | P14's sentence is the shared `kalimatJumlahOrang` (`R3-PESERTA-01`) | None |
+| A4 #1 | most Indonesian strings asserted one by one | the English corrections exactly (`R3-A5-01`); the Indonesian was confirmed unchanged by A4 | Low; C3 and C9 BLOCKED (K1, K2) |
+| A4 #5 | P2, P18 on A4's surfaces | P18: `R2-TANGGAL-01`, `D168-K9-1`; P2: the form pattern (`DAISY-17-KIRIM-01`) | None |
+| A5 #1 | the result line rendered at every width | `D168-K3-1` (no layout of its own to break); seen in every walk's screenshots | Low |
+| A5 #9 | P10; K8 | K8 is BLOCKED (K3) | None (K3) |
+| B1 #6 | «Inteligensi & Laporan» never drawn | built (the row reads `laporan.templat.judul`); RB1-B1 renders every section | Low |
+| B1 #9 | P1, P2, P12, P15, P16 on Konfigurasi | `D168-B1-3/6/7` (P7, P8), `D168-K2-1` (P9, P12), `DAISY-17-KIRIM-01` (P2), `DAISY-18-DENGAR-01` (P16), E-P15 guards | None |
+| B2 #1 | the 11 keys named one by one; the full and short forms | `D168-B2-1`: no old name in either language, the term in both, ≥10 keys | Low |
+| B2 #3 | «Kode sekolah» in the identifier check | the explanation names the three identifiers apart, rendered (RB5) | Low |
+| B2 #6 | the exports | the exports read the same copy table (`D168-B2-1`) | Low |
+| C1-A #7 | A4 page count, running header, «Halaman n dari m» | the shell and actions do not print (`B5A-LAPORAN-K01`, `R5-CETAK-01`) | Low; the header waits on G6 (K1) |
+| C1-B #3 | the ranking-word sweep on `/pengembangan` | `UX1-PIMPINAN-KATA-01` on Pimpinan; `/pengembangan` shows a record, not a list of people by value | Low (also minor finding 4) |
+| C1-B #5 | P7/X1, P10/K5, P13, P17, P21 | P13: `R2-KOSONG-01`; P17: `R-PROSES-01`; the rest are declared exceptions (X1) or shared components | None |
+| C2 #1 | «no figure» rendered | `D168-C2-1` (no class metric requested); RB1-C2 renders the PD page | None (K3) |
+| C2 #2 | the record's pointer «exactly once, under Kesimpulan» | `D168-C2-1`; RB1-C2 | Low (K3) |
+| C2 #5 | «Minta membaca lagi» stays for a PD class | built; gated on the assessment's kind, not the class's | Low (also minor finding 5) |
+| C2 #8 | P3, P13 on the PD page | P13: `R2-KOSONG-01`; P3: `D168-K1-1` | None (K3) |
+| D1 S2 #14 | every email uses only the frame's blocks | `D1E-K01` (the frame's structure on all eight); `D1E-K14`, `D1E-K16` | None |
+| D2 #4 | the tab title restored on leaving the page | the print path restores it (`D168-D2-1`) | Low (also minor finding 2) |
+| D2 #5 | «the only primary», «no result line after printing» | one `AksiCetak`, a button only (`B6C-PRINT-01`) | None |
+| D5 #3 | the rail hides the wordmark; the 12 px screen minimum | the 15 mm print floor (`B6C-SHEET-01`); rail hiding built | Low (K4) |
+| D5 #4 | one slot rule on every surface | the certificate and card (`B6C-SHEET-01`, `B6K-MEREK-01`) | None (K4) |
+| E1 #9 | a refusal without the navigation; the lapse redirect | the lapse is refused in the database (`F22-K04`), so access is held; the redirect's sentence is G1 | Low (K1) |
+| E1 #11 | P4 «close in the head»; P15 for the navigation's refusals | the drawer: Escape, focus back (`e1-navigasi` N4); E-P15 guards | Low |
+| E2 #6 | «no empty alert» with no words | no G1 word exists, so no alert can draw (`F22-P04`) | None (K1) |
+| E2 #7 | X5 («/» has no shell) | RB9 renders `/`: no staff navigation drawn there | None |
+| E3 #3 | the pager's disabled moves carry no reason line | the one pager component (`D168-K2-1`) | None |
+
+**Count:** 31 lines, of which 14 are None and 17 Low. **0 are Material.**
+
+### The five minor findings
+
+| # | Finding | Risk | Disposition |
+|---|---|---|---|
+| 1 | A2's `.belum` English lacks «score» | Low (copy) | with K1's copy round |
+| 2 | D2's browser-tab title while printing | Low (cosmetic) | recorded; no change |
+| 3 | C1 Part A's print `break-inside` | Low (print quality) | with G6's header (K1) |
+| 4 | the ranking-word sweep does not cover `/pengembangan` | Low | recorded; no change |
+| 5 | the PD «Minta membaca lagi» untested | Low (built) | recorded; no change |
+
+**Disposition:** nothing above is launch-blocking. The lines waiting on K1, K3 or K4 are done in the coordinated pass, with their own verification.
