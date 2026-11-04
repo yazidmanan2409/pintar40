@@ -30,9 +30,9 @@
 - The words engineering wrote: Dr Gladys's.
 
 **What completing this commission does not mean:**
-- **Terminology.** Placeholders for Dr Gladys's words (the six expressions, C3's labels, G4's strings) let a composition pass the **structural** review. They cannot pass **final terminology acceptance** or **Gate 2** («terminology final», G:81; a word placeholder is a NO-GO).
+- **Terminology.** **Approved words are retained, never replaced by placeholders** («Peserta», «Kenaikan», «Penguasaan per bagian» and every other approved string; §4). A labelled slot is used **only for wording that is genuinely unresolved**: the six expressions (G1), report titles still on Dr Gladys's list (G6), and the engineering-written strings awaiting her (G4). Such slots let a composition pass the **structural** review. They cannot pass **final terminology acceptance** or **Gate 2** («terminology final», G:81; a word placeholder is a NO-GO).
 - **Full 4.0 acceptance.** B3 (more than two role/school pairs) is explicitly unresolved and is not designed here, so W3.20 / J2.16 cannot be fully accepted by this commission alone.
-- **An exhaustive inventory.** UX-42, UX-44 and UX-47 have no owner in the work register. The register proposes an owner and a disposition for each (01, «Register gaps»). **The inventory is exhaustive only once the owner approves those dispositions.**
+- **An exhaustive inventory.** UX-42, UX-44 and UX-47 have no owner in the work register. The register proposes an owner and a disposition for each (01, «Register gaps»; O10). Approving them resolves these known ownership gaps; **it does not by itself prove the inventory exhaustive.**
 
 ## 1. What this is
 
@@ -58,12 +58,12 @@ What is left is a short, exact list of approved items that still need your compo
    - D-142, D-144 (scope);
    - D-157 (terminology kept, tour non-modal, the MODE PERAGAAN exit);
    - D-159 / D-160 (Batch 6);
-   - **D-161 (branding)** and **D-162** (the sage accent, not yours). Both carry the owner's verbatim words as evidence.
+   - **D-161 (branding)** and **D-162** (the sage accent, not yours), with **D-163**, the dated addendum that records the reconciliation and the owner's messages verbatim, with their time and sender, kept apart from the coordinator's own reconciliation and recommendation.
 5. The current application, on the development branch. Do not reproduce working behaviour from memory: the screenshots and the code paths in the register are the reference.
 
 ## 3. Branding (D-161): read before Package D
 
-**Settled by the owner** (D-161(a)–(e); the owner's words are quoted verbatim in the log, recorded in commits `78cffe3` and `f9ea805`):
+**Settled by the owner** (D-161, reconciled by D-163(a); the owner's messages are quoted verbatim in D-163(b)–(c)):
 
 | | |
 |---|---|
@@ -126,26 +126,26 @@ Where an item depends on such a decision, name the decision, lay out the options
 | Item | Form | Start | Design acceptance | Implementation | Final closure |
 |---|---|---|---|---|---|
 | **D1 step 1** CR-22 / DAISY-37 mapping | K | now (first) | the covered/missing mapping below, every requirement answered | — | owner approves the mapping |
-| **D1 step 2** six emails, the card in the email | C (only what step 1 found missing) | immediately after step 1 is accepted | §6, with the wordmark placeholder | design and test plan approved (§8) | the manual email protocol (§8) passed; the wordmark artwork after F-11 |
-| **A1** W1.2 question review | C | now | §6 | design and test plan approved | Daisy's side-by-side review (G:14) |
-| **A2** the Uji Cepat class figure | K | now | confirms the **presentation and wording of the existing mean** (label, base wording, place) | approved; only if the owner changes the meaning (O4) does it wait | W6.7 at Level 3 |
-| **A3** small groups | C (one state per option) | now | the under-threshold state drawn for each of O3's options | **the owner's O3 ruling** | the chosen option built and walked |
-| **A4** eight Batch 3 wordings | T | now | every key answered; protected terms marked as Dr Gladys's slots | copy approved | final terminology acceptance (G4 where it applies) |
-| **A5** Batch 3 confirmations | K | now | every row answered | corrections approved | — |
-| **B1** W3.6 Konfigurasi | C | now | §6, both roles (see the missing evidence in 03) | design and test plan approved | G §2 for every route (G:35, :81) |
-| **B2** UX-09 «nomor induk» | T | now | the term and its one sentence, Indonesian and English, with its places | **G3** if Dr Gladys rules it a protected term; otherwise approved | final terminology acceptance |
+| **D1 step 2** six emails, the card in the email | C (only what step 1 found missing), with the **email matrix** (§6) | immediately after step 1 is accepted | §6, with the wordmark placeholder | design and test plan approved (§8) | the automated checks green; the **provisional** email protocol passed (§8); after F-11, the **final** recognition test with the approved artwork |
+| **A1** W1.2 question review | C | now | §6 | design and test plan approved | the planned checks green (selftests, walks, a11y); Daisy's side-by-side review (G:14) |
+| **A2** the Uji Cepat class figure | K | now | confirms the **presentation and wording of the existing mean** (label, base wording, place) | approved; only if the owner changes the meaning (O4) does it wait | the confirmation recorded; any change implemented and its checks green; W6.7 at Level 3 |
+| **A3** small groups | C (one state per option) | now | the under-threshold state drawn for each of O3's options | **the owner's O3 ruling** | the chosen option built; the A3 acceptance for that option (01) green, including zero scored learners |
+| **A4** eight Batch 3 wordings | T | now | every key answered; protected terms marked as Dr Gladys's slots | copy approved | the copy in `hle.ts` and the copy guards green; final terminology acceptance (G4 where it applies) |
+| **A5** Batch 3 confirmations | K | now | every row answered | corrections approved | per row: **unchanged** → Daisy's confirmation recorded; **changed** → the approved correction implemented and its checks green |
+| **B1** W3.6 Konfigurasi | C | now | §6, both roles (see the missing evidence in 03) | design and test plan approved | the planned checks green; G §2 for every route (G:35, :81); Daisy's side-by-side review |
+| **B2** UX-09 «nomor induk» | T | now | the term and its one sentence, Indonesian and English, with its places | **G3** if Dr Gladys rules it a protected term; otherwise approved | the B2 acceptance (01) green; final terminology acceptance |
 | **B3** more than two pairs | — | **not in this exercise** (O5) | — | — | — |
-| **B4** a platform role beside a school role | K, or C if redrawn | now | confirm the two-place treatment, or draw it | approved | — |
-| **C1** W3.8 reports | C | now | §6 for every route in the table below, with the approved words | design and test plan approved | G2 and G6 (labels, titles) for final terminology acceptance |
-| **C2** PD «Lihat bukti» | C | now | §6; no academic figure | design and test plan approved | DAISY-35's own acceptance (BRD:260) |
-| **D2** the PDF name | K | now | a recommendation **within W3.1** for the three strings below | approved; **only an exception to W3.1 goes to the owner (O7)** | — |
+| **B4** a platform role beside a school role | K, or C if redrawn | now | confirm the two-place treatment, or draw it | approved | **unchanged** → the confirmation recorded and the B4 acceptance (01) green against a reproduced card; **changed** → the drawing implemented and its checks green |
+| **C1** W3.8 reports | C | now | §6 for every route in the table below, with the approved words | design and test plan approved | the planned checks green, including the A4 print check; Daisy's side-by-side review; G6 (the titles still pending) for final terminology acceptance |
+| **C2** PD «Lihat bukti» | C | now | §6; no academic figure | design and test plan approved | the planned checks green against a reproduced PD class; DAISY-35's own acceptance (BRD:260) |
+| **D2** the PDF name | K | now | a recommendation **within W3.1** for **the first two strings** below (the file name and the PDF title); the visible heading stays frozen | approved; **only an exception to W3.1 goes to the owner (O7)** | **unchanged** → the confirmation recorded; **changed** → the new string implemented and the D2 acceptance (01) green |
 | **D3** physical proof | — | only if F-11's proof fails | — | — | F-11 |
 | **D4** W3.21 the Design System page | P | stage 1 once the no-decision items are in (§7, step 4) | stage 1: published, with the brand and pending sections marked provisional | — | stage 2 after F-11 and the decision-gated items |
-| **D5** brand slots | C (geometry only) | now | the slot geometry in four slots, with the placeholder | — (no asset changes until the master) | the artwork after F-11 |
-| **E1** W3.12 J3 | C or K | now | either J3 restated under the working context (C), or a written recommendation that the owner accept OP-1 / OP-2 (K) | **the owner's O6 ruling** | E:90 |
-| **E2** W3.16 the chooser | C | now | §6, with the six words as empty slots | design and test plan approved | **G1** (the six words) |
-| **E3** fifteen Batch 2 questions | K (T for the word rows) | now | every row answered | approved | — |
-| **E4** engineering-written words | T | after Dr Gladys's G4 | for presentation words only | copy approved | final terminology acceptance |
+| **D5** brand slots | C (geometry only) | now | the slot geometry in four slots, with the placeholder | — (no asset changes until the master) | the D5 acceptance (01) green; after F-11, engineering integrates the owner-supplied master and Daisy verifies its fit (the geometry stays provisional until then) |
+| **E1** W3.12 J3 | C or K | now | either J3 restated under the working context (C), or a written recommendation that the owner accept OP-1 / OP-2 (K) | **the owner's O6 ruling** | the planned checks green at every width including 1024–1279; E:90 |
+| **E2** W3.16 the chooser | C | now | §6, with the six words as empty slots | design and test plan approved | the planned checks green; **G1** (the six words) |
+| **E3** fifteen Batch 2 questions | K (T for the word rows) | now | every row answered | approved | per row: **unchanged** → the answer recorded; **changed** → implemented and its checks green |
+| **E4** engineering-written words | T | after Dr Gladys's G4 | for presentation words only | copy approved | the E4 acceptance (01) green; final terminology acceptance |
 
 ### D1 step 1: the covered/missing mapping (CR-22 / DAISY-37)
 
@@ -174,7 +174,7 @@ Before anything else, identify the existing approved email frame and map it, **o
 | **The PDF metadata title** | the same string: Chromium writes the document title into the PDF's Title (`batch-6/evidence/B6C/sertifikat-A4.pdf`: «Sertifikat Penguasaan · Matematika · Pecahan Senilai») | as above |
 | **The visible certificate heading** | the frozen sheet's heading, with the learner's name in the body (D-076) | your frozen certificate; **not reopened** |
 
-Recommend the first two within W3.1, which keeps people's names out of titles. Your round-2 example («Sertifikat Penguasaan · Bagas Saputra», ronde-2 README:392) names the person, so it is an exception that only the owner can approve (O7). The tab's own page title is a separate string (`judul-halaman.ts`) and stays as it is.
+Recommend **the first two** within W3.1, which keeps people's names out of titles. Your round-2 example («Sertifikat Penguasaan · Bagas Saputra», ronde-2 README:392) names the person, so it is an exception that only the owner can approve (O7). The tab's own page title is a separate string (`judul-halaman.ts`) and stays as it is.
 
 ### C1: the concrete routes
 
@@ -199,7 +199,9 @@ Forms K, T and P use their own shorter forms (§5). The nine sections below appl
 
 The deliverable must let engineering build it **without guessing**. For every composition:
 1. **The complete composition:** every region of the screen, not an isolated illustration, a token list or generic advice.
-2. **Layouts** at **1280** (desktop), **820** (tablet), **390** and **320** (phone; both are drawn), plus **A4 print** where the surface prints (C1; D1 has no print; the certificate and card are already frozen). **E1 also covers 1024–1279 px**, the rail's range.
+2. **Layouts:**
+   - **Screens:** **1280** (desktop), **820** (tablet), **390** and **320** (phone; both are drawn), plus **A4 print** where the surface prints (C1; the certificate and card are already frozen). **E1 also covers 1024–1279 px**, the rail's range.
+   - **Emails (D1) are exempt from the screen widths.** They use the **email matrix** instead: **600** and **320** px, each in **light** and **dark**; **images blocked**; and the **plain-text** part. Emails have no print.
 3. **Every state and role variant:** empty, loading, refusal, error, success, «not yet», each role that sees the screen, and the long-content and edge cases named in the register.
 4. **Keyboard and accessibility:** focus order, focus return, the skip-link target, names and roles, colour never the only carrier, target sizes.
 5. **The exact Indonesian copy and its English.** Words that are Dr Gladys's are marked as her slots, never filled.
@@ -218,15 +220,17 @@ Deliver each package as a folder under `docs/coordination/ux/completion-4.0/<pac
 
 ## 7. Order of delivery (by dependency)
 
+The email track is first in priority, **not a block on everything else**: the items in step 3 may run alongside steps 1 and 2.
+
 1. **D1 step 1, first of all:** the CR-22 / DAISY-37 covered/missing mapping (§5).
 2. **D1 step 2, immediately after step 1 is accepted:** the six emails and the card in the email, in the confirmed frame, with the wordmark placeholder.
-3. **The items that need no decision, in any order:** A1, A2, A4, A5, B1, B2, B4, C1, C2, D2, D5 (geometry), E2 (with the word slots empty), E3.
+3. **The items that need no decision, in any order, alongside the email track:** A1, A2, A4, A5, B1, B2, B4, C1, C2, D2, D5 (geometry), E2 (with the word slots empty), E3.
 4. **D4, stage 1:** the Design System page published with everything above and the brand as settled. Every section that waits on F-11 or a decision is marked **provisional**.
 5. **The decision-gated items, as each ruling lands:**
    - A3 (O3);
    - E1 (O6; the design may be drawn earlier, its build waits);
    - E4 and the final words for A4 / B2 / C1 / E2 (Dr Gladys).
-6. **After F-11:** D4 stage 2 (provisional sections resolved), the D5 artwork in its slots, and D3 only if the physical proof fails.
+6. **After F-11:** the **owner-supplied approved artwork is integrated by engineering, and Daisy verifies its fit** in each slot (the D5 geometry stays provisional until checked against the actual master); D4 stage 2 (provisional sections resolved); the final email recognition test; D3 only if the physical proof fails.
 7. **Batch 7 follows your packages:** the NVDA / TalkBack / 200 % zoom pass (W6.12) and the new words (W4.4) are «only meaningful once the screens are final».
 
 Send each item when it is complete. An item is not "done" until it passes the check in §8.
@@ -236,7 +240,7 @@ Send each item when it is complete. An item is not "done" until it passes the ch
 ### Before implementation (the coordinator's check of each item Daisy sends)
 
 1. **Completeness, per form.**
-   - A composition has all nine §6 sections, every width (1280, 820, 390, 320; 1024–1279 for E1) and print where it applies, and every state and role variant named in the register.
+   - A composition has all nine §6 sections, every width (screens: 1280, 820, 390, 320, and 1024–1279 for E1; emails: the email matrix instead) and print where it applies, and every state and role variant named in the register.
    - K, T and P items have their form's sections (§5).
    - Missing sections are returned to Daisy as a list, not filled by engineering.
 2. **Conformity to authority.** Each item is read against:
@@ -244,7 +248,7 @@ Send each item when it is complete. An item is not "done" until it passes the ch
    - D-135, D-142 and D-144 scope;
    - D-157 (approved words kept; the tour non-modal);
    - D-160 (token, no school logo, never «delivered»);
-   - D-161 (the wordmark «Pintar» `#075056` with the placeholder; the palette unchanged; no master drawn or frozen).
+   - D-161 / D-163(a) (the wordmark «Pintar» `#075056` with the placeholder; the palette unchanged; no master drawn or frozen).
 
    Anything that changes a metric definition, a permission, identity security, certificate integrity, the photo prohibition or a frozen term is **rejected back to Daisy with the rule it breaks**. It is never "interpreted".
 3. **Grammar conformity:** components and `pin-*` / tokens only. The existing static guards (the token rule, the copy-table rule, no internal words, DAISY-04 every key in the table) are named against each composition.
@@ -270,6 +274,7 @@ Each [manual] line is run by a named person and recorded (date, device, client, 
 
 | Criterion | Protocol |
 |---|---|
-| **Email recognition** (D1; BRD:211) | Each of the six emails is sent to a test inbox and opened in: Gmail web, Gmail on a phone, Outlook desktop and Outlook on a phone; light and dark; once with images blocked. Recorded: (1) can the reader say within seconds, at 320 px, who sent it, why, and what to do? (2) is the plain text complete? (3) is the wordmark placeholder, or later the master, recognisable with images blocked? |
+| **Email layout (provisional, with the placeholder)** (D1; BRD:211) | Each of the six emails is sent to a test inbox and opened in Gmail web, Gmail on a phone, Outlook desktop and Outlook on a phone; light and dark; once with images blocked. Recorded per client: (1) the layout matches the composition; (2) nothing is clipped or overflows at 320 px; (3) the plain text is complete; (4) with images blocked, the email still reads in full. **Recognition of who sent it, why and what to do is timed: a reader not involved in the design, shown the email at 320 px, states all three within 5 seconds**, in at least 4 of 5 attempts across the clients. **This stage cannot establish brand recognition:** a labelled placeholder is not the brand. |
+| **Email recognition (final, with the approved artwork)** (D1; after F-11) | The same clients and conditions, repeated with the owner-supplied master in place. Recorded: the same 5-second test, now including «this is from Pintar», in at least 4 of 5 attempts, with images on and with images blocked (the alt text then carries the name). |
 | **Physical proof** (D3; F-11) | The certificate printed on A4 at 100 % and the card at CR80, from the development build. Recorded: the 0.75 mm line measured; the QR scanned on two different phones; the colours under daylight. |
 | **Design judgement** (A1, B1, C1, C2, E1, E2) | Daisy's side-by-side review of the build beside her composition, at each width (G:14). Recorded: match / deviation per region. |

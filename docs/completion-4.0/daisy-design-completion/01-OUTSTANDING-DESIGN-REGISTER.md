@@ -32,7 +32,7 @@
 
 **Standing rules that bind every row:**
 - **The owner's adjustments of 4 Nov:**
-  - D-161(e) reconciles the brand: «Pintar» in `#075056`; the interface palette is unchanged.
+  - D-163(a) reconciles the brand: «Pintar» in `#075056`; the interface palette is unchanged.
   - D-162: the sage accent is engineering's, not Daisy's.
   - The email frame is identified first and reused if complete.
   - A provisional wordmark placeholder stands in until F-11.
@@ -40,7 +40,7 @@
   - Product policy and Dr Gladys's words are outside Daisy's authority.
   - The closed items are not reopened.
 - **D-135:** Daisy decides design execution within the approved system; the owner is not asked for design-language rulings; missing protected words go to Dr Gladys's register.
-- **D-161 (branding; the owner's words quoted verbatim in the log):**
+- **D-161, reconciled by D-163(a)** (branding; the owner's messages, with their time and sender, are quoted verbatim in D-163(b)–(d), kept apart from the coordinator's reconciliation):
   - **The wordmark direction is settled:** «Pintar» in `#075056` (preferred Helvetica Neue Bold, subject to the master). The uppercase «PINTAR» / `#245F55` wordmark specification is superseded.
   - **Still open:** the licensed master (F-11), the running-text naming («PINTAR SELALU» vs «PINTAR», O1) and the tab icon (O1, O9).
   - **Existing assets stay until an approved replacement exists** (D-160(a)); the interface palette is unchanged.
@@ -102,10 +102,16 @@
 - **Class:** POL · **Decides:** the threshold touches what a teacher may infer, so **O** (recorded as «possibly also the owner», `batch-3/02:9`). The under-threshold presentation is **D** (the Empty-state grammar).
 - **Deliverable:** the presentation for a group under the threshold, for each option the owner may choose (O3). It can be drawn now; it is built only after O3.
 - **Affects** and **evidence:** as A2.
-- **Acceptance:**
-  - [auto] under the chosen threshold, no class figure is rendered, and the Empty-state grammar (`Kosong`) says why;
-  - [auto] at and above it, the figure and its base render as A2;
-  - [auto] the threshold value is read from one place, not repeated in the page.
+- **Acceptance (conditional on the owner's O3 choice):**
+  - **If a threshold is chosen** (5, or another number):
+    - [auto] below it, no class figure is rendered, and the Empty-state grammar (`Kosong`) says why;
+    - [auto] at and above it, the figure and its base render as A2;
+    - [auto] the threshold value is read from one place, not repeated in the page.
+  - **If no threshold is chosen** (today's behaviour):
+    - [auto] the figure and its base render from one scored learner upward, exactly as A2;
+    - [auto] Daisy's drawn small-group presentation, if any (for example, the base made prominent), is applied without suppressing the figure.
+  - **Under every option, zero scored learners:**
+    - [auto] no figure (the value is null, never «0»), and the Empty-state grammar says that nobody has been scored yet.
 
 ### A4 · Batch 3 wordings awaiting approval: B2, B5, C2, C3, C5, C7, C9, D7 (`batch-3/02:10`, `batch-3/05:150`)
 - **Implemented:** engineering's words in `hle.ts`, listed per item in `batch-3/02:24-60`:
@@ -260,7 +266,7 @@
 
 ### C3 · W3.9 / UX-41: the metric labels and the heading (dependency, not Daisy's)
 - **Status:** Dr Gladys's words. The approved «Peserta», «Kenaikan» and «Penguasaan per bagian» are kept (D-157(a)); the questions are in `batch-5/02-PROMOTION-PRECONDITIONS.md`, condition 1.
-- **Daisy:** lays out C1 with the approved words and must not replace them.
+- **Daisy:** lays out C1 with the approved words and must not replace them. **They are not placeholders:** a labelled slot is used only for wording that is genuinely unresolved (for example, a report title on Dr Gladys's pending list, G6).
 
 ---
 
@@ -284,11 +290,11 @@
   - Her own validation says CR-22 is covered: «Has it (8 Oct): D-079 is the email standard and the DAISY-19 frame its implementation» (DS/11-validation.md:196; GQ3 :211).
   - She returns **a requirement-by-requirement covered/missing mapping** (the brief, §5): one row for each of D-079(a)–(f), its addendum, DAISY-37 (1)–(4) and each card-in-email point above.
   - **A complete frame means confirmation and reuse, not a redraw.** Only a missing row is new composition.
-- **Step 2:** the six emails' structure and states, and the card in the email, with a **provisional wordmark placeholder**. The final artwork depends on F-11; the wordmark is «Pintar» `#075056` (D-161(e)).
+- **Step 2:** the six emails' structure and states, and the card in the email, with a **provisional wordmark placeholder**. The final artwork depends on F-11; the wordmark is «Pintar» `#075056` (D-163(a)).
 - **Class:** COMP (only what step 1 finds missing) · **Decides:** D.
 - **Deliverable:**
   - the six emails (activation, resend, recovery, password changed, card, security notice) in one shell;
-  - 600 and 320 px, light and dark, images blocked, and plain text;
+  - **the email matrix, not the screen widths:** 600 and 320 px, each in light and dark, plus images blocked, plus plain text (the brief, §6 exempts emails from 1280 / 820 / 390);
   - the card in the email.
 - **Affects:** every staff person's identity emails; J2.15; S-3, S-11.
 - **Specification and evidence:**
@@ -296,7 +302,7 @@
   - the card-in-email mock-ups `docs/coordination/ux/kartu-pintar/ronde-2/render/H-email-600-terang.png`, `H-email-600-gelap.png`, `H-email-320-terang.png`, `H-email-320-gelap.png` («The card in the DAISY-19 email frame», ronde-2 README:51; it predates the brand change).
 - **Acceptance:**
   - BRD:211: real Gmail and Outlook renders (desktop and mobile, light and dark, images blocked);
-  - the recognition check, and the within-seconds check at 320 px;
+  - the recorded manual protocol (the brief, §8): **provisional** layout checks with the placeholder now (recognition of who, why and what to do within 5 seconds at 320 px); **final** brand recognition only with the approved artwork after F-11. A labelled placeholder cannot establish brand recognition;
   - complete plain text; no internal words; one shell.
   - E:98 «emails match DAISY-37».
 
@@ -347,7 +353,7 @@
 | the tab icon | `favicon.ico` (Daisy's icon); `icon.svg` and `apple-icon.png` not shipped (owner, proxy paths) | DS Wordmark card (a `pintar-primary` square = `#245F55`) vs D-161's `#075056` |
 | DAISY-37 point 3 | not built | «PINTAR SELALU» typeset as live text. It fits D-161's application name, not its public wordmark «Pintar» |
 
-- **Reconciled** (D-161(e)):
+- **Reconciled** (D-163(a)):
   - the wordmark is «Pintar» in `#075056` in every slot once the master exists;
   - the interface palette is unchanged (`--pintar-primary` `#245F55`).
 - **Still owner's, and not Daisy's:** where «PINTAR SELALU» replaces «PINTAR» in running text, and the tab icon's colour.
@@ -360,7 +366,8 @@
   - [auto] each of the four slots has its size, position and clear space stated in millimetres or pixels;
   - [auto] the placeholder is labelled «Pintar (master pending F-11)» in every slot;
   - [auto] no change to `--pintar-primary` or any token;
-  - [auto] today's logo stays in every slot until the master exists (D-160(a)).
+  - [auto] today's logo stays in every slot until the master exists (D-160(a));
+  - after F-11: engineering integrates the **owner-supplied** master; Daisy verifies its fit in each slot. The geometry is provisional until that check.
 
 ---
 
@@ -491,7 +498,7 @@ B3 and B4 stay separate: one has a written rule and the other has none.
 | Dr Gladys | W3.9, UX-41; W4.2 (OP-6, OP-7, the L4 §4 list); `auth.link_sent`; the Batch 5–6 engineering strings; the universal-term proposal (`batch-0/08`) |
 | Engineering | every «E» row of the register, and print beyond Chromium |
 
-**Register gaps: UX-42, UX-44, UX-47.** They are «for the UI/UX POLISHED pass» with no owner, and absent from C. **Proposed owner and disposition, for the owner's approval** (until approved, this inventory is not claimed exhaustive):
+**Register gaps: UX-42, UX-44, UX-47.** They are «for the UI/UX POLISHED pass» with no owner, and absent from C. **Proposed owner and disposition, for the owner's approval (O10).** Approving them closes these known ownership gaps; it does not by itself prove the inventory exhaustive.
 
 | Item | What it is | Proposed owner | Proposed disposition |
 |---|---|---|---|
