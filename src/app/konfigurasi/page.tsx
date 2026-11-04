@@ -388,7 +388,7 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
   const ubah = uuidSah(sp.ubah) ? sp.ubah! : null;
   const tautanUbah = (id: string | null, jangkar: string) => {
     const q = new URLSearchParams();
-    for (const k of ["sekolah", "hal_peran", "hal_lapor"] as const) if (typeof sp[k] === "string" && sp[k]) q.set(k, sp[k]!);
+    for (const k of ["sekolah", "hal_peran", "hal_lapor", "hal_pindah"] as const) if (typeof sp[k] === "string" && sp[k]) q.set(k, sp[k]!);
     if (id) q.set("ubah", id);
     return `${jalanIni}${q.size ? `?${q.toString()}` : ""}#${jangkar}`;
   };
@@ -691,8 +691,11 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   <li key={l.kunci} data-langkah={l.kunci} data-selesai={l.selesai ? "ya" : "belum"}
                     className="grid gap-1 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2">
                     <span className="text-ink-1">
-                      <strong>{sl(l.selesai ? "config.persiapan.sudah" : "config.persiapan.belum")}</strong>
-                      {" · "}{sl(`config.persiapan.${l.kunci}` as HleEvent)}
+                      {/* B1 §1 (J3.2): each step's state a badge, «Sudah» the ok one with its icon, «Belum» neutral */}
+                      {l.selesai
+                        ? <strong className="pin-pill pin-ok pin-pill-ikon"><Ikon nama="check" />{sl("config.persiapan.sudah")}</strong>
+                        : <strong className="pin-pill pin-neutral">{sl("config.persiapan.belum")}</strong>}
+                      {" "}{sl(`config.persiapan.${l.kunci}` as HleEvent)}
                       {l.kunci !== "guru" ? <> · <span className="pin-num">{l.jumlah}</span></> : null}
                     </span>
                     {l.kunci === "guru" && l.tanpaGuru.length > 0 ? (
@@ -1285,11 +1288,14 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
             <h2 className="font-medium">{s("config.section.transfers")}</h2>
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
               {daftarPindah.map((x) => (
-                <li key={x.id} className="grid gap-2 rounded-[var(--radius-1)] bg-surface-2 px-3 py-2 sm:grid-cols-[1fr_auto] sm:items-center">
+                // B1 §1 «Perpindahan murid»: each transfer a record, its status the Badge, its actions at its end and named
+                // with it; «Tolak» opens its reason in place (?ubah=)
+                <li key={x.id} id={`pindah-${x.id}`} data-terbuka={ubah === x.id ? "" : undefined}
+                  className={`grid gap-2 rounded-[var(--radius-1)] px-3 py-2 sm:grid-cols-[1fr_auto] sm:items-center ${ubah === x.id ? "bg-surface-2" : "border-b border-line-1"}`}>
                   <div>
                     <span>{namaPindah.get(x.person_id) ?? namaMasuk.get(x.id) ?? TANPA_NAMA}</span>
                     <span className="text-ink-3"> · {institutionName.get(x.from_institution_id) ?? TANPA_NAMA} → {institutionName.get(x.to_institution_id) ?? TANPA_NAMA}</span>
-                    <span className="ml-2 rounded bg-info-soft px-1.5 text-xs text-info">{transferLabel(x.status)}</span>
+                    <span className="pin-pill pin-info ml-2">{transferLabel(x.status)}</span>
                     {x.reason ? <p className="text-xs text-ink-3">{x.reason}</p> : null}
                     {/* W2.15: a request this school sent waits on the receiving school, which chooses its school year */}
                     {x.status === "REQUESTED" && x.to_academic_period_id === null && x.from_institution_id === satuSekolah
@@ -1298,17 +1304,24 @@ export default async function Konfigurasi({ searchParams, params }: { searchPara
                   {(x.status === "REQUESTED" || x.status === "AUTHORIZED") && (
                     <div className="flex flex-wrap gap-2">
                       {x.status === "REQUESTED" && x.to_academic_period_id !== null && (
-                        <form action={transferAuthorizeAction}><input type="hidden" name="asal" value="baris" /><input type="hidden" name="hal_pindah" value={String(halPindah)} /><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("config.action.authorize")}</TombolKirim></form>
+                        <form action={transferAuthorizeAction}><input type="hidden" name="asal" value="baris" /><input type="hidden" name="hal_pindah" value={String(halPindah)} /><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("config.action.authorize")}<span className="pin-sr"> · {namaPindah.get(x.person_id) ?? namaMasuk.get(x.id) ?? TANPA_NAMA}</span></TombolKirim></form>
                       )}
                       {x.status === "AUTHORIZED" && (
-                        <form action={transferExecuteAction}><input type="hidden" name="asal" value="baris" /><input type="hidden" name="hal_pindah" value={String(halPindah)} /><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("config.action.execute")}</TombolKirim></form>
+                        <form action={transferExecuteAction}><input type="hidden" name="asal" value="baris" /><input type="hidden" name="hal_pindah" value={String(halPindah)} /><input type="hidden" name="transfer" value={x.id} /><TombolKirim className={primer} sibuk={s("tombol.memproses")}>{s("config.action.execute")}<span className="pin-sr"> · {namaPindah.get(x.person_id) ?? namaMasuk.get(x.id) ?? TANPA_NAMA}</span></TombolKirim></form>
                       )}
-                      <form action={transferRejectAction} className="flex gap-1"><input type="hidden" name="asal" value="baris" /><input type="hidden" name="hal_pindah" value={String(halPindah)} />
-                        <input type="hidden" name="transfer" value={x.id} />
-                        <label className="sr-only" htmlFor={`alasan-${x.id}`}>{s("config.label.reason")}</label>
-                        <input id={`alasan-${x.id}`} name="reason" className={field} placeholder={s("config.label.reason")} />
-                        <TombolKirim className={button} sibuk={s("tombol.memproses")}>{s("config.action.reject")}</TombolKirim>
-                      </form>
+                      {ubah !== x.id ? (
+                        <Link href={tautanUbah(x.id, `pindah-${x.id}`)} className={button} data-buka-ubah="">
+                          {s("config.action.reject")}<span className="pin-sr"> · {namaPindah.get(x.person_id) ?? namaMasuk.get(x.id) ?? TANPA_NAMA}</span>
+                        </Link>
+                      ) : (
+                        <form action={transferRejectAction} className="flex flex-wrap gap-2" aria-label={`${s("config.action.reject")} · ${namaPindah.get(x.person_id) ?? namaMasuk.get(x.id) ?? TANPA_NAMA}`}><input type="hidden" name="asal" value="baris" /><input type="hidden" name="hal_pindah" value={String(halPindah)} />
+                          <input type="hidden" name="transfer" value={x.id} />
+                          <label className="flex items-center gap-1 text-xs text-ink-3" htmlFor={`alasan-${x.id}`}>{s("config.label.reason")}</label>
+                          <input id={`alasan-${x.id}`} name="reason" className={field} autoFocus />
+                          <TombolKirim className={bahaya} sibuk={s("tombol.memproses")}>{s("config.action.reject")}</TombolKirim>
+                          <Link href={tautanUbah(null, `pindah-${x.id}`)} className={tautanTempat}>{s("config.angkat.batal")}</Link>
+                        </form>
+                      )}
                     </div>
                   )}
                 </li>

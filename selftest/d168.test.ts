@@ -726,7 +726,8 @@ export const d168Tests: SelfTest[] = [
       c.expect(/const ubah = uuidSah\(sp\.ubah\) \? sp\.ubah! : null;/.test(src) && /if \(id\) q\.set\("ubah", id\);/.test(src), "the open record is not carried in the address, or not checked");
       const bagian = (id: string) => { const i = src.indexOf(`<section id="${id}"`); return i < 0 ? "" : src.slice(i, src.indexOf("</section>", i)); };
       for (const [id, kunci, nama, aksi] of [["roles", 's("config.action.revoke")', "personName.get(a.person_id) ?? TANPA_NAMA", "revokeRoleAction"], ["ketuntasan", 'sl("config.ketuntasan.tombol")', "p.title", "tetapkanBatasAction"],
-        ["laporan-masalah", 'sl("lapor.triase.ubah")', "l.terjadi.slice(0, 80)", "pindahkanLaporanAksi"]] as const) {
+        ["laporan-masalah", 'sl("lapor.triase.ubah")', "l.terjadi.slice(0, 80)", "pindahkanLaporanAksi"],
+        ["transfers", 's("config.action.reject")', "namaPindah.get(x.person_id) ?? namaMasuk.get(x.id) ?? TANPA_NAMA", "transferRejectAction"]] as const) {
         const b = bagian(id);
         const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         c.expect(new RegExp(`data-buka-ubah="">\\s*\\{${esc(kunci)}\\}<span className="pin-sr"> · \\{${esc(nama)}\\}</span>`).test(b),
@@ -735,6 +736,9 @@ export const d168Tests: SelfTest[] = [
         c.expect(/ubah === [a-z]\.(id|course_id) \? "bg-surface-2"/.test(b) && /\{s\("config\.angkat\.batal"\)\}<\/Link>/.test(b), `${id}: the opened row does not take surface-2 or has no «Batal»`);
         c.expect((b.match(new RegExp(`<form action=\\{${aksi}\\}`, "g")) ?? []).length === 1 && /ubah !== [a-z]\.(id|course_id)/.test(b), `${id}: a row's form is drawn while it is closed`);
       }
+      // Persiapan sekolah (J3.2): each step's state is a badge, «Sudah» ok with its icon, «Belum» neutral
+      c.expect(/<strong className="pin-pill pin-ok pin-pill-ikon"><Ikon nama="check" \/>\{sl\("config\.persiapan\.sudah"\)\}<\/strong>/.test(src)
+        && /<strong className="pin-pill pin-neutral">\{sl\("config\.persiapan\.belum"\)\}<\/strong>/.test(src), "Persiapan sekolah's steps are not marked by their badges");
       c.expect(/<TombolKirim className=\{bahaya\}[^>]*>\{s\("config\.action\.revoke"\)\}/.test(bagian("roles")), "the revocation's confirming button is not destructive");
       // a problem report is an article named by what happened, its state a badge, «Menghentikan kelas» an attention badge
       const lapor = bagian("laporan-masalah");
