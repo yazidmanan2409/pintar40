@@ -97,3 +97,11 @@ The batch tests proved what each batch built. **Nothing proved that what was acc
 4. **Acceptance:** the NVDA and TalkBack passes and the print proofs, on the final screens.
 
 **Then,** with those in hand, one short closure pass applies the approved words and designs, with their tests. Only after that should the next batch be promoted. Promoting it is the owner's decision, and this audit does not make it.
+
+## 8. The owner's ruling (D-178, 4 Nov)
+
+- **Accepted on the reported evidence.** Batch 0 VERIFIED; Batches 1–6 acceptance-incomplete; no promotion; the branch stays protected.
+- **No further broad audit now.** The process is corrected while the product is finished:
+  - `R-PROSES-01` makes §2's recommendation a test. Every engineering item from an accepted design is named by a test, held by named tests or files, or blocked on a named decider. Red first, on four items with none: E-B1-2, E-B1-3, E-P15 and E-K-ALL.
+  - Every disclosure on a screen is declared (E-P17).
+- **Next:** the coordinated decision pass, `03-LINTASAN-KEPUTUSAN.md`.

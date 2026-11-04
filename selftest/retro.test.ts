@@ -13,7 +13,7 @@
  *              of them a refusal («Kelas ini bukan wewenang Anda.») drawn as an empty state, which Kosong's rule forbids.
  *              A bare line is allowed only where it is not an empty, each named below with its reason.
  */
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { t } from "../src/lib/hle";
@@ -266,6 +266,63 @@ export const retroTests: SelfTest[] = [
       }
       c.expect(n >= 4, `${n} link(s) to the per-question page found; expected the class page's and the Uji Cepat's`);
       return c.verdict(`reads the source of every .tsx file under src/app and src/components: each of the ${n} links to the per-question page is offered under adaBuktiSoal, the rule the page refuses by, so no class kind is offered a link into a refusal`);
+    },
+  },
+  {
+    id: "R-PROSES-01",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      /**
+       * D-178(e): THE PROCESS CORRECTION, MADE MECHANICAL. The retrospective found the gaps escaped one way: an
+       * accepted design, ruling or hand-off with no engineering line, or an «[auto]» acceptance line with no test.
+       * So every engineering item in the design hand-off list (06-ENGINEERING-ITEMS-FROM-DESIGN.md) must be
+       *   (a) named by a test (its id in the manifest, a test file or a walk, «E-C2-1/2/3» counting for each), or
+       *   (b) held by named tests or files on its own row («**Held by:**» then backticked manifest ids or paths), or
+       *   (c) blocked on its row («**BLOCKED:**» then who decides).
+       * An item that is none of these is a design accepted and not held: the A1 and A5 case.
+       */
+      const daftar = readFileSync(join(repoRoot, "docs/completion-4.0/daisy-design-completion/06-ENGINEERING-ITEMS-FROM-DESIGN.md"), "utf8");
+      const manifest = readFileSync(join(repoRoot, "selftest/manifest.json"), "utf8");
+      const ids = new Set((JSON.parse(manifest) as { tests: Array<{ id: string }> }).tests.map((x) => x.id));
+      const uji = [manifest, ...readdirSync(join(repoRoot, "selftest")).filter((f) => f.endsWith(".ts")).map((f) => readFileSync(join(repoRoot, "selftest", f), "utf8")),
+        ...readdirSync(join(repoRoot, "audit")).filter((f) => f.endsWith(".mjs")).map((f) => readFileSync(join(repoRoot, "audit", f), "utf8"))].join("\n");
+      // every id a test names, with the shorthand «E-C2-1/2/3» and «E-A3-1/2» expanded
+      const disebut = new Set<string>();
+      for (const m of uji.matchAll(/\bE-([A-Z0-9]+)-(\d+(?:\/\d+)*)/g)) for (const n of m[2].split("/")) disebut.add(`E-${m[1]}-${n}`);
+      for (const m of uji.matchAll(/\bE-([A-Z][A-Z0-9-]*[A-Z0-9])\b/g)) disebut.add(`E-${m[1]}`);
+      const baris = [...daftar.matchAll(/^\| (E-[A-Z0-9]+(?:-[A-Z0-9]+)?)(?: \/ (E-[A-Z0-9]+(?:-[A-Z0-9]+)?))? \|(.*)$/gm)];
+      c.expect(baris.length >= 25, `only ${baris.length} engineering items read`);
+      const lepas: string[] = [];
+      for (const m of baris) {
+        const isi = m[3];
+        const tertahan = /\*\*BLOCKED:\*\*\s*\S/.test(isi);
+        const dipegang = /\*\*Held by:\*\*/.test(isi) && (() => {
+          const nama = [...isi.slice(isi.indexOf("**Held by:**")).matchAll(/`([^`]+)`/g)].map((x) => x[1]);
+          return nama.length > 0 && nama.every((x) => ids.has(x) || existsSync(join(repoRoot, x)));
+        })();
+        for (const id of [m[1], m[2]].filter(Boolean) as string[]) if (!disebut.has(id) && !dipegang && !tertahan) lepas.push(id);
+      }
+      c.expect(lepas.length === 0, `engineering items held by no test, no named holder and no named blocker: ${lepas.join(", ")}`);
+
+      // E-P17: no disclosure around required content. Each disclosure on a screen is declared with what it holds;
+      // a new one must be declared here, which is the review the rule asks for
+      const BOLEH: Record<string, string> = {
+        "src/app/konfigurasi/page.tsx": "a mastery mark's change history, under its current value",
+        "src/app/pimpinan/page.tsx": "one class's evidence, a drill-down under the node's figures",
+        "src/app/belajar/[tugas]/hasil/page.tsx": "an answered question's review; a wrong safety-critical one opens itself",
+        "src/app/studio/bank/page.tsx": "a finding's locations, under the finding",
+        "src/app/studio/unggah/page.tsx": "the guide for another system's export, beside the main path",
+        "src/components/studio/TemuanKelompok.tsx": "a group of findings' locations, under the group",
+      };
+      const ada = new Map<string, number>();
+      for (const f of [...tsx(join(repoRoot, "src", "app")), ...tsx(join(repoRoot, "src", "components"))]) {
+        const rel = f.slice(repoRoot.length + 1).replace(/\\/g, "/");
+        const n = (readFileSync(f, "utf8").match(/<details\b/g) ?? []).length;
+        if (n > 0) ada.set(rel, n);
+      }
+      for (const [f, n] of ada) c.expect(f in BOLEH && n === 1, `${f}: ${n} disclosure(s) not declared (E-P17: no disclosure around required content)`);
+      for (const f of Object.keys(BOLEH)) c.expect(ada.has(f), `${f} is declared but draws no disclosure: remove its line`);
+      return c.verdict(`reads the source of the design hand-off list (06-ENGINEERING-ITEMS-FROM-DESIGN.md), the manifest, every test file and every walk: each of the ${baris.length} engineering items is named by a test, held by named tests or files, or blocked on a named decider; and every disclosure under src/app and src/components (${ada.size}) is declared with what it holds (E-P17)`);
     },
   },
 ];

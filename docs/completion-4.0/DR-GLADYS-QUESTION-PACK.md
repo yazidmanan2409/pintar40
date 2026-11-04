@@ -181,6 +181,15 @@ In the card email: «Akun PINTAR Anda di {sekolah}.» But a PINTAR ID belongs to
 | B26 | `studio.soal.miskonsepsi` | Pemahaman keliru | Misunderstanding | an option's misconception, in the reviewer's question list |
 | B27 | `pendataan.buka.gagal` | Berkas itu belum bisa dibuka sebagai pendataan. Periksa isinya, lalu coba lagi. | That file could not be opened as an intake. Check its contents, then try again. | Pendataan, under the file form |
 
+### Part B, added by the retrospective (4 Nov; D-178): words the audit built or changed
+
+| # | Key | Indonesian | English | Where |
+|---|---|---|---|---|
+| B28 | `studio.soal.ringkas` · `.pelajaran_label` · `.pelajaran_dari` · `.posisi` · `.buka` · `.bacaan` · `.gagal` · `.pager_label` · `.sebelumnya` · `.berikutnya` | «{soal} soal dalam {pelajaran} pelajaran» · «Pelajaran» · «Pelajaran {i} dari {n}» · «Soal {i} dari {n}» · «Buka» · «Bacaan» · «PINTAR belum bisa membuka soal paket ini. Muat ulang halaman ini; jika tetap gagal, hubungi admin sekolah Anda.» · «Pelajaran dalam paket ini» · «Pelajaran sebelumnya» · «Pelajaran berikutnya» | «{soal} questions in {pelajaran} lessons» · «Lesson» · «Lesson {i} of {n}» · «Question {i} of {n}» · «Open» · «Reading passage» · «PINTAR couldn't open this package's questions. …» · «Lessons in this package» · «Previous lesson» · «Next lesson» | Studio's question review (Daisy's A1, built in the retrospective, R3-1). The words are Daisy's A1 table but the last three |
+| B29 | `config.refused` (E-B1-2) | Halaman ini hanya untuk Admin sekolah atau Admin platform. | This page is for school administrators and platform administrators only. | Konfigurasi's refusal. The two languages now say the same thing |
+| B30 | the optional field's mark, one word (A4 C3/D7, R3-2) | «(opsional)» everywhere. It replaces «(tidak wajib)» on /lapor's screenshot, «(pilihan)» on the maintenance message, «(boleh kosong)» on Studio's note, and two inline «(opsional)» | «(optional)» | every optional field. Daisy's rule, accepted in A4; confirm the word |
+| B31 | `aktivasi.staf.arti` (R4-7) | (unchanged) | «… They stay the same person: the same school registration number, classes and all their learning stay. …» (was «their PINTAR ID») | Aktivasi. The English now names the identifier the Indonesian names (B2) |
+
 Already settled, nothing to answer: the school registration number («Nomor Registrasi Sekolah», D-174 / D-175), and «PINTAR ID» as the identifier's name.
 
 ---
@@ -194,6 +203,6 @@ Already settled, nothing to answer: the school registration number («Nomor Regi
 | A5, A6 | the Studio words (A4) and the application-wide terminology fix (X12) |
 | A7, A10 | the professional-learning page (C2) and the identity emails (D1) |
 | A8, A9 | Konfigurasi's platform view (B1) and the sign-in message |
-| Part B | every new word in the accepted designs, and E4, Daisy's last open item |
+| Part B | every new word in the accepted designs, and E4, Daisy's last open item; B28–B31 the words the retrospective built or changed |
 
 **Gate 2 (Terminology final, G:81) needs every A and B answered.** A placeholder left anywhere is a NO-GO.

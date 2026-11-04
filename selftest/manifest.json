@@ -3844,7 +3844,7 @@
     {
       "id": "MENGAJAR3-HASIL-01",
       "runner": "static",
-      "proves": "W2.4 the Uji Cepat score, the class first and the learners one step below (Batch 3; CR-27, J5.6; D-120 Q8; Daisy 11-validation.md §3), selftest/mengajar3.test.ts: src/lib/hasil-ujicepat.ts susunHasilUjiCepat driven makes the class figure the mean of only the scores the evaluator gave, on its base (scored of the class now), counts no one outside the class and gives no figure (never a zero) when there is none; src/lib/pengajar.ts hasilUjiCepat reads each score through the catalogue's learner.result for this class's own Uji Cepat only; src/app/mengajar/[kelas]/uji-cepat/hasil/page.tsx puts the figure in t-stat with its base above the learners' Table (Koleksi), nothing ordered by score; src/app/mengajar/[kelas]/uji-cepat/page.tsx leads there from the running and the last Uji Cepat; the words in both languages in src/lib/hle.ts."
+      "proves": "W2.4 the Uji Cepat score, the class first and the learners one step below (Batch 3; CR-27, J5.6; D-120 Q8; E-A3-1, E-A3-2, D-176; Daisy 11-validation.md §3), selftest/mengajar3.test.ts: src/lib/hasil-ujicepat.ts susunHasilUjiCepat driven makes the class figure the mean of only the scores the evaluator gave, on its base (scored of the class now), counts no one outside the class and gives no figure (never a zero) when there is none; src/lib/pengajar.ts hasilUjiCepat reads each score through the catalogue's learner.result for this class's own Uji Cepat only; src/app/mengajar/[kelas]/uji-cepat/hasil/page.tsx puts the figure in t-stat with its base above the learners' Table (Koleksi), nothing ordered by score; src/app/mengajar/[kelas]/uji-cepat/page.tsx leads there from the running and the last Uji Cepat; the words in both languages in src/lib/hle.ts."
     },
     {
       "id": "MENGAJAR3-JENDELA-01",
@@ -4345,6 +4345,11 @@
       "id": "R5-PERSOAL-01",
       "runner": "static",
       "proves": "Retrospective R5 (E-C2-3, D-168, D-069(b)), selftest/retro.test.ts, reading the source of every .tsx file under src/app and src/components: every link to the per-question page (/mengajar/[kelas]/soal) is offered under adaBuktiSoal, the same rule by which that page refuses a class of participants, so a PD class's facilitator is never offered a link into a refusal (the Uji Cepat page and its results offered it)."
+    },
+    {
+      "id": "R-PROSES-01",
+      "runner": "static",
+      "proves": "D-178(e), the retrospective's process correction, selftest/retro.test.ts, reading the source of the design hand-off list (docs/completion-4.0/daisy-design-completion/06-ENGINEERING-ITEMS-FROM-DESIGN.md), the manifest, every test file and every walk: each engineering item from an accepted design is named by a test, held by named manifest ids or files on its row, or blocked on a named decider, so an accepted design cannot stand unbuilt and unnoticed (the A1 and A5 case); and every disclosure under src/app and src/components is declared with what it holds (E-P17: no disclosure around required content)."
     },
     {
       "id": "R0-PIN-01",
