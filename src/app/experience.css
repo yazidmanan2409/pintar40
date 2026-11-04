@@ -2767,16 +2767,17 @@ a.pin-tautan { display: inline-flex; align-items: center; }
   list-style: none; margin: 0; padding: 0;
   display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5);
 }
-/* E-K8 (D-173(d)): a step is marked by a segment of progress over its word, as J1Terbit's named steps — never by a
-   ring, which read as a radio button (an empty ring, and a thick one for the current step). Done: a filled segment;
-   current: the primary segment and the word in bold; to come: the hairline. The list is not a control. */
-.pin-lt-langkah { display: grid; gap: var(--space-1); align-content: start; min-width: 0; }
+/* E-K8 (A5 B12, final 4 Nov, Daisy `78b680d5`; X-KONSISTENSI K8): the design system's named steps. Every marker is
+   filled, so the list never reads as radio buttons (an open circle beside a filled one, or a ring round a dot), and it
+   is never a segment (a bar reads as a count). Done: an ink-1 dot; current: a pintar-primary pill, its name at 600,
+   aria-current="step"; to come: a line-control dot, its name in ink-2. The state is also said in words. */
+.pin-lt-langkah { display: inline-flex; align-items: center; gap: var(--space-2); min-width: 0; }
 .pin-lt-langkah::before {
-  content: ""; display: block; height: var(--space-1); border-radius: var(--radius-pill); background: var(--line-control);
+  content: ""; flex: none; width: var(--space-3); height: var(--space-3); margin: var(--space-1); border-radius: 50%; background: var(--line-control);
 }
-.pin-lt-langkah.pin-lt-selesai::before { background: var(--ink-2); }
-.pin-lt-langkah[aria-current="step"]::before { background: var(--pintar-primary); }
-.pin-lt-judul { margin: 0; font-size: var(--t-small); line-height: var(--leading-body); color: var(--ink-3); }
+.pin-lt-langkah.pin-lt-selesai::before { background: var(--ink-1); }
+.pin-lt-langkah[aria-current="step"]::before { width: var(--space-5); border-radius: var(--radius-pill); background: var(--pintar-primary); }
+.pin-lt-judul { margin: 0; font-size: var(--t-small); line-height: var(--leading-body); color: var(--ink-2); }
 .pin-lt-selesai .pin-lt-judul { color: var(--ink-2); }
 .pin-lt-langkah[aria-current="step"] .pin-lt-judul { color: var(--ink-1); font-weight: var(--weight-strong); }
 .pin-lt-panel {

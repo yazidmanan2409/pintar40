@@ -411,6 +411,16 @@ await step("U8", "the head of department approves the content, reviews its findi
   harus(rec, !(await ditawarkan(g, "Buat terbitan")) && !(await ditawarkan(g, "Kunci terbitan")), "the author is offered neither «Buat terbitan» nor «Kunci terbitan»");
   await h.goto(`${APP}/studio/paket/${course}`, { waitUntil: "networkidle" });
   const judulPanel = norm(await h.locator("#lt-kini").innerText().catch(() => ""));
+  // E-K8 (A5 B12 final): the drawn markers, read from the browser: every one filled (no border, no ring), the current
+  // one a wider pill, exactly one current; never a segment
+  const penanda = await h.locator("ol.pin-lt-daftar > li").evaluateAll((ls) => ls.map((l) => {
+    const b = getComputedStyle(l, "::before");
+    return { kini: l.getAttribute("aria-current") === "step", w: parseFloat(b.width), t: parseFloat(b.height), garis: b.borderTopStyle, isi: b.backgroundColor };
+  }));
+  const kini = penanda.filter((x) => x.kini), lain = penanda.filter((x) => !x.kini);
+  harus(rec, penanda.length >= 5 && kini.length === 1 && penanda.every((x) => x.garis === "none" && x.isi !== "rgba(0, 0, 0, 0)")
+    && lain.every((x) => x.w === x.t && x.t >= 10) && kini[0].w >= 2 * kini[0].t,
+    `the step markers are filled, the current one a pill (${JSON.stringify(penanda.map((x) => `${x.kini ? "kini " : ""}${x.w}×${x.t}`))})`);
   harus(rec, /Buat terbitan · Kunci terbitan/.test(judulPanel), `the panel reads «${judulPanel}»`);
   const s2 = await tekan(h, "Kunci terbitan", rec, "buat-dan-kunci");
   harus(rec, !!s2 && /\|FROZEN$/.test(s2), `one press created and locked the release (${s2})`);

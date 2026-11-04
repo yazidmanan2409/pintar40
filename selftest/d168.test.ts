@@ -379,15 +379,23 @@ export const d168Tests: SelfTest[] = [
       const css = readFileSync(join(repoRoot, "src/app/experience.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
       const aturan = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((m) => ({ pilih: m[1].trim(), isi: m[2] })).filter((a) => /\.pin-lt-langkah[^,]*::before/.test(a.pilih));
       c.expect(aturan.length >= 3, `only ${aturan.length} marker rules`);
-      const cincin = aturan.filter((a) => /\bborder(-width|-color)?\s*:|border-radius:\s*50%|width:\s*var\(--icon/.test(a.isi));
-      c.expect(cincin.length === 0, `a step marker is a ring (a radio's look): ${cincin.map((a) => a.pilih).join(" | ")}`);
+      // restated (Daisy, 4 Nov, `78b680d5`: A5 B12 final; X-KONSISTENSI K8): every marker is a FILLED mark, so the list
+      // never reads as radio buttons: no border and no ring, never a segment (a segment bar reads as a count). Done:
+      // an ink-1 dot; current: a pintar-primary pill; to come: a line-control dot. The rendered half is studio-ujung U8.
+      const cincin = aturan.filter((a) => /\bborder(-width|-color|-style)?\s*:|outline|box-shadow/.test(a.isi));
+      c.expect(cincin.length === 0, `a step marker is drawn with a border or ring (a radio's look): ${cincin.map((a) => a.pilih).join(" | ")}`);
       const dasar = aturan.find((a) => a.pilih === ".pin-lt-langkah::before");
-      c.expect(!!dasar && /display: block/.test(dasar.isi) && /height: var\(--space-1\)/.test(dasar.isi), "the marker is not a segment over the word");
-      c.expect(aturan.some((a) => a.pilih === '.pin-lt-langkah[aria-current="step"]::before' && /background: var\(--pintar-primary\)/.test(a.isi)), "the current step is not the primary segment");
+      c.expect(!!dasar && /width: var\(--space-3\)/.test(dasar.isi) && /height: var\(--space-3\)/.test(dasar.isi) && /border-radius: 50%/.test(dasar.isi) && /background: var\(--line-control\)/.test(dasar.isi),
+        "a step to come is not a filled line-control dot");
+      c.expect(aturan.some((a) => a.pilih === ".pin-lt-langkah.pin-lt-selesai::before" && /background: var\(--ink-1\)/.test(a.isi)), "a done step is not an ink-1 dot");
+      c.expect(aturan.some((a) => a.pilih === '.pin-lt-langkah[aria-current="step"]::before' && /width: var\(--space-5\)/.test(a.isi) && /border-radius: var\(--radius-pill\)/.test(a.isi) && /background: var\(--pintar-primary\)/.test(a.isi)),
+        "the current step is not the primary pill");
+      c.expect(/\.pin-lt-langkah\[aria-current="step"\] \.pin-lt-judul \{[^}]*font-weight: var\(--weight-strong\)/.test(css) && /\.pin-lt-judul \{[^}]*color: var\(--ink-2\)/.test(css),
+        "the current step's name is not at 600, or a step to come's name is not ink-2");
       const src = kode(readFileSync(join(repoRoot, "src/components/studio/LangkahTerbit.tsx"), "utf8"));
       const daftar = /<ol className="pin-lt-daftar"[\s\S]*?<\/ol>/.exec(src)?.[0] ?? "";
       c.expect(daftar !== "" && !/role="radio|<input\b|tabIndex/.test(daftar) && /aria-current=\{keadaan === "kini" \? "step" : undefined\}/.test(daftar), "the step list is a control, or its current step is not aria-current");
-      return c.verdict("Studio's steps are segments of progress over their words (no ring), not a control; the current one is aria-current and primary");
+      return c.verdict("Studio's steps are A5 B12's filled marks (done an ink-1 dot, current the primary pill at 600, to come a line-control dot), never a ring or a segment, and the list is not a control; the current one is aria-current");
     },
   },
   {

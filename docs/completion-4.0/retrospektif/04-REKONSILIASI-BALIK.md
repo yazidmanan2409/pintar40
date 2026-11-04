@@ -18,7 +18,7 @@
 | A1–A5, B1 | 47 | 19 | 22 | 5 | 1 |
 | B2, B4, C1 (README and PIMPINAN), C2, D1 (README and STEP-2) | 46 | 15 | 24 | 6 | 1 |
 | D2, D4, D5, E1, E2, E3, SERAH-TERIMA | 38 | 12 | 18 | 5 | 3 |
-| **After the closure** (§6) | **131** | **90** | **31** | **0** | **10** |
+| **After the closure** (§6, with Daisy's two answers, §8) | **131** | **92** | **31** | **0** | **8** |
 
 **What the classes mean:**
 - **PARTIAL:** part of the line is asserted.
@@ -192,3 +192,17 @@ The «Held where» column names the existing evidence. No new test was written f
 | 5 | the PD «Minta membaca lagi» untested | Low (built) | recorded; no change |
 
 **Disposition:** nothing above is launch-blocking. The lines waiting on K1, K3 or K4 are done in the coordinated pass, with their own verification.
+
+## 8. Daisy's two answers (4 Nov, `78b680d5`), applied
+
+| Question | Answer | Engineering |
+|---|---|---|
+| **K8, the step markers** | **A5 B12 is final, corrected.** The design system itself drew hollow circles with a 6 px ring, and B12's «2 px ring» rendered as a selected radio button. Every marker is now filled: done, an ink-1 dot; current, a pintar-primary pill (24 × 12) at 600 with `aria-current`; to come, a line-control dot. A segment bar is not this pattern, because it reads as a count | Built in `.pin-lt-langkah`. `D168-K8-1` restated; `studio-ujung` U8 reads the drawn markers from the browser |
+| **D2, the file name's language** | **The certificate's issued language**, as built: the saved file is the certificate sheet, fixed in its issued language. Her checklist line was corrected | No change |
+
+**Also from Daisy:**
+- **C2:** complete and ready for the owner's review. The PD footnote (Dr Gladys) and the copy of `mengajar.bukti.pd.arti` and `.pd.buka` remain, both with K1.
+- **B4:** confirmed. Engineering rendered the case Daisy asked for (a platform role beside a school role), from a disposable local stack: `evidence/b4-kartu-platform-dan-sekolah-*.png`. B4 is ready for the owner's review.
+
+**The recount moves** from 90 HELD and 10 BLOCKED to **92 HELD and 8 BLOCKED**. A5 #4 (K8) and D2 #1 (the language) are now held.
+
