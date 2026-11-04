@@ -43,12 +43,12 @@ function halaman(s: Sajian, ciut?: "ya" | "tidak"): string {
   const blok = `<div class="e2-konteks e1-konteks" data-konteks-tempat=""><span class="e2-konteks-tujuan">${slotTujuan(k)}</span><strong class="e2-konteks-tempat">${esc(k.tempat)}</strong>${k.lain ? `<a href="#" class="e2-konteks-pilih" data-konteks-pilih="">${kata("entry.title", "public")}${ikon("chevron-right")}</a>` : ""}</div>`;
   // In the rail (72 px) the block becomes one 44 px item: the place's initials, named in full; it is the chooser link
   // when there is another context, and absent when there is none (the expanded navigation and the page say where).
-  const rail = k.lain ? `<a href="#" class="pds-nav-item e1-rail-konteks" data-konteks-pilih="" aria-label="${esc(kata("entry.title", "public"))} · ${esc(label)}" data-tip="${esc(label)} · ${esc(kata("entry.title", "public"))}" data-tip-arah="kanan"><span class="e1-inisial" data-inisial="${esc(k.tempatSingkat)}" aria-hidden="true"></span></a>` : "";
-  const tempat = s.tempat.map(([t, i], n) => `<li><a href="#" class="pds-nav-item" aria-label="${esc(t)}"${n === 0 ? ' aria-current="page"' : ""}>${ikon(i)}<span class="pds-nav-label">${esc(t)}</span></a></li>`).join("");
-  const bawah = (laci: boolean) => `<a href="#" class="pds-nav-item"${laci ? "" : ` aria-label="${kata("nav.bantuan")}"`}>${ikon("circle-help")}<span class="pds-nav-label">${kata("nav.bantuan")}</span></a>
-      <a href="#" class="pds-nav-item"${laci ? "" : ` aria-label="${kata("nav.lapor")}"`}>${ikon("triangle-alert")}<span class="pds-nav-label">${kata("nav.lapor")}</span></a>
+  const rail = k.lain ? `<a href="#" class="pds-nav-item e1-rail-konteks" data-konteks-pilih="" data-tip="${esc(kata("entry.title", "public"))} · ${esc(label)}" data-tip-arah="kanan"><span class="e1-inisial" data-inisial="${esc(k.tempatSingkat)}" aria-hidden="true"></span><span class="pds-nav-label">${esc(kata("entry.title", "public"))} · ${esc(label)}</span></a>` : "";
+  const tempat = s.tempat.map(([t, i], n) => `<li><a href="#" class="pds-nav-item"${n === 0 ? ' aria-current="page"' : ""}>${ikon(i)}<span class="pds-nav-label">${esc(t)}</span></a></li>`).join("");
+  const bawah = (laci: boolean) => `<a href="#" class="pds-nav-item">${ikon("circle-help")}<span class="pds-nav-label">${kata("nav.bantuan")}</span></a>
+      <a href="#" class="pds-nav-item">${ikon("triangle-alert")}<span class="pds-nav-label">${kata("nav.lapor")}</span></a>
       <div class="pds-identity" style="cursor:default"><span class="pds-avatar" aria-hidden="true">${s.orang.inisial}</span><div><strong>${esc(s.orang.nama)}</strong><small>${esc(s.orang.peran)}</small></div></div>
-      <button type="button" class="pds-nav-item pds-nav-keluar"${laci ? "" : ` aria-label="${kata("sesi.keluar")}"`}>${ikon("log-out")}<span class="pds-nav-label">${kata("sesi.keluar")}</span></button>`;
+      <button type="button" class="pds-nav-item pds-nav-keluar">${ikon("log-out")}<span class="pds-nav-label">${kata("sesi.keluar")}</span></button>`;
   const merek = `<span class="c1-slot pds-merek-penuh" role="img" aria-label="Pintar (master pending F-11)">Pintar <small>(master pending F-11)</small></span>`;
   const tombolCiut = ciut === "ya" ? `<button type="button" class="pds-btn pds-btn-icon" data-shell-ciut aria-label="${DSKATA.lebar}" aria-expanded="false">${ikon("panel-left-open")}</button>`
     : `<button type="button" class="pds-btn pds-btn-icon e1-ciut" data-shell-ciut aria-label="${DSKATA.ciut}" aria-expanded="true">${ikon("panel-left-close")}</button>`;
@@ -115,7 +115,7 @@ const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromi
 const laporan: string[] = [];
 let gagal = 0;
 for (const l of LEMBAR) {
-  const html = `<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(l.sajian.judul)}</title><style>${tokens}</style><style>${bundleCss}</style><style>${GAYA}</style><script>${bundleJs}</script></head><body>${halaman(l.sajian, l.ciut)}<script>Pintar.siapkan();(function(){var b=document.querySelector("[data-shell-ciut]");if(!b)return;var l=document.querySelector(".pds-shell .pds-nav .pds-nav-label");var rail=l&&getComputedStyle(l).display==="none";b.setAttribute("aria-label",rail?"Lebarkan navigasi":"Ciutkan navigasi");b.setAttribute("aria-expanded",rail?"false":"true");b.innerHTML='<i data-ikon="'+(rail?"panel-left-open":"panel-left-close")+'"></i>';Pintar.siapkan(b.parentNode);})();</script></body></html>`;
+  const html = `<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(l.sajian.judul)}</title><style>${tokens}</style><style>${bundleCss}</style><style>${GAYA}</style><script>${bundleJs}</script></head><body>${halaman(l.sajian, l.ciut)}<script>Pintar.siapkan();(function(){var b=document.querySelector("[data-shell-ciut]");if(!b)return;var l=document.querySelector(".pds-shell .pds-nav .pds-nav-daftar .pds-nav-label");var rail=l&&(getComputedStyle(l).display==="none"||l.getBoundingClientRect().width<=1);b.setAttribute("aria-label",rail?"Lebarkan navigasi":"Ciutkan navigasi");b.setAttribute("aria-expanded",rail?"false":"true");b.innerHTML='<i data-ikon="'+(rail?"panel-left-open":"panel-left-close")+'"></i>';Pintar.siapkan(b.parentNode);})();</script><script>(function(){function tersembunyi(l){return !!l&&(getComputedStyle(l).display==="none"||l.getBoundingClientRect().width<=1);}document.querySelectorAll(".pds-shell .pds-nav .pds-tip-host").forEach(function(h){var a=h.querySelector(".pds-nav-item"),t=h.querySelector(".pds-tooltip");if(!a||!t)return;var l=a.querySelector(".pds-nav-label");function buka(){if(tersembunyi(l))t.hidden=false;}function tutup(){t.hidden=true;}a.addEventListener("focus",function(){if(a.matches(":focus-visible"))buka();});a.addEventListener("mouseenter",buka);a.addEventListener("mouseleave",tutup);a.addEventListener("blur",tutup);a.addEventListener("keydown",function(e){if(e.key==="Escape")tutup();});});})();</script></body></html>`;
   writeFileSync(join(RENDER, `${l.kode}.html`), html);
   for (const w of l.lebar) {
     const ctx = await browser.newContext({ viewport: { width: w, height: 760 } });
@@ -129,20 +129,30 @@ for (const l of LEMBAR) {
       var nav = document.querySelector(".pds-shell .pds-nav"), bar = document.querySelector(".pds-bar");
       var tampak = function (e) { return e && e.offsetParent !== null && getComputedStyle(e).display !== "none" && e.getBoundingClientRect().width > 0; };
       var keluar = [].some.call(document.querySelectorAll(".pds-nav-keluar, .pds-bar .pds-btn-secondary"), function (e) { return tampak(e); });
-      var railTanpaNama = [].filter.call(document.querySelectorAll(".pds-shell .pds-nav .pds-nav-item"), function (a) { return tampak(a) && !a.getAttribute("aria-label") && !(a.querySelector(".pds-nav-label") && tampak(a.querySelector(".pds-nav-label"))); }).length;
+      var railTanpaNama = [].filter.call(document.querySelectorAll(".pds-shell .pds-nav .pds-nav-item"), function (a) { var l = a.querySelector(".pds-nav-label"); return tampak(a) && !(l && l.textContent.trim() && getComputedStyle(l).display !== "none"); }).length;
+      var labelDiganda = [].filter.call(document.querySelectorAll(".pds-shell .pds-nav a.pds-nav-item, .pds-shell .pds-nav button.pds-nav-item"), function (a) { return a.hasAttribute("aria-label"); }).length;
       var kecil = []; document.querySelectorAll("a, button").forEach(function (e) { if (!tampak(e)) return; var r = e.getBoundingClientRect(); if (r.height < 24 || r.width < 24) kecil.push(e.tagName + " «" + (e.getAttribute("aria-label") || e.textContent || "").trim().slice(0, 24) + "» " + Math.round(r.width) + "x" + Math.round(r.height)); });
-      return { lebar: document.documentElement.scrollWidth, nav: tampak(nav) ? Math.round(nav.getBoundingClientRect().width) : 0, bar: tampak(bar), keluar: keluar, railTanpaNama: railTanpaNama, kecil: kecil,
+      return { lebar: document.documentElement.scrollWidth, nav: tampak(nav) ? Math.round(nav.getBoundingClientRect().width) : 0, bar: tampak(bar), keluar: keluar, railTanpaNama: railTanpaNama, labelDiganda: labelDiganda, kecil: kecil,
         kini: document.querySelectorAll(".pds-shell .pds-nav [aria-current=page]").length, grup: document.querySelectorAll(".pds-nav-grup").length,
         pilih: [].filter.call(document.querySelectorAll(".pds-shell [data-konteks-pilih], dialog[open] [data-konteks-pilih]"), tampak).length,
         laci: !!document.querySelector("dialog[open]") };
-    })()`) as { lebar: number; nav: number; bar: boolean; keluar: boolean; railTanpaNama: number; kecil: string[]; kini: number; grup: number; pilih: number; laci: boolean };
+    })()`) as { lebar: number; nav: number; bar: boolean; keluar: boolean; railTanpaNama: number; labelDiganda: number; kecil: string[]; kini: number; grup: number; pilih: number; laci: boolean };
     const rel = l.ciut === "ya" ? "rail" : l.ciut === "tidak" ? "penuh" : w >= 1280 ? "penuh" : w >= 1024 ? "rail" : "bar";
     if (u.lebar > w + 1) masalah.push(`sideways scroll ${u.lebar} at ${w}`);
     if (rel === "penuh" && !(u.nav >= 240 && u.nav <= 256)) masalah.push(`expanded navigation ${u.nav} px, not 248`);
     if (rel === "rail" && !(u.nav >= 64 && u.nav <= 80)) masalah.push(`rail ${u.nav} px, not 72`);
     if (rel === "bar" && (u.nav || !u.bar)) masalah.push("under 1024 px: the top bar, not the navigation");
     if (!u.keluar) masalah.push("«Keluar» not visible without opening anything (D-009)");
-    if (rel === "rail" && u.railTanpaNama) masalah.push(`${u.railTanpaNama} rail items without a name`);
+    if (rel === "rail" && u.railTanpaNama) masalah.push(`${u.railTanpaNama} rail items whose own text is removed from the accessibility tree (display: none)`);
+    if (u.labelDiganda) masalah.push(`${u.labelDiganda} navigation links name themselves twice (aria-label)`);
+    if (rel === "rail") {
+      await page.focus(".pds-shell .pds-nav .pds-nav-daftar .pds-nav-item");
+      await page.keyboard.press("Shift+Tab"); await page.keyboard.press("Tab");
+      const tip = await page.evaluate(`(function(){ var t = [].filter.call(document.querySelectorAll(".pds-shell .pds-tooltip"), function (x) { return !x.hidden; }); return t.length ? t[0].textContent : ""; })()`) as string;
+      if (!tip) masalah.push("no tooltip on a focused rail item");
+      const nama = await page.evaluate(`(function(){ var a = document.querySelector(".pds-shell .pds-nav .pds-nav-daftar .pds-nav-item"), l = a.querySelector(".pds-nav-label"); return l && getComputedStyle(l).display !== "none" && l.getBoundingClientRect().width <= 1 ? l.textContent.trim() : "VISIBLE"; })()`) as string;
+      if (!nama || nama === "VISIBLE") masalah.push("a rail item's own text is not visually hidden");
+    }
     if (u.kecil.length) masalah.push(`targets under 24 px: ${u.kecil.join(", ")}`);
     if (rel !== "bar" && u.kini !== 1) masalah.push(`${u.kini} current places, not 1`);
     if (u.grup) masalah.push("a group label under one context (L3)");
@@ -156,6 +166,8 @@ for (const l of LEMBAR) {
     const v = await page.evaluate(`axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] } }).then(function (r) { return r.violations.map(function (v) { return v.id + " (" + v.nodes.length + ": " + v.nodes.slice(0,2).map(function(n){return n.target.join(" ");}).join(" | ") + ")"; }); })`) as string[];
     masalah.push(...v.map((x) => `axe ${x}`));
     if (!l.laci && (w === 1280 || w === 1100 || w === 390)) {
+      await page.setContent(html, { waitUntil: "load" }); // a fresh page: the walk starts from the top
+      await page.evaluate(() => document.fonts.ready);
       const tab: string[] = [];
       for (let i = 0; i < 16; i++) {
         await page.keyboard.press("Tab");

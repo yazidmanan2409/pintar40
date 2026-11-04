@@ -1,11 +1,11 @@
 Mengajar · one context only (no chooser link) at 1100 px (rail): the Tab order from the top of the page
  1. a «Langsung ke isi»
  2. button «Lebarkan navigasi»
- 3. a «Mengajar» [current]
- 4. a «Studio»
- 5. a «Bantuan»
- 6. a «Laporkan masalah»
- 7. button «Keluar»
+ 3. a «Mengajar» [current] tooltip «Mengajar»
+ 4. a «Studio» tooltip «Studio»
+ 5. a «Bantuan» tooltip «Bantuan»
+ 6. a «Laporkan masalah» tooltip «Laporkan masalah»
+ 7. button «Keluar» tooltip «Keluar»
 
 The navigation's accessibility tree
 - navigation "Tempat kerja Anda":
@@ -21,4 +21,6 @@ The navigation's accessibility tree
     - /url: "#"
   - link "Laporkan masalah":
     - /url: "#"
+  - strong: Fitri Handayani
+  - text: Guru · SMP Cahaya Kaliandra
   - button "Keluar"

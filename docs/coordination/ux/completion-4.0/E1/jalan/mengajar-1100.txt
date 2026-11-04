@@ -1,12 +1,12 @@
 Mengajar · a Guru who also learns (two contexts) at 1100 px (rail): the Tab order from the top of the page
  1. a «Langsung ke isi»
  2. button «Lebarkan navigasi»
- 3. a «Mau ke mana hari ini? · Mengajar · SMP Cahaya Kaliandra»
- 4. a «Mengajar» [current]
- 5. a «Studio»
+ 3. a «Mau ke mana hari ini? · Mengajar · SMP Cahaya Kaliandra» tooltip «Mau ke mana hari ini? · Mengajar · SMP Cahaya Kali»
+ 4. a «Mengajar» [current] tooltip «Mengajar»
+ 5. a «Studio» tooltip «Studio»
  6. a «Bantuan» tooltip «Bantuan»
- 7. a «Laporkan masalah»
- 8. button «Keluar»
+ 7. a «Laporkan masalah» tooltip «Laporkan masalah»
+ 8. button «Keluar» tooltip «Keluar»
 
 The navigation's accessibility tree
 - navigation "Tempat kerja Anda":
@@ -24,4 +24,6 @@ The navigation's accessibility tree
     - /url: "#"
   - link "Laporkan masalah":
     - /url: "#"
+  - strong: Citra Lestari
+  - text: Guru · SMP Cahaya Kaliandra
   - button "Keluar"

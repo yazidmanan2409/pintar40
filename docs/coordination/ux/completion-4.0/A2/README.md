@@ -31,12 +31,14 @@
 | K7 | **No score yet** | the Empty state (`Kosong`): «Belum ada nilai. Nilai kelas muncul di sini setelah ada yang mengumpulkan.» (`mengajar.cepat.hasil.belum`) | **Correct, to follow K1** | **«Belum ada nilai. Rata-rata nilai kelas muncul di sini setelah ada yang mengumpulkan.»** / «No scores yet. The class average score appears here once someone has handed in.» The same name for the same figure. |
 | K8 | **A learner handed in but not yet scored** | the cell «Belum ada nilai» (`mengajar.cepat.hasil.nilai_belum`); «—» for one who has not handed in | **Confirm** | Two different absences, said differently. Neither counts in the mean (K3 says so). |
 
-### Observed in the evidence: an engineering note, not a row
+**Status:** accepted (owner, 4 Nov). «Nilai kelas» becomes «Rata-rata nilai kelas»; the metric remains the mean of the scored results, as implemented.
+
+### Observed in the evidence: engineering defect E-A2-1 (owner, 4 Nov)
 
 The eyebrow reads «UJI CEPAT · UJI CEPAT — 2026-11-02 20:26».
 - The assignment's stored title repeats «Uji Cepat» and carries an unformatted timestamp.
 - The date belongs to the one date helper (RV-16: «2 Nov 2026, 20.26 WIB»), and the repeated word should go.
-- This is the stored title's construction, not this item's wording. It is recorded here so it isn't lost.
+- This is the stored title's construction, not this item's wording. The owner records it as **E-A2-1**, corrected at its source and verified on every consuming screen under D-168.
 
 ## Words (T table)
 

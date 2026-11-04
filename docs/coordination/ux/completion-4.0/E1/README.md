@@ -1,6 +1,8 @@
 # E1 · W3.12: J3's navigation restated under L3
 
 **Form C (composition).** Register entry E1 (OP-1, OP-2, F-12(5)).
+**Status:** design accepted (owner, 4 Nov), with one correction applied below: in the rail, a link's own text stays in the accessibility tree, visually hidden (§4). **O12:** the menu order is confirmed (§1).
+
 **Authority:** owner ruling **O6, option (a)**, 4 Nov:
 - restate the existing J3 navigation design under the approved L3 working-context model;
 - preserve the established single-context behaviour;
@@ -52,7 +54,7 @@
 | Mengelola · a school (Kepala departemen, Dekan) | Pimpinan · Studio (Studio not for Dekan, DAISY-11) |
 | Mengelola · «Seluruh platform» | Konfigurasi · Aktivasi akun · Keamanan akun · Kirim email uji · Sertifikat sekolah |
 
-   **The order is today's.** «The final menu, with its order and any grouping, is confirmed with Yazid» (DS/05:34), so this order is offered for that confirmation, unchanged.
+   **The order is today's, confirmed by the owner (O12).** Dekan: Pimpinan only. These are ordering rules, not permission overrides: each context still shows only the places it serves.
 4. **At the bottom:**
    - Bantuan (where a tour exists) and Laporkan masalah;
    - the identity block (avatar, name, role · school), which opens Akun saya and the language;
@@ -63,7 +65,7 @@
 ### The rail (72 px)
 
 **When:** by default from 1024 to 1279 px, or when the reader collapses at 1280 and up. The DS's own rail:
-- icons only, each named by its `aria-label` and shown its tooltip on hover and focus;
+- icons only. **Each link keeps its own text in the accessibility tree, visually hidden** (the DS's `pds-sr` technique), never `display: none` and never repeated as an `aria-label`. Its tooltip shows that same text on hover and on focus;
 - the wordmark not shown;
 - the identity as its avatar;
 - «Keluar» as its icon, still visible.
@@ -71,7 +73,7 @@
 **The toggle names the state it offers:** «Lebarkan navigasi» (`panel-left-open`, `aria-expanded="false"`) in the rail; «Ciutkan navigasi» when expanded.
 
 **The context control in the rail** becomes one 44 px item at the top of the places. It holds the place's initials (CSS-drawn, `aria-hidden`).
-- Its accessible name and tooltip are «Mau ke mana hari ini? · {purpose} · {place}». It is the chooser link.
+- Its own visually hidden text, and its tooltip, are «Mau ke mana hari ini? · {purpose} · {place}». It is the chooser link.
 - **For a person with one context it is absent.** The rail has no room for the place's name, the person has nowhere else to go, and the page's own head says where they are.
 
 **Expanded in the rail range** (`data-ciut="tidak"`): the full 248 px navigation, the content beside it (`mengajar-dilebarkan-1100`).
@@ -132,7 +134,15 @@ The walks are in `jalan/` (1280, 1100 and 390).
   - **the chooser link present only with another context** (in the rail too);
   - **the toggle's words match its state**.
 
-**Found while composing, and fixed in the composition:** in the rail the DS hides each place's visible name, so a place link with no `aria-label` loses its accessible name (axe `link-name`). **Every place carries its name as `aria-label`**, as DS/05 already requires («its name as an accessible name and as a tooltip»). `ItemNav` must set it.
+**The rail's names (owner's correction, 4 Nov).**
+- In the rail the DS's AppShell hides each link's text with `display: none`, which removes it from the accessibility tree.
+- **The specification now is:** the text stays, visually hidden (`position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0`, the DS's `pds-sr`). The same applies to the identity block's name in the rail. No link carries an `aria-label` that repeats its text.
+- **This needs one change in the DS's tooltip, which the build takes with it.** `bundle.js` `tooltip()` shows a rail tooltip only while the label is `display: none` (`perlu()`). With the text visually hidden, that test must read **«the label is visually hidden»** (its rendered width is 1 px or less), or the rail loses its tooltips. The specimen emulates the corrected test. The DS is frozen, so the change is recorded here for the AppShell and the build, and not applied to the bundle.
+- **Verified** (`jalan/*-1100.txt`, the walks re-rendered):
+  - each rail link is named by its own text: «Mengajar», «Studio», «Bantuan», «Laporkan masalah», «Keluar»;
+  - the chooser item is «Mau ke mana hari ini? · Mengajar · SMP Cahaya Kaliandra»;
+  - each shows its tooltip on keyboard focus;
+  - the identity's name and role stay in the tree.
 
 ## 5. Words (T table)
 
@@ -172,18 +182,19 @@ The walks are in `jalan/` (1280, 1100 and 390).
 
 - [auto] Expanded at 1280 and up (248 px); the rail from 1024 to 1279 (72 px); the top bar and drawer under 1024. Checked at 1280, 1279, 1100, 1024, 1023, 820, 390 and 320.
 - [auto] The reader's collapse and expand: rail at 1280 when collapsed; full in the rail range when expanded; the toggle says «Ciutkan navigasi» or «Lebarkan navigasi» to match.
-- [auto] Every rail item has an accessible name; every place carries `aria-label`.
-- [manual] Each rail item shows its tooltip on hover and on focus (the DS's tooltip; the walks in `jalan/` record what appeared).
+- [auto] In the rail, every link's own text is in the accessibility tree and visually hidden (never `display: none`); no navigation link carries an `aria-label`.
+- [auto] A focused rail link shows its tooltip, with the same words as its name (the DS tooltip's corrected test).
+- [manual] With a screen reader (NVDA, TalkBack), each rail link is heard once, by its own words; the tooltip is not read twice (it is `aria-hidden`).
 - [auto] «Keluar» visible without opening anything, at every width (D-009).
 - [auto] No group label under one context; exactly one current place.
 - [auto] The chooser link («Mau ke mana hari ini?», block or rail item) appears only for a person with more than one context; single-context behaviour unchanged.
 - [auto] axe WCAG 2.2 AA, 28 of 28 renders; targets at least 24 px; focus rings.
-- [auto] **D-168, integrated (engineering, with E2):**
+- [auto] **D-168, integrated (engineering, E1 + E2 as one experience):** role and context transitions, destination availability, the context chooser, the rail, collapse, the drawer, accessibility and refusal behaviour, together:
   - for each role and context, the navigation's places equal the surfaces the context serves;
   - each surface's visible sections agree with its index (B1's E-B1-5);
   - a page of another context sends the person to `/` with the reason;
   - choosing a door changes the context and the navigation together;
   - a refused page shows the refusal without the navigation;
   - a role or context that lapses mid-session reaches `context.invalid`.
-- [manual] The menu order confirmed with the owner (DS/05:34).
+- [auto] Each context's places appear in the confirmed order (O12), and only the places that context serves.
 - [manual] Side-by-side review of the build with E2 at each width (brief G:14); E:90 «compositions J3, J4 and J6 matched».
