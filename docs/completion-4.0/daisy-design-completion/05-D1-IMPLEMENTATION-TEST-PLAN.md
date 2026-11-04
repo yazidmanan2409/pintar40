@@ -23,6 +23,13 @@
 | P6 | **The manual protocol's send path and inboxes.** HTML email renders differently in mail clients than in a browser, so the real-client check is required, not optional. Locally, email goes only to the mail sink. Reaching a real inbox needs a configured sender (staging's Email uji, or a local SMTP to a test account), which is a staging or credentials action. **The inboxes are dedicated synthetic test accounts** (owner, 4 Nov): never Dr Gladys's account, and never a real school, person or identity | Not authorised by any current ruling | Owner, at the time of the manual run |
 | P7 | **The owner's approval** of the design and of this test plan | Brief §8, step 7 | Owner |
 
+**Answers received from Daisy** (`ux-1/daisy-experience` at `9c12c6ef`, `D1/STEP-2.md` «Implementation answers»):
+- **P1 answered:** the card block is built from `susunKartu`'s lines (STEP-2 §1, «Lines»).
+- **P2 answered, (a):** today's logo is the card block's one image until F-11 (D-160(a)). K06 reads «no back, no QR, and no image but the logo». **Open point for the owner:** Daisy gives it `alt="Pintar"`. Today's logo is the «PINTAR SELALU» mark, and the frame's alt today is «PINTAR» (`email.bingkai.merek`, pinned by DAISY-19-EMAIL-01). The coordinator recommends the alt stay `email.bingkai.merek` until the master exists, since the running-text naming is still open (O1).
+- **P3 answered:** the header keeps today's pinned 104 × 58 logo until F-11, not rescaled; 120 × 40 is the master's slot. DAISY-19-EMAIL-02 stays as it is.
+- **P4 answered:** the border is the frame's `garis` (`--line`, `#E2E4E5` on white). K16 stays unwidened.
+- **Still open:** P5 (Dr Gladys), P6 (send path and synthetic test accounts), P7 (owner approval).
+
 ## 2. Automated tests: written red first, then the build makes them green
 
 All run in the **static** runner, rendering the real templates (`src/components/email/identitas.ts`, `keamanan.ts`) through the real frame (`bingkai.ts`), as DAISY-19-EMAIL-01 and DAISY-20-EMAIL-01 do. File: `selftest/d1.test.ts`. «Red today» is the expected result against the current code.
