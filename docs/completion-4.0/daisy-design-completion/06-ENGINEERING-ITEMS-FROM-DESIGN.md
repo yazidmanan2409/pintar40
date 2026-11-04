@@ -20,11 +20,12 @@ Each has a D168-* regression test that was red on the old source and is green no
 
 **Built under D-177 (4 Nov, `c4e2ffe3`):** B1, the Konfigurasi split, with E-B1-1 (D168-B1-1; `d177-koreksi/README.md` §4d).
 
+**Built under D-177 (4 Nov, `4b525376` … `f8ca02c9`):** every section's pattern (B1 §1), the heading order of a section page, and B1 §2's A4 rule. Proved by D168-B1-2/3/6/7, B4-W11 and P6 (`d177-koreksi/README.md` §4e).
+
 **Still open:**
 - E-B1-3 (its word);
 - E-K-ALL (re-run at each CI);
 - the NVDA and TalkBack passes;
-- B1's per-section patterns (rows opened in place, the two-step maintenance form, the audit table's stripes);
 - the larger compositions.
 
 ## C1 · reports, Management and professional learning (D-167)

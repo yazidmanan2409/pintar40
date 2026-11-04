@@ -161,11 +161,71 @@ E1 is accepted (D-170(c), with the correction accepted in D-171(a)). E2 is struc
 
 **CI and journeys on `2c234ba7`:** `ci` 41815404082 passed. Journeys 41815412342 passed: job A, the crawl and every walk; job B, Gladys's path, which walks Konfigurasi by its routes.
 
-**Not built:** B1's per-section patterns were left as built («no redraw», D-166(a)). These are the record rows opened in place (`?ubah=`), the two-step maintenance form, and the audit table's stripes and conditional «Versi» column.
+**Not built at `2c234ba7`:** B1's per-section patterns were left as built at first. They are built since; see §4e.
 
 **Pending:**
 - The group words, for copy approval: «Sekolah dan tahun ajaran», «Murid», «Staf dan akses», «Laporan dan templat», «Dukungan».
 - E1's phone-bar question, for Daisy (§4c).
+
+## 4e. B1: every section's pattern, and the F03-R02 correction (`4b525376` … `f8ca02c9`)
+
+**Authority:** B1's composition as accepted (D-166(a)), under the owner's GO of 4 Nov and the instruction to continue without a further approval. No route, action, permission, redirect or result message changed.
+
+| Section | Built to B1 §1 | Commit |
+|---|---|---|
+| Jejak audit | The design system's Table, captioned, striped on screen and on paper; «Versi» only for Admin platform and only when a row on the page carries a build; an unbuilt row's cell is empty (RV-24) | `4b525376` |
+| Peran & akses, Batas ketuntasan | Records: one action at the row's end, named with its record (`Cabut · {name}`), opening its short form in place (`?ubah=`, surface-2, «Batal»); the revocation's confirm is destructive | `4b525376` |
+| Laporan masalah | Each report an article named by what happened; its state and «Menghentikan kelas» as badges; its answers as a description list; «Ubah status» in place | `e4bf329f` |
+| Persiapan sekolah; Perpindahan murid | «Sudah»/«Belum» badges; transfers as records, «Tolak» with its reason in place, «Setujui»/«Laksanakan» named with the learner | `bf1542ac` |
+| Every section page | Only the page's own section is drawn (hidden sections had been in every page's HTML) | `0526e072` |
+| Pemeliharaan dan pengumuman | Four regions, each under its h2: the two-step schedule (no form before «Periksa waktu ini»; the collision as the attention alert), the windows and the notices as records (the one action opens its reason in place, named with its record), and, for Admin platform only, «Hentikan sekarang», last and set apart | `0bfe63be` |
+| Heading order | A section page's h1 names the section, so its parts are h2s; four sections had jumped h1 → h3 | `0bfe63be` |
+| Pindah kelas, Peserta, Laporan, Sistem, Pergantian, Templat laporan | Narrow forms with two short fields sharing a row (the design system's pds-grid-2), records as rows on one rule, «Pindahkan · {student}», «aktif»/«data uji» as badges, school years in words | `7863d71b` |
+| A4 | A section page prints its content only: every form, record action, pager and back link stay off the paper; the table's stripes print | `f8ca02c9` |
+
+**F03-R02 (owner's correction, 4 Nov).**
+- **What happened:** F03-R02 failed at random when a sitting drew the option «Salah satu lebih besar». The learner-surface scan for verdict words read the author's content as well as PINTAR's own words.
+- **The wrong fix, withdrawn:** `dccc3976` reworded the seed and added D168-BENIH-1, which held every seed to the word list. That prohibited ordinary words and changed valid content to satisfy a broad match.
+- **The correction (`1c4aeadf`, a new commit; history is not rewritten):**
+  - the seed's option is restored as written, and D168-BENIH-1 is removed;
+  - the shared renderer (TeksBaris, TeksBlok) marks authored content (`data-isi-materi`), and the scan sets it aside whole (`selftest/isi-materi.ts`);
+  - PINTAR's own «Salah» badge, or «Incorrect»/«Wrong» feedback beside or after the content, is still caught;
+  - D168-KATA-1 is the focused regression case.
+- **Results:** F03-R02 passed 10 of 10 runs on the restored seed; it had failed 1 in 6 before.
+
+**Tests:**
+- **New:** D168-KATA-1, D168-B1-2, D168-B1-3, D168-B1-6 (over HTTP: every section page's headings, Pemeliharaan's regions and steps) and D168-B1-7. Each failed with `src` stashed, then passed with it.
+- **Restated to the new structure, with their behavioural assertions kept:**
+  - DAISY-30-TEKS-01 (reads inside the marker and asserts it);
+  - DAISY-05-STRUKTUR-01/02, DAISY-07-LAPORAN-02, BOB20-A01 and F22-A02;
+  - PENUTUPAN-L01;
+  - M148-S01 (`<section>` for «Hentikan sekarang»);
+  - D101-A02 (the role list is read from `/konfigurasi/roles`).
+- **Exempted:** UX1-S0-TOKEN-01 exempts one literal, `220px`. It is the design system's own pds-grid-2 column floor, and B1 adds no token.
+
+**Walks:**
+- B4-W11 (new): schedule a window in two steps, open it in place by its named action, cancel it; both acts are audited.
+- B4-W6 now waits for its request's row instead of network idle. It raced the server action locally.
+- P6 (new): Konfigurasi section pages printed at A4.
+- The journeys press «Pindahkan · {student}» by its full name.
+
+**Local results on `7863d71b`, with the Mailpit sink:**
+- 799 passed. The two call-count rows, BOB18-A01 and BOB19-A01, need the runner's fetch log, as always.
+- Every mail-sink row passed, including D101-A02. That row had failed only in CI, on `1c4aeadf`, and is the reason it was restated.
+- Walks: Studio 18/18, administration 12/12, Batch 5 6/6, print 6/6, focus 2/2, navigation 13/13.
+
+**CI and journeys:**
+- `1c4aeadf`: `ci` 41833577552 failed on D101-A02 alone (corrected in `7863d71b`). Journeys 41833582256 passed.
+- `7863d71b` and later: recorded below once they report.
+
+**Still open, not engineering's to close:**
+- The group words (`config.kelompok.*`), for copy approval.
+- E-B1-2, the English `config.refused`, for copy approval.
+- E-B1-3, the seed school's name, which waits on Dr Gladys.
+- E-B1-4, the date field's ring in the frozen system: built as D168-B1-4; Daisy confirms.
+- NVDA and TalkBack, at acceptance.
+- Daisy's phone-bar question (§4c).
+- The owner's protected gates are unchanged.
 
 ## 5. Copy pending Dr Gladys (added under D-177; listed for the question pack)
 
