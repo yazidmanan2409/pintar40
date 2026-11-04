@@ -98,12 +98,12 @@ Each correction is made **once, in the shared component or helper**, never per s
 
 **The exceptions Daisy documented (X1–X6) are accepted as intentional differences (D-173(c)), not permission for arbitrary inconsistency.** Each is an allowed difference in the checks above, named, so a check does not flatten a deliberate behaviour.
 
-## A3 · the small-group class figure (drawn per O3 option; built only after O3)
+## A3 · the small-group class figure (accepted under O3 (a), D-176)
 
 | # | Item | Planned test |
 |---|---|---|
 | E-A3-1 | **The «how far» line has no participant form:** `ketiadaan.jumlah.murid` («Sekarang {have} murid; perlu {needed}.») is the only key. Daisy found it for an Uji Cepat in a PD class (A3, `e0e15d54`); round 2 saw the same line say «murid» on a PD class's Ringkasan and «Lihat bukti» (X2) | **at the source (D-168):** `kalimatJumlah` (`src/components/bukti/KartuKetiadaan.tsx`) takes the place's kind, as the base line `mengajar.cepat.hasil.dasar` already does with `{benda}`, and a participant form `ketiadaan.jumlah.peserta` is added (copy approval). One fix serves every PD surface. Test: on every surface that shows the line, a PD place says «peserta» and an academic one «murid» |
-| E-A3-2 | **Under the chosen O3 rule:** the threshold read from one place; below it no class figure, the P14 not-yet pattern with the base at body size; zero scored → the empty state, never «0»; the learners' rows kept (unless O3 rules otherwise) | as Daisy's 8 [auto] lines, conditional on O3 |
+| E-A3-2 | **The ruled rule (D-176):** the Uji Cepat class figure only at **five or more official scored results**, from **one authoritative threshold** (never written into a page or its words); below five: no average, the P14 not-yet pattern with the scored count and the required five, the class total and scoring status kept; zero scored: the empty state, never «0»; **individual scores always visible to authorised educators**; no score, permission or result changed | rendered, at 0, 1, 4, 5 and 28 scored, in an academic class and a PD class: the figure appears from 5; the count line names the right people (E-A3-1); the learners' rows appear at every count; source: the threshold has one definition and no page contains the number 5 for it |
 
 ## B4, D2 (design under review)
 
