@@ -19,6 +19,7 @@ Each item's full composition (renders at every width, the keyboard and accessibi
 | **D1** CR-22 / DAISY-37 | The six emails in the DAISY-19 frame: the reason line, the context line (and its absence), the wordmark slot, warm white and the gold line, the card in the email; the email matrix; images blocked | Accepted for design. **Provisional:** the wordmark slot (F-11); «Akun PINTAR Anda di …» with Dr Gladys |
 | **A1** W1.2 | Studio's question review: one whole lesson per view, nothing in the open lesson hidden, the key by word, icon, edge and ground | Accepted for design |
 | **A2** D1 | The Uji Cepat class figure: «Rata-rata nilai kelas» with its base | Accepted |
+| **A3** D3 | The Uji Cepat class figure for a small group: **O3 (a), a threshold of 5** (owner). Below five, the «not yet» pattern with the scored count and the threshold; zero scored, the Empty state; individual scores stay visible | Accepted for design |
 | **A4** | Batch 3 wordings | Accepted; **C3 and C9 with Dr Gladys**; X12 (paket / kursus / course) pending one consolidated decision |
 | **A5** | Batch 3 layout confirmations | Accepted for design; three new keys pending copy approval |
 | **B1** W3.6 | Konfigurasi as an index and one page per section | Accepted for design |

@@ -1,7 +1,7 @@
 # D4 · W3.21: republish the Design System page, stage 1
 
 **Form P (publication).** Register entry D4.
-**The page:** the private Design System page, https://claude.ai/artifact/153KwNRJkTETDKAZSoorS1, **now version 20** (published 4 Nov; it was version 18 of 8 Oct, which predated the freeze c42fecb). Private: only its owner and the people they share it with can open it.
+**The page:** the private Design System page, https://claude.ai/artifact/153KwNRJkTETDKAZSoorS1, **version 21 (A3 added after O3; version 20 was stage 1, accepted)** (published 4 Nov; it was version 18 of 8 Oct, which predated the freeze c42fecb). Private: only its owner and the people they share it with can open it.
 **Source:** `docs/coordination/ux/sistem-desain/project/`, the same files the page shows, changed on this lane in the same commit.
 **Stage 2** follows F-11 and the decision-gated items: it resolves the provisional sections.
 
