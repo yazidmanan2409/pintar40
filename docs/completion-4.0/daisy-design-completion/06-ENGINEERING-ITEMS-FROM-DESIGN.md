@@ -178,6 +178,13 @@ The 138 «[auto]» lines of the accepted designs, read against the tests (`docs/
 | E-RB-9 | E1–E3 rendered: no group heading in the navigation; doors at least 56 px; at most one current door; the session row whole at 320 px | **CLOSED** (D-181). **Implemented in:** `src/app/page.tsx`, `src/components/BarisSesi.tsx`, `src/app/experience.css`. **Held by:** `audit/rb-ujung.mjs` (RB9) `audit/e1-navigasi.mjs`. «A refusal without the navigation» and the lapse redirect's sentence: **BLOCKED:** G1's words (Dr Gladys, K1). The idle warning never takes focus: by inspection, `PenjagaSesi` calls no `focus()` (accepted inspection, D-181(2)) |
 | E-RB-10 | K8: the step list's markers | **CLOSED** (Daisy, 4 Nov, `78b680d5`: A5 B12 final; the design system's `.pds-steps` corrected to it). **Implemented in:** `src/app/experience.css` (`.pin-lt-langkah`), `src/components/studio/LangkahTerbit.tsx`. Every marker filled: done an ink-1 dot, current the primary pill at 600 with `aria-current`, to come a line-control dot; never a ring or a segment. **Held by:** `D168-K8-1` (restated) `audit/studio-ujung.mjs` (U8, the drawn markers read from the browser) |
 
+## K6, interim (D-182)
+
+| # | Item | Status |
+|---|---|---|
+| E-K6-1 | The production data-residency architecture: where production data, files and backups reside, decided before any real-school use | **BLOCKED:** the owner, pending legal review (D-182(3)). Singapore stays for development and testing only (D-182(1)); no migration or new hosting commitment until the owner decides (D-182(4)). Not production acceptance |
+| E-K6-2 | Exposed assessment questions are never reused: the 240 exposed real-assessment items retired, regenerated items new identities with no stem matching an exposed one, the store's access rules with a refusal test, and «no real use on production» verified against production evidence | **BLOCKED:** the owner, K6.1–K6.6's answers, F-4(c) (the chapters for real assessment), F-4(e) (production evidence) and F-4(f) (the exposure flag); `batch-1/F4-EXPOSED-ITEM-INVENTORY.md`. Until then the repository guard (`SEC-G01`, `SEC-G02`) keeps keyed material out of the tree, and only synthetic data is used (D-182(6)) |
+
 ## Rulings reconciled to obligations (D-179(e))
 
 **Every ruling from D-166 on is reconciled here the day it is made.** That is when design acceptance after batch closure began. Each ruling names the obligations above that carry it, or says why it carries none. `R-PROSES-01` fails on a ruling in `docs/coordination/DECISIONS.md` that has no line here, and on an obligation named here that has no row above.
@@ -200,3 +207,4 @@ The 138 «[auto]» lines of the accepted designs, read against the tests (`docs/
 | D-179 | the pass's adjustments: verification rule, K6 as a security decision, deferral is not acceptance, K3 reconciled first, reverse reconciliation | none of its own: `R-PROSES-01` (this table); the pass's K6 and exit rules |
 | D-180 | approved means implemented and verified: the four fields of every obligation; reconcile on acceptance; the register checked at each milestone; no GREEN with an unimplemented or unverified obligation | none of its own: `R-PROSES-01` (the four fields, both directions, in every CI run); this register's rule (its head) |
 | D-181 | finite closure: the bounded scope (the 138 lines, E-RB-1…10, K1–K7, the release gates); no further audit cycle | none of its own: closes E-RB-1…E-RB-10 within the bounded scope (`docs/completion-4.0/retrospektif/04-REKONSILIASI-BALIK.md`) |
+| D-182 | K6 interim: Singapore for development and testing; production residency deferred pending legal review; synthetic data only; exposed questions never reused | E-K6-1, E-K6-2 |
