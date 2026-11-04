@@ -170,6 +170,17 @@ In the card email: «Akun PINTAR Anda di {sekolah}.» But a PINTAR ID belongs to
 | B20 | the activation waiting list | `aktivasi.tunggu.*` |
 | B21 | Batch 6 | `sertifikat.berkas`, the English «has met the mastery standard in» (`sertifikat.diberikan`), `akun.kartu.depan` / `.belakang`, and the email-status words (`emailuji.r.hasil.*`, `emailuji.r.arti`, `aktifkan.w_kartu_terkirim`, `akun.terkirim`, `emailuji.terkirim`) |
 
+**Words added during the D-177 corrections (4 Nov), implemented as proposed and waiting for you:** OK, or your wording, per row.
+
+| # | Key | Indonesian | English | Where |
+|---|---|---|---|---|
+| B22 | `kembali.riwayat` | Kembali ke halaman sebelumnya | Back to the previous page | a way back that returns to wherever the reader came from (the reports, «Laporkan masalah») |
+| B23 | `koleksi.posisi.terbuka` | Halaman {n} | Page {n} | a long list's pager when its total is not counted (with B6) |
+| B24 | `koleksi.benda.*` | laporan · jadwal pemeliharaan · pengumuman · sekolah · perpindahan · peran · catatan · pengerjaan ditinjau · definisi asesmen | reports · maintenance windows · notices · schools · transfers · roles · entries · reviewed sittings · assessment definitions | the noun in each pager's count line |
+| B25 | `laporan.metrik.tanpa_nama` | Ukuran ini belum punya nama | This measure has no name yet | a report figure whose name the copy table lacks |
+| B26 | `studio.soal.miskonsepsi` | Pemahaman keliru | Misunderstanding | an option's misconception, in the reviewer's question list |
+| B27 | `pendataan.buka.gagal` | Berkas itu belum bisa dibuka sebagai pendataan. Periksa isinya, lalu coba lagi. | That file could not be opened as an intake. Check its contents, then try again. | Pendataan, under the file form |
+
 Already settled, nothing to answer: the school registration number («Nomor Registrasi Sekolah», D-174 / D-175), and «PINTAR ID» as the identifier's name.
 
 ---

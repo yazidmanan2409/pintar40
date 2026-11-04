@@ -7,6 +7,15 @@
 
 **Already done:** the card email's role order (D-164(b), `9b52b51`, B6K-URUTAN-02; CI and journeys green).
 
+**Corrected under D-177 (4 Nov, development branch; evidence: `docs/completion-4.0/d177-koreksi/README.md`):**
+- E-C2-1, E-C2-2, E-C2-3; E-K1, E-K2, E-K3, E-K4, E-K7, E-K8, E-K9;
+- E-A2-1, E-A1-1, E-D2-1, E-B1-4;
+- E-C1-1, E-C1-2, E-C1-3, E-C1-4 (words pending Dr Gladys), E-C1-5, E-C1-6.
+
+Each has a D168-* regression test that was red on the old source and is green now.
+
+**Still open:** E-C1-7, E-B1-1, E-B1-3 (its word), E-E1-1/E-E1-2, E-K-ALL (re-run at each CI), E-B4-1, and the larger compositions.
+
 ## C1 · reports, Management and professional learning (D-167)
 
 Found by Daisy, C1 part B §8 (`ux-1/daisy-experience` at `9914bc97`).

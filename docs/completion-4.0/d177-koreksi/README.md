@@ -1,0 +1,77 @@
+# D-177 corrections: design-found inconsistencies corrected at the source (4 Nov 2026)
+
+**Authority:** D-177 (the owner's continuous-execution directive), D-168 (cross-component integrity), D-172 / D-173 (one experience).
+
+**Where:** the development branch `claude/awesome-rubin-bqxp6p`, from `eeb7dbe9` to `10e6868d`. There is no merge, no staging migration and no production change. No migration was added.
+
+**How each item was done:**
+1. Trace the item to its root cause.
+2. Correct it in the shared component or rule, not on one screen.
+3. Add a `D168-*` regression test, shown red on the old source (`git stash` of the fix) and green on the new.
+4. Run the full static suite.
+
+The register is `../daisy-design-completion/06-ENGINEERING-ITEMS-FROM-DESIGN.md`.
+
+## 1. What was corrected
+
+| Item | Root cause | Correction at the source | Test |
+|---|---|---|---|
+| **E-C2-1/2/3** (PD «Lihat bukti») | The page was the academic class page, with no notion of the class kind | One rule, `adaBuktiSoal(jenis)`, both offers «Lihat per soal» and opens that page. A PD class is never asked for class metrics; it shows one statement and a link to the record, no footnote (D-069(c)), and «Lihat nama peserta». A participant has no academic per-learner page, and roster names link only for learners | D168-C2-1, D168-C1-1 |
+| **E-K7** (eyebrow) | Konfigurasi and Studio drew «PINTAR» as an eyebrow inside the shell | No shelled page draws the app's name | D168-K7-1 |
+| **E-K2** (pagination) | There were two pagers. `Penomoran` said «Kembali», hid «Sebelumnya» on page 1 and had no count | `Penomoran` now renders the Collection's pager: «Menampilkan 21–40 {benda}», «Halaman n», «Sebelumnya» disabled on page 1. It shows a total only where the list already has one. It is its own container, so it folds at 320 px, and it draws nothing for a single page. The 10 lists each pass a noun, a count and the reader's language (3 lacked the language) | D168-K2-1 |
+| **E-K1** (back links) | Six keys read only «Kembali» | Each link is named by its destination, from one place table (`src/lib/nama-tempat.ts`) that the navigation also reads. A history-back is declared and named «Kembali ke halaman sebelumnya». Found on the way: six Mengajar refusals that return to a class page were labelled «Mengajar» | D168-K1-1, D168-C1-1 |
+| **E-K3** (✓ alone) | The save-result line shared `.pin-hasil` with the learner's result card, a grid | The card is now `.pin-capaian`, and the result line has no layout rule of its own | D168-K3-1 |
+| **E-A2-1** (Uji Cepat title) | The database stamps «Uji Cepat — 2026-11-02 20:26» (one language, raw date), and the result page added «Uji Cepat ·» on top | One helper, `judulAsesmen`: «Uji Cepat · 2 Nov 2026, 20.26 WIB», in the reader's language, on all four surfaces | D168-A2-1 |
+| **E-K9** (fixed dates) | Siapkan showed disabled native date fields after «Disediakan» | The shared date field draws a fixed value as the date helper's words in an `<output>` | D168-K9-1 |
+| **E-K8** (step markers) | Studio's steps were rings and read as radio buttons | Each step is now a segment of progress over its word | D168-K8-1 |
+| **E-C1-6, E-C1-2** | `/pengembangan` and `/lapor` chose their shell from role names; the class report spoke the teacher's words to every reader | Both are chosen by the working context (`cangkangStaf` takes the context), so a teacher who is also an administrator, working in Mengelola, gets Konfigurasi's shell | D168-C1-1 |
+| **E-C1-4** | The record's refusal fell back to the generic line | `pengembangan.ditolak` (words pending Dr Gladys) | D168-C1-1 |
+| **E-C1-1/3** | Entries were drawn by `label_key ? s(label_key) : ""`, which gave an empty `h2` or the copy table's dash | One helper, `labelMetrik`, on six surfaces: «Ukuran ini belum punya nama» when there is no label. All 34 metric keys in the migrations and the seed have copy | D168-C1-2 |
+| **E-A1-1** | The question loader read neither difficulty nor misconception | The loader reads the band (never the number) and the misconception's name, both under the reader's own row security | D168-A1-1 |
+| **E-D2-1** | The PDF name could hold `/ \ : * ? " < > \|` and had no length cap | `namaBerkas` replaces those characters and caps the name at 150. The tab title also returns after a cancelled print | D168-D2-1 |
+| **E-B1-4** | Daisy's proposed pseudo-element rule has no effect in Chromium (probed) | The field carries the ring while focus is within it but not on it (`:focus-within`, probed) | D168-B1-4; renders `e-b1-4-*.png` |
+| **E-C1-5** | The record's footer sat inside `main`, without `pin-noprint` | The footer moved outside `main`, as on the report pages. The A4 walk gains P5: a PD class is made by the product's own functions, and the facilitator prints the record | `audit/b6-cetak.mjs` P5; `e-c1-5-pengembangan-cetak.png` |
+| **E-K4** (result away from its action) | A result knew its section but not the form or row that sent it. 12 cases were found, plus answers that no page read | `queryHasil` now carries the origin (`asal`), the row (`baris`) and the list's page. `HasilDi` and Konfigurasi's `result()` answer each one at its form or row. Answers that were never drawn are now drawn: package-less Studio refusals, `?galat=baris`, `izin-*`, `koreksi-*`, and the certificate's context refusal | D168-K4-1 |
+
+**Kept as designed** (E-K4 audit):
+- the Uji Cepat refusal returns to the choices it is about (BOB-34; DAISY-27);
+- a passed JSON check answers at the top of the next step's panel (W1.4).
+
+## 2. Tests restated (same strictness, the ruled direction)
+
+| Test | Why |
+|---|---|
+| STUDIO3B-* (i18n), L4F6-K01, B4-HAL-K01 | the one pager |
+| HOD09-K01, B5A-LAPORAN-K01, DAISY-07-LAPORAN-01 | the history-back is named; the class report's persona comes from the context |
+| M4-K01 | only a learner's name links to a per-learner page (E-C2-1) |
+| B6C-PRINT-01 | the sanitised PDF name |
+| BOB19-K01, B5-CABUT-K01 | the actions carry their form |
+
+## 3. Verification
+
+**Static suite** (local, every static id): green at each commit.
+
+The database-state ids (F05-T20, TOUR-P01, F22-K01, D101-D01, D102-D01, F04-T11) fail only after a local walk has written to the stack, and pass from a reset. F22-K01 names the cause: P5's PD enrolment of alpha-hod and alpha-dean.
+
+**CI and journeys on `947b9a9`:**
+- `ci` 41773400465 passed.
+- Journeys 41773392540: job B passed. Job A failed twice on one defect of E-K2: the pager outside a Collection did not fold at 320 px (`/aktivasi` 471 px, sysadmin `/konfigurasi` 443 px).
+- Fixed in `10e6868` (the pager is its own container) and asserted in D168-K2-1.
+
+**On `10e6868`:** CI, the journeys, and job A's walks run locally on a reset stack are recorded in §4 when they finish.
+
+## 4. Results on `10e6868`
+
+(recorded when the runs finish)
+
+## 5. Copy pending Dr Gladys (added under D-177; listed for the question pack)
+
+| Key(s) | Words |
+|---|---|
+| `koleksi.menampilkan_tanpa_total` (B6), `koleksi.posisi.terbuka`, `koleksi.benda.*` | the pager's count line, position and nouns |
+| `kembali.riwayat` | «Kembali ke halaman sebelumnya» |
+| `laporan.metrik.tanpa_nama` | «Ukuran ini belum punya nama» |
+| `pengembangan.ditolak` (B10) | the record's refusal |
+| `mengajar.bukti.siapa_peserta`, `mengajar.bukti.pd.arti`, `mengajar.bukti.pd.buka` (B11–B13) | the PD «Lihat bukti» page |
+| `studio.soal.miskonsepsi` | «Pemahaman keliru» |
+| `pendataan.buka.gagal` | the intake file that would not open |
