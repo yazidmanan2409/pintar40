@@ -146,6 +146,11 @@ await step("RB1-A1", "A1: Studio's question review at every accepted width, axe 
   if (!harus(rec, /^[0-9a-f-]{36}$/.test(paketBoot), "a package with questions is seeded")) return;
   const page = await masuk(browser, ORANG.kaprodi);
   await permukaan(rec, page, `/studio/paket/${paketBoot}`, "studio-paket");
+  // E-K8: the drawn step markers, read from the browser (diagnostic values in the line)
+  const penanda = await page.locator("ol.pin-lt-daftar > li").evaluateAll((ls) => ls.map((l) => {
+    const b = getComputedStyle(l, "::before"); return `${l.getAttribute("aria-current") === "step" ? "kini " : ""}${b.width}×${b.height} ${b.borderTopWidth} ${b.backgroundColor}`; }));
+  harus(rec, penanda.length >= 5 && penanda.filter((x) => x.startsWith("kini ")).length === 1 && penanda.every((x) => / 0px /.test(x)),
+    `the step markers are filled, with no border, exactly one current: ${JSON.stringify(penanda)}`);
   // E-RB-3: at 320 px the pager's moves show only their chevrons; each keeps its word as its accessible name (K6)
   const adaPager = await page.locator("[data-soal-pager]").count();
   if (adaPager) {

@@ -415,12 +415,13 @@ await step("U8", "the head of department approves the content, reviews its findi
   // one a wider pill, exactly one current; never a segment
   const penanda = await h.locator("ol.pin-lt-daftar > li").evaluateAll((ls) => ls.map((l) => {
     const b = getComputedStyle(l, "::before");
-    return { kini: l.getAttribute("aria-current") === "step", w: parseFloat(b.width), t: parseFloat(b.height), garis: b.borderTopStyle, isi: b.backgroundColor };
+    // a visible border is its width (the base reset sets every ::before to a 0 px solid border)
+    return { kini: l.getAttribute("aria-current") === "step", w: parseFloat(b.width), t: parseFloat(b.height), garis: parseFloat(b.borderTopWidth) + (b.outlineStyle === "none" ? 0 : parseFloat(b.outlineWidth)), isi: b.backgroundColor };
   }));
   const kini = penanda.filter((x) => x.kini), lain = penanda.filter((x) => !x.kini);
-  harus(rec, penanda.length >= 5 && kini.length === 1 && penanda.every((x) => x.garis === "none" && x.isi !== "rgba(0, 0, 0, 0)")
+  harus(rec, penanda.length >= 5 && kini.length === 1 && penanda.every((x) => x.garis === 0 && x.isi !== "rgba(0, 0, 0, 0)")
     && lain.every((x) => x.w === x.t && x.t >= 10) && kini[0].w >= 2 * kini[0].t,
-    `the step markers are filled, the current one a pill (${JSON.stringify(penanda.map((x) => `${x.kini ? "kini " : ""}${x.w}×${x.t}`))})`);
+    `the step markers are filled, the current one a pill (${JSON.stringify(penanda.map((x) => `${x.kini ? "kini " : ""}${x.w}×${x.t} ${x.garis} ${x.isi}`))})`);
   harus(rec, /Buat terbitan · Kunci terbitan/.test(judulPanel), `the panel reads «${judulPanel}»`);
   const s2 = await tekan(h, "Kunci terbitan", rec, "buat-dan-kunci");
   harus(rec, !!s2 && /\|FROZEN$/.test(s2), `one press created and locked the release (${s2})`);
