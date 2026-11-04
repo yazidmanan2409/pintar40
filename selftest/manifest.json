@@ -4322,6 +4322,11 @@
       "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: every light colour the frame and the card block use is a token's value but the code box's border (DAISY-19-EMAIL-01, unwidened; P4)."
     },
     {
+      "id": "R0-PIN-01",
+      "runner": "static",
+      "proves": "Retrospective R0-1 (W0.2), selftest/retro.test.ts, reading every workflow file under .github/workflows: each job that installs or drives a browser (Playwright install, a walk or the crawl) runs on ubuntu-24.04, where Playwright 1.55 has a browser build (run 41377378758); a planted job on ubuntu-latest is caught."
+    },
+    {
       "id": "D168-KATA-1",
       "runner": "static",
       "proves": "F03-R02 false positive (D-168), selftest/d168.test.ts, from selftest/isi-materi.ts, the rendered TeksBaris and TeksBlok (src/components/teks/Teks.tsx), the stylesheet src/app/experience.css, the source of ItemPlayer.tsx and the seed supabase/seed/learning_cycle.sql: the learner-surface scan for verdict words reads PINTAR's own words only; authored content, which the shared renderer marks (data-isi-materi) and through which the player draws stems and options, is set aside whole even when nested, so the authored option \u00abSalah satu lebih besar\u00bb is not flagged; PINTAR's \u00abSalah\u00bb badge or \u00abIncorrect\u00bb/\u00abWrong\u00bb feedback beside or after the content is still caught, an unclosed marker sets nothing aside, the wrapper changes no layout, and the seed keeps its option as written."

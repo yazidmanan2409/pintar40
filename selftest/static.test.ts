@@ -13,6 +13,7 @@ import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 import { experienceTests } from "./experience.test";
 import { emailTests } from "./email.test";
 import { d1Tests } from "./d1.test";
+import { retroTests } from "./retro.test";
 import { aktifkanTests } from "./aktifkan.test";
 import { daisy40Tests } from "./daisy40.test";
 import { loginTests } from "./login.test";
@@ -2104,6 +2105,7 @@ export const staticTests: SelfTest[] = [
   ...experienceTests,
   ...emailTests,
   ...d1Tests,
+  ...retroTests,
   ...aktifkanTests,
   ...daisy40Tests,
   // LOGIN CONTRACT — L-1 and L-2. Same rule as the Experience cases above:
