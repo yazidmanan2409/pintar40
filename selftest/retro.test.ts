@@ -304,6 +304,39 @@ export const retroTests: SelfTest[] = [
       }
       c.expect(lepas.length === 0, `engineering items held by no test, no named holder and no named blocker: ${lepas.join(", ")}`);
 
+      // D-180 (2): every obligation says where it is implemented: a path on its row, or a src/ or supabase/ path in
+      // the proves of a test that names it or holds it; or it is blocked
+      const uji2 = JSON.parse(manifest) as { tests: Array<{ id: string; proves?: string }> };
+      const jalurAda = (t: string) => [...t.matchAll(/\b((?:src|supabase)\/[\w\[\]().@-]+(?:\/[\w\[\]().@-]+)*)/g)].some((x) => existsSync(join(repoRoot, x[1].replace(/[).,;:]+$/, ""))));
+      const tanpaTempat: string[] = [];
+      for (const m of baris) {
+        const isi = m[3];
+        if (/\*\*BLOCKED:\*\*\s*\S/.test(isi) && !/\*\*Implemented in:\*\*/.test(isi) && !/\*\*Held by:\*\*/.test(isi)) continue;
+        const nama = (m[2] ? [m[1], m[2]] : [m[1]]) as string[];
+        const pemegang = new Set([...isi.matchAll(/`([^`]+)`/g)].map((x) => x[1]).filter((x) => ids.has(x)));
+        for (const t of uji2.tests) if (nama.some((x) => new RegExp(`\\b${x}\\b`).test(t.proves ?? ""))) pemegang.add(t.id);
+        const ada = jalurAda(isi) || uji2.tests.some((t) => pemegang.has(t.id) && jalurAda(t.proves ?? ""));
+        if (!ada) tanpaTempat.push(nama.join(" / "));
+      }
+      c.expect(tanpaTempat.length === 0, `obligations with no traceable implementation (no path on the row or in a holding test's proves): ${tanpaTempat.join(", ")}`);
+
+      // D-179(e), the other direction: every ruling from D-166 on (design acceptance after batch closure) is
+      // reconciled in the list's «Rulings reconciled» table, the day it is made, to the obligations that carry it,
+      // or says why it carries none; every obligation the table names is a row of the list
+      const keputusan = readFileSync(join(repoRoot, "docs/coordination/DECISIONS.md"), "utf8");
+      const putusan = [...new Set([...keputusan.matchAll(/^\| \*\*D-(\d{3})\*\* \|/gm)].map((x) => Number(x[1])).filter((n) => n >= 166))];
+      const tabel = new Map([...daftar.matchAll(/^\| D-(\d{3}) \| [^|]+ \| ([^|]+) \|\s*$/gm)].map((x) => [Number(x[1]), x[2]]));
+      const kewajiban = new Set(baris.flatMap((m) => [m[1], m[2]].filter(Boolean) as string[]));
+      c.expect(putusan.length >= 14, `only ${putusan.length} rulings from D-166 read`);
+      const tanpa = putusan.filter((n) => !tabel.has(n));
+      c.expect(tanpa.length === 0, `rulings not reconciled to an obligation: ${tanpa.map((n) => `D-${n}`).join(", ")}`);
+      for (const [n, isi] of tabel) {
+        const sebut = [...isi.matchAll(/\bE-([A-Z0-9]+)-(\d+)\b|\bE-(K-ALL|P15|P17|K\d+)\b/g)].map((x) => x[3] ? `E-${x[3]}` : `E-${x[1]}-${x[2]}`);
+        c.expect(sebut.length > 0 || /\bnone\b|BLOCKED/.test(isi), `D-${n} names no obligation and no reason for none`);
+        const hilang = sebut.filter((x) => !kewajiban.has(x) && !(x === "E-P15" || x === "E-P17") );
+        c.expect(hilang.length === 0, `D-${n} names obligations the list does not hold: ${hilang.join(", ")}`);
+      }
+
       // E-P17: no disclosure around required content. Each disclosure on a screen is declared with what it holds;
       // a new one must be declared here, which is the review the rule asks for
       const BOLEH: Record<string, string> = {
@@ -322,7 +355,7 @@ export const retroTests: SelfTest[] = [
       }
       for (const [f, n] of ada) c.expect(f in BOLEH && n === 1, `${f}: ${n} disclosure(s) not declared (E-P17: no disclosure around required content)`);
       for (const f of Object.keys(BOLEH)) c.expect(ada.has(f), `${f} is declared but draws no disclosure: remove its line`);
-      return c.verdict(`reads the source of the design hand-off list (06-ENGINEERING-ITEMS-FROM-DESIGN.md), the manifest, every test file and every walk: each of the ${baris.length} engineering items is named by a test, held by named tests or files, or blocked on a named decider; and every disclosure under src/app and src/components (${ada.size}) is declared with what it holds (E-P17)`);
+      return c.verdict(`reads the decision log (DECISIONS.md), the design hand-off list (06-ENGINEERING-ITEMS-FROM-DESIGN.md), the manifest, every test file and every walk: each of the ${putusan.length} rulings from D-166 is reconciled to the obligations that carry it (or why none); each of the ${baris.length} engineering items is named by a test, held by named tests or files, or blocked on a named decider, and says where it is implemented (D-180); and every disclosure under src/app and src/components (${ada.size}) is declared with what it holds (E-P17)`);
     },
   },
 ];

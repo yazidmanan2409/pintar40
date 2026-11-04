@@ -1,10 +1,18 @@
-# The coordinated decision pass (D-178) · 4 Nov 2026
+# The coordinated decision pass (D-178, as adjusted by D-179 and D-180) · 4 Nov 2026
 
-**Ruling (D-178):** the retrospective is accepted. Batch 0 is VERIFIED. Batches 1–6 are acceptance-incomplete. No promotion. The branch stays protected.
+**Ruling (D-178):**
+- the retrospective is accepted;
+- Batch 0 is VERIFIED;
+- Batches 1–6 are acceptance-incomplete;
+- no promotion; the branch stays protected.
 
-**The pass:** close the genuinely blocking decisions together, implement what they decide, rerun the affected tests and the full journeys, then assess readiness for the next batch. No further broad audit is commissioned now.
+**Approved (D-179):** GO for the coordinated decision process; NO-GO for batch promotion until the applicable acceptance conditions are met.
 
-**The source of each item** is the register (`01-REGISTER.md`) and the summary (`02-RINGKASAN.md` §4). Nothing here is decided by engineering.
+**The pass:** close the genuinely blocking decisions together in one round. Then implement what they decide, rerun the affected tests and the full journeys, and assess readiness for the next batch. No further broad audit is commissioned now.
+
+**Rule in force (D-180):** approved means implemented and verified. Every obligation records what must exist, where it is implemented, how it is verified, and what remains (`06-ENGINEERING-ITEMS-FROM-DESIGN.md`, held by `R-PROSES-01` in every CI run).
+
+**The source of each item** is the register (`01-REGISTER.md`) and the summary (`02-RINGKASAN.md` §4). **Nothing here is decided by engineering.** No answer is assumed because a recommendation exists: K4–K7 are open until the owner answers them.
 
 ## 1. What is asked, of whom, in one round
 
@@ -12,11 +20,28 @@
 |---|---|---|---|---|
 | K1 | The words: Part A (A1–A10) and Part B (B1–B31) | **Dr Gladys** (A6 with the owner) | `DR-GLADYS-QUESTION-PACK.md`, one sitting. B28–B31 were added by the retrospective | R1-5, R2-4, R3-2, R3-3, R4-6, R4-7, R5-4, R5-6, R6-3 |
 | K2 | X12: «paket» / «kursus» / «course», one consolidated decision, the workbook sheet included (C9) | **Dr Gladys and the owner** | `X12-TERMINOLOGY-PAKET.md`; pack A6 | R3-2 |
-| K3 | C2 (the PD Kelas presentation), B4 (the card's school-less role), G1's screens | **Daisy, then the owner** | Daisy's C2, B4, E2 on `ux-1/daisy-experience` | R5-5, R5-6, R6-2 |
+| K3 | C2 (the PD Kelas presentation), B4 (the card's school-less role), G1's screens | **Daisy first reconciles** them against the approved decisions and gives **one consolidated recommendation** (D-179(d)). What an earlier ruling already covers is applied, not asked again. Only a genuinely open choice goes to the owner | Daisy's C2, B4, E2 on `ux-1/daisy-experience` | R5-5, R5-6, R6-2 |
 | K4 | F-11: the wordmark master and the font licence | **owner** | `F-OWNER-DECISIONS-REQUIRED-2026-11-02.md` | R6-4, R6-5 |
 | K5 | D1's manual client protocol: a send path and synthetic inboxes (P6) | **owner** | `daisy-design-completion/05-D1-IMPLEMENTATION-TEST-PLAN.md` | R6-3 |
-| K6 | F-4: the private content store, its access list, and regeneration before real use | **owner** | `batch-1/F4-EXPOSED-ITEM-INVENTORY.md` | R1-6 |
+| K6 | **F-4 as a security decision (D-179(b))**: the six questions in §1a | **owner** | §1a; `batch-1/F4-EXPOSED-ITEM-INVENTORY.md` | R1-6 |
 | K7 | The personal address in three files: keep it, or use a role address | **owner** | Batch 0 security report §4.1 | R1-7 |
+
+### 1a. K6: what the security decision must settle (D-179(b))
+
+K6 is not closed by choosing a storage location. Each question below needs an answer, and the answers together are the decision.
+
+| # | Question | What is known today |
+|---|---|---|
+| K6.1 | **Where the private content resides.** Production storage and its backups must reside in Indonesia. | The answer keys left the public tree (F-4, D-145(b)). 82 removed files remain in public history (R0-6). No private store exists |
+| K6.2 | **Which identities and services can read it**, by name (people, the import pipeline, CI) | none named |
+| K6.3 | **How access is enforced and audited**: the boundary (database policy, storage policy, or a service), and the log a reader leaves | the repository guard (`sensitive-scan`, SEC-G01/G02) keeps keyed material out of the tree; nothing governs the store itself yet |
+| K6.4 | **How the exposed materials are retired**: the chapters whose keys are public are marked never usable for real assessment | the inventory lists them (`batch-1/F4-EXPOSED-ITEM-INVENTORY.md`) |
+| K6.5 | **How content is regenerated before real assessment**: who writes it, who reviews it, and how it reaches the store without passing through the repository | — |
+| K6.6 | **How backups and exports stay confidential**: database backups, Studio exports, reports and the workbook, each in Indonesia and under K6.2's readers | — |
+
+**Engineering's part, once K6 is answered:** apply the access rules at the stated boundary, with a test that reads the content as a person who must be refused. Extend the guard and the export paths to the stated rules. Record each answer as an obligation (D-180).
+
+**Not in this pass:** no staging or production change. Anything that touches staging or production goes through its protected gate.
 
 **Not decisions, done at acceptance on the final screens:**
 - the NVDA and TalkBack passes and the skip link's keyboard check (R2-9);
@@ -26,24 +51,37 @@ These need K1 and K3 answered first, so the screens they read are final.
 
 ## 2. What each answer changes, and what is rerun
 
-| Answer | Engineering change (one pass, at the shared source) | Tests that hold it | Rerun |
+| Answer | Engineering change (one pass, at the shared source) | How it is verified | Rerun |
 |---|---|---|---|
-| K1 | the approved words into `src/lib/hle.ts` only; no screen writes its own | the key's own test (e.g. `R3-A5-01`, `D168-B2-1`, `D168-KATA-1`), and any test that quotes the old words, restated with the reason | the whole manifest; every walk (the walks read words) |
-| K2 | one replacement across every user-facing occurrence. The workbook gets a new template version, and old workbooks still import. No identifier, column or file is renamed | a cross-feature check over every user-facing string; an import test over the existing templates | the manifest; `studio-ujung` (upload, both template versions); the journeys |
+| K1 | the approved words into `src/lib/hle.ts` only; no screen writes its own | the key's own test (e.g. `R3-A5-01`, `D168-B2-1`, `D168-KATA-1`). Any test that quotes the old words is restated with the reason | the whole manifest; every walk (the walks read words) |
+| K2 | one replacement across every user-facing occurrence. The workbook gets a new template version, and old workbooks still import. No identifier, column or file is renamed | a cross-feature check over every user-facing string; an import test over the existing templates (the old one must still import) | the manifest; `studio-ujung` (upload, both template versions); the journeys |
 | K3 | C2 at `adaBuktiSoal`'s consumers; B4 in `susunKartu`; G1 in the chooser | `D168-C2-1`, `R5-PERSOAL-01`, `B6K-URUTAN-*`, `D168-E2-1` | `e1-navigasi`, `b5-ujung`, `d1-email` (the card block) |
-| K4 | the master into `MerekKartu` and the D5 slots; DS stage 2 | `B6K-MEREK-01`, `D1E-K07` | `b6-cetak`, `d1-email`; then the print proofs |
-| K5 | none in the code (the protocol is run, not built) | `D1E-K*` stay | D1's P6 by hand, recorded |
-| K6 | the owner's store; any chapter used for real assessment regenerated | `sensitive-scan --tree`, SEC-G01/G02 | CI |
-| K7 | the three files, if the owner says so (`.github/*-request.txt` stays the owner's) | the guard's allowlist entry removed | CI |
+| K4 | the master into `MerekKartu` and the D5 slots; DS stage 2 | `B6K-MEREK-01`, `D1E-K07`; the print proofs by inspection | `b6-cetak`, `d1-email` |
+| K5 | none in the code (the protocol is run, not built) | `D1E-K*` stay; P6 run by hand and recorded | — |
+| K6 | the access rules at the stated boundary; the guard and export paths | a refusal test read as a person who must be refused, plus the guard's tests | the manifest; CI |
+| K7 | the three files, if the owner says so (`.github/*-request.txt` stays the owner's) | the guard's allowlist entry removed; the guard green | CI |
 
-**Every change follows the process correction (D-178(e), `R-PROSES-01`).** An answer that leads to a change gets a line in `06-ENGINEERING-ITEMS-FROM-DESIGN.md` the day it is given. That line names its test, or the person it is blocked on. An «[auto]» line becomes a manifest id.
+**Verification rule (D-179(a)):**
+- every change has appropriate verification;
+- every defect correction has a regression test shown failing on the defect;
+- an approved word or asset needs no deliberately failing test.
+
+**Reconciliation (D-180):** an answer that creates or changes an obligation is entered in `06-ENGINEERING-ITEMS-FROM-DESIGN.md` the day it is given, in its «Rulings reconciled» table, with the obligation's four fields. `R-PROSES-01` fails on a ruling without that line.
 
 ## 3. The exit, and then readiness
 
-**The pass is done when:**
-- every K row is answered, or explicitly deferred by the owner;
-- its changes are built with their tests, each shown red first;
-- the whole manifest and every walk are green locally;
-- `ci` and the journeys are green on that head.
+**The decision round is closed when** every K row is answered, or explicitly deferred by the owner.
 
-**Then** the per-batch verdicts in `02-RINGKASAN.md` §5 are reassessed, and readiness for the next batch is put to the owner. Promotion stays the owner's decision.
+**A deferred item is not acceptance (D-179(c)).** It stays OPEN or BLOCKED in the register, and the readiness assessment counts it. For example, deferring F-11 leaves the branding and the print proofs incomplete.
+
+**The pass is done when:**
+- the answered items are implemented and verified (§2);
+- the whole manifest and every walk are green locally;
+- the relevant manual checks are done or recorded as blocked;
+- `ci` and the journeys are green on that head;
+- `R-PROSES-01` finds no approved requirement without implementation or verification evidence.
+
+**Then** the per-batch verdicts in `02-RINGKASAN.md` §5 are reassessed:
+- a batch is not GREEN while an applicable approved requirement has an unimplemented or unverified obligation (D-180);
+- readiness for the next batch is put to the owner;
+- promotion stays the owner's decision, through the protected gates.

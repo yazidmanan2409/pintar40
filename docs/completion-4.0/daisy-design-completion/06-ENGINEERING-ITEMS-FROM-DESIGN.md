@@ -1,9 +1,14 @@
 # Engineering items found during Daisy's design work (register; NOT authorised) · 4 Nov 2026
 
-**What this is:**
-- Defects and compatibility requirements that Daisy or the coordinator found while composing or reviewing A1, B1, C1 and D1.
-- Each is engineering's, not a design decision. Each gets a regression test that fails red against today's code before the fix.
-- **Nothing here is authorised.** Each item is built only at its item's implementation gate (the brief, §5 and §8), on the development branch, under the owner's authorisation.
+**What this is: the implementation register for every accepted design, requirement and ruling (D-180).**
+- **The four fields of every obligation (D-180):**
+  1. *what must exist*: the row's item;
+  2. *where it is implemented*: a path on its row («**Implemented in:**») or in its holding test's `proves`;
+  3. *how it is verified*: the test, walk or inspection that names it, or «**Held by:**»;
+  4. *what remains*: «**BLOCKED:**» and who decides.
+- **Verification rule (D-179(a)):** every change has appropriate verification. Every defect correction has a regression test shown failing on the defect.
+- **Reconciled the day a ruling is made**, in «Rulings reconciled» at the end. `R-PROSES-01` checks both directions in every CI run.
+- **History:** this list began as the items found during Daisy's design work, built under D-177's authority on the development branch (below).
 
 **Already done:** the card email's role order (D-164(b), `9b52b51`, B6K-URUTAN-02; CI and journeys green).
 
@@ -37,8 +42,8 @@ Found by Daisy, C1 part B §8 (`ux-1/daisy-experience` at `9914bc97`).
 | E-C1-1 | A raw data key can appear as a label | render each report surface with an entry whose `label_key` has no copy; no key-shaped text (`[a-z]+(\.[a-z_]+)+`) reaches the page; the static «every key in the table» guard extended to the keys these pages read |
 | E-C1-2 | Staff pages use the educator wording (`s(…, "educator", …)` on pages a Dekan, Kepala departemen or Admin sekolah reads) | source and rendered: each staff report page asks the copy table with the staff persona; the rendered words match the staff copy |
 | E-C1-3 | Two pages can render an empty heading | rendered: no `h1`–`h3` with empty text on any C1 route, in any state (including withheld and not-yet entries) |
-| E-C1-4 | The `/pengembangan` refusal falls back to a generic line | the refusal renders Daisy's proposed key (after copy approval), in both languages; never the generic fallback |
-| E-C1-5 | The `/pengembangan` footer prints | the A4 print walk (`audit/b6-cetak.mjs`) gains `/pengembangan/[simpul]`: no shell part, footer included, on paper |
+| E-C1-4 | The `/pengembangan` refusal falls back to a generic line | the refusal renders Daisy's proposed key (after copy approval), in both languages; never the generic fallback **Implemented in:** `src/app/pengembangan/[simpul]/page.tsx` (`pengembangan.ditolak` through HalamanPenolakan); held by `D168-C1-1`. Its words: **BLOCKED:** copy approval (Dr Gladys pack B10). |
+| E-C1-5 | The `/pengembangan` footer prints | the A4 print walk (`audit/b6-cetak.mjs`) gains `/pengembangan/[simpul]`: no shell part, footer included, on paper **Implemented in:** `src/app/pengembangan/[simpul]/page.tsx` (its footer) and the print stylesheet `src/app/experience.css`; held by `audit/b6-cetak.mjs` (the `/pengembangan` page on A4). |
 | E-C1-6 | `/pengembangan` picks its shell from role names in the page code (`peranSaya`, `src/app/pengembangan/[simpul]/page.tsx:37–39`) | source: the shell is chosen from the working context (D-132), as every other staff page does, not by matching role names; rendered: each audience gets its own context's shell |
 
 ### E-C1-7 · The safeguard: Admin sekolah never retrieves an individual professional-learning result (owner, 4 Nov)
@@ -67,7 +72,7 @@ Found by Daisy in C2 (`ux-1/daisy-experience` at `d9a27652`), or by the coordina
 | # | Item | Planned regression test |
 |---|---|---|
 | E-C2-1 | «Lihat nama murid» does not switch to the participant word for a PD Kelas (proposed key `mengajar.bukti.siapa_peserta`, pending copy approval); seen live twice. The `/siapa` names link to `/mengajar/[kelas]/murid/[orang]` | rendered PD Kelas: no «murid» anywhere on the page or on the participant's page it links to (UX1-AJAR-KATA-01 extended) |
-| E-C2-2 | For a PD Kelas the page still asks for the five class metrics and draws five «not yet» cards. D-070(h): no figure is added or computed | source and rendered: for a PD Kelas the page requests no class metric and draws only the one statement and the link to the record; the ordinary class page is unchanged |
+| E-C2-2 | For a PD Kelas the page still asks for the five class metrics and draws five «not yet» cards. D-070(h): no figure is added or computed | source and rendered: for a PD Kelas the page requests no class metric and draws only the one statement and the link to the record; the ordinary class page is unchanged **Implemented in:** `src/app/mengajar/[kelas]/bukti/page.tsx` (`adaBuktiSoal`, `src/lib/mengajar.ts`); held by `D168-C2-1`. Its presentation: **BLOCKED:** C2 under review (K3). |
 | E-C2-3 | «Lihat per soal» is offered on a PD Kelas, and the per-question page **refuses the facilitator** (seen live, `verifikasi-b1-c2/putaran-2`); «Minta membaca lagi» stays. The database refuses the facilitator participants' answers (BOB43-D01 `jawaban_fasilitator` 0; live probe 0) | **Fixed at the source (D-168):** the link is derived from the same permission the per-question page asks, not from a PD special case. Test: for every reader and class kind, «Lihat per soal» is offered exactly when its page admits that reader; the page still refuses, and shows no participant's answer, if reached by address |
 
 **Checked during review:** BOB43-D01 lets Admin sekolah read a PD `assessment_sessions` row (`sesi_admin: 1`). That table holds status and timestamps only: no score or result (`supabase/migrations/20260912133821_evidence_session_root.sql`). So it is completion, which D-069(b) allows. Results live in `assessment_results`, and E-C1-7 sweeps them.
@@ -76,7 +81,7 @@ Found by Daisy in C2 (`ux-1/daisy-experience` at `d9a27652`), or by the coordina
 
 | # | Item | Planned test |
 |---|---|---|
-| E-B1-1 | **Every existing Konfigurasi link keeps working:** the anchors (`#struktur`, `#roles`, `#rollover`, `#pindah`, `#system`, `#pemeliharaan`) and the query parameters (`?bagian=…`, `?hasil=…`, `?muat=…`, `?sekolah=…`, `?periksa=skema`, `?cari_sekolah=…`, `?hal_jejak=…`), from server actions, Persiapan, Ringkasan and the walks | a table of every link found in `src/` and `audit/`; each lands on its section page with the same result line; the walks updated to the routes |
+| E-B1-1 | **Every existing Konfigurasi link keeps working:** the anchors (`#struktur`, `#roles`, `#rollover`, `#pindah`, `#system`, `#pemeliharaan`) and the query parameters (`?bagian=…`, `?hasil=…`, `?muat=…`, `?sekolah=…`, `?periksa=skema`, `?cari_sekolah=…`, `?hal_jejak=…`), from server actions, Persiapan, Ringkasan and the walks | a table of every link found in `src/` and `audit/`; each lands on its section page with the same result line; the walks updated to the routes **Implemented in:** `src/components/konfigurasi/TerusBagian.tsx`, `src/lib/bagian-konfigurasi.ts`; held by `D168-B1-1` and `audit/admin-ujung.mjs` (W11). |
 | E-B1-2 | `config.refused`'s English says «system administrators only»; the Indonesian says Admin sekolah or Admin platform | the rendered copy says the same thing in both languages (after copy approval) **BLOCKED:** copy approval of `config.refused` in both languages (Dr Gladys / copy approval; D-178 pass). |
 | E-B1-3 | The seed school's display name: a seed-file change (`supabase/seed/official_bootstrap.sql:68`, and `audit/studio-ujung.mjs`), development and CI only; the wording waits on Dr Gladys | the seed and the walk agree; no migration **BLOCKED:** Dr Gladys, the seed school's name (D-178 pass). |
 | E-B1-4 | The design system's date field: the calendar button shows no focus ring (Daisy's proposed fix; a change to the frozen system) | rendered: every Tab stop of a date field shows the focus ring |
@@ -88,6 +93,25 @@ Found by Daisy in C2 (`ux-1/daisy-experience` at `d9a27652`), or by the coordina
 |---|---|---|
 | E-A1-1 | The question loader (`src/lib/soal-tinjauan.ts`, `susunSoal`) does not read each question's difficulty band (`items.predicted_difficulty`) or each option's misconception (`item_options.misconception_code`) | the loader returns both; the review renders them; reading stays limited to the drafter's existing access |
 
+| E-A1-2 | **The composition itself** (added by the retrospective, R3-1: the section held only E-A1-1, so A1 stood unbuilt): one whole lesson per view, the lesson jump and a pager naming the lesson, package-wide numbering, the key by badge, icon and word, every reason and misconception shown, the «gagal» and empty states; the loader never shows a part as the whole | **Held by:** `R3-SOAL-01` `D088H-K01` `D168-A1-1` `audit/studio-ujung.mjs` (U7b, 320 px included). Its ten new words: **BLOCKED:** copy approval (Dr Gladys pack B28) |
+
+## A4 · Batch 3's words (accepted, D-171(b))
+
+| # | Item | Planned test |
+|---|---|---|
+| E-A4-1 | The corrected words of B2, B5, C2, C5, C7 and D7 in both languages; one «(opsional)» key for every optional field (added by the retrospective, R3-2) | **Held by:** `R3-A5-01`. C3's hint and C9's sheet: **BLOCKED:** Dr Gladys (pack A5, A6; C9 also X12, K2) |
+
+## A5 · Batch 3's layout answers (accepted, D-173(a))
+
+| # | Item | Planned test |
+|---|---|---|
+| E-A5-1 | The page-level corrections B10 (a package's title is its page's h1; Studio's head aside), C1 (the sent-back badge), J5 (the window in Siapkan's review) (added by the retrospective, R3-3; B3, B12, C8 and D6 are E-K3, E-K8, E-K7 and E-K9) | **Held by:** `R3-A5-01`. B7, B9, B11's words: **BLOCKED:** copy approval (pack B1–B3) |
+
+## B2 · «Nomor Registrasi Sekolah» (accepted, D-174, D-175)
+
+| # | Item | Planned test |
+|---|---|---|
+| E-B2-1 | The 11 keys in both languages, one English term, the explanation on Pendataan and Aktivasi, the identifiers kept apart (added by the retrospective, R4-7) | **Held by:** `D168-B2-1` (both languages compared) **Implemented in:** `src/lib/hle.ts`, `src/app/pendataan/page.tsx`, `src/components/aktivasi/CariTunggu.tsx`. |
 ## A2 · the Uji Cepat class figure (accepted, D-170(a))
 
 | # | Item | Planned test |
@@ -99,8 +123,7 @@ Found by Daisy in C2 (`ux-1/daisy-experience` at `d9a27652`), or by the coordina
 | # | Item | Planned test |
 |---|---|---|
 | E-E1-1 | **In the rail, the design system hides each place's visible name with `display: none`, so the link loses its accessible name** (axe `link-name`; Daisy, E1 at `313fb8e5`). Her composition adds `aria-label` to every place | **at the source (D-168):** the shell's rail hides the name *visually* only (the visually-hidden technique), so the link's own text stays its name and no second copy (`aria-label`) can drift from the visible label; **approved by the owner (D-170(c))**; a change to the frozen shell. **Knock-on found by Daisy (`a3cef3bb`):** the shell's tooltip decides to show by testing whether the label is `display: none` (`perlu()` in the bundle), so hiding the label visually would silently switch the rail's tooltips off. The tooltip must instead follow **the rail's own state** (collapsed or in the rail range), the same state that hides the label. Test: in the rail every place link's accessible name equals its expanded label, for every context; no link carries `aria-label`; a focused or hovered rail link shows its tooltip, and an expanded one does not |
-| E-E1-2 | **The integrated navigation (D-168, D-169(e))** | **Required (D-170(e)).** One walk per role and context, with the transitions between them: one context; a Guru who also learns (Mengajar ↔ Belajar); Admin sekolah; Kepala departemen and Dekan; Admin platform in «Seluruh platform». For each: the places are exactly `permukaanKonteks` and the extra places; the sections drawn equal the menu (E-B1-5); the context control appears only with another context; a refused action in another context shows `context.other_school`'s line; the rail, the collapse and the drawer at 1280, 1279, 1100, 1024, 1023, 820, 390, 320 |
-
+| E-E1-2 | **The integrated navigation (D-168, D-169(e))** | **Required (D-170(e)).** One walk per role and context, with the transitions between them: one context; a Guru who also learns (Mengajar ↔ Belajar); Admin sekolah; Kepala departemen and Dekan; Admin platform in «Seluruh platform». For each: the places are exactly `permukaanKonteks` and the extra places; the sections drawn equal the menu (E-B1-5); the context control appears only with another context; a refused action in another context shows `context.other_school`'s line; the rail, the collapse and the drawer at 1280, 1279, 1100, 1024, 1023, 820, 390, 320 **Implemented in:** `src/components/NavKonteks.tsx`, `src/components/CangkangPengalaman.tsx`, `src/lib/konteks.ts`; held by `D168-E2-1` `audit/e1-navigasi.mjs`. NVDA and TalkBack: **BLOCKED:** a manual run at acceptance. |
 ## D-172 · shared-pattern corrections (accepted, D-173; Daisy's consistency record, `ux-1/daisy-experience` at `1a2b911d`, `X-KONSISTENSI/README.md`)
 
 Each correction is made **once, in the shared component or helper**, never per screen. Each is checked by **one cross-screen check inside the existing static suite or journeys**, not a new suite (D-172).
@@ -113,7 +136,7 @@ Each correction is made **once, in the shared component or helper**, never per s
 | E-K4 | a result line away from the action it answers | the result line belongs to its form or row (the existing `result(bagian)` pattern) | static: each action's result renders inside its form or row |
 | E-K7 | the «PINTAR» eyebrow inside the shell (Konfigurasi, seen live; Studio) | one page-head rule: no app-name eyebrow inside the shell | static and rendered: no eyebrow reading «PINTAR» on any shelled page |
 | E-K8 | Studio's step markers read as radio buttons | the one step-list component, as J1Terbit's named steps | rendered: the step list has no radio-like role or look |
-| E-K9 | disabled date fields standing for a fixed value (Siapkan after «Disediakan») | fixed values render as text through the date helper | rendered: no disabled input shows a value that cannot be changed |
+| E-K9 | disabled date fields standing for a fixed value (Siapkan after «Disediakan») | fixed values render as text through the date helper | rendered: no disabled input shows a value that cannot be changed **Implemented in:** `src/components/bentuk/TanggalDenganGema.tsx`; held by `D168-K9-1`. |
 | E-P15 / E-P17 | (guards) every refusal through HalamanPenolakan; no disclosure around required content | as built | static: kept as guards over new screens **Held by:** `UX1-PIMPINAN-LINGKUP-01` `UX1-DATA-WENANG-01` `B5C-TOLAK-K01` (E-P15, per area: Pimpinan, the data surfaces, Mengajar); `R-PROSES-01` (E-P17: every disclosure declared). |
 | E-K-ALL | **A shared-component change must not break unrelated consumers (D-173(d))** | — | for each changed shared component (Pagination, the back-link helper, BarisHasil, the step list, the page head): every consuming screen listed from the source, and the existing walks of those screens re-run green **Held by:** `.github/workflows/audit-journeys.yml` (every walk re-run on each candidate head) `R-PROSES-01` (no engineering item without a holder). |
 **The exceptions Daisy documented (X1–X6) are accepted as intentional differences (D-173(c)), not permission for arbitrary inconsistency.** Each is an allowed difference in the checks above, named, so a check does not flatten a deliberate behaviour.
@@ -137,3 +160,25 @@ Each correction is made **once, in the shared component or helper**, never per s
 The full plan is in `05-D1-IMPLEMENTATION-TEST-PLAN.md`.
 
 **Built (4 Nov, `be8a68c2`):** the reason line under the heading, the context line where the data carries a place, warm white and the gold line, and the card block from `susunKartu`. Proved by D1E-K02–K08, K10, K12, K14–K16, the restated DAISY-19/20, B6K-URUTAN-02, B6K-WARNA-01 and D168-B4-1, and the walk `audit/d1-email.mjs` (K09, K13, the keyboard order). **Open:** P5 (Dr Gladys) and P6, the manual client protocol (owner).
+
+## Rulings reconciled to obligations (D-179(e))
+
+**Every ruling from D-166 on is reconciled here the day it is made.** That is when design acceptance after batch closure began. Each ruling names the obligations above that carry it, or says why it carries none. `R-PROSES-01` fails on a ruling in `docs/coordination/DECISIONS.md` that has no line here, and on an obligation named here that has no row above.
+
+| Ruling | What it accepts or directs | Obligations |
+|---|---|---|
+| D-166 | B1 (Konfigurasi); A1 (the question review); the interim email logo's alt | E-B1-1, E-B1-2, E-B1-3, E-B1-4, E-B1-5, E-A1-1, E-A1-2 (the alt: D1, `05-D1-IMPLEMENTATION-TEST-PLAN.md`) |
+| D-167 | C1 (reports, Management, professional learning) | E-C1-1, E-C1-2, E-C1-3, E-C1-4, E-C1-5, E-C1-6 |
+| D-168 | standing directive: cross-component integrity and end-to-end acceptance | none of its own: held by `R-PROSES-01` and the journeys (E-K-ALL) |
+| D-169 | O11, E2 and the navigation (O6) | E-E1-2 |
+| D-170 | A2; E1; O12 (one order of places) | E-A2-1, E-E1-1, E-E1-2 |
+| D-171 | E1's correction; A4; X12 as one terminology reconciliation | E-E1-1, E-A4-1 (X12: **BLOCKED:** Dr Gladys and the owner, K2) |
+| D-172 | standing directive: One PINTAR, One Experience | none of its own: carried by D-173's obligations |
+| D-173 | the 21 canonical patterns; A5; the consistency record | E-K1, E-K2, E-K3, E-K4, E-K7, E-K8, E-K9, E-P15, E-P17, E-K-ALL, E-A5-1 |
+| D-174 | B2: «Nomor Registrasi Sekolah» | E-B2-1 |
+| D-175 | «PINTAR ID»; B2 accepted; D4 stage 1 | E-B2-1 (D4: none, it is Daisy's published page) |
+| D-176 | O3 (the threshold of five); A3 | E-A3-1, E-A3-2 |
+| D-177 | execution directive | none: a way of working |
+| D-178 | the retrospective accepted; one coordinated pass | none of its own: `R-PROSES-01`; the pass, `docs/completion-4.0/retrospektif/03-LINTASAN-KEPUTUSAN.md` |
+| D-179 | the pass's adjustments: verification rule, K6 as a security decision, deferral is not acceptance, K3 reconciled first, reverse reconciliation | none of its own: `R-PROSES-01` (this table); the pass's K6 and exit rules |
+| D-180 | approved means implemented and verified: the four fields of every obligation; reconcile on acceptance; the register checked at each milestone; no GREEN with an unimplemented or unverified obligation | none of its own: `R-PROSES-01` (the four fields, both directions, in every CI run); this register's rule (its head) |
