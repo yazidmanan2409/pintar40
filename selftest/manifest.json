@@ -4372,6 +4372,11 @@
       "proves": "Reverse reconciliation (A2 K4 and K6, accepted D-170(a)), selftest/retro.test.ts, reading the stylesheet src/app/experience.css and the source of src/app/mengajar/[kelas]/uji-cepat/hasil/page.tsx: the Uji Cepat class figure's base sits directly under the figure at body size in ink-1, and «Rincian nilai» is the section's h2 in t-section, not an eyebrow; the shared metric panel is unchanged for every other figure."
     },
     {
+      "id": "D1E-K01",
+      "runner": "static",
+      "proves": "E-RB-7 (D1 STEP-2 lines 1, 10 and 11; reverse reconciliation), selftest/d1.test.ts, from the rendered HTML and plain-text output of all eight identity emails through their real templates (src/components/email/identitas.ts, keamanan.ts) and the frame (bingkai.ts): each passes the frame's structure; its plain text carries every action link of its HTML and the frame's footer; the recovery code's stated duration follows berlakuMenit."
+    },
+    {
       "id": "R0-PIN-01",
       "runner": "static",
       "proves": "Retrospective R0-1 (W0.2), selftest/retro.test.ts, reading every workflow file under .github/workflows: each job that installs or drives a browser (Playwright install, a walk or the crawl) runs on ubuntu-24.04, where Playwright 1.55 has a browser build (run 41377378758); a planted job on ubuntu-latest is caught."

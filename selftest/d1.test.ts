@@ -26,13 +26,15 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
-import { t, type HleEvent } from "../src/lib/hle";
+import { format, t, type HleEvent } from "../src/lib/hle";
 import type { KonteksEmail } from "../src/lib/email/templat";
 import { WARNA, logoEmail } from "../src/components/email/bingkai";
 import { templatKode, templatKartu, templatPemulihan, templatPasswordDiubah } from "../src/components/email/identitas";
 import { templatKeamanan } from "../src/components/email/keamanan";
 import type { DataEmailKartu } from "../src/lib/email/identitas";
 import { susunKartu } from "../src/lib/kartu-pintar";
+
+import { struktur } from "./email.test";
 
 const PRODUKSI: KonteksEmail = { asal: "https://app.pintarselalu.com", staging: false };
 const kata = (k: HleEvent) => t(k, "public", { locale: "id" });
@@ -206,6 +208,35 @@ export const d1Tests: SelfTest[] = [
         c.expect(/\.pin-kartu \{ border-top-color: #C09C4F !important; \}/i.test(s.e.html), `${s.nama}: the gold line is not kept on dark`);
       }
       return c.verdict("every email's card is warm white (--surface-0) with a 3 px gold top edge (--kartu-emas), kept on dark");
+    },
+  },
+  {
+    id: "D1E-K01",
+    requires: [],
+    run: async () => {
+      const c = new Checks();
+      /**
+       * E-RB-7 (D1 STEP-2 lines 1, 10, 11; reverse reconciliation): ONE SHELL FOR ALL EIGHT, AND THE PLAIN TEXT IS
+       * COMPLETE. The frame's structure was checked on three emails only; recovery, password-changed and both security
+       * emails had none. Each of the eight, rendered from its real template: the frame's structure (one h1, lang, no
+       * script or web font, https links only, presentation tables, the 600 px column and the Outlook table, alt text);
+       * the plain text carries every action link the HTML offers and the frame's footer; and the recovery code's
+       * duration follows berlakuMenit, as activation's does.
+       */
+      for (const s of spesimen()) {
+        const salah = struktur(s.e.html);
+        c.expect(salah.length === 0, `${s.nama}: the frame's structure — ${salah.join("; ")}`);
+        const aksi = [...s.e.html.matchAll(/<a class="pin-tombol-a" href="(https:[^"]+)"/g)].map((m) => m[1]);
+        c.expect(aksi.every((h) => s.e.teks.includes(h)), `${s.nama}: the plain text lacks an action the HTML offers (${aksi.join(", ")})`);
+        const kakiTeks = s.e.teks.slice(s.e.teks.indexOf("\n--\n"));
+        c.expect(kakiTeks.includes("PT ZAYD PINTAR SELALU") && kakiTeks.includes("info@pintarselalu.com"), `${s.nama}: the plain text's footer is incomplete`);
+      }
+      for (const m of [15, 60, 1440]) {
+        const e = templatPemulihan({ kode: "482913", berlakuMenit: m, nama: NAMA }, PRODUKSI);
+        const d = format.durasi(m * 60, "id");
+        c.expect(e.teks.includes(d) && teksDari(e.html).includes(d), `recovery at ${m} minutes does not say «${d}»`);
+      }
+      return c.verdict("renders all eight identity emails from their real templates: each passes the frame's structure, its plain text carries every action link of the HTML and the frame's footer, and the recovery code's stated duration follows berlakuMenit at 15, 60 and 1440 minutes");
     },
   },
   {

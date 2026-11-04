@@ -203,6 +203,16 @@ jobs:
           APP_DIR: ${{ github.workspace }}/app
           OUT_DIR: ${{ github.workspace }}/audit-out/d1-email
         run: node d1-email.mjs
+      # Reverse reconciliation (D-179(e), D-180, D-181): the accepted surfaces at Daisy's widths with axe and the keyboard
+      # judged, B2's explanation rendered, and the chooser's doors and session row (E-RB-1, -2, -3, -5, -9)
+      - name: Walk the reverse reconciliation's closure (E-RB)
+        if: success() || failure()
+        working-directory: harness/audit
+        env:
+          APP_URL: http://127.0.0.1:3999
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/rb-ujung
+        run: node rb-ujung.mjs
       - name: Server log (errors only)
         if: always()
         run: grep -iE 'error|exception|fail' "$RUNNER_TEMP/app.log" | grep -v 'evaluation_state' | head -80 || true

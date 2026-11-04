@@ -33,7 +33,7 @@ export function jobsAlurKerja(yml: string): Array<{ nama: string; isi: string }>
   return jobs;
 }
 
-const PERAMBAN = /playwright install|chromium\.launch|node (?:crawl|journey|studio-ujung|admin-ujung|b5-ujung|b6-cetak|b5-fokus|e1-navigasi|d1-email|c12)\.mjs/;
+const PERAMBAN = /playwright install|chromium\.launch|node (?:crawl|journey|studio-ujung|admin-ujung|b5-ujung|b6-cetak|b5-fokus|e1-navigasi|d1-email|rb-ujung|c12)\.mjs/;
 
 /** Every .tsx file under a directory, recursively. */
 function tsx(dir: string): string[] {
@@ -234,6 +234,8 @@ export const retroTests: SelfTest[] = [
         "mengajar.cepat.hasil.kelas": "Class average score",
       };
       for (const [key, en] of Object.entries(EN)) c.expect(k(key, "en") === en, `(en) ${key} reads «${k(key, "en")}», not «${en}»`);
+      // A2 (D-170(a)), both languages (E-RB-4)
+      c.expect(k("mengajar.cepat.hasil.kelas", "id") === "Rata-rata nilai kelas", `(id) mengajar.cepat.hasil.kelas reads «${k("mengajar.cepat.hasil.kelas", "id")}»`);
       c.expect(k("galat.findings_acknowledged", "id") === "Temuan sejenis sudah ditinjau sekaligus. Jumlahnya:" && k("studio.temuan.akui_semua", "id").includes("tinjau"),
         "the findings' result does not echo its button's verb («tinjau»)");
       const hle = readFileSync(join(repoRoot, "src/lib/hle.ts"), "utf8");

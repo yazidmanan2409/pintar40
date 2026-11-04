@@ -108,7 +108,7 @@ const pindai = (teks: string): string[] =>
   TERLARANG.filter((w) => new RegExp(`(?<![\\p{L}\\p{N}_])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}\\p{N}_])`, "iu").test(teks));
 
 /** The prototype's structural checks. */
-const struktur = (html: string, lokal = false): string[] => {
+export const struktur = (html: string, lokal = false): string[] => {
   const masalah: string[] = [];
   if (!/<html lang="id"/.test(html)) masalah.push("no lang=\"id\" on <html>");
   if (!/role="article"[^>]*lang="id"/.test(html)) masalah.push("no lang=\"id\" on the article wrapper");

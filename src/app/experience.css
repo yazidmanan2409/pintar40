@@ -76,6 +76,9 @@
    has loaded on a slow classroom tablet. */
 .pin-sesi { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
 .pin-sesi-ket {
+  /* a flex row, so the name's menu button shrinks inside it and truncates its own name; as a clipped inline box the
+     button was cut away whole on a narrow screen and lay under «Keluar» (rb-ujung RB9) */
+  display: inline-flex; align-items: center;
   min-width: 0; max-width: var(--measure-sesi);
   font-size: var(--type-fine); color: var(--ink-2);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -3164,9 +3167,9 @@ select:not([multiple]):not([size]) {
 /* the menu hangs from the whole identity strip (the foot of the navigation or drawer), not from the name inside it,
    so it is never wider than the place it opens from */
 .pin-sesi:has(.pin-menu-induk) { position: relative; }
-.pin-menu-induk { position: static; display: inline-block; }
+.pin-menu-induk { position: static; display: inline-block; min-width: 0; max-width: 100%; }
 .pin-menu-tombol {
-  display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control-md); padding: 0 var(--space-2);
+  display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control-md); min-width: 0; padding: 0 var(--space-2);
   border: 0; background: none; color: var(--ink-1); font: inherit; cursor: pointer; max-width: 100%;
 }
 .pin-menu-tombol strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
