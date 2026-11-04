@@ -4207,6 +4207,11 @@
       "proves": "D-174 / D-175 (B2, UX-09), selftest/d168.test.ts: over the rendered copy table in both languages, no string says «nomor induk», «identity number», «school number» or «ID PINTAR»; «Nomor Registrasi Sekolah» / «No. Registrasi Sekolah» is used (10+ strings); no string presents the PINTAR ID, the NIS/NISN or class membership («Keanggotaan») as the registration number; Pendataan (pendataan.nomor.arti) and Aktivasi's search help (aktivasi.tunggu.cari_arti) carry the same approved explanation."
     },
     {
+      "id": "D168-X12-1",
+      "runner": "static",
+      "proves": "Terminology v1 ruling 2 (X12 T1; D-171(c)), selftest/d168.test.ts: over the rendered copy table, no Indonesian string says «kursus» and no English string says «course(s)» for the Studio object, except an allow-list that is the decision itself: the workbook's structure (ruling 14), the JSON format's language (ruling 13) and the certificate list's column (X12 T4, pending); the full term is «Paket Pembelajaran» / «Learning Package»."
+    },
+    {
       "id": "D168-B1-5",
       "runner": "static",
       "proves": "D-168 / D-169(a) (L3), selftest/d168.test.ts: in src/app/konfigurasi/page.tsx every school-shaped section listed in BAGIAN_SEKOLAH carries hidden={!tampil(...)}, the same rule the menu is filtered by, so «Seluruh platform» draws no school-shaped section and the menu and the sections cannot disagree (E-B1-5: «Perpindahan murid» was drawn there by a missing attribute)."

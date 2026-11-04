@@ -10,6 +10,10 @@
  *              label are used; the five identifiers stay apart (the PINTAR ID is never called a registration number,
  *              «Kode sekolah» stays the school's, the number is never offered as the NIS/NISN, «Keanggotaan» stays
  *              class membership); Pendataan and Aktivasi carry the same approved explanation.
+ *   D168-X12-1 the Studio object is «paket» / «package» (Terminology v1 ruling 2; X12 T1): no user-facing string says
+ *              «kursus» or «course» except the workbook's own structure (ruling 14), the JSON format's language (ruling
+ *              13) and the certificate list's column (X12 T4, awaiting Dr Gladys and the owner). The allow-list IS the
+ *              decision: a later string cannot drift back.
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -54,6 +58,26 @@ export const d168Tests: SelfTest[] = [
       c.expect(t("pendataan.nomor.arti" as HleEvent, "staff", { locale: "id" }).startsWith(arti) && t("aktivasi.tunggu.cari_arti" as HleEvent, "staff", { locale: "id" }) === arti,
         "Pendataan and Aktivasi do not carry the same approved explanation");
       return c.verdict("one name for the person's number at a school, in both languages; the identifiers stay apart; one explanation on both surfaces");
+    },
+  },
+  {
+    id: "D168-X12-1",
+    run: async () => {
+      const c = new Checks();
+      // ruling 14 (the workbook's structure), ruling 13 (the JSON format), T4 (pending): the only places the words may stay
+      const BOLEH = new Set(['sertifikat.kelola.kolom.kursus', 'studio.paket.masalah.course_context_unknown', 'studio.paket.masalah.course_title_missing', 'studio.paket.masalah.package_empty', 'studio.paket.masalah.package_json_unreadable', 'studio.paket.masalah.package_shape_invalid', 'studio.paket.masalah.revision_one_course', 'studio.paket.masalah.workbook_course_row_missing', 'studio.paket.masalah.workbook_course_rows_many', 'studio.templat.batas.kursus', 'studio.templat.cara.1', 'studio.templat.satu_kursus', 'studio.unggah.hitung.courses', 'studio.unggah.isi_json', 'studio.unggah.json_arti', 'studio.unggah.json_judul', 'studio.unggah.mudah_penjelasan', 'studio.unggah.periksa_mudah', 'studio.unggah.periksa_terstruktur', 'studio.unggah.terstruktur', 'studio.unggah.terstruktur_penjelasan']);
+      const salah: string[] = [];
+      for (const k of allKeys()) {
+        if (BOLEH.has(k)) continue;
+        const id = t(k as HleEvent, "staff", { locale: "id" }).replace(/\{[a-z_]+\}/g, "");
+        const en = t(k as HleEvent, "staff", { locale: "en" }).replace(/\{[a-z_]+\}/g, "");
+        if (/\bkursus\b/i.test(id)) salah.push(`${k} (id)`);
+        if (/\bcourses?\b/i.test(en)) salah.push(`${k} (en)`);
+      }
+      c.expect(salah.length === 0, `«kursus» / «course» names the Studio object in: ${salah.slice(0, 8).join(", ")}${salah.length > 8 ? ` and ${salah.length - 8} more` : ""}`);
+      c.expect(t("studio.paket.judul" as HleEvent, "staff", { locale: "id" }) === "Paket Pembelajaran" && t("studio.paket.judul" as HleEvent, "staff", { locale: "en" }) === "Learning Package",
+        "the full term is not «Paket Pembelajaran» / «Learning Package»");
+      return c.verdict("the Studio object is «paket» / «package» everywhere; «kursus» / «course» only in the workbook's structure, the JSON format and the pending certificate column");
     },
   },
 ];
