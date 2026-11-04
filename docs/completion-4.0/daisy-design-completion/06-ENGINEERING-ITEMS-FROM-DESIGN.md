@@ -59,6 +59,7 @@ Found by Daisy in C2 (`ux-1/daisy-experience` at `d9a27652`), or by the coordina
 | E-B1-2 | `config.refused`'s English says «system administrators only»; the Indonesian says Admin sekolah or Admin platform | the rendered copy says the same thing in both languages (after copy approval) |
 | E-B1-3 | The seed school's display name: a seed-file change (`supabase/seed/official_bootstrap.sql:68`, and `audit/studio-ujung.mjs`), development and CI only; the wording waits on Dr Gladys | the seed and the walk agree; no migration |
 | E-B1-4 | The design system's date field: the calendar button shows no focus ring (Daisy's proposed fix; a change to the frozen system) | rendered: every Tab stop of a date field shows the focus ring |
+| E-B1-5 | **«Perpindahan murid» is drawn in «Seluruh platform» against L3** (CR-83; D-127 Q2, Q11; D-132 C7). `src/app/konfigurasi/page.tsx:495` lists `transfers` in `BAGIAN_SEKOLAH` (school-shaped, not drawn in «Seluruh platform»), and the menu follows it; but its `<section id="transfers">` (`:1198`) is the one school-shaped section without `hidden={!tampil(…)}`. Found live in the B1 evidence rounds; the coordinator first misread it as a feature (round 1) | source: one rule decides both the menu and the section, so no section can be drawn that the rule hides; test: in «Seluruh platform» no school-shaped section renders, and each still renders in a school's context. **Unless the owner changes L3** (O11) |
 
 ## A1 · the question review (D-166(b))
 

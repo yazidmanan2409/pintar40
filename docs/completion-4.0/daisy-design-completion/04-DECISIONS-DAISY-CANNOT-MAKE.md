@@ -16,6 +16,7 @@ Each decision gates part of Daisy's work, **at the gate named** (the brief §5 l
 | O8 | ~~The certificate's sage accent~~ **APPROVED IN PRINCIPLE (D-162; the owner's message, with time and sender, in D-163(c), kept apart from the coordinator's recommendation it approves):** migration 194 through `session_is_professional`, built separately under the Batch 6 gate | not Daisy's | — (engineering; no promotion authorised by the approval) |
 | O9 | **The tab icon's proxy paths** (`icon.svg`, `apple-icon.png` not shipped) | D5 | (owner action; now also subject to O1's colour) |
 | O10 | **The owners and dispositions of UX-42, UX-44, UX-47** (proposed in `01`, «Register gaps») | the known ownership gaps; approving closes those gaps but **does not by itself prove the inventory exhaustive** | approve as proposed, or reassign |
+| O11 | **L3 and «Perpindahan murid» in «Seluruh platform».** L3 (CR-83; D-127 Q2, Q11; D-132 C7) draws no school-shaped section in «Seluruh platform», and lists transfers among them; the page draws it today only by a missing attribute (E-B1-5). Daisy proposes keeping it there (a transfer spans two schools) | B1's platform index; E-B1-5 | (a) **L3 as ruled:** transfers are handled in each school's context; the build stops drawing it (recommended: an action there would have no school context, the very case `context.other_school` exists for); (b) an L3 exception for transfers, applied to the rule, the menu and the section together |
 
 ## Dr Gladys
 

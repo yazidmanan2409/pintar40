@@ -130,7 +130,7 @@ The same as round 1:
 | 1 | C2 | The footnote names the Kepala departemen as reviewing PD integrity signals (D-069(c)) | Daisy (words: Dr Gladys) |
 | 2 | C2 | «Lihat per soal» offered on a PD Kelas, leading to a refusal | Daisy; engineering E-C2-3 |
 | 3 | C2 | «Lihat nama murid» (already in her composition as «Lihat nama peserta») | Daisy (done in composition); engineering E-C2-1 |
-| 4 | B1 | «Perpindahan murid» dropped for Admin platform | Daisy; if it should go, the owner |
+| 4 | B1 | «Perpindahan murid» dropped for Admin platform. **Corrected (after Daisy's `740ffc50`):** it is a **build defect**, not a feature. L3 lists `transfers` as school-shaped (not drawn in «Seluruh platform»); its section alone lacks `hidden` (E-B1-5). Daisy's first composition (omitting it) followed the approved rule; round 1 misread it | Engineering (E-B1-5); the owner only if L3 is to change (O11) |
 | 5 | B1 | «Studio» in her platform navigation | Daisy |
 | 6 | B1 | «staf sekolah Anda» in «Seluruh platform» | Daisy (words: Dr Gladys) |
 | 7 | C1 | A Ringkasan Kelas on a PD Kelas shows academic metrics and «murid» | **Owner** (whether it exists), then Daisy |
