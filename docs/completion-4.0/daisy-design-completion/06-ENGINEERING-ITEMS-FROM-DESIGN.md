@@ -67,6 +67,19 @@ Found by Daisy in C2 (`ux-1/daisy-experience` at `d9a27652`), or by the coordina
 |---|---|---|
 | E-A1-1 | The question loader (`src/lib/soal-tinjauan.ts`, `susunSoal`) does not read each question's difficulty band (`items.predicted_difficulty`) or each option's misconception (`item_options.misconception_code`) | the loader returns both; the review renders them; reading stays limited to the drafter's existing access |
 
+## A2 · the Uji Cepat class figure (design under review)
+
+| # | Item | Planned test |
+|---|---|---|
+| E-A2-1 | The stored Uji Cepat title reads «UJI CEPAT · UJI CEPAT — 2026-11-02 20:26»: the page's eyebrow repeats «Uji Cepat» over a title that already carries it, and the title's date is written outside the date helper (Daisy, A2 at `de23fb04`) | **at the source:** the title is made once, where the Uji Cepat is launched, with its date through the date helper (RV-16), and the surfaces that show it do not add the word again; test: every surface that shows an Uji Cepat title (the result page, «Keadaan hari ini», Belajar, the history) shows «Uji Cepat» once and a helper-formatted date |
+
+## E1 + E2 · the navigation (D-169(d): one integrated navigation)
+
+| # | Item | Planned test |
+|---|---|---|
+| E-E1-1 | **In the rail, the design system hides each place's visible name with `display: none`, so the link loses its accessible name** (axe `link-name`; Daisy, E1 at `313fb8e5`). Her composition adds `aria-label` to every place | **at the source (D-168):** the shell's rail hides the name *visually* only (the visually-hidden technique), so the link's own text stays its name and no second copy (`aria-label`) can drift from the visible label; a change to the frozen shell, Daisy's to approve. Test: in the rail every place link's accessible name equals its expanded label, for every context |
+| E-E1-2 | **The integrated navigation (D-168, D-169(e))** | one walk per role and context: one context; a Guru who also learns (Mengajar ↔ Belajar); Admin sekolah; Kepala departemen and Dekan; Admin platform in «Seluruh platform». For each: the places are exactly `permukaanKonteks` and the extra places; the sections drawn equal the menu (E-B1-5); the context control appears only with another context; a refused action in another context shows `context.other_school`'s line; the rail, the collapse and the drawer at 1280, 1279, 1100, 1024, 1023, 820, 390, 320 |
+
 ## D1 · the identity emails
 
 The full plan is in `05-D1-IMPLEMENTATION-TEST-PLAN.md`.
