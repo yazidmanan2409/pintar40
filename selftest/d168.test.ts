@@ -39,6 +39,9 @@
  *              reader's language from when it opened, never from the stored stamp («Uji Cepat — 2026-11-02 20:26»); the
  *              result page, «Keadaan hari ini», the Uji Cepat page (running and last) and Belajar's open list all name
  *              it so, and none adds «Uji Cepat» beside the name.
+ *   D168-K9-1  a fixed value is text (E-K9): the date field (TanggalDenganGema), given `disabled` (Siapkan after
+ *              «Disediakan»), draws no field at all — the date in the helper's words in an <output> the caller's label
+ *              still names — and no src file draws a disabled native date field.
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -46,6 +49,7 @@ import { join } from "node:path";
 import { Checks, type SelfTest } from "./lib";
 import { allKeys, t, type HleEvent } from "../src/lib/hle";
 import { judulAsesmen } from "../src/lib/judul-asesmen";
+import { render } from "./ux2.test";
 
 const kode = (x: string) => x.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
 
@@ -274,6 +278,26 @@ export const d168Tests: SelfTest[] = [
         c.expect(!/s\("mengajar\.cepat\.eyebrow"\)\} · \{[a-z]+\.judul\}/.test(src) && !/\{(tugas|hidup|terakhir)\.judul\}/.test(src), `${f} still draws the stored title or adds «Uji Cepat» beside it`);
       }
       return c.verdict(`an Uji Cepat is «${id}» / «${en}» on every surface that names it; the stored stamp is never shown; others keep their titles`);
+    },
+  },
+  {
+    id: "D168-K9-1",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      const tetap = render(repoRoot, "src/components/bentuk/TanggalDenganGema.tsx", { id: "pin-mulai", name: "mulai", defaultValue: "2026-11-09", disabled: true, locale: "id", untuk: "educator" });
+      const bisa = render(repoRoot, "src/components/bentuk/TanggalDenganGema.tsx", { id: "pin-mulai", name: "mulai", defaultValue: "2026-11-09", locale: "id", untuk: "educator" });
+      const kosong = render(repoRoot, "src/components/bentuk/TanggalDenganGema.tsx", { id: "pin-sampai", name: "sampai", disabled: true, kosong: "Tanpa batas akhir", locale: "id", untuk: "educator" });
+      if (!c.expect(tetap.ok && bisa.ok && kosong.ok, `the date field could not be rendered: ${tetap.galat || bisa.galat || kosong.galat}`)) return c.verdict("");
+      c.expect(!/<input\b/.test(tetap.html) && /<output id="pin-mulai"[^>]*>Senin, 9 Nov 2026<\/output>/.test(tetap.html) && /data-tetap=""/.test(tetap.html),
+        `a fixed date is still a field, or not said as the helper says it: ${tetap.html.slice(0, 200)}`);
+      c.expect(/<output id="pin-sampai" class="is-kosong">Tanpa batas akhir<\/output>/.test(kosong.html) && !/<input\b/.test(kosong.html), "a fixed empty end is not said as what empty means");
+      c.expect(/<input[^>]*id="pin-mulai"[^>]*type="date"/.test(bisa.html) && !/disabled/.test(bisa.html), "a date that can change is no longer a field");
+      const semua: string[] = [];
+      const jalan = (d: string) => { for (const e of readdirSync(join(repoRoot, d), { withFileTypes: true })) { const f = `${d}/${e.name}`; if (e.isDirectory()) jalan(f); else if (f.endsWith(".tsx")) semua.push(f); } };
+      jalan("src");
+      const salah = semua.filter((f) => /<input\b[^>]*type="(date|datetime-local)"[^>]*\bdisabled\b|<input\b[^>]*\bdisabled\b[^>]*type="(date|datetime-local)"/.test(kode(readFileSync(join(repoRoot, f), "utf8"))));
+      c.expect(salah.length === 0, `a disabled native date field is drawn in: ${salah.join(", ")}`);
+      return c.verdict("a fixed date is the helper's words in an <output>, never a disabled field; a date that can change stays a native field");
     },
   },
 ];
