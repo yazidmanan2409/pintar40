@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { namaTempat } from "@/lib/nama-tempat";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
@@ -73,14 +74,14 @@ export default async function CatatanPengembangan({ params }: { params: Promise<
         </div>
 
         {isi.peserta.length === 0 ? (
-          <p className="pin-empty">{s("pengembangan.kosong")}</p>
+          <Kosong jenis="belum" kalimat={s("pengembangan.kosong")} />
         ) : (
           isi.peserta.map((o) => (
             <section key={o.id} className="pin-sec" aria-labelledby={`pin-peserta-${o.id}`}>
               <h2 id={`pin-peserta-${o.id}`}>{o.nama}</h2>
               <p className="pin-sub">{s(o.terdaftar === "PENDING" ? "pengembangan.daftar.PENDING" : "pengembangan.daftar.ACTIVE")}</p>
               {o.paket.length === 0 ? (
-                <p className="pin-empty">{s("pengembangan.paket_kosong")}</p>
+                <Kosong jenis="belum" kalimat={s("pengembangan.paket_kosong")} />
               ) : (
                 <div className="pin-list">
                   {o.paket.map((p) => (

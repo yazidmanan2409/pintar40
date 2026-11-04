@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { redirect } from "next/navigation";
 import Ikon from "@/components/Ikon";
 import { t, format, type HleEvent, type Persona } from "@/lib/hle";
@@ -325,11 +326,11 @@ export default async function Belajar({
               // it fill. Nothing on this path mentions permission, an account,
               // or anything the educator is supposed to go and do.
               <>
-                <p className="pin-empty">{s("pembelajaran.kosong")}</p>
+                <Kosong jenis="belum" kalimat={s("pembelajaran.kosong")} />
                 <p className="pin-mm">{s("pembelajaran.kosong_arti")}</p>
               </>
             ) : (
-              <p className="pin-empty">{s("cycle.none")}</p>
+              <Kosong jenis="belum" kalimat={s("cycle.none")} />
             )
           ) : (
             [...(utama ? [utama] : []), ...sisa].map((k) => (

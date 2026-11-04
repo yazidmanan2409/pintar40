@@ -4327,6 +4327,11 @@
       "proves": "Retrospective R2-3 (E3 #15, DS/10-dates), selftest/retro.test.ts, reading the source of every .tsx file under src/app and src/components: no screen writes a date in the formal form (\u00ab9 Oktober 2026\u00bb: tanggal/when with \"resmi\" or \"resmiJam\", or format.date); emails, printed letters and the certificate's own frozen form keep it."
     },
     {
+      "id": "R2-KOSONG-01",
+      "runner": "static",
+      "proves": "Retrospective R2-5 (W3.2, D-172 P13), selftest/retro.test.ts, reading the source of every .tsx file under src/app and src/components: every empty state is the Empty state (Kosong); a bare pin-empty line stands only where it is not an empty (a status, \u00abnothing waits\u00bb, or a component its tests import outside Next), each declared with its reason; the feedback page's section refusal (\u00abKelas ini bukan wewenang Anda.\u00bb) is a statement, never drawn as an empty state."
+    },
+    {
       "id": "R0-PIN-01",
       "runner": "static",
       "proves": "Retrospective R0-1 (W0.2), selftest/retro.test.ts, reading every workflow file under .github/workflows: each job that installs or drives a browser (Playwright install, a walk or the crawl) runs on ubuntu-24.04, where Playwright 1.55 has a browser build (run 41377378758); a planted job on ubuntu-latest is caught."

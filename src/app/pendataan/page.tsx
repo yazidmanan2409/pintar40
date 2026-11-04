@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as data from "@/lib/pendataan";
@@ -138,7 +139,7 @@ export default async function Pendataan({
         <section className="pin-sec" aria-labelledby="pin-riwayat">
           <h2 id="pin-riwayat">{s("pendataan.daftar.judul")}</h2>
           {pekerjaan.length === 0 ? (
-            <p className="pin-empty">{s("pendataan.daftar.kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("pendataan.daftar.kosong")} />
           ) : (
             <ul className="pin-list pin-data-riwayat">
               {pekerjaan.map((j) => {

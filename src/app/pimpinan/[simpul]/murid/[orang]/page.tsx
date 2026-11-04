@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as pim from "@/lib/pimpinan";
@@ -150,7 +151,7 @@ export default async function RincianMuridPimpinan({
               an unknown, and the sentence says what is true. */}
           {!cukup ? (
             <>
-              <p className="pin-empty">{s("pimpinan.rincian.belum")}</p>
+              <Kosong jenis="belum" kalimat={s("pimpinan.rincian.belum")} />
               {siap ? <p className="pin-mm">{s(KESIAPAN_KUNCI[siap])}</p> : null}
             </>
           ) : (

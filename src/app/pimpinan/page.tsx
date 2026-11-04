@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import Ikon from "@/components/Ikon";
 import { t, format, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
@@ -188,9 +189,7 @@ export default async function Pimpinan({
           <h2 id="pin-bukti">{s("pimpinan.bukti.judul")}</h2>
           {bukti.length === 0 ? (
             // W10: a head of department reads no school-wide figure, but the classes below may have theirs
-            <p className="pin-empty">
-              {s(perKelas.some(({ bukti: bk }) => bk.some((e) => e.status === "ok")) ? "pimpinan.bukti.di_kelas" : "pimpinan.bukti.kosong")}
-            </p>
+            <Kosong jenis="belum" kalimat={s(perKelas.some(({ bukti: bk }) => bk.some((e) => e.status === "ok")) ? "pimpinan.bukti.di_kelas" : "pimpinan.bukti.kosong")} />
           ) : (
             // W3.9 (RV-9): the figures and the absence cards under them are spaced by the layout gap, never touching
             <div className="pin-bukti-tumpuk">
@@ -233,7 +232,7 @@ export default async function Pimpinan({
             <h2 id="pin-perkelas">{s("pimpinan.kelas.judul")}</h2>
             <p className="pin-mm">{s("pimpinan.kelas.arti")}</p>
             {perKelas.length === 0 ? (
-              <p className="pin-empty">{s("pimpinan.kelas.kosong")}</p>
+              <Kosong jenis="belum" kalimat={s("pimpinan.kelas.kosong")} />
             ) : (
               perKelas.map(({ kelas, bukti: bk, murid }) => {
                 const ada = bk.filter((e) => e.status === "ok");

@@ -1,4 +1,5 @@
 import { kataHalaman } from "@/lib/kata-halaman";
+import Kosong from "@/components/Kosong";
 import Link from "next/link";
 import { namaTempat } from "@/lib/nama-tempat";
 import { t, type HleEvent } from "@/lib/hle";
@@ -43,7 +44,7 @@ export default async function LaporanSaya({ searchParams }: { searchParams: Prom
         </div>
         {q.hasil === "diterima" ? <BarisHasil nada="ok">{s("lapor.diterima")}</BarisHasil> : null}
         {daftar.length === 0 ? (
-          <p className="pin-empty">{s("lapor.saya.kosong")}</p>
+          <Kosong jenis="belum" kalimat={s("lapor.saya.kosong")} />
         ) : (
           <ul className="pin-lapor-daftar">
             {daftar.map((l) => (

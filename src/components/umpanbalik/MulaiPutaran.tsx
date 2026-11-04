@@ -1,5 +1,6 @@
 "use client";
 
+import Kosong from "@/components/Kosong";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
@@ -68,7 +69,7 @@ export default function MulaiPutaran({
   }
 
   if (subjek.length === 0) {
-    return <p className="pin-empty">{s("umpanbalik.buka.kosong")}</p>;
+    return <Kosong jenis="belum" kalimat={s("umpanbalik.buka.kosong")} />;
   }
 
   return (

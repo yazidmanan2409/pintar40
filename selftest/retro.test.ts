@@ -8,6 +8,10 @@
  *   R2-TANGGAL-01 (R2-3, E3 #15, DS/10-dates) no on-screen date takes the formal form («9 Oktober 2026»): it is for
  *              emails and printed letters, and the certificate keeps its own (frozen). Daisy answered E3 on her branch; its
  *              «[auto] no on-screen date uses the formal form» was never made a test, and a screen took the form again.
+ *   R2-KOSONG-01 (R2-5, W3.2, D-172 P13) every empty state is the Empty state (`Kosong`): one sentence and, where one
+ *              exists, the way on. Batch 2 left the adoption to «later batches» with no list; 22 bare lines remained, one
+ *              of them a refusal («Kelas ini bukan wewenang Anda.») drawn as an empty state, which Kosong's rule forbids.
+ *              A bare line is allowed only where it is not an empty, each named below with its reason.
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -76,6 +80,37 @@ export const retroTests: SelfTest[] = [
       c.expect(dibaca > 100, `only ${dibaca} screen files read`);
       c.expect(RESMI.test('when(p.starts_on, "resmi")') && RESMI.test("format.date(x, locale)") && !RESMI.test('when(p.starts_on, "baca")'), "the check cannot tell the formal form from the readable one");
       return c.verdict(`no screen file (${dibaca}) writes a date in the formal form; it stays with emails, printed letters and the certificate's own frozen form (E3 #15, DS/10-dates)`);
+    },
+  },
+  {
+    id: "R2-KOSONG-01",
+    run: async ({ repoRoot }) => {
+      const c = new Checks();
+      // the bare lines that are not empty states, each with its reason
+      const BOLEH: Record<string, string> = {
+        "src/components/Kosong.tsx": "the component itself",
+        "src/components/mengajar/DaftarMurid.tsx": "a roster's empty sentence, passed in as a key and rendered where tests import the list outside Next",
+        "src/components/bukti/KeadaanHariIni.tsx": "imported outside Next by its tests (W8-K01): no next/link, so not Kosong",
+        "src/components/pendataan/BacaDanPetakan.tsx": "a field's status line («pin-meta» or «pin-empty» by layout), not an empty list",
+        "src/app/pendataan/page.tsx#pendataan.kode.belum": "a status: «Sekolah ini belum punya kode.»",
+        "src/app/pimpinan/page.tsx#pimpinan.menunggu.nihil": "«nothing waits»: honest absence, none of Kosong's three kinds",
+      };
+      let ditemukan = 0;
+      for (const f of [...tsx(join(repoRoot, "src", "app")), ...tsx(join(repoRoot, "src", "components"))]) {
+        const rel = f.slice(repoRoot.length + 1).replace(/\\/g, "/");
+        const src = readFileSync(f, "utf8");
+        for (const m of src.matchAll(/<p className=(?:"pin-empty"|\{[^}]*pin-empty[^}]*\})>([^\n]*)/g)) {
+          ditemukan++;
+          const kunci = /\("([a-z0-9_.]+)"/.exec(m[1])?.[1];
+          const ok = rel in BOLEH || (kunci !== undefined && `${rel}#${kunci}` in BOLEH);
+          c.expect(ok, `${rel}: a bare empty line (${kunci ?? m[1].slice(0, 40)}) that is not the Empty state (Kosong) and not declared`);
+        }
+      }
+      // the refusal is never drawn as empty (Kosong's rule; S-2)
+      const ub = readFileSync(join(repoRoot, "src/app/pimpinan/[simpul]/umpan-balik/kelas/[kelas]/page.tsx"), "utf8");
+      c.expect(/<p className="pin-meta" data-tolak-bagian="">\{s\("umpanbalik\.buka\.tanpa_wewenang"\)\}<\/p>/.test(ub), "«Kelas ini bukan wewenang Anda.» is drawn as an empty state");
+      c.expect(ditemukan >= 4 && ditemukan <= 8, `${ditemukan} bare empty lines found; the declared ones are five`);
+      return c.verdict(`every empty state is the Empty state (Kosong) but the ${Object.keys(BOLEH).length - 1} declared bare lines, each not an empty (a status, «nothing waits», or a component tests import outside Next); the section refusal is a statement, not an empty state`);
     },
   },
 ];

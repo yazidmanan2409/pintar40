@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as pim from "@/lib/pimpinan";
@@ -84,7 +85,7 @@ export default async function SimpulPimpinan({
         <section className="pin-sec" aria-labelledby="pin-bukti">
           <h2 id="pin-bukti">{s("pimpinan.bukti.judul")}</h2>
           {bukti.length === 0 ? (
-            <p className="pin-empty">{s("pimpinan.bukti.kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("pimpinan.bukti.kosong")} />
           ) : (
             // W3.9 (RV-9): the figures and the absence cards under them are spaced by the layout gap, never touching
             <div className="pin-bukti-tumpuk">

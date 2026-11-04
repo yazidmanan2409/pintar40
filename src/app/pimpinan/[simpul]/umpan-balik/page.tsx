@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as pim from "@/lib/pimpinan";
@@ -88,7 +89,7 @@ export default async function UmpanBalikLingkup({
         <section className="pin-sec" aria-labelledby="pin-ub-daftar">
           <h2 id="pin-ub-daftar">{s("umpanbalik.pimpinan.judul")}</h2>
           {siklus.length === 0 ? (
-            <p className="pin-empty">{s("umpanbalik.pimpinan.kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("umpanbalik.pimpinan.kosong")} />
           ) : (
             <ul className="pin-list pin-ub-riwayat">
               {siklus.map((c) => {
@@ -118,7 +119,7 @@ export default async function UmpanBalikLingkup({
           <h2 id="pin-ub-kelas">{s("umpanbalik.kelas.judul")}</h2>
           <p className="pin-mm">{s("umpanbalik.kelas.sub")}</p>
           {kelas.length === 0 ? (
-            <p className="pin-empty">{s("umpanbalik.kelas.kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("umpanbalik.kelas.kosong")} />
           ) : (
             <ul className="pin-list pin-ub-riwayat">
               {kelas.map((n) => (

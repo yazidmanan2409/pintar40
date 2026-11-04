@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Kosong from "@/components/Kosong";
 import { t, type HleEvent } from "@/lib/hle";
 import { currentLocale } from "@/lib/locale";
 import * as pim from "@/lib/pimpinan";
@@ -105,7 +106,7 @@ export default async function KelasUmpanBalik({
         <section className="pin-sec" aria-labelledby="pin-ub-ada">
           <h2 id="pin-ub-ada">{s("umpanbalik.kelas.putaran")}</h2>
           {siklus.length === 0 ? (
-            <p className="pin-empty">{s("umpanbalik.pimpinan.kosong")}</p>
+            <Kosong jenis="belum" kalimat={s("umpanbalik.pimpinan.kosong")} />
           ) : (
             <ul className="pin-list pin-ub-riwayat">
               {siklus.map((c) => {
@@ -130,7 +131,8 @@ export default async function KelasUmpanBalik({
         <section className="pin-sec" aria-labelledby="pin-ub-mulai">
           <h2 id="pin-ub-mulai">{s("umpanbalik.buka.judul")}</h2>
           {subjek === null ? (
-            <p className="pin-empty">{s("umpanbalik.buka.tanpa_wewenang")}</p>
+            // R2-5: «not yours» is a refusal, never drawn as an empty state (Kosong's own rule; S-2)
+            <p className="pin-meta" data-tolak-bagian="">{s("umpanbalik.buka.tanpa_wewenang")}</p>
           ) : (
             <MulaiPutaran
               kelas={kelas}
