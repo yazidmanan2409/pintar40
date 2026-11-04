@@ -5,7 +5,7 @@
 **Roles:** Kepala departemen, Admin sekolah and Guru (CAN_DRAFT). All three see the same section.
 **Decisions needed:** none. No O# or G# applies. Per-question approvals stay out of scope (D-142).
 
-The rule this composition serves is D-088(h): before «Setujui isi», the reviewer reads every question, its key, and every option's reason. Everything below follows from that rule. **Nothing the reviewer must read is ever hidden.**
+The rule this composition serves is D-088(h): before «Setujui isi», the reviewer reads every question, its key, and every option's reason. Everything below follows from that rule. **Nothing in the open lesson is hidden**; the other lessons are behind the pager. Whether «Setujui isi» should require every lesson to be opened is an owner question, not part of this composition.
 
 **Files in this folder:**
 - `buat-a1.mts`: the specimen and its checks. Run it from the repository root with `npx tsx docs/coordination/ux/completion-4.0/A1/buat-a1.mts`.
