@@ -1,0 +1,17 @@
+Batas ketuntasan · no lessons at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Menu»
+ 4. a «Konfigurasi»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Konfigurasi":
+      - /url: "#"
+  - heading "Batas ketuntasan" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SMP Cahaya Kaliandra
+  - paragraph: Nilai minimum kelulusan setiap pelajaran di sekolah ini, dalam persen bulat dari 0 sampai 100. Guru baru bisa menyediakan sebuah pelajaran untuk kelas setelah batasnya ditetapkan. Perubahan berlaku untuk pelajaran yang disediakan sesudahnya; hasil dan sertifikat yang sudah ada tidak berubah.
+  - paragraph: Sekolah ini belum punya pelajaran.

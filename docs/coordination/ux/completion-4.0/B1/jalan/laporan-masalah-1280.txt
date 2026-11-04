@@ -1,0 +1,74 @@
+Laporan masalah · one report being moved on at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Konfigurasi»
+ 3. a «Pendataan»
+ 4. a «Aktivasi akun»
+ 5. a «Studio»
+ 6. a «Keamanan akun»
+ 7. a «Sertifikat sekolah»
+ 8. button «Keluar»
+ 9. a «Konfigurasi»
+10. a «Lihat tangkapan layar»
+11. select «Ubah status»
+12. input «Langkah berikutnya untuk pelapor»
+13. button «Simpan»
+14. a «Batal»
+15. a «Lihat tangkapan layar»
+16. a «Ubah status · Eko Prasetyo»
+17. a «Berikutnya»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Konfigurasi":
+      - /url: "#"
+  - heading "Laporan masalah" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SMP Cahaya Kaliandra
+  - paragraph: Laporan dari staf sekolah Anda, yang menghentikan kelas lebih dahulu. Selesaikan yang dapat diselesaikan sekolah; tim PINTAR juga membacanya.
+  - list:
+    - listitem:
+      - article "Apa yang terjadi? Murid melihat halaman kosong setelah menekan Mulai.":
+        - strong: Apa yang terjadi? Murid melihat halaman kosong setelah menekan Mulai.
+        - text: 4 Nov 2026, 08.12 WIB · Citra Lestari · Guru Diterima Menghentikan kelas
+        - term: Apa yang Anda lakukan?
+        - definition: Membuka Uji Cepat Bab 3 untuk Kelas 7A.
+        - term: Apa yang Anda harapkan terjadi?
+        - definition: Murid bisa mulai menjawab.
+        - paragraph:
+          - text: "/mengajar/kelas-7a · Kode rujukan: R-7Q2K ·"
+          - link "Lihat tangkapan layar":
+            - /url: "#"
+        - form "Ubah status · Citra Lestari":
+          - text: Ubah status
+          - combobox "Ubah status":
+            - option "Ditangani" [selected]
+            - option "Selesai"
+          - text: Langkah berikutnya untuk pelapor
+          - textbox "Langkah berikutnya untuk pelapor"
+          - button "Simpan"
+          - link "Batal":
+            - /url: "#"
+    - listitem:
+      - article "Apa yang terjadi? Unggahan berhenti di 90%.":
+        - strong: Apa yang terjadi? Unggahan berhenti di 90%.
+        - text: 3 Nov 2026, 13.40 WIB · Eko Prasetyo · Kepala departemen Ditangani
+        - term: Apa yang Anda lakukan?
+        - definition: Mengunggah buku kerja paket Bab 4.
+        - term: Apa yang Anda harapkan terjadi?
+        - definition: Paket tampil di Studio.
+        - paragraph:
+          - text: /studio ·
+          - link "Lihat tangkapan layar":
+            - /url: "#"
+        - paragraph:
+          - strong: "Langkah berikutnya:"
+          - text: Tim PINTAR memeriksa berkasnya; Anda tidak perlu mengunggah ulang.
+        - link "Ubah status · Eko Prasetyo":
+          - /url: "#"
+          - text: Ubah status
+  - navigation "Halaman daftar laporan masalah":
+    - text: Halaman 1
+    - link "Berikutnya":
+      - /url: "#"

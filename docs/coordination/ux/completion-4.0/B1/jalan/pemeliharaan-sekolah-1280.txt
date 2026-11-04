@@ -1,0 +1,109 @@
+Pemeliharaan · step 2 (the collision check) · Admin sekolah at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Konfigurasi»
+ 3. a «Pendataan»
+ 4. a «Aktivasi akun»
+ 5. a «Studio»
+ 6. a «Keamanan akun»
+ 7. a «Sertifikat sekolah»
+ 8. button «Keluar»
+ 9. a «Konfigurasi»
+10. input «SMP Cahaya Kaliandra»
+11. input «Mulai (WIB; kosongkan untuk sekarang)»
+12. input «Mulai (WIB; kosongkan untuk sekarang)»
+13. input «Mulai (WIB; kosongkan untuk sekarang)»
+14. input «Mulai (WIB; kosongkan untuk sekarang)»
+15. input «Mulai (WIB; kosongkan untuk sekarang)»
+16. input «Mulai (WIB; kosongkan untuk sekarang)»
+17. input «Mulai (WIB; kosongkan untuk sekarang)»  DS-DATETIME
+18. input «Perkiraan selesai (WIB)»
+19. input «Perkiraan selesai (WIB)»
+20. input «Perkiraan selesai (WIB)»
+21. input «Perkiraan selesai (WIB)»
+22. input «Perkiraan selesai (WIB)»
+23. input «Perkiraan selesai (WIB)»
+24. input «Perkiraan selesai (WIB)»  DS-DATETIME
+25. button «Periksa waktu ini»
+26. textarea «Pesan untuk pengguna (pilihan)»
+27. input «Alasan (dicatat)»
+28. input «Terbitkan juga sebagai pengumuman»
+29. button «Jadwalkan pemeliharaan»
+30. a «Batalkan»
+31. input «SMP Cahaya Kaliandra»
+32. input «Isi pengumuman»
+33. input «Terbit (WIB; kosongkan untuk sekarang)»
+34. input «Terbit (WIB; kosongkan untuk sekarang)»
+35. input «Terbit (WIB; kosongkan untuk sekarang)»
+36. input «Terbit (WIB; kosongkan untuk sekarang)»
+37. input «Terbit (WIB; kosongkan untuk sekarang)»
+38. input «Terbit (WIB; kosongkan untuk sekarang)»
+39. input «Terbit (WIB; kosongkan untuk sekarang)»  DS-DATETIME
+40. input «Sampai (WIB)»
+41. input «Sampai (WIB)»
+42. input «Sampai (WIB)»
+43. input «Sampai (WIB)»
+44. input «Sampai (WIB)»
+45. input «Sampai (WIB)»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Konfigurasi":
+      - /url: "#"
+  - heading "Pemeliharaan dan pengumuman" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SMP Cahaya Kaliandra
+  - paragraph: "Jadwalkan pemeliharaan supaya orang di sekolah tahu lebih dulu. Mulai 60 menit sebelumnya mereka diberi tahu; mulai 15 menit sebelumnya asesmen baru tidak dapat dimulai; saat pemeliharaan dimulai PINTAR tidak dapat mereka pakai, kecuali murid yang sedang mengerjakan asesmen: mereka tetap dapat menyelesaikan dan mengumpulkannya."
+  - region "Jadwalkan pemeliharaan":
+    - heading "Jadwalkan pemeliharaan" [level=2]
+    - heading "Pemeliharaan" [level=3]
+    - group "Untuk":
+      - text: Untuk
+      - checkbox "SMP Cahaya Kaliandra" [checked]
+      - text: SMP Cahaya Kaliandra
+    - text: Mulai (WIB; kosongkan untuk sekarang)
+    - textbox "Mulai (WIB; kosongkan untuk sekarang)": 2026-11-07T19:00
+    - paragraph: Sabtu, 7 November 2026, 19.00 WIB
+    - text: Perkiraan selesai (WIB)
+    - textbox "Perkiraan selesai (WIB)": 2026-11-07T21:00
+    - paragraph: Sabtu, 7 November 2026, 21.00 WIB
+    - button "Periksa waktu ini"
+    - status:
+      - strong: Perhatian.
+      - paragraph: 3 asesmen dijadwalkan berlangsung selama periode ini. Asesmen terakhir diperkirakan selesai pukul 7 Nov 2026, 19.40 WIB. Pertimbangkan memulai pemeliharaan setelah pukul 7 Nov 2026, 19.40 WIB.
+    - text: Pesan untuk pengguna (pilihan)
+    - textbox "Pesan untuk pengguna (pilihan)"
+    - text: Alasan (dicatat)
+    - textbox "Alasan (dicatat)"
+    - checkbox "Terbitkan juga sebagai pengumuman"
+    - text: Terbitkan juga sebagai pengumuman
+    - button "Jadwalkan pemeliharaan"
+  - region "Pemeliharaan":
+    - heading "Pemeliharaan" [level=2]
+    - list:
+      - listitem:
+        - strong: Terjadwal · Terencana · SMP Cahaya Kaliandra
+        - text: "Sab, 14 Nov 2026, 19.00 WIB sampai Sab, 14 Nov 2026, 20.30 WIB · Alasan (dicatat): Pemindahan data rapor"
+        - link "Batalkan":
+          - /url: "#"
+      - listitem:
+        - strong: Berakhir · Terencana · SMP Cahaya Kaliandra
+        - text: "Sab, 31 Okt 2026, 19.00 WIB sampai Sab, 31 Okt 2026, 19.45 WIB · Alasan (dicatat): Pembaruan aplikasi"
+  - region "Pengumuman":
+    - heading "Pengumuman" [level=2]
+    - paragraph: Satu baris untuk orang di sekolah yang dipilih, dari waktu terbit sampai kedaluwarsa. Bukan sistem pesan.
+    - paragraph: Belum ada pengumuman.
+    - group "Untuk":
+      - text: Untuk
+      - checkbox "SMP Cahaya Kaliandra" [checked]
+      - text: SMP Cahaya Kaliandra
+    - text: Isi pengumuman
+    - textbox "Isi pengumuman"
+    - text: Terbit (WIB; kosongkan untuk sekarang)
+    - textbox "Terbit (WIB; kosongkan untuk sekarang)"
+    - paragraph
+    - text: Sampai (WIB)
+    - textbox "Sampai (WIB)"
+    - paragraph
+    - button "Terbitkan pengumuman"

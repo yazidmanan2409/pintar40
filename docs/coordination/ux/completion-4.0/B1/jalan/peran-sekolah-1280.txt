@@ -1,0 +1,98 @@
+Peran & akses · Admin sekolah, one revocation open at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Konfigurasi»
+ 3. a «Pendataan»
+ 4. a «Aktivasi akun»
+ 5. a «Studio»
+ 6. a «Keamanan akun»
+ 7. a «Sertifikat sekolah»
+ 8. button «Keluar»
+ 9. a «Konfigurasi»
+10. a «Cabut · Bambang Irawan»
+11. input «Alasan»
+12. button «Cabut»
+13. a «Batal»
+14. a «Cabut · Eko Prasetyo»
+15. a «Cabut · Fitri Handayani»
+16. a «Cabut · Gilang Ramadhan»
+17. a «Berikutnya»
+18. select «Orang»
+19. select «Peran»
+20. select «Lingkup»
+21. input «Berlaku sampai»
+22. input «Berlaku sampai»
+23. input «Berlaku sampai»
+24. input «Berlaku sampai»  DS-DATETIME
+25. button «Berikan peran»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Konfigurasi":
+      - /url: "#"
+  - heading "Peran & akses" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SMP Cahaya Kaliandra
+  - region "Peran & akses":
+    - heading "Peran & akses" [level=2]
+    - list:
+      - listitem:
+        - strong: Bambang Irawan
+        - text: Dekan · SMP Cahaya Kaliandra · Berlaku sampai 31 Jul 2027
+        - link "Cabut · Bambang Irawan":
+          - /url: "#"
+          - text: Cabut
+      - listitem:
+        - strong: Citra Lestari
+        - text: Guru · Kelas 7A · Berlaku sampai 30 Jun 2027
+        - form "Cabut · Citra Lestari":
+          - text: Alasan
+          - textbox "Alasan"
+          - button "Cabut"
+          - link "Batal":
+            - /url: "#"
+      - listitem:
+        - strong: Eko Prasetyo
+        - text: Kepala departemen · Matematika · Berlaku sampai 30 Jun 2027
+        - link "Cabut · Eko Prasetyo":
+          - /url: "#"
+          - text: Cabut
+      - listitem:
+        - strong: Fitri Handayani
+        - text: Guru · Kelas 8B · Berlaku sampai 30 Jun 2027
+        - link "Cabut · Fitri Handayani":
+          - /url: "#"
+          - text: Cabut
+      - listitem:
+        - strong: Gilang Ramadhan
+        - text: Admin sekolah · SMP Cahaya Kaliandra · Berlaku sampai 31 Des 2027
+        - link "Cabut · Gilang Ramadhan":
+          - /url: "#"
+          - text: Cabut
+    - navigation "Halaman daftar peran & akses":
+      - text: Halaman 1
+      - link "Berikutnya":
+        - /url: "#"
+  - region "Berikan peran":
+    - heading "Berikan peran" [level=2]
+    - text: Orang
+    - combobox "Orang":
+      - option "—" [disabled] [selected]
+    - text: Peran
+    - combobox "Peran":
+      - option "Guru" [selected]
+      - option "Kepala departemen"
+      - option "Dekan"
+      - option "Admin sekolah"
+    - text: Lingkup
+    - combobox "Lingkup":
+      - option "—" [selected]
+      - option "SMP Cahaya Kaliandra"
+      - option "Kelas 7A"
+      - option "Kelas 8B"
+      - option "Matematika"
+    - text: Berlaku sampai
+    - textbox "Berlaku sampai": 2027-06-30
+    - paragraph: Rabu, 30 Juni 2027
+    - button "Berikan peran"

@@ -1,0 +1,71 @@
+Peran & akses · Admin platform (labelled substitute) at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Menu»
+ 4. a «Konfigurasi»
+ 5. a «Cabut · Hana Wibisono»
+ 6. input «Alasan»
+ 7. button «Cabut»
+ 8. a «Batal»
+ 9. a «Cabut · Joko Santoso»
+10. select «Orang»
+11. select «Peran»
+12. select «Lingkup»
+13. input «Berlaku sampai»
+14. input «Berlaku sampai»
+15. input «Berlaku sampai»
+16. input «Berlaku sampai»  DS-DATETIME
+17. button «Berikan peran»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Konfigurasi":
+      - /url: "#"
+  - heading "Peran & akses" [level=1]
+  - paragraph:
+    - strong: Seluruh platform
+  - region "Peran & akses":
+    - heading "Peran & akses" [level=2]
+    - list:
+      - listitem:
+        - strong: Hana Wibisono
+        - text: Admin platform · Admin platform · Berlaku sampai 31 Des 2027
+        - link "Cabut · Hana Wibisono":
+          - /url: "#"
+          - text: Cabut
+      - listitem:
+        - strong: Dewi Saraswati
+        - text: Admin sekolah · SMP Cahaya Kaliandra · Berlaku sampai 31 Des 2027
+        - form "Cabut · Dewi Saraswati":
+          - text: Alasan
+          - textbox "Alasan"
+          - button "Cabut"
+          - link "Batal":
+            - /url: "#"
+      - listitem:
+        - strong: Joko Santoso
+        - text: Admin sekolah · SD Tunas Mandiri · Berlaku sampai 31 Jul 2027
+        - link "Cabut · Joko Santoso":
+          - /url: "#"
+          - text: Cabut
+    - navigation "Halaman daftar peran & akses": Halaman 1
+  - region "Berikan peran":
+    - heading "Berikan peran" [level=2]
+    - text: Orang
+    - combobox "Orang":
+      - option "—" [disabled] [selected]
+    - text: Peran
+    - combobox "Peran":
+      - option "Guru" [selected]
+      - option "Kepala departemen"
+      - option "Dekan"
+      - option "Admin sekolah"
+      - option "Admin platform"
+    - text: Lingkup
+    - combobox "Lingkup":
+      - option "—" [selected]
+    - text: Berlaku sampai
+    - textbox "Berlaku sampai": 2027-06-30
+    - paragraph: Rabu, 30 Juni 2027
+    - button "Berikan peran"

@@ -1,0 +1,131 @@
+Index · Admin sekolah at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Konfigurasi»
+ 3. a «Pendataan»
+ 4. a «Aktivasi akun»
+ 5. a «Studio»
+ 6. a «Keamanan akun»
+ 7. a «Sertifikat sekolah»
+ 8. button «Keluar»
+ 9. a «1 pendataan menunggu persetujuan Anda di Pendataan»
+10. a «12 orang menunggu akun di Aktivasi»
+11. a «3 paket menunggu tindakan atau tinjauan Anda di Studio»
+12. a «Beri peran Guru untuk Kelas itu di Peran & akses.»
+13. a «Struktur sekolah»
+14. a «Batas ketuntasan»
+15. a «Pergantian tahun ajaran»
+16. a «Sistem & Konfigurasi»
+17. a «Pindah kelas»
+18. a «Perpindahan murid»
+19. a «Peran & akses»
+20. a «Peserta pengembangan profesi»
+21. a «Jejak audit»
+22. a «Laporan»
+23. a «Templat laporan»
+24. a «Laporan masalah»
+25. a «Pemeliharaan dan pengumuman»
+
+The accessibility tree of the main region
+- main:
+  - heading "Konfigurasi" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SMP Cahaya Kaliandra
+  - region "Yang menunggu":
+    - heading "Yang menunggu" [level=2]
+    - list:
+      - listitem:
+        - link "1 pendataan menunggu persetujuan Anda di Pendataan":
+          - /url: "#"
+          - strong: 1 pendataan menunggu persetujuan Anda di Pendataan
+      - listitem:
+        - link "12 orang menunggu akun di Aktivasi":
+          - /url: "#"
+          - strong: 12 orang menunggu akun di Aktivasi
+      - listitem:
+        - link "3 paket menunggu tindakan atau tinjauan Anda di Studio":
+          - /url: "#"
+          - strong: 3 paket menunggu tindakan atau tinjauan Anda di Studio
+  - region "Persiapan sekolah":
+    - heading "Persiapan sekolah" [level=2]
+    - paragraph: Apa yang sudah siap di sekolah ini, dan apa yang masih perlu dikerjakan sebelum guru dan murid mulai.
+    - list:
+      - listitem:
+        - strong: Kelas aktif · 6
+        - text: Sudah
+      - listitem:
+        - strong: Setiap Kelas punya guru
+        - text: "Belum Kelas yang belum punya guru: Kelas 8B, Kelas 9A ·"
+        - link "Beri peran Guru untuk Kelas itu di Peran & akses.":
+          - /url: "#"
+      - listitem:
+        - strong: Murid yang sudah ditempatkan di Kelas · 187
+        - text: Sudah
+    - paragraph: Sekolah ini punya satu admin sekolah. Admin sekolah kedua dapat membantu memulihkan akun bila yang satu berhalangan; tambahkan di Peran & akses.
+  - region "Sekolah dan tahun ajaran":
+    - heading "Sekolah dan tahun ajaran" [level=2]
+    - list:
+      - listitem:
+        - link "Struktur sekolah":
+          - /url: "#"
+          - strong: Struktur sekolah
+      - listitem:
+        - link "Batas ketuntasan":
+          - /url: "#"
+          - strong: Batas ketuntasan
+      - listitem:
+        - link "Pergantian tahun ajaran":
+          - /url: "#"
+          - strong: Pergantian tahun ajaran
+      - listitem:
+        - link "Sistem & Konfigurasi":
+          - /url: "#"
+          - strong: Sistem & Konfigurasi
+  - region "Murid":
+    - heading "Murid" [level=2]
+    - list:
+      - listitem:
+        - link "Pindah kelas":
+          - /url: "#"
+          - strong: Pindah kelas
+      - listitem:
+        - link "Perpindahan murid":
+          - /url: "#"
+          - strong: Perpindahan murid
+  - region "Staf dan akses":
+    - heading "Staf dan akses" [level=2]
+    - list:
+      - listitem:
+        - link "Peran & akses":
+          - /url: "#"
+          - strong: Peran & akses
+      - listitem:
+        - link "Peserta pengembangan profesi":
+          - /url: "#"
+          - strong: Peserta pengembangan profesi
+      - listitem:
+        - link "Jejak audit":
+          - /url: "#"
+          - strong: Jejak audit
+  - region "Laporan dan templat":
+    - heading "Laporan dan templat" [level=2]
+    - list:
+      - listitem:
+        - link "Laporan":
+          - /url: "#"
+          - strong: Laporan
+      - listitem:
+        - link "Templat laporan":
+          - /url: "#"
+          - strong: Templat laporan
+  - region "Dukungan":
+    - heading "Dukungan" [level=2]
+    - list:
+      - listitem:
+        - link "Laporan masalah":
+          - /url: "#"
+          - strong: Laporan masalah
+      - listitem:
+        - link "Pemeliharaan dan pengumuman":
+          - /url: "#"
+          - strong: Pemeliharaan dan pengumuman

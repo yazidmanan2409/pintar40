@@ -1,0 +1,64 @@
+/* B1 · W3.6 — Konfigurasi. Composition only: every value is a design-system token or an
+   existing component. No new token, no palette change. */
+
+/* The wordmark slot: the provisional placeholder (master pending F-11). */
+.b1-slot {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  width: 120px; height: 40px; padding: 0 var(--space-2); box-sizing: border-box;
+  border: var(--border-hairline) dashed var(--line-control); border-radius: var(--radius-md);
+  font-size: 14px; line-height: 20px; font-weight: 600; color: var(--pintar-primary); white-space: nowrap; overflow: hidden;
+}
+.b1-slot small { font-size: 9px; line-height: 12px; font-weight: 400; color: var(--ink-3); white-space: normal; }
+
+.b1-konteks { font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.b1-konteks strong { color: var(--ink-1); font-weight: 600; }
+.b1-angka { font-variant-numeric: tabular-nums; }
+.b1-mono { font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.02em; }
+.b1-nilai { font-size: 22px; line-height: 28px; font-weight: 600; color: var(--ink-1); }
+
+/* The index: list rows open their section; a chevron says so. */
+.b1 .pds-list-row > .pds-ikon { color: var(--ink-3); }
+.b1-langkah .pds-list-row small a { font-weight: 600; }
+.b1-ubin { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+/* A section's records: one row each, its one action at the end, opened in place. */
+.b1-daftar > li { padding: var(--space-3) var(--space-2); display: grid; gap: var(--space-3); }
+.b1-baris-kepala { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: var(--space-2) var(--space-4); align-items: center; }
+.b1-baris-kepala > div { display: grid; gap: var(--space-1); min-width: 0; }
+.b1-baris-kepala strong { font-weight: 600; color: var(--ink-1); overflow-wrap: anywhere; }
+.b1-baris-kepala small { font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.b1-nilai-baris { font-size: 14px; line-height: 20px; color: var(--ink-1); white-space: nowrap; }
+.b1-lencana { display: inline-flex; flex-wrap: wrap; gap: var(--space-2); }
+.b1-baris-buka { background: var(--surface-2); border-radius: var(--radius-md); }
+.b1-form-baris { max-width: var(--measure-narrow); }
+.b1-form { max-width: var(--measure-narrow); gap: var(--space-4); }
+.b1-dua { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.b1-fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: var(--space-2); }
+.b1-riwayat ul { list-style: none; padding: 0 var(--space-2) var(--space-3); display: grid; gap: var(--space-1); font-size: 14px; line-height: 20px; color: var(--ink-2); }
+.b1-dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--space-1) var(--space-4); font-size: 14px; line-height: 20px; }
+.b1-dl dt { color: var(--ink-2); }
+.b1-dl dd { margin: 0; color: var(--ink-1); }
+.b1-daftar article { display: grid; gap: var(--space-3); }
+.b1-langkah-laporan { font-size: 14px; line-height: 20px; color: var(--ink-1); }
+.b1-waktu { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pds-pager [aria-disabled="true"] { color: var(--ink-3); cursor: default; }
+
+.b1-tolak { max-width: var(--measure-auth); margin: var(--space-9) auto; padding: 0 var(--space-4); }
+
+@container shell (max-width: 639px) {
+  .b1-baris-kepala { grid-template-columns: minmax(0, 1fr); }
+  .b1-baris-kepala .b1-aksi { justify-self: start; }
+  .b1-dl { grid-template-columns: minmax(0, 1fr); }
+  .b1-dl dd { margin-bottom: var(--space-2); }
+  .b1-waktu { white-space: normal; }
+}
+
+/* A4: the page's content only. The navigation, the bar, the skip link, the pager, the
+   back link and every form stay off the paper (the section menu never prints: Batch 6). */
+@media print {
+  .pds-nav, .pds-bar, .pds-lewati, .pds-pager, .pds-back, .b1 form, .b1-aksi { display: none !important; }
+  .pds-shell { display: block; }
+  .pds-main, .pds-main-isi { padding: 0; margin: 0; max-width: none; }
+  .b1-baris-buka { background: none; }
+  .b1 .pds-list-row > .pds-ikon { display: none; }
+}

@@ -1,0 +1,67 @@
+Index · Admin platform in «Seluruh platform» (labelled substitute: from the code path) at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Konfigurasi»
+ 3. a «Aktivasi akun»
+ 4. a «Studio»
+ 5. a «Kirim email uji»
+ 6. a «Keamanan akun»
+ 7. a «Sertifikat sekolah»
+ 8. button «Keluar»
+ 9. a «Periksa lagi»
+10. a «41 orang menunggu akun di Aktivasi»
+11. a «Sistem & Konfigurasi»
+12. a «Peran & akses»
+13. a «Jejak audit»
+14. a «Laporan masalah»
+15. a «Pemeliharaan dan pengumuman»
+
+The accessibility tree of the main region
+- main:
+  - heading "Konfigurasi" [level=1]
+  - paragraph:
+    - strong: Seluruh platform
+  - region "Kesehatan sistem":
+    - heading "Kesehatan sistem" [level=2]
+    - heading "Kesehatan sistem" [level=3]
+    - paragraph: Semua pemeriksaan lolos
+    - paragraph: 22 pemeriksaan perlindungan data, semuanya sesuai.
+    - link "Periksa lagi":
+      - /url: "#"
+    - heading "Lingkungan" [level=3]
+    - paragraph: Pengujian
+  - region "Yang menunggu":
+    - heading "Yang menunggu" [level=2]
+    - list:
+      - listitem:
+        - link "41 orang menunggu akun di Aktivasi":
+          - /url: "#"
+          - strong: 41 orang menunggu akun di Aktivasi
+  - region "Sekolah dan tahun ajaran":
+    - heading "Sekolah dan tahun ajaran" [level=2]
+    - list:
+      - listitem:
+        - link "Sistem & Konfigurasi":
+          - /url: "#"
+          - strong: Sistem & Konfigurasi
+  - region "Staf dan akses":
+    - heading "Staf dan akses" [level=2]
+    - list:
+      - listitem:
+        - link "Peran & akses":
+          - /url: "#"
+          - strong: Peran & akses
+      - listitem:
+        - link "Jejak audit":
+          - /url: "#"
+          - strong: Jejak audit
+  - region "Dukungan":
+    - heading "Dukungan" [level=2]
+    - list:
+      - listitem:
+        - link "Laporan masalah":
+          - /url: "#"
+          - strong: Laporan masalah
+      - listitem:
+        - link "Pemeliharaan dan pengumuman":
+          - /url: "#"
+          - strong: Pemeliharaan dan pengumuman

@@ -1,0 +1,8 @@
+Loading at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Menu»
+
+The accessibility tree of the main region
+- main:
+  - status "Memuat halaman…"

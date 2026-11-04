@@ -1,0 +1,64 @@
+Jejak audit · Admin platform («Versi» where a row has one) at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Konfigurasi»
+ 3. a «Aktivasi akun»
+ 4. a «Studio»
+ 5. a «Kirim email uji»
+ 6. a «Keamanan akun»
+ 7. a «Sertifikat sekolah»
+ 8. button «Keluar»
+ 9. a «Konfigurasi»
+10. a «Kembali»
+11. a «Berikutnya»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Konfigurasi":
+      - /url: "#"
+  - heading "Jejak audit" [level=1]
+  - table "Jejak audit":
+    - caption: Jejak audit
+    - rowgroup:
+      - row "Waktu Tindakan Sasaran Versi":
+        - columnheader "Waktu"
+        - columnheader "Tindakan"
+        - columnheader "Sasaran"
+        - columnheader "Versi"
+    - rowgroup:
+      - row "4 Nov 2026, 10.52 WIB Peran diberikan Peran · SMP Cahaya Kaliandra 9b52b51":
+        - cell "4 Nov 2026, 10.52 WIB"
+        - cell "Peran diberikan"
+        - cell "Peran · SMP Cahaya Kaliandra"
+        - cell "9b52b51"
+      - row "4 Nov 2026, 10.41 WIB Peran dicabut Peran · SMP Cahaya Kaliandra 9b52b51":
+        - cell "4 Nov 2026, 10.41 WIB"
+        - cell "Peran dicabut"
+        - cell "Peran · SMP Cahaya Kaliandra"
+        - cell "9b52b51"
+      - row "4 Nov 2026, 09.15 WIB Materi disediakan untuk kelas Kelas · SMP Cahaya Kaliandra 0b19707":
+        - cell "4 Nov 2026, 09.15 WIB"
+        - cell "Materi disediakan untuk kelas"
+        - cell "Kelas · SMP Cahaya Kaliandra"
+        - cell "0b19707"
+      - row "3 Nov 2026, 15.20 WIB Tata letak sertifikat disimpan Sertifikat · SMP Cahaya Kaliandra":
+        - cell "3 Nov 2026, 15.20 WIB"
+        - cell "Tata letak sertifikat disimpan"
+        - cell "Sertifikat · SMP Cahaya Kaliandra"
+        - cell
+      - row "3 Nov 2026, 13.04 WIB Tanda integritas ditinjau Asesmen · SMP Cahaya Kaliandra 0b19707":
+        - cell "3 Nov 2026, 13.04 WIB"
+        - cell "Tanda integritas ditinjau"
+        - cell "Asesmen · SMP Cahaya Kaliandra"
+        - cell "0b19707"
+      - row "2 Nov 2026, 08.30 WIB Terbitan materi dibuat Materi · SMP Cahaya Kaliandra":
+        - cell "2 Nov 2026, 08.30 WIB"
+        - cell "Terbitan materi dibuat"
+        - cell "Materi · SMP Cahaya Kaliandra"
+        - cell
+  - navigation "Halaman daftar jejak audit":
+    - text: Halaman 2
+    - link "Kembali":
+      - /url: "#"
+    - link "Berikutnya":
+      - /url: "#"

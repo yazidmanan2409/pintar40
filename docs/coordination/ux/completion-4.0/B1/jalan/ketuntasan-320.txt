@@ -1,0 +1,57 @@
+Batas ketuntasan · one row being set, after a save at 320 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. button «Keluar»
+ 3. button «Menu»
+ 4. a «Konfigurasi»
+ 5. a «Tetapkan · Pecahan senilai»
+ 6. summary «Riwayat»
+ 7. input «Nilai minimum (%)»
+ 8. input «Alasan»
+ 9. button «Tetapkan»
+10. a «Batal»
+11. a «Tetapkan · Sistem pernapasan manusia»
+12. a «Tetapkan · Perbandingan senilai dan berbalik nilai»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Konfigurasi":
+      - /url: "#"
+  - heading "Batas ketuntasan" [level=1]
+  - paragraph:
+    - text: "Sekolah:"
+    - strong: SMP Cahaya Kaliandra
+  - paragraph: Nilai minimum kelulusan setiap pelajaran di sekolah ini, dalam persen bulat dari 0 sampai 100. Guru baru bisa menyediakan sebuah pelajaran untuk kelas setelah batasnya ditetapkan. Perubahan berlaku untuk pelajaran yang disediakan sesudahnya; hasil dan sertifikat yang sudah ada tidak berubah.
+  - status: Selesai.
+  - list:
+    - listitem:
+      - strong: Pecahan senilai
+      - text: "Matematika · Kelas 7 · Materi PINTAR Batas ketuntasan: 75%"
+      - link "Tetapkan · Pecahan senilai":
+        - /url: "#"
+        - text: Tetapkan
+      - group: Riwayat
+    - listitem:
+      - strong: Teks deskripsi
+      - text: Bahasa Indonesia · Kelas 7 Batas ketuntasan belum ditetapkan
+      - form "Tetapkan · Teks deskripsi":
+        - text: Nilai minimum (%)
+        - spinbutton "Nilai minimum (%)"
+        - text: Alasan
+        - textbox "Alasan":
+          - /placeholder: "Misalnya: keputusan rapat guru"
+        - button "Tetapkan"
+        - link "Batal":
+          - /url: "#"
+    - listitem:
+      - strong: Sistem pernapasan manusia
+      - text: "IPA · Kelas 8 · Materi PINTAR Batas ketuntasan: 70%"
+      - link "Tetapkan · Sistem pernapasan manusia":
+        - /url: "#"
+        - text: Tetapkan
+    - listitem:
+      - strong: Perbandingan senilai dan berbalik nilai
+      - text: Matematika · Kelas 8 · Materi PINTAR Batas ketuntasan belum ditetapkan
+      - link "Tetapkan · Perbandingan senilai dan berbalik nilai":
+        - /url: "#"
+        - text: Tetapkan

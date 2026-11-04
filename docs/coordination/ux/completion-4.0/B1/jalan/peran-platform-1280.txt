@@ -1,0 +1,76 @@
+Peran & akses · Admin platform (labelled substitute) at 1280 px: the Tab order from the top of the page
+ 1. a «Langsung ke isi»
+ 2. a «Konfigurasi»
+ 3. a «Aktivasi akun»
+ 4. a «Studio»
+ 5. a «Kirim email uji»
+ 6. a «Keamanan akun»
+ 7. a «Sertifikat sekolah»
+ 8. button «Keluar»
+ 9. a «Konfigurasi»
+10. a «Cabut · Hana Wibisono»
+11. input «Alasan»
+12. button «Cabut»
+13. a «Batal»
+14. a «Cabut · Joko Santoso»
+15. select «Orang»
+16. select «Peran»
+17. select «Lingkup»
+18. input «Berlaku sampai»
+19. input «Berlaku sampai»
+20. input «Berlaku sampai»
+21. input «Berlaku sampai»  DS-DATETIME
+22. button «Berikan peran»
+
+The accessibility tree of the main region
+- main:
+  - paragraph:
+    - link "Konfigurasi":
+      - /url: "#"
+  - heading "Peran & akses" [level=1]
+  - paragraph:
+    - strong: Seluruh platform
+  - region "Peran & akses":
+    - heading "Peran & akses" [level=2]
+    - list:
+      - listitem:
+        - strong: Hana Wibisono
+        - text: Admin platform · Admin platform · Berlaku sampai 31 Des 2027
+        - link "Cabut · Hana Wibisono":
+          - /url: "#"
+          - text: Cabut
+      - listitem:
+        - strong: Dewi Saraswati
+        - text: Admin sekolah · SMP Cahaya Kaliandra · Berlaku sampai 31 Des 2027
+        - form "Cabut · Dewi Saraswati":
+          - text: Alasan
+          - textbox "Alasan"
+          - button "Cabut"
+          - link "Batal":
+            - /url: "#"
+      - listitem:
+        - strong: Joko Santoso
+        - text: Admin sekolah · SD Tunas Mandiri · Berlaku sampai 31 Jul 2027
+        - link "Cabut · Joko Santoso":
+          - /url: "#"
+          - text: Cabut
+    - navigation "Halaman daftar peran & akses": Halaman 1
+  - region "Berikan peran":
+    - heading "Berikan peran" [level=2]
+    - text: Orang
+    - combobox "Orang":
+      - option "—" [disabled] [selected]
+    - text: Peran
+    - combobox "Peran":
+      - option "Guru" [selected]
+      - option "Kepala departemen"
+      - option "Dekan"
+      - option "Admin sekolah"
+      - option "Admin platform"
+    - text: Lingkup
+    - combobox "Lingkup":
+      - option "—" [selected]
+    - text: Berlaku sampai
+    - textbox "Berlaku sampai": 2027-06-30
+    - paragraph: Rabu, 30 Juni 2027
+    - button "Berikan peran"
