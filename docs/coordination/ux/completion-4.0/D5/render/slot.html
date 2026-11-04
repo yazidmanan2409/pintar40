@@ -1,0 +1,150 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>D5 · the wordmark slots</title>
+<style>@font-face { font-family: "Plus Jakarta Sans"; src: url("file:///home/user/pintar40/public/fonts/plus-jakarta-sans-latin.woff2") format("woff2"); font-weight: 200 800; font-style: normal; font-display: block; }
+@font-face { font-family: "IBM Plex Mono"; src: url("file:///home/user/pintar40/public/fonts/ibm-plex-mono-500-latin.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: block; }
+:root, [data-theme="light"] {
+  --surface-0: #fbfaf7;
+  --surface-1: #ffffff;
+  --surface-2: #f3f1ec;
+  --surface-3: #ebe8e1;
+  --ink-1: #1f2a33;
+  --ink-2: #4e5a64;
+  --ink-3: #5f6a73;
+  --ink-disabled: #7f8890;
+  --line: rgba(31, 42, 51, 0.12);
+  --line-strong: rgba(31, 42, 51, 0.24);
+  --line-control: #808a91;
+  --pintar-primary: #245f55;
+  --pintar-primary-ink: #ffffff;
+  --pintar-primary-soft: #e3efec;
+  --pintar-primary-hover: #1e5148;
+  --pintar-primary-pressed: #19443d;
+  --focus-ring: var(--pintar-primary);
+  --status-ok: #2f6e4a;
+  --status-ok-soft: #e4f2ea;
+  --status-attention: #8a5f00;
+  --status-attention-soft: #f7eed8;
+  --status-blocked: #8c3b3b;
+  --status-blocked-soft: #f6e4e4;
+  --status-blocked-hover: #763131;
+  --status-blocked-pressed: #6b2c2c;
+  --status-info: #3d5a80;
+  --status-info-soft: #e7edf5;
+  --scrim: rgba(31, 42, 51, 0.32);
+  --context: var(--ink-1);
+  --context-ink: var(--surface-0);
+  --table-head: var(--surface-2);
+  --table-row: var(--surface-1);
+  --table-row-alt: var(--surface-0);
+  --table-row-hover: var(--surface-3);
+  --table-row-selected: var(--pintar-primary-soft);
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 48px;
+  --space-9: 64px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+  --shadow-overlay: 0 4px 12px rgba(31, 42, 51, 0.10), 0 0 0 1px rgba(31, 42, 51, 0.08);
+  --shadow-dialog: 0 8px 24px rgba(31, 42, 51, 0.14), 0 0 0 1px rgba(31, 42, 51, 0.06);
+  --control-md: 44px;
+  --control-lg: 52px;
+  --control-xl: 60px;
+  --control-sm: 36px;
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --shell-nav: 248px;
+  --shell-rail: 72px;
+  --shell-bar: 56px;
+  --measure-auth: 400px;
+  --measure-narrow: 560px;
+  --measure-read: 760px;
+  --measure-stage: 1120px;
+  --measure-prose: 64ch;
+  --wordmark-nav: 18px;
+  --wordmark-bar: 16px;
+  --wordmark-standalone: 24px;
+  --wordmark-min: 12px;
+  --border-hairline: 1px;
+  --border-focus: 2px;
+  --border-selected: 2px;
+  --duration-fast: 120ms;
+  --duration-base: 160ms;
+  --duration-slow: 240ms;
+  --duration-pulse: 900ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 1, 1);
+  --z-sticky: 10;
+  --z-nav: 20;
+  --z-overlay: 100;
+  --z-modal: 200;
+  --bp-medium: 640px;
+  --bp-large: 1024px;
+  --bp-wide: 1280px;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-wordmark: "Helvetica Neue", "Neue Helvetica", Helvetica, Arial, sans-serif;
+}
+.t-display { font-family: var(--font-sans); font-size: 36px; line-height: 44px; font-weight: 600; letter-spacing: -0.02em; }
+.t-page { font-family: var(--font-sans); font-size: 30px; line-height: 36px; font-weight: 600; letter-spacing: -0.02em; }
+.t-page-compact { font-family: var(--font-sans); font-size: 26px; line-height: 32px; font-weight: 600; letter-spacing: -0.015em; }
+.t-section { font-family: var(--font-sans); font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: -0.01em; }
+.t-subsection { font-family: var(--font-sans); font-size: 18px; line-height: 26px; font-weight: 600; letter-spacing: -0.005em; }
+.t-body { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 400; }
+.t-prose { font-family: var(--font-sans); font-size: 16px; line-height: 26px; font-weight: 400; }
+.t-small { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 400; }
+.t-label { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 600; }
+.t-eyebrow { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.t-stat { font-family: var(--font-sans); font-size: 30px; line-height: 36px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.t-stat-small { font-family: var(--font-sans); font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.t-identifier { font-family: var(--font-mono); font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.02em; }
+.t-stem { font-family: var(--font-sans); font-size: 21px; line-height: 32px; font-weight: 400; }
+.t-stem-compact { font-family: var(--font-sans); font-size: 19px; line-height: 28px; font-weight: 400; }
+</style><style>body { margin: 0; background: var(--surface-0); color: var(--ink-1); font-family: var(--font-sans); }
+.d5 { max-width: 1000px; margin: 0 auto; padding: 32px 24px 64px; display: grid; gap: 24px; }
+.d5 h1 { font-size: 26px; line-height: 32px; font-weight: 600; margin: 0; }
+.d5 > p { margin: 0; color: var(--ink-2); max-width: 64ch; }
+.d5-slot { margin: 0; display: grid; gap: 8px; padding: 16px; background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; }
+.d5-slot figcaption { display: grid; gap: 2px; }
+.d5-slot figcaption span { font-size: 14px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.d5-kanvas { padding: 8px 0; }
+.d5-ruang { display: inline-block; outline: 1px dashed var(--line-control); }
+.d5-kotak { position: relative; box-sizing: border-box; border: 1px dashed var(--pintar-primary); background: var(--surface-2); display: flex; align-items: center; overflow: hidden; }
+.d5-min { position: absolute; left: 0; top: 0; bottom: 0; background: var(--pintar-primary-soft); }
+.d5-teks { position: relative; font-size: 9px; line-height: 1; color: #075056; font-weight: 600; white-space: nowrap; padding-left: 2px; }
+.d5-letak { margin: 0; font-size: 14px; color: var(--ink-2); }
+</style></head>
+<body><main class="d5"><h1>The four wordmark slots, drawn to scale</h1><p>Each box is the slot at its ceiling width and its cap height; the darker band inside is the floor width; the dashed ring is the clear space. The master sits in the box at the box's cap height with its own ratio, between floor and ceiling. Placeholder only: «Pintar (master pending F-11)».</p>
+<figure class="d5-slot" aria-labelledby="shell-nav-j">
+    <figcaption id="shell-nav-j"><strong>Shell · staff navigation (expanded)</strong><span>cap height 18 px · width 66–120 px · clear space ≥ 9 px</span></figcaption>
+    <div class="d5-kanvas"><div class="d5-ruang" style="padding:9px"><div class="d5-kotak" role="img" aria-label="Pintar (master pending F-11)" style="height:18px;width:120px">
+      <span class="d5-min" style="width:66px"></span><span class="d5-teks">Pintar (master pending F-11)</span></div></div></div>
+    <p class="d5-letak">16 px from the navigation's left edge; vertically centred in the 44 px head, beside the collapse control</p></figure><figure class="d5-slot" aria-labelledby="shell-bar-j">
+    <figcaption id="shell-bar-j"><strong>Shell · top bar (under 1024 px; learner, focus, public)</strong><span>cap height 16 px · width 66–104 px · clear space ≥ 8 px</span></figcaption>
+    <div class="d5-kanvas"><div class="d5-ruang" style="padding:8px"><div class="d5-kotak" role="img" aria-label="Pintar (master pending F-11)" style="height:16px;width:104px">
+      <span class="d5-min" style="width:66px"></span><span class="d5-teks">Pintar (master pending F-11)</span></div></div></div>
+    <p class="d5-letak">16 px from the bar's left edge; vertically centred in the bar</p></figure><figure class="d5-slot" aria-labelledby="shell-sendiri-j">
+    <figcaption id="shell-sendiri-j"><strong>Shell · standalone (sign-in, the lock, an error page)</strong><span>cap height 24 px · width 66–160 px · clear space ≥ 24 px</span></figcaption>
+    <div class="d5-kanvas"><div class="d5-ruang" style="padding:24px"><div class="d5-kotak" role="img" aria-label="Pintar (master pending F-11)" style="height:24px;width:160px">
+      <span class="d5-min" style="width:66px"></span><span class="d5-teks">Pintar (master pending F-11)</span></div></div></div>
+    <p class="d5-letak">above the task, aligned to its column's start</p></figure><figure class="d5-slot" aria-labelledby="sertifikat-j">
+    <figcaption id="sertifikat-j"><strong>Certificate · header slot (A4)</strong><span>cap height 3.15 mm · width 15–20 mm · clear space ≥ 1.6 mm</span></figcaption>
+    <div class="d5-kanvas"><div class="d5-ruang" style="padding:1.6mm"><div class="d5-kotak" role="img" aria-label="Pintar (master pending F-11)" style="height:3.15mm;width:20mm">
+      <span class="d5-min" style="width:15mm"></span><span class="d5-teks">Pintar (master pending F-11)</span></div></div></div>
+    <p class="d5-letak">upper right: on «SERTIFIKAT PENGUASAAN»'s baseline, its right edge on the right text margin</p></figure><figure class="d5-slot" aria-labelledby="kartu-j">
+    <figcaption id="kartu-j"><strong>Digital Card · front slot</strong><span>cap height 2.9 mm · width 15–18 mm · clear space ≥ 1.45 mm</span></figcaption>
+    <div class="d5-kanvas"><div class="d5-ruang" style="padding:1.45mm"><div class="d5-kotak" role="img" aria-label="Pintar (master pending F-11)" style="height:2.9mm;width:18mm">
+      <span class="d5-min" style="width:15mm"></span><span class="d5-teks">Pintar (master pending F-11)</span></div></div></div>
+    <p class="d5-letak">top left: on the 6 mm text margin, the cap top at 5.57 mm</p></figure><figure class="d5-slot" aria-labelledby="email-j">
+    <figcaption id="email-j"><strong>Email · header slot (for the master)</strong><span>cap height 20 px · width 66–120 px · clear space ≥ 10 px</span></figcaption>
+    <div class="d5-kanvas"><div class="d5-ruang" style="padding:10px"><div class="d5-kotak" role="img" aria-label="Pintar (master pending F-11)" style="height:20px;width:120px">
+      <span class="d5-min" style="width:66px"></span><span class="d5-teks">Pintar (master pending F-11)</span></div></div></div>
+    <p class="d5-letak">in a 120 × 40 px box at the frame's top left; the interim logo keeps 104 × 58 until F-11 (D1 P3)</p></figure></main></body></html>

@@ -1,0 +1,13 @@
+body { margin: 0; background: var(--surface-0); color: var(--ink-1); font-family: var(--font-sans); }
+.d5 { max-width: 1000px; margin: 0 auto; padding: 32px 24px 64px; display: grid; gap: 24px; }
+.d5 h1 { font-size: 26px; line-height: 32px; font-weight: 600; margin: 0; }
+.d5 > p { margin: 0; color: var(--ink-2); max-width: 64ch; }
+.d5-slot { margin: 0; display: grid; gap: 8px; padding: 16px; background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px; }
+.d5-slot figcaption { display: grid; gap: 2px; }
+.d5-slot figcaption span { font-size: 14px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.d5-kanvas { padding: 8px 0; }
+.d5-ruang { display: inline-block; outline: 1px dashed var(--line-control); }
+.d5-kotak { position: relative; box-sizing: border-box; border: 1px dashed var(--pintar-primary); background: var(--surface-2); display: flex; align-items: center; overflow: hidden; }
+.d5-min { position: absolute; left: 0; top: 0; bottom: 0; background: var(--pintar-primary-soft); }
+.d5-teks { position: relative; font-size: 9px; line-height: 1; color: #075056; font-weight: 600; white-space: nowrap; padding-left: 2px; }
+.d5-letak { margin: 0; font-size: 14px; color: var(--ink-2); }
