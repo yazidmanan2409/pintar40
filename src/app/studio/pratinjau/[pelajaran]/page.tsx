@@ -1,5 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
-import { alamatMedia } from "@/lib/media-pelajaran";
+import TautanBerkas from "@/components/pelajaran/TautanBerkas";
 import { currentLocale } from "@/lib/locale";
 import { card, kataStudio } from "../../_lib";
 import Kosong from "@/components/Kosong";
@@ -63,7 +63,7 @@ export default async function Pratinjau({ params, searchParams }: { params: Para
         const { data } = await supabase.rpc("may_preview_lesson_media", { p_path: m.path });
         return {
           jenis: String(m.jenis ?? ""), path: m.path!, transcript: m.transcript,
-          url: await alamatMedia(m.path!, data === true),
+          url: data === true ? `/api/assets/read-url?path=${encodeURIComponent(m.path!)}&alih=1` : null,
         };
       }));
       const { data: los } = await supabase
@@ -107,9 +107,9 @@ export default async function Pratinjau({ params, searchParams }: { params: Para
           {m.jenis === "video" ? <video controls preload="metadata" src={m.url!} className="pin-media" /> : null}
           {m.jenis === "audio" ? <audio controls preload="metadata" src={m.url!} className="pin-media" /> : null}
           {m.jenis === "pdf" ? (
-            <a href={m.url!} target="_blank" rel="noreferrer" className="pin-tautan">
+            <TautanBerkas href={m.url!} className="pin-tautan">
               {s("lesson.pdf")}
-            </a>
+            </TautanBerkas>
           ) : null}
           {m.transcript ? <p className="pin-ket">{m.transcript}</p> : null}
         </div>

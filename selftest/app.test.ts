@@ -3501,21 +3501,29 @@ export const appTests: SelfTest[] = [
       const hapus = () => fetch(`${ctx.supabaseUrl}/storage/v1/object/assets`, { method: "DELETE", headers: { ...layanan, "content-type": "application/json" }, body: JSON.stringify({ prefixes: [jalur] }) });
       const tautan = `/api/assets/read-url?path=${encodeURIComponent(jalur)}&amp;alih=1`;
       const lihat = async () => (await get(`${base}/belajar/${tugas}/pelajaran/${pelajaran}`, { headers: { cookie: murid.cookie } })).text();
-      // 1. the file is not there: no «Buka ringkasan», no address to the raw error
+      // RESTATED (R0-5 moved into the route, INV-37: the service role never leaves src/app/api/): the page draws the PDF
+      // through TautanBerkas, which asks the read route; the route answers 404 for an absent file and the address for
+      // a placed one. The withdrawal in a browser is the Batch 5 walk's B5-W8.
+      const json = tautan.replace(/&amp;alih=1/, "");
       await hapus();
-      const tanpa = await lihat();
-      c.expect(tanpa.includes("pin-lcard") || tanpa.includes("<main"), "the lesson did not render");
-      c.expect(!tanpa.includes(tautan) && !tanpa.includes(t("lesson.pdf" as HleEvent, "learner", { locale: "id" })), "a missing PDF is still offered as «Buka ringkasan»");
-      const mentah = await get(`${base}${tautan.replace(/&amp;/g, "&")}`, { headers: { cookie: murid.cookie } });
-      c.expect(mentah.status === 404, `the route itself still answers a missing file with ${mentah.status}`);
-      // 2. the file placed: the same lesson offers it
+      const tanpa = await get(`${base}${json}`, { headers: { cookie: murid.cookie } });
+      c.expect(tanpa.status === 404, `with the file absent the route answers ${tanpa.status}, not 404`);
       const put = await fetch(`${ctx.supabaseUrl}/storage/v1/object/assets/${jalur}`, { method: "POST",
         headers: { ...layanan, "content-type": "application/pdf", "x-upsert": "true" }, body: "%PDF-1.4 R0-5" });
       c.expect(put.ok, `placing the PDF at ${jalur} failed (${put.status})`);
-      const dengan = await lihat();
-      c.expect(dengan.includes(tautan) && dengan.includes(t("lesson.pdf" as HleEvent, "learner", { locale: "id" })), "a PDF that is there is not offered");
+      const dengan = await get(`${base}${json}`, { headers: { cookie: murid.cookie } });
+      c.expect(dengan.status === 200 && typeof ((await dengan.json()) as { url?: string }).url === "string", `with the file placed the route answers ${dengan.status}`);
       await hapus();
-      return c.verdict("rendered for the seeded learner, a lesson's PDF whose file is absent is not offered (no «Buka ringkasan», no address to the route's raw 404), and the same PDF placed in storage is offered again; the check runs after the reader's own permission");
+      const html = await lihat();
+      c.expect(html.includes(tautan) && html.includes('data-berkas=""'), "the lesson does not draw its PDF through TautanBerkas");
+      const sumber = (f: string) => readFileSync(`${ctx.repoRoot}/${f}`, "utf8");
+      for (const f of ["src/app/belajar/_components/LessonPlayer.tsx", "src/app/studio/pratinjau/[pelajaran]/page.tsx"]) {
+        const x = sumber(f);
+        c.expect(/<TautanBerkas href=/.test(x) && !/<a href=\{(?:entry|m)\.url!?\}/.test(x), `${f} draws a lesson file's link of its own`);
+      }
+      const tb = sumber("src/components/pelajaran/TautanBerkas.tsx");
+      c.expect(/href\.replace\(\/&alih=1\\b\/, ""\)/.test(tb) && /r\.status === 404\) setAda\(false\)/.test(tb) && !/supabase/i.test(tb), "TautanBerkas does not ask the route, or reaches storage itself");
+      return c.verdict("for the seeded learner's PDF the read route answers 404 while its file is absent and its address once placed; both the learner's lesson and Studio's preview draw lesson files through TautanBerkas, which asks that route and withdraws the link on a 404, never reaching storage itself (INV-37); the browser half is B5-W8");
     },
   },
 ];

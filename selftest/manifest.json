@@ -4329,7 +4329,7 @@
     {
       "id": "R0-MEDIA-01",
       "runner": "app",
-      "proves": "Retrospective R0-5 (W2.12, RV-8; Batch 0's read-url observation), selftest/app.test.ts, from the rendered learner lesson (src/app/belajar/[tugas]/pelajaran/[pelajaran]/page.tsx through src/lib/media-pelajaran.ts) over HTTP against the seed: a lesson's PDF whose storage object is absent is offered by no address (no \u00abBuka ringkasan\u00bb, no link to the route's raw 404), and once the object is placed the same lesson offers it; the existence check runs after the reader's own permission."
+      "proves": "Retrospective R0-5 (W2.12, RV-8; Batch 0's read-url observation), selftest/app.test.ts, over HTTP against the seed and from the source: the read route (src/app/api/assets/read-url/route.ts) answers 404 for the learner's PDF while its storage object is absent and its address once placed; the rendered lesson draws the PDF through TautanBerkas (src/components/pelajaran/TautanBerkas.tsx), which asks that route and withdraws the link on a 404, and LessonPlayer and Studio's preview both use it; TautanBerkas never reaches storage itself (INV-37). The browser half is audit/b5-ujung.mjs B5-W8."
     },
     {
       "id": "D168-KATA-1",

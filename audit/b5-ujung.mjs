@@ -20,6 +20,7 @@
 //   B5-W6  W3.10 / W3.15: alpha's learner's Belajar has no sideways scroll at 640 and 320 px; the tour does not make
 //          the page inert
 //   B5-W7  accessibility of the new and changed screens (audit/a11y.mjs: axe WCAG 2.2 AA, skip link, title, widths)
+//   B5-W8  R0-5 (W2.12): a lesson's PDF is offered only while its file is there (withdrawn when absent, offered when placed)
 //
 // Local or CI stack with the synthetic seed: APP_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
 // SUPABASE_DB_URL. Writes OUT_DIR/b5-ujung.json and screenshots; exits 1 on any FAIL.
@@ -46,6 +47,8 @@ const ORANG = {
   dean: { key: "dean", tujuan: "MEMIMPIN", email: "alpha-dean@synthetic.pintar.test", password: "Sintetis-AlphaDean-33!" },
   guru: { key: "guru", tujuan: "MENGAJAR", email: "alpha-guru@synthetic.pintar.test", password: "Sintetis-AlphaGuru-52!" },
   siswa: { key: "siswa", tujuan: "BELAJAR", email: "alpha-siswa-1@synthetic.pintar.test", password: "Sintetis-AlphaSiswa1-76!" },
+  // R0-5: the learner whose seeded lesson carries a PDF (the cycle world)
+  siklus: { key: "siklus", tujuan: "BELAJAR", email: "siklus-email@synthetic.pintar.test", password: "Sintetis-SiklusEmail-84!" },
 };
 const TAG = randomBytes(3).toString("hex");
 
@@ -371,6 +374,37 @@ await step("B5-W6", "W3.10 / W3.15: Belajar fits 640 and 320 px; the tour leaves
   const lewati = M.getByRole("button", { name: /Lewati|Tutup tur|Selesai/ }).first();
   if (await lewati.isVisible().catch(() => false)) await lewati.click().catch(() => {});
   await aksesibel(rec, M, "/belajar");
+});
+
+await step("B5-W8", "R0-5 (W2.12): a lesson's PDF is offered only while its file is there; a missing one is not drawn as «Buka ringkasan»", async (rec) => {
+  const KUNCI = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!harus(rec, Boolean(KUNCI), "the service-role key is present to place and remove the file")) return;
+  const P = sesi.siklus.page;
+  // the learner's own lesson with a PDF, through the learner's own contract
+  const jar = new Map();
+  const cl = createServerClient(SB, ANON, { cookies: { getAll: () => [...jar].map(([name, value]) => ({ name, value })), setAll: (cs) => cs.forEach(({ name, value }) => jar.set(name, value)) } });
+  await cl.auth.signInWithPassword({ email: ORANG.siklus.email, password: ORANG.siklus.password });
+  let tugas = "", pelajaran = "", jalur = "";
+  for (const a of (await cl.rpc("my_learning_assignments")).data ?? []) {
+    for (const l of (await cl.rpc("learner_lessons", { p_learning_assignment: a.learning_assignment_id })).data ?? []) {
+      const m = (l.media ?? []).find((x) => x.jenis === "pdf");
+      if (m && !jalur) { tugas = a.learning_assignment_id; pelajaran = l.lesson_id; jalur = m.path; }
+    }
+  }
+  if (!harus(rec, Boolean(jalur), `the learner has a lesson with a PDF (${jalur || "none"})`)) return;
+  const layanan = { apikey: KUNCI, authorization: `Bearer ${KUNCI}` };
+  const hapus = () => fetch(`${SB}/storage/v1/object/assets`, { method: "DELETE", headers: { ...layanan, "content-type": "application/json" }, body: JSON.stringify({ prefixes: [jalur] }) });
+  const tautan = P.locator(`[data-berkas][href*="${encodeURIComponent(jalur)}"]`);
+  const buka = async () => { await P.goto(`${APP}/belajar/${tugas}/pelajaran/${pelajaran}`, { waitUntil: "networkidle" }); await P.waitForTimeout(300); };
+  await hapus();
+  await buka();
+  harus(rec, (await tautan.count()) === 0, "the file is absent: «Buka ringkasan» is withdrawn");
+  await shot(P, rec, "pdf-tidak-ada");
+  const put = await fetch(`${SB}/storage/v1/object/assets/${jalur}`, { method: "POST", headers: { ...layanan, "content-type": "application/pdf", "x-upsert": "true" }, body: "%PDF-1.4 R0-5" });
+  harus(rec, put.ok, `the PDF is placed (${put.status})`);
+  await buka();
+  harus(rec, (await tautan.count()) === 1 && (await tautan.isVisible()), "the file is there: «Buka ringkasan» is offered");
+  await hapus();
 });
 
 await browser.close();

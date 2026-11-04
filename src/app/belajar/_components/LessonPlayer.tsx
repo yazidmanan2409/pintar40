@@ -21,6 +21,7 @@
  * never a track here without one.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
+import TautanBerkas from "@/components/pelajaran/TautanBerkas";
 import { useRouter } from "next/navigation";
 import { t, type HleEvent, type Locale } from "@/lib/hle";
 import { halamanMulai, menjadiDibaca, perluDisimpan, posisiDiServer, setelahSimpan } from "@/lib/siklus";
@@ -192,12 +193,8 @@ function MediaEntry({ entry, personId, locale }: { entry: LessonPlayerProps["med
   };
 
   if (entry.jenis === "pdf") {
-    return entry.url ? (
-      <a href={entry.url} target="_blank" rel="noreferrer"
-         className="pin-lcard pin-llink">
-        {kata("lesson.pdf")}
-      </a>
-    ) : null;
+    // R0-5: offered only while its file is there (TautanBerkas asks the read route)
+    return entry.url ? <TautanBerkas href={entry.url} className="pin-lcard pin-llink">{kata("lesson.pdf")}</TautanBerkas> : null;
   }
 
   if (tidakAda && (entry.jenis === "audio" || entry.jenis === "video")) {
