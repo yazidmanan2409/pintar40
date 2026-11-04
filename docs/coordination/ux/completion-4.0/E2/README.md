@@ -164,3 +164,4 @@ It is a focused page: **no shell**, because it is the one place a working contex
 - [auto] With no words, no slot's place draws anything, and no empty alert (the build; `istilah()` returns null).
 - [manual] Side-by-side review of the build at each width (brief G:14).
 - [manual] **Final closure:** G1's six words set, the specimens re-rendered, no placeholder left (G:81).
+- [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): P5, P13, P19 (with exception X5).

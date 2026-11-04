@@ -75,3 +75,4 @@ None. The three new keys await copy approval.
 - [auto] J5's review panel shows «Jendela: Mulai … · Sampai …» before «Sediakan».
 - [auto] Below 560 px a list row's badge sits under its words (D9).
 - [manual] Side-by-side review of the corrected screens beside J1Terbit and J5Jendela (brief G:14).
+- [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): P5, P6 (K3), P10, P11, P12, P18 (K9), P20 (K7); the named-steps markers (K8).

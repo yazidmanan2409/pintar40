@@ -112,3 +112,4 @@ The Indonesian is confirmed throughout. **The English says «course» where the 
 - [auto] «(opsional)» comes from one key wherever an optional field is marked.
 - [auto] The findings' result and its button use the same verb («tinjau»).
 - [manual] Dr Gladys's confirmations for C3's hint and C9's sheet name recorded.
+- [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): P5 (result words echo their action: C2's «tinjau»), P2, P18.

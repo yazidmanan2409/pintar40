@@ -76,7 +76,7 @@ Each section page has:
 | **Form** | A panel with the FormLayout: one column at `measure-narrow`, two short fields sharing a row (auto-fit at 220 px), the primary action left-aligned at the end. |
 | **Table** | The Table with TableRows stripes, for the audit trail only: it has columns. |
 
-**Results:** the result line («Selesai.» / «Belum berhasil.», BarisHasil) sits at the top of the content, under the intro, because the page now holds one task (`ketuntasan`). **Pagers:** the Collection pager as built (Penomoran): «Kembali» · «Halaman n» · «Berikutnya», keyset pages, never a total.
+**Results:** the result line («Selesai.» / «Belum berhasil.», BarisHasil) sits **beside the action it answers** (ActionFeedback): under the saved row, or under the form (corrected for cross-feature consistency, K4 in `../X-KONSISTENSI/`). **Pagers:** the one Pagination pattern (K2 in `../X-KONSISTENSI/`): «Sebelumnya» (shown disabled on the first page) · the position · «Berikutnya». Keyset pages, whose total is unknown, say what is shown instead of a total.
 
 ### Every section's pattern
 
@@ -230,3 +230,4 @@ No frozen term is touched. «Murid» as a group label is the approved role word 
 - [manual] Each action's redirect lands on its own section page with its result line.
 - [manual] With a screen reader: each row action is heard with its record's name; an opened row's form is reached next.
 - [manual] At 200 % zoom (W6.12), the 320 px layout holds.
+- [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): P1, P2, P5 (K4, corrected), P7, P8, P9 (K2), P12, P13, P15, P16, P17, P18, P20 (K7).

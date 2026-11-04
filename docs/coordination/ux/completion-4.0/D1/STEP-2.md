@@ -180,10 +180,10 @@ No application token changes.
 ## Missing evidence
 
 None relied on. The card email's data and its alphabetical order are engineering's at `9b52b51` (D-164(b)); this design does not depend on them.
+- [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): the email frame's own blocks (P5's exception X3 for every email action).
 
 ## Implementation answers (owner's questions, 4 Nov)
 
 - **P2 · The card's wordmark slot until F-11:** (a) today's logo as the block's one image (D-160(a)), with today's alt «PINTAR» (`email.bingkai.merek`) until F-11, when «Pintar» arrives with the master; the card's live text still carries who and what with images blocked.
 - **P3 · The header slot until F-11:** keep it at today's pinned 104 × 58 and do not rescale the logo; 120 × 40 is the slot for the F-11 master.
 - **P4 · The card border:** `--line`, the frame's existing `garis` (`#E2E4E5`). The `#D9D6CE` in step 2 was an untokened value of mine, now corrected in `bingkai-d1.mts`; the renders are regenerated.
-

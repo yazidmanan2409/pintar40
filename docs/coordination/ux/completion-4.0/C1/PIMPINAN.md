@@ -41,7 +41,7 @@ Figures look the same here as in the Ringkasan, so a figure reads the same where
    - eyebrow «Pimpinan»;
    - h1 «Apa yang menunggu Anda»;
    - intro: **the suppression line** (`pimpinan.batas`), always, even when nothing waits.
-2. **«Lingkup»,** where there is more than one scope: the places as a row of buttons. The current one has a secondary border, 600 weight and `aria-current`; the others are quiet. They wrap at 320.
+2. **«Lingkup»,** where there is more than one scope: **Tabs (pages)**, links with `aria-current="page"`, the current one underlined and set in 600. `.pin-lingkup` becomes Tabs (DS Tabs README); corrected for cross-feature consistency, K5 in `../X-KONSISTENSI/`. They scroll sideways at 320 and never wrap.
 3. **«Keputusan»:**
    - the count sentence (`.nihil`, `.satu` or the number with `.banyak`);
    - the order note (`pimpinan.urutan`), only when more than one waits;
@@ -240,6 +240,7 @@ These are things the build must change for the composition to hold. None is a de
 - [manual] Side-by-side review of the build beside this composition at each width (brief G:14).
 - [manual] The roster's intro is read before the names (screen reader).
 - [manual] No aggregate academic figure and no ranking on `/pengembangan/[simpul]`; the individual result shows only for the full audience (D-069(b)).
+- [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): P3 (K1), P5, P7 (with exception X1), P10 (K5, corrected), P13, P14, P15, P17, P21.
 
 ## 10. The result cell: settled
 

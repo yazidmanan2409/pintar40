@@ -163,3 +163,4 @@ Nothing is saved and nothing is announced.
 - [manual] Side-by-side review of the build beside this composition at each width and on paper, printed on a school printer, recorded as match or deviation per region (brief G:14).
 - [manual] G2's labels and G6's titles set by Dr Gladys, and the specimens re-rendered with them.
 - [manual] E:90: the report page names class, school and period, sits in the shell, and prints.
+- [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): P3 (K1), P13, P14 (with exception X6), P20.

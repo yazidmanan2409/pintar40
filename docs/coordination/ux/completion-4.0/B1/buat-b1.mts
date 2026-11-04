@@ -172,10 +172,9 @@ function ketuntasan(kosong = false): string {
     if (i === ubah) return `<li class="b1-baris b1-baris-buka"><div class="b1-baris-kepala"><div><strong>${esc(p.judul)}</strong><small>${esc(meta)}</small></div>${nilai}</div>
       <form class="pds-panel b1-form-baris" aria-label="${esc(kata("config.ketuntasan.tombol") + " · " + p.judul)}"><div class="b1-dua">${field(kata("config.ketuntasan.nilai"), input('type="number" inputmode="numeric" min="0" max="100" step="1" required'))}${field(kata("config.ketuntasan.alasan"), input(`required maxlength="300" placeholder="${esc(kata("config.ketuntasan.alasan_contoh"))}"`))}</div>
       <div class="pds-actions"><button type="submit" class="pds-btn pds-btn-primary">${kata("config.ketuntasan.tombol")}</button><a href="#" class="pds-btn pds-btn-quiet">${kata("config.angkat.batal")}</a></div></form>${riwayat}</li>`;
-    return `<li class="b1-baris"><div class="b1-baris-kepala"><div><strong>${esc(p.judul)}</strong><small>${esc(meta)}</small></div>${nilai}<a href="#" class="pds-btn pds-btn-secondary b1-aksi" aria-label="${esc(kata("config.ketuntasan.tombol") + " · " + p.judul)}">${kata("config.ketuntasan.tombol")}</a></div>${riwayat}</li>`;
+    return `<li class="b1-baris"><div class="b1-baris-kepala"><div><strong>${esc(p.judul)}</strong><small>${esc(meta)}</small></div>${nilai}<a href="#" class="pds-btn pds-btn-secondary b1-aksi" aria-label="${esc(kata("config.ketuntasan.tombol") + " · " + p.judul)}">${kata("config.ketuntasan.tombol")}</a></div>${i === 0 ? hasil(true, kata("config.result.ok")) : ""}${riwayat}</li>`;
   }).join("");
   return shell("sekolah", kata("config.section.ketuntasan"), `${kepalaBagian(kata("config.section.ketuntasan"), kata("config.ketuntasan.arti"))}
-    ${hasil(true, kata("config.result.ok"))}
     <ul class="pds-list b1-daftar">${baris}</ul>`);
 }
 

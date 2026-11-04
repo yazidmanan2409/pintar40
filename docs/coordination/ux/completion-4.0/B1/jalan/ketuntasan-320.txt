@@ -22,7 +22,6 @@ The accessibility tree of the main region
     - text: "Sekolah:"
     - strong: SMP Cahaya Kaliandra
   - paragraph: Nilai minimum kelulusan setiap pelajaran di sekolah ini, dalam persen bulat dari 0 sampai 100. Guru baru bisa menyediakan sebuah pelajaran untuk kelas setelah batasnya ditetapkan. Perubahan berlaku untuk pelajaran yang disediakan sesudahnya; hasil dan sertifikat yang sudah ada tidak berubah.
-  - status: Selesai.
   - list:
     - listitem:
       - strong: Pecahan senilai
@@ -30,6 +29,7 @@ The accessibility tree of the main region
       - link "Tetapkan · Pecahan senilai":
         - /url: "#"
         - text: Tetapkan
+      - status: Selesai.
       - group: Riwayat
     - listitem:
       - strong: Teks deskripsi

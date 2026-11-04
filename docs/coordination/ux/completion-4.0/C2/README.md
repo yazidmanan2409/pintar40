@@ -130,3 +130,4 @@ These are not decisions.
 - [manual] A PD class reproduced on a disposable stack and compared with the substitute specimens before acceptance (register C2).
 - [manual] Side-by-side review of the build at each width (brief G:14).
 - [manual] DAISY-35's own acceptance (BRD:260).
+- [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): P3, P13, P14, P15; the PD «Kesimpulan» is one statement, not P14's «not yet» (no figure ever comes).

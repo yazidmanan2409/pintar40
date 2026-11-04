@@ -64,3 +64,4 @@ No frozen term is touched. «Nilai» stays the teacher's word for a score.
 - [auto] «Rincian nilai» is an h2 section heading, not an eyebrow; the drill-down is on the same page.
 - [auto] The figure is still the mean of the official scores of those scored (`susunHasilUjiCepat`, unchanged).
 - [manual] W6.7 at Level 3: a teacher reads «100%, 1 dari 31 murid sudah dinilai» as one score so far, not as the class's result.
+- [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): P10 (the drill-down a section, not tabs), P12 (the Collection), P13, P14.

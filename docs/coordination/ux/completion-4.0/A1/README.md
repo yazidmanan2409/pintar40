@@ -176,3 +176,4 @@ No frozen term is touched. «Peserta», «Kenaikan» and «Penguasaan per bagian
 - [manual] «Buka» and the pager move focus to the lesson heading.
 - [manual] At 200 % zoom (W6.12), the 320 px layout holds.
 - [manual] «Setujui isi» is still reached only after the section (J1).
+- [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): P1, P9 (with exception X2), P13, P15, P17 (no disclosure around required reading), P20; K6 applies.

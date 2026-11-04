@@ -201,3 +201,4 @@ The walks are in `jalan/` (1280, 1100 and 390).
   - a role or context that lapses mid-session reaches `context.invalid`.
 - [auto] Each context's places appear in the confirmed order (O12), and only the places that context serves.
 - [manual] Side-by-side review of the build with E2 at each width (brief G:14); E:90 «compositions J3, J4 and J6 matched».
+- [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): P4 (the drawer's «Tutup menu»), P19, P15, P16.

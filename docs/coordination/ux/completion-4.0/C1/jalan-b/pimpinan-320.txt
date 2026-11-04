@@ -27,17 +27,12 @@ The accessibility tree of the main region
   - heading "Apa yang menunggu Anda" [level=1]
   - paragraph: Yang muncul di sini memerlukan wewenang, koordinasi, atau penafsiran untuk sekolah secara keseluruhan. Selebihnya tidak muncul.
   - navigation "Lingkup":
-    - text: Lingkup
-    - list:
-      - listitem:
-        - link "Matematika":
-          - /url: "#"
-      - listitem:
-        - link "Kelas 7A":
-          - /url: "#"
-      - listitem:
-        - link "Kelas 7B":
-          - /url: "#"
+    - link "Matematika":
+      - /url: "#"
+    - link "Kelas 7A":
+      - /url: "#"
+    - link "Kelas 7B":
+      - /url: "#"
   - region "Keputusan":
     - heading "Keputusan" [level=2]
     - paragraph: 3 keputusan menunggu Anda.
