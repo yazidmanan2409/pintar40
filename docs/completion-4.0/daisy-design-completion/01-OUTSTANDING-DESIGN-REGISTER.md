@@ -31,6 +31,14 @@
 | **E** | engineering (a dependency only) |
 
 **Standing rules that bind every row:**
+- **The owner's adjustments of 4 Nov:**
+  - D-161(e) reconciles the brand: «Pintar» in `#075056`; the interface palette is unchanged.
+  - D-162: the sage accent is engineering's, not Daisy's.
+  - The email frame is identified first and reused if complete.
+  - A provisional wordmark placeholder stands in until F-11.
+  - D-074(10) stays explicitly unresolved.
+  - Product policy and Dr Gladys's words are outside Daisy's authority.
+  - The closed items are not reopened.
 - **D-135:** Daisy decides design execution within the approved system; the owner is not asked for design-language rulings; missing protected words go to Dr Gladys's register.
 - **D-161:** the uppercase «PINTAR» / `#245F55` wordmark specification is a superseded proposal. Brand items wait on its formal reconciliation.
 
@@ -165,8 +173,8 @@
 - **Implemented:**
   - Every line is drawn at the approved type, and the card is marked `data-pengecualian="lebih-dari-dua"` (`src/lib/kartu-pintar.ts:65-79`; `src/components/kartu/KartuPintar.tsx:47`).
   - **Not reachable today:** on staging all 67 role holders hold exactly one pair (`batch-6/02:70`).
-- **Class:** POL · **Decides:** **O** on the product handling (for example a second face, «and n more» with Akun saya listing all, or not issuing a card), then **D** on its presentation.
-- **Deliverable:** a presentation for each option the owner may choose, within D-074.
+- **Class:** POL · **EXPLICITLY UNRESOLVED (owner, 4 Nov).** The rule holds as built: no truncation, no shrinking, no silent omission.
+- **Deliverable:** **none in this exercise.** Not designed until the owner rules on the product handling.
 - **Affects:** `/akun`, the activation welcome; staff; J2.16.
 - **Evidence:** `batch-6/evidence/B6K/contoh-tiga-pasangan.png`, `contoh-dua-sekolah.png`, `contoh-satu-sekolah-dua-peran.png`; Daisy's card round 2 §10 (render F-kasus-uji).
 
@@ -237,8 +245,11 @@
   - whether the back and the QR appear;
   - the wordmark with images blocked;
   - whether the rows follow the card's alphabetical order and colour rule.
-- **Conflict to settle first:** Daisy's own validation says CR-22 is covered: «Has it (8 Oct): D-079 is the email standard and the DAISY-19 frame its implementation» (DS/11-validation.md:196; GQ3 :211). Engineering finds no DAISY-37 composition. Daisy states which holds, and if the frame stands, answers the five card points.
-- **Class:** COMP · **Decides:** D. **Point 3** (the text identity) **waits on D-161's reconciliation (O).**
+- **Step 1, first (owner, 4 Nov):** Daisy identifies the existing approved email frame (the DAISY-19 frame and D-079), and checks it against D-079(a)–(f) and DAISY-37 (1)–(4).
+  - Her own validation says CR-22 is covered: «Has it (8 Oct): D-079 is the email standard and the DAISY-19 frame its implementation» (DS/11-validation.md:196; GQ3 :211).
+  - **If it is complete it is reused; otherwise only the missing composition is requested.**
+- **Step 2:** the six emails' structure and states, and the card in the email, with a **provisional wordmark placeholder**. The final artwork depends on F-11; the wordmark is «Pintar» `#075056` (D-161(e)).
+- **Class:** COMP (only what step 1 finds missing) · **Decides:** D.
 - **Deliverable:**
   - the six emails (activation, resend, recovery, password changed, card, security notice) in one shell;
   - 600 and 320 px, light and dark, images blocked, and plain text;
@@ -269,7 +280,7 @@
 ### D4 · W3.21: republish the Design System page
 - **Approved rule:** «The Design System page (version 18) predates c42fecb … Republish with the next design change» (`docs/handoff/codex-2026-10-09/07-OPEN-WORK-AND-BLOCKERS.md:62`).
 - **Class:** PUB · **Decides:** D.
-- **Deliverable:** the page republished to the frozen system, with every package's outcome. It holds the brand book, so it **waits on D-161's reconciliation.**
+- **Deliverable:** the page republished to the frozen system, with every package's outcome and the reconciled brand (D-161(e): «Pintar» `#075056`, the interface palette unchanged, the master pending F-11).
 
 ### D5 · The brand and wordmark slots (re-scoped by D-161)
 
@@ -282,13 +293,15 @@
 | the tab icon | `favicon.ico` (Daisy's icon); `icon.svg` and `apple-icon.png` not shipped (owner, proxy paths) | DS Wordmark card (a `pintar-primary` square = `#245F55`) vs D-161's `#075056` |
 | DAISY-37 point 3 | not built | «PINTAR SELALU» typeset as live text. It fits D-161's application name, not its public wordmark «Pintar» |
 
-- **Class:** POL first (O: the formal reconciliation), then Daisy's update.
-- **Deliverable once reconciled:**
-  - the updated Wordmark card for «Pintar», `#075056` and Helvetica Neue Bold, subject to the master;
-  - the slot geometry for the shell, certificate, card and email;
-  - the tab icon;
-  - DAISY-37's text identity.
-- **Never** a replacement master. That is owner-controlled (F-11).
+- **Reconciled** (D-161(e)):
+  - the wordmark is «Pintar» in `#075056` in every slot once the master exists;
+  - the interface palette is unchanged (`--pintar-primary` `#245F55`).
+- **Still owner's, and not Daisy's:** where «PINTAR SELALU» replaces «PINTAR» in running text, and the tab icon's colour.
+- **Class:** COMP (geometry only) · **Decides:** D.
+- **Deliverable:**
+  - the slot geometry for «Pintar» in the shell, certificate, card and email, drawn with the **provisional wordmark placeholder**;
+  - the replacement for the superseded Wordmark card's rules (size ladder, clear space, versions), as a placeholder specification.
+- **Never** the artwork or a master (F-11).
 
 ---
 
@@ -385,7 +398,7 @@
 
 B3 and B4 stay separate: one has a written rule and the other has none.
 
-**Completed or superseded (not in the brief):**
+**Completed or superseded: not to be reopened (owner, 4 Nov)** (not in the brief):
 - the RV-21 ▶ markers (Batch 2);
 - UX-10 «surel» (the words are «Alamat email»);
 - UX-02–08, 11, 12, 14, 16, 20–22, 24, 26, 27, 30, 32 (done, UXR); UX-23, 28 and 29 (moved to DAISY-25); UX-31 (DAISY-20);
@@ -404,7 +417,8 @@ B3 and B4 stay separate: one has a written rule and the other has none.
 
 | Owner | Items |
 |---|---|
-| Owner | F-11 (the master, the physical proofs); the certificate's sage accent (migration 194, `batch-6/02` §2); the D-161 reconciliation; the tab-icon proxy paths |
+| Owner | F-11 (the master, the physical proofs); the D-161 items still open (the application name in running text, the tab-icon colour and proxy paths); D-074(10) |
+| Engineering, approved in principle | the certificate's sage accent: D-162, migration 194, under the Batch 6 gate |
 | Dr Gladys | W3.9, UX-41; W4.2 (OP-6, OP-7, the L4 §4 list); `auth.link_sent`; the Batch 5–6 engineering strings; the universal-term proposal (`batch-0/08`) |
 | Engineering | every «E» row of the register, and print beyond Chromium |
 
