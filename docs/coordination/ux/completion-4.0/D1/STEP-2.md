@@ -170,6 +170,7 @@ No application token changes.
 - [manual] **With images blocked, every one of the six emails remains fully understandable without relying on the Pintar wordmark or the Digital Card artwork: who it is from, why the person received it, and what to do** (the owner's addendum, 4 Nov). Recorded per email and per client, in the images-blocked pass above.
 - [manual] **Recognition:** a reader not involved in the design, shown the email at 320 px, states who sent it, why, and what to do within 5 seconds, in at least 4 of 5 attempts per email. Each attempt uses a different reader, new to that email, and the readers are spread across the clients. **This stage cannot establish brand recognition:** a labelled placeholder is not the brand.
 - [manual] After F-11: the final recognition test, with the approved artwork, as the brief §8 sets out.
+- [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): the email frame's own blocks (P5's exception X3 for every email action).
 
 ## Decisions this depends on
 
@@ -180,7 +181,6 @@ No application token changes.
 ## Missing evidence
 
 None relied on. The card email's data and its alphabetical order are engineering's at `9b52b51` (D-164(b)); this design does not depend on them.
-- [auto] **D-172:** equivalent interactions match their canonical pattern (`../X-KONSISTENSI/`): the email frame's own blocks (P5's exception X3 for every email action).
 
 ## Implementation answers (owner's questions, 4 Nov)
 
