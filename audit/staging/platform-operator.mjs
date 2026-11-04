@@ -107,7 +107,7 @@ await step("O3", `the platform admin grants the operator «Admin platform» on K
   const row = operatorRow();
   if (!row) { rec.verdict = "FAIL"; return "the operator has no account (O2)"; }
   if (Number(row.split("|")[1]) > 0) { rec.verdict = "NOTE"; return "the operator already holds an active platform-admin grant; nothing to grant"; }
-  await A.goto(`${APP}/konfigurasi?muat=${Date.now()}#roles`, { waitUntil: "networkidle", timeout: SLOW });
+  await A.goto(`${APP}/konfigurasi/roles?muat=${Date.now()}#roles`, { waitUntil: "networkidle", timeout: SLOW });
   await closeTour(A);
   const form = A.locator("form").filter({ has: A.locator('select[name="person"]') });
   const orang = await form.locator('select[name="person"] option').filter({ hasText: OPERATOR_NAME }).first().getAttribute("value");
@@ -151,7 +151,7 @@ await step("O4", "the operator signs in like a person: /masuk, the real email in
   const at = new URL(O.url()).pathname;
   // L3 (D-132 C9): several purposes · places held, so the chooser asks; «Seluruh platform» is chosen there (C7)
   const ke = at === "/" ? await pilihKonteks(O, { tujuan: "MENGELOLA", platform: true }) : at;
-  await O.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle", timeout: SLOW });
+  await O.goto(`${APP}/konfigurasi/struktur#struktur`, { waitUntil: "networkidle", timeout: SLOW });
   await closeTour(O);
   const sekolah = await O.locator("select[name='sekolah'] option, select#pin-sekolah option").allTextContents().catch(() => []);
   const halaman = norm(await O.locator("main").innerText().catch(() => ""));

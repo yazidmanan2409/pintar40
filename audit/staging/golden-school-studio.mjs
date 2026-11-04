@@ -346,7 +346,7 @@ await step("T9", "the school admin publishes («✓ Diterbitkan») and sets the 
   harus(rec, sudah, "the button answered «✓ Diterbitkan»");
   harus(rec, /\|PUBLISHED$/.test(keadaan()), `published (${keadaan()})`);
   const akar = pertama || course;
-  await A.goto(`${APP}/konfigurasi?sekolah=${S.id}&muat=${Date.now()}#ketuntasan`, { waitUntil: "networkidle", timeout: SLOW });
+  await A.goto(`${APP}/konfigurasi/ketuntasan?sekolah=${S.id}&muat=${Date.now()}#ketuntasan`, { waitUntil: "networkidle", timeout: SLOW });
   await closeTour(A);
   const baris = A.locator(`#ketuntasan li[data-pelajaran="${akar}"]`);
   if (!harus(rec, (await baris.count()) > 0, "Batas ketuntasan lists the chapter's line")) return;

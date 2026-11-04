@@ -160,7 +160,7 @@ export const b4Tests: SelfTest[] = [
       c.expect(/daftarKelola\(\{ jendela: halJendela, pengumuman: halPengumuman, sekolah: !lama && !platformKonteks \? satuSekolah : null \}\)/.test(konf)
         && !/w\.sekolah\.some\(/.test(konf), "the maintenance lists are not the database's pages, narrowed by the database");
       for (const k of ["hal_sekolah", "hal_lapor", "hal_jendela", "hal_pengumuman"]) {
-        c.expect(new RegExp(`tautanHalaman\\("/konfigurasi", sp, "${k}", n, "[a-z-]+"\\)\\} locale=\\{locale\\}\\s+benda=\\{sl\\("koleksi\\.benda\\.[a-z]+"\\)\\} jumlah=\\{[^}]+\\} />`).test(konf), `${k} has no pager`);
+        c.expect(/const jalanIni = bagianIni \? alamatBagian\(bagianIni\) : "\/konfigurasi";/.test(konf) && new RegExp(`tautanHalaman\\(jalanIni, sp, "${k}", n, "[a-z-]+"\\)\\} locale=\\{locale\\}\\s+benda=\\{sl\\("koleksi\\.benda\\.[a-z]+"\\)\\} jumlah=\\{[^}]+\\} />`).test(konf), `${k} has no pager`);
       }
       const pem = kode(baca(ctx.repoRoot, "src/lib/pemeliharaan.ts"));
       c.expect(/rpc\("maintenance_list", \{\s*p_hal_jendela:/.test(pem), "daftarKelola does not ask for a page");
@@ -196,7 +196,7 @@ export const b4Tests: SelfTest[] = [
         && /melayani\(kh, "\/aktivasi"\)/.test(konf), "the people waiting for an account are not counted, or counted for a reader Aktivasi does not serve");
       c.expect(/rpc\("studio_home"\)\.then/.test(konf) && /r\.bucket === "ACTION_REQUIRED" \|\| r\.bucket === "AWAITING_MY_REVIEW"/.test(konf) && /melayani\(kh, "\/studio"\)/.test(konf),
         "Studio's waiting packages are not studio_home's own counts");
-      c.expect(/\.filter\(\(m\) => m\.n > 0\)/.test(konf) && /\{menunggu\.length > 0 \? \(/.test(konf) && /<Link className="pin-tautan" href=\{m\.href\}>/.test(konf),
+      c.expect(/\.filter\(\(m\) => m\.n > 0\)/.test(konf) && /\{bagianIni === null && menunggu\.length > 0 \? \(/.test(konf) && /<Link className="pin-tautan" href=\{m\.href\}>/.test(konf),
         "the landing shows an empty count, or a count that does not open where it is done");
       for (const k of ["judul", "pendataan", "aktivasi", "studio"]) {
         for (const locale of ["id", "en"] as const) {

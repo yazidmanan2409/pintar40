@@ -347,7 +347,7 @@ await step("U9", "the school admin publishes the chapter («Terbitkan» → «�
   harus(rec, /\|PUBLISHED$/.test(keadaan()), `published (${keadaan()})`);
   // the pass mark is set on a published chapter (Konfigurasi lists those), before the teacher may give it
   const inst = sql(`select institution_id from public.courses where id='${course}'`);
-  await a.goto(`${APP}/konfigurasi?sekolah=${inst}&muat=${Date.now()}#ketuntasan`, { waitUntil: "networkidle" });
+  await a.goto(`${APP}/konfigurasi/ketuntasan?sekolah=${inst}&muat=${Date.now()}#ketuntasan`, { waitUntil: "networkidle" });
   await tutupTur(a);
   // a pass mark belongs to the lesson's line, kept under its first version (school_lesson_lines): the correction
   // made the published chapter the second version of the line the Guru began

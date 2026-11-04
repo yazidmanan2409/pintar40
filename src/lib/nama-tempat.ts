@@ -32,7 +32,8 @@ export const KEMBALI_RIWAYAT: HleEvent = "kembali.riwayat";
  */
 export const ASAL_LAPORAN: Readonly<Record<string, { ke: string; nama: HleEvent }>> = {
   pimpinan: { ke: "/pimpinan", nama: "nav.pimpinan" },
-  konfigurasi: { ke: "/konfigurasi#laporan", nama: "config.laporan.judul" },
+  // B1: Konfigurasi's «Laporan» is its own page
+  konfigurasi: { ke: "/konfigurasi/laporan", nama: "config.laporan.judul" },
 };
 export function asalLaporan(dari: unknown): { ke: string; nama: HleEvent } {
   return (typeof dari === "string" && Object.hasOwn(ASAL_LAPORAN, dari) ? ASAL_LAPORAN[dari] : null) ?? { ke: "/", nama: KEMBALI_RIWAYAT };

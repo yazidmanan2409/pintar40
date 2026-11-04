@@ -28,6 +28,9 @@ import ItemNav from "@/components/ItemNav";
 import { kataAksiAudit, kataTabelAudit } from "@/lib/jejak-audit";
 import { konteksHalaman } from "@/lib/konteks-server";
 import { melayani } from "@/lib/konteks";
+import { redirect } from "next/navigation";
+import { KELOMPOK_KONFIGURASI, adalahBagian, alamatBagian, bagianDariParameter } from "@/lib/bagian-konfigurasi";
+import TerusBagian from "@/components/konfigurasi/TerusBagian";
 import { peranSaya } from "@/lib/tur-negara";
 import { bacaStruktur } from "@/lib/struktur";
 import { tahunAjaranPada } from "@/lib/struktur-kontrak";
@@ -128,11 +131,24 @@ type SearchParams = Promise<{
   asal?: string;
 }>;
 
-export default async function Konfigurasi({ searchParams }: { searchParams: SearchParams }) {
+export default async function Konfigurasi({ searchParams, params }: { searchParams: SearchParams; params?: Promise<{ bagian?: string }> }) {
   // One parallel read of the viewer and their roles (DAISY-02/03).
   const [viewer, peran] = await Promise.all([currentViewer(), peranSaya()]);
   const supabase = await supabaseServer();
   const sp = await searchParams;
+  // B1 (D-166(a)): the index (/konfigurasi) or one section's page (/konfigurasi/<section>), the same page drawn either
+  // way. E-B1-1: an older address naming a section (`?bagian=…`, every action's result before B1) goes to its page
+  // with every parameter it carried; a page for no section goes to the index.
+  const bagianDiminta = params ? (await params).bagian ?? null : null;
+  if (bagianDiminta !== null && !adalahBagian(bagianDiminta)) redirect("/konfigurasi");
+  const bagianIni = bagianDiminta && adalahBagian(bagianDiminta) ? bagianDiminta : null;
+  const keBagian = bagianIni === null ? bagianDariParameter(sp) : null;
+  if (keBagian !== null) {
+    const q = new URLSearchParams();
+    for (const [k, v] of Object.entries(sp)) for (const x of Array.isArray(v) ? v : v === undefined ? [] : [v]) q.append(k, x);
+    redirect(alamatBagian(keBagian, q));
+  }
+  const jalanIni = bagianIni ? alamatBagian(bagianIni) : "/konfigurasi";
 
   // Authority: SYSTEM_ADMIN, or INSTITUTION_ADMIN over at least one institution.
   const [{ data: isSys }, { data: adminAssignments }] = await Promise.all([
@@ -380,7 +396,6 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     ? calonPertama.find((p) => p.person_id === sp.pertama) ?? null
     : null;
 
-  const activeClassCount = (nodes ?? []).filter((n) => n.kind === "CLASS" && n.is_active).length;
 
   // BOB-19: the card judges each check by the one rule F01-T13 uses
   // (src/lib/kesehatan-skema), never "anything but 0 is a problem"
@@ -506,6 +521,10 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
   // L3: «Seluruh platform» draws no school-shaped section, and lists none
   const BAGIAN_SEKOLAH = ["struktur", "persiapan", "ketuntasan", "pindah", "peserta", "laporan", "rollover", "transfers", "intelligence"];
   const tampil = (bagian: string) => !(platformKonteks && BAGIAN_SEKOLAH.includes(bagian));
+  // B1: a section is drawn on its own page, where its context draws it (tampil, the one rule the index reads too); a
+  // school-shaped section asked for in «Seluruh platform» goes to the index (B1 §3)
+  const tampilDi = (bagian: string) => bagianIni === bagian && tampil(bagian);
+  if (bagianIni !== null && !tampil(bagianIni)) redirect("/konfigurasi");
   const navSemua: Array<[string, string]> = [
     ["struktur", s("config.section.struktur")],
     ["ketuntasan", s("config.section.ketuntasan")],
@@ -517,9 +536,13 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     ["system", s("config.section.system")], ["rollover", s("config.section.rollover")], ["transfers", s("config.section.transfers")],
     ["roles", s("config.section.roles")], ["audit", s("config.section.audit")],
     // Polish batch 2 (UX-30): no menu item for a section that does not exist yet
-    ["intelligence", s("config.section.intelligence")],
+    // B1 / RV-24: the row is titled by the section it opens, «Templat laporan»; «Inteligensi & Laporan» retires
+    ["intelligence", sl("laporan.templat.judul")],
   ];
   const nav = navSemua.filter(([bagian]) => tampil(bagian));
+  const judulBagian = (b: string) => navSemua.find(([k]) => k === b)?.[1] ?? sl("config.title");
+  const namaKonteks = platformKonteks ? sl("config.pemeliharaan.platform")
+    : satuSekolah ? ((institutions ?? []) as Array<{ id: string; name: string }>).find((i) => i.id === satuSekolah)?.name ?? null : null;
 
   return (
     <>
@@ -549,12 +572,23 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
     />
     <main id="isi" tabIndex={-1} className="py-6">
       {/* E-K7 (D-173(d)): one page-head rule — no app-name eyebrow inside the shell, which already names PINTAR */}
+      {/* B1 (D-166(a)): the index is «Konfigurasi»; a section's page is its section, with the way back named by its
+          destination (D-172 K1) and the context it acts in */}
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{s("config.title")}</h1>
+        {bagianIni ? (
+          <Link className="pin-back pin-noprint" href={`/konfigurasi${sp.sekolah ? `?sekolah=${encodeURIComponent(sp.sekolah)}` : ""}`}>← {sl("nav.konfigurasi")}</Link>
+        ) : null}
+        <h1 className="text-2xl font-semibold tracking-tight">{bagianIni ? judulBagian(bagianIni) : sl("config.title")}</h1>
+        {namaKonteks ? (
+          <p className="mt-1 text-sm text-ink-2" data-konfigurasi-konteks="">
+            {platformKonteks ? namaKonteks : <>{sl("config.struktur.sekolah")}: <strong className="text-ink-1">{namaKonteks}</strong></>}
+          </p>
+        ) : null}
       </header>
+      {bagianIni === null ? <TerusBagian /> : null}
 
 
-      {menunggu.length > 0 ? (
+      {bagianIni === null && menunggu.length > 0 ? (
         <section className={`mt-6 ${card}`} aria-labelledby="pin-menunggu" data-menunggu="">
           <h2 id="pin-menunggu" className="font-medium">{s("config.menunggu.judul")}</h2>
           <ul className="mt-2 grid gap-1 text-sm">
@@ -567,31 +601,25 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
         </section>
       ) : null}
 
-      <section className="mt-6 grid gap-3 sm:grid-cols-3">
-        <KartuKesehatan locale={await currentLocale()} keadaan={kesehatan} kelas={card} tautan={tautanTempat} />
-        <div className={card}>
-          <p className="text-sm text-ink-3">{s("config.card.cohorts")}</p>
-          <p className="mt-1 text-ink-2">{activeClassCount}</p>
-        </div>
-        <div className={card}>
-          <p className="text-sm text-ink-3">{s("config.environment")}</p>
-          <p className="mt-1 text-ink-2">{env?.environment ?? "—"}</p>
-        </div>
-      </section>
+      {/* B1 / RV-24: Admin platform's two panels on the index alone; no tile is drawn for a value the reader cannot
+          have (a school administrator's «Lingkungan —»), and the classes' count is Persiapan sekolah's */}
+      {bagianIni === null && platformIni ? (
+        <section className="mt-6 grid gap-3 sm:grid-cols-2" data-konfigurasi-panel="">
+          <KartuKesehatan locale={await currentLocale()} keadaan={kesehatan} kelas={card} tautan={tautanTempat} />
+          <div className={card}>
+            <p className="text-sm text-ink-3">{s("config.environment")}</p>
+            <p className="mt-1 text-ink-2">{env?.environment ?? "—"}</p>
+          </div>
+        </section>
+      ) : null}
 
-      <div className="mt-6 grid gap-4 md:grid-cols-[220px_1fr]">
-        {/* W3.22 (Daisy 08-migration §Print): the section menu is the page's navigation and never reaches the paper */}
-        <nav className={`${card} self-start p-2 pin-noprint`} data-menu-bagian="">
-          {nav.map(([key, title]) => (
-            <a key={key} href={`#${key}`} className="block rounded-[var(--radius-1)] px-3 py-2 text-sm hover:bg-surface-2">{title}</a>
-          ))}
-        </nav>
+      <div className="mt-6 grid gap-4">
 
-        <div className="grid gap-4">
+        <div className="grid gap-4" data-bagian-ini={bagianIni ?? undefined}>
           {/* DAISY-05 (D-006, D-022). Struktur sekolah: first, because a new
               school cannot place a student or assign a teacher until it has a
               Kelas, and until now nothing here could make one. */}
-          <section id="struktur" hidden={!tampil("struktur") || undefined} className={card}>
+          <section id="struktur" hidden={!tampilDi("struktur") || undefined} className={card}>
             <h2 className="font-medium">{sl("config.section.struktur")}</h2>
             {sekolahStruktur && struktur ? (
               <>
@@ -641,7 +669,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               the facts are the structure, its placements and its roles, as
               this reader already sees them. */}
           {sekolahStruktur && persiapan ? (
-            <section id="persiapan" hidden={!tampil("persiapan") || undefined} className={card} aria-labelledby="pin-persiapan">
+            <section id="persiapan" hidden={bagianIni !== null || !tampil("persiapan") || undefined} className={card} aria-labelledby="pin-persiapan">
               <h2 id="pin-persiapan" className="font-medium">{sl("config.persiapan.judul")}</h2>
               <p className="mt-1 text-sm text-ink-2">{sl("config.persiapan.arti")}</p>
               <ul className="mt-3 grid gap-2 text-sm">
@@ -662,7 +690,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                       l.kunci === "murid" ? (
                         <span className="text-ink-2">{sl("config.persiapan.murid.cara")}</span>
                       ) : (
-                        <a href={l.kunci === "guru" ? "#roles" : "#struktur"} className={tautanTempat}>{sl(`config.persiapan.${l.kunci}.cara` as HleEvent)}</a>
+                        <a href={alamatBagian(l.kunci === "guru" ? "roles" : "struktur")} className={tautanTempat}>{sl(`config.persiapan.${l.kunci}.cara` as HleEvent)}</a>
                       )
                     ) : null}
                   </li>
@@ -676,7 +704,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               «Batas ketuntasan belum ditetapkan», its history, and a form to set it. A teacher cannot give a lesson
               to a class until its mark is set; a change applies to what is given afterwards. set_school_pass_mark
               decides who may set it (the school's admin), keeps every change and audits it. */}
-          <section id="ketuntasan" hidden={!tampil("ketuntasan") || undefined} className={card} aria-labelledby="pin-ketuntasan">
+          <section id="ketuntasan" hidden={!tampilDi("ketuntasan") || undefined} className={card} aria-labelledby="pin-ketuntasan">
             <h2 id="pin-ketuntasan" className="font-medium">{sl("config.section.ketuntasan")}</h2>
             {sekolahStruktur ? (
               <>
@@ -739,13 +767,13 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               Kelas of the same year. move_learner_to_class decides each move
               again as this administrator, in one transaction; what was done in
               the old Kelas stays recorded there. */}
-          <section id="pindah" hidden={!tampil("pindah") || undefined} className={card}>
+          <section id="pindah" hidden={!tampilDi("pindah") || undefined} className={card}>
             <h2 className="font-medium">{sl("config.section.pindah")}</h2>
             {sekolahStruktur && struktur ? (
               <>
                 <p className="mt-1 text-sm text-ink-2">{sl("config.pindah.arti")}</p>
                 {asal.kelas.length > 0 ? (
-                  <form method="get" action="/konfigurasi#pindah" className="mt-3 flex flex-wrap items-end gap-2">
+                  <form method="get" action="/konfigurasi/pindah#pindah" className="mt-3 flex flex-wrap items-end gap-2">
                     {sekolahKu.length > 1 ? <input type="hidden" name="sekolah" value={sekolahStruktur.id} /> : null}
                     <label className={label}>{sl("config.pindah.dari")}
                       <select id="pin-pindah-dari" name="dari" className={field} required defaultValue={kelasDari?.node_id ?? ""}>
@@ -806,7 +834,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               database says hold a staff role here now; the places, this school's professional-learning Kelas and
               Tingkat. enrol_for_professional_learning decides again, creates no person, account or number, and audits.
               DAISY-34: the records this administrator may open are linked here, read-only, never as a figure. */}
-          <section id="peserta" hidden={!tampil("peserta") || undefined} className={card} aria-labelledby="pin-peserta">
+          <section id="peserta" hidden={!tampilDi("peserta") || undefined} className={card} aria-labelledby="pin-peserta">
             <h2 id="pin-peserta" className="font-medium">{sl("config.section.peserta")}</h2>
             {sekolahStruktur && peserta ? (
               <>
@@ -858,7 +886,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               PINTAR team reads every school's (tier 2). Open reports first, a stopped class first among them. Each is
               moved forward once at a time with the next step written to its reporter; move_support_report decides
               who may, and audits it. */}
-          <section id="laporan-masalah" className={card} aria-labelledby="pin-laporan-masalah">
+          <section id="laporan-masalah" hidden={!tampilDi("laporan-masalah") || undefined} className={card} aria-labelledby="pin-laporan-masalah">
             <h2 id="pin-laporan-masalah" className="font-medium">{sl("config.section.laporan_masalah")}</h2>
             <p className="mt-1 text-sm text-ink-2">{sl(platformKonteks ? "lapor.triase.arti_platform" : "lapor.triase.arti")}</p>
             {/* E-K4: a move is answered in its report's row (it comes back with the row and its page); a refusal that
@@ -909,7 +937,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                 ))}
               </ul>
             )}
-            <Penomoran halaman={halLapor} lagi={lagiLapor} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_lapor", n, "laporan-masalah")} locale={locale}
+            <Penomoran halaman={halLapor} lagi={lagiLapor} ke={(n) => tautanHalaman(jalanIni, sp, "hal_lapor", n, "laporan-masalah")} locale={locale}
               benda={sl("koleksi.benda.laporan")} jumlah={laporan.length} />
           </section>
 
@@ -918,11 +946,11 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               with the latest one's end, before anything is saved (D-094(g)); it warns, it does not forbid. The list
               ends or starts a window with a reason; «Hentikan sekarang» is Admin platform's alone, separate, and
               confirmed by the typed phrase. The database decides who may do each, and audits it (D-093). */}
-          <section id="pemeliharaan" className={card} aria-labelledby="pin-pemeliharaan">
+          <section id="pemeliharaan" hidden={!tampilDi("pemeliharaan") || undefined} className={card} aria-labelledby="pin-pemeliharaan">
             <h2 id="pin-pemeliharaan" className="font-medium">{sl("config.section.pemeliharaan")}</h2>
             <p className="mt-1 text-sm text-ink-2">{sl("config.pemeliharaan.arti")}</p>
             {result("pemeliharaan")}
-            <form method="get" action="/konfigurasi#pemeliharaan" className="mt-3 grid gap-2">
+            <form method="get" action="/konfigurasi/pemeliharaan#pemeliharaan" className="mt-3 grid gap-2">
               <input type="hidden" name="pm_cek" value="1" />
               <fieldset className="grid gap-1 text-sm">
                 <legend className="text-ink-2">{sl("config.pemeliharaan.cakupan")}</legend>
@@ -1021,7 +1049,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.kosong")}</p>
             )}
             {result("pemeliharaan", "jendela")}
-            <Penomoran halaman={halJendela} lagi={kelola?.lagiPemeliharaan === true} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_jendela", n, "pemeliharaan")} locale={locale}
+            <Penomoran halaman={halJendela} lagi={kelola?.lagiPemeliharaan === true} ke={(n) => tautanHalaman(jalanIni, sp, "hal_jendela", n, "pemeliharaan")} locale={locale}
               benda={sl("koleksi.benda.jendela")} jumlah={kelola?.pemeliharaan.length ?? 0} />
 
             <h3 className="mt-4 text-sm font-medium">{sl("config.pemeliharaan.pengumuman")}</h3>
@@ -1078,7 +1106,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <p className="mt-2 text-sm text-ink-3">{sl("config.pemeliharaan.pengumuman.kosong")}</p>
             )}
             {result("pemeliharaan", "tarik")}
-            <Penomoran halaman={halPengumuman} lagi={kelola?.lagiPengumuman === true} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_pengumuman", n, "pemeliharaan")} locale={locale}
+            <Penomoran halaman={halPengumuman} lagi={kelola?.lagiPengumuman === true} ke={(n) => tautanHalaman(jalanIni, sp, "hal_pengumuman", n, "pemeliharaan")} locale={locale}
               benda={sl("koleksi.benda.pengumuman")} jumlah={kelola?.pengumuman.length ?? 0} />
 
             {platformIni ? (
@@ -1112,7 +1140,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               summary is read at the school's own root node and each class's at
               that class, for the school chosen above. A link decides nothing:
               generate_report decides every figure for this reader. */}
-          <section id="laporan" hidden={!tampil("laporan") || undefined} className={card}>
+          <section id="laporan" hidden={!tampilDi("laporan") || undefined} className={card}>
             <h2 className="font-medium">{sl("config.laporan.judul")}</h2>
             {sekolahStruktur ? (
               <>
@@ -1147,7 +1175,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           </section>
 
           {/* System & Configuration: institutions and periods */}
-          <section id="system" className={card}>
+          <section id="system" hidden={!tampilDi("system") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.system")}</h2>
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
               {(institutions ?? []).map((i) => (
@@ -1164,13 +1192,13 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               {(institutions ?? []).length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
             {platformKonteks ? (
-              <Penomoran halaman={halSekolah} lagi={lagiSekolah} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_sekolah", n, "system")} locale={locale}
+              <Penomoran halaman={halSekolah} lagi={lagiSekolah} ke={(n) => tautanHalaman(jalanIni, sp, "hal_sekolah", n, "system")} locale={locale}
                 benda={sl("koleksi.benda.sekolah")} jumlah={(institutions ?? []).length} />
             ) : null}
           </section>
 
           {/* Period rollover (INV-23) */}
-          <section id="rollover" hidden={!tampil("rollover") || undefined} className={card}>
+          <section id="rollover" hidden={!tampilDi("rollover") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.rollover")}</h2>
             <p className="mt-1 text-sm text-ink-3">{s("config.label.mapping_help")}</p>
             {myInstitutions.map((inst) => {
@@ -1216,7 +1244,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           </section>
 
           {/* Transfers (INV-25; policy hooks only — OD-9) */}
-          <section id="transfers" hidden={!tampil("transfers") || undefined} className={card}>
+          <section id="transfers" hidden={!tampilDi("transfers") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.transfers")}</h2>
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
               {daftarPindah.map((x) => (
@@ -1251,7 +1279,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               {daftarPindah.length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
             {result("transfers", "baris")}
-            <Penomoran halaman={halPindah} lagi={lagiPindah} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_pindah", n, "transfers")} locale={locale}
+            <Penomoran halaman={halPindah} lagi={lagiPindah} ke={(n) => tautanHalaman(jalanIni, sp, "hal_pindah", n, "transfers")} locale={locale}
               benda={sl("koleksi.benda.pindah")} jumlah={daftarPindah.length} />
             {/* W2.15: the receiving school's incoming requests, accepted into one of its own school years */}
             {satuSekolah && pindahMasuk.length > 0 ? (
@@ -1289,7 +1317,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" data-pindah="keluar">
                 <h3 className="text-sm font-medium">{s("pindah.keluar.judul")}</h3>
                 <p className="text-xs text-ink-3">{s("pindah.keluar.arti")}</p>
-                <form method="get" action="/konfigurasi" className="flex flex-wrap items-end gap-2">
+                <form method="get" action="/konfigurasi/transfers#transfers" className="flex flex-wrap items-end gap-2">
                   <input type="hidden" name="bagian" value="transfers" />
                   <label className={label}>{s("pindah.cari.label")}
                     <input name="cari_sekolah" className={field} defaultValue={cariSekolah} minLength={3} maxLength={120} required autoComplete="off" />
@@ -1373,7 +1401,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           </section>
 
           {/* Roles (INV-16) */}
-          <section id="roles" className={card}>
+          <section id="roles" hidden={!tampilDi("roles") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.roles")}</h2>
             <ul className="mt-2 grid gap-1 text-sm text-ink-2">
               {daftarPeran.map((a) => (
@@ -1398,7 +1426,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               {daftarPeran.length === 0 && <li className="text-ink-3">{s("config.empty")}</li>}
             </ul>
             {result("roles", "cabut")}
-            <Penomoran halaman={halPeran} lagi={lagiPeran} ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_peran", n, "roles")} locale={locale}
+            <Penomoran halaman={halPeran} lagi={lagiPeran} ke={(n) => tautanHalaman(jalanIni, sp, "hal_peran", n, "roles")} locale={locale}
               benda={sl("koleksi.benda.peran")} jumlah={daftarPeran.length} ukuran={UKURAN_PERAN} />
             {angkat ? (
               <div className="mt-3 grid gap-2 rounded-[var(--radius-1)] bg-surface-2 p-3" role="group" aria-labelledby="pin-angkat">
@@ -1412,7 +1440,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                   <input type="hidden" name="valid_until" value={angkat.sampai} />
                   <input type="hidden" name="yakin" value="ya" />
                   <TombolKirim className={primer} sibuk={s("tombol.menyimpan")}>{s("config.angkat.ya")}</TombolKirim>
-                  <Link href="/konfigurasi?bagian=roles#roles" className={tautanTempat}>{s("config.angkat.batal")}</Link>
+                  <Link href={alamatBagian("roles", undefined, "roles")} className={tautanTempat}>{s("config.angkat.batal")}</Link>
                 </form>
               </div>
             ) : null}
@@ -1430,7 +1458,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
                     <input type="hidden" name="valid_until" value={sp.sampai} />
                     <input type="hidden" name="yakin" value="ya" />
                     <TombolKirim className={primer} sibuk={s("tombol.menyimpan")}>{s("config.angkat.ya")}</TombolKirim>
-                    <Link href="/konfigurasi?bagian=roles#roles" className={tautanTempat}>{s("config.angkat.batal")}</Link>
+                    <Link href={alamatBagian("roles", undefined, "roles")} className={tautanTempat}>{s("config.angkat.batal")}</Link>
                   </form>
                 ) : (
                   <form action={tunjukAdminPertamaAction} className="grid gap-2 sm:grid-cols-2"><input type="hidden" name="asal" value="pertama" />
@@ -1495,7 +1523,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
           </section>
 
           {/* Audit reader (INV-18) — read only */}
-          <section id="audit" className={card}>
+          <section id="audit" hidden={!tampilDi("audit") || undefined} className={card}>
             <h2 className="font-medium">{s("config.section.audit")}</h2>
             <div className="mt-2 overflow-x-auto">
               <table className="w-full text-left text-sm text-ink-2">
@@ -1518,7 +1546,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               </table>
             </div>
             <Penomoran halaman={halamanDiminta(sp.hal_jejak)} lagi={(audit ?? []).length > UKURAN_JEJAK}
-              ke={(n) => tautanHalaman("/konfigurasi", sp, "hal_jejak", n, "audit")} locale={locale}
+              ke={(n) => tautanHalaman(jalanIni, sp, "hal_jejak", n, "audit")} locale={locale}
               benda={sl("koleksi.benda.jejak")} jumlah={Math.min((audit ?? []).length, UKURAN_JEJAK)} ukuran={UKURAN_JEJAK} />
           </section>
 
@@ -1531,7 +1559,7 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
               CAN_MANAGE_REPORT_TEMPLATES before it resolves anything, and the
               row guards ask again on every write — this panel is a form, not
               an authority. */}
-          <section id="intelligence" hidden={!tampil("intelligence") || undefined} className={card}>
+          <section id="intelligence" hidden={!tampilDi("intelligence") || undefined} className={card}>
             <h2 className="font-medium">{s("laporan.templat.judul")}</h2>
             <p className="mt-2 text-sm text-ink-3">{s("laporan.templat.penjelasan")}</p>
 
@@ -1600,6 +1628,33 @@ export default async function Konfigurasi({ searchParams }: { searchParams: Sear
             {result("intelligence")}
           </section>
         </div>
+        {/* B1: the index's sections, in five groups, each row the section's own title opening its page; the rows are
+            the menu that was (navSemua through tampil, so the index and the sections agree, E-B1-5). The index is the
+            page's navigation and never reaches the paper (W3.22). */}
+        {bagianIni === null ? (
+          <nav className="grid gap-4 pin-noprint" data-menu-bagian="" aria-label={sl("config.title")}>
+            {KELOMPOK_KONFIGURASI.map((g) => {
+              const baris = g.bagian.filter((b) => nav.some(([k]) => k === b));
+              return baris.length === 0 ? null : (
+                <section key={g.kunci} className={card} aria-labelledby={`pin-kelompok-${g.kunci.split(".").pop()}`} data-kelompok={g.kunci}>
+                  <h2 id={`pin-kelompok-${g.kunci.split(".").pop()}`} className="font-medium">{sl(g.kunci as HleEvent)}</h2>
+                  <ul className="mt-2 grid gap-1">
+                    {baris.map((b) => (
+                      <li key={b}>
+                        <Link href={alamatBagian(b, sp.sekolah ? `sekolah=${encodeURIComponent(sp.sekolah)}` : undefined)}
+                          className="flex min-h-[var(--control-md)] items-center justify-between gap-3 rounded-[var(--radius-1)] px-3 text-sm hover:bg-surface-2" data-bagian-ke={b}>
+                          {judulBagian(b)}
+                          <Ikon nama="chevron-right" />
+                          <TandaTautan />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              );
+            })}
+          </nav>
+        ) : null}
       </div>
     </main>
     </>

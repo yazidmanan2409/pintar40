@@ -249,7 +249,7 @@ await step("P5", `the school admin finds «${T.nama}» by its exact name and ask
   const sejak = jejakSejak();
   await masuk(A, mail("admin"));
   await pilihKonteks(A, { tujuan: "MENGELOLA", nama: S.nama }).catch(() => {});
-  await buka(A, `/konfigurasi?bagian=transfers&cari_sekolah=${encodeURIComponent(T.nama)}#transfers`);
+  await buka(A, `/konfigurasi/transfers?bagian=transfers&cari_sekolah=${encodeURIComponent(T.nama)}#transfers`);
   const keluar = A.locator('[data-pindah="keluar"]');
   await keluar.waitFor({ timeout: SLOW });
   harus(rec, (await keluar.locator('input[name="to_institution"]').count()) === 1, `the directory finds exactly one school for «${T.nama}»`);
@@ -272,7 +272,7 @@ await step("P6", `«${T.nama}»'s admin accepts the request into its own school 
   const sejak = jejakSejak();
   await masuk(B, mail("admin", TUJUAN));
   await pilihKonteks(B, { tujuan: "MENGELOLA", nama: T.nama }).catch(() => {});
-  await buka(B, "/konfigurasi?bagian=transfers#transfers");
+  await buka(B, "/konfigurasi/transfers?bagian=transfers#transfers");
   const masukForm = B.locator(`form[data-pindah-masuk="${transfer}"]`);
   await masukForm.waitFor({ timeout: SLOW });
   harus(rec, norm(await masukForm.innerText()).includes(PINDAH), "the request shows the learner's name");
@@ -280,7 +280,7 @@ await step("P6", `«${T.nama}»'s admin accepts the request into its own school 
   await masukForm.locator('select[name="to_period"]').selectOption(tahun[0]);
   await masukForm.getByRole("button", { name: "Terima perpindahan" }).click();
   harus(rec, await tunggu(() => sql(`select status from public.transfers where id = '${uuid(transfer)}'`) === "AUTHORIZED"), "accepted: AUTHORIZED into its own year");
-  await buka(B, "/konfigurasi?bagian=transfers#transfers");
+  await buka(B, "/konfigurasi/transfers?bagian=transfers#transfers");
   const baris = B.locator("#transfers li", { hasText: PINDAH }).first();
   await baris.getByRole("button", { name: "Laksanakan" }).click();
   harus(rec, await tunggu(() => sql(`select status from public.transfers where id = '${uuid(transfer)}'`) === "EXECUTED"), "the transfer is EXECUTED");
@@ -313,7 +313,7 @@ await step("P7", "what waits on the school's Konfigurasi (UX-33); stuck sends on
   await buka(O, "/konfigurasi/email-uji");
   harus(rec, norm(await O.locator("main").innerText()).includes("Pengiriman tertahan"), "«Email uji» shows «Pengiriman tertahan»");
   await shot(O, "email-tertahan");
-  await buka(O, "/konfigurasi#system");
+  await buka(O, "/konfigurasi/system#system");
   const n = await O.locator("#system li").count();
   const semua = Number(sql("select count(*) from public.institutions"));
   harus(rec, n === Math.min(semua, 20), `the system section lists ${n} of ${semua} schools (a page is 20)`);

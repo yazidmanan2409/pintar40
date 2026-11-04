@@ -220,7 +220,7 @@ async function newPerson(page, name, email) {
 }
 async function grantViaForm(page, personName, roleValue, scopeLabelPart, until = "2027-06-30") {
   // a real load every time: a hash-only change on the same path keeps a stale person list
-  await page.goto(`${APP}/konfigurasi?muat=${Date.now()}#roles`, { waitUntil: "networkidle" });
+  await page.goto(`${APP}/konfigurasi/roles?muat=${Date.now()}#roles`, { waitUntil: "networkidle" });
   // BOB19-K01 (the owner's ruling of 8 Oct, Option B): the ordinary roles form is the one with a role picker; a school
   // with no administrator also draws «Menunjuk admin sekolah pertama», whose form has a person picker of its own
   const form = page.locator("form").filter({ has: page.locator('select[name="role"]') }).filter({ has: page.locator('select[name="person"]') });
@@ -244,7 +244,7 @@ async function grantViaForm(page, personName, roleValue, scopeLabelPart, until =
 // school, a date, «Berikan peran»; the screen asks «Jadikan orang ini admin sekolah pertama di sekolah ini?» and
 // «Ya, jadikan admin sekolah» appoints Admin sekolah at the school's root. Same return shape as grantViaForm.
 async function adminPertamaViaForm(page, personName, until = "2027-06-30") {
-  await page.goto(`${APP}/konfigurasi?muat=${Date.now()}#roles`, { waitUntil: "networkidle" });
+  await page.goto(`${APP}/konfigurasi/roles?muat=${Date.now()}#roles`, { waitUntil: "networkidle" });
   const bagian = page.locator("[data-admin-pertama]");
   if (!(await bagian.count())) throw new Error("«Menunjuk admin sekolah pertama» is not offered");
   const form = bagian.locator("form");
@@ -451,7 +451,7 @@ await step("S5", "the school admin signs in", async (rec) => {
 });
 
 await step("S6", "the school admin's Orang list on day one (can they grant staff roles?)", async (rec) => {
-  await a.goto(`${APP}/konfigurasi#roles`, { waitUntil: "networkidle" });
+  await a.goto(`${APP}/konfigurasi/roles#roles`, { waitUntil: "networkidle" });
   rec.shots.push(await shot(a, "school-admin-konfigurasi"));
   const opts = await a.locator('select[name="person"] option').allTextContents().catch(() => []);
   const real = opts.filter((o) => o.trim() && !/pilih/i.test(o));
@@ -487,7 +487,7 @@ async function bacaPersiapan(page) {
 }
 
 await step("S7", "the school admin builds SD's structure on a screen (Bagian, Tingkat, Kelas)", async (rec) => {
-  await a.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
+  await a.goto(`${APP}/konfigurasi/struktur#struktur`, { waitUntil: "networkidle" });
   if (!(await a.locator("div.pin-str-tambah-bagian form").count())) {
     const found = [];
     for (const p of ["/konfigurasi", "/pendataan", "/studio"]) {
@@ -522,7 +522,7 @@ await step("S7", "the school admin builds SD's structure on a screen (Bagian, Ti
 await step("S7b", "Gladys (platform admin) opens Struktur sekolah: which school is chosen first?", async (rec) => {
   // L3: in Mengelola · SD the structure is SD's alone (never the library's, never another school's)
   await keKonteks(g, { tujuan: "MENGELOLA", nama: "SD Zayd" });
-  await g.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
+  await g.goto(`${APP}/konfigurasi/struktur#struktur`, { waitUntil: "networkidle" });
   // the choice already landed on /konfigurasi, so this is a hash change, not a load: wait for the panel itself
   await g.locator("div.pin-str-tambah-bagian form").first().waitFor({ timeout: SLOW }).catch(() => {});
   if (!(await g.locator("div.pin-str-tambah-bagian form").count())) { rec.verdict = "NOTE"; return "no Struktur sekolah panel"; }
@@ -1230,7 +1230,7 @@ await step("S17b", "before the pass mark is set the teacher reads «Batas ketunt
   catatan.push(`teacher before the mark: Siapkan reads "${belum.slice(0, 160)}"; «Sediakan» → kode=${kode}, the page names the pass mark ${/Batas ketuntasan pelajaran ini belum ditetapkan/.test(tolak)} and Konfigurasi ${/Konfigurasi/.test(tolak)}; learning assignments made ${la0}`);
 
   // the school admin sets it, by clicking
-  await a.goto(`${APP}/konfigurasi?sekolah=${ids.sd}#ketuntasan`, { waitUntil: "networkidle" });
+  await a.goto(`${APP}/konfigurasi/ketuntasan?sekolah=${ids.sd}#ketuntasan`, { waitUntil: "networkidle" });
   await tutupTur(a);
   const baris = a.locator(`#ketuntasan li[data-pelajaran="${course}"]`);
   if (!(await baris.count())) {
@@ -2829,7 +2829,7 @@ await step("S23l", "«Laporkan masalah»: the teacher reports a problem from /me
   };
   // the triage on Konfigurasi, as the school admin or the platform admin: the report's line, moved on with a next step
   const pindahkan = async (page, ke, langkah) => {
-    await page.goto(`${APP}/konfigurasi?muat=${Date.now()}#laporan-masalah`, { waitUntil: "networkidle" });
+    await page.goto(`${APP}/konfigurasi/laporan-masalah?muat=${Date.now()}#laporan-masalah`, { waitUntil: "networkidle" });
     await tutupTur(page);
     const li = page.locator(`#laporan-masalah li[data-laporan="${id}"]`);                              // konfigurasi/page.tsx:635, 648
     if (!(await li.count())) return { ada: false, bagian: await teks(page.locator("#laporan-masalah")) };
@@ -2976,7 +2976,7 @@ await step("S23t", "the school admin assembles the school's own class report on 
     if (lapAwal[0] !== baku || awal.n !== nBaku) rec.verdict = "FAIL";
 
     // 2. the school admin assembles the school's own class report
-    await a.goto(`${APP}/konfigurasi?muat=${Date.now()}#intelligence`, { waitUntil: "networkidle" });
+    await a.goto(`${APP}/konfigurasi/intelligence?muat=${Date.now()}#intelligence`, { waitUntil: "networkidle" });
     await tutupTur(a);
     const daftarSebelum = await a.locator("#intelligence ul > li").count();                            // konfigurasi/page.tsx:1144-1153
     const form = a.locator("#intelligence form").first();                                              // :1137, 1160
@@ -3053,7 +3053,7 @@ await step("S23j", "the audit reader: on Konfigurasi → «Jejak audit» the sch
   const namaSd = sql(`select name from public.institutions where id='${ids.sd}'`).trim();
   // a reader's «Jejak audit», row by row: action|table|the target's first 8 characters|school (empty when the row names none)
   const bacaJejak = async (page, nama) => {
-    await page.goto(`${APP}/konfigurasi?muat=${Date.now()}#audit`, { waitUntil: "networkidle" });
+    await page.goto(`${APP}/konfigurasi/audit?muat=${Date.now()}#audit`, { waitUntil: "networkidle" });
     await tutupTur(page);
     await page.locator("#audit table").waitFor({ timeout: SLOW });                                    // konfigurasi/page.tsx:1106-1110; «Jejak audit», hle.ts:2625
     rec.shots.push(await shot(page, nama));
@@ -3203,7 +3203,7 @@ await step("S23q", "the Question Bank as QN5 rules it (CR-52): the head of depar
 });
 
 await step("S24", "the school admin revokes the head of department's role on Konfigurasi → Peran & akses; the head of department is then refused /pimpinan (ADM-J14)", async (rec) => {
-  await a.goto(`${APP}/konfigurasi#roles`, { waitUntil: "networkidle" });
+  await a.goto(`${APP}/konfigurasi/roles#roles`, { waitUntil: "networkidle" });
   const baris = a.locator("#roles li").filter({ hasText: "Kepala departemen" }).filter({ hasText: "Kelas Rendah" }).first();
   if (!(await baris.count())) {
     rec.verdict = "FAIL";
@@ -3240,7 +3240,7 @@ await step("S25", "the school admin moves a student from Kelas 1A to a new Kelas
   if (!HARAP) { rec.verdict = "BLOCKED"; return "the chapter fixture is absent"; }
   const kelas = kelasSatuA();
   const nama = MURID[4];
-  await a.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
+  await a.goto(`${APP}/konfigurasi/struktur#struktur`, { waitUntil: "networkidle" });
   await tambahDi(a, "kelas", "Kelas 1B");
   const satuB = sql(`select id from public.org_nodes where institution_id='${ids.sd}' and kind='CLASS' and name='Kelas 1B' and is_active limit 1`).trim();
   if (!satuB) { rec.verdict = "FAIL"; return "Kelas 1B could not be made on the Struktur sekolah screen"; }
@@ -3252,7 +3252,7 @@ await step("S25", "the school admin moves a student from Kelas 1A to a new Kelas
     return r.error ? `error ${r.error.code}` : (r.data?.status ?? "ok");
   };
   const guruSebelum = await bacaGuru();
-  await a.goto(`${APP}/konfigurasi#pindah`, { waitUntil: "networkidle" });
+  await a.goto(`${APP}/konfigurasi/pindah#pindah`, { waitUntil: "networkidle" });
   const dari = a.locator("#pin-pindah-dari");
   if (!(await dari.count())) {
     rec.verdict = "FAIL";
@@ -3314,7 +3314,7 @@ await step("S25", "the school admin moves a student from Kelas 1A to a new Kelas
 await step("S26", "the school admin corrects the structure on Struktur sekolah: deactivating a Kelas with a student in it is refused with the reason, and renaming it works (ADM-J20)", async (rec) => {
   const satuB = sql(`select id from public.org_nodes where institution_id='${ids.sd}' and kind='CLASS' and name='Kelas 1B' limit 1`).trim();
   if (!satuB) { rec.verdict = "BLOCKED"; return "no Kelas 1B (S25)"; }
-  await a.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
+  await a.goto(`${APP}/konfigurasi/struktur#struktur`, { waitUntil: "networkidle" });
   const baris = () => a.locator("#struktur .pin-str-baris").filter({ has: a.locator("strong.pin-str-nama", { hasText: /^Kelas 1B$/ }) }).first();
   if (!(await baris().count())) { rec.verdict = "FAIL"; return `Kelas 1B is not on Struktur sekolah: ${norm(await a.locator("#struktur").innerText().catch(() => "")).slice(0, 200)}`; }
   // deactivate, with a student placed there: the question first, then the refusal with its reason
@@ -3370,7 +3370,7 @@ await step("S26b", "a new teacher replaces the old one mid-year: the school admi
   const g = await grantViaForm(a, people.guru2.name, "EDUCATOR", "Kelas 1A");
   jejak.push(`Sari: Guru at Kelas 1A ${g.ok}`);
   // revoke Budi's Guru at Kelas 1A
-  await a.goto(`${APP}/konfigurasi?muat=${Date.now()}#roles`, { waitUntil: "networkidle" });
+  await a.goto(`${APP}/konfigurasi/roles?muat=${Date.now()}#roles`, { waitUntil: "networkidle" });
   const lama = a.locator("#roles li").filter({ hasText: people.guru.name }).filter({ hasText: "Guru" }).filter({ hasText: "Kelas 1A" }).first();
   if (!(await lama.count())) { rec.verdict = "FAIL"; return `${jejak.join(" | ")}; no «${people.guru.name} · Guru · Kelas 1A» row on Peran & akses`; }
   await lama.locator('input[name="alasan"]').fill("Digantikan Bu Guru Sari");   // D-097(a)
@@ -3423,7 +3423,7 @@ await step("S26c", "a student recorded in the Tingkat only is placed in one of i
   const tempatQ = `select coalesce(string_agg(n.name || ':' || coalesce(m.close_reason::text, 'open'), ',' order by m.valid_from, m.valid_to nulls last), '-') from public.memberships m join public.enrollments e on e.id = m.enrollment_id join public.persons p on p.id = e.person_id join public.org_nodes n on n.id = m.node_id where p.display_name='${nama}' and n.institution_id='${ids.sd}'`;
   const awal = sql(tempatQ).trim();
   if (awal !== "Kelas 1:open") { rec.verdict = "FAIL"; return `${catat}; ${nama} is placed ${awal}, not in Tingkat «Kelas 1» only`; }
-  await a.goto(`${APP}/konfigurasi?muat=${Date.now()}#pindah`, { waitUntil: "networkidle" });
+  await a.goto(`${APP}/konfigurasi/pindah?muat=${Date.now()}#pindah`, { waitUntil: "networkidle" });
   const grup = a.locator('#pin-pindah-dari optgroup[label="Masih di Tingkat, belum di Kelas"] option');
   const opsiT = await grup.evaluateAll((os) => os.map((o) => ({ v: o.value, t: (o.textContent ?? "").trim() })));
   const t1 = opsiT.find((o) => o.v === tingkat);
@@ -3497,7 +3497,7 @@ await step("S26d", "two chapters: Gita, part-way through Bab 1, finds her home c
   if (!keadaanBab(bab2).endsWith("|PUBLISHED")) { rec.verdict = "FAIL"; notes.push(`Bab 2 ended ${keadaanBab(bab2)}`); return notes.join("; "); }
 
   // 3. the school admin sets Bab 2's pass mark on Konfigurasi → Batas ketuntasan
-  await a.goto(`${APP}/konfigurasi?sekolah=${ids.sd}&muat=${Date.now()}#ketuntasan`, { waitUntil: "networkidle" });
+  await a.goto(`${APP}/konfigurasi/ketuntasan?sekolah=${ids.sd}&muat=${Date.now()}#ketuntasan`, { waitUntil: "networkidle" });
   await tutupTur(a);
   const barisBatas = a.locator(`#ketuntasan li[data-pelajaran="${bab2}"]`);
   if (!(await barisBatas.count())) { rec.verdict = "FAIL"; notes.push("Konfigurasi lists no Bab 2 under Batas ketuntasan"); return notes.join("; "); }
@@ -3893,7 +3893,7 @@ await step("S27", "a new school year: the school admin makes next year's Tingkat
   // Fajar: recorded on the Pendataan screen, no card
   const catat = await catatLewatLayar(a, ["Fajar Murid"], rec.shots).catch((e) => `not recorded: ${String(e.message ?? e).split("\n")[0].slice(0, 160)}`);
   // next year's Tingkat and Kelas on Struktur sekolah
-  await a.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
+  await a.goto(`${APP}/konfigurasi/struktur#struktur`, { waitUntil: "networkidle" });
   const ft = a.locator("div.pin-str-tambah-tingkat form").first();
   await ft.locator('input[name="nama"]').fill("Kelas 2");
   await ft.locator('input[name="tahun_ajaran"]').fill(tahunDepan);
@@ -3904,7 +3904,7 @@ await step("S27", "a new school year: the school admin makes next year's Tingkat
     if (!t2) await a.waitForTimeout(500);
   }
   if (!t2) { rec.verdict = "FAIL"; rec.shots.push(await shot(a, "adm-j19-tingkat")); return `${catat}; next year's Tingkat «Kelas 2» (${tahunDepan}) was not made: ${norm(await a.locator("#struktur").innerText().catch(() => "")).slice(0, 200)}`; }
-  await a.goto(`${APP}/konfigurasi#struktur`, { waitUntil: "networkidle" });
+  await a.goto(`${APP}/konfigurasi/struktur#struktur`, { waitUntil: "networkidle" });
   const fk = a.locator("div.pin-str-tambah-kelas form").filter({ has: a.locator(`input[name="tingkat"][value="${t2}"]`) }).first();
   await fk.locator('input[name="nama"]').fill("Kelas 2A");
   await fk.locator('button[type="submit"]').click();
@@ -3916,7 +3916,7 @@ await step("S27", "a new school year: the school admin makes next year's Tingkat
   if (!k2) { rec.verdict = "FAIL"; return `${catat}; Kelas 2A was not made under Tingkat «Kelas 2»`; }
   const sebelum = sql(`select count(*) from public.memberships where node_id='${kelas}' and valid_to is null`).trim();
   // the rollover, on its screen
-  await a.goto(`${APP}/konfigurasi#rollover`, { waitUntil: "networkidle" });
+  await a.goto(`${APP}/konfigurasi/rollover#rollover`, { waitUntil: "networkidle" });
   const fr = a.locator("#rollover form").first();
   if (!(await fr.count())) { rec.verdict = "FAIL"; rec.shots.push(await shot(a, "adm-j19-tanpa-form")); return `${catat}; no rollover form on Konfigurasi with two years: ${norm(await a.locator("#rollover").innerText().catch(() => "")).slice(0, 200)}`; }
   await fr.locator('select[name="from_period"]').selectOption({ label: tahunIni });
@@ -4151,7 +4151,7 @@ await step("BD11", "BD-11: on a personal and on a shared computer, in Chromium, 
         // are read below: the walk's own long-lived admin browser stays signed in elsewhere
         const t0 = sql("select now()::text").trim();
         await masuk(p, A.email, mode);
-        await p.goto(`${APP}/konfigurasi?bagian=roles#roles`, { waitUntil: "networkidle" });
+        await p.goto(`${APP}/konfigurasi/roles?bagian=roles#roles`, { waitUntil: "networkidle" });
         const sebelum = await bodyText(p);
         if (!sebelum.includes(A.name)) { rec.verdict = "BLOCKED"; catat.push(`the admin's page does not name ${A.name} before sign-out`); }
         await p.getByRole("button", { name: "Keluar", exact: true }).first().click();

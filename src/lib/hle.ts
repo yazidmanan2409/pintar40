@@ -1138,7 +1138,7 @@ export type HleEvent =
   | "studio.konten.kode.content_created_not_ingested"
   | "mengajar.judul"
   | "nav.kelas" | "nav.pimpinan" | "nav.pendataan"
-  | "nav.aktivasi" | "nav.konfigurasi" | "nav.studio" | "nav.tempat" | "nav.menu" | "nav.ciutkan" | "nav.lebarkan" | "nav.buka_menu" | "nav.tutup_menu"
+  | "nav.aktivasi" | "nav.konfigurasi" | "nav.studio" | "nav.tempat" | "nav.menu" | "config.kelompok.sekolah" | "config.kelompok.murid" | "config.kelompok.staf" | "config.kelompok.laporan" | "config.kelompok.dukungan" | "nav.ciutkan" | "nav.lebarkan" | "nav.buka_menu" | "nav.tutup_menu"
   | "tombol.menerbitkan"
   | "studio.langkah.selesai.terbitkan"
   // W1.6 / W1.8 (Batch 3): the reviewer's send-back, its record, and the author's way on
@@ -3152,6 +3152,12 @@ const table: Table = {
   "auth.signed_out": { default: "Sampai jumpa lagi.", en: "See you again soon." },
   "auth.not_yet": { default: "Halaman ini belum tersedia untuk akun Anda.", en: "This page is not available to your account yet." },
   "config.title": { default: "Konfigurasi", en: "Configuration" },
+  // B1 (D-166(a)): the index's five groups, Daisy's words (B1 §1, presentation, B1 §5); pending copy approval
+  "config.kelompok.sekolah": { default: "Sekolah dan tahun ajaran", en: "School and school year" },
+  "config.kelompok.murid": { default: "Murid", en: "Students" },
+  "config.kelompok.staf": { default: "Staf dan akses", en: "Staff and access" },
+  "config.kelompok.laporan": { default: "Laporan dan templat", en: "Reports and templates" },
+  "config.kelompok.dukungan": { default: "Dukungan", en: "Support" },
   "config.menunggu.judul": { default: "Yang menunggu", en: "Waiting" },
   "config.menunggu.pendataan": { default: "pendataan menunggu persetujuan Anda di Pendataan", en: "imports waiting for your go-ahead in Pendataan" },
   "config.menunggu.aktivasi": { default: "orang menunggu akun di Aktivasi", en: "people waiting for an account in Aktivasi" },

@@ -121,7 +121,7 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
   }
   await step("C12b", "C-12 the place: the school admin makes «Pengembangan Guru» for educators → a Tingkat → two Kelas on Struktur sekolah, records and appoints the facilitator, the responsible Kepala departemen and another Guru, and enrols the Guru as «Peserta» on Konfigurasi (C1)", async (rec) => {
     const notes = [];
-    await a.goto(`${APP}/konfigurasi?muat=${Date.now()}#struktur`, { waitUntil: "networkidle" });
+    await a.goto(`${APP}/konfigurasi/struktur?muat=${Date.now()}#struktur`, { waitUntil: "networkidle" });
     await tutupTur(a);
     const fb = a.locator("div.pin-str-tambah-bagian form").first();
     await fb.locator('input[name="nama"]').fill(PD.bagian);
@@ -129,21 +129,21 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
     await fb.locator('button[type="submit"]').click();
     C.bagian = await tunggu(a, () => simpul("DEPARTMENT", PD.bagian));
     if (!C.bagian) { rec.verdict = "FAIL"; return `«${PD.bagian}» was not made: ${norm(await a.locator("#struktur").innerText().catch(() => "")).slice(0, 300)}`; }
-    await a.goto(`${APP}/konfigurasi?muat=${Date.now()}#struktur`, { waitUntil: "networkidle" });
+    await a.goto(`${APP}/konfigurasi/struktur?muat=${Date.now()}#struktur`, { waitUntil: "networkidle" });
     const ft = a.locator("div.pin-str-tambah-tingkat form").filter({ has: a.locator(`input[name="bagian"][value="${C.bagian}"]`) }).first();
     await ft.locator('input[name="nama"]').fill(PD.tingkat);
     await ft.locator('button[type="submit"]').click();
     C.tingkat = await tunggu(a, () => simpul("COHORT", PD.tingkat, C.bagian));
     if (!C.tingkat) { rec.verdict = "FAIL"; return `the Tingkat «${PD.tingkat}» was not made under «${PD.bagian}»`; }
     for (const [k, nama] of [["kelasA", PD.kelasA], ["kelasB", PD.kelasB]]) {
-      await a.goto(`${APP}/konfigurasi?muat=${Date.now()}#struktur`, { waitUntil: "networkidle" });
+      await a.goto(`${APP}/konfigurasi/struktur?muat=${Date.now()}#struktur`, { waitUntil: "networkidle" });
       const fk = a.locator("div.pin-str-tambah-kelas form").filter({ has: a.locator(`input[name="tingkat"][value="${C.tingkat}"]`) }).first();
       await fk.locator('input[name="nama"]').fill(nama);
       await fk.locator('button[type="submit"]').click();
       C[k] = await tunggu(a, () => simpul("CLASS", nama, C.tingkat));
     }
     if (!C.kelasA || !C.kelasB) { rec.verdict = "FAIL"; return "a professional-learning Kelas was not made"; }
-    await a.goto(`${APP}/konfigurasi?muat=${Date.now()}#struktur`, { waitUntil: "networkidle" });
+    await a.goto(`${APP}/konfigurasi/struktur?muat=${Date.now()}#struktur`, { waitUntil: "networkidle" });
     rec.shots.push(await shot(a, "c12-struktur"));
     const tanda = (await a.locator("#struktur").innerText().catch(() => "")).split("Pengembangan profesi guru").length - 1;
     const konteks = q(`select string_agg(name || ':' || learning_context::text, ', ' order by kind, name) from public.org_nodes where id in ('${C.bagian}','${C.tingkat}','${C.kelasA}','${C.kelasB}')`);
@@ -187,7 +187,7 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
     // C1: the Guru enrolled as a participant, on Konfigurasi «Peserta pengembangan profesi»
     C.guru = orangDari(people.guru.email);
     C.sebelumC1 = q(`select (select count(*) from public.persons) || '|' || (select count(*) from public.accounts) || '|' || (select count(*) from public.institutional_identities)`);
-    await a.goto(`${APP}/konfigurasi?muat=${Date.now()}#peserta`, { waitUntil: "networkidle" });
+    await a.goto(`${APP}/konfigurasi/peserta?muat=${Date.now()}#peserta`, { waitUntil: "networkidle" });
     const fp = a.locator("form").filter({ has: a.locator('select[name="tempat"]') }).first();
     if (!(await fp.count())) { rec.verdict = "FAIL"; return `${notes.join("; ")}; no «Peserta pengembangan profesi» form: ${norm(await a.locator("#peserta").innerText().catch(() => "")).slice(0, 200)}`; }
     const vo = await fp.locator('select[name="orang"] option').filter({ hasText: people.guru.name }).first().getAttribute("value").catch(() => null);
@@ -252,7 +252,7 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => l && !/^(BEG
     }
     // the school's pass mark, by the school admin on Konfigurasi
     for (let i = 0; i < 2; i++) {
-      await a.goto(`${APP}/konfigurasi?sekolah=${ids.sd}&muat=${Date.now()}#ketuntasan`, { waitUntil: "networkidle" });
+      await a.goto(`${APP}/konfigurasi/ketuntasan?sekolah=${ids.sd}&muat=${Date.now()}#ketuntasan`, { waitUntil: "networkidle" });
       await tutupTur(a);
       const baris = a.locator(`#ketuntasan li[data-pelajaran="${C.kursus[i]}"]`);
       if (!(await baris.count())) { rec.verdict = "FAIL"; notes.push(`Bab ${i + 1} is not listed under Batas ketuntasan`); return notes.join("; "); }
@@ -527,7 +527,7 @@ rollback;`], { encoding: "utf8" }).trim().split("\n").filter((l) => /^\d+\|/.tes
     const dekan = await bukaCatatan(dk, "/pimpinan", kelasPd);
     rec.shots.push(await shot(dk, "c12-catatan-dekan"));
     await dc.close();
-    const admin = await bukaCatatan(a, `/konfigurasi?muat=${Date.now()}#peserta`, kelasPd);
+    const admin = await bukaCatatan(a, `/konfigurasi/peserta?muat=${Date.now()}#peserta`, kelasPd);
     rec.shots.push(await shot(a, "c12-catatan-admin"));
     // a participant's name is a section heading, drawn in capitals (.pin-sec > h2): compared without case. FULL: per Bab,
     // «Pelajaran selesai: 2/2» and «Hasil: <n> % · Tercapai» (both Bab passed); COMPLETION: «Selesai: Ya», neither of those

@@ -480,7 +480,9 @@ export const appTests: SelfTest[] = [
       const asAdmin = await get(`${base}/konfigurasi`, { headers: { cookie: admin.cookie } });
       const adminHtml = visibleText(await asAdmin.text());
       c.expect(asAdmin.status === 200, `INSTITUTION_ADMIN /konfigurasi → ${asAdmin.status}`);
-      c.expect(adminHtml.includes(t("config.title", "staff")) && adminHtml.includes(healthCard), "INSTITUTION_ADMIN did not get the Config Studio");
+      // (B1: the health panel is Admin platform's alone; a school administrator's Konfigurasi is its index of sections)
+      c.expect(adminHtml.includes(t("config.title", "staff")) && adminHtml.includes(t("config.section.struktur", "staff")) && adminHtml.includes(t("config.section.audit", "staff")),
+        "INSTITUTION_ADMIN did not get the Config Studio");
       c.expect(adminHtml.includes("Sekolah Sintetis Alpha"), "Alpha admin does not see Alpha");
       c.expect(!adminHtml.includes("Sekolah Sintetis Beta"), "Alpha admin sees Beta (INV-13 at the app layer)");
       return c.verdict("DEAN and STUDENT refused cleanly; INSTITUTION_ADMIN sees own institution only");
@@ -574,7 +576,8 @@ export const appTests: SelfTest[] = [
       const before = await get(`${base}/konfigurasi`, { headers: { cookie: admin.cookie } });
       const beforeHtml = visibleText(await before.text());
       c.expect(before.status === 200, `signed-in /konfigurasi → ${before.status}, expected 200`);
-      c.expect(beforeHtml.includes(healthCard), "signed-in /konfigurasi did not render the Config Studio");
+      // (B1: the index of sections is what a signed-in administrator's Konfigurasi renders; the health panel is the platform's)
+      c.expect(beforeHtml.includes(t("config.section.struktur", "staff")), "signed-in /konfigurasi did not render the Config Studio");
 
       // 2. sign out through the route the UI posts to
       const out = await get(`${base}/keluar`, { method: "POST", headers: { cookie: admin.cookie } });
@@ -769,7 +772,8 @@ export const appTests: SelfTest[] = [
 
       const alpha = await signIn(ctx, PERSONA.alphaAdmin);
       const k = new URLSearchParams({ bagian: "roles", hasil: "gagal", kode: "ROLE_SCOPE_REQUIRED", detail: "permission denied for function grant_role" });
-      const rk = await get(`${base}/konfigurasi?${k}`, { headers: { cookie: alpha.cookie } });
+      // (B1: an action's result is said on its section's own page, where Konfigurasi's actions now return)
+      const rk = await get(`${base}/konfigurasi/roles?${k}`, { headers: { cookie: alpha.cookie } });
       const tk = visibleText(await rk.text());
       c.expect(rk.status === 200, `/konfigurasi → ${rk.status}`);
       c.expect(tk.includes(`${t("config.result.failed", "staff")} ${t("galat.role_scope_required", "staff")}`),
@@ -1204,7 +1208,8 @@ export const appTests: SelfTest[] = [
         const r = await fetch(`${base}/konfigurasi`, { method: "POST", body: fd, headers: { cookie, origin: base }, redirect: "manual" });
         return r.headers.get("location") ?? `(${r.status})`;
       };
-      const halaman = async (cookie: string, q = "") => tersusun(await (await get(`${base}/konfigurasi${q}`, { headers: { cookie } })).text());
+      // (B1: the first appointment is Peran & akses's, on its own page)
+      const halaman = async (cookie: string, q = "") => tersusun(await (await get(`${base}/konfigurasi/roles${q}`, { headers: { cookie } })).text());
       // the first-appointment section: from its marker to the end of its own form
       const bagianPertama = (html: string) => /data-admin-pertama=""/.test(html) ? html.split('data-admin-pertama=""')[1].split(/<\/form>/)[0] : "";
       const pilihanDi = (html: string, nama: string) => new RegExp(`<option value="[^"]*">${nama}</option>`).test(html);
@@ -2680,6 +2685,77 @@ export const appTests: SelfTest[] = [
     },
   },
   {
+    id: "D168-B1-1",
+    requires: ["app", "network"],
+    run: async (ctx) => {
+      // E-B1-1 (B1, D-166(a)): every older Konfigurasi address keeps working once it is an index and a page per section.
+      // Over real HTTP against the seed: each older address lands on its section's page with every parameter it carried
+      // (one redirect), that page draws its section and only it, under its own h1, with the same result line; the index
+      // lists exactly the sections the context draws; a school-shaped section asked for in «Seluruh platform», and a
+      // section that does not exist, go to the index. A fragment is forwarded by the index in the browser (TerusBagian;
+      // the walks open those addresses).
+      const c = new Checks();
+      const base = ctx.appUrl!;
+      const { BAGIAN_KONFIGURASI, bagianDariJangkar } = await import("../src/lib/bagian-konfigurasi");
+      const admin = await signIn(ctx, PERSONA.alphaAdmin);
+      const sys = await signIn(ctx, PERSONA.sysadmin);
+      await pilihKonteksCookie(base, sys.cookie, "MENGELOLA:PLATFORM");
+      const lompat = async (cookie: string, jalan: string) => {
+        const r = await get(`${base}${jalan}`, { headers: { cookie } });
+        const html = r.status === 200 ? await r.text() : "";
+        // a redirect from inside the streamed page arrives as the framework's refresh, after the loading state
+        const segar = /<meta[^>]*http-equiv="refresh"[^>]*content="\d+;url=([^"]+)"/.exec(html)?.[1]?.replace(/&amp;/g, "&");
+        return { status: r.status, ke: r.headers.get("location") ?? segar ?? "", segar: Boolean(segar), html: tersusun(html) };
+      };
+      const terlihat = (html: string) => [...html.matchAll(/<section id="([a-z-]+)"(?![^>]*\bhidden\b)[^>]*>/g)].map((m) => m[1]).filter((id) => (BAGIAN_KONFIGURASI as readonly string[]).includes(id));
+      // 1. the older addresses, from the actions, the walks and the pages' own forms and pagers
+      const LAMA: Array<[string, string]> = [
+        ["/konfigurasi?bagian=roles&hasil=ok&kode=ROLE_GRANTED", "/konfigurasi/roles?bagian=roles&hasil=ok&kode=ROLE_GRANTED"],
+        ["/konfigurasi?bagian=transfers&cari_sekolah=Beta", "/konfigurasi/transfers?bagian=transfers&cari_sekolah=Beta"],
+        ["/konfigurasi?bagian=ketuntasan&hasil=gagal&kode=X&asal=tetapkan", "/konfigurasi/ketuntasan?bagian=ketuntasan&hasil=gagal&kode=X&asal=tetapkan"],
+        ["/konfigurasi?bagian=laporan-masalah&lapor=MOVED&hal_lapor=2", "/konfigurasi/laporan-masalah?bagian=laporan-masalah&lapor=MOVED&hal_lapor=2"],
+        ["/konfigurasi?angkat=x&lingkup=y&sampai=2027-01-01", "/konfigurasi/roles?angkat=x&lingkup=y&sampai=2027-01-01"],
+        ["/konfigurasi?hal_jejak=2", "/konfigurasi/audit?hal_jejak=2"],
+        ["/konfigurasi?dari=abc", "/konfigurasi/pindah?dari=abc"],
+        ["/konfigurasi?pm_cek=1&pm_sekolah=s", "/konfigurasi/pemeliharaan?pm_cek=1&pm_sekolah=s"],
+      ];
+      for (const [lama, harap] of LAMA) {
+        const r = await lompat(admin.cookie, lama);
+        c.expect([307, 308].includes(r.status) && new URL(r.ke, base).pathname + new URL(r.ke, base).search === harap, `${lama} → ${r.status} ${r.ke}, not ${harap}`);
+      }
+      // 2. the result line is said on the section's page, and the section is the page's only one, under its own h1
+      const hasil = await lompat(admin.cookie, "/konfigurasi/roles?bagian=roles&hasil=ok&kode=ROLE_GRANTED");
+      c.expect(hasil.status === 200 && JSON.stringify(terlihat(hasil.html)) === JSON.stringify(["roles"]), `/konfigurasi/roles draws ${JSON.stringify(terlihat(hasil.html))}`);
+      c.expect(new RegExp(`<h1[^>]*>${t("config.section.roles", "staff").replace("&", "&amp;")}</h1>`).test(hasil.html), "the section's page is not headed by its section");
+      c.expect(visibleText(hasil.html).includes(t("config.result.ok", "staff")), "the saved grant's result line is not on Peran & akses's page");
+      c.expect(/<a class="pin-back pin-noprint" href="\/konfigurasi">← /.test(hasil.html), "the section's page has no way back to Konfigurasi");
+      // 3. every section the school's context draws has its page; the index lists exactly them, each opening its page
+      const indeks = await lompat(admin.cookie, "/konfigurasi");
+      const baris = [...indeks.html.matchAll(/data-bagian-ke="([a-z-]+)"/g)].map((m) => m[1]);
+      c.expect(indeks.status === 200 && terlihat(indeks.html).length === 0 && baris.length === BAGIAN_KONFIGURASI.length, `the school's index lists ${baris.length} sections and draws ${terlihat(indeks.html).join(", ") || "none"}`);
+      for (const b of baris) {
+        const r = await lompat(admin.cookie, `/konfigurasi/${b}`);
+        c.expect(r.status === 200 && JSON.stringify(terlihat(r.html)) === JSON.stringify([b]), `/konfigurasi/${b} → ${r.status}, draws ${JSON.stringify(terlihat(r.html))}`);
+      }
+      // 4. «Seluruh platform»: the index lists the platform's sections only; a school-shaped one, or none, goes to the index
+      const pIndeks = await lompat(sys.cookie, "/konfigurasi");
+      const pBaris = [...pIndeks.html.matchAll(/data-bagian-ke="([a-z-]+)"/g)].map((m) => m[1]).sort();
+      c.expect(JSON.stringify(pBaris) === JSON.stringify(["audit", "laporan-masalah", "pemeliharaan", "roles", "system"]), `«Seluruh platform» lists ${pBaris.join(", ")}`);
+      for (const jalan of ["/konfigurasi/struktur", "/konfigurasi/transfers", "/konfigurasi/bukan-bagian"]) {
+        const r = await lompat(sys.cookie, jalan);
+        // the context is the session's, read by the page: its redirect is the framework's (a 307, or the refresh once streamed)
+        c.expect(([307, 308].includes(r.status) || r.segar) && r.ke !== "" && new URL(r.ke, base).pathname === "/konfigurasi" && !terlihat(r.html).length,
+          `«Seluruh platform» ${jalan} → ${r.status} ${r.ke}, not the index`);
+      }
+      // 5. the fragments the index forwards
+      for (const [h, b] of [["#struktur", "struktur"], ["#roles", "roles"], ["#laporan-0ad39ff1-7075-4da7-b264-f542b9eea0e3", "laporan-masalah"], ["#persiapan", null], ["#isi", null]] as const) {
+        c.expect(bagianDariJangkar(h) === b, `the index forwards ${h} to ${bagianDariJangkar(h)}, not ${b}`);
+      }
+      c.expect(/<TerusBagian \/>/.test(readFileSync(`${ctx.repoRoot}/src/app/konfigurasi/page.tsx`, "utf8")), "the index does not forward an older fragment");
+      return c.verdict("every older Konfigurasi address (the actions' results, a section's own parameters, its pagers) lands on its section's page with every parameter; that page draws its section alone under its own h1, with its result line and the way back; the school's index lists every section and each opens its page; «Seluruh platform» lists its five and sends a school-shaped or unknown section to the index; older fragments are forwarded");
+    },
+  },
+  {
     id: "DAISY-17-KIRIM-02",
     requires: ["app", "network"],
     run: async (ctx) => {
@@ -2788,8 +2864,9 @@ export const appTests: SelfTest[] = [
         c.expect(k.n("/rest/v1/rpc/platform_schema_lint") === 0, `${peran} /konfigurasi ran the schema lint on an ordinary load`);
       }
       // (e) the page "Berikan peran" returns to once the grant is saved
-      const kembali = await klik(sys.cookie, "/konfigurasi?bagian=roles&hasil=ok");
-      sekali("SYSTEM_ADMIN", "/konfigurasi?bagian=roles&hasil=ok", kembali);
+      // (B1: a saved grant returns to Peran & akses's own page)
+      const kembali = await klik(sys.cookie, "/konfigurasi/roles?bagian=roles&hasil=ok");
+      sekali("SYSTEM_ADMIN", "/konfigurasi/roles?bagian=roles&hasil=ok", kembali);
       c.expect(kembali.n("/rest/v1/rpc/platform_schema_lint") === 0, "the page a saved grant returns to ran the schema lint");
       const diminta = await klik(sys.cookie, "/konfigurasi?periksa=skema");
       sekali("SYSTEM_ADMIN", "/konfigurasi?periksa=skema", diminta);
@@ -2987,8 +3064,10 @@ export const appTests: SelfTest[] = [
       const sekolah = await klik(admin.cookie, "/konfigurasi");
       c.expect(sekolah.status === 200 && sekolah.n("/rest/v1/rpc/persons_awaiting_first_role") === 0,
         `the school administrator's Konfigurasi still asks persons_awaiting_first_role (${sekolah.n("/rest/v1/rpc/persons_awaiting_first_role")} times), which the database refuses`);
-      c.expect(kartu(sekolah.html).includes(s("config.kesehatan.bukan_admin")) && sekolah.n("/rest/v1/rpc/platform_schema_lint") === 0,
-        "the school administrator's card does not say who runs the checks");
+      // RESTATED FOR B1 (D-166(a), RV-24): Konfigurasi's health panel is Admin platform's alone; a school administrator's
+      // index draws no tile for a check they cannot run, and still never runs the lint
+      c.expect(kartu(sekolah.html) === "" && !visibleText(sekolah.html).includes(s("config.card.health")) && sekolah.n("/rest/v1/rpc/platform_schema_lint") === 0,
+        "the school administrator's Konfigurasi draws a health panel for checks it cannot run, or runs the lint");
 
       // and Studio is a school's: the platform administrator's, in the learning-cycle school's working context
       await pilihKonteksCookie(base, sys.cookie, { tujuan: "MENGELOLA", nama: "Sekolah Sintetis Siklus" });

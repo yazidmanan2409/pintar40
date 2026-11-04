@@ -403,7 +403,7 @@ let tugas = null;
 await step("J05b", "the school admin sets the lesson's pass mark on Konfigurasi → Batas ketuntasan (D-088(b), BOB-49)", ["ADM-11", "X-05"], async (rec) => {
   rec.page = A;
   if (!release || !course) return blocked(rec, "J05 published nothing");
-  await lihat(A, `/konfigurasi?sekolah=${SID}#ketuntasan`);
+  await lihat(A, `/konfigurasi/ketuntasan?sekolah=${SID}#ketuntasan`);
   const baris = A.locator(`#ketuntasan li[data-pelajaran="${course}"]`);
   if (!(await baris.count())) {
     rec.verdict = "FAIL";

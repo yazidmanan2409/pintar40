@@ -111,7 +111,8 @@ export const d168Tests: SelfTest[] = [
       for (const b of bagian) {
         const tag = src.match(new RegExp(`<section id="${b}"[^>]*>`));
         if (!tag) continue; // a section drawn elsewhere (or not at all) is not this page's
-        c.expect(new RegExp(`hidden=\\{!tampil\\("${b}"\\)`).test(tag[0]), `the section «${b}» is drawn without the menu's rule (tampil): it shows in «Seluruh platform» although L3 hides it`);
+        // (B1: a section is drawn on its own page through tampilDi, which is tampil and the page's section; Persiapan on the index)
+        c.expect(new RegExp(`hidden=\\{(?:bagianIni !== null \\|\\| )?!tampil(?:Di)?\\("${b}"\\)`).test(tag[0]) && /const tampilDi = \(bagian: string\) => bagianIni === bagian && tampil\(bagian\);/.test(src), `the section «${b}» is drawn without the menu's rule (tampil): it shows in «Seluruh platform» although L3 hides it`);
       }
       return c.verdict("every school-shaped Konfigurasi section carries the menu's own tampil() rule, so «Seluruh platform» draws none");
     },
@@ -280,7 +281,7 @@ export const d168Tests: SelfTest[] = [
       // H9: the report's way back is declared by what it is: «tempat» when opened from a named place, «riwayat» otherwise
       c.expect(/window\.history\.back\(\)/.test(aksi) && /data-kembali=\{ke === "\/" \? "riwayat" : "tempat"\}/.test(aksi), "the report's history-back is not declared as one");
       const asal = readFileSync(join(repoRoot, "src/lib/nama-tempat.ts"), "utf8");
-      c.expect(/pimpinan: \{ ke: "\/pimpinan", nama: "nav\.pimpinan" \}/.test(asal) && /konfigurasi: \{ ke: "\/konfigurasi#laporan", nama: "config\.laporan\.judul" \}/.test(asal)
+      c.expect(/pimpinan: \{ ke: "\/pimpinan", nama: "nav\.pimpinan" \}/.test(asal) && /konfigurasi: \{ ke: "\/konfigurasi\/laporan", nama: "config\.laporan\.judul" \}/.test(asal)
         && /\{ ke: "\/", nama: KEMBALI_RIWAYAT \}/.test(asal), "a report's origin is not named from its place (H9)");
       for (const f of ["src/app/edukator/ringkasan/page.tsx", "src/app/dekan/ringkasan/page.tsx"]) {
         c.expect(/const asal = asalLaporan\(dari\);/.test(kode(readFileSync(join(repoRoot, f), "utf8"))) && /<AksiLaporan kembali=\{s\(asal\.nama, /.test(kode(readFileSync(join(repoRoot, f), "utf8"))), `${f}: the report's way back is not named by its origin`);

@@ -3,6 +3,7 @@
 import { sekolahDari, wajibDalamKonteks } from "@/lib/konteks-server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { adalahBagian, alamatBagian } from "@/lib/bagian-konfigurasi";
 import { supabaseServer } from "@/lib/supabase/server";
 import { adaAdminSekolah, akarSekolah, calonAdminPertama, orangSekolah } from "@/lib/admin-pertama";
 import { kodeGalatStruktur, rujukanGalat, type HasilStruktur } from "@/lib/struktur-kontrak";
@@ -25,7 +26,8 @@ import { KONFIRMASI_HENTIKAN, waktuWib } from "@/lib/pemeliharaan-kontrak";
 
 function back(section: string, h: HasilAksi, fd?: FormData): never {
   // E-K4: the sending form's origin and its list's page come back with the result (queryHasil)
-  redirect(`/konfigurasi?${queryHasil(section, h, fd).toString()}#${section}`);
+  // B1: the answer is said on the section's own page (alamatBagian), at its form or row
+  redirect(adalahBagian(section) ? alamatBagian(section, queryHasil(section, h, fd), section) : `/konfigurasi?${queryHasil(section, h, fd).toString()}#${section}`);
 }
 
 /** A refusal as its code; one nobody named is logged with the reference the page shows. */
@@ -192,7 +194,7 @@ export async function grantRoleAction(fd: FormData): Promise<void> {
     const { data: isSys } = await supabase.rpc("is_system_admin");
     if (isSys !== true) {
       const q = new URLSearchParams({ bagian: "roles", angkat: person ?? "", lingkup: scope ?? "", sampai: until });
-      redirect(`/konfigurasi?${q.toString()}#roles`);
+      redirect(alamatBagian("roles", q, "roles"));
     }
   }
   const { error } = await supabase.rpc("grant_role", {
@@ -226,7 +228,7 @@ export async function tunjukAdminPertamaAction(fd: FormData): Promise<void> {
   if (!akar) back("roles", { ok: false, kode: "ACTION_NOT_FOUND" }, fd);
   if (str(fd, "yakin") !== "ya") {
     const q = new URLSearchParams({ bagian: "roles", pertama: person!, sampai: until });
-    redirect(`/konfigurasi?${q.toString()}#roles`);
+    redirect(alamatBagian("roles", q, "roles"));
   }
   const { error } = await supabase.rpc("grant_role", {
     p_person: person, p_role: "INSTITUTION_ADMIN", p_scope_node: akar, p_valid_until: `${until}T23:59:59+07:00`,
@@ -266,7 +268,7 @@ export async function pindahKelasAction(fd: FormData): Promise<void> {
     const q = queryHasil("pindah", h);
     if (tampil) q.set("dari", tampil);
     if (sekolah) q.set("sekolah", sekolah);
-    redirect(`/konfigurasi?${q.toString()}#pindah`);
+    redirect(alamatBagian("pindah", q, "pindah"));
   };
   if (!penempatan || !kelas) kembali({ ok: false, kode: "MOVE_INPUT_INCOMPLETE" }, dari);
   await wajibDalamKonteks({ sekolah: await sekolahDari("simpul", kelas) }, "pindah");
@@ -289,7 +291,7 @@ export async function daftarkanPesertaAction(fd: FormData): Promise<void> {
   const kembali = (h: HasilAksi): never => {
     const q = queryHasil("peserta", h);
     if (sekolah) q.set("sekolah", sekolah);
-    redirect(`/konfigurasi?${q.toString()}#peserta`);
+    redirect(alamatBagian("peserta", q, "peserta"));
   };
   if (!orang || !tempat) kembali({ ok: false, kode: "PD_INPUT_INCOMPLETE" });
   await wajibDalamKonteks({ sekolah: await sekolahDari("simpul", tempat) }, "peserta");
@@ -313,7 +315,7 @@ export async function tetapkanBatasAction(fd: FormData): Promise<void> {
   const kembali = (h: HasilAksi): never => {
     const q = queryHasil("ketuntasan", h);
     if (sekolah) q.set("sekolah", sekolah);
-    redirect(`/konfigurasi?${q.toString()}#ketuntasan`);
+    redirect(alamatBagian("ketuntasan", q, "ketuntasan"));
   };
   if (!sekolah || !pelajaran || persen === null || !alasan || alasan.length > 300) {
     kembali({ ok: false, kode: "PASS_MARK_INPUT_INCOMPLETE" });

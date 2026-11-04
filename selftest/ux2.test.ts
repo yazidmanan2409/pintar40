@@ -137,6 +137,8 @@ export const ux2Tests: SelfTest[] = [
       const BERSAMA: Record<string, string> = {
         HalamanPenolakan: "src/components/HalamanPenolakan.tsx",
         PermukaanAsesmen: "src/app/belajar/_components/PermukaanAsesmen.tsx",
+        // B1: a Konfigurasi section's page draws Konfigurasi's own page, which holds the main
+        Konfigurasi: "src/app/konfigurasi/page.tsx",
       };
       for (const [nama, f] of Object.entries(BERSAMA)) {
         c.expect(/<main id="isi"/.test(readFileSync(join(ctx.repoRoot, f), "utf8")), `${nama} renders no <main id="isi">`);

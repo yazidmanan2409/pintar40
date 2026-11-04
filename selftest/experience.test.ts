@@ -361,6 +361,8 @@ const RESET_SURFACES = [
   // «Keamanan akun», on the same shell and pin-* classes as «Kirim email uji».
   "src/app/id/[pintarId]/page.tsx",
   "src/app/konfigurasi/keamanan/page.tsx",
+  // B1: a section's page draws Konfigurasi's own page for one section; it holds no style of its own
+  "src/app/konfigurasi/[bagian]/page.tsx",
   // BOB-51: the platform admin's «Kirim email uji», on the same shell and pin-* classes as Aktivasi.
   "src/app/konfigurasi/email-uji/page.tsx",
   // BOB-29 (Gate 6): «PINTAR terkunci» and «Komputer siapa ini?», on the sign-in stage, built on the token set.
@@ -9061,7 +9063,10 @@ export const experienceTests: SelfTest[] = [
       // L3: the menu is every section's entry (navSemua), less the school-shaped ones in «Seluruh platform»
       c.expect(/const navSemua: Array<\[string, string\]> = \[\s*\["struktur"/.test(konfig) && /const nav = navSemua\.filter\(\(\[bagian\]\) => tampil\(bagian\)\);/.test(konfig),
         "Struktur sekolah is not the first entry in Konfigurasi's menu");
-      c.expect(/<div className="grid gap-4">\s*(?:\{\s*\}\s*)*<section id="struktur"/.test(konfig), "Struktur sekolah is not the first section");
+      // (B1: the sections' container carries the section a page draws; Struktur is still its first, and the index's first row)
+      c.expect(/<div className="grid gap-4" data-bagian-ini=\{bagianIni \?\? undefined\}>\s*(?:\{\s*\}\s*)*<section id="struktur"/.test(konfig), "Struktur sekolah is not the first section");
+      const { KELOMPOK_KONFIGURASI } = await import("../src/lib/bagian-konfigurasi");
+      c.expect(KELOMPOK_KONFIGURASI[0]?.bagian[0] === "struktur", "Struktur sekolah is not the index's first row");
       // L3 (D-132 C7): on offer is the working context's school (an evaluation persona: as before, C10)
       c.expect(/const dikelola = \(id: string\) => \(lama && isSys === true\) \|\| sekolahIni\.includes\(id\);/.test(konfig)
         && /const sekolahKu = sekolahDitawarkan\(institutions \?\? \[\], dikelola\);/.test(konfig)

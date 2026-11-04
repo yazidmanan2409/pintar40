@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { alamatBagian } from "@/lib/bagian-konfigurasi";
 import { supabaseServer } from "@/lib/supabase/server";
 import { rujukan } from "@/lib/galat-kontrak";
 import { halamanLaporan, kodeGalatLaporan, rujukanLaporan } from "@/lib/lapor-masalah-kontrak";
@@ -55,7 +56,8 @@ export async function pindahkanLaporanAksi(fd: FormData): Promise<void> {
     const u = new URLSearchParams({ bagian: "laporan-masalah", ...q });
     if (baris) u.set("baris", baris);
     if (/^[1-9]\d{0,4}$/.test(hal)) u.set("hal_lapor", hal);
-    redirect(`/konfigurasi?${u.toString()}#${baris ? `laporan-${baris}` : "laporan-masalah"}`);
+    // B1: on the problem reports' own page, at the report's row
+    redirect(alamatBagian("laporan-masalah", u, baris ? `laporan-${baris}` : "laporan-masalah"));
   };
   if (!/^[0-9a-f-]{36}$/i.test(laporan)) balik({ lapor: "REPORT_NOT_ALLOWED" });
   const supabase = await supabaseServer();

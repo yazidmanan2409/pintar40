@@ -234,7 +234,7 @@ const siswaNama = sql(`select display_name from public.persons where id = '${sis
 let transfer = "";
 await step("B4-W6", "alpha's admin finds beta by its exact name and asks for a learner's transfer, with a reason; both are audited", async (rec) => {
   const sejak = jejakSejak();
-  await buka(A, `/konfigurasi?bagian=transfers&cari_sekolah=${encodeURIComponent(betaNama)}#transfers`);
+  await buka(A, `/konfigurasi/transfers?bagian=transfers&cari_sekolah=${encodeURIComponent(betaNama)}#transfers`);
   const keluar = A.locator('[data-pindah="keluar"]');
   await keluar.waitFor({ timeout: SLOW });
   harus(rec, (await keluar.locator('input[name="to_institution"]').count()) === 1, `the directory finds exactly one school for «${betaNama}»`);
@@ -254,7 +254,7 @@ await step("B4-W6", "alpha's admin finds beta by its exact name and asks for a l
 await step("B4-W7", "beta's admin accepts the request into beta's school year and executes it; the enrolments move and both acts are audited", async (rec) => {
   if (!transfer) { rec.verdict = "BLOCKED"; rec.catatan.push("no transfer from B4-W6"); gagal = true; return; }
   const sejak = jejakSejak();
-  await buka(B, "/konfigurasi?bagian=transfers#transfers");
+  await buka(B, "/konfigurasi/transfers?bagian=transfers#transfers");
   const masuk = B.locator(`form[data-pindah-masuk="${transfer}"]`);
   await masuk.waitFor({ timeout: SLOW });
   harus(rec, norm(await masuk.innerText()).includes(siswaNama), "the request shows the learner's name");
@@ -265,7 +265,7 @@ await step("B4-W7", "beta's admin accepts the request into beta's school year an
   await B.waitForLoadState("networkidle");
   for (let i = 0; i < 20 && sql(`select status from public.transfers where id = '${transfer}'`) === "REQUESTED"; i++) await B.waitForTimeout(500);
   harus(rec, sql(`select status from public.transfers where id = '${transfer}'`) === "AUTHORIZED", "accepted: the transfer is AUTHORIZED into beta's year");
-  await buka(B, "/konfigurasi?bagian=transfers#transfers");
+  await buka(B, "/konfigurasi/transfers?bagian=transfers#transfers");
   const baris = B.locator("#transfers li", { hasText: siswaNama }).first();
   await baris.getByRole("button", { name: "Laksanakan" }).click();
   await B.waitForLoadState("networkidle");
@@ -300,7 +300,7 @@ await step("B4-W9", "the platform admin sees a stuck send on «Email uji» and t
   const teks = norm(await S.locator("main").innerText());
   await shot(S, rec, "email-tertahan");
   harus(rec, /Belum dijawab selama\s*\d+/.test(teks), "the stuck send is listed with how long it has waited");
-  await buka(S, "/konfigurasi#system");
+  await buka(S, "/konfigurasi/system#system");
   const sekolah = await S.locator("#system li").count();
   harus(rec, sekolah >= 1 && sekolah <= 21, `the system section lists ${sekolah} school row(s), at most a page`);
 });

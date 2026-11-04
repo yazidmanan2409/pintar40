@@ -107,7 +107,8 @@ export const b6eTests: SelfTest[] = [
     run: async (ctx) => {
       const c = new Checks();
       const src = kode(readFileSync(join(ctx.repoRoot, "src/app/konfigurasi/page.tsx"), "utf8"));
-      c.expect(/<nav className=\{`\$\{card\} self-start p-2 pin-noprint`\} data-menu-bagian="">/.test(src),
+      // (B1: the section menu is the index's grouped rows, still the page's navigation and still off the paper)
+      c.expect(/<nav className="grid gap-4 pin-noprint" data-menu-bagian=""/.test(src),
         "Konfigurasi's section menu does not carry pin-noprint (it prints)");
       const wf = readFileSync(join(ctx.repoRoot, ".github/workflows/audit-journeys.yml"), "utf8");
       c.expect(/run: node b6-cetak\.mjs/.test(wf), "the print walk (audit/b6-cetak.mjs) is not a step of CI's journeys");

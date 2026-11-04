@@ -3518,3 +3518,6 @@ a.pin-konteks-pilih .pin-ikon { width: var(--icon-sm); height: var(--icon-sm); }
   box-shadow: inset var(--border-focus, 2px) 0 0 var(--pintar-primary);
 }
 .pin-pintu[aria-current="true"] > .pin-ikon { color: var(--pintar-primary); }
+/* B1: on a Konfigurasi section's page the page's h1 is the section's title, so the section's own first heading, the
+   same words, is not drawn a second time (it still names the section for aria-labelledby) */
+[data-bagian-ini] > section > h2:first-child { display: none; }
