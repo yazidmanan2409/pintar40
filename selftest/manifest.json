@@ -4262,6 +4262,66 @@
       "proves": "E-C1-2/4/6, E-C2-1 (D-132, D-069(b), D-168), selftest/d168.test.ts: executing cangkangStaf (src/components/lapor/cangkang.ts), a teacher-administrator in Mengelola gets Konfigurasi's shell and a teaching Dean in Mengajar gets Mengajar's; reading the source, /pengembangan and /lapor choose their shell by the working context, the class report speaks the context's persona, the record's refusal says who it is for (copy table), a PD participant's per-learner page refuses to the record and rosters do not link it, and no Mengajar refusal to a class page names its button «Mengajar»."
     },
     {
+      "id": "D1E-K02",
+      "runner": "static",
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the reason line (each email's own email.*.alasan) is the first text under the <h1> in all eight identity emails, and the footer no longer repeats it."
+    },
+    {
+      "id": "D1E-K03",
+      "runner": "static",
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the context line is drawn only where the data carries a place (the card email); activation, resend, recovery, password changed, both security notices and a card with no school draw no context element and no stand-in words."
+    },
+    {
+      "id": "D1E-K04",
+      "runner": "static",
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the context line names every place once, alphabetically, joined by \u00ab, \u00bb and \u00abdan\u00bb (email.bingkai.konteks.dan), and names no role (D-059)."
+    },
+    {
+      "id": "D1E-K05",
+      "runner": "static",
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the card block draws susunKartu's lines for every order of three roles at one school, and one line per role and school at two, alphabetical, the band in the first role's family colour (--kartu-*)."
+    },
+    {
+      "id": "D1E-K06",
+      "runner": "static",
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the card in the email is a presentation table of live text (name, ID 4 + 4, roles): no QR, no back, no QR target, no image but today's logo with its alt \u00abPINTAR\u00bb (P2 (a)); the detail rows are gone."
+    },
+    {
+      "id": "D1E-K07",
+      "runner": "static",
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: every email's header keeps today's 104 \u00d7 58 logo (P3); the card's wordmark slot is 96 \u00d7 32 with today's logo sized by its height; no \u00abmaster pending F-11\u00bb label is ever sent."
+    },
+    {
+      "id": "D1E-K08",
+      "runner": "static",
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: every email's card is warm white (--surface-0) with a 3 px gold top edge (--kartu-emas), kept on dark."
+    },
+    {
+      "id": "D1E-K10",
+      "runner": "static",
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: each plain text gives the heading, then its reason (not in the footer), the context line where the HTML has one, and the card as name, ID 4 + 4 and susunKartu's role lines."
+    },
+    {
+      "id": "D1E-K12",
+      "runner": "static",
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: every new text pair is AA in light and dark: the reason and context line, the card's name and ID on its paper, the band text on each of the five staff families."
+    },
+    {
+      "id": "D1E-K14",
+      "runner": "static",
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the card block's lines are susunKartu(data.konteks)'s; identitas.ts writes no role line of its own (D-164, P1)."
+    },
+    {
+      "id": "D1E-K15",
+      "runner": "static",
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: the four identity-email data types keep their fields (D-164(b)); no migration."
+    },
+    {
+      "id": "D1E-K16",
+      "runner": "static",
+      "proves": "D1 step 2 (DAISY-37; 05-D1 test plan \u00a72), selftest/d1.test.ts, from the rendered HTML and plain-text output of the real identity templates (src/components/email/identitas.ts, keamanan.ts) through the real frame (bingkai.ts) and their source: every light colour the frame and the card block use is a token's value but the code box's border (DAISY-19-EMAIL-01, unwidened; P4)."
+    },
+    {
       "id": "D168-KATA-1",
       "runner": "static",
       "proves": "F03-R02 false positive (D-168), selftest/d168.test.ts, from selftest/isi-materi.ts, the rendered TeksBaris and TeksBlok (src/components/teks/Teks.tsx), the stylesheet src/app/experience.css, the source of ItemPlayer.tsx and the seed supabase/seed/learning_cycle.sql: the learner-surface scan for verdict words reads PINTAR's own words only; authored content, which the shared renderer marks (data-isi-materi) and through which the player draws stems and options, is set aside whole even when nested, so the authored option \u00abSalah satu lebih besar\u00bb is not flagged; PINTAR's \u00abSalah\u00bb badge or \u00abIncorrect\u00bb/\u00abWrong\u00bb feedback beside or after the content is still caught, an unclosed marker sets nothing aside, the wrapper changes no layout, and the seed keeps its option as written."

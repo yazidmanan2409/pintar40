@@ -174,7 +174,15 @@ export const b6kTests: SelfTest[] = [
       // the card's values are read by the card alone: the ochre is not a UI accent (D-074(2))
       const lain = jalan(join(repoRoot, "src")).filter((f) => /\.(css|tsx?)$/.test(f) && /--kartu-|#C09C4F/i.test(kode(readFileSync(f, "utf8"))))
         .map((f) => relative(repoRoot, f).replace(/\\/g, "/")).sort();
-      c.expect(JSON.stringify(lain) === JSON.stringify(["src/app/experience.css", "src/app/globals.css"]), `the card's colours are read in ${lain.join(", ")}`);
+      // RESTATED, D1 step 2 (DAISY-37 (3)(4), accepted 4 Nov): the identity emails are the card's language too, the card
+      // block in the card email and the gold line on every identity email's card; an email reads no stylesheet, so the
+      // frame writes the values, and they must be the tokens' own. Nowhere else.
+      c.expect(JSON.stringify(lain) === JSON.stringify(["src/app/experience.css", "src/app/globals.css", "src/components/email/bingkai.ts"]), `the card's colours are read in ${lain.join(", ")}`);
+      const bingkai = await import("../src/components/email/bingkai");
+      for (const [k, w] of Object.entries(PALET).filter(([k]) => k !== "murid")) {
+        c.expect(bingkai.WARNA_KELUARGA[k]?.toUpperCase() === w.toUpperCase(), `the card email's ${k} band is ${bingkai.WARNA_KELUARGA[k]}, not the family's ${w}`);
+      }
+      c.expect((bingkai.WARNA.terang as Record<string, string>).emas === "#C09C4F", "the email's gold line is not the card's ochre");
       c.expect([...css.matchAll(/var\(--kartu-(?:emas|murid|guru|kadep|dekan|admin-sekolah|admin-platform)\)/g)].length === 7
         && (glob.match(/#C09C4F/gi) ?? []).length === 1 && !/#C09C4F/i.test(css), "the ochre or a family colour is used outside the card's own rule");
       c.expect(akar.includes("--kp-kertas: var(--surface-0);") && akar.includes("--kp-tinta: var(--ink-1);") && akar.includes("--kp-hijau: var(--pintar-primary);") && akar.includes("--kp-ubin: var(--pintar-primary-soft);"),
@@ -386,41 +394,44 @@ export const b6kTests: SelfTest[] = [
       const kp = await import("../src/lib/kartu-pintar");
       const { templatKartu } = await import("../src/components/email/identitas");
       const K = { asal: "https://app.pintarselalu.com", staging: false };
+      // RESTATED, D1 step 2 (DAISY-37 (4); D-164, P1): the card email draws the PINTAR Card as live text from the Digital
+      // Card's own lines (susunKartu → baris), in its block's rows, no longer as label rows of its own; the order rule
+      // is unchanged and now holds the email to the card's lines as well as its order
+      const teksBaris = (x: string) => x.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
       const peranEmail = (konteks: { peran: string; institusi: string | null }[]) => {
         const e = templatKartu({ nama: "Nadia Putri", pintarId: "A14CD7ST", tautanId: "https://app.pintarselalu.com/id/A14CD7ST", konteks: konteks as never, tautanAkun: "https://app.pintarselalu.com/akun" }, K);
-        const label = t("email.kartu.peran" as HleEvent, "public", { locale: "id" });
-        return { e, baris: e.teks.split("\n").filter((l) => l.trim().startsWith(label)).map((l) => l.trim().slice(label.length).replace(/^[:\s]+/, "").trim()) };
+        return { e, baris: [...e.html.matchAll(/<p class="pin-kartu-baris"[^>]*>([\s\S]*?)<\/p>/g)].map((m) => teksBaris(m[1])) };
       };
-      // the database's order (my_identity_card: seniority), one school
+      const N = (p: string) => t(`role.${p}` as HleEvent, "staff", { locale: "id" });
+      // the database's order (my_identity_card: seniority), one school: the roles on one line, alphabetical, the school beneath
       const satu = [{ peran: "DEAN", institusi: "SMA Satu" }, { peran: "HEAD_OF_DEPARTMENT", institusi: "SMA Satu" }, { peran: "EDUCATOR", institusi: "SMA Satu" }];
       const r1 = peranEmail(satu).baris;
-      c.expect(JSON.stringify(r1) === JSON.stringify(["Dekan · SMA Satu", "Guru · SMA Satu", "Kepala departemen · SMA Satu"]),
-        `one school: the card email lists ${r1.join(" | ") || "no role rows"}; want Dekan, Guru, Kepala departemen (D-074(5))`);
-      // two schools, the same roles
+      c.expect(JSON.stringify(r1) === JSON.stringify([`${N("DEAN")} · ${N("EDUCATOR")} · ${N("HEAD_OF_DEPARTMENT")}`, "SMA Satu"]),
+        `one school: the card email lists ${r1.join(" | ") || "no role rows"}; want Dekan · Guru · Kepala departemen, then the school (D-074(5)(6))`);
+      // two schools, the same roles: one line per role and school, alphabetical by role
       const dua = [{ peran: "DEAN", institusi: "SMA Dua" }, { peran: "HEAD_OF_DEPARTMENT", institusi: "SMA Satu" }, { peran: "EDUCATOR", institusi: "SMA Satu" }];
       const r2 = peranEmail(dua).baris;
       c.expect(JSON.stringify(r2) === JSON.stringify(["Dekan · SMA Dua", "Guru · SMA Satu", "Kepala departemen · SMA Satu"]),
         `two schools: the card email lists ${r2.join(" | ") || "no role rows"}`);
       // the platform role (no school) beside school roles keeps its own line, in the card's order
-      const N = (p: string) => t(`role.${p}` as HleEvent, "staff", { locale: "id" });
       const campur = [{ peran: "SYSTEM_ADMIN", institusi: null }, { peran: "EDUCATOR", institusi: "SMA Satu" }, { peran: "DEAN", institusi: "SMA Satu" }];
-      // every permutation: the email's order is the Digital Card's
+      // every permutation: the email's lines are the Digital Card's, in its order
       const perm = <T,>(xs: T[]): T[][] => xs.length <= 1 ? [xs] : xs.flatMap((x, i) => perm([...xs.slice(0, i), ...xs.slice(i + 1)]).map((r) => [x, ...r]));
       for (const set of [satu, dua, campur]) for (const p of perm(set)) {
-        const kartu = kp.susunKartu(p as never).urut.map((k) => `${N(k.peran)}${k.institusi ? ` · ${k.institusi}` : ""}`);
+        const kartu = kp.susunKartu(p as never).baris.map((b) => [b.peran, b.sekolah].filter(Boolean).join(" · "));
         const email = peranEmail(p).baris;
         c.expect(JSON.stringify(email) === JSON.stringify(kartu), `from ${p.map((k) => k.peran).join(",")}: the email lists ${email.join(" | ")}, the card ${kartu.join(" | ")}`);
       }
-      // one ordering function: identitas.ts takes the card's, and sorts nothing itself
+      // one ordering function: identitas.ts takes the card's (susunKartu, through urutKonteksKartu), and sorts nothing itself
       const src = kode(baca(repoRoot, "src/components/email/identitas.ts"));
-      c.expect(/from "@\/lib\/kartu-pintar"/.test(src) && /urutKonteksKartu\(data\.konteks\)/.test(src), "the card email does not take its order from kartu-pintar.ts's urutKonteksKartu");
+      c.expect(/from "@\/lib\/kartu-pintar"/.test(src) && /susunKartu\(data\.konteks\)/.test(src), "the card email does not take its lines and order from kartu-pintar.ts's susunKartu");
       c.expect(!/\.sort\(|Intl\.Collator|localeCompare/.test(src), "identitas.ts sorts on its own (a second ordering algorithm)");
       const kpSrc = kode(baca(repoRoot, "src/lib/kartu-pintar.ts"));
       c.expect((kpSrc.match(/\.sort\(/g) ?? []).length === 1 && /urutKonteksKartu\(konteks\)/.test(kpSrc), "kartu-pintar.ts does not keep exactly one ordering, used by susunKartu");
-      // the rest of the card email is unchanged: name, the ID 4 + 4, the way to Akun saya, the number of role rows
+      // the rest of the card email is unchanged: name, the ID 4 + 4, the way to Akun saya, the number of role lines
       const { e } = peranEmail(satu);
       c.expect(e.teks.includes("Nadia Putri") && e.teks.includes("A14C D7ST") && e.teks.includes("https://app.pintarselalu.com/akun"), "the card email's name, ID or Akun saya link changed");
-      c.expect(peranEmail(campur).baris.length === 3, "a role row was dropped or added");
+      c.expect(peranEmail(campur).baris.length === kp.susunKartu(campur as never).baris.length, "a role line was dropped or added");
       return c.verdict("the card email lists the roles in the Digital Card's alphabetical order, from one ordering function");
     },
   },

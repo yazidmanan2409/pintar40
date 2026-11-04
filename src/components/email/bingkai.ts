@@ -67,7 +67,21 @@ export type Blok =
   /** label and value rows, e.g. when something happened */
   | { jenis: "rincian"; baris: Array<[string, string]> }
   /** a calm boxed note; "perhatian" for "if this was not you" */
-  | { jenis: "catatan"; teks: string; nada?: Nada };
+  | { jenis: "catatan"; teks: string; nada?: Nada }
+  /** D1 (DAISY-37 (4)): the PINTAR Card, drawn as live-text table HTML (never an image card, no back, no QR) */
+  | { jenis: "kartu"; kartu: KartuEmail };
+
+/**
+ * D1: the card in the email. Its lines are the Digital Card's own (susunKartu → baris, src/lib/kartu-pintar.ts), so
+ * the card and the email always read alike; `warna` is the family colour of the first role (D-074(4) addendum).
+ */
+export type KartuEmail = {
+  nama: string;
+  /** shown 4 + 4 */
+  pintarId: string;
+  baris: Array<{ peran: string | null; sekolah: string | null }>;
+  warna: string;
+};
 
 export type Email = {
   /** the subject line, also the article's accessible name */
@@ -77,8 +91,12 @@ export type Email = {
   /** the one heading */
   judul: string;
   isi: Blok[];
-  /** why this person received this email; the frame has a general default */
+  /** why this person received this email; the frame has a general default. D1: shown directly under the heading
+   *  (DAISY-37 (1)), no longer in the footer */
   alasan?: string;
+  /** D1: the context line (DAISY-37 (2)), only where authoritative, permitted data carries a place. Absent: the line
+   *  is omitted, and nothing stands in for it */
+  konteks?: string;
 };
 
 /** Emails are Bahasa Indonesia only. */
@@ -98,9 +116,11 @@ export const BERKAS_LOGO = "/brand/pintar-email-logo.png";
 /** Colours: the token set's values (globals.css), plus a dark set used only where a client honours prefers-color-scheme. */
 export const WARNA = {
   terang: {
-    latar: "#F3F1EC", kartu: "#FFFFFF", garis: "#E2E4E5", tinta: "#1F2A33", tinta2: "#4E5A64", tinta3: "#5F6A73",
+    latar: "#F3F1EC", kartu: "#FBFAF7", garis: "#E2E4E5", tinta: "#1F2A33", tinta2: "#4E5A64", tinta3: "#5F6A73",
     utama: "#245F55", utamaTinta: "#FFFFFF", utamaLembut: "#E3EFEC", utamaGaris: "#C4DAD4",
     perhatian: "#8A5F00", perhatianLembut: "#F7EED8", netral: "#3D5A80", netralLembut: "#E7EDF5",
+    // D1: the artifacts' warm-gold line (--kartu-emas, D-074); the card block keeps its own paper (--surface-0)
+    emas: "#C09C4F",
   },
   gelap: {
     latar: "#0F1417", kartu: "#182025", garis: "#2C363C", tinta: "#E6EBED", tinta2: "#BAC4C9", tinta3: "#A3AEB4",
@@ -142,7 +162,7 @@ export function tampilKode(kode: string): string {
 
 const T = WARNA.terang;
 
-function blokHtml(b: Blok): string {
+function blokHtml(b: Blok, gambar: { logo: string; merek: string }): string {
   switch (b.jenis) {
     case "paragraf":
       return `<p class="pin-teks" style="margin:0 0 16px 0;font-family:${HURUF};font-size:16px;line-height:26px;color:${T.tinta};">${esc(b.teks)}</p>`;
@@ -167,6 +187,7 @@ function blokHtml(b: Blok): string {
       return `<table class="pin-rincian" role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px 0;border-top:1px solid ${T.garis};">
 ${b.baris.map(([k, v]) => `<tr><td class="pin-rincian-k" valign="top" style="padding:10px 12px 10px 0;border-bottom:1px solid ${T.garis};font-family:${HURUF};font-size:14px;line-height:20px;color:${T.tinta3};width:38%;">${esc(k)}</td><td class="pin-rincian-v" valign="top" style="padding:10px 0;border-bottom:1px solid ${T.garis};font-family:${HURUF};font-size:15px;line-height:22px;color:${T.tinta};">${esc(v)}</td></tr>`).join("\n")}
 </table>`;
+    case "kartu": return kartuHtml(b.kartu, gambar);
     case "catatan": {
       const perhatian = b.nada === "perhatian";
       const garis = perhatian ? T.perhatian : T.netral;
@@ -176,6 +197,30 @@ ${b.baris.map(([k, v]) => `<tr><td class="pin-rincian-k" valign="top" style="pad
 <tr><td class="${kelas}" bgcolor="${lembut}" style="background-color:${lembut};border-left:4px solid ${garis};border-radius:4px;padding:12px 16px;font-family:${HURUF};font-size:15px;line-height:23px;color:${T.tinta};">${esc(b.teks)}</td></tr></table>`;
     }
   }
+}
+
+/** The staff families' colours (globals.css --kartu-*, D-074(1)); the card email draws a staff card only. */
+export const WARNA_KELUARGA: Readonly<Record<string, string>> = {
+  guru: "#446A4B", kadep: "#2E6973", dekan: "#515E83", "admin-sekolah": "#7A5648", "admin-platform": "#5E6062",
+};
+
+/**
+ * D1: the card, as live-text table HTML: its own paper (kept on dark, as the physical and digital card keep theirs),
+ * its wordmark slot (96 × 32; today's logo, sized by its height, until F-11: P2 (a)), the 2 px gold line, the person,
+ * and one band in the first role's family colour with each line «Peran · Sekolah» (D-074(6)).
+ */
+function kartuHtml(k: KartuEmail, gambar: { logo: string; merek: string }): string {
+  const kertas = T.kartu;
+  const baris = k.baris.map((r) => `<p class="pin-kartu-baris" style="margin:0;font-family:${HURUF};font-size:13px;line-height:19px;color:${kertas};">${r.peran ? `<strong style="font-weight:600;">${esc(r.peran)}</strong>` : ""}${r.peran && r.sekolah ? " · " : ""}${r.sekolah ? esc(r.sekolah) : ""}</p>`).join("");
+  return `<table class="pin-kartu-pintar" role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;margin:8px 0 20px 0;max-width:440px;">
+<tr><td bgcolor="${kertas}" style="background-color:${kertas};border:1px solid ${T.garis};border-radius:12px;padding:0;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+<tr><td style="padding:14px 16px 10px 16px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td class="pin-slot-kartu" width="96" height="32" align="left" valign="middle" style="width:96px;height:32px;"><img src="${esc(gambar.logo)}" width="57" height="32" alt="${esc(gambar.merek)}" style="display:block;border:0;outline:none;text-decoration:none;width:57px;height:32px;font-family:${HURUF};font-size:13px;line-height:16px;font-weight:700;letter-spacing:2px;color:${T.utama};"></td></tr></table></td></tr>
+<tr><td height="2" bgcolor="${T.emas}" style="height:2px;line-height:2px;font-size:0;background-color:${T.emas};">&nbsp;</td></tr>
+<tr><td style="padding:14px 16px 4px 16px;font-family:${HURUF};font-size:18px;line-height:24px;font-weight:600;color:${T.tinta};">${esc(k.nama)}</td></tr>
+<tr><td style="padding:0 16px 14px 16px;font-family:${HURUF_KODE};font-size:14px;line-height:20px;letter-spacing:1px;color:${T.tinta2};">${esc(k.pintarId)}</td></tr>
+<tr><td bgcolor="${k.warna}" style="background-color:${k.warna};padding:10px 16px 12px 16px;border-radius:0 0 11px 11px;">${baris}</td></tr>
+</table></td></tr></table>`;
 }
 
 /** Ruling 3: the slim line a staging email carries at the top of its body. */
@@ -201,7 +246,7 @@ function gaya(): string {
   .pin-latar, .pin-bungkus { background-color: ${G.latar} !important; }
   .pin-kartu { background-color: ${G.kartu} !important; border-color: ${G.garis} !important; }
   .pin-judul, .pin-teks, .pin-kode, .pin-rincian-v { color: ${G.tinta} !important; }
-  .pin-label, .pin-kecil { color: ${G.tinta2} !important; }
+  .pin-label, .pin-kecil, .pin-alasan, .pin-konteks { color: ${G.tinta2} !important; }
   .pin-kaki, .pin-kaki p, .pin-rincian-k { color: ${G.tinta3} !important; }
   .pin-rincian, .pin-rincian-k, .pin-rincian-v { border-color: ${G.garis} !important; }
   .pin-kotak-kode { background-color: ${G.utamaLembut} !important; border-color: ${G.utamaGaris} !important; }
@@ -209,6 +254,8 @@ function gaya(): string {
   .pin-tautan, .pin-merek-teks { color: ${G.utama} !important; }
   .pin-catatan-perhatian, .pin-uji { background-color: ${G.perhatianLembut} !important; border-left-color: ${G.perhatian} !important; color: ${G.tinta} !important; }
   .pin-catatan-netral { background-color: ${G.netralLembut} !important; border-left-color: ${G.netral} !important; color: ${G.tinta} !important; }
+  /* D1: the gold line stays on dark */
+  .pin-kartu { border-top-color: ${T.emas} !important; }
 }
 </style>`;
 }
@@ -226,7 +273,8 @@ export function bingkaiEmail(e: Email, konteks: KonteksEmail): EmailJadi {
   const merek = kata("email.bingkai.merek");
   const alasan = e.alasan ?? kata("email.bingkai.alasan");
   // the alt text is styled as the wordmark: with images blocked, "PINTAR" still reads in the brand colour
-  const kepala = `<img src="${esc(logo)}" width="104" height="58" alt="${esc(merek)}" style="display:block;border:0;outline:none;text-decoration:none;width:104px;height:58px;font-family:${HURUF};font-size:22px;line-height:28px;font-weight:700;letter-spacing:3px;color:${T.utama};">`;
+  // the alt text takes the dark wordmark colour where a client honours dark mode (.pin-merek-teks)
+  const kepala = `<img class="pin-merek-teks" src="${esc(logo)}" width="104" height="58" alt="${esc(merek)}" style="display:block;border:0;outline:none;text-decoration:none;width:104px;height:58px;font-family:${HURUF};font-size:22px;line-height:28px;font-weight:700;letter-spacing:3px;color:${T.utama};">`;
   // the inbox preview, then filler so the client does not pull body text into it
   const isiPratinjau = `${esc(e.pratinjau)}${"&#847;&zwnj;&nbsp;".repeat(40)}`;
 
@@ -253,12 +301,12 @@ ${gaya()}
 <!--[if mso]><table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:0 auto;">
 <tr><td style="padding:0 4px 18px 4px;" align="left">${kepala}</td></tr>
-<tr><td class="pin-kartu" bgcolor="${T.kartu}" style="background-color:${T.kartu};border:1px solid ${T.garis};border-radius:12px;padding:32px 32px 16px 32px;">
-${konteks.staging ? barisUji() : ""}<h1 class="pin-judul" style="margin:0 0 16px 0;font-family:${HURUF};font-size:24px;line-height:32px;font-weight:600;color:${T.tinta};">${esc(e.judul)}</h1>
-${e.isi.map(blokHtml).join("\n")}
+<tr><td class="pin-kartu" bgcolor="${T.kartu}" style="background-color:${T.kartu};border:1px solid ${T.garis};border-top:3px solid ${T.emas};border-radius:12px;padding:32px 32px 16px 32px;">
+${konteks.staging ? barisUji() : ""}<h1 class="pin-judul" style="margin:0 0 8px 0;font-family:${HURUF};font-size:24px;line-height:32px;font-weight:600;color:${T.tinta};">${esc(e.judul)}</h1>
+<p class="pin-alasan" style="margin:0 0 ${e.konteks ? 4 : 20}px 0;font-family:${HURUF};font-size:14px;line-height:21px;color:${T.tinta2};">${esc(alasan)}</p>
+${e.konteks ? `<p class="pin-konteks" style="margin:0 0 20px 0;font-family:${HURUF};font-size:14px;line-height:21px;font-weight:600;color:${T.tinta2};">${esc(e.konteks)}</p>\n` : ""}${e.isi.map((b) => blokHtml(b, { logo, merek })).join("\n")}
 </td></tr>
 <tr><td class="pin-kaki" style="padding:20px 4px 8px 4px;font-family:${HURUF};font-size:13px;line-height:20px;color:${T.tinta3};">
-<p style="margin:0 0 8px 0;font-family:${HURUF};font-size:13px;line-height:20px;color:${T.tinta3};">${esc(alasan)}</p>
 <p style="margin:0 0 8px 0;font-family:${HURUF};font-size:13px;line-height:20px;font-weight:600;color:${T.tinta3};">${esc(kata("email.bingkai.tidak_pernah"))}</p>
 <p style="margin:0 0 8px 0;font-family:${HURUF};font-size:13px;line-height:20px;color:${T.tinta3};">${esc(kata("email.bingkai.tanya"))} <a class="pin-tautan" href="mailto:${KONTAK}" style="color:${T.utama};text-decoration:underline;">${KONTAK}</a>.</p>
 <p style="margin:0;font-family:${HURUF};font-size:13px;line-height:20px;color:${T.tinta3};">${esc(BADAN_HUKUM)} · <a class="pin-tautan" href="https://${RANAH}" target="_blank" style="color:${T.utama};text-decoration:underline;">${RANAH}</a></p>
@@ -292,7 +340,9 @@ export function bungkus(s: string, lebar = 72): string {
 function teksBiasa(e: Email, alasan: string, konteks: KonteksEmail): string {
   const bagian: string[] = [kata("email.bingkai.merek"), ""];
   if (konteks.staging) bagian.push(`[${kata("email.bingkai.uji")}]`, "");
-  bagian.push(bungkus(e.judul), "");
+  bagian.push(bungkus(e.judul), bungkus(alasan));
+  if (e.konteks) bagian.push(bungkus(e.konteks));
+  bagian.push("");
   for (const b of e.isi) {
     switch (b.jenis) {
       case "paragraf": bagian.push(bungkus(b.teks), ""); break;
@@ -300,10 +350,11 @@ function teksBiasa(e: Email, alasan: string, konteks: KonteksEmail): string {
       case "tombol": bagian.push(`${b.teks}:`, b.href, ""); break;
       case "rincian": for (const [k, v] of b.baris) bagian.push(bungkus(`${k}: ${v}`)); bagian.push(""); break;
       case "catatan": bagian.push(bungkus(b.teks), ""); break;
+      case "kartu": bagian.push(`    ${b.kartu.nama}`, `    ${b.kartu.pintarId}`, ...b.kartu.baris.map((r) => `    ${[r.peran, r.sekolah].filter(Boolean).join(" · ")}`), ""); break;
     }
   }
   bagian.push(
-    "--", bungkus(alasan), bungkus(kata("email.bingkai.tidak_pernah")),
+    "--", bungkus(kata("email.bingkai.tidak_pernah")),
     `${kata("email.bingkai.tanya")} ${KONTAK}.`, `${BADAN_HUKUM} · ${RANAH}`, "",
   );
   return bagian.join("\n");

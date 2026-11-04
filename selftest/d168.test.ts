@@ -559,7 +559,6 @@ export const d168Tests: SelfTest[] = [
       const { templatKartu } = await import("../src/components/email/identitas");
       const { KELUARGA_PERAN } = await import("../src/lib/kartu-pintar");
       const teks = (x: string) => x.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
-      const label = t("email.kartu.peran" as HleEvent, "public", { locale: "id" });
       for (const konteks of [[{ peran: "SYSTEM_ADMIN", institusi: null }, { peran: "EDUCATOR", institusi: "SMP Sintetis Satu" }],
         [{ peran: "EDUCATOR", institusi: "SMP Sintetis Satu" }, { peran: "SYSTEM_ADMIN", institusi: null }]]) {
         const kartu = { nama: "Nadia Putri", pintarId: "A14CD7ST", tautanId: "https://app.pintarselalu.com/id/A14CD7ST", konteks };
@@ -567,10 +566,13 @@ export const d168Tests: SelfTest[] = [
         if (!c.expect(r.ok, `the card could not be rendered: ${r.galat}`)) continue;
         const baris = [...r.html.matchAll(/<li class="pin-kd-bab-baris">([\s\S]*?)<\/li>/g)].map((m) => teks(m[1]));
         const e = templatKartu({ ...kartu, konteks: konteks as never, tautanAkun: "https://app.pintarselalu.com/akun" }, { asal: "https://app.pintarselalu.com", staging: false });
-        const email = e.teks.split("\n").filter((l) => l.trim().startsWith(label)).map((l) => l.trim().slice(label.length).replace(/^[:\s]+/, "").trim());
+        // RESTATED, D1 step 2: the email's card block rows (pin-kartu-baris), no longer label rows of its own
+        const email = [...e.html.matchAll(/<p class="pin-kartu-baris"[^>]*>([\s\S]*?)<\/p>/g)].map((m) => teks(m[1]));
         const harap = [t("role.SYSTEM_ADMIN" as HleEvent, "staff", { locale: "id" }), `${t("role.EDUCATOR" as HleEvent, "staff", { locale: "id" })} · SMP Sintetis Satu`];
         c.expect(JSON.stringify(baris) === JSON.stringify(harap), `from ${konteks.map((k) => k.peran).join(",")}: the card shows ${JSON.stringify(baris)}, want ${JSON.stringify(harap)}`);
         c.expect(JSON.stringify(email) === JSON.stringify(baris), `the email lists ${JSON.stringify(email)}, the card ${JSON.stringify(baris)}`);
+        // and the email's band takes the same first role's family colour (D1: --kartu-admin-platform)
+        c.expect(/bgcolor="#5E6062"/i.test(e.html.slice(e.html.indexOf('class="pin-kartu-pintar"'))), "the email's card band is not the first role's family colour (Admin platform)");
         const keluarga = /data-keluarga="([^"]+)"/.exec(r.html)?.[1];
         c.expect(!!keluarga && keluarga === (KELUARGA_PERAN as Record<string, string>).SYSTEM_ADMIN, `the card's colour is ${keluarga}, not the first role's (${(KELUARGA_PERAN as Record<string, string>).SYSTEM_ADMIN})`);
       }

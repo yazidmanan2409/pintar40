@@ -12,6 +12,7 @@ import { Checks, type SelfTest } from "./lib";
 import { renderAll, INTERNAL_WORDS } from "../src/lib/hle";
 import { experienceTests } from "./experience.test";
 import { emailTests } from "./email.test";
+import { d1Tests } from "./d1.test";
 import { aktifkanTests } from "./aktifkan.test";
 import { daisy40Tests } from "./daisy40.test";
 import { loginTests } from "./login.test";
@@ -2102,6 +2103,7 @@ export const staticTests: SelfTest[] = [
   // no case that existed at the frozen baseline is touched by appending them.
   ...experienceTests,
   ...emailTests,
+  ...d1Tests,
   ...aktifkanTests,
   ...daisy40Tests,
   // LOGIN CONTRACT — L-1 and L-2. Same rule as the Experience cases above:

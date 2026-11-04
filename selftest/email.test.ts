@@ -203,7 +203,10 @@ export const emailTests: SelfTest[] = [
       // the company is a proper noun: the frame's constant, the footer's string, never a copy-table key (UX1-S1-KAKI-01)
       c.expect(html.includes(BADAN_HUKUM) && hasil[0].e.teks.includes(BADAN_HUKUM), "the footer does not name the company");
       c.expect(!kunci.some((k) => [BADAN_HUKUM, KONTAK, RANAH].includes(telling(k as HleEvent).default)), "an email key carries a proper noun");
-      c.expect(html.includes(CONTOH.kode.alasan!), "an email's own reason does not reach the footer");
+      // RESTATED, D1 step 2 (DAISY-37 (1)): the reason is directly under the <h1>, and the footer no longer repeats it
+      const sesudahJudul = html.slice(html.indexOf("</h1>") + 5).trimStart();
+      c.expect(sesudahJudul.startsWith('<p class="pin-alasan"') && sesudahJudul.slice(0, 600).includes(CONTOH.kode.alasan!)
+        && !html.slice(html.indexOf('class="pin-kaki"')).includes(CONTOH.kode.alasan!), "an email's own reason is not directly under its heading, or the footer still repeats it");
       c.expect(hasil[2].e.html.includes(t("email.bingkai.alasan", "public")), "an email without its own reason does not get the frame's default");
       c.expect(hasil[2].e.html.includes(t("email.bingkai.cadangan", "public")), "the button's copy-the-address line is not the copy table's");
       c.expect(/alt="PINTAR"/.test(html) && t("email.bingkai.merek", "public") === "PINTAR", "the logo's alt is not the wordmark");
@@ -234,7 +237,9 @@ export const emailTests: SelfTest[] = [
       //    so the frame writes the values; they must be the tokens' own.
       const tok = tokens(readFileSync(join(repoRoot, "src", "app", "globals.css"), "utf8"));
       const SAMA: Array<[keyof typeof L, string]> = [
-        ["latar", "--surface-2"], ["kartu", "--surface-1"], ["tinta", "--ink-1"], ["tinta2", "--ink-2"], ["tinta3", "--ink-3"],
+        // RESTATED, D1 step 2 (DAISY-37): the card is the artifacts' warm white (--surface-0, was --surface-1), and its top
+        // edge the warm-gold line (--kartu-emas); both are tokens, so the one untokened colour stays the code box's border
+        ["latar", "--surface-2"], ["kartu", "--surface-0"], ["emas", "--kartu-emas"], ["tinta", "--ink-1"], ["tinta2", "--ink-2"], ["tinta3", "--ink-3"],
         ["utama", "--pintar-primary"], ["utamaTinta", "--pintar-primary-ink"], ["utamaLembut", "--pintar-primary-soft"],
         ["perhatian", "--status-attention"], ["perhatianLembut", "--status-attention-soft"],
         ["netral", "--status-info"], ["netralLembut", "--status-info-soft"],
@@ -418,7 +423,10 @@ export const emailTests: SelfTest[] = [
         && k.teks.includes(t("role.SYSTEM_ADMIN", "public", { locale: "id" })) && !k.teks.includes("· null"),
         "the card email does not state each context line as the data gives it (the platform role has no school)");
       const lain = kartu({ ...KARTU, konteks: [{ peran: "DEAN", institusi: "Universitas Contoh" }] }, PRODUKSI);
-      c.expect(rata(lain.teks).includes(`${t("role.DEAN", "public", { locale: "id" })} · Universitas Contoh`) && !lain.teks.includes("SMA Negeri 1 Contoh"),
+      // RESTATED, D1 step 2: one role at one school is the card's own two lines (the role, the school beneath, susunKartu),
+      // and the context line names the place; a planted change still shows in both, and the old school in neither
+      c.expect(/\n {4}Dekan\n {4}Universitas Contoh\n/.test(lain.teks.replace(t("role.DEAN", "public", { locale: "id" }), "Dekan"))
+        && rata(lain.teks).includes(`${kata("email.bingkai.konteks")} Universitas Contoh.`) && !lain.teks.includes("SMA Negeri 1 Contoh") && !lain.html.includes("SMA Negeri 1 Contoh"),
         "the context lines are not read from the data at send time (a planted change does not show)");
       c.expect(k.html.includes(`href="${KARTU.tautanAkun}"`) && k.teks.includes(KARTU.tautanAkun), "the card email does not lead to Akun saya");
       c.expect(rata(k.teks).includes(kata("email.kartu.bukan_rahasia")) && k.html.includes(kata("email.kartu.alasan")), "the card email does not say the ID is not a secret, or does not give its reason");

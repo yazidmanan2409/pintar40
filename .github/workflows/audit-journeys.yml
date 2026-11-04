@@ -194,6 +194,15 @@ jobs:
           APP_DIR: ${{ github.workspace }}/app
           OUT_DIR: ${{ github.workspace }}/audit-out/e1-navigasi
         run: node e1-navigasi.mjs
+      # D1 step 2 (DAISY-37; 05-D1 test plan §4): the eight identity emails from the real templates, at 600 and 320 px,
+      # light and dark, and with images blocked: K09, K13 and the keyboard order in a real browser. Nothing is sent.
+      - name: Walk the identity emails (D1)
+        if: success() || failure()
+        working-directory: harness/audit
+        env:
+          APP_DIR: ${{ github.workspace }}/app
+          OUT_DIR: ${{ github.workspace }}/audit-out/d1-email
+        run: node d1-email.mjs
       - name: Server log (errors only)
         if: always()
         run: grep -iE 'error|exception|fail' "$RUNNER_TEMP/app.log" | grep -v 'evaluation_state' | head -80 || true

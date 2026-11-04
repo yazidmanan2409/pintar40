@@ -1911,6 +1911,8 @@ export type HleEvent =
   | "email.bingkai.tanya"
   | "email.bingkai.cadangan"
   | "email.bingkai.uji"
+  | "email.bingkai.konteks"
+  | "email.bingkai.konteks.dan"
   | "email.uji.subjek"
   | "email.uji.pratinjau"
   | "email.uji.judul"
@@ -2369,9 +2371,6 @@ export type HleEvent =
   | "email.kartu.pratinjau"
   | "email.kartu.judul"
   | "email.kartu.isi"
-  | "email.kartu.nama"
-  | "email.kartu.id"
-  | "email.kartu.peran"
   | "email.kartu.bukan_rahasia"
   | "email.kartu.tombol"
   | "email.kartu.alasan";
@@ -4418,6 +4417,10 @@ const table: Table = {
   "email.bingkai.tanya": { default: "Ada pertanyaan? Tulis ke", en: "Questions? Write to" },
   "email.bingkai.cadangan": { default: "Jika tombol tidak bisa dibuka, salin alamat ini ke peramban Anda:", en: "If the button does not open, copy this address into your browser:" },
   "email.bingkai.uji": { default: "Email uji dari PINTAR versi uji coba.", en: "A test email from PINTAR's test version." },
+  // D1 step 2 (DAISY-37 (2)): the context line, drawn only where the email's data carries a place; with Dr Gladys for
+  // confirmation before final terminology acceptance (a PINTAR ID is the person's own, not a school's)
+  "email.bingkai.konteks": { default: "Akun PINTAR Anda di", en: "Your PINTAR account at" },
+  "email.bingkai.konteks.dan": { default: "dan", en: "and" },
   "email.uji.subjek": { default: "Uji pengiriman email PINTAR", en: "PINTAR email delivery test" },
   "email.uji.pratinjau": { default: "Email ini memastikan email dari PINTAR sampai ke kotak masuk Anda.", en: "This email checks that email from PINTAR reaches your inbox." },
   "email.uji.judul": { default: "Uji pengiriman email", en: "Email delivery test" },
@@ -4890,9 +4893,6 @@ const table: Table = {
   "email.kartu.pratinjau": { default: "PINTAR ID Anda:", en: "Your PINTAR ID:" },
   "email.kartu.judul": { default: "Kartu PINTAR Anda", en: "Your PINTAR Card" },
   "email.kartu.isi": { default: "Ini Kartu PINTAR Anda.", en: "This is your PINTAR Card." },
-  "email.kartu.nama": { default: "Nama", en: "Name" },
-  "email.kartu.id": { default: "PINTAR ID", en: "PINTAR ID" },
-  "email.kartu.peran": { default: "Peran", en: "Role" },
   "email.kartu.bukan_rahasia": { default: "PINTAR ID bukan rahasia: boleh ditunjukkan, dan tidak bisa dipakai untuk masuk. Password dan PIN Anda tetap rahasia.", en: "Your PINTAR ID isn't a secret: you can show it, and it can't be used to sign in. Your password and PIN stay secret." },
   "email.kartu.tombol": { default: "Buka Akun saya", en: "Open My account" },
   "email.kartu.alasan": { default: "Anda menerima email ini karena akun PINTAR Anda baru diaktifkan, atau kartunya diminta dari Akun saya.", en: "You are receiving this email because your PINTAR account was just activated, or its card was requested from My account." },
