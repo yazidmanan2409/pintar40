@@ -1864,6 +1864,7 @@ export type HleEvent =
   | "aktivasi.halaman_masuk"
   | "aktivasi.kosong"
   | "aktivasi.tunggu.cari"
+  | "aktivasi.tunggu.cari_arti"
   | "aktivasi.tunggu.jumlah"
   | "aktivasi.tunggu.cocok"
   | "aktivasi.tunggu.tidak_cocok"
@@ -2746,20 +2747,20 @@ const table: Table = {
   // §3. THE NUMBER IDENTIFIES A PERSON AT A SCHOOL AND NOTHING ELSE. Said on
   // the page, because a six-digit sequence invites a reader to believe ranges
   // mean something -- that 000001-000999 are staff, say -- and they do not.
-  "pendataan.nomor.arti": { default: "Nomor induk menandai seseorang di sekolah ini. Nomor itu tidak menyatakan apakah orangnya murid, guru, atau pimpinan.", en: "An identity number marks a person at this school. It does not say whether that person is a student, a teacher or management." },
+  "pendataan.nomor.arti": { default: "Nomor registrasi orang ini di sekolah tersebut. Berbeda dari PINTAR ID dan NIS/NISN. Nomor ini tidak menyatakan apakah orangnya murid, guru, atau pimpinan.", en: "This person's registration number at that school. Different from the PINTAR ID and the NIS/NISN. It does not say whether that person is a student, a teacher or management." },
 
   // polish batch 2 (UX-07): the page speaks of a school, so its code is the school's
   "pendataan.kode.judul": { default: "Kode sekolah", en: "School code" },
   "pendataan.kode.belum": { default: "Sekolah ini belum punya kode.", en: "This school does not have a code yet." },
-  "pendataan.kode.arti": { default: "Kode ini menjadi bagian dari nomor induk yang dibuat PINTAR untuk setiap orang di sekolah ini.", en: "This code becomes part of the identity number PINTAR creates for each person at this school." },
+  "pendataan.kode.arti": { default: "Kode ini menjadi bagian dari nomor registrasi sekolah yang dibuat PINTAR untuk setiap orang di sekolah ini.", en: "This code becomes part of the school registration number PINTAR creates for each person at this school." },
   "pendataan.kode.bentuk": { default: "Tiga huruf atau angka.", en: "Three letters or digits." },
-  "pendataan.kode.contoh": { default: "Contoh nomor induk", en: "Example identity number" },
+  "pendataan.kode.contoh": { default: "Contoh No. Registrasi Sekolah", en: "Example School Registration Number" },
   // SAID BEFORE THE FIRST ISSUANCE, not discovered after it. The database makes
   // the code immutable the moment one number exists under it, and an
   // administrator who learns that afterwards has learned it too late.
-  "pendataan.kode.peringatan": { default: "Setelah nomor induk pertama diterbitkan, kode ini tidak bisa diubah lagi.", en: "Once the first identity number has been issued, this code can no longer be changed." },
+  "pendataan.kode.peringatan": { default: "Setelah nomor registrasi sekolah pertama diterbitkan, kode ini tidak bisa diubah lagi.", en: "Once the first school registration number has been issued, this code can no longer be changed." },
   "pendataan.kode.simpan": { default: "Simpan kode", en: "Save the code" },
-  "pendataan.kode.beku": { default: "Kode ini sudah dipakai pada nomor induk yang diterbitkan, jadi tidak bisa diubah lagi.", en: "This code is already part of issued identity numbers, so it can no longer be changed." },
+  "pendataan.kode.beku": { default: "Kode ini sudah dipakai pada nomor registrasi sekolah yang diterbitkan, jadi tidak bisa diubah lagi.", en: "This code is already part of issued school registration numbers, so it can no longer be changed." },
   "pendataan.kode.gagal": { default: "Kode itu tidak bisa dipakai. Mungkin sudah dipakai sekolah lain, atau bentuknya tidak sesuai.", en: "That code cannot be used. It may already belong to another school, or its shape is wrong." },
   "pendataan.kode.label": { default: "Kode", en: "Code" },
 
@@ -2801,7 +2802,7 @@ const table: Table = {
   "pendataan.masalah.nama": { default: "Nama kosong atau terlalu panjang.", en: "The name is empty or too long." },
   "pendataan.masalah.orang_bentuk": { default: "Kolom orang yang sudah terdaftar tidak berisi penanda yang sah.", en: "The already-registered column does not hold a valid marker." },
   "pendataan.masalah.orang_asing": { default: "Orang itu tidak bisa Anda tunjuk dari sini.", en: "That person is not one you can name from here." },
-  "pendataan.masalah.orang_sudah": { default: "Orang itu sudah punya nomor induk di sekolah ini.", en: "That person already has an identity number at this school." },
+  "pendataan.masalah.orang_sudah": { default: "Orang itu sudah punya nomor registrasi sekolah di sekolah ini.", en: "That person already has a school registration number at this school." },
   "pendataan.masalah.tempat_bentuk": { default: "Kolom tempat tidak berisi penanda yang sah.", en: "The place column does not hold a valid marker." },
   "pendataan.masalah.tempat_asing": { default: "Tempat itu bukan bagian dari sekolah ini.", en: "That place is not part of this school." },
   "pendataan.masalah.tempat_luar": { default: "Tempat itu di luar wewenang Anda.", en: "That place is outside your authority." },
@@ -2811,13 +2812,13 @@ const table: Table = {
   "pendataan.masalah.ganda": { default: "Baris ini kembar dengan baris lain di berkas yang sama.", en: "This row is a twin of another row in the same file." },
   "pendataan.masalah.lain": { default: "Baris ini belum bisa dicatat.", en: "This row cannot be recorded yet." },
   "pendataan.masalah.tempat_murid": { default: "Murid hanya bisa ditempatkan di Kelas atau Tingkat yang aktif.", en: "A student can only be placed in an active Kelas or Tingkat." },
-  "pendataan.masalah.staf": { default: "Peran guru dan staf tidak diberikan lewat pendataan massal. Kosongkan kolom Peran dan Tempat pada baris ini: orangnya tetap tercatat dengan nomor induk sekolah, dan perannya Anda berikan di Konfigurasi → Peran & akses.", en: "Teacher and staff roles are not given through a bulk intake. Leave this row's Role and Place empty: the person is still recorded with the school's number, and you give the role in Konfigurasi → Roles & access." },
+  "pendataan.masalah.staf": { default: "Peran guru dan staf tidak diberikan lewat pendataan massal. Kosongkan kolom Peran dan Tempat pada baris ini: orangnya tetap tercatat dengan nomor registrasi sekolah, dan perannya Anda berikan di Konfigurasi → Peran & akses.", en: "Teacher and staff roles are not given through a bulk intake. Leave this row's Role and Place empty: the person is still recorded with the school registration number, and you give the role in Konfigurasi → Roles & access." },
 
   "pendataan.pratinjau.judul": { default: "Yang akan terjadi", en: "What will happen" },
   "pendataan.pratinjau.total": { default: "Baris", en: "Rows" },
   "pendataan.pratinjau.baru": { default: "Orang baru", en: "New people" },
   "pendataan.pratinjau.tertaut": { default: "Orang yang sudah terdaftar", en: "People already registered" },
-  "pendataan.pratinjau.nomor": { default: "Nomor induk yang akan dibuat", en: "Identity numbers to be created" },
+  "pendataan.pratinjau.nomor": { default: "No. Registrasi Sekolah yang akan dibuat", en: "School Registration Numbers to be created" },
   "pendataan.pratinjau.peran": { default: "Peran", en: "Roles" },
   "pendataan.pratinjau.akun": { default: "Akun yang bisa masuk", en: "Accounts that can sign in" },
   // §16. PROVISIONED IS NOT ACTIVE, and this is the sentence that says so on
@@ -2832,7 +2833,7 @@ const table: Table = {
   // not a technical safeguard: a person looks at fifty real results before a
   // thousand are committed.
   "pendataan.percontohan.arti": { default: "Karena daftar ini panjang, PINTAR mencatat lima puluh orang dulu lalu berhenti. Silakan periksa lima puluh ini sebelum sisanya dicatat.", en: "Because this list is long, PINTAR records fifty people first and then stops. Please check these fifty before the rest are recorded." },
-  "pendataan.percontohan.nyata": { default: "Lima puluh orang ini sudah benar-benar tercatat, lengkap dengan nomor induknya. Ini bukan contoh.", en: "These fifty people are genuinely recorded, each with their identity number. This is not a sample." },
+  "pendataan.percontohan.nyata": { default: "Lima puluh orang ini sudah benar-benar tercatat, lengkap dengan nomor registrasi sekolahnya. Ini bukan contoh.", en: "These fifty people are genuinely recorded, each with their school registration number. This is not a sample." },
   "pendataan.percontohan.tanya": { default: "Sudah saya periksa, lanjutkan sisanya", en: "I have checked them, continue with the rest" },
   "pendataan.percontohan.sisa": { default: "orang lagi menunggu", en: "more people are waiting" },
   "pendataan.percontohan.sudah": { default: "Lima puluh pertama sudah Anda periksa.", en: "You have already checked the first fifty." },
@@ -4325,7 +4326,9 @@ const table: Table = {
   "aktivasi.intro.buka": { default: "Untuk akun email, minta orangnya mengaktifkan akunnya di", en: "For an email account, ask the person to activate it at" },
   "aktivasi.halaman_masuk": { default: "halaman Masuk PINTAR", en: "PINTAR's sign-in page" },
   "aktivasi.kosong": { default: "Semua orang yang sudah didata sudah bisa masuk.", en: "Everyone who has been recorded can already sign in." },
-  "aktivasi.tunggu.cari": { default: "Cari nama atau nomor induk", en: "Search by name or school number" },
+  "aktivasi.tunggu.cari": { default: "Cari nama atau no. registrasi sekolah", en: "Search by name or school registration number" },
+  // B2 (D-174, D-175): the approved explanation, as the search's help line
+  "aktivasi.tunggu.cari_arti": { default: "Nomor registrasi orang ini di sekolah tersebut. Berbeda dari PINTAR ID dan NIS/NISN.", en: "This person's registration number at that school. Different from the PINTAR ID and the NIS/NISN." },
   "aktivasi.tunggu.jumlah": { default: "{n} orang menunggu akun.", en: "{n} people are waiting for an account." },
   "aktivasi.tunggu.cocok": { default: "{n} orang yang menunggu akun cocok dengan pencarian ini.", en: "{n} people waiting for an account match this search." },
   "aktivasi.tunggu.tidak_cocok": { default: "Tidak ada orang yang menunggu akun yang cocok dengan pencarian ini.", en: "Nobody waiting for an account matches this search." },
@@ -4468,7 +4471,7 @@ const table: Table = {
   "akun.pin.menyimpan": { default: "Menyimpan…", en: "Saving…" },
   "akun.pin.tersimpan": { default: "PIN baru tersimpan.", en: "Your new PIN is saved." },
   "aktivasi.staf.judul": { default: "Murid yang menjadi staf", en: "A learner who becomes staff" },
-  "aktivasi.staf.arti": { default: "Kartu kelas hanya untuk murid. Bila seorang murid menjadi staf, ubah kartunya menjadi akun email lebih dulu. Orangnya tetap sama: nomor induk, kelas dan semua hasil belajarnya tetap. Setelah ia mengaktifkan akun email itu, berikan perannya.", en: "A class card is for learners only. When a learner becomes staff, turn their card into an email account first. They stay the same person: their PINTAR ID, classes and all their learning stay. Once they have activated that email account, give them their role." },
+  "aktivasi.staf.arti": { default: "Kartu kelas hanya untuk murid. Bila seorang murid menjadi staf, ubah kartunya menjadi akun email lebih dulu. Orangnya tetap sama: nomor registrasi sekolah, kelas dan semua hasil belajarnya tetap. Setelah ia mengaktifkan akun email itu, berikan perannya.", en: "A class card is for learners only. When a learner becomes staff, turn their card into an email account first. They stay the same person: their PINTAR ID, classes and all their learning stay. Once they have activated that email account, give them their role." },
   "aktivasi.staf.pilih": { default: "Ubah menjadi akun email", en: "Turn into an email account" },
   "aktivasi.staf.email": { default: "Alamat email orang ini", en: "This person's email address" },
   "aktivasi.staf.email.arti": { default: "Alamat yang akan ia pakai untuk masuk. Dengan alamat ini ia meminta sendiri kode aktivasinya di «Aktifkan akun».", en: "The address they will sign in with. With it, they ask for their own activation code at «Activate account»." },

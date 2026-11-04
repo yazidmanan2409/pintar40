@@ -4202,6 +4202,11 @@
       "proves": "D-074(5) (Batch 6; owner ruling D-164), selftest/b6k.test.ts: the Digital Card email (templatKartu, src/components/email/identitas.ts), given the contexts in the database's seniority order, lists its role rows alphabetically by the Terminology v1 names (Dekan, Guru, Kepala departemen) at one school and at two, and for every permutation of three role sets (one school, two schools, the platform role beside school roles) in exactly the Digital Card's order (susunKartu); identitas.ts takes the order from kartu-pintar.ts's single urutKonteksKartu and sorts nothing itself; the name, the ID 4 + 4, the Akun saya link and the number of role rows are unchanged."
     },
     {
+      "id": "D168-B2-1",
+      "runner": "static",
+      "proves": "D-174 / D-175 (B2, UX-09), selftest/d168.test.ts: over the rendered copy table in both languages, no string says «nomor induk», «identity number», «school number» or «ID PINTAR»; «Nomor Registrasi Sekolah» / «No. Registrasi Sekolah» is used (10+ strings); no string presents the PINTAR ID, the NIS/NISN or class membership («Keanggotaan») as the registration number; Pendataan (pendataan.nomor.arti) and Aktivasi's search help (aktivasi.tunggu.cari_arti) carry the same approved explanation."
+    },
+    {
       "id": "D168-B1-5",
       "runner": "static",
       "proves": "D-168 / D-169(a) (L3), selftest/d168.test.ts: in src/app/konfigurasi/page.tsx every school-shaped section listed in BAGIAN_SEKOLAH carries hidden={!tampil(...)}, the same rule the menu is filtered by, so «Seluruh platform» draws no school-shaped section and the menu and the sections cannot disagree (E-B1-5: «Perpindahan murid» was drawn there by a missing attribute)."
